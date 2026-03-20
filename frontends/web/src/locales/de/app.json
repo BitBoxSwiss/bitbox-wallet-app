@@ -4,8 +4,7 @@
     "accounts": "Konten",
     "backupReminder": "Deine Wallet <strong>{{name}}</strong> hat {{threshold}} {{fiat}} überschritten!\n\nWir empfehlen ein Backup auf Papier zu erstellen, für zusätzlichen Schutz. Es ist einfach und geht schnell.",
     "backupReminderLink": "Backup erstellen",
-    "disconnect": "Verbindung unterbrochen. Erneut verbinden... ",
-    "export": "Transaktionen exportieren",
+    "disconnect": "Verbindung unterbrochen. Erneut verbinden…",
     "exportTransactions": "Exportiere Transaktionen im Download Ordner als CSV Datei",
     "fatalError": "Ein unerwarteter Fehler ist aufgetreten.",
     "incoming": "Eingehend",
@@ -48,7 +47,7 @@
     "exportSummary": "Kontozusammenfassung als CSV Datei zum Download Ordner exportieren",
     "fiatBalance": "Fiat Kontostand",
     "name": "Konto Name",
-    "noAccount": "Keine Konten verfügbar",
+    "noAccount": "Keine Konten verfügbar.",
     "portfolio": "Portfolio",
     "subtotalWithCoinName": "Summe ({{coinName}})",
     "title": "Kontenübersicht",
@@ -143,7 +142,8 @@
       "confirmTitle": "Von Backup wiederherstellen",
       "error": {
         "e200": "microSD Karte nicht gefunden",
-        "general": "Fehler beim Wiederherstellen von Backup"
+        "general": "Fehler beim Wiederherstellen von Backup",
+        "e104": "Wiederherstellung des Backups wurde abgebrochen."
       },
       "password": {
         "label": "Wiederherstellungspasswort oder verstecktes Wiederherstellungspasswort. ",
@@ -204,7 +204,8 @@
       "alertEnabled": "Bluetooth ist jetzt aktiviert.",
       "description": "Bluetooth wird zum Verbinden mit iPhone verwendet.",
       "titleDisabled": "Bluetooth aktvieren",
-      "titleEnabled": "Bluetooth deaktivieren"
+      "titleEnabled": "Bluetooth deaktivieren",
+      "error_104": "Änderung der Bluetooth-Einstellungen wurde abgebrochen."
     },
     "changePassword": {
       "description": "Ändere das Gerätepasswort der BitBox.",
@@ -457,7 +458,6 @@
               "title": "Gebühren"
             },
             "intro": {
-              "text": "",
               "title_bitcoin": "Bitcoin ausgeben mit Bitrefill",
               "title_crypto": "Krypto ausgeben mit Bitrefill"
             },
@@ -1846,13 +1846,11 @@
       "import": {
         "accountNames_one": "{{count}} Kontoname importiert.",
         "accountNames_other": "{{count}} Kontonamen importiert.",
-        "accountNames_zero": "0 Kontonamen importiert.",
         "description": "Stelle deine Transaktionsnotizen und Kontonamen von einem zuvor erstellten Backup wieder her.",
         "title": "Notizen importieren",
         "tooLarge": "Datei zu groß.",
         "transactionNotes_one": "{{count}} Transaktionsnotiz importiert.",
-        "transactionNotes_other": "{{count}} Transaktionsnotizen importiert.",
-        "transactionNotes_zero": "0 Transaktionsnotizen importiert."
+        "transactionNotes_other": "{{count}} Transaktionsnotizen importiert."
       },
       "title": "Notizen verwalten"
     },
@@ -1922,7 +1920,6 @@
       "fiatAmount": "Fiatbetrag",
       "from": "Von",
       "historicalFiat": "Historischer Fiatwert",
-      "sendToSelf": "An mich selbst senden",
       "status": "Status",
       "title": "Transaktionsdetails",
       "type": "Typ"

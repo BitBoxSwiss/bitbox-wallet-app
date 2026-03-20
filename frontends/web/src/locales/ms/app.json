@@ -5,7 +5,6 @@
     "backupReminder": "Dompet anda <strong>{{name}}</strong> lulus {{fiat}} {{threshold}}!\n\nKami mengesyorkan membuat sandaran kertas untuk perlindungan tambahan. Ia cepat dan mudah.",
     "backupReminderLink": "Buat sandaran kertas",
     "disconnect": "Sambungan hilang. Mencuba lagi...",
-    "export": "Urus niaga eksport",
     "exportTransactions": "Eksport transaksi ke folder muat turun sebagai fail CSV",
     "fatalError": "Terdapat kesilapan yang tidak dijangka.",
     "incoming": "Masuk",
@@ -1480,7 +1479,6 @@
     "title": "Catatan"
   },
   "notification": {
-    "newTxs_one": "Transaksi baru di: {{accountName}}",
     "newTxs_other": "{{count}} transaksi baharu dalam: {{accountName}}"
   },
   "novaConnectionIssues": {
@@ -1817,15 +1815,11 @@
         "title": "Eksport nota"
       },
       "import": {
-        "accountNames_one": "{{count}} nama akaun telah diimport.",
         "accountNames_other": "{{count}} nama akaun telah diimport.",
-        "accountNames_zero": "0 nama akaun yang diimport.",
         "description": "Pulihkan nota transaksi dan nama akaun anda daripada fail sandaran yang dibuat sebelum ini.",
         "title": "Import nota",
         "tooLarge": "Fail terlalu besar.",
-        "transactionNotes_one": "{{count}} rekod transaksi telah diimport.",
-        "transactionNotes_other": "{{count}} rekod transaksi telah diimport.",
-        "transactionNotes_zero": "Mengimport 0 nota transaksi."
+        "transactionNotes_other": "{{count}} rekod transaksi telah diimport."
       },
       "title": "Urus nota"
     },
@@ -1895,7 +1889,6 @@
       "fiatAmount": "Jumlah Fiat",
       "from": "Dari",
       "historicalFiat": "Nilai fiat sejarah",
-      "sendToSelf": "Hantar kepada diri sendiri",
       "status": "Status",
       "title": "butiran transaksi",
       "type": "taip"

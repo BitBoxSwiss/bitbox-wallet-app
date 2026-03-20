@@ -1,7 +1,6 @@
 {
   "account": {
     "disconnect": "انقطع الاتصال. جاري اعادة المحاولة...",
-    "export": "تصدير",
     "exportTransactions": "تصدير التداولات الى مجلد الداونلود على شكل ملف CSV",
     "fatalError": "حدث خطأ غير متوقع",
     "incoming": "قادمة الآن",
@@ -799,7 +798,11 @@
     "title": "ملاحظة"
   },
   "notification": {
+    "newTxs_zero": "",
     "newTxs_one": "معاملة جديدة في: {{accountName}}",
+    "newTxs_two": "",
+    "newTxs_few": "",
+    "newTxs_many": "",
     "newTxs_other": "{{count}} معاملات جديدة في: {{accountName}}"
   },
   "passphrase": {

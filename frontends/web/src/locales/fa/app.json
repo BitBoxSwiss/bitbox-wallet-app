@@ -1,7 +1,6 @@
 {
   "account": {
     "disconnect": "ارتباط از دست رفته تلاش مجدد ...",
-    "export": "خروچی",
     "exportTransactions": "خروجی گرفتن از تراکنش ها به صورت CSV و ذخیره در پوشه دانلود ها",
     "fatalError": "خطای غیر منتظره.",
     "incoming": "ورودی",
@@ -311,7 +310,6 @@
       }
     },
     "accountRates": {
-      "text": "",
       "title": "کدام نرخ استفاده می شود؟"
     },
     "accountReload": {
@@ -516,7 +514,8 @@
   },
   "loading": "در حال بارگذاری…",
   "notification": {
-    "newTxs_one": "تراکنش جدید در: {{accountName}}"
+    "newTxs_one": "تراکنش جدید در: {{accountName}}",
+    "newTxs_other": ""
   },
   "password": {
     "show": "نمایش {{label}}",

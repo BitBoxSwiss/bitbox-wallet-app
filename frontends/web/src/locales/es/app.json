@@ -2,10 +2,9 @@
   "account": {
     "account": "Cuenta",
     "accounts": "Cuenta",
-    "backupReminder": "Tu billetera <strong>{{name}}</strong> ha pasado de {{fiat}} {{threshold}}!\n\nRecomendamos que hagas una copia de seguridad en papel para una protección adicional. Es rápido y sencillo. ",
+    "backupReminder": "Tu billetera <strong>{{name}}</strong> ha pasado de {{fiat}} {{threshold}}!\n\nRecomendamos que hagas una copia de seguridad en papel para una protección adicional. Es rápido y sencillo.",
     "backupReminderLink": "Crear una copia de seguridad en papel",
     "disconnect": "Conexión perdida. Reintentando... ",
-    "export": "Exportar transacciones",
     "exportTransactions": "Exportar transacciones a la carpeta de descargas como archivo CSV",
     "fatalError": "Ha ocurrido un error inesperado.",
     "incoming": "Entrante",
@@ -777,7 +776,6 @@
         "description": "Entra en el gestor de arranque de tu BitBox. Puedes activar el hash del firmware desde aquí."
       },
       "passphrase": {
-        "description": "",
         "title": "Passphrase"
       }
     },
@@ -1419,9 +1417,6 @@
         "description": "Bloquea el acceso a la aplicación con bloqueo de pantalla/huella dactilar.",
         "title": "Bloqueo de pantalla"
       },
-      "coinControl": {
-        "description": ""
-      },
       "customFees": {
         "description": "Le permite introducir su propia tarifa al enviar."
       },
@@ -1481,6 +1476,7 @@
   },
   "notification": {
     "newTxs_one": "Nueva transacción en: {{accountName}}",
+    "newTxs_many": "",
     "newTxs_other": "{{count}} nuevas transacciones en: {{accountName}}"
   },
   "novaConnectionIssues": {
@@ -1818,14 +1814,14 @@
       },
       "import": {
         "accountNames_one": "Se ha importado {{count}} nombre cuenta.",
+        "accountNames_many": "",
         "accountNames_other": "Se han importado {{count}} nombres cuentas.",
-        "accountNames_zero": "Se han importado 0 nombres cuentas.",
         "description": "Restaure sus notas de transacciones y nombres de cuentas desde un archivo de copia de seguridad creado previamente.",
         "title": "Importar notas",
         "tooLarge": "Archivo demasiado grande",
         "transactionNotes_one": "Se ha importado {{count}} nota de transacción.",
-        "transactionNotes_other": "Se han importado {{count}} notas de transacciones.",
-        "transactionNotes_zero": "Se han importado 0 notas de transacciones."
+        "transactionNotes_many": "",
+        "transactionNotes_other": "Se han importado {{count}} notas de transacciones."
       },
       "title": "Administrar notas"
     },
@@ -1895,7 +1891,6 @@
       "fiatAmount": "Cantidad Fiat",
       "from": "De",
       "historicalFiat": "Histórico Fiat",
-      "sendToSelf": "Enviar a mí mismo",
       "status": "Estado",
       "title": "Detalles de la transacción",
       "type": "Tipo"

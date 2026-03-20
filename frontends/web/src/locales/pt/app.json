@@ -5,7 +5,6 @@
     "backupReminder": "Sua carteira <strong>{{name}}</strong> passou {{fiat}} {{threshold}}!\n\nRecomendamos criar um backup em papel para proteção extra. É rápido e simples.",
     "backupReminderLink": "Criar backup em papel",
     "disconnect": "Conexão perdida. Tentando novamente...",
-    "export": "Exportar transações",
     "exportTransactions": "Exportar transações para a pasta Downloads como um arquivo CSV.",
     "fatalError": "Ocorreu um erro inesperado.",
     "incoming": "Lançamentos",
@@ -295,8 +294,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Remova o cartão microSD de sua BitBox e guarde-o em um local seguro.",
-      "storeMnemonic": "Guarde suas palavras de recuperação em um local seguro",
-      "success": ""
+      "storeMnemonic": "Guarde suas palavras de recuperação em um local seguro"
     },
     "stepInsertSD": {
       "insertSDCard": "Por favor insira um cartão microSD na sua BitBox para continuar.",
@@ -1439,6 +1437,7 @@
   },
   "notification": {
     "newTxs_one": "Nova transação em: {{accountName}}",
+    "newTxs_many": "",
     "newTxs_other": "{{count}} novas transações em: {{accountName}}"
   },
   "novaConnectionIssues": {
@@ -1772,14 +1771,14 @@
       },
       "import": {
         "accountNames_one": "{{count}} nome de conta importado.",
+        "accountNames_many": "",
         "accountNames_other": "{{count}} nomes de contas importados.",
-        "accountNames_zero": "0 nomes de conta importados.",
         "description": "Restaure suas notas de transação e nomes de contas de um arquivo de backup feito anteriormente.",
         "title": "Importar notas",
         "tooLarge": "Arquivo muito grande.",
         "transactionNotes_one": "{{count}} nota de transação importada.",
-        "transactionNotes_other": "{{count}} notas de transação importadas.",
-        "transactionNotes_zero": "0 notas de transação importadas."
+        "transactionNotes_many": "",
+        "transactionNotes_other": "{{count}} notas de transação importadas."
       },
       "title": "Gerenciar notas"
     },

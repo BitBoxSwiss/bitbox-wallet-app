@@ -182,9 +182,6 @@
       "title": "您已准备就绪！"
     }
   },
-  "blink": {
-    "button": ""
-  },
   "bootloader": {
     "button": "立即升级固件",
     "progress": "升级",
@@ -515,7 +512,6 @@
   },
   "loading": "载入中...",
   "notification": {
-    "newTxs_one": "新交易：{{accountName}}",
     "newTxs_other": "{{count}} 新交易： {{accountName}}"
   },
   "password": {
@@ -613,7 +609,6 @@
     "button": "签名并发送",
     "coincontrol": {
       "address": "地址",
-      "outpoint": "",
       "title": "从输出发送"
     },
     "confirm": {

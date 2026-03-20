@@ -1,7 +1,6 @@
 {
   "account": {
     "disconnect": "...החיבור אבד. מנסה שוב",
-    "export": "ייצוא",
     "exportTransactions": "יצא עסקאות כקובץ רשומות לתיקיית ההורדות",
     "fatalError": ".אירעה שגיאה לא צפויה",
     "incoming": "נכנס",
@@ -593,6 +592,7 @@
   },
   "notification": {
     "newTxs_one": "עסקה חדשה ב: {{accountName}}",
+    "newTxs_two": "",
     "newTxs_other": "{{count}} עסקה חדשה ב: {{accountName}}"
   },
   "password": {

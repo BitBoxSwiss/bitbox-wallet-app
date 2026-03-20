@@ -5,7 +5,6 @@
     "backupReminder": "Je wallet <strong>{{name}}</strong> is meer dan {{fiat}} {{threshold}} waard!\n\nWe raden je aan een papieren backup te maken voor extra veiligheid. Het is makkelijk en snel.",
     "backupReminderLink": "Papieren backup maken",
     "disconnect": "Verbinding verbroken. Opnieuw aan het verbinden...",
-    "export": "Transacties exporteren",
     "exportTransactions": "Transacties als CSV bestand naar de downloads map exporteren",
     "fatalError": "Er is een onverwachte fout opgetreden",
     "incoming": "Binnenkomend",
@@ -153,8 +152,7 @@
       "restoring": "Backup aan het herstellen",
       "selectedBackup": "De backup <strong>{{backupName}}</strong>, aangemaakt op {{createdDateTime}}, wordt hersteld",
       "subtitle": "Selecteer een backup om door te gaan",
-      "title": "Herstellen",
-      "understand": ""
+      "title": "Herstellen"
     },
     "showMnemonic": {
       "checkboxLabel": "Ik heb bovenstaande informatie gelezen",
@@ -245,7 +243,6 @@
       "userConfirmation5mnemonic": "Ik snap dat ik mijn herstelwoorden NOOIT in een computer, telefoon, printer of ieder ander apparaat dat geen BitBox is moet invoeren"
     },
     "create": {
-      "button": "",
       "info": "Dit zijn de stappen die je gaat nemen om je BitBox in te stellen:",
       "inputTitle": "Walletnaam",
       "point1": "Geef je BitBox een naam",
@@ -1730,7 +1727,6 @@
       "step3-text": "Controleer de verbinding en voeg de server toe.",
       "step4": "4",
       "step4-text": "Start de wallet opnieuw op. Als je de standaard servers niet verwijderd, wordt je eigen node als backup-server toegevoegd.",
-      "title-btc": "",
       "title-ltc": "Litecoin Electrum servers",
       "title-tbtc": "Bitcoin Testnet Electrum servers",
       "title-tltc": "Litecoin Testnet Electrum servers"
@@ -1772,13 +1768,11 @@
       "import": {
         "accountNames_one": "{{count}} accountnaam geïmporteerd",
         "accountNames_other": "{{count}} accountnamen geïmporteerd",
-        "accountNames_zero": "Geen accountnamen geïmporteerd",
         "description": "Je transactienotities en accountnamen uit een eerder gemaakt backupbestand herstellen",
         "title": "Notities importeren",
         "tooLarge": "Bestand te groot ",
         "transactionNotes_one": "{{count}} transactienotitie geïmporteerd",
-        "transactionNotes_other": "{{count}} transactienotities geïmporteerd",
-        "transactionNotes_zero": "Geen transactienotities geïmporteerd"
+        "transactionNotes_other": "{{count}} transactienotities geïmporteerd"
       },
       "title": "Notities beheren"
     },

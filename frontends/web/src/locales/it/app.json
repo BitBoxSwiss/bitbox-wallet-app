@@ -5,7 +5,6 @@
     "backupReminder": "Il tuo wallet <strong>{{name}}</strong> ha superato {{fiat}} {{threshold}}!\n\nTi consigliamo di creare un backup cartaceo per una protezione extra. È veloce e semplice.",
     "backupReminderLink": "Crea un backup cartaceo",
     "disconnect": "Connessione interrotta. Riprovo...",
-    "export": "Esporta transazioni",
     "exportTransactions": "Esporta transazioni in formato CSV nella cartella download",
     "fatalError": "Si è verificato un errore inatteso",
     "incoming": "In entrata",
@@ -143,7 +142,8 @@
       "confirmTitle": "Ripristina backup",
       "error": {
         "e200": "Carta microSD non trovata",
-        "general": "Errore nel ripristino del backup"
+        "general": "Errore nel ripristino del backup",
+        "e104": "Ripristino del backup annullato."
       },
       "password": {
         "label": "Password di recupero o password di recupero nascosta",
@@ -204,12 +204,14 @@
       "alertEnabled": "Il Bluetooth è ora abilitato. ",
       "description": "Il Bluetooth è usato per connettersi con iPhone.",
       "titleDisabled": "Abilita Bluetooth",
-      "titleEnabled": "Disabilita Bluetooth"
+      "titleEnabled": "Disabilita Bluetooth",
+      "error_104": "Modifica dell’impostazione Bluetooth annullata."
     },
     "changePassword": {
       "description": "Cambia la password del tuo BitBox.",
       "success": "Password modificata con successo",
-      "title": "Modifica la password del dispositivo"
+      "title": "Modifica la password del dispositivo",
+      "error_104": "Modifica della password annullata."
     },
     "deviceName": {
       "current": "Nome attuale del dispositivo",
@@ -465,6 +467,10 @@
               "link": "Security threat model di BitBox",
               "text": "Bitrefill è un servizio esterno che non rientra nel security threat model di BitBox. Quando fai un acquisto, il tuo pagamento viene inviato ad un indirizzo di Bitrefill. Il BitBox non può verificare che questo indirizzo sia corretto.",
               "title": "Avviso di sicurezza"
+            },
+            "validEmail": {
+              "text": "Diversi provider di email temporanee non sono supportati da Bitrefill, quindi potresti non ricevere la fattura. Il codice della gift card / voucher sarà comunque disponibile al termine della procedura.",
+              "title": "Indirizzi email validi"
             }
           },
           "infobox": {
@@ -682,7 +688,7 @@
     "oldLabel": "Password attuale del dispositivo"
   },
   "chart": {
-    "dataMissing": "Raccolta di dati ... rimanete collegati.",
+    "dataMissing": "Raccolta di dati rimanete collegati.",
     "dataOldTimestamp": "Aggiornamento dei tassi di cambio storici. Il grafico non visualizza dati posteriori al {{time}}",
     "dataUpdating": "aggiornamento dei dati ...",
     "filter": {
@@ -1354,6 +1360,15 @@
         "text": "WalletConnect è un protocollo di comunicazione per applicazioni web3. Ti permette di connetterti comodamente a DApp e web wallet senza dover usare un'altra app. Particolarmente utile per gli utenti Android della BitBoxApp.",
         "title": "Cos'è WalletConnect?"
       }
+    },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "Questo potrebbe dipendere dall’utilizzo di un provider email non supportato da Bitrefill. Se hai bisogno della fattura, contatta il supporto Bitrefill: potranno fornirti una copia della fattura.",
+        "title": "Non ho ricevuto la fattura da Bitrefill"
+      }
     }
   },
   "headerssync": {
@@ -1481,6 +1496,7 @@
   },
   "notification": {
     "newTxs_one": "Nuova transazione in: {{accountName}}",
+    "newTxs_many": "",
     "newTxs_other": "{{count}} nuove transazioni in: {{accountName}}"
   },
   "novaConnectionIssues": {
@@ -1818,14 +1834,14 @@
       },
       "import": {
         "accountNames_one": "Importato {{count}} nome account.",
+        "accountNames_many": "",
         "accountNames_other": "Importati {{count}} nomi account.",
-        "accountNames_zero": "Importati 0 nomi account.",
         "description": "Ripristina le note delle transazioni e i nomi degli account da un file di backup creato in precedenza.",
         "title": "Importa note",
         "tooLarge": "File troppo grande.",
         "transactionNotes_one": "Importata {{count}} nota di transazione.",
-        "transactionNotes_other": "Importate {{count}} note di transazione.",
-        "transactionNotes_zero": "Importate 0 note di transazione."
+        "transactionNotes_many": "",
+        "transactionNotes_other": "Importate {{count}} note di transazione."
       },
       "title": "Gestisci le note"
     },
@@ -1895,7 +1911,6 @@
       "fiatAmount": "Importo fiat",
       "from": "Da",
       "historicalFiat": "Fiat storica",
-      "sendToSelf": "Invia a te stesso",
       "status": "Status",
       "title": "Dettagli della Transazione",
       "type": "Tipo"

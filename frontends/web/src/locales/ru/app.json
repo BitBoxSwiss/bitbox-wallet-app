@@ -1,7 +1,6 @@
 {
   "account": {
     "disconnect": "Потеряна связь. Восстановление связи ... ",
-    "export": "Экспортировать",
     "exportTransactions": "Экспортировать транзакций в папку «загрузки» в виде файла CSV",
     "fatalError": "Произошла ошибка.",
     "incoming": "Ждите",
@@ -767,7 +766,8 @@
   },
   "notification": {
     "newTxs_one": "Новая транзакция в: {{accountName}}",
-    "newTxs_other": "{{count}} новых транзакций в: {{accountName}}"
+    "newTxs_few": "",
+    "newTxs_many": ""
   },
   "passphrase": {
     "considerations": {

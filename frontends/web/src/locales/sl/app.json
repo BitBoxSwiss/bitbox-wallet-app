@@ -5,7 +5,6 @@
     "backupReminder": "Denarnica <strong>{{name}}</strong> je presegla {{fiat}} {{threshold}}!\nPriporočamo, da ustvarite analogno varnostno kopijo vaših besed, če je še niste. ",
     "backupReminderLink": "Ustvari analogno varnostno kopijo!",
     "disconnect": "Povezava je bila prekinjena. Poizkušam ponovno...",
-    "export": "Izvozi transakcije",
     "exportTransactions": "Izvozite transakcije v CSV datoteki",
     "fatalError": "Ups, nepričakovana napaka",
     "incoming": "Dohodni",
@@ -152,7 +151,6 @@
       },
       "restoring": "Obnavljanje varnostne kopije ...",
       "selectedBackup": "<strong>{{backupName}}</strong> ustvarjen {{createdDateTime}} bo obnovljen.",
-      "subtitle": "",
       "title": "Obnovi",
       "understand": "Razumem, da bo nepravilno geslo za obnovitev ustvarilo drugo, novo denarnico"
     },
@@ -1400,8 +1398,7 @@
       },
       "remebmerWallet": {
         "enable": {
-          "description": "Zdaj si lahko ogledate račune, povezane s to denarnico, ne da bi BitBox vstavili v računalnik ali telefon. Seveda je BitBox še vedno potreben za izvajanje transakcij in prikaz prejemnih naslovov.",
-          "title": ""
+          "description": "Zdaj si lahko ogledate račune, povezane s to denarnico, ne da bi BitBox vstavili v računalnik ali telefon. Seveda je BitBox še vedno potreben za izvajanje transakcij in prikaz prejemnih naslovov."
         },
         "name": "Zapomni si denarnico",
         "warning": "Odstranili boste prikaz denarnice, ko BitBox ni priključen. Vsebina denarnice in vsa sredstva s tem ostanejo varna in nedotaknjena, le BitBoxApp jo bo pozabil. Nadaljujem?",
@@ -1421,13 +1418,14 @@
   },
   "notification": {
     "newTxs_one": "Nove transakcije so na: {{accountName}}",
+    "newTxs_two": "",
+    "newTxs_few": "",
     "newTxs_other": "{{count}} novih transakcij na: {{accountName}}"
   },
   "novaConnectionIssues": {
     "connectionIssueTips": "Težave s povezavo?",
     "description1": "Samo BitBox02 Nova je združljiv z iOS. Za BitBox02 uporabite Windows, macOS, Android ali Linux. BitBox02 Nova lahko kupite v naši spletni trgovini ali pe bolje, preko lokalnih partnerjev.",
     "description2": "Zaslon se mora prižgati. Če zaslon ni prižgan, naprava ne prejema napajanja.",
-    "description3": "",
     "description4": "BitBox02 Nova se z iOS-om poveže prek Bluetootha. Bluetooth je mogoče omogočiti/onemogočiti v nastavitvah BitBoxApp na drugih platformah.",
     "link1": "Kupi BitBox02 Nova",
     "link2": "Vprašaj podporo",
@@ -1439,7 +1437,6 @@
   },
   "passphrase": {
     "considerations": {
-      "button": "",
       "message": "Geselska fraza zagotavlja dodaten nivo zaščite varnostni kopiji vaše denarnice (bodisi na microSD kartici ali 24 besedam). Če nekdo pridobi dostop do vaše varnostne kopije (na kartici ali besede), bo za dostop do vaše denarnice potreboval tudi geselsko frazo.\n\nTo pa pomeni, da boste potrebovali <strong>oboje - geselsko frazo in varnostno kopijo denarnice</strong>, da bi obnovili tako zaščiteno denarnico, če se vaš BitBox pokvari ali ga izgubite. Če pozabite ali izgubite to geslo, boste izgubili dostop do vseh kovancev v tej denarnici!\n\nGeselsko frazo shranjujte ločeno od varnostne kopije. S tem preprečite vdor v denarnico, če nekdo najde le njeno varnostno kopijo.",
       "title": "Razmislek o varnostni kopiji"
     },
@@ -1615,7 +1612,6 @@
       "address": "Naslov",
       "addressReused": "Naslov je bil že uporabljen",
       "change": "Drobiž",
-      "outpoint": "",
       "title": "Pošlji iz (output):"
     },
     "confirm": {
@@ -1754,14 +1750,16 @@
       },
       "import": {
         "accountNames_one": "Uvoženo {{count}} ime računa",
+        "accountNames_two": "",
+        "accountNames_few": "",
         "accountNames_other": "Uvoženo toliko računov: {{count}}",
-        "accountNames_zero": "Št. uvoženih računov je 0.",
         "description": "Obnovite zapiske transakcij in imena računov iz arhivske datoteke.",
         "title": "Uvozi zapiske",
         "tooLarge": "Datoteka je prevelika.",
         "transactionNotes_one": "Uvožen {{count}} opis transakcije. ",
-        "transactionNotes_other": "Št. uvoženih opisov transakcij: {{count}} ",
-        "transactionNotes_zero": "Opisi transakcij niso bili uvoženi."
+        "transactionNotes_two": "",
+        "transactionNotes_few": "",
+        "transactionNotes_other": "Št. uvoženih opisov transakcij: {{count}} "
       },
       "title": "Uredi zapiske"
     },

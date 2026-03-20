@@ -5,7 +5,6 @@
     "backupReminder": "Tvoje peněženka <strong>{{name}}</strong> překročila {{fiat}} {{threshold}}!\n\nDoporučujeme vytvořit papírovou zálohu pro větší ochranu. Je to rychlé a jednoduché.",
     "backupReminderLink": "Vytvořit papírovou zálohu",
     "disconnect": "Ztráta spojení. Pokus o opětovné připojení...",
-    "export": "Export transakcí",
     "exportTransactions": "Export transakcí do složky ke stažení jako soubor CSV",
     "fatalError": "Došlo k neočekávané chybě.",
     "incoming": "Přicházející",
@@ -489,7 +488,6 @@
             "paymentMethods": {
               "buy": "Nákup bitcoinů:",
               "buy2": "Zadávejte velké nákupní příkazy svému account managerovi, uzamkněte si pevnou cenu a zaplaťte bankovním převodem. Kryptoměny vám budou po zaplacení doručeny přímo do vašeho BitBoxu.",
-              "fee": "",
               "sell": "Prodej bitcoinů:",
               "sell2": "Při zadávání prodejního příkazu si můžete uzamknout pevnou mimoburzovní (over-the-counter) cenu. Platba v EUR je provedena, jakmile odešlete krypto na BTC Direct. V případě potřeby je k dispozici osobní asistence.",
               "title": "Platební metody a poplatky"
@@ -1481,6 +1479,7 @@
   },
   "notification": {
     "newTxs_one": "Nová transakce v: {{accountName}}",
+    "newTxs_few": "",
     "newTxs_other": "{{count}} nové transakce v: {{accountName}}"
   },
   "novaConnectionIssues": {
@@ -1818,14 +1817,14 @@
       },
       "import": {
         "accountNames_one": "Importováno {{count}} jméno účtu.",
+        "accountNames_few": "",
         "accountNames_other": "Importováno {{count}} názvů účtů.",
-        "accountNames_zero": "Importováno 0 názvů účtů.",
         "description": "Obnovit poznámky k transakcím a názvům účtů z dříve vytvořeného záložního souboru.",
         "title": "Importovat poznámky",
         "tooLarge": "Soubor je příliš velký.",
         "transactionNotes_one": "Importováno {{count}} poznámka k transakci.",
-        "transactionNotes_other": "Importováno {{count}} poznámek k transakcím.",
-        "transactionNotes_zero": "Importováno 0 poznámek k transakcím."
+        "transactionNotes_few": "",
+        "transactionNotes_other": "Importováno {{count}} poznámek k transakcím."
       },
       "title": "Správa poznámek"
     },
@@ -1895,7 +1894,6 @@
       "fiatAmount": "Částka ve fiatu",
       "from": "Od",
       "historicalFiat": "Historický fiat",
-      "sendToSelf": "Odeslat sobě",
       "status": "Stav",
       "title": "Detaily transakce",
       "type": "Typ"
@@ -1918,7 +1916,6 @@
     },
     "statusShort": {
       "complete": "Dokončená",
-      "failed": "",
       "pending": "Čekající",
       "pending_receive": "Přicházející",
       "pending_send": "Odchozí",
