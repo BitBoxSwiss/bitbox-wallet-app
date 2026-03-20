@@ -1,7 +1,6 @@
 {
   "account": {
     "disconnect": "Connexion perdue. Tentative de reconnexion…",
-    "export": "Exporter",
     "exportTransactions": "Exporter les transactions vers le dossier Téléchargements sous forme de fichier CSV",
     "fatalError": "Une erreur inattendue s'est produite.",
     "incoming": "Entrant",
@@ -35,7 +34,10 @@
       "p2wpkh": "Voir Native Segwit",
       "p2wpkh-p2sh": "Afficher l'ancienne clé publique étendue (xpub) Segwit"
     },
-    "xpubTypeInfo": "Affichage actuellement de la clé publique étendue {{scriptType}} ({{current}} de {{numberOfXPubs}})"
+    "xpubTypeInfo": "Affichage actuellement de la clé publique étendue {{scriptType}} ({{current}} de {{numberOfXPubs}})",
+    "accountDetails": "",
+    "exportTransactions": "",
+    "viewAccountDetails": ""
   },
   "accountSummary": {
     "availableBalance": "Solde disponible",
@@ -134,7 +136,8 @@
       "confirmTitle": "Restaurer la sauvegarde",
       "error": {
         "e200": "Carte microSD non trouvée",
-        "general": "Erreur lors de la restauration de la sauvegarde"
+        "general": "Erreur lors de la restauration de la sauvegarde",
+        "e104": ""
       },
       "password": {
         "label": "Mot de passe de récupération ou mot de passe de récupération caché",
@@ -154,7 +157,8 @@
       "title": "Montrer les mots de récupération",
       "warning": "<strong>Ne partagez jamais vos mots de récupération avec qui que ce soit.</strong> Vos mots de récupération permettent un accès intégral à votre portefeuille. Si on vous demande vos mots de récupération, il s’agit d’une escroquerie, ne les partagez jamais !"
     },
-    "title": "Gérer les sauvegardes"
+    "title": "Gérer les sauvegardes",
+    "link": ""
   },
   "bb02Bootloader": {
     "abort": "Ne pas mettre à jour - Revenir en arrière",
@@ -201,6 +205,20 @@
     "gotoStartupSettings": {
       "description": "Cela va rebooter votre BitBox02 et entrer les paramètres de démarrage.",
       "title": "Aller aux paramètres de démarrage"
+    },
+    "bluetoothToggleEnabled": {
+      "alertEnabled": "",
+      "alertDisabled": "",
+      "description": "",
+      "error_104": "",
+      "titleDisabled": "",
+      "titleEnabled": ""
+    },
+    "changePassword": {
+      "success": "",
+      "title": "",
+      "error_104": "",
+      "description": ""
     }
   },
   "bitbox02Wizard": {
@@ -455,7 +473,8 @@
             "paymentMethods": {
               "buy": "Achat : Payez en EUR pour recevoir les coins directement sur votre BitBox. Vous pouvez choisir entre des achats ponctuels ou récurrents. Pour les virements bancaires, le taux de change est fixé lorsque BTC Direct reçoit l'argent. Les méthodes instantanées utilisent un taux de conversion fixe pendant une période limitée.",
               "note": "Note: Les taux de change de BTC Direct peuvent différer légèrement des taux du BitBoxApp.",
-              "title": "Méthodes de paiement et frais"
+              "title": "Méthodes de paiement et frais",
+              "sell": ""
             },
             "security": {
               "description": "BTC Direct est un service externe non couvert par le modèle de menace de sécurité du BitBox02. Nous travaillons en étroite collaboration avec BTC Direct pour améliorer la sécurité globale.",
@@ -480,6 +499,10 @@
               "creditDebitCard": "Cartes de crédit (Mastercard, Visa), Cartes Bancaires",
               "sofort": "Sofort",
               "title": "Méthodes de paiement"
+            },
+            "feesSelling": {
+              "title": "",
+              "bankTransfer": ""
             }
           },
           "learnmore": "En savoir plus sur BTC Direct"
@@ -537,12 +560,54 @@
         },
         "region": {
           "title": "Sélectionnez la zone géographique de domiciliation de votre compte bancaire afin de déterminer les options à votre disposition."
+        },
+        "bitrefill": {
+          "disclaimer": {
+            "dataProtection": {
+              "text": "",
+              "link": "",
+              "title": ""
+            },
+            "account": {
+              "text": "",
+              "link": "",
+              "title": ""
+            },
+            "claims": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "fees": {
+              "text": "",
+              "title": ""
+            },
+            "intro": {
+              "text": "",
+              "title_bitcoin": "",
+              "title_crypto": ""
+            },
+            "security": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "validEmail": {
+              "text": "",
+              "title": ""
+            }
+          },
+          "infobox": {
+            "intro": ""
+          }
         }
       },
       "noExchanges": "Désolé, aucun échange disponible dans cette zone géographique",
       "region": "Zone Géographique",
       "selectRegion": "Non spécifié",
-      "sell": "Vendre"
+      "sell": "Vendre",
+      "description_bitrefill": "",
+      "spend": ""
     },
     "info": {
       "continue": "Accepter et continuer",
@@ -594,6 +659,12 @@
       "previousTransactions": "L'historique des transactions de ce compte n'est pas vierge. En partageant ce compte, toutes ses transactions passées et futures seront exposées à Pocket. Souhaitez-vous continuer malgré tout ?",
       "usedAddress": "L'adresse {{address}} a déjà été utilisée, veuillez recommencer avec une nouvelle adresse.",
       "verifyBitBox02": "Veuillez vérifier que l'adresse que vous avez reçue par email correspond à celle affichée sur votre Bitbox. Si vous en avez la possibilité, vous devriez ouvrir l'email sur un deuxième appareil pour plus de sécurité."
+    },
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": ""
+      },
+      "transactionNote": ""
     }
   },
   "changePin": {
@@ -653,7 +724,11 @@
       "securechip": {
         "description": "Modèle de la puce sécurisée."
       },
-      "title": "Informations sur l'appareil"
+      "title": "Informations sur l'appareil",
+      "passwordStretchingAlgo": {
+        "description": "",
+        "title": ""
+      }
     },
     "expert": {
       "bip85": {
@@ -720,7 +795,14 @@
     "secrets": {
       "manageBackups": "Gérer les sauvegardes",
       "title": "Secrets"
-    }
+    },
+    "bluetoothFirmware": {
+      "title": ""
+    },
+    "deviceSettings": {
+      "title": ""
+    },
+    "noDevice": ""
   },
   "deviceTampered": "Est-ce que votre BitBox a été fourni avec un mot de passe de récupération ? Si c'est le cas, arrêtez la procédure d'installation et contactez immédiatement le support. Shift ne vous donnera jamais un portefeuille prêt à l'emploi ni de recommandation de mot de passe.",
   "dialog": {
@@ -765,7 +847,8 @@
         },
         "kyc": {
           "link": "Lire les FAQs de Pocket",
-          "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
+          "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)",
+          "info": ""
         },
         "security": {
           "link": "BitBox02 modèle de menace de sécurité",
@@ -779,6 +862,10 @@
           "title": "Achetez et vendez du bitcoin avec Pocket."
         }
       }
+    },
+    "btcdirect": {
+      "currencyMismatch": "",
+      "insufficientFunds": ""
     }
   },
   "fiat": {
@@ -798,7 +885,25 @@
     "enabled_true": "Activé",
     "receive": "Recevoir {{coinCode}}",
     "receive_bitcoin": "Recevoir du Bitcoin",
-    "receive_crypto": "Recevoir des cryptomonnaies"
+    "receive_crypto": "Recevoir des cryptomonnaies",
+    "sell": "",
+    "sell_bitcoin": "",
+    "sell_crypto": "",
+    "received": "",
+    "search": "",
+    "noOptions": "",
+    "paymentRequestNote": "",
+    "searchButton": "",
+    "send": "",
+    "spend_bitcoin": "",
+    "spend_crypto": "",
+    "close": "",
+    "enable": "",
+    "receiveWithoutCoinCode": "",
+    "reset": "",
+    "resetToDefault": "",
+    "sent": "",
+    "noOptionOnIos": ""
   },
   "genericError": "Une erreur est survenue. Si vous rencontrez des problèmes, veuillez redémarrez l'application.",
   "goal": {
@@ -860,6 +965,10 @@
       "xpub": {
         "text": "Une clé publique étendue (xpub) est une clé racine à partir de laquelle toutes les adresses de réception d'un compte sont dérivées.\n\nElle sont fournies ici à des fins d'utilisation avancée et d'interopérabilité avec les portefeuilles de type \"watch-only\", comme Electrum ou Sentinel. Si vous recevez des fonds sur différents types d'adresses, veuillez importer tous les différents formats xpub dans le portefeuille \"watch-only\" afin de pouvoir visualiser tous vos fonds.\n\nVeuillez noter que certains portefeuilles tiers ne supportent pas encore les xpubs Taproot.",
         "title": "Qu'est-ce qu'une clé publique étendue ?"
+      },
+      "exportTransactions": {
+        "text": "",
+        "title": ""
       }
     },
     "accountRates": {
@@ -941,7 +1050,13 @@
     },
     "appendix": {
       "link": "Contactez-nous !",
-      "text": "Vous avez une autre question ?"
+      "text": "Vous avez une autre question ?",
+      "feedback": {
+        "text": "",
+        "link": ""
+      },
+      "textService": "",
+      "questionService": ""
     },
     "backups": {
       "check": {
@@ -1199,6 +1314,13 @@
       "welcome": {
         "text": "Merci d'utiliser cette application développée par Shift Crypto en Suisse. Nous apprécions tous les commentaires dont vous pourriez nous faire part. Vous pouvez nous les soumettre en cliquant sur le lien en bas de page.",
         "title": "Bienvenue dans l'application BitBox !"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": ""
+        },
+        "title": "",
+        "text": ""
       }
     },
     "walletConnect": {
@@ -1213,6 +1335,29 @@
       "whatIsWalletConnect": {
         "text": "WalletConnect est un protocole de communication pour les applications web3. Il vous permet de vous connecter facilement aux DApps et aux portefeuilles web reposant sur Ethereum sans utiliser d'application tierce; ceci constitue une solution particulièrement pratique pour les utilisateurs Android de la BitBoxApp.",
         "title": "Qu'est-ce que WalletConnect ?"
+      }
+    },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "kyc": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "limits": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
       }
     }
   },
@@ -1264,6 +1409,14 @@
     "about": {
       "appVersion": {
         "title": "Version de l'application"
+      },
+      "feedbackLink": {
+        "description": "",
+        "title": ""
+      },
+      "supportLink": {
+        "description": "",
+        "title": ""
       }
     },
     "advancedSettings": {
@@ -1333,6 +1486,7 @@
   },
   "notification": {
     "newTxs_one": "Nouvelle transaction dans : {{accountName}}",
+    "newTxs_many": "",
     "newTxs_other": "{{count}} nouvelles transactions dans : {{accountName}}"
   },
   "passphrase": {
@@ -1583,7 +1737,11 @@
     "success": "La transaction a été signée et envoyée.",
     "title": "Envoyer {{accountName}}",
     "toggleCoinControl": "Sélecteur de coins",
-    "transactionDetails": "Détails de la transaction"
+    "transactionDetails": "Détails de la transaction",
+    "sendToAccount": {
+      "title": "",
+      "placeholder": ""
+    }
   },
   "settings": {
     "about": "À propos",
@@ -1651,14 +1809,14 @@
       },
       "import": {
         "accountNames_one": "Nom de compte importé {{count}}.",
+        "accountNames_many": "",
         "accountNames_other": "Noms de comptes importés {{count}}.",
-        "accountNames_zero": "Aucun nom de compte importé.",
         "description": "Restaurez vos notes de transaction et noms de comptes à partir d'un fichier de sauvegarde précédemment créé.",
         "title": "Importer les notes",
         "tooLarge": "Fichier trop volumineux.",
         "transactionNotes_one": "Note de transaction importée {{count}}.",
-        "transactionNotes_other": "Notes de transaction importées {{count}}.",
-        "transactionNotes_zero": "Aucune note de transaction importée."
+        "transactionNotes_many": "",
+        "transactionNotes_other": "Notes de transaction importées {{count}}."
       },
       "title": "Gérer les notes"
     },
@@ -1667,7 +1825,8 @@
       "title": "Services"
     },
     "success": "Veuillez débrancher et reconnecter le BitBox pour que les modifications prennent effet.",
-    "title": "Paramètres"
+    "title": "Paramètres",
+    "more": ""
   },
   "setup": "Configuration de l'appareil",
   "sidebar": {
@@ -1700,7 +1859,11 @@
       "fiatAmount": "Montant en Fiat",
       "status": "Statut",
       "title": "Détails de la transaction",
-      "type": "Type"
+      "type": "Type",
+      "currentFiat": "",
+      "historicalFiat": "",
+      "sentToSelf": "",
+      "from": ""
     },
     "explorer": "Identification de transaction",
     "explorerTitle": "Ouvrir dans un Explorateur de blocs externe",
@@ -1731,10 +1894,14 @@
       "receive_pending": "Reçu sur",
       "send_complete": "Envoyé à",
       "send_failed": "Échec de l'envoi à",
-      "send_pending": "Envoyé à"
+      "send_pending": "Envoyé à",
+      "send_to_self": "",
+      "send_to_self_failed": ""
     },
     "vsize": "Taille virtuelle",
-    "weight": "Poids"
+    "weight": "Poids",
+    "no-results": "",
+    "advanced": ""
   },
   "transactions": {
     "errorLoadTransactions": "Une erreur s'est produite lors du chargement des transactions",
@@ -1752,7 +1919,19 @@
       "label": "Mot de passe de l'appareil",
       "placeholder": "Entrez le mot de passe de votre appareil pour le déverrouiller"
     },
-    "unlocking": "Déverrouillage…"
+    "unlocking": "Déverrouillage…",
+    "forgotPassword": {
+      "button": "",
+      "supportLink": "",
+      "text1": "",
+      "text2": "",
+      "title1": "",
+      "title2": "",
+      "dialogTitle": "",
+      "info": "",
+      "dialogDescription": "",
+      "stillHavingIssues": ""
+    }
   },
   "upgradeFirmware": {
     "button": "Mettre à jour le firmware",
@@ -1807,12 +1986,76 @@
   "warning": {
     "coincontrol": "Un ou plusieurs UTXO ont une adresse réutilisée. Soyez conscient que le destinataire verra tous les UTXO associés à ces adresses.",
     "sdcard": "Conservez la carte micro SD séparément du BitBox, à moins que vous ne  souhaitiez gérer les sauvegardes.",
-    "testnet": "Attention: Vous utilisez actuellement le portefeuille en mode Testnet. Les transactions et les soldes ici ne sont pas réels et n'apparaîtront pas sur le mainnet. Le Testnet est destiné uniquement aux tests et au développement."
+    "testnet": "Attention: Vous utilisez actuellement le portefeuille en mode Testnet. Les transactions et les soldes ici ne sont pas réels et n'apparaîtront pas sur le mainnet. Le Testnet est destiné uniquement aux tests et au développement.",
+    "offline": ""
   },
   "welcome": {
     "connect": "Connexion BitBox02",
     "getStarted": "Commençons en installant le firmware sur votre BitBox02",
     "loadingAccounts": "Chargement des comptes",
-    "title": "Bienvenue"
+    "title": "Bienvenue",
+    "message": "",
+    "messageIOS": ""
+  },
+  "bluetooth": {
+    "select": "",
+    "connected": "",
+    "connectionIssuesLink": "",
+    "connectionFailed": "",
+    "connectionIssues": "",
+    "disabledGloballyDescription": "",
+    "disabledGloballyTitle": "",
+    "disabledPermissionDescription": "",
+    "disabledPermissionTitle": "",
+    "enable": ""
+  },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "",
+    "link1": "",
+    "link2": "",
+    "stillHavingIssues": "",
+    "title1": "",
+    "description2": "",
+    "description1": "",
+    "title4": "",
+    "description3": "",
+    "description4": "",
+    "title2": "",
+    "title3": ""
+  },
+  "testWallet": {
+    "connect": {
+      "description": "",
+      "title": ""
+    },
+    "disconnect": {
+      "description": "",
+      "title": ""
+    },
+    "prompt": {
+      "button": "",
+      "passwordLabel": "",
+      "title": ""
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "",
+      "prompt": "",
+      "title": ""
+    },
+    "deactivate": {
+      "description": "",
+      "prompt": "",
+      "title": ""
+    }
+  },
+  "gapLimit": {
+    "change": "",
+    "maxValue": "",
+    "minValue": "",
+    "receive": "",
+    "title": "",
+    "description": ""
   }
 }
