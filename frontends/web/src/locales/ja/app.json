@@ -5,7 +5,6 @@
     "backupReminder": "あなたのウォレット<strong>{{name}}</strong>が {{fiat}} {{threshold}} を超えました。\n\n追加の保護のために、ペーパー・バックアップの作成をおすすめします。手順は簡単で、すぐに行えます。",
     "backupReminderLink": "紙にバックアップを作成",
     "disconnect": "接続が切れました。再試行中です…",
-    "export": "取引データを書き出す",
     "exportTransactions": "取引一覧をCSV形式でダウンロードフォルダにエクスポートする\n",
     "fatalError": "予期せぬエラーが起こりました。",
     "incoming": "受信中",
@@ -39,7 +38,10 @@
       "p2wpkh": "ネイティブSegwitを表示",
       "p2wpkh-p2sh": "古いSegwit拡張公開鍵を表示"
     },
-    "xpubTypeInfo": "現在、{{scriptType}}拡張公開鍵（{{numberOfXPubs}}中の{{current}}）を表示しています"
+    "xpubTypeInfo": "現在、{{scriptType}}拡張公開鍵（{{numberOfXPubs}}中の{{current}}）を表示しています",
+    "accountDetails": "",
+    "exportTransactions": "",
+    "viewAccountDetails": ""
   },
   "accountSummary": {
     "availableBalance": "利用可能な残高",
@@ -115,7 +117,8 @@
         "showLabel": "リカバリーパスワード"
       },
       "success": "バックアップの検証に成功：",
-      "title": "バックアップを確認"
+      "title": "バックアップを確認",
+      "aborted": ""
     },
     "create": {
       "alreadyExists": "既に有効なバックアップが存在します。再作成しますか？",
@@ -142,7 +145,8 @@
       "confirmTitle": "バックアップの復元",
       "error": {
         "e200": "microSDカードが見つかりません",
-        "general": "バックアップの復元中にエラーが発生しました。"
+        "general": "バックアップの復元中にエラーが発生しました。",
+        "e104": ""
       },
       "password": {
         "label": "リカバリーパスワードもしくは秘密リカバリーパスワード",
@@ -203,7 +207,8 @@
       "alertEnabled": "Bluetoothがオンになりました。",
       "description": "iPhoneと接続する際にBluetoothを使用します。",
       "titleDisabled": "Bluetoothをオンにする",
-      "titleEnabled": "Bluetoothをオフにする"
+      "titleEnabled": "Bluetoothをオフにする",
+      "error_104": ""
     },
     "deviceName": {
       "current": "現在のデバイス名",
@@ -216,6 +221,12 @@
     "gotoStartupSettings": {
       "description": "これにより BitBox が再起動し、起動設定に入ります。",
       "title": "起動設定に移動"
+    },
+    "changePassword": {
+      "error_104": "",
+      "description": "",
+      "success": "",
+      "title": ""
     }
   },
   "bitbox02Wizard": {
@@ -379,7 +390,12 @@
     "connectionFailed": "接続に失敗しました",
     "connectionIssues": "接続に問題がありますか？",
     "enable": "Bluetoothをオンにしてください",
-    "select": "BitBoxを選択してください"
+    "select": "BitBoxを選択してください",
+    "disabledGloballyDescription": "",
+    "disabledGloballyTitle": "",
+    "disabledPermissionDescription": "",
+    "disabledPermissionTitle": "",
+    "connectionIssuesLink": ""
   },
   "bootloader": {
     "button": "ファームウェアをアップグレードする",
@@ -455,6 +471,10 @@
               "link": "BitBox security tBitBox security threat modelhreat model",
               "text": "BitrefillはBitBoxとは別の外部サービスであり、BitBoxのセキュリティ設計には含まれていません。購入時に送金される宛先アドレスはBitrefillが指定するもので、BitBoxがその正当性を確認することはできません。",
               "title": "セキュリティに関するお知らせ"
+            },
+            "validEmail": {
+              "text": "",
+              "title": ""
             }
           },
           "infobox": {
@@ -724,7 +744,11 @@
       "securechip": {
         "description": "セキュアチップのモデルです。"
       },
-      "title": "デバイス情報"
+      "title": "デバイス情報",
+      "passwordStretchingAlgo": {
+        "description": "",
+        "title": ""
+      }
     },
     "expert": {
       "bip85": {
@@ -792,6 +816,12 @@
     "secrets": {
       "manageBackups": "バックアップを管理",
       "title": "秘密"
+    },
+    "bluetoothFirmware": {
+      "title": ""
+    },
+    "deviceSettings": {
+      "title": ""
     }
   },
   "deviceTampered": "あたなのBitBoxにリカバリーパスワードが同梱されていた場合、直ちにセットアップをやめてサポートに連絡をしてください。Shiftは設定済みのウォレットの販売及びパスワードの推奨を行うことはありません。",
@@ -895,7 +925,13 @@
     "sell_bitcoin": "Bitcoin を売却",
     "sell_crypto": "暗号資産を売却",
     "spend_bitcoin": "Bitcoin を使う",
-    "spend_crypto": "暗号資産を使う"
+    "spend_crypto": "暗号資産を使う",
+    "received": "",
+    "reset": "",
+    "send": "",
+    "sent": "",
+    "enable": "",
+    "receiveWithoutCoinCode": ""
   },
   "genericError": "エラーが発生しました。問題が起きた場合はソフトウェアを再起動してください。",
   "goal": {
@@ -957,6 +993,10 @@
       "xpub": {
         "text": "拡張公開キー（xpub）は、アカウントの全ての受け取りアドレスが派生するルートキーです。\n\nこれは、ElectrumやSentinelなどのウォッチオンリー（閲覧専用）ウォレットとの高度な使用と相互運用性のために提供されています。異なるアドレスタイプに対して資金を受け取った場合は、全てのコインを確認するために、異なるxpubフォーマット全てをウォッチオンリーウォレットにインポートしてください。\n\nただし、第三者のウォレットはまだTaproot xpubをサポートしていないかもしれませんので、ご注意ください。",
         "title": "拡張公開鍵とはなんですか？"
+      },
+      "exportTransactions": {
+        "text": "",
+        "title": ""
       }
     },
     "accountRates": {
@@ -1040,7 +1080,11 @@
       "link": "ご連絡ください！",
       "questionService": "{{serviceName}} に関してお困りですか？",
       "text": "他にも質問がありますか？",
-      "textService": "{{serviceName}} に関する問題は、直接お問い合わせください："
+      "textService": "{{serviceName}} に関する問題は、直接お問い合わせください：",
+      "feedback": {
+        "text": "",
+        "link": ""
+      }
     },
     "backups": {
       "check": {
@@ -1320,6 +1364,29 @@
         "text": "WalletConnectは、web3アプリケーションのための通信プロトコルです。これにより、第三者のアプリを使用せずに、EthereumベースのDAppsやウェブウォレットに便利に接続することができます。これは、BitBoxAppのAndroidユーザーに特に便利です。",
         "title": "WalletConnectとは何ですか？"
       }
+    },
+    "bitrefill": {
+      "kyc": {
+        "title": "",
+        "link": {
+          "text": ""
+        },
+        "text": ""
+      },
+      "invoice": {
+        "text": "",
+        "title": "",
+        "link": {
+          "text": ""
+        }
+      },
+      "limits": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      }
     }
   },
   "headerssync": {
@@ -1370,6 +1437,14 @@
     "about": {
       "appVersion": {
         "title": "アプリバージョン"
+      },
+      "supportLink": {
+        "title": "",
+        "description": ""
+      },
+      "feedbackLink": {
+        "description": "",
+        "title": ""
       }
     },
     "advancedSettings": {
@@ -1438,7 +1513,6 @@
     "title": "メモ"
   },
   "notification": {
-    "newTxs_one": "{{accountName}} での新しい取引",
     "newTxs_other": "{{accountName}}に{{count}}件の新しい取引があります"
   },
   "novaConnectionIssues": {
@@ -1703,7 +1777,11 @@
     "success": "取引は署名され送信されました。",
     "title": "{{accountName}}送信する。",
     "toggleCoinControl": "コインコントロール",
-    "transactionDetails": "トランザクションの詳細"
+    "transactionDetails": "トランザクションの詳細",
+    "sendToAccount": {
+      "title": "",
+      "placeholder": ""
+    }
   },
   "settings": {
     "about": "について",
@@ -1771,15 +1849,11 @@
         "title": "メモのエクスポート"
       },
       "import": {
-        "accountNames_one": " {{count}} 個のアカウント名がインポートされました。",
         "accountNames_other": "{{count}}個のアカウント名がインポートされました。",
-        "accountNames_zero": "0個のアカウント名がインポートされました。",
         "description": "以前に作成したバックアップファイルから取引メモとアカウント名を復元します。",
         "title": "メモのインポート",
         "tooLarge": "ファイルが大きすぎます",
-        "transactionNotes_one": "{{count}}件の取引メモがインポートされました。",
-        "transactionNotes_other": "{{count}}件の取引メモがインポートされました。",
-        "transactionNotes_zero": "0件の取引メモがインポートされました。"
+        "transactionNotes_other": "{{count}}件の取引メモがインポートされました。"
       },
       "title": "メモの管理"
     },
@@ -1848,7 +1922,11 @@
       "fiatAmount": "フィアットの金額",
       "status": "ステータス",
       "title": "取引の詳細",
-      "type": "タイプ"
+      "type": "タイプ",
+      "historicalFiat": "",
+      "sentToSelf": "",
+      "from": "",
+      "currentFiat": ""
     },
     "explorer": "取引ID",
     "explorerTitle": "外部のブロックエクスプローラで開く",
@@ -1880,10 +1958,13 @@
       "receive_pending": "～に受信されました",
       "send_complete": "～に送信されました",
       "send_failed": "～への送信に失敗しました",
-      "send_pending": "～に送信されました"
+      "send_pending": "～に送信されました",
+      "send_to_self": "",
+      "send_to_self_failed": ""
     },
     "vsize": "バーチャルサイズ",
-    "weight": "重量"
+    "weight": "重量",
+    "advanced": ""
   },
   "transactions": {
     "errorLoadTransactions": "トランザクションの読み込み中にエラーが発生しました。",
@@ -1901,7 +1982,19 @@
       "label": "デバイスパスワード",
       "placeholder": "デバイスをアンロックするにはデバイスパスワードを入力してください。"
     },
-    "unlocking": "アンロック中…"
+    "unlocking": "アンロック中…",
+    "forgotPassword": {
+      "button": "",
+      "dialogTitle": "",
+      "info": "",
+      "title1": "",
+      "stillHavingIssues": "",
+      "supportLink": "",
+      "text1": "",
+      "text2": "",
+      "title2": "",
+      "dialogDescription": ""
+    }
   },
   "upgradeFirmware": {
     "button": "ファームウェアをアップグレード",
@@ -1964,6 +2057,7 @@
     "getStarted": "BitBox にファームウェアをインストールして、はじめましょう。",
     "loadingAccounts": "アカウントを読み込み中",
     "message": "BitBox を接続し、本体の側面をタップして続行してください。",
-    "title": "ようこそ"
+    "title": "ようこそ",
+    "messageIOS": ""
   }
 }
