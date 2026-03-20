@@ -5,7 +5,6 @@
     "backupReminder": "Dompet anda <strong>{{name}}</strong> lulus {{fiat}} {{threshold}}!\n\nKami mengesyorkan membuat sandaran kertas untuk perlindungan tambahan. Ia cepat dan mudah.",
     "backupReminderLink": "Buat sandaran kertas",
     "disconnect": "Sambungan hilang. Mencuba lagi...",
-    "export": "Urus niaga eksport",
     "exportTransactions": "Eksport transaksi ke folder muat turun sebagai fail CSV",
     "fatalError": "Terdapat kesilapan yang tidak dijangka.",
     "incoming": "Masuk",
@@ -39,7 +38,10 @@
       "p2wpkh": "Lihat Segwit Asli",
       "p2wpkh-p2sh": "Lihat Segwit public key lanjutan yang lebih lama"
     },
-    "xpubTypeInfo": "Sedang memaparkan {{scriptType}} public key lanjutan ({{current}} daripada {{numberOfXPubs}})"
+    "xpubTypeInfo": "Sedang memaparkan {{scriptType}} public key lanjutan ({{current}} daripada {{numberOfXPubs}})",
+    "accountDetails": "",
+    "exportTransactions": "",
+    "viewAccountDetails": ""
   },
   "accountSummary": {
     "availableBalance": "Baki yang ada",
@@ -143,7 +145,8 @@
       "confirmTitle": "Pulihkan sandaran",
       "error": {
         "e200": "kad microSD tidak ditemui",
-        "general": "Ralat memulihkan sandaran"
+        "general": "Ralat memulihkan sandaran",
+        "e104": ""
       },
       "password": {
         "label": "Kata laluan pemulihan atau kata laluan pemulihan tersembunyi",
@@ -204,12 +207,14 @@
       "alertEnabled": "Bluetooth kini dihidupkan.",
       "description": "Bluetooth digunakan untuk menyambung dengan iPhone.",
       "titleDisabled": "Hidupkan Bluetooth",
-      "titleEnabled": "Matikan Bluetooth"
+      "titleEnabled": "Matikan Bluetooth",
+      "error_104": ""
     },
     "changePassword": {
       "description": "Tukar kata laluan peranti BitBox.",
       "success": "Kata laluan berjaya ditukar",
-      "title": "Tukar kata laluan peranti"
+      "title": "Tukar kata laluan peranti",
+      "error_104": ""
     },
     "deviceName": {
       "current": "Nama peranti semasa",
@@ -389,7 +394,8 @@
     "disabledPermissionDescription": "Sila benarkan Bluetooth bersambung ke BitBox anda.",
     "disabledPermissionTitle": "Akses Bluetooth dinyahdayakan untuk BitBoxApp.",
     "enable": "Sila hidupkan Bluetooth",
-    "select": "Pilih BitBox anda"
+    "select": "Pilih BitBox anda",
+    "connectionIssuesLink": ""
   },
   "bootloader": {
     "button": "Tingkatkan perisian tegar sekarang",
@@ -465,6 +471,10 @@
               "link": "Model ancaman keselamatan BitBox02",
               "text": "Bitrefill ialah perkhidmatan luaran yang tidak dilindungi oleh model ancaman keselamatan BitBox. Apabila anda membuat pembelian, bayaran anda dihantar ke alamat Bitrefill. BitBox tidak boleh mengesahkan bahawa alamat ini betul.",
               "title": "Notis keselamatan"
+            },
+            "validEmail": {
+              "title": "",
+              "text": ""
             }
           },
           "infobox": {
@@ -1354,6 +1364,29 @@
         "text": "WalletConnect ialah protokol komunikasi untuk aplikasi web3. Ia membolehkan anda menyambung dengan mudah ke DApps berasaskan Ethereum dan dompet web tanpa menggunakan aplikasi pihak ketiga, yang amat berguna untuk pengguna Android BitBoxApp.",
         "title": "Apakah itu WalletConnect?"
       }
+    },
+    "bitrefill": {
+      "invoice": {
+        "title": "",
+        "link": {
+          "text": ""
+        },
+        "text": ""
+      },
+      "kyc": {
+        "title": "",
+        "text": "",
+        "link": {
+          "text": ""
+        }
+      },
+      "limits": {
+        "text": "",
+        "title": "",
+        "link": {
+          "text": ""
+        }
+      }
     }
   },
   "headerssync": {
@@ -1480,7 +1513,6 @@
     "title": "Catatan"
   },
   "notification": {
-    "newTxs_one": "Transaksi baru di: {{accountName}}",
     "newTxs_other": "{{count}} transaksi baharu dalam: {{accountName}}"
   },
   "novaConnectionIssues": {
@@ -1817,15 +1849,11 @@
         "title": "Eksport nota"
       },
       "import": {
-        "accountNames_one": "{{count}} nama akaun telah diimport.",
         "accountNames_other": "{{count}} nama akaun telah diimport.",
-        "accountNames_zero": "0 nama akaun yang diimport.",
         "description": "Pulihkan nota transaksi dan nama akaun anda daripada fail sandaran yang dibuat sebelum ini.",
         "title": "Import nota",
         "tooLarge": "Fail terlalu besar.",
-        "transactionNotes_one": "{{count}} rekod transaksi telah diimport.",
-        "transactionNotes_other": "{{count}} rekod transaksi telah diimport.",
-        "transactionNotes_zero": "Mengimport 0 nota transaksi."
+        "transactionNotes_other": "{{count}} rekod transaksi telah diimport."
       },
       "title": "Urus nota"
     },
@@ -1895,10 +1923,10 @@
       "fiatAmount": "Jumlah Fiat",
       "from": "Dari",
       "historicalFiat": "Nilai fiat sejarah",
-      "sendToSelf": "Hantar kepada diri sendiri",
       "status": "Status",
       "title": "butiran transaksi",
-      "type": "taip"
+      "type": "taip",
+      "sentToSelf": ""
     },
     "explorer": "ID Transaksi",
     "explorerTitle": "Buka dalam penjelajah blok luaran",
@@ -1930,10 +1958,13 @@
       "receive_pending": "Diterima kepada",
       "send_complete": "Dihantar ke",
       "send_failed": "Gagal menghantar ke",
-      "send_pending": "Dihantar ke"
+      "send_pending": "Dihantar ke",
+      "send_to_self": "",
+      "send_to_self_failed": ""
     },
     "vsize": "Saiz maya",
-    "weight": "Berat"
+    "weight": "Berat",
+    "advanced": ""
   },
   "transactions": {
     "errorLoadTransactions": "Terdapat ralat semasa memuatkan urus niaga",
@@ -1951,7 +1982,19 @@
       "label": "Kata laluan peranti",
       "placeholder": "Masukkan kata laluan peranti anda"
     },
-    "unlocking": "Membuka ..."
+    "unlocking": "Membuka ...",
+    "forgotPassword": {
+      "text1": "",
+      "text2": "",
+      "title1": "",
+      "title2": "",
+      "button": "",
+      "dialogDescription": "",
+      "dialogTitle": "",
+      "info": "",
+      "stillHavingIssues": "",
+      "supportLink": ""
+    }
   },
   "upgradeFirmware": {
     "button": "Tingkatkan perisian tegar",
@@ -2014,6 +2057,7 @@
     "getStarted": "Mari mulakan dengan memasang perisian tegar pada BitBox anda.",
     "loadingAccounts": "Memuatkan akaun",
     "message": "Sila sambungkan BitBox anda dan ketik bahagian tepi untuk meneruskan.",
-    "title": "Selamat datang"
+    "title": "Selamat datang",
+    "messageIOS": ""
   }
 }
