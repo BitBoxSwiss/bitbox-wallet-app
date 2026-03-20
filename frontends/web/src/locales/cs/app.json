@@ -38,10 +38,7 @@
       "p2wpkh": "Zobrazit nativní Segwit",
       "p2wpkh-p2sh": "Zobrazit starší Segwit veřejný klíč"
     },
-    "xpubTypeInfo": "Aktuálně se zobrazuje {{scriptType}} veřejný klíč ({{current}} z {{numberOfXPubs}})",
-    "viewAccountDetails": "",
-    "accountDetails": "",
-    "exportTransactions": ""
+    "xpubTypeInfo": "Aktuálně se zobrazuje {{scriptType}} veřejný klíč ({{current}} z {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Dostupný zůstatek",
@@ -145,8 +142,7 @@
       "confirmTitle": "Obnovit ze zálohy",
       "error": {
         "e200": "Karta microSD nenalezena",
-        "general": "Chyba při obnově ze zálohy",
-        "e104": ""
+        "general": "Chyba při obnově ze zálohy"
       },
       "password": {
         "label": "Heslo pro obnovení nebo skryté heslo pro obnovení",
@@ -207,14 +203,12 @@
       "alertEnabled": "Bluetooth je nyní zapnutý.",
       "description": "Bluetooth se používá pro připojení k iPhonu.",
       "titleDisabled": "Povolit Bluetooth",
-      "titleEnabled": "Vypnout Bluetooth",
-      "error_104": ""
+      "titleEnabled": "Vypnout Bluetooth"
     },
     "changePassword": {
       "description": "Změnit heslo BitBoxu",
       "success": "Heslo bylo úspěšně změněno",
-      "title": "Změnit heslo zařízení",
-      "error_104": ""
+      "title": "Změnit heslo zařízení"
     },
     "deviceName": {
       "current": "Aktuální název zařízení",
@@ -394,8 +388,7 @@
     "disabledPermissionDescription": "Povolte Bluetooth pro připojení k BitBoxu.",
     "disabledPermissionTitle": "Přístup k Bluetooth je pro BitBoxApp zakázán.",
     "enable": "Zapněte prosím Bluetooth",
-    "select": "Vyberte svůj BitBox",
-    "connectionIssuesLink": ""
+    "select": "Vyberte svůj BitBox"
   },
   "bootloader": {
     "button": "Nyní aktualizujte firmware",
@@ -471,10 +464,6 @@
               "link": "Model bezpečnostních hrozeb BitBoxu",
               "text": "Bitrefill je externí služba, na kterou se nevztahuje model bezpečnostních hrozeb BitBoxu. Když provedete nákup, vaše platba je odeslána na adresu Bitrefill. BitBox nemůže ověřit, zda je tato adresa správná.",
               "title": "Bezpečnostní upozornění"
-            },
-            "validEmail": {
-              "title": "",
-              "text": ""
             }
           },
           "infobox": {
@@ -499,7 +488,6 @@
             "paymentMethods": {
               "buy": "Nákup bitcoinů:",
               "buy2": "Zadávejte velké nákupní příkazy svému account managerovi, uzamkněte si pevnou cenu a zaplaťte bankovním převodem. Kryptoměny vám budou po zaplacení doručeny přímo do vašeho BitBoxu.",
-              "fee": "",
               "sell": "Prodej bitcoinů:",
               "sell2": "Při zadávání prodejního příkazu si můžete uzamknout pevnou mimoburzovní (over-the-counter) cenu. Platba v EUR je provedena, jakmile odešlete krypto na BTC Direct. V případě potřeby je k dispozici osobní asistence.",
               "title": "Platební metody a poplatky"
@@ -1364,29 +1352,6 @@
         "text": "WalletConnect je komunikační protokol pro aplikace web3. Umožňuje pohodlné připojení k DApps a webovým peněženkám založeným na Ethereu bez použití aplikace třetí strany, což je užitečné zejména pro uživatele BitBoxApp pro Android.",
         "title": "Co je WalletConnect?"
       }
-    },
-    "bitrefill": {
-      "limits": {
-        "title": "",
-        "link": {
-          "text": ""
-        },
-        "text": ""
-      },
-      "invoice": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      },
-      "kyc": {
-        "link": {
-          "text": ""
-        },
-        "title": "",
-        "text": ""
-      }
     }
   },
   "headerssync": {
@@ -1931,8 +1896,7 @@
       "historicalFiat": "Historický fiat",
       "status": "Stav",
       "title": "Detaily transakce",
-      "type": "Typ",
-      "sentToSelf": ""
+      "type": "Typ"
     },
     "explorer": "ID transakce",
     "explorerTitle": "Otevřít v externím block exploreru",
@@ -1952,7 +1916,6 @@
     },
     "statusShort": {
       "complete": "Dokončená",
-      "failed": "",
       "pending": "Čekající",
       "pending_receive": "Přicházející",
       "pending_send": "Odchozí",
@@ -1964,13 +1927,10 @@
       "receive_pending": "Přijato na",
       "send_complete": "Odesláno na",
       "send_failed": "Neúspěšné odeslání na",
-      "send_pending": "Odesláno na",
-      "send_to_self": "",
-      "send_to_self_failed": ""
+      "send_pending": "Odesláno na"
     },
     "vsize": "Virtuální velikost",
-    "weight": "Váha",
-    "advanced": ""
+    "weight": "Váha"
   },
   "transactions": {
     "errorLoadTransactions": "Při načítání transakcí došlo k chybě",
@@ -1988,19 +1948,7 @@
       "label": "Heslo zařízení",
       "placeholder": "Zadejte heslo zařízení pro odemknutí"
     },
-    "unlocking": "Odemykání...",
-    "forgotPassword": {
-      "title2": "",
-      "info": "",
-      "stillHavingIssues": "",
-      "supportLink": "",
-      "text1": "",
-      "text2": "",
-      "title1": "",
-      "button": "",
-      "dialogDescription": "",
-      "dialogTitle": ""
-    }
+    "unlocking": "Odemykání..."
   },
   "upgradeFirmware": {
     "button": "Aktualizovat firmware",
@@ -2063,7 +2011,6 @@
     "getStarted": "Začněme instalací firmwaru na váš BitBox.",
     "loadingAccounts": "Načítání účtů",
     "message": "Připojte svůj BitBox a pokračujte poklepáním na stranu.",
-    "title": "Vítejte",
-    "messageIOS": ""
+    "title": "Vítejte"
   }
 }

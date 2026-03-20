@@ -38,10 +38,7 @@
       "p2wpkh": "Lihat Segwit Asli",
       "p2wpkh-p2sh": "Lihat Segwit public key lanjutan yang lebih lama"
     },
-    "xpubTypeInfo": "Sedang memaparkan {{scriptType}} public key lanjutan ({{current}} daripada {{numberOfXPubs}})",
-    "accountDetails": "",
-    "exportTransactions": "",
-    "viewAccountDetails": ""
+    "xpubTypeInfo": "Sedang memaparkan {{scriptType}} public key lanjutan ({{current}} daripada {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Baki yang ada",
@@ -145,8 +142,7 @@
       "confirmTitle": "Pulihkan sandaran",
       "error": {
         "e200": "kad microSD tidak ditemui",
-        "general": "Ralat memulihkan sandaran",
-        "e104": ""
+        "general": "Ralat memulihkan sandaran"
       },
       "password": {
         "label": "Kata laluan pemulihan atau kata laluan pemulihan tersembunyi",
@@ -207,14 +203,12 @@
       "alertEnabled": "Bluetooth kini dihidupkan.",
       "description": "Bluetooth digunakan untuk menyambung dengan iPhone.",
       "titleDisabled": "Hidupkan Bluetooth",
-      "titleEnabled": "Matikan Bluetooth",
-      "error_104": ""
+      "titleEnabled": "Matikan Bluetooth"
     },
     "changePassword": {
       "description": "Tukar kata laluan peranti BitBox.",
       "success": "Kata laluan berjaya ditukar",
-      "title": "Tukar kata laluan peranti",
-      "error_104": ""
+      "title": "Tukar kata laluan peranti"
     },
     "deviceName": {
       "current": "Nama peranti semasa",
@@ -394,8 +388,7 @@
     "disabledPermissionDescription": "Sila benarkan Bluetooth bersambung ke BitBox anda.",
     "disabledPermissionTitle": "Akses Bluetooth dinyahdayakan untuk BitBoxApp.",
     "enable": "Sila hidupkan Bluetooth",
-    "select": "Pilih BitBox anda",
-    "connectionIssuesLink": ""
+    "select": "Pilih BitBox anda"
   },
   "bootloader": {
     "button": "Tingkatkan perisian tegar sekarang",
@@ -471,10 +464,6 @@
               "link": "Model ancaman keselamatan BitBox02",
               "text": "Bitrefill ialah perkhidmatan luaran yang tidak dilindungi oleh model ancaman keselamatan BitBox. Apabila anda membuat pembelian, bayaran anda dihantar ke alamat Bitrefill. BitBox tidak boleh mengesahkan bahawa alamat ini betul.",
               "title": "Notis keselamatan"
-            },
-            "validEmail": {
-              "title": "",
-              "text": ""
             }
           },
           "infobox": {
@@ -1364,29 +1353,6 @@
         "text": "WalletConnect ialah protokol komunikasi untuk aplikasi web3. Ia membolehkan anda menyambung dengan mudah ke DApps berasaskan Ethereum dan dompet web tanpa menggunakan aplikasi pihak ketiga, yang amat berguna untuk pengguna Android BitBoxApp.",
         "title": "Apakah itu WalletConnect?"
       }
-    },
-    "bitrefill": {
-      "invoice": {
-        "title": "",
-        "link": {
-          "text": ""
-        },
-        "text": ""
-      },
-      "kyc": {
-        "title": "",
-        "text": "",
-        "link": {
-          "text": ""
-        }
-      },
-      "limits": {
-        "text": "",
-        "title": "",
-        "link": {
-          "text": ""
-        }
-      }
     }
   },
   "headerssync": {
@@ -1925,8 +1891,7 @@
       "historicalFiat": "Nilai fiat sejarah",
       "status": "Status",
       "title": "butiran transaksi",
-      "type": "taip",
-      "sentToSelf": ""
+      "type": "taip"
     },
     "explorer": "ID Transaksi",
     "explorerTitle": "Buka dalam penjelajah blok luaran",
@@ -1958,13 +1923,10 @@
       "receive_pending": "Diterima kepada",
       "send_complete": "Dihantar ke",
       "send_failed": "Gagal menghantar ke",
-      "send_pending": "Dihantar ke",
-      "send_to_self": "",
-      "send_to_self_failed": ""
+      "send_pending": "Dihantar ke"
     },
     "vsize": "Saiz maya",
-    "weight": "Berat",
-    "advanced": ""
+    "weight": "Berat"
   },
   "transactions": {
     "errorLoadTransactions": "Terdapat ralat semasa memuatkan urus niaga",
@@ -1982,19 +1944,7 @@
       "label": "Kata laluan peranti",
       "placeholder": "Masukkan kata laluan peranti anda"
     },
-    "unlocking": "Membuka ...",
-    "forgotPassword": {
-      "text1": "",
-      "text2": "",
-      "title1": "",
-      "title2": "",
-      "button": "",
-      "dialogDescription": "",
-      "dialogTitle": "",
-      "info": "",
-      "stillHavingIssues": "",
-      "supportLink": ""
-    }
+    "unlocking": "Membuka ..."
   },
   "upgradeFirmware": {
     "button": "Tingkatkan perisian tegar",
@@ -2057,7 +2007,6 @@
     "getStarted": "Mari mulakan dengan memasang perisian tegar pada BitBox anda.",
     "loadingAccounts": "Memuatkan akaun",
     "message": "Sila sambungkan BitBox anda dan ketik bahagian tepi untuk meneruskan.",
-    "title": "Selamat datang",
-    "messageIOS": ""
+    "title": "Selamat datang"
   }
 }

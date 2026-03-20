@@ -38,10 +38,7 @@
       "p2wpkh": "Ver Segwit Nativo",
       "p2wpkh-p2sh": "Veja a chave pública estendida do Segwit mais antiga"
     },
-    "xpubTypeInfo": "Atualmente mostrando {{scriptType}} chave pública estendida ({{current}} de {{numberOfXPubs}})",
-    "accountDetails": "",
-    "exportTransactions": "",
-    "viewAccountDetails": ""
+    "xpubTypeInfo": "Atualmente mostrando {{scriptType}} chave pública estendida ({{current}} de {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Saldo disponível",
@@ -117,8 +114,7 @@
         "showLabel": "senha de recuperação"
       },
       "success": "Backup verificado com sucesso:",
-      "title": "Checar backup",
-      "aborted": ""
+      "title": "Checar backup"
     },
     "create": {
       "alreadyExists": "Você já tem um backup válido. Você deseja recriá-lo?",
@@ -145,8 +141,7 @@
       "confirmTitle": "Restaurar backup",
       "error": {
         "e200": "Cartão microSD não encontrado",
-        "general": "Erro ao restaurar o backup",
-        "e104": ""
+        "general": "Erro ao restaurar o backup"
       },
       "password": {
         "label": "Senha de recuperação ou senha de recuperação oculta",
@@ -207,8 +202,7 @@
       "alertEnabled": "Bluetooth ativado.",
       "description": "Bluetooth é usado para conectar-se com o iPhone",
       "titleDisabled": "Ativar Bluetooth.",
-      "titleEnabled": "Desativar Bluetooth",
-      "error_104": ""
+      "titleEnabled": "Desativar Bluetooth"
     },
     "deviceName": {
       "current": "Nome atual do dispositivo",
@@ -221,12 +215,6 @@
     "gotoStartupSettings": {
       "description": "Isso reiniciará sua BitBox e entrará nas configurações de inicialização.",
       "title": "Vá para as configurações de inicialização"
-    },
-    "changePassword": {
-      "description": "",
-      "error_104": "",
-      "success": "",
-      "title": ""
     }
   },
   "bitbox02Wizard": {
@@ -306,8 +294,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Remova o cartão microSD de sua BitBox e guarde-o em um local seguro.",
-      "storeMnemonic": "Guarde suas palavras de recuperação em um local seguro",
-      "success": ""
+      "storeMnemonic": "Guarde suas palavras de recuperação em um local seguro"
     },
     "stepInsertSD": {
       "insertSDCard": "Por favor insira um cartão microSD na sua BitBox para continuar.",
@@ -390,12 +377,7 @@
     "connectionFailed": "falhou",
     "connectionIssues": "Está tendo problemas de conexão?",
     "enable": "Por favor ligue o Bluetooth",
-    "select": "Selecione seu BitBox",
-    "connectionIssuesLink": "",
-    "disabledGloballyDescription": "",
-    "disabledGloballyTitle": "",
-    "disabledPermissionDescription": "",
-    "disabledPermissionTitle": ""
+    "select": "Selecione seu BitBox"
   },
   "bootloader": {
     "button": "Atualizar firmware agora",
@@ -471,10 +453,6 @@
               "link": "Modelo de ameaças à segurança da BitBox",
               "text": "O Bitrefill é um serviço externo que não é coberto pelo modelo de ameaças à segurança da BitBox. Quando você faz uma compra, seu pagamento é enviado para um endereço do Bitrefill. A BitBox não pode verificar se esse endereço está correto.",
               "title": "Aviso de segurança"
-            },
-            "validEmail": {
-              "text": "",
-              "title": ""
             }
           },
           "infobox": {
@@ -744,11 +722,7 @@
       "securechip": {
         "description": "O modelo do chip seguro."
       },
-      "title": "Informações do dispositivo",
-      "passwordStretchingAlgo": {
-        "title": "",
-        "description": ""
-      }
+      "title": "Informações do dispositivo"
     },
     "expert": {
       "bip85": {
@@ -816,12 +790,6 @@
     "secrets": {
       "manageBackups": "Gerenciar backups",
       "title": "Privacidade"
-    },
-    "bluetoothFirmware": {
-      "title": ""
-    },
-    "deviceSettings": {
-      "title": ""
     }
   },
   "deviceTampered": "Sua BitBox foi fornecida com uma senha de recuperação? Se sim, pare o processo de configuração e contate o suporte imediatamente. A Shift nunca lhe dará uma carteira pronta ou fará recomendações de senha.",
@@ -925,13 +893,7 @@
     "sell_bitcoin": "Vender Bitcoin",
     "sell_crypto": "Vender criptomoedas",
     "spend_bitcoin": "Gastar bitcoin",
-    "spend_crypto": "Gastar criptomoedas",
-    "enable": "",
-    "receiveWithoutCoinCode": "",
-    "reset": "",
-    "send": "",
-    "sent": "",
-    "received": ""
+    "spend_crypto": "Gastar criptomoedas"
   },
   "genericError": "Um erro ocorreu. Se você notar algum problema, por favor, reinicie o aplicativo.",
   "goal": {
@@ -993,10 +955,6 @@
       "xpub": {
         "text": "Uma chave pública estendida (xpub) é uma chave-raiz da qual todos os endereços de recebimento de uma conta são derivados.\n\nEla é fornecida aqui para uso avançado e interoperabilidade com carteiras watch-only, como Electrum ou Sentinel. Se você recebeu de diferentes tipos de endereço, importe todos os formatos diferentes de xpub em sua carteira watch-only para ver todas as suas moedas.\n\nPor favor, note que que carteiras de terceiros podem não suportar xpubs do tipo Taproot ainda.",
         "title": "O que é uma chave pública estendida?"
-      },
-      "exportTransactions": {
-        "text": "",
-        "title": ""
       }
     },
     "accountRates": {
@@ -1080,11 +1038,7 @@
       "link": "Contate-nos!",
       "questionService": "Tendo problemas com {{serviceName}}?",
       "text": "Outra pergunta?",
-      "textService": "Se você estiver tendo problemas com {{serviceName}}, entre em contato diretamente com eles:",
-      "feedback": {
-        "text": "",
-        "link": ""
-      }
+      "textService": "Se você estiver tendo problemas com {{serviceName}}, entre em contato diretamente com eles:"
     },
     "backups": {
       "check": {
@@ -1364,29 +1318,6 @@
         "text": "WalletConnect é um protocolo de comunicação para aplicativos web3. Ele permite que você se conecte convenientemente a DApps baseados em Ethereum e carteiras web sem usar um aplicativo de terceiros, o que é particularmente útil para usuários Android do BitBoxApp.",
         "title": "O que é WalletConnect?"
       }
-    },
-    "bitrefill": {
-      "limits": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      },
-      "invoice": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      },
-      "kyc": {
-        "link": {
-          "text": ""
-        },
-        "title": "",
-        "text": ""
-      }
     }
   },
   "headerssync": {
@@ -1437,14 +1368,6 @@
     "about": {
       "appVersion": {
         "title": "Versão do aplicativo"
-      },
-      "feedbackLink": {
-        "description": "",
-        "title": ""
-      },
-      "supportLink": {
-        "description": "",
-        "title": ""
       }
     },
     "advancedSettings": {
@@ -1779,11 +1702,7 @@
     "success": "A transação foi assinada e enviada.",
     "title": "Enviar {{accountName}}",
     "toggleCoinControl": "Controle de moedas",
-    "transactionDetails": "Detalhes da transação",
-    "sendToAccount": {
-      "title": "",
-      "placeholder": ""
-    }
+    "transactionDetails": "Detalhes da transação"
   },
   "settings": {
     "about": "Sobre",
@@ -1928,11 +1847,7 @@
       "fiatAmount": "Valor fiduciário",
       "status": "Status",
       "title": "Detalhes da transação",
-      "type": "Tipo",
-      "historicalFiat": "",
-      "sentToSelf": "",
-      "currentFiat": "",
-      "from": ""
+      "type": "Tipo"
     },
     "explorer": "ID da transação",
     "explorerTitle": "Abrir no explorador de blocos externo",
@@ -1964,13 +1879,10 @@
       "receive_pending": "Recebido para",
       "send_complete": "Enviado para",
       "send_failed": "Falha ao enviar para",
-      "send_pending": "Enviado para",
-      "send_to_self": "",
-      "send_to_self_failed": ""
+      "send_pending": "Enviado para"
     },
     "vsize": "Tamanho virtual",
-    "weight": "Peso",
-    "advanced": ""
+    "weight": "Peso"
   },
   "transactions": {
     "errorLoadTransactions": "Ocorreu um erro ao carregar as transações",
@@ -1988,19 +1900,7 @@
       "label": "Senha do dispositivo",
       "placeholder": "Digite a senha do dispositivo para desbloqueá-lo"
     },
-    "unlocking": "Desbloqueando...",
-    "forgotPassword": {
-      "dialogDescription": "",
-      "dialogTitle": "",
-      "info": "",
-      "stillHavingIssues": "",
-      "supportLink": "",
-      "text1": "",
-      "text2": "",
-      "title1": "",
-      "title2": "",
-      "button": ""
-    }
+    "unlocking": "Desbloqueando..."
   },
   "upgradeFirmware": {
     "button": "Atualizar firmware",
@@ -2063,7 +1963,6 @@
     "getStarted": "Vamos começar instalando o firmware na sua BitBox.",
     "loadingAccounts": "Carregando contas",
     "message": "Conecte sua BitBox e toque na lateral para continuar.",
-    "title": "Bem-vindo",
-    "messageIOS": ""
+    "title": "Bem-vindo"
   }
 }

@@ -38,10 +38,7 @@
       "p2wpkh": "Ogled Native Segwit",
       "p2wpkh-p2sh": "Ogled razširjenega javnega ključa P2SH"
     },
-    "xpubTypeInfo": "Prikazan je {{scriptType}} razširjen javni ključ ({{current}} od {{numberOfXPubs}})",
-    "accountDetails": "",
-    "exportTransactions": "",
-    "viewAccountDetails": ""
+    "xpubTypeInfo": "Prikazan je {{scriptType}} razširjen javni ključ ({{current}} od {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Razpoložljivo stanje",
@@ -117,8 +114,7 @@
         "showLabel": "geslo za obnovo varnostne kopije"
       },
       "success": "Varnostna kopija uspešno preverjena:",
-      "title": "Preverite varnostno kopijo",
-      "aborted": ""
+      "title": "Preverite varnostno kopijo"
     },
     "create": {
       "alreadyExists": "Veljavno varnostno kopijo že imate. Ali jo ponovno želite ustvariti?",
@@ -145,8 +141,7 @@
       "confirmTitle": "Obnovite varnostno kopijo",
       "error": {
         "e200": "MicroSD kartica ni bila zaznana",
-        "general": "Napaka pri obnovitvi varnostne kopije",
-        "e104": ""
+        "general": "Napaka pri obnovitvi varnostne kopije"
       },
       "password": {
         "label": "Geslo za obnovitev ali skrito geslo za obnovitev varnostne kopije",
@@ -156,7 +151,6 @@
       },
       "restoring": "Obnavljanje varnostne kopije ...",
       "selectedBackup": "<strong>{{backupName}}</strong> ustvarjen {{createdDateTime}} bo obnovljen.",
-      "subtitle": "",
       "title": "Obnovi",
       "understand": "Razumem, da bo nepravilno geslo za obnovitev ustvarilo drugo, novo denarnico"
     },
@@ -207,8 +201,7 @@
       "alertEnabled": "Bluetooth je omogočen.",
       "description": "Bluetooth se uporablja za povezavo z iPhon-om.",
       "titleDisabled": "Omogiči Bluetooth",
-      "titleEnabled": "Ugasni Bluetooth",
-      "error_104": ""
+      "titleEnabled": "Ugasni Bluetooth"
     },
     "deviceName": {
       "current": "Trenutno ime naprave",
@@ -221,12 +214,6 @@
     "gotoStartupSettings": {
       "description": "To bo znova zagnalo vaš BitBox v način začetnih nastavitev.",
       "title": "Pojdite na začetne nastavitve"
-    },
-    "changePassword": {
-      "error_104": "",
-      "success": "",
-      "title": "",
-      "description": ""
     }
   },
   "bitbox02Wizard": {
@@ -390,12 +377,7 @@
     "connectionFailed": "povezava ni uspela",
     "connectionIssues": "Imate težave s povezovanjem?",
     "enable": "Vklopite Bluetooth",
-    "select": "Izberite BitBox",
-    "disabledGloballyDescription": "",
-    "disabledGloballyTitle": "",
-    "disabledPermissionDescription": "",
-    "disabledPermissionTitle": "",
-    "connectionIssuesLink": ""
+    "select": "Izberite BitBox"
   },
   "bootloader": {
     "button": "Nadgradi \"firmware\"",
@@ -445,13 +427,10 @@
           "disclaimer": {
             "account": {
               "link": "Omejitve nakupov na Bitrefillu",
-              "title": "Račun in omejitve",
-              "text": ""
+              "title": "Račun in omejitve"
             },
             "claims": {
-              "link": "Bitrefill podpora",
-              "text": "",
-              "title": ""
+              "link": "Bitrefill podpora"
             },
             "dataProtection": {
               "link": "Politika zasebnosti Bitrefilla",
@@ -459,26 +438,16 @@
               "title": "Varnost vaših podatkov"
             },
             "fees": {
-              "title": "Provizije",
-              "text": ""
+              "title": "Provizije"
             },
             "intro": {
               "title_bitcoin": "Kupi z bitcoinom preko Bitrefilla",
-              "title_crypto": "Kupi s kriptom preko Bitrefilla",
-              "text": ""
+              "title_crypto": "Kupi s kriptom preko Bitrefilla"
             },
             "security": {
               "link": "Varnostni obseg BitBoxa",
-              "title": "Varnostno opozorilo",
-              "text": ""
-            },
-            "validEmail": {
-              "text": "",
-              "title": ""
+              "title": "Varnostno opozorilo"
             }
-          },
-          "infobox": {
-            "intro": ""
           }
         },
         "btcdirect": {
@@ -540,8 +509,7 @@
             "paymentMethods": {
               "buy": "Nakup: Plačajte z EUR, da prejmete kovance neposredno v vaš BitBox. Izbirate lahko med enkratnimi ali ponavljajočimi se nakupi. Za bančna nakazila je menjalni tečaj fiksen, ko BTC Direct prejme denar. Hitrejše metode plačil (Instant SEPA) ponujajo fiksni tečaj le za omejen čas.",
               "note": "Opomba: menjalni tečaji pri BTC Direct se lahko nekoliko razlikujejo od tečajev v BitBoxApp.",
-              "title": "Provizije in načini plačila",
-              "sell": ""
+              "title": "Provizije in načini plačila"
             },
             "security": {
               "description": "BTC Direct je zunanja storitev, ki je varnostni model denarnice BitBox ne ščiti. Seveda sodelujemo z BTC Direct da je varnost transakcij in podatkov najvišja možna.",
@@ -744,11 +712,7 @@
       "securechip": {
         "description": "Model varnega čipa"
       },
-      "title": "Informacije o napravi",
-      "passwordStretchingAlgo": {
-        "title": "",
-        "description": ""
-      }
+      "title": "Informacije o napravi"
     },
     "expert": {
       "bip85": {
@@ -816,12 +780,6 @@
     "secrets": {
       "manageBackups": "Upravljanje varnostnih kopij",
       "title": "Varnost"
-    },
-    "deviceSettings": {
-      "title": ""
-    },
-    "bluetoothFirmware": {
-      "title": ""
     }
   },
   "deviceTampered": "Ali ste prejeli BitBox skupaj z geslom za obnovitev?\nČe je tako, takoj zaustavite postopek namestitve in stopite v stik z nami.\nShift nikoli ne izroča pred-pripravljene denarnice ali pred pripravljenih gesel.",
@@ -917,13 +875,7 @@
     "sell_bitcoin": "Prodaj bitcoin",
     "sell_crypto": "Prodaj kripto",
     "spend_bitcoin": "Porabi bitcoin",
-    "spend_crypto": "Porabi kripto",
-    "send": "",
-    "enable": "",
-    "sent": "",
-    "receiveWithoutCoinCode": "",
-    "received": "",
-    "reset": ""
+    "spend_crypto": "Porabi kripto"
   },
   "genericError": "Pojavila se je napaka. Če opazite kakršne koli težave, znova zaženite aplikacijo.",
   "goal": {
@@ -985,10 +937,6 @@
       "xpub": {
         "text": "Razširjeni javni ključ (xpub) je osnovni ključ, iz katerega izhajajo vsi prejemni naslovi računa.\nTu jih prikazujemo za namene napredne uporabe, kot na primer za uporabo v opazovalnih denarnicah (watch only wallets), kot sta Electrum ali Sentinel. Če imate prejeme sredstev na različne tipe naslovov, uporabite \"xpub\" vseh tipov naslovov, da jih boste lahko videli vse svoje kovance v teh denarnicah.\n\nPozor, nekatere denarnice še ne podpirajo vseh tipov naslovov, kot je npr Taproot.",
         "title": "Kaj je razširjeni javni ključ?"
-      },
-      "exportTransactions": {
-        "title": "",
-        "text": ""
       }
     },
     "accountRates": {
@@ -1072,11 +1020,7 @@
       "link": "Kontaktirajte nas!",
       "questionService": "Imate težave z {{serviceName}}?",
       "text": "Imate še kakšno vprašanje?",
-      "textService": "V kolikor imate težave z {{serviceName}}, se obrnite neposredno nanje:",
-      "feedback": {
-        "link": "",
-        "text": ""
-      }
+      "textService": "V kolikor imate težave z {{serviceName}}, se obrnite neposredno nanje:"
     },
     "backups": {
       "check": {
@@ -1356,29 +1300,6 @@
         "text": "WalletConnect je komunikacijski protokol za web3 aplikacije. Omogoča vam priročno povezavo z decentraliziranimi avtonomnimi aplikacijami (DApps) in spletnimi denarnicami, ki temeljijo na Ethereumu, brez uporabe aplikacije tretje osebe. To je še posebej uporabno za uporabnike aplikacije BitBoxApp na Androidu.",
         "title": "Kaj je WalletConnect?"
       }
-    },
-    "bitrefill": {
-      "kyc": {
-        "title": "",
-        "link": {
-          "text": ""
-        },
-        "text": ""
-      },
-      "invoice": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      },
-      "limits": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      }
     }
   },
   "headerssync": {
@@ -1429,14 +1350,6 @@
     "about": {
       "appVersion": {
         "title": "Verzija aplikacije"
-      },
-      "feedbackLink": {
-        "description": "",
-        "title": ""
-      },
-      "supportLink": {
-        "description": "",
-        "title": ""
       }
     },
     "advancedSettings": {
@@ -1485,8 +1398,7 @@
       },
       "remebmerWallet": {
         "enable": {
-          "description": "Zdaj si lahko ogledate račune, povezane s to denarnico, ne da bi BitBox vstavili v računalnik ali telefon. Seveda je BitBox še vedno potreben za izvajanje transakcij in prikaz prejemnih naslovov.",
-          "title": ""
+          "description": "Zdaj si lahko ogledate račune, povezane s to denarnico, ne da bi BitBox vstavili v računalnik ali telefon. Seveda je BitBox še vedno potreben za izvajanje transakcij in prikaz prejemnih naslovov."
         },
         "name": "Zapomni si denarnico",
         "warning": "Odstranili boste prikaz denarnice, ko BitBox ni priključen. Vsebina denarnice in vsa sredstva s tem ostanejo varna in nedotaknjena, le BitBoxApp jo bo pozabil. Nadaljujem?",
@@ -1514,7 +1426,6 @@
     "connectionIssueTips": "Težave s povezavo?",
     "description1": "Samo BitBox02 Nova je združljiv z iOS. Za BitBox02 uporabite Windows, macOS, Android ali Linux. BitBox02 Nova lahko kupite v naši spletni trgovini ali pe bolje, preko lokalnih partnerjev.",
     "description2": "Zaslon se mora prižgati. Če zaslon ni prižgan, naprava ne prejema napajanja.",
-    "description3": "",
     "description4": "BitBox02 Nova se z iOS-om poveže prek Bluetootha. Bluetooth je mogoče omogočiti/onemogočiti v nastavitvah BitBoxApp na drugih platformah.",
     "link1": "Kupi BitBox02 Nova",
     "link2": "Vprašaj podporo",
@@ -1526,7 +1437,6 @@
   },
   "passphrase": {
     "considerations": {
-      "button": "",
       "message": "Geselska fraza zagotavlja dodaten nivo zaščite varnostni kopiji vaše denarnice (bodisi na microSD kartici ali 24 besedam). Če nekdo pridobi dostop do vaše varnostne kopije (na kartici ali besede), bo za dostop do vaše denarnice potreboval tudi geselsko frazo.\n\nTo pa pomeni, da boste potrebovali <strong>oboje - geselsko frazo in varnostno kopijo denarnice</strong>, da bi obnovili tako zaščiteno denarnico, če se vaš BitBox pokvari ali ga izgubite. Če pozabite ali izgubite to geslo, boste izgubili dostop do vseh kovancev v tej denarnici!\n\nGeselsko frazo shranjujte ločeno od varnostne kopije. S tem preprečite vdor v denarnico, če nekdo najde le njeno varnostno kopijo.",
       "title": "Razmislek o varnostni kopiji"
     },
@@ -1702,7 +1612,6 @@
       "address": "Naslov",
       "addressReused": "Naslov je bil že uporabljen",
       "change": "Drobiž",
-      "outpoint": "",
       "title": "Pošlji iz (output):"
     },
     "confirm": {
@@ -1772,11 +1681,7 @@
     "success": "Transakcija je bila podpisana in poslana.",
     "title": "Pošlji {{accountName}}",
     "toggleCoinControl": "Odpri nadzor nad kovanci",
-    "transactionDetails": "Podrobnosti transakcije",
-    "sendToAccount": {
-      "placeholder": "",
-      "title": ""
-    }
+    "transactionDetails": "Podrobnosti transakcije"
   },
   "settings": {
     "about": "O aplikaciji",
@@ -1923,11 +1828,7 @@
       "fiatAmount": "Znesek v fiat valuti",
       "status": "Stanje",
       "title": "Podrobnosti transakcije",
-      "type": "Tip",
-      "currentFiat": "",
-      "from": "",
-      "historicalFiat": "",
-      "sentToSelf": ""
+      "type": "Tip"
     },
     "explorer": "ID transakcije",
     "explorerTitle": "Odpri v zunanjem raziskovalcu",
@@ -1959,13 +1860,10 @@
       "receive_pending": "Prejeto na",
       "send_complete": "Poslano na",
       "send_failed": "Pošiljanje ni uspelo",
-      "send_pending": "Poslano na",
-      "send_to_self": "",
-      "send_to_self_failed": ""
+      "send_pending": "Poslano na"
     },
     "vsize": "Virtualna velikost",
-    "weight": "Utež",
-    "advanced": ""
+    "weight": "Utež"
   },
   "transactions": {
     "errorLoadTransactions": "Napaka pri nalaganju transakcij.",
@@ -1983,19 +1881,7 @@
       "label": "Geslo naprave",
       "placeholder": "...vnesite tukaj."
     },
-    "unlocking": "Odklepanje...",
-    "forgotPassword": {
-      "button": "",
-      "dialogDescription": "",
-      "dialogTitle": "",
-      "info": "",
-      "stillHavingIssues": "",
-      "supportLink": "",
-      "text1": "",
-      "text2": "",
-      "title1": "",
-      "title2": ""
-    }
+    "unlocking": "Odklepanje..."
   },
   "upgradeFirmware": {
     "button": "Nadgradite strojno programsko opremo",
@@ -2058,15 +1944,6 @@
     "getStarted": "Začnimo z namestitvijo strojne programske opreme (firmware)",
     "loadingAccounts": "Nalaganje računov",
     "message": "Priključite BitBox in se dotaknite strani naprave.",
-    "title": "Dobrodošli",
-    "messageIOS": ""
-  },
-  "gapLimit": {
-    "change": "",
-    "description": "",
-    "maxValue": "",
-    "minValue": "",
-    "receive": "",
-    "title": ""
+    "title": "Dobrodošli"
   }
 }

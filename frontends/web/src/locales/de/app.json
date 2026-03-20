@@ -38,10 +38,7 @@
       "p2wpkh": "Native Segwit anzeigen",
       "p2wpkh-p2sh": "Älteren Segwit erweiterten öffentlichen Schlüssel anzeigen"
     },
-    "xpubTypeInfo": "Derzeit wird der {{scriptType}} erweiterte Public Key angezeigt ({{current}} von {{numberOfXPubs}})",
-    "exportTransactions": "",
-    "accountDetails": "",
-    "viewAccountDetails": ""
+    "xpubTypeInfo": "Derzeit wird der {{scriptType}} erweiterte Public Key angezeigt ({{current}} von {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Kontostand",
@@ -213,8 +210,7 @@
     "changePassword": {
       "description": "Ändere das Gerätepasswort der BitBox.",
       "success": "Passwort erfolgreich geändert",
-      "title": "Gerätepasswort ändern",
-      "error_104": ""
+      "title": "Gerätepasswort ändern"
     },
     "deviceName": {
       "current": "Aktueller Gerätename",
@@ -394,8 +390,7 @@
     "disabledPermissionDescription": "Bitte erlaube Bluetooth, um deine BitBox zu verbinden.",
     "disabledPermissionTitle": "Zugriff auf Bluetooth ist für die BitBoxApp deaktiviert.",
     "enable": "Aktiviere Bluetooth.",
-    "select": "BitBox auswählen",
-    "connectionIssuesLink": ""
+    "select": "BitBox auswählen"
   },
   "bootloader": {
     "button": "Firmware jetzt aktualisieren",
@@ -463,7 +458,6 @@
               "title": "Gebühren"
             },
             "intro": {
-              "text": "",
               "title_bitcoin": "Bitcoin ausgeben mit Bitrefill",
               "title_crypto": "Krypto ausgeben mit Bitrefill"
             },
@@ -1928,8 +1922,7 @@
       "historicalFiat": "Historischer Fiatwert",
       "status": "Status",
       "title": "Transaktionsdetails",
-      "type": "Typ",
-      "sentToSelf": ""
+      "type": "Typ"
     },
     "explorer": "Transaktions ID",
     "explorerTitle": "In externem Block Explorer öffnen.",
@@ -1961,13 +1954,10 @@
       "receive_pending": "Empfangen an",
       "send_complete": "Gesendet an",
       "send_failed": "Fehlgeschlagener Versand an",
-      "send_pending": "Gesendet an",
-      "send_to_self": "",
-      "send_to_self_failed": ""
+      "send_pending": "Gesendet an"
     },
     "vsize": "Virtuelle Größe",
-    "weight": "Gewicht",
-    "advanced": ""
+    "weight": "Gewicht"
   },
   "transactions": {
     "errorLoadTransactions": "Beim Laden der Transaktionen ist ein Fehler aufgetreten",
@@ -1985,19 +1975,7 @@
       "label": "Gerätepasswort",
       "placeholder": "Gib dein Gerätepasswort ein um das Gerät zu entsperren."
     },
-    "unlocking": "Entsperren...",
-    "forgotPassword": {
-      "button": "",
-      "text1": "",
-      "title1": "",
-      "title2": "",
-      "text2": "",
-      "dialogDescription": "",
-      "dialogTitle": "",
-      "info": "",
-      "stillHavingIssues": "",
-      "supportLink": ""
-    }
+    "unlocking": "Entsperren..."
   },
   "upgradeFirmware": {
     "button": "Firmware aktualisieren",
@@ -2060,7 +2038,6 @@
     "getStarted": "Starte die Installation der Firmware auf deiner BitBox.",
     "loadingAccounts": "Lade Konten",
     "message": "Verbinde deine BitBox und tippe sie an der Seite an, um fortzufahren.",
-    "title": "Willkommen",
-    "messageIOS": ""
+    "title": "Willkommen"
   }
 }

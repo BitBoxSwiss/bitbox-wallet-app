@@ -7,16 +7,7 @@
     "initializing": "Получение информации из блокчейна ...",
     "maybeProxyError": "Прокси-сервер включен. Убедитесь, что Ваш прокси-сервер рабочий, иначе отключите использование прокси-сервера в настройках.",
     "reconnecting": "Потерянна связь, попытка повторного подключения ...",
-    "syncedAddressesCount": "Отсканировано {{count}} адресов",
-    "insured": "",
-    "account": "",
-    "accounts": "",
-    "backupReminder": "",
-    "backupReminderLink": "",
-    "insuranceExpired": "",
-    "uncoveredFunds": "",
-    "uncoveredFundsLink": "",
-    "warning": ""
+    "syncedAddressesCount": "Отсканировано {{count}} адресов"
   },
   "accountInfo": {
     "address": "Адрес",
@@ -37,11 +28,7 @@
       "p2wpkh": "Просмотр счета Native Segwit",
       "p2wpkh-p2sh": "Просмотр Segwit расширенного открытого ключа"
     },
-    "xpubTypeInfo": "Отображение {{scriptType}} расширенного открытого ключа ({{current}} из {{numberOfXPubs}})",
-    "taproot": "",
-    "accountDetails": "",
-    "exportTransactions": "",
-    "viewAccountDetails": ""
+    "xpubTypeInfo": "Отображение {{scriptType}} расширенного открытого ключа ({{current}} из {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Доступный баланс",
@@ -53,9 +40,7 @@
     "subtotalWithCoinName": "Монета ({{coinName}})",
     "title": "Моя учетная запись\n",
     "total": "Всего",
-    "transactionHistory": "Журнал транзакций",
-    "coin": "",
-    "portfolio": ""
+    "transactionHistory": "Журнал транзакций"
   },
   "addAccount": {
     "chooseName": {
@@ -72,8 +57,7 @@
       "message": "<strong>{{accountName}}</strong> добавлен в аккаунт",
       "nextButton": "Выполнено",
       "step": "Завершено",
-      "title": "Добавлен аккаунт",
-      "addAnotherAccount": ""
+      "title": "Добавлен аккаунт"
     },
     "title": "Добавить учётную запись"
   },
@@ -91,10 +75,7 @@
       "title": "Адрес успешно отправлен"
     },
     "syncing": "Синхронизация аккаунта, пожалуйста, подождите.",
-    "title": "Запрос адреса",
-    "xpubRequested": "",
-    "addressRequestWithXPub": "",
-    "addressRequestWithLogoAndXPub": ""
+    "title": "Запрос адреса"
   },
   "app": {
     "upgrade": "Доступна новая версия этого приложения! Обновите с {{current}} на {{version}}."
@@ -111,8 +92,7 @@
         "showLabel": "пароль восстановления"
       },
       "success": "Резервная копия успешно подтверждена:",
-      "title": "Проверить резервную копию",
-      "aborted": ""
+      "title": "Проверить резервную копию"
     },
     "create": {
       "alreadyExists": "У вас уже существует резервная копия. Вы хотите её переписать?",
@@ -138,8 +118,7 @@
       "confirmTitle": "Восстановление резервной копии",
       "error": {
         "e200": "Карта памяти microSD не обнаружена",
-        "general": "Невозможно восстановить резервную копию",
-        "e104": ""
+        "general": "Невозможно восстановить резервную копию"
       },
       "password": {
         "label": "Пароль восстановления или скрытый пароль восстановления",
@@ -150,17 +129,13 @@
       "restoring": "Происходит восстановление резервной копии ...",
       "selectedBackup": "<strong>{{backupName}}</strong> созданный на {{createdDateTime}}будет восстановлен",
       "title": "Восстановить",
-      "understand": "Я понимаю, что неверный пароль восстановления создаст другой кошелек",
-      "subtitle": ""
+      "understand": "Я понимаю, что неверный пароль восстановления создаст другой кошелек"
     },
     "showMnemonic": {
       "description": "Вам будут представлены 24 слова восстановления, которые образуют резервную копию Вашего кошелька. Запишите их на бумаге.\n\n<strong>Не храните их в цифровом виде и не фотографируйте.</strong>\n\n<strong>Не произносите слова вслух.</strong>\n\n<strong>Эта резервная копия не защищена паролем.</strong>\n\nПосле этого вам будет предложено подтвердить каждое слово.",
-      "title": "Показать слова восстановления кошелька",
-      "checkboxLabel": "",
-      "warning": ""
+      "title": "Показать слова восстановления кошелька"
     },
-    "title": "Управление резервными копиями",
-    "link": ""
+    "title": "Управление резервными копиями"
   },
   "bb02Bootloader": {
     "abort": "Не обновлять - вернуться обратно",
@@ -172,11 +147,7 @@
     "flipscreen": "Перевернуть экран",
     "orientation": "Экран ориентирован на другую сторону?",
     "success": "Обновление прошло успешно! ",
-    "success_install": "Установка прошла успешно! ",
-    "upgradeTitle_install": "",
-    "upgradeTitle": "",
-    "additionalUpgradeFollows1": "",
-    "additionalUpgradeFollows2": ""
+    "success_install": "Установка прошла успешно! "
   },
   "bitbox": {
     "error": {
@@ -191,36 +162,18 @@
     "confirmName": "Подтвердите имя на Вашем устройстве BitBox02",
     "followInstructions": "Пожалуйста, следуйте инструкциям на Вашем устройстве BitBox02.",
     "followInstructionsMnemonic": "Пожалуйста, следуйте инструкциям на вашем устройстве BitBox02, чтобы восстановить кошелек используя резервную копию слов",
-    "followInstructionsMnemonicTitle": "Восстановление из резервных слов (мнемонической фразы)",
-    "confirmWords": "",
-    "confirmWordsText": ""
+    "followInstructionsMnemonicTitle": "Восстановление из резервных слов (мнемонической фразы)"
   },
   "bitbox02Settings": {
     "deviceName": {
       "current": "Текущее имя устройства",
       "input": "Имя устройства BitBox02",
       "placeholder": "Новое имя устройства",
-      "title": "Переименовать устройство BitBox02",
-      "error": "",
-      "error_104": ""
+      "title": "Переименовать устройство BitBox02"
     },
     "gotoStartupSettings": {
       "description": "Данное действие перезагрузит BitBox02 и вернет начальные настройки запуска",
       "title": "Перейти к начальным настройкам"
-    },
-    "changePassword": {
-      "success": "",
-      "description": "",
-      "error_104": "",
-      "title": ""
-    },
-    "bluetoothToggleEnabled": {
-      "alertDisabled": "",
-      "description": "",
-      "error_104": "",
-      "titleDisabled": "",
-      "titleEnabled": "",
-      "alertEnabled": ""
     }
   },
   "bitbox02Wizard": {
@@ -236,8 +189,7 @@
       "userConfirmation2": "Моя резервная копия не защищена паролем. Любой, у кого есть доступ, сможет владеть моим кошельком.",
       "userConfirmation3": "Если я потеряю или повредю мой BitBox02, единственный способ восстановить все средства - это резервная копия.",
       "userConfirmation4": "Если я потеряю или повредю резервную копию и мой BitBox02, все средства будут утеряны.",
-      "userConfirmation5": "Я не должен вставлять мою карту памяти microSD на которой находится резервная копия в компьютер, телефон, принтер или любое другое устройство, кроме BitBox02.",
-      "userConfirmation5mnemonic": ""
+      "userConfirmation5": "Я не должен вставлять мою карту памяти microSD на которой находится резервная копия в компьютер, телефон, принтер или любое другое устройство, кроме BitBox02."
     },
     "create": {
       "button": "Именовать устройство и продолжить",
@@ -260,13 +212,11 @@
       "unpaired": "Новый BitBox02 был обнаружен. Убедитесь, что следующий код соответствует тому, что показан на вашем устройстве. Если код соответствует, нажмите под галочкой на вашем BitBox02 и затем нажмите кнопку ниже, чтобы продолжить."
     },
     "restoreFromMnemonic": {
-      "failed": "Не удалось выполнить восстановление. Попробуйте еще раз.",
-      "e104": ""
+      "failed": "Не удалось выполнить восстановление. Попробуйте еще раз."
     },
     "stepBackup": {
       "beforeProceed": "Прежде чем продолжить, прочтите следующие важные примечания по безопасности:",
-      "createBackup": "Теперь вы создадите резервную копию на карте microSD.",
-      "createBackupMnemonic": ""
+      "createBackup": "Теперь вы создадите резервную копию на карте microSD."
     },
     "stepBackupSuccess": {
       "fundsSafe": "Для максимальной безопасности ваших средств, помните следующее:",
@@ -280,27 +230,19 @@
       "nameLabel": "Имя BitBox02",
       "namePlaceholder": "Мой BitBox02",
       "title": "Выберите имя BitBox02",
-      "toastMicroSD": "Убедитесь, что карта microSD вставлена ​​в BitBox02.",
-      "error": {
-        "genericMessage": "",
-        "invalidChars": "",
-        "tooLong": ""
-      }
+      "toastMicroSD": "Убедитесь, что карта microSD вставлена ​​в BitBox02."
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Извлеките карту microSD из BitBox02 и храните ее в надежном месте.",
-      "success": "Вы успешно создали резервную копию",
-      "storeMnemonic": ""
+      "success": "Вы успешно создали резервную копию"
     },
     "stepInsertSD": {
       "insertSDCard": "Чтобы продолжить, вставьте карту microSD в BitBox02.",
-      "insertSDcardTitle": "Вставьте карту microSD",
-      "insertSDCardToSeeBackups": ""
+      "insertSDcardTitle": "Вставьте карту microSD"
     },
     "stepPassword": {
       "title": "Установить пароль BitBox02",
-      "useControls": "Используйте элементы управления на устройстве BitBox02, чтобы установить пароль.",
-      "e104": ""
+      "useControls": "Используйте элементы управления на устройстве BitBox02, чтобы установить пароль."
     },
     "stepUninitialized": {
       "create": "Я хочу инициализировать новый BitBox02.",
@@ -311,18 +253,7 @@
     },
     "success": {
       "title": "Вы готовы к работе!"
-    },
-    "advanced": {
-      "button": "",
-      "outOfDate": "",
-      "seed12WordText": "",
-      "skipSDCardText": "",
-      "title": "",
-      "seed12WordInfo": "",
-      "seed12WordLabel": "",
-      "skipSDCardLabel": ""
-    },
-    "createBackupAborted": ""
+    }
   },
   "blink": {
     "button": "Мерцать"
@@ -352,8 +283,7 @@
     "select": "Выбрать",
     "unlock": "Разблокировать",
     "update": "Обновить",
-    "upgrade": "Обновить",
-    "proceedOnBitBox": ""
+    "upgrade": "Обновить"
   },
   "buy": {
     "info": {
@@ -380,241 +310,17 @@
         },
         "privacyPolicy": "Политика конфиденциальности MoonPay",
         "protection": {
-          "title": "Защита данных",
-          "descriptionGeneric_bitcoin": "",
-          "descriptionGeneric_crypto": ""
+          "title": "Защита данных"
         },
         "security": {
           "link": "Модель угроз безопасности",
-          "title": "Модель безопасности",
-          "descriptionGeneric_bitcoin": "",
-          "descriptionGeneric_crypto": ""
-        },
-        "title_bitcoin": "",
-        "title_crypto": ""
+          "title": "Модель безопасности"
+        }
       },
       "next": "Далее",
       "selectLabel": "Выберите аккаунт",
       "selectPlaceholder": "Выберите монету",
       "skip": "Не показывать снова"
-    },
-    "exchange": {
-      "fee": "",
-      "region": "",
-      "infoContent": {
-        "bitrefill": {
-          "disclaimer": {
-            "security": {
-              "title": "",
-              "link": "",
-              "text": ""
-            },
-            "account": {
-              "link": "",
-              "text": "",
-              "title": ""
-            },
-            "claims": {
-              "link": "",
-              "text": "",
-              "title": ""
-            },
-            "dataProtection": {
-              "link": "",
-              "text": "",
-              "title": ""
-            },
-            "fees": {
-              "text": "",
-              "title": ""
-            },
-            "intro": {
-              "text": "",
-              "title_bitcoin": "",
-              "title_crypto": ""
-            },
-            "validEmail": {
-              "text": "",
-              "title": ""
-            }
-          },
-          "infobox": {
-            "intro": ""
-          }
-        },
-        "btcdirectWidget": {
-          "infobox": {
-            "feesBuying": {
-              "creditDebitCard": "",
-              "sofort": "",
-              "title": "",
-              "bancontact": "",
-              "bankTransfer": ""
-            },
-            "feesSelling": {
-              "bankTransfer": "",
-              "title": ""
-            },
-            "intro": "",
-            "payment": {
-              "bancontact": "",
-              "bankTransfer": "",
-              "creditDebitCard": "",
-              "sofort": "",
-              "title": ""
-            }
-          },
-          "disclaimer": {
-            "paymentMethods": {
-              "sell": "",
-              "title": "",
-              "buy": "",
-              "note": ""
-            },
-            "security": {
-              "description": "",
-              "link": "",
-              "title": ""
-            },
-            "title_bitcoin": "",
-            "title_crypto": "",
-            "description": "",
-            "kyc": {
-              "description": "",
-              "title": ""
-            }
-          },
-          "learnmore": ""
-        },
-        "btcdirect": {
-          "disclaimer": {
-            "dataProtection": {
-              "title": "",
-              "text": "",
-              "link": ""
-            },
-            "kyc": {
-              "text": "",
-              "title": ""
-            },
-            "partnership": {
-              "text": "",
-              "title": ""
-            },
-            "paymentMethods": {
-              "sell2": "",
-              "title": "",
-              "buy": "",
-              "buy2": "",
-              "fee": "",
-              "sell": ""
-            },
-            "personal": {
-              "text": "",
-              "title": ""
-            },
-            "title": "",
-            "security": {
-              "link": "",
-              "text": "",
-              "title": ""
-            }
-          },
-          "infobox": {
-            "listItem3": "",
-            "intro_btconly": "",
-            "intro_multi": "",
-            "kyc": "",
-            "learnmore": "",
-            "listItem1": "",
-            "listItem2": "",
-            "listItem4": "",
-            "manager": ""
-          },
-          "link": "",
-          "info": "",
-          "title": ""
-        },
-        "pocket": {
-          "fees": {
-            "info": "",
-            "title": ""
-          },
-          "verification": {
-            "info": "",
-            "link": "",
-            "title": ""
-          },
-          "payment": {
-            "bankTransferDetails": {
-              "sic": "",
-              "uk": "",
-              "sepa": ""
-            },
-            "bankTransferReccuring": "",
-            "title": "",
-            "bankTransfer": ""
-          },
-          "sell": {
-            "title": ""
-          },
-          "supportedCurrencies": "",
-          "learnMore": ""
-        },
-        "region": {
-          "title": ""
-        },
-        "moonpay": {
-          "fees": {
-            "title": "",
-            "bankTransfer": "",
-            "creditDebitCard": "",
-            "learnMore": ""
-          },
-          "fullCurrenciesList": "",
-          "payment": {
-            "asteriskText": "",
-            "bankTransfer": "",
-            "bankTransferDetails": {
-              "pix": "",
-              "sepa": "",
-              "uk": ""
-            },
-            "creditDebitCard": "",
-            "creditDebitCardDetails": {
-              "cards": ""
-            },
-            "learnMore": "",
-            "title": ""
-          },
-          "supportedCurrencies": ""
-        }
-      },
-      "creditCard": "",
-      "bankTransfer": "",
-      "description_bitrefill": "",
-      "selectRegion": "",
-      "sell": "",
-      "spend": "",
-      "bestDeal": "",
-      "buy": "",
-      "fast": "",
-      "noExchanges": ""
-    },
-    "bitrefill": {
-      "error": {
-        "insufficientFunds": ""
-      },
-      "transactionNote": ""
-    },
-    "pocket": {
-      "error": {
-        "insufficientFunds": ""
-      },
-      "paymentRequestNote": "",
-      "previousTransactions": "",
-      "usedAddress": "",
-      "verifyBitBox02": ""
     }
   },
   "changePin": {
@@ -629,8 +335,7 @@
       "month": "Месяц",
       "week": "Неделя",
       "year": "Год"
-    },
-    "dataOldTimestamp": ""
+    }
   },
   "checkSDcard": "Проверка карты памяти microSD",
   "clickHere": "Нажмите здесь.",
@@ -639,10 +344,7 @@
   },
   "confirmOnDevice": "Пожалуйста, подтвердите на вашем устройстве.",
   "device": {
-    "appUpradeRequired": "Ваш BitBox несовместим с этой версией приложения. Загрузите и установите последнюю версию.",
-    "keystoreConnected": "",
-    "firmwareUpgradeRequired": "",
-    "unsupportedFeature": ""
+    "appUpradeRequired": "Ваш BitBox несовместим с этой версией приложения. Загрузите и установите последнюю версию."
   },
   "deviceSettings": {
     "firmware": {
@@ -653,9 +355,7 @@
       "upToDate": "Ваше устройство использует самую актуальную версию",
       "version": {
         "label": "Версия"
-      },
-      "firmwareVersion": "",
-      "upgradeAvailable": ""
+      }
     },
     "hardware": {
       "sdcard": {
@@ -664,87 +364,12 @@
         "true": "Вставленный"
       },
       "securechip": "Защищенный чип",
-      "title": "Техническое обеспечение",
-      "attestation": {
-        "false": "",
-        "label": "",
-        "true": ""
-      }
+      "title": "Техническое обеспечение"
     },
     "loading": "Получение информации об устройстве ...",
     "secrets": {
       "manageBackups": "Управление резервными копиями",
       "title": "Полезные функции"
-    },
-    "expert": {
-      "bip85": {
-        "recover": {
-          "title": "",
-          "description": ""
-        },
-        "what": {
-          "link": "",
-          "description": "",
-          "title": ""
-        },
-        "title": "",
-        "disclaimer": "",
-        "how": {
-          "description": "",
-          "title": ""
-        },
-        "security": {
-          "description": "",
-          "title": ""
-        },
-        "description": ""
-      },
-      "factoryReset": {
-        "description": "",
-        "title": ""
-      },
-      "goToStartupSettings": {
-        "description": ""
-      },
-      "passphrase": {
-        "description": "",
-        "title": ""
-      }
-    },
-    "backups": {
-      "manageBackups": {
-        "description": ""
-      },
-      "showRecoveryWords": {
-        "description": ""
-      },
-      "title": ""
-    },
-    "bluetoothFirmware": {
-      "title": ""
-    },
-    "deviceInformation": {
-      "attestation": {
-        "description": ""
-      },
-      "deviceName": {
-        "description": ""
-      },
-      "passwordStretchingAlgo": {
-        "description": "",
-        "title": ""
-      },
-      "rootFingerprint": {
-        "description": ""
-      },
-      "securechip": {
-        "description": ""
-      },
-      "title": ""
-    },
-    "noDevice": "",
-    "deviceSettings": {
-      "title": ""
     }
   },
   "deviceTampered": "У Вашего BitBox был создан пароль восстановления? Если это так, немедленно прекратите процесс установки и обратитесь в службу поддержки. Shift никогда не даст Вам готовый кошелек и не будет давать рекомендации по паролю.",
@@ -764,10 +389,7 @@
     "aoppUnsupportedAsset": "Актив не поддерживается",
     "aoppUnsupportedFormat": "Нет доступных счетов, поддерживающих запрошенный формат адреса.",
     "aoppUnsupportedKeystore": "Подключенное устройство не может подписывать сообщения для этого актива",
-    "aoppVersion": "Неизвестная версия",
-    "keystoreTimeout": "",
-    "wrongKeystore": "",
-    "wrongKeystore2": ""
+    "aoppVersion": "Неизвестная версия"
   },
   "fiat": {
     "default": "Стандарт",
@@ -779,32 +401,7 @@
   },
   "generic": {
     "enabled_false": "Отключено",
-    "enabled_true": "Включено",
-    "reset": "",
-    "sell": "",
-    "close": "",
-    "resetToDefault": "",
-    "search": "",
-    "searchButton": "",
-    "noOptions": "",
-    "buySell": "",
-    "buy_bitcoin": "",
-    "buy_crypto": "",
-    "enable": "",
-    "noOptionOnIos": "",
-    "paymentRequestNote": "",
-    "receive": "",
-    "receiveWithoutCoinCode": "",
-    "receive_bitcoin": "",
-    "receive_crypto": "",
-    "received": "",
-    "sell_bitcoin": "",
-    "sell_crypto": "",
-    "send": "",
-    "sent": "",
-    "spend_bitcoin": "",
-    "spend_crypto": "",
-    "buy": ""
+    "enabled_true": "Включено"
   },
   "genericError": "Произошла ошибка. Если вы заметили какие-либо проблемы, перезапустите приложение.",
   "goal": {
@@ -866,10 +463,6 @@
       "xpub": {
         "text": "Расширенный открытый ключ (xpub) - это корневой ключ, из которого выводятся все адреса получения в аккаунте.\n\nОн предоставляется здесь для расширенного использования и взаимодействия с кошельками, предназначенными только для просмотра, такими как Electrum или Sentinel. Если вы получили ключи от разных типов адресов, пожалуйста, импортируйте все различные форматы xpub в кошелек, доступный только для просмотра, чтобы увидеть все ваши монеты.\n\nОбратите внимание, что сторонние кошельки могут еще не поддерживать Taproot xpubs ключи",
         "title": "Что такое расширенный открытый ключ?"
-      },
-      "exportTransactions": {
-        "text": "",
-        "title": ""
       }
     },
     "accountRates": {
@@ -936,28 +529,11 @@
       "whyIsThisUseful": {
         "text": "В аккаунте сами счета отлично подходят для управления активами разными людьми или создания целей, так как они разделены. Вы также можете поделиться \"расширенным открытым ключом (xpub)\" выбранной конкретной монеты, не раскрывая ничего о других ваших монетах. Это позволит вам получать активы без повторного создания адресов. Например, у доверенных людей получать заработную плату или регулярно покупать криптовалюту",
         "title": "Почему это полезно?"
-      },
-      "supportedCoins": {
-        "text": "",
-        "title": "",
-        "link": {
-          "text": ""
-        }
-      },
-      "whatIsRememberWallet": {
-        "text": "",
-        "title": ""
       }
     },
     "appendix": {
       "link": "Свяжитесь с нами!",
-      "text": "Другой вопрос?",
-      "feedback": {
-        "link": "",
-        "text": ""
-      },
-      "questionService": "",
-      "textService": ""
+      "text": "Другой вопрос?"
     },
     "backups": {
       "check": {
@@ -1094,10 +670,6 @@
       "servers": {
         "text": "Это приложение взаимодействует с серверами Shift Crypto для проверки обновлений, загрузки транзакций и отправки информации к соединенным мобильным приложениям.\nКроме того, оно извлекает последнии курсы обмена от CoinGecko. (Конверсии вычисляются локально, никакие суммы не передаются.)",
         "title": "На каких серверах работает это приложение?"
-      },
-      "sats": {
-        "text": "",
-        "title": ""
       }
     },
     "title": "Руководство",
@@ -1141,124 +713,6 @@
       "welcome": {
         "text": "Спасибо за использование этого приложения, созданного Shift Crypto в Швейцарии. Он по-прежнему находится в стадии бета-тестирования, и мы ценим любой вклад, которым Вы можете поделиться. Пожалуйста, оцените приложение, используя ссылку внизу.",
         "title": "Добро пожаловать в приложение BitBoxApp!"
-      },
-      "worksWithIos": {
-        "link": {
-          "text": ""
-        },
-        "title": "",
-        "text": ""
-      }
-    },
-    "bitrefill": {
-      "invoice": {
-        "title": "",
-        "text": "",
-        "link": {
-          "text": ""
-        }
-      },
-      "kyc": {
-        "title": "",
-        "text": "",
-        "link": {
-          "text": ""
-        }
-      },
-      "limits": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      }
-    },
-    "guideTitle": {
-      "receive": "",
-      "accountSummary": "",
-      "advancedSettings": "",
-      "appearance": "",
-      "buySell": "",
-      "insurance": "",
-      "manageAccount": "",
-      "manageDevice": "",
-      "account": "",
-      "accountInformation": "",
-      "send": "",
-      "walletConnect": ""
-    },
-    "trackingModePortfolioChart": {
-      "text": "",
-      "title": ""
-    },
-    "device": {
-      "name": {
-        "title": "",
-        "text": ""
-      },
-      "attestation": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      },
-      "secure-chip": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      }
-    },
-    "walletConnect": {
-      "supportedNetworks": {
-        "title": "",
-        "text": ""
-      },
-      "noPreviousConnections": {
-        "text": "",
-        "title": ""
-      },
-      "whatIsWalletConnect": {
-        "text": "",
-        "title": ""
-      }
-    },
-    "bitsurance": {
-      "why": {
-        "text": "",
-        "title": ""
-      },
-      "faq": {
-        "text": "",
-        "title": "",
-        "link": {
-          "text": ""
-        }
-      },
-      "privacy": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      },
-      "renew": {
-        "text": "",
-        "title": ""
-      },
-      "status": {
-        "text": "",
-        "title": ""
-      },
-      "what": {
-        "text": "",
-        "title": ""
-      },
-      "who": {
-        "text": "",
-        "title": ""
       }
     }
   },
@@ -1298,10 +752,7 @@
       "showTokens": "Показать токены ({{activeTokenCount}})"
     },
     "settingsButtonDescription": "Добавить и отобразить/скрыть аккаунты",
-    "title": "Управление аккаунтами",
-    "watchAccount": "",
-    "accountHidden": "",
-    "watchAccountDescription": ""
+    "title": "Управление аккаунтами"
   },
   "mobile": {
     "usingMobileDataWarning": "Использование мобильных данных: это приложение может загружать до нескольких сотен мегабайт данных из блокчейна после разблокировки учетной записи. Пожалуйста, подключитесь к Wi-Fi, чтобы не использовать мобильные данные. После закрытия этого сообщения, оно больше не будет отображаться."
@@ -1410,10 +861,7 @@
     "title": "Получить {{accountName}}",
     "verify": "Безопасно проверить адрес",
     "verifyBitBox02": "Проверить адрес на BitBox02",
-    "verifyInstruction": "Убедитесь, что этот адрес совпадает с тем который отображается на Вашем устройстве.",
-    "selectAccount": "",
-    "bitsuranceWarning": "",
-    "qrCodeCopiedMessage": ""
+    "verifyInstruction": "Убедитесь, что этот адрес совпадает с тем который отображается на Вашем устройстве."
   },
   "reset": {
     "description": "Все данные на устройстве будут удалены. Это включает в себя Ваш закрытый ключ!",
@@ -1494,16 +942,12 @@
     "coincontrol": {
       "address": "Адрес",
       "outpoint": "Outpoint",
-      "title": "Отправить с выхода",
-      "addressReused": "",
-      "change": ""
+      "title": "Отправить с выхода"
     },
     "confirm": {
       "selected-coins": "Выбранные монеты",
       "title": "Подтвердить и отправить транзакцию",
-      "total": "Всего",
-      "to": "",
-      "infoMessage": ""
+      "total": "Всего"
     },
     "error": {
       "feeTooLow": "комиссия слишком малая",
@@ -1511,8 +955,7 @@
       "insufficientFunds": "недостаточно средств",
       "invalidAddress": "неверный адрес",
       "invalidAmount": "недопустимая сумма",
-      "invalidData": "неверные данные",
-      "erc20InsufficientGasFunds": ""
+      "invalidData": "неверные данные"
     },
     "fee": {
       "customPlaceholder": "Внести сумму",
@@ -1534,11 +977,7 @@
         "low_ltc": "30 минут (12 блоков)",
         "normal": "1 час (6 блоков)",
         "normal_eth": "2 минуты или меньше",
-        "normal_ltc": "15 минут (6 блоков)",
-        "mFastest": "",
-        "mHalfHour": "",
-        "mEconomy": "",
-        "mHour": ""
+        "normal_ltc": "15 минут (6 блоков)"
       },
       "estimate": "Расчетное время подтверждения транзакции:",
       "label": {
@@ -1546,11 +985,7 @@
         "economy": "Эконом",
         "high": "Быстро",
         "low": "Медленно",
-        "normal": "Средне",
-        "mEconomy": "",
-        "mFastest": "",
-        "mHalfHour": "",
-        "mHour": ""
+        "normal": "Средне"
       },
       "placeholder": "Расчет сетевой комиссии  ..."
     },
@@ -1561,16 +996,7 @@
     "success": "Транзакция была подписана и отправлена.",
     "title": "Послать {{accountName}}",
     "toggleCoinControl": "Переключить управление входами",
-    "transactionDetails": "Детали транзакции",
-    "buyEth": "",
-    "edit": "",
-    "scanQRNoCameraMessage": "",
-    "newTransaction": "",
-    "noFeeTargets": "",
-    "sendToAccount": {
-      "placeholder": "",
-      "title": ""
-    }
+    "transactionDetails": "Детали транзакции"
   },
   "settings": {
     "electrum": {
@@ -1603,19 +1029,12 @@
     "expert": {
       "coinControl": "Включить управление входами",
       "electrum": {
-        "title": "Подключить свой собственный узел",
-        "description": ""
+        "title": "Подключить свой собственный узел"
       },
       "fee": "Включить индивидуальную сетевую комиссию",
       "setProxyAddress": "Установить адрес прокси",
       "title": "Экспертные настройки",
-      "useProxy": "Включить прокси-сервер тор",
-      "exportLogs": {
-        "description": "",
-        "title": ""
-      },
-      "restartInTestnet": "",
-      "useSats": ""
+      "useProxy": "Включить прокси-сервер тор"
     },
     "header": {
       "home": "Главная"
@@ -1625,44 +1044,13 @@
       "title": "Сервисы"
     },
     "success": "Пожалуйста, отключите и подключите BitBox заново, чтобы изменения вступили в силу.",
-    "title": "Настройки",
-    "info": {
-      "out-of-date": "",
-      "title": "",
-      "up-to-date": "",
-      "version": ""
-    },
-    "more": "",
-    "general": "",
-    "about": "",
-    "advancedSettings": "",
-    "appearance": "",
-    "notes": {
-      "export": {
-        "description": "",
-        "success": "",
-        "title": ""
-      },
-      "import": {
-        "description": "",
-        "title": "",
-        "tooLarge": "",
-        "accountNames_one": "",
-        "accountNames_few": "",
-        "accountNames_many": "",
-        "transactionNotes_one": "",
-        "transactionNotes_few": "",
-        "transactionNotes_many": ""
-      },
-      "title": ""
-    }
+    "title": "Настройки"
   },
   "setup": "Инициализировать устройство",
   "sidebar": {
     "device": "Управление устройством",
     "leave": "Выйти",
-    "settings": "Настройки",
-    "insurance": ""
+    "settings": "Настройки"
   },
   "success": {
     "create": {
@@ -1687,12 +1075,7 @@
       "date": "Дата",
       "fiatAmount": "Сумма фиата",
       "status": "Статус",
-      "type": "Тип",
-      "historicalFiat": "",
-      "currentFiat": "",
-      "from": "",
-      "title": "",
-      "sentToSelf": ""
+      "type": "Тип"
     },
     "explorer": "Номер транзакции",
     "explorerTitle": "Открыть во внешнем проводнике блоков",
@@ -1704,37 +1087,13 @@
     "status": {
       "complete": "Завершенная",
       "failed": "Неудавшаяся",
-      "pending": "В ожидании",
-      "pending_send_to_self": "",
-      "pending_receive": "",
-      "pending_send": ""
+      "pending": "В ожидании"
     },
     "vsize": "Виртуальный размер",
-    "weight": "Вес",
-    "statusShort": {
-      "complete": "",
-      "pending": "",
-      "pending_receive": "",
-      "pending_send": "",
-      "pending_send_to_self": "",
-      "failed": ""
-    },
-    "tx": {
-      "receive_pending": "",
-      "send_complete": "",
-      "receive_complete": "",
-      "send_failed": "",
-      "send_pending": "",
-      "send_to_self": "",
-      "send_to_self_failed": "",
-      "receive_failed": ""
-    },
-    "advanced": "",
-    "no-results": ""
+    "weight": "Вес"
   },
   "transactions": {
-    "placeholder": "Нет пока никаких транзакций.",
-    "errorLoadTransactions": ""
+    "placeholder": "Нет пока никаких транзакций."
   },
   "unknownError": "Произошла неизвестная ошибка: {{errorMessage}}",
   "unlock": {
@@ -1748,19 +1107,7 @@
       "label": "Пароль устройства",
       "placeholder": "Введите пароль своего устройства."
     },
-    "unlocking": "Разблокировка ...",
-    "forgotPassword": {
-      "dialogDescription": "",
-      "dialogTitle": "",
-      "info": "",
-      "stillHavingIssues": "",
-      "supportLink": "",
-      "text1": "",
-      "text2": "",
-      "title1": "",
-      "title2": "",
-      "button": ""
-    }
+    "unlocking": "Разблокировка ..."
   },
   "upgradeFirmware": {
     "button": "Обновление прошивки",
@@ -1774,296 +1121,10 @@
     "unlocked3": "Нажмите сенсорную кнопку, когда загорится светодиод"
   },
   "warning": {
-    "sdcard": "Храните карту micro SD отдельно от BitBox, если только вы не хотите управлять резервными копиями",
-    "offline": "",
-    "testnet": "",
-    "coincontrol": ""
+    "sdcard": "Храните карту micro SD отдельно от BitBox, если только вы не хотите управлять резервными копиями"
   },
   "welcome": {
     "getStarted": "Давайте начнем с установки прошивки на ваш BitBox02",
-    "title": "Добро пожаловать",
-    "message": "",
-    "loadingAccounts": "",
-    "messageIOS": "",
-    "connect": ""
-  },
-  "bitsurance": {
-    "dashboard": {
-      "canceled": "",
-      "button": "",
-      "coverage": "",
-      "inactive": "",
-      "processing": "",
-      "refused": "",
-      "supportLink": "",
-      "active": "",
-      "waitpayment": "",
-      "title": ""
-    },
-    "terms": {
-      "text5": "",
-      "text2": "",
-      "link": "",
-      "text1": "",
-      "text3": "",
-      "text4": ""
-    },
-    "insure": {
-      "button": "",
-      "faq": "",
-      "listItem1": "",
-      "listItem2": "",
-      "listItem3": "",
-      "month": "",
-      "text": "",
-      "text2": "",
-      "text3": "",
-      "title": ""
-    },
-    "detect": {
-      "button": "",
-      "insured": "",
-      "notInsured": "",
-      "text": "",
-      "title": ""
-    },
-    "intro": {
-      "text1": "",
-      "link": ""
-    },
-    "title": ""
-  },
-  "walletConnect": {
-    "pairingRequest": {
-      "reject": "",
-      "title": "",
-      "approve": ""
-    },
-    "signingRequest": {
-      "chain": "",
-      "dapp": "",
-      "method": {
-        "signTransaction": "",
-        "signTypedData": "",
-        "sendTransaction": "",
-        "signMessage": ""
-      },
-      "successfullySigned": "",
-      "walletConnectRequest": "",
-      "data": "",
-      "dataParsingError": "",
-      "decodeError": ""
-    },
-    "connect": {
-      "button": "",
-      "dappLabel": "",
-      "invalidPairingUri": "",
-      "missingNamespace": ""
-    },
-    "dashboard": {
-      "allSessions": "",
-      "disclaimer": "",
-      "newConnection": "",
-      "noConnectedSessions": "",
-      "unspecifiedAccount": ""
-    },
-    "useNewUri": "",
-    "walletConnect": "",
-    "invalidPairingChain": "",
-    "pairingSuccess": ""
-  },
-  "exchange": {
-    "pocket": {
-      "terms": {
-        "fees": {
-          "extraNote": "",
-          "note": "",
-          "p1": "",
-          "p2": "",
-          "title": ""
-        },
-        "kyc": {
-          "title": "",
-          "link": "",
-          "info": ""
-        },
-        "security": {
-          "p1": "",
-          "title": "",
-          "p2": "",
-          "p3": "",
-          "link": ""
-        },
-        "dataprotection": {
-          "link": "",
-          "p1": "",
-          "title": ""
-        },
-        "welcome": {
-          "p1": "",
-          "title": ""
-        }
-      }
-    },
-    "btcdirect": {
-      "currencyMismatch": "",
-      "insufficientFunds": ""
-    },
-    "buySell": {
-      "coinNotSupported": "",
-      "regionNotSupported": ""
-    }
-  },
-  "newSettings": {
-    "appearance": {
-      "defaultCurrency": {
-        "description": "",
-        "title": ""
-      },
-      "enableAccount": {
-        "title": "",
-        "description": ""
-      },
-      "activeCurrencies": {
-        "title": "",
-        "description": ""
-      },
-      "darkmode": {
-        "description": ""
-      },
-      "hideAmounts": {
-        "description": "",
-        "hideAmounts": "",
-        "showAmounts": "",
-        "title": ""
-      },
-      "language": {
-        "description": "",
-        "title": ""
-      },
-      "remebmerWallet": {
-        "enable": {
-          "description": "",
-          "title": ""
-        },
-        "name": "",
-        "warning": "",
-        "warningTitle": ""
-      },
-      "toggleSats": {
-        "description": ""
-      }
-    },
-    "about": {
-      "feedbackLink": {
-        "description": "",
-        "title": ""
-      },
-      "appVersion": {
-        "title": ""
-      },
-      "supportLink": {
-        "description": "",
-        "title": ""
-      }
-    },
-    "advancedSettings": {
-      "authentication": {
-        "description": "",
-        "title": ""
-      },
-      "coinControl": {
-        "description": ""
-      },
-      "customFees": {
-        "description": ""
-      },
-      "restartInTestnet": {
-        "description": ""
-      },
-      "torProxy": {
-        "description": ""
-      }
-    }
-  },
-  "testnet": {
-    "deactivate": {
-      "description": "",
-      "prompt": "",
-      "title": ""
-    },
-    "activate": {
-      "description": "",
-      "prompt": "",
-      "title": ""
-    }
-  },
-  "testWallet": {
-    "connect": {
-      "title": "",
-      "description": ""
-    },
-    "disconnect": {
-      "description": "",
-      "title": ""
-    },
-    "prompt": {
-      "button": "",
-      "passwordLabel": "",
-      "title": ""
-    }
-  },
-  "novaConnectionIssues": {
-    "link1": "",
-    "description3": "",
-    "connectionIssueTips": "",
-    "description1": "",
-    "description2": "",
-    "description4": "",
-    "stillHavingIssues": "",
-    "title1": "",
-    "title2": "",
-    "title3": "",
-    "title4": "",
-    "link2": ""
-  },
-  "bluetooth": {
-    "enable": "",
-    "connected": "",
-    "connectionFailed": "",
-    "connectionIssues": "",
-    "disabledGloballyDescription": "",
-    "disabledGloballyTitle": "",
-    "disabledPermissionDescription": "",
-    "disabledPermissionTitle": "",
-    "select": "",
-    "connectionIssuesLink": ""
-  },
-  "auth": {
-    "missing": "",
-    "title": "",
-    "authButton": "",
-    "dismissButton": ""
-  },
-  "bitsuranceAccount": {
-    "select": "",
-    "title": "",
-    "errorNoXpub": "",
-    "noAccount": ""
-  },
-  "connectKeystore": {
-    "promptNoName": "",
-    "promptWithName": ""
-  },
-  "darkmode": {
-    "toggle": ""
-  },
-  "gapLimit": {
-    "description": "",
-    "maxValue": "",
-    "minValue": "",
-    "receive": "",
-    "change": "",
-    "title": ""
+    "title": "Добро пожаловать"
   }
 }

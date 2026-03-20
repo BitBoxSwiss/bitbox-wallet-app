@@ -38,10 +38,7 @@
       "p2wpkh": "Ver Segwit Nativo",
       "p2wpkh-p2sh": "Ver clave pública extendida antiguo Segwit"
     },
-    "xpubTypeInfo": "Actualmente mostrando {{scriptType}} clave pública extendida ({{current}} de {{numberOfXPubs}})",
-    "accountDetails": "",
-    "exportTransactions": "",
-    "viewAccountDetails": ""
+    "xpubTypeInfo": "Actualmente mostrando {{scriptType}} clave pública extendida ({{current}} de {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Saldo disponible",
@@ -145,8 +142,7 @@
       "confirmTitle": "Recuperar copia de seguridad",
       "error": {
         "e200": "Tarjeta SD no encontrada",
-        "general": "Error restaurando copia de seguridad",
-        "e104": ""
+        "general": "Error restaurando copia de seguridad"
       },
       "password": {
         "label": "Contraseña de recuperación o contraseña de recuperación oculta",
@@ -207,14 +203,12 @@
       "alertEnabled": "Bluetooth activado.",
       "description": "Bluetooth se utiliza para conectarse con el iPhone.",
       "titleDisabled": "Habilitar Bluetooth",
-      "titleEnabled": "Desactivar Bluetooth",
-      "error_104": ""
+      "titleEnabled": "Desactivar Bluetooth"
     },
     "changePassword": {
       "description": "Cambiar la contraseña de la BitBox.",
       "success": "Contraseña cambiada con éxito",
-      "title": "Cambiar contraseña del dispositivo",
-      "error_104": ""
+      "title": "Cambiar contraseña del dispositivo"
     },
     "deviceName": {
       "current": "Nombre del dispositivo actual",
@@ -394,8 +388,7 @@
     "disabledPermissionDescription": "Por favor, permite que el Bluetooth se conecte a tu BitBox.",
     "disabledPermissionTitle": "El acceso Bluetooth está deshabilitado para la BitBoxApp.",
     "enable": "Por favor enciende el Bluetooth",
-    "select": "Selecciona tu BitBox",
-    "connectionIssuesLink": ""
+    "select": "Selecciona tu BitBox"
   },
   "bootloader": {
     "button": "Actualizar firmware ahora",
@@ -471,10 +464,6 @@
               "link": "Modelo de amenazas de seguridad de BitBox",
               "text": "Bitrefill es un servicio externo que no está cubierto por el modelo de amenazas de seguridad de BitBox. Al realizar una compra, el pago se envía a una dirección de Bitrefill. La BitBox no puede verificar que esta dirección sea correcta.",
               "title": "Aviso de seguridad"
-            },
-            "validEmail": {
-              "text": "",
-              "title": ""
             }
           },
           "infobox": {
@@ -787,7 +776,6 @@
         "description": "Entra en el gestor de arranque de tu BitBox. Puedes activar el hash del firmware desde aquí."
       },
       "passphrase": {
-        "description": "",
         "title": "Passphrase"
       }
     },
@@ -1364,29 +1352,6 @@
         "text": "WalletConnect es un protocolo de comunicación para aplicaciones web3. Permite conectarse cómodamente a DApps basadas en Ethereum y billeteras web sin necesidad de utilizar una app de terceros, lo que resulta especialmente útil para los usuarios de Android de la BitBoxApp.",
         "title": "¿Qué es WalletConnect?"
       }
-    },
-    "bitrefill": {
-      "invoice": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      },
-      "kyc": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      },
-      "limits": {
-        "link": {
-          "text": ""
-        },
-        "text": "",
-        "title": ""
-      }
     }
   },
   "headerssync": {
@@ -1451,9 +1416,6 @@
       "authentication": {
         "description": "Bloquea el acceso a la aplicación con bloqueo de pantalla/huella dactilar.",
         "title": "Bloqueo de pantalla"
-      },
-      "coinControl": {
-        "description": ""
       },
       "customFees": {
         "description": "Le permite introducir su propia tarifa al enviar."
@@ -1931,8 +1893,7 @@
       "historicalFiat": "Histórico Fiat",
       "status": "Estado",
       "title": "Detalles de la transacción",
-      "type": "Tipo",
-      "sentToSelf": ""
+      "type": "Tipo"
     },
     "explorer": "ID de transacción",
     "explorerTitle": "Abrir en explorador de bloques",
@@ -1964,13 +1925,10 @@
       "receive_pending": "Recibido a",
       "send_complete": "Enviado a",
       "send_failed": "Error en el envío a",
-      "send_pending": "Enviado a",
-      "send_to_self_failed": "",
-      "send_to_self": ""
+      "send_pending": "Enviado a"
     },
     "vsize": "Tamaño virtual",
-    "weight": "Peso",
-    "advanced": ""
+    "weight": "Peso"
   },
   "transactions": {
     "errorLoadTransactions": "Se ha producido un error al cargar las transacciones",
@@ -1988,19 +1946,7 @@
       "label": "Contraseña del dispositivo",
       "placeholder": "Ingresa la contraseña de tu dispositivo para desbloquear el dispositivo"
     },
-    "unlocking": "Desbloqueando...",
-    "forgotPassword": {
-      "supportLink": "",
-      "text1": "",
-      "text2": "",
-      "button": "",
-      "dialogDescription": "",
-      "dialogTitle": "",
-      "info": "",
-      "stillHavingIssues": "",
-      "title1": "",
-      "title2": ""
-    }
+    "unlocking": "Desbloqueando..."
   },
   "upgradeFirmware": {
     "button": "Actualización de firmware",
@@ -2063,7 +2009,6 @@
     "getStarted": "Vamos a comenzar instalando el firmware en tu BitBox.",
     "loadingAccounts": "Cargando cuentas",
     "message": "Por favor conecta tu BitBox y toca los lados para continuar.",
-    "title": "Bienvenido",
-    "messageIOS": ""
+    "title": "Bienvenido"
   }
 }
