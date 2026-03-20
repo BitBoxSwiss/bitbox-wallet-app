@@ -54,7 +54,8 @@
     "availableBalance": "",
     "coin": "",
     "subtotalWithCoinName": "",
-    "transactionHistory": ""
+    "transactionHistory": "",
+    "portfolio": ""
   },
   "addAccount": {
     "title": "अकाउंट जोड़ो",
@@ -2020,7 +2021,8 @@
       "year": "",
       "all": ""
     },
-    "dataUpdating": ""
+    "dataUpdating": "",
+    "dataMissing": ""
   },
   "connectKeystore": {
     "promptNoName": "",
