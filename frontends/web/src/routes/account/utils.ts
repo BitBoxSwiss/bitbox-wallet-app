@@ -98,7 +98,7 @@ export type TAccountsByKeystore = {
 
 // Returns the accounts grouped by the keystore fingerprint.
 export const getAccountsByKeystore = (accounts: TAccount[]): TAccountsByKeystore[] => {
-  return Object.values(accounts.reduce((acc, account) => {
+  const groupedAccounts = Object.values(accounts.reduce((acc, account) => {
     const key = account.keystore.rootFingerprint;
     if (!acc[key]) {
       acc[key] = {
@@ -109,6 +109,14 @@ export const getAccountsByKeystore = (accounts: TAccount[]): TAccountsByKeystore
     acc[key].accounts.push(account);
     return acc;
   }, {} as Record<string, TAccountsByKeystore>));
+
+  return groupedAccounts.sort(({ keystore: left }, { keystore: right }) => {
+    const nameComparison = left.name.localeCompare(right.name);
+    if (nameComparison !== 0) {
+      return nameComparison;
+    }
+    return left.rootFingerprint.localeCompare(right.rootFingerprint);
+  });
 };
 
 type TKeystoreName = {
