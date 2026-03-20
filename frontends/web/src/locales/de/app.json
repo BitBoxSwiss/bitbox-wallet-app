@@ -5,7 +5,6 @@
     "backupReminder": "Deine Wallet <strong>{{name}}</strong> hat {{threshold}} {{fiat}} überschritten!\n\nWir empfehlen ein Backup auf Papier zu erstellen, für zusätzlichen Schutz. Es ist einfach und geht schnell.",
     "backupReminderLink": "Backup erstellen",
     "disconnect": "Verbindung unterbrochen. Erneut verbinden... ",
-    "export": "Transaktionen exportieren",
     "exportTransactions": "Exportiere Transaktionen im Download Ordner als CSV Datei",
     "fatalError": "Ein unerwarteter Fehler ist aufgetreten.",
     "incoming": "Eingehend",
@@ -39,7 +38,10 @@
       "p2wpkh": "Native Segwit anzeigen",
       "p2wpkh-p2sh": "Älteren Segwit erweiterten öffentlichen Schlüssel anzeigen"
     },
-    "xpubTypeInfo": "Derzeit wird der {{scriptType}} erweiterte Public Key angezeigt ({{current}} von {{numberOfXPubs}})"
+    "xpubTypeInfo": "Derzeit wird der {{scriptType}} erweiterte Public Key angezeigt ({{current}} von {{numberOfXPubs}})",
+    "exportTransactions": "",
+    "accountDetails": "",
+    "viewAccountDetails": ""
   },
   "accountSummary": {
     "availableBalance": "Kontostand",
@@ -209,7 +211,8 @@
     "changePassword": {
       "description": "Ändere das Gerätepasswort der BitBox.",
       "success": "Passwort erfolgreich geändert",
-      "title": "Gerätepasswort ändern"
+      "title": "Gerätepasswort ändern",
+      "error_104": ""
     },
     "deviceName": {
       "current": "Aktueller Gerätename",
@@ -389,7 +392,8 @@
     "disabledPermissionDescription": "Bitte erlaube Bluetooth, um deine BitBox zu verbinden.",
     "disabledPermissionTitle": "Zugriff auf Bluetooth ist für die BitBoxApp deaktiviert.",
     "enable": "Aktiviere Bluetooth.",
-    "select": "BitBox auswählen"
+    "select": "BitBox auswählen",
+    "connectionIssuesLink": ""
   },
   "bootloader": {
     "button": "Firmware jetzt aktualisieren",
@@ -1846,13 +1850,11 @@
       "import": {
         "accountNames_one": "{{count}} Kontoname importiert.",
         "accountNames_other": "{{count}} Kontonamen importiert.",
-        "accountNames_zero": "0 Kontonamen importiert.",
         "description": "Stelle deine Transaktionsnotizen und Kontonamen von einem zuvor erstellten Backup wieder her.",
         "title": "Notizen importieren",
         "tooLarge": "Datei zu groß.",
         "transactionNotes_one": "{{count}} Transaktionsnotiz importiert.",
-        "transactionNotes_other": "{{count}} Transaktionsnotizen importiert.",
-        "transactionNotes_zero": "0 Transaktionsnotizen importiert."
+        "transactionNotes_other": "{{count}} Transaktionsnotizen importiert."
       },
       "title": "Notizen verwalten"
     },
@@ -1922,10 +1924,10 @@
       "fiatAmount": "Fiatbetrag",
       "from": "Von",
       "historicalFiat": "Historischer Fiatwert",
-      "sendToSelf": "An mich selbst senden",
       "status": "Status",
       "title": "Transaktionsdetails",
-      "type": "Typ"
+      "type": "Typ",
+      "sentToSelf": ""
     },
     "explorer": "Transaktions ID",
     "explorerTitle": "In externem Block Explorer öffnen.",
@@ -1957,10 +1959,13 @@
       "receive_pending": "Empfangen an",
       "send_complete": "Gesendet an",
       "send_failed": "Fehlgeschlagener Versand an",
-      "send_pending": "Gesendet an"
+      "send_pending": "Gesendet an",
+      "send_to_self": "",
+      "send_to_self_failed": ""
     },
     "vsize": "Virtuelle Größe",
-    "weight": "Gewicht"
+    "weight": "Gewicht",
+    "advanced": ""
   },
   "transactions": {
     "errorLoadTransactions": "Beim Laden der Transaktionen ist ein Fehler aufgetreten",
@@ -1978,7 +1983,19 @@
       "label": "Gerätepasswort",
       "placeholder": "Gib dein Gerätepasswort ein um das Gerät zu entsperren."
     },
-    "unlocking": "Entsperren..."
+    "unlocking": "Entsperren...",
+    "forgotPassword": {
+      "button": "",
+      "text1": "",
+      "title1": "",
+      "title2": "",
+      "text2": "",
+      "dialogDescription": "",
+      "dialogTitle": "",
+      "info": "",
+      "stillHavingIssues": "",
+      "supportLink": ""
+    }
   },
   "upgradeFirmware": {
     "button": "Firmware aktualisieren",
@@ -2041,6 +2058,7 @@
     "getStarted": "Starte die Installation der Firmware auf deiner BitBox.",
     "loadingAccounts": "Lade Konten",
     "message": "Verbinde deine BitBox und tippe sie an der Seite an, um fortzufahren.",
-    "title": "Willkommen"
+    "title": "Willkommen",
+    "messageIOS": ""
   }
 }
