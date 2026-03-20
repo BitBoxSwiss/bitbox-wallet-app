@@ -13,6 +13,7 @@
 - Use Inter as default font
 - Add forgot password info during unlock
 - Export transactions CSV: add historical value and historical value currency columns.
+- Sort wallets by name first, then by root fingerprint when names match.
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.

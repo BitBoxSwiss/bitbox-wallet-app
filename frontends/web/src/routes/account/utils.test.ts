@@ -127,6 +127,24 @@ describe('utils/getAccountsByKeystore', () => {
     expect(result[1].accounts[3].code).toBe(accounts[5].code);
   });
 
+  it('sorts keystores by wallet name and then root fingerprint', () => {
+    const accounts: TAccount[] = [
+      createAccount({ code: 'same-2', name: 'Same 2', keystore: { name: 'Same', rootFingerprint: 'w2' } }),
+      createAccount({ code: 'beta-1', name: 'Beta 1', keystore: { name: 'Beta', rootFingerprint: 'w3' } }),
+      createAccount({ code: 'same-1', name: 'Same 1', keystore: { name: 'Same', rootFingerprint: 'w1' } }),
+      createAccount({ code: 'alpha-1', name: 'Alpha 1', keystore: { name: 'Alpha', rootFingerprint: 'w9' } }),
+    ];
+
+    const result = getAccountsByKeystore(accounts);
+
+    expect(result.map(({ keystore }) => `${keystore.name}:${keystore.rootFingerprint}`)).toEqual([
+      'Alpha:w9',
+      'Beta:w3',
+      'Same:w1',
+      'Same:w2',
+    ]);
+  });
+
 });
 
 describe('utils/bitcoin coin helpers', () => {
