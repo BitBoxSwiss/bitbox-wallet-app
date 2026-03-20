@@ -54,7 +54,8 @@
     "coin": "",
     "subtotalWithCoinName": "",
     "transactionHistory": "",
-    "availableBalance": ""
+    "availableBalance": "",
+    "portfolio": ""
   },
   "addAccount": {
     "title": "افزودن حساب",
@@ -1872,7 +1873,8 @@
       "year": ""
     },
     "dataOldTimestamp": "",
-    "dataUpdating": ""
+    "dataUpdating": "",
+    "dataMissing": ""
   },
   "bluetooth": {
     "connected": "",
