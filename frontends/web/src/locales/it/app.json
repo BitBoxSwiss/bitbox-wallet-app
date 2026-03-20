@@ -5,7 +5,6 @@
     "backupReminder": "Il tuo wallet <strong>{{name}}</strong> ha superato {{fiat}} {{threshold}}!\n\nTi consigliamo di creare un backup cartaceo per una protezione extra. È veloce e semplice.",
     "backupReminderLink": "Crea un backup cartaceo",
     "disconnect": "Connessione interrotta. Riprovo...",
-    "export": "Esporta transazioni",
     "exportTransactions": "Esporta transazioni in formato CSV nella cartella download",
     "fatalError": "Si è verificato un errore inatteso",
     "incoming": "In entrata",
@@ -39,7 +38,10 @@
       "p2wpkh": "Visualizza Native Segwit",
       "p2wpkh-p2sh": "Visualizza la chiave pubblica estesa Segwit più vecchia"
     },
-    "xpubTypeInfo": "Attualmente viene visualizzata la chiave pubblica estesa {{scriptType}} ({{current}} di {{numberOfXPubs}})"
+    "xpubTypeInfo": "Attualmente viene visualizzata la chiave pubblica estesa {{scriptType}} ({{current}} di {{numberOfXPubs}})",
+    "accountDetails": "",
+    "exportTransactions": "",
+    "viewAccountDetails": ""
   },
   "accountSummary": {
     "availableBalance": "Saldo disponibile",
@@ -389,7 +391,8 @@
     "disabledPermissionDescription": "Consenti l'uso del Bluetooth per il connettere il tuo BitBox.",
     "disabledPermissionTitle": "L'accesso al Bluetooth è disattivato per la BitBoxApp.",
     "enable": "Per favore, attiva il Bluetooth",
-    "select": "Seleziona il tuo BitBox"
+    "select": "Seleziona il tuo BitBox",
+    "connectionIssuesLink": ""
   },
   "bootloader": {
     "button": "Aggiornare il firmware",
@@ -682,7 +685,7 @@
     "oldLabel": "Password attuale del dispositivo"
   },
   "chart": {
-    "dataMissing": "Raccolta di dati ... rimanete collegati.",
+    "dataMissing": "Raccolta di dati rimanete collegati.",
     "dataOldTimestamp": "Aggiornamento dei tassi di cambio storici. Il grafico non visualizza dati posteriori al {{time}}",
     "dataUpdating": "aggiornamento dei dati ...",
     "filter": {
@@ -1354,6 +1357,22 @@
         "text": "WalletConnect è un protocollo di comunicazione per applicazioni web3. Ti permette di connetterti comodamente a DApp e web wallet senza dover usare un'altra app. Particolarmente utile per gli utenti Android della BitBoxApp.",
         "title": "Cos'è WalletConnect?"
       }
+    },
+    "bitrefill": {
+      "kyc": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "limits": {
+        "text": "",
+        "link": {
+          "text": ""
+        },
+        "title": ""
+      }
     }
   },
   "headerssync": {
@@ -1481,6 +1500,7 @@
   },
   "notification": {
     "newTxs_one": "Nuova transazione in: {{accountName}}",
+    "newTxs_many": "",
     "newTxs_other": "{{count}} nuove transazioni in: {{accountName}}"
   },
   "novaConnectionIssues": {
@@ -1818,14 +1838,14 @@
       },
       "import": {
         "accountNames_one": "Importato {{count}} nome account.",
+        "accountNames_many": "",
         "accountNames_other": "Importati {{count}} nomi account.",
-        "accountNames_zero": "Importati 0 nomi account.",
         "description": "Ripristina le note delle transazioni e i nomi degli account da un file di backup creato in precedenza.",
         "title": "Importa note",
         "tooLarge": "File troppo grande.",
         "transactionNotes_one": "Importata {{count}} nota di transazione.",
-        "transactionNotes_other": "Importate {{count}} note di transazione.",
-        "transactionNotes_zero": "Importate 0 note di transazione."
+        "transactionNotes_many": "",
+        "transactionNotes_other": "Importate {{count}} note di transazione."
       },
       "title": "Gestisci le note"
     },
@@ -1895,10 +1915,10 @@
       "fiatAmount": "Importo fiat",
       "from": "Da",
       "historicalFiat": "Fiat storica",
-      "sendToSelf": "Invia a te stesso",
       "status": "Status",
       "title": "Dettagli della Transazione",
-      "type": "Tipo"
+      "type": "Tipo",
+      "sentToSelf": ""
     },
     "explorer": "ID della transazione",
     "explorerTitle": "Apri in un esploratore di blocchi esterno",
@@ -1930,10 +1950,13 @@
       "receive_pending": "Ricevuta su",
       "send_complete": "Inviata a",
       "send_failed": "Invio fallito a",
-      "send_pending": "Inviata a"
+      "send_pending": "Inviata a",
+      "send_to_self": "",
+      "send_to_self_failed": ""
     },
     "vsize": "Dimensione virtuale",
-    "weight": "Peso"
+    "weight": "Peso",
+    "advanced": ""
   },
   "transactions": {
     "errorLoadTransactions": "Si è verificato un errore nel carimento delle transazioni",
@@ -1951,7 +1974,19 @@
       "label": "Password del dispositivo",
       "placeholder": "Inserisci la password del tuo dispositivo per sbloccare il dispositivo"
     },
-    "unlocking": "Sblocco..."
+    "unlocking": "Sblocco...",
+    "forgotPassword": {
+      "button": "",
+      "dialogDescription": "",
+      "dialogTitle": "",
+      "info": "",
+      "stillHavingIssues": "",
+      "supportLink": "",
+      "text1": "",
+      "text2": "",
+      "title1": "",
+      "title2": ""
+    }
   },
   "upgradeFirmware": {
     "button": "Aggiorna il firmware",
@@ -2014,6 +2049,7 @@
     "getStarted": "Iniziamo con l'installazione del firmware sul tuo BitBox.",
     "loadingAccounts": "Caricamento account",
     "message": "Connetti il tuo BitBox e tocca il lato per continuare.",
-    "title": "Benvenuto"
+    "title": "Benvenuto",
+    "messageIOS": ""
   }
 }
