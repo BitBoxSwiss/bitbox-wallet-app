@@ -2,7 +2,7 @@
   "account": {
     "account": "Cuenta",
     "accounts": "Cuenta",
-    "backupReminder": "Tu billetera <strong>{{name}}</strong> ha pasado de {{fiat}} {{threshold}}!\n\nRecomendamos que hagas una copia de seguridad en papel para una protección adicional. Es rápido y sencillo. ",
+    "backupReminder": "Tu billetera <strong>{{name}}</strong> ha pasado de {{fiat}} {{threshold}}!\n\nRecomendamos que hagas una copia de seguridad en papel para una protección adicional. Es rápido y sencillo.",
     "backupReminderLink": "Crear una copia de seguridad en papel",
     "disconnect": "Conexión perdida. Reintentando... ",
     "exportTransactions": "Exportar transacciones a la carpeta de descargas como archivo CSV",
