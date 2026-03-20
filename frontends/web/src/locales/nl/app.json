@@ -5,7 +5,6 @@
     "backupReminder": "Je wallet <strong>{{name}}</strong> is meer dan {{fiat}} {{threshold}} waard!\n\nWe raden je aan een papieren backup te maken voor extra veiligheid. Het is makkelijk en snel.",
     "backupReminderLink": "Papieren backup maken",
     "disconnect": "Verbinding verbroken. Opnieuw aan het verbinden...",
-    "export": "Transacties exporteren",
     "exportTransactions": "Transacties als CSV bestand naar de downloads map exporteren",
     "fatalError": "Er is een onverwachte fout opgetreden",
     "incoming": "Binnenkomend",
@@ -39,7 +38,10 @@
       "p2wpkh": "Native SegWit weergeven",
       "p2wpkh-p2sh": "Oude SegWit uitgebreide publieke sleutel weergeven"
     },
-    "xpubTypeInfo": "Op dit moment wordt nummer {{current}} van de {{numberOfXPubs}} {{scriptType}} uitgebreide publieke sleutels weergegeven"
+    "xpubTypeInfo": "Op dit moment wordt nummer {{current}} van de {{numberOfXPubs}} {{scriptType}} uitgebreide publieke sleutels weergegeven",
+    "exportTransactions": "",
+    "viewAccountDetails": "",
+    "accountDetails": ""
   },
   "accountSummary": {
     "availableBalance": "Beschikbare balans",
@@ -115,7 +117,8 @@
         "showLabel": "herstelwachtwoord"
       },
       "success": "Backup geverifieerd:",
-      "title": "Controleer backup"
+      "title": "Controleer backup",
+      "aborted": ""
     },
     "create": {
       "alreadyExists": "Je hebt al een valide backup. Wil je deze opnieuw maken?",
@@ -142,7 +145,8 @@
       "confirmTitle": "Backup herstellen",
       "error": {
         "e200": "microSD kaart niet gevonden",
-        "general": "Fout tijdens het herstellen van de backup"
+        "general": "Fout tijdens het herstellen van de backup",
+        "e104": ""
       },
       "password": {
         "label": "Herstelwachtwoord of verborgen herstelwachtwoord",
@@ -203,7 +207,8 @@
       "alertEnabled": "Bluetooth is nu ingeschakeld",
       "description": "Bluetooth wordt nu gebruikt om met iPhones te verbinden",
       "titleDisabled": "Bluetooth inschakelen",
-      "titleEnabled": "Bluetooth uitschakelen"
+      "titleEnabled": "Bluetooth uitschakelen",
+      "error_104": ""
     },
     "deviceName": {
       "current": "Huidige naam",
@@ -216,6 +221,12 @@
     "gotoStartupSettings": {
       "description": "Dit start je BitBox opnieuw op om om de opstartinstellingen te kunnen wijzigen.",
       "title": "Ga naar opstartinstellingen"
+    },
+    "changePassword": {
+      "description": "",
+      "error_104": "",
+      "success": "",
+      "title": ""
     }
   },
   "bitbox02Wizard": {
@@ -379,7 +390,12 @@
     "connectionFailed": "mislukt",
     "connectionIssues": "Heb je verbindingsproblemen?",
     "enable": "Zet je bluetooth aan",
-    "select": "Selecteer je BitBox"
+    "select": "Selecteer je BitBox",
+    "disabledGloballyTitle": "",
+    "disabledGloballyDescription": "",
+    "disabledPermissionTitle": "",
+    "disabledPermissionDescription": "",
+    "connectionIssuesLink": ""
   },
   "bootloader": {
     "button": "Firmwareupgrade uitvoeren",
@@ -455,6 +471,10 @@
               "link": "BitBox Beveiligings- en Risicomodel",
               "text": "Bitrefill is een externe dienst die niet onder het BitBox Beveiligings- en Risicomodel valt. Als je een aankoop maakt, stuur je een transactie naar een Bitrefill adres; je BitBox kan niet verifiëren dat dit adres correct is.",
               "title": "Beveiligingswaarschuwing"
+            },
+            "validEmail": {
+              "text": "",
+              "title": ""
             }
           },
           "infobox": {
@@ -724,7 +744,11 @@
       "securechip": {
         "description": "Secure-chip modelnummer"
       },
-      "title": "Apparaatinformatie"
+      "title": "Apparaatinformatie",
+      "passwordStretchingAlgo": {
+        "description": "",
+        "title": ""
+      }
     },
     "expert": {
       "bip85": {
@@ -792,6 +816,12 @@
     "secrets": {
       "manageBackups": "Backups beheren",
       "title": "Geheimen"
+    },
+    "bluetoothFirmware": {
+      "title": ""
+    },
+    "deviceSettings": {
+      "title": ""
     }
   },
   "deviceTampered": "Heb je een herstelwachtwoord gekregen bij de aankoop van je BitBox? Zo ja, moet je onmiddelijk stoppen en ons onmiddelijk contacteren. Shift zal je nooit een kant-en-klare wallet aanbieden of aanbevelingen doen voor je wachtwoorden.",
@@ -841,7 +871,8 @@
         },
         "kyc": {
           "link": "Lees Pocket's veelgestelde vragen",
-          "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
+          "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)",
+          "info": ""
         },
         "security": {
           "link": "BitBox beveiligings- en risicomodel",
@@ -894,7 +925,13 @@
     "sell_bitcoin": "Bitcoin verkopen",
     "sell_crypto": "Crypto verkopen",
     "spend_bitcoin": "Bitcoin uitgeven",
-    "spend_crypto": "Crypto uitgeven"
+    "spend_crypto": "Crypto uitgeven",
+    "enable": "",
+    "send": "",
+    "receiveWithoutCoinCode": "",
+    "received": "",
+    "reset": "",
+    "sent": ""
   },
   "genericError": "Er is een fout opgetreden. Start de applicatie opnieuw op als je problemen tegenkomt.",
   "goal": {
@@ -956,6 +993,10 @@
       "xpub": {
         "text": "Een uitgebreide publieke sleutel (xpub) is de bron waaruit alle ontvangstadressen van een account gemaakt worden. \n\nHet wordt hier weergegeven voor geavanceerde gebruikers en voor ondersteuning van watch-only wallets zoals Electrum of Sentinel. Als je verschillende adrestypes gebruikt, noteer dan alle verschillende xpub-formaten in de watch-only wallet om al je coins te kunnen zien.\n\nLet op dat nog niet alle externe wallets Taproot ondersteunen. ",
         "title": "Wat is een uitgebreide publieke sleutel?"
+      },
+      "exportTransactions": {
+        "title": "",
+        "text": ""
       }
     },
     "accountRates": {
@@ -1039,7 +1080,11 @@
       "link": "Neem contact met ons op!",
       "questionService": "Heb je problemen met {{serviceName}}?",
       "text": "Nog een vraag?",
-      "textService": "Als je een probleem hebt met {{serviceName}}, neem dan alsjeblieft direct contact met hen op."
+      "textService": "Als je een probleem hebt met {{serviceName}}, neem dan alsjeblieft direct contact met hen op.",
+      "feedback": {
+        "link": "",
+        "text": ""
+      }
     },
     "backups": {
       "check": {
@@ -1319,6 +1364,29 @@
         "text": "WalletConnect is een communicatie-protocol voor web3 applicaties. Hiermee kun je op een gemakkelijke manier met op Ethereum gebaseerde DApps en web-wallets verbinden zonder een applicatie van een derde partij te hoeven gebruiken. Dit is extra handig voor gebruikers van de Android-BitBoxApp.",
         "title": "Wat is WalletConnect?"
       }
+    },
+    "bitrefill": {
+      "kyc": {
+        "link": {
+          "text": ""
+        },
+        "title": "",
+        "text": ""
+      },
+      "invoice": {
+        "link": {
+          "text": ""
+        },
+        "title": "",
+        "text": ""
+      },
+      "limits": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      }
     }
   },
   "headerssync": {
@@ -1369,6 +1437,14 @@
     "about": {
       "appVersion": {
         "title": "App versie"
+      },
+      "feedbackLink": {
+        "description": "",
+        "title": ""
+      },
+      "supportLink": {
+        "description": "",
+        "title": ""
       }
     },
     "advancedSettings": {
@@ -1702,7 +1778,11 @@
     "success": "De transactie is ondertekend en verzonden.",
     "title": "Verstuur {{accountName}}",
     "toggleCoinControl": "Coin control",
-    "transactionDetails": "Transactiedetails"
+    "transactionDetails": "Transactiedetails",
+    "sendToAccount": {
+      "placeholder": "",
+      "title": ""
+    }
   },
   "settings": {
     "about": "Over",
@@ -1772,13 +1852,11 @@
       "import": {
         "accountNames_one": "{{count}} accountnaam geïmporteerd",
         "accountNames_other": "{{count}} accountnamen geïmporteerd",
-        "accountNames_zero": "Geen accountnamen geïmporteerd",
         "description": "Je transactienotities en accountnamen uit een eerder gemaakt backupbestand herstellen",
         "title": "Notities importeren",
         "tooLarge": "Bestand te groot ",
         "transactionNotes_one": "{{count}} transactienotitie geïmporteerd",
-        "transactionNotes_other": "{{count}} transactienotities geïmporteerd",
-        "transactionNotes_zero": "Geen transactienotities geïmporteerd"
+        "transactionNotes_other": "{{count}} transactienotities geïmporteerd"
       },
       "title": "Notities beheren"
     },
@@ -1847,7 +1925,11 @@
       "fiatAmount": "Hoeveelheid in fiat",
       "status": "Status",
       "title": "Transactiedetails",
-      "type": "Type"
+      "type": "Type",
+      "sentToSelf": "",
+      "currentFiat": "",
+      "from": "",
+      "historicalFiat": ""
     },
     "explorer": "Transactie-ID",
     "explorerTitle": "In externe block explorer openen",
@@ -1879,10 +1961,13 @@
       "receive_pending": "Ontvangen op",
       "send_complete": "Verzonden naar",
       "send_failed": "Mislukte verzending naar",
-      "send_pending": "Verzonden naar"
+      "send_pending": "Verzonden naar",
+      "send_to_self": "",
+      "send_to_self_failed": ""
     },
     "vsize": "Virtuele grootte",
-    "weight": "Gewicht"
+    "weight": "Gewicht",
+    "advanced": ""
   },
   "transactions": {
     "errorLoadTransactions": "Er is een fout opgetreden bij het laden van de transacties",
@@ -1900,7 +1985,19 @@
       "label": "Apparaatwachtwoord",
       "placeholder": "Voer je apparaatwachtwoord in om je BitBox te ontgrendelen"
     },
-    "unlocking": "Ontgrendelen..."
+    "unlocking": "Ontgrendelen...",
+    "forgotPassword": {
+      "text1": "",
+      "text2": "",
+      "title1": "",
+      "title2": "",
+      "dialogDescription": "",
+      "dialogTitle": "",
+      "info": "",
+      "stillHavingIssues": "",
+      "supportLink": "",
+      "button": ""
+    }
   },
   "upgradeFirmware": {
     "button": "Firmware updaten",
@@ -1963,6 +2060,7 @@
     "getStarted": "Laten we beginnen door de firmware op je BitBox te installeren.",
     "loadingAccounts": "Accounts laden",
     "message": "Verbind je BitBox en tik op de zijkant om verder te gaan.",
-    "title": "Welkom"
+    "title": "Welkom",
+    "messageIOS": ""
   }
 }
