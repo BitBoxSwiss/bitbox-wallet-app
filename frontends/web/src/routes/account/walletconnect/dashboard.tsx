@@ -7,7 +7,8 @@ import { useLoad } from '@/hooks/api';
 import { SessionTypes } from '@walletconnect/types';
 import { getSdkError } from '@walletconnect/utils';
 import { WCWeb3WalletContext } from '@/contexts/WCWeb3WalletContext';
-import { getAddressFromEIPString, truncateAddress } from '@/utils/walletconnect';
+import { truncateMiddle } from '@/utils/address';
+import { getAddressFromEIPString } from '@/utils/walletconnect';
 import { AccountCode, TAccount, getReceiveAddressList } from '@/api/account';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
@@ -64,7 +65,7 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
     return null;
   }
 
-  const receiveAddress = truncateAddress(receiveAddresses[0].addresses[0].address);
+  const receiveAddress = truncateMiddle(receiveAddresses[0].addresses[0].address, 6, 6);
   const accountName = (accounts && accounts.find(acct => acct.code === code))?.name || '';
   const hasSession = sessions && sessions.length > 0;
 

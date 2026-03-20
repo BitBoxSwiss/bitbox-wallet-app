@@ -27,6 +27,8 @@
         "start": "Get started by depositing some coins to the wallet or buying directly in the BitBoxApp."
       }
     },
+    "contractAddress": "Contract address",
+    "contractAddressWarning": "Do not send any coins to the contract address otherwise they will be lost. Contract address is just for informational purposes.",
     "exportTransactions": "Export transaction history",
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
