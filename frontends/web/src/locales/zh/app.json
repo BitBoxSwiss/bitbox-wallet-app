@@ -54,7 +54,8 @@
     "subtotalWithCoinName": "",
     "availableBalance": "",
     "coin": "",
-    "transactionHistory": ""
+    "transactionHistory": "",
+    "portfolio": ""
   },
   "addAccount": {
     "title": "添加账户",
@@ -2019,7 +2020,8 @@
       "all": ""
     },
     "dataOldTimestamp": "",
-    "dataUpdating": ""
+    "dataUpdating": "",
+    "dataMissing": ""
   },
   "gapLimit": {
     "change": "",
