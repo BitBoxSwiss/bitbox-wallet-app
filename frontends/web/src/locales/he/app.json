@@ -54,7 +54,8 @@
     "total": "סכום סופי",
     "transactionHistory": "היסטוריית עסקאות",
     "subtotalWithCoinName": "",
-    "coin": ""
+    "coin": "",
+    "portfolio": ""
   },
   "addAccount": {
     "title": "הוספת חשבון",
