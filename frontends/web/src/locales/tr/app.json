@@ -1,7 +1,6 @@
 {
   "account": {
     "disconnect": "Bağlantı koptu. Tekrar deneniyor...",
-    "export": "Dışarı Aktar",
     "exportTransactions": "İşlemleri İndirilenler Klasörüne CSV Dosyası Olarak Dışa Aktar",
     "fatalError": "Beklenmeyen bir hata oluştu.",
     "incoming": "Gelen",
@@ -12,7 +11,12 @@
     "reconnecting": "Bağlantı koptu, yeniden bağlantı kuruluyor...",
     "syncedAddressesCount": "{{count}} adres tarandı",
     "uncoveredFundsLink": "Paralarınızı nasıl taşıyacağınızla ilgili bu kılavuzu takip edin.",
-    "warning": "Uyarı!"
+    "warning": "Uyarı!",
+    "backupReminderLink": "",
+    "accounts": "",
+    "backupReminder": "",
+    "uncoveredFunds": "",
+    "account": ""
   },
   "accountInfo": {
     "address": "Adres",
@@ -28,8 +32,16 @@
     "verify": "Bu cihazda doğrula",
     "xpubTypeChangeBtn": {
       "p2tr": "Taproot görüntüle",
-      "p2wpkh": "Native Segwit görüntüle"
-    }
+      "p2wpkh": "Native Segwit görüntüle",
+      "p2pkh": "",
+      "p2wpkh-p2sh": ""
+    },
+    "scriptType": "",
+    "taproot": "",
+    "xpubTypeInfo": "",
+    "accountDetails": "",
+    "exportTransactions": "",
+    "viewAccountDetails": ""
   },
   "accountSummary": {
     "availableBalance": "Mevcut bakiye",
@@ -41,7 +53,8 @@
     "subtotalWithCoinName": "Toplam ({{coinName}})",
     "title": "Portföyüm",
     "total": "Toplam",
-    "transactionHistory": "İşlem geçmişi"
+    "transactionHistory": "İşlem geçmişi",
+    "coin": ""
   },
   "addAccount": {
     "chooseName": {
@@ -51,7 +64,8 @@
     },
     "selectCoin": {
       "nextButton": "Sonraki",
-      "step": "Coin Seç"
+      "step": "Coin Seç",
+      "title": ""
     },
     "success": {
       "addAnotherAccount": "Başka bir hesap ekle",
@@ -71,9 +85,15 @@
     "labelMessage": "Mesaj",
     "reverifyInfoText": "Adresi Doğrula",
     "success": {
-      "title": "Adres başarıyla gönderildi."
+      "title": "Adres başarıyla gönderildi.",
+      "message": ""
     },
-    "syncing": "Hesap eşzamanlanıyor, lütfen bekleyin."
+    "syncing": "Hesap eşzamanlanıyor, lütfen bekleyin.",
+    "signing": "",
+    "title": "",
+    "xpubRequested": "",
+    "addressRequestWithLogoAndXPub": "",
+    "addressRequestWithXPub": ""
   },
   "app": {
     "upgrade": "Bu uygulamanın yeni bir sürümü mevcut! Lütfen  {{current}} 'dan  {{version}}'a yükseltin."
@@ -90,7 +110,8 @@
         "showLabel": "kurtarma şifresi"
       },
       "success": "Başarıyla doğrulanmış yedeklemeler:",
-      "title": "Yedeklemeyi Kontrol Et"
+      "title": "Yedeklemeyi Kontrol Et",
+      "aborted": ""
     },
     "create": {
       "alreadyExists": "Zaten geçerli bir yedeğiniz var. Yeniden yedeklemek ister misiniz?",
@@ -115,7 +136,9 @@
     "restore": {
       "confirmTitle": "Yedeklemeyi Geri Yükle",
       "error": {
-        "e200": "SD kart bulunamadı"
+        "e200": "SD kart bulunamadı",
+        "e104": "",
+        "general": ""
       },
       "password": {
         "label": "Kurtarma şifresi veya gizli kurtarma şifresi",
@@ -125,14 +148,18 @@
       },
       "restoring": "Yedekleme geri yükleniyor...",
       "title": "Geri Yükle",
-      "understand": "Yanlış kurtarma şifresinin farklı bir cüzdan yaratacağını onaylıyorum"
+      "understand": "Yanlış kurtarma şifresinin farklı bir cüzdan yaratacağını onaylıyorum",
+      "selectedBackup": "",
+      "subtitle": ""
     },
     "showMnemonic": {
       "checkboxLabel": "Üstteki bilgilendirmeyi okudum",
       "description": "Cüzdanınızın yedeğini oluşturan 24 kelimeyi size sunacağız. Onları kağıda yazın.\n\n<strong>Bunları dijital olarak saklamayın veya fotoğraflarını çekmeyin.</strong>\n\n<strong>Kelimeleri yüksek sesle söyleme.</strong>\n\n<strong>Bu yedekleme şifre korumalı değildir.</strong>\n\nSonrasında, her bir kelimeyi tek tek onaylamanız istenecektir.",
-      "title": "BIP39 Anımsatıcısını Göster"
+      "title": "BIP39 Anımsatıcısını Göster",
+      "warning": ""
     },
-    "title": "Yedeklemeleri Yönet"
+    "title": "Yedeklemeleri Yönet",
+    "link": ""
   },
   "bb02Bootloader": {
     "abort": "Yükseltmeyi durdur – Beni geri götür",
@@ -142,7 +169,13 @@
     },
     "flipscreen": "Ekran çevir",
     "orientation": "Cihaz yanlış yöne mi yöneldi?",
-    "success": "Yükseltme başarılı!  "
+    "success": "Yükseltme başarılı!  ",
+    "abort_noUpgrade": "",
+    "additionalUpgradeFollows1": "",
+    "additionalUpgradeFollows2": "",
+    "success_install": "",
+    "upgradeTitle": "",
+    "upgradeTitle_install": ""
   },
   "bitbox": {
     "error": {
@@ -152,13 +185,41 @@
     }
   },
   "bitbox02Interact": {
-    "followInstructions": "Lütfen BitBox02 üzerindeki talimatları takip edin."
+    "followInstructions": "Lütfen BitBox02 üzerindeki talimatları takip edin.",
+    "confirmDate": "",
+    "confirmDateText": "",
+    "confirmName": "",
+    "confirmWords": "",
+    "confirmWordsText": "",
+    "followInstructionsMnemonic": "",
+    "followInstructionsMnemonicTitle": ""
   },
   "bitbox02Settings": {
     "deviceName": {
       "current": "Geçerli cihaz adı",
       "input": "BitBox02 Adı",
-      "title": "BitBox02 cihazınızı isimlendirin"
+      "title": "BitBox02 cihazınızı isimlendirin",
+      "error": "",
+      "error_104": "",
+      "placeholder": ""
+    },
+    "changePassword": {
+      "success": "",
+      "description": "",
+      "error_104": "",
+      "title": ""
+    },
+    "bluetoothToggleEnabled": {
+      "alertEnabled": "",
+      "alertDisabled": "",
+      "description": "",
+      "error_104": "",
+      "titleDisabled": "",
+      "titleEnabled": ""
+    },
+    "gotoStartupSettings": {
+      "description": "",
+      "title": ""
     }
   },
   "bitbox02Wizard": {
@@ -173,7 +234,9 @@
       "userConfirmation1": "Yedeklememi güvenli bir yerde saklamalıyım.",
       "userConfirmation2": "Yedeklerim şifre korumalı değil. Buna erişimi olan herkes cüzdanıma erişebilir.",
       "userConfirmation3": "BitBox02 yazılımımı kaybedersem veya zarar verirsem, paramı kurtarmanın tek yolu yedeklememden geri yüklemektir.",
-      "userConfirmation4": "Hem yedeğimi hem de BitBox02’mi kaybedersem veya zarar verirsem fonlarım kaybolacak."
+      "userConfirmation4": "Hem yedeğimi hem de BitBox02’mi kaybedersem veya zarar verirsem fonlarım kaybolacak.",
+      "userConfirmation5": "",
+      "userConfirmation5mnemonic": ""
     },
     "create": {
       "button": "Cihazı adlandır ve devam et",
@@ -194,11 +257,13 @@
       "unpaired": "Yeni bir BitBox02 tespit edildi. Lütfen aşağıdaki kodun cihazınızda gösterilenlerle eşleştiğini doğrulayın. Kod eşleşirse, BitBox02 üzerindeki onay işaretinin altındaki simgeye dokunun ve devam etmek için aşağıdaki düğmeye tıklayın."
     },
     "restoreFromMnemonic": {
-      "failed": "BIP39 anımsatıcısından geri yükleme başarısız oldu, lütfen tekrar deneyin."
+      "failed": "BIP39 anımsatıcısından geri yükleme başarısız oldu, lütfen tekrar deneyin.",
+      "e104": ""
     },
     "stepBackup": {
       "beforeProceed": "Devam etmeden önce, lütfen şu önemli güvenlik hususlarını okuyun:",
-      "createBackup": "Şimdi microSD kartınızda bir yedekleme oluşturacaksınız."
+      "createBackup": "Şimdi microSD kartınızda bir yedekleme oluşturacaksınız.",
+      "createBackupMnemonic": ""
     },
     "stepBackupSuccess": {
       "fundsSafe": "Fonlarınızı güvende tutmak için lütfen aşağıdakileri unutmayın:",
@@ -211,15 +276,23 @@
       "nameLabel": "BitBox02 adı",
       "namePlaceholder": "Benim BitBox02 cüzdanım",
       "title": "BitBox02 adını seçin",
-      "toastMicroSD": "Lütfen microSD kartınızın BitBox02 cihazınıza takılı olduğundan emin olun."
+      "toastMicroSD": "Lütfen microSD kartınızın BitBox02 cihazınıza takılı olduğundan emin olun.",
+      "error": {
+        "tooLong": "",
+        "genericMessage": "",
+        "invalidChars": ""
+      },
+      "description": ""
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Lütfen microSD kartı BitBox02 cihazınızdan çıkarın ve güvenli bir yerde saklayın.",
-      "success": "Yedeklemenizi başarıyla oluşturdunuz."
+      "success": "Yedeklemenizi başarıyla oluşturdunuz.",
+      "storeMnemonic": ""
     },
     "stepPassword": {
       "title": "BitBox02 şifresini ayarla",
-      "useControls": "Bir şifre belirlemek için BitBox02 üzerindeki kontrolleri kullanın."
+      "useControls": "Bir şifre belirlemek için BitBox02 üzerindeki kontrolleri kullanın.",
+      "e104": ""
     },
     "stepUninitialized": {
       "create": "BitBox02 cihazımı yeniden kurmak istiyorum.",
@@ -230,7 +303,25 @@
     },
     "success": {
       "title": "Başlamaya hazırsın!"
-    }
+    },
+    "noPasswordMatch": "",
+    "advanced": {
+      "button": "",
+      "outOfDate": "",
+      "seed12WordInfo": "",
+      "seed12WordLabel": "",
+      "seed12WordText": "",
+      "skipSDCardLabel": "",
+      "skipSDCardText": "",
+      "title": ""
+    },
+    "stepInsertSD": {
+      "insertSDCard": "",
+      "insertSDCardToSeeBackups": "",
+      "insertSDcardTitle": ""
+    },
+    "createBackupAborted": "",
+    "createBackupFailed": ""
   },
   "blink": {
     "button": "Göz ardı et"
@@ -238,7 +329,9 @@
   "bootloader": {
     "button": "Donanım yazılımını şimdi yükselt",
     "progress": "Yükseltme",
-    "success": "Yükseltme başarılı! Lütfen cihazı tekrar takın. Bu kez, düğmeye dokunmayın."
+    "success": "Yükseltme başarılı! Lütfen cihazı tekrar takın. Bu kez, düğmeye dokunmayın.",
+    "button_install": "",
+    "progress_install": ""
   },
   "button": {
     "abort": "İptal Et",
@@ -256,7 +349,10 @@
     "select": "Seç",
     "unlock": "Kilidini aç",
     "update": "Güncelleştirme",
-    "upgrade": "Yükselt"
+    "upgrade": "Yükselt",
+    "proceedOnBitBox": "",
+    "dismiss": "",
+    "done": ""
   },
   "changePin": {
     "newTitle": "Yeni cihazın şifresi",
@@ -269,7 +365,10 @@
   },
   "confirmOnDevice": "Lütfen cihazınızda onaylayın.",
   "device": {
-    "appUpradeRequired": "BitBox'ınız bu masaüstü uygulaması ile uyumlu değil. Lütfen en son sürümü indirin ve yükleyin."
+    "appUpradeRequired": "BitBox'ınız bu masaüstü uygulaması ile uyumlu değil. Lütfen en son sürümü indirin ve yükleyin.",
+    "firmwareUpgradeRequired": "",
+    "keystoreConnected": "",
+    "unsupportedFeature": ""
   },
   "deviceSettings": {
     "firmware": {
@@ -280,7 +379,9 @@
       "upToDate": "Cihazınız güncel",
       "version": {
         "label": "Versiyon"
-      }
+      },
+      "firmwareVersion": "",
+      "upgradeAvailable": ""
     },
     "hardware": {
       "sdcard": {
@@ -288,18 +389,95 @@
         "label": "Mikro SD kart",
         "true": "Takılı"
       },
-      "title": "Donanım"
+      "title": "Donanım",
+      "attestation": {
+        "false": "",
+        "label": "",
+        "true": ""
+      },
+      "securechip": ""
     },
     "loading": "Cihaz bilgisi alınıyor…",
     "secrets": {
       "manageBackups": "Yedekleri Yönet",
       "title": "Secrets"
-    }
+    },
+    "backups": {
+      "title": "",
+      "manageBackups": {
+        "description": ""
+      },
+      "showRecoveryWords": {
+        "description": ""
+      }
+    },
+    "bluetoothFirmware": {
+      "title": ""
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": ""
+      },
+      "deviceName": {
+        "description": ""
+      },
+      "passwordStretchingAlgo": {
+        "description": "",
+        "title": ""
+      },
+      "rootFingerprint": {
+        "description": ""
+      },
+      "securechip": {
+        "description": ""
+      },
+      "title": ""
+    },
+    "deviceSettings": {
+      "title": ""
+    },
+    "expert": {
+      "bip85": {
+        "description": "",
+        "disclaimer": "",
+        "how": {
+          "description": "",
+          "title": ""
+        },
+        "recover": {
+          "description": "",
+          "title": ""
+        },
+        "security": {
+          "description": "",
+          "title": ""
+        },
+        "title": "",
+        "what": {
+          "description": "",
+          "link": "",
+          "title": ""
+        }
+      },
+      "factoryReset": {
+        "description": "",
+        "title": ""
+      },
+      "goToStartupSettings": {
+        "description": ""
+      },
+      "passphrase": {
+        "description": "",
+        "title": ""
+      }
+    },
+    "noDevice": ""
   },
   "deviceTampered": "BitBox'ınıza kurtarma şifresi mi sağlandı? Öyleyse, kurulum işlemini durdurun ve hemen desteğe başvurun. Ekibimiz asla size hazır bir cüzdan vermez veya şifre önerileri yapmaz.",
   "dialog": {
     "cancel": "İptal Et",
-    "confirm": "Doğrula"
+    "confirm": "Doğrula",
+    "confirmTitle": ""
   },
   "fiat": {
     "default": "Varsayılan",
@@ -357,6 +535,22 @@
       "xpub": {
         "text": "Genişletilmiş bir genel anahtar, bir hesabın tüm alıcı adreslerinin türetildiği bir kök anahtardır.\nBurada Electrum veya Sentinel gibi yalnızca izlemek için olan cüzdanlarla ileri düzeyde kullanım ve birlikte çalışabilirlik için sağlanmıştır.",
         "title": "Genişletilmiş genel anahtar nedir?"
+      },
+      "exportTransactions": {
+        "title": "",
+        "text": ""
+      },
+      "multipleXPubs": {
+        "text": "",
+        "title": ""
+      },
+      "privacy": {
+        "text": "",
+        "title": ""
+      },
+      "verify": {
+        "text": "",
+        "title": ""
       }
     },
     "accountRates": {
@@ -372,7 +566,8 @@
       "title": "Neden hiçbir şey gönderemiyorum {{unit}}?"
     },
     "accountTransactionAttributesBTC": {
-      "title": ""
+      "title": "",
+      "text": ""
     },
     "accountTransactionAttributesGeneric": {
       "text": "Onaylar: İlk işlem yayınınız, bir madenci bir bloğa dahil edinceye kadar onaylanmaz, ardından bir onay verilir. Ağda yayınlanan her blok, işleminize başka bir onay ekler. Genel olarak, tüccarlar ve diğer ağ aktörler üç ila altı onay aldığında işlemleri gerçekleştirir.\nİşlem Kimliği: Bir blok gezgininde bir işlem aramanıza izin veren benzersiz bir kimlik numarası.\nÜcret: Madencilere, işlemleri onaylamalarını teşvik etmek için işlem ücreti ödenir. Daha fazla bilgi için, gönder düğmesine tıklayın.",
@@ -392,7 +587,13 @@
     },
     "appendix": {
       "link": "Bizimle iletişime geçin!",
-      "text": "Başka bir soru?"
+      "text": "Başka bir soru?",
+      "feedback": {
+        "link": "",
+        "text": ""
+      },
+      "questionService": "",
+      "textService": ""
     },
     "backups": {
       "check": {
@@ -460,6 +661,14 @@
       "whyVerify": {
         "text": "Orijinal adresleri oluşturmak ve görüntülemek için bilgisayarınıza güvenmemelisiniz. Büyük bir saldırı, donanım cüzdanınızın daha savunmasız kalmasını sağlar. BitBox01'in güvenli bir şekilde doğrulama düğmesi, adresi QR kodunu da tarayabileceğiniz ve doğrulayabileceğiniz eşleştirilmiş bir cep telefonuna gönderir. BitBox02 için, adres doğrudan BitBox02 ekranında doğrulanabilir.",
         "title": "Neden adresi güvenli bir şekilde doğrulamalıyım?"
+      },
+      "plugout": {
+        "title": "",
+        "text": ""
+      },
+      "addressFormats": {
+        "text": "",
+        "title": ""
       }
     },
     "send": {
@@ -478,18 +687,53 @@
       "whyFee": {
         "text": "İşlemler madenci tarafından onaylanmak için yarışıyor. Madenciler ücretlerine göre Blockchain'e dahil edilecek işlemleri seçiyorlar.\nMadenciler işlem tarihine oy veriyor. İşlemleri onaylayacak güvenli bir üçüncü taraf olmadığı için (Blockchain'lerin hepsinde), madenciler bilgisayar gücü gibi pahalı bir kaynaktan fedakarlık yaparak işlemleri oyluyorlar. İşlerinin bir ödülü olarak, yeni oluşturulan paraları ve içerdikleri tüm işlemlerin ücretini talep edebilirler.",
         "title": "Neden ağ ücreti var?"
+      },
+      "change": {
+        "title": "",
+        "text": ""
+      },
+      "plugout": {
+        "text": "",
+        "title": ""
       }
     },
     "settings-electrum": {
       "what": {
         "text": "Shift sunucularını kullanmak yerine cüzdanınıza kendi tam node'larınızla güç vermek mümkündür.",
         "title": "Bu nedir?"
+      },
+      "instructions": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "connection": {
+        "title": "",
+        "text": ""
+      },
+      "why": {
+        "title": "",
+        "text": ""
+      },
+      "tor": {
+        "title": "",
+        "text": ""
+      },
+      "options": {
+        "text": "",
+        "title": ""
       }
     },
     "settings": {
       "servers": {
         "text": "Bu uygulama, güncellemeleri kontrol etmek, işlemleri yüklemek ve eşleştirilmiş mobil uygulamalara bilgi göndermek için Shift Crypto sunucuları ile iletişim kurar.\nBu uygulama aynı zamanda CoinGecko'den en son döviz kurlarını alıyor. Tüm dönüşümler yerel olarak hesaplanır, bu işleminizin miktarı ile ilgili hiçbir veri iletilmediği anlamına gelir.\nNot: Ethereum ve ERC20 Tokens için Etherscan.io API'lerini kullanıyoruz.",
         "title": "Bu uygulama hangi sunucularla konuşuyor?"
+      },
+      "sats": {
+        "title": "",
+        "text": ""
       }
     },
     "title": "Kılavuz",
@@ -533,7 +777,170 @@
       "welcome": {
         "text": "Shift Crypto tarafından İsviçre'de üretilen bu uygulamayı kullandığınız için teşekkür ederiz. Paylaşmanız gereken herhangi bir geri bildirimi takdir ediyoruz. Lütfen alttaki bağlantıyı kullanarak geri bildirimde bulunun.",
         "title": "BitBoxApp'a Hoşgeldiniz!"
+      },
+      "worksWithIos": {
+        "title": "",
+        "link": {
+          "text": ""
+        },
+        "text": ""
       }
+    },
+    "bitsurance": {
+      "what": {
+        "title": "",
+        "text": ""
+      },
+      "who": {
+        "title": "",
+        "text": ""
+      },
+      "faq": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "privacy": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "status": {
+        "text": "",
+        "title": ""
+      },
+      "why": {
+        "text": "",
+        "title": ""
+      },
+      "renew": {
+        "text": "",
+        "title": ""
+      }
+    },
+    "accountSummaryAmount": {
+      "text": "",
+      "title": ""
+    },
+    "accounts": {
+      "howtoAddTokens": {
+        "text": "",
+        "title": ""
+      },
+      "moveFunds": {
+        "text": "",
+        "title": ""
+      },
+      "recoverAccounts": {
+        "text": "",
+        "title": ""
+      },
+      "whatAreAccounts": {
+        "text": "",
+        "title": ""
+      },
+      "whatIsRememberWallet": {
+        "text": "",
+        "title": ""
+      },
+      "whyIsThisUseful": {
+        "text": "",
+        "title": ""
+      },
+      "howManyAccounts": {
+        "text": "",
+        "title": ""
+      },
+      "supportedCoins": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      }
+    },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "kyc": {
+        "title": "",
+        "link": {
+          "text": ""
+        },
+        "text": ""
+      },
+      "limits": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      }
+    },
+    "walletConnect": {
+      "whatIsWalletConnect": {
+        "title": "",
+        "text": ""
+      },
+      "supportedNetworks": {
+        "title": "",
+        "text": ""
+      },
+      "noPreviousConnections": {
+        "text": "",
+        "title": ""
+      }
+    },
+    "device": {
+      "attestation": {
+        "text": "",
+        "link": {
+          "text": ""
+        },
+        "title": ""
+      },
+      "name": {
+        "title": "",
+        "text": ""
+      },
+      "secure-chip": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      }
+    },
+    "guideTitle": {
+      "account": "",
+      "accountInformation": "",
+      "accountSummary": "",
+      "advancedSettings": "",
+      "appearance": "",
+      "buySell": "",
+      "insurance": "",
+      "manageAccount": "",
+      "manageDevice": "",
+      "receive": "",
+      "send": "",
+      "walletConnect": ""
+    },
+    "trackingModePortfolioChart": {
+      "title": "",
+      "text": ""
+    },
+    "accountSummaryDescription": {
+      "text": "",
+      "title": ""
     }
   },
   "headerssync": {
@@ -583,7 +990,17 @@
     "title": "{{accountName}} Al",
     "verify": "Adresi güvenli bir şekilde doğrulayın",
     "verifyBitBox02": "BitBox02'deki adresi doğrulayın",
-    "verifyInstruction": "Lütfen aşağıdaki adresin cihazınızda görüntülenen adresiyle eşleştiğini doğrulayın."
+    "verifyInstruction": "Lütfen aşağıdaki adresin cihazınızda görüntülenen adresiyle eşleştiğini doğrulayın.",
+    "scriptType": {
+      "p2wpkh-p2sh": "",
+      "p2tr": "",
+      "p2wpkh": ""
+    },
+    "bitsuranceWarning": "",
+    "changeScriptType": "",
+    "qrCodeCopiedMessage": "",
+    "selectAccount": "",
+    "taprootWarning": ""
   },
   "reset": {
     "description": "Cihazdaki tüm veriler silinecek. Buna Özel Anahtarınız da dahil!",
@@ -663,18 +1080,25 @@
     "coincontrol": {
       "address": "Adres",
       "outpoint": "Çıktı",
-      "title": "Çıktıdan Gönder"
+      "title": "Çıktıdan Gönder",
+      "addressReused": "",
+      "change": ""
     },
     "confirm": {
       "selected-coins": "Seçilmiş Kripto Paralar",
       "title": "İşlemi Onayla",
-      "total": "Toplam"
+      "total": "Toplam",
+      "to": "",
+      "infoMessage": ""
     },
     "error": {
       "insufficientFunds": "yetersiz bakiye",
       "invalidAddress": "geçersiz adres",
       "invalidAmount": "geçersiz miktar",
-      "invalidData": "geçersiz veri"
+      "invalidData": "geçersiz veri",
+      "erc20InsufficientGasFunds": "",
+      "feeTooLow": "",
+      "feesNotAvailable": ""
     },
     "fee": {
       "customPlaceholder": "Miktarı girin",
@@ -686,22 +1110,54 @@
         "economy": "24 blok (Bitcoin için yaklaşık 4 saat, Litecoin için 1 saat)",
         "high": "2 blok (Bitcoin için yaklaşık 20 dakika, Litecoin için 5 dakika)",
         "low": "12 blok (Bitcoin için yaklaşık 2 saat, Litecoin için 30 dakika)",
-        "normal": "6 blok (Bitcoin için yaklaşık 1 saat, Litecoin için 15 dakika)"
+        "normal": "6 blok (Bitcoin için yaklaşık 1 saat, Litecoin için 15 dakika)",
+        "mFastest": "",
+        "mHalfHour": "",
+        "mHour": "",
+        "normal_ltc": "",
+        "mEconomy": "",
+        "normal_eth": "",
+        "economy_eth": "",
+        "economy_ltc": "",
+        "high_eth": "",
+        "high_ltc": "",
+        "low_eth": "",
+        "low_ltc": ""
       },
       "estimate": "Tahmini bekleme süresi:",
       "label": {
         "economy": "ekonomi",
         "high": "yüksek",
         "low": "düşük",
-        "normal": "normal"
+        "normal": "normal",
+        "custom": "",
+        "mEconomy": "",
+        "mFastest": "",
+        "mHalfHour": "",
+        "mHour": ""
       },
-      "placeholder": "Hesaplanan tahmini ücret"
+      "placeholder": "Hesaplanan tahmini ücret",
+      "customLabel": "",
+      "customLabel_eth": ""
     },
     "maximum": "Hepsini gönder",
     "scanQR": "QR Kodunu Tara",
     "success": "İşlem imzalandı ve gönderildi.",
     "title": "Gönder {{accountName}}",
-    "toggleCoinControl": "Kripto para kontrolünü aç"
+    "toggleCoinControl": "Kripto para kontrolünü aç",
+    "maximumSelectedCoins": "",
+    "newTransaction": "",
+    "noFeeTargets": "",
+    "priority": "",
+    "scanQRNoCameraMessage": "",
+    "sendToAccount": {
+      "placeholder": "",
+      "title": ""
+    },
+    "transactionDetails": "",
+    "availableBalance": "",
+    "buyEth": "",
+    "edit": ""
   },
   "settings": {
     "electrum": {
@@ -728,29 +1184,70 @@
       "title-btc": "Bitcoin Electrum Sunucuları",
       "title-ltc": "Litecoin Electrum Sunucuları",
       "title-tbtc": "Bitcoin Testnet Electrum Sunucuları",
-      "title-tltc": "Litecoin Testnet Electrum Sunucuları"
+      "title-tltc": "Litecoin Testnet Electrum Sunucuları",
+      "step2-text-tcp": ""
     },
     "expert": {
       "coinControl": "Coin kontrolünü etkinleştir",
       "electrum": {
-        "title": "Kendi tam node'unuza bağlayın"
+        "title": "Kendi tam node'unuza bağlayın",
+        "description": ""
       },
       "setProxyAddress": "Proxy adresini ayarla",
       "title": "Uzman Ayarları",
-      "useProxy": "Tor proxy'yi etkinleştir"
+      "useProxy": "Tor proxy'yi etkinleştir",
+      "exportLogs": {
+        "title": "",
+        "description": ""
+      },
+      "fee": "",
+      "restartInTestnet": "",
+      "useSats": ""
     },
     "header": {
       "home": "Ev"
     },
     "restart": "Lütfen değişikliklerin geçerli olması için BitBoxApp’i yeniden başlatın.",
     "success": "Değişikliklerin etkili olması için lütfen BitBox’un fişini çekin ve yeniden takın.",
-    "title": "Ayarlar"
+    "title": "Ayarlar",
+    "notes": {
+      "import": {
+        "transactionNotes_one": "",
+        "transactionNotes_other": "",
+        "tooLarge": "",
+        "accountNames_one": "",
+        "accountNames_other": "",
+        "description": "",
+        "title": ""
+      },
+      "export": {
+        "description": "",
+        "success": "",
+        "title": ""
+      },
+      "title": ""
+    },
+    "appearance": "",
+    "general": "",
+    "info": {
+      "out-of-date": "",
+      "title": "",
+      "up-to-date": "",
+      "version": ""
+    },
+    "services": {
+      "title": ""
+    },
+    "advancedSettings": "",
+    "more": "",
+    "about": ""
   },
   "setup": "Cihaza Kurulum Yap",
   "sidebar": {
     "device": "Cihazı Yönet",
     "leave": "Ayrıl",
-    "settings": "Ayarlar"
+    "settings": "Ayarlar",
+    "insurance": ""
   },
   "success": {
     "create": {
@@ -776,10 +1273,53 @@
     "pending": "Bekleyen işlem",
     "size": "Boyut",
     "vsize": "Sanal boyut",
-    "weight": "Ağırlık"
+    "weight": "Ağırlık",
+    "details": {
+      "amount": "",
+      "currentFiat": "",
+      "date": "",
+      "historicalFiat": "",
+      "status": "",
+      "title": "",
+      "type": "",
+      "activity": "",
+      "address": "",
+      "fiatAmount": "",
+      "from": "",
+      "sentToSelf": ""
+    },
+    "no-results": "",
+    "status": {
+      "complete": "",
+      "failed": "",
+      "pending": "",
+      "pending_receive": "",
+      "pending_send": "",
+      "pending_send_to_self": ""
+    },
+    "statusShort": {
+      "complete": "",
+      "failed": "",
+      "pending_receive": "",
+      "pending_send_to_self": "",
+      "pending_send": "",
+      "pending": ""
+    },
+    "tx": {
+      "receive_complete": "",
+      "send_failed": "",
+      "send_pending": "",
+      "receive_failed": "",
+      "receive_pending": "",
+      "send_complete": "",
+      "send_to_self": "",
+      "send_to_self_failed": ""
+    },
+    "advanced": ""
   },
   "transactions": {
-    "placeholder": "Henüz işlem yok."
+    "placeholder": "Henüz işlem yok.",
+    "errorLoadTransactions": ""
   },
   "unknownError": "Bilinmeyen bir hata oluştu: {{errorMessage}}",
   "unlock": {
@@ -793,7 +1333,19 @@
       "label": "Cihaz şifresi",
       "placeholder": "Cihazın kilidini açmak için cihaz şifrenizi girin."
     },
-    "unlocking": "Kilit açılıyor"
+    "unlocking": "Kilit açılıyor",
+    "forgotPassword": {
+      "dialogDescription": "",
+      "dialogTitle": "",
+      "info": "",
+      "stillHavingIssues": "",
+      "supportLink": "",
+      "text1": "",
+      "text2": "",
+      "title1": "",
+      "title2": "",
+      "button": ""
+    }
   },
   "upgradeFirmware": {
     "button": "Donanım yazılımını yükselt",
@@ -807,9 +1359,706 @@
     "unlocked3": "LED yandığında düğmeye dokunun"
   },
   "warning": {
-    "sdcard": "Yedeklemeleri yönetmek istemediğiniz sürece, mikro SD kartı BitBox'tan ayrı saklayın."
+    "sdcard": "Yedeklemeleri yönetmek istemediğiniz sürece, mikro SD kartı BitBox'tan ayrı saklayın.",
+    "offline": "",
+    "testnet": "",
+    "coincontrol": ""
   },
   "welcome": {
-    "title": "Hoşgeldiniz"
+    "title": "Hoşgeldiniz",
+    "connect": "",
+    "messageIOS": "",
+    "getStarted": "",
+    "message": "",
+    "loadingAccounts": ""
+  },
+  "passphrase": {
+    "progressDisable": {
+      "title": "",
+      "message": ""
+    },
+    "why": {
+      "title": "",
+      "message": "",
+      "button": ""
+    },
+    "enable": "",
+    "what": {
+      "button": "",
+      "message": "",
+      "title": ""
+    },
+    "considerations": {
+      "message": "",
+      "button": "",
+      "title": ""
+    },
+    "disableInfo": {
+      "message": "",
+      "button": ""
+    },
+    "how": {
+      "button": "",
+      "message": "",
+      "title": ""
+    },
+    "progressEnable": {
+      "message": "",
+      "title": ""
+    },
+    "successDisabled": {
+      "message": "",
+      "messageEnd": "",
+      "title": ""
+    },
+    "successEnabled": {
+      "message": "",
+      "messageEnd": "",
+      "tips": "",
+      "tipsList": [
+        "",
+        ""
+      ],
+      "title": ""
+    },
+    "summary": {
+      "button": "",
+      "title": "",
+      "understand": "",
+      "understandList": [
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    "disable": "",
+    "error": {
+      "e104": ""
+    },
+    "intro": {
+      "message": "",
+      "title": ""
+    }
+  },
+  "testWallet": {
+    "connect": {
+      "title": "",
+      "description": ""
+    },
+    "disconnect": {
+      "description": "",
+      "title": ""
+    },
+    "prompt": {
+      "button": "",
+      "passwordLabel": "",
+      "title": ""
+    }
+  },
+  "walletConnect": {
+    "connect": {
+      "dappLabel": "",
+      "invalidPairingUri": "",
+      "missingNamespace": "",
+      "button": ""
+    },
+    "dashboard": {
+      "allSessions": "",
+      "disclaimer": "",
+      "newConnection": "",
+      "noConnectedSessions": "",
+      "unspecifiedAccount": ""
+    },
+    "invalidPairingChain": "",
+    "pairingRequest": {
+      "approve": "",
+      "reject": "",
+      "title": ""
+    },
+    "pairingSuccess": "",
+    "signingRequest": {
+      "dapp": "",
+      "data": "",
+      "decodeError": "",
+      "method": {
+        "sendTransaction": "",
+        "signMessage": "",
+        "signTransaction": "",
+        "signTypedData": ""
+      },
+      "dataParsingError": "",
+      "chain": "",
+      "successfullySigned": "",
+      "walletConnectRequest": ""
+    },
+    "useNewUri": "",
+    "walletConnect": ""
+  },
+  "bitsurance": {
+    "detect": {
+      "button": "",
+      "text": "",
+      "title": "",
+      "insured": "",
+      "notInsured": ""
+    },
+    "intro": {
+      "link": "",
+      "text1": ""
+    },
+    "terms": {
+      "text2": "",
+      "link": "",
+      "text1": "",
+      "text3": "",
+      "text4": "",
+      "text5": ""
+    },
+    "title": "",
+    "dashboard": {
+      "active": "",
+      "button": "",
+      "coverage": "",
+      "inactive": "",
+      "processing": "",
+      "refused": "",
+      "supportLink": "",
+      "title": "",
+      "waitpayment": "",
+      "canceled": ""
+    },
+    "insure": {
+      "faq": "",
+      "listItem2": "",
+      "listItem3": "",
+      "month": "",
+      "text": "",
+      "text2": "",
+      "text3": "",
+      "listItem1": "",
+      "title": "",
+      "button": ""
+    }
+  },
+  "buy": {
+    "exchange": {
+      "infoContent": {
+        "bitrefill": {
+          "disclaimer": {
+            "intro": {
+              "title_bitcoin": "",
+              "text": "",
+              "title_crypto": ""
+            },
+            "account": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "claims": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "dataProtection": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "fees": {
+              "text": "",
+              "title": ""
+            },
+            "security": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "validEmail": {
+              "text": "",
+              "title": ""
+            }
+          },
+          "infobox": {
+            "intro": ""
+          }
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "paymentMethods": {
+              "note": "",
+              "buy": "",
+              "sell": "",
+              "title": ""
+            },
+            "description": "",
+            "kyc": {
+              "description": "",
+              "title": ""
+            },
+            "security": {
+              "description": "",
+              "link": "",
+              "title": ""
+            },
+            "title_crypto": "",
+            "title_bitcoin": ""
+          },
+          "infobox": {
+            "intro": "",
+            "payment": {
+              "bancontact": "",
+              "bankTransfer": "",
+              "creditDebitCard": "",
+              "sofort": "",
+              "title": ""
+            },
+            "feesBuying": {
+              "bancontact": "",
+              "bankTransfer": "",
+              "creditDebitCard": "",
+              "sofort": "",
+              "title": ""
+            },
+            "feesSelling": {
+              "bankTransfer": "",
+              "title": ""
+            }
+          },
+          "learnmore": ""
+        },
+        "pocket": {
+          "verification": {
+            "title": "",
+            "info": "",
+            "link": ""
+          },
+          "fees": {
+            "info": "",
+            "title": ""
+          },
+          "learnMore": "",
+          "payment": {
+            "bankTransferDetails": {
+              "sepa": "",
+              "sic": "",
+              "uk": ""
+            },
+            "bankTransferReccuring": "",
+            "title": "",
+            "bankTransfer": ""
+          },
+          "sell": {
+            "title": ""
+          },
+          "supportedCurrencies": ""
+        },
+        "btcdirect": {
+          "infobox": {
+            "intro_multi": "",
+            "listItem4": "",
+            "intro_btconly": "",
+            "kyc": "",
+            "learnmore": "",
+            "listItem1": "",
+            "listItem2": "",
+            "manager": "",
+            "listItem3": ""
+          },
+          "disclaimer": {
+            "security": {
+              "title": "",
+              "link": "",
+              "text": ""
+            },
+            "dataProtection": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "kyc": {
+              "text": "",
+              "title": ""
+            },
+            "partnership": {
+              "text": "",
+              "title": ""
+            },
+            "paymentMethods": {
+              "buy2": "",
+              "fee": "",
+              "sell2": "",
+              "title": "",
+              "buy": "",
+              "sell": ""
+            },
+            "personal": {
+              "text": "",
+              "title": ""
+            },
+            "title": ""
+          },
+          "info": "",
+          "link": "",
+          "title": ""
+        },
+        "moonpay": {
+          "fees": {
+            "creditDebitCard": "",
+            "learnMore": "",
+            "title": "",
+            "bankTransfer": ""
+          },
+          "fullCurrenciesList": "",
+          "payment": {
+            "asteriskText": "",
+            "bankTransfer": "",
+            "bankTransferDetails": {
+              "pix": "",
+              "sepa": "",
+              "uk": ""
+            },
+            "creditDebitCard": "",
+            "creditDebitCardDetails": {
+              "cards": ""
+            },
+            "learnMore": "",
+            "title": ""
+          },
+          "supportedCurrencies": ""
+        },
+        "region": {
+          "title": ""
+        }
+      },
+      "bestDeal": "",
+      "fast": "",
+      "bankTransfer": "",
+      "buy": "",
+      "creditCard": "",
+      "description_bitrefill": "",
+      "fee": "",
+      "noExchanges": "",
+      "region": "",
+      "selectRegion": "",
+      "sell": "",
+      "spend": ""
+    },
+    "info": {
+      "disclaimer": {
+        "payment": {
+          "table": {
+            "2_method": "",
+            "1_description": "",
+            "1_method": "",
+            "2_description": "",
+            "description": "",
+            "fee": "",
+            "method": ""
+          },
+          "details": "",
+          "footnote": "",
+          "title": ""
+        },
+        "intro": [
+          "",
+          ""
+        ],
+        "privacyPolicy": "",
+        "protection": {
+          "descriptionGeneric_bitcoin": "",
+          "descriptionGeneric_crypto": "",
+          "title": ""
+        },
+        "security": {
+          "descriptionGeneric_bitcoin": "",
+          "descriptionGeneric_crypto": "",
+          "link": "",
+          "title": ""
+        },
+        "title_bitcoin": "",
+        "title_crypto": ""
+      },
+      "continue": "",
+      "crypto": "",
+      "selectLabel": "",
+      "selectPlaceholder": "",
+      "skip": "",
+      "next": ""
+    },
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": ""
+      },
+      "transactionNote": ""
+    },
+    "pocket": {
+      "error": {
+        "insufficientFunds": ""
+      },
+      "paymentRequestNote": "",
+      "previousTransactions": "",
+      "usedAddress": "",
+      "verifyBitBox02": ""
+    }
+  },
+  "darkmode": {
+    "toggle": ""
+  },
+  "auth": {
+    "authButton": "",
+    "dismissButton": "",
+    "missing": "",
+    "title": ""
+  },
+  "error": {
+    "aoppInvalidRequest": "",
+    "aoppNoAccounts": "",
+    "accountAlreadyExists": "",
+    "accountLimitReached": "",
+    "aoppCallback": "",
+    "aoppSigningAborted": "",
+    "aoppUnknown": "",
+    "aoppUnsupportedAsset": "",
+    "aoppUnsupportedFormat": "",
+    "aoppUnsupportedKeystore": "",
+    "aoppVersion": "",
+    "keystoreTimeout": "",
+    "wrongKeystore": "",
+    "wrongKeystore2": ""
+  },
+  "newSettings": {
+    "appearance": {
+      "activeCurrencies": {
+        "title": "",
+        "description": ""
+      },
+      "language": {
+        "description": "",
+        "title": ""
+      },
+      "remebmerWallet": {
+        "enable": {
+          "description": "",
+          "title": ""
+        },
+        "name": "",
+        "warning": "",
+        "warningTitle": ""
+      },
+      "toggleSats": {
+        "description": ""
+      },
+      "hideAmounts": {
+        "title": "",
+        "description": "",
+        "showAmounts": "",
+        "hideAmounts": ""
+      },
+      "darkmode": {
+        "description": ""
+      },
+      "defaultCurrency": {
+        "description": "",
+        "title": ""
+      },
+      "enableAccount": {
+        "description": "",
+        "title": ""
+      }
+    },
+    "about": {
+      "appVersion": {
+        "title": ""
+      },
+      "feedbackLink": {
+        "description": "",
+        "title": ""
+      },
+      "supportLink": {
+        "description": "",
+        "title": ""
+      }
+    },
+    "advancedSettings": {
+      "authentication": {
+        "description": "",
+        "title": ""
+      },
+      "coinControl": {
+        "description": ""
+      },
+      "customFees": {
+        "description": ""
+      },
+      "restartInTestnet": {
+        "description": ""
+      },
+      "torProxy": {
+        "description": ""
+      }
+    }
+  },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "",
+    "description1": "",
+    "description2": "",
+    "description4": "",
+    "link1": "",
+    "link2": "",
+    "stillHavingIssues": "",
+    "description3": "",
+    "title1": "",
+    "title2": "",
+    "title3": "",
+    "title4": ""
+  },
+  "connectKeystore": {
+    "promptNoName": "",
+    "promptWithName": ""
+  },
+  "exchange": {
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "",
+          "p1": "",
+          "title": ""
+        },
+        "fees": {
+          "extraNote": "",
+          "note": "",
+          "p1": "",
+          "p2": "",
+          "title": ""
+        },
+        "kyc": {
+          "info": "",
+          "link": "",
+          "title": ""
+        },
+        "security": {
+          "link": "",
+          "p1": "",
+          "p2": "",
+          "p3": "",
+          "title": ""
+        },
+        "welcome": {
+          "p1": "",
+          "title": ""
+        }
+      }
+    },
+    "btcdirect": {
+      "currencyMismatch": "",
+      "insufficientFunds": ""
+    },
+    "buySell": {
+      "coinNotSupported": "",
+      "regionNotSupported": ""
+    }
+  },
+  "generic": {
+    "sell_crypto": "",
+    "buy": "",
+    "buySell": "",
+    "buy_bitcoin": "",
+    "buy_crypto": "",
+    "close": "",
+    "enable": "",
+    "enabled_true": "",
+    "noOptionOnIos": "",
+    "noOptions": "",
+    "paymentRequestNote": "",
+    "receive": "",
+    "receiveWithoutCoinCode": "",
+    "receive_bitcoin": "",
+    "receive_crypto": "",
+    "received": "",
+    "reset": "",
+    "resetToDefault": "",
+    "search": "",
+    "searchButton": "",
+    "sell": "",
+    "sell_bitcoin": "",
+    "send": "",
+    "spend_bitcoin": "",
+    "spend_crypto": "",
+    "enabled_false": "",
+    "sent": ""
+  },
+  "manageAccounts": {
+    "title": "",
+    "accountHidden": "",
+    "editAccount": "",
+    "editAccountNameTitle": "",
+    "noAccounts": "",
+    "settings": {
+      "hideTokens": "",
+      "showTokens": ""
+    },
+    "settingsButtonDescription": "",
+    "watchAccount": "",
+    "watchAccountDescription": ""
+  },
+  "note": {
+    "input": {
+      "placeholder": "",
+      "description": ""
+    },
+    "title": ""
+  },
+  "testnet": {
+    "deactivate": {
+      "description": "",
+      "prompt": "",
+      "title": ""
+    },
+    "activate": {
+      "description": "",
+      "prompt": "",
+      "title": ""
+    }
+  },
+  "bluetooth": {
+    "connectionIssuesLink": "",
+    "connected": "",
+    "connectionFailed": "",
+    "enable": "",
+    "select": "",
+    "connectionIssues": "",
+    "disabledGloballyDescription": "",
+    "disabledGloballyTitle": "",
+    "disabledPermissionDescription": "",
+    "disabledPermissionTitle": ""
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "",
+    "noAccount": "",
+    "title": "",
+    "select": ""
+  },
+  "chart": {
+    "dataUpdating": "",
+    "filter": {
+      "month": "",
+      "week": "",
+      "year": "",
+      "all": ""
+    },
+    "dataOldTimestamp": ""
+  },
+  "gapLimit": {
+    "description": "",
+    "maxValue": "",
+    "minValue": "",
+    "receive": "",
+    "title": "",
+    "change": ""
+  },
+  "mobile": {
+    "usingMobileDataWarning": ""
   }
 }
