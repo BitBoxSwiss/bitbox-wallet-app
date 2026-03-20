@@ -1,20 +1,47 @@
 {
   "account": {
     "disconnect": "...החיבור אבד. מנסה שוב",
-    "export": "ייצוא",
     "exportTransactions": "יצא עסקאות כקובץ רשומות לתיקיית ההורדות",
     "fatalError": ".אירעה שגיאה לא צפויה",
     "incoming": "נכנס",
     "initializing": "מייבא נתונים מהבלוקצ׳יין..",
     "reconnecting": "...החיבור אבד, מנסה להתחבר מחדש",
-    "syncedAddressesCount": "כתובות {{count}} סורק"
+    "syncedAddressesCount": "כתובות {{count}} סורק",
+    "account": "",
+    "maybeProxyError": "",
+    "uncoveredFunds": "",
+    "uncoveredFundsLink": "",
+    "warning": "",
+    "insuranceExpired": "",
+    "accounts": "",
+    "backupReminder": "",
+    "backupReminderLink": "",
+    "insured": ""
   },
   "accountInfo": {
     "address": "כתובת",
     "extendedPublicKey": "מפתח ציבורי מורחב",
     "label": "פרטי חשבון",
     "title": "פרטי חשבון",
-    "verify": "אמת עם ההתקן"
+    "verify": "אמת עם ההתקן",
+    "accountDetails": "",
+    "exportTransactions": "",
+    "viewAccountDetails": "",
+    "taproot": "",
+    "xpubTypeChangeBtn": {
+      "p2pkh": "",
+      "p2tr": "",
+      "p2wpkh": "",
+      "p2wpkh-p2sh": ""
+    },
+    "buyCTA": {
+      "information": {
+        "looksEmpty": "",
+        "start": ""
+      }
+    },
+    "scriptType": "",
+    "xpubTypeInfo": ""
   },
   "accountSummary": {
     "availableBalance": "יתרה זמינה",
@@ -25,10 +52,29 @@
     "noAccount": "אין חשבונות להצגה",
     "title": "סיכום חשבונות",
     "total": "סכום סופי",
-    "transactionHistory": "היסטוריית עסקאות"
+    "transactionHistory": "היסטוריית עסקאות",
+    "subtotalWithCoinName": "",
+    "coin": ""
   },
   "addAccount": {
-    "title": "הוספת חשבון"
+    "title": "הוספת חשבון",
+    "success": {
+      "nextButton": "",
+      "addAnotherAccount": "",
+      "message": "",
+      "step": "",
+      "title": ""
+    },
+    "chooseName": {
+      "nextButton": "",
+      "step": "",
+      "title": ""
+    },
+    "selectCoin": {
+      "nextButton": "",
+      "step": "",
+      "title": ""
+    }
   },
   "app": {
     "upgrade": "גרסה חדשה של תכנה זו זמינה! אנא עדכן מ{{current}} ל{{version}}"
@@ -45,7 +91,8 @@
         "showLabel": "סיסמת שיחזור"
       },
       "success": ":גיבוי אומת בהצלחה",
-      "title": "בדיקת גיבוי"
+      "title": "בדיקת גיבוי",
+      "aborted": ""
     },
     "create": {
       "alreadyExists": "?ברשותך גיבוי תקין. האם ליצור חדש כעת",
@@ -71,7 +118,8 @@
       "confirmTitle": "שיחזור גיבוי",
       "error": {
         "e200": "כרטיס זיכרון לא נמצא",
-        "general": "שגיאה בשיחזור הגיבוי"
+        "general": "שגיאה בשיחזור הגיבוי",
+        "e104": ""
       },
       "password": {
         "label": "סיסמת שיחזור או סיסמת שיחזור מוסתרת",
@@ -81,13 +129,18 @@
       },
       "restoring": "...משחזר גיבוי",
       "title": "שיחזור",
-      "understand": "אני מבין שסיסמת שחזור שגויה תיצור ארנק שונה"
+      "understand": "אני מבין שסיסמת שחזור שגויה תיצור ארנק שונה",
+      "selectedBackup": "",
+      "subtitle": ""
     },
     "showMnemonic": {
       "description": ".כעת יוצגו 24 מילים, המייצגות גיבוי לארנק. רשום אותם על דף נייר\n\n<strong>אל תאחסן אותם ברשת או תצלם אותם</strong>\n<strong>אל תאמר מילים אלו בקול</strong>\n<strong>הגיבוי אינו מאובטח בסיסמה</strong>\n\n.לאחר מכן, תתבקש לאשר כל מילה",
-      "title": "mnemonic seed -הצג"
+      "title": "mnemonic seed -הצג",
+      "checkboxLabel": "",
+      "warning": ""
     },
-    "title": "נהל גיבויים"
+    "title": "נהל גיבויים",
+    "link": ""
   },
   "bb02Bootloader": {
     "abort": "אל תשדרג - קח אותי חזרה",
@@ -97,7 +150,13 @@
     },
     "flipscreen": "הפוך מסך",
     "orientation": "?ההתקן מכוון בכיוון שגוי",
-    "success": "השדרוג הצליח!"
+    "success": "השדרוג הצליח!",
+    "success_install": "",
+    "upgradeTitle": "",
+    "upgradeTitle_install": "",
+    "abort_noUpgrade": "",
+    "additionalUpgradeFollows1": "",
+    "additionalUpgradeFollows2": ""
   },
   "bitbox": {
     "error": {
@@ -111,14 +170,37 @@
     "confirmDateText": ".התאריך ישמש ליצירת הגיבוי",
     "confirmName": "אשר את השם בביטבוקס02",
     "followInstructions": "אנא התקדם לפי הוראות בביטבוקס02",
-    "followInstructionsMnemonic": "mnemonic seed -המשך עם ההוראות לפי המופיע בביטבוקס02 שלך כדי לשחזר מ"
+    "followInstructionsMnemonic": "mnemonic seed -המשך עם ההוראות לפי המופיע בביטבוקס02 שלך כדי לשחזר מ",
+    "confirmWords": "",
+    "confirmWordsText": "",
+    "followInstructionsMnemonicTitle": ""
   },
   "bitbox02Settings": {
     "deviceName": {
       "current": "שם התקן נוכחי",
       "input": "שם ביטבוקס02",
       "placeholder": "שם התקן חדש",
-      "title": "קבע שם לביטבוקס02"
+      "title": "קבע שם לביטבוקס02",
+      "error": "",
+      "error_104": ""
+    },
+    "changePassword": {
+      "success": "",
+      "title": "",
+      "description": "",
+      "error_104": ""
+    },
+    "bluetoothToggleEnabled": {
+      "alertEnabled": "",
+      "description": "",
+      "error_104": "",
+      "titleDisabled": "",
+      "titleEnabled": "",
+      "alertDisabled": ""
+    },
+    "gotoStartupSettings": {
+      "description": "",
+      "title": ""
     }
   },
   "bitbox02Wizard": {
@@ -134,7 +216,8 @@
       "userConfirmation2": ".הגיבוי שלי אינו מוגן בסיסמה. כל אחד עם גישה לגיבוי יכול לגשת לארנק שלי",
       "userConfirmation3": ".אם אאבד או שהביטבוקס02 יפגע, הדרך היחידה לשחזר את הנכסים היא באמצעות הגיבוי שלי",
       "userConfirmation4": ".אם אאבד או יפגעו, ביטבוקס02 והגיבוי, כל הנכסים יאבדו",
-      "userConfirmation5": "אני לא אמור להכניס את כרטיס הזיכרון לשום מחשב, פלאפון, מדפסת או מכשיר אחר מלבד לארנק"
+      "userConfirmation5": "אני לא אמור להכניס את כרטיס הזיכרון לשום מחשב, פלאפון, מדפסת או מכשיר אחר מלבד לארנק",
+      "userConfirmation5mnemonic": ""
     },
     "create": {
       "button": "הזן שם להתקן והמשך",
@@ -157,11 +240,13 @@
       "unpaired": ".ביטבוקס02 חדש זוהה. אנא אמת שהצופן תואם לזה המוצג על המסך. אם הצופן זהה, גע בלחצן האישור ולחץ על הכפתור מטה כדי להמשיך"
     },
     "restoreFromMnemonic": {
-      "failed": ".נכשל, אנא נסה שוב mnemonic seed -שיחזור מ"
+      "failed": ".נכשל, אנא נסה שוב mnemonic seed -שיחזור מ",
+      "e104": ""
     },
     "stepBackup": {
       "beforeProceed": ":לפני שתמשיך, אנא קרא את שיקולי האבטחה החשובים הבאים",
-      "createBackup": ".גיבוי לא יווצר בכרטיס הזיכרון"
+      "createBackup": ".גיבוי לא יווצר בכרטיס הזיכרון",
+      "createBackupMnemonic": ""
     },
     "stepBackupSuccess": {
       "fundsSafe": ":על-מנת לאבטח את הנכסים, זכור",
@@ -174,19 +259,28 @@
       "nameLabel": "שם ביטבוקס02",
       "namePlaceholder": "הביטבוקס02 שלי",
       "title": "בחר שם לביטבוקס02",
-      "toastMicroSD": ".אנא וודא כי כרטיס הזיכרון נמצא בתוך הביטבוקס02"
+      "toastMicroSD": ".אנא וודא כי כרטיס הזיכרון נמצא בתוך הביטבוקס02",
+      "description": "",
+      "error": {
+        "genericMessage": "",
+        "invalidChars": "",
+        "tooLong": ""
+      }
     },
     "stepCreateSuccess": {
       "removeMicroSD": ".אנא הסר את כרטיס הזיכרון מהביטבוקס02 ואחסן אותו במקום בטוח",
-      "success": ".יצרת בהצלחה גיבוי"
+      "success": ".יצרת בהצלחה גיבוי",
+      "storeMnemonic": ""
     },
     "stepInsertSD": {
       "insertSDCard": ".אנא הכנס כרטיס זיכרון לתוך הביטבוקס02 כדי להמשיך",
-      "insertSDcardTitle": ".הכנס כרטיס זיכרון"
+      "insertSDcardTitle": ".הכנס כרטיס זיכרון",
+      "insertSDCardToSeeBackups": ""
     },
     "stepPassword": {
       "title": "קבע סיסמה לביטבוקס02",
-      "useControls": ".השתמש בפקדים כדי לקבוע סיסמה לביטבוקס02"
+      "useControls": ".השתמש בפקדים כדי לקבוע סיסמה לביטבוקס02",
+      "e104": ""
     },
     "stepUninitialized": {
       "create": ".אני מעוניין להגדיר ביטבוקס02 חדש",
@@ -197,6 +291,17 @@
     },
     "success": {
       "title": "!אתה מוכן להמשיך"
+    },
+    "createBackupAborted": "",
+    "advanced": {
+      "button": "",
+      "outOfDate": "",
+      "seed12WordInfo": "",
+      "seed12WordLabel": "",
+      "seed12WordText": "",
+      "skipSDCardLabel": "",
+      "skipSDCardText": "",
+      "title": ""
     }
   },
   "blink": {
@@ -205,7 +310,9 @@
   "bootloader": {
     "button": "שדרג קושחה עכשיו",
     "progress": "%משדרג",
-    "success": ".שודרג בהצלחה! אנא חבר מחדש את ההתקן. הפעם, אל תגע בכפתור"
+    "success": ".שודרג בהצלחה! אנא חבר מחדש את ההתקן. הפעם, אל תגע בכפתור",
+    "progress_install": "",
+    "button_install": ""
   },
   "button": {
     "abort": "בטל",
@@ -223,7 +330,10 @@
     "select": "בחר",
     "unlock": "בטל נעילה",
     "update": "עדכן",
-    "upgrade": "שדרג"
+    "upgrade": "שדרג",
+    "dismiss": "",
+    "done": "",
+    "proceedOnBitBox": ""
   },
   "changePin": {
     "newTitle": "סיסמת התקן חדשה",
@@ -237,7 +347,8 @@
       "month": "חודש",
       "week": "שבוע",
       "year": "שנה"
-    }
+    },
+    "dataOldTimestamp": ""
   },
   "checkSDcard": "בודק כרטיס זיכרון",
   "clickHere": ".לחץ כאן",
@@ -246,7 +357,10 @@
   },
   "confirmOnDevice": ".אנא אשר בהתקן שלך",
   "device": {
-    "appUpradeRequired": ".הביטבוקס שלך אינו נתמך על-ידי היישום. הורד והתקן את הגרסה האחרונה"
+    "appUpradeRequired": ".הביטבוקס שלך אינו נתמך על-ידי היישום. הורד והתקן את הגרסה האחרונה",
+    "firmwareUpgradeRequired": "",
+    "keystoreConnected": "",
+    "unsupportedFeature": ""
   },
   "deviceSettings": {
     "firmware": {
@@ -257,7 +371,9 @@
       "upToDate": "ההתקן שלך מעודכן",
       "version": {
         "label": "גרסה"
-      }
+      },
+      "upgradeAvailable": "",
+      "firmwareVersion": ""
     },
     "hardware": {
       "sdcard": {
@@ -265,13 +381,89 @@
         "label": "כרטיס זיכרון",
         "true": "הכנס"
       },
-      "title": "תכנה"
+      "title": "תכנה",
+      "securechip": "",
+      "attestation": {
+        "false": "",
+        "label": "",
+        "true": ""
+      }
     },
     "loading": "מאחזר מידע על התקן",
     "secrets": {
       "manageBackups": "נהל גיבויים",
       "title": "סודות"
-    }
+    },
+    "deviceInformation": {
+      "deviceName": {
+        "description": ""
+      },
+      "attestation": {
+        "description": ""
+      },
+      "passwordStretchingAlgo": {
+        "description": "",
+        "title": ""
+      },
+      "rootFingerprint": {
+        "description": ""
+      },
+      "securechip": {
+        "description": ""
+      },
+      "title": ""
+    },
+    "backups": {
+      "showRecoveryWords": {
+        "description": ""
+      },
+      "title": "",
+      "manageBackups": {
+        "description": ""
+      }
+    },
+    "bluetoothFirmware": {
+      "title": ""
+    },
+    "deviceSettings": {
+      "title": ""
+    },
+    "expert": {
+      "bip85": {
+        "description": "",
+        "disclaimer": "",
+        "how": {
+          "description": "",
+          "title": ""
+        },
+        "recover": {
+          "description": "",
+          "title": ""
+        },
+        "security": {
+          "description": "",
+          "title": ""
+        },
+        "title": "",
+        "what": {
+          "description": "",
+          "link": "",
+          "title": ""
+        }
+      },
+      "factoryReset": {
+        "description": "",
+        "title": ""
+      },
+      "goToStartupSettings": {
+        "description": ""
+      },
+      "passphrase": {
+        "description": "",
+        "title": ""
+      }
+    },
+    "noDevice": ""
   },
   "deviceTampered": ".הביטבוקס שלך סופק עם סיסמת שיחזור? אם כן, עצור מיד את התהליך וצור קשר עם התמיכה. החברה לעולם לא תספק ארנק מוגדר או תמליץ על סיסמאות",
   "dialog": {
@@ -289,7 +481,32 @@
   },
   "generic": {
     "enabled_false": "מושבת",
-    "enabled_true": "מופעל"
+    "enabled_true": "מופעל",
+    "buy_bitcoin": "",
+    "buy_crypto": "",
+    "close": "",
+    "buySell": "",
+    "reset": "",
+    "resetToDefault": "",
+    "search": "",
+    "searchButton": "",
+    "sell": "",
+    "sell_bitcoin": "",
+    "sell_crypto": "",
+    "send": "",
+    "sent": "",
+    "spend_bitcoin": "",
+    "spend_crypto": "",
+    "buy": "",
+    "noOptions": "",
+    "enable": "",
+    "noOptionOnIos": "",
+    "paymentRequestNote": "",
+    "receive": "",
+    "receiveWithoutCoinCode": "",
+    "receive_bitcoin": "",
+    "receive_crypto": "",
+    "received": ""
   },
   "genericError": "שגיאה התרחשה. אם אתה מבחין בחריגות, התחל מחדש את התכנה.",
   "goal": {
@@ -339,6 +556,22 @@
       "xpub": {
         "text": ".מפתח ציבורי מורחב הוא מקור כל כתובות הקבלה של המשתמש\n.המפתח מסופק פה לשימוש מתקדם ושיתוף עם ארנקי תצוגה בלבד, כמו אלקטרום או סנטינל",
         "title": "?מה זה מפתח ציבורי מורחב"
+      },
+      "multipleXPubs": {
+        "title": "",
+        "text": ""
+      },
+      "exportTransactions": {
+        "text": "",
+        "title": ""
+      },
+      "privacy": {
+        "text": "",
+        "title": ""
+      },
+      "verify": {
+        "text": "",
+        "title": ""
       }
     },
     "accountRates": {
@@ -383,7 +616,13 @@
     },
     "appendix": {
       "link": "צור עימנו קשר",
-      "text": "שאלה נוספת?"
+      "text": "שאלה נוספת?",
+      "questionService": "",
+      "textService": "",
+      "feedback": {
+        "text": "",
+        "link": ""
+      }
     },
     "backups": {
       "check": {
@@ -455,6 +694,10 @@
       "whyVerify": {
         "text": "אין לסמוך על המחשב שלך כדי ליצור ולהציג כתובות אותנטיות. מחשב המחובר לרשת הופך אותו לפגיע באופן משמעותי יותר מארנק חומרה. עבור ביטבוקס01, הכפתור לאימות הכתובת שולח את הכתובת בצורה בטוחה לטלפון הנייד המוצמד, ממנו תוכלו לסרוק ולאמת את צופן ה״קיו-אר״. לגבי ביטבוקס02, ניתן לאמת את הכתובת ישירות על גבי מסך הביטבוקס02",
         "title": "מדוע עליי לאמת את הכתובת בצורה מאובטחת?"
+      },
+      "plugout": {
+        "text": "",
+        "title": ""
       }
     },
     "send": {
@@ -473,6 +716,14 @@
       "whyFee": {
         "text": ".עסקאות מתמודדות עם אישור הכורה. כורים בוחרים בעסקאות שייכללו בבלוקצ׳יין בהתבסס על עמלתם\nכורים מצביעים על היסטוריית העסקאות. מכיוון שאין גורם שלישי מהימן אשר יאכוף קול אחד לאדם (וזה כל העניין של מחסומי חסימות), כורים מצביעים על עסקאות בכך שהם מקריבים משאב יקר כמו כוח מחשוב. כפרס על עבודתם, הם יכולים לתבוע מטבעות חדשים שנוצרו ואת שכר הטרחה של כל העסקאות שהם כללו",
         "title": "?מדוע יש עמלת רשת"
+      },
+      "plugout": {
+        "title": "",
+        "text": ""
+      },
+      "change": {
+        "title": "",
+        "text": ""
       }
     },
     "settings-electrum": {
@@ -508,6 +759,10 @@
       "servers": {
         "text": "כדי לבדוק עדכונים, לטעון עסקאות ולשלוח מידע לאפליקציות סלולריות מותאמות Shift Crypto -יישום זה מתקשר עם שרתי\n האפליקציה מאחזרת גם את שערי החליפין האחרונים מהפלטפורמה של קריפטו-קומפר\n,כל ההמרות מחושבות באופן מקומי, כלומר לא מועברים אי פעם נתונים על סכום העסקה שלך\n.Etherscan.io APIs -אנחנו משתמשים ב ERC20 -בשביל מטבעות אית׳ריום ו",
         "title": "?עם אילו שרתים התכנה מתקשרת"
+      },
+      "sats": {
+        "text": "",
+        "title": ""
       }
     },
     "title": "מדריך",
@@ -551,6 +806,161 @@
       "welcome": {
         "text": "תודה על השימוש בתכנה שנבנתה ע״י שיפט קריפטו בשוויץ\nאנחנו מעריכים כל משוב, ניתן לרשום לנו בקישור למטה",
         "title": "!ברוך הבא לתכנת הביטבוקס"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      }
+    },
+    "bitsurance": {
+      "who": {
+        "title": "",
+        "text": ""
+      },
+      "faq": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "privacy": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "renew": {
+        "text": "",
+        "title": ""
+      },
+      "status": {
+        "text": "",
+        "title": ""
+      },
+      "what": {
+        "text": "",
+        "title": ""
+      },
+      "why": {
+        "text": "",
+        "title": ""
+      }
+    },
+    "guideTitle": {
+      "receive": "",
+      "send": "",
+      "walletConnect": "",
+      "manageDevice": "",
+      "account": "",
+      "accountInformation": "",
+      "accountSummary": "",
+      "advancedSettings": "",
+      "appearance": "",
+      "buySell": "",
+      "insurance": "",
+      "manageAccount": ""
+    },
+    "accounts": {
+      "moveFunds": {
+        "text": "",
+        "title": ""
+      },
+      "recoverAccounts": {
+        "text": "",
+        "title": ""
+      },
+      "supportedCoins": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "whatIsRememberWallet": {
+        "title": "",
+        "text": ""
+      },
+      "howManyAccounts": {
+        "text": "",
+        "title": ""
+      },
+      "howtoAddTokens": {
+        "text": "",
+        "title": ""
+      },
+      "whyIsThisUseful": {
+        "text": "",
+        "title": ""
+      },
+      "whatAreAccounts": {
+        "text": "",
+        "title": ""
+      }
+    },
+    "device": {
+      "attestation": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "name": {
+        "text": "",
+        "title": ""
+      },
+      "secure-chip": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      }
+    },
+    "trackingModePortfolioChart": {
+      "title": "",
+      "text": ""
+    },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "kyc": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "limits": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "",
+        "title": ""
+      },
+      "supportedNetworks": {
+        "text": "",
+        "title": ""
+      },
+      "whatIsWalletConnect": {
+        "text": "",
+        "title": ""
       }
     }
   },
@@ -593,6 +1003,7 @@
   },
   "notification": {
     "newTxs_one": "עסקה חדשה ב: {{accountName}}",
+    "newTxs_two": "",
     "newTxs_other": "{{count}} עסקה חדשה ב: {{accountName}}"
   },
   "password": {
@@ -611,7 +1022,17 @@
     "title": "קבל {{accountName}}",
     "verify": "וודא כתובת בצורה מאובטחת",
     "verifyBitBox02": "וודא כתובת בביטבוקס02",
-    "verifyInstruction": ".אנא וודא אם הכתובת הבאה תואמת את הכתובת המוצגת על גבי ההתקן שלך"
+    "verifyInstruction": ".אנא וודא אם הכתובת הבאה תואמת את הכתובת המוצגת על גבי ההתקן שלך",
+    "qrCodeCopiedMessage": "",
+    "scriptType": {
+      "p2tr": "",
+      "p2wpkh": "",
+      "p2wpkh-p2sh": ""
+    },
+    "bitsuranceWarning": "",
+    "selectAccount": "",
+    "taprootWarning": "",
+    "changeScriptType": ""
   },
   "reset": {
     "description": "!כל המידע שבהתקן יימחק, זה כולל את המפתח הפרטי שלך",
@@ -692,19 +1113,25 @@
     "coincontrol": {
       "address": "כתובת",
       "outpoint": "נקודת יציאה",
-      "title": "שלח מהפלט"
+      "title": "שלח מהפלט",
+      "addressReused": "",
+      "change": ""
     },
     "confirm": {
       "selected-coins": "מטבעות נבחרים",
       "title": "אשר ובצע עסקה",
-      "total": "סכום סופי"
+      "total": "סכום סופי",
+      "infoMessage": "",
+      "to": ""
     },
     "error": {
       "feeTooLow": "עמלה נמוכה מדי",
       "insufficientFunds": "אין די כספים",
       "invalidAddress": "כתובת שגויה",
       "invalidAmount": "סכום שגוי",
-      "invalidData": "מידע שגוי"
+      "invalidData": "מידע שגוי",
+      "erc20InsufficientGasFunds": "",
+      "feesNotAvailable": ""
     },
     "fee": {
       "customPlaceholder": "הכנס סכום",
@@ -720,7 +1147,15 @@
         "low": "(בלוקים: 12 (סביב השעתיים לביטקויין, 30 דקות ללייטקויין",
         "low_ltc": "(חצי שעה (12 בלוקים",
         "normal": "(בלוקים: 6 (סביב השעה לביטקויין, רבע שעה ללייטקויין",
-        "normal_ltc": "(רבע שעה (6 בלוקים"
+        "normal_ltc": "(רבע שעה (6 בלוקים",
+        "economy_eth": "",
+        "mEconomy": "",
+        "mHalfHour": "",
+        "mHour": "",
+        "normal_eth": "",
+        "mFastest": "",
+        "high_eth": "",
+        "low_eth": ""
       },
       "estimate": ":זמן המתנה משוער",
       "label": {
@@ -728,9 +1163,15 @@
         "economy": "חסכוני",
         "high": "גבוה",
         "low": "נמוך",
-        "normal": "רגיל"
+        "normal": "רגיל",
+        "mHalfHour": "",
+        "mHour": "",
+        "mEconomy": "",
+        "mFastest": ""
       },
-      "placeholder": "...מחשב הערכת עמלה"
+      "placeholder": "...מחשב הערכת עמלה",
+      "customLabel": "",
+      "customLabel_eth": ""
     },
     "maximum": "שלח הכל",
     "priority": "עדיפות",
@@ -738,7 +1179,17 @@
     "success": "העסקה נחתמה ונשלחה",
     "title": "שלח {{accountName}}",
     "toggleCoinControl": "הפעל שליטת מטבע",
-    "transactionDetails": "פרטי עסקה"
+    "transactionDetails": "פרטי עסקה",
+    "edit": "",
+    "sendToAccount": {
+      "placeholder": "",
+      "title": ""
+    },
+    "buyEth": "",
+    "maximumSelectedCoins": "",
+    "newTransaction": "",
+    "noFeeTargets": "",
+    "scanQRNoCameraMessage": ""
   },
   "settings": {
     "electrum": {
@@ -771,12 +1222,19 @@
     "expert": {
       "coinControl": "אפשר ניהול מטבע",
       "electrum": {
-        "title": "חבר את הצומת המלא שלך"
+        "title": "חבר את הצומת המלא שלך",
+        "description": ""
       },
       "fee": "אפשר ניהול עמלות",
       "setProxyAddress": "קבע כתובת פרוקסי",
       "title": "הגדרות מתקדמות",
-      "useProxy": "הפעל פרוקסי תור"
+      "useProxy": "הפעל פרוקסי תור",
+      "exportLogs": {
+        "description": "",
+        "title": ""
+      },
+      "restartInTestnet": "",
+      "useSats": ""
     },
     "header": {
       "home": "בית"
@@ -786,13 +1244,44 @@
       "title": "שירותים"
     },
     "success": ".נתק וחבר מחדש את ההתקן בכדי שהשינויים יתממשו",
-    "title": "הגדרות"
+    "title": "הגדרות",
+    "info": {
+      "title": "",
+      "up-to-date": "",
+      "version": "",
+      "out-of-date": ""
+    },
+    "about": "",
+    "appearance": "",
+    "general": "",
+    "notes": {
+      "export": {
+        "description": "",
+        "success": "",
+        "title": ""
+      },
+      "import": {
+        "description": "",
+        "title": "",
+        "tooLarge": "",
+        "accountNames_one": "",
+        "accountNames_two": "",
+        "accountNames_other": "",
+        "transactionNotes_one": "",
+        "transactionNotes_two": "",
+        "transactionNotes_other": ""
+      },
+      "title": ""
+    },
+    "advancedSettings": "",
+    "more": ""
   },
   "setup": "הגדר התקן",
   "sidebar": {
     "device": "נהל התקן",
     "leave": "עזוב",
-    "settings": "הגדרות"
+    "settings": "הגדרות",
+    "insurance": ""
   },
   "success": {
     "create": {
@@ -817,7 +1306,12 @@
       "date": "תאריך",
       "fiatAmount": "כמות פיאט",
       "status": "מצב",
-      "type": "סוג"
+      "type": "סוג",
+      "title": "",
+      "historicalFiat": "",
+      "currentFiat": "",
+      "from": "",
+      "sentToSelf": ""
     },
     "explorer": "מזהה עסקה",
     "explorerTitle": "פתח בחוקר בלוקים חיצוני",
@@ -829,13 +1323,37 @@
     "status": {
       "complete": "הושלם",
       "failed": "נכשל",
-      "pending": "ממתין"
+      "pending": "ממתין",
+      "pending_receive": "",
+      "pending_send": "",
+      "pending_send_to_self": ""
     },
     "vsize": "גודל וירטואלי",
-    "weight": "משקל"
+    "weight": "משקל",
+    "tx": {
+      "send_to_self_failed": "",
+      "receive_complete": "",
+      "receive_failed": "",
+      "receive_pending": "",
+      "send_complete": "",
+      "send_failed": "",
+      "send_to_self": "",
+      "send_pending": ""
+    },
+    "statusShort": {
+      "pending_send_to_self": "",
+      "complete": "",
+      "failed": "",
+      "pending": "",
+      "pending_receive": "",
+      "pending_send": ""
+    },
+    "advanced": "",
+    "no-results": ""
   },
   "transactions": {
-    "placeholder": ".אין עסקאות עדיין"
+    "placeholder": ".אין עסקאות עדיין",
+    "errorLoadTransactions": ""
   },
   "unknownError": "שגיאה לא ידועה התרחשה: {{errorMessage}}",
   "unlock": {
@@ -849,7 +1367,19 @@
       "label": "סיסמת ההתקן",
       "placeholder": "הזן את סיסמת ההתקן כדי לבטל את נעילתו"
     },
-    "unlocking": "...מבטל נעילה"
+    "unlocking": "...מבטל נעילה",
+    "forgotPassword": {
+      "dialogDescription": "",
+      "dialogTitle": "",
+      "info": "",
+      "stillHavingIssues": "",
+      "supportLink": "",
+      "text1": "",
+      "text2": "",
+      "title2": "",
+      "button": "",
+      "title1": ""
+    }
   },
   "upgradeFirmware": {
     "button": "עדכון קושחה",
@@ -863,9 +1393,676 @@
     "unlocked3": "גע במקש המגע כשמנורת הלד נדלקת"
   },
   "warning": {
-    "sdcard": "שמור על כרטיס הזיכרון הרחק מההתקן, אלמלא אתה מעוניין לנהל את הגיבויים"
+    "sdcard": "שמור על כרטיס הזיכרון הרחק מההתקן, אלמלא אתה מעוניין לנהל את הגיבויים",
+    "coincontrol": "",
+    "offline": "",
+    "testnet": ""
   },
   "welcome": {
-    "title": "ברוך הבא"
+    "title": "ברוך הבא",
+    "connect": "",
+    "message": "",
+    "getStarted": "",
+    "loadingAccounts": "",
+    "messageIOS": ""
+  },
+  "newSettings": {
+    "advancedSettings": {
+      "authentication": {
+        "title": "",
+        "description": ""
+      },
+      "coinControl": {
+        "description": ""
+      },
+      "customFees": {
+        "description": ""
+      },
+      "restartInTestnet": {
+        "description": ""
+      },
+      "torProxy": {
+        "description": ""
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "title": "",
+        "description": ""
+      },
+      "language": {
+        "description": "",
+        "title": ""
+      },
+      "remebmerWallet": {
+        "warning": "",
+        "enable": {
+          "title": "",
+          "description": ""
+        },
+        "name": "",
+        "warningTitle": ""
+      },
+      "darkmode": {
+        "description": ""
+      },
+      "defaultCurrency": {
+        "description": "",
+        "title": ""
+      },
+      "enableAccount": {
+        "description": "",
+        "title": ""
+      },
+      "hideAmounts": {
+        "description": "",
+        "hideAmounts": "",
+        "showAmounts": "",
+        "title": ""
+      },
+      "toggleSats": {
+        "description": ""
+      }
+    },
+    "about": {
+      "feedbackLink": {
+        "description": "",
+        "title": ""
+      },
+      "supportLink": {
+        "title": "",
+        "description": ""
+      },
+      "appVersion": {
+        "title": ""
+      }
+    }
+  },
+  "passphrase": {
+    "successDisabled": {
+      "messageEnd": "",
+      "message": "",
+      "title": ""
+    },
+    "how": {
+      "message": "",
+      "title": "",
+      "button": ""
+    },
+    "intro": {
+      "message": "",
+      "title": ""
+    },
+    "progressEnable": {
+      "title": "",
+      "message": ""
+    },
+    "summary": {
+      "title": "",
+      "understand": "",
+      "understandList": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "button": ""
+    },
+    "why": {
+      "title": "",
+      "button": "",
+      "message": ""
+    },
+    "considerations": {
+      "button": "",
+      "message": "",
+      "title": ""
+    },
+    "disable": "",
+    "disableInfo": {
+      "button": "",
+      "message": ""
+    },
+    "enable": "",
+    "error": {
+      "e104": ""
+    },
+    "successEnabled": {
+      "message": "",
+      "messageEnd": "",
+      "tips": "",
+      "tipsList": [
+        "",
+        ""
+      ],
+      "title": ""
+    },
+    "what": {
+      "button": "",
+      "message": "",
+      "title": ""
+    },
+    "progressDisable": {
+      "message": "",
+      "title": ""
+    }
+  },
+  "buy": {
+    "pocket": {
+      "error": {
+        "insufficientFunds": ""
+      },
+      "usedAddress": "",
+      "paymentRequestNote": "",
+      "previousTransactions": "",
+      "verifyBitBox02": ""
+    },
+    "exchange": {
+      "infoContent": {
+        "btcdirectWidget": {
+          "disclaimer": {
+            "title_crypto": "",
+            "description": "",
+            "kyc": {
+              "description": "",
+              "title": ""
+            },
+            "paymentMethods": {
+              "buy": "",
+              "note": "",
+              "sell": "",
+              "title": ""
+            },
+            "security": {
+              "description": "",
+              "link": "",
+              "title": ""
+            },
+            "title_bitcoin": ""
+          },
+          "infobox": {
+            "payment": {
+              "bankTransfer": "",
+              "creditDebitCard": "",
+              "bancontact": "",
+              "sofort": "",
+              "title": ""
+            },
+            "feesBuying": {
+              "bancontact": "",
+              "bankTransfer": "",
+              "creditDebitCard": "",
+              "sofort": "",
+              "title": ""
+            },
+            "feesSelling": {
+              "bankTransfer": "",
+              "title": ""
+            },
+            "intro": ""
+          },
+          "learnmore": ""
+        },
+        "btcdirect": {
+          "disclaimer": {
+            "paymentMethods": {
+              "sell2": "",
+              "sell": "",
+              "title": "",
+              "buy": "",
+              "buy2": "",
+              "fee": ""
+            },
+            "title": "",
+            "personal": {
+              "text": "",
+              "title": ""
+            },
+            "security": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "dataProtection": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "kyc": {
+              "text": "",
+              "title": ""
+            },
+            "partnership": {
+              "text": "",
+              "title": ""
+            }
+          },
+          "title": "",
+          "info": "",
+          "infobox": {
+            "intro_btconly": "",
+            "intro_multi": "",
+            "kyc": "",
+            "learnmore": "",
+            "listItem1": "",
+            "listItem2": "",
+            "listItem3": "",
+            "listItem4": "",
+            "manager": ""
+          },
+          "link": ""
+        },
+        "pocket": {
+          "fees": {
+            "title": "",
+            "info": ""
+          },
+          "learnMore": "",
+          "payment": {
+            "bankTransfer": "",
+            "bankTransferDetails": {
+              "sepa": "",
+              "uk": "",
+              "sic": ""
+            },
+            "bankTransferReccuring": "",
+            "title": ""
+          },
+          "sell": {
+            "title": ""
+          },
+          "supportedCurrencies": "",
+          "verification": {
+            "info": "",
+            "link": "",
+            "title": ""
+          }
+        },
+        "bitrefill": {
+          "disclaimer": {
+            "account": {
+              "text": "",
+              "link": "",
+              "title": ""
+            },
+            "claims": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "dataProtection": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "fees": {
+              "text": "",
+              "title": ""
+            },
+            "intro": {
+              "text": "",
+              "title_bitcoin": "",
+              "title_crypto": ""
+            },
+            "security": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "validEmail": {
+              "text": "",
+              "title": ""
+            }
+          },
+          "infobox": {
+            "intro": ""
+          }
+        },
+        "moonpay": {
+          "fees": {
+            "bankTransfer": "",
+            "creditDebitCard": "",
+            "learnMore": "",
+            "title": ""
+          },
+          "fullCurrenciesList": "",
+          "payment": {
+            "asteriskText": "",
+            "bankTransfer": "",
+            "bankTransferDetails": {
+              "pix": "",
+              "sepa": "",
+              "uk": ""
+            },
+            "creditDebitCard": "",
+            "creditDebitCardDetails": {
+              "cards": ""
+            },
+            "learnMore": "",
+            "title": ""
+          },
+          "supportedCurrencies": ""
+        },
+        "region": {
+          "title": ""
+        }
+      },
+      "buy": "",
+      "creditCard": "",
+      "description_bitrefill": "",
+      "fast": "",
+      "fee": "",
+      "region": "",
+      "selectRegion": "",
+      "spend": "",
+      "bankTransfer": "",
+      "bestDeal": "",
+      "noExchanges": "",
+      "sell": ""
+    },
+    "info": {
+      "disclaimer": {
+        "title_crypto": "",
+        "payment": {
+          "table": {
+            "1_method": "",
+            "1_description": "",
+            "2_method": "",
+            "2_description": "",
+            "description": "",
+            "fee": "",
+            "method": ""
+          },
+          "details": "",
+          "footnote": "",
+          "title": ""
+        },
+        "intro": [
+          "",
+          ""
+        ],
+        "privacyPolicy": "",
+        "protection": {
+          "descriptionGeneric_bitcoin": "",
+          "descriptionGeneric_crypto": "",
+          "title": ""
+        },
+        "security": {
+          "descriptionGeneric_bitcoin": "",
+          "descriptionGeneric_crypto": "",
+          "title": "",
+          "link": ""
+        },
+        "title_bitcoin": ""
+      },
+      "continue": "",
+      "selectPlaceholder": "",
+      "skip": "",
+      "next": "",
+      "selectLabel": "",
+      "crypto": ""
+    },
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": ""
+      },
+      "transactionNote": ""
+    }
+  },
+  "aopp": {
+    "errorTitle": "",
+    "addressRequestWithLogoAndXPub": "",
+    "banner": "",
+    "labelAddress": "",
+    "labelMessage": "",
+    "reverifyInfoText": "",
+    "syncing": "",
+    "title": "",
+    "addressRequest": "",
+    "addressRequestWithLogo": "",
+    "addressRequestWithXPub": "",
+    "signing": "",
+    "success": {
+      "message": "",
+      "title": ""
+    },
+    "xpubRequested": ""
+  },
+  "walletConnect": {
+    "pairingSuccess": "",
+    "signingRequest": {
+      "chain": "",
+      "dapp": "",
+      "data": "",
+      "dataParsingError": "",
+      "decodeError": "",
+      "method": {
+        "sendTransaction": "",
+        "signMessage": "",
+        "signTransaction": "",
+        "signTypedData": ""
+      },
+      "successfullySigned": "",
+      "walletConnectRequest": ""
+    },
+    "connect": {
+      "button": "",
+      "dappLabel": "",
+      "invalidPairingUri": "",
+      "missingNamespace": ""
+    },
+    "dashboard": {
+      "allSessions": "",
+      "disclaimer": "",
+      "newConnection": "",
+      "noConnectedSessions": "",
+      "unspecifiedAccount": ""
+    },
+    "invalidPairingChain": "",
+    "pairingRequest": {
+      "approve": "",
+      "reject": "",
+      "title": ""
+    },
+    "useNewUri": "",
+    "walletConnect": ""
+  },
+  "bluetooth": {
+    "connectionIssuesLink": "",
+    "connected": "",
+    "connectionFailed": "",
+    "connectionIssues": "",
+    "disabledGloballyDescription": "",
+    "disabledGloballyTitle": "",
+    "disabledPermissionDescription": "",
+    "disabledPermissionTitle": "",
+    "enable": "",
+    "select": ""
+  },
+  "auth": {
+    "authButton": "",
+    "dismissButton": "",
+    "missing": "",
+    "title": ""
+  },
+  "bitsurance": {
+    "insure": {
+      "month": "",
+      "button": "",
+      "faq": "",
+      "listItem1": "",
+      "listItem3": "",
+      "text": "",
+      "text2": "",
+      "text3": "",
+      "title": "",
+      "listItem2": ""
+    },
+    "dashboard": {
+      "button": "",
+      "canceled": "",
+      "coverage": "",
+      "inactive": "",
+      "processing": "",
+      "refused": "",
+      "supportLink": "",
+      "waitpayment": "",
+      "title": "",
+      "active": ""
+    },
+    "detect": {
+      "button": "",
+      "insured": "",
+      "notInsured": "",
+      "text": "",
+      "title": ""
+    },
+    "intro": {
+      "link": "",
+      "text1": ""
+    },
+    "terms": {
+      "link": "",
+      "text1": "",
+      "text2": "",
+      "text3": "",
+      "text4": "",
+      "text5": ""
+    },
+    "title": ""
+  },
+  "bitsuranceAccount": {
+    "select": "",
+    "errorNoXpub": "",
+    "noAccount": "",
+    "title": ""
+  },
+  "manageAccounts": {
+    "settings": {
+      "hideTokens": "",
+      "showTokens": ""
+    },
+    "accountHidden": "",
+    "editAccount": "",
+    "editAccountNameTitle": "",
+    "noAccounts": "",
+    "settingsButtonDescription": "",
+    "title": "",
+    "watchAccount": "",
+    "watchAccountDescription": ""
+  },
+  "exchange": {
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "",
+          "p1": "",
+          "title": ""
+        },
+        "fees": {
+          "extraNote": "",
+          "note": "",
+          "p1": "",
+          "p2": "",
+          "title": ""
+        },
+        "kyc": {
+          "title": "",
+          "info": "",
+          "link": ""
+        },
+        "security": {
+          "link": "",
+          "p1": "",
+          "p2": "",
+          "p3": "",
+          "title": ""
+        },
+        "welcome": {
+          "p1": "",
+          "title": ""
+        }
+      }
+    },
+    "btcdirect": {
+      "currencyMismatch": "",
+      "insufficientFunds": ""
+    },
+    "buySell": {
+      "coinNotSupported": "",
+      "regionNotSupported": ""
+    }
+  },
+  "gapLimit": {
+    "title": "",
+    "change": "",
+    "description": "",
+    "maxValue": "",
+    "minValue": "",
+    "receive": ""
+  },
+  "novaConnectionIssues": {
+    "description3": "",
+    "description4": "",
+    "link1": "",
+    "link2": "",
+    "stillHavingIssues": "",
+    "title1": "",
+    "title2": "",
+    "title3": "",
+    "title4": "",
+    "connectionIssueTips": "",
+    "description1": "",
+    "description2": ""
+  },
+  "testWallet": {
+    "connect": {
+      "description": "",
+      "title": ""
+    },
+    "disconnect": {
+      "description": "",
+      "title": ""
+    },
+    "prompt": {
+      "button": "",
+      "passwordLabel": "",
+      "title": ""
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "",
+      "prompt": "",
+      "title": ""
+    },
+    "deactivate": {
+      "description": "",
+      "prompt": "",
+      "title": ""
+    }
+  },
+  "connectKeystore": {
+    "promptNoName": "",
+    "promptWithName": ""
+  },
+  "darkmode": {
+    "toggle": ""
+  },
+  "error": {
+    "aoppUnsupportedKeystore": "",
+    "accountAlreadyExists": "",
+    "accountLimitReached": "",
+    "aoppCallback": "",
+    "aoppInvalidRequest": "",
+    "aoppNoAccounts": "",
+    "aoppSigningAborted": "",
+    "aoppUnknown": "",
+    "aoppUnsupportedAsset": "",
+    "aoppUnsupportedFormat": "",
+    "aoppVersion": "",
+    "keystoreTimeout": "",
+    "wrongKeystore": "",
+    "wrongKeystore2": ""
   }
 }
