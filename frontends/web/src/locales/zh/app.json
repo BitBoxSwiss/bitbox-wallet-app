@@ -5,14 +5,43 @@
     "fatalError": "出现意外错误",
     "incoming": "传入",
     "initializing": "正在从区块链网络中获取信息",
-    "reconnecting": "链接断开，尝试重新链接"
+    "reconnecting": "链接断开，尝试重新链接",
+    "insured": "",
+    "uncoveredFunds": "",
+    "warning": "",
+    "account": "",
+    "uncoveredFundsLink": "",
+    "backupReminderLink": "",
+    "insuranceExpired": "",
+    "maybeProxyError": "",
+    "syncedAddressesCount": "",
+    "accounts": "",
+    "backupReminder": ""
   },
   "accountInfo": {
     "address": "地址",
     "extendedPublicKey": "扩展公钥",
     "label": "帐户信息",
     "title": "帐户信息",
-    "verify": "请在设备上进行验证"
+    "verify": "请在设备上进行验证",
+    "buyCTA": {
+      "information": {
+        "start": "",
+        "looksEmpty": ""
+      }
+    },
+    "scriptType": "",
+    "taproot": "",
+    "xpubTypeChangeBtn": {
+      "p2pkh": "",
+      "p2tr": "",
+      "p2wpkh": "",
+      "p2wpkh-p2sh": ""
+    },
+    "xpubTypeInfo": "",
+    "accountDetails": "",
+    "exportTransactions": "",
+    "viewAccountDetails": ""
   },
   "accountSummary": {
     "balance": "余额",
@@ -21,10 +50,31 @@
     "name": "账户名",
     "noAccount": "还未添加账户",
     "title": "帐户汇总",
-    "total": "总计"
+    "total": "总计",
+    "subtotalWithCoinName": "",
+    "availableBalance": "",
+    "coin": "",
+    "transactionHistory": ""
   },
   "addAccount": {
-    "title": "添加账户"
+    "title": "添加账户",
+    "chooseName": {
+      "nextButton": "",
+      "step": "",
+      "title": ""
+    },
+    "selectCoin": {
+      "nextButton": "",
+      "step": "",
+      "title": ""
+    },
+    "success": {
+      "addAnotherAccount": "",
+      "message": "",
+      "nextButton": "",
+      "step": "",
+      "title": ""
+    }
   },
   "app": {
     "upgrade": "该应用程序有新版本可用！请从 {{current}} 升级至 {{version}}。"
@@ -41,7 +91,8 @@
         "showLabel": "恢复密码"
       },
       "success": "成功验证备份：",
-      "title": "检查备份"
+      "title": "检查备份",
+      "aborted": ""
     },
     "create": {
       "alreadyExists": "您已经拥有一个有效备份。您想重新创建它吗？",
@@ -66,7 +117,9 @@
     "restore": {
       "confirmTitle": "恢复已有备份",
       "error": {
-        "e200": "找不到(无法识别到)microSD卡"
+        "e200": "找不到(无法识别到)microSD卡",
+        "e104": "",
+        "general": ""
       },
       "password": {
         "label": "恢复密码或隐藏恢复密码",
@@ -76,13 +129,18 @@
       },
       "restoring": "正在还原备份…",
       "title": "恢复",
-      "understand": "我知道输入错误的恢复密码会创建出另一个不同的钱包"
+      "understand": "我知道输入错误的恢复密码会创建出另一个不同的钱包",
+      "subtitle": "",
+      "selectedBackup": ""
     },
     "showMnemonic": {
       "description": "系统将为您提供最多24个单词，构成您的钱包(助记词)备份。请把它们用抄写到纸上。\n\n<strong>请勿将其数字化存储或对其进行拍照。</strong>\n\n<strong>不要大声说出这些单词。</strong>\n\n<strong>此备份不受密码加密保护。</strong>\n\n抄写完成后，您将需要再次核对每个单词。",
-      "title": "显示助记词"
+      "title": "显示助记词",
+      "warning": "",
+      "checkboxLabel": ""
     },
-    "title": "管理备份"
+    "title": "管理备份",
+    "link": ""
   },
   "bb02Bootloader": {
     "abort": "不要升级-退回",
@@ -92,7 +150,13 @@
     },
     "flipscreen": "翻转屏幕",
     "orientation": "设备方向错误？",
-    "success": "升级成功！继续(等待) "
+    "success": "升级成功！继续(等待) ",
+    "additionalUpgradeFollows1": "",
+    "additionalUpgradeFollows2": "",
+    "success_install": "",
+    "upgradeTitle": "",
+    "upgradeTitle_install": "",
+    "abort_noUpgrade": ""
   },
   "bitbox": {
     "error": {
@@ -102,13 +166,41 @@
     }
   },
   "bitbox02Interact": {
-    "followInstructions": "请按照BitBox02上的说明进行操作。"
+    "followInstructions": "请按照BitBox02上的说明进行操作。",
+    "confirmWordsText": "",
+    "followInstructionsMnemonicTitle": "",
+    "confirmDate": "",
+    "confirmName": "",
+    "confirmWords": "",
+    "followInstructionsMnemonic": "",
+    "confirmDateText": ""
   },
   "bitbox02Settings": {
     "deviceName": {
       "current": "当前设备名称",
       "input": "BitBox02 名称",
-      "title": "设置BitBox02的设备名称"
+      "title": "设置BitBox02的设备名称",
+      "error_104": "",
+      "placeholder": "",
+      "error": ""
+    },
+    "changePassword": {
+      "description": "",
+      "title": "",
+      "error_104": "",
+      "success": ""
+    },
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "",
+      "alertEnabled": "",
+      "description": "",
+      "error_104": "",
+      "titleDisabled": "",
+      "titleEnabled": ""
+    },
+    "gotoStartupSettings": {
+      "description": "",
+      "title": ""
     }
   },
   "bitbox02Wizard": {
@@ -123,7 +215,9 @@
       "userConfirmation1": "我应该将备份存储在安全的地方。",
       "userConfirmation2": "我的备份不受密码保护。任何有权访问它的人都可以访问我的钱包。",
       "userConfirmation3": "如果我丢失或损坏了BitBox02设备，恢复资金的唯一方法是通过我的(私钥)备份进行恢复。",
-      "userConfirmation4": "如果我同时丢失或损坏了我的备份以及BitBox02设备，那么我的资金将会永远丢失。"
+      "userConfirmation4": "如果我同时丢失或损坏了我的备份以及BitBox02设备，那么我的资金将会永远丢失。",
+      "userConfirmation5": "",
+      "userConfirmation5mnemonic": ""
     },
     "create": {
       "button": "命名设备 & 继续",
@@ -144,11 +238,13 @@
       "unpaired": "已检测到新的BitBox02。请验证以下代码是否与您设备上显示的代码匹配。如果代码匹配(相同)，请轻触BitBox02显示屏上打勾选项下方的设备边框以继续。"
     },
     "restoreFromMnemonic": {
-      "failed": "通过助记词进行的恢复失败，请重试。"
+      "failed": "通过助记词进行的恢复失败，请重试。",
+      "e104": ""
     },
     "stepBackup": {
       "beforeProceed": "在继续之前，请阅读以下重要的安全注意事项：",
-      "createBackup": "现在，您将在microSD卡上创建备份。"
+      "createBackup": "现在，您将在microSD卡上创建备份。",
+      "createBackupMnemonic": ""
     },
     "stepBackupSuccess": {
       "fundsSafe": "为了确保您的资金安全，请记住以下几点：",
@@ -161,15 +257,23 @@
       "nameLabel": "BitBox02名称",
       "namePlaceholder": "我的BitBox02",
       "title": "选择BitBox02名称",
-      "toastMicroSD": "请确保您的microSD卡已插入BitBox02中。"
+      "toastMicroSD": "请确保您的microSD卡已插入BitBox02中。",
+      "description": "",
+      "error": {
+        "genericMessage": "",
+        "invalidChars": "",
+        "tooLong": ""
+      }
     },
     "stepCreateSuccess": {
       "removeMicroSD": "请从BitBox02中取出microSD卡，并将其存储在安全的位置。",
-      "success": "您已成功创建备份。"
+      "success": "您已成功创建备份。",
+      "storeMnemonic": ""
     },
     "stepPassword": {
       "title": "设置BitBox02密码",
-      "useControls": "使用BitBox02上的触控控件设置密码。"
+      "useControls": "使用BitBox02上的触控控件设置密码。",
+      "e104": ""
     },
     "stepUninitialized": {
       "create": "我想设置一个新的BitBox02。",
@@ -180,7 +284,25 @@
     },
     "success": {
       "title": "您已准备就绪！"
-    }
+    },
+    "advanced": {
+      "seed12WordLabel": "",
+      "seed12WordInfo": "",
+      "seed12WordText": "",
+      "skipSDCardLabel": "",
+      "skipSDCardText": "",
+      "outOfDate": "",
+      "title": "",
+      "button": ""
+    },
+    "stepInsertSD": {
+      "insertSDcardTitle": "",
+      "insertSDCard": "",
+      "insertSDCardToSeeBackups": ""
+    },
+    "createBackupAborted": "",
+    "createBackupFailed": "",
+    "noPasswordMatch": ""
   },
   "blink": {
     "button": ""
@@ -188,7 +310,9 @@
   "bootloader": {
     "button": "立即升级固件",
     "progress": "升级",
-    "success": "升级成功！请重新插入设备。这次，请一定不要触摸按钮。"
+    "success": "升级成功！请重新插入设备。这次，请一定不要触摸按钮。",
+    "progress_install": "",
+    "button_install": ""
   },
   "button": {
     "abort": "中止",
@@ -206,7 +330,10 @@
     "select": "选择",
     "unlock": "解锁(设备)",
     "update": "更新",
-    "upgrade": "升级"
+    "upgrade": "升级",
+    "proceedOnBitBox": "",
+    "dismiss": "",
+    "done": ""
   },
   "changePin": {
     "newTitle": "新设备密码",
@@ -219,7 +346,10 @@
   },
   "confirmOnDevice": "请在设备上进行确认",
   "device": {
-    "appUpradeRequired": "您的BitBox与该桌面应用程序不兼容。请下载并安装最新版本。"
+    "appUpradeRequired": "您的BitBox与该桌面应用程序不兼容。请下载并安装最新版本。",
+    "firmwareUpgradeRequired": "",
+    "keystoreConnected": "",
+    "unsupportedFeature": ""
   },
   "deviceSettings": {
     "firmware": {
@@ -230,7 +360,9 @@
       "upToDate": "您的设备固件是最新的",
       "version": {
         "label": "版本"
-      }
+      },
+      "firmwareVersion": "",
+      "upgradeAvailable": ""
     },
     "hardware": {
       "sdcard": {
@@ -238,18 +370,95 @@
         "label": "microSD卡",
         "true": "已插入"
       },
-      "title": "硬件信息"
+      "title": "硬件信息",
+      "attestation": {
+        "false": "",
+        "label": "",
+        "true": ""
+      },
+      "securechip": ""
     },
     "loading": "检索设备信息…",
     "secrets": {
       "manageBackups": "管理备份",
       "title": "机密信息"
-    }
+    },
+    "expert": {
+      "factoryReset": {
+        "title": "",
+        "description": ""
+      },
+      "bip85": {
+        "description": "",
+        "disclaimer": "",
+        "how": {
+          "description": "",
+          "title": ""
+        },
+        "recover": {
+          "description": "",
+          "title": ""
+        },
+        "security": {
+          "description": "",
+          "title": ""
+        },
+        "title": "",
+        "what": {
+          "description": "",
+          "link": "",
+          "title": ""
+        }
+      },
+      "goToStartupSettings": {
+        "description": ""
+      },
+      "passphrase": {
+        "description": "",
+        "title": ""
+      }
+    },
+    "deviceInformation": {
+      "passwordStretchingAlgo": {
+        "description": "",
+        "title": ""
+      },
+      "rootFingerprint": {
+        "description": ""
+      },
+      "securechip": {
+        "description": ""
+      },
+      "attestation": {
+        "description": ""
+      },
+      "deviceName": {
+        "description": ""
+      },
+      "title": ""
+    },
+    "deviceSettings": {
+      "title": ""
+    },
+    "backups": {
+      "manageBackups": {
+        "description": ""
+      },
+      "showRecoveryWords": {
+        "description": ""
+      },
+      "title": ""
+    },
+    "bluetoothFirmware": {
+      "title": ""
+    },
+    "noDevice": ""
   },
   "deviceTampered": "您的BitBox是否已提供恢复密码？如果是这样，请停止设置过程并立即与支持人员联系。 Shift公司绝不会为您提供现成的钱包密码或提供密码建议。",
   "dialog": {
     "cancel": "取消",
-    "confirm": "确认"
+    "confirm": "确认",
+    "confirmTitle": ""
   },
   "fiat": {
     "default": "默认设置",
@@ -307,6 +516,22 @@
       "xpub": {
         "text": "扩展公钥是帐户中所有接收地址的根密钥。\n此处提供扩展公钥供高级用户使用，以及与watch-only(仅限查阅)类型的钱包进行互操作,例如Electrum或Sentinel。",
         "title": "什么是扩展公钥？"
+      },
+      "multipleXPubs": {
+        "title": "",
+        "text": ""
+      },
+      "exportTransactions": {
+        "title": "",
+        "text": ""
+      },
+      "privacy": {
+        "title": "",
+        "text": ""
+      },
+      "verify": {
+        "text": "",
+        "title": ""
       }
     },
     "accountRates": {
@@ -343,7 +568,13 @@
     },
     "appendix": {
       "link": "联系我们！",
-      "text": "另一个问题？"
+      "text": "另一个问题？",
+      "feedback": {
+        "text": "",
+        "link": ""
+      },
+      "questionService": "",
+      "textService": ""
     },
     "backups": {
       "check": {
@@ -411,6 +642,14 @@
       "whyVerify": {
         "text": "您不应该信任您的计算机来生成和显示真实地址。它的被攻击面很大，因此计算机相比硬件钱包更容易受到攻击。对于BitBox01，用于验证地址的按钮会将地址安全地发送到配对的手机，您还可以从该手机扫描并验证QR码。对于BitBox02，可以直接在BitBox02显示屏上验证地址。",
         "title": "为什么我需要对地址进行安全验证？"
+      },
+      "plugout": {
+        "title": "",
+        "text": ""
+      },
+      "addressFormats": {
+        "text": "",
+        "title": ""
       }
     },
     "send": {
@@ -429,18 +668,53 @@
       "whyFee": {
         "text": "交易正在争夺矿工的确认。矿工根据其费用(高低)选择要打包进区块链中的交易。\n矿工对交易历史进行投票。由于没有可信赖的第三方强制每人投票（这是区块链的重点），矿工通过牺牲诸如计算能力之类的昂贵资源来对交易进行投票。作为对他们工作的奖励，他们可以获得新区块产生时的奖励币以及区块中打包确认的所有交易的交易费。",
         "title": "为什么要收取网络费？"
+      },
+      "plugout": {
+        "title": "",
+        "text": ""
+      },
+      "change": {
+        "title": "",
+        "text": ""
       }
     },
     "settings-electrum": {
       "what": {
         "text": "可以使用您自己的全节点为你的钱包提供支持，而无需使用Shift公司的服务器。",
         "title": "这是什么？"
+      },
+      "tor": {
+        "title": "",
+        "text": ""
+      },
+      "why": {
+        "title": "",
+        "text": ""
+      },
+      "connection": {
+        "text": "",
+        "title": ""
+      },
+      "instructions": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "options": {
+        "text": "",
+        "title": ""
       }
     },
     "settings": {
       "servers": {
         "text": "该app与Shift Crypto服务器进行通信，以检查更新，加载交易并将信息发送到配对的移动端apps。\n该app还从CoinGecko检索最新汇率。所有转换都是在本地计算的，这意味着不会传输有关交易金额的任何数据。\n注意：对于以太坊和ERC20代币，我们使用Etherscan.io API。",
         "title": "该app与哪些服务器通信？"
+      },
+      "sats": {
+        "text": "",
+        "title": ""
       }
     },
     "title": "指南",
@@ -484,7 +758,170 @@
       "welcome": {
         "text": "感谢您使用由瑞士Shift Crypto公司开发的此应用程序。感谢您分享的任何意见。请使用底部的链接提供反馈。",
         "title": "欢迎使用BitBoxApp！"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
       }
+    },
+    "guideTitle": {
+      "receive": "",
+      "manageDevice": "",
+      "account": "",
+      "accountInformation": "",
+      "accountSummary": "",
+      "advancedSettings": "",
+      "appearance": "",
+      "buySell": "",
+      "insurance": "",
+      "manageAccount": "",
+      "send": "",
+      "walletConnect": ""
+    },
+    "accountSummaryAmount": {
+      "title": "",
+      "text": ""
+    },
+    "accounts": {
+      "howManyAccounts": {
+        "title": "",
+        "text": ""
+      },
+      "whyIsThisUseful": {
+        "title": "",
+        "text": ""
+      },
+      "supportedCoins": {
+        "title": "",
+        "link": {
+          "text": ""
+        },
+        "text": ""
+      },
+      "whatIsRememberWallet": {
+        "title": "",
+        "text": ""
+      },
+      "whatAreAccounts": {
+        "text": "",
+        "title": ""
+      },
+      "moveFunds": {
+        "text": "",
+        "title": ""
+      },
+      "recoverAccounts": {
+        "text": "",
+        "title": ""
+      },
+      "howtoAddTokens": {
+        "text": "",
+        "title": ""
+      }
+    },
+    "bitsurance": {
+      "status": {
+        "text": "",
+        "title": ""
+      },
+      "why": {
+        "text": "",
+        "title": ""
+      },
+      "privacy": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "faq": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "renew": {
+        "text": "",
+        "title": ""
+      },
+      "what": {
+        "text": "",
+        "title": ""
+      },
+      "who": {
+        "text": "",
+        "title": ""
+      }
+    },
+    "device": {
+      "name": {
+        "text": "",
+        "title": ""
+      },
+      "secure-chip": {
+        "text": "",
+        "title": "",
+        "link": {
+          "text": ""
+        }
+      },
+      "attestation": {
+        "title": "",
+        "link": {
+          "text": ""
+        },
+        "text": ""
+      }
+    },
+    "bitrefill": {
+      "invoice": {
+        "text": "",
+        "title": "",
+        "link": {
+          "text": ""
+        }
+      },
+      "kyc": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "limits": {
+        "title": "",
+        "text": "",
+        "link": {
+          "text": ""
+        }
+      }
+    },
+    "trackingModePortfolioChart": {
+      "text": "",
+      "title": ""
+    },
+    "walletConnect": {
+      "supportedNetworks": {
+        "title": "",
+        "text": ""
+      },
+      "whatIsWalletConnect": {
+        "text": "",
+        "title": ""
+      },
+      "noPreviousConnections": {
+        "text": "",
+        "title": ""
+      }
+    },
+    "accountSummaryDescription": {
+      "text": "",
+      "title": ""
     }
   },
   "headerssync": {
@@ -515,7 +952,6 @@
   },
   "loading": "载入中...",
   "notification": {
-    "newTxs_one": "新交易：{{accountName}}",
     "newTxs_other": "{{count}} 新交易： {{accountName}}"
   },
   "password": {
@@ -534,7 +970,17 @@
     "title": "获取 {{accountName}}",
     "verify": "安全验证地址",
     "verifyBitBox02": "请在BitBox02设备上的验证地址",
-    "verifyInstruction": "请确认以下地址与设备上显示的地址匹配。"
+    "verifyInstruction": "请确认以下地址与设备上显示的地址匹配。",
+    "qrCodeCopiedMessage": "",
+    "scriptType": {
+      "p2tr": "",
+      "p2wpkh": "",
+      "p2wpkh-p2sh": ""
+    },
+    "selectAccount": "",
+    "taprootWarning": "",
+    "bitsuranceWarning": "",
+    "changeScriptType": ""
   },
   "reset": {
     "description": "设备上的所有数据将被删除。其中包括您的私钥！",
@@ -614,18 +1060,25 @@
     "coincontrol": {
       "address": "地址",
       "outpoint": "",
-      "title": "从输出发送"
+      "title": "从输出发送",
+      "addressReused": "",
+      "change": ""
     },
     "confirm": {
       "selected-coins": "已选择的币种",
       "title": "确认交易",
-      "total": "总计"
+      "total": "总计",
+      "infoMessage": "",
+      "to": ""
     },
     "error": {
       "insufficientFunds": "余额不足",
       "invalidAddress": "无效地址",
       "invalidAmount": "无效金额",
-      "invalidData": "无效数据"
+      "invalidData": "无效数据",
+      "feesNotAvailable": "",
+      "erc20InsufficientGasFunds": "",
+      "feeTooLow": ""
     },
     "fee": {
       "customPlaceholder": "输入金额",
@@ -637,22 +1090,54 @@
         "economy": "24个区块（Bitcoin比特币大约需4小时，Litecoin莱特币大约需1小时）",
         "high": "2个区块（Bitcoin比特币大约需20分钟，Litecoin莱特币大约需5分钟）",
         "low": "12个区块（Bitcoin比特币大约需2小时，Litecoin莱特币大约需30分钟）",
-        "normal": "6个区块（Bitcoin比特币大约需1小时，Litecoin莱特币大约需15分钟）"
+        "normal": "6个区块（Bitcoin比特币大约需1小时，Litecoin莱特币大约需15分钟）",
+        "low_eth": "",
+        "low_ltc": "",
+        "mEconomy": "",
+        "mFastest": "",
+        "mHalfHour": "",
+        "mHour": "",
+        "normal_ltc": "",
+        "normal_eth": "",
+        "economy_eth": "",
+        "economy_ltc": "",
+        "high_eth": "",
+        "high_ltc": ""
       },
       "estimate": "预计等待时间：",
       "label": {
         "economy": "经济",
         "high": "高",
         "low": "低",
-        "normal": "正常/普通"
+        "normal": "正常/普通",
+        "custom": "",
+        "mEconomy": "",
+        "mHalfHour": "",
+        "mHour": "",
+        "mFastest": ""
       },
-      "placeholder": "正在进行费用估算…"
+      "placeholder": "正在进行费用估算…",
+      "customLabel_eth": "",
+      "customLabel": ""
     },
     "maximum": "发送全部",
     "scanQR": "扫描二维码",
     "success": "交易已签名并完成发送。",
     "title": "发送 {{accountName}}",
-    "toggleCoinControl": "切换coin控制"
+    "toggleCoinControl": "切换coin控制",
+    "transactionDetails": "",
+    "availableBalance": "",
+    "scanQRNoCameraMessage": "",
+    "sendToAccount": {
+      "title": "",
+      "placeholder": ""
+    },
+    "edit": "",
+    "maximumSelectedCoins": "",
+    "newTransaction": "",
+    "noFeeTargets": "",
+    "priority": "",
+    "buyEth": ""
   },
   "settings": {
     "electrum": {
@@ -679,29 +1164,68 @@
       "title-btc": "Bitcoin Electrum服务器",
       "title-ltc": "Litecoin莱特币Electrum服务器",
       "title-tbtc": "Bitcoin测试网络Electrum服务器",
-      "title-tltc": "Litecoin莱特币测试网Electrum服务器"
+      "title-tltc": "Litecoin莱特币测试网Electrum服务器",
+      "step2-text-tcp": ""
     },
     "expert": {
       "coinControl": "启用coin控制",
       "electrum": {
-        "title": "连接您自己的全节点"
+        "title": "连接您自己的全节点",
+        "description": ""
       },
       "setProxyAddress": "设定代理地址",
       "title": "高级/专业用户设置",
-      "useProxy": "启用tor代理"
+      "useProxy": "启用tor代理",
+      "exportLogs": {
+        "description": "",
+        "title": ""
+      },
+      "fee": "",
+      "restartInTestnet": "",
+      "useSats": ""
     },
     "header": {
       "home": "主页"
     },
     "restart": "请重新启动BitBoxApp，以使更改生效。",
     "success": "请拔出并重新插入BitBox，以使更改生效。",
-    "title": "设置"
+    "title": "设置",
+    "info": {
+      "title": "",
+      "up-to-date": "",
+      "version": "",
+      "out-of-date": ""
+    },
+    "advancedSettings": "",
+    "notes": {
+      "import": {
+        "transactionNotes_other": "",
+        "description": "",
+        "title": "",
+        "tooLarge": "",
+        "accountNames_other": ""
+      },
+      "title": "",
+      "export": {
+        "success": "",
+        "title": "",
+        "description": ""
+      }
+    },
+    "more": "",
+    "services": {
+      "title": ""
+    },
+    "about": "",
+    "general": "",
+    "appearance": ""
   },
   "setup": "设置设备",
   "sidebar": {
     "device": "管理设备",
     "leave": "离开",
-    "settings": "设置"
+    "settings": "设置",
+    "insurance": ""
   },
   "success": {
     "create": {
@@ -727,10 +1251,53 @@
     "pending": "待处理的交易",
     "size": "(区块)大小",
     "vsize": "(区块)虚拟大小",
-    "weight": "(区块)重量"
+    "weight": "(区块)重量",
+    "details": {
+      "status": "",
+      "activity": "",
+      "address": "",
+      "amount": "",
+      "currentFiat": "",
+      "date": "",
+      "fiatAmount": "",
+      "from": "",
+      "historicalFiat": "",
+      "title": "",
+      "type": "",
+      "sentToSelf": ""
+    },
+    "tx": {
+      "receive_pending": "",
+      "send_complete": "",
+      "send_failed": "",
+      "send_pending": "",
+      "send_to_self": "",
+      "receive_failed": "",
+      "send_to_self_failed": "",
+      "receive_complete": ""
+    },
+    "status": {
+      "failed": "",
+      "pending_receive": "",
+      "complete": "",
+      "pending": "",
+      "pending_send": "",
+      "pending_send_to_self": ""
+    },
+    "statusShort": {
+      "pending": "",
+      "complete": "",
+      "failed": "",
+      "pending_receive": "",
+      "pending_send": "",
+      "pending_send_to_self": ""
+    },
+    "advanced": "",
+    "no-results": ""
   },
   "transactions": {
-    "placeholder": "尚无交易记录"
+    "placeholder": "尚无交易记录",
+    "errorLoadTransactions": ""
   },
   "unknownError": "出现未知错误： {{errorMessage}}",
   "unlock": {
@@ -744,7 +1311,19 @@
       "label": "设备密码",
       "placeholder": "输入设备密码以解锁设备"
     },
-    "unlocking": "解锁中..."
+    "unlocking": "解锁中...",
+    "forgotPassword": {
+      "button": "",
+      "dialogDescription": "",
+      "dialogTitle": "",
+      "info": "",
+      "stillHavingIssues": "",
+      "supportLink": "",
+      "text1": "",
+      "text2": "",
+      "title1": "",
+      "title2": ""
+    }
   },
   "upgradeFirmware": {
     "button": "升级固件",
@@ -758,9 +1337,725 @@
     "unlocked3": "LED屏幕亮起时请轻触设备的触控边框"
   },
   "warning": {
-    "sdcard": "除非要进行备份管理，否则请将microSD卡与BitBox设备分开存放。"
+    "sdcard": "除非要进行备份管理，否则请将microSD卡与BitBox设备分开存放。",
+    "coincontrol": "",
+    "offline": "",
+    "testnet": ""
   },
   "welcome": {
-    "title": "欢迎"
+    "title": "欢迎",
+    "messageIOS": "",
+    "connect": "",
+    "getStarted": "",
+    "loadingAccounts": "",
+    "message": ""
+  },
+  "error": {
+    "aoppVersion": "",
+    "keystoreTimeout": "",
+    "aoppUnsupportedAsset": "",
+    "aoppUnsupportedFormat": "",
+    "accountLimitReached": "",
+    "aoppCallback": "",
+    "aoppInvalidRequest": "",
+    "aoppNoAccounts": "",
+    "aoppSigningAborted": "",
+    "aoppUnknown": "",
+    "wrongKeystore": "",
+    "wrongKeystore2": "",
+    "accountAlreadyExists": "",
+    "aoppUnsupportedKeystore": ""
+  },
+  "generic": {
+    "buy_bitcoin": "",
+    "receiveWithoutCoinCode": "",
+    "buySell": "",
+    "paymentRequestNote": "",
+    "close": "",
+    "enable": "",
+    "enabled_false": "",
+    "receive_bitcoin": "",
+    "enabled_true": "",
+    "noOptionOnIos": "",
+    "noOptions": "",
+    "receive": "",
+    "spend_bitcoin": "",
+    "receive_crypto": "",
+    "received": "",
+    "reset": "",
+    "resetToDefault": "",
+    "search": "",
+    "searchButton": "",
+    "sell": "",
+    "sell_bitcoin": "",
+    "sell_crypto": "",
+    "send": "",
+    "sent": "",
+    "buy": "",
+    "spend_crypto": "",
+    "buy_crypto": ""
+  },
+  "testWallet": {
+    "connect": {
+      "description": "",
+      "title": ""
+    },
+    "prompt": {
+      "passwordLabel": "",
+      "button": "",
+      "title": ""
+    },
+    "disconnect": {
+      "description": "",
+      "title": ""
+    }
+  },
+  "buy": {
+    "exchange": {
+      "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "personal": {
+              "title": "",
+              "text": ""
+            },
+            "paymentMethods": {
+              "sell2": "",
+              "title": "",
+              "buy": "",
+              "buy2": "",
+              "fee": "",
+              "sell": ""
+            },
+            "kyc": {
+              "text": "",
+              "title": ""
+            },
+            "partnership": {
+              "text": "",
+              "title": ""
+            },
+            "security": {
+              "text": "",
+              "title": "",
+              "link": ""
+            },
+            "title": ""
+          },
+          "infobox": {
+            "listItem2": "",
+            "intro_btconly": "",
+            "intro_multi": "",
+            "kyc": "",
+            "learnmore": "",
+            "listItem1": "",
+            "listItem3": "",
+            "listItem4": "",
+            "manager": ""
+          },
+          "info": "",
+          "link": "",
+          "title": ""
+        },
+        "pocket": {
+          "supportedCurrencies": "",
+          "sell": {
+            "title": ""
+          },
+          "payment": {
+            "title": "",
+            "bankTransferDetails": {
+              "sic": "",
+              "uk": "",
+              "sepa": ""
+            },
+            "bankTransferReccuring": "",
+            "bankTransfer": ""
+          },
+          "verification": {
+            "info": "",
+            "link": "",
+            "title": ""
+          },
+          "fees": {
+            "title": "",
+            "info": ""
+          },
+          "learnMore": ""
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "security": {
+              "title": "",
+              "link": "",
+              "description": ""
+            },
+            "kyc": {
+              "title": "",
+              "description": ""
+            },
+            "description": "",
+            "paymentMethods": {
+              "buy": "",
+              "note": "",
+              "sell": "",
+              "title": ""
+            },
+            "title_crypto": "",
+            "title_bitcoin": ""
+          },
+          "infobox": {
+            "payment": {
+              "bancontact": "",
+              "bankTransfer": "",
+              "creditDebitCard": "",
+              "sofort": "",
+              "title": ""
+            },
+            "feesBuying": {
+              "bankTransfer": "",
+              "creditDebitCard": "",
+              "sofort": "",
+              "title": "",
+              "bancontact": ""
+            },
+            "feesSelling": {
+              "bankTransfer": "",
+              "title": ""
+            },
+            "intro": ""
+          },
+          "learnmore": ""
+        },
+        "bitrefill": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "account": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "claims": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "fees": {
+              "text": "",
+              "title": ""
+            },
+            "security": {
+              "text": "",
+              "title": "",
+              "link": ""
+            },
+            "validEmail": {
+              "title": "",
+              "text": ""
+            },
+            "intro": {
+              "text": "",
+              "title_crypto": "",
+              "title_bitcoin": ""
+            }
+          },
+          "infobox": {
+            "intro": ""
+          }
+        },
+        "moonpay": {
+          "supportedCurrencies": "",
+          "fees": {
+            "bankTransfer": "",
+            "creditDebitCard": "",
+            "learnMore": "",
+            "title": ""
+          },
+          "fullCurrenciesList": "",
+          "payment": {
+            "asteriskText": "",
+            "bankTransfer": "",
+            "bankTransferDetails": {
+              "pix": "",
+              "sepa": "",
+              "uk": ""
+            },
+            "creditDebitCard": "",
+            "creditDebitCardDetails": {
+              "cards": ""
+            },
+            "learnMore": "",
+            "title": ""
+          }
+        },
+        "region": {
+          "title": ""
+        }
+      },
+      "spend": "",
+      "bankTransfer": "",
+      "bestDeal": "",
+      "creditCard": "",
+      "description_bitrefill": "",
+      "fee": "",
+      "noExchanges": "",
+      "region": "",
+      "selectRegion": "",
+      "sell": "",
+      "buy": "",
+      "fast": ""
+    },
+    "info": {
+      "next": "",
+      "continue": "",
+      "selectPlaceholder": "",
+      "skip": "",
+      "disclaimer": {
+        "intro": [
+          "",
+          ""
+        ],
+        "payment": {
+          "details": "",
+          "table": {
+            "1_description": "",
+            "1_method": "",
+            "2_description": "",
+            "2_method": "",
+            "description": "",
+            "fee": "",
+            "method": ""
+          },
+          "title": "",
+          "footnote": ""
+        },
+        "protection": {
+          "descriptionGeneric_crypto": "",
+          "title": "",
+          "descriptionGeneric_bitcoin": ""
+        },
+        "security": {
+          "descriptionGeneric_bitcoin": "",
+          "descriptionGeneric_crypto": "",
+          "link": "",
+          "title": ""
+        },
+        "title_bitcoin": "",
+        "title_crypto": "",
+        "privacyPolicy": ""
+      },
+      "crypto": "",
+      "selectLabel": ""
+    },
+    "pocket": {
+      "error": {
+        "insufficientFunds": ""
+      },
+      "paymentRequestNote": "",
+      "previousTransactions": "",
+      "usedAddress": "",
+      "verifyBitBox02": ""
+    },
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": ""
+      },
+      "transactionNote": ""
+    }
+  },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": ""
+      },
+      "feedbackLink": {
+        "description": "",
+        "title": ""
+      },
+      "supportLink": {
+        "description": "",
+        "title": ""
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "title": "",
+        "description": ""
+      },
+      "darkmode": {
+        "description": ""
+      },
+      "defaultCurrency": {
+        "description": "",
+        "title": ""
+      },
+      "enableAccount": {
+        "description": "",
+        "title": ""
+      },
+      "hideAmounts": {
+        "description": "",
+        "hideAmounts": "",
+        "showAmounts": "",
+        "title": ""
+      },
+      "language": {
+        "description": "",
+        "title": ""
+      },
+      "remebmerWallet": {
+        "enable": {
+          "description": "",
+          "title": ""
+        },
+        "warningTitle": "",
+        "warning": "",
+        "name": ""
+      },
+      "toggleSats": {
+        "description": ""
+      }
+    },
+    "advancedSettings": {
+      "coinControl": {
+        "description": ""
+      },
+      "restartInTestnet": {
+        "description": ""
+      },
+      "torProxy": {
+        "description": ""
+      },
+      "authentication": {
+        "description": "",
+        "title": ""
+      },
+      "customFees": {
+        "description": ""
+      }
+    }
+  },
+  "novaConnectionIssues": {
+    "link2": "",
+    "title2": "",
+    "connectionIssueTips": "",
+    "description1": "",
+    "description2": "",
+    "description4": "",
+    "stillHavingIssues": "",
+    "title1": "",
+    "title3": "",
+    "title4": "",
+    "description3": "",
+    "link1": ""
+  },
+  "passphrase": {
+    "summary": {
+      "understand": "",
+      "button": "",
+      "title": "",
+      "understandList": [
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    "considerations": {
+      "button": "",
+      "message": "",
+      "title": ""
+    },
+    "disableInfo": {
+      "button": "",
+      "message": ""
+    },
+    "enable": "",
+    "successEnabled": {
+      "message": "",
+      "messageEnd": "",
+      "tipsList": [
+        "",
+        ""
+      ],
+      "title": "",
+      "tips": ""
+    },
+    "why": {
+      "message": "",
+      "title": "",
+      "button": ""
+    },
+    "error": {
+      "e104": ""
+    },
+    "how": {
+      "button": "",
+      "message": "",
+      "title": ""
+    },
+    "intro": {
+      "message": "",
+      "title": ""
+    },
+    "progressDisable": {
+      "message": "",
+      "title": ""
+    },
+    "progressEnable": {
+      "message": "",
+      "title": ""
+    },
+    "successDisabled": {
+      "message": "",
+      "messageEnd": "",
+      "title": ""
+    },
+    "what": {
+      "button": "",
+      "message": "",
+      "title": ""
+    },
+    "disable": ""
+  },
+  "aopp": {
+    "signing": "",
+    "addressRequest": "",
+    "addressRequestWithLogo": "",
+    "addressRequestWithLogoAndXPub": "",
+    "addressRequestWithXPub": "",
+    "banner": "",
+    "labelAddress": "",
+    "labelMessage": "",
+    "reverifyInfoText": "",
+    "success": {
+      "message": "",
+      "title": ""
+    },
+    "syncing": "",
+    "title": "",
+    "xpubRequested": "",
+    "errorTitle": ""
+  },
+  "bitsurance": {
+    "insure": {
+      "title": "",
+      "month": "",
+      "button": "",
+      "faq": "",
+      "listItem1": "",
+      "listItem2": "",
+      "listItem3": "",
+      "text": "",
+      "text2": "",
+      "text3": ""
+    },
+    "detect": {
+      "button": "",
+      "insured": "",
+      "notInsured": "",
+      "text": "",
+      "title": ""
+    },
+    "title": "",
+    "dashboard": {
+      "coverage": "",
+      "inactive": "",
+      "processing": "",
+      "refused": "",
+      "supportLink": "",
+      "title": "",
+      "waitpayment": "",
+      "active": "",
+      "button": "",
+      "canceled": ""
+    },
+    "intro": {
+      "link": "",
+      "text1": ""
+    },
+    "terms": {
+      "link": "",
+      "text1": "",
+      "text2": "",
+      "text3": "",
+      "text4": "",
+      "text5": ""
+    }
+  },
+  "walletConnect": {
+    "signingRequest": {
+      "walletConnectRequest": "",
+      "chain": "",
+      "dapp": "",
+      "data": "",
+      "dataParsingError": "",
+      "decodeError": "",
+      "method": {
+        "sendTransaction": "",
+        "signMessage": "",
+        "signTransaction": "",
+        "signTypedData": ""
+      },
+      "successfullySigned": ""
+    },
+    "walletConnect": "",
+    "pairingRequest": {
+      "title": "",
+      "approve": "",
+      "reject": ""
+    },
+    "dashboard": {
+      "unspecifiedAccount": "",
+      "allSessions": "",
+      "disclaimer": "",
+      "newConnection": "",
+      "noConnectedSessions": ""
+    },
+    "invalidPairingChain": "",
+    "pairingSuccess": "",
+    "useNewUri": "",
+    "connect": {
+      "button": "",
+      "dappLabel": "",
+      "invalidPairingUri": "",
+      "missingNamespace": ""
+    }
+  },
+  "manageAccounts": {
+    "editAccount": "",
+    "noAccounts": "",
+    "settings": {
+      "hideTokens": "",
+      "showTokens": ""
+    },
+    "settingsButtonDescription": "",
+    "title": "",
+    "watchAccount": "",
+    "watchAccountDescription": "",
+    "accountHidden": "",
+    "editAccountNameTitle": ""
+  },
+  "exchange": {
+    "btcdirect": {
+      "insufficientFunds": "",
+      "currencyMismatch": ""
+    },
+    "buySell": {
+      "coinNotSupported": "",
+      "regionNotSupported": ""
+    },
+    "pocket": {
+      "terms": {
+        "security": {
+          "link": "",
+          "p1": "",
+          "p2": "",
+          "p3": "",
+          "title": ""
+        },
+        "dataprotection": {
+          "link": "",
+          "p1": "",
+          "title": ""
+        },
+        "kyc": {
+          "link": "",
+          "title": "",
+          "info": ""
+        },
+        "welcome": {
+          "p1": "",
+          "title": ""
+        },
+        "fees": {
+          "extraNote": "",
+          "note": "",
+          "p1": "",
+          "p2": "",
+          "title": ""
+        }
+      }
+    }
+  },
+  "bluetooth": {
+    "connectionIssuesLink": "",
+    "connected": "",
+    "connectionFailed": "",
+    "connectionIssues": "",
+    "disabledGloballyDescription": "",
+    "disabledGloballyTitle": "",
+    "disabledPermissionDescription": "",
+    "disabledPermissionTitle": "",
+    "enable": "",
+    "select": ""
+  },
+  "testnet": {
+    "activate": {
+      "description": "",
+      "prompt": "",
+      "title": ""
+    },
+    "deactivate": {
+      "description": "",
+      "prompt": "",
+      "title": ""
+    }
+  },
+  "chart": {
+    "filter": {
+      "month": "",
+      "week": "",
+      "year": "",
+      "all": ""
+    },
+    "dataOldTimestamp": "",
+    "dataUpdating": ""
+  },
+  "gapLimit": {
+    "change": "",
+    "description": "",
+    "maxValue": "",
+    "minValue": "",
+    "receive": "",
+    "title": ""
+  },
+  "mobile": {
+    "usingMobileDataWarning": ""
+  },
+  "note": {
+    "input": {
+      "description": "",
+      "placeholder": ""
+    },
+    "title": ""
+  },
+  "auth": {
+    "dismissButton": "",
+    "missing": "",
+    "title": "",
+    "authButton": ""
+  },
+  "darkmode": {
+    "toggle": ""
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "",
+    "noAccount": "",
+    "select": "",
+    "title": ""
+  },
+  "connectKeystore": {
+    "promptNoName": "",
+    "promptWithName": ""
   }
 }
