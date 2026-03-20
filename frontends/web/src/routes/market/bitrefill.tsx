@@ -16,10 +16,9 @@ import { useLoad } from '@/hooks/api';
 import { BitrefillTerms, localeMapping } from '@/components/terms/bitrefill-terms';
 import { getBitrefillInfo } from '@/api/market';
 import { getURLOrigin } from '@/utils/url';
-import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
-import { AmountWithUnit } from '@/components/amount/amount-with-unit';
-import style from './iframe.module.css';
+import { ConfirmBitrefill } from './bitrefill-confirm';
 import { AppContext } from '@/contexts/AppContext';
+import style from './iframe.module.css';
 
 // Map coins supported by Bitrefill
 const coinMapping: Readonly<Record<string, string>> = {
@@ -260,25 +259,14 @@ export const Bitrefill = ({
                       }}
                     />
                   )}
-
-                  { verifyPaymentRequest && verifyPaymentRequest.success && (
-                    <WaitDialog title={t('receive.verifyBitBox02')}>
-                      <p>
-                        {t('transaction.details.address')}
-                        <br />
-                        {verifyPaymentRequest.address}
-                      </p>
-                      <p>
-                        {t('transaction.details.amount')}
-                        <br />
-                        <AmountWithUnit amount={verifyPaymentRequest.amount} />
-                      </p>
-                      <p>
-                        {t('transaction.fee')}
-                        <br />
-                        <AmountWithUnit amount={verifyPaymentRequest.fee} />
-                      </p>
-                    </WaitDialog>
+                  {verifyPaymentRequest && verifyPaymentRequest.success && (
+                    <ConfirmBitrefill
+                      isConfirming={verifyPaymentRequest.success}
+                      proposedFee={verifyPaymentRequest.fee}
+                      proposedAmount={verifyPaymentRequest.amount}
+                      recipientAddress={verifyPaymentRequest.address}
+                      proposedTotal={verifyPaymentRequest.total}
+                    />
                   )}
                 </div>
               )}
