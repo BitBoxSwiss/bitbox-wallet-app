@@ -5,14 +5,43 @@
     "fatalError": "एक अनपेक्षित भूल थी।",
     "incoming": "आ रहे है",
     "initializing": "ब्लॉकचेन से जानकारी प्राप्त कर रहे हैं ...",
-    "reconnecting": "कनेक्शन खो दिया, फिर से कनेक्ट करने का प्रयास कर रहा है ..."
+    "reconnecting": "कनेक्शन खो दिया, फिर से कनेक्ट करने का प्रयास कर रहा है ...",
+    "account": "",
+    "accounts": "",
+    "insured": "",
+    "maybeProxyError": "",
+    "syncedAddressesCount": "",
+    "uncoveredFunds": "",
+    "backupReminderLink": "",
+    "insuranceExpired": "",
+    "backupReminder": "",
+    "warning": "",
+    "uncoveredFundsLink": ""
   },
   "accountInfo": {
     "address": "एड्रेस",
     "extendedPublicKey": "विस्तारित पब्लिक की",
     "label": "खाता जानकारी",
     "title": "अकाउंट की जानकारी",
-    "verify": "डिवाइस पर सत्यापित करें"
+    "verify": "डिवाइस पर सत्यापित करें",
+    "taproot": "",
+    "buyCTA": {
+      "information": {
+        "looksEmpty": "",
+        "start": ""
+      }
+    },
+    "scriptType": "",
+    "xpubTypeChangeBtn": {
+      "p2tr": "",
+      "p2wpkh": "",
+      "p2wpkh-p2sh": "",
+      "p2pkh": ""
+    },
+    "xpubTypeInfo": "",
+    "accountDetails": "",
+    "exportTransactions": "",
+    "viewAccountDetails": ""
   },
   "accountSummary": {
     "balance": "बेलेंस",
@@ -21,10 +50,31 @@
     "name": "अकाउंट का नाम",
     "noAccount": "दिखाने के लिए कोई अकाउंट नहीं हैं।",
     "title": "एकाउंट्स सारांश",
-    "total": "टोटल"
+    "total": "टोटल",
+    "availableBalance": "",
+    "coin": "",
+    "subtotalWithCoinName": "",
+    "transactionHistory": ""
   },
   "addAccount": {
-    "title": "अकाउंट जोड़ो"
+    "title": "अकाउंट जोड़ो",
+    "selectCoin": {
+      "nextButton": "",
+      "step": "",
+      "title": ""
+    },
+    "success": {
+      "addAnotherAccount": "",
+      "message": "",
+      "nextButton": "",
+      "step": "",
+      "title": ""
+    },
+    "chooseName": {
+      "nextButton": "",
+      "step": "",
+      "title": ""
+    }
   },
   "app": {
     "upgrade": "इस एप्लिकेशन का एक नया संस्करण उपलब्ध है! कृपया {{current}} से {{version}} अपग्रेड करें ।"
@@ -41,7 +91,8 @@
         "showLabel": "रिकवरी पासवर्ड"
       },
       "success": "सफलतापूर्वक सत्यापित बैकअप:",
-      "title": "बैकअप की जाँच करें"
+      "title": "बैकअप की जाँच करें",
+      "aborted": ""
     },
     "create": {
       "alreadyExists": "आपके पास पहले से ही एक वैध बैकअप है। क्या आप इसे फिर से बनाना चाहते हैं?",
@@ -66,7 +117,9 @@
     "restore": {
       "confirmTitle": "बैकअप पुनर्स्थापित करे",
       "error": {
-        "e200": "एसडी कार्ड नहीं मिला"
+        "e200": "एसडी कार्ड नहीं मिला",
+        "e104": "",
+        "general": ""
       },
       "password": {
         "label": "रिकवरी पासवर्ड या हिडन रिकवरी पासवर्ड",
@@ -76,13 +129,18 @@
       },
       "restoring": "बैकअप पुनर्स्थापित कर रहा है ...",
       "title": "पुनर्स्थापित करें",
-      "understand": "मैं समझता हूं कि एक गलत रिकवरी पासवर्ड एक अलग वॉलेट बनाएगा"
+      "understand": "मैं समझता हूं कि एक गलत रिकवरी पासवर्ड एक अलग वॉलेट बनाएगा",
+      "subtitle": "",
+      "selectedBackup": ""
     },
     "showMnemonic": {
       "description": "आपको 24 शब्द दिखाए जाएँगे, जो आपके वॉलेट का बैकअप बनाते हैं। उन्हें कागज पर लिख लें।\n\n<strong>उन्हें डिजिटल रूप से संग्रहीत न करें या इसकी तस्वीरें न लें।</strong>\n\n<strong>शब्दों को ज़ोर से मत बोलो।</strong>\n\n<strong>यह बैकअप पासवर्ड से सुरक्षित नहीं है।</strong>\n\nबाद में, आपको प्रत्येक शब्द की पुष्टि करने के लिए कहा जाएगा।",
-      "title": "नेमोनिक सीड दिखाओ"
+      "title": "नेमोनिक सीड दिखाओ",
+      "checkboxLabel": "",
+      "warning": ""
     },
-    "title": "बैकअप मैनेज करें"
+    "title": "बैकअप मैनेज करें",
+    "link": ""
   },
   "bb02Bootloader": {
     "abort": "अपग्रेड न करें - मुझे वापस ले जाएं",
@@ -92,7 +150,13 @@
     },
     "flipscreen": "फ्लिप स्क्रीन",
     "orientation": "डिवाइस गलत तरीके से उन्मुख है?",
-    "success": "अपग्रेड सफल हुआ! "
+    "success": "अपग्रेड सफल हुआ! ",
+    "additionalUpgradeFollows2": "",
+    "additionalUpgradeFollows1": "",
+    "success_install": "",
+    "upgradeTitle": "",
+    "upgradeTitle_install": "",
+    "abort_noUpgrade": ""
   },
   "bitbox": {
     "error": {
@@ -102,13 +166,41 @@
     }
   },
   "bitbox02Interact": {
-    "followInstructions": "कृपया अपने BitBox02 पर दिए गए निर्देशों का पालन करें।"
+    "followInstructions": "कृपया अपने BitBox02 पर दिए गए निर्देशों का पालन करें।",
+    "followInstructionsMnemonic": "",
+    "followInstructionsMnemonicTitle": "",
+    "confirmDate": "",
+    "confirmDateText": "",
+    "confirmWords": "",
+    "confirmWordsText": "",
+    "confirmName": ""
   },
   "bitbox02Settings": {
     "deviceName": {
       "current": "वर्तमान डिवाइस का नाम",
       "input": "BitBox02 का नाम",
-      "title": "BitBox02 का नाम सेट करें"
+      "title": "BitBox02 का नाम सेट करें",
+      "error_104": "",
+      "placeholder": "",
+      "error": ""
+    },
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "",
+      "alertEnabled": "",
+      "error_104": "",
+      "titleEnabled": "",
+      "description": "",
+      "titleDisabled": ""
+    },
+    "changePassword": {
+      "description": "",
+      "error_104": "",
+      "success": "",
+      "title": ""
+    },
+    "gotoStartupSettings": {
+      "description": "",
+      "title": ""
     }
   },
   "bitbox02Wizard": {
@@ -123,7 +215,9 @@
       "userConfirmation1": "मुझे अपना बैकअप सुरक्षित स्थान पर संग्रहीत करना चाहिए।",
       "userConfirmation2": "मेरा बैकअप पासवर्ड प्रोटेक्टेड नहीं है। इससे कोई भी व्यक्ति मेरे वॉलेट तक पहुंच सकता है।",
       "userConfirmation3": "यदि मैं अपना BitBox02 खो देता हूं या नुकसान पहुंचाता हूं, तो अपने फंड को पुनर्प्राप्त करने का एकमात्र तरीका मेरे बैकअप से पुनर्स्थापित करना है।",
-      "userConfirmation4": "अगर मैं अपना बैकअप और मेरा BitBox02 दोनों खो देता हूं या नुकसान होता है तो मेरे फंड हमेशा के लिए खो जाएंगे।"
+      "userConfirmation4": "अगर मैं अपना बैकअप और मेरा BitBox02 दोनों खो देता हूं या नुकसान होता है तो मेरे फंड हमेशा के लिए खो जाएंगे।",
+      "userConfirmation5mnemonic": "",
+      "userConfirmation5": ""
     },
     "create": {
       "button": "डिवाइस को नाम दे और जरी रखे",
@@ -144,11 +238,13 @@
       "unpaired": "एक नया BitBox02 पता चला है। कृपया सत्यापित करें कि निम्न कोड आपके डिवाइस पर दिखाया गया है। यदि कोड मेल खाता है, तो अपने BitBox02 पर चेक मार्क के नीचे टच करें और फिर जारी रखने के लिए नीचे दिए गए बटन पर क्लिक करें।"
     },
     "restoreFromMnemonic": {
-      "failed": "नेमोनिक सीड से बहाल करना विफल रहा, कृपया पुनः प्रयास करें।"
+      "failed": "नेमोनिक सीड से बहाल करना विफल रहा, कृपया पुनः प्रयास करें।",
+      "e104": ""
     },
     "stepBackup": {
       "beforeProceed": "आगे बढ़ने से पहले, कृपया इन महत्वपूर्ण सुरक्षा विचारों को पढ़ें:",
-      "createBackup": "अब आप अपने माइक्रोएसडी कार्ड पर एक बैकअप बनाएंगे।"
+      "createBackup": "अब आप अपने माइक्रोएसडी कार्ड पर एक बैकअप बनाएंगे।",
+      "createBackupMnemonic": ""
     },
     "stepBackupSuccess": {
       "fundsSafe": "अपने धन को सुरक्षित रखने के लिए, कृपया निम्नलिखित को याद रखें:",
@@ -161,15 +257,23 @@
       "nameLabel": "BitBox02 नाम",
       "namePlaceholder": "मेरा BitBox02",
       "title": "BitBox02 का नाम चुनें",
-      "toastMicroSD": "कृपया सुनिश्चित करें कि आपका माइक्रोएसडी कार्ड आपके BitBox02 में डाला गया है।"
+      "toastMicroSD": "कृपया सुनिश्चित करें कि आपका माइक्रोएसडी कार्ड आपके BitBox02 में डाला गया है।",
+      "description": "",
+      "error": {
+        "genericMessage": "",
+        "invalidChars": "",
+        "tooLong": ""
+      }
     },
     "stepCreateSuccess": {
       "removeMicroSD": "कृपया अपने BitBox02 से माइक्रोएसडी कार्ड निकालें और इसे सुरक्षित स्थान पर संग्रहीत करें।",
-      "success": "आपने सफलतापूर्वक अपना बैकअप बना लिया है।"
+      "success": "आपने सफलतापूर्वक अपना बैकअप बना लिया है।",
+      "storeMnemonic": ""
     },
     "stepPassword": {
       "title": "BitBox02 का पासवर्ड सेट करें",
-      "useControls": "पासवर्ड सेट करने के लिए अपने BitBox02 के नियंत्रण का उपयोग करें।"
+      "useControls": "पासवर्ड सेट करने के लिए अपने BitBox02 के नियंत्रण का उपयोग करें।",
+      "e104": ""
     },
     "stepUninitialized": {
       "create": "मैं एक नया BitBox02 सेटअप करना चाहता हूं।",
@@ -180,7 +284,25 @@
     },
     "success": {
       "title": "आप आगे जाने के लिए तैयार हैं!"
-    }
+    },
+    "createBackupFailed": "",
+    "noPasswordMatch": "",
+    "stepInsertSD": {
+      "insertSDcardTitle": "",
+      "insertSDCard": "",
+      "insertSDCardToSeeBackups": ""
+    },
+    "advanced": {
+      "button": "",
+      "outOfDate": "",
+      "seed12WordInfo": "",
+      "seed12WordLabel": "",
+      "seed12WordText": "",
+      "skipSDCardLabel": "",
+      "title": "",
+      "skipSDCardText": ""
+    },
+    "createBackupAborted": ""
   },
   "blink": {
     "button": "झपकी"
@@ -188,7 +310,9 @@
   "bootloader": {
     "button": "अब फर्मवेयर अपग्रेड करें",
     "progress": "अपग्रेड हो रहा है",
-    "success": "अपग्रेड सफल हुआ! कृपया डिवाइस को फिर से डाले। इस बार, बटन को स्पर्श न करें।"
+    "success": "अपग्रेड सफल हुआ! कृपया डिवाइस को फिर से डाले। इस बार, बटन को स्पर्श न करें।",
+    "button_install": "",
+    "progress_install": ""
   },
   "button": {
     "abort": "बीच में ही नष्ट करने के लिए",
@@ -206,7 +330,10 @@
     "select": "Select",
     "unlock": "अनलॉक",
     "update": "Update",
-    "upgrade": "अपग्रेड"
+    "upgrade": "अपग्रेड",
+    "dismiss": "",
+    "done": "",
+    "proceedOnBitBox": ""
   },
   "changePin": {
     "newTitle": "नया डिवाइस पासवर्ड",
@@ -219,7 +346,10 @@
   },
   "confirmOnDevice": "कृपया अपने डिवाइस पर पुष्टि करें।",
   "device": {
-    "appUpradeRequired": "आपका BitBox इस डेस्कटॉप एप्लिकेशन के अनुकूल नहीं है। कृपया नवीनतम वर्जन डाउनलोड और इंस्टॉल करें।"
+    "appUpradeRequired": "आपका BitBox इस डेस्कटॉप एप्लिकेशन के अनुकूल नहीं है। कृपया नवीनतम वर्जन डाउनलोड और इंस्टॉल करें।",
+    "keystoreConnected": "",
+    "firmwareUpgradeRequired": "",
+    "unsupportedFeature": ""
   },
   "deviceSettings": {
     "firmware": {
@@ -230,7 +360,9 @@
       "upToDate": "आपका डिवाइस अप टू डेट है",
       "version": {
         "label": "वर्जन"
-      }
+      },
+      "firmwareVersion": "",
+      "upgradeAvailable": ""
     },
     "hardware": {
       "sdcard": {
@@ -238,18 +370,95 @@
         "label": "माइक्रो एसडी कार्ड",
         "true": "डाला गया"
       },
-      "title": "हार्डवेयर"
+      "title": "हार्डवेयर",
+      "attestation": {
+        "label": "",
+        "false": "",
+        "true": ""
+      },
+      "securechip": ""
     },
     "loading": "उपकरण जानकारी पुनर्प्राप्त कर रहा है…",
     "secrets": {
       "manageBackups": "बैकअप मैनेज करें",
       "title": "सीक्रेट"
-    }
+    },
+    "expert": {
+      "bip85": {
+        "recover": {
+          "title": "",
+          "description": ""
+        },
+        "what": {
+          "description": "",
+          "link": "",
+          "title": ""
+        },
+        "description": "",
+        "disclaimer": "",
+        "how": {
+          "description": "",
+          "title": ""
+        },
+        "security": {
+          "description": "",
+          "title": ""
+        },
+        "title": ""
+      },
+      "passphrase": {
+        "title": "",
+        "description": ""
+      },
+      "factoryReset": {
+        "description": "",
+        "title": ""
+      },
+      "goToStartupSettings": {
+        "description": ""
+      }
+    },
+    "backups": {
+      "manageBackups": {
+        "description": ""
+      },
+      "showRecoveryWords": {
+        "description": ""
+      },
+      "title": ""
+    },
+    "deviceInformation": {
+      "deviceName": {
+        "description": ""
+      },
+      "passwordStretchingAlgo": {
+        "title": "",
+        "description": ""
+      },
+      "rootFingerprint": {
+        "description": ""
+      },
+      "securechip": {
+        "description": ""
+      },
+      "title": "",
+      "attestation": {
+        "description": ""
+      }
+    },
+    "deviceSettings": {
+      "title": ""
+    },
+    "bluetoothFirmware": {
+      "title": ""
+    },
+    "noDevice": ""
   },
   "deviceTampered": "क्या आपका BitBox एक रिकवरी पासवर्ड के साथ आया गई है? यदि हां, तो सेटअप प्रक्रिया बंद करें और तुरंत support से संपर्क करें। Shift आपको कभी भी तैयार किए गए वॉलेट या पासवर्ड की सिफारिशें नहीं देगा।",
   "dialog": {
     "cancel": "रद्द करे",
-    "confirm": "पुष्टि करें"
+    "confirm": "पुष्टि करें",
+    "confirmTitle": ""
   },
   "fiat": {
     "default": "डिफ़ॉल्ट",
@@ -307,6 +516,22 @@
       "xpub": {
         "text": "एक विस्तारित पुब्लिक की एक रूट की है जिसमें से कोई अकाउंट के सारे रिसीव एड्रेस बनाये जाते हे।\nयह यहां केवल-वॉलेट्स जैसे कि इलेक्ट्रम या सेंटिनल के साथ उन्नत उपयोग और इंटरऑपरेबिलिटी के लिए प्रदान किया जाता है।",
         "title": "एक विस्तारित पुब्लिक की क्या है?"
+      },
+      "exportTransactions": {
+        "title": "",
+        "text": ""
+      },
+      "verify": {
+        "title": "",
+        "text": ""
+      },
+      "multipleXPubs": {
+        "text": "",
+        "title": ""
+      },
+      "privacy": {
+        "text": "",
+        "title": ""
       }
     },
     "accountRates": {
@@ -343,7 +568,13 @@
     },
     "appendix": {
       "link": "हमसे संपर्क करें!",
-      "text": "एक और सवाल?"
+      "text": "एक और सवाल?",
+      "feedback": {
+        "link": "",
+        "text": ""
+      },
+      "questionService": "",
+      "textService": ""
     },
     "backups": {
       "check": {
@@ -411,6 +642,14 @@
       "whyVerify": {
         "text": "\nप्रामाणिक पते बनाने और प्रदर्शित करने के लिए आपको अपने कंप्यूटर पर भरोसा नहीं करना चाहिए। यह एक बड़ी हमले की सतह हार्डवेयर वॉलेट की तुलना में इसे काफी कमजोर बनाता है। BitBox01 के लिए, पते को सत्यापित करने का बटन सुरक्षित रूप से एक युग्मित मोबाइल फोन पर पते को भेजता है, जिससे आप QR कोड को स्कैन और सत्यापित भी कर सकते हैं। BitBox02 के लिए, पते को सीधे BitBox02 डिस्प्ले पर सत्यापित किया जा सकता है।",
         "title": "मुझे एड्रेस सुरक्षित रूप से क्यों सत्यापित करना चाहिए?"
+      },
+      "addressFormats": {
+        "text": "",
+        "title": ""
+      },
+      "plugout": {
+        "text": "",
+        "title": ""
       }
     },
     "send": {
@@ -429,18 +668,53 @@
       "whyFee": {
         "text": "ट्रांजेक्शन माइनर द्वारा पुष्टि किए जाने की होड़ में होते है। माइनर्स अपनी फीस के आधार पर ब्लॉकचैन में शामिल किए जाने वाले ट्रांजेक्शन का चयन करते हैं।\nट्रांजेक्शन के इतिहास पर माइनर्स वोट करते हैं। चूंकि प्रति व्यक्ति एक वोट (जो कि ब्लॉकचेन का पूरा बिंदु है) को लागू करने के लिए कोई विश्वसनीय तीसरा पक्ष नहीं है, माइनर कंप्यूटिंग शक्ति जैसे महंगे संसाधन का त्याग करके लेनदेन पर वोट देते हैं। अपने काम के लिए एक इनाम के रूप में, वे नए बनाए गए कोइन्स और उनके द्वारा शामिल सभी ट्रांजेक्शन के शुल्क का दावा कर सकते हैं।",
         "title": "नेटवर्क शुल्क क्यों है?"
+      },
+      "change": {
+        "title": "",
+        "text": ""
+      },
+      "plugout": {
+        "title": "",
+        "text": ""
       }
     },
     "settings-electrum": {
       "what": {
         "text": "शिफ्ट सर्वर का उपयोग करने के बजाय अपने स्वयं के पूर्ण नोड के साथ अपने वॉलेट को चलाना संभव है।",
         "title": "यह क्या है?"
+      },
+      "options": {
+        "title": "",
+        "text": ""
+      },
+      "tor": {
+        "title": "",
+        "text": ""
+      },
+      "connection": {
+        "text": "",
+        "title": ""
+      },
+      "instructions": {
+        "text": "",
+        "link": {
+          "text": ""
+        },
+        "title": ""
+      },
+      "why": {
+        "title": "",
+        "text": ""
       }
     },
     "settings": {
       "servers": {
         "text": "यह ऐप अपडेट, चेक लेन-देन के लिए शिफ़्ट क्रिप्टोकरेंसी सर्वर के साथ संचार करता है, और युग्मित मोबाइल ऐप पर जानकारी भेजता है।\nऐप क्रिप्टोकरंसीप के नवीनतम विनिमय दरों को भी पुनः प्राप्त करता है। सभी रूपांतरणों की गणना स्थानीय रूप से की जाती है जिसका अर्थ है कि आपके लेन-देन की मात्रा के बारे में कोई डेटा कभी प्रसारित नहीं होता है।\nनोट: एथेरियम और ईआरसी 20 टोकन के लिए, हम एथरस्कैनियो एपीआई का उपयोग करते हैं।",
         "title": "यह ऐप किन सर्वरों से बात करता है?"
+      },
+      "sats": {
+        "title": "",
+        "text": ""
       }
     },
     "title": "मार्गदर्शक",
@@ -484,7 +758,170 @@
       "welcome": {
         "text": "स्विट्जरलैंड में Shift Crypto द्वारा निर्मित इस ऐप का उपयोग करने के लिए धन्यवाद। हम आपके द्वारा साझा किए गए किसी भी इनपुट की सराहना करते हैं। कृपया नीचे दिए गए लिंक का उपयोग करके प्रतिक्रिया दें।",
         "title": "BitBox ऐप में आपका स्वागत है!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": ""
+        },
+        "title": "",
+        "text": ""
       }
+    },
+    "guideTitle": {
+      "receive": "",
+      "appearance": "",
+      "send": "",
+      "walletConnect": "",
+      "advancedSettings": "",
+      "manageAccount": "",
+      "manageDevice": "",
+      "insurance": "",
+      "account": "",
+      "accountInformation": "",
+      "accountSummary": "",
+      "buySell": ""
+    },
+    "accounts": {
+      "whyIsThisUseful": {
+        "title": "",
+        "text": ""
+      },
+      "supportedCoins": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "howManyAccounts": {
+        "title": "",
+        "text": ""
+      },
+      "whatAreAccounts": {
+        "text": "",
+        "title": ""
+      },
+      "howtoAddTokens": {
+        "text": "",
+        "title": ""
+      },
+      "moveFunds": {
+        "text": "",
+        "title": ""
+      },
+      "recoverAccounts": {
+        "title": "",
+        "text": ""
+      },
+      "whatIsRememberWallet": {
+        "text": "",
+        "title": ""
+      }
+    },
+    "bitsurance": {
+      "who": {
+        "text": "",
+        "title": ""
+      },
+      "what": {
+        "title": "",
+        "text": ""
+      },
+      "faq": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "privacy": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "renew": {
+        "text": "",
+        "title": ""
+      },
+      "status": {
+        "text": "",
+        "title": ""
+      },
+      "why": {
+        "text": "",
+        "title": ""
+      }
+    },
+    "accountSummaryAmount": {
+      "title": "",
+      "text": ""
+    },
+    "accountSummaryDescription": {
+      "title": "",
+      "text": ""
+    },
+    "bitrefill": {
+      "kyc": {
+        "title": "",
+        "link": {
+          "text": ""
+        },
+        "text": ""
+      },
+      "invoice": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      },
+      "limits": {
+        "text": "",
+        "title": "",
+        "link": {
+          "text": ""
+        }
+      }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "title": "",
+        "text": ""
+      },
+      "supportedNetworks": {
+        "text": "",
+        "title": ""
+      },
+      "whatIsWalletConnect": {
+        "text": "",
+        "title": ""
+      }
+    },
+    "device": {
+      "name": {
+        "text": "",
+        "title": ""
+      },
+      "secure-chip": {
+        "link": {
+          "text": ""
+        },
+        "title": "",
+        "text": ""
+      },
+      "attestation": {
+        "link": {
+          "text": ""
+        },
+        "text": "",
+        "title": ""
+      }
+    },
+    "trackingModePortfolioChart": {
+      "text": "",
+      "title": ""
     }
   },
   "headerssync": {
@@ -534,7 +971,17 @@
     "title": "{{accountName}} पाए",
     "verify": "एड्रेस को सुरक्षित रूप से सत्यापित करें",
     "verifyBitBox02": "BitBox02 पर एड्रेस सत्यापित करें",
-    "verifyInstruction": "कृपया सत्यापित करें कि निम्न एड्रेस आपके डिवाइस पर प्रदर्शित एड्रेस से मेल खाता है।"
+    "verifyInstruction": "कृपया सत्यापित करें कि निम्न एड्रेस आपके डिवाइस पर प्रदर्शित एड्रेस से मेल खाता है।",
+    "scriptType": {
+      "p2tr": "",
+      "p2wpkh": "",
+      "p2wpkh-p2sh": ""
+    },
+    "bitsuranceWarning": "",
+    "changeScriptType": "",
+    "taprootWarning": "",
+    "qrCodeCopiedMessage": "",
+    "selectAccount": ""
   },
   "reset": {
     "description": "डिवाइस का सभी डेटा हटा दिया जाएगा। जिसमें आपकी निजी कुंजी शामिल है!",
@@ -614,18 +1061,25 @@
     "coincontrol": {
       "address": "एड्रेस",
       "outpoint": "outpoint",
-      "title": "आउटपुट से भेजें"
+      "title": "आउटपुट से भेजें",
+      "addressReused": "",
+      "change": ""
     },
     "confirm": {
       "selected-coins": "चयनित कोइन्स",
       "title": "ट्रांजेक्शन की पुष्टि करें",
-      "total": "टोटल"
+      "total": "टोटल",
+      "to": "",
+      "infoMessage": ""
     },
     "error": {
       "insufficientFunds": "अपर्याप्त कोष",
       "invalidAddress": "गलत एड्रेस",
       "invalidAmount": "अवैध राशि",
-      "invalidData": "अमान्य डेटा"
+      "invalidData": "अमान्य डेटा",
+      "erc20InsufficientGasFunds": "",
+      "feeTooLow": "",
+      "feesNotAvailable": ""
     },
     "fee": {
       "customPlaceholder": "राशी डालें",
@@ -637,22 +1091,54 @@
         "economy": "24 ब्लॉक (Bitcoin के लिए लगभग 4 घंटे, Litecoin के लिए 1 घंटा)",
         "high": "2 ब्लॉक (Bitcoin के लिए लगभग 20 मिनट, Litecoin के लिए 5 मिनट)",
         "low": "12 ब्लॉक (Bitcoin के लिए लगभग 2 घंटे, Litecoin के लिए 30 मिनट)",
-        "normal": "6 ब्लॉक (Bitcoin के लिए लगभग 1 घंटे, Litecoin के लिए 15 मिनट)"
+        "normal": "6 ब्लॉक (Bitcoin के लिए लगभग 1 घंटे, Litecoin के लिए 15 मिनट)",
+        "high_eth": "",
+        "high_ltc": "",
+        "economy_eth": "",
+        "economy_ltc": "",
+        "low_eth": "",
+        "low_ltc": "",
+        "mEconomy": "",
+        "mFastest": "",
+        "mHalfHour": "",
+        "mHour": "",
+        "normal_eth": "",
+        "normal_ltc": ""
       },
       "estimate": "अनुमानित प्रतीक्षा समय:",
       "label": {
         "economy": "किफायती",
         "high": "उच्च",
         "low": "कम",
-        "normal": "साधारण"
+        "normal": "साधारण",
+        "mFastest": "",
+        "mHalfHour": "",
+        "mHour": "",
+        "custom": "",
+        "mEconomy": ""
       },
-      "placeholder": "शुल्क आकलन की गणना कर रहे हैं ..."
+      "placeholder": "शुल्क आकलन की गणना कर रहे हैं ...",
+      "customLabel_eth": "",
+      "customLabel": ""
     },
     "maximum": "सब भेजें",
     "scanQR": "QR कोड स्कैन करें",
     "success": "ट्रांजेक्शन पर हस्ताक्षर किए गए हैं और भेजे गए हैं।",
     "title": "{{accountName}} भेजें",
-    "toggleCoinControl": "Coin Control टॉगल करें"
+    "toggleCoinControl": "Coin Control टॉगल करें",
+    "buyEth": "",
+    "availableBalance": "",
+    "edit": "",
+    "maximumSelectedCoins": "",
+    "scanQRNoCameraMessage": "",
+    "sendToAccount": {
+      "placeholder": "",
+      "title": ""
+    },
+    "transactionDetails": "",
+    "newTransaction": "",
+    "noFeeTargets": "",
+    "priority": ""
   },
   "settings": {
     "electrum": {
@@ -679,29 +1165,70 @@
       "title-btc": "Bitcoin Electrum सर्वर्स",
       "title-ltc": "Litecoin Electrum सर्वर्स",
       "title-tbtc": "Bitcoin Testnet Electrum सर्वर्स",
-      "title-tltc": "Litecoin Testnet Electrum सर्वर्स"
+      "title-tltc": "Litecoin Testnet Electrum सर्वर्स",
+      "step2-text-tcp": ""
     },
     "expert": {
       "coinControl": "कॉइन नियंत्रण सक्षम करें",
       "electrum": {
-        "title": "अपना फूल नोड कनेक्ट करें"
+        "title": "अपना फूल नोड कनेक्ट करें",
+        "description": ""
       },
       "setProxyAddress": "प्रॉक्सी पता सेट करें",
       "title": "विशेषज्ञ सेटिंग्स",
-      "useProxy": "टोर प्रॉक्सी सक्षम करें"
+      "useProxy": "टोर प्रॉक्सी सक्षम करें",
+      "useSats": "",
+      "exportLogs": {
+        "description": "",
+        "title": ""
+      },
+      "fee": "",
+      "restartInTestnet": ""
     },
     "header": {
       "home": "Home"
     },
     "restart": "परिवर्तनों को प्रभावी करने के लिए कृपया BitBoxApp को फिर से शुरू करें।",
     "success": "कृपया अनप्लग करें और परिवर्तनों को प्रभावी करने के लिए BitBox को फिर से भरें।",
-    "title": "सेटिंग्स"
+    "title": "सेटिंग्स",
+    "appearance": "",
+    "advancedSettings": "",
+    "notes": {
+      "export": {
+        "success": "",
+        "title": "",
+        "description": ""
+      },
+      "import": {
+        "accountNames_one": "",
+        "accountNames_other": "",
+        "transactionNotes_one": "",
+        "transactionNotes_other": "",
+        "title": "",
+        "tooLarge": "",
+        "description": ""
+      },
+      "title": ""
+    },
+    "info": {
+      "title": "",
+      "out-of-date": "",
+      "version": "",
+      "up-to-date": ""
+    },
+    "general": "",
+    "about": "",
+    "more": "",
+    "services": {
+      "title": ""
+    }
   },
   "setup": "सेटअप डिवाइस",
   "sidebar": {
     "device": "डिवाइस मैनेज करे",
     "leave": "छोड़े",
-    "settings": "सेटिंग्स"
+    "settings": "सेटिंग्स",
+    "insurance": ""
   },
   "success": {
     "create": {
@@ -727,10 +1254,53 @@
     "pending": "लंबित ट्रांजेक्शन",
     "size": "आकार",
     "vsize": "आभासी आकार",
-    "weight": "वजन"
+    "weight": "वजन",
+    "details": {
+      "activity": "",
+      "date": "",
+      "sentToSelf": "",
+      "address": "",
+      "amount": "",
+      "currentFiat": "",
+      "fiatAmount": "",
+      "historicalFiat": "",
+      "status": "",
+      "title": "",
+      "type": "",
+      "from": ""
+    },
+    "tx": {
+      "send_failed": "",
+      "receive_pending": "",
+      "receive_complete": "",
+      "receive_failed": "",
+      "send_complete": "",
+      "send_pending": "",
+      "send_to_self": "",
+      "send_to_self_failed": ""
+    },
+    "advanced": "",
+    "status": {
+      "pending": "",
+      "pending_receive": "",
+      "complete": "",
+      "failed": "",
+      "pending_send": "",
+      "pending_send_to_self": ""
+    },
+    "statusShort": {
+      "pending": "",
+      "complete": "",
+      "failed": "",
+      "pending_receive": "",
+      "pending_send": "",
+      "pending_send_to_self": ""
+    },
+    "no-results": ""
   },
   "transactions": {
-    "placeholder": "अभी तक कोई ट्रांजेक्शन नहीं हुआ।"
+    "placeholder": "अभी तक कोई ट्रांजेक्शन नहीं हुआ।",
+    "errorLoadTransactions": ""
   },
   "unknownError": "एक अज्ञात एरर हुई: {{errorMessage}}",
   "unlock": {
@@ -744,7 +1314,19 @@
       "label": "डिवाइस पासवर्ड",
       "placeholder": "डिवाइस को अनलॉक करने के लिए अपना डिवाइस पासवर्ड डालें"
     },
-    "unlocking": "अनलॉक कर रहे हैं ..."
+    "unlocking": "अनलॉक कर रहे हैं ...",
+    "forgotPassword": {
+      "title2": "",
+      "title1": "",
+      "supportLink": "",
+      "text1": "",
+      "button": "",
+      "text2": "",
+      "dialogDescription": "",
+      "dialogTitle": "",
+      "info": "",
+      "stillHavingIssues": ""
+    }
   },
   "upgradeFirmware": {
     "button": "फर्मवेयर अपग्रेड करें",
@@ -758,9 +1340,725 @@
     "unlocked3": "एलईडी लाइट्स प्रकाशित होने पर पर टच बटन पर टैप करें"
   },
   "warning": {
-    "sdcard": "जब तक आप बैकअप प्रबंधित नहीं करना चाहते, तब तक माइक्रो एसडी कार्ड को बिटबॉक्स से अलग रखें।"
+    "sdcard": "जब तक आप बैकअप प्रबंधित नहीं करना चाहते, तब तक माइक्रो एसडी कार्ड को बिटबॉक्स से अलग रखें।",
+    "coincontrol": "",
+    "offline": "",
+    "testnet": ""
   },
   "welcome": {
-    "title": "आपका स्वागत हे"
+    "title": "आपका स्वागत हे",
+    "connect": "",
+    "messageIOS": "",
+    "getStarted": "",
+    "loadingAccounts": "",
+    "message": ""
+  },
+  "bluetooth": {
+    "disabledPermissionTitle": "",
+    "connectionIssuesLink": "",
+    "connected": "",
+    "connectionFailed": "",
+    "connectionIssues": "",
+    "disabledGloballyDescription": "",
+    "disabledGloballyTitle": "",
+    "disabledPermissionDescription": "",
+    "enable": "",
+    "select": ""
+  },
+  "walletConnect": {
+    "signingRequest": {
+      "data": "",
+      "successfullySigned": "",
+      "dapp": "",
+      "dataParsingError": "",
+      "decodeError": "",
+      "method": {
+        "sendTransaction": "",
+        "signMessage": "",
+        "signTransaction": "",
+        "signTypedData": ""
+      },
+      "chain": "",
+      "walletConnectRequest": ""
+    },
+    "connect": {
+      "button": "",
+      "dappLabel": "",
+      "missingNamespace": "",
+      "invalidPairingUri": ""
+    },
+    "walletConnect": "",
+    "dashboard": {
+      "allSessions": "",
+      "disclaimer": "",
+      "noConnectedSessions": "",
+      "unspecifiedAccount": "",
+      "newConnection": ""
+    },
+    "invalidPairingChain": "",
+    "pairingRequest": {
+      "approve": "",
+      "title": "",
+      "reject": ""
+    },
+    "pairingSuccess": "",
+    "useNewUri": ""
+  },
+  "buy": {
+    "exchange": {
+      "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "paymentMethods": {
+              "buy": "",
+              "sell": "",
+              "sell2": "",
+              "buy2": "",
+              "title": "",
+              "fee": ""
+            },
+            "personal": {
+              "title": "",
+              "text": ""
+            },
+            "security": {
+              "title": "",
+              "link": "",
+              "text": ""
+            },
+            "dataProtection": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "kyc": {
+              "text": "",
+              "title": ""
+            },
+            "partnership": {
+              "text": "",
+              "title": ""
+            },
+            "title": ""
+          },
+          "infobox": {
+            "listItem1": "",
+            "listItem2": "",
+            "listItem3": "",
+            "listItem4": "",
+            "manager": "",
+            "intro_btconly": "",
+            "intro_multi": "",
+            "kyc": "",
+            "learnmore": ""
+          },
+          "link": "",
+          "title": "",
+          "info": ""
+        },
+        "btcdirectWidget": {
+          "infobox": {
+            "feesBuying": {
+              "sofort": "",
+              "bancontact": "",
+              "bankTransfer": "",
+              "creditDebitCard": "",
+              "title": ""
+            },
+            "payment": {
+              "bancontact": "",
+              "bankTransfer": "",
+              "creditDebitCard": "",
+              "sofort": "",
+              "title": ""
+            },
+            "feesSelling": {
+              "bankTransfer": "",
+              "title": ""
+            },
+            "intro": ""
+          },
+          "disclaimer": {
+            "paymentMethods": {
+              "buy": "",
+              "note": "",
+              "sell": "",
+              "title": ""
+            },
+            "description": "",
+            "kyc": {
+              "description": "",
+              "title": ""
+            },
+            "security": {
+              "description": "",
+              "title": "",
+              "link": ""
+            },
+            "title_bitcoin": "",
+            "title_crypto": ""
+          },
+          "learnmore": ""
+        },
+        "pocket": {
+          "fees": {
+            "title": "",
+            "info": ""
+          },
+          "sell": {
+            "title": ""
+          },
+          "payment": {
+            "bankTransferDetails": {
+              "uk": "",
+              "sepa": "",
+              "sic": ""
+            },
+            "bankTransfer": "",
+            "bankTransferReccuring": "",
+            "title": ""
+          },
+          "supportedCurrencies": "",
+          "verification": {
+            "info": "",
+            "link": "",
+            "title": ""
+          },
+          "learnMore": ""
+        },
+        "moonpay": {
+          "payment": {
+            "bankTransferDetails": {
+              "uk": "",
+              "pix": "",
+              "sepa": ""
+            },
+            "asteriskText": "",
+            "bankTransfer": "",
+            "creditDebitCard": "",
+            "creditDebitCardDetails": {
+              "cards": ""
+            },
+            "learnMore": "",
+            "title": ""
+          },
+          "fees": {
+            "bankTransfer": "",
+            "creditDebitCard": "",
+            "learnMore": "",
+            "title": ""
+          },
+          "fullCurrenciesList": "",
+          "supportedCurrencies": ""
+        },
+        "bitrefill": {
+          "disclaimer": {
+            "intro": {
+              "title_crypto": "",
+              "text": "",
+              "title_bitcoin": ""
+            },
+            "dataProtection": {
+              "text": "",
+              "title": "",
+              "link": ""
+            },
+            "fees": {
+              "text": "",
+              "title": ""
+            },
+            "security": {
+              "link": "",
+              "text": "",
+              "title": ""
+            },
+            "account": {
+              "text": "",
+              "link": "",
+              "title": ""
+            },
+            "claims": {
+              "link": "",
+              "title": "",
+              "text": ""
+            },
+            "validEmail": {
+              "text": "",
+              "title": ""
+            }
+          },
+          "infobox": {
+            "intro": ""
+          }
+        },
+        "region": {
+          "title": ""
+        }
+      },
+      "spend": "",
+      "bestDeal": "",
+      "buy": "",
+      "creditCard": "",
+      "fast": "",
+      "fee": "",
+      "bankTransfer": "",
+      "description_bitrefill": "",
+      "noExchanges": "",
+      "region": "",
+      "selectRegion": "",
+      "sell": ""
+    },
+    "info": {
+      "next": "",
+      "selectLabel": "",
+      "crypto": "",
+      "disclaimer": {
+        "payment": {
+          "table": {
+            "2_description": "",
+            "1_description": "",
+            "1_method": "",
+            "2_method": "",
+            "description": "",
+            "method": "",
+            "fee": ""
+          },
+          "details": "",
+          "footnote": "",
+          "title": ""
+        },
+        "security": {
+          "link": "",
+          "descriptionGeneric_bitcoin": "",
+          "descriptionGeneric_crypto": "",
+          "title": ""
+        },
+        "title_crypto": "",
+        "intro": [
+          "",
+          ""
+        ],
+        "privacyPolicy": "",
+        "protection": {
+          "descriptionGeneric_bitcoin": "",
+          "descriptionGeneric_crypto": "",
+          "title": ""
+        },
+        "title_bitcoin": ""
+      },
+      "continue": "",
+      "selectPlaceholder": "",
+      "skip": ""
+    },
+    "pocket": {
+      "error": {
+        "insufficientFunds": ""
+      },
+      "paymentRequestNote": "",
+      "previousTransactions": "",
+      "usedAddress": "",
+      "verifyBitBox02": ""
+    },
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": ""
+      },
+      "transactionNote": ""
+    }
+  },
+  "generic": {
+    "buy": "",
+    "buy_crypto": "",
+    "search": "",
+    "send": "",
+    "sent": "",
+    "enabled_false": "",
+    "receive": "",
+    "spend_bitcoin": "",
+    "reset": "",
+    "sell_bitcoin": "",
+    "enabled_true": "",
+    "noOptionOnIos": "",
+    "close": "",
+    "enable": "",
+    "buySell": "",
+    "noOptions": "",
+    "paymentRequestNote": "",
+    "receive_bitcoin": "",
+    "receive_crypto": "",
+    "resetToDefault": "",
+    "searchButton": "",
+    "sell": "",
+    "sell_crypto": "",
+    "spend_crypto": "",
+    "received": "",
+    "buy_bitcoin": "",
+    "receiveWithoutCoinCode": ""
+  },
+  "newSettings": {
+    "appearance": {
+      "enableAccount": {
+        "title": "",
+        "description": ""
+      },
+      "defaultCurrency": {
+        "title": "",
+        "description": ""
+      },
+      "remebmerWallet": {
+        "enable": {
+          "description": "",
+          "title": ""
+        },
+        "name": "",
+        "warning": "",
+        "warningTitle": ""
+      },
+      "activeCurrencies": {
+        "description": "",
+        "title": ""
+      },
+      "hideAmounts": {
+        "description": "",
+        "hideAmounts": "",
+        "showAmounts": "",
+        "title": ""
+      },
+      "language": {
+        "description": "",
+        "title": ""
+      },
+      "toggleSats": {
+        "description": ""
+      },
+      "darkmode": {
+        "description": ""
+      }
+    },
+    "about": {
+      "appVersion": {
+        "title": ""
+      },
+      "feedbackLink": {
+        "description": "",
+        "title": ""
+      },
+      "supportLink": {
+        "description": "",
+        "title": ""
+      }
+    },
+    "advancedSettings": {
+      "authentication": {
+        "description": "",
+        "title": ""
+      },
+      "coinControl": {
+        "description": ""
+      },
+      "customFees": {
+        "description": ""
+      },
+      "restartInTestnet": {
+        "description": ""
+      },
+      "torProxy": {
+        "description": ""
+      }
+    }
+  },
+  "testnet": {
+    "activate": {
+      "title": "",
+      "description": "",
+      "prompt": ""
+    },
+    "deactivate": {
+      "description": "",
+      "prompt": "",
+      "title": ""
+    }
+  },
+  "exchange": {
+    "pocket": {
+      "terms": {
+        "fees": {
+          "p2": "",
+          "title": "",
+          "extraNote": "",
+          "note": "",
+          "p1": ""
+        },
+        "kyc": {
+          "link": "",
+          "info": "",
+          "title": ""
+        },
+        "dataprotection": {
+          "title": "",
+          "link": "",
+          "p1": ""
+        },
+        "security": {
+          "title": "",
+          "link": "",
+          "p1": "",
+          "p2": "",
+          "p3": ""
+        },
+        "welcome": {
+          "p1": "",
+          "title": ""
+        }
+      }
+    },
+    "btcdirect": {
+      "insufficientFunds": "",
+      "currencyMismatch": ""
+    },
+    "buySell": {
+      "regionNotSupported": "",
+      "coinNotSupported": ""
+    }
+  },
+  "bitsurance": {
+    "dashboard": {
+      "coverage": "",
+      "inactive": "",
+      "processing": "",
+      "refused": "",
+      "supportLink": "",
+      "title": "",
+      "active": "",
+      "canceled": "",
+      "button": "",
+      "waitpayment": ""
+    },
+    "title": "",
+    "detect": {
+      "button": "",
+      "insured": "",
+      "notInsured": "",
+      "text": "",
+      "title": ""
+    },
+    "insure": {
+      "button": "",
+      "faq": "",
+      "listItem1": "",
+      "listItem2": "",
+      "listItem3": "",
+      "month": "",
+      "text": "",
+      "text2": "",
+      "text3": "",
+      "title": ""
+    },
+    "intro": {
+      "link": "",
+      "text1": ""
+    },
+    "terms": {
+      "link": "",
+      "text1": "",
+      "text3": "",
+      "text4": "",
+      "text2": "",
+      "text5": ""
+    }
+  },
+  "error": {
+    "aoppNoAccounts": "",
+    "keystoreTimeout": "",
+    "accountAlreadyExists": "",
+    "accountLimitReached": "",
+    "aoppCallback": "",
+    "aoppInvalidRequest": "",
+    "aoppSigningAborted": "",
+    "aoppUnknown": "",
+    "aoppUnsupportedAsset": "",
+    "aoppUnsupportedFormat": "",
+    "aoppVersion": "",
+    "wrongKeystore": "",
+    "wrongKeystore2": "",
+    "aoppUnsupportedKeystore": ""
+  },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "",
+    "description1": "",
+    "title1": "",
+    "stillHavingIssues": "",
+    "link1": "",
+    "title2": "",
+    "title3": "",
+    "title4": "",
+    "description4": "",
+    "description2": "",
+    "description3": "",
+    "link2": ""
+  },
+  "passphrase": {
+    "summary": {
+      "understandList": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "title": "",
+      "understand": "",
+      "button": ""
+    },
+    "what": {
+      "button": "",
+      "title": "",
+      "message": ""
+    },
+    "why": {
+      "title": "",
+      "message": "",
+      "button": ""
+    },
+    "progressEnable": {
+      "message": "",
+      "title": ""
+    },
+    "how": {
+      "title": "",
+      "message": "",
+      "button": ""
+    },
+    "intro": {
+      "message": "",
+      "title": ""
+    },
+    "successDisabled": {
+      "messageEnd": "",
+      "message": "",
+      "title": ""
+    },
+    "enable": "",
+    "considerations": {
+      "button": "",
+      "message": "",
+      "title": ""
+    },
+    "disable": "",
+    "disableInfo": {
+      "button": "",
+      "message": ""
+    },
+    "progressDisable": {
+      "message": "",
+      "title": ""
+    },
+    "successEnabled": {
+      "message": "",
+      "tips": "",
+      "tipsList": [
+        "",
+        ""
+      ],
+      "title": "",
+      "messageEnd": ""
+    },
+    "error": {
+      "e104": ""
+    }
+  },
+  "aopp": {
+    "success": {
+      "message": "",
+      "title": ""
+    },
+    "addressRequestWithXPub": "",
+    "addressRequest": "",
+    "addressRequestWithLogoAndXPub": "",
+    "banner": "",
+    "errorTitle": "",
+    "labelAddress": "",
+    "labelMessage": "",
+    "reverifyInfoText": "",
+    "signing": "",
+    "syncing": "",
+    "title": "",
+    "addressRequestWithLogo": "",
+    "xpubRequested": ""
+  },
+  "manageAccounts": {
+    "editAccount": "",
+    "noAccounts": "",
+    "settings": {
+      "hideTokens": "",
+      "showTokens": ""
+    },
+    "settingsButtonDescription": "",
+    "title": "",
+    "watchAccount": "",
+    "watchAccountDescription": "",
+    "accountHidden": "",
+    "editAccountNameTitle": ""
+  },
+  "note": {
+    "input": {
+      "description": "",
+      "placeholder": ""
+    },
+    "title": ""
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "",
+    "noAccount": "",
+    "select": "",
+    "title": ""
+  },
+  "chart": {
+    "dataOldTimestamp": "",
+    "filter": {
+      "month": "",
+      "week": "",
+      "year": "",
+      "all": ""
+    },
+    "dataUpdating": ""
+  },
+  "connectKeystore": {
+    "promptNoName": "",
+    "promptWithName": ""
+  },
+  "gapLimit": {
+    "change": "",
+    "description": "",
+    "maxValue": "",
+    "minValue": "",
+    "receive": "",
+    "title": ""
+  },
+  "mobile": {
+    "usingMobileDataWarning": ""
+  },
+  "testWallet": {
+    "connect": {
+      "description": "",
+      "title": ""
+    },
+    "disconnect": {
+      "description": "",
+      "title": ""
+    },
+    "prompt": {
+      "button": "",
+      "passwordLabel": "",
+      "title": ""
+    }
+  },
+  "darkmode": {
+    "toggle": ""
+  },
+  "auth": {
+    "authButton": "",
+    "dismissButton": "",
+    "missing": "",
+    "title": ""
   }
 }
