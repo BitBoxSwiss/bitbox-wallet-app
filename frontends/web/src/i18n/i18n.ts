@@ -32,6 +32,7 @@ let i18Init = i18n
 
 i18Init.init({
   fallbackLng: 'en',
+  returnEmptyString: false,
 
   // have a common namespace used around the full app
   ns: ['app', 'wallet'],
