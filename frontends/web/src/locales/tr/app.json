@@ -54,7 +54,8 @@
     "title": "Portföyüm",
     "total": "Toplam",
     "transactionHistory": "İşlem geçmişi",
-    "coin": ""
+    "coin": "",
+    "portfolio": ""
   },
   "addAccount": {
     "chooseName": {
@@ -2048,7 +2049,8 @@
       "year": "",
       "all": ""
     },
-    "dataOldTimestamp": ""
+    "dataOldTimestamp": "",
+    "dataMissing": ""
   },
   "gapLimit": {
     "description": "",
