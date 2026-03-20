@@ -145,7 +145,8 @@
       "confirmTitle": "Ripristina backup",
       "error": {
         "e200": "Carta microSD non trovata",
-        "general": "Errore nel ripristino del backup"
+        "general": "Errore nel ripristino del backup",
+        "e104": "Ripristino del backup annullato."
       },
       "password": {
         "label": "Password di recupero o password di recupero nascosta",
@@ -206,12 +207,14 @@
       "alertEnabled": "Il Bluetooth è ora abilitato. ",
       "description": "Il Bluetooth è usato per connettersi con iPhone.",
       "titleDisabled": "Abilita Bluetooth",
-      "titleEnabled": "Disabilita Bluetooth"
+      "titleEnabled": "Disabilita Bluetooth",
+      "error_104": "Modifica dell’impostazione Bluetooth annullata."
     },
     "changePassword": {
       "description": "Cambia la password del tuo BitBox.",
       "success": "Password modificata con successo",
-      "title": "Modifica la password del dispositivo"
+      "title": "Modifica la password del dispositivo",
+      "error_104": "Modifica della password annullata."
     },
     "deviceName": {
       "current": "Nome attuale del dispositivo",
@@ -468,6 +471,10 @@
               "link": "Security threat model di BitBox",
               "text": "Bitrefill è un servizio esterno che non rientra nel security threat model di BitBox. Quando fai un acquisto, il tuo pagamento viene inviato ad un indirizzo di Bitrefill. Il BitBox non può verificare che questo indirizzo sia corretto.",
               "title": "Avviso di sicurezza"
+            },
+            "validEmail": {
+              "text": "Diversi provider di email temporanee non sono supportati da Bitrefill, quindi potresti non ricevere la fattura. Il codice della gift card / voucher sarà comunque disponibile al termine della procedura.",
+              "title": "Indirizzi email validi"
             }
           },
           "infobox": {
@@ -1372,6 +1379,13 @@
           "text": ""
         },
         "title": ""
+      },
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "Questo potrebbe dipendere dall’utilizzo di un provider email non supportato da Bitrefill. Se hai bisogno della fattura, contatta il supporto Bitrefill: potranno fornirti una copia della fattura.",
+        "title": "Non ho ricevuto la fattura da Bitrefill"
       }
     }
   },
