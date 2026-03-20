@@ -54,7 +54,8 @@
     "title": "Моя учетная запись\n",
     "total": "Всего",
     "transactionHistory": "Журнал транзакций",
-    "coin": ""
+    "coin": "",
+    "portfolio": ""
   },
   "addAccount": {
     "chooseName": {
