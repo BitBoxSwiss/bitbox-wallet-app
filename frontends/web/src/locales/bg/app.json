@@ -54,7 +54,8 @@
     "availableBalance": "",
     "subtotalWithCoinName": "",
     "transactionHistory": "",
-    "coin": ""
+    "coin": "",
+    "portfolio": ""
   },
   "addAccount": {
     "title": "Добавяне на портфейл",
@@ -1637,7 +1638,8 @@
       "year": ""
     },
     "dataOldTimestamp": "",
-    "dataUpdating": ""
+    "dataUpdating": "",
+    "dataMissing": ""
   },
   "exchange": {
     "pocket": {
