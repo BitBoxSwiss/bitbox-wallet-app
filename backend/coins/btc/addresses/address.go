@@ -17,6 +17,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// AddressID identifies a BTC/LTC address at the account/frontend boundary.
+// It is permanently identical to the address scriptHashHex.
+type AddressID = blockchain.ScriptHashHex
+
+// NewAddressID creates an address ID from a pubkey script.
+func NewAddressID(pubkeyScript []byte) AddressID {
+	return blockchain.NewScriptHashHex(pubkeyScript)
+}
+
 // AccountAddress models an address that belongs to an account of the user.
 // It contains all the information needed to receive and spend funds.
 type AccountAddress struct {
@@ -111,6 +120,8 @@ func NewAccountAddress(
 }
 
 // ID implements accounts.Address.
+// For BTC/LTC, this value must never change because it is treated interchangeably with the
+// address scriptHashHex.
 func (address *AccountAddress) ID() string {
 	return string(address.PubkeyScriptHashHex())
 }

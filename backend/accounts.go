@@ -16,7 +16,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
@@ -991,7 +990,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 
 	// This function is passed as a callback to the BTC account constructor. It is called when the
 	// keystore needs to determine whether an address belongs to an account on its same keystore.
-	getAddressCallback := func(coinCode coinpkg.Code, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, error) {
+	getAddressByIDCallback := func(coinCode coinpkg.Code, addressID addresses.AddressID) (*addresses.AccountAddress, error) {
 		accountsByKeystore, err := backend.AccountsByKeystore()
 		if err != nil {
 			return nil, err
@@ -1010,7 +1009,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			if btcAccount.Coin().Code() != coinCode {
 				continue
 			}
-			if address := btcAccount.GetAddress(scriptHashHex); address != nil {
+			if address := btcAccount.AddressByID(addressID); address != nil {
 				return address, nil
 			}
 		}
@@ -1023,7 +1022,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			accountConfig,
 			specificCoin,
 			backend.gapLimits(),
-			getAddressCallback,
+			getAddressByIDCallback,
 			backend.log,
 		)
 		backend.addAccount(account)

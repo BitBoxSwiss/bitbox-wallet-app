@@ -9,7 +9,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -153,10 +152,10 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 				continue
 			}
 		}
+		addressID := addresses.NewAddressID(txOut.TxOut.PkScript)
 		wireUTXO[outPoint] = maketx.UTXO{
-			TxOut: txOut.TxOut,
-			Address: account.GetAddress(
-				blockchain.NewScriptHashHex(txOut.TxOut.PkScript)),
+			TxOut:   txOut.TxOut,
+			Address: account.AddressByID(addressID),
 		}
 	}
 	feeRatePerKb, err := account.getFeePerKb(args)
@@ -222,14 +221,14 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	return utxo, txProposal, nil
 }
 
-// GetAddress returns the address in the account with the given `scriptHashHex`. Returns nil if the
+// AddressByID returns the address in the account with the given address ID. Returns nil if the
 // address does not exist in the account.
-func (account *Account) GetAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
+func (account *Account) AddressByID(addressID addresses.AddressID) *addresses.AccountAddress {
 	for _, subacc := range account.subaccounts {
-		if address := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+		if address := subacc.receiveAddresses.LookupByAddressID(addressID); address != nil {
 			return address
 		}
-		if address := subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+		if address := subacc.changeAddresses.LookupByAddressID(addressID); address != nil {
 			return address
 		}
 	}
