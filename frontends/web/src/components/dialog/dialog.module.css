@@ -21,15 +21,17 @@
 
 .modal {
     background-color: var(--background-secondary);
-    width: 100%;
-    max-width: 420px;
     border-radius: var(--radius-xl);
     box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
-    text-align: left;
+    display: flex;
+    flex-direction: column;
     max-height: calc(100dvh - calc(env(safe-area-inset-top) * 2));
+    max-width: 420px;
     overflow: auto;
+    text-align: left;
     touch-action: auto;
     -webkit-overflow-scrolling: touch;
+    width: 100%;
 }
 /* guard dialog and wait-dialog from view styles */
 @media (min-width: 1200px) {
@@ -61,10 +63,11 @@
 }
 
 .header {
+    align-items: center;
     display: flex;
     flex-direction: row;
+    flex-shrink: 0;
     justify-content: space-between;
-    align-items: center;
     padding: 13.5px var(--space-half);
 }
 
@@ -100,6 +103,13 @@
 }
 
 .contentContainer {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: 0%;
+    max-height: 100%;
+    overflow: auto;
     padding: var(--space-half);
 }
 
@@ -107,8 +117,21 @@
     padding: 0;
 }
 
-.content p {
+.contentContainer p {
     word-break: break-word;
+}
+
+.dialogScrollContent {
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-basis: 0%;
+    min-height: auto;
+}
+
+/* makes all dialog bottons sticky to the bottom when used in combination with dialogScrollContent */
+.dialogScrollContent + .dialogButtons {
+    bottom: 0;
+    position: sticky;
 }
 
 .actions button,
@@ -137,11 +160,18 @@
 }
 
 .dialogButtons {
+    background-color: var(--background-secondary);
     display: flex;
     flex-direction: row-reverse;
     justify-content: space-between;
     margin-top: var(--space-default);
+    outline-color: var(--background-secondary);
+    outline-style: solid;
+    outline-width: 18px;
+    /* iOS safe area handling */
+    padding-bottom: env(safe-area-inset-bottom, 0);
 }
+
 .dialogButtons > *:only-child {
     width: 100%;
 }
@@ -194,7 +224,7 @@
 
     /*content will shrink and grow if needed (fill remaining space)*/
     .contentContainer {
-        flex-grow: 1; 
+        flex-grow: 1;
         flex-shrink: 1;
         flex-basis: 0%; /* start from 0, then grow if needed */
         overflow-y: auto;

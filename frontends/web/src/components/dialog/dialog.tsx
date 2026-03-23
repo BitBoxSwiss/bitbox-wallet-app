@@ -57,9 +57,7 @@ const DialogContainer = ({
         </div>
       )}
       <div className={contentClass} ref={contentContainerRef}>
-        <div className={style.content}>
-          {children}
-        </div>
+        {children}
       </div>
     </>
   );
@@ -275,6 +273,23 @@ type DialogButtonsProps = {
  */
 export const DialogButtons = ({ children }: DialogButtonsProps) => {
   return (
-    <div className={style.dialogButtons}>{children}</div>
+    <div className={style.dialogButtons}>
+      {children}
+    </div>
+  );
+};
+
+
+type DialogScrollContentProps = {
+  children: React.ReactNode;
+};
+
+export const DialogScrollContent = ({
+  children,
+}: DialogScrollContentProps) => {
+  return (
+    <div className={style.dialogScrollContent}>
+      {children}
+    </div>
   );
 };
