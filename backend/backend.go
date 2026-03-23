@@ -72,7 +72,9 @@ var fixedURLWhitelist = []string{
 	"https://sochain.com/tx/LTCTEST/",
 	"https://blockchair.com/litecoin/transaction/",
 	"https://etherscan.io/tx/",
+	"https://etherscan.io/address/",
 	"https://sepolia.etherscan.io/tx/",
+	"https://sepolia.etherscan.io/address/",
 	// Moonpay onramp
 	"https://www.moonpay.com/",
 	"https://support.moonpay.com/",
@@ -538,19 +540,19 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	case code == coinpkg.CodeETH:
 		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
-			"https://etherscan.io/tx/",
+			"https://etherscan.io/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeSEPETH:
 		etherScan := etherscan.NewEtherScan("11155111", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
-			"https://sepolia.etherscan.io/tx/",
+			"https://sepolia.etherscan.io/",
 			etherScan,
 			nil)
 	case erc20Token != nil:
 		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
-			"https://etherscan.io/tx/",
+			"https://etherscan.io/",
 			etherScan,
 			erc20Token.token,
 		)

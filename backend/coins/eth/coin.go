@@ -30,14 +30,14 @@ type TransactionsSource interface {
 // Coin models an Ethereum coin.
 type Coin struct {
 	observable.Implementation
-	client                rpcclient.Interface
-	code                  coinpkg.Code
-	name                  string
-	unit                  string
-	feeUnit               string
-	net                   *params.ChainConfig
-	blockExplorerTxPrefix string
-	erc20Token            *erc20.Token
+	client                 rpcclient.Interface
+	code                   coinpkg.Code
+	name                   string
+	unit                   string
+	feeUnit                string
+	net                    *params.ChainConfig
+	blockExplorerURLPrefix string
+	erc20Token             *erc20.Token
 
 	transactionsSource TransactionsSource
 
@@ -56,18 +56,18 @@ func NewCoin(
 	unit string,
 	feeUnit string,
 	net *params.ChainConfig,
-	blockExplorerTxPrefix string,
+	blockExplorerURLPrefix string,
 	transactionsSource TransactionsSource,
 	erc20Token *erc20.Token,
 ) *Coin {
 	return &Coin{
-		client:                client,
-		code:                  code,
-		name:                  name,
-		unit:                  unit,
-		feeUnit:               feeUnit,
-		net:                   net,
-		blockExplorerTxPrefix: blockExplorerTxPrefix,
+		client:                 client,
+		code:                   code,
+		name:                   name,
+		unit:                   unit,
+		feeUnit:                feeUnit,
+		net:                    net,
+		blockExplorerURLPrefix: blockExplorerURLPrefix,
 
 		transactionsSource: transactionsSource,
 
@@ -181,9 +181,17 @@ func (coin *Coin) ParseAmount(amount string) (coinpkg.Amount, error) {
 	return coin.SetAmount(amountRat, false), nil
 }
 
+// BlockExplorerURLPrefix returns the shared base URL prefix of the block explorer.
+func (coin *Coin) BlockExplorerURLPrefix() string {
+	return coin.blockExplorerURLPrefix
+}
+
 // BlockExplorerTransactionURLPrefix implements coin.Coin.
 func (coin *Coin) BlockExplorerTransactionURLPrefix() string {
-	return coin.blockExplorerTxPrefix
+	if coin.blockExplorerURLPrefix == "" {
+		return ""
+	}
+	return coin.blockExplorerURLPrefix + "tx/"
 }
 
 // TransactionsSource returns an instance of TransactionsSource.
