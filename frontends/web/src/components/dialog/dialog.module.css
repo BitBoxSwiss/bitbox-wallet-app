@@ -187,11 +187,6 @@
       transform: translateY(0);
     }
 
-    .modal.dragging {
-        transition: none;
-    }
-
-
     /*header wont shrink*/
     .header {
         flex-shrink: 0;
