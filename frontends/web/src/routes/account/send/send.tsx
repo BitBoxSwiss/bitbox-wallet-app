@@ -25,7 +25,7 @@ import { ReceiverAddressInput } from './components/inputs/receiver-address-input
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
-import { FiatValue } from './components/fiat-value';
+import { FiatValue } from '@/components/amount/fiat-value';
 import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
 import { connectKeystore } from '@/api/keystores';
