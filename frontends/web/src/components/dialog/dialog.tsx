@@ -282,11 +282,18 @@ export const DialogButtons = ({ children }: DialogButtonsProps) => {
 
 type DialogScrollContentProps = {
   children: React.ReactNode;
+  minHeight?: string;
 };
 
-export const DialogScrollContent = ({ children }: DialogScrollContentProps) => {
+export const DialogScrollContent = ({
+  children,
+  minHeight = '5lh',
+}: DialogScrollContentProps) => {
   return (
-    <div className={style.dialogScrollContent}>
+    <div
+      className={style.dialogScrollContent}
+      style={{ minHeight }}
+    >
       {children}
     </div>
   );

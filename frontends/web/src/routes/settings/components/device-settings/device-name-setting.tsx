@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { Button, Input } from '@/components/forms';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { getDeviceInfo, setDeviceName, errUserAbort } from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
@@ -101,22 +101,24 @@ const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, name, 
       onClose={onClose}
       title={t('bitbox02Settings.deviceName.title')}
       small>
-      <p className="m-top-none m-bottom-half">
-        {t('bitbox02Settings.deviceName.current')}
-        <br />
-        {currentName}
-      </p>
-      <Input
-        autoFocus
-        className={nameStyle.input}
-        classNameInputField={error && !nameIsTooShort ? nameStyle.inputFieldError : ''}
-        label={t('bitbox02Settings.deviceName.input')}
-        onInput={(e) => onInputChange(e.target.value)}
-        placeholder={t('bitbox02Settings.deviceName.placeholder')}
-        value={name}
-        id="deviceName"
-      />
-      <DeviceNameErrorMessage error={error} invalidChars={invalidChars} />
+      <DialogScrollContent minHeight="7lh">
+        <p className="m-top-none m-bottom-half">
+          {t('bitbox02Settings.deviceName.current')}
+          <br />
+          {currentName}
+        </p>
+        <Input
+          autoFocus
+          className={nameStyle.input}
+          classNameInputField={error && !nameIsTooShort ? nameStyle.inputFieldError : ''}
+          label={t('bitbox02Settings.deviceName.input')}
+          onInput={(e) => onInputChange(e.target.value)}
+          placeholder={t('bitbox02Settings.deviceName.placeholder')}
+          value={name}
+          id="deviceName"
+        />
+        <DeviceNameErrorMessage error={error} invalidChars={invalidChars} />
+      </DialogScrollContent>
       <DialogButtons>
         <Button
           primary

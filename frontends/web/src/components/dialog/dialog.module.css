@@ -122,10 +122,11 @@
 }
 
 .dialogScrollContent {
-    flex-grow: 0; 
+    flex-grow: 1;
     flex-shrink: 1;
     flex-basis: 0%;
     max-height: 100%;
+    min-height: 3lh; /* overwritten in react component */
     overflow: auto;
 }
 
@@ -212,7 +213,7 @@
 
     /*content will shrink and grow if needed (fill remaining space)*/
     .contentContainer {
-        flex-grow: 1; 
+        flex-grow: 1;
         flex-shrink: 1;
         flex-basis: 0%; /* start from 0, then grow if needed */
         overflow-y: auto;
