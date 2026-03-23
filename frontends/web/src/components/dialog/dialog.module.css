@@ -160,6 +160,8 @@
     flex-direction: row-reverse;
     justify-content: space-between;
     margin-top: var(--space-default);
+    /* iOS safe area handling */
+    padding-bottom: env(safe-area-inset-bottom, 0);
 }
 .dialogButtons > *:only-child {
     width: 100%;
