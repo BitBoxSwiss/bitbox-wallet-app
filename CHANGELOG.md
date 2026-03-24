@@ -14,6 +14,7 @@
 - Add forgot password info during unlock
 - Export transactions CSV: add historical value and historical value currency columns.
 - Show total fiat amount in Bitrefill confirmation step
+- Revamp portfolio / account summary detail (table)
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
