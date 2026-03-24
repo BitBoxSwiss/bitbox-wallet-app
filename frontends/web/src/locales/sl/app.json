@@ -5,7 +5,6 @@
     "backupReminder": "Denarnica <strong>{{name}}</strong> je presegla {{fiat}} {{threshold}}!\nPriporočamo, da ustvarite analogno varnostno kopijo vaših besed, če je še niste. ",
     "backupReminderLink": "Ustvari analogno varnostno kopijo!",
     "disconnect": "Povezava je bila prekinjena. Poizkušam ponovno...",
-    "export": "Izvozi transakcije",
     "exportTransactions": "Izvozite transakcije v CSV datoteki",
     "fatalError": "Ups, nepričakovana napaka",
     "incoming": "Dohodni",
@@ -152,7 +151,6 @@
       },
       "restoring": "Obnavljanje varnostne kopije ...",
       "selectedBackup": "<strong>{{backupName}}</strong> ustvarjen {{createdDateTime}} bo obnovljen.",
-      "subtitle": "",
       "title": "Obnovi",
       "understand": "Razumem, da bo nepravilno geslo za obnovitev ustvarilo drugo, novo denarnico"
     },
@@ -1196,6 +1194,16 @@
         "title": "Zakaj obstaja omrežnina?"
       }
     },
+    "settings": {
+      "sats": {
+        "text": "Satoshi (satoši, krajše sat) je najmanjša enota Bitcoina. En satoši je stomilijonska enota bitcoina (0,00000001 BTC). Ime je dobila po avtorju Bitcoina, Satoshiju Nakamotu.",
+        "title": "Kaj je Satoshi?"
+      },
+      "servers": {
+        "text": "Ta aplikacija komunicira s strežniki podjetja Shift Crypto AG, da preveri posodobitve, naloži transakcije in pošilja informacije v uparjene mobilne aplikacije.\nAplikacija pridobiva najnovejše tečaje pri CoinGecko. Vse konverzije so izračunane lokalno, kar pomeni, da se podatki o znesku vaše transakcije nikoli ne pošljejo ven iz aplikacije.\nOpomba: Za Ethereum in ERC20 žetone uporabljamo API-je Etherscan.io.",
+        "title": "S katerimi strežniki govori ta aplikacija?"
+      }
+    },
     "settings-electrum": {
       "connection": {
         "text": "Če se želite s svojim vozliščem (full node) povezati le, ko ste v istem omrežju (npr. domači wifi), zadostuje uporaba običajne omrežne komunikacije.\nV tem primeru je priporočljivo, da strežnik Electrum zagotovi potrdilo TLS za šifriranje komunikacije.\nČe se nameravate s svojim vozliščem povezati od kjer koli drugje, je boljša možnost uporaba omrežja Tor. V tem primeru ni potrebno potrdilo TLS.",
@@ -1223,16 +1231,6 @@
       "why": {
         "text": "Vzdrževanje lastnega vozlišča ni potrebno, izboljša pa zasebnost in zniža potrebo po zaupanju drugim.\nPrvič, to pomeni, da bolj zasebno uporabljate Bitcoin (omrežje), saj se BitBoxApp ne bo povezal z našimi strežniki, da bi prejel vašo zgodovino transakcij; namesto tega bo podatke prejel od vašega vozlišča.\nDrugič, imeti lastno vozlišče pomeni, da vozlišče samo preverja vse transakcije in poskrbi, da so pravila omrežja Bitcoin za vas uveljavljena.",
         "title": "Zakaj naj poganjam svoje vozlišče?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "Satoshi (satoši, krajše sat) je najmanjša enota Bitcoina. En satoši je stomilijonska enota bitcoina (0,00000001 BTC). Ime je dobila po avtorju Bitcoina, Satoshiju Nakamotu.",
-        "title": "Kaj je Satoshi?"
-      },
-      "servers": {
-        "text": "Ta aplikacija komunicira s strežniki podjetja Shift Crypto AG, da preveri posodobitve, naloži transakcije in pošilja informacije v uparjene mobilne aplikacije.\nAplikacija pridobiva najnovejše tečaje pri CoinGecko. Vse konverzije so izračunane lokalno, kar pomeni, da se podatki o znesku vaše transakcije nikoli ne pošljejo ven iz aplikacije.\nOpomba: Za Ethereum in ERC20 žetone uporabljamo API-je Etherscan.io.",
-        "title": "S katerimi strežniki govori ta aplikacija?"
       }
     },
     "title": "Vodič vam v pomoč",
@@ -1400,8 +1398,7 @@
       },
       "remebmerWallet": {
         "enable": {
-          "description": "Zdaj si lahko ogledate račune, povezane s to denarnico, ne da bi BitBox vstavili v računalnik ali telefon. Seveda je BitBox še vedno potreben za izvajanje transakcij in prikaz prejemnih naslovov.",
-          "title": ""
+          "description": "Zdaj si lahko ogledate račune, povezane s to denarnico, ne da bi BitBox vstavili v računalnik ali telefon. Seveda je BitBox še vedno potreben za izvajanje transakcij in prikaz prejemnih naslovov."
         },
         "name": "Zapomni si denarnico",
         "warning": "Odstranili boste prikaz denarnice, ko BitBox ni priključen. Vsebina denarnice in vsa sredstva s tem ostanejo varna in nedotaknjena, le BitBoxApp jo bo pozabil. Nadaljujem?",
@@ -1420,14 +1417,15 @@
     "title": "Opomba"
   },
   "notification": {
+    "newTxs_few": "",
     "newTxs_one": "Nove transakcije so na: {{accountName}}",
-    "newTxs_other": "{{count}} novih transakcij na: {{accountName}}"
+    "newTxs_other": "{{count}} novih transakcij na: {{accountName}}",
+    "newTxs_two": ""
   },
   "novaConnectionIssues": {
     "connectionIssueTips": "Težave s povezavo?",
     "description1": "Samo BitBox02 Nova je združljiv z iOS. Za BitBox02 uporabite Windows, macOS, Android ali Linux. BitBox02 Nova lahko kupite v naši spletni trgovini ali pe bolje, preko lokalnih partnerjev.",
     "description2": "Zaslon se mora prižgati. Če zaslon ni prižgan, naprava ne prejema napajanja.",
-    "description3": "",
     "description4": "BitBox02 Nova se z iOS-om poveže prek Bluetootha. Bluetooth je mogoče omogočiti/onemogočiti v nastavitvah BitBoxApp na drugih platformah.",
     "link1": "Kupi BitBox02 Nova",
     "link2": "Vprašaj podporo",
@@ -1439,7 +1437,6 @@
   },
   "passphrase": {
     "considerations": {
-      "button": "",
       "message": "Geselska fraza zagotavlja dodaten nivo zaščite varnostni kopiji vaše denarnice (bodisi na microSD kartici ali 24 besedam). Če nekdo pridobi dostop do vaše varnostne kopije (na kartici ali besede), bo za dostop do vaše denarnice potreboval tudi geselsko frazo.\n\nTo pa pomeni, da boste potrebovali <strong>oboje - geselsko frazo in varnostno kopijo denarnice</strong>, da bi obnovili tako zaščiteno denarnico, če se vaš BitBox pokvari ali ga izgubite. Če pozabite ali izgubite to geslo, boste izgubili dostop do vseh kovancev v tej denarnici!\n\nGeselsko frazo shranjujte ločeno od varnostne kopije. S tem preprečite vdor v denarnico, če nekdo najde le njeno varnostno kopijo.",
       "title": "Razmislek o varnostni kopiji"
     },
@@ -1615,7 +1612,6 @@
       "address": "Naslov",
       "addressReused": "Naslov je bil že uporabljen",
       "change": "Drobiž",
-      "outpoint": "",
       "title": "Pošlji iz (output):"
     },
     "confirm": {
@@ -1753,15 +1749,17 @@
         "title": "Izvozi zapiske"
       },
       "import": {
+        "accountNames_few": "",
         "accountNames_one": "Uvoženo {{count}} ime računa",
         "accountNames_other": "Uvoženo toliko računov: {{count}}",
-        "accountNames_zero": "Št. uvoženih računov je 0.",
+        "accountNames_two": "",
         "description": "Obnovite zapiske transakcij in imena računov iz arhivske datoteke.",
         "title": "Uvozi zapiske",
         "tooLarge": "Datoteka je prevelika.",
+        "transactionNotes_few": "",
         "transactionNotes_one": "Uvožen {{count}} opis transakcije. ",
         "transactionNotes_other": "Št. uvoženih opisov transakcij: {{count}} ",
-        "transactionNotes_zero": "Opisi transakcij niso bili uvoženi."
+        "transactionNotes_two": ""
       },
       "title": "Uredi zapiske"
     },
