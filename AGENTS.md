@@ -41,7 +41,7 @@ Run `make buildweb` before the first `make webdev` to install npm dependencies. 
   `make webfix` auto-fixes lint issues.
 - `make ci` (or `./scripts/ci.sh`) mirrors CI: Go race tests (with `GORACE="halt_on_error=1"`),
   frontend build, linting, and i18n format checks. Use it before large pull requests.
-- `make go-vendor` re-vendors Go dependencies. `make locize-fix` sorts i18n translation keys.
+- `make go-vendor` re-vendors Go dependencies.
 - All Go commands require `-mod=vendor` (e.g., `go build -mod=vendor ./...`).
 
 ## Backend Patterns
