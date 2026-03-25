@@ -16,8 +16,9 @@ import (
 func TestNewConfig(t *testing.T) {
 	appConfigFilename := test.TstTempFile("appConfig")
 	accountsConfigFilename := test.TstTempFile("accountsConfig")
+	lightningConfigFilename := test.TstTempFile("lightningConfig")
 
-	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename)
+	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 
 	appJsonBytes, err := os.ReadFile(appConfigFilename)
@@ -28,12 +29,18 @@ func TestNewConfig(t *testing.T) {
 
 	accountsJsonBytes, err := os.ReadFile(accountsConfigFilename)
 	require.NoError(t, err)
-	expectedAccountsJsonBytes, err := json.Marshal(newDefaultAccountsonfig())
+	expectedAccountsJsonBytes, err := json.Marshal(newDefaultAccountsConfig())
 	require.NoError(t, err)
 	require.JSONEq(t, string(expectedAccountsJsonBytes), string(accountsJsonBytes))
 
+	lightningJsonBytes, err := os.ReadFile(lightningConfigFilename)
+	require.NoError(t, err)
+	expectedLightningJsonBytes, err := json.Marshal(newDefaultLightningConfig())
+	require.NoError(t, err)
+	require.JSONEq(t, string(expectedLightningJsonBytes), string(lightningJsonBytes))
+
 	// Load existing config.
-	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename)
+	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 	require.Equal(t, cfg, cfg2)
 }
@@ -41,8 +48,9 @@ func TestNewConfig(t *testing.T) {
 func TestSetAppConfig(t *testing.T) {
 	appConfigFilename := test.TstTempFile("appConfig")
 	accountsConfigFilename := test.TstTempFile("accountsConfig")
+	lightningConfigFilename := test.TstTempFile("lightningConfig")
 
-	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename)
+	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 
 	appCfg := cfg.AppConfig()
@@ -51,7 +59,7 @@ func TestSetAppConfig(t *testing.T) {
 	appCfg.Frontend = map[string]interface{}{"foo": "bar"}
 	require.NoError(t, cfg.SetAppConfig(appCfg))
 
-	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename)
+	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 	require.Equal(t, cfg, cfg2)
 	require.Equal(t, coin.BtcUnitSats, cfg2.AppConfig().Backend.BtcUnit)
@@ -61,8 +69,9 @@ func TestSetAppConfig(t *testing.T) {
 func TestModifyAccountsConfig(t *testing.T) {
 	appConfigFilename := test.TstTempFile("appConfig")
 	accountsConfigFilename := test.TstTempFile("accountsConfig")
+	lightningConfigFilename := test.TstTempFile("lightningConfig")
 
-	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename)
+	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 
 	require.NoError(t, cfg.ModifyAccountsConfig(func(accountsCfg *AccountsConfig) error {
@@ -70,7 +79,7 @@ func TestModifyAccountsConfig(t *testing.T) {
 		return nil
 	}))
 
-	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename)
+	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 	require.Equal(t, cfg, cfg2)
 	require.Equal(t, []*Account{{Used: true}}, cfg2.AccountsConfig().Accounts)
@@ -80,14 +89,50 @@ func TestModifyAccountsConfig(t *testing.T) {
 	}))
 }
 
+func TestModifyLightningConfig(t *testing.T) {
+	appConfigFilename := test.TstTempFile("appConfig")
+	accountsConfigFilename := test.TstTempFile("accountsConfig")
+	lightningConfigFilename := test.TstTempFile("lightningConfig")
+
+	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
+	require.NoError(t, err)
+
+	require.NoError(t, cfg.ModifyLightningConfig(func(lightningCfg *LightningConfig) error {
+		require.Empty(t, lightningCfg.Accounts)
+		lightningCfg.Accounts = append(lightningCfg.Accounts, &LightningAccountConfig{
+			Mnemonic:        "test",
+			Code:            "v0-test-ln-0",
+			Number:          0,
+			RootFingerprint: []byte("fingerprint"),
+		})
+		return nil
+	}))
+
+	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
+	require.NoError(t, err)
+	require.Equal(t, cfg, cfg2)
+	require.Len(t, cfg2.LightningConfig().Accounts, 1)
+
+	require.Error(t, cfg.ModifyLightningConfig(func(lightningCfg *LightningConfig) error {
+		lightningCfg.Accounts = nil
+		return errors.New("error")
+	}))
+	require.Len(t, cfg.LightningConfig().Accounts, 1)
+
+	cfg3, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
+	require.NoError(t, err)
+	require.Len(t, cfg3.LightningConfig().Accounts, 1)
+}
+
 // TestMigrationSaved tests that migrations are applied when a config is loaded, and that the
 // migrations are persisted.
 func TestMigrationsAtLoad(t *testing.T) {
 	appConfigFilename := test.TstTempFile("appConfig")
 	accountsConfigFilename := test.TstTempFile("accountsConfig")
+	lightningConfigFilename := test.TstTempFile("lightningConfig")
 
 	// Persist a config that includes data that will be migrated.
-	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename)
+	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 	appCfg := cfg.AppConfig()
 	appCfg.Frontend = map[string]interface{}{
@@ -101,7 +146,7 @@ func TestMigrationsAtLoad(t *testing.T) {
 	}))
 
 	// Loading the conf applies the migrations.
-	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename)
+	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 	require.Equal(t, "de", cfg2.AppConfig().Backend.UserLanguage)
 	require.Equal(t,
@@ -109,7 +154,7 @@ func TestMigrationsAtLoad(t *testing.T) {
 		cfg2.AccountsConfig().Accounts)
 
 	// The migrations were persisted.
-	cfg3, err := NewConfig(appConfigFilename, accountsConfigFilename)
+	cfg3, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 	require.Equal(t, cfg2, cfg3)
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
+import { useLightning } from '@/hooks/lightning';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
@@ -11,6 +12,8 @@ import { EnableCustomFeesToggleSetting } from './components/advanced-settings/en
 import { EnableCoinControlSetting } from './components/advanced-settings/enable-coin-control-setting';
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
+import { EnableLightning } from './components/advanced-settings/enable-lightning-setting';
+import { DisableLightning } from './components/advanced-settings/disable-lightning-setting';
 import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-software-keystore';
 import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
@@ -50,6 +53,7 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
   const { t } = useTranslation();
   const fetchedConfig = useLoad(getConfig) as TConfig;
   const [config, setConfig] = useState<TConfig>();
+  const { lightningConfig } = useLightning();
 
   const frontendConfig = config?.frontend;
   const backendConfig = config?.backend;
@@ -75,7 +79,8 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
                 <MobileHeader withGuide title={t('settings.advancedSettings')} />
               </>
-            } />
+            }
+          />
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs
@@ -83,6 +88,7 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
+                {lightningConfig.accounts.length === 0 ? <EnableLightning /> : <DisableLightning />}
                 <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
@@ -99,10 +105,8 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
       </GuidedContent>
       <AdvancedSettingsGuide />
     </GuideWrapper>
-
   );
 };
-
 
 const AdvancedSettingsGuide = () => {
   const { t } = useTranslation();

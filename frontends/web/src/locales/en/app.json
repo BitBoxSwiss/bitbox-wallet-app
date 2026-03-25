@@ -1218,6 +1218,28 @@
       "send": "Send guide",
       "walletConnect": "WalletConnect guide"
     },
+    "lightning": {
+      "multipleDevices": {
+        "text": "Yes, just plug in your BitBox02 into a different device and activate lightning on the BitBoxApp. The lighting wallet will be the same one as your previous device if you use the same BitBox02 wallet.",
+        "title": "Can I use my lightning wallet on multiple devices?"
+      },
+      "multipleWallets": {
+        "text": "No, currently you cannot make multiple lightning wallets with the same BitBox02, nor use multiple lightning wallets on the same BitBoxApp, even if you have multiple BitBox02 wallets.",
+        "title": "Can I make multiple lightning wallets?"
+      },
+      "privateKey": {
+        "text": "The BitBoxApp lightning wallet is non-custodial, which means only you have access to the keys. The private keys are stored in the BitBoxApp. This makes your lightning wallet a “Hot wallet”, since the lightning keys are on your computer/phone instead of on your BitBox02. Therefore, only store a small amount of coins on your Lighting wallet",
+        "title": "Where are my lightning private keys stored?"
+      },
+      "providers": {
+        "text": "Yes, the lightning wallet utilizes Blockstream Greenlight and uses Breez as a liquidity provider. The BitBoxApp controls your lightning keys, while your own tiny lightning node is created in the cloud using Greenlight, an open-source project by Blockstream. This enables you to use your lightning wallet from multiple devices. The lightning channels of your node are managed automatically by Breez, who charge a small fee to create them.",
+        "title": "Are there external parties involved in this solution?"
+      },
+      "securedByBitBox": {
+        "text": "No, the BitBox02 wallet is just used to create and restore your lightning wallet. Once your lightning wallet is created, it is a “hot wallet”.",
+        "title": "Is my lightning wallet secured by my BitBox02?"
+      }
+    },
     "receive": {
       "address": {
         "text": "You can give the address to others to send you some coins. Just make sure they are sending to the correct address.",
@@ -1411,6 +1433,94 @@
   "invalidFormat": "Invalid format",
   "language": {
     "title": "Select language"
+  },
+  "lightning": {
+    "accountLabel": "Lightning",
+    "activate": {
+      "connect": {
+        "content": "connect your bitbox02 to create your lightning wallet",
+        "title": "Connect your device"
+      },
+      "disclaimer": {
+        "content": "Your lightning wallet will be made using a key derived from your BitBox02 wallet. That way you can always restore your lightning wallet using your BitBox02 or backup.\n\nHowever, unlike the BitBox02, the lightning wallet is a <strong>hot wallet</strong>. This means the keys for your lightning wallet are stored on the BitBoxApp, not on the BitBox02. You should not use the lightning wallet for a large amount of funds or long term storage.\n\n          In addition, the lightning feature is currently in beta, meaning you may encounter bugs, reliability issues or it may stop working entirely.",
+        "title": "How does it work with the BitBoxApp?"
+      },
+      "intro": {
+        "content": "Lightning is a channel based second layer to Bitcoin. It enables you to spend and receive coins instantly and for a very low fee.",
+        "title": "What is lightning?"
+      },
+      "success": {
+        "message": "Success, your lightning wallet is ready!"
+      },
+      "title": "Create lightning wallet",
+      "wait": {
+        "title": "Create lightning wallet"
+      }
+    },
+    "deactivate": {
+      "success": {
+        "message": "Success, your lightning wallet is now disabled"
+      },
+      "wait": {
+        "title": "Disabling lightning wallet..."
+      }
+    },
+    "payments": {
+      "header": {
+        "amount": "Amount",
+        "date": "Date",
+        "description": "Description",
+        "type": "Type"
+      },
+      "placeholder": "No payments yet.",
+      "title": "Payment history"
+    },
+    "receive": {
+      "amountSats": {
+        "label": "Sat",
+        "placeholder": "Enter amount"
+      },
+      "description": {
+        "label": "Description",
+        "optional": "(optional)",
+        "placeholder": "Enter description"
+      },
+      "invoice": {
+        "copied": "Invoice copied!",
+        "create": "Create invoice",
+        "creating": "Creating invoice",
+        "edit": "Edit invoice",
+        "newInvoice": "New invoice",
+        "title": "Scan QR code to receive"
+      },
+      "openChannelWarning": "A fee of {{feeSat}} sats will be deducted to open a new channel.",
+      "subtitle": "Create lightning invoice",
+      "success": {
+        "message": "Lightning payment received!"
+      },
+      "title": "Receive Lightning"
+    },
+    "send": {
+      "confirm": {
+        "amount": "Amount",
+        "memo": "Memo",
+        "title": "Confirm transaction details"
+      },
+      "invoice": {
+        "input": "Or paste your invoice here"
+      },
+      "qrCode": {
+        "label": "Scan lightning invoice"
+      },
+      "sending": {
+        "connecting": "Connecting to node",
+        "message": "Sending payment"
+      },
+      "success": {
+        "message": "Transaction confirmed and sent!"
+      },
+      "title": "Send Lightning"
+    }
   },
   "loading": "loading…",
   "manageAccounts": {

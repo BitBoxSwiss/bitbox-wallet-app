@@ -38,6 +38,11 @@ import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 import { AllAccounts } from '@/routes/accounts/all-accounts';
 import { More } from '@/routes/settings/more';
+import { Lightning } from './lightning/lightning';
+import { LightningActivate } from './lightning/activate';
+import { LightningDeactivate } from './lightning/deactivate';
+import { Send as LightningSend } from './lightning/send/send';
+import { Receive as LightningReceive } from './lightning/receive/receive';
 
 type TAppRouterProps = {
   devices: TDevices;
@@ -273,6 +278,13 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="pocket/sell/:code/:region" element={PocketSellEl} />
           <Route path="select/:code" element={MarketEl} />
           <Route path="btcdirect-otc" element={<BTCDirectOTC/>} />
+        </Route>
+        <Route path="lightning">
+          <Route index element={<Lightning />} />
+          <Route path="activate" element={<LightningActivate />} />
+          <Route path="deactivate" element={<LightningDeactivate />} />
+          <Route path="send" element={<LightningSend />} />
+          <Route path="receive" element={<LightningReceive />} />
         </Route>
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
         <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />

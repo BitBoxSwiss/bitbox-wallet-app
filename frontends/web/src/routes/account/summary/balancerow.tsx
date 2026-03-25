@@ -47,7 +47,7 @@ export const BalanceRow = (
   const syncStatus = useSubscribe(syncAddressesCount(code));
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const handleClick = () => navigate(`/account/${code}`);
+  const handleClick = () => navigate(code === 'lightning' ? '/lightning' : `/account/${code}`);
 
   if (balance) {
     return (

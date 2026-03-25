@@ -62,6 +62,23 @@ func (keystore *keystore) RootFingerprint() ([]byte, error) {
 	return res, nil
 }
 
+// DeterministicEntropy implements keystore.Keystore.
+func (keystore *keystore) DeterministicEntropy() ([]byte, error) {
+	entropy, err := keystore.device.BIP85AppLN()
+	if err != nil {
+		return nil, err
+	}
+	if len(entropy) != 16 {
+		return nil, errp.Newf("entropy size expected to be 16 bytes, got %d", len(entropy))
+	}
+	return entropy, nil
+}
+
+// SupportsDeterministicEntropy implements keystore.Keystore.
+func (keystore *keystore) SupportsDeterministicEntropy() bool {
+	return keystore.device.Version().AtLeast(semver.NewSemVer(9, 17, 0))
+}
+
 // SupportsCoin implements keystore.Keystore.
 func (keystore *keystore) SupportsCoin(coin coinpkg.Coin) bool {
 	switch specificCoin := coin.(type) {

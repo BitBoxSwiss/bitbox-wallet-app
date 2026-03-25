@@ -11,6 +11,8 @@
 		8E1846EC2E0AFF6000802D8B /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1846EA2E0AFF5B00802D8B /* NetworkMonitor.swift */; };
 		B536195B2E4B2D1B00B3E10D /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B536195A2E4B2D1B00B3E10D /* Launch Screen.storyboard */; };
 		B536195C2E4B2D1B00B3E10D /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B536195A2E4B2D1B00B3E10D /* Launch Screen.storyboard */; };
+		A11AC9CA2F33A45B00AB2B88 /* BreezSdkSpark in Frameworks */ = {isa = PBXBuildFile; productRef = A11AC9C92F33A45B00AB2B88 /* BreezSdkSpark */; };
+		A11AC9CD2F33AE2300AB2B88 /* BreezSdkSpark in Frameworks */ = {isa = PBXBuildFile; productRef = A11AC9CC2F33AE2300AB2B88 /* BreezSdkSpark */; };
 		D700B5F62C884C34000496D4 /* Mobileserver.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D76518BB2B1F8F7400DC03A9 /* Mobileserver.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D700B5FD2CA2FFAF000496D4 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76516322B1F3D1A00DC03A9 /* WebView.swift */; };
 		D700B5FE2CA2FFAF000496D4 /* BitBoxAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76516082B1F3B1300DC03A9 /* BitBoxAppApp.swift */; };
@@ -101,6 +103,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A11AC9CD2F33AE2300AB2B88 /* BreezSdkSpark in Frameworks */,
 				D700B6002CA2FFAF000496D4 /* libresolv.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -109,6 +112,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A11AC9CA2F33A45B00AB2B88 /* BreezSdkSpark in Frameworks */,
 				D76518C22B1F911700DC03A9 /* libresolv.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -320,6 +324,9 @@
 				Base,
 			);
 			mainGroup = D76515FC2B1F3B1300DC03A9;
+			packageReferences = (
+				A11AC9CB2F33AE2300AB2B88 /* XCRemoteSwiftPackageReference "breez-sdk-spark-swift" */,
+			);
 			productRefGroup = D76516062B1F3B1300DC03A9 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -839,6 +846,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A11AC9C82F33A45B00AB2B88 /* XCRemoteSwiftPackageReference "breez-sdk-spark-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/breez/breez-sdk-spark-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = "0.8.2";
+			};
+		};
+		A11AC9CB2F33AE2300AB2B88 /* XCRemoteSwiftPackageReference "breez-sdk-spark-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/breez/breez-sdk-spark-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = "0.8.2";
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A11AC9C92F33A45B00AB2B88 /* BreezSdkSpark */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A11AC9C82F33A45B00AB2B88 /* XCRemoteSwiftPackageReference "breez-sdk-spark-swift" */;
+			productName = BreezSdkSpark;
+		};
+		A11AC9CC2F33AE2300AB2B88 /* BreezSdkSpark */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A11AC9CB2F33AE2300AB2B88 /* XCRemoteSwiftPackageReference "breez-sdk-spark-swift" */;
+			productName = BreezSdkSpark;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D76515FD2B1F3B1300DC03A9 /* Project object */;
 }
