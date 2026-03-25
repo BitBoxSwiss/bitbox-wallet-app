@@ -3,6 +3,7 @@
 package backend
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"math"
@@ -66,9 +67,52 @@ func accountsHardLimit(coinCode coinpkg.Code) int {
 // AccountsList is an accounts.Interface slice which implements a lookup method.
 type AccountsList []accounts.Interface
 
+// KeystoreAccounts groups accounts by keystore while preserving account order.
+type KeystoreAccounts struct {
+	RootFingerprint []byte
+	Accounts        AccountsList
+}
+
+// KeystoresAccountsList is an ordered list of accounts grouped by keystore.
+type KeystoresAccountsList []KeystoreAccounts
+
 // KeystoresAccountsListMap is a map where keys are keystores' fingerprints and values are
 // AccountsLists of accounts belonging to each keystore.
 type KeystoresAccountsListMap map[string]AccountsList
+
+func coinOrder(coin coinpkg.Coin) (int, bool) {
+	order, ok := map[coinpkg.Code]int{
+		coinpkg.CodeBTC:  0,
+		coinpkg.CodeTBTC: 1,
+		coinpkg.CodeLTC:  2,
+		coinpkg.CodeTLTC: 3,
+	}[coin.Code()]
+	if ok {
+		return order, true
+	}
+	// We want to sort ETH and ERC20 tokens with the same priority even though they have
+	// different coin codes, so we use the chain ID.
+	ethCoin, ok := coin.(*eth.Coin)
+	if ok {
+		switch ethCoin.ChainID() {
+		case params.MainnetChainConfig.ChainID.Uint64():
+			return 4, true
+		case params.SepoliaChainConfig.ChainID.Uint64():
+			return 5, true
+		}
+	}
+	return 0, false
+}
+
+func compareCoin(coin1, coin2 coinpkg.Coin) int {
+	order1, ok1 := coinOrder(coin1)
+	order2, ok2 := coinOrder(coin2)
+	if !ok1 || !ok2 {
+		// In case we deal with a coin we didn't specify, we fallback to ordering by coin code.
+		return strings.Compare(string(coin1.Code()), string(coin2.Code()))
+	}
+	return order1 - order2
+}
 
 func (a AccountsList) lookup(code accountsTypes.Code) accounts.Interface {
 	for _, acct := range a {
@@ -103,43 +147,30 @@ func (a AccountsList) lookupByTransactionInternalID(internalID string) (accounts
 	return nil, nil
 }
 
-// sortAccounts sorts the accounts in-place by 1) coin 2) account number.
-func sortAccounts(accounts []accounts.Interface) {
-	compareCoin := func(coin1, coin2 coinpkg.Coin) int {
-		getOrder := func(c coinpkg.Coin) (int, bool) {
-			order, ok := map[coinpkg.Code]int{
-				coinpkg.CodeBTC:  0,
-				coinpkg.CodeTBTC: 1,
-				coinpkg.CodeLTC:  2,
-				coinpkg.CodeTLTC: 3,
-			}[c.Code()]
-			if ok {
-				return order, true
-			}
-			// We want to sort ETH and ERC20 tokens with the same priority even though they have
-			// different coin codes, so we use the chain ID.
-			ethCoin, ok := c.(*eth.Coin)
-			if ok {
-				switch ethCoin.ChainID() {
-				case params.MainnetChainConfig.ChainID.Uint64():
-					return 4, true
-				case params.SepoliaChainConfig.ChainID.Uint64():
-					return 5, true
-				}
-			}
-			return 0, false
+// sortAccounts sorts the accounts in-place by 1) keystore name 2) keystore root fingerprint
+// 3) coin 4) account number.
+func sortAccounts(accounts []accounts.Interface, lookupKeystore func([]byte) (*config.Keystore, error)) {
+	compareKeystore := func(i, j int) int {
+		rootFingerprint1, err1 := accounts[i].Config().Config.SigningConfigurations.RootFingerprint()
+		rootFingerprint2, err2 := accounts[j].Config().Config.SigningConfigurations.RootFingerprint()
+		if err1 != nil || err2 != nil {
+			return 0
 		}
-		order1, ok1 := getOrder(coin1)
-		order2, ok2 := getOrder(coin2)
-		if !ok1 || !ok2 {
-			// In case we deal with a coin we didn't specify, we fallback to ordering by coin code.
-			return strings.Compare(string(coin1.Code()), string(coin2.Code()))
+		keystore1, err1 := lookupKeystore(rootFingerprint1)
+		keystore2, err2 := lookupKeystore(rootFingerprint2)
+		if err1 == nil && err2 == nil {
+			if nameCmp := strings.Compare(keystore1.Name, keystore2.Name); nameCmp != 0 {
+				return nameCmp
+			}
 		}
-		return order1 - order2
+		return bytes.Compare(rootFingerprint1, rootFingerprint2)
 	}
 	less := func(i, j int) bool {
 		acct1 := accounts[i]
 		acct2 := accounts[j]
+		if keystoreCmp := compareKeystore(i, j); keystoreCmp != 0 {
+			return keystoreCmp < 0
+		}
 		coinCmp := compareCoin(acct1.Coin(), acct2.Coin())
 		if coinCmp == 0 && len(acct1.Config().Config.SigningConfigurations) > 0 && len(acct2.Config().Config.SigningConfigurations) > 0 {
 			signingCfg1 := acct1.Config().Config.SigningConfigurations[0]
@@ -252,6 +283,32 @@ func (backend *Backend) AccountsByKeystore() (KeystoresAccountsListMap, error) {
 	return accountsByKeystore, nil
 }
 
+// AccountsByKeystoreOrdered returns the current accounts of the backend, grouped by keystore while
+// preserving the order of the underlying accounts list.
+func (backend *Backend) AccountsByKeystoreOrdered() (KeystoresAccountsList, error) {
+	defer backend.accountsAndKeystoreLock.RLock()()
+	var accountsByKeystore KeystoresAccountsList
+	for _, account := range backend.accounts {
+		persistedAccount := account.Config().Config
+		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
+		if err != nil {
+			return nil, err
+		}
+		if len(accountsByKeystore) == 0 || !bytes.Equal(accountsByKeystore[len(accountsByKeystore)-1].RootFingerprint, rootFingerprint) {
+			fingerprint := make([]byte, len(rootFingerprint))
+			copy(fingerprint, rootFingerprint)
+			accountsByKeystore = append(accountsByKeystore, KeystoreAccounts{
+				RootFingerprint: fingerprint,
+			})
+		}
+		accountsByKeystore[len(accountsByKeystore)-1].Accounts = append(
+			accountsByKeystore[len(accountsByKeystore)-1].Accounts,
+			account,
+		)
+	}
+	return accountsByKeystore, nil
+}
+
 // accountFiatBalance returns an account's balance, converted in fiat currency.
 func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat string) (*big.Rat, error) {
 	balance, err := account.Balance()
@@ -313,6 +370,15 @@ func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
 			sortedCoins = append(sortedCoins, coinCode)
 		}
 	}
+
+	sort.Slice(sortedCoins, func(i, j int) bool {
+		coin1, err1 := backend.Coin(sortedCoins[i])
+		coin2, err2 := backend.Coin(sortedCoins[j])
+		if err1 != nil || err2 != nil {
+			return string(sortedCoins[i]) < string(sortedCoins[j])
+		}
+		return compareCoin(coin1, coin2) < 0
+	})
 
 	for _, coinCode := range sortedCoins {
 		coin, err := backend.Coin(coinCode)
@@ -827,7 +893,7 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.accounts = append(backend.accounts, account)
-	sortAccounts(backend.accounts)
+	sortAccounts(backend.accounts, backend.config.AccountsConfig().LookupKeystore)
 
 	account.Observe(func(event observable.Event) {
 		backend.Notify(observable.Event{
@@ -1071,7 +1137,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 
 func (backend *Backend) emitAccountsStatusChanged() {
 	backend.Notify(observable.Event{
-		Subject: "accounts",
+		Subject: "accounts-by-keystore",
 		Action:  action.Reload,
 	})
 }

@@ -5,10 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import * as accountApi from '@/api/account';
-import { getBalance } from '@/api/account';
+import { getBalance, TAccountsByKeystore } from '@/api/account';
 import { Logo } from '@/components/icon/logo';
 import { View, ViewContent } from '@/components/view/view';
-import { getAccountsByKeystore } from '@/routes/account/utils';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { Main, Header } from '@/components/layout';
 import { ChevronRightDark } from '@/components/icon/icon';
@@ -19,7 +18,7 @@ import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import styles from './all-accounts.module.css';
 
 type AllAccountsProps = {
-  accounts?: accountApi.TAccount[];
+  accountsByKeystore?: TAccountsByKeystore[];
 };
 
 type TAccountItemProp = {
@@ -70,9 +69,8 @@ const AccountItem = ({ account }: TAccountItemProp) => {
 /**
  * This component will only be shown on mobile.
  **/
-export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
+export const AllAccounts = ({ accountsByKeystore = [] }: AllAccountsProps) => {
   const { t } = useTranslation();
-  const accountsByKeystore = getAccountsByKeystore(accounts);
   useOnlyVisitableOnMobile('/settings/manage-accounts');
 
   return (

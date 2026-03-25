@@ -2,7 +2,7 @@
 
 import React, { ReactChild } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
-import { TAccount } from '@/api/account';
+import { TAccountsByKeystore } from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { AddAccount } from './account/add/add-account';
 import { Moonpay } from './market/moonpay';
@@ -39,11 +39,12 @@ import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 import { AllAccounts } from '@/routes/accounts/all-accounts';
 import { More } from '@/routes/settings/more';
+import { flattenAccountsByKeystore } from './account/utils';
 
 type TAppRouterProps = {
   devices: TDevices;
-  accounts: TAccount[];
-  activeAccounts: TAccount[];
+  accountsByKeystore: TAccountsByKeystore[];
+  activeAccountsByKeystore: TAccountsByKeystore[];
   devicesKey: ((input: string) => string);
 };
 
@@ -56,7 +57,14 @@ const InjectParams = ({ children }: TInjectParamsProps) => {
   return React.cloneElement(children as React.ReactElement, params);
 };
 
-export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
+export const AppRouter = ({
+  devices,
+  devicesKey,
+  accountsByKeystore,
+  activeAccountsByKeystore,
+}: TAppRouterProps) => {
+  const accounts = flattenAccountsByKeystore(accountsByKeystore);
+  const activeAccounts = flattenAccountsByKeystore(activeAccountsByKeystore);
   const hasAccounts = accounts.length > 0;
   const Homepage = (<DeviceSwitch
     key={devicesKey('device-switch-default')}
@@ -94,7 +102,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
   const AccountsSummaryEl = (<InjectParams>
     <AccountsSummary
       devices={devices}
-      accounts={activeAccounts} />
+      accountsByKeystore={activeAccountsByKeystore} />
   </InjectParams>);
 
   const AccSend = (<InjectParams>
@@ -126,7 +134,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
   const BitsuranceAccountEl = (<InjectParams>
     <BitsuranceAccount
       code={''}
-      accounts={activeAccounts} />
+      accountsByKeystore={activeAccountsByKeystore} />
   </InjectParams>);
 
   const BitsuranceWidgetEl = (<InjectParams>
@@ -151,7 +159,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
   const MarketInfoEl = (<InjectParams>
     <MarketInfo
       code={''}
-      accounts={activeAccounts} />
+      accountsByKeystore={activeAccountsByKeystore} />
   </InjectParams>);
 
   const MoonpayEl = (<InjectParams>
@@ -244,9 +252,9 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
     />
   </InjectParams>);
 
-  const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
+  const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccountsByKeystore={activeAccountsByKeystore}/></InjectParams>;
 
-  const AllAccountsEl = <InjectParams><AllAccounts accounts={activeAccounts} /></InjectParams>;
+  const AllAccountsEl = <InjectParams><AllAccounts accountsByKeystore={activeAccountsByKeystore} /></InjectParams>;
 
   return (
     <Routes>
@@ -296,7 +304,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
             <Route index element={BitsuranceWidgetEl} />
             <Route path=":code" element={BitsuranceWidgetEl} />
           </Route>
-          <Route path="dashboard" element={<BitsuranceDashboard accounts={activeAccounts}/>}/>
+          <Route path="dashboard" element={<BitsuranceDashboard accountsByKeystore={activeAccountsByKeystore}/>}/>
         </Route>
         <Route path="settings">
           <Route index element={MobileSettingsEl} />
@@ -313,7 +321,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="electrum" element={<ElectrumSettings />} />
           <Route path="manage-accounts" element={
             <ManageAccounts
-              accounts={accounts}
+              accountsByKeystore={accountsByKeystore}
               key="manage-accounts"
               devices={devices}
               hasAccounts={hasAccounts} />

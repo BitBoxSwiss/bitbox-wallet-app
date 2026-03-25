@@ -15,6 +15,7 @@
 - Export transactions CSV: add historical value and historical value currency columns.
 - Show total fiat amount in Bitrefill confirmation step
 - Show contract address in Ethereum token account info
+- Group and sort wallets by name first, then by root fingerprint when names match.
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.

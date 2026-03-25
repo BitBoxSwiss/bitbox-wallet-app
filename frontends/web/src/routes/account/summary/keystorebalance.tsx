@@ -2,8 +2,8 @@
 
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
-import type { TKeystore } from '@/api/account';
-import { getAccountsPerCoin, TAccountsByKeystore } from '@/routes/account/utils';
+import type { TAccountsByKeystore, TKeystore } from '@/api/account';
+import { getAccountsPerCoin } from '@/routes/account/utils';
 import { Balances } from './accountssummary';
 import { BalanceRow } from './balancerow';
 import { SubTotalRow } from './subtotalrow';

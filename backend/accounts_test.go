@@ -195,6 +195,93 @@ func TestSortAccounts(t *testing.T) {
 	}
 }
 
+func TestSortAccountsByKeystore(t *testing.T) {
+	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
+	require.NoError(t, err)
+	xpub, err = xpub.Neuter()
+	require.NoError(t, err)
+	rootFingerprint3 := []byte{0x44, 0x44, 0x44, 0x44}
+	btcConfig := func(rootFingerprint []byte, keypath string) signing.Configurations {
+		kp, err := signing.NewAbsoluteKeypath(keypath)
+		require.NoError(t, err)
+		return signing.Configurations{
+			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint, kp, xpub),
+		}
+	}
+	ethConfig := func(rootFingerprint []byte, keypath string) signing.Configurations {
+		kp, err := signing.NewAbsoluteKeypath(keypath)
+		require.NoError(t, err)
+		return signing.Configurations{
+			signing.NewEthereumConfiguration(rootFingerprint, kp, xpub),
+		}
+	}
+
+	accountConfigs := []*config.Account{
+		{Code: "same-2-btc", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig(rootFingerprint2, "m/84'/0'/0'")},
+		{Code: "same-1-eth", CoinCode: coinpkg.CodeETH, SigningConfigurations: ethConfig(rootFingerprint1, "m/44'/60'/0'/0/0")},
+		{Code: "alpha-btc", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig(rootFingerprint3, "m/84'/0'/0'")},
+		{Code: "same-1-btc", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig(rootFingerprint1, "m/84'/0'/0'")},
+	}
+
+	backend := newBackend(t, testnetDisabled, regtestDisabled)
+	defer backend.Close()
+
+	require.NoError(t, backend.Config().ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		accountsConfig.Keystores = []*config.Keystore{
+			{Name: "Same", RootFingerprint: rootFingerprint2},
+			{Name: "Alpha", RootFingerprint: rootFingerprint3},
+			{Name: "Same", RootFingerprint: rootFingerprint1},
+		}
+		return nil
+	}))
+
+	unlockFN := backend.accountsAndKeystoreLock.Lock()
+	for i := range accountConfigs {
+		c, err := backend.Coin(accountConfigs[i].CoinCode)
+		require.NoError(t, err)
+		backend.createAndAddAccount(c, accountConfigs[i])
+	}
+	unlockFN()
+
+	expectedOrder := []accountsTypes.Code{
+		"alpha-btc",
+		"same-1-btc",
+		"same-1-eth",
+		"same-2-btc",
+	}
+
+	for i, acct := range backend.Accounts() {
+		assert.Equal(t, expectedOrder[i], acct.Config().Config.Code)
+	}
+
+	accountsByKeystore, err := backend.AccountsByKeystoreOrdered()
+	require.NoError(t, err)
+	require.Len(t, accountsByKeystore, 3)
+
+	require.Equal(t, hex.EncodeToString(rootFingerprint3), hex.EncodeToString(accountsByKeystore[0].RootFingerprint))
+	require.Equal(t, []accountsTypes.Code{
+		"alpha-btc",
+	}, []accountsTypes.Code{
+		accountsByKeystore[0].Accounts[0].Config().Config.Code,
+	})
+
+	require.Equal(t, hex.EncodeToString(rootFingerprint1), hex.EncodeToString(accountsByKeystore[1].RootFingerprint))
+	require.Equal(t, []accountsTypes.Code{
+		"same-1-btc",
+		"same-1-eth",
+	}, []accountsTypes.Code{
+		accountsByKeystore[1].Accounts[0].Config().Config.Code,
+		accountsByKeystore[1].Accounts[1].Config().Config.Code,
+	})
+
+	require.Equal(t, hex.EncodeToString(rootFingerprint2), hex.EncodeToString(accountsByKeystore[2].RootFingerprint))
+	require.Equal(t, []accountsTypes.Code{
+		"same-2-btc",
+	}, []accountsTypes.Code{
+		accountsByKeystore[2].Accounts[0].Config().Config.Code,
+	})
+}
+
 func TestNextAccountNumber(t *testing.T) {
 	fingerprintEmpty := []byte{0x77, 0x77, 0x77, 0x77}
 	ks := func(fingerprint []byte, supportsMultipleAccounts bool) *keystoremock.KeystoreMock {
@@ -1362,6 +1449,8 @@ func TestCoinsTotalBalance(t *testing.T) {
 
 	ks1Fingerprint, err := ks1.RootFingerprint()
 	require.NoError(t, err)
+	ks2Fingerprint, err := ks2.RootFingerprint()
+	require.NoError(t, err)
 
 	b.registerKeystore(ks1)
 	require.NoError(t, b.SetWatchonly(ks1Fingerprint, true))
@@ -1390,6 +1479,49 @@ func TestCoinsTotalBalance(t *testing.T) {
 	require.Equal(t, "2.00000000", coinsTotalBalance[0].FormattedAmount.Amount)
 	require.Equal(t, coinpkg.CodeLTC, coinsTotalBalance[1].CoinCode)
 	require.Equal(t, "2.00000000", coinsTotalBalance[1].FormattedAmount.Amount)
+	require.Equal(t, coinpkg.CodeETH, coinsTotalBalance[2].CoinCode)
+	require.Equal(t, "4", coinsTotalBalance[2].FormattedAmount.Amount)
+
+	require.NoError(t, b.Config().ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		keystore1, err := accountsConfig.LookupKeystore(ks1Fingerprint)
+		if err != nil {
+			return err
+		}
+		keystore1.Name = "Zeta"
+
+		keystore2, err := accountsConfig.LookupKeystore(ks2Fingerprint)
+		if err != nil {
+			return err
+		}
+		keystore2.Name = "Alpha"
+
+		btcAccount := accountsConfig.Lookup(accountsTypes.Code(fmt.Sprintf(
+			"v0-%s-btc-0",
+			hex.EncodeToString(ks2Fingerprint),
+		)))
+		if btcAccount == nil {
+			return errp.New("btc account could not be found")
+		}
+		btcAccount.Inactive = true
+
+		ltcAccount := accountsConfig.Lookup(accountsTypes.Code(fmt.Sprintf(
+			"v0-%s-ltc-0",
+			hex.EncodeToString(ks2Fingerprint),
+		)))
+		if ltcAccount == nil {
+			return errp.New("ltc account could not be found")
+		}
+		ltcAccount.Inactive = true
+		return nil
+	}))
+	sortAccounts(b.accounts, b.Config().AccountsConfig().LookupKeystore)
+
+	coinsTotalBalance, err = b.coinsTotalBalance()
+	require.NoError(t, err)
+	require.Equal(t, coinpkg.CodeBTC, coinsTotalBalance[0].CoinCode)
+	require.Equal(t, "1.00000000", coinsTotalBalance[0].FormattedAmount.Amount)
+	require.Equal(t, coinpkg.CodeLTC, coinsTotalBalance[1].CoinCode)
+	require.Equal(t, "1.00000000", coinsTotalBalance[1].FormattedAmount.Amount)
 	require.Equal(t, coinpkg.CodeETH, coinsTotalBalance[2].CoinCode)
 	require.Equal(t, "4", coinsTotalBalance[2].FormattedAmount.Amount)
 }

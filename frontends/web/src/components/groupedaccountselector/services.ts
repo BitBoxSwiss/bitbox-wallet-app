@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { getBalance } from '@/api/account';
-import { TAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
-import { TGroupedOption, TOption } from './groupedaccountselector';
+import type { TAccountsByKeystore } from '@/api/account';
+import { isAmbiguousName } from '@/routes/account/utils';
+import type { TGroupedOption, TOption } from './groupedaccountselector';
 
 export const createGroupedOptions = (accountsByKeystore: TAccountsByKeystore[]) => {
   return accountsByKeystore.map(({ keystore, accounts }) => ({
@@ -13,6 +13,7 @@ export const createGroupedOptions = (accountsByKeystore: TAccountsByKeystore[]) 
 };
 
 const appendBalance = async (option: TOption) => {
+  const { getBalance } = await import('@/api/account');
   const balance = await getBalance(option.value);
   if (!balance.success) {
     return { ... option };

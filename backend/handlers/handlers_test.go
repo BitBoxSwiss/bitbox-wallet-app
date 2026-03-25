@@ -3,6 +3,7 @@
 package handlers_test
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -11,10 +12,13 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // backendEnv is a backend environment implementation for testing.
@@ -80,6 +84,99 @@ func TestGetNativeLocale(t *testing.T) {
 	if locale != ptLocale {
 		t.Errorf("locale = %q; want %q", locale, ptLocale)
 	}
+}
+
+func TestGetAccountsByKeystore(t *testing.T) {
+	args := arguments.NewArguments(
+		test.TstTempDir("getaccountsbykeystore"),
+		true,  // testing
+		false, // regtest
+		true,  // devservers
+		nil,   // gap limits
+	)
+	back, err := backend.NewBackend(args, &backendEnv{})
+	require.NoError(t, err)
+	defer back.Close()
+
+	back.RegisterTestKeystore("1111")
+	keystore1 := back.Keystore()
+	require.NotNil(t, keystore1)
+	rootFingerprint1, err := keystore1.RootFingerprint()
+	require.NoError(t, err)
+	require.NoError(t, back.SetWatchonly(rootFingerprint1, true))
+	back.DeregisterKeystore()
+
+	back.RegisterTestKeystore("2222")
+	keystore2 := back.Keystore()
+	require.NotNil(t, keystore2)
+	rootFingerprint2, err := keystore2.RootFingerprint()
+	require.NoError(t, err)
+
+	require.NoError(t, back.Config().ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		keystoreConfig1, err := accountsConfig.LookupKeystore(rootFingerprint1)
+		if err != nil {
+			return err
+		}
+		keystoreConfig1.Name = "Beta"
+
+		keystoreConfig2, err := accountsConfig.LookupKeystore(rootFingerprint2)
+		if err != nil {
+			return err
+		}
+		keystoreConfig2.Name = "Alpha"
+		return nil
+	}))
+	back.ReinitializeAccounts()
+
+	h := handlers.NewHandlers(back, handlers.NewConnectionData(0, ""))
+
+	type groupedAccount struct {
+		CoinCode string `json:"coinCode"`
+		Keystore struct {
+			Name            string `json:"name"`
+			RootFingerprint string `json:"rootFingerprint"`
+		} `json:"keystore"`
+	}
+	type groupedAccountsResponse struct {
+		Keystore struct {
+			Connected       bool   `json:"connected"`
+			Name            string `json:"name"`
+			RootFingerprint string `json:"rootFingerprint"`
+		} `json:"keystore"`
+		Accounts []groupedAccount `json:"accounts"`
+	}
+
+	r := httptest.NewRequest(http.MethodGet, "/api/accounts-by-keystore", nil)
+	w := httptest.NewRecorder()
+	h.Router.ServeHTTP(w, r)
+	res := w.Result()
+	require.Equal(t, http.StatusOK, res.StatusCode)
+
+	var groupedAccounts []groupedAccountsResponse
+	test.DecodeHandlerResponse(t, &groupedAccounts, res.Body)
+
+	require.Len(t, groupedAccounts, 2)
+	assert.Equal(t, "Alpha", groupedAccounts[0].Keystore.Name)
+	assert.Equal(t, hex.EncodeToString(rootFingerprint2), groupedAccounts[0].Keystore.RootFingerprint)
+	assert.True(t, groupedAccounts[0].Keystore.Connected)
+	require.Len(t, groupedAccounts[0].Accounts, 3)
+	assert.Equal(t, []string{"tbtc", "tltc", "sepeth"}, []string{
+		groupedAccounts[0].Accounts[0].CoinCode,
+		groupedAccounts[0].Accounts[1].CoinCode,
+		groupedAccounts[0].Accounts[2].CoinCode,
+	})
+	assert.Equal(t, groupedAccounts[0].Keystore.RootFingerprint, groupedAccounts[0].Accounts[0].Keystore.RootFingerprint)
+
+	assert.Equal(t, "Beta", groupedAccounts[1].Keystore.Name)
+	assert.Equal(t, hex.EncodeToString(rootFingerprint1), groupedAccounts[1].Keystore.RootFingerprint)
+	assert.False(t, groupedAccounts[1].Keystore.Connected)
+	require.Len(t, groupedAccounts[1].Accounts, 3)
+	assert.Equal(t, []string{"tbtc", "tltc", "sepeth"}, []string{
+		groupedAccounts[1].Accounts[0].CoinCode,
+		groupedAccounts[1].Accounts[1].CoinCode,
+		groupedAccounts[1].Accounts[2].CoinCode,
+	})
+	assert.Equal(t, groupedAccounts[1].Keystore.RootFingerprint, groupedAccounts[1].Accounts[0].Keystore.RootFingerprint)
 }
 
 // List all routes with `go test backend/handlers/handlers_test.go -v`.
