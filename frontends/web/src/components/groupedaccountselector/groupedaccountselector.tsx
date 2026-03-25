@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { Button } from '@/components/forms';
@@ -21,6 +21,7 @@ type TGroupAccountSelector = {
 type TOptionAccountSelector = {
   disabled: boolean;
   coinCode?: TAccount['coinCode'];
+  coinUnit?: TAccount['coinUnit'];
   balance?: TAmountWithConversions;
   insured?: boolean;
 };
@@ -28,6 +29,29 @@ type TOptionAccountSelector = {
 export type TOption = TDropdownOption<AccountCode> & TOptionAccountSelector;
 
 export type TGroupedOption = TDropdownGroupedOption<AccountCode, TGroupAccountSelector, TOptionAccountSelector>;
+
+const mergeOptionsWithBalances = (
+  targetOptions: TGroupedOption[],
+  sourceOptions?: TGroupedOption[],
+) => {
+  if (!sourceOptions) {
+    return targetOptions;
+  }
+  const balanceByAccountCode = new Map(
+    sourceOptions
+      .flatMap(group => group.options)
+      .map(option => [option.value, option.balance] as const)
+      .filter((entry): entry is readonly [AccountCode, TAmountWithConversions] => Boolean(entry[1]))
+  );
+
+  return targetOptions.map(group => ({
+    ...group,
+    options: group.options.map(option => ({
+      ...option,
+      balance: balanceByAccountCode.get(option.value),
+    })),
+  }));
+};
 
 type TTriggerContentProps = {
   option: TOption | undefined;
@@ -44,7 +68,7 @@ const TriggerContent = ({
       <div className={styles.triggerContent}>
         <Logo coinCode={option.coinCode} alt={option.coinCode} />
         <span className={styles.triggerLabel}>
-          {stackedLayout ? option.balance?.unit : option.label}
+          {stackedLayout ? option.balance?.unit || option.coinUnit : option.label}
         </span>
         {option.insured && <InsuredShield />}
         {stackedLayout ? (
@@ -82,6 +106,8 @@ const renderGroupHeader = (group: TGroupedOption) => (
 type TAccountSelector = {
   title?: string;
   disabled?: boolean;
+  disabledAccountCodes?: AccountCode[];
+  loadBalances?: boolean;
   selected?: string;
   onChange: (value: string) => void;
   onProceed?: () => void;
@@ -93,6 +119,8 @@ type TAccountSelector = {
 export const GroupedAccountSelector = ({
   title,
   disabled,
+  disabledAccountCodes = [],
+  loadBalances = true,
   selected,
   onChange,
   onProceed,
@@ -103,15 +131,34 @@ export const GroupedAccountSelector = ({
   const { t } = useTranslation();
   const [options, setOptions] = useState<TGroupedOption[]>();
   const [isOpen, setIsOpen] = useState(false);
+  const disabledAccountCodesKey = disabledAccountCodes.join(',');
+  const disabledAccountCodesRef = useRef(disabledAccountCodes);
+  disabledAccountCodesRef.current = disabledAccountCodes;
 
   useEffect(() => {
     //setting options without balance
     const accountsByKeystore = getAccountsByKeystore(accounts);
+    const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore, disabledAccountCodesRef.current);
+    setOptions(currentOptions => mergeOptionsWithBalances(groupedOpts, currentOptions));
+  }, [accounts, disabledAccountCodesKey]);
+
+  useEffect(() => {
+    if (!loadBalances) {
+      return;
+    }
+    let isCancelled = false;
+    const accountsByKeystore = getAccountsByKeystore(accounts);
     const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore);
-    setOptions(groupedOpts);
     //asynchronously fetching each account's balance
-    getBalancesForGroupedAccountSelector(groupedOpts).then(setOptions);
-  }, [accounts]);
+    getBalancesForGroupedAccountSelector(groupedOpts).then(optionsWithBalances => {
+      if (!isCancelled) {
+        setOptions(currentOptions => mergeOptionsWithBalances(currentOptions || groupedOpts, optionsWithBalances));
+      }
+    });
+    return () => {
+      isCancelled = true;
+    };
+  }, [accounts, loadBalances]);
 
   if (!options) {
     return null;
@@ -167,6 +214,7 @@ export const GroupedAccountSelector = ({
           const value = e?.value || '';
           onChange(value);
         }}
+        isOptionDisabled={option => (option as TOption).disabled || false}
         renderOptions={renderOption}
         renderGroupHeader={renderGroupHeader}
         mobileFullScreen

@@ -14,7 +14,9 @@ import style from './input-with-account-selector.module.css';
 type Props = {
   accountCode: AccountCode | undefined;
   accounts: TAccount[];
+  disabledAccountCodes?: AccountCode[];
   id: string;
+  loadBalances?: boolean;
   onChangeAccountCode: (accountCode: AccountCode) => void;
   onChangeValue?: (value: string) => void;
   value: string | undefined;
@@ -23,7 +25,9 @@ type Props = {
 export const InputWithAccountSelector = ({
   accountCode,
   accounts,
+  disabledAccountCodes = [],
   id,
+  loadBalances = true,
   onChangeAccountCode,
   onChangeValue,
   value,
@@ -35,10 +39,7 @@ export const InputWithAccountSelector = ({
   const [esitmatedFiatValue, setEstimatedFiatValue] = useState<string | null>();
 
   useEffect(() => {
-    if (accountCode) {
-      const account = findAccount(accounts, accountCode);
-      setSelectedAccount(account);
-    }
+    setSelectedAccount(accountCode ? findAccount(accounts, accountCode) : undefined);
   }, [accountCode, accounts]);
 
   // update estimated fiat amount
@@ -65,6 +66,8 @@ export const InputWithAccountSelector = ({
         {hasAccounts && (
           <GroupedAccountSelector
             accounts={accounts}
+            disabledAccountCodes={disabledAccountCodes}
+            loadBalances={loadBalances}
             selected={accountCode}
             onChange={(accountCode => {
               const account = findAccount(accounts, accountCode);

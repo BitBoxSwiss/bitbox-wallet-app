@@ -4,20 +4,34 @@ import { getBalance } from '@/api/account';
 import { TAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { TGroupedOption, TOption } from './groupedaccountselector';
 
-export const createGroupedOptions = (accountsByKeystore: TAccountsByKeystore[]) => {
+export const createGroupedOptions = (
+  accountsByKeystore: TAccountsByKeystore[],
+  disabledAccountCodes: string[] = [],
+) => {
+  const disabledAccountCodeSet = new Set(disabledAccountCodes);
   return accountsByKeystore.map(({ keystore, accounts }) => ({
     label: `${keystore.name} ${isAmbiguousName(keystore.name, accountsByKeystore) ? `(${keystore.rootFingerprint})` : ''}`,
     connected: keystore.connected,
-    options: accounts.map((account) => ({ label: account.name, value: account.code, coinCode: account.coinCode, disabled: false })) as TOption[]
+    options: accounts.map((account) => ({
+      label: account.name,
+      value: account.code,
+      coinCode: account.coinCode,
+      coinUnit: account.coinUnit,
+      disabled: disabledAccountCodeSet.has(account.code),
+    })) as TOption[]
   }));
 };
 
 const appendBalance = async (option: TOption) => {
-  const balance = await getBalance(option.value);
-  if (!balance.success) {
+  try {
+    const balance = await getBalance(option.value);
+    if (!balance.success) {
+      return { ... option };
+    }
+    return { ...option, balance: balance.balance.available };
+  } catch {
     return { ... option };
   }
-  return { ...option, balance: balance.balance.available };
 };
 
 export const getBalancesForGroupedAccountSelector = async (originalGroupedOptions: TGroupedOption[]) => {
