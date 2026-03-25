@@ -5,7 +5,7 @@
     flex-shrink: 1;
     flex-basis: auto;
     flex-grow: 0;
-    font-variant: tabular-nums;
+    font-variant-numeric: tabular-nums;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;

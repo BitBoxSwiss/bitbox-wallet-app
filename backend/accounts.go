@@ -1029,6 +1029,9 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			return backend.ConnectKeystore(accountRootFingerprint)
 		},
 		RateUpdater: backend.ratesUpdater,
+		GetMainCurrency: func() string {
+			return backend.config.AppConfig().Backend.MainFiat
+		},
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
 			return backend.notifier.ForAccount(persistedConfig.Code)
 		},

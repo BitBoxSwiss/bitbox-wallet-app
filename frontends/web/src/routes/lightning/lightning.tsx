@@ -142,28 +142,28 @@ export const Lightning = () => {
                       amountAtTime: {
                         amount: payment.amountSat.toString(),
                         conversions: {}, // TODO: add conversions
-                        unit: 'sat' as accountApi.CoinUnit,
+                        unit: 'sat' as accountApi.NativeCoinUnit,
                         estimated: false
                       },
                       deductedAmountAtTime: {
                         amount: payment.paymentType === PaymentType.SEND ? (payment.amountSat + payment.feesSat).toString() : '',
                         conversions: {}, // TODO: add conversions
-                        unit: 'sat' as accountApi.CoinUnit,
+                        unit: 'sat' as accountApi.NativeCoinUnit,
                         estimated: false
                       },
                       amount: {
                         amount: payment.amountSat.toString(),
-                        unit: 'sat' as accountApi.CoinUnit,
+                        unit: 'sat' as accountApi.NativeCoinUnit,
                         estimated: false
                       },
                       fee: {
                         amount: payment.feesSat.toString(),
-                        unit: 'sat' as accountApi.CoinUnit,
+                        unit: 'sat' as accountApi.NativeCoinUnit,
                         estimated: false
                       },
                       feeRatePerKb: {
                         amount: '',
-                        unit: 'sat' as accountApi.CoinUnit,
+                        unit: 'sat' as accountApi.NativeCoinUnit,
                         estimated: false
                       },
                       type: toTxType(payment.paymentType), // TODO: add payment.paymentType 'closedChannel'

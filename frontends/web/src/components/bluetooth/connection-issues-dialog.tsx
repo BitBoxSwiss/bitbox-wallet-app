@@ -4,6 +4,7 @@ import { Dialog } from '@/components/dialog/dialog';
 import { useTranslation } from 'react-i18next';
 import { A } from '@/components/anchor/anchor';
 import styles from './connection-issues-dialog.module.css';
+import { getSupportLink } from '@/utils/url_constants';
 
 type Props = {
   dialogOpen: boolean;
@@ -41,7 +42,7 @@ export const ConnectionIssuesDialog = ({ dialogOpen, onClose }: Props) => {
 
         <div className={styles.appendix}>
           <p>{ t('novaConnectionIssues.stillHavingIssues') }</p>
-          <A href="https://bitbox.swiss/support/">
+          <A href={getSupportLink()}>
             <p>{t('novaConnectionIssues.link2')}</p>
           </A>
         </div>

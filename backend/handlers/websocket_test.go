@@ -70,7 +70,6 @@ func TestRunWebsocket(t *testing.T) {
 		for {
 			_, msg, err := client.ReadMessage()
 			if err != nil {
-				t.Logf("client.ReadMessage: %v", err)
 				return
 			}
 			messages <- msg

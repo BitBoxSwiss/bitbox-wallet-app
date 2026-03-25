@@ -220,7 +220,7 @@ func DownloadCert(server string, dialer proxy.Dialer) (string, error) {
 			certificatePEM := &pem.Block{Type: "CERTIFICATE", Bytes: rawCerts[0]}
 			certificatePEMBytes := &bytes.Buffer{}
 			if err := pem.Encode(certificatePEMBytes, certificatePEM); err != nil {
-				panic(err)
+				return errp.WithStack(err)
 			}
 			pemCert = certificatePEMBytes.Bytes()
 			return nil

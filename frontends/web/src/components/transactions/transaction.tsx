@@ -166,6 +166,7 @@ const Amounts = ({
         {displayAmount.amount !== '0' && getTxSign(type)}
         <AmountWithUnit
           amount={displayAmount}
+          maxDecimals={9}
           unitClassName={styles.txUnit}
         />
       </span>
@@ -230,6 +231,17 @@ const Addresses = ({
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   if (type === 'send_to_self') {
+    if (isMobile) {
+      return (
+        <span className={styles.txNoteWithAddress}>
+          <span className={styles.txType}>
+            {t('generic.sent')}
+          </span>
+          {' '}
+          <AddressList values={addresses} />
+        </span>
+      );
+    }
     const labelKey = status === 'failed'
       ? 'transaction.tx.send_to_self_failed'
       : 'transaction.tx.send_to_self';
@@ -242,6 +254,7 @@ const Addresses = ({
               amount: (
                 <AmountWithUnit
                   amount={amount}
+                  maxDecimals={9}
                   unitClassName={styles.txUnit}
                 />
               ),
