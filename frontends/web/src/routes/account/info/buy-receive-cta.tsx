@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { AccountCode, NativeCoinUnit, TAccount, TBalance } from '@/api/account';
@@ -8,9 +7,7 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 import { Button } from '@/components/forms';
 import { Balances } from '@/routes/account/summary/accountssummary';
 import { isBitcoinCoin, isEthereumBased } from '@/routes/account/utils';
-import { getVendorSupportedAccounts } from '@/routes/market/utils';
 import { ArrowFloorDownWhite, Coins, WalletConnectLight } from '@/components/icon';
-import { useMountedRef } from '@/hooks/mount';
 import { SubTitle } from '@/components/title';
 import styles from './buy-receive-cta.module.css';
 
@@ -95,23 +92,9 @@ export const BuyReceiveCTA = ({
 };
 
 export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyReceiveOnEmpyBalancesProps) => {
-  const mounted = useMountedRef();
-  const [supportedAccounts, setSupportedAccounts] = useState<TAccount[]>();
   const onlyHasOneActiveAccount = accounts.length === 1;
 
-  useEffect(() => {
-    if (mounted.current) {
-      getVendorSupportedAccounts(accounts)
-        .then(supportedAccounts => {
-          if (mounted.current) {
-            setSupportedAccounts(supportedAccounts);
-          }
-        })
-        .catch(console.error);
-    }
-  }, [accounts, mounted]);
-
-  if (balances === undefined || supportedAccounts === undefined) {
+  if (balances === undefined) {
     return null;
   }
   const balanceList = (
@@ -139,7 +122,6 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyRece
   return (
     <BuyReceiveCTA
       balanceList={balanceList}
-      exchangeSupported={supportedAccounts.length > 0}
     />
   );
 };
