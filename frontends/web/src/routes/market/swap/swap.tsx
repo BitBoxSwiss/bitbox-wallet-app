@@ -317,7 +317,8 @@ export const Swap = ({
                 disabledAccountCodes={sellDisabledAccountCodes}
                 id="swapSendAmount"
                 accountCode={sellAccountCode}
-                onChangeAccountCode={setSellAccountCode}
+                testId="swap-sell-account"
+                onChangeAccountCode={handleSellAccountCodeChange}
                 value={sellAmount}
                 onChangeValue={setSellAmount}
               />
@@ -325,6 +326,7 @@ export const Swap = ({
                 <Button
                   disabled={!canFlip}
                   transparent
+                  data-testid="swap-flip-button"
                   className={style.flipAcconutsButton}
                   onClick={handleFlipAccounts}
                 >
@@ -347,7 +349,8 @@ export const Swap = ({
                 disabledAccountCodes={buyDisabledAccountCodes}
                 id="swapGetAmount"
                 accountCode={buyAccountCode}
-                onChangeAccountCode={setBuyAccountCode}
+                testId="swap-buy-account"
+                onChangeAccountCode={handleBuyAccountCodeChange}
                 value={expectedOutput}
               />
               <SwapServiceSelector
