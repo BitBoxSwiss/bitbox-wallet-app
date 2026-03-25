@@ -259,19 +259,21 @@ func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat stri
 		return nil, err
 	}
 
-	coinDecimals := coinpkg.DecimalsExp(account.Coin())
-	price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
+	return backend.convertToFiat(account.Coin(), balance.Available(), fiat)
+}
+
+func (backend *Backend) convertToFiat(coin coinpkg.Coin, amount coinpkg.Amount, fiat string) (*big.Rat, error) {
+	price, err := backend.RatesUpdater().LatestPriceForPair(coin.Unit(false), fiat)
 	if err != nil {
 		return nil, err
 	}
-	fiatValue := new(big.Rat).Mul(
+	return new(big.Rat).Mul(
 		new(big.Rat).SetFrac(
-			balance.Available().BigInt(),
-			coinDecimals,
+			amount.BigInt(),
+			coinpkg.DecimalsExp(coin),
 		),
 		new(big.Rat).SetFloat64(price),
-	)
-	return fiatValue, nil
+	), nil
 }
 
 type coinFormattedAmount struct {
