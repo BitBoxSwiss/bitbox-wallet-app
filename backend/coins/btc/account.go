@@ -109,19 +109,20 @@ type Account struct {
 
 	httpClient *http.Client
 
-	// getAddressFromSameKeystore is a function that retrieves an address from any account on the same keystore as this one.
-	getAddressFromSameKeystore func(coin.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error)
+	// getAddressFromSameKeystore retrieves an address from any account on the same keystore as this one.
+	getAddressFromSameKeystore func(coin.Code, addresses.AddressID) (*addresses.AccountAddress, error)
 }
 
 // NewAccount creates a new account.
 //
 // forceGaplimits: if not nil, these limits will be used and persisted for future use.
-// getAddressFromSameKeystore: function to retrieve an address from any account on the same keystore.
+// getAddressFromSameKeystore: function to retrieve an address by address ID from any account on the
+// same keystore.
 func NewAccount(
 	config *accounts.AccountConfig,
 	coin *Coin,
 	forceGapLimits *types.GapLimits,
-	getAddressFromSameKeystore func(coin.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error),
+	getAddressFromSameKeystore func(coin.Code, addresses.AddressID) (*addresses.AccountAddress, error),
 	log *logrus.Entry,
 	httpClient *http.Client,
 ) *Account {
@@ -760,10 +761,10 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 		return false, err
 	}
 
-	scriptHashHex := blockchain.ScriptHashHex(addressID)
+	lookupAddressID := addresses.AddressID(addressID)
 	var address *addresses.AccountAddress
 	for _, subacc := range account.subaccounts {
-		if addr := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); addr != nil {
+		if addr := subacc.receiveAddresses.LookupByAddressID(lookupAddressID); addr != nil {
 			address = addr
 			break
 		}
@@ -862,14 +863,14 @@ func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
 		return nil, err
 	}
 	for outPoint, txOut := range utxos {
-		scriptHashHex := blockchain.NewScriptHashHex(txOut.TxOut.PkScript)
+		addressID := addresses.NewAddressID(txOut.TxOut.PkScript)
 		result = append(
 			result,
 			&SpendableOutput{
 				OutPoint:        outPoint,
 				SpendableOutput: txOut,
-				Address:         account.GetAddress(scriptHashHex),
-				IsChange:        account.IsChange(scriptHashHex),
+				Address:         account.AddressByID(addressID),
+				IsChange:        account.IsChange(addressID),
 			})
 	}
 	return sortByAddresses(result), nil
@@ -898,11 +899,11 @@ func (account *Account) VerifyExtendedPublicKey(signingConfigIndex int) (bool, e
 	return false, nil
 }
 
-// IsChange returns true if there is an address corresponding to the provided scriptHashHex in our
+// IsChange returns true if there is an address corresponding to the provided address ID in our
 // accounts change address chain. It returns false if no address can be found.
-func (account *Account) IsChange(scriptHashHex blockchain.ScriptHashHex) bool {
+func (account *Account) IsChange(addressID addresses.AddressID) bool {
 	for _, subacc := range account.subaccounts {
-		if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
+		if subacc.changeAddresses.LookupByAddressID(addressID) != nil {
 			return true
 		}
 	}
