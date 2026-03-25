@@ -376,17 +376,19 @@ type accountJSON struct {
 	// Multiple accounts can belong to the same keystore. For now we replicate the keystore info in
 	// the accounts. In the future the getAccountsHandler() could return the accounts grouped
 	// keystore.
-	Keystore              keystoreJSON       `json:"keystore"`
-	Active                bool               `json:"active"`
-	BitsuranceStatus      string             `json:"bitsuranceStatus"`
-	CoinCode              coinpkg.Code       `json:"coinCode"`
-	CoinUnit              string             `json:"coinUnit"`
-	CoinName              string             `json:"coinName"`
-	Code                  accountsTypes.Code `json:"code"`
-	Name                  string             `json:"name"`
-	IsToken               bool               `json:"isToken"`
-	ActiveTokens          []activeToken      `json:"activeTokens,omitempty"`
-	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
+	Keystore                   keystoreJSON       `json:"keystore"`
+	Active                     bool               `json:"active"`
+	BitsuranceStatus           string             `json:"bitsuranceStatus"`
+	CoinCode                   coinpkg.Code       `json:"coinCode"`
+	CoinUnit                   string             `json:"coinUnit"`
+	CoinName                   string             `json:"coinName"`
+	Code                       accountsTypes.Code `json:"code"`
+	Name                       string             `json:"name"`
+	IsToken                    bool               `json:"isToken"`
+	ContractAddress            string             `json:"contractAddress,omitempty"`
+	ActiveTokens               []activeToken      `json:"activeTokens,omitempty"`
+	BlockExplorerTxPrefix      string             `json:"blockExplorerTxPrefix"`
+	BlockExplorerAddressPrefix string             `json:"blockExplorerAddressPrefix,omitempty"`
 	// Number of the account per coin per keystore, starting at 0. Nil if unknown.
 	AccountNumber *uint16 `json:"accountNumber"`
 }
@@ -398,6 +400,15 @@ func newAccountJSON(
 	keystoreConnected bool) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
+	contractAddress := ""
+	blockExplorerAddressPrefix := ""
+	if isToken {
+		contractAddress = eth.ERC20Token().ContractAddress().Hex()
+		blockExplorerURLPrefix := eth.BlockExplorerURLPrefix()
+		if blockExplorerURLPrefix != "" {
+			blockExplorerAddressPrefix = blockExplorerURLPrefix + "address/"
+		}
+	}
 	var accountNumberPtr *uint16
 	accountNumber, err := account.Config().Config.SigningConfigurations.AccountNumber()
 	if err == nil {
@@ -408,17 +419,19 @@ func newAccountJSON(
 			Keystore:  keystore,
 			Connected: keystoreConnected,
 		},
-		Active:                !account.Config().Config.Inactive,
-		BitsuranceStatus:      account.Config().Config.InsuranceStatus,
-		CoinCode:              account.Coin().Code(),
-		CoinUnit:              account.Coin().Unit(false),
-		CoinName:              account.Coin().Name(),
-		Code:                  account.Config().Config.Code,
-		Name:                  account.Config().Config.Name,
-		IsToken:               isToken,
-		ActiveTokens:          activeTokens,
-		BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
-		AccountNumber:         accountNumberPtr,
+		Active:                     !account.Config().Config.Inactive,
+		BitsuranceStatus:           account.Config().Config.InsuranceStatus,
+		CoinCode:                   account.Coin().Code(),
+		CoinUnit:                   account.Coin().Unit(false),
+		CoinName:                   account.Coin().Name(),
+		Code:                       account.Config().Config.Code,
+		Name:                       account.Config().Config.Name,
+		IsToken:                    isToken,
+		ContractAddress:            contractAddress,
+		ActiveTokens:               activeTokens,
+		BlockExplorerTxPrefix:      account.Coin().BlockExplorerTransactionURLPrefix(),
+		BlockExplorerAddressPrefix: blockExplorerAddressPrefix,
+		AccountNumber:              accountNumberPtr,
 	}
 }
 
