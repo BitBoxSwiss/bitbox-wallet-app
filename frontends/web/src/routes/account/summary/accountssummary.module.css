@@ -128,7 +128,7 @@
 }
 
 .syncText {
-    font-variant: tabular-nums;
+    font-variant-numeric: tabular-nums;
 }
 
 .showOnTableView {

@@ -31,7 +31,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await page.getByRole('button', { name: 'Test wallet' }).click();
     await page.getByRole('button', { name: 'Unlock' }).click();
     await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
-    await page.getByRole('button', { name: 'Receive RBTC' }).click();
+    await page.getByRole('button', { name: 'Receive Bitcoin' }).click();
     await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
     await expect(addressLocator).toHaveValue(/bcrt1/);
@@ -84,7 +84,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await page.goto('/#/account-summary');
     await page.getByRole('link', { name: 'Bitcoin Regtest 2' }).click();
 
-    await page.getByRole('button', { name: 'Receive RBTC' }).click();
+    await page.getByRole('button', { name: 'Receive Bitcoin' }).click();
     await page.waitForURL('**/receive');
     const verifyButton = page.getByRole('button', { name: 'Verify address on BitBox' });
     await expect(verifyButton).toBeVisible();

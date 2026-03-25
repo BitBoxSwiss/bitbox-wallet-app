@@ -15,6 +15,7 @@ type TProps = {
   large?: boolean;
   slim?: boolean;
   centered?: boolean;
+  noSidebarOffset?: boolean;
   onClose?: () => void;
   children: React.ReactNode;
   open: boolean;
@@ -27,6 +28,7 @@ export const Dialog = ({
   large,
   slim,
   centered,
+  noSidebarOffset = false,
   onClose,
   children,
   open,
@@ -139,6 +141,7 @@ export const Dialog = ({
     ${small && style.small || ''}
     ${medium && style.medium || ''}
     ${large && style.large || ''}
+    ${noSidebarOffset && style.noSidebarOffset || ''}
     ${status === 'open' && style.open || ''}
   `.trim();
 

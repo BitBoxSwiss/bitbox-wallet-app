@@ -15,13 +15,15 @@ export type Fiat = 'AUD' | 'BRL' | 'BTC' | 'CAD' | 'CHF' | 'CNY' | 'CZK' | 'EUR'
 
 export type ConversionUnit = Fiat | 'sat';
 
-export type CoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'RBTC' | 'tsat' | 'TLTC' | 'SEPETH';
+export type NativeCoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'RBTC' | 'tsat' | 'TLTC' | 'SEPETH';
 
 export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'DAI';
 
 export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 'eth-erc20-link' | 'eth-erc20-bat' | 'eth-erc20-mkr' | 'eth-erc20-zrx' | 'eth-erc20-wbtc' | 'eth-erc20-paxg' | 'eth-erc20-dai0x6b17';
 
 export type CoinCode = NativeCoinCode | ERC20CoinCode | 'lightning';
+
+export type CoinUnit = NativeCoinUnit | ERC20TokenUnit;
 
 export type FiatWithDisplayName = {
   currency: Fiat;
@@ -51,7 +53,7 @@ export type TAccount = {
   keystore: TKeystore;
   active: boolean;
   coinCode: CoinCode;
-  coinUnit: CoinUnit;
+  coinUnit: NativeCoinUnit;
   coinName: string;
   code: AccountCode;
   name: string;
@@ -198,7 +200,7 @@ type Conversions = {
 export type TAmountWithConversions = {
   amount: string;
   conversions?: Conversions;
-  unit: CoinUnit;
+  unit: NativeCoinUnit;
   estimated: boolean;
 };
 

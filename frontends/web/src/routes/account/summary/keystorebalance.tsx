@@ -93,7 +93,7 @@ export const KeystoreBalance = ({
           <tfoot>
             <tr>
               <th>
-                <strong>{t('accountSummary.total')}</strong>
+                {t('accountSummary.total')}
               </th>
               <td colSpan={2}>
                 {keystoreBalance ? (

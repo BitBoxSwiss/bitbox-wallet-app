@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, ReactNode } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AccountCode, TAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '@/api/account';
-import { getScriptName, isBitcoinBased } from '@/routes/account/utils';
+import { AccountCode, TAccount, TAmountWithConversions, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub, getBalance } from '@/api/account';
+import { getScriptName, isBitcoinBased, isEthereumBased } from '@/routes/account/utils';
 import { alertUser } from '@/components/alert/Alert';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Button } from '@/components/forms';
 import { QRCode } from '@/components/qrcode/qrcode';
@@ -23,6 +24,17 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState(false);
+  const [balance, setBalance] = useState<TAmountWithConversions>();
+
+  useEffect(() => {
+    if (isEthereumBased(account.coinCode)) {
+      getBalance(code).then(response => {
+        if (response.success) {
+          setBalance(response.balance.available);
+        }
+      }).catch(console.error);
+    }
+  }, [code, account.coinCode]);
 
   const getSimpleInfo = (): TBitcoinSimple | TEthereumSimple => {
     if (info.bitcoinSimple !== undefined) {
@@ -38,7 +50,8 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
       <div className={style.qrCode}>
         { bitcoinBased ? (
           <QRCode
-            data={config.keyInfo.xpub} />
+            data={config.keyInfo.xpub}
+            size={220} />
         ) : null }
       </div>
       <div className={style.details}>
@@ -67,13 +80,20 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
           <strong>{account.isToken ? 'Token' : 'Coin'}:</strong>
           <span>{account.coinName} ({account.coinUnit})</span>
         </div>
+        { balance ? (
+          <div key="balance" className={style.entry}>
+            <strong>{t('accountSummary.balance')}:</strong>
+            <span>
+              <AmountWithUnit amount={balance} />
+            </span>
+          </div>
+        ) : null }
         { bitcoinBased ? (
           <div key="xpub" className={`${style.entry || ''} ${style.largeEntry || ''}`}>
             <strong className="m-right-half">
               {t('accountInfo.extendedPublicKey')}:
             </strong>
             <CopyableInput
-              className="flex-grow"
               alignLeft
               flexibleHeight
               value={config.keyInfo.xpub} />
