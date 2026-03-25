@@ -258,6 +258,10 @@ type Backend struct {
 
 	// ethupdater takes care of updating ETH accounts.
 	ethupdater *eth.Updater
+
+	// skipETHInitialSync suppresses the per-account ETH init refresh while startup loads persisted
+	// accounts, so the updater's initial batch refresh is the only startup sync round.
+	skipETHInitialSync bool
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -675,7 +679,9 @@ func (backend *Backend) Start() <-chan interface{} {
 	}
 
 	defer backend.accountsAndKeystoreLock.Lock()()
+	backend.skipETHInitialSync = true
 	backend.initPersistedAccounts()
+	backend.skipETHInitialSync = false
 	backend.emitAccountsStatusChanged()
 
 	backend.ratesUpdater.StartCurrentRates()

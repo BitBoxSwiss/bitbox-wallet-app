@@ -191,7 +191,9 @@ func (account *Account) Initialize() error {
 
 	account.coin.Initialize()
 	account.initDone = account.Synchronizer.IncRequestsCounter()
-	go account.EnqueueUpdate()
+	if !account.Config().SkipInitialSync {
+		go account.EnqueueUpdate()
+	}
 
 	return account.BaseAccount.Initialize(accountIdentifier)
 }
