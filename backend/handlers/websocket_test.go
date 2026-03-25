@@ -59,6 +59,8 @@ func createWebsocketConn(t *testing.T) (client, server *websocket.Conn, cleanup 
 
 func TestRunWebsocket(t *testing.T) {
 	t.Parallel()
+	const wait = 100 * time.Millisecond
+
 	client, server, cleanup := createWebsocketConn(t)
 	defer cleanup()
 
@@ -83,7 +85,7 @@ func TestRunWebsocket(t *testing.T) {
 	// because the client hasn't been authorized.
 	send <- []byte("before authz")
 	select {
-	case <-time.After(10 * time.Millisecond):
+	case <-time.After(wait):
 		// Ok: no messages before authz.
 	case msg := <-messages:
 		t.Errorf("received unexpected msg before authz: %q", msg)
@@ -103,7 +105,7 @@ func TestRunWebsocket(t *testing.T) {
 messagesLoop:
 	for {
 		select {
-		case <-time.After(10 * time.Millisecond):
+		case <-time.After(wait):
 			// No more messages.
 			break messagesLoop
 		case msg := <-messages:
@@ -116,7 +118,6 @@ messagesLoop:
 			default:
 				wantMsg[string(msg)] = true
 			}
-
 		}
 	}
 	for m, ok := range wantMsg {
@@ -127,6 +128,10 @@ messagesLoop:
 
 	// Close client's websocket conn and expect runWebsocket's quit
 	// to be closed as well.
+	require.NoError(t, client.WriteMessage(
+		websocket.CloseMessage,
+		websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
+	))
 	require.NoError(t, client.Close())
 	select {
 	case <-quit:

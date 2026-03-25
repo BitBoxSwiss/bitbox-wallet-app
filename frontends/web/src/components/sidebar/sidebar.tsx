@@ -5,13 +5,12 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useKeystores } from '@/hooks/backend';
 import type { TDevices } from '@/api/devices';
-import type { TAccount } from '@/api/account';
+import type { TAccount, TAccountsByKeystore } from '@/api/account';
 import { deregisterTest } from '@/api/keystores';
 import { getVersion } from '@/api/bitbox02';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
 import { CloseXWhite, CogGray, Coins, Device, Eject, Linechart, RedDot, ShieldGray } from '@/components/icon';
-import { getAccountsByKeystore } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms';
@@ -20,7 +19,7 @@ import style from './sidebar.module.css';
 
 type SidebarProps = {
   devices: TDevices;
-  accounts: TAccount[];
+  accountsByKeystore: TAccountsByKeystore[];
 };
 
 type TGetAccountLinkProps = TAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
@@ -54,7 +53,7 @@ const eject = (e: React.SyntheticEvent): void => {
 
 const Sidebar = ({
   devices,
-  accounts,
+  accountsByKeystore,
 }: SidebarProps) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
@@ -90,8 +89,8 @@ const Sidebar = ({
     }
   };
 
-  const accountsByKeystore = getAccountsByKeystore(accounts);
   const userInSpecificAccountMarketPage = (pathname.startsWith('/market'));
+  const hasAccounts = accountsByKeystore.length > 0;
 
   return (
     <div className={style.sidebarContainer}>
@@ -99,7 +98,7 @@ const Sidebar = ({
       <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')}>
         <div key="app-logo" className={style.sidebarLogoContainer}>
           <Link
-            to={accounts.length ? '/account-summary' : '/'}
+            to={hasAccounts ? '/account-summary' : '/'}
             onClick={handleSidebarItemClick}>
             <AppLogoInverted className={style.sidebarLogo} />
           </Link>
@@ -108,7 +107,7 @@ const Sidebar = ({
           </button>
         </div>
 
-        { accounts.length ? (
+        { hasAccounts ? (
           <div
             key="account-summary"
             className={`${style.sidebarItem || ''} ${style.sidebarPortfolio || ''}`}
@@ -143,7 +142,7 @@ const Sidebar = ({
         )) }
 
         <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
-        { accounts.length ? (
+        { hasAccounts ? (
           <>
             <div key="market" className={style.sidebarItem}>
               <NavLink

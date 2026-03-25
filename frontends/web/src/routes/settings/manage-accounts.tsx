@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { getAccountsByKeystore } from '@/routes/account/utils';
 import * as accountAPI from '@/api/account';
+import type { TAccountsByKeystore } from '@/api/account';
 import * as backendAPI from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
 import { Button, Input, Label } from '@/components/forms';
@@ -23,10 +23,11 @@ import { WatchonlySetting } from './components/manage-accounts/watchonlySetting'
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
+import { flattenAccountsByKeystore } from '@/routes/account/utils';
 import style from './manage-accounts.module.css';
 
 type ManageAccountsProps = {
-  accounts: accountAPI.TAccount[];
+  accountsByKeystore: TAccountsByKeystore[];
 };
 
 type Props = ManageAccountsProps & TPagePropsWithSettingsTabs;
@@ -35,11 +36,12 @@ type TShowTokens = {
   readonly [key in string]: boolean;
 };
 
-export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
+export const ManageAccounts = ({ accountsByKeystore, devices, hasAccounts }: Props) => {
 
   const navigate = useNavigate();
 
   const { t } = useTranslation();
+  const accounts = flattenAccountsByKeystore(accountsByKeystore);
   const [editErrorMessage, setEditErrorMessage] = useState<string | undefined>(undefined);
   const [showTokens, setShowTokens] = useState<TShowTokens>({});
   const [currentlyEditedAccount, setCurrentlyEditedAccount] = useState<accountAPI.TAccount | undefined>(undefined);
@@ -212,7 +214,6 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
     });
   };
 
-  const accountsByKeystore = getAccountsByKeystore(accounts);
   return (
     <GuideWrapper>
       <GuidedContent>

@@ -1,18 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TUnsubscribe } from '@/utils/transport-common';
-import type { AccountCode, TAccount, TStatus } from './account';
+import type { AccountCode, TAccountsByKeystore, TStatus } from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
-/**
- * Subscribes the given function on the "account" event and receives the
- * list of all available accounts from the backend.
- * Returns a method to unsubscribe.
- */
-export const syncAccountsList = (
-  cb: (accounts: TAccount[]) => void
+export const syncAccountsByKeystoreList = (
+  cb: (accountsByKeystore: TAccountsByKeystore[]) => void
 ): TUnsubscribe => {
-  return subscribeEndpoint('accounts', cb);
+  return subscribeEndpoint('accounts-by-keystore', cb);
 };
 
 /**

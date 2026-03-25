@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import type { TKeystore } from '@/api/account';
-import { isAmbiguousName, TAccountsByKeystore } from '@/routes/account/utils';
+import type { TAccountsByKeystore, TKeystore } from '@/api/account';
+import { isAmbiguousName } from '@/routes/account/utils';
 import { Badge } from '@/components/badge/badge';
 import { USBSuccess } from '@/components/icon';
 import style from './connected-keystore.module.css';

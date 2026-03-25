@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect } from 'vitest';
-import { CoinCode, NativeCoinUnit, TAccount } from '@/api/account';
+import { CoinCode, NativeCoinUnit, TAccount, TAccountsByKeystore } from '@/api/account';
 import {
-  getAccountsByKeystore,
+  filterAccountsByKeystore,
+  flattenAccountsByKeystore,
   getCoinCode,
   isBitcoinBased,
   isBitcoinCoin,
@@ -38,95 +39,112 @@ const createAccount = ({
   };
 };
 
-describe('utils/getAccountsByKeystore', () => {
+const createAccountsByKeystore = (groups: Array<{
+  keystore: Partial<TAccount['keystore']>;
+  accounts: Array<Partial<TAccount>>;
+}>): TAccountsByKeystore[] => {
+  return groups.map(({ keystore, accounts }) => ({
+    keystore: {
+      connected: false,
+      lastConnected: '2023-11-21T10:52:37.36149+01:00',
+      name: 'wallet-1',
+      rootFingerprint: '123de678s',
+      watchonly: true,
+      ...keystore,
+    },
+    accounts: accounts.map((account, index) => createAccount({
+      code: `account-${index}`,
+      keystore,
+      ...account,
+    })),
+  }));
+};
+
+describe('utils/flattenAccountsByKeystore', () => {
 
   it('should run and return an empty array', () => {
-    const result = getAccountsByKeystore([]);
+    const result = flattenAccountsByKeystore([]);
     expect(result).toBeTypeOf('object');
     expect(result.length).toBe(0);
   });
 
-  it('should return a new empty array', () => {
-    const accounts: TAccount[] = [];
-    const result = getAccountsByKeystore(accounts);
-    expect(accounts).not.toBe(result);
-  });
-
-  it('should return one keystore entry with 2 accounts', () => {
-    const accounts: TAccount[] = [
+  it('should flatten accounts while preserving group and account order', () => {
+    const accountsByKeystore = createAccountsByKeystore([
       {
-        active: true,
-        blockExplorerTxPrefix: 'https://mempool.space/testnet/tx/',
-        code: 'v0-123de678-tbtc-0',
-        coinCode: 'tbtc',
-        coinName: 'Bitcoin Testnet',
-        coinUnit: 'TBTC',
-        isToken: false,
-        keystore: {
-          connected: false,
-          lastConnected: '2023-11-21T10:52:37.36149+01:00',
-          name: 'wallet-1',
-          rootFingerprint: '123de678s',
-          watchonly: true
-        },
-        name: 'Account 1',
-      }, {
-        active: true,
-        blockExplorerTxPrefix: 'https://mempool.space/testnet/tx/',
-        code: 'v0-123de678-tbtc-1',
-        coinCode: 'tbtc',
-        coinName: 'Bitcoin Testnet',
-        coinUnit: 'TBTC',
-        isToken: false,
-        keystore: {
-          connected: false,
-          lastConnected: '2023-11-21T10:52:37.36149+01:00',
-          name: 'wallet-1',
-          rootFingerprint: '123de678s',
-          watchonly: true
-        },
-        name: 'Account 2',
-      }
-    ];
-    const result = getAccountsByKeystore(accounts);
-    expect(result.length).toBe(1);
-    // @ts-ignore noUncheckedIndexedAccess
-    expect(result[0].accounts.length).toBe(2);
-    // @ts-ignore noUncheckedIndexedAccess
-    expect(result[0].accounts[0].code).toBe(accounts[0].code);
-    // @ts-ignore noUncheckedIndexedAccess
-    expect(result[0].accounts[1].code).toBe(accounts[1].code);
+        keystore: { name: 'W1', rootFingerprint: 'w1' },
+        accounts: [
+          { code: 'a1', name: 'A1' },
+          { code: 'a2', name: 'A2' },
+        ],
+      },
+      {
+        keystore: { name: 'W2', rootFingerprint: 'w2' },
+        accounts: [
+          { code: 'b1', name: 'B1' },
+          { code: 'b2', name: 'B2' },
+        ],
+      },
+    ]);
+
+    expect(flattenAccountsByKeystore(accountsByKeystore).map(({ code }) => code)).toEqual([
+      'a1',
+      'a2',
+      'b1',
+      'b2',
+    ]);
+  });
+});
+
+describe('utils/filterAccountsByKeystore', () => {
+  it('filters accounts, preserves order and removes empty groups', () => {
+    const accountsByKeystore = createAccountsByKeystore([
+      {
+        keystore: { name: 'W1', rootFingerprint: 'w1' },
+        accounts: [
+          { code: 'a1', active: false },
+          { code: 'a2', active: true },
+        ],
+      },
+      {
+        keystore: { name: 'W2', rootFingerprint: 'w2' },
+        accounts: [
+          { code: 'b1', active: false },
+        ],
+      },
+      {
+        keystore: { name: 'W3', rootFingerprint: 'w3' },
+        accounts: [
+          { code: 'c1', active: true },
+          { code: 'c2', active: true },
+        ],
+      },
+    ]);
+
+    const result = filterAccountsByKeystore(accountsByKeystore, ({ active }) => active);
+
+    expect(result.map(({ keystore }) => keystore.rootFingerprint)).toEqual(['w1', 'w3']);
+    expect(result[0]?.accounts.map(({ code }) => code)).toEqual(['a2']);
+    expect(result[1]?.accounts.map(({ code }) => code)).toEqual(['c1', 'c2']);
   });
 
-  it('should return two keystores with their respective accounts', () => {
+  it('returns new groups without mutating the original input', () => {
+    const accountsByKeystore = createAccountsByKeystore([
+      {
+        keystore: { name: 'W1', rootFingerprint: 'w1' },
+        accounts: [
+          { code: 'a1', active: true },
+          { code: 'a2', active: false },
+        ],
+      },
+    ]);
 
-    const accounts: TAccount[] = [
-      createAccount({ code: 'a1', name: 'A1', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
-      createAccount({ code: 'a2', name: 'A2', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
-      createAccount({ code: 'b1', name: 'B1', keystore: { name: 'W2', rootFingerprint: 'w2' } }),
-      createAccount({ code: 'b2', name: 'B2', keystore: { name: 'W2', rootFingerprint: 'w2' } }),
-      createAccount({ code: 'b3', name: 'B3', keystore: { name: 'W2', rootFingerprint: 'w2' } }),
-      createAccount({ code: 'b4', name: 'B4', keystore: { name: 'W2', rootFingerprint: 'w2' } }),
-      createAccount({ code: 'a3', name: 'A3', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
-    ];
-    const result = getAccountsByKeystore(accounts);
+    const result = filterAccountsByKeystore(accountsByKeystore, ({ active }) => active);
 
-    expect(result.length).toBe(2);
-    // @ts-ignore noUncheckedIndexedAccess
-    expect(result[0].accounts.length).toBe(3);
-    // @ts-ignore noUncheckedIndexedAccess
-    expect(result[1].accounts.length).toBe(4);
-
-    // @ts-ignore noUncheckedIndexedAccess
-    expect(result[0].accounts.every(({ keystore }) => keystore.rootFingerprint === 'w1')).toBe(true);
-    // @ts-ignore noUncheckedIndexedAccess
-    expect(result[1].accounts.every(({ keystore }) => keystore.rootFingerprint === 'w2')).toBe(true);
-    // @ts-ignore noUncheckedIndexedAccess
-    expect(result[0].accounts[2].code).toBe(accounts[6].code);
-    // @ts-ignore noUncheckedIndexedAccess
-    expect(result[1].accounts[3].code).toBe(accounts[5].code);
+    expect(result).not.toBe(accountsByKeystore);
+    expect(result[0]).not.toBe(accountsByKeystore[0]);
+    expect(accountsByKeystore[0]?.accounts.map(({ code }) => code)).toEqual(['a1', 'a2']);
+    expect(result[0]?.accounts.map(({ code }) => code)).toEqual(['a1']);
   });
-
 });
 
 describe('utils/bitcoin coin helpers', () => {

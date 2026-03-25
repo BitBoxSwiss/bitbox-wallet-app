@@ -59,8 +59,8 @@ type Backend interface {
 	DefaultAppConfig() config.AppConfig
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
-	Accounts() backend.AccountsList
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
+	AccountsByKeystoreOrdered() (backend.KeystoresAccountsList, error)
 	AccountsFiatAndCoinBalance(backend.AccountsList, string) (*big.Rat, map[coinpkg.Code]*big.Int, error)
 	Keystore() keystore.Keystore
 	AccountsBalanceSummary() (*backend.AccountsBalanceSummary, error)
@@ -207,7 +207,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/accounts-by-keystore", handlers.getAccountsByKeystore).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
@@ -374,8 +374,7 @@ type keystoreJSON struct {
 
 type accountJSON struct {
 	// Multiple accounts can belong to the same keystore. For now we replicate the keystore info in
-	// the accounts. In the future the getAccountsHandler() could return the accounts grouped
-	// keystore.
+	// the accounts even when returned via /accounts-by-keystore to keep the frontend migration small.
 	Keystore                   keystoreJSON       `json:"keystore"`
 	Active                     bool               `json:"active"`
 	BitsuranceStatus           string             `json:"bitsuranceStatus"`
@@ -391,6 +390,11 @@ type accountJSON struct {
 	BlockExplorerAddressPrefix string             `json:"blockExplorerAddressPrefix,omitempty"`
 	// Number of the account per coin per keystore, starting at 0. Nil if unknown.
 	AccountNumber *uint16 `json:"accountNumber"`
+}
+
+type accountsByKeystoreJSON struct {
+	Keystore keystoreJSON   `json:"keystore"`
+	Accounts []*accountJSON `json:"accounts"`
 }
 
 func newAccountJSON(
@@ -433,6 +437,46 @@ func newAccountJSON(
 		BlockExplorerAddressPrefix: blockExplorerAddressPrefix,
 		AccountNumber:              accountNumberPtr,
 	}
+}
+
+func (handlers *Handlers) makeAccountJSON(persistedAccounts config.AccountsConfig, account accounts.Interface) *accountJSON {
+	if account.Config().Config.HiddenBecauseUnused {
+		return nil
+	}
+	var activeTokens []activeToken
+
+	persistedAccount := account.Config().Config
+	if account.Coin().Code() == coinpkg.CodeETH {
+		for _, tokenCode := range persistedAccount.ActiveTokens {
+			activeTokens = append(activeTokens, activeToken{
+				TokenCode:   tokenCode,
+				AccountCode: backend.Erc20AccountCode(account.Config().Config.Code, tokenCode),
+			})
+		}
+	}
+
+	rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
+	if err != nil {
+		handlers.log.WithField("code", account.Config().Config.Code).Error("could not identify root fingerprint")
+		return nil
+	}
+	keystore, err := persistedAccounts.LookupKeystore(rootFingerprint)
+	if err != nil {
+		handlers.log.WithField("code", account.Config().Config.Code).Error("could not find keystore of account")
+		return nil
+	}
+
+	keystoreConnected := false
+	if connectedKeystore := handlers.backend.Keystore(); connectedKeystore != nil {
+		connectedKeystoreRootFingerprint, err := connectedKeystore.RootFingerprint()
+		if err != nil {
+			handlers.log.WithError(err).Error("Could not retrieve rootFingerprint")
+		} else {
+			keystoreConnected = bytes.Equal(rootFingerprint, connectedKeystoreRootFingerprint)
+		}
+	}
+
+	return newAccountJSON(*keystore, account, activeTokens, keystoreConnected)
 }
 
 func (handlers *Handlers) getQRCode(r *http.Request) interface{} {
@@ -652,50 +696,33 @@ func (handlers *Handlers) getKeystoreFeatures(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getAccounts(*http.Request) interface{} {
+func (handlers *Handlers) getAccountsByKeystore(*http.Request) interface{} {
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
-
-	accounts := []*accountJSON{}
-	for _, account := range handlers.backend.Accounts() {
-		if account.Config().Config.HiddenBecauseUnused {
-			continue
-		}
-		var activeTokens []activeToken
-
-		persistedAccount := account.Config().Config
-		if account.Coin().Code() == coinpkg.CodeETH {
-			for _, tokenCode := range persistedAccount.ActiveTokens {
-				activeTokens = append(activeTokens, activeToken{
-					TokenCode:   tokenCode,
-					AccountCode: backend.Erc20AccountCode(account.Config().Config.Code, tokenCode),
-				})
-			}
-		}
-
-		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
-		if err != nil {
-			handlers.log.WithField("code", account.Config().Config.Code).Error("could not identify root fingerprint")
-			continue
-		}
-		keystore, err := persistedAccounts.LookupKeystore(rootFingerprint)
-		if err != nil {
-			handlers.log.WithField("code", account.Config().Config.Code).Error("could not find keystore of account")
-			continue
-		}
-
-		keystoreConnected := false
-		if connectedKeystore := handlers.backend.Keystore(); connectedKeystore != nil {
-			connectedKeystoreRootFingerprint, err := connectedKeystore.RootFingerprint()
-			if err != nil {
-				handlers.log.WithError(err).Error("Could not retrieve rootFingerprint")
-			} else {
-				keystoreConnected = bytes.Equal(rootFingerprint, connectedKeystoreRootFingerprint)
-			}
-		}
-
-		accounts = append(accounts, newAccountJSON(*keystore, account, activeTokens, keystoreConnected))
+	accountsByKeystore, err := handlers.backend.AccountsByKeystoreOrdered()
+	if err != nil {
+		handlers.log.WithError(err).Error("could not group accounts by keystore")
+		return []*accountsByKeystoreJSON{}
 	}
-	return accounts
+
+	result := []*accountsByKeystoreJSON{}
+	for _, groupedAccounts := range accountsByKeystore {
+		var accountGroup []*accountJSON
+		for _, account := range groupedAccounts.Accounts {
+			accountJSON := handlers.makeAccountJSON(persistedAccounts, account)
+			if accountJSON == nil {
+				continue
+			}
+			accountGroup = append(accountGroup, accountJSON)
+		}
+		if len(accountGroup) == 0 {
+			continue
+		}
+		result = append(result, &accountsByKeystoreJSON{
+			Keystore: accountGroup[0].Keystore,
+			Accounts: accountGroup,
+		})
+	}
+	return result
 }
 
 func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {

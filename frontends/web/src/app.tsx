@@ -11,8 +11,8 @@ import { usePlatformClass } from './hooks/platform';
 import { useAppReady } from './hooks/appready';
 import { AppRouter } from './routes/router';
 import { Wizard as BitBox02Wizard } from './routes/device/bitbox02/wizard';
-import { getAccounts } from './api/account';
-import { syncAccountsList } from './api/accountsync';
+import { getAccountsByKeystore } from './api/account';
+import { syncAccountsByKeystoreList } from './api/accountsync';
 import { getDeviceList } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
 import { syncNewTxs } from './api/transactions';
@@ -29,6 +29,7 @@ import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
+import { filterAccountsByKeystore, flattenAccountsByKeystore } from './routes/account/utils';
 import styles from './app.module.css';
 
 export const App = () => {
@@ -38,8 +39,10 @@ export const App = () => {
   useIgnoreDrop();
   useAppReady();
 
-  const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
+  const accountsByKeystore = useDefault(useSync(getAccountsByKeystore, syncAccountsByKeystoreList), []);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
+  const accounts = flattenAccountsByKeystore(accountsByKeystore);
+  const activeAccountsByKeystore = filterAccountsByKeystore(accountsByKeystore, ({ active }) => active);
 
   const prevDevices = usePrevious(devices);
 
@@ -161,7 +164,7 @@ export const App = () => {
     return prefix + ':' + JSON.stringify(devices, Object.keys(devices).sort());
   };
 
-  const activeAccounts = accounts.filter(acct => acct.active);
+  const activeAccounts = flattenAccountsByKeystore(activeAccountsByKeystore);
 
   const isBitboxBootloader = firstDevice && devices[firstDevice] === 'bitbox02-bootloader';
   const showBottomNavigation = (deviceIDs.length > 0 || activeAccounts.length > 0) && !isBitboxBootloader;
@@ -174,7 +177,7 @@ export const App = () => {
         <div className="app">
           <AuthRequired/>
           <Sidebar
-            accounts={activeAccounts}
+            accountsByKeystore={activeAccountsByKeystore}
             devices={devices}
           />
           <div className={`
@@ -199,8 +202,8 @@ export const App = () => {
               })
             }
             <AppRouter
-              accounts={accounts}
-              activeAccounts={activeAccounts}
+              accountsByKeystore={accountsByKeystore}
+              activeAccountsByKeystore={activeAccountsByKeystore}
               devices={devices}
               devicesKey={devicesKey}
             />

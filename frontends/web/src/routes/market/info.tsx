@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
+import type { TAccountsByKeystore } from '@/api/account';
 import { getVendorSupportedAccounts } from './utils';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -13,31 +14,39 @@ import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbut
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { MarketGuide } from './guide';
 import { connectKeystore } from '@/api/keystores';
+import { filterAccountsByKeystore, flattenAccountsByKeystore } from '@/routes/account/utils';
 
 type TProps = {
-  accounts: accountApi.TAccount[];
+  accountsByKeystore: TAccountsByKeystore[];
   code: accountApi.AccountCode;
 };
 
-export const MarketInfo = ({ code, accounts }: TProps) => {
+export const MarketInfo = ({ code, accountsByKeystore }: TProps) => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
-  const [supportedAccounts, setSupportedAccounts] = useState<accountApi.TAccount[]>();
+  const [supportedAccountsByKeystore, setSupportedAccountsByKeystore] = useState<TAccountsByKeystore[]>();
 
   const { t } = useTranslation();
+  const accounts = flattenAccountsByKeystore(accountsByKeystore);
+  const supportedAccounts = supportedAccountsByKeystore && flattenAccountsByKeystore(supportedAccountsByKeystore);
 
   useEffect(() => {
     try {
-      getVendorSupportedAccounts(accounts).then(vendorSupportedAccounts => {
-        setSupportedAccounts(vendorSupportedAccounts);
+      getVendorSupportedAccounts(flattenAccountsByKeystore(accountsByKeystore)).then(vendorSupportedAccounts => {
+        const supportedCodes = new Set(vendorSupportedAccounts.map(({ code }) => code));
+        setSupportedAccountsByKeystore(filterAccountsByKeystore(
+          accountsByKeystore,
+          account => supportedCodes.has(account.code)
+        ));
       });
     } catch (e) {
       console.error(e);
     }
-  }, [accounts]);
+  }, [accountsByKeystore]);
 
   useEffect(() => {
+    const supportedAccounts = supportedAccountsByKeystore && flattenAccountsByKeystore(supportedAccountsByKeystore);
     const firstAccount = supportedAccounts && supportedAccounts.length === 1 && supportedAccounts[0];
     if (firstAccount) {
       // If user only has one supported account for vendor
@@ -52,7 +61,7 @@ export const MarketInfo = ({ code, accounts }: TProps) => {
         }
       });
     }
-  }, [supportedAccounts, navigate]);
+  }, [supportedAccountsByKeystore, navigate]);
 
   const handleProceed = async () => {
     setDisabled(true);
@@ -95,12 +104,12 @@ export const MarketInfo = ({ code, accounts }: TProps) => {
           </Header>
           <View width="550px" verticallyCentered fullscreen={false}>
             <ViewContent>
-              { !supportedAccounts || supportedAccounts.length === 0 ? (
+              { !supportedAccounts || supportedAccounts.length === 0 || !supportedAccountsByKeystore ? (
                 <div className="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
               ) : (
-                supportedAccounts && (
+                supportedAccountsByKeystore && (
                   <GroupedAccountSelector
-                    accounts={supportedAccounts}
+                    accountsByKeystore={supportedAccountsByKeystore}
                     title={ t('receive.selectAccount')}
                     disabled={disabled}
                     selected={selected}

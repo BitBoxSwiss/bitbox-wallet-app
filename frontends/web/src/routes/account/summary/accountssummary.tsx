@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
+import type { TAccountsByKeystore } from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import { unsubscribe } from '@/utils/subscriptions';
@@ -18,15 +19,15 @@ import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '@/contexts/AppContext';
-import { getAccountsByKeystore } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { BackupReminder } from '@/components/banners/backup';
 import { OfflineError } from '@/components/banners/offline-error';
+import { flattenAccountsByKeystore } from '@/routes/account/utils';
 
 type TProps = {
-  accounts: accountApi.TAccount[];
+  accountsByKeystore: TAccountsByKeystore[];
   devices: TDevices;
 };
 
@@ -35,7 +36,7 @@ export type Balances = {
 };
 
 export const AccountsSummary = ({
-  accounts,
+  accountsByKeystore,
   devices,
 }: TProps) => {
   const { t } = useTranslation();
@@ -43,8 +44,7 @@ export const AccountsSummary = ({
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
   const { defaultCurrency } = useContext(RatesContext);
-
-  const accountsByKeystore = getAccountsByKeystore(accounts);
+  const accounts = flattenAccountsByKeystore(accountsByKeystore);
 
   const [chartData, setChartData] = useState<accountApi.TChartData>();
   const [accountsBalanceSummary, setAccountsBalanceSummary] = useState<accountApi.TAccountsBalanceSummary>();
@@ -118,7 +118,7 @@ export const AccountsSummary = ({
     // for subscriptions and unsubscriptions
     // runs only on component mount and unmount.
     const subscriptions: TUnsubscribe[] = [];
-    accounts.forEach(account => {
+    flattenAccountsByKeystore(accountsByKeystore).forEach(account => {
       const currentCode = account.code;
       subscriptions.push(statusChanged(account.code, () => currentCode === account.code && update(account.code)));
       subscriptions.push(syncdone(account.code, () => {
@@ -129,7 +129,7 @@ export const AccountsSummary = ({
       ));
     });
     return () => unsubscribe(subscriptions);
-  }, [update, accounts]);
+  }, [update, accountsByKeystore]);
 
 
   useEffect(() => {
@@ -148,11 +148,11 @@ export const AccountsSummary = ({
   }, []);
 
   useEffect(() => {
-    accounts.forEach(account => {
+    flattenAccountsByKeystore(accountsByKeystore).forEach(account => {
       onStatusChanged(account.code);
     });
     getAccountsBalanceSummary();
-  }, [onStatusChanged, getAccountsBalanceSummary, accounts]);
+  }, [onStatusChanged, getAccountsBalanceSummary, accountsByKeystore]);
 
   useEffect(() => {
     getAccountsBalanceSummary();

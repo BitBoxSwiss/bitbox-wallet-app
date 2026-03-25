@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
+import type { AccountCode, TAccount, TAccountsByKeystore, TAmountWithConversions } from '@/api/account';
 import { Button } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
 import { USBSuccess, ChevronDownDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
 import { InsuredShield } from '@/routes/account/components/insuredtag';
-import { getAccountsByKeystore } from '@/routes/account/utils';
 import { Dropdown, TOption as TDropdownOption, TGroupedOption as TDropdownGroupedOption } from '@/components/dropdown/dropdown';
 import { createGroupedOptions, getBalancesForGroupedAccountSelector } from './services';
 import { AmountWithUnit } from '../amount/amount-with-unit';
@@ -85,7 +84,7 @@ type TAccountSelector = {
   selected?: string;
   onChange: (value: string) => void;
   onProceed?: () => void;
-  accounts: TAccount[];
+  accountsByKeystore: TAccountsByKeystore[];
 };
 
 export const GroupedAccountSelector = ({
@@ -94,20 +93,18 @@ export const GroupedAccountSelector = ({
   selected,
   onChange,
   onProceed,
-  accounts,
+  accountsByKeystore,
 }: TAccountSelector) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<TGroupedOption[]>();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    //setting options without balance
-    const accountsByKeystore = getAccountsByKeystore(accounts);
     const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore);
     setOptions(groupedOpts);
     //asynchronously fetching each account's balance
     getBalancesForGroupedAccountSelector(groupedOpts).then(setOptions);
-  }, [accounts]);
+  }, [accountsByKeystore]);
 
   if (!options) {
     return null;

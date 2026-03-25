@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TAccount } from '@/api/account';
+import { TAccountsByKeystore } from '@/api/account';
 import { BitsuranceGuide } from './guide';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
@@ -12,19 +12,21 @@ import { View, ViewContent } from '@/components/view/view';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
 import { connectKeystore } from '@/api/keystores';
+import { filterAccountsByKeystore, flattenAccountsByKeystore } from '@/routes/account/utils';
 
 type TProps = {
-  accounts: TAccount[];
+  accountsByKeystore: TAccountsByKeystore[];
   code: string;
 };
 
-export const BitsuranceAccount = ({ code, accounts }: TProps) => {
+export const BitsuranceAccount = ({ code, accountsByKeystore }: TProps) => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
-  const [btcAccounts, setBtcAccounts] = useState<TAccount[]>();
+  const [btcAccountsByKeystore, setBtcAccountsByKeystore] = useState<TAccountsByKeystore[]>();
 
   const { t } = useTranslation();
+  const btcAccounts = btcAccountsByKeystore && flattenAccountsByKeystore(btcAccountsByKeystore);
 
   const handleChangeAccount = (selected: string) => {
     setSelected(selected);
@@ -38,16 +40,16 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
     }
     // btc accounts that have never been insured, or with a canceled
     // insurance contract, can be used to make a new contract.
-    const insurableAccounts = accounts.filter(
+    setBtcAccountsByKeystore(filterAccountsByKeystore(
+      accountsByKeystore,
       account => account.coinCode === 'btc'
       && (
         !account.bitsuranceStatus
         || account.bitsuranceStatus === 'canceled'
         || account.bitsuranceStatus === 'refused'
       )
-    );
-    setBtcAccounts(insurableAccounts);
-  }, [accounts]);
+    ));
+  }, [accountsByKeystore]);
 
   // check supported accounts
   useEffect(() => {
@@ -56,8 +58,12 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
 
   // if there is only one account available let's automatically redirect to the widget
   useEffect(() => {
+    const btcAccounts = btcAccountsByKeystore && flattenAccountsByKeystore(btcAccountsByKeystore);
     if (btcAccounts !== undefined && btcAccounts.length === 1) {
-      const account = btcAccounts[0] as TAccount;
+      const account = btcAccounts[0];
+      if (!account) {
+        return;
+      }
       connectKeystore(account.keystore.rootFingerprint).then(connectResult => {
         if (!connectResult.success) {
           return;
@@ -66,7 +72,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
         navigate(`/bitsurance/widget/${account.code}`, { replace: true });
       });
     }
-  }, [btcAccounts, navigate]);
+  }, [btcAccountsByKeystore, navigate]);
 
   const handleProceed = async () => {
     setDisabled(true);
@@ -96,13 +102,13 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
           <Header title={<h2>{t('bitsuranceAccount.title')}</h2>} />
           <View width="550px" verticallyCentered fullscreen={false}>
             <ViewContent>
-              { btcAccounts.length === 0 ? (
+              { btcAccounts.length === 0 || !btcAccountsByKeystore ? (
                 <div>{t('bitsuranceAccount.noAccount')}</div>
               ) : (
                 <GroupedAccountSelector
                   title={t('bitsuranceAccount.select')}
                   disabled={disabled}
-                  accounts={btcAccounts}
+                  accountsByKeystore={btcAccountsByKeystore}
                   selected={selected}
                   onChange={handleChangeAccount}
                   onProceed={handleProceed}

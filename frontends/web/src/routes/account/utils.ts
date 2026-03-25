@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode, CoinCode, ScriptType, TAccount, NativeCoinUnit, TKeystore } from '@/api/account';
+import type { AccountCode, CoinCode, ScriptType, TAccount, TAccountsByKeystore, NativeCoinUnit } from '@/api/account';
 
 export const findAccount = (
   accounts: TAccount[],
@@ -91,24 +91,27 @@ export const customFeeUnit = (coinCode: CoinCode): string => {
   return '';
 };
 
-export type TAccountsByKeystore = {
-  keystore: TKeystore;
-  accounts: TAccount[];
+export const flattenAccountsByKeystore = (accountsByKeystore: TAccountsByKeystore[]): TAccount[] => {
+  return accountsByKeystore.flatMap(({ accounts }) => accounts);
 };
 
-// Returns the accounts grouped by the keystore fingerprint.
-export const getAccountsByKeystore = (accounts: TAccount[]): TAccountsByKeystore[] => {
-  return Object.values(accounts.reduce((acc, account) => {
-    const key = account.keystore.rootFingerprint;
-    if (!acc[key]) {
-      acc[key] = {
-        keystore: account.keystore,
-        accounts: []
-      };
+export const filterAccountsByKeystore = (
+  accountsByKeystore: TAccountsByKeystore[],
+  predicate: (account: TAccount) => boolean,
+): TAccountsByKeystore[] => {
+  return accountsByKeystore.reduce<TAccountsByKeystore[]>((filteredAccountsByKeystore, group) => {
+    const filteredAccounts = group.accounts.filter(predicate);
+    if (filteredAccounts.length === 0) {
+      return filteredAccountsByKeystore;
     }
-    acc[key].accounts.push(account);
-    return acc;
-  }, {} as Record<string, TAccountsByKeystore>));
+    return [
+      ...filteredAccountsByKeystore,
+      {
+        keystore: group.keystore,
+        accounts: filteredAccounts,
+      }
+    ];
+  }, []);
 };
 
 type TKeystoreName = {

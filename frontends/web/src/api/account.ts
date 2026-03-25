@@ -66,8 +66,13 @@ export type TAccount = {
   accountNumber?: number;
 };
 
-export const getAccounts = (): Promise<TAccount[]> => {
-  return apiGet('accounts');
+export type TAccountsByKeystore = {
+  keystore: TKeystore;
+  accounts: TAccount[];
+};
+
+export const getAccountsByKeystore = (): Promise<TAccountsByKeystore[]> => {
+  return apiGet('accounts-by-keystore');
 };
 
 export type CoinFormattedAmount = {

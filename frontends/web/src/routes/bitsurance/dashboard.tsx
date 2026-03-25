@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AccountCode, TAccount, getBalance } from '@/api/account';
+import { AccountCode, TAccountsByKeystore, getBalance } from '@/api/account';
 import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '@/api/bitsurance';
 import { useMountedRef } from '@/hooks/mount';
-import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
+import { isAmbiguousName } from '@/routes/account/utils';
 import { Button } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
@@ -22,7 +22,7 @@ import { BitsuranceGuide } from './guide';
 import style from './dashboard.module.css';
 
 type TProps = {
-  accounts: TAccount[];
+  accountsByKeystore: TAccountsByKeystore[];
 };
 
 type TAccountStatusIconProps = {
@@ -49,14 +49,12 @@ const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
   }
 };
 
-export const BitsuranceDashboard = ({ accounts }: TProps) => {
+export const BitsuranceDashboard = ({ accountsByKeystore }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const mounted = useMountedRef();
   const [balances, setBalances] = useState<Balances>();
   const [insurances, setInsurances] = useState<TInsurancesByCode>();
-  const [accountsByKeystore, setAccountsByKeystore] = useState<TAccountsByKeystore[]>();
-
   // anyAccountInsured returns true if any of the accounts belonging
   // to a certain keystore is contained in the insurances map.
   const anyAccountInsured = (keystore: TAccountsByKeystore) => {
@@ -77,9 +75,8 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
   }, []);
 
   useEffect(() => {
-    setAccountsByKeystore(getAccountsByKeystore(accounts));
     fetchInsurances();
-  }, [fetchInsurances, accounts]);
+  }, [fetchInsurances, accountsByKeystore]);
 
   useEffect(() => {
     accountsByKeystore?.forEach(keystore => {
