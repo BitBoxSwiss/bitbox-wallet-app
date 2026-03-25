@@ -59,6 +59,13 @@ functions exist:
 All handlers are methods on the `Handlers` struct. Request/response types are typically defined
 **inline** within the handler function. See `backend/handlers/handlers.go` for examples.
 
+Handlers such as those in `backend/handlers/handlers.go` should stay thin: parse the request (body,
+query params, route params, etc.), call the appropriate backend/account function, and convert the
+result to JSON output. Avoid implementing business logic, validation flow, or other decision-making
+in handlers. If a handler change would make it reasonable to add a handler unit test to verify
+handler logic beyond input parsing, that is usually a design smell. Move that logic into an
+appropriate backend package, and keep handlers as request/response adapters.
+
 ### Error Handling
 Use the `errp` package in `backend/util/errp/` for error wrapping and typed error codes. See the
 package for available functions and error code patterns.
@@ -159,6 +166,10 @@ routing components, use `renderHook` for hooks, and mock API calls with `vi.fn()
 ## Review Guidelines
 - when reviewing a removed function call, check that the removed behavior was not required and was not dropped by accident during a refactor.
 - when reviewing a removed function call, check if the callee became unused and should also be removed.
+- when reviewing handlers such as those in `backend/handlers/handlers.go`, check that they only
+  parse the request, call the appropriate backend/account function, and convert the result to JSON
+  output. If a handler contains business logic or has involved unit tests, treat that as a design
+  issue and suggest moving the logic appropriate backend package.
 
 ## Commit & Pull Request Guidelines
 Follow the existing `context: summary` convention (lowercase imperative, no trailing period)—e.g.,
