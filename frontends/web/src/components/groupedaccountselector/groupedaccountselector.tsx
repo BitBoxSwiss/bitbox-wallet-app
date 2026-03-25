@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, CoinCode, CoinUnit, TAccountBase, TAmountWithConversions } from '@/api/account';
 import { Button } from '@/components/forms';
@@ -48,9 +48,7 @@ const TriggerContent = ({
       <div className={styles.triggerContent}>
         <Logo coinCode={option.coinCode} alt={option.coinCode} />
         <span className={styles.triggerLabel}>
-          {stackedLayout ? (
-            option.coinUnit
-          ) : option.label}
+          {stackedLayout ? option.balance?.unit || option.coinUnit : option.label}
         </span>
         {option.insured && <InsuredShield />}
         {stackedLayout ? (
@@ -75,7 +73,7 @@ const TriggerContent = ({
 
 const renderGroupHeader = (group: TGroupedOption) => (
   <div className={styles.groupHeader}>
-    <span className={styles.groupLabel}>{group.label}</span>
+    <span className={styles.groupLabel} data-testid="grouped-account-selector-group-label">{group.label}</span>
     {group.connected && (
       <Badge
         icon={props => <USBSuccess {...props} />}
@@ -88,6 +86,7 @@ const renderGroupHeader = (group: TGroupedOption) => (
 type TAccountSelector<T extends TAccountBase> = {
   title?: string;
   disabled?: boolean;
+  disabledAccountCodes?: AccountCode[];
   selected?: string;
   onChange: (value: string) => void;
   onProceed?: () => void;
@@ -99,6 +98,7 @@ type TAccountSelector<T extends TAccountBase> = {
 export const GroupedAccountSelector = <T extends TAccountBase, >({
   title,
   disabled,
+  disabledAccountCodes = [],
   selected,
   onChange,
   onProceed,
@@ -109,15 +109,25 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
   const { t } = useTranslation();
   const [options, setOptions] = useState<TGroupedOption[]>();
   const [isOpen, setIsOpen] = useState(false);
+  const disabledAccountCodesKey = disabledAccountCodes.join(',');
+  const disabledAccountCodesRef = useRef(disabledAccountCodes);
+  disabledAccountCodesRef.current = disabledAccountCodes;
 
   useEffect(() => {
     //setting options without balance
     const accountsByKeystore = getAccountsByKeystore(accounts);
-    const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore);
-    setOptions(groupedOpts);
+    const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore, disabledAccountCodesRef.current);
+    let isCancelled = false;
     //asynchronously fetching each account's balance
-    getBalancesForGroupedAccountSelector(groupedOpts).then(setOptions);
-  }, [accounts]);
+    getBalancesForGroupedAccountSelector(groupedOpts).then(optionsWithBalances => {
+      if (!isCancelled) {
+        setOptions(optionsWithBalances);
+      }
+    });
+    return () => {
+      isCancelled = true;
+    };
+  }, [accounts, disabledAccountCodesKey]);
 
   if (!options) {
     return null;
@@ -173,6 +183,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
           const value = e?.value || '';
           onChange(value);
         }}
+        isOptionDisabled={option => (option as TOption).disabled || false}
         renderOptions={renderOption}
         renderGroupHeader={renderGroupHeader}
         mobileFullScreen

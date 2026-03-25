@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import type { TAmountWithConversions } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { UseDisableBackButton } from '@/hooks/backbutton';
+import { FiatValue } from '@/components/amount/fiat-value';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { PointToBitBox02 } from '@/components/icon';
 import { Column, Grid } from '@/components/layout';
-import { FiatValue } from '@/components/amount/fiat-value';
 import style from './swap-confirm.module.css';
 
 type TProp = {

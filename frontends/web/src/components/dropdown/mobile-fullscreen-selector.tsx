@@ -68,6 +68,10 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
     return value ? (value as TOption<T>).value === option.value : false;
   };
 
+  const isDisabled = (option: TOption<T> & TOptionExt) => (
+    'disabled' in option && Boolean((option as { disabled?: boolean }).disabled)
+  );
+
   const handleSelect = (option: TOption<T>, e: React.MouseEvent) => {
     e.stopPropagation();
     if (isMulti) {
@@ -122,8 +126,10 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
         key={JSON.stringify(option.value)}
         className={`
           ${styles.optionItem || ''} 
+          ${isDisabled(option) ? styles.disabledOption || '' : ''}
           ${isSelected(option) ? styles.selectedOption || '' : ''}`
         }
+        disabled={isDisabled(option)}
         onClick={(e) => handleSelect(option, e)}
       >
         <div className={styles.optionContent}>{renderOptions(option, false)}</div>
@@ -141,7 +147,12 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
           <button
             key={JSON.stringify(option.value)}
             type="button"
-            className={`${styles.optionItem || ''} ${isSelected(option) ? styles.selectedOption || '' : ''}`}
+            className={`
+              ${styles.optionItem || ''}
+              ${isDisabled(option) ? styles.disabledOption || '' : ''}
+              ${isSelected(option) ? styles.selectedOption || '' : ''}
+            `}
+            disabled={isDisabled(option)}
             onClick={(e) => handleSelect(option, e)}
           >
             <div className={styles.optionContent}>{renderOptions(option, false)}</div>

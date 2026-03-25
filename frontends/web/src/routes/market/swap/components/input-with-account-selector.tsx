@@ -14,7 +14,9 @@ import style from './input-with-account-selector.module.css';
 type Props<T extends TAccountBase> = {
   accountCode: AccountCode | undefined;
   accounts: T[];
+  disabledAccountCodes?: AccountCode[];
   id: string;
+  testId?: string;
   onChangeAccountCode: (accountCode: AccountCode) => void;
   onChangeValue?: (value: string) => void;
   value: string | undefined;
@@ -23,7 +25,9 @@ type Props<T extends TAccountBase> = {
 export const InputWithAccountSelector = <T extends TAccountBase, >({
   accountCode,
   accounts,
+  disabledAccountCodes = [],
   id,
+  testId,
   onChangeAccountCode,
   onChangeValue,
   value,
@@ -35,10 +39,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
   const [esitmatedFiatValue, setEstimatedFiatValue] = useState<string | null>();
 
   useEffect(() => {
-    if (accountCode) {
-      const account = findAccount(accounts, accountCode);
-      setSelectedAccount(account);
-    }
+    setSelectedAccount(accountCode ? findAccount(accounts, accountCode) : undefined);
   }, [accountCode, accounts]);
 
   // update estimated fiat amount
@@ -60,11 +61,12 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
   }, [defaultCurrency, selectedAccount, value]);
 
   return (
-    <div className={style.accountWithInputContainer}>
+    <div className={style.accountWithInputContainer} data-testid={testId}>
       <div className={style.accountSelectorCol}>
         {hasAccounts && (
           <GroupedAccountSelector
             accounts={accounts}
+            disabledAccountCodes={disabledAccountCodes}
             selected={accountCode}
             onChange={(accountCode => {
               const account = findAccount(accounts, accountCode);
