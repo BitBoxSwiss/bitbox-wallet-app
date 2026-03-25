@@ -17,6 +17,7 @@ type Props = {
   disabledAccountCodes?: AccountCode[];
   id: string;
   loadBalances?: boolean;
+  testId?: string;
   onChangeAccountCode: (accountCode: AccountCode) => void;
   onChangeValue?: (value: string) => void;
   value: string | undefined;
@@ -28,6 +29,7 @@ export const InputWithAccountSelector = ({
   disabledAccountCodes = [],
   id,
   loadBalances = true,
+  testId,
   onChangeAccountCode,
   onChangeValue,
   value,
@@ -61,7 +63,7 @@ export const InputWithAccountSelector = ({
   }, [defaultCurrency, selectedAccount, value]);
 
   return (
-    <div className={style.accountWithInputContainer}>
+    <div className={style.accountWithInputContainer} data-testid={testId}>
       <div className={style.accountSelectorCol}>
         {hasAccounts && (
           <GroupedAccountSelector
