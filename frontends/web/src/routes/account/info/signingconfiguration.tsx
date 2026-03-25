@@ -14,6 +14,7 @@ import { ExternalLink } from '@/components/icon';
 import { Message } from '@/components/message/message';
 import { QRCode } from '@/components/qrcode/qrcode';
 import { truncateMiddle } from '@/utils/address';
+import { MultilineMarkup } from '@/utils/markup';
 import style from './info.module.css';
 
 type TProps = {
@@ -130,6 +131,14 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
             <strong className="m-right-half">
               Descriptor:
             </strong>
+
+            <Message type="info">
+              <MultilineMarkup
+                markup={t('accountInfo.descriptorWarning')}
+                tagName="span"
+                withBreaks/>
+            </Message>
+
             <CopyableInput
               className="flex-grow"
               alignLeft

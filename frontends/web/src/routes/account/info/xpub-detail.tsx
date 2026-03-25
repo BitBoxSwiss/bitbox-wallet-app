@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { MultilineMarkup } from '@/utils/markup';
 import { useLoad } from '@/hooks/api';
 import { getInfo, TAccount, AccountCode } from '@/api/account';
 import { findAccount } from '@/routes/account/utils';
@@ -14,7 +13,6 @@ import { BitcoinBasedAccountInfoGuide } from './guide';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
-import { Message } from '@/components/message/message';
 import style from './info.module.css';
 
 type TProps = {
@@ -82,14 +80,6 @@ export const XPubDetail = ({
                       </button>
                     )}
                   </p>
-                )}
-                {(config?.bitcoinSimple?.scriptType === 'p2tr') && (
-                  <Message type="info">
-                    <MultilineMarkup
-                      markup={t('accountInfo.taproot')}
-                      tagName="span"
-                      withBreaks/>
-                  </Message>
                 )}
                 <SigningConfiguration
                   key={safeViewXPub}
