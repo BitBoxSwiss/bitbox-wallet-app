@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
+import type { AccountCode, CoinCode, CoinUnit, TAccountLike, TAmountWithConversions } from '@/api/account';
 import { Button } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
 import { USBSuccess, ChevronDownDark } from '@/components/icon';
@@ -20,7 +20,9 @@ type TGroupAccountSelector = {
 
 type TOptionAccountSelector = {
   disabled: boolean;
-  coinCode?: TAccount['coinCode'];
+  active?: boolean;
+  coinCode?: CoinCode;
+  coinUnit?: CoinUnit;
   balance?: TAmountWithConversions;
   insured?: boolean;
 };
@@ -34,6 +36,8 @@ type TTriggerContentProps = {
   stackedLayout?: boolean;
 };
 
+const missingBalancePlaceholder = '-';
+
 const TriggerContent = ({
   option,
   stackedLayout = false,
@@ -44,7 +48,9 @@ const TriggerContent = ({
       <div className={styles.triggerContent}>
         <Logo coinCode={option.coinCode} alt={option.coinCode} />
         <span className={styles.triggerLabel}>
-          {stackedLayout ? option.balance?.unit : option.label}
+          {stackedLayout ? (
+            option.coinUnit
+          ) : option.label}
         </span>
         {option.insured && <InsuredShield />}
         {stackedLayout ? (
@@ -52,9 +58,9 @@ const TriggerContent = ({
             {option.label}
           </span>
         ) : (
-          option.coinCode && option.balance && (
+          option.coinCode && (
             <span className={styles.triggerBalance}>
-              <AmountWithUnit amount={option.balance} />
+              {option.balance ? <AmountWithUnit amount={option.balance} /> : missingBalancePlaceholder}
             </span>
           )
         )}
@@ -79,18 +85,18 @@ const renderGroupHeader = (group: TGroupedOption) => (
   </div>
 );
 
-type TAccountSelector = {
+type TAccountSelector<T extends TAccountLike> = {
   title?: string;
   disabled?: boolean;
   selected?: string;
   onChange: (value: string) => void;
   onProceed?: () => void;
-  accounts: TAccount[];
+  accounts: T[];
   stackedLayout?: boolean;
   className?: string;
 };
 
-export const GroupedAccountSelector = ({
+export const GroupedAccountSelector = <T extends TAccountLike, >({
   title,
   disabled,
   selected,
@@ -99,7 +105,7 @@ export const GroupedAccountSelector = ({
   accounts,
   stackedLayout,
   className = '',
-}: TAccountSelector) => {
+}: TAccountSelector<T>) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<TGroupedOption[]>();
   const [isOpen, setIsOpen] = useState(false);

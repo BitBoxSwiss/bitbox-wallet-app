@@ -3,6 +3,7 @@
 import type { LineData } from 'lightweight-charts';
 import type { Slip24 } from 'request-address';
 import type { TDetailStatus } from './bitsurance';
+import type { ERC20CoinCode, ERC20TokenUnit } from './erc20';
 import type { SuccessResponse } from './response';
 import type { NonEmptyArray } from '@/utils/types';
 import { apiGet, apiPost } from '@/utils/request';
@@ -15,11 +16,7 @@ export type Fiat = 'AUD' | 'BRL' | 'BTC' | 'CAD' | 'CHF' | 'CNY' | 'CZK' | 'EUR'
 
 export type ConversionUnit = Fiat | 'sat';
 
-export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'DAI';
-
 export type NativeCoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'RBTC' | 'tsat' | 'TLTC' | 'SEPETH';
-
-export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 'eth-erc20-link' | 'eth-erc20-bat' | 'eth-erc20-mkr' | 'eth-erc20-zrx' | 'eth-erc20-wbtc' | 'eth-erc20-paxg' | 'eth-erc20-dai0x6b17';
 
 export type CoinCode = NativeCoinCode | ERC20CoinCode;
 
@@ -28,12 +25,6 @@ export type CoinUnit = NativeCoinUnit | ERC20TokenUnit;
 export type FiatWithDisplayName = {
   currency: Fiat;
   displayName: string;
-};
-
-export type Terc20Token = {
-  code: ERC20CoinCode;
-  name: string;
-  unit: ERC20TokenUnit;
 };
 
 export type TActiveToken = {
@@ -49,14 +40,17 @@ export type TKeystore = {
   connected: boolean;
 };
 
-export type TAccount = {
+export type TAccountLike = {
   keystore: TKeystore;
   active: boolean;
   coinCode: CoinCode;
-  coinUnit: NativeCoinUnit;
-  coinName: string;
+  coinUnit: CoinUnit;
   code: AccountCode;
   name: string;
+};
+
+export type TAccount = TAccountLike & {
+  coinName: string;
   isToken: boolean;
   activeTokens?: TActiveToken[];
   blockExplorerTxPrefix: string;
@@ -64,8 +58,24 @@ export type TAccount = {
   accountNumber?: number;
 };
 
+type TSwapDestinationAccountBase = TAccountLike;
+
+export type TSwapDestinationAccount = TSwapDestinationAccountBase & ({
+  isToken: true;
+  coinCode: ERC20CoinCode;
+  parentAccountCode: AccountCode;
+} | {
+  isToken: false;
+  coinCode: Exclude<CoinCode, ERC20CoinCode>;
+  parentAccountCode?: never;
+});
+
 export const getAccounts = (): Promise<TAccount[]> => {
   return apiGet('accounts');
+};
+
+export const getSwapDestinationAccounts = (): Promise<TSwapDestinationAccount[]> => {
+  return apiGet('accounts/swap-destinations');
 };
 
 export type CoinFormattedAmount = {
@@ -200,7 +210,7 @@ type Conversions = {
 export type TAmountWithConversions = {
   amount: string;
   conversions?: Conversions;
-  unit: NativeCoinUnit;
+  unit: CoinUnit;
   estimated: boolean;
 };
 
