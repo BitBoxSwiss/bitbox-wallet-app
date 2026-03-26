@@ -912,7 +912,7 @@ func (backend *Backend) coinFiatPrices(coin coinpkg.Coin) map[string]interface{}
 	if err != nil {
 		return map[string]interface{}{"success": false}
 	}
-	conversions := coinpkg.PlainConversions(coinAmount, coin, false, backend.ratesUpdater)
+	conversions := coinpkg.Conversions(coinAmount, coin, false, backend.ratesUpdater)
 	if len(conversions) == 0 {
 		return map[string]interface{}{"success": false}
 	}

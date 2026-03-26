@@ -52,20 +52,6 @@ func FormatAsCurrency(amount *big.Rat, currency string) string {
 // ConversionsMap maps formmatted conversions of a coin amount into fiat currencies.
 type ConversionsMap map[string]string
 
-// PlainConversions is like Conversions but uses FormatAsPlainCurrency (no thousand separators).
-func PlainConversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.RateUpdater) ConversionsMap {
-	conversions := ConversionsMap{}
-	rates := ratesUpdater.LatestPrice()
-	if rates != nil {
-		unit := coin.Unit(isFee)
-		for key, value := range rates[unit] {
-			convertedAmount := new(big.Rat).Mul(new(big.Rat).SetFloat64(coin.ToUnit(amount, isFee)), new(big.Rat).SetFloat64(value))
-			conversions[key] = FormatAsPlainCurrency(convertedAmount, key)
-		}
-	}
-	return conversions
-}
-
 // Conversions handles fiat conversions.
 func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.RateUpdater) ConversionsMap {
 	conversions := ConversionsMap{}
