@@ -722,6 +722,10 @@ func (account *Account) GetUnusedReceiveAddresses() ([]accounts.AddressList, err
 	var addresses []accounts.AddressList
 	for _, subacc := range account.subaccounts {
 		scriptType := subacc.signingConfiguration.ScriptType()
+		if scriptType == signing.ScriptTypeP2WPKHP2SH {
+			// We don't support wrapped segwit in receive flows anymore.
+			continue
+		}
 		if account.Config().Config.InsuranceStatus == string(bitsurance.ActiveStatus) && scriptType != signing.ScriptTypeP2WPKH {
 			// Insured accounts can only receive on native segwit
 			continue

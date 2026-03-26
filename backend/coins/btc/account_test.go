@@ -151,13 +151,12 @@ func TestInsuredAccountAddresses(t *testing.T) {
 	require.NoError(t, account.Initialize())
 	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 
-	// check the number of available addresses for native and wrapped segwit.
+	// Wrapped segwit stays scanned, but it is no longer exposed in generic receive flows.
 	addressList, err := account.GetUnusedReceiveAddresses()
 	require.NoError(t, err)
+	require.Len(t, addressList, 1)
 	require.Len(t, addressList[0].Addresses, 20)
-	require.Equal(t, signing.ScriptTypeP2WPKHP2SH, *addressList[0].ScriptType)
-	require.Len(t, addressList[1].Addresses, 20)
-	require.Equal(t, signing.ScriptTypeP2WPKH, *addressList[1].ScriptType)
+	require.Equal(t, signing.ScriptTypeP2WPKH, *addressList[0].ScriptType)
 
 	// Create a new insured account.
 	account2 := mockAccount(t, &config.Account{
