@@ -5,6 +5,7 @@ package backend
 import (
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"net/http"
 	"net/url"
 	"os"
@@ -900,12 +901,17 @@ func (backend *Backend) RatesUpdater() *rates.RateUpdater {
 // in all supported fiat currencies, formatted without thousand separators.
 // The successful response matches the frontend TAmountWithConversions shape.
 func (backend *Backend) CoinFiatPrices(coin coinpkg.Coin) *coinpkg.FormattedAmountWithConversions {
-	coinAmount, err := coin.ParseAmount("1")
-	if err != nil {
-		return nil
+	const isFee = false
+	coinAmount := coin.SetAmount(big.NewRat(1, 1), isFee)
+	return &coinpkg.FormattedAmountWithConversions{
+		Amount: coin.Unit(isFee),
+		Unit:   coin.GetFormatUnit(isFee),
+		Conversions: coinpkg.Conversions(
+			coinAmount,
+			coin,
+			isFee,
+			backend.ratesUpdater),
 	}
-	result := coinAmount.FormatWithConversions(coin, false, backend.ratesUpdater)
-	return &result
 }
 
 // notifyCoinFiatPrices pushes per-coin fiat price events for all initialized coins.
