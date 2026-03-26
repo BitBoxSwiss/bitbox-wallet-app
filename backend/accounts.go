@@ -969,9 +969,10 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 	}
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
-		Config:      persistedConfig,
-		DBFolder:    backend.arguments.CacheDirectoryPath(),
-		NotesFolder: backend.arguments.NotesDirectoryPath(),
+		Config:          persistedConfig,
+		DBFolder:        backend.arguments.CacheDirectoryPath(),
+		SkipInitialSync: backend.skipETHInitialSync,
+		NotesFolder:     backend.arguments.NotesDirectoryPath(),
 		ConnectKeystore: func() (keystore.Keystore, error) {
 			accountRootFingerprint, err := persistedConfig.SigningConfigurations.RootFingerprint()
 			if err != nil {
