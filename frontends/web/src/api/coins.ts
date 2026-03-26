@@ -80,14 +80,11 @@ export const convertToCurrency = ({
 };
 
 export type TCoinFiatPrices = {
-  success: true;
   amount: string;
   unit: NativeCoinUnit;
   conversions: Record<Fiat, string>;
   estimated: boolean;
-} | {
-  success: false;
-};
+} | null;
 
 export const getCoinFiatPrices = (coinCode: CoinCode): Promise<TCoinFiatPrices> => {
   return apiGet(`coins/${coinCode}/fiat-prices`);

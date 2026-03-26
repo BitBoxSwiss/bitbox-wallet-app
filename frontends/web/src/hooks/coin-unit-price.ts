@@ -17,7 +17,7 @@ export const useCoinUnitPrice = (
     () => getCoinFiatPrices(coinCode),
     subscribeCoinFiatPrices(coinCode),
   );
-  if (!result || !result.success || !unit) {
+  if (!result || !unit) {
     return undefined;
   }
   return result;

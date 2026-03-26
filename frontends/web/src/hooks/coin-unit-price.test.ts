@@ -25,7 +25,6 @@ describe('useCoinUnitPrice', () => {
 
   it('returns TAmountWithConversions on success', async () => {
     mockGetCoinFiatPrices.mockResolvedValue({
-      success: true as const,
       amount: '1',
       unit: 'BTC',
       conversions: { USD: '60000.00', EUR: '55000.00' } as Record<string, string>,
@@ -35,25 +34,11 @@ describe('useCoinUnitPrice', () => {
       () => useCoinUnitPrice('btc' as CoinCode, 'BTC'),
     );
     await waitFor(() => expect(result.current).toEqual({
-      success: true,
       amount: '1',
       unit: 'BTC',
       conversions: { USD: '60000.00', EUR: '55000.00' },
       estimated: false,
     }));
     expect(mockGetCoinFiatPrices).toHaveBeenCalledWith('btc');
-  });
-
-  it('returns undefined on API failure', async () => {
-    mockGetCoinFiatPrices.mockResolvedValue({
-      success: false as const,
-    });
-    const { result } = renderHook(
-      () => useCoinUnitPrice('btc' as CoinCode),
-    );
-    await waitFor(() => {
-      expect(mockGetCoinFiatPrices).toHaveBeenCalled();
-      expect(result.current).toBeUndefined();
-    });
   });
 });

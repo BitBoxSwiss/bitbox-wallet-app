@@ -74,7 +74,7 @@ type Backend interface {
 	Register(device device.Interface) error
 	Deregister(deviceID string)
 	RatesUpdater() *rates.RateUpdater
-	CoinFiatPrices(coinpkg.Code) map[string]interface{}
+	CoinFiatPrices(coinpkg.Coin) *coinpkg.FormattedAmountWithConversions
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(*config.ServerInfo) error
 	RegisterTestKeystore(string)
@@ -931,8 +931,11 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) getCoinFiatPrices(r *http.Request) interface{} {
-	coinCode := mux.Vars(r)["coinCode"]
-	return handlers.backend.CoinFiatPrices(coinpkg.Code(coinCode))
+	coin, err := handlers.backend.Coin(coinpkg.Code(mux.Vars(r)["coinCode"]))
+	if err != nil {
+		return nil
+	}
+	return handlers.backend.CoinFiatPrices(coin)
 }
 
 func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
