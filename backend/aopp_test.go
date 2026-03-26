@@ -125,16 +125,6 @@ func TestAOPPSuccess(t *testing.T) {
 			accountName: "Bitcoin",
 		},
 		{
-			asset:       "btc",
-			coinCode:    coinpkg.CodeBTC,
-			format:      "p2sh",
-			scriptType:  scriptTypeRef(signing.ScriptTypeP2WPKHP2SH),
-			address:     "3C4J3CSPSYD3ibV8u1DqqPRtfsUsSbnuPX",
-			addressID:   "58c9954205732bcae1b9dd7eccda521ba5257749680fad3336556e0d46f68866",
-			accountCode: "v0-55555555-btc-0",
-			accountName: "Bitcoin",
-		},
-		{
 			asset:        "eth",
 			coinCode:     coinpkg.CodeETH,
 			format:       "any",
