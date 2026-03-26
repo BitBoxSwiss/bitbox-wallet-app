@@ -20,6 +20,17 @@ type AddressList struct {
 	Addresses  []Address
 }
 
+// FindAddressListByScriptType returns the first address list with the requested script type, or
+// nil if none matches.
+func FindAddressListByScriptType(addressLists []AddressList, scriptType signing.ScriptType) *AddressList {
+	for i := range addressLists {
+		if addressLists[i].ScriptType != nil && *addressLists[i].ScriptType == scriptType {
+			return &addressLists[i]
+		}
+	}
+	return nil
+}
+
 // TextMemo represents a slip-0024 text memo.
 type TextMemo struct {
 	Note string

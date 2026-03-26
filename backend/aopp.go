@@ -362,23 +362,40 @@ loop:
 		backend.aoppSetError(errAOPPUnknown)
 		return
 	}
+
 	signingConfigIdx := 0
-	// Use the format hint to get a compatible address.
-	if account.Coin().Code() == coinpkg.CodeBTC && backend.aopp.format != "any" {
-		expectedScriptType, ok := aoppBTCScriptTypeMap[backend.aopp.format]
-		if !ok {
-			log.Errorf("Unknown aopp format param %s", backend.aopp.format)
-			backend.aoppSetError(errAOPPUnknown)
-			return
-		}
-		signingConfigIdx = account.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType)
-		if signingConfigIdx == -1 {
-			log.Errorf("Unknown aopp format param %s", backend.aopp.format)
-			backend.aoppSetError(errAOPPUnknown)
-			return
+	addressList := &unused[0]
+	addr := addressList.Addresses[0]
+	if account.Coin().Code() == coinpkg.CodeBTC {
+		if backend.aopp.format == "any" {
+			signingConfigIdx = account.Config().Config.SigningConfigurations.FindScriptType(*addressList.ScriptType)
+			if signingConfigIdx == -1 {
+				log.Errorf("Unknown script type %s in receive addresses", *addressList.ScriptType)
+				backend.aoppSetError(errAOPPUnknown)
+				return
+			}
+		} else {
+			expectedScriptType, ok := aoppBTCScriptTypeMap[backend.aopp.format]
+			if !ok {
+				log.Errorf("Unknown aopp format param %s", backend.aopp.format)
+				backend.aoppSetError(errAOPPUnknown)
+				return
+			}
+			signingConfigIdx = account.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType)
+			if signingConfigIdx == -1 {
+				log.Errorf("Unknown aopp format param %s", backend.aopp.format)
+				backend.aoppSetError(errAOPPUnknown)
+				return
+			}
+			addressList = accounts.FindAddressListByScriptType(unused, expectedScriptType)
+			if addressList == nil || len(addressList.Addresses) == 0 {
+				log.WithField("code", account.Config().Config.Code).Errorf("AOPP script type not found: %s", expectedScriptType)
+				backend.aoppSetError(errAOPPUnsupportedFormat)
+				return
+			}
+			addr = addressList.Addresses[0]
 		}
 	}
-	addr := unused[signingConfigIdx].Addresses[0]
 
 	backend.aopp.Address = addr.EncodeForHumans()
 	backend.aopp.AddressID = addr.ID()

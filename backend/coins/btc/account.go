@@ -935,11 +935,6 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 			account.Coin().Code())
 	}
 
-	unused, err := account.GetUnusedReceiveAddresses()
-	if err != nil {
-		return "", "", err
-	}
-
 	// Use the format hint to get a compatible address
 	if len(scriptType) == 0 {
 		scriptType = signing.ScriptTypeP2WPKH
@@ -949,7 +944,15 @@ func SignBTCAddress(account accounts.Interface, message string, scriptType signi
 		err := errp.Newf("Unsupported format: %s", scriptType)
 		return "", "", err
 	}
-	addr := unused[signingConfigIdx].Addresses[0]
+	unused, err := account.GetUnusedReceiveAddresses()
+	if err != nil {
+		return "", "", err
+	}
+	addressList := accounts.FindAddressListByScriptType(unused, scriptType)
+	if addressList == nil || len(addressList.Addresses) == 0 {
+		return "", "", errp.Newf("Unsupported format: %s", scriptType)
+	}
+	addr := addressList.Addresses[0]
 
 	sig, err := keystore.SignBTCMessage(
 		[]byte(message),
