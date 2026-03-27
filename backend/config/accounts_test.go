@@ -81,6 +81,36 @@ func TestSetTokenActive(t *testing.T) {
 	require.Equal(t, []string{"TOKEN-2"}, acct.ActiveTokens)
 }
 
+func TestSetReceiveScriptType(t *testing.T) {
+	keypath84, err := signing.NewAbsoluteKeypath("m/84'/0'/0'")
+	require.NoError(t, err)
+	keypath86, err := signing.NewAbsoluteKeypath("m/86'/0'/0'")
+	require.NoError(t, err)
+
+	acct := &Account{
+		SigningConfigurations: signing.Configurations{
+			signing.NewBitcoinConfiguration(
+				signing.ScriptTypeP2WPKH,
+				[]byte{1, 2, 3, 4},
+				keypath84,
+				test.TstMustXKey("xpub661MyMwAqRbcGAo79WnM4653Aog3nKuTYq2Wy1iURzbaGE36dgnPPMxX5oCvCiky5bFbS2jS9RfAHVtpCNCEBwy6BUjLxhXYGu19NwTgrFX"),
+			),
+			signing.NewBitcoinConfiguration(
+				signing.ScriptTypeP2TR,
+				[]byte{1, 2, 3, 4},
+				keypath86,
+				test.TstMustXKey("xpub661MyMwAqRbcGAo79WnM4653Aog3nKuTYq2Wy1iURzbaGE36dgnPPMxX5oCvCiky5bFbS2jS9RfAHVtpCNCEBwy6BUjLxhXYGu19NwTgrFX"),
+			),
+		},
+	}
+
+	require.NoError(t, acct.SetReceiveScriptType(signing.ScriptTypeP2TR))
+	require.NotNil(t, acct.ReceiveScriptType)
+	require.Equal(t, signing.ScriptTypeP2TR, *acct.ReceiveScriptType)
+
+	require.Error(t, acct.SetReceiveScriptType(signing.ScriptTypeP2WPKHP2SH))
+}
+
 func TestGetOrAddKeystore(t *testing.T) {
 	cfg := &AccountsConfig{}
 	fp1 := []byte("aaaa")
