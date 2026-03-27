@@ -273,26 +273,14 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 		return result, errp.New("Interface must be of type btc.Account")
 	}
 
-	addressCounts := make(map[string]int)
-
-	spendableOutputs, err := t.SpendableOutputs()
+	spendableOutputs, reusedAddresses, err := t.SpendableOutputsWithReusedAddresses()
 	if err != nil {
 		return nil, err
 	}
 
 	for _, output := range spendableOutputs {
 		address := output.Address.EncodeForHumans()
-		addressCounts[address]++
-	}
-
-	spendableOutputs, err = t.SpendableOutputs()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, output := range spendableOutputs {
-		address := output.Address.EncodeForHumans()
-		addressReused := addressCounts[address] > 1
+		_, addressReused := reusedAddresses[output.Address.PubkeyScriptHashHex()]
 		var formattedTime *string
 		timestamp := output.HeaderTimestamp
 		if timestamp != nil {
