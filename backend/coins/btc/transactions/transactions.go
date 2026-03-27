@@ -52,6 +52,10 @@ type Interface interface {
 	// ourselves.
 	SpendableOutputs() (map[wire.OutPoint]*SpendableOutput, error)
 
+	// SpendableOutputsWithReusedAddresses returns the same spendable outputs as SpendableOutputs(),
+	// together with the set of wallet addresses that have received at least two indexed outputs.
+	SpendableOutputsWithReusedAddresses() (map[wire.OutPoint]*SpendableOutput, map[blockchain.ScriptHashHex]struct{}, error)
+
 	// Transactions returns an ordered list of transactions.
 	Transactions(isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error)
 
@@ -274,6 +278,49 @@ func (transactions *Transactions) allInputsOurs(dbTx DBTxInterface, transaction 
 	return true
 }
 
+func (transactions *Transactions) spendableOutputs(
+	dbTx DBTxInterface,
+	outputs map[wire.OutPoint]*wire.TxOut,
+) (map[wire.OutPoint]*SpendableOutput, error) {
+	spendableOutputs := map[wire.OutPoint]*SpendableOutput{}
+	for outPoint, txOut := range outputs {
+		if transactions.isInputSpent(dbTx, outPoint) {
+			continue
+		}
+
+		txInfo, err := dbTx.TxInfo(outPoint.Hash)
+		if err != nil {
+			return nil, err
+		}
+		confirmed := txInfo.Height > 0
+		if confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx) {
+			spendableOutputs[outPoint] = &SpendableOutput{
+				TxOut:           txOut,
+				HeaderTimestamp: txInfo.HeaderTimestamp,
+			}
+		}
+	}
+	return spendableOutputs, nil
+}
+
+func reusedAddresses(
+	outputs map[wire.OutPoint]*wire.TxOut,
+) map[blockchain.ScriptHashHex]struct{} {
+	addressCounts := map[blockchain.ScriptHashHex]int{}
+	for _, txOut := range outputs {
+		scriptHashHex := getScriptHashHex(txOut)
+		addressCounts[scriptHashHex]++
+	}
+
+	reusedAddresses := map[blockchain.ScriptHashHex]struct{}{}
+	for scriptHashHex, count := range addressCounts {
+		if count > 1 {
+			reusedAddresses[scriptHashHex] = struct{}{}
+		}
+	}
+	return reusedAddresses
+}
+
 // SpendableOutputs returns all unspent outputs of the wallet which are eligible to be spent. Those
 // include all unspent outputs of confirmed transactions, and unconfirmed outputs that we created
 // ourselves.
@@ -283,26 +330,39 @@ func (transactions *Transactions) SpendableOutputs() (map[wire.OutPoint]*Spendab
 		if err != nil {
 			return nil, err
 		}
-		result := map[wire.OutPoint]*SpendableOutput{}
-		for outPoint, txOut := range outputs {
-			spent := transactions.isInputSpent(dbTx, outPoint)
-			if !spent {
-				txInfo, err := dbTx.TxInfo(outPoint.Hash)
-				if err != nil {
-					return nil, err
-				}
-				confirmed := txInfo.Height > 0
-
-				if confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx) {
-					result[outPoint] = &SpendableOutput{
-						TxOut:           txOut,
-						HeaderTimestamp: txInfo.HeaderTimestamp,
-					}
-				}
-			}
-		}
-		return result, nil
+		return transactions.spendableOutputs(dbTx, outputs)
 	})
+}
+
+// SpendableOutputsWithReusedAddresses returns all spendable outputs and the set of wallet
+// addresses that have received multiple indexed outputs.
+func (transactions *Transactions) SpendableOutputsWithReusedAddresses() (
+	map[wire.OutPoint]*SpendableOutput,
+	map[blockchain.ScriptHashHex]struct{},
+	error,
+) {
+	type result struct {
+		spendableOutputs map[wire.OutPoint]*SpendableOutput
+		reusedAddresses  map[blockchain.ScriptHashHex]struct{}
+	}
+	combined, err := DBView(transactions.db, func(dbTx DBTxInterface) (result, error) {
+		outputs, err := dbTx.Outputs()
+		if err != nil {
+			return result{}, err
+		}
+		spendableOutputs, err := transactions.spendableOutputs(dbTx, outputs)
+		if err != nil {
+			return result{}, err
+		}
+		return result{
+			spendableOutputs: spendableOutputs,
+			reusedAddresses:  reusedAddresses(outputs),
+		}, nil
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	return combined.spendableOutputs, combined.reusedAddresses, nil
 }
 
 func (transactions *Transactions) isInputSpent(dbTx DBTxInterface, outPoint wire.OutPoint) bool {

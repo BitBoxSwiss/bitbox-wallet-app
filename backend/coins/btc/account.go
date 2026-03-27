@@ -856,16 +856,10 @@ type SpendableOutput struct {
 	IsChange bool
 }
 
-// SpendableOutputs returns the utxo set, sorted by the value descending.
-func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
-	if !account.Synced() {
-		return nil, accounts.ErrSyncInProgress
-	}
-	result := []*SpendableOutput{}
-	utxos, err := account.transactions.SpendableOutputs()
-	if err != nil {
-		return nil, err
-	}
+func (account *Account) makeSpendableOutputs(
+	utxos map[wire.OutPoint]*transactions.SpendableOutput,
+) []*SpendableOutput {
+	result := make([]*SpendableOutput, 0, len(utxos))
 	for outPoint, txOut := range utxos {
 		addressID := addresses.NewAddressID(txOut.TxOut.PkScript)
 		result = append(
@@ -877,7 +871,36 @@ func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
 				IsChange:        account.IsChange(addressID),
 			})
 	}
-	return sortByAddresses(result), nil
+	return sortByAddresses(result)
+}
+
+// SpendableOutputs returns the utxo set, sorted by the value descending.
+func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
+	utxos, err := account.transactions.SpendableOutputs()
+	if err != nil {
+		return nil, err
+	}
+	return account.makeSpendableOutputs(utxos), nil
+}
+
+// SpendableOutputsWithReusedAddresses returns the spendable UTXOs together with the set of reused
+// wallet addresses, keyed by address ID.
+func (account *Account) SpendableOutputsWithReusedAddresses() (
+	[]*SpendableOutput,
+	map[addresses.AddressID]struct{},
+	error,
+) {
+	if !account.Synced() {
+		return nil, nil, accounts.ErrSyncInProgress
+	}
+	utxos, reusedAddresses, err := account.transactions.SpendableOutputsWithReusedAddresses()
+	if err != nil {
+		return nil, nil, err
+	}
+	return account.makeSpendableOutputs(utxos), reusedAddresses, nil
 }
 
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output

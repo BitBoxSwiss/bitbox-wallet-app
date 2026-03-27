@@ -269,6 +269,98 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 	s.Require().Contains(spendableOutputs, wire.OutPoint{Hash: tx22Spend.TxHash(), Index: 0})
 }
 
+func (s *transactionsSuite) TestSpendableOutputsWithReusedAddresses() {
+	addresses, err := s.addressChain.EnsureAddresses()
+	s.Require().NoError(err)
+	address1 := addresses[0]
+	tx1 := newTx(chainhash.HashH(nil), 0, address1, 1000)
+	tx2 := newTx(chainhash.HashH(nil), 1, address1, 2000)
+	s.blockchainMock.RegisterTxs(tx1, tx2)
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Twice()
+	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
+		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 10},
+	})
+
+	spendableOutputs, reusedAddresses, err := s.transactions.SpendableOutputsWithReusedAddresses()
+	s.Require().NoError(err)
+	s.Require().Len(spendableOutputs, 2)
+	s.Require().Contains(spendableOutputs, wire.OutPoint{Hash: tx1.TxHash(), Index: 0})
+	s.Require().Contains(spendableOutputs, wire.OutPoint{Hash: tx2.TxHash(), Index: 0})
+	s.Require().Len(reusedAddresses, 1)
+	s.Require().Contains(reusedAddresses, address1.PubkeyScriptHashHex())
+}
+
+func (s *transactionsSuite) TestSpendableOutputsWithReusedAddressesSpentSibling() {
+	addresses, err := s.addressChain.EnsureAddresses()
+	s.Require().NoError(err)
+	address1 := addresses[0]
+	otherAddress := addresses[2]
+	tx1 := newTx(chainhash.HashH(nil), 0, address1, 1000)
+	tx2 := newTx(chainhash.HashH(nil), 1, address1, 2000)
+	tx1Spend := newTx(tx1.TxHash(), 0, otherAddress, 1000)
+	s.blockchainMock.RegisterTxs(tx1, tx2, tx1Spend)
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Twice()
+	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
+		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 10},
+		{TXHash: blockchainpkg.TXHash(tx1Spend.TxHash()), Height: 0},
+	})
+
+	spendableOutputs, reusedAddresses, err := s.transactions.SpendableOutputsWithReusedAddresses()
+	s.Require().NoError(err)
+	s.Require().Len(spendableOutputs, 1)
+	s.Require().Contains(spendableOutputs, wire.OutPoint{Hash: tx2.TxHash(), Index: 0})
+	s.Require().NotContains(spendableOutputs, wire.OutPoint{Hash: tx1.TxHash(), Index: 0})
+	s.Require().Len(reusedAddresses, 1)
+	s.Require().Contains(reusedAddresses, address1.PubkeyScriptHashHex())
+}
+
+func (s *transactionsSuite) TestSpendableOutputsWithReusedAddressesDoesNotTreatSpendHistoryAsReuse() {
+	addresses, err := s.addressChain.EnsureAddresses()
+	s.Require().NoError(err)
+	address1 := addresses[0]
+	otherAddress := addresses[2]
+	tx1 := newTx(chainhash.HashH(nil), 0, address1, 1000)
+	tx1Spend := newTx(tx1.TxHash(), 0, otherAddress, 1000)
+	s.blockchainMock.RegisterTxs(tx1, tx1Spend)
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
+	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
+		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: blockchainpkg.TXHash(tx1Spend.TxHash()), Height: 0},
+	})
+
+	spendableOutputs, reusedAddresses, err := s.transactions.SpendableOutputsWithReusedAddresses()
+	s.Require().NoError(err)
+	s.Require().Empty(spendableOutputs)
+	s.Require().NotContains(reusedAddresses, address1.PubkeyScriptHashHex())
+}
+
+func (s *transactionsSuite) TestSpendableOutputsWithReusedAddressesDifferentAddresses() {
+	addresses, err := s.addressChain.EnsureAddresses()
+	s.Require().NoError(err)
+	address1 := addresses[0]
+	address2 := addresses[1]
+	tx1 := newTx(chainhash.HashH(nil), 0, address1, 1000)
+	tx2 := newTx(chainhash.HashH(nil), 1, address2, 2000)
+	s.blockchainMock.RegisterTxs(tx1, tx2)
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
+	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
+		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
+	})
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
+	s.updateAddressHistory(address2, []*blockchainpkg.TxInfo{
+		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 10},
+	})
+
+	spendableOutputs, reusedAddresses, err := s.transactions.SpendableOutputsWithReusedAddresses()
+	s.Require().NoError(err)
+	s.Require().Len(spendableOutputs, 2)
+	s.Require().Contains(spendableOutputs, wire.OutPoint{Hash: tx1.TxHash(), Index: 0})
+	s.Require().Contains(spendableOutputs, wire.OutPoint{Hash: tx2.TxHash(), Index: 0})
+	s.Require().Empty(reusedAddresses)
+}
+
 func (s *transactionsSuite) TestBalance() {
 	balance, err := s.transactions.Balance()
 	s.Require().NoError(err)

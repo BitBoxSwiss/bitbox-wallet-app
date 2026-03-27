@@ -30,6 +30,9 @@ var _ transactions.Interface = &InterfaceMock{}
 //			SpendableOutputsFunc: func() (map[wire.OutPoint]*transactions.SpendableOutput, error) {
 //				panic("mock out the SpendableOutputs method")
 //			},
+//			SpendableOutputsWithReusedAddressesFunc: func() (map[wire.OutPoint]*transactions.SpendableOutput, map[blockchain.ScriptHashHex]struct{}, error) {
+//				panic("mock out the SpendableOutputsWithReusedAddresses method")
+//			},
 //			TransactionsFunc: func(isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error) {
 //				panic("mock out the Transactions method")
 //			},
@@ -52,6 +55,9 @@ type InterfaceMock struct {
 	// SpendableOutputsFunc mocks the SpendableOutputs method.
 	SpendableOutputsFunc func() (map[wire.OutPoint]*transactions.SpendableOutput, error)
 
+	// SpendableOutputsWithReusedAddressesFunc mocks the SpendableOutputsWithReusedAddresses method.
+	SpendableOutputsWithReusedAddressesFunc func() (map[wire.OutPoint]*transactions.SpendableOutput, map[blockchain.ScriptHashHex]struct{}, error)
+
 	// TransactionsFunc mocks the Transactions method.
 	TransactionsFunc func(isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error)
 
@@ -69,6 +75,9 @@ type InterfaceMock struct {
 		// SpendableOutputs holds details about calls to the SpendableOutputs method.
 		SpendableOutputs []struct {
 		}
+		// SpendableOutputsWithReusedAddresses holds details about calls to the SpendableOutputsWithReusedAddresses method.
+		SpendableOutputsWithReusedAddresses []struct {
+		}
 		// Transactions holds details about calls to the Transactions method.
 		Transactions []struct {
 			// IsChange is the isChange argument value.
@@ -82,11 +91,12 @@ type InterfaceMock struct {
 			Txs []*blockchain.TxInfo
 		}
 	}
-	lockBalance              sync.RWMutex
-	lockClose                sync.RWMutex
-	lockSpendableOutputs     sync.RWMutex
-	lockTransactions         sync.RWMutex
-	lockUpdateAddressHistory sync.RWMutex
+	lockBalance                             sync.RWMutex
+	lockClose                               sync.RWMutex
+	lockSpendableOutputs                    sync.RWMutex
+	lockSpendableOutputsWithReusedAddresses sync.RWMutex
+	lockTransactions                        sync.RWMutex
+	lockUpdateAddressHistory                sync.RWMutex
 }
 
 // Balance calls BalanceFunc.
@@ -167,6 +177,33 @@ func (mock *InterfaceMock) SpendableOutputsCalls() []struct {
 	mock.lockSpendableOutputs.RLock()
 	calls = mock.calls.SpendableOutputs
 	mock.lockSpendableOutputs.RUnlock()
+	return calls
+}
+
+// SpendableOutputsWithReusedAddresses calls SpendableOutputsWithReusedAddressesFunc.
+func (mock *InterfaceMock) SpendableOutputsWithReusedAddresses() (map[wire.OutPoint]*transactions.SpendableOutput, map[blockchain.ScriptHashHex]struct{}, error) {
+	if mock.SpendableOutputsWithReusedAddressesFunc == nil {
+		panic("InterfaceMock.SpendableOutputsWithReusedAddressesFunc: method is nil but Interface.SpendableOutputsWithReusedAddresses was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockSpendableOutputsWithReusedAddresses.Lock()
+	mock.calls.SpendableOutputsWithReusedAddresses = append(mock.calls.SpendableOutputsWithReusedAddresses, callInfo)
+	mock.lockSpendableOutputsWithReusedAddresses.Unlock()
+	return mock.SpendableOutputsWithReusedAddressesFunc()
+}
+
+// SpendableOutputsWithReusedAddressesCalls gets all the calls that were made to SpendableOutputsWithReusedAddresses.
+// Check the length with:
+//
+//	len(mockedInterface.SpendableOutputsWithReusedAddressesCalls())
+func (mock *InterfaceMock) SpendableOutputsWithReusedAddressesCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockSpendableOutputsWithReusedAddresses.RLock()
+	calls = mock.calls.SpendableOutputsWithReusedAddresses
+	mock.lockSpendableOutputsWithReusedAddresses.RUnlock()
 	return calls
 }
 
