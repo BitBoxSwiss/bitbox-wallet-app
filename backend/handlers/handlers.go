@@ -1698,7 +1698,8 @@ func (handlers *Handlers) getKeystoreShowBackupBanner(r *http.Request) interface
 
 func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 	type response struct {
-		Success bool `json:"success"`
+		Success   bool   `json:"success"`
+		ErrorCode string `json:"errorCode,omitempty"`
 	}
 
 	var request struct {
@@ -1710,5 +1711,11 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 	}
 
 	_, err := handlers.backend.ConnectKeystore([]byte(request.RootFingerprint))
+	if errp.Cause(err) == errp.ErrUserAbort {
+		return response{
+			Success:   false,
+			ErrorCode: errp.ErrUserAbort.Error(),
+		}
+	}
 	return response{Success: err == nil}
 }
