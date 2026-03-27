@@ -22,6 +22,7 @@ type TReceiverAddressInputProps = {
   onAccountChange?: (account: accountApi.TAccount | null) => void;
   parseQRResult: (uri: string) => void;
   recipientAddress: string;
+  disabled?: boolean;
 };
 
 type TToggleScanQRButtonProps = {
@@ -48,7 +49,8 @@ export const ReceiverAddressInput = ({
   onInputChange,
   onAccountChange,
   recipientAddress,
-  parseQRResult
+  parseQRResult,
+  disabled = false,
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -104,7 +106,7 @@ export const ReceiverAddressInput = ({
           isMobile={isMobileSnapshotRef.current}
         />
       )}
-      {!accountsForReceiverDropdown || accountsForReceiverDropdown.length === 0 ? (
+      {!accountsForReceiverDropdown || accountsForReceiverDropdown.length === 0 || disabled ? (
         <Input
           label={t('send.address.label')}
           placeholder={t('send.address.placeholder')}
@@ -114,13 +116,14 @@ export const ReceiverAddressInput = ({
           value={recipientAddress}
           className={style.inputWithIcon}
           classNameInputField={style.inputFieldWithIcon}
-          labelSection={debug ? (
+          disabled={disabled}
+          labelSection={debug && !disabled ? (
             <span id="sendToSelf" className={`${style.action || ''} ${style.sendToSelf || ''}`} onClick={handleSendToSelf}>
               Send to self
             </span>
           ) : undefined}
-          autoFocus={!isMobile}>
-          <ScanQRButton onClick={toggleScanQR} />
+          autoFocus={!isMobile && !disabled}>
+          {!disabled && <ScanQRButton onClick={toggleScanQR} />}
         </Input>
       ) : (
         <ReceiverAddressWrapper
@@ -136,4 +139,3 @@ export const ReceiverAddressInput = ({
     </>
   );
 };
-

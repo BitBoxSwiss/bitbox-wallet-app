@@ -7,17 +7,21 @@ import { Transaction } from '@/components/transactions/transaction';
 import style from '../account.module.css';
 
 type TransactionListProps = {
+  coinCode: accountApi.CoinCode;
   transactionSuccess: boolean;
   filteredTransactions: accountApi.TTransaction[];
   debouncedSearchTerm: string;
   onShowDetail: (internalID: accountApi.TTransaction['internalID']) => void;
+  onSpeedUp: (internalID: accountApi.TTransaction['internalID']) => void;
 };
 
 export const TransactionList = memo<TransactionListProps>(({
+  coinCode,
   transactionSuccess,
   filteredTransactions,
   debouncedSearchTerm,
   onShowDetail,
+  onSpeedUp,
 }) => {
   const { t } = useTranslation();
 
@@ -34,7 +38,9 @@ export const TransactionList = memo<TransactionListProps>(({
         {filteredTransactions.map(tx => (
           <Transaction
             key={tx.internalID}
+            coinCode={coinCode}
             onShowDetail={onShowDetail}
+            onSpeedUp={onSpeedUp}
             {...tx}
           />
         ))}
