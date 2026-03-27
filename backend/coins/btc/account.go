@@ -382,7 +382,14 @@ func (account *Account) Info() *accounts.Info {
 	isInsuredAccount := account.Config().Config.InsuranceStatus == string(bitsurance.ActiveStatus)
 	var signingConfigurations []*signing.Configuration
 	for _, subacc := range account.subaccounts {
-		isNativeSegwit := subacc.signingConfiguration.ScriptType() == signing.ScriptTypeP2WPKH
+		scriptType := subacc.signingConfiguration.ScriptType()
+		isNativeSegwit := scriptType == signing.ScriptTypeP2WPKH
+		isWrappedSegwit := scriptType == signing.ScriptTypeP2WPKHP2SH
+		if isWrappedSegwit {
+			// We don't support wrapped segwit in receive flows anymore, we hide it in the account
+			// info too.
+			continue
+		}
 		// hiding legacy/taproot xpubs as an insured account should only receive on native segwit.
 		if isInsuredAccount && !isNativeSegwit {
 			continue
