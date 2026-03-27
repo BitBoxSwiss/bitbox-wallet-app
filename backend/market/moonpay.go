@@ -109,26 +109,23 @@ func GetMoonpaySupportedRegions(httpClient *http.Client) (map[string]BuyMoonpayR
 	return regionsMap, nil
 }
 
-// MoonpayDeals returns the purchase conditions (fee and payment methods) offered by Moonpay.
-func MoonpayDeals(action Action) *DealsList {
-	if action == BuyAction {
-		return &DealsList{
-			VendorName: MoonpayName,
-			Deals: []*Deal{
-				{
-					Fee:     4.9, // 4.9%
-					Payment: CardPayment,
-					IsFast:  true,
-				},
-				{
-					Fee:     1.9, // 1.9%
-					Payment: BankTransferPayment,
-					IsFast:  false,
-				},
+// MoonpayBuyOffers returns the buy offers provided by Moonpay.
+func MoonpayBuyOffers() *OfferVendor {
+	return &OfferVendor{
+		VendorName: MoonpayName,
+		Offers: []*Offer{
+			{
+				Fee:     4.9, // 4.9%
+				Payment: CardPayment,
+				IsFast:  true,
 			},
-		}
+			{
+				Fee:     1.9, // 1.9%
+				Payment: BankTransferPayment,
+				IsFast:  false,
+			},
+		},
 	}
-	return nil
 }
 
 // MoonpayInfo returns info for the frontend to initiate an onramp flow.

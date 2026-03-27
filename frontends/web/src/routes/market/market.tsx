@@ -105,11 +105,10 @@ export const Market = ({
     setSelectedRegion(regionAvailable ? userRegion : '');
   }, [regionCodes, config, nativeLocale]);
 
-  const buyDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('buy', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
-  const sellDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('sell', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
-  const spendDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('spend', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
-  const swapDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('swap', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
-  const otcDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('otc', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
+  const marketCatalogResponse = useLoad(
+    selectedAccount ? () => marketAPI.getMarketCatalog(selectedAccount, selectedRegion) : null,
+    [selectedAccount, selectedRegion]
+  );
 
   const handleAccountChange = async (accountCode: string) => {
     const account = supportedAccounts.find(acc => acc.code === accountCode);
@@ -124,30 +123,29 @@ export const Market = ({
 
   // catch edge to change to spend tab for regions that dont have any buy or sell offerings
   useEffect(() => {
-    const noBuy = buyDealsResponse !== undefined && (!buyDealsResponse.success || buyDealsResponse.deals.length === 0);
-    const noSell = sellDealsResponse !== undefined && (!sellDealsResponse?.success || sellDealsResponse.deals.length === 0);
-    const hasSpend = spendDealsResponse?.success && spendDealsResponse.deals.length > 0;
+    if (!marketCatalogResponse?.success) {
+      return;
+    }
+    const { buy, sell, spend } = marketCatalogResponse.catalog;
+    const noBuy = !buy.success
+      || ((buy.offerVendors?.length || 0) === 0 && (buy.services?.length || 0) === 0);
+    const noSell = !sell.success
+      || ((sell.offerVendors?.length || 0) === 0 && (sell.services?.length || 0) === 0);
+    const hasSpend = spend.success
+      && ((spend.offerVendors?.length || 0) > 0 || (spend.services?.length || 0) > 0);
     if (noBuy && noSell && hasSpend) {
       setActiveTab('spend');
     }
   }, [
     selectedRegion, // react to region changes
-    buyDealsResponse, sellDealsResponse, spendDealsResponse
+    marketCatalogResponse
   ]);
 
-  const getDealReponse = (action: marketAPI.TMarketAction) => {
-    switch (action) {
-    case 'buy':
-      return buyDealsResponse;
-    case 'sell':
-      return sellDealsResponse;
-    case 'spend':
-      return spendDealsResponse;
-    case 'swap':
-      return swapDealsResponse;
-    case 'otc':
-      return otcDealsResponse;
+  const getActionSection = (action: marketAPI.TMarketAction) => {
+    if (!marketCatalogResponse?.success) {
+      return undefined;
     }
+    return marketCatalogResponse.catalog[action];
   };
 
   const getServicesLabel = (action: marketAPI.TMarketAction) => {
@@ -273,7 +271,9 @@ export const Market = ({
                         <label className={style.label}>{getServicesLabel(activeTab)}</label>
                       )}
                       <Deals
-                        marketDealsResponse={getDealReponse(activeTab)}
+                        section={getActionSection(activeTab)}
+                        loading={!marketCatalogResponse}
+                        topLevelError={marketCatalogResponse?.success === false ? marketCatalogResponse.errorMessage : undefined}
                         goToVendor={goToVendor}
                         action={activeTab}
                         setInfo={setInfo}
