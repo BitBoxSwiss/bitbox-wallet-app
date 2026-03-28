@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect, useRef, ChangeEvent, useCallback, useContext } from 'react';
+import { useState, useEffect, useRef, ChangeEvent, MouseEvent, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
@@ -95,6 +95,11 @@ export const FeeTargets = ({
 
   const handleCustomFee = (event: ChangeEvent<HTMLInputElement>) => {
     onCustomFee(event.target.value);
+  };
+
+  const focusCustomFee = (event: MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    inputRef.current?.focus();
   };
 
   const getProposeFeeText = (): string => {
@@ -222,7 +227,9 @@ export const FeeTargets = ({
                 ref={inputRef}
                 value={customFee}
               >
-                <span className={style.customFeeUnit}>
+                <span
+                  className={style.customFeeUnit}
+                  onMouseDown={focusCustomFee}>
                   { customFeeUnit(coinCode) }
                 </span>
               </Input>
