@@ -32,6 +32,7 @@ import { General } from './settings/general';
 import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
+import { BitBox02Backup } from './device/bitbox02/bitbox02';
 import { Bitsurance } from './bitsurance/bitsurance';
 import { BitsuranceAccount } from './bitsurance/account';
 import { BitsuranceWidget } from './bitsurance/widget';
@@ -213,6 +214,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
   const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>;
   const RecoveryWordsEl = <InjectParams><RecoveryWords deviceID={''} /></InjectParams>;
   const Bip85El = <InjectParams><Bip85 deviceID={''} /></InjectParams>;
+  const BitBox02BackupEl = <InjectParams><BitBox02Backup deviceID={''} devices={devices} hasAccounts={hasAccounts} /></InjectParams>;
 
   const ManageBackupsEl = (<InjectParams><ManageBackups
     key={devicesKey('manage-backups')}
@@ -315,6 +317,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="general" element={GeneralEl} />
           <Route path="about" element={AboutEl} />
           <Route path="device-settings/:deviceID" element={Device} />
+          <Route path="backup-functionality/:deviceID" element={BitBox02BackupEl} />
           <Route path="no-device-connected" element={NoDevice} />
           <Route path="no-accounts" element={NoDevice} />
           <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
