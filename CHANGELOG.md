@@ -16,12 +16,9 @@
 - Show total fiat amount in Bitrefill confirmation step
 - Show contract address in Ethereum token account info
 - Harmonize iOS and Android back swipe/button navigation to only work in expected situations
-<<<<<<< HEAD
 - Bitcoin: remove option to receive to wrapped segwit addresses
 - Fix coin control reused-address labels
-=======
 - Revamp portfolio / account summary detail (table)
->>>>>>> a91eb736e (frontend: revamp account summary data / table)
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
