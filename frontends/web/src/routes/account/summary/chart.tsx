@@ -3,7 +3,7 @@
 import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
+import { AutoscaleInfoProvider, createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
 import type { TChartData, ChartData, FormattedLineData } from '@/api/account';
 import { usePrevious } from '@/hooks/previous';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -114,6 +114,51 @@ const renderDate = (
   );
 };
 
+const autoScaleProvider: AutoscaleInfoProvider = (original) => {
+  const res = original();
+  if (!res) {
+    return null;
+  }
+
+  let { minValue, maxValue } = res.priceRange;
+  const diff = maxValue - minValue;
+
+  // if all values are equal or range is extremely small
+  if (diff === 0 || diff < Math.abs(maxValue) * 0.001) {
+    const center = maxValue;
+
+    let padding: number;
+
+    // define a natural padding strategy
+    if (center === 0) {
+      padding = 0.0001;
+    } else if (center < 0.001) {
+      padding = 0.0001; // for very small BTC-like values
+    } else if (center < 1) {
+      padding = 0.1;
+    } else if (center < 1000) {
+      padding = center * 0.1;
+    } else {
+      padding = center * 0.05;
+    }
+
+    minValue = center - padding;
+    maxValue = center + padding;
+  }
+
+  // clamp to zero (balances never negative)
+  if (minValue < 0) {
+    minValue = 0;
+  }
+
+  return {
+    priceRange: {
+      minValue,
+      maxValue,
+    },
+  };
+};
+
 export const Chart = ({
   data = defaultData,
   noDataPlaceholder,
@@ -176,9 +221,7 @@ export const Chart = ({
     formattedData.current = {};
 
     chartData.forEach(entry => {
-      if (formattedData.current) {
-        formattedData.current[entry.time as number] = entry.formattedValue;
-      }
+      formattedData.current[entry.time as number] = entry.formattedValue;
     });
   };
 
@@ -394,7 +437,7 @@ export const Chart = ({
             color: darkmode ? '#1D1D1B' : '#F5F5F5',
           },
           fontSize: 11,
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
           textColor: darkmode ? '#F5F5F5' : '#1D1D1B',
         },
         leftPriceScale: {
@@ -422,25 +465,36 @@ export const Chart = ({
       lineSeries.current = chart.current.addAreaSeries({
         priceLineVisible: false,
         lastValueVisible: false,
-        priceFormat: {
-          type: 'volume',
-        },
+        autoscaleInfoProvider: autoScaleProvider,
+        priceFormat: (
+          data.chartFiat === 'BTC' ? {
+            minMove: 0.000001,
+            type: 'custom',
+            formatter: (price: number) => {
+              if (price <= 0) {
+                return '0';
+              }
+              return price.toLocaleString(i18n.language, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 8,
+              });
+            }
+          } : {
+            type: 'volume',
+          }),
         topColor: darkmode ? '#5E94BF' : '#DFF1FF',
         bottomColor: darkmode ? '#1D1D1B' : '#F5F5F5',
         lineColor: 'rgba(94, 148, 192, 1)',
         crosshairMarkerRadius: 6,
       });
       const isChartDisplayWeekly = chartDisplay === 'week';
-      lineSeries.current.setData(
+      const dataToDisplay = (
         isChartDisplayWeekly
           ? data.chartDataHourly
           : data.chartDataDaily
       );
-      setFormattedData(
-        isChartDisplayWeekly
-          ? data.chartDataHourly
-          : data.chartDataDaily
-      );
+      lineSeries.current.setData(dataToDisplay);
+      setFormattedData(dataToDisplay);
       chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
       chart.current.subscribeCrosshairMove(handleCrosshair);
       chart.current.timeScale().fitContent();
@@ -450,7 +504,7 @@ export const Chart = ({
       chartInitialized.current = true;
       updateRange(chart, chartDisplay);
     }
-  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile]);
+  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, data.chartFiat, hasData, hideAmounts, i18n.language, isMobile]);
 
   const reinitializeChart = () => {
     removeChart();
@@ -629,9 +683,7 @@ export const Chart = ({
           </div>
         ) : (
           <div className={styles.placeholderContainer}>
-            <p>
-              {noDataPlaceholder}
-            </p>
+            {noDataPlaceholder}
           </div>
         )}
         <div ref={ref} className={styles.invisible}></div>

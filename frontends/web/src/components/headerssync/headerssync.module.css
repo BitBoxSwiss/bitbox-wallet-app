@@ -32,7 +32,7 @@
 
 .syncText {
     display: inline-block;
-    font-variant: tabular-nums;
+    font-variant-numeric: tabular-nums;
 }
 
 .spinnerContainer {

@@ -5,7 +5,6 @@
     "backupReminder": "Your wallet <strong>{{name}}</strong> passed {{fiat}} {{threshold}}!\n\nWe recommend creating a paper backup for extra protection. It's quick and simple.",
     "backupReminderLink": "Create paper backup",
     "disconnect": "Connection lost. Retrying…",
-    "export": "Export transactions",
     "exportTransactions": "Export transactions to downloads folder as CSV file",
     "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
@@ -20,6 +19,7 @@
     "warning": "Warning!"
   },
   "accountInfo": {
+    "accountDetails": "Account details",
     "address": "Address",
     "buyCTA": {
       "information": {
@@ -27,12 +27,14 @@
         "start": "Get started by depositing some coins to the wallet or buying directly in the BitBoxApp."
       }
     },
+    "exportTransactions": "Export transaction history",
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
     "scriptType": "Script type",
     "taproot": "The Taproot extended public key is not shown to protect from accidental misuse, as raw formats for this script type are not widely supported. If you want to view this key, connect your device to wallet software that supports the output descriptor format.",
     "title": "Account information",
     "verify": "Verify on device",
+    "viewAccountDetails": "View account details",
     "xpubTypeChangeBtn": {
       "p2pkh": "View legacy P2PKH extended public key",
       "p2tr": "View Taproot",
@@ -387,6 +389,7 @@
     "connected": "connected",
     "connectionFailed": "failed",
     "connectionIssues": "Having connection issues?",
+    "connectionIssuesLink": "See here",
     "disabledGloballyDescription": "Please turn on Bluetooth to connect to your BitBox.",
     "disabledGloballyTitle": "Bluetooth access is disabled.",
     "disabledPermissionDescription": "Please allow Bluetooth to connect to your BitBox.",
@@ -1270,7 +1273,7 @@
         "title": "Why so many addresses?"
       },
       "whyVerify": {
-        "text": "You shouldn’t trust your computer to generate and display authentic addresses. It’s big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
+        "text": "You shouldn't trust your computer to generate and display authentic addresses. It's big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
         "title": "Why should I verify the address securely?"
       }
     },
@@ -2031,11 +2034,11 @@
       "activity": "Activity",
       "address": "Address",
       "amount": "Amount",
-      "currentFiat": "Current fiat",
+      "currentValue": "Current value",
       "date": "Date",
       "fiatAmount": "Fiat amount",
       "from": "From",
-      "historicalFiat": "Historical fiat",
+      "historicalValue": "Historical value",
       "sentToSelf": "Sent to self",
       "status": "Status",
       "title": "Transaction Details",
@@ -2089,6 +2092,18 @@
       "e109_normal": "Wrong device password. {{remainingAttempts}} attempts remain before the device is reset.",
       "e109_touch": "$t(unlock.error.e109_normal) The next login requires holding the touch button.",
       "e113": "Due to many login attempts, the next login requires holding the touch button for 4 seconds."
+    },
+    "forgotPassword": {
+      "button": "See here",
+      "dialogDescription": "If you forgot your device password, you can still restore from your wallet backup:",
+      "dialogTitle": "Forgot your device password?",
+      "info": "Forgot your password?",
+      "stillHavingIssues": "Still having issues?",
+      "supportLink": "Contact support",
+      "text1": "After entering the wrong device password 10 times, your device automatically resets to factory settings.",
+      "text2": "You can restore your wallet from a microSD card or paper backup, without needing the old device password. During restore, you can set a new device password.",
+      "title1": "Device resets after repeated failed attempts",
+      "title2": "Restore from your wallet backup"
     },
     "input": {
       "label": "Device password",
@@ -2157,6 +2172,7 @@
     "getStarted": "Let's get started by installing firmware on your BitBox.",
     "loadingAccounts": "Loading accounts",
     "message": "Please connect your BitBox and tap the side to continue.",
+    "messageIOS": "Please connect your BitBox Nova and tap the side to continue.",
     "title": "Welcome"
   }
 }
