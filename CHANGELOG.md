@@ -17,6 +17,7 @@
 - Show contract address in Ethereum token account info
 - Harmonize iOS and Android back swipe/button navigation to only work in expected situations
 - Bitcoin: remove option to receive to wrapped segwit addresses
+- Fix coin control reused-address labels
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
