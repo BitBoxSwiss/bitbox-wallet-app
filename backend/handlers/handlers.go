@@ -74,6 +74,7 @@ type Backend interface {
 	Register(device device.Interface) error
 	Deregister(deviceID string)
 	RatesUpdater() *rates.RateUpdater
+	CoinFiatPrices(coinpkg.Code) map[string]interface{}
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(*config.ServerInfo) error
 	RegisterTestKeystore(string)
@@ -219,6 +220,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiat).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/{coinCode}/fiat-prices", handlers.getCoinFiatPrices).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTBTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeLTC)).Methods("GET")
@@ -926,6 +928,11 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 		"success":    true,
 		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, currency),
 	}
+}
+
+func (handlers *Handlers) getCoinFiatPrices(r *http.Request) interface{} {
+	coinCode := mux.Vars(r)["coinCode"]
+	return handlers.backend.CoinFiatPrices(coinpkg.Code(coinCode))
 }
 
 func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
