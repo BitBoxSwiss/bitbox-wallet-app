@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	blockchainMock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
@@ -112,6 +113,86 @@ func TestAccount(t *testing.T) {
 	spendableOutputs, err := account.SpendableOutputs()
 	require.NoError(t, err)
 	require.Equal(t, []*SpendableOutput{}, spendableOutputs)
+}
+
+func TestReusedAddresses(t *testing.T) {
+	script1 := []byte{0x01}
+	script2 := []byte{0x02}
+	address1 := addresses.NewAddressID(script1)
+	address2 := addresses.NewAddressID(script2)
+	makeOutput := func(index uint32, pkScript []byte) map[wire.OutPoint]*wire.TxOut {
+		return map[wire.OutPoint]*wire.TxOut{
+			{Index: index}: wire.NewTxOut(0, pkScript),
+		}
+	}
+	testCases := []struct {
+		name               string
+		candidateAddresses map[addresses.AddressID]struct{}
+		indexedOutputs     map[wire.OutPoint]*wire.TxOut
+		want               map[addresses.AddressID]struct{}
+	}{
+		{
+			name: "two indexed outputs on same address",
+			candidateAddresses: map[addresses.AddressID]struct{}{
+				address1: {},
+			},
+			indexedOutputs: map[wire.OutPoint]*wire.TxOut{
+				{Index: 0}: wire.NewTxOut(0, script1),
+				{Index: 1}: wire.NewTxOut(0, script1),
+			},
+			want: map[addresses.AddressID]struct{}{
+				address1: {},
+			},
+		},
+		{
+			name: "spent sibling regression",
+			candidateAddresses: map[addresses.AddressID]struct{}{
+				address1: {},
+			},
+			indexedOutputs: map[wire.OutPoint]*wire.TxOut{
+				{Index: 0}: wire.NewTxOut(0, script1),
+				{Index: 1}: wire.NewTxOut(0, script1),
+				{Index: 2}: wire.NewTxOut(0, script2),
+			},
+			want: map[addresses.AddressID]struct{}{
+				address1: {},
+			},
+		},
+		{
+			name: "single indexed output does not count as reuse",
+			candidateAddresses: map[addresses.AddressID]struct{}{
+				address1: {},
+			},
+			indexedOutputs: map[wire.OutPoint]*wire.TxOut{
+				{Index: 0}: wire.NewTxOut(0, script1),
+				{Index: 1}: wire.NewTxOut(0, script2),
+			},
+			want: map[addresses.AddressID]struct{}{},
+		},
+		{
+			name: "subset request ignores reuse on other addresses",
+			candidateAddresses: map[addresses.AddressID]struct{}{
+				address2: {},
+			},
+			indexedOutputs: map[wire.OutPoint]*wire.TxOut{
+				{Index: 0}: wire.NewTxOut(0, script1),
+				{Index: 1}: wire.NewTxOut(0, script1),
+				{Index: 2}: wire.NewTxOut(0, script2),
+			},
+			want: map[addresses.AddressID]struct{}{},
+		},
+		{
+			name:               "empty candidate set",
+			candidateAddresses: map[addresses.AddressID]struct{}{},
+			indexedOutputs:     makeOutput(0, script1),
+			want:               map[addresses.AddressID]struct{}{},
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			require.Equal(t, testCase.want, reusedAddresses(testCase.candidateAddresses, testCase.indexedOutputs))
+		})
+	}
 }
 
 func TestInsuredAccountAddresses(t *testing.T) {

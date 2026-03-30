@@ -989,16 +989,10 @@ type SpendableOutput struct {
 	IsChange bool
 }
 
-// SpendableOutputs returns the utxo set, sorted by the value descending.
-func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
-	if !account.Synced() {
-		return nil, accounts.ErrSyncInProgress
-	}
-	result := []*SpendableOutput{}
-	utxos, err := account.transactions.SpendableOutputs()
-	if err != nil {
-		return nil, err
-	}
+func (account *Account) makeSpendableOutputs(
+	utxos map[wire.OutPoint]*transactions.SpendableOutput,
+) []*SpendableOutput {
+	result := make([]*SpendableOutput, 0, len(utxos))
 	for outPoint, txOut := range utxos {
 		addressID := addresses.NewAddressID(txOut.TxOut.PkScript)
 		result = append(
@@ -1010,7 +1004,68 @@ func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
 				IsChange:        account.IsChange(addressID),
 			})
 	}
-	return sortByAddresses(result), nil
+	return sortByAddresses(result)
+}
+
+// SpendableOutputs returns the utxo set, sorted by the value descending.
+func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
+	utxos, err := account.transactions.SpendableOutputs()
+	if err != nil {
+		return nil, err
+	}
+	return account.makeSpendableOutputs(utxos), nil
+}
+
+// ReusedAddressesForOutputs returns the subset of the provided outputs whose addresses are reused
+// across all indexed wallet outputs.
+func (account *Account) ReusedAddressesForOutputs(
+	outputs []*SpendableOutput,
+) (map[addresses.AddressID]struct{}, error) {
+	if !account.Synced() {
+		return nil, accounts.ErrSyncInProgress
+	}
+	candidateAddresses := make(map[addresses.AddressID]struct{}, len(outputs))
+	for _, output := range outputs {
+		candidateAddresses[addresses.NewAddressID(output.TxOut.PkScript)] = struct{}{}
+	}
+	if len(candidateAddresses) == 0 {
+		return map[addresses.AddressID]struct{}{}, nil
+	}
+	return transactions.DBView(account.db, func(dbTx transactions.DBTxInterface) (map[addresses.AddressID]struct{}, error) {
+		indexedOutputs, err := dbTx.Outputs()
+		if err != nil {
+			return nil, err
+		}
+		return reusedAddresses(candidateAddresses, indexedOutputs), nil
+	})
+}
+
+// reusedAddresses returns the subset of candidateAddresses that appear more than once in
+// indexedOutputs. candidateAddresses is the set of addresses we care about, typically derived from
+// the current spendable outputs; indexedOutputs is the full set of wallet outputs stored in the DB,
+// including already spent siblings.
+func reusedAddresses(
+	candidateAddresses map[addresses.AddressID]struct{},
+	indexedOutputs map[wire.OutPoint]*wire.TxOut,
+) map[addresses.AddressID]struct{} {
+	addressCounts := make(map[addresses.AddressID]int, len(candidateAddresses))
+	for _, txOut := range indexedOutputs {
+		addressID := addresses.NewAddressID(txOut.PkScript)
+		if _, ok := candidateAddresses[addressID]; !ok {
+			continue
+		}
+		addressCounts[addressID]++
+	}
+	result := map[addresses.AddressID]struct{}{}
+	for addressID, count := range addressCounts {
+		if count > 1 {
+			result[addressID] = struct{}{}
+		}
+	}
+	return result
 }
 
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output
