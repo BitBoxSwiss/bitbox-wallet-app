@@ -3,8 +3,10 @@ package swapkit
 import (
 	"context"
 	"encoding/json"
+	"math/big"
 	"strings"
 
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
@@ -32,22 +34,41 @@ const apiKey = "0722e09f-9d3f-4817-a870-069848d03ee9"
 const ErrInvalidRequest errp.ErrorCode = "invalidRequest"
 
 // assetFromCoinCode translates an internal coin code into a SwapKit asset string.
-func assetFromCoinCode(coinCode string) (string, bool) {
-	asset, ok := swapkitAssetByCoinCode[strings.ToLower(strings.TrimSpace(coinCode))]
+func assetFromCoinCode(coinCode coinpkg.Code) (string, bool) {
+	asset, ok := swapkitAssetByCoinCode[strings.ToLower(strings.TrimSpace(string(coinCode)))]
 	return asset, ok
 }
 
-func newQuoteRequestFromCoinCodes(sellCoinCode, buyCoinCode, sellAmount string, providers []string) (*QuoteRequest, *QuoteError) {
-	if strings.TrimSpace(sellCoinCode) == "" {
+func newQuoteRequestFromCoinCodes(
+	sellCoinCode, buyCoinCode coinpkg.Code,
+	sellAmount string,
+	providers []string,
+) (*QuoteRequest, *QuoteError) {
+	sellAmount = strings.TrimSpace(sellAmount)
+
+	if sellCoinCode == "" {
 		return nil, &QuoteError{
 			ErrorCode: ErrInvalidRequest,
 			Message:   "Missing sellCoinCode.",
 		}
 	}
-	if strings.TrimSpace(buyCoinCode) == "" {
+	if buyCoinCode == "" {
 		return nil, &QuoteError{
 			ErrorCode: ErrInvalidRequest,
 			Message:   "Missing buyCoinCode.",
+		}
+	}
+	parsedSellAmount, ok := new(big.Rat).SetString(sellAmount)
+	if sellAmount == "" {
+		return nil, &QuoteError{
+			ErrorCode: ErrInvalidRequest,
+			Message:   "Missing sellAmount.",
+		}
+	}
+	if !ok || parsedSellAmount.Sign() <= 0 {
+		return nil, &QuoteError{
+			ErrorCode: ErrInvalidRequest,
+			Message:   "Invalid sellAmount.",
 		}
 	}
 	sellAsset, ok := assetFromCoinCode(sellCoinCode)
@@ -73,7 +94,11 @@ func newQuoteRequestFromCoinCodes(sellCoinCode, buyCoinCode, sellAmount string, 
 }
 
 // NewQuoteFromCoinCode validates the provided coin codes, fetches a quote, and maps structured API errors.
-func NewQuoteFromCoinCode(ctx context.Context, sellCoinCode, buyCoinCode, sellAmount string) (*QuoteResponse, *QuoteError) {
+func NewQuoteFromCoinCode(
+	ctx context.Context,
+	sellCoinCode, buyCoinCode coinpkg.Code,
+	sellAmount string,
+) (*QuoteResponse, *QuoteError) {
 	quoteRequest, quoteError := newQuoteRequestFromCoinCodes(
 		sellCoinCode,
 		buyCoinCode,
@@ -95,6 +120,24 @@ func NewQuoteFromCoinCode(ctx context.Context, sellCoinCode, buyCoinCode, sellAm
 		}
 	}
 	return quoteResponse, nil
+}
+
+// QuoteRouteSummariesFromResponse maps the provider response to the subset needed by the frontend.
+func QuoteRouteSummariesFromResponse(quoteResponse *QuoteResponse) []QuoteRouteSummary {
+	if quoteResponse == nil {
+		return nil
+	}
+
+	routes := make([]QuoteRouteSummary, 0, len(quoteResponse.Routes))
+	for i := range quoteResponse.Routes {
+		route := &quoteResponse.Routes[i]
+		routes = append(routes, QuoteRouteSummary{
+			RouteID:           route.RouteID,
+			ExpectedBuyAmount: route.ExpectedBuyAmount,
+		})
+	}
+
+	return routes
 }
 
 // quoteErrorFromError extracts a structured quote error from a SwapKit client error.

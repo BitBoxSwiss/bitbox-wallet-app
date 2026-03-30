@@ -1680,10 +1680,10 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 
 func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	type result struct {
-		Success      bool                   `json:"success"`
-		ErrorCode    errp.ErrorCode         `json:"errorCode,omitempty"`
-		ErrorMessage string                 `json:"errorMessage,omitempty"`
-		Quote        *swapkit.QuoteResponse `json:"quote,omitempty"`
+		Success      bool                        `json:"success"`
+		ErrorCode    errp.ErrorCode              `json:"errorCode,omitempty"`
+		ErrorMessage string                      `json:"errorMessage,omitempty"`
+		Routes       []swapkit.QuoteRouteSummary `json:"routes,omitempty"`
 	}
 	errorResult := func(code errp.ErrorCode, message string) result {
 		return result{
@@ -1694,25 +1694,54 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	}
 
 	var request struct {
-		SellCoinCode string `json:"sellCoinCode"`
-		BuyCoinCode  string `json:"buyCoinCode"`
-		SellAmount   string `json:"sellAmount"`
+		SellAccountCode accountsTypes.Code `json:"sellAccountCode"`
+		BuyAccountCode  accountsTypes.Code `json:"buyAccountCode"`
+		SellAmount      string             `json:"sellAmount"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return errorResult(swapkit.ErrInvalidRequest, "Request body is required and must be a valid JSON object.")
 	}
+	if request.SellAccountCode == "" {
+		return errorResult(swapkit.ErrInvalidRequest, "Missing sellAccountCode.")
+	}
+	if request.BuyAccountCode == "" {
+		return errorResult(swapkit.ErrInvalidRequest, "Missing buyAccountCode.")
+	}
+	if request.SellAccountCode == request.BuyAccountCode {
+		return errorResult(swapkit.ErrInvalidRequest, "Sell and buy accounts must differ.")
+	}
+
+	sellAccount, err := handlers.backend.GetAccountFromCode(request.SellAccountCode)
+	if err != nil {
+		handlers.log.WithError(err).WithField("accountCode", request.SellAccountCode).Error("failed to resolve swap quote account")
+		return errorResult(swapkit.ErrInvalidRequest, "Invalid sellAccountCode.")
+	}
+	if sellAccount.Offline() != nil || sellAccount.FatalError() {
+		return errorResult(swapkit.ErrInvalidRequest, "sellAccountCode is not valid.")
+	}
+
+	buyAccount, err := handlers.backend.GetAccountFromCode(request.BuyAccountCode)
+	if err != nil {
+		handlers.log.WithError(err).WithField("accountCode", request.BuyAccountCode).Error("failed to resolve swap quote account")
+		return errorResult(swapkit.ErrInvalidRequest, "Invalid buyAccountCode.")
+	}
+	if buyAccount.Offline() != nil || buyAccount.FatalError() {
+		return errorResult(swapkit.ErrInvalidRequest, "buyAccountCode is not valid.")
+	}
+
 	quoteResponse, quoteError := swapkit.NewQuoteFromCoinCode(
 		context.Background(),
-		request.SellCoinCode,
-		request.BuyCoinCode,
+		sellAccount.Coin().Code(),
+		buyAccount.Coin().Code(),
 		request.SellAmount,
 	)
 	if quoteError != nil {
 		return errorResult(quoteError.ErrorCode, quoteError.Message)
 	}
+
 	return result{
 		Success: true,
-		Quote:   quoteResponse,
+		Routes:  swapkit.QuoteRouteSummariesFromResponse(quoteResponse),
 	}
 }
