@@ -5,6 +5,7 @@ package backend
 import (
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"net/http"
 	"net/url"
 	"os"
@@ -327,7 +328,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		log.Errorf("RateUpdater DB cache dir: %v", err)
 	}
 	backend.ratesUpdater = rates.NewRateUpdater(hclient, ratesCache)
-	backend.ratesUpdater.Observe(backend.Notify)
+	backend.ratesUpdater.Observe(func(event observable.Event) {
+		backend.Notify(event)
+		backend.notifyCoinFiatPrices()
+	})
 
 	backend.banners = banners.NewBanners(backend.DevServers())
 	backend.banners.Observe(backend.Notify)
@@ -891,6 +895,35 @@ func (backend *Backend) Deregister(deviceID string) {
 // RatesUpdater returns the backend's ratesUpdater instance.
 func (backend *Backend) RatesUpdater() *rates.RateUpdater {
 	return backend.ratesUpdater
+}
+
+// CoinFiatPrices returns the fiat prices of 1 display-unit of the given coin
+// in all supported fiat currencies, formatted with thousand separators.
+// The successful response matches the frontend TAmountWithConversions shape.
+func (backend *Backend) CoinFiatPrices(coin coinpkg.Coin) *coinpkg.FormattedAmountWithConversions {
+	const isFee = false
+	coinAmount := coin.SetAmount(big.NewRat(1, 1), isFee)
+	return &coinpkg.FormattedAmountWithConversions{
+		Amount: coin.Unit(isFee),
+		Unit:   coin.GetFormatUnit(isFee),
+		Conversions: coinpkg.Conversions(
+			coinAmount,
+			coin,
+			isFee,
+			backend.ratesUpdater),
+	}
+}
+
+// notifyCoinFiatPrices pushes per-coin fiat price events for all initialized coins.
+func (backend *Backend) notifyCoinFiatPrices() {
+	defer backend.coinsLock.RLock()()
+	for code, coin := range backend.coins {
+		backend.Notify(observable.Event{
+			Subject: fmt.Sprintf("coins/%s/fiat-prices", code),
+			Action:  action.Replace,
+			Object:  backend.CoinFiatPrices(coin),
+		})
+	}
 }
 
 // DownloadCert downloads the first element of the remote certificate chain.
