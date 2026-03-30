@@ -898,7 +898,7 @@ func (backend *Backend) RatesUpdater() *rates.RateUpdater {
 }
 
 // CoinFiatPrices returns the fiat prices of 1 display-unit of the given coin
-// in all supported fiat currencies, formatted without thousand separators.
+// in all supported fiat currencies, formatted with thousand separators.
 // The successful response matches the frontend TAmountWithConversions shape.
 func (backend *Backend) CoinFiatPrices(coin coinpkg.Coin) *coinpkg.FormattedAmountWithConversions {
 	const isFee = false

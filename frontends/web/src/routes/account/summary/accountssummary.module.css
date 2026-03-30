@@ -111,7 +111,7 @@
 
 .noAccountText {
     text-align: center;
-    font-size: 14px;
+    font-size: var(--size-small);
 }
 
 
