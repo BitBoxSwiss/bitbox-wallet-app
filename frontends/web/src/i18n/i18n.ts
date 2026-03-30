@@ -25,10 +25,9 @@ import { languageFromConfig } from './config';
 import { localeMainLanguage } from './utils';
 import { setConfig } from '@/utils/config';
 
-let i18Init = i18n
-  .use(languageFromConfig);
+const i18Init = i18n.use(languageFromConfig);
 
-i18Init.init({
+export const getI18NConfig = () => ({
   fallbackLng: 'en',
   returnEmptyString: false,
 
@@ -46,6 +45,8 @@ i18Init.init({
     useSuspense : true, // Not using Suspense you will need to handle the not ready state yourself
   },
 });
+
+i18Init.init(getI18NConfig());
 
 i18n.addResourceBundle('ar', 'app', appTranslationsAR);
 i18n.addResourceBundle('cs', 'app', appTranslationsCS);
