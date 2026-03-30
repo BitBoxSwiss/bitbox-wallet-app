@@ -31,8 +31,3 @@ func newDefaultLightningConfig() LightningConfig {
 		Accounts: []*LightningAccountConfig{},
 	}
 }
-
-// LightningEnabled returns true if there are lightning accounts enabled.
-func (cfg LightningConfig) LightningEnabled() bool {
-	return len(cfg.Accounts) > 0
-}

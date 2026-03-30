@@ -68,9 +68,7 @@ func NewLightning(config *config.Config,
 
 // Activate first creates a mnemonic from the keystore entropy then connects to instance.
 func (lightning *Lightning) Activate() error {
-	lightningConfig := lightning.backendConfig.LightningConfig()
-
-	if len(lightningConfig.Accounts) > 0 {
+	if lightning.Account() != nil {
 		return errp.New("Lightning accounts already configured")
 	}
 
@@ -101,9 +99,7 @@ func (lightning *Lightning) Activate() error {
 		Code:            types.Code(strings.Join([]string{"v0-", hex.EncodeToString(fingerprint), "-ln-0"}, "")),
 		Number:          0,
 	}
-	lightningConfig.Accounts = append(lightningConfig.Accounts, &lightningAccount)
-
-	if err = lightning.SetLightningConfig(lightningConfig); err != nil {
+	if err = lightning.SetAccount(&lightningAccount); err != nil {
 		return err
 	}
 
@@ -139,22 +135,19 @@ func (lightning *Lightning) Disconnect() {
 
 // Deactivate disconnects the instance, deletes cache folder and changes the config to inactive.
 func (lightning *Lightning) Deactivate() error {
-	lightningConfig := lightning.backendConfig.LightningConfig()
+	account := lightning.Account()
 
-	if len(lightningConfig.Accounts) == 0 {
+	if account == nil {
 		return nil
 	}
 
 	lightning.Disconnect()
-	account := lightningConfig.Accounts[0]
 	workingDir := path.Join(lightning.cacheDirectoryPath, accountBreezFolder(account.Code))
 	if err := os.RemoveAll(workingDir); err != nil {
 		lightning.log.WithError(err).Error("Error deleting working directory")
 	}
 
-	lightningConfig.Accounts = []*config.LightningAccountConfig{}
-
-	if err := lightning.SetLightningConfig(lightningConfig); err != nil {
+	if err := lightning.SetAccount(nil); err != nil {
 		return err
 	}
 
@@ -163,8 +156,7 @@ func (lightning *Lightning) Deactivate() error {
 
 // CheckActive returns an error if the lightning service not has been activated.
 func (lightning *Lightning) CheckActive() error {
-	lightningConfig := lightning.backendConfig.LightningConfig()
-	if len(lightningConfig.Accounts) == 0 || lightning.sdkService == nil {
+	if lightning.Account() == nil || lightning.sdkService == nil {
 		return errp.New("Lightning not initialized")
 	}
 	return nil
@@ -370,14 +362,10 @@ func accountBreezFolder(accountCode types.Code) string {
 
 // connect initializes the connection configuration and calls connect to create a Breez SDK instance.
 func (lightning *Lightning) connect(_ bool) error {
-	lightningConfig := lightning.backendConfig.LightningConfig()
+	account := lightning.Account()
 
-	if len(lightningConfig.Accounts) > 0 && lightning.sdkService == nil {
+	if account != nil && lightning.sdkService == nil {
 		initializeLogging(lightning.log)
-
-		// At the moment we only support one LN account, but the config files could possibly
-		// support multiple accounts, for future extensions.
-		account := lightningConfig.Accounts[0]
 
 		workingDir := path.Join(lightning.cacheDirectoryPath, accountBreezFolder(account.Code))
 
@@ -450,10 +438,25 @@ func (lightning *Lightning) getBreezApiKey() (*string, error) {
 	return &trimmedKey, nil
 }
 
-// SetLightningConfig updates the lightning config and notifies about the config change.
-func (lightning *Lightning) SetLightningConfig(lightningConfig config.LightningConfig) error {
+// Account returns the active lightning account, if any.
+func (lightning *Lightning) Account() *config.LightningAccountConfig {
+	lightningConfig := lightning.backendConfig.LightningConfig()
+	if len(lightningConfig.Accounts) == 0 {
+		return nil
+	}
+	// The config keeps a slice for forward compatibility with future multi-account support,
+	// but the current backend only exposes and operates on the first configured account.
+	return lightningConfig.Accounts[0]
+}
+
+// SetAccount updates the active lightning account and notifies about the config change.
+func (lightning *Lightning) SetAccount(account *config.LightningAccountConfig) error {
 	if err := lightning.backendConfig.ModifyLightningConfig(func(cfg *config.LightningConfig) error {
-		*cfg = lightningConfig
+		cfg.Accounts = []*config.LightningAccountConfig{}
+		if account != nil {
+			accountCopy := *account
+			cfg.Accounts = []*config.LightningAccountConfig{&accountCopy}
+		}
 		return nil
 	}); err != nil {
 		lightning.log.WithError(err).Warn("Error updating lightning config")
@@ -461,7 +464,7 @@ func (lightning *Lightning) SetLightningConfig(lightningConfig config.LightningC
 	}
 
 	lightning.Notify(observable.Event{
-		Subject: "lightning/config",
+		Subject: "lightning/account",
 		Action:  action.Reload,
 	})
 

@@ -53,7 +53,7 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
   const { t } = useTranslation();
   const fetchedConfig = useLoad(getConfig) as TConfig;
   const [config, setConfig] = useState<TConfig>();
-  const { lightningConfig } = useLightning();
+  const { lightningAccount } = useLightning();
 
   const frontendConfig = config?.frontend;
   const backendConfig = config?.backend;
@@ -88,7 +88,7 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
-                {lightningConfig.accounts.length === 0 ? <EnableLightning /> : <DisableLightning />}
+                {lightningAccount === null ? <EnableLightning /> : <DisableLightning />}
                 <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />

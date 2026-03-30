@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { LightningContext } from './LightningContext';
-import { getLightningConfig, subscribeLightningConfig } from '../api/lightning';
+import { getLightningAccount, subscribeLightningAccount } from '../api/lightning';
 import { useSync } from '../hooks/api';
 import { useDefault } from '../hooks/default';
 
@@ -11,15 +11,15 @@ type TProps = {
 };
 
 export const LightningProvider = ({ children }: TProps) => {
-  const lightningConfig = useDefault(
-    useSync(getLightningConfig, subscribeLightningConfig),
-    { accounts: [] },
+  const lightningAccount = useDefault(
+    useSync(getLightningAccount, subscribeLightningAccount),
+    null,
   );
 
   return (
     <LightningContext.Provider
       value={{
-        lightningConfig
+        lightningAccount
       }}>
       {children}
     </LightningContext.Provider>

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { createContext } from 'react';
-import { TLightningConfig } from '@/api/lightning';
+import { TLightningAccount } from '@/api/lightning';
 
 type Props = {
-  lightningConfig: TLightningConfig;
+  lightningAccount: TLightningAccount | null;
 };
 
 export const LightningContext = createContext<Props>({} as Props);

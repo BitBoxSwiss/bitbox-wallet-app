@@ -253,8 +253,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChanged).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/export-log", handlers.postExportLog).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/lightning/config", handlers.getLightningConfigHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/lightning/config", handlers.postLightningConfigHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/account", handlers.getLightningAccount).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/lightning/activate-node", handlers.postLightningActivateNode).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/lightning/deactivate-node", handlers.postLightningDeactivateNode).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/lightning/node-info", handlers.getLightningNodeInfo).Methods("GET")
@@ -1610,37 +1609,8 @@ func (handlers *Handlers) postExportLog(r *http.Request) interface{} {
 	return result{Success: true}
 }
 
-type lightningAccountConfigWithoutMnemonic struct {
-	RootFingerprint jsonp.HexBytes     `json:"rootFingerprint"`
-	Code            accountsTypes.Code `json:"code"`
-	Number          uint16             `json:"num"`
-}
-
-type lightningConfigWithoutMnemonic struct {
-	Accounts []*lightningAccountConfigWithoutMnemonic `json:"accounts"`
-}
-
-func (handlers *Handlers) getLightningConfigHandler(_ *http.Request) interface{} {
-	lightningAccounts := handlers.backend.Config().LightningConfig().Accounts
-	accounts := make([]*lightningAccountConfigWithoutMnemonic, len(lightningAccounts))
-	for i, account := range lightningAccounts {
-		accounts[i] = &lightningAccountConfigWithoutMnemonic{
-			RootFingerprint: account.RootFingerprint,
-			Code:            account.Code,
-			Number:          account.Number,
-		}
-	}
-	return lightningConfigWithoutMnemonic{
-		Accounts: accounts,
-	}
-}
-
-func (handlers *Handlers) postLightningConfigHandler(r *http.Request) (interface{}, error) {
-	lightningConfig := config.LightningConfig{}
-	if err := json.NewDecoder(r.Body).Decode(&lightningConfig); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	return nil, handlers.backend.Lightning().SetLightningConfig(lightningConfig)
+func (handlers *Handlers) getLightningAccount(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetAccount(r)
 }
 
 func (handlers *Handlers) postLightningActivateNode(r *http.Request) interface{} {
