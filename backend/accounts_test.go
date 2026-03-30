@@ -135,15 +135,17 @@ func TestSortAccounts(t *testing.T) {
 	require.NoError(t, err)
 	xpub, err = xpub.Neuter()
 	require.NoError(t, err)
-	rootFingerprint := []byte{1, 2, 3, 4}
-	btcConfig := func(keypath string) signing.Configurations {
+	rootFingerprint1 := []byte{1, 2, 3, 4}
+	rootFingerprint2 := []byte{2, 2, 3, 4}
+	rootFingerprint3 := []byte{3, 2, 3, 4}
+	btcConfig := func(rootFingerprint []byte, keypath string) signing.Configurations {
 		kp, err := signing.NewAbsoluteKeypath(keypath)
 		require.NoError(t, err)
 		return signing.Configurations{
 			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint, kp, xpub),
 		}
 	}
-	ethConfig := func(keypath string) signing.Configurations {
+	ethConfig := func(rootFingerprint []byte, keypath string) signing.Configurations {
 		kp, err := signing.NewAbsoluteKeypath(keypath)
 		require.NoError(t, err)
 		return signing.Configurations{
@@ -152,22 +154,28 @@ func TestSortAccounts(t *testing.T) {
 	}
 
 	accountConfigs := []*config.Account{
+		{Code: "acct-btc-alpha", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig(rootFingerprint2, "m/84'/0'/0'")},
+		{Code: "acct-ltc-alpha", CoinCode: coinpkg.CodeLTC, SigningConfigurations: btcConfig(rootFingerprint2, "m/84'/2'/0'")},
 		{
-			Code:                  "acct-eth-2",
+			Code:                  "acct-eth-beta-2",
 			CoinCode:              coinpkg.CodeETH,
-			SigningConfigurations: ethConfig("m/44'/60'/0'/0/1"),
+			SigningConfigurations: ethConfig(rootFingerprint3, "m/44'/60'/0'/0/1"),
 			ActiveTokens:          []string{"eth-erc20-usdt", "eth-erc20-bat"},
 		},
-		{Code: "acct-eth-1", CoinCode: coinpkg.CodeETH, SigningConfigurations: ethConfig("m/44'/60'/0'/0/0")},
-		{Code: "acct-btc-1", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/0'")},
-		{Code: "acct-btc-3", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/2'")},
-		{Code: "acct-btc-2", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/1'")},
-		{Code: "acct-sepeth", CoinCode: coinpkg.CodeSEPETH},
-		{Code: "acct-ltc", CoinCode: coinpkg.CodeLTC},
-		{Code: "acct-tltc", CoinCode: coinpkg.CodeTLTC},
-		{Code: "acct-tbtc", CoinCode: coinpkg.CodeTBTC},
+		{Code: "acct-btc-beta-2", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig(rootFingerprint3, "m/84'/0'/1'")},
+		{Code: "acct-btc-beta-1", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig(rootFingerprint1, "m/84'/0'/0'")},
+		{Code: "acct-eth-beta-1", CoinCode: coinpkg.CodeETH, SigningConfigurations: ethConfig(rootFingerprint1, "m/44'/60'/0'/0/0")},
 	}
 	backend := newBackend(t, testnetDisabled, regtestDisabled)
+	require.NoError(t, backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		keystore1 := accountsConfig.GetOrAddKeystore(rootFingerprint1)
+		keystore1.Name = "Beta"
+		keystore2 := accountsConfig.GetOrAddKeystore(rootFingerprint2)
+		keystore2.Name = "Alpha"
+		keystore3 := accountsConfig.GetOrAddKeystore(rootFingerprint3)
+		keystore3.Name = "Beta"
+		return nil
+	}))
 	unlockFN := backend.accountsAndKeystoreLock.Lock()
 	for i := range accountConfigs {
 		c, err := backend.Coin(accountConfigs[i].CoinCode)
@@ -177,17 +185,14 @@ func TestSortAccounts(t *testing.T) {
 	unlockFN()
 
 	expectedOrder := []accountsTypes.Code{
-		"acct-btc-1",
-		"acct-btc-2",
-		"acct-btc-3",
-		"acct-tbtc",
-		"acct-ltc",
-		"acct-tltc",
-		"acct-eth-1",
-		"acct-eth-2",
-		"acct-eth-2-eth-erc20-bat",
-		"acct-eth-2-eth-erc20-usdt",
-		"acct-sepeth",
+		"acct-btc-alpha",
+		"acct-ltc-alpha",
+		"acct-btc-beta-1",
+		"acct-eth-beta-1",
+		"acct-btc-beta-2",
+		"acct-eth-beta-2",
+		"acct-eth-beta-2-eth-erc20-bat",
+		"acct-eth-beta-2-eth-erc20-usdt",
 	}
 
 	for i, acct := range backend.Accounts() {

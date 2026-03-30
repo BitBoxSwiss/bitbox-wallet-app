@@ -3,6 +3,7 @@
 package backend
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"math"
@@ -102,8 +103,9 @@ func (a AccountsList) lookupByTransactionInternalID(internalID string) (accounts
 	return nil, nil
 }
 
-// sortAccounts sorts the accounts in-place by 1) coin 2) account number.
-func sortAccounts(accounts []accounts.Interface) {
+// sortAccounts sorts the accounts in-place by 1) keystore name 2) root fingerprint 3) coin
+// 4) account number.
+func sortAccounts(accounts []accounts.Interface, accountsConfig config.AccountsConfig) {
 	compareCoin := func(coin1, coin2 coinpkg.Coin) int {
 		getOrder := func(c coinpkg.Coin) (int, bool) {
 			order, ok := map[coinpkg.Code]int{
@@ -139,6 +141,18 @@ func sortAccounts(accounts []accounts.Interface) {
 	less := func(i, j int) bool {
 		acct1 := accounts[i]
 		acct2 := accounts[j]
+		rootFingerprint1, err1 := acct1.Config().Config.SigningConfigurations.RootFingerprint()
+		rootFingerprint2, err2 := acct2.Config().Config.SigningConfigurations.RootFingerprint()
+		if err1 == nil && err2 == nil {
+			keystore1, lookupErr1 := accountsConfig.LookupKeystore(rootFingerprint1)
+			keystore2, lookupErr2 := accountsConfig.LookupKeystore(rootFingerprint2)
+			if lookupErr1 == nil && lookupErr2 == nil && keystore1.Name != keystore2.Name {
+				return keystore1.Name < keystore2.Name
+			}
+			if cmp := bytes.Compare(rootFingerprint1, rootFingerprint2); cmp != 0 {
+				return cmp < 0
+			}
+		}
 		coinCmp := compareCoin(acct1.Coin(), acct2.Coin())
 		if coinCmp == 0 && len(acct1.Config().Config.SigningConfigurations) > 0 && len(acct2.Config().Config.SigningConfigurations) > 0 {
 			signingCfg1 := acct1.Config().Config.SigningConfigurations[0]
@@ -826,7 +840,7 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.accounts = append(backend.accounts, account)
-	sortAccounts(backend.accounts)
+	sortAccounts(backend.accounts, backend.config.AccountsConfig())
 
 	account.Observe(func(event observable.Event) {
 		backend.Notify(observable.Event{
