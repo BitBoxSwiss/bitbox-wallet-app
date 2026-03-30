@@ -41,8 +41,7 @@
     "xpubTypeChangeBtn": {
       "p2pkh": "View legacy P2PKH extended public key",
       "p2tr": "View Taproot",
-      "p2wpkh": "View Native Segwit",
-      "p2wpkh-p2sh": "View older Segwit extended public key"
+      "p2wpkh": "View Native Segwit"
     },
     "xpubTypeInfo": "Currently displaying {{scriptType}} extended public key ({{current}} of {{numberOfXPubs}})"
   },
@@ -1018,7 +1017,7 @@
         "title": "How can I export my transaction history? (e.g., for CoinTracking)"
       },
       "multipleXPubs": {
-        "text": "Each xpub is tied to the \"Type\" shown: either \"Native Segwit (bech32)\", \"Wrapped Segwit\" or “Taproot” (Bitcoin only). These are script types used by {{coinName}}. The BitBoxApp combines them, supporting multiple script types in the same account. Because each script type gives a different xpub, there are multiple xpubs per account.\n\nIf you consistently receive on the default address (Native Segwit), you only need the \"bech32\" xpub. However, if you also receive funds to \"Wrapped Segwit\" or “Taproot”, you also need to use the \"Wrapped Segwit\" and “Taproot” extended public keys respectively.",
+        "text": "Each xpub is tied to the \"Type\" shown: either \"Native Segwit (bech32)\", or “Taproot” (Bitcoin only). These are script types used by {{coinName}}. The BitBoxApp combines them, supporting multiple script types in the same account. Because each script type gives a different xpub, there are multiple xpubs per account.\n\nIf you consistently receive on the default address (Native Segwit), you only need the \"bech32\" xpub. However, if you also receive funds to “Taproot”, you also need to use “Taproot” extended public key.",
         "title": "Why are there multiple xpubs?"
       },
       "privacy": {
@@ -1266,7 +1265,7 @@
         "title": "When do the addresses change?"
       },
       "addressFormats": {
-        "text": "By default, the address type is Native Segwit. This address type is widely adopted by other wallets/exchanges and gives you the best fee rates for everyday transactions. However, you may also choose to send to Taproot (Bitcoin only), which is the newest address type, but may not be widely supported yet. Alternatively, if you are having issues sending to Native Segwit (the default type), you can try switching to the older Wrapped Segwit address type that may be compatible with more wallets/exchanges.",
+        "text": "By default, the address type is Native Segwit. This address type is widely adopted by other wallets/exchanges and gives you the best fee rates for everyday transactions. However, you may also choose to send to Taproot (Bitcoin only), which is the newest address type, but may not be widely supported yet.",
         "title": "When do I use “Change address type”?"
       },
       "howVerify": {
@@ -1642,7 +1641,7 @@
     }
   },
   "receive": {
-    "bitsuranceWarning": "This is an insured account, meaning it can only receive to Native Segwit. This is so you don't accidently receive to Wrapped Segwit or Taproot, which are not insured.",
+    "bitsuranceWarning": "This is an insured account, meaning it can only receive to Native Segwit. This is so you don't accidently receive to Taproot, which is not insured.",
     "changeScriptType": "Change address type",
     "label": "Your address",
     "onlyThisCoin": {
@@ -1652,8 +1651,7 @@
     "qrCodeCopiedMessage": "Copied!",
     "scriptType": {
       "p2tr": "Taproot (newest format)",
-      "p2wpkh": "Native Segwit (default)",
-      "p2wpkh-p2sh": "Wrapped Segwit (compatible format)"
+      "p2wpkh": "Native Segwit (default)"
     },
     "selectAccount": "Select account",
     "taprootWarning": "Note: Taproot is a new Bitcoin feature and is not yet widely adopted. Funds received on Taproot addresses may not be visible in third party watch-only wallets. Many wallets and exchanges are not yet able to send to Taproot addresses.",
