@@ -34,6 +34,9 @@ type connectKeystore struct {
 }
 
 func compareRootFingerprint(ks keystore.Keystore, rootFingerprint []byte) error {
+	if len(rootFingerprint) == 0 {
+		return nil
+	}
 	keystoreRootFingerprint, err := ks.RootFingerprint()
 	if err != nil {
 		return err
@@ -45,8 +48,9 @@ func compareRootFingerprint(ks keystore.Keystore, rootFingerprint []byte) error 
 }
 
 // connect blocks until the keystore with the given rootFingerprint is connected and then returns
-// that keystore. If it is already connected, the it is returned immediately. If the next keystore
-// being connected is not the right fingerprint, `errWrongKeystore` is returned.
+// that keystore. If rootFingerprint is empty, any connected keystore is accepted. If it is already
+// connected, it is returned immediately. If the next keystore being connected is not the right
+// fingerprint, `errWrongKeystore` is returned.
 //
 // Only one such call is supported at once. If another call is aleady ongoing, `errReplaced` is returned.
 // If `c.cancel(err)` is called, this function returns `err`.

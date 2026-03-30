@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CoinCode, TAccount } from '@/api/account';
 import {
+  getConnectedSwapAccounts,
   getDefaultSwapPair,
   getDisabledAccountCodes,
   getFlippedAmounts,
@@ -16,11 +17,13 @@ import {
 const makeAccount = ({
   code,
   coinCode,
+  connected = true,
   isToken = false,
   rootFingerprint = 'f1',
 }: {
   code: string;
   coinCode: CoinCode;
+  connected?: boolean;
   isToken?: boolean;
   rootFingerprint?: string;
 }): TAccount => ({
@@ -29,7 +32,7 @@ const makeAccount = ({
     rootFingerprint,
     name: `Keystore ${rootFingerprint}`,
     lastConnected: '',
-    connected: true,
+    connected,
   },
   active: true,
   coinCode,
@@ -42,7 +45,20 @@ const makeAccount = ({
 });
 
 describe('routes/market/swap/services', () => {
-  it('defaults to native ethereum selling and bitcoin buying', () => {
+  it('returns only accounts from connected keystores', () => {
+    const accounts = [
+      makeAccount({ code: 'btc-connected', coinCode: 'btc', connected: true, rootFingerprint: 'f1' }),
+      makeAccount({ code: 'eth-connected', coinCode: 'eth', connected: true, rootFingerprint: 'f1' }),
+      makeAccount({ code: 'ltc-disconnected', coinCode: 'ltc', connected: false, rootFingerprint: 'f2' }),
+    ];
+
+    expect(getConnectedSwapAccounts(accounts).map(({ code }) => code)).toEqual([
+      'btc-connected',
+      'eth-connected',
+    ]);
+  });
+
+  it('defaults to native ethereum selling and the first preferred bitcoin account', () => {
     const accounts = [
       makeAccount({ code: 'btc-other', coinCode: 'btc', rootFingerprint: 'f2' }),
       makeAccount({ code: 'eth-main', coinCode: 'eth', rootFingerprint: 'f1' }),
@@ -51,7 +67,7 @@ describe('routes/market/swap/services', () => {
 
     expect(getDefaultSwapPair(accounts)).toEqual({
       sellAccountCode: 'eth-main',
-      buyAccountCode: 'btc-same-keystore',
+      buyAccountCode: 'btc-other',
     });
   });
 

@@ -27,10 +27,6 @@ const findOptionalAccount = (
   accountCode ? findAccount(accounts, accountCode) : undefined
 );
 
-const sharesKeystore = (account: TAccount, referenceAccount: TAccount) => (
-  account.keystore.rootFingerprint === referenceAccount.keystore.rootFingerprint
-);
-
 const isEligibleCounterpart = (account: TAccount, referenceAccount: TAccount) => (
   account.code !== referenceAccount.code && account.coinCode !== referenceAccount.coinCode
 );
@@ -54,18 +50,17 @@ const findPreferredCounterpartAccount = (
     return;
   }
 
-  // Prefer the common BTC/ETH paths first, but keep the selection on the same keystore when
-  // possible so the default pair stays anchored to the same device.
+  // Prefer the common BTC/ETH paths first.
   for (const preferredCoinCode of getPreferredCounterpartCoinCodes(account)) {
     const matchingAccounts = eligibleAccounts.filter(
       candidate => getCoinCode(candidate.coinCode) === preferredCoinCode,
     );
     if (matchingAccounts.length) {
-      return matchingAccounts.find(candidate => sharesKeystore(candidate, account)) || matchingAccounts[0];
+      return matchingAccounts[0];
     }
   }
 
-  return eligibleAccounts.find(candidate => sharesKeystore(candidate, account)) || eligibleAccounts[0];
+  return eligibleAccounts[0];
 };
 
 const getPreferredCounterpartAccountCode = (
@@ -112,6 +107,10 @@ export const getPairKey = (
   buyAccountCode?: AccountCode,
 ) => (
   sellAccountCode && buyAccountCode ? `${sellAccountCode}:${buyAccountCode}` : undefined
+);
+
+export const getConnectedSwapAccounts = (accounts: TAccount[]) => (
+  accounts.filter(account => account.keystore.connected)
 );
 
 export const getDisabledAccountCodes = (

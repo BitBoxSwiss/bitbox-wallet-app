@@ -45,6 +45,10 @@ export const connectKeystore = (rootFingerprint: string): Promise<TConnectKeysto
   return apiPost('connect-keystore', { rootFingerprint });
 };
 
+export const connectAnyKeystore = (): Promise<{ success: boolean }> => {
+  return connectKeystore('');
+};
+
 export const getKeystoreFeatures = (rootFingerprint: string): Promise<TKeystoreFeaturesResponse> => {
   return apiGet(`keystore/${rootFingerprint}/features`);
 };

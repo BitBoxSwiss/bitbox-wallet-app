@@ -25,7 +25,7 @@ import { getConfig, setConfig } from '@/utils/config';
 import { CountrySelect, TOption } from './components/countryselect';
 import { getBTCDirectOTCLink, InfoContent, TInfoContentProps } from './components/infocontent';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
-import { connectKeystore } from '@/api/keystores';
+import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
 import { open } from '@/api/system';
 import style from './market.module.css';
 
@@ -165,12 +165,19 @@ export const Market = ({
     }
   };
 
-  const goToVendor = (vendor: string) => {
+  const goToVendor = async (vendor: string) => {
     if (!vendor) {
       return;
     }
     if (activeTab === 'swap') {
-      navigate('/market/swap');
+      const connectResult = await connectAnyKeystore();
+      if (connectResult.success) {
+        navigate('/market/swap', {
+          state: {
+            awaitConnectedKeystore: true,
+          },
+        });
+      }
       return;
     }
     if (activeTab === 'otc') {

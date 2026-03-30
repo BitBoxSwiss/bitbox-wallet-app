@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getBalance, TBalance, type AccountCode, type TAccount } from '@/api/account';
 import { getSwapQuote, type TSwapQuoteRoute } from '@/api/swap';
@@ -19,6 +20,7 @@ import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
 import { RatesContext } from '@/contexts/RatesContext';
 import {
+  getConnectedSwapAccounts,
   getDefaultSwapPair,
   getDisabledAccountCodes,
   getFlippedAmounts,
@@ -34,6 +36,11 @@ import style from './swap.module.css';
 type Props = {
   accounts: TAccount[];
   code: AccountCode;
+};
+
+type TSwapLocationState = {
+  awaitConnectedKeystore?: boolean;
+  hadConnectedKeystore?: boolean;
 };
 
 const QUOTE_DEBOUNCE_MS = 300;
@@ -52,21 +59,34 @@ export const Swap = ({
   code,
 }: Props) => {
   const { t } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
   const routeSellAccountCode = code || undefined;
+  const swapAccounts = useMemo(
+    () => getConnectedSwapAccounts(accounts),
+    [accounts],
+  );
+  const locationState = (
+    typeof location.state === 'object' && location.state !== null
+      ? location.state as TSwapLocationState
+      : null
+  );
+  const awaitConnectedKeystore = Boolean(locationState?.awaitConnectedKeystore);
+  const hadConnectedKeystore = Boolean(locationState?.hadConnectedKeystore);
 
   // TODO: can be removed once real amount's are used for expectedOutput in sendconfirm
   const { btcUnit } = useContext(RatesContext);
 
   // Send
   const [sellAccountCode, setSellAccountCode] = useState<AccountCode | undefined>(() => (
-    getDefaultSwapPair(accounts, routeSellAccountCode).sellAccountCode
+    getDefaultSwapPair(swapAccounts, routeSellAccountCode).sellAccountCode
   ));
   const [sellAmount, setSellAmount] = useState<string>('');
   const [maxSellAmount, setMaxSellAmount] = useState<TBalance | undefined>();
 
   // Receive
   const [buyAccountCode, setBuyAccountCode] = useState<AccountCode | undefined>(() => (
-    getDefaultSwapPair(accounts, routeSellAccountCode).buyAccountCode
+    getDefaultSwapPair(swapAccounts, routeSellAccountCode).buyAccountCode
   ));
   const [expectedOutput, setExpectedOutput] = useState<string>('');
 
@@ -79,12 +99,12 @@ export const Swap = ({
   const pairAmountsRef = useRef<Record<string, TPairAmounts>>({});
 
   const fromAccount = useMemo(
-    () => accounts.find(account => account.code === sellAccountCode),
-    [accounts, sellAccountCode],
+    () => swapAccounts.find(account => account.code === sellAccountCode),
+    [swapAccounts, sellAccountCode],
   );
   const toAccount = useMemo(
-    () => accounts.find(account => account.code === buyAccountCode),
-    [accounts, buyAccountCode],
+    () => swapAccounts.find(account => account.code === buyAccountCode),
+    [swapAccounts, buyAccountCode],
   );
   const selectedRoute = useMemo(
     () => routes.find(route => route.routeId === selectedRouteId),
@@ -95,22 +115,44 @@ export const Swap = ({
     [routes, selectedRoute],
   );
   const sellDisabledAccountCodes = useMemo(
-    () => getDisabledAccountCodes(accounts, buyAccountCode),
-    [accounts, buyAccountCode],
+    () => getDisabledAccountCodes(swapAccounts, buyAccountCode),
+    [swapAccounts, buyAccountCode],
   );
   const buyDisabledAccountCodes = useMemo(
-    () => getDisabledAccountCodes(accounts, sellAccountCode),
-    [accounts, sellAccountCode],
+    () => getDisabledAccountCodes(swapAccounts, sellAccountCode),
+    [swapAccounts, sellAccountCode],
   );
   const canFlip = Boolean(buyAccountCode && sellAccountCode);
+
+  useEffect(() => {
+    if (swapAccounts.length === 0 || hadConnectedKeystore) {
+      return;
+    }
+
+    navigate(location.pathname, {
+      replace: true,
+      state: {
+        ...(locationState || {}),
+        awaitConnectedKeystore: false,
+        hadConnectedKeystore: true,
+      },
+    });
+  }, [hadConnectedKeystore, location.pathname, locationState, navigate, swapAccounts.length]);
+
+  useEffect(() => {
+    if (swapAccounts.length > 0 || awaitConnectedKeystore) {
+      return;
+    }
+    navigate('/', { replace: true });
+  }, [awaitConnectedKeystore, navigate, swapAccounts.length]);
 
   useEffect(() => {
     const routeChanged = previousRouteSellAccountCode.current !== routeSellAccountCode;
     previousRouteSellAccountCode.current = routeSellAccountCode;
 
     const nextPair = routeChanged
-      ? getDefaultSwapPair(accounts, routeSellAccountCode)
-      : reconcileSwapPair(accounts, { buyAccountCode, sellAccountCode }, routeSellAccountCode);
+      ? getDefaultSwapPair(swapAccounts, routeSellAccountCode)
+      : reconcileSwapPair(swapAccounts, { buyAccountCode, sellAccountCode }, routeSellAccountCode);
 
     if (nextPair.sellAccountCode !== sellAccountCode) {
       setSellAccountCode(nextPair.sellAccountCode);
@@ -118,7 +160,7 @@ export const Swap = ({
     if (nextPair.buyAccountCode !== buyAccountCode) {
       setBuyAccountCode(nextPair.buyAccountCode);
     }
-  }, [accounts, buyAccountCode, routeSellAccountCode, sellAccountCode]);
+  }, [swapAccounts, buyAccountCode, routeSellAccountCode, sellAccountCode]);
 
   useEffect(() => {
     const pairKey = getPairKey(sellAccountCode, buyAccountCode);
@@ -158,14 +200,14 @@ export const Swap = ({
   const handleSellAccountCodeChange = (nextSellAccountCode: AccountCode) => {
     setSellAccountCode(nextSellAccountCode);
     setBuyAccountCode(currentBuyAccountCode => (
-      getPreferredBuyAccountCode(accounts, nextSellAccountCode, currentBuyAccountCode)
+      getPreferredBuyAccountCode(swapAccounts, nextSellAccountCode, currentBuyAccountCode)
     ));
   };
 
   const handleBuyAccountCodeChange = (nextBuyAccountCode: AccountCode) => {
     setBuyAccountCode(nextBuyAccountCode);
     setSellAccountCode(currentSellAccountCode => (
-      getPreferredSellAccountCode(accounts, nextBuyAccountCode, currentSellAccountCode)
+      getPreferredSellAccountCode(swapAccounts, nextBuyAccountCode, currentSellAccountCode)
     ));
   };
 
@@ -258,6 +300,13 @@ export const Swap = ({
   // source exists. SwapKit route fees are not correct here because BitBoxApp builds the tx itself.
   const isSwapDisabled = !selectedRoute;
 
+  if (swapAccounts.length === 0) {
+    if (awaitConnectedKeystore) {
+      return null;
+    }
+    return null;
+  }
+
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -292,7 +341,7 @@ export const Swap = ({
                 )}
               </div>
               <InputWithAccountSelector
-                accounts={accounts}
+                accounts={swapAccounts}
                 disabledAccountCodes={sellDisabledAccountCodes}
                 id="swapSendAmount"
                 accountCode={sellAccountCode}
@@ -324,7 +373,7 @@ export const Swap = ({
                 </Button>
               </div>
               <InputWithAccountSelector
-                accounts={accounts}
+                accounts={swapAccounts}
                 disabledAccountCodes={buyDisabledAccountCodes}
                 id="swapGetAmount"
                 accountCode={buyAccountCode}
