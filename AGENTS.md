@@ -157,6 +157,9 @@ Place Go tests in `_test.go` files and run `go test -mod=vendor ./...` (optional
 `scripts/coverage.sh` to emit `coverage.cov`). Frontend unit specs live beside components as
 `*.test.ts(x)`; invoke `make webtest` for the suite. Use `make webe2etest` for Playwright smoke
 flows and document new scenarios in `frontends/web/tests/README.md` if they require fixtures.
+- If you change an interface that has a `//go:generate` directive in its docstring, run the
+  corresponding `go generate` command for that file before finishing the change. For example, if
+  you change the `Keystore` interface, regenerate the keystore mocks.
 
 ### Frontend Test Patterns
 See `src/components/forms/button.test.tsx` for component test examples and `src/hooks/api.test.ts`

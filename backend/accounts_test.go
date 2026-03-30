@@ -19,11 +19,14 @@ import (
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	keystorepkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -131,6 +134,11 @@ func TestAccounts(t *testing.T) {
 }
 
 func TestSortAccounts(t *testing.T) {
+	const (
+		alphaWalletName = "Alpha"
+		betaWalletName  = "Beta"
+	)
+
 	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
 	require.NoError(t, err)
 	xpub, err = xpub.Neuter()
@@ -169,11 +177,11 @@ func TestSortAccounts(t *testing.T) {
 	backend := newBackend(t, testnetDisabled, regtestDisabled)
 	require.NoError(t, backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		keystore1 := accountsConfig.GetOrAddKeystore(rootFingerprint1)
-		keystore1.Name = "Beta"
+		keystore1.Name = betaWalletName
 		keystore2 := accountsConfig.GetOrAddKeystore(rootFingerprint2)
-		keystore2.Name = "Alpha"
+		keystore2.Name = alphaWalletName
 		keystore3 := accountsConfig.GetOrAddKeystore(rootFingerprint3)
-		keystore3.Name = "Beta"
+		keystore3.Name = betaWalletName
 		return nil
 	}))
 	unlockFN := backend.accountsAndKeystoreLock.Lock()
@@ -198,6 +206,89 @@ func TestSortAccounts(t *testing.T) {
 	for i, acct := range backend.Accounts() {
 		assert.Equal(t, expectedOrder[i], acct.Config().Config.Code)
 	}
+}
+
+func TestObserveKeystoreNameChanged(t *testing.T) {
+	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
+	require.NoError(t, err)
+	xpub, err = xpub.Neuter()
+	require.NoError(t, err)
+
+	btcConfig := func(rootFingerprint []byte, keypath string) signing.Configurations {
+		kp, err := signing.NewAbsoluteKeypath(keypath)
+		require.NoError(t, err)
+		return signing.Configurations{
+			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, rootFingerprint, kp, xpub),
+		}
+	}
+
+	accountConfigs := []*config.Account{
+		{
+			Code:                  "acct-beta",
+			CoinCode:              coinpkg.CodeBTC,
+			SigningConfigurations: btcConfig(rootFingerprint1, "m/84'/0'/0'"),
+		},
+		{
+			Code:                  "acct-alpha",
+			CoinCode:              coinpkg.CodeBTC,
+			SigningConfigurations: btcConfig(rootFingerprint2, "m/84'/0'/0'"),
+		},
+	}
+
+	backend := newBackend(t, testnetDisabled, regtestDisabled)
+	defer backend.Close()
+	require.NoError(t, backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		accountsConfig.GetOrAddKeystore(rootFingerprint1).Name = "Beta"
+		accountsConfig.GetOrAddKeystore(rootFingerprint2).Name = "Alpha"
+		return nil
+	}))
+
+	unlockFN := backend.accountsAndKeystoreLock.Lock()
+	for i := range accountConfigs {
+		c, err := backend.Coin(accountConfigs[i].CoinCode)
+		require.NoError(t, err)
+		backend.createAndAddAccount(c, accountConfigs[i])
+	}
+	unlockFN()
+
+	require.Equal(t, accountsTypes.Code("acct-alpha"), backend.Accounts()[0].Config().Config.Code)
+	require.Equal(t, accountsTypes.Code("acct-beta"), backend.Accounts()[1].Config().Config.Code)
+
+	var events []observable.Event
+	unobserve := backend.Observe(func(event observable.Event) {
+		events = append(events, event)
+	})
+	defer unobserve()
+
+	var keystoreObserver func(observable.Event)
+	backend.observeKeystore(&keystoremock.KeystoreMock{
+		ObserveFunc: func(fn func(observable.Event)) func() {
+			keystoreObserver = fn
+			return func() {
+				keystoreObserver = nil
+			}
+		},
+	})
+	require.NotNil(t, keystoreObserver)
+
+	keystoreObserver(observable.Event{
+		Subject: string(keystorepkg.EventNameChanged),
+		Action:  action.Replace,
+		Object: keystorepkg.NameChangedEvent{
+			Name:            "Aardvark",
+			RootFingerprint: rootFingerprint1,
+		},
+	})
+
+	keystoreConfig, err := backend.Config().AccountsConfig().LookupKeystore(rootFingerprint1)
+	require.NoError(t, err)
+	require.Equal(t, "Aardvark", keystoreConfig.Name)
+	require.Equal(t, accountsTypes.Code("acct-beta"), backend.Accounts()[0].Config().Config.Code)
+	require.Equal(t, accountsTypes.Code("acct-alpha"), backend.Accounts()[1].Config().Config.Code)
+	require.Contains(t, events, observable.Event{
+		Subject: "accounts",
+		Action:  action.Reload,
+	})
 }
 
 func TestNextAccountNumber(t *testing.T) {
@@ -871,6 +962,9 @@ func TestTaprootUpgrade(t *testing.T) {
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 
 	bitbox02NoTaproot := &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock no taproot", nil
 		},
@@ -897,6 +991,9 @@ func TestTaprootUpgrade(t *testing.T) {
 		BTCXPubsFunc:          keystoreHelper.BTCXPubs,
 	}
 	bitbox02Taproot := &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock taproot", nil
 		},
@@ -1164,6 +1261,9 @@ func TestWatchonly(t *testing.T) {
 		// A keystore with a similar config to a BitBox02 - supporting unified accounts, no legacy
 		// P2PKH.
 		ks1 := &keystoremock.KeystoreMock{
+			ObserveFunc: func(func(observable.Event)) func() {
+				return func() {}
+			},
 			NameFunc: func() (string, error) {
 				return "Mock keystore 1", nil
 			},
@@ -1186,6 +1286,9 @@ func TestWatchonly(t *testing.T) {
 			BTCXPubsFunc:          keystoreHelper1.BTCXPubs,
 		}
 		ks2 := &keystoremock.KeystoreMock{
+			ObserveFunc: func(func(observable.Event)) func() {
+				return func() {}
+			},
 			NameFunc: func() (string, error) {
 				return "Mock keystore 2", nil
 			},

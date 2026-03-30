@@ -836,6 +836,23 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	return nil
 }
 
+// updateKeystoreName persists a keystore name change and re-sorts the loaded accounts accordingly.
+func (backend *Backend) updateKeystoreName(rootFingerprint []byte, name string) error {
+	if name == "" {
+		return errp.New("Name cannot be empty")
+	}
+	if err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		accountsConfig.GetOrAddKeystore(rootFingerprint).Name = name
+		return nil
+	}); err != nil {
+		return err
+	}
+	defer backend.accountsAndKeystoreLock.Lock()()
+	sortAccounts(backend.accounts, backend.config.AccountsConfig())
+	backend.emitAccountsStatusChanged()
+	return nil
+}
+
 // addAccount adds the given account to the backend.
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {

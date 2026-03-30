@@ -18,6 +18,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/require"
 )
@@ -45,6 +46,9 @@ func makeKeystore(
 	t.Helper()
 
 	return &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock keystore", nil
 		},

@@ -16,6 +16,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
@@ -29,6 +30,8 @@ import (
 
 // Keystore implements a keystore in software.
 type Keystore struct {
+	observable.Implementation
+
 	// The master extended private key from which all keys are derived.
 	master     *hdkeychain.ExtendedKey
 	identifier string

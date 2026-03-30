@@ -8,6 +8,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/ethereum/go-ethereum/core/types"
 	"sync"
@@ -43,6 +44,9 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			},
 //			NameFunc: func() (string, error) {
 //				panic("mock out the Name method")
+//			},
+//			ObserveFunc: func(fn func(observable.Event)) func() {
+//				panic("mock out the Observe method")
 //			},
 //			RootFingerprintFunc: func() ([]byte, error) {
 //				panic("mock out the RootFingerprint method")
@@ -116,6 +120,9 @@ type KeystoreMock struct {
 
 	// NameFunc mocks the Name method.
 	NameFunc func() (string, error)
+
+	// ObserveFunc mocks the Observe method.
+	ObserveFunc func(fn func(observable.Event)) func()
 
 	// RootFingerprintFunc mocks the RootFingerprint method.
 	RootFingerprintFunc func() ([]byte, error)
@@ -196,6 +203,11 @@ type KeystoreMock struct {
 		}
 		// Name holds details about calls to the Name method.
 		Name []struct {
+		}
+		// Observe holds details about calls to the Observe method.
+		Observe []struct {
+			// Fn is the fn argument value.
+			Fn func(observable.Event)
 		}
 		// RootFingerprint holds details about calls to the RootFingerprint method.
 		RootFingerprint []struct {
@@ -296,6 +308,7 @@ type KeystoreMock struct {
 	lockExtendedPublicKey               sync.RWMutex
 	lockFeatures                        sync.RWMutex
 	lockName                            sync.RWMutex
+	lockObserve                         sync.RWMutex
 	lockRootFingerprint                 sync.RWMutex
 	lockSignBTCMessage                  sync.RWMutex
 	lockSignETHMessage                  sync.RWMutex
@@ -527,6 +540,38 @@ func (mock *KeystoreMock) NameCalls() []struct {
 	mock.lockName.RLock()
 	calls = mock.calls.Name
 	mock.lockName.RUnlock()
+	return calls
+}
+
+// Observe calls ObserveFunc.
+func (mock *KeystoreMock) Observe(fn func(observable.Event)) func() {
+	if mock.ObserveFunc == nil {
+		panic("KeystoreMock.ObserveFunc: method is nil but Keystore.Observe was just called")
+	}
+	callInfo := struct {
+		Fn func(observable.Event)
+	}{
+		Fn: fn,
+	}
+	mock.lockObserve.Lock()
+	mock.calls.Observe = append(mock.calls.Observe, callInfo)
+	mock.lockObserve.Unlock()
+	return mock.ObserveFunc(fn)
+}
+
+// ObserveCalls gets all the calls that were made to Observe.
+// Check the length with:
+//
+//	len(mockedKeystore.ObserveCalls())
+func (mock *KeystoreMock) ObserveCalls() []struct {
+	Fn func(observable.Event)
+} {
+	var calls []struct {
+		Fn func(observable.Event)
+	}
+	mock.lockObserve.RLock()
+	calls = mock.calls.Observe
+	mock.lockObserve.RUnlock()
 	return calls
 }
 

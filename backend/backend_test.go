@@ -69,6 +69,9 @@ var rootFingerprint2 = []byte{0x66, 0x66, 0x66, 0x66}
 func makeBitBox02Multi() *keystoremock.KeystoreMock {
 	ksHelper := keystoreHelper1()
 	return &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock name", nil
 		},
@@ -332,6 +335,9 @@ func TestRegisterKeystore(t *testing.T) {
 	// A keystore with a similar config to a BitBox02 - supporting unified accounts, no legacy
 	// P2PKH.
 	ks1 := &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock keystore 1", nil
 		},
@@ -354,6 +360,9 @@ func TestRegisterKeystore(t *testing.T) {
 		BTCXPubsFunc:          keystoreHelper1.BTCXPubs,
 	}
 	ks2 := &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock keystore 2", nil
 		},
