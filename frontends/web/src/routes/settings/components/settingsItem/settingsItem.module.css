@@ -80,10 +80,6 @@ button .displayedValue {
         padding-left: var(--space-half);
         padding-right: var(--space-half);
     }
-
-    .secondaryText {
-        display: none;
-    }
 }
 
 @media (max-width: 560px) {
