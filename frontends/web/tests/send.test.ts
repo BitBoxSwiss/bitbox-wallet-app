@@ -6,16 +6,15 @@ import { ServeWallet } from './helpers/servewallet';
 import { launchRegtest, setupRegtestWallet, sendCoins, mineBlocks, cleanupRegtest } from './helpers/regtest';
 import { ChildProcess } from 'child_process';
 import { deleteAccountsFile } from './helpers/fs';
+import { getAccountCodeFromUrl, waitForAccountTransactions } from './helpers/account';
 
-let servewallet: ServeWallet;
-let regtest: ChildProcess;
+let servewallet: ServeWallet | undefined;
+let regtest: ChildProcess | undefined;
 
 test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
   await test.step('Start regtest and init wallet', async () => {
     regtest = await launchRegtest();
-    // Give regtest some time to start
-    await new Promise((resolve) => setTimeout(resolve, 3000));
     await setupRegtestWallet();
   });
 
@@ -25,13 +24,16 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await servewallet.start();
   });
 
-
   let recvAdd: string;
+  let firstAccountCode: string;
+  let secondAccountCode: string;
   await test.step('Grab receive address', async () => {
     await page.getByRole('button', { name: 'Test wallet' }).click();
     await page.getByRole('button', { name: 'Unlock' }).click();
     await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
     await page.getByRole('button', { name: 'Receive Bitcoin' }).click();
+    await page.waitForURL('**/receive');
+    firstAccountCode = getAccountCodeFromUrl(page.url());
     await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
     await expect(addressLocator).toHaveValue(/bcrt1/);
@@ -63,10 +65,10 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
 
   await test.step('Send RBTC to receive address', async () => {
     console.log('Sending RBTC to first account');
-    await page.waitForTimeout(2000);
     const sendAmount = '10';
     await sendCoins(recvAdd, sendAmount);
     await mineBlocks(12);
+    await waitForAccountTransactions(page, host, servewalletPort, firstAccountCode, 1);
   });
 
   await test.step('Verify that the first account has a transaction', async () => {
@@ -91,6 +93,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await verifyButton.click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
     await expect(addressLocator).toHaveValue(/bcrt1/);
+    secondAccountCode = getAccountCodeFromUrl(page.url());
     recvAdd = await addressLocator.inputValue();
     expect(recvAdd).toContain('bcrt1');
     console.log(`Receive address: ${recvAdd}`);
@@ -122,6 +125,10 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await expect(doneButton).toBeVisible();
     await doneButton.click();
     await mineBlocks(12);
+    await Promise.all([
+      waitForAccountTransactions(page, host, servewalletPort, firstAccountCode, 2),
+      waitForAccountTransactions(page, host, servewalletPort, secondAccountCode, 1),
+    ]);
   });
 
   await test.step('Verify that first account now has two transactions', async () => {
@@ -180,6 +187,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
     await expect(doneButton).toBeVisible();
     await doneButton.click();
     await mineBlocks(12);
+    await waitForAccountTransactions(page, host, servewalletPort, secondAccountCode, 2);
   });
 
   await test.step('Verify that the new transaction shows up, with correct values', async () => {
@@ -216,6 +224,6 @@ test.beforeEach(async () => {
 });
 
 test.afterAll(async () => {
-  await servewallet.stop();
+  await servewallet?.stop();
   await cleanupRegtest(regtest);
 });

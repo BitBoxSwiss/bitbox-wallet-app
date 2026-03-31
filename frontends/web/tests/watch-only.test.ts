@@ -4,11 +4,11 @@ import { expect } from '@playwright/test';
 import { deleteAccountsFile } from './helpers/fs';
 import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
-import { startSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
+import { startSimulator, stopSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
 import { assertFieldsCount, clickButtonWithText } from './helpers/dom';
 import { ChildProcess } from 'child_process';
 
-let servewallet: ServeWallet;
+let servewallet: ServeWallet | undefined;
 let simulatorProc : ChildProcess | undefined;
 
 /**
@@ -46,7 +46,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
   });
 
   await test.step('Kill simulator', async () => {
-    simulatorProc?.kill('SIGTERM');
+    await stopSimulator(simulatorProc);
     simulatorProc = undefined;
   });
 
@@ -55,7 +55,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
   });
 
   await test.step('Restart servewallet', async () => {
-    await servewallet.restart();
+    await servewallet!.restart();
   });
 
   await test.step('Check that accounts do not show up without simulator', async () => {
@@ -108,7 +108,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
   });
 
   await test.step('Kill simulator', async () => {
-    simulatorProc?.kill('SIGTERM');
+    await stopSimulator(simulatorProc);
     simulatorProc = undefined;
   });
 
@@ -119,7 +119,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
 
 
   await test.step('Restart servewallet', async () => {
-    await servewallet.restart();
+    await servewallet!.restart();
   });
 
   await test.step('Check that accounts still show up', async () => {
@@ -165,7 +165,7 @@ test('Test #3 - Watch-only add account prompts for keystore', async ({ page, hos
   });
 
   await test.step('Kill simulator', async () => {
-    simulatorProc?.kill('SIGTERM');
+    await stopSimulator(simulatorProc);
     simulatorProc = undefined;
   });
 
@@ -203,18 +203,19 @@ test('Test #3 - Watch-only add account prompts for keystore', async ({ page, hos
 });
 
 
-// Ensure a clean state before running all tests.
-test.beforeAll(() => {
+// Ensure a clean state before each test, as these scenarios intentionally mutate persisted watch-only state.
+test.beforeEach(() => {
   deleteAccountsFile();
   cleanFakeMemoryFiles();
 });
 
 // Kill the simulator and stop the servewallet after each run.
 // This is equivalent to closing the app and unplugging the device.
-test.afterEach(() => {
+test.afterEach(async () => {
   if (simulatorProc) {
-    simulatorProc.kill('SIGTERM');
+    await stopSimulator(simulatorProc);
     simulatorProc = undefined;
   }
-  servewallet.stop();
+  await servewallet?.stop();
+  servewallet = undefined;
 });

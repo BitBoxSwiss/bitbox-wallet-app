@@ -6,7 +6,7 @@ import { expect } from '@playwright/test';
 import { clickButtonWithText } from './helpers/dom';
 import { deleteAccountsFile } from './helpers/fs';
 
-let servewallet: ServeWallet;
+let servewallet: ServeWallet | undefined;
 
 test('Gap limits are correctly saved', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
@@ -68,6 +68,7 @@ test.beforeEach(() => {
   deleteAccountsFile();
 });
 
-test.afterAll(() => {
-  servewallet.stop();
+test.afterAll(async () => {
+  await servewallet?.stop();
+  servewallet = undefined;
 });

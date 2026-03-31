@@ -68,6 +68,32 @@ export function startSimulator(
   return proc;
 }
 
+export function stopSimulator(proc?: ChildProcess): Promise<void> {
+  return new Promise((resolve) => {
+    if (!proc?.pid) {
+      resolve();
+      return;
+    }
+
+    if (proc.exitCode !== null || proc.signalCode !== null) {
+      resolve();
+      return;
+    }
+
+    const onExit = () => resolve();
+    proc.once('exit', onExit);
+    try {
+      if (!proc.kill('SIGTERM')) {
+        proc.off('exit', onExit);
+        resolve();
+      }
+    } catch {
+      proc.off('exit', onExit);
+      resolve();
+    }
+  });
+}
+
 
 /**
  * Performs the wallet setup flow in order:
