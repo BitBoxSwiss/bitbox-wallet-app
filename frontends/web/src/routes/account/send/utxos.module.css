@@ -15,7 +15,7 @@
 .utxo {
     margin-top: var(--space-half);
     padding: 0 0 var(--space-eight) 0;
-    border-bottom: solid 1px var(--color-lightgray);
+    border-bottom: solid 1px var(--separation-line-color);
 }
 
 .utxoContent {
