@@ -36,13 +36,13 @@ export function cleanFakeMemoryFiles() {
  *
  *
  * @param simulatorPath - Path to the simulator binary or script.
+ * @param outputDir - Playwright's per-test output directory.
  * @param useFakeMemory - If true, sets FAKE_MEMORY_FILEPATH to '/tmp/fake_memory'.
  * @returns The spawned ChildProcess instance.
  */
 export function startSimulator(
   simulatorPath: string,
-  testName: string,
-  projectName: string,
+  outputDir: string,
   useFakeMemory = false
 ): ChildProcess {
   const env = { ...process.env };
@@ -51,7 +51,7 @@ export function startSimulator(
   }
 
 
-  const logPath = getLogFilePath(testName, projectName, 'simulator.log');
+  const logPath = getLogFilePath(outputDir, 'simulator.log');
   const outStream = fs.openSync(logPath, 'w');
 
   const proc = spawn(simulatorPath, { stdio: ['ignore', outStream, outStream], env });
@@ -66,6 +66,32 @@ export function startSimulator(
   });
 
   return proc;
+}
+
+export function stopSimulator(proc?: ChildProcess): Promise<void> {
+  return new Promise((resolve) => {
+    if (!proc?.pid) {
+      resolve();
+      return;
+    }
+
+    if (proc.exitCode !== null || proc.signalCode !== null) {
+      resolve();
+      return;
+    }
+
+    const onExit = () => resolve();
+    proc.once('exit', onExit);
+    try {
+      if (!proc.kill('SIGTERM')) {
+        proc.off('exit', onExit);
+        resolve();
+      }
+    } catch {
+      proc.off('exit', onExit);
+      resolve();
+    }
+  });
 }
 
 
