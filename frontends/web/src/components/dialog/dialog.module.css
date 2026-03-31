@@ -27,7 +27,6 @@
     flex-direction: column;
     max-height: calc(100dvh - calc(env(safe-area-inset-top) * 2));
     max-width: 420px;
-    overflow: auto;
     text-align: left;
     touch-action: auto;
     -webkit-overflow-scrolling: touch;
@@ -194,7 +193,6 @@
         max-height: 100dvh;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
     }
 
     .overlay {
