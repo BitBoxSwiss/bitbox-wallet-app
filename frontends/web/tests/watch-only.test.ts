@@ -22,7 +22,7 @@ let simulatorProc : ChildProcess | undefined;
  */
 test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { simulator: true });
     await servewallet.start();
   });
 
@@ -32,7 +32,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
       throw new Error('SIMULATOR_PATH environment variable not set');
     }
 
-    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
+    simulatorProc = startSimulator(simulatorPath, testInfo.outputDir, true);
     console.log('Simulator started');
   });
 
@@ -76,7 +76,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
  */
 test('Test #2 - No passphrase - Watch-only account', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { simulator: true });
     await servewallet.start();
   });
 
@@ -87,7 +87,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
       throw new Error('SIMULATOR_PATH environment variable not set');
     }
 
-    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
+    simulatorProc = startSimulator(simulatorPath, testInfo.outputDir, true);
 
     console.log('Simulator started');
   });
@@ -138,7 +138,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
  */
 test('Test #3 - Watch-only add account prompts for keystore', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { simulator: true });
     await servewallet.start();
   });
 
@@ -149,7 +149,7 @@ test('Test #3 - Watch-only add account prompts for keystore', async ({ page, hos
       throw new Error('SIMULATOR_PATH environment variable not set');
     }
 
-    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
+    simulatorProc = startSimulator(simulatorPath, testInfo.outputDir, true);
     console.log('Simulator started');
   });
 
@@ -180,7 +180,7 @@ test('Test #3 - Watch-only add account prompts for keystore', async ({ page, hos
       throw new Error('SIMULATOR_PATH environment variable not set');
     }
 
-    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
+    simulatorProc = startSimulator(simulatorPath, testInfo.outputDir, true);
 
     const dropdown = page.locator('.react-select__control');
     const nameInput = page.locator('#accountName');

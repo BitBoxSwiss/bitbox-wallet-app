@@ -11,7 +11,7 @@ let servewallet: ServeWallet | undefined;
 test('Gap limits are correctly saved', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name);
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir);
     await servewallet.start();
   });
 

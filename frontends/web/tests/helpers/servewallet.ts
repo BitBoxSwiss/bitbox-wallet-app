@@ -41,8 +41,6 @@ export class ServeWallet {
   private readonly host: string;
   private readonly timeout: number;
   private readonly testnet: boolean;
-  private readonly testName: string;
-  private readonly projectName: string;
   private readonly logPath: string;
   private readonly regtest: boolean;
 
@@ -51,8 +49,7 @@ export class ServeWallet {
     servewalletPort: number,
     frontendPort: number,
     host: string,
-    testName: string,
-    projectName: string,
+    outputDir: string,
     options: ServeWalletOptions = {}
   ) {
     const { simulator = false, timeout = 90000, testnet = true, regtest = false } = options;
@@ -68,11 +65,9 @@ export class ServeWallet {
     this.simulator = simulator;
     this.timeout = timeout;
     this.testnet = testnet;
-    this.testName = testName;
-    this.projectName = projectName;
 
     this.regtest = regtest;
-    this.logPath = getLogFilePath(this.testName, this.projectName, 'servewallet.log');
+    this.logPath = getLogFilePath(outputDir, 'servewallet.log');
     this.openOutStream(false); // On the first time, open the file in "w" mode.
   }
 

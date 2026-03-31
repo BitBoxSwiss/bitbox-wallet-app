@@ -20,7 +20,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo)
 
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { regtest: true, testnet: false });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false });
     await servewallet.start();
   });
 

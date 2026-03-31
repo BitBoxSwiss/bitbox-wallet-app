@@ -67,7 +67,7 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
 
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { regtest: true, testnet: false, simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
     await servewallet.start();
   });
 
@@ -77,7 +77,7 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
       throw new Error('SIMULATOR_PATH environment variable not set');
     }
 
-    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
+    simulatorProc = startSimulator(simulatorPath, testInfo.outputDir, true);
     console.log('Simulator started');
   });
 
@@ -161,7 +161,7 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
   await test.step('Kill servewallet and restart with AOPP request', async () => {
     await servewallet?.stop();
     console.log('Servewallet stopped.');
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { regtest: true, testnet: false, simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
     await servewallet.start({ extraFlags: { aoppUrl: aoppRequest } });
     console.log('Servewallet restarted with AOPP request.');
   });
@@ -181,7 +181,7 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
       throw new Error('SIMULATOR_PATH environment variable not set');
     }
 
-    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
+    simulatorProc = startSimulator(simulatorPath, testInfo.outputDir, true);
     console.log('Simulator restarted.');
   });
 

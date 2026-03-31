@@ -23,7 +23,7 @@ let servewallet: ServeWallet | undefined;
 test('Testnet mode', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { testnet: false });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { testnet: false });
     await servewallet.start();
   });
 
