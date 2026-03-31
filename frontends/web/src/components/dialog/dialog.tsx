@@ -8,6 +8,61 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 import { MobileDialog } from './mobile-dialog';
 import style from './dialog.module.css';
 
+type TDialogContainerProps = {
+  centered?: boolean;
+  children: React.ReactNode;
+  contentContainerRef: React.RefObject<HTMLDivElement>;
+  handleCloseClick: () => void;
+  onClose?: () => void;
+  slim?: boolean;
+  title?: string;
+};
+
+const DialogContainer = ({
+  centered,
+  children,
+  contentContainerRef,
+  handleCloseClick,
+  onClose,
+  slim,
+  title,
+}: TDialogContainerProps) => {
+
+  const headerClass = `
+    ${style.header || ''}
+    ${centered && !onClose && style.centered || ''}
+  `.trim();
+
+  const contentClass = `
+    ${style.contentContainer || ''}
+    ${slim && style.slim || ''}
+  `.trim();
+
+  return (
+    <>
+      {title && (
+        <div className={headerClass}>
+          <h3 className={style.title}>
+            {title}
+          </h3>
+          {onClose && (
+            <button
+              className={style.closeButton}
+              onClick={handleCloseClick}
+              data-testid="close-button">
+              <CloseXDark className="show-in-lightmode" />
+              <CloseXWhite className="show-in-darkmode" />
+            </button>
+          )}
+        </div>
+      )}
+      <div className={contentClass} ref={contentContainerRef}>
+        {children}
+      </div>
+    </>
+  );
+};
+
 type TProps = {
   title?: string;
   small?: boolean;
@@ -151,35 +206,6 @@ export const Dialog = ({
     ${status === 'closing' && style.closingOverlay || ''}
   `.trim();
 
-  const headerClass = `
-    ${style.header || ''}
-    ${centered && !onClose && style.centered || ''}
-  `.trim();
-
-  const contentClass = `
-    ${style.contentContainer || ''}
-    ${slim && style.slim || ''}
-  `.trim();
-
-  const dialogContent = (
-    <>
-      {title && (
-        <div className={headerClass}>
-          <h3 className={style.title}>{title}</h3>
-          {onClose && (
-            <button className={style.closeButton} onClick={handleCloseClick} data-testid="close-button">
-              <CloseXDark className="show-in-lightmode" />
-              <CloseXWhite className="show-in-darkmode" />
-            </button>
-          )}
-        </div>
-      )}
-      <div className={contentClass} ref={contentContainerRef}>
-        <div className={style.content}>{children}</div>
-      </div>
-    </>
-  );
-
   return (
     <div
       onMouseDown={handleMouseDown}
@@ -196,11 +222,27 @@ export const Dialog = ({
           modalRef={modalRef}
           contentContainerRef={contentContainerRef}
         >
-          {dialogContent}
+          <DialogContainer
+            centered={centered}
+            contentContainerRef={contentContainerRef}
+            handleCloseClick={handleCloseClick}
+            onClose={onClose}
+            slim={slim}
+            title={title}>
+            {children}
+          </DialogContainer>
         </MobileDialog>
       ) : (
         <div className={modalClass} ref={modalRef}>
-          {dialogContent}
+          <DialogContainer
+            centered={centered}
+            contentContainerRef={contentContainerRef}
+            handleCloseClick={handleCloseClick}
+            onClose={onClose}
+            slim={slim}
+            title={title}>
+            {children}
+          </DialogContainer>
         </div>
       )}
     </div>
@@ -231,6 +273,23 @@ type DialogButtonsProps = {
  */
 export const DialogButtons = ({ children }: DialogButtonsProps) => {
   return (
-    <div className={style.dialogButtons}>{children}</div>
+    <div className={style.dialogButtons}>
+      {children}
+    </div>
+  );
+};
+
+
+type DialogScrollContentProps = {
+  children: React.ReactNode;
+};
+
+export const DialogScrollContent = ({
+  children,
+}: DialogScrollContentProps) => {
+  return (
+    <div className={style.dialogScrollContent}>
+      {children}
+    </div>
   );
 };
