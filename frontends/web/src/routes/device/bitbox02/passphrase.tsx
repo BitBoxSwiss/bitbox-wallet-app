@@ -12,6 +12,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { PointToBitBox02 } from '@/components/icon';
 import { Message } from '@/components/message/message';
+import { BackButton } from '@/components/backbutton/backbutton';
 
 // The enable wizard has five steps that can be navigated by clicking
 // 'back' or 'continue'. On the last step the passphrase will be enabled.
@@ -217,9 +218,9 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
         <Button primary onClick={handleContinue} disabled={infoStep >= FINAL_INFO_STEP && !understood}>
           {step.buttonTextKey}
         </Button>
-        <Button secondary onClick={handleBack}>
+        <BackButton onClick={handleBack}>
           {t('button.back')}
-        </Button>
+        </BackButton>
       </ViewButtons>
     </View>
   );
@@ -243,9 +244,9 @@ const DisableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
         <Button primary onClick={() => setPassphrase(false)}>
           {t('passphrase.disableInfo.button')}
         </Button>
-        <Button secondary onClick={handleAbort}>
+        <BackButton onClick={handleAbort}>
           {t('button.back')}
-        </Button>
+        </BackButton>
       </ViewButtons>
     </View>
   );

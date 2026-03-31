@@ -77,17 +77,17 @@ func (s *addressChainTestSuite) TestGetUnused() {
 	s.Require().Equal(newAddresses[1], unusedAddresses[0])
 }
 
-func (s *addressChainTestSuite) TestLookupByScriptHashHex() {
+func (s *addressChainTestSuite) TestLookupByAddressID() {
 	s.isAddressUsed = func(*addresses.AccountAddress) bool { return false }
 	newAddresses, err := s.addresses.EnsureAddresses()
 	s.Require().NoError(err)
 	for _, address := range newAddresses {
 		s.Require().Equal(address,
-			s.addresses.LookupByScriptHashHex(address.PubkeyScriptHashHex()))
+			s.addresses.LookupByAddressID(addresses.AddressID(address.ID())))
 	}
 	firstAddress := newAddresses[0]
 	// Produce addresses beyond the gapLimit to ensure the gapLimit does not confuse
-	// LookupByScriptHashHex().
+	// LookupByAddressID().
 	s.isAddressUsed = func(addr *addresses.AccountAddress) bool {
 		return addr == firstAddress
 	}
@@ -95,8 +95,8 @@ func (s *addressChainTestSuite) TestLookupByScriptHashHex() {
 	s.Require().NoError(err)
 	s.Require().Len(newAddresses, 1)
 	s.Require().Equal(
-		newAddresses[0], s.addresses.LookupByScriptHashHex(newAddresses[0].PubkeyScriptHashHex()))
-	s.Require().Nil(s.addresses.LookupByScriptHashHex(test.GetAddress(signing.ScriptTypeP2PKH).PubkeyScriptHashHex()))
+		newAddresses[0], s.addresses.LookupByAddressID(addresses.AddressID(newAddresses[0].ID())))
+	s.Require().Nil(s.addresses.LookupByAddressID(addresses.AddressID(test.GetAddress(signing.ScriptTypeP2PKH).ID())))
 }
 
 func (s *addressChainTestSuite) TestEnsureAddresses() {

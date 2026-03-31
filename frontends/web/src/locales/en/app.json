@@ -5,7 +5,6 @@
     "backupReminder": "Your wallet <strong>{{name}}</strong> passed {{fiat}} {{threshold}}!\n\nWe recommend creating a paper backup for extra protection. It's quick and simple.",
     "backupReminderLink": "Create paper backup",
     "disconnect": "Connection lost. Retrying…",
-    "export": "Export transactions",
     "exportTransactions": "Export transactions to downloads folder as CSV file",
     "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
@@ -20,6 +19,7 @@
     "warning": "Warning!"
   },
   "accountInfo": {
+    "accountDetails": "Account details",
     "address": "Address",
     "buyCTA": {
       "information": {
@@ -27,32 +27,32 @@
         "start": "Get started by depositing some coins to the wallet or buying directly in the BitBoxApp."
       }
     },
+    "contractAddress": "Contract address",
+    "contractAddressWarning": "Do not send any coins to the contract address otherwise they will be lost. Contract address is just for informational purposes.",
+    "exportTransactions": "Export transaction history",
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
     "scriptType": "Script type",
     "taproot": "The Taproot extended public key is not shown to protect from accidental misuse, as raw formats for this script type are not widely supported. If you want to view this key, connect your device to wallet software that supports the output descriptor format.",
     "title": "Account information",
+    "usedAddresses": "View used addresses",
     "verify": "Verify on device",
+    "viewAccountDetails": "View account details",
     "xpubTypeChangeBtn": {
       "p2pkh": "View legacy P2PKH extended public key",
       "p2tr": "View Taproot",
-      "p2wpkh": "View Native Segwit",
-      "p2wpkh-p2sh": "View older Segwit extended public key"
+      "p2wpkh": "View Native Segwit"
     },
     "xpubTypeInfo": "Currently displaying {{scriptType}} extended public key ({{current}} of {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Available balance",
-    "balance": "Balance",
-    "coin": "Coin",
-    "exportSummary": "Export accounts summary to downloads folder as CSV file",
-    "fiatBalance": "Fiat balance",
     "name": "Account name",
     "noAccount": "There are no accounts to show.",
     "portfolio": "Portfolio",
-    "subtotalWithCoinName": "Total ({{coinName}})",
     "title": "My portfolio",
     "total": "Total",
+    "totalAssets": "Total assets",
     "transactionHistory": "Transaction history"
   },
   "addAccount": {
@@ -74,6 +74,36 @@
       "title": "Account added"
     },
     "title": "Add account"
+  },
+  "addresses": {
+    "changeCopyBody": "Do not use a change address to receive coins. To receive coins, click <receiveLink>here</receiveLink>.",
+    "columnAddress": "Address",
+    "columnLastUsed": "Last used",
+    "detail": {
+      "address": "Address"
+    },
+    "empty": "No addresses have been used yet.",
+    "emptyFiltered": "No addresses match your filters.",
+    "filter": {
+      "changeAddresses": "Change addresses",
+      "receiveAddresses": "Receive addresses"
+    },
+    "listDescriptionPrefix": "This page shows all used addresses of account",
+    "loadFailed": "Could not load used addresses.",
+    "loadNotSupported": "Used addresses are not available for this account type.",
+    "loadSyncInProgress": "Used addresses are still syncing. Please try again shortly.",
+    "notFound": "Address not found.",
+    "searchPlaceholder": "Search address",
+    "skipDeviceVerification": "Skip device verification",
+    "skipVerifyBody": "Not verifying the address on the device can result in copying an address that doesn't belong to your BitBox.",
+    "skipVerifyConfirm": "Yes, skip verification",
+    "skipVerifyQuestion": "Are you sure you want to proceed?",
+    "skipVerifyTitle": "Skip device verification?",
+    "skipVerifyWarning": "Warning",
+    "title": "Used addresses",
+    "unverifiedAddressWarning": "This address has not been verified on the device.",
+    "verifyConnectFailed": "Could not connect to the selected device.",
+    "verifyFailed": "Address verification failed."
   },
   "aopp": {
     "addressRequest": "{{host}} is requesting a receiving address.",
@@ -409,6 +439,7 @@
     "check": "Check backup",
     "continue": "Continue",
     "copy": "Copy",
+    "copyAddress": "Copy address",
     "create": "Create",
     "dismiss": "Dismiss",
     "done": "Done",
@@ -925,6 +956,7 @@
     "received": "Received",
     "reset": "Reset",
     "resetToDefault": "Reset to default",
+    "retry": "Retry",
     "search": "Search…",
     "searchButton": "Search",
     "sell": "Sell {{coinCode}}",
@@ -934,7 +966,8 @@
     "sent": "Sent",
     "spend_bitcoin": "Spend bitcoin",
     "spend_crypto": "Spend crypto",
-    "swap": "Swap"
+    "swap": "Swap",
+    "unknown": "Unknown"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {
@@ -986,7 +1019,7 @@
         "title": "How can I export my transaction history? (e.g., for CoinTracking)"
       },
       "multipleXPubs": {
-        "text": "Each xpub is tied to the \"Type\" shown: either \"Native Segwit (bech32)\", \"Wrapped Segwit\" or “Taproot” (Bitcoin only). These are script types used by {{coinName}}. The BitBoxApp combines them, supporting multiple script types in the same account. Because each script type gives a different xpub, there are multiple xpubs per account.\n\nIf you consistently receive on the default address (Native Segwit), you only need the \"bech32\" xpub. However, if you also receive funds to \"Wrapped Segwit\" or “Taproot”, you also need to use the \"Wrapped Segwit\" and “Taproot” extended public keys respectively.",
+        "text": "Each xpub is tied to the \"Type\" shown: either \"Native Segwit (bech32)\", or “Taproot” (Bitcoin only). These are script types used by {{coinName}}. The BitBoxApp combines them, supporting multiple script types in the same account. Because each script type gives a different xpub, there are multiple xpubs per account.\n\nIf you consistently receive on the default address (Native Segwit), you only need the \"bech32\" xpub. However, if you also receive funds to “Taproot”, you also need to use “Taproot” extended public key.",
         "title": "Why are there multiple xpubs?"
       },
       "privacy": {
@@ -1234,7 +1267,7 @@
         "title": "When do the addresses change?"
       },
       "addressFormats": {
-        "text": "By default, the address type is Native Segwit. This address type is widely adopted by other wallets/exchanges and gives you the best fee rates for everyday transactions. However, you may also choose to send to Taproot (Bitcoin only), which is the newest address type, but may not be widely supported yet. Alternatively, if you are having issues sending to Native Segwit (the default type), you can try switching to the older Wrapped Segwit address type that may be compatible with more wallets/exchanges.",
+        "text": "By default, the address type is Native Segwit. This address type is widely adopted by other wallets/exchanges and gives you the best fee rates for everyday transactions. However, you may also choose to send to Taproot (Bitcoin only), which is the newest address type, but may not be widely supported yet.",
         "title": "When do I use “Change address type”?"
       },
       "howVerify": {
@@ -1254,7 +1287,7 @@
         "title": "Why so many addresses?"
       },
       "whyVerify": {
-        "text": "You shouldn’t trust your computer to generate and display authentic addresses. It’s big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
+        "text": "You shouldn't trust your computer to generate and display authentic addresses. It's big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
         "title": "Why should I verify the address securely?"
       }
     },
@@ -1610,7 +1643,7 @@
     }
   },
   "receive": {
-    "bitsuranceWarning": "This is an insured account, meaning it can only receive to Native Segwit. This is so you don't accidently receive to Wrapped Segwit or Taproot, which are not insured.",
+    "bitsuranceWarning": "This is an insured account, meaning it can only receive to Native Segwit. This is so you don't accidently receive to Taproot, which is not insured.",
     "changeScriptType": "Change address type",
     "label": "Your address",
     "onlyThisCoin": {
@@ -1620,8 +1653,7 @@
     "qrCodeCopiedMessage": "Copied!",
     "scriptType": {
       "p2tr": "Taproot (newest format)",
-      "p2wpkh": "Native Segwit (default)",
-      "p2wpkh-p2sh": "Wrapped Segwit (compatible format)"
+      "p2wpkh": "Native Segwit (default)"
     },
     "selectAccount": "Select account",
     "taprootWarning": "Note: Taproot is a new Bitcoin feature and is not yet widely adopted. Funds received on Taproot addresses may not be visible in third party watch-only wallets. Many wallets and exchanges are not yet able to send to Taproot addresses.",
@@ -1927,11 +1959,11 @@
       "activity": "Activity",
       "address": "Address",
       "amount": "Amount",
-      "currentFiat": "Current fiat",
+      "currentValue": "Current value",
       "date": "Date",
       "fiatAmount": "Fiat amount",
       "from": "From",
-      "historicalFiat": "Historical fiat",
+      "historicalValue": "Historical value",
       "sentToSelf": "Sent to self",
       "status": "Status",
       "title": "Transaction Details",
@@ -1985,6 +2017,18 @@
       "e109_normal": "Wrong device password. {{remainingAttempts}} attempts remain before the device is reset.",
       "e109_touch": "$t(unlock.error.e109_normal) The next login requires holding the touch button.",
       "e113": "Due to many login attempts, the next login requires holding the touch button for 4 seconds."
+    },
+    "forgotPassword": {
+      "button": "See here",
+      "dialogDescription": "If you forgot your device password, you can still restore from your wallet backup:",
+      "dialogTitle": "Forgot your device password?",
+      "info": "Forgot your password?",
+      "stillHavingIssues": "Still having issues?",
+      "supportLink": "Contact support",
+      "text1": "After entering the wrong device password 10 times, your device automatically resets to factory settings.",
+      "text2": "You can restore your wallet from a microSD card or paper backup, without needing the old device password. During restore, you can set a new device password.",
+      "title1": "Device resets after repeated failed attempts",
+      "title2": "Restore from your wallet backup"
     },
     "input": {
       "label": "Device password",

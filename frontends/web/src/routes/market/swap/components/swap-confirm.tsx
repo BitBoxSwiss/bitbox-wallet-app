@@ -8,7 +8,7 @@ import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { PointToBitBox02 } from '@/components/icon';
 import { Column, Grid } from '@/components/layout';
-import { FiatValue } from '@/routes/account/send/components/fiat-value';
+import { FiatValue } from '@/components/amount/fiat-value';
 import style from './swap-confirm.module.css';
 
 type TProp = {

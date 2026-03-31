@@ -1,11 +1,14 @@
 {
   "account": {
+    "account": "Compte",
+    "accounts": "Comptes",
+    "backupReminder": "Votre portefeuille <strong>{{name}}</strong> a dépassé {{fiat}}{{threshold}} !\n\nNous vous recommandons de créer une sauvegarde papier pour plus de sécurité. C'est rapide et simple.",
+    "backupReminderLink": "Créer une sauvegarde papier",
     "disconnect": "Connexion perdue. Tentative de reconnexion…",
-    "export": "Exporter",
     "exportTransactions": "Exporter les transactions vers le dossier Téléchargements sous forme de fichier CSV",
     "fatalError": "Une erreur inattendue s'est produite.",
-    "incoming": "Entrant",
-    "initializing": "Récupération d'informations de la blockchain…",
+    "incoming": "Réception",
+    "initializing": "Récupération d'informations depuis la blockchain…",
     "insuranceExpired": "<strong>Le compte n'est plus assuré</strong>\n\nLe plan d'assurance pour ce compte a été modifié.\nVeuillez consulter la page d'assurance pour plus de détails.",
     "insured": "Compte assuré",
     "maybeProxyError": "Proxy Tor activé. Assurez-vous que votre proxy Tor fonctionne correctement, ou désactivez la configuration du proxy.",
@@ -45,6 +48,7 @@
     "fiatBalance": "Solde en devise",
     "name": "Nom du compte",
     "noAccount": "Il n'y a pas de compte à montrer.",
+    "portfolio": "Réalisations",
     "subtotalWithCoinName": "Total ({{coinName}})",
     "title": "Vue globale de mon portefeuille",
     "total": "Total",
@@ -94,10 +98,13 @@
   },
   "auth": {
     "authButton": "Authentification",
+    "dismissButton": "Annuler",
+    "missing": "Veuillez configurer un verrouillage d'écran dans les paramètres système de votre appareil.",
     "title": "Veuillez vous authentifier pour continuer"
   },
   "backup": {
     "check": {
+      "aborted": "La vérification de la sauvegarde a été interrompue sur l'appareil",
       "checking": "Vérification de la sauvegarde…",
       "confirmTitle": "Vérifier la sauvegarde",
       "notOK": "La sauvegarde ne correspond PAS à ce portefeuille.",
@@ -168,8 +175,7 @@
     "flipscreen": "Retourner l'écran",
     "orientation": "Appareil dans le mauvais sens ?",
     "success": "Mise à jour réussie !",
-    "success_install": "Installation réussie ! ",
-    "upgradeTitle": "",
+    "success_install": "Installation réussie !",
     "upgradeTitle_install": "Mise à jour le micrologiciel du BitBox02"
   },
   "bitbox": {
@@ -285,7 +291,6 @@
     },
     "stepInsertSD": {
       "insertSDCard": "Veuillez insérer une carte microSD dans votre BitBox02 pour continuer.",
-      "insertSDCardToSeeBackups": "",
       "insertSDcardTitle": "Insérer une carte microSD"
     },
     "stepPassword": {
@@ -345,8 +350,7 @@
       "text1": "Bitsurance est un service tiers indépendant. Pour toute question concernant leurs offres et les demandes d'assurance, veuillez contacter Bitsurance directement.",
       "text2": "L'assurance est actuellement disponible en Allemagne, avec d'autres zones géographiques à suivre",
       "text3": "La couverture Bitcoin maximale actuellement disponible est de 100 000 euros par personne. Des montants plus élevés sont prévus à l'avenir.",
-      "text4": "Des informations personnelles ainsi que la clé publique étendue de votre compte assuré font partie de la police d'assurance et seront partagées avec Bitsurance et le courtier.",
-      "text5": ""
+      "text4": "Des informations personnelles ainsi que la clé publique étendue de votre compte assuré font partie de la police d'assurance et seront partagées avec Bitsurance et le courtier."
     },
     "title": "Assurance"
   },
@@ -1069,7 +1073,7 @@
         "title": "Quand dois-je utiliser la fonction \"Modifier le type d'adresse\" ?"
       },
       "howVerify": {
-        "text": "Pour le BitBox01, cliquez sur l'icône BitBox dans la barre latérale de gauche et consultez la section appairage. Le guide sera mis à jour et vous pourrez continuer à suivre les instructions à partir de là.\nPour le BitBox02, vous pouvez vérifier les adresses directement sur l'appareil pendant le processus d'envoi/réception.",
+        "text": "Vous pouvez vérifier les adresses directement sur le BitBox pendant le processus d'envoi/réception.",
         "title": "Comment puis-je vérifier une adresse en toute sécurité ?"
       },
       "plugout": {
@@ -1095,7 +1099,7 @@
         "title": "Comment le change output (de sortie) est-il déterminé ?"
       },
       "fee": {
-        "text": "Les frais sont basés sur la taille des données de la transaction et non sur son montant. L'estimation des frais à payer sont calculés par l'algorithme du logiciel Bitcoin Core en fonction de la priorité de traitement par le réseau choisie. Ils sont affichés s'ils ont une valeur différente des cibles ci-dessous.\n\nÉconomique : 24 blocs (environ 4 heures pour Bitcoin, 1 heure pour Litecoin)\nBas : 12 blocs (environ 2 heures pour Bitcoin, 30 minutes pour Litecoin)\nNormal : 6 blocs (environ 1 heure pour Bitcoin, 15 minutes pour Litecoin)\nÉlevé : 2 blocs (environ 20 minutes pour Bitcoin, 5 minutes pour Litecoin)\n(Un bloc prend en moyenne dix minutes pour Bitcoin (2,5 minutes pour Litecoin) à miner et la charge du réseau peut varier considérablement au cours des périodes ci-dessus.)",
+        "text": "Les frais sont basés sur la taille des données de la transaction et non sur son montant. L'estimation des frais à payer sont calculés par l'algorithme du logiciel Bitcoin Core en fonction de la priorité de traitement choisie. Ils sont affichés s'ils ont une valeur différente des cibles ci-dessous.\nÉconomique : 24 blocs (environ 4 heures pour Bitcoin, 1 heure pour Litecoin)\nBas : 12 blocs (environ 2 heures pour Bitcoin, 30 minutes pour Litecoin)\nNormal : 6 blocs (environ 1 heure pour Bitcoin, 15 minutes pour Litecoin)\nÉlevé : 2 blocs (environ 20 minutes pour Bitcoin, 5 minutes pour Litecoin)\n(Un bloc prend en moyenne dix minutes pour Bitcoin (2,5 minutes pour Litecoin) à miner et la charge du réseau peut varier considérablement au cours des périodes ci-dessus.)",
         "title": "Comment les frais sont-ils déterminés ?"
       },
       "plugout": {
@@ -1113,6 +1117,16 @@
       "whyFee": {
         "text": "Les transactions sont en compétitions les unes avec les autres pour être confirmées par un mineur. Les mineurs choisissent quelles transactions sont à inclure dans la blockchain en fonction des frais de réseau.\nLes mineurs votent sur l'historique des transactions. Puisqu'il n'y a pas de tiers de confiance qui impose un vote par personne (ce qui est l'intérêt des blockchains), les mineurs votent sur les transactions en sacrifiant une ressource coûteuse telle que la puissance de calcul. En récompense de leur travail, ils peuvent prétendre aux jetons fraichement créés ainsi qu'aux frais de toutes les transactions qu'ils ont incluses dans leur bloc.",
         "title": "Pourquoi y a-t-il des frais de réseau ?"
+      }
+    },
+    "settings": {
+      "sats": {
+        "text": "Un Satoshi (\"sat\" en abrégé) est la plus petite unité de Bitcoin. Un Satoshi correspond à un cent millionième de bitcoin (0,00000001 BTC). Il tire son nom du créateur de Bitcoin, Satoshi Nakamoto.",
+        "title": "Qu'est-ce qu'un Satoshi?"
+      },
+      "servers": {
+        "text": "Cette application communique avec les serveurs de Shift Crypto pour rechercher des mises à jour, charger des transactions et envoyer des informations aux applications mobiles appairées.\nDe plus, elle récupère les derniers taux de change de CoinGecko. Les conversions sont calculées localement, aucun de vos montants n'est transmis.\nNote : Pour Ethereum et les jetons ERC20, nous utilisons Etherscan.io APIs.",
+        "title": "Avec quels serveurs cette application communique-t-elle ?"
       }
     },
     "settings-electrum": {
@@ -1142,16 +1156,6 @@
       "why": {
         "text": "Faire tourner votre propre nœud n'est pas nécessaire mais améliore la confidentialité et réduit le besoin de faire confiance aux autres.\nPremièrement, cela signifie que vous utilisez Bitcoin de manière plus privée car le BitBoxApp ne se connectera pas à nos serveurs pour récupérer l'historique de vos transactions, mais récupérera ces informations à partir de votre propre nœud.\nDeuxièmement, faire tourner votre propre nœud signifie que celui-ci vérifie lui-même toutes les transactions, en s'assurant que les règles de consensus sont bien respectées.",
         "title": "Pourquoi est-ce que je devrais faire tourner mon propre nœud ?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "Un Satoshi (\"sat\" en abrégé) est la plus petite unité de Bitcoin. Un Satoshi correspond à un cent millionième de bitcoin (0,00000001 BTC). Il tire son nom du créateur de Bitcoin, Satoshi Nakamoto.",
-        "title": "Qu'est-ce qu'un Satoshi?"
-      },
-      "servers": {
-        "text": "Cette application communique avec les serveurs de Shift Crypto pour rechercher des mises à jour, charger des transactions et envoyer des informations aux applications mobiles appairées.\nDe plus, elle récupère les derniers taux de change de CoinGecko.\nLes conversions sont calculées localement, aucun de vos montants n'est transmis.\nNote : Pour Ethereum et les jetons ERC20, nous utilisons Etherscan.io APIs.",
-        "title": "Avec quels serveurs cette application communique-t-elle ?"
       }
     },
     "title": "Guide",
@@ -1290,7 +1294,7 @@
         "title": "Devises activées"
       },
       "darkmode": {
-        "description": "Voir la BitBoxApp en dark mode (mode sombre)."
+        "description": "Voir la BitBoxApp en mode sombre."
       },
       "defaultCurrency": {
         "description": "Sélectionnez votre devise par défaut",
@@ -1332,6 +1336,7 @@
     "title": "Note"
   },
   "notification": {
+    "newTxs_many": "{{count}} nouvelles transactions dans : {{accountName}}",
     "newTxs_one": "Nouvelle transaction dans : {{accountName}}",
     "newTxs_other": "{{count}} nouvelles transactions dans : {{accountName}}"
   },
@@ -1373,7 +1378,7 @@
       "title": "Passphrase activée"
     },
     "successEnabled": {
-      "message": "Passphrase optionnelle <strong>désactivée avec succès</strong> !\nIl ne vous sera plus demandé de fournir une passphrase à partir de maintenant.",
+      "message": "Passphrase optionnelle <strong>désactivée avec succès</strong> !\n\nIl ne vous sera plus demandé de fournir une passphrase à partir de maintenant.",
       "messageEnd": "Veuillez maintenant rebrancher votre BitBox02.",
       "tips": "Astuces",
       "tipsList": [
@@ -1390,7 +1395,7 @@
         "La passphrase est une couche de sécurité supplémentaire en plus de votre sauvegarde.",
         "La saisie d'une passphrase différente générera à chaque fois un porte-monnaie différent.",
         "Pour restaurer votre portefeuille, vous avez besoin <strong>à la fois de la passphrase et de la sauvegarde</strong>.",
-        "Si vous oubliez votre passphrase, vous ne pourrez plus accéder à vos fonds."
+        "Si vous oubliez votre passphrase, vous <strong>ne pourrez plus accéder à vos fonds</strong>."
       ]
     },
     "what": {
@@ -1462,14 +1467,14 @@
       "password-required": "Le mot de passe de récupération est nécessaire pour restaurer un portefeuille à partir d'une sauvegarde."
     },
     "create": "Créer un portefeuille",
-    "creating": "Créer un portefeuille",
+    "creating": "Création du portefeuille",
     "description": "Je comprends que :",
     "error": {
-      "e102": "Le mot de passe doit contenir au minimum 4 caractères.",
+      "e102": "Le mot de passe doit comporter au minimum 4 caractères.",
       "e200": "Vous devez insérer une carte microSD dans votre BitBox afin de créer un portefeuille, une sauvegarde se créée ainsi automatiquement."
     },
     "info": {
-      "button": "Définir le mot de passe maintenant",
+      "button": "Définir le mot de passe de récupération maintenant",
       "description1": "Insérez la carte microSD dans le BitBox",
       "description2": "Choisissez un mot de passe de récupération pour le portefeuille et sélectionnez \"Définir le mot de passe de récupération maintenant\".",
       "description3": "La sauvegarde sur une carte microSD et votre mot de passe de récupération constituent le seul moyen de récupérer vos fonds en cas de perte ou de vol de votre BitBox.",
@@ -1574,7 +1579,6 @@
       "placeholder": "Calcul des frais…"
     },
     "maximum": "Envoyer tout",
-    "maximumSelectedCoins": "",
     "newTransaction": "Nouvelle transaction",
     "noFeeTargets": "L'estimation des frais n'est pas disponible actuellement. Veuillez réessayer plus tard ou saisir des frais personnalisés.",
     "priority": "Priorité",
@@ -1623,7 +1627,6 @@
         "title": "Connectez votre nœud complet"
       },
       "exportLogs": {
-        "description": "",
         "title": "Exporter les journaux"
       },
       "fee": "Activer la personnalisation des frais",
@@ -1650,15 +1653,15 @@
         "title": "Exporter les notes"
       },
       "import": {
+        "accountNames_many": "Noms de comptes importés {{count}}.",
         "accountNames_one": "Nom de compte importé {{count}}.",
         "accountNames_other": "Noms de comptes importés {{count}}.",
-        "accountNames_zero": "Aucun nom de compte importé.",
         "description": "Restaurez vos notes de transaction et noms de comptes à partir d'un fichier de sauvegarde précédemment créé.",
         "title": "Importer les notes",
         "tooLarge": "Fichier trop volumineux.",
-        "transactionNotes_one": "Note de transaction importée {{count}}.",
-        "transactionNotes_other": "Notes de transaction importées {{count}}.",
-        "transactionNotes_zero": "Aucune note de transaction importée."
+        "transactionNotes_many": "{{count}} notes de transactions importées .",
+        "transactionNotes_one": "{{count}} note de transaction importée.",
+        "transactionNotes_other": "{{count}} notes de transactions importées."
       },
       "title": "Gérer les notes"
     },

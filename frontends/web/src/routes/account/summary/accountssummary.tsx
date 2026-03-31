@@ -12,18 +12,19 @@ import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View } from '@/components/view/view';
 import { Chart } from './chart';
 import { KeystoreBalance } from './keystorebalance';
-import { CoinBalance } from './coinbalance';
+import { TotalBalanceForAllKeystores } from './total-balance-for-all-keystores';
 import { AddBuyReceiveOnEmptyBalances } from '@/routes/account/info/buy-receive-cta';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '@/contexts/AppContext';
-import { getAccountsByKeystore } from '@/routes/account/utils';
+import { getAccountsByKeystore, getAccountsPerCoin } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { BackupReminder } from '@/components/banners/backup';
 import { OfflineError } from '@/components/banners/offline-error';
+import style from './accountssummary.module.css';
 
 type TProps = {
   accounts: accountApi.TAccount[];
@@ -45,6 +46,13 @@ export const AccountsSummary = ({
   const { defaultCurrency } = useContext(RatesContext);
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
+
+  const accountsPerCoin = getAccountsPerCoin(accounts);
+  const hasMultipleAccountsPerCoin = Object.values(accountsPerCoin).some(
+    coinAccounts => coinAccounts !== undefined && coinAccounts.length > 1
+  );
+  const showTotalBalance = accountsByKeystore.length > 1
+    || (accountsByKeystore.length > 0 && hasMultipleAccountsPerCoin);
 
   const [chartData, setChartData] = useState<accountApi.TChartData>();
   const [accountsBalanceSummary, setAccountsBalanceSummary] = useState<accountApi.TAccountsBalanceSummary>();
@@ -185,13 +193,14 @@ export const AccountsSummary = ({
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
-            {accountsByKeystore.length > 1 && (
-              <CoinBalance
-                summaryData={chartData}
-                coinsBalances={accountsBalanceSummary?.coinsTotalBalance}
-              />
-            )}
-            {accountsByKeystore &&
+            <div className={style.keystoresContainer}>
+              {showTotalBalance && (
+                <TotalBalanceForAllKeystores
+                  summaryData={chartData}
+                  coinsBalances={accountsBalanceSummary?.coinsTotalBalance}
+                />
+              )}
+              {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 (
                   <KeystoreBalance
@@ -201,9 +210,12 @@ export const AccountsSummary = ({
                     keystore={keystore}
                     keystoreBalance={accountsBalanceSummary?.keystoresBalance[keystore.rootFingerprint]}
                     balances={balances}
+                    showUnitPrice={!showTotalBalance}
                   />
                 )
               ))}
+            </div>
+
           </View>
         </Main>
       </GuidedContent>

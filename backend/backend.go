@@ -5,6 +5,7 @@ package backend
 import (
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"net/http"
 	"net/url"
 	"os"
@@ -72,7 +73,9 @@ var fixedURLWhitelist = []string{
 	"https://sochain.com/tx/LTCTEST/",
 	"https://blockchair.com/litecoin/transaction/",
 	"https://etherscan.io/tx/",
+	"https://etherscan.io/address/",
 	"https://sepolia.etherscan.io/tx/",
+	"https://sepolia.etherscan.io/address/",
 	// Moonpay onramp
 	"https://www.moonpay.com/",
 	"https://support.moonpay.com/",
@@ -258,6 +261,10 @@ type Backend struct {
 
 	// ethupdater takes care of updating ETH accounts.
 	ethupdater *eth.Updater
+
+	// skipETHInitialSync suppresses the per-account ETH init refresh while startup loads persisted
+	// accounts, so the updater's initial batch refresh is the only startup sync round.
+	skipETHInitialSync bool
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -321,7 +328,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		log.Errorf("RateUpdater DB cache dir: %v", err)
 	}
 	backend.ratesUpdater = rates.NewRateUpdater(hclient, ratesCache)
-	backend.ratesUpdater.Observe(backend.Notify)
+	backend.ratesUpdater.Observe(func(event observable.Event) {
+		backend.Notify(event)
+		backend.notifyCoinFiatPrices()
+	})
 
 	backend.banners = banners.NewBanners(backend.DevServers())
 	backend.banners.Observe(backend.Notify)
@@ -538,19 +548,19 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	case code == coinpkg.CodeETH:
 		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
-			"https://etherscan.io/tx/",
+			"https://etherscan.io/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeSEPETH:
 		etherScan := etherscan.NewEtherScan("11155111", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
-			"https://sepolia.etherscan.io/tx/",
+			"https://sepolia.etherscan.io/",
 			etherScan,
 			nil)
 	case erc20Token != nil:
 		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
-			"https://etherscan.io/tx/",
+			"https://etherscan.io/",
 			etherScan,
 			erc20Token.token,
 		)
@@ -675,7 +685,9 @@ func (backend *Backend) Start() <-chan interface{} {
 	}
 
 	defer backend.accountsAndKeystoreLock.Lock()()
+	backend.skipETHInitialSync = true
 	backend.initPersistedAccounts()
+	backend.skipETHInitialSync = false
 	backend.emitAccountsStatusChanged()
 
 	backend.ratesUpdater.StartCurrentRates()
@@ -883,6 +895,35 @@ func (backend *Backend) Deregister(deviceID string) {
 // RatesUpdater returns the backend's ratesUpdater instance.
 func (backend *Backend) RatesUpdater() *rates.RateUpdater {
 	return backend.ratesUpdater
+}
+
+// CoinFiatPrices returns the fiat prices of 1 display-unit of the given coin
+// in all supported fiat currencies, formatted with thousand separators.
+// The successful response matches the frontend TAmountWithConversions shape.
+func (backend *Backend) CoinFiatPrices(coin coinpkg.Coin) *coinpkg.FormattedAmountWithConversions {
+	const isFee = false
+	coinAmount := coin.SetAmount(big.NewRat(1, 1), isFee)
+	return &coinpkg.FormattedAmountWithConversions{
+		Amount: coin.Unit(isFee),
+		Unit:   coin.GetFormatUnit(isFee),
+		Conversions: coinpkg.Conversions(
+			coinAmount,
+			coin,
+			isFee,
+			backend.ratesUpdater),
+	}
+}
+
+// notifyCoinFiatPrices pushes per-coin fiat price events for all initialized coins.
+func (backend *Backend) notifyCoinFiatPrices() {
+	defer backend.coinsLock.RLock()()
+	for code, coin := range backend.coins {
+		backend.Notify(observable.Event{
+			Subject: fmt.Sprintf("coins/%s/fiat-prices", code),
+			Action:  action.Replace,
+			Object:  backend.CoinFiatPrices(coin),
+		})
+	}
 }
 
 // DownloadCert downloads the first element of the remote certificate chain.

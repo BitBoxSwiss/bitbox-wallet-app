@@ -21,11 +21,5 @@ golangci-lint run
 npm --prefix=frontends/web install # needed to install dev dependencies.
 make weblint
 npm --prefix=frontends/web test -- --no-color --no-watch
-# check that the i18n files are formatted correctly (avoids noisy diff when
-# pulling from locize)
-if ! locize format frontends/web/src/locales --format json --dry true ; then
-    echo "i18n files malformatted. Fix with: make locize-fix"
-    exit 1
-fi
 
-./scripts/check-locize-placeholders.py
+./scripts/check-i18n-placeholders.py

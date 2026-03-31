@@ -2,10 +2,9 @@
   "account": {
     "account": "Cuenta",
     "accounts": "Cuenta",
-    "backupReminder": "Tu billetera <strong>{{name}}</strong> ha pasado de {{fiat}} {{threshold}}!\n\nRecomendamos que hagas una copia de seguridad en papel para una protección adicional. Es rápido y sencillo. ",
+    "backupReminder": "Tu billetera <strong>{{name}}</strong> ha pasado de {{fiat}} {{threshold}}!\n\nRecomendamos que hagas una copia de seguridad en papel para una protección adicional. Es rápido y sencillo.",
     "backupReminderLink": "Crear una copia de seguridad en papel",
     "disconnect": "Conexión perdida. Reintentando... ",
-    "export": "Exportar transacciones",
     "exportTransactions": "Exportar transacciones a la carpeta de descargas como archivo CSV",
     "fatalError": "Ha ocurrido un error inesperado.",
     "incoming": "Entrante",
@@ -777,7 +776,6 @@
         "description": "Entra en el gestor de arranque de tu BitBox. Puedes activar el hash del firmware desde aquí."
       },
       "passphrase": {
-        "description": "",
         "title": "Passphrase"
       }
     },
@@ -1248,6 +1246,16 @@
         "title": "¿Por qué hay una tarifa de red?"
       }
     },
+    "settings": {
+      "sats": {
+        "text": "Un Satoshi (\"sat\" para abreviar) es la unidad más pequeña de Bitcoin. Un Satoshi es la cienmillonésima parte de un bitcoin (0,00000001 BTC). Debe su nombre al creador de Bitcoin, Satoshi Nakamoto.",
+        "title": "¿Qué es un Satoshi?"
+      },
+      "servers": {
+        "text": "Esta aplicación se comunica con los servidores de Shift Crypto para buscar actualizaciones, cargar transacciones y enviar información a aplicaciones móviles sincronizadas.\nAdemás, recupera los últimos tipos de cambio de CoinGecko. Todas las conversiones se calculan de forma local lo que significa que no se envían las cantidades que uno tiene a ningún servidor. \nNota: Para Ethereum y tokens ERC20, utilizamos la API de Etherscan.io",
+        "title": "¿Con qué servidores se comunica esta aplicación?"
+      }
+    },
     "settings-electrum": {
       "connection": {
         "text": "Si solo tienes la intención de conectarte a tu nodo cuando estés en la misma red (por ejemplo, la red wifi de tu casa), entonces es suficiente usar una comunicación de red regular.\nEn este caso, es recomendable que el servidor Electrum proporcione un certificado TLS para encriptar la comunicación.\nSi tu intención es conectarte a tu nodo desde cualquier lugar, usar Tor es la mejor opción. En ese caso, no es necesario ningún certificado TLS.",
@@ -1275,16 +1283,6 @@
       "why": {
         "text": "No es necesario ejecutar su propio nodo, pero mejora la privacidad y reduce la necesidad de confiar en los demás.\nEn primer lugar, significa que estás utilizando Bitcoin de forma más privada, ya que BitBoxApp no ​​se conectará a nuestros servidores para recuperar su historial de transacciones; en su lugar, obtendrá esa información de su propio nodo.\nEn segundo lugar, ejecutar tu propio nodo significa que tu nodo verifica todas las transacciones por sí mismo, asegurándose de que se cumplan las reglas de consenso.",
         "title": "¿Por qué debería ejecutar mi propio nodo?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "Un Satoshi (\"sat\" para abreviar) es la unidad más pequeña de Bitcoin. Un Satoshi es la cienmillonésima parte de un bitcoin (0,00000001 BTC). Debe su nombre al creador de Bitcoin, Satoshi Nakamoto.",
-        "title": "¿Qué es un Satoshi?"
-      },
-      "servers": {
-        "text": "Esta aplicación se comunica con los servidores de Shift Crypto para buscar actualizaciones, cargar transacciones y enviar información a aplicaciones móviles sincronizadas.\nAdemás, recupera los últimos tipos de cambio de CoinGecko. Todas las conversiones se calculan de forma local lo que significa que no se envían las cantidades que uno tiene a ningún servidor. \nNota: Para Ethereum y tokens ERC20, utilizamos la API de Etherscan.io",
-        "title": "¿Con qué servidores se comunica esta aplicación?"
       }
     },
     "title": "Guía",
@@ -1419,9 +1417,6 @@
         "description": "Bloquea el acceso a la aplicación con bloqueo de pantalla/huella dactilar.",
         "title": "Bloqueo de pantalla"
       },
-      "coinControl": {
-        "description": ""
-      },
       "customFees": {
         "description": "Le permite introducir su propia tarifa al enviar."
       },
@@ -1480,6 +1475,7 @@
     "title": "Nota"
   },
   "notification": {
+    "newTxs_many": "",
     "newTxs_one": "Nueva transacción en: {{accountName}}",
     "newTxs_other": "{{count}} nuevas transacciones en: {{accountName}}"
   },
@@ -1817,15 +1813,15 @@
         "title": "Exportar notas"
       },
       "import": {
+        "accountNames_many": "",
         "accountNames_one": "Se ha importado {{count}} nombre cuenta.",
         "accountNames_other": "Se han importado {{count}} nombres cuentas.",
-        "accountNames_zero": "Se han importado 0 nombres cuentas.",
         "description": "Restaure sus notas de transacciones y nombres de cuentas desde un archivo de copia de seguridad creado previamente.",
         "title": "Importar notas",
         "tooLarge": "Archivo demasiado grande",
+        "transactionNotes_many": "",
         "transactionNotes_one": "Se ha importado {{count}} nota de transacción.",
-        "transactionNotes_other": "Se han importado {{count}} notas de transacciones.",
-        "transactionNotes_zero": "Se han importado 0 notas de transacciones."
+        "transactionNotes_other": "Se han importado {{count}} notas de transacciones."
       },
       "title": "Administrar notas"
     },
@@ -1895,7 +1891,6 @@
       "fiatAmount": "Cantidad Fiat",
       "from": "De",
       "historicalFiat": "Histórico Fiat",
-      "sendToSelf": "Enviar a mí mismo",
       "status": "Estado",
       "title": "Detalles de la transacción",
       "type": "Tipo"

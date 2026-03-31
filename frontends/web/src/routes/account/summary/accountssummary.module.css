@@ -1,221 +1,179 @@
-.accountName {
+.coinUnit {
+    color: var(--color-secondary);
+    font-weight: normal;
+}
+
+.keystoreName {
+    font-size: var(--font-size-default);
+}
+
+
+.assetBalanceRow {
     display: flex;
-    align-items: baseline;
-}
-
-.accountName p {
-    margin-right: var(--space-quarter);
-}
-
-.balanceTable {
-    border-radius: var(--radius-xl);
-    border: solid 1px var(--background-quaternary);
-    margin: 0 0 var(--space-default) 0;
-}
-.coincode {
-    height: 24px;
-    /* padding: 0px 0px 4px 10px; */
-}
-
-.coinheader {
-    display: flex;
-    flex-direction: row;
     align-items: center;
-}
-
-.coinheader > div:first-child {
-    height: 24px;
-    margin-right: calc(var(--space-half) / 2);
-}
-
-.dataMissing {
-    text-align: center;
-}
-
-.openFileText {
-    color: var(--color-primary);
-    cursor: pointer;
-    font-size: var(--size-smaller);
-}
-
-.table {
+    justify-content: space-between;
+    gap: 14px;
     width: 100%;
-    border-collapse: collapse;
-}
-
-.table thead tr th:first-child {
-    border-top-left-radius: var(--radius-xl);
-}
-
-.table thead tr th:last-child {
-    border-top-right-radius: var(--radius-xl);
-}
-
-.table tfoot tr th:first-child {
-    border-bottom-left-radius: var(--radius-xl);
-}
-
-.table tfoot tr td {
-    border-bottom-right-radius: var(--radius-xl);
-}
-
-.table tr td,
-.table tr th {
-    font-weight: 400;
-    padding: var(--space-half);
-    text-align: left;
-}
-
-.table tr td.noAccount {
-    text-align: center;
-}
-
-.table tr > td:not(:first-child),
-.table tr > th:not(:first-child) {
-    text-align: right;
-}
-
-.table thead th {
-    border-bottom: solid 1px var(--background-quaternary);
-}
-
-.table thead th,
-.table tfoot th {
-    background-color: var(--background-secondary);
-    font-size: var(--size-default);
-    font-weight: bold;
-}
-
-.table thead th:first-child,
-.table tfoot th:first-child {
-    padding-left: calc(24px + var(--space-default));
-}
-
-.table tbody td {
-    background-color: var(--background-secondary);
 }
 
 .clickable {
     cursor: pointer;
 }
 
-.summaryTableBalance {
-    display: inline-flex;
+.assetBalanceInfo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-half);
+    min-width: 0;
+}
+
+.assetBalanceNameCol {
+    display: flex;
+    flex-direction: column;
     gap: var(--space-eight);
-    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.assetBalanceName {
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.table tfoot th,
-.table tfoot td {
-    background-color: var(--background-secondary);
-    padding-bottom: calc(var(--space-quarter) + var(--space-half));
-}
-
-.coinName {
-    align-items: center;
+.assetBalanceAmounts {
     display: flex;
+    flex-direction: column;
+    gap: var(--space-eight);
+    align-items: flex-end;
+    min-height: 46px;
 }
 
-.coinName img {
+.keystoreContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.keystoreHeader {
+    display: flex;
+    flex-direction: row;
+    padding: 0 var(--space-half);
+    justify-content: space-between;
+}
+
+.keystoreBalanceAmount {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-eight);
+}
+
+.coinGroupList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.coinGroupCard {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-half);
+    border-radius: var(--radius-xl);
+    background-color: var(--background-secondary);
+    width: 100%;
+}
+
+.coinGroupTotal {
+    margin: var(--space-quarter) 0;
+}
+
+.totalLabel {
+    font-size: 12px;
+}
+
+.totalNameCol {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-eight);
+    min-width: 0;
+    overflow: hidden;
+}
+
+.tokenItem {
+    padding-left: 4px;
+}
+
+.tokenItemFirst {
+    margin-top: var(--space-quarter);
+}
+
+.noAccountText {
+    text-align: center;
+    font-size: var(--size-small);
+}
+
+
+.keystoresContainer {
+    margin-top: var(--space-default);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+    padding: var(--space-half);
+}
+
+
+.assetBalanceInfoFull {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-half);
+    min-width: 0;
+    width: 100%;
+}
+
+.assetBalanceDetailsCol {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-eight);
+    width: 100%;
+    min-width: 0;
+}
+
+.assetBalanceDetailRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    min-width: 0;
+}
+
+.assetBalanceNameFlex {
+    flex-basis: 50%;
+    flex-grow: 0;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.assetBalanceAmountFixed {
+    flex-basis: 50%;
+    flex-grow: 1;
     flex-shrink: 0;
-    margin-right: var(--space-half);
+    overflow: hidden;
+    text-align: end;
+    white-space: nowrap;
 }
 
-.coinUnit {
-  color: var(--color-secondary);
-  font-weight: normal;
+.unitPrice {
+    color: var(--color-secondary);
 }
 
-.syncText {
-    font-variant: tabular-nums;
+.unit {
+    font-size: var(--size-smaller);
 }
 
-.showOnTableView {
-    display: block;
-}
-
-.showInCollapsedView {
-    display: none;
-}
-
-@media (max-width: 768px) {
-    .accountName {
-        padding-left: var(--space-half);
-    }
-    .balanceTable {
-        margin: 0 var(--space-half);
-        margin-bottom: var(--space-default);
-    }
-}
-
-@media (max-width: 640px) {
-
-    .showOnTableView {
-        display: none;
-    }
-    .showInCollapsedView {
-        display: block;
-    }
-
-    .table tr td,
-    .table tr th {
-      padding: var(--space-half);
-    }
-
-    .table thead {
-        display: none;
-    }
-
-    .table,
-    .table tbody,
-    .table tbody tr,
-    .table tfoot {
-        display: block;
-    }
-
-    .table tfoot tr {
-        background-color: var(--background-secondary);
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .table tfoot th:first-child {
-        padding-left: var(--space-half);
-    }
-
-    .table tbody td {
-        display: flex;
-        flex-wrap: wrap;
-        gap: .4ch;
-        justify-content: space-between;
-        height: auto;
-        padding-bottom: 0;
-    }
-
-    .table tbody td::before {
-        content: attr(data-label);
-        white-space: nowrap;
-    }
-
-    .subTotal td::before {
-        font-weight: bold;
-    }
-
-    .table tbody td:last-child {
-        border-bottom: solid 1px var(--color-mediumgray);
-        padding-bottom: var(--space-half);
-    }
-
-    .table tr:first-child td:first-child {
-        border-top-left-radius: var(--radius-xl);
-        border-top-right-radius: var(--radius-xl);
-    }
-
-    .table tfoot tr:first-child {
-        border-bottom-left-radius: var(--radius-xl);
-        border-bottom-right-radius: var(--radius-xl);
-    }
-    
-
+.pairUnit {
+    color: var(--color-secondary);
+    font-size: var(--size-smaller);
 }
