@@ -58,8 +58,10 @@ export type TAccount = {
   code: AccountCode;
   name: string;
   isToken: boolean;
+  contractAddress?: string;
   activeTokens?: TActiveToken[];
   blockExplorerTxPrefix: string;
+  blockExplorerAddressPrefix?: string;
   bitsuranceStatus?: TDetailStatus;
   accountNumber?: number;
 };
@@ -462,4 +464,23 @@ type AddressSignResponse = {
 
 export const signAddress = (format: ScriptType | '', msg: string, code: AccountCode): Promise<AddressSignResponse> => {
   return apiPost(`account/${code}/sign-address`, { format, msg, code });
+};
+
+export type TUsedAddress = {
+  address: string;
+  addressID: string;
+  addressType: 'receive' | 'change';
+  lastUsed: string | null;
+};
+
+export type TUsedAddressesResponse = {
+  success: true;
+  addresses: TUsedAddress[];
+} | {
+  success: false;
+  errorCode?: 'syncInProgress' | 'notSupported' | 'loadFailed';
+};
+
+export const getUsedAddresses = (code: AccountCode): Promise<TUsedAddressesResponse> => {
+  return apiGet(`account/${code}/used-addresses`);
 };

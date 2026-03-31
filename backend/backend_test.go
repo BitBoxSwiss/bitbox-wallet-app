@@ -141,6 +141,11 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			result := []accounts.AddressList{}
 			for _, signingConfig := range config.Config.SigningConfigurations {
+				scriptType := signingConfig.ScriptType()
+				if scriptType == signing.ScriptTypeP2WPKHP2SH {
+					// We don't support wrapped segwit in receive flows anymore.
+					continue
+				}
 				addressChain := addresses.NewAddressChain(
 					signingConfig,
 					coin.Net(), 20, false,
@@ -150,7 +155,6 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 					log)
 				addresses, err := addressChain.EnsureAddresses()
 				require.NoError(t, err)
-				scriptType := signingConfig.ScriptType()
 				result = append(result, accounts.AddressList{
 					ScriptType: &scriptType,
 					Addresses: []accounts.Address{

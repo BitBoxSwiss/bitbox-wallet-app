@@ -4,8 +4,7 @@
     "accounts": "Konten",
     "backupReminder": "Deine Wallet <strong>{{name}}</strong> hat {{threshold}} {{fiat}} überschritten!\n\nWir empfehlen ein Backup auf Papier zu erstellen, für zusätzlichen Schutz. Es ist einfach und geht schnell.",
     "backupReminderLink": "Backup erstellen",
-    "disconnect": "Verbindung unterbrochen. Erneut verbinden... ",
-    "export": "Transaktionen exportieren",
+    "disconnect": "Verbindung unterbrochen. Erneut verbinden…",
     "exportTransactions": "Exportiere Transaktionen im Download Ordner als CSV Datei",
     "fatalError": "Ein unerwarteter Fehler ist aufgetreten.",
     "incoming": "Eingehend",
@@ -48,7 +47,7 @@
     "exportSummary": "Kontozusammenfassung als CSV Datei zum Download Ordner exportieren",
     "fiatBalance": "Fiat Kontostand",
     "name": "Konto Name",
-    "noAccount": "Keine Konten verfügbar",
+    "noAccount": "Keine Konten verfügbar.",
     "portfolio": "Portfolio",
     "subtotalWithCoinName": "Summe ({{coinName}})",
     "title": "Kontenübersicht",
@@ -142,6 +141,7 @@
     "restore": {
       "confirmTitle": "Von Backup wiederherstellen",
       "error": {
+        "e104": "Wiederherstellung des Backups wurde abgebrochen.",
         "e200": "microSD Karte nicht gefunden",
         "general": "Fehler beim Wiederherstellen von Backup"
       },
@@ -203,6 +203,7 @@
       "alertDisabled": "Bluetooth ist jetzt auf deiner BitBox deaktiviert. Falls du in Zukunft iPhones verbinden möchtest, musst du es erneut aktivieren.",
       "alertEnabled": "Bluetooth ist jetzt aktiviert.",
       "description": "Bluetooth wird zum Verbinden mit iPhone verwendet.",
+      "error_104": "Änderung der Bluetooth-Einstellungen wurde abgebrochen.",
       "titleDisabled": "Bluetooth aktvieren",
       "titleEnabled": "Bluetooth deaktivieren"
     },
@@ -457,7 +458,6 @@
               "title": "Gebühren"
             },
             "intro": {
-              "text": "",
               "title_bitcoin": "Bitcoin ausgeben mit Bitrefill",
               "title_crypto": "Krypto ausgeben mit Bitrefill"
             },
@@ -1275,6 +1275,16 @@
         "title": "Warum gibt es eine Netzwerk Gebühr?"
       }
     },
+    "settings": {
+      "sats": {
+        "text": "Ein Satoshi (kurz \"sat\") ist die kleinste Einheit eines Bitcoins. Ein Satoshi ist ein Hundertmillionstel eines Bitcoins (0,00000001 BTC). Benannt ist er nach dem Erfinder von Bitcoin, Satoshi Nakamoto.",
+        "title": "Was ist ein Satoshi?"
+      },
+      "servers": {
+        "text": "Diese App kommuniziert mit Servern von Shift Crypto, um nach Updates zu suchen, Transaktionen zu laden und Informationen an verbundene Smartphone Apps zu senden.\nAußerdem werden die neuesten Wechselkurse von CoinGecko abgerufen. (Die Conversions werden lokal berechnet, es werden keine Beträge von dir übertragen.)\nInfo: Für Ethereum und ERC-20 tokens verwenden wir die Etherscan.io APIs.",
+        "title": "Mit welchen Servern kommuniziert die Applikation?"
+      }
+    },
     "settings-electrum": {
       "connection": {
         "text": "Wenn du nur dann eine Verbindung zu deinem Full Node herstellen möchtest, wenn du dich im selben Netzwerk befindest (z. B. in deinem Heim-WLAN), ist die Verwendung einer regulären Netzwerkkommunikation ausreichend.\nIn diesem Fall ist es ratsam, dass dein Electrum-Server ein TLS-Zertifikat zum Verschlüsseln der Kommunikation bereitstellt.\nWenn du von überall aus eine Verbindung zu deinem Full Node herstellen möchtest, ist die Verwendung von Tor die bessere Option. In diesem Fall ist kein TLS-Zertifikat erforderlich.",
@@ -1302,16 +1312,6 @@
       "why": {
         "text": "Einen eigenen Full Node zu betreiben ist nicht erforderlich. Er verbessert jedoch deine Privatsphäre und verringert die Notwendigkeit, anderen Netzwerkteilnehmern zu vertrauen.\nZum einen erlaubt er dir Bitcoin privater verwenden, da die BitBoxApp dann keine Verbindung zu unseren Servern herstellt, um deinen Transaktionsverlauf abzurufen. Stattdessen werden diese Informationen von deinem eigenen Full Node abgerufen.\nDes Weiteren, verifiziert dein Full Node alle Transaktionen selbst, wodurch sichergestellt wird, dass die Konsensregeln eingehalten werden. ",
         "title": "Warum sollte ich meinen eigenen Full Node betreiben?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "Ein Satoshi (kurz \"sat\") ist die kleinste Einheit eines Bitcoins. Ein Satoshi ist ein Hundertmillionstel eines Bitcoins (0,00000001 BTC). Benannt ist er nach dem Erfinder von Bitcoin, Satoshi Nakamoto.",
-        "title": "Was ist ein Satoshi?"
-      },
-      "servers": {
-        "text": "Diese App kommuniziert mit Servern von Shift Crypto, um nach Updates zu suchen, Transaktionen zu laden und Informationen an verbundene Smartphone Apps zu senden.\nAußerdem werden die neuesten Wechselkurse von CoinGecko abgerufen. (Die Conversions werden lokal berechnet, es werden keine Beträge von dir übertragen.)\nInfo: Für Ethereum und ERC-20 tokens verwenden wir die Etherscan.io APIs.",
-        "title": "Mit welchen Servern kommuniziert die Applikation?"
       }
     },
     "title": "Guide",
@@ -1846,13 +1846,11 @@
       "import": {
         "accountNames_one": "{{count}} Kontoname importiert.",
         "accountNames_other": "{{count}} Kontonamen importiert.",
-        "accountNames_zero": "0 Kontonamen importiert.",
         "description": "Stelle deine Transaktionsnotizen und Kontonamen von einem zuvor erstellten Backup wieder her.",
         "title": "Notizen importieren",
         "tooLarge": "Datei zu groß.",
         "transactionNotes_one": "{{count}} Transaktionsnotiz importiert.",
-        "transactionNotes_other": "{{count}} Transaktionsnotizen importiert.",
-        "transactionNotes_zero": "0 Transaktionsnotizen importiert."
+        "transactionNotes_other": "{{count}} Transaktionsnotizen importiert."
       },
       "title": "Notizen verwalten"
     },
@@ -1922,7 +1920,6 @@
       "fiatAmount": "Fiatbetrag",
       "from": "Von",
       "historicalFiat": "Historischer Fiatwert",
-      "sendToSelf": "An mich selbst senden",
       "status": "Status",
       "title": "Transaktionsdetails",
       "type": "Typ"

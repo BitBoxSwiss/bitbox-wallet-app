@@ -42,7 +42,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
 
   await test.step('Check that three accounts show up', async () => {
     // Wait for the three accounts to show up
-    await assertFieldsCount(page, 'data-label', 'Account name', 3);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
   });
 
   await test.step('Kill simulator', async () => {
@@ -51,7 +51,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
   });
 
   await test.step('Check that accounts disappear', async () => {
-    await assertFieldsCount(page, 'data-label', 'Account name', 0);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 0);
   });
 
   await test.step('Restart servewallet', async () => {
@@ -59,7 +59,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
   });
 
   await test.step('Check that accounts do not show up without simulator', async () => {
-    await assertFieldsCount(page, 'data-label', 'Account name', 0);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 0);
   });
 
 });
@@ -97,7 +97,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
   });
 
   await test.step('Check that three accounts show up', async () => {
-    await assertFieldsCount(page, 'data-label', 'Account name', 3);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
   });
 
   await test.step('Enable watch-only account', async () => {
@@ -114,7 +114,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
 
   await test.step('Check that watch-only accounts shows up', async () => {
     await page.getByRole('link', { name: 'My portfolio' }).click();
-    await assertFieldsCount(page, 'data-label', 'Account name', 3);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
   });
 
 
@@ -123,7 +123,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
   });
 
   await test.step('Check that accounts still show up', async () => {
-    await assertFieldsCount(page, 'data-label', 'Account name', 3);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
   });
 });
 

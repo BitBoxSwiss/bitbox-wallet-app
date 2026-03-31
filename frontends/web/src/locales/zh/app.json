@@ -182,9 +182,6 @@
       "title": "您已准备就绪！"
     }
   },
-  "blink": {
-    "button": ""
-  },
   "bootloader": {
     "button": "立即升级固件",
     "progress": "升级",
@@ -431,16 +428,16 @@
         "title": "为什么要收取网络费？"
       }
     },
-    "settings-electrum": {
-      "what": {
-        "text": "可以使用您自己的全节点为你的钱包提供支持，而无需使用Shift公司的服务器。",
-        "title": "这是什么？"
-      }
-    },
     "settings": {
       "servers": {
         "text": "该app与Shift Crypto服务器进行通信，以检查更新，加载交易并将信息发送到配对的移动端apps。\n该app还从CoinGecko检索最新汇率。所有转换都是在本地计算的，这意味着不会传输有关交易金额的任何数据。\n注意：对于以太坊和ERC20代币，我们使用Etherscan.io API。",
         "title": "该app与哪些服务器通信？"
+      }
+    },
+    "settings-electrum": {
+      "what": {
+        "text": "可以使用您自己的全节点为你的钱包提供支持，而无需使用Shift公司的服务器。",
+        "title": "这是什么？"
       }
     },
     "title": "指南",
@@ -515,7 +512,6 @@
   },
   "loading": "载入中...",
   "notification": {
-    "newTxs_one": "新交易：{{accountName}}",
     "newTxs_other": "{{count}} 新交易： {{accountName}}"
   },
   "password": {
@@ -613,7 +609,6 @@
     "button": "签名并发送",
     "coincontrol": {
       "address": "地址",
-      "outpoint": "",
       "title": "从输出发送"
     },
     "confirm": {

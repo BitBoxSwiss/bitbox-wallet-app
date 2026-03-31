@@ -2,6 +2,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeftDark } from '@/components/icon';
+import { UseBackButton } from '@/hooks/backbutton';
 import styles from './mobile-header.module.css';
 
 type TProps = {
@@ -25,6 +26,10 @@ export const MobileHeader = ({ title, withGuide = false, onClick }: TProps) => {
       ${styles.container || ''}
       ${withGuide && styles.withGuide || ''}
     `}>
+      <UseBackButton handler={() => {
+        handleClick();
+        return false;
+      }} />
       <button onClick={handleClick} className={styles.backButton}>
         <ChevronLeftDark />
       </button>

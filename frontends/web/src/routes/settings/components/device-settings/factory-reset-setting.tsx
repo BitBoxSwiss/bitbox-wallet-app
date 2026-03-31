@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { resetDevice } from '@/api/bitbox02';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { WarningOutlined, PointToBitBox02 } from '@/components/icon';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button, Checkbox } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
@@ -60,12 +60,14 @@ export const FactoryResetSetting = ({ deviceID }: TProps) => {
         title={t('reset.title')}
         onClose={abort}
         small>
-        <p>{t('reset.description')}</p>
-        <Checkbox
-          id="reset_understand"
-          label={t('reset.understandBB02')}
-          checked={understand}
-          onChange={handleUnderstandChange} />
+        <DialogScrollContent>
+          <p>{t('reset.description')}</p>
+          <Checkbox
+            id="reset_understand"
+            label={t('reset.understandBB02')}
+            checked={understand}
+            onChange={handleUnderstandChange} />
+        </DialogScrollContent>
         <DialogButtons>
           <Button danger disabled={!understand} onClick={reset}>
             {t('reset.title')}

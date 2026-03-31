@@ -5,7 +5,6 @@
     "backupReminder": "Sua carteira <strong>{{name}}</strong> passou {{fiat}} {{threshold}}!\n\nRecomendamos criar um backup em papel para proteção extra. É rápido e simples.",
     "backupReminderLink": "Criar backup em papel",
     "disconnect": "Conexão perdida. Tentando novamente...",
-    "export": "Exportar transações",
     "exportTransactions": "Exportar transações para a pasta Downloads como um arquivo CSV.",
     "fatalError": "Ocorreu um erro inesperado.",
     "incoming": "Lançamentos",
@@ -295,8 +294,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Remova o cartão microSD de sua BitBox e guarde-o em um local seguro.",
-      "storeMnemonic": "Guarde suas palavras de recuperação em um local seguro",
-      "success": ""
+      "storeMnemonic": "Guarde suas palavras de recuperação em um local seguro"
     },
     "stepInsertSD": {
       "insertSDCard": "Por favor insira um cartão microSD na sua BitBox para continuar.",
@@ -1214,6 +1212,16 @@
         "title": "Por que há uma taxa de rede?"
       }
     },
+    "settings": {
+      "sats": {
+        "text": "Um Satoshi ('sat' para abreviar) é a menor unidade de Bitcoin. Um Satoshi é um centésimo milionésimo de um bitcoin (0,00000001 BTC). É o nome do criador do Bitcoin, Satoshi Nakamoto.",
+        "title": "O que é um Satoshi?"
+      },
+      "servers": {
+        "text": "Este aplicativo se comunica com os servidores Shift Crypto para verificar atualizações, carregar transações e enviar informações para aplicativos móveis emparelhados.\nO aplicativo também busca as taxas de câmbio mais recentes do CoinGecko. Todas as conversões são calculadas localmente, o que significa que nenhum dado sobre o valor da sua transação é transmitido.\nNota: Para Ethereum e ERC20 Tokens, nós usamos APIs do Etherscan.io.",
+        "title": "Com quais servidores este aplicativo se comunica?"
+      }
+    },
     "settings-electrum": {
       "connection": {
         "text": "Se você pretente apenas conectar seu nó quando você tiver em uma rede específica (ex: seu wifi de casa), então uma comunicação padrão apenas é suficiente.\nNesse caso é aconselhado que seu servidor Electrum forneça um certificado TLS para encriptar a comunicação.\nSe você prente conectar seu nó de qualquer lugar usando o protocolo Tor a melhor opção e necessária é não usar um certificado TLS para esse caso.",
@@ -1241,16 +1249,6 @@
       "why": {
         "text": "Executar seu próprio node não é necessário, mas melhora a privacidade e reduz a necessidade de confiar nos outros.\nEm primeiro lugar, significa que você está usando o Bitcoin de forma mais privada, pois o BitBoxApp não se conecta aos nossos servidores para buscar seu histórico de transações; em vez disso, ele buscará essas informações em seu próprio node.\nEm segundo lugar, executar seu próprio node significa que ele verifica todas as transações por si mesmo, garantindo que as regras de consenso sejam aplicadas.",
         "title": "Por que devo executar meu próprio node?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "Um Satoshi ('sat' para abreviar) é a menor unidade de Bitcoin. Um Satoshi é um centésimo milionésimo de um bitcoin (0,00000001 BTC). É o nome do criador do Bitcoin, Satoshi Nakamoto.",
-        "title": "O que é um Satoshi?"
-      },
-      "servers": {
-        "text": "Este aplicativo se comunica com os servidores Shift Crypto para verificar atualizações, carregar transações e enviar informações para aplicativos móveis emparelhados.\nO aplicativo também busca as taxas de câmbio mais recentes do CoinGecko. Todas as conversões são calculadas localmente, o que significa que nenhum dado sobre o valor da sua transação é transmitido.\nNota: Para Ethereum e ERC20 Tokens, nós usamos APIs do Etherscan.io.",
-        "title": "Com quais servidores este aplicativo se comunica?"
       }
     },
     "title": "Guia",
@@ -1438,6 +1436,7 @@
     "title": "Nota"
   },
   "notification": {
+    "newTxs_many": "",
     "newTxs_one": "Nova transação em: {{accountName}}",
     "newTxs_other": "{{count}} novas transações em: {{accountName}}"
   },
@@ -1771,15 +1770,15 @@
         "title": "Exportar notas"
       },
       "import": {
+        "accountNames_many": "",
         "accountNames_one": "{{count}} nome de conta importado.",
         "accountNames_other": "{{count}} nomes de contas importados.",
-        "accountNames_zero": "0 nomes de conta importados.",
         "description": "Restaure suas notas de transação e nomes de contas de um arquivo de backup feito anteriormente.",
         "title": "Importar notas",
         "tooLarge": "Arquivo muito grande.",
+        "transactionNotes_many": "",
         "transactionNotes_one": "{{count}} nota de transação importada.",
-        "transactionNotes_other": "{{count}} notas de transação importadas.",
-        "transactionNotes_zero": "0 notas de transação importadas."
+        "transactionNotes_other": "{{count}} notas de transação importadas."
       },
       "title": "Gerenciar notas"
     },

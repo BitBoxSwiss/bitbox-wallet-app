@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useDarkmode } from '@/hooks/darkmode';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
-import { SUPPORTED_CHAINS, truncateAddress } from '@/utils/walletconnect';
+import { truncateMiddle } from '@/utils/address';
+import { SUPPORTED_CHAINS } from '@/utils/walletconnect';
 import { TRequestDialogContent } from '@/utils/walletconnect-eth-sign-handlers';
 import { AnimatedChecked, PointToBitBox02, WalletConnectDark, WalletConnectLight } from '@/components/icon';
 import styles from './incoming-signing-request.module.css';
@@ -78,7 +79,7 @@ export const WCIncomingSignRequestDialog = ({
                   <p className={styles.label}>{t('account.account')}</p>
                   <span className={styles.accountNameAndAddress}>
                     <p className={styles.accountName}><b>{accountName}</b></p>
-                    <p className={styles.address}>{truncateAddress(accountAddress)}</p>
+                    <p className={styles.address}>{truncateMiddle(accountAddress, 6, 6)}</p>
                   </span>
                 </li>
 

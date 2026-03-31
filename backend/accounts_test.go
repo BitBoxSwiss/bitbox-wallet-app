@@ -686,6 +686,74 @@ func TestCreateAndAddAccount(t *testing.T) {
 	require.Equal(t, "Tether USD 2", acct.Config().Config.Name)
 }
 
+func TestETHInitialSyncMode(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+
+	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+		if _, err := b.createAndPersistAccountConfig(
+			coinpkg.CodeETH,
+			0,
+			false,
+			"",
+			ks,
+			[]string{"eth-erc20-usdt"},
+			cfg,
+		); err != nil {
+			return err
+		}
+		cfg.GetOrAddKeystore(rootFingerprint1).Watchonly = true
+		return nil
+	}))
+
+	expected := map[accountsTypes.Code]bool{
+		"v0-55555555-eth-0":                true,
+		"v0-55555555-eth-0-eth-erc20-usdt": true,
+	}
+
+	captured := map[accountsTypes.Code]bool{}
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
+		captured[config.Config.Code] = config.SkipInitialSync
+		return MockEthAccount(config, coin, httpClient, log)
+	}
+
+	t.Run("startup-watchonly-load", func(t *testing.T) {
+		func() {
+			defer b.accountsAndKeystoreLock.Lock()()
+			b.skipETHInitialSync = true
+			defer func() { b.skipETHInitialSync = false }()
+			b.initPersistedAccounts()
+		}()
+
+		require.Equal(t, expected, captured)
+	})
+
+	t.Run("non-startup-reinit", func(t *testing.T) {
+		func() {
+			defer b.accountsAndKeystoreLock.Lock()()
+			b.uninitAccounts(true)
+		}()
+
+		captured = map[accountsTypes.Code]bool{}
+		expectedNoSkip := map[accountsTypes.Code]bool{
+			"v0-55555555-eth-0":                false,
+			"v0-55555555-eth-0-eth-erc20-usdt": false,
+		}
+
+		func() {
+			defer b.accountsAndKeystoreLock.Lock()()
+			b.initPersistedAccounts()
+		}()
+
+		require.Equal(t, expectedNoSkip, captured)
+	})
+}
+
 // TestAccountSupported tests that only accounts supported by a keystore are 1) persisted when the
 // keystore is first registered 2) loaded when the keytore is registered.
 // The second point is important because it's possible to use e.g. a BitBox02-Multi and a

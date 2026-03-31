@@ -11,8 +11,10 @@ import (
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	blockchainMock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -23,6 +25,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/wire"
 	"github.com/stretchr/testify/require"
 )
 
@@ -112,6 +115,86 @@ func TestAccount(t *testing.T) {
 	require.Equal(t, []*SpendableOutput{}, spendableOutputs)
 }
 
+func TestReusedAddresses(t *testing.T) {
+	script1 := []byte{0x01}
+	script2 := []byte{0x02}
+	address1 := addresses.NewAddressID(script1)
+	address2 := addresses.NewAddressID(script2)
+	makeOutput := func(index uint32, pkScript []byte) map[wire.OutPoint]*wire.TxOut {
+		return map[wire.OutPoint]*wire.TxOut{
+			{Index: index}: wire.NewTxOut(0, pkScript),
+		}
+	}
+	testCases := []struct {
+		name               string
+		candidateAddresses map[addresses.AddressID]struct{}
+		indexedOutputs     map[wire.OutPoint]*wire.TxOut
+		want               map[addresses.AddressID]struct{}
+	}{
+		{
+			name: "two indexed outputs on same address",
+			candidateAddresses: map[addresses.AddressID]struct{}{
+				address1: {},
+			},
+			indexedOutputs: map[wire.OutPoint]*wire.TxOut{
+				{Index: 0}: wire.NewTxOut(0, script1),
+				{Index: 1}: wire.NewTxOut(0, script1),
+			},
+			want: map[addresses.AddressID]struct{}{
+				address1: {},
+			},
+		},
+		{
+			name: "spent sibling regression",
+			candidateAddresses: map[addresses.AddressID]struct{}{
+				address1: {},
+			},
+			indexedOutputs: map[wire.OutPoint]*wire.TxOut{
+				{Index: 0}: wire.NewTxOut(0, script1),
+				{Index: 1}: wire.NewTxOut(0, script1),
+				{Index: 2}: wire.NewTxOut(0, script2),
+			},
+			want: map[addresses.AddressID]struct{}{
+				address1: {},
+			},
+		},
+		{
+			name: "single indexed output does not count as reuse",
+			candidateAddresses: map[addresses.AddressID]struct{}{
+				address1: {},
+			},
+			indexedOutputs: map[wire.OutPoint]*wire.TxOut{
+				{Index: 0}: wire.NewTxOut(0, script1),
+				{Index: 1}: wire.NewTxOut(0, script2),
+			},
+			want: map[addresses.AddressID]struct{}{},
+		},
+		{
+			name: "subset request ignores reuse on other addresses",
+			candidateAddresses: map[addresses.AddressID]struct{}{
+				address2: {},
+			},
+			indexedOutputs: map[wire.OutPoint]*wire.TxOut{
+				{Index: 0}: wire.NewTxOut(0, script1),
+				{Index: 1}: wire.NewTxOut(0, script1),
+				{Index: 2}: wire.NewTxOut(0, script2),
+			},
+			want: map[addresses.AddressID]struct{}{},
+		},
+		{
+			name:               "empty candidate set",
+			candidateAddresses: map[addresses.AddressID]struct{}{},
+			indexedOutputs:     makeOutput(0, script1),
+			want:               map[addresses.AddressID]struct{}{},
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			require.Equal(t, testCase.want, reusedAddresses(testCase.candidateAddresses, testCase.indexedOutputs))
+		})
+	}
+}
+
 func TestInsuredAccountAddresses(t *testing.T) {
 	net := &chaincfg.TestNet3Params
 
@@ -151,13 +234,12 @@ func TestInsuredAccountAddresses(t *testing.T) {
 	require.NoError(t, account.Initialize())
 	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 
-	// check the number of available addresses for native and wrapped segwit.
+	// Wrapped segwit stays scanned, but it is no longer exposed in generic receive flows.
 	addressList, err := account.GetUnusedReceiveAddresses()
 	require.NoError(t, err)
+	require.Len(t, addressList, 1)
 	require.Len(t, addressList[0].Addresses, 20)
-	require.Equal(t, signing.ScriptTypeP2WPKHP2SH, *addressList[0].ScriptType)
-	require.Len(t, addressList[1].Addresses, 20)
-	require.Equal(t, signing.ScriptTypeP2WPKH, *addressList[1].ScriptType)
+	require.Equal(t, signing.ScriptTypeP2WPKH, *addressList[0].ScriptType)
 
 	// Create a new insured account.
 	account2 := mockAccount(t, &config.Account{
@@ -212,4 +294,242 @@ func TestIsChange(t *testing.T) {
 			require.False(t, account.IsChange(address.PubkeyScriptHashHex()))
 		}
 	}
+}
+
+func makeSigningConfiguration(
+	t *testing.T,
+	net *chaincfg.Params,
+	scriptType signing.ScriptType,
+	keypath string,
+	seedLabel string,
+) *signing.Configuration {
+	t.Helper()
+	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
+	require.NoError(t, err)
+	seed := sha256.Sum256([]byte(seedLabel))
+	xpub, err := hdkeychain.NewMaster(seed[:], net)
+	require.NoError(t, err)
+	xpub, err = xpub.Neuter()
+	require.NoError(t, err)
+	return signing.NewBitcoinConfiguration(scriptType, []byte{1, 2, 3, 4}, absoluteKeypath, xpub)
+}
+
+func mockUnifiedAccount(t *testing.T) *Account {
+	t.Helper()
+	net := &chaincfg.TestNet3Params
+	signingConfigurations := signing.Configurations{
+		makeSigningConfiguration(t, net, signing.ScriptTypeP2WPKH, "m/84'/1'/0'", "native"),
+		makeSigningConfiguration(t, net, signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'", "wrapped"),
+	}
+	account := mockAccount(t, &config.Account{
+		Code:                  "accountcode-unified",
+		Name:                  "accountname-unified",
+		SigningConfigurations: signingConfigurations,
+	})
+	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+	account.ensureAddresses()
+	return account
+}
+
+func txWithOutputs(outputs ...*wire.TxOut) *wire.MsgTx {
+	tx := wire.NewMsgTx(2)
+	tx.AddTxIn(&wire.TxIn{
+		PreviousOutPoint: wire.OutPoint{},
+		Sequence:         wire.MaxTxInSequenceNum,
+	})
+	for _, txOut := range outputs {
+		tx.AddTxOut(txOut)
+	}
+	return tx
+}
+
+func putWalletTransaction(
+	t *testing.T,
+	account *Account,
+	tx *wire.MsgTx,
+	height int,
+	timestamp *time.Time,
+	scriptHashes ...blockchain.ScriptHashHex,
+) {
+	t.Helper()
+	err := transactions.DBUpdate(account.db, func(dbTx transactions.DBTxInterface) error {
+		txHash := tx.TxHash()
+		if err := dbTx.PutTx(txHash, tx, height, nil); err != nil {
+			return err
+		}
+		for _, scriptHash := range scriptHashes {
+			if err := dbTx.AddAddressToTx(txHash, scriptHash); err != nil {
+				return err
+			}
+		}
+		if timestamp != nil {
+			return dbTx.MarkTxVerified(txHash, *timestamp)
+		}
+		return nil
+	})
+	require.NoError(t, err)
+}
+
+func TestGetUsedAddressesIgnoresUnconfirmedTransactions(t *testing.T) {
+	account := mockUnifiedAccount(t)
+
+	firstScriptUnusedReceive, err := account.subaccounts[0].receiveAddresses.GetUnused()
+	require.NoError(t, err)
+	secondScriptUnusedReceive, err := account.subaccounts[1].receiveAddresses.GetUnused()
+	require.NoError(t, err)
+
+	firstScriptAddress := firstScriptUnusedReceive[0]
+	secondScriptAddress := secondScriptUnusedReceive[0]
+
+	confirmedAt := time.Date(2025, 1, 15, 11, 0, 0, 0, time.UTC)
+	putWalletTransaction(
+		t,
+		account,
+		txWithOutputs(&wire.TxOut{
+			Value:    2100,
+			PkScript: firstScriptAddress.PubkeyScript(),
+		}),
+		100,
+		&confirmedAt,
+		firstScriptAddress.PubkeyScriptHashHex(),
+	)
+
+	putWalletTransaction(
+		t,
+		account,
+		txWithOutputs(&wire.TxOut{
+			Value:    4200,
+			PkScript: secondScriptAddress.PubkeyScript(),
+		}),
+		0,
+		nil,
+		secondScriptAddress.PubkeyScriptHashHex(),
+	)
+
+	usedAddresses, err := account.GetUsedAddresses()
+	require.NoError(t, err)
+	require.Len(t, usedAddresses, 1)
+	require.Equal(t, firstScriptAddress.ID(), usedAddresses[0].AddressID)
+	require.Equal(t, UsedAddressTypeReceive, usedAddresses[0].AddressType)
+	require.NotNil(t, usedAddresses[0].LastUsed)
+	require.Equal(t, confirmedAt, *usedAddresses[0].LastUsed)
+}
+
+func TestGetUsedAddressesMixedScriptTypes(t *testing.T) {
+	account := mockUnifiedAccount(t)
+
+	firstScriptUnusedReceive, err := account.subaccounts[0].receiveAddresses.GetUnused()
+	require.NoError(t, err)
+	secondScriptUnusedChange, err := account.subaccounts[1].changeAddresses.GetUnused()
+	require.NoError(t, err)
+
+	firstScriptAddress := firstScriptUnusedReceive[0]
+	secondScriptAddress := secondScriptUnusedChange[0]
+
+	firstTimestamp := time.Date(2025, 1, 12, 9, 0, 0, 0, time.UTC)
+	secondTimestamp := time.Date(2025, 1, 21, 10, 30, 0, 0, time.UTC)
+
+	putWalletTransaction(
+		t,
+		account,
+		txWithOutputs(
+			&wire.TxOut{
+				Value:    1000,
+				PkScript: firstScriptAddress.PubkeyScript(),
+			},
+			&wire.TxOut{
+				Value:    700,
+				PkScript: secondScriptAddress.PubkeyScript(),
+			},
+		),
+		100,
+		&firstTimestamp,
+		firstScriptAddress.PubkeyScriptHashHex(),
+		secondScriptAddress.PubkeyScriptHashHex(),
+	)
+	putWalletTransaction(
+		t,
+		account,
+		txWithOutputs(&wire.TxOut{
+			Value:    900,
+			PkScript: secondScriptAddress.PubkeyScript(),
+		}),
+		120,
+		&secondTimestamp,
+		secondScriptAddress.PubkeyScriptHashHex(),
+	)
+
+	usedAddresses, err := account.GetUsedAddresses()
+	require.NoError(t, err)
+	require.Len(t, usedAddresses, 2)
+	require.Equal(t, secondScriptAddress.ID(), usedAddresses[0].AddressID)
+	require.Equal(t, firstScriptAddress.ID(), usedAddresses[1].AddressID)
+
+	usedAddressesByID := map[string]UsedAddress{}
+	for _, addr := range usedAddresses {
+		usedAddressesByID[addr.AddressID] = addr
+	}
+
+	firstResult, ok := usedAddressesByID[firstScriptAddress.ID()]
+	require.True(t, ok)
+	require.Equal(t, UsedAddressTypeReceive, firstResult.AddressType)
+
+	secondResult, ok := usedAddressesByID[secondScriptAddress.ID()]
+	require.True(t, ok)
+	require.Equal(t, UsedAddressTypeChange, secondResult.AddressType)
+	require.NotNil(t, secondResult.LastUsed)
+	require.Equal(t, secondTimestamp, *secondResult.LastUsed)
+}
+
+func TestGetUsedAddressesSortsByHeightWhenTimestampMissing(t *testing.T) {
+	account := mockUnifiedAccount(t)
+
+	firstUnusedReceive, err := account.subaccounts[0].receiveAddresses.GetUnused()
+	require.NoError(t, err)
+	secondUnusedReceive, err := account.subaccounts[1].receiveAddresses.GetUnused()
+	require.NoError(t, err)
+
+	firstAddress := firstUnusedReceive[0]
+	secondAddress := secondUnusedReceive[0]
+
+	putWalletTransaction(
+		t,
+		account,
+		txWithOutputs(&wire.TxOut{
+			Value:    1000,
+			PkScript: firstAddress.PubkeyScript(),
+		}),
+		90,
+		nil,
+		firstAddress.PubkeyScriptHashHex(),
+	)
+	putWalletTransaction(
+		t,
+		account,
+		txWithOutputs(&wire.TxOut{
+			Value:    2000,
+			PkScript: secondAddress.PubkeyScript(),
+		}),
+		120,
+		nil,
+		secondAddress.PubkeyScriptHashHex(),
+	)
+
+	usedAddresses, err := account.GetUsedAddresses()
+	require.NoError(t, err)
+	require.Len(t, usedAddresses, 2)
+	require.Equal(t, secondAddress.ID(), usedAddresses[0].AddressID)
+	require.Equal(t, firstAddress.ID(), usedAddresses[1].AddressID)
+	require.Nil(t, usedAddresses[0].LastUsed)
+	require.Nil(t, usedAddresses[1].LastUsed)
+}
+
+func TestGetUsedAddressesFatalError(t *testing.T) {
+	account := mockUnifiedAccount(t)
+	account.fatalError.Store(true)
+
+	usedAddresses, err := account.GetUsedAddresses()
+	require.Nil(t, usedAddresses)
+	require.EqualError(t, err, "can't call GetUsedAddresses() after a fatal error")
 }

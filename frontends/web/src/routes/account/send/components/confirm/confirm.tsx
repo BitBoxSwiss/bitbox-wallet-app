@@ -9,7 +9,7 @@ import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Column, Grid } from '@/components/layout';
 import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
-import { FiatValue } from '../fiat-value';
+import { FiatValue } from '@/components/amount/fiat-value';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import style from './confirm.module.css';
 

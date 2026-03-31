@@ -5,7 +5,6 @@
     "backupReminder": "Dompet anda <strong>{{name}}</strong> lulus {{fiat}} {{threshold}}!\n\nKami mengesyorkan membuat sandaran kertas untuk perlindungan tambahan. Ia cepat dan mudah.",
     "backupReminderLink": "Buat sandaran kertas",
     "disconnect": "Sambungan hilang. Mencuba lagi...",
-    "export": "Urus niaga eksport",
     "exportTransactions": "Eksport transaksi ke folder muat turun sebagai fail CSV",
     "fatalError": "Terdapat kesilapan yang tidak dijangka.",
     "incoming": "Masuk",
@@ -1248,6 +1247,16 @@
         "title": "Mengapa ada yuran rangkaian?"
       }
     },
+    "settings": {
+      "sats": {
+        "text": "Satoshi (pendek kata 'sat') ialah unit terkecil Bitcoin. Satu Satoshi ialah seratus juta bitcoin (0.00000001 BTC). Ia dinamakan sempena pencipta Bitcoin, Satoshi Nakamoto.",
+        "title": "Apa itu Satoshi?"
+      },
+      "servers": {
+        "text": "Aplikasi ini berkomunikasi dengan server Shift Crypto untuk memeriksa kemas kini, memuat transaksi, dan menghantar maklumat ke aplikasi mudah alih yang telah dipasangkan.\nDi samping itu, ia mengambil kadar pertukaran terkini dari CoinGecko. (Penukaran dikira secara tempatan, tiada wang anda yang dihantar)",
+        "title": "Server mana yang digunakan aplikasi ini?"
+      }
+    },
     "settings-electrum": {
       "connection": {
         "text": "Jika anda berhasrat untuk menyambung ke nod anda sahaja apabila anda berada di rangkaian yang sama (cth. wifi rumah anda), maka menggunakan komunikasi rangkaian biasa sudah memadai.\nDalam kes ini, adalah dinasihatkan bahawa pelayan Electrum anda menyediakan sijil TLS untuk menyulitkan komunikasi.\nJika anda berhasrat untuk menyambung ke nod anda dari mana-mana sahaja, menggunakan Tor ialah pilihan yang lebih baik. Tiada sijil TLS diperlukan dalam kes itu.",
@@ -1275,16 +1284,6 @@
       "why": {
         "text": "Menjalankan nod anda sendiri tidak perlu tetapi meningkatkan privasi dan mengurangkan keperluan untuk mempercayai orang lain.\nPertama, ini bermakna anda menggunakan Bitcoin secara lebih peribadi kerana BitBoxApp tidak akan menyambung ke pelayan kami untuk mengambil sejarah transaksi anda; sebaliknya ia akan mengambil maklumat tersebut daripada nod anda sendiri.\nKedua, menjalankan nod anda sendiri bermakna nod anda mengesahkan semua transaksi itu sendiri, memastikan peraturan konsensus dikuatkuasakan.",
         "title": "Mengapa saya perlu menjalankan nod saya sendiri?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "Satoshi (pendek kata 'sat') ialah unit terkecil Bitcoin. Satu Satoshi ialah seratus juta bitcoin (0.00000001 BTC). Ia dinamakan sempena pencipta Bitcoin, Satoshi Nakamoto.",
-        "title": "Apa itu Satoshi?"
-      },
-      "servers": {
-        "text": "Aplikasi ini berkomunikasi dengan server Shift Crypto untuk memeriksa kemas kini, memuat transaksi, dan menghantar maklumat ke aplikasi mudah alih yang telah dipasangkan.\nDi samping itu, ia mengambil kadar pertukaran terkini dari CoinGecko. (Penukaran dikira secara tempatan, tiada wang anda yang dihantar)",
-        "title": "Server mana yang digunakan aplikasi ini?"
       }
     },
     "title": "Panduan",
@@ -1480,7 +1479,6 @@
     "title": "Catatan"
   },
   "notification": {
-    "newTxs_one": "Transaksi baru di: {{accountName}}",
     "newTxs_other": "{{count}} transaksi baharu dalam: {{accountName}}"
   },
   "novaConnectionIssues": {
@@ -1817,15 +1815,11 @@
         "title": "Eksport nota"
       },
       "import": {
-        "accountNames_one": "{{count}} nama akaun telah diimport.",
         "accountNames_other": "{{count}} nama akaun telah diimport.",
-        "accountNames_zero": "0 nama akaun yang diimport.",
         "description": "Pulihkan nota transaksi dan nama akaun anda daripada fail sandaran yang dibuat sebelum ini.",
         "title": "Import nota",
         "tooLarge": "Fail terlalu besar.",
-        "transactionNotes_one": "{{count}} rekod transaksi telah diimport.",
-        "transactionNotes_other": "{{count}} rekod transaksi telah diimport.",
-        "transactionNotes_zero": "Mengimport 0 nota transaksi."
+        "transactionNotes_other": "{{count}} rekod transaksi telah diimport."
       },
       "title": "Urus nota"
     },
@@ -1895,7 +1889,6 @@
       "fiatAmount": "Jumlah Fiat",
       "from": "Dari",
       "historicalFiat": "Nilai fiat sejarah",
-      "sendToSelf": "Hantar kepada diri sendiri",
       "status": "Status",
       "title": "butiran transaksi",
       "type": "taip"

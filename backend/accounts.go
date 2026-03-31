@@ -16,7 +16,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
@@ -259,19 +258,21 @@ func (backend *Backend) accountFiatBalance(account accounts.Interface, fiat stri
 		return nil, err
 	}
 
-	coinDecimals := coinpkg.DecimalsExp(account.Coin())
-	price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
+	return backend.convertToFiat(account.Coin(), balance.Available(), fiat)
+}
+
+func (backend *Backend) convertToFiat(coin coinpkg.Coin, amount coinpkg.Amount, fiat string) (*big.Rat, error) {
+	price, err := backend.RatesUpdater().LatestPriceForPair(coin.Unit(false), fiat)
 	if err != nil {
 		return nil, err
 	}
-	fiatValue := new(big.Rat).Mul(
+	return new(big.Rat).Mul(
 		new(big.Rat).SetFrac(
-			balance.Available().BigInt(),
-			coinDecimals,
+			amount.BigInt(),
+			coinpkg.DecimalsExp(coin),
 		),
 		new(big.Rat).SetFloat64(price),
-	)
-	return fiatValue, nil
+	), nil
 }
 
 type coinFormattedAmount struct {
@@ -968,9 +969,10 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 	}
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
-		Config:      persistedConfig,
-		DBFolder:    backend.arguments.CacheDirectoryPath(),
-		NotesFolder: backend.arguments.NotesDirectoryPath(),
+		Config:          persistedConfig,
+		DBFolder:        backend.arguments.CacheDirectoryPath(),
+		SkipInitialSync: backend.skipETHInitialSync,
+		NotesFolder:     backend.arguments.NotesDirectoryPath(),
 		ConnectKeystore: func() (keystore.Keystore, error) {
 			accountRootFingerprint, err := persistedConfig.SigningConfigurations.RootFingerprint()
 			if err != nil {
@@ -979,6 +981,9 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			return backend.ConnectKeystore(accountRootFingerprint)
 		},
 		RateUpdater: backend.ratesUpdater,
+		GetMainCurrency: func() string {
+			return backend.config.AppConfig().Backend.MainFiat
+		},
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
 			return backend.notifier.ForAccount(persistedConfig.Code)
 		},
@@ -988,7 +993,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 
 	// This function is passed as a callback to the BTC account constructor. It is called when the
 	// keystore needs to determine whether an address belongs to an account on its same keystore.
-	getAddressCallback := func(coinCode coinpkg.Code, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, error) {
+	getAddressByIDCallback := func(coinCode coinpkg.Code, addressID addresses.AddressID) (*addresses.AccountAddress, error) {
 		accountsByKeystore, err := backend.AccountsByKeystore()
 		if err != nil {
 			return nil, err
@@ -1007,7 +1012,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			if btcAccount.Coin().Code() != coinCode {
 				continue
 			}
-			if address := btcAccount.GetAddress(scriptHashHex); address != nil {
+			if address := btcAccount.AddressByID(addressID); address != nil {
 				return address, nil
 			}
 		}
@@ -1020,7 +1025,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			accountConfig,
 			specificCoin,
 			backend.gapLimits(),
-			getAddressCallback,
+			getAddressByIDCallback,
 			backend.log,
 		)
 		backend.addAccount(account)

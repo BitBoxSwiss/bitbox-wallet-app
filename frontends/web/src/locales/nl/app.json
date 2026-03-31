@@ -5,7 +5,6 @@
     "backupReminder": "Je wallet <strong>{{name}}</strong> is meer dan {{fiat}} {{threshold}} waard!\n\nWe raden je aan een papieren backup te maken voor extra veiligheid. Het is makkelijk en snel.",
     "backupReminderLink": "Papieren backup maken",
     "disconnect": "Verbinding verbroken. Opnieuw aan het verbinden...",
-    "export": "Transacties exporteren",
     "exportTransactions": "Transacties als CSV bestand naar de downloads map exporteren",
     "fatalError": "Er is een onverwachte fout opgetreden",
     "incoming": "Binnenkomend",
@@ -153,8 +152,7 @@
       "restoring": "Backup aan het herstellen",
       "selectedBackup": "De backup <strong>{{backupName}}</strong>, aangemaakt op {{createdDateTime}}, wordt hersteld",
       "subtitle": "Selecteer een backup om door te gaan",
-      "title": "Herstellen",
-      "understand": ""
+      "title": "Herstellen"
     },
     "showMnemonic": {
       "checkboxLabel": "Ik heb bovenstaande informatie gelezen",
@@ -245,7 +243,6 @@
       "userConfirmation5mnemonic": "Ik snap dat ik mijn herstelwoorden NOOIT in een computer, telefoon, printer of ieder ander apparaat dat geen BitBox is moet invoeren"
     },
     "create": {
-      "button": "",
       "info": "Dit zijn de stappen die je gaat nemen om je BitBox in te stellen:",
       "inputTitle": "Walletnaam",
       "point1": "Geef je BitBox een naam",
@@ -1213,6 +1210,16 @@
         "title": "Waarom zijn er netwerkkosten?"
       }
     },
+    "settings": {
+      "sats": {
+        "text": "Een Satoshi (of \"sat\" in het kort) is de kleinst mogelijke eenheid op het bitcoinnetwerk. Een satoshi is één honderdmiljoenste bitcoin (0.00 000 001 BTC). Het is vernoemd naar de maker van Bitcoin, Satoshi Nakamoto.",
+        "title": "Wat is een Satoshi?"
+      },
+      "servers": {
+        "text": "De app communiceert met de Shift Crypto servers om op updates te controleren, je transacties te laden en informatie te versturen naar je gekoppelde mobiele apps. \nDe app haalt ook de huidige wisselkoersen van CoinGecko. Alle conversies worden lokaal gedaan, zodat je balansen nooit naar derde partijen verstuurd worden.\nVoor Ethereum en ERC20 tokens worden de Etherscan.io APIs gebruikt.",
+        "title": "Met welke servers verbindt deze app?"
+      }
+    },
     "settings-electrum": {
       "connection": {
         "text": "Als je je eigen node wilt verbinden die zich op hetzelfde netwerk bevindt (bv. je wifinetwerk thuis), kun je zonder problemen normale netwerkcommunicatie gebruiken. Het is aan te raden dat je Electrum-server een TLS-certificaat heeft om de communicatie te versleutelen.\nAls je op andere locaties dan alleen thuis met je node wilt verbinden, is Tor de betere optie. In dit geval is een TLS-certificaat niet nodig.",
@@ -1240,16 +1247,6 @@
       "why": {
         "text": "Het draaien van je eigen node is niet noodzakelijk, maar het verhoogt wel je privacy en verlaagt de noodzaak om anderen te vertrouwen.\nHet betekent dat je Bitcointransacties meer privé zijn, omdat de BitBoxApp niet meer verbindt met onze servers om je transactiegeschiedenis op te halen. In plaats daarvan wordt die informatie van je eigen node gehaald.\nTen tweede zorgt het draaien van je eigen node ervoor dat je alle transacties zelf verifieerd en controleert of de consensusregels gevolgd worden ",
         "title": "Waarom zou ik mijn eigen node moeten draaien?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "Een Satoshi (of \"sat\" in het kort) is de kleinst mogelijke eenheid op het bitcoinnetwerk. Een satoshi is één honderdmiljoenste bitcoin (0.00 000 001 BTC). Het is vernoemd naar de maker van Bitcoin, Satoshi Nakamoto.",
-        "title": "Wat is een Satoshi?"
-      },
-      "servers": {
-        "text": "De app communiceert met de Shift Crypto servers om op updates te controleren, je transacties te laden en informatie te versturen naar je gekoppelde mobiele apps. \nDe app haalt ook de huidige wisselkoersen van CoinGecko. Alle conversies worden lokaal gedaan, zodat je balansen nooit naar derde partijen verstuurd worden.\nVoor Ethereum en ERC20 tokens worden de Etherscan.io APIs gebruikt.",
-        "title": "Met welke servers verbindt deze app?"
       }
     },
     "title": "Gids",
@@ -1730,7 +1727,6 @@
       "step3-text": "Controleer de verbinding en voeg de server toe.",
       "step4": "4",
       "step4-text": "Start de wallet opnieuw op. Als je de standaard servers niet verwijderd, wordt je eigen node als backup-server toegevoegd.",
-      "title-btc": "",
       "title-ltc": "Litecoin Electrum servers",
       "title-tbtc": "Bitcoin Testnet Electrum servers",
       "title-tltc": "Litecoin Testnet Electrum servers"
@@ -1772,13 +1768,11 @@
       "import": {
         "accountNames_one": "{{count}} accountnaam geïmporteerd",
         "accountNames_other": "{{count}} accountnamen geïmporteerd",
-        "accountNames_zero": "Geen accountnamen geïmporteerd",
         "description": "Je transactienotities en accountnamen uit een eerder gemaakt backupbestand herstellen",
         "title": "Notities importeren",
         "tooLarge": "Bestand te groot ",
         "transactionNotes_one": "{{count}} transactienotitie geïmporteerd",
-        "transactionNotes_other": "{{count}} transactienotities geïmporteerd",
-        "transactionNotes_zero": "Geen transactienotities geïmporteerd"
+        "transactionNotes_other": "{{count}} transactienotities geïmporteerd"
       },
       "title": "Notities beheren"
     },

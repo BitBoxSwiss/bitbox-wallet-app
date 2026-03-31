@@ -95,3 +95,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.tabularNums {
+    font-variant-numeric: tabular-nums;
+}

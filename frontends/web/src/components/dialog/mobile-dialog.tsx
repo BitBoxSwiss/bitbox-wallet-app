@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import style from './dialog.module.css';
+import style from './mobile-dialog.module.css';
 
 const DRAG_CLOSE_THRESHOLD_PERCENT = 0.10;
 
