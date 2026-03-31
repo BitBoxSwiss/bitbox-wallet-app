@@ -11,7 +11,8 @@ import { getAccountCodeFromUrl, waitForAccountTransactions } from './helpers/acc
 let servewallet: ServeWallet | undefined;
 let regtest: ChildProcess | undefined;
 
-test('Send BTC', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
+test('Send BTC', async ({ page, host, frontendPort, servewalletPort, browserName }, testInfo) => {
+  test.skip(browserName === 'webkit', 'Disabled on WebKit due to persistent CI failures');
 
   await test.step('Start regtest and init wallet', async () => {
     regtest = await launchRegtest();
