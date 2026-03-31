@@ -31,6 +31,7 @@ type TProps = {
   onToggleExpand: (addressID: string) => void;
   onStartCopy: (address: TUsedAddress) => void;
   onRetryLoad: () => void;
+  disableBackEsc?: boolean;
 };
 
 export const AddressList = ({
@@ -48,6 +49,7 @@ export const AddressList = ({
   onToggleExpand,
   onStartCopy,
   onRetryLoad,
+  disableBackEsc = false,
 }: TProps) => {
   const { t, i18n } = useTranslation();
   const scrollableRef = useRef<HTMLDivElement>(null);
@@ -136,7 +138,7 @@ export const AddressList = ({
       )}
 
       <div className={style.backButtonWrap}>
-        <BackButton enableEsc>
+        <BackButton enableEsc={!disableBackEsc}>
           {t('button.back')}
         </BackButton>
       </div>

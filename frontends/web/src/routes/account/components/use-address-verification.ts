@@ -173,12 +173,12 @@ export const useAddressVerification = ({
 
   const startCopyOnlyFlow = useCallback((selectedAddressID: string) => {
     resetAndRetry();
-    navigate(`/account/${code}/addresses/${selectedAddressID}/verify?${COPY_ONLY_PARAM}=1`);
+    navigate(`/account/${code}/addresses/${selectedAddressID}/verify?${COPY_ONLY_PARAM}=1`, { replace: true });
   }, [code, navigate, resetAndRetry]);
 
   const startVerifyFlow = useCallback((selectedAddressID: string) => {
     resetAndRetry();
-    navigate(`/account/${code}/addresses/${selectedAddressID}/verify`);
+    navigate(`/account/${code}/addresses/${selectedAddressID}/verify`, { replace: true });
   }, [code, navigate, resetAndRetry]);
 
   const skipVerify = useCallback(() => {

@@ -18,7 +18,7 @@ export const AddressActions = ({ address, onCopy }: TProps) => {
       <Button transparent inline className={style.linkAction} onClick={() => onCopy(address)}>
         <span className={style.linkActionLabel}>
           <Copy className={style.linkActionIcon} />
-          {t('button.copy')} {t('addresses.detail.address')}
+          {t('button.copyAddress')}
         </span>
       </Button>
     </div>

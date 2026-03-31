@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Message } from '@/components/message/message';
 import { Dialog } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
+import { UseBackButton } from '@/hooks/backbutton';
 import { getAddressURIPrefix } from '@/routes/account/utils';
 import { VerifyAddressDialogContent } from '../../components/verify-address-dialog-content';
 import { AddressNotFoundDialog } from './address-not-found-dialog';
@@ -24,6 +25,12 @@ export const VerifyOnDeviceDialog = ({ verification, selectedAddress, coinCode, 
       centered
       onClose={isError ? () => onClose(selectedAddress.addressID) : undefined}
     >
+      <UseBackButton handler={() => {
+        if (isError) {
+          onClose(selectedAddress.addressID);
+        }
+        return false;
+      }} />
       <div className={style.verifyDialogContent}>
         <VerifyAddressDialogContent
           address={selectedAddress.address}
