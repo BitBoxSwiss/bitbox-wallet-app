@@ -185,6 +185,36 @@ Run `make ci` to run all static analysis tools and tests.
 To statically compile the UI, run `make buildweb` again, which compiles the web ui into a compact
 bundle.
 
+## Develop using a remote VM
+
+You can run the full development environment on a remote VM and forward the ports to your local
+machine. This is useful for agentic coding workflows (e.g. with Claude Code) where all code
+execution happens in an isolated VM, keeping your local machine clean and safe.
+
+### Prerequisites
+
+- SSH access to the VM (configured in `~/.ssh/config`)
+- [tmux](https://github.com/tmux/tmux) installed on the VM
+- The repository cloned on the VM with `make envinit` completed
+
+### Setup
+
+```
+cp scripts/dev_vm.conf.example scripts/dev_vm.conf
+```
+
+Edit `scripts/dev_vm.conf` with your VM's SSH host and the path to the repo on the VM.
+
+### Usage
+
+```
+./scripts/dev_vm.sh            # Start webdev + servewallet on VM, open SSH tunnel
+./scripts/dev_vm.sh logs       # Attach to tmux session on VM (Ctrl-b d to detach)
+./scripts/dev_vm.sh stop       # Stop everything
+```
+
+The frontend is available at [localhost:8080](http://localhost:8080) on your local machine.
+
 ## Develop using Docker
 
 The Dockerfile provides a Ubuntu container with the whole environment preconfigured. To set it up,
