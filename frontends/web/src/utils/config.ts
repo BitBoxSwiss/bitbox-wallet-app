@@ -2,8 +2,6 @@
 
 import { getConfig as apiGetConfig, setConfig as apiSetConfig, type TConfig } from '@/api/config';
 
-export type { TConfig };
-
 let pendingConfig: Partial<TConfig> = {};
 
 const normalizeConfig = (raw?: Partial<TConfig>): TConfig => {

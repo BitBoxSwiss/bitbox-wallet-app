@@ -49,7 +49,7 @@ export const Status = ({
     });
   };
 
-  if (hidden || !show) {
+  if (!show) {
     return null;
   }
 

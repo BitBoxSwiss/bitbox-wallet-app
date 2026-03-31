@@ -2,7 +2,8 @@
 
 import { ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { getConfig, setConfig as setConfigAPI } from '@/utils/config';
-import { ConfigContext, TConfig, TConfigContext } from './ConfigContext';
+import type { TConfig } from '@/api/config';
+import { ConfigContext, TConfigContext } from './ConfigContext';
 
 type TProps = {
   children: ReactNode;
