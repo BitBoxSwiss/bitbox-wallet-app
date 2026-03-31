@@ -2,9 +2,9 @@
 
 import { ReactNode } from 'react';
 import { RedDot } from '@/components/icon';
-import styles from './settingsItem.module.css';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import styles from './settingsItem.module.css';
 
 type TProps = {
   icon?: ReactNode;
