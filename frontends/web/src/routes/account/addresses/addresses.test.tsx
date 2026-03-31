@@ -137,7 +137,7 @@ describe('routes/account/addresses', () => {
     await user.click(screen.getByTitle(changeAddress.address));
 
     expect(screen.getByPlaceholderText('Search address')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Copy Address' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Copy address' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Verify address on device' })).not.toBeInTheDocument();
   });
 
@@ -151,7 +151,7 @@ describe('routes/account/addresses', () => {
     await screen.findByTitle(receiveAddress.address);
     await user.click(screen.getByRole('button', { name: 'Change addresses' }));
     await user.click(await screen.findByTitle(changeAddress.address));
-    await user.click(screen.getByRole('button', { name: 'Copy Address' }));
+    await user.click(screen.getByRole('button', { name: 'Copy address' }));
 
     expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
     const receiveLinks = screen.getAllByRole('link', { name: 'here' });
@@ -239,7 +239,7 @@ describe('routes/account/addresses', () => {
     renderWithRoute(`/account/${mockAccount.code}/addresses`);
 
     await user.click(await screen.findByTitle(receiveAddress.address));
-    await user.click(screen.getByRole('button', { name: 'Copy Address' }));
+    await user.click(screen.getByRole('button', { name: 'Copy address' }));
 
     await waitFor(() => {
       expect(connectSpy).toHaveBeenCalledWith(mockAccount.keystore.rootFingerprint);
@@ -258,7 +258,7 @@ describe('routes/account/addresses', () => {
     await waitFor(() => {
       expect(verifyAddressSpy).toHaveBeenCalledWith(mockAccount.code, receiveAddress.addressID);
     });
-    await screen.findByRole('button', { name: 'Copy Address' });
+    await screen.findByRole('button', { name: 'Copy address' });
   });
 
   it('shows receive-style verify dialog while secure verification is in progress', async () => {

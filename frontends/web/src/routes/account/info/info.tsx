@@ -14,7 +14,7 @@ import { GlobalBanners } from '@/components/banners';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
-import { QRCodeLight, QRCodeDark, OutlinedUploadDark, OutlinedUploadLight, OutlinedUnorderedList } from '@/components/icon';
+import { QRCodeLight, QRCodeDark, OutlinedUploadDark, OutlinedUploadLight, OutlinedUnorderedListDark, OutlinedUnorderedListLight } from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
 import { alertUser } from '@/components/alert/Alert';
 import { statusChanged } from '@/api/accountsync';
@@ -105,7 +105,10 @@ export const Info = ({
                 onClick={() => navigate(`/account/${code}/addresses`)}
               >
                 <div className={style.actionItem}>
-                  <OutlinedUnorderedList className={style.actionIcon} aria-hidden alt="" />
+                  {isDarkMode ?
+                    <OutlinedUnorderedListLight className={style.actionIcon} aria-hidden alt="" /> :
+                    <OutlinedUnorderedListDark className={style.actionIcon} aria-hidden alt="" />
+                  }
                   <span>{t('accountInfo.usedAddresses')}</span>
                 </div>
               </ActionableItem>

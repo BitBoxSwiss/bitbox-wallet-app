@@ -78,7 +78,7 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
     if (expandedID) {
       setExpandedAddressID(expandedID);
     }
-    navigate(listPath);
+    navigate(listPath, { replace: true });
   }, [listPath, navigate]);
 
   const filteredAddresses = useMemo(() => {
@@ -168,6 +168,7 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
             expandedAddressID={currentExpandedAddressID}
             onToggleExpand={handleToggleExpand}
             onStartCopy={handleStartCopy}
+            disableBackEsc={view === 'verify'}
             onRetryLoad={() => setUsedAddressesLoadAttempt(prev => prev + 1)}
           />
           {changeCopyWarningAddress && (

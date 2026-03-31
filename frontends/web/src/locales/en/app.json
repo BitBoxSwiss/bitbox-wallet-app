@@ -439,6 +439,7 @@
     "check": "Check backup",
     "continue": "Continue",
     "copy": "Copy",
+    "copyAddress": "Copy address",
     "create": "Create",
     "dismiss": "Dismiss",
     "done": "Done",
