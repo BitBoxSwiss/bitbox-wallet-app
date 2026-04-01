@@ -1,7 +1,11 @@
 # See reference docs at
 # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
 name: ci
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * *'
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -42,7 +46,27 @@ jobs:
         env:
           OS_NAME: linux
 
+  scheduled-playwright-simulator-matrix:
+    if: ${{ github.event_name == 'schedule' }}
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      - name: Build scheduled simulator matrix
+        id: matrix
+        env:
+          MIN_FIRMWARE_VERSION: v9.24.0
+        run: node ./scripts/github-playwright-simulator-matrix.js
+
   playwright:
+    if: ${{ github.event_name != 'schedule' }}
     runs-on: ubuntu-latest
     needs: test-lint
     steps:
@@ -92,6 +116,62 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: playwright-artifacts-and-logs
+          path: frontends/web/test-results/*
+
+  playwright-nightly:
+    if: ${{ github.event_name == 'schedule' }}
+    name: Playwright nightly ${{ matrix.simulator.version }}
+    runs-on: ubuntu-latest
+    needs: [test-lint, scheduled-playwright-simulator-matrix]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.scheduled-playwright-simulator-matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download simulator ${{ matrix.simulator.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p simulator-bin
+          curl -L "${{ matrix.simulator.url }}" -o simulator-bin/simulator
+          echo "${{ matrix.simulator.sha256 }}  simulator-bin/simulator" | sha256sum -c -
+          chmod +x simulator-bin/simulator
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          cd frontends/web
+          npm install
+
+      - name: Install Playwright browsers
+        run: |
+          cd frontends/web
+          npx playwright install --with-deps chromium webkit
+
+      - name: Setup Python 3
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.11
+
+      - name: Install Python dependencies
+        run: |
+          pip install ecdsa bech32
+
+      - name: Run Playwright tests
+        env:
+          SIMULATOR_PATH: ${{ github.workspace }}/simulator-bin/simulator
+        run: |
+          make webe2etest
+
+      - name: Upload Playwright artifacts and logs.
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-artifacts-and-logs-${{ matrix.simulator.version }}
           path: frontends/web/test-results/*
 
   android:
@@ -354,7 +434,7 @@ jobs:
   report-artifacts:
     needs: [android, qt-linux, macos, windows]
     runs-on: ubuntu-22.04
-    if: ${{ !cancelled() && github.event_name == 'push' }}
+    if: ${{ !cancelled() && (github.event_name == 'push' || github.event_name == 'schedule') }}
     steps:
       - name: Clone the repo
         uses: actions/checkout@v6
