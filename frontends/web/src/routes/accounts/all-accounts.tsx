@@ -82,7 +82,7 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
       </Header>
       <View width="768px" fullscreen={false}>
         <ViewContent>
-          <div className={styles.container}>
+          <div className={styles.container} data-testid="all-accounts-keystores">
             {accountsByKeystore.map(keystore => (
               <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
                 <ConnectedKeystore

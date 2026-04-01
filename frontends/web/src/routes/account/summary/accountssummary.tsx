@@ -193,7 +193,7 @@ export const AccountsSummary = ({
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
-            <div className={style.keystoresContainer}>
+            <div className={style.keystoresContainer} data-testid="account-summary-keystores">
               {showTotalBalance && (
                 <TotalBalanceForAllKeystores
                   summaryData={chartData}
