@@ -320,13 +320,7 @@ const RemountAccount = ({
                 debouncedSearchTerm={debouncedSearchTerm}
                 onShowDetail={setDetailID}
                 onSpeedUp={internalID => {
-                  navigate(`/account/${code}/send`, {
-                    state: {
-                      rbf: {
-                        txID: internalID,
-                      }
-                    }
-                  });
+                  navigate(`/account/${code}/send?rbf=${encodeURIComponent(internalID)}`);
                 }}
               />
 

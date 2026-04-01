@@ -99,13 +99,7 @@ export const TxDetailsDialog = ({
 
     // Navigate to send page with tx id only. The send page loads the latest tx details and derives
     // the rest from backend data.
-    navigate(`/account/${accountCode}/send`, {
-      state: {
-        rbf: {
-          txID: transactionInfo.internalID,
-        }
-      }
-    });
+    navigate(`/account/${accountCode}/send?rbf=${encodeURIComponent(transactionInfo.internalID)}`);
     onClose();
   };
   // Amount and Confirmations info are displayed using props data

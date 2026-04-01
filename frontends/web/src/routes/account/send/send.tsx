@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState, useRef, useEffect, useCallback, useContext } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { TSelectedUTXOs } from './utxos';
 import { useMountedRef } from '@/hooks/mount';
@@ -45,10 +45,6 @@ type TRBFState = {
   note?: string;
   // Original fee rate in sat/vB - used to calculate minimum fee in low-fee environments
   originalFeeRate: number;
-};
-
-type TRBFRouteState = {
-  txID: string;
 };
 
 const SATOSHI_UNITS = ['sat', 'tsat', 'rsat'];
@@ -100,8 +96,7 @@ export const Send = ({
 }: TProps) => {
   const { t } = useTranslation();
   const { btcUnit, defaultCurrency } = useContext(RatesContext);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
   const [utxoDialogActive, setUtxoDialogActive] = useState(false);
   // in case there are multiple parallel tx proposals we can ignore all other but the last one
@@ -149,11 +144,12 @@ export const Send = ({
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isRBFMode = !!rbfData;
 
-  // Initialize RBF mode from router state
+  // Initialize RBF mode from query parameter
   useEffect(() => {
-    const state = location.state as { rbf?: TRBFRouteState } | null;
-    if (state?.rbf) {
-      const { txID } = state.rbf;
+    const txID = searchParams.get('rbf');
+    if (txID) {
+      // Clear the query parameter to prevent re-initialization on re-render
+      setSearchParams({}, { replace: true });
       // Only initialize if this is a different transaction than before
       // This handles component reuse when navigating between RBF sessions
       if (rbfInitializedTxRef.current !== txID) {
@@ -226,10 +222,8 @@ export const Send = ({
         // the backend will return rbfFeeTooLow error and we'll switch to custom mode with minimum fee.
         // Don't set feeTarget here - let FeeTargets component initialize with preferredFeeTarget='high'
       }
-      // Clear the router state to prevent re-initialization on re-render
-      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [account.code, location.pathname, location.state, navigate, t]);
+  }, [account.code, searchParams, setSearchParams, t]);
 
   const handleContinue = () => {
     setSendAll(false);
