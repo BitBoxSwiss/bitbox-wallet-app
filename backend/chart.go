@@ -219,7 +219,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 
 	}
 
-	if backend.Config().LightningConfig().LightningEnabled() {
+	if backend.lightning.Account() != nil {
 		var err error
 		lightningBalance, err := backend.lightning.Balance()
 		if err != nil {

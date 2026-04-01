@@ -7,7 +7,9 @@ import (
 	"net/http"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 )
 
@@ -16,6 +18,25 @@ type responseDto struct {
 	Data         interface{} `json:"data"`
 	ErrorMessage string      `json:"errorMessage,omitempty"`
 	ErrorCode    string      `json:"errorCode,omitempty"`
+}
+
+type lightningAccountConfigWithoutMnemonic struct {
+	RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
+	Code            types.Code     `json:"code"`
+	Number          uint16         `json:"num"`
+}
+
+// GetAccount handles the GET request to retrieve the configured lightning account.
+func (lightning *Lightning) GetAccount(_ *http.Request) interface{} {
+	account := lightning.Account()
+	if account == nil {
+		return nil
+	}
+	return &lightningAccountConfigWithoutMnemonic{
+		RootFingerprint: account.RootFingerprint,
+		Code:            account.Code,
+		Number:          account.Number,
+	}
 }
 
 // PostLightningActivateNode handles the POST request to activate the lightning node.

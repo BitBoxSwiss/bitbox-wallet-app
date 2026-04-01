@@ -12,14 +12,10 @@ export interface ILightningResponse<T> {
   errorCode?: string;
 }
 
-export type TLightningAccountConfig = {
+export type TLightningAccount = {
   rootFingerprint: string;
   code: AccountCode;
   num: number;
-};
-
-export type TLightningConfig = {
-  accounts: TLightningAccountConfig[];
 };
 
 // Breez SDK types
@@ -157,8 +153,8 @@ const postApiResponse = async <T, C extends object | undefined>(url: string, dat
  * Lightning interface
  */
 
-export const getLightningConfig = async (): Promise<TLightningConfig> => {
-  return await apiGet('lightning/config');
+export const getLightningAccount = async (): Promise<TLightningAccount | null> => {
+  return await apiGet('lightning/account');
 };
 
 export const postActivateNode = async (): Promise<void> => {
@@ -315,12 +311,12 @@ export const postReceivePayment = async (data: ReceivePaymentRequest): Promise<R
  */
 
 /**
- * Returns a function that subscribes a callback on a "lightning/config"
- * event to notify when a change to the lightning config has occurred.
+ * Returns a function that subscribes a callback on a "lightning/account"
+ * event to notify when a change to the lightning account has occurred.
  * Meant to be used with `useSubscribe`.
  */
-export const subscribeLightningConfig = (cb: TSubscriptionCallback<TLightningConfig>) => {
-  return subscribeEndpoint('lightning/config', cb);
+export const subscribeLightningAccount = (cb: TSubscriptionCallback<TLightningAccount | null>) => {
+  return subscribeEndpoint('lightning/account', cb);
 };
 
 /**

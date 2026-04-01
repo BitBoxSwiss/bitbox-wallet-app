@@ -99,12 +99,12 @@ func TestModifyLightningConfig(t *testing.T) {
 
 	require.NoError(t, cfg.ModifyLightningConfig(func(lightningCfg *LightningConfig) error {
 		require.Empty(t, lightningCfg.Accounts)
-		lightningCfg.Accounts = append(lightningCfg.Accounts, &LightningAccountConfig{
+		lightningCfg.Accounts = []*LightningAccountConfig{{
 			Mnemonic:        "test",
-			Code:            "v0-test-ln-0",
+			Code:            "v0-deadbeef-ln-0",
 			Number:          0,
-			RootFingerprint: []byte("fingerprint"),
-		})
+			RootFingerprint: []byte{0xde, 0xad, 0xbe, 0xef},
+		}}
 		return nil
 	}))
 
@@ -122,6 +122,47 @@ func TestModifyLightningConfig(t *testing.T) {
 	cfg3, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 	require.Len(t, cfg3.LightningConfig().Accounts, 1)
+}
+
+func TestLightningConfigPersistence(t *testing.T) {
+	appConfigFilename := test.TstTempFile("appConfig")
+	accountsConfigFilename := test.TstTempFile("accountsConfig")
+	lightningConfigFilename := test.TstTempFile("lightningConfig")
+
+	_, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
+	require.NoError(t, err)
+
+	err = os.WriteFile(lightningConfigFilename, []byte(`{
+		"accounts": [{
+			"mnemonic": "test",
+			"rootFingerprint": "deadbeef",
+			"code": "v0-deadbeef-ln-0",
+			"num": 0
+		}]
+	}`), 0644)
+	require.NoError(t, err)
+
+	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
+	require.NoError(t, err)
+	require.Len(t, cfg.LightningConfig().Accounts, 1)
+	require.Equal(t, "v0-deadbeef-ln-0", string(cfg.LightningConfig().Accounts[0].Code))
+
+	cfgCopy := cfg.LightningConfig()
+	require.NoError(t, cfg.ModifyLightningConfig(func(lightningCfg *LightningConfig) error {
+		*lightningCfg = cfgCopy
+		return nil
+	}))
+
+	lightningJSON, err := os.ReadFile(lightningConfigFilename)
+	require.NoError(t, err)
+	require.JSONEq(t, `{
+		"accounts": [{
+			"mnemonic": "test",
+			"rootFingerprint": "deadbeef",
+			"code": "v0-deadbeef-ln-0",
+			"num": 0
+		}]
+	}`, string(lightningJSON))
 }
 
 // TestMigrationSaved tests that migrations are applied when a config is loaded, and that the

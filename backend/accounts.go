@@ -315,8 +315,7 @@ func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
 	}
 
 	// Add lightning balance to BTC totals when lightning is enabled.
-	lightningConfig := backend.Config().LightningConfig()
-	if lightningConfig.LightningEnabled() {
+	if backend.lightning.Account() != nil {
 		lightningBalance, err := backend.lightning.Balance()
 		if err != nil {
 			return nil, err
@@ -422,9 +421,8 @@ func (backend *Backend) keystoresBalance() (map[string]KeystoreBalance, error) {
 		}
 
 		// Add lightning balance to the matching keystore totals when lightning is enabled.
-		lightningConfig := backend.Config().LightningConfig()
-		if lightningConfig.LightningEnabled() && len(lightningConfig.Accounts) > 0 {
-			lightningConfigRootFingerprint := hex.EncodeToString(lightningConfig.Accounts[0].RootFingerprint)
+		if lightningAccount := backend.lightning.Account(); lightningAccount != nil {
+			lightningConfigRootFingerprint := hex.EncodeToString(lightningAccount.RootFingerprint)
 			if lightningConfigRootFingerprint == rootFingerprint {
 				lightningBalance, err := backend.lightning.Balance()
 				if err != nil {

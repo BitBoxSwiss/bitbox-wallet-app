@@ -80,7 +80,7 @@ const Sidebar = ({
   const { pathname } = useLocation();
   const [ canUpgrade, setCanUpgrade ] = useState(false);
   const { activeSidebar, toggleSidebar } = useContext(AppContext);
-  const { lightningConfig } = useLightning();
+  const { lightningAccount } = useLightning();
 
   const deviceIDs: string[] = Object.keys(devices);
 
@@ -147,7 +147,7 @@ const Sidebar = ({
           </div>
         ) : null }
 
-        {lightningConfig.accounts.length !== 0 && (
+        {lightningAccount !== null && (
           <GetLightningLink key="lightning" handleSidebarItemClick={handleSidebarItemClick} />
         )}
 
