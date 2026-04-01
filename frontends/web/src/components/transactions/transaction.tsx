@@ -119,6 +119,16 @@ export const Transaction = ({
             <div className={styles.speedUpPopupHeader}>
               <InfoBlue className={styles.speedUpPopupInfoIcon} />
               <p className={styles.speedUpPopupText}>{t('transaction.speedUpPrompt.message')}</p>
+              <button
+                className={styles.speedUpPopupLink}
+                onClick={event => {
+                  event.stopPropagation();
+                  onSpeedUp(internalID);
+                }}
+                type="button">
+                <span className={styles.speedUpPopupLinkIcon} aria-hidden />
+                {t('transaction.speedUpPrompt.action')}
+              </button>
             </div>
             <button
               className={styles.speedUpPopupClose}
@@ -129,16 +139,6 @@ export const Transaction = ({
               aria-label={t('generic.close')}
               type="button">
               <CloseXDark className={styles.speedUpPopupCloseIcon} />
-            </button>
-            <button
-              className={styles.speedUpPopupLink}
-              onClick={event => {
-                event.stopPropagation();
-                onSpeedUp(internalID);
-              }}
-              type="button">
-              <span className={styles.speedUpPopupLinkIcon} aria-hidden />
-              {t('transaction.speedUpPrompt.action')}
             </button>
           </div>
         )}

@@ -274,7 +274,7 @@
 
 .speedUpPopupText {
   color: #2f3338;
-  font-size: var(--size-default);
+  font-size: var(--size-small);
   line-height: 1.25;
   margin: 0;
 }
@@ -292,11 +292,12 @@
   color: var(--color-blue);
   cursor: pointer;
   display: inline-flex;
-  font-size: var(--size-default);
+  flex-shrink: 0;
+  font-size: var(--size-small);
   gap: 6px;
   line-height: 1.25;
-  margin-top: 6px;
   padding: 0;
+  white-space: nowrap;
 }
 
 .speedUpPopupLinkIcon {
