@@ -102,11 +102,11 @@
 }
 
 .textarea {
-    width: 100%;
-    border-radius: 2px;
     border-color: var(--background-quaternary);
-    padding: var(--space-half) var(--space-half);
+    border-radius: var(--radius-xl);
     margin-bottom: var(--space-quarter);
+    padding: var(--space-half);
+    width: 100%;
 }
 
 .block {

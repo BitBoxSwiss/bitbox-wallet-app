@@ -17,6 +17,11 @@ textarea {
     resize: vertical;
 }
 
+textarea:focus {
+    border-color: var(--color-blue);
+    outline: none;
+}
+
 label {
     display: block;
     font-size: var(--size-default);
