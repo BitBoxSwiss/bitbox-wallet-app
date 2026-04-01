@@ -72,20 +72,24 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Download simulator v9.24.0 from simulators.json
-        run: |
-          set -euo pipefail
-          simulator_url=$(jq -r '.[] | select(.url | contains("firmware%2Fv9.24.0/")) | .url' backend/devices/bitbox02/testdata/simulators.json)
-          simulator_sha=$(jq -r '.[] | select(.url | contains("firmware%2Fv9.24.0/")) | .sha256' backend/devices/bitbox02/testdata/simulators.json)
-          mkdir -p simulator-bin
-          curl -L "$simulator_url" -o simulator-bin/simulator
-          echo "$simulator_sha  simulator-bin/simulator" | sha256sum -c -
-          chmod +x simulator-bin/simulator
-
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 20
+
+      - name: Select latest simulator from simulators.json
+        id: simulator
+        env:
+          OUTPUT_KIND: latest
+        run: node ./scripts/github-playwright-simulator-matrix.js
+
+      - name: Download simulator ${{ steps.simulator.outputs.version }} from simulators.json
+        run: |
+          set -euo pipefail
+          mkdir -p simulator-bin
+          curl -L "${{ steps.simulator.outputs.url }}" -o simulator-bin/simulator
+          echo "${{ steps.simulator.outputs.sha256 }}  simulator-bin/simulator" | sha256sum -c -
+          chmod +x simulator-bin/simulator
 
       - name: Install dependencies
         run: |
