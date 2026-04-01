@@ -11,6 +11,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
+	"github.com/gorilla/mux"
 )
 
 type responseDto struct {
@@ -24,6 +25,27 @@ type lightningAccountConfigWithoutMnemonic struct {
 	RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
 	Code            types.Code     `json:"code"`
 	Number          uint16         `json:"num"`
+}
+
+// NewHandlers creates a new Handlers instance.
+func NewHandlers(
+	handleNoError func(string, func(*http.Request) interface{}) *mux.Route,
+	lightning *Lightning,
+) {
+	handleNoError("/account", lightning.GetAccount).Methods("GET")
+	handleNoError("/activate-node", lightning.PostLightningActivateNode).Methods("POST")
+	handleNoError("/deactivate-node", lightning.PostLightningDeactivateNode).Methods("POST")
+	handleNoError("/node-info", lightning.GetNodeInfo).Methods("GET")
+	handleNoError("/balance", lightning.GetBalance).Methods("GET")
+	handleNoError("/list-payments", lightning.GetListPayments).Methods("GET")
+	handleNoError("/open-channel-fee", lightning.GetOpenChannelFee).Methods("GET")
+	handleNoError("/parse-input", lightning.GetParseInput).Methods("GET")
+	handleNoError("/boarding-address", lightning.GetBoardingAddress).Methods("GET")
+	handleNoError("/receive-payment", lightning.PostReceivePayment).Methods("POST")
+	handleNoError("/send-payment", lightning.PostSendPayment).Methods("POST")
+	handleNoError("/diagnostic-data", lightning.GetDiagnosticData).Methods("GET")
+	handleNoError("/report-payment-failure", lightning.PostReportPaymentFailure).Methods("POST")
+	handleNoError("/service-health-check", lightning.GetServiceHealthCheck).Methods("GET")
 }
 
 // GetAccount handles the GET request to retrieve the configured lightning account.
