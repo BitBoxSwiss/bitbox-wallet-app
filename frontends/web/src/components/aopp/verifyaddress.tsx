@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import * as accountAPI from '@/api/account';
 import { Button } from '@/components/forms';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
+import { PointToBitBox02 } from '../icon';
 
 type TProps = {
   accountCode: accountAPI.AccountCode;
@@ -31,7 +32,12 @@ export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
           noSidebarOffset
           medium
           title={t('receive.verifyBitBox02')}>
-          { address }
+          <div>
+            { address }
+            <br />
+            <br />
+            <PointToBitBox02 />
+          </div>
         </WaitDialog>
       ) : null }
     </>
