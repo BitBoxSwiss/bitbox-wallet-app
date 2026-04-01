@@ -13,6 +13,10 @@ textarea {
     background: var(--background-secondary);
 }
 
+textarea {
+    resize: vertical;
+}
+
 label {
     display: block;
     font-size: var(--size-default);
