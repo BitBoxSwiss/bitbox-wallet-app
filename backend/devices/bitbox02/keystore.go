@@ -14,6 +14,7 @@ import (
 	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
@@ -26,11 +27,19 @@ import (
 )
 
 type keystore struct {
+	observable.Implementation
+
 	device *Device
 	log    *logrus.Entry
 
 	rootFingerMu sync.Mutex
 	rootFinger   []byte // cached result of RootFingerprint
+}
+
+func (keystore *keystore) clearRootFingerprintCache() {
+	keystore.rootFingerMu.Lock()
+	defer keystore.rootFingerMu.Unlock()
+	keystore.rootFinger = nil
 }
 
 // Type implements keystore.Keystore.

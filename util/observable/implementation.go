@@ -2,7 +2,12 @@
 
 package observable
 
-import "github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
+import (
+	"maps"
+	"slices"
+
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
+)
 
 // Implementation can be embedded in implementations that are observable.
 type Implementation struct {
@@ -30,8 +35,11 @@ func (implementation *Implementation) Observe(observer func(Event)) func() {
 // Notify notifies the registered observers about the given event.
 // This method should only be called from the implementation itself.
 func (implementation *Implementation) Notify(event Event) {
-	defer implementation.observersLock.RLock()()
-	for _, observer := range implementation.observers {
+	unlock := implementation.observersLock.RLock()
+	observers := slices.Collect(maps.Values(implementation.observers))
+	unlock()
+
+	for _, observer := range observers {
 		observer(event)
 	}
 }
