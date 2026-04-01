@@ -62,10 +62,6 @@ export const Swap = ({
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
   const [routeError, setRouteError] = useState<string | undefined>();
 
-  const fromAccount = useMemo(
-    () => accounts.find(account => account.code === sellAccountCode),
-    [accounts, sellAccountCode],
-  );
   const toAccount = useMemo(
     () => accounts.find(account => account.code === buyAccountCode),
     [accounts, buyAccountCode],
@@ -109,13 +105,11 @@ export const Swap = ({
 
   useEffect(() => {
     let isCancelled = false;
-    const sellCoinCode = fromAccount?.coinCode;
-    const buyCoinCode = toAccount?.coinCode;
     const amount = Number(sellAmount);
 
     if (
-      !sellCoinCode
-      || !buyCoinCode
+      !sellAccountCode
+      || !buyAccountCode
       || !sellAmount
       || Number.isNaN(amount)
       || amount <= 0
@@ -132,14 +126,14 @@ export const Swap = ({
     const fetchRoutes = async () => {
       try {
         const response = await getSwapQuote({
-          buyCoinCode,
+          buyAccountCode,
           sellAmount,
-          sellCoinCode,
+          sellAccountCode,
         });
         if (isCancelled) {
           return;
         }
-        const nextRoutes = response.success ? response.quote.routes : [];
+        const nextRoutes = response.success ? response.routes : [];
         if (nextRoutes.length > 0) {
           setRoutes(nextRoutes);
           const firstRouteId = nextRoutes[0]?.routeId;
@@ -175,7 +169,7 @@ export const Swap = ({
       isCancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [fromAccount?.coinCode, sellAccountCode, sellAmount, toAccount?.coinCode, buyAccountCode]);
+  }, [buyAccountCode, sellAccountCode, sellAmount]);
 
   useEffect(() => {
     setExpectedOutput(selectedRoute?.expectedBuyAmount || '');

@@ -26,6 +26,12 @@ type QuoteResponse struct {
 	Error          string       `json:"error,omitempty"`
 }
 
+// QuoteRouteSummary contains the subset of route fields needed by the frontend.
+type QuoteRouteSummary struct {
+	RouteID           string `json:"routeId"`
+	ExpectedBuyAmount string `json:"expectedBuyAmount"`
+}
+
 // QuoteRoute represents a single route for a quote returned by the SwapKit API.
 type QuoteRoute struct {
 	RouteID                      string   `json:"routeId"`

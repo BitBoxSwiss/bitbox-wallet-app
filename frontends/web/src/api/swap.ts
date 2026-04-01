@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import type { AccountCode } from './account';
 import { apiPost } from '@/utils/request';
 
 export type TSwapQuoteRequest = {
-  buyCoinCode: string;
+  buyAccountCode: AccountCode;
   sellAmount: string;
-  sellCoinCode: string;
+  sellAccountCode: AccountCode;
 };
 
 export type TSwapQuoteRoute = {
@@ -15,9 +16,7 @@ export type TSwapQuoteRoute = {
 
 export type TSwapQuoteResponse = {
   success: true;
-  quote: {
-    routes: TSwapQuoteRoute[];
-  };
+  routes: TSwapQuoteRoute[];
 } | {
   success: false;
   errorCode: string;
