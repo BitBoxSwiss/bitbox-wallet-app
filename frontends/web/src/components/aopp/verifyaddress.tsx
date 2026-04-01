@@ -29,6 +29,7 @@ export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
       { verifying ? (
         <WaitDialog
           noSidebarOffset
+          medium
           title={t('receive.verifyBitBox02')}>
           { address }
         </WaitDialog>

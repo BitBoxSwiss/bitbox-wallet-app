@@ -7,6 +7,9 @@ import style from '@/components/dialog/dialog.module.css';
 
 type Props = {
   includeDefault?: boolean;
+  small?: boolean;
+  medium?: boolean;
+  large?: boolean;
   noSidebarOffset?: boolean;
   title?: string;
   children?: React.ReactNode;
@@ -14,6 +17,9 @@ type Props = {
 
 export const WaitDialog = ({
   includeDefault,
+  small,
+  medium,
+  large,
   noSidebarOffset = false,
   title,
   children,
@@ -63,6 +69,9 @@ export const WaitDialog = ({
 
   const modalClass = `
     ${style.modal || ''}
+    ${small && style.small || ''}
+    ${medium && style.medium || ''}
+    ${large && style.large || ''}
     ${style.open || ''}
     ${noSidebarOffset && style.noSidebarOffset || ''}
   `.trim();
@@ -82,14 +91,12 @@ export const WaitDialog = ({
           )
         }
         <div className={style.contentContainer}>
-          <div className={style.content}>
-            { (hasChildren && includeDefault) ? defaultContent : null }
-            { hasChildren ? (
-              <div className="flex flex-column flex-start">
-                {children}
-              </div>
-            ) : defaultContent }
-          </div>
+          { (hasChildren && includeDefault) ? defaultContent : null }
+          { hasChildren ? (
+            <div className="flex flex-column flex-start">
+              {children}
+            </div>
+          ) : defaultContent }
         </div>
       </div>
     </div>
