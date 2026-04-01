@@ -7,12 +7,14 @@ import style from '@/components/dialog/dialog.module.css';
 
 type Props = {
   includeDefault?: boolean;
+  noSidebarOffset?: boolean;
   title?: string;
   children?: React.ReactNode;
 };
 
 export const WaitDialog = ({
   includeDefault,
+  noSidebarOffset = false,
   title,
   children,
 }: Props) => {
@@ -59,13 +61,19 @@ export const WaitDialog = ({
 
   const hasChildren = React.Children.toArray(children).length > 0;
 
+  const modalClass = `
+    ${style.modal || ''}
+    ${style.open || ''}
+    ${noSidebarOffset && style.noSidebarOffset || ''}
+  `.trim();
+
   return (
     <div
       className={style.overlay}
       ref={overlay}
       style={{ zIndex: 10001 }}>
       <UseDisableBackButton />
-      <div className={[style.modal, style.open].join(' ')} ref={modal}>
+      <div className={modalClass} ref={modal}>
         {
           title && (
             <div className={style.header}>
