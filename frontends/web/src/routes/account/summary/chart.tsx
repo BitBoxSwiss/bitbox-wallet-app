@@ -320,10 +320,13 @@ export const Chart = ({
       setDiffSince('');
       return;
     }
-    // data should always have at least two data points and when the first
-    // value is 0 we take the next value as valueFrom to calculate valueDiff
-    const nextValue = chartData[rangeFrom + 1] as FormattedLineData;
-    const valueFrom = chartData[rangeFrom].value === 0 ? nextValue.value : chartData[rangeFrom].value;
+    const nextValue = chartData[rangeFrom + 1] as FormattedLineData | undefined;
+    const valueFrom = chartData[rangeFrom].value === 0 ? nextValue?.value : chartData[rangeFrom].value;
+    if (!valueFrom || !Number.isFinite(valueFrom)) {
+      setDifference(0);
+      setDiffSince('');
+      return;
+    }
     const valueTo = data.chartTotal;
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
     setDifference(valueDiff / valueFrom);
