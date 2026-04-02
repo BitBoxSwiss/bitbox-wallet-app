@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect } from 'vitest';
-import { CoinCode, NativeCoinUnit, TAccount } from '@/api/account';
+import { CoinCode, CoinUnit, TAccount } from '@/api/account';
 import {
   getAccountsByKeystore,
   getAddressURIPrefix,
@@ -24,7 +24,7 @@ const createAccount = ({
     code: 'v0-123de678-tbtc-0',
     coinCode: 'tbtc' as CoinCode,
     coinName: 'Bitcoin Testnet',
-    coinUnit: 'TBTC' as NativeCoinUnit,
+    coinUnit: 'TBTC' as CoinUnit,
     isToken: false,
     keystore: {
       connected: false,
@@ -127,7 +127,6 @@ describe('utils/getAccountsByKeystore', () => {
     // @ts-ignore noUncheckedIndexedAccess
     expect(result[1].accounts[3].code).toBe(accounts[5].code);
   });
-
 });
 
 describe('utils/bitcoin coin helpers', () => {
@@ -137,7 +136,7 @@ describe('utils/bitcoin coin helpers', () => {
   });
 
   it('treats rbtc unit as bitcoin coin', () => {
-    expect(isBitcoinCoin('RBTC' as NativeCoinUnit)).toBe(true);
+    expect(isBitcoinCoin('RBTC' as CoinUnit)).toBe(true);
   });
 
   it('maps rbtc to canonical btc coin code', () => {
