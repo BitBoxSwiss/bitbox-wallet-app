@@ -18,8 +18,11 @@ export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
   const { t } = useTranslation();
   const verifyAddress = async () => {
     setVerifying(true);
-    await accountAPI.verifyAddress(accountCode, addressID);
-    setVerifying(false);
+    try {
+      await accountAPI.verifyAddress(accountCode, addressID);
+    } finally {
+      setVerifying(false);
+    }
   };
 
   return (
