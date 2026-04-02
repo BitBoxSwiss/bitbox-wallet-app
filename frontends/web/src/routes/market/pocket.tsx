@@ -362,11 +362,9 @@ export const Pocket = ({
           <Dialog
             open={verifying}
             title={t('receive.verifyBitBox02')}
-            medium centered>
-            <div className="text-center">
-              {t('buy.pocket.verifyBitBox02')}
-              <PointToBitBox02 />
-            </div>
+            medium>
+            {t('buy.pocket.verifyBitBox02')}
+            <PointToBitBox02 />
           </Dialog>
           <FirmwareUpgradeRequiredDialog
             open={fwRequiredDialog}
