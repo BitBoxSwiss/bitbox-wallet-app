@@ -126,21 +126,23 @@ const Sidebar = ({
           </div>
         ) : null }
 
-        { accountsByKeystore.map(keystore => (
-          <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
-            <div className={style.sidebarHeaderContainer}>
-              <ConnectedKeystore
-                accountsByKeystore={accountsByKeystore}
-                className={style.sidebarHeader}
-                keystore={keystore.keystore}
-                connectedIconOnly={true}
-              />
+        <div data-testid="sidebar-keystores">
+          { accountsByKeystore.map(keystore => (
+            <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
+              <div className={style.sidebarHeaderContainer}>
+                <ConnectedKeystore
+                  accountsByKeystore={accountsByKeystore}
+                  className={style.sidebarHeader}
+                  keystore={keystore.keystore}
+                  connectedIconOnly={true}
+                />
+              </div>
+              { keystore.accounts.map(acc => (
+                <GetAccountLink key={`account-${acc.code}`} {...acc} handleSidebarItemClick={handleSidebarItemClick} />
+              ))}
             </div>
-            { keystore.accounts.map(acc => (
-              <GetAccountLink key={`account-${acc.code}`} {...acc} handleSidebarItemClick={handleSidebarItemClick} />
-            ))}
-          </div>
-        )) }
+          )) }
+        </div>
 
         <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (

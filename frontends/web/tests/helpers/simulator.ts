@@ -48,13 +48,19 @@ export function startSimulator(
   const env = { ...process.env };
   if (useFakeMemory) {
     env.FAKE_MEMORY_FILEPATH = '/tmp/fake_memory';
+  } else {
+    delete env.FAKE_MEMORY_FILEPATH;
   }
 
 
   const logPath = getLogFilePath(outputDir, 'simulator.log');
   const outStream = fs.openSync(logPath, 'w');
 
-  const proc = spawn(simulatorPath, { stdio: ['ignore', outStream, outStream], env });
+  const proc = spawn(simulatorPath, {
+    stdio: ['ignore', outStream, outStream],
+    env,
+    detached: true,
+  });
 
   proc.on('error', (err) => {
     console.error('Simulator process error:', String(err));
@@ -83,7 +89,18 @@ export function stopSimulator(proc?: ChildProcess): Promise<void> {
     const onExit = () => resolve();
     proc.once('exit', onExit);
     try {
-      if (!proc.kill('SIGTERM')) {
+      const killed = process.platform === 'win32'
+        ? proc.kill('SIGTERM')
+        : (() => {
+          try {
+            process.kill(-proc.pid!, 'SIGTERM');
+            return true;
+          } catch {
+            return proc.kill('SIGTERM');
+          }
+        })();
+
+      if (!killed) {
         proc.off('exit', onExit);
         resolve();
       }
@@ -96,19 +113,35 @@ export function stopSimulator(proc?: ChildProcess): Promise<void> {
 
 
 /**
- * Performs the wallet setup flow in order:
- * 1. Click "Continue"
+ * Performs the wallet setup flow.
+ *
+ * Depending on the simulator state, the setup can start either on the pairing
+ * confirmation screen or directly on the setup options screen.
+ *
+ * The flow is:
+ * 1. Optionally click "Continue"
  * 2. Click "Create wallet"
- * 3. Type "simulator" into focused input
+ * 3. Type the device name into the focused input
  * 4. Click "Continue"
  * 5. Click all checkboxes
  * 6. Click "Continue"
  * 7. Click "Get started"
  */
-export async function completeWalletSetupFlow(page: Page) {
-  await clickButtonWithText(page, 'Continue');
+export async function completeWalletSetupFlow(page: Page, deviceName = 'simulator') {
+  const continueButton = page.locator('button', { hasText: 'Continue' }).first();
+  const createWalletButton = page.locator('button', { hasText: 'Create wallet' }).first();
+
+  await Promise.race([
+    continueButton.waitFor({ state: 'visible' }),
+    createWalletButton.waitFor({ state: 'visible' }),
+  ]);
+
+  if (await continueButton.isVisible()) {
+    await continueButton.click();
+  }
+
   await clickButtonWithText(page, 'Create wallet');
-  await typeIntoFocusedInput(page, 'simulator');
+  await typeIntoFocusedInput(page, deviceName);
   await clickButtonWithText(page, 'Continue');
   await clickAllAgreements(page);
   await clickButtonWithText(page, 'Continue');

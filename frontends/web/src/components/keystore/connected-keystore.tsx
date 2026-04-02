@@ -24,8 +24,11 @@ export const ConnectedKeystore = ({
   const classNames = className ? `${style.keystore || ''} ${className}` : style.keystore;
 
   return (
-    <span className={classNames}>
-      <span className={style.keystoreName}>{keystore.name}</span>
+    <span
+      className={classNames}
+      data-testid="connected-keystore"
+      data-connected={keystore.connected ? 'true' : 'false'}>
+      <span className={style.keystoreName} data-testid="keystore-name">{keystore.name}</span>
       {isAmbiguousName(keystore.name, accountsByKeystore) ? (
         // Disambiguate accounts group by adding the fingerprint.
         // The most common case where this would happen is when adding accounts from the
