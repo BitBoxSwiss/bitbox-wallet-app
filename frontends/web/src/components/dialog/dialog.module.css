@@ -110,6 +110,7 @@
     max-height: 100%;
     overflow: auto;
     padding: var(--space-half);
+    word-break: break-word;
 }
 
 .contentContainer.slim {
