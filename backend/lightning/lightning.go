@@ -4,11 +4,9 @@ package lightning
 
 import (
 	"encoding/hex"
-	"math/big"
 	"net/http"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -154,182 +152,12 @@ func (lightning *Lightning) Deactivate() error {
 	return nil
 }
 
-// CheckActive returns an error if the lightning service not has been activated.
+// CheckActive returns an error if the lightning service has not been activated.
 func (lightning *Lightning) CheckActive() error {
 	if lightning.Account() == nil || lightning.sdkService == nil {
 		return errp.New("Lightning not initialized")
 	}
 	return nil
-}
-
-// ParseInput validates and classifies a lightning input string.
-func (lightning *Lightning) ParseInput(inputStr string) (breez_sdk_spark.InputType, error) {
-	input, err := lightning.sdkService.Parse(inputStr)
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
-		return nil, err
-	}
-
-	switch inputType := input.(type) {
-	case breez_sdk_spark.InputTypeBitcoinAddress:
-		lightning.log.Printf("Input is Bitcoin address %s", inputType.Field0.Address)
-
-	case breez_sdk_spark.InputTypeBolt11Invoice:
-		amount := "unknown"
-		if inputType.Field0.AmountMsat != nil {
-			amount = strconv.FormatUint(*inputType.Field0.AmountMsat, 10)
-		}
-		lightning.log.Printf("Input is BOLT11 invoice for %s msats", amount)
-
-	case breez_sdk_spark.InputTypeLnurlPay:
-		lightning.log.Printf("Input is LNURL-Pay/Lightning address accepting min/max %d/%d msats",
-			inputType.Field0.MinSendable, inputType.Field0.MaxSendable)
-
-	case breez_sdk_spark.InputTypeLnurlWithdraw:
-		lightning.log.Printf("Input is LNURL-Withdraw for min/max %d/%d msats",
-			inputType.Field0.MinWithdrawable, inputType.Field0.MaxWithdrawable)
-
-	case breez_sdk_spark.InputTypeSparkAddress:
-		lightning.log.Printf("Input is Spark address %s", inputType.Field0.Address)
-
-	case breez_sdk_spark.InputTypeSparkInvoice:
-		invoice := inputType.Field0
-		lightning.log.Println("Input is Spark invoice:")
-		if invoice.TokenIdentifier != nil {
-			lightning.log.Printf("  Amount: %d base units of token with id %s", invoice.Amount, *invoice.TokenIdentifier)
-		} else {
-			lightning.log.Printf("  Amount: %d sats", invoice.Amount)
-		}
-
-		if invoice.Description != nil {
-			lightning.log.Printf("  Description: %s", *invoice.Description)
-		}
-
-		if invoice.ExpiryTime != nil {
-			lightning.log.Printf("  Expiry time: %d", *invoice.ExpiryTime)
-		}
-
-		if invoice.SenderPublicKey != nil {
-			lightning.log.Printf("  Sender public key: %s", *invoice.SenderPublicKey)
-		}
-
-	default:
-		lightning.log.Errorf("Input type not supported %T", input)
-		return nil, errp.New("Invoice format not supported")
-	}
-	return input, nil
-
-}
-
-// SendPayment executes a payment for the provided payment request.
-func (lightning *Lightning) SendPayment(paymentRequest string, amountMsat *uint64) error {
-	lightning.log.Infof("Sending payment to %+v", paymentRequest)
-	request := breez_sdk_spark.PrepareSendPaymentRequest{
-		PaymentRequest: paymentRequest,
-	}
-
-	// Optionally set the amount you wish the pay the receiver
-	if amountMsat != nil {
-		lightning.log.Infof("Optional amount: %+v Msat", *amountMsat)
-		optionalAmountSats := new(big.Int).SetUint64(*amountMsat / 1000)
-		request.Amount = &optionalAmountSats
-	}
-	prepareResponse, err := lightning.sdkService.PrepareSendPayment(request)
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
-		return err
-	}
-
-	// If the fees are acceptable, continue to create the Send Payment
-	switch paymentMethod := prepareResponse.PaymentMethod.(type) {
-	case breez_sdk_spark.SendPaymentMethodBolt11Invoice:
-		// Fees to pay via Lightning
-		lightningFeeSats := paymentMethod.LightningFeeSats
-		// Or fees to pay (if available) via a Spark transfer
-		sparkTransferFeeSats := paymentMethod.SparkTransferFeeSats
-		lightning.log.Printf("Lightning Fees: %v sats", lightningFeeSats)
-		lightning.log.Printf("Spark Transfer Fees: %v sats", sparkTransferFeeSats)
-	default:
-		return errp.Newf("Payment method %v not supported", paymentMethod)
-	}
-
-	// var completionTimeoutSecs uint32 = 4
-	var options breez_sdk_spark.SendPaymentOptions = breez_sdk_spark.SendPaymentOptionsBolt11Invoice{
-		PreferSpark: false,
-		// CompletionTimeoutSecs: &completionTimeoutSecs,
-	}
-
-	// optionalIdempotencyKey := "<idempotency key uuid>"
-	payRequest := breez_sdk_spark.SendPaymentRequest{
-		PrepareResponse: prepareResponse,
-		Options:         &options,
-		// IdempotencyKey:  &optionalIdempotencyKey,
-	}
-	_, err = lightning.sdkService.SendPayment(payRequest)
-
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
-		return err
-	}
-	return nil
-}
-
-// BoardingAddress returns a bitcoin address that can be used to fund lightning.
-func (lightning *Lightning) BoardingAddress() (string, *big.Int, error) {
-	request := breez_sdk_spark.ReceivePaymentRequest{
-		PaymentMethod: breez_sdk_spark.ReceivePaymentMethodBitcoinAddress{},
-	}
-
-	response, err := lightning.sdkService.ReceivePayment(request)
-
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
-		return "", nil, err
-	}
-
-	paymentRequest := response.PaymentRequest
-	lightning.log.Printf("Payment Request: %v", paymentRequest)
-	receiveFeesSat := response.Fee
-	lightning.log.Printf("Fees: %v sats", receiveFeesSat)
-
-	return paymentRequest, receiveFeesSat, nil
-}
-
-// ReceivePayment creates a BOLT11 invoice and returns the SDK response.
-func (lightning *Lightning) ReceivePayment(amountSats uint64, description string) (*breez_sdk_spark.ReceivePaymentResponse, error) {
-	if len(description) < 1 {
-		description = "Send to BitBoxApp"
-	}
-
-	request := breez_sdk_spark.ReceivePaymentRequest{
-		PaymentMethod: breez_sdk_spark.ReceivePaymentMethodBolt11Invoice{
-			Description: description,
-			AmountSats:  &amountSats,
-		},
-	}
-
-	response, err := lightning.sdkService.ReceivePayment(request)
-
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
-		return nil, err
-	}
-
-	paymentRequest := response.PaymentRequest
-	lightning.log.Printf("Payment Request: %v", paymentRequest)
-	receiveFeesSat := response.Fee
-	lightning.log.Printf("Fees: %v sats", receiveFeesSat)
-	return &response, nil
-}
-
-// ListPayments fetches lightning payments using the supplied filter request.
-func (lightning *Lightning) ListPayments(request breez_sdk_spark.ListPaymentsRequest) ([]breez_sdk_spark.Payment, error) {
-	if err := lightning.CheckActive(); err != nil {
-		return nil, err
-	}
-	response, err := lightning.sdkService.ListPayments(request)
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
-		return nil, err
-	}
-
-	lightning.log.Infof("List payments: %+v", response.Payments)
-
-	return response.Payments, nil
 }
 
 // Balance returns the balance of the lightning account.
@@ -350,7 +178,6 @@ func (lightning *Lightning) Balance() (*accounts.Balance, error) {
 	}
 
 	balanceSats := info.BalanceSats
-	lightning.log.Infof("Balance: %v sats", balanceSats)
 
 	amount := coin.NewAmountFromInt64(int64(balanceSats))
 	return accounts.NewBalance(amount, coin.Amount{}), nil

@@ -11,7 +11,7 @@ import { Button, Checkbox } from '../../components/forms';
 import { PointToBitBox02 } from '../../components/icon';
 import { TKeystores, getKeystores, subscribeKeystores } from '../../api/keystores';
 import { unsubscribe } from '../../utils/subscriptions';
-import { postActivateNode } from '../../api/lightning';
+import { postActivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { route } from '../../utils/route';
 
@@ -45,7 +45,7 @@ export const LightningActivate = () => {
     setStep('wait');
 
     try {
-      await postActivateNode();
+      await postActivate();
       setStep('success');
     } catch (err) {
       setSetupError(String(err));

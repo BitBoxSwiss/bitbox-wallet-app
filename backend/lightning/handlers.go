@@ -5,12 +5,13 @@ package lightning
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
-	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/gorilla/mux"
 )
 
@@ -21,48 +22,42 @@ type responseDto struct {
 	ErrorCode    string      `json:"errorCode,omitempty"`
 }
 
-type lightningAccountConfigWithoutMnemonic struct {
-	RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
-	Code            types.Code     `json:"code"`
-	Number          uint16         `json:"num"`
-}
-
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
 	handleNoError func(string, func(*http.Request) interface{}) *mux.Route,
 	lightning *Lightning,
 ) {
 	handleNoError("/account", lightning.GetAccount).Methods("GET")
-	handleNoError("/activate-node", lightning.PostLightningActivateNode).Methods("POST")
-	handleNoError("/deactivate-node", lightning.PostLightningDeactivateNode).Methods("POST")
-	handleNoError("/node-info", lightning.GetNodeInfo).Methods("GET")
+	handleNoError("/activate", lightning.PostActivate).Methods("POST")
+	handleNoError("/deactivate", lightning.PostDeactivate).Methods("POST")
 	handleNoError("/balance", lightning.GetBalance).Methods("GET")
 	handleNoError("/list-payments", lightning.GetListPayments).Methods("GET")
-	handleNoError("/open-channel-fee", lightning.GetOpenChannelFee).Methods("GET")
-	handleNoError("/parse-input", lightning.GetParseInput).Methods("GET")
+	handleNoError("/parse-payment-input", lightning.GetParsePaymentInput).Methods("GET")
 	handleNoError("/boarding-address", lightning.GetBoardingAddress).Methods("GET")
-	handleNoError("/receive-payment", lightning.PostReceivePayment).Methods("POST")
+	handleNoError("/receive-payment", lightning.GetReceivePayment).Methods("GET")
 	handleNoError("/send-payment", lightning.PostSendPayment).Methods("POST")
-	handleNoError("/diagnostic-data", lightning.GetDiagnosticData).Methods("GET")
-	handleNoError("/report-payment-failure", lightning.PostReportPaymentFailure).Methods("POST")
-	handleNoError("/service-health-check", lightning.GetServiceHealthCheck).Methods("GET")
 }
 
 // GetAccount handles the GET request to retrieve the configured lightning account.
 func (lightning *Lightning) GetAccount(_ *http.Request) interface{} {
 	account := lightning.Account()
+	type response struct {
+		RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
+		Code            types.Code     `json:"code"`
+		Number          uint16         `json:"num"`
+	}
 	if account == nil {
 		return nil
 	}
-	return &lightningAccountConfigWithoutMnemonic{
+	return &response{
 		RootFingerprint: account.RootFingerprint,
 		Code:            account.Code,
 		Number:          account.Number,
 	}
 }
 
-// PostLightningActivateNode handles the POST request to activate the lightning node.
-func (lightning *Lightning) PostLightningActivateNode(r *http.Request) interface{} {
+// PostActivate handles the POST request to activate lightning.
+func (lightning *Lightning) PostActivate(_ *http.Request) interface{} {
 	if err := lightning.Activate(); err != nil {
 		lightning.log.Error(err)
 		return responseDto{Success: false, ErrorMessage: err.Error()}
@@ -71,8 +66,8 @@ func (lightning *Lightning) PostLightningActivateNode(r *http.Request) interface
 	return responseDto{Success: true}
 }
 
-// PostLightningDeactivateNode handles the POST request to deactivate the lightning node.
-func (lightning *Lightning) PostLightningDeactivateNode(r *http.Request) interface{} {
+// PostDeactivate handles the POST request to deactivate lightning.
+func (lightning *Lightning) PostDeactivate(_ *http.Request) interface{} {
 	if err := lightning.Deactivate(); err != nil {
 		lightning.log.Error(err)
 		return responseDto{Success: false, ErrorMessage: err.Error()}
@@ -81,25 +76,8 @@ func (lightning *Lightning) PostLightningDeactivateNode(r *http.Request) interfa
 	return responseDto{Success: true}
 }
 
-// GetNodeInfo handles the GET request to retrieve the node info.
-func (lightning *Lightning) GetNodeInfo(_ *http.Request) interface{} {
-	// if lightning.sdkService == nil {
-	return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
-	// }
-
-	// nodeState, err := lightning.sdkService.NodeInfo()
-	// if err != nil {
-	// 	return responseDto{Success: false, ErrorMessage: err.Error()}
-	// }
-
-	// return responseDto{Success: true, Data: toNodeStateDto(nodeState)}
-}
-
-// GetBalance handles the GET request to retrieve the node balance and its fiat conversions.
+// GetBalance handles the GET request to retrieve the balance and its fiat conversions.
 func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
-	if lightning.sdkService == nil {
-		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
-	}
 	balance, err := lightning.Balance()
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
@@ -120,230 +98,62 @@ func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
 			Available:    formattedAvailableAmount,
 			HasIncoming:  false,
 			Incoming:     coin.FormattedAmountWithConversions{},
-		}}
-}
-
-// GetListPayments handles the GET request to list payments.
-func (lightning *Lightning) GetListPayments(r *http.Request) interface{} {
-	type listPaymentsResponseLightningDetails struct {
-		Description *string `json:"Description,omitempty"`
-		Preimage    *string `json:"Preimage,omitempty"`
-		Invoice     string  `json:"Invoice,omitempty"`
-		PaymentHash string  `json:"PaymentHash,omitempty"`
-	}
-
-	type listPaymentsResponseSparkInvoiceDetails struct {
-		Description *string `json:"Description,omitempty"`
-		Invoice     string  `json:"Invoice,omitempty"`
-	}
-
-	type listPaymentsResponseSparkHtlcDetails struct {
-		PaymentHash string  `json:"PaymentHash,omitempty"`
-		Preimage    *string `json:"Preimage,omitempty"`
-	}
-
-	type listPaymentsResponseSparkDetails struct {
-		InvoiceDetails *listPaymentsResponseSparkInvoiceDetails `json:"InvoiceDetails,omitempty"`
-		HtlcDetails    *listPaymentsResponseSparkHtlcDetails    `json:"HtlcDetails,omitempty"`
-	}
-
-	type listPaymentsResponsePayment struct {
-		Id          string      `json:"Id"`
-		PaymentType uint32      `json:"PaymentType"`
-		Status      uint32      `json:"Status"`
-		Amount      string      `json:"Amount"`
-		Fees        string      `json:"Fees"`
-		Timestamp   uint64      `json:"Timestamp"`
-		Method      uint32      `json:"Method"`
-		Details     interface{} `json:"Details,omitempty"`
-	}
-
-	if lightning.sdkService == nil {
-		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
-	}
-
-	request, err := toSparkListPaymentsRequest(r.URL.Query())
-	if err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
-	}
-
-	payments, err := lightning.ListPayments(request)
-	if err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
-	}
-
-	responsePayments := make([]listPaymentsResponsePayment, 0, len(payments))
-	for _, payment := range payments {
-		var details interface{}
-		if payment.Details != nil {
-			switch typed := (*payment.Details).(type) {
-			case breez_sdk_spark.PaymentDetailsLightning:
-				details = listPaymentsResponseLightningDetails{
-					Description: typed.Description,
-					Preimage:    typed.Preimage,
-					Invoice:     typed.Invoice,
-					PaymentHash: typed.PaymentHash,
-				}
-			case breez_sdk_spark.PaymentDetailsSpark:
-				var invoiceDetails *listPaymentsResponseSparkInvoiceDetails
-				if typed.InvoiceDetails != nil {
-					invoiceDetails = &listPaymentsResponseSparkInvoiceDetails{
-						Description: typed.InvoiceDetails.Description,
-						Invoice:     typed.InvoiceDetails.Invoice,
-					}
-				}
-				var htlcDetails *listPaymentsResponseSparkHtlcDetails
-				if typed.HtlcDetails != nil {
-					htlcDetails = &listPaymentsResponseSparkHtlcDetails{
-						PaymentHash: typed.HtlcDetails.PaymentHash,
-						Preimage:    typed.HtlcDetails.Preimage,
-					}
-				}
-				if invoiceDetails != nil || htlcDetails != nil {
-					details = listPaymentsResponseSparkDetails{
-						InvoiceDetails: invoiceDetails,
-						HtlcDetails:    htlcDetails,
-					}
-				}
-			}
-		}
-
-		responsePayments = append(responsePayments, listPaymentsResponsePayment{
-			Id:          payment.Id,
-			PaymentType: uint32(payment.PaymentType),
-			Status:      uint32(payment.Status),
-			Amount:      toBigIntString(payment.Amount),
-			Fees:        toBigIntString(payment.Fees),
-			Timestamp:   payment.Timestamp,
-			Method:      uint32(payment.Method),
-			Details:     details,
-		})
-	}
-
-	return responseDto{Success: true, Data: responsePayments}
-}
-
-// GetOpenChannelFee handles the GET request fetch the open channel fees.
-func (lightning *Lightning) GetOpenChannelFee(r *http.Request) interface{} {
-	// if lightning.sdkService == nil {
-	return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
-	// }
-
-	// getParams, err := toOpenChannelFeeRequestDto(r.URL.Query())
-	// if err != nil {
-	// 	return responseDto{Success: false, ErrorMessage: err.Error()}
-	// }
-
-	// openChannelFeeResponse, err := lightning.sdkService.OpenChannelFee(toOpenChannelFeeRequest(getParams))
-	// if err != nil {
-	// 	return responseDto{Success: false, ErrorMessage: err.Error()}
-	// }
-	// return responseDto{Success: true, Data: toOpenChannelFeeResponseDto(openChannelFeeResponse)}
-}
-
-// GetBoardingAddress handles the GET request to retrieve a bitcoin boarding address.
-func (lightning *Lightning) GetBoardingAddress(r *http.Request) interface{} {
-	type boardingAddress struct {
-		Address string `json:"address"`
-		Fee     uint64 `json:"fee"`
-	}
-
-	if lightning.sdkService == nil {
-		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
-	}
-	address, fee, err := lightning.BoardingAddress()
-	if err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
-	}
-
-	return responseDto{
-		Success: true,
-		Data: boardingAddress{
-			Address: address,
-			Fee:     fee.Uint64(),
 		},
 	}
 }
 
-// GetParseInput handles the GET request to parse a text input.
-func (lightning *Lightning) GetParseInput(r *http.Request) interface{} {
-	type parseInputBolt11Invoice struct {
-		Bolt11      string  `json:"bolt11"`
-		Description *string `json:"description,omitempty"`
-		AmountMsat  *uint64 `json:"amountMsat,omitempty"`
+// GetListPayments handles the GET request to list payments.
+func (lightning *Lightning) GetListPayments(_ *http.Request) interface{} {
+	payments, err := lightning.ListPayments()
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
+	return responseDto{Success: true, Data: payments}
+}
 
-	type parseInputBolt11Response struct {
-		Type    string                  `json:"type"`
-		Invoice parseInputBolt11Invoice `json:"invoice"`
+// GetBoardingAddress handles the GET request to retrieve a bitcoin boarding address.
+func (lightning *Lightning) GetBoardingAddress(_ *http.Request) interface{} {
+	address, err := lightning.BoardingAddress()
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
+	return responseDto{Success: true, Data: address}
+}
 
-	if lightning.sdkService == nil {
-		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
+// GetParsePaymentInput handles the GET request to parse a payment input.
+func (lightning *Lightning) GetParsePaymentInput(r *http.Request) interface{} {
+	input, err := lightning.ParsePaymentInput(r.URL.Query().Get("s"))
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
-	input, err := lightning.ParseInput(r.URL.Query().Get("s"))
+	return responseDto{Success: true, Data: input}
+}
+
+// GetReceivePayment handles the GET request to create a receive invoice.
+func (lightning *Lightning) GetReceivePayment(r *http.Request) interface{} {
+	amountSat, err := strconv.ParseUint(r.URL.Query().Get("amountSat"), 10, 64)
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
-	switch typed := input.(type) {
-	case breez_sdk_spark.InputTypeBolt11Invoice:
-		return responseDto{
-			Success: true,
-			Data: parseInputBolt11Response{
-				Type: "bolt11",
-				Invoice: parseInputBolt11Invoice{
-					Bolt11:      typed.Field0.Invoice.Bolt11,
-					Description: typed.Field0.Description,
-					AmountMsat:  typed.Field0.AmountMsat,
-				},
-			},
-		}
-	}
-
-	return responseDto{Success: false, ErrorMessage: "Unsupported input type"}
-}
-
-type receivePaymentResponse struct {
-	Invoice string `json:"invoice"`
-	// Fee to pay to receive the payment
-	// Denominated in sats or token base units
-	Fee uint64 `json:"fee"`
-}
-
-// PostReceivePayment handles the POST request to receive a payment.
-func (lightning *Lightning) PostReceivePayment(r *http.Request) interface{} {
-	if lightning.sdkService == nil {
-		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
-	}
-
-	var jsonBody receivePaymentRequestDto
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
-	}
-
-	receiveResponse, err := lightning.ReceivePayment(jsonBody.AmountMsat/1000, jsonBody.Description)
+	receiveResponse, err := lightning.ReceivePayment(amountSat, r.URL.Query().Get("description"))
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
-	return responseDto{Success: true, Data: receivePaymentResponse{Invoice: receiveResponse.PaymentRequest, Fee: receiveResponse.Fee.Uint64()}}
+	return responseDto{Success: true, Data: receiveResponse}
 }
 
 // PostSendPayment handles the POST request to send a payment.
 func (lightning *Lightning) PostSendPayment(r *http.Request) interface{} {
-	if lightning.sdkService == nil {
-		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
-	}
-
-	var jsonBody sendPaymentRequestDto
+	var jsonBody sendPaymentRequest
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
 	var amount *uint64
-	if jsonBody.AmountMsat != nil {
-		amount = jsonBody.AmountMsat
+	if jsonBody.AmountSat != nil {
+		amount = jsonBody.AmountSat
 	}
 
 	if err := lightning.SendPayment(jsonBody.Bolt11, amount); err != nil {
@@ -351,58 +161,4 @@ func (lightning *Lightning) PostSendPayment(r *http.Request) interface{} {
 	}
 
 	return responseDto{Success: true}
-}
-
-// GetDiagnosticData handles the GET request to retrieve the SDK diagnostic data.
-func (lightning *Lightning) GetDiagnosticData(_ *http.Request) interface{} {
-	// if lightning.sdkService == nil {
-	return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
-	// }
-
-	// diagnosticData, err := lightning.sdkService.GenerateDiagnosticData()
-	// if err != nil {
-	// 	return responseDto{Success: false, ErrorMessage: err.Error()}
-	// }
-
-	// return responseDto{Success: true, Data: toDiagnosticDataDto(diagnosticData)}
-}
-
-// PostReportPaymentFailure handles the POST request to report a payment failure.
-func (lightning *Lightning) PostReportPaymentFailure(r *http.Request) interface{} {
-	// if lightning.sdkService == nil {
-	return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
-	// }
-
-	// var jsonBody reportPaymentFailureRequestDto
-	// if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-	// 	return responseDto{Success: false, ErrorMessage: err.Error()}
-	// }
-
-	// err := lightning.sdkService.ReportIssue(toReportIssueRequest(jsonBody))
-	// if err != nil {
-	// 	return responseDto{Success: false, ErrorMessage: err.Error()}
-	// }
-
-	// return responseDto{Success: true}
-}
-
-// GetServiceHealthCheck handles the GET request to retrieve the SDK service health check.
-func (lightning *Lightning) GetServiceHealthCheck(_ *http.Request) interface{} {
-	// breezApiKey, err := lightning.getBreezApiKey()
-	// if err != nil {
-	// 	return responseDto{Success: false, ErrorMessage: err.Error()}
-	// }
-
-	// response, err := breez_sdk.ServiceHealthCheck(*breezApiKey)
-	// if err != nil {
-	// 	return responseDto{Success: false, ErrorMessage: err.Error()}
-	// }
-
-	// dto, err := toServiceHealthCheckResponseDto(response)
-	// if err != nil {
-	// 	return responseDto{Success: false, ErrorMessage: err.Error()}
-	// }
-
-	// return responseDto{Success: true, Data: dto}
-	return responseDto{Success: false, ErrorMessage: "health check not available"}
 }

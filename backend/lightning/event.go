@@ -57,22 +57,3 @@ func (lightning *Lightning) OnEvent(e breez_sdk_spark.SdkEvent) {
 		lightning.log.Infof("Spark event: %v", e)
 	}
 }
-
-// // OnEvent receives an event from the sdk and handles it.
-// // Implementation of breez_sdk.EventListener.
-// func (lightning *Lightning) OnEvent(breezEvent breez_sdk.BreezEvent) {
-// 	lightning.log.Infof("BreezSDK: %#v", breezEvent)
-
-// 	switch breezEvent.(type) {
-// 	case breez_sdk.BreezEventInvoicePaid, breez_sdk.BreezEventPaymentFailed, breez_sdk.BreezEventPaymentSucceed:
-// 		lightning.Notify(observable.Event{
-// 			Subject: "lightning/list-payments",
-// 			Action:  action.Reload,
-// 		})
-// 	case breez_sdk.BreezEventSynced:
-// 		lightning.Notify(observable.Event{
-// 			Subject: "lightning/node-info",
-// 			Action:  action.Reload,
-// 		})
-// 	}
-// }

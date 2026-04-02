@@ -6,16 +6,13 @@ import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../.
 import { View, ViewButtons, ViewContent } from '../../../components/view/view';
 import { Button, Input, OptionalLabel } from '../../../components/forms';
 import {
-  Payment,
-  PaymentStatus,
-  PaymentType,
-  ReceivePaymentResponse,
-  SdkError,
+  TLightningPayment,
+  TReceivePaymentResponse,
+  TSdkError,
   getListPayments,
-  postReceivePayment,
+  getReceivePayment,
   subscribeListPayments
 } from '../../../api/lightning';
-import { toMsat } from '../../../utils/conversion';
 import { Status } from '../../../components/status/status';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { unsubscribe } from '../../../utils/subscriptions';
@@ -36,10 +33,10 @@ export function Receive() {
   const [invoiceAmount, setInvoiceAmount] = useState<TAmountWithConversions>();
   const [description, setDescription] = useState<string>('');
   const [disableConfirm, setDisableConfirm] = useState(true);
-  const [receivePaymentResponse, setReceivePaymentResponse] = useState<ReceivePaymentResponse>();
+  const [receivePaymentResponse, setReceivePaymentResponse] = useState<TReceivePaymentResponse>();
   const [receiveError, setReceiveError] = useState<string>();
   const [step, setStep] = useState<TStep>('create-invoice');
-  const [payments, setPayments] = useState<Payment[]>();
+  const [payments, setPayments] = useState<TLightningPayment[]>();
 
   const newInvoice = useCallback(() => {
     setInputSatsText('');
@@ -79,7 +76,7 @@ export function Receive() {
   }, []);
 
   const onPaymentsChange = useCallback(() => {
-    getListPayments({ typeFilter: [PaymentType.RECEIVE], limit: 5 }).then((payments) => setPayments(payments));
+    getListPayments().then((payments) => setPayments(payments));
   }, []);
 
   useEffect(() => {
@@ -109,8 +106,8 @@ export function Receive() {
 
   useEffect(() => {
     if (payments && receivePaymentResponse && step === 'invoice') {
-      const payment = payments.find((payment) => payment.invoice === receivePaymentResponse.invoice);
-      if (payment?.status === PaymentStatus.COMPLETED) {
+      const payment = payments.find((payment) => payment.type === 'receive' && payment.invoice === receivePaymentResponse.invoice);
+      if (payment?.status === 'complete') {
         setStep('success');
       }
     }
@@ -120,15 +117,15 @@ export function Receive() {
     setReceiveError(undefined);
     setStep('wait');
     try {
-      const receivePaymentResponse = await postReceivePayment({
-        amountMsat: toMsat(Number(inputSatsText)),
+      const receivePaymentResponse = await getReceivePayment({
+        amountSat: Number(inputSatsText),
         description,
       });
       setReceivePaymentResponse(receivePaymentResponse);
       setStep('invoice');
     } catch (e) {
       setStep('create-invoice');
-      if (e instanceof SdkError) {
+      if (e instanceof TSdkError) {
         setReceiveError(e.message);
       } else {
         setReceiveError(String(e));

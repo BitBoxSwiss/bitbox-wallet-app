@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Payment as IPayment } from '@/api/lightning';
-import { PaymentStatus, PaymentType } from '@/api/lightning';
+import type { TLightningPayment } from '@/api/lightning';
 import { Dialog } from '@/components/dialog/dialog';
 import { getTxSign } from '@/utils/transaction';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
@@ -14,7 +13,7 @@ import styles from '@/components/transactions/components/tx-detail-dialog/tx-det
 type TTxDetailsDialog = {
   open: boolean;
   onClose: () => void;
-  payment: IPayment;
+  payment: TLightningPayment;
   sign: string;
 };
 
@@ -67,11 +66,11 @@ export const PaymentDetailsDialog = ({
           </TxDetailRow>
           <TxDetailRow>
             <p className={styles.label}>Type</p>
-            <span>{payment.paymentType === PaymentType.RECEIVE ? 'receive' : 'send'}</span>
+            <span>{payment.type}</span>
           </TxDetailRow>
           <TxDetailRow>
             <p className={styles.label}>Status</p>
-            <span>{payment.status === PaymentStatus.COMPLETED ? 'complete' : payment.status === PaymentStatus.FAILED ? 'failed' : 'pending'}</span>
+            <span>{payment.status}</span>
           </TxDetailRow>
           {payment.paymentPreimage && (
             <TxDetailRow>
@@ -93,7 +92,7 @@ export const PaymentDetailsDialog = ({
 
 type TTransactionDetails = {
   id: string | null;
-  payment?: IPayment;
+  payment?: TLightningPayment;
   onClose: () => void;
 };
 
@@ -122,7 +121,7 @@ export const PaymentDetails = ({
         onClose();
       }}
       payment={payment}
-      sign={getTxSign(payment.paymentType === PaymentType.RECEIVE ? 'receive' : 'send')}
+      sign={getTxSign(payment.type)}
     />
   );
 };

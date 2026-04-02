@@ -6,9 +6,8 @@ import * as accountApi from '../../../api/account';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { Button, Input } from '../../../components/forms';
-import { InputType, InputTypeVariant, LnInvoice, SdkError, getParseInput, postSendPayment } from '../../../api/lightning';
+import { TInputType, TInputTypeVariant, TLightningInvoice, TSdkError, getParsePaymentInput, postSendPayment } from '../../../api/lightning';
 import { SimpleMarkup } from '../../../utils/markup';
-import { toMsat, toSat } from '../../../utils/conversion';
 import { Amount } from '../../../components/amount/amount';
 import { Status } from '../../../components/status/status';
 import { ScanQRVideo } from '../../account/send/components/inputs/scan-qr-video';
@@ -35,7 +34,7 @@ const SendingSpinner = () => {
 };
 
 type InvoiceInputProps = {
-  invoice: LnInvoice;
+  invoice: TLightningInvoice;
 };
 
 const InvoiceInput = ({ invoice }: InvoiceInputProps) => {
@@ -43,7 +42,7 @@ const InvoiceInput = ({ invoice }: InvoiceInputProps) => {
   const [invoiceAmount, setInvoiceAmount] = useState<accountApi.TAmountWithConversions>();
 
   useEffect(() => {
-    getBtcSatsAmount(toSat(invoice.amountMsat || 0).toString()).then((response) => {
+    getBtcSatsAmount((invoice.amountSat || 0).toString()).then((response) => {
       if (response.success) {
         setInvoiceAmount(response.amount);
       }
@@ -71,12 +70,12 @@ const InvoiceInput = ({ invoice }: InvoiceInputProps) => {
 };
 
 type PaymentInputProps = {
-  input: InputType;
+  input: TInputType;
 };
 
 const PaymentInput = ({ input }: PaymentInputProps) => {
   switch (input.type) {
-  case InputTypeVariant.BOLT11:
+  case TInputTypeVariant.BOLT11:
     return (
       <InvoiceInput invoice={input.invoice} />
     );
@@ -88,7 +87,7 @@ type SendWorkflowProps = {
   onInvoiceInput: (input: string) => void;
   onCustomAmount: (input: number) => void;
   onSend: () => void;
-  parsedInput?: InputType;
+  parsedInput?: TInputType;
   inputError?: string;
   customAmount?: number;
   step: TStep;
@@ -151,7 +150,7 @@ const SendWorkflow = ({
       </View>
     );
   case 'edit-invoice':
-    if (parsedInput?.type !== InputTypeVariant.BOLT11) {
+    if (parsedInput?.type !== TInputTypeVariant.BOLT11) {
       return (
         <View fitContent minHeight="100%">
           Invoices without amount are currently only supported for BOLT11 type invoices
@@ -238,7 +237,7 @@ export const Send = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState<TStep>('select-invoice');
-  const [paymentDetails, setPaymentDetails] = useState<InputType>();
+  const [paymentDetails, setPaymentDetails] = useState<TInputType>();
   const [customAmount, setCustomAmount] = useState<number>();
   const [rawInputError, setRawInputError] = useState<string>();
   const [sendError, setSendError] = useState<string>();
@@ -258,15 +257,15 @@ export const Send = () => {
     }
   };
 
-  const parseInput = useCallback(async (rawInput: string) => {
+  const parsePaymentInput = useCallback(async (rawInput: string) => {
     setRawInputError(undefined);
     try {
-      const result = await getParseInput({ s: rawInput });
+      const result = await getParsePaymentInput({ s: rawInput });
       switch (result.type) {
-      case InputTypeVariant.BOLT11:
+      case TInputTypeVariant.BOLT11:
         setPaymentDetails(result);
         // if invoice has 0 amount or no amount given
-        if (!result.invoice.amountMsat) {
+        if (!result.invoice.amountSat) {
           setCustomAmount(0);
           setStep('edit-invoice');
           break;
@@ -277,7 +276,7 @@ export const Send = () => {
         setRawInputError('Invalid input');
       }
     } catch (e) {
-      if (e instanceof SdkError) {
+      if (e instanceof TSdkError) {
         setRawInputError(e.message);
       } else {
         setRawInputError(String(e));
@@ -290,11 +289,10 @@ export const Send = () => {
     setSendError(undefined);
     try {
       switch (paymentDetails?.type) {
-      case InputTypeVariant.BOLT11:
+      case TInputTypeVariant.BOLT11:
         await postSendPayment({
           bolt11: paymentDetails.invoice.bolt11,
-          // amountMsat is optional, if amount is missing the UI shows edit-invoice step for the user to enter a custom amountMsat which is passed here
-          amountMsat: customAmount ? toMsat(customAmount) : undefined
+          amountSat: customAmount || undefined
         });
         setStep('success');
         setTimeout(() => navigate('/lightning'), 1000);
@@ -302,7 +300,7 @@ export const Send = () => {
       }
     } catch (e) {
       setStep('select-invoice');
-      if (e instanceof SdkError) {
+      if (e instanceof TSdkError) {
         setSendError(e.message);
       } else {
         setSendError(String(e));
@@ -320,7 +318,7 @@ export const Send = () => {
           <Header title={<h2>{t('lightning.send.title')}</h2>} />
           <SendWorkflow
             onBack={back}
-            onInvoiceInput={parseInput}
+            onInvoiceInput={parsePaymentInput}
             onCustomAmount={setCustomAmount}
             onSend={sendPayment}
             parsedInput={paymentDetails}
