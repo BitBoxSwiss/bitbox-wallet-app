@@ -44,7 +44,7 @@
 
 .inputField {
     border: 1px solid var(--background-quaternary);
-    border-radius: 2px;
+    border-radius: var(--radius-xl);
     flex: 1;
     font-size: var(--size-default);
     font-weight: 400;
