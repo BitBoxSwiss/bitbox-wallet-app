@@ -133,6 +133,17 @@ Shared form components live in `src/components/forms/`. See the directory for av
 (`Button`, `Input`, `Select`, `Checkbox`, etc.) and their prop patterns. Validation is done in
 component state — no form library is used.
 
+### Keystore Connection Flows
+- Use the shared `connectKeystore()` + `KeystoreConnectPrompt` flow. Do not build page-local
+  connection state machines or duplicate prompt error UI.
+- Trigger `connectKeystore()` from the explicit user action that needs the device, following the
+  existing simple flows in `src/routes/account/sign-message/use-sign-message.ts`,
+  `src/routes/bitsurance/widget.tsx`, and `src/routes/market/pocket.tsx`.
+- Treat `connectKeystore()` failure as an early return. Do not add `wrongKeystore` handling in the
+  calling screen; that case is owned by the shared prompt and is not a `connectKeystore()`
+  response the caller should handle.
+- Do not add `try/catch` around `connectKeystore()` in normal frontend flows.
+
 ## Coding Style & Naming Conventions
 
 ### Go

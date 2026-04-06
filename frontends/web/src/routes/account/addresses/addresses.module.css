@@ -183,13 +183,8 @@
   margin-top: 0;
   padding: 0;
   text-align: left;
-  text-decoration: none;
+  text-decoration: none !important;
   width: auto;
-}
-
-.linkAction:hover,
-.linkAction:focus {
-  text-decoration: none;
 }
 
 .linkActionLabel {

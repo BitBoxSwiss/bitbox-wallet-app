@@ -454,7 +454,7 @@ export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId
   return apiPost(`account/${code}/eth-sign-wallet-connect-tx`, { send, chainId, tx });
 };
 
-type AddressSignResponse = {
+type TAddressSignResponse = {
   success: true;
   signature: string;
   address: string;
@@ -464,14 +464,34 @@ type AddressSignResponse = {
   errorCode?: 'userAbort' | 'wrongKeystore';
 };
 
-export const signAddress = (format: ScriptType | '', msg: string, code: AccountCode): Promise<AddressSignResponse> => {
-  return apiPost(`account/${code}/sign-address`, { format, msg, code });
+export const signBTCMessageUnusedAddress = (
+  code: AccountCode,
+  format: ScriptType | '',
+  msg: string,
+): Promise<TAddressSignResponse> => {
+  return apiPost(`account/${code}/btc-sign-message-unused-address`, { format, msg });
+};
+
+export const signBTCMessageForAddress = (
+  code: AccountCode,
+  addressID: string,
+  msg: string,
+): Promise<TAddressSignResponse> => {
+  return apiPost(`account/${code}/btc-sign-message-for-address`, { addressID, msg });
+};
+
+export const signETHMessageForAddress = (
+  code: AccountCode,
+  msg: string,
+): Promise<TAddressSignResponse> => {
+  return apiPost(`account/${code}/eth-sign-message-for-address`, { msg });
 };
 
 export type TUsedAddress = {
   address: string;
   addressID: string;
   addressType: 'receive' | 'change';
+  canSignMsg: boolean;
   lastUsed: string | null;
 };
 

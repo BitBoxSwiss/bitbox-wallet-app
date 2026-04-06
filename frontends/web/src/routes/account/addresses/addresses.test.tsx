@@ -48,6 +48,7 @@ const receiveAddress: accountApi.TUsedAddress = {
   address: 'bc1qreceiveusedaddress',
   addressID: 'receive-address-id',
   addressType: 'receive',
+  canSignMsg: true,
   lastUsed: '2025-01-12T10:00:00Z',
 };
 
@@ -55,6 +56,7 @@ const changeAddress: accountApi.TUsedAddress = {
   address: 'bc1qchangeusedaddress',
   addressID: 'change-address-id',
   addressType: 'change',
+  canSignMsg: true,
   lastUsed: null,
 };
 
@@ -68,15 +70,16 @@ const createDeferred = function<T>() {
 
 const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAccount[] = [mockAccount]) => {
   let setAccountsState: ((accounts: accountApi.TAccount[]) => void) | undefined;
+  const accountCode = initialAccounts[0]?.code ?? mockAccount.code;
 
   const RouteWrapper = () => {
     const [accounts, setAccounts] = useState(initialAccounts);
     setAccountsState = setAccounts;
     return (
       <Routes>
-        <Route path="/account/:code/addresses" element={<Addresses code={mockAccount.code} accounts={accounts} devices={{}} />} />
-        <Route path="/account/:code/addresses/:addressID" element={<Addresses code={mockAccount.code} accounts={accounts} devices={{}} />} />
-        <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={mockAccount.code} accounts={accounts} devices={{}} />} />
+        <Route path="/account/:code/addresses" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
+        <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
+        <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
       </Routes>
     );
   };
@@ -259,6 +262,7 @@ describe('routes/account/addresses', () => {
       expect(verifyAddressSpy).toHaveBeenCalledWith(mockAccount.code, receiveAddress.addressID);
     });
     await screen.findByRole('button', { name: 'Copy address' });
+    await screen.findByRole('button', { name: 'Sign message' });
   });
 
   it('shows receive-style verify dialog while secure verification is in progress', async () => {

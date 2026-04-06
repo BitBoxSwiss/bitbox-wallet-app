@@ -78,7 +78,7 @@ func makeKeystore(
 			require.Equal(t, dummyMsg, string(message))
 			return []byte(dummySignature), nil
 		},
-		SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+		SignETHMessageFunc: func(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 			require.Equal(t, dummyMsg, string(message))
 			return []byte(dummySignature), nil
 		},

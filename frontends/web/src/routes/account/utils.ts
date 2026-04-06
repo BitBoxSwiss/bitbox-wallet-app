@@ -50,6 +50,19 @@ export const isEthereumBased = (coinCode: CoinCode): boolean => {
   return coinCode === 'eth' || coinCode === 'sepeth' || coinCode.startsWith('eth-erc20-');
 };
 
+export const isMessageSigningSupported = (coinCode: CoinCode): boolean => {
+  switch (coinCode) {
+  case 'btc':
+  case 'tbtc':
+  case 'eth':
+  case 'sepeth':
+  case 'rbtc':
+    return true;
+  default:
+    return false;
+  }
+};
+
 export const getAddressURIPrefix = (coinCode?: CoinCode): string => {
   switch (coinCode) {
   case 'btc':
@@ -139,6 +152,15 @@ export const isAmbiguousName = (
   return keystoreNames.filter(keystore => keystore.keystore.name === name).length > 1;
 };
 
+/** Matches `/account/<code>/addresses/<addressID>/verify`. */
+const ADDRESS_VERIFY_ROUTE_RE = /^\/account\/[^/]+\/addresses\/[^/]+\/verify$/;
+
+export const isAddressVerifyRoute = (pathname: string): boolean =>
+  ADDRESS_VERIFY_ROUTE_RE.test(pathname);
+
+/** Query param used to skip device verification on the address verify route. */
+export const SKIP_DEVICE_VERIFICATION_PARAM = 'skipDeviceVerification';
+
 export type TAccountCoinMap = {
   [code in CoinCode]?: TAccount[];
 };
@@ -151,12 +173,3 @@ export const getAccountsPerCoin = (accounts: TAccount[]): TAccountCoinMap => {
     return accountPerCoin;
   }, {});
 };
-
-/** Matches `/account/<code>/addresses/<addressID>/verify`. */
-const ADDRESS_VERIFY_ROUTE_RE = /^\/account\/[^/]+\/addresses\/[^/]+\/verify$/;
-
-export const isAddressVerifyRoute = (pathname: string): boolean =>
-  ADDRESS_VERIFY_ROUTE_RE.test(pathname);
-
-/** Query param used to skip device verification on the address verify route. */
-export const SKIP_DEVICE_VERIFICATION_PARAM = 'skipDeviceVerification';

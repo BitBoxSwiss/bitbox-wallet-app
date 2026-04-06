@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSync } from '@/hooks/api';
 import { TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
-import { findAccount, isBitcoinBased } from '@/routes/account/utils';
+import { findAccount, isBitcoinBased, isMessageSigningSupported } from '@/routes/account/utils';
 import { TDevices } from '@/api/devices';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
@@ -14,7 +14,7 @@ import { GlobalBanners } from '@/components/banners';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
-import { QRCodeLight, QRCodeDark, OutlinedUploadDark, OutlinedUploadLight, OutlinedUnorderedListDark, OutlinedUnorderedListLight } from '@/components/icon';
+import { QRCodeLight, QRCodeDark, OutlinedUploadDark, OutlinedUploadLight, OutlinedUnorderedListDark, OutlinedUnorderedListLight, OutlinedFileProtectDark, OutlinedFileProtectLight } from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
 import { alertUser } from '@/components/alert/Alert';
 import { statusChanged } from '@/api/accountsync';
@@ -68,6 +68,7 @@ export const Info = ({
   };
 
   const isBtcBased = isBitcoinBased(account.coinCode);
+  const canSignMessage = isMessageSigningSupported(account.coinCode);
 
   return (
     <Main>
@@ -100,6 +101,19 @@ export const Info = ({
                 <span>{t('accountInfo.viewAccountDetails')}</span>
               </div>
             </ActionableItem>
+            {canSignMessage && (
+              <ActionableItem
+                onClick={() => navigate(`/account/${code}/sign-message`)}
+              >
+                <div className={style.actionItem}>
+                  {isDarkMode ?
+                    <OutlinedFileProtectLight className={style.actionIcon} aria-hidden alt="" /> :
+                    <OutlinedFileProtectDark className={style.actionIcon} aria-hidden alt="" />
+                  }
+                  <span>{t('signMessage.signMessage')}</span>
+                </div>
+              </ActionableItem>
+            )}
             {isBtcBased && (
               <ActionableItem
                 onClick={() => navigate(`/account/${code}/addresses`)}

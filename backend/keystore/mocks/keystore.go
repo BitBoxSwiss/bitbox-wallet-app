@@ -54,7 +54,7 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coinMoqParam coin.Code) ([]byte, error) {
 //				panic("mock out the SignBTCMessage method")
 //			},
-//			SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+//			SignETHMessageFunc: func(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 //				panic("mock out the SignETHMessage method")
 //			},
 //			SignETHTypedMessageFunc: func(chainID uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
@@ -131,7 +131,7 @@ type KeystoreMock struct {
 	SignBTCMessageFunc func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coinMoqParam coin.Code) ([]byte, error)
 
 	// SignETHMessageFunc mocks the SignETHMessage method.
-	SignETHMessageFunc func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
+	SignETHMessageFunc func(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
 
 	// SignETHTypedMessageFunc mocks the SignETHTypedMessage method.
 	SignETHTypedMessageFunc func(chainID uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
@@ -225,6 +225,8 @@ type KeystoreMock struct {
 		}
 		// SignETHMessage holds details about calls to the SignETHMessage method.
 		SignETHMessage []struct {
+			// ChainID is the chainID argument value.
+			ChainID uint64
 			// Message is the message argument value.
 			Message []byte
 			// Keypath is the keypath argument value.
@@ -647,21 +649,23 @@ func (mock *KeystoreMock) SignBTCMessageCalls() []struct {
 }
 
 // SignETHMessage calls SignETHMessageFunc.
-func (mock *KeystoreMock) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+func (mock *KeystoreMock) SignETHMessage(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	if mock.SignETHMessageFunc == nil {
 		panic("KeystoreMock.SignETHMessageFunc: method is nil but Keystore.SignETHMessage was just called")
 	}
 	callInfo := struct {
+		ChainID uint64
 		Message []byte
 		Keypath signing.AbsoluteKeypath
 	}{
+		ChainID: chainID,
 		Message: message,
 		Keypath: keypath,
 	}
 	mock.lockSignETHMessage.Lock()
 	mock.calls.SignETHMessage = append(mock.calls.SignETHMessage, callInfo)
 	mock.lockSignETHMessage.Unlock()
-	return mock.SignETHMessageFunc(message, keypath)
+	return mock.SignETHMessageFunc(chainID, message, keypath)
 }
 
 // SignETHMessageCalls gets all the calls that were made to SignETHMessage.
@@ -669,10 +673,12 @@ func (mock *KeystoreMock) SignETHMessage(message []byte, keypath signing.Absolut
 //
 //	len(mockedKeystore.SignETHMessageCalls())
 func (mock *KeystoreMock) SignETHMessageCalls() []struct {
+	ChainID uint64
 	Message []byte
 	Keypath signing.AbsoluteKeypath
 } {
 	var calls []struct {
+		ChainID uint64
 		Message []byte
 		Keypath signing.AbsoluteKeypath
 	}

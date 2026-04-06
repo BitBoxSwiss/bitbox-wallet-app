@@ -32,8 +32,8 @@
     "exportTransactions": "Export transaction history",
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
-    "scriptType": "Script type",
     "descriptorWarning": "To ensure smooth compatibility with other wallets, apps, or services, please copy the entire descriptor. Selecting and copying only the xpub might cause the account to be imported with an incorrect script type, which could lead to issues.",
+    "scriptType": "Script type",
     "title": "Account information",
     "usedAddresses": "View used addresses",
     "verify": "Verify on device",
@@ -96,7 +96,7 @@
     "notFound": "Address not found.",
     "searchPlaceholder": "Search address",
     "skipDeviceVerification": "Skip device verification",
-    "skipVerifyBody": "Not verifying the address on the device can result in copying an address that doesn't belong to your BitBox.",
+    "skipVerifyBody": "Not verifying the address on the device can result in copying an address that doesn’t belong to your BitBox.",
     "skipVerifyConfirm": "Yes, skip verification",
     "skipVerifyQuestion": "Are you sure you want to proceed?",
     "skipVerifyTitle": "Skip device verification?",
@@ -1906,6 +1906,20 @@
     "insurance": "Insurance",
     "leave": "Leave",
     "settings": "Settings"
+  },
+  "signMessage": {
+    "addressLabel": "Address",
+    "emptyMessage": "Please enter a message to sign.",
+    "error": "Failed to sign message. Please try again.",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Enter the message to sign",
+    "resultDescription": "Message signed",
+    "signButton": "Sign on device",
+    "signMessage": "Sign message",
+    "signOnBitBoxSubtitle": "Sign message on BitBox",
+    "signatureLabel": "Signature",
+    "signing": "Please confirm the message on your device.",
+    "unsupportedTaproot": "Message signing is not supported for Taproot addresses yet. Please go back and change the address type."
   },
   "success": {
     "create": {
