@@ -719,9 +719,9 @@ func computePaymentRequestSighash(paymentRequest *paymentrequest.Request, slip44
 
 	// memos
 	_ = wire.WriteVarInt(sighash, 0, uint64(len(paymentRequest.Memos)))
-	for _, textMemo := range paymentRequest.Memos {
+	for _, memo := range paymentRequest.Memos {
 		_ = binary.Write(sighash, binary.LittleEndian, uint32(1))
-		hashDataLenPrefixed(sighash, []byte(textMemo.Note))
+		hashDataLenPrefixed(sighash, []byte(memo.Text.Note))
 	}
 
 	// coinType
