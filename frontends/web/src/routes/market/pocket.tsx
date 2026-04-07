@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { createRef, useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
@@ -20,6 +20,7 @@ import { MarketGuide } from './guide';
 import { convertScriptType } from '@/utils/request-addess';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
+import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
 import style from './iframe.module.css';
 
 type TProps = {
@@ -38,20 +39,16 @@ export const Pocket = ({
   const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(code));
   const [fwRequiredDialog, setFwRequiredDialog] = useState(false);
 
-  const [height, setHeight] = useState(0);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
   const [blocking, setBlocking] = useState(false);
-  const [agreedTerms, setAgreedTerms] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
   const [iframeURL, setIframeUrl] = useState('');
   const config = useLoad(getConfig);
   const accountInfo = useLoad(getInfo(code));
 
-  const ref = createRef<HTMLDivElement>();
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  let signing = false;
-  let resizeTimerID: any = undefined;
+  const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(!!config?.frontend?.skipPocketDisclaimer);
+  const signingRef = useRef(false);
 
   useEffect(() => {
     getPocketURL(action).then(response => {
@@ -77,33 +74,11 @@ export const Pocket = ({
   }, [action, hasPaymentRequestResponse, t]);
 
   useEffect(() => {
-    if (config) {
-      setAgreedTerms(config.frontend.skipPocketDisclaimer);
-    }
-  }, [config]);
-
-  useEffect(() => {
-    onResize();
-    window.addEventListener('resize', onResize);
     window.addEventListener('message', onMessage);
-
     return () => {
-      window.removeEventListener('resize', onResize);
       window.removeEventListener('message', onMessage);
     };
   });
-
-  const onResize = () => {
-    if (resizeTimerID) {
-      clearTimeout(resizeTimerID);
-    }
-    resizeTimerID = setTimeout(() => {
-      if (!ref.current) {
-        return;
-      }
-      setHeight(ref.current.offsetHeight);
-    }, 200);
-  };
 
   const sendAddress = (address: string, sig: string, correlationId?: string) => {
     const { current } = iframeRef;
@@ -154,7 +129,7 @@ export const Pocket = ({
   };
 
   const handleRequestAddress = (message: RequestAddressV0Message) => {
-    signing = true;
+    signingRef.current = true;
     const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
     signAddress(
@@ -162,7 +137,7 @@ export const Pocket = ({
       withMessageSignature,
       code)
       .then(response => {
-        signing = false;
+        signingRef.current = false;
         if (response.success) {
           sendAddress(response.address, response.signature, message.correlationId);
         } else {
@@ -296,7 +271,7 @@ export const Pocket = ({
       const message = parseMessage(m.data);
       switch (message.type) {
       case V0MessageType.RequestAddress:
-        if (!signing) {
+        if (!signingRef.current) {
           handleRequestAddress(message);
         }
         break;
@@ -332,7 +307,7 @@ export const Pocket = ({
             </h2>
           } />
         </div>
-        <div ref={ref} className={style.container}>
+        <div ref={containerRef} className={style.container}>
           { !agreedTerms ? (
             <PocketTerms
               onAgreedTerms={() => setAgreedTerms(true)}
@@ -346,7 +321,7 @@ export const Pocket = ({
               )}
               <iframe
                 onLoad={() => {
-                  setIframeLoaded(true);
+                  onIframeLoad();
                 }}
                 ref={iframeRef}
                 title="Pocket"
