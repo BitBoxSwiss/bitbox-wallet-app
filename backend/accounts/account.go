@@ -36,11 +36,37 @@ type TextMemo struct {
 	Note string
 }
 
+// EthAddressDerivation contains the keypath used to verify an ETH receive address.
+type EthAddressDerivation struct {
+	Keypath []uint32
+}
+
+// BtcAddressDerivation contains the data needed to verify a BTC-family receive address.
+type BtcAddressDerivation struct {
+	Keypath    []uint32
+	ScriptType signing.ScriptType
+}
+
+// CoinPurchaseMemo represents a slip-0024 coin purchase memo.
+// AddressDerivation is local app metadata and not part of the signed payload.
+type CoinPurchaseMemo struct {
+	CoinType             uint32
+	Amount               string
+	Address              string
+	EthAddressDerivation *EthAddressDerivation
+	BtcAddressDerivation *BtcAddressDerivation
+}
+
+// PaymentRequestMemo is one payment-request memo.
+type PaymentRequestMemo struct {
+	Text         *TextMemo
+	CoinPurchase *CoinPurchaseMemo
+}
+
 // PaymentRequest contains the data needed to fulfill a slip-0024 payment request.
-// Text memos are the only memo type supported, currently.
 type PaymentRequest struct {
 	RecipientName string
-	Memos         []TextMemo
+	Memos         []PaymentRequestMemo
 	Nonce         []byte
 	TotalAmount   uint64
 	Signature     []byte

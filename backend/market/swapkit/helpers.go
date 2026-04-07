@@ -3,8 +3,10 @@ package swapkit
 import (
 	"context"
 	"encoding/json"
+	"math/big"
 	"strings"
 
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
@@ -26,8 +28,6 @@ var swapkitAssetByCoinCode = map[string]string{
 	"eth-erc20-dai0x6b17": "ETH.DAI-0x6b175474e89094c44da98b954eedeac495271d0f",
 }
 
-const apiKey = "0722e09f-9d3f-4817-a870-069848d03ee9"
-
 // ErrInvalidRequest is returned when the quote request is invalid, for example due to missing or invalid fields.
 const ErrInvalidRequest errp.ErrorCode = "invalidRequest"
 
@@ -37,29 +37,46 @@ func assetFromCoinCode(coinCode string) (string, bool) {
 	return asset, ok
 }
 
-func newQuoteRequestFromCoinCodes(sellCoinCode, buyCoinCode, sellAmount string, providers []string) (*QuoteRequest, *QuoteError) {
+// FormatAmount converts a user-entered amount from the coin's display unit into the decimal string
+// expected by SwapKit.
+func FormatAmount(coin coinpkg.Coin, amount string) (string, error) {
+	parsedAmount, err := coin.ParseAmount(amount)
+	if err != nil {
+		return "", err
+	}
+	decimals := int(coin.Decimals(false))
+	rat := new(big.Rat).SetFrac(parsedAmount.BigInt(), coinpkg.DecimalsExp(coin))
+	formattedAmount := rat.FloatString(decimals)
+	formattedAmount = strings.TrimRight(strings.TrimRight(formattedAmount, "0"), ".")
+	if formattedAmount == "" {
+		return "0", nil
+	}
+	return formattedAmount, nil
+}
+
+func newQuoteRequestFromCoinCodes(sellCoinCode, buyCoinCode, sellAmount string, providers []string) (*QuoteRequest, *APIError) {
 	if strings.TrimSpace(sellCoinCode) == "" {
-		return nil, &QuoteError{
+		return nil, &APIError{
 			ErrorCode: ErrInvalidRequest,
 			Message:   "Missing sellCoinCode.",
 		}
 	}
 	if strings.TrimSpace(buyCoinCode) == "" {
-		return nil, &QuoteError{
+		return nil, &APIError{
 			ErrorCode: ErrInvalidRequest,
 			Message:   "Missing buyCoinCode.",
 		}
 	}
 	sellAsset, ok := assetFromCoinCode(sellCoinCode)
 	if !ok {
-		return nil, &QuoteError{
+		return nil, &APIError{
 			ErrorCode: ErrInvalidRequest,
 			Message:   "Unsupported sell asset.",
 		}
 	}
 	buyAsset, ok := assetFromCoinCode(buyCoinCode)
 	if !ok {
-		return nil, &QuoteError{
+		return nil, &APIError{
 			ErrorCode: ErrInvalidRequest,
 			Message:   "Unsupported buy asset.",
 		}
@@ -72,24 +89,64 @@ func newQuoteRequestFromCoinCodes(sellCoinCode, buyCoinCode, sellAmount string, 
 	}, nil
 }
 
-// NewQuoteFromCoinCode validates the provided coin codes, fetches a quote, and maps structured API errors.
-func NewQuoteFromCoinCode(ctx context.Context, sellCoinCode, buyCoinCode, sellAmount string) (*QuoteResponse, *QuoteError) {
-	quoteRequest, quoteError := newQuoteRequestFromCoinCodes(
+func newSwapRequestFromCoinCodes(
+	sellCoinCode, buyCoinCode, sellAmount, routeID, sourceAddress, destinationAddress string,
+) (*SwapRequest, *APIError) {
+	if strings.TrimSpace(routeID) == "" {
+		return nil, &APIError{
+			ErrorCode: ErrInvalidRequest,
+			Message:   "Missing routeId.",
+		}
+	}
+	if strings.TrimSpace(sourceAddress) == "" {
+		return nil, &APIError{
+			ErrorCode: ErrInvalidRequest,
+			Message:   "Missing sourceAddress.",
+		}
+	}
+	if strings.TrimSpace(destinationAddress) == "" {
+		return nil, &APIError{
+			ErrorCode: ErrInvalidRequest,
+			Message:   "Missing destinationAddress.",
+		}
+	}
+	_, apiError := newQuoteRequestFromCoinCodes(
 		sellCoinCode,
 		buyCoinCode,
 		sellAmount,
 		[]string{"NEAR"},
 	)
-	if quoteError != nil {
-		return nil, quoteError
+	if apiError != nil {
+		return nil, apiError
+	}
+	return &SwapRequest{
+		RouteID:             routeID,
+		SourceAddress:       sourceAddress,
+		DestinationAddress:  destinationAddress,
+		DisableBalanceCheck: true,
+		DisableEstimate:     true,
+		DisableBuildTx:      true,
+	}, nil
+}
+
+// NewQuoteFromCoinCode validates the provided coin codes, fetches a quote, and maps structured API errors.
+func NewQuoteFromCoinCode(ctx context.Context, sellCoinCode, buyCoinCode, sellAmount string) (*QuoteResponse, *APIError) {
+	quoteRequest, apiError := newQuoteRequestFromCoinCodes(
+		sellCoinCode,
+		buyCoinCode,
+		sellAmount,
+		[]string{"NEAR"},
+	)
+	if apiError != nil {
+		return nil, apiError
 	}
 
-	quoteResponse, err := NewClient(apiKey).Quote(ctx, quoteRequest)
+	quoteResponse, err := NewClient().Quote(ctx, quoteRequest)
 	if err != nil {
-		if quoteError, ok := quoteErrorFromError(err); ok {
-			return nil, quoteError
+		if apiError, ok := apiErrorFromError(err); ok {
+			return nil, apiError
 		}
-		return nil, &QuoteError{
+		return nil, &APIError{
 			ErrorCode: errp.ErrorCode("unexpectedError"),
 			Message:   err.Error(),
 		}
@@ -97,11 +154,42 @@ func NewQuoteFromCoinCode(ctx context.Context, sellCoinCode, buyCoinCode, sellAm
 	return quoteResponse, nil
 }
 
-// quoteErrorFromError extracts a structured quote error from a SwapKit client error.
-// It parses the json payload from the error message and returns a QuoteError if successful.
-// These are the valid errors returned:
-// https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote#quote-error-schema
-func quoteErrorFromError(err error) (*QuoteError, bool) {
+// NewSwap validates the provided coin codes, creates a swap, and maps structured API errors.
+func NewSwap(
+	ctx context.Context,
+	sellCoinCode,
+	buyCoinCode,
+	sellAmount,
+	routeID,
+	sourceAddress,
+	destinationAddress string,
+) (*SwapResponse, *APIError) {
+	swapRequest, apiError := newSwapRequestFromCoinCodes(
+		sellCoinCode,
+		buyCoinCode,
+		sellAmount,
+		routeID,
+		sourceAddress,
+		destinationAddress,
+	)
+	if apiError != nil {
+		return nil, apiError
+	}
+	swapResponse, err := NewClient().Swap(ctx, swapRequest)
+	if err != nil {
+		if apiError, ok := apiErrorFromError(err); ok {
+			return nil, apiError
+		}
+		return nil, &APIError{
+			ErrorCode: errp.ErrorCode("unexpectedError"),
+			Message:   err.Error(),
+		}
+	}
+	return swapResponse, nil
+}
+
+// apiErrorFromError extracts a structured SwapKit API error from a client error.
+func apiErrorFromError(err error) (*APIError, bool) {
 	raw := err.Error()
 	jsonStart := strings.Index(raw, "{")
 	if jsonStart == -1 {
@@ -118,7 +206,7 @@ func quoteErrorFromError(err error) (*QuoteError, bool) {
 	if payload.ErrorCode == "" || payload.Message == "" {
 		return nil, false
 	}
-	return &QuoteError{
+	return &APIError{
 		Provider:  payload.Provider,
 		ErrorCode: payload.ErrorCode,
 		Message:   payload.Message,

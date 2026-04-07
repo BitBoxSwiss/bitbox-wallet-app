@@ -23,6 +23,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -338,26 +339,15 @@ func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) 
 	}, nil
 }
 
-type slip24Request struct {
-	RecipientName string `json:"recipientName"`
-	Nonce         string `json:"nonce"`
-	Memos         []struct {
-		Type string `json:"type"`
-		Text string `json:"text"`
-	} `json:"memos"`
-	Outputs []struct {
-		Amount  uint64 `json:"amount"`
-		Address string `json:"address"`
-	} `json:"outputs"`
-	Signature string `json:"signature"`
-}
-
-func (slip24 slip24Request) toPaymentRequest() (*accounts.PaymentRequest, error) {
+func slip24ToPaymentRequest(slip24 *paymentrequest.Slip24) (*accounts.PaymentRequest, error) {
+	if slip24 == nil {
+		return nil, nil
+	}
 	if len(slip24.Outputs) != 1 {
 		return nil, errp.New("Missing or multiple payment request output unsupported")
 	}
 
-	if len(slip24.Nonce) > 0 {
+	if slip24.Nonce != nil && len(*slip24.Nonce) > 0 {
 		return nil, errp.New("Nonce value unsupported")
 	}
 
@@ -366,12 +356,39 @@ func (slip24 slip24Request) toPaymentRequest() (*accounts.PaymentRequest, error)
 		return nil, err
 	}
 
-	memos := []accounts.TextMemo{}
+	memos := []accounts.PaymentRequestMemo{}
 	for _, memo := range slip24.Memos {
-		if memo.Type != "text" {
-			return nil, errp.New("Payment request non-text memo unsupported")
+		switch memo.Type {
+		case "text":
+			memos = append(memos, accounts.PaymentRequestMemo{
+				Text: &accounts.TextMemo{Note: memo.Text},
+			})
+		case "coinPurchase":
+			if memo.CoinPurchase == nil {
+				return nil, errp.New("Payment request coinPurchase memo missing payload")
+			}
+			coinPurchaseMemo := &accounts.CoinPurchaseMemo{
+				CoinType: memo.CoinPurchase.CoinType,
+				Amount:   memo.CoinPurchase.Amount,
+				Address:  memo.CoinPurchase.Address,
+			}
+			if memo.CoinPurchase.AddressDerivation != nil && memo.CoinPurchase.AddressDerivation.Eth != nil {
+				coinPurchaseMemo.EthAddressDerivation = &accounts.EthAddressDerivation{
+					Keypath: memo.CoinPurchase.AddressDerivation.Eth.Keypath,
+				}
+			}
+			if memo.CoinPurchase.AddressDerivation != nil && memo.CoinPurchase.AddressDerivation.Btc != nil {
+				coinPurchaseMemo.BtcAddressDerivation = &accounts.BtcAddressDerivation{
+					Keypath:    memo.CoinPurchase.AddressDerivation.Btc.Keypath,
+					ScriptType: signing.ScriptType(memo.CoinPurchase.AddressDerivation.Btc.ScriptType),
+				}
+			}
+			memos = append(memos, accounts.PaymentRequestMemo{
+				CoinPurchase: coinPurchaseMemo,
+			})
+		default:
+			return nil, errp.New("Payment request memo unsupported")
 		}
-		memos = append(memos, accounts.TextMemo{Note: memo.Text})
 	}
 
 	return &accounts.PaymentRequest{
@@ -393,13 +410,13 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		SendAll   string `json:"sendAll"`
 		FeeTarget string `json:"feeTarget"`
 		// Provided in Sat/vByte for BTC/LTC and in Gwei for ETH.
-		CustomFee      string         `json:"customFee"`
-		Amount         string         `json:"amount"`
-		SelectedUTXOS  []string       `json:"selectedUTXOS"`
-		Note           string         `json:"note"`
-		Counter        int            `json:"counter"`
-		PaymentRequest *slip24Request `json:"paymentRequest"`
-		UseHighestFee  bool           `json:"useHighestFee"`
+		CustomFee      string                 `json:"customFee"`
+		Amount         string                 `json:"amount"`
+		SelectedUTXOS  []string               `json:"selectedUTXOS"`
+		Note           string                 `json:"note"`
+		Counter        int                    `json:"counter"`
+		PaymentRequest *paymentrequest.Slip24 `json:"paymentRequest"`
+		UseHighestFee  bool                   `json:"useHighestFee"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
@@ -428,7 +445,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.Note = jsonBody.Note
 	if jsonBody.PaymentRequest != nil {
-		paymentRequest, err := jsonBody.PaymentRequest.toPaymentRequest()
+		paymentRequest, err := slip24ToPaymentRequest(jsonBody.PaymentRequest)
 		if err != nil {
 			return err
 		}
@@ -843,15 +860,16 @@ func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, er
 		ErrorCode    string `json:"errorCode,omitempty"`
 	}
 
-	account, ok := handlers.account.(*btc.Account)
-	if !ok {
+	switch handlers.account.(type) {
+	case *btc.Account, *eth.Account:
+	default:
 		return response{
 			Success:      false,
-			ErrorMessage: "An account must be BTC based to support payment requests.",
+			ErrorMessage: "An account must be BTC or ETH based to support payment requests.",
 		}, nil
 	}
 
-	keystore, err := account.Config().ConnectKeystore()
+	keystore, err := handlers.account.Config().ConnectKeystore()
 	if err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}

@@ -15,17 +15,15 @@ import (
 
 // Client is a client for the SwapKit API.
 type Client struct {
-	apiKey     string
 	baseURL    string
 	httpClient *http.Client
 	log        *logrus.Entry
 }
 
-// NewClient creates a new SwapKit API client with the given API key.
-func NewClient(apiKey string) *Client {
+// NewClient creates a new SwapKit API client.
+func NewClient() *Client {
 	return &Client{
-		apiKey:  apiKey,
-		baseURL: "https://api.swapkit.dev/v3",
+		baseURL: "https://swapkit.shiftcrypto.io/v3",
 		httpClient: &http.Client{
 			Timeout: 20 * time.Second,
 		},
@@ -45,9 +43,6 @@ func (c *Client) post(ctx context.Context, path string, body any, out any) error
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	if c.apiKey != "" {
-		req.Header.Set("X-Api-Key", c.apiKey)
-	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
