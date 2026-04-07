@@ -26,8 +26,6 @@ var swapkitAssetByCoinCode = map[string]string{
 	"eth-erc20-dai0x6b17": "ETH.DAI-0x6b175474e89094c44da98b954eedeac495271d0f",
 }
 
-const apiKey = "0722e09f-9d3f-4817-a870-069848d03ee9"
-
 // ErrInvalidRequest is returned when the quote request is invalid, for example due to missing or invalid fields.
 const ErrInvalidRequest errp.ErrorCode = "invalidRequest"
 
@@ -84,7 +82,7 @@ func NewQuoteFromCoinCode(ctx context.Context, sellCoinCode, buyCoinCode, sellAm
 		return nil, quoteError
 	}
 
-	quoteResponse, err := NewClient(apiKey).Quote(ctx, quoteRequest)
+	quoteResponse, err := NewClient().Quote(ctx, quoteRequest)
 	if err != nil {
 		if quoteError, ok := quoteErrorFromError(err); ok {
 			return nil, quoteError
