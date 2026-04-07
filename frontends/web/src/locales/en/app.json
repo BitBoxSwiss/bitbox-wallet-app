@@ -47,6 +47,7 @@
   },
   "accountSummary": {
     "availableBalance": "Available balance",
+    "balance": "Balance",
     "name": "Account name",
     "noAccount": "There are no accounts to show.",
     "portfolio": "Portfolio",
