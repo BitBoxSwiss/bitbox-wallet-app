@@ -595,7 +595,7 @@ func newBTCTxFromPSBT(
 }
 
 // BTCSignPSBT signs a PSBT. If `options` is nil, the default options are used. The PSBT input signatures will be
-// populated.
+// populated. If a (partial) signature for the public key of the device already exists, it will be overwritten.
 func (device *Device) BTCSignPSBT(
 	coin messages.BTCCoin,
 	psbt_ *psbt.Packet,
@@ -630,12 +630,16 @@ func (device *Device) BTCSignPSBT(
 		ourKey := txResult.ourKeys[inputIndex]
 		switch {
 		case ourKey.segwit != nil:
-			psbtInput.PartialSigs = []*psbt.PartialSig{
-				{
-					PubKey:    ourKey.segwit.PubKey,
-					Signature: append(signatureDER, byte(txscript.SigHashAll)),
-				},
-			}
+			// Check if we already have a partial signature for this
+			// public key. If we do, we overwrite it. Duplicate
+			// entries would lead to an invalid PSBT. Erroring out
+			// is suboptimal as well, since we've already gone
+			// through the signing process. It's the caller's
+			// responsibility to check if this device has already
+			// signed the PSBT to avoid this behavior.
+			setPartialSig(
+				signatureDER, psbtInput, ourKey.segwit.PubKey,
+				txscript.SigHashAll)
 		case ourKey.taprootInternal != nil:
 			psbtInput.TaprootKeySpendSig = signatureCompact
 		case ourKey.taprootScript != nil:
@@ -657,6 +661,32 @@ func (device *Device) BTCSignPSBT(
 	}
 
 	return nil
+}
+
+// setPartialSig replaces or adds a partial signature for the given public key,
+// depending on whether a partial signature already exists for the key or not.
+func setPartialSig(
+	sig []byte,
+	psbtInput *psbt.PInput,
+	pubKey []byte,
+	sigHash txscript.SigHashType,
+) {
+	for idx, partialSig := range psbtInput.PartialSigs {
+		if bytes.Equal(partialSig.PubKey, pubKey) {
+			psbtInput.PartialSigs[idx] = &psbt.PartialSig{
+				PubKey:    pubKey,
+				Signature: append(sig, byte(sigHash)),
+			}
+
+			return
+		}
+	}
+	psbtInput.PartialSigs = append(
+		psbtInput.PartialSigs, &psbt.PartialSig{
+			PubKey:    pubKey,
+			Signature: append(sig, byte(sigHash)),
+		},
+	)
 }
 
 // BTCSignNeedsNonWitnessUTXOs returns true if the BitBox requires the NON_WITNESS_UTXO fields of
