@@ -12,6 +12,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
@@ -131,6 +132,42 @@ func TestAccounts(t *testing.T) {
 	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH Renamed"))
 	require.Equal(t, "My ETH Renamed", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
 	require.Equal(t, "My ETH Renamed", b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Name)
+}
+
+func TestSetAccountReceiveScriptType(t *testing.T) {
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	b.registerKeystore(ks)
+
+	accountCode := accountsTypes.Code("v0-55555555-btc-0")
+	require.NoError(t, b.SetAccountReceiveScriptType(accountCode, signing.ScriptTypeP2TR))
+
+	persistedAccount := b.Config().AccountsConfig().Lookup(accountCode)
+	require.NotNil(t, persistedAccount)
+	require.NotNil(t, persistedAccount.ReceiveScriptType)
+	require.Equal(t, signing.ScriptTypeP2TR, *persistedAccount.ReceiveScriptType)
+
+	loadedAccount := b.Accounts().lookup(accountCode)
+	require.NotNil(t, loadedAccount)
+	require.NotNil(t, loadedAccount.Config().Config.ReceiveScriptType)
+	require.Equal(t, signing.ScriptTypeP2TR, *loadedAccount.Config().Config.ReceiveScriptType)
+
+	require.Error(t, b.SetAccountReceiveScriptType(accountCode, signing.ScriptTypeP2WPKHP2SH))
+
+	require.NoError(t, b.Config().ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		accountsConfig.Lookup(accountCode).InsuranceStatus = string(bitsurance.ActiveStatus)
+		return nil
+	}))
+	require.Error(t, b.SetAccountReceiveScriptType(accountCode, signing.ScriptTypeP2TR))
+	require.NoError(t, b.SetAccountReceiveScriptType(accountCode, signing.ScriptTypeP2WPKH))
+
+	require.Error(t, b.SetAccountReceiveScriptType("v0-55555555-eth-0", signing.ScriptTypeP2TR))
 }
 
 func TestSortAccounts(t *testing.T) {

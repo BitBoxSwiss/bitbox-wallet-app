@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
+import { setAccountReceiveScriptType } from '@/api/backend';
+import { alertUser } from '@/components/alert/Alert';
 import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
@@ -29,7 +31,7 @@ type TAddressTypeDialogProps = {
   preselectedAddressType: number;
   availableScriptTypes?: accountApi.ScriptType[];
   insured: boolean;
-  handleAddressTypeChosen: (addressType: number) => void;
+  handleAddressTypeChosen: (addressType: number) => void | Promise<void>;
 };
 
 const AddressTypeDialog = ({
@@ -42,6 +44,10 @@ const AddressTypeDialog = ({
 }: TAddressTypeDialogProps) => {
   const { t } = useTranslation();
   const [addressType, setAddressType] = useState<number>(preselectedAddressType);
+
+  useEffect(() => {
+    setAddressType(preselectedAddressType);
+  }, [open, preselectedAddressType]);
 
   return (
     <Dialog open={open} onClose={() => setOpen(false)} medium title={t('receive.changeScriptType')} >
@@ -101,6 +107,23 @@ const getIndexOfMatchingScriptType = (
   return receiveAddresses.findIndex(addrs => addrs.scriptType !== null && scriptType === addrs.scriptType);
 };
 
+const getAvailableScriptTypes = (
+  receiveAddresses: accountApi.TReceiveAddressList[],
+): accountApi.ScriptType[] => {
+  return scriptTypes.filter(scriptType => getIndexOfMatchingScriptType(receiveAddresses, scriptType) >= 0);
+};
+
+const getReceiveScriptTypeIndex = (
+  availableScriptTypes: accountApi.ScriptType[],
+  receiveScriptType?: accountApi.ScriptType,
+): number => {
+  if (!receiveScriptType) {
+    return 0;
+  }
+  const scriptTypeIndex = availableScriptTypes.findIndex(scriptType => scriptType === receiveScriptType);
+  return scriptTypeIndex >= 0 ? scriptTypeIndex : 0;
+};
+
 export const Receive = ({
   accounts,
   code,
@@ -119,34 +142,50 @@ export const Receive = ({
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
-
-  const availableScriptTypes = useRef<accountApi.ScriptType[]>();
-
-  const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
+  const availableScriptTypes = receiveAddresses ? getAvailableScriptTypes(receiveAddresses) : undefined;
+  const hasManyScriptTypes = availableScriptTypes && availableScriptTypes.length > 1;
 
   useEffect(() => {
     if (receiveAddresses) {
-      // All script types that are present in the addresses delivered by the backend. Will be empty for if there are no such addresses, e.g. in Ethereum.
-      availableScriptTypes.current = scriptTypes.filter(sc => getIndexOfMatchingScriptType(receiveAddresses, sc) >= 0);
+      setAddressType(getReceiveScriptTypeIndex(
+        getAvailableScriptTypes(receiveAddresses),
+        account?.receiveScriptType,
+      ));
     }
-  }, [receiveAddresses]);
+  }, [account?.receiveScriptType, receiveAddresses]);
 
   useEffect(() => {
-    if (receiveAddresses && availableScriptTypes.current) {
-      const scriptType = availableScriptTypes.current[addressType] as accountApi.ScriptType;
-      let addressIndex = availableScriptTypes.current.length > 0 ? getIndexOfMatchingScriptType(receiveAddresses, scriptType) : 0;
+    if (receiveAddresses) {
+      const scriptTypes = getAvailableScriptTypes(receiveAddresses);
+      const scriptType = scriptTypes[addressType] as accountApi.ScriptType;
+      let addressIndex = scriptTypes.length > 0 ? getIndexOfMatchingScriptType(receiveAddresses, scriptType) : 0;
       if (addressIndex === -1) {
         addressIndex = 0;
       }
       setCurrentAddressIndex(addressIndex);
       setCurrentAddresses(receiveAddresses[addressIndex]?.addresses);
     }
-  }, [addressType, availableScriptTypes, receiveAddresses]);
+  }, [addressType, receiveAddresses]);
 
-  const handleAddressTypeChosen = (addressType: number) => {
+  const handleAddressTypeChosen = async (addressType: number) => {
+    const scriptType = availableScriptTypes?.[addressType];
+
     setActiveIndex(0);
     setAddressType(addressType);
     setAddressTypeDialog(false);
+
+    if (!scriptType || account?.receiveScriptType === scriptType) {
+      return;
+    }
+
+    try {
+      const response = await setAccountReceiveScriptType(code, scriptType);
+      if (!response.success) {
+        alertUser(response.errorMessage || t('genericError'));
+      }
+    } catch (err) {
+      console.error('Failed to persist receive script type', err);
+    }
   };
 
   const verifyAddress = async (addressesIndex: number) => {
@@ -259,7 +298,7 @@ export const Receive = ({
                     open={addressTypeDialog}
                     setOpen={setAddressTypeDialog}
                     preselectedAddressType={addressType}
-                    availableScriptTypes={availableScriptTypes.current}
+                    availableScriptTypes={availableScriptTypes}
                     insured={insured}
                     handleAddressTypeChosen={handleAddressTypeChosen}
                   />

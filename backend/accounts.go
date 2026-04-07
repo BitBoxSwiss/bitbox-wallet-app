@@ -816,6 +816,32 @@ func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode
 	return nil
 }
 
+// SetAccountReceiveScriptType stores the receive script type for an account.
+func (backend *Backend) SetAccountReceiveScriptType(
+	accountCode accountsTypes.Code,
+	scriptType signing.ScriptType,
+) error {
+	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		acct := accountsConfig.Lookup(accountCode)
+		if acct == nil {
+			return errp.Newf("Could not find account %s", accountCode)
+		}
+		if scriptType == signing.ScriptTypeP2WPKHP2SH {
+			return errp.New("wrapped segwit is not supported in receive flows")
+		}
+		if acct.InsuranceStatus == string(bitsurance.ActiveStatus) &&
+			scriptType != signing.ScriptTypeP2WPKH {
+			return errp.New("insured accounts can only receive on native segwit")
+		}
+		return acct.SetReceiveScriptType(scriptType)
+	})
+	if err != nil {
+		return err
+	}
+	backend.emitAccountsStatusChanged()
+	return nil
+}
+
 // RenameAccount renames an account in the accounts database.
 func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name string) error {
 	if name == "" {
