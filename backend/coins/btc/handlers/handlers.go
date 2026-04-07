@@ -3,7 +3,6 @@
 package handlers
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -23,6 +22,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -62,6 +62,7 @@ func NewHandlers(
 	handleFunc("/sign-address", handlers.ensureAccountInitialized(handlers.postSignBTCAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/has-payment-request", handlers.ensureAccountInitialized(handlers.getHasPaymentRequest)).Methods("GET")
+	handleFunc("/has-swap-payment-request", handlers.ensureAccountInitialized(handlers.getHasSwapPaymentRequest)).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
 	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
@@ -338,51 +339,6 @@ func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) 
 	}, nil
 }
 
-type slip24Request struct {
-	RecipientName string `json:"recipientName"`
-	Nonce         string `json:"nonce"`
-	Memos         []struct {
-		Type string `json:"type"`
-		Text string `json:"text"`
-	} `json:"memos"`
-	Outputs []struct {
-		Amount  uint64 `json:"amount"`
-		Address string `json:"address"`
-	} `json:"outputs"`
-	Signature string `json:"signature"`
-}
-
-func (slip24 slip24Request) toPaymentRequest() (*accounts.PaymentRequest, error) {
-	if len(slip24.Outputs) != 1 {
-		return nil, errp.New("Missing or multiple payment request output unsupported")
-	}
-
-	if len(slip24.Nonce) > 0 {
-		return nil, errp.New("Nonce value unsupported")
-	}
-
-	sigBytes, err := base64.StdEncoding.DecodeString(slip24.Signature)
-	if err != nil {
-		return nil, err
-	}
-
-	memos := []accounts.TextMemo{}
-	for _, memo := range slip24.Memos {
-		if memo.Type != "text" {
-			return nil, errp.New("Payment request non-text memo unsupported")
-		}
-		memos = append(memos, accounts.TextMemo{Note: memo.Text})
-	}
-
-	return &accounts.PaymentRequest{
-		RecipientName: slip24.RecipientName,
-		Nonce:         nil,
-		Signature:     sigBytes,
-		TotalAmount:   slip24.Outputs[0].Amount,
-		Memos:         memos,
-	}, nil
-}
-
 type sendTxInput struct {
 	accounts.TxProposalArgs
 }
@@ -393,13 +349,13 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		SendAll   string `json:"sendAll"`
 		FeeTarget string `json:"feeTarget"`
 		// Provided in Sat/vByte for BTC/LTC and in Gwei for ETH.
-		CustomFee      string         `json:"customFee"`
-		Amount         string         `json:"amount"`
-		SelectedUTXOS  []string       `json:"selectedUTXOS"`
-		Note           string         `json:"note"`
-		Counter        int            `json:"counter"`
-		PaymentRequest *slip24Request `json:"paymentRequest"`
-		UseHighestFee  bool           `json:"useHighestFee"`
+		CustomFee      string                 `json:"customFee"`
+		Amount         string                 `json:"amount"`
+		SelectedUTXOS  []string               `json:"selectedUTXOS"`
+		Note           string                 `json:"note"`
+		Counter        int                    `json:"counter"`
+		PaymentRequest *paymentrequest.Slip24 `json:"paymentRequest"`
+		UseHighestFee  bool                   `json:"useHighestFee"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
@@ -428,7 +384,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.Note = jsonBody.Note
 	if jsonBody.PaymentRequest != nil {
-		paymentRequest, err := jsonBody.PaymentRequest.toPaymentRequest()
+		paymentRequest, err := jsonBody.PaymentRequest.ToRequest()
 		if err != nil {
 			return err
 		}
@@ -843,19 +799,57 @@ func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, er
 		ErrorCode    string `json:"errorCode,omitempty"`
 	}
 
-	account, ok := handlers.account.(*btc.Account)
-	if !ok {
+	switch handlers.account.(type) {
+	case *btc.Account, *eth.Account:
+	default:
 		return response{
 			Success:      false,
-			ErrorMessage: "An account must be BTC based to support payment requests.",
+			ErrorMessage: "An account must be BTC or ETH based to support payment requests.",
 		}, nil
 	}
 
-	keystore, err := account.Config().ConnectKeystore()
+	keystore, err := handlers.account.Config().ConnectKeystore()
 	if err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	err = keystore.SupportsPaymentRequests()
+	if err != nil {
+		return response{Success: false, ErrorCode: err.Error()}, nil
+	}
+
+	return response{Success: true}, nil
+}
+
+func (handlers *Handlers) getHasSwapPaymentRequest(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+
+	switch handlers.account.(type) {
+	case *btc.Account:
+	default:
+		return response{
+			Success:      false,
+			ErrorMessage: "An account must be BTC based to support swap payment requests.",
+		}, nil
+	}
+
+	accountKeystore, err := handlers.account.Config().ConnectKeystore()
+	if err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	type swapPaymentRequestSupporter interface {
+		SupportsSwapPaymentRequests() error
+	}
+
+	supporter, ok := accountKeystore.(swapPaymentRequestSupporter)
+	if !ok {
+		return response{Success: false, ErrorCode: keystore.ErrUnsupportedFeature.Error()}, nil
+	}
+	err = supporter.SupportsSwapPaymentRequests()
 	if err != nil {
 		return response{Success: false, ErrorCode: err.Error()}, nil
 	}
