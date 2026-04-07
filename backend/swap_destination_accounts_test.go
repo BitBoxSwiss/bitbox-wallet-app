@@ -130,6 +130,7 @@ func TestSignSwapActivatesInactiveTokenDestination(t *testing.T) {
 	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
 	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
 }
+
 func TestSignSwapReturnsErrorForUnknownAccount(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()

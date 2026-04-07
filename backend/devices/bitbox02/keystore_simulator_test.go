@@ -719,9 +719,9 @@ func computePaymentRequestSighash(paymentRequest *accounts.PaymentRequest, slip4
 
 	// memos
 	_ = wire.WriteVarInt(sighash, 0, uint64(len(paymentRequest.Memos)))
-	for _, textMemo := range paymentRequest.Memos {
+	for _, memo := range paymentRequest.Memos {
 		_ = binary.Write(sighash, binary.LittleEndian, uint32(1))
-		hashDataLenPrefixed(sighash, []byte(textMemo.Note))
+		hashDataLenPrefixed(sighash, []byte(memo.Text.Note))
 	}
 
 	// coinType
@@ -762,9 +762,11 @@ func TestSimulatorSignBTCPaymentRequest(t *testing.T) {
 			RecipientName: "Test Merchant", // Hard-coded test merchant in simulator
 			Nonce:         nil,
 			TotalAmount:   value,
-			Memos: []accounts.TextMemo{
+			Memos: []accounts.PaymentRequestMemo{
 				{
-					Note: "TextMemo line1\nTextMemo line2",
+					Text: &accounts.TextMemo{
+						Note: "TextMemo line1\nTextMemo line2",
+					},
 				},
 			},
 		}
