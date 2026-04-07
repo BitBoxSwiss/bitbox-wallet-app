@@ -8,6 +8,7 @@ import (
 	"crypto/elliptic"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"math/big"
 
@@ -134,6 +135,8 @@ var attestationPubkeys = []string{
 // The identifier is sha256(pubkey).
 var attestationPubkeysMap map[string]string
 
+const attestationPayloadLength = 32 + 64 + 64 + 32 + 64
+
 func unhex(s string) []byte {
 	b, err := hex.DecodeString(s)
 	if err != nil {
@@ -151,6 +154,91 @@ func init() {
 	}
 }
 
+func verifyECDSASignature(pubkey *ecdsa.PublicKey, message []byte, signature []byte) bool {
+	sigR := new(big.Int).SetBytes(signature[:32])
+	sigS := new(big.Int).SetBytes(signature[32:])
+	sigHash := sha256.Sum256(message)
+	return ecdsa.Verify(pubkey, sigHash[:], sigR, sigS)
+}
+
+type invalidAttestationError struct {
+	message string
+}
+
+func (err invalidAttestationError) Error() string {
+	return err.message
+}
+
+// VerifyAttestation verifies the 256-byte attestation payload returned by the device, excluding the
+// first success byte, against Shift's root attestation pubkeys and the original challenge.
+func VerifyAttestation(challenge []byte, attestation []byte) error {
+	if len(attestation) != attestationPayloadLength {
+		return errp.Newf(
+			"attestation must be %d bytes, got %d", attestationPayloadLength, len(attestation))
+	}
+
+	var bootloaderHash, devicePubkeyBytes, certificate, rootPubkeyIdentifier, challengeSignature []byte
+	bootloaderHash, attestation = attestation[:32], attestation[32:]
+	devicePubkeyBytes, attestation = attestation[:64], attestation[64:]
+	certificate, attestation = attestation[:64], attestation[64:]
+	rootPubkeyIdentifier, attestation = attestation[:32], attestation[32:]
+	challengeSignature = attestation[:64]
+
+	pubkeyHex, ok := attestationPubkeysMap[hex.EncodeToString(rootPubkeyIdentifier)]
+	if !ok {
+		return errp.Newf("could not find root pubkey. identifier=%x", rootPubkeyIdentifier)
+	}
+
+	rootPubkeyBytes, err := hex.DecodeString(pubkeyHex)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	rootPubkey, err := btcec.ParsePubKey(rootPubkeyBytes)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+
+	devicePubkey := ecdsa.PublicKey{
+		Curve: elliptic.P256(),
+		X:     new(big.Int).SetBytes(devicePubkeyBytes[:32]),
+		Y:     new(big.Int).SetBytes(devicePubkeyBytes[32:]),
+	}
+
+	var certMsg bytes.Buffer
+	certMsg.Write(bootloaderHash)
+	certMsg.Write(devicePubkeyBytes)
+	if !verifyECDSASignature(rootPubkey.ToECDSA(), certMsg.Bytes(), certificate) {
+		return errp.New("could not verify certificate")
+	}
+	if !verifyECDSASignature(&devicePubkey, challenge, challengeSignature) {
+		return errp.New("could not verify challenge signature")
+	}
+
+	return nil
+}
+
+// GetAttestation sends challenge to the device and returns the 256-byte attestation payload,
+// excluding the first success byte.
+func (device *Device) GetAttestation(challenge []byte) ([]byte, error) {
+	if !device.version.AtLeast(semver.NewSemVer(2, 0, 0)) {
+		return nil, errp.New("attestation not supported")
+	}
+
+	response, err := device.rawQuery(append([]byte(opAttestation), challenge...))
+	if err != nil {
+		return nil, err
+	}
+
+	if len(response) < 1+attestationPayloadLength {
+		return nil, invalidAttestationError{message: "response too short"}
+	}
+	if string(response[:1]) != responseSuccess {
+		return nil, invalidAttestationError{message: "expected success"}
+	}
+
+	return response[1 : 1+attestationPayloadLength], nil
+}
+
 // performAttestation sends a random challenge and verifies that the response can be verified with
 // Shift's root attestation pubkeys. Returns true if the verification is successful.
 func (device *Device) performAttestation() (bool, error) {
@@ -159,74 +247,21 @@ func (device *Device) performAttestation() (bool, error) {
 		return true, nil
 	}
 	challenge := bytesOrPanic(32)
-	response, err := device.rawQuery(append([]byte(opAttestation), challenge...))
+	attestation, err := device.GetAttestation(challenge)
 	if err != nil {
+		var invalidErr invalidAttestationError
+		if errors.As(err, &invalidErr) {
+			device.log.Error(fmt.Sprintf("attestation: %v. challenge=%x", err, challenge), nil)
+			return false, nil
+		}
 		device.log.Error(fmt.Sprintf("attestation: could not perform request. challenge=%x", challenge), err)
 		return false, err
 	}
 
-	// See parsing below for what the sizes mean.
-	if len(response) < 1+32+64+64+32+64 {
-		device.log.Error(
-			fmt.Sprintf("attestation: response too short. challenge=%x, response=%x", challenge, response), nil)
-		return false, nil
-	}
-	if string(response[:1]) != responseSuccess {
-		device.log.Error(
-			fmt.Sprintf("attestation: expected success. challenge=%x, response=%x", challenge, response), nil)
-		return false, nil
-	}
-	rsp := response[1:]
-	var bootloaderHash, devicePubkeyBytes, certificate, rootPubkeyIdentifier, challengeSignature []byte
-	bootloaderHash, rsp = rsp[:32], rsp[32:]
-	devicePubkeyBytes, rsp = rsp[:64], rsp[64:]
-	certificate, rsp = rsp[:64], rsp[64:]
-	rootPubkeyIdentifier, rsp = rsp[:32], rsp[32:]
-	challengeSignature = rsp[:64]
-
-	pubkeyHex, ok := attestationPubkeysMap[hex.EncodeToString(rootPubkeyIdentifier)]
-	if !ok {
-		device.log.Error(fmt.Sprintf(
-			"could not find root pubkey. challenge=%x, response=%x, identifier=%x",
-			challenge,
-			response,
-			rootPubkeyIdentifier), nil)
-		return false, nil
-	}
-	rootPubkeyBytes, err := hex.DecodeString(pubkeyHex)
+	err = VerifyAttestation(challenge, attestation)
 	if err != nil {
-		panic(errp.WithStack(err))
-	}
-	rootPubkey, err := btcec.ParsePubKey(rootPubkeyBytes)
-	if err != nil {
-		panic(errp.WithStack(err))
-	}
-	devicePubkey := ecdsa.PublicKey{
-		Curve: elliptic.P256(),
-		X:     new(big.Int).SetBytes(devicePubkeyBytes[:32]),
-		Y:     new(big.Int).SetBytes(devicePubkeyBytes[32:]),
-	}
-
-	verify := func(pubkey *ecdsa.PublicKey, message []byte, signature []byte) bool {
-		sigR := new(big.Int).SetBytes(signature[:32])
-		sigS := new(big.Int).SetBytes(signature[32:])
-		sigHash := sha256.Sum256(message)
-		return ecdsa.Verify(pubkey, sigHash[:], sigR, sigS)
-	}
-
-	// Verify certificate
-	var certMsg bytes.Buffer
-	certMsg.Write(bootloaderHash)
-	certMsg.Write(devicePubkeyBytes)
-	if !verify(rootPubkey.ToECDSA(), certMsg.Bytes(), certificate) {
 		device.log.Error(
-			fmt.Sprintf("attestation: could not verify certificate. challenge=%x, response=%x", challenge, response), nil)
-		return false, nil
-	}
-	// Verify challenge
-	if !verify(&devicePubkey, challenge, challengeSignature) {
-		device.log.Error(
-			fmt.Sprintf("attestation: could not verify challgege signature. challenge=%x, response=%x", challenge, response), nil)
+			fmt.Sprintf("attestation: %v. challenge=%x, attestation=%x", err, challenge, attestation), nil)
 		return false, nil
 	}
 	return true, nil
