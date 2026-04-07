@@ -140,6 +140,7 @@ input.searchInput:focus {
 
 .optionContent {
     flex: 1;
+    max-width: 100%;
 }
 
 .noOptions {

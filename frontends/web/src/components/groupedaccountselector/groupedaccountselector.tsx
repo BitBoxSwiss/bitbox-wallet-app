@@ -47,7 +47,10 @@ const TriggerContent = ({
         {option.insured && <InsuredShield />}
         {option.coinCode && option.balance && (
           <span className={styles.triggerBalance}>
-            <AmountWithUnit amount={option.balance} />
+            <AmountWithUnit
+              maxDecimals={9}
+              amount={option.balance}
+            />
           </span>
         )}
       </div>
