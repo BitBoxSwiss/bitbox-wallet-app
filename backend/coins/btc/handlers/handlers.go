@@ -63,6 +63,7 @@ func NewHandlers(
 	handleFunc("/sign-address", handlers.ensureAccountInitialized(handlers.postSignBTCAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/has-payment-request", handlers.ensureAccountInitialized(handlers.getHasPaymentRequest)).Methods("GET")
+	handleFunc("/has-swap-payment-request", handlers.ensureAccountInitialized(handlers.getHasSwapPaymentRequest)).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
 	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
@@ -874,6 +875,43 @@ func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, er
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	err = keystore.SupportsPaymentRequests()
+	if err != nil {
+		return response{Success: false, ErrorCode: err.Error()}, nil
+	}
+
+	return response{Success: true}, nil
+}
+
+func (handlers *Handlers) getHasSwapPaymentRequest(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+
+	switch handlers.account.(type) {
+	case *btc.Account:
+	default:
+		return response{
+			Success:      false,
+			ErrorMessage: "An account must be BTC based to support swap payment requests.",
+		}, nil
+	}
+
+	accountKeystore, err := handlers.account.Config().ConnectKeystore()
+	if err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	type swapPaymentRequestSupporter interface {
+		SupportsSwapPaymentRequests() error
+	}
+
+	supporter, ok := accountKeystore.(swapPaymentRequestSupporter)
+	if !ok {
+		return response{Success: false, ErrorCode: keystore.ErrUnsupportedFeature.Error()}, nil
+	}
+	err = supporter.SupportsSwapPaymentRequests()
 	if err != nil {
 		return response{Success: false, ErrorCode: err.Error()}, nil
 	}

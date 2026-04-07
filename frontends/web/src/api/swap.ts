@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode, CoinCode } from './account';
+import type { AccountCode, CoinCode, TTxInput } from './account';
 import { apiPost } from '@/utils/request';
 
 export type TSwapQuoteRequest = {
   buyCoinCode: CoinCode;
+  sellAccountCode?: AccountCode;
   sellAmount: string;
   sellCoinCode: CoinCode;
 };
@@ -39,6 +40,9 @@ export type TSwapSignRequest = {
 
 export type TSwapSignResponse = {
   success: true;
+  expectedBuyAmount: string;
+  swapId: string;
+  txInput: TTxInput;
 } | {
   success: false;
   errorMessage: string;

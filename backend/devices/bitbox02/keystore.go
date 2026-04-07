@@ -596,6 +596,15 @@ func (keystore *keystore) SupportsPaymentRequests() error {
 	return keystorePkg.ErrFirmwareUpgradeRequired
 }
 
+// SupportsSwapPaymentRequests reports whether the device supports the
+// payment-request signing flow used by swaps.
+func (keystore *keystore) SupportsSwapPaymentRequests() error {
+	if keystore.device.Version().AtLeast(semver.NewSemVer(9, 26, 0)) {
+		return nil
+	}
+	return keystorePkg.ErrFirmwareUpgradeRequired
+}
+
 // Features reports optional capabilities supported by the BitBox02 keystore.
 func (keystore *keystore) Features() *keystorePkg.Features {
 	return &keystorePkg.Features{

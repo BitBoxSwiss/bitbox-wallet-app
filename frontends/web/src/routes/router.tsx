@@ -186,8 +186,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
   const SwapEl = (<InjectParams>
     <Swap
       code={''}
-      accounts={accounts}
-      activeAccounts={activeAccounts} />
+      accounts={accounts} />
   </InjectParams>);
 
   const MarketEl = (<InjectParams>

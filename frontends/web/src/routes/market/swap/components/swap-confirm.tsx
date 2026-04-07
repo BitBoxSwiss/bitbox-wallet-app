@@ -13,9 +13,9 @@ import style from './swap-confirm.module.css';
 
 type TProp = {
   isConfirming: boolean;
-  expectedOutput: TAmountWithConversions;
-  feeAmount: TAmountWithConversions;
-  sellAmount: TAmountWithConversions;
+  expectedOutput: TAmountWithConversions | undefined;
+  feeAmount: TAmountWithConversions | undefined;
+  sellAmount: TAmountWithConversions | undefined;
 };
 
 export const ConfirmSwap = ({
