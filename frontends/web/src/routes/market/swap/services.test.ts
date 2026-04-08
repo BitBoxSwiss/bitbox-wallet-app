@@ -3,12 +3,12 @@
 import { describe, expect, it } from 'vitest';
 import type { CoinCode, TAccount } from '@/api/account';
 import {
+  getConnectedSwapAccounts,
   getDefaultSwapPair,
   getDisabledAccountCodes,
   getFlippedAmounts,
   getPairKey,
-  getPreferredBuyAccountCode,
-  getPreferredSellAccountCode,
+  getPreferredCounterpartAccountCode,
   getSelectedRouteId,
   reconcileSwapPair,
 } from './services';
@@ -16,11 +16,13 @@ import {
 const makeAccount = ({
   code,
   coinCode,
+  connected = true,
   isToken = false,
   rootFingerprint = 'f1',
 }: {
   code: string;
   coinCode: CoinCode;
+  connected?: boolean;
   isToken?: boolean;
   rootFingerprint?: string;
 }): TAccount => ({
@@ -29,7 +31,7 @@ const makeAccount = ({
     rootFingerprint,
     name: `Keystore ${rootFingerprint}`,
     lastConnected: '',
-    connected: true,
+    connected,
   },
   active: true,
   coinCode,
@@ -42,16 +44,29 @@ const makeAccount = ({
 });
 
 describe('routes/market/swap/services', () => {
-  it('defaults to native ethereum selling and bitcoin buying', () => {
+  it('returns only accounts from connected keystores', () => {
+    const accounts = [
+      makeAccount({ code: 'btc-connected', coinCode: 'btc', connected: true, rootFingerprint: 'f1' }),
+      makeAccount({ code: 'eth-connected', coinCode: 'eth', connected: true, rootFingerprint: 'f1' }),
+      makeAccount({ code: 'ltc-disconnected', coinCode: 'ltc', connected: false, rootFingerprint: 'f2' }),
+    ];
+
+    expect(getConnectedSwapAccounts(accounts).map(({ code }) => code)).toEqual([
+      'btc-connected',
+      'eth-connected',
+    ]);
+  });
+
+  it('defaults to native ethereum selling and the first preferred bitcoin account', () => {
     const accounts = [
       makeAccount({ code: 'btc-other', coinCode: 'btc', rootFingerprint: 'f2' }),
       makeAccount({ code: 'eth-main', coinCode: 'eth', rootFingerprint: 'f1' }),
       makeAccount({ code: 'btc-second', coinCode: 'btc', rootFingerprint: 'f1' }),
     ];
 
-    expect(getDefaultSwapPair(accounts)).toEqual({
+    expect(getDefaultSwapPair(accounts, accounts)).toEqual({
       sellAccountCode: 'eth-main',
-      buyAccountCode: 'btc-same-keystore',
+      buyAccountCode: 'btc-other',
     });
   });
 
@@ -62,7 +77,7 @@ describe('routes/market/swap/services', () => {
       makeAccount({ code: 'eth-other', coinCode: 'eth', rootFingerprint: 'f2' }),
     ];
 
-    expect(getDefaultSwapPair(accounts, 'ltc-route')).toEqual({
+    expect(getDefaultSwapPair(accounts, accounts, 'ltc-route')).toEqual({
       sellAccountCode: 'ltc-route',
       buyAccountCode: 'btc-main',
     });
@@ -74,7 +89,7 @@ describe('routes/market/swap/services', () => {
       makeAccount({ code: 'usdc-main', coinCode: 'eth-erc20-usdc', isToken: true, rootFingerprint: 'f2' }),
     ];
 
-    expect(getDefaultSwapPair(accounts)).toEqual({
+    expect(getDefaultSwapPair(accounts, accounts)).toEqual({
       sellAccountCode: 'ltc-main',
       buyAccountCode: 'usdc-main',
     });
@@ -97,7 +112,7 @@ describe('routes/market/swap/services', () => {
       makeAccount({ code: 'ltc-1', coinCode: 'ltc', rootFingerprint: 'f2' }),
     ];
 
-    expect(getPreferredBuyAccountCode(accounts, 'eth-1', 'ltc-1')).toBe('ltc-1');
+    expect(getPreferredCounterpartAccountCode(accounts, accounts, 'eth-1', 'ltc-1')).toBe('ltc-1');
   });
 
   it('keeps the current sell account when it is still a valid cross-coin pair', () => {
@@ -107,7 +122,7 @@ describe('routes/market/swap/services', () => {
       makeAccount({ code: 'ltc-1', coinCode: 'ltc', rootFingerprint: 'f2' }),
     ];
 
-    expect(getPreferredSellAccountCode(accounts, 'eth-1', 'ltc-1')).toBe('ltc-1');
+    expect(getPreferredCounterpartAccountCode(accounts, accounts, 'eth-1', 'ltc-1')).toBe('ltc-1');
   });
 
   it('reconciles an invalid same-coin pair to a valid counterpart', () => {
@@ -117,7 +132,7 @@ describe('routes/market/swap/services', () => {
       makeAccount({ code: 'btc-1', coinCode: 'btc', rootFingerprint: 'f1' }),
     ];
 
-    expect(reconcileSwapPair(accounts, {
+    expect(reconcileSwapPair(accounts, accounts, {
       sellAccountCode: 'eth-1',
       buyAccountCode: 'eth-2',
     })).toEqual({

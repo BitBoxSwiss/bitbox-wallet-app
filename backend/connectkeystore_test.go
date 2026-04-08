@@ -35,6 +35,12 @@ func TestConnectKeystore(t *testing.T) {
 		require.Equal(t, expectedKeystore, ks)
 	})
 
+	t.Run("already connected with any keystore accepted", func(t *testing.T) {
+		ks, err := ck.connect(expectedKeystore, nil, time.Millisecond)
+		require.NoError(t, err)
+		require.Equal(t, expectedKeystore, ks)
+	})
+
 	t.Run("canceled", func(t *testing.T) {
 		wg := sync.WaitGroup{}
 		wg.Add(1)
@@ -57,6 +63,20 @@ func TestConnectKeystore(t *testing.T) {
 			ck.onConnect(expectedKeystore)
 		}()
 		ks, err := ck.connect(nil, fingerprint, time.Second)
+		require.NoError(t, err)
+		require.Equal(t, expectedKeystore, ks)
+		wg.Wait()
+	})
+
+	t.Run("success with any keystore accepted", func(t *testing.T) {
+		wg := sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			time.Sleep(50 * time.Millisecond)
+			ck.onConnect(expectedKeystore)
+		}()
+		ks, err := ck.connect(nil, nil, time.Second)
 		require.NoError(t, err)
 		require.Equal(t, expectedKeystore, ks)
 		wg.Wait()

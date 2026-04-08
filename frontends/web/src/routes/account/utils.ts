@@ -82,6 +82,12 @@ export const getCoinCode = (coinCode: CoinCode): CoinCode | undefined => {
   }
 };
 
+export const isNativeEthereumAccount = (account: TAccountBase) => (
+  getCoinCode(account.coinCode) === 'eth' && !account.isToken
+);
+
+export const isBitcoinAccount = (account: TAccountBase) => getCoinCode(account.coinCode) === 'btc';
+
 export const getScriptName = (scriptType: ScriptType): string => {
   switch (scriptType) {
   case 'p2pkh':

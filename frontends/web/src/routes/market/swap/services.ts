@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode, TAccount } from '@/api/account';
+import type { AccountCode, TAccount, TAccountBase } from '@/api/account';
 import type { TSwapQuoteRoute } from '@/api/swap';
-import { findAccount, getCoinCode } from '@/routes/account/utils';
+import {
+  findAccount,
+  getCoinCode,
+  isBitcoinAccount,
+  isNativeEthereumAccount,
+} from '@/routes/account/utils';
 
 type TSwapPair = {
   buyAccountCode?: AccountCode;
@@ -14,28 +19,11 @@ export type TPairAmounts = {
   sellAmount: string;
 };
 
-const isNativeEthereumAccount = (account: TAccount) => (
-  getCoinCode(account.coinCode) === 'eth' && !account.isToken
-);
-
-const isBitcoinAccount = (account: TAccount) => getCoinCode(account.coinCode) === 'btc';
-
-const findOptionalAccount = (
-  accounts: TAccount[],
-  accountCode?: AccountCode,
-) => (
-  accountCode ? findAccount(accounts, accountCode) : undefined
-);
-
-const sharesKeystore = (account: TAccount, referenceAccount: TAccount) => (
-  account.keystore.rootFingerprint === referenceAccount.keystore.rootFingerprint
-);
-
-const isEligibleCounterpart = (account: TAccount, referenceAccount: TAccount) => (
+const isEligibleCounterpart = (account: TAccountBase, referenceAccount: TAccountBase) => (
   account.code !== referenceAccount.code && account.coinCode !== referenceAccount.coinCode
 );
 
-const getPreferredCounterpartCoinCodes = (account: TAccount) => {
+const getPreferredCounterpartCoinCodes = (account: TAccountBase) => {
   if (isNativeEthereumAccount(account)) {
     return ['btc'] as const;
   }
@@ -46,60 +34,66 @@ const getPreferredCounterpartCoinCodes = (account: TAccount) => {
 };
 
 const findPreferredCounterpartAccount = (
-  accounts: TAccount[],
-  account: TAccount,
+  accounts: TAccountBase[],
+  account: TAccountBase,
 ) => {
   const eligibleAccounts = accounts.filter(candidate => isEligibleCounterpart(candidate, account));
   if (!eligibleAccounts.length) {
     return;
   }
 
-  // Prefer the common BTC/ETH paths first, but keep the selection on the same keystore when
-  // possible so the default pair stays anchored to the same device.
+  // Prefer the common BTC/ETH paths first.
   for (const preferredCoinCode of getPreferredCounterpartCoinCodes(account)) {
     const matchingAccounts = eligibleAccounts.filter(
       candidate => getCoinCode(candidate.coinCode) === preferredCoinCode,
     );
     if (matchingAccounts.length) {
-      return matchingAccounts.find(candidate => sharesKeystore(candidate, account)) || matchingAccounts[0];
+      return matchingAccounts[0];
     }
   }
 
-  return eligibleAccounts.find(candidate => sharesKeystore(candidate, account)) || eligibleAccounts[0];
+  return eligibleAccounts[0];
 };
 
-const getPreferredCounterpartAccountCode = (
-  accounts: TAccount[],
+export const getPreferredCounterpartAccountCode = (
+  referenceAccounts: TAccountBase[],
+  counterpartAccounts: TAccountBase[],
   accountCode?: AccountCode,
   currentCounterpartAccountCode?: AccountCode,
 ) => {
-  const account = findOptionalAccount(accounts, accountCode);
+  const account = accountCode ? findAccount(referenceAccounts, accountCode) : undefined;
   if (!account) {
     return;
   }
 
-  const currentCounterpartAccount = findOptionalAccount(accounts, currentCounterpartAccountCode);
+  const currentCounterpartAccount = currentCounterpartAccountCode
+    ? findAccount(counterpartAccounts, currentCounterpartAccountCode)
+    : undefined;
   if (currentCounterpartAccount && isEligibleCounterpart(currentCounterpartAccount, account)) {
     return currentCounterpartAccount.code;
   }
 
-  return findPreferredCounterpartAccount(accounts, account)?.code;
+  return findPreferredCounterpartAccount(counterpartAccounts, account)?.code;
 };
 
 const getPairForSellAccount = (
-  accounts: TAccount[],
-  sellAccount?: TAccount,
+  sellAccounts: TAccountBase[],
+  buyAccounts: TAccountBase[],
+  sellAccount?: TAccountBase,
   currentBuyAccountCode?: AccountCode,
 ): TSwapPair => ({
   sellAccountCode: sellAccount?.code,
   buyAccountCode: sellAccount
-    ? getPreferredCounterpartAccountCode(accounts, sellAccount.code, currentBuyAccountCode)
+    ? getPreferredCounterpartAccountCode(sellAccounts, buyAccounts, sellAccount.code, currentBuyAccountCode)
     : undefined,
 });
 
-const getFirstAvailablePair = (accounts: TAccount[]): TSwapPair => {
-  for (const account of accounts) {
-    const pair = getPairForSellAccount(accounts, account);
+const getFirstAvailablePair = (
+  sellAccounts: TAccountBase[],
+  buyAccounts: TAccountBase[],
+): TSwapPair => {
+  for (const account of sellAccounts) {
+    const pair = getPairForSellAccount(sellAccounts, buyAccounts, account);
     if (pair.buyAccountCode) {
       return pair;
     }
@@ -114,11 +108,15 @@ export const getPairKey = (
   sellAccountCode && buyAccountCode ? `${sellAccountCode}:${buyAccountCode}` : undefined
 );
 
+export const getConnectedSwapAccounts = (accounts: TAccount[]) => (
+  accounts.filter(account => account.keystore.connected)
+);
+
 export const getDisabledAccountCodes = (
-  accounts: TAccount[],
+  accounts: TAccountBase[],
   oppositeAccountCode?: AccountCode,
 ) => {
-  const oppositeAccount = findOptionalAccount(accounts, oppositeAccountCode);
+  const oppositeAccount = oppositeAccountCode ? findAccount(accounts, oppositeAccountCode) : undefined;
   if (!oppositeAccount) {
     return [];
   }
@@ -127,48 +125,48 @@ export const getDisabledAccountCodes = (
     .map(account => account.code);
 };
 
-export const getPreferredBuyAccountCode = (
-  accounts: TAccount[],
-  sellAccountCode?: AccountCode,
-  currentBuyAccountCode?: AccountCode,
-) => getPreferredCounterpartAccountCode(accounts, sellAccountCode, currentBuyAccountCode);
-
-export const getPreferredSellAccountCode = (
-  accounts: TAccount[],
-  buyAccountCode?: AccountCode,
-  currentSellAccountCode?: AccountCode,
-) => getPreferredCounterpartAccountCode(accounts, buyAccountCode, currentSellAccountCode);
-
 export const getDefaultSwapPair = (
-  accounts: TAccount[],
+  sellAccounts: TAccountBase[],
+  buyAccounts: TAccountBase[],
   routeSellAccountCode?: AccountCode,
 ): TSwapPair => {
-  const routePair = getPairForSellAccount(accounts, findOptionalAccount(accounts, routeSellAccountCode));
+  const routePair = getPairForSellAccount(
+    sellAccounts,
+    buyAccounts,
+    routeSellAccountCode ? findAccount(sellAccounts, routeSellAccountCode) : undefined,
+  );
   if (routePair.sellAccountCode) {
     return routePair;
   }
 
   // Without a route override, start from native ETH when possible so the default pair lands on
   // the most common ETH <-> BTC path.
-  const defaultEthPair = getPairForSellAccount(accounts, accounts.find(isNativeEthereumAccount));
+  const defaultEthPair = getPairForSellAccount(
+    sellAccounts,
+    buyAccounts,
+    sellAccounts.find(isNativeEthereumAccount),
+  );
   if (defaultEthPair.buyAccountCode) {
     return defaultEthPair;
   }
 
-  return getFirstAvailablePair(accounts);
+  return getFirstAvailablePair(sellAccounts, buyAccounts);
 };
 
 export const reconcileSwapPair = (
-  accounts: TAccount[],
+  sellAccounts: TAccountBase[],
+  buyAccounts: TAccountBase[],
   currentPair: TSwapPair,
   routeSellAccountCode?: AccountCode,
 ): TSwapPair => {
-  const sellAccount = findOptionalAccount(accounts, currentPair.sellAccountCode);
+  const sellAccount = currentPair.sellAccountCode
+    ? findAccount(sellAccounts, currentPair.sellAccountCode)
+    : undefined;
   if (!sellAccount) {
-    return getDefaultSwapPair(accounts, routeSellAccountCode);
+    return getDefaultSwapPair(sellAccounts, buyAccounts, routeSellAccountCode);
   }
 
-  return getPairForSellAccount(accounts, sellAccount, currentPair.buyAccountCode);
+  return getPairForSellAccount(sellAccounts, buyAccounts, sellAccount, currentPair.buyAccountCode);
 };
 
 export const getFlippedAmounts = (
