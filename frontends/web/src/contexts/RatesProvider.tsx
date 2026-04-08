@@ -22,13 +22,9 @@ export const RatesProvider = ({ children }: TProps) => {
     if (config === undefined) {
       return Promise.resolve();
     }
-    if (config.backend?.mainFiat) {
-      setDefaultCurrency(config.backend.mainFiat as Fiat);
-    }
-    if (config.backend?.fiatList && config.backend?.btcUnit) {
-      setActiveCurrencies(config.backend.fiatList as Fiat[]);
-      setBtcUnit(config.backend.btcUnit as BtcUnit);
-    }
+    setDefaultCurrency(config.backend.mainFiat);
+    setActiveCurrencies(config.backend.fiatList);
+    setBtcUnit(config.backend.btcUnit);
     return Promise.resolve();
   }, [config]);
 

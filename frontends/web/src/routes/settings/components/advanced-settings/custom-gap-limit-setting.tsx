@@ -41,8 +41,8 @@ export const CustomGapLimitSettings = ({ backendConfig, onChangeConfig }: TProps
     const config = await setConfig({
       backend: {
         ...backendConfig,
-        gapLimitReceive,
-        gapLimitChange,
+        gapLimitReceive: Number(gapLimitReceive),
+        gapLimitChange: Number(gapLimitChange),
       },
     });
     onChangeConfig(config);
