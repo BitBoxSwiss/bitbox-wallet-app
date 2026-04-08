@@ -70,19 +70,6 @@ describe('routes/market/swap/services', () => {
     });
   });
 
-  it('keeps the route sell account and resolves a valid counterpart', () => {
-    const accounts = [
-      makeAccount({ code: 'btc-main', coinCode: 'btc', rootFingerprint: 'f1' }),
-      makeAccount({ code: 'ltc-route', coinCode: 'ltc', rootFingerprint: 'f1' }),
-      makeAccount({ code: 'eth-other', coinCode: 'eth', rootFingerprint: 'f2' }),
-    ];
-
-    expect(getDefaultSwapPair(accounts, accounts, 'ltc-route')).toEqual({
-      sellAccountCode: 'ltc-route',
-      buyAccountCode: 'btc-main',
-    });
-  });
-
   it('falls back to the first valid cross-coin pair when no eth or btc account exists', () => {
     const accounts = [
       makeAccount({ code: 'ltc-main', coinCode: 'ltc' }),

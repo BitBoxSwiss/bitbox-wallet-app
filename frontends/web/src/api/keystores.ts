@@ -45,7 +45,7 @@ export const connectKeystore = (rootFingerprint: string): Promise<TConnectKeysto
   return apiPost('connect-keystore', { rootFingerprint });
 };
 
-export const connectAnyKeystore = (): Promise<{ success: boolean }> => {
+export const connectAnyKeystore = (): Promise<TConnectKeystoreResponse> => {
   return apiPost('connect-keystore', { rootFingerprint: '' });
 };
 

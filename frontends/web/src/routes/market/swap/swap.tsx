@@ -36,7 +36,6 @@ import style from './swap.module.css';
 
 type Props = {
   accounts: TAccount[];
-  code: AccountCode;
 };
 
 const QUOTE_DEBOUNCE_MS = 300;
@@ -52,11 +51,9 @@ const fetchBalance = async (code: AccountCode) => {
 
 export const Swap = ({
   accounts,
-  code,
 }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const routeSellAccountCode = code || undefined;
   const loadedBuyAccounts = useLoad(getSwapDestinationAccounts, [accounts]);
   const sellAccounts = useMemo(
     () => getConnectedSwapAccounts(accounts),
@@ -72,14 +69,14 @@ export const Swap = ({
 
   // Send
   const [sellAccountCode, setSellAccountCode] = useState<AccountCode | undefined>(() => (
-    getDefaultSwapPair(sellAccounts, buyAccounts, routeSellAccountCode).sellAccountCode
+    getDefaultSwapPair(sellAccounts, buyAccounts).sellAccountCode
   ));
   const [sellAmount, setSellAmount] = useState<string>('');
   const [maxSellAmount, setMaxSellAmount] = useState<TBalance | undefined>();
 
   // Receive
   const [buyAccountCode, setBuyAccountCode] = useState<AccountCode | undefined>(() => (
-    getDefaultSwapPair(sellAccounts, buyAccounts, routeSellAccountCode).buyAccountCode
+    getDefaultSwapPair(sellAccounts, buyAccounts).buyAccountCode
   ));
   const [expectedOutput, setExpectedOutput] = useState<string>('');
 
@@ -88,7 +85,6 @@ export const Swap = ({
   const [selectedRouteId, setSelectedRouteId] = useState<string | undefined>();
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
   const [routeError, setRouteError] = useState<string | undefined>();
-  const previousRouteSellAccountCode = useRef(routeSellAccountCode);
   const pairAmountsRef = useRef<Record<string, TPairAmounts>>({});
 
   const buyAccount = useMemo(
@@ -121,12 +117,7 @@ export const Swap = ({
   }, [navigate, sellAccounts.length]);
 
   useEffect(() => {
-    const routeChanged = previousRouteSellAccountCode.current !== routeSellAccountCode;
-    previousRouteSellAccountCode.current = routeSellAccountCode;
-
-    const nextPair = routeChanged
-      ? getDefaultSwapPair(sellAccounts, buyAccounts, routeSellAccountCode)
-      : reconcileSwapPair(sellAccounts, buyAccounts, { buyAccountCode, sellAccountCode }, routeSellAccountCode);
+    const nextPair = reconcileSwapPair(sellAccounts, buyAccounts, { buyAccountCode, sellAccountCode });
 
     if (nextPair.sellAccountCode !== sellAccountCode) {
       setSellAccountCode(nextPair.sellAccountCode);
@@ -134,7 +125,7 @@ export const Swap = ({
     if (nextPair.buyAccountCode !== buyAccountCode) {
       setBuyAccountCode(nextPair.buyAccountCode);
     }
-  }, [buyAccounts, buyAccountCode, routeSellAccountCode, sellAccountCode, sellAccounts]);
+  }, [buyAccounts, buyAccountCode, sellAccountCode, sellAccounts]);
 
   useEffect(() => {
     const pairKey = getPairKey(sellAccountCode, buyAccountCode);
@@ -259,7 +250,6 @@ export const Swap = ({
       isCancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [accounts, buyAccount?.coinCode, buyAccountCode, sellAccountCode, sellAmount]);
   }, [accounts, buyAccount?.coinCode, buyAccountCode, sellAccountCode, sellAmount]);
 
   useEffect(() => {

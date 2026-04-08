@@ -128,19 +128,9 @@ export const getDisabledAccountCodes = (
 export const getDefaultSwapPair = (
   sellAccounts: TAccountBase[],
   buyAccounts: TAccountBase[],
-  routeSellAccountCode?: AccountCode,
 ): TSwapPair => {
-  const routePair = getPairForSellAccount(
-    sellAccounts,
-    buyAccounts,
-    routeSellAccountCode ? findAccount(sellAccounts, routeSellAccountCode) : undefined,
-  );
-  if (routePair.sellAccountCode) {
-    return routePair;
-  }
-
-  // Without a route override, start from native ETH when possible so the default pair lands on
-  // the most common ETH <-> BTC path.
+  // Start from native ETH when possible so the default pair lands on the most common ETH <-> BTC
+  // path.
   const defaultEthPair = getPairForSellAccount(
     sellAccounts,
     buyAccounts,
@@ -157,13 +147,12 @@ export const reconcileSwapPair = (
   sellAccounts: TAccountBase[],
   buyAccounts: TAccountBase[],
   currentPair: TSwapPair,
-  routeSellAccountCode?: AccountCode,
 ): TSwapPair => {
   const sellAccount = currentPair.sellAccountCode
     ? findAccount(sellAccounts, currentPair.sellAccountCode)
     : undefined;
   if (!sellAccount) {
-    return getDefaultSwapPair(sellAccounts, buyAccounts, routeSellAccountCode);
+    return getDefaultSwapPair(sellAccounts, buyAccounts);
   }
 
   return getPairForSellAccount(sellAccounts, buyAccounts, sellAccount, currentPair.buyAccountCode);
