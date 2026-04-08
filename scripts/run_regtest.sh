@@ -4,8 +4,18 @@
 BITCOIN_DATADIR="/tmp/regtest/btcdata"
 ELECTRS_DATADIR1="/tmp/regtest/electrsdata1"
 ELECTRS_DATADIR2="/tmp/regtest/electrsdata2"
+BITCOIND_CONTAINER_NAME="bitcoind-regtest"
+ELECTRS_CONTAINER_NAME1="electrs-regtest1"
+ELECTRS_CONTAINER_NAME2="electrs-regtest2"
 
 trap 'killall' EXIT
+
+cleanup_leftovers() {
+    docker rm -f "$BITCOIND_CONTAINER_NAME" >/dev/null 2>&1 || true
+    docker rm -f "$ELECTRS_CONTAINER_NAME1" >/dev/null 2>&1 || true
+    docker rm -f "$ELECTRS_CONTAINER_NAME2" >/dev/null 2>&1 || true
+    rm -rf "$BITCOIN_DATADIR" "$ELECTRS_DATADIR1" "$ELECTRS_DATADIR2"
+}
 
 killall() {
     # https://unix.stackexchange.com/questions/55558/how-can-i-kill-and-wait-for-background-processes-to-finish-in-a-shell-script-whe
@@ -13,20 +23,17 @@ killall() {
     echo "**** Shutting down... ****"
     kill -TERM 0
     wait
-    rm -rf $BITCOIN_DATADIR
-    rm -rf $ELECTRS_DATADIR1
-    rm -rf $ELECTRS_DATADIR2
-    docker rm bitcoind-regtest
-    docker rm electrs-regtest1
-    docker rm electrs-regtest2
+    cleanup_leftovers
     echo DONE
 }
 
-mkdir -p $BITCOIN_DATADIR
-mkdir -p $ELECTRS_DATADIR1
-mkdir -p $ELECTRS_DATADIR2
-echo -n "dbb:dbb" > $ELECTRS_DATADIR1/rpccreds
-echo -n "dbb:dbb" > $ELECTRS_DATADIR2/rpccreds
+cleanup_leftovers
+
+mkdir -p "$BITCOIN_DATADIR"
+mkdir -p "$ELECTRS_DATADIR1"
+mkdir -p "$ELECTRS_DATADIR2"
+echo -n "dbb:dbb" > "$ELECTRS_DATADIR1/rpccreds"
+echo -n "dbb:dbb" > "$ELECTRS_DATADIR2/rpccreds"
 echo "bitcoind datadir: ${BITCOIN_DATADIR}"
 echo "electrs datadir1: ${ELECTRS_DATADIR1}"
 echo "electrs datadir2: ${ELECTRS_DATADIR2}"
@@ -39,7 +46,7 @@ ELECTRS_RPC_PORT1=52001
 ELECTRS_RPC_PORT2=52002
 ELECTRS_MONITORING_PORT2=24225
 
-docker run -v $BITCOIN_DATADIR:/bitcoin/.bitcoin --name=bitcoind-regtest \
+docker run -v "$BITCOIN_DATADIR:/bitcoin/.bitcoin" --name="$BITCOIND_CONTAINER_NAME" \
        -p ${BITCOIND_RPC_PORT}:${BITCOIND_RPC_PORT} \
        -p ${BITCOIND_PORT}:${BITCOIND_PORT} \
        bitcoin/bitcoin:30.0 \
@@ -58,9 +65,9 @@ sleep 1
 docker run \
        -u $(id -u $USER) \
        --net=host \
-       -v $BITCOIN_DATADIR/.bitcoin:/bitcoin/.bitcoin \
-       -v $ELECTRS_DATADIR1:/data \
-       --name=electrs-regtest1 \
+       -v "$BITCOIN_DATADIR/.bitcoin:/bitcoin/.bitcoin" \
+       -v "$ELECTRS_DATADIR1:/data" \
+       --name="$ELECTRS_CONTAINER_NAME1" \
        benma2/electrs:v0.10.10 \
         --cookie-file=/data/rpccreds \
         --log-filters INFO \
@@ -74,9 +81,9 @@ docker run \
 docker run \
        -u $(id -u $USER) \
        --net=host \
-       -v $BITCOIN_DATADIR/.bitcoin:/bitcoin/.bitcoin \
-       -v $ELECTRS_DATADIR2:/data \
-       --name=electrs-regtest2 \
+       -v "$BITCOIN_DATADIR/.bitcoin:/bitcoin/.bitcoin" \
+       -v "$ELECTRS_DATADIR2:/data" \
+       --name="$ELECTRS_CONTAINER_NAME2" \
        benma2/electrs:v0.10.10 \
         --cookie-file=/data/rpccreds \
         --log-filters INFO \
@@ -89,10 +96,10 @@ docker run \
         --db-dir=/data &
 
 echo "Interact with the regtest chain (e.g. generate 101 blocks and send coins):"
-echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 createwallet testwallet"
-echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 getnewaddress"
-echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 generatetoaddress 101 <newaddress>"
-echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 sendtoaddress <address> <amount>"
+echo "    docker exec --user=`id -u` -it $BITCOIND_CONTAINER_NAME bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=$BITCOIND_RPC_PORT createwallet testwallet"
+echo "    docker exec --user=`id -u` -it $BITCOIND_CONTAINER_NAME bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=$BITCOIND_RPC_PORT getnewaddress"
+echo "    docker exec --user=`id -u` -it $BITCOIND_CONTAINER_NAME bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=$BITCOIND_RPC_PORT generatetoaddress 101 <newaddress>"
+echo "    docker exec --user=`id -u` -it $BITCOIND_CONTAINER_NAME bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=$BITCOIND_RPC_PORT sendtoaddress <address> <amount>"
 echo "Delete headers-rbtc.bin in the app cache folder before running the BitBoxApp, otherwise it can conflict the fresh regtest chain."
 echo "Also delete all rbtc account caches in the app cache folder before running the BitBoxApp."
 echo "You may need to disable VPN, as it can prevent Electrs/bitcoin-cli from connecting to bitcoind."

@@ -5,41 +5,27 @@ import path from 'path';
 import util from 'util';
 import fs from 'fs';
 
-
 const execAsync = util.promisify(exec);
 
 const RPC_USER = 'dbb';
 const RPC_PASSWORD = 'dbb';
 const RPC_PORT = 10332;
 const DATADIR = '/bitcoin';
-const REGTEST_READY_LINE = 'waiting for 0 blocks to download (IBD)';
+const BITCOIND_CONTAINER = 'bitcoind-regtest';
+const ELECTRS_CONTAINER1 = 'electrs-regtest1';
+const ELECTRS_CONTAINER2 = 'electrs-regtest2';
+const BTC_DATA_DIR = '/tmp/regtest/btcdata';
+const ELECTRS_DATA_DIR1 = '/tmp/regtest/electrsdata1';
+const ELECTRS_DATA_DIR2 = '/tmp/regtest/electrsdata2';
 
 let addr: string;
-
-async function waitForBitcoinCli(args: string[], timeout: number = 20000): Promise<string> {
-  const start = Date.now();
-  let lastError: unknown;
-
-  while (Date.now() - start < timeout) {
-    try {
-      return await runBitcoinCli(args);
-    } catch (err) {
-      lastError = err;
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-  }
-
-  throw new Error(
-    `Timed out waiting for regtest command "${args.join(' ')}": ${String(lastError)}`
-  );
-}
 
 // run bitcoin-cli command inside the bitcoind-regtest docker container.
 async function runBitcoinCli(args: string[]): Promise<string> {
   const cmd = [
     'docker exec',
     '--user=$(id -u)',
-    'bitcoind-regtest',
+    BITCOIND_CONTAINER,
     'bitcoin-cli',
     '-regtest',
     `-datadir=${DATADIR}`,
@@ -81,8 +67,25 @@ export async function sendCoins(address: string, amount: number | string): Promi
   return txid; // returns the transaction ID
 }
 
+async function cleanupRegtestResources(): Promise<void> {
+  try {
+    await execAsync(`
+docker container rm -f ${BITCOIND_CONTAINER} ${ELECTRS_CONTAINER1} ${ELECTRS_CONTAINER2} >/dev/null 2>&1 || true
+`);
+  } catch (err) {
+    console.warn('Docker cleanup failed:', err);
+  }
 
-export function launchRegtest(): Promise<ChildProcess> {
+  for (const dir of [BTC_DATA_DIR, ELECTRS_DATA_DIR1, ELECTRS_DATA_DIR2]) {
+    try {
+      await execAsync(`rm -rf ${dir}`);
+    } catch (err) {
+      console.warn(`Failed to delete directory ${dir}:`, err);
+    }
+  }
+}
+
+export async function launchRegtest(): Promise<ChildProcess> {
   const PROJECT_ROOT = process.env.GITHUB_WORKSPACE || path.resolve(__dirname, '../../../..');
   // First, clean up cache and headers.
   try {
@@ -108,6 +111,9 @@ export function launchRegtest(): Promise<ChildProcess> {
   } catch (err) {
     console.warn('Warning: Failed to clean up cache or headers before regtest launch:', err);
   }
+
+  await cleanupRegtestResources();
+
   const scriptPath = path.join(PROJECT_ROOT, 'scripts/run_regtest.sh');
 
   return new Promise((resolve, reject) => {
@@ -115,51 +121,52 @@ export function launchRegtest(): Promise<ChildProcess> {
       detached: true,
       stdio: ['ignore', 'pipe', 'pipe'], // capture stdout/stderr
     });
-
     let settled = false;
-    let waitingForRpc = false;
+    let startupOutput = '';
 
-    const finish = (err?: Error) => {
-      if (settled) {
-        return;
-      }
-      settled = true;
+    const cleanupListeners = () => {
       proc.stdout.off('data', onData);
       proc.stderr.off('data', onData);
       proc.off('error', onError);
       proc.off('exit', onExit);
-
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(proc);
-    };
-
-    const onError = (err: Error) => finish(err);
-
-    const onExit = (code: number | null, signal: NodeJS.Signals | null) => {
-      finish(new Error(`Regtest exited before becoming ready (code=${String(code)}, signal=${String(signal)})`));
     };
 
     // Listen for the line we want
-    const onData = async (data: Buffer) => {
+    const onData = (data: Buffer) => {
       const text = data.toString();
+      startupOutput += text;
       process.stdout.write(text); // still print it to console
-      if (text.includes(REGTEST_READY_LINE) && !waitingForRpc) {
-        waitingForRpc = true;
-        try {
-          await waitForBitcoinCli(['getblockchaininfo']);
-          finish();
-        } catch (err) {
-          finish(err instanceof Error ? err : new Error(String(err)));
-        }
+      if (text.includes('waiting for 0 blocks to download (IBD)')) {
+        settled = true;
+        cleanupListeners();
+        resolve(proc); // resolve when we see the line
       }
+    };
+
+    const onError = (error: Error) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      cleanupListeners();
+      reject(error);
+    };
+
+    const onExit = (code: number | null, signal: NodeJS.Signals | null) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      cleanupListeners();
+      const details = startupOutput.trim();
+      reject(new Error(
+        `Regtest launcher exited before ready (code=${String(code)}, signal=${String(signal)}).` +
+        (details ? ` Output:\n${details}` : '')
+      ));
     };
 
     proc.stdout.on('data', onData);
     proc.stderr.on('data', onData);
-
     proc.on('error', onError);
     proc.on('exit', onExit);
   });
@@ -176,7 +183,6 @@ export async function cleanupRegtest(
 ): Promise<void> {
   console.log('Cleaning up regtest environment');
 
-
   // Kill the regtest process group (spawned as detached)
   if (regtest?.pid) {
     try {
@@ -186,32 +192,5 @@ export async function cleanupRegtest(
     }
   }
 
-
-  // Remove Docker containers
-  try {
-    await execAsync(`
-docker container rm -f bitcoind-regtest electrs-regtest1 electrs-regtest2 >/dev/null 2>&1 || true
-`);
-    console.log('Docker containers cleaned up.');
-  } catch (err) {
-    console.warn('Docker cleanup failed:', err);
-  }
-
-
-  // Remove regtest data directories
-  const dirs = [
-    '/tmp/regtest/btcdata',
-    '/tmp/regtest/electrsdata1',
-    '/tmp/regtest/electrsdata2',
-  ];
-
-  for (const dir of dirs) {
-    try {
-      await execAsync(`rm -rf ${dir}`);
-      console.log(`Deleted directory: ${dir}`);
-    } catch (err) {
-      console.warn(`Failed to delete directory ${dir}:`, err);
-    }
-  }
-
+  await cleanupRegtestResources();
 }
