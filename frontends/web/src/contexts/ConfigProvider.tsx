@@ -2,7 +2,7 @@
 
 import { ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { getConfig, setConfig as setConfigAPI } from '@/utils/config';
-import type { TConfig } from '@/api/config';
+import type { TConfig, TConfigUpdate } from '@/api/config';
 import { ConfigContext, TConfigContext } from './ConfigContext';
 
 type TProps = {
@@ -16,7 +16,7 @@ export const ConfigProvider = ({ children }: TProps) => {
     getConfig().then(setConfigState).catch(console.error);
   }, []);
 
-  const setConfig = useCallback((object: Partial<TConfig>) => {
+  const setConfig = useCallback((object: TConfigUpdate) => {
     return setConfigAPI(object).then(nextConfig => {
       setConfigState(nextConfig);
       return nextConfig;

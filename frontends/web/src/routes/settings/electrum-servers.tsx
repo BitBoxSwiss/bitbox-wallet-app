@@ -23,14 +23,13 @@ export const ElectrumServers = ({
   if (config === undefined) {
     return null;
   }
-  const backendCoin = config.backend?.[coin] as { electrumServers?: TElectrumServer[] } | undefined;
-  const electrumServers: TElectrumServer[] = backendCoin?.electrumServers ?? [];
+  const electrumServers: TElectrumServer[] = config.backend[coin].electrumServers;
 
   const save = async (newElectrumServers: TElectrumServer[]) => {
     await setConfig({
       backend: {
         [coin]: {
-          ...(backendCoin && typeof backendCoin === 'object' ? backendCoin : {}),
+          ...config.backend[coin],
           electrumServers: newElectrumServers
         }
       }
