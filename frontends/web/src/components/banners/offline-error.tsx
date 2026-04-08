@@ -14,7 +14,7 @@ export const OfflineError = ({
 }: Props) => {
   const { t } = useTranslation();
   const { config } = useConfig();
-  const usesProxy = (config?.backend?.proxy as { useProxy?: boolean } | undefined)?.useProxy;
+  const usesProxy = config?.backend.proxy.useProxy;
 
   // Status: offline error
   const offlineErrorTextLines: string[] = [];
