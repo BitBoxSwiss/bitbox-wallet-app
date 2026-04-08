@@ -48,7 +48,7 @@ export const Pocket = ({
   const accountInfo = useLoad(getInfo(code));
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean((config?.frontend as { skipPocketDisclaimer?: unknown } | undefined)?.skipPocketDisclaimer));
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean(config?.frontend.skipPocketDisclaimer));
   const signingRef = useRef(false);
 
   useEffect(() => {

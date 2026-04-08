@@ -55,7 +55,7 @@ export const BTCDirect = ({
 
   const account = findAccount(accounts, code);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean((config?.frontend as { skipBTCDirectWidgetDisclaimer?: unknown } | undefined)?.skipBTCDirectWidgetDisclaimer));
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean(config?.frontend.skipBTCDirectWidgetDisclaimer));
 
   const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
     const {

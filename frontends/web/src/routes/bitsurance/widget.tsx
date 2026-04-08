@@ -32,7 +32,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   const accountInfo = useLoad(getInfo(code));
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean((config?.frontend as { skipBitsuranceDisclaimer?: unknown } | undefined)?.skipBitsuranceDisclaimer));
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean(config?.frontend.skipBitsuranceDisclaimer));
   const signingRef = useRef(false);
 
   useEffect(() => {

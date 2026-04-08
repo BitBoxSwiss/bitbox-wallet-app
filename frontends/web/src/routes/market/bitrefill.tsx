@@ -51,7 +51,7 @@ export const Bitrefill = ({
 
   const bitrefillInfo = useLoad(() => getBitrefillInfo('spend', code));
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean((config?.frontend as { skipBitrefillWidgetDisclaimer?: unknown } | undefined)?.skipBitrefillWidgetDisclaimer));
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean(config?.frontend.skipBitrefillWidgetDisclaimer));
 
   const [pendingPayment, setPendingPayment] = useState<boolean>(false);
   const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);
