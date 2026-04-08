@@ -3,7 +3,7 @@
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
-import { Message } from '@/components/message/message';
+import { SessionStatus } from '@/components/status/status-session';
 
 export const Testing = () => {
   const { t } = useTranslation();
@@ -14,8 +14,10 @@ export const Testing = () => {
   }
 
   return (
-    <Message type="warning">
+    <SessionStatus
+      type="warning"
+      dismissible="omg">
       {t('warning.testnet')}
-    </Message>
+    </SessionStatus>
   );
 };
