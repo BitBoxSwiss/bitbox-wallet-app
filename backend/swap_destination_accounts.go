@@ -19,7 +19,10 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	ethcommon "github.com/ethereum/go-ethereum/common"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 // SwapDestinationAccount contains the backend-native data needed to serialize swap destinations.
@@ -116,36 +119,38 @@ func (backend *Backend) SignSwap(
 	if err != nil {
 		return nil, err
 	}
-	specificSellAccount, ok := sellAccount.(*btc.Account)
-	if !ok {
-		return nil, errp.New("Only BTC sell accounts are currently supported")
-	}
 	buyAccount, err := backend.GetAccountFromCode(buyAccountCode)
 	if err != nil {
 		return nil, err
 	}
-	specificBuyAccount, ok := buyAccount.(*eth.Account)
-	if !ok {
-		return nil, errp.New("Only ETH/ERC20 receive accounts are currently supported")
+	switch sellAccount.(type) {
+	case *btc.Account, *eth.Account:
+	default:
+		return nil, errp.New("Only BTC/ETH/ERC20 sell accounts are currently supported")
+	}
+	switch buyAccount.(type) {
+	case *btc.Account, *eth.Account:
+	default:
+		return nil, errp.New("Only BTC/ETH/ERC20 receive accounts are currently supported")
 	}
 
-	sourceAddress, err := swapSourceAddress(specificSellAccount)
+	sourceAddress, err := swapSourceAddress(sellAccount)
 	if err != nil {
 		return nil, err
 	}
-	destinationAddress, destinationDerivation, _, err := swapDestinationAddress(specificBuyAccount)
+	destinationAddress, destinationDerivation, destinationAddressObj, err := swapDestinationAddress(buyAccount)
 	if err != nil {
 		return nil, err
 	}
-	swapSellAmount, err := swapkit.FormatAmount(specificSellAccount.Coin(), sellAmount)
+	swapSellAmount, err := swapkit.FormatAmount(sellAccount.Coin(), sellAmount)
 	if err != nil {
 		return nil, err
 	}
 
 	swapResponse, swapError := swapkit.NewSwap(
 		context.Background(),
-		string(specificSellAccount.Coin().Code()),
-		string(specificBuyAccount.Coin().Code()),
+		string(sellAccount.Coin().Code()),
+		string(buyAccount.Coin().Code()),
 		swapSellAmount,
 		routeID,
 		sourceAddress,
@@ -167,7 +172,10 @@ func (backend *Backend) SignSwap(
 	if !slip24HasCoinPurchase(paymentRequest) {
 		return nil, errp.New("Missing coinPurchase payment request memo")
 	}
-	txInput, err := swapSignTxInput(paymentRequest, specificSellAccount.Coin(), destinationDerivation)
+	if err := backend.verifySwapDestinationAccount(sellAccount, buyAccount, destinationAddressObj); err != nil {
+		return nil, err
+	}
+	txInput, err := swapSignTxInput(paymentRequest, sellAccount.Coin(), destinationDerivation)
 	if err != nil {
 		return nil, err
 	}
@@ -311,6 +319,80 @@ func slip24HasCoinPurchase(paymentRequest *paymentrequest.Slip24) bool {
 	return false
 }
 
+func (backend *Backend) verifySwapDestinationAccount(
+	sellAccount, buyAccount accounts.Interface,
+	destinationAddress accounts.Address,
+) error {
+	if backend.keystore == nil {
+		return errp.New("A BitBox02 must be connected to verify the swap destination account")
+	}
+
+	sellRootFingerprint, err := sellAccount.Config().Config.SigningConfigurations.RootFingerprint()
+	if err != nil {
+		return err
+	}
+	buyRootFingerprint, err := buyAccount.Config().Config.SigningConfigurations.RootFingerprint()
+	if err != nil {
+		return err
+	}
+	if !bytes.Equal(sellRootFingerprint, buyRootFingerprint) {
+		return errp.New("Swap destination account must belong to the same keystore as the sell account")
+	}
+	if err := compareRootFingerprint(backend.keystore, sellRootFingerprint); err != nil {
+		if err == ErrWrongKeystore {
+			return errp.New("The connected keystore does not match the selected swap accounts")
+		}
+		return err
+	}
+
+	switch specificBuyAccount := buyAccount.(type) {
+	case *eth.Account:
+		destinationKeypathAbs := destinationAddress.AbsoluteKeypath()
+		xpub, err := backend.keystore.ExtendedPublicKey(buyAccount.Coin(), destinationKeypathAbs)
+		if err != nil {
+			return err
+		}
+		pubkey, err := xpub.ECPubKey()
+		if err != nil {
+			return err
+		}
+		derivedAddress := ethcrypto.PubkeyToAddress(*pubkey.ToECDSA()).Hex()
+		if derivedAddress != ethcommon.HexToAddress(destinationAddress.EncodeForHumans()).Hex() {
+			return errp.New("Selected swap destination address does not belong to the connected keystore")
+		}
+	case *btc.Account:
+		accountAddress, ok := destinationAddress.(*btcaddresses.AccountAddress)
+		if !ok {
+			return errp.New("Unexpected BTC destination address type")
+		}
+		xpub, err := backend.keystore.ExtendedPublicKey(
+			buyAccount.Coin(),
+			accountAddress.AccountConfiguration.AbsoluteKeypath(),
+		)
+		if err != nil {
+			return err
+		}
+		derivedConfig := signing.NewBitcoinConfiguration(
+			accountAddress.AccountConfiguration.ScriptType(),
+			sellRootFingerprint,
+			accountAddress.AccountConfiguration.AbsoluteKeypath(),
+			xpub,
+		)
+		derivedAddress := btcaddresses.NewAccountAddress(
+			derivedConfig,
+			accountAddress.Derivation,
+			specificBuyAccount.Coin().(*btc.Coin).Net(),
+			backend.log,
+		)
+		if derivedAddress.EncodeForHumans() != destinationAddress.EncodeForHumans() {
+			return errp.New("Selected swap destination address does not belong to the connected keystore")
+		}
+	default:
+		return errp.New("Unsupported swap destination account")
+	}
+	return nil
+}
+
 func frontendPaymentRequest(
 	paymentRequest *paymentrequest.Slip24,
 	destinationDerivation *paymentrequest.Slip24AddressDerivation,
@@ -393,40 +475,54 @@ func firstUnusedAddress(account accounts.Interface) (accounts.Address, error) {
 	return nil, errp.New("Could not find an unused receive address")
 }
 
-func swapDestinationAddress(account *eth.Account) (string, *paymentrequest.Slip24AddressDerivation, accounts.Address, error) {
+func swapDestinationAddress(account accounts.Interface) (string, *paymentrequest.Slip24AddressDerivation, accounts.Address, error) {
 	address, err := firstUnusedAddress(account)
 	if err != nil {
 		return "", nil, nil, err
 	}
-	typedAddress, ok := address.(eth.Address)
-	if !ok {
+	switch typedAddress := address.(type) {
+	case eth.Address:
+		return typedAddress.EncodeForHumans(), &paymentrequest.Slip24AddressDerivation{
+			Eth: &paymentrequest.Slip24EthAddressDerivation{
+				Keypath: typedAddress.AbsoluteKeypath().ToUInt32(),
+			},
+		}, typedAddress, nil
+	case *btcaddresses.AccountAddress:
+		return typedAddress.EncodeForHumans(), &paymentrequest.Slip24AddressDerivation{
+			Btc: &paymentrequest.Slip24BtcAddressDerivation{
+				Keypath:    typedAddress.AbsoluteKeypath().ToUInt32(),
+				ScriptType: string(typedAddress.AccountConfiguration.ScriptType()),
+			},
+		}, typedAddress, nil
+	default:
 		return "", nil, nil, errp.New("Unsupported swap destination address type")
 	}
-	return typedAddress.EncodeForHumans(), &paymentrequest.Slip24AddressDerivation{
-		Eth: &paymentrequest.Slip24EthAddressDerivation{
-			Keypath: typedAddress.AbsoluteKeypath().ToUInt32(),
-		},
-	}, typedAddress, nil
 }
 
-func swapSourceAddress(account *btc.Account) (string, error) {
-	spendableOutputs, err := account.SpendableOutputs()
-	if err != nil {
-		return "", err
-	}
-	for _, output := range spendableOutputs {
-		if output.Address != nil {
-			return output.Address.EncodeForHumans(), nil
+func swapSourceAddress(account accounts.Interface) (string, error) {
+	switch typedAccount := account.(type) {
+	case *btc.Account:
+		spendableOutputs, err := typedAccount.SpendableOutputs()
+		if err != nil {
+			return "", err
 		}
-	}
-	address, err := firstUnusedAddress(account)
-	if err != nil {
-		return "", err
-	}
-	switch typedAddress := address.(type) {
-	case *btcaddresses.AccountAddress:
-		return typedAddress.EncodeForHumans(), nil
+		for _, output := range spendableOutputs {
+			if output.Address != nil {
+				return output.Address.EncodeForHumans(), nil
+			}
+		}
+		address, err := firstUnusedAddress(typedAccount)
+		if err != nil {
+			return "", err
+		}
+		return address.EncodeForHumans(), nil
+	case *eth.Account:
+		address, err := firstUnusedAddress(typedAccount)
+		if err != nil {
+			return "", err
+		}
+		return address.EncodeForHumans(), nil
 	default:
-		return "", errp.New("Unsupported swap source address type")
+		return "", errp.New("Unsupported swap source account")
 	}
 }

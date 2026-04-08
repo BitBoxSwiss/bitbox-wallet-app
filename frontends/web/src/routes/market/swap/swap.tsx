@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   getBalance,
   getSwapDestinationAccounts,
+  hasPaymentRequest,
   hasSwapPaymentRequest,
   proposeTx,
   sendTx,
@@ -209,16 +210,26 @@ export const Swap = ({
     setExpectedOutput(selectedRoute?.expectedBuyAmount || '');
   }, [selectedRoute]);
 
+  const getPaymentRequestSupport = async (sellAccount: TAccount) => {
+    if (sellAccount.coinCode === 'btc' || sellAccount.coinCode === 'tbtc' || sellAccount.coinCode === 'rbtc') {
+      return hasSwapPaymentRequest(sellAccount.code);
+    }
+    return hasPaymentRequest(sellAccount.code);
+  };
+
   const handleConfirm = async () => {
     try {
-      if (!buyAccountCode || !sellAccountCode || !selectedRouteId || !sellAmount || !buyAccount) {
+      if (!buyAccountCode || !sellAccountCode || !selectedRouteId || !sellAmount || !buyAccount || !fromAccount) {
         alertUser(t('genericError'));
         return;
       }
 
-      const paymentRequestSupport = await hasSwapPaymentRequest(sellAccountCode);
+      const paymentRequestSupport = await getPaymentRequestSupport(fromAccount);
       if (!paymentRequestSupport.success) {
-        if (paymentRequestSupport.errorCode === 'firmwareUpgradeRequired') {
+        if (
+          paymentRequestSupport.errorCode === 'firmwareUpgradeRequired'
+          && (fromAccount.coinCode === 'btc' || fromAccount.coinCode === 'tbtc' || fromAccount.coinCode === 'rbtc')
+        ) {
           setFwRequiredDialog(true);
         } else if (paymentRequestSupport.errorCode) {
           alertUser(t(`device.${paymentRequestSupport.errorCode}`));

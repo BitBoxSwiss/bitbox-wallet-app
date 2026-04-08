@@ -481,6 +481,7 @@ type TxProposal struct {
 	// not used in the transaction or signing except for making sure the BitBox displays the address
 	// with the same case (lowercase/uppercase/mixed) as the user entered.
 	RecipientAddress string
+	PaymentRequest   *accounts.PaymentRequest
 }
 
 func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error) {
@@ -637,6 +638,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 		Signer:           types.NewLondonSigner(account.coin.net.ChainID),
 		Keypath:          account.signingConfiguration.AbsoluteKeypath(),
 		RecipientAddress: args.RecipientAddress,
+		PaymentRequest:   args.PaymentRequest,
 	}, nil
 }
 

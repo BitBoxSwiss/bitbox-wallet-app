@@ -189,3 +189,58 @@ func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
 		txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation.Eth.Keypath,
 	)
 }
+
+func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
+	sellCoin := btc.NewCoin(
+		coinpkg.CodeBTC,
+		"Bitcoin",
+		"BTC",
+		coinpkg.BtcUnitSats,
+		&chaincfg.MainNetParams,
+		".",
+		nil,
+		"",
+		socksproxy.NewSocksProxy(false, ""),
+	)
+	paymentRequest := &paymentrequest.Slip24{
+		RecipientName: "SWAPKIT (NEAR)",
+		Memos: []paymentrequest.Slip24Memo{
+			{
+				Type: "coinPurchase",
+				CoinPurchase: &paymentrequest.Slip24CoinPurchase{
+					CoinType: 0,
+					Amount:   "0.01 BTC",
+					Address:  "bc1qpz7m2szz07ca7vtj3zlce43fscdnv2q8hhs0tx",
+				},
+			},
+		},
+		Outputs: []paymentrequest.Slip24Out{
+			{
+				Amount:  100000000,
+				Address: "1GqULdYGDRfF3w85yGmEq8LTWecpKn8JMJ",
+			},
+		},
+		Signature: "sig",
+	}
+
+	txInput, err := swapSignTxInput(paymentRequest, sellCoin, &paymentrequest.Slip24AddressDerivation{
+		Btc: &paymentrequest.Slip24BtcAddressDerivation{
+			Keypath:    []uint32{2147483697, 2147483648, 2147483648, 0, 5},
+			ScriptType: "p2wpkh",
+		},
+	})
+	require.NoError(t, err)
+	require.NotNil(t, txInput.PaymentRequest)
+	require.NotNil(t, txInput.PaymentRequest.Memos[0].CoinPurchase)
+	require.NotNil(t, txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation)
+	require.Equal(
+		t,
+		[]uint32{2147483697, 2147483648, 2147483648, 0, 5},
+		txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation.Btc.Keypath,
+	)
+	require.Equal(
+		t,
+		"p2wpkh",
+		txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation.Btc.ScriptType,
+	)
+}
