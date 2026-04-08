@@ -32,7 +32,7 @@ export const DarkModeProvider = ({ children }: TProps) => {
       return;
     }
     if ('darkmode' in config.frontend) {
-      setIsDarkMode(config.frontend.darkmode as boolean);
+      setIsDarkMode(Boolean(config.frontend.darkmode));
       return;
     }
     if (runningInAndroid()) {

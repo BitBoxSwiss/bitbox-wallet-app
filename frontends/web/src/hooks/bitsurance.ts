@@ -78,7 +78,7 @@ export const useBitsurance = (
 
     // We fetch the config after the lookup as it could have changed.
     const freshConfig = await getConfig();
-    let cancelledAccounts: string[] = (freshConfig.frontend?.bitsuranceNotifyCancellation as string[] | undefined) ?? [];
+    let cancelledAccounts: string[] = freshConfig.frontend?.bitsuranceNotifyCancellation ?? [];
 
     if (cancelledAccounts?.includes(code)) {
       alertUser(t('account.insuranceExpired'));

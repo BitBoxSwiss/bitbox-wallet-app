@@ -56,7 +56,7 @@ export const AppProvider = ({ children }: TProps) => {
 
   useEffect(() => {
     const frontend = config?.frontend;
-    if (frontend && typeof frontend === 'object') {
+    if (frontend) {
       if (frontend.guideShown !== undefined) {
         setGuideShown(Boolean(frontend.guideShown));
       }
