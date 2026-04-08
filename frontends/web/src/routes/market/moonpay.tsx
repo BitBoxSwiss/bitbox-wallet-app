@@ -29,7 +29,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
 
   const account = findAccount(accounts, code);
   const { containerRef, height, iframeLoaded, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean((config?.frontend as { skipMoonpayDisclaimer?: unknown } | undefined)?.skipMoonpayDisclaimer));
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(Boolean(config?.frontend.skipMoonpayDisclaimer));
 
   if (!account || !config) {
     return null;
