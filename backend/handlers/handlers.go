@@ -63,7 +63,7 @@ type Backend interface {
 	Testing() bool
 	Accounts() backend.AccountsList
 	SwapDestinationAccounts() []*backend.SwapDestinationAccount
-	SignSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) error
+	SignSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapSignResult, error)
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
 	AccountsFiatAndCoinBalance(backend.AccountsList, string) (*big.Rat, map[coinpkg.Code]*big.Int, error)
 	Keystore() keystore.Keystore
@@ -1773,8 +1773,11 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 
 func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 	type result struct {
-		Success      bool   `json:"success"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
+		Success           bool                     `json:"success"`
+		ErrorMessage      string                   `json:"errorMessage,omitempty"`
+		ExpectedBuyAmount string                   `json:"expectedBuyAmount,omitempty"`
+		SwapID            string                   `json:"swapId,omitempty"`
+		TxInput           *backend.SwapSignTxInput `json:"txInput,omitempty"`
 	}
 
 	var request struct {
@@ -1799,16 +1802,22 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 	if request.SellAmount == "" {
 		return result{Success: false, ErrorMessage: "sellAmount is required."}
 	}
-	if err := handlers.backend.SignSwap(
+	swapResult, err := handlers.backend.SignSwap(
 		request.BuyAccountCode,
 		request.SellAccountCode,
 		request.RouteID,
 		request.SellAmount,
-	); err != nil {
+	)
+	if err != nil {
 		return result{Success: false, ErrorMessage: err.Error()}
 	}
 
-	return result{Success: true}
+	return result{
+		Success:           true,
+		ExpectedBuyAmount: swapResult.ExpectedBuyAmount,
+		SwapID:            swapResult.SwapID,
+		TxInput:           &swapResult.TxInput,
+	}
 }
 
 func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
@@ -1827,19 +1836,31 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	}
 
 	var request struct {
-		SellCoinCode string `json:"sellCoinCode"`
-		BuyCoinCode  string `json:"buyCoinCode"`
-		SellAmount   string `json:"sellAmount"`
+		SellAccountCode accountsTypes.Code `json:"sellAccountCode"`
+		SellCoinCode    string             `json:"sellCoinCode"`
+		BuyCoinCode     string             `json:"buyCoinCode"`
+		SellAmount      string             `json:"sellAmount"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return errorResult(swapkit.ErrInvalidRequest, "Request body is required and must be a valid JSON object.")
 	}
+	sellAmount := request.SellAmount
+	if request.SellAccountCode != "" {
+		account, err := handlers.backend.GetAccountFromCode(request.SellAccountCode)
+		if err != nil {
+			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+		}
+		sellAmount, err = swapkit.FormatAmount(account.Coin(), request.SellAmount)
+		if err != nil {
+			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+		}
+	}
 	quoteResponse, quoteError := swapkit.NewQuoteFromCoinCode(
 		context.Background(),
 		request.SellCoinCode,
 		request.BuyCoinCode,
-		request.SellAmount,
+		sellAmount,
 	)
 	if quoteError != nil {
 		return errorResult(quoteError.ErrorCode, quoteError.Message)

@@ -13,7 +13,9 @@
 
 .maxButton {
     color: var(--color-gray);
+    display: flex;
     font-size: var(--size-small);
+    gap: 0.4ch;
     min-height: auto;
     padding: 0;
 }

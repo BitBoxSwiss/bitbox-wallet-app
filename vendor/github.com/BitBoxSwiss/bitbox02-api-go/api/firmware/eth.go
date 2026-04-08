@@ -211,6 +211,7 @@ func (device *Device) ETHSign(
 }
 
 // ETHSignEIP1559 signs an ethereum EIP1559 transaction. It returns a 65 byte signature (R, S, and 1 byte recID).
+// If paymentRequest is provided, firmware v9.26.0 or newer is required.
 func (device *Device) ETHSignEIP1559(
 	chainID uint64,
 	keypath []uint32,
@@ -221,10 +222,15 @@ func (device *Device) ETHSignEIP1559(
 	recipient [20]byte,
 	value *big.Int,
 	data []byte,
-	recipientAddressCase messages.ETHAddressCase) ([]byte, error) {
+	recipientAddressCase messages.ETHAddressCase,
+	paymentRequest *messages.BTCPaymentRequestRequest,
+) ([]byte, error) {
 
 	if !device.version.AtLeast(semver.NewSemVer(9, 16, 0)) {
 		return nil, UnsupportedError("9.16.0")
+	}
+	if paymentRequest != nil && !device.version.AtLeast(semver.NewSemVer(9, 26, 0)) {
+		return nil, UnsupportedError("9.26.0")
 	}
 
 	hostNonceCommitment, hostNonce, err := handleHostNonceCommitment()
@@ -246,6 +252,7 @@ func (device *Device) ETHSignEIP1559(
 				Data:                 data,
 				HostNonceCommitment:  hostNonceCommitment,
 				AddressCase:          recipientAddressCase,
+				PaymentRequest:       paymentRequest,
 			},
 		},
 	}

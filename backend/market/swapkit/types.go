@@ -3,6 +3,7 @@ package swapkit
 import (
 	"encoding/json"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
@@ -18,11 +19,25 @@ type QuoteRequest struct {
 	MaxExecutionTime *int     `json:"maxExecutionTime,omitempty"`
 }
 
+// SwapRequest represents a request to the /swap endpoint of the SwapKit API.
+type SwapRequest struct {
+	RouteID             string   `json:"routeId"`
+	SellAsset           string   `json:"sellAsset,omitempty"`
+	BuyAsset            string   `json:"buyAsset,omitempty"`
+	SellAmount          string   `json:"sellAmount,omitempty"`
+	Providers           []string `json:"providers,omitempty"`
+	SourceAddress       string   `json:"sourceAddress"`
+	DestinationAddress  string   `json:"destinationAddress"`
+	DisableBalanceCheck bool     `json:"disableBalanceCheck"`
+	DisableEstimate     bool     `json:"disableEstimate"`
+	DisableBuildTx      bool     `json:"disableBuildTx"`
+}
+
 // QuoteResponse represents a response from the /quote endpoint of the SwapKit API.
 type QuoteResponse struct {
 	QuoteID        string       `json:"quoteId"`
 	Routes         []QuoteRoute `json:"routes"`
-	ProviderErrors []QuoteError `json:"providerErrors,omitempty"`
+	ProviderErrors []APIError   `json:"providerErrors,omitempty"`
 	Error          string       `json:"error,omitempty"`
 }
 
@@ -71,9 +86,42 @@ type NextAction struct {
 	Payload json.RawMessage `json:"payload,omitempty"`
 }
 
-// QuoteError represents an error from a provider when fetching a quote from the SwapKit API.
-type QuoteError struct {
+// APIError represents a structured error returned by the SwapKit API.
+type APIError struct {
 	Provider  string         `json:"provider"`
 	ErrorCode errp.ErrorCode `json:"errorCode"`
 	Message   string         `json:"message"`
+}
+
+// SwapMeta models the subset of SwapKit metadata currently needed by the app.
+type SwapMeta struct {
+	Slip24 *paymentrequest.Slip24 `json:"slip24,omitempty"`
+}
+
+// SwapResponse represents a response from the /swap endpoint of the SwapKit API.
+type SwapResponse struct {
+	SellAsset         string          `json:"sellAsset"`
+	SellAmount        string          `json:"sellAmount"`
+	BuyAsset          string          `json:"buyAsset"`
+	ExpectedBuyAmount string          `json:"expectedBuyAmount"`
+	RouteID           string          `json:"routeId"`
+	Providers         []string        `json:"providers"`
+	TargetAddress     string          `json:"targetAddress"`
+	Memo              string          `json:"memo,omitempty"`
+	Fees              []Fee           `json:"fees"`
+	EstimatedTime     json.RawMessage `json:"estimatedTime,omitempty"`
+	SourceAddress     string          `json:"sourceAddress"`
+	DestinationAddr   string          `json:"destinationAddress"`
+	InboundAddress    string          `json:"inboundAddress"`
+	Meta              SwapMeta        `json:"meta,omitempty"`
+	SwapID            string          `json:"swapId"`
+	Error             string          `json:"error,omitempty"`
+}
+
+// PaymentRequest returns the signed payment request from the documented SwapKit response shape.
+func (response *SwapResponse) PaymentRequest() *paymentrequest.Slip24 {
+	if response == nil {
+		return nil
+	}
+	return response.Meta.Slip24
 }
