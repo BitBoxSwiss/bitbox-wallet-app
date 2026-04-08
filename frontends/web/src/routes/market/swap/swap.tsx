@@ -13,10 +13,11 @@ import {
   type AccountCode,
   type TAccount,
   type TAmountWithConversions,
+  type CoinUnit,
   type TSendTx,
   type TSwapDestinationAccount,
 } from '@/api/account';
-import { convertToCurrency } from '@/api/coins';
+import { convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
 import { getSwapQuote, signSwap, type TSwapQuoteRoute } from '@/api/swap';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
@@ -32,7 +33,7 @@ import { AmountUnit, AmountWithUnit } from '@/components/amount/amount-with-unit
 import { ArrowSwap } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { RatesContext } from '@/contexts/RatesContext';
-import { findAccount } from '@/routes/account/utils';
+import { findAccount, getDisplayedCoinUnit } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
@@ -57,6 +58,24 @@ const fetchBalance = async (code: AccountCode) => {
   return;
 };
 
+const getSwapAmountForDisplay = async (
+  amount: string,
+  coinCode: TSwapDestinationAccount['coinCode'],
+  coinUnit: CoinUnit,
+  btcUnit: 'default' | 'sat' | undefined,
+): Promise<{ amount: string; unit: CoinUnit }> => {
+  const displayedUnit = getDisplayedCoinUnit(coinCode, coinUnit, btcUnit);
+  if (displayedUnit === coinUnit) {
+    return { amount, unit: displayedUnit };
+  }
+
+  const parsedAmount = await parseExternalBtcAmount(amount);
+  return {
+    amount: parsedAmount.success ? parsedAmount.amount : amount,
+    unit: displayedUnit,
+  };
+};
+
 export const Swap = ({
   activeAccounts,
   accounts,
@@ -68,7 +87,7 @@ export const Swap = ({
     () => activeAccounts.filter(account => account.keystore.connected),
     [activeAccounts],
   );
-  const { activeCurrencies } = useContext(RatesContext);
+  const { activeCurrencies, btcUnit } = useContext(RatesContext);
   const loadedBuyAccounts = useLoad(getSwapDestinationAccounts, [accounts]);
   const buyAccounts = useMemo<TSwapDestinationAccount[]>(
     () => (loadedBuyAccounts || []).filter(account => account.keystore.connected),
@@ -85,6 +104,7 @@ export const Swap = ({
   // Receive
   const [buyAccountCode, setBuyAccountCode] = useState<AccountCode | undefined>();
   const [expectedOutput, setExpectedOutput] = useState<string>('');
+  const [expectedOutputUnit, setExpectedOutputUnit] = useState<CoinUnit | undefined>();
 
   // Shows the fullscreen device-confirmation step after the tx proposal is ready.
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
@@ -144,6 +164,7 @@ export const Swap = ({
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
+    setExpectedOutputUnit(undefined);
     setRouteError(error);
   };
 
@@ -236,8 +257,39 @@ export const Swap = ({
   }, [buyAccount?.coinCode, buyAccountCode, fromAccount?.coinCode, sellAccountCode, sellAmount]);
 
   useEffect(() => {
-    setExpectedOutput(selectedRoute?.expectedBuyAmount || '');
-  }, [selectedRoute]);
+    let canceled = false;
+
+    const updateExpectedOutput = async () => {
+      if (!selectedRoute || !buyAccount) {
+        setExpectedOutput('');
+        setExpectedOutputUnit(undefined);
+        return;
+      }
+
+      const displayAmount = await getSwapAmountForDisplay(
+        selectedRoute.expectedBuyAmount,
+        buyAccount.coinCode,
+        buyAccount.coinUnit,
+        btcUnit,
+      );
+      if (canceled) {
+        return;
+      }
+      setExpectedOutput(displayAmount.amount);
+      setExpectedOutputUnit(displayAmount.unit);
+    };
+
+    updateExpectedOutput().catch(() => {
+      if (!canceled) {
+        setExpectedOutput(selectedRoute?.expectedBuyAmount || '');
+        setExpectedOutputUnit(buyAccount?.coinUnit);
+      }
+    });
+
+    return () => {
+      canceled = true;
+    };
+  }, [btcUnit, buyAccount, selectedRoute]);
 
   const handleConfirm = async () => {
     if (confirmInFlightRef.current) {
@@ -308,9 +360,9 @@ export const Swap = ({
 
       setConfirmDetails({
         expectedOutput: {
-          amount: response.expectedBuyAmount,
+          amount: expectedOutput,
           conversions: expectedOutputConversions,
-          unit: buyAccount.coinUnit,
+          unit: expectedOutputUnit || buyAccount.coinUnit,
           estimated: false,
         },
         feeAmount: proposal.fee,
@@ -401,10 +453,10 @@ export const Swap = ({
                   <Button transparent className={style.maxButton}>
                     <Amount
                       amount={expectedOutput}
-                      unit={buyAccount.coinUnit}
+                      unit={expectedOutputUnit || buyAccount.coinUnit}
                     />
                     <AmountUnit
-                      unit={buyAccount.coinUnit}
+                      unit={expectedOutputUnit || buyAccount.coinUnit}
                     />
                   </Button>
                 )}

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { AccountCode, CoinCode, ScriptType, TAccount, TAccountBase, CoinUnit, TKeystore } from '@/api/account';
+import type { BtcUnit } from '@/api/coins';
 
 export const findAccount = <T extends { code: AccountCode }>(
   accounts: T[],
@@ -31,6 +32,17 @@ export const isBitcoinCoin = (coin: CoinUnit | undefined) => {
   default:
     return false;
   }
+};
+
+export const getDisplayedCoinUnit = (
+  coinCode: CoinCode,
+  coinUnit: CoinUnit,
+  btcUnit: BtcUnit | undefined,
+): CoinUnit => {
+  if (!isBitcoinOnly(coinCode) || btcUnit !== 'sat') {
+    return coinUnit;
+  }
+  return coinCode === 'tbtc' ? 'tsat' : 'sat';
 };
 
 export const isBitcoinBased = (coinCode: CoinCode): boolean => {
