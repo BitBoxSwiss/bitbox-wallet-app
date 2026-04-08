@@ -89,9 +89,18 @@ Page-level components in `src/routes/` often use a wrapper/inner split. The wrap
 the account from a route code and passes fully typed props to the inner component. See
 `src/routes/account/send/send.tsx` for an example.
 
+Keep routing-specific coupling low. Prefer passing data through regular component props, app state,
+or URL-derived inputs over introducing more React Router-specific APIs when a more generic approach
+works, as this keeps future routing changes easier.
+
 ### Discriminated Unions
 Used extensively for success/failure API responses and mutually exclusive props. See
 `src/api/account.ts` for response types and `src/components/forms/button.tsx` for prop unions.
+
+### API Modules
+Functions in `src/api/` should stay as thin wrappers around the underlying request helper. They
+should only type the function arguments and the returned promise, and should not add extra client
+side control flow or business logic on top of the request.
 
 ### Data Loading Hooks
 Key custom hooks in `src/hooks/` handle all async data:
