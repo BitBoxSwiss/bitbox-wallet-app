@@ -11,6 +11,11 @@ from urllib.parse import urlparse, parse_qs
 from ecdsa import VerifyingKey, SECP256k1, util
 from bech32 import bech32_encode, convertbits
 
+try:
+    from Crypto.Hash import RIPEMD160
+except ImportError:
+    RIPEMD160 = None
+
 # In-memory store
 requests_store = {}
 REGTEST_NET = "regtest"
@@ -54,7 +59,12 @@ def pubkey_to_p2wpkh_address(pubkey_bytes: bytes, network: str = "regtest") -> s
     Format: bech32(HRP, [WitnessVersion(0)] + WitnessProgram)
     """
     sha256_digest = hashlib.sha256(pubkey_bytes).digest()
-    h160 = hashlib.new('ripemd160', sha256_digest).digest()
+    try:
+        h160 = hashlib.new('ripemd160', sha256_digest).digest()
+    except (ValueError, TypeError):
+        if RIPEMD160 is None:
+            raise
+        h160 = RIPEMD160.new(sha256_digest).digest()
     data = convertbits(h160, 8, 5)
 
     # Prepend Witness Version 0
@@ -75,7 +85,8 @@ def verify_address_ownership(r_s_bytes: bytes, message_digest: bytes, expected_a
             r_s_bytes,
             message_digest,
             curve=SECP256k1,
-            hashfunc=hashlib.sha256
+            hashfunc=hashlib.sha256,
+            sigdecode=util.sigdecode_string,
         )
 
         for vk in candidates:
@@ -94,9 +105,7 @@ def verify_address_ownership(r_s_bytes: bytes, message_digest: bytes, expected_a
         return False
 
 # --- HTTP Request Handler ---
-
 class AOPPRequestHandler(http.server.BaseHTTPRequestHandler):
-
     def _send_response(self, status_code, body=None):
         self.send_response(status_code)
         if body:
