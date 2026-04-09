@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"math/big"
+	"net/http"
 	"strings"
 
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -130,7 +131,7 @@ func newSwapRequestFromCoinCodes(
 }
 
 // NewQuoteFromCoinCode validates the provided coin codes, fetches a quote, and maps structured API errors.
-func NewQuoteFromCoinCode(ctx context.Context, sellCoinCode, buyCoinCode, sellAmount string) (*QuoteResponse, *APIError) {
+func NewQuoteFromCoinCode(ctx context.Context, httpClient *http.Client, sellCoinCode, buyCoinCode, sellAmount string) (*QuoteResponse, *APIError) {
 	quoteRequest, apiError := newQuoteRequestFromCoinCodes(
 		sellCoinCode,
 		buyCoinCode,
@@ -141,7 +142,7 @@ func NewQuoteFromCoinCode(ctx context.Context, sellCoinCode, buyCoinCode, sellAm
 		return nil, apiError
 	}
 
-	quoteResponse, err := NewClient().Quote(ctx, quoteRequest)
+	quoteResponse, err := NewClient(httpClient).Quote(ctx, quoteRequest)
 	if err != nil {
 		if apiError, ok := apiErrorFromError(err); ok {
 			return nil, apiError
@@ -157,6 +158,7 @@ func NewQuoteFromCoinCode(ctx context.Context, sellCoinCode, buyCoinCode, sellAm
 // NewSwap validates the provided coin codes, creates a swap, and maps structured API errors.
 func NewSwap(
 	ctx context.Context,
+	httpClient *http.Client,
 	sellCoinCode,
 	buyCoinCode,
 	sellAmount,
@@ -175,7 +177,7 @@ func NewSwap(
 	if apiError != nil {
 		return nil, apiError
 	}
-	swapResponse, err := NewClient().Swap(ctx, swapRequest)
+	swapResponse, err := NewClient(httpClient).Swap(ctx, swapRequest)
 	if err != nil {
 		if apiError, ok := apiErrorFromError(err); ok {
 			return nil, apiError

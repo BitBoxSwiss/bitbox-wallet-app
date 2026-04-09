@@ -66,7 +66,7 @@ func TestSwapDestinationAccountsSortOrder(t *testing.T) {
 	require.Equal(t, expectedCodes, actualCodes)
 }
 
-func TestSignSwapActivatesInactiveAccount(t *testing.T) {
+func TestPrepareSwapActivatesInactiveAccount(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
@@ -84,7 +84,7 @@ func TestSignSwapActivatesInactiveAccount(t *testing.T) {
 	require.False(t, b.Config().AccountsConfig().Lookup(btcAccountCode).Inactive)
 }
 
-func TestSignSwapActivatesParentOfTokenDestination(t *testing.T) {
+func TestPrepareSwapActivatesParentOfTokenDestination(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
@@ -108,7 +108,7 @@ func TestSignSwapActivatesParentOfTokenDestination(t *testing.T) {
 	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
 }
 
-func TestSignSwapActivatesInactiveTokenDestination(t *testing.T) {
+func TestPrepareSwapActivatesInactiveTokenDestination(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
@@ -131,7 +131,7 @@ func TestSignSwapActivatesInactiveTokenDestination(t *testing.T) {
 	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
 }
 
-func TestSignSwapReturnsErrorForUnknownAccount(t *testing.T) {
+func TestPrepareSwapReturnsErrorForUnknownAccount(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 

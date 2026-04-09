@@ -1,10 +1,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getBalance, getSwapDestinationAccounts, TBalance, type AccountCode, type TAccount, type TSwapDestinationAccount } from '@/api/account';
+import {
+  getBalance,
+  getSwapDestinationAccounts,
+  hasSwapPaymentRequest,
+  proposeTx,
+  sendTx,
+  TBalance,
+  type AccountCode,
+  type TAccount,
+  type TAmountWithConversions,
+  type TSendTx,
+  type TSwapDestinationAccount,
+} from '@/api/account';
 import { getSwapQuote, signSwap, type TSwapQuoteRoute } from '@/api/swap';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { SubTitle } from '@/components/title';
@@ -13,15 +26,16 @@ import { Entry } from '@/components/guide/entry';
 import { alertUser } from '@/components/alert/Alert';
 import { Button, Label } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
-import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { Amount } from '@/components/amount/amount';
+import { AmountUnit, AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
+import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { findAccount } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
-import { RatesContext } from '@/contexts/RatesContext';
 import style from './swap.module.css';
 
 type Props = {
@@ -58,9 +72,6 @@ export const Swap = ({
     [loadedBuyAccounts],
   );
 
-  // TODO: can be removed once real amount's are used for expectedOutput in sendconfirm
-  const { btcUnit } = useContext(RatesContext);
-
   // Send
   const [sellAccountCode, setSellAccountCode] = useState<AccountCode>(
     () => sellAccounts.find(account => account.code === code)?.code || sellAccounts[0]?.code || code,
@@ -72,13 +83,25 @@ export const Swap = ({
   const [buyAccountCode, setBuyAccountCode] = useState<AccountCode | undefined>();
   const [expectedOutput, setExpectedOutput] = useState<string>('');
 
+  // Shows the fullscreen device-confirmation step after the tx proposal is ready.
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
+  const [confirmDetails, setConfirmDetails] = useState<{
+    expectedOutput: TAmountWithConversions;
+    feeAmount: TAmountWithConversions;
+    sellAmount: TAmountWithConversions;
+  }>();
+  const [result, setResult] = useState<TSendTx | undefined>();
   const [canFlip, setCanFlip] = useState<boolean>(false);
+  const [fwRequiredDialog, setFwRequiredDialog] = useState(false);
 
   const [routes, setRoutes] = useState<TSwapQuoteRoute[]>([]);
   const [selectedRouteId, setSelectedRouteId] = useState<string | undefined>();
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
   const [routeError, setRouteError] = useState<string | undefined>();
+  // Drives the button disabled/loading state for the whole confirm flow.
+  const [isConfirmInFlight, setIsConfirmInFlight] = useState(false);
+  // Prevents double-submit before the button disabled state has re-rendered.
+  const confirmInFlightRef = useRef(false);
 
   const fromAccount = useMemo(
     () => findAccount(sellAccounts, sellAccountCode),
@@ -164,6 +187,7 @@ export const Swap = ({
       try {
         const response = await getSwapQuote({
           buyCoinCode,
+          sellAccountCode,
           sellAmount,
           sellCoinCode,
         });
@@ -213,22 +237,77 @@ export const Swap = ({
   }, [selectedRoute]);
 
   const handleConfirm = async () => {
-    if (!buyAccountCode || !sellAccountCode || !selectedRouteId || !sellAmount) {
-      alertUser(t('genericError'));
+    if (confirmInFlightRef.current) {
       return;
     }
-    const response = await signSwap({
-      buyAccountCode,
-      routeId: selectedRouteId,
-      sellAccountCode,
-      sellAmount,
-    });
-    if (!response.success) {
-      alertUser(response.errorMessage || t('genericError'));
-      return;
+
+    confirmInFlightRef.current = true;
+    setIsConfirmInFlight(true);
+
+    try {
+      if (!buyAccountCode || !sellAccountCode || !selectedRouteId || !sellAmount || !buyAccount) {
+        alertUser(t('genericError'));
+        return;
+      }
+
+      const paymentRequestSupport = await hasSwapPaymentRequest(sellAccountCode);
+      if (!paymentRequestSupport.success) {
+        if (paymentRequestSupport.errorCode === 'firmwareUpgradeRequired') {
+          setFwRequiredDialog(true);
+        } else if (paymentRequestSupport.errorCode) {
+          alertUser(t(`device.${paymentRequestSupport.errorCode}`));
+        } else {
+          alertUser(paymentRequestSupport.errorMessage || t('genericError'));
+        }
+        return;
+      }
+
+      setResult(undefined);
+      setConfirmDetails(undefined);
+
+      const response = await signSwap({
+        buyAccountCode,
+        routeId: selectedRouteId,
+        sellAccountCode,
+        sellAmount,
+      });
+      if (!response.success) {
+        alertUser(response.errorMessage || t('genericError'));
+        return;
+      }
+
+      const proposal = await proposeTx(sellAccountCode, response.txInput);
+      if (!proposal.success) {
+        if (proposal.errorCode) {
+          alertUser(t(`send.error.${proposal.errorCode}`));
+        } else {
+          alertUser(t('genericError'));
+        }
+        return;
+      }
+
+      setConfirmDetails({
+        expectedOutput: {
+          amount: response.expectedBuyAmount,
+          unit: buyAccount.coinUnit,
+          estimated: false,
+        },
+        feeAmount: proposal.fee,
+        sellAmount: proposal.amount,
+      });
+      setIsConfirming(true);
+
+      const recipientName = response.txInput.paymentRequest?.recipientName || 'SwapKit';
+      const sendResult = await sendTx(sellAccountCode, `${t('generic.swap')} ${recipientName}`);
+      setResult(sendResult);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '';
+      alertUser(errorMessage || t('genericError'));
+    } finally {
+      confirmInFlightRef.current = false;
+      setIsConfirmInFlight(false);
+      setIsConfirming(false);
     }
-    // TODO: add the real device signing flow in the backend swap/sign endpoint.
-    setIsConfirming(true);
   };
 
   if (sellAccounts.length === 0) {
@@ -238,6 +317,10 @@ export const Swap = ({
   return (
     <GuideWrapper>
       <GuidedContent>
+        <FirmwareUpgradeRequiredDialog
+          open={fwRequiredDialog}
+          onClose={() => setFwRequiredDialog(false)}
+        />
         <Main>
           <Header
             hideSidebarToggler
@@ -293,9 +376,17 @@ export const Swap = ({
                     {t('generic.receiveWithoutCoinCode')}
                   </span>
                 </Label>
-                <Button transparent className={style.maxButton}>
-                  45678 ETH
-                </Button>
+                {selectedRoute && buyAccount && (
+                  <Button transparent className={style.maxButton}>
+                    <Amount
+                      amount={expectedOutput}
+                      unit={buyAccount.coinUnit}
+                    />
+                    <AmountUnit
+                      unit={buyAccount.coinUnit}
+                    />
+                  </Button>
+                )}
               </div>
               <InputWithAccountSelector
                 accounts={buyAccounts}
@@ -314,8 +405,18 @@ export const Swap = ({
               />
             </ViewContent>
             <ViewButtons>
-              <Button primary disabled={!selectedRoute} onClick={handleConfirm}>
-                {t('generic.swap')}
+              <Button
+                primary
+                disabled={!selectedRoute || isConfirmInFlight}
+                onClick={handleConfirm}>
+                <span className={style.swapButtonContent}>
+                  {isConfirmInFlight && (
+                    <span className={style.swapButtonSpinner}>
+                      <SpinnerRingAnimated />
+                    </span>
+                  )}
+                  {isConfirmInFlight ? t('loading') : t('generic.swap')}
+                </span>
               </Button>
               <BackButton>
                 {t('button.back')}
@@ -325,93 +426,19 @@ export const Swap = ({
 
           <ConfirmSwap
             isConfirming={isConfirming}
-            expectedOutput={{
-              amount: '16.99',
-              unit: 'ETH',
-              estimated: false, // TODO: consider estimation sign
-              conversions: {
-                BTC: '0.50000000',
-                AUD: '47\'646.46',
-                BRL: '176\'043.48',
-                CAD: '40\'043.48',
-                CHF: '25\'992.00',
-                CNY: '232\'759.88',
-                CZK: '691\'098.51',
-                EUR: '28\'504.84',
-                GBP: '24\'879.06',
-                HKD: '263\'275.64',
-                ILS: '104\'402.61',
-                JPY: '5\'201\'349.04',
-                KRW: '48\'747\'275.75',
-                NOK: '319\'863.34',
-                PLN: '512',
-                RUB: '512',
-                sat: '50000000',
-                SEK: '512',
-                SGD: '512',
-                USD: '33\'642.50',
-              }
-            }}
-            feeAmount={{
-              amount: '0.00001211',
-              unit: 'ETH',
-              estimated: false,
-              conversions: {
-                BTC: '0.00005000',
-                AUD: '4.46',
-                BRL: '17.48',
-                CAD: '40.48',
-                CHF: '25.00',
-                CNY: '232.88',
-                CZK: '691.51',
-                EUR: '28.84',
-                GBP: '24.06',
-                HKD: '263.64',
-                ILS: '104.61',
-                JPY: '5\'201.04',
-                KRW: '484.75',
-                NOK: '319.34',
-                PLN: '512',
-                RUB: '512',
-                sat: '1200',
-                SEK: '512',
-                SGD: '512',
-                USD: '33.50',
-              }
-            }}
-            sellAmount={{
-              amount: btcUnit === 'default' ? '0.50000000' : '5000000',
-              unit: btcUnit === 'default' ? 'BTC' : 'sat',
-              estimated: false,
-              conversions: {
-                BTC: '0.50000000',
-                AUD: '47\'646.46',
-                BRL: '176\'043.48',
-                CAD: '40\'043.48',
-                CHF: '26\'017.00',
-                CNY: '232\'759.88',
-                CZK: '691\'098.51',
-                EUR: '28\'504.84',
-                GBP: '24\'879.06',
-                HKD: '263\'275.64',
-                ILS: '104\'402.61',
-                JPY: '5\'201\'349.04',
-                KRW: '48\'747\'275.75',
-                NOK: '319\'863.34',
-                PLN: '512',
-                RUB: '512',
-                sat: '50000000',
-                SEK: '512',
-                SGD: '512',
-                USD: '33\'642.50',
-              }
-            }}
+            expectedOutput={confirmDetails?.expectedOutput}
+            feeAmount={confirmDetails?.feeAmount}
+            sellAmount={confirmDetails?.sellAmount}
           />
 
           <SwapResult
-            buyAccountCode={buyAccountCode}
-            onContinue={() => console.log('new swap')}
-            result={undefined}
+            buyAccountCode={buyAccountCode || code}
+            onContinue={() => {
+              setIsConfirming(false);
+              setResult(undefined);
+              setConfirmDetails(undefined);
+            }}
+            result={result}
           />
 
         </Main>

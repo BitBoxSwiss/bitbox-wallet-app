@@ -63,7 +63,7 @@ type Backend interface {
 	Testing() bool
 	Accounts() backend.AccountsList
 	SwapDestinationAccounts() []*backend.SwapDestinationAccount
-	SignSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapSignResult, error)
+	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
 	AccountsFiatAndCoinBalance(backend.AccountsList, string) (*big.Rat, map[coinpkg.Code]*big.Int, error)
 	Keystore() keystore.Keystore
@@ -1802,7 +1802,7 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 	if request.SellAmount == "" {
 		return result{Success: false, ErrorMessage: "sellAmount is required."}
 	}
-	swapResult, err := handlers.backend.SignSwap(
+	swapResult, err := handlers.backend.PrepareSwap(
 		request.BuyAccountCode,
 		request.SellAccountCode,
 		request.RouteID,
@@ -1858,6 +1858,7 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	}
 	quoteResponse, quoteError := swapkit.NewQuoteFromCoinCode(
 		context.Background(),
+		handlers.backend.HTTPClient(),
 		request.SellCoinCode,
 		request.BuyCoinCode,
 		sellAmount,

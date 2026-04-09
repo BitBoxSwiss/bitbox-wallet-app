@@ -8,6 +8,7 @@ import (
 )
 
 // QuoteRequest represents a request to the /quote endpoint of the SwapKit API.
+// See https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote
 type QuoteRequest struct {
 	SellAsset        string   `json:"sellAsset"`
 	BuyAsset         string   `json:"buyAsset"`
@@ -20,6 +21,7 @@ type QuoteRequest struct {
 }
 
 // SwapRequest represents a request to the /swap endpoint of the SwapKit API.
+// See https://docs.swapkit.dev/swapkit-api/v3-swap-obtain-swap-transaction-details
 type SwapRequest struct {
 	RouteID             string   `json:"routeId"`
 	SellAsset           string   `json:"sellAsset,omitempty"`
@@ -34,6 +36,7 @@ type SwapRequest struct {
 }
 
 // QuoteResponse represents a response from the /quote endpoint of the SwapKit API.
+// See https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote
 type QuoteResponse struct {
 	QuoteID        string       `json:"quoteId"`
 	Routes         []QuoteRoute `json:"routes"`
@@ -42,6 +45,7 @@ type QuoteResponse struct {
 }
 
 // QuoteRoute represents a single route for a quote returned by the SwapKit API.
+// See https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote
 type QuoteRoute struct {
 	RouteID                      string   `json:"routeId"`
 	Providers                    []string `json:"providers"`
@@ -71,6 +75,8 @@ type QuoteRoute struct {
 }
 
 // Fee represents a fee associated with a quote route returned by the SwapKit API.
+// See https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote and
+// https://docs.swapkit.dev/swapkit-api/v3-swap-obtain-swap-transaction-details
 type Fee struct {
 	Type     string `json:"type"`
 	Amount   string `json:"amount"`
@@ -79,7 +85,9 @@ type Fee struct {
 	Protocol string `json:"protocol"`
 }
 
-// NextAction represents an action that the user must take to complete a quote route returned by the SwapKit API.
+// NextAction represents an action that the user must take to complete a quote or swap flow returned
+// by the SwapKit API. See https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote and
+// https://docs.swapkit.dev/swapkit-api/v3-swap-obtain-swap-transaction-details
 type NextAction struct {
 	Method  string          `json:"method"`
 	URL     string          `json:"url"`
@@ -87,6 +95,8 @@ type NextAction struct {
 }
 
 // APIError represents a structured error returned by the SwapKit API.
+// See https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote and
+// https://docs.swapkit.dev/swapkit-api/v3-swap-obtain-swap-transaction-details
 type APIError struct {
 	Provider  string         `json:"provider"`
 	ErrorCode errp.ErrorCode `json:"errorCode"`
@@ -94,11 +104,13 @@ type APIError struct {
 }
 
 // SwapMeta models the subset of SwapKit metadata currently needed by the app.
+// See https://docs.swapkit.dev/swapkit-api/v3-swap-obtain-swap-transaction-details
 type SwapMeta struct {
 	Slip24 *paymentrequest.Slip24 `json:"slip24,omitempty"`
 }
 
 // SwapResponse represents a response from the /swap endpoint of the SwapKit API.
+// See https://docs.swapkit.dev/swapkit-api/v3-swap-obtain-swap-transaction-details
 type SwapResponse struct {
 	SellAsset         string          `json:"sellAsset"`
 	SellAmount        string          `json:"sellAmount"`

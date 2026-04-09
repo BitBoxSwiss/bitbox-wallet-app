@@ -841,15 +841,7 @@ func (handlers *Handlers) getHasSwapPaymentRequest(r *http.Request) (interface{}
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 
-	type swapPaymentRequestSupporter interface {
-		SupportsSwapPaymentRequests() error
-	}
-
-	supporter, ok := accountKeystore.(swapPaymentRequestSupporter)
-	if !ok {
-		return response{Success: false, ErrorCode: keystore.ErrUnsupportedFeature.Error()}, nil
-	}
-	err = supporter.SupportsSwapPaymentRequests()
+	err = accountKeystore.SupportsSwapPaymentRequests()
 	if err != nil {
 		return response{Success: false, ErrorCode: err.Error()}, nil
 	}

@@ -41,8 +41,8 @@ type SwapSignTxInput struct {
 	PaymentRequest *paymentrequest.Slip24 `json:"paymentRequest"`
 }
 
-// SwapSignResult contains everything the frontend needs to reuse the regular BTC send flow.
-type SwapSignResult struct {
+// SwapPreparation contains everything the frontend needs to reuse the regular BTC send flow.
+type SwapPreparation struct {
 	ExpectedBuyAmount string          `json:"expectedBuyAmount"`
 	SwapID            string          `json:"swapId"`
 	TxInput           SwapSignTxInput `json:"txInput"`
@@ -102,12 +102,12 @@ func (backend *Backend) SwapDestinationAccounts() []*SwapDestinationAccount {
 	return swapAccounts
 }
 
-// SignSwap prepares a real SwapKit swap and returns a tx input that can be proposed and sent
+// PrepareSwap prepares a real SwapKit swap and returns a tx input that can be proposed and sent
 // through the existing BTC payment-request flow.
-func (backend *Backend) SignSwap(
+func (backend *Backend) PrepareSwap(
 	buyAccountCode, sellAccountCode accountsTypes.Code,
 	routeID, sellAmount string,
-) (*SwapSignResult, error) {
+) (*SwapPreparation, error) {
 	if err := backend.activateSwapDestinationAccount(buyAccountCode); err != nil {
 		return nil, err
 	}
@@ -144,6 +144,7 @@ func (backend *Backend) SignSwap(
 
 	swapResponse, swapError := swapkit.NewSwap(
 		context.Background(),
+		backend.httpClient,
 		string(specificSellAccount.Coin().Code()),
 		string(specificBuyAccount.Coin().Code()),
 		swapSellAmount,
@@ -171,7 +172,7 @@ func (backend *Backend) SignSwap(
 	if err != nil {
 		return nil, err
 	}
-	return &SwapSignResult{
+	return &SwapPreparation{
 		ExpectedBuyAmount: swapResponse.ExpectedBuyAmount,
 		SwapID:            swapResponse.SwapID,
 		TxInput:           txInput,
