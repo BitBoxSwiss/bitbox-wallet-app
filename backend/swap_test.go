@@ -15,7 +15,90 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSwapDestinationAccountsSortOrder(t *testing.T) {
+func TestSwapBuyAccountsRequireConnectedKeystore(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	allSwapAccounts, err := b.SwapAccounts()
+	require.NoError(t, err)
+	require.Len(t, allSwapAccounts.SellAccounts, 0)
+	require.Len(t, allSwapAccounts.BuyAccounts, 0)
+}
+
+func TestSwapBuyAccountsExcludeDisconnectedWatchonlyAccounts(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeBitBox02Multi()
+	rootFingerprint, err := ks.RootFingerprint()
+	require.NoError(t, err)
+
+	b.registerKeystore(ks)
+	_, swapAccounts, err := b.swapAccounts()
+	require.NoError(t, err)
+	require.NotEmpty(t, swapAccounts)
+
+	require.NoError(t, b.SetWatchonly(rootFingerprint, true))
+	b.DeregisterKeystore()
+
+	allSwapAccounts, err := b.SwapAccounts()
+	require.NoError(t, err)
+	require.Len(t, allSwapAccounts.SellAccounts, 0)
+	require.Len(t, allSwapAccounts.BuyAccounts, 0)
+}
+
+func TestSwapAccountsSellAccountsExcludeInactiveAccounts(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	btcAccountCode := accountsTypes.Code("v0-55555555-btc-0")
+	require.NoError(t, b.SetAccountActive(btcAccountCode, false))
+
+	swapAccounts, err := b.SwapAccounts()
+	require.NoError(t, err)
+	sellAccountCodes := make([]accountsTypes.Code, 0, len(swapAccounts.SellAccounts))
+	for _, account := range swapAccounts.SellAccounts {
+		sellAccountCodes = append(sellAccountCodes, account.AccountConfig.Code)
+	}
+	require.NotContains(t, sellAccountCodes, btcAccountCode)
+
+	buyAccountCodes := make([]accountsTypes.Code, 0, len(swapAccounts.BuyAccounts))
+	for _, account := range swapAccounts.BuyAccounts {
+		buyAccountCodes = append(buyAccountCodes, account.AccountConfig.Code)
+	}
+	require.Contains(t, buyAccountCodes, btcAccountCode)
+}
+
+func TestSwapBuyAccountsExcludeHiddenUnusedAccounts(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	btcAccountCode := accountsTypes.Code("v0-55555555-btc-0")
+	cfg := b.Config().AccountsConfig().Lookup(btcAccountCode)
+	cfg.HiddenBecauseUnused = true
+
+	_, swapAccounts, err := b.swapAccounts()
+	require.NoError(t, err)
+	buyAccountCodes := make([]accountsTypes.Code, 0, len(swapAccounts))
+	for _, account := range swapAccounts {
+		buyAccountCodes = append(buyAccountCodes, account.AccountConfig.Code)
+	}
+	require.NotContains(t, buyAccountCodes, btcAccountCode)
+}
+
+func TestSwapBuyAccountsSortOrder(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
@@ -57,13 +140,43 @@ func TestSwapDestinationAccountsSortOrder(t *testing.T) {
 		expectedCodes = append(expectedCodes, Erc20AccountCode(ethAccount2Code, tokenCode))
 	}
 
-	swapAccounts := b.SwapDestinationAccounts()
+	_, swapAccounts, err := b.swapAccounts()
+	require.NoError(t, err)
 	actualCodes := make([]accountsTypes.Code, 0, len(swapAccounts))
 	for _, account := range swapAccounts {
 		actualCodes = append(actualCodes, account.AccountConfig.Code)
 	}
 
 	require.Equal(t, expectedCodes, actualCodes)
+}
+
+func TestSwapSellAccountsIncludeOnlyActiveERC20Accounts(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	ethAccountCode := accountsTypes.Code("v0-55555555-eth-0")
+	activeTokenCode := string(ERC20Tokens()[0].Code)
+	inactiveTokenCode := string(ERC20Tokens()[1].Code)
+
+	require.NoError(t, b.SetTokenActive(ethAccountCode, activeTokenCode, true))
+	require.NoError(t, b.SetTokenActive(ethAccountCode, inactiveTokenCode, false))
+
+	swapAccounts, _, err := b.swapAccounts()
+	require.NoError(t, err)
+
+	actualCodes := make([]accountsTypes.Code, 0, len(swapAccounts))
+	for _, account := range swapAccounts {
+		actualCodes = append(actualCodes, account.AccountConfig.Code)
+	}
+
+	require.Contains(t, actualCodes, Erc20AccountCode(ethAccountCode, activeTokenCode))
+	require.NotContains(t, actualCodes, Erc20AccountCode(ethAccountCode, inactiveTokenCode))
 }
 
 func TestPrepareSwapActivatesInactiveAccount(t *testing.T) {
@@ -80,7 +193,7 @@ func TestPrepareSwapActivatesInactiveAccount(t *testing.T) {
 	require.NoError(t, b.SetAccountActive(btcAccountCode, false))
 	require.True(t, b.Config().AccountsConfig().Lookup(btcAccountCode).Inactive)
 
-	require.NoError(t, b.activateSwapDestinationAccount(btcAccountCode))
+	require.NoError(t, b.activateSwapBuyAccount(btcAccountCode))
 	require.False(t, b.Config().AccountsConfig().Lookup(btcAccountCode).Inactive)
 }
 
@@ -103,7 +216,7 @@ func TestPrepareSwapActivatesParentOfTokenDestination(t *testing.T) {
 	require.True(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
 	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
 
-	require.NoError(t, b.activateSwapDestinationAccount(tokenAccountCode))
+	require.NoError(t, b.activateSwapBuyAccount(tokenAccountCode))
 	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
 	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
 }
@@ -126,7 +239,7 @@ func TestPrepareSwapActivatesInactiveTokenDestination(t *testing.T) {
 	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
 	require.NotContains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
 
-	require.NoError(t, b.activateSwapDestinationAccount(tokenAccountCode))
+	require.NoError(t, b.activateSwapBuyAccount(tokenAccountCode))
 	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
 	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
 }
@@ -135,7 +248,7 @@ func TestPrepareSwapReturnsErrorForUnknownAccount(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	err := b.activateSwapDestinationAccount(accountsTypes.Code("missing-account"))
+	err := b.activateSwapBuyAccount(accountsTypes.Code("missing-account"))
 	require.Error(t, err)
 }
 

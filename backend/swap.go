@@ -3,7 +3,6 @@
 package backend
 
 import (
-	"bytes"
 	"context"
 	"math/big"
 	"slices"
@@ -22,12 +21,12 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
-// SwapDestinationAccount contains the backend-native data needed to serialize swap destinations.
-type SwapDestinationAccount struct {
+// SwapAccount contains the backend-native data needed to serialize swap accounts.
+type SwapAccount struct {
 	Keystore          config.Keystore
+	KeystoreConnected bool
 	AccountConfig     *config.Account
 	AccountCoin       coinpkg.Coin
-	KeystoreConnected bool
 	ParentAccountCode *accountsTypes.Code
 }
 
@@ -48,21 +47,70 @@ type SwapPreparation struct {
 	TxInput           SwapSignTxInput `json:"txInput"`
 }
 
-// SwapDestinationAccounts returns the accounts that can be selected as swap destinations.
-func (backend *Backend) SwapDestinationAccounts() []*SwapDestinationAccount {
-	persistedAccounts := backend.config.AccountsConfig()
+// SwapAccounts contains the sell and buy accounts needed by the swap screen.
+type SwapAccounts struct {
+	SellAccounts []SwapAccount
+	BuyAccounts  []SwapAccount
+}
 
-	swapAccounts := []*SwapDestinationAccount{}
+// SwapAccounts returns the accounts that can be selected in the swap screen.
+func (backend *Backend) SwapAccounts() (SwapAccounts, error) {
+	sellAccounts, buyAccounts, err := backend.swapAccounts()
+	if err != nil {
+		return SwapAccounts{}, err
+	}
+	return SwapAccounts{
+		SellAccounts: sellAccounts,
+		BuyAccounts:  buyAccounts,
+	}, nil
+}
+
+func (backend *Backend) connectedKeystoreConfig() (*config.Keystore, error) {
+	persistedAccounts := backend.config.AccountsConfig()
+	connectedKeystore := backend.Keystore()
+	if connectedKeystore == nil {
+		return nil, nil
+	}
+	connectedRootFingerprint, err := connectedKeystore.RootFingerprint()
+	if err != nil {
+		return nil, errp.Wrap(err, "could not retrieve rootFingerprint")
+	}
+	keystore, err := persistedAccounts.LookupKeystore(connectedRootFingerprint)
+	if err != nil {
+		return nil, errp.Wrap(err, "could not find connected keystore in config")
+	}
+	return keystore, nil
+}
+
+// swapAccounts collects swap sell and buy accounts in one pass over persisted accounts.
+// The buy side includes inactive accounts/tokens so they can be activated on demand,
+// while the sell side includes only currently active accounts/tokens.
+func (backend *Backend) swapAccounts() ([]SwapAccount, []SwapAccount, error) {
+	connectedKeystore, err := backend.connectedKeystoreConfig()
+	if err != nil {
+		return nil, nil, err
+	}
+	if connectedKeystore == nil {
+		return []SwapAccount{}, []SwapAccount{}, nil
+	}
+
+	sellAccounts := []SwapAccount{}
+	buyAccounts := []SwapAccount{}
+	persistedAccounts := backend.config.AccountsConfig()
 	for _, persistedAccount := range persistedAccounts.Accounts {
-		if !backend.shouldIncludeSwapDestinationAccount(persistedAccount) {
+		if persistedAccount.HiddenBecauseUnused {
+			continue
+		}
+		if _, isTestnet := coinpkg.TestnetCoins[persistedAccount.CoinCode]; isTestnet != backend.Testing() {
 			continue
 		}
 
-		keystore, keystoreConnected, ok := backend.swapDestinationKeystore(
-			persistedAccounts,
-			persistedAccount,
-		)
-		if !ok {
+		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
+		if err != nil {
+			backend.log.WithField("code", persistedAccount.Code).Error("could not identify root fingerprint")
+			continue
+		}
+		if !slices.Equal(rootFingerprint, connectedKeystore.RootFingerprint) {
 			continue
 		}
 
@@ -72,34 +120,42 @@ func (backend *Backend) SwapDestinationAccounts() []*SwapDestinationAccount {
 			continue
 		}
 
-		swapAccounts = append(swapAccounts, &SwapDestinationAccount{
-			Keystore:          *keystore,
+		swapAccount := SwapAccount{
+			Keystore:          *connectedKeystore,
+			KeystoreConnected: true,
 			AccountConfig:     persistedAccount,
 			AccountCoin:       accountCoin,
-			KeystoreConnected: keystoreConnected,
-		})
+		}
+		buyAccounts = append(buyAccounts, swapAccount)
+		if !persistedAccount.Inactive {
+			sellAccounts = append(sellAccounts, swapAccount)
+		}
 
 		if persistedAccount.CoinCode != coinpkg.CodeETH {
 			continue
 		}
-		swapAccounts = backend.appendERC20SwapDestinationAccounts(
-			swapAccounts,
-			*keystore,
+		sellAccounts, buyAccounts = backend.appendERC20SwapAccounts(
+			sellAccounts,
+			buyAccounts,
+			*connectedKeystore,
 			persistedAccount,
-			keystoreConnected,
 		)
 	}
 
-	sort.Slice(swapAccounts, func(i, j int) bool {
-		return lessAccountSortOrder(
-			swapAccounts[i].AccountCoin,
-			swapAccounts[i].AccountConfig,
-			swapAccounts[j].AccountCoin,
-			swapAccounts[j].AccountConfig,
-		)
-	})
+	sortAccounts := func(accounts []SwapAccount) {
+		sort.Slice(accounts, func(i, j int) bool {
+			return lessAccountSortOrder(
+				accounts[i].AccountCoin,
+				accounts[i].AccountConfig,
+				accounts[j].AccountCoin,
+				accounts[j].AccountConfig,
+			)
+		})
+	}
+	sortAccounts(sellAccounts)
+	sortAccounts(buyAccounts)
 
-	return swapAccounts
+	return sellAccounts, buyAccounts, nil
 }
 
 // PrepareSwap prepares a real SwapKit swap and returns a tx input that can be proposed and sent
@@ -108,7 +164,7 @@ func (backend *Backend) PrepareSwap(
 	buyAccountCode, sellAccountCode accountsTypes.Code,
 	routeID, sellAmount string,
 ) (*SwapPreparation, error) {
-	if err := backend.activateSwapDestinationAccount(buyAccountCode); err != nil {
+	if err := backend.activateSwapBuyAccount(buyAccountCode); err != nil {
 		return nil, err
 	}
 
@@ -179,94 +235,41 @@ func (backend *Backend) PrepareSwap(
 	}, nil
 }
 
-func (backend *Backend) activateSwapDestinationAccount(buyAccountCode accountsTypes.Code) error {
-	account, err := backend.swapDestinationAccount(buyAccountCode)
+func (backend *Backend) activateSwapBuyAccount(buyAccountCode accountsTypes.Code) error {
+	_, buyAccounts, err := backend.swapAccounts()
 	if err != nil {
 		return err
 	}
-	if account.ParentAccountCode != nil {
-		if parentAccount := backend.config.AccountsConfig().Lookup(*account.ParentAccountCode); parentAccount != nil && parentAccount.Inactive {
-			if err := backend.SetAccountActive(*account.ParentAccountCode, true); err != nil {
-				return err
+	for _, account := range buyAccounts {
+		if account.AccountConfig.Code != buyAccountCode {
+			continue
+		}
+		if account.ParentAccountCode != nil {
+			if parentAccount := backend.config.AccountsConfig().Lookup(*account.ParentAccountCode); parentAccount != nil && parentAccount.Inactive {
+				if err := backend.SetAccountActive(*account.ParentAccountCode, true); err != nil {
+					return err
+				}
 			}
+			if account.AccountConfig.Inactive {
+				if err := backend.SetTokenActive(*account.ParentAccountCode, string(account.AccountCoin.Code()), true); err != nil {
+					return err
+				}
+			}
+			return nil
 		}
 		if account.AccountConfig.Inactive {
-			if err := backend.SetTokenActive(*account.ParentAccountCode, string(account.AccountCoin.Code()), true); err != nil {
-				return err
-			}
+			return backend.SetAccountActive(account.AccountConfig.Code, true)
 		}
 		return nil
 	}
-	if account.AccountConfig.Inactive {
-		return backend.SetAccountActive(account.AccountConfig.Code, true)
-	}
-	return nil
+	return errp.Newf("Could not find swap buy account %s", buyAccountCode)
 }
 
-func (backend *Backend) shouldIncludeSwapDestinationAccount(account *config.Account) bool {
-	if account.HiddenBecauseUnused {
-		return false
-	}
-	if _, isTestnet := coinpkg.TestnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
-		return false
-	}
-	return true
-}
-
-func (backend *Backend) swapDestinationAccount(
-	accountCode accountsTypes.Code,
-) (*SwapDestinationAccount, error) {
-	for _, account := range backend.SwapDestinationAccounts() {
-		if account.AccountConfig.Code == accountCode {
-			return account, nil
-		}
-	}
-	return nil, errp.Newf("Could not find swap destination account %s", accountCode)
-}
-
-// swapDestinationKeystore returns the account keystore, whether it is currently connected,
-// and whether the account can be offered as a swap destination.
-func (backend *Backend) swapDestinationKeystore(
-	persistedAccounts config.AccountsConfig,
-	persistedAccount *config.Account,
-) (*config.Keystore, bool, bool) {
-	rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
-	if err != nil {
-		backend.log.WithField("code", persistedAccount.Code).Error("could not identify root fingerprint")
-		return nil, false, false
-	}
-	keystore, err := persistedAccounts.LookupKeystore(rootFingerprint)
-	if err != nil {
-		backend.log.WithField("code", persistedAccount.Code).Error("could not find keystore of account")
-		return nil, false, false
-	}
-
-	var connectedRootFingerprint []byte
-	if backend.keystore != nil {
-		connectedRootFingerprint, err = backend.keystore.RootFingerprint()
-		if err != nil {
-			backend.log.WithError(err).Error("Could not retrieve rootFingerprint")
-			return nil, false, false
-		}
-	}
-	keystoreConnected := bytes.Equal(rootFingerprint, connectedRootFingerprint)
-	isWatchonly, err := persistedAccounts.IsAccountWatchOnly(persistedAccount)
-	if err != nil {
-		backend.log.WithField("code", persistedAccount.Code).WithError(err).Error("could not determine watch-only status")
-		return nil, false, false
-	}
-	if !keystoreConnected && !isWatchonly {
-		return nil, false, false
-	}
-	return keystore, keystoreConnected, true
-}
-
-func (backend *Backend) appendERC20SwapDestinationAccounts(
-	swapAccounts []*SwapDestinationAccount,
+func (backend *Backend) appendERC20SwapAccounts(
+	sellAccounts, buyAccounts []SwapAccount,
 	keystore config.Keystore,
 	persistedAccount *config.Account,
-	keystoreConnected bool,
-) []*SwapDestinationAccount {
+) ([]SwapAccount, []SwapAccount) {
 	for _, token := range ERC20Tokens() {
 		tokenCoin, err := backend.Coin(token.Code)
 		if err != nil {
@@ -289,15 +292,19 @@ func (backend *Backend) appendERC20SwapDestinationAccounts(
 			SigningConfigurations: persistedAccount.SigningConfigurations,
 		}
 		parentCode := persistedAccount.Code
-		swapAccounts = append(swapAccounts, &SwapDestinationAccount{
+		swapAccount := SwapAccount{
 			Keystore:          keystore,
+			KeystoreConnected: true,
 			AccountConfig:     tokenConfig,
 			AccountCoin:       tokenCoin,
-			KeystoreConnected: keystoreConnected,
 			ParentAccountCode: &parentCode,
-		})
+		}
+		buyAccounts = append(buyAccounts, swapAccount)
+		if !persistedAccount.Inactive && !tokenConfig.Inactive {
+			sellAccounts = append(sellAccounts, swapAccount)
+		}
 	}
-	return swapAccounts
+	return sellAccounts, buyAccounts
 }
 
 func slip24HasCoinPurchase(paymentRequest *paymentrequest.Slip24) bool {
