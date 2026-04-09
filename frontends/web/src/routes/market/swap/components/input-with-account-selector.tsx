@@ -17,6 +17,7 @@ type Props<T extends TAccountBase> = {
   id: string;
   onChangeAccountCode: (accountCode: AccountCode) => void;
   onChangeValue?: (value: string) => void;
+  readOnlyAmount?: boolean;
   value: string | undefined;
 };
 
@@ -27,6 +28,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
   onChangeAccountCode,
   onChangeValue,
   value,
+  readOnlyAmount = false,
 }: Props<T>) => {
   const { defaultCurrency } = useContext(RatesContext);
   const [selectedAccount, setSelectedAccount] = useState<T>();
@@ -86,6 +88,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
             className={style.inputComponent}
             classNameInputField={style.inputField}
             name={id}
+            readOnly={readOnlyAmount}
             value={value}
             onChange={(event: ChangeEvent<HTMLInputElement>) => {
               onChangeValue && onChangeValue(event.target.value);
