@@ -1,12 +1,12 @@
 #!/bin/bash -e
 # SPDX-License-Identifier: Apache-2.0
 
-BITCOIN_DATADIR="/tmp/regtest/btcdata"
-ELECTRS_DATADIR1="/tmp/regtest/electrsdata1"
-ELECTRS_DATADIR2="/tmp/regtest/electrsdata2"
 BITCOIND_CONTAINER_NAME="bitcoind-regtest"
 ELECTRS_CONTAINER_NAME1="electrs-regtest1"
 ELECTRS_CONTAINER_NAME2="electrs-regtest2"
+BITCOIND_VOLUME_NAME="bitcoind-regtest-data"
+ELECTRS_VOLUME_NAME1="electrs-regtest-data1"
+ELECTRS_VOLUME_NAME2="electrs-regtest-data2"
 
 trap 'killall' EXIT
 
@@ -14,7 +14,9 @@ cleanup_leftovers() {
     docker rm -f "$BITCOIND_CONTAINER_NAME" >/dev/null 2>&1 || true
     docker rm -f "$ELECTRS_CONTAINER_NAME1" >/dev/null 2>&1 || true
     docker rm -f "$ELECTRS_CONTAINER_NAME2" >/dev/null 2>&1 || true
-    rm -rf "$BITCOIN_DATADIR" "$ELECTRS_DATADIR1" "$ELECTRS_DATADIR2"
+    docker volume rm -f "$BITCOIND_VOLUME_NAME" >/dev/null 2>&1 || true
+    docker volume rm -f "$ELECTRS_VOLUME_NAME1" >/dev/null 2>&1 || true
+    docker volume rm -f "$ELECTRS_VOLUME_NAME2" >/dev/null 2>&1 || true
 }
 
 killall() {
@@ -29,14 +31,14 @@ killall() {
 
 cleanup_leftovers
 
-mkdir -p "$BITCOIN_DATADIR"
-mkdir -p "$ELECTRS_DATADIR1"
-mkdir -p "$ELECTRS_DATADIR2"
-echo -n "dbb:dbb" > "$ELECTRS_DATADIR1/rpccreds"
-echo -n "dbb:dbb" > "$ELECTRS_DATADIR2/rpccreds"
-echo "bitcoind datadir: ${BITCOIN_DATADIR}"
-echo "electrs datadir1: ${ELECTRS_DATADIR1}"
-echo "electrs datadir2: ${ELECTRS_DATADIR2}"
+docker volume create "$BITCOIND_VOLUME_NAME" >/dev/null
+docker volume create "$ELECTRS_VOLUME_NAME1" >/dev/null
+docker volume create "$ELECTRS_VOLUME_NAME2" >/dev/null
+
+docker run --rm -v "${ELECTRS_VOLUME_NAME1}:/data" alpine:3.20 \
+       sh -lc 'echo -n "dbb:dbb" > /data/rpccreds'
+docker run --rm -v "${ELECTRS_VOLUME_NAME2}:/data" alpine:3.20 \
+       sh -lc 'echo -n "dbb:dbb" > /data/rpccreds'
 
 # Default docker bridge.
 DOCKER_IP="172.17.0.1"
@@ -44,12 +46,14 @@ BITCOIND_PORT=12340
 BITCOIND_RPC_PORT=10332
 ELECTRS_RPC_PORT1=52001
 ELECTRS_RPC_PORT2=52002
+ELECTRS_MONITORING_PORT1=24224
 ELECTRS_MONITORING_PORT2=24225
 
-docker run -v "$BITCOIN_DATADIR:/bitcoin/.bitcoin" --name="$BITCOIND_CONTAINER_NAME" \
+docker run -v "${BITCOIND_VOLUME_NAME}:/bitcoin/.bitcoin" --name="$BITCOIND_CONTAINER_NAME" \
        -p ${BITCOIND_RPC_PORT}:${BITCOIND_RPC_PORT} \
        -p ${BITCOIND_PORT}:${BITCOIND_PORT} \
        bitcoin/bitcoin:30.0 \
+       -datadir=/bitcoin \
        -regtest \
        -fallbackfee=0.00001 \
        -port=${BITCOIND_PORT} \
@@ -64,9 +68,10 @@ sleep 1
 
 docker run \
        -u $(id -u $USER) \
-       --net=host \
-       -v "$BITCOIN_DATADIR/.bitcoin:/bitcoin/.bitcoin" \
-       -v "$ELECTRS_DATADIR1:/data" \
+       -p ${ELECTRS_RPC_PORT1}:${ELECTRS_RPC_PORT1} \
+       -p ${ELECTRS_MONITORING_PORT1}:${ELECTRS_MONITORING_PORT1} \
+       -v "${BITCOIND_VOLUME_NAME}:/bitcoin/.bitcoin" \
+       -v "${ELECTRS_VOLUME_NAME1}:/data" \
        --name="$ELECTRS_CONTAINER_NAME1" \
        benma2/electrs:v0.10.10 \
         --cookie-file=/data/rpccreds \
@@ -74,15 +79,17 @@ docker run \
         --network=regtest \
         --daemon-rpc-addr=${DOCKER_IP}:${BITCOIND_RPC_PORT} \
         --daemon-p2p-addr=${DOCKER_IP}:${BITCOIND_PORT} \
-        --electrum-rpc-addr=127.0.0.1:${ELECTRS_RPC_PORT1} \
+        --electrum-rpc-addr=0.0.0.0:${ELECTRS_RPC_PORT1} \
+        --monitoring-addr=0.0.0.0:${ELECTRS_MONITORING_PORT1} \
         --daemon-dir=/bitcoin/.bitcoin \
         --db-dir=/data &
 
 docker run \
        -u $(id -u $USER) \
-       --net=host \
-       -v "$BITCOIN_DATADIR/.bitcoin:/bitcoin/.bitcoin" \
-       -v "$ELECTRS_DATADIR2:/data" \
+       -p ${ELECTRS_RPC_PORT2}:${ELECTRS_RPC_PORT2} \
+       -p ${ELECTRS_MONITORING_PORT2}:${ELECTRS_MONITORING_PORT2} \
+       -v "${BITCOIND_VOLUME_NAME}:/bitcoin/.bitcoin" \
+       -v "${ELECTRS_VOLUME_NAME2}:/data" \
        --name="$ELECTRS_CONTAINER_NAME2" \
        benma2/electrs:v0.10.10 \
         --cookie-file=/data/rpccreds \
@@ -90,8 +97,8 @@ docker run \
         --network=regtest \
         --daemon-rpc-addr=${DOCKER_IP}:${BITCOIND_RPC_PORT} \
         --daemon-p2p-addr=${DOCKER_IP}:${BITCOIND_PORT} \
-        --electrum-rpc-addr=127.0.0.1:${ELECTRS_RPC_PORT2} \
-        --monitoring-addr=127.0.0.1:${ELECTRS_MONITORING_PORT2} \
+        --electrum-rpc-addr=0.0.0.0:${ELECTRS_RPC_PORT2} \
+        --monitoring-addr=0.0.0.0:${ELECTRS_MONITORING_PORT2} \
         --daemon-dir=/bitcoin/.bitcoin \
         --db-dir=/data &
 
