@@ -410,3 +410,182 @@ func TestSwapAccountsDefaultSellFallsBackToFirstAvailableWhenAllBalancesAreZero(
 	require.NotNil(t, swapAccounts.DefaultBuyAccountCode)
 	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0"), *swapAccounts.DefaultBuyAccountCode)
 }
+
+func TestSwapAvailable(t *testing.T) {
+	t.Run("false when no keystore is connected", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		require.False(t, b.swapAvailable())
+	})
+
+	t.Run("false when connected keystore has only bitcoin accounts", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		ks := makeBitBox02BTCOnly()
+		ks.RootFingerprintFunc = func() ([]byte, error) {
+			return rootFingerprint1, nil
+		}
+		b.registerKeystore(ks)
+
+		require.False(t, b.swapAvailable())
+	})
+
+	t.Run("true when connected keystore has inactive non-bitcoin account", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		ks := makeBitBox02Multi()
+		ks.RootFingerprintFunc = func() ([]byte, error) {
+			return rootFingerprint1, nil
+		}
+		b.registerKeystore(ks)
+		require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
+
+		ltcAccountCode, err := b.CreateAndPersistAccountConfig(coinpkg.CodeLTC, "Litecoin account name 2", ks)
+		require.NoError(t, err)
+		require.NoError(t, b.SetAccountActive(ltcAccountCode, false))
+
+		require.True(t, b.swapAvailable())
+	})
+
+	t.Run("true when watch-only account is enabled", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		ks := makeBitBox02Multi()
+		rootFingerprint, err := ks.RootFingerprint()
+		require.NoError(t, err)
+
+		b.registerKeystore(ks)
+		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
+		b.DeregisterKeystore()
+
+		require.True(t, b.swapAvailable())
+	})
+
+	t.Run("false when only bitcoin watch-only account is enabled", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		ks := makeBitBox02BTCOnly()
+		rootFingerprint, err := ks.RootFingerprint()
+		require.NoError(t, err)
+
+		b.registerKeystore(ks)
+		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
+		b.DeregisterKeystore()
+
+		require.False(t, b.swapAvailable())
+	})
+
+	t.Run("false when btc-only keystore shares a seed with previously persisted multi accounts", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		multi := makeBitBox02Multi()
+		btcOnly := makeBitBox02BTCOnly()
+
+		rootFingerprint, err := multi.RootFingerprint()
+		require.NoError(t, err)
+		btcOnlyRootFingerprint, err := btcOnly.RootFingerprint()
+		require.NoError(t, err)
+		require.Equal(t, rootFingerprint, btcOnlyRootFingerprint)
+
+		b.registerKeystore(multi)
+		b.DeregisterKeystore()
+		b.registerKeystore(btcOnly)
+
+		require.False(t, b.swapAvailable())
+	})
+}
+
+func TestSwapConnectedKeystore(t *testing.T) {
+	t.Run("false when no keystore is connected", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		require.Equal(t, swapConnectedKeystoreNone, b.swapConnectedKeystore())
+	})
+
+	t.Run("true when a multi keystore is connected", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		ks := makeBitBox02Multi()
+		ks.RootFingerprintFunc = func() ([]byte, error) {
+			return rootFingerprint1, nil
+		}
+		b.registerKeystore(ks)
+
+		require.Equal(t, swapConnectedKeystoreMulti, b.swapConnectedKeystore())
+	})
+
+	t.Run("false when a bitcoin-only keystore is connected", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		ks := makeBitBox02BTCOnly()
+		ks.RootFingerprintFunc = func() ([]byte, error) {
+			return rootFingerprint1, nil
+		}
+		b.registerKeystore(ks)
+
+		require.Equal(t, swapConnectedKeystoreBTCOnly, b.swapConnectedKeystore())
+	})
+
+	t.Run("false when only watch-only multi accounts are available", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		ks := makeBitBox02Multi()
+		rootFingerprint, err := ks.RootFingerprint()
+		require.NoError(t, err)
+
+		b.registerKeystore(ks)
+		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
+		b.DeregisterKeystore()
+
+		require.Equal(t, swapConnectedKeystoreNone, b.swapConnectedKeystore())
+	})
+
+	t.Run("false when btc-only keystore shares a seed with previously persisted multi accounts", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		multi := makeBitBox02Multi()
+		btcOnly := makeBitBox02BTCOnly()
+
+		rootFingerprint, err := multi.RootFingerprint()
+		require.NoError(t, err)
+		btcOnlyRootFingerprint, err := btcOnly.RootFingerprint()
+		require.NoError(t, err)
+		require.Equal(t, rootFingerprint, btcOnlyRootFingerprint)
+
+		b.registerKeystore(multi)
+		b.DeregisterKeystore()
+		b.registerKeystore(btcOnly)
+
+		require.Equal(t, swapConnectedKeystoreBTCOnly, b.swapConnectedKeystore())
+	})
+}
+
+func TestSwapStatus(t *testing.T) {
+	t.Run("reports availability and connected multi keystore separately", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		ks := makeBitBox02Multi()
+		rootFingerprint, err := ks.RootFingerprint()
+		require.NoError(t, err)
+
+		b.registerKeystore(ks)
+		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
+		b.DeregisterKeystore()
+
+		swapStatus := b.SwapStatus()
+		require.True(t, swapStatus.Available)
+		require.Equal(t, swapConnectedKeystoreNone, swapStatus.ConnectedKeystore)
+	})
+}

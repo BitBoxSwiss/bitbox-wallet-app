@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
 import * as marketAPI from '@/api/market';
+import { getSwapStatus } from '@/api/swap';
 import { AccountCode, TAccount } from '@/api/account';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
@@ -17,6 +18,7 @@ import { getRegionNameFromLocale } from '@/i18n/utils';
 import { getVendorFormattedName } from './utils';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Dialog } from '@/components/dialog/dialog';
+import { alertUser } from '@/components/alert/Alert';
 import { InfoButton } from '@/components/infobutton/infobutton';
 import { MarketTab } from './components/markettab';
 import { Deals } from './components/deals';
@@ -52,7 +54,7 @@ export const Market = ({
   const regionCodes = useLoad(marketAPI.getMarketRegionCodes);
   const nativeLocale = useLoad(getNativeLocale);
   const config = useLoad(getConfig);
-  const connectedSwapAccounts = accounts.filter(account => account.keystore.connected);
+  const swapStatus = useLoad(getSwapStatus, [accounts]);
 
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
@@ -60,19 +62,28 @@ export const Market = ({
 
   const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
 
+  // sync the OTC disclaimer state from persisted frontend config.
   useEffect(() => {
     if (config) {
       setAgreedBTCDirectOTCTerms(config.frontend.skipBTCDirectOTCDisclaimer);
     }
   }, [config]);
 
+  // finish pending swap navigation after a keystore connection attempt resolves.
   useEffect(() => {
-    if (!pendingSwapNavigation || connectedSwapAccounts.length === 0) {
+    if (!pendingSwapNavigation) {
       return;
     }
-    setPendingSwapNavigation(false);
-    navigate('/market/swap');
-  }, [connectedSwapAccounts.length, navigate, pendingSwapNavigation]);
+    if (swapStatus?.connectedKeystore === 'multi') {
+      setPendingSwapNavigation(false);
+      navigate('/market/swap');
+      return;
+    }
+    if (swapStatus?.connectedKeystore === 'btc-only') {
+      setPendingSwapNavigation(false);
+      alertUser(t('connectKeystore.swapHint'));
+    }
+  }, [navigate, pendingSwapNavigation, swapStatus, t]);
 
   // keep account list in sync and ensure a valid selected account.
   useEffect(() => {
@@ -180,7 +191,7 @@ export const Market = ({
       return;
     }
     if (activeTab === 'swap') {
-      if (connectedSwapAccounts.length > 0) {
+      if (swapStatus?.connectedKeystore === 'multi') {
         navigate('/market/swap');
         return;
       }
@@ -248,6 +259,7 @@ export const Market = ({
                     <MarketTab
                       onChangeTab={setActiveTab}
                       activeTab={activeTab}
+                      showSwap={!!swapStatus?.available}
                     />
                     {activeTab !== 'swap' && (
                       <>

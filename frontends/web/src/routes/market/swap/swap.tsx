@@ -137,12 +137,13 @@ export const Swap = ({
     [routes, selectedRouteId],
   );
 
+  // initialize swap account selections once the swap accounts payload has loaded.
   useEffect(() => {
     if (!swapAccounts || !swapAccounts.success) {
       return;
     }
     if (swapAccounts.sellAccounts.length === 0 || swapAccounts.buyAccounts.length === 0) {
-      navigate('/', { replace: true });
+      navigate('/market/select', { replace: true });
       return;
     }
     if (!swapAccounts.sellAccounts.some(account => account.code === sellAccountCode)) {
@@ -198,6 +199,7 @@ export const Swap = ({
     }
   }, [sellAccountCode]);
 
+  // fetch swap quotes whenever the selected pair or sell amount changes.
   useEffect(() => {
     let isCancelled = false;
     const sellCoinCode = sellAccount?.coinCode;
@@ -396,7 +398,14 @@ export const Swap = ({
     }
   };
 
-  if (!swapAccounts || !swapAccounts.success || swapAccounts.sellAccounts.length === 0 || !sellAccounts || !buyAccounts || !buyAccountCode) {
+  if (
+    !swapAccounts
+    || !swapAccounts.success
+    || swapAccounts.sellAccounts.length === 0
+    || !sellAccounts
+    || !buyAccounts
+    || !buyAccountCode
+  ) {
     return null;
   }
 
