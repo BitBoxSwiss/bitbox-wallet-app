@@ -186,7 +186,10 @@
 .layoutOnTwoLines .triggerAccountName {
     flex-basis: 100%;
     text-align: left;
+    overflow: hidden;
     padding-left: calc(var(--space-quarter) + var(--logo-image-width));
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .triggerAccountName {
