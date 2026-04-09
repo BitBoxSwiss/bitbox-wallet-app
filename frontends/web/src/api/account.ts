@@ -47,6 +47,7 @@ export type TAccountBase = {
   coinUnit: CoinUnit;
   code: AccountCode;
   name: string;
+  receiveScriptType?: ScriptType;
   isToken: boolean;
 };
 

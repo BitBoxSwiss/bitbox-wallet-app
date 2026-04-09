@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode, CoinCode } from './account';
+import type { AccountCode, CoinCode, ScriptType } from './account';
 import type { ERC20CoinCode } from './erc20';
 import type { FailResponse, SuccessResponse } from './response';
 import { apiGet, apiPost } from '@/utils/request';
@@ -36,6 +36,13 @@ export const setTokenActive = (
   active: boolean,
 ): Promise<TSuccess> => {
   return apiPost('set-token-active', { accountCode, tokenCode, active });
+};
+
+export const setAccountReceiveScriptType = (
+  accountCode: AccountCode,
+  scriptType: ScriptType,
+): Promise<TSuccess> => {
+  return apiPost('set-account-receive-script-type', { accountCode, scriptType });
 };
 
 export const renameAccount = (accountCode: AccountCode, name: string): Promise<TSuccess> => {

@@ -99,7 +99,7 @@ export const TxDetailsDialog = ({
 
           {/* to or send address */}
           <TxDetailRow>
-            <p className={styles.label}>{type === 'receive' ? t('transaction.details.from') : t('send.confirm.to')}</p>
+            <p className={styles.label}>{t('send.confirm.to')}</p>
             <AddressOrTxId values={transactionInfo.addresses} />
           </TxDetailRow>
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect, createRef, useContext, useRef, useCallback } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getBTCDirectInfo, TMarketAction } from '@/api/market';
@@ -18,6 +18,7 @@ import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { BTCDirectTerms } from '@/components/terms/btcdirect-terms';
 import { MarketGuide } from './guide';
 import { alertUser } from '@/components/alert/Alert';
+import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
 import style from './iframe.module.css';
 
 // Map languages supported by BTC Direct
@@ -45,44 +46,15 @@ export const BTCDirect = ({
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
 
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const btcdirectInfo = useLoad(() => getBTCDirectInfo(action, code));
 
-  const [agreedTerms, setAgreedTerms] = useState(false);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
   const [blocking, setBlocking] = useState(false);
-  const [height, setHeight] = useState(0);
 
   const config = useLoad(getConfig);
 
   const account = findAccount(accounts, code);
-  const ref = createRef<HTMLDivElement>();
-  let resizeTimerID: any;
-
-  useEffect(() => {
-    if (config) {
-      setAgreedTerms(config.frontend.skipBTCDirectWidgetDisclaimer);
-    }
-  }, [config]);
-
-  useEffect(() => {
-    onResize();
-    window.addEventListener('resize', onResize);
-
-    return () => window.removeEventListener('resize', onResize);
-  });
-
-  const onResize = () => {
-    if (resizeTimerID) {
-      clearTimeout(resizeTimerID);
-    }
-    resizeTimerID = setTimeout(() => {
-      if (!ref.current) {
-        return;
-      }
-      setHeight(ref.current.offsetHeight);
-    }, 200);
-  };
+  const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(!!config?.frontend?.skipBTCDirectWidgetDisclaimer);
 
   const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
     const {
@@ -216,7 +188,7 @@ export const BTCDirect = ({
   useEffect(() => {
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  });
+  }, [onMessage]);
 
   if (!account || !config) {
     return null;
@@ -241,7 +213,7 @@ export const BTCDirect = ({
               </h2>
             } />
           </div>
-          <div ref={ref} className={style.container}>
+          <div ref={containerRef} className={style.container}>
             { !agreedTerms ? (
               <BTCDirectTerms
                 account={account}
@@ -257,8 +229,7 @@ export const BTCDirect = ({
                 { btcdirectInfo?.success ? (
                   <iframe
                     onLoad={() => {
-                      setIframeLoaded(true);
-                      onResize();
+                      onIframeLoad();
                     }}
                     ref={iframeRef}
                     title="BTC Direct"

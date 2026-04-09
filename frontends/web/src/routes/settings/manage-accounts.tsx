@@ -214,22 +214,24 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
                   <Plus className="m-right-quarter" width="12" height="12" />
                   {t('addAccount.title')}
                 </Button>
-                <Grid col="1">
-                  { accountsByKeystore.map(keystore => (
-                    <Column
-                      key={keystore.keystore.rootFingerprint}
-                      asCard>
-                      <div className={style.walletHeader}>
-                        <ConnectedKeystore
-                          accountsByKeystore={accountsByKeystore}
-                          keystore={keystore.keystore}
-                          className={style.connectedKeystore} />
-                        <WatchonlySetting keystore={keystore.keystore} />
-                      </div>
-                      {renderAccounts(keystore.accounts)}
-                    </Column>
-                  )) }
-                </Grid>
+                <div data-testid="manage-accounts-keystores">
+                  <Grid col="1">
+                    { accountsByKeystore.map(keystore => (
+                      <Column
+                        key={keystore.keystore.rootFingerprint}
+                        asCard>
+                        <div className={style.walletHeader}>
+                          <ConnectedKeystore
+                            accountsByKeystore={accountsByKeystore}
+                            keystore={keystore.keystore}
+                            className={style.connectedKeystore} />
+                          <WatchonlySetting keystore={keystore.keystore} />
+                        </div>
+                        {renderAccounts(keystore.accounts)}
+                      </Column>
+                    )) }
+                  </Grid>
+                </div>
                 {currentlyEditedAccount && (
                   <Dialog
                     open={!!(currentlyEditedAccount)}

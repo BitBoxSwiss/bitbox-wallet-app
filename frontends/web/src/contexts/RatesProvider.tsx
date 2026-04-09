@@ -92,7 +92,6 @@ export const RatesProvider = ({ children }: TProps) => {
         rotateDefaultCurrency,
         addToActiveCurrencies,
         updateDefaultCurrency,
-        updateRatesConfig,
         removeFromActiveCurrencies,
         rotateBtcUnit,
       }}

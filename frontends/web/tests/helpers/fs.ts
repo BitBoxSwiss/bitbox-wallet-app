@@ -23,24 +23,15 @@ function deleteFile(filePath: string) {
 
 }
 
-function sanitizeFileName(name: string): string {
-  return name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
-}
-
-
 /**
- * Returns a full path for a log file in test-results/<test>-<project>/
+ * Returns a full path for a log file in the provided Playwright output directory.
  * Automatically creates the folder if it doesn't exist.
  *
- * @param testName - Current test name
- * @param projectName - Playwright project name
+ * @param outputDir - Playwright's per-test output directory
  * @param logFileName - The log filename (e.g., 'backend.log' or 'simulator.log')
  */
-export function getLogFilePath(testName: string, projectName: string, logFileName: string): string {
-  const safeTest = sanitizeFileName(testName);
-  const safeProject = sanitizeFileName(projectName);
-
-  const folderPath = path.resolve(process.cwd(), 'test-results', `${safeTest}-${safeProject}`);
+export function getLogFilePath(outputDir: string, logFileName: string): string {
+  const folderPath = path.resolve(outputDir);
   fs.mkdirSync(folderPath, { recursive: true });
 
   return path.join(folderPath, logFileName);
