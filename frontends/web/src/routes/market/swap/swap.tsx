@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -16,6 +16,7 @@ import {
   type TSendTx,
   type TSwapDestinationAccount,
 } from '@/api/account';
+import { convertToCurrency } from '@/api/coins';
 import { getSwapQuote, signSwap, type TSwapQuoteRoute } from '@/api/swap';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
@@ -30,6 +31,7 @@ import { Amount } from '@/components/amount/amount';
 import { AmountUnit, AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
+import { RatesContext } from '@/contexts/RatesContext';
 import { findAccount } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
@@ -66,6 +68,7 @@ export const Swap = ({
     () => activeAccounts.filter(account => account.keystore.connected),
     [activeAccounts],
   );
+  const { activeCurrencies } = useContext(RatesContext);
   const loadedBuyAccounts = useLoad(getSwapDestinationAccounts, [accounts]);
   const buyAccounts = useMemo<TSwapDestinationAccount[]>(
     () => (loadedBuyAccounts || []).filter(account => account.keystore.connected),
@@ -286,9 +289,27 @@ export const Swap = ({
         return;
       }
 
+      let expectedOutputConversions: TAmountWithConversions['conversions'];
+      const fiatConversions = await Promise.all(
+        activeCurrencies.map(async fiatUnit => {
+          const fiatConversion = await convertToCurrency({
+            amount: response.expectedBuyAmount,
+            coinCode: buyAccount.coinCode,
+            fiatUnit,
+          });
+          return fiatConversion.success
+            ? [fiatUnit, fiatConversion.fiatAmount] as const
+            : undefined;
+        }),
+      );
+      expectedOutputConversions = Object.fromEntries(
+        fiatConversions.filter(entry => entry !== undefined),
+      );
+
       setConfirmDetails({
         expectedOutput: {
           amount: response.expectedBuyAmount,
+          conversions: expectedOutputConversions,
           unit: buyAccount.coinUnit,
           estimated: false,
         },
