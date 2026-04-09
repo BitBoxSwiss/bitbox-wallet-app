@@ -6,12 +6,12 @@ import { expect } from '@playwright/test';
 import { clickButtonWithText } from './helpers/dom';
 import { deleteAccountsFile } from './helpers/fs';
 
-let servewallet: ServeWallet;
+let servewallet: ServeWallet | undefined;
 
 test('Gap limits are correctly saved', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name);
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir);
     await servewallet.start();
   });
 
@@ -68,6 +68,7 @@ test.beforeEach(() => {
   deleteAccountsFile();
 });
 
-test.afterAll(() => {
-  servewallet.stop();
+test.afterAll(async () => {
+  await servewallet?.stop();
+  servewallet = undefined;
 });

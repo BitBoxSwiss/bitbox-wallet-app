@@ -10,6 +10,7 @@
     --color-white: #FFFFFF;
     --color-lightgray: #F5F5F5;
     --color-mediumgray: #E5E5E5;
+    --color-darkgray: #505050;
     --color-gray-alt: #999999;
     --color-gray: #777777;
     --color-softblack: #333333;
@@ -134,6 +135,7 @@
     --background-custom-select-selected: rgba(var(--color-blue-rgb), .3);
     --background-session-card: var(--color-white);
     
+    --separation-line-color: var(--color-lightgray);
     --bottom-navigation-border-color: var(--color-mediumgray);
 }
 
@@ -163,6 +165,7 @@
         --background-custom-select-selected: var(--color-dark);
         --background-session-card: var(--color-softblack);
 
+        --separation-line-color: var(--color-darkgray);
         --bottom-navigation-border-color: var(--color-gray);
     }
 }
@@ -192,6 +195,7 @@
         --background-custom-select-selected: var(--color-dark);
         --background-session-card: var(--color-softblack);
         
+        --separation-line-color: var(--color-darkgray);
         --bottom-navigation-border-color: var(--color-gray);
     }
 }

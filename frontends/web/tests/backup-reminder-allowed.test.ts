@@ -117,7 +117,7 @@ test('Backup reminder stays hidden when allowed is false', async ({ page, host, 
   });
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { regtest: true, testnet: false });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false });
     await servewallet.start();
   });
 
@@ -160,7 +160,7 @@ test('Backup reminder stays suppressed when first seen over threshold', async ({
   });
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { regtest: true, testnet: false });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false });
     await servewallet.start();
   });
 
@@ -204,7 +204,7 @@ test('Backup reminder shows after funding a new wallet', async ({ page, host, fr
   });
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { regtest: true, testnet: false });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false });
     await servewallet.start();
   });
 

@@ -39,8 +39,9 @@ export const AssetBalanceWithUnitPrice = ({ amount, coinCode, coinName, dataTest
             )}
           </div>
           <div className={style.assetBalanceDetailRow}>
-            <div>
+            <div data-testid="unit-price-amount">
               <AmountWithUnit
+                alwaysShowAmounts
                 amountClassName={style.unitPrice}
                 amount={unitPrice}
                 unitClassName={style.unit}
@@ -51,7 +52,7 @@ export const AssetBalanceWithUnitPrice = ({ amount, coinCode, coinName, dataTest
               )}
             </div>
             {amount ? (
-              <span className={style.assetBalanceAmountFixed}>
+              <span className={style.assetBalanceAmountFixed} data-testid="fiat-balance">
                 <AmountWithUnit amount={amount} convertToFiat />
               </span>
             ) : (

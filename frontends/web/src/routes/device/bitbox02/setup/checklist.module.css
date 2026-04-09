@@ -1,7 +1,13 @@
+.wizardCheckbox label {
+  padding-top: var(--space-quarter);
+}
+
 .wizardCheckbox label::before {
+  margin-top: var(--space-quarter);
   top: 2px !important;
 }
 
 .wizardCheckbox label::after {
+  margin-top: var(--space-quarter) !important;
   top: 6px !important;
 }

@@ -3,6 +3,7 @@
 package backend
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"math"
@@ -169,14 +170,29 @@ func lessAccountSortOrder(coin1 coinpkg.Coin, accountConfig1 *config.Account, co
 	return accountConfig1.Code < accountConfig2.Code
 }
 
-// sortAccounts sorts the accounts in-place by 1) coin 2) account number.
-func sortAccounts(accounts []accounts.Interface) {
+// sortAccounts sorts the accounts in-place by 1) keystore name 2) root fingerprint 3) coin
+// 4) account number.
+func sortAccounts(accounts []accounts.Interface, accountsConfig config.AccountsConfig) {
 	sort.Slice(accounts, func(i, j int) bool {
+		acct1 := accounts[i]
+		acct2 := accounts[j]
+		rootFingerprint1, err1 := acct1.Config().Config.SigningConfigurations.RootFingerprint()
+		rootFingerprint2, err2 := acct2.Config().Config.SigningConfigurations.RootFingerprint()
+		if err1 == nil && err2 == nil {
+			keystore1, lookupErr1 := accountsConfig.LookupKeystore(rootFingerprint1)
+			keystore2, lookupErr2 := accountsConfig.LookupKeystore(rootFingerprint2)
+			if lookupErr1 == nil && lookupErr2 == nil && keystore1.Name != keystore2.Name {
+				return keystore1.Name < keystore2.Name
+			}
+			if cmp := bytes.Compare(rootFingerprint1, rootFingerprint2); cmp != 0 {
+				return cmp < 0
+			}
+		}
 		return lessAccountSortOrder(
-			accounts[i].Coin(),
-			accounts[i].Config().Config,
-			accounts[j].Coin(),
-			accounts[j].Config().Config,
+			acct1.Coin(),
+			acct1.Config().Config,
+			acct2.Coin(),
+			acct2.Config().Config,
 		)
 	})
 }
@@ -824,6 +840,32 @@ func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode
 	return nil
 }
 
+// SetAccountReceiveScriptType stores the receive script type for an account.
+func (backend *Backend) SetAccountReceiveScriptType(
+	accountCode accountsTypes.Code,
+	scriptType signing.ScriptType,
+) error {
+	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		acct := accountsConfig.Lookup(accountCode)
+		if acct == nil {
+			return errp.Newf("Could not find account %s", accountCode)
+		}
+		if scriptType == signing.ScriptTypeP2WPKHP2SH {
+			return errp.New("wrapped segwit is not supported in receive flows")
+		}
+		if acct.InsuranceStatus == string(bitsurance.ActiveStatus) &&
+			scriptType != signing.ScriptTypeP2WPKH {
+			return errp.New("insured accounts can only receive on native segwit")
+		}
+		return acct.SetReceiveScriptType(scriptType)
+	})
+	if err != nil {
+		return err
+	}
+	backend.emitAccountsStatusChanged()
+	return nil
+}
+
 // RenameAccount renames an account in the accounts database.
 func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name string) error {
 	if name == "" {
@@ -844,11 +886,28 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	return nil
 }
 
+// updateKeystoreName persists a keystore name change and re-sorts the loaded accounts accordingly.
+func (backend *Backend) updateKeystoreName(rootFingerprint []byte, name string) error {
+	if name == "" {
+		return errp.New("Name cannot be empty")
+	}
+	if err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		accountsConfig.GetOrAddKeystore(rootFingerprint).Name = name
+		return nil
+	}); err != nil {
+		return err
+	}
+	defer backend.accountsAndKeystoreLock.Lock()()
+	sortAccounts(backend.accounts, backend.config.AccountsConfig())
+	backend.emitAccountsStatusChanged()
+	return nil
+}
+
 // addAccount adds the given account to the backend.
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.accounts = append(backend.accounts, account)
-	sortAccounts(backend.accounts)
+	sortAccounts(backend.accounts, backend.config.AccountsConfig())
 
 	account.Observe(func(event observable.Event) {
 		backend.Notify(observable.Event{
