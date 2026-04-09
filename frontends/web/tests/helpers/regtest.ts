@@ -14,6 +14,9 @@ const DATADIR = '/bitcoin';
 const BITCOIND_CONTAINER = 'bitcoind-regtest';
 const ELECTRS_CONTAINER1 = 'electrs-regtest1';
 const ELECTRS_CONTAINER2 = 'electrs-regtest2';
+const BITCOIND_VOLUME = 'bitcoind-regtest-data';
+const ELECTRS_VOLUME1 = 'electrs-regtest-data1';
+const ELECTRS_VOLUME2 = 'electrs-regtest-data2';
 const BTC_DATA_DIR = '/tmp/regtest/btcdata';
 const ELECTRS_DATA_DIR1 = '/tmp/regtest/electrsdata1';
 const ELECTRS_DATA_DIR2 = '/tmp/regtest/electrsdata2';
@@ -74,6 +77,14 @@ docker container rm -f ${BITCOIND_CONTAINER} ${ELECTRS_CONTAINER1} ${ELECTRS_CON
 `);
   } catch (err) {
     console.warn('Docker cleanup failed:', err);
+  }
+
+  try {
+    await execAsync(`
+docker volume rm -f ${BITCOIND_VOLUME} ${ELECTRS_VOLUME1} ${ELECTRS_VOLUME2} >/dev/null 2>&1 || true
+`);
+  } catch (err) {
+    console.warn('Docker volume cleanup failed:', err);
   }
 
   for (const dir of [BTC_DATA_DIR, ELECTRS_DATA_DIR1, ELECTRS_DATA_DIR2]) {
