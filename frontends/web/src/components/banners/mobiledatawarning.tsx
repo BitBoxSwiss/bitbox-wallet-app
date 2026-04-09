@@ -13,7 +13,7 @@ export const MobileDataWarning = () => {
   }
   return (
     <Status
-      dismissible="mobile-data-warning"
+      dismissibleKey="mobile-data-warning"
       type="warning"
       hidden={!isUsingMobileData}>
       {t('mobile.usingMobileDataWarning')}

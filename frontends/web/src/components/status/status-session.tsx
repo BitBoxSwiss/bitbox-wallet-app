@@ -13,9 +13,9 @@ type TProps = {
   type?: TMessageTypes;
   noIcon?: boolean;
   // used as keyName in a temporary config object. Dismissing the status is temporary and kept per session (until app is closed)
-  // Use an empty string if it should be dismissible without storing it in the
-  // config, so the status will be shown again the next time.
-  dismissible: string;
+  // Use an empty string if it should be dismissible without storing it in the session  config,
+  // so the status will be shown again on next mount.
+  dismissibleKey: string;
   className?: string;
   children: ReactNode;
 };
@@ -24,28 +24,28 @@ export const SessionStatus = ({
   hidden,
   type = 'warning',
   noIcon = false,
-  dismissible,
+  dismissibleKey,
   className = '',
   children,
 }: TProps) => {
   const { sessionConfig, updateSessionConfig } = useContext(AppContext);
   // note: dismissible can be falsy i.e. empty string ''
-  const [show, setShow] = useState(dismissible ? false : true);
+  const [show, setShow] = useState(dismissibleKey ? false : true);
 
   const { isDarkMode } = useDarkmode();
 
   useEffect(() => {
-    if (dismissible) {
-      setShow(!sessionConfig[dismissible]);
+    if (dismissibleKey) {
+      setShow(!sessionConfig[dismissibleKey]);
     }
-  }, [dismissible, sessionConfig]);
+  }, [dismissibleKey, sessionConfig]);
 
   const dismiss = async () => {
-    if (!dismissible) {
+    if (!dismissibleKey) {
       return;
     }
     updateSessionConfig({
-      [dismissible]: true,
+      [dismissibleKey]: true,
     });
     setShow(false);
   };
@@ -62,7 +62,7 @@ export const SessionStatus = ({
             {children}
           </div>
           <button
-            hidden={!dismissible}
+            hidden={!dismissibleKey}
             className={style.closeButton}
             onClick={dismiss}
           >

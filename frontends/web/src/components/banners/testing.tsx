@@ -16,7 +16,7 @@ export const Testing = () => {
   return (
     <SessionStatus
       type="warning"
-      dismissible="omg">
+      dismissibleKey="skipTestingWarning">
       {t('warning.testnet')}
     </SessionStatus>
   );
