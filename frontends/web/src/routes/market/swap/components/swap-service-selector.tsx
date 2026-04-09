@@ -39,7 +39,10 @@ const SwapProviderOption = ({ data }: SwapProviderOptionProps) => {
         )}
       </span>
       <span className={style.amount}>
-        <AmountWithUnit amount={data.amount} />
+        <AmountWithUnit
+          amount={data.amount}
+          maxDecimals={9}
+        />
       </span>
     </>
   );

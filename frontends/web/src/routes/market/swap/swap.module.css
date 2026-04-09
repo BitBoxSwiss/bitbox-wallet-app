@@ -31,6 +31,13 @@
   text-align: center;
 }
 
+@media (max-width: 768px) {
+  .flipAcconutsButton {
+    min-width: 90px;
+    margin-left: -45px;
+  }
+}
+
 .flipAcconutsIcon {
   display: inline-block;
   transform: rotate(90deg);

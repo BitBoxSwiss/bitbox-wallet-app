@@ -303,6 +303,7 @@ export const Swap = ({
                 accountCode={buyAccountCode}
                 onChangeAccountCode={setBuyAccountCode}
                 value={expectedOutput}
+                readOnlyAmount
               />
               <SwapServiceSelector
                 buyUnit={buyAccount?.coinUnit}
