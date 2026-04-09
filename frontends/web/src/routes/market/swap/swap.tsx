@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getBalance, getSwapDestinationAccounts, TBalance, type AccountCode, type TAccount, type TSwapDestinationAccount } from '@/api/account';
 import { getSwapQuote, signSwap, type TSwapQuoteRoute } from '@/api/swap';
@@ -46,9 +47,14 @@ export const Swap = ({
   code,
 }: Props) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const sellAccounts = useMemo(
+    () => activeAccounts.filter(account => account.keystore.connected),
+    [activeAccounts],
+  );
   const loadedBuyAccounts = useLoad(getSwapDestinationAccounts, [accounts]);
   const buyAccounts = useMemo<TSwapDestinationAccount[]>(
-    () => loadedBuyAccounts || [],
+    () => (loadedBuyAccounts || []).filter(account => account.keystore.connected),
     [loadedBuyAccounts],
   );
 
@@ -56,7 +62,9 @@ export const Swap = ({
   const { btcUnit } = useContext(RatesContext);
 
   // Send
-  const [sellAccountCode, setSellAccountCode] = useState<AccountCode>(code);
+  const [sellAccountCode, setSellAccountCode] = useState<AccountCode>(
+    () => sellAccounts.find(account => account.code === code)?.code || sellAccounts[0]?.code || code,
+  );
   const [sellAmount, setSellAmount] = useState<string>('');
   const [maxSellAmount, setMaxSellAmount] = useState<TBalance | undefined>();
 
@@ -73,8 +81,8 @@ export const Swap = ({
   const [routeError, setRouteError] = useState<string | undefined>();
 
   const fromAccount = useMemo(
-    () => findAccount(accounts, sellAccountCode),
-    [accounts, sellAccountCode],
+    () => findAccount(sellAccounts, sellAccountCode),
+    [sellAccounts, sellAccountCode],
   );
   const buyAccount = useMemo(
     () => buyAccountCode
@@ -86,6 +94,17 @@ export const Swap = ({
     () => routes.find(route => route.routeId === selectedRouteId),
     [routes, selectedRouteId],
   );
+
+  useEffect(() => {
+    if (sellAccounts.length === 0) {
+      navigate('/', { replace: true });
+      return;
+    }
+    const [firstSellAccount] = sellAccounts;
+    if (firstSellAccount && !sellAccounts.some(account => account.code === sellAccountCode)) {
+      setSellAccountCode(firstSellAccount.code);
+    }
+  }, [navigate, sellAccountCode, sellAccounts]);
 
   // enable flip button
   useEffect(() => {
@@ -212,6 +231,10 @@ export const Swap = ({
     setIsConfirming(true);
   };
 
+  if (sellAccounts.length === 0) {
+    return null;
+  }
+
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -246,7 +269,7 @@ export const Swap = ({
                 )}
               </div>
               <InputWithAccountSelector
-                accounts={activeAccounts}
+                accounts={sellAccounts}
                 id="swapSendAmount"
                 accountCode={sellAccountCode}
                 onChangeAccountCode={setSellAccountCode}

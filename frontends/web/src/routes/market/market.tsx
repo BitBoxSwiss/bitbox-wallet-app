@@ -25,7 +25,7 @@ import { getConfig, setConfig } from '@/utils/config';
 import { CountrySelect, TOption } from './components/countryselect';
 import { getBTCDirectOTCLink, InfoContent, TInfoContentProps } from './components/infocontent';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
-import { connectKeystore } from '@/api/keystores';
+import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
 import { open } from '@/api/system';
 import style from './market.module.css';
 
@@ -47,10 +47,12 @@ export const Market = ({
   const [info, setInfo] = useState<TInfoContentProps>();
   const [supportedAccounts, setSupportedAccounts] = useState<TAccount[]>([]);
   const [activeTab, setActiveTab] = useState<marketAPI.TMarketAction>('buy');
+  const [pendingSwapNavigation, setPendingSwapNavigation] = useState(false);
 
   const regionCodes = useLoad(marketAPI.getMarketRegionCodes);
   const nativeLocale = useLoad(getNativeLocale);
   const config = useLoad(getConfig);
+  const connectedSwapAccounts = accounts.filter(account => account.keystore.connected);
 
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
@@ -63,6 +65,14 @@ export const Market = ({
       setAgreedBTCDirectOTCTerms(config.frontend.skipBTCDirectOTCDisclaimer);
     }
   }, [config]);
+
+  useEffect(() => {
+    if (!pendingSwapNavigation || connectedSwapAccounts.length === 0) {
+      return;
+    }
+    setPendingSwapNavigation(false);
+    navigate('/market/swap');
+  }, [connectedSwapAccounts.length, navigate, pendingSwapNavigation]);
 
   // keep account list in sync and ensure a valid selected account.
   useEffect(() => {
@@ -165,12 +175,19 @@ export const Market = ({
     }
   };
 
-  const goToVendor = (vendor: string) => {
+  const goToVendor = async (vendor: string) => {
     if (!vendor) {
       return;
     }
     if (activeTab === 'swap') {
-      navigate('/market/swap');
+      if (connectedSwapAccounts.length > 0) {
+        navigate('/market/swap');
+        return;
+      }
+      const connectResult = await connectAnyKeystore();
+      if (connectResult.success) {
+        setPendingSwapNavigation(true);
+      }
       return;
     }
     if (activeTab === 'otc') {
