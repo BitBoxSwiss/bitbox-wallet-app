@@ -69,6 +69,7 @@
 .inputComponent input {
   border: none;
   height: auto;
+  text-overflow: ellipsis;
 }
 
 .inputField {
