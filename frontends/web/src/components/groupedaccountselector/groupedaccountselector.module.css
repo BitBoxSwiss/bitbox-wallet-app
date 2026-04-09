@@ -86,6 +86,10 @@
     width: 100%;
 }
 
+.select :global(.react-select__value-container) {
+    padding-right: 0;
+}
+
 .selectLabelText {
     flex-grow: 1;
     margin-left: 6px;
@@ -151,6 +155,7 @@
     align-items: center;
     display: flex;
     flex: 1;
+    gap: var(--space-eight) var(--space-quarter);
     overflow: hidden;
 }
 
@@ -162,14 +167,10 @@
 .triggerLabel {
     flex-grow: 1;
     flex-shrink: 1;
-    margin-left: var(--space-half);
     overflow: hidden;
+    text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.layoutOnTwoLines .triggerLabel {
-    margin-left: var(--space-quarter);
 }
 
 .triggerBalance {
@@ -177,6 +178,9 @@
     margin-left: auto;
     text-transform: uppercase;
     white-space: nowrap;
+}
+.trigger .triggerBalance {
+    padding-right: var(--space-quarter);
 }
 
 .layoutOnTwoLines .triggerAccountName {
