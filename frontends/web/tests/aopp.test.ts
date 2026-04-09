@@ -7,7 +7,7 @@ import { launchRegtest, setupRegtestWallet, sendCoins, mineBlocks, cleanupRegtes
 import { startSimulator, stopSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
 import { ChildProcess } from 'child_process';
 import { startAOPPServer, generateAOPPRequest } from './helpers/aopp';
-import { assertFieldsCount } from './helpers/dom';
+import { assertFieldsCount, dismissGuideIfPresent } from './helpers/dom';
 import { deleteAccountsFile } from './helpers/fs';
 import { getAccountCodeFromUrl, waitForAccountTransactions } from './helpers/account';
 
@@ -109,6 +109,7 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
 
   await test.step('Add second RBTC account', async () => {
     await page.goto('/#/account-summary');
+    await dismissGuideIfPresent(page);
     await page.getByRole('link', { name: 'Settings' }).click();
     await page.getByRole('link', { name: 'Manage Accounts' }).click();
     await page.getByRole('button', { name: 'Add account' }).click();

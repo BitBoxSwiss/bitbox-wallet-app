@@ -7,6 +7,7 @@ import { launchRegtest, setupRegtestWallet, sendCoins, mineBlocks, cleanupRegtes
 import { ChildProcess } from 'child_process';
 import { deleteAccountsFile } from './helpers/fs';
 import { getAccountCodeFromUrl, waitForAccountTransactions } from './helpers/account';
+import { dismissGuideIfPresent } from './helpers/dom';
 
 let servewallet: ServeWallet | undefined;
 let regtest: ChildProcess | undefined;
@@ -52,6 +53,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort, browserName
 
   await test.step('Add second RBTC account', async () => {
     await page.goto('/#/account-summary');
+    await dismissGuideIfPresent(page);
     await page.getByRole('link', { name: 'Settings' }).click();
     await page.getByRole('link', { name: 'Manage Accounts' }).click();
     await page.waitForURL('**/settings/manage-accounts');

@@ -55,17 +55,22 @@ export const AppProvider = ({ children }: TProps) => {
   }, [activeSidebar, isMobile, orientation]);
 
   useEffect(() => {
-    const frontend = config?.frontend;
-    if (frontend) {
+    if (config === undefined) {
+      return;
+    }
+    const frontend = config.frontend;
+    const hasFrontendConfig = Object.keys(frontend).length > 0;
+    if (hasFrontendConfig) {
       if (frontend.guideShown !== undefined) {
         setGuideShown(Boolean(frontend.guideShown));
       }
       if (frontend.hideAmounts !== undefined) {
         setHideAmounts(Boolean(frontend.hideAmounts));
       }
-    } else {
-      setGuideShown(true);
+      return;
     }
+    // First run (no persisted frontend config): show the guide by default.
+    setGuideShown(true);
   }, [config]);
 
   return (

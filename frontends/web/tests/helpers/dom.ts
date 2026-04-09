@@ -2,6 +2,19 @@
 
 import { Page, Locator, expect } from '@playwright/test';
 
+export async function dismissGuideIfPresent(page: Page, timeout = 1000) {
+  const overlay = page.locator('div[class*="overlay"][class*="show"]');
+  if (await overlay.count() === 0) {
+    return;
+  }
+  try {
+    await overlay.first().waitFor({ state: 'visible', timeout });
+    await overlay.first().click({ timeout });
+  } catch {
+    // Best-effort: if it's not visible/clickable, just continue.
+  }
+}
+
 /**
  * Finds elements by attribute key/value and asserts the expected count.
  *
@@ -25,6 +38,7 @@ export async function assertFieldsCount(
  * Works for "Continue", "Create wallet", "Get started", etc.
  */
 export async function clickButtonWithText(page: Page, text: string) {
+  await dismissGuideIfPresent(page);
   const button = page.locator('button', { hasText: text });
   await button.click();
 }

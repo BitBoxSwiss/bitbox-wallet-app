@@ -5,6 +5,7 @@ import * as net from 'net';
 import * as fs from 'fs';
 import type { Page } from '@playwright/test';
 import { getLogFilePath } from './fs';
+import { dismissGuideIfPresent } from './dom';
 
 async function connectOnce(host: string, port: number): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -136,6 +137,7 @@ export class ServeWallet {
           const bodyText = await this.page.textContent('body');
 
           if (bodyText && (bodyText.includes('Welcome') || bodyText.includes('My portfolio'))) {
+            await dismissGuideIfPresent(this.page);
             if (proc.exitCode !== null || proc.signalCode !== null) {
               throw new Error(
                 `Servewallet exited before becoming ready (code=${String(proc.exitCode)}, signal=${String(proc.signalCode)})`

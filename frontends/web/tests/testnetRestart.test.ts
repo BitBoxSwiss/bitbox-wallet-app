@@ -6,6 +6,7 @@ import { ServeWallet } from './helpers/servewallet';
 import { expect } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+import { dismissGuideIfPresent } from './helpers/dom';
 
 let servewallet: ServeWallet | undefined;
 
@@ -32,6 +33,7 @@ test('Testnet mode', async ({ page, host, frontendPort, servewalletPort }, testI
     const body = page.locator('body');
     await expect(body).not.toContainText('Testnet');
 
+    await dismissGuideIfPresent(page);
     await page.getByRole('link', { name: 'Settings' }).click();
     await page.getByRole('link', { name: 'Advanced settings' }).click();
     await page.getByRole('button', { name: 'Start testnet mode' }).click();
@@ -73,6 +75,7 @@ test('Testnet mode', async ({ page, host, frontendPort, servewalletPort }, testI
   });
 
   await test.step('Disable testnet mode', async () => {
+    await dismissGuideIfPresent(page);
     await page.getByRole('link', { name: 'Settings' }).click();
     await page.getByRole('link', { name: 'Advanced settings' }).click();
     await page.getByRole('button', { name: 'Exit testnet mode' }).click();
