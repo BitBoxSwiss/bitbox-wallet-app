@@ -31,8 +31,10 @@
 
 .meta {
     display: block;
-    flex: 1;
+    flex-grow: 0;
+    flex-shrink: 1;
     min-width: 0;
+    white-space: normal;
 }
 
 .select :global(.react-select__menu) {
