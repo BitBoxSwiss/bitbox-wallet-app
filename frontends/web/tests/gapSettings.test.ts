@@ -3,7 +3,7 @@
 import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
 import { expect } from '@playwright/test';
-import { clickButtonWithText } from './helpers/dom';
+import { clickButtonWithText, dismissGuideIfPresent } from './helpers/dom';
 import { deleteAccountsFile } from './helpers/fs';
 
 let servewallet: ServeWallet | undefined;
@@ -23,6 +23,7 @@ test('Gap limits are correctly saved', async ({ page, host, frontendPort, servew
   });
 
   await test.step('Type into gap limit inputs', async () => {
+    await dismissGuideIfPresent(page);
     await page.getByRole('link', { name: 'Settings' }).click();
     await page.getByRole('link', { name: 'Advanced settings' }).click();
     await page.getByRole('button', { name: 'Custom gap limit settings' }).click();

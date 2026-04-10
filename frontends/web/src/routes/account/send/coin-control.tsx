@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TAccount } from '@/api/account';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { Button } from '@/components/forms';
 import { TSelectedUTXOs, UTXOs } from './utxos';
 import { isBitcoinBased } from '../utils';
@@ -21,17 +21,16 @@ export const CoinControl = ({
   onCoinControlDialogActiveChange,
 }: TProps) => {
   const { t } = useTranslation();
+  const { config } = useConfig();
 
   const [coinControlEnabled, setCoinControlEnabled] = useState(false);
   const [showUTXODialog, setShowUTXODialog] = useState(false);
 
   useEffect(() => {
-    if (isBitcoinBased(account.coinCode)) {
-      getConfig().then(config => {
-        setCoinControlEnabled(!!(config.frontend || {}).coinControl);
-      });
+    if (isBitcoinBased(account.coinCode) && config !== undefined) {
+      setCoinControlEnabled(!!(config.frontend || {}).coinControl);
     }
-  }, [account.coinCode]);
+  }, [account.coinCode, config]);
 
   // Notify parent whenever dialog visibility changes
   useEffect(() => {

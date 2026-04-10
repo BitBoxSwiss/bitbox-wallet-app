@@ -3,6 +3,24 @@
 import { remote } from 'webdriverio';
 import { expect } from 'chai';
 
+const dismissGuideIfPresent = async (driver) => {
+  // Best-effort: if the guide overlay is shown on first run, dismiss it so it doesn't intercept taps.
+  for (let i = 0; i < 10; i++) {
+    const dismissed = await driver.execute(() => {
+      const overlay = document.querySelector('div[class*="overlay"][class*="show"]');
+      if (!overlay) {
+        return false;
+      }
+      (overlay).click();
+      return true;
+    });
+    if (dismissed) {
+      return;
+    }
+    await driver.pause(250);
+  }
+};
+
 const getSaveDialogElement = async (driver) => {
   const selectors = [
     'android=new UiSelector().resourceId("com.android.documentsui:id/action_menu_save")',
@@ -53,6 +71,7 @@ describe('Export logs uses save dialog', function () {
     await driver.execute(() => {
       window.location.hash = '#/settings/advanced-settings';
     });
+    await dismissGuideIfPresent(driver);
 
     const exportLogsButton = await driver.$('//button[contains(., "Export logs")]');
     await exportLogsButton.waitForDisplayed({ timeout: 60000 });

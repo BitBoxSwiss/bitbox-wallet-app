@@ -5,7 +5,7 @@ import { deleteAccountsFile, deleteConfigFile } from './helpers/fs';
 import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
 import { startSimulator, stopSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
-import { assertFieldsCount, clickButtonWithText } from './helpers/dom';
+import { assertFieldsCount, clickButtonWithText, dismissGuideIfPresent } from './helpers/dom';
 import { ChildProcess } from 'child_process';
 
 let servewallet: ServeWallet | undefined;
@@ -55,6 +55,7 @@ const assertSidebarKeystoreConnectionStates = async (page: Page, expected: strin
 
 const assertAccountSummaryKeystoreOrder = async (page: Page, expected: string[]) => {
   await page.goto('/#/account-summary');
+  await dismissGuideIfPresent(page);
   await expectTextsInOrder(
     page.locator('[data-testid="account-summary-keystores"] [data-testid="keystore-name"]'),
     expected,
@@ -63,6 +64,7 @@ const assertAccountSummaryKeystoreOrder = async (page: Page, expected: string[])
 
 const assertManageAccountsKeystoreOrder = async (page: Page, expected: string[]) => {
   await page.goto('/#/settings/manage-accounts');
+  await dismissGuideIfPresent(page);
   await expectTextsInOrder(
     page.locator('[data-testid="manage-accounts-keystores"] [data-testid="keystore-name"]'),
     expected,
@@ -71,6 +73,7 @@ const assertManageAccountsKeystoreOrder = async (page: Page, expected: string[])
 
 const assertReceiveSelectorKeystoreOrder = async (page: Page, expected: string[]) => {
   await page.goto('/#/accounts/select-receive');
+  await dismissGuideIfPresent(page);
   const accountSelector = page.locator('.react-select__control');
   await accountSelector.waitFor({ state: 'visible' });
   await accountSelector.click();
@@ -91,6 +94,7 @@ const assertAllAccountsKeystoreOrder = async (
 ) => {
   await page.setViewportSize({ width: 600, height: 1200 });
   await page.goto('/#/accounts/all');
+  await dismissGuideIfPresent(page);
   await expectTextsInOrder(
     page.locator('[data-testid="all-accounts-keystores"] [data-testid="keystore-name"]'),
     expected,
@@ -116,6 +120,7 @@ const assertKeystoreOrderAcrossRelevantPages = async (
 
 const renameConnectedDevice = async (page: Page, newName: string, expectedSidebarOrder: string[]) => {
   await page.goto('/#/settings/general');
+  await dismissGuideIfPresent(page);
   await page.getByRole('link', { name: 'Device' }).click();
   await page.locator('button').filter({ hasText: 'BitBox name' }).click();
   await page.locator('#deviceName').fill(newName);
@@ -200,6 +205,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
   });
 
   await test.step('Enable watch-only account', async () => {
+    await dismissGuideIfPresent(page);
     await page.getByRole('link', { name: 'Settings' }).click();
     await page.getByRole('link', { name: 'Manage accounts' }).click();
     await page.locator('label').filter({ hasText: 'Remember wallet' }).locator('label span').click();
@@ -212,6 +218,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
   });
 
   await test.step('Check that watch-only accounts shows up', async () => {
+    await dismissGuideIfPresent(page);
     await page.getByRole('link', { name: 'My portfolio' }).click();
     await assertFieldsCount(page, 'data-testid', 'account-name', 3);
   });
@@ -251,6 +258,7 @@ test('Test #3 - Watch-only add account prompts for keystore', async ({ page, hos
   });
 
   await test.step('Enable watch-only account', async () => {
+    await dismissGuideIfPresent(page);
     await page.getByRole('link', { name: 'Settings' }).click();
     await page.getByRole('link', { name: 'Manage accounts' }).click();
     await page.locator('label').filter({ hasText: 'Remember wallet' }).locator('label span').click();
@@ -263,6 +271,7 @@ test('Test #3 - Watch-only add account prompts for keystore', async ({ page, hos
   });
 
   await test.step('Navigate to add account and prompt for keystore', async () => {
+    await dismissGuideIfPresent(page);
     await page.getByRole('button', { name: 'Add account' }).click();
     await expect(page.getByText('Please connect your BitBox to continue')).toBeVisible();
   });
@@ -316,6 +325,7 @@ test('Test #4 - Keystore rename updates and reorders watch-only wallets', async 
 
   await test.step('Enable watch-only for the first wallet', async () => {
     await page.goto('/#/settings/manage-accounts');
+    await dismissGuideIfPresent(page);
     await page.locator('label').filter({ hasText: 'Remember wallet' }).locator('label span').click();
     await clickButtonWithText(page, 'OK');
   });
@@ -324,6 +334,7 @@ test('Test #4 - Keystore rename updates and reorders watch-only wallets', async 
     await stopSimulator(simulatorProc);
     simulatorProc = undefined;
     await page.goto('/#/account-summary');
+    await dismissGuideIfPresent(page);
     await assertSidebarKeystoreConnectionStates(page, ['false']);
     await assertFieldsCount(page, 'data-testid', 'account-name', 3);
     await assertSidebarKeystoreOrder(page, [FIRST_RENAMED_WALLET_NAME]);

@@ -7,13 +7,16 @@ vi.mock('@/utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue(''),
 }));
 vi.mock('@/i18n/i18n');
+vi.mock('@/contexts/ConfigProvider', () => ({
+  useConfig: () => ({
+    config: { frontend: { expertFee: false } },
+    setConfig: vi.fn(),
+  })
+}));
 
 import { render, waitFor } from '@testing-library/react';
 import { FeeTargets } from './feetargets';
 import { apiGet } from '@/utils/request';
-
-import * as utilsConfig from '@/utils/config';
-const getConfig = vi.spyOn(utilsConfig, 'getConfig');
 
 vi.mock('@/hooks/mediaquery', () => ({
   useMediaQuery: vi.fn().mockReturnValue(true),
@@ -23,7 +26,6 @@ vi.mock('@/hooks/mediaquery', () => ({
 describe('routes/account/send/feetargets', () => {
 
   it('should call onFeeTargetChange with default', () => new Promise<void>(async done => {
-    getConfig.mockReturnValue(Promise.resolve({ frontend: { expertFee: false } }));
     const apiGetMock = (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'normal',
       feeTargets: [
