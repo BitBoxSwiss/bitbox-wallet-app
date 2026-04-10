@@ -21,6 +21,7 @@
 - Revamp portfolio / account summary detail (table)
 - Sort wallets by name first, then by root fingerprint when names match.
 - Persist account receive script type
+- Use numeric keyboard for coin and fiat input on ios
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
