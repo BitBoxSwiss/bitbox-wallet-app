@@ -75,6 +75,7 @@ export const NumberInput = (({
     <Input
       {...props}
       type="number"
+      inputMode="numeric"
       onInput={onChange}
       onPaste={handlePaste}
     />

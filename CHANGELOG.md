@@ -20,7 +20,9 @@
 - Fix coin control reused-address labels
 - Revamp portfolio / account summary detail (table)
 - Sort wallets by name first, then by root fingerprint when names match.
-- Persist account receive script type
+- Bitcoin: persist account receive script type
+- Bitcoin: display output descriptor in account details
+- iOS: use numeric keyboard for coin and fiat input
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
