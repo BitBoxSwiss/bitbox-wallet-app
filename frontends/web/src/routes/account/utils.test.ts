@@ -9,6 +9,7 @@ import {
   isBitcoinBased,
   isBitcoinCoin,
   isBitcoinOnly,
+  isMessageSigningSupported,
 } from './utils';
 
 
@@ -140,11 +141,29 @@ describe('utils/bitcoin coin helpers', () => {
     expect(isBitcoinCoin('RBTC' as NativeCoinUnit)).toBe(true);
   });
 
+  it('uses bitcoin URI prefix for rbtc', () => {
+    expect(getAddressURIPrefix('rbtc')).toBe('bitcoin:');
+  });
+
   it('maps rbtc to canonical btc coin code', () => {
     expect(getCoinCode('rbtc' as CoinCode)).toBe('btc');
   });
+});
 
-  it('uses bitcoin URI prefix for rbtc', () => {
-    expect(getAddressURIPrefix('rbtc')).toBe('bitcoin:');
+describe('utils/isMessageSigningSupported', () => {
+  it('supports btc, tbtc and rbtc message signing', () => {
+    expect(isMessageSigningSupported('btc')).toBe(true);
+    expect(isMessageSigningSupported('tbtc')).toBe(true);
+    expect(isMessageSigningSupported('rbtc')).toBe(true);
+  });
+
+  it('supports sepolia and eth message signing', () => {
+    expect(isMessageSigningSupported('eth')).toBe(true);
+    expect(isMessageSigningSupported('sepeth')).toBe(true);
+  });
+
+  it('does not support litecoin message signing', () => {
+    expect(isMessageSigningSupported('ltc')).toBe(false);
+    expect(isMessageSigningSupported('tltc')).toBe(false);
   });
 });

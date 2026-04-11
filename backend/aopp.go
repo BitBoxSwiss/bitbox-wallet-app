@@ -13,6 +13,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	ethcoin "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -416,7 +417,14 @@ loop:
 			account.Coin().Code(),
 		)
 	case coinpkg.CodeETH:
+		ethCoin, ok := account.Coin().(*ethcoin.Coin)
+		if !ok {
+			log.Error("coin type mismatch for eth aopp signing")
+			backend.aoppSetError(errAOPPUnknown)
+			return
+		}
 		sig, err = backend.keystore.SignETHMessage(
+			ethCoin.ChainID(),
 			[]byte(backend.aopp.Message),
 			addr.AbsoluteKeypath(),
 		)

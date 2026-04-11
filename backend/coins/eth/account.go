@@ -21,6 +21,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
+	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
@@ -831,11 +832,15 @@ func (account *Account) SignMsg(
 	if err != nil {
 		return "", err
 	}
-	signedMessage, err := keystore.SignETHMessage(bytesMessage, account.signingConfiguration.AbsoluteKeypath())
+	signature, err := keystore.SignETHMessage(
+		account.coin.ChainID(),
+		bytesMessage,
+		account.signingConfiguration.AbsoluteKeypath(),
+	)
 	if err != nil {
 		return "", err
 	}
-	return "0x" + hex.EncodeToString(signedMessage), nil
+	return "0x" + hex.EncodeToString(signature), nil
 }
 
 // SignTypedMsg signs an Ethereum EIP-712 typed message in BBApp via WalletConnect.
@@ -847,11 +852,43 @@ func (account *Account) SignTypedMsg(
 	if err != nil {
 		return "", err
 	}
-	signedMessage, err := keystore.SignETHTypedMessage(chainId, []byte(data), account.signingConfiguration.AbsoluteKeypath())
+	signature, err := keystore.SignETHTypedMessage(chainId, []byte(data), account.signingConfiguration.AbsoluteKeypath())
 	if err != nil {
 		return "", err
 	}
-	return "0x" + hex.EncodeToString(signedMessage), nil
+	return "0x" + hex.EncodeToString(signature), nil
+}
+
+// SignETHMessage signs a plain text message with the account's Ethereum address.
+// Returns the address used for signing and the signature (hex-encoded with 0x prefix).
+func (account *Account) SignETHMessage(message string) (string, string, error) {
+	if !account.isInitialized() {
+		return "", "", errp.New("account must be initialized")
+	}
+	if len(message) == 0 {
+		return "", "", errp.New("message cannot be empty")
+	}
+
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return "", "", err
+	}
+	if !keystore.CanSignMessage(account.Coin().Code()) {
+		return "", "", errp.Newf("The connected device or keystore cannot sign messages for %s",
+			account.Coin().Code())
+	}
+	signature, err := keystore.SignETHMessage(
+		account.coin.ChainID(),
+		[]byte(message),
+		account.signingConfiguration.AbsoluteKeypath(),
+	)
+	if err != nil {
+		if errp.Cause(err) == keystorePkg.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
+			return "", "", errp.ErrUserAbort
+		}
+		return "", "", err
+	}
+	return account.address.Address.Hex(), "0x" + hex.EncodeToString(signature), nil
 }
 
 // WalletConnectArgs are the tx proposal arguments received from Wallet Connect with Gas, GasPrice,

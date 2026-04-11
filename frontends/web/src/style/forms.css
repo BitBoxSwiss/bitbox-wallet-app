@@ -11,6 +11,7 @@ input[type="text"],
 textarea {
     color: var(--color-default);
     background: var(--background-secondary);
+    border-radius: var(--radius-xl);
 }
 
 textarea {

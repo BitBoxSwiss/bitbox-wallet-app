@@ -88,7 +88,6 @@
 
 .textarea {
     border-color: var(--background-quaternary);
-    border-radius: var(--radius-xl);
     font-family: var(--font-family);
     padding: var(--space-quarter);
     width: 100%;

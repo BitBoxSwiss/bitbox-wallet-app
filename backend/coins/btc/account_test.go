@@ -266,9 +266,13 @@ func TestSignAddress(t *testing.T) {
 	require.NoError(t, account.Initialize())
 	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 	// pt2r is not an available script type in the mocked account.
-	_, _, err := SignBTCAddress(account, "Hello there", signing.ScriptTypeP2TR)
+	_, _, err := SignBTCMessageUnusedAddress(account, "Hello there", signing.ScriptTypeP2TR)
 	require.Error(t, err)
-	address, signature, err := SignBTCAddress(account, "Hello there", signing.ScriptTypeP2WPKH)
+	address, signature, err := SignBTCMessageUnusedAddress(account, "Hello there", signing.ScriptTypeP2WPKH)
+	require.NoError(t, err)
+	require.NotEmpty(t, address)
+	require.Equal(t, base64.StdEncoding.EncodeToString([]byte("signature")), signature)
+	address, signature, err = SignBTCMessageUnusedAddress(account, "", signing.ScriptTypeP2WPKH)
 	require.NoError(t, err)
 	require.NotEmpty(t, address)
 	require.Equal(t, base64.StdEncoding.EncodeToString([]byte("signature")), signature)
@@ -532,4 +536,56 @@ func TestGetUsedAddressesFatalError(t *testing.T) {
 	usedAddresses, err := account.GetUsedAddresses()
 	require.Nil(t, usedAddresses)
 	require.EqualError(t, err, "can't call GetUsedAddresses() after a fatal error")
+}
+
+func TestSignBTCMessageSupportsChangeAddress(t *testing.T) {
+	account := mockAccount(t, nil)
+	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+	account.ensureAddresses()
+
+	unusedChangeAddresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+	require.NoError(t, err)
+	changeAddress := unusedChangeAddresses[0]
+
+	keystoreMock := mockKeystore()
+	account.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+		return keystoreMock, nil
+	}
+
+	address, signature, err := account.SignBTCMessageForAddress(changeAddress.ID(), "Hello")
+	require.NoError(t, err)
+	require.Equal(t, changeAddress.EncodeForHumans(), address)
+	require.Equal(t, base64.StdEncoding.EncodeToString([]byte("signature")), signature)
+	signCalls := keystoreMock.SignBTCMessageCalls()
+	require.Len(t, signCalls, 1)
+	require.Equal(t, changeAddress.AbsoluteKeypath(), signCalls[0].Keypath)
+	require.Equal(t, changeAddress.AccountConfiguration.ScriptType(), signCalls[0].ScriptType)
+}
+
+func TestSignBTCMessageForAddressEdgeCases(t *testing.T) {
+	account := mockAccount(t, nil)
+	require.NoError(t, account.Initialize())
+	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+
+	account.ensureAddresses()
+	unusedReceiveAddresses, err := account.subaccounts[0].receiveAddresses.GetUnused()
+	require.NoError(t, err)
+	validID := unusedReceiveAddresses[0].ID()
+
+	t.Run("empty addressID", func(t *testing.T) {
+		_, _, err := account.SignBTCMessageForAddress("", "Hello")
+		require.Error(t, err)
+	})
+
+	t.Run("empty message", func(t *testing.T) {
+		_, _, err := account.SignBTCMessageForAddress(validID, "")
+		require.Error(t, err)
+	})
+
+	t.Run("address not found", func(t *testing.T) {
+		_, _, err := account.SignBTCMessageForAddress("nonexistent-hash", "Hello")
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "not found")
+	})
 }
