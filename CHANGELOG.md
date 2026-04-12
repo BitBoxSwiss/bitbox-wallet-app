@@ -22,6 +22,8 @@
 - Sort wallets by name first, then by root fingerprint when names match.
 - Bitcoin: persist account receive script type
 - Bitcoin: display output descriptor in account details
+- Bitcoin: add a used addresses list in account info
+- Bitcoin and Ethereum: add message signing for addresses
 - iOS: use numeric keyboard for coin and fiat input
 
 ## v4.50.1
