@@ -12,7 +12,11 @@ import * as accountApi from '@/api/account';
 import * as keystoresApi from '@/api/keystores';
 import { useSignMessage } from './use-sign-message';
 
-const mockAddress: accountApi.TReceiveAddress = { addressID: 'test-addr-id', address: 'bc1qtest' };
+const mockAddress: accountApi.TReceiveAddress = {
+  addressID: 'test-addr-id',
+  address: 'bc1qtest',
+  displayAddress: 'bc1q test',
+};
 const rootFingerprint = 'f23ab988';
 
 describe('routes/account/sign-message/use-sign-message', () => {
@@ -54,6 +58,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
       success: true,
       signature: 'btc-sig-123',
       address: 'bc1qtest',
+      displayAddress: 'bc1q test',
     });
 
     const { result } = renderHook(() => useSignMessage({
@@ -76,6 +81,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
 
     expect(result.current.result).toEqual({
       address: 'bc1qtest',
+      displayAddress: 'bc1q test',
       message: 'test message',
       signature: 'btc-sig-123',
     });
@@ -92,9 +98,14 @@ describe('routes/account/sign-message/use-sign-message', () => {
       success: true,
       signature: 'eth-sig-456',
       address: '0xethaddr',
+      displayAddress: '0x etha ddr',
     });
 
-    const ethAddress: accountApi.TReceiveAddress = { addressID: 'eth-addr-id', address: '0xethaddr' };
+    const ethAddress: accountApi.TReceiveAddress = {
+      addressID: 'eth-addr-id',
+      address: '0xethaddr',
+      displayAddress: '0x etha ddr',
+    };
 
     const { result } = renderHook(() => useSignMessage({
       accountCode: 'eth-acc' as accountApi.AccountCode,
@@ -270,7 +281,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
 
     // Resolve the pending sign and let the first call complete
     await act(async () => {
-      resolveSign!({ success: true, signature: 'sig', address: 'bc1qtest' });
+      resolveSign!({ success: true, signature: 'sig', address: 'bc1qtest', displayAddress: 'bc1q test' });
       await firstCall!;
     });
 
@@ -282,6 +293,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
       success: true,
       signature: 'btc-sig',
       address: 'bc1qtest',
+      displayAddress: 'bc1q test',
     });
 
     const { result } = renderHook(() => useSignMessage({

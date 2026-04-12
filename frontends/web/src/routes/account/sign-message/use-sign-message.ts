@@ -11,6 +11,7 @@ export type TSigningState = 'input' | 'signing' | 'result';
 
 export type TSignatureResult = {
   address: string;
+  displayAddress: string;
   message: string;
   signature: string;
 };
@@ -83,6 +84,7 @@ export const useSignMessage = ({
       if (response.success) {
         setResult({
           address: response.address,
+          displayAddress: response.displayAddress,
           message,
           signature: response.signature,
         });

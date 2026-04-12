@@ -17,6 +17,7 @@ import (
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
@@ -88,6 +89,10 @@ func makeKeystore(
 }
 
 func scriptTypeRef(s signing.ScriptType) *signing.ScriptType { return &s }
+
+func formatAOPPDisplayAddress(coinCode coinpkg.Code, address string) string {
+	return backendutil.FormatAddress(coinCode, address)
+}
 
 func TestAOPPSuccess(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
@@ -244,14 +249,15 @@ func TestAOPPSuccess(t *testing.T) {
 						{Name: test.accountName, Code: test.accountCode},
 						{Name: "Second account", Code: regularAccountCode(rootFingerprint1, test.coinCode, 1)},
 					},
-					AccountCode:  test.accountCode,
-					Address:      test.address,
-					AddressID:    test.addressID,
-					Callback:     callback,
-					Message:      dummyMsg,
-					coinCode:     test.coinCode,
-					format:       test.format,
-					XpubRequired: test.xpubRequired,
+					AccountCode:    test.accountCode,
+					Address:        test.address,
+					DisplayAddress: formatAOPPDisplayAddress(test.coinCode, test.address),
+					AddressID:      test.addressID,
+					Callback:       callback,
+					Message:        dummyMsg,
+					coinCode:       test.coinCode,
+					format:         test.format,
+					XpubRequired:   test.xpubRequired,
 				},
 				b.AOPP(),
 			)

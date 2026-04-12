@@ -88,6 +88,7 @@ export const Send = ({
   const [proposedFee, setProposedFee] = useState<accountApi.TAmountWithConversions>();
   const [proposedTotal, setProposedTotal] = useState<accountApi.TAmountWithConversions>();
   const [proposedAmount, setProposedAmount] = useState<accountApi.TAmountWithConversions>();
+  const [recipientDisplayAddress, setRecipientDisplayAddress] = useState('');
   const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
   const [sendResult, setSendResult] = useState<accountApi.TSendTx>();
 
@@ -105,6 +106,7 @@ export const Send = ({
     setProposedAmount(undefined);
     setProposedFee(undefined);
     setProposedTotal(undefined);
+    setRecipientDisplayAddress('');
     setFiatAmount('');
     setAmount('');
     setNote('');
@@ -205,6 +207,7 @@ export const Send = ({
       setProposedFee(result.fee);
       setProposedAmount(result.amount);
       setProposedTotal(result.total);
+      setRecipientDisplayAddress(result.recipientDisplayAddress);
       setIsUpdatingProposal(false);
       if (updateFiat) {
         convertToFiat(result.amount.amount);
@@ -220,6 +223,7 @@ export const Send = ({
       ) {
         setProposedFee(undefined);
       }
+      setRecipientDisplayAddress('');
     }
   }, [convertToFiat]);
 
@@ -341,6 +345,7 @@ export const Send = ({
   // when user types in the input field or selects from dropdown
   const handleRecipientInputChange = (input: string) => {
     setRecipientInput(input);
+    setRecipientDisplayAddress('');
     setUpdateFiat(true);
     setSelectedReceiverAccount(null);
   };
@@ -380,6 +385,7 @@ export const Send = ({
       }
     }
     setRecipientInput(qrAddress);
+    setRecipientDisplayAddress('');
     setSelectedReceiverAccount(null);
     setSendAll(false);
     setFiatAmount('');
@@ -516,7 +522,7 @@ export const Send = ({
                 proposedTotal,
                 customFee,
                 feeTarget,
-                recipientAddress: recipientInput,
+                recipientDisplayAddress,
               }}
             />
             {sendResult && (

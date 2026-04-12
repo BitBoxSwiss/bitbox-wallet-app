@@ -185,7 +185,12 @@ export const Aopp = () => {
           <p>{t('aopp.signing')}</p>
           <Field>
             <Label>{t('aopp.labelAddress')}</Label>
-            <CopyableInput alignLeft flexibleHeight value={aopp.address} />
+            <CopyableInput
+              alignLeft
+              flexibleHeight
+              value={aopp.address}
+              displayValue={aopp.displayAddress}
+            />
           </Field>
           <Field>
             <Label>{t('aopp.labelMessage')}</Label>
@@ -212,7 +217,13 @@ export const Aopp = () => {
           </p>
           <Field>
             <Label>{t('aopp.labelAddress')}</Label>
-            <CopyableInput alignLeft flexibleHeight value={aopp.address} dataTestId="aopp-address"/>
+            <CopyableInput
+              alignLeft
+              flexibleHeight
+              value={aopp.address}
+              displayValue={aopp.displayAddress}
+              dataTestId="aopp-address"
+            />
           </Field>
           <Field style={{ marginBottom: 0 }}>
             <Label>{t('aopp.labelMessage')}</Label>
@@ -225,11 +236,10 @@ export const Aopp = () => {
           <Button primary onClick={aoppAPI.cancel}>{t('button.done')}</Button>
           <VerifyAddress
             accountCode={aopp.accountCode}
-            address={aopp.address}
+            displayAddress={aopp.displayAddress}
             addressID={aopp.addressID} />
         </ViewButtons>
       </View>
     );
   }
 };
-

@@ -6,6 +6,7 @@ import { QRCode } from '@/components/qrcode/qrcode';
 
 type TProps = {
   address: string;
+  displayAddress: string;
   uriPrefix: string;
   instruction?: string;
   qrSize?: number;
@@ -18,6 +19,7 @@ type TProps = {
 
 export const VerifyAddressDialogContent = ({
   address,
+  displayAddress,
   uriPrefix,
   instruction,
   qrSize,
@@ -46,6 +48,7 @@ export const VerifyAddressDialogContent = ({
       <div className="m-bottom-half">
         <CopyableInput
           value={address}
+          displayValue={displayAddress}
           dataTestId="receive-address"
           flexibleHeight
         />

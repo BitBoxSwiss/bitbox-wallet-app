@@ -29,6 +29,7 @@ export type TSignMessageController = {
   availableAddressCount: number;
   activeIndex: number;
   address: string;
+  displayAddress: string;
   message: string;
   setMessage: (message: string) => void;
   state: TSigningState;
@@ -58,6 +59,7 @@ export const useSignMessageController = ({
     setActiveIndex,
     currentAddress,
     addressString,
+    displayAddressString,
     scriptType,
     retryUsedAddressLoad,
   } = useAddressSelector(code);
@@ -114,6 +116,7 @@ export const useSignMessageController = ({
     availableAddressCount,
     activeIndex,
     address: addressString,
+    displayAddress: displayAddressString,
     message,
     setMessage,
     state,
