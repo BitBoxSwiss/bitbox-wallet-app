@@ -5,6 +5,7 @@ package accounts
 import (
 	"encoding/json"
 	"math/big"
+	"slices"
 	"sort"
 	"time"
 
@@ -154,9 +155,8 @@ func NewOrderedTransactions(txs []*TransactionData) OrderedTransactions {
 	sort.Sort(sort.Reverse(byHeight(txs)))
 
 	balance := big.NewInt(0)
-	for i := len(txs) - 1; i >= 0; i-- {
+	for _, tx := range slices.Backward(txs) {
 		deductedAmount := coin.NewAmountFromInt64(0)
-		tx := txs[i]
 		switch tx.Type {
 		case TxTypeReceive:
 			if tx.Status != TxStatusFailed {

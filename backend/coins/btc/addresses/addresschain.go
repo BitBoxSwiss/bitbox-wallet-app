@@ -3,6 +3,8 @@
 package addresses
 
 import (
+	"slices"
+
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -79,8 +81,8 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 // unusedTailCount returns the number of unused addresses at the end of the chain.
 func (addresses *AddressChain) unusedTailCount() (int, error) {
 	count := 0
-	for i := len(addresses.addresses) - 1; i >= 0; i-- {
-		used, err := addresses.isAddressUsed(addresses.addresses[i])
+	for _, v := range slices.Backward(addresses.addresses) {
+		used, err := addresses.isAddressUsed(v)
 		if err != nil {
 			return 0, err
 		}
