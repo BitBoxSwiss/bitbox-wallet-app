@@ -63,8 +63,6 @@ export const AppProvider = ({ children }: TProps) => {
       if (frontend.hideAmounts !== undefined) {
         setHideAmounts(Boolean(frontend.hideAmounts));
       }
-    } else {
-      setGuideShown(true);
     }
   }, [config]);
 
