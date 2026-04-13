@@ -256,6 +256,74 @@ func TestPrepareSwapReturnsErrorForUnknownAccount(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestValidateSwapAccountSupportedAcceptsMainnetSwapAccounts(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-bat", true))
+
+	testCases := []accountsTypes.Code{
+		"v0-55555555-btc-0",
+		"v0-55555555-eth-0",
+		"v0-55555555-eth-0-eth-erc20-bat",
+	}
+	for _, accountCode := range testCases {
+		account := b.Accounts().lookup(accountCode)
+		require.NotNil(t, account)
+		require.NoError(t, validateSwapAccountSupported(account))
+	}
+}
+
+func TestValidateSwapAccountSupportedRejectsUnsupportedMainnetAccount(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	account := b.Accounts().lookup("v0-55555555-ltc-0")
+	require.NotNil(t, account)
+	require.EqualError(
+		t,
+		validateSwapAccountSupported(account),
+		"Only supported mainnet BTC/ETH/ERC20 accounts are currently supported",
+	)
+}
+
+func TestValidateSwapAccountSupportedRejectsTestnetAccounts(t *testing.T) {
+	b := newBackend(t, testnetEnabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	testCases := []accountsTypes.Code{
+		"v0-55555555-tbtc-0",
+		"v0-55555555-sepeth-0",
+	}
+	for _, accountCode := range testCases {
+		account := b.Accounts().lookup(accountCode)
+		require.NotNil(t, account)
+		require.EqualError(
+			t,
+			validateSwapAccountSupported(account),
+			"Only supported mainnet BTC/ETH/ERC20 accounts are currently supported",
+		)
+	}
+}
+
 func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
 	sellCoin := btc.NewCoin(
 		coinpkg.CodeBTC,
@@ -304,6 +372,61 @@ func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
 		t,
 		[]uint32{2147483692, 2147483708, 2147483648, 0, 0},
 		txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation.Eth.Keypath,
+	)
+}
+
+func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
+	sellCoin := btc.NewCoin(
+		coinpkg.CodeBTC,
+		"Bitcoin",
+		"BTC",
+		coinpkg.BtcUnitSats,
+		&chaincfg.MainNetParams,
+		".",
+		nil,
+		"",
+		socksproxy.NewSocksProxy(false, ""),
+	)
+	paymentRequest := &paymentrequest.Slip24{
+		RecipientName: "SWAPKIT (NEAR)",
+		Memos: []paymentrequest.Slip24Memo{
+			{
+				Type: "coinPurchase",
+				CoinPurchase: &paymentrequest.Slip24CoinPurchase{
+					CoinType: 0,
+					Amount:   "0.01 BTC",
+					Address:  "bc1qpz7m2szz07ca7vtj3zlce43fscdnv2q8hhs0tx",
+				},
+			},
+		},
+		Outputs: []paymentrequest.Slip24Out{
+			{
+				Amount:  100000000,
+				Address: "1GqULdYGDRfF3w85yGmEq8LTWecpKn8JMJ",
+			},
+		},
+		Signature: "sig",
+	}
+
+	txInput, err := swapSignTxInput(paymentRequest, sellCoin, &paymentrequest.Slip24AddressDerivation{
+		Btc: &paymentrequest.Slip24BtcAddressDerivation{
+			Keypath:    []uint32{2147483697, 2147483648, 2147483648, 0, 5},
+			ScriptType: "p2wpkh",
+		},
+	})
+	require.NoError(t, err)
+	require.NotNil(t, txInput.PaymentRequest)
+	require.NotNil(t, txInput.PaymentRequest.Memos[0].CoinPurchase)
+	require.NotNil(t, txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation)
+	require.Equal(
+		t,
+		[]uint32{2147483697, 2147483648, 2147483648, 0, 5},
+		txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation.Btc.Keypath,
+	)
+	require.Equal(
+		t,
+		"p2wpkh",
+		txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation.Btc.ScriptType,
 	)
 }
 
