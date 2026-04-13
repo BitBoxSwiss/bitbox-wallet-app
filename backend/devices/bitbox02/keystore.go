@@ -5,13 +5,13 @@ package bitbox02
 import (
 	"sync"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
 	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
@@ -325,29 +325,6 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		return errp.Newf("coin not supported: %s", coin.Code())
 	}
 
-	// Payment request handling
-	newBTCPaymentRequest := func(txPaymentRequest *accounts.PaymentRequest) *messages.BTCPaymentRequestRequest {
-		memos := []*messages.BTCPaymentRequestRequest_Memo{}
-		for _, m := range txPaymentRequest.Memos {
-			memo := messages.BTCPaymentRequestRequest_Memo{
-				Memo: &messages.BTCPaymentRequestRequest_Memo_TextMemo_{
-					TextMemo: &messages.BTCPaymentRequestRequest_Memo_TextMemo{
-						Note: m.Note,
-					},
-				},
-			}
-			memos = append(memos, &memo)
-		}
-
-		return &messages.BTCPaymentRequestRequest{
-			RecipientName: txPaymentRequest.RecipientName,
-			Nonce:         txPaymentRequest.Nonce,
-			TotalAmount:   txPaymentRequest.TotalAmount,
-			Signature:     txPaymentRequest.Signature,
-			Memos:         memos,
-		}
-	}
-
 	var btcPaymentRequests []*messages.BTCPaymentRequestRequest
 	paymentRequest := btcProposedTx.TXProposal.PaymentRequest
 	var paymentRequestIndex *uint32
@@ -425,6 +402,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 			tx.Value(),
 			tx.Data(),
 			firmware.ETHIdentifyCase(txProposal.RecipientAddress),
+			nil,
 		)
 	case 0:
 		signature, err = keystore.device.ETHSign(
@@ -453,6 +431,70 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 	}
 	txProposal.Tx = signedTx
 	return nil
+}
+
+func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) *messages.BTCPaymentRequestRequest {
+	memos := []*messages.BTCPaymentRequestRequest_Memo{}
+	for _, m := range txPaymentRequest.Memos {
+		var memo messages.BTCPaymentRequestRequest_Memo
+		switch {
+		case m.Text != nil:
+			memo = messages.BTCPaymentRequestRequest_Memo{
+				Memo: &messages.BTCPaymentRequestRequest_Memo_TextMemo_{
+					TextMemo: &messages.BTCPaymentRequestRequest_Memo_TextMemo{
+						Note: m.Text.Note,
+					},
+				},
+			}
+		case m.CoinPurchase != nil:
+			coinPurchaseMemo := &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo{
+				CoinType: m.CoinPurchase.CoinType,
+				Amount:   m.CoinPurchase.Amount,
+				Address:  m.CoinPurchase.Address,
+			}
+			switch {
+			case m.CoinPurchase.EthAddressDerivation != nil:
+				coinPurchaseMemo.AddressDerivation = &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_Eth{
+					Eth: &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation{
+						Keypath: m.CoinPurchase.EthAddressDerivation.Keypath,
+					},
+				}
+			case m.CoinPurchase.BtcAddressDerivation != nil:
+				msgScriptType, ok := btcMsgScriptTypeMap[m.CoinPurchase.BtcAddressDerivation.ScriptType]
+				if !ok {
+					continue
+				}
+				coinPurchaseMemo.AddressDerivation = &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_Btc{
+					Btc: &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation{
+						ScriptConfig: &messages.BTCScriptConfigWithKeypath{
+							ScriptConfig: &messages.BTCScriptConfig{
+								Config: &messages.BTCScriptConfig_SimpleType_{
+									SimpleType: msgScriptType,
+								},
+							},
+							Keypath: m.CoinPurchase.BtcAddressDerivation.Keypath,
+						},
+					},
+				}
+			}
+			memo = messages.BTCPaymentRequestRequest_Memo{
+				Memo: &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_{
+					CoinPurchaseMemo: coinPurchaseMemo,
+				},
+			}
+		default:
+			continue
+		}
+		memos = append(memos, &memo)
+	}
+
+	return &messages.BTCPaymentRequestRequest{
+		RecipientName: txPaymentRequest.RecipientName,
+		Nonce:         txPaymentRequest.Nonce,
+		TotalAmount:   txPaymentRequest.TotalAmount,
+		Signature:     txPaymentRequest.Signature,
+		Memos:         memos,
+	}
 }
 
 // SignTransaction implements keystore.Keystore.
@@ -558,6 +600,15 @@ func (keystore *keystore) SupportsEIP1559() bool {
 // SupportsPaymentRequests implements keystore.Keystore.
 func (keystore *keystore) SupportsPaymentRequests() error {
 	if keystore.device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
+		return nil
+	}
+	return keystorePkg.ErrFirmwareUpgradeRequired
+}
+
+// SupportsSwapPaymentRequests reports whether the device supports the
+// payment-request signing flow used by swaps.
+func (keystore *keystore) SupportsSwapPaymentRequests() error {
+	if keystore.device.Version().AtLeast(semver.NewSemVer(9, 26, 0)) {
 		return nil
 	}
 	return keystorePkg.ErrFirmwareUpgradeRequired

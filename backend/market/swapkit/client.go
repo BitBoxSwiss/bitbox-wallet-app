@@ -21,17 +21,18 @@ type Client struct {
 }
 
 // NewClient creates a new SwapKit API client.
-func NewClient() *Client {
+func NewClient(httpClient *http.Client) *Client {
 	return &Client{
-		baseURL: "https://swapkit.shiftcrypto.io/v3",
-		httpClient: &http.Client{
-			Timeout: 20 * time.Second,
-		},
-		log: logging.Get().WithGroup("swapkit"),
+		baseURL:    "https://swapkit.shiftcrypto.io/v3",
+		httpClient: httpClient,
+		log:        logging.Get().WithGroup("swapkit"),
 	}
 }
 
 func (c *Client) post(ctx context.Context, path string, body any, out any) error {
+	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
+
 	b, err := json.Marshal(body)
 	if err != nil {
 		return fmt.Errorf("marshal request: %w", err)

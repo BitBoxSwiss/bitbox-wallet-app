@@ -1,4 +1,4 @@
-# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260303104349-15a1f0c828a6
+# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260402184609-b394e565511b
 ## explicit; go 1.24
 github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader
 github.com/BitBoxSwiss/bitbox02-api-go/api/common

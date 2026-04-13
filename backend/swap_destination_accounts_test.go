@@ -7,7 +7,11 @@ import (
 	"testing"
 
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/stretchr/testify/require"
 )
 
@@ -62,7 +66,7 @@ func TestSwapDestinationAccountsSortOrder(t *testing.T) {
 	require.Equal(t, expectedCodes, actualCodes)
 }
 
-func TestSignSwapActivatesInactiveAccount(t *testing.T) {
+func TestPrepareSwapActivatesInactiveAccount(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
@@ -76,11 +80,11 @@ func TestSignSwapActivatesInactiveAccount(t *testing.T) {
 	require.NoError(t, b.SetAccountActive(btcAccountCode, false))
 	require.True(t, b.Config().AccountsConfig().Lookup(btcAccountCode).Inactive)
 
-	require.NoError(t, b.SignSwap(btcAccountCode, "", "", ""))
+	require.NoError(t, b.activateSwapDestinationAccount(btcAccountCode))
 	require.False(t, b.Config().AccountsConfig().Lookup(btcAccountCode).Inactive)
 }
 
-func TestSignSwapActivatesParentOfTokenDestination(t *testing.T) {
+func TestPrepareSwapActivatesParentOfTokenDestination(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
@@ -99,15 +103,89 @@ func TestSignSwapActivatesParentOfTokenDestination(t *testing.T) {
 	require.True(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
 	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
 
-	require.NoError(t, b.SignSwap(tokenAccountCode, "", "", ""))
+	require.NoError(t, b.activateSwapDestinationAccount(tokenAccountCode))
 	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
 	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
 }
 
-func TestSignSwapReturnsErrorForUnknownAccount(t *testing.T) {
+func TestPrepareSwapActivatesInactiveTokenDestination(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	err := b.SignSwap(accountsTypes.Code("missing-account"), "", "", "")
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	ethAccountCode := accountsTypes.Code("v0-55555555-eth-0")
+	tokenCode := "eth-erc20-bat"
+	tokenAccountCode := Erc20AccountCode(ethAccountCode, tokenCode)
+
+	require.NoError(t, b.SetTokenActive(ethAccountCode, tokenCode, false))
+	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
+	require.NotContains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+
+	require.NoError(t, b.activateSwapDestinationAccount(tokenAccountCode))
+	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
+	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+}
+
+func TestPrepareSwapReturnsErrorForUnknownAccount(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	err := b.activateSwapDestinationAccount(accountsTypes.Code("missing-account"))
 	require.Error(t, err)
+}
+
+func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
+	sellCoin := btc.NewCoin(
+		coinpkg.CodeBTC,
+		"Bitcoin",
+		"BTC",
+		coinpkg.BtcUnitSats,
+		&chaincfg.MainNetParams,
+		".",
+		nil,
+		"",
+		socksproxy.NewSocksProxy(false, ""),
+	)
+	paymentRequest := &paymentrequest.Slip24{
+		RecipientName: "SWAPKIT (NEAR)",
+		Memos: []paymentrequest.Slip24Memo{
+			{
+				Type: "coinPurchase",
+				CoinPurchase: &paymentrequest.Slip24CoinPurchase{
+					CoinType: 60,
+					Amount:   "31.99475075012798141 ETH",
+					Address:  "0x986f66F28C6a2BBE939dF3161D1D2b238933895c",
+				},
+			},
+		},
+		Outputs: []paymentrequest.Slip24Out{
+			{
+				Amount:  100000000,
+				Address: "1GqULdYGDRfF3w85yGmEq8LTWecpKn8JMJ",
+			},
+		},
+		Signature: "sig",
+	}
+
+	txInput, err := swapSignTxInput(paymentRequest, sellCoin, &paymentrequest.Slip24AddressDerivation{
+		Eth: &paymentrequest.Slip24EthAddressDerivation{
+			Keypath: []uint32{2147483692, 2147483708, 2147483648, 0, 0},
+		},
+	})
+	require.NoError(t, err)
+	require.Equal(t, "1GqULdYGDRfF3w85yGmEq8LTWecpKn8JMJ", txInput.Address)
+	require.Equal(t, "100000000", txInput.Amount)
+	require.NotNil(t, txInput.PaymentRequest)
+	require.NotNil(t, txInput.PaymentRequest.Memos[0].CoinPurchase)
+	require.NotNil(t, txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation)
+	require.Equal(
+		t,
+		[]uint32{2147483692, 2147483708, 2147483648, 0, 0},
+		txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation.Eth.Keypath,
+	)
 }

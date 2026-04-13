@@ -13,7 +13,9 @@
 
 .maxButton {
     color: var(--color-gray);
+    display: flex;
     font-size: var(--size-small);
+    gap: 0.4ch;
     min-height: auto;
     padding: 0;
 }
@@ -41,4 +43,20 @@
 .flipAcconutsIcon {
   display: inline-block;
   transform: rotate(90deg);
+}
+
+.swapButtonContent {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-quarter);
+  justify-content: center;
+}
+
+.swapButtonSpinner {
+  display: inline-flex;
+}
+
+.swapButtonSpinner img {
+  height: 14px;
+  width: 14px;
 }

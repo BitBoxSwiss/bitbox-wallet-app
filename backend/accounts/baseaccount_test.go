@@ -106,6 +106,9 @@ func TestBaseAccount(t *testing.T) {
 		CodeFunc: func() coin.Code {
 			return coin.CodeTBTC
 		},
+		DecimalsFunc: func(isFee bool) uint {
+			return 8
+		},
 		SmallestUnitFunc: func() string {
 			return "satoshi"
 		},
@@ -243,6 +246,12 @@ func TestBaseAccount(t *testing.T) {
 			CodeFunc: func() coin.Code {
 				return "eth-erc20-usdt"
 			},
+			DecimalsFunc: func(isFee bool) uint {
+				if isFee {
+					return 18
+				}
+				return 6
+			},
 			SmallestUnitFunc: func() string {
 				return "wei"
 			},
@@ -312,6 +321,9 @@ func TestBaseAccount(t *testing.T) {
 		mockCoin := &mocks.CoinMock{
 			CodeFunc: func() coin.Code {
 				return coin.CodeBTC
+			},
+			DecimalsFunc: func(isFee bool) uint {
+				return 8
 			},
 			SmallestUnitFunc: func() string {
 				return "satoshi"

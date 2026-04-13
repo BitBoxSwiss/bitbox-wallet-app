@@ -8,7 +8,7 @@ import { NumberInput } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { Amount } from '@/components/amount/amount';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
-import { findAccount } from '@/routes/account/utils';
+import { findAccount, getDisplayedCoinUnit } from '@/routes/account/utils';
 import style from './input-with-account-selector.module.css';
 
 type Props<T extends TAccountBase> = {
@@ -30,7 +30,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
   value,
   readOnlyAmount = false,
 }: Props<T>) => {
-  const { defaultCurrency } = useContext(RatesContext);
+  const { btcUnit, defaultCurrency } = useContext(RatesContext);
   const [selectedAccount, setSelectedAccount] = useState<T>();
   const hasAccounts = accounts && accounts.length > 0;
 
@@ -60,6 +60,10 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
       setEstimatedFiatValue(null);
     }
   }, [defaultCurrency, selectedAccount, value]);
+
+  const displayedUnit = selectedAccount
+    ? getDisplayedCoinUnit(selectedAccount.coinCode, selectedAccount.coinUnit, btcUnit)
+    : undefined;
 
   return (
     <div className={style.accountWithInputContainer}>
@@ -95,7 +99,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
             }}
           />
           <span className={style.inputUnit}>
-            {selectedAccount?.coinUnit}
+            {displayedUnit}
           </span>
         </div>
         <div className={style.fiat}>

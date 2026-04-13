@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { LineData } from 'lightweight-charts';
-import type { Slip24 } from 'request-address';
 import type { TDetailStatus } from './bitsurance';
 import type { ERC20CoinCode, ERC20TokenUnit } from './erc20';
 import type { SuccessResponse } from './response';
@@ -307,6 +306,35 @@ export type TReceiveAddressList = {
   addresses: NonEmptyArray<TReceiveAddress>;
 };
 
+export type Slip24 = {
+  recipientName: string;
+  nonce: string | null;
+  memos: Array<{
+    type: 'text' | 'refund' | 'coinPurchase';
+    text?: string;
+    refund?: string;
+    coinPurchase?: {
+      coinType: number;
+      amount: string;
+      address: string;
+      addressDerivation?: {
+        eth?: {
+          keypath: number[];
+        };
+        btc?: {
+          keypath: number[];
+          scriptType: ScriptType;
+        };
+      };
+    };
+  }>;
+  outputs: Array<{
+    amount: number;
+    address: string;
+  }>;
+  signature: string;
+};
+
 export const getReceiveAddressList = (code: AccountCode) => {
   return (): Promise<NonEmptyArray<TReceiveAddressList> | null> => {
     return apiGet(`account/${code}/receive-addresses`);
@@ -421,6 +449,10 @@ type THasPaymentRequest = {
 
 export const hasPaymentRequest = (code: AccountCode): Promise<THasPaymentRequest> => {
   return apiGet(`account/${code}/has-payment-request`);
+};
+
+export const hasSwapPaymentRequest = (code: AccountCode): Promise<THasPaymentRequest> => {
+  return apiGet(`account/${code}/has-swap-payment-request`);
 };
 
 export type TAddAccount = {

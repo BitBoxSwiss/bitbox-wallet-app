@@ -329,3 +329,9 @@ func (keystore *Keystore) SupportsEIP1559() bool {
 func (keystore *Keystore) SupportsPaymentRequests() error {
 	return keystorePkg.ErrUnsupportedFeature
 }
+
+// SupportsSwapPaymentRequests reports whether the keystore supports the
+// payment-request signing flow used by swaps.
+func (keystore *Keystore) SupportsSwapPaymentRequests() error {
+	return keystorePkg.ErrUnsupportedFeature
+}

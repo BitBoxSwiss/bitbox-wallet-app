@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, CoinCode, CoinUnit, TAccountBase, TAmountWithConversions } from '@/api/account';
 import { Button } from '@/components/forms';
@@ -8,7 +8,8 @@ import { Logo } from '@/components/icon/logo';
 import { USBSuccess, ChevronDownDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
 import { InsuredShield } from '@/routes/account/components/insuredtag';
-import { getAccountsByKeystore } from '@/routes/account/utils';
+import { RatesContext } from '@/contexts/RatesContext';
+import { getAccountsByKeystore, getDisplayedCoinUnit } from '@/routes/account/utils';
 import { Dropdown, TOption as TDropdownOption, TGroupedOption as TDropdownGroupedOption } from '@/components/dropdown/dropdown';
 import { createGroupedOptions, getBalancesForGroupedAccountSelector } from './services';
 import { AmountWithUnit } from '../amount/amount-with-unit';
@@ -43,13 +44,17 @@ const TriggerContent = ({
   stackedLayout = false,
 }: TTriggerContentProps) => {
   const { t } = useTranslation();
+  const { btcUnit } = useContext(RatesContext);
+  const displayedCoinUnit = option?.coinCode && option.coinUnit
+    ? getDisplayedCoinUnit(option.coinCode, option.coinUnit, btcUnit)
+    : undefined;
   return (
     option && option.coinCode ? (
       <div className={styles.triggerContent}>
         <Logo coinCode={option.coinCode} alt={option.coinCode} />
         <span className={styles.triggerLabel}>
           {stackedLayout ? (
-            option.coinUnit
+            displayedCoinUnit
           ) : option.label}
         </span>
         {option.insured && <InsuredShield />}

@@ -81,6 +81,9 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			SupportsPaymentRequestsFunc: func() error {
 //				panic("mock out the SupportsPaymentRequests method")
 //			},
+//			SupportsSwapPaymentRequestsFunc: func() error {
+//				panic("mock out the SupportsSwapPaymentRequests method")
+//			},
 //			TypeFunc: func() keystore.Type {
 //				panic("mock out the Type method")
 //			},
@@ -156,6 +159,9 @@ type KeystoreMock struct {
 
 	// SupportsPaymentRequestsFunc mocks the SupportsPaymentRequests method.
 	SupportsPaymentRequestsFunc func() error
+
+	// SupportsSwapPaymentRequestsFunc mocks the SupportsSwapPaymentRequests method.
+	SupportsSwapPaymentRequestsFunc func() error
 
 	// TypeFunc mocks the Type method.
 	TypeFunc func() keystore.Type
@@ -274,6 +280,9 @@ type KeystoreMock struct {
 		// SupportsPaymentRequests holds details about calls to the SupportsPaymentRequests method.
 		SupportsPaymentRequests []struct {
 		}
+		// SupportsSwapPaymentRequests holds details about calls to the SupportsSwapPaymentRequests method.
+		SupportsSwapPaymentRequests []struct {
+		}
 		// Type holds details about calls to the Type method.
 		Type []struct {
 		}
@@ -320,6 +329,7 @@ type KeystoreMock struct {
 	lockSupportsEIP1559                 sync.RWMutex
 	lockSupportsMultipleAccounts        sync.RWMutex
 	lockSupportsPaymentRequests         sync.RWMutex
+	lockSupportsSwapPaymentRequests     sync.RWMutex
 	lockType                            sync.RWMutex
 	lockVerifyAddressBTC                sync.RWMutex
 	lockVerifyAddressETH                sync.RWMutex
@@ -940,6 +950,33 @@ func (mock *KeystoreMock) SupportsPaymentRequestsCalls() []struct {
 	mock.lockSupportsPaymentRequests.RLock()
 	calls = mock.calls.SupportsPaymentRequests
 	mock.lockSupportsPaymentRequests.RUnlock()
+	return calls
+}
+
+// SupportsSwapPaymentRequests calls SupportsSwapPaymentRequestsFunc.
+func (mock *KeystoreMock) SupportsSwapPaymentRequests() error {
+	if mock.SupportsSwapPaymentRequestsFunc == nil {
+		panic("KeystoreMock.SupportsSwapPaymentRequestsFunc: method is nil but Keystore.SupportsSwapPaymentRequests was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockSupportsSwapPaymentRequests.Lock()
+	mock.calls.SupportsSwapPaymentRequests = append(mock.calls.SupportsSwapPaymentRequests, callInfo)
+	mock.lockSupportsSwapPaymentRequests.Unlock()
+	return mock.SupportsSwapPaymentRequestsFunc()
+}
+
+// SupportsSwapPaymentRequestsCalls gets all the calls that were made to SupportsSwapPaymentRequests.
+// Check the length with:
+//
+//	len(mockedKeystore.SupportsSwapPaymentRequestsCalls())
+func (mock *KeystoreMock) SupportsSwapPaymentRequestsCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockSupportsSwapPaymentRequests.RLock()
+	calls = mock.calls.SupportsSwapPaymentRequests
+	mock.lockSupportsSwapPaymentRequests.RUnlock()
 	return calls
 }
 

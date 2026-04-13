@@ -70,12 +70,12 @@ type Coin interface {
 	Close() error
 }
 
-// DecimalsExp returns the conversion exponential from the smallest unit to the standard unit
+// DecimalsExp returns the conversion exponential from the smallest unit to the selected unit
 // (BTC, LTC; ETH, etc.). e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc.
-func DecimalsExp(coin Coin) *big.Int {
+func DecimalsExp(coin Coin, isFee bool) *big.Int {
 	return new(big.Int).Exp(
 		big.NewInt(10),
-		big.NewInt(int64(coin.Decimals(false))),
+		big.NewInt(int64(coin.Decimals(isFee))),
 		nil,
 	)
 }
