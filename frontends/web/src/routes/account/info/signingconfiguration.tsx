@@ -63,9 +63,26 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
     <div className={style.address}>
       <div className={style.qrCode}>
         { (bitcoinBased && !isTaproot) ? (
-          <QRCode
-            data={config.keyInfo.xpub}
-            size={220} />
+          <div className={style.qrItem}>
+            <span className={style.qrLabel}>
+              {t('accountInfo.extendedPublicKey')}
+            </span>
+            <QRCode
+              data={config.keyInfo.xpub}
+              size={180}
+            />
+          </div>
+        ) : null }
+        { info.bitcoinSimple ? (
+          <div className={style.qrItem}>
+            <span className={style.qrLabel}>
+              Descriptor
+            </span>
+            <QRCode
+              data={info.bitcoinSimple.descriptor}
+              size={180}
+            />
+          </div>
         ) : null }
       </div>
       <div className={style.details}>
