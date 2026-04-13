@@ -3,7 +3,6 @@ package swapkit
 import (
 	"context"
 	"encoding/json"
-	"math/big"
 	"net/http"
 	"strings"
 
@@ -46,7 +45,7 @@ func FormatAmount(coin coinpkg.Coin, amount string) (string, error) {
 		return "", err
 	}
 	decimals := int(coin.Decimals(false))
-	rat := new(big.Rat).SetFrac(parsedAmount.BigInt(), coinpkg.DecimalsExp(coin))
+	rat := coinpkg.ToUnitRat(parsedAmount, coin, false)
 	formattedAmount := rat.FloatString(decimals)
 	formattedAmount = strings.TrimRight(strings.TrimRight(formattedAmount, "0"), ".")
 	if formattedAmount == "" {

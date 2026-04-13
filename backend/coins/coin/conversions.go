@@ -23,6 +23,11 @@ func Btc2Sat(amount *big.Rat) *big.Rat {
 	return new(big.Rat).Mul(amount, big.NewRat(btc2SatUnit, 1))
 }
 
+// ToUnitRat converts an amount in the coin's smallest unit to the currently selected display unit.
+func ToUnitRat(amount Amount, coin Coin, isFee bool) *big.Rat {
+	return new(big.Rat).SetFrac(amount.BigInt(), DecimalsExp(coin, isFee))
+}
+
 // FormatAsPlainCurrency handles formatting for currencies in a simplified way.
 // This should be used when `FormatAsCurrency` can't be used because a simpler formatting is needed (e.g. to populate forms in the frontend).
 func FormatAsPlainCurrency(amount *big.Rat, currency string) string {
@@ -60,7 +65,7 @@ func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.Ra
 		unit := coin.Unit(isFee)
 
 		for key, value := range rates[unit] {
-			convertedAmount := new(big.Rat).Mul(new(big.Rat).SetFloat64(coin.ToUnit(amount, isFee)), new(big.Rat).SetFloat64(value))
+			convertedAmount := new(big.Rat).Mul(ToUnitRat(amount, coin, isFee), new(big.Rat).SetFloat64(value))
 			conversions[key] = FormatAsCurrency(convertedAmount, key)
 		}
 	}
@@ -86,7 +91,7 @@ func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *rates
 			if value == 0 {
 				conversions[currency] = ""
 			} else {
-				convertedAmount := new(big.Rat).Mul(new(big.Rat).SetFloat64(coin.ToUnit(amount, isFee)), new(big.Rat).SetFloat64(value))
+				convertedAmount := new(big.Rat).Mul(ToUnitRat(amount, coin, isFee), new(big.Rat).SetFloat64(value))
 				conversions[currency] = FormatAsCurrency(convertedAmount, currency)
 			}
 		}

@@ -280,7 +280,7 @@ func (backend *Backend) convertToFiat(coin coinpkg.Coin, amount coinpkg.Amount, 
 	return new(big.Rat).Mul(
 		new(big.Rat).SetFrac(
 			amount.BigInt(),
-			coinpkg.DecimalsExp(coin),
+			coinpkg.DecimalsExp(coin, false),
 		),
 		new(big.Rat).SetFloat64(price),
 	), nil
