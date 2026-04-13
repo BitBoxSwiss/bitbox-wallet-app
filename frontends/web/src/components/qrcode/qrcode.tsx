@@ -38,7 +38,7 @@ export const QRCode = ({
   return (
     tapToCopy ?
       <TapToCopyQRCode data={data} qrCodeData={qrCode.data} size={size} /> :
-      <img width={size} height={size} src={qrCode.data} />
+      <img className={style.qrImage} width={size} height={size} src={qrCode.data} />
   );
 };
 
