@@ -44,6 +44,7 @@
 
 .inputField {
     border: 1px solid var(--background-quaternary);
+    caret-color: transparent;
     flex: 1;
     font-size: var(--size-default);
     font-weight: 400;
@@ -54,6 +55,8 @@
     overflow: hidden;
     padding: var(--space-half) calc(var(--space-default) * 1.2 + 5px) var(--space-half) calc(var(--space-half) * .5);
     resize: none;
+    user-select: none;
+    -webkit-user-select: none;
     width: 100%;
     font-family: var(--font-family-monospace);
     line-height: 1.35;

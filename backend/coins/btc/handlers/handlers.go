@@ -22,6 +22,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil"
@@ -35,6 +36,10 @@ import (
 type Handlers struct {
 	account accounts.Interface
 	log     *logrus.Entry
+}
+
+func formatAddressForDisplay(account accounts.Interface, address string) string {
+	return backendutil.FormatAddress(account.Coin().Code(), address)
 }
 
 // NewHandlers creates a new Handlers instance.
@@ -529,10 +534,11 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 		return txProposalError(err)
 	}
 	return map[string]interface{}{
-		"success": true,
-		"amount":  outputAmount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
-		"fee":     fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater),
-		"total":   total.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
+		"success":                 true,
+		"amount":                  outputAmount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
+		"fee":                     fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater),
+		"total":                   total.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
+		"recipientDisplayAddress": formatAddressForDisplay(handlers.account, input.RecipientAddress),
 	}, nil
 }
 
@@ -595,8 +601,9 @@ func (handlers *Handlers) getAccountStatus(*http.Request) (interface{}, error) {
 func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error) {
 
 	type jsonAddress struct {
-		Address   string `json:"address"`
-		AddressID string `json:"addressID"`
+		Address        string `json:"address"`
+		DisplayAddress string `json:"displayAddress"`
+		AddressID      string `json:"addressID"`
 	}
 	type jsonAddressList struct {
 		ScriptType *signing.ScriptType `json:"scriptType"`
@@ -611,8 +618,9 @@ func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error
 		addrs := []jsonAddress{}
 		for _, address := range addresses.Addresses {
 			addrs = append(addrs, jsonAddress{
-				Address:   address.EncodeForHumans(),
-				AddressID: address.ID(),
+				Address:        address.EncodeForHumans(),
+				DisplayAddress: formatAddressForDisplay(handlers.account, address.EncodeForHumans()),
+				AddressID:      address.ID(),
 			})
 		}
 		addressList = append(addressList, jsonAddressList{
@@ -630,11 +638,12 @@ type usedAddressesProvider interface {
 
 func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
 	type jsonUsedAddress struct {
-		Address     string              `json:"address"`
-		AddressID   string              `json:"addressID"`
-		AddressType btc.UsedAddressType `json:"addressType"`
-		CanSignMsg  bool                `json:"canSignMsg"`
-		LastUsed    *string             `json:"lastUsed"`
+		Address        string              `json:"address"`
+		DisplayAddress string              `json:"displayAddress"`
+		AddressID      string              `json:"addressID"`
+		AddressType    btc.UsedAddressType `json:"addressType"`
+		CanSignMsg     bool                `json:"canSignMsg"`
+		LastUsed       *string             `json:"lastUsed"`
 	}
 	type response struct {
 		Success   bool              `json:"success"`
@@ -669,11 +678,12 @@ func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
 			lastUsed = &formatted
 		}
 		result[i] = jsonUsedAddress{
-			Address:     addr.Address,
-			AddressID:   addr.AddressID,
-			AddressType: addr.AddressType,
-			CanSignMsg:  addr.CanSignMsg,
-			LastUsed:    lastUsed,
+			Address:        addr.Address,
+			DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), addr.Address),
+			AddressID:      addr.AddressID,
+			AddressType:    addr.AddressType,
+			CanSignMsg:     addr.CanSignMsg,
+			LastUsed:       lastUsed,
 		}
 	}
 
@@ -842,11 +852,12 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 }
 
 type signMessageForAddressResponse struct {
-	Success      bool   `json:"success"`
-	Address      string `json:"address,omitempty"`
-	Signature    string `json:"signature,omitempty"`
-	ErrorMessage string `json:"errorMessage,omitempty"`
-	ErrorCode    string `json:"errorCode,omitempty"`
+	Success        bool   `json:"success"`
+	Address        string `json:"address,omitempty"`
+	DisplayAddress string `json:"displayAddress,omitempty"`
+	Signature      string `json:"signature,omitempty"`
+	ErrorMessage   string `json:"errorMessage,omitempty"`
+	ErrorCode      string `json:"errorCode,omitempty"`
 }
 
 func (handlers *Handlers) signMessageForAddressErrorResponse(err error) signMessageForAddressResponse {
@@ -879,7 +890,12 @@ func (handlers *Handlers) postSignBTCMessageUnusedAddress(r *http.Request) (inte
 	if err != nil {
 		return handlers.signMessageForAddressErrorResponse(err), nil
 	}
-	return signMessageForAddressResponse{Success: true, Address: address, Signature: signature}, nil
+	return signMessageForAddressResponse{
+		Success:        true,
+		Address:        address,
+		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
+		Signature:      signature,
+	}, nil
 }
 
 func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) (interface{}, error) {
@@ -903,7 +919,12 @@ func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) (interfa
 	if err != nil {
 		return handlers.signMessageForAddressErrorResponse(err), nil
 	}
-	return signMessageForAddressResponse{Success: true, Address: address, Signature: signature}, nil
+	return signMessageForAddressResponse{
+		Success:        true,
+		Address:        address,
+		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
+		Signature:      signature,
+	}, nil
 }
 
 func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) (interface{}, error) {
@@ -926,7 +947,12 @@ func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) (interfa
 	if err != nil {
 		return handlers.signMessageForAddressErrorResponse(err), nil
 	}
-	return signMessageForAddressResponse{Success: true, Address: address, Signature: signature}, nil
+	return signMessageForAddressResponse{
+		Success:        true,
+		Address:        address,
+		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
+		Signature:      signature,
+	}, nil
 }
 
 func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, error) {

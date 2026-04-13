@@ -110,6 +110,10 @@ export const getAccountsBalanceSummary = (): Promise<TAccountsBalanceSummaryResp
 type TEthAccountCodeAndNameByAddress = SuccessResponse & {
   code: AccountCode;
   name: string;
+  displayAddress: string;
+} | {
+  success: false;
+  errorMessage: string;
 };
 
 export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEthAccountCodeAndNameByAddress> => {
@@ -293,6 +297,7 @@ export const verifyXPub = (
 export type TReceiveAddress = {
   addressID: string;
   address: string;
+  displayAddress: string;
 };
 
 export type TReceiveAddressList = {
@@ -325,6 +330,7 @@ export type TTxInput = {
 export type TTxProposalResult = {
   amount: TAmountWithConversions;
   fee: TAmountWithConversions;
+  recipientDisplayAddress: string;
   success: true;
   total: TAmountWithConversions;
 } | {
@@ -458,6 +464,7 @@ type TAddressSignResponse = {
   success: true;
   signature: string;
   address: string;
+  displayAddress: string;
 } | {
   success: false;
   errorMessage?: string;
@@ -489,6 +496,7 @@ export const signETHMessageForAddress = (
 
 export type TUsedAddress = {
   address: string;
+  displayAddress: string;
   addressID: string;
   addressType: 'receive' | 'change';
   canSignMsg: boolean;

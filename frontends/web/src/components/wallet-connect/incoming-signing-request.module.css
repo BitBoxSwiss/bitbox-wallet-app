@@ -1,16 +1,20 @@
 .accountName {
     font-size: 1.6rem;
-    margin: 0 var(--space-half) 0 0;
+    margin: 0;
 }
 
 .accountNameAndAddress {
     display: flex;
+    flex-direction: column;
+    gap: var(--space-eight);
 }
 
 .address {
     color: var(--color-secondary);
+    font-family: var(--font-family-monospace);
     font-size: 1.6rem;
     margin: 0;
+    overflow-wrap: anywhere;
 }
 
 .animationAndTextContainer {

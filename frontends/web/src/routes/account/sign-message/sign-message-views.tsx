@@ -66,7 +66,13 @@ export const SignMessageInputView = ({ controller }: TProps) => {
   return (
     <div>
       <AddressNavigator controller={controller} />
-      <CopyableInput value={controller.address} flexibleHeight alignLeft inputFieldClassName={style.copyableInput} />
+      <CopyableInput
+        value={controller.address}
+        displayValue={controller.displayAddress}
+        flexibleHeight
+        alignLeft
+        inputFieldClassName={style.copyableInput}
+      />
 
       {controller.isTaprootAddress ? (
         <Message type="info">
@@ -108,6 +114,11 @@ export const SignMessageInputView = ({ controller }: TProps) => {
 
 export const SignMessageResultView = ({ controller }: TProps) => {
   const { t } = useTranslation();
+  const result = controller.result;
+
+  if (!result) {
+    return null;
+  }
 
   return (
     <div>
@@ -116,11 +127,17 @@ export const SignMessageResultView = ({ controller }: TProps) => {
         <span>{t('signMessage.resultDescription')}</span>
       </div>
       <label className={style.fieldLabel}>{t('signMessage.addressLabel')}</label>
-      <CopyableInput value={controller.result?.address || ''} flexibleHeight alignLeft inputFieldClassName={style.copyableInput} />
+      <CopyableInput
+        value={result.address}
+        displayValue={result.displayAddress}
+        flexibleHeight
+        alignLeft
+        inputFieldClassName={style.copyableInput}
+      />
       <label className={style.fieldLabel}>{t('signMessage.messageLabel')}</label>
-      <CopyableInput value={controller.result?.message || ''} flexibleHeight alignLeft inputFieldClassName={`${style.copyableInput || ''} ${style.copyableInputMessage || ''}`} />
+      <CopyableInput value={result.message} flexibleHeight alignLeft inputFieldClassName={`${style.copyableInput || ''} ${style.copyableInputMessage || ''}`} />
       <label className={style.fieldLabel}>{t('signMessage.signatureLabel')}</label>
-      <CopyableInput value={controller.result?.signature || ''} flexibleHeight alignLeft inputFieldClassName={style.copyableInput} />
+      <CopyableInput value={result.signature} flexibleHeight alignLeft inputFieldClassName={style.copyableInput} />
 
       <div className={`${style.footerButtons || ''} ${style.footerButtonsLeft || ''}`}>
         <Button primary onClick={controller.goBack}>
@@ -144,7 +161,13 @@ export const SignMessageConfirmView = ({ controller }: TProps) => {
       <ViewHeader title={<div className={style.confirmViewTitle}>{t('signMessage.signMessage')}</div>} />
       <ViewContent>
         <p className={style.signSubtitle}>{t('signMessage.signOnBitBoxSubtitle')}</p>
-        <CopyableInput value={controller.address} flexibleHeight alignLeft inputFieldClassName={style.copyableInput} />
+        <CopyableInput
+          value={controller.address}
+          displayValue={controller.displayAddress}
+          flexibleHeight
+          alignLeft
+          inputFieldClassName={style.copyableInput}
+        />
         <label className={style.fieldLabel}>{t('signMessage.messageLabel')}</label>
         <div className={style.messageDisplay}>{controller.message}</div>
         <PointToBitBox02 />

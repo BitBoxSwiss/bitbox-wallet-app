@@ -18,6 +18,7 @@ import { useAddressVerification } from './use-address-verification';
 
 const mockUsedAddress: accountApi.TUsedAddress = {
   address: 'bc1qtest',
+  displayAddress: 'bc1q test',
   addressID: 'addr-1',
   addressType: 'receive',
   canSignMsg: true,

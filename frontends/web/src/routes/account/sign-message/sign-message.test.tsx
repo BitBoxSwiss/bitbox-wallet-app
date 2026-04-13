@@ -39,8 +39,16 @@ const ethAccount: accountApi.TAccount = {
   name: 'Ethereum Account',
 };
 
+const groupAddress = (value: string): string => {
+  if (value.startsWith('0x') || value.startsWith('0X')) {
+    return `${value.slice(0, 2)} ${value.slice(2).replace(/(.{4})/g, '$1 ').trim()}`;
+  }
+  return value.replace(/(.{4})/g, '$1 ').trim();
+};
+
 const usedAddress: accountApi.TUsedAddress = {
   address: 'bc1qreceiveusedaddress',
+  displayAddress: groupAddress('bc1qreceiveusedaddress'),
   addressID: 'receive-address-id',
   addressType: 'receive',
   canSignMsg: true,
@@ -70,17 +78,26 @@ describe('routes/account/sign-message', () => {
     const receiveAddresses: [accountApi.TReceiveAddressList, ...accountApi.TReceiveAddressList[]] = [
       {
         scriptType: 'p2wpkh',
-        addresses: [{ address: 'bc1qnativeexample', addressID: 'native-address-id' }],
+        addresses: [{
+          address: 'bc1qnativeexample',
+          displayAddress: groupAddress('bc1qnativeexample'),
+          addressID: 'native-address-id',
+        }],
       },
       {
         scriptType: 'p2wpkh-p2sh',
-        addresses: [{ address: '3wrappedexample', addressID: 'wrapped-address-id' }],
+        addresses: [{
+          address: '3wrappedexample',
+          displayAddress: groupAddress('3wrappedexample'),
+          addressID: 'wrapped-address-id',
+        }],
       },
     ];
     vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => receiveAddresses);
     const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress').mockResolvedValue({
       success: true,
       address: 'bc1qnativeexample',
+      displayAddress: groupAddress('bc1qnativeexample'),
       signature: 'signed-message',
     });
 
@@ -95,7 +112,7 @@ describe('routes/account/sign-message', () => {
       </MemoryRouter>
     );
 
-    await screen.findByDisplayValue('bc1qnativeexample');
+    await screen.findByDisplayValue(groupAddress('bc1qnativeexample'));
     expect(screen.queryByRole('button', { name: 'Change address type' })).not.toBeInTheDocument();
 
     await user.type(
@@ -124,8 +141,16 @@ describe('routes/account/sign-message', () => {
       {
         scriptType: 'p2wpkh',
         addresses: [
-          { address: 'bc1qnativeexample0', addressID: 'native-address-id-0' },
-          { address: 'bc1qnativeexample1', addressID: 'native-address-id-1' },
+          {
+            address: 'bc1qnativeexample0',
+            displayAddress: groupAddress('bc1qnativeexample0'),
+            addressID: 'native-address-id-0',
+          },
+          {
+            address: 'bc1qnativeexample1',
+            displayAddress: groupAddress('bc1qnativeexample1'),
+            addressID: 'native-address-id-1',
+          },
         ],
       },
     ]);
@@ -155,7 +180,11 @@ describe('routes/account/sign-message', () => {
     vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
       {
         scriptType: 'p2wpkh',
-        addresses: [{ address: 'bc1qnativeexample', addressID: 'native-address-id' }],
+        addresses: [{
+          address: 'bc1qnativeexample',
+          displayAddress: groupAddress('bc1qnativeexample'),
+          addressID: 'native-address-id',
+        }],
       },
     ]);
     const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress').mockResolvedValue({
@@ -200,6 +229,7 @@ describe('routes/account/sign-message', () => {
     const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress').mockResolvedValue({
       success: true,
       address: usedAddress.address,
+      displayAddress: usedAddress.displayAddress,
       signature: 'signed-message',
     });
 
@@ -271,13 +301,18 @@ describe('routes/account/sign-message', () => {
     vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
       {
         scriptType: null,
-        addresses: [{ address: '0xAbC123def456', addressID: 'eth-address-id' }],
+        addresses: [{
+          address: '0xAbC123def456',
+          displayAddress: groupAddress('0xAbC123def456'),
+          addressID: 'eth-address-id',
+        }],
       },
     ]);
     const btcSignSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress');
     const ethSignSpy = vi.spyOn(accountApi, 'signETHMessageForAddress').mockResolvedValue({
       success: true,
       address: '0xAbC123def456',
+      displayAddress: groupAddress('0xAbC123def456'),
       signature: '0xethsignature',
     });
 
@@ -319,7 +354,11 @@ describe('routes/account/sign-message', () => {
     vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
       {
         scriptType: 'p2wpkh',
-        addresses: [{ address: 'bc1qnativeexample', addressID: 'native-address-id' }],
+        addresses: [{
+          address: 'bc1qnativeexample',
+          displayAddress: groupAddress('bc1qnativeexample'),
+          addressID: 'native-address-id',
+        }],
       },
     ]);
 

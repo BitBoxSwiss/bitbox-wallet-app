@@ -16,6 +16,7 @@ import (
 	ethcoin "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
@@ -109,6 +110,8 @@ type AOPP struct {
 	// Address that will be delivered to the requesting party via the callback. Only applies if
 	// State == aoppStateSigning or aoppStateSuccess.
 	Address string `json:"address"`
+	// DisplayAddress is a grouped representation of Address for UI display.
+	DisplayAddress string `json:"displayAddress"`
 	// AddressID is the ID of the address, used to display the address on the device. Only applies
 	// if State == aoppStateSigning or aoppStateSuccess
 	AddressID string `json:"addressID"`
@@ -399,6 +402,7 @@ loop:
 	}
 
 	backend.aopp.Address = addr.EncodeForHumans()
+	backend.aopp.DisplayAddress = backendutil.FormatAddress(account.Coin().Code(), backend.aopp.Address)
 	backend.aopp.AddressID = addr.ID()
 	backend.aopp.State = aoppStateSigning
 	backend.notifyAOPP()

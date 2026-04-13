@@ -120,6 +120,7 @@ export const AddressList = ({
                       <div key={address.addressID} className={style.addressItem}>
                         <AddressRowAccordion
                           address={address.address}
+                          displayAddress={address.displayAddress}
                           truncatedAddress={truncatedAddressMobile}
                           formattedDate={formatDate(address.lastUsed)}
                           isExpanded={isExpanded}

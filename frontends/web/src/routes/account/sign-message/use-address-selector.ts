@@ -17,6 +17,7 @@ export type TAddressSelector = {
   setActiveIndex: Dispatch<SetStateAction<number>>;
   currentAddress: TReceiveAddress | null;
   addressString: string;
+  displayAddressString: string;
   scriptType: ScriptType | null;
   retryUsedAddressLoad: () => void;
 };
@@ -53,7 +54,11 @@ export const useAddressSelector = (code: AccountCode): TAddressSelector => {
         return null;
       }
       const found = usedAddressResponse.addresses.find(a => a.addressID === usedAddressID);
-      return found ? { address: found.address, addressID: found.addressID } : null;
+      return found ? {
+        address: found.address,
+        addressID: found.addressID,
+        displayAddress: found.displayAddress,
+      } : null;
     }
     return currentReceiveAddressList?.addresses[activeIndex] || null;
   }, [activeIndex, currentReceiveAddressList, usedAddressID, usedAddressResponse, isUsedAddressRoute]);
@@ -84,6 +89,7 @@ export const useAddressSelector = (code: AccountCode): TAddressSelector => {
     : (currentReceiveAddressList?.addresses.length || 0);
 
   const addressString = currentAddress?.address ?? '';
+  const displayAddressString = currentAddress?.displayAddress ?? '';
   const retryUsedAddressLoad = useCallback(() => setUsedAddressReloadVersion(prev => prev + 1), []);
 
   return {
@@ -95,6 +101,7 @@ export const useAddressSelector = (code: AccountCode): TAddressSelector => {
     setActiveIndex,
     currentAddress,
     addressString,
+    displayAddressString,
     scriptType,
     retryUsedAddressLoad,
   };

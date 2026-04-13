@@ -44,8 +44,11 @@ const mockAccount: accountApi.TAccount = {
   blockExplorerTxPrefix: 'https://example.com/tx/',
 };
 
+const groupAddress = (value: string): string => value.replace(/(.{4})/g, '$1 ').trim();
+
 const receiveAddress: accountApi.TUsedAddress = {
   address: 'bc1qreceiveusedaddress',
+  displayAddress: groupAddress('bc1qreceiveusedaddress'),
   addressID: 'receive-address-id',
   addressType: 'receive',
   canSignMsg: true,
@@ -54,6 +57,7 @@ const receiveAddress: accountApi.TUsedAddress = {
 
 const changeAddress: accountApi.TUsedAddress = {
   address: 'bc1qchangeusedaddress',
+  displayAddress: groupAddress('bc1qchangeusedaddress'),
   addressID: 'change-address-id',
   addressType: 'change',
   canSignMsg: true,
@@ -125,10 +129,12 @@ describe('routes/account/addresses', () => {
     renderWithRoute('/account/btc-account/addresses');
 
     await screen.findByTitle(receiveAddress.address);
-    expect(screen.queryByText(changeAddress.address)).not.toBeInTheDocument();
+    expect(screen.getByText(groupAddress(receiveAddress.address))).toBeInTheDocument();
+    expect(screen.queryByText(groupAddress(changeAddress.address))).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Change addresses' }));
     await screen.findByTitle(changeAddress.address);
+    expect(screen.getByText(groupAddress(changeAddress.address))).toBeInTheDocument();
     expect(screen.getByText(/Do not use a change address to receive coins\./)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'here' })).toHaveAttribute('href', '/account/btc-account/receive');
 
@@ -168,7 +174,7 @@ describe('routes/account/addresses', () => {
 
     await screen.findByText(/This address has not been verified on the device\./);
     const copyAddressInput = await screen.findByTestId('receive-address') as HTMLTextAreaElement;
-    expect(copyAddressInput.value).toBe(changeAddress.address);
+    expect(copyAddressInput.value).toBe(changeAddress.displayAddress);
     expect(connectSpy).not.toHaveBeenCalled();
     expect(verifyAddressSpy).not.toHaveBeenCalled();
   });

@@ -9,11 +9,11 @@ import { PointToBitBox02 } from '../icon';
 
 type TProps = {
   accountCode: accountAPI.AccountCode;
-  address: string;
+  displayAddress: string;
   addressID: string;
 };
 
-export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
+export const VerifyAddress = ({ accountCode, displayAddress, addressID }: TProps) => {
   const [verifying, setVerifying] = useState(false);
   const { t } = useTranslation();
   const verifyAddress = async () => {
@@ -36,7 +36,7 @@ export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
           medium
           title={t('receive.verifyBitBox02')}>
           <div>
-            { address }
+            { displayAddress }
             <br />
             <br />
             <PointToBitBox02 />
