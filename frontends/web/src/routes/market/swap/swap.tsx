@@ -33,7 +33,7 @@ import { AmountUnit, AmountWithUnit } from '@/components/amount/amount-with-unit
 import { ArrowSwap } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { RatesContext } from '@/contexts/RatesContext';
-import { findAccount, getDisplayedCoinUnit } from '@/routes/account/utils';
+import { findAccount, getDisplayedCoinUnit, isBitcoinOnly } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
@@ -58,14 +58,14 @@ const fetchBalance = async (code: AccountCode) => {
   return;
 };
 
-const getSwapAmountForDisplay = async (
+const getSwapDisplayAmount = async (
   amount: string,
   coinCode: TSwapDestinationAccount['coinCode'],
   coinUnit: CoinUnit,
   btcUnit: 'default' | 'sat' | undefined,
 ): Promise<{ amount: string; unit: CoinUnit }> => {
   const displayedUnit = getDisplayedCoinUnit(coinCode, coinUnit, btcUnit);
-  if (displayedUnit === coinUnit) {
+  if (displayedUnit === coinUnit || !isBitcoinOnly(coinCode)) {
     return { amount, unit: displayedUnit };
   }
 
@@ -266,7 +266,7 @@ export const Swap = ({
         return;
       }
 
-      const displayAmount = await getSwapAmountForDisplay(
+      const displayAmount = await getSwapDisplayAmount(
         selectedRoute.expectedBuyAmount,
         buyAccount.coinCode,
         buyAccount.coinUnit,
