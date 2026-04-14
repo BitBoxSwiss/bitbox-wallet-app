@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
@@ -53,6 +55,18 @@ func FormatAmount(coin coinpkg.Coin, amount string) (string, error) {
 		return "0", nil
 	}
 	return formattedAmount, nil
+}
+
+// ValidateSwapSellAmount checks that sell amount fits into available balance.
+func ValidateSwapSellAmount(account accounts.Interface, sellAmount coinpkg.Amount) error {
+	balance, err := account.Balance()
+	if err != nil {
+		return err
+	}
+	if sellAmount.BigInt().Cmp(balance.Available().BigInt()) > 0 {
+		return errp.WithStack(accountErrors.ErrInsufficientFunds)
+	}
+	return nil
 }
 
 func newQuoteRequestFromCoinCodes(sellCoinCode, buyCoinCode, sellAmount string, providers []string) (*QuoteRequest, *APIError) {

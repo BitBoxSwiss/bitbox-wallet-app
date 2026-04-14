@@ -30,6 +30,7 @@ import { SubTitle } from '@/components/title';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { alertUser } from '@/components/alert/Alert';
+import { Message } from '@/components/message/message';
 import { Button, Label } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Amount } from '@/components/amount/amount';
@@ -112,6 +113,7 @@ export const Swap = ({
   const [routes, setRoutes] = useState<TSwapQuoteRoute[]>([]);
   const [selectedRouteId, setSelectedRouteId] = useState<string | undefined>();
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
+  const [quoteErrorCode, setQuoteErrorCode] = useState<string | undefined>();
   const [routeError, setRouteError] = useState<string | undefined>();
   // Drives the button disabled/loading state for the whole confirm flow.
   const [isConfirmInFlight, setIsConfirmInFlight] = useState(false);
@@ -134,6 +136,12 @@ export const Swap = ({
   const selectedRoute = useMemo(
     () => routes.find(route => route.routeId === selectedRouteId),
     [routes, selectedRouteId],
+  );
+  const sellDisplayUnit = useMemo(
+    () => sellAccount
+      ? getDisplayedCoinUnit(sellAccount.coinCode, sellAccount.coinUnit, btcUnit)
+      : undefined,
+    [btcUnit, sellAccount],
   );
 
   const isSameCoinAccount = (
@@ -180,11 +188,12 @@ export const Swap = ({
     );
   }, [buyAccount, sellAccountCode]);
 
-  const clearQuoteState = (error?: string) => {
+  const clearQuoteState = (error?: string, errorCode?: string) => {
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
     setExpectedOutputUnit(undefined);
+    setQuoteErrorCode(errorCode);
     setRouteError(error);
   };
 
@@ -226,6 +235,7 @@ export const Swap = ({
     }
 
     setIsFetchingRoutes(true);
+    setQuoteErrorCode(undefined);
     setRouteError(undefined);
 
     const fetchRoutes = async () => {
@@ -241,6 +251,7 @@ export const Swap = ({
         }
         const nextRoutes = response.success ? response.quote.routes : [];
         if (nextRoutes.length > 0) {
+          setQuoteErrorCode(undefined);
           setRoutes(nextRoutes);
           const firstRouteId = nextRoutes[0]?.routeId;
           setSelectedRouteId(currentRouteId => (
@@ -253,7 +264,10 @@ export const Swap = ({
         clearQuoteState(
           response.success
             ? t('swap.noRouteFound')
-            : response.errorMessage || t('swap.unexpectedError'),
+            : response.errorCode === 'insufficientFunds'
+              ? undefined
+              : response.errorMessage,
+          response.success ? undefined : response.errorCode,
         );
       } catch (error: unknown) {
         if (isCancelled) {
@@ -465,6 +479,15 @@ export const Swap = ({
                 value={sellAmount}
                 onChangeValue={setSellAmount}
               />
+              <Message
+                hidden={quoteErrorCode !== 'insufficientFunds'}
+                type="warning"
+                className={style.sellWarning}
+              >
+                {sellDisplayUnit}
+                {': '}
+                {t('send.error.insufficientFunds')}
+              </Message>
               <div className={style.flipContainer}>
                 <Button
                   disabled={!canFlip}
