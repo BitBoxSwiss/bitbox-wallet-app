@@ -17,7 +17,7 @@ export type TMarketDeal = {
   isHidden?: boolean;
 };
 
-export type TVendorName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc' | 'bitrefill' | 'swapkit';
+export type TVendorName = 'moonpay' | 'pocket' | 'pocket-otc' | 'btcdirect' | 'btcdirect-otc' | 'bitrefill' | 'swapkit';
 
 export type TMarketDeals = {
   vendorName: TVendorName;
