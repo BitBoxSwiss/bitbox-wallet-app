@@ -184,10 +184,10 @@ export const Swap = ({
   // flips sell and buy account
   const handleFlipAccounts = () => {
     if (buyAccountCode && sellAccountCode) {
+      clearQuoteState();
       setSellAccountCode(buyAccountCode);
       setSellAmount(expectedOutput);
       setBuyAccountCode(sellAccountCode);
-      setExpectedOutput(sellAmount);
     }
   };
 
