@@ -74,6 +74,15 @@ export type TSwapSignResponse = {
   errorMessage: string;
 };
 
+export type TSwapStatusResponse = {
+  available: boolean;
+  connectedKeystore: 'none' | 'multi' | 'btc-only';
+};
+
+export const getSwapStatus = (): Promise<TSwapStatusResponse> => {
+  return apiGet('swap/status');
+};
+
 export const signSwap = (
   data: TSwapSignRequest,
 ): Promise<TSwapSignResponse> => {

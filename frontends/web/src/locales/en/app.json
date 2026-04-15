@@ -744,7 +744,8 @@
   "confirmOnDevice": "Please confirm on your device.",
   "connectKeystore": {
     "promptNoName": "Please connect your BitBox to continue",
-    "promptWithName": "Please connect your BitBox named \"{{name}}\" to continue"
+    "promptWithName": "Please connect your BitBox named \"{{name}}\" to continue",
+    "swapHint": "Please connect a BitBox Multi to Swap."
   },
   "darkmode": {
     "toggle": "Dark mode"

@@ -8,12 +8,14 @@ import { TMarketAction } from '@/api/market';
 type TProps = {
   onChangeTab: (tab: TMarketAction) => void;
   activeTab: TMarketAction;
+  showSwap: boolean;
 };
 
 
 export const MarketTab = ({
   onChangeTab,
-  activeTab
+  activeTab,
+  showSwap,
 }: TProps) => {
   const { t } = useTranslation();
   return (
@@ -36,12 +38,14 @@ export const MarketTab = ({
       >
         {t('buy.exchange.spend')}
       </PillButton>
-      <PillButton
-        active={activeTab === 'swap'}
-        onClick={() => onChangeTab('swap')}
-      >
-        {t('generic.swap')}
-      </PillButton>
+      {showSwap && (
+        <PillButton
+          active={activeTab === 'swap'}
+          onClick={() => onChangeTab('swap')}
+        >
+          {t('generic.swap')}
+        </PillButton>
+      )}
       <PillButton
         active={activeTab === 'otc'}
         onClick={() => onChangeTab('otc')}

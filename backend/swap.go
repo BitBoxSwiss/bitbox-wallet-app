@@ -55,6 +55,21 @@ type SwapAccounts struct {
 	DefaultBuyAccountCode  *accountsTypes.Code
 }
 
+// SwapConnectedKeystore describes whether the currently connected keystore is absent, multi, or btc-only.
+type SwapConnectedKeystore string
+
+const (
+	swapConnectedKeystoreNone    SwapConnectedKeystore = "none"
+	swapConnectedKeystoreMulti   SwapConnectedKeystore = "multi"
+	swapConnectedKeystoreBTCOnly SwapConnectedKeystore = "btc-only"
+)
+
+// SwapStatus summarizes whether swap should be shown at all and what kind of keystore is connected right now.
+type SwapStatus struct {
+	Available         bool                  `json:"available"`
+	ConnectedKeystore SwapConnectedKeystore `json:"connectedKeystore"`
+}
+
 // SwapAccounts returns the accounts that can be selected in the swap screen.
 func (backend *Backend) SwapAccounts() (SwapAccounts, error) {
 	sellAccounts, buyAccounts, err := backend.swapAccounts()
@@ -69,6 +84,52 @@ func (backend *Backend) SwapAccounts() (SwapAccounts, error) {
 		DefaultSellAccountCode: defaultSellAccountCode,
 		DefaultBuyAccountCode:  defaultBuyAccountCode,
 	}, nil
+}
+
+// swapAvailable reports whether swap can be shown. It is available when there is at least one
+// non-Bitcoin account currently available, including watch-only and inactive accounts.
+func (backend *Backend) swapAvailable() bool {
+	for _, account := range backend.Accounts() {
+		accountConfig := account.Config().Config
+		if accountConfig.HiddenBecauseUnused {
+			continue
+		}
+		if _, isTestnet := coinpkg.TestnetCoins[accountConfig.CoinCode]; isTestnet != backend.Testing() {
+			continue
+		}
+		if account.Coin().Code() == coinpkg.CodeBTC {
+			continue
+		}
+		return true
+	}
+	return false
+}
+
+// swapConnectedKeystore reports whether the currently connected keystore is absent, multi, or btc-only.
+func (backend *Backend) swapConnectedKeystore() SwapConnectedKeystore {
+	connectedKeystore := backend.Keystore()
+	if connectedKeystore == nil {
+		return swapConnectedKeystoreNone
+	}
+	for _, coinCode := range []coinpkg.Code{coinpkg.CodeLTC, coinpkg.CodeETH} {
+		coin, err := backend.Coin(coinCode)
+		if err != nil {
+			continue
+		}
+		if connectedKeystore.SupportsCoin(coin) {
+			return swapConnectedKeystoreMulti
+		}
+	}
+	return swapConnectedKeystoreBTCOnly
+}
+
+// SwapStatus combines the broad swap availability signal with the current connected keystore state.
+// This lets callers distinguish between "swap exists", "a multi device is connected", and "only a btc-only device is connected".
+func (backend *Backend) SwapStatus() SwapStatus {
+	return SwapStatus{
+		Available:         backend.swapAvailable(),
+		ConnectedKeystore: backend.swapConnectedKeystore(),
+	}
 }
 
 func (backend *Backend) connectedKeystoreConfig() (*config.Keystore, error) {
