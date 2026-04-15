@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TAccount } from '@/api/account';
 import type { TMarketAction, TVendorName, TPaymentMethod } from '@/api/market';
+import { LocalizationContext } from '@/contexts/localization-context';
+import { isBitcoinOnly } from '@/routes/account/utils';
 import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
-import { isBitcoinOnly } from '@/routes/account/utils';
+import { formatLocalizedAmount } from '@/components/amount/amount';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@/components/table/table';
 import style from './infocontent.module.css';
 
 export const getBTCDirectOTCLink = () => {
@@ -20,6 +24,17 @@ export const getBTCDirectOTCLink = () => {
     return 'https://start.btcdirect.eu/fr/private-trading-bitbox';
   default:
     return 'https://start.btcdirect.eu/private-trading-bitbox';
+  }
+};
+
+export const getPocketOTCLink = () => {
+  switch (i18n.resolvedLanguage) {
+  case 'de':
+    return 'https://pocketbitcoin.com/de/private?ref=bitbox';
+  case 'it':
+    return 'https://pocketbitcoin.com/it/private?ref=bitbox';
+  default:
+    return 'https://pocketbitcoin.com/private?ref=bitbox';
   }
 };
 
@@ -130,6 +145,72 @@ const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
       <p><b>{t('buy.exchange.infoContent.pocket.sell.title')}</b></p>
       <br />
       <p>{t('exchange.pocket.terms.fees.extraNote')}</p>
+    </div>
+  );
+};
+
+const PocketOTCInfo = () => {
+  const { t } = useTranslation();
+  const { decimal, group } = useContext(LocalizationContext);
+  return (
+    <div className={style.container}>
+      <p>
+        {t('buy.exchange.infoContent.pocket-otc.infobox.intro')}
+      </p>
+      <br />
+
+      <Table>
+        <Thead>
+          <Tr>
+            <Th>
+              {t('buy.exchange.infoContent.pocket-otc.infobox.tradingVolume')}
+            </Th>
+            <Th>
+              {t('buy.exchange.infoContent.pocket-otc.infobox.transactionFee')}
+            </Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          <Tr>
+            <Td>
+              EUR {formatLocalizedAmount('100\'000.00', group, decimal)} +
+            </Td>
+            <Td>
+              1.29%
+            </Td>
+          </Tr>
+          <Tr>
+            <Td>
+              EUR {formatLocalizedAmount('250\'000.00', group, decimal)} +
+            </Td>
+            <Td>
+              1.09%
+            </Td>
+          </Tr>
+          <Tr>
+            <Td>
+              EUR {formatLocalizedAmount('500\'000.00', group, decimal)} +
+            </Td>
+            <Td>
+              0.89%
+            </Td>
+          </Tr>
+          <Tr>
+            <Td>
+              EUR {formatLocalizedAmount('1\'000\'000.00', group, decimal)} +
+            </Td>
+            <Td>
+              0.69%
+            </Td>
+          </Tr>
+        </Tbody>
+      </Table>
+      <br />
+      <p>
+        <A href={getPocketOTCLink()}>
+          {t('buy.exchange.infoContent.pocket-otc.infobox.learnmore')}
+        </A>
+      </p>
     </div>
   );
 };
@@ -288,6 +369,10 @@ export const InfoContent = ({
   case 'pocket':
     return (
       <PocketInfo bankTransferFee={paymentFees['bank-transfer']} />
+    );
+  case 'pocket-otc':
+    return (
+      <PocketOTCInfo />
     );
   case 'btcdirect':
     return (

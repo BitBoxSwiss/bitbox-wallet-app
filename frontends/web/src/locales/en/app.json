@@ -656,6 +656,14 @@
             "title": "Identity verification"
           }
         },
+        "pocket-otc": {
+          "infobox": {
+            "intro": "Get personal assistance and better fees for high-value over-the-counter (OTC) trades for Bitcoin. With Pocket Private, your fees decrease with your lifetime volume, so you always get the best fee no matter the order size.",
+            "learnmore": "Learn more about Pocket Private",
+            "tradingVolume": "Trading volume (lifetime volume)",
+            "transactionFee": "Transaction fee"
+          }
+        },
         "region": {
           "title": "Select the region your bank account is registered in to see which options are available to you."
         }

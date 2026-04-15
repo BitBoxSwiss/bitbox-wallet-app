@@ -6,6 +6,7 @@
   border-collapse: collapse;
   font-size: var(--size-default);
   text-align: left;
+  width: 100%;
 }
 
 .table td,

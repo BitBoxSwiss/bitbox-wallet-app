@@ -12,8 +12,9 @@ export const getVendorFormattedName = (
   case 'moonpay':
     return 'MoonPay';
   case 'pocket':
-  case 'pocket-otc':
     return 'Pocket';
+  case 'pocket-otc':
+    return 'Pocket Private';
   case 'btcdirect':
   case 'btcdirect-otc':
     return 'BTC Direct';
