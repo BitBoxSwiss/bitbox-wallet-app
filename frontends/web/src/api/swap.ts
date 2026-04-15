@@ -1,7 +1,33 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode, CoinCode, TTxInput } from './account';
-import { apiPost } from '@/utils/request';
+import type { ERC20CoinCode } from './erc20';
+import type { AccountCode, CoinCode, NativeCoinCode, TAccountBase, TTxInput } from './account';
+import { apiGet, apiPost } from '@/utils/request';
+
+export type TSwapAccount = TAccountBase & ({
+  isToken: true;
+  coinCode: ERC20CoinCode;
+  parentAccountCode: AccountCode;
+} | {
+  isToken: false;
+  coinCode: NativeCoinCode;
+  parentAccountCode?: never;
+});
+
+export type TSwapAccounts = {
+  success: true;
+  sellAccounts: TSwapAccount[];
+  buyAccounts: TSwapAccount[];
+  defaultSellAccountCode?: AccountCode;
+  defaultBuyAccountCode?: AccountCode;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
+export const getSwapAccounts = (): Promise<TSwapAccounts> => {
+  return apiGet('swap/accounts');
+};
 
 export type TSwapQuoteRequest = {
   buyCoinCode: CoinCode;

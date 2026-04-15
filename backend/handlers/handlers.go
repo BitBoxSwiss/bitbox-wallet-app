@@ -63,8 +63,8 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() backend.AccountsList
-	SwapDestinationAccounts() []*backend.SwapDestinationAccount
 	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
+	SwapAccounts() (backend.SwapAccounts, error)
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
 	AccountsFiatAndCoinBalance(backend.AccountsList, string) (*big.Rat, map[coinpkg.Code]*big.Int, error)
 	Keystore() keystore.Keystore
@@ -215,7 +215,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/accounts/swap-destinations", handlers.getSwapDestinationAccounts).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
@@ -409,7 +409,7 @@ type accountJSON struct {
 	AccountNumber *uint16 `json:"accountNumber"`
 }
 
-type swapDestinationAccountJSON struct {
+type swapAccountJSON struct {
 	accountBaseJSON
 	ParentAccountCode *accountsTypes.Code `json:"parentAccountCode,omitempty"`
 }
@@ -490,8 +490,8 @@ func newAccountJSON(
 	}
 }
 
-func newSwapDestinationAccountJSON(account *backend.SwapDestinationAccount) *swapDestinationAccountJSON {
-	return &swapDestinationAccountJSON{
+func newSwapAccountJSON(account backend.SwapAccount) swapAccountJSON {
+	return swapAccountJSON{
 		accountBaseJSON: newAccountBaseJSON(
 			account.Keystore,
 			account.AccountConfig,
@@ -762,12 +762,37 @@ func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 	return accounts
 }
 
-func (handlers *Handlers) getSwapDestinationAccounts(*http.Request) interface{} {
-	swapAccounts := []*swapDestinationAccountJSON{}
-	for _, account := range handlers.backend.SwapDestinationAccounts() {
-		swapAccounts = append(swapAccounts, newSwapDestinationAccountJSON(account))
+func (handlers *Handlers) getSwapAccounts(*http.Request) interface{} {
+	type response struct {
+		Success                bool                `json:"success"`
+		ErrorMessage           string              `json:"errorMessage,omitempty"`
+		SellAccounts           []swapAccountJSON   `json:"sellAccounts"`
+		BuyAccounts            []swapAccountJSON   `json:"buyAccounts"`
+		DefaultSellAccountCode *accountsTypes.Code `json:"defaultSellAccountCode,omitempty"`
+		DefaultBuyAccountCode  *accountsTypes.Code `json:"defaultBuyAccountCode,omitempty"`
 	}
-	return swapAccounts
+
+	swapAccounts, err := handlers.backend.SwapAccounts()
+	if err != nil {
+		return response{
+			Success:      false,
+			ErrorMessage: err.Error(),
+		}
+	}
+	result := response{
+		Success:                true,
+		SellAccounts:           make([]swapAccountJSON, len(swapAccounts.SellAccounts)),
+		BuyAccounts:            make([]swapAccountJSON, len(swapAccounts.BuyAccounts)),
+		DefaultSellAccountCode: swapAccounts.DefaultSellAccountCode,
+		DefaultBuyAccountCode:  swapAccounts.DefaultBuyAccountCode,
+	}
+	for i, account := range swapAccounts.SellAccounts {
+		result.SellAccounts[i] = newSwapAccountJSON(account)
+	}
+	for i, account := range swapAccounts.BuyAccounts {
+		result.BuyAccounts[i] = newSwapAccountJSON(account)
+	}
+	return result
 }
 
 func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {

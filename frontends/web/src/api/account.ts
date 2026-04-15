@@ -60,22 +60,8 @@ export type TAccount = TAccountBase & {
   accountNumber?: number;
 };
 
-export type TSwapDestinationAccount = TAccountBase & ({
-  isToken: true;
-  coinCode: ERC20CoinCode;
-  parentAccountCode: AccountCode;
-} | {
-  isToken: false;
-  coinCode: Exclude<CoinCode, ERC20CoinCode>;
-  parentAccountCode?: never;
-});
-
 export const getAccounts = (): Promise<TAccount[]> => {
   return apiGet('accounts');
-};
-
-export const getSwapDestinationAccounts = (): Promise<TSwapDestinationAccount[]> => {
-  return apiGet('accounts/swap-destinations');
 };
 
 export type CoinFormattedAmount = {
