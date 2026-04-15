@@ -18,6 +18,8 @@ export type TSwapAccounts = {
   success: true;
   sellAccounts: TSwapAccount[];
   buyAccounts: TSwapAccount[];
+  defaultSellAccountCode?: AccountCode;
+  defaultBuyAccountCode?: AccountCode;
 } | {
   success: false;
   errorMessage: string;

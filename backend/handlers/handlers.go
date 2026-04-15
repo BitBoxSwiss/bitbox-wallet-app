@@ -764,10 +764,12 @@ func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 
 func (handlers *Handlers) getSwapAccounts(*http.Request) interface{} {
 	type response struct {
-		Success      bool              `json:"success"`
-		ErrorMessage string            `json:"errorMessage,omitempty"`
-		SellAccounts []swapAccountJSON `json:"sellAccounts,omitempty"`
-		BuyAccounts  []swapAccountJSON `json:"buyAccounts,omitempty"`
+		Success                bool                `json:"success"`
+		ErrorMessage           string              `json:"errorMessage,omitempty"`
+		SellAccounts           []swapAccountJSON   `json:"sellAccounts"`
+		BuyAccounts            []swapAccountJSON   `json:"buyAccounts"`
+		DefaultSellAccountCode *accountsTypes.Code `json:"defaultSellAccountCode,omitempty"`
+		DefaultBuyAccountCode  *accountsTypes.Code `json:"defaultBuyAccountCode,omitempty"`
 	}
 
 	swapAccounts, err := handlers.backend.SwapAccounts()
@@ -778,9 +780,11 @@ func (handlers *Handlers) getSwapAccounts(*http.Request) interface{} {
 		}
 	}
 	result := response{
-		Success:      true,
-		SellAccounts: make([]swapAccountJSON, len(swapAccounts.SellAccounts)),
-		BuyAccounts:  make([]swapAccountJSON, len(swapAccounts.BuyAccounts)),
+		Success:                true,
+		SellAccounts:           make([]swapAccountJSON, len(swapAccounts.SellAccounts)),
+		BuyAccounts:            make([]swapAccountJSON, len(swapAccounts.BuyAccounts)),
+		DefaultSellAccountCode: swapAccounts.DefaultSellAccountCode,
+		DefaultBuyAccountCode:  swapAccounts.DefaultBuyAccountCode,
 	}
 	for i, account := range swapAccounts.SellAccounts {
 		result.SellAccounts[i] = newSwapAccountJSON(account)

@@ -185,8 +185,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
 
   const SwapEl = (<InjectParams>
     <Swap
-      accounts={accounts}
-      code={''} />
+      accounts={accounts} />
   </InjectParams>);
 
   const MarketEl = (<InjectParams>
@@ -291,7 +290,6 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="pocket/sell/:code/:region" element={PocketSellEl} />
           <Route path="btcdirect-otc" element={<BTCDirectOTC/>} />
           <Route path="swap" element={SwapEl} />
-          <Route path="swap/:code" element={SwapEl} />
         </Route>
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
         <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
