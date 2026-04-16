@@ -435,8 +435,15 @@ func (transactions *Transactions) removeTxForAddress(
 		// Tx is not touching any of our outputs anymore. Remove.
 
 		for _, txIn := range txInfo.Tx.TxIn {
-			transactions.log.Debug("Deleting transaction iput")
-			dbTx.DeleteInput(txIn.PreviousOutPoint)
+			currentSpender, err := dbTx.Input(txIn.PreviousOutPoint)
+			if err != nil {
+				transactions.log.WithError(err).Panic("Failed to retrieve input")
+			}
+			// Only delete if this tx is still the recorded spender. A replacement tx (RBF)
+			// may have already claimed the input.
+			if currentSpender != nil && *currentSpender == txHash {
+				dbTx.DeleteInput(txIn.PreviousOutPoint)
+			}
 		}
 
 		// Remove the outputs added by this tx.

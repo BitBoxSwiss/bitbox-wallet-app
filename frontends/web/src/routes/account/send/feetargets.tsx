@@ -27,6 +27,14 @@ type Props = {
   // Controlled value - when omitted, the component initializes the parent selection once loaded.
   value?: accountApi.FeeTargetCode;
   label?: string;
+  // Minimum fee rate in sat/vB. Fee targets below this rate are removed from the list.
+  // If custom fees are disabled and all targets are below this, "high" is kept and bumped.
+  minFeeRate?: number;
+};
+
+const parseFeeRate = (feeRateInfo: string): number | null => {
+  const parsed = parseFloat(feeRateInfo);
+  return Number.isFinite(parsed) ? parsed : null;
 };
 
 export const FeeTargets = ({
@@ -42,6 +50,7 @@ export const FeeTargets = ({
   preferredFeeTarget,
   value,
   label,
+  minFeeRate,
 }: Props) => {
   const { t } = useTranslation();
   const { defaultCurrency } = useContext(RatesContext);
@@ -62,7 +71,28 @@ export const FeeTargets = ({
       return null;
     }
     const withCustomFee = config.frontend.expertFee || feeTargetList.feeTargets.length === 0;
-    const nextOptions = feeTargetList.feeTargets.map(({ code, feeRateInfo }) => ({
+
+    let targets = feeTargetList.feeTargets;
+    if (minFeeRate !== undefined) {
+      const eligible = targets.filter(({ feeRateInfo }) => {
+        const rate = parseFeeRate(feeRateInfo);
+        return rate !== null && rate >= minFeeRate;
+      });
+      if (eligible.length > 0) {
+        targets = eligible;
+      } else if (!withCustomFee) {
+        // Custom fees disabled and no target meets the minimum: keep "high" bumped to minimum.
+        const high = targets.find(({ code }) => code === 'high');
+        if (high) {
+          targets = [{ ...high, feeRateInfo: `${minFeeRate} sat/vB` }];
+        }
+      } else {
+        // Custom fees enabled — all presets filtered out, user can use custom.
+        targets = [];
+      }
+    }
+
+    const nextOptions = targets.map(({ code, feeRateInfo }) => ({
       value: code,
       label: t(`send.feeTarget.label.${code}`) + (withCustomFee && feeRateInfo ? ` (${feeRateInfo})` : ''),
       isDisabled: false,
@@ -75,7 +105,7 @@ export const FeeTargets = ({
       });
     }
     return nextOptions;
-  }, [config, disabled, feeTargetList, t]);
+  }, [config, disabled, feeTargetList, minFeeRate, t]);
 
   useEffect(() => {
     if (!feeTargetList || !config || options === null || value !== undefined) {

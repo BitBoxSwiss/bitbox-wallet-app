@@ -1759,7 +1759,7 @@
       "invalidAmount": "invalid amount",
       "invalidData": "invalid data",
       "rbfCoinControlNotAllowed": "Coin control cannot be used when speeding up a transaction",
-      "rbfFeeTooLow": "New fee must be higher than the original fee",
+      "rbfFeeTooLow": "Minimum fee rate is {{minFeeRate}} sat/vB",
       "rbfInvalidTxID": "Invalid transaction selected for speed up",
       "rbfTxAlreadyConfirmed": "Transaction has already been confirmed",
       "rbfTxNotFound": "Original transaction not found",

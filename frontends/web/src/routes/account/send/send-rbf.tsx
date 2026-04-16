@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '@/hooks/api';
 import { usePrevious } from '@/hooks/previous';
 import * as accountApi from '@/api/account';
 import { convertFromCurrency, convertToCurrency } from '@/api/coins';
@@ -26,7 +25,6 @@ import { TProposalError, txProposalErrorHandling } from './services';
 import { connectKeystore } from '@/api/keystores';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Message } from '@/components/message/message';
-import { getConfig } from '@/utils/config';
 import { useAccountBalance } from './send-shared';
 import style from './send.module.css';
 
@@ -206,7 +204,7 @@ export const SendRbf = ({
   const prevDefaultCurrency = usePrevious(defaultCurrency);
   const prevBtcUnit = usePrevious(btcUnit);
 
-  const config = useLoad(getConfig);
+
   const balance = useAccountBalance(account.code, btcUnit);
 
   useEffect(() => {
@@ -395,7 +393,11 @@ export const SendRbf = ({
       return;
     }
 
-    const nextErrorHandling = txProposalErrorHandling(result.errorCode);
+    let nextErrorHandling = txProposalErrorHandling(result.errorCode);
+    if (result.errorCode === 'rbfFeeTooLow' && rbfData) {
+      const minFee = Math.ceil(rbfData.originalFeeRate) + 1;
+      nextErrorHandling = { feeError: t('send.error.rbfFeeTooLow', { minFeeRate: minFee }) };
+    }
     setErrorHandling(nextErrorHandling);
     setIsUpdatingProposal(false);
 
@@ -445,12 +447,6 @@ export const SendRbf = ({
       setRbfAmountLocked(false);
     }
 
-    if (result.errorCode === 'rbfFeeTooLow' && config?.frontend?.expertFee && rbfData) {
-      const minimumFeeRate = Math.ceil(rbfData.originalFeeRate) + 1;
-      setFeeTarget('custom');
-      setCustomFee(minimumFeeRate.toString());
-    }
-
     if (
       nextErrorHandling.amountError
       || Object.keys(nextErrorHandling).length === 0
@@ -458,7 +454,7 @@ export const SendRbf = ({
       setProposedFee(undefined);
     }
     setRecipientDisplayAddress('');
-  }, [account.code, config, convertToFiat, rbfData, rbfTxID, t]);
+  }, [account.code, convertToFiat, rbfData, rbfTxID, t]);
 
   const validateAndDisplayFee = useCallback((shouldUpdateFiat: boolean = true) => {
     setProposedTotal(undefined);
@@ -652,6 +648,7 @@ export const SendRbf = ({
                       preferredFeeTarget="high"
                       value={feeTarget}
                       label={t('send.rbf.newPriority')}
+                      minFeeRate={rbfData ? Math.ceil(rbfData.originalFeeRate) + 1 : undefined}
                     />
                   </Column>
                   <Column
