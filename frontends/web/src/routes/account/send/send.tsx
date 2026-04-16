@@ -679,15 +679,17 @@ export const Send = ({
           <Header
             title={<h2>{isRBFMode ? t('send.rbf.title', { accountName: account.coinName }) : t('send.title', { accountName: account.coinName })}</h2>}
           >
-            <HideAmountsButton />
+            {!isRBFMode && <HideAmountsButton />}
           </Header>
           <View>
             <ViewContent>
               {(!isRBFMode || !isMobile) && (
                 <div className={style.sendHeader}>
-                  <div className={style.availableBalance}>
-                    <Balance balance={balance} />
-                  </div>
+                  {!isRBFMode && (
+                    <div className={style.availableBalance}>
+                      <Balance balance={balance} />
+                    </div>
+                  )}
                   <SubTitle className={style.subTitle}>
                     {t('send.transactionDetails')}
                   </SubTitle>
@@ -815,38 +817,68 @@ export const Send = ({
               ) : (
                 <ResponsiveGrid className={style.sendForm}>
                   <Column col="2">
-                    <ReceiverAddressInput
-                      account={account}
-                      activeAccounts={activeAccounts}
-                      addressError={errorHandling.addressError}
-                      onInputChange={handleRecipientInputChange}
-                      onAccountChange={setSelectedReceiverAccount}
-                      recipientAddress={recipientInput}
-                      parseQRResult={parseQRResult}
-                      disabled={isRBFMode}
-                    />
+                    {isRBFMode ? (
+                      <div className={style.rbfField}>
+                        <label>{t('send.address.label')}</label>
+                        <p className={style.rbfPrimaryValue}>{recipientInput}</p>
+                      </div>
+                    ) : (
+                      <ReceiverAddressInput
+                        account={account}
+                        activeAccounts={activeAccounts}
+                        addressError={errorHandling.addressError}
+                        onInputChange={handleRecipientInputChange}
+                        onAccountChange={setSelectedReceiverAccount}
+                        recipientAddress={recipientInput}
+                        parseQRResult={parseQRResult}
+                      />
+                    )}
                   </Column>
                   <Column>
-                    <CoinInput
-                      balance={balance}
-                      onAmountChange={handleCoinAmountChange}
-                      onSendAllChange={handleSendAllChange}
-                      sendAll={sendAll}
-                      amountError={errorHandling.amountError}
-                      proposedAmount={proposedAmount}
-                      amount={amount}
-                      hasSelectedUTXOs={hasSelectedUTXOs()}
-                      disabled={isRBFMode && rbfAmountLocked}
-                    />
+                    {isRBFMode && rbfAmountLocked ? (
+                      <div className={style.rbfField}>
+                        <label>{t('send.rbf.sendAmount')}</label>
+                        <div className={style.rbfAmountContainer}>
+                          <p className={style.rbfPrimaryValue}>
+                            {amount}
+                            {' '}
+                            {balance?.available.unit || account.coinCode.toUpperCase()}
+                          </p>
+                          {fiatAmount ? (
+                            <RbfFiatValue
+                              amount={fiatAmount}
+                              baseCurrencyUnit={defaultCurrency}
+                              className={style.rbfFiatAmount}
+                            />
+                          ) : null}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <CoinInput
+                          balance={balance}
+                          onAmountChange={handleCoinAmountChange}
+                          onSendAllChange={handleSendAllChange}
+                          sendAll={sendAll}
+                          amountError={errorHandling.amountError}
+                          proposedAmount={proposedAmount}
+                          amount={amount}
+                          hasSelectedUTXOs={hasSelectedUTXOs()}
+                          disabled={isRBFMode && rbfAmountLocked}
+                        />
+                      </>
+                    )}
                   </Column>
                   <Column>
-                    <FiatInput
-                      onFiatChange={handleFiatInput}
-                      disabled={sendAll || (isRBFMode && rbfAmountLocked)}
-                      error={errorHandling.amountError}
-                      fiatAmount={fiatAmount}
-                      label={defaultCurrency}
-                    />
+                    {isRBFMode && rbfAmountLocked ? null : (
+                      <FiatInput
+                        onFiatChange={handleFiatInput}
+                        disabled={sendAll || (isRBFMode && rbfAmountLocked)}
+                        error={errorHandling.amountError}
+                        fiatAmount={fiatAmount}
+                        label={defaultCurrency}
+                      />
+                    )}
                   </Column>
                   <Column>
                     <FeeTargets
