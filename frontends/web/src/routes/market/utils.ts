@@ -20,6 +20,6 @@ export const getVendorFormattedName = (
   case 'bitrefill':
     return 'Bitrefill';
   case 'swapkit':
-    return 'Swapkit';
+    return 'SwapKit';
   }
 };

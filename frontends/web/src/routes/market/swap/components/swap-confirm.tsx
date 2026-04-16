@@ -35,7 +35,7 @@ export const ConfirmSwap = ({
     <View fullscreen width="540px" verticallyCentered>
       <UseDisableBackButton />
       <ViewHeader title={
-        'Confirm swap on BitBox'
+        t('swap.confirmOnBitBox')
       } />
       <ViewContent>
         <Grid responsive={isSmall}>
@@ -61,7 +61,7 @@ export const ConfirmSwap = ({
             </span>
           </Column>
           <Column col="2" textAlign="start" className={style.label}>
-            <small>Fee</small>
+            <small>{t('transactions.fee')}</small>
           </Column>
           <Column textAlign="start" className={style.confirmItem}>
             {feeAmount ? (
@@ -78,7 +78,7 @@ export const ConfirmSwap = ({
             />
           </Column>
           <Column col="2" textAlign="start" className={style.label}>
-            Receive
+            {t('generic.receiveWithoutCoinCode')}
           </Column>
           <Column textAlign="start" className={style.confirmItem}>
             {expectedOutput ? (
