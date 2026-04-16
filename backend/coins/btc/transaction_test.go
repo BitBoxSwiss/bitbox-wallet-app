@@ -473,6 +473,36 @@ func TestTxProposalRBF(t *testing.T) {
 			wantErr: errors.ErrRBFFeeTooLow,
 		},
 		{
+			name: "RBF preset fee target bumped when rate too low",
+			args: func() *accounts.TxProposalArgs {
+				args := newRBFArgs()
+				// Use a preset fee target instead of custom.
+				args.FeeTargetCode = accounts.FeeTargetCodeHigh
+				args.CustomFee = ""
+				return args
+			},
+			setup: func(t *testing.T, account *Account) {
+				t.Helper()
+				addresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+				require.NoError(t, err)
+				account.transactions.(*mocks.InterfaceMock).SpendableOutputsForRBFFunc = func(txHash chainhash.Hash) (
+					map[wire.OutPoint]*transactions.SpendableOutput,
+					btcutil.Amount,
+					btcutil.Amount,
+					error,
+				) {
+					return map[wire.OutPoint]*transactions.SpendableOutput{
+						*wire.NewOutPoint(&chainhash.Hash{}, 0): {TxOut: wire.NewTxOut(1000000000, addresses[0].PubkeyScript())},
+						*wire.NewOutPoint(&chainhash.Hash{}, 1): {TxOut: wire.NewTxOut(1000000, addresses[0].PubkeyScript())},
+						// originalFee=10000, originalFeeRatePerKb=100000000 (same as 'high' target).
+						// The 'high' target rate is not enough (+1 sat/vB needed), so it must be
+						// bumped. With a preset target the backend bumps silently instead of erroring.
+					}, btcutil.Amount(10000), btcutil.Amount(100000000), nil
+				}
+			},
+			// No error expected: preset target fee rate is silently bumped to minimum.
+		},
+		{
 			name: "RBF absolute fee too low",
 			args: newRBFArgs,
 			setup: func(t *testing.T, account *Account) {

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { TSelectedUTXOs } from './utxos';
+import { useLoad } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
 import * as accountApi from '@/api/account';
@@ -35,6 +36,7 @@ import { SubTitle } from '@/components/title';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Message } from '@/components/message/message';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import { getConfig } from '@/utils/config';
 import style from './send.module.css';
 
 // RBF state passed from transaction details dialog
@@ -140,6 +142,7 @@ export const Send = ({
   const prevDefaultCurrency = usePrevious(defaultCurrency);
   const prevBtcUnit = usePrevious(btcUnit);
 
+  const config = useLoad(getConfig);
   const balance = useAccountBalance(account.code, btcUnit);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isRBFMode = !!rbfData;
@@ -446,9 +449,12 @@ export const Send = ({
         setRbfAmountLocked(false);
       }
 
-      // If fee is too low for RBF (low-fee environment where even 'high' returns 1 sat/vB),
-      // switch to custom fee with original + 1 sat/vB (minimum required by BIP-125)
-      if (rbfData && result.errorCode === 'rbfFeeTooLow') {
+      // If fee is too low for RBF (low-fee environment where even 'high' returns 1 sat/vB):
+      // - Expert mode (custom fees enabled): switch to custom fee with original + 1 sat/vB
+      // - Non-expert mode: the feeError from txProposalErrorHandling is already displayed above.
+      //   In practice this rarely triggers for non-expert users because the backend silently
+      //   bumps preset fee targets to the minimum BIP-125 requirement.
+      if (rbfData && result.errorCode === 'rbfFeeTooLow' && config?.frontend?.expertFee) {
         const minimumFeeRate = Math.ceil(rbfData.originalFeeRate) + 1;
         setFeeTarget('custom');
         setCustomFee(minimumFeeRate.toString());
@@ -462,7 +468,7 @@ export const Send = ({
       }
       setRecipientDisplayAddress('');
     }
-  }, [account.code, convertToFiat, rbfData, t]);
+  }, [account.code, config, convertToFiat, rbfData, t]);
 
   const validateAndDisplayFee = useCallback((
     updateFiat: boolean = true,

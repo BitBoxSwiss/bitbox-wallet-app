@@ -203,14 +203,22 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		return nil, nil, err
 	}
 
-	// For RBF, validate that new fee rate is at least 1 sat/vB higher than original
+	// For RBF, ensure the new fee rate is at least 1 sat/vB higher than original (BIP-125).
 	if args.RBFTxID != "" {
 		// 1 sat/vB = 1000 sat/kB
 		minRequiredFeeRate := originalFeeRatePerKb + 1000
 		if feeRatePerKb < minRequiredFeeRate {
-			account.log.Warnf("RBF fee too low: %d < %d (original: %d)",
-				feeRatePerKb, minRequiredFeeRate, originalFeeRatePerKb)
-			return nil, nil, errors.ErrRBFFeeTooLow
+			isCustomFee := args.FeeTargetCode == accounts.FeeTargetCodeCustom && !args.UseHighestFee
+			if isCustomFee {
+				// Custom fee: return error so the user can adjust manually.
+				account.log.Warnf("RBF fee too low: %d < %d (original: %d)",
+					feeRatePerKb, minRequiredFeeRate, originalFeeRatePerKb)
+				return nil, nil, errors.ErrRBFFeeTooLow
+			}
+			// Preset fee target: silently bump to minimum BIP-125 requirement.
+			account.log.Infof("RBF: bumping fee rate from %d to %d (minimum for replacement)",
+				feeRatePerKb, minRequiredFeeRate)
+			feeRatePerKb = minRequiredFeeRate
 		}
 	}
 
