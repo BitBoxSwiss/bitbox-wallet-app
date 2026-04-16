@@ -10,7 +10,7 @@ import { Dialog } from '@/components/dialog/dialog';
 import { Note } from './note';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { getTxSignForTxDetail } from '@/utils/transaction';
-import { ArrowFloorUpWhite, ExternalLink } from '@/components/icon';
+import { FastForwardWhite, ExternalLink } from '@/components/icon';
 import { TxDetailHeader } from '@/components/transactions/components/tx-detail-dialog/tx-detail-header';
 import { AdvancedTxDetail } from '@/components/transactions/components/tx-detail-dialog/advanced-tx-detail';
 import { TxDetailRow } from '@/components/transactions/components/tx-detail-dialog/tx-detail-row';
@@ -196,7 +196,7 @@ export const TxDetailsDialog = ({
                 primary
                 className={styles.speedUpButton}
                 onClick={handleSpeedUp}>
-                <ArrowFloorUpWhite className={styles.speedUpIcon} />
+                <FastForwardWhite className={styles.speedUpIcon} />
                 {t('transaction.speedUp')}
               </Button>
             </div>
