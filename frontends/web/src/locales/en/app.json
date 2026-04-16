@@ -948,6 +948,7 @@
     "enable": "Enable",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "max": "Max",
     "noOptionOnIos": "Not available on iOS",
     "noOptions": "No options found",
     "paymentRequestNote": "{{name}} payment {{orderId}}",
@@ -2006,6 +2007,19 @@
     },
     "vsize": "Virtual size",
     "weight": "Weight"
+  },
+  "swap": {
+    "completed": "Swap completed",
+    "confirmOnBitBox": "Confirm swap on BitBox",
+    "fastest": "Fastest",
+    "fetchingRoutes": "Fetching routes...",
+    "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
+    "new": "New swap",
+    "noRouteFound": "No route found",
+    "oneRouteAvailable": "One route available.",
+    "recommended": "Recommended",
+    "route": "Swap route",
+    "unexpectedError": "Some unexpected error occurred."
   },
   "transactions": {
     "errorLoadTransactions": "There was an error loading the transactions",

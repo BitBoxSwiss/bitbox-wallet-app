@@ -83,7 +83,7 @@ export const SwapResult = ({
       <ViewHeader />
       <ViewContent withIcon="success">
         <p>
-          Swap completed
+          {t('swap.completed')}
         </p>
         {children}
       </ViewContent>
@@ -92,7 +92,7 @@ export const SwapResult = ({
           {t('button.done')}
         </Button>
         <Button secondary onClick={() => onContinue()}>
-          New swap
+          {t('swap.new')}
         </Button>
       </ViewButtons>
     </View>

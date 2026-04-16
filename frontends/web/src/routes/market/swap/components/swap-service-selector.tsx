@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import Select, { components, SingleValueProps, OptionProps, DropdownIndicatorProps } from 'react-select';
+import { useTranslation } from 'react-i18next';
 import type { CoinUnit, TAmountWithConversions } from '@/api/account';
 import type { TSwapQuoteRoute } from '@/api/swap';
 import { Label } from '@/components/forms';
@@ -24,6 +25,7 @@ type SwapProviderOptionProps = {
 };
 
 const SwapProviderOption = ({ data }: SwapProviderOptionProps) => {
+  const { t } = useTranslation();
   return (
     <>
       <SwapServiceLogo name={data.provider} />
@@ -32,10 +34,10 @@ const SwapProviderOption = ({ data }: SwapProviderOptionProps) => {
           {data.label}
         </span>
         {data.isRecommended && (
-          <Badge type="success">Recommended</Badge>
+          <Badge type="success">{t('swap.recommended')}</Badge>
         )}
         {data.isFast && (
-          <Badge type="warning">Fastest</Badge>
+          <Badge type="warning">{t('swap.fastest')}</Badge>
         )}
       </span>
       <span className={style.amount}>
@@ -103,6 +105,7 @@ export const SwapServiceSelector = ({
   routes,
   selectedRouteId,
 }: Props) => {
+  const { t } = useTranslation();
   const options: TOption[] = buyUnit ? routes.map((route, index) => ({
     amount: {
       amount: route.expectedBuyAmount,
@@ -123,7 +126,7 @@ export const SwapServiceSelector = ({
   return (
     <section>
       <Label>
-        Swap route
+        {t('swap.route')}
       </Label>
       <Select<TOption>
         className={style.select}
@@ -142,13 +145,13 @@ export const SwapServiceSelector = ({
         onChange={option => option && onChangeRouteId(option.value)}
       />
       {isLoading && (
-        <p className={style.statusText}>Fetching routes...</p>
+        <p className={style.statusText}>{t('swap.fetchingRoutes')}</p>
       )}
       {!isLoading && error && (
         <p className={style.errorText}>{error}</p>
       )}
       {!isLoading && !error && options.length === 1 && (
-        <p className={style.statusText}>One route available.</p>
+        <p className={style.statusText}>{t('swap.oneRouteAvailable')}</p>
       )}
     </section>
   );

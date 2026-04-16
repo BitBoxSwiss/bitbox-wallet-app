@@ -50,7 +50,6 @@ type Props = {
 };
 
 const QUOTE_DEBOUNCE_MS = 300;
-const FALLBACK_FETCH_ERROR = 'Unable to fetch quotes right now. Please try again.';
 
 const fetchBalance = async (code: AccountCode) => {
   const response = await getBalance(code);
@@ -253,14 +252,18 @@ export const Swap = ({
         }
         clearQuoteState(
           response.success
-            ? 'no route found'
-            : response.errorMessage || 'Some unexpected error occurred.',
+            ? t('swap.noRouteFound')
+            : response.errorMessage || t('swap.unexpectedError'),
         );
       } catch (error: unknown) {
         if (isCancelled) {
           return;
         }
-        clearQuoteState(typeof error === 'string' && error ? error : FALLBACK_FETCH_ERROR);
+        clearQuoteState(
+          typeof error === 'string' && error
+            ? error
+            : t('swap.fetchQuotesError'),
+        );
       } finally {
         if (!isCancelled) {
           setIsFetchingRoutes(false);
@@ -276,7 +279,7 @@ export const Swap = ({
       isCancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [buyAccount?.coinCode, buyAccountCode, sellAccount?.coinCode, sellAccountCode, sellAmount]);
+  }, [buyAccount?.coinCode, buyAccountCode, sellAccount?.coinCode, sellAccountCode, sellAmount, t]);
 
   useEffect(() => {
     let canceled = false;
@@ -428,7 +431,7 @@ export const Swap = ({
             hideSidebarToggler
             title={
               <SubTitle>
-                Swap
+                {t('generic.swap')}
               </SubTitle>
             }
           />
@@ -447,7 +450,7 @@ export const Swap = ({
                 </Label>
                 {maxSellAmount && (
                   <Button transparent className={style.maxButton}>
-                    Max
+                    {t('generic.max')}
                     {' '}
                     <AmountWithUnit amount={maxSellAmount.available} />
                   </Button>
