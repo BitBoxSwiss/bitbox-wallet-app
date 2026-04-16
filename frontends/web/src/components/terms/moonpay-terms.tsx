@@ -6,6 +6,7 @@ import { isBitcoinOnly } from '@/routes/account/utils';
 import { Button, Checkbox } from '@/components/forms';
 import { setConfig } from '@/utils/config';
 import { TAccount } from '@/api/account';
+import { Col, Colgroup, Table, Tbody, Td, Th, Thead, Tr } from '@/components/table/table';
 import { A } from '@/components/anchor/anchor';
 import style from './terms.module.css';
 
@@ -38,34 +39,32 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
           {t('buy.info.disclaimer.payment.title')}
         </h2>
         <p>{t('buy.info.disclaimer.payment.details', { coinCode })}</p>
-        <div className={style.table}>
-          <table>
-            <colgroup>
-              <col width="*" />
-              <col width="50px" />
-              <col width="*" />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>{t('buy.info.disclaimer.payment.table.method')}</th>
-                <th>{t('buy.info.disclaimer.payment.table.fee')}</th>
-                <th>{t('buy.info.disclaimer.payment.table.description')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{t('buy.info.disclaimer.payment.table.1_method')}</td>
-                <td className={style.nowrap}>1.9 %</td>
-                <td>{t('buy.info.disclaimer.payment.table.1_description')}</td>
-              </tr>
-              <tr>
-                <td>{t('buy.info.disclaimer.payment.table.2_method')}</td>
-                <td className={style.nowrap}>4.9 %</td>
-                <td>{t('buy.info.disclaimer.payment.table.2_description')}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <Colgroup>
+            <Col width="*" />
+            <Col width="50px" />
+            <Col width="*" />
+          </Colgroup>
+          <Thead>
+            <Tr>
+              <Th>{t('buy.info.disclaimer.payment.table.method')}</Th>
+              <Th>{t('buy.info.disclaimer.payment.table.fee')}</Th>
+              <Th>{t('buy.info.disclaimer.payment.table.description')}</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            <Tr>
+              <Td>{t('buy.info.disclaimer.payment.table.1_method')}</Td>
+              <Td className={style.nowrap}>1.9 %</Td>
+              <Td>{t('buy.info.disclaimer.payment.table.1_description')}</Td>
+            </Tr>
+            <Tr>
+              <Td>{t('buy.info.disclaimer.payment.table.2_method')}</Td>
+              <Td className={style.nowrap}>4.9 %</Td>
+              <Td>{t('buy.info.disclaimer.payment.table.2_description')}</Td>
+            </Tr>
+          </Tbody>
+        </Table>
         <p>{t('buy.info.disclaimer.payment.footnote')}</p>
         <h2 className={style.title}>
           {t('buy.info.disclaimer.security.title')}
