@@ -2,7 +2,7 @@
 
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { statusChanged, syncAddressesCount, syncdone } from '@/api/accountsync';
 import { TDevices } from '@/api/devices';
@@ -70,6 +70,7 @@ const RemountAccount = ({
   devices,
 }: Props) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const { btcUnit } = useContext(RatesContext);
 
@@ -313,14 +314,19 @@ const RemountAccount = ({
               {loadingTransactions && <TransactionHistorySkeleton />}
 
               <TransactionList
+                coinCode={account.coinCode}
                 transactionSuccess={transactions?.success ?? false}
                 filteredTransactions={filteredTransactions}
                 debouncedSearchTerm={debouncedSearchTerm}
                 onShowDetail={setDetailID}
+                onSpeedUp={internalID => {
+                  navigate(`/account/${code}/send?rbf=${encodeURIComponent(internalID)}`);
+                }}
               />
 
               <TransactionDetails
                 accountCode={code}
+                coinCode={account.coinCode}
                 explorerURL={account.blockExplorerTxPrefix}
                 internalID={detailID}
                 onClose={() => setDetailID(null)}

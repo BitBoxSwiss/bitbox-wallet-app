@@ -38,32 +38,40 @@ func mustKeypath(t *testing.T, keypath string) signing.AbsoluteKeypath {
 func testAccount(t *testing.T, config *config.Account) *Account {
 	t.Helper()
 	account := mockAccount(t, config)
+	blockchainMock := &blockchainMocks.BlockchainMock{
+		MockRelayFee: func() (btcutil.Amount, error) {
+			return btcutil.Amount(1001), nil
+		},
+		MockEstimateFee: func(number int) (btcutil.Amount, error) {
+			switch number {
+			case 2:
+				return btcutil.Amount(10e7), nil
+			case 6:
+				return btcutil.Amount(10e6), nil
+			case 12:
+				return btcutil.Amount(10e5), nil
+			case 24:
+				return btcutil.Amount(10e4), nil
+			default:
+				return btcutil.Amount(10e6), nil
+			}
+		},
+	}
 	account.coin.TstSetMakeBlockchain(func() blockchain.Interface {
-		return &blockchainMocks.BlockchainMock{
-			MockRelayFee: func() (btcutil.Amount, error) {
-				return btcutil.Amount(1001), nil
-			},
-			MockEstimateFee: func(number int) (btcutil.Amount, error) {
-				switch number {
-				case 2:
-					return btcutil.Amount(10e7), nil
-				case 6:
-					return btcutil.Amount(10e6), nil
-				case 12:
-					return btcutil.Amount(10e5), nil
-				case 24:
-					return btcutil.Amount(10e4), nil
-				default:
-					return btcutil.Amount(10e6), nil
-				}
-			},
-		}
+		return blockchainMock
 	})
 	account.coin.blockchain = account.coin.makeBlockchain()
 	require.NoError(t, account.Initialize())
 	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 	addresses, err := account.subaccounts[0].changeAddresses.GetUnused()
 	require.NoError(t, err)
+	recipientPkScript, err := account.coin.AddressToPkScript("myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL")
+	require.NoError(t, err)
+	blockchainMock.MockTransactionGet = func(chainhash.Hash) (*wire.MsgTx, error) {
+		tx := wire.NewMsgTx(wire.TxVersion)
+		tx.AddTxOut(wire.NewTxOut(100000000, recipientPkScript))
+		return tx, nil
+	}
 	account.transactions = &mocks.InterfaceMock{
 		SpendableOutputsFunc: func() (map[wire.OutPoint]*transactions.SpendableOutput, error) {
 			return map[wire.OutPoint]*transactions.SpendableOutput{
@@ -385,6 +393,255 @@ func TestTxProposal(t *testing.T) {
 				require.ErrorContains(t, err, tc.wantErr.Error())
 			}
 
+		})
+	}
+}
+
+func TestTxProposalRBF(t *testing.T) {
+	rbfTxHash := chainhash.HashH([]byte("rbf-original"))
+	rbfTxID := rbfTxHash.String()
+
+	newRBFArgs := func() *accounts.TxProposalArgs {
+		return &accounts.TxProposalArgs{
+			RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
+			FeeTargetCode:    accounts.FeeTargetCodeCustom,
+			CustomFee:        "100",
+			Amount:           coin.NewSendAmount("1"),
+			RBFTxID:          rbfTxID,
+		}
+	}
+
+	testCases := []struct {
+		name    string
+		args    func() *accounts.TxProposalArgs
+		setup   func(t *testing.T, account *Account)
+		wantErr error
+	}{
+		{
+			name: "RBF success",
+			args: newRBFArgs,
+			setup: func(t *testing.T, account *Account) {
+				t.Helper()
+				addresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+				require.NoError(t, err)
+				mockTxs := account.transactions.(*mocks.InterfaceMock)
+				mockTxs.SpendableOutputsForRBFFunc = func(txHash chainhash.Hash) (
+					map[wire.OutPoint]*transactions.SpendableOutput,
+					btcutil.Amount,
+					btcutil.Amount,
+					error,
+				) {
+					require.Equal(t, rbfTxHash, txHash)
+					return map[wire.OutPoint]*transactions.SpendableOutput{
+						*wire.NewOutPoint(&chainhash.Hash{}, 0): {TxOut: wire.NewTxOut(1000000000, addresses[0].PubkeyScript())},
+						*wire.NewOutPoint(&chainhash.Hash{}, 1): {TxOut: wire.NewTxOut(1000000, addresses[0].PubkeyScript())},
+					}, btcutil.Amount(10000), btcutil.Amount(50000), nil
+				}
+			},
+		},
+		{
+			name: "RBF invalid txid",
+			args: func() *accounts.TxProposalArgs {
+				args := newRBFArgs()
+				args.RBFTxID = "invalid-tx-id"
+				return args
+			},
+			wantErr: errors.ErrRBFInvalidTxID,
+		},
+		{
+			name: "RBF coin control not allowed",
+			args: func() *accounts.TxProposalArgs {
+				args := newRBFArgs()
+				args.SelectedUTXOs = map[wire.OutPoint]struct{}{
+					*wire.NewOutPoint(&chainhash.Hash{}, 0): {},
+				}
+				return args
+			},
+			wantErr: errors.ErrRBFCoinControlNotAllowed,
+		},
+		{
+			name: "RBF fee rate too low",
+			args: newRBFArgs,
+			setup: func(t *testing.T, account *Account) {
+				t.Helper()
+				addresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+				require.NoError(t, err)
+				account.transactions.(*mocks.InterfaceMock).SpendableOutputsForRBFFunc = func(txHash chainhash.Hash) (
+					map[wire.OutPoint]*transactions.SpendableOutput,
+					btcutil.Amount,
+					btcutil.Amount,
+					error,
+				) {
+					return map[wire.OutPoint]*transactions.SpendableOutput{
+						*wire.NewOutPoint(&chainhash.Hash{}, 0): {TxOut: wire.NewTxOut(1000000000, addresses[0].PubkeyScript())},
+						*wire.NewOutPoint(&chainhash.Hash{}, 1): {TxOut: wire.NewTxOut(1000000, addresses[0].PubkeyScript())},
+					}, btcutil.Amount(10000), btcutil.Amount(100000), nil
+				}
+			},
+			wantErr: errors.ErrRBFFeeTooLow,
+		},
+		{
+			name: "RBF preset fee target bumped when rate too low",
+			args: func() *accounts.TxProposalArgs {
+				args := newRBFArgs()
+				// Use a preset fee target instead of custom.
+				args.FeeTargetCode = accounts.FeeTargetCodeHigh
+				args.CustomFee = ""
+				return args
+			},
+			setup: func(t *testing.T, account *Account) {
+				t.Helper()
+				addresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+				require.NoError(t, err)
+				account.transactions.(*mocks.InterfaceMock).SpendableOutputsForRBFFunc = func(txHash chainhash.Hash) (
+					map[wire.OutPoint]*transactions.SpendableOutput,
+					btcutil.Amount,
+					btcutil.Amount,
+					error,
+				) {
+					return map[wire.OutPoint]*transactions.SpendableOutput{
+						*wire.NewOutPoint(&chainhash.Hash{}, 0): {TxOut: wire.NewTxOut(1000000000, addresses[0].PubkeyScript())},
+						*wire.NewOutPoint(&chainhash.Hash{}, 1): {TxOut: wire.NewTxOut(1000000, addresses[0].PubkeyScript())},
+						// originalFee=10000, originalFeeRatePerKb=100000000 (same as 'high' target).
+						// The 'high' target rate is not enough (+1 sat/vB needed), so it must be
+						// bumped. With a preset target the backend bumps silently instead of erroring.
+					}, btcutil.Amount(10000), btcutil.Amount(100000000), nil
+				}
+			},
+			// No error expected: preset target fee rate is silently bumped to minimum.
+		},
+		{
+			name: "RBF absolute fee too low",
+			args: newRBFArgs,
+			setup: func(t *testing.T, account *Account) {
+				t.Helper()
+				addresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+				require.NoError(t, err)
+				account.transactions.(*mocks.InterfaceMock).SpendableOutputsForRBFFunc = func(txHash chainhash.Hash) (
+					map[wire.OutPoint]*transactions.SpendableOutput,
+					btcutil.Amount,
+					btcutil.Amount,
+					error,
+				) {
+					return map[wire.OutPoint]*transactions.SpendableOutput{
+						*wire.NewOutPoint(&chainhash.Hash{}, 0): {TxOut: wire.NewTxOut(1000000000, addresses[0].PubkeyScript())},
+						*wire.NewOutPoint(&chainhash.Hash{}, 1): {TxOut: wire.NewTxOut(1000000, addresses[0].PubkeyScript())},
+					}, btcutil.Amount(20000), btcutil.Amount(50000), nil
+				}
+			},
+			wantErr: errors.ErrRBFFeeTooLow,
+		},
+		{
+			name: "RBF tx not found from transactions store",
+			args: newRBFArgs,
+			setup: func(t *testing.T, account *Account) {
+				t.Helper()
+				account.transactions.(*mocks.InterfaceMock).SpendableOutputsForRBFFunc = func(txHash chainhash.Hash) (
+					map[wire.OutPoint]*transactions.SpendableOutput,
+					btcutil.Amount,
+					btcutil.Amount,
+					error,
+				) {
+					return nil, 0, 0, errors.ErrRBFTxNotFound
+				}
+			},
+			wantErr: errors.ErrRBFTxNotFound,
+		},
+		{
+			name: "RBF tx must have exactly one reconstructable recipient",
+			args: newRBFArgs,
+			setup: func(t *testing.T, account *Account) {
+				t.Helper()
+				changeAddresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+				require.NoError(t, err)
+				receiveAddresses, err := account.subaccounts[0].receiveAddresses.GetUnused()
+				require.NoError(t, err)
+				account.transactions.(*mocks.InterfaceMock).SpendableOutputsForRBFFunc = func(txHash chainhash.Hash) (
+					map[wire.OutPoint]*transactions.SpendableOutput,
+					btcutil.Amount,
+					btcutil.Amount,
+					error,
+				) {
+					return map[wire.OutPoint]*transactions.SpendableOutput{
+						*wire.NewOutPoint(&chainhash.Hash{}, 0): {TxOut: wire.NewTxOut(1000000000, changeAddresses[0].PubkeyScript())},
+						*wire.NewOutPoint(&chainhash.Hash{}, 1): {TxOut: wire.NewTxOut(1000000, changeAddresses[0].PubkeyScript())},
+					}, btcutil.Amount(10000), btcutil.Amount(50000), nil
+				}
+				account.coin.blockchain.(*blockchainMocks.BlockchainMock).MockTransactionGet = func(chainhash.Hash) (*wire.MsgTx, error) {
+					tx := wire.NewMsgTx(wire.TxVersion)
+					tx.AddTxOut(wire.NewTxOut(60000000, receiveAddresses[0].PubkeyScript()))
+					tx.AddTxOut(wire.NewTxOut(40000000, receiveAddresses[1].PubkeyScript()))
+					return tx, nil
+				}
+			},
+			wantErr: errors.ErrRBFTxNotReconstructable,
+		},
+		{
+			name: "RBF rejected for Litecoin",
+			args: newRBFArgs,
+			setup: func(t *testing.T, account *Account) {
+				t.Helper()
+				account.coin.code = coin.CodeLTC
+			},
+			wantErr: errors.ErrRBFInvalidTxID,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			account := testAccount(t, nil)
+			if tc.setup != nil {
+				tc.setup(t, account)
+			}
+
+			_, _, _, err := account.TxProposal(tc.args())
+			if tc.wantErr == nil {
+				require.NoError(t, err)
+				require.Len(t, account.transactions.(*mocks.InterfaceMock).SpendableOutputsForRBFCalls(), 1)
+				return
+			}
+			require.ErrorContains(t, err, tc.wantErr.Error())
+		})
+	}
+}
+
+func TestClassifyBroadcastError(t *testing.T) {
+	testCases := []struct {
+		name     string
+		err      error
+		rbfTxID  string
+		wantCode error
+	}{
+		{
+			name:     "non-RBF errors stay untouched",
+			err:      errp.New("txn-mempool-conflict"),
+			rbfTxID:  "",
+			wantCode: nil,
+		},
+		{
+			name:     "RBF missing inputs error gets typed code",
+			err:      errp.New("sendrawtransaction RPC error: bad-txns-inputs-missingorspent"),
+			rbfTxID:  chainhash.HashH([]byte("rbf-original")).String(),
+			wantCode: errors.ErrRBFBroadcastConflict,
+		},
+		{
+			name:     "other RBF broadcast errors stay untouched",
+			err:      errp.New("txn-mempool-conflict"),
+			rbfTxID:  chainhash.HashH([]byte("rbf-original")).String(),
+			wantCode: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := classifyBroadcastError(tc.rbfTxID, tc.err)
+			if tc.wantCode != nil {
+				require.Equal(t, tc.wantCode, errp.Cause(got))
+				require.Equal(t, tc.err.Error(), got.Error())
+			} else {
+				require.Same(t, tc.err, errp.Cause(got))
+				require.Same(t, tc.err, got)
+			}
 		})
 	}
 }

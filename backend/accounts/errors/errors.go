@@ -4,6 +4,8 @@ package errors
 
 import (
 	errpkg "errors"
+
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
 // TxValidationError represents errors in the tx proposal input data.
@@ -11,6 +13,28 @@ type TxValidationError string
 
 func (err TxValidationError) Error() string {
 	return string(err)
+}
+
+// CodedError preserves a descriptive message while exposing an ErrorCode to callers via Cause().
+type CodedError struct {
+	Code    errp.ErrorCode
+	Message string
+}
+
+func (err CodedError) Error() string {
+	return err.Message
+}
+
+func (err CodedError) Cause() error {
+	return err.Code
+}
+
+// NewCodedError creates an error with a stable machine-readable code and a descriptive message.
+func NewCodedError(code errp.ErrorCode, message string) error {
+	return CodedError{
+		Code:    code,
+		Message: message,
+	}
 }
 
 var (
@@ -29,6 +53,25 @@ var (
 	ErrFeeTooLow = TxValidationError("feeTooLow")
 	// ErrAccountNotsynced is used when the account sync has not successfully finished.
 	ErrAccountNotsynced = TxValidationError("accountNotSynced")
+	// ErrRBFTxNotFound is returned when the transaction to replace (RBF) is not found.
+	ErrRBFTxNotFound = TxValidationError("rbfTxNotFound")
+	// ErrRBFTxAlreadyConfirmed is returned when attempting RBF on an already confirmed transaction.
+	ErrRBFTxAlreadyConfirmed = TxValidationError("rbfTxAlreadyConfirmed")
+	// ErrRBFTxNotReplaceable is returned when the transaction is no longer the active spender of
+	// its inputs, e.g. it has already been replaced by another transaction.
+	ErrRBFTxNotReplaceable = TxValidationError("rbfTxNotReplaceable")
+	// ErrRBFInvalidTxID is returned when the transaction id provided for RBF is invalid.
+	ErrRBFInvalidTxID = TxValidationError("rbfInvalidTxID")
+	// ErrRBFCoinControlNotAllowed is returned when coin control is combined with RBF.
+	ErrRBFCoinControlNotAllowed = TxValidationError("rbfCoinControlNotAllowed")
+	// ErrRBFFeeTooLow is returned when the new fee is not sufficiently higher than the original.
+	ErrRBFFeeTooLow = TxValidationError("rbfFeeTooLow")
+	// ErrRBFTxNotReconstructable is returned when the original transaction can not be reconstructed
+	// as a single-recipient replacement transaction.
+	ErrRBFTxNotReconstructable = TxValidationError("rbfTxNotReconstructable")
+	// ErrRBFBroadcastConflict is returned when broadcasting an RBF replacement fails because the
+	// original inputs are no longer available to spend.
+	ErrRBFBroadcastConflict errp.ErrorCode = "rbfBroadcastConflict"
 
 	// ErrNotAvailable is returned if data required is not available yet. Example: the headers are
 	// not synced yet, which is a prerequisite to making a timeseries of the portfolio.

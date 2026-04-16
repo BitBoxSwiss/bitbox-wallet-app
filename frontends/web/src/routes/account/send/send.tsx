@@ -3,11 +3,9 @@
 import { useState, useRef, useEffect, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TSelectedUTXOs } from './utxos';
-import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
 import * as accountApi from '@/api/account';
-import { syncdone } from '@/api/accountsync';
-import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount, type BtcUnit } from '@/api/coins';
+import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
 import { View, ViewContent } from '@/components/view/view';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
@@ -31,32 +29,12 @@ import { CoinControl } from './coin-control';
 import { connectKeystore } from '@/api/keystores';
 import { SubTitle } from '@/components/title';
 import { RatesContext } from '@/contexts/RatesContext';
+import { useAccountBalance } from './send-shared';
 import style from './send.module.css';
 
 type TProps = {
   account: accountApi.TAccount;
   activeAccounts?: accountApi.TAccount[];
-};
-
-const useAccountBalance = (accountCode: accountApi.AccountCode, btcUnit?: BtcUnit) => {
-  const mounted = useMountedRef();
-  const [balance, setBalance] = useState<accountApi.TBalance>();
-
-  const updateBalance = useCallback(async (code: accountApi.AccountCode) => {
-    if (mounted.current) {
-      const result = await accountApi.getBalance(code);
-      if (result.success && mounted.current) {
-        setBalance(result.balance);
-      }
-    }
-  }, [mounted]);
-
-  useEffect(() => {
-    updateBalance(accountCode);
-    return syncdone(accountCode, () => updateBalance(accountCode));
-  }, [accountCode, updateBalance, btcUnit]);
-
-  return balance;
 };
 
 export const Send = ({
@@ -137,7 +115,7 @@ export const Send = ({
     }
   }, [account.code, account.keystore.rootFingerprint, note]);
 
-  const getValidTxInputData = useCallback((): Required<accountApi.TTxInput> | false => {
+  const getValidTxInputData = useCallback((): accountApi.TTxInput | false => {
     if (
       !recipientInput
       || feeTarget === undefined
@@ -154,23 +132,22 @@ export const Send = ({
       sendAll: (sendAll ? 'yes' : 'no'),
       selectedUTXOs: Object.keys(selectedUTXOsRef.current),
       paymentRequest: null,
-      useHighestFee: false
+      useHighestFee: false,
     };
   }, [recipientInput, feeTarget, sendAll, amount, customFee]);
 
-  const convertToFiat = useCallback(async (amount: string) => {
-    if (amount) {
-      const coinCode = account.coinCode;
+  const convertToFiat = useCallback(async (nextAmount: string) => {
+    if (nextAmount) {
       const data = await convertToCurrency({
-        amount,
-        coinCode,
+        amount: nextAmount,
+        coinCode: account.coinCode,
         fiatUnit: defaultCurrency,
       });
       if (data.success) {
         setFiatAmount(data.fiatAmount);
       } else {
         setErrorHandling({
-          amountError: t('send.error.invalidAmount')
+          amountError: t('send.error.invalidAmount'),
         });
       }
     } else {
@@ -178,12 +155,11 @@ export const Send = ({
     }
   }, [account.coinCode, defaultCurrency, t]);
 
-  const convertFromFiat = useCallback(async (amount: string) => {
-    if (amount) {
-      const coinCode = account.coinCode;
+  const convertFromFiat = useCallback(async (nextAmount: string) => {
+    if (nextAmount) {
       const data = await convertFromCurrency({
-        amount,
-        coinCode,
+        amount: nextAmount,
+        coinCode: account.coinCode,
         fiatUnit: defaultCurrency,
       });
       if (data.success) {
@@ -197,10 +173,7 @@ export const Send = ({
     }
   }, [account.coinCode, defaultCurrency, t]);
 
-  const txProposal = useCallback((
-    updateFiat: boolean,
-    result: accountApi.TTxProposalResult,
-  ) => {
+  const txProposal = useCallback((shouldUpdateFiat: boolean, result: accountApi.TTxProposalResult) => {
     setValid(result.success);
     if (result.success) {
       setErrorHandling({});
@@ -209,27 +182,26 @@ export const Send = ({
       setProposedTotal(result.total);
       setRecipientDisplayAddress(result.recipientDisplayAddress);
       setIsUpdatingProposal(false);
-      if (updateFiat) {
+      if (shouldUpdateFiat) {
         convertToFiat(result.amount.amount);
       }
-    } else {
-      const errorHandling = txProposalErrorHandling(result.errorCode);
-      setErrorHandling(errorHandling);
-      setIsUpdatingProposal(false);
-
-      if (
-        errorHandling.amountError
-        || Object.keys(errorHandling).length === 0
-      ) {
-        setProposedFee(undefined);
-      }
-      setRecipientDisplayAddress('');
+      return;
     }
+
+    const nextErrorHandling = txProposalErrorHandling(result.errorCode);
+    setErrorHandling(nextErrorHandling);
+    setIsUpdatingProposal(false);
+
+    if (
+      nextErrorHandling.amountError
+      || Object.keys(nextErrorHandling).length === 0
+    ) {
+      setProposedFee(undefined);
+    }
+    setRecipientDisplayAddress('');
   }, [convertToFiat]);
 
-  const validateAndDisplayFee = useCallback((
-    updateFiat: boolean = true,
-  ) => {
+  const validateAndDisplayFee = useCallback((shouldUpdateFiat: boolean = true) => {
     setProposedTotal(undefined);
     setErrorHandling({});
     const txInput = getValidTxInputData();
@@ -251,7 +223,7 @@ export const Send = ({
         const result = await proposePromise;
         // continue only if this is the most recent proposal
         if (proposePromise === lastProposal.current) {
-          txProposal(updateFiat, result);
+          txProposal(shouldUpdateFiat, result);
         }
       } catch (error) {
         if (proposePromise === lastProposal.current) {
@@ -259,12 +231,11 @@ export const Send = ({
           console.error('Failed to propose transaction:', error);
         }
       } finally {
-        // cleanup regardless of success or failure
         if (proposePromise === lastProposal.current) {
           lastProposal.current = null;
         }
       }
-    }, 400); // Delay the proposal by 400 ms
+    }, 400);
   }, [account.code, getValidTxInputData, txProposal]);
 
   useEffect(() => {
@@ -287,8 +258,8 @@ export const Send = ({
         convertFromCurrency({
           amount,
           coinCode: account.coinCode,
-          fiatUnit
-        }).then((data) => {
+          fiatUnit,
+        }).then(data => {
           if (data.success) {
             setAmount(data.amount);
             setUpdateFiat(false);
@@ -321,15 +292,17 @@ export const Send = ({
     validateAndDisplayFee,
   ]);
 
-  const handleFeeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
-    setFeeTarget(feeTarget);
-    setCustomFee('');
+  const handleFeeTargetChange = (newFeeTarget: accountApi.FeeTargetCode) => {
+    setFeeTarget(newFeeTarget);
+    if (newFeeTarget !== 'custom') {
+      setCustomFee('');
+    }
     setUpdateFiat(sendAll);
   };
 
-  const handleFiatInput = (fiatAmount: string) => {
-    setFiatAmount(fiatAmount);
-    convertFromFiat(fiatAmount);
+  const handleFiatInput = (nextAmount: string) => {
+    setFiatAmount(nextAmount);
+    convertFromFiat(nextAmount);
   };
 
   const handleSelectedUTXOsChange = (selectedUTXOs: TSelectedUTXOs) => {
@@ -342,14 +315,12 @@ export const Send = ({
     return Object.keys(selectedUTXOsRef.current).length !== 0;
   };
 
-  // when user types in the input field or selects from dropdown
   const handleRecipientInputChange = (input: string) => {
     setRecipientInput(input);
     setRecipientDisplayAddress('');
     setUpdateFiat(true);
     setSelectedReceiverAccount(null);
   };
-
 
   const parseQRResult = async (uri: string) => {
     let qrAddress;
@@ -393,34 +364,32 @@ export const Send = ({
     setUpdateFiat(true);
   };
 
-  const handleCoinAmountChange = (amount: string) => {
-    convertToFiat(amount);
-    setAmount(amount);
+  const handleCoinAmountChange = (nextAmount: string) => {
+    convertToFiat(nextAmount);
+    setAmount(nextAmount);
     setUpdateFiat(true);
   };
 
-  const handleSendAllChange = (sendAll: boolean) => {
-    if (!sendAll) {
+  const handleSendAllChange = (nextSendAll: boolean) => {
+    if (!nextSendAll) {
       convertToFiat(amount);
     }
-    setSendAll(sendAll);
+    setSendAll(nextSendAll);
     setUpdateFiat(true);
   };
 
-  const handleCustomFee = (customFee: string) => {
-    setCustomFee(customFee);
+  const handleCustomFee = (nextCustomFee: string) => {
+    setCustomFee(nextCustomFee);
     setUpdateFiat(false);
   };
 
-  const handleNodeChange = (note: string) => setNote(note);
+  const handleNodeChange = (nextNote: string) => setNote(nextNote);
 
   return (
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header
-            title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
-          >
+          <Header title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}>
             <HideAmountsButton />
           </Header>
           <View>
@@ -482,7 +451,7 @@ export const Send = ({
                     onFeeTargetChange={handleFeeTargetChange}
                     onCustomFee={handleCustomFee}
                     error={errorHandling.feeError}
-                    // value={feeTarget}
+                    value={feeTarget}
                   />
                 </Column>
                 <Column>
@@ -499,9 +468,7 @@ export const Send = ({
                       disabled={!getValidTxInputData() || !valid || isUpdatingProposal}>
                       {t('send.button')}
                     </Button>
-                    <BackButton
-                      enableEsc={!isConfirming && !utxoDialogActive}
-                    >
+                    <BackButton enableEsc={!isConfirming && !utxoDialogActive}>
                       {t('button.back')}
                     </BackButton>
                   </ColumnButtons>
@@ -514,6 +481,7 @@ export const Send = ({
               isConfirming={isConfirming}
               selectedUTXOs={selectedUTXOsRef.current}
               coinCode={account.coinCode}
+              isRBF={false}
               transactionDetails={{
                 selectedReceiverAccountName: selectedReceiverAccount?.name,
                 selectedReceiverAccountNumber: selectedReceiverAccount?.accountNumber,
@@ -541,11 +509,8 @@ export const Send = ({
                     />
                   )}
                   <br />
-                  {(proposedAmount && proposedAmount.conversions && proposedAmount.conversions[defaultCurrency]) ? (
-                    <FiatValue
-                      amount={proposedAmount}
-                      enableRotateUnit
-                    />
+                  {proposedAmount?.conversions?.[defaultCurrency] ? (
+                    <FiatValue amount={proposedAmount} enableRotateUnit />
                   ) : null}
                 </p>
               </SendResult>

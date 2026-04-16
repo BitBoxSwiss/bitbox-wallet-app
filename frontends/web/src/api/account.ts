@@ -246,6 +246,7 @@ export type TTransaction = {
   note: string;
   numConfirmations: number;
   numConfirmationsComplete: number;
+  rbfReconstructable: boolean;
   size: number;
   status: TTransactionStatus;
   time: string | null;
@@ -317,6 +318,8 @@ export type TTxInput = {
   sendAll: 'yes' | 'no';
   selectedUTXOs: string[];
   paymentRequest: Slip24 | null;
+  // rbfTxID is the transaction ID of a pending transaction to replace (for RBF).
+  rbfTxID?: string;
 } & (
   {
     useHighestFee: false;

@@ -5,21 +5,65 @@ package btc
 import (
 	"math/big"
 	"strconv"
+	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
+	btcutilinternal "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 )
 
 // unitSatoshi is 1 BTC (default unit) in Satoshi.
 const unitSatoshi = 1e8
+
+func supportsRBF(code coin.Code) bool {
+	switch code {
+	case coin.CodeBTC, coin.CodeTBTC, coin.CodeRBTC:
+		return true
+	default:
+		return false
+	}
+}
+
+func classifyBroadcastError(rbfTxID string, err error) error {
+	if err == nil || rbfTxID == "" {
+		return err
+	}
+	if strings.Contains(strings.ToLower(err.Error()), "bad-txns-inputs-missingorspent") {
+		return errors.NewCodedError(errors.ErrRBFBroadcastConflict, err.Error())
+	}
+	return err
+}
+
+func (account *Account) isRBFReconstructable(tx *wire.MsgTx) bool {
+	reconstructableRecipients := 0
+	for _, txOut := range tx.TxOut {
+		addressID := addresses.NewAddressID(txOut.PkScript)
+		if ourAddress := account.AddressByID(addressID); ourAddress != nil {
+			if account.IsChange(addressID) {
+				continue
+			}
+			reconstructableRecipients++
+		} else {
+			if _, err := btcutilinternal.AddressFromPkScript(txOut.PkScript, account.coin.Net()); err != nil {
+				return false
+			}
+			reconstructableRecipients++
+		}
+		if reconstructableRecipients > 1 {
+			return false
+		}
+	}
+	return reconstructableRecipients == 1
+}
 
 // getFeePerKb returns the fee rate to be used in a new transaction. It is deduced from the supplied
 // fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is
@@ -140,14 +184,51 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	if !account.Synced() {
 		return nil, nil, accounts.ErrSyncInProgress
 	}
-	utxo, err := account.transactions.SpendableOutputs()
-	if err != nil {
-		return nil, nil, err
+
+	// RBF and coin control are mutually exclusive - RBF must use the original transaction's inputs
+	if args.RBFTxID != "" && len(args.SelectedUTXOs) != 0 {
+		return nil, nil, errors.ErrRBFCoinControlNotAllowed
 	}
+	// RBF is only supported for Bitcoin (including testnet/regtest), not Litecoin.
+	if args.RBFTxID != "" && !supportsRBF(account.coin.Code()) {
+		return nil, nil, errors.ErrRBFInvalidTxID
+	}
+
+	var utxo map[wire.OutPoint]*transactions.SpendableOutput
+	var originalFee btcutil.Amount
+	var originalFeeRatePerKb btcutil.Amount
+	var err error
+
+	// Handle RBF (Replace-By-Fee) mode
+	if args.RBFTxID != "" {
+		account.log.Infof("RBF mode: replacing transaction %s", args.RBFTxID)
+		rbfTxHash, err := chainhash.NewHashFromStr(args.RBFTxID)
+		if err != nil {
+			return nil, nil, errors.ErrRBFInvalidTxID
+		}
+		utxo, originalFee, originalFeeRatePerKb, err = account.transactions.SpendableOutputsForRBF(*rbfTxHash)
+		if err != nil {
+			return nil, nil, err
+		}
+		originalTx, err := account.coin.Blockchain().TransactionGet(*rbfTxHash)
+		if err != nil {
+			return nil, nil, errp.WithMessage(err, "Failed to retrieve original transaction for RBF")
+		}
+		if !account.isRBFReconstructable(originalTx) {
+			return nil, nil, errors.ErrRBFTxNotReconstructable
+		}
+	} else {
+		utxo, err = account.transactions.SpendableOutputs()
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	wireUTXO := make(map[wire.OutPoint]maketx.UTXO, len(utxo))
 	for outPoint, txOut := range utxo {
-		// Apply coin control.
-		if len(args.SelectedUTXOs) != 0 {
+		// Apply coin control (only for non-RBF transactions).
+		// In RBF mode, we must use exactly the original transaction's inputs.
+		if args.RBFTxID == "" && len(args.SelectedUTXOs) != 0 {
 			if _, ok := args.SelectedUTXOs[outPoint]; !ok {
 				continue
 			}
@@ -161,6 +242,25 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	feeRatePerKb, err := account.getFeePerKb(args)
 	if err != nil {
 		return nil, nil, err
+	}
+
+	// For RBF, ensure the new fee rate is at least 1 sat/vB higher than original (BIP-125).
+	if args.RBFTxID != "" {
+		// 1 sat/vB = 1000 sat/kB
+		minRequiredFeeRate := originalFeeRatePerKb + 1000
+		if feeRatePerKb < minRequiredFeeRate {
+			isCustomFee := args.FeeTargetCode == accounts.FeeTargetCodeCustom && !args.UseHighestFee
+			if isCustomFee {
+				// Custom fee: return error so the user can adjust manually.
+				account.log.Warnf("RBF fee too low: %d < %d (original: %d)",
+					feeRatePerKb, minRequiredFeeRate, originalFeeRatePerKb)
+				return nil, nil, errors.ErrRBFFeeTooLow
+			}
+			// Preset fee target: silently bump to minimum BIP-125 requirement.
+			account.log.Infof("RBF: bumping fee rate from %d to %d (minimum for replacement)",
+				feeRatePerKb, minRequiredFeeRate)
+			feeRatePerKb = minRequiredFeeRate
+		}
 	}
 
 	var txProposal *maketx.TxProposal
@@ -216,6 +316,15 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 			txProposal.PaymentRequest = args.PaymentRequest
 		}
 	}
+	txProposal.RBFTxID = args.RBFTxID
+	if args.RBFTxID != "" {
+		// BIP-125 replacements must increase the absolute fee in addition to fee rate.
+		if txProposal.Fee <= originalFee {
+			account.log.Warnf("RBF fee too low: %d <= %d (original absolute fee)", txProposal.Fee, originalFee)
+			return nil, nil, errors.ErrRBFFeeTooLow
+		}
+	}
+
 	account.log.Debugf("creating tx with %d inputs, %d outputs",
 		len(txProposal.Psbt.UnsignedTx.TxIn), len(txProposal.Psbt.UnsignedTx.TxOut))
 	return utxo, txProposal, nil
@@ -245,7 +354,7 @@ func (account *Account) SendTx(txNote string) (string, error) {
 
 	account.log.Info("Signed transaction is broadcasted")
 	if err := account.coin.Blockchain().TransactionBroadcast(signedTx); err != nil {
-		return "", err
+		return "", classifyBroadcastError(txProposal.RBFTxID, err)
 	}
 
 	if err := account.SetTxNote(signedTx.TxHash().String(), txNote); err != nil {

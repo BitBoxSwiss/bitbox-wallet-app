@@ -95,6 +95,9 @@ type TransactionData struct {
 
 	// Addresses money was sent to / received on.
 	Addresses []AddressAndAmount
+	// RBFReconstructable is true when the original transaction has exactly one recipient output that
+	// can be reconstructed for a like-for-like fee bump.
+	RBFReconstructable bool
 
 	// --- Fields only used by BTC follow:
 

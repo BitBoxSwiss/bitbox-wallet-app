@@ -49,6 +49,8 @@ type TxProposal struct {
 	// OutIndex is the index of the output we send to.
 	OutIndex int
 	Psbt     *psbt.Packet
+	// RBFTxID is set when the proposal replaces a pending transaction via RBF.
+	RBFTxID string
 }
 
 // SigHashes computes the hashes cache to speed up per-input sighash computations.

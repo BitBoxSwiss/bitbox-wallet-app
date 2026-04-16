@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/synchronizer"
@@ -27,6 +28,8 @@ type SpendableOutput struct {
 	TxOut           *wire.TxOut
 	HeaderTimestamp *time.Time
 }
+
+const unknownOutputAddress = "<unknown address>"
 
 // ScriptHashHex returns the hash of the PkScript of the output, in hex format.
 func (txOut *SpendableOutput) ScriptHashHex() blockchain.ScriptHashHex {
@@ -51,6 +54,17 @@ type Interface interface {
 	// include all unspent outputs of confirmed transactions, and unconfirmed outputs that we created
 	// ourselves.
 	SpendableOutputs() (map[wire.OutPoint]*SpendableOutput, error)
+
+	// SpendableOutputsForRBF returns the UTXOs that were spent by the given pending transaction.
+	// This is used for RBF (Replace-By-Fee) where we need to spend the same inputs as the original.
+	// It also returns the original absolute fee and fee rate.
+	// Returns an error if the transaction is not found or is already confirmed.
+	SpendableOutputsForRBF(txHash chainhash.Hash) (
+		map[wire.OutPoint]*SpendableOutput,
+		btcutil.Amount,
+		btcutil.Amount,
+		error,
+	)
 
 	// Transactions returns an ordered list of transactions.
 	Transactions(isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error)
@@ -313,6 +327,92 @@ func (transactions *Transactions) isInputSpent(dbTx DBTxInterface, outPoint wire
 	return input != nil
 }
 
+// SpendableOutputsForRBF returns the UTXOs that were spent by the given pending transaction.
+// This is used for RBF (Replace-By-Fee) where we need to spend the same inputs as the original.
+// It also returns the original absolute fee and fee rate.
+// Returns an error if the transaction is not found or is already confirmed.
+func (transactions *Transactions) SpendableOutputsForRBF(txHash chainhash.Hash) (
+	map[wire.OutPoint]*SpendableOutput,
+	btcutil.Amount,
+	btcutil.Amount,
+	error,
+) {
+	type spendableOutputsForRBFResult struct {
+		outputs      map[wire.OutPoint]*SpendableOutput
+		fee          btcutil.Amount
+		feeRatePerKb btcutil.Amount
+	}
+	result, err := DBView(transactions.db, func(dbTx DBTxInterface) (*spendableOutputsForRBFResult, error) {
+		txInfo, err := dbTx.TxInfo(txHash)
+		if err != nil {
+			return nil, err
+		}
+		if txInfo == nil || txInfo.Tx == nil {
+			return nil, errors.ErrRBFTxNotFound
+		}
+		// Ensure tx is still pending (not confirmed)
+		if txInfo.Height > 0 {
+			return nil, errors.ErrRBFTxAlreadyConfirmed
+		}
+
+		result := map[wire.OutPoint]*SpendableOutput{}
+		var sumInputs btcutil.Amount
+		for _, txIn := range txInfo.Tx.TxIn {
+			currentSpender, err := dbTx.Input(txIn.PreviousOutPoint)
+			if err != nil {
+				return nil, err
+			}
+			// The transaction is no longer replaceable if one of the original inputs is now spent by
+			// another transaction.
+			if currentSpender == nil || *currentSpender != txHash {
+				return nil, errors.ErrRBFTxNotReplaceable
+			}
+
+			output, err := dbTx.Output(txIn.PreviousOutPoint)
+			if err != nil {
+				return nil, err
+			}
+			if output == nil {
+				// This input doesn't belong to us - shouldn't happen for our outgoing txs
+				return nil, errp.Newf("RBF: output not found for input: %s", txIn.PreviousOutPoint)
+			}
+			sumInputs += btcutil.Amount(output.Value)
+			// Get the timestamp from the UTXO's source transaction
+			txOutInfo, err := dbTx.TxInfo(txIn.PreviousOutPoint.Hash)
+			if err != nil {
+				return nil, err
+			}
+			result[txIn.PreviousOutPoint] = &SpendableOutput{
+				TxOut:           output,
+				HeaderTimestamp: txOutInfo.HeaderTimestamp,
+			}
+		}
+
+		var sumOutputs btcutil.Amount
+		for _, txOut := range txInfo.Tx.TxOut {
+			sumOutputs += btcutil.Amount(txOut.Value)
+		}
+		fee := sumInputs - sumOutputs
+		if fee <= 0 {
+			return nil, errp.New("invalid original transaction: fee is not positive")
+		}
+		vsize := mempool.GetTxVirtualSize(btcutil.NewTx(txInfo.Tx))
+		if vsize == 0 {
+			return nil, errp.New("invalid original transaction: vsize is zero")
+		}
+		feeRatePerKb := fee * 1000 / btcutil.Amount(vsize)
+		return &spendableOutputsForRBFResult{
+			outputs:      result,
+			fee:          fee,
+			feeRatePerKb: feeRatePerKb,
+		}, nil
+	})
+	if err != nil {
+		return nil, 0, 0, err
+	}
+	return result.outputs, result.fee, result.feeRatePerKb, nil
+}
+
 func (transactions *Transactions) removeTxForAddress(
 	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash) {
 	transactions.log.Debug("Remove transaction for address")
@@ -335,8 +435,15 @@ func (transactions *Transactions) removeTxForAddress(
 		// Tx is not touching any of our outputs anymore. Remove.
 
 		for _, txIn := range txInfo.Tx.TxIn {
-			transactions.log.Debug("Deleting transaction iput")
-			dbTx.DeleteInput(txIn.PreviousOutPoint)
+			currentSpender, err := dbTx.Input(txIn.PreviousOutPoint)
+			if err != nil {
+				transactions.log.WithError(err).Panic("Failed to retrieve input")
+			}
+			// Only delete if this tx is still the recorded spender. A replacement tx (RBF)
+			// may have already claimed the input.
+			if currentSpender != nil && *currentSpender == txHash {
+				dbTx.DeleteInput(txIn.PreviousOutPoint)
+			}
 		}
 
 		// Remove the outputs added by this tx.
@@ -455,9 +562,13 @@ func (transactions *Transactions) outputToAddress(pkScript []byte) string {
 	extractedAddress, err := util.AddressFromPkScript(pkScript, transactions.net)
 	// unknown addresses and multisig scripts ignored.
 	if err != nil {
-		return "<unknown address>"
+		return unknownOutputAddress
 	}
 	return extractedAddress.String()
+}
+
+func canReconstructRBFRecipient(addresses []accounts.AddressAndAmount) bool {
+	return len(addresses) == 1 && addresses[0].Address != unknownOutputAddress
 }
 
 // txInfo computes additional information to display to the user (type of tx, fee paid, etc.).
@@ -573,6 +684,7 @@ func (transactions *Transactions) txInfo(
 		Type:                     txType,
 		Amount:                   coin.NewAmountFromInt64(int64(result)),
 		Addresses:                addresses,
+		RBFReconstructable:       allInputsOurs && canReconstructRBFRecipient(sendAddresses),
 
 		FeeRatePerKb:     feeRatePerKbP,
 		VSize:            vsize,
