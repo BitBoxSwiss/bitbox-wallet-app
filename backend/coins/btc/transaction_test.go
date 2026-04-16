@@ -567,3 +567,44 @@ func TestTxProposalRBF(t *testing.T) {
 		})
 	}
 }
+
+func TestClassifyBroadcastError(t *testing.T) {
+	testCases := []struct {
+		name     string
+		err      error
+		rbfTxID  string
+		wantCode error
+	}{
+		{
+			name:     "non-RBF errors stay untouched",
+			err:      errp.New("txn-mempool-conflict"),
+			rbfTxID:  "",
+			wantCode: nil,
+		},
+		{
+			name:     "RBF missing inputs error gets typed code",
+			err:      errp.New("sendrawtransaction RPC error: bad-txns-inputs-missingorspent"),
+			rbfTxID:  chainhash.HashH([]byte("rbf-original")).String(),
+			wantCode: errors.ErrRBFBroadcastConflict,
+		},
+		{
+			name:     "other RBF broadcast errors stay untouched",
+			err:      errp.New("txn-mempool-conflict"),
+			rbfTxID:  chainhash.HashH([]byte("rbf-original")).String(),
+			wantCode: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := classifyBroadcastError(tc.rbfTxID, tc.err)
+			if tc.wantCode != nil {
+				require.Equal(t, tc.wantCode, errp.Cause(got))
+				require.Equal(t, tc.err.Error(), got.Error())
+			} else {
+				require.Same(t, tc.err, errp.Cause(got))
+				require.Same(t, tc.err, got)
+			}
+		})
+	}
+}

@@ -5,6 +5,7 @@ package btc
 import (
 	"math/big"
 	"strconv"
+	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
@@ -29,6 +30,16 @@ func supportsRBF(code coin.Code) bool {
 	default:
 		return false
 	}
+}
+
+func classifyBroadcastError(rbfTxID string, err error) error {
+	if err == nil || rbfTxID == "" {
+		return err
+	}
+	if strings.Contains(strings.ToLower(err.Error()), "bad-txns-inputs-missingorspent") {
+		return errors.NewCodedError(errors.ErrRBFBroadcastConflict, err.Error())
+	}
+	return err
 }
 
 // getFeePerKb returns the fee rate to be used in a new transaction. It is deduced from the supplied
@@ -275,6 +286,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 			txProposal.PaymentRequest = args.PaymentRequest
 		}
 	}
+	txProposal.RBFTxID = args.RBFTxID
 	if args.RBFTxID != "" {
 		// BIP-125 replacements must increase the absolute fee in addition to fee rate.
 		if txProposal.Fee <= originalFee {
@@ -312,7 +324,7 @@ func (account *Account) SendTx(txNote string) (string, error) {
 
 	account.log.Info("Signed transaction is broadcasted")
 	if err := account.coin.Blockchain().TransactionBroadcast(signedTx); err != nil {
-		return "", err
+		return "", classifyBroadcastError(txProposal.RBFTxID, err)
 	}
 
 	if err := account.SetTxNote(signedTx.TxHash().String(), txNote); err != nil {

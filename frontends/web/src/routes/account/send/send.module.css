@@ -72,3 +72,13 @@
     color: var(--color-secondary);
     margin: 0;
 }
+
+.rbfBanner {
+    margin-bottom: var(--space-default);
+}
+
+@media (max-width: 768px) {
+    .rbfForm > .rbfSection + .rbfSection {
+        margin-top: var(--space-default);
+    }
+}

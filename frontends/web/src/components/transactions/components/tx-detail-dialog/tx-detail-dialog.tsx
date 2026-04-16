@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TTransaction, TAmountWithConversions, getTransaction, TTransactionStatus, TTransactionType, CoinCode } from '@/api/account';
+import { TTransaction, CoinCode } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
 import { Dialog } from '@/components/dialog/dialog';
@@ -22,16 +21,8 @@ type TProps = {
   onClose: () => void;
   accountCode: string;
   coinCode: CoinCode;
-  internalID: string;
-  note: string;
-  status: TTransactionStatus;
-  type: TTransactionType;
-  numConfirmations: number;
-  numConfirmationsComplete: number;
-  time: string | null;
-  amount: TAmountWithConversions;
   explorerURL: string;
-};
+} & TTransaction;
 
 // Bitcoin coin codes that support RBF (Replace-By-Fee)
 const BITCOIN_COIN_CODES: CoinCode[] = ['btc', 'tbtc', 'rbtc'];
@@ -41,181 +32,163 @@ export const TxDetailsDialog = ({
   onClose,
   accountCode,
   coinCode,
+  explorerURL,
+  addresses,
+  amount,
+  amountAtTime,
+  fee,
   internalID,
   note,
-  status,
-  type,
   numConfirmations,
   numConfirmationsComplete,
   time,
-  amount,
-  explorerURL,
+  txID,
+  type,
+  ...transactionInfo
 }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [transactionInfo, setTransactionInfo] = useState<TTransaction | null>(null);
 
-  // Fetch transaction data when dialog opens or transaction changes
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    // Reset if viewing a different transaction
-    if (transactionInfo && transactionInfo.internalID !== internalID) {
-      setTransactionInfo(null);
-      return;
-    }
-    // Fetch if not yet loaded
-    if (!transactionInfo) {
-      getTransaction(accountCode, internalID).then(transaction => {
-        if (!transaction) {
-          console.error(`Unable to retrieve transaction ${internalID}`);
-        }
-        setTransactionInfo(transaction);
-      }).catch(console.error);
-    }
-  }, [accountCode, internalID, open, transactionInfo]);
-
-  if (transactionInfo === null) {
-    return;
-  }
-
-  const displayedSign = getTxSignForTxDetail(transactionInfo.type);
+  const displayedSign = getTxSignForTxDetail(type);
   const amountSign = amount.amount === '0' ? '' : displayedSign;
-  const amountAtTimeSign = transactionInfo.amountAtTime?.amount === '0' ? '' : displayedSign;
+  const amountAtTimeSign = amountAtTime?.amount === '0' ? '' : displayedSign;
 
-  // RBF is available for pending outgoing Bitcoin transactions
   const isRBFEligible =
     BITCOIN_COIN_CODES.includes(coinCode) &&
     numConfirmations === 0 &&
     (type === 'send' || type === 'send_to_self');
 
   const handleSpeedUp = () => {
-    // Ensure transactionInfo is loaded and matches the current transaction
-    // This prevents using stale data when the dialog is reused
-    if (!transactionInfo || transactionInfo.internalID !== internalID) {
-      return;
-    }
-
-    // Navigate to send page with tx id only. The send page loads the latest tx details and derives
-    // the rest from backend data.
-    navigate(`/account/${accountCode}/send?rbf=${encodeURIComponent(transactionInfo.internalID)}`);
+    navigate(`/account/${accountCode}/send?rbf=${encodeURIComponent(internalID)}`);
     onClose();
   };
-  // Amount and Confirmations info are displayed using props data
-  // instead of transactionInfo because they are live updated.
 
   return (
     <Dialog
-      open={open && !!transactionInfo}
+      open={open}
       title={t('transaction.details.title')}
       onClose={onClose}
       slim
       medium>
-      {transactionInfo && (
-        <div className={styles.container} data-testid="tx-details-container" >
-          <TxDetailHeader
-            status={status}
-            numConfirmations={numConfirmations}
-            numConfirmationsComplete={numConfirmationsComplete}
-            type={type}
-            amount={amount}
-            transactionInfo={transactionInfo}
-            time={time}
-            amountSign={amountSign}
-            amountAtTimeSign={amountAtTimeSign}
-          />
+      <div className={styles.container} data-testid="tx-details-container">
+        <TxDetailHeader
+          status={transactionInfo.status}
+          numConfirmations={numConfirmations}
+          numConfirmationsComplete={numConfirmationsComplete}
+          type={type}
+          amount={amount}
+          transactionInfo={{
+            addresses,
+            amount,
+            amountAtTime,
+            fee,
+            internalID,
+            note,
+            numConfirmations,
+            numConfirmationsComplete,
+            time,
+            txID,
+            type,
+            ...transactionInfo,
+          }}
+          time={time}
+          amountSign={amountSign}
+          amountAtTimeSign={amountAtTimeSign}
+        />
 
-          <hr className={styles.separator} />
+        <hr className={styles.separator} />
 
-          <Note
-            accountCode={accountCode}
-            internalID={internalID}
-            note={note}
-          />
+        <Note
+          accountCode={accountCode}
+          internalID={internalID}
+          note={note}
+        />
 
-          {/* to or send address */}
-          <TxDetailRow>
-            <p className={styles.label}>{t('send.confirm.to')}</p>
-            <AddressOrTxId values={transactionInfo.addresses} />
-          </TxDetailRow>
+        <TxDetailRow>
+          <p className={styles.label}>{t('send.confirm.to')}</p>
+          <AddressOrTxId values={addresses} />
+        </TxDetailRow>
 
-          {/* fee */}
-          <TxDetailRow>
-            <p className={styles.label}>{t('transaction.fee')}</p>
-            <span><AmountWithUnit amount={transactionInfo.fee} unitClassName={styles.rowUnit} /></span>
-          </TxDetailRow>
+        <TxDetailRow>
+          <p className={styles.label}>{t('transaction.fee')}</p>
+          <span><AmountWithUnit amount={fee} unitClassName={styles.rowUnit} /></span>
+        </TxDetailRow>
 
-
-          {/* historical value */}
-          {transactionInfo.amountAtTime?.estimated === false && (
-            <TxDetailRow>
-              <div>
-                <p className={styles.label}>{t('transaction.details.historicalValue')}</p>
-              </div>
-              <span>
-                <AmountWithUnit
-                  amount={transactionInfo.amountAtTime}
-                  convertToFiat
-                  unitClassName={styles.rowUnit}
-                />
-              </span>
-            </TxDetailRow>
-          )}
-
-
-          {/* current value */}
+        {amountAtTime?.estimated === false && (
           <TxDetailRow>
             <div>
-              <p className={styles.label}>{t('transaction.details.currentValue')}</p>
+              <p className={styles.label}>{t('transaction.details.historicalValue')}</p>
             </div>
             <span>
               <AmountWithUnit
-                amount={amount}
+                amount={amountAtTime}
                 convertToFiat
                 unitClassName={styles.rowUnit}
               />
             </span>
           </TxDetailRow>
+        )}
 
-          {/* tx id */}
-          <TxDetailRow>
-            <p className={`
-              ${styles.label || ''}
-              ${styles.nowrap || ''}
-            `}>{t('transaction.explorer')}</p>
-            <AddressOrTxId values={[transactionInfo.internalID]} />
-          </TxDetailRow>
-
-          <AdvancedTxDetail transactionInfo={transactionInfo} />
-
-          {/* Speed up transaction button (RBF) */}
-          {isRBFEligible && (
-            <div className={styles.speedUpContainer}>
-              <Button
-                primary
-                className={styles.speedUpButton}
-                onClick={handleSpeedUp}>
-                <FastForwardWhite className={styles.speedUpIcon} />
-                {t('transaction.speedUp')}
-              </Button>
-            </div>
-          )}
-
-          {/* explorer link */}
-          <div className={styles.explorerLinkContainer}>
-            <A
-              className={styles.explorerLink}
-              href={explorerURL + transactionInfo.txID}
-              title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>
-              <ExternalLink />
-              {' '}
-              {t('transaction.explorerTitle')}
-            </A>
+        <TxDetailRow>
+          <div>
+            <p className={styles.label}>{t('transaction.details.currentValue')}</p>
           </div>
+          <span>
+            <AmountWithUnit
+              amount={amount}
+              convertToFiat
+              unitClassName={styles.rowUnit}
+            />
+          </span>
+        </TxDetailRow>
+
+        <TxDetailRow>
+          <p className={`
+            ${styles.label || ''}
+            ${styles.nowrap || ''}
+          `}>{t('transaction.explorer')}</p>
+          <AddressOrTxId values={[internalID]} />
+        </TxDetailRow>
+
+        <AdvancedTxDetail transactionInfo={{
+          addresses,
+          amount,
+          amountAtTime,
+          fee,
+          internalID,
+          note,
+          numConfirmations,
+          numConfirmationsComplete,
+          time,
+          txID,
+          type,
+          ...transactionInfo,
+        }}
+        />
+
+        <div className={styles.explorerLinkContainer}>
+          <A
+            className={styles.explorerLink}
+            href={explorerURL + txID}
+            title={`${t('transaction.explorerTitle')}\n${explorerURL}${txID}`}>
+            <ExternalLink />
+            {' '}
+            {t('transaction.explorerTitle')}
+          </A>
         </div>
 
-      )}
+        {isRBFEligible && (
+          <div className={styles.speedUpContainer}>
+            <Button
+              primary
+              className={styles.speedUpButton}
+              onClick={handleSpeedUp}>
+              <FastForwardWhite className={styles.speedUpIcon} />
+              {t('transaction.speedUp')}
+            </Button>
+          </div>
+        )}
+      </div>
     </Dialog>
   );
 };
