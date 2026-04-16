@@ -66,6 +66,9 @@ var (
 	ErrRBFCoinControlNotAllowed = TxValidationError("rbfCoinControlNotAllowed")
 	// ErrRBFFeeTooLow is returned when the new fee is not sufficiently higher than the original.
 	ErrRBFFeeTooLow = TxValidationError("rbfFeeTooLow")
+	// ErrRBFTxNotReconstructable is returned when the original transaction can not be reconstructed
+	// as a single-recipient replacement transaction.
+	ErrRBFTxNotReconstructable = TxValidationError("rbfTxNotReconstructable")
 	// ErrRBFBroadcastConflict is returned when broadcasting an RBF replacement fails because the
 	// original inputs are no longer available to spend.
 	ErrRBFBroadcastConflict errp.ErrorCode = "rbfBroadcastConflict"

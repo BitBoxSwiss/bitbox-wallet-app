@@ -12,6 +12,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
+	btcutilinternal "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -40,6 +41,28 @@ func classifyBroadcastError(rbfTxID string, err error) error {
 		return errors.NewCodedError(errors.ErrRBFBroadcastConflict, err.Error())
 	}
 	return err
+}
+
+func (account *Account) isRBFReconstructable(tx *wire.MsgTx) bool {
+	reconstructableRecipients := 0
+	for _, txOut := range tx.TxOut {
+		addressID := addresses.NewAddressID(txOut.PkScript)
+		if ourAddress := account.AddressByID(addressID); ourAddress != nil {
+			if account.IsChange(addressID) {
+				continue
+			}
+			reconstructableRecipients++
+		} else {
+			if _, err := btcutilinternal.AddressFromPkScript(txOut.PkScript, account.coin.Net()); err != nil {
+				return false
+			}
+			reconstructableRecipients++
+		}
+		if reconstructableRecipients > 1 {
+			return false
+		}
+	}
+	return reconstructableRecipients == 1
 }
 
 // getFeePerKb returns the fee rate to be used in a new transaction. It is deduced from the supplied
@@ -186,6 +209,13 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		utxo, originalFee, originalFeeRatePerKb, err = account.transactions.SpendableOutputsForRBF(*rbfTxHash)
 		if err != nil {
 			return nil, nil, err
+		}
+		originalTx, err := account.coin.Blockchain().TransactionGet(*rbfTxHash)
+		if err != nil {
+			return nil, nil, errp.WithMessage(err, "Failed to retrieve original transaction for RBF")
+		}
+		if !account.isRBFReconstructable(originalTx) {
+			return nil, nil, errors.ErrRBFTxNotReconstructable
 		}
 	} else {
 		utxo, err = account.transactions.SpendableOutputs()

@@ -26,6 +26,9 @@ export const txProposalErrorHandling = (errorCode?: string): TProposalError => {
   case 'rbfTxNotReplaceable':
     // These are handled separately in the send component
     return {};
+  case 'rbfTxNotReconstructable':
+    alertUser(t('transaction.speedUpError'));
+    return {};
   case 'rbfInvalidTxID':
   case 'rbfCoinControlNotAllowed':
     alertUser(t(`send.error.${errorCode}`));

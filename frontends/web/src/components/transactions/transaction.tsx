@@ -32,6 +32,7 @@ export const Transaction = ({
   note,
   numConfirmations,
   numConfirmationsComplete,
+  rbfReconstructable,
   status,
   time,
   type,
@@ -47,6 +48,7 @@ export const Transaction = ({
     !isTesting &&
     !speedUpPromptDismissed &&
     !Number.isNaN(parsedBroadcastTime) &&
+    rbfReconstructable &&
     status === 'pending' &&
     numConfirmations === 0 &&
     (type === 'send' || type === 'send_to_self');
@@ -67,6 +69,7 @@ export const Transaction = ({
     coinCode,
     isTesting,
     numConfirmations,
+    rbfReconstructable,
     status,
     time,
     type,

@@ -148,6 +148,9 @@ const RbfAmountSection = ({
 };
 
 const parseRbfData = (transaction: accountApi.TTransaction): TRbfData | null => {
+  if (!transaction.rbfReconstructable || transaction.addresses.length !== 1) {
+    return null;
+  }
   const address = transaction.addresses?.[0];
   const amount = transaction.amount?.amount;
   const feeInSats = transaction.fee?.amount && transaction.fee?.unit

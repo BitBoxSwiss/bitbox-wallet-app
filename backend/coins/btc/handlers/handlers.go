@@ -100,6 +100,7 @@ type Transaction struct {
 	Time                     *string                             `json:"time"`
 	Addresses                []string                            `json:"addresses"`
 	Note                     string                              `json:"note"`
+	RBFReconstructable       bool                                `json:"rbfReconstructable"`
 
 	// BTC specific fields.
 	VSize        int64                               `json:"vsize"`
@@ -172,6 +173,7 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 		Time:                 formattedTime,
 		Addresses:            addresses,
 		Note:                 handlers.account.TxNote(txInfo.InternalID),
+		RBFReconstructable:   txInfo.RBFReconstructable,
 		Fee:                  feeString,
 	}
 

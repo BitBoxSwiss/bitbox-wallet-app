@@ -38,32 +38,40 @@ func mustKeypath(t *testing.T, keypath string) signing.AbsoluteKeypath {
 func testAccount(t *testing.T, config *config.Account) *Account {
 	t.Helper()
 	account := mockAccount(t, config)
+	blockchainMock := &blockchainMocks.BlockchainMock{
+		MockRelayFee: func() (btcutil.Amount, error) {
+			return btcutil.Amount(1001), nil
+		},
+		MockEstimateFee: func(number int) (btcutil.Amount, error) {
+			switch number {
+			case 2:
+				return btcutil.Amount(10e7), nil
+			case 6:
+				return btcutil.Amount(10e6), nil
+			case 12:
+				return btcutil.Amount(10e5), nil
+			case 24:
+				return btcutil.Amount(10e4), nil
+			default:
+				return btcutil.Amount(10e6), nil
+			}
+		},
+	}
 	account.coin.TstSetMakeBlockchain(func() blockchain.Interface {
-		return &blockchainMocks.BlockchainMock{
-			MockRelayFee: func() (btcutil.Amount, error) {
-				return btcutil.Amount(1001), nil
-			},
-			MockEstimateFee: func(number int) (btcutil.Amount, error) {
-				switch number {
-				case 2:
-					return btcutil.Amount(10e7), nil
-				case 6:
-					return btcutil.Amount(10e6), nil
-				case 12:
-					return btcutil.Amount(10e5), nil
-				case 24:
-					return btcutil.Amount(10e4), nil
-				default:
-					return btcutil.Amount(10e6), nil
-				}
-			},
-		}
+		return blockchainMock
 	})
 	account.coin.blockchain = account.coin.makeBlockchain()
 	require.NoError(t, account.Initialize())
 	require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 	addresses, err := account.subaccounts[0].changeAddresses.GetUnused()
 	require.NoError(t, err)
+	recipientPkScript, err := account.coin.AddressToPkScript("myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL")
+	require.NoError(t, err)
+	blockchainMock.MockTransactionGet = func(chainhash.Hash) (*wire.MsgTx, error) {
+		tx := wire.NewMsgTx(wire.TxVersion)
+		tx.AddTxOut(wire.NewTxOut(100000000, recipientPkScript))
+		return tx, nil
+	}
 	account.transactions = &mocks.InterfaceMock{
 		SpendableOutputsFunc: func() (map[wire.OutPoint]*transactions.SpendableOutput, error) {
 			return map[wire.OutPoint]*transactions.SpendableOutput{
@@ -538,6 +546,35 @@ func TestTxProposalRBF(t *testing.T) {
 				}
 			},
 			wantErr: errors.ErrRBFTxNotFound,
+		},
+		{
+			name: "RBF tx must have exactly one reconstructable recipient",
+			args: newRBFArgs,
+			setup: func(t *testing.T, account *Account) {
+				t.Helper()
+				changeAddresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+				require.NoError(t, err)
+				receiveAddresses, err := account.subaccounts[0].receiveAddresses.GetUnused()
+				require.NoError(t, err)
+				account.transactions.(*mocks.InterfaceMock).SpendableOutputsForRBFFunc = func(txHash chainhash.Hash) (
+					map[wire.OutPoint]*transactions.SpendableOutput,
+					btcutil.Amount,
+					btcutil.Amount,
+					error,
+				) {
+					return map[wire.OutPoint]*transactions.SpendableOutput{
+						*wire.NewOutPoint(&chainhash.Hash{}, 0): {TxOut: wire.NewTxOut(1000000000, changeAddresses[0].PubkeyScript())},
+						*wire.NewOutPoint(&chainhash.Hash{}, 1): {TxOut: wire.NewTxOut(1000000, changeAddresses[0].PubkeyScript())},
+					}, btcutil.Amount(10000), btcutil.Amount(50000), nil
+				}
+				account.coin.blockchain.(*blockchainMocks.BlockchainMock).MockTransactionGet = func(chainhash.Hash) (*wire.MsgTx, error) {
+					tx := wire.NewMsgTx(wire.TxVersion)
+					tx.AddTxOut(wire.NewTxOut(60000000, receiveAddresses[0].PubkeyScript()))
+					tx.AddTxOut(wire.NewTxOut(40000000, receiveAddresses[1].PubkeyScript()))
+					return tx, nil
+				}
+			},
+			wantErr: errors.ErrRBFTxNotReconstructable,
 		},
 		{
 			name: "RBF rejected for Litecoin",

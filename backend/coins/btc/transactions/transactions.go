@@ -29,6 +29,8 @@ type SpendableOutput struct {
 	HeaderTimestamp *time.Time
 }
 
+const unknownOutputAddress = "<unknown address>"
+
 // ScriptHashHex returns the hash of the PkScript of the output, in hex format.
 func (txOut *SpendableOutput) ScriptHashHex() blockchain.ScriptHashHex {
 	return getScriptHashHex(txOut.TxOut)
@@ -553,9 +555,13 @@ func (transactions *Transactions) outputToAddress(pkScript []byte) string {
 	extractedAddress, err := util.AddressFromPkScript(pkScript, transactions.net)
 	// unknown addresses and multisig scripts ignored.
 	if err != nil {
-		return "<unknown address>"
+		return unknownOutputAddress
 	}
 	return extractedAddress.String()
+}
+
+func canReconstructRBFRecipient(addresses []accounts.AddressAndAmount) bool {
+	return len(addresses) == 1 && addresses[0].Address != unknownOutputAddress
 }
 
 // txInfo computes additional information to display to the user (type of tx, fee paid, etc.).
@@ -671,6 +677,7 @@ func (transactions *Transactions) txInfo(
 		Type:                     txType,
 		Amount:                   coin.NewAmountFromInt64(int64(result)),
 		Addresses:                addresses,
+		RBFReconstructable:       allInputsOurs && canReconstructRBFRecipient(sendAddresses),
 
 		FeeRatePerKb:     feeRatePerKbP,
 		VSize:            vsize,

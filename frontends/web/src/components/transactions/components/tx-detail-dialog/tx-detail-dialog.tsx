@@ -41,6 +41,7 @@ export const TxDetailsDialog = ({
   note,
   numConfirmations,
   numConfirmationsComplete,
+  rbfReconstructable,
   time,
   txID,
   type,
@@ -55,6 +56,7 @@ export const TxDetailsDialog = ({
 
   const isRBFEligible =
     BITCOIN_COIN_CODES.includes(coinCode) &&
+    rbfReconstructable &&
     numConfirmations === 0 &&
     (type === 'send' || type === 'send_to_self');
 
@@ -86,6 +88,7 @@ export const TxDetailsDialog = ({
             note,
             numConfirmations,
             numConfirmationsComplete,
+            rbfReconstructable,
             time,
             txID,
             type,
@@ -159,6 +162,7 @@ export const TxDetailsDialog = ({
           note,
           numConfirmations,
           numConfirmationsComplete,
+          rbfReconstructable,
           time,
           txID,
           type,

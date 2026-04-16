@@ -13,6 +13,7 @@ describe('components/transactions/speed-up', () => {
     expect(shouldShowSpeedUpPopup({
       coinCode: 'btc',
       numConfirmations: 0,
+      rbfReconstructable: true,
       status: 'pending',
       time: overOneHourAgo,
       type: 'send',
@@ -24,6 +25,7 @@ describe('components/transactions/speed-up', () => {
     expect(shouldShowSpeedUpPopup({
       coinCode: 'tbtc',
       numConfirmations: 0,
+      rbfReconstructable: true,
       status: 'pending',
       time: exactlyOneHourAgo,
       type: 'send_to_self',
@@ -35,6 +37,7 @@ describe('components/transactions/speed-up', () => {
     expect(shouldShowSpeedUpPopup({
       coinCode: 'rbtc',
       numConfirmations: 0,
+      rbfReconstructable: true,
       status: 'pending',
       time: underOneHourAgo,
       type: 'send',
@@ -46,6 +49,7 @@ describe('components/transactions/speed-up', () => {
     expect(shouldShowSpeedUpPopup({
       coinCode: 'ltc',
       numConfirmations: 0,
+      rbfReconstructable: true,
       status: 'pending',
       time: overOneHourAgo,
       type: 'send',
@@ -57,6 +61,7 @@ describe('components/transactions/speed-up', () => {
     expect(shouldShowSpeedUpPopup({
       coinCode: 'btc',
       numConfirmations: 1,
+      rbfReconstructable: true,
       status: 'complete',
       time: overOneHourAgo,
       type: 'send',
@@ -68,6 +73,7 @@ describe('components/transactions/speed-up', () => {
     expect(shouldShowSpeedUpPopup({
       coinCode: 'btc',
       numConfirmations: 0,
+      rbfReconstructable: true,
       status: 'pending',
       time: null,
       type: 'send',
@@ -77,6 +83,7 @@ describe('components/transactions/speed-up', () => {
     expect(shouldShowSpeedUpPopup({
       coinCode: 'btc',
       numConfirmations: 0,
+      rbfReconstructable: true,
       status: 'pending',
       time: 'not-a-date',
       type: 'send',
@@ -89,6 +96,7 @@ describe('components/transactions/speed-up', () => {
       coinCode: 'tbtc',
       isTesting: true,
       numConfirmations: 0,
+      rbfReconstructable: true,
       status: 'pending',
       time: underOneHourAgo,
       type: 'send',
@@ -101,10 +109,23 @@ describe('components/transactions/speed-up', () => {
       coinCode: 'tbtc',
       isTesting: true,
       numConfirmations: 0,
+      rbfReconstructable: true,
       status: 'pending',
       time: null,
       type: 'send_to_self',
       now,
     })).toBe(true);
+  });
+
+  it('does not show popup when the original tx is not reconstructable', () => {
+    expect(shouldShowSpeedUpPopup({
+      coinCode: 'btc',
+      numConfirmations: 0,
+      rbfReconstructable: false,
+      status: 'pending',
+      time: overOneHourAgo,
+      type: 'send',
+      now,
+    })).toBe(false);
   });
 });

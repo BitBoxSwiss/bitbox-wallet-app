@@ -10,6 +10,7 @@ type TSpeedUpEligibilityInput = {
   coinCode: CoinCode;
   isTesting?: boolean;
   numConfirmations: number;
+  rbfReconstructable: boolean;
   status: TTransactionStatus;
   time: string | null;
   type: TTransactionType;
@@ -20,11 +21,15 @@ export const shouldShowSpeedUpPopup = ({
   coinCode,
   isTesting = false,
   numConfirmations,
+  rbfReconstructable,
   status,
   time,
   type,
   now = Date.now(),
 }: TSpeedUpEligibilityInput): boolean => {
+  if (!rbfReconstructable) {
+    return false;
+  }
   if (!RBF_COIN_CODES.includes(coinCode)) {
     return false;
   }

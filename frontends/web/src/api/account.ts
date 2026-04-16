@@ -246,6 +246,7 @@ export type TTransaction = {
   note: string;
   numConfirmations: number;
   numConfirmationsComplete: number;
+  rbfReconstructable: boolean;
   size: number;
   status: TTransactionStatus;
   time: string | null;

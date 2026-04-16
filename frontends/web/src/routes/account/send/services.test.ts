@@ -78,6 +78,12 @@ describe('send services', () => {
       expect(alertUser).not.toHaveBeenCalled();
     });
 
+    it('alerts a generic speed-up error on rbfTxNotReconstructable', () => {
+      const result = txProposalErrorHandling('rbfTxNotReconstructable');
+      expect(result).toEqual({});
+      expect(alertUser).toHaveBeenCalledWith('transaction.speedUpError');
+    });
+
     it('alerts user on rbfInvalidTxID', () => {
       const result = txProposalErrorHandling('rbfInvalidTxID');
       expect(result).toEqual({});
