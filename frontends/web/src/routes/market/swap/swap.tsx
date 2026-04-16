@@ -137,7 +137,12 @@ export const Swap = ({
     [routes, selectedRouteId],
   );
 
-  // initialize swap account selections once the swap accounts payload has loaded.
+  const isSameCoinAccount = (
+    candidate: TSwapAccount,
+    oppositeAccount: TSwapAccount | undefined,
+  ) => candidate.coinCode === oppositeAccount?.coinCode;
+
+  // Keeps the selected swap accounts aligned with the latest available options and redirects away if no swap is possible.
   useEffect(() => {
     if (!swapAccounts || !swapAccounts.success) {
       return;
@@ -155,13 +160,15 @@ export const Swap = ({
           : swapAccounts.sellAccounts[0]?.code,
       );
     }
+    const selectedSellAccount = swapAccounts.sellAccounts.find(account => account.code === sellAccountCode);
     if (!swapAccounts.buyAccounts.some(account => account.code === buyAccountCode)) {
       setBuyAccountCode(
         swapAccounts.defaultBuyAccountCode && swapAccounts.buyAccounts.some(
-          account => account.code === swapAccounts.defaultBuyAccountCode,
+          account => account.code === swapAccounts.defaultBuyAccountCode
+            && !isSameCoinAccount(account, selectedSellAccount),
         )
           ? swapAccounts.defaultBuyAccountCode
-          : swapAccounts.buyAccounts.find(account => account.code !== sellAccountCode)?.code,
+          : swapAccounts.buyAccounts.find(account => !isSameCoinAccount(account, selectedSellAccount))?.code,
       );
     }
   }, [buyAccountCode, navigate, sellAccountCode, swapAccounts]);
@@ -450,6 +457,7 @@ export const Swap = ({
                 accounts={sellAccounts}
                 id="swapSendAmount"
                 accountCode={sellAccountCode}
+                isAccountDisabled={account => isSameCoinAccount(account, buyAccount)}
                 onChangeAccountCode={setSellAccountCode}
                 value={sellAmount}
                 onChangeValue={setSellAmount}
@@ -487,6 +495,7 @@ export const Swap = ({
                 accounts={buyAccounts}
                 id="swapGetAmount"
                 accountCode={buyAccountCode}
+                isAccountDisabled={account => isSameCoinAccount(account, sellAccount)}
                 onChangeAccountCode={setBuyAccountCode}
                 value={expectedOutput}
                 readOnlyAmount

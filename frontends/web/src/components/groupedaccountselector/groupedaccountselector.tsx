@@ -98,6 +98,7 @@ const renderGroupHeader = (group: TGroupedOption) => (
 type TAccountSelector<T extends TAccountBase> = {
   title?: string;
   disabled?: boolean;
+  isAccountDisabled?: (account: T) => boolean;
   selected?: string;
   onChange: (value: string) => void;
   onProceed?: () => void;
@@ -109,6 +110,7 @@ type TAccountSelector<T extends TAccountBase> = {
 export const GroupedAccountSelector = <T extends TAccountBase, >({
   title,
   disabled,
+  isAccountDisabled,
   selected,
   onChange,
   onProceed,
@@ -123,11 +125,11 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
   useEffect(() => {
     //setting options without balance
     const accountsByKeystore = getAccountsByKeystore(accounts);
-    const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore);
+    const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore, isAccountDisabled);
     setOptions(groupedOpts);
     //asynchronously fetching each account's balance
     getBalancesForGroupedAccountSelector(groupedOpts).then(setOptions);
-  }, [accounts]);
+  }, [accounts, isAccountDisabled]);
 
   if (!options) {
     return null;
@@ -190,6 +192,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
         isOpen={isOpen}
         onOpenChange={setIsOpen}
         renderTrigger={renderTrigger}
+        isOptionDisabled={option => Boolean((option as TOption).disabled)}
       />
       {onProceed && (
         <div className={styles.buttons}>

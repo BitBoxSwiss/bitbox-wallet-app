@@ -15,6 +15,7 @@ type Props<T extends TAccountBase> = {
   accountCode: AccountCode | undefined;
   accounts: T[];
   id: string;
+  isAccountDisabled?: (account: T) => boolean;
   onChangeAccountCode: (accountCode: AccountCode) => void;
   onChangeValue?: (value: string) => void;
   readOnlyAmount?: boolean;
@@ -25,6 +26,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
   accountCode,
   accounts,
   id,
+  isAccountDisabled,
   onChangeAccountCode,
   onChangeValue,
   value,
@@ -77,6 +79,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
               setSelectedAccount(account);
               onChangeAccountCode(accountCode);
             })}
+            isAccountDisabled={isAccountDisabled}
             stackedLayout
             className={style.accountSelectorDropdown}
           />
