@@ -2,7 +2,7 @@
 
 import type { CoinCode, TTransactionStatus, TTransactionType } from '@/api/account';
 
-export const RBF_PENDING_THRESHOLD_MS = 60 * 60 * 1000;
+export const RBF_PENDING_THRESHOLD_MS = 2 * 60 * 60 * 1000;
 
 const RBF_COIN_CODES: CoinCode[] = ['btc', 'tbtc', 'rbtc'];
 
