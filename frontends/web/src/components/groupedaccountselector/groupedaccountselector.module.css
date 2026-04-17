@@ -109,6 +109,13 @@
     display: flex;
 }
 
+:global(button:disabled) .valueContainer,
+:global(button:disabled) .triggerLabel,
+:global(button:disabled) .triggerBalance,
+:global(button:disabled) .triggerAccountName {
+    color: var(--color-secondary);
+}
+
 .select :global(.react-select__option--is-selected) .selectLabelText {
     color: var(--color-default);
 }
