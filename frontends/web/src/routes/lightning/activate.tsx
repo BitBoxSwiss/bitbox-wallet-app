@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { Logo } from '@/components/icon/logo';
 import { UseDisableBackButton } from '@/hooks/backbutton';
+import { useLightning } from '@/hooks/lightning';
 import { Header, Main } from '../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../components/view/view';
 import { MultilineMarkup, SimpleMarkup } from '../../utils/markup';
@@ -13,19 +15,21 @@ import { TKeystores, getKeystores, subscribeKeystores } from '../../api/keystore
 import { unsubscribe } from '../../utils/subscriptions';
 import { postActivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
-import { route } from '../../utils/route';
+import styles from './activate.module.css';
 
 const CONTENT_MIN_HEIGHT = '38em';
 
-type TSteps = 'intro' | 'disclaimer' | 'connect' | 'wait' | 'success';
+type TSteps = 'intro' | 'disclaimer' | 'connect' | 'confirm' | 'activating' | 'success';
 
 export const LightningActivate = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { lightningAccount } = useLightning();
   const [agree, setAgree] = useState(false);
   const [keystores, setKeystores] = useState<TKeystores>();
   const [step, setStep] = useState<TSteps>('intro');
   const [setupError, setSetupError] = useState<string>();
+  const [activationStarted, setActivationStarted] = useState(false);
 
   const onStateChange = useCallback(async () => {
     try {
@@ -41,13 +45,15 @@ export const LightningActivate = () => {
     return () => unsubscribe(subscriptions);
   }, [onStateChange]);
 
-  const activateNode = useCallback(async () => {
-    setStep('wait');
+  const activateLightning = useCallback(async () => {
+    setActivationStarted(true);
+    setSetupError(undefined);
 
     try {
       await postActivate();
       setStep('success');
     } catch (err) {
+      setActivationStarted(false);
       setSetupError(String(err));
       setStep('disclaimer');
     }
@@ -55,17 +61,29 @@ export const LightningActivate = () => {
 
   const waitForConnect = useCallback(() => {
     if (keystores && keystores.length > 0) {
-      activateNode();
+      setStep('confirm');
     } else {
       setStep('connect');
     }
-  }, [keystores, activateNode]);
+  }, [keystores]);
 
   useEffect(() => {
     if (step === 'connect' && keystores && keystores.length > 0) {
-      activateNode();
+      setStep('confirm');
     }
-  }, [keystores, step, activateNode]);
+  }, [keystores, step]);
+
+  useEffect(() => {
+    if (step === 'confirm' && !activationStarted) {
+      activateLightning();
+    }
+  }, [activateLightning, activationStarted, step]);
+
+  useEffect(() => {
+    if (step === 'confirm' && activationStarted && lightningAccount !== null) {
+      setStep('activating');
+    }
+  }, [activationStarted, lightningAccount, step]);
 
   const renderSteps = () => {
     switch (step) {
@@ -131,7 +149,7 @@ export const LightningActivate = () => {
           </ViewButtons>
         </View>
       );
-    case 'wait':
+    case 'confirm':
       return (
         <View
           key="step-create"
@@ -140,10 +158,33 @@ export const LightningActivate = () => {
           verticallyCentered>
           <UseDisableBackButton />
           <ViewHeader title={t('lightning.activate.wait.title')}>
-            Confirm on your BitBox that you want to create a lightning wallet.
+            <p>{t('lightning.activate.wait.confirm')}</p>
           </ViewHeader>
           <ViewContent minHeight="280px">
             <PointToBitBox02 />
+          </ViewContent>
+          <ViewButtons>
+            {/* Empty ViewButtons to avoid layout shift changing between different views */}
+          </ViewButtons>
+        </View>
+      );
+    case 'activating':
+      return (
+        <View
+          key="step-activating"
+          fullscreen
+          textCenter
+          verticallyCentered>
+          <UseDisableBackButton />
+          <ViewContent minHeight="280px">
+            <div className={styles.activatingContent}>
+              <Logo
+                alt={t('lightning.accountLabel')}
+                className={styles.lightningLogo}
+                coinCode="lightning"
+              />
+              <p className={styles.waitMessage}>{t('lightning.activate.wait.activating')}</p>
+            </div>
           </ViewContent>
           <ViewButtons>
             {/* Empty ViewButtons to avoid layout shift changing between different views */}
@@ -157,7 +198,7 @@ export const LightningActivate = () => {
             <p>{t('lightning.activate.success.message')}</p>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => route('/lightning')}>
+            <Button primary onClick={() => navigate('/lightning')}>
               {t('button.done')}
             </Button>
           </ViewButtons>
