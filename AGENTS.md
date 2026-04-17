@@ -41,7 +41,7 @@ Run `make buildweb` before the first `make webdev` to install npm dependencies. 
   `make webfix` auto-fixes lint issues.
 - `make ci` (or `./scripts/ci.sh`) mirrors CI: Go race tests (with `GORACE="halt_on_error=1"`),
   frontend build, linting, and i18n format checks. Use it before large pull requests.
-- `make go-vendor` re-vendors Go dependencies. `make locize-fix` sorts i18n translation keys.
+- `make go-vendor` re-vendors Go dependencies.
 - All Go commands require `-mod=vendor` (e.g., `go build -mod=vendor ./...`).
 
 ## Backend Patterns
@@ -58,6 +58,13 @@ functions exist:
 ### Writing a Handler
 All handlers are methods on the `Handlers` struct. Request/response types are typically defined
 **inline** within the handler function. See `backend/handlers/handlers.go` for examples.
+
+Handlers such as those in `backend/handlers/handlers.go` should stay thin: parse the request (body,
+query params, route params, etc.), call the appropriate backend/account function, and convert the
+result to JSON output. Avoid implementing business logic, validation flow, or other decision-making
+in handlers. If a handler change would make it reasonable to add a handler unit test to verify
+handler logic beyond input parsing, that is usually a design smell. Move that logic into an
+appropriate backend package, and keep handlers as request/response adapters.
 
 ### Error Handling
 Use the `errp` package in `backend/util/errp/` for error wrapping and typed error codes. See the
@@ -126,6 +133,17 @@ Shared form components live in `src/components/forms/`. See the directory for av
 (`Button`, `Input`, `Select`, `Checkbox`, etc.) and their prop patterns. Validation is done in
 component state — no form library is used.
 
+### Keystore Connection Flows
+- Use the shared `connectKeystore()` + `KeystoreConnectPrompt` flow. Do not build page-local
+  connection state machines or duplicate prompt error UI.
+- Trigger `connectKeystore()` from the explicit user action that needs the device, following the
+  existing simple flows in `src/routes/account/sign-message/use-sign-message.ts`,
+  `src/routes/bitsurance/widget.tsx`, and `src/routes/market/pocket.tsx`.
+- Treat `connectKeystore()` failure as an early return. Do not add `wrongKeystore` handling in the
+  calling screen; that case is owned by the shared prompt and is not a `connectKeystore()`
+  response the caller should handle.
+- Do not add `try/catch` around `connectKeystore()` in normal frontend flows.
+
 ## Coding Style & Naming Conventions
 
 ### Go
@@ -150,6 +168,9 @@ Place Go tests in `_test.go` files and run `go test -mod=vendor ./...` (optional
 `scripts/coverage.sh` to emit `coverage.cov`). Frontend unit specs live beside components as
 `*.test.ts(x)`; invoke `make webtest` for the suite. Use `make webe2etest` for Playwright smoke
 flows and document new scenarios in `frontends/web/tests/README.md` if they require fixtures.
+- If you change an interface that has a `//go:generate` directive in its docstring, run the
+  corresponding `go generate` command for that file before finishing the change. For example, if
+  you change the `Keystore` interface, regenerate the keystore mocks.
 
 ### Frontend Test Patterns
 See `src/components/forms/button.test.tsx` for component test examples and `src/hooks/api.test.ts`
@@ -159,6 +180,10 @@ routing components, use `renderHook` for hooks, and mock API calls with `vi.fn()
 ## Review Guidelines
 - when reviewing a removed function call, check that the removed behavior was not required and was not dropped by accident during a refactor.
 - when reviewing a removed function call, check if the callee became unused and should also be removed.
+- when reviewing handlers such as those in `backend/handlers/handlers.go`, check that they only
+  parse the request, call the appropriate backend/account function, and convert the result to JSON
+  output. If a handler contains business logic or has involved unit tests, treat that as a design
+  issue and suggest moving the logic appropriate backend package.
 
 ## Commit & Pull Request Guidelines
 Follow the existing `context: summary` convention (lowercase imperative, no trailing period)—e.g.,

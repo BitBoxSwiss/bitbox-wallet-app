@@ -36,7 +36,7 @@ type TransactionDetails = {
   proposedTotal?: TAmountWithConversions;
   feeTarget?: FeeTargetCode;
   customFee: string;
-  recipientAddress: string;
+  recipientDisplayAddress: string;
 };
 
 type TConfirmSendProps = {
@@ -67,7 +67,7 @@ export const ConfirmSend = ({
     feeTarget,
     selectedReceiverAccountName,
     selectedReceiverAccountNumber,
-    recipientAddress,
+    recipientDisplayAddress,
   } = transactionDetails;
 
   if (!isConfirming) {
@@ -124,7 +124,7 @@ export const ConfirmSend = ({
             <span>
               {selectedReceiverAccountName
                 ? selectedReceiverAccountName
-                : recipientAddress
+                : recipientDisplayAddress
               }
               {' '}
               {selectedReceiverAccountNumber !== undefined && (
@@ -135,7 +135,7 @@ export const ConfirmSend = ({
             </span>
             {selectedReceiverAccountName && (
               <span className={style.address}>
-                {recipientAddress}
+                {recipientDisplayAddress}
               </span>
             )}
           </Column>

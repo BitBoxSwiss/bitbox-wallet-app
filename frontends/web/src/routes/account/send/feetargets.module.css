@@ -72,6 +72,7 @@
     color: var(--color-secondary);
     font-size: var(--size-small);
     line-height: var(--input-height);
+    user-select: none;
     white-space: nowrap;
     width: auto;
 }

@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
+import { setAccountReceiveScriptType } from '@/api/backend';
+import { alertUser } from '@/components/alert/Alert';
 import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { CopyableInput } from '@/components/copy/Copy';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button, Radio } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Message } from '@/components/message/message';
@@ -29,7 +31,7 @@ type TAddressTypeDialogProps = {
   preselectedAddressType: number;
   availableScriptTypes?: accountApi.ScriptType[];
   insured: boolean;
-  handleAddressTypeChosen: (addressType: number) => void;
+  handleAddressTypeChosen: (addressType: number) => void | Promise<void>;
 };
 
 const AddressTypeDialog = ({
@@ -43,34 +45,43 @@ const AddressTypeDialog = ({
   const { t } = useTranslation();
   const [addressType, setAddressType] = useState<number>(preselectedAddressType);
 
+  useEffect(() => {
+    setAddressType(preselectedAddressType);
+  }, [open, preselectedAddressType]);
+
   return (
     <Dialog open={open} onClose={() => setOpen(false)} medium title={t('receive.changeScriptType')} >
-      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        handleAddressTypeChosen(addressType);
-      }}>
-        {availableScriptTypes && availableScriptTypes.map((scriptType, i) => (
-          <div key={scriptType}>
-            <Radio
-              checked={addressType === i}
-              id={scriptType}
-              name="scriptType"
-              onChange={() => setAddressType(i)}
-              title={getScriptName(scriptType)}>
-              {t(`receive.scriptType.${scriptType}`)}
-            </Radio>
-            {scriptType === 'p2tr' && addressType === i && (
-              <Message type="warning" className={style.messageContainer}>
-                {t('receive.taprootWarning')}
-              </Message>
-            )}
-          </div>
-        ))}
-        {insured && (
-          <Message type="warning">
-            {t('receive.bitsuranceWarning')}
-          </Message>
-        )}
+      <form
+        onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          handleAddressTypeChosen(addressType);
+        }}
+        style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
+      >
+        <DialogScrollContent>
+          {availableScriptTypes && availableScriptTypes.map((scriptType, i) => (
+            <div key={scriptType}>
+              <Radio
+                checked={addressType === i}
+                id={scriptType}
+                name="scriptType"
+                onChange={() => setAddressType(i)}
+                title={getScriptName(scriptType)}>
+                {t(`receive.scriptType.${scriptType}`)}
+              </Radio>
+              {scriptType === 'p2tr' && addressType === i && (
+                <Message type="warning" className={style.messageContainer}>
+                  {t('receive.taprootWarning')}
+                </Message>
+              )}
+            </div>
+          ))}
+          {insured && (
+            <Message type="warning">
+              {t('receive.bitsuranceWarning')}
+            </Message>
+          )}
+        </DialogScrollContent>
         <DialogButtons>
           <Button primary type="submit">
             {t('button.done')}
@@ -96,6 +107,23 @@ const getIndexOfMatchingScriptType = (
   return receiveAddresses.findIndex(addrs => addrs.scriptType !== null && scriptType === addrs.scriptType);
 };
 
+const getAvailableScriptTypes = (
+  receiveAddresses: accountApi.TReceiveAddressList[],
+): accountApi.ScriptType[] => {
+  return scriptTypes.filter(scriptType => getIndexOfMatchingScriptType(receiveAddresses, scriptType) >= 0);
+};
+
+const getReceiveScriptTypeIndex = (
+  availableScriptTypes: accountApi.ScriptType[],
+  receiveScriptType?: accountApi.ScriptType,
+): number => {
+  if (!receiveScriptType) {
+    return 0;
+  }
+  const scriptTypeIndex = availableScriptTypes.findIndex(scriptType => scriptType === receiveScriptType);
+  return scriptTypeIndex >= 0 ? scriptTypeIndex : 0;
+};
+
 export const Receive = ({
   accounts,
   code,
@@ -114,34 +142,50 @@ export const Receive = ({
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
-
-  const availableScriptTypes = useRef<accountApi.ScriptType[]>();
-
-  const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
+  const availableScriptTypes = receiveAddresses ? getAvailableScriptTypes(receiveAddresses) : undefined;
+  const hasManyScriptTypes = availableScriptTypes && availableScriptTypes.length > 1;
 
   useEffect(() => {
     if (receiveAddresses) {
-      // All script types that are present in the addresses delivered by the backend. Will be empty for if there are no such addresses, e.g. in Ethereum.
-      availableScriptTypes.current = scriptTypes.filter(sc => getIndexOfMatchingScriptType(receiveAddresses, sc) >= 0);
+      setAddressType(getReceiveScriptTypeIndex(
+        getAvailableScriptTypes(receiveAddresses),
+        account?.receiveScriptType,
+      ));
     }
-  }, [receiveAddresses]);
+  }, [account?.receiveScriptType, receiveAddresses]);
 
   useEffect(() => {
-    if (receiveAddresses && availableScriptTypes.current) {
-      const scriptType = availableScriptTypes.current[addressType] as accountApi.ScriptType;
-      let addressIndex = availableScriptTypes.current.length > 0 ? getIndexOfMatchingScriptType(receiveAddresses, scriptType) : 0;
+    if (receiveAddresses) {
+      const scriptTypes = getAvailableScriptTypes(receiveAddresses);
+      const scriptType = scriptTypes[addressType] as accountApi.ScriptType;
+      let addressIndex = scriptTypes.length > 0 ? getIndexOfMatchingScriptType(receiveAddresses, scriptType) : 0;
       if (addressIndex === -1) {
         addressIndex = 0;
       }
       setCurrentAddressIndex(addressIndex);
       setCurrentAddresses(receiveAddresses[addressIndex]?.addresses);
     }
-  }, [addressType, availableScriptTypes, receiveAddresses]);
+  }, [addressType, receiveAddresses]);
 
-  const handleAddressTypeChosen = (addressType: number) => {
+  const handleAddressTypeChosen = async (addressType: number) => {
+    const scriptType = availableScriptTypes?.[addressType];
+
     setActiveIndex(0);
     setAddressType(addressType);
     setAddressTypeDialog(false);
+
+    if (!scriptType || account?.receiveScriptType === scriptType) {
+      return;
+    }
+
+    try {
+      const response = await setAccountReceiveScriptType(code, scriptType);
+      if (!response.success) {
+        alertUser(response.errorMessage || t('genericError'));
+      }
+    } catch (err) {
+      console.error('Failed to persist receive script type', err);
+    }
   };
 
   const verifyAddress = async (addressesIndex: number) => {
@@ -194,13 +238,10 @@ export const Receive = ({
     }
   }
 
-  let address = '';
-  if (currentAddresses) {
-    address = (currentAddresses[activeIndex] as accountApi.TReceiveAddress).address;
-    if (!verifying) {
-      address = address.substring(0, 8) + '...';
-    }
-  }
+  const currentAddress = currentAddresses?.[activeIndex];
+  const address = currentAddress?.address || '';
+  const displayAddress = currentAddress?.displayAddress ?? '';
+  const displayedMainAddress = verifying ? displayAddress : (address ? address.substring(0, 8) + '...' : '');
 
   return (
     <div className="contentWithGuide">
@@ -241,7 +282,12 @@ export const Receive = ({
                       </button>
                     )}
                   </div>
-                  <CopyableInput disabled={true} value={address} flexibleHeight />
+                  <CopyableInput
+                    disabled={true}
+                    value={address}
+                    displayValue={displayedMainAddress}
+                    flexibleHeight
+                  />
                   { (hasManyScriptTypes || insured) && (
                     <button
                       className={style.changeType}
@@ -254,7 +300,7 @@ export const Receive = ({
                     open={addressTypeDialog}
                     setOpen={setAddressTypeDialog}
                     preselectedAddressType={addressType}
-                    availableScriptTypes={availableScriptTypes.current}
+                    availableScriptTypes={availableScriptTypes}
                     insured={insured}
                     handleAddressTypeChosen={handleAddressTypeChosen}
                   />
@@ -309,6 +355,7 @@ export const Receive = ({
                         <div className="m-bottom-half">
                           <CopyableInput
                             value={address}
+                            displayValue={displayAddress}
                             dataTestId="receive-address"
                             flexibleHeight
                           />

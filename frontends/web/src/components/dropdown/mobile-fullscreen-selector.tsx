@@ -157,11 +157,13 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
 
   return (
     <div className={styles.dropdownContainer}>
-      <UseBackButton handler={() => {
-        handleClose();
-        return false;
-      }}
-      />
+      {isOpen && (
+        <UseBackButton handler={() => {
+          handleClose();
+          return false;
+        }}
+        />
+      )}
       {renderTrigger ? (
         renderTrigger({ onClick: handleOpen })
       ) : onOpenChange ? (

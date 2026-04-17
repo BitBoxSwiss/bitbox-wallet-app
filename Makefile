@@ -92,12 +92,6 @@ dockerinit:
 	./scripts/container.sh build --platform linux/amd64 --pull -t shiftcrypto/bitbox-wallet-app:$(shell cat .containerversion) .
 dockerdev:
 	./scripts/dockerdev.sh
-locize-push:
-	cd ${WEBROOT}/src/locales && locize sync
-locize-pull:
-	cd ${WEBROOT}/src/locales && locize download
-locize-fix:
-	locize format ${WEBROOT}/src/locales --format json
 go-vendor:
 	go mod vendor
 update-bitbox02-api-go:

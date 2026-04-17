@@ -15,6 +15,8 @@ body {
     background-color: var(--background);
     color: var(--color-default);
     font-family: var(--font-family);
+    font-feature-settings: "calt" 0, "clig" 0, "dlig" 0, "frac" 0, "liga" 0;
+    font-variant-ligatures: none;
     font-weight: 400;
     height: 100%;
     line-height: 1.3;
@@ -25,6 +27,11 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 	  -webkit-app-region: drag;
+}
+
+button, textarea, input, select {
+    font-feature-settings: "calt" 0, "clig" 0, "dlig" 0, "frac" 0, "liga" 0;
+    font-variant-ligatures: none;
 }
 
 /*

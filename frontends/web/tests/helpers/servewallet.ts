@@ -41,8 +41,6 @@ export class ServeWallet {
   private readonly host: string;
   private readonly timeout: number;
   private readonly testnet: boolean;
-  private readonly testName: string;
-  private readonly projectName: string;
   private readonly logPath: string;
   private readonly regtest: boolean;
 
@@ -51,8 +49,7 @@ export class ServeWallet {
     servewalletPort: number,
     frontendPort: number,
     host: string,
-    testName: string,
-    projectName: string,
+    outputDir: string,
     options: ServeWalletOptions = {}
   ) {
     const { simulator = false, timeout = 90000, testnet = true, regtest = false } = options;
@@ -68,11 +65,9 @@ export class ServeWallet {
     this.simulator = simulator;
     this.timeout = timeout;
     this.testnet = testnet;
-    this.testName = testName;
-    this.projectName = projectName;
 
     this.regtest = regtest;
-    this.logPath = getLogFilePath(this.testName, this.projectName, 'servewallet.log');
+    this.logPath = getLogFilePath(outputDir, 'servewallet.log');
     this.openOutStream(false); // On the first time, open the file in "w" mode.
   }
 
@@ -122,12 +117,17 @@ export class ServeWallet {
       detached: true,
     });
 
-    await this.waitUntilReady();
+    await this.waitUntilReady(this.proc);
   }
 
-  private async waitUntilReady(): Promise<void> {
+  private async waitUntilReady(proc: ChildProcess): Promise<void> {
     const start = Date.now();
     while (Date.now() - start < this.timeout) {
+      if (proc.exitCode !== null || proc.signalCode !== null) {
+        throw new Error(
+          `Servewallet exited before becoming ready (code=${String(proc.exitCode)}, signal=${String(proc.signalCode)})`
+        );
+      }
       try {
         await connectOnce(this.host, this.servewalletPort);
         try {
@@ -136,6 +136,11 @@ export class ServeWallet {
           const bodyText = await this.page.textContent('body');
 
           if (bodyText && (bodyText.includes('Welcome') || bodyText.includes('My portfolio'))) {
+            if (proc.exitCode !== null || proc.signalCode !== null) {
+              throw new Error(
+                `Servewallet exited before becoming ready (code=${String(proc.exitCode)}, signal=${String(proc.signalCode)})`
+              );
+            }
             console.log(
               `Servewallet ready on ${this.host}:${this.servewalletPort} after ${Date.now() - start} ms`
             );
@@ -154,18 +159,15 @@ export class ServeWallet {
 
   stop(): Promise<void> {
     return new Promise((resolve) => {
-      if (!this.proc?.pid) {
+      const proc = this.proc;
+      if (!proc?.pid) {
         console.log('ServeWallet process not running');
+        this.proc = undefined;
         resolve();
         return;
       }
 
-      const pid = this.proc.pid;
-      console.log(`Stopping servewallet (pid=${pid})...`);
-
-      // Listen for exit event
-      this.proc.once('exit', () => {
-        console.log('Servewallet stopped');
+      const cleanup = () => {
         this.proc = undefined;
 
         if (this.outStream) {
@@ -180,13 +182,30 @@ export class ServeWallet {
         }
 
         resolve();
-      });
+      };
+
+      if (proc.exitCode !== null || proc.signalCode !== null) {
+        console.log('Servewallet process already exited');
+        cleanup();
+        return;
+      }
+
+      const pid = proc.pid;
+      console.log(`Stopping servewallet (pid=${pid})...`);
+
+      // Listen for exit event
+      const onExit = () => {
+        console.log('Servewallet stopped');
+        cleanup();
+      };
+      proc.once('exit', onExit);
 
       try {
         process.kill(-pid, 'SIGTERM');
       } catch (err) {
         console.error('Failed to stop servewallet:', err);
-        resolve();
+        proc.off('exit', onExit);
+        cleanup();
       }
     });
   }

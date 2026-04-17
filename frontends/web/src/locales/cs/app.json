@@ -5,7 +5,6 @@
     "backupReminder": "Tvoje peněženka <strong>{{name}}</strong> překročila {{fiat}} {{threshold}}!\n\nDoporučujeme vytvořit papírovou zálohu pro větší ochranu. Je to rychlé a jednoduché.",
     "backupReminderLink": "Vytvořit papírovou zálohu",
     "disconnect": "Ztráta spojení. Pokus o opětovné připojení...",
-    "export": "Export transakcí",
     "exportTransactions": "Export transakcí do složky ke stažení jako soubor CSV",
     "fatalError": "Došlo k neočekávané chybě.",
     "incoming": "Přicházející",
@@ -489,7 +488,6 @@
             "paymentMethods": {
               "buy": "Nákup bitcoinů:",
               "buy2": "Zadávejte velké nákupní příkazy svému account managerovi, uzamkněte si pevnou cenu a zaplaťte bankovním převodem. Kryptoměny vám budou po zaplacení doručeny přímo do vašeho BitBoxu.",
-              "fee": "",
               "sell": "Prodej bitcoinů:",
               "sell2": "Při zadávání prodejního příkazu si můžete uzamknout pevnou mimoburzovní (over-the-counter) cenu. Platba v EUR je provedena, jakmile odešlete krypto na BTC Direct. V případě potřeby je k dispozici osobní asistence.",
               "title": "Platební metody a poplatky"
@@ -1248,6 +1246,16 @@
         "title": "Proč se platí síťový poplatek?"
       }
     },
+    "settings": {
+      "sats": {
+        "text": "Satoshi (zkráceně \"sat\") je nejmenší jednotka bitcoinu. Jeden satoshi je jedna stamiliontina bitcoinu (0,00000001 BTC). Je pojmenována po tvůrci bitcoinu Satoshi Nakamotovi.",
+        "title": "Co je to Satoshi?"
+      },
+      "servers": {
+        "text": "Tato aplikace komunikuje se servery Shift Crypto a kontroluje aktualizace, načítá transakce a odesílá informace spárovaným mobilním aplikacím.\nAplikace také načítá nejnovější směnné kurzy z CoinGecko. Všechny konverze se počítají lokálně, což znamená, že se nikdy neodesílají žádné údaje o výši vaší transakce.\nPoznámka: Pro tokeny Ethereum a ERC20 používáme Etherscan.io API.",
+        "title": "S kterými servery tato aplikace komunikuje?"
+      }
+    },
     "settings-electrum": {
       "connection": {
         "text": "Pokud se k uzlu hodláte připojit pouze tehdy, když jste ve stejné síti (např. domácí wifi), pak vám postačí běžná síťová komunikace.\nV takovém případě je vhodné, aby váš Electrum server poskytoval certifikát TLS pro šifrování komunikace.\nPokud se hodláte k uzlu připojit odkudkoli, je lepší volbou použití sítě Tor. V takovém případě není certifikát TLS nutný.",
@@ -1275,16 +1283,6 @@
       "why": {
         "text": "Provozování vlastního uzlu není nutné, ale zlepšuje soukromí a snižuje potřebu důvěřovat někomu jinému.\nZaprvé to znamená, že používáte Bitcoin soukroměji, protože BitBoxApp se nebude připojovat k našim serverům, aby získala historii vašich transakcí; místo toho bude tyto informace získávat z vašeho vlastního uzlu.\nZa druhé, spuštění vlastního uzlu znamená, že váš uzel sám ověřuje všechny transakce a zajišťuje tak dodržování pravidel konsensu (consensus rules).",
         "title": "Proč bych měl provozovat vlastní uzel?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "Satoshi (zkráceně \"sat\") je nejmenší jednotka bitcoinu. Jeden satoshi je jedna stamiliontina bitcoinu (0,00000001 BTC). Je pojmenována po tvůrci bitcoinu Satoshi Nakamotovi.",
-        "title": "Co je to Satoshi?"
-      },
-      "servers": {
-        "text": "Tato aplikace komunikuje se servery Shift Crypto a kontroluje aktualizace, načítá transakce a odesílá informace spárovaným mobilním aplikacím.\nAplikace také načítá nejnovější směnné kurzy z CoinGecko. Všechny konverze se počítají lokálně, což znamená, že se nikdy neodesílají žádné údaje o výši vaší transakce.\nPoznámka: Pro tokeny Ethereum a ERC20 používáme Etherscan.io API.",
-        "title": "S kterými servery tato aplikace komunikuje?"
       }
     },
     "title": "Průvodce",
@@ -1480,6 +1478,7 @@
     "title": "Poznámka"
   },
   "notification": {
+    "newTxs_few": "",
     "newTxs_one": "Nová transakce v: {{accountName}}",
     "newTxs_other": "{{count}} nové transakce v: {{accountName}}"
   },
@@ -1817,15 +1816,15 @@
         "title": "Exportovat poznámky"
       },
       "import": {
+        "accountNames_few": "",
         "accountNames_one": "Importováno {{count}} jméno účtu.",
         "accountNames_other": "Importováno {{count}} názvů účtů.",
-        "accountNames_zero": "Importováno 0 názvů účtů.",
         "description": "Obnovit poznámky k transakcím a názvům účtů z dříve vytvořeného záložního souboru.",
         "title": "Importovat poznámky",
         "tooLarge": "Soubor je příliš velký.",
+        "transactionNotes_few": "",
         "transactionNotes_one": "Importováno {{count}} poznámka k transakci.",
-        "transactionNotes_other": "Importováno {{count}} poznámek k transakcím.",
-        "transactionNotes_zero": "Importováno 0 poznámek k transakcím."
+        "transactionNotes_other": "Importováno {{count}} poznámek k transakcím."
       },
       "title": "Správa poznámek"
     },
@@ -1895,7 +1894,6 @@
       "fiatAmount": "Částka ve fiatu",
       "from": "Od",
       "historicalFiat": "Historický fiat",
-      "sendToSelf": "Odeslat sobě",
       "status": "Stav",
       "title": "Detaily transakce",
       "type": "Typ"
@@ -1918,7 +1916,6 @@
     },
     "statusShort": {
       "complete": "Dokončená",
-      "failed": "",
       "pending": "Čekající",
       "pending_receive": "Přicházející",
       "pending_send": "Odchozí",

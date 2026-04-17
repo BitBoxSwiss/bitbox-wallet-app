@@ -1,81 +1,33 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { test } from './helpers/fixtures';
-import { expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { ServeWallet } from './helpers/servewallet';
 import { launchRegtest, setupRegtestWallet, sendCoins, mineBlocks, cleanupRegtest } from './helpers/regtest';
-import { startSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
+import { startSimulator, stopSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
 import { ChildProcess } from 'child_process';
 import { startAOPPServer, generateAOPPRequest } from './helpers/aopp';
 import { assertFieldsCount } from './helpers/dom';
+import { deleteAccountsFile } from './helpers/fs';
+import { getAccountCodeFromUrl, getReceiveAddress, getReceiveAddressData, waitForAccountTransactions } from './helpers/account';
 
 
-let servewallet: ServeWallet;
-let regtest: ChildProcess;
+let servewallet: ServeWallet | undefined;
+let regtest: ChildProcess | undefined;
 let aoppServer: ChildProcess | undefined;
 let simulatorProc : ChildProcess | undefined;
-
-type ReceiveAddressResponse = Array<{
-  scriptType: string | null;
-  addresses: Array<{
-    addressID: string;
-    address: string;
-  }>;
-}>;
-
-const scriptTypePreference = ['p2wpkh', 'p2tr', 'p2wpkh-p2sh'];
-
-const getAccountCodeFromUrl = (url: string): string => {
-  const match = url.match(/#\/account\/([^/]+)/);
-  if (!match?.[1]) {
-    throw new Error(`Unable to extract account code from url: ${url}`);
-  }
-  return match[1];
-};
-
-const getReceiveAddress = async (
-  page: Page,
-  host: string,
-  servewalletPort: number
-): Promise<string> => {
-  await page.waitForURL(/#\/account\/[^/]+\/receive/);
-  const accountCode = getAccountCodeFromUrl(page.url());
-  const response = await page.request.get(
-    `http://${host}:${servewalletPort}/api/account/${accountCode}/receive-addresses`
-  );
-  if (!response.ok()) {
-    throw new Error(`Failed to fetch receive addresses for ${accountCode}: ${response.status()}`);
-  }
-  const body = (await response.json()) as ReceiveAddressResponse | null;
-  if (!body || !Array.isArray(body)) {
-    throw new Error(`Unexpected receive addresses response for ${accountCode}`);
-  }
-  for (const scriptType of scriptTypePreference) {
-    const address = body.find((item) => item.scriptType === scriptType)?.addresses?.[0]?.address;
-    if (address) {
-      return address;
-    }
-  }
-  const fallback = body.find((item) => item.addresses?.[0]?.address)?.addresses[0]?.address;
-  if (!fallback) {
-    throw new Error(`No receive address available for ${accountCode}`);
-  }
-  return fallback;
-};
 
 test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
 
   await test.step('Start regtest and init wallet', async () => {
     regtest = await launchRegtest();
-    // Give regtest some time to start
-    await new Promise((resolve) => setTimeout(resolve, 3000));
     await setupRegtestWallet();
   });
 
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { regtest: true, testnet: false, simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
     await servewallet.start();
   });
 
@@ -85,7 +37,7 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
       throw new Error('SIMULATOR_PATH environment variable not set');
     }
 
-    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
+    simulatorProc = startSimulator(simulatorPath, testInfo.outputDir, true);
     console.log('Simulator started');
   });
 
@@ -95,19 +47,22 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
   });
 
   let recvAdd: string;
+  let firstAccountCode: string;
+  let secondAccountCode: string;
   await test.step('Grab receive address', async () => {
     await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
     await page.getByRole('button', { name: 'Receive Bitcoin' }).click();
     // The simulator auto-confirms address verification and closes the dialog too fast for UI reads.
     recvAdd = await getReceiveAddress(page, host, servewalletPort);
+    firstAccountCode = getAccountCodeFromUrl(page.url());
     console.log(`Receive address: ${recvAdd}`);
   });
 
   await test.step('Send RBTC to receive address', async () => {
-    await page.waitForTimeout(2000);
     const sendAmount = '10';
     await sendCoins(recvAdd, sendAmount);
     await mineBlocks(12);
+    await waitForAccountTransactions(page, host, servewalletPort, firstAccountCode, 1);
     console.log(`Sent ${sendAmount} RBTC to ${recvAdd}`);
   });
 
@@ -130,15 +85,16 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
     await page.getByRole('button', { name: 'Receive Bitcoin' }).click();
     // Same workaround here to avoid flaky reads from the auto-closing verify dialog.
     recvAdd = await getReceiveAddress(page, host, servewalletPort);
+    secondAccountCode = getAccountCodeFromUrl(page.url());
     expect(recvAdd).toContain('bcrt1');
     console.log(`Receive address: ${recvAdd}`);
   });
 
   await test.step('Send RBTC to receive address', async () => {
-    await page.waitForTimeout(2000);
     const sendAmount = '10';
-    sendCoins(recvAdd, sendAmount);
-    mineBlocks(12);
+    await sendCoins(recvAdd, sendAmount);
+    await mineBlocks(12);
+    await waitForAccountTransactions(page, host, servewalletPort, secondAccountCode, 1);
     console.log(`Sent ${sendAmount} RBTC to ${recvAdd}`);
   });
 
@@ -156,16 +112,16 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
     // We kill the simulator so that we can verify that with no BB connected,
     // the app shows "Address request in progress. Please connect your device to continue"
     if (simulatorProc) {
-      simulatorProc.kill('SIGTERM');
+      await stopSimulator(simulatorProc);
       simulatorProc = undefined;
       console.log('Simulator killed.');
     }
   });
 
   await test.step('Kill servewallet and restart with AOPP request', async () => {
-    await servewallet.stop();
+    await servewallet?.stop();
     console.log('Servewallet stopped.');
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.title, testInfo.project.name, { regtest: true, testnet: false, simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
     await servewallet.start({ extraFlags: { aoppUrl: aoppRequest } });
     console.log('Servewallet restarted with AOPP request.');
   });
@@ -185,7 +141,7 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
       throw new Error('SIMULATOR_PATH environment variable not set');
     }
 
-    simulatorProc = startSimulator(simulatorPath, testInfo.title, testInfo.project.name, true);
+    simulatorProc = startSimulator(simulatorPath, testInfo.outputDir, true);
     console.log('Simulator restarted.');
   });
 
@@ -225,27 +181,29 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
     const receiveButton = page.locator('[data-testid="receive-button"]');
     await receiveButton.click();
     // Use API-derived address so the simulator confirm doesn't race the UI dialog.
-    recvAdd = await getReceiveAddress(page, host, servewalletPort);
+    const receiveAddress = await getReceiveAddressData(page, host, servewalletPort);
+    recvAdd = receiveAddress.address;
     console.log(`Receive address: ${recvAdd}`);
-    expect(recvAdd).toBe(aoppAddress);
+    expect(aoppAddress).toBe(receiveAddress.displayAddress);
   });
 });
 
 
 // Ensure a clean state before running all tests.
 test.beforeAll(async () => {
+  deleteAccountsFile();
   cleanFakeMemoryFiles();
 });
 
 test.afterAll(async () => {
-  await servewallet.stop();
+  await servewallet?.stop();
   if (aoppServer) {
     aoppServer.kill('SIGTERM');
     aoppServer = undefined;
   }
   await cleanupRegtest(regtest);
   if (simulatorProc) {
-    simulatorProc.kill('SIGTERM');
+    await stopSimulator(simulatorProc);
     simulatorProc = undefined;
   }
 });

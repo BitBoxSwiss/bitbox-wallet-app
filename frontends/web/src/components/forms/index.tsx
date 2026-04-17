@@ -7,4 +7,5 @@ export { Field } from './field';
 export { Input } from './input';
 export { NumberInput } from './input-number';
 export { Label, OptionalLabel } from './label';
+export { SearchInput } from './search-input';
 export { Select } from './select';

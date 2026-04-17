@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Format addresses in groups of 4 characters
 - iOS: Add haptic feedback on account summary chart scrolls
 - Portfolio: reduce waiting time to display the chart
 - iOS: Add haptic feedback on toggle component
@@ -14,6 +15,17 @@
 - Add forgot password info during unlock
 - Export transactions CSV: add historical value and historical value currency columns.
 - Show total fiat amount in Bitrefill confirmation step
+- Show contract address in Ethereum token account info
+- Harmonize iOS and Android back swipe/button navigation to only work in expected situations
+- Bitcoin: remove option to receive to wrapped segwit addresses
+- Fix coin control reused-address labels
+- Revamp portfolio / account summary detail (table)
+- Sort wallets by name first, then by root fingerprint when names match.
+- Bitcoin: persist account receive script type
+- Bitcoin: display output descriptor in account details
+- Bitcoin: add a used addresses list in account info
+- Bitcoin and Ethereum: add message signing for addresses
+- iOS: use numeric keyboard for coin and fiat input
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.

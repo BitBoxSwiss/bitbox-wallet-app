@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
@@ -77,4 +79,39 @@ func TruncateString(s string, size int) string {
 		return s[:size]
 	}
 	return s
+}
+
+func formatAddress(s string) string {
+	const groupSize = 4
+
+	if len(s) == 0 {
+		return s
+	}
+
+	result := make([]byte, 0, len(s)+len(s)/groupSize)
+	for i := 0; i < len(s); i++ {
+		if i > 0 && i%groupSize == 0 {
+			result = append(result, ' ')
+		}
+		result = append(result, s[i])
+	}
+	return string(result)
+}
+
+func formatETHAddress(s string) string {
+	if strings.HasPrefix(s, "0x") || strings.HasPrefix(s, "0X") {
+		if len(s) <= 2 {
+			return s
+		}
+		return s[:2] + " " + formatAddress(s[2:])
+	}
+	return formatAddress(s)
+}
+
+// FormatAddress formats an address-like string for display based on the coin code.
+func FormatAddress(code coinpkg.Code, s string) string {
+	if code == coinpkg.CodeETH || code == coinpkg.CodeSEPETH || strings.HasPrefix(string(code), "eth-erc20-") {
+		return formatETHAddress(s)
+	}
+	return formatAddress(s)
 }

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
 import { Button, Input } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { checkSDCard } from '@/api/bitbox02';
 import { useValidateDeviceName } from '@/hooks/devicename';
 import { TDeviceNameError } from '@/utils/types';
@@ -71,12 +72,11 @@ export const SetDeviceName = ({
             type="submit">
             {t('button.continue')}
           </Button>
-          <Button
+          <BackButton
             onClick={onBack}
-            secondary
-            type="button">
+          >
             {t('button.back')}
-          </Button>
+          </BackButton>
         </ViewButtons>
       </View>
     </form>

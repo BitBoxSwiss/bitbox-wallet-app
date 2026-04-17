@@ -8,6 +8,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/ethereum/go-ethereum/core/types"
 	"sync"
@@ -44,13 +45,16 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			NameFunc: func() (string, error) {
 //				panic("mock out the Name method")
 //			},
+//			ObserveFunc: func(fn func(observable.Event)) func() {
+//				panic("mock out the Observe method")
+//			},
 //			RootFingerprintFunc: func() ([]byte, error) {
 //				panic("mock out the RootFingerprint method")
 //			},
 //			SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coinMoqParam coin.Code) ([]byte, error) {
 //				panic("mock out the SignBTCMessage method")
 //			},
-//			SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+//			SignETHMessageFunc: func(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 //				panic("mock out the SignETHMessage method")
 //			},
 //			SignETHTypedMessageFunc: func(chainID uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
@@ -120,6 +124,9 @@ type KeystoreMock struct {
 	// NameFunc mocks the Name method.
 	NameFunc func() (string, error)
 
+	// ObserveFunc mocks the Observe method.
+	ObserveFunc func(fn func(observable.Event)) func()
+
 	// RootFingerprintFunc mocks the RootFingerprint method.
 	RootFingerprintFunc func() ([]byte, error)
 
@@ -127,7 +134,7 @@ type KeystoreMock struct {
 	SignBTCMessageFunc func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coinMoqParam coin.Code) ([]byte, error)
 
 	// SignETHMessageFunc mocks the SignETHMessage method.
-	SignETHMessageFunc func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
+	SignETHMessageFunc func(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
 
 	// SignETHTypedMessageFunc mocks the SignETHTypedMessage method.
 	SignETHTypedMessageFunc func(chainID uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
@@ -206,6 +213,11 @@ type KeystoreMock struct {
 		// Name holds details about calls to the Name method.
 		Name []struct {
 		}
+		// Observe holds details about calls to the Observe method.
+		Observe []struct {
+			// Fn is the fn argument value.
+			Fn func(observable.Event)
+		}
 		// RootFingerprint holds details about calls to the RootFingerprint method.
 		RootFingerprint []struct {
 		}
@@ -222,6 +234,8 @@ type KeystoreMock struct {
 		}
 		// SignETHMessage holds details about calls to the SignETHMessage method.
 		SignETHMessage []struct {
+			// ChainID is the chainID argument value.
+			ChainID uint64
 			// Message is the message argument value.
 			Message []byte
 			// Keypath is the keypath argument value.
@@ -309,6 +323,7 @@ type KeystoreMock struct {
 	lockExtendedPublicKey               sync.RWMutex
 	lockFeatures                        sync.RWMutex
 	lockName                            sync.RWMutex
+	lockObserve                         sync.RWMutex
 	lockRootFingerprint                 sync.RWMutex
 	lockSignBTCMessage                  sync.RWMutex
 	lockSignETHMessage                  sync.RWMutex
@@ -571,6 +586,38 @@ func (mock *KeystoreMock) NameCalls() []struct {
 	return calls
 }
 
+// Observe calls ObserveFunc.
+func (mock *KeystoreMock) Observe(fn func(observable.Event)) func() {
+	if mock.ObserveFunc == nil {
+		panic("KeystoreMock.ObserveFunc: method is nil but Keystore.Observe was just called")
+	}
+	callInfo := struct {
+		Fn func(observable.Event)
+	}{
+		Fn: fn,
+	}
+	mock.lockObserve.Lock()
+	mock.calls.Observe = append(mock.calls.Observe, callInfo)
+	mock.lockObserve.Unlock()
+	return mock.ObserveFunc(fn)
+}
+
+// ObserveCalls gets all the calls that were made to Observe.
+// Check the length with:
+//
+//	len(mockedKeystore.ObserveCalls())
+func (mock *KeystoreMock) ObserveCalls() []struct {
+	Fn func(observable.Event)
+} {
+	var calls []struct {
+		Fn func(observable.Event)
+	}
+	mock.lockObserve.RLock()
+	calls = mock.calls.Observe
+	mock.lockObserve.RUnlock()
+	return calls
+}
+
 // RootFingerprint calls RootFingerprintFunc.
 func (mock *KeystoreMock) RootFingerprint() ([]byte, error) {
 	if mock.RootFingerprintFunc == nil {
@@ -643,21 +690,23 @@ func (mock *KeystoreMock) SignBTCMessageCalls() []struct {
 }
 
 // SignETHMessage calls SignETHMessageFunc.
-func (mock *KeystoreMock) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+func (mock *KeystoreMock) SignETHMessage(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	if mock.SignETHMessageFunc == nil {
 		panic("KeystoreMock.SignETHMessageFunc: method is nil but Keystore.SignETHMessage was just called")
 	}
 	callInfo := struct {
+		ChainID uint64
 		Message []byte
 		Keypath signing.AbsoluteKeypath
 	}{
+		ChainID: chainID,
 		Message: message,
 		Keypath: keypath,
 	}
 	mock.lockSignETHMessage.Lock()
 	mock.calls.SignETHMessage = append(mock.calls.SignETHMessage, callInfo)
 	mock.lockSignETHMessage.Unlock()
-	return mock.SignETHMessageFunc(message, keypath)
+	return mock.SignETHMessageFunc(chainID, message, keypath)
 }
 
 // SignETHMessageCalls gets all the calls that were made to SignETHMessage.
@@ -665,10 +714,12 @@ func (mock *KeystoreMock) SignETHMessage(message []byte, keypath signing.Absolut
 //
 //	len(mockedKeystore.SignETHMessageCalls())
 func (mock *KeystoreMock) SignETHMessageCalls() []struct {
+	ChainID uint64
 	Message []byte
 	Keypath signing.AbsoluteKeypath
 } {
 	var calls []struct {
+		ChainID uint64
 		Message []byte
 		Keypath signing.AbsoluteKeypath
 	}

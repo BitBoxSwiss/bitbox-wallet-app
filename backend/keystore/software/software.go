@@ -3,6 +3,7 @@
 package software
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
@@ -16,19 +17,26 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/btcutil/psbt"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
+	"github.com/btcsuite/btcd/wire"
+	"github.com/ethereum/go-ethereum/accounts"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pbkdf2"
 )
 
 // Keystore implements a keystore in software.
 type Keystore struct {
+	observable.Implementation
+
 	// The master extended private key from which all keys are derived.
 	master     *hdkeychain.ExtendedKey
 	identifier string
@@ -210,9 +218,10 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
+		addressID := spentOutput.Address.PubkeyScriptHashHex()
 		address, err := btcProposedTx.GetKeystoreAddress(
 			btcProposedTx.TXProposal.Coin.Code(),
-			spentOutput.Address.PubkeyScriptHashHex(),
+			addressID,
 		)
 		if err != nil {
 			return err
@@ -302,18 +311,66 @@ func (keystore *Keystore) SignTransaction(
 }
 
 // CanSignMessage implements keystore.Keystore.
-func (keystore *Keystore) CanSignMessage(coin.Code) bool {
-	return false
+func (keystore *Keystore) CanSignMessage(code coin.Code) bool {
+	return code == coin.CodeBTC ||
+		code == coin.CodeTBTC ||
+		code == coin.CodeRBTC ||
+		code == coin.CodeETH ||
+		code == coin.CodeSEPETH
+}
+
+func btcMessageHash(message []byte) ([]byte, error) {
+	var serialized bytes.Buffer
+	if err := wire.WriteVarString(&serialized, 0, "Bitcoin Signed Message:\n"); err != nil {
+		return nil, err
+	}
+	if err := wire.WriteVarString(&serialized, 0, string(message)); err != nil {
+		return nil, err
+	}
+	return chainhash.DoubleHashB(serialized.Bytes()), nil
 }
 
 // SignBTCMessage implements keystore.Keystore.
-func (keystore *Keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coin.Code) ([]byte, error) {
-	return nil, errp.New("unsupported")
+func (keystore *Keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coinCode coin.Code) ([]byte, error) {
+	if scriptType == signing.ScriptTypeP2TR {
+		return nil, errp.New("taproot not supported")
+	}
+	if coinCode != coin.CodeBTC && coinCode != coin.CodeTBTC && coinCode != coin.CodeRBTC {
+		return nil, errp.Newf("coin not supported: %s", coinCode)
+	}
+	xprv, err := keypath.Derive(keystore.master)
+	if err != nil {
+		return nil, err
+	}
+	prv, err := xprv.ECPrivKey()
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	msgHash, err := btcMessageHash(message)
+	if err != nil {
+		return nil, err
+	}
+	return ecdsa.SignCompact(prv, msgHash, true), nil
 }
 
 // SignETHMessage implements keystore.Keystore.
-func (keystore *Keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	return nil, errp.New("unsupported")
+func (keystore *Keystore) SignETHMessage(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	_ = chainID
+	xprv, err := keypath.Derive(keystore.master)
+	if err != nil {
+		return nil, err
+	}
+	prv, err := xprv.ECPrivKey()
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	signature, err := crypto.Sign(accounts.TextHash(message), prv.ToECDSA())
+	if err != nil {
+		return nil, err
+	}
+	// 27 is the magic constant to add to the recoverable ID to denote an uncompressed pubkey.
+	signature[64] += 27
+	return signature, nil
 }
 
 // SignETHTypedMessage implements keystore.Keystore.

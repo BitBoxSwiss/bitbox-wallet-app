@@ -13,10 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -24,10 +22,11 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
-	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -37,6 +36,10 @@ import (
 type Handlers struct {
 	account accounts.Interface
 	log     *logrus.Entry
+}
+
+func formatAddressForDisplay(account accounts.Interface, address string) string {
+	return backendutil.FormatAddress(account.Coin().Code(), address)
 }
 
 // NewHandlers creates a new Handlers instance.
@@ -56,9 +59,12 @@ func NewHandlers(
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.postAccountTxProposal)).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
+	handleFunc("/used-addresses", handlers.ensureAccountInitialized(handlers.getUsedAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
-	handleFunc("/sign-address", handlers.ensureAccountInitialized(handlers.postSignBTCAddress)).Methods("POST")
+	handleFunc("/btc-sign-message-unused-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageUnusedAddress)).Methods("POST")
+	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageForAddress)).Methods("POST")
+	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignETHMessageForAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/has-payment-request", handlers.ensureAccountInitialized(handlers.getHasPaymentRequest)).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
@@ -260,7 +266,54 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 }
 
 func (handlers *Handlers) getAccountInfo(*http.Request) (interface{}, error) {
-	return handlers.account.Info(), nil
+	type bitcoinSimpleInfo struct {
+		KeyInfo    signing.KeyInfo    `json:"keyInfo"`
+		ScriptType signing.ScriptType `json:"scriptType"`
+		Descriptor string             `json:"descriptor"`
+	}
+	type signingConfigurationInfo struct {
+		BitcoinSimple  *bitcoinSimpleInfo      `json:"bitcoinSimple,omitempty"`
+		EthereumSimple *signing.EthereumSimple `json:"ethereumSimple,omitempty"`
+	}
+	type accountInfo struct {
+		SigningConfigurations []signingConfigurationInfo `json:"signingConfigurations"`
+	}
+
+	info := handlers.account.Info()
+	if info == nil {
+		return nil, nil
+	}
+
+	var btcNet *chaincfg.Params
+	if btcCoin, ok := handlers.account.Coin().(*btc.Coin); ok {
+		btcNet = btcCoin.Net()
+	}
+
+	result := accountInfo{
+		SigningConfigurations: make([]signingConfigurationInfo, 0, len(info.SigningConfigurations)),
+	}
+	for _, cfg := range info.SigningConfigurations {
+		signingConfig := signingConfigurationInfo{}
+		if cfg.BitcoinSimple != nil {
+			if btcNet == nil {
+				return nil, errp.New("bitcoin network unavailable for bitcoin signing config")
+			}
+			descriptor, err := cfg.BitcoinSimple.Descriptor(btcNet)
+			if err != nil {
+				return nil, err
+			}
+			signingConfig.BitcoinSimple = &bitcoinSimpleInfo{
+				KeyInfo:    cfg.BitcoinSimple.KeyInfo,
+				ScriptType: cfg.BitcoinSimple.ScriptType,
+				Descriptor: descriptor,
+			}
+		}
+		if cfg.EthereumSimple != nil {
+			signingConfig.EthereumSimple = cfg.EthereumSimple
+		}
+		result.SigningConfigurations = append(result.SigningConfigurations, signingConfig)
+	}
+	return result, nil
 }
 
 func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
@@ -273,26 +326,18 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 		return result, errp.New("Interface must be of type btc.Account")
 	}
 
-	addressCounts := make(map[string]int)
-
 	spendableOutputs, err := t.SpendableOutputs()
 	if err != nil {
 		return nil, err
 	}
-
-	for _, output := range spendableOutputs {
-		address := output.Address.EncodeForHumans()
-		addressCounts[address]++
-	}
-
-	spendableOutputs, err = t.SpendableOutputs()
+	reusedAddresses, err := t.ReusedAddressesForOutputs(spendableOutputs)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, output := range spendableOutputs {
 		address := output.Address.EncodeForHumans()
-		addressReused := addressCounts[address] > 1
+		_, addressReused := reusedAddresses[output.Address.PubkeyScriptHashHex()]
 		var formattedTime *string
 		timestamp := output.HeaderTimestamp
 		if timestamp != nil {
@@ -489,10 +534,11 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 		return txProposalError(err)
 	}
 	return map[string]interface{}{
-		"success": true,
-		"amount":  outputAmount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
-		"fee":     fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater),
-		"total":   total.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
+		"success":                 true,
+		"amount":                  outputAmount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
+		"fee":                     fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater),
+		"total":                   total.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
+		"recipientDisplayAddress": formatAddressForDisplay(handlers.account, input.RecipientAddress),
 	}, nil
 }
 
@@ -555,8 +601,9 @@ func (handlers *Handlers) getAccountStatus(*http.Request) (interface{}, error) {
 func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error) {
 
 	type jsonAddress struct {
-		Address   string `json:"address"`
-		AddressID string `json:"addressID"`
+		Address        string `json:"address"`
+		DisplayAddress string `json:"displayAddress"`
+		AddressID      string `json:"addressID"`
 	}
 	type jsonAddressList struct {
 		ScriptType *signing.ScriptType `json:"scriptType"`
@@ -571,8 +618,9 @@ func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error
 		addrs := []jsonAddress{}
 		for _, address := range addresses.Addresses {
 			addrs = append(addrs, jsonAddress{
-				Address:   address.EncodeForHumans(),
-				AddressID: address.ID(),
+				Address:        address.EncodeForHumans(),
+				DisplayAddress: formatAddressForDisplay(handlers.account, address.EncodeForHumans()),
+				AddressID:      address.ID(),
 			})
 		}
 		addressList = append(addressList, jsonAddressList{
@@ -581,6 +629,65 @@ func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error
 		})
 	}
 	return addressList, nil
+}
+
+type usedAddressesProvider interface {
+	accounts.Interface
+	GetUsedAddresses() ([]btc.UsedAddress, error)
+}
+
+func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
+	type jsonUsedAddress struct {
+		Address        string              `json:"address"`
+		DisplayAddress string              `json:"displayAddress"`
+		AddressID      string              `json:"addressID"`
+		AddressType    btc.UsedAddressType `json:"addressType"`
+		CanSignMsg     bool                `json:"canSignMsg"`
+		LastUsed       *string             `json:"lastUsed"`
+	}
+	type response struct {
+		Success   bool              `json:"success"`
+		Addresses []jsonUsedAddress `json:"addresses"`
+		ErrorCode string            `json:"errorCode,omitempty"`
+	}
+
+	btcAccount, ok := handlers.account.(usedAddressesProvider)
+	if !ok {
+		return response{Success: false, ErrorCode: "notSupported"}, nil
+	}
+
+	usedAddresses, err := btcAccount.GetUsedAddresses()
+	if err != nil {
+		if errp.Cause(err) == accounts.ErrSyncInProgress {
+			return response{Success: false, ErrorCode: accounts.ErrSyncInProgress.Error()}, nil
+		}
+		if handlers.log != nil {
+			handlers.log.WithField("code", handlers.account.Config().Config.Code).WithError(err).Error(
+				"failed to load used addresses",
+			)
+		}
+		// Return success: false instead of error to avoid breaking the frontend.
+		return response{Success: false, ErrorCode: "loadFailed"}, nil
+	}
+
+	result := make([]jsonUsedAddress, len(usedAddresses))
+	for i, addr := range usedAddresses {
+		var lastUsed *string
+		if addr.LastUsed != nil {
+			formatted := addr.LastUsed.Format(time.RFC3339)
+			lastUsed = &formatted
+		}
+		result[i] = jsonUsedAddress{
+			Address:        addr.Address,
+			DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), addr.Address),
+			AddressID:      addr.AddressID,
+			AddressType:    addr.AddressType,
+			CanSignMsg:     addr.CanSignMsg,
+			LastUsed:       lastUsed,
+		}
+	}
+
+	return response{Success: true, Addresses: result}, nil
 }
 
 func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error) {
@@ -744,48 +851,108 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 	}, nil
 }
 
-func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, error) {
-	type response struct {
-		Success      bool   `json:"success"`
-		Address      string `json:"address"`
-		Signature    string `json:"signature"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
-		ErrorCode    string `json:"errorCode,omitempty"`
-	}
+type signMessageForAddressResponse struct {
+	Success        bool   `json:"success"`
+	Address        string `json:"address,omitempty"`
+	DisplayAddress string `json:"displayAddress,omitempty"`
+	Signature      string `json:"signature,omitempty"`
+	ErrorMessage   string `json:"errorMessage,omitempty"`
+	ErrorCode      string `json:"errorCode,omitempty"`
+}
 
+func (handlers *Handlers) signMessageForAddressErrorResponse(err error) signMessageForAddressResponse {
+	cause := errp.Cause(err)
+	if errCode, ok := cause.(errp.ErrorCode); ok {
+		return signMessageForAddressResponse{Success: false, ErrorCode: string(errCode)}
+	}
+	handlers.log.WithField("code", handlers.account.Config().Config.Code).WithError(err).Error("unexpected error signing message")
+	return signMessageForAddressResponse{Success: false, ErrorMessage: "An unexpected error occurred."}
+}
+
+func (handlers *Handlers) postSignBTCMessageUnusedAddress(r *http.Request) (interface{}, error) {
 	var request struct {
-		AccountCode types.Code         `json:"accountCode"`
-		Msg         string             `json:"msg"`
-		Format      signing.ScriptType `json:"format"`
+		Msg    string             `json:"msg"`
+		Format signing.ScriptType `json:"format"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
 	}
 
-	account, ok := handlers.account.(*btc.Account)
+	btcAccount, ok := handlers.account.(*btc.Account)
 	if !ok {
-		return response{
+		return signMessageForAddressResponse{
 			Success:      false,
-			ErrorMessage: "An account must be BTC based to support address signing.",
+			ErrorMessage: "Must be a BTC based account",
 		}, nil
 	}
 
-	address, signature, err := btc.SignBTCAddress(
-		account,
-		request.Msg,
-		request.Format)
+	address, signature, err := btc.SignBTCMessageUnusedAddress(btcAccount, request.Msg, request.Format)
 	if err != nil {
-		if firmware.IsErrorAbort(err) {
-			return response{Success: false, ErrorCode: errp.ErrUserAbort.Error()}, nil
-		}
-		if errp.Cause(err) == backend.ErrWrongKeystore {
-			return response{Success: false, ErrorCode: backend.ErrWrongKeystore.Error()}, nil
-		}
-
-		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return handlers.signMessageForAddressErrorResponse(err), nil
 	}
-	return response{Success: true, Address: address, Signature: signature}, nil
+	return signMessageForAddressResponse{
+		Success:        true,
+		Address:        address,
+		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
+		Signature:      signature,
+	}, nil
+}
+
+func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) (interface{}, error) {
+	var request struct {
+		AddressID string `json:"addressID"`
+		Msg       string `json:"msg"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	btcAccount, ok := handlers.account.(*btc.Account)
+	if !ok {
+		return signMessageForAddressResponse{
+			Success:      false,
+			ErrorMessage: "Must be a BTC based account",
+		}, nil
+	}
+
+	address, signature, err := btcAccount.SignBTCMessageForAddress(request.AddressID, request.Msg)
+	if err != nil {
+		return handlers.signMessageForAddressErrorResponse(err), nil
+	}
+	return signMessageForAddressResponse{
+		Success:        true,
+		Address:        address,
+		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
+		Signature:      signature,
+	}, nil
+}
+
+func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) (interface{}, error) {
+	var request struct {
+		Msg string `json:"msg"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	ethAccount, ok := handlers.account.(*eth.Account)
+	if !ok {
+		return signMessageForAddressResponse{
+			Success:      false,
+			ErrorMessage: "Must be an ETH based account",
+		}, nil
+	}
+
+	address, signature, err := ethAccount.SignETHMessage(request.Msg)
+	if err != nil {
+		return handlers.signMessageForAddressErrorResponse(err), nil
+	}
+	return signMessageForAddressResponse{
+		Success:        true,
+		Address:        address,
+		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
+		Signature:      signature,
+	}, nil
 }
 
 func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, error) {

@@ -23,7 +23,7 @@ export const WCSigningRequest = () => {
   const requestDataRef = useRef<TSigningRequestData>();
 
   const launchSignDialog = ({ topic, id, apiCaller, dialogContent }: TLaunchSignDialog) => {
-    const { signingData, currentSession, accountAddress, accountName, chain, method } = dialogContent;
+    const { signingData, currentSession, accountAddress, accountName, chain, displayAddress, method } = dialogContent;
 
     // storing data to be used whenever
     // user accepts or rejects later
@@ -37,6 +37,7 @@ export const WCSigningRequest = () => {
     setDialogContent({
       accountAddress,
       accountName,
+      displayAddress,
       signingData,
       chain,
       currentSession,
