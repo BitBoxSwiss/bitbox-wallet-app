@@ -11,7 +11,7 @@ import style from './deals.module.css';
 
 type TProps = {
   marketDealsResponse: marketAPI.TMarketDealsResponse | undefined;
-  goToVendor: (vendor: string) => void;
+  goToVendor: (vendor: marketAPI.TVendorName) => void;
   action: marketAPI.TMarketAction;
   setInfo: (info: TInfoContentProps) => void;
 };

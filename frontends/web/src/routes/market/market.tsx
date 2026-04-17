@@ -186,7 +186,7 @@ export const Market = ({
     }
   };
 
-  const goToVendor = async (vendor: string) => {
+  const goToVendor = async (vendor: marketAPI.TVendorName) => {
     if (!vendor) {
       return;
     }
