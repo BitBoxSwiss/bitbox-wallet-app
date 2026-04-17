@@ -25,7 +25,7 @@ import { Deals } from './components/deals';
 import { getNativeLocale } from '@/api/nativelocale';
 import { getConfig, setConfig } from '@/utils/config';
 import { CountrySelect, TOption } from './components/countryselect';
-import { getBTCDirectOTCLink, InfoContent, TInfoContentProps } from './components/infocontent';
+import { getBTCDirectOTCLink, getPocketOTCLink, InfoContent, TInfoContentProps } from './components/infocontent';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
 import { open } from '@/api/system';
@@ -61,11 +61,13 @@ export const Market = ({
   const title = t('generic.buySell');
 
   const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
+  const [agreedPocketOTCTerms, setAgreedPocketOTCTerms] = useState(false);
 
   // sync the OTC disclaimer state from persisted frontend config.
   useEffect(() => {
     if (config) {
       setAgreedBTCDirectOTCTerms(config.frontend.skipBTCDirectOTCDisclaimer);
+      setAgreedPocketOTCTerms(config.frontend.skipPocketOTCDisclaimer);
     }
   }, [config]);
 
@@ -202,12 +204,22 @@ export const Market = ({
       return;
     }
     if (activeTab === 'otc') {
-      if (agreedBTCDirectOTCTerms) {
-        open(getBTCDirectOTCLink());
-      } else {
-        navigate('/market/btcdirect-otc');
+      switch (vendor) {
+      case 'btcdirect-otc':
+        if (agreedBTCDirectOTCTerms) {
+          open(getBTCDirectOTCLink());
+        } else {
+          navigate('/market/btcdirect-otc');
+        }
+        return;
+      case 'pocket-otc':
+        if (agreedPocketOTCTerms) {
+          open(getPocketOTCLink());
+        } else {
+          navigate('/market/pocket-otc');
+        }
+        return;
       }
-      return;
     }
     if (!selectedAccount) {
       return;

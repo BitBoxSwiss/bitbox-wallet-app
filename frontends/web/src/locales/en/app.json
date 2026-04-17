@@ -657,6 +657,34 @@
           }
         },
         "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "info": "The BitBoxApp does not collect personal data. Pocket Private collects necessary information as per their Privacy Policy to meet regulatory standards.",
+              "link": "Pocket privacy policy",
+              "title": "Data Protection"
+            },
+            "kyc": {
+              "info": "Customer identity verification is required for using Pocket Private. Your account manager will guide you through the process and answer any questions you might have.",
+              "title": "Identity verification"
+            },
+            "payment": {
+              "info": [
+                "<strong>Buying bitcoin:</strong> Place large buy orders with your account manager and pay via bank transfer. Your Bitcoin is delivered directly to your BitBox after payment.",
+                "<strong>Sell bitcoin:</strong> Bank payment is made once you send bitcoin to Pocket Private. Personal assistance is available if needed.",
+                "<strong>Trading fees:</strong> Trading fees are based on lifetime volume, meaning your fee decreases as your total trading volume increases, regardless of order size."
+              ],
+              "title": "Payment methods and fees"
+            },
+            "partnership": {
+              "text": "In partnership with Pocket Private, BitBox offers large transaction trading for Bitcoin. Pocket Private clients are assigned an account manager for personal assistance.",
+              "title": "Buy and sell with Pocket Private"
+            },
+            "security": {
+              "info": "Pocket Private is an external service not covered by the BitBox security threat model. However, Pocket Private is well-acquainted with BitBox products and offers secure, knowledgeable guidance. BitBox products verify Bitcoin addresses during transactions to ensure secure delivery.",
+              "link": "BitBox security threat model",
+              "title": "Security"
+            }
+          },
           "infobox": {
             "intro": "Get personal assistance and better fees for high-value over-the-counter (OTC) trades for Bitcoin. With Pocket Private, your fees decrease with your lifetime volume, so you always get the best fee no matter the order size.",
             "learnmore": "Learn more about Pocket Private",

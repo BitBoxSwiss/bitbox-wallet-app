@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TAccount } from '@/api/account';
 import type { TMarketAction, TVendorName, TPaymentMethod } from '@/api/market';
-import { LocalizationContext } from '@/contexts/localization-context';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
-import { formatLocalizedAmount } from '@/components/amount/amount';
-import { Table, Tbody, Td, Th, Thead, Tr } from '@/components/table/table';
+import { PocketOTCTradingVolumeTable } from '@/components/terms/pocket-otc-terms';
 import style from './infocontent.module.css';
 
 export const getBTCDirectOTCLink = () => {
@@ -151,60 +148,13 @@ const PocketInfo = ({ bankTransferFee }: TPocketInfoProps) => {
 
 const PocketOTCInfo = () => {
   const { t } = useTranslation();
-  const { decimal, group } = useContext(LocalizationContext);
   return (
     <div className={style.container}>
       <p>
         {t('buy.exchange.infoContent.pocket-otc.infobox.intro')}
       </p>
       <br />
-
-      <Table>
-        <Thead>
-          <Tr>
-            <Th>
-              {t('buy.exchange.infoContent.pocket-otc.infobox.tradingVolume')}
-            </Th>
-            <Th>
-              {t('buy.exchange.infoContent.pocket-otc.infobox.transactionFee')}
-            </Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          <Tr>
-            <Td>
-              EUR {formatLocalizedAmount('100\'000.00', group, decimal)} +
-            </Td>
-            <Td>
-              1.29%
-            </Td>
-          </Tr>
-          <Tr>
-            <Td>
-              EUR {formatLocalizedAmount('250\'000.00', group, decimal)} +
-            </Td>
-            <Td>
-              1.09%
-            </Td>
-          </Tr>
-          <Tr>
-            <Td>
-              EUR {formatLocalizedAmount('500\'000.00', group, decimal)} +
-            </Td>
-            <Td>
-              0.89%
-            </Td>
-          </Tr>
-          <Tr>
-            <Td>
-              EUR {formatLocalizedAmount('1\'000\'000.00', group, decimal)} +
-            </Td>
-            <Td>
-              0.69%
-            </Td>
-          </Tr>
-        </Tbody>
-      </Table>
+      <PocketOTCTradingVolumeTable />
       <br />
       <p>
         <A href={getPocketOTCLink()}>
