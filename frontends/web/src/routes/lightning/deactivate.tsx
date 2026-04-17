@@ -7,7 +7,7 @@ import { Header, Main } from '../../components/layout';
 import { View, ViewButtons, ViewContent } from '../../components/view/view';
 import { MultilineMarkup } from '../../utils/markup';
 import { Button, Checkbox } from '../../components/forms';
-import { postDeactivateNode } from '../../api/lightning';
+import { postDeactivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { Spinner } from '../../components/spinner/Spinner';
 import { route } from '../../utils/route';
@@ -27,7 +27,7 @@ export const LightningDeactivate = () => {
     setStep('wait');
 
     try {
-      await postDeactivateNode();
+      await postDeactivate();
       setStep('success');
     } catch (err) {
       setDeactivateError(String(err));

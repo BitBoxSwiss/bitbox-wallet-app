@@ -253,20 +253,6 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChanged).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/export-log", handlers.postExportLog).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/lightning/account", handlers.getLightningAccount).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/lightning/activate-node", handlers.postLightningActivateNode).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/lightning/deactivate-node", handlers.postLightningDeactivateNode).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/lightning/node-info", handlers.getLightningNodeInfo).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/lightning/balance", handlers.getLightningBalance).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/lightning/list-payments", handlers.getLightningListPayments).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/lightning/open-channel-fee", handlers.getLightningOpenChannelFee).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/lightning/parse-input", handlers.getLightningParseInput).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/lightning/boarding-address", handlers.getLightningBoardingAddress).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/lightning/receive-payment", handlers.postLightningReceivePayment).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/lightning/send-payment", handlers.postLightningSendPayment).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/lightning/diagnostic-data", handlers.getLightningDiagnosticData).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/lightning/report-payment-failure", handlers.postLightningReportPaymentFailure).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/lightning/service-health-check", handlers.getLightningServiceHealthCheck).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/notes/export", handlers.postExportNotes).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/import", handlers.postImportNotes).Methods("POST")
 
@@ -275,6 +261,11 @@ func NewHandlers(
 
 	getAPIRouterNoError(apiRouter)("/online", handlers.getOnline).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/show-backup-banner/{rootFingerprint}", handlers.getKeystoreShowBackupBanner).Methods("GET")
+
+	lightning.NewHandlers(
+		getAPIRouterNoError(apiRouter.PathPrefix("/lightning").Subrouter()),
+		backend.Lightning(),
+	)
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
@@ -1607,62 +1598,6 @@ func (handlers *Handlers) postExportLog(r *http.Request) interface{} {
 		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	return result{Success: true}
-}
-
-func (handlers *Handlers) getLightningAccount(r *http.Request) interface{} {
-	return handlers.backend.Lightning().GetAccount(r)
-}
-
-func (handlers *Handlers) postLightningActivateNode(r *http.Request) interface{} {
-	return handlers.backend.Lightning().PostLightningActivateNode(r)
-}
-
-func (handlers *Handlers) postLightningDeactivateNode(r *http.Request) interface{} {
-	return handlers.backend.Lightning().PostLightningDeactivateNode(r)
-}
-
-func (handlers *Handlers) getLightningNodeInfo(r *http.Request) interface{} {
-	return handlers.backend.Lightning().GetNodeInfo(r)
-}
-
-func (handlers *Handlers) getLightningBalance(r *http.Request) interface{} {
-	return handlers.backend.Lightning().GetBalance(r)
-}
-
-func (handlers *Handlers) getLightningListPayments(r *http.Request) interface{} {
-	return handlers.backend.Lightning().GetListPayments(r)
-}
-
-func (handlers *Handlers) getLightningOpenChannelFee(r *http.Request) interface{} {
-	return handlers.backend.Lightning().GetOpenChannelFee(r)
-}
-
-func (handlers *Handlers) getLightningParseInput(r *http.Request) interface{} {
-	return handlers.backend.Lightning().GetParseInput(r)
-}
-
-func (handlers *Handlers) getLightningBoardingAddress(r *http.Request) interface{} {
-	return handlers.backend.Lightning().GetBoardingAddress(r)
-}
-
-func (handlers *Handlers) postLightningReceivePayment(r *http.Request) interface{} {
-	return handlers.backend.Lightning().PostReceivePayment(r)
-}
-
-func (handlers *Handlers) postLightningSendPayment(r *http.Request) interface{} {
-	return handlers.backend.Lightning().PostSendPayment(r)
-}
-
-func (handlers *Handlers) getLightningDiagnosticData(r *http.Request) interface{} {
-	return handlers.backend.Lightning().GetDiagnosticData(r)
-}
-
-func (handlers *Handlers) postLightningReportPaymentFailure(r *http.Request) interface{} {
-	return handlers.backend.Lightning().PostReportPaymentFailure(r)
-}
-
-func (handlers *Handlers) getLightningServiceHealthCheck(r *http.Request) interface{} {
-	return handlers.backend.Lightning().GetServiceHealthCheck(r)
 }
 
 func (handlers *Handlers) postExportNotes(r *http.Request) interface{} {

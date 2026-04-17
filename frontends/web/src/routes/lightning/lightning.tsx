@@ -5,13 +5,10 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
 import { getDeviceList } from '../../api/devices';
 import {
-  Payment as IPayment,
-  PaymentStatus,
-  PaymentType,
+  TLightningPayment,
   getLightningBalance,
   getListPayments,
   subscribeListPayments,
-  subscribeNodeState,
   getBoardingAddress,
 } from '../../api/lightning';
 import { Balance } from '../../components/balance/balance';
@@ -36,7 +33,7 @@ export const Lightning = () => {
   const { btcUnit } = useContext(RatesContext);
   const [balance, setBalance] = useState<accountApi.TBalance>();
   const [syncedAddressesCount] = useState<number>();
-  const [payments, setPayments] = useState<IPayment[]>();
+  const [payments, setPayments] = useState<TLightningPayment[]>();
   const [error, setError] = useState<string>();
   const [detailID, setDetailID] = useState<accountApi.TTransaction['internalID'] | null>(null);
   const devices = useLoad(getDeviceList);
@@ -46,7 +43,7 @@ export const Lightning = () => {
     try {
       setError(undefined);
       setBalance(await getLightningBalance());
-      setPayments(await getListPayments({}));
+      setPayments(await getListPayments());
     } catch (err: any) {
       const errorMessage = err?.errorMessage || err;
       setError(errorMessage);
@@ -56,7 +53,7 @@ export const Lightning = () => {
   useEffect(() => {
     onStateChange();
 
-    const subscriptions = [subscribeNodeState(onStateChange), subscribeListPayments(onStateChange)];
+    const subscriptions = [subscribeListPayments(onStateChange)];
     return () => unsubscribe(subscriptions);
   }, [onStateChange, btcUnit]);
 
@@ -87,20 +84,6 @@ export const Lightning = () => {
       : '';
 
   const offlineErrorTextLines: string[] = [];
-  const toTxStatus = (status: PaymentStatus): accountApi.TTransactionStatus => {
-    switch (status) {
-    case PaymentStatus.COMPLETED:
-      return 'complete';
-    case PaymentStatus.FAILED:
-      return 'failed';
-    default:
-      return 'pending';
-    }
-  };
-
-  const toTxType = (paymentType: PaymentType): accountApi.TTransactionType =>
-    paymentType === PaymentType.RECEIVE ? 'receive' : 'send';
-
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -130,7 +113,7 @@ export const Lightning = () => {
               </div>
             </ViewHeader>
             <ViewContent fullWidth>
-              { <>Boarding address: {boardingAddress?.address ?? ''}</> }
+              { <>Boarding address: {boardingAddress ?? ''}</> }
               {offlineErrorTextLines.length || !hasDataLoaded ? (
                 <Spinner text={initializingSpinnerText} />
               ) : (
@@ -146,7 +129,7 @@ export const Lightning = () => {
                         estimated: false
                       },
                       deductedAmountAtTime: {
-                        amount: payment.paymentType === PaymentType.SEND ? (payment.amountSat + payment.feesSat).toString() : '',
+                        amount: payment.type === 'send' ? (payment.amountSat + payment.feesSat).toString() : '',
                         conversions: {}, // TODO: add conversions
                         unit: 'sat' as accountApi.NativeCoinUnit,
                         estimated: false
@@ -166,15 +149,15 @@ export const Lightning = () => {
                         unit: 'sat' as accountApi.NativeCoinUnit,
                         estimated: false
                       },
-                      type: toTxType(payment.paymentType), // TODO: add payment.paymentType 'closedChannel'
+                      type: payment.type,
                       txID: payment.id,
                       note: payment.description || '',
-                      status: toTxStatus(payment.status),
+                      status: payment.status,
                       time: payment.timestamp ? new Date(payment.timestamp * 1000).toString() : null, // TODO: remove hack?
                       // most of these are not for lightning
                       gas: 0,
                       nonce: null,
-                      numConfirmationsComplete: payment.status === PaymentStatus.PENDING ? 1 : 0,
+                      numConfirmationsComplete: payment.status === 'pending' ? 1 : 0,
                       size: 0,
                       numConfirmations: 0,
                       vsize: 0,
