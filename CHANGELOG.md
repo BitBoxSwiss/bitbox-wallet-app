@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v4.51.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.1
 - Format addresses in groups of 4 characters
 - iOS: Add haptic feedback on account summary chart scrolls
