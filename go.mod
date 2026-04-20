@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260303104349-15a1f0c828a6
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d
-	github.com/breez/breez-sdk-spark-go v0.8.2
+	github.com/breez/breez-sdk-spark-go v0.13.1
 	github.com/btcsuite/btcd v0.25.0
 	github.com/btcsuite/btcd/btcec/v2 v2.3.5
 	github.com/btcsuite/btcd/btcutil v1.1.6
@@ -21,9 +21,9 @@ require (
 	github.com/sirupsen/logrus v1.9.4
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/stretchr/testify v1.10.0
+	github.com/tyler-smith/go-bip39 v1.1.0
 	go.etcd.io/bbolt v1.4.3
 	golang.org/x/crypto v0.46.0
-	github.com/tyler-smith/go-bip39 v1.1.0
 	golang.org/x/mobile v0.0.0-20240716161057-1ad2df20a8b6
 	golang.org/x/net v0.48.0
 	golang.org/x/time v0.10.0
