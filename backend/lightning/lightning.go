@@ -173,7 +173,7 @@ func (lightning *Lightning) Balance() (*accounts.Balance, error) {
 		EnsureSynced: &ensureSynced,
 	})
 
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -230,7 +230,7 @@ func (lightning *Lightning) connect(_ bool) error {
 
 		// Connect to the SDK using the simplified connect method
 		sdk, err := breez_sdk_spark.Connect(connectRequest)
-		if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
+		if err != nil {
 			lightning.log.WithError(err).Error("BreezSDK: Error connecting SDK")
 			return err
 		}
@@ -238,7 +238,7 @@ func (lightning *Lightning) connect(_ bool) error {
 		sdk.AddEventListener(lightning)
 		initializeLogging(lightning.log)
 		_, err = sdk.SyncWallet(breez_sdk_spark.SyncWalletRequest{})
-		if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
+		if err != nil {
 			lightning.log.WithError(err).Error("BreezSDK: Error connecting SDK")
 			if err := sdk.Disconnect(); err != nil {
 				lightning.log.WithError(err).Warn("BreezSDK: Error disconnecting SDK")

@@ -15,10 +15,13 @@ func TestToLightningPayment(t *testing.T) {
 	description := "invoice description"
 	preimage := "preimage"
 	details := breez_sdk_spark.PaymentDetailsLightning{
-		Description: &description,
-		Preimage:    &preimage,
-		Invoice:     "lnbc1invoice",
-		PaymentHash: "hash",
+		Description:       &description,
+		Invoice:           "lnbc1invoice",
+		DestinationPubkey: "destination",
+		HtlcDetails: breez_sdk_spark.SparkHtlcDetails{
+			PaymentHash: "hash",
+			Preimage:    &preimage,
+		},
 	}
 	var paymentDetails breez_sdk_spark.PaymentDetails = details
 

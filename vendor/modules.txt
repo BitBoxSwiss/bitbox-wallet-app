@@ -33,9 +33,7 @@ github.com/aead/siphash
 # github.com/bits-and-blooms/bitset v1.20.0
 ## explicit; go 1.16
 github.com/bits-and-blooms/bitset
-# github.com/btcsuite/btcd v0.25.0
-## explicit; go 1.23.2
-# github.com/breez/breez-sdk-spark-go v0.8.2
+# github.com/breez/breez-sdk-spark-go v0.13.1
 ## explicit; go 1.19
 github.com/breez/breez-sdk-spark-go/breez_sdk_spark
 github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib

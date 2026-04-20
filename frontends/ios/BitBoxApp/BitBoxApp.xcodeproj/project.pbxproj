@@ -853,7 +853,7 @@
 			repositoryURL = "https://github.com/breez/breez-sdk-spark-swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = "0.8.2";
+				version = "0.13.1";
 			};
 		};
 		A11AC9CB2F33AE2300AB2B88 /* XCRemoteSwiftPackageReference "breez-sdk-spark-swift" */ = {
@@ -861,7 +861,7 @@
 			repositoryURL = "https://github.com/breez/breez-sdk-spark-swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = "0.8.2";
+				version = "0.13.1";
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

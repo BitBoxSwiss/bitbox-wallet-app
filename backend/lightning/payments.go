@@ -50,7 +50,7 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*parsePaymentInp
 		return nil, err
 	}
 	input, err := lightning.sdkService.Parse(inputStr)
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -154,11 +154,11 @@ func toLightningPayment(payment breez_sdk_spark.Payment) lightningPayment {
 		if details.Description != nil {
 			result.Description = *details.Description
 		}
-		if details.Preimage != nil {
-			result.PaymentPreimage = *details.Preimage
-		}
 		result.Invoice = details.Invoice
-		result.PaymentHash = details.PaymentHash
+		result.PaymentHash = details.HtlcDetails.PaymentHash
+		if details.HtlcDetails.Preimage != nil {
+			result.PaymentPreimage = *details.HtlcDetails.Preimage
+		}
 	case breez_sdk_spark.PaymentDetailsSpark:
 		if details.InvoiceDetails != nil {
 			if details.InvoiceDetails.Description != nil {
@@ -201,7 +201,7 @@ func (lightning *Lightning) SendPayment(paymentRequest string, amountSat *uint64
 		request.Amount = &optionalAmountSats
 	}
 	prepareResponse, err := lightning.sdkService.PrepareSendPayment(request)
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
+	if err != nil {
 		return err
 	}
 
@@ -225,7 +225,7 @@ func (lightning *Lightning) SendPayment(paymentRequest string, amountSat *uint64
 	}
 	_, err = lightning.sdkService.SendPayment(payRequest)
 
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
+	if err != nil {
 		return err
 	}
 	return nil
@@ -241,7 +241,7 @@ func (lightning *Lightning) BoardingAddress() (string, error) {
 	}
 
 	response, err := lightning.sdkService.ReceivePayment(request)
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
+	if err != nil {
 		return "", err
 	}
 
@@ -269,7 +269,7 @@ func (lightning *Lightning) ReceivePayment(amountSat uint64, description string)
 	}
 
 	response, err := lightning.sdkService.ReceivePayment(request)
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -285,7 +285,7 @@ func (lightning *Lightning) ListPayments() ([]lightningPayment, error) {
 		return nil, err
 	}
 	response, err := lightning.sdkService.ListPayments(breez_sdk_spark.ListPaymentsRequest{})
-	if sdkErr := err.(*breez_sdk_spark.SdkError); sdkErr != nil {
+	if err != nil {
 		return nil, err
 	}
 
