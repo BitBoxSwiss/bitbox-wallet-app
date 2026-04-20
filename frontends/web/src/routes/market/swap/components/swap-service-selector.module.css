@@ -37,6 +37,36 @@
     white-space: normal;
 }
 
+.logoGroup {
+    align-items: center;
+    display: inline-flex;
+    flex-shrink: 0;
+}
+
+.logo {
+    background: var(--background-secondary);
+    border-radius: var(--radius-full);
+    display: block;
+}
+
+.logo + .logo {
+    margin-left: calc((var(--space-three-quarter) / 2) * -1);
+}
+
+.logoOverflowBadge {
+    align-items: center;
+    background: var(--background-tertiary);
+    border: 1px solid var(--background-quaternary);
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    font-size: var(--size-smaller);
+    height: calc(var(--space-half) + var(--space-eight));
+    justify-content: center;
+    margin-left: calc((var(--space-three-quarter) / 2) * -1);
+    min-width: calc(var(--space-half) + var(--space-eight));
+    padding: 0 var(--space-eight);
+}
+
 .select :global(.react-select__menu) {
     background-color: var(--background-secondary);
     z-index: 99;
@@ -57,7 +87,7 @@
     text-align: right;
 }
 
-.serivceName {
+.serviceName {
     display: inline-block;
     padding-right: .4ch;
 }

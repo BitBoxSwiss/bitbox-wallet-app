@@ -132,7 +132,7 @@ func TestNewQuoteFromCoinCodeUsesInjectedHTTPClient(t *testing.T) {
 			return &http.Response{
 				StatusCode: http.StatusOK,
 				Body: io.NopCloser(strings.NewReader(
-					`{"routes":[{"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"1.23"}]}`,
+					`{"routes":[{"providers":["provider-a"],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"1.23"}]}`,
 				)),
 				Header: make(http.Header),
 			}, nil
@@ -149,6 +149,7 @@ func TestNewQuoteFromCoinCodeUsesInjectedHTTPClient(t *testing.T) {
 	require.Nil(t, apiError)
 	require.Len(t, response.Routes, 1)
 	require.Equal(t, "1.23", response.Routes[0].ExpectedBuyAmount)
+	require.Equal(t, []string{"provider-a"}, response.Routes[0].Providers)
 }
 
 func TestNewQuoteFromCoinCodeSupportsLitecoin(t *testing.T) {

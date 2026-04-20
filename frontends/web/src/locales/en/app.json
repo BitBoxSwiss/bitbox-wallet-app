@@ -1455,6 +1455,10 @@
     "title": "Select language"
   },
   "loading": "loading…",
+  "logo": {
+    "label": "{{name}} logo",
+    "placeholderLabel": "{{name}} placeholder logo"
+  },
   "manageAccounts": {
     "accountHidden": "This account has been hidden from your watch-only accounts. To see it again, please plug in your BitBox.",
     "editAccount": "Edit",
