@@ -43,6 +43,23 @@ export const formatLocalizedAmount = (
   );
 };
 
+type TLocalizedNumberProps = {
+  number: string;
+};
+
+/**
+ * Converts a Swiss-formatted number string to the current locale format.
+ *
+ * @param number - Swiss-formatted number string
+ * @returns Locale-formatted number string
+ */
+export const LocalizedNumber = ({
+  number
+}: TLocalizedNumberProps) => {
+  const { decimal, group } = useContext(LocalizationContext);
+  return formatLocalizedAmount(number, group, decimal);
+};
+
 const formatBtc = (
   amount: string,
   group: string,

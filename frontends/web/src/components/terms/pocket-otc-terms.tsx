@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, type ChangeEvent } from 'react';
+import { type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { i18n } from '@/i18n/i18n';
 import { setConfig } from '@/utils/config';
 import { SimpleMarkup } from '@/utils/markup';
-import { LocalizationContext } from '@/contexts/localization-context';
-import { formatLocalizedAmount } from '@/components/amount/amount';
+import { LocalizedNumber } from '@/components/amount/amount';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@/components/table/table';
 import { Button, Checkbox } from '@/components/forms';
 import { A } from '@/components/anchor/anchor';
@@ -33,7 +32,6 @@ const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
 
 export const PocketOTCTradingVolumeTable = () => {
   const { t } = useTranslation();
-  const { decimal, group } = useContext(LocalizationContext);
   return (
     <Table>
       <Thead>
@@ -49,34 +47,34 @@ export const PocketOTCTradingVolumeTable = () => {
       <Tbody>
         <Tr>
           <Td>
-            EUR {formatLocalizedAmount('100\'000.00', group, decimal)} +
+            EUR <LocalizedNumber number="100'000.00" /> +
           </Td>
           <Td>
-            1.29%
-          </Td>
-        </Tr>
-        <Tr>
-          <Td>
-            EUR {formatLocalizedAmount('250\'000.00', group, decimal)} +
-          </Td>
-          <Td>
-            1.09%
+            <LocalizedNumber number="1.29" />%
           </Td>
         </Tr>
         <Tr>
           <Td>
-            EUR {formatLocalizedAmount('500\'000.00', group, decimal)} +
+            EUR <LocalizedNumber number="250'000.00" /> +
           </Td>
           <Td>
-            0.89%
+            <LocalizedNumber number="1.09" />%
           </Td>
         </Tr>
         <Tr>
           <Td>
-            EUR {formatLocalizedAmount('1\'000\'000.00', group, decimal)} +
+            EUR <LocalizedNumber number="500'000.00" /> +
           </Td>
           <Td>
-            0.69%
+            <LocalizedNumber number="0.89" />%
+          </Td>
+        </Tr>
+        <Tr>
+          <Td>
+            EUR <LocalizedNumber number="1'000'000.00" /> +
+          </Td>
+          <Td>
+            <LocalizedNumber number="0.69" />%
           </Td>
         </Tr>
       </Tbody>
