@@ -14,6 +14,7 @@ import { View, ViewContent } from '@/components/view/view';
 import { MarketGuide } from './guide';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
+import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { getRegionNameFromLocale } from '@/i18n/utils';
 import { getVendorFormattedName } from './utils';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -60,16 +61,13 @@ export const Market = ({
 
   const title = t('generic.buySell');
 
-  const [agreedBTCDirectOTCTerms, setAgreedBTCDirectOTCTerms] = useState(false);
-  const [agreedPocketOTCTerms, setAgreedPocketOTCTerms] = useState(false);
+  const {
+    agreedTerms: agreedBTCDirectOTCTerms,
+  } = useVendorTerms(!!config?.frontend?.skipBitsuranceDisclaimer);
 
-  // sync the OTC disclaimer state from persisted frontend config.
-  useEffect(() => {
-    if (config) {
-      setAgreedBTCDirectOTCTerms(config.frontend.skipBTCDirectOTCDisclaimer);
-      setAgreedPocketOTCTerms(config.frontend.skipPocketOTCDisclaimer);
-    }
-  }, [config]);
+  const {
+    agreedTerms: agreedPocketOTCTerms,
+  } = useVendorTerms(!!config?.frontend?.skipPocketOTCDisclaimer);
 
   // finish pending swap navigation after a keystore connection attempt resolves.
   useEffect(() => {
