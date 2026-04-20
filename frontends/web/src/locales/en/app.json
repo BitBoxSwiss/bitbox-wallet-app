@@ -1489,6 +1489,8 @@
       },
       "title": "Create lightning wallet",
       "wait": {
+        "activating": "Enabling lightning wallet...",
+        "confirm": "Confirm on your BitBox that you want to create a lightning wallet.",
         "title": "Create lightning wallet"
       }
     },
