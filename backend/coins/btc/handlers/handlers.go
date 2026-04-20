@@ -827,15 +827,6 @@ func (handlers *Handlers) getHasSwapPaymentRequest(r *http.Request) (interface{}
 		ErrorCode    string `json:"errorCode,omitempty"`
 	}
 
-	switch handlers.account.(type) {
-	case *btc.Account:
-	default:
-		return response{
-			Success:      false,
-			ErrorMessage: "An account must be BTC based to support swap payment requests.",
-		}, nil
-	}
-
 	accountKeystore, err := handlers.account.Config().ConnectKeystore()
 	if err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}, nil

@@ -391,6 +391,10 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 	txType := tx.Type()
 	switch txType { // version bytes defined in EIP2718 https://eips.ethereum.org/EIPS/eip-2718
 	case 2:
+		var paymentRequest *messages.BTCPaymentRequestRequest
+		if txProposal.PaymentRequest != nil {
+			paymentRequest = newBTCPaymentRequest(txProposal.PaymentRequest)
+		}
 		signature, err = keystore.device.ETHSignEIP1559(
 			txProposal.Coin.ChainID(),
 			txProposal.Keypath.ToUInt32(),
@@ -402,9 +406,12 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 			tx.Value(),
 			tx.Data(),
 			firmware.ETHIdentifyCase(txProposal.RecipientAddress),
-			nil,
+			paymentRequest,
 		)
 	case 0:
+		if txProposal.PaymentRequest != nil {
+			return errp.New("payment requests require EIP-1559 support")
+		}
 		signature, err = keystore.device.ETHSign(
 			txProposal.Coin.ChainID(),
 			txProposal.Keypath.ToUInt32(),
