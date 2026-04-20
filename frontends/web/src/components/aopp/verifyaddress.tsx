@@ -5,32 +5,44 @@ import { useTranslation } from 'react-i18next';
 import * as accountAPI from '@/api/account';
 import { Button } from '@/components/forms';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
+import { PointToBitBox02 } from '../icon';
 
 type TProps = {
   accountCode: accountAPI.AccountCode;
-  address: string;
+  displayAddress: string;
   addressID: string;
 };
 
-export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
+export const VerifyAddress = ({ accountCode, displayAddress, addressID }: TProps) => {
   const [verifying, setVerifying] = useState(false);
   const { t } = useTranslation();
   const verifyAddress = async () => {
     setVerifying(true);
-    await accountAPI.verifyAddress(accountCode, addressID);
-    setVerifying(false);
+    try {
+      await accountAPI.verifyAddress(accountCode, addressID);
+    } finally {
+      setVerifying(false);
+    }
   };
 
   return (
-    <div className="flex flex-column">
+    <>
       <Button secondary onClick={verifyAddress}>
         {t('receive.verifyBitBox02')}
       </Button>
       { verifying ? (
-        <WaitDialog title={t('receive.verifyBitBox02')}>
-          { address }
+        <WaitDialog
+          noSidebarOffset
+          medium
+          title={t('receive.verifyBitBox02')}>
+          <div>
+            { displayAddress }
+            <br />
+            <br />
+            <PointToBitBox02 />
+          </div>
         </WaitDialog>
       ) : null }
-    </div>
+    </>
   );
 };

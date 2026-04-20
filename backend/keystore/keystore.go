@@ -8,6 +8,7 @@ import (
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/ethereum/go-ethereum/core/types"
 )
@@ -42,10 +43,26 @@ var (
 // ErrSigningAborted is used when the user aborts a signing in process (e.g. abort on HW wallet).
 var ErrSigningAborted = errors.New("signing aborted by user")
 
+// Event instances are emitted by keystore implementations.
+type Event string
+
+const (
+	// EventNameChanged is emitted when the keystore name changes.
+	EventNameChanged Event = "nameChanged"
+)
+
+// NameChangedEvent is the payload for EventNameChanged.
+type NameChangedEvent struct {
+	Name            string
+	RootFingerprint []byte
+}
+
 // Keystore supports hardened key derivation according to BIP32 and signing of transactions.
 //
 //go:generate moq -pkg mocks -out mocks/keystore.go . Keystore
 type Keystore interface {
+	observable.Interface
+
 	// Type denotes the type of the keystore.
 	Type() Type
 
@@ -117,11 +134,12 @@ type Keystore interface {
 	// Electrum format.
 	SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coin.Code) ([]byte, error)
 
-	// SignETHMessage signs the message using the private key at the keypath. The result contains a
+	// SignETHMessage signs the message using the private key at the keypath for the given chain ID.
+	// The result contains a
 	// 65 byte signature. The first 64 bytes are the secp256k1 signature in / compact format (R and
 	// S values), and the last byte is the recoverable id (recid). 27 is added to the recID to denote
 	// an uncompressed pubkey. Returns ErrSigningAborted if the user aborts.
-	SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
+	SignETHMessage(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
 
 	// ETHSignTypedMessage signs an Ethereum EIP-712 typed message. The result contains a
 	// 65 byte signature. The first 64 bytes are the secp256k1 signature in / compact format (R and

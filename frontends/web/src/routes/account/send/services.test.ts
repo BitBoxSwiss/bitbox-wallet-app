@@ -20,7 +20,6 @@ vi.mock('i18next', async () => {
 });
 
 vi.mock('@/components/alert/Alert', () => ({
-  ...vi.importActual('@/components/alert/Alert'),
   alertUser: vi.fn()
 }));
 

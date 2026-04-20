@@ -37,6 +37,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/lightning"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	utilConfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -75,6 +77,7 @@ type Backend interface {
 	Register(device device.Interface) error
 	Deregister(deviceID string)
 	RatesUpdater() *rates.RateUpdater
+	CoinFiatPrices(coinpkg.Coin) *coinpkg.FormattedAmountWithConversions
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(*config.ServerInfo) error
 	RegisterTestKeystore(string)
@@ -94,6 +97,7 @@ type Backend interface {
 	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accountsTypes.Code, error)
 	SetAccountActive(accountCode accountsTypes.Code, active bool) error
 	SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error
+	SetAccountReceiveScriptType(accountCode accountsTypes.Code, scriptType signing.ScriptType) error
 	RenameAccount(accountCode accountsTypes.Code, name string) error
 	AOPP() backend.AOPP
 	AOPPCancel()
@@ -214,6 +218,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/set-account-receive-script-type", handlers.postSetAccountReceiveScriptType).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitialize).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/chart-data", handlers.getChartData).Methods("GET")
@@ -222,6 +227,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiat).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/{coinCode}/fiat-prices", handlers.getCoinFiatPrices).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTBTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeLTC)).Methods("GET")
@@ -385,17 +391,20 @@ type accountJSON struct {
 	// Multiple accounts can belong to the same keystore. For now we replicate the keystore info in
 	// the accounts. In the future the getAccountsHandler() could return the accounts grouped
 	// keystore.
-	Keystore              keystoreJSON       `json:"keystore"`
-	Active                bool               `json:"active"`
-	BitsuranceStatus      string             `json:"bitsuranceStatus"`
-	CoinCode              coinpkg.Code       `json:"coinCode"`
-	CoinUnit              string             `json:"coinUnit"`
-	CoinName              string             `json:"coinName"`
-	Code                  accountsTypes.Code `json:"code"`
-	Name                  string             `json:"name"`
-	IsToken               bool               `json:"isToken"`
-	ActiveTokens          []activeToken      `json:"activeTokens,omitempty"`
-	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
+	Keystore                   keystoreJSON        `json:"keystore"`
+	Active                     bool                `json:"active"`
+	BitsuranceStatus           string              `json:"bitsuranceStatus"`
+	CoinCode                   coinpkg.Code        `json:"coinCode"`
+	CoinUnit                   string              `json:"coinUnit"`
+	CoinName                   string              `json:"coinName"`
+	Code                       accountsTypes.Code  `json:"code"`
+	Name                       string              `json:"name"`
+	ReceiveScriptType          *signing.ScriptType `json:"receiveScriptType,omitempty"`
+	IsToken                    bool                `json:"isToken"`
+	ContractAddress            string              `json:"contractAddress,omitempty"`
+	ActiveTokens               []activeToken       `json:"activeTokens,omitempty"`
+	BlockExplorerTxPrefix      string              `json:"blockExplorerTxPrefix"`
+	BlockExplorerAddressPrefix string              `json:"blockExplorerAddressPrefix,omitempty"`
 	// Number of the account per coin per keystore, starting at 0. Nil if unknown.
 	AccountNumber *uint16 `json:"accountNumber"`
 }
@@ -407,6 +416,15 @@ func newAccountJSON(
 	keystoreConnected bool) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
+	contractAddress := ""
+	blockExplorerAddressPrefix := ""
+	if isToken {
+		contractAddress = eth.ERC20Token().ContractAddress().Hex()
+		blockExplorerURLPrefix := eth.BlockExplorerURLPrefix()
+		if blockExplorerURLPrefix != "" {
+			blockExplorerAddressPrefix = blockExplorerURLPrefix + "address/"
+		}
+	}
 	var accountNumberPtr *uint16
 	accountNumber, err := account.Config().Config.SigningConfigurations.AccountNumber()
 	if err == nil {
@@ -417,17 +435,20 @@ func newAccountJSON(
 			Keystore:  keystore,
 			Connected: keystoreConnected,
 		},
-		Active:                !account.Config().Config.Inactive,
-		BitsuranceStatus:      account.Config().Config.InsuranceStatus,
-		CoinCode:              account.Coin().Code(),
-		CoinUnit:              account.Coin().Unit(false),
-		CoinName:              account.Coin().Name(),
-		Code:                  account.Config().Config.Code,
-		Name:                  account.Config().Config.Name,
-		IsToken:               isToken,
-		ActiveTokens:          activeTokens,
-		BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
-		AccountNumber:         accountNumberPtr,
+		Active:                     !account.Config().Config.Inactive,
+		BitsuranceStatus:           account.Config().Config.InsuranceStatus,
+		CoinCode:                   account.Coin().Code(),
+		CoinUnit:                   account.Coin().Unit(false),
+		CoinName:                   account.Coin().Name(),
+		Code:                       account.Config().Config.Code,
+		Name:                       account.Config().Config.Name,
+		ReceiveScriptType:          account.Config().Config.ReceiveScriptType,
+		IsToken:                    isToken,
+		ContractAddress:            contractAddress,
+		ActiveTokens:               activeTokens,
+		BlockExplorerTxPrefix:      account.Coin().BlockExplorerTransactionURLPrefix(),
+		BlockExplorerAddressPrefix: blockExplorerAddressPrefix,
+		AccountNumber:              accountNumberPtr,
 	}
 }
 
@@ -720,10 +741,11 @@ func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
 		Address string `json:"address"`
 	}
 	type response struct {
-		Success      bool               `json:"success"`
-		Code         accountsTypes.Code `json:"code"`
-		Name         string             `json:"name"`
-		ErrorMessage string             `json:"errorMessage"`
+		Success        bool               `json:"success"`
+		Code           accountsTypes.Code `json:"code"`
+		Name           string             `json:"name"`
+		DisplayAddress string             `json:"displayAddress,omitempty"`
+		ErrorMessage   string             `json:"errorMessage"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
@@ -736,9 +758,10 @@ func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
 		}
 	}
 	return response{
-		Success: true,
-		Code:    code,
-		Name:    name,
+		Success:        true,
+		Code:           code,
+		Name:           name,
+		DisplayAddress: backendutil.FormatAddress(coinpkg.CodeETH, args.Address),
 	}
 }
 
@@ -846,6 +869,29 @@ func (handlers *Handlers) postRenameAccount(r *http.Request) interface{} {
 		if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
 			return response{Success: false, ErrorCode: string(errCode)}
 		}
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
+}
+
+func (handlers *Handlers) postSetAccountReceiveScriptType(r *http.Request) interface{} {
+	var jsonBody struct {
+		AccountCode accountsTypes.Code `json:"accountCode"`
+		ScriptType  signing.ScriptType `json:"scriptType"`
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	if err := handlers.backend.SetAccountReceiveScriptType(
+		jsonBody.AccountCode,
+		jsonBody.ScriptType,
+	); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{Success: true}
@@ -981,6 +1027,14 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 		"success":    true,
 		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, currency),
 	}
+}
+
+func (handlers *Handlers) getCoinFiatPrices(r *http.Request) interface{} {
+	coin, err := handlers.backend.Coin(coinpkg.Code(mux.Vars(r)["coinCode"]))
+	if err != nil {
+		return nil
+	}
+	return handlers.backend.CoinFiatPrices(coin)
 }
 
 func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
@@ -1753,7 +1807,8 @@ func (handlers *Handlers) getKeystoreShowBackupBanner(r *http.Request) interface
 
 func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 	type response struct {
-		Success bool `json:"success"`
+		Success   bool   `json:"success"`
+		ErrorCode string `json:"errorCode,omitempty"`
 	}
 
 	var request struct {
@@ -1765,5 +1820,11 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 	}
 
 	_, err := handlers.backend.ConnectKeystore([]byte(request.RootFingerprint))
+	if errp.Cause(err) == errp.ErrUserAbort {
+		return response{
+			Success:   false,
+			ErrorCode: errp.ErrUserAbort.Error(),
+		}
+	}
 	return response{Success: err == nil}
 }

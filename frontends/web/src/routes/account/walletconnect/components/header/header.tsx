@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { WalletConnectDefaultLogo } from '@/components/icon';
-import { truncateAddress } from '@/utils/walletconnect';
+import { truncateMiddle } from '@/utils/address';
 import styles from './header.module.css';
 
 type TWalletConnectProps = {
@@ -10,7 +10,7 @@ type TWalletConnectProps = {
 };
 
 export const WCHeader = ({ receiveAddress, accountName }: TWalletConnectProps) => {
-  const displayedReceiveAddress = truncateAddress(receiveAddress);
+  const displayedReceiveAddress = truncateMiddle(receiveAddress, 6, 6);
   return (
     <div className={styles.headerContainer}>
       <WalletConnectDefaultLogo />

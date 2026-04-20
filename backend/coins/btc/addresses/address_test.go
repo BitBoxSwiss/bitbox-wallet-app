@@ -59,6 +59,14 @@ func (s *addressTestSuite) TestScriptHashHex() {
 	s.Require().Equal(
 		blockchain.ScriptHashHex("1f4444773ff74188b4d8ccff2a2efec0cae61efce152cafef97b6fadb96382b5"),
 		s.address.PubkeyScriptHashHex())
+	s.Require().Equal(
+		addresses.AddressID("1f4444773ff74188b4d8ccff2a2efec0cae61efce152cafef97b6fadb96382b5"),
+		addresses.NewAddressID(s.address.PubkeyScript()),
+	)
+	s.Require().Equal(
+		"1f4444773ff74188b4d8ccff2a2efec0cae61efce152cafef97b6fadb96382b5",
+		s.address.ID(),
+	)
 }
 
 func TestAddressP2TR(t *testing.T) {

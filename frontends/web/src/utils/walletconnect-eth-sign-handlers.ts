@@ -25,6 +25,7 @@ export type TEthSignHandlerParams = {
 export type TRequestDialogContent = {
   accountName: string;
   accountAddress: string; // 'accountAddress' is the account's "receive" / "wallet" address
+  displayAddress?: string;
   chain: string;
   signingData: string; // data / message coming from dapp
   currentSession: SessionTypes.Struct;
@@ -42,10 +43,10 @@ const fetchAccountNameAndAddress = async (address: string) => {
   const accountDetail = await getEthAccountCodeAndNameByAddress(address);
   if (!accountDetail.success) {
     console.log('Failed in fetching account name and code'); //silently fails
-    return { accountName: '', accountCode: '' };
+    return { accountName: '', accountCode: '', displayAddress: undefined };
   }
-  const { code, name } = accountDetail;
-  return { accountName: name, accountCode: code };
+  const { code, displayAddress, name } = accountDetail;
+  return { accountName: name, accountCode: code, displayAddress };
 };
 
 export const handleWcEthSignRequest = async (
@@ -91,7 +92,7 @@ const ethSignHandler = async ({
     alertUser(t('walletConnect.signingRequest.decodeError'));
     return;
   }
-  const { accountName, accountCode } = await fetchAccountNameAndAddress(accountAddress);
+  const { accountName, accountCode, displayAddress } = await fetchAccountNameAndAddress(accountAddress);
   const apiCaller = async () => {
     const result = await ethSignMessage(accountCode, signingData);
     if (!result.success) {
@@ -112,6 +113,7 @@ const ethSignHandler = async ({
       currentSession,
       accountName,
       accountAddress,
+      displayAddress,
       chain: params.chainId,
       method: t('walletConnect.signingRequest.method.signMessage')
     }
@@ -129,7 +131,7 @@ const ethSignTypedDataHandler = async ({
   const accountAddress = requestParams[0];
   const data = requestParams[1];
   let typedData: any;
-  const { accountName, accountCode } = await fetchAccountNameAndAddress(accountAddress);
+  const { accountName, accountCode, displayAddress } = await fetchAccountNameAndAddress(accountAddress);
 
   try {
     typedData = JSON.parse(data);
@@ -164,6 +166,7 @@ const ethSignTypedDataHandler = async ({
       currentSession,
       accountName,
       accountAddress,
+      displayAddress,
       chain: params.chainId,
       method: t('walletConnect.signingRequest.method.signTypedData')
     }
@@ -182,7 +185,7 @@ const ethSignOrSendTransactionHandler = async (
   // requestParams[] instaed of 2.
   const accountAddress = requestParams[0].from; // this is our wallet address
   const data = requestParams[0];
-  const { accountName, accountCode } = await fetchAccountNameAndAddress(accountAddress);
+  const { accountName, accountCode, displayAddress } = await fetchAccountNameAndAddress(accountAddress);
   const apiCaller = async () => {
     // If the typed data to be signed includes its own chainId, we use that, otherwise use the id in the params
     const chainId = Number(params.chainId.replace(/^eip155:/, ''));
@@ -207,9 +210,9 @@ const ethSignOrSendTransactionHandler = async (
       currentSession,
       accountName,
       accountAddress,
+      displayAddress,
       chain: params.chainId,
       method: formattedMethod,
     }
   });
 };
-

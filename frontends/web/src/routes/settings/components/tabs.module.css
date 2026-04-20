@@ -10,9 +10,14 @@
     text-decoration: none;
 }
 
+.container a:hover {
+    color: var(--color-lightblue);
+}
+
 .container a.active {
     padding-bottom: var(--space-quarter);
-    border-bottom: 2px solid var(--color-blue);
+    border-bottom: 2px solid var(--color-lightblue);
+    color: var(--color-lightblue);
 }
 
 @media (max-width: 768px) {

@@ -20,6 +20,17 @@ type AddressList struct {
 	Addresses  []Address
 }
 
+// FindAddressListByScriptType returns the first address list with the requested script type, or
+// nil if none matches.
+func FindAddressListByScriptType(addressLists []AddressList, scriptType signing.ScriptType) *AddressList {
+	for i := range addressLists {
+		if addressLists[i].ScriptType != nil && *addressLists[i].ScriptType == scriptType {
+			return &addressLists[i]
+		}
+	}
+	return nil
+}
+
 // TextMemo represents a slip-0024 text memo.
 type TextMemo struct {
 	Note string
@@ -79,9 +90,9 @@ type Interface interface {
 	FeeTargets() ([]FeeTarget, FeeTargetCode)
 	TxProposal(*TxProposalArgs) (coin.Amount, coin.Amount, coin.Amount, error)
 	// GetUnusedReceiveAddresses gets a list of list of receive addresses. The result can be one
-	// list of addresses, or if there are multiple types of addresses (e.g. `bc1...` vs `3...`), a
-	// list of lists. Returns `ErrSyncInProgress` if the account is not synced yet. Returns an error
-	// if the account is not initialized yet.
+	// list of addresses, or if there are multiple types of addresses (e.g. `bc1q...` vs `bc1p...`),
+	// a list of lists. Returns `ErrSyncInProgress` if the account is not synced yet. Returns an
+	// error if the account is not initialized yet.
 	GetUnusedReceiveAddresses() ([]AddressList, error)
 	CanVerifyAddresses() (bool, bool, error)
 	VerifyAddress(addressID string) (bool, error)

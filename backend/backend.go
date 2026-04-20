@@ -5,6 +5,7 @@ package backend
 import (
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"net/http"
 	"net/url"
 	"os"
@@ -73,7 +74,9 @@ var fixedURLWhitelist = []string{
 	"https://sochain.com/tx/LTCTEST/",
 	"https://blockchair.com/litecoin/transaction/",
 	"https://etherscan.io/tx/",
+	"https://etherscan.io/address/",
 	"https://sepolia.etherscan.io/tx/",
+	"https://sepolia.etherscan.io/address/",
 	// Moonpay onramp
 	"https://www.moonpay.com/",
 	"https://support.moonpay.com/",
@@ -217,6 +220,8 @@ type Backend struct {
 	accounts                AccountsList
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
+	// Called to remove the current keystore observer, if any.
+	unobserveKeystore func()
 
 	connectKeystore connectKeystore
 
@@ -260,6 +265,10 @@ type Backend struct {
 
 	// ethupdater takes care of updating ETH accounts.
 	ethupdater *eth.Updater
+
+	// skipETHInitialSync suppresses the per-account ETH init refresh while startup loads persisted
+	// accounts, so the updater's initial batch refresh is the only startup sync round.
+	skipETHInitialSync bool
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -323,7 +332,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		log.Errorf("RateUpdater DB cache dir: %v", err)
 	}
 	backend.ratesUpdater = rates.NewRateUpdater(hclient, ratesCache)
-	backend.ratesUpdater.Observe(backend.Notify)
+	backend.ratesUpdater.Observe(func(event observable.Event) {
+		backend.Notify(event)
+		backend.notifyCoinFiatPrices()
+	})
 
 	backend.banners = banners.NewBanners(backend.DevServers())
 	backend.banners.Observe(backend.Notify)
@@ -552,19 +564,19 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	case code == coinpkg.CodeETH:
 		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
-			"https://etherscan.io/tx/",
+			"https://etherscan.io/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeSEPETH:
 		etherScan := etherscan.NewEtherScan("11155111", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
-			"https://sepolia.etherscan.io/tx/",
+			"https://sepolia.etherscan.io/",
 			etherScan,
 			nil)
 	case erc20Token != nil:
 		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
-			"https://etherscan.io/tx/",
+			"https://etherscan.io/",
 			etherScan,
 			erc20Token.token,
 		)
@@ -689,7 +701,9 @@ func (backend *Backend) Start() <-chan interface{} {
 	}
 
 	defer backend.accountsAndKeystoreLock.Lock()()
+	backend.skipETHInitialSync = true
 	backend.initPersistedAccounts()
+	backend.skipETHInitialSync = false
 	backend.emitAccountsStatusChanged()
 
 	backend.ratesUpdater.StartCurrentRates()
@@ -733,17 +747,18 @@ func (backend *Backend) Keystore() keystore.Keystore {
 
 // registerKeystore registers the given keystore at this backend.
 // if another keystore is already registered, it will be replaced.
-func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
+func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 	defer backend.accountsAndKeystoreLock.Lock()()
 	// Only for logging, if there is an error we continue anyway.
-	fingerprint, err := keystore.RootFingerprint()
+	fingerprint, err := ks.RootFingerprint()
 	if err != nil {
 		backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
 		return
 	}
 	log := backend.log.WithField("rootFingerprint", hex.EncodeToString(fingerprint))
 	log.Info("registering keystore")
-	backend.keystore = keystore
+	backend.observeKeystore(ks)
+	backend.keystore = ks
 	backend.Notify(observable.Event{
 		Subject: "keystores",
 		Action:  action.Reload,
@@ -754,7 +769,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	}
 
 	persistKeystore := func(accountsConfig *config.AccountsConfig) error {
-		keystoreName, err := keystore.Name()
+		keystoreName, err := ks.Name()
 		if err != nil {
 			return errp.WithMessage(err, "could not retrieve keystore name")
 		}
@@ -774,9 +789,9 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		// needed on the persisted accounts.
 		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)
 		if len(accounts) != 0 {
-			return backend.updatePersistedAccounts(keystore, accounts)
+			return backend.updatePersistedAccounts(ks, accounts)
 		}
-		return backend.persistDefaultAccountConfigs(keystore, accountsConfig)
+		return backend.persistDefaultAccountConfigs(ks, accountsConfig)
 	})
 	if err != nil {
 		log.WithError(err).Error("Could not persist default accounts")
@@ -791,6 +806,26 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	go backend.maybeAddHiddenUnusedAccounts()
 }
 
+func (backend *Backend) observeKeystore(ks keystore.Keystore) {
+	if backend.unobserveKeystore != nil {
+		backend.unobserveKeystore()
+		backend.unobserveKeystore = nil
+	}
+	backend.unobserveKeystore = ks.Observe(func(event observable.Event) {
+		if event.Subject != string(keystore.EventNameChanged) {
+			return
+		}
+		nameChanged, ok := event.Object.(keystore.NameChangedEvent)
+		if !ok {
+			backend.log.WithField("subject", event.Subject).Warn("keystore name change event without payload")
+			return
+		}
+		if err := backend.updateKeystoreName(nameChanged.RootFingerprint, nameChanged.Name); err != nil {
+			backend.log.WithError(err).Error("could not persist keystore name after name change")
+		}
+	})
+}
+
 // DeregisterKeystore removes the registered keystore.
 func (backend *Backend) DeregisterKeystore() {
 	defer backend.accountsAndKeystoreLock.Lock()()
@@ -802,6 +837,10 @@ func (backend *Backend) DeregisterKeystore() {
 	// Only for logging, if there is an error we continue anyway.
 	fingerprint, _ := backend.keystore.RootFingerprint()
 	backend.log.WithField("rootFingerprint", hex.EncodeToString(fingerprint)).Info("deregistering keystore")
+	if backend.unobserveKeystore != nil {
+		backend.unobserveKeystore()
+		backend.unobserveKeystore = nil
+	}
 	backend.keystore = nil
 	backend.Notify(observable.Event{
 		Subject: "keystores",
@@ -900,6 +939,35 @@ func (backend *Backend) RatesUpdater() *rates.RateUpdater {
 	return backend.ratesUpdater
 }
 
+// CoinFiatPrices returns the fiat prices of 1 display-unit of the given coin
+// in all supported fiat currencies, formatted with thousand separators.
+// The successful response matches the frontend TAmountWithConversions shape.
+func (backend *Backend) CoinFiatPrices(coin coinpkg.Coin) *coinpkg.FormattedAmountWithConversions {
+	const isFee = false
+	coinAmount := coin.SetAmount(big.NewRat(1, 1), isFee)
+	return &coinpkg.FormattedAmountWithConversions{
+		Amount: coin.Unit(isFee),
+		Unit:   coin.GetFormatUnit(isFee),
+		Conversions: coinpkg.Conversions(
+			coinAmount,
+			coin,
+			isFee,
+			backend.ratesUpdater),
+	}
+}
+
+// notifyCoinFiatPrices pushes per-coin fiat price events for all initialized coins.
+func (backend *Backend) notifyCoinFiatPrices() {
+	defer backend.coinsLock.RLock()()
+	for code, coin := range backend.coins {
+		backend.Notify(observable.Event{
+			Subject: fmt.Sprintf("coins/%s/fiat-prices", code),
+			Action:  action.Replace,
+			Object:  backend.CoinFiatPrices(coin),
+		})
+	}
+}
+
 // DownloadCert downloads the first element of the remote certificate chain.
 func (backend *Backend) DownloadCert(server string) (string, error) {
 	return electrum.DownloadCert(server, backend.socksProxy.GetTCPProxyDialer())
@@ -960,6 +1028,10 @@ func (backend *Backend) Close() error {
 	errors := []string{}
 
 	backend.uninitAccounts(true)
+	if backend.unobserveKeystore != nil {
+		backend.unobserveKeystore()
+		backend.unobserveKeystore = nil
+	}
 
 	backend.lightning.Disconnect()
 

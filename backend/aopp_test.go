@@ -17,7 +17,9 @@ import (
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/require"
 )
@@ -45,6 +47,9 @@ func makeKeystore(
 	t.Helper()
 
 	return &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock keystore", nil
 		},
@@ -74,7 +79,7 @@ func makeKeystore(
 			require.Equal(t, dummyMsg, string(message))
 			return []byte(dummySignature), nil
 		},
-		SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+		SignETHMessageFunc: func(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 			require.Equal(t, dummyMsg, string(message))
 			return []byte(dummySignature), nil
 		},
@@ -84,6 +89,10 @@ func makeKeystore(
 }
 
 func scriptTypeRef(s signing.ScriptType) *signing.ScriptType { return &s }
+
+func formatAOPPDisplayAddress(coinCode coinpkg.Code, address string) string {
+	return backendutil.FormatAddress(coinCode, address)
+}
 
 func TestAOPPSuccess(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
@@ -121,16 +130,6 @@ func TestAOPPSuccess(t *testing.T) {
 			scriptType:  scriptTypeRef(signing.ScriptTypeP2WPKH),
 			address:     "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3",
 			addressID:   "9959e354fad09a47b0a5b0ac8af1b5f95924526241689b3ed7c472e79d95bde6",
-			accountCode: "v0-55555555-btc-0",
-			accountName: "Bitcoin",
-		},
-		{
-			asset:       "btc",
-			coinCode:    coinpkg.CodeBTC,
-			format:      "p2sh",
-			scriptType:  scriptTypeRef(signing.ScriptTypeP2WPKHP2SH),
-			address:     "3C4J3CSPSYD3ibV8u1DqqPRtfsUsSbnuPX",
-			addressID:   "58c9954205732bcae1b9dd7eccda521ba5257749680fad3336556e0d46f68866",
 			accountCode: "v0-55555555-btc-0",
 			accountName: "Bitcoin",
 		},
@@ -250,14 +249,15 @@ func TestAOPPSuccess(t *testing.T) {
 						{Name: test.accountName, Code: test.accountCode},
 						{Name: "Second account", Code: regularAccountCode(rootFingerprint1, test.coinCode, 1)},
 					},
-					AccountCode:  test.accountCode,
-					Address:      test.address,
-					AddressID:    test.addressID,
-					Callback:     callback,
-					Message:      dummyMsg,
-					coinCode:     test.coinCode,
-					format:       test.format,
-					XpubRequired: test.xpubRequired,
+					AccountCode:    test.accountCode,
+					Address:        test.address,
+					DisplayAddress: formatAOPPDisplayAddress(test.coinCode, test.address),
+					AddressID:      test.addressID,
+					Callback:       callback,
+					Message:        dummyMsg,
+					coinCode:       test.coinCode,
+					format:         test.format,
+					XpubRequired:   test.xpubRequired,
 				},
 				b.AOPP(),
 			)

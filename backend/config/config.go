@@ -122,6 +122,29 @@ type AppConfig struct {
 	Frontend interface{} `json:"frontend"`
 }
 
+var (
+	oldDefaultBTCElectrumServers = []string{
+		"btc1.shiftcrypto.io:443",
+		"btc2.shiftcrypto.io:443",
+	}
+	defaultBTCElectrumServers = []string{
+		"btc1.shiftcrypto.io:443",
+		"btc2.shiftcrypto.io:443",
+		"btc3.shiftcrypto.io:443",
+		"btc4.shiftcrypto.io:443",
+	}
+	oldDefaultLTCElectrumServers = []string{
+		"ltc1.shiftcrypto.io:443",
+		"ltc2.shiftcrypto.io:443",
+	}
+	defaultLTCElectrumServers = []string{
+		"ltc1.shiftcrypto.io:443",
+		"ltc2.shiftcrypto.io:443",
+		"ltc3.shiftcrypto.io:443",
+		"ltc4.shiftcrypto.io:443",
+	}
+)
+
 // O=Shift Crypto, CN=ShiftCrypto R1
 // Serial: d35011c382968211cd4e29fefc144891.
 const shiftRootCA = `
@@ -152,18 +175,7 @@ func NewDefaultAppConfig() AppConfig {
 			DeprecatedEthereumActive: true,
 
 			BTC: btcCoinConfig{
-				ElectrumServers: []*ServerInfo{
-					{
-						Server:  "btc1.shiftcrypto.io:443",
-						TLS:     true,
-						PEMCert: shiftRootCA,
-					},
-					{
-						Server:  "btc2.shiftcrypto.io:443",
-						TLS:     true,
-						PEMCert: shiftRootCA,
-					},
-				},
+				ElectrumServers: newShiftElectrumServers(defaultBTCElectrumServers),
 			},
 			TBTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
@@ -194,18 +206,7 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			LTC: btcCoinConfig{
-				ElectrumServers: []*ServerInfo{
-					{
-						Server:  "ltc1.shiftcrypto.io:443",
-						TLS:     true,
-						PEMCert: shiftRootCA,
-					},
-					{
-						Server:  "ltc2.shiftcrypto.io:443",
-						TLS:     true,
-						PEMCert: shiftRootCA,
-					},
-				},
+				ElectrumServers: newShiftElectrumServers(defaultLTCElectrumServers),
 			},
 			TLTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
@@ -445,6 +446,16 @@ func migrateElectrumX(appconf *AppConfig) {
 	migrateBTCCoinConfig(&appconf.Backend.TBTC)
 	migrateBTCCoinConfig(&appconf.Backend.LTC)
 	migrateBTCCoinConfig(&appconf.Backend.TLTC)
+	migrateDefaultElectrumServers(
+		&appconf.Backend.BTC,
+		oldDefaultBTCElectrumServers,
+		defaultBTCElectrumServers,
+	)
+	migrateDefaultElectrumServers(
+		&appconf.Backend.LTC,
+		oldDefaultLTCElectrumServers,
+		defaultLTCElectrumServers,
+	)
 }
 
 func migrateBTCCoinConfig(conf *btcCoinConfig) {
@@ -476,6 +487,47 @@ func migrateBTCCoinConfig(conf *btcCoinConfig) {
 			item.PEMCert = shiftRootCA
 		}
 	}
+}
+
+func newShiftElectrumServers(servers []string) []*ServerInfo {
+	result := make([]*ServerInfo, 0, len(servers))
+	for _, server := range servers {
+		result = append(result, &ServerInfo{
+			Server:  server,
+			TLS:     true,
+			PEMCert: shiftRootCA,
+		})
+	}
+	return result
+}
+
+func migrateDefaultElectrumServers(conf *btcCoinConfig, oldServers, newServers []string) {
+	if !matchesShiftElectrumServers(conf, oldServers) {
+		return
+	}
+	conf.ElectrumServers = newShiftElectrumServers(newServers)
+}
+
+func matchesShiftElectrumServers(conf *btcCoinConfig, expected []string) bool {
+	if len(conf.ElectrumServers) != len(expected) {
+		return false
+	}
+
+	remaining := make(map[string]struct{}, len(expected))
+	for _, server := range expected {
+		remaining[server] = struct{}{}
+	}
+
+	for _, server := range conf.ElectrumServers {
+		if server == nil || !server.TLS || server.PEMCert != shiftRootCA {
+			return false
+		}
+		if _, ok := remaining[server.Server]; !ok {
+			return false
+		}
+		delete(remaining, server.Server)
+	}
+	return len(remaining) == 0
 }
 
 // migrateUserLanguage moves userLanguage field from frontend to backend.

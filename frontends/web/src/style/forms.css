@@ -11,6 +11,16 @@ input[type="text"],
 textarea {
     color: var(--color-default);
     background: var(--background-secondary);
+    border-radius: var(--radius-xl);
+}
+
+textarea {
+    resize: vertical;
+}
+
+textarea:focus {
+    border-color: var(--color-blue);
+    outline: none;
 }
 
 label {

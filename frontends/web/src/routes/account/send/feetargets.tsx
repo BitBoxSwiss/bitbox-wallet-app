@@ -222,22 +222,17 @@ export const FeeTargets = ({
                 ref={inputRef}
                 value={customFee}
               >
-                <span className={style.customFeeUnit}>
+                <label
+                  htmlFor="proposedFee"
+                  className={style.customFeeUnit}>
                   { customFeeUnit(coinCode) }
-                </span>
+                </label>
               </Input>
             </div>
           </div>
         )}
         { feeTarget && !error && (
           <div className={style.feeDescription}>
-            {(showCalculatingFeeLabel || proposeFeeText ? (
-              <p>
-                {t('send.fee.label')}:
-                {' '}
-                {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : proposeFeeText}
-              </p>
-            ) : null)}
             { !isCustom ? (
               <p>
                 {t('send.feeTarget.estimate')}
@@ -247,6 +242,13 @@ export const FeeTargets = ({
                 })}
               </p>
             ) : null }
+            {(showCalculatingFeeLabel || proposeFeeText ? (
+              <p>
+                {t('send.fee.label')}:
+                {' '}
+                {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : proposeFeeText}
+              </p>
+            ) : null)}
           </div>
         )}
       </div>

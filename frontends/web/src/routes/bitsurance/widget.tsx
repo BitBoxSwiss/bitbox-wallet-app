@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect, createRef, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { getConfig } from '@/utils/config';
-import { ScriptType, signAddress } from '@/api/account';
+import { ScriptType, signBTCMessageUnusedAddress } from '@/api/account';
 import { getInfo } from '@/api/account';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -16,6 +16,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { BitsuranceGuide } from './guide';
 import { getBitsuranceURL } from '@/api/bitsurance';
 import { convertScriptType } from '@/utils/request-addess';
+import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
 import style from './widget.module.css';
 
 type TProps = {
@@ -26,47 +27,20 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [height, setHeight] = useState(0);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const [agreedTerms, setAgreedTerms] = useState(false);
-
   const iframeURL = useLoad(getBitsuranceURL);
   const config = useLoad(getConfig);
   const accountInfo = useLoad(getInfo(code));
 
-  const ref = createRef<HTMLDivElement>();
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  let signing = false;
-  let resizeTimerID: any = undefined;
+  const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(!!config?.frontend?.skipBitsuranceDisclaimer);
+  const signingRef = useRef(false);
 
   useEffect(() => {
-    if (config) {
-      setAgreedTerms(config.frontend.skipBitsuranceDisclaimer);
-    }
-  }, [config]);
-
-  useEffect(() => {
-    onResize();
-    window.addEventListener('resize', onResize);
     window.addEventListener('message', onMessage);
-
     return () => {
-      window.removeEventListener('resize', onResize);
       window.removeEventListener('message', onMessage);
     };
   });
-
-  const onResize = () => {
-    if (resizeTimerID) {
-      clearTimeout(resizeTimerID);
-    }
-    resizeTimerID = setTimeout(() => {
-      if (!ref.current) {
-        return;
-      }
-      setHeight(ref.current.offsetHeight);
-    }, 200);
-  };
 
   const sendAddressWithXPub = (address: string, sig: string, xpub: string) => {
     const { current } = iframeRef;
@@ -94,16 +68,16 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   };
 
   const handleRequestAddress = (message: RequestAddressV0Message) => {
-    signing = true;
+    signingRef.current = true;
     const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
     const withExtendedPublicKey = !!message.withExtendedPublicKey;
-    signAddress(
+    signBTCMessageUnusedAddress(
+      code,
       addressType,
-      withMessageSignature,
-      code)
+      withMessageSignature)
       .then(response => {
-        signing = false;
+        signingRef.current = false;
         if (response.success) {
           if (withExtendedPublicKey) {
             const xpub = getXPub(addressType as ScriptType);
@@ -148,7 +122,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
       case V0MessageType.RequestAddress:
         // we ignore further signing requests
         // while there is an ongoing one
-        if (!signing) {
+        if (!signingRef.current) {
           handleRequestAddress(message);
         }
         break;
@@ -166,7 +140,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
         <div className={style.header}>
           <Header title={<h2>{t('bitsuranceAccount.title')}</h2>} />
         </div>
-        <div ref={ref} className={style.container}>
+        <div ref={containerRef} className={style.container}>
           { !agreedTerms ? (
             <BitsuranceTerms
               onAgreedTerms={() => setAgreedTerms(true)}
@@ -177,7 +151,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
               {!iframeLoaded && <Spinner text={t('loading')} /> }
               <iframe
                 onLoad={() => {
-                  setIframeLoaded(true);
+                  onIframeLoad();
                 }}
                 ref={iframeRef}
                 title="Bitsurance"
