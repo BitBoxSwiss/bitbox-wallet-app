@@ -6,7 +6,8 @@ import type { TInfoContentProps, TPaymentFee } from './infocontent';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { InfoButton } from '@/components/infobutton/infobutton';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
-import { VendorDeals } from '@/routes/market/components/vendor-deals';
+import { ExternalLinkGray } from '@/components/icon';
+import { VendorDeals, VendorLinks } from './vendor-deals';
 import style from './deals.module.css';
 
 type TProps = {
@@ -23,7 +24,6 @@ export const Deals = ({
   setInfo,
 }: TProps) => {
   const { t } = useTranslation();
-
 
   const buildInfo = (marketDeals: marketAPI.TMarketDeals): TInfoContentProps => {
     let paymentFees: TPaymentFee = {};
@@ -61,13 +61,21 @@ export const Deals = ({
                 <div key={vendor.vendorName} className={style.actionableItemContainer}>
                   <ActionableItem
                     key={vendor.vendorName}
+                    icon={action === 'otc' ? <ExternalLinkGray /> : undefined}
                     onClick={() => {
                       goToVendor(vendor.vendorName);
                     }}>
-                    <VendorDeals
-                      deals={vendor.deals}
-                      vendorName={vendor.vendorName}
-                    />
+                    {action === 'otc' ? (
+                      <VendorLinks
+                        deals={vendor.deals}
+                        vendorName={vendor.vendorName}
+                      />
+                    ) : (
+                      <VendorDeals
+                        deals={vendor.deals}
+                        vendorName={vendor.vendorName}
+                      />
+                    )}
                   </ActionableItem>
 
                   <InfoButton onClick={() => setInfo(buildInfo(vendor))} />

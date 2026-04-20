@@ -190,7 +190,8 @@ export const Market = ({
     if (!vendor) {
       return;
     }
-    if (activeTab === 'swap') {
+    switch (activeTab) {
+    case 'swap':
       if (swapStatus?.connectedKeystore === 'multi') {
         navigate('/market/swap');
         return;
@@ -200,8 +201,7 @@ export const Market = ({
         setPendingSwapNavigation(true);
       }
       return;
-    }
-    if (activeTab === 'otc') {
+    case 'otc':
       switch (vendor) {
       case 'btcdirect-otc':
         if (agreedBTCDirectOTCTerms) {
