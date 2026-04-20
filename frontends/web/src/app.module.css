@@ -12,6 +12,13 @@
     padding-right: env(safe-area-inset-right, 0);
 }
 
+.tabTransition {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+}
+
 @media (max-width: 900px) {
     .appContent {
         position: absolute;
@@ -22,5 +29,21 @@
 @media (max-width: 768px) {
     .appContent.hasBottomNavigation {
        height: calc(100dvh - var(--bottom-navigation-height));
+    }
+
+    .tabTransition {
+        animation: tabFocusIn 240ms ease-out;
+        transform-origin: center center;
+    }
+
+    @keyframes tabFocusIn {
+        from {
+            opacity: 0.85;
+            transform: scale(0.985);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
 }

@@ -71,12 +71,14 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
           coinCode={token.code}
           name={`${token.name} (${token.unit})`}
           onClick={() => activeToken !== undefined && navigate(`/account/${activeToken.accountCode}`)}>
-          <Toggle
-            checked={active}
-            className={style.toggle}
-            id={token.code}
-            onChange={() => toggleToken(ethAccountCode, token.code, !active)}
-          />
+          <div onClick={(e) => e.stopPropagation()}>
+            <Toggle
+              checked={active}
+              className={style.toggle}
+              id={token.code}
+              onChange={() => toggleToken(ethAccountCode, token.code, !active)}
+            />
+          </div>
         </TokenListItem>
       );
     });

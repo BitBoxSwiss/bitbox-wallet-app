@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v4.51.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.1
 - Format addresses in groups of 4 characters
 - iOS: Add haptic feedback on account summary chart scrolls
@@ -27,6 +29,9 @@
 - Bitcoin: add a used addresses list in account info
 - Bitcoin and Ethereum: add message signing for addresses
 - iOS: use numeric keyboard for coin and fiat input
+- Scroll to tx search field on mobile
+- iOS: Haptic feedback on copy and chart filters change
+- Subtle tab transition (mobile navigation)
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
