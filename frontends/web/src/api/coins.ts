@@ -20,11 +20,7 @@ export const subscribeCoinHeaders = (coinCode: CoinCode) => (
   )
 );
 
-export const subscribeRates = (
-  cb: TSubscriptionCallback<Record<string, Record<string, number>>>
-) => subscribeEndpoint('rates', cb);
-
-export type TSetBtcUnitResponse = {
+type TSetBtcUnitResponse = {
   success: boolean;
 };
 
@@ -79,7 +75,7 @@ export const convertToCurrency = ({
   return apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${fiatUnit}&amount=${amount}`);
 };
 
-export type TCoinFiatPrices = {
+type TCoinFiatPrices = {
   amount: string;
   unit: NativeCoinUnit;
   conversions: Record<Fiat, string>;
