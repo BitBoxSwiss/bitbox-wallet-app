@@ -122,6 +122,35 @@ func TestNewQuoteFromCoinCodeUsesInjectedHTTPClient(t *testing.T) {
 	require.Equal(t, "1.23", response.Routes[0].ExpectedBuyAmount)
 }
 
+func TestNewQuoteFromCoinCodeSupportsLitecoin(t *testing.T) {
+	httpClient := &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			bodyBytes, err := io.ReadAll(req.Body)
+			require.NoError(t, err)
+
+			var body QuoteRequest
+			require.NoError(t, json.Unmarshal(bodyBytes, &body))
+			require.Equal(t, "LTC.LTC", body.SellAsset)
+			require.Equal(t, "BTC.BTC", body.BuyAsset)
+
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(strings.NewReader(`{"routes":[]}`)),
+				Header:     make(http.Header),
+			}, nil
+		}),
+	}
+
+	_, apiError := NewQuoteFromCoinCode(
+		context.Background(),
+		httpClient,
+		"ltc",
+		"btc",
+		"1.23456789",
+	)
+	require.Nil(t, apiError)
+}
+
 func TestNewSwapUsesInjectedHTTPClient(t *testing.T) {
 	httpClient := &http.Client{
 		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
