@@ -14,6 +14,7 @@ var swapkitAssetByCoinCode = map[string]string{
 	"btc":    "BTC.BTC",
 	"tbtc":   "BTC.BTC",
 	"rbtc":   "BTC.BTC",
+	"ltc":    "LTC.LTC",
 	"eth":    "ETH.ETH",
 	"sepeth": "ETH.ETH",
 

@@ -388,7 +388,7 @@ func (backend *Backend) PrepareSwap(
 func validateSwapAccountSupported(account accounts.Interface) error {
 	coinCode := account.Coin().Code()
 	switch coinCode {
-	case coinpkg.CodeBTC, coinpkg.CodeETH:
+	case coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeETH:
 		return nil
 	}
 	for _, token := range ERC20Tokens() {
@@ -396,7 +396,7 @@ func validateSwapAccountSupported(account accounts.Interface) error {
 			return nil
 		}
 	}
-	return errp.New("Only supported mainnet BTC/ETH/ERC20 accounts are currently supported")
+	return errp.New("Only supported mainnet BTC/LTC/ETH/ERC20 accounts are currently supported")
 }
 
 func (backend *Backend) activateSwapBuyAccount(buyAccountCode accountsTypes.Code) error {

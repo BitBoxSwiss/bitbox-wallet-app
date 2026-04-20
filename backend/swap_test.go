@@ -11,6 +11,7 @@ import (
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	coinMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -270,6 +271,7 @@ func TestValidateSwapAccountSupportedAcceptsMainnetSwapAccounts(t *testing.T) {
 
 	testCases := []accountsTypes.Code{
 		"v0-55555555-btc-0",
+		"v0-55555555-ltc-0",
 		"v0-55555555-eth-0",
 		"v0-55555555-eth-0-eth-erc20-bat",
 	}
@@ -281,21 +283,17 @@ func TestValidateSwapAccountSupportedAcceptsMainnetSwapAccounts(t *testing.T) {
 }
 
 func TestValidateSwapAccountSupportedRejectsUnsupportedMainnetAccount(t *testing.T) {
-	b := newBackend(t, testnetDisabled, regtestDisabled)
-	defer b.Close()
-
-	ks := makeBitBox02Multi()
-	ks.RootFingerprintFunc = func() ([]byte, error) {
-		return rootFingerprint1, nil
+	account := &accountsMocks.InterfaceMock{
+		CoinFunc: func() coinpkg.Coin {
+			return &coinMocks.CoinMock{
+				CodeFunc: func() coinpkg.Code { return coinpkg.CodeTLTC },
+			}
+		},
 	}
-	b.registerKeystore(ks)
-
-	account := b.Accounts().lookup("v0-55555555-ltc-0")
-	require.NotNil(t, account)
 	require.EqualError(
 		t,
 		validateSwapAccountSupported(account),
-		"Only supported mainnet BTC/ETH/ERC20 accounts are currently supported",
+		"Only supported mainnet BTC/LTC/ETH/ERC20 accounts are currently supported",
 	)
 }
 
@@ -319,7 +317,7 @@ func TestValidateSwapAccountSupportedRejectsTestnetAccounts(t *testing.T) {
 		require.EqualError(
 			t,
 			validateSwapAccountSupported(account),
-			"Only supported mainnet BTC/ETH/ERC20 accounts are currently supported",
+			"Only supported mainnet BTC/LTC/ETH/ERC20 accounts are currently supported",
 		)
 	}
 }
