@@ -3,7 +3,7 @@
 }
 
 .mobileSelectorTrigger {
-    background-color: var(--background-secondary);
+    background-color: transparent;
     border: none;
     border-radius: 2px;
     color: var(--color-default);
@@ -130,8 +130,8 @@ input.searchInput:focus {
     width: 100%;
 }
 
-.optionItem:hover {
-    background-color: var(--background-custom-select-hover);
+.optionItem:active {
+    background-color: var(--background-tap-active);
 }
 
 .selectedOption {

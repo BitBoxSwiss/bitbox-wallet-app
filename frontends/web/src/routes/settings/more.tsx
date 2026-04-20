@@ -8,7 +8,8 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
-import { ChevronRightDark, CogGray, RedDot, ShieldGray } from '@/components/icon';
+import { useDarkmode } from '@/hooks/darkmode';
+import { ChevronRightDark, CogDark, CogLight, RedDot, ShieldDark, ShieldLight } from '@/components/icon';
 import { TDevices } from '@/api/devices';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
@@ -25,6 +26,7 @@ type Props = {
 export const More = ({ devices }: Props) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { isDarkMode } = useDarkmode();
   useOnlyVisitableOnMobile('/settings/general');
   const deviceID = Object.keys(devices)[0];
   const isBitBox02 = deviceID && devices[deviceID] === 'bitbox02';
@@ -55,7 +57,9 @@ export const More = ({ devices }: Props) => {
                   onClick={() => navigate('/settings')}
                 >
                   <div className={styles.item}>
-                    <CogGray width={22} height={22} alt={t('sidebar.settings')} />
+                    {isDarkMode
+                      ? <CogLight width={18} height={18} alt={t('sidebar.settings')} />
+                      : <CogDark width={18} height={18} alt={t('sidebar.settings')} />}
                     {t('sidebar.settings')}
                   </div>
                 </ActionableItem>
@@ -63,7 +67,9 @@ export const More = ({ devices }: Props) => {
                   onClick={() => navigate('/bitsurance/bitsurance')}
                 >
                   <div className={styles.item}>
-                    <ShieldGray width={22} height={22} alt={t('sidebar.insurance')} />
+                    {isDarkMode
+                      ? <ShieldLight width={18} height={18} alt={t('sidebar.insurance')} />
+                      : <ShieldDark width={18} height={18} alt={t('sidebar.insurance')} />}
                     {t('sidebar.insurance')}
                   </div>
                 </ActionableItem>

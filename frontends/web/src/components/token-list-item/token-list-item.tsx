@@ -24,23 +24,21 @@ export const TokenListItem = ({
   name,
   onClick,
 }: TokenListItemProps) => {
+  const isClickable = active && onClick !== undefined;
   return (
     <div
       className={`
         ${style.token || ''}
         ${!active ? style.tokenInactive || '' : ''}
+        ${isClickable ? style.accountActive || '' : ''}
         ${className || ''}
       `}
-      style={lineColor ? { '--token-line-color': lineColor } : undefined}>
-      <div
-        className={`
-          ${style.accountLink || ''}
-          ${active ? style.accountActive || '' : ''}
-        `}
-        onClick={onClick}
-        role="button"
-        tabIndex={0}
-      >
+      style={lineColor ? { '--token-line-color': lineColor } : undefined}
+      onClick={isClickable ? onClick : undefined}
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+    >
+      <div className={style.accountLink || ''}>
         <Logo
           active={active}
           alt={name}

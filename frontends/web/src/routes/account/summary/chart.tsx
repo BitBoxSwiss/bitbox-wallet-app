@@ -226,6 +226,7 @@ export const Chart = ({
   };
 
   const displayWeek = () => {
+    triggerHapticFeedback();
     if (source !== 'hourly' && lineSeries.current && data.chartDataHourly && chart.current) {
       lineSeries.current.setData(data.chartDataHourly || []);
       setFormattedData(data.chartDataHourly || []);
@@ -236,6 +237,7 @@ export const Chart = ({
   };
 
   const displayMonth = () => {
+    triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
       lineSeries.current.setData(data.chartDataDaily || []);
       setFormattedData(data.chartDataDaily || []);
@@ -246,6 +248,7 @@ export const Chart = ({
   };
 
   const displayYear = () => {
+    triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
       lineSeries.current.setData(data.chartDataDaily);
       setFormattedData(data.chartDataDaily);
@@ -256,6 +259,7 @@ export const Chart = ({
   };
 
   const displayAll = () => {
+    triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
       lineSeries.current.setData(data.chartDataDaily);
       setFormattedData(data.chartDataDaily);

@@ -27,6 +27,9 @@
 - Bitcoin: add a used addresses list in account info
 - Bitcoin and Ethereum: add message signing for addresses
 - iOS: use numeric keyboard for coin and fiat input
+- Scroll to tx search field on mobile
+- iOS: Haptic feedback on copy and chart filters change
+- Subtle tab transition (mobile navigation)
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.

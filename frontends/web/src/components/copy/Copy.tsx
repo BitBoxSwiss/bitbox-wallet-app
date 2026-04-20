@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, Copy } from '@/components/icon/icon';
+import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import style from './Copy.module.css';
 
 type TProps = {
@@ -64,8 +65,8 @@ export const CopyableInput = ({
         navigator.clipboard.writeText(value);
       } else {
         navigator.clipboard.writeText(textAreaRef.current.value);
-
       }
+      triggerHapticFeedback();
       setSuccess(true);
     }
   };

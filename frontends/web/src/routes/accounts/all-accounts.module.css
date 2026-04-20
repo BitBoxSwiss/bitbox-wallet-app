@@ -29,6 +29,11 @@
   gap: var(--space-quarter);
   padding: var(--space-half) var(--space-three-quarter);
   text-decoration: none;
+  transition: background-color 120ms ease;
+}
+
+.accountItem:active {
+  background-color: var(--background-tap-active);
 }
 
 .accountIcon {
@@ -65,10 +70,6 @@
   overflow: hidden;
   overflow: clip;
   text-align: right;
-}
-
-.unit {
-  font-size: var(--size-smaller);
 }
 
 .emptyState {
