@@ -958,6 +958,11 @@
           "title": "Buy and sell bitcoin with Pocket"
         }
       }
+    },
+    "swapkit": {
+      "infobox": {
+        "intro": "Swap any cryptocurrency in the BitBoxApp to another without limits or KYC. This swapping service is provided by SwapKit, an aggregator for decentralised swapping services."
+      }
     }
   },
   "fiat": {
