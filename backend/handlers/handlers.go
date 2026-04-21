@@ -18,6 +18,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/banners"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
@@ -1908,6 +1909,16 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	if request.SellAccountCode != "" {
 		account, err := handlers.backend.GetAccountFromCode(request.SellAccountCode)
 		if err != nil {
+			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+		}
+		parsedAmount, err := account.Coin().ParseAmount(request.SellAmount)
+		if err != nil {
+			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+		}
+		if err := swapkit.ValidateSwapSellAmount(account, parsedAmount); err != nil {
+			if validationErr, ok := errp.Cause(err).(accountErrors.TxValidationError); ok {
+				return errorResult(errp.ErrorCode(validationErr.Error()), validationErr.Error())
+			}
 			return errorResult(swapkit.ErrInvalidRequest, err.Error())
 		}
 		sellAmount, err = swapkit.FormatAmount(account.Coin(), request.SellAmount)

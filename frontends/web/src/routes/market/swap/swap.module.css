@@ -20,6 +20,10 @@
     padding: 0;
 }
 
+.sellWarning {
+  margin-bottom: var(--space-half);
+}
+
 .flipContainer {
   text-align: center;
 }

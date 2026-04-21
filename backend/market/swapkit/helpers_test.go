@@ -11,10 +11,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
+	accountMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	coinMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/params"
@@ -25,6 +30,30 @@ type roundTripFunc func(*http.Request) (*http.Response, error)
 
 func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
+}
+
+func TestValidateSwapSellAmount(t *testing.T) {
+	newAccount := func(available int64) accounts.Interface {
+		return &accountMocks.InterfaceMock{
+			BalanceFunc: func() (*accounts.Balance, error) {
+				return accounts.NewBalance(coinpkg.NewAmountFromInt64(available), coinpkg.NewAmountFromInt64(0)), nil
+			},
+			CoinFunc: func() coinpkg.Coin {
+				return &coinMocks.CoinMock{}
+			},
+		}
+	}
+
+	t.Run("returns insufficient funds error", func(t *testing.T) {
+		err := ValidateSwapSellAmount(newAccount(1), coinpkg.NewAmountFromInt64(2))
+		require.Error(t, err)
+		require.Equal(t, accountErrors.ErrInsufficientFunds, errp.Cause(err))
+	})
+
+	t.Run("accepts sell amount within balance", func(t *testing.T) {
+		err := ValidateSwapSellAmount(newAccount(2), coinpkg.NewAmountFromInt64(2))
+		require.NoError(t, err)
+	})
 }
 
 func TestFormatAmount(t *testing.T) {
