@@ -1,24 +1,40 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import nearLogoSVG from './assets/near-logo.svg';
-
-const SWAP_LOGO_MAP: Readonly<Record<string, string>> = {
-  near: nearLogoSVG,
-};
+import { useTranslation } from 'react-i18next';
+import { getSwapProviderMetadata, normalizeProviderName } from './swap-provider-metadata';
 
 type TProps = {
+  className?: string;
   name: string;
 };
 
 export const SwapServiceLogo = ({
+  className,
   name,
 }: TProps) => {
-  switch (name) {
-  case 'near':
+  const { t } = useTranslation();
+  const normalizedName = normalizeProviderName(name);
+  const { logo } = getSwapProviderMetadata(name);
+  if (logo) {
     return (
-      <img src={SWAP_LOGO_MAP[name]} style={{ width: 19, height: 19 }} />
+      <img alt={t('logo.label', { name: normalizedName })} className={className} src={logo} style={{ width: 19, height: 19 }} />
     );
-  default:
-    return null;
   }
+  return (
+    <span
+      aria-label={t('logo.placeholderLabel', { name: normalizedName || t('generic.unknown') })}
+      className={className}
+      style={{
+        alignItems: 'center',
+        border: '1px solid currentColor',
+        borderRadius: 999,
+        display: 'inline-flex',
+        fontSize: 12,
+        height: 19,
+        justifyContent: 'center',
+        width: 19,
+      }}>
+      ?
+    </span>
+  );
 };

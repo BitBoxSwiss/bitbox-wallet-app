@@ -37,8 +37,9 @@ export type TSwapQuoteRequest = {
 };
 
 export type TSwapQuoteRoute = {
-  routeId: string;
   expectedBuyAmount: string;
+  providers: string[];
+  routeId: string;
 };
 
 export type TSwapQuoteResponse = {

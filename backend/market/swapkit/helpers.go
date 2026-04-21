@@ -69,7 +69,7 @@ func ValidateSwapSellAmount(account accounts.Interface, sellAmount coinpkg.Amoun
 	return nil
 }
 
-func newQuoteRequestFromCoinCodes(sellCoinCode, buyCoinCode, sellAmount string, providers []string) (*QuoteRequest, *APIError) {
+func newQuoteRequestFromCoinCodes(sellCoinCode, buyCoinCode, sellAmount string) (*QuoteRequest, *APIError) {
 	if strings.TrimSpace(sellCoinCode) == "" {
 		return nil, &APIError{
 			ErrorCode: ErrInvalidRequest,
@@ -100,7 +100,6 @@ func newQuoteRequestFromCoinCodes(sellCoinCode, buyCoinCode, sellAmount string, 
 		SellAsset:  sellAsset,
 		BuyAsset:   buyAsset,
 		SellAmount: sellAmount,
-		Providers:  providers,
 	}, nil
 }
 
@@ -129,7 +128,6 @@ func newSwapRequestFromCoinCodes(
 		sellCoinCode,
 		buyCoinCode,
 		sellAmount,
-		[]string{"NEAR"},
 	)
 	if apiError != nil {
 		return nil, apiError
@@ -150,7 +148,6 @@ func NewQuoteFromCoinCode(ctx context.Context, httpClient *http.Client, sellCoin
 		sellCoinCode,
 		buyCoinCode,
 		sellAmount,
-		[]string{"NEAR"},
 	)
 	if apiError != nil {
 		return nil, apiError

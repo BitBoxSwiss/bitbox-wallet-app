@@ -127,12 +127,12 @@ func TestNewQuoteFromCoinCodeUsesInjectedHTTPClient(t *testing.T) {
 			require.Equal(t, "BTC.BTC", body.SellAsset)
 			require.Equal(t, "ETH.ETH", body.BuyAsset)
 			require.Equal(t, "1.23456789", body.SellAmount)
-			require.Equal(t, []string{"NEAR"}, body.Providers)
+			require.Nil(t, body.Providers)
 
 			return &http.Response{
 				StatusCode: http.StatusOK,
 				Body: io.NopCloser(strings.NewReader(
-					`{"routes":[{"providers":["NEAR"],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"1.23"}]}`,
+					`{"routes":[{"providers":["provider-a"],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"1.23"}]}`,
 				)),
 				Header: make(http.Header),
 			}, nil
@@ -149,6 +149,7 @@ func TestNewQuoteFromCoinCodeUsesInjectedHTTPClient(t *testing.T) {
 	require.Nil(t, apiError)
 	require.Len(t, response.Routes, 1)
 	require.Equal(t, "1.23", response.Routes[0].ExpectedBuyAmount)
+	require.Equal(t, []string{"provider-a"}, response.Routes[0].Providers)
 }
 
 func TestNewQuoteFromCoinCodeSupportsLitecoin(t *testing.T) {
@@ -222,6 +223,69 @@ func TestNewSwapUsesInjectedHTTPClient(t *testing.T) {
 	require.Nil(t, apiError)
 	require.Equal(t, "swap-id", response.SwapID)
 	require.Equal(t, "9.87", response.ExpectedBuyAmount)
+}
+
+func TestNewQuoteFromCoinCodePreservesRoutesWithAnyProviderCount(t *testing.T) {
+	testCases := []struct {
+		name                  string
+		responseBody          string
+		expectedProviderLists [][]string
+		expectedBuyAmounts    []string
+	}{
+		{
+			name:                  "zero providers",
+			responseBody:          `{"routes":[{"providers":[],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"1.23"}]}`,
+			expectedProviderLists: [][]string{{}},
+			expectedBuyAmounts:    []string{"1.23"},
+		},
+		{
+			name:                  "multiple providers",
+			responseBody:          `{"routes":[{"providers":["provider-a","provider-b"],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"1.23"}]}`,
+			expectedProviderLists: [][]string{{"provider-a", "provider-b"}},
+			expectedBuyAmounts:    []string{"1.23"},
+		},
+		{
+			name:                  "mixed single and multiple providers",
+			responseBody:          `{"routes":[{"providers":["provider-a"],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"1.23"},{"providers":["provider-b","provider-c"],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"2.34"}]}`,
+			expectedProviderLists: [][]string{{"provider-a"}, {"provider-b", "provider-c"}},
+			expectedBuyAmounts:    []string{"1.23", "2.34"},
+		},
+		{
+			name:                  "multiple valid routes are preserved",
+			responseBody:          `{"routes":[{"providers":["provider-a"],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"1.23"},{"providers":["provider-b"],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"2.34"}]}`,
+			expectedProviderLists: [][]string{{"provider-a"}, {"provider-b"}},
+			expectedBuyAmounts:    []string{"1.23", "2.34"},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			httpClient := &http.Client{
+				Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(testCase.responseBody)),
+						Header:     make(http.Header),
+					}, nil
+				}),
+			}
+
+			response, apiError := NewQuoteFromCoinCode(
+				context.Background(),
+				httpClient,
+				"btc",
+				"eth",
+				"1.23456789",
+			)
+			require.Nil(t, apiError)
+			require.NotNil(t, response)
+			require.Len(t, response.Routes, len(testCase.expectedProviderLists))
+			for i, route := range response.Routes {
+				require.Equal(t, testCase.expectedProviderLists[i], route.Providers)
+				require.Equal(t, testCase.expectedBuyAmounts[i], route.ExpectedBuyAmount)
+			}
+		})
+	}
 }
 
 func TestClientPostAppliesRequestTimeout(t *testing.T) {

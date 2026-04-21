@@ -9,14 +9,17 @@ import { ChevronDownDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { SwapServiceLogo } from './swap-service-logo';
+import { getSwapProviderMetadata } from './swap-provider-metadata';
 import style from './swap-service-selector.module.css';
+
+const MAX_VISIBLE_PROVIDER_LOGOS = 3;
 
 type TOption = {
   amount: TAmountWithConversions;
   label: string;
   isFast: boolean;
   isRecommended: boolean;
-  provider: string;
+  providers: string[];
   value: string;
 };
 
@@ -24,13 +27,38 @@ type SwapProviderOptionProps = {
   data: TOption;
 };
 
+const ProviderLogos = ({ providers }: { providers: string[] }) => {
+  const visibleProviders = providers.slice(0, MAX_VISIBLE_PROVIDER_LOGOS);
+  const hiddenProvidersCount = Math.max(0, providers.length - MAX_VISIBLE_PROVIDER_LOGOS);
+
+  return (
+    <span className={style.logoGroup}>
+      {visibleProviders.length > 0 ? visibleProviders.map(provider => (
+        <SwapServiceLogo
+          key={provider}
+          className={style.logo}
+          name={provider}
+        />
+      )) : (
+        <SwapServiceLogo className={style.logo} name="" />
+      )}
+      {hiddenProvidersCount > 0 && (
+        <span className={style.logoOverflowBadge}>
+          +
+          {hiddenProvidersCount}
+        </span>
+      )}
+    </span>
+  );
+};
+
 const SwapProviderOption = ({ data }: SwapProviderOptionProps) => {
   const { t } = useTranslation();
   return (
     <>
-      <SwapServiceLogo name={data.provider} />
+      <ProviderLogos providers={data.providers} />
       <span className={style.meta}>
-        <span className={style.serivceName}>
+        <span className={style.serviceName}>
           {data.label}
         </span>
         {data.isRecommended && (
@@ -113,10 +141,13 @@ export const SwapServiceSelector = ({
       estimated: false,
       conversions: {},
     },
-    label: 'NEAR',
+    label: route.providers
+      .map(provider => getSwapProviderMetadata(provider).displayName)
+      .filter(displayName => displayName)
+      .join(' + ') || t('generic.unknown'),
     isRecommended: index === 0,
     isFast: false,
-    provider: 'near',
+    providers: route.providers,
     value: route.routeId,
   })) : [];
 
