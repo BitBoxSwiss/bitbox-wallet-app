@@ -5,21 +5,21 @@ import { useDarkmode } from '@/hooks/darkmode';
 import { Bank, BankDark, CreditCard, CreditCardDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
 import { getVendorFormattedName } from '@/routes/market/utils';
-import { TMarketDeal, TMarketDeals } from '@/api/market';
+import { TMarketOffer, TOfferVendor } from '@/api/market';
 import style from './vendor-deals.module.css';
 
 type Props = {
-  deals: TMarketDeal[];
-  vendorName: TMarketDeals['vendorName'];
+  offers: TMarketOffer[];
+  vendorName: TOfferVendor['vendorName'];
 };
 
 type TDealProps = {
-  deal: TMarketDeal;
-  vendorName: TMarketDeals['vendorName'];
+  offer: TMarketOffer;
+  vendorName: TOfferVendor['vendorName'];
 };
 
 type TPaymentMethodProps = {
-  methodName: TMarketDeal['payment'];
+  methodName: TMarketOffer['payment'];
 };
 
 const PaymentMethod = ({
@@ -50,24 +50,24 @@ const PaymentMethod = ({
 };
 
 const Deal = ({
-  deal,
+  offer,
   vendorName
 }: TDealProps) => {
   const { t } = useTranslation();
   return (
     <div className={style.paymentMethodContainer}>
-      {deal.payment ? (
-        <PaymentMethod methodName={deal.payment}/>
+      {offer.payment ? (
+        <PaymentMethod methodName={offer.payment}/>
       ) : (
         <span className={style.dealDescription}>
           {t('buy.exchange.description', { context: vendorName })}
         </span>
       )}
       <div className={style.badgeContainer}>
-        {deal.isBest && (
+        {offer.isBest && (
           <Badge type="success">{t('buy.exchange.bestDeal')}</Badge>
         )}
-        {deal.isFast && (
+        {offer.isFast && (
           <Badge type="warning">{t('buy.exchange.fast')}</Badge>
         )}
       </div>
@@ -77,7 +77,7 @@ const Deal = ({
 
 
 export const VendorDeals = ({
-  deals,
+  offers,
   vendorName,
 }: Props) => {
   return (
@@ -87,10 +87,10 @@ export const VendorDeals = ({
           {getVendorFormattedName(vendorName)}
         </h3>
         <div className={style.paymentMethodsContainer}>
-          {deals.map(deal => !deal.isHidden && (
+          {offers.map(offer => !offer.isHidden && (
             <Deal
-              key={`${vendorName || ''}_${deal.payment || ''}`}
-              deal={deal}
+              key={`${vendorName || ''}_${offer.payment || ''}`}
+              offer={offer}
               vendorName={vendorName}
             />
           ))}

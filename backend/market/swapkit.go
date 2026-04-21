@@ -15,14 +15,10 @@ func IsSwapKitSupported(_ coin.Code) bool {
 	return true
 }
 
-// SwapKitDeals returns the swap conditions offered by SwapKit.
-func SwapKitDeals() *DealsList {
-	return &DealsList{
+// SwapKitService returns the swap service descriptor for SwapKit.
+func SwapKitService() *Service {
+	return &Service{
 		VendorName: SwapKitName,
-		Deals: []*Deal{
-			{
-				Fee: 0,
-			},
-		},
+		FeeModel:   FeeModelDynamic,
 	}
 }

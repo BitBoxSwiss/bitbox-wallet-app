@@ -70,13 +70,11 @@ func IsBtcDirectOTCSupportedForCoinInRegion(coinCode coin.Code, region string) b
 	return IsBtcDirectSupported(coinCode) && isRegionSupportedBtcDirect(region)
 }
 
-// BtcDirectDeals returns the purchase conditions (fee and payment methods) offered by BTCDirect,
-// based on the action.
-func BtcDirectDeals(action Action) *DealsList {
-	var deals []*Deal
-	switch action {
-	case BuyAction:
-		deals = []*Deal{
+// BtcDirectBuyOffers returns buy offers by BTC Direct.
+func BtcDirectBuyOffers() *OfferVendor {
+	return &OfferVendor{
+		VendorName: BTCDirectName,
+		Offers: []*Offer{
 			{
 				Fee:     3.9, // 3.9%
 				Payment: CardPayment,
@@ -96,30 +94,35 @@ func BtcDirectDeals(action Action) *DealsList {
 				Payment:  BancontactPayment,
 				IsHidden: true,
 			},
-		}
-	case SellAction:
-		deals = []*Deal{
+		},
+	}
+}
+
+// BtcDirectSellOffers returns sell offers by BTC Direct.
+func BtcDirectSellOffers() *OfferVendor {
+	return &OfferVendor{
+		VendorName: BTCDirectName,
+		Offers: []*Offer{
 			{
 				Fee:     2.5, // 2.5%
 				Payment: BankTransferPayment,
 			},
-		}
-	}
-
-	return &DealsList{
-		VendorName: BTCDirectName,
-		Deals:      deals,
+		},
 	}
 }
 
-// BtcDirectOTCDeals returns the OTC purchase conditions offered by BTCDirect.
-func BtcDirectOTCDeals() *DealsList {
-	return &DealsList{
+// BtcDirectOTCService returns the OTC service descriptor for BTC Direct.
+func BtcDirectOTCService() *Service {
+	return &Service{
 		VendorName: BTCDirectOTCName,
-		Deals: []*Deal{
-			{
-				Fee: 1,
-			},
+		FeeModel:   FeeModelRange,
+		FeeRange: &FeeRange{
+			MinPercent: 0.5,
+			MaxPercent: 1.0,
+		},
+		MinTradeAmount: &MinTradeAmount{
+			Amount:   "50000",
+			Currency: "EUR",
 		},
 	}
 }
