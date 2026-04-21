@@ -92,6 +92,13 @@ vi.mock('@/api/swap', async (importOriginal) => {
     signSwap: vi.fn(),
   };
 });
+vi.mock('@/utils/config', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/config')>();
+  return {
+    ...actual,
+    getConfig: vi.fn(),
+  };
+});
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -99,6 +106,7 @@ import { MemoryRouter } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import * as coinsApi from '@/api/coins';
 import * as swapApi from '@/api/swap';
+import * as config from '@/utils/config';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Swap } from './swap';
 
@@ -194,6 +202,10 @@ describe('routes/market/swap', () => {
         }],
       },
     });
+    vi.mocked(config.getConfig).mockResolvedValue({
+      frontend: {},
+      backend: {},
+    });
   });
 
   it('renders grouped provider label after quote fetch', async () => {
@@ -216,6 +228,9 @@ describe('routes/market/swap', () => {
         </MemoryRouter>
       </RatesContext.Provider>,
     );
+
+    const agreeButton = await screen.findByTestId('agree-swap-terms');
+    await agreeButton.click();
 
     await user.type(await screen.findByLabelText('swapSendAmount'), '1');
 

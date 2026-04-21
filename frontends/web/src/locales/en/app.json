@@ -960,6 +960,36 @@
       }
     },
     "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "link": "SwapKit privacy policy",
+          "text": "The BitBoxApp does not learn or collect any personal data. SwapKit may collect some data as explained in their Privacy Policy.",
+          "title": "Data Protection"
+        },
+        "fees": {
+          "note": "Note: SwapKit's exchange rates may differ from the BitBoxApp rates.",
+          "text": "A flat rate of 1.5% is applied to each swap",
+          "title": "Fees"
+        },
+        "intro": {
+          "text": "SwapKit offers an SDK/API service for non-custodial swaps. We work with SwapKit to provide cryptocurrency swapping across different blockchains in one place. It helps power fast, simple, and non-custodial trading, so you stay in control of your assets.",
+          "title": "Swapping cryptocurrency with SwapKit"
+        },
+        "protocol": {
+          "link": "Learn about SwapKit providers",
+          "text": "SwapKit API uses multiple providers to perform Swaps. Providers may be added/removed over time in order to facilitate the latest swapping requirements and improved performance.",
+          "title": "SwapKit providers"
+        },
+        "security": {
+          "link": "BitBox security threat model",
+          "text": "SwapKit is an external service and is not covered by the BitBox security threat model. However, we closely work with SwapKit to improve security by implementing payment requests into the BitBox firmware. This means the BitBox will display the destination address as “SwapKit” when making a swap.",
+          "title": "Security"
+        },
+        "slippage": {
+          "text": "Slippage is the difference between the price you expect when you start a swap and the price you actually receive when the swap is completed. Because cryptocurrency prices can move quickly and liquidity can change during the transaction, the final amount you receive may be lower than estimated.",
+          "title": "Slippage"
+        }
+      },
       "infobox": {
         "intro": "Swap any cryptocurrency in the BitBoxApp to another without limits or KYC. This swapping service is provided by SwapKit, an aggregator for decentralised swapping services."
       }
