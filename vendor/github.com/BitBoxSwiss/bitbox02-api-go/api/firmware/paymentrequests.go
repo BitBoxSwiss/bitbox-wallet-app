@@ -17,11 +17,12 @@ func hashDataLenPrefixed(hasher hash.Hash, data []byte) {
 	_, _ = hasher.Write(data)
 }
 
-// ComputePaymentRequestSighash returns the sighash to be signed for a SLIP-24 payment request.
-func ComputePaymentRequestSighash(
+// ComputePaymentRequestSighashBytes returns the sighash to be signed for a SLIP-24 payment
+// request using the normalized output value bytes as-is.
+func ComputePaymentRequestSighashBytes(
 	paymentRequest *messages.BTCPaymentRequestRequest,
 	slip44 uint32,
-	outputValue uint64,
+	outputValueBytes []byte,
 	outputAddress string,
 ) ([]byte, error) {
 	// The write results are ignored because sighash.Write cannot fail.
@@ -44,6 +45,11 @@ func ComputePaymentRequestSighash(
 		case *messages.BTCPaymentRequestRequest_Memo_TextMemo_:
 			_ = binary.Write(sighash, binary.LittleEndian, uint32(1))
 			hashDataLenPrefixed(sighash, []byte(m.TextMemo.Note))
+		case *messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_:
+			_ = binary.Write(sighash, binary.LittleEndian, uint32(3))
+			_ = binary.Write(sighash, binary.LittleEndian, m.CoinPurchaseMemo.CoinType)
+			hashDataLenPrefixed(sighash, []byte(m.CoinPurchaseMemo.Amount))
+			hashDataLenPrefixed(sighash, []byte(m.CoinPurchaseMemo.Address))
 		default:
 			return nil, errors.New("unsupported memo type")
 		}
@@ -54,9 +60,23 @@ func ComputePaymentRequestSighash(
 
 	// outputsHash (only one output for now)
 	outputHasher := sha256.New()
-	_ = binary.Write(outputHasher, binary.LittleEndian, outputValue)
+	_, _ = outputHasher.Write(outputValueBytes)
 	hashDataLenPrefixed(outputHasher, []byte(outputAddress))
 	_, _ = sighash.Write(outputHasher.Sum(nil))
 
 	return sighash.Sum(nil), nil
+}
+
+// ComputePaymentRequestSighash returns the sighash to be signed for a SLIP-24 payment request.
+// It is kept for backwards compatibility.
+// It is a BTC-oriented convenience wrapper that normalizes the output value as 8-byte
+// little-endian before delegating to ComputePaymentRequestSighashBytes.
+func ComputePaymentRequestSighash(
+	paymentRequest *messages.BTCPaymentRequestRequest,
+	slip44 uint32,
+	outputValue uint64,
+	outputAddress string,
+) ([]byte, error) {
+	outputValueBytes := binary.LittleEndian.AppendUint64(nil, outputValue)
+	return ComputePaymentRequestSighashBytes(paymentRequest, slip44, outputValueBytes, outputAddress)
 }
