@@ -35,6 +35,9 @@ const (
 
 	// PocketName is the name of the vendor, it is unique among all the supported vendors.
 	PocketName = "pocket"
+
+	// PocketOTCName is the name of the OTC vendor, it is unique among all the supported vendors.
+	PocketOTCName = "pocket-otc"
 )
 
 // PocketRegion represents informations collected by Pocket supported countries REST call.
@@ -75,6 +78,18 @@ func PocketDeals() *DealsList {
 				Fee:     1.5, // 1.5%
 				Payment: BankTransferPayment,
 				IsFast:  false,
+			},
+		},
+	}
+}
+
+// PocketOTCDeals returns the OTC purchase conditions offered by Pocket.
+func PocketOTCDeals() *DealsList {
+	return &DealsList{
+		VendorName: PocketOTCName,
+		Deals: []*Deal{
+			{
+				Fee: 1,
 			},
 		},
 	}

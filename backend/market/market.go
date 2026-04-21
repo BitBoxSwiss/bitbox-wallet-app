@@ -274,7 +274,10 @@ func specialActionDeals(coinCode coin.Code, regionCode string, action Action) ([
 		if !IsBtcDirectOTCSupportedForCoinInRegion(coinCode, regionCode) {
 			return nil, true, ErrRegionNotSupported
 		}
-		return []*DealsList{BtcDirectOTCDeals()}, true, nil
+		return []*DealsList{
+			BtcDirectOTCDeals(),
+			PocketOTCDeals(),
+		}, true, nil
 	default:
 		return nil, false, nil
 	}

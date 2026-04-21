@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { TVendorName } from '@/api/market';
+import type { TVendorName } from '@/api/market';
 
 /**
  * Gets formatted name for vendors.
@@ -13,10 +13,11 @@ export const getVendorFormattedName = (
     return 'MoonPay';
   case 'pocket':
     return 'Pocket';
+  case 'pocket-otc':
+    return 'Pocket Private';
   case 'btcdirect':
-    return 'BTC Direct';
   case 'btcdirect-otc':
-    return 'BTC Direct - Private Trading Desk';
+    return 'BTC Direct';
   case 'bitrefill':
     return 'Bitrefill';
   case 'swapkit':

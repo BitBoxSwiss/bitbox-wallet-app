@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
+import type { TMarketDeal, TMarketDeals } from '@/api/market';
 import { useDarkmode } from '@/hooks/darkmode';
 import { Bank, BankDark, CreditCard, CreditCardDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
 import { getVendorFormattedName } from '@/routes/market/utils';
-import { TMarketDeal, TMarketDeals } from '@/api/market';
 import style from './vendor-deals.module.css';
 
 type Props = {
@@ -75,6 +75,26 @@ const Deal = ({
   );
 };
 
+export const VendorLinks = ({
+  deals,
+  vendorName,
+}: Props) => {
+  return (
+    <div className={style.exchangeContainer}>
+      <div className={style.container}>
+        <h3 className={style.exchangeLink}>
+          {deals.map(deal => !deal.isHidden && (
+            <Deal
+              key={`${vendorName || ''}_${deal.payment || ''}`}
+              deal={deal}
+              vendorName={vendorName}
+            />
+          ))}
+        </h3>
+      </div>
+    </div>
+  );
+};
 
 export const VendorDeals = ({
   deals,
