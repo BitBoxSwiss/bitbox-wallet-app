@@ -12,6 +12,7 @@ import { SubTitle } from '@/components/title';
 type TProps = {
   children?: ReactNode;
   buyAccountCode: AccountCode;
+  buyEthAccountCode: AccountCode | undefined;
   onContinue: () => void;
   result: TSendTx | undefined;
 };
@@ -19,6 +20,7 @@ type TProps = {
 export const SwapResult = ({
   children,
   buyAccountCode,
+  buyEthAccountCode,
   onContinue,
   result,
 }: TProps) => {
@@ -51,8 +53,31 @@ export const SwapResult = ({
       );
     }
 
-    // TODO: handle erc20InsufficientGasFunds similarly to
-    // frontends/web/src/routes/account/send/components/result.tsx
+    if (result.errorCode === 'erc20InsufficientGasFunds') {
+      return (
+        <View fullscreen textCenter verticallyCentered width="520px">
+          <ViewHeader />
+          <ViewContent withIcon="error">
+            <p>
+              {t(`send.error.${result.errorCode}`)}
+            </p>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={() => navigate(`/account/${buyAccountCode}`)}>
+              {t('button.done')}
+            </Button>
+            {buyEthAccountCode && (
+              <Button
+                secondary
+                onClick={() => navigate(`/market/select/${buyEthAccountCode}`, { replace: true })}>
+                {t('send.buyEth')}
+              </Button>
+            )}
+          </ViewButtons>
+        </View>
+      );
+    }
+
     return (
       <View fullscreen textCenter verticallyCentered width="640px">
         <ViewHeader />
