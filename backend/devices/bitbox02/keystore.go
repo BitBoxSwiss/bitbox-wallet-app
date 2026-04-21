@@ -424,6 +424,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 			tx.Value(),
 			tx.Data(),
 			firmware.ETHIdentifyCase(txProposal.RecipientAddress),
+			nil, // paymentRequest
 		)
 	case 0:
 		signature, err = keystore.device.ETHSign(
