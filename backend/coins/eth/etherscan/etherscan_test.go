@@ -4,14 +4,18 @@ package etherscan
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"math/big"
 	"net/http"
+	"net/url"
 	"testing"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/time/rate"
 )
@@ -36,6 +40,128 @@ func makeTokenTx(hash, blockNumber string, from, to, contract common.Address) ma
 		"gasUsed":         "1",
 		"isError":         "0",
 	}
+}
+
+func newTestEtherScan(handler func(*http.Request) *http.Response) *EtherScan {
+	etherScan := NewEtherScan("1", &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			return handler(req), nil
+		}),
+	}, rate.NewLimiter(rate.Inf, 1))
+	etherScan.url = "https://example.test/v2/api"
+	return etherScan
+}
+
+func jsonRPCResponse(t *testing.T, body string) *http.Response {
+	t.Helper()
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       io.NopCloser(bytes.NewReader([]byte(body))),
+		Header:     make(http.Header),
+	}
+}
+
+func formValues(t *testing.T, req *http.Request) url.Values {
+	t.Helper()
+	switch req.Method {
+	case http.MethodGet:
+		return req.URL.Query()
+	case http.MethodPost:
+		require.NoError(t, req.ParseForm())
+		return req.PostForm
+	default:
+		t.Fatalf("unexpected method: %s", req.Method)
+		return nil
+	}
+}
+
+func TestRPCProxyUsesGETForSmallEstimateGasRequest(t *testing.T) {
+	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
+	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
+		require.Equal(t, http.MethodGet, req.Method)
+		params := formValues(t, req)
+		require.Equal(t, "1", params.Get("chainId"))
+		require.Equal(t, "proxy", params.Get("module"))
+		require.Equal(t, "eth_estimateGas", params.Get("action"))
+		require.Equal(t, to.Hex(), params.Get("to"))
+		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x5208"}`)
+	})
+
+	gas, err := etherScan.EstimateGas(context.Background(), ethereum.CallMsg{
+		To: &to,
+	})
+	require.NoError(t, err)
+	require.Equal(t, uint64(21000), gas)
+}
+
+func TestRPCProxyUsesPOSTForLargeEstimateGasRequest(t *testing.T) {
+	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
+	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
+		require.Equal(t, http.MethodPost, req.Method)
+		require.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+		require.Empty(t, req.URL.RawQuery)
+		params := formValues(t, req)
+		require.Equal(t, "1", params.Get("chainId"))
+		require.Equal(t, "proxy", params.Get("module"))
+		require.Equal(t, "eth_estimateGas", params.Get("action"))
+		require.Equal(t, to.Hex(), params.Get("to"))
+		require.Greater(t, len(params.Get("data")), maxGetRequestTargetLength)
+		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x5208"}`)
+	})
+
+	gas, err := etherScan.EstimateGas(context.Background(), ethereum.CallMsg{
+		To:   &to,
+		Data: bytes.Repeat([]byte{0xab}, 3000),
+	})
+	require.NoError(t, err)
+	require.Equal(t, uint64(21000), gas)
+}
+
+func TestRPCProxyUsesGETForSmallSendTransactionRequest(t *testing.T) {
+	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
+	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
+		require.Equal(t, http.MethodGet, req.Method)
+		params := formValues(t, req)
+		require.Equal(t, "1", params.Get("chainId"))
+		require.Equal(t, "proxy", params.Get("module"))
+		require.Equal(t, "eth_sendRawTransaction", params.Get("action"))
+		require.LessOrEqual(t, len(params.Get("hex")), maxGetRequestTargetLength)
+		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x1"}`)
+	})
+
+	tx := types.NewTx(&types.LegacyTx{
+		Nonce:    1,
+		GasPrice: big.NewInt(1),
+		Gas:      100000,
+		To:       &to,
+		Value:    big.NewInt(0),
+	})
+	require.NoError(t, etherScan.SendTransaction(context.Background(), tx))
+}
+
+func TestRPCProxyUsesPOSTForLargeSendTransactionRequest(t *testing.T) {
+	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
+	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
+		require.Equal(t, http.MethodPost, req.Method)
+		require.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+		require.Empty(t, req.URL.RawQuery)
+		params := formValues(t, req)
+		require.Equal(t, "1", params.Get("chainId"))
+		require.Equal(t, "proxy", params.Get("module"))
+		require.Equal(t, "eth_sendRawTransaction", params.Get("action"))
+		require.Greater(t, len(params.Get("hex")), maxGetRequestTargetLength)
+		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x1"}`)
+	})
+
+	tx := types.NewTx(&types.LegacyTx{
+		Nonce:    1,
+		GasPrice: big.NewInt(1),
+		Gas:      100000,
+		To:       &to,
+		Value:    big.NewInt(0),
+		Data:     bytes.Repeat([]byte{0xab}, 3000),
+	})
+	require.NoError(t, etherScan.SendTransaction(context.Background(), tx))
 }
 
 func TestTokenTransactionsByContractPaginationDedup(t *testing.T) {
