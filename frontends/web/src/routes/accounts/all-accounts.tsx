@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import * as accountApi from '@/api/account';
 import { getBalance } from '@/api/account';
+import { getLightningBalance } from '@/api/lightning';
 import { Logo } from '@/components/icon/logo';
 import { View, ViewContent } from '@/components/view/view';
 import { getAccountsByKeystore } from '@/routes/account/utils';
@@ -16,6 +17,7 @@ import { AllAccountsGuide } from '@/routes/accounts/all-accounts-guide';
 import { useMountedRef } from '@/hooks/mount';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
+import { useLightning } from '@/hooks/lightning';
 import styles from './all-accounts.module.css';
 
 type AllAccountsProps = {
@@ -25,6 +27,29 @@ type AllAccountsProps = {
 type TAccountItemProp = {
   account: accountApi.TAccount;
 };
+
+type TAccountRowProps = {
+  balance?: accountApi.TAmountWithConversions;
+  coinCode: accountApi.CoinCode;
+  name: string;
+  to: string;
+};
+
+const AccountRow = ({ balance, coinCode, name, to }: TAccountRowProps) => (
+  <Link to={to} className={styles.accountItem}>
+    <div className={styles.accountIcon}>
+      <Logo coinCode={coinCode} alt={name} />
+    </div>
+    <p className={styles.accountName}>
+      {name}
+    </p>
+
+    <div className={styles.accountBalanceContainer}>
+      <AmountWithUnit amount={balance} unitClassName={styles.unit} />
+    </div>
+    <ChevronRightDark />
+  </Link>
+);
 
 const AccountItem = ({ account }: TAccountItemProp) => {
   const [balance, setBalance] = useState<accountApi.TAmountWithConversions>();
@@ -51,19 +76,43 @@ const AccountItem = ({ account }: TAccountItemProp) => {
   }, [account.code, mounted]);
 
   return (
-    <Link to={`/account/${account.code}`} className={styles.accountItem}>
-      <div className={styles.accountIcon}>
-        <Logo coinCode={account.coinCode} alt={account.name} />
-      </div>
-      <p className={styles.accountName}>
-        {account.name}
-      </p>
+    <AccountRow
+      balance={balance}
+      coinCode={account.coinCode}
+      name={account.name}
+      to={`/account/${account.code}`}
+    />
+  );
+};
 
-      <div className={styles.accountBalanceContainer}>
-        <AmountWithUnit amount={balance} unitClassName={styles.unit} />
-      </div>
-      <ChevronRightDark />
-    </Link>
+const LightningItem = () => {
+  const { t } = useTranslation();
+  const [balance, setBalance] = useState<accountApi.TAmountWithConversions>();
+  const mounted = useMountedRef();
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const response = await getLightningBalance();
+        if (!mounted.current) {
+          return;
+        }
+        setBalance(response.available);
+      } catch (error) {
+        console.error('Failed to fetch lightning balance', error);
+      }
+    };
+
+    fetchBalance();
+  }, [mounted]);
+
+  return (
+    <AccountRow
+      balance={balance}
+      coinCode="lightning"
+      name={t('lightning.accountLabel')}
+      to="/lightning"
+    />
   );
 };
 
@@ -72,6 +121,7 @@ const AccountItem = ({ account }: TAccountItemProp) => {
  **/
 export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
   const { t } = useTranslation();
+  const { lightningAccount } = useLightning();
   const accountsByKeystore = getAccountsByKeystore(accounts);
   useOnlyVisitableOnMobile('/settings/manage-accounts');
 
@@ -83,6 +133,11 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
       <View width="768px" fullscreen={false}>
         <ViewContent>
           <div className={styles.container} data-testid="all-accounts-keystores">
+            {lightningAccount !== null && (
+              <div className={styles.accountsList}>
+                <LightningItem />
+              </div>
+            )}
             {accountsByKeystore.map(keystore => (
               <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
                 <ConnectedKeystore
