@@ -40,4 +40,5 @@ var TestnetCoins = map[Code]struct{}{
 	CodeTBTC:   {},
 	CodeTLTC:   {},
 	CodeSEPETH: {},
+	CodeRBTC:   {},
 }
