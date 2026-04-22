@@ -96,6 +96,7 @@ const CustomOption = (props: OptionProps<TOption, false>) => {
 
   return (
     <div
+      ref={props.innerRef}
       {...innerProps}
       className={`
         ${style.customOption || ''}
