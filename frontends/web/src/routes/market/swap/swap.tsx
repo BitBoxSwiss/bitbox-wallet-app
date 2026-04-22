@@ -520,10 +520,10 @@ export const Swap = ({
                 <Button
                   disabled={!canFlip}
                   transparent
-                  className={style.flipAcconutsButton}
+                  className={style.flipAccountsButton}
                   onClick={handleFlipAccounts}
                 >
-                  <ArrowSwap className={style.flipAcconutsIcon} />
+                  <ArrowSwap className={style.flipAccountsIcon} />
                 </Button>
               </div>
               <div className={style.row}>
