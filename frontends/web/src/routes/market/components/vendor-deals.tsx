@@ -83,9 +83,9 @@ export const VendorLinks = ({
     <div className={style.exchangeContainer}>
       <div className={style.container}>
         <h3 className={style.exchangeLink}>
-          {deals.map(deal => !deal.isHidden && (
+          {deals.map((deal, i) => !deal.isHidden && (
             <Deal
-              key={`${vendorName || ''}_${deal.payment || ''}`}
+              key={`${vendorName || ''}_${deal.payment || ''}_${i}`}
               deal={deal}
               vendorName={vendorName}
             />
@@ -107,9 +107,9 @@ export const VendorDeals = ({
           {getVendorFormattedName(vendorName)}
         </h3>
         <div className={style.paymentMethodsContainer}>
-          {deals.map(deal => !deal.isHidden && (
+          {deals.map((deal, i) => !deal.isHidden && (
             <Deal
-              key={`${vendorName || ''}_${deal.payment || ''}`}
+              key={`${vendorName || ''}_${deal.payment || ''}_${i}`}
               deal={deal}
               vendorName={vendorName}
             />
