@@ -67,6 +67,25 @@ func IsPocketSupported(coinCode coin.Code) bool {
 	return coinCode == coin.CodeBTC || coinCode == coin.CodeTBTC
 }
 
+// IsPocketOTCSupportedForCoinInRegion returns whether Pocket OTC is supported for the specific
+// combination of coin and region.
+func IsPocketOTCSupportedForCoinInRegion(
+	coinCode coin.Code,
+	region string,
+	httpClient *http.Client,
+) bool {
+	if !IsPocketSupported(coinCode) {
+		return false
+	}
+
+	pocketSupportedRegions, err := GetPocketSupportedRegions(httpClient)
+	if err != nil {
+		return false
+	}
+	_, ok := pocketSupportedRegions[region]
+	return ok
+}
+
 // PocketDeals returns the purchase conditions (fee and payment methods) offered by Pocket.
 func PocketDeals() *DealsList {
 	// deals details are the same for both buy and sell. In the future we may need to use

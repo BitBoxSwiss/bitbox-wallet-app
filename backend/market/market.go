@@ -182,7 +182,7 @@ func ListVendorsByRegion(account accounts.Interface, httpClient *http.Client) Re
 // GetDeals returns the vendor deals available for the specified account, region and action.
 func GetDeals(account accounts.Interface, regionCode string, action Action, httpClient *http.Client) ([]*DealsList, error) {
 	coinCode := account.Coin().Code()
-	if deals, handled, err := specialActionDeals(coinCode, regionCode, action); handled {
+	if deals, handled, err := specialActionDeals(coinCode, regionCode, action, httpClient); handled {
 		return deals, err
 	}
 
@@ -260,7 +260,7 @@ func GetDeals(account accounts.Interface, regionCode string, action Action, http
 	return marketDealsLists, nil
 }
 
-func specialActionDeals(coinCode coin.Code, regionCode string, action Action) ([]*DealsList, bool, error) {
+func specialActionDeals(coinCode coin.Code, regionCode string, action Action, httpClient *http.Client) ([]*DealsList, bool, error) {
 	switch action {
 	case SwapAction:
 		if !IsSwapKitSupported(coinCode) {
@@ -268,16 +268,14 @@ func specialActionDeals(coinCode coin.Code, regionCode string, action Action) ([
 		}
 		return []*DealsList{SwapKitDeals()}, true, nil
 	case OtcAction:
-		if !IsBtcDirectSupported(coinCode) {
-			return nil, true, ErrCoinNotSupported
+		otcDealsLists := []*DealsList{}
+		if IsBtcDirectOTCSupportedForCoinInRegion(coinCode, regionCode) {
+			otcDealsLists = append(otcDealsLists, BtcDirectOTCDeals())
 		}
-		if !IsBtcDirectOTCSupportedForCoinInRegion(coinCode, regionCode) {
-			return nil, true, ErrRegionNotSupported
+		if IsPocketOTCSupportedForCoinInRegion(coinCode, regionCode, httpClient) {
+			otcDealsLists = append(otcDealsLists, PocketOTCDeals())
 		}
-		return []*DealsList{
-			BtcDirectOTCDeals(),
-			PocketOTCDeals(),
-		}, true, nil
+		return otcDealsLists, true, nil
 	default:
 		return nil, false, nil
 	}
