@@ -44,10 +44,11 @@ import { SwapServiceSelector } from './components/swap-service-selector';
 import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
 import { RatesContext } from '@/contexts/RatesContext';
-import style from './swap.module.css';
 import { getConfig } from '@/utils/config';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { SwapkitTerms } from '@/components/terms/swapkit-terms';
+import { Skeleton } from '@/components/skeleton/skeleton';
+import style from './swap.module.css';
 
 type Props = {
   accounts: TAccount[];
@@ -429,14 +430,41 @@ export const Swap = ({
   };
 
   if (
-    !swapAccounts
-    || !swapAccounts.success
-    || swapAccounts.sellAccounts.length === 0
-    || !sellAccounts
-    || !buyAccounts
-    || !buyAccountCode
+    swapAccounts?.success === false
+    || swapAccounts?.sellAccounts.length === 0
   ) {
-    return null;
+    return (
+      <GuideWrapper>
+        <GuidedContent>
+          <Main>
+            <Header
+              hideSidebarToggler
+              title={
+                <SubTitle>
+                  {t('generic.swap')}
+                </SubTitle>
+              }
+            />
+            <View
+              fullscreen={false}
+              width="600px">
+              <ViewContent
+                textAlign="center"
+                withIcon="error">
+                <p>
+                  {t('genericError')}
+                </p>
+              </ViewContent>
+              <ViewButtons>
+                <BackButton>
+                  {t('button.back')}
+                </BackButton>
+              </ViewButtons>
+            </View>
+          </Main>
+        </GuidedContent>
+      </GuideWrapper>
+    );
   }
 
   if (!agreedTerms) {
@@ -498,15 +526,19 @@ export const Swap = ({
                   </Button>
                 )}
               </div>
-              <InputWithAccountSelector
-                accounts={sellAccounts}
-                id="swapSendAmount"
-                accountCode={sellAccountCode}
-                isAccountDisabled={account => isSameCoinAccount(account, buyAccount)}
-                onChangeAccountCode={setSellAccountCode}
-                value={sellAmount}
-                onChangeValue={setSellAmount}
-              />
+              {!sellAccounts || !sellAccountCode ? (
+                <Skeleton />
+              ) : (
+                <InputWithAccountSelector
+                  accounts={sellAccounts}
+                  id="swapSendAmount"
+                  accountCode={sellAccountCode}
+                  isAccountDisabled={account => isSameCoinAccount(account, buyAccount)}
+                  onChangeAccountCode={setSellAccountCode}
+                  value={sellAmount}
+                  onChangeValue={setSellAmount}
+                />
+              )}
               <Message
                 hidden={quoteErrorCode !== 'insufficientFunds'}
                 type="warning"
@@ -545,15 +577,19 @@ export const Swap = ({
                   </Button>
                 )}
               </div>
-              <InputWithAccountSelector
-                accounts={buyAccounts}
-                id="swapGetAmount"
-                accountCode={buyAccountCode}
-                isAccountDisabled={account => isSameCoinAccount(account, sellAccount)}
-                onChangeAccountCode={setBuyAccountCode}
-                value={expectedOutput}
-                readOnlyAmount
-              />
+              {!buyAccounts || !buyAccountCode ? (
+                <Skeleton />
+              ) : (
+                <InputWithAccountSelector
+                  accounts={buyAccounts}
+                  id="swapGetAmount"
+                  accountCode={buyAccountCode}
+                  isAccountDisabled={account => isSameCoinAccount(account, sellAccount)}
+                  onChangeAccountCode={setBuyAccountCode}
+                  value={expectedOutput}
+                  readOnlyAmount
+                />
+              )}
               <SwapServiceSelector
                 buyUnit={buyAccount?.coinUnit}
                 error={routeError}
@@ -590,16 +626,18 @@ export const Swap = ({
             sellAmount={confirmDetails?.sellAmount}
           />
 
-          <SwapResult
-            buyAccountCode={buyAccountCode}
-            buyEthAccountCode={sellAccount?.parentAccountCode ?? sellAccount?.code}
-            onContinue={() => {
-              setIsConfirming(false);
-              setResult(undefined);
-              setConfirmDetails(undefined);
-            }}
-            result={result}
-          />
+          {buyAccountCode && (
+            <SwapResult
+              buyAccountCode={buyAccountCode}
+              buyEthAccountCode={sellAccount?.parentAccountCode ?? sellAccount?.code}
+              onContinue={() => {
+                setIsConfirming(false);
+                setResult(undefined);
+                setConfirmDetails(undefined);
+              }}
+              result={result}
+            />
+          )}
 
         </Main>
       </GuidedContent>

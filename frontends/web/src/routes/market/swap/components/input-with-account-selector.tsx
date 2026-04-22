@@ -12,7 +12,7 @@ import { findAccount, getDisplayedCoinUnit } from '@/routes/account/utils';
 import style from './input-with-account-selector.module.css';
 
 type Props<T extends TAccountBase> = {
-  accountCode: AccountCode | undefined;
+  accountCode: AccountCode;
   accounts: T[];
   id: string;
   isAccountDisabled?: (account: T) => boolean;
