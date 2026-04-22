@@ -1064,6 +1064,10 @@
       "text": "A transaction broadcast to the network but not yet confirmed.",
       "title": "What is a pending transaction?"
     },
+    "accountTransactionEstimation": {
+      "text": "The BitBoxApp will prefix fiat amounts with an estimation sign until the transaction is confirmed and a final conversion rate is received.",
+      "title": "Why do new transactions show an estimation sign?"
+    },
     "accountTransactionLabel": {
       "text": "It’s the address you received coins from or sent coins to.",
       "title": "Which address is displayed for each transaction?"
