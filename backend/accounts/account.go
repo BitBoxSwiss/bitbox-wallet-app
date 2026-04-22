@@ -76,9 +76,9 @@ type Interface interface {
 	FeeTargets() ([]FeeTarget, FeeTargetCode)
 	TxProposal(*TxProposalArgs) (coin.Amount, coin.Amount, coin.Amount, error)
 	// GetUnusedReceiveAddresses gets a list of list of receive addresses. The result can be one
-	// list of addresses, or if there are multiple types of addresses (e.g. `bc1...` vs `3...`), a
-	// list of lists. Returns `ErrSyncInProgress` if the account is not synced yet. Returns an error
-	// if the account is not initialized yet.
+	// list of addresses, or if there are multiple types of addresses (e.g. `bc1q...` vs `bc1p...`),
+	// a list of lists. Returns `ErrSyncInProgress` if the account is not synced yet. Returns an
+	// error if the account is not initialized yet.
 	GetUnusedReceiveAddresses() ([]AddressList, error)
 	CanVerifyAddresses() (bool, bool, error)
 	VerifyAddress(addressID string) (bool, error)

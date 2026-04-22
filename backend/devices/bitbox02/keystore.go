@@ -22,7 +22,6 @@ import (
 	"github.com/btcsuite/btcd/btcutil/psbt"
 	"github.com/btcsuite/btcd/chaincfg"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 )
 
@@ -518,7 +517,11 @@ func (keystore *keystore) SignTransaction(proposedTx interface{}) error {
 
 // CanSignMessage implements keystore.Keystore.
 func (keystore *keystore) CanSignMessage(code coinpkg.Code) bool {
-	return code == coinpkg.CodeBTC || code == coinpkg.CodeETH || code == coinpkg.CodeRBTC
+	return code == coinpkg.CodeBTC ||
+		code == coinpkg.CodeTBTC ||
+		code == coinpkg.CodeETH ||
+		code == coinpkg.CodeSEPETH ||
+		code == coinpkg.CodeRBTC
 }
 
 // SignBTCMessage implements keystore.Keystore.
@@ -549,8 +552,8 @@ func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 }
 
 // SignETHMessage implements keystore.Keystore.
-func (keystore *keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	signature, err := keystore.device.ETHSignMessage(params.MainnetChainConfig.ChainID.Uint64(), keypath.ToUInt32(), message)
+func (keystore *keystore) SignETHMessage(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	signature, err := keystore.device.ETHSignMessage(chainID, keypath.ToUInt32(), message)
 	if firmware.IsErrorAbort(err) {
 		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
 	}

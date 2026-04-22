@@ -30,6 +30,7 @@
     --color-orange: #F5A04C;
     --color-olive: #908B00;
     --color-lightorange: #F9AC60;
+    --background-tap-active: #4d4c4c;
 
     /* status colors */
     --color-success: var(--color-green);
@@ -131,10 +132,10 @@
     --background-focus: var(--color-light-skyblue);
     --background-tertiary: var(--color-gray-alt);
     --background-quaternary: var(--color-mediumgray);
-    --background-custom-select-hover: rgba(var(--color-blue-rgb), .075);
     --background-custom-select-selected: rgba(var(--color-blue-rgb), .3);
     --background-session-card: var(--color-white);
     
+    --background-tap-active: #ececec;
     --separation-line-color: var(--color-lightgray);
     --bottom-navigation-border-color: var(--color-mediumgray);
 }
@@ -143,7 +144,7 @@
     :root {
         /* status colors*/
         --color-disabled: var(--color-gray);
-        
+
         /* font colors */
         --color-default: var(--color-lightgray);
         --color-primary: var(--color-blue);
@@ -161,10 +162,10 @@
         --background-focus: var(--color-softblack);
         --background-tertiary: var(--color-gray);
         --background-quaternary: var(--color-dark);
-        --background-custom-select-hover: var(--color-dark);
         --background-custom-select-selected: var(--color-dark);
         --background-session-card: var(--color-softblack);
 
+        --background-tap-active: #4d4c4c;
         --separation-line-color: var(--color-darkgray);
         --bottom-navigation-border-color: var(--color-gray);
     }
@@ -191,10 +192,10 @@
         --background-focus: var(--color-softblack);
         --background-tertiary: var(--color-gray);
         --background-quaternary: var(--color-dark);
-        --background-custom-select-hover: var(--color-dark);
         --background-custom-select-selected: var(--color-dark);
         --background-session-card: var(--color-softblack);
-        
+
+        --background-tap-active: #4d4c4c;
         --separation-line-color: var(--color-darkgray);
         --bottom-navigation-border-color: var(--color-gray);
     }

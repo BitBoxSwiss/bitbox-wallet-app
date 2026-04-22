@@ -50,7 +50,7 @@
 }
 
 .select :global(.react-select__option):hover {
-    background-color: var(--background-custom-select-hover);
+    background-color: var(--background-tap-active);
 }
 
 .select :global(.react-select__option--is-selected),

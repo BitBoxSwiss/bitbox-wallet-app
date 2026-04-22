@@ -7,7 +7,7 @@ import { SkippedDialog } from './dialog/skipped-dialog';
 import { VerifyOnDeviceDialog } from './dialog/verify-on-device-dialog';
 import { ConnectFailedDialog } from './dialog/connect-failed-dialog';
 
-export const VerifyAddressDialog = ({ verification, selectedAddress, isLoading, coinCode, onClose }: TDialogProps) => {
+export const VerifyAddressDialog = ({ verification, selectedAddress, usedAddressesResponse, coinCode, onClose }: TDialogProps) => {
   const { verifyState, hasSkipDeviceVerificationQuery } = verification;
 
   const isSkipWarning = verifyState === 'skipWarning' || hasSkipDeviceVerificationQuery;
@@ -15,7 +15,7 @@ export const VerifyAddressDialog = ({ verification, selectedAddress, isLoading, 
 
   if (isSkipWarning || isSkipped) {
     if (isSkipped) {
-      if (isLoading) {
+      if (usedAddressesResponse === undefined) {
         return <LoadingDialog />;
       }
       return <SkippedDialog selectedAddress={selectedAddress} coinCode={coinCode} onClose={onClose} />;
@@ -28,7 +28,7 @@ export const VerifyAddressDialog = ({ verification, selectedAddress, isLoading, 
   }
 
   if (verifyState === 'verifying' || verifyState === 'error') {
-    if (isLoading) {
+    if (usedAddressesResponse === undefined) {
       return <LoadingDialog />;
     }
     return <VerifyOnDeviceDialog verification={verification} selectedAddress={selectedAddress} coinCode={coinCode} onClose={onClose} />;

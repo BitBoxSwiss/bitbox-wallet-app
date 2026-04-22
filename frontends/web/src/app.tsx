@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useEffect, Fragment } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, Fragment } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSync } from './hooks/api';
 import { useDefault } from './hooks/default';
@@ -29,12 +29,14 @@ import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
+import { getBottomNavKey } from './components/bottom-navigation/utils';
 import styles from './app.module.css';
 
 export const App = () => {
   usePlatformClass();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   useIgnoreDrop();
   useAppReady();
 
@@ -157,11 +159,12 @@ export const App = () => {
 
   // Returns a string representation of the current devices, so it can be used in the `key` property of subcomponents.
   // The prefix is used so different subcomponents can have unique keys to not confuse the renderer.
-  const devicesKey = (prefix: string): string => {
+  const devicesKey = useCallback((prefix: string): string => {
     return prefix + ':' + JSON.stringify(devices, Object.keys(devices).sort());
-  };
+  }, [devices]);
 
-  const activeAccounts = accounts.filter(acct => acct.active);
+  const activeAccounts = useMemo(() => accounts.filter(acct => acct.active), [accounts]);
+  const tabKey = useMemo(() => getBottomNavKey(pathname), [pathname]);
 
   const isBitboxBootloader = firstDevice && devices[firstDevice] === 'bitbox02-bootloader';
   const showBottomNavigation = (deviceIDs.length > 0 || activeAccounts.length > 0) && !isBitboxBootloader;
@@ -198,12 +201,14 @@ export const App = () => {
                 return null;
               })
             }
-            <AppRouter
-              accounts={accounts}
-              activeAccounts={activeAccounts}
-              devices={devices}
-              devicesKey={devicesKey}
-            />
+            <div key={tabKey} className={styles.tabTransition}>
+              <AppRouter
+                accounts={accounts}
+                activeAccounts={activeAccounts}
+                devices={devices}
+                devicesKey={devicesKey}
+              />
+            </div>
             <RouterWatcher />
           </div>
           {showBottomNavigation && (

@@ -8,6 +8,7 @@ import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
 import { launchRegtest, setupRegtestWallet, sendCoins, mineBlocks, cleanupRegtest } from './helpers/regtest';
 import { deleteAccountsFile, deleteConfigFile } from './helpers/fs';
+import { getReceiveAddressData } from './helpers/account';
 
 type AccountsConfig = {
   keystores?: Array<Record<string, unknown>>;
@@ -69,13 +70,19 @@ const unlockWallet = async (page: Page) => {
   await page.getByRole('button', { name: 'Unlock' }).click();
 };
 
-const unlockWalletAndGetReceiveAddress = async (page: Page): Promise<string> => {
+const unlockWalletAndGetReceiveAddress = async (
+  page: Page,
+  host: string,
+  servewalletPort: number,
+): Promise<string> => {
   await unlockWallet(page);
   await page.getByRole('link', { name: 'Bitcoin Regtest Bitcoin' }).click();
   await page.getByRole('button', { name: 'Receive Bitcoin' }).click();
   await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
   const addressLocator = page.locator('[data-testid="receive-address"]');
-  return addressLocator.inputValue();
+  const receiveAddress = await getReceiveAddressData(page, host, servewalletPort);
+  await expect(addressLocator).toHaveValue(receiveAddress.displayAddress);
+  return receiveAddress.address;
 };
 
 const fundAddress = async (address: string) => {
@@ -122,7 +129,7 @@ test('Backup reminder stays hidden when allowed is false', async ({ page, host, 
   });
 
   const recvAddress = await test.step('Grab receive address', async () => {
-    return unlockWalletAndGetReceiveAddress(page);
+    return unlockWalletAndGetReceiveAddress(page, host, servewalletPort);
   });
 
   await test.step('Stop servewallet', async () => {
@@ -165,7 +172,7 @@ test('Backup reminder stays suppressed when first seen over threshold', async ({
   });
 
   const recvAddress = await test.step('Grab receive address', async () => {
-    return unlockWalletAndGetReceiveAddress(page);
+    return unlockWalletAndGetReceiveAddress(page, host, servewalletPort);
   });
 
   await test.step('Stop servewallet', async () => {
@@ -209,7 +216,7 @@ test('Backup reminder shows after funding a new wallet', async ({ page, host, fr
   });
 
   const recvAddress = await test.step('Grab receive address', async () => {
-    return unlockWalletAndGetReceiveAddress(page);
+    return unlockWalletAndGetReceiveAddress(page, host, servewalletPort);
   });
 
   await test.step('Fund wallet', async () => {

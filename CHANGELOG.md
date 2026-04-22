@@ -1,7 +1,10 @@
 # Changelog
 
 ## Unreleased
-- Revamp Marketplace UI
+
+## v4.51.0
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.1
+- Format addresses in groups of 4 characters
 - iOS: Add haptic feedback on account summary chart scrolls
 - Portfolio: reduce waiting time to display the chart
 - iOS: Add haptic feedback on toggle component
@@ -21,7 +24,16 @@
 - Fix coin control reused-address labels
 - Revamp portfolio / account summary detail (table)
 - Sort wallets by name first, then by root fingerprint when names match.
-- Persist account receive script type
+- Bitcoin: persist account receive script type
+- Bitcoin: display output descriptor in account details
+- Bitcoin: add a used addresses list in account info
+- Bitcoin and Ethereum: add message signing for addresses
+- iOS: use numeric keyboard for coin and fiat input
+- Scroll to tx search field on mobile
+- iOS: Haptic feedback on copy and chart filters change
+- Subtle tab transition (mobile navigation)
+- Enable large streamed payloads (Wallet Connect)
+- Revamp Marketplace UI
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.

@@ -34,6 +34,7 @@ export const VerifyOnDeviceDialog = ({ verification, selectedAddress, coinCode, 
       <div className={style.verifyDialogContent}>
         <VerifyAddressDialogContent
           address={selectedAddress.address}
+          displayAddress={selectedAddress.displayAddress}
           uriPrefix={getAddressURIPrefix(coinCode)}
           instruction={t('receive.verifyInstruction')}
           instructionClassName={style.verifyDialogInstruction}

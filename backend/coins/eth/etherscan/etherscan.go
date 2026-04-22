@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"math/big"
 	"net/http"
 	"net/url"
@@ -35,6 +36,7 @@ var CallsPerSec = 3.8
 
 const (
 	maxAddressesForBalances      = 20
+	maxGetRequestTargetLength    = 6000
 	maxTokenTransactionsPerQuery = 10000
 )
 
@@ -60,11 +62,35 @@ func NewEtherScan(chainId string, httpClient *http.Client, limiter *rate.Limiter
 }
 
 func (etherScan *EtherScan) call(ctx context.Context, params url.Values, result interface{}) error {
+	return etherScan.callWithMethod(ctx, http.MethodGet, params, result)
+}
+
+func (etherScan *EtherScan) callWithMethod(
+	ctx context.Context,
+	method string,
+	params url.Values,
+	result interface{},
+) error {
 	if err := etherScan.limiter.Wait(ctx); err != nil {
 		return errp.WithStack(err)
 	}
 	params.Set("chainId", etherScan.chainId)
-	response, err := etherScan.httpClient.Get(etherScan.url + "?" + params.Encode())
+	encodedParams := params.Encode()
+	requestURL := etherScan.url
+	var requestBody io.Reader
+	if method == http.MethodGet {
+		requestURL += "?" + encodedParams
+	} else {
+		requestBody = strings.NewReader(encodedParams)
+	}
+	request, err := http.NewRequestWithContext(ctx, method, requestURL, requestBody)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	if method == http.MethodPost {
+		request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	}
+	response, err := etherScan.httpClient.Do(request)
 	if err != nil {
 		return errp.WithStack(err)
 	}
@@ -80,6 +106,15 @@ func (etherScan *EtherScan) call(ctx context.Context, params url.Values, result 
 		return errp.Newf("unexpected response from EtherScan: %s", string(body))
 	}
 	return nil
+}
+
+// shouldPostRPC returns true when the encoded request would exceed the GET
+// request target length the upstream proxy accepts; the caller falls back to
+// POST in that case.
+func (etherScan *EtherScan) shouldPostRPC(params url.Values) bool {
+	candidate := maps.Clone(params)
+	candidate.Set("chainId", etherScan.chainId)
+	return len(candidate.Encode()) > maxGetRequestTargetLength
 }
 
 type jsonBigInt big.Int
@@ -479,7 +514,11 @@ func (etherScan *EtherScan) rpcCall(ctx context.Context, params url.Values, resu
 		} `json:"error"`
 		Result *json.RawMessage `json:"result"`
 	}
-	if err := etherScan.call(ctx, params, &wrapped); err != nil {
+	method := http.MethodGet
+	if etherScan.shouldPostRPC(params) {
+		method = http.MethodPost
+	}
+	if err := etherScan.callWithMethod(ctx, method, params, &wrapped); err != nil {
 		return err
 	}
 	if wrapped.Error != nil {

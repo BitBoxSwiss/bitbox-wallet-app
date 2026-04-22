@@ -238,13 +238,10 @@ export const Receive = ({
     }
   }
 
-  let address = '';
-  if (currentAddresses) {
-    address = (currentAddresses[activeIndex] as accountApi.TReceiveAddress).address;
-    if (!verifying) {
-      address = address.substring(0, 8) + '...';
-    }
-  }
+  const currentAddress = currentAddresses?.[activeIndex];
+  const address = currentAddress?.address || '';
+  const displayAddress = currentAddress?.displayAddress ?? '';
+  const displayedMainAddress = verifying ? displayAddress : (address ? address.substring(0, 8) + '...' : '');
 
   return (
     <div className="contentWithGuide">
@@ -285,7 +282,12 @@ export const Receive = ({
                       </button>
                     )}
                   </div>
-                  <CopyableInput disabled={true} value={address} flexibleHeight />
+                  <CopyableInput
+                    disabled={true}
+                    value={address}
+                    displayValue={displayedMainAddress}
+                    flexibleHeight
+                  />
                   { (hasManyScriptTypes || insured) && (
                     <button
                       className={style.changeType}
@@ -353,6 +355,7 @@ export const Receive = ({
                         <div className="m-bottom-half">
                           <CopyableInput
                             value={address}
+                            displayValue={displayAddress}
                             dataTestId="receive-address"
                             flexibleHeight
                           />

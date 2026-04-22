@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { test } from './helpers/fixtures';
-import { expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { ServeWallet } from './helpers/servewallet';
 import { launchRegtest, setupRegtestWallet, sendCoins, mineBlocks, cleanupRegtest } from './helpers/regtest';
 import { startSimulator, stopSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
@@ -9,53 +9,13 @@ import { ChildProcess } from 'child_process';
 import { startAOPPServer, generateAOPPRequest } from './helpers/aopp';
 import { assertFieldsCount } from './helpers/dom';
 import { deleteAccountsFile } from './helpers/fs';
-import { getAccountCodeFromUrl, waitForAccountTransactions } from './helpers/account';
+import { getAccountCodeFromUrl, getReceiveAddress, getReceiveAddressData, waitForAccountTransactions } from './helpers/account';
 
 
 let servewallet: ServeWallet | undefined;
 let regtest: ChildProcess | undefined;
 let aoppServer: ChildProcess | undefined;
 let simulatorProc : ChildProcess | undefined;
-
-type ReceiveAddressResponse = Array<{
-  scriptType: string | null;
-  addresses: Array<{
-    addressID: string;
-    address: string;
-  }>;
-}>;
-
-const scriptTypePreference = ['p2wpkh', 'p2tr', 'p2wpkh-p2sh'];
-
-const getReceiveAddress = async (
-  page: Page,
-  host: string,
-  servewalletPort: number
-): Promise<string> => {
-  await page.waitForURL(/#\/account\/[^/]+\/receive/);
-  const accountCode = getAccountCodeFromUrl(page.url());
-  const response = await page.request.get(
-    `http://${host}:${servewalletPort}/api/account/${accountCode}/receive-addresses`
-  );
-  if (!response.ok()) {
-    throw new Error(`Failed to fetch receive addresses for ${accountCode}: ${response.status()}`);
-  }
-  const body = (await response.json()) as ReceiveAddressResponse | null;
-  if (!body || !Array.isArray(body)) {
-    throw new Error(`Unexpected receive addresses response for ${accountCode}`);
-  }
-  for (const scriptType of scriptTypePreference) {
-    const address = body.find((item) => item.scriptType === scriptType)?.addresses?.[0]?.address;
-    if (address) {
-      return address;
-    }
-  }
-  const fallback = body.find((item) => item.addresses?.[0]?.address)?.addresses[0]?.address;
-  if (!fallback) {
-    throw new Error(`No receive address available for ${accountCode}`);
-  }
-  return fallback;
-};
 
 test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
 
@@ -221,9 +181,10 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
     const receiveButton = page.locator('[data-testid="receive-button"]');
     await receiveButton.click();
     // Use API-derived address so the simulator confirm doesn't race the UI dialog.
-    recvAdd = await getReceiveAddress(page, host, servewalletPort);
+    const receiveAddress = await getReceiveAddressData(page, host, servewalletPort);
+    recvAdd = receiveAddress.address;
     console.log(`Receive address: ${recvAdd}`);
-    expect(recvAdd).toBe(aoppAddress);
+    expect(aoppAddress).toBe(receiveAddress.displayAddress);
   });
 });
 

@@ -32,6 +32,7 @@ export type Aopp = {
 } | {
   state: 'signing' | 'success';
   address: string;
+  displayAddress: string;
   addressID: string;
   message: string;
   callback: string;

@@ -124,11 +124,12 @@ type Keystore interface {
 	// Electrum format.
 	SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coin.Code) ([]byte, error)
 
-	// SignETHMessage signs the message using the private key at the keypath. The result contains a
+	// SignETHMessage signs the message using the private key at the keypath for the given chain ID.
+	// The result contains a
 	// 65 byte signature. The first 64 bytes are the secp256k1 signature in / compact format (R and
 	// S values), and the last byte is the recoverable id (recid). 27 is added to the recID to denote
 	// an uncompressed pubkey. Returns ErrSigningAborted if the user aborts.
-	SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
+	SignETHMessage(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
 
 	// ETHSignTypedMessage signs an Ethereum EIP-712 typed message. The result contains a
 	// 65 byte signature. The first 64 bytes are the secp256k1 signature in / compact format (R and

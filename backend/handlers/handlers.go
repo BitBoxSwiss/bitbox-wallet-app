@@ -40,6 +40,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	utilConfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -807,10 +808,11 @@ func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
 		Address string `json:"address"`
 	}
 	type response struct {
-		Success      bool               `json:"success"`
-		Code         accountsTypes.Code `json:"code"`
-		Name         string             `json:"name"`
-		ErrorMessage string             `json:"errorMessage"`
+		Success        bool               `json:"success"`
+		Code           accountsTypes.Code `json:"code"`
+		Name           string             `json:"name"`
+		DisplayAddress string             `json:"displayAddress,omitempty"`
+		ErrorMessage   string             `json:"errorMessage"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
@@ -823,9 +825,10 @@ func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
 		}
 	}
 	return response{
-		Success: true,
-		Code:    code,
-		Name:    name,
+		Success:        true,
+		Code:           code,
+		Name:           name,
+		DisplayAddress: backendutil.FormatAddress(coinpkg.CodeETH, args.Address),
 	}
 }
 

@@ -103,6 +103,10 @@ export const getAccountsBalanceSummary = (): Promise<TAccountsBalanceSummaryResp
 type TEthAccountCodeAndNameByAddress = SuccessResponse & {
   code: AccountCode;
   name: string;
+  displayAddress: string;
+} | {
+  success: false;
+  errorMessage: string;
 };
 
 export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEthAccountCodeAndNameByAddress> => {
@@ -133,6 +137,7 @@ type TKeyInfo = {
 export type TBitcoinSimple = {
   keyInfo: TKeyInfo;
   scriptType: ScriptType;
+  descriptor: string;
 };
 
 export type TEthereumSimple = {
@@ -285,6 +290,7 @@ export const verifyXPub = (
 export type TReceiveAddress = {
   addressID: string;
   address: string;
+  displayAddress: string;
 };
 
 export type TReceiveAddressList = {
@@ -346,6 +352,7 @@ export type TTxInput = {
 export type TTxProposalResult = {
   amount: TAmountWithConversions;
   fee: TAmountWithConversions;
+  recipientDisplayAddress: string;
   success: true;
   total: TAmountWithConversions;
 } | {
@@ -479,24 +486,46 @@ export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId
   return apiPost(`account/${code}/eth-sign-wallet-connect-tx`, { send, chainId, tx });
 };
 
-type AddressSignResponse = {
+type TAddressSignResponse = {
   success: true;
   signature: string;
   address: string;
+  displayAddress: string;
 } | {
   success: false;
   errorMessage?: string;
   errorCode?: 'userAbort' | 'wrongKeystore';
 };
 
-export const signAddress = (format: ScriptType | '', msg: string, code: AccountCode): Promise<AddressSignResponse> => {
-  return apiPost(`account/${code}/sign-address`, { format, msg, code });
+export const signBTCMessageUnusedAddress = (
+  code: AccountCode,
+  format: ScriptType | '',
+  msg: string,
+): Promise<TAddressSignResponse> => {
+  return apiPost(`account/${code}/btc-sign-message-unused-address`, { format, msg });
+};
+
+export const signBTCMessageForAddress = (
+  code: AccountCode,
+  addressID: string,
+  msg: string,
+): Promise<TAddressSignResponse> => {
+  return apiPost(`account/${code}/btc-sign-message-for-address`, { addressID, msg });
+};
+
+export const signETHMessageForAddress = (
+  code: AccountCode,
+  msg: string,
+): Promise<TAddressSignResponse> => {
+  return apiPost(`account/${code}/eth-sign-message-for-address`, { msg });
 };
 
 export type TUsedAddress = {
   address: string;
+  displayAddress: string;
   addressID: string;
   addressType: 'receive' | 'change';
+  canSignMsg: boolean;
   lastUsed: string | null;
 };
 

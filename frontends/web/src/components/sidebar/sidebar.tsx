@@ -10,7 +10,7 @@ import { deregisterTest } from '@/api/keystores';
 import { getVersion } from '@/api/bitbox02';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
-import { CloseXWhite, CogGray, Coins, Device, Eject, Linechart, RedDot, ShieldGray } from '@/components/icon';
+import { CloseXWhite, CogLight, Coins, Device, Eject, Linechart, RedDot, ShieldLight } from '@/components/icon';
 import { getAccountsByKeystore } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { AppContext } from '@/contexts/AppContext';
@@ -165,7 +165,7 @@ const Sidebar = ({
                 to="/bitsurance/bitsurance"
               >
                 <div className={style.single}>
-                  <ShieldGray alt={t('sidebar.insurance')} />
+                  <ShieldLight alt={t('sidebar.insurance')} />
                 </div>
                 <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
               </NavLink>
@@ -180,7 +180,7 @@ const Sidebar = ({
             title={t('sidebar.settings')}
             onClick={handleSidebarItemClick}>
             <div className={style.single}>
-              <CogGray alt={t('sidebar.settings')} />
+              <CogLight alt={t('sidebar.settings')} />
             </div>
             <span className={style.sidebarLabel}>
               {t('sidebar.settings')}

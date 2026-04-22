@@ -105,6 +105,11 @@
     text-decoration: none;
 }
 
+.accountInfoLink:focus,
+.accountInfoLink:hover {
+    color: var(--color-lightblue);
+}
+
 .accountIcon {
     height: var(--size-default);
     margin-right: var(--space-eight);

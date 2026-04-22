@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, Copy } from '@/components/icon/icon';
+import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import style from './Copy.module.css';
 
 type TProps = {
@@ -58,18 +59,14 @@ export const CopyableInput = ({
     textarea.setAttribute('rows', String(Math.round((textarea.scrollHeight / units) - 2)));
   };
 
-  const onFocus = (e: React.SyntheticEvent<HTMLTextAreaElement, FocusEvent>) => {
-    e.currentTarget.focus();
-  };
-
   const copy = () => {
     if (textAreaRef.current) {
       if (displayValue) {
         navigator.clipboard.writeText(value);
       } else {
         navigator.clipboard.writeText(textAreaRef.current.value);
-
       }
+      triggerHapticFeedback();
       setSuccess(true);
     }
   };
@@ -83,7 +80,8 @@ export const CopyableInput = ({
       <textarea
         disabled={disabled}
         readOnly
-        onFocus={onFocus}
+        onMouseDown={event => event.preventDefault()}
+        tabIndex={-1}
         value={displayValue ? displayValue : value}
         ref={textAreaRef}
         rows={1}
