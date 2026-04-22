@@ -45,6 +45,9 @@ import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
 import { RatesContext } from '@/contexts/RatesContext';
 import style from './swap.module.css';
+import { getConfig } from '@/utils/config';
+import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
+import { SwapkitTerms } from '@/components/terms/swapkit-terms';
 
 type Props = {
   accounts: TAccount[];
@@ -143,6 +146,9 @@ export const Swap = ({
       : undefined,
     [btcUnit, sellAccount],
   );
+
+  const config = useLoad(getConfig);
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(!!config?.frontend?.skipSwapkitDisclaimer);
 
   const isSameCoinAccount = (
     candidate: TSwapAccount,
@@ -431,6 +437,28 @@ export const Swap = ({
     || !buyAccountCode
   ) {
     return null;
+  }
+
+  if (!agreedTerms) {
+    return (
+      <GuideWrapper>
+        <GuidedContent>
+          <Main>
+            <Header
+              hideSidebarToggler
+              title={
+                <SubTitle>
+                  {t('generic.swap')}
+                </SubTitle>
+              }
+            />
+            <SwapkitTerms
+              onAgreedTerms={() => setAgreedTerms(true)}
+            />
+          </Main>
+        </GuidedContent>
+      </GuideWrapper>
+    );
   }
 
   return (

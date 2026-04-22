@@ -103,6 +103,9 @@ var fixedURLWhitelist = []string{
 	"https://github.com/bitcoin/bips/",
 	// iOS app settings
 	"app-settings:",
+	// Swapkit
+	"https://swapkit.dev/",
+	"https://docs.swapkit.dev/",
 	// Others
 	"https://cointracking.info/import/bitbox/",
 }

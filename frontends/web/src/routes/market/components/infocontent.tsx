@@ -280,6 +280,15 @@ const BitrefillInfo = () => {
   );
 };
 
+const SwapkitInfo = () => {
+  const { t } = useTranslation();
+  return (
+    <div>
+      <p>{t('exchange.swapkit.infobox.intro')}</p>
+    </div>
+  );
+};
+
 const RegionInfo = () => {
   const { t } = useTranslation();
   return (
@@ -341,6 +350,10 @@ export const InfoContent = ({
   case 'bitrefill':
     return (
       <BitrefillInfo />
+    );
+  case 'swapkit':
+    return (
+      <SwapkitInfo />
     );
   case 'region':
     return (
