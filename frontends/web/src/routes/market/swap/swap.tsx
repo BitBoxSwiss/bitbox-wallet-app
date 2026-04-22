@@ -619,12 +619,14 @@ export const Swap = ({
             </ViewButtons>
           </View>
 
-          <ConfirmSwap
-            isConfirming={isConfirming}
-            expectedOutput={confirmDetails?.expectedOutput}
-            feeAmount={confirmDetails?.feeAmount}
-            sellAmount={confirmDetails?.sellAmount}
-          />
+          {confirmDetails && (
+            <ConfirmSwap
+              isConfirming={isConfirming}
+              expectedOutput={confirmDetails.expectedOutput}
+              feeAmount={confirmDetails.feeAmount}
+              sellAmount={confirmDetails.sellAmount}
+            />
+          )}
 
           {buyAccountCode && (
             <SwapResult
