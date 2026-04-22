@@ -30,6 +30,7 @@
     "contractAddress": "Contract address",
     "contractAddressWarning": "Do not send any coins to the contract address otherwise they will be lost. Contract address is just for informational purposes.",
     "exportTransactions": "Export transaction history",
+    "exportTransactionsDisabled": "No transactions",
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
     "descriptorWarning": "To ensure smooth compatibility with other wallets, apps, or services, please copy the entire descriptor. Selecting and copying only the xpub might cause the account to be imported with an incorrect script type, which could lead to issues.",

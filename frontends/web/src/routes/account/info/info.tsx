@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSync } from '@/hooks/api';
+import { useMountedRef } from '@/hooks/mount';
 import { TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
 import { findAccount, isBitcoinBased, isMessageSigningSupported } from '@/routes/account/utils';
 import { TDevices } from '@/api/devices';
@@ -17,7 +18,7 @@ import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { QRCodeLight, QRCodeDark, OutlinedUploadDark, OutlinedUploadLight, OutlinedUnorderedListDark, OutlinedUnorderedListLight, OutlinedFileProtectDark, OutlinedFileProtectLight } from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
 import { alertUser } from '@/components/alert/Alert';
-import { statusChanged } from '@/api/accountsync';
+import { statusChanged, syncdone } from '@/api/accountsync';
 import style from './info.module.css';
 
 type TProps = {
@@ -34,19 +35,39 @@ export const Info = ({
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
-  const [transactions, setTransactions] = useState<TTransactions>();
   const status: TStatus | undefined = useSync(
     () => getStatus(code),
     cb => statusChanged(code, cb),
   );
+  const accountReady = (
+    status !== undefined
+    && !status.fatalError
+    && status.synced
+    && status.offlineError === null
+  );
+  const mounted = useMountedRef();
+  const [transactions, setTransactions] = useState<TTransactions | undefined>();
 
   useEffect(() => {
-    getTransactionList(code)
-      .then(setTransactions)
-      .catch(console.error);
-  }, [code]);
+    if (!accountReady) {
+      setTransactions(undefined);
+      return;
+    }
+    const fetch = () => {
+      getTransactionList(code)
+        .then(txs => {
+          if (mounted.current) {
+            setTransactions(txs);
+          }
+        })
+        .catch(console.error);
+    };
+    fetch();
+    return syncdone(code, fetch);
+  }, [code, accountReady, mounted]);
 
-  const hasTransactions = transactions?.success && transactions.list.length > 0;
+  const transactionsLoaded = transactions?.success === true;
+  const hasTransactions = transactionsLoaded && transactions.list.length > 0;
 
   const account = findAccount(accounts, code);
   if (!account) {
@@ -86,11 +107,16 @@ export const Info = ({
           <div className={style.menuList}>
             <ActionableItem
               onClick={handleExport}
-              disabled={!hasTransactions}
+              disabled={hasTransactions !== true}
             >
               <div className={style.actionItem}>
                 {isDarkMode ? <OutlinedUploadLight className={style.actionIcon} aria-hidden alt="" /> : <OutlinedUploadDark className={style.actionIcon} aria-hidden alt="" />}
-                <span>{t('accountInfo.exportTransactions')}</span>
+                <div className={style.actionText}>
+                  <span>{t('accountInfo.exportTransactions')}</span>
+                  {transactionsLoaded && !hasTransactions && (
+                    <span className={style.actionHint}>{t('accountInfo.exportTransactionsDisabled')}</span>
+                  )}
+                </div>
               </div>
             </ActionableItem>
             <ActionableItem
