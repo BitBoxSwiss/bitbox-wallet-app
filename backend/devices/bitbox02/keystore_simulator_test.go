@@ -751,7 +751,11 @@ func computePaymentRequestSighash(paymentRequest *paymentrequest.Request, slip44
 	_ = wire.WriteVarInt(sighash, 0, uint64(len(paymentRequest.Memos)))
 	for _, memo := range paymentRequest.Memos {
 		_ = binary.Write(sighash, binary.LittleEndian, uint32(1))
-		hashDataLenPrefixed(sighash, []byte(memo.Text.Note))
+		noteBytes := []byte{}
+		if memo.Text != nil {
+			noteBytes = []byte(memo.Text.Note)
+		}
+		hashDataLenPrefixed(sighash, noteBytes)
 	}
 
 	// coinType
@@ -843,4 +847,17 @@ CONFIRM SCREEN END`
 			},
 			time.Second, 10*time.Millisecond)
 	})
+}
+
+func TestComputePaymentRequestSighashNilTextMemo(t *testing.T) {
+	paymentRequest := &paymentrequest.Request{
+		RecipientName: "Test Merchant",
+		Memos: []paymentrequest.Memo{
+			{},
+		},
+	}
+
+	sighash, err := computePaymentRequestSighash(paymentRequest, 0, 1, "bc1q2q0j6gmfxynj40p0kxsr9jkagcvgpuqv2zgq8j")
+	require.NoError(t, err)
+	require.Len(t, sighash, sha256.Size)
 }

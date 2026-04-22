@@ -25,7 +25,7 @@ func (slip24 *Slip24) ToRequest() (*Request, error) {
 
 	sigBytes, err := base64.StdEncoding.DecodeString(slip24.Signature)
 	if err != nil {
-		return nil, err
+		return nil, errp.Wrap(err, "decoding slip24 signature")
 	}
 
 	memos := []Memo{}
