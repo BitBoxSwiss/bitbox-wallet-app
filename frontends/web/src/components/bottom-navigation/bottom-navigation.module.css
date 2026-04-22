@@ -48,6 +48,21 @@
     border-radius: var(--radius-xl);
 }
 
+.marketplaceLabel {
+    align-items: center;
+    display: inline-flex;
+    gap: 2px;
+}
+
+.marketplaceNudgeDot {
+    background: var(--color-blue);
+    border-radius: var(--radius-full);
+    display: inline-block;
+    flex-shrink: 0;
+    height: 6px;
+    width: 6px;
+}
+
 @media (max-width: 768px) {
     .container {
         display: flex;
