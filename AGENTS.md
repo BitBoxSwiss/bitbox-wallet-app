@@ -98,6 +98,7 @@ Used extensively for success/failure API responses and mutually exclusive props.
 `src/api/account.ts` for response types and `src/components/forms/button.tsx` for prop unions.
 
 ### API Modules
+
 Functions in `src/api/` should stay as thin wrappers around the underlying request helper. They
 should only type the function arguments and the returned promise, and should not add extra client
 side control flow or business logic on top of the request.
