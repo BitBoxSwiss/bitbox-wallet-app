@@ -184,6 +184,7 @@ class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersPro
 @main
 struct BitBoxAppApp: App {
     @StateObject private var bluetoothManager = BluetoothManager()
+    private let widgetSync = WidgetAppGroupSync()
 
     var body: some Scene {
         WindowGroup {
@@ -193,12 +194,16 @@ struct BitBoxAppApp: App {
                     .edgesIgnoringSafeArea(.all)
                     .onAppear {
                         setupGoAPI(goAPI: goAPI)
-                        // Manual trigger at startup
                         MobileserverSetOnline(NetworkMonitor.shared.isOnline())
+                        widgetSync.sync()
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                         MobileserverManualReconnect()
                         MobileserverTriggerAuth()
+                        widgetSync.sync()
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
+                        widgetSync.sync()
                     }
             }
             .onOpenURL { url in

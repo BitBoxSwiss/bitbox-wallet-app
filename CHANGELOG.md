@@ -33,6 +33,7 @@
 - iOS: Haptic feedback on copy and chart filters change
 - Subtle tab transition (mobile navigation)
 - Enable large streamed payloads (Wallet Connect)
+- iOS: price widget
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
