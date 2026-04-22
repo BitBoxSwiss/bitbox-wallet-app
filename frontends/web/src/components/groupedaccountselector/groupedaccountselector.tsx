@@ -123,12 +123,20 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     //setting options without balance
     const accountsByKeystore = getAccountsByKeystore(accounts);
     const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore, isAccountDisabled);
     setOptions(groupedOpts);
     //asynchronously fetching each account's balance
-    getBalancesForGroupedAccountSelector(groupedOpts).then(setOptions);
+    getBalancesForGroupedAccountSelector(groupedOpts).then(nextOptions => {
+      if (!cancelled) {
+        setOptions(nextOptions);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [accounts, isAccountDisabled]);
 
   if (!options) {
