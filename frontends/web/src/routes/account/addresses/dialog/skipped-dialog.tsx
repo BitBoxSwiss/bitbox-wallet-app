@@ -24,6 +24,7 @@ export const SkippedDialog = ({ selectedAddress, coinCode, onClose }: Pick<TDial
       <div className={style.verifyDialogContent}>
         <VerifyAddressDialogContent
           address={selectedAddress.address}
+          displayAddress={selectedAddress.displayAddress}
           uriPrefix={getAddressURIPrefix(coinCode)}
           instructionClassName={style.verifyDialogInstruction}
           qrWrapClassName={style.qrWrap}

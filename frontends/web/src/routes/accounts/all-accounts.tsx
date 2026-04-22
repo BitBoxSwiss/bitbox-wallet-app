@@ -60,7 +60,7 @@ const AccountItem = ({ account }: TAccountItemProp) => {
       </p>
 
       <div className={styles.accountBalanceContainer}>
-        <AmountWithUnit amount={balance} unitClassName={styles.unit} />
+        <AmountWithUnit amount={balance} />
       </div>
       <ChevronRightDark />
     </Link>

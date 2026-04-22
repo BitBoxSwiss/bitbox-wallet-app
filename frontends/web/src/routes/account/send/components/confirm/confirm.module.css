@@ -1,5 +1,7 @@
 .address {
   color: var(--color-secondary);
+  font-family: var(--font-family-monospace);
+  overflow-wrap: anywhere;
 }
 
 .confirmItem {

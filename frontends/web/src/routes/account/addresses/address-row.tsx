@@ -39,15 +39,16 @@ export const AddressRowAccordion = ({
 
 type TAddressItemContentProps = {
   address: string;
+  displayAddress: string;
   truncatedAddress: string;
   formattedDate: string;
 };
 
 
-const Content = ({ address, truncatedAddress, formattedDate }: TAddressItemContentProps) => (
+const Content = ({ address, displayAddress, truncatedAddress, formattedDate }: TAddressItemContentProps) => (
   <>
     <span className={style.rowAddress} title={address}>
-      <span className={style.rowAddressDesktop}>{address}</span>
+      <span className={style.rowAddressDesktop}>{displayAddress}</span>
       <span className={style.rowAddressMobile}>{truncatedAddress}</span>
     </span>
     <span className={style.rowDate}>{formattedDate}</span>

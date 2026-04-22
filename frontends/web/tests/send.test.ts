@@ -6,7 +6,7 @@ import { ServeWallet } from './helpers/servewallet';
 import { launchRegtest, setupRegtestWallet, sendCoins, mineBlocks, cleanupRegtest } from './helpers/regtest';
 import { ChildProcess } from 'child_process';
 import { deleteAccountsFile } from './helpers/fs';
-import { getAccountCodeFromUrl, waitForAccountTransactions } from './helpers/account';
+import { getAccountCodeFromUrl, getReceiveAddressData, waitForAccountTransactions } from './helpers/account';
 
 let servewallet: ServeWallet | undefined;
 let regtest: ChildProcess | undefined;
@@ -37,8 +37,9 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort, browserName
     firstAccountCode = getAccountCodeFromUrl(page.url());
     await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
-    await expect(addressLocator).toHaveValue(/bcrt1/);
-    recvAdd = await addressLocator.inputValue();
+    const receiveAddress = await getReceiveAddressData(page, host, servewalletPort);
+    await expect(addressLocator).toHaveValue(receiveAddress.displayAddress);
+    recvAdd = receiveAddress.address;
     expect(recvAdd).toContain('bcrt1');
     console.log(`Receive address: ${recvAdd}`);
   });
@@ -93,9 +94,10 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort, browserName
     await expect(verifyButton).toBeVisible();
     await verifyButton.click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
-    await expect(addressLocator).toHaveValue(/bcrt1/);
+    const receiveAddress = await getReceiveAddressData(page, host, servewalletPort);
+    await expect(addressLocator).toHaveValue(receiveAddress.displayAddress);
     secondAccountCode = getAccountCodeFromUrl(page.url());
-    recvAdd = await addressLocator.inputValue();
+    recvAdd = receiveAddress.address;
     expect(recvAdd).toContain('bcrt1');
     console.log(`Receive address: ${recvAdd}`);
   });
@@ -163,8 +165,9 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort, browserName
     await expect(verifyButton).toBeVisible();
     await verifyButton.click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
-    await expect(addressLocator).toHaveValue(/bcrt1/);
-    recvAdd = await addressLocator.inputValue();
+    const receiveAddress = await getReceiveAddressData(page, host, servewalletPort);
+    await expect(addressLocator).toHaveValue(receiveAddress.displayAddress);
+    recvAdd = receiveAddress.address;
     expect(recvAdd).toContain('bcrt1');
     console.log(`Receive address: ${recvAdd}`);
   });

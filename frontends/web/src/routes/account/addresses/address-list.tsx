@@ -3,7 +3,7 @@
 import { useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { TUsedAddress } from '@/api/account';
+import { AccountCode, TUsedAddress, TUsedAddressesResponse } from '@/api/account';
 import { useIsScrollable } from '@/hooks/scrollable';
 import { parseTimeShort } from '@/utils/date';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -17,10 +17,10 @@ import { truncateMiddle } from '@/utils/truncate';
 import style from './addresses.module.css';
 
 type TProps = {
+  code: AccountCode;
   accountName: string;
-  isLoading: boolean;
+  usedAddressesResponse: TUsedAddressesResponse | undefined;
   error: string | null;
-  isEmpty: boolean;
   searchTerm: string;
   onSearchChange: (term: string) => void;
   addressTypeFilter: 'receive' | 'change';
@@ -35,10 +35,10 @@ type TProps = {
 };
 
 export const AddressList = ({
+  code,
   accountName,
-  isLoading,
+  usedAddressesResponse,
   error,
-  isEmpty,
   searchTerm,
   onSearchChange,
   addressTypeFilter,
@@ -64,7 +64,7 @@ export const AddressList = ({
         {t('addresses.listDescriptionPrefix')} <strong>{accountName}</strong>
       </p>
 
-      {isLoading ? (
+      {usedAddressesResponse === undefined ? (
         <div className={style.loadingWrap}>
           <Spinner text={t('loading')} />
         </div>
@@ -77,7 +77,7 @@ export const AddressList = ({
             </Button>
           </div>
         </div>
-      ) : isEmpty ? (
+      ) : usedAddressesResponse.success && usedAddressesResponse.addresses.length === 0 ? (
         <p className={style.empty}>{t('addresses.empty')}</p>
       ) : (
         <>
@@ -120,12 +120,13 @@ export const AddressList = ({
                       <div key={address.addressID} className={style.addressItem}>
                         <AddressRowAccordion
                           address={address.address}
+                          displayAddress={address.displayAddress}
                           truncatedAddress={truncatedAddressMobile}
                           formattedDate={formatDate(address.lastUsed)}
                           isExpanded={isExpanded}
                           onToggle={() => onToggleExpand(address.addressID)}
                         >
-                          <AddressActions address={address} onCopy={onStartCopy} />
+                          <AddressActions code={code} address={address} onCopy={onStartCopy} />
                         </AddressRowAccordion>
                       </div>
                     );

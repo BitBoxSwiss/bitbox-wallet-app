@@ -15,9 +15,14 @@ import (
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 )
 
-// queryETH is like query, but nested one level deeper for Ethereum.
-func (device *Device) queryETH(request *messages.ETHRequest) (*messages.ETHResponse, error) {
-	response, err := device.query(&messages.Request{
+// ethStreamingThreshold is the firmware limit above which ETH data/bytes values
+// must be streamed instead of sent inline. Typed-message strings larger than
+// this limit are rejected instead of streamed.
+const ethStreamingThreshold = 6144
+
+// nonAtomicQueryETH is like nonAtomicQuery, but nested one level deeper for Ethereum.
+func (device *Device) nonAtomicQueryETH(request *messages.ETHRequest) (*messages.ETHResponse, error) {
+	response, err := device.nonAtomicQuery(&messages.Request{
 		Request: &messages.Request_Eth{
 			Eth: request,
 		},
@@ -30,6 +35,13 @@ func (device *Device) queryETH(request *messages.ETHRequest) (*messages.ETHRespo
 		return nil, errp.New("unexpected reply")
 	}
 	return ethResponse.Eth, nil
+}
+
+// queryETH is like query, but nested one level deeper for Ethereum.
+func (device *Device) queryETH(request *messages.ETHRequest) (*messages.ETHResponse, error) {
+	return atomicQueriesValue(device, func() (*messages.ETHResponse, error) {
+		return device.nonAtomicQueryETH(request)
+	})
 }
 
 // ethCoin the deprecated `coin` enum value for a given chain_id. Only ETH, Ropsten and Rinkeby are
@@ -98,12 +110,15 @@ func handleHostNonceCommitment() (*messages.AntiKleptoHostNonceCommitment, []byt
 	return hostNonceCommitment, hostNonce, nil
 }
 
-func (device *Device) handleSignerNonceCommitment(response *messages.ETHResponse, hostNonce []byte) ([]byte, error) {
+func (device *Device) nonAtomicHandleSignerNonceCommitment(
+	response *messages.ETHResponse,
+	hostNonce []byte,
+) ([]byte, error) {
 	signerCommitment, ok := response.Response.(*messages.ETHResponse_AntikleptoSignerCommitment)
 	if !ok {
 		return nil, errp.New("unexpected response")
 	}
-	response, err := device.queryETH(&messages.ETHRequest{
+	response, err := device.nonAtomicQueryETH(&messages.ETHRequest{
 		Request: &messages.ETHRequest_AntikleptoSignature{
 			AntikleptoSignature: &messages.AntiKleptoSignatureRequest{
 				HostNonce: hostNonce,
@@ -129,6 +144,34 @@ func (device *Device) handleSignerNonceCommitment(response *messages.ETHResponse
 	return signature, nil
 }
 
+func (device *Device) nonAtomicHandleETHDataStreaming(
+	data []byte,
+	response *messages.ETHResponse,
+) (*messages.ETHResponse, error) {
+	for {
+		chunkRequest, ok := response.Response.(*messages.ETHResponse_DataRequestChunk)
+		if !ok {
+			return response, nil
+		}
+		offset := int(chunkRequest.DataRequestChunk.Offset)
+		length := int(chunkRequest.DataRequestChunk.Length)
+		if offset < 0 || length < 0 || offset+length > len(data) {
+			return nil, errp.New("unexpected response")
+		}
+		var err error
+		response, err = device.nonAtomicQueryETH(&messages.ETHRequest{
+			Request: &messages.ETHRequest_DataResponseChunk{
+				DataResponseChunk: &messages.ETHSignDataResponseChunkRequest{
+					Chunk: data[offset : offset+length],
+				},
+			},
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+}
+
 // ETHIdentifyCase identifies the case of the recipient address given as hexadecimal string.
 // This function exists as a convenience to potentially help clients to determine the case of the
 // recipient address. The output of the function goes to ETHSign and ETHSignEIP1559 as the
@@ -145,7 +188,9 @@ func ETHIdentifyCase(recipientAddress string) messages.ETHAddressCase {
 	}
 }
 
-// ETHSign signs an ethereum transaction. It returns a 65 byte signature (R, S, and 1 byte recID).
+// ETHSign signs an ethereum transaction. It returns a 65 byte signature (R, S,
+// and 1 byte recID). If len(data) > 6144, firmware v9.26.0 or newer is
+// required.
 func (device *Device) ETHSign(
 	chainID uint64,
 	keypath []uint32,
@@ -156,7 +201,37 @@ func (device *Device) ETHSign(
 	value *big.Int,
 	data []byte,
 	recipientAddressCase messages.ETHAddressCase) ([]byte, error) {
+	return atomicQueriesValue(device, func() ([]byte, error) {
+		return device.nonAtomicETHSign(
+			chainID,
+			keypath,
+			nonce,
+			gasPrice,
+			gasLimit,
+			recipient,
+			value,
+			data,
+			recipientAddressCase,
+		)
+	})
+}
+
+func (device *Device) nonAtomicETHSign(
+	chainID uint64,
+	keypath []uint32,
+	nonce uint64,
+	gasPrice *big.Int,
+	gasLimit uint64,
+	recipient [20]byte,
+	value *big.Int,
+	data []byte,
+	recipientAddressCase messages.ETHAddressCase,
+) ([]byte, error) {
 	supportsAntiklepto := device.version.AtLeast(semver.NewSemVer(9, 5, 0))
+	useStreaming := len(data) > ethStreamingThreshold
+	if useStreaming && !device.version.AtLeast(semver.NewSemVer(9, 26, 0)) {
+		return nil, UnsupportedError("9.26.0")
+	}
 
 	var hostNonceCommitment *messages.AntiKleptoHostNonceCommitment
 	var err error
@@ -174,34 +249,42 @@ func (device *Device) ETHSign(
 		return nil, err
 	}
 
+	signReq := &messages.ETHSignRequest{
+		Coin:                coin,
+		ChainId:             chainID,
+		Keypath:             keypath,
+		Nonce:               new(big.Int).SetUint64(nonce).Bytes(),
+		GasPrice:            gasPrice.Bytes(),
+		GasLimit:            new(big.Int).SetUint64(gasLimit).Bytes(),
+		Recipient:           recipient[:],
+		Value:               value.Bytes(),
+		Data:                data,
+		HostNonceCommitment: hostNonceCommitment,
+		AddressCase:         recipientAddressCase,
+	}
+	if useStreaming {
+		signReq.Data = nil
+		signReq.DataLength = uint32(len(data))
+	}
+
 	request := &messages.ETHRequest{
 		Request: &messages.ETHRequest_Sign{
-			Sign: &messages.ETHSignRequest{
-				Coin:                coin,
-				ChainId:             chainID,
-				Keypath:             keypath,
-				Nonce:               new(big.Int).SetUint64(nonce).Bytes(),
-				GasPrice:            gasPrice.Bytes(),
-				GasLimit:            new(big.Int).SetUint64(gasLimit).Bytes(),
-				Recipient:           recipient[:],
-				Value:               value.Bytes(),
-				Data:                data,
-				HostNonceCommitment: hostNonceCommitment,
-				AddressCase:         recipientAddressCase,
-			},
+			Sign: signReq,
 		},
 	}
-	response, err := device.queryETH(request)
+	response, err := device.nonAtomicQueryETH(request)
 	if err != nil {
 		return nil, err
 	}
-
-	if supportsAntiklepto {
-		signature, err := device.handleSignerNonceCommitment(response, hostNonce)
+	if useStreaming {
+		response, err = device.nonAtomicHandleETHDataStreaming(data, response)
 		if err != nil {
 			return nil, err
 		}
-		return signature, nil
+	}
+
+	if supportsAntiklepto {
+		return device.nonAtomicHandleSignerNonceCommitment(response, hostNonce)
 	}
 	signResponse, ok := response.Response.(*messages.ETHResponse_Sign)
 	if !ok {
@@ -210,8 +293,9 @@ func (device *Device) ETHSign(
 	return signResponse.Sign.Signature, nil
 }
 
-// ETHSignEIP1559 signs an ethereum EIP1559 transaction. It returns a 65 byte signature (R, S, and 1 byte recID).
-// If paymentRequest is provided, firmware v9.26.0 or newer is required.
+// ETHSignEIP1559 signs an ethereum EIP1559 transaction. It returns a 65 byte
+// signature (R, S, and 1 byte recID). If paymentRequest is provided or
+// len(data) > 6144, firmware v9.26.0 or newer is required.
 func (device *Device) ETHSignEIP1559(
 	chainID uint64,
 	keypath []uint32,
@@ -225,11 +309,41 @@ func (device *Device) ETHSignEIP1559(
 	recipientAddressCase messages.ETHAddressCase,
 	paymentRequest *messages.BTCPaymentRequestRequest,
 ) ([]byte, error) {
+	return atomicQueriesValue(device, func() ([]byte, error) {
+		return device.nonAtomicETHSignEIP1559(
+			chainID,
+			keypath,
+			nonce,
+			maxPriorityFeePerGas,
+			maxFeePerGas,
+			gasLimit,
+			recipient,
+			value,
+			data,
+			recipientAddressCase,
+			paymentRequest,
+		)
+	})
+}
 
+func (device *Device) nonAtomicETHSignEIP1559(
+	chainID uint64,
+	keypath []uint32,
+	nonce uint64,
+	maxPriorityFeePerGas *big.Int,
+	maxFeePerGas *big.Int,
+	gasLimit uint64,
+	recipient [20]byte,
+	value *big.Int,
+	data []byte,
+	recipientAddressCase messages.ETHAddressCase,
+	paymentRequest *messages.BTCPaymentRequestRequest,
+) ([]byte, error) {
 	if !device.version.AtLeast(semver.NewSemVer(9, 16, 0)) {
 		return nil, UnsupportedError("9.16.0")
 	}
-	if paymentRequest != nil && !device.version.AtLeast(semver.NewSemVer(9, 26, 0)) {
+	useStreaming := len(data) > ethStreamingThreshold
+	if (paymentRequest != nil || useStreaming) && !device.version.AtLeast(semver.NewSemVer(9, 26, 0)) {
 		return nil, UnsupportedError("9.26.0")
 	}
 
@@ -238,34 +352,42 @@ func (device *Device) ETHSignEIP1559(
 		return nil, err
 	}
 
-	request := &messages.ETHRequest{
-		Request: &messages.ETHRequest_SignEip1559{
-			SignEip1559: &messages.ETHSignEIP1559Request{
-				ChainId:              chainID,
-				Keypath:              keypath,
-				Nonce:                new(big.Int).SetUint64(nonce).Bytes(),
-				MaxPriorityFeePerGas: maxPriorityFeePerGas.Bytes(),
-				MaxFeePerGas:         maxFeePerGas.Bytes(),
-				GasLimit:             new(big.Int).SetUint64(gasLimit).Bytes(),
-				Recipient:            recipient[:],
-				Value:                value.Bytes(),
-				Data:                 data,
-				HostNonceCommitment:  hostNonceCommitment,
-				AddressCase:          recipientAddressCase,
-				PaymentRequest:       paymentRequest,
-			},
-		},
+	signEIP1559Req := &messages.ETHSignEIP1559Request{
+		ChainId:              chainID,
+		Keypath:              keypath,
+		Nonce:                new(big.Int).SetUint64(nonce).Bytes(),
+		MaxPriorityFeePerGas: maxPriorityFeePerGas.Bytes(),
+		MaxFeePerGas:         maxFeePerGas.Bytes(),
+		GasLimit:             new(big.Int).SetUint64(gasLimit).Bytes(),
+		Recipient:            recipient[:],
+		Value:                value.Bytes(),
+		Data:                 data,
+		HostNonceCommitment:  hostNonceCommitment,
+		AddressCase:          recipientAddressCase,
+		PaymentRequest:       paymentRequest,
 	}
-	response, err := device.queryETH(request)
-	if err != nil {
-		return nil, err
+	if useStreaming {
+		signEIP1559Req.Data = nil
+		signEIP1559Req.DataLength = uint32(len(data))
 	}
 
-	signature, err := device.handleSignerNonceCommitment(response, hostNonce)
+	request := &messages.ETHRequest{
+		Request: &messages.ETHRequest_SignEip1559{
+			SignEip1559: signEIP1559Req,
+		},
+	}
+	response, err := device.nonAtomicQueryETH(request)
 	if err != nil {
 		return nil, err
 	}
-	return signature, nil
+	if useStreaming {
+		response, err = device.nonAtomicHandleETHDataStreaming(data, response)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return device.nonAtomicHandleSignerNonceCommitment(response, hostNonce)
 }
 
 // ETHSignMessage signs an Ethereum message. The provided msg will be prefixed with "\x19Ethereum
@@ -273,6 +395,16 @@ func (device *Device) ETHSignEIP1559(
 // ascii representation with no fixed size or delimiter, WTF).
 // 27 is added to the recID to denote an uncompressed pubkey.
 func (device *Device) ETHSignMessage(
+	chainID uint64,
+	keypath []uint32,
+	msg []byte,
+) ([]byte, error) {
+	return atomicQueriesValue(device, func() ([]byte, error) {
+		return device.nonAtomicETHSignMessage(chainID, keypath, msg)
+	})
+}
+
+func (device *Device) nonAtomicETHSignMessage(
 	chainID uint64,
 	keypath []uint32,
 	msg []byte,
@@ -311,37 +443,13 @@ func (device *Device) ETHSignMessage(
 			},
 		},
 	}
-	response, err := device.queryETH(request)
+	response, err := device.nonAtomicQueryETH(request)
 	if err != nil {
 		return nil, err
 	}
 
 	if supportsAntiklepto {
-		signerCommitment, ok := response.Response.(*messages.ETHResponse_AntikleptoSignerCommitment)
-		if !ok {
-			return nil, errp.New("unexpected response")
-		}
-		response, err := device.queryETH(&messages.ETHRequest{
-			Request: &messages.ETHRequest_AntikleptoSignature{
-				AntikleptoSignature: &messages.AntiKleptoSignatureRequest{
-					HostNonce: hostNonce,
-				},
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		signResponse, ok := response.Response.(*messages.ETHResponse_Sign)
-		if !ok {
-			return nil, errp.New("unexpected response")
-		}
-		signature := signResponse.Sign.Signature
-		err = antikleptoVerify(
-			hostNonce,
-			signerCommitment.AntikleptoSignerCommitment.Commitment,
-			signature[:64],
-		)
+		signature, err := device.nonAtomicHandleSignerNonceCommitment(response, hostNonce)
 		if err != nil {
 			return nil, err
 		}
@@ -536,7 +644,10 @@ func encodeValue(typ *messages.ETHSignTypedMessageRequest_MemberType, value inte
 	return nil, errp.New("couldn't encode value")
 }
 
-func getValue(what *messages.ETHTypedMessageValueResponse, msg map[string]interface{}) ([]byte, error) {
+func getValue(
+	what *messages.ETHTypedMessageValueResponse,
+	msg map[string]interface{},
+) ([]byte, messages.ETHSignTypedMessageRequest_DataType, error) {
 	types := msg["types"].(map[string]interface{})
 
 	var value interface{}
@@ -548,17 +659,17 @@ func getValue(what *messages.ETHTypedMessageValueResponse, msg map[string]interf
 		var err error
 		typ, err = parseType("EIP712Domain", types)
 		if err != nil {
-			return nil, err
+			return nil, messages.ETHSignTypedMessageRequest_UNKNOWN, err
 		}
 	case messages.ETHTypedMessageValueResponse_MESSAGE:
 		value = msg["message"]
 		var err error
 		typ, err = parseType(msg["primaryType"].(string), types)
 		if err != nil {
-			return nil, err
+			return nil, messages.ETHSignTypedMessageRequest_UNKNOWN, err
 		}
 	default:
-		return nil, errp.Newf("unknown root: %v", what.RootObject)
+		return nil, messages.ETHSignTypedMessageRequest_UNKNOWN, errp.Newf("unknown root: %v", what.RootObject)
 	}
 	for _, element := range what.Path {
 		switch typ.Type {
@@ -568,22 +679,39 @@ func getValue(what *messages.ETHTypedMessageValueResponse, msg map[string]interf
 			var err error
 			typ, err = parseType(structMember["type"].(string), types)
 			if err != nil {
-				return nil, err
+				return nil, messages.ETHSignTypedMessageRequest_UNKNOWN, err
 			}
 		case messages.ETHSignTypedMessageRequest_ARRAY:
 			value = value.([]interface{})[element]
 			typ = typ.ArrayType
 		default:
-			return nil, errp.New("path element does not point to struct or array")
+			return nil, messages.ETHSignTypedMessageRequest_UNKNOWN, errp.New("path element does not point to struct or array")
 		}
 	}
-	return encodeValue(typ, value)
+	encoded, err := encodeValue(typ, value)
+	if err != nil {
+		return nil, messages.ETHSignTypedMessageRequest_UNKNOWN, err
+	}
+	return encoded, typ.Type, nil
 }
 
-// ETHSignTypedMessage signs an Ethereum EIP-712 typed message. 27 is added to the recID to denote
-// an uncompressed pubkey. If useAntiklepto is false, signing is deterministic and requires
-// firmware >= 9.26.0.
+// ETHSignTypedMessage signs an Ethereum EIP-712 typed message. 27 is added to
+// the recID to denote an uncompressed pubkey. If useAntiklepto is false,
+// signing is deterministic and requires firmware >= 9.26.0. If a typed-message
+// bytes value exceeds 6144 bytes, firmware >= 9.26.0 is required to stream it.
+// Typed-message string values larger than 6144 bytes are rejected.
 func (device *Device) ETHSignTypedMessage(
+	chainID uint64,
+	keypath []uint32,
+	jsonMsg []byte,
+	useAntiklepto bool,
+) ([]byte, error) {
+	return atomicQueriesValue(device, func() ([]byte, error) {
+		return device.nonAtomicETHSignTypedMessage(chainID, keypath, jsonMsg, useAntiklepto)
+	})
+}
+
+func (device *Device) nonAtomicETHSignTypedMessage(
 	chainID uint64,
 	keypath []uint32,
 	jsonMsg []byte,
@@ -645,56 +773,50 @@ func (device *Device) ETHSignTypedMessage(
 			},
 		},
 	}
-	response, err := device.queryETH(request)
+	response, err := device.nonAtomicQueryETH(request)
 	if err != nil {
 		return nil, err
 	}
 
 	typedMsgValueResponse, ok := response.Response.(*messages.ETHResponse_TypedMsgValue)
 	for ok {
-		value, err := getValue(typedMsgValueResponse.TypedMsgValue, msg)
+		value, dataType, err := getValue(typedMsgValueResponse.TypedMsgValue, msg)
 		if err != nil {
 			return nil, err
 		}
-		response, err = device.queryETH(&messages.ETHRequest{
+		useStreaming := len(value) > ethStreamingThreshold
+		if dataType == messages.ETHSignTypedMessageRequest_STRING && useStreaming {
+			return nil, errp.New("string value exceeds maximum size")
+		}
+		if useStreaming && !device.version.AtLeast(semver.NewSemVer(9, 26, 0)) {
+			return nil, UnsupportedError("9.26.0")
+		}
+		valueRequest := &messages.ETHTypedMessageValueRequest{
+			Value: value,
+		}
+		if useStreaming {
+			valueRequest.Value = nil
+			valueRequest.DataLength = uint32(len(value))
+		}
+		response, err = device.nonAtomicQueryETH(&messages.ETHRequest{
 			Request: &messages.ETHRequest_TypedMsgValue{
-				TypedMsgValue: &messages.ETHTypedMessageValueRequest{
-					Value: value,
-				},
+				TypedMsgValue: valueRequest,
 			},
 		})
 		if err != nil {
 			return nil, err
+		}
+		if useStreaming {
+			response, err = device.nonAtomicHandleETHDataStreaming(value, response)
+			if err != nil {
+				return nil, err
+			}
 		}
 		typedMsgValueResponse, ok = response.Response.(*messages.ETHResponse_TypedMsgValue)
 	}
 
 	if useAntiklepto {
-		signerCommitment, ok := response.Response.(*messages.ETHResponse_AntikleptoSignerCommitment)
-		if !ok {
-			return nil, errp.New("unexpected response")
-		}
-		response, err = device.queryETH(&messages.ETHRequest{
-			Request: &messages.ETHRequest_AntikleptoSignature{
-				AntikleptoSignature: &messages.AntiKleptoSignatureRequest{
-					HostNonce: hostNonce,
-				},
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		signResponse, ok := response.Response.(*messages.ETHResponse_Sign)
-		if !ok {
-			return nil, errp.New("unexpected response")
-		}
-		signature := signResponse.Sign.Signature
-		err = antikleptoVerify(
-			hostNonce,
-			signerCommitment.AntikleptoSignerCommitment.Commitment,
-			signature[:64],
-		)
+		signature, err := device.nonAtomicHandleSignerNonceCommitment(response, hostNonce)
 		if err != nil {
 			return nil, err
 		}

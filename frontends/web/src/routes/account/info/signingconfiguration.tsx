@@ -14,6 +14,7 @@ import { ExternalLink } from '@/components/icon';
 import { Message } from '@/components/message/message';
 import { QRCode } from '@/components/qrcode/qrcode';
 import { truncateMiddle } from '@/utils/address';
+import { MultilineMarkup } from '@/utils/markup';
 import style from './info.module.css';
 
 type TProps = {
@@ -29,6 +30,7 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState(false);
   const [balance, setBalance] = useState<TAmountWithConversions>();
+  const isTaproot = info.bitcoinSimple?.scriptType === 'p2tr';
 
   useEffect(() => {
     if (isEthereumBased(account.coinCode)) {
@@ -60,10 +62,27 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
   return (
     <div className={style.address}>
       <div className={style.qrCode}>
-        { bitcoinBased ? (
-          <QRCode
-            data={config.keyInfo.xpub}
-            size={220} />
+        { (bitcoinBased && !isTaproot) ? (
+          <div className={style.qrItem}>
+            <span className={style.qrLabel}>
+              {t('accountInfo.extendedPublicKey')}
+            </span>
+            <QRCode
+              data={config.keyInfo.xpub}
+              size={180}
+            />
+          </div>
+        ) : null }
+        { info.bitcoinSimple ? (
+          <div className={style.qrItem}>
+            <span className={style.qrLabel}>
+              Descriptor
+            </span>
+            <QRCode
+              data={info.bitcoinSimple.descriptor}
+              size={180}
+            />
+          </div>
         ) : null }
       </div>
       <div className={style.details}>
@@ -113,7 +132,7 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
             </div>
           </div>
         ) : null}
-        { bitcoinBased ? (
+        { bitcoinBased && !isTaproot ? (
           <div key="xpub" className={`${style.entry || ''} ${style.largeEntry || ''}`}>
             <strong className="m-right-half">
               {t('accountInfo.extendedPublicKey')}:
@@ -124,6 +143,26 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
               value={config.keyInfo.xpub} />
           </div>
         ) : null }
+        { info.bitcoinSimple ? (
+          <div key="descriptor" className={`${style.entry || ''} ${style.largeEntry || ''}`}>
+            <strong className="m-right-half">
+              Descriptor:
+            </strong>
+
+            <Message type="info">
+              <MultilineMarkup
+                markup={t('accountInfo.descriptorWarning')}
+                tagName="span"
+                withBreaks/>
+            </Message>
+
+            <CopyableInput
+              className="flex-grow"
+              alignLeft
+              flexibleHeight
+              value={info.bitcoinSimple.descriptor} />
+          </div>
+        ) : null }
       </div>
       { contractAddressInfo ? (
         <Message className={style.warningMessage} type="warning">
@@ -131,7 +170,7 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
         </Message>
       ) : null}
       <div className={style.buttons}>
-        { bitcoinBased ? (
+        { (bitcoinBased && !isTaproot) ? (
           <Button className={style.verifyButton} primary disabled={verifying} onClick={async () => {
             setVerifying(true);
             try {
@@ -146,11 +185,11 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
           }>
             {t('accountInfo.verify')}
           </Button>
-        ) : (
+        ) : !bitcoinBased ? (
           <Button className={style.verifyButton} primary onClick={() => navigate(`/account/${code}/receive`)}>
             {t('receive.verify')}
           </Button>
-        ) }
+        ) : null}
         {children}
       </div>
     </div>

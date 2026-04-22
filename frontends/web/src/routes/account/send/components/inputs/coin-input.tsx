@@ -31,6 +31,7 @@ export const CoinInput = ({
   return (
     <Input
       type="number"
+      inputMode="numeric"
       step="any"
       min="0"
       label={balance ? balance.available.unit : t('send.amount.label')}

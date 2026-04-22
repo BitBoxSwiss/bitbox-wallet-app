@@ -43,6 +43,7 @@
 .address {
     display: grid;
     gap: var(--space-default);
+    margin-top: var(--space-default);
 }
 
 .details {
@@ -74,15 +75,29 @@
 }
 
 .qrCode {
-    align-items: flex-start;
+    align-items: center;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: var(--space-eight);
     min-height: 0;
 }
 
 .qrCode img {
     height: auto;
     max-width: 100%;
+}
+
+.qrItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-quarter);
+}
+
+.qrLabel {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+    text-align: center;
 }
 
 .buttons {
@@ -119,6 +134,7 @@
             "warning warning"
             "buttons buttons";
         grid-template-columns: minmax(0, 1fr) 220px;
+        margin-top: 0;
     }
 
     .details {
@@ -128,6 +144,7 @@
     .qrCode {
         grid-area: qr;
         justify-content: flex-end;
+        gap: var(--space-default);
     }
 
     .warningMessage {

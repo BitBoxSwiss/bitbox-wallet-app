@@ -46,7 +46,6 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
   const view: TView = isVerifyView ? 'verify' : 'list';
   const receivePath = `/account/${code}/receive`;
 
-  const isLoading = usedAddressesResponse === undefined;
   const usedAddressesError = useMemo(() => {
     if (usedAddressesResponse === undefined || usedAddressesResponse.success) {
       return null;
@@ -155,10 +154,10 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
       <View fullscreen={false}>
         <ViewContent>
           <AddressList
+            code={code}
             accountName={account.name}
-            isLoading={isLoading}
+            usedAddressesResponse={usedAddressesResponse}
             error={usedAddressesError}
-            isEmpty={usedAddresses.length === 0}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             addressTypeFilter={addressTypeFilter}
@@ -183,7 +182,7 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
             <VerifyAddressDialog
               verification={verification}
               selectedAddress={selectedAddress}
-              isLoading={isLoading}
+              usedAddressesResponse={usedAddressesResponse}
               coinCode={account.coinCode}
               onClose={returnToList}
             />

@@ -16,58 +16,58 @@ var _ coin.Coin = &CoinMock{}
 
 // CoinMock is a mock implementation of coin.Coin.
 //
-// 	func TestSomethingThatUsesCoin(t *testing.T) {
+//	func TestSomethingThatUsesCoin(t *testing.T) {
 //
-// 		// make and configure a mocked coin.Coin
-// 		mockedCoin := &CoinMock{
-// 			BlockExplorerTransactionURLPrefixFunc: func() string {
-// 				panic("mock out the BlockExplorerTransactionURLPrefix method")
-// 			},
-// 			CloseFunc: func() error {
-// 				panic("mock out the Close method")
-// 			},
-// 			CodeFunc: func() coin.Code {
-// 				panic("mock out the Code method")
-// 			},
-// 			DecimalsFunc: func(isFee bool) uint {
-// 				panic("mock out the Decimals method")
-// 			},
-// 			FormatAmountFunc: func(amount coin.Amount, isFee bool) string {
-// 				panic("mock out the FormatAmount method")
-// 			},
-// 			GetFormatUnitFunc: func(isFee bool) string {
-// 				panic("mock out the GetFormatUnit method")
-// 			},
-// 			InitializeFunc: func()  {
-// 				panic("mock out the Initialize method")
-// 			},
-// 			NameFunc: func() string {
-// 				panic("mock out the Name method")
-// 			},
-// 			ObserveFunc: func(fn func(observable.Event)) func() {
-// 				panic("mock out the Observe method")
-// 			},
-// 			ParseAmountFunc: func(amount string) (coin.Amount, error) {
-// 				panic("mock out the ParseAmount method")
-// 			},
-// 			SetAmountFunc: func(amount *big.Rat, isFee bool) coin.Amount {
-// 				panic("mock out the SetAmount method")
-// 			},
-// 			SmallestUnitFunc: func() string {
-// 				panic("mock out the SmallestUnit method")
-// 			},
-// 			ToUnitFunc: func(amount coin.Amount, isFee bool) float64 {
-// 				panic("mock out the ToUnit method")
-// 			},
-// 			UnitFunc: func(isFee bool) string {
-// 				panic("mock out the Unit method")
-// 			},
-// 		}
+//		// make and configure a mocked coin.Coin
+//		mockedCoin := &CoinMock{
+//			BlockExplorerTransactionURLPrefixFunc: func() string {
+//				panic("mock out the BlockExplorerTransactionURLPrefix method")
+//			},
+//			CloseFunc: func() error {
+//				panic("mock out the Close method")
+//			},
+//			CodeFunc: func() coin.Code {
+//				panic("mock out the Code method")
+//			},
+//			DecimalsFunc: func(isFee bool) uint {
+//				panic("mock out the Decimals method")
+//			},
+//			FormatAmountFunc: func(amount coin.Amount, isFee bool) string {
+//				panic("mock out the FormatAmount method")
+//			},
+//			GetFormatUnitFunc: func(isFee bool) string {
+//				panic("mock out the GetFormatUnit method")
+//			},
+//			InitializeFunc: func()  {
+//				panic("mock out the Initialize method")
+//			},
+//			NameFunc: func() string {
+//				panic("mock out the Name method")
+//			},
+//			ObserveFunc: func(fn func(observable.Event)) func() {
+//				panic("mock out the Observe method")
+//			},
+//			ParseAmountFunc: func(amount string) (coin.Amount, error) {
+//				panic("mock out the ParseAmount method")
+//			},
+//			SetAmountFunc: func(amount *big.Rat, isFee bool) coin.Amount {
+//				panic("mock out the SetAmount method")
+//			},
+//			SmallestUnitFunc: func() string {
+//				panic("mock out the SmallestUnit method")
+//			},
+//			ToUnitFunc: func(amount coin.Amount, isFee bool) float64 {
+//				panic("mock out the ToUnit method")
+//			},
+//			UnitFunc: func(isFee bool) string {
+//				panic("mock out the Unit method")
+//			},
+//		}
 //
-// 		// use mockedCoin in code that requires coin.Coin
-// 		// and then make assertions.
+//		// use mockedCoin in code that requires coin.Coin
+//		// and then make assertions.
 //
-// 	}
+//	}
 type CoinMock struct {
 	// BlockExplorerTransactionURLPrefixFunc mocks the BlockExplorerTransactionURLPrefix method.
 	BlockExplorerTransactionURLPrefixFunc func() string
@@ -209,7 +209,8 @@ func (mock *CoinMock) BlockExplorerTransactionURLPrefix() string {
 
 // BlockExplorerTransactionURLPrefixCalls gets all the calls that were made to BlockExplorerTransactionURLPrefix.
 // Check the length with:
-//     len(mockedCoin.BlockExplorerTransactionURLPrefixCalls())
+//
+//	len(mockedCoin.BlockExplorerTransactionURLPrefixCalls())
 func (mock *CoinMock) BlockExplorerTransactionURLPrefixCalls() []struct {
 } {
 	var calls []struct {
@@ -235,7 +236,8 @@ func (mock *CoinMock) Close() error {
 
 // CloseCalls gets all the calls that were made to Close.
 // Check the length with:
-//     len(mockedCoin.CloseCalls())
+//
+//	len(mockedCoin.CloseCalls())
 func (mock *CoinMock) CloseCalls() []struct {
 } {
 	var calls []struct {
@@ -261,7 +263,8 @@ func (mock *CoinMock) Code() coin.Code {
 
 // CodeCalls gets all the calls that were made to Code.
 // Check the length with:
-//     len(mockedCoin.CodeCalls())
+//
+//	len(mockedCoin.CodeCalls())
 func (mock *CoinMock) CodeCalls() []struct {
 } {
 	var calls []struct {
@@ -290,7 +293,8 @@ func (mock *CoinMock) Decimals(isFee bool) uint {
 
 // DecimalsCalls gets all the calls that were made to Decimals.
 // Check the length with:
-//     len(mockedCoin.DecimalsCalls())
+//
+//	len(mockedCoin.DecimalsCalls())
 func (mock *CoinMock) DecimalsCalls() []struct {
 	IsFee bool
 } {
@@ -323,7 +327,8 @@ func (mock *CoinMock) FormatAmount(amount coin.Amount, isFee bool) string {
 
 // FormatAmountCalls gets all the calls that were made to FormatAmount.
 // Check the length with:
-//     len(mockedCoin.FormatAmountCalls())
+//
+//	len(mockedCoin.FormatAmountCalls())
 func (mock *CoinMock) FormatAmountCalls() []struct {
 	Amount coin.Amount
 	IsFee  bool
@@ -356,7 +361,8 @@ func (mock *CoinMock) GetFormatUnit(isFee bool) string {
 
 // GetFormatUnitCalls gets all the calls that were made to GetFormatUnit.
 // Check the length with:
-//     len(mockedCoin.GetFormatUnitCalls())
+//
+//	len(mockedCoin.GetFormatUnitCalls())
 func (mock *CoinMock) GetFormatUnitCalls() []struct {
 	IsFee bool
 } {
@@ -384,7 +390,8 @@ func (mock *CoinMock) Initialize() {
 
 // InitializeCalls gets all the calls that were made to Initialize.
 // Check the length with:
-//     len(mockedCoin.InitializeCalls())
+//
+//	len(mockedCoin.InitializeCalls())
 func (mock *CoinMock) InitializeCalls() []struct {
 } {
 	var calls []struct {
@@ -410,7 +417,8 @@ func (mock *CoinMock) Name() string {
 
 // NameCalls gets all the calls that were made to Name.
 // Check the length with:
-//     len(mockedCoin.NameCalls())
+//
+//	len(mockedCoin.NameCalls())
 func (mock *CoinMock) NameCalls() []struct {
 } {
 	var calls []struct {
@@ -439,7 +447,8 @@ func (mock *CoinMock) Observe(fn func(observable.Event)) func() {
 
 // ObserveCalls gets all the calls that were made to Observe.
 // Check the length with:
-//     len(mockedCoin.ObserveCalls())
+//
+//	len(mockedCoin.ObserveCalls())
 func (mock *CoinMock) ObserveCalls() []struct {
 	Fn func(observable.Event)
 } {
@@ -470,7 +479,8 @@ func (mock *CoinMock) ParseAmount(amount string) (coin.Amount, error) {
 
 // ParseAmountCalls gets all the calls that were made to ParseAmount.
 // Check the length with:
-//     len(mockedCoin.ParseAmountCalls())
+//
+//	len(mockedCoin.ParseAmountCalls())
 func (mock *CoinMock) ParseAmountCalls() []struct {
 	Amount string
 } {
@@ -503,7 +513,8 @@ func (mock *CoinMock) SetAmount(amount *big.Rat, isFee bool) coin.Amount {
 
 // SetAmountCalls gets all the calls that were made to SetAmount.
 // Check the length with:
-//     len(mockedCoin.SetAmountCalls())
+//
+//	len(mockedCoin.SetAmountCalls())
 func (mock *CoinMock) SetAmountCalls() []struct {
 	Amount *big.Rat
 	IsFee  bool
@@ -533,7 +544,8 @@ func (mock *CoinMock) SmallestUnit() string {
 
 // SmallestUnitCalls gets all the calls that were made to SmallestUnit.
 // Check the length with:
-//     len(mockedCoin.SmallestUnitCalls())
+//
+//	len(mockedCoin.SmallestUnitCalls())
 func (mock *CoinMock) SmallestUnitCalls() []struct {
 } {
 	var calls []struct {
@@ -564,7 +576,8 @@ func (mock *CoinMock) ToUnit(amount coin.Amount, isFee bool) float64 {
 
 // ToUnitCalls gets all the calls that were made to ToUnit.
 // Check the length with:
-//     len(mockedCoin.ToUnitCalls())
+//
+//	len(mockedCoin.ToUnitCalls())
 func (mock *CoinMock) ToUnitCalls() []struct {
 	Amount coin.Amount
 	IsFee  bool
@@ -597,7 +610,8 @@ func (mock *CoinMock) Unit(isFee bool) string {
 
 // UnitCalls gets all the calls that were made to Unit.
 // Check the length with:
-//     len(mockedCoin.UnitCalls())
+//
+//	len(mockedCoin.UnitCalls())
 func (mock *CoinMock) UnitCalls() []struct {
 	IsFee bool
 } {

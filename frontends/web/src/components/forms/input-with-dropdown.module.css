@@ -48,13 +48,13 @@
 input.inputField {
     background-color: var(--background-secondary);
     border-color: var(--background-quaternary);
-    border-top-left-radius: var(--radius-xl);
-    border-bottom-left-radius: var(--radius-xl);
     border-style: solid;
     border-width: 1px;
     border-right: none;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    border-bottom-left-radius: var(--radius-xl);
+    border-bottom-right-radius: 0 !important;
+    border-top-left-radius: var(--radius-xl);
+    border-top-right-radius: 0 !important;
     font-family: var(--font-family);
     font-size: var(--size-default);
     font-variant-numeric: tabular-nums;

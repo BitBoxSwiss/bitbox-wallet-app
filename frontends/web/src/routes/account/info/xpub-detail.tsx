@@ -13,7 +13,6 @@ import { BitcoinBasedAccountInfoGuide } from './guide';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
-import { Message } from '@/components/message/message';
 import style from './info.module.css';
 
 type TProps = {
@@ -82,31 +81,18 @@ export const XPubDetail = ({
                     )}
                   </p>
                 )}
-                {(config?.bitcoinSimple?.scriptType === 'p2tr') ? (
-                  <>
-                    <Message type="info">
-                      {t('accountInfo.taproot')}
-                    </Message>
-                    <div className="buttons hide-on-small">
-                      <BackButton enableEsc>
-                        {t('button.back')}
-                      </BackButton>
-                    </div>
-                  </>
-                ) : (
-                  <SigningConfiguration
-                    key={safeViewXPub}
-                    account={account}
-                    code={code}
-                    info={config}
-                    signingConfigIndex={safeViewXPub}>
-                    <span className="hide-on-small">
-                      <BackButton enableEsc>
-                        {t('button.back')}
-                      </BackButton>
-                    </span>
-                  </SigningConfiguration>
-                )}
+                <SigningConfiguration
+                  key={safeViewXPub}
+                  account={account}
+                  code={code}
+                  info={config}
+                  signingConfigIndex={safeViewXPub}>
+                  <span className="hide-on-small">
+                    <BackButton enableEsc>
+                      {t('button.back')}
+                    </BackButton>
+                  </span>
+                </SigningConfiguration>
               </div>
             </ViewContent>
           </View>

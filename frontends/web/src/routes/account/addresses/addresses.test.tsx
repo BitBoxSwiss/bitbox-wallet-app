@@ -44,17 +44,23 @@ const mockAccount: accountApi.TAccount = {
   blockExplorerTxPrefix: 'https://example.com/tx/',
 };
 
+const groupAddress = (value: string): string => value.replace(/(.{4})/g, '$1 ').trim();
+
 const receiveAddress: accountApi.TUsedAddress = {
   address: 'bc1qreceiveusedaddress',
+  displayAddress: groupAddress('bc1qreceiveusedaddress'),
   addressID: 'receive-address-id',
   addressType: 'receive',
+  canSignMsg: true,
   lastUsed: '2025-01-12T10:00:00Z',
 };
 
 const changeAddress: accountApi.TUsedAddress = {
   address: 'bc1qchangeusedaddress',
+  displayAddress: groupAddress('bc1qchangeusedaddress'),
   addressID: 'change-address-id',
   addressType: 'change',
+  canSignMsg: true,
   lastUsed: null,
 };
 
@@ -68,15 +74,16 @@ const createDeferred = function<T>() {
 
 const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAccount[] = [mockAccount]) => {
   let setAccountsState: ((accounts: accountApi.TAccount[]) => void) | undefined;
+  const accountCode = initialAccounts[0]?.code ?? mockAccount.code;
 
   const RouteWrapper = () => {
     const [accounts, setAccounts] = useState(initialAccounts);
     setAccountsState = setAccounts;
     return (
       <Routes>
-        <Route path="/account/:code/addresses" element={<Addresses code={mockAccount.code} accounts={accounts} devices={{}} />} />
-        <Route path="/account/:code/addresses/:addressID" element={<Addresses code={mockAccount.code} accounts={accounts} devices={{}} />} />
-        <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={mockAccount.code} accounts={accounts} devices={{}} />} />
+        <Route path="/account/:code/addresses" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
+        <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
+        <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
       </Routes>
     );
   };
@@ -122,10 +129,12 @@ describe('routes/account/addresses', () => {
     renderWithRoute('/account/btc-account/addresses');
 
     await screen.findByTitle(receiveAddress.address);
-    expect(screen.queryByText(changeAddress.address)).not.toBeInTheDocument();
+    expect(screen.getByText(groupAddress(receiveAddress.address))).toBeInTheDocument();
+    expect(screen.queryByText(groupAddress(changeAddress.address))).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Change addresses' }));
     await screen.findByTitle(changeAddress.address);
+    expect(screen.getByText(groupAddress(changeAddress.address))).toBeInTheDocument();
     expect(screen.getByText(/Do not use a change address to receive coins\./)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'here' })).toHaveAttribute('href', '/account/btc-account/receive');
 
@@ -165,7 +174,7 @@ describe('routes/account/addresses', () => {
 
     await screen.findByText(/This address has not been verified on the device\./);
     const copyAddressInput = await screen.findByTestId('receive-address') as HTMLTextAreaElement;
-    expect(copyAddressInput.value).toBe(changeAddress.address);
+    expect(copyAddressInput.value).toBe(changeAddress.displayAddress);
     expect(connectSpy).not.toHaveBeenCalled();
     expect(verifyAddressSpy).not.toHaveBeenCalled();
   });
@@ -259,6 +268,7 @@ describe('routes/account/addresses', () => {
       expect(verifyAddressSpy).toHaveBeenCalledWith(mockAccount.code, receiveAddress.addressID);
     });
     await screen.findByRole('button', { name: 'Copy address' });
+    await screen.findByRole('button', { name: 'Sign message' });
   });
 
   it('shows receive-style verify dialog while secure verification is in progress', async () => {

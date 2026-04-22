@@ -13,6 +13,7 @@
   font-variant: normal;
   position: relative;
   cursor: default;
+  font-size: var(--size-smaller);
 }
 
 .availableFiatAmount {

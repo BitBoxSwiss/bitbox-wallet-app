@@ -45,6 +45,11 @@ func ComputePaymentRequestSighashBytes(
 		case *messages.BTCPaymentRequestRequest_Memo_TextMemo_:
 			_ = binary.Write(sighash, binary.LittleEndian, uint32(1))
 			hashDataLenPrefixed(sighash, []byte(m.TextMemo.Note))
+		case *messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_:
+			_ = binary.Write(sighash, binary.LittleEndian, uint32(3))
+			_ = binary.Write(sighash, binary.LittleEndian, m.CoinPurchaseMemo.CoinType)
+			hashDataLenPrefixed(sighash, []byte(m.CoinPurchaseMemo.Amount))
+			hashDataLenPrefixed(sighash, []byte(m.CoinPurchaseMemo.Address))
 		default:
 			return nil, errors.New("unsupported memo type")
 		}

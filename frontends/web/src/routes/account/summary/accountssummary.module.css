@@ -1,6 +1,7 @@
 .coinUnit {
     color: var(--color-secondary);
     font-weight: normal;
+    font-size: var(--size-smaller);
 }
 
 .keystoreName {
@@ -18,6 +19,11 @@
 
 .clickable {
     cursor: pointer;
+    transition: background-color 120ms ease;
+}
+
+.clickable:active {
+    background-color: var(--background-tap-active);
 }
 
 .assetBalanceInfo {
@@ -133,18 +139,17 @@
     width: 100%;
 }
 
-.assetBalanceDetailsCol {
+.assetBalanceDetailsRow {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: var(--space-eight);
     width: 100%;
     min-width: 0;
 }
 
-.assetBalanceDetailRow {
+.assetBalanceDetailsCol {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
     width: 100%;
     min-width: 0;
 }
@@ -161,16 +166,11 @@
     flex-grow: 1;
     flex-shrink: 0;
     overflow: hidden;
-    text-align: end;
     white-space: nowrap;
 }
 
 .unitPrice {
     color: var(--color-secondary);
-}
-
-.unit {
-    font-size: var(--size-smaller);
 }
 
 .pairUnit {
