@@ -230,7 +230,7 @@ describe('routes/market/swap', () => {
     );
 
     const agreeButton = await screen.findByTestId('agree-swap-terms');
-    await agreeButton.click();
+    await user.click(agreeButton);
 
     await user.type(await screen.findByLabelText('swapSendAmount'), '1');
 
