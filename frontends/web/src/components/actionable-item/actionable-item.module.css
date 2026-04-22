@@ -21,6 +21,12 @@
   background-color: var(--background-tap-active);
 }
 
+.disabled {
+  color: var(--color-secondary);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .content {
   align-items: center;
   display: flex;

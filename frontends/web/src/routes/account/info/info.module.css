@@ -11,6 +11,15 @@
     min-width: 0;
 }
 
+.actionText {
+    display: flex;
+    flex-direction: column;
+}
+
+.actionHint {
+    font-size: var(--size-smaller);
+}
+
 .actionIcon {
     display: block;
     height: 24px;
