@@ -15,7 +15,7 @@ export const Update = () => {
     return null;
   }
   return (
-    <Status dismissible={`update-${file.version}`} type="info">
+    <Status dismissibleKey={`update-${file.version}`} type="info">
       {t('app.upgrade', {
         current: file.current,
         version: file.version,

@@ -76,7 +76,7 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
           <ContentWrapper>
             <Status
               type="info"
-              dismissible="walletConnectDisclaimerDismissed"
+              dismissibleKey="walletConnectDisclaimerDismissed"
             >
               {t('walletConnect.dashboard.disclaimer')}
             </Status>
