@@ -283,7 +283,7 @@ const BitrefillInfo = () => {
 const SwapkitInfo = () => {
   const { t } = useTranslation();
   return (
-    <div>
+    <div className={style.container}>
       <p>{t('exchange.swapkit.infobox.intro')}</p>
     </div>
   );
@@ -292,7 +292,7 @@ const SwapkitInfo = () => {
 const RegionInfo = () => {
   const { t } = useTranslation();
   return (
-    <div>
+    <div className={style.container}>
       <p>{t('buy.exchange.infoContent.region.title')}</p>
     </div>
   );
