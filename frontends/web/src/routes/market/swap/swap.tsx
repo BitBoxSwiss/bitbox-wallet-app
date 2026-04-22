@@ -519,11 +519,11 @@ export const Swap = ({
                   </span>
                 </Label>
                 {maxSellAmount && (
-                  <Button transparent className={style.maxButton}>
+                  <span className={style.max}>
                     {t('generic.max')}
                     {' '}
                     <AmountWithUnit amount={maxSellAmount.available} />
-                  </Button>
+                  </span>
                 )}
               </div>
               {!sellAccounts || !sellAccountCode ? (
@@ -566,7 +566,7 @@ export const Swap = ({
                   </span>
                 </Label>
                 {selectedRoute && buyAccount && (
-                  <Button transparent className={style.maxButton}>
+                  <span className={style.max}>
                     <Amount
                       amount={expectedOutput}
                       unit={expectedOutputUnit || buyAccount.coinUnit}
@@ -574,7 +574,7 @@ export const Swap = ({
                     <AmountUnit
                       unit={expectedOutputUnit || buyAccount.coinUnit}
                     />
-                  </Button>
+                  </span>
                 )}
               </div>
               {!buyAccounts || !buyAccountCode ? (
