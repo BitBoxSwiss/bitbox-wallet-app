@@ -3,6 +3,8 @@
 import { useTranslation } from 'react-i18next';
 import { PillButton, PillButtonGroup } from '../../../components/pillbuttongroup/pillbuttongroup';
 import { TMarketAction } from '@/api/market';
+import { NewBadge } from '@/components/new-badge/new-badge';
+import style from './markettab.module.css';
 
 
 type TProps = {
@@ -43,15 +45,31 @@ export const MarketTab = ({
           active={activeTab === 'swap'}
           onClick={() => onChangeTab('swap')}
         >
-          {t('generic.swap')}
+          <span className={style.tabLabel}>
+            {t('generic.swap')}
+            <NewBadge
+              className={style.newBadge}
+              configKey="hasSeenSwapMarketTab"
+              markAsSeen={activeTab === 'swap'}
+              testID="swap-new-badge"
+            />
+          </span>
         </PillButton>
       )}
       <PillButton
         active={activeTab === 'otc'}
         onClick={() => onChangeTab('otc')}
       >
-        {/* OTC doesn't need to be translated, but is explained in t('buy.exchange.otcInfo') */}
-        OTC
+        <span className={style.tabLabel}>
+          {/* OTC doesn't need to be translated, but is explained in t('buy.exchange.otcInfo') */}
+          OTC
+          <NewBadge
+            className={style.newBadge}
+            configKey="hasSeenOtcMarketTab"
+            markAsSeen={activeTab === 'otc'}
+            testID="otc-new-badge"
+          />
+        </span>
       </PillButton>
     </PillButtonGroup>
   );

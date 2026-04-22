@@ -42,7 +42,6 @@ export const App = () => {
 
   const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
-
   const prevDevices = usePrevious(devices);
 
   const deviceIDs = Object.keys(devices);

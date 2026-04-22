@@ -986,6 +986,7 @@
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
     "max": "Max",
+    "new": "New",
     "noOptionOnIos": "Not available on iOS",
     "noOptions": "No options found",
     "paymentRequestNote": "{{name}} payment {{orderId}}",
