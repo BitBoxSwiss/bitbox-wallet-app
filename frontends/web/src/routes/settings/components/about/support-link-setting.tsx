@@ -14,8 +14,9 @@ export const SupportLink = () => {
       icon={<ExternalLinkGray />}
       settingName={t('newSettings.about.supportLink.title')}
       secondaryText={t('newSettings.about.supportLink.description')}
-      title="https://support.bitbox.swiss/"
+      title={getSupportLink()}
       onClick={() => open(getSupportLink())}
     />
   );
 };
+
