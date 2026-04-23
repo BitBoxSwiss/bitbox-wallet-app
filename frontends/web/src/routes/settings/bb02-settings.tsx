@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { useLoad } from '@/hooks/api';
 import { useTranslation } from 'react-i18next';
 import { runningInIOS } from '@/utils/env';
@@ -8,7 +8,11 @@ import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { ViewContent, View } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
-import { ManageBackupSetting } from './components/device-settings/manage-backup-setting';
+import {
+  CheckBackupSetting,
+  CreateBackupSetting,
+  ListBackupsSetting,
+} from './components/device-settings/manage-backup-setting';
 import { ShowRecoveryWordsSetting } from './components/device-settings/show-recovery-words-setting';
 import { GoToStartupSettings } from './components/device-settings/go-to-startup-settings';
 import { PassphraseSetting } from './components/device-settings/passphrase-setting';
@@ -30,6 +34,8 @@ import { MobileHeader } from './components/mobile-header';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { SubTitle } from '@/components/title';
+import { Create as CreateBackupFlow } from '@/routes/device/bitbox02/createbackup';
+import { Check as CheckBackupFlow } from '@/routes/device/bitbox02/checkbackup';
 import styles from './bb02-settings.module.css';
 
 type TProps = {
@@ -37,6 +43,10 @@ type TProps = {
 };
 
 type TWrapperProps = TProps & TPagePropsWithSettingsTabs;
+type TLayoutProps = TPagePropsWithSettingsTabs & {
+  children: ReactNode;
+  mobileHeaderTitle: string;
+};
 
 export const StyledSkeleton = () => {
   return (
@@ -46,7 +56,12 @@ export const StyledSkeleton = () => {
   );
 };
 
-const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
+const BB02SettingsLayout = ({
+  devices,
+  hasAccounts,
+  children,
+  mobileHeaderTitle,
+}: TLayoutProps) => {
   const { t } = useTranslation();
   return (
     <Main>
@@ -60,7 +75,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
             title={
               <>
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader withGuide title={t('sidebar.device')} />
+                <MobileHeader withGuide title={mobileHeaderTitle} />
               </>
             }/>
           <View fullscreen={false}>
@@ -70,7 +85,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
-                <Content deviceID={deviceID} />
+                {children}
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -81,7 +96,58 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
   );
 };
 
-const Content = ({ deviceID }: TProps) => {
+const BackupContent = ({ deviceID }: TProps) => {
+  const { t } = useTranslation();
+  const [activeBackupFlow, setActiveBackupFlow] = useState<'create' | 'check'>();
+  const [backupFlowCounter, setBackupFlowCounter] = useState(0);
+
+  const startFlow = (flow: 'create' | 'check') => {
+    setActiveBackupFlow(flow);
+    setBackupFlowCounter(current => current + 1);
+  };
+
+  const flowID = activeBackupFlow ? `${deviceID}-${activeBackupFlow}-${backupFlowCounter}` : undefined;
+
+  return (
+    <div className={styles.section}>
+      <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.backups.title')}</SubTitle>
+      <CreateBackupSetting
+        deviceID={deviceID}
+        onClick={() => startFlow('create')}
+      />
+      <CheckBackupSetting
+        deviceID={deviceID}
+        onClick={() => startFlow('check')}
+      />
+      <ListBackupsSetting deviceID={deviceID} />
+      <ShowRecoveryWordsSetting deviceID={deviceID} />
+      {
+        activeBackupFlow === 'create' ? (
+          <CreateBackupFlow
+            deviceID={deviceID}
+            autoStart
+            autoStartID={flowID}
+            showButton={false}
+          />
+        ) : null
+      }
+      {
+        activeBackupFlow === 'check' ? (
+          <CheckBackupFlow
+            deviceID={deviceID}
+            backups={[]}
+            disabled={false}
+            autoStart
+            autoStartID={flowID}
+            showButton={false}
+          />
+        ) : null
+      }
+    </div>
+  );
+};
+
+const ManageDeviceContent = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
 
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
@@ -102,13 +168,6 @@ const Content = ({ deviceID }: TProps) => {
 
   return (
     <>
-      {/*"Backups" section*/}
-      <div className={styles.section}>
-        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.backups.title')}</SubTitle>
-        <ManageBackupSetting deviceID={deviceID} />
-        <ShowRecoveryWordsSetting deviceID={deviceID} />
-      </div>
-
       {/*"Device settings" section*/}
       <div className={styles.section}>
         <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceSettings.title')}</SubTitle>
@@ -200,4 +259,32 @@ const Content = ({ deviceID }: TProps) => {
   );
 };
 
-export { BB02Settings };
+const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <BB02SettingsLayout
+      devices={devices}
+      hasAccounts={hasAccounts}
+      mobileHeaderTitle={t('sidebar.device')}
+    >
+      <ManageDeviceContent deviceID={deviceID} />
+    </BB02SettingsLayout>
+  );
+};
+
+const BB02BackupSettings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <BB02SettingsLayout
+      devices={devices}
+      hasAccounts={hasAccounts}
+      mobileHeaderTitle={t('deviceSettings.backups.title')}
+    >
+      <BackupContent deviceID={deviceID} />
+    </BB02SettingsLayout>
+  );
+};
+
+export { BB02Settings, BB02BackupSettings };

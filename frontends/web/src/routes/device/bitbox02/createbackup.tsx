@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { checkBackup, createBackup as createBackupAPI } from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { confirmation } from '@/components/confirm/Confirm';
@@ -8,13 +8,24 @@ import { Button } from '@/components/forms';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { useTranslation } from 'react-i18next';
 
+const startedCreateBackupFlows = new Set<string>();
+
 type TProps = {
   deviceID: string;
+  autoStart?: boolean;
+  autoStartID?: string;
+  showButton?: boolean;
 };
 
-export const Create = ({ deviceID }: TProps) => {
+export const Create = ({
+  deviceID,
+  autoStart = false,
+  autoStartID,
+  showButton = true,
+}: TProps) => {
   const [creatingBackup, setCreatingBackup] = useState(false);
   const [disabled, setDisabled] = useState(false);
+  const maybeCreateBackupRef = useRef<() => Promise<void>>();
   const { t } = useTranslation();
 
   const createBackup = () => {
@@ -49,15 +60,30 @@ export const Create = ({ deviceID }: TProps) => {
       console.error(error);
     }
   };
+  maybeCreateBackupRef.current = maybeCreateBackup;
+
+  useEffect(() => {
+    if (!autoStart) {
+      return;
+    }
+    const id = autoStartID || `create-${deviceID}`;
+    if (startedCreateBackupFlows.has(id)) {
+      return;
+    }
+    startedCreateBackupFlows.add(id);
+    void maybeCreateBackupRef.current?.();
+  }, [autoStart, autoStartID, deviceID]);
 
   return (
     <>
-      <Button
-        primary
-        disabled={disabled}
-        onClick={maybeCreateBackup}>
-        {t('backup.create.title')}
-      </Button>
+      {showButton && (
+        <Button
+          primary
+          disabled={disabled}
+          onClick={maybeCreateBackup}>
+          {t('backup.create.title')}
+        </Button>
+      )}
       { creatingBackup && (
         <WaitDialog title={t('backup.create.title')}>
           {t('bitbox02Interact.followInstructions')}
