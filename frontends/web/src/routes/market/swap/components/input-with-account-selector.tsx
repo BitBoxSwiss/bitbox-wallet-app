@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useEffect, useState, type ChangeEvent } from 'react';
+import { useContext, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import type { AccountCode, TAccountBase } from '@/api/account';
 import { convertToCurrency } from '@/api/coins';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -10,6 +10,7 @@ import { Amount } from '@/components/amount/amount';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
 import { findAccount, getDisplayedCoinUnit } from '@/routes/account/utils';
 import style from './input-with-account-selector.module.css';
+import { useMountedRef } from '@/hooks/mount';
 
 type Props<T extends TAccountBase> = {
   accountCode: AccountCode;
@@ -45,23 +46,41 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
     }
   }, [accountCode, accounts]);
 
+  const isMounted = useMountedRef();
+  const requestIdRef = useRef(0);
+
   // update estimated fiat amount
   useEffect(() => {
-    if (selectedAccount && value) {
+    if (selectedAccount && value && value !== '') {
+      const requestId = ++requestIdRef.current;
+
+      setEstimatedFiatValue(undefined); // before request starts
       convertToCurrency({
         amount: value,
         coinCode: selectedAccount.coinCode,
         fiatUnit: defaultCurrency,
       })
         .then(response => {
+          if (requestId !== requestIdRef.current || !isMounted) {
+            return;
+          }
+
           if (response.success) {
             setEstimatedFiatValue(response.fiatAmount);
+          } else {
+            setEstimatedFiatValue(null);
           }
+        })
+        .catch(() => {
+          if (requestId !== requestIdRef.current || !isMounted) {
+            return;
+          }
+          setEstimatedFiatValue(null);
         });
     } else {
       setEstimatedFiatValue(null);
     }
-  }, [defaultCurrency, selectedAccount, value]);
+  }, [defaultCurrency, isMounted, selectedAccount, value]);
 
   const displayedUnit = selectedAccount
     ? getDisplayedCoinUnit(selectedAccount.coinCode, selectedAccount.coinUnit, btcUnit)
