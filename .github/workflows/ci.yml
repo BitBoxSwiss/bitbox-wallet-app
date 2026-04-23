@@ -43,8 +43,13 @@ jobs:
           OS_NAME: linux
 
   playwright:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: test-lint
+    container:
+      # Keep this in sync with frontends/web/package-lock.json.
+      image: mcr.microsoft.com/playwright:v1.57.0-jammy
+      # This below is needed to be able to run docker in the CI.
+      options: --volume /var/run/docker.sock:/var/run/docker.sock --add-host=host.docker.internal:host-gateway
     strategy:
       fail-fast: false
       matrix:
@@ -53,7 +58,18 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends docker.io jq lsof python3-pip
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
       - name: Download simulator v9.24.0 from simulators.json
+        shell: bash
         run: |
           set -euo pipefail
           simulator_url=$(jq -r '.[] | select(.url | contains("firmware%2Fv9.24.0/")) | .url' backend/devices/bitbox02/testdata/simulators.json)
@@ -73,21 +89,12 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontends/web
-          npm install
+          npm ci
 
       - name: Build frontend
         run: |
           cd frontends/web
           npm run build
-
-      - name: Install Playwright browsers
-        run: |
-          cd frontends/web
-          if [ "${{ matrix.project }}" = "Chromium" ]; then
-            npx playwright install --with-deps chromium
-          else
-            npx playwright install --with-deps webkit
-          fi
 
       - name: Setup Python 3
         uses: actions/setup-python@v6
@@ -96,11 +103,12 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install ecdsa bech32
+          python3 -m pip install ecdsa bech32 pycryptodome
 
       - name: Run Playwright tests
         env:
           PLAYWRIGHT_USE_PREBUILT_WEB: "1"
+          REGTEST_ELECTRUM_HOST: host.docker.internal
           SIMULATOR_PATH: ${{ github.workspace }}/simulator-bin/simulator
         run: cd frontends/web && npx playwright test --project="${{ matrix.project }}"
 

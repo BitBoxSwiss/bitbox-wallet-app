@@ -493,9 +493,15 @@ mCMuGBNHsbrs6rI1hbI4Qq6GYazLaDRqdCufTA==
 	case coinpkg.CodeTBTC:
 		return []*config.ServerInfo{{Server: "tbtc1.shiftcrypto.dev:443", TLS: true, PEMCert: devShiftCA}}
 	case coinpkg.CodeRBTC:
+		// In Github CI we can't use 127.0.0.1 so we need to pass
+		// the host name through an env variable.
+		host := os.Getenv("REGTEST_ELECTRUM_HOST")
+		if host == "" {
+			host = "127.0.0.1"
+		}
 		return []*config.ServerInfo{
-			{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""},
-			{Server: "127.0.0.1:52002", TLS: false, PEMCert: ""},
+			{Server: fmt.Sprintf("%s:52001", host), TLS: false, PEMCert: ""},
+			{Server: fmt.Sprintf("%s:52002", host), TLS: false, PEMCert: ""},
 		}
 	case coinpkg.CodeLTC:
 		return []*config.ServerInfo{{Server: "ltc1.shiftcrypto.dev:443", TLS: true, PEMCert: devShiftCA}}
