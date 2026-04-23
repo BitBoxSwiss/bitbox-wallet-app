@@ -34,6 +34,7 @@
 - Subtle tab transition (mobile navigation)
 - Enable large streamed payloads (Wallet Connect)
 - Revamp Marketplace UI
+- Add the support for performing swaps between cryptocurrencies through SwapKit
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
