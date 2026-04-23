@@ -62,11 +62,6 @@ struct WidgetAppGroupSync {
             if previous != coins {
                 changed = true
             }
-        } else {
-            defaults.set([], forKey: WidgetShared.Keys.sharedCoins)
-            if previous != [] {
-                changed = true
-            }
         }
 
         if changed {

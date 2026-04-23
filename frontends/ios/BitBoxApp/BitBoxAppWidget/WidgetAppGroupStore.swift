@@ -28,7 +28,12 @@ enum WidgetAppGroupStore {
         guard !coins.isEmpty else {
             return "btc"
         }
-        let index = selectedCoinIndex() % coins.count
+        let index = normalizedIndex(selectedCoinIndex(), count: coins.count)
         return WidgetShared.normalizeCoinCode(coins[index])
+    }
+
+    static func normalizedIndex(_ raw: Int, count: Int) -> Int {
+        guard count > 0 else { return 0 }
+        return ((raw % count) + count) % count
     }
 }

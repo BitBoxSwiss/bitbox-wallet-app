@@ -2,15 +2,7 @@ import Foundation
 import SwiftUI
 
 enum WidgetFormatting {
-    static let priceFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 2
-        formatter.minimumFractionDigits = 2
-        return formatter
-    }()
-
-    static let changeFormatter: NumberFormatter = {
+    static let twoDecimalFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
@@ -22,7 +14,7 @@ enum WidgetFormatting {
         guard let price else {
             return "—"
         }
-        return priceFormatter.string(from: NSNumber(value: price)) ?? "—"
+        return twoDecimalFormatter.string(from: NSNumber(value: price)) ?? "—"
     }
 
     static func formattedChange(_ change: Double?) -> String {
@@ -30,7 +22,7 @@ enum WidgetFormatting {
             return "—"
         }
         let prefix = change > 0 ? "+" : change < 0 ? "-" : ""
-        let value = changeFormatter.string(from: NSNumber(value: abs(change))) ?? "0.00"
+        let value = twoDecimalFormatter.string(from: NSNumber(value: abs(change))) ?? "0.00"
         return "\(prefix)\(value)%"
     }
 

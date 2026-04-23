@@ -1,7 +1,7 @@
 import Foundation
 import WidgetKit
 
-struct PriceData {
+struct PriceData: Codable {
     let price: Double
     let change7d: Double
     let chartPrices: [Double]
@@ -10,11 +10,7 @@ struct PriceData {
 }
 
 struct CachedPriceRecord: Codable {
-    let price: Double
-    let change7d: Double
-    let chartPrices: [Double]
-    let coinCode: String
-    let currency: String
+    let priceData: PriceData
     let timestamp: TimeInterval
 }
 

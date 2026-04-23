@@ -49,7 +49,7 @@ struct Provider: TimelineProvider {
 
         if let exactCacheHit {
             let entry = resolvedEntry(for: coinCode, currency: currency, data: exactCacheHit)
-            let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
+            let nextUpdate = Date().addingTimeInterval(15 * 60)
             completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
             Task.detached(priority: .utility) {
                 _ = await dataService.fetchChartData(coinCode: coinCode, currency: currency)
@@ -61,7 +61,7 @@ struct Provider: TimelineProvider {
                 let data = fetched ?? dataService.cachedFallback(for: coinCode, currency: currency)
                 let entry = resolvedEntry(for: coinCode, currency: currency, data: data)
                 let retryMinutes = fetched == nil ? 1 : 15
-                let nextUpdate = Calendar.current.date(byAdding: .minute, value: retryMinutes, to: Date())!
+                let nextUpdate = Date().addingTimeInterval(TimeInterval(retryMinutes * 60))
                 completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
                 triggerPrefetchIfNeeded(coins: coins, excluding: coinCode, currency: currency)
             }

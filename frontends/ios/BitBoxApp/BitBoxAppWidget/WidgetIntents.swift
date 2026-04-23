@@ -9,8 +9,9 @@ struct NextCoinIntent: AppIntent {
         guard coins.count > 1 else {
             return .result()
         }
-        let current = WidgetAppGroupStore.selectedCoinIndex()
-        WidgetAppGroupStore.setSelectedCoinIndex((current + 1) % coins.count)
+        let current = WidgetAppGroupStore.normalizedIndex(WidgetAppGroupStore.selectedCoinIndex(), count: coins.count)
+        let next = WidgetAppGroupStore.normalizedIndex(current + 1, count: coins.count)
+        WidgetAppGroupStore.setSelectedCoinIndex(next)
         WidgetCenter.shared.reloadTimelines(ofKind: WidgetShared.widgetKind)
         return .result()
     }
@@ -24,8 +25,9 @@ struct PreviousCoinIntent: AppIntent {
         guard coins.count > 1 else {
             return .result()
         }
-        let current = WidgetAppGroupStore.selectedCoinIndex()
-        WidgetAppGroupStore.setSelectedCoinIndex((current - 1 + coins.count) % coins.count)
+        let current = WidgetAppGroupStore.normalizedIndex(WidgetAppGroupStore.selectedCoinIndex(), count: coins.count)
+        let next = WidgetAppGroupStore.normalizedIndex(current - 1, count: coins.count)
+        WidgetAppGroupStore.setSelectedCoinIndex(next)
         WidgetCenter.shared.reloadTimelines(ofKind: WidgetShared.widgetKind)
         return .result()
     }

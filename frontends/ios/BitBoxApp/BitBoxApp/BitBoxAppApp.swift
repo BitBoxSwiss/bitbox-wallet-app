@@ -195,15 +195,21 @@ struct BitBoxAppApp: App {
                     .onAppear {
                         setupGoAPI(goAPI: goAPI)
                         MobileserverSetOnline(NetworkMonitor.shared.isOnline())
-                        widgetSync.sync()
+                        Task.detached(priority: .utility) {
+                            widgetSync.sync()
+                        }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                         MobileserverManualReconnect()
                         MobileserverTriggerAuth()
-                        widgetSync.sync()
+                        Task.detached(priority: .utility) {
+                            widgetSync.sync()
+                        }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
-                        widgetSync.sync()
+                        Task.detached(priority: .utility) {
+                            widgetSync.sync()
+                        }
                     }
             }
             .onOpenURL { url in

@@ -30,13 +30,7 @@ struct WidgetDataService {
             return nil
         }
 
-        return PriceData(
-            price: record.price,
-            change7d: record.change7d,
-            chartPrices: record.chartPrices,
-            coinCode: record.coinCode,
-            currency: record.currency
-        )
+        return record.priceData
     }
 
     private func saveToCache(data: PriceData) {
@@ -44,12 +38,15 @@ struct WidgetDataService {
             return
         }
 
-        let record = CachedPriceRecord(
+        let normalized = PriceData(
             price: data.price,
             change7d: data.change7d,
             chartPrices: data.chartPrices,
             coinCode: WidgetShared.normalizeCoinCode(data.coinCode),
-            currency: data.currency.uppercased(),
+            currency: data.currency.uppercased()
+        )
+        let record = CachedPriceRecord(
+            priceData: normalized,
             timestamp: Date().timeIntervalSince1970
         )
 
@@ -57,7 +54,7 @@ struct WidgetDataService {
             return
         }
 
-        defaults.set(payload, forKey: WidgetShared.cacheKey(for: record.coinCode, currency: record.currency))
+        defaults.set(payload, forKey: WidgetShared.cacheKey(for: normalized.coinCode, currency: normalized.currency))
     }
 
     func fetchChartData(coinCode: String, currency: String) async -> PriceData? {
@@ -81,7 +78,11 @@ struct WidgetDataService {
                 return nil
             }
 
-            guard let currentPrice = prices.last, let firstPrice = prices.first else {
+            guard let currentPrice = prices.last,
+                  let firstPrice = prices.first,
+                  currentPrice.isFinite,
+                  firstPrice.isFinite,
+                  firstPrice != 0 else {
                 return nil
             }
             let change = (currentPrice - firstPrice) / firstPrice * 100

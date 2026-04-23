@@ -1,18 +1,37 @@
 import SwiftUI
 
 enum WidgetCoinMetadata {
+    private struct Entry {
+        let geckoID: String
+        let logoAssetName: String?
+        let iconSystemName: String
+        let iconColor: Color
+    }
+
+    private static let table: [String: Entry] = [
+        "btc": Entry(
+            geckoID: "bitcoin",
+            logoAssetName: "coin_btc",
+            iconSystemName: "bitcoinsign.circle.fill",
+            iconColor: .orange
+        ),
+        "ltc": Entry(
+            geckoID: "litecoin",
+            logoAssetName: "coin_ltc",
+            iconSystemName: "l.circle.fill",
+            iconColor: Color(hex: 0xBFBBB6)
+        ),
+        "eth": Entry(
+            geckoID: "ethereum",
+            logoAssetName: "coin_eth",
+            iconSystemName: "e.circle.fill",
+            iconColor: Color(hex: 0x627EEA)
+        )
+    ]
+
     static func geckoID(for coinCode: String) -> String {
         let code = WidgetShared.normalizeCoinCode(coinCode)
-        switch code {
-        case "btc":
-            return "bitcoin"
-        case "ltc":
-            return "litecoin"
-        case "eth":
-            return "ethereum"
-        default:
-            return code
-        }
+        return table[code]?.geckoID ?? code
     }
 
     static func ticker(for coinCode: String) -> String {
@@ -20,42 +39,21 @@ enum WidgetCoinMetadata {
     }
 
     static func logoAssetName(for coinCode: String) -> String? {
-        switch WidgetShared.normalizeCoinCode(coinCode) {
-        case "btc":
-            return "coin_btc"
-        case "ltc":
-            return "coin_ltc"
-        case "eth":
-            return "coin_eth"
-        default:
-            return nil
-        }
+        table[WidgetShared.normalizeCoinCode(coinCode)]?.logoAssetName
     }
 
     static func iconSystemName(for coinCode: String) -> String {
         let code = WidgetShared.normalizeCoinCode(coinCode)
-        switch code {
-        case "btc":
-            return "bitcoinsign.circle.fill"
-        case "eth":
-            return "e.circle.fill"
-        case "ltc":
-            return "l.circle.fill"
-        default:
-            return "\(code.prefix(1)).circle.fill"
+        if let entry = table[code] {
+            return entry.iconSystemName
         }
+        guard let safeChar = code.unicodeScalars.first(where: { CharacterSet.alphanumerics.contains($0) }) else {
+            return "questionmark.circle.fill"
+        }
+        return "\(Character(safeChar)).circle.fill"
     }
 
     static func iconColor(for coinCode: String) -> Color {
-        switch WidgetShared.normalizeCoinCode(coinCode) {
-        case "btc":
-            return .orange
-        case "eth":
-            return Color(hex: 0x627EEA)
-        case "ltc":
-            return Color(hex: 0xBFBBB6)
-        default:
-            return .gray
-        }
+        table[WidgetShared.normalizeCoinCode(coinCode)]?.iconColor ?? .gray
     }
 }
