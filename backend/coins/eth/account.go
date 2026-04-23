@@ -22,6 +22,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
@@ -482,6 +483,7 @@ type TxProposal struct {
 	// not used in the transaction or signing except for making sure the BitBox displays the address
 	// with the same case (lowercase/uppercase/mixed) as the user entered.
 	RecipientAddress string
+	PaymentRequest   *paymentrequest.Request
 }
 
 func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error) {
@@ -638,6 +640,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 		Signer:           types.NewLondonSigner(account.coin.net.ChainID),
 		Keypath:          account.signingConfiguration.AbsoluteKeypath(),
 		RecipientAddress: args.RecipientAddress,
+		PaymentRequest:   args.PaymentRequest,
 	}, nil
 }
 

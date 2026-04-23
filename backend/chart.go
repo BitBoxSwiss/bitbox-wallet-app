@@ -137,7 +137,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		}
 		totalNumberOfTransactions += len(txs)
 
-		coinDecimals := coin.DecimalsExp(account.Coin())
+		coinDecimals := coin.DecimalsExp(account.Coin(), false)
 
 		// HACK: The latest prices might deviate from the latest historical prices (which can lag
 		// behind by many minutes), which results in different total balances in the chart and the

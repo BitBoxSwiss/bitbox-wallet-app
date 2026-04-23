@@ -15,6 +15,7 @@ import { getAccountsByKeystore } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms';
+import { NewBadge } from '@/components/new-badge/new-badge';
 import { ConnectedKeystore } from '../keystore/connected-keystore';
 import style from './sidebar.module.css';
 
@@ -150,12 +151,19 @@ const Sidebar = ({
             <div key="market" className={style.sidebarItem}>
               <NavLink
                 className={({ isActive }) => isActive || userInSpecificAccountMarketPage ? style.sidebarActive : ''}
-                to="/market/info">
+                to="/market/select">
                 <div className={style.single}>
                   <Coins />
                 </div>
-                <span className={style.sidebarLabel}>
+                <span className={`${style.sidebarLabel || ''} ${style.marketplaceLabel || ''}`}>
                   {t('generic.buySell')}
+                  <NewBadge
+                    className={style.marketplaceNudgeDot}
+                    configKey="hasSeenMarketplaceNudge"
+                    hideOnPathPrefix="/market/"
+                    pathname={pathname}
+                    type="dot"
+                  />
                 </span>
               </NavLink>
             </div>

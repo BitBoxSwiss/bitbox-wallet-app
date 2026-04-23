@@ -151,6 +151,10 @@ type Keystore interface {
 	// SupportsPaymentRequests returns nil if the device supports silent payments, or an error indicating why it is not supported.
 	SupportsPaymentRequests() error
 
+	// SupportsSwapPaymentRequests reports whether the device supports swap payment requests, or an
+	// error indicating why it is not supported.
+	SupportsSwapPaymentRequests() error
+
 	// Features reports optional capabilities supported by this keystore.
 	Features() *Features
 }

@@ -1,0 +1,87 @@
+.accountWithInputContainer {
+  background: var(--background-secondary);
+  border-color: var(--background-quaternary);
+  border-radius: var(--radius-xl);
+  border-style: solid;
+  border-width: var(--border-width);
+  display: flex;
+  margin-bottom: var(--space-half);
+  min-height: var(--input-height);
+}
+
+.accountSelectorCol {
+  flex-basis: 50%;
+  flex-grow: 0;
+  flex-shrink: 0;
+  max-width: 50%;
+}
+
+.accountSelectorDropdown {
+  margin-bottom: 0;
+}
+
+.inputCol {
+  align-items: flex-end;
+  border: 1px solid transparent;
+  border-top-right-radius: var(--radius-xl);
+  border-bottom-right-radius: var(--radius-xl);
+  display: flex;
+  flex-basis: 50%;
+  flex-direction: column;
+  flex-grow: 0;
+  flex-shrink: 0;
+  justify-content: center;
+  margin-bottom: 0;
+  max-width: 50%;
+}
+
+.inputCol:focus-within {
+  border: 1px solid var(--color-blue);
+}
+
+.inputField:has(input:invalid) {
+  border-color: transparent;
+}
+
+.inputCol:has(input:invalid:not(:focus)) {
+  border-color: var(--color-error);
+}
+
+.inputWithUnit {
+  align-items: baseline;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: var(--space-half);
+  width: 100%;
+}
+
+.inputUnit {
+  font-size: var(--size-small);
+  padding-left: .4ch;
+  white-space: nowrap;
+}
+
+.inputComponent {
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.inputComponent input {
+  border: none;
+  height: auto;
+  text-overflow: ellipsis;
+}
+
+.inputField {
+  border-radius: 0;
+}
+
+.fiat {
+  align-items: baseline;
+  color: var(--color-gray);
+  display: flex;
+  font-size: var(--size-small);
+  gap: .4ch;
+  min-height: 2rem;
+  padding-right: var(--space-half);
+}

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext } from 'react';
-import type { NativeCoinUnit, ConversionUnit } from '@/api/account';
+import type { CoinUnit, ConversionUnit } from '@/api/account';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
@@ -41,6 +41,23 @@ export const formatLocalizedAmount = (
       .replace(/[']/g, group) // replace group separator
       .replace('_', decimal)
   );
+};
+
+type TLocalizedNumberProps = {
+  number: string;
+};
+
+/**
+ * Converts a Swiss-formatted number string to the current locale format.
+ *
+ * @param number - Swiss-formatted number string
+ * @returns Locale-formatted number string
+ */
+export const LocalizedNumber = ({
+  number
+}: TLocalizedNumberProps) => {
+  const { decimal, group } = useContext(LocalizationContext);
+  return formatLocalizedAmount(number, group, decimal);
 };
 
 const formatBtc = (
@@ -87,7 +104,7 @@ const formatEth = (
 
 type TProps = {
   amount: string;
-  unit: NativeCoinUnit | ConversionUnit;
+  unit: CoinUnit | ConversionUnit;
   alwaysShowAmounts?: boolean;
   onMobileClick?: () => Promise<void>;
   maxDecimals?: number;

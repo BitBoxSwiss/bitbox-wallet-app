@@ -28,7 +28,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
@@ -38,6 +37,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -729,7 +729,7 @@ func TestSimulatorVerifyAddressETH(t *testing.T) {
 	})
 }
 
-func computePaymentRequestSighash(paymentRequest *accounts.PaymentRequest, slip44 uint32, outputValue uint64, outputAddress string) ([]byte, error) {
+func computePaymentRequestSighash(paymentRequest *paymentrequest.Request, slip44 uint32, outputValue uint64, outputAddress string) ([]byte, error) {
 
 	hashDataLenPrefixed := func(hasher hash.Hash, data []byte) {
 		_ = wire.WriteVarInt(hasher, 0, uint64(len(data)))
@@ -749,9 +749,13 @@ func computePaymentRequestSighash(paymentRequest *accounts.PaymentRequest, slip4
 
 	// memos
 	_ = wire.WriteVarInt(sighash, 0, uint64(len(paymentRequest.Memos)))
-	for _, textMemo := range paymentRequest.Memos {
+	for _, memo := range paymentRequest.Memos {
 		_ = binary.Write(sighash, binary.LittleEndian, uint32(1))
-		hashDataLenPrefixed(sighash, []byte(textMemo.Note))
+		noteBytes := []byte{}
+		if memo.Text != nil {
+			noteBytes = []byte(memo.Text.Note)
+		}
+		hashDataLenPrefixed(sighash, noteBytes)
 	}
 
 	// coinType
@@ -788,13 +792,15 @@ func TestSimulatorSignBTCPaymentRequest(t *testing.T) {
 		recipientOutput := txProposal.Psbt.UnsignedTx.TxOut[txProposal.OutIndex]
 		value := uint64(recipientOutput.Value)
 
-		paymentRequest := &accounts.PaymentRequest{
+		paymentRequest := &paymentrequest.Request{
 			RecipientName: "Test Merchant", // Hard-coded test merchant in simulator
 			Nonce:         nil,
 			TotalAmount:   value,
-			Memos: []accounts.TextMemo{
+			Memos: []paymentrequest.Memo{
 				{
-					Note: "TextMemo line1\nTextMemo line2",
+					Text: &paymentrequest.TextMemo{
+						Note: "TextMemo line1\nTextMemo line2",
+					},
 				},
 			},
 		}
@@ -841,4 +847,17 @@ CONFIRM SCREEN END`
 			},
 			time.Second, 10*time.Millisecond)
 	})
+}
+
+func TestComputePaymentRequestSighashNilTextMemo(t *testing.T) {
+	paymentRequest := &paymentrequest.Request{
+		RecipientName: "Test Merchant",
+		Memos: []paymentrequest.Memo{
+			{},
+		},
+	}
+
+	sighash, err := computePaymentRequestSighash(paymentRequest, 0, 1, "bc1q2q0j6gmfxynj40p0kxsr9jkagcvgpuqv2zgq8j")
+	require.NoError(t, err)
+	require.Len(t, sighash, sha256.Size)
 }

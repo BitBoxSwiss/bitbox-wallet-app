@@ -6,7 +6,7 @@
 .label {
     color: var(--color-gray-alt);
     line-height: 1.375;
-    margin: 0;
+    margin-top: var(--space-default);
     margin-bottom: var(--space-eight);
 }
 

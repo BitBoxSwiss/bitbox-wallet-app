@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { LineData } from 'lightweight-charts';
-import type { Slip24 } from 'request-address';
 import type { TDetailStatus } from './bitsurance';
+import type { ERC20CoinCode, ERC20TokenUnit } from './erc20';
 import type { SuccessResponse } from './response';
 import type { NonEmptyArray } from '@/utils/types';
 import { apiGet, apiPost } from '@/utils/request';
@@ -17,10 +17,6 @@ export type ConversionUnit = Fiat | 'sat';
 
 export type NativeCoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'RBTC' | 'tsat' | 'TLTC' | 'SEPETH';
 
-export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'DAI';
-
-export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 'eth-erc20-link' | 'eth-erc20-bat' | 'eth-erc20-mkr' | 'eth-erc20-zrx' | 'eth-erc20-wbtc' | 'eth-erc20-paxg' | 'eth-erc20-dai0x6b17';
-
 export type CoinCode = NativeCoinCode | ERC20CoinCode;
 
 export type CoinUnit = NativeCoinUnit | ERC20TokenUnit;
@@ -28,12 +24,6 @@ export type CoinUnit = NativeCoinUnit | ERC20TokenUnit;
 export type FiatWithDisplayName = {
   currency: Fiat;
   displayName: string;
-};
-
-export type Terc20Token = {
-  code: ERC20CoinCode;
-  name: string;
-  unit: ERC20TokenUnit;
 };
 
 export type TActiveToken = {
@@ -49,16 +39,19 @@ export type TKeystore = {
   connected: boolean;
 };
 
-export type TAccount = {
+export type TAccountBase = {
   keystore: TKeystore;
   active: boolean;
   coinCode: CoinCode;
-  coinUnit: NativeCoinUnit;
-  coinName: string;
+  coinUnit: CoinUnit;
   code: AccountCode;
   name: string;
   receiveScriptType?: ScriptType;
   isToken: boolean;
+};
+
+export type TAccount = TAccountBase & {
+  coinName: string;
   contractAddress?: string;
   activeTokens?: TActiveToken[];
   blockExplorerTxPrefix: string;
@@ -208,7 +201,7 @@ type Conversions = {
 export type TAmountWithConversions = {
   amount: string;
   conversions?: Conversions;
-  unit: NativeCoinUnit;
+  unit: CoinUnit;
   estimated: boolean;
 };
 
@@ -303,6 +296,35 @@ export type TReceiveAddress = {
 export type TReceiveAddressList = {
   scriptType: ScriptType | null;
   addresses: NonEmptyArray<TReceiveAddress>;
+};
+
+export type Slip24 = {
+  recipientName: string;
+  nonce: string | null;
+  memos: Array<{
+    type: 'text' | 'refund' | 'coinPurchase';
+    text?: string;
+    refund?: string;
+    coinPurchase?: {
+      coinType: number;
+      amount: string;
+      address: string;
+      addressDerivation?: {
+        eth?: {
+          keypath: number[];
+        };
+        btc?: {
+          keypath: number[];
+          scriptType: ScriptType;
+        };
+      };
+    };
+  }>;
+  outputs: Array<{
+    amount: number;
+    address: string;
+  }>;
+  signature: string;
 };
 
 export const getReceiveAddressList = (code: AccountCode) => {
@@ -420,6 +442,10 @@ type THasPaymentRequest = {
 
 export const hasPaymentRequest = (code: AccountCode): Promise<THasPaymentRequest> => {
   return apiGet(`account/${code}/has-payment-request`);
+};
+
+export const hasSwapPaymentRequest = (code: AccountCode): Promise<THasPaymentRequest> => {
+  return apiGet(`account/${code}/has-swap-payment-request`);
 };
 
 export type TAddAccount = {

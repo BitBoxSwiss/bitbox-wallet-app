@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getAccountsByKeystore } from '@/routes/account/utils';
 import * as accountAPI from '@/api/account';
+import { supportedERC20Tokens, type ERC20CoinCode } from '@/api/erc20';
 import * as backendAPI from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
 import { Button, Input, Label } from '@/components/forms';
@@ -45,23 +46,11 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
   const [showTokens, setShowTokens] = useState<TShowTokens>({});
   const [currentlyEditedAccount, setCurrentlyEditedAccount] = useState<accountAPI.TAccount | undefined>(undefined);
 
-  const erc20Tokens: Readonly<accountAPI.Terc20Token[]> = [
-    { code: 'eth-erc20-usdt', name: 'Tether USD', unit: 'USDT' },
-    { code: 'eth-erc20-usdc', name: 'USD Coin', unit: 'USDC' },
-    { code: 'eth-erc20-link', name: 'Chainlink', unit: 'LINK' },
-    { code: 'eth-erc20-bat', name: 'Basic Attention Token', unit: 'BAT' },
-    { code: 'eth-erc20-mkr', name: 'Maker', unit: 'MKR' },
-    { code: 'eth-erc20-zrx', name: '0x', unit: 'ZRX' },
-    { code: 'eth-erc20-wbtc', name: 'Wrapped Bitcoin', unit: 'WBTC' },
-    { code: 'eth-erc20-paxg', name: 'Pax Gold', unit: 'PAXG' },
-    { code: 'eth-erc20-dai0x6b17', name: 'Dai', unit: 'DAI' },
-  ];
-
   const renderTokens = (
     ethAccountCode: accountAPI.AccountCode,
     activeTokens?: accountAPI.TActiveToken[],
   ) => {
-    return erc20Tokens.map(token => {
+    return supportedERC20Tokens.map(token => {
       const activeToken = (activeTokens || []).find(t => t.tokenCode === token.code);
       const active = activeToken !== undefined;
       return (
@@ -86,7 +75,7 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
 
   const toggleToken = (
     ethAccountCode: accountAPI.AccountCode,
-    tokenCode: accountAPI.ERC20CoinCode,
+    tokenCode: ERC20CoinCode,
     active: boolean,
   ) => {
     backendAPI.setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {

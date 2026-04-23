@@ -4,6 +4,7 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -17,6 +18,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/banners"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
@@ -35,6 +37,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
@@ -62,6 +65,9 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() backend.AccountsList
+	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
+	SwapAccounts() (backend.SwapAccounts, error)
+	SwapStatus() backend.SwapStatus
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
 	AccountsFiatAndCoinBalance(backend.AccountsList, string) (*big.Rat, map[coinpkg.Code]*big.Int, error)
 	Keystore() keystore.Keystore
@@ -212,6 +218,8 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/swap/status", handlers.getSwapStatus).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
@@ -237,8 +245,9 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/market/region-codes", handlers.getMarketRegionCodes).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/deals/{action}/{code}", handlers.getMarketDeals).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/vendors/{code}", handlers.getMarketVendors).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/market/btcdirect-otc/supported/{code}", handlers.getMarketBtcDirectOTCSupported).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/btcdirect/info/{action}/{code}", handlers.getMarketBtcDirectInfo).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/swap/quote", handlers.postSwapkitQuote).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/swap/sign", handlers.postSwapSign).Methods("POST")
 	getAPIRouter(apiRouter)("/market/moonpay/buy-info/{code}", handlers.getMarketMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/pocket/api-url/{action}", handlers.getMarketPocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
@@ -378,68 +387,122 @@ type keystoreJSON struct {
 	Connected bool `json:"connected"`
 }
 
-type accountJSON struct {
+type accountBaseJSON struct {
 	// Multiple accounts can belong to the same keystore. For now we replicate the keystore info in
 	// the accounts. In the future the getAccountsHandler() could return the accounts grouped
 	// keystore.
-	Keystore                   keystoreJSON        `json:"keystore"`
-	Active                     bool                `json:"active"`
-	BitsuranceStatus           string              `json:"bitsuranceStatus"`
-	CoinCode                   coinpkg.Code        `json:"coinCode"`
-	CoinUnit                   string              `json:"coinUnit"`
-	CoinName                   string              `json:"coinName"`
-	Code                       accountsTypes.Code  `json:"code"`
-	Name                       string              `json:"name"`
-	ReceiveScriptType          *signing.ScriptType `json:"receiveScriptType,omitempty"`
-	IsToken                    bool                `json:"isToken"`
-	ContractAddress            string              `json:"contractAddress,omitempty"`
-	ActiveTokens               []activeToken       `json:"activeTokens,omitempty"`
-	BlockExplorerTxPrefix      string              `json:"blockExplorerTxPrefix"`
-	BlockExplorerAddressPrefix string              `json:"blockExplorerAddressPrefix,omitempty"`
+	Keystore          keystoreJSON        `json:"keystore"`
+	Active            bool                `json:"active"`
+	CoinCode          coinpkg.Code        `json:"coinCode"`
+	CoinUnit          string              `json:"coinUnit"`
+	Code              accountsTypes.Code  `json:"code"`
+	Name              string              `json:"name"`
+	ReceiveScriptType *signing.ScriptType `json:"receiveScriptType,omitempty"`
+	IsToken           bool                `json:"isToken"`
+}
+
+type accountJSON struct {
+	accountBaseJSON
+	BitsuranceStatus           string        `json:"bitsuranceStatus"`
+	CoinName                   string        `json:"coinName"`
+	ContractAddress            string        `json:"contractAddress,omitempty"`
+	ActiveTokens               []activeToken `json:"activeTokens,omitempty"`
+	BlockExplorerTxPrefix      string        `json:"blockExplorerTxPrefix"`
+	BlockExplorerAddressPrefix string        `json:"blockExplorerAddressPrefix,omitempty"`
 	// Number of the account per coin per keystore, starting at 0. Nil if unknown.
 	AccountNumber *uint16 `json:"accountNumber"`
 }
 
-func newAccountJSON(
+type swapAccountJSON struct {
+	accountBaseJSON
+	ParentAccountCode *accountsTypes.Code `json:"parentAccountCode,omitempty"`
+}
+
+func activeTokensJSON(account *config.Account, tokenCodes []string) []activeToken {
+	if account.CoinCode != coinpkg.CodeETH {
+		return nil
+	}
+	activeTokens := make([]activeToken, 0, len(tokenCodes))
+	for _, tokenCode := range tokenCodes {
+		activeTokens = append(activeTokens, activeToken{
+			TokenCode:   tokenCode,
+			AccountCode: backend.Erc20AccountCode(account.Code, tokenCode),
+		})
+	}
+	return activeTokens
+}
+
+func isTokenAccount(accountCoin coinpkg.Coin) bool {
+	ethCoin, ok := accountCoin.(*eth.Coin)
+	return ok && ethCoin.ERC20Token() != nil
+}
+
+func newAccountBaseJSON(
 	keystore config.Keystore,
-	account accounts.Interface,
-	activeTokens []activeToken,
-	keystoreConnected bool) *accountJSON {
-	eth, ok := account.Coin().(*eth.Coin)
-	isToken := ok && eth.ERC20Token() != nil
-	contractAddress := ""
-	blockExplorerAddressPrefix := ""
-	if isToken {
-		contractAddress = eth.ERC20Token().ContractAddress().Hex()
-		blockExplorerURLPrefix := eth.BlockExplorerURLPrefix()
-		if blockExplorerURLPrefix != "" {
-			blockExplorerAddressPrefix = blockExplorerURLPrefix + "address/"
-		}
-	}
-	var accountNumberPtr *uint16
-	accountNumber, err := account.Config().Config.SigningConfigurations.AccountNumber()
-	if err == nil {
-		accountNumberPtr = &accountNumber
-	}
-	return &accountJSON{
+	accountConfig *config.Account,
+	accountCoin coinpkg.Coin,
+	keystoreConnected bool,
+) accountBaseJSON {
+	return accountBaseJSON{
 		Keystore: keystoreJSON{
 			Keystore:  keystore,
 			Connected: keystoreConnected,
 		},
-		Active:                     !account.Config().Config.Inactive,
-		BitsuranceStatus:           account.Config().Config.InsuranceStatus,
-		CoinCode:                   account.Coin().Code(),
-		CoinUnit:                   account.Coin().Unit(false),
-		CoinName:                   account.Coin().Name(),
-		Code:                       account.Config().Config.Code,
-		Name:                       account.Config().Config.Name,
-		ReceiveScriptType:          account.Config().Config.ReceiveScriptType,
-		IsToken:                    isToken,
+		Active:            !accountConfig.Inactive,
+		CoinCode:          accountCoin.Code(),
+		CoinUnit:          accountCoin.Unit(false),
+		Code:              accountConfig.Code,
+		Name:              accountConfig.Name,
+		ReceiveScriptType: accountConfig.ReceiveScriptType,
+		IsToken:           isTokenAccount(accountCoin),
+	}
+}
+
+// newAccountJSON builds the generic account response.
+func newAccountJSON(
+	keystore config.Keystore,
+	accountConfig *config.Account,
+	accountCoin coinpkg.Coin,
+	activeTokens []activeToken,
+	keystoreConnected bool,
+) *accountJSON {
+	var accountNumberPtr *uint16
+	accountNumber, err := accountConfig.SigningConfigurations.AccountNumber()
+	if err == nil {
+		accountNumberPtr = &accountNumber
+	}
+
+	contractAddress := ""
+	blockExplorerAddressPrefix := ""
+	if ethCoin, ok := accountCoin.(*eth.Coin); ok && ethCoin.ERC20Token() != nil {
+		contractAddress = ethCoin.ERC20Token().ContractAddress().Hex()
+		blockExplorerURLPrefix := ethCoin.BlockExplorerURLPrefix()
+		if blockExplorerURLPrefix != "" {
+			blockExplorerAddressPrefix = blockExplorerURLPrefix + "address/"
+		}
+	}
+
+	return &accountJSON{
+		accountBaseJSON:            newAccountBaseJSON(keystore, accountConfig, accountCoin, keystoreConnected),
+		BitsuranceStatus:           accountConfig.InsuranceStatus,
+		CoinName:                   accountCoin.Name(),
 		ContractAddress:            contractAddress,
 		ActiveTokens:               activeTokens,
-		BlockExplorerTxPrefix:      account.Coin().BlockExplorerTransactionURLPrefix(),
+		BlockExplorerTxPrefix:      accountCoin.BlockExplorerTransactionURLPrefix(),
 		BlockExplorerAddressPrefix: blockExplorerAddressPrefix,
 		AccountNumber:              accountNumberPtr,
+	}
+}
+
+func newSwapAccountJSON(account backend.SwapAccount) swapAccountJSON {
+	return swapAccountJSON{
+		accountBaseJSON: newAccountBaseJSON(
+			account.Keystore,
+			account.AccountConfig,
+			account.AccountCoin,
+			account.KeystoreConnected,
+		),
+		ParentAccountCode: account.ParentAccountCode,
 	}
 }
 
@@ -668,17 +731,8 @@ func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 		if account.Config().Config.HiddenBecauseUnused {
 			continue
 		}
-		var activeTokens []activeToken
 
 		persistedAccount := account.Config().Config
-		if account.Coin().Code() == coinpkg.CodeETH {
-			for _, tokenCode := range persistedAccount.ActiveTokens {
-				activeTokens = append(activeTokens, activeToken{
-					TokenCode:   tokenCode,
-					AccountCode: backend.Erc20AccountCode(account.Config().Config.Code, tokenCode),
-				})
-			}
-		}
 
 		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
 		if err != nil {
@@ -701,9 +755,52 @@ func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 			}
 		}
 
-		accounts = append(accounts, newAccountJSON(*keystore, account, activeTokens, keystoreConnected))
+		accounts = append(accounts, newAccountJSON(
+			*keystore,
+			persistedAccount,
+			account.Coin(),
+			activeTokensJSON(persistedAccount, persistedAccount.ActiveTokens),
+			keystoreConnected,
+		))
 	}
 	return accounts
+}
+
+func (handlers *Handlers) getSwapAccounts(*http.Request) interface{} {
+	type response struct {
+		Success                bool                `json:"success"`
+		ErrorMessage           string              `json:"errorMessage,omitempty"`
+		SellAccounts           []swapAccountJSON   `json:"sellAccounts"`
+		BuyAccounts            []swapAccountJSON   `json:"buyAccounts"`
+		DefaultSellAccountCode *accountsTypes.Code `json:"defaultSellAccountCode,omitempty"`
+		DefaultBuyAccountCode  *accountsTypes.Code `json:"defaultBuyAccountCode,omitempty"`
+	}
+
+	swapAccounts, err := handlers.backend.SwapAccounts()
+	if err != nil {
+		return response{
+			Success:      false,
+			ErrorMessage: err.Error(),
+		}
+	}
+	result := response{
+		Success:                true,
+		SellAccounts:           make([]swapAccountJSON, len(swapAccounts.SellAccounts)),
+		BuyAccounts:            make([]swapAccountJSON, len(swapAccounts.BuyAccounts)),
+		DefaultSellAccountCode: swapAccounts.DefaultSellAccountCode,
+		DefaultBuyAccountCode:  swapAccounts.DefaultBuyAccountCode,
+	}
+	for i, account := range swapAccounts.SellAccounts {
+		result.SellAccounts[i] = newSwapAccountJSON(account)
+	}
+	for i, account := range swapAccounts.BuyAccounts {
+		result.BuyAccounts[i] = newSwapAccountJSON(account)
+	}
+	return result
+}
+
+func (handlers *Handlers) getSwapStatus(*http.Request) interface{} {
+	return handlers.backend.SwapStatus()
 }
 
 func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
@@ -948,7 +1045,7 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 		}
 	}
 
-	coinUnitAmount := new(big.Rat).SetFloat64(currentCoin.ToUnit(coinAmount, false))
+	coinUnitAmount := coinpkg.ToUnitRat(coinAmount, currentCoin, false)
 
 	coinUnit := currentCoin.Unit(false)
 	rate := handlers.backend.RatesUpdater().LatestPrice()[coinUnit][currency]
@@ -1313,34 +1410,6 @@ func (handlers *Handlers) getMarketDeals(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getMarketBtcDirectOTCSupported(r *http.Request) interface{} {
-	type Result struct {
-		Supported bool `json:"supported"`
-		Success   bool `json:"success"`
-	}
-	type errorResult struct {
-		Success bool `json:"success"`
-	}
-
-	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
-	if err != nil {
-		handlers.log.Error(err)
-		return errorResult{Success: false}
-	}
-
-	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
-	if !accountValid {
-		handlers.log.Error("Account not valid")
-		return errorResult{Success: false}
-	}
-
-	regionCode := r.URL.Query().Get("region")
-	return Result{
-		Success:   true,
-		Supported: market.IsBtcDirectOTCSupportedForCoinInRegion(acct.Coin().Code(), regionCode),
-	}
-}
-
 func (handlers *Handlers) getMarketVendors(r *http.Request) interface{} {
 	type vendors struct {
 		Vendors []string `json:"vendors"`
@@ -1362,12 +1431,17 @@ func (handlers *Handlers) getMarketVendors(r *http.Request) interface{} {
 	}
 	if market.IsPocketSupported(acct.Coin().Code()) {
 		supported.Vendors = append(supported.Vendors, market.PocketName)
+		supported.Vendors = append(supported.Vendors, market.PocketOTCName)
 	}
 	if market.IsBtcDirectSupported(acct.Coin().Code()) {
 		supported.Vendors = append(supported.Vendors, market.BTCDirectName)
+		supported.Vendors = append(supported.Vendors, market.BTCDirectOTCName)
 	}
 	if market.IsBitrefillSupported(acct.Coin().Code()) {
 		supported.Vendors = append(supported.Vendors, market.BitrefillName)
+	}
+	if market.IsSwapKitSupported(acct.Coin().Code()) {
+		supported.Vendors = append(supported.Vendors, market.SwapKitName)
 	}
 
 	return supported
@@ -1759,4 +1833,115 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 		}
 	}
 	return response{Success: err == nil}
+}
+
+func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
+	type result struct {
+		Success           bool                     `json:"success"`
+		ErrorMessage      string                   `json:"errorMessage,omitempty"`
+		ExpectedBuyAmount string                   `json:"expectedBuyAmount,omitempty"`
+		SwapID            string                   `json:"swapId,omitempty"`
+		TxInput           *backend.SwapSignTxInput `json:"txInput,omitempty"`
+	}
+
+	var request struct {
+		BuyAccountCode  accountsTypes.Code `json:"buyAccountCode"`
+		RouteID         string             `json:"routeId"`
+		SellAccountCode accountsTypes.Code `json:"sellAccountCode"`
+		SellAmount      string             `json:"sellAmount"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return result{Success: false, ErrorMessage: "Request body is required and must be a valid JSON object."}
+	}
+	if request.BuyAccountCode == "" {
+		return result{Success: false, ErrorMessage: "buyAccountCode is required."}
+	}
+	if request.SellAccountCode == "" {
+		return result{Success: false, ErrorMessage: "sellAccountCode is required."}
+	}
+	if request.RouteID == "" {
+		return result{Success: false, ErrorMessage: "routeId is required."}
+	}
+	if request.SellAmount == "" {
+		return result{Success: false, ErrorMessage: "sellAmount is required."}
+	}
+	swapResult, err := handlers.backend.PrepareSwap(
+		request.BuyAccountCode,
+		request.SellAccountCode,
+		request.RouteID,
+		request.SellAmount,
+	)
+	if err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
+
+	return result{
+		Success:           true,
+		ExpectedBuyAmount: swapResult.ExpectedBuyAmount,
+		SwapID:            swapResult.SwapID,
+		TxInput:           &swapResult.TxInput,
+	}
+}
+
+func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
+	type result struct {
+		Success      bool                   `json:"success"`
+		ErrorCode    errp.ErrorCode         `json:"errorCode,omitempty"`
+		ErrorMessage string                 `json:"errorMessage,omitempty"`
+		Quote        *swapkit.QuoteResponse `json:"quote,omitempty"`
+	}
+	errorResult := func(code errp.ErrorCode, message string) result {
+		return result{
+			Success:      false,
+			ErrorCode:    code,
+			ErrorMessage: message,
+		}
+	}
+
+	var request struct {
+		SellAccountCode accountsTypes.Code `json:"sellAccountCode"`
+		SellCoinCode    string             `json:"sellCoinCode"`
+		BuyCoinCode     string             `json:"buyCoinCode"`
+		SellAmount      string             `json:"sellAmount"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return errorResult(swapkit.ErrInvalidRequest, "Request body is required and must be a valid JSON object.")
+	}
+	sellAmount := request.SellAmount
+	if request.SellAccountCode != "" {
+		account, err := handlers.backend.GetAccountFromCode(request.SellAccountCode)
+		if err != nil {
+			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+		}
+		parsedAmount, err := account.Coin().ParseAmount(request.SellAmount)
+		if err != nil {
+			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+		}
+		if err := swapkit.ValidateSwapSellAmount(account, parsedAmount); err != nil {
+			if validationErr, ok := errp.Cause(err).(accountErrors.TxValidationError); ok {
+				return errorResult(errp.ErrorCode(validationErr.Error()), validationErr.Error())
+			}
+			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+		}
+		sellAmount, err = swapkit.FormatAmount(account.Coin(), request.SellAmount)
+		if err != nil {
+			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+		}
+	}
+	quoteResponse, quoteError := swapkit.NewQuoteFromCoinCode(
+		context.Background(),
+		handlers.backend.HTTPClient(),
+		request.SellCoinCode,
+		request.BuyCoinCode,
+		sellAmount,
+	)
+	if quoteError != nil {
+		return errorResult(quoteError.ErrorCode, quoteError.Message)
+	}
+	return result{
+		Success: true,
+		Quote:   quoteResponse,
+	}
 }

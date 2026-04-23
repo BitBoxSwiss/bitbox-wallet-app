@@ -128,7 +128,14 @@ func TestAccounts(t *testing.T) {
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
 	require.True(t, b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
 
-	// 7) Rename an inactive account.
+	// 7) Reactivating a token also reactivates the parent ETH account.
+	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-bat", true))
+	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Inactive)
+	require.False(t, b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
+	require.False(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
+
+	// 8) Rename an inactive account.
+	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
 	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH Renamed"))
 	require.Equal(t, "My ETH Renamed", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
 	require.Equal(t, "My ETH Renamed", b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Name)

@@ -29,6 +29,7 @@
 }
 
 /*Hovered option color*/
+.select :global(.react-select__option--is-focused),
 .select :global(.react-select__option):hover {
     background-color: var(--background-tap-active);
 }
@@ -54,5 +55,6 @@
 
 .select :global(.react-select__control--is-focused) {
     border-color: transparent !important;
+    /* using box-shadow instead of border here fixes an ugly Windows rendering bug */
     box-shadow: 0 0 0 1px var(--color-blue) !important;
 }

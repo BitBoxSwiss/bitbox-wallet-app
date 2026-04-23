@@ -185,7 +185,7 @@ func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
 
 // ToUnit implements coinpkg.Coin.
 func (coin *Coin) ToUnit(amount coinpkg.Amount, isFee bool) float64 {
-	result, _ := new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).Float64()
+	result, _ := coinpkg.ToUnitRat(amount, coin, isFee).Float64()
 	return result
 }
 
