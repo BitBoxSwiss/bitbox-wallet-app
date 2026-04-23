@@ -152,7 +152,9 @@ export const SwapServiceSelector = ({
     value: route.routeId,
   })) : [];
 
-  const selectedOption = options.find(option => option.value === selectedRouteId) || options[0];
+  const selectedOption = selectedRouteId
+    ? options.find(option => option.value === selectedRouteId)
+    : undefined;
   const hasMultipleRoutes = options.length > 1;
 
   return (
