@@ -69,22 +69,26 @@ struct Provider: TimelineProvider {
     }
 
     private func triggerPrefetchIfNeeded(coins: [String], excluding coinCode: String, currency: String) {
-        guard shouldPrefetch(coins: coins),
+        guard shouldPrefetch(coins: coins, currency: currency),
               let defaults = WidgetAppGroupStore.sharedDefaults() else {
             return
         }
-        defaults.set(Date().timeIntervalSince1970, forKey: WidgetShared.Keys.lastPrefetchTimestamp)
+        defaults.set(Date().timeIntervalSince1970, forKey: Self.prefetchTimestampKey(currency: currency))
         Task.detached(priority: .utility) {
             await prefetchAdditionalCoins(coins: coins, excluding: coinCode, currency: currency)
         }
     }
 
-    private func shouldPrefetch(coins: [String]) -> Bool {
+    private func shouldPrefetch(coins: [String], currency: String) -> Bool {
         guard coins.count > 1, let defaults = WidgetAppGroupStore.sharedDefaults() else {
             return false
         }
-        let last = defaults.double(forKey: WidgetShared.Keys.lastPrefetchTimestamp)
+        let last = defaults.double(forKey: Self.prefetchTimestampKey(currency: currency))
         return Date().timeIntervalSince1970 - last >= WidgetShared.Cache.prefetchTTL
+    }
+
+    private static func prefetchTimestampKey(currency: String) -> String {
+        "\(WidgetShared.Keys.lastPrefetchTimestamp)_\(currency.uppercased())"
     }
 
     private func prefetchAdditionalCoins(coins: [String], excluding selectedCoin: String, currency: String) async {
