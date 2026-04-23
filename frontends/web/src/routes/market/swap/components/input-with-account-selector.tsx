@@ -61,7 +61,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
         fiatUnit: defaultCurrency,
       })
         .then(response => {
-          if (requestId !== requestIdRef.current || !isMounted) {
+          if (requestId !== requestIdRef.current || !isMounted.current) {
             return;
           }
 
@@ -72,7 +72,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
           }
         })
         .catch(() => {
-          if (requestId !== requestIdRef.current || !isMounted) {
+          if (requestId !== requestIdRef.current || !isMounted.current) {
             return;
           }
           setEstimatedFiatValue(null);
