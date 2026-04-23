@@ -72,6 +72,12 @@ export const AccountGuide = ({
         text: t('guide.accountTransactionConfirmation.text'),
         title: t('guide.accountTransactionConfirmation.title'),
       }} />
+      {hasTransactions && (
+        <Entry key="accountTransactionEstimation" entry={{
+          text: t('guide.accountTransactionEstimation.text'),
+          title: t('guide.accountTransactionEstimation.title'),
+        }} />
+      )}
       <Entry key="accountFiat" entry={{
         text: t('guide.accountFiat.text'),
         title: t('guide.accountFiat.title'),
