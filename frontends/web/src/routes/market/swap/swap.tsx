@@ -228,6 +228,11 @@ export const Swap = ({
     const buyCoinCode = buyAccount?.coinCode;
     const amount = Number(sellAmount);
 
+    setRoutes([]);
+    setSelectedRouteId(undefined);
+    setExpectedOutput('');
+    setExpectedOutputUnit(undefined);
+
     if (
       !sellCoinCode
       || !buyCoinCode

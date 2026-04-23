@@ -244,4 +244,54 @@ describe('routes/market/swap', () => {
       });
     });
   });
+
+  it('disables swap button immediately when sell amount changes', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(swapApi.getSwapQuote)
+      .mockResolvedValueOnce({
+        success: true,
+        quote: {
+          routes: [{
+            expectedBuyAmount: '1.23',
+            providers: ['thorchain', 'mayachain'],
+            routeId: 'route-1',
+          }],
+        },
+      })
+      .mockImplementationOnce(() => new Promise(() => {}));
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[sellAccount, buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+
+    const sellAmountInput = await screen.findByLabelText('swapSendAmount');
+    const swapButton = screen.getByRole('button', { name: 'Swap' });
+
+    await user.type(sellAmountInput, '1');
+
+    await waitFor(() => expect(swapButton).toBeEnabled());
+    expect(screen.getByText('THORChain + Mayachain')).toBeInTheDocument();
+
+    await user.type(sellAmountInput, '2');
+
+    expect(swapButton).toBeDisabled();
+    expect(screen.queryByText('THORChain + Mayachain')).not.toBeInTheDocument();
+  });
 });
