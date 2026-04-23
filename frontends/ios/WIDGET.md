@@ -13,8 +13,6 @@ The main BitBoxApp also supports:
 - Testnet coins (`tbtc`, `tltc`, `sepeth`)  the widget normalizes these to their mainnet equivalent (`btc`, `ltc`, `eth`) for price lookup.
 - Individual ERC20 tokens (USDT, DAI, LINK, etc.) prices are **not** shown.
 
-To add a new coin, add an entry to the `table` in `WidgetCoinMetadata.swift` with its geckoID, logo asset, icon, and color.
-
 ---
 
 ## 1. Where the coin list and currency come from
