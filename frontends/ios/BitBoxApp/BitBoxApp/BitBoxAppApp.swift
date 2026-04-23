@@ -207,8 +207,21 @@ struct BitBoxAppApp: App {
                         }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
-                        Task.detached(priority: .utility) {
+                        var bgTask: UIBackgroundTaskIdentifier = .invalid
+                        bgTask = UIApplication.shared.beginBackgroundTask(withName: "WidgetSync") {
+                            if bgTask != .invalid {
+                                UIApplication.shared.endBackgroundTask(bgTask)
+                                bgTask = .invalid
+                            }
+                        }
+                        Task.detached(priority: .userInitiated) {
                             widgetSync.sync()
+                            await MainActor.run {
+                                if bgTask != .invalid {
+                                    UIApplication.shared.endBackgroundTask(bgTask)
+                                    bgTask = .invalid
+                                }
+                            }
                         }
                     }
             }

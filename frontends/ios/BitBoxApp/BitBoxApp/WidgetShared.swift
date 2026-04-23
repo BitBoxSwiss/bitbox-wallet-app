@@ -14,13 +14,11 @@ enum WidgetShared {
         static let rawMainFiat = "rawMainFiat"
         static let sharedCoins = "activeCoins"
         static let selectedCoinIndex = "selectedCoinIndex"
-        static let lastPrefetchTimestamp = "lastWidgetPrefetchTimestamp"
     }
 
     enum Cache {
         static let priceDataPrefix = "cachedPriceData"
         static let priceTTL: TimeInterval = 3600
-        static let prefetchTTL: TimeInterval = 15 * 60
     }
 
     static func normalizeCoinCode(_ code: String) -> String {

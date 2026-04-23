@@ -79,13 +79,12 @@ When the widget refreshes, it follows this order:
 
 1. **Check cache** for the selected coin + currency.
 2. **If exact match found** (same coin AND same currency, not expired):
-   - Show the cached data immediately (no waiting).
-   - Kick off a background network fetch to refresh the cache for next time.
+   - Show the cached data immediately (no waiting). The next iOS-scheduled timeline reload will refresh it inline.
 3. **If no match** (cache miss, wrong currency, or expired):
    - Fetch from the network (blocking - the widget waits for the response).
    - If the network fails, try the cache as a last resort (even a different currency).
 
-This means coin switching should feel instant since cached data is served right away.
+Switching to a coin with a warm cache feels instant. The first switch to a coin whose cache is cold (or expired) performs one inline fetch before rendering.
 
 ### Fallback chain
 
@@ -97,15 +96,7 @@ If the network fetch fails:
 
 ---
 
-## 5. Prefetching other coins
-
-After the displayed coin's data is ready, the widget prefetches prices for all other active coins in the background. This way, switching to another coin is fast.
-
-Prefetching is throttled to **once every 15 minutes** to save battery and network. The timestamp is set before the fetch task is spawned, so transient network failures don't trigger a retry storm.
-
----
-
-## 6. Refresh schedule
+## 5. Refresh schedule
 
 - iOS calls the widget's timeline roughly **every 15 minutes**. This is not exact - iOS controls the actual timing based on widget budget, battery, and usage patterns.
 - If a network fetch fails, the widget asks iOS to retry in **1 minute**.
@@ -128,7 +119,7 @@ accounts.json ┘        │                     │
                reload timelines     cache hit?    cache miss?
                                        │              │
                                   show cached     fetch from API
-                                  + bg fetch      + save to cache
+                                                   + save to cache
                                        │              │
                                        ▼              ▼
                                    Widget UI      Widget UI

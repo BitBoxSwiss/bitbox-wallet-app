@@ -40,7 +40,6 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> Void) {
-        let coins = WidgetAppGroupStore.activeCoins()
         let coinCode = WidgetAppGroupStore.selectedCoinCode()
         let currency = WidgetAppGroupStore.userCurrency()
 
@@ -51,10 +50,6 @@ struct Provider: TimelineProvider {
             let entry = resolvedEntry(for: coinCode, currency: currency, data: exactCacheHit)
             let nextUpdate = Date().addingTimeInterval(15 * 60)
             completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
-            Task.detached(priority: .utility) {
-                _ = await dataService.fetchChartData(coinCode: coinCode, currency: currency)
-            }
-            triggerPrefetchIfNeeded(coins: coins, excluding: coinCode, currency: currency)
         } else {
             Task {
                 let fetched = await dataService.fetchChartData(coinCode: coinCode, currency: currency)
@@ -63,37 +58,7 @@ struct Provider: TimelineProvider {
                 let retryMinutes = fetched == nil ? 1 : 15
                 let nextUpdate = Date().addingTimeInterval(TimeInterval(retryMinutes * 60))
                 completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
-                triggerPrefetchIfNeeded(coins: coins, excluding: coinCode, currency: currency)
             }
-        }
-    }
-
-    private func triggerPrefetchIfNeeded(coins: [String], excluding coinCode: String, currency: String) {
-        guard shouldPrefetch(coins: coins, currency: currency),
-              let defaults = WidgetAppGroupStore.sharedDefaults() else {
-            return
-        }
-        defaults.set(Date().timeIntervalSince1970, forKey: Self.prefetchTimestampKey(currency: currency))
-        Task.detached(priority: .utility) {
-            await prefetchAdditionalCoins(coins: coins, excluding: coinCode, currency: currency)
-        }
-    }
-
-    private func shouldPrefetch(coins: [String], currency: String) -> Bool {
-        guard coins.count > 1, let defaults = WidgetAppGroupStore.sharedDefaults() else {
-            return false
-        }
-        let last = defaults.double(forKey: Self.prefetchTimestampKey(currency: currency))
-        return Date().timeIntervalSince1970 - last >= WidgetShared.Cache.prefetchTTL
-    }
-
-    private static func prefetchTimestampKey(currency: String) -> String {
-        "\(WidgetShared.Keys.lastPrefetchTimestamp)_\(currency.uppercased())"
-    }
-
-    private func prefetchAdditionalCoins(coins: [String], excluding selectedCoin: String, currency: String) async {
-        for coin in coins where coin != selectedCoin {
-            _ = await dataService.fetchChartData(coinCode: coin, currency: currency)
         }
     }
 
