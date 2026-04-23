@@ -7,6 +7,8 @@ enum WidgetShared {
 
     static let invalidGeckoCurrencies: Set<String> = ["BTC", "sat"]
 
+    static let supportedCoinCodes: Set<String> = ["btc", "ltc", "eth"]
+
     enum Keys {
         static let sharedCurrency = "mainFiat"
         static let rawMainFiat = "rawMainFiat"

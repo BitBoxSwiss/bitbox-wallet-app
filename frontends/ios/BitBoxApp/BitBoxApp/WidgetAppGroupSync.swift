@@ -21,6 +21,9 @@ struct WidgetAppGroupSync {
     }
 
     func sync() {
+        #if TARGET_TESTNET
+        return
+        #else
         let appSupportDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         guard let defaults = UserDefaults(suiteName: WidgetShared.appGroupID) else {
             return
@@ -53,7 +56,10 @@ struct WidgetAppGroupSync {
                     continue
                 }
                 if let code = account.coinCode {
-                    coinSet.insert(WidgetShared.normalizeCoinCode(code))
+                    let normalized = WidgetShared.normalizeCoinCode(code)
+                    if WidgetShared.supportedCoinCodes.contains(normalized) {
+                        coinSet.insert(normalized)
+                    }
                 }
             }
 
@@ -67,5 +73,6 @@ struct WidgetAppGroupSync {
         if changed {
             WidgetCenter.shared.reloadAllTimelines()
         }
+        #endif
     }
 }

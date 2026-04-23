@@ -936,12 +936,10 @@
 		};
 		AAAA0001000000000000000B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D700B5F82C888CB9000496D4 /* Config.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = BitBoxAppWidget/BitBoxAppWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XK248TQN88;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BitBoxAppWidget/Info.plist;
@@ -953,7 +951,6 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = swiss.bitbox.BitBoxApp.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -965,12 +962,10 @@
 		};
 		AAAA0001000000000000000C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D700B5F82C888CB9000496D4 /* Config.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = BitBoxAppWidget/BitBoxAppWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XK248TQN88;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BitBoxAppWidget/Info.plist;
@@ -982,7 +977,6 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = swiss.bitbox.BitBoxApp.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
