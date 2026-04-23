@@ -50,7 +50,6 @@ export const Market = ({
   const [info, setInfo] = useState<TInfoContentProps>();
   const [supportedAccounts, setSupportedAccounts] = useState<TAccount[]>([]);
   const [activeTab, setActiveTab] = useState<marketAPI.TMarketAction>('buy');
-  const [pendingSwapNavigation, setPendingSwapNavigation] = useState(false);
 
   const regionCodes = useLoad(marketAPI.getMarketRegionCodes);
   const nativeLocale = useLoad(getNativeLocale);
@@ -68,22 +67,6 @@ export const Market = ({
   const {
     agreedTerms: agreedPocketOTCTerms,
   } = useVendorTerms(!!config?.frontend?.skipPocketOTCDisclaimer);
-
-  // finish pending swap navigation after a keystore connection attempt resolves.
-  useEffect(() => {
-    if (!pendingSwapNavigation) {
-      return;
-    }
-    if (swapStatus?.connectedKeystore === 'multi') {
-      setPendingSwapNavigation(false);
-      navigate('/market/swap');
-      return;
-    }
-    if (swapStatus?.connectedKeystore === 'btc-only') {
-      setPendingSwapNavigation(false);
-      alertUser(t('connectKeystore.swapHint'));
-    }
-  }, [navigate, pendingSwapNavigation, swapStatus, t]);
 
   // keep account list in sync and ensure a valid selected account.
   useEffect(() => {
@@ -143,6 +126,23 @@ export const Market = ({
     }
   };
 
+  const handleGoToSwap = async () => {
+    const connectResult = await connectAnyKeystore();
+    if (!connectResult.success) {
+      return;
+    }
+
+    const currentSwapStatus = await getSwapStatus();
+    if (currentSwapStatus.connectedKeystore === 'multi') {
+      navigate('/market/swap');
+      return;
+    }
+    if (currentSwapStatus.connectedKeystore === 'btc-only') {
+      alertUser(t('connectKeystore.swapHint'));
+    }
+  };
+
+
   const getDealReponse = (action: marketAPI.TMarketAction) => {
     switch (action) {
     case 'buy':
@@ -179,14 +179,7 @@ export const Market = ({
     }
     switch (activeTab) {
     case 'swap':
-      if (swapStatus?.connectedKeystore === 'multi') {
-        navigate('/market/swap');
-        return;
-      }
-      const connectResult = await connectAnyKeystore();
-      if (connectResult.success) {
-        setPendingSwapNavigation(true);
-      }
+      await handleGoToSwap();
       return;
     case 'otc':
       switch (vendor) {
