@@ -173,6 +173,10 @@ export const Market = ({
     }
   };
 
+  const handleChangeTab = (tab: marketAPI.TMarketAction) => {
+    setActiveTab(tab);
+  };
+
   const goToVendor = async (vendor: marketAPI.TVendorName) => {
     if (!vendor) {
       return;
@@ -247,7 +251,7 @@ export const Market = ({
                 {regions.length ? (
                   <>
                     <MarketTab
-                      onChangeTab={setActiveTab}
+                      onChangeTab={handleChangeTab}
                       activeTab={activeTab}
                       showSwap={!!swapStatus?.available}
                     />
