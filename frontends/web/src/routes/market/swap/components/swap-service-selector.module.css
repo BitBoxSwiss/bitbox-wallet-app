@@ -67,11 +67,6 @@
     padding: 0 var(--space-eight);
 }
 
-.select :global(.react-select__menu) {
-    background-color: var(--background-secondary);
-    z-index: 99;
-}
-
 .select :global(.react-select__menu) .swapServiceOption {
     padding: 0 var(--space-half);
 }

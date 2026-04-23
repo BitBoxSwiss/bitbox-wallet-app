@@ -29,6 +29,7 @@
 }
 
 /*Hovered option color*/
+.select :global(.react-select__option--is-focused),
 .select :global(.react-select__option):hover {
     background-color: var(--background-tap-active);
 }

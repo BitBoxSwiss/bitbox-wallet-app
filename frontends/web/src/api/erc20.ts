@@ -4,13 +4,13 @@ export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 
 
 export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'DAI';
 
-export type Terc20Token = {
+type TERC20Token = {
   code: ERC20CoinCode;
   name: string;
   unit: ERC20TokenUnit;
 };
 
-export const supportedERC20Tokens: Readonly<Terc20Token[]> = [
+export const supportedERC20Tokens: Readonly<TERC20Token[]> = [
   { code: 'eth-erc20-usdt', name: 'Tether USD', unit: 'USDT' },
   { code: 'eth-erc20-usdc', name: 'USD Coin', unit: 'USDC' },
   { code: 'eth-erc20-link', name: 'Chainlink', unit: 'LINK' },

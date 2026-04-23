@@ -143,19 +143,6 @@ export const Market = ({
     }
   };
 
-  // catch edge to change to spend tab for regions that dont have any buy or sell offerings
-  useEffect(() => {
-    const noBuy = buyDealsResponse !== undefined && (!buyDealsResponse.success || buyDealsResponse.deals.length === 0);
-    const noSell = sellDealsResponse !== undefined && (!sellDealsResponse?.success || sellDealsResponse.deals.length === 0);
-    const hasSpend = spendDealsResponse?.success && spendDealsResponse.deals.length > 0;
-    if (noBuy && noSell && hasSpend) {
-      setActiveTab('spend');
-    }
-  }, [
-    selectedRegion, // react to region changes
-    buyDealsResponse, sellDealsResponse, spendDealsResponse
-  ]);
-
   const getDealReponse = (action: marketAPI.TMarketAction) => {
     switch (action) {
     case 'buy':

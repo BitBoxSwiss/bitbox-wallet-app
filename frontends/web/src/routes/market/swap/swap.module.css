@@ -11,7 +11,7 @@
   margin-bottom: 0;
 }
 
-.maxButton {
+.max {
     color: var(--color-gray);
     display: flex;
     font-size: var(--size-small);
@@ -28,7 +28,7 @@
   text-align: center;
 }
 
-.flipAcconutsButton {
+.flipAccountsButton {
   margin-left: -21px;
   margin-top: -10px;
   min-height: auto;
@@ -38,13 +38,13 @@
 }
 
 @media (max-width: 768px) {
-  .flipAcconutsButton {
+  .flipAccountsButton {
     min-width: 90px;
     margin-left: -45px;
   }
 }
 
-.flipAcconutsIcon {
+.flipAccountsIcon {
   display: inline-block;
   transform: rotate(90deg);
 }

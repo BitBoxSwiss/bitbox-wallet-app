@@ -14,8 +14,9 @@ export const FeedbackLink = () => {
       icon={<ExternalLinkGray />}
       settingName={t('newSettings.about.feedbackLink.title')}
       secondaryText={t('newSettings.about.feedbackLink.description')}
-      title="https://bitbox.swiss/feedback/"
+      title={getFeedbackLink()}
       onClick={() => open(getFeedbackLink())}
     />
   );
 };
+

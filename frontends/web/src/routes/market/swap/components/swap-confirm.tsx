@@ -11,11 +11,11 @@ import { Column, Grid } from '@/components/layout';
 import { FiatValue } from '@/components/amount/fiat-value';
 import style from './swap-confirm.module.css';
 
-type TProp = {
+type TProps = {
   isConfirming: boolean;
-  expectedOutput: TAmountWithConversions | undefined;
-  feeAmount: TAmountWithConversions | undefined;
-  sellAmount: TAmountWithConversions | undefined;
+  expectedOutput: TAmountWithConversions;
+  feeAmount: TAmountWithConversions;
+  sellAmount: TAmountWithConversions;
 };
 
 export const ConfirmSwap = ({
@@ -23,7 +23,7 @@ export const ConfirmSwap = ({
   expectedOutput,
   feeAmount,
   sellAmount,
-}: TProp) => {
+}: TProps) => {
   const { t } = useTranslation();
   const isSmall = useMediaQuery('(max-width: 320px)');
 
@@ -43,14 +43,12 @@ export const ConfirmSwap = ({
             {t('generic.swap')}
           </Column>
           <Column textAlign="start" className={style.confirmItem}>
-            {sellAmount ? (
-              <span className={style.valueOriginalLarge}>
-                <AmountWithUnit
-                  amount={sellAmount}
-                  enableRotateUnit
-                />
-              </span>
-            ) : 'N/A'}
+            <span className={style.valueOriginalLarge}>
+              <AmountWithUnit
+                amount={sellAmount}
+                enableRotateUnit
+              />
+            </span>
           </Column>
           <Column textAlign="end" className={style.confirmItem}>
             <span className={style.valueOriginalLarge}>
@@ -64,12 +62,10 @@ export const ConfirmSwap = ({
             <small>{t('transactions.fee')}</small>
           </Column>
           <Column textAlign="start" className={style.confirmItem}>
-            {feeAmount ? (
-              <AmountWithUnit
-                amount={feeAmount}
-                enableRotateUnit
-              />
-            ) : 'N/A'}
+            <AmountWithUnit
+              amount={feeAmount}
+              enableRotateUnit
+            />
           </Column>
           <Column textAlign="end" className={style.confirmItem}>
             <FiatValue
@@ -81,14 +77,12 @@ export const ConfirmSwap = ({
             {t('generic.receiveWithoutCoinCode')}
           </Column>
           <Column textAlign="start" className={style.confirmItem}>
-            {expectedOutput ? (
-              <span className={style.valueOriginalLarge}>
-                <AmountWithUnit
-                  amount={expectedOutput}
-                  enableRotateUnit
-                />
-              </span>
-            ) : 'N/A'}
+            <span className={style.valueOriginalLarge}>
+              <AmountWithUnit
+                amount={expectedOutput}
+                enableRotateUnit
+              />
+            </span>
           </Column>
           <Column textAlign="end" className={style.confirmItem}>
             <span className={style.valueOriginalLarge}>
