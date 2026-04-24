@@ -344,7 +344,7 @@ export const Send = ({
 
   // when user types in the input field or selects from dropdown
   const handleRecipientInputChange = (input: string) => {
-    setRecipientInput(input);
+    setRecipientInput(input.replace(/\s/g, ''));
     setRecipientDisplayAddress('');
     setUpdateFiat(true);
     setSelectedReceiverAccount(null);
@@ -367,6 +367,7 @@ export const Send = ({
     } catch {
       qrAddress = uri;
     }
+    qrAddress = qrAddress.replace(/\s/g, '');
 
     if (qrAmount) {
       if (account.coinCode === 'btc' || account.coinCode === 'tbtc') {
