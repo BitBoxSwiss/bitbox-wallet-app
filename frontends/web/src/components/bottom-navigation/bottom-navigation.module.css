@@ -59,8 +59,12 @@
     border-radius: var(--radius-full);
     display: inline-block;
     flex-shrink: 0;
-    height: 6px;
-    width: 6px;
+    height: 8px;
+    left: -2px;
+    max-width: 8px;
+    position: relative;
+    width: 8px;
+    top: -7px;
 }
 
 @media (max-width: 768px) {
