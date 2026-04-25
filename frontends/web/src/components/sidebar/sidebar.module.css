@@ -205,7 +205,11 @@ a.sidebarActive .single img,
     display: inline-block;
     flex-shrink: 0;
     height: 8px;
+    left: -2px;
+    max-width: 8px;
+    position: relative;
     width: 8px;
+    top: -7px;
 }
 
 @media (max-width: 1199px) {
