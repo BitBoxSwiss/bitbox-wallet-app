@@ -1745,7 +1745,8 @@
     "title": "Receive {{accountName}}",
     "verify": "Verify address securely",
     "verifyBitBox02": "Verify address on BitBox",
-    "verifyInstruction": "Please verify that the following address matches the one displayed on your device."
+    "verifyInstruction": "Please verify that the following address matches the one displayed on your device.",
+    "verifyTestnetWarning": "This is a testnet account, coins received to this address have no value"
   },
   "reset": {
     "description": "All data will be deleted from this device. That includes your Private Key!",
