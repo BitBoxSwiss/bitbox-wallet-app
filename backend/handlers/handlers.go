@@ -1071,24 +1071,24 @@ func (handlers *Handlers) getCoinFiatPrices(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
+	type response struct {
+		Success bool   `json:"success"`
+		ErrMsg  string `json:"errMsg,omitempty"`
+		Amount  string `json:"amount,omitempty"`
+	}
+
 	isFee := false
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
 	currentCoin, err := handlers.backend.Coin(coinpkg.Code(to))
 	if err != nil {
-		return map[string]interface{}{
-			"success": false,
-			"errMsg":  "internal error",
-		}
+		return response{Success: false, ErrMsg: "internal error"}
 	}
 
 	fiatStr := r.URL.Query().Get("amount")
 	fiatRat, valid := new(big.Rat).SetString(fiatStr)
 	if !valid {
-		return map[string]interface{}{
-			"success": false,
-			"errMsg":  "invalid amount",
-		}
+		return response{Success: false, ErrMsg: "invalid amount"}
 	}
 
 	unit := currentCoin.Unit(isFee)
@@ -1105,9 +1105,9 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 		amountRat := new(big.Rat).Quo(fiatRat, new(big.Rat).SetFloat64(rate))
 		result = currentCoin.SetAmount(amountRat, false)
 	}
-	return map[string]interface{}{
-		"success": true,
-		"amount":  currentCoin.FormatAmount(result, false),
+	return response{
+		Success: true,
+		Amount:  currentCoin.FormatAmount(result, false),
 	}
 }
 
