@@ -584,12 +584,14 @@ func (handlers *Handlers) getUsingMobileData(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) postAuthenticate(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
 	var force bool
 	if err := json.NewDecoder(r.Body).Decode(&force); err != nil {
-		return map[string]interface{}{
-			"success":      false,
-			"errorMessage": err.Error(),
-		}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
 	handlers.backend.Authenticate(force)
