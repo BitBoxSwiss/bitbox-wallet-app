@@ -489,12 +489,18 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	return response{Success: true, TxID: txID}, nil
 }
 
+type txProposalResponse struct {
+	Success                 bool                                 `json:"success"`
+	ErrorCode               string                               `json:"errorCode,omitempty"`
+	Amount                  *coin.FormattedAmountWithConversions `json:"amount,omitempty"`
+	Fee                     *coin.FormattedAmountWithConversions `json:"fee,omitempty"`
+	Total                   *coin.FormattedAmountWithConversions `json:"total,omitempty"`
+	RecipientDisplayAddress string                               `json:"recipientDisplayAddress,omitempty"`
+}
+
 func txProposalError(err error) (interface{}, error) {
 	if validationErr, ok := errp.Cause(err).(errors.TxValidationError); ok {
-		return map[string]interface{}{
-			"success":   false,
-			"errorCode": validationErr.Error(),
-		}, nil
+		return txProposalResponse{Success: false, ErrorCode: validationErr.Error()}, nil
 	}
 	return nil, errp.WithMessage(err, "Failed to create transaction proposal")
 }
@@ -509,12 +515,15 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 	if err != nil {
 		return txProposalError(err)
 	}
-	return map[string]interface{}{
-		"success":                 true,
-		"amount":                  outputAmount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
-		"fee":                     fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater),
-		"total":                   total.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
-		"recipientDisplayAddress": formatAddressForDisplay(handlers.account, input.RecipientAddress),
+	amountResponse := outputAmount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
+	feeResponse := fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater)
+	totalResponse := total.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
+	return txProposalResponse{
+		Success:                 true,
+		Amount:                  &amountResponse,
+		Fee:                     &feeResponse,
+		Total:                   &totalResponse,
+		RecipientDisplayAddress: formatAddressForDisplay(handlers.account, input.RecipientAddress),
 	}, nil
 }
 

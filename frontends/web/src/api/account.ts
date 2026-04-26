@@ -356,7 +356,7 @@ export type TTxProposalResult = {
   success: true;
   total: TAmountWithConversions;
 } | {
-  errorCode: string;
+  errorCode?: string;
   success: false;
 };
 
