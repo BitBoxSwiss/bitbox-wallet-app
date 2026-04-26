@@ -375,7 +375,7 @@ export type TSendTx = {
   aborted: true;
 } | {
   success: false;
-  errorMessage: string;
+  errorMessage?: string;
   errorCode?: string;
 };
 

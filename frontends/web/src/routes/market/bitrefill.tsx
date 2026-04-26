@@ -136,7 +136,11 @@ export const Bitrefill = ({
       const sendResult = await sendTx(code, txNote);
       setVerifyPaymentRequest(false);
       if (!sendResult.success && !('aborted' in sendResult)) {
-        alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+        if (sendResult.errorMessage) {
+          alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+        } else {
+          alertUser(t('genericError'));
+        }
       }
     } else {
       if (result.errorCode === 'insufficientFunds') {

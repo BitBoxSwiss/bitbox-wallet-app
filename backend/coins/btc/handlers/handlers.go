@@ -459,6 +459,14 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 }
 
 func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success      bool   `json:"success"`
+		Aborted      bool   `json:"aborted,omitempty"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+		TxID         string `json:"txId,omitempty"`
+	}
+
 	var txNote string
 	if err := json.NewDecoder(r.Body).Decode(&txNote); err != nil {
 		// In case unmarshaling of the tx. note fails for some reason we do not want to abort send
@@ -468,17 +476,17 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	}
 	txID, err := handlers.account.SendTx(txNote)
 	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
-		return map[string]interface{}{"success": false, "aborted": true}, nil
+		return response{Success: false, Aborted: true}, nil
 	}
 	if err != nil {
 		handlers.log.WithError(err).Error("Failed to send transaction")
-		result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
+		result := response{Success: false, ErrorMessage: err.Error()}
 		if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
-			result["errorCode"] = errors.ErrERC20InsufficientGasFunds.Error()
+			result.ErrorCode = errors.ErrERC20InsufficientGasFunds.Error()
 		}
 		return result, nil
 	}
-	return map[string]interface{}{"success": true, "txId": txID}, nil
+	return response{Success: true, TxID: txID}, nil
 }
 
 func txProposalError(err error) (interface{}, error) {
