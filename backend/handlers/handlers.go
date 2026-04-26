@@ -1143,12 +1143,14 @@ func (handlers *Handlers) postCertsDownload(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) postElectrumCheck(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
 	var serverInfo config.ServerInfo
 	if err := json.NewDecoder(r.Body).Decode(&serverInfo); err != nil {
-		return map[string]interface{}{
-			"success":      false,
-			"errorMessage": err.Error(),
-		}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
 	if err := handlers.backend.CheckElectrumServer(&serverInfo); err != nil {
@@ -1156,17 +1158,12 @@ func (handlers *Handlers) postElectrumCheck(r *http.Request) interface{} {
 			WithError(err).
 			WithField("server-info", serverInfo.String()).
 			Info("checking electrum connection failed")
-		return map[string]interface{}{
-			"success":      false,
-			"errorMessage": err.Error(),
-		}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	handlers.log.
 		WithField("server-info", serverInfo.String()).
 		Info("checking electrum connection succeeded")
-	return map[string]interface{}{
-		"success": true,
-	}
+	return response{Success: true}
 }
 
 func (handlers *Handlers) postSocksProxyCheck(r *http.Request) interface{} {
