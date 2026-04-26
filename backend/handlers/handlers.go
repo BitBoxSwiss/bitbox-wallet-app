@@ -1029,23 +1029,24 @@ func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{}
 }
 
 func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
+	type response struct {
+		Success    bool   `json:"success"`
+		FiatAmount string `json:"fiatAmount,omitempty"`
+	}
+
 	coinCode := r.URL.Query().Get("from")
 	currency := r.URL.Query().Get("to")
 	amount := r.URL.Query().Get("amount")
 	currentCoin, err := handlers.backend.Coin(coinpkg.Code(coinCode))
 	if err != nil {
 		handlers.log.WithError(err).Error("Could not get coin " + coinCode)
-		return map[string]interface{}{
-			"success": false,
-		}
+		return response{Success: false}
 	}
 
 	coinAmount, err := currentCoin.ParseAmount(amount)
 	if err != nil {
 		handlers.log.WithError(err).Error("Error parsing amount " + amount)
-		return map[string]interface{}{
-			"success": false,
-		}
+		return response{Success: false}
 	}
 
 	coinUnitAmount := coinpkg.ToUnitRat(coinAmount, currentCoin, false)
@@ -1055,9 +1056,9 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 
 	convertedAmount := new(big.Rat).Mul(coinUnitAmount, new(big.Rat).SetFloat64(rate))
 
-	return map[string]interface{}{
-		"success":    true,
-		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, currency),
+	return response{
+		Success:    true,
+		FiatAmount: coinpkg.FormatAsPlainCurrency(convertedAmount, currency),
 	}
 }
 
