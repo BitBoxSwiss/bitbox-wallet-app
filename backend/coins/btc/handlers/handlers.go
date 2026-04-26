@@ -532,6 +532,10 @@ func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, erro
 		Code        accounts.FeeTargetCode `json:"code"`
 		FeeRateInfo string                 `json:"feeRateInfo"`
 	}
+	type response struct {
+		FeeTargets       []jsonFeeTarget        `json:"feeTargets"`
+		DefaultFeeTarget accounts.FeeTargetCode `json:"defaultFeeTarget"`
+	}
 
 	feeTargets, defaultFeeTarget := handlers.account.FeeTargets()
 	result := []jsonFeeTarget{}
@@ -541,9 +545,9 @@ func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, erro
 			FeeRateInfo: feeTarget.FormattedFeeRate(),
 		})
 	}
-	return map[string]interface{}{
-		"feeTargets":       result,
-		"defaultFeeTarget": defaultFeeTarget,
+	return response{
+		FeeTargets:       result,
+		DefaultFeeTarget: defaultFeeTarget,
 	}, nil
 }
 
