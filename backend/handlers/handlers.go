@@ -374,6 +374,10 @@ func writeJSON(w io.Writer, value interface{}) {
 	}
 }
 
+type apiErrorResponse struct {
+	Error string `json:"error"`
+}
+
 type activeToken struct {
 	// TokenCode is the token code as defined in erc20.go, e.g. "eth-erc20-usdt".
 	TokenCode string `json:"tokenCode"`
@@ -1255,7 +1259,7 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 			// recover from all panics and log error before panicking again
 			if r := recover(); r != nil {
 				handlers.log.WithField("panic", true).Errorf("%v\n%s", r, string(debug.Stack()))
-				writeJSON(w, map[string]string{"error": fmt.Sprintf("%v", r)})
+				writeJSON(w, apiErrorResponse{Error: fmt.Sprintf("%v", r)})
 			}
 		}()
 
@@ -1282,7 +1286,7 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 		value, err := h(r)
 		if err != nil {
 			handlers.log.WithError(err).Error("endpoint failed")
-			writeJSON(w, map[string]string{"error": err.Error()})
+			writeJSON(w, apiErrorResponse{Error: err.Error()})
 			return
 		}
 		writeJSON(w, value)
