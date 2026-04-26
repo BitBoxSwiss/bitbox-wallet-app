@@ -41,7 +41,7 @@ export const ElectrumAddServer = ({
     if (data.success) {
       setElectrumCert(data.pemCert);
     } else {
-      alertUser(data.errorMessage);
+      alertUser(data.errorMessage || t('genericError'));
     }
     setLoadingCert(false);
   };

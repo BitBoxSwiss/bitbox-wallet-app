@@ -8,7 +8,7 @@ type TCertResponse = {
   pemCert: string;
 } | {
   success: false;
-  errorMessage: string;
+  errorMessage?: string;
 };
 
 export const downloadCert = (electrumServer: string): Promise<TCertResponse> => {

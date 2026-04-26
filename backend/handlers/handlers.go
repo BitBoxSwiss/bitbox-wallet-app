@@ -1122,23 +1122,23 @@ func (handlers *Handlers) getHeadersStatus(coinCode coinpkg.Code) func(*http.Req
 }
 
 func (handlers *Handlers) postCertsDownload(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		PemCert      string `json:"pemCert,omitempty"`
+	}
+
 	var server string
 	if err := json.NewDecoder(r.Body).Decode(&server); err != nil {
-		return map[string]interface{}{
-			"success":      false,
-			"errorMessage": err.Error(),
-		}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	pemCert, err := handlers.backend.DownloadCert(server)
 	if err != nil {
-		return map[string]interface{}{
-			"success":      false,
-			"errorMessage": err.Error(),
-		}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return map[string]interface{}{
-		"success": true,
-		"pemCert": pemCert,
+	return response{
+		Success: true,
+		PemCert: pemCert,
 	}
 }
 
