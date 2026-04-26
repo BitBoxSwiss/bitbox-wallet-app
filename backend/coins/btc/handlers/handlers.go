@@ -723,13 +723,18 @@ func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interfac
 }
 
 func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, error) {
+	type response struct {
+		HasSecureOutput bool `json:"hasSecureOutput"`
+		Optional        bool `json:"optional"`
+	}
+
 	hasSecureOutput, optional, err := handlers.account.CanVerifyAddresses()
 	if err != nil {
 		return nil, err
 	}
-	return map[string]interface{}{
-		"hasSecureOutput": hasSecureOutput,
-		"optional":        optional,
+	return response{
+		HasSecureOutput: hasSecureOutput,
+		Optional:        optional,
 	}, nil
 }
 
