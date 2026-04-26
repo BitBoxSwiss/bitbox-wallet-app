@@ -984,12 +984,13 @@ func (handlers *Handlers) postRegisterTestKeystore(r *http.Request) (interface{}
 	if !handlers.backend.Testing() {
 		return nil, errp.New("Test keystore not available")
 	}
-	jsonBody := map[string]string{}
+	var jsonBody struct {
+		PIN string `json:"pin"`
+	}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	pin := jsonBody["pin"]
-	handlers.backend.RegisterTestKeystore(pin)
+	handlers.backend.RegisterTestKeystore(jsonBody.PIN)
 	return nil, nil
 }
 
