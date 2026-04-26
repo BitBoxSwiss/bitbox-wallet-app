@@ -319,7 +319,19 @@ func (handlers *Handlers) getAccountInfo(*http.Request) (interface{}, error) {
 
 func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 	accountConfig := handlers.account.Config()
-	result := []map[string]interface{}{}
+	type utxoResponse struct {
+		OutPoint        string                              `json:"outPoint"`
+		TxID            string                              `json:"txId"`
+		TxOutput        uint32                              `json:"txOutput"`
+		Amount          coin.FormattedAmountWithConversions `json:"amount"`
+		Address         string                              `json:"address"`
+		ScriptType      signing.ScriptType                  `json:"scriptType"`
+		Note            string                              `json:"note"`
+		AddressReused   bool                                `json:"addressReused"`
+		IsChange        bool                                `json:"isChange"`
+		HeaderTimestamp *string                             `json:"headerTimestamp"`
+	}
+	result := []utxoResponse{}
 
 	t, ok := handlers.account.(*btc.Account)
 
@@ -346,17 +358,17 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 			formattedTime = &t
 		}
 		result = append(result,
-			map[string]interface{}{
-				"outPoint":        output.OutPoint.String(),
-				"txId":            output.OutPoint.Hash.String(),
-				"txOutput":        output.OutPoint.Index,
-				"amount":          coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
-				"address":         address,
-				"scriptType":      output.Address.AccountConfiguration.ScriptType(),
-				"note":            handlers.account.TxNote(output.OutPoint.Hash.String()),
-				"addressReused":   addressReused,
-				"isChange":        output.IsChange,
-				"headerTimestamp": formattedTime,
+			utxoResponse{
+				OutPoint:        output.OutPoint.String(),
+				TxID:            output.OutPoint.Hash.String(),
+				TxOutput:        output.OutPoint.Index,
+				Amount:          coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
+				Address:         address,
+				ScriptType:      output.Address.AccountConfiguration.ScriptType(),
+				Note:            handlers.account.TxNote(output.OutPoint.Hash.String()),
+				AddressReused:   addressReused,
+				IsChange:        output.IsChange,
+				HeaderTimestamp: formattedTime,
 			})
 	}
 
