@@ -240,12 +240,15 @@ export const Market = ({
           </Dialog>
           <Header title={
             <h2>
-              {activeTab === 'spend' ? (
-                t('generic.spend', { context: translationContext })
-              ) : title}
+              {title}
             </h2>
           } />
-          <View width="550px" minHeight="695px" verticallyCentered fullscreen={false}>
+          <View
+            fullscreen={false}
+            minHeight="600px"
+            verticallyCentered
+            width="550px"
+          >
             <ViewContent fullWidth>
               <div className={style.exchangeContainer}>
                 {regions.length ? (
@@ -291,7 +294,7 @@ export const Market = ({
                       </>
                     )}
 
-                    <div className={style.radioButtonsContainer}>
+                    <div className={style.offeringContainer}>
                       {(activeTab === 'swap' || !!selectedAccount) && (
                         <label className={style.label}>{getServicesLabel(activeTab)}</label>
                       )}

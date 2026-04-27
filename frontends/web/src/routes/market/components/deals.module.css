@@ -1,7 +1,3 @@
-.innerRadioButtonsContainer {
-    min-height: 110px;
-}
-
 .noExchangeText {
     color: var(--color-gray-alt);
     line-height: 1.375;

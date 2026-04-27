@@ -37,6 +37,7 @@ describe('routes/market/swap/components/swap-service-selector', () => {
           providers: ['THORCHAIN_STREAMING', 'MAYACHAIN', 'JUPITER', 'OKX'],
           routeId: 'route-1',
         }]}
+        selectedRouteId="route-1"
       />,
     );
 
@@ -56,6 +57,7 @@ describe('routes/market/swap/components/swap-service-selector', () => {
           providers: ['mysterydex'],
           routeId: 'route-1',
         }]}
+        selectedRouteId="route-1"
       />,
     );
 
