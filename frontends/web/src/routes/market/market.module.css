@@ -20,7 +20,7 @@
     margin: 0;
 }
 
-.radioButtonsContainer {
+.offeringContainer {
     line-height: 1.5;
     min-height: 400px;
     margin-top: var(--space-quarter);

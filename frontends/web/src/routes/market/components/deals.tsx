@@ -37,7 +37,7 @@ export const Deals = ({
 
   return (
     <>
-      <div className={style.innerRadioButtonsContainer}>
+      <div className={style.dealsContainer}>
         {!marketDealsResponse && <Skeleton />}
         {marketDealsResponse?.success === false ? (
           <div className="flex flex-column">

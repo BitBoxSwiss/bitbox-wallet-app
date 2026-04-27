@@ -291,7 +291,7 @@ export const Market = ({
                       </>
                     )}
 
-                    <div className={style.radioButtonsContainer}>
+                    <div className={style.offeringContainer}>
                       {(activeTab === 'swap' || !!selectedAccount) && (
                         <label className={style.label}>{getServicesLabel(activeTab)}</label>
                       )}
