@@ -11,18 +11,31 @@ import { PaymentDetails } from './invoice-details';
 export const ConfirmStep = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { paymentDetails, sendPayment } = useLightningSendContext();
+  const {
+    paymentDetails,
+    paymentQuote,
+    returnToEditInvoice,
+    sendPayment,
+  } = useLightningSendContext();
 
-  if (!paymentDetails) {
+  if (!paymentDetails || !paymentQuote) {
     return null;
   }
+
+  const handleBack = () => {
+    if (!paymentDetails.invoice.amountSat) {
+      returnToEditInvoice();
+      return;
+    }
+    navigate(-1);
+  };
 
   return (
     <View fitContent minHeight="100%">
       <ViewContent>
         <Grid col="1">
           <Column>
-            <PaymentDetails input={paymentDetails} />
+            <PaymentDetails input={paymentDetails} quote={paymentQuote} />
           </Column>
         </Grid>
       </ViewContent>
@@ -30,7 +43,7 @@ export const ConfirmStep = () => {
         <Button primary onClick={sendPayment}>
           {t('generic.send')}
         </Button>
-        <Button secondary onClick={() => navigate('/lightning')}>
+        <Button secondary onClick={handleBack}>
           {t('button.back')}
         </Button>
       </ViewButtons>
