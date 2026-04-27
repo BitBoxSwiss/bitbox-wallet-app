@@ -374,6 +374,14 @@ func writeJSON(w io.Writer, value interface{}) {
 	}
 }
 
+func logHandlerError(handler string, err error) {
+	logging.Get().
+		WithGroup("handlers").
+		WithField("handler", handler).
+		WithError(err).
+		Error("handler failed")
+}
+
 type apiErrorResponse struct {
 	Error string `json:"error"`
 }
@@ -549,9 +557,11 @@ func (handlers *Handlers) postAppConfig(r *http.Request) interface{} {
 
 	appConfig := config.AppConfig{}
 	if err := json.NewDecoder(r.Body).Decode(&appConfig); err != nil {
+		logHandlerError("postAppConfig", err)
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.backend.Config().SetAppConfig(appConfig); err != nil {
+		logHandlerError("postAppConfig", err)
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{Success: true}
@@ -583,9 +593,11 @@ func (handlers *Handlers) postOpen(r *http.Request) interface{} {
 
 	var url string
 	if err := json.NewDecoder(r.Body).Decode(&url); err != nil {
+		logHandlerError("postOpen", err)
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.backend.SystemOpen(url); err != nil {
+		logHandlerError("postOpen", err)
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{Success: true}
@@ -894,6 +906,7 @@ func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) interface{} {
 
 	totalBalance, err := handlers.backend.AccountsBalanceSummary()
 	if err != nil {
+		logHandlerError("getAccountsBalanceSummary", err)
 		return response{Success: false}
 	}
 	return response{Success: true, TotalBalance: totalBalance}
@@ -1478,6 +1491,7 @@ func (handlers *Handlers) getMarketMoonpayBuyInfo(r *http.Request) interface{} {
 
 	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
+		logHandlerError("getMarketMoonpayBuyInfo", err)
 		return result{Success: false, ErrorMessage: err.Error()}
 	}
 
@@ -1493,6 +1507,7 @@ func (handlers *Handlers) getMarketMoonpayBuyInfo(r *http.Request) interface{} {
 	}
 	buy, err := market.MoonpayInfo(acct, params)
 	if err != nil {
+		logHandlerError("getMarketMoonpayBuyInfo", err)
 		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	return result{
