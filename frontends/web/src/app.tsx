@@ -35,7 +35,7 @@ import styles from './app.module.css';
 
 const IncomingTxIcon = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M1 17H17M9 11V1M9 11L13 7M9 11L5 7" stroke="#5E94C0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M1 17H17M9 11V1M9 11L13 7M9 11L5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
@@ -48,6 +48,7 @@ const IncomingTransactionNotifier = ({ activeAccounts }: TIncomingTransactionNot
   const { showToast } = useToast();
   const shownIncomingTxIDsRef = useRef<Record<string, boolean>>({});
   const initializedAccountsRef = useRef<Record<string, boolean>>({});
+  const seedingAccountsRef = useRef<Record<string, boolean>>({});
 
   const markIncomingAsSeen = useCallback((accountCode: string, txID: string) => {
     shownIncomingTxIDsRef.current[`${accountCode}:${txID}`] = true;
@@ -64,13 +65,13 @@ const IncomingTransactionNotifier = ({ activeAccounts }: TIncomingTransactionNot
     });
   }, [showToast, t]);
 
-  // Seed known incoming transactions for active accounts so we only toast truly new ones.
-  useEffect(() => {
-    void Promise.all(activeAccounts.map(async (account) => {
-      if (initializedAccountsRef.current[account.code]) {
-        return;
-      }
-      initializedAccountsRef.current[account.code] = true;
+  const seedIncomingTransactionsForAccount = useCallback(async (account: TAccount) => {
+    if (initializedAccountsRef.current[account.code] || seedingAccountsRef.current[account.code]) {
+      return;
+    }
+
+    seedingAccountsRef.current[account.code] = true;
+    try {
       const transactions = await getTransactionList(account.code);
       if (!transactions.success) {
         return;
@@ -78,8 +79,16 @@ const IncomingTransactionNotifier = ({ activeAccounts }: TIncomingTransactionNot
       transactions.list
         .filter(tx => tx.type === 'receive')
         .forEach(tx => markIncomingAsSeen(account.code, tx.internalID));
-    }));
-  }, [activeAccounts, markIncomingAsSeen]);
+      initializedAccountsRef.current[account.code] = true;
+    } finally {
+      seedingAccountsRef.current[account.code] = false;
+    }
+  }, [markIncomingAsSeen]);
+
+  // Seed known incoming transactions for active accounts so we only toast truly new ones.
+  useEffect(() => {
+    void Promise.all(activeAccounts.map(account => seedIncomingTransactionsForAccount(account)));
+  }, [activeAccounts, seedIncomingTransactionsForAccount]);
 
   useEffect(() => {
     return syncNewTxs((meta) => {
@@ -91,6 +100,10 @@ const IncomingTransactionNotifier = ({ activeAccounts }: TIncomingTransactionNot
   }, [t]);
 
   const detectAndToastIncomingForAccount = useCallback(async (account: TAccount) => {
+    if (!initializedAccountsRef.current[account.code]) {
+      return;
+    }
+
     const transactions = await getTransactionList(account.code);
     if (!transactions.success) {
       return;
@@ -114,13 +127,16 @@ const IncomingTransactionNotifier = ({ activeAccounts }: TIncomingTransactionNot
   useEffect(() => {
     const unsubscribers = activeAccounts.map((account) => {
       return syncdone(account.code, () => {
-        void detectAndToastIncomingForAccount(account);
+        void (async () => {
+          await seedIncomingTransactionsForAccount(account);
+          await detectAndToastIncomingForAccount(account);
+        })();
       });
     });
     return () => {
       unsubscribers.forEach(unsubscribe => unsubscribe());
     };
-  }, [activeAccounts, detectAndToastIncomingForAccount]);
+  }, [activeAccounts, detectAndToastIncomingForAccount, seedIncomingTransactionsForAccount]);
 
   return null;
 };
