@@ -48,8 +48,12 @@ export const getMarketDeals = (
 };
 
 export type MoonpayBuyInfo = {
+  success: true;
   url: string;
   address: string;
+} | {
+  success: false;
+  errorMessage?: string;
 };
 
 export const getMoonpayBuyInfo = (code: AccountCode) => {
