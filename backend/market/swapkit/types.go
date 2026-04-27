@@ -101,6 +101,13 @@ type APIError struct {
 	Provider  string         `json:"provider"`
 	ErrorCode errp.ErrorCode `json:"errorCode"`
 	Message   string         `json:"message"`
+	Data      *APIErrorData  `json:"data,omitempty"`
+}
+
+// APIErrorData contains structured values the frontend can translate into an error message.
+type APIErrorData struct {
+	SellCoin string `json:"sellCoin,omitempty"`
+	BuyCoin  string `json:"buyCoin,omitempty"`
 }
 
 // SwapMeta models the subset of SwapKit metadata currently needed by the app.

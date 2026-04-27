@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { CoinUnit, TAmountWithConversions } from '@/api/account';
 import type { TSwapQuoteRoute } from '@/api/swap';
 import { Label } from '@/components/forms';
+import { Message } from '@/components/message/message';
 import { ChevronDownDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
@@ -182,7 +183,12 @@ export const SwapServiceSelector = ({
         <p className={style.statusText}>{t('swap.fetchingRoutes')}</p>
       )}
       {!isLoading && error && (
-        <p className={style.errorText}>{error}</p>
+        <Message
+          type="warning"
+          className={style.errorMessage}
+        >
+          {error}
+        </Message>
       )}
       {!isLoading && !error && options.length === 1 && (
         <p className={style.statusText}>{t('swap.oneRouteAvailable')}</p>

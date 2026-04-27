@@ -32,6 +32,17 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
 }
 
+func newQuoteCoin(code coinpkg.Code, unit string) coinpkg.Coin {
+	return &coinMocks.CoinMock{
+		CodeFunc: func() coinpkg.Code {
+			return code
+		},
+		UnitFunc: func(bool) string {
+			return unit
+		},
+	}
+}
+
 func TestValidateSwapSellAmount(t *testing.T) {
 	newAccount := func(available int64) accounts.Interface {
 		return &accountMocks.InterfaceMock{
@@ -142,8 +153,8 @@ func TestNewQuoteFromCoinCodeUsesInjectedHTTPClient(t *testing.T) {
 	response, apiError := NewQuoteFromCoinCode(
 		context.Background(),
 		httpClient,
-		"btc",
-		"eth",
+		newQuoteCoin(coinpkg.CodeBTC, "BTC"),
+		newQuoteCoin(coinpkg.CodeETH, "ETH"),
 		"1.23456789",
 	)
 	require.Nil(t, apiError)
@@ -152,7 +163,7 @@ func TestNewQuoteFromCoinCodeUsesInjectedHTTPClient(t *testing.T) {
 	require.Equal(t, []string{"provider-a"}, response.Routes[0].Providers)
 }
 
-func TestNewQuoteFromCoinCodeSupportsLitecoin(t *testing.T) {
+func TestNewQuoteFromCoinCodeMapsEmptyRoutesToNoRoutesFound(t *testing.T) {
 	httpClient := &http.Client{
 		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			bodyBytes, err := io.ReadAll(req.Body)
@@ -171,14 +182,59 @@ func TestNewQuoteFromCoinCodeSupportsLitecoin(t *testing.T) {
 		}),
 	}
 
-	_, apiError := NewQuoteFromCoinCode(
+	response, apiError := NewQuoteFromCoinCode(
 		context.Background(),
 		httpClient,
-		"ltc",
-		"btc",
+		newQuoteCoin(coinpkg.CodeLTC, "LTC"),
+		newQuoteCoin(coinpkg.CodeBTC, "BTC"),
 		"1.23456789",
 	)
-	require.Nil(t, apiError)
+	require.Nil(t, response)
+	require.NotNil(t, apiError)
+	require.Equal(t, ErrNoRoutesFound, apiError.ErrorCode)
+	require.Equal(t, noRoutesFoundMessage, apiError.Message)
+	require.Equal(t, &APIErrorData{
+		SellCoin: "LTC",
+		BuyCoin:  "BTC",
+	}, apiError.Data)
+}
+
+func TestNewQuoteFromCoinCodeMapsNoRouteAPIErrorToNoRoutesFound(t *testing.T) {
+	httpClient := &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			bodyBytes, err := io.ReadAll(req.Body)
+			require.NoError(t, err)
+
+			var body QuoteRequest
+			require.NoError(t, json.Unmarshal(bodyBytes, &body))
+			require.Equal(t, "ETH.ETH", body.SellAsset)
+			require.Equal(t, "BTC.BTC", body.BuyAsset)
+
+			return &http.Response{
+				StatusCode: http.StatusBadRequest,
+				Body: io.NopCloser(strings.NewReader(
+					`{"error":"No route found","message":"No routes found for ETH.ETH to BTC.BTC"}`,
+				)),
+				Header: make(http.Header),
+			}, nil
+		}),
+	}
+
+	response, apiError := NewQuoteFromCoinCode(
+		context.Background(),
+		httpClient,
+		newQuoteCoin(coinpkg.CodeSEPETH, "SEPETH"),
+		newQuoteCoin(coinpkg.CodeBTC, "BTC"),
+		"1.23456789",
+	)
+	require.Nil(t, response)
+	require.NotNil(t, apiError)
+	require.Equal(t, ErrNoRoutesFound, apiError.ErrorCode)
+	require.Equal(t, noRoutesFoundMessage, apiError.Message)
+	require.Equal(t, &APIErrorData{
+		SellCoin: "SEPETH",
+		BuyCoin:  "BTC",
+	}, apiError.Data)
 }
 
 func TestNewSwapUsesInjectedHTTPClient(t *testing.T) {
@@ -273,8 +329,8 @@ func TestNewQuoteFromCoinCodePreservesRoutesWithAnyProviderCount(t *testing.T) {
 			response, apiError := NewQuoteFromCoinCode(
 				context.Background(),
 				httpClient,
-				"btc",
-				"eth",
+				newQuoteCoin(coinpkg.CodeBTC, "BTC"),
+				newQuoteCoin(coinpkg.CodeETH, "ETH"),
 				"1.23456789",
 			)
 			require.Nil(t, apiError)

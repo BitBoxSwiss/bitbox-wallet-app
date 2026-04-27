@@ -55,6 +55,9 @@ type Props = {
 };
 
 const QUOTE_DEBOUNCE_MS = 300;
+const INSUFFICIENT_FUNDS_ERROR = 'insufficientFunds';
+const NO_ROUTES_FOUND_ERROR = 'NoRoutesFoundError';
+const UNEXPECTED_ERROR = 'unexpectedError';
 
 const fetchBalance = async (code: AccountCode) => {
   const response = await getBalance(code);
@@ -273,13 +276,30 @@ export const Swap = ({
           ));
           return;
         }
-        clearQuoteState(
+        if (!response.success && response.errorCode === INSUFFICIENT_FUNDS_ERROR) {
+          resetQuoteStateWithError({ errorCode: response.errorCode });
+          return;
+        }
+        if (
           response.success
-            ? t('swap.noRouteFound')
-            : response.errorCode === 'insufficientFunds'
-              ? undefined
-              : response.errorMessage,
-          response.success ? undefined : response.errorCode,
+          || response.errorCode === NO_ROUTES_FOUND_ERROR
+        ) {
+          const noRouteFoundMessage = !response.success
+            && response.errorData?.sellCoin
+            && response.errorData?.buyCoin
+            ? t('swap.noRouteFoundForPair', {
+              buyCoin: response.errorData.buyCoin,
+              sellCoin: response.errorData.sellCoin,
+            })
+            : t('swap.noRouteFound');
+          clearQuoteState(noRouteFoundMessage, response.success ? undefined : response.errorCode);
+          return;
+        }
+        resetQuoteStateWithError({
+          error: response.errorCode === UNEXPECTED_ERROR
+            ? t('swap.fetchQuotesError')
+            : response.errorMessage || t('swap.fetchQuotesError'),
+          response.errorCode,
         );
       } catch (error: unknown) {
         if (isCancelled) {
@@ -305,7 +325,14 @@ export const Swap = ({
       isCancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [buyAccount?.coinCode, buyAccountCode, sellAccount?.coinCode, sellAccountCode, sellAmount, t]);
+  }, [
+    buyAccount?.coinCode,
+    buyAccountCode,
+    sellAccount?.coinCode,
+    sellAccountCode,
+    sellAmount,
+    t,
+  ]);
 
   useEffect(() => {
     let canceled = false;
@@ -545,7 +572,7 @@ export const Swap = ({
                 />
               )}
               <Message
-                hidden={quoteErrorCode !== 'insufficientFunds'}
+                hidden={quoteErrorCode !== INSUFFICIENT_FUNDS_ERROR}
                 type="warning"
                 className={style.sellWarning}
               >

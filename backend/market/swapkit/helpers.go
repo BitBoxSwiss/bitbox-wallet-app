@@ -13,13 +13,12 @@ import (
 )
 
 var swapkitAssetByCoinCode = map[string]string{
-	"btc":    "BTC.BTC",
-	"tbtc":   "BTC.BTC",
-	"rbtc":   "BTC.BTC",
-	"ltc":    "LTC.LTC",
-	"eth":    "ETH.ETH",
-	"sepeth": "ETH.ETH",
-
+	"btc":                 "BTC.BTC",
+	"tbtc":                "BTC.BTC",
+	"rbtc":                "BTC.BTC",
+	"ltc":                 "LTC.LTC",
+	"eth":                 "ETH.ETH",
+	"sepeth":              "ETH.ETH",
 	"eth-erc20-usdt":      "ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7",
 	"eth-erc20-usdc":      "ETH.USDC-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
 	"eth-erc20-link":      "ETH.LINK-0x514910771af9ca656af840dff83e8264ecf986ca",
@@ -31,10 +30,16 @@ var swapkitAssetByCoinCode = map[string]string{
 	"eth-erc20-dai0x6b17": "ETH.DAI-0x6b175474e89094c44da98b954eedeac495271d0f",
 }
 
-// ErrInvalidRequest is returned when the quote request is invalid, for example due to missing or invalid fields.
-const ErrInvalidRequest errp.ErrorCode = "invalidRequest"
+const (
+	// ErrInvalidRequest is returned when the quote request is invalid, for example due to missing or invalid fields.
+	ErrInvalidRequest errp.ErrorCode = "invalidRequest"
+	// ErrNoRoutesFound is returned when SwapKit cannot route the selected pair.
+	ErrNoRoutesFound errp.ErrorCode = "NoRoutesFoundError"
+)
 
-// assetFromCoinCode translates an internal coin code into a SwapKit asset string.
+const noRoutesFoundMessage = "No routes found"
+
+// assetFromCoinCode translates an internal coin code into a SwapKit asset identifier.
 func assetFromCoinCode(coinCode string) (string, bool) {
 	asset, ok := swapkitAssetByCoinCode[strings.ToLower(strings.TrimSpace(coinCode))]
 	return asset, ok
@@ -142,11 +147,15 @@ func newSwapRequestFromCoinCodes(
 	}, nil
 }
 
-// NewQuoteFromCoinCode validates the provided coin codes, fetches a quote, and maps structured API errors.
-func NewQuoteFromCoinCode(ctx context.Context, httpClient *http.Client, sellCoinCode, buyCoinCode, sellAmount string) (*QuoteResponse, *APIError) {
+// NewQuoteFromCoinCode validates the provided coins, fetches a quote, and maps structured API errors.
+func NewQuoteFromCoinCode(ctx context.Context, httpClient *http.Client, sellCoin, buyCoin coinpkg.Coin, sellAmount string) (*QuoteResponse, *APIError) {
+	quoteErrorData := &APIErrorData{
+		SellCoin: sellCoin.Unit(false),
+		BuyCoin:  buyCoin.Unit(false),
+	}
 	quoteRequest, apiError := newQuoteRequestFromCoinCodes(
-		sellCoinCode,
-		buyCoinCode,
+		string(sellCoin.Code()),
+		string(buyCoin.Code()),
 		sellAmount,
 	)
 	if apiError != nil {
@@ -156,11 +165,25 @@ func NewQuoteFromCoinCode(ctx context.Context, httpClient *http.Client, sellCoin
 	quoteResponse, err := NewClient(httpClient).Quote(ctx, quoteRequest)
 	if err != nil {
 		if apiError, ok := apiErrorFromError(err); ok {
+			if strings.Contains(apiError.Message, noRoutesFoundMessage) {
+				return nil, &APIError{
+					ErrorCode: ErrNoRoutesFound,
+					Message:   noRoutesFoundMessage,
+					Data:      quoteErrorData,
+				}
+			}
 			return nil, apiError
 		}
 		return nil, &APIError{
 			ErrorCode: errp.ErrorCode("unexpectedError"),
 			Message:   err.Error(),
+		}
+	}
+	if len(quoteResponse.Routes) == 0 {
+		return nil, &APIError{
+			ErrorCode: ErrNoRoutesFound,
+			Message:   noRoutesFoundMessage,
+			Data:      quoteErrorData,
 		}
 	}
 	return quoteResponse, nil

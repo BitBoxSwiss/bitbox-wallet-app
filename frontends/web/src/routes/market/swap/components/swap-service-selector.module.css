@@ -93,8 +93,6 @@
     margin: 8px 0 0;
 }
 
-.errorText {
-    color: var(--color-red);
-    font-size: var(--size-small);
-    margin: 8px 0 0;
+.errorMessage {
+    margin-top: 8px;
 }
