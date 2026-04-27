@@ -203,7 +203,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/config", handlers.postAppConfig).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/native-locale", handlers.getNativeLocale).Methods("GET")
 	getAPIRouter(apiRouter)("/notify-user", handlers.postNotify).Methods("POST")
-	getAPIRouter(apiRouter)("/open", handlers.postOpen).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/open", handlers.postOpen).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdate).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBanners).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileData).Methods("GET")
@@ -567,12 +567,20 @@ func (handlers *Handlers) postNotify(r *http.Request) (interface{}, error) {
 	return nil, nil
 }
 
-func (handlers *Handlers) postOpen(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postOpen(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
 	var url string
 	if err := json.NewDecoder(r.Body).Decode(&url); err != nil {
-		return nil, errp.WithStack(err)
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return nil, handlers.backend.SystemOpen(url)
+	if err := handlers.backend.SystemOpen(url); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
 }
 
 func (handlers *Handlers) getUpdate(*http.Request) interface{} {

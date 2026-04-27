@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, SyntheticEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { open } from '@/api/system';
+import { alertUser } from '@/components/alert/Alert';
 import { runningInIOS } from '@/utils/env';
 import style from './anchor.module.css';
 
@@ -32,6 +34,8 @@ export const A = ({
   children,
   ...props
 }: TProps) => {
+  const { t } = useTranslation();
+
   return (
     <span
       className={`
@@ -41,7 +45,15 @@ export const A = ({
       title={props.title || href}
       onClick={(e: SyntheticEvent) => {
         e.preventDefault();
-        open(href).catch(console.error);
+        open(href)
+          .then(response => {
+            if (!response.success) {
+              alertUser(response.errorMessage
+                ? t('unknownError', { errorMessage: response.errorMessage })
+                : t('genericError'));
+            }
+          })
+          .catch(console.error);
       }}
       tabIndex={0}
       {...props}>
