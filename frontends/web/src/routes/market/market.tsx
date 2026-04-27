@@ -240,9 +240,7 @@ export const Market = ({
           </Dialog>
           <Header title={
             <h2>
-              {activeTab === 'spend' ? (
-                t('generic.spend', { context: translationContext })
-              ) : title}
+              {title}
             </h2>
           } />
           <View
