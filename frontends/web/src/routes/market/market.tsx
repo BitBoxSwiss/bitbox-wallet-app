@@ -245,7 +245,12 @@ export const Market = ({
               ) : title}
             </h2>
           } />
-          <View width="550px" minHeight="695px" verticallyCentered fullscreen={false}>
+          <View
+            fullscreen={false}
+            minHeight="600px"
+            verticallyCentered
+            width="550px"
+          >
             <ViewContent fullWidth>
               <div className={style.exchangeContainer}>
                 {regions.length ? (
