@@ -6,7 +6,7 @@
     padding: 0;
 }
 
-.select :global(.react-select__input-container) {
+.select :global(.react-select__value-container--has-value .react-select__input-container) {
     padding-left: calc(var(--space-default) + var(--space-eight));
 }
 
