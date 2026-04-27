@@ -37,53 +37,49 @@ export const Deals = ({
 
   return (
     <>
-      <div className={style.innerRadioButtonsContainer}>
-        {!marketDealsResponse && <Skeleton />}
-        {marketDealsResponse?.success === false ? (
-          <div className="flex flex-column">
-            <p className={style.noExchangeText}>
-              {marketDealsResponse?.success === false && (
-                marketDealsResponse.errorCode
-                  ? t('exchange.buySell.' + marketDealsResponse.errorCode)
-                  : marketDealsResponse.errorMessage
-              )}
-            </p>
-          </div>
-        ) : (
-          <div className={style.exchangeProvidersContainer}>
-            {marketDealsResponse?.success && action === 'otc' && (
-              t('buy.exchange.otcInfo')
-            )}
-            {marketDealsResponse?.deals
-              // skip the vendors that have only hidden deals.
-              .filter(vendor => (vendor.deals.some(deal => !deal.isHidden)))
-              .map(vendor => (
-                <div key={vendor.vendorName} className={style.actionableItemContainer}>
-                  <ActionableItem
-                    key={vendor.vendorName}
-                    icon={action === 'otc' ? <ExternalLinkGray /> : undefined}
-                    onClick={() => {
-                      goToVendor(vendor.vendorName);
-                    }}>
-                    {action === 'otc' ? (
-                      <VendorLinks
-                        deals={vendor.deals}
-                        vendorName={vendor.vendorName}
-                      />
-                    ) : (
-                      <VendorDeals
-                        deals={vendor.deals}
-                        vendorName={vendor.vendorName}
-                      />
-                    )}
-                  </ActionableItem>
+      {!marketDealsResponse && <Skeleton />}
+      {marketDealsResponse?.success === false ? (
+        <p className={style.noExchangeText}>
+          {marketDealsResponse?.success === false && (
+            marketDealsResponse.errorCode
+              ? t('exchange.buySell.' + marketDealsResponse.errorCode)
+              : marketDealsResponse.errorMessage
+          )}
+        </p>
+      ) : (
+        <div className={style.exchangeProvidersContainer}>
+          {marketDealsResponse?.success && action === 'otc' && (
+            t('buy.exchange.otcInfo')
+          )}
+          {marketDealsResponse?.deals
+            // skip the vendors that have only hidden deals.
+            .filter(vendor => (vendor.deals.some(deal => !deal.isHidden)))
+            .map(vendor => (
+              <div key={vendor.vendorName} className={style.actionableItemContainer}>
+                <ActionableItem
+                  key={vendor.vendorName}
+                  icon={action === 'otc' ? <ExternalLinkGray /> : undefined}
+                  onClick={() => {
+                    goToVendor(vendor.vendorName);
+                  }}>
+                  {action === 'otc' ? (
+                    <VendorLinks
+                      deals={vendor.deals}
+                      vendorName={vendor.vendorName}
+                    />
+                  ) : (
+                    <VendorDeals
+                      deals={vendor.deals}
+                      vendorName={vendor.vendorName}
+                    />
+                  )}
+                </ActionableItem>
 
-                  <InfoButton onClick={() => setInfo(buildInfo(vendor))} />
-                </div>
-              ))}
-          </div>
-        )}
-      </div>
+                <InfoButton onClick={() => setInfo(buildInfo(vendor))} />
+              </div>
+            ))}
+        </div>
+      )}
     </>
   );
 };
