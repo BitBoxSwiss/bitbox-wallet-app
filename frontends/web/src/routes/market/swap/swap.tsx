@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -198,14 +198,26 @@ export const Swap = ({
     );
   }, [buyAccount, sellAccountCode]);
 
-  const clearQuoteState = (error?: string, errorCode?: string) => {
+  const clearQuoteState = useCallback(() => {
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
     setExpectedOutputUnit(undefined);
+    setQuoteErrorCode(undefined);
+    setRouteError(undefined);
+  }, []);
+
+  const resetQuoteStateWithError = useCallback(({
+    error,
+    errorCode,
+  }: {
+    error?: string;
+    errorCode?: string;
+  }) => {
+    clearQuoteState();
     setQuoteErrorCode(errorCode);
     setRouteError(error);
-  };
+  }, [clearQuoteState]);
 
   // flips sell and buy account
   const handleFlipAccounts = () => {
@@ -292,24 +304,27 @@ export const Swap = ({
               sellCoin: response.errorData.sellCoin,
             })
             : t('swap.noRouteFound');
-          clearQuoteState(noRouteFoundMessage, response.success ? undefined : response.errorCode);
+          resetQuoteStateWithError({
+            error: noRouteFoundMessage,
+            errorCode: response.success ? undefined : response.errorCode,
+          });
           return;
         }
         resetQuoteStateWithError({
           error: response.errorCode === UNEXPECTED_ERROR
             ? t('swap.fetchQuotesError')
             : response.errorMessage || t('swap.fetchQuotesError'),
-          response.errorCode,
-        );
+          errorCode: response.errorCode,
+        });
       } catch (error: unknown) {
         if (isCancelled) {
           return;
         }
-        clearQuoteState(
-          typeof error === 'string' && error
+        resetQuoteStateWithError({
+          error: typeof error === 'string' && error
             ? error
             : t('swap.fetchQuotesError'),
-        );
+        });
       } finally {
         if (!isCancelled) {
           setIsFetchingRoutes(false);
@@ -328,6 +343,8 @@ export const Swap = ({
   }, [
     buyAccount?.coinCode,
     buyAccountCode,
+    clearQuoteState,
+    resetQuoteStateWithError,
     sellAccount?.coinCode,
     sellAccountCode,
     sellAmount,
