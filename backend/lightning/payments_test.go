@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/stretchr/testify/require"
 )
@@ -51,4 +52,28 @@ func TestToLightningPayment(t *testing.T) {
 
 func TestParseLightningUint(t *testing.T) {
 	require.Equal(t, uint64(99), parseLightningUint(big.NewInt(99)))
+}
+
+func TestPreparedBolt11Quote(t *testing.T) {
+	quote, err := preparedPaymentFee(breez_sdk_spark.PrepareSendPaymentResponse{
+		PaymentMethod: breez_sdk_spark.SendPaymentMethodBolt11Invoice{
+			LightningFeeSats: 7,
+		},
+		Amount: big.NewInt(123),
+	})
+	require.NoError(t, err)
+	require.Equal(t, &prepareSendPaymentResponse{
+		AmountSat:     123,
+		FeeSat:        7,
+		TotalDebitSat: 130,
+	}, quote)
+}
+
+func TestValidateApprovedLightningFee(t *testing.T) {
+	require.NoError(t, checkApprovedPaymentFee(9, 9))
+	require.NoError(t, checkApprovedPaymentFee(8, 9))
+
+	err := checkApprovedPaymentFee(10, 9)
+	require.Error(t, err)
+	require.Equal(t, errPaymentApprovalRequired, errp.Cause(err))
 }

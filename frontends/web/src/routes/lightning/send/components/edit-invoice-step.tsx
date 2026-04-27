@@ -13,8 +13,8 @@ export const EditInvoiceStep = () => {
   const {
     customAmount,
     paymentDetails,
+    preparePayment,
     resetPayment,
-    sendPayment,
     setCustomAmount,
   } = useLightningSendContext();
 
@@ -52,9 +52,9 @@ export const EditInvoiceStep = () => {
       <ViewButtons>
         <Button
           primary
-          onClick={sendPayment}
+          onClick={preparePayment}
           disabled={!customAmount}>
-          {t('generic.send')}
+          {t('button.continue')}
         </Button>
         <Button secondary onClick={resetPayment}>
           {t('button.back')}

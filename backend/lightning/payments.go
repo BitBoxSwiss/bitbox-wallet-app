@@ -11,6 +11,8 @@ import (
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 )
 
+const errPaymentApprovalRequired errp.ErrorCode = "paymentApprovalRequired"
+
 type lightningInvoice struct {
 	Bolt11      string  `json:"bolt11"`
 	Description *string `json:"description,omitempty"`
@@ -40,8 +42,15 @@ type receivePaymentResponse struct {
 }
 
 type sendPaymentRequest struct {
-	Bolt11    string  `json:"bolt11"`
-	AmountSat *uint64 `json:"amountSat"`
+	Bolt11         string  `json:"bolt11"`
+	AmountSat      *uint64 `json:"amountSat"`
+	ApprovedFeeSat uint64  `json:"approvedFeeSat"`
+}
+
+type prepareSendPaymentResponse struct {
+	AmountSat     uint64 `json:"amountSat"`
+	FeeSat        uint64 `json:"feeSat"`
+	TotalDebitSat uint64 `json:"totalDebitSat"`
 }
 
 // ParsePaymentInput validates and classifies a lightning input string.
@@ -185,34 +194,78 @@ func parseLightningUint(value interface{ String() string }) uint64 {
 	return parsed
 }
 
+func prepareSendPaymentRequest(paymentInvoice string, amount *uint64) breez_sdk_spark.PrepareSendPaymentRequest {
+	request := breez_sdk_spark.PrepareSendPaymentRequest{
+		PaymentRequest: paymentInvoice,
+	}
+	if amount != nil {
+		optionalAmount := new(big.Int).SetUint64(*amount)
+		request.Amount = &optionalAmount
+	}
+	return request
+}
+
+func preparedPaymentFee(prepareResponse breez_sdk_spark.PrepareSendPaymentResponse) (*prepareSendPaymentResponse, error) {
+	switch paymentMethod := prepareResponse.PaymentMethod.(type) {
+	case breez_sdk_spark.SendPaymentMethodBolt11Invoice:
+		amountSat := parseLightningUint(prepareResponse.Amount)
+		feeSat := paymentMethod.LightningFeeSats
+		return &prepareSendPaymentResponse{
+			AmountSat:     amountSat,
+			FeeSat:        feeSat,
+			TotalDebitSat: amountSat + feeSat,
+		}, nil
+	default:
+		return nil, errp.Newf("Payment method %v not supported", paymentMethod)
+	}
+}
+
+func checkApprovedPaymentFee(fee uint64, approvedFee uint64) error {
+	if fee > approvedFee {
+		return errp.WithMessage(errPaymentApprovalRequired, "Payment fee increased. Please review and approve again.")
+	}
+	return nil
+}
+
+// PreparePayment computes the fee quote for the provided payment request.
+func (lightning *Lightning) PreparePayment(paymentInvoice string, amountSat *uint64) (*prepareSendPaymentResponse, error) {
+	if err := lightning.CheckActive(); err != nil {
+		return nil, err
+	}
+	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareSendPaymentRequest(paymentInvoice, amountSat))
+	if err != nil {
+		return nil, err
+	}
+
+	fee, err := preparedPaymentFee(prepareResponse)
+	if err != nil {
+		return nil, err
+	}
+	lightning.log.Printf("Lightning Fee: %v sats", fee.FeeSat)
+	return fee, nil
+}
+
 // SendPayment executes a payment for the provided payment request.
-func (lightning *Lightning) SendPayment(paymentRequest string, amountSat *uint64) error {
+func (lightning *Lightning) SendPayment(paymentInvoice string, amount *uint64, approvedFee uint64) error {
 	if err := lightning.CheckActive(); err != nil {
 		return err
 	}
-	lightning.log.Infof("Sending payment to %+v", paymentRequest)
-	request := breez_sdk_spark.PrepareSendPaymentRequest{
-		PaymentRequest: paymentRequest,
+	lightning.log.Infof("Sending payment to %+v", paymentInvoice)
+	if amount != nil {
+		lightning.log.Infof("Optional amount: %+v sat", *amount)
 	}
 
-	if amountSat != nil {
-		lightning.log.Infof("Optional amount: %+v sat", *amountSat)
-		optionalAmountSats := new(big.Int).SetUint64(*amountSat)
-		request.Amount = &optionalAmountSats
-	}
-	prepareResponse, err := lightning.sdkService.PrepareSendPayment(request)
+	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareSendPaymentRequest(paymentInvoice, amount))
 	if err != nil {
 		return err
 	}
 
-	switch paymentMethod := prepareResponse.PaymentMethod.(type) {
-	case breez_sdk_spark.SendPaymentMethodBolt11Invoice:
-		lightningFeeSats := paymentMethod.LightningFeeSats
-		sparkTransferFeeSats := paymentMethod.SparkTransferFeeSats
-		lightning.log.Printf("Lightning Fees: %v sats", lightningFeeSats)
-		lightning.log.Printf("Spark Transfer Fees: %v sats", sparkTransferFeeSats)
-	default:
-		return errp.Newf("Payment method %v not supported", paymentMethod)
+	fee, err := preparedPaymentFee(prepareResponse)
+	if err != nil {
+		return err
+	}
+	if err := checkApprovedPaymentFee(fee.FeeSat, approvedFee); err != nil {
+		return err
 	}
 
 	var options breez_sdk_spark.SendPaymentOptions = breez_sdk_spark.SendPaymentOptionsBolt11Invoice{
