@@ -56,8 +56,9 @@
 .logoOverflowBadge {
     align-items: center;
     background: var(--background-tertiary);
-    border: 1px solid var(--background-quaternary);
+    border: 1px solid var(--background-secondary);
     border-radius: var(--radius-full);
+    color: var(--color-alt);
     display: inline-flex;
     font-size: var(--size-smaller);
     height: calc(var(--space-half) + var(--space-eight));
