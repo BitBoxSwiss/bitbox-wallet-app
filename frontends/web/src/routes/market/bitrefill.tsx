@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Header, GuideWrapper, GuidedContent } from '@/components/layout';
+import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { MarketGuide } from './guide';
 import { AccountCode, TAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
@@ -196,53 +196,51 @@ export const Bitrefill = ({
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   return (
-    <GuideWrapper>
-      <GuidedContent>
-        <div className="container">
-          <div className="innerContainer">
-            <div className={style.header}>
-              <Header title={<h2>{t('generic.spend', { context: translationContext })}</h2>} />
-            </div>
-            <div ref={containerRef} className={style.container}>
-              { !agreedTerms ? (
-                <BitrefillTerms
-                  account={account}
-                  onAgreedTerms={() => setAgreedTerms(true)}
-                />
-              ) : (
-                <div style={{ height }}>
-                  {!iframeLoaded && <Spinner text={t('loading')} />}
-                  { bitrefillInfo?.success && (
-                    <iframe
-                      ref={iframeRef}
-                      title="Bitrefill"
-                      width="100%"
-                      height={height}
-                      frameBorder="0"
-                      className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
-                      sandbox="allow-same-origin allow-popups allow-scripts allow-forms"
-                      src={bitrefillInfo.url}
-                      onLoad={() => {
-                        onIframeLoad();
-                      }}
-                    />
-                  )}
-                  {verifyPaymentRequest && verifyPaymentRequest.success && (
-                    <ConfirmBitrefill
-                      isConfirming={verifyPaymentRequest.success}
-                      proposedFee={verifyPaymentRequest.fee}
-                      proposedAmount={verifyPaymentRequest.amount}
-                      recipientAddress={verifyPaymentRequest.address}
-                      proposedTotal={verifyPaymentRequest.total}
-                    />
-                  )}
-                </div>
-              )}
-            </div>
+    <div className="contentWithGuide">
+      <div className="container">
+        <div className="innerContainer">
+          <div className={style.header}>
+            <Header title={<h2>{t('generic.spend', { context: translationContext })}</h2>} />
+          </div>
+          <div ref={containerRef} className={style.container}>
+            { !agreedTerms ? (
+              <BitrefillTerms
+                account={account}
+                onAgreedTerms={() => setAgreedTerms(true)}
+              />
+            ) : (
+              <div style={{ height }}>
+                {!iframeLoaded && <Spinner text={t('loading')} />}
+                { bitrefillInfo?.success && (
+                  <iframe
+                    ref={iframeRef}
+                    title="Bitrefill"
+                    width="100%"
+                    height={height}
+                    frameBorder="0"
+                    className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
+                    sandbox="allow-same-origin allow-popups allow-scripts allow-forms"
+                    src={bitrefillInfo.url}
+                    onLoad={() => {
+                      onIframeLoad();
+                    }}
+                  />
+                )}
+                {verifyPaymentRequest && verifyPaymentRequest.success && (
+                  <ConfirmBitrefill
+                    isConfirming={verifyPaymentRequest.success}
+                    proposedFee={verifyPaymentRequest.fee}
+                    proposedAmount={verifyPaymentRequest.amount}
+                    recipientAddress={verifyPaymentRequest.address}
+                    proposedTotal={verifyPaymentRequest.total}
+                  />
+                )}
+              </div>
+            )}
           </div>
         </div>
-      </GuidedContent>
+      </div>
       <MarketGuide vendor="bitrefill" translationContext={translationContext} />
-    </GuideWrapper>
+    </div>
   );
 };
