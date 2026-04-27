@@ -349,6 +349,14 @@ export type TTxInput = {
   }
 );
 
+export type TTxProposalErrorCode =
+  | 'accountNotSynced'
+  | 'feeTooLow'
+  | 'feesNotAvailable'
+  | 'insufficientFunds'
+  | 'invalidAddress'
+  | 'invalidAmount';
+
 export type TTxProposalResult = {
   amount: TAmountWithConversions;
   fee: TAmountWithConversions;
@@ -356,7 +364,7 @@ export type TTxProposalResult = {
   success: true;
   total: TAmountWithConversions;
 } | {
-  errorCode: string;
+  errorCode: TTxProposalErrorCode;
   success: false;
 };
 
@@ -367,6 +375,12 @@ export const proposeTx = (
   return apiPost(`account/${accountCode}/tx-proposal`, txInput);
 };
 
+export type TSendTxErrorCode =
+  | TTxProposalErrorCode
+  | 'erc20InsufficientGasFunds'
+  | 'syncInProgress'
+  | 'wrongKeystore';
+
 export type TSendTx = {
   success: true;
   txId: string;
@@ -376,7 +390,7 @@ export type TSendTx = {
 } | {
   success: false;
   errorMessage: string;
-  errorCode?: string;
+  errorCode?: TSendTxErrorCode;
 };
 
 export const sendTx = (
