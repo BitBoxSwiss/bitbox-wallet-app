@@ -121,7 +121,7 @@ export const upgradeDeviceFirmware = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02/${deviceID}/upgrade-firmware`);
 };
 
-export const showMnemonic = (deviceID: string): Promise<void> => {
+export const showMnemonic = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/show-mnemonic`);
 };
 
@@ -177,7 +177,7 @@ export const invokeBIP85 = (deviceID: string): Promise<SuccessResponse | FailRes
   return apiPost(`devices/bitbox02/${deviceID}/invoke-bip85`);
 };
 
-export const gotoStartupSettings = (deviceID: string) => {
+export const gotoStartupSettings = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/goto-startup-settings`);
 };
 
