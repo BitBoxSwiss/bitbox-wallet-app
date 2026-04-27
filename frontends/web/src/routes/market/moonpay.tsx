@@ -10,11 +10,11 @@ import { getMoonpayBuyInfo } from '@/api/market';
 import { MarketGuide } from './guide';
 import { Header } from '@/components/layout';
 import { MobileHeader } from '../settings/components/mobile-header';
+import { Message } from '@/components/message/message';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { MoonpayTerms } from '@/components/terms/moonpay-terms';
 import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
-import { Message } from '@/components/message/message';
 import style from './iframe.module.css';
 
 type TProps = {
