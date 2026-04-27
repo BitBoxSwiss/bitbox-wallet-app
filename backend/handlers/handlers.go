@@ -374,6 +374,10 @@ func writeJSON(w io.Writer, value interface{}) {
 	}
 }
 
+type apiErrorResponse struct {
+	Error string `json:"error"`
+}
+
 type activeToken struct {
 	// TokenCode is the token code as defined in erc20.go, e.g. "eth-erc20-usdt".
 	TokenCode string `json:"tokenCode"`
@@ -584,12 +588,14 @@ func (handlers *Handlers) getUsingMobileData(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) postAuthenticate(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
 	var force bool
 	if err := json.NewDecoder(r.Body).Decode(&force); err != nil {
-		return map[string]interface{}{
-			"success":      false,
-			"errorMessage": err.Error(),
-		}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
 	handlers.backend.Authenticate(force)
@@ -982,12 +988,13 @@ func (handlers *Handlers) postRegisterTestKeystore(r *http.Request) (interface{}
 	if !handlers.backend.Testing() {
 		return nil, errp.New("Test keystore not available")
 	}
-	jsonBody := map[string]string{}
+	var jsonBody struct {
+		PIN string `json:"pin"`
+	}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	pin := jsonBody["pin"]
-	handlers.backend.RegisterTestKeystore(pin)
+	handlers.backend.RegisterTestKeystore(jsonBody.PIN)
 	return nil, nil
 }
 
@@ -1026,23 +1033,24 @@ func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{}
 }
 
 func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
+	type response struct {
+		Success    bool   `json:"success"`
+		FiatAmount string `json:"fiatAmount,omitempty"`
+	}
+
 	coinCode := r.URL.Query().Get("from")
 	currency := r.URL.Query().Get("to")
 	amount := r.URL.Query().Get("amount")
 	currentCoin, err := handlers.backend.Coin(coinpkg.Code(coinCode))
 	if err != nil {
 		handlers.log.WithError(err).Error("Could not get coin " + coinCode)
-		return map[string]interface{}{
-			"success": false,
-		}
+		return response{Success: false}
 	}
 
 	coinAmount, err := currentCoin.ParseAmount(amount)
 	if err != nil {
 		handlers.log.WithError(err).Error("Error parsing amount " + amount)
-		return map[string]interface{}{
-			"success": false,
-		}
+		return response{Success: false}
 	}
 
 	coinUnitAmount := coinpkg.ToUnitRat(coinAmount, currentCoin, false)
@@ -1052,9 +1060,9 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 
 	convertedAmount := new(big.Rat).Mul(coinUnitAmount, new(big.Rat).SetFloat64(rate))
 
-	return map[string]interface{}{
-		"success":    true,
-		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, currency),
+	return response{
+		Success:    true,
+		FiatAmount: coinpkg.FormatAsPlainCurrency(convertedAmount, currency),
 	}
 }
 
@@ -1067,24 +1075,24 @@ func (handlers *Handlers) getCoinFiatPrices(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
+	type response struct {
+		Success bool   `json:"success"`
+		ErrMsg  string `json:"errMsg,omitempty"`
+		Amount  string `json:"amount,omitempty"`
+	}
+
 	isFee := false
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
 	currentCoin, err := handlers.backend.Coin(coinpkg.Code(to))
 	if err != nil {
-		return map[string]interface{}{
-			"success": false,
-			"errMsg":  "internal error",
-		}
+		return response{Success: false, ErrMsg: "internal error"}
 	}
 
 	fiatStr := r.URL.Query().Get("amount")
 	fiatRat, valid := new(big.Rat).SetString(fiatStr)
 	if !valid {
-		return map[string]interface{}{
-			"success": false,
-			"errMsg":  "invalid amount",
-		}
+		return response{Success: false, ErrMsg: "invalid amount"}
 	}
 
 	unit := currentCoin.Unit(isFee)
@@ -1101,9 +1109,9 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 		amountRat := new(big.Rat).Quo(fiatRat, new(big.Rat).SetFloat64(rate))
 		result = currentCoin.SetAmount(amountRat, false)
 	}
-	return map[string]interface{}{
-		"success": true,
-		"amount":  currentCoin.FormatAmount(result, false),
+	return response{
+		Success: true,
+		Amount:  currentCoin.FormatAmount(result, false),
 	}
 }
 
@@ -1118,33 +1126,35 @@ func (handlers *Handlers) getHeadersStatus(coinCode coinpkg.Code) func(*http.Req
 }
 
 func (handlers *Handlers) postCertsDownload(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		PemCert      string `json:"pemCert,omitempty"`
+	}
+
 	var server string
 	if err := json.NewDecoder(r.Body).Decode(&server); err != nil {
-		return map[string]interface{}{
-			"success":      false,
-			"errorMessage": err.Error(),
-		}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	pemCert, err := handlers.backend.DownloadCert(server)
 	if err != nil {
-		return map[string]interface{}{
-			"success":      false,
-			"errorMessage": err.Error(),
-		}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return map[string]interface{}{
-		"success": true,
-		"pemCert": pemCert,
+	return response{
+		Success: true,
+		PemCert: pemCert,
 	}
 }
 
 func (handlers *Handlers) postElectrumCheck(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
 	var serverInfo config.ServerInfo
 	if err := json.NewDecoder(r.Body).Decode(&serverInfo); err != nil {
-		return map[string]interface{}{
-			"success":      false,
-			"errorMessage": err.Error(),
-		}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
 	if err := handlers.backend.CheckElectrumServer(&serverInfo); err != nil {
@@ -1152,17 +1162,12 @@ func (handlers *Handlers) postElectrumCheck(r *http.Request) interface{} {
 			WithError(err).
 			WithField("server-info", serverInfo.String()).
 			Info("checking electrum connection failed")
-		return map[string]interface{}{
-			"success":      false,
-			"errorMessage": err.Error(),
-		}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	handlers.log.
 		WithField("server-info", serverInfo.String()).
 		Info("checking electrum connection succeeded")
-	return map[string]interface{}{
-		"success": true,
-	}
+	return response{Success: true}
 }
 
 func (handlers *Handlers) postSocksProxyCheck(r *http.Request) interface{} {
@@ -1254,7 +1259,7 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 			// recover from all panics and log error before panicking again
 			if r := recover(); r != nil {
 				handlers.log.WithField("panic", true).Errorf("%v\n%s", r, string(debug.Stack()))
-				writeJSON(w, map[string]string{"error": fmt.Sprintf("%v", r)})
+				writeJSON(w, apiErrorResponse{Error: fmt.Sprintf("%v", r)})
 			}
 		}()
 
@@ -1281,7 +1286,7 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 		value, err := h(r)
 		if err != nil {
 			handlers.log.WithError(err).Error("endpoint failed")
-			writeJSON(w, map[string]string{"error": err.Error()})
+			writeJSON(w, apiErrorResponse{Error: err.Error()})
 			return
 		}
 		writeJSON(w, value)

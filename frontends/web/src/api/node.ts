@@ -8,7 +8,7 @@ type TCertResponse = {
   pemCert: string;
 } | {
   success: false;
-  errorMessage: string;
+  errorMessage?: string;
 };
 
 export const downloadCert = (electrumServer: string): Promise<TCertResponse> => {
@@ -23,7 +23,7 @@ export type TElectrumServer = {
 
 type TCheckElectrumResponse = SuccessResponse | {
   success: false;
-  errorMessage: string;
+  errorMessage?: string;
 };
 
 export const checkElectrum = (server: TElectrumServer): Promise<TCheckElectrumResponse> => {

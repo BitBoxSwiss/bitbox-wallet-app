@@ -89,7 +89,7 @@ export const SendResult = ({
             <CopyableInput
               alignLeft
               flexibleHeight
-              value={errorMessage}
+              value={errorMessage || t('genericError')}
             />
           </ViewContent>
           <ViewButtons>

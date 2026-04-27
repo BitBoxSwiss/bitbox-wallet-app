@@ -319,7 +319,19 @@ func (handlers *Handlers) getAccountInfo(*http.Request) (interface{}, error) {
 
 func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 	accountConfig := handlers.account.Config()
-	result := []map[string]interface{}{}
+	type utxoResponse struct {
+		OutPoint        string                              `json:"outPoint"`
+		TxID            string                              `json:"txId"`
+		TxOutput        uint32                              `json:"txOutput"`
+		Amount          coin.FormattedAmountWithConversions `json:"amount"`
+		Address         string                              `json:"address"`
+		ScriptType      signing.ScriptType                  `json:"scriptType"`
+		Note            string                              `json:"note"`
+		AddressReused   bool                                `json:"addressReused"`
+		IsChange        bool                                `json:"isChange"`
+		HeaderTimestamp *string                             `json:"headerTimestamp"`
+	}
+	result := []utxoResponse{}
 
 	t, ok := handlers.account.(*btc.Account)
 
@@ -346,17 +358,17 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 			formattedTime = &t
 		}
 		result = append(result,
-			map[string]interface{}{
-				"outPoint":        output.OutPoint.String(),
-				"txId":            output.OutPoint.Hash.String(),
-				"txOutput":        output.OutPoint.Index,
-				"amount":          coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
-				"address":         address,
-				"scriptType":      output.Address.AccountConfiguration.ScriptType(),
-				"note":            handlers.account.TxNote(output.OutPoint.Hash.String()),
-				"addressReused":   addressReused,
-				"isChange":        output.IsChange,
-				"headerTimestamp": formattedTime,
+			utxoResponse{
+				OutPoint:        output.OutPoint.String(),
+				TxID:            output.OutPoint.Hash.String(),
+				TxOutput:        output.OutPoint.Index,
+				Amount:          coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
+				Address:         address,
+				ScriptType:      output.Address.AccountConfiguration.ScriptType(),
+				Note:            handlers.account.TxNote(output.OutPoint.Hash.String()),
+				AddressReused:   addressReused,
+				IsChange:        output.IsChange,
+				HeaderTimestamp: formattedTime,
 			})
 	}
 
@@ -447,6 +459,14 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 }
 
 func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success      bool   `json:"success"`
+		Aborted      bool   `json:"aborted,omitempty"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+		TxID         string `json:"txId,omitempty"`
+	}
+
 	var txNote string
 	if err := json.NewDecoder(r.Body).Decode(&txNote); err != nil {
 		// In case unmarshaling of the tx. note fails for some reason we do not want to abort send
@@ -456,25 +476,31 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	}
 	txID, err := handlers.account.SendTx(txNote)
 	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
-		return map[string]interface{}{"success": false, "aborted": true}, nil
+		return response{Success: false, Aborted: true}, nil
 	}
 	if err != nil {
 		handlers.log.WithError(err).Error("Failed to send transaction")
-		result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
+		result := response{Success: false, ErrorMessage: err.Error()}
 		if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
-			result["errorCode"] = errors.ErrERC20InsufficientGasFunds.Error()
+			result.ErrorCode = errors.ErrERC20InsufficientGasFunds.Error()
 		}
 		return result, nil
 	}
-	return map[string]interface{}{"success": true, "txId": txID}, nil
+	return response{Success: true, TxID: txID}, nil
+}
+
+type txProposalResponse struct {
+	Success                 bool                                 `json:"success"`
+	ErrorCode               string                               `json:"errorCode,omitempty"`
+	Amount                  *coin.FormattedAmountWithConversions `json:"amount,omitempty"`
+	Fee                     *coin.FormattedAmountWithConversions `json:"fee,omitempty"`
+	Total                   *coin.FormattedAmountWithConversions `json:"total,omitempty"`
+	RecipientDisplayAddress string                               `json:"recipientDisplayAddress,omitempty"`
 }
 
 func txProposalError(err error) (interface{}, error) {
 	if validationErr, ok := errp.Cause(err).(errors.TxValidationError); ok {
-		return map[string]interface{}{
-			"success":   false,
-			"errorCode": validationErr.Error(),
-		}, nil
+		return txProposalResponse{Success: false, ErrorCode: validationErr.Error()}, nil
 	}
 	return nil, errp.WithMessage(err, "Failed to create transaction proposal")
 }
@@ -489,12 +515,15 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 	if err != nil {
 		return txProposalError(err)
 	}
-	return map[string]interface{}{
-		"success":                 true,
-		"amount":                  outputAmount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
-		"fee":                     fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater),
-		"total":                   total.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
-		"recipientDisplayAddress": formatAddressForDisplay(handlers.account, input.RecipientAddress),
+	amountResponse := outputAmount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
+	feeResponse := fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater)
+	totalResponse := total.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
+	return txProposalResponse{
+		Success:                 true,
+		Amount:                  &amountResponse,
+		Fee:                     &feeResponse,
+		Total:                   &totalResponse,
+		RecipientDisplayAddress: formatAddressForDisplay(handlers.account, input.RecipientAddress),
 	}, nil
 }
 
@@ -502,6 +531,10 @@ func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, erro
 	type jsonFeeTarget struct {
 		Code        accounts.FeeTargetCode `json:"code"`
 		FeeRateInfo string                 `json:"feeRateInfo"`
+	}
+	type response struct {
+		FeeTargets       []jsonFeeTarget        `json:"feeTargets"`
+		DefaultFeeTarget accounts.FeeTargetCode `json:"defaultFeeTarget"`
 	}
 
 	feeTargets, defaultFeeTarget := handlers.account.FeeTargets()
@@ -512,9 +545,9 @@ func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, erro
 			FeeRateInfo: feeTarget.FormattedFeeRate(),
 		})
 	}
-	return map[string]interface{}{
-		"feeTargets":       result,
-		"defaultFeeTarget": defaultFeeTarget,
+	return response{
+		FeeTargets:       result,
+		DefaultFeeTarget: defaultFeeTarget,
 	}, nil
 }
 
@@ -690,13 +723,18 @@ func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interfac
 }
 
 func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, error) {
+	type response struct {
+		HasSecureOutput bool `json:"hasSecureOutput"`
+		Optional        bool `json:"optional"`
+	}
+
 	hasSecureOutput, optional, err := handlers.account.CanVerifyAddresses()
 	if err != nil {
 		return nil, err
 	}
-	return map[string]interface{}{
-		"hasSecureOutput": hasSecureOutput,
-		"optional":        optional,
+	return response{
+		HasSecureOutput: hasSecureOutput,
+		Optional:        optional,
 	}, nil
 }
 
