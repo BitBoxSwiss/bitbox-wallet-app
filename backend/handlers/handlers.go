@@ -171,7 +171,7 @@ func NewHandlers(
 			WriteBufferSize: 1024,
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
-		log: logging.Get().WithGroup("handlers"),
+		log: log,
 	}
 
 	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
@@ -200,10 +200,10 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/qr", handlers.getQRCode).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/config", handlers.getAppConfig).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/config/default", handlers.getDefaultConfig).Methods("GET")
-	getAPIRouter(apiRouter)("/config", handlers.postAppConfig).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/config", handlers.postAppConfig).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/native-locale", handlers.getNativeLocale).Methods("GET")
 	getAPIRouter(apiRouter)("/notify-user", handlers.postNotify).Methods("POST")
-	getAPIRouter(apiRouter)("/open", handlers.postOpen).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/open", handlers.postOpen).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdate).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBanners).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileData).Methods("GET")
@@ -220,7 +220,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/status", handlers.getSwapStatus).Methods("GET")
-	getAPIRouter(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-account-receive-script-type", handlers.postSetAccountReceiveScriptType).Methods("POST")
@@ -248,7 +248,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/market/btcdirect/info/{action}/{code}", handlers.getMarketBtcDirectInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/quote", handlers.postSwapkitQuote).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/swap/sign", handlers.postSwapSign).Methods("POST")
-	getAPIRouter(apiRouter)("/market/moonpay/buy-info/{code}", handlers.getMarketMoonpayBuyInfo).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/market/moonpay/buy-info/{code}", handlers.getMarketMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/pocket/api-url/{action}", handlers.getMarketPocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/market/bitrefill/info/{action}/{code}", handlers.getMarketBitrefillInfo).Methods("GET")
@@ -541,12 +541,22 @@ func (handlers *Handlers) getDefaultConfig(*http.Request) interface{} {
 	return handlers.backend.DefaultAppConfig()
 }
 
-func (handlers *Handlers) postAppConfig(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAppConfig(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
 	appConfig := config.AppConfig{}
 	if err := json.NewDecoder(r.Body).Decode(&appConfig); err != nil {
-		return nil, errp.WithStack(err)
+		handlers.log.WithField("handler", "postAppConfig").WithError(err).Error("handler failed")
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return nil, handlers.backend.Config().SetAppConfig(appConfig)
+	if err := handlers.backend.Config().SetAppConfig(appConfig); err != nil {
+		handlers.log.WithField("handler", "postAppConfig").WithError(err).Error("handler failed")
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
 }
 
 // getNativeLocaleHandler returns user preferred UI language as reported
@@ -567,12 +577,22 @@ func (handlers *Handlers) postNotify(r *http.Request) (interface{}, error) {
 	return nil, nil
 }
 
-func (handlers *Handlers) postOpen(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postOpen(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
 	var url string
 	if err := json.NewDecoder(r.Body).Decode(&url); err != nil {
-		return nil, errp.WithStack(err)
+		handlers.log.WithField("handler", "postOpen").WithError(err).Error("handler failed")
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return nil, handlers.backend.SystemOpen(url)
+	if err := handlers.backend.SystemOpen(url); err != nil {
+		handlers.log.WithField("handler", "postOpen").WithError(err).Error("handler failed")
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
 }
 
 func (handlers *Handlers) getUpdate(*http.Request) interface{} {
@@ -870,7 +890,7 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 }
 
 // getAccountsBalanceSummary returns the total balance summary of all coins and accounts.
-func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) interface{} {
 	type response struct {
 		Success      bool                            `json:"success"`
 		TotalBalance *backend.AccountsBalanceSummary `json:"accountsBalanceSummary"`
@@ -878,9 +898,10 @@ func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) (interface{},
 
 	totalBalance, err := handlers.backend.AccountsBalanceSummary()
 	if err != nil {
-		return response{Success: false}, nil
+		handlers.log.WithField("handler", "getAccountsBalanceSummary").WithError(err).Error("handler failed")
+		return response{Success: false}
 	}
-	return response{Success: true, TotalBalance: totalBalance}, nil
+	return response{Success: true, TotalBalance: totalBalance}
 }
 
 func (handlers *Handlers) postSetAccountActive(r *http.Request) interface{} {
@@ -1452,10 +1473,18 @@ func (handlers *Handlers) getMarketVendors(r *http.Request) interface{} {
 	return supported
 }
 
-func (handlers *Handlers) getMarketMoonpayBuyInfo(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getMarketMoonpayBuyInfo(r *http.Request) interface{} {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		URL          string `json:"url,omitempty"`
+		Address      string `json:"address,omitempty"`
+	}
+
 	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
-		return nil, err
+		handlers.log.WithField("handler", "getMarketMoonpayBuyInfo").WithError(err).Error("handler failed")
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 
 	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
@@ -1470,16 +1499,14 @@ func (handlers *Handlers) getMarketMoonpayBuyInfo(r *http.Request) (interface{},
 	}
 	buy, err := market.MoonpayInfo(acct, params)
 	if err != nil {
-		return nil, err
+		handlers.log.WithField("handler", "getMarketMoonpayBuyInfo").WithError(err).Error("handler failed")
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
-	resp := struct {
-		URL     string `json:"url"`
-		Address string `json:"address"`
-	}{
+	return result{
+		Success: true,
 		URL:     buy.URL,
 		Address: buy.Address,
 	}
-	return resp, nil
 }
 
 func (handlers *Handlers) getMarketBtcDirectInfo(r *http.Request) interface{} {

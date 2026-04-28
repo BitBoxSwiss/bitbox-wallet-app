@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { apiGet, apiPost } from '@/utils/request';
+import { runningInQtWebEngine, runningOnMobile } from '@/utils/env';
 
 type TConfig = {
   backend?: unknown;
   frontend?: unknown;
+};
+
+type TSetConfigResponse = null | undefined | {
+  success: true;
+} | {
+  success: false;
+  errorMessage?: string;
 };
 
 let pendingConfig: TConfig = {};
@@ -32,7 +40,10 @@ export const setConfig = (object: TConfig) => {
       });
       pendingConfig = nextConfig;
       return apiPost('config', nextConfig)
-        .then(() => {
+        .then((response: TSetConfigResponse) => {
+          if (response?.success === false && !runningInQtWebEngine() && !runningOnMobile()) {
+            throw new Error(response.errorMessage || 'Failed to update configuration');
+          }
           pendingConfig = {};
           return nextConfig;
         });
