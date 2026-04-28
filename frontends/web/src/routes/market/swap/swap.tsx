@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -55,6 +55,9 @@ type Props = {
 };
 
 const QUOTE_DEBOUNCE_MS = 300;
+const INSUFFICIENT_FUNDS_ERROR = 'insufficientFunds';
+const NO_ROUTES_FOUND_ERROR = 'NoRoutesFoundError';
+const UNEXPECTED_ERROR = 'unexpectedError';
 
 const fetchBalance = async (code: AccountCode) => {
   const response = await getBalance(code);
@@ -195,14 +198,26 @@ export const Swap = ({
     );
   }, [buyAccount, sellAccountCode]);
 
-  const clearQuoteState = (error?: string, errorCode?: string) => {
+  const clearQuoteState = useCallback(() => {
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
     setExpectedOutputUnit(undefined);
+    setQuoteErrorCode(undefined);
+    setRouteError(undefined);
+  }, []);
+
+  const resetQuoteStateWithError = useCallback(({
+    error,
+    errorCode,
+  }: {
+    error?: string;
+    errorCode?: string;
+  }) => {
+    clearQuoteState();
     setQuoteErrorCode(errorCode);
     setRouteError(error);
-  };
+  }, [clearQuoteState]);
 
   // flips sell and buy account
   const handleFlipAccounts = () => {
@@ -273,23 +288,43 @@ export const Swap = ({
           ));
           return;
         }
-        clearQuoteState(
+        if (!response.success && response.errorCode === INSUFFICIENT_FUNDS_ERROR) {
+          resetQuoteStateWithError({ errorCode: response.errorCode });
+          return;
+        }
+        if (
           response.success
-            ? t('swap.noRouteFound')
-            : response.errorCode === 'insufficientFunds'
-              ? undefined
-              : response.errorMessage,
-          response.success ? undefined : response.errorCode,
-        );
+          || response.errorCode === NO_ROUTES_FOUND_ERROR
+        ) {
+          const noRouteFoundMessage = !response.success
+            && response.errorData?.sellCoin
+            && response.errorData?.buyCoin
+            ? t('swap.noRouteFoundForPair', {
+              buyCoin: response.errorData.buyCoin,
+              sellCoin: response.errorData.sellCoin,
+            })
+            : t('swap.noRouteFound');
+          resetQuoteStateWithError({
+            error: noRouteFoundMessage,
+            errorCode: response.success ? undefined : response.errorCode,
+          });
+          return;
+        }
+        resetQuoteStateWithError({
+          error: response.errorCode === UNEXPECTED_ERROR
+            ? t('swap.fetchQuotesError')
+            : response.errorMessage || t('swap.fetchQuotesError'),
+          errorCode: response.errorCode,
+        });
       } catch (error: unknown) {
         if (isCancelled) {
           return;
         }
-        clearQuoteState(
-          typeof error === 'string' && error
+        resetQuoteStateWithError({
+          error: typeof error === 'string' && error
             ? error
             : t('swap.fetchQuotesError'),
-        );
+        });
       } finally {
         if (!isCancelled) {
           setIsFetchingRoutes(false);
@@ -305,7 +340,16 @@ export const Swap = ({
       isCancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [buyAccount?.coinCode, buyAccountCode, sellAccount?.coinCode, sellAccountCode, sellAmount, t]);
+  }, [
+    buyAccount?.coinCode,
+    buyAccountCode,
+    clearQuoteState,
+    resetQuoteStateWithError,
+    sellAccount?.coinCode,
+    sellAccountCode,
+    sellAmount,
+    t,
+  ]);
 
   useEffect(() => {
     let canceled = false;
@@ -545,7 +589,7 @@ export const Swap = ({
                 />
               )}
               <Message
-                hidden={quoteErrorCode !== 'insufficientFunds'}
+                hidden={quoteErrorCode !== INSUFFICIENT_FUNDS_ERROR}
                 type="warning"
                 className={style.sellWarning}
               >
