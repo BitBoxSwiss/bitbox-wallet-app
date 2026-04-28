@@ -13,6 +13,7 @@ type TAmountWithUnitProps = {
   sign?: string;
   alwaysShowAmounts?: boolean;
   convertToFiat?: boolean;
+  removeTrailingZeros?: boolean;
   amountClassName?: string;
   unitClassName?: string;
   maxDecimals?: number;
@@ -23,6 +24,7 @@ export const AmountWithUnit = ({
   enableRotateUnit,
   sign,
   convertToFiat,
+  removeTrailingZeros,
   alwaysShowAmounts = false,
   amountClassName = '',
   unitClassName = '',
@@ -51,6 +53,7 @@ export const AmountWithUnit = ({
   }
 
   const enableClick = enableRotateUnit && (convertToFiat || isBitcoinCoin(amount.unit));
+  const stripTrailingZeros = removeTrailingZeros && displayedUnit === 'BTC';
 
   return (
     <span className={`
@@ -67,6 +70,7 @@ export const AmountWithUnit = ({
           unit={displayedUnit}
           onMobileClick={enableClick ? onClick : undefined}
           maxDecimals={maxDecimals}
+          removeTrailingZeros={stripTrailingZeros}
         />
       ) : '---'}
       {' '}
