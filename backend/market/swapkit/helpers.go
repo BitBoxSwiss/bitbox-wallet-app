@@ -64,6 +64,9 @@ func FormatAmount(coin coinpkg.Coin, amount string) (string, error) {
 
 // ValidateSwapSellAmount checks that sell amount fits into available balance.
 func ValidateSwapSellAmount(account accounts.Interface, sellAmount coinpkg.Amount) error {
+	if sellAmount.BigInt().Sign() <= 0 {
+		return errp.WithStack(accountErrors.ErrInvalidAmount)
+	}
 	balance, err := account.Balance()
 	if err != nil {
 		return err

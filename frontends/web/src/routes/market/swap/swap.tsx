@@ -14,6 +14,8 @@ import {
   type TAmountWithConversions,
   type CoinUnit,
   type TSendTx,
+  type TTxInput,
+  type TTxProposalResult,
 } from '@/api/account';
 import { convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
 import {
@@ -34,6 +36,7 @@ import { Message } from '@/components/message/message';
 import { Button, Label } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Amount } from '@/components/amount/amount';
+import { FiatValue } from '@/components/amount/fiat-value';
 import { AmountUnit, AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
@@ -58,6 +61,16 @@ const QUOTE_DEBOUNCE_MS = 300;
 const INSUFFICIENT_FUNDS_ERROR = 'insufficientFunds';
 const NO_ROUTES_FOUND_ERROR = 'NoRoutesFoundError';
 const UNEXPECTED_ERROR = 'unexpectedError';
+const PREVIEW_WARNING_ERROR_CODES = ['erc20InsufficientGasFunds', 'insufficientFunds'];
+
+type TSuccessfulTxProposal = Extract<TTxProposalResult, { success: true }>;
+
+type TFeePreview = {
+  expectedBuyAmount: string;
+  key: string;
+  proposal: TSuccessfulTxProposal;
+  txInput: TTxInput;
+};
 
 const fetchBalance = async (code: AccountCode) => {
   const response = await getBalance(code);
@@ -122,6 +135,10 @@ export const Swap = ({
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
   const [quoteErrorCode, setQuoteErrorCode] = useState<string | undefined>();
   const [routeError, setRouteError] = useState<string | undefined>();
+  const [feePreview, setFeePreview] = useState<TFeePreview | undefined>();
+  const [isPreviewingFee, setIsPreviewingFee] = useState<boolean>(false);
+  const [previewError, setPreviewError] = useState<string | undefined>();
+  const [previewErrorCode, setPreviewErrorCode] = useState<string | undefined>();
   // Drives the button disabled/loading state for the whole confirm flow.
   const [isConfirmInFlight, setIsConfirmInFlight] = useState(false);
   // Prevents double-submit before the button disabled state has re-rendered.
@@ -144,11 +161,32 @@ export const Swap = ({
     () => routes.find(route => route.routeId === selectedRouteId),
     [routes, selectedRouteId],
   );
+  const feePreviewKey = useMemo(() => {
+    if (!buyAccountCode || !sellAccountCode || !selectedRouteId || !sellAmount) {
+      return;
+    }
+    return JSON.stringify({
+      buyAccountCode,
+      routeId: selectedRouteId,
+      sellAccountCode,
+      sellAmount,
+    });
+  }, [buyAccountCode, selectedRouteId, sellAccountCode, sellAmount]);
   const sellDisplayUnit = useMemo(
     () => sellAccount
       ? getDisplayedCoinUnit(sellAccount.coinCode, sellAccount.coinUnit, btcUnit)
       : undefined,
     [btcUnit, sellAccount],
+  );
+  const activeFeePreview = feePreview?.key === feePreviewKey
+    ? feePreview
+    : undefined;
+  const isPreparingRoute = isFetchingRoutes || (
+    !!selectedRoute
+    && !!feePreviewKey
+    && !activeFeePreview
+    && !previewError
+    && !previewErrorCode
   );
 
   const config = useLoad(getConfig);
@@ -198,6 +236,13 @@ export const Swap = ({
     );
   }, [buyAccount, sellAccountCode]);
 
+  const clearFeePreviewState = useCallback(() => {
+    setFeePreview(undefined);
+    setIsPreviewingFee(false);
+    setPreviewError(undefined);
+    setPreviewErrorCode(undefined);
+  }, []);
+
   const clearQuoteState = useCallback(() => {
     setRoutes([]);
     setSelectedRouteId(undefined);
@@ -205,7 +250,8 @@ export const Swap = ({
     setExpectedOutputUnit(undefined);
     setQuoteErrorCode(undefined);
     setRouteError(undefined);
-  }, []);
+    clearFeePreviewState();
+  }, [clearFeePreviewState]);
 
   const resetQuoteStateWithError = useCallback(({
     error,
@@ -247,6 +293,7 @@ export const Swap = ({
     setSelectedRouteId(undefined);
     setExpectedOutput('');
     setExpectedOutputUnit(undefined);
+    clearFeePreviewState();
 
     if (
       !sellCoinCode
@@ -343,6 +390,7 @@ export const Swap = ({
   }, [
     buyAccount?.coinCode,
     buyAccountCode,
+    clearFeePreviewState,
     clearQuoteState,
     resetQuoteStateWithError,
     sellAccount?.coinCode,
@@ -386,6 +434,92 @@ export const Swap = ({
     };
   }, [btcUnit, buyAccount, selectedRoute]);
 
+  useEffect(() => {
+    let isCancelled = false;
+
+    if (
+      !buyAccountCode
+      || !sellAccountCode
+      || !selectedRoute
+      || !selectedRouteId
+      || !sellAmount
+      || !feePreviewKey
+    ) {
+      clearFeePreviewState();
+      return;
+    }
+
+    setFeePreview(undefined);
+    setIsPreviewingFee(true);
+    setPreviewError(undefined);
+    setPreviewErrorCode(undefined);
+
+    const previewFee = async () => {
+      try {
+        const response = await signSwap({
+          buyAccountCode,
+          routeId: selectedRouteId,
+          sellAccountCode,
+          sellAmount,
+        });
+        if (isCancelled) {
+          return;
+        }
+        if (!response.success) {
+          setPreviewError(response.errorMessage || t('genericError'));
+          return;
+        }
+
+        const proposal = await proposeTx(sellAccountCode, response.txInput);
+        if (isCancelled) {
+          return;
+        }
+        if (!proposal.success) {
+          const errorCode = proposal.errorCode;
+          setPreviewErrorCode(errorCode);
+          setPreviewError(
+            PREVIEW_WARNING_ERROR_CODES.includes(errorCode)
+              ? undefined
+              : t(`send.error.${errorCode}`),
+          );
+          return;
+        }
+
+        const nextFeePreview = {
+          expectedBuyAmount: response.expectedBuyAmount,
+          key: feePreviewKey,
+          proposal,
+          txInput: response.txInput,
+        };
+        setFeePreview(nextFeePreview);
+      } catch (error: unknown) {
+        if (!isCancelled) {
+          const errorMessage = error instanceof Error ? error.message : '';
+          setPreviewError(errorMessage || t('genericError'));
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsPreviewingFee(false);
+        }
+      }
+    };
+
+    previewFee();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    buyAccountCode,
+    clearFeePreviewState,
+    feePreviewKey,
+    selectedRoute,
+    selectedRouteId,
+    sellAccountCode,
+    sellAmount,
+    t,
+  ]);
+
   const handleConfirm = async () => {
     if (confirmInFlightRef.current) {
       return;
@@ -395,7 +529,15 @@ export const Swap = ({
     setIsConfirmInFlight(true);
 
     try {
-      if (!buyAccountCode || !sellAccountCode || !selectedRouteId || !sellAmount || !buyAccount) {
+      if (
+        !buyAccountCode
+        || !sellAccountCode
+        || !selectedRouteId
+        || !sellAmount
+        || !buyAccount
+        || !feePreview
+        || feePreview.key !== feePreviewKey
+      ) {
         alertUser(t('genericError'));
         return;
       }
@@ -415,32 +557,34 @@ export const Swap = ({
       setResult(undefined);
       setConfirmDetails(undefined);
 
-      const response = await signSwap({
-        buyAccountCode,
-        routeId: selectedRouteId,
-        sellAccountCode,
-        sellAmount,
-      });
-      if (!response.success) {
-        alertUser(response.errorMessage || t('genericError'));
-        return;
-      }
-
-      const proposal = await proposeTx(sellAccountCode, response.txInput);
+      const proposal = await proposeTx(sellAccountCode, feePreview.txInput);
       if (!proposal.success) {
         if (proposal.errorCode) {
-          alertUser(t(`send.error.${proposal.errorCode}`));
+          const errorCode = proposal.errorCode;
+          if (PREVIEW_WARNING_ERROR_CODES.includes(errorCode)) {
+            setFeePreview(undefined);
+            setPreviewErrorCode(errorCode);
+            setPreviewError(undefined);
+          } else {
+            setFeePreview(undefined);
+            setPreviewErrorCode(errorCode);
+            setPreviewError(t(`send.error.${errorCode}`));
+          }
         } else {
           alertUser(t('genericError'));
         }
         return;
       }
+      setFeePreview({
+        ...feePreview,
+        proposal,
+      });
 
       let expectedOutputConversions: TAmountWithConversions['conversions'];
       const fiatConversions = await Promise.all(
         activeCurrencies.map(async fiatUnit => {
           const fiatConversion = await convertToCurrency({
-            amount: response.expectedBuyAmount,
+            amount: feePreview.expectedBuyAmount,
             coinCode: buyAccount.coinCode,
             fiatUnit,
           });
@@ -465,7 +609,7 @@ export const Swap = ({
       });
       setIsConfirming(true);
 
-      const recipientName = response.txInput.paymentRequest?.recipientName || 'SwapKit';
+      const recipientName = feePreview.txInput.paymentRequest?.recipientName || 'SwapKit';
       const sendResult = await sendTx(sellAccountCode, `${t('generic.swap')} ${recipientName}`);
       setResult(sendResult);
     } catch (error: unknown) {
@@ -477,6 +621,23 @@ export const Swap = ({
       setIsConfirming(false);
     }
   };
+
+  const warningMessage = previewErrorCode === 'erc20InsufficientGasFunds'
+    ? t('send.error.erc20InsufficientGasFunds')
+    : previewErrorCode === 'insufficientFunds'
+      ? `${sellDisplayUnit || ''}: ${t('swap.insufficientFundsWithFee')}`
+      : quoteErrorCode === 'insufficientFunds'
+        ? `${sellDisplayUnit || ''}: ${t('send.error.insufficientFunds')}`
+        : undefined;
+  const buyETHAccountCode = previewErrorCode === 'erc20InsufficientGasFunds'
+    ? sellAccount?.parentAccountCode
+    : undefined;
+  const canSwap = !!selectedRoute
+    && !!feePreview
+    && feePreview.key === feePreviewKey
+    && !isPreviewingFee
+    && !isConfirmInFlight
+    && !previewErrorCode;
 
   if (
     swapAccounts?.success === false
@@ -589,13 +750,25 @@ export const Swap = ({
                 />
               )}
               <Message
-                hidden={quoteErrorCode !== INSUFFICIENT_FUNDS_ERROR}
+                hidden={!warningMessage}
                 type="warning"
                 className={style.sellWarning}
               >
-                {sellDisplayUnit}
-                {': '}
-                {t('send.error.insufficientFunds')}
+                <span className={style.sellWarningContent}>
+                  <p>
+                    {warningMessage}
+                  </p>
+                  {buyETHAccountCode && (
+                    <span className={style.sellWarningButtons}>
+                      <Button
+                        secondary
+                        className={style.buyETHButton}
+                        onClick={() => navigate(`/market/select/${buyETHAccountCode}`, { replace: true })}>
+                        {t('send.buyEth')}
+                      </Button>
+                    </span>
+                  )}
+                </span>
               </Message>
               <div className={style.flipContainer}>
                 <Button
@@ -641,17 +814,40 @@ export const Swap = ({
               )}
               <SwapServiceSelector
                 buyUnit={buyAccount?.coinUnit}
-                error={routeError}
-                isLoading={isFetchingRoutes}
+                error={routeError || previewError}
+                isLoading={isPreparingRoute}
                 onChangeRouteId={setSelectedRouteId}
-                routes={routes}
+                routes={isPreparingRoute ? [] : routes}
                 selectedRouteId={selectedRouteId}
               />
+              <div className={style.feePreview}>
+                <span>
+                  {t('send.fee.label')}
+                  {': '}
+                </span>
+                <span className={style.feePreviewAmounts}>
+                  {activeFeePreview ? (
+                    <>
+                      <AmountWithUnit
+                        amount={activeFeePreview.proposal.fee}
+                      />
+                      <FiatValue
+                        amount={activeFeePreview.proposal.fee}
+                        enableRotateUnit
+                      />
+                    </>
+                  ) : (
+                    isPreparingRoute
+                      ? t('send.feeTarget.placeholder')
+                      : t('send.fee.placeholder')
+                  )}
+                </span>
+              </div>
             </ViewContent>
             <ViewButtons>
               <Button
                 primary
-                disabled={!selectedRoute || isConfirmInFlight}
+                disabled={!canSwap}
                 onClick={handleConfirm}>
                 <span className={style.swapButtonContent}>
                   {isConfirmInFlight && (

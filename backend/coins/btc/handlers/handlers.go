@@ -476,6 +476,12 @@ func txProposalError(err error) (interface{}, error) {
 			"errorCode": validationErr.Error(),
 		}, nil
 	}
+	if errp.Cause(err) == errors.ErrERC20InsufficientGasFunds {
+		return map[string]interface{}{
+			"success":   false,
+			"errorCode": errors.ErrERC20InsufficientGasFunds.Error(),
+		}, nil
+	}
 	return nil, errp.WithMessage(err, "Failed to create transaction proposal")
 }
 
