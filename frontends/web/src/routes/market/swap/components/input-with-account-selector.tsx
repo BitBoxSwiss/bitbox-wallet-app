@@ -9,8 +9,8 @@ import { GroupedAccountSelector } from '@/components/groupedaccountselector/grou
 import { Amount } from '@/components/amount/amount';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
 import { findAccount, getDisplayedCoinUnit } from '@/routes/account/utils';
-import style from './input-with-account-selector.module.css';
 import { useMountedRef } from '@/hooks/mount';
+import style from './input-with-account-selector.module.css';
 
 type Props<T extends TAccountBase> = {
   accountCode: AccountCode;
@@ -109,7 +109,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
           <NumberInput
             transparent
             align="right"
-            disabled={!selectedAccount}
+            disabled={!selectedAccount || readOnlyAmount}
             id={id}
             className={style.inputComponent}
             classNameInputField={style.inputField}
