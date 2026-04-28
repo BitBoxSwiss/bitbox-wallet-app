@@ -52,6 +52,18 @@ export type TReceivePaymentResponse = {
 export type TSendPaymentRequest = {
   bolt11: string;
   amountSat?: number;
+  approvedFeeSat: number;
+};
+
+export type TPreparePaymentRequest = {
+  bolt11: string;
+  amountSat?: number;
+};
+
+export type TPreparePaymentResponse = {
+  amountSat: number;
+  feeSat: number;
+  totalDebitSat: number;
 };
 
 export enum TInputTypeVariant {
@@ -136,6 +148,14 @@ export const getParsePaymentInput = async (params: TParsePaymentInputRequest): P
 
 export const getBoardingAddress = async (): Promise<string> => {
   return getApiResponse<string>('lightning/boarding-address', 'Error calling getBoardingAddress');
+};
+
+export const postPreparePayment = async (data: TPreparePaymentRequest): Promise<TPreparePaymentResponse> => {
+  return postApiResponse<TPreparePaymentResponse, TPreparePaymentRequest>(
+    'lightning/prepare-payment',
+    data,
+    'Error calling postPreparePayment'
+  );
 };
 
 export const postSendPayment = async (data: TSendPaymentRequest): Promise<void> => {

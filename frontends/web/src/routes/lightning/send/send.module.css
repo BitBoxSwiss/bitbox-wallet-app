@@ -19,6 +19,13 @@
     margin-bottom: var(--space-eight);
 }
 
+.amountLine {
+    align-items: baseline;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+}
+
 .successCheck {
     background-color: var(--color-success);
     border: .5rem solid var(--color-success);

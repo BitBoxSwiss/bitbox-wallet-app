@@ -12,6 +12,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 )
 
@@ -33,9 +34,17 @@ func NewHandlers(
 	handleNoError("/balance", lightning.GetBalance).Methods("GET")
 	handleNoError("/list-payments", lightning.GetListPayments).Methods("GET")
 	handleNoError("/parse-payment-input", lightning.GetParsePaymentInput).Methods("GET")
+	handleNoError("/prepare-payment", lightning.PostPreparePayment).Methods("POST")
 	handleNoError("/boarding-address", lightning.GetBoardingAddress).Methods("GET")
 	handleNoError("/receive-payment", lightning.GetReceivePayment).Methods("GET")
 	handleNoError("/send-payment", lightning.PostSendPayment).Methods("POST")
+}
+
+func errorResponse(err error) responseDto {
+	if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
+		return responseDto{Success: false, ErrorMessage: err.Error(), ErrorCode: string(errCode)}
+	}
+	return responseDto{Success: false, ErrorMessage: err.Error()}
 }
 
 // GetAccount handles the GET request to retrieve the configured lightning account.
@@ -60,7 +69,7 @@ func (lightning *Lightning) GetAccount(_ *http.Request) interface{} {
 func (lightning *Lightning) PostActivate(_ *http.Request) interface{} {
 	if err := lightning.Activate(); err != nil {
 		lightning.log.Error(err)
-		return responseDto{Success: false, ErrorMessage: err.Error()}
+		return errorResponse(err)
 	}
 
 	return responseDto{Success: true}
@@ -70,7 +79,7 @@ func (lightning *Lightning) PostActivate(_ *http.Request) interface{} {
 func (lightning *Lightning) PostDeactivate(_ *http.Request) interface{} {
 	if err := lightning.Deactivate(); err != nil {
 		lightning.log.Error(err)
-		return responseDto{Success: false, ErrorMessage: err.Error()}
+		return errorResponse(err)
 	}
 
 	return responseDto{Success: true}
@@ -80,7 +89,7 @@ func (lightning *Lightning) PostDeactivate(_ *http.Request) interface{} {
 func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
 	balance, err := lightning.Balance()
 	if err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
+		return errorResponse(err)
 	}
 
 	btcCoin := lightning.btcCoin
@@ -106,7 +115,7 @@ func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
 func (lightning *Lightning) GetListPayments(_ *http.Request) interface{} {
 	payments, err := lightning.ListPayments()
 	if err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
+		return errorResponse(err)
 	}
 	return responseDto{Success: true, Data: payments}
 }
@@ -115,7 +124,7 @@ func (lightning *Lightning) GetListPayments(_ *http.Request) interface{} {
 func (lightning *Lightning) GetBoardingAddress(_ *http.Request) interface{} {
 	address, err := lightning.BoardingAddress()
 	if err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
+		return errorResponse(err)
 	}
 	return responseDto{Success: true, Data: address}
 }
@@ -124,21 +133,41 @@ func (lightning *Lightning) GetBoardingAddress(_ *http.Request) interface{} {
 func (lightning *Lightning) GetParsePaymentInput(r *http.Request) interface{} {
 	input, err := lightning.ParsePaymentInput(r.URL.Query().Get("s"))
 	if err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
+		return errorResponse(err)
 	}
 	return responseDto{Success: true, Data: input}
+}
+
+// PostPreparePayment handles the POST request to prepare a payment quote.
+func (lightning *Lightning) PostPreparePayment(r *http.Request) interface{} {
+	var jsonBody sendPaymentRequest
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return errorResponse(err)
+	}
+
+	var amount *uint64
+	if jsonBody.AmountSat != nil {
+		amount = jsonBody.AmountSat
+	}
+
+	quote, err := lightning.PreparePayment(jsonBody.Bolt11, amount)
+	if err != nil {
+		return errorResponse(err)
+	}
+
+	return responseDto{Success: true, Data: quote}
 }
 
 // GetReceivePayment handles the GET request to create a receive invoice.
 func (lightning *Lightning) GetReceivePayment(r *http.Request) interface{} {
 	amountSat, err := strconv.ParseUint(r.URL.Query().Get("amountSat"), 10, 64)
 	if err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
+		return errorResponse(err)
 	}
 
 	receiveResponse, err := lightning.ReceivePayment(amountSat, r.URL.Query().Get("description"))
 	if err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
+		return errorResponse(err)
 	}
 
 	return responseDto{Success: true, Data: receiveResponse}
@@ -148,7 +177,7 @@ func (lightning *Lightning) GetReceivePayment(r *http.Request) interface{} {
 func (lightning *Lightning) PostSendPayment(r *http.Request) interface{} {
 	var jsonBody sendPaymentRequest
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
+		return errorResponse(err)
 	}
 
 	var amount *uint64
@@ -156,8 +185,8 @@ func (lightning *Lightning) PostSendPayment(r *http.Request) interface{} {
 		amount = jsonBody.AmountSat
 	}
 
-	if err := lightning.SendPayment(jsonBody.Bolt11, amount); err != nil {
-		return responseDto{Success: false, ErrorMessage: err.Error()}
+	if err := lightning.SendPayment(jsonBody.Bolt11, amount, jsonBody.ApprovedFeeSat); err != nil {
+		return errorResponse(err)
 	}
 
 	return responseDto{Success: true}
