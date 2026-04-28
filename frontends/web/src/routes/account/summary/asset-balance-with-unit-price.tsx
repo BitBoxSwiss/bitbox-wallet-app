@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode } from 'react';
+import { ReactNode, useContext } from 'react';
 import { CoinCode, TAmountWithConversions } from '@/api/account';
-import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import type { TCoinFiatPrices } from '@/api/coins';
+import { Amount } from '@/components/amount/amount';
+import { AmountUnit, AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Logo } from '@/components/icon/logo';
 import { Skeleton } from '@/components/skeleton/skeleton';
+import { RatesContext } from '@/contexts/RatesContext';
 import { useCoinUnitPrice } from '@/hooks/coin-unit-price';
 import style from './accountssummary.module.css';
 
@@ -32,15 +35,7 @@ export const AssetBalanceWithUnitPrice = ({ amount, coinCode, coinName, dataTest
             </span>
 
             <div data-testid="unit-price-amount">
-              <AmountWithUnit
-                alwaysShowAmounts
-                amountClassName={style.unitPrice}
-                amount={unitPrice}
-                convertToFiat
-              />
-              {amount?.unit && (
-                <span className={style.pairUnit}>/{amount.unit}</span>
-              )}
+              <UnitPriceAmount unitPrice={unitPrice} />
             </div>
           </div>
           <div className={style.assetBalanceAmounts}>
@@ -62,5 +57,28 @@ export const AssetBalanceWithUnitPrice = ({ amount, coinCode, coinName, dataTest
         </div>
       </div>
     </div>
+  );
+};
+
+const UnitPriceAmount = ({ unitPrice }: { unitPrice?: TCoinFiatPrices }) => {
+  const { defaultCurrency } = useContext(RatesContext);
+
+  if (!unitPrice) {
+    return null;
+  }
+
+  const amount = unitPrice[defaultCurrency];
+  return (
+    <span className={style.unitPrice}>
+      {amount ? (
+        <Amount
+          alwaysShowAmounts
+          amount={amount}
+          unit={defaultCurrency}
+        />
+      ) : '---'}
+      {' '}
+      <AmountUnit unit={defaultCurrency} />
+    </span>
   );
 };

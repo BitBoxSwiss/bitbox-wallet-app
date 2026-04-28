@@ -927,21 +927,16 @@ func (backend *Backend) RatesUpdater() *rates.RateUpdater {
 	return backend.ratesUpdater
 }
 
-// CoinFiatPrices returns the fiat prices of 1 display-unit of the given coin
+// CoinFiatPrices returns the fiat prices of 1 native unit of the given coin
 // in all supported fiat currencies, formatted with thousand separators.
-// The successful response matches the frontend TAmountWithConversions shape.
-func (backend *Backend) CoinFiatPrices(coin coinpkg.Coin) *coinpkg.FormattedAmountWithConversions {
+func (backend *Backend) CoinFiatPrices(coin coinpkg.Coin) coinpkg.ConversionsMap {
 	const isFee = false
 	coinAmount := coin.SetAmount(big.NewRat(1, 1), isFee)
-	return &coinpkg.FormattedAmountWithConversions{
-		Amount: coin.Unit(isFee),
-		Unit:   coin.GetFormatUnit(isFee),
-		Conversions: coinpkg.Conversions(
-			coinAmount,
-			coin,
-			isFee,
-			backend.ratesUpdater),
-	}
+	return coinpkg.Conversions(
+		coinAmount,
+		coin,
+		isFee,
+		backend.ratesUpdater)
 }
 
 // notifyCoinFiatPrices pushes per-coin fiat price events for all initialized coins.

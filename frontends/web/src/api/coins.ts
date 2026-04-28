@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { CoinCode, Fiat, NativeCoinUnit } from './account';
+import type { CoinCode, Fiat } from './account';
 import type { TUnsubscribe } from '@/utils/transport-common';
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 import { apiPost, apiGet } from '@/utils/request';
@@ -75,12 +75,7 @@ export const convertToCurrency = ({
   return apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${fiatUnit}&amount=${amount}`);
 };
 
-type TCoinFiatPrices = {
-  amount: string;
-  unit: NativeCoinUnit;
-  conversions: Record<Fiat, string>;
-  estimated: boolean;
-} | null;
+export type TCoinFiatPrices = Record<Fiat, string> | null;
 
 export const getCoinFiatPrices = (coinCode: CoinCode): Promise<TCoinFiatPrices> => {
   return apiGet(`coins/${coinCode}/fiat-prices`);

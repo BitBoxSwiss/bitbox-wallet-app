@@ -83,7 +83,7 @@ type Backend interface {
 	Register(device device.Interface) error
 	Deregister(deviceID string)
 	RatesUpdater() *rates.RateUpdater
-	CoinFiatPrices(coinpkg.Coin) *coinpkg.FormattedAmountWithConversions
+	CoinFiatPrices(coinpkg.Coin) coinpkg.ConversionsMap
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(*config.ServerInfo) error
 	RegisterTestKeystore(string)

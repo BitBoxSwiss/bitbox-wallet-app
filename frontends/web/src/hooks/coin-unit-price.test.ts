@@ -23,22 +23,16 @@ describe('useCoinUnitPrice', () => {
     expect(result.current).toBeUndefined();
   });
 
-  it('returns TAmountWithConversions on success', async () => {
-    mockGetCoinFiatPrices.mockResolvedValue({
-      amount: '1',
-      unit: 'BTC',
-      conversions: { USD: '60000.00', EUR: '55000.00' } as Record<string, string>,
-      estimated: false,
-    });
+  it('returns coin fiat prices on success', async () => {
+    mockGetCoinFiatPrices.mockResolvedValue(
+      { USD: '60000.00', EUR: '55000.00' } as Record<string, string>,
+    );
     const { result } = renderHook(
       () => useCoinUnitPrice('btc' as CoinCode, 'BTC'),
     );
-    await waitFor(() => expect(result.current).toEqual({
-      amount: '1',
-      unit: 'BTC',
-      conversions: { USD: '60000.00', EUR: '55000.00' },
-      estimated: false,
-    }));
+    await waitFor(() => expect(result.current).toEqual(
+      { USD: '60000.00', EUR: '55000.00' },
+    ));
     expect(mockGetCoinFiatPrices).toHaveBeenCalledWith('btc');
   });
 });

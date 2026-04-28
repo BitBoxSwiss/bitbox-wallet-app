@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { CoinCode, CoinUnit, TAmountWithConversions } from '@/api/account';
-import { getCoinFiatPrices, subscribeCoinFiatPrices } from '@/api/coins';
+import type { CoinCode, CoinUnit } from '@/api/account';
+import { getCoinFiatPrices, subscribeCoinFiatPrices, type TCoinFiatPrices } from '@/api/coins';
 import { useSync } from '@/hooks/api';
 
 /**
@@ -12,7 +12,7 @@ import { useSync } from '@/hooks/api';
 export const useCoinUnitPrice = (
   coinCode: CoinCode,
   unit?: CoinUnit,
-): TAmountWithConversions | undefined => {
+): TCoinFiatPrices | undefined => {
   const result = useSync(
     () => getCoinFiatPrices(coinCode),
     subscribeCoinFiatPrices(coinCode),
