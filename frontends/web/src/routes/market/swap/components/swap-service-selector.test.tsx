@@ -65,6 +65,31 @@ describe('routes/market/swap/components/swap-service-selector', () => {
     expect(screen.getByLabelText('logo.placeholderLabel')).toBeInTheDocument();
   });
 
+  it('renders a single route as an openable dropdown', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <SwapServiceSelector
+        buyUnit="ETH"
+        isLoading={false}
+        onChangeRouteId={vi.fn()}
+        routes={[{
+          expectedBuyAmount: '1.23',
+          providers: ['THORCHAIN'],
+          routeId: 'route-1',
+        }]}
+        selectedRouteId="route-1"
+      />,
+    );
+
+    expect(screen.getByText('THORChain')).toBeInTheDocument();
+    expect(screen.getByText('swap.oneRouteAvailable')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('combobox'));
+
+    expect(await screen.findByRole('option', { name: /THORChain/ })).toBeInTheDocument();
+  });
+
   it('emits route id when selecting another grouped route', async () => {
     const user = userEvent.setup();
     const onChangeRouteId = vi.fn();

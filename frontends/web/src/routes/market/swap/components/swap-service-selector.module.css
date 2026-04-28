@@ -80,6 +80,7 @@
 .amount {
     flex-grow: 1;
     flex-shrink: 0;
+    padding-right: var(--space-eight);
     text-align: right;
 }
 
