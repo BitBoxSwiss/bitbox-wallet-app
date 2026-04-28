@@ -19,6 +19,7 @@ import { BTCDirectTerms } from '@/components/terms/btcdirect-terms';
 import { MarketGuide } from './guide';
 import { alertUser } from '@/components/alert/Alert';
 import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { Message } from '@/components/message/message';
 import style from './iframe.module.css';
 
 // Map languages supported by BTC Direct
@@ -241,7 +242,13 @@ export const BTCDirect = ({
                     src={btcdirectInfo.url}>
                   </iframe>
                 ) : (
-                  <>{btcdirectInfo?.errorMessage ? alertUser(btcdirectInfo.errorMessage) : alertUser('genericError')}</>
+                  btcdirectInfo?.success === false && (
+                    <Message type="error">
+                      {btcdirectInfo?.errorMessage
+                        ? btcdirectInfo.errorMessage
+                        : t('genericError')}
+                    </Message>
+                  )
                 )}
               </div>
             )}
