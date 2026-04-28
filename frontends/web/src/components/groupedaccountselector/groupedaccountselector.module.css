@@ -135,7 +135,7 @@
     align-items: center;
     background-color: var(--background-secondary);
     border: 1px #ccc solid;
-    border-radius: 4px;
+    border-radius: var(--radius-xl);
     color: var(--color-default);
     cursor: pointer;
     display: flex;
