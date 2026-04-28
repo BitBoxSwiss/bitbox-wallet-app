@@ -571,7 +571,9 @@ export const Swap = ({
                   <span className={style.max}>
                     {t('generic.max')}
                     {' '}
-                    <AmountWithUnit amount={maxSellAmount.available} />
+                    <AmountWithUnit
+                      maxDecimals={9}
+                      amount={maxSellAmount.available} />
                   </span>
                 )}
               </div>
