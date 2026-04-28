@@ -15,6 +15,7 @@
 
 .disclaimer {
   background-color: var(--background-secondary);
+  border-radius: var(--radius-xl);
   flex-basis: 100%;
   font-family: var(--font-family);
   flex-grow: 0;
