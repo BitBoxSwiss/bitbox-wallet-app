@@ -156,7 +156,6 @@ export const SwapServiceSelector = ({
   const selectedOption = selectedRouteId
     ? options.find(option => option.value === selectedRouteId)
     : undefined;
-  const hasMultipleRoutes = options.length > 1;
 
   return (
     <section>
@@ -173,7 +172,7 @@ export const SwapServiceSelector = ({
           Option: CustomOption,
           SingleValue: CustomSingleValue,
         }}
-        isDisabled={!options.length || !hasMultipleRoutes || isLoading}
+        isDisabled={!options.length || isLoading}
         isSearchable={false}
         options={options}
         value={selectedOption}
