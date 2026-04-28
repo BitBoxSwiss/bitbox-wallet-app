@@ -6,6 +6,7 @@ import { Input, TInputProps } from './input';
 type Props = Omit<TInputProps, 'ref' | 'onInput'>;
 
 export const NumberInput = (({
+  inputMode = 'decimal',
   onChange,
   ...props
 }: Props) => {
@@ -75,7 +76,7 @@ export const NumberInput = (({
     <Input
       {...props}
       type="number"
-      inputMode="numeric"
+      inputMode={inputMode}
       onInput={onChange}
       onPaste={handlePaste}
     />
