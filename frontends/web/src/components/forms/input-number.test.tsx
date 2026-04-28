@@ -11,6 +11,11 @@ describe('components/forms/input-number', () => {
     expect(container.querySelector('[type="number"')).toBeTruthy();
   });
 
+  it('uses a decimal input mode by default', () => {
+    render(<NumberInput id="amount" label="Amount" defaultValue="" />);
+    expect(screen.getByLabelText('Amount')).toHaveAttribute('inputmode', 'decimal');
+  });
+
   it('should have children', () => {
     render(<NumberInput defaultValue=""><span>label</span></NumberInput>);
     expect(screen.getByText('label')).toBeTruthy();
