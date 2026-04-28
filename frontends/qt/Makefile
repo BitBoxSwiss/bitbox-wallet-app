@@ -67,10 +67,12 @@ osx:
 	/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $(APP_VERSION)" build/osx/BitBox.app/Contents/Info.plist
 	mkdir -p build/osx/BitBox.app/Contents/Resources
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
+	cp resources/MacOS/Assets.car build/osx/BitBox.app/Contents/Resources/
 	cd build/osx/ && macdeployqt BitBox.app
 	cp server/libserver.so build/osx/BitBox.app/Contents/Frameworks
 	cp build/assets.rcc build/osx/BitBox.app/Contents/MacOS/
 	install_name_tool -change libserver.so @executable_path/../Frameworks/libserver.so build/osx/BitBox.app/Contents/MacOS/BitBox
 	cp -r resources/MacOS/Testnet.app build/osx/Testnet.app
+	cp build/osx/BitBox.app/Contents/Resources/Assets.car build/osx/Testnet.app/Contents/Resources/
 windows:
 	bash make_windows.sh
