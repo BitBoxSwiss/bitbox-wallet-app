@@ -162,7 +162,7 @@ export const ReceiverAddressWrapper = ({
         placeholder={t('send.address.placeholder')}
         onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
         value={recipientAddress}
-        disabled={selectedAccount !== null}
+        readOnly={selectedAccount !== null}
         autoFocus={!isMobile}
         dropdownOptions={accountOptions}
         dropdownValue={selectedAccount}
