@@ -26,7 +26,6 @@ import {
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
-import { SubTitle } from '@/components/title';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { alertUser } from '@/components/alert/Alert';
@@ -489,9 +488,9 @@ export const Swap = ({
             <Header
               hideSidebarToggler
               title={
-                <SubTitle>
+                <h2>
                   {t('generic.swap')}
-                </SubTitle>
+                </h2>
               }
             />
             <View
@@ -524,9 +523,9 @@ export const Swap = ({
             <Header
               hideSidebarToggler
               title={
-                <SubTitle>
+                <h2>
                   {t('generic.swap')}
-                </SubTitle>
+                </h2>
               }
             />
             <SwapkitTerms
@@ -549,9 +548,9 @@ export const Swap = ({
           <Header
             hideSidebarToggler
             title={
-              <SubTitle>
+              <h2>
                 {t('generic.swap')}
-              </SubTitle>
+              </h2>
             }
           />
           <View
