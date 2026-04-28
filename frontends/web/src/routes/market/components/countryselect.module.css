@@ -32,3 +32,26 @@
 .selectLabelText {
     margin-left: 10px;
 }
+
+.trigger {
+    align-items: center;
+    background-color: var(--background-secondary);
+    border: 1px #ccc solid;
+    border-radius: var(--radius-xl);
+    color: var(--color-default);
+    cursor: pointer;
+    display: flex;
+    font-size: var(--size-default);
+    margin-bottom: 0;
+    min-height: var(--input-height);
+    padding: var(--space-quarter) var(--space-half);
+    text-align: left;
+    width: 100%;
+}
+
+.trigger .selectLabelText {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
