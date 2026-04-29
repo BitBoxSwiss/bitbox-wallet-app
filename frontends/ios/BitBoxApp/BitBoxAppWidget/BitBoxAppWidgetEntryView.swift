@@ -3,7 +3,7 @@ import WidgetKit
 
 enum WidgetStrings {
     static let displayName = "BitBoxApp Prices"
-    static let description = "Live token price with 7-day chart."
+    static let description = "Live token price with 1-day chart."
     static let unavailable = "Unavailable"
 }
 
