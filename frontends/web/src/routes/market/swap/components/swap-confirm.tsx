@@ -59,7 +59,7 @@ export const ConfirmSwap = ({
             </span>
           </Column>
           <Column col="2" textAlign="start" className={style.label}>
-            <small>{t('transactions.fee')}</small>
+            <small>{t('send.fee.label')}</small>
           </Column>
           <Column textAlign="start" className={style.confirmItem}>
             <AmountWithUnit
