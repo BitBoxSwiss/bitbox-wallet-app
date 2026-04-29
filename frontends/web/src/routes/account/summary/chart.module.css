@@ -125,7 +125,6 @@
   display: inline-block;
   font-size: var(--size-header);
   margin-bottom: 3px;
-  padding: 0 4px;
 }
 
 .chartCanvas {

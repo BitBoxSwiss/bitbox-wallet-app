@@ -97,7 +97,6 @@
   align-items: baseline;
   font-size: var(--size-default);
   font-variant-numeric: tabular-nums;
-  gap: 3px;
   justify-content: flex-end;
   line-height: 1.25;
   display: flex;

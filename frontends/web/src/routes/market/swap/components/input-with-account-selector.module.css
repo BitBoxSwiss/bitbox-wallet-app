@@ -81,7 +81,6 @@
   color: var(--color-gray);
   display: flex;
   font-size: var(--size-small);
-  gap: .4ch;
   min-height: 2rem;
   padding-right: var(--space-half);
 }

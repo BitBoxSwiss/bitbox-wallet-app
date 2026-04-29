@@ -569,7 +569,6 @@ export const Swap = ({
                 {maxSellAmount && (
                   <span className={style.max}>
                     {t('generic.max')}
-                    {' '}
                     <AmountWithUnit
                       maxDecimals={9}
                       amount={maxSellAmount.available} />
@@ -623,6 +622,7 @@ export const Swap = ({
                     />
                     <AmountUnit
                       unit={expectedOutputUnit || buyAccount.coinUnit}
+                      className={style.nomargin}
                     />
                   </span>
                 )}
