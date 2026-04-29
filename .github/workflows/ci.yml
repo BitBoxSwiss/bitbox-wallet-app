@@ -230,7 +230,7 @@ jobs:
           name: BitBoxApp-linux-${{github.sha}}.rpm
           if-no-files-found: error
   macos:
-    runs-on: macos-14
+    runs-on: macos-15
     outputs:
       artifact-url: ${{ steps.upload.outputs.artifact-url }}
     steps:
@@ -288,7 +288,7 @@ jobs:
           name: BitBoxApp-macos-${{github.sha}}.zip
           if-no-files-found: error
   ios:
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       GO_SRC_DIR: src/github.com/BitBoxSwiss/bitbox-wallet-app
     steps:
