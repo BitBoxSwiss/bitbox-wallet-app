@@ -13,6 +13,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -191,6 +192,44 @@ func TestTxProposal(t *testing.T) {
 		})
 		require.Equal(t, errors.ErrInvalidAddress, errp.Cause(err))
 	})
+}
+
+func TestTxProposalERC20InsufficientGasFunds(t *testing.T) {
+	acct := newAccount(t)
+	defer acct.Close()
+
+	client := &mocks.InterfaceMock{
+		EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
+			return 21000, nil
+		},
+		BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
+			return big.NewInt(0), nil
+		},
+		PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
+			return 0, nil
+		},
+	}
+	acct.coin = NewCoin(
+		client,
+		coin.Code("eth-erc20-test"),
+		"Test Token",
+		"TEST",
+		"ETH",
+		params.SepoliaChainConfig,
+		"",
+		nil,
+		erc20.NewToken("0x0000000000000000000000000000000000000001", 18),
+	)
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil))
+	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
+
+	_, _, _, err := acct.TxProposal(&accounts.TxProposalArgs{
+		RecipientAddress: "0xa29163852021BF4C139D03Dff59ae763AC73e84e",
+		Amount:           coin.NewSendAmount("0.1"),
+		FeeTargetCode:    accounts.FeeTargetCodeCustom,
+		CustomFee:        "20",
+	})
+	require.Equal(t, errors.ErrERC20InsufficientGasFunds, errp.Cause(err))
 }
 
 func TestMatchesAddress(t *testing.T) {

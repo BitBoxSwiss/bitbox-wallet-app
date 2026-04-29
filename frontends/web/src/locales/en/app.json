@@ -2113,6 +2113,7 @@
     "fastest": "Fastest",
     "fetchingRoutes": "Fetching routes...",
     "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
+    "insufficientFundsWithFee": "Insufficient funds to cover the swap amount and network fee.",
     "new": "New swap",
     "noRouteFound": "No route found",
     "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",

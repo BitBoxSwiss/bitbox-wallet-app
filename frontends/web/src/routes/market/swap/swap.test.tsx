@@ -146,6 +146,18 @@ const buyAccount: accountApi.TAccount = {
   name: 'Ethereum Account',
 };
 
+const usdcAccount: accountApi.TAccount = {
+  keystore: sellAccount.keystore,
+  active: true,
+  blockExplorerTxPrefix: '',
+  code: 'usdc-account',
+  coinCode: 'eth-erc20-usdc',
+  coinName: 'USD Coin',
+  coinUnit: 'USDC',
+  isToken: true,
+  name: 'USDC Account',
+};
+
 const swapSellAccount: swapApi.TSwapAccount = {
   active: true,
   code: 'btc-account',
@@ -154,6 +166,17 @@ const swapSellAccount: swapApi.TSwapAccount = {
   isToken: false,
   keystore: sellAccount.keystore,
   name: 'Bitcoin Account',
+};
+
+const swapUSDCSellAccount: swapApi.TSwapAccount = {
+  active: true,
+  code: 'usdc-account',
+  coinCode: 'eth-erc20-usdc',
+  coinUnit: 'USDC',
+  isToken: true,
+  keystore: usdcAccount.keystore,
+  name: 'USDC Account',
+  parentAccountCode: 'eth-account',
 };
 
 const swapBuyAccount: swapApi.TSwapAccount = {
@@ -177,9 +200,77 @@ const swapBuyTokenAccount: swapApi.TSwapAccount = {
   parentAccountCode: 'eth-account',
 };
 
+const swapTxInput: accountApi.TTxInput = {
+  address: 'bc1qswapaddress',
+  amount: '1',
+  paymentRequest: null,
+  selectedUTXOs: [],
+  sendAll: 'no',
+  useHighestFee: true,
+};
+
+const successfulProposal: Extract<accountApi.TTxProposalResult, { success: true }> = {
+  success: true,
+  amount: {
+    amount: '1',
+    conversions: {},
+    estimated: false,
+    unit: 'BTC',
+  },
+  fee: {
+    amount: '0.001',
+    conversions: {
+      USD: '42',
+    },
+    estimated: true,
+    unit: 'BTC',
+  },
+  recipientDisplayAddress: 'bc1qswapaddress',
+  total: {
+    amount: '1.001',
+    conversions: {},
+    estimated: false,
+    unit: 'BTC',
+  },
+};
+
+const balance: accountApi.TBalance = {
+  hasAvailable: true,
+  available: {
+    amount: '1',
+    conversions: {},
+    estimated: false,
+    unit: 'BTC',
+  },
+  hasIncoming: false,
+  incoming: {
+    amount: '0',
+    conversions: {},
+    estimated: false,
+    unit: 'BTC',
+  },
+};
+
+const usdcBalance: accountApi.TBalance = {
+  hasAvailable: true,
+  available: {
+    amount: '2',
+    conversions: {},
+    estimated: false,
+    unit: 'USDC',
+  },
+  hasIncoming: false,
+  incoming: {
+    amount: '0',
+    conversions: {},
+    estimated: false,
+    unit: 'USDC',
+  },
+};
+
 describe('routes/market/swap', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       value: vi.fn().mockImplementation((query: string) => ({
@@ -194,7 +285,10 @@ describe('routes/market/swap', () => {
       })),
     });
 
-    vi.mocked(accountApi.getBalance).mockResolvedValue({ success: false });
+    vi.mocked(accountApi.getBalance).mockResolvedValue({ success: true, balance });
+    vi.mocked(accountApi.hasSwapPaymentRequest).mockResolvedValue({ success: true });
+    vi.mocked(accountApi.proposeTx).mockResolvedValue(successfulProposal);
+    vi.mocked(accountApi.sendTx).mockResolvedValue({ success: true, txId: 'tx-id' });
     vi.mocked(coinsApi.parseExternalBtcAmount).mockResolvedValue({ success: false, amount: '' });
     vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
       success: true,
@@ -212,6 +306,12 @@ describe('routes/market/swap', () => {
           routeId: 'route-1',
         }],
       },
+    });
+    vi.mocked(swapApi.signSwap).mockResolvedValue({
+      success: true,
+      expectedBuyAmount: '1.23',
+      swapId: 'swap-id',
+      txInput: swapTxInput,
     });
     vi.mocked(config.getConfig).mockResolvedValue({
       frontend: {},
@@ -243,6 +343,9 @@ describe('routes/market/swap', () => {
     const agreeButton = await screen.findByTestId('agree-swap-terms');
     await user.click(agreeButton);
 
+    expect(screen.getByText(/Network fee/)).toBeInTheDocument();
+    expect(screen.getByText('Not available')).toBeInTheDocument();
+
     await user.type(await screen.findByLabelText('swapSendAmount'), '1');
 
     expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
@@ -254,6 +357,49 @@ describe('routes/market/swap', () => {
         sellCoinCode: 'btc',
       });
     });
+    await waitFor(() => {
+      expect(swapApi.signSwap).toHaveBeenCalledWith({
+        buyAccountCode: 'eth-account',
+        preview: true,
+        routeId: 'route-1',
+        sellAccountCode: 'btc-account',
+        sellAmount: '1',
+      });
+      expect(accountApi.proposeTx).toHaveBeenCalledWith('btc-account', swapTxInput);
+    });
+    expect(screen.getByText(/Network fee/)).toBeInTheDocument();
+    expect(screen.getByText('42')).toBeInTheDocument();
+  });
+
+  it('does not show route while fee preview is pending', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(swapApi.signSwap).mockImplementation(() => new Promise(() => {}));
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[sellAccount, buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+
+    await waitFor(() => expect(swapApi.signSwap).toHaveBeenCalled());
+    expect(screen.queryByText('THORChain + Mayachain')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
   });
 
   it('shows no-route quote errors with display units', async () => {
@@ -350,5 +496,133 @@ describe('routes/market/swap', () => {
 
     expect(swapButton).toBeDisabled();
     expect(screen.queryByText('THORChain + Mayachain')).not.toBeInTheDocument();
+  });
+
+  it('shows insufficient funds warning when fee preview fails', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(accountApi.proposeTx).mockResolvedValue({
+      success: false,
+      errorCode: 'insufficientFunds',
+    });
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[sellAccount, buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+
+    expect(await screen.findByText(/network fee/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/^Network fee/)).toBeInTheDocument();
+      expect(screen.getByText('Not available')).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+  });
+
+  it('shows ERC20 gas funds error when token fee preview fails', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
+      success: true,
+      sellAccounts: [swapUSDCSellAccount],
+      buyAccounts: [swapBuyAccount],
+      defaultSellAccountCode: swapUSDCSellAccount.code,
+      defaultBuyAccountCode: swapBuyAccount.code,
+    });
+    vi.mocked(accountApi.proposeTx).mockResolvedValue({
+      success: false,
+      errorCode: 'erc20InsufficientGasFunds',
+    });
+    vi.mocked(accountApi.getBalance).mockResolvedValue({
+      success: true,
+      balance: usdcBalance,
+    });
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[usdcAccount, buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+
+    expect(await screen.findByText(/enough Ether/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Buy ETH' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+    expect(accountApi.getBalance).not.toHaveBeenCalledWith('eth-account');
+  });
+
+  it('signs and sends swap after fee preview', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[sellAccount, buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+
+    const swapButton = screen.getByRole('button', { name: 'Swap' });
+    await waitFor(() => expect(swapButton).toBeEnabled());
+
+    vi.mocked(swapApi.signSwap).mockClear();
+    vi.mocked(accountApi.proposeTx).mockClear();
+
+    await user.click(swapButton);
+
+    await waitFor(() => {
+      expect(swapApi.signSwap).toHaveBeenCalledWith({
+        buyAccountCode: 'eth-account',
+        routeId: 'route-1',
+        sellAccountCode: 'btc-account',
+        sellAmount: '1',
+      });
+      expect(accountApi.hasSwapPaymentRequest).toHaveBeenCalledWith('btc-account');
+      expect(accountApi.proposeTx).toHaveBeenCalledWith('btc-account', swapTxInput);
+      expect(accountApi.sendTx).toHaveBeenCalledWith('btc-account', 'Swap SwapKit');
+    });
   });
 });

@@ -29,6 +29,42 @@
   margin-bottom: var(--space-half);
 }
 
+.sellWarningContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-half);
+  width: 100%;
+}
+
+.sellWarningContent p {
+  margin: 0;
+}
+
+.sellWarningButtons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.buyETHButton {
+  flex-shrink: 0;
+}
+
+.feePreview {
+  color: var(--color-gray);
+  display: flex;
+  font-size: var(--size-small);
+  gap: 0.4ch;
+  justify-content: flex-end;
+  margin-top: var(--space-half);
+}
+
+.feePreviewAmounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6ch;
+  justify-content: flex-end;
+}
+
 .flipContainer {
   text-align: center;
 }

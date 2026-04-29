@@ -61,6 +61,16 @@ func TestValidateSwapSellAmount(t *testing.T) {
 		require.Equal(t, accountErrors.ErrInsufficientFunds, errp.Cause(err))
 	})
 
+	t.Run("returns invalid amount error for zero or less", func(t *testing.T) {
+		err := ValidateSwapSellAmount(newAccount(1), coinpkg.NewAmountFromInt64(0))
+		require.Error(t, err)
+		require.Equal(t, accountErrors.ErrInvalidAmount, errp.Cause(err))
+
+		err = ValidateSwapSellAmount(newAccount(1), coinpkg.NewAmountFromInt64(-1))
+		require.Error(t, err)
+		require.Equal(t, accountErrors.ErrInvalidAmount, errp.Cause(err))
+	})
+
 	t.Run("accepts sell amount within balance", func(t *testing.T) {
 		err := ValidateSwapSellAmount(newAccount(2), coinpkg.NewAmountFromInt64(2))
 		require.NoError(t, err)

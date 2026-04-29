@@ -575,6 +575,13 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 	if account.coin.erc20Token != nil {
 		// in erc 20 tokens, the amount is in the token unit, while the fee is in ETH, so there is
 		// no issue withSendAll.
+		nativeBalance, err := account.coin.client.Balance(context.TODO(), account.address.Address)
+		if err != nil {
+			return nil, err
+		}
+		if nativeBalance.Cmp(fee) < 0 {
+			return nil, errp.WithStack(errors.ErrERC20InsufficientGasFunds)
+		}
 
 		if !args.Amount.SendAll() && value.Cmp(account.balance.BigInt()) == 1 {
 			return nil, errp.WithStack(errors.ErrInsufficientFunds)

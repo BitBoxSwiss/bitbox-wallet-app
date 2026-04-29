@@ -65,6 +65,7 @@ export const getSwapQuote = (
 
 export type TSwapSignRequest = {
   buyAccountCode: AccountCode;
+  preview?: boolean;
   routeId: string;
   sellAccountCode: AccountCode;
   sellAmount: string;

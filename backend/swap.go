@@ -331,14 +331,87 @@ func (backend *Backend) PrepareSwap(
 		return nil, err
 	}
 
-	// Grab an unused address; since we build the tx ourselves, we don't need an used
-	// address; this address is then used for refunds.
-	sourceAddress, err := firstUnusedAddress(sellAccount)
+	destinationAddress, destinationDerivation, err := swapDestinationAddress(buyAccount)
 	if err != nil {
 		return nil, err
 	}
+	return backend.prepareSwap(
+		sellAccount,
+		buyAccount.Coin(),
+		destinationAddress,
+		destinationDerivation,
+		routeID,
+		sellAmount,
+	)
+}
 
-	destinationAddress, destinationDerivation, err := swapDestinationAddress(buyAccount)
+// PreviewSwap prepares a SwapKit swap tx input without activating the buy account/token.
+func (backend *Backend) PreviewSwap(
+	buyAccountCode, sellAccountCode accountsTypes.Code,
+	routeID, sellAmount string,
+) (*SwapPreparation, error) {
+	sellAccount, err := backend.GetAccountFromCode(sellAccountCode)
+	if err != nil {
+		return nil, err
+	}
+	if err := validateSwapAccountSupported(sellAccount); err != nil {
+		return nil, err
+	}
+
+	buyAccount, err := backend.GetAccountFromCode(buyAccountCode)
+	if err == nil {
+		if err := validateSwapAccountSupported(buyAccount); err != nil {
+			return nil, err
+		}
+		destinationAddress, destinationDerivation, err := swapDestinationAddress(buyAccount)
+		if err != nil {
+			return nil, err
+		}
+		return backend.prepareSwap(
+			sellAccount,
+			buyAccount.Coin(),
+			destinationAddress,
+			destinationDerivation,
+			routeID,
+			sellAmount,
+		)
+	}
+
+	swapBuyAccount, findErr := backend.findSwapBuyAccount(buyAccountCode)
+	if findErr != nil {
+		return nil, findErr
+	}
+	if swapBuyAccount.ParentAccountCode == nil {
+		return nil, err
+	}
+	parentAccount, err := backend.GetAccountFromCode(*swapBuyAccount.ParentAccountCode)
+	if err != nil {
+		return nil, err
+	}
+	destinationAddress, destinationDerivation, err := swapDestinationAddress(parentAccount)
+	if err != nil {
+		return nil, err
+	}
+	return backend.prepareSwap(
+		sellAccount,
+		swapBuyAccount.AccountCoin,
+		destinationAddress,
+		destinationDerivation,
+		routeID,
+		sellAmount,
+	)
+}
+
+func (backend *Backend) prepareSwap(
+	sellAccount accounts.Interface,
+	buyCoin coinpkg.Coin,
+	destinationAddress string,
+	destinationDerivation *paymentrequest.Slip24AddressDerivation,
+	routeID, sellAmount string,
+) (*SwapPreparation, error) {
+	// Grab an unused address; since we build the tx ourselves, we don't need an used
+	// address; this address is then used for refunds.
+	sourceAddress, err := firstUnusedAddress(sellAccount)
 	if err != nil {
 		return nil, err
 	}
@@ -352,7 +425,7 @@ func (backend *Backend) PrepareSwap(
 		context.Background(),
 		backend.httpClient,
 		string(sellAccount.Coin().Code()),
-		string(buyAccount.Coin().Code()),
+		string(buyCoin.Code()),
 		swapSellAmount,
 		routeID,
 		sourceAddress.EncodeForHumans(),
@@ -400,33 +473,38 @@ func validateSwapAccountSupported(account accounts.Interface) error {
 }
 
 func (backend *Backend) activateSwapBuyAccount(buyAccountCode accountsTypes.Code) error {
-	_, buyAccounts, err := backend.swapAccounts()
+	account, err := backend.findSwapBuyAccount(buyAccountCode)
 	if err != nil {
 		return err
 	}
-	for _, account := range buyAccounts {
-		if account.AccountConfig.Code != buyAccountCode {
-			continue
-		}
-		if account.ParentAccountCode != nil {
-			if parentAccount := backend.config.AccountsConfig().Lookup(*account.ParentAccountCode); parentAccount != nil && parentAccount.Inactive {
-				if err := backend.SetAccountActive(*account.ParentAccountCode, true); err != nil {
-					return err
-				}
+	if account.ParentAccountCode != nil {
+		if parentAccount := backend.config.AccountsConfig().Lookup(*account.ParentAccountCode); parentAccount != nil && parentAccount.Inactive {
+			if err := backend.SetAccountActive(*account.ParentAccountCode, true); err != nil {
+				return err
 			}
-			if account.AccountConfig.Inactive {
-				if err := backend.SetTokenActive(*account.ParentAccountCode, string(account.AccountCoin.Code()), true); err != nil {
-					return err
-				}
-			}
-			return nil
 		}
 		if account.AccountConfig.Inactive {
-			return backend.SetAccountActive(account.AccountConfig.Code, true)
+			return backend.SetTokenActive(*account.ParentAccountCode, string(account.AccountCoin.Code()), true)
 		}
 		return nil
 	}
-	return errp.Newf("Could not find swap buy account %s", buyAccountCode)
+	if account.AccountConfig.Inactive {
+		return backend.SetAccountActive(account.AccountConfig.Code, true)
+	}
+	return nil
+}
+
+func (backend *Backend) findSwapBuyAccount(buyAccountCode accountsTypes.Code) (*SwapAccount, error) {
+	_, buyAccounts, err := backend.swapAccounts()
+	if err != nil {
+		return nil, err
+	}
+	for i := range buyAccounts {
+		if buyAccounts[i].AccountConfig.Code == buyAccountCode {
+			return &buyAccounts[i], nil
+		}
+	}
+	return nil, errp.Newf("Could not find swap buy account %s", buyAccountCode)
 }
 
 func (backend *Backend) appendERC20SwapAccounts(
