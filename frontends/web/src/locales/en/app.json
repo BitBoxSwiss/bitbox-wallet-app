@@ -1634,6 +1634,7 @@
     "title": "Note"
   },
   "notification": {
+    "incomingTxToast": "Incoming {{amount}} {{unit}}",
     "newTxs_one": "New transaction in: {{accountName}}",
     "newTxs_other": "{{count}} new transactions in: {{accountName}}"
   },
