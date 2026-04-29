@@ -115,13 +115,17 @@ export const Market = ({
   const swapDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('swap', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
   const otcDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('otc', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
 
-  const handleAccountChange = async (accountCode: string) => {
+  const promptConnectKeystore = async (accountCode: string): Promise<boolean> => {
     const account = supportedAccounts.find(acc => acc.code === accountCode);
     if (!account) {
-      return;
+      return false;
     }
     const connectResult = await connectKeystore(account.keystore.rootFingerprint);
-    if (connectResult.success) {
+    return connectResult.success;
+  };
+
+  const handleAccountChange = async (accountCode: string) => {
+    if (await promptConnectKeystore(accountCode)) {
       setSelectedAccount(accountCode);
     }
   };
@@ -203,7 +207,7 @@ export const Market = ({
         return;
       }
     }
-    if (!selectedAccount) {
+    if (!selectedAccount || !await promptConnectKeystore(selectedAccount)) {
       return;
     }
     navigate(`/market/${vendor}/${activeTab}/${selectedAccount}/${selectedRegion}`);
