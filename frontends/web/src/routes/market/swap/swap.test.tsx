@@ -360,6 +360,7 @@ describe('routes/market/swap', () => {
     await waitFor(() => {
       expect(swapApi.signSwap).toHaveBeenCalledWith({
         buyAccountCode: 'eth-account',
+        preview: true,
         routeId: 'route-1',
         sellAccountCode: 'btc-account',
         sellAmount: '1',
@@ -580,7 +581,7 @@ describe('routes/market/swap', () => {
     expect(accountApi.getBalance).not.toHaveBeenCalledWith('eth-account');
   });
 
-  it('sends swap using the previewed tx input', async () => {
+  it('signs and sends swap after fee preview', async () => {
     const user = userEvent.setup();
 
     render(
@@ -613,10 +614,15 @@ describe('routes/market/swap', () => {
     await user.click(swapButton);
 
     await waitFor(() => {
+      expect(swapApi.signSwap).toHaveBeenCalledWith({
+        buyAccountCode: 'eth-account',
+        routeId: 'route-1',
+        sellAccountCode: 'btc-account',
+        sellAmount: '1',
+      });
       expect(accountApi.hasSwapPaymentRequest).toHaveBeenCalledWith('btc-account');
       expect(accountApi.proposeTx).toHaveBeenCalledWith('btc-account', swapTxInput);
       expect(accountApi.sendTx).toHaveBeenCalledWith('btc-account', 'Swap SwapKit');
     });
-    expect(swapApi.signSwap).not.toHaveBeenCalled();
   });
 });

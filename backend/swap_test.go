@@ -3,7 +3,11 @@
 package backend
 
 import (
+	"encoding/json"
+	"io"
+	"net/http"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -12,11 +16,64 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/stretchr/testify/require"
 )
+
+type swapRoundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f swapRoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
+}
+
+func mockSwapKitHTTPClient(t *testing.T, checkRequest func(swapkit.SwapRequest)) *http.Client {
+	t.Helper()
+	responseBytes, err := json.Marshal(swapkit.SwapResponse{
+		ExpectedBuyAmount: "9.87",
+		SwapID:            "swap-id",
+		Meta: swapkit.SwapMeta{
+			Slip24: &paymentrequest.Slip24{
+				RecipientName: "SwapKit",
+				Memos: []paymentrequest.Slip24Memo{
+					{
+						Type: "coinPurchase",
+						CoinPurchase: &paymentrequest.Slip24CoinPurchase{
+							CoinType: 60,
+							Amount:   "9.87 ETH",
+							Address:  "0x986f66F28C6a2BBE939dF3161D1D2b238933895c",
+						},
+					},
+				},
+				Outputs: []paymentrequest.Slip24Out{
+					{
+						Amount:  100000000,
+						Address: "1GqULdYGDRfF3w85yGmEq8LTWecpKn8JMJ",
+					},
+				},
+				Signature: "sig",
+			},
+		},
+	})
+	require.NoError(t, err)
+	return &http.Client{
+		Transport: swapRoundTripFunc(func(req *http.Request) (*http.Response, error) {
+			require.Equal(t, http.MethodPost, req.Method)
+			var body swapkit.SwapRequest
+			require.NoError(t, json.NewDecoder(req.Body).Decode(&body))
+			if checkRequest != nil {
+				checkRequest(body)
+			}
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(strings.NewReader(string(responseBytes))),
+				Header:     make(http.Header),
+			}, nil
+		}),
+	}
+}
 
 func TestSwapBuyAccountsRequireConnectedKeystore(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
@@ -246,6 +303,63 @@ func TestPrepareSwapActivatesInactiveTokenDestination(t *testing.T) {
 
 	require.NoError(t, b.activateSwapBuyAccount(tokenAccountCode))
 	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
+	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+}
+
+func TestPreviewSwapDoesNotActivateInactiveTokenDestination(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	ethAccountCode := accountsTypes.Code("v0-55555555-eth-0")
+	btcAccountCode := accountsTypes.Code("v0-55555555-btc-0")
+	tokenCode := "eth-erc20-bat"
+	tokenAccountCode := Erc20AccountCode(ethAccountCode, tokenCode)
+
+	require.NoError(t, b.SetTokenActive(ethAccountCode, tokenCode, false))
+	require.NotContains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+
+	b.httpClient = mockSwapKitHTTPClient(t, func(request swapkit.SwapRequest) {
+		require.Equal(t, "route-id", request.RouteID)
+		require.NotEmpty(t, request.SourceAddress)
+		require.True(t, strings.HasPrefix(request.DestinationAddress, "0x"))
+	})
+
+	preview, err := b.PreviewSwap(tokenAccountCode, btcAccountCode, "route-id", "1")
+	require.NoError(t, err)
+	require.NotContains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+	require.NotNil(t, preview.TxInput.PaymentRequest)
+	require.NotNil(t, preview.TxInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation)
+	require.NotNil(t, preview.TxInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation.Eth)
+}
+
+func TestPrepareSwapActivatesInactiveTokenDestinationDuringSign(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	ethAccountCode := accountsTypes.Code("v0-55555555-eth-0")
+	btcAccountCode := accountsTypes.Code("v0-55555555-btc-0")
+	tokenCode := "eth-erc20-bat"
+	tokenAccountCode := Erc20AccountCode(ethAccountCode, tokenCode)
+
+	require.NoError(t, b.SetTokenActive(ethAccountCode, tokenCode, false))
+	require.NotContains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+
+	b.httpClient = mockSwapKitHTTPClient(t, nil)
+
+	_, err := b.PrepareSwap(tokenAccountCode, btcAccountCode, "route-id", "1")
+	require.NoError(t, err)
 	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
 }
 

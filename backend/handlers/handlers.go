@@ -67,6 +67,7 @@ type Backend interface {
 	Testing() bool
 	Accounts() backend.AccountsList
 	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
+	PreviewSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
 	SwapAccounts() (backend.SwapAccounts, error)
 	SwapStatus() backend.SwapStatus
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
@@ -1847,6 +1848,7 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 
 	var request struct {
 		BuyAccountCode  accountsTypes.Code `json:"buyAccountCode"`
+		Preview         bool               `json:"preview"`
 		RouteID         string             `json:"routeId"`
 		SellAccountCode accountsTypes.Code `json:"sellAccountCode"`
 		SellAmount      string             `json:"sellAmount"`
@@ -1867,12 +1869,23 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 	if request.SellAmount == "" {
 		return result{Success: false, ErrorMessage: "sellAmount is required."}
 	}
-	swapResult, err := handlers.backend.PrepareSwap(
-		request.BuyAccountCode,
-		request.SellAccountCode,
-		request.RouteID,
-		request.SellAmount,
-	)
+	var swapResult *backend.SwapPreparation
+	var err error
+	if request.Preview {
+		swapResult, err = handlers.backend.PreviewSwap(
+			request.BuyAccountCode,
+			request.SellAccountCode,
+			request.RouteID,
+			request.SellAmount,
+		)
+	} else {
+		swapResult, err = handlers.backend.PrepareSwap(
+			request.BuyAccountCode,
+			request.SellAccountCode,
+			request.RouteID,
+			request.SellAmount,
+		)
+	}
 	if err != nil {
 		return result{Success: false, ErrorMessage: err.Error()}
 	}

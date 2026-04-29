@@ -458,6 +458,7 @@ export const Swap = ({
       try {
         const response = await signSwap({
           buyAccountCode,
+          preview: true,
           routeId: selectedRouteId,
           sellAccountCode,
           sellAmount,
@@ -535,8 +536,8 @@ export const Swap = ({
         || !selectedRouteId
         || !sellAmount
         || !buyAccount
-        || !feePreview
-        || feePreview.key !== feePreviewKey
+        || !feePreviewKey
+        || !activeFeePreview
       ) {
         alertUser(t('genericError'));
         return;
@@ -557,7 +558,18 @@ export const Swap = ({
       setResult(undefined);
       setConfirmDetails(undefined);
 
-      const proposal = await proposeTx(sellAccountCode, feePreview.txInput);
+      const response = await signSwap({
+        buyAccountCode,
+        routeId: selectedRouteId,
+        sellAccountCode,
+        sellAmount,
+      });
+      if (!response.success) {
+        alertUser(response.errorMessage || t('genericError'));
+        return;
+      }
+
+      const proposal = await proposeTx(sellAccountCode, response.txInput);
       if (!proposal.success) {
         if (proposal.errorCode) {
           const errorCode = proposal.errorCode;
@@ -576,15 +588,17 @@ export const Swap = ({
         return;
       }
       setFeePreview({
-        ...feePreview,
+        expectedBuyAmount: response.expectedBuyAmount,
+        key: feePreviewKey,
         proposal,
+        txInput: response.txInput,
       });
 
       let expectedOutputConversions: TAmountWithConversions['conversions'];
       const fiatConversions = await Promise.all(
         activeCurrencies.map(async fiatUnit => {
           const fiatConversion = await convertToCurrency({
-            amount: feePreview.expectedBuyAmount,
+            amount: response.expectedBuyAmount,
             coinCode: buyAccount.coinCode,
             fiatUnit,
           });
@@ -609,7 +623,7 @@ export const Swap = ({
       });
       setIsConfirming(true);
 
-      const recipientName = feePreview.txInput.paymentRequest?.recipientName || 'SwapKit';
+      const recipientName = response.txInput.paymentRequest?.recipientName || 'SwapKit';
       const sendResult = await sendTx(sellAccountCode, `${t('generic.swap')} ${recipientName}`);
       setResult(sendResult);
     } catch (error: unknown) {
