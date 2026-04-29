@@ -21,6 +21,7 @@ import {
   getSwapQuote,
   signSwap,
   type TSwapAccount,
+  type TSwapAccounts,
   type TSwapQuoteRoute,
 } from '@/api/swap';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
@@ -91,7 +92,14 @@ export const Swap = ({
   const navigate = useNavigate();
   const { activeCurrencies, btcUnit } = useContext(RatesContext);
   // accounts is added as a dependency, to reload swap accounts when the account list changes.
-  const swapAccounts = useLoad(getSwapAccounts, [accounts]);
+  const loadedSwapAccounts = useLoad(getSwapAccounts, [accounts]);
+  const [retainedSwapAccounts, setRetainedSwapAccounts] = useState<TSwapAccounts>();
+  useEffect(() => {
+    if (loadedSwapAccounts !== undefined) {
+      setRetainedSwapAccounts(loadedSwapAccounts);
+    }
+  }, [loadedSwapAccounts]);
+  const swapAccounts = loadedSwapAccounts ?? retainedSwapAccounts;
   const sellAccounts = swapAccounts?.success ? swapAccounts.sellAccounts : undefined;
   const buyAccounts = swapAccounts?.success ? swapAccounts.buyAccounts : undefined;
 

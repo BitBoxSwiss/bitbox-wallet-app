@@ -1689,11 +1689,13 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		}
 	}
 	log.Info("marking account as used")
+	var emitUpdate bool
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(account.Config().Config.Code)
 		if acct == nil {
 			return errp.Newf("could not find account")
 		}
+		emitUpdate = !acct.Used || acct.HiddenBecauseUnused
 		acct.Used = true
 		acct.HiddenBecauseUnused = false
 
@@ -1703,7 +1705,9 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		log.WithError(err).Error("checkAccountUsed")
 		return
 	}
-	backend.emitAccountsStatusChanged()
+	if emitUpdate {
+		backend.emitAccountsStatusChanged()
+	}
 	backend.maybeAddHiddenUnusedAccounts()
 }
 
