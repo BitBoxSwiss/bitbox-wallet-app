@@ -3,7 +3,7 @@ import WidgetKit
 
 enum WidgetStrings {
     static let displayName = "BitBoxApp Prices"
-    static let description = "Live token price with 7-day chart."
+    static let description = "Live token price with 24-hour chart."
     static let unavailable = "Unavailable"
 }
 
@@ -31,11 +31,11 @@ struct BitBoxAppWidgetEntryView: View {
     }
 
     private var changeText: String {
-        WidgetFormatting.formattedChange(entry.change7d)
+        WidgetFormatting.formattedChange(entry.change24h)
     }
 
     private var changeColor: Color {
-        WidgetFormatting.changeColor(entry.change7d)
+        WidgetFormatting.changeColor(entry.change24h)
     }
 
     private var currencyLabel: String {

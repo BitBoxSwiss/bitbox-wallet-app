@@ -3,7 +3,7 @@ import WidgetKit
 
 struct PriceData: Codable {
     let price: Double
-    let change7d: Double
+    let change24h: Double
     let chartPrices: [Double]
     let coinCode: String
     let currency: String
@@ -22,7 +22,7 @@ struct SimpleEntry: TimelineEntry {
     let date: Date
     let coinCode: String
     let price: Double?
-    let change7d: Double?
+    let change24h: Double?
     let chartPrices: [Double]
     let currency: String
 
