@@ -12,12 +12,17 @@
 }
 
 .max {
-    color: var(--color-gray);
-    display: flex;
-    font-size: var(--size-small);
-    gap: 0.4ch;
-    min-height: auto;
-    padding: 0;
+  align-items: baseline;
+  color: var(--color-gray);
+  display: flex;
+  font-size: var(--size-small);
+  gap: .4ch;
+  min-height: auto;
+  padding: 0;
+}
+
+.nomargin {
+  margin-left: 0;
 }
 
 .sellWarning {

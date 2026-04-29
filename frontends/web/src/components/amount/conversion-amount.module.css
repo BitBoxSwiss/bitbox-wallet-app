@@ -8,7 +8,14 @@
   display: flex;
   font-variant-numeric: tabular-nums;
   margin-left: auto;
-  gap: 3px;
+}
+
+.txPrefix {
+  margin-right: .4ch;
+}
+
+.txUnit {
+  margin-left: .4ch;
 }
 
 .txPrefix,
