@@ -27,7 +27,7 @@ export const AppProvider = ({ children }: TProps) => {
   const [guideExists, setGuideExists] = useState(false);
   const [hideAmounts, setHideAmounts] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState(false);
-  const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('all');
+  const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('year');
   const [firmwareUpdateDialogOpen, setFirmwareUpdateDialogOpen] = useState(false);
   const [tmpConfig, setTmpConfig] = useState<TSessionConfig>({});
 

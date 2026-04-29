@@ -36,6 +36,7 @@
 - Revamp Marketplace UI
 - Add the support for performing swaps between cryptocurrencies through SwapKit
 - Fullscreen region select on mobile
+- Change portfolio chart default to year
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.
