@@ -268,12 +268,21 @@ func specialActionDeals(coinCode coin.Code, regionCode string, action Action, ht
 		}
 		return []*DealsList{SwapKitDeals()}, true, nil
 	case OtcAction:
+		btcDirectSupportsCoin := IsBtcDirectSupported(coinCode)
+		pocketSupportsCoin := IsPocketSupported(coinCode)
+		if !btcDirectSupportsCoin && !pocketSupportsCoin {
+			return nil, true, ErrCoinNotSupported
+		}
+
 		otcDealsLists := []*DealsList{}
-		if IsBtcDirectOTCSupportedForCoinInRegion(coinCode, regionCode) {
+		if btcDirectSupportsCoin && isRegionSupportedBtcDirect(regionCode) {
 			otcDealsLists = append(otcDealsLists, BtcDirectOTCDeals())
 		}
-		if IsPocketOTCSupportedForCoinInRegion(coinCode, regionCode, httpClient) {
+		if pocketSupportsCoin && IsPocketOTCSupportedForCoinInRegion(coinCode, regionCode, httpClient) {
 			otcDealsLists = append(otcDealsLists, PocketOTCDeals())
+		}
+		if len(otcDealsLists) == 0 {
+			return nil, true, ErrRegionNotSupported
 		}
 		return otcDealsLists, true, nil
 	default:
