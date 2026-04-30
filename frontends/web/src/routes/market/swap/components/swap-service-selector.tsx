@@ -114,7 +114,9 @@ const CustomOption = (props: OptionProps<TOption, false>) => {
 
 const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
   <components.DropdownIndicator {...props}>
-    <ChevronDownDark />
+    {props.options.length ? (
+      <ChevronDownDark />
+    ) : ' '}
   </components.DropdownIndicator>
 );
 
@@ -183,6 +185,7 @@ export const SwapServiceSelector = ({
           Option: CustomOption,
           SingleValue: CustomSingleValue,
         }}
+        placeholder=""
         isDisabled={!options.length || isLoading}
         isSearchable={false}
         options={options}
