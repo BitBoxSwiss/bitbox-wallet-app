@@ -1634,6 +1634,7 @@
     "title": "Note"
   },
   "notification": {
+    "incomingTxToast": "Incoming {{amount}} {{unit}}",
     "newTxs_one": "New transaction in: {{accountName}}",
     "newTxs_other": "{{count}} new transactions in: {{accountName}}"
   },
@@ -2051,6 +2052,32 @@
       "prompt": "Please close the app to exit testnet mode",
       "title": "Exit testnet mode"
     }
+  },
+  "toastDemo": {
+    "buttons": {
+      "bitbox02Nova": "Show BitBox02 Nova toast",
+      "error": "Show error toast",
+      "info": "Show info toast",
+      "incoming": "Show incoming BTC toast",
+      "long": "Show long toast",
+      "persistent": "Show persistent toast",
+      "success": "Show success toast",
+      "warning": "Show warning toast"
+    },
+    "description": "Trigger a toast to preview the banner-based toast component.",
+    "examples": {
+      "bitbox02Nova": {
+        "action": "Set up now",
+        "prefix": "A new BitBox02 Nova has been found."
+      },
+      "error": "Something went wrong. Please try again.",
+      "info": "Heads up! This is an informational toast.",
+      "incomingBtc": "Incoming 0.01 BTC",
+      "persistent": "This toast will stay here until you dismiss it.",
+      "success": "Success! The action completed.",
+      "warning": "Warning: Please double-check before continuing."
+    },
+    "title": "Toast demo"
   },
   "transaction": {
     "advanced": "Advanced",
