@@ -161,12 +161,14 @@ export const SwapServiceSelector = ({
 
   if (!isLoading && error) {
     return (
-      <Message
-        type="warning"
-        className={style.errorMessage}
-      >
-        {error}
-      </Message>
+      <section className={style.swapServiceContainer}>
+        <Message
+          type="warning"
+          className={style.errorMessage}
+        >
+          {error}
+        </Message>
+      </section>
     );
   }
 
@@ -177,7 +179,7 @@ export const SwapServiceSelector = ({
   );
 
   return (
-    <section>
+    <section className={style.swapServiceContainer}>
       <Label className={style.label}>
         {t('swap.route')}
         {!isLoading && !error && options.length === 1 && (

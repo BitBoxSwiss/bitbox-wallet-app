@@ -1,8 +1,5 @@
-.label {
-    align-items: baseline;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+.swapServiceContainer {
+    min-height: 85px;
 }
 
 .select :global(.react-select__control) {
@@ -99,6 +96,13 @@
     padding-right: .4ch;
 }
 
+.label {
+    align-items: baseline;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .statusText {
     color: var(--color-secondary);
     font-size: var(--size-small);
@@ -106,5 +110,6 @@
 }
 
 .errorMessage {
-    margin-top: 8px;
+    margin-bottom: 0;
+    margin-top: var(--space-quarter);
 }
