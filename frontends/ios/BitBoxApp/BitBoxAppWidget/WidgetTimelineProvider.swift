@@ -9,7 +9,7 @@ struct Provider: TimelineProvider {
             date: Date(),
             coinCode: "btc",
             price: 85_200,
-            change7d: 1.68,
+            change24h: 1.68,
             chartPrices: SimpleEntry.sampleChartData,
             currency: WidgetAppGroupStore.userCurrency()
         )
@@ -25,7 +25,7 @@ struct Provider: TimelineProvider {
                     date: Date(),
                     coinCode: coinCode,
                     price: 85_200,
-                    change7d: 1.68,
+                    change24h: 1.68,
                     chartPrices: SimpleEntry.sampleChartData,
                     currency: currency
                 )
@@ -67,7 +67,7 @@ struct Provider: TimelineProvider {
             date: Date(),
             coinCode: data?.coinCode ?? coinCode,
             price: data?.price,
-            change7d: data?.change7d,
+            change24h: data?.change24h,
             chartPrices: data?.chartPrices ?? [],
             currency: data?.currency ?? currency
         )

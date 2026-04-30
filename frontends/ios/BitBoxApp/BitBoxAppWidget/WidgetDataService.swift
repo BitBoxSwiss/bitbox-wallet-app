@@ -1,6 +1,8 @@
 import Foundation
 
 struct WidgetDataService {
+    private static let chartRangeSeconds = 24 * 3600
+
     private let defaults: UserDefaults?
     private let session: URLSession
 
@@ -40,7 +42,7 @@ struct WidgetDataService {
 
         let normalized = PriceData(
             price: data.price,
-            change7d: data.change7d,
+            change24h: data.change24h,
             chartPrices: data.chartPrices,
             coinCode: WidgetShared.normalizeCoinCode(data.coinCode),
             currency: data.currency.uppercased()
@@ -73,7 +75,12 @@ struct WidgetDataService {
                 return nil
             }
 
-            let prices = decoded.prices.compactMap { $0.count >= 2 ? $0[1] : nil }
+            let prices = decoded.prices.compactMap { rawPrice -> Double? in
+                guard rawPrice.count >= 2, rawPrice[1].isFinite else {
+                    return nil
+                }
+                return rawPrice[1]
+            }
             guard prices.count >= 2 else {
                 return nil
             }
@@ -88,7 +95,7 @@ struct WidgetDataService {
             let change = (currentPrice - firstPrice) / firstPrice * 100
             let result = PriceData(
                 price: currentPrice,
-                change7d: change,
+                change24h: change,
                 chartPrices: prices,
                 coinCode: WidgetShared.normalizeCoinCode(coinCode),
                 currency: currency.uppercased()
@@ -102,9 +109,9 @@ struct WidgetDataService {
 
     private func chartURL(for coinCode: String, currency: String) -> URL? {
         let now = Int(Date().timeIntervalSince1970)
-        let sevenDaysAgo = now - (7 * 24 * 3600)
+        let oneDayAgo = now - Self.chartRangeSeconds
         let geckoID = WidgetCoinMetadata.geckoID(for: coinCode)
-        return URL(string: "https://exchangerates.shiftcrypto.io/api/v3/coins/\(geckoID)/market_chart/range?vs_currency=\(currency.lowercased())&from=\(sevenDaysAgo)&to=\(now)")
+        return URL(string: "https://exchangerates.shiftcrypto.io/api/v3/coins/\(geckoID)/market_chart/range?vs_currency=\(currency.lowercased())&from=\(oneDayAgo)&to=\(now)")
     }
 
     private static func makeSession() -> URLSession {

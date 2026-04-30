@@ -51,17 +51,17 @@ The widget calls the **Shift Crypto CoinGecko Mirror API**:
 ```
 https://exchangerates.shiftcrypto.io/api/v3/coins/{geckoID}/market_chart/range
   ?vs_currency={currency}
-  &from={7 days ago}
+  &from={24 hours ago}
   &to={now}
 ```
 
 Where `geckoID` maps `btc` -> `bitcoin`, `ltc` -> `litecoin`, `eth` -> `ethereum`.
 
-This returns 7 days of price data points. From that response:
+This returns 24 hours of price data points. From that response:
 
 - **Current price** = last data point.
-- **7-day change** = percentage difference between first and last data points.
-- **Chart data** = all price points (used for the sparkline).
+- **24-hour change** = percentage difference between first and last data points.
+- **Chart data** = all returned price points (used for the sparkline).
 
 The request has a **10-second timeout**.
 
