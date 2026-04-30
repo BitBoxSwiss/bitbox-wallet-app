@@ -157,6 +157,17 @@ export const SwapServiceSelector = ({
     ? options.find(option => option.value === selectedRouteId)
     : undefined;
 
+  if (!isLoading && error) {
+    return (
+      <Message
+        type="warning"
+        className={style.errorMessage}
+      >
+        {error}
+      </Message>
+    );
+  }
+
   return (
     <section>
       <Label>
@@ -180,14 +191,6 @@ export const SwapServiceSelector = ({
       />
       {isLoading && (
         <p className={style.statusText}>{t('swap.fetchingRoutes')}</p>
-      )}
-      {!isLoading && error && (
-        <Message
-          type="warning"
-          className={style.errorMessage}
-        >
-          {error}
-        </Message>
       )}
       {!isLoading && !error && options.length === 1 && (
         <p className={style.statusText}>{t('swap.oneRouteAvailable')}</p>
