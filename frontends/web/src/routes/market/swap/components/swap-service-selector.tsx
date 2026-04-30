@@ -114,7 +114,9 @@ const CustomOption = (props: OptionProps<TOption, false>) => {
 
 const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
   <components.DropdownIndicator {...props}>
-    <ChevronDownDark />
+    {props.options.length ? (
+      <ChevronDownDark />
+    ) : ' '}
   </components.DropdownIndicator>
 );
 
@@ -157,10 +159,34 @@ export const SwapServiceSelector = ({
     ? options.find(option => option.value === selectedRouteId)
     : undefined;
 
+  if (!isLoading && error) {
+    return (
+      <section className={style.swapServiceContainer}>
+        <Message
+          type="warning"
+          className={style.errorMessage}
+        >
+          {error}
+        </Message>
+      </section>
+    );
+  }
+
+  const placeholderText = (
+    isLoading
+      ? t('swap.fetchingRoutes')
+      : t('swap.routesPlaceholder')
+  );
+
   return (
-    <section>
-      <Label>
+    <section className={style.swapServiceContainer}>
+      <Label className={style.label}>
         {t('swap.route')}
+        {!isLoading && !error && options.length === 1 && (
+          <span className={style.statusText}>
+            {t('swap.oneRouteAvailable')}
+          </span>
+        )}
       </Label>
       <Select<TOption>
         className={style.select}
@@ -172,26 +198,13 @@ export const SwapServiceSelector = ({
           Option: CustomOption,
           SingleValue: CustomSingleValue,
         }}
+        placeholder={placeholderText}
         isDisabled={!options.length || isLoading}
         isSearchable={false}
         options={options}
         value={selectedOption}
         onChange={option => option && onChangeRouteId(option.value)}
       />
-      {isLoading && (
-        <p className={style.statusText}>{t('swap.fetchingRoutes')}</p>
-      )}
-      {!isLoading && error && (
-        <Message
-          type="warning"
-          className={style.errorMessage}
-        >
-          {error}
-        </Message>
-      )}
-      {!isLoading && !error && options.length === 1 && (
-        <p className={style.statusText}>{t('swap.oneRouteAvailable')}</p>
-      )}
     </section>
   );
 };
