@@ -174,8 +174,8 @@ export const SwapServiceSelector = ({
 
   const placeholderText = (
     isLoading
-    ? t('swap.fetchingRoutes')
-    : ''
+      ? t('swap.fetchingRoutes')
+      : t('swap.routesPlaceholder')
   );
 
   return (
