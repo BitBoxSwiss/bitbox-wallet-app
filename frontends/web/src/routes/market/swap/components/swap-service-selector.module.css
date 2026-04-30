@@ -1,3 +1,9 @@
+.label {
+    align-items: baseline;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
 
 .select :global(.react-select__control) {
     background-color: var(--background-secondary);

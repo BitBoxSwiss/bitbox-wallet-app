@@ -178,8 +178,13 @@ export const SwapServiceSelector = ({
 
   return (
     <section>
-      <Label>
+      <Label className={style.label}>
         {t('swap.route')}
+        {!isLoading && !error && options.length === 1 && (
+          <span className={style.statusText}>
+            {t('swap.oneRouteAvailable')}
+          </span>
+        )}
       </Label>
       <Select<TOption>
         className={style.select}
@@ -198,9 +203,6 @@ export const SwapServiceSelector = ({
         value={selectedOption}
         onChange={option => option && onChangeRouteId(option.value)}
       />
-      {!isLoading && !error && options.length === 1 && (
-        <p className={style.statusText}>{t('swap.oneRouteAvailable')}</p>
-      )}
     </section>
   );
 };
