@@ -302,6 +302,49 @@ describe('routes/market/swap', () => {
     expect(screen.queryByText(/ETH\.USDC/)).not.toBeInTheDocument();
   });
 
+  it('keeps quote output visible for insufficient funds', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+      success: false,
+      errorCode: 'insufficientFunds',
+      errorMessage: 'insufficientFunds',
+      quote: {
+        routes: [{
+          expectedBuyAmount: '1.23',
+          providers: ['thorchain', 'mayachain'],
+          routeId: 'route-1',
+        }],
+      },
+    });
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[sellAccount, buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '2');
+
+    expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+    expect(await screen.findByTestId('swapGetAmount')).toHaveTextContent('1.23');
+    expect(screen.getByText(/insufficient funds/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+  });
+
   it('disables swap button immediately when sell amount changes', async () => {
     const user = userEvent.setup();
 
