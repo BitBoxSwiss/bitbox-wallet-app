@@ -2116,7 +2116,7 @@
     "new": "New swap",
     "noRouteFound": "No route found",
     "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",
-    "oneRouteAvailable": "One route available.",
+    "oneRouteAvailable": "One route available",
     "recommended": "Recommended",
     "route": "Swap route",
     "unexpectedError": "Some unexpected error occurred."

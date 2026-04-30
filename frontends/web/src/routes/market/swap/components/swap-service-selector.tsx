@@ -170,6 +170,12 @@ export const SwapServiceSelector = ({
     );
   }
 
+  const placeholderText = (
+    isLoading
+    ? t('swap.fetchingRoutes')
+    : ''
+  );
+
   return (
     <section>
       <Label>
@@ -185,16 +191,13 @@ export const SwapServiceSelector = ({
           Option: CustomOption,
           SingleValue: CustomSingleValue,
         }}
-        placeholder=""
+        placeholder={placeholderText}
         isDisabled={!options.length || isLoading}
         isSearchable={false}
         options={options}
         value={selectedOption}
         onChange={option => option && onChangeRouteId(option.value)}
       />
-      {isLoading && (
-        <p className={style.statusText}>{t('swap.fetchingRoutes')}</p>
-      )}
       {!isLoading && !error && options.length === 1 && (
         <p className={style.statusText}>{t('swap.oneRouteAvailable')}</p>
       )}
