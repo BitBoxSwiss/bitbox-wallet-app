@@ -1929,6 +1929,8 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 		return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 	}
 	sellAmount := request.SellAmount
+	var validationErrorCode errp.ErrorCode
+	var validationErrorMessage string
 	if request.SellAccountCode != "" {
 		account, err := handlers.backend.GetAccountFromCode(request.SellAccountCode)
 		if err != nil {
@@ -1940,9 +1942,14 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 		}
 		if err := swapkit.ValidateSwapSellAmount(account, parsedAmount); err != nil {
 			if validationErr, ok := errp.Cause(err).(accountErrors.TxValidationError); ok {
-				return errorResult(errp.ErrorCode(validationErr.Error()), validationErr.Error(), nil)
+				if validationErr != accountErrors.ErrInsufficientFunds {
+					return errorResult(errp.ErrorCode(validationErr.Error()), validationErr.Error(), nil)
+				}
+				validationErrorCode = errp.ErrorCode(validationErr.Error())
+				validationErrorMessage = validationErr.Error()
+			} else {
+				return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 			}
-			return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 		}
 		sellAmount, err = swapkit.FormatAmount(account.Coin(), request.SellAmount)
 		if err != nil {
@@ -1958,6 +1965,14 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	)
 	if quoteError != nil {
 		return errorResult(quoteError.ErrorCode, quoteError.Message, quoteError.Data)
+	}
+	if validationErrorCode != "" {
+		return result{
+			Success:      false,
+			ErrorCode:    validationErrorCode,
+			ErrorMessage: validationErrorMessage,
+			Quote:        quoteResponse,
+		}
 	}
 	return result{
 		Success: true,

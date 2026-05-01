@@ -56,6 +56,9 @@ export type TSwapQuoteResponse = {
     sellCoin?: string;
   };
   errorMessage: string;
+  quote?: {
+    routes: TSwapQuoteRoute[];
+  };
 };
 export const getSwapQuote = (
   data: TSwapQuoteRequest,

@@ -283,9 +283,10 @@ export const Swap = ({
         if (isCancelled) {
           return;
         }
-        const nextRoutes = response.success ? response.quote.routes : [];
+        const nextRoutes = response.quote?.routes ?? [];
         if (nextRoutes.length > 0) {
-          setQuoteErrorCode(undefined);
+          setQuoteErrorCode(response.success ? undefined : response.errorCode);
+          setRouteError(undefined);
           setRoutes(nextRoutes);
           const firstRouteId = nextRoutes[0]?.routeId;
           setSelectedRouteId(currentRouteId => (
@@ -660,7 +661,7 @@ export const Swap = ({
             <ViewButtons>
               <Button
                 primary
-                disabled={!selectedRoute || isConfirmInFlight}
+                disabled={!selectedRoute || isConfirmInFlight || quoteErrorCode === INSUFFICIENT_FUNDS_ERROR}
                 onClick={handleConfirm}>
                 <span className={style.swapButtonContent}>
                   {isConfirmInFlight && (
