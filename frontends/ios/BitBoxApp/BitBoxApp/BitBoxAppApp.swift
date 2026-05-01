@@ -190,6 +190,7 @@ struct BitBoxAppApp: App {
         WindowGroup {
             GridLayout(alignment: .leading) {
                 let goAPI = GoAPI()
+                ZStack(alignment: .top) {
                 WebView(setHandlers: goAPI)
                     .edgesIgnoringSafeArea(.all)
                     .onAppear {
@@ -224,6 +225,8 @@ struct BitBoxAppApp: App {
                             }
                         }
                     }
+                StatusBarCover()
+                }
             }
             .onOpenURL { url in
                 MobileserverHandleURI(url.absoluteString)
@@ -245,5 +248,48 @@ struct BitBoxAppApp: App {
         let testnet = false;
         #endif
         MobileserverServe(appSupportDirectory.path, testnet, goEnvironment, goAPI)
+    }
+}
+
+/// Only visible while the keyboard is on screen.
+private struct StatusBarCover: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @StateObject private var keyboard = KeyboardObserver()
+
+    var body: some View {
+        GeometryReader { geometry in
+            if keyboard.isVisible {
+                let safeTop = geometry.safeAreaInsets.top
+                Color(uiColor: colorScheme == .dark
+                      ? UIColor(red: 0x1D/255, green: 0x1D/255, blue: 0x1B/255, alpha: 1)
+                      : UIColor(red: 0xF5/255, green: 0xF5/255, blue: 0xF5/255, alpha: 1))
+                    .frame(width: geometry.size.width, height: safeTop)
+                    .ignoresSafeArea(edges: .top)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+private final class KeyboardObserver: ObservableObject {
+    @Published var isVisible = false
+
+    private var tokens: [NSObjectProtocol] = []
+
+    init() {
+        let nc = NotificationCenter.default
+        tokens.append(nc.addObserver(
+            forName: UIResponder.keyboardWillShowNotification,
+            object: nil, queue: .main
+        ) { [weak self] _ in self?.isVisible = true })
+
+        tokens.append(nc.addObserver(
+            forName: UIResponder.keyboardWillHideNotification,
+            object: nil, queue: .main
+        ) { [weak self] _ in self?.isVisible = false })
+    }
+
+    deinit {
+        tokens.forEach { NotificationCenter.default.removeObserver($0) }
     }
 }
