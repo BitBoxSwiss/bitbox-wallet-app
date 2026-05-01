@@ -1,15 +1,52 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { Input, TInputProps } from './input';
+import { normalizeNumberInputValue, numberInputValueToString, sanitizeNumberInputValue } from './input-number-utils';
+import { runningInIOS } from '@/utils/env';
 
 type Props = Omit<TInputProps, 'ref' | 'onInput'>;
 
-export const NumberInput = (({
+// override the change event to set
+// the value to the normalized value (decimal separator)
+const changeEventWithValue = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  value: string,
+) => ({
+  ...event,
+  currentTarget: {
+    ...event.currentTarget,
+    value,
+  },
+  target: {
+    ...event.target,
+    value,
+  },
+} as React.ChangeEvent<HTMLInputElement>);
+
+export const NumberInput = forwardRef<HTMLInputElement, Props>(({
   inputMode = 'decimal',
   onChange,
+  value,
+  defaultValue,
   ...props
-}: Props) => {
+}: Props, ref) => {
+  const isIOS = runningInIOS();
+  const reportedValue = useRef(numberInputValueToString(value === undefined ? defaultValue : value));
+  const [displayValue, setDisplayValue] = useState(
+    numberInputValueToString(value === undefined ? defaultValue : value)
+  );
+
+  useEffect(() => {
+    if (value === undefined) {
+      return;
+    }
+    const nextValue = numberInputValueToString(value);
+    if (nextValue !== reportedValue.current) {
+      setDisplayValue(nextValue);
+    }
+    reportedValue.current = nextValue;
+  }, [value]);
 
   // support pasting of various different formats
   // the function tries to do some light string replacement and see if it becomes a number
@@ -66,18 +103,36 @@ export const NumberInput = (({
       console.warn(`unexpected format ${text.replace(/[\d]/g, '9')}`);
       return;
     }
+    if (isIOS) {
+      setDisplayValue(target.value);
+      reportedValue.current = target.value;
+    }
     if (onChange) {
       onChange({ ...event, target });
     }
     event.preventDefault();
+  }, [isIOS, onChange]);
+
+  const handleIOSInput = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
+    const sanitizedValue = sanitizeNumberInputValue(target.value);
+    const normalizedValue = normalizeNumberInputValue(sanitizedValue);
+    setDisplayValue(sanitizedValue);
+    reportedValue.current = normalizedValue;
+    if (onChange) {
+      onChange(changeEventWithValue(event, normalizedValue));
+    }
   }, [onChange]);
 
   return (
     <Input
       {...props}
-      type="number"
+      ref={ref}
+      type={isIOS ? 'text' : 'number'}
       inputMode={inputMode}
-      onInput={onChange}
+      value={isIOS ? displayValue : value}
+      defaultValue={isIOS ? undefined : defaultValue}
+      onInput={isIOS ? handleIOSInput : onChange}
       onPaste={handlePaste}
     />
   );
