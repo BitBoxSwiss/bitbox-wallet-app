@@ -14,9 +14,9 @@ type TProps = {
 export const MobileHeader = ({ title, withGuide = false, onClick }: TProps) => {
   const navigate = useNavigate();
   const handleClick = () => {
-    // goes to the 'general settings' page if no onClick function is provided
+    // goes to the previous page if no onClick function is provided
     if (!onClick) {
-      navigate('/settings');
+      navigate(-1);
     } else {
       onClick();
     }
