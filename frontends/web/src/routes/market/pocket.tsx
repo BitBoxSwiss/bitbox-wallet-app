@@ -244,7 +244,11 @@ export const Pocket = ({
           sendCanceledMessage('rejected_by_customer', message.correlationId);
         } else {
           sendCanceledMessage('unknown_error', message.correlationId);
-          alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+          if (sendResult.errorMessage) {
+            alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+          } else {
+            alertUser(t('genericError'));
+          }
         }
       }
     } else {
