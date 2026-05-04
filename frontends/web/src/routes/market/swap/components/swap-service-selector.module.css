@@ -106,7 +106,7 @@
 .statusText {
     color: var(--color-secondary);
     font-size: var(--size-small);
-    margin: 8px 0 0;
+    margin: 0;
 }
 
 .errorMessage {
