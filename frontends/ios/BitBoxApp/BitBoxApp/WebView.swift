@@ -176,6 +176,9 @@ struct WebView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
+        guard uiView.url == nil else {
+            return
+        }
         uiView.load(URLRequest(url: URL(string: scheme + ":/index.html")!))
     }
     

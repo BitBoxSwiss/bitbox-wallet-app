@@ -102,6 +102,9 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
     }
 
     func setDarkTheme(_ p0: Bool) {
+        DispatchQueue.main.async {
+            AppTheme.shared.isDark = p0
+        }
     }
 
     // Helper method to get the root view controller
@@ -190,6 +193,7 @@ struct BitBoxAppApp: App {
         WindowGroup {
             GridLayout(alignment: .leading) {
                 let goAPI = GoAPI()
+                ZStack(alignment: .top) {
                 WebView(setHandlers: goAPI)
                     .edgesIgnoringSafeArea(.all)
                     .onAppear {
@@ -224,6 +228,8 @@ struct BitBoxAppApp: App {
                             }
                         }
                     }
+                StatusBarCover()
+                }
             }
             .onOpenURL { url in
                 MobileserverHandleURI(url.absoluteString)
@@ -245,5 +251,61 @@ struct BitBoxAppApp: App {
         let testnet = false;
         #endif
         MobileserverServe(appSupportDirectory.path, testnet, goEnvironment, goAPI)
+    }
+}
+
+/// only visible while the keyboard is on screen.
+private struct StatusBarCover: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @StateObject private var keyboard = KeyboardObserver()
+    @ObservedObject private var theme = AppTheme.shared
+
+    // app settings win, OS fallback.
+    private var useDark: Bool {
+        theme.isDark ?? (colorScheme == .dark)
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            if keyboard.isVisible {
+                let safeTop = geometry.safeAreaInsets.top
+                Color(uiColor: useDark
+                      ? UIColor(red: 0x1D/255, green: 0x1D/255, blue: 0x1B/255, alpha: 1)  // #1D1D1B
+                      : UIColor(red: 0xF5/255, green: 0xF5/255, blue: 0xF5/255, alpha: 1)) // #F5F5F5
+                    .frame(width: geometry.size.width, height: safeTop)
+                    .ignoresSafeArea(edges: .top)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+/// Dark-mode flag comes from web. 
+// `nil` until set, then fallbacks to OS.
+final class AppTheme: ObservableObject {
+    static let shared = AppTheme()
+    @Published var isDark: Bool? = nil
+}
+
+private final class KeyboardObserver: ObservableObject {
+    @Published var isVisible = false
+
+    private var tokens: [NSObjectProtocol] = []
+
+    init() {
+        let nc = NotificationCenter.default
+        tokens.append(nc.addObserver(
+            forName: UIResponder.keyboardWillShowNotification,
+            object: nil, queue: .main
+        ) { [weak self] _ in self?.isVisible = true })
+
+        tokens.append(nc.addObserver(
+            forName: UIResponder.keyboardWillHideNotification,
+            object: nil, queue: .main
+        ) { [weak self] _ in self?.isVisible = false })
+    }
+
+    deinit {
+        tokens.forEach { NotificationCenter.default.removeObserver($0) }
     }
 }
