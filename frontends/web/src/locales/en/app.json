@@ -2119,7 +2119,7 @@
     "oneRouteAvailable": "One route available",
     "recommended": "Recommended",
     "route": "Swap route",
-    "routesPlaceholder": "Routes will appear here after inputing an amount",
+    "routesPlaceholder": "Routes will appear here after entering an amount",
     "unexpectedError": "Some unexpected error occurred."
   },
   "transactions": {
