@@ -73,7 +73,8 @@ export const Market = ({
   useEffect(() => {
     setSupportedAccounts(accounts);
     if (!selectedAccount || !accounts.some(account => account.code === selectedAccount)) {
-      setSelectedAccount(accounts[0]?.code || '');
+      const accountOfConnectedKeystore = accounts.find(account => account.keystore.connected);
+      setSelectedAccount(accountOfConnectedKeystore?.code || accounts[0]?.code || '');
     }
   }, [accounts, selectedAccount]);
 
