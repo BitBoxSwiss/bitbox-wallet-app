@@ -2,7 +2,7 @@
 
 import 'flag-icons';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
@@ -43,6 +43,7 @@ export const Market = ({
 }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedAccount, setSelectedAccount] = useState<string>(code);
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -179,7 +180,13 @@ export const Market = ({
 
   const handleChangeTab = (tab: marketAPI.TMarketAction) => {
     setActiveTab(tab);
+    setSearchParams(`?tab=${tab}`);
   };
+
+  useEffect(() => {
+    const tab = searchParams.get('tab') as marketAPI.TMarketAction | null ;
+    setActiveTab(tab || 'buy');
+  }, [searchParams]);
 
   const goToVendor = async (vendor: marketAPI.TVendorName) => {
     if (!vendor) {
