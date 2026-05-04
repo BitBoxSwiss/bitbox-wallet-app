@@ -72,7 +72,9 @@
   text-overflow: ellipsis;
 }
 
-.inputField {
+.inputField,
+.inputField input[type="number"],
+.inputField input[type="text"] {
   border-radius: 0;
 }
 
