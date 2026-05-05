@@ -21,6 +21,8 @@ type Props<T extends TAccountBase> = {
   onChangeValue?: (value: string) => void;
   readOnlyAmount?: boolean;
   value: string | undefined;
+  placeholder?: string;
+  placeholderFiat?: string | JSX.Element | undefined;
 };
 
 export const InputWithAccountSelector = <T extends TAccountBase, >({
@@ -32,6 +34,8 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
   onChangeValue,
   value,
   readOnlyAmount = false,
+  placeholder,
+  placeholderFiat,
 }: Props<T>) => {
   const { btcUnit, defaultCurrency } = useContext(RatesContext);
   const [selectedAccount, setSelectedAccount] = useState<T>();
@@ -116,6 +120,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
             name={id}
             readOnly={readOnlyAmount}
             value={value}
+            placeholder={placeholder}
             onChange={(event: ChangeEvent<HTMLInputElement>) => {
               onChangeValue && onChangeValue(event.target.value);
             }}
@@ -130,7 +135,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
               <Amount amount={esitmatedFiatValue} unit={defaultCurrency} />
               <AmountUnit unit={defaultCurrency} />
             </>
-          ) : null}
+          ) : placeholderFiat}
         </div>
       </label>
     </div>

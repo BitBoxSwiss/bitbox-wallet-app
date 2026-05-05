@@ -1017,6 +1017,7 @@
     "buySell": "Marketplace",
     "buy_bitcoin": "Buy Bitcoin",
     "buy_crypto": "Buy crypto",
+    "calculating": "Calculating…",
     "close": "Close",
     "enable": "Enable",
     "enabled_false": "Disabled",

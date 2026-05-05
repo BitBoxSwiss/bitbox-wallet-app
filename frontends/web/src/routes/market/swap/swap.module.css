@@ -69,3 +69,8 @@
   height: 14px;
   width: 14px;
 }
+
+.unit {
+  font-size: var(--size-smaller);
+  margin-left: .4ch;
+}
