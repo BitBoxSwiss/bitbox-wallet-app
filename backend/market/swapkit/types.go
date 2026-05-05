@@ -74,6 +74,16 @@ type QuoteRoute struct {
 	NextActions []NextAction `json:"nextActions,omitempty"`
 }
 
+// Provider represents the subset of SwapKit provider metadata needed for quote error handling.
+type Provider struct {
+	Name              string   `json:"name"`
+	Provider          string   `json:"provider"`
+	DisplayName       string   `json:"displayName"`
+	EnabledChainIDs   []string `json:"enabledChainIds"`
+	SupportedActions  []string `json:"supportedActions"`
+	SupportedChainIDs []string `json:"supportedChainIds"`
+}
+
 // Fee represents a fee associated with a quote route returned by the SwapKit API.
 // See https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote and
 // https://docs.swapkit.dev/swapkit-api/v3-swap-obtain-swap-transaction-details

@@ -57,6 +57,7 @@ type Props = {
 const QUOTE_DEBOUNCE_MS = 300;
 const INSUFFICIENT_FUNDS_ERROR = 'insufficientFunds';
 const NO_ROUTES_FOUND_ERROR = 'NoRoutesFoundError';
+const PROVIDERS_UNAVAILABLE_ERROR = 'ProvidersUnavailableError';
 const UNEXPECTED_ERROR = 'unexpectedError';
 
 const fetchBalance = async (code: AccountCode) => {
@@ -298,6 +299,19 @@ export const Swap = ({
         }
         if (!response.success && response.errorCode === INSUFFICIENT_FUNDS_ERROR) {
           resetQuoteStateWithError({ errorCode: response.errorCode });
+          return;
+        }
+        if (!response.success && response.errorCode === PROVIDERS_UNAVAILABLE_ERROR) {
+          const providersUnavailableMessage = response.errorData?.sellCoin && response.errorData?.buyCoin
+            ? t('swap.providersUnavailableForPair', {
+              buyCoin: response.errorData.buyCoin,
+              sellCoin: response.errorData.sellCoin,
+            })
+            : t('swap.providersUnavailable');
+          resetQuoteStateWithError({
+            error: providersUnavailableMessage,
+            errorCode: response.errorCode,
+          });
           return;
         }
         if (

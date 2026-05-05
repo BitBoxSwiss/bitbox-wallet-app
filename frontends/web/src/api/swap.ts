@@ -49,7 +49,7 @@ export type TSwapQuoteResponse = {
   };
 } | {
   success: false;
-  // Known backend values include: NoRoutesFoundError, insufficientFunds, invalidRequest, unexpectedError.
+  // Known backend values include: NoRoutesFoundError, ProvidersUnavailableError, insufficientFunds, invalidRequest, unexpectedError.
   errorCode: string;
   errorData?: {
     buyCoin?: string;

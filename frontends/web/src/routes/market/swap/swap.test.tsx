@@ -345,6 +345,52 @@ describe('routes/market/swap', () => {
     expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
   });
 
+  it('shows providers-unavailable quote errors with display units', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
+      success: true,
+      sellAccounts: [swapBuyAccount],
+      buyAccounts: [swapBuyTokenAccount],
+      defaultSellAccountCode: swapBuyAccount.code,
+      defaultBuyAccountCode: swapBuyTokenAccount.code,
+    });
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+      success: false,
+      errorCode: 'ProvidersUnavailableError',
+      errorData: {
+        buyCoin: 'USDC',
+        sellCoin: 'ETH',
+      },
+      errorMessage: 'Providers unavailable',
+    });
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+
+    expect(await screen.findByText('SwapKit providers for ETH to USDC are currently unavailable. Try again later.')).toBeInTheDocument();
+    expect(screen.queryByText(/ETH\.ETH/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ETH\.USDC/)).not.toBeInTheDocument();
+  });
+
   it('disables swap button immediately when sell amount changes', async () => {
     const user = userEvent.setup();
 

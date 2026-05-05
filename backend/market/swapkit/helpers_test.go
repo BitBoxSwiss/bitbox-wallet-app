@@ -28,6 +28,11 @@ import (
 
 type roundTripFunc func(*http.Request) (*http.Response, error)
 
+const (
+	providersPath = "/providers"
+	quotePath     = "/v3/quote"
+)
+
 func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
 }
@@ -163,22 +168,73 @@ func TestNewQuoteFromCoinCodeUsesInjectedHTTPClient(t *testing.T) {
 	require.Equal(t, []string{"provider-a"}, response.Routes[0].Providers)
 }
 
+func TestNewQuoteFromCoinCodeDoesNotFetchProvidersWhenRoutesFound(t *testing.T) {
+	var requestPaths []string
+	httpClient := &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			requestPaths = append(requestPaths, req.URL.Path)
+
+			switch req.URL.Path {
+			case quotePath:
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(strings.NewReader(
+						`{"routes":[{"providers":["provider-a"],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"1.23"}]}`,
+					)),
+					Header: make(http.Header),
+				}, nil
+			case providersPath:
+				require.FailNow(t, "providers should only be fetched when no routes are found")
+				return nil, nil
+			default:
+				require.FailNow(t, "unexpected path", req.URL.Path)
+				return nil, nil
+			}
+		}),
+	}
+
+	response, apiError := NewQuoteFromCoinCode(
+		context.Background(),
+		httpClient,
+		newQuoteCoin(coinpkg.CodeBTC, "BTC"),
+		newQuoteCoin(coinpkg.CodeETH, "ETH"),
+		"1.23456789",
+	)
+	require.Nil(t, apiError)
+	require.NotNil(t, response)
+	require.Equal(t, []string{quotePath}, requestPaths)
+}
+
 func TestNewQuoteFromCoinCodeMapsEmptyRoutesToNoRoutesFound(t *testing.T) {
 	httpClient := &http.Client{
 		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			bodyBytes, err := io.ReadAll(req.Body)
-			require.NoError(t, err)
+			switch req.URL.Path {
+			case quotePath:
+				bodyBytes, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
 
-			var body QuoteRequest
-			require.NoError(t, json.Unmarshal(bodyBytes, &body))
-			require.Equal(t, "LTC.LTC", body.SellAsset)
-			require.Equal(t, "BTC.BTC", body.BuyAsset)
+				var body QuoteRequest
+				require.NoError(t, json.Unmarshal(bodyBytes, &body))
+				require.Equal(t, "LTC.LTC", body.SellAsset)
+				require.Equal(t, "BTC.BTC", body.BuyAsset)
 
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(strings.NewReader(`{"routes":[]}`)),
-				Header:     make(http.Header),
-			}, nil
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(`{"routes":[]}`)),
+					Header:     make(http.Header),
+				}, nil
+			case providersPath:
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(strings.NewReader(
+						`[{"name":"THORCHAIN","enabledChainIds":["bitcoin","litecoin"],"supportedActions":["swap"],"supportedChainIds":["bitcoin","litecoin"]}]`,
+					)),
+					Header: make(http.Header),
+				}, nil
+			default:
+				require.FailNow(t, "unexpected path", req.URL.Path)
+				return nil, nil
+			}
 		}),
 	}
 
@@ -202,21 +258,35 @@ func TestNewQuoteFromCoinCodeMapsEmptyRoutesToNoRoutesFound(t *testing.T) {
 func TestNewQuoteFromCoinCodeMapsNoRouteAPIErrorToNoRoutesFound(t *testing.T) {
 	httpClient := &http.Client{
 		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			bodyBytes, err := io.ReadAll(req.Body)
-			require.NoError(t, err)
+			switch req.URL.Path {
+			case quotePath:
+				bodyBytes, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
 
-			var body QuoteRequest
-			require.NoError(t, json.Unmarshal(bodyBytes, &body))
-			require.Equal(t, "ETH.ETH", body.SellAsset)
-			require.Equal(t, "BTC.BTC", body.BuyAsset)
+				var body QuoteRequest
+				require.NoError(t, json.Unmarshal(bodyBytes, &body))
+				require.Equal(t, "ETH.ETH", body.SellAsset)
+				require.Equal(t, "BTC.BTC", body.BuyAsset)
 
-			return &http.Response{
-				StatusCode: http.StatusBadRequest,
-				Body: io.NopCloser(strings.NewReader(
-					`{"error":"No route found","message":"No routes found for ETH.ETH to BTC.BTC"}`,
-				)),
-				Header: make(http.Header),
-			}, nil
+				return &http.Response{
+					StatusCode: http.StatusBadRequest,
+					Body: io.NopCloser(strings.NewReader(
+						`{"error":"No route found","message":"No routes found for ETH.ETH to BTC.BTC"}`,
+					)),
+					Header: make(http.Header),
+				}, nil
+			case providersPath:
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(strings.NewReader(
+						`[{"name":"THORCHAIN","enabledChainIds":["1","bitcoin"],"supportedActions":["swap"],"supportedChainIds":["1","bitcoin"]}]`,
+					)),
+					Header: make(http.Header),
+				}, nil
+			default:
+				require.FailNow(t, "unexpected path", req.URL.Path)
+				return nil, nil
+			}
 		}),
 	}
 
@@ -234,6 +304,98 @@ func TestNewQuoteFromCoinCodeMapsNoRouteAPIErrorToNoRoutesFound(t *testing.T) {
 	require.Equal(t, &APIErrorData{
 		SellCoin: "SEPETH",
 		BuyCoin:  "BTC",
+	}, apiError.Data)
+}
+
+func TestNewQuoteFromCoinCodeMapsUnavailableProvidersToProvidersUnavailable(t *testing.T) {
+	httpClient := &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			switch req.URL.Path {
+			case quotePath:
+				bodyBytes, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
+
+				var body QuoteRequest
+				require.NoError(t, json.Unmarshal(bodyBytes, &body))
+				require.Equal(t, "ETH.ETH", body.SellAsset)
+				require.Equal(t, "ETH.USDC-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", body.BuyAsset)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(`{"routes":[]}`)),
+					Header:     make(http.Header),
+				}, nil
+			case providersPath:
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(strings.NewReader(
+						`[{"name":"UNISWAP_V2","enabledChainIds":["42161"],"supportedActions":["swap"],"supportedChainIds":["1","42161"]},{"name":"ONEINCH","enabledChainIds":["42161"],"supportedActions":["swap"],"supportedChainIds":["1","42161"]}]`,
+					)),
+					Header: make(http.Header),
+				}, nil
+			default:
+				require.FailNow(t, "unexpected path", req.URL.Path)
+				return nil, nil
+			}
+		}),
+	}
+
+	response, apiError := NewQuoteFromCoinCode(
+		context.Background(),
+		httpClient,
+		newQuoteCoin(coinpkg.CodeETH, "ETH"),
+		newQuoteCoin(coinpkg.Code("eth-erc20-usdc"), "USDC"),
+		"1.23456789",
+	)
+	require.Nil(t, response)
+	require.NotNil(t, apiError)
+	require.Equal(t, ErrProvidersUnavailable, apiError.ErrorCode)
+	require.Equal(t, providersUnavailableMessage, apiError.Message)
+	require.Equal(t, &APIErrorData{
+		SellCoin: "ETH",
+		BuyCoin:  "USDC",
+	}, apiError.Data)
+}
+
+func TestNewQuoteFromCoinCodeMapsMixedProviderAvailabilityToNoRoutesFound(t *testing.T) {
+	httpClient := &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			switch req.URL.Path {
+			case quotePath:
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(`{"routes":[]}`)),
+					Header:     make(http.Header),
+				}, nil
+			case providersPath:
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(strings.NewReader(
+						`[{"name":"UNISWAP_V2","enabledChainIds":["42161"],"supportedActions":["swap"],"supportedChainIds":["1","42161"]},{"name":"ONEINCH","enabledChainIds":["1"],"supportedActions":["swap"],"supportedChainIds":["1"]}]`,
+					)),
+					Header: make(http.Header),
+				}, nil
+			default:
+				require.FailNow(t, "unexpected path", req.URL.Path)
+				return nil, nil
+			}
+		}),
+	}
+
+	response, apiError := NewQuoteFromCoinCode(
+		context.Background(),
+		httpClient,
+		newQuoteCoin(coinpkg.CodeETH, "ETH"),
+		newQuoteCoin(coinpkg.Code("eth-erc20-usdc"), "USDC"),
+		"1.23456789",
+	)
+	require.Nil(t, response)
+	require.NotNil(t, apiError)
+	require.Equal(t, ErrNoRoutesFound, apiError.ErrorCode)
+	require.Equal(t, noRoutesFoundMessage, apiError.Message)
+	require.Equal(t, &APIErrorData{
+		SellCoin: "ETH",
+		BuyCoin:  "USDC",
 	}, apiError.Data)
 }
 
@@ -346,7 +508,7 @@ func TestNewQuoteFromCoinCodePreservesRoutesWithAnyProviderCount(t *testing.T) {
 
 func TestClientPostAppliesRequestTimeout(t *testing.T) {
 	client := &Client{
-		baseURL: "https://swapkit.shiftcrypto.io/v3",
+		baseURL: "https://swapkit.shiftcrypto.io",
 		httpClient: &http.Client{
 			Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 				deadline, ok := req.Context().Deadline()
@@ -363,5 +525,5 @@ func TestClientPostAppliesRequestTimeout(t *testing.T) {
 	}
 
 	var out QuoteResponse
-	require.NoError(t, client.post(context.Background(), "/quote", &QuoteRequest{}, &out))
+	require.NoError(t, client.post(context.Background(), quotePath, &QuoteRequest{}, &out))
 }

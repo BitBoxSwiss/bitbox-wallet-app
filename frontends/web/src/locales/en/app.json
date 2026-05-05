@@ -2118,6 +2118,8 @@
     "noRouteFound": "No route found",
     "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",
     "oneRouteAvailable": "One route available",
+    "providersUnavailable": "SwapKit providers for this chain are currently unavailable. Try again later.",
+    "providersUnavailableForPair": "SwapKit providers for {{sellCoin}} to {{buyCoin}} are currently unavailable. Try again later.",
     "recommended": "Recommended",
     "route": "Swap route",
     "routesPlaceholder": "Routes will appear here after entering an amount",

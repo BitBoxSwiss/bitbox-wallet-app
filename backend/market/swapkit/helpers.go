@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -30,19 +31,43 @@ var swapkitAssetByCoinCode = map[string]string{
 	"eth-erc20-dai0x6b17": "ETH.DAI-0x6b175474e89094c44da98b954eedeac495271d0f",
 }
 
+var swapkitChainIDByCoinCode = map[string]string{
+	"btc":    "bitcoin",
+	"tbtc":   "bitcoin",
+	"rbtc":   "bitcoin",
+	"ltc":    "litecoin",
+	"tltc":   "litecoin",
+	"eth":    "1",
+	"sepeth": "1",
+}
+
 const (
 	// ErrInvalidRequest is returned when the quote request is invalid, for example due to missing or invalid fields.
 	ErrInvalidRequest errp.ErrorCode = "invalidRequest"
 	// ErrNoRoutesFound is returned when SwapKit cannot route the selected pair.
 	ErrNoRoutesFound errp.ErrorCode = "NoRoutesFoundError"
+	// ErrProvidersUnavailable is returned when SwapKit supports a requested pair, but no route is available while all relevant providers are unavailable.
+	ErrProvidersUnavailable errp.ErrorCode = "ProvidersUnavailableError"
 )
 
-const noRoutesFoundMessage = "No routes found"
+const (
+	noRoutesFoundMessage        = "No routes found"
+	providersUnavailableMessage = "Providers unavailable"
+)
 
 // assetFromCoinCode translates an internal coin code into a SwapKit asset identifier.
 func assetFromCoinCode(coinCode string) (string, bool) {
 	asset, ok := swapkitAssetByCoinCode[strings.ToLower(strings.TrimSpace(coinCode))]
 	return asset, ok
+}
+
+func chainIDFromCoinCode(coinCode string) (string, bool) {
+	normalizedCoinCode := strings.ToLower(strings.TrimSpace(coinCode))
+	if strings.HasPrefix(normalizedCoinCode, "eth-erc20-") {
+		return "1", true
+	}
+	chainID, ok := swapkitChainIDByCoinCode[normalizedCoinCode]
+	return chainID, ok
 }
 
 // FormatAmount converts a user-entered amount from the coin's display unit into the decimal string
@@ -147,6 +172,70 @@ func newSwapRequestFromCoinCodes(
 	}, nil
 }
 
+func noRoutesQuoteError(ctx context.Context, client *Client, sellCoin, buyCoin coinpkg.Coin, data *APIErrorData) *APIError {
+	providers, err := client.Providers(ctx)
+	if err == nil && allRelevantProvidersUnavailable(providers, quoteChainIDs(sellCoin, buyCoin)) {
+		return &APIError{
+			ErrorCode: ErrProvidersUnavailable,
+			Message:   providersUnavailableMessage,
+			Data:      data,
+		}
+	}
+	return &APIError{
+		ErrorCode: ErrNoRoutesFound,
+		Message:   noRoutesFoundMessage,
+		Data:      data,
+	}
+}
+
+func quoteChainIDs(sellCoin, buyCoin coinpkg.Coin) []string {
+	seenChainIDs := map[string]bool{}
+	var chainIDs []string
+	for _, coin := range []coinpkg.Coin{sellCoin, buyCoin} {
+		chainID, ok := chainIDFromCoinCode(string(coin.Code()))
+		if !ok || seenChainIDs[chainID] {
+			continue
+		}
+		seenChainIDs[chainID] = true
+		chainIDs = append(chainIDs, chainID)
+	}
+	return chainIDs
+}
+
+func allRelevantProvidersUnavailable(providers []Provider, chainIDs []string) bool {
+	if len(chainIDs) == 0 {
+		return false
+	}
+	relevantProviders := 0
+	for _, provider := range providers {
+		if !slices.Contains(provider.SupportedActions, "swap") {
+			continue
+		}
+		supportsPair := true
+		for _, chainID := range chainIDs {
+			if !slices.Contains(provider.SupportedChainIDs, chainID) {
+				supportsPair = false
+				break
+			}
+		}
+		if !supportsPair {
+			continue
+		}
+		relevantProviders++
+		enabledForPair := true
+		for _, chainID := range chainIDs {
+			if !slices.Contains(provider.EnabledChainIDs, chainID) {
+				enabledForPair = false
+				break
+			}
+		}
+		if enabledForPair {
+			return false
+		}
+	}
+	return relevantProviders > 0
+}
+
 // NewQuoteFromCoinCode validates the provided coins, fetches a quote, and maps structured API errors.
 func NewQuoteFromCoinCode(ctx context.Context, httpClient *http.Client, sellCoin, buyCoin coinpkg.Coin, sellAmount string) (*QuoteResponse, *APIError) {
 	quoteErrorData := &APIErrorData{
@@ -162,15 +251,12 @@ func NewQuoteFromCoinCode(ctx context.Context, httpClient *http.Client, sellCoin
 		return nil, apiError
 	}
 
-	quoteResponse, err := NewClient(httpClient).Quote(ctx, quoteRequest)
+	client := NewClient(httpClient)
+	quoteResponse, err := client.Quote(ctx, quoteRequest)
 	if err != nil {
 		if apiError, ok := apiErrorFromError(err); ok {
 			if strings.Contains(apiError.Message, noRoutesFoundMessage) {
-				return nil, &APIError{
-					ErrorCode: ErrNoRoutesFound,
-					Message:   noRoutesFoundMessage,
-					Data:      quoteErrorData,
-				}
+				return nil, noRoutesQuoteError(ctx, client, sellCoin, buyCoin, quoteErrorData)
 			}
 			return nil, apiError
 		}
@@ -180,11 +266,7 @@ func NewQuoteFromCoinCode(ctx context.Context, httpClient *http.Client, sellCoin
 		}
 	}
 	if len(quoteResponse.Routes) == 0 {
-		return nil, &APIError{
-			ErrorCode: ErrNoRoutesFound,
-			Message:   noRoutesFoundMessage,
-			Data:      quoteErrorData,
-		}
+		return nil, noRoutesQuoteError(ctx, client, sellCoin, buyCoin, quoteErrorData)
 	}
 	return quoteResponse, nil
 }

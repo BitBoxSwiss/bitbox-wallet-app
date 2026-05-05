@@ -23,7 +23,7 @@ type Client struct {
 // NewClient creates a new SwapKit API client.
 func NewClient(httpClient *http.Client) *Client {
 	return &Client{
-		baseURL:    "https://swapkit.shiftcrypto.io/v3",
+		baseURL:    "https://swapkit.shiftcrypto.io",
 		httpClient: httpClient,
 		log:        logging.Get().WithGroup("swapkit"),
 	}
@@ -45,6 +45,22 @@ func (c *Client) post(ctx context.Context, path string, body any, out any) error
 
 	req.Header.Set("Content-Type", "application/json")
 
+	return c.do(req, out)
+}
+
+func (c *Client) get(ctx context.Context, path string, out any) error {
+	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+path, nil)
+	if err != nil {
+		return errp.Wrap(err, "create request")
+	}
+
+	return c.do(req, out)
+}
+
+func (c *Client) do(req *http.Request, out any) error {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return errp.Wrap(err, "http error")
