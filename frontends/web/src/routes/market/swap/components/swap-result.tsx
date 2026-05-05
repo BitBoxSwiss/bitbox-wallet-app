@@ -78,6 +78,38 @@ export const SwapResult = ({
       );
     }
 
+    if (result.errorCode) {
+      const errorMessage = result.errorCode === 'wrongKeystore'
+        ? (
+          <>
+            {t('error.wrongKeystore')}
+            <br />
+            <br />
+            {t('error.wrongKeystore2')}
+          </>
+        )
+        : t(`send.error.${result.errorCode}`);
+
+      return (
+        <View fullscreen textCenter verticallyCentered width="520px">
+          <ViewHeader />
+          <ViewContent withIcon="error">
+            <p>
+              {errorMessage}
+            </p>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={() => navigate(`/account/${buyAccountCode}`)}>
+              {t('button.done')}
+            </Button>
+            <Button secondary onClick={() => onContinue()}>
+              {t('send.edit')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    }
+
     const { errorMessage } = result;
     return (
       <View fullscreen textCenter verticallyCentered width="640px">

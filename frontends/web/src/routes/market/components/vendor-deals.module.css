@@ -23,7 +23,6 @@
     display: inline-flex;
     font-size: var(--size-default);
     font-weight: normal;
-    gap: .4ch;
     line-height: 1.6;
     margin: 0;
     word-break: keep-all;

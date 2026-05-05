@@ -1,3 +1,6 @@
+.swapServiceContainer {
+    min-height: 85px;
+}
 
 .select :global(.react-select__control) {
     background-color: var(--background-secondary);
@@ -19,6 +22,10 @@
 
 .select :global(.react-select__value-container) {
     padding: 0;
+}
+
+.select :global(.react-select__placeholder) {
+    padding-left: var(--space-quarter);
 }
 
 .swapServiceOption {
@@ -80,6 +87,7 @@
 .amount {
     flex-grow: 1;
     flex-shrink: 0;
+    padding-right: var(--space-eight);
     text-align: right;
 }
 
@@ -88,14 +96,20 @@
     padding-right: .4ch;
 }
 
+.label {
+    align-items: baseline;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .statusText {
     color: var(--color-secondary);
     font-size: var(--size-small);
-    margin: 8px 0 0;
+    margin: 0;
 }
 
-.errorText {
-    color: var(--color-red);
-    font-size: var(--size-small);
-    margin: 8px 0 0;
+.errorMessage {
+    margin-bottom: 0;
+    margin-top: var(--space-quarter);
 }

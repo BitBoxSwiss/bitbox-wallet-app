@@ -166,6 +166,17 @@ const swapBuyAccount: swapApi.TSwapAccount = {
   name: 'Ethereum Account',
 };
 
+const swapBuyTokenAccount: swapApi.TSwapAccount = {
+  active: true,
+  code: 'usdc-account',
+  coinCode: 'eth-erc20-usdc',
+  coinUnit: 'USDC',
+  isToken: true,
+  keystore: buyAccount.keystore,
+  name: 'USDC Account',
+  parentAccountCode: 'eth-account',
+};
+
 describe('routes/market/swap', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -243,6 +254,95 @@ describe('routes/market/swap', () => {
         sellCoinCode: 'btc',
       });
     });
+  });
+
+  it('shows no-route quote errors with display units', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
+      success: true,
+      sellAccounts: [swapBuyAccount],
+      buyAccounts: [swapBuyTokenAccount],
+      defaultSellAccountCode: swapBuyAccount.code,
+      defaultBuyAccountCode: swapBuyTokenAccount.code,
+    });
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+      success: false,
+      errorCode: 'NoRoutesFoundError',
+      errorData: {
+        buyCoin: 'USDC',
+        sellCoin: 'ETH',
+      },
+      errorMessage: 'No routes found for ETH.ETH to ETH.USDC-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    });
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+
+    expect(await screen.findByText('No route found from ETH to USDC. Try entering a larger amount. Otherwise try again later.')).toBeInTheDocument();
+    expect(screen.queryByText(/ETH\.ETH/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ETH\.USDC/)).not.toBeInTheDocument();
+  });
+
+  it('keeps quote output visible for insufficient funds', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+      success: false,
+      errorCode: 'insufficientFunds',
+      errorMessage: 'insufficientFunds',
+      quote: {
+        routes: [{
+          expectedBuyAmount: '1.23',
+          providers: ['thorchain', 'mayachain'],
+          routeId: 'route-1',
+        }],
+      },
+    });
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[sellAccount, buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '2');
+
+    expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+    expect(await screen.findByTestId('swapGetAmount')).toHaveTextContent('1.23');
+    expect(screen.getByText(/insufficient funds/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
   });
 
   it('disables swap button immediately when sell amount changes', async () => {

@@ -208,6 +208,80 @@ describe('Amount formatting', () => {
     });
   });
 
+  describe('remove trailing zeros from amounts', () => {
+
+    it('0.00 CHF becomes 0', () => {
+      const { container } = render(<Amount amount="0.00" unit="CHF" removeTrailingZeros/>);
+      expect(container.textContent).toBe('0');
+    });
+
+    it('0.10 CHF becomes 0.1', () => {
+      const { container } = render(<Amount amount="0.10" unit="CHF" removeTrailingZeros/>);
+      expect(container.textContent).toBe('0.1');
+    });
+
+    it('1\'000 CHF stays 1’000', () => {
+      const { container } = render(<Amount amount="1'000" unit="CHF" removeTrailingZeros/>);
+      expect(container.textContent).toBe('1’000');
+    });
+
+    it('1\'000.00 CHF becomes 1’000', () => {
+      const { container } = render(<Amount amount="1'000.00" unit="CHF" removeTrailingZeros/>);
+      expect(container.textContent).toBe('1’000');
+    });
+
+    it('10 BTC stays 10', () => {
+      const { container } = render(<Amount amount="10" unit="BTC" removeTrailingZeros/>);
+      expect(container.textContent).toBe('10');
+    });
+
+    it('10\'000\'000 BTC stays 10’000’000', () => {
+      const { container } = render(<Amount amount="10'000'000" unit="BTC" removeTrailingZeros/>);
+      expect(container.textContent).toBe('10’000’000');
+    });
+
+    it('10\'000\'000.00000000 BTC becomes 10’000’000', () => {
+      const { container } = render(<Amount amount="10'000'000.00000000" unit="BTC" removeTrailingZeros/>);
+      expect(container.textContent).toBe('10’000’000');
+    });
+
+    it('10\'000.00 BTC becomes 10’000', () => {
+      const { container } = render(<Amount amount="10'000.00" unit="BTC" removeTrailingZeros/>);
+      expect(container.textContent).toBe('10’000');
+    });
+
+    it('10.010000000 BTC trims to 10.01', () => {
+      const { container } = render(<Amount amount="10.010000000" unit="BTC" removeTrailingZeros/>);
+      expect(container.textContent).toBe('10.01');
+    });
+
+    it('1.0 BTC becomes 1', () => {
+      const { container } = render(<Amount amount="1.0" unit="BTC" removeTrailingZeros/>);
+      expect(container.textContent).toBe('1');
+    });
+
+    it('1.00000001 BTC stays 1.00000001 (no false strip)', () => {
+      const { container } = render(<Amount amount="1.00000001" unit="BTC" removeTrailingZeros/>);
+      expect(container.textContent).toBe('1.00000001');
+    });
+
+    it('10\'000 ETH stays 10’000', () => {
+      const { container } = render(<Amount amount="10'000" unit="ETH" removeTrailingZeros/>);
+      expect(container.textContent).toBe('10’000');
+    });
+
+    it('10.10000000 ETH trims to 10.1', () => {
+      const { container } = render(<Amount amount="10.10000000" unit="ETH" removeTrailingZeros/>);
+      expect(container.textContent).toBe('10.1');
+    });
+
+    it('10100000000 sat stays 10100000000', () => {
+      const { container } = render(<Amount amount="10100000000" unit="sat" removeTrailingZeros/>);
+      expect(container.textContent).toBe('10100000000');
+    });
+
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
   });

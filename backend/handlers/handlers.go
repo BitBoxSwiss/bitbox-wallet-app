@@ -15,6 +15,7 @@ import (
 	"os"
 	"runtime/debug"
 	"slices"
+	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -1894,13 +1895,15 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 		Success      bool                   `json:"success"`
 		ErrorCode    errp.ErrorCode         `json:"errorCode,omitempty"`
 		ErrorMessage string                 `json:"errorMessage,omitempty"`
+		ErrorData    *swapkit.APIErrorData  `json:"errorData,omitempty"`
 		Quote        *swapkit.QuoteResponse `json:"quote,omitempty"`
 	}
-	errorResult := func(code errp.ErrorCode, message string) result {
+	errorResult := func(code errp.ErrorCode, message string, data *swapkit.APIErrorData) result {
 		return result{
 			Success:      false,
 			ErrorCode:    code,
 			ErrorMessage: message,
+			ErrorData:    data,
 		}
 	}
 
@@ -1912,38 +1915,69 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return errorResult(swapkit.ErrInvalidRequest, "Request body is required and must be a valid JSON object.")
+		return errorResult(swapkit.ErrInvalidRequest, "Request body is required and must be a valid JSON object.", nil)
+	}
+	sellCoinCode := coinpkg.Code(strings.TrimSpace(request.SellCoinCode))
+	if sellCoinCode == "" {
+		return errorResult(swapkit.ErrInvalidRequest, "Missing sellCoinCode.", nil)
+	}
+	buyCoinCode := coinpkg.Code(strings.TrimSpace(request.BuyCoinCode))
+	if buyCoinCode == "" {
+		return errorResult(swapkit.ErrInvalidRequest, "Missing buyCoinCode.", nil)
+	}
+	sellCoin, err := handlers.backend.Coin(sellCoinCode)
+	if err != nil {
+		return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
+	}
+	buyCoin, err := handlers.backend.Coin(buyCoinCode)
+	if err != nil {
+		return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 	}
 	sellAmount := request.SellAmount
+	var validationErrorCode errp.ErrorCode
+	var validationErrorMessage string
 	if request.SellAccountCode != "" {
 		account, err := handlers.backend.GetAccountFromCode(request.SellAccountCode)
 		if err != nil {
-			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+			return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 		}
 		parsedAmount, err := account.Coin().ParseAmount(request.SellAmount)
 		if err != nil {
-			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+			return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 		}
 		if err := swapkit.ValidateSwapSellAmount(account, parsedAmount); err != nil {
 			if validationErr, ok := errp.Cause(err).(accountErrors.TxValidationError); ok {
-				return errorResult(errp.ErrorCode(validationErr.Error()), validationErr.Error())
+				if validationErr != accountErrors.ErrInsufficientFunds {
+					return errorResult(errp.ErrorCode(validationErr.Error()), validationErr.Error(), nil)
+				}
+				validationErrorCode = errp.ErrorCode(validationErr.Error())
+				validationErrorMessage = validationErr.Error()
+			} else {
+				return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 			}
-			return errorResult(swapkit.ErrInvalidRequest, err.Error())
 		}
 		sellAmount, err = swapkit.FormatAmount(account.Coin(), request.SellAmount)
 		if err != nil {
-			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+			return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 		}
 	}
 	quoteResponse, quoteError := swapkit.NewQuoteFromCoinCode(
 		context.Background(),
 		handlers.backend.HTTPClient(),
-		request.SellCoinCode,
-		request.BuyCoinCode,
+		sellCoin,
+		buyCoin,
 		sellAmount,
 	)
 	if quoteError != nil {
-		return errorResult(quoteError.ErrorCode, quoteError.Message)
+		return errorResult(quoteError.ErrorCode, quoteError.Message, quoteError.Data)
+	}
+	if validationErrorCode != "" {
+		return result{
+			Success:      false,
+			ErrorCode:    validationErrorCode,
+			ErrorMessage: validationErrorMessage,
+			Quote:        quoteResponse,
+		}
 	}
 	return result{
 		Success: true,

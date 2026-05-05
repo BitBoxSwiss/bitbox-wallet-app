@@ -27,6 +27,7 @@
     flex-direction: column;
     max-height: calc(100dvh - calc(env(safe-area-inset-top) * 2));
     max-width: 420px;
+    overflow: clip;
     text-align: left;
     touch-action: auto;
     -webkit-overflow-scrolling: touch;
@@ -189,6 +190,8 @@
     }
 
     .modal {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
         padding: 0;
         height: auto;
         max-height: 100dvh;

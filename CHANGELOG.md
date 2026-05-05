@@ -36,6 +36,9 @@
 - Revamp Marketplace UI
 - Add Pocket Private to the OTC tab
 - Add the support for performing swaps between cryptocurrencies through SwapKit
+- Fullscreen region select on mobile
+- Change portfolio chart default to year
+- iOS: live price widget with 24-hour chart
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.

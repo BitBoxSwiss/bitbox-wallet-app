@@ -37,10 +37,8 @@ export const AssetBalanceWithUnitPrice = ({ amount, coinCode, coinName, dataTest
                 amountClassName={style.unitPrice}
                 amount={unitPrice}
                 convertToFiat
+                removeTrailingZeros
               />
-              {amount?.unit && (
-                <span className={style.pairUnit}>/{amount.unit}</span>
-              )}
             </div>
           </div>
           <div className={style.assetBalanceAmounts}>

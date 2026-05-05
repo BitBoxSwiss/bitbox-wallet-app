@@ -1017,6 +1017,7 @@
     "buySell": "Marketplace",
     "buy_bitcoin": "Buy Bitcoin",
     "buy_crypto": "Buy crypto",
+    "calculating": "Calculating…",
     "close": "Close",
     "enable": "Enable",
     "enabled_false": "Disabled",
@@ -1841,13 +1842,15 @@
     },
     "edit": "Edit transaction",
     "error": {
+      "accountNotSynced": "The account is not synced yet. Please wait until syncing is complete and try again.",
       "erc20InsufficientGasFunds": "You do not have enough Ether to pay for this ERC20 transaction. Please add Ether to your wallet and try again.",
       "feeTooLow": "fee too low",
       "feesNotAvailable": "Could not estimate fees",
       "insufficientFunds": "insufficient funds",
       "invalidAddress": "invalid address",
       "invalidAmount": "invalid amount",
-      "invalidData": "invalid data"
+      "invalidData": "invalid data",
+      "syncInProgress": "The account is still syncing. Please wait until syncing is complete and try again."
     },
     "fee": {
       "customPlaceholder": "Enter amount",
@@ -2113,9 +2116,11 @@
     "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
     "new": "New swap",
     "noRouteFound": "No route found",
-    "oneRouteAvailable": "One route available.",
+    "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",
+    "oneRouteAvailable": "One route available",
     "recommended": "Recommended",
     "route": "Swap route",
+    "routesPlaceholder": "Routes will appear here after entering an amount",
     "unexpectedError": "Some unexpected error occurred."
   },
   "transactions": {

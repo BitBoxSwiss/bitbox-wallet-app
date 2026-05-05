@@ -481,9 +481,16 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	if err != nil {
 		handlers.log.WithError(err).Error("Failed to send transaction")
 		result := response{Success: false, ErrorMessage: err.Error()}
-		if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
+
+		cause := errp.Cause(err)
+		if validationErr, ok := cause.(errors.TxValidationError); ok {
+			result.ErrorCode = validationErr.Error()
+		} else if errCode, ok := cause.(errp.ErrorCode); ok {
+			result.ErrorCode = errCode.Error()
+		} else if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
 			result.ErrorCode = errors.ErrERC20InsufficientGasFunds.Error()
 		}
+
 		return result, nil
 	}
 	return response{Success: true, TxID: txID}, nil

@@ -1,19 +1,24 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
-import { describe, expect, it, Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 vi.mock('@/utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue(''),
 }));
 vi.mock('@/i18n/i18n');
+vi.mock('@/utils/env', () => ({
+  runningInIOS: vi.fn(() => false),
+}));
 
-import { render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { FeeTargets } from './feetargets';
 import { apiGet } from '@/utils/request';
+import { runningInIOS } from '@/utils/env';
 
 import * as utilsConfig from '@/utils/config';
 const getConfig = vi.spyOn(utilsConfig, 'getConfig');
+const mockRunningInIOS = vi.mocked(runningInIOS);
 
 vi.mock('@/hooks/mediaquery', () => ({
   useMediaQuery: vi.fn().mockReturnValue(true),
@@ -21,6 +26,10 @@ vi.mock('@/hooks/mediaquery', () => ({
 }));
 
 describe('routes/account/send/feetargets', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRunningInIOS.mockReturnValue(false);
+  });
 
   it('should call onFeeTargetChange with default', () => new Promise<void>(async done => {
     getConfig.mockReturnValue(Promise.resolve({ frontend: { expertFee: false } }));
@@ -48,4 +57,50 @@ describe('routes/account/send/feetargets', () => {
     );
     await waitFor(() => expect(apiGetMock).toHaveBeenCalled());
   }));
+
+  it('normalizes custom fee values from iOS decimal input', async () => {
+    mockRunningInIOS.mockReturnValue(true);
+    getConfig.mockReturnValue(Promise.resolve({ frontend: { expertFee: true } }));
+    const apiGetMock = (apiGet as Mock).mockResolvedValue({
+      defaultFeeTarget: 'custom',
+      feeTargets: [],
+    });
+    const onCustomFee = vi.fn();
+
+    const props = {
+      accountCode: 'btc' as const,
+      coinCode: 'btc' as const,
+      disabled: false,
+      onCustomFee,
+      onFeeTargetChange: vi.fn(),
+    };
+    const { container, rerender } = render(
+      <FeeTargets
+        {...props}
+        customFee=""
+      />,
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
+    let input: HTMLInputElement | null = null;
+    await waitFor(() => {
+      expect(apiGetMock).toHaveBeenCalled();
+      input = container.querySelector<HTMLInputElement>('#proposedFee');
+      expect(input).toBeTruthy();
+    });
+    if (!input) {
+      throw new Error('Custom fee input not found');
+    }
+    fireEvent.input(input, { target: { value: '1e2,3.4abc' } });
+    rerender(
+      <FeeTargets
+        {...props}
+        customFee="12.34"
+      />,
+    );
+
+    expect(onCustomFee).toHaveBeenCalledWith('12.34');
+    expect(input).toHaveValue('12,34');
+  });
 });

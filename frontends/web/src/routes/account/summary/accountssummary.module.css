@@ -172,8 +172,3 @@
 .unitPrice {
     color: var(--color-secondary);
 }
-
-.pairUnit {
-    color: var(--color-secondary);
-    font-size: var(--size-smaller);
-}

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -21,12 +21,12 @@ import {
   getSwapQuote,
   signSwap,
   type TSwapAccount,
+  type TSwapAccounts,
   type TSwapQuoteRoute,
 } from '@/api/swap';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
-import { SubTitle } from '@/components/title';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { alertUser } from '@/components/alert/Alert';
@@ -55,6 +55,9 @@ type Props = {
 };
 
 const QUOTE_DEBOUNCE_MS = 300;
+const INSUFFICIENT_FUNDS_ERROR = 'insufficientFunds';
+const NO_ROUTES_FOUND_ERROR = 'NoRoutesFoundError';
+const UNEXPECTED_ERROR = 'unexpectedError';
 
 const fetchBalance = async (code: AccountCode) => {
   const response = await getBalance(code);
@@ -87,9 +90,16 @@ export const Swap = ({
 }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { activeCurrencies, btcUnit } = useContext(RatesContext);
+  const { activeCurrencies, btcUnit, defaultCurrency } = useContext(RatesContext);
   // accounts is added as a dependency, to reload swap accounts when the account list changes.
-  const swapAccounts = useLoad(getSwapAccounts, [accounts]);
+  const loadedSwapAccounts = useLoad(getSwapAccounts, [accounts]);
+  const [retainedSwapAccounts, setRetainedSwapAccounts] = useState<TSwapAccounts>();
+  useEffect(() => {
+    if (loadedSwapAccounts !== undefined) {
+      setRetainedSwapAccounts(loadedSwapAccounts);
+    }
+  }, [loadedSwapAccounts]);
+  const swapAccounts = loadedSwapAccounts ?? retainedSwapAccounts;
   const sellAccounts = swapAccounts?.success ? swapAccounts.sellAccounts : undefined;
   const buyAccounts = swapAccounts?.success ? swapAccounts.buyAccounts : undefined;
 
@@ -195,14 +205,26 @@ export const Swap = ({
     );
   }, [buyAccount, sellAccountCode]);
 
-  const clearQuoteState = (error?: string, errorCode?: string) => {
+  const clearQuoteState = useCallback(() => {
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
     setExpectedOutputUnit(undefined);
+    setQuoteErrorCode(undefined);
+    setRouteError(undefined);
+  }, []);
+
+  const resetQuoteStateWithError = useCallback(({
+    error,
+    errorCode,
+  }: {
+    error?: string;
+    errorCode?: string;
+  }) => {
+    clearQuoteState();
     setQuoteErrorCode(errorCode);
     setRouteError(error);
-  };
+  }, [clearQuoteState]);
 
   // flips sell and buy account
   const handleFlipAccounts = () => {
@@ -261,9 +283,10 @@ export const Swap = ({
         if (isCancelled) {
           return;
         }
-        const nextRoutes = response.success ? response.quote.routes : [];
+        const nextRoutes = response.quote?.routes ?? [];
         if (nextRoutes.length > 0) {
-          setQuoteErrorCode(undefined);
+          setQuoteErrorCode(response.success ? undefined : response.errorCode);
+          setRouteError(undefined);
           setRoutes(nextRoutes);
           const firstRouteId = nextRoutes[0]?.routeId;
           setSelectedRouteId(currentRouteId => (
@@ -273,23 +296,43 @@ export const Swap = ({
           ));
           return;
         }
-        clearQuoteState(
+        if (!response.success && response.errorCode === INSUFFICIENT_FUNDS_ERROR) {
+          resetQuoteStateWithError({ errorCode: response.errorCode });
+          return;
+        }
+        if (
           response.success
-            ? t('swap.noRouteFound')
-            : response.errorCode === 'insufficientFunds'
-              ? undefined
-              : response.errorMessage,
-          response.success ? undefined : response.errorCode,
-        );
+          || response.errorCode === NO_ROUTES_FOUND_ERROR
+        ) {
+          const noRouteFoundMessage = !response.success
+            && response.errorData?.sellCoin
+            && response.errorData?.buyCoin
+            ? t('swap.noRouteFoundForPair', {
+              buyCoin: response.errorData.buyCoin,
+              sellCoin: response.errorData.sellCoin,
+            })
+            : t('swap.noRouteFound');
+          resetQuoteStateWithError({
+            error: noRouteFoundMessage,
+            errorCode: response.success ? undefined : response.errorCode,
+          });
+          return;
+        }
+        resetQuoteStateWithError({
+          error: response.errorCode === UNEXPECTED_ERROR
+            ? t('swap.fetchQuotesError')
+            : response.errorMessage || t('swap.fetchQuotesError'),
+          errorCode: response.errorCode,
+        });
       } catch (error: unknown) {
         if (isCancelled) {
           return;
         }
-        clearQuoteState(
-          typeof error === 'string' && error
+        resetQuoteStateWithError({
+          error: typeof error === 'string' && error
             ? error
             : t('swap.fetchQuotesError'),
-        );
+        });
       } finally {
         if (!isCancelled) {
           setIsFetchingRoutes(false);
@@ -305,7 +348,16 @@ export const Swap = ({
       isCancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [buyAccount?.coinCode, buyAccountCode, sellAccount?.coinCode, sellAccountCode, sellAmount, t]);
+  }, [
+    buyAccount?.coinCode,
+    buyAccountCode,
+    clearQuoteState,
+    resetQuoteStateWithError,
+    sellAccount?.coinCode,
+    sellAccountCode,
+    sellAmount,
+    t,
+  ]);
 
   useEffect(() => {
     let canceled = false;
@@ -445,9 +497,9 @@ export const Swap = ({
             <Header
               hideSidebarToggler
               title={
-                <SubTitle>
+                <h2>
                   {t('generic.swap')}
-                </SubTitle>
+                </h2>
               }
             />
             <View
@@ -480,9 +532,9 @@ export const Swap = ({
             <Header
               hideSidebarToggler
               title={
-                <SubTitle>
+                <h2>
                   {t('generic.swap')}
-                </SubTitle>
+                </h2>
               }
             />
             <SwapkitTerms
@@ -493,6 +545,15 @@ export const Swap = ({
       </GuideWrapper>
     );
   }
+
+  const placeholderFiat = !isFetchingRoutes ? (
+    <>
+      0.00
+      <span className={style.unit}>
+        {defaultCurrency}
+      </span>
+    </>
+  ) : undefined;
 
   return (
     <GuideWrapper>
@@ -505,9 +566,9 @@ export const Swap = ({
           <Header
             hideSidebarToggler
             title={
-              <SubTitle>
+              <h2>
                 {t('generic.swap')}
-              </SubTitle>
+              </h2>
             }
           />
           <View
@@ -526,8 +587,9 @@ export const Swap = ({
                 {maxSellAmount && (
                   <span className={style.max}>
                     {t('generic.max')}
-                    {' '}
-                    <AmountWithUnit amount={maxSellAmount.available} />
+                    <AmountWithUnit
+                      maxDecimals={9}
+                      amount={maxSellAmount.available} />
                   </span>
                 )}
               </div>
@@ -542,10 +604,12 @@ export const Swap = ({
                   onChangeAccountCode={setSellAccountCode}
                   value={sellAmount}
                   onChangeValue={setSellAmount}
+                  placeholder="0"
+                  placeholderFiat={placeholderFiat}
                 />
               )}
               <Message
-                hidden={quoteErrorCode !== 'insufficientFunds'}
+                hidden={quoteErrorCode !== INSUFFICIENT_FUNDS_ERROR}
                 type="warning"
                 className={style.sellWarning}
               >
@@ -578,6 +642,7 @@ export const Swap = ({
                     />
                     <AmountUnit
                       unit={expectedOutputUnit || buyAccount.coinUnit}
+                      className={style.nomargin}
                     />
                   </span>
                 )}
@@ -591,7 +656,9 @@ export const Swap = ({
                   accountCode={buyAccountCode}
                   isAccountDisabled={account => isSameCoinAccount(account, sellAccount)}
                   onChangeAccountCode={setBuyAccountCode}
-                  value={expectedOutput}
+                  value={!isFetchingRoutes ? expectedOutput : undefined}
+                  placeholder={!isFetchingRoutes ? '0' : t('generic.calculating')}
+                  placeholderFiat={placeholderFiat}
                   readOnlyAmount
                 />
               )}
@@ -607,7 +674,7 @@ export const Swap = ({
             <ViewButtons>
               <Button
                 primary
-                disabled={!selectedRoute || isConfirmInFlight}
+                disabled={!selectedRoute || isConfirmInFlight || quoteErrorCode === INSUFFICIENT_FUNDS_ERROR}
                 onClick={handleConfirm}>
                 <span className={style.swapButtonContent}>
                   {isConfirmInFlight && (

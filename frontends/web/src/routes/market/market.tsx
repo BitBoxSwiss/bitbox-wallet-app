@@ -2,7 +2,7 @@
 
 import 'flag-icons';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
@@ -43,6 +43,7 @@ export const Market = ({
 }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedAccount, setSelectedAccount] = useState<string>(code);
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -72,7 +73,8 @@ export const Market = ({
   useEffect(() => {
     setSupportedAccounts(accounts);
     if (!selectedAccount || !accounts.some(account => account.code === selectedAccount)) {
-      setSelectedAccount(accounts[0]?.code || '');
+      const accountOfConnectedKeystore = accounts.find(account => account.keystore.connected);
+      setSelectedAccount(accountOfConnectedKeystore?.code || accounts[0]?.code || '');
     }
   }, [accounts, selectedAccount]);
 
@@ -115,13 +117,17 @@ export const Market = ({
   const swapDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('swap', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
   const otcDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('otc', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
 
-  const handleAccountChange = async (accountCode: string) => {
+  const promptConnectKeystore = async (accountCode: string): Promise<boolean> => {
     const account = supportedAccounts.find(acc => acc.code === accountCode);
     if (!account) {
-      return;
+      return false;
     }
     const connectResult = await connectKeystore(account.keystore.rootFingerprint);
-    if (connectResult.success) {
+    return connectResult.success;
+  };
+
+  const handleAccountChange = async (accountCode: string) => {
+    if (await promptConnectKeystore(accountCode)) {
       setSelectedAccount(accountCode);
     }
   };
@@ -175,7 +181,13 @@ export const Market = ({
 
   const handleChangeTab = (tab: marketAPI.TMarketAction) => {
     setActiveTab(tab);
+    setSearchParams(`?tab=${tab}`);
   };
+
+  useEffect(() => {
+    const tab = searchParams.get('tab') as marketAPI.TMarketAction | null ;
+    setActiveTab(tab || 'buy');
+  }, [searchParams]);
 
   const goToVendor = async (vendor: marketAPI.TVendorName) => {
     if (!vendor) {
@@ -203,7 +215,7 @@ export const Market = ({
         return;
       }
     }
-    if (!selectedAccount) {
+    if (!selectedAccount || !await promptConnectKeystore(selectedAccount)) {
       return;
     }
     navigate(`/market/${vendor}/${activeTab}/${selectedAccount}/${selectedRegion}`);
