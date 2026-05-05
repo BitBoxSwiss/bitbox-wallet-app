@@ -110,6 +110,7 @@ export const SwapResult = ({
       );
     }
 
+    const { errorMessage } = result;
     return (
       <View fullscreen textCenter verticallyCentered width="640px">
         <ViewHeader />
@@ -120,7 +121,7 @@ export const SwapResult = ({
           <CopyableInput
             alignLeft
             flexibleHeight
-            value={result.errorMessage}
+            value={errorMessage || t('genericError')}
           />
         </ViewContent>
         <ViewButtons>

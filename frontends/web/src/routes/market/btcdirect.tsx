@@ -119,7 +119,11 @@ export const BTCDirect = ({
         return;
       }
       if (!sendResult.success && !('aborted' in sendResult)) {
-        alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+        if (sendResult.errorMessage) {
+          alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+        } else {
+          alertUser(t('genericError'));
+        }
       }
     } else {
       if (txProposal.errorCode === 'insufficientFunds') {

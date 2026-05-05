@@ -364,7 +364,7 @@ export type TTxProposalResult = {
   success: true;
   total: TAmountWithConversions;
 } | {
-  errorCode: TTxProposalErrorCode;
+  errorCode?: TTxProposalErrorCode;
   success: false;
 };
 
@@ -389,7 +389,7 @@ export type TSendTx = {
   aborted: true;
 } | {
   success: false;
-  errorMessage: string;
+  errorMessage?: string;
   errorCode?: TSendTxErrorCode;
 };
 
