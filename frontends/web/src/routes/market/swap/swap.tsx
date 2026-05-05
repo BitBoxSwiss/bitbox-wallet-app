@@ -90,7 +90,7 @@ export const Swap = ({
 }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { activeCurrencies, btcUnit } = useContext(RatesContext);
+  const { activeCurrencies, btcUnit, defaultCurrency } = useContext(RatesContext);
   // accounts is added as a dependency, to reload swap accounts when the account list changes.
   const loadedSwapAccounts = useLoad(getSwapAccounts, [accounts]);
   const [retainedSwapAccounts, setRetainedSwapAccounts] = useState<TSwapAccounts>();
@@ -546,6 +546,15 @@ export const Swap = ({
     );
   }
 
+  const placeholderFiat = !isFetchingRoutes ? (
+    <>
+      0.00
+      <span className={style.unit}>
+        {defaultCurrency}
+      </span>
+    </>
+  ) : undefined;
+
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -595,6 +604,8 @@ export const Swap = ({
                   onChangeAccountCode={setSellAccountCode}
                   value={sellAmount}
                   onChangeValue={setSellAmount}
+                  placeholder="0"
+                  placeholderFiat={placeholderFiat}
                 />
               )}
               <Message
@@ -645,7 +656,9 @@ export const Swap = ({
                   accountCode={buyAccountCode}
                   isAccountDisabled={account => isSameCoinAccount(account, sellAccount)}
                   onChangeAccountCode={setBuyAccountCode}
-                  value={expectedOutput}
+                  value={!isFetchingRoutes ? expectedOutput : undefined}
+                  placeholder={!isFetchingRoutes ? '0' : t('generic.calculating')}
+                  placeholderFiat={placeholderFiat}
                   readOnlyAmount
                 />
               )}
