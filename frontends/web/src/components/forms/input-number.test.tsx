@@ -19,13 +19,13 @@ describe('components/forms/input-number', () => {
 
   it('uses a number input outside iOS', () => {
     const { container } = render(<NumberInput defaultValue="" />);
-    expect(container.querySelector('[type="number"')).toBeTruthy();
+    expect(container.querySelector('[type="number"]')).toBeTruthy();
   });
 
   it('uses a text input on iOS', () => {
     mockRunningInIOS.mockReturnValue(true);
     const { container } = render(<NumberInput defaultValue="" />);
-    expect(container.querySelector('[type="text"')).toBeTruthy();
+    expect(container.querySelector('[type="text"]')).toBeTruthy();
   });
 
   it('uses a decimal input mode by default', () => {
