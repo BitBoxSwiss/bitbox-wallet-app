@@ -7,6 +7,7 @@ type TProps = { onClick: () => void };
 export const InfoButton = ({ onClick }: TProps) => {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={style.button}>
       <BuyInfo />
