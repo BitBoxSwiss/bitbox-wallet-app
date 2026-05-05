@@ -3,7 +3,8 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getBTCDirectInfo, TMarketAction } from '@/api/market';
+import { getBTCDirectInfo, TBTCDirectInfoResponse, TMarketAction } from '@/api/market';
+import { syncdone } from '@/api/accountsync';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { AppContext } from '@/contexts/AppContext';
 import { AccountCode, TAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
@@ -48,7 +49,15 @@ export const BTCDirect = ({
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
 
-  const btcdirectInfo = useLoad(() => getBTCDirectInfo(action, code));
+  const [btcdirectInfo, setBtcdirectInfo] = useState<TBTCDirectInfoResponse>();
+  const fetchBTCDirectInfo = useCallback(async () => {
+    setBtcdirectInfo(await getBTCDirectInfo(action, code));
+  }, [action, code]);
+  // re-fetch btcdirectInfo in case account is not fully synced
+  useEffect(() => {
+    fetchBTCDirectInfo();
+    return syncdone(code, fetchBTCDirectInfo);
+  }, [code, fetchBTCDirectInfo]);
 
   const [blocking, setBlocking] = useState(false);
 
