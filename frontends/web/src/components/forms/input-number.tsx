@@ -5,24 +5,9 @@ import { Input, TInputProps } from './input';
 import { normalizeNumberInputValue, numberInputValueToString, sanitizeNumberInputValue } from './input-number-utils';
 import { runningInIOS } from '@/utils/env';
 
-type Props = Omit<TInputProps, 'ref' | 'onInput'>;
-
-// override the change event to set
-// the value to the normalized value (decimal separator)
-const changeEventWithValue = (
-  event: React.ChangeEvent<HTMLInputElement>,
-  value: string,
-) => ({
-  ...event,
-  currentTarget: {
-    ...event.currentTarget,
-    value,
-  },
-  target: {
-    ...event.target,
-    value,
-  },
-} as React.ChangeEvent<HTMLInputElement>);
+type Props = Omit<TInputProps, 'ref' | 'onInput' | 'onChange'> & {
+  onChange?: (value: string) => void;
+};
 
 export const NumberInput = forwardRef<HTMLInputElement, Props>(({
   inputMode = 'decimal',
@@ -108,7 +93,7 @@ export const NumberInput = forwardRef<HTMLInputElement, Props>(({
       reportedValue.current = target.value;
     }
     if (onChange) {
-      onChange({ ...event, target });
+      onChange(target.value);
     }
     event.preventDefault();
   }, [isIOS, onChange]);
@@ -120,7 +105,7 @@ export const NumberInput = forwardRef<HTMLInputElement, Props>(({
     setDisplayValue(sanitizedValue);
     reportedValue.current = normalizedValue;
     if (onChange) {
-      onChange(changeEventWithValue(event, normalizedValue));
+      onChange(normalizedValue);
     }
   }, [onChange]);
 
@@ -132,7 +117,9 @@ export const NumberInput = forwardRef<HTMLInputElement, Props>(({
       inputMode={inputMode}
       value={isIOS ? displayValue : value}
       defaultValue={isIOS ? undefined : defaultValue}
-      onInput={isIOS ? handleIOSInput : onChange}
+      onInput={isIOS ? handleIOSInput : (
+        onChange ? (e) => onChange(e.target.value) : undefined
+      )}
       onPaste={handlePaste}
     />
   );
