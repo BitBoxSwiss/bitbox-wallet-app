@@ -8,21 +8,18 @@ import { runningInIOS } from '@/utils/env';
 type Props = Omit<TInputProps, 'ref' | 'onInput'>;
 
 // override the change event to set
-// the value to the normalized value (decimal separator)
+// the value to the normalized value (decimal separator),
+// carrying the input attributes consumers commonly read.
 const changeEventWithValue = (
   event: React.ChangeEvent<HTMLInputElement>,
   value: string,
-) => ({
-  ...event,
-  currentTarget: {
-    ...event.currentTarget,
-    value,
-  },
-  target: {
-    ...event.target,
-    value,
-  },
-} as React.ChangeEvent<HTMLInputElement>);
+): React.ChangeEvent<HTMLInputElement> => {
+  const { id, name, type, disabled, checked, form } = event.currentTarget;
+  const overrideTarget = {
+    id, name, type, disabled, checked, form, value,
+  } as unknown as HTMLInputElement;
+  return { ...event, target: overrideTarget, currentTarget: overrideTarget };
+};
 
 export const NumberInput = forwardRef<HTMLInputElement, Props>(({
   inputMode = 'decimal',
