@@ -17,7 +17,7 @@ const (
 	// moonpayAPITestPubKey is the public key of Shift Crypto Moonpay account.
 	// See https://dev.moonpay.com/docs/credit-cards-testing for how to test.
 	moonpayBuyAPITestPubKey = "pk_test_e9i4oaa4J7eKo8UI3Wm8QLagoskWGjXN"
-	moonpayBuyAPITestURL    = "https://buy-staging.moonpay.com"
+	moonpayBuyAPITestURL    = "https://buy.moonpay.com"
 
 	// moonpayAPILivePubKey is the production API key for real transactions.
 	// It is ok for it to be public.
