@@ -118,7 +118,7 @@ export const NumberInput = forwardRef<HTMLInputElement, Props>(({
       value={isIOS ? displayValue : value}
       defaultValue={isIOS ? undefined : defaultValue}
       onInput={isIOS ? handleIOSInput : (
-        onChange ? (e) => onChange(e.target.value) : undefined
+        onChange ? (e) => onChange(e.currentTarget.value) : undefined
       )}
       onPaste={handlePaste}
     />
