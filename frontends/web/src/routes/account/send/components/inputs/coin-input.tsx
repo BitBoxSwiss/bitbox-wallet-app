@@ -34,7 +34,7 @@ export const CoinInput = ({
       min="0"
       label={balance ? balance.available.unit : t('send.amount.label')}
       id="amount"
-      onChange={(e: ChangeEvent<HTMLInputElement>) => onAmountChange(e.target.value)}
+      onChange={onAmountChange}
       disabled={sendAll}
       error={amountError}
       value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}

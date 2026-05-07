@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect, useRef, ChangeEvent, useCallback, useContext } from 'react';
+import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
@@ -91,10 +91,6 @@ export const FeeTargets = ({
   const handleFeeTargetChange = (value: accountApi.FeeTargetCode) => {
     setFeeTarget(value);
     onFeeTargetChange(value);
-  };
-
-  const handleCustomFee = (event: ChangeEvent<HTMLInputElement>) => {
-    onCustomFee(event.target.value);
   };
 
   const getProposeFeeText = (): string => {
@@ -217,7 +213,7 @@ export const FeeTargets = ({
                   })}
                 id="proposedFee"
                 placeholder={t('send.fee.customPlaceholder')}
-                onChange={handleCustomFee}
+                onChange={onCustomFee}
                 ref={inputRef}
                 value={customFee}
               >
