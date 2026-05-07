@@ -5,6 +5,7 @@ import { checkBackup, createBackup as createBackupAPI } from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { confirmation } from '@/components/confirm/Confirm';
 import { Button } from '@/components/forms';
+import { PointToBitBox02 } from '@/components/icon';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { useTranslation } from 'react-i18next';
 
@@ -60,7 +61,8 @@ export const Create = ({ deviceID }: TProps) => {
       </Button>
       { creatingBackup && (
         <WaitDialog title={t('backup.create.title')}>
-          {t('bitbox02Interact.followInstructions')}
+          <p className="text-center">{t('bitbox02Interact.followInstructions')}</p>
+          <PointToBitBox02 />
         </WaitDialog>
       )}
     </>
