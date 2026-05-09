@@ -252,6 +252,7 @@ type Backend struct {
 	etherScanRateLimiter *rate.Limiter
 	ratesUpdater         *rates.RateUpdater
 	banners              *banners.Banners
+	started              bool
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
 	tstCheckAccountUsed func(accounts.Interface) bool
@@ -328,15 +329,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.httpClient = hclient
 	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts)
 
-	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
-	if err := os.MkdirAll(ratesCache, 0700); err != nil {
-		log.Errorf("RateUpdater DB cache dir: %v", err)
-	}
-	backend.ratesUpdater = rates.NewRateUpdater(hclient, ratesCache)
-	backend.ratesUpdater.Observe(func(event observable.Event) {
-		backend.Notify(event)
-		backend.notifyCoinFiatPrices()
-	})
+	backend.ratesUpdater = backend.newRatesUpdater()
 
 	backend.banners = banners.NewBanners(backend.DevServers())
 	backend.banners.Observe(backend.Notify)
@@ -345,6 +338,37 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.bluetooth.Observe(backend.Notify)
 
 	return backend, nil
+}
+
+func (backend *Backend) newRatesUpdater() *rates.RateUpdater {
+	ratesCache := filepath.Join(backend.arguments.CacheDirectoryPath(), "exchangerates")
+	if err := os.MkdirAll(ratesCache, 0700); err != nil {
+		backend.log.Errorf("RateUpdater DB cache dir: %v", err)
+	}
+	updater := rates.NewRateUpdater(backend.httpClient, ratesCache)
+	updater.Observe(func(event observable.Event) {
+		backend.Notify(event)
+		backend.notifyCoinFiatPrices()
+	})
+	return updater
+}
+
+func (backend *Backend) closeCoins() error {
+	unlock := backend.coinsLock.Lock()
+	coins := backend.coins
+	backend.coins = map[coinpkg.Code]coinpkg.Coin{}
+	unlock()
+
+	errors := []string{}
+	for code, coin := range coins {
+		if err := coin.Close(); err != nil {
+			errors = append(errors, fmt.Sprintf("%s: %v", code, err))
+		}
+	}
+	if len(errors) > 0 {
+		return errp.New(strings.Join(errors, "; "))
+	}
+	return nil
 }
 
 // configureHistoryExchangeRates changes backend.ratesUpdater settings.
@@ -697,6 +721,7 @@ func (backend *Backend) Start() <-chan interface{} {
 
 	backend.ratesUpdater.StartCurrentRates()
 	backend.configureHistoryExchangeRates()
+	backend.started = true
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
 
@@ -1002,8 +1027,51 @@ func (backend *Backend) Environment() Environment {
 	return backend.environment
 }
 
+// ClearCache clears the backend cache directory and reinitializes cache-backed state.
+// User data such as configs, account names, wallets and notes is preserved.
+func (backend *Backend) ClearCache() error {
+	defer backend.accountsAndKeystoreLock.Lock()()
+
+	backend.log.Info("Clearing backend cache")
+
+	errors := []string{}
+
+	if backend.ratesUpdater != nil {
+		backend.ratesUpdater.Stop()
+	}
+
+	backend.uninitAccounts(true)
+	if err := backend.closeCoins(); err != nil {
+		backend.log.WithError(err).Error("could not close coins before clearing cache")
+		errors = append(errors, err.Error())
+	}
+
+	cacheDir := backend.arguments.CacheDirectoryPath()
+	if err := os.RemoveAll(cacheDir); err != nil {
+		backend.log.WithError(err).Error("could not remove cache directory")
+		errors = append(errors, err.Error())
+	}
+	if err := os.MkdirAll(cacheDir, 0700); err != nil {
+		backend.log.WithError(err).Error("could not recreate cache directory")
+		errors = append(errors, err.Error())
+	}
+
+	backend.ratesUpdater = backend.newRatesUpdater()
+	backend.initAccounts(true)
+	if backend.started {
+		backend.ratesUpdater.StartCurrentRates()
+	}
+	backend.notifyCoinFiatPrices()
+
+	if len(errors) > 0 {
+		return errp.New(strings.Join(errors, "; "))
+	}
+	return nil
+}
+
 // Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
+	backend.started = false
 	backend.ratesUpdater.Stop()
 	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
 	// which acquires the same lock.
