@@ -1,0 +1,29 @@
+.navLabel {
+  margin: 0 0 var(--space-quarter);
+  font-size: 14px;
+  color: var(--color-secondary);
+}
+
+.navRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-three-quarter);
+  margin-bottom: var(--space-half);
+}
+
+.chevronBtn {
+  background: none;
+  border: 0;
+  padding: var(--space-eight);
+  cursor: pointer;
+}
+
+.chevronBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.navAddress {
+  font-family: var(--monospace, monospace);
+  font-size: 14px;
+}

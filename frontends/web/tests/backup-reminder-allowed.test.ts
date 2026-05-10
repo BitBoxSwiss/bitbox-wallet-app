@@ -81,7 +81,7 @@ const unlockWalletAndGetReceiveAddress = async (
   await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
   const addressLocator = page.locator('[data-testid="receive-address"]');
   const receiveAddress = await getReceiveAddressData(page, host, servewalletPort);
-  await expect(addressLocator).toHaveValue(receiveAddress.displayAddress);
+  await expect(addressLocator).toContainText(receiveAddress.displayAddress);
   return receiveAddress.address;
 };
 

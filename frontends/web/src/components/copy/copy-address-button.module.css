@@ -1,0 +1,21 @@
+.copyBtn {
+  display: inline-flex;
+  justify-content: flex-start;
+  margin-top: 0;
+  padding: 0;
+  text-align: left;
+  text-decoration: none;
+}
+
+.label {
+  align-items: center;
+  display: inline-flex;
+  font-size: var(--size-default);
+  gap: var(--space-quarter);
+  white-space: nowrap;
+}
+
+.icon {
+  height: 18px;
+  width: 18px;
+}
