@@ -8,6 +8,7 @@ import { parseExternalBtcAmount } from '@/api/coins';
 import { AppContext } from '@/contexts/AppContext';
 import { AccountCode, TAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { useLoad } from '@/hooks/api';
+import { useAccountSynced } from '@/hooks/accounts';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { getConfig } from '@/utils/config';
@@ -48,7 +49,8 @@ export const BTCDirect = ({
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
 
-  const btcdirectInfo = useLoad(() => getBTCDirectInfo(action, code));
+  const fetchBTCDirectInfo = useCallback(() => getBTCDirectInfo(action, code), [action, code]);
+  const btcdirectInfo = useAccountSynced(code, fetchBTCDirectInfo);
 
   const [blocking, setBlocking] = useState(false);
 
