@@ -26,6 +26,7 @@ import {
 } from '@/api/swap';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
@@ -566,9 +567,10 @@ export const Swap = ({
           <Header
             hideSidebarToggler
             title={
-              <h2>
-                {t('generic.swap')}
-              </h2>
+              <>
+                <h2 className="hide-on-small">{t('generic.swap')}</h2>
+                <MobileHeader withGuide title={t('generic.swap')} />
+              </>
             }
           />
           <View
@@ -685,7 +687,7 @@ export const Swap = ({
                   {isConfirmInFlight ? t('loading') : t('generic.swap')}
                 </span>
               </Button>
-              <BackButton>
+              <BackButton className="hide-on-small">
                 {t('button.back')}
               </BackButton>
             </ViewButtons>
