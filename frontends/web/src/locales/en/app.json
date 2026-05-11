@@ -1024,6 +1024,7 @@
     "enable": "Enable",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "insure": "Insure",
     "max": "Max",
     "new": "New",
     "noOptionOnIos": "Not available on iOS",

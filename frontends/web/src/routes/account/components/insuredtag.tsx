@@ -8,7 +8,7 @@ import style from './insuredtag.module.css';
 export const Insured = () => {
   const { t } = useTranslation();
   return (
-    <Link className={style.insured} to="/bitsurance/dashboard">
+    <Link className={style.insured} to="/market/bitsurance/dashboard">
       <div>
         <Shield/>
         <span>{t('account.insured')}</span>

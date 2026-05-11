@@ -7,6 +7,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { MarketTab } from './markettab';
+import { getMarketSelectPath } from './marketplace-navigation';
 import { useConfig } from '@/contexts/ConfigProvider';
 
 vi.mock('@/contexts/ConfigProvider', () => ({
@@ -83,11 +84,26 @@ describe('routes/market/components/markettab', () => {
       />,
     );
 
-    const swapButton = screen.getByText('generic.swap').closest('button');
-    expect(swapButton).not.toBeNull();
-    await user.click(swapButton as HTMLButtonElement);
+    await user.click(screen.getByRole('button', { name: 'Swap' }));
 
     expect(onChangeTab).toHaveBeenCalledWith('swap');
+  });
+
+  it('emits insure tab selection when insure is clicked', async () => {
+    const user = userEvent.setup();
+    const onChangeTab = vi.fn();
+
+    render(
+      <MarketTab
+        activeTab="buy"
+        onChangeTab={onChangeTab}
+        showSwap
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Insure' }));
+
+    expect(onChangeTab).toHaveBeenCalledWith('insure');
   });
 
   it('shows the new badge on otc when enabled', async () => {
@@ -110,5 +126,13 @@ describe('routes/market/components/markettab', () => {
     );
 
     expect(await screen.findByTestId('otc-new-badge')).toBeInTheDocument();
+  });
+
+  it('preserves the account code in market select tab paths', () => {
+    expect(getMarketSelectPath('sell', 'btc-1')).toBe('/market/select/btc-1?tab=sell');
+  });
+
+  it('builds market select tab paths without account code', () => {
+    expect(getMarketSelectPath('sell')).toBe('/market/select?tab=sell');
   });
 });

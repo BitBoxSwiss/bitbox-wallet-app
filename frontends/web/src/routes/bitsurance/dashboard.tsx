@@ -9,16 +9,13 @@ import { useMountedRef } from '@/hooks/mount';
 import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { Button } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
-import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { A } from '@/components/anchor/anchor';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Balances } from '@/routes/account/summary/accountssummary';
 import { Skeleton } from '@/components/skeleton/skeleton';
-import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ExternalLink, GreenDot, OrangeDot, RedDot, YellowDot } from '@/components/icon';
 import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
-import { BitsuranceGuide } from './guide';
 import style from './dashboard.module.css';
 
 type TProps = {
@@ -106,102 +103,95 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
   }, [accountsByKeystore, mounted]);
 
   return (
-    <GuideWrapper>
-      <GuidedContent>
-        <Main>
-          <Header title={<h2>{t('sidebar.insurance')}</h2>} >
-            <HideAmountsButton />
-          </Header>
-          <View>
-            <ViewContent>
+    <View
+      minHeight="600px"
+      verticallyCentered
+    >
+      <ViewContent>
 
-              <div className={style.headerContainer}>
-                <p className={style.title}>
-                  {t('bitsurance.dashboard.title')}
+        <div className={style.headerContainer}>
+          <p className={style.title}>
+            {t('bitsurance.dashboard.title')}
+          </p>
+          <Button
+            className={style.button}
+            primary
+            onClick={() => navigate('/market/bitsurance/account')}
+            title={t('bitsurance.dashboard.button')}>
+            <span>+</span>
+            {t('bitsurance.dashboard.button')}
+          </Button>
+        </div>
+
+        <div className={style.accountsContainer}>
+          {accountsByKeystore?.length && insurances ? accountsByKeystore.map(({ accounts, keystore }) => (
+            anyAccountInsured({ accounts, keystore }) && (
+              <div key={keystore.rootFingerprint}>
+                <p className={style.keystore}>{keystore.name}
+                  { isAmbiguousName(keystore.name, accountsByKeystore) ? (
+                    // Disambiguate accounts group by adding the fingerprint.
+                    // The most common case where this would happen is when adding accounts from the
+                    // same seed using different passphrases.
+                    <span className={style.subtle}> ({keystore.rootFingerprint})</span>
+                  ) : null }
                 </p>
-                <Button
-                  className={style.button}
-                  primary
-                  onClick={() => navigate('/bitsurance/account')}
-                  title={t('account.exportTransactions')}>
-                  <span>+</span>
-                  {t('bitsurance.dashboard.button')}
-                </Button>
-              </div>
+                <div>
+                  {accounts?.length ? accounts.map(account => {
+                    const balance = balances && balances[account.code];
+                    const insurance = insurances[account.code];
+                    return insurance ? (
+                      <div key={account.code} className={style.row}>
+                        <div className="flex flex-wrap flex-items-center">
+                          <p className={`${style.text || ''} ${style.accountName || ''}`}>
+                            {accounts.filter(ac => ac.code === account.code).map(ac => ac.name)}
+                          </p>
+                          <span className={`${style.text || ''} ${style.subtle || ''}`}>
+                            { balance ? (
+                              <AmountWithUnit amount={balance.available} />
+                            ) : <Skeleton/>}
+                          </span>
+                        </div>
 
-              <div className={style.accountsContainer}>
-                {accountsByKeystore?.length && insurances ? accountsByKeystore.map(({ accounts, keystore }) => (
-                  anyAccountInsured({ accounts, keystore }) && (
-                    <div key={keystore.rootFingerprint}>
-                      <p className={style.keystore}>{keystore.name}
-                        { isAmbiguousName(keystore.name, accountsByKeystore) ? (
-                        // Disambiguate accounts group by adding the fingerprint.
-                        // The most common case where this would happen is when adding accounts from the
-                        // same seed using different passphrases.
-                          <span className={style.subtle}> ({keystore.rootFingerprint})</span>
-                        ) : null }
-                      </p>
-                      <div>
-                        {accounts?.length ? accounts.map(account => {
-                          const balance = balances && balances[account.code];
-                          const insurance = insurances[account.code];
-                          return insurance ? (
-                            <div key={account.code} className={style.row}>
-                              <div className="flex flex-wrap flex-items-center">
-                                <p className={`${style.text || ''} ${style.accountName || ''}`}>
-                                  {accounts.filter(ac => ac.code === account.code).map(ac => ac.name)}
-                                </p>
-                                <span className={`${style.text || ''} ${style.subtle || ''}`}>
-                                  { balance ? (
-                                    <AmountWithUnit amount={balance.available} />
-                                  ) : <Skeleton/>}
-                                </span>
-                              </div>
+                        <div className={'m-top-half m-bottom-half'}>
+                          <p className={`${style.text || ''} ${style.subtle || ''} m-bottom-quarter`}>
+                            {t('bitsurance.dashboard.coverage')}
+                          </p>
+                          <p className={style.text}>
+                            {insurance.details.maxCoverageFormatted}
+                            {' '}
+                            {insurance.details.currency}
+                          </p>
+                        </div>
 
-                              <div className={'m-top-half m-bottom-half'}>
-                                <p className={`${style.text || ''} ${style.subtle || ''} m-bottom-quarter`}>
-                                  {t('bitsurance.dashboard.coverage')}
-                                </p>
-                                <p className={style.text}>
-                                  {insurance.details.maxCoverageFormatted}
-                                  {' '}
-                                  {insurance.details.currency}
-                                </p>
-                              </div>
-
-                              <div className="flex flex-column-mobile">
-                                <div className="flex">
-                                  <AccountStatusIcon status={insurance.status} />
-                                  <p className={`${style.text || ''} m-left-quarter m-right-half`}>
-                                    {t('bitsurance.dashboard.' + insurance.status)}
-                                  </p>
-                                </div>
-                                <A
-                                  className={`${style.text || ''} ${style.link || ''} m-top-quarter-on-small`}
-                                  href={insurance.details.support}
-                                >
-                                  <div className={style.externalLink}>
-                                    <ExternalLink />
-                                    <span className="m-left-quarter">
-                                      {t('bitsurance.dashboard.supportLink')}
-                                    </span>
-                                  </div>
-                                </A>
-                              </div>
-
+                        <div className="flex flex-column-mobile">
+                          <div className="flex">
+                            <AccountStatusIcon status={insurance.status} />
+                            <p className={`${style.text || ''} m-left-quarter m-right-half`}>
+                              {t('bitsurance.dashboard.' + insurance.status)}
+                            </p>
+                          </div>
+                          <A
+                            className={`${style.text || ''} ${style.link || ''} m-top-quarter-on-small`}
+                            href={insurance.details.support}
+                          >
+                            <div className={style.externalLink}>
+                              <ExternalLink />
+                              <span className="m-left-quarter">
+                                {t('bitsurance.dashboard.supportLink')}
+                              </span>
                             </div>
-                          ) : null;
-                        }) : <HorizontallyCenteredSpinner />}
+                          </A>
+                        </div>
+
                       </div>
-                    </div>
-                  )
-                )) : <HorizontallyCenteredSpinner />}
+                    ) : null;
+                  }) : <HorizontallyCenteredSpinner />}
+                </div>
               </div>
-            </ViewContent>
-          </View>
-        </Main>
-      </GuidedContent>
-      <BitsuranceGuide />
-    </GuideWrapper>
+            )
+          )) : <HorizontallyCenteredSpinner />}
+        </div>
+      </ViewContent>
+    </View>
   );
 };
