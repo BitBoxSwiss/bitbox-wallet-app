@@ -83,11 +83,26 @@ describe('routes/market/components/markettab', () => {
       />,
     );
 
-    const swapButton = screen.getByText('generic.swap').closest('button');
-    expect(swapButton).not.toBeNull();
-    await user.click(swapButton as HTMLButtonElement);
+    await user.click(screen.getByRole('button', { name: /generic\.swap/ }));
 
     expect(onChangeTab).toHaveBeenCalledWith('swap');
+  });
+
+  it('emits insure tab selection when insure is clicked', async () => {
+    const user = userEvent.setup();
+    const onChangeTab = vi.fn();
+
+    render(
+      <MarketTab
+        activeTab="buy"
+        onChangeTab={onChangeTab}
+        showSwap
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: /generic\.insure/ }));
+
+    expect(onChangeTab).toHaveBeenCalledWith('insure');
   });
 
   it('shows the new badge on otc when enabled', async () => {
