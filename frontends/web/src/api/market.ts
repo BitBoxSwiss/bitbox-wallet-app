@@ -87,7 +87,7 @@ export type TBTCDirectInfoResponse = {
   address?: string;
 } | {
   success: false;
-  errorMessage: string;
+  errorMessage: string; // TODO: add 'syncInProgress'
 };
 
 export const getBTCDirectInfo = async (action: TMarketAction, code: string): Promise<TBTCDirectInfoResponse> => {
