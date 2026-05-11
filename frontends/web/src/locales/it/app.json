@@ -1843,13 +1843,15 @@
     },
     "edit": "Modifica la transazione",
     "error": {
+      "accountNotSynced": "L'account non è ancora sincronizzato. Attendi il completamento della sincronizzazione e riprova.",
       "erc20InsufficientGasFunds": "Sembra che tu non abbia abbastanza Ether per pagare questa transazione ERC20. Per favore, assicurati di avere abbastanza Ether nel tuo wallet e prova di nuovo.",
       "feeTooLow": "commissione troppo bassa",
       "feesNotAvailable": "Impossibile stimare le commissioni",
       "insufficientFunds": "fondi insufficienti",
       "invalidAddress": "indirizzo non valido",
       "invalidAmount": "importo non valido",
-      "invalidData": "dati non validi"
+      "invalidData": "dati non validi",
+      "syncInProgress": "L'account è ancora in fase di sincronizzazione. Attendere che la sincronizzazione sia completata e riprovare."
     },
     "fee": {
       "customPlaceholder": "Inserisci importo",
@@ -2035,9 +2037,11 @@
     "fetchingRoutes": "Recupero percorsi...",
     "new": "Nuovo swap",
     "noRouteFound": "Nessun percorso trovato",
-    "oneRouteAvailable": "Un percorso disponibile.",
+    "noRouteFoundForPair": "Nessun percorso trovato da {{sellCoin}} a {{buyCoin}}. Prova a inserire un importo maggiore. Oppure riprova più tardi.",
+    "oneRouteAvailable": "Un percorso disponibile",
     "recommended": "Consigliato",
     "route": "Percorso swap",
+    "routesPlaceholder": "I percorsi appariranno qui dopo aver inserito un importo",
     "unexpectedError": "Si è verificato un errore imprevisto."
   },
   "testWallet": {
