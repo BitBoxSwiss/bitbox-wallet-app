@@ -64,10 +64,17 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .sidebarToggler img {
     width: 20px;
+    transition: opacity 0.15s ease;
+}
+
+.sidebarToggler:active img {
+    opacity: 0.5;
 }
 
 .title {
