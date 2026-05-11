@@ -8,6 +8,7 @@ import (
 	"net/url"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/useragent"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/proxy"
 )
@@ -17,6 +18,7 @@ type SocksProxy struct {
 	useProxy         bool
 	proxyAddress     string
 	fullProxyAddress string
+	userAgent        string
 	log              *logrus.Entry
 }
 
@@ -35,6 +37,12 @@ func NewSocksProxy(useProxy bool, proxyAddress string) SocksProxy {
 	}
 	proxy.fullProxyAddress = "socks5://" + proxyAddress
 	return proxy
+}
+
+// WithUserAgent configures the user agent for BitBox/Shift-owned HTTP requests.
+func (socksProxy SocksProxy) WithUserAgent(ua string) SocksProxy {
+	socksProxy.userAgent = ua
+	return socksProxy
 }
 
 // Validate validates the socks5 proxy endpoint.
@@ -88,8 +96,16 @@ func (socksProxy *SocksProxy) GetHTTPClient() (*http.Client, error) {
 		// Make a http.Transport that uses the proxy dialer, and a
 		// http.Client that uses the transport.
 		tbTransport := &http.Transport{Dial: tbDialer.Dial}
-		client := &http.Client{Transport: tbTransport}
-		return client, nil
+		return socksProxy.httpClient(tbTransport), nil
 	}
-	return &http.Client{}, nil
+	return socksProxy.httpClient(nil), nil
+}
+
+func (socksProxy *SocksProxy) httpClient(transport http.RoundTripper) *http.Client {
+	if socksProxy.userAgent == "" {
+		return &http.Client{Transport: transport}
+	}
+	return &http.Client{
+		Transport: useragent.NewTransport(transport, socksProxy.userAgent),
+	}
 }

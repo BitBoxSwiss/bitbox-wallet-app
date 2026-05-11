@@ -187,6 +187,7 @@ type BackendEnvironment struct {
 	AuthFunc                 func()
 	OnAuthSettingChangedFunc func(bool)
 	BluetoothConnectFunc     func(string)
+	UserAgentHostFunc        func() string
 }
 
 // NotifyUser implements backend.Environment.
@@ -270,6 +271,14 @@ func (env *BackendEnvironment) BluetoothConnect(identifier string) {
 	if env.BluetoothConnectFunc != nil {
 		env.BluetoothConnectFunc(identifier)
 	}
+}
+
+// UserAgentHost implements backend.Environment.
+func (env *BackendEnvironment) UserAgentHost() string {
+	if env.UserAgentHostFunc != nil {
+		return env.UserAgentHostFunc()
+	}
+	return ""
 }
 
 // Serve serves the BitBox API for use in a native client.
