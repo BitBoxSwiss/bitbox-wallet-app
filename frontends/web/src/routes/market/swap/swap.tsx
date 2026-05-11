@@ -641,6 +641,7 @@ export const Swap = ({
                     <Amount
                       amount={expectedOutput}
                       unit={expectedOutputUnit || buyAccount.coinUnit}
+                      maxDecimals={9}
                     />
                     <AmountUnit
                       unit={expectedOutputUnit || buyAccount.coinUnit}
