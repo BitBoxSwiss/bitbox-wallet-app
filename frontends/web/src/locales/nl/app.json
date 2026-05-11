@@ -29,27 +29,21 @@
     "extendedPublicKey": "Uitgebreide publieke sleutel",
     "label": "Accountinformatie",
     "scriptType": "Script-type",
-    "taproot": "De uitgebreide publieke sleutel van je Taproot-adressen wordt niet weergegeven om ongelukken en misbruikt te voorkomen, aangezien dit scriptformaat over het algemeen toch niet ondersteund wordt. Als je de sleutel toch wilt weergeven, zul je je apparaat met een wallet-applicatie moeten verbinden dat dit formaat ondersteunt.",
     "title": "Accountinformatie",
     "verify": "Verifieer op je adres",
     "xpubTypeChangeBtn": {
       "p2pkh": "Legacy P2PKH uitgebreide publieke sleutel weergeven",
       "p2tr": "Taproot weergeven",
-      "p2wpkh": "Native SegWit weergeven",
-      "p2wpkh-p2sh": "Oude SegWit uitgebreide publieke sleutel weergeven"
+      "p2wpkh": "Native SegWit weergeven"
     },
     "xpubTypeInfo": "Op dit moment wordt nummer {{current}} van de {{numberOfXPubs}} {{scriptType}} uitgebreide publieke sleutels weergegeven"
   },
   "accountSummary": {
     "availableBalance": "Beschikbare balans",
     "balance": "Balans",
-    "coin": "Munt",
-    "exportSummary": "Accounts als CSV bestand naar de downloads map exporteren",
-    "fiatBalance": "Fiat balans",
     "name": "Accountnaam",
     "noAccount": "Er zijn geen accounts om weer te geven",
     "portfolio": "Portfolio",
-    "subtotalWithCoinName": "Totaal ({{coinName}})",
     "title": "Mijn portfolio",
     "total": "Totaal",
     "transactionHistory": "Transactiegeschiedenis"
@@ -492,7 +486,6 @@
             },
             "title": "Disclaimer"
           },
-          "info": "Krijg een persoonlijke adviseur, lagere kosten en plaats orders direct via je contactpersoon bij BTC Direct.",
           "infobox": {
             "intro_btconly": "Krijg persoonlijke hulp bij over-the-counter (OTC) Bitcoin-transacties van grote waarde.",
             "intro_multi": "Krijg persoonlijke hulp bij over-the-counter (OTC) transacties van grote waarde voor Bitcoin, Ethereum, stablecoins en meer.",
@@ -503,9 +496,7 @@
             "listItem3": "Minimum orderbedrag: €50,000.",
             "listItem4": "Transparante kosten vastgesteld op 0,5%-1%, inclusief persoonlijke begeleiding.",
             "manager": "Een toegewijde accountmanager begeleidt je bij elke stap en zorgt voor een veilige, ongecompliceerde ervaring met vaste tarieven en minimale slippage."
-          },
-          "link": "Toegang BTC Direct - Private Trading Desk",
-          "title": "Koop of verkoop je meer dan € 50.000?"
+          }
         },
         "btcdirectWidget": {
           "disclaimer": {
@@ -1538,8 +1529,7 @@
     "qrCodeCopiedMessage": "Gekopieerd!",
     "scriptType": {
       "p2tr": "Taproot (nieuwste adresformaat)",
-      "p2wpkh": "Native Segwit (standaard)",
-      "p2wpkh-p2sh": "Wrapped Segwit (compatibiliteitsformaat)"
+      "p2wpkh": "Native Segwit (standaard)"
     },
     "selectAccount": "Selecteer een account",
     "taprootWarning": "Let op: Taproot is een nieuwe adressoort in Bitcoin en wordt nog niet op grote schaal gebruikt. Het kan bijvoorbeeld zijn dat bitcoin die op een Taproot-adres ontvangen wordt, niet weergegeven wordt in andere watch-only wallets. Veel andere wallets en exchanges kunnen ook nog niet naar Taproot-adressen zenden.",
