@@ -9,7 +9,7 @@ import { GlobalBanners } from '@/components/banners';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import { useDarkmode } from '@/hooks/darkmode';
-import { CogDark, CogLight, ShieldDark, ShieldLight } from '@/components/icon';
+import { CogDark, CogLight } from '@/components/icon';
 import { TDevices } from '@/api/devices';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
@@ -56,17 +56,6 @@ export const More = ({ devices }: Props) => {
                   }
                   onClick={() => navigate('/settings')}
                   canUpgrade={canUpgrade}
-                />
-                <SettingsItem
-                  settingName={
-                    <div className={styles.item}>
-                      {isDarkMode
-                        ? <ShieldLight width={18} height={18} alt={t('sidebar.insurance')} />
-                        : <ShieldDark width={18} height={18} alt={t('sidebar.insurance')} />}
-                      {t('sidebar.insurance')}
-                    </div>
-                  }
-                  onClick={() => navigate('/bitsurance/bitsurance')}
                 />
               </div>
             </ViewContent>

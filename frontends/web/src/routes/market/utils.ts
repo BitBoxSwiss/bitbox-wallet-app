@@ -1,6 +1,29 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { TVendorName } from '@/api/market';
+import type { TMarketAction, TVendorName } from '@/api/market';
+import type { TAccount } from '@/api/account';
+
+export const getFallbackMarketAccountCode = (accounts: TAccount[]) => {
+  return accounts.find(account => account.keystore.connected)?.code
+    || accounts[0]?.code
+    || '';
+};
+
+export const getMarketActionFromSearchParams = (
+  searchParams: URLSearchParams,
+): TMarketAction => {
+  const tab = searchParams.get('tab');
+  switch (tab) {
+  case 'buy':
+  case 'sell':
+  case 'spend':
+  case 'swap':
+  case 'otc':
+    return tab;
+  default:
+    return 'buy';
+  }
+};
 
 /**
  * Gets formatted name for vendors.

@@ -410,8 +410,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Error: Was not able to get xpub from account.",
     "noAccount": "There are no accounts that can be insured.",
-    "select": "Select account",
-    "title": "Insurance"
+    "select": "Select account"
   },
   "blink": {
     "button": "Blink"
@@ -1028,6 +1027,7 @@
     "enable": "Enable",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "insure": "Insure",
     "max": "Max",
     "new": "New",
     "noOptionOnIos": "Not available on iOS",
@@ -2138,7 +2138,6 @@
   "setup": "Setup device",
   "sidebar": {
     "device": "Manage device",
-    "insurance": "Insurance",
     "leave": "Leave",
     "settings": "Settings"
   },

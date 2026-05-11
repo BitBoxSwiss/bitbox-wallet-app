@@ -4,9 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { TAccount } from '@/api/account';
-import { BitsuranceGuide } from './guide';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
-import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { View, ViewContent } from '@/components/view/view';
 import { bitsuranceLookup } from '@/api/bitsurance';
@@ -20,14 +18,13 @@ type TProps = {
 
 export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
   const [btcAccounts, setBtcAccounts] = useState<TAccount[]>();
 
   const { t } = useTranslation();
 
-  const handleChangeAccount = (selected: string) => {
-    setSelected(selected);
+  const handleChangeAccount = (accountCode: string) => {
+    navigate(`/market/bitsurance/account/${accountCode}`, { replace: true });
   };
 
   const detect = useCallback(async () => {
@@ -63,7 +60,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
           return;
         }
         // replace current history item when redirecting so that the user can go back
-        navigate(`/bitsurance/widget/${account.code}`, { replace: true });
+        navigate(`/market/bitsurance/widget/${account.code}`, { replace: true });
       });
     }
   }, [btcAccounts, navigate]);
@@ -71,7 +68,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   const handleProceed = async () => {
     setDisabled(true);
     try {
-      const account = btcAccounts?.find(acc => acc.code === selected);
+      const account = btcAccounts?.find(acc => acc.code === code);
       if (account === undefined) {
         return;
       }
@@ -82,7 +79,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
     } finally {
       setDisabled(false);
     }
-    navigate(`/bitsurance/widget/${selected}`);
+    navigate(`/market/bitsurance/widget/${code}`);
   };
 
   if (btcAccounts === undefined) {
@@ -90,29 +87,26 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   }
 
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
-          <Header title={<h2>{t('bitsuranceAccount.title')}</h2>} />
-          <View width="550px" verticallyCentered fullscreen={false}>
-            <ViewContent>
-              { btcAccounts.length === 0 ? (
-                <div>{t('bitsuranceAccount.noAccount')}</div>
-              ) : (
-                <GroupedAccountSelector
-                  title={t('bitsuranceAccount.select')}
-                  disabled={disabled}
-                  accounts={btcAccounts}
-                  selected={selected}
-                  onChange={handleChangeAccount}
-                  onProceed={handleProceed}
-                />
-              )}
-            </ViewContent>
-          </View>
-        </GuidedContent>
-        <BitsuranceGuide/>
-      </GuideWrapper>
-    </Main>
+    <View
+      fullscreen={false}
+      minHeight="600px"
+      verticallyCentered
+      width="550px"
+    >
+      <ViewContent>
+        { btcAccounts.length === 0 ? (
+          <div>{t('bitsuranceAccount.noAccount')}</div>
+        ) : (
+          <GroupedAccountSelector
+            title={t('bitsuranceAccount.select')}
+            disabled={disabled}
+            accounts={btcAccounts}
+            selected={code}
+            onChange={handleChangeAccount}
+            onProceed={handleProceed}
+          />
+        )}
+      </ViewContent>
+    </View>
   );
 };

@@ -7,6 +7,8 @@ import { TDevices } from '@/api/devices';
 import { AddAccount } from './account/add/add-account';
 import { Moonpay } from './market/moonpay';
 import { Market } from './market/market';
+import { MarketplaceLayout } from './market/marketplace-layout';
+import { MarketProvider } from './market/market-context';
 import { Pocket } from './market/pocket';
 import { BTCDirect } from './market/btcdirect';
 import { BTCDirectOTC } from './market/btcdirect-otc';
@@ -39,6 +41,7 @@ import { Bitsurance } from './bitsurance/bitsurance';
 import { BitsuranceAccount } from './bitsurance/account';
 import { BitsuranceWidget } from './bitsurance/widget';
 import { BitsuranceDashboard } from './bitsurance/dashboard';
+import { BitsuranceLayout, BitsuranceWidgetLayout } from './bitsurance/bitsurance-layout';
 import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 import { AllAccounts } from '@/routes/accounts/all-accounts';
@@ -166,6 +169,57 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
       code={''} />
   </InjectParams>);
 
+  const BitsuranceWidgetRouteEl = (
+    <BitsuranceWidgetLayout>
+      {BitsuranceWidgetEl}
+    </BitsuranceWidgetLayout>
+  );
+
+  const BitsuranceEl = (<InjectParams>
+    <Bitsurance
+      accounts={activeAccounts}
+      code={''} />
+  </InjectParams>);
+
+  const BitsuranceDashboardEl = (<InjectParams>
+    <BitsuranceDashboard
+      accounts={activeAccounts}
+      code={''} />
+  </InjectParams>);
+
+  const BitsuranceIntroRouteEl = (
+    <InjectParams>
+      <BitsuranceLayout
+        accounts={activeAccounts}
+        code=""
+      >
+        {BitsuranceEl}
+      </BitsuranceLayout>
+    </InjectParams>
+  );
+
+  const BitsuranceAccountRouteEl = (
+    <InjectParams>
+      <BitsuranceLayout
+        accounts={activeAccounts}
+        code=""
+      >
+        {BitsuranceAccountEl}
+      </BitsuranceLayout>
+    </InjectParams>
+  );
+
+  const BitsuranceDashboardRouteEl = (
+    <InjectParams>
+      <BitsuranceLayout
+        accounts={activeAccounts}
+        code=""
+      >
+        {BitsuranceDashboardEl}
+      </BitsuranceLayout>
+    </InjectParams>
+  );
+
   const AccDashboardWC = (<InjectParams>
     <DashboardWalletConnect
       accounts={activeAccounts}
@@ -218,6 +272,36 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
       code={''}
     />
   </InjectParams>);
+
+  const MarketSelectEl = (
+    <InjectParams>
+      <MarketplaceLayout
+        accounts={activeAccounts}
+        code=""
+      >
+        {MarketEl}
+      </MarketplaceLayout>
+    </InjectParams>
+  );
+
+  const BitsuranceRoutesEl = (
+    <Routes>
+      <Route path=":code" element={BitsuranceIntroRouteEl} />
+      <Route path="account/:code" element={BitsuranceAccountRouteEl} />
+      <Route path="dashboard/:code" element={BitsuranceDashboardRouteEl} />
+    </Routes>
+  );
+
+  const MarketplaceRoutesEl = (
+    <MarketProvider accounts={activeAccounts}>
+      <Routes>
+        <Route path="select" element={MarketSelectEl} />
+        <Route path="select/:code" element={MarketSelectEl} />
+        <Route path="bitsurance/widget/:code" element={BitsuranceWidgetRouteEl} />
+        <Route path="bitsurance/*" element={BitsuranceRoutesEl} />
+      </Routes>
+    </MarketProvider>
+  );
 
   const PocketBuyEl = (<InjectParams>
     <Pocket
@@ -299,9 +383,8 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
         </Route>
         <Route path="add-account" element={<AddAccount accounts={accounts}/>} />
         <Route path="account-summary" element={AccountsSummaryEl} />
+        <Route path="market/*" element={MarketplaceRoutesEl} />
         <Route path="market">
-          <Route path="select" element={MarketEl} />
-          <Route path="select/:code" element={MarketEl} />
           <Route path="btcdirect/buy/:code" element={BTCDirectBuyEl} />
           <Route path="btcdirect/buy/:code/:region" element={BTCDirectBuyEl} />
           <Route path="btcdirect/sell/:code" element={BTCDirectSellEl} />
@@ -328,18 +411,6 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
         <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
         <Route path="accounts/all" element={AllAccountsEl} />
-        <Route path="bitsurance">
-          <Route path="bitsurance" element={<Bitsurance accounts={activeAccounts}/>}/>
-          <Route path="account" element={BitsuranceAccountEl} >
-            <Route index element={BitsuranceAccountEl} />
-            <Route path=":code" element={BitsuranceAccountEl} />
-          </Route>
-          <Route path="widget" element={BitsuranceWidgetEl} >
-            <Route index element={BitsuranceWidgetEl} />
-            <Route path=":code" element={BitsuranceWidgetEl} />
-          </Route>
-          <Route path="dashboard" element={<BitsuranceDashboard accounts={activeAccounts}/>}/>
-        </Route>
         <Route path="settings">
           <Route index element={MobileSettingsEl} />
           <Route path="more" element={MoreEl} />

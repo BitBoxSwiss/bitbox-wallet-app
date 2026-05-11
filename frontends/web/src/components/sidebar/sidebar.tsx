@@ -11,7 +11,7 @@ import { deregisterTest } from '@/api/keystores';
 import { getVersion } from '@/api/bitbox02';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
-import { CloseXWhite, CogLight, Coins, Device, Eject, Linechart, RedDot, ShieldLight } from '@/components/icon';
+import { CloseXWhite, CogLight, Coins, Device, Eject, Linechart, RedDot } from '@/components/icon';
 import { getAccountsByKeystore } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { AppContext } from '@/contexts/AppContext';
@@ -113,7 +113,7 @@ const Sidebar = ({
   };
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
-  const userInSpecificAccountMarketPage = (pathname.startsWith('/market'));
+  const inMarketSection = pathname.startsWith('/market');
 
   return (
     <div className={style.sidebarContainer}>
@@ -175,7 +175,7 @@ const Sidebar = ({
           <>
             <div key="market" className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive || userInSpecificAccountMarketPage ? style.sidebarActive : ''}
+                className={({ isActive }) => isActive || inMarketSection ? style.sidebarActive : ''}
                 to="/market/select">
                 <div className={style.single}>
                   <Coins />
@@ -190,17 +190,6 @@ const Sidebar = ({
                     type="dot"
                   />
                 </span>
-              </NavLink>
-            </div>
-            <div key="insurance" className={style.sidebarItem}>
-              <NavLink
-                className={({ isActive }) => isActive ? style.sidebarActive : ''}
-                to="/bitsurance/bitsurance"
-              >
-                <div className={style.single}>
-                  <ShieldLight alt={t('sidebar.insurance')} />
-                </div>
-                <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
               </NavLink>
             </div>
           </>
