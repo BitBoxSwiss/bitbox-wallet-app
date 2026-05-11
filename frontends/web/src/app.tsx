@@ -116,11 +116,6 @@ export const App = () => {
       navigate('/');
       return;
     }
-    // if on the /bitsurance/ view and there are no accounts view route to /
-    if (accounts.length === 0 && currentURL.startsWith('/bitsurance/')) {
-      navigate('/');
-      return;
-    }
     // if in no-accounts settings and has account go to manage-accounts
     if (accounts.length && currentURL === '/settings/no-accounts') {
       navigate('/settings/manage-accounts');
