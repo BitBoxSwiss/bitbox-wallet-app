@@ -230,15 +230,17 @@ func (account *BaseAccount) migrateLegacyNotes() error {
 
 // SetTxNote implements accounts.Account.
 func (account *BaseAccount) SetTxNote(txID string, note string) error {
-	if _, err := account.notes.SetTxNote(txID, note); err != nil {
+	changed, err := account.notes.SetTxNote(txID, note)
+	if err != nil {
 		return err
 	}
-	// Prompt refresh.
-	account.Notify(observable.Event{
-		Subject: string(types.EventStatusChanged),
-		Action:  action.Reload,
-		Object:  nil,
-	})
+	if changed {
+		account.Notify(observable.Event{
+			Subject: string(types.EventTransactionsChanged),
+			Action:  action.Reload,
+			Object:  nil,
+		})
+	}
 	return nil
 }
 
