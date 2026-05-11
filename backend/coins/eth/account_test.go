@@ -13,7 +13,9 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
+	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
@@ -25,6 +27,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -191,6 +194,174 @@ func TestTxProposal(t *testing.T) {
 		})
 		require.Equal(t, errors.ErrInvalidAddress, errp.Cause(err))
 	})
+}
+
+func newTestOutgoingTx() *gethtypes.Transaction {
+	to := common.HexToAddress("0xa29163852021BF4C139D03Dff59ae763AC73e84e")
+	return gethtypes.NewTx(&gethtypes.LegacyTx{
+		Nonce:    0,
+		GasPrice: big.NewInt(1),
+		Gas:      21000,
+		To:       &to,
+		Value:    big.NewInt(1),
+	})
+}
+
+func putOutgoingTx(t *testing.T, account *Account, tx *ethtypes.TransactionWithMetadata) {
+	t.Helper()
+	dbTx, err := account.db.Begin()
+	require.NoError(t, err)
+	defer dbTx.Rollback()
+	require.NoError(t, dbTx.PutOutgoingTransaction(tx))
+	require.NoError(t, dbTx.Commit())
+}
+
+func outgoingTxs(t *testing.T, account *Account) []*ethtypes.TransactionWithMetadata {
+	t.Helper()
+	dbTx, err := account.db.Begin()
+	require.NoError(t, err)
+	defer dbTx.Rollback()
+	txs, err := dbTx.OutgoingTransactions()
+	require.NoError(t, err)
+	return txs
+}
+
+func TestOutgoingTransactionIsFinal(t *testing.T) {
+	tx := newTestOutgoingTx()
+	tests := []struct {
+		name      string
+		height    uint64
+		tipHeight uint64
+		expected  bool
+	}{
+		{
+			name:      "pending",
+			height:    0,
+			tipHeight: 100,
+			expected:  false,
+		},
+		{
+			name:      "eleven confirmations",
+			height:    90,
+			tipHeight: 100,
+			expected:  false,
+		},
+		{
+			name:      "twelve confirmations",
+			height:    89,
+			tipHeight: 100,
+			expected:  true,
+		},
+		{
+			name:      "future height",
+			height:    101,
+			tipHeight: 100,
+			expected:  false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			require.Equal(t, test.expected, outgoingTransactionIsFinal(
+				&ethtypes.TransactionWithMetadata{
+					Transaction: tx,
+					Height:      test.height,
+				},
+				test.tipHeight,
+			))
+		})
+	}
+}
+
+func TestUpdateOutgoingTransactionsSkipsFinalTransactions(t *testing.T) {
+	account := newAccountWithOptions(t, true, make(chan *Account, 1))
+	defer account.Close()
+	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
+		Transaction: newTestOutgoingTx(),
+		Height:      89,
+		GasUsed:     21000,
+		Success:     true,
+	})
+
+	var receiptCalls int
+	account.ETHCoin().TstSetClient(&mocks.InterfaceMock{
+		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+			receiptCalls++
+			return nil, errp.New("receipt should not be fetched")
+		},
+	})
+
+	account.updateOutgoingTransactions(100)
+	require.Equal(t, 0, receiptCalls)
+}
+
+func TestUpdateOutgoingTransactionsPollsRecentConfirmedTransactions(t *testing.T) {
+	account := newAccountWithOptions(t, true, make(chan *Account, 1))
+	defer account.Close()
+	tx := newTestOutgoingTx()
+	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
+		Transaction: tx,
+		Height:      90,
+		GasUsed:     21000,
+		Success:     false,
+	})
+
+	var receiptCalls int
+	account.ETHCoin().TstSetClient(&mocks.InterfaceMock{
+		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+			receiptCalls++
+			require.Equal(t, tx.Hash(), hash)
+			return &rpcclient.RPCTransactionReceipt{
+				Receipt: gethtypes.Receipt{
+					Status:  gethtypes.ReceiptStatusSuccessful,
+					GasUsed: 42000,
+				},
+				BlockNumber: 90,
+			}, nil
+		},
+	})
+
+	account.updateOutgoingTransactions(100)
+	require.Equal(t, 1, receiptCalls)
+	txs := outgoingTxs(t, account)
+	require.Len(t, txs, 1)
+	require.True(t, txs[0].Success)
+	require.Equal(t, uint64(42000), txs[0].GasUsed)
+}
+
+func TestUpdateOutgoingTransactionsStillChecksPendingTransactions(t *testing.T) {
+	account := newAccountWithOptions(t, true, make(chan *Account, 1))
+	defer account.Close()
+	tx := newTestOutgoingTx()
+	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
+		Transaction: tx,
+		Height:      0,
+	})
+
+	var receiptCalls int
+	var transactionByHashCalls int
+	var sendCalls int
+	account.ETHCoin().TstSetClient(&mocks.InterfaceMock{
+		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+			receiptCalls++
+			require.Equal(t, tx.Hash(), hash)
+			return nil, errp.New("not found")
+		},
+		TransactionByHashFunc: func(ctx context.Context, hash common.Hash) (*gethtypes.Transaction, bool, error) {
+			transactionByHashCalls++
+			require.Equal(t, tx.Hash(), hash)
+			return tx, true, nil
+		},
+		SendTransactionFunc: func(ctx context.Context, tx *gethtypes.Transaction) error {
+			sendCalls++
+			return nil
+		},
+	})
+
+	account.updateOutgoingTransactions(100)
+	require.Equal(t, 1, receiptCalls)
+	require.Equal(t, 1, transactionByHashCalls)
+	require.Equal(t, 0, sendCalls)
 }
 
 func TestMatchesAddress(t *testing.T) {
