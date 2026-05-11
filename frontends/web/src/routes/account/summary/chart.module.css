@@ -154,8 +154,11 @@
 }
 
 .toolTipValue {
-  font-weight: normal;
+  align-items: baseline;
+  display: flex;
   font-size: 1.6rem;
+  font-weight: normal;
+  justify-content: center;
   margin: 0 0 4px 0;
 }
 
