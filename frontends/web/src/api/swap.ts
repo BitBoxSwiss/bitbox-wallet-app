@@ -42,6 +42,14 @@ export type TSwapQuoteRoute = {
   routeId: string;
 };
 
+export type TSwapQuoteErrorCode =
+  | 'insufficientFunds'
+  | 'invalidRequest'
+  | 'noRoutesFound'
+  | 'unexpectedError';
+
+export type TSwapQuoteValidationErrorCode = Extract<TSwapQuoteErrorCode, 'insufficientFunds'>;
+
 export type TSwapQuoteResponse = {
   success: true;
   quote: {
@@ -49,13 +57,13 @@ export type TSwapQuoteResponse = {
   };
 } | {
   success: false;
-  // Known backend values include: NoRoutesFoundError, insufficientFunds, invalidRequest, unexpectedError.
-  errorCode: string;
+  errorCode: TSwapQuoteErrorCode;
   errorData?: {
     buyCoin?: string;
     sellCoin?: string;
   };
   errorMessage: string;
+  validationErrorCode?: TSwapQuoteValidationErrorCode;
   quote?: {
     routes: TSwapQuoteRoute[];
   };

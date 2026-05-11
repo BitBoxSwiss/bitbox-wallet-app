@@ -22,6 +22,7 @@ import {
   signSwap,
   type TSwapAccount,
   type TSwapAccounts,
+  type TSwapQuoteErrorCode,
   type TSwapQuoteRoute,
 } from '@/api/swap';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
@@ -55,9 +56,9 @@ type Props = {
 };
 
 const QUOTE_DEBOUNCE_MS = 300;
-const INSUFFICIENT_FUNDS_ERROR = 'insufficientFunds';
-const NO_ROUTES_FOUND_ERROR = 'NoRoutesFoundError';
-const UNEXPECTED_ERROR = 'unexpectedError';
+const INSUFFICIENT_FUNDS_ERROR: TSwapQuoteErrorCode = 'insufficientFunds';
+const NO_ROUTES_FOUND_ERROR: TSwapQuoteErrorCode = 'noRoutesFound';
+const UNEXPECTED_ERROR: TSwapQuoteErrorCode = 'unexpectedError';
 
 const fetchBalance = async (code: AccountCode) => {
   const response = await getBalance(code);
@@ -127,7 +128,7 @@ export const Swap = ({
   const [routes, setRoutes] = useState<TSwapQuoteRoute[]>([]);
   const [selectedRouteId, setSelectedRouteId] = useState<string | undefined>();
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
-  const [quoteErrorCode, setQuoteErrorCode] = useState<string | undefined>();
+  const [quoteErrorCode, setQuoteErrorCode] = useState<TSwapQuoteErrorCode | undefined>();
   const [routeError, setRouteError] = useState<string | undefined>();
   // Drives the button disabled/loading state for the whole confirm flow.
   const [isConfirmInFlight, setIsConfirmInFlight] = useState(false);
@@ -219,7 +220,7 @@ export const Swap = ({
     errorCode,
   }: {
     error?: string;
-    errorCode?: string;
+    errorCode?: TSwapQuoteErrorCode;
   }) => {
     clearQuoteState();
     setQuoteErrorCode(errorCode);
@@ -284,8 +285,9 @@ export const Swap = ({
           return;
         }
         const nextRoutes = response.quote?.routes ?? [];
+        const validationErrorCode = response.success ? undefined : response.validationErrorCode;
         if (nextRoutes.length > 0) {
-          setQuoteErrorCode(response.success ? undefined : response.errorCode);
+          setQuoteErrorCode(response.success ? undefined : validationErrorCode ?? response.errorCode);
           setRouteError(undefined);
           setRoutes(nextRoutes);
           const firstRouteId = nextRoutes[0]?.routeId;
@@ -314,7 +316,7 @@ export const Swap = ({
             : t('swap.noRouteFound');
           resetQuoteStateWithError({
             error: noRouteFoundMessage,
-            errorCode: response.success ? undefined : response.errorCode,
+            errorCode: response.success ? undefined : validationErrorCode ?? response.errorCode,
           });
           return;
         }
@@ -322,7 +324,7 @@ export const Swap = ({
           error: response.errorCode === UNEXPECTED_ERROR
             ? t('swap.fetchQuotesError')
             : response.errorMessage || t('swap.fetchQuotesError'),
-          errorCode: response.errorCode,
+          errorCode: validationErrorCode ?? response.errorCode,
         });
       } catch (error: unknown) {
         if (isCancelled) {
