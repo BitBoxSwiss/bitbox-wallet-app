@@ -141,7 +141,7 @@
 .tooltip {
   background: var(--background-secondary);
   border: 1px solid var(--background);
-  border-radius: 3px;
+  border-radius: var(--radius-xl);
   font-size: var(--size-smaller);
   margin-top: -25px;
   min-width: 140px;
