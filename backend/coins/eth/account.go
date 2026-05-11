@@ -201,13 +201,21 @@ func (account *Account) Initialize() error {
 }
 
 // outgoingTransactionIsFinal checks if the transaction is final, meaning it has at least
-// NumConfirmationsComplete confirmations.
-// If the transaction is not yet included in a block, or if the tipHeight is lower than the transaction's block, it is not final.
+// NumConfirmationsComplete confirmations and has been checked at least once after reaching
+// that threshold.
+// If the transaction is not yet included in a block, or if the tipHeight is lower than the
+// transaction's block, it is not final.
 func outgoingTransactionIsFinal(tx *ethtypes.TransactionWithMetadata, tipHeight uint64) bool {
 	if tx.Height == 0 || tipHeight < tx.Height {
 		return false
 	}
-	return tipHeight-tx.Height+1 >= ethtypes.NumConfirmationsComplete
+	if tipHeight-tx.Height+1 < ethtypes.NumConfirmationsComplete {
+		return false
+	}
+	if tx.LastReceiptCheckHeight < tx.Height {
+		return false
+	}
+	return tx.LastReceiptCheckHeight-tx.Height+1 >= ethtypes.NumConfirmationsComplete
 }
 
 // updateOutgoingTransactions updates the height of the stored outgoing transactions.
@@ -258,10 +266,16 @@ func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
 			continue
 		}
 		success := remoteTx.Status == types.ReceiptStatusSuccessful
-		if tx.Height == 0 || (tipHeight-remoteTx.BlockNumber) < ethtypes.NumConfirmationsComplete || tx.Success != success {
+		if tx.Height == 0 ||
+			tx.Height != remoteTx.BlockNumber ||
+			tx.GasUsed != remoteTx.GasUsed ||
+			(tipHeight-remoteTx.BlockNumber) < ethtypes.NumConfirmationsComplete ||
+			tx.Success != success ||
+			tx.LastReceiptCheckHeight != tipHeight {
 			tx.Height = remoteTx.BlockNumber
 			tx.GasUsed = remoteTx.GasUsed
 			tx.Success = success
+			tx.LastReceiptCheckHeight = tipHeight
 			if err := dbTx.PutOutgoingTransaction(tx); err != nil {
 				txLog.WithError(err).Error("could not update outgoing tx")
 				continue
