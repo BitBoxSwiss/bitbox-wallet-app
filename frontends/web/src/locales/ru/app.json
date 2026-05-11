@@ -25,19 +25,15 @@
     "xpubTypeChangeBtn": {
       "p2pkh": "Обзор legacy P2PKH расширенного открытого ключа",
       "p2tr": "Просмотр счета Taproot",
-      "p2wpkh": "Просмотр счета Native Segwit",
-      "p2wpkh-p2sh": "Просмотр Segwit расширенного открытого ключа"
+      "p2wpkh": "Просмотр счета Native Segwit"
     },
     "xpubTypeInfo": "Отображение {{scriptType}} расширенного открытого ключа ({{current}} из {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Доступный баланс",
     "balance": "Баланс",
-    "exportSummary": "Экспортировать сводку учетных записей в папку загрузок в виде файла CSV",
-    "fiatBalance": "Валютный баланс",
     "name": "Название учетной записи",
     "noAccount": "Нет аккаунтов для показа.",
-    "subtotalWithCoinName": "Монета ({{coinName}})",
     "title": "Моя учетная запись\n",
     "total": "Всего",
     "transactionHistory": "Журнал транзакций"
@@ -854,8 +850,7 @@
     },
     "scriptType": {
       "p2tr": "Taproot (новейший формат)",
-      "p2wpkh": "Native Segwit (по умолчанию)",
-      "p2wpkh-p2sh": "Wrapped Segwit (совместимый формат)"
+      "p2wpkh": "Native Segwit (по умолчанию)"
     },
     "taprootWarning": "Примечание: Taproot - это новая функция Биткойна, которая еще не получила широкого распространения. Средства, полученные на формат адреса Taproot, могут быть недоступны для просмотра в сторонних кошельках, предназначенных только для просмотра. Многие кошельки и биржи пока не могут отправлять на адреса Taproot",
     "title": "Получить {{accountName}}",

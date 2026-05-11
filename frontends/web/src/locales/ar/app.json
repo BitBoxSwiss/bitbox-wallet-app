@@ -25,19 +25,15 @@
     "xpubTypeChangeBtn": {
       "p2pkh": "عرض المفتاح العام المتشعب عن طريق P2PKH القديم",
       "p2tr": "عرض تابروت",
-      "p2wpkh": "عرض Segwit الاصلي",
-      "p2wpkh-p2sh": "عرض المفتاح العام المتشعب عن طريق Segwit القديم"
+      "p2wpkh": "عرض Segwit الاصلي"
     },
     "xpubTypeInfo": "الآن يتم عرض {{scriptType}} للمفتاح العلني المتشعب ({{current}} من {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "الرصيد المتبقي",
     "balance": "الرصيد",
-    "exportSummary": "قم بتصدير خلاصة الحسابات الى مجلد الداونلود على شكل ملف CSV",
-    "fiatBalance": "رصيد العملة النقدية",
     "name": "اسم الحساب",
     "noAccount": "لا توجد حسابات للعرض",
-    "subtotalWithCoinName": "مجموع ({{coinName}})",
     "title": "بورتفوليو حسابي",
     "total": "المجموع",
     "transactionHistory": "تاريخ التداولات"
@@ -890,8 +886,7 @@
     },
     "scriptType": {
       "p2tr": "Taproot (أحدث صيغة)",
-      "p2wpkh": "Native Segwit (اصلي)",
-      "p2wpkh-p2sh": "الـ Segwit المبطن (صيغة متوافقة)"
+      "p2wpkh": "Native Segwit (اصلي)"
     },
     "taprootWarning": "ملاحظة: Taproot هي ميزة بروتوكول جديدة من بتكوين ولم يتم اعتمادها على نطاق واسع بعد. قد لا تظهر الأموال المستلمة على عناوين Taproot في محفظات المراقبة فقط التابعة لجهات خارجية. العديد من المحفظات والتبادلات ليست قادرة بعد على الإرسال إلى عناوين Taproot",
     "title": "استلم {{accountName}}",

@@ -29,27 +29,21 @@
     "extendedPublicKey": "Chave pública estendida",
     "label": "Informações da conta",
     "scriptType": "Tipo de script",
-    "taproot": "A chave pública estendida Taproot não é mostrada para proteger contra uso indevido acidental, pois formatos raw para esse tipo de script não são amplamente suportados. Se você quiser visualizar essa chave, conecte seu dispositivo a um software de carteira que suporte o formato do descritor de saída.",
     "title": "Informações da conta",
     "verify": "Verificar no dispositivo",
     "xpubTypeChangeBtn": {
       "p2pkh": "Visualizar chave P2PKH pública estendida já existente.",
       "p2tr": "Ver Taproot",
-      "p2wpkh": "Ver Segwit Nativo",
-      "p2wpkh-p2sh": "Veja a chave pública estendida do Segwit mais antiga"
+      "p2wpkh": "Ver Segwit Nativo"
     },
     "xpubTypeInfo": "Atualmente mostrando {{scriptType}} chave pública estendida ({{current}} de {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Saldo disponível",
     "balance": "Saldo",
-    "coin": "Moeda",
-    "exportSummary": "Exportar resumo de contas para a pasta de Downloads como um arquivo CSV",
-    "fiatBalance": "Saldo em moeda corrente",
     "name": "Nome da conta",
     "noAccount": "Não há contas para mostrar.",
     "portfolio": "Portfólio",
-    "subtotalWithCoinName": "Total ({{coinName}})",
     "title": "Meu portfólio",
     "total": "Total",
     "transactionHistory": "Histórico de transações"
@@ -493,7 +487,6 @@
             },
             "title": "Aviso Legal"
           },
-          "info": "Obtenha um consultor pessoal, taxas reduzidas e faça ordens diretamente por meio do seu contato na BTC Direct.",
           "infobox": {
             "intro_btconly": "Obtenha assistência pessoal para negociações de Bitcoin de alto valor no mercado de balcão (OTC).",
             "intro_multi": "Obtenha assistência pessoal para negociações de alto valor no mercado de balcão (OTC) para Bitcoin, Ethereum, stablecoins e mais.",
@@ -504,9 +497,7 @@
             "listItem3": "Valor mínimo do pedido: €50.000.",
             "listItem4": "Taxas transparentes fixadas em 0,5%-1%, incluindo orientação pessoal.",
             "manager": "Você terá um gerente de conta dedicado orientando você em cada etapa, garantindo uma experiência segura e direta com taxas fixas e slippage mínimo."
-          },
-          "link": "Acesse BTC Direct - Private Trading Desk",
-          "title": "Comprando ou vendendo mais de €50.000?"
+          }
         },
         "btcdirectWidget": {
           "disclaimer": {
@@ -1541,8 +1532,7 @@
     "qrCodeCopiedMessage": "Copiado!",
     "scriptType": {
       "p2tr": "Taproot (formato mais recente)",
-      "p2wpkh": "Segwit Nativo (padrão)",
-      "p2wpkh-p2sh": "Wrapped Segwit (formato compatível)"
+      "p2wpkh": "Segwit Nativo (padrão)"
     },
     "selectAccount": "Selecione a conta",
     "taprootWarning": "Nota: Taproot é um novo recurso do Bitcoin e ainda não é amplamente adotado. Os valores recebidos em endereços Taproot podem não ser visíveis em carteiras watch-only de terceiros. Muitas carteiras e corretoras ainda não podem enviar para endereços Taproot.",
