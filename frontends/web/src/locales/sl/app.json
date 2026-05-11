@@ -29,27 +29,21 @@
     "extendedPublicKey": "Razširjen javni ključ",
     "label": "Podatki o računu",
     "scriptType": "Tip skripte",
-    "taproot": "Razširjeni javni ključ Taproot ni prikazan za zaščito pred nenamerno uporabo, saj surov format za to vrsto skripta ni splošno podprt. Če si želite ogledati ta ključ, povežite svojo napravo s programsko denarnico, ki podpira ta format zapisa.",
     "title": "Podatki o računu",
     "verify": "Potrdi na napravi",
     "xpubTypeChangeBtn": {
       "p2pkh": "Ogled razširjenega javnega ključa P2PKH",
       "p2tr": "Oglejte Taproot",
-      "p2wpkh": "Ogled Native Segwit",
-      "p2wpkh-p2sh": "Ogled razširjenega javnega ključa P2SH"
+      "p2wpkh": "Ogled Native Segwit"
     },
     "xpubTypeInfo": "Prikazan je {{scriptType}} razširjen javni ključ ({{current}} od {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Razpoložljivo stanje",
     "balance": "Stanje",
-    "coin": "Kovanec",
-    "exportSummary": "Izvozi povzetek računa v mapo za prenos, kot datoteko CSV",
-    "fiatBalance": "Stanje v fiat valuti",
     "name": "Ime računa",
     "noAccount": "Ni računov za prikaz.",
     "portfolio": "Portfelj",
-    "subtotalWithCoinName": "Skupaj ({{coinName}})",
     "title": "Moj portfelj",
     "total": "Skupaj",
     "transactionHistory": "Zgodovina transakcij"
@@ -484,7 +478,6 @@
             },
             "title": "Pojasnilo"
           },
-          "info": "Z osebnim svetovalcem in z znižano provizijo oddajte naročila neposredno prek vašega kontakta v BTC Direct.",
           "infobox": {
             "intro_btconly": "Zagotovite si osebno pomoč pri trgovanju z bitcoini v prosti prodaji (OTC) pri naročilih visoke vrednosti.",
             "intro_multi": "Zagotovite si osebno pomoč pri trgovanju na prostem trgu (OTC) z naročili visokih vrednosti za Bitcoin, stabilne kovance na omrežju Ethereum in drugim.",
@@ -495,9 +488,7 @@
             "listItem3": "Minimalni znesek naročila: 50.000 €",
             "listItem4": "Provizije so določene na 0,5 %-1 %, kar vključuje osebno vodenje skozi postopek.",
             "manager": "Imeli boste osebnega upravitelja računa, ki vas bo vodil pri vsakem koraku in zagotavljal varno, preprosto izkušnjo s fiksnimi provizijami oz. minimalnim odstopanjem."
-          },
-          "link": "Pristopite k BTC Direct - Private Trading Desk",
-          "title": "Kupujete ali prodajate več kot 50.000 EUR?"
+          }
         },
         "btcdirectWidget": {
           "disclaimer": {
@@ -1521,8 +1512,7 @@
     "qrCodeCopiedMessage": "Prepisano!",
     "scriptType": {
       "p2tr": "Taproot (najnovejša oblika)",
-      "p2wpkh": "Native Segwit (privzeto)",
-      "p2wpkh-p2sh": "Wrapped Segwit (starejši tip)"
+      "p2wpkh": "Native Segwit (privzeto)"
     },
     "selectAccount": "Izberite račun",
     "taprootWarning": "Opomba: Taproot je nov tip Bitcoin naslova, ki ni še povsod podprt. Sredstva, prejeta na Taproot naslov, morda ne bodo vidna v drugih denarnicah s katerim dostopate do svoje naprave. Številne denarnice in menjalnice še niso zmožne poslati na Taproot naslove.",

@@ -4,21 +4,22 @@
     "accounts": "Účty",
     "backupReminder": "Tvoje peněženka <strong>{{name}}</strong> překročila {{fiat}} {{threshold}}!\n\nDoporučujeme vytvořit papírovou zálohu pro větší ochranu. Je to rychlé a jednoduché.",
     "backupReminderLink": "Vytvořit papírovou zálohu",
-    "disconnect": "Ztráta spojení. Pokus o opětovné připojení...",
+    "disconnect": "Ztráta spojení. Pokus o opětovné připojení…",
     "exportTransactions": "Export transakcí do složky ke stažení jako soubor CSV",
     "fatalError": "Došlo k neočekávané chybě.",
     "incoming": "Přicházející",
-    "initializing": "Získávání informací z blockchainu...",
+    "initializing": "Získávání informací z blockchainu…",
     "insuranceExpired": "<strong>Účet již není pojištěn</strong>\n\nPlán pojištění tohoto účtu byl změněn.\nPodrobnosti naleznete na stránkách týkající se pojištění.",
     "insured": "Pojištěný účet",
     "maybeProxyError": "Tor proxy aktivní. Ujistěte se, že proxy server Tor běží správně, nebo nastavení proxy serveru deaktivujte.",
-    "reconnecting": "Ztráta spojení. Pokus o opětovné připojení...",
+    "reconnecting": "Ztráta spojení. Pokus o opětovné připojení…",
     "syncedAddressesCount": "Naskenováno {{count}} adres",
     "uncoveredFunds": "Máte prostředky na následujících nepokrytých typech adresách vašeho <strong>{{name}}</strong> účtu: {{uncovered}}.\nVzhledem k tomu, že účet je pojištěný, vztahuje se pouze na prostředky přijaté prostřednictvím adresy typu <strong>Native  Segwit</strong>. Prostředky na odlišných typech adres, i když jsou na stejném účtu, pojištěny nejsou.\nPřesuňte prosím všechny své mince z nepodporovaných typů adres na adresy typu <strong>Native Segwit</strong>, aby byly všechny vaše prostředky na tomto účtu pojištěny.",
     "uncoveredFundsLink": "Postupujte podle tohoto průvodce, jak přesunout své prostředky.",
-    "warning": "Varování! "
+    "warning": "Varování!"
   },
   "accountInfo": {
+    "accountDetails": "Detaily účtu",
     "address": "Adresa",
     "buyCTA": {
       "information": {
@@ -26,32 +27,34 @@
         "start": "Začněte vkladem do peněženky, nebo nákupem přímo v BitBoxApp."
       }
     },
+    "contractAddress": "Adresa kontraktu",
+    "contractAddressWarning": "Neposílejte žádné prostředky na adresu kontraktu, jinak o ně přijdete. Adresa kontraktu slouží pouze pro informační účely.",
+    "descriptorWarning": "Pro hladkou kompatibilitu s ostatními peněženkami, aplikacemi nebo službami zkopírujte celý deskriptor. Výběr a zkopírování pouze xpubu může způsobit import účtu s nesprávným typem skriptu, což může vést k problémům.",
+    "exportTransactions": "Exportovat historii transakcí",
+    "exportTransactionsDisabled": "Žádné transakce",
     "extendedPublicKey": "Veřejný klíč",
     "label": "Detaily účtu",
     "scriptType": "Typ účtu",
-    "taproot": "Taproot veřejný klíč (extended public key) není zobrazen z důvodu ochrany před náhodným zneužitím, protože raw formáty pro tento typ skriptu nejsou běžně podporovány. Pokud chcete tento klíč zobrazit, připojte zařízení k softwaru peněženky, který podporuje formát výstupního deskriptoru (output descriptor format).",
     "title": "Detaily účtu",
+    "usedAddresses": "Zobrazit použité adresy",
     "verify": "Ověřte na zařízení",
+    "viewAccountDetails": "Zobrazit podrobnosti účtu",
     "xpubTypeChangeBtn": {
       "p2pkh": "Zobrazit legacy P2PKH veřejný klíč",
       "p2tr": "Zobrazit Taproot",
-      "p2wpkh": "Zobrazit nativní Segwit",
-      "p2wpkh-p2sh": "Zobrazit starší Segwit veřejný klíč"
+      "p2wpkh": "Zobrazit nativní Segwit"
     },
     "xpubTypeInfo": "Aktuálně se zobrazuje {{scriptType}} veřejný klíč ({{current}} z {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Dostupný zůstatek",
     "balance": "Zůstatek",
-    "coin": "Měna",
-    "exportSummary": "Exportovat přehled účtů do složky ke stažení jako soubor CSV",
-    "fiatBalance": "Fiat zůstatek",
     "name": "Název účtu",
     "noAccount": "Žádné účty k zobrazení.",
     "portfolio": "Portfolio",
-    "subtotalWithCoinName": "Celkem ({{coinName}})",
     "title": "Moje portfolio",
     "total": "Celkem",
+    "totalAssets": "Celková aktiva",
     "transactionHistory": "Transakční historie"
   },
   "addAccount": {
@@ -73,6 +76,36 @@
       "title": "Účet přidán"
     },
     "title": "Přidat účet"
+  },
+  "addresses": {
+    "changeCopyBody": "Nepoužívejte change adresu k přijímání coinů. Chcete-li coiny přijmout, klikněte <receiveLink>sem</receiveLink>.",
+    "columnAddress": "Adresa",
+    "columnLastUsed": "Naposledy použita",
+    "detail": {
+      "address": "Adresa"
+    },
+    "empty": "Zatím nebyly použity žádné adresy.",
+    "emptyFiltered": "Filtrům neodpovídají žádné adresy.",
+    "filter": {
+      "changeAddresses": "Change adresy",
+      "receiveAddresses": "Přijímací adresy"
+    },
+    "listDescriptionPrefix": "Na této stránce najdete všechny použité adresy účtu.",
+    "loadFailed": "Použité adresy se nepodařilo načíst.",
+    "loadNotSupported": "Použité adresy nejsou pro tento typ účtu dostupné.",
+    "loadSyncInProgress": "Použité adresy se stále synchronizují. Zkuste to prosím za chvíli znovu.",
+    "notFound": "Adresa nebyla nalezena.",
+    "searchPlaceholder": "Hledat adresu",
+    "skipDeviceVerification": "Přeskočit ověření zařízení",
+    "skipVerifyBody": "Pokud adresu neověříte na zařízení, můžete zkopírovat adresu, která nepatří k vašemu BitBoxu.",
+    "skipVerifyConfirm": "Ano, přeskočit ověření",
+    "skipVerifyQuestion": "Opravdu chcete pokračovat?",
+    "skipVerifyTitle": "Přeskočit ověření na zařízení?",
+    "skipVerifyWarning": "Upozornění",
+    "title": "Použité adresy",
+    "unverifiedAddressWarning": "Tato adresa nebyla ověřena na zařízení.",
+    "verifyConnectFailed": "K vybranému zařízení se nepodařilo připojit.",
+    "verifyFailed": "Ověření adresy se nezdařilo."
   },
   "aopp": {
     "addressRequest": "{{host}} požaduje přijímací adresu.",
@@ -105,7 +138,7 @@
   "backup": {
     "check": {
       "aborted": "Kontrola zálohy byla na zařízení zrušena",
-      "checking": "Kontrola zálohy...",
+      "checking": "Kontrola zálohy…",
       "confirmTitle": "Zkontrolovat zálohu",
       "notOK": "Žádná záloha na microSD kartě neodpovídala peněžence na BitBoxu. K tomu může dojít, pokud jste vložili microSD kartu, která byla použita k nastavení jiného BitBoxu. Najděte správnou microSD kartu použitou k nastavení tohoto BitBoxu a zkuste to znovu.",
       "ok": "Záloha odpovídá peněžence.",
@@ -141,6 +174,7 @@
     "restore": {
       "confirmTitle": "Obnovit ze zálohy",
       "error": {
+        "e104": "Obnovení zálohy bylo přerušeno.",
         "e200": "Karta microSD nenalezena",
         "general": "Chyba při obnově ze zálohy"
       },
@@ -150,7 +184,7 @@
         "repeatPlaceholder": "Zopakujte heslo pro obnovení",
         "showLabel": "Heslo pro obnovení"
       },
-      "restoring": "Obnova ze zálohy...",
+      "restoring": "Obnova ze zálohy…",
       "selectedBackup": "<strong>{{backupName}}</strong> vytvořena {{createdDateTime}} bude obnovena.",
       "subtitle": "Pro pokračování vyberte zálohu",
       "title": "Obnovit",
@@ -158,7 +192,7 @@
     },
     "showMnemonic": {
       "checkboxLabel": "Přečetl jsem si výše uvedené informace",
-      "description": "Zobrazí se vám slova pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova. ",
+      "description": "Zobrazí se vám slova pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova.",
       "title": "Zobrazit slova pro obnovení",
       "warning": "<strong> Nikdy nikomu nesdělujte svá slova pro obnovení.</strong> Vaše slova pro obnovení poskytují plný přístup k vaší peněžence. Pokud vás někdo žádá o vaše slova pro obnovení, jedná se o podvodníka, nesdílejte je!"
     },
@@ -175,8 +209,8 @@
     },
     "flipscreen": "Otoč obrazovku",
     "orientation": "Špatná orientace zařízení?",
-    "success": "Aktualizace úspěšná! ",
-    "success_install": "Instalace proběhla úspěšně! ",
+    "success": "Aktualizace úspěšná!",
+    "success_install": "Instalace proběhla úspěšně!",
     "upgradeTitle": "Aktualizace BitBox firmwaru",
     "upgradeTitle_install": "Instalace BitBox firmwaru"
   },
@@ -202,11 +236,13 @@
       "alertDisabled": "Bluetooth je nyní na tvém BitBoxu vypnutý. Pokud se v budoucnu budeš chtít připojit k iPhonu, budeš jej muset znovu zapnout.",
       "alertEnabled": "Bluetooth je nyní zapnutý.",
       "description": "Bluetooth se používá pro připojení k iPhonu.",
+      "error_104": "Změna nastavení Bluetooth byla přerušena.",
       "titleDisabled": "Povolit Bluetooth",
       "titleEnabled": "Vypnout Bluetooth"
     },
     "changePassword": {
       "description": "Změnit heslo BitBoxu",
+      "error_104": "Změna hesla byla přerušena.",
       "success": "Heslo bylo úspěšně změněno",
       "title": "Změnit heslo zařízení"
     },
@@ -383,6 +419,7 @@
     "connected": "připojený",
     "connectionFailed": "neúspěšné",
     "connectionIssues": "Máte problémy s připojením?",
+    "connectionIssuesLink": "Zobrazit zde",
     "disabledGloballyDescription": "Pro připojení k BitBoxu zapněte Bluetooth.",
     "disabledGloballyTitle": "Bluetooth přístup je vypnutý.",
     "disabledPermissionDescription": "Povolte Bluetooth pro připojení k BitBoxu.",
@@ -404,6 +441,7 @@
     "check": "Zkontrolovat zálohu",
     "continue": "Pokračovat",
     "copy": "Kopírovat",
+    "copyAddress": "Zkopírovat adresu",
     "create": "Vytvořit",
     "dismiss": "Zavřít",
     "done": "Hotovo",
@@ -429,8 +467,12 @@
       "bankTransfer": "Bankovní převod",
       "bestDeal": "Nejvýhodnější nabídka",
       "buy": "Koupit",
+      "buyServices": "Možnosti nákupu",
       "creditCard": "Kreditní karta",
       "description_bitrefill": "Nakupujte dárkové karty, dobíjení telefonů a další",
+      "description_btcdirect-otc": "BTC Direct – Private trading desk",
+      "description_pocket-otc": "Pocket Private",
+      "description_swapkit": "Decentralizovaná směna BTC, ETH, USDT a dalších",
       "fast": "Rychle",
       "fee": "poplatek",
       "infoContent": {
@@ -464,6 +506,10 @@
               "link": "Model bezpečnostních hrozeb BitBoxu",
               "text": "Bitrefill je externí služba, na kterou se nevztahuje model bezpečnostních hrozeb BitBoxu. Když provedete nákup, vaše platba je odeslána na adresu Bitrefill. BitBox nemůže ověřit, zda je tato adresa správná.",
               "title": "Bezpečnostní upozornění"
+            },
+            "validEmail": {
+              "text": "Bitrefill nepodporuje různé poskytovatele dočasných e-mailových adres, a proto nemusíte obdržet fakturu. Kód dárkové karty/voucher bude stále zobrazen na konci procesu.",
+              "title": "Platné e-mailové adresy"
             }
           },
           "infobox": {
@@ -488,6 +534,7 @@
             "paymentMethods": {
               "buy": "Nákup bitcoinů:",
               "buy2": "Zadávejte velké nákupní příkazy svému account managerovi, uzamkněte si pevnou cenu a zaplaťte bankovním převodem. Kryptoměny vám budou po zaplacení doručeny přímo do vašeho BitBoxu.",
+              "fee": "Minimální výše obchodu je 50 000 €, transparentní poplatek se pohybuje mezi 0,5 % a 1 %.",
               "sell": "Prodej bitcoinů:",
               "sell2": "Při zadávání prodejního příkazu si můžete uzamknout pevnou mimoburzovní (over-the-counter) cenu. Platba v EUR je provedena, jakmile odešlete krypto na BTC Direct. V případě potřeby je k dispozici osobní asistence.",
               "title": "Platební metody a poplatky"
@@ -503,7 +550,6 @@
             },
             "title": "Prohlášení o vyloučení odpovědnosti"
           },
-          "info": "Získejte osobního poradce, snížené poplatky a zadávejte objednávky přímo prostřednictvím svého kontaktu na BTC Direct.",
           "infobox": {
             "intro_btconly": "Získejte osobní asistenci pro nadstandardní mimoburzovní (OTC) obchody s bitcoiny.",
             "intro_multi": "Získejte osobní asistenci pro nadstandardní mimoburzovní (over-the-counter) obchody s bitcoiny, stablecoiny, ethereem a dalšími.",
@@ -514,9 +560,7 @@
             "listItem3": "Minimální výše objednávky: €50,000.",
             "listItem4": "Transparentní poplatky jsou stanoveny ve výši 0,5-1 %, včetně osobního poradenství.",
             "manager": "Na každém kroku vás povede váš account manažer, který vám zajistí bezpečný a jednoduchý přístup s pevnými sazbami a minimálním slippage."
-          },
-          "link": "Přístup k BTC Direct – Private Trading Desk",
-          "title": "Nákup nebo prodej nad 50 000 EUR?"
+          }
         },
         "btcdirectWidget": {
           "disclaimer": {
@@ -613,15 +657,55 @@
             "title": "Ověření identity"
           }
         },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "info": "BitBoxApp neshromažďuje osobní údaje. Pocket Private shromažďuje nezbytné informace v souladu se svými zásadami ochrany osobních údajů, aby splnila regulační požadavky.",
+              "link": "Zásady ochrany osobních údajů Pocket",
+              "title": "Ochrana osobních údajů"
+            },
+            "kyc": {
+              "info": "Pro používání služby Pocket Private je vyžadováno ověření totožnosti zákazníka. Procesem vás provede váš account manager a zodpoví případné dotazy.",
+              "title": "Ověření totožnosti"
+            },
+            "partnership": {
+              "text": "Ve spolupráci s Pocket Private nabízí BitBox obchodování s Bitcoinem pro větší objemy. Klientům Pocket Private je přidělen account manager, který jim poskytuje osobní podporu.",
+              "title": "Nakupujte a prodávejte přes Pocket Private"
+            },
+            "payment": {
+              "info": [
+                "<strong>Nákup bitcoinů:</strong> Zadávejte velké nákupní objednávky přes svého account managera a plaťte bankovním převodem. Vaše bitcoiny budou po zaplacení doručeny přímo do vašeho BitBoxu.",
+                "<strong>Prodej bitcoinů:</strong> Bankovní platba bude provedena poté, co odešlete bitcoiny do Pocket Private. V případě potřeby je k dispozici osobní podpora.",
+                "<strong>Poplatky za obchodování:</strong> Poplatky za obchodování se odvíjejí od celkového zobchodovaného objemu, což znamená, že se váš poplatek snižuje s rostoucím celkovým objemem obchodů bez ohledu na velikost objednávky."
+              ],
+              "title": "Platební metody a poplatky"
+            },
+            "security": {
+              "info": "Pocket Private je externí služba, na kterou se nevztahuje bezpečnostní model hrozeb BitBoxu. Pocket Private však produkty BitBox dobře zná a nabízí bezpečné a odborné poradenství. Produkty BitBox ověřují bitcoinové adresy během transakcí, aby bylo zajištěno bezpečné doručení.",
+              "link": "Bezpečnostní model hrozeb BitBoxu",
+              "title": "Bezpečnost"
+            }
+          },
+          "infobox": {
+            "intro": "Získejte osobní podporu a výhodnější poplatky pro OTC obchody s Bitcoinem ve vyšších objemech. S Pocket Private se vaše poplatky snižují podle celkového zobchodovaného objemu, takže vždy získáte nejlepší sazbu bez ohledu na velikost objednávky.",
+            "learnmore": "Zjistit více o Pocket Private",
+            "tradingVolume": "Celkový zobchodovaný objem",
+            "transactionFee": "Transakční poplatek"
+          }
+        },
         "region": {
           "title": "Vyberte oblast, ve které je váš bankovní účet registrován, a zjistěte, které možnosti máte k dispozici."
         }
       },
       "noExchanges": "Je nám líto, ale v této oblasti nejsou k dispozici žádné burzy.",
+      "otcInfo": "Získejte osobní podporu a snížené poplatky za OTC obchodování ve velkých objemech.",
       "region": "Oblast",
       "selectRegion": "Není uvedeno",
       "sell": "Prodat",
-      "spend": "Utratit"
+      "sellServices": "Možnosti prodeje",
+      "spend": "Utratit",
+      "spendServices": "Možnosti utrácení",
+      "swapServices": "Možnosti směny"
     },
     "info": {
       "continue": "Souhlasím, pokračovat",
@@ -682,7 +766,7 @@
   "chart": {
     "dataMissing": "Sbíráme historická data... zůstaňte s námi.",
     "dataOldTimestamp": "Aktualizace historických směnných kurzů. V grafu se nezobrazují data po {{time}}.",
-    "dataUpdating": "aktualizace dat...",
+    "dataUpdating": "aktualizace dat…",
     "filter": {
       "all": "Všechny",
       "month": "Měsíc",
@@ -698,7 +782,8 @@
   "confirmOnDevice": "Potvrďte na svém zařízení.",
   "connectKeystore": {
     "promptNoName": "Chcete-li pokračovat, připojte svůj BitBox",
-    "promptWithName": "Chcete-li pokračovat, připojte prosím svůj BitBox s názvem \"{{name}}\" "
+    "promptWithName": "Chcete-li pokračovat, připojte prosím svůj BitBox s názvem \"{{name}}\"",
+    "swapHint": "Pro směnu připojte BitBox Multi."
   },
   "darkmode": {
     "toggle": "Tmavý režim"
@@ -749,7 +834,7 @@
         "description": "Generujte child keys z BitBox peněženky.",
         "disclaimer": "Rozumím fungování child keys a bezpečnostním aspektům.",
         "how": {
-          "description": "Child keys se zobrazí jako slova (seed) na vašem BitBoxu. Můžete vytvořit libovolný počet child keys. Chcete-li zobrazit child key, budete vyzváni k zadání čísla child key (tj. 1., 2., 3. atd.) a požadované délky  (12, 18 nebo 24 slov pro obnovení). Nezapomeňte, že musíte sledovat <strong>číslo child key a počet slov</strong>, abyste mohli později zobrazit stejný seed. ",
+          "description": "Child keys se zobrazí jako slova (seed) na vašem BitBoxu. Můžete vytvořit libovolný počet child keys. Chcete-li zobrazit child key, budete vyzváni k zadání čísla child key (tj. 1., 2., 3. atd.) a požadované délky  (12, 18 nebo 24 slov pro obnovení). Nezapomeňte, že musíte sledovat <strong>číslo child key a počet slov</strong>, abyste mohli později zobrazit stejný seed.",
           "title": "Jak to funguje?"
         },
         "recover": {
@@ -768,7 +853,7 @@
         }
       },
       "factoryReset": {
-        "description": "Obnovte zařízení do továrního nastavení. Tím se smaže peněženka z vašeho BitBoxu! ",
+        "description": "Obnovte zařízení do továrního nastavení. Tím se smaže peněženka z vašeho BitBoxu!",
         "title": "Obnovit do továrního nastavení"
       },
       "goToStartupSettings": {
@@ -874,6 +959,41 @@
           "title": "Nákup a prodej bitcoinů s Pocket"
         }
       }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "link": "Zásady ochrany osobních údajů SwapKit",
+          "text": "BitBoxApp nezískává ani neshromažďuje žádné osobní údaje. SwapKit může shromažďovat některé údaje, jak je vysvětleno v jejich zásadách ochrany osobních údajů.",
+          "title": "Ochrana osobních údajů"
+        },
+        "fees": {
+          "note": "Poznámka: Směnné kurzy SwapKit se mohou lišit od kurzů v BitBoxApp.",
+          "text": "Na každou směnu se vztahuje jednotný poplatek 1,5 %.",
+          "title": "Poplatky"
+        },
+        "intro": {
+          "text": "SwapKit nabízí službu SDK/API pro non-custodial směny. Ve spolupráci se SwapKit poskytujeme směnu kryptoměn napříč různými blockchainy na jednom místě. Umožňuje rychlé, jednoduché a non-custodial obchodování, takže máte svá aktiva stále pod kontrolou.",
+          "title": "Směna kryptoměn přes SwapKit"
+        },
+        "protocol": {
+          "link": "Zjistit více o poskytovatelích SwapKit",
+          "text": "SwapKit API využívá k provádění směn více poskytovatelů. Poskytovatelé mohou být v průběhu času přidáváni nebo odebíráni, aby bylo možné splnit aktuální požadavky na směnu a zajistit co nejlepší fungování služby.",
+          "title": "Poskytovatelé SwapKit"
+        },
+        "security": {
+          "link": "Bezpečnostní model hrozeb BitBoxu",
+          "text": "SwapKit je externí služba, na kterou se nevztahuje bezpečnostní model hrozeb BitBoxu. Se SwapKit však úzce spolupracujeme na zvýšení bezpečnosti prostřednictvím implementace payment requests do firmwaru BitBoxu. To znamená, že BitBox při směně zobrazí cílovou adresu jako „SwapKit“.",
+          "title": "Bezpečnost"
+        },
+        "slippage": {
+          "text": "Slippage je rozdíl mezi cenou, kterou očekáváte při zahájení směny, a cenou, kterou skutečně obdržíte po jejím dokončení. Protože se ceny kryptoměn mohou rychle měnit a likvidita se může během transakce změnit, výsledná částka, kterou obdržíte, může být nižší než odhadovaná.",
+          "title": "Slippage"
+        }
+      },
+      "infobox": {
+        "intro": "Směňte v BitBoxApp libovolnou kryptoměnu za jinou bez limitů a bez KYC. Tuto směnárenskou službu poskytuje SwapKit, agregátor decentralizovaných směnárenských služeb."
+      }
     }
   },
   "fiat": {
@@ -897,10 +1017,13 @@
     "buySell": "Marketplace",
     "buy_bitcoin": "Koupit Bitcoin",
     "buy_crypto": "Koupit krypto",
+    "calculating": "Probíhá výpočet…",
     "close": "Zavřít",
     "enable": "Povolit",
     "enabled_false": "Vypnuto",
     "enabled_true": "Zapnuto",
+    "max": "Max",
+    "new": "Nové",
     "noOptionOnIos": "Není k dispozici pro iOS",
     "noOptions": "Nenalezeny žádné možnosti",
     "paymentRequestNote": "{{name}} platba {{orderId}}",
@@ -911,6 +1034,7 @@
     "received": "Přijato",
     "reset": "Reset",
     "resetToDefault": "Obnovit výchozí nastavení",
+    "retry": "Zkusit znovu",
     "search": "Vyhledávání…",
     "searchButton": "Hledat",
     "sell": "Prodat {{coinCode}}",
@@ -919,7 +1043,9 @@
     "send": "Odeslat",
     "sent": "Odesláno",
     "spend_bitcoin": "Utratit bitcoiny",
-    "spend_crypto": "Utratit kryptoměny"
+    "spend_crypto": "Utratit kryptoměny",
+    "swap": "Směnit",
+    "unknown": "Neznámé"
   },
   "genericError": "Došlo k chybě. Pokud zaznamenáte nějaké problémy, restartujte prosím aplikaci.",
   "goal": {
@@ -971,7 +1097,7 @@
         "title": "Jak mohu exportovat historii svých transakcí? (např. pro CoinTracking)"
       },
       "multipleXPubs": {
-        "text": "Každý xpub je svázán se zobrazeným typem: buď \"Native Segwit (bech32)\", \"Wrapped Segwit\" nebo \"Taproot\" (pouze u Bitcoinu). Jedná se o typy skriptů, které používá {{coinName}}. BitBoxApp je kombinuje a podporuje více typů skriptů v rámci jednoho účtu. Protože každý typ skriptu dává jiný xpub, existuje více xpubů pro jeden účet.\n\nPokud soustavně přijímáte na výchozí adrese (Native Segwit), potřebujete pouze \"bech32\" xpub. Pokud však přijímáte prostředky také na \"Wrapped Segwit\" nebo \"Taproot\", musíte používat také další veřejné klíče \"Wrapped Segwit\", xpub respektive \"Taproot\" xpub.",
+        "text": "Každý xpub je svázán se zobrazeným typem: buď \"Native Segwit (bech32)\"  nebo \"Taproot\" (pouze u Bitcoinu). Jedná se o typy skriptů, které používá {{coinName}}. BitBoxApp je kombinuje a podporuje více typů skriptů v rámci jednoho účtu. Protože každý typ skriptu dává jiný xpub, existuje více xpubů pro jeden účet.\n\nPokud soustavně přijímáte na výchozí adrese (Native Segwit), potřebujete pouze \"bech32\" xpub. Pokud však přijímáte prostředky také na \"Taproot\", musíte používat také další veřejné klíče  \"Taproot\" xpub.",
         "title": "Proč existuje více xpubů?"
       },
       "privacy": {
@@ -1019,6 +1145,10 @@
       "text": "Transakce odeslaná do sítě, ale dosud nepotvrzená.",
       "title": "Co je to čekající transakce?"
     },
+    "accountTransactionEstimation": {
+      "text": "BitBoxApp bude fiatové částky označovat jako odhad, dokud nebude transakce potvrzena a nebude k dispozici konečný směnný kurz.",
+      "title": "Proč jsou částky u nových transakcí označené jako odhad?"
+    },
     "accountTransactionLabel": {
       "text": "Je to adresa, ze které jste obdrželi prostředky nebo na kterou jste je odeslali.",
       "title": "Jaká adresa se zobrazuje u každé transakce?"
@@ -1048,7 +1178,7 @@
         "link": {
           "text": "Zobrazit podporované kryptoměny"
         },
-        "text": "BitBoxApp podporuje Bitcoin, Litecoin, Ethereum a vybrané tokeny ERC20. Pro Cardano a další tokeny používejte BitBox s alternativním softwarem, jako je AdaLite nebo Rabby. Kompletní seznam všech podporovaných kryptoměn najdete na našich webových stránkách:  ",
+        "text": "BitBoxApp podporuje Bitcoin, Litecoin, Ethereum a vybrané tokeny ERC20. Pro Cardano a další tokeny používejte BitBox s alternativním softwarem, jako je AdaLite nebo Rabby. Kompletní seznam všech podporovaných kryptoměn najdete na našich webových stránkách:",
         "title": "Které kryptoměny jsou podporovány?"
       },
       "whatAreAccounts": {
@@ -1114,6 +1244,29 @@
       "ejectSD": {
         "text": "MicroSD kartu můžete z BitBoxu kdykoli vyjmout, pokud právě nevytváříte nebo neobnovujete zálohu.",
         "title": "Jak mohu microSD kartu vysunout?"
+      }
+    },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "Může to být tím, že jste použili poskytovatele e-mailu, kterého Bitrefill nepodporuje. Pokud fakturu potřebujete, kontaktujte prosím podporu Bitrefill, která vám ji může dodat.",
+        "title": "Nepřišla mi faktura od Bitrefillu"
+      },
+      "kyc": {
+        "link": {
+          "text": "Nákupní limity u Bitrefillu"
+        },
+        "text": "Ne, Bitrefill nevyžaduje ověření totožnosti. Nákupy můžete provádět bez KYC v rámci stanovených limitů. Úplné informace najdete v pravidlech nákupních limitů Bitrefillu:",
+        "title": "Vyžaduje Bitrefill KYC?"
+      },
+      "limits": {
+        "link": {
+          "text": "Ověření účtu u Bitrefillu"
+        },
+        "text": "Své nákupní limity si můžete navýšit tím, že se stanete ověřeným zákazníkem. Proces ověření dokončíte na následujícím odkazu:",
+        "title": "Jak si u Bitrefillu navýším nákupní limity?"
       }
     },
     "bitsurance": {
@@ -1196,7 +1349,7 @@
         "title": "Kdy se adresy mění?"
       },
       "addressFormats": {
-        "text": "Ve výchozím nastavení je typ adresy Native Segwit. Tento typ adresy je široce rozšířený mezi ostatními peněženkami/burzami poskytuje nejlepší sazby poplatků za každodenní transakce. Můžete si však také zvolit odesílání na Taproot (jen pro Bitcoin), což je nejnovější typ adresy, který však ještě nemusí být všude podporován. Případně, pokud máte problémy s odesíláním na Native Segwit (výchozí typ), můžete zkusit přejít na starší typ adresy Wrapped Segwit, který může být kompatibilní s více peněženkami/burzami.",
+        "text": "Ve výchozím nastavení je typ adresy Native Segwit. Tento typ adresy je široce rozšířený mezi ostatními peněženkami/burzami poskytuje nejlepší sazby poplatků za každodenní transakce. Můžete si však také zvolit odesílání na Taproot (jen pro Bitcoin), což je nejnovější typ adresy, který však ještě nemusí být všude podporován.",
         "title": "Kdy mám použít \"Změnit typ adresy\"?"
       },
       "howVerify": {
@@ -1216,7 +1369,7 @@
         "title": "Proč tolik adres?"
       },
       "whyVerify": {
-        "text": "Neměli byste se spoléhat na to, že váš počítač vygeneruje a zobrazí autentické adresy. Jeho velký povrch útoku ho činí výrazně zranitelnějším než hardwarovou peněženku. Adresu lze ověřit přímo na displeji BitBoxu.",
+        "text": "Neměli byste důvěřovat počítači, že vygeneruje a zobrazí pravé adresy. Má velkou plochu útoku, a je tak výrazně zranitelnější než hardwarová peněženka. Adresu si můžete ověřit přímo na displeji BitBoxu.",
         "title": "Proč bych měl adresu bezpečně ověřit?"
       }
     },
@@ -1381,6 +1534,10 @@
     "title": "Zvolte jazyk"
   },
   "loading": "načítání…",
+  "logo": {
+    "label": "{{name}} logo",
+    "placeholderLabel": "{{name}} placeholder logo"
+  },
   "manageAccounts": {
     "accountHidden": "Tento účet byl skryt z vašich watch-only účtů. Chcete-li jej znovu zobrazit, připojte prosím svůj BitBox.",
     "editAccount": "Upravit",
@@ -1478,9 +1635,9 @@
     "title": "Poznámka"
   },
   "notification": {
-    "newTxs_few": "",
+    "newTxs_few": "{{count}} nové transakce v: {{accountName}}",
     "newTxs_one": "Nová transakce v: {{accountName}}",
-    "newTxs_other": "{{count}} nové transakce v: {{accountName}}"
+    "newTxs_other": "{{count}} nových transakcí v účtu: {{accountName}}"
   },
   "novaConnectionIssues": {
     "connectionIssueTips": "Tipy pro problémy s připojením",
@@ -1573,7 +1730,7 @@
     }
   },
   "receive": {
-    "bitsuranceWarning": "Toto je pojištěný účet, což znamená, že může přijímat pouze na Native Segwit. Je to proto, abyste náhodou neobdrželi Wrapped Segwit nebo Taproot, které nejsou pojištěny.",
+    "bitsuranceWarning": "Toto je pojištěný účet, což znamená, že může přijímat pouze na adresy Native Segwit. Je to proto, abyste omylem nepřijali prostředky na Taproot adresu, která není pojištěná.",
     "changeScriptType": "Změňit typ adresy",
     "label": "Vaše adresa",
     "onlyThisCoin": {
@@ -1583,15 +1740,15 @@
     "qrCodeCopiedMessage": "Zkopírováno!",
     "scriptType": {
       "p2tr": "Taproot (nejnovější formát)",
-      "p2wpkh": "Nativní Segwit (výchozí)",
-      "p2wpkh-p2sh": "Wrapped Segwit (kompatibilní formát)"
+      "p2wpkh": "Nativní Segwit (výchozí)"
     },
     "selectAccount": "Vybrat účet",
     "taprootWarning": "Poznámka: Taproot je nová funkce Bitcoinu a zatím není široce používána. Prostředky přijaté na adresy Taproot nemusí být viditelné v peněženkách třetích stran, které jsou určeny pouze pro sledování (watch-only wallets). Mnoho peněženek a burz zatím není schopno posílat na adresy Taproot.",
     "title": "Přijmout {{accountName}}",
     "verify": "Bezpečně ověřit adresu",
     "verifyBitBox02": "Ověřit adresu na BitBoxu",
-    "verifyInstruction": "Zkontrolujte, zda se následující adresa shoduje s adresou zobrazenou na vašem zařízení."
+    "verifyInstruction": "Zkontrolujte, zda se následující adresa shoduje s adresou zobrazenou na vašem zařízení.",
+    "verifyTestnetWarning": "Toto je testnetový účet, mince přijaté na tuto adresu nemají žádnou hodnotu"
   },
   "reset": {
     "description": "Všechna data v zařízení budou smazána. Včetně vašeho soukromého klíče!",
@@ -1686,13 +1843,15 @@
     },
     "edit": "Upravit transakci",
     "error": {
+      "accountNotSynced": "Účet ještě není synchronizovaný. Počkejte prosím, dokud synchronizace nedokončí, a zkuste to znovu.",
       "erc20InsufficientGasFunds": "Zdá se, že nemáte dostatek etherů na zaplacení této ERC20 transakce. Přidejte prosím ether do své peněženky a zkuste to znovu.",
       "feeTooLow": "poplatek příliš nízký",
       "feesNotAvailable": "Nelze odhadnout poplatky",
       "insufficientFunds": "nedostatek finančních prostředků",
       "invalidAddress": "neplatná adresa",
       "invalidAmount": "neplatná částka",
-      "invalidData": "neplatná data"
+      "invalidData": "neplatná data",
+      "syncInProgress": "Účet se stále synchronizuje. Počkejte prosím, dokud synchronizace nedokončí, a zkuste to znovu."
     },
     "fee": {
       "customPlaceholder": "Zadejte částku",
@@ -1816,14 +1975,14 @@
         "title": "Exportovat poznámky"
       },
       "import": {
-        "accountNames_few": "",
-        "accountNames_one": "Importováno {{count}} jméno účtu.",
+        "accountNames_few": "Importovány {{count}} názvy účtů.",
+        "accountNames_one": "Importován {{count}} název účtu.",
         "accountNames_other": "Importováno {{count}} názvů účtů.",
         "description": "Obnovit poznámky k transakcím a názvům účtů z dříve vytvořeného záložního souboru.",
         "title": "Importovat poznámky",
         "tooLarge": "Soubor je příliš velký.",
-        "transactionNotes_few": "",
-        "transactionNotes_one": "Importováno {{count}} poznámka k transakci.",
+        "transactionNotes_few": "Importovány {{count}} poznámky k transakcím.",
+        "transactionNotes_one": "Importována {{count}} poznámka k transakci.",
         "transactionNotes_other": "Importováno {{count}} poznámek k transakcím."
       },
       "title": "Správa poznámek"
@@ -1842,6 +2001,20 @@
     "leave": "Odejít",
     "settings": "Nastavení"
   },
+  "signMessage": {
+    "addressLabel": "Adresa",
+    "emptyMessage": "Zadejte prosím zprávu k podpisu.",
+    "error": "Zprávu se nepodařilo podepsat. Zkuste to prosím znovu.",
+    "messageLabel": "Zpráva",
+    "messagePlaceholder": "Zadejte zprávu k podpisu",
+    "resultDescription": "Zpráva podepsána",
+    "signButton": "Podepsat na zařízení",
+    "signMessage": "Podepsat zprávu",
+    "signOnBitBoxSubtitle": "Podepsat zprávu na BitBoxu",
+    "signatureLabel": "Podpis",
+    "signing": "Potvrďte prosím zprávu na svém zařízení.",
+    "unsupportedTaproot": "Podepisování zpráv zatím není pro Taproot adresy podporováno. Vraťte se prosím zpět a změňte typ adresy."
+  },
   "success": {
     "create": {
       "info1": "Vaše peněženka byla bezpečně zálohována na microSD kartu. Vyjměte ji a uschovejte v bezpečí.",
@@ -1855,6 +2028,21 @@
       "summary": "Úspěšně jste obnovili peněženku ze zálohy.",
       "title": "Hotovo"
     }
+  },
+  "swap": {
+    "completed": "Směna dokončena",
+    "confirmOnBitBox": "Potvrďte směnu na BitBoxu",
+    "fastest": "Rychle",
+    "fetchQuotesError": "Nabídky se teď nepodařilo načíst. Zkuste to prosím znovu.",
+    "fetchingRoutes": "Načítání možností směny…",
+    "new": "Nová směna",
+    "noRouteFound": "Nenalezena žádná možnost směny",
+    "noRouteFoundForPair": "Nepodařilo se najít směnu z {{sellCoin}} do {{buyCoin}}. Zkuste zadat vyšší částku. Případně to zkuste znovu později.",
+    "oneRouteAvailable": "K dispozici je jedna možnost směny",
+    "recommended": "Doporučeno",
+    "route": "Možnost směny",
+    "routesPlaceholder": "Po zadání částky se zde zobrazí dostupné možnosti směny",
+    "unexpectedError": "Došlo k neočekávané chybě."
   },
   "testWallet": {
     "connect": {
@@ -1884,16 +2072,17 @@
     }
   },
   "transaction": {
+    "advanced": "Pokročilé",
     "confirmation": "Konfirmace",
     "details": {
       "activity": "Přehled aktivit",
       "address": "Adresa",
       "amount": "Částka",
-      "currentFiat": "Aktuální fiat",
+      "currentValue": "Aktuální hodnota",
       "date": "Datum",
       "fiatAmount": "Částka ve fiatu",
-      "from": "Od",
-      "historicalFiat": "Historický fiat",
+      "historicalValue": "Historická hodnota",
+      "sentToSelf": "Odesláno na vlastní adresu",
       "status": "Stav",
       "title": "Detaily transakce",
       "type": "Typ"
@@ -1916,6 +2105,7 @@
     },
     "statusShort": {
       "complete": "Dokončená",
+      "failed": "Neúspěšné",
       "pending": "Čekající",
       "pending_receive": "Přicházející",
       "pending_send": "Odchozí",
@@ -1927,7 +2117,9 @@
       "receive_pending": "Přijato na",
       "send_complete": "Odesláno na",
       "send_failed": "Neúspěšné odeslání na",
-      "send_pending": "Odesláno na"
+      "send_pending": "Odesláno na",
+      "send_to_self": "Odesláno <amount /> sobě",
+      "send_to_self_failed": "Nepodařilo se odeslat <amount /> sobě"
     },
     "vsize": "Virtuální velikost",
     "weight": "Váha"
@@ -1944,11 +2136,23 @@
       "e109_touch": "$t(unlock.error.e109_normal) Další přihlášení vyžaduje podržení dotykového tlačítka.",
       "e113": "Vzhledem k mnoha pokusům o přihlášení vyžaduje další přihlášení podržení dotykového tlačítka po dobu 4 sekund."
     },
+    "forgotPassword": {
+      "button": "Zobrazit zde",
+      "dialogDescription": "Pokud jste zapomněli heslo zařízení, můžete peněženku stále obnovit ze zálohy:",
+      "dialogTitle": "Zapomněli jste heslo zařízení?",
+      "info": "Zapomněli jste heslo?",
+      "stillHavingIssues": "Stále máte problémy?",
+      "supportLink": "Kontaktujte podporu",
+      "text1": "Po 10 nesprávných zadáních hesla zařízení se vaše zařízení automaticky obnoví do továrního nastavení.",
+      "text2": "Peněženku můžete obnovit z microSD karty nebo papírové zálohy bez nutnosti zadávat staré heslo zařízení. Během obnovy si můžete nastavit nové heslo zařízení.",
+      "title1": "Zařízení se po opakovaných neúspěšných pokusech resetuje",
+      "title2": "Obnovte ze zálohy peněženky"
+    },
     "input": {
       "label": "Heslo zařízení",
       "placeholder": "Zadejte heslo zařízení pro odemknutí"
     },
-    "unlocking": "Odemykání..."
+    "unlocking": "Odemykání…"
   },
   "upgradeFirmware": {
     "button": "Aktualizovat firmware",
@@ -2011,6 +2215,7 @@
     "getStarted": "Začněme instalací firmwaru na váš BitBox.",
     "loadingAccounts": "Načítání účtů",
     "message": "Připojte svůj BitBox a pokračujte poklepáním na stranu.",
+    "messageIOS": "Připojte prosím BitBox Nova a pokračujte klepnutím na bok zařízení.",
     "title": "Vítejte"
   }
 }
