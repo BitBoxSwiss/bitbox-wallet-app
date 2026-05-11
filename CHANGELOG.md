@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Bitcoin: show account details for the persisted receive address type by default
 
 ## v4.51.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.1
