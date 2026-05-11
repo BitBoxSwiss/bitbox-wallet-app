@@ -628,7 +628,7 @@ export const Swap = ({
                   <ArrowSwap className={style.flipAccountsIcon} />
                 </Button>
               </div>
-              <div className={style.row}>
+              <div>
                 <Label
                   htmlFor="swapGetAmount">
                   <span>
