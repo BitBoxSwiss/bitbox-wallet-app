@@ -34,8 +34,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { Message } from '@/components/message/message';
 import { Button, Label } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
-import { Amount } from '@/components/amount/amount';
-import { AmountUnit, AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { findAccount, getDisplayedCoinUnit, isBitcoinOnly } from '@/routes/account/utils';
@@ -636,19 +635,6 @@ export const Swap = ({
                     {t('generic.receiveWithoutCoinCode')}
                   </span>
                 </Label>
-                {selectedRoute && buyAccount && (
-                  <span className={style.max}>
-                    <Amount
-                      amount={expectedOutput}
-                      unit={expectedOutputUnit || buyAccount.coinUnit}
-                      maxDecimals={9}
-                    />
-                    <AmountUnit
-                      unit={expectedOutputUnit || buyAccount.coinUnit}
-                      className={style.nomargin}
-                    />
-                  </span>
-                )}
               </div>
               {!buyAccounts || !buyAccountCode ? (
                 <Skeleton />
