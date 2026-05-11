@@ -33,11 +33,8 @@
   "accountSummary": {
     "availableBalance": "Mevcut bakiye",
     "balance": "Bakiye",
-    "exportSummary": "Hesap Özetini İndirilenler Klasörüne CSV Dosyası Olarak Dışa Aktar",
-    "fiatBalance": "Fiat Bakiyesi",
     "name": "Hesap adı",
     "noAccount": "Gösterilecek hesap yok.",
-    "subtotalWithCoinName": "Toplam ({{coinName}})",
     "title": "Portföyüm",
     "total": "Toplam",
     "transactionHistory": "İşlem geçmişi"

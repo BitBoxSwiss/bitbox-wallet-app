@@ -29,27 +29,21 @@
     "extendedPublicKey": "Public key lanjutan",
     "label": "Maklumat akaun",
     "scriptType": "Jenis skrip",
-    "taproot": "Kunci awam lanjutan Taproot tidak ditunjukkan untuk melindungi daripada penyalahgunaan tidak sengaja, kerana format mentah untuk jenis skrip ini tidak disokong secara meluas. Jika anda ingin melihat kunci ini, sambungkan peranti anda kepada perisian dompet yang menyokong format deskriptor output.",
     "title": "Maklumat akaun",
     "verify": "Sahkan pada peranti",
     "xpubTypeChangeBtn": {
       "p2pkh": "Lihat legacy P2PKH extended public key",
       "p2tr": "Lihat Taproot",
-      "p2wpkh": "Lihat Segwit Asli",
-      "p2wpkh-p2sh": "Lihat Segwit public key lanjutan yang lebih lama"
+      "p2wpkh": "Lihat Segwit Asli"
     },
     "xpubTypeInfo": "Sedang memaparkan {{scriptType}} public key lanjutan ({{current}} daripada {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Baki yang ada",
     "balance": "Baki",
-    "coin": "Syiling",
-    "exportSummary": "Eksport ringkasan akaun ke folder muat turun sebagai fail CSV",
-    "fiatBalance": "Baki fiat",
     "name": "Nama akaun",
     "noAccount": "Tiada akaun untuk dipaparkan.",
     "portfolio": "Portfolio",
-    "subtotalWithCoinName": "Jumlah ({{coinName}})",
     "title": "Portfolio saya",
     "total": "Jumlah",
     "transactionHistory": "Sejarah transaksi"
@@ -504,7 +498,6 @@
             },
             "title": "Penafian"
           },
-          "info": "Dapatkan penasihat peribadi, pengurangan yuran dan buat pesanan terus melalui hubungan anda di BTC Direct.",
           "infobox": {
             "intro_btconly": "Dapatkan bantuan peribadi untuk dagangan Bitcoin yang bernilai tinggi, tanpa kaunter (OTC).",
             "intro_multi": "Dapatkan bantuan peribadi untuk dagangan over-the-counter (OTC) bernilai tinggi untuk Bitcoin, stablecoin Ethereum dan banyak lagi.",
@@ -515,9 +508,7 @@
             "listItem3": "Jumlah pesanan minimum: €50,000.",
             "listItem4": "Yuran telus ditetapkan pada 0.5%-1%, termasuk bimbingan peribadi.",
             "manager": "Anda akan mempunyai pengurus akaun khusus yang membimbing anda pada setiap langkah, memastikan pengalaman yang selamat dan mudah dengan kadar tetap dan kegelinciran minimum."
-          },
-          "link": "Akses BTC Direct - Meja Dagangan Persendirian",
-          "title": "Membeli atau menjual lebih €50,000?"
+          }
         },
         "btcdirectWidget": {
           "disclaimer": {
@@ -1582,8 +1573,7 @@
     "qrCodeCopiedMessage": "Disalin!",
     "scriptType": {
       "p2tr": "Akar Tunjang (format terbaharu)",
-      "p2wpkh": "Segwit asli (lalai)",
-      "p2wpkh-p2sh": "Wrapped Segwit (format yang serasi)"
+      "p2wpkh": "Segwit asli (lalai)"
     },
     "selectAccount": "Pilih akaun",
     "taprootWarning": "Nota: Taproot ialah ciri Bitcoin baharu dan belum diterima pakai secara meluas. Dana yang diterima pada alamat Taproot mungkin tidak kelihatan dalam dompet jam tangan pihak ketiga sahaja. Banyak dompet dan pertukaran belum dapat dihantar ke alamat Taproot.",
@@ -1884,11 +1874,8 @@
       "activity": "Aktiviti",
       "address": "Alamat",
       "amount": "Jumlah",
-      "currentFiat": "Nilai fiat",
       "date": "Tarikh",
       "fiatAmount": "Jumlah Fiat",
-      "from": "Dari",
-      "historicalFiat": "Nilai fiat sejarah",
       "status": "Status",
       "title": "butiran transaksi",
       "type": "taip"
