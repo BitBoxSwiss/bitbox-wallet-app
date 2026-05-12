@@ -311,6 +311,7 @@ func (backend *Backend) accountHasNonZeroBalance(accountCode accountsTypes.Code)
 func (backend *Backend) PrepareSwap(
 	buyAccountCode, sellAccountCode accountsTypes.Code,
 	routeID, sellAmount string,
+	selectedUTXOs []string,
 ) (*SwapPreparation, error) {
 	if err := backend.activateSwapBuyAccount(buyAccountCode); err != nil {
 		return nil, err
@@ -374,7 +375,7 @@ func (backend *Backend) PrepareSwap(
 	if !slip24HasCoinPurchase(paymentRequest) {
 		return nil, errp.New("Missing coinPurchase payment request memo")
 	}
-	txInput, err := swapSignTxInput(paymentRequest, sellAccount.Coin(), destinationDerivation)
+	txInput, err := swapSignTxInput(paymentRequest, sellAccount.Coin(), destinationDerivation, selectedUTXOs)
 	if err != nil {
 		return nil, err
 	}
@@ -529,6 +530,7 @@ func swapSignTxInput(
 	paymentRequest *paymentrequest.Slip24,
 	sellCoin coinpkg.Coin,
 	destinationDerivation *paymentrequest.Slip24AddressDerivation,
+	selectedUTXOs []string,
 ) (SwapSignTxInput, error) {
 	if paymentRequest == nil {
 		return SwapSignTxInput{}, errp.New("Missing payment request")
@@ -546,7 +548,7 @@ func swapSignTxInput(
 		Amount:         amount,
 		UseHighestFee:  true,
 		SendAll:        "no",
-		SelectedUTXOS:  []string{},
+		SelectedUTXOS:  selectedUTXOs,
 		PaymentRequest: frontendPaymentRequest(paymentRequest, destinationDerivation),
 	}, nil
 }

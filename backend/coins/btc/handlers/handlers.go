@@ -54,6 +54,7 @@ func NewHandlers(
 	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
 	handleFunc("/info", handlers.ensureAccountInitialized(handlers.getAccountInfo)).Methods("GET")
 	handleFunc("/utxos", handlers.ensureAccountInitialized(handlers.getUTXOs)).Methods("GET")
+	handleFunc("/utxos/amount", handlers.ensureAccountInitialized(handlers.postUTXOsAmount)).Methods("POST")
 	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
@@ -375,6 +376,50 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 	return result, nil
 }
 
+func parseSelectedUTXOs(selectedUTXOs []string) (map[wire.OutPoint]struct{}, error) {
+	result := map[wire.OutPoint]struct{}{}
+	for _, outPointString := range selectedUTXOs {
+		outPoint, err := util.ParseOutPoint([]byte(outPointString))
+		if err != nil {
+			return nil, err
+		}
+		result[*outPoint] = struct{}{}
+	}
+	return result, nil
+}
+
+func (handlers *Handlers) postUTXOsAmount(r *http.Request) (interface{}, error) {
+	accountConfig := handlers.account.Config()
+	type response struct {
+		Success      bool                                 `json:"success"`
+		ErrorMessage string                               `json:"errorMessage,omitempty"`
+		Amount       *coin.FormattedAmountWithConversions `json:"amount,omitempty"`
+	}
+	var request struct {
+		SelectedUTXOS []string `json:"selectedUTXOS"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false, ErrorMessage: "Request body is required and must be a valid JSON object."}, nil
+	}
+	selectedUTXOs, err := parseSelectedUTXOs(request.SelectedUTXOS)
+	if err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	account, ok := handlers.account.(*btc.Account)
+	if !ok {
+		return response{Success: false, ErrorMessage: "Interface must be of type btc.Account"}, nil
+	}
+	amount, err := account.SelectedUTXOsAmount(selectedUTXOs)
+	if err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	formattedAmount := amount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
+	return response{
+		Success: true,
+		Amount:  &formattedAmount,
+	}, nil
+}
+
 func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) {
 	accountConfig := handlers.account.Config()
 	type balance struct {
@@ -438,13 +483,9 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	} else {
 		input.Amount = coin.NewSendAmount(jsonBody.Amount)
 	}
-	input.SelectedUTXOs = map[wire.OutPoint]struct{}{}
-	for _, outPointString := range jsonBody.SelectedUTXOS {
-		outPoint, err := util.ParseOutPoint([]byte(outPointString))
-		if err != nil {
-			return err
-		}
-		input.SelectedUTXOs[*outPoint] = struct{}{}
+	input.SelectedUTXOs, err = parseSelectedUTXOs(jsonBody.SelectedUTXOS)
+	if err != nil {
+		return err
 	}
 	input.Note = jsonBody.Note
 	if jsonBody.PaymentRequest != nil {
@@ -503,6 +544,7 @@ type txProposalResponse struct {
 	Fee                     *coin.FormattedAmountWithConversions `json:"fee,omitempty"`
 	Total                   *coin.FormattedAmountWithConversions `json:"total,omitempty"`
 	RecipientDisplayAddress string                               `json:"recipientDisplayAddress,omitempty"`
+	SelectedUTXOs           []btc.SelectedUTXO                   `json:"selectedUTXOs,omitempty"`
 }
 
 func txProposalError(err error) (interface{}, error) {
@@ -525,12 +567,19 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 	amountResponse := outputAmount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
 	feeResponse := fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater)
 	totalResponse := total.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
+	var selectedUTXOs []btc.SelectedUTXO
+	if account, ok := handlers.account.(interface {
+		ActiveTxProposalSelectedUTXOs() []btc.SelectedUTXO
+	}); ok {
+		selectedUTXOs = account.ActiveTxProposalSelectedUTXOs()
+	}
 	return txProposalResponse{
 		Success:                 true,
 		Amount:                  &amountResponse,
 		Fee:                     &feeResponse,
 		Total:                   &totalResponse,
 		RecipientDisplayAddress: formatAddressForDisplay(handlers.account, input.RecipientAddress),
+		SelectedUTXOs:           selectedUTXOs,
 	}, nil
 }
 

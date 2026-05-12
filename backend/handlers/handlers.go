@@ -66,7 +66,7 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() backend.AccountsList
-	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
+	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string, selectedUTXOs []string) (*backend.SwapPreparation, error)
 	SwapAccounts() (backend.SwapAccounts, error)
 	SwapStatus() backend.SwapStatus
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
@@ -1855,6 +1855,7 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 		RouteID         string             `json:"routeId"`
 		SellAccountCode accountsTypes.Code `json:"sellAccountCode"`
 		SellAmount      string             `json:"sellAmount"`
+		SelectedUTXOs   []string           `json:"selectedUTXOs"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -1877,6 +1878,7 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 		request.SellAccountCode,
 		request.RouteID,
 		request.SellAmount,
+		request.SelectedUTXOs,
 	)
 	if err != nil {
 		return result{Success: false, ErrorMessage: err.Error()}

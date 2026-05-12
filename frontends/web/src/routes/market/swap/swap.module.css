@@ -1,5 +1,6 @@
 .row {
     display: flex;
+    gap: var(--space-half);
     justify-content: space-between;
     margin-bottom: var(--space-quarter);
 }
@@ -27,6 +28,11 @@
 
 .sellWarning {
   margin-bottom: var(--space-half);
+}
+
+.selectedCoinsCheckbox {
+  margin-bottom: var(--space-half);
+  margin-top: var(--space-quarter);
 }
 
 .flipContainer {

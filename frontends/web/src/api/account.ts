@@ -349,6 +349,11 @@ export type TTxInput = {
   }
 );
 
+export type TSelectedUTXO = {
+  outPoint: string;
+  address: string;
+};
+
 export type TTxProposalErrorCode =
   | 'accountNotSynced'
   | 'feeTooLow'
@@ -361,6 +366,7 @@ export type TTxProposalResult = {
   amount: TAmountWithConversions;
   fee: TAmountWithConversions;
   recipientDisplayAddress: string;
+  selectedUTXOs?: TSelectedUTXO[];
   success: true;
   total: TAmountWithConversions;
 } | {
@@ -435,6 +441,21 @@ export type TUTXO = {
 
 export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {
   return apiGet(`account/${code}/utxos`);
+};
+
+type TUTXOsAmount = {
+  success: true;
+  amount: TAmountWithConversions;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
+export const getUTXOsAmount = (
+  code: AccountCode,
+  selectedUTXOs: string[],
+): Promise<TUTXOsAmount> => {
+  return apiPost(`account/${code}/utxos/amount`, { selectedUTXOS: selectedUTXOs });
 };
 
 type TSecureOutput = {
