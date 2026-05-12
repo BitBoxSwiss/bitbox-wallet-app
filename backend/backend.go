@@ -674,9 +674,7 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // client.
 func (backend *Backend) Start() <-chan interface{} {
 	backend.usbManager = usb.NewManager(
-		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
-		backend.socksProxy,
 		backend.environment.DeviceInfos,
 		backend.Register,
 		backend.Deregister)
