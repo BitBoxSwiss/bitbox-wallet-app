@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { apiGet, apiPost } from '../utils/request';
-import { AccountCode, TBalance, TTransactionStatus } from './account';
+import { AccountCode, TAmountWithConversions, TBalance, TTransactionStatus } from './account';
 import { TSubscriptionCallback, TUnsubscribe, subscribeEndpoint } from './subscribe';
 
 export type TLightningResponse<T> =
@@ -31,12 +31,12 @@ export type TLightningPayment = {
   id: string;
   type: 'send' | 'receive';
   status: TTransactionStatus;
-  amountSat: number;
-  feesSat: number;
-  timestamp: number;
+  time: string | null;
   description?: string;
-  paymentHash?: string;
-  paymentPreimage?: string;
+  amount: TAmountWithConversions;
+  amountAtTime: TAmountWithConversions;
+  deductedAmountAtTime: TAmountWithConversions;
+  fee: TAmountWithConversions;
   invoice?: string;
 };
 

@@ -5,8 +5,10 @@ package lightning
 import (
 	"math/big"
 	"strconv"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 )
@@ -25,16 +27,16 @@ type parsePaymentInputResponse struct {
 }
 
 type lightningPayment struct {
-	ID              string            `json:"id"`
-	Type            accounts.TxType   `json:"type"`
-	Status          accounts.TxStatus `json:"status"`
-	AmountSat       uint64            `json:"amountSat"`
-	FeesSat         uint64            `json:"feesSat"`
-	Timestamp       uint64            `json:"timestamp"`
-	Description     string            `json:"description,omitempty"`
-	PaymentHash     string            `json:"paymentHash,omitempty"`
-	PaymentPreimage string            `json:"paymentPreimage,omitempty"`
-	Invoice         string            `json:"invoice,omitempty"`
+	ID                   string                              `json:"id"`
+	Type                 accounts.TxType                     `json:"type"`
+	Status               accounts.TxStatus                   `json:"status"`
+	Time                 *string                             `json:"time"`
+	Description          string                              `json:"description,omitempty"`
+	Amount               coin.FormattedAmountWithConversions `json:"amount"`
+	AmountAtTime         coin.FormattedAmountWithConversions `json:"amountAtTime"`
+	DeductedAmountAtTime coin.FormattedAmountWithConversions `json:"deductedAmountAtTime"`
+	Fee                  coin.FormattedAmountWithConversions `json:"fee"`
+	Invoice              string                              `json:"invoice,omitempty"`
 }
 
 type receivePaymentResponse struct {
@@ -149,14 +151,33 @@ func toLightningPaymentStatus(status breez_sdk_spark.PaymentStatus) accounts.TxS
 	}
 }
 
-func toLightningPayment(payment breez_sdk_spark.Payment) lightningPayment {
+func (lightning *Lightning) toLightningPayment(payment breez_sdk_spark.Payment) lightningPayment {
+	paymentType := toLightningPaymentType(payment.PaymentType)
+	amount := coin.NewAmountFromInt64(int64(parseLightningUint(payment.Amount)))
+	fee := coin.NewAmountFromInt64(int64(parseLightningUint(payment.Fees)))
+	deductedAmount := coin.NewAmountFromInt64(0)
+	if paymentType == accounts.TxTypeSend {
+		deductedAmount = coin.SumAmounts(amount, fee)
+	}
+
+	var timestamp *time.Time
+	var formattedTime *string
+	if payment.Timestamp > 0 {
+		t := time.Unix(int64(payment.Timestamp), 0).UTC()
+		timestamp = &t
+		formatted := t.Format(time.RFC3339)
+		formattedTime = &formatted
+	}
+
 	result := lightningPayment{
-		ID:        payment.Id,
-		Type:      toLightningPaymentType(payment.PaymentType),
-		Status:    toLightningPaymentStatus(payment.Status),
-		AmountSat: parseLightningUint(payment.Amount),
-		FeesSat:   parseLightningUint(payment.Fees),
-		Timestamp: payment.Timestamp,
+		ID:                   payment.Id,
+		Type:                 paymentType,
+		Status:               toLightningPaymentStatus(payment.Status),
+		Time:                 formattedTime,
+		Amount:               amount.FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
+		AmountAtTime:         amount.FormatWithConversionsAtTime(lightning.btcCoin, timestamp, lightning.ratesUpdater),
+		DeductedAmountAtTime: deductedAmount.FormatWithConversionsAtTime(lightning.btcCoin, timestamp, lightning.ratesUpdater),
+		Fee:                  fee.FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
 	}
 
 	if payment.Details == nil {
@@ -169,22 +190,12 @@ func toLightningPayment(payment breez_sdk_spark.Payment) lightningPayment {
 			result.Description = *details.Description
 		}
 		result.Invoice = details.Invoice
-		result.PaymentHash = details.HtlcDetails.PaymentHash
-		if details.HtlcDetails.Preimage != nil {
-			result.PaymentPreimage = *details.HtlcDetails.Preimage
-		}
 	case breez_sdk_spark.PaymentDetailsSpark:
 		if details.InvoiceDetails != nil {
 			if details.InvoiceDetails.Description != nil {
 				result.Description = *details.InvoiceDetails.Description
 			}
 			result.Invoice = details.InvoiceDetails.Invoice
-		}
-		if details.HtlcDetails != nil {
-			result.PaymentHash = details.HtlcDetails.PaymentHash
-			if details.HtlcDetails.Preimage != nil {
-				result.PaymentPreimage = *details.HtlcDetails.Preimage
-			}
 		}
 	}
 
@@ -349,7 +360,7 @@ func (lightning *Lightning) ListPayments() ([]lightningPayment, error) {
 
 	payments := make([]lightningPayment, 0, len(response.Payments))
 	for _, payment := range response.Payments {
-		payments = append(payments, toLightningPayment(payment))
+		payments = append(payments, lightning.toLightningPayment(payment))
 	}
 	return payments, nil
 }
