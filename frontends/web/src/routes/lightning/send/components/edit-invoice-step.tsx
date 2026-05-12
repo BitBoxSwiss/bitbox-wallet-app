@@ -2,7 +2,7 @@
 
 import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TInputTypeVariant } from '@/api/lightning';
+import { TPaymentInputTypeVariant } from '@/api/lightning';
 import { Button, Input } from '@/components/forms';
 import { Column, Grid } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
@@ -13,12 +13,12 @@ export const EditInvoiceStep = () => {
   const {
     customAmount,
     paymentDetails,
+    preparePayment,
     resetPayment,
-    sendPayment,
     setCustomAmount,
   } = useLightningSendContext();
 
-  if (paymentDetails?.type !== TInputTypeVariant.BOLT11) {
+  if (paymentDetails?.type !== TPaymentInputTypeVariant.BOLT11) {
     return null;
   }
 
@@ -52,9 +52,9 @@ export const EditInvoiceStep = () => {
       <ViewButtons>
         <Button
           primary
-          onClick={sendPayment}
+          onClick={preparePayment}
           disabled={!customAmount}>
-          {t('generic.send')}
+          {t('button.continue')}
         </Button>
         <Button secondary onClick={resetPayment}>
           {t('button.back')}

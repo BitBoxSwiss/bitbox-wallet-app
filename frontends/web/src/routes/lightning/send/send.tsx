@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
+import { Spinner } from '@/components/spinner/Spinner';
 import { Status } from '@/components/status/status';
 import { ConfirmStep } from './components/confirm-step';
 import { EditInvoiceStep } from './components/edit-invoice-step';
@@ -36,6 +37,7 @@ const SendContent = () => {
           </Status>
           {step === 'select-invoice' && <SelectInvoiceStep />}
           {step === 'edit-invoice' && <EditInvoiceStep />}
+          {step === 'preparing' && <Spinner text={t('loading')} />}
           {step === 'confirm' && <ConfirmStep />}
           {step === 'sending' && <SendingSpinner />}
           {step === 'success' && <SuccessStep />}
