@@ -145,6 +145,10 @@ public:
             hardcodedMimeType = "text/css";
         } else if (path.endsWith(".svg")) {
             hardcodedMimeType = "image/svg+xml";
+        } else if (path.endsWith(".ttf")) {
+            hardcodedMimeType = "font/ttf";
+        } else if (path.endsWith(".otf")) {
+            hardcodedMimeType = "font/otf";
         } else {
             // Fallback to detected mimetype.
             hardcodedMimeType = mimeType.name();
