@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConversionUnit } from '@/api/account';
 import { NumberInput } from '@/components/forms';
@@ -27,7 +26,7 @@ export const FiatInput = ({
       min="0"
       label={label}
       id="fiatAmount"
-      onChange={(event: ChangeEvent<HTMLInputElement>) => onFiatChange(event.target.value)}
+      onChange={onFiatChange}
       disabled={disabled}
       error={error}
       value={fiatAmount}

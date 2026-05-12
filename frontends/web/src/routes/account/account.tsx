@@ -4,7 +4,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
-import { statusChanged, syncAddressesCount, syncdone } from '@/api/accountsync';
+import { statusChanged, syncAddressesCount, syncdone, transactionsChanged } from '@/api/accountsync';
 import { TDevices } from '@/api/devices';
 import { getMarketVendors, MarketVendors } from '@/api/market';
 import { Balance } from '@/components/balance/balance';
@@ -149,6 +149,10 @@ const RemountAccount = ({
   useEffect(() => {
     return syncdone(code, () => onAccountChanged(status));
   }, [code, onAccountChanged, status]);
+
+  useEffect(() => {
+    return transactionsChanged(code, setTransactions);
+  }, [code]);
 
   useEffect(() => {
     onAccountChanged(status);
