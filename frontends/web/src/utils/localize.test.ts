@@ -10,7 +10,7 @@ describe('rates utils', () => {
     });
 
     it('formats positive number with thousand separator', () => {
-      expect(localizePercentage(15.3212, 'de-CH')).toBe('1’532.12');
+      expect(localizePercentage(15.3212, 'de-CH')).toMatch(/^1['’]532\.12$/); // node v24 changed from ’ to '
     });
 
     it('formats negative number without thousand separator', () => {
@@ -18,7 +18,7 @@ describe('rates utils', () => {
     });
 
     it('formats negative number with thousand separator', () => {
-      expect(localizePercentage(-15.3212, 'de-CH')).toBe('-1’532.12');
+      expect(localizePercentage(-15.3212, 'de-CH')).toMatch(/^-1['’]532\.12$/); // node v24 changed from ’ to '
     });
 
     it('handles zero correctly', () => {
@@ -26,11 +26,11 @@ describe('rates utils', () => {
     });
 
     it('formats number with multiple thousand separators', () => {
-      expect(localizePercentage(12345.6789, 'de-CH')).toBe('1’234’567.89');
+      expect(localizePercentage(12345.6789, 'de-CH')).toMatch(/^1['’]234['’]567\.89$/); // node v24 changed from ’ to '
     });
 
     it('rounds decimal places correctly', () => {
-      expect(localizePercentage(12.345678, 'de-CH')).toBe('1’234.57');
+      expect(localizePercentage(12.345678, 'de-CH')).toMatch(/^1['’]234\.57$/); // node v24 changed from ’ to '
     });
 
     it('formats negative number close to zero without separator', () => {

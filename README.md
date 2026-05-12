@@ -79,7 +79,7 @@ full node.
 
 Run `make envinit` to fetch golangci-lint and some other devtools.
 
-Run `make servewallet` and `make webdev` in seperate terminals.
+Run `make servewallet` and `make webdev` in separate terminals.
 
 Before the first use of `make webdev`, you also need to run `make buildweb`, to install the dev
 dependencies.

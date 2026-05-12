@@ -22,27 +22,27 @@ var intermediateFirmwareBinaryMulti_9_17_1 []byte
 
 // BitBox02
 
-//go:embed assets/firmware-bitbox02-btconly.v9.25.0.signed.bin.gz
+//go:embed assets/firmware-bitbox02-btconly.v9.26.1.signed.bin.gz
 var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 25, 0)
-var firmwareMonotonicVersionBtcOnly uint32 = 48
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 26, 1)
+var firmwareMonotonicVersionBtcOnly uint32 = 49
 
-//go:embed assets/firmware-bitbox02-multi.v9.25.0.signed.bin.gz
+//go:embed assets/firmware-bitbox02-multi.v9.26.1.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 25, 0)
-var firmwareMonotonicVersionMulti uint32 = 48
+var firmwareVersionMulti = semver.NewSemVer(9, 26, 1)
+var firmwareMonotonicVersionMulti uint32 = 49
 
 // BitBox02 Nova.
 
-//go:embed assets/firmware-bitbox02nova-btconly.v9.25.0.signed.bin.gz
+//go:embed assets/firmware-bitbox02nova-btconly.v9.26.1.signed.bin.gz
 var firmwareBB02PlusBinaryBTCOnly []byte
-var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 25, 0)
-var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 48
+var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 26, 1)
+var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 49
 
-//go:embed assets/firmware-bitbox02nova-multi.v9.25.0.signed.bin.gz
+//go:embed assets/firmware-bitbox02nova-multi.v9.26.1.signed.bin.gz
 var firmwareBB02PlusBinaryMulti []byte
-var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 25, 0)
-var firmwareBB02PlusMonotonicVersionMulti uint32 = 48
+var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 26, 1)
+var firmwareBB02PlusMonotonicVersionMulti uint32 = 49
 
 type firmwareInfo struct {
 	version          *semver.SemVer

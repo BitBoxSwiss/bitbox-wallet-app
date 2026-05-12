@@ -41,7 +41,7 @@ export const ElectrumAddServer = ({
     if (data.success) {
       setElectrumCert(data.pemCert);
     } else {
-      alertUser(data.errorMessage);
+      alertUser(data.errorMessage || t('genericError'));
     }
     setLoadingCert(false);
   };
@@ -51,8 +51,10 @@ export const ElectrumAddServer = ({
     const response = await checkElectrum(getServer());
     if (response.success) {
       alertUser(t('settings.electrum.checkSuccess', { host: electrumServer }));
-    } else {
+    } else if (response.errorMessage) {
       alertUser(t('settings.electrum.checkFailed') + ':\n' + response.errorMessage);
+    } else {
+      alertUser(t('settings.electrum.checkFailed'));
     }
     setValid(response.success);
     setLoadingCheck(false);

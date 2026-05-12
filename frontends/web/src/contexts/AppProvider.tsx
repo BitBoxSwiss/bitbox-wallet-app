@@ -9,7 +9,7 @@ import { getNativeLocale } from '@/api/nativelocale';
 import { getDevServers, getTesting } from '@/api/backend';
 import { getOnline, subscribeOnline } from '@/api/online';
 import { i18nextFormat } from '@/i18n/utils';
-import type { TChartDisplay } from './AppContext';
+import type { TChartDisplay, TSessionConfig } from './AppContext';
 import { useOrientation } from '@/hooks/orientation';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { useSync } from '@/hooks/api';
@@ -27,8 +27,9 @@ export const AppProvider = ({ children }: TProps) => {
   const [guideExists, setGuideExists] = useState(false);
   const [hideAmounts, setHideAmounts] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState(false);
-  const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('all');
+  const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('year');
   const [firmwareUpdateDialogOpen, setFirmwareUpdateDialogOpen] = useState(false);
+  const [tmpConfig, setTmpConfig] = useState<TSessionConfig>({});
 
   const orientation = useOrientation();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -45,6 +46,13 @@ export const AppProvider = ({ children }: TProps) => {
 
   const toggleSidebar = () => {
     setActiveSidebar(prev => !prev);
+  };
+
+  const updateSessionConfig = (object: TSessionConfig) => {
+    setTmpConfig(old => ({
+      ...old,
+      ...object,
+    }));
   };
 
   useEffect(() => {
@@ -88,7 +96,9 @@ export const AppProvider = ({ children }: TProps) => {
         toggleHideAmounts,
         toggleSidebar,
         setFirmwareUpdateDialogOpen,
-        firmwareUpdateDialogOpen
+        firmwareUpdateDialogOpen,
+        sessionConfig: tmpConfig,
+        updateSessionConfig,
       }}>
       {children}
     </AppContext.Provider>

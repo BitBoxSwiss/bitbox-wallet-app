@@ -17,7 +17,7 @@ export type TMarketDeal = {
   isHidden?: boolean;
 };
 
-export type TVendorName = 'moonpay' | 'pocket' | 'btcdirect' | 'btcdirect-otc' | 'bitrefill';
+export type TVendorName = 'moonpay' | 'pocket' | 'pocket-otc' | 'btcdirect' | 'btcdirect-otc' | 'bitrefill' | 'swapkit';
 
 export type TMarketDeals = {
   vendorName: TVendorName;
@@ -37,9 +37,13 @@ export type TMarketError = {
 
 export type TMarketDealsResponse = TMarketDealsList | TMarketError;
 
-export type TMarketAction = 'buy' | 'sell' | 'spend';
+export type TMarketAction = 'buy' | 'sell' | 'spend' | 'swap' | 'otc';
 
-export const getMarketDeals = (action: TMarketAction, accountCode: AccountCode, region: string): Promise<TMarketDealsResponse> => {
+export const getMarketDeals = (
+  action: TMarketAction,
+  accountCode: AccountCode,
+  region: string,
+): Promise<TMarketDealsResponse> => {
   return apiGet(`market/deals/${action}/${accountCode}?region=${region}`);
 };
 
@@ -114,18 +118,5 @@ export type MarketVendors= {
 export const getMarketVendors = (code: AccountCode) => {
   return (): Promise<MarketVendors> => {
     return apiGet(`market/vendors/${code}`);
-  };
-};
-
-export type TBtcDirectResponse = {
-  success: true;
-  supported: boolean;
-} | {
-  success: false;
-};
-
-export const getBtcDirectOTCSupported = (code: AccountCode, region: string) => {
-  return (): Promise<TBtcDirectResponse> => {
-    return apiGet(`market/btcdirect-otc/supported/${code}?region=${region}`);
   };
 };

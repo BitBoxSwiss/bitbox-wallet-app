@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { useDarkmode } from '@/hooks/darkmode';
 import { Dropdown } from '@/components/dropdown/dropdown';
-import { GlobeDark, GlobeLight } from '@/components/icon';
+import { ChevronDownDark, GlobeDark, GlobeLight } from '@/components/icon';
 import styles from './countryselect.module.css';
 
 export type TOption = {
@@ -44,21 +45,38 @@ const Option = ({ props }: {props: TOption}) => {
 
 const CountrySelect = ({ onChangeRegion, regions, selectedRegion }: TProps) => {
   const { t } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
 
   // find and pass the default object, react-select requires object identity matching, not just value equality
   const defaultValue = regions.find(region => region.value === selectedRegion);
+  const placeholderLabel = t('buy.exchange.selectRegion');
+
   return (
     <Dropdown
       value={defaultValue}
       className={styles.select}
       renderOptions={(o) => <Option props={o} />}
       isSearchable={true}
+      placeholder={placeholderLabel}
+      title={t('buy.exchange.region')}
+      mobileFullScreen
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
+      renderTrigger={({ onClick }) => (
+        <button
+          type="button"
+          className={styles.trigger}
+          onClick={onClick}
+        >
+          <SelectedRegionIcon regionCode={selectedRegion.toLowerCase()} />
+          <span className={styles.selectLabelText}>
+            {defaultValue ? defaultValue.label : placeholderLabel}
+          </span>
+          <ChevronDownDark />
+        </button>
+      )}
       onChange={onChangeRegion}
-      options={[{
-        label: t('buy.exchange.selectRegion') || '',
-        value: '',
-      },
-      ...regions]}
+      options={regions}
     />
   );
 };

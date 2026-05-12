@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode, CoinCode, ScriptType, TAccount, NativeCoinUnit, TKeystore } from '@/api/account';
+import type { AccountCode, CoinCode, ScriptType, TAccount, TAccountBase, CoinUnit, TKeystore } from '@/api/account';
+import type { BtcUnit } from '@/api/coins';
 
-export const findAccount = (
-  accounts: TAccount[],
+export const findAccount = <T extends { code: AccountCode }>(
+  accounts: T[],
   accountCode: AccountCode
-): TAccount | undefined => {
+): T | undefined => {
   return accounts.find(({ code }) => accountCode === code);
 };
 
@@ -20,7 +21,7 @@ export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
   }
 };
 
-export const isBitcoinCoin = (coin: NativeCoinUnit | undefined) => {
+export const isBitcoinCoin = (coin: CoinUnit | undefined) => {
   switch (coin) {
   case 'BTC':
   case 'TBTC':
@@ -31,6 +32,17 @@ export const isBitcoinCoin = (coin: NativeCoinUnit | undefined) => {
   default:
     return false;
   }
+};
+
+export const getDisplayedCoinUnit = (
+  coinCode: CoinCode,
+  coinUnit: CoinUnit,
+  btcUnit: BtcUnit | undefined,
+): CoinUnit => {
+  if (!isBitcoinOnly(coinCode) || btcUnit !== 'sat') {
+    return coinUnit;
+  }
+  return coinCode === 'tbtc' ? 'tsat' : 'sat';
 };
 
 export const isBitcoinBased = (coinCode: CoinCode): boolean => {
@@ -118,13 +130,13 @@ export const customFeeUnit = (coinCode: CoinCode): string => {
   return '';
 };
 
-export type TAccountsByKeystore = {
+export type TAccountsByKeystore<T extends { keystore: TKeystore } = TAccount> = {
   keystore: TKeystore;
-  accounts: TAccount[];
+  accounts: T[];
 };
 
 // Returns the accounts grouped by the keystore fingerprint.
-export const getAccountsByKeystore = (accounts: TAccount[]): TAccountsByKeystore[] => {
+export const getAccountsByKeystore = <T extends TAccountBase>(accounts: T[]): TAccountsByKeystore<T>[] => {
   return Object.values(accounts.reduce((acc, account) => {
     const key = account.keystore.rootFingerprint;
     if (!acc[key]) {
@@ -135,7 +147,7 @@ export const getAccountsByKeystore = (accounts: TAccount[]): TAccountsByKeystore
     }
     acc[key].accounts.push(account);
     return acc;
-  }, {} as Record<string, TAccountsByKeystore>));
+  }, {} as Record<string, TAccountsByKeystore<T>>));
 };
 
 type TKeystoreName = {

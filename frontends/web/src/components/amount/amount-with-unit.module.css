@@ -6,13 +6,15 @@
 }
 
 .unit {
-  font-weight: 400;
+  color: var(--color-secondary);
+  cursor: default;
   flex-grow: 0;
   flex-shrink: 0;
-  color: var(--color-secondary);
+  font-size: var(--size-smaller);
   font-variant: normal;
+  font-weight: 400;
+  margin-left: .4ch;
   position: relative;
-  cursor: default;
 }
 
 .availableFiatAmount {
@@ -20,7 +22,6 @@
   display: inline-flex;
   flex-grow: 0;
   justify-content: flex-start;
-  gap: 0.4ch;
   text-align: right;
 }
 

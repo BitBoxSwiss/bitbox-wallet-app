@@ -13,12 +13,14 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 import { getConfig } from '@/utils/config';
 import { getURLOrigin } from '@/utils/url';
 import { Header } from '@/components/layout';
+import { MobileHeader } from '../settings/components/mobile-header';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { BTCDirectTerms } from '@/components/terms/btcdirect-terms';
 import { MarketGuide } from './guide';
 import { alertUser } from '@/components/alert/Alert';
 import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { Message } from '@/components/message/message';
 import style from './iframe.module.css';
 
 // Map languages supported by BTC Direct
@@ -117,7 +119,11 @@ export const BTCDirect = ({
         return;
       }
       if (!sendResult.success && !('aborted' in sendResult)) {
-        alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+        if (sendResult.errorMessage) {
+          alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
+        } else {
+          alertUser(t('genericError'));
+        }
       }
     } else {
       if (txProposal.errorCode === 'insufficientFunds') {
@@ -197,20 +203,22 @@ export const BTCDirect = ({
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
+  const title = action === 'buy' ? (
+    t('generic.buy', { context: translationContext })
+  ) : (
+    t('generic.sell', { context: translationContext })
+  );
+
   return (
     <div className="contentWithGuide">
       <div className="container">
         <div className="innerContainer">
           <div className={style.header}>
             <Header title={
-              <h2>
-                {action === 'buy' ? (
-                  t('generic.buy', { context: translationContext })
-                ) : (
-                  t('generic.sell', { context: translationContext })
-                )}
-                {}
-              </h2>
+              <>
+                <h2 className="hide-on-small">{title}</h2>
+                <MobileHeader withGuide title={title} />
+              </>
             } />
           </div>
           <div ref={containerRef} className={style.container}>
@@ -241,7 +249,13 @@ export const BTCDirect = ({
                     src={btcdirectInfo.url}>
                   </iframe>
                 ) : (
-                  <>{btcdirectInfo?.errorMessage ? alertUser(btcdirectInfo.errorMessage) : alertUser('genericError')}</>
+                  btcdirectInfo?.success === false && (
+                    <Message type="error">
+                      {btcdirectInfo?.errorMessage
+                        ? btcdirectInfo.errorMessage
+                        : t('genericError')}
+                    </Message>
+                  )
                 )}
               </div>
             )}

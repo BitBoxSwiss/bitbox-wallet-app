@@ -6,6 +6,7 @@ import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { getBTCDirectPrivacyLink } from '@/components/terms/btcdirect-otc-terms';
 import { getBitrefillPrivacyLink } from '@/components/terms/bitrefill-terms';
+import { getPocketPrivacyLink } from '@/components/terms/pocket-otc-terms';
 import { BitrefillGuide } from './bitrefill-guide';
 
 type BuyGuideProps = {
@@ -29,7 +30,7 @@ const usePrivacyLink = (vendor?: TVendorName) => {
   case 'pocket':
     return ({
       text: t('exchange.pocket.terms.dataprotection.link'),
-      url: 'https://pocketbitcoin.com/policy/privacy',
+      url: getPocketPrivacyLink()
     });
   case 'bitrefill':
     return ({

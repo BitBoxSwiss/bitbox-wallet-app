@@ -1,6 +1,6 @@
 # E2E Testing with Playwright
 
-This directory contains tests that are run in Github's CI (and can also be run locally) to ensure that some basic use-cases are covered.
+This directory contains tests that are run in GitHub's CI (and can also be run locally) to ensure that some basic use-cases are covered.
 
 The following is a breakdown of the main components:
 

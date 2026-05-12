@@ -200,6 +200,25 @@ a.sidebarActive .single img,
     word-break: break-word;
 }
 
+.marketplaceLabel {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--space-eight);
+}
+
+.marketplaceNudgeDot {
+    background: var(--color-blue);
+    border-radius: var(--radius-full);
+    display: inline-block;
+    flex-shrink: 0;
+    height: 8px;
+    left: -2px;
+    max-width: 8px;
+    position: relative;
+    width: 8px;
+    top: -7px;
+}
+
 @media (max-width: 1199px) {
     .sidebar {
         transition: margin-left 0.2s ease;

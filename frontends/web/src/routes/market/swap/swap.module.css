@@ -1,0 +1,76 @@
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-quarter);
+}
+
+.label {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.max {
+  align-items: baseline;
+  color: var(--color-gray);
+  display: flex;
+  font-size: var(--size-small);
+  gap: .4ch;
+  min-height: auto;
+  padding: 0;
+}
+
+.nomargin {
+  margin-left: 0;
+}
+
+.sellWarning {
+  margin-bottom: var(--space-half);
+}
+
+.flipContainer {
+  text-align: center;
+}
+
+.flipAccountsButton {
+  margin-left: -21px;
+  margin-top: -10px;
+  min-height: auto;
+  padding: var(--space-quarter);
+  position: absolute;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .flipAccountsButton {
+    min-width: 90px;
+    margin-left: -45px;
+  }
+}
+
+.flipAccountsIcon {
+  display: inline-block;
+  transform: rotate(90deg);
+}
+
+.swapButtonContent {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-quarter);
+  justify-content: center;
+}
+
+.swapButtonSpinner {
+  display: inline-flex;
+}
+
+.swapButtonSpinner img {
+  height: 14px;
+  width: 14px;
+}
+
+.unit {
+  font-size: var(--size-smaller);
+  margin-left: .4ch;
+}

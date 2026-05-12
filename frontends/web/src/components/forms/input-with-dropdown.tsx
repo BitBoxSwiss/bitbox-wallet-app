@@ -7,7 +7,7 @@ import { Dropdown, TOption } from '@/components/dropdown/dropdown';
 import { ChevronDownDark } from '@/components/icon';
 import styles from './input-with-dropdown.module.css';
 
-export type TInputWithDropdownProps<T> = TBaseInputProps & {
+export type TInputWithDropdownProps<T> = Omit<TBaseInputProps, 'transparent'> & {
   dropdownOptions?: TOption<T>[];
   dropdownValue?: TOption<T> | null;
   onDropdownChange?: (selected: TOption<T>) => void;
@@ -23,7 +23,6 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
   error,
   align = 'left',
   className = '',
-  transparent = false,
   type = 'text',
   labelSection,
   dropdownOptions = [],
@@ -42,7 +41,6 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
       ${styles.input || ''}
       ${styles[`align-${align}`] || ''}
       ${className}
-      ${transparent ? styles.isTransparent || '' : ''}
       `}>
       {label ? (
         <div className={styles.labelContainer}>

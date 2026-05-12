@@ -3,6 +3,7 @@
   line-height: 1.25;
   margin-bottom: var(--space-half);
 }
+
 @media (max-width: 768px) {
   .tx {
     margin-bottom: var(--space-quarter);
@@ -15,6 +16,7 @@
   display: flex;
   justify-content: space-between;
   padding: var(--space-half) 0;
+  transition: background-color 120ms ease;
 }
 
 @media (max-width: 768px) {
@@ -34,6 +36,11 @@
   width: 32px;
 }
 @media (max-width: 768px) {
+
+  .txContent:active {
+    background-color: var(--background-tap-active);
+  }
+  
   .txIcon {
     flex-basis: 74px;
   }
@@ -90,7 +97,6 @@
   align-items: baseline;
   font-size: var(--size-default);
   font-variant-numeric: tabular-nums;
-  gap: 3px;
   justify-content: flex-end;
   line-height: 1.25;
   display: flex;

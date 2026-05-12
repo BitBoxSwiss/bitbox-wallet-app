@@ -7,6 +7,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/wire"
@@ -31,21 +32,6 @@ func FindAddressListByScriptType(addressLists []AddressList, scriptType signing.
 	return nil
 }
 
-// TextMemo represents a slip-0024 text memo.
-type TextMemo struct {
-	Note string
-}
-
-// PaymentRequest contains the data needed to fulfill a slip-0024 payment request.
-// Text memos are the only memo type supported, currently.
-type PaymentRequest struct {
-	RecipientName string
-	Memos         []TextMemo
-	Nonce         []byte
-	TotalAmount   uint64
-	Signature     []byte
-}
-
 // TxProposalArgs are the arguments needed when creating a tx proposal.
 type TxProposalArgs struct {
 	RecipientAddress string
@@ -57,7 +43,7 @@ type TxProposalArgs struct {
 	UseHighestFee  bool
 	SelectedUTXOs  map[wire.OutPoint]struct{}
 	Note           string
-	PaymentRequest *PaymentRequest
+	PaymentRequest *paymentrequest.Request
 }
 
 // Interface is the API of a Account.
@@ -99,7 +85,7 @@ type Interface interface {
 
 	Notes() *notes.Notes
 	TxNote(txID string) string
-	// SetTxNote sets a tx note and refreshes the account.
+	// SetTxNote sets a tx note and refreshes transactions if the note changed.
 	SetTxNote(txID string, note string) error
 
 	// ExportCSV exports the given transaction in CSV format (comma-separated).

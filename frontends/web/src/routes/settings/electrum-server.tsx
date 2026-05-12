@@ -27,8 +27,10 @@ export const ElectrumServer = ({
     });
     if (response.success) {
       alertUser(t('settings.electrum.checkSuccess', { host: server.server }));
-    } else {
+    } else if (response.errorMessage) {
       alertUser(t('settings.electrum.checkFailed') + ':\n' + response.errorMessage);
+    } else {
+      alertUser(t('settings.electrum.checkFailed'));
     }
     setLoadingCheck(false);
   };

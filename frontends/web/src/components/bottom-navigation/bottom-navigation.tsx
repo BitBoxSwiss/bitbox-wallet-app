@@ -8,6 +8,7 @@ import { AccountIconSVG, MarketIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
 import { RedDot } from '@/components/icon';
+import { NewBadge } from '@/components/new-badge/new-badge';
 import styles from './bottom-navigation.module.css';
 
 type Props = {
@@ -15,7 +16,10 @@ type Props = {
   devices: TDevices;
 };
 
-export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
+export const BottomNavigation = ({
+  activeAccounts,
+  devices,
+}: Props) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const deviceID = Object.keys(devices)[0];
@@ -57,10 +61,19 @@ export const BottomNavigation = ({ activeAccounts, devices }: Props) => {
           ${styles.link || ''}
           ${pathname.startsWith('/market/') && styles.active || ''}
         `}
-        to="/market/info"
+        to="/market/select"
       >
         <MarketIconSVG />
-        {t('generic.buySell')}
+        <span className={styles.marketplaceLabel}>
+          {t('generic.buySell')}
+          <NewBadge
+            className={styles.marketplaceNudgeDot}
+            configKey="hasSeenMarketplaceNudge"
+            hideOnPathPrefix="/market/"
+            pathname={pathname}
+            type="dot"
+          />
+        </span>
       </Link>
       <Link
         className={`

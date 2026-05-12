@@ -9,10 +9,10 @@ import (
 	"sort"
 	"time"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil"
@@ -42,7 +42,7 @@ type TxProposal struct {
 	// ChangeAddress is the address of the wallet to which the change of the transaction is sent.
 	ChangeAddress   *addresses.AccountAddress
 	PreviousOutputs PreviousOutputs
-	PaymentRequest  *accounts.PaymentRequest
+	PaymentRequest  *paymentrequest.Request
 	// If not empty, we are sending to a silent payment recipient. The keystore needs access to this
 	// to be able to generate the silent payment output. See BIP-352.
 	SilentPaymentAddress string

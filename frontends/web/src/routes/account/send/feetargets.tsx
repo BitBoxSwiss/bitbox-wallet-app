@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect, useRef, ChangeEvent, useCallback, useContext } from 'react';
+import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
 import { getConfig } from '@/utils/config';
-import { Input } from '@/components/forms';
+import { Input, NumberInput } from '@/components/forms';
 import { Message } from '@/components/message/message';
 import { customFeeUnit, getCoinCode, isEthereumBased } from '@/routes/account/utils';
 import { Dropdown, TOption as TDropdownOption } from '@/components/dropdown/dropdown';
@@ -91,10 +91,6 @@ export const FeeTargets = ({
   const handleFeeTargetChange = (value: accountApi.FeeTargetCode) => {
     setFeeTarget(value);
     onFeeTargetChange(value);
-  };
-
-  const handleCustomFee = (event: ChangeEvent<HTMLInputElement>) => {
-    onCustomFee(event.target.value);
   };
 
   const getProposeFeeText = (): string => {
@@ -199,8 +195,7 @@ export const FeeTargets = ({
                 options={options} />
             </div>
             <div className={style.column}>
-              <Input
-                type={disabled ? 'text' : 'number'}
+              <NumberInput
                 min="0"
                 step="any"
                 autoFocus={!preventFocus}
@@ -218,7 +213,7 @@ export const FeeTargets = ({
                   })}
                 id="proposedFee"
                 placeholder={t('send.fee.customPlaceholder')}
-                onInput={handleCustomFee}
+                onChange={onCustomFee}
                 ref={inputRef}
                 value={customFee}
               >
@@ -227,7 +222,7 @@ export const FeeTargets = ({
                   className={style.customFeeUnit}>
                   { customFeeUnit(coinCode) }
                 </label>
-              </Input>
+              </NumberInput>
             </div>
           </div>
         )}

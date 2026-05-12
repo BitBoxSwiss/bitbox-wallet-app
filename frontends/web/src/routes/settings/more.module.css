@@ -1,7 +1,6 @@
 .container {
     display: flex;
     flex-direction: column;
-    gap: 5px;
 }
 
 .item {
@@ -9,15 +8,4 @@
     align-items: center;
     gap: 10px;
     position: relative;
-}
-
-.redDot {
-    position: absolute;
-    top: 0;
-    right: -13px;
-}
-
-.iconContainer {
-    display: flex;
-    align-items: center;
 }

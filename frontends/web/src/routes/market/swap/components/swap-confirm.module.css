@@ -1,0 +1,11 @@
+.label {
+  color: var(--color-secondary);
+}
+
+.confirmItem {
+  margin-bottom: var(--space-three-quarter);
+}
+
+.valueOriginalLarge {
+  font-size: var(--size-header);
+}

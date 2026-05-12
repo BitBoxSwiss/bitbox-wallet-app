@@ -38,7 +38,7 @@ export const Banner = ({ msgKey }: TBannerProps) => {
 
   return (
     <Status
-      dismissible={banner.dismissible ? `banner-${msgKey}-${banner.id}` : ''}
+      dismissibleKey={banner.dismissible ? `banner-${msgKey}-${banner.id}` : ''}
       type={banner.type ? banner.type : 'warning'}>
       {message[i18n.resolvedLanguage] || message[maybeFallbackLng || 'en']}
       &nbsp;

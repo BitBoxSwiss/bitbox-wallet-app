@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AppContext } from '@/contexts/AppContext';
 import { useLoad } from '@/hooks/api';
 import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
@@ -144,6 +145,8 @@ export const Receive = ({
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
   const availableScriptTypes = receiveAddresses ? getAvailableScriptTypes(receiveAddresses) : undefined;
   const hasManyScriptTypes = availableScriptTypes && availableScriptTypes.length > 1;
+
+  const { isTesting } = useContext(AppContext);
 
   useEffect(() => {
     if (receiveAddresses) {
@@ -360,6 +363,11 @@ export const Receive = ({
                             flexibleHeight
                           />
                         </div>
+                        {isTesting && (
+                          <Message type="warning">
+                            {t('receive.verifyTestnetWarning')}
+                          </Message>
+                        )}
                       </>
                     )}
                   </Dialog>

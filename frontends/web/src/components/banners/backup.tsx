@@ -61,7 +61,7 @@ export const BackupReminder = ({ keystore, accountsBalanceSummary }: BackupRemin
     <Status
       type="info"
       hidden={!bannerResponse.show}
-      dismissible={`banner-backup-${keystore.rootFingerprint}`}>
+      dismissibleKey={`banner-backup-${keystore.rootFingerprint}`}>
       <MultilineMarkup
         tagName="span"
         withBreaks

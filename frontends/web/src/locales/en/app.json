@@ -30,6 +30,7 @@
     "contractAddress": "Contract address",
     "contractAddressWarning": "Do not send any coins to the contract address otherwise they will be lost. Contract address is just for informational purposes.",
     "exportTransactions": "Export transaction history",
+    "exportTransactionsDisabled": "No transactions",
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
     "descriptorWarning": "To ensure smooth compatibility with other wallets, apps, or services, please copy the entire descriptor. Selecting and copying only the xpub might cause the account to be imported with an incorrect script type, which could lead to issues.",
@@ -466,8 +467,12 @@
       "bankTransfer": "Bank transfer",
       "bestDeal": "Best deal",
       "buy": "Buy",
+      "buyServices": "Buy services",
       "creditCard": "Credit card",
       "description_bitrefill": "Shop gift cards, phone refills & more",
+      "description_btcdirect-otc": "BTC Direct - Private trading desk",
+      "description_pocket-otc": "Pocket Private",
+      "description_swapkit": "Decentralized swapping BTC, ETH, USDT etc",
       "fast": "Fast",
       "fee": "fee",
       "infoContent": {
@@ -545,7 +550,6 @@
             },
             "title": "Disclaimer"
           },
-          "info": "Get a personal advisor, reduced fees and place orders directly through your contact at BTC Direct.",
           "infobox": {
             "intro_btconly": "Get personal assistance for high-value, over-the-counter (OTC) Bitcoin trades.",
             "intro_multi": "Get personal assistance for high-value over-the-counter (OTC) trades for Bitcoin, Ethereum stablecoins, and more.",
@@ -556,9 +560,7 @@
             "listItem3": "Minimum order amount: €50,000.",
             "listItem4": "Transparent fees fixed at 0.5%-1%, including personal guidance.",
             "manager": "You'll have a dedicated account manager guiding you at every step, ensuring a secure, straightforward experience with fixed rates and minimal slippage."
-          },
-          "link": "Access BTC Direct - Private Trading Desk",
-          "title": "Buying or selling over €50,000?"
+          }
         },
         "btcdirectWidget": {
           "disclaimer": {
@@ -655,15 +657,55 @@
             "title": "Identity verification"
           }
         },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "info": "The BitBoxApp does not collect personal data. Pocket Private collects necessary information as per their Privacy Policy to meet regulatory standards.",
+              "link": "Pocket privacy policy",
+              "title": "Data Protection"
+            },
+            "kyc": {
+              "info": "Customer identity verification is required for using Pocket Private. Your account manager will guide you through the process and answer any questions you might have.",
+              "title": "Identity verification"
+            },
+            "partnership": {
+              "text": "In partnership with Pocket Private, BitBox offers large transaction trading for Bitcoin. Pocket Private clients are assigned an account manager for personal assistance.",
+              "title": "Buy and sell with Pocket Private"
+            },
+            "payment": {
+              "info": [
+                "<strong>Buying bitcoin:</strong> Place large buy orders with your account manager and pay via bank transfer. Your Bitcoin is delivered directly to your BitBox after payment.",
+                "<strong>Sell bitcoin:</strong> Bank payment is made once you send bitcoin to Pocket Private. Personal assistance is available if needed.",
+                "<strong>Trading fees:</strong> Trading fees are based on lifetime volume, meaning your fee decreases as your total trading volume increases, regardless of order size."
+              ],
+              "title": "Payment methods and fees"
+            },
+            "security": {
+              "info": "Pocket Private is an external service not covered by the BitBox security threat model. However, Pocket Private is well-acquainted with BitBox products and offers secure, knowledgeable guidance. BitBox products verify Bitcoin addresses during transactions to ensure secure delivery.",
+              "link": "BitBox security threat model",
+              "title": "Security"
+            }
+          },
+          "infobox": {
+            "intro": "Get personal assistance and better fees for high-value over-the-counter (OTC) trades for Bitcoin. With Pocket Private, your fees decrease with your lifetime volume, so you always get the best fee no matter the order size.",
+            "learnmore": "Learn more about Pocket Private",
+            "tradingVolume": "Trading volume (lifetime volume)",
+            "transactionFee": "Transaction fee"
+          }
+        },
         "region": {
           "title": "Select the region your bank account is registered in to see which options are available to you."
         }
       },
       "noExchanges": "Sorry, there are no available exchanges in this region.",
+      "otcInfo": "Get personal assistance and reduced fees for large volume over-the-counter trading.",
       "region": "Region",
       "selectRegion": "Not specified",
       "sell": "Sell",
-      "spend": "Spend"
+      "sellServices": "Sell services",
+      "spend": "Spend",
+      "spendServices": "Spend services",
+      "swapServices": "Swap services"
     },
     "info": {
       "continue": "Agree and continue",
@@ -740,7 +782,8 @@
   "confirmOnDevice": "Please confirm on your device.",
   "connectKeystore": {
     "promptNoName": "Please connect your BitBox to continue",
-    "promptWithName": "Please connect your BitBox named \"{{name}}\" to continue"
+    "promptWithName": "Please connect your BitBox named \"{{name}}\" to continue",
+    "swapHint": "Please connect a BitBox Multi to Swap."
   },
   "darkmode": {
     "toggle": "Dark mode"
@@ -916,6 +959,41 @@
           "title": "Buy and sell bitcoin with Pocket"
         }
       }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "link": "SwapKit privacy policy",
+          "text": "The BitBoxApp does not learn or collect any personal data. SwapKit may collect some data as explained in their Privacy Policy.",
+          "title": "Data Protection"
+        },
+        "fees": {
+          "note": "Note: SwapKit's exchange rates may differ from the BitBoxApp rates.",
+          "text": "A flat rate of 1.5% is applied to each swap",
+          "title": "Fees"
+        },
+        "intro": {
+          "text": "SwapKit offers an SDK/API service for non-custodial swaps. We work with SwapKit to provide cryptocurrency swapping across different blockchains in one place. It helps power fast, simple, and non-custodial trading, so you stay in control of your assets.",
+          "title": "Swapping cryptocurrency with SwapKit"
+        },
+        "protocol": {
+          "link": "Learn about SwapKit providers",
+          "text": "SwapKit API uses multiple providers to perform Swaps. Providers may be added/removed over time in order to facilitate the latest swapping requirements and improved performance.",
+          "title": "SwapKit providers"
+        },
+        "security": {
+          "link": "BitBox security threat model",
+          "text": "SwapKit is an external service and is not covered by the BitBox security threat model. However, we closely work with SwapKit to improve security by implementing payment requests into the BitBox firmware. This means the BitBox will display the destination address as “SwapKit” when making a swap.",
+          "title": "Security"
+        },
+        "slippage": {
+          "text": "Slippage is the difference between the price you expect when you start a swap and the price you actually receive when the swap is completed. Because cryptocurrency prices can move quickly and liquidity can change during the transaction, the final amount you receive may be lower than estimated.",
+          "title": "Slippage"
+        }
+      },
+      "infobox": {
+        "intro": "Swap any cryptocurrency in the BitBoxApp to another without limits or KYC. This swapping service is provided by SwapKit, an aggregator for decentralised swapping services."
+      }
     }
   },
   "fiat": {
@@ -939,10 +1017,13 @@
     "buySell": "Marketplace",
     "buy_bitcoin": "Buy Bitcoin",
     "buy_crypto": "Buy crypto",
+    "calculating": "Calculating…",
     "close": "Close",
     "enable": "Enable",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "max": "Max",
+    "new": "New",
     "noOptionOnIos": "Not available on iOS",
     "noOptions": "No options found",
     "paymentRequestNote": "{{name}} payment {{orderId}}",
@@ -963,6 +1044,7 @@
     "sent": "Sent",
     "spend_bitcoin": "Spend bitcoin",
     "spend_crypto": "Spend crypto",
+    "swap": "Swap",
     "unknown": "Unknown"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
@@ -1062,6 +1144,10 @@
     "accountTransactionConfirmation": {
       "text": "A transaction broadcast to the network but not yet confirmed.",
       "title": "What is a pending transaction?"
+    },
+    "accountTransactionEstimation": {
+      "text": "The BitBoxApp will prefix fiat amounts with an estimation sign until the transaction is confirmed and a final conversion rate is received.",
+      "title": "Why do new transactions show an estimation sign?"
     },
     "accountTransactionLabel": {
       "text": "It’s the address you received coins from or sent coins to.",
@@ -1560,6 +1646,10 @@
     }
   },
   "loading": "loading…",
+  "logo": {
+    "label": "{{name}} logo",
+    "placeholderLabel": "{{name}} placeholder logo"
+  },
   "manageAccounts": {
     "accountHidden": "This account has been hidden from your watch-only accounts. To see it again, please plug in your BitBox.",
     "editAccount": "Edit",
@@ -1768,7 +1858,8 @@
     "title": "Receive {{accountName}}",
     "verify": "Verify address securely",
     "verifyBitBox02": "Verify address on BitBox",
-    "verifyInstruction": "Please verify that the following address matches the one displayed on your device."
+    "verifyInstruction": "Please verify that the following address matches the one displayed on your device.",
+    "verifyTestnetWarning": "This is a testnet account, coins received to this address have no value"
   },
   "reset": {
     "description": "All data will be deleted from this device. That includes your Private Key!",
@@ -1863,13 +1954,15 @@
     },
     "edit": "Edit transaction",
     "error": {
+      "accountNotSynced": "The account is not synced yet. Please wait until syncing is complete and try again.",
       "erc20InsufficientGasFunds": "You do not have enough Ether to pay for this ERC20 transaction. Please add Ether to your wallet and try again.",
       "feeTooLow": "fee too low",
       "feesNotAvailable": "Could not estimate fees",
       "insufficientFunds": "insufficient funds",
       "invalidAddress": "invalid address",
       "invalidAmount": "invalid amount",
-      "invalidData": "invalid data"
+      "invalidData": "invalid data",
+      "syncInProgress": "The account is still syncing. Please wait until syncing is complete and try again."
     },
     "fee": {
       "customPlaceholder": "Enter amount",
@@ -2126,6 +2219,21 @@
     },
     "vsize": "Virtual size",
     "weight": "Weight"
+  },
+  "swap": {
+    "completed": "Swap completed",
+    "confirmOnBitBox": "Confirm swap on BitBox",
+    "fastest": "Fastest",
+    "fetchingRoutes": "Fetching routes...",
+    "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
+    "new": "New swap",
+    "noRouteFound": "No route found",
+    "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",
+    "oneRouteAvailable": "One route available",
+    "recommended": "Recommended",
+    "route": "Swap route",
+    "routesPlaceholder": "Routes will appear here after entering an amount",
+    "unexpectedError": "Some unexpected error occurred."
   },
   "transactions": {
     "errorLoadTransactions": "There was an error loading the transactions",

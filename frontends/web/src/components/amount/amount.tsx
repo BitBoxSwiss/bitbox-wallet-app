@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext } from 'react';
-import type { NativeCoinUnit, ConversionUnit } from '@/api/account';
+import type { CoinUnit, ConversionUnit } from '@/api/account';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import style from './amount.module.css';
+
+const stripTrailingZeros = (value: string): string => {
+  if (!value.includes('.')) {
+    return value;
+  }
+  return value.replace(/\.?0+$/, '');
+};
 
 const formatSats = (amount: string): JSX.Element => {
   const blocks: JSX.Element[] = [];
@@ -43,6 +50,23 @@ export const formatLocalizedAmount = (
   );
 };
 
+type TLocalizedNumberProps = {
+  number: string;
+};
+
+/**
+ * Converts a Swiss-formatted number string to the current locale format.
+ *
+ * @param number - Swiss-formatted number string
+ * @returns Locale-formatted number string
+ */
+export const LocalizedNumber = ({
+  number
+}: TLocalizedNumberProps) => {
+  const { decimal, group } = useContext(LocalizationContext);
+  return formatLocalizedAmount(number, group, decimal);
+};
+
 const formatBtc = (
   amount: string,
   group: string,
@@ -50,7 +74,7 @@ const formatBtc = (
 ) => {
   const dot = amount.indexOf('.');
   if (dot === -1) {
-    return amount;
+    return formatLocalizedAmount(amount, group, decimal);
   }
   // localize the first part, everything up to the second decimal place, the rest is grouped by spaces
   const formattedPart = formatLocalizedAmount(amount.slice(0, dot + 3), group, decimal);
@@ -79,7 +103,7 @@ const formatEth = (
 ): string => {
   const dot = amount.indexOf('.');
   if (dot === -1) {
-    return amount;
+    return formatLocalizedAmount(amount, group, decimal);
   }
   const truncated = amount.slice(0, dot + maxDecimals + 1);
   return formatLocalizedAmount(truncated, group, decimal);
@@ -87,10 +111,11 @@ const formatEth = (
 
 type TProps = {
   amount: string;
-  unit: NativeCoinUnit | ConversionUnit;
+  unit: CoinUnit | ConversionUnit;
   alwaysShowAmounts?: boolean;
   onMobileClick?: () => Promise<void>;
   maxDecimals?: number;
+  removeTrailingZeros?: boolean;
 };
 
 export const Amount = ({
@@ -99,6 +124,7 @@ export const Amount = ({
   alwaysShowAmounts = false,
   onMobileClick,
   maxDecimals,
+  removeTrailingZeros,
 }: TProps) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -115,6 +141,7 @@ export const Amount = ({
         unit={unit}
         alwaysShowAmounts={alwaysShowAmounts}
         maxDecimals={maxDecimals}
+        removeTrailingZeros={removeTrailingZeros}
       />
     </span>
   );
@@ -125,6 +152,7 @@ export const FormattedAmount = ({
   unit,
   alwaysShowAmounts = false,
   maxDecimals,
+  removeTrailingZeros,
 }: Omit<TProps, 'onMobileClick'>) => {
   const { hideAmounts } = useContext(AppContext);
   const { decimal, group } = useContext(LocalizationContext);
@@ -137,20 +165,22 @@ export const FormattedAmount = ({
     return '***';
   }
 
+  const displayedAmount = removeTrailingZeros ? stripTrailingZeros(amount) : amount;
+
   switch (unit) {
   case 'BTC':
   case 'TBTC':
   case 'LTC':
   case 'TLTC':
   case 'RBTC':
-    return formatBtc(amount, group, decimal);
+    return formatBtc(displayedAmount, group, decimal);
   case 'sat':
   case 'tsat':
-    return formatSats(amount);
+    return formatSats(displayedAmount);
   case 'ETH':
   case 'SEPETH':
-    return formatEth(amount, group, decimal, maxDecimals);
+    return formatEth(displayedAmount, group, decimal, maxDecimals);
   }
 
-  return formatLocalizedAmount(amount, group, decimal);
+  return formatLocalizedAmount(displayedAmount, group, decimal);
 };

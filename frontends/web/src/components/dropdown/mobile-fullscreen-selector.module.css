@@ -3,7 +3,7 @@
 }
 
 .mobileSelectorTrigger {
-    background-color: var(--background-secondary);
+    background-color: transparent;
     border: none;
     border-radius: 2px;
     color: var(--color-default);
@@ -33,7 +33,7 @@
     position: fixed;
     right: 0;
     top: 0;
-    z-index: 9999;
+    z-index: 2; /* needs to be higher than 1 to cover feetargets in send view */
 }
 
 .fullscreenContent {
@@ -86,7 +86,7 @@
 input.searchInput {
     background-color: var(--background-secondary);
     border: 1px solid var(--background-secondary);
-    border-radius: 4px;
+    border-radius: var(--radius-xl);
     color: var(--color-default);
     font-size: var(--size-default);
     height: auto;
@@ -130,8 +130,15 @@ input.searchInput:focus {
     width: 100%;
 }
 
-.optionItem:hover {
-    background-color: var(--background-custom-select-hover);
+.optionItem:active {
+    background-color: var(--background-tap-active);
+}
+
+.disabledOption,
+.disabledOption:hover {
+    background-color: transparent;
+    color: var(--color-secondary);
+    cursor: default;
 }
 
 .selectedOption {

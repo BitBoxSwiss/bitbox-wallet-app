@@ -4,6 +4,10 @@ import { Dispatch, SetStateAction, createContext } from 'react';
 
 export type TChartDisplay = 'week' | 'month' | 'year' | 'all';
 
+export type TSessionConfig = {
+  [key: string]: boolean;
+};
+
 type AppContextProps = {
   activeSidebar: boolean;
   guideShown: boolean;
@@ -23,6 +27,8 @@ type AppContextProps = {
   toggleGuide: () => void;
   toggleHideAmounts: () => void;
   toggleSidebar: () => void;
+  sessionConfig: TSessionConfig;
+  updateSessionConfig: (config: TSessionConfig) => void;
 };
 
 const AppContext = createContext<AppContextProps>({} as AppContextProps);

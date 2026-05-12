@@ -29,27 +29,21 @@
     "extendedPublicKey": "拡張公開鍵",
     "label": "アカウント情報",
     "scriptType": "スクリプトタイプ",
-    "taproot": "Taprootの拡張公開鍵は、誤って使用されるのを防ぐために表示されていません。このスクリプトタイプのRAWフォーマットは広くサポートされていないためです。この鍵を表示したい場合は、デバイスをoutput descriptorフォーマットに対応したウォレットソフトウェアに接続してください。",
     "title": "アカウント情報",
     "verify": "デバイスで確認",
     "xpubTypeChangeBtn": {
       "p2pkh": " legacy P2PKH 拡張公開鍵を表示\n",
       "p2tr": "Taprootを表示",
-      "p2wpkh": "ネイティブSegwitを表示",
-      "p2wpkh-p2sh": "古いSegwit拡張公開鍵を表示"
+      "p2wpkh": "ネイティブSegwitを表示"
     },
     "xpubTypeInfo": "現在、{{scriptType}}拡張公開鍵（{{numberOfXPubs}}中の{{current}}）を表示しています"
   },
   "accountSummary": {
     "availableBalance": "利用可能な残高",
     "balance": "残高",
-    "coin": "コイン",
-    "exportSummary": "ダウンロードフォルダにアカウント概要をCSV形式でエクスポートする",
-    "fiatBalance": "フィアット残高",
     "name": "アカウント名",
     "noAccount": "表示できるアカウントがありません。",
     "portfolio": "ポートフォリオ",
-    "subtotalWithCoinName": "合計（{{coinName}}）",
     "title": "ポートフォリオ",
     "total": "合計",
     "transactionHistory": "取引履歴"
@@ -493,7 +487,6 @@
             },
             "title": "免責事項"
           },
-          "info": "専任のアドバイザーを利用し、手数料の割引を受けながら、BTC Directの担当者を通じて直接注文を行うことができます。",
           "infobox": {
             "intro_btconly": "高額な店頭取引（OTC）のビットコイン取引に関して、個別サポートを受けることができます。",
             "intro_multi": "ビットコイン、イーサリアム、ステーブルコインなどの高額な店頭取引（OTC取引）に関して、個別サポートを受けることができます。",
@@ -504,9 +497,7 @@
             "listItem3": "最低注文金額：50,000ユーロ",
             "listItem4": "手数料は0.5%～1%で固定されており、個別サポートも含まれています。\n",
             "manager": "専任のアカウントマネージャーが各ステップでサポートし、固定レートと最小限のスリッページで安全かつスムーズな取引体験を提供します。"
-          },
-          "link": "BTC Direct - プライベートトレーディングデスクにアクセスする。",
-          "title": "50,000ユーロ以上の売買をお考えですか？"
+          }
         },
         "btcdirectWidget": {
           "disclaimer": {
@@ -1539,8 +1530,7 @@
     "qrCodeCopiedMessage": "コピーしました！",
     "scriptType": {
       "p2tr": "Taproot (最新版)",
-      "p2wpkh": "Native Segwit (デフォルト)",
-      "p2wpkh-p2sh": "Wrapped Segwit（互換フォーマット）"
+      "p2wpkh": "Native Segwit (デフォルト)"
     },
     "selectAccount": "アカウント選択",
     "taprootWarning": "注意：Taprootは新しいビットコインの機能であり、まだ広く採用されていません。Taprootアドレスで受け取った資金は、サードパーティのwatch-only ウォレットでは表示されない場合があります。多くのウォレットと取引所はまだTaprootアドレスに送金することができません。",

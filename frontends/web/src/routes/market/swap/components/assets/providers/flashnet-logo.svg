@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+  <title>FLASHNET</title>
+  <rect width="256" height="256" rx="48" fill="#111827"/>
+  <path d="M72 72h112v28H124v28h52v28h-52v60H92V72h-20z" fill="#f9fafb"/>
+</svg>
