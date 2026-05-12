@@ -45,7 +45,7 @@ const AccountRow = ({ balance, coinCode, name, to }: TAccountRowProps) => (
     </p>
 
     <div className={styles.accountBalanceContainer}>
-      <AmountWithUnit amount={balance} unitClassName={styles.unit} />
+      <AmountWithUnit amount={balance}/>
     </div>
     <ChevronRightDark />
   </Link>
