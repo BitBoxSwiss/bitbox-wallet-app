@@ -209,7 +209,7 @@ export const LightningActivate = () => {
 
   return (
     <Main>
-      <Status dismissible="" type="warning" hidden={!setupError}>
+      <Status dismissibleKey="" type="warning" hidden={!setupError}>
         {setupError}
       </Status>
       <Header title={t('lightning.activate.title')} />

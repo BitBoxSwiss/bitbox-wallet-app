@@ -90,7 +90,7 @@ export const Lightning = () => {
         <Main>
           <ContentWrapper>
             <Status
-              dismissible="lightning-alpha-warning"
+              dismissibleKey="lightning-alpha-warning"
               type="warning">
               This is an alpha release intended for preview and testing. Only use lightning with a small amount of funds!
             </Status>

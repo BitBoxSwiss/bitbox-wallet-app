@@ -36,7 +36,7 @@ export const SelectInvoiceStep = () => {
         <Grid col="1">
           <Column className={styles.camera}>
             <div className={styles.error}>
-              {inputError && <Status dismissible="" type="warning">{inputError}</Status>}
+              {inputError && <Status dismissibleKey="" type="warning">{inputError}</Status>}
             </div>
             {scanQRVideo}
             <Input

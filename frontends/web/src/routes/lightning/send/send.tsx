@@ -31,7 +31,7 @@ const SendContent = () => {
       <GuidedContent>
         <Main>
           <Header title={<h2>{t('lightning.send.title')}</h2>} />
-          <Status dismissible="" type="warning" hidden={!sendError}>
+          <Status dismissibleKey="" type="warning" hidden={!sendError}>
             {sendError}
           </Status>
           {step === 'select-invoice' && <SelectInvoiceStep />}
