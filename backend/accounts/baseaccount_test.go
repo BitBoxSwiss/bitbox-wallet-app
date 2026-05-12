@@ -106,6 +106,9 @@ func TestBaseAccount(t *testing.T) {
 		CodeFunc: func() coin.Code {
 			return coin.CodeTBTC
 		},
+		DecimalsFunc: func(isFee bool) uint {
+			return 8
+		},
 		SmallestUnitFunc: func() string {
 			return "satoshi"
 		},
@@ -164,7 +167,7 @@ func TestBaseAccount(t *testing.T) {
 		}
 
 		require.NoError(t, account.SetTxNote("test-tx-id", "another test note"))
-		require.Equal(t, types.EventStatusChanged, checkEvent())
+		require.Equal(t, types.EventTransactionsChanged, checkEvent())
 		require.Equal(t, "another test note", account.TxNote("test-tx-id"))
 
 		// Test notes migration from v4.27.0 to v4.28.0
@@ -175,6 +178,7 @@ func TestBaseAccount(t *testing.T) {
 		require.Equal(t, "legacy note in split account, p2wpkh-p2sh", account.TxNote("legacy-4"))
 		// Setting a note sets it in the main notes file, and wipes it out in legacy note files.
 		require.NoError(t, account.SetTxNote("legacy-1", "updated legacy note"))
+		require.Equal(t, types.EventTransactionsChanged, checkEvent())
 		require.Equal(t, "updated legacy note", account.TxNote("legacy-1"))
 	})
 
@@ -242,6 +246,12 @@ func TestBaseAccount(t *testing.T) {
 		mockCoin := &mocks.CoinMock{
 			CodeFunc: func() coin.Code {
 				return "eth-erc20-usdt"
+			},
+			DecimalsFunc: func(isFee bool) uint {
+				if isFee {
+					return 18
+				}
+				return 6
 			},
 			SmallestUnitFunc: func() string {
 				return "wei"
@@ -312,6 +322,9 @@ func TestBaseAccount(t *testing.T) {
 		mockCoin := &mocks.CoinMock{
 			CodeFunc: func() coin.Code {
 				return coin.CodeBTC
+			},
+			DecimalsFunc: func(isFee bool) uint {
+				return 8
 			},
 			SmallestUnitFunc: func() string {
 				return "satoshi"

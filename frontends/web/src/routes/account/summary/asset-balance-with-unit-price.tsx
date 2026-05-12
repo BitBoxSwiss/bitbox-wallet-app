@@ -21,8 +21,8 @@ export const AssetBalanceWithUnitPrice = ({ amount, coinCode, coinName, dataTest
     <div className={style.assetBalanceRow}>
       <div className={style.assetBalanceInfoFull}>
         <Logo coinCode={coinCode} active={true} alt={coinCode} />
-        <div className={style.assetBalanceDetailsCol}>
-          <div className={style.assetBalanceDetailRow}>
+        <div className={style.assetBalanceDetailsRow}>
+          <div className={style.assetBalanceDetailsCol}>
             <span
               className={`${style.assetBalanceName || ''}
              ${style.assetBalanceNameFlex || ''}`}
@@ -30,6 +30,18 @@ export const AssetBalanceWithUnitPrice = ({ amount, coinCode, coinName, dataTest
             >
               {coinName}
             </span>
+
+            <div data-testid="unit-price-amount">
+              <AmountWithUnit
+                alwaysShowAmounts
+                amountClassName={style.unitPrice}
+                amount={unitPrice}
+                convertToFiat
+                removeTrailingZeros
+              />
+            </div>
+          </div>
+          <div className={style.assetBalanceAmounts}>
             {amount ? (
               <span className={style.assetBalanceAmountFixed}>
                 <AmountWithUnit maxDecimals={9} amount={amount} />
@@ -37,20 +49,6 @@ export const AssetBalanceWithUnitPrice = ({ amount, coinCode, coinName, dataTest
             ) : (
               <Skeleton minWidth="60px" />
             )}
-          </div>
-          <div className={style.assetBalanceDetailRow}>
-            <div data-testid="unit-price-amount">
-              <AmountWithUnit
-                alwaysShowAmounts
-                amountClassName={style.unitPrice}
-                amount={unitPrice}
-                unitClassName={style.unit}
-                convertToFiat
-              />
-              {amount?.unit && (
-                <span className={style.pairUnit}>/{amount.unit}</span>
-              )}
-            </div>
             {amount ? (
               <span className={style.assetBalanceAmountFixed} data-testid="fiat-balance">
                 <AmountWithUnit amount={amount} convertToFiat />

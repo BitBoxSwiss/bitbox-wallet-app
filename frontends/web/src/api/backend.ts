@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode, CoinCode, ERC20CoinCode, ScriptType } from './account';
+import type { AccountCode, CoinCode, ScriptType } from './account';
+import type { ERC20CoinCode } from './erc20';
 import type { FailResponse, SuccessResponse } from './response';
 import { apiGet, apiPost } from '@/utils/request';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';

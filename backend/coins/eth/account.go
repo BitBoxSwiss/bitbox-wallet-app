@@ -22,6 +22,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
@@ -199,6 +200,16 @@ func (account *Account) Initialize() error {
 	return account.BaseAccount.Initialize(accountIdentifier)
 }
 
+// outgoingTransactionIsFinal checks if the transaction is final, meaning it has at least
+// NumConfirmationsComplete confirmations.
+// If the transaction is not yet included in a block, or if the tipHeight is lower than the transaction's block, it is not final.
+func outgoingTransactionIsFinal(tx *ethtypes.TransactionWithMetadata, tipHeight uint64) bool {
+	if tx.Height == 0 || tipHeight < tx.Height {
+		return false
+	}
+	return tipHeight-tx.Height+1 >= ethtypes.NumConfirmationsComplete
+}
+
 // updateOutgoingTransactions updates the height of the stored outgoing transactions.
 // We update heights for tx with up to 12 confirmations, so re-orgs are taken into account.
 // tipHeight is the current blockchain height.
@@ -221,6 +232,9 @@ func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
 
 	// Update the stored txs' metadata if up to 12 confirmations.
 	for idx, tx := range outgoingTransactions {
+		if outgoingTransactionIsFinal(tx, tipHeight) {
+			continue
+		}
 		txLog := account.log.WithField("idx", idx)
 		remoteTx, err := account.coin.client.TransactionReceiptWithBlockNumber(context.TODO(), tx.Transaction.Hash())
 		if remoteTx == nil || err != nil {
@@ -482,6 +496,7 @@ type TxProposal struct {
 	// not used in the transaction or signing except for making sure the BitBox displays the address
 	// with the same case (lowercase/uppercase/mixed) as the user entered.
 	RecipientAddress string
+	PaymentRequest   *paymentrequest.Request
 }
 
 func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error) {
@@ -638,6 +653,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 		Signer:           types.NewLondonSigner(account.coin.net.ChainID),
 		Keypath:          account.signingConfiguration.AbsoluteKeypath(),
 		RecipientAddress: args.RecipientAddress,
+		PaymentRequest:   args.PaymentRequest,
 	}, nil
 }
 

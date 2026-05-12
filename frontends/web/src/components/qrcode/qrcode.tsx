@@ -3,8 +3,9 @@
 import { useLoad } from '@/hooks/api';
 import { getQRCode } from '@/api/backend';
 import { Check } from '@/components/icon';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import style from './qrcode.module.css';
 
 type TProps = {
@@ -49,7 +50,6 @@ type TTapToCopyQRCodeProps = {
 };
 
 const TapToCopyQRCode = ({ data, qrCodeData, size }: TTapToCopyQRCodeProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [success, setSuccess] = useState(false);
 
   const { t } = useTranslation();
@@ -60,18 +60,16 @@ const TapToCopyQRCode = ({ data, qrCodeData, size }: TTapToCopyQRCodeProps) => {
     }
   }, [success]);
 
-
   const handleCopy = () => {
-    inputRef.current?.select();
-    if (document.execCommand('copy')) {
+    if (data) {
+      navigator.clipboard.writeText(data);
+      triggerHapticFeedback();
       setSuccess(true);
     }
   };
 
-
   return (
     <div onClick={handleCopy}>
-      <input className={style.hiddenInput} ref={inputRef} value={data} readOnly/>
       <div style={{ width: size, height: size }} className={style.outerContainer}>
         <img
           className={`

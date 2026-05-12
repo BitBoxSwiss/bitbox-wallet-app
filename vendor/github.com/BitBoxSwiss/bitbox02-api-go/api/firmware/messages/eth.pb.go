@@ -234,7 +234,7 @@ func (x ETHSignTypedMessageRequest_DataType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ETHSignTypedMessageRequest_DataType.Descriptor instead.
 func (ETHSignTypedMessageRequest_DataType) EnumDescriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{5, 0}
+	return file_eth_proto_rawDescGZIP(), []int{7, 0}
 }
 
 type ETHTypedMessageValueResponse_RootObject int32
@@ -283,7 +283,7 @@ func (x ETHTypedMessageValueResponse_RootObject) Number() protoreflect.EnumNumbe
 
 // Deprecated: Use ETHTypedMessageValueResponse_RootObject.Descriptor instead.
 func (ETHTypedMessageValueResponse_RootObject) EnumDescriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{6, 0}
+	return file_eth_proto_rawDescGZIP(), []int{8, 0}
 }
 
 type ETHPubRequest struct {
@@ -386,8 +386,10 @@ type ETHSignRequest struct {
 	Data                []byte                         `protobuf:"bytes,8,opt,name=data,proto3" json:"data,omitempty"`
 	HostNonceCommitment *AntiKleptoHostNonceCommitment `protobuf:"bytes,9,opt,name=host_nonce_commitment,json=hostNonceCommitment,proto3" json:"host_nonce_commitment,omitempty"`
 	// If non-zero, `coin` is ignored and `chain_id` is used to identify the network.
-	ChainId       uint64         `protobuf:"varint,10,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
-	AddressCase   ETHAddressCase `protobuf:"varint,11,opt,name=address_case,json=addressCase,proto3,enum=shiftcrypto.bitbox02.ETHAddressCase" json:"address_case,omitempty"`
+	ChainId     uint64         `protobuf:"varint,10,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
+	AddressCase ETHAddressCase `protobuf:"varint,11,opt,name=address_case,json=addressCase,proto3,enum=shiftcrypto.bitbox02.ETHAddressCase" json:"address_case,omitempty"`
+	// For streaming: if non-zero, data field should be empty and data will be requested in chunks
+	DataLength    uint32 `protobuf:"varint,12,opt,name=data_length,json=dataLength,proto3" json:"data_length,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -499,6 +501,13 @@ func (x *ETHSignRequest) GetAddressCase() ETHAddressCase {
 	return ETHAddressCase_ETH_ADDRESS_CASE_MIXED
 }
 
+func (x *ETHSignRequest) GetDataLength() uint32 {
+	if x != nil {
+		return x.DataLength
+	}
+	return 0
+}
+
 // TX payload for an EIP-1559 (type 2) transaction: https://eips.ethereum.org/EIPS/eip-1559
 type ETHSignEIP1559Request struct {
 	state                protoimpl.MessageState         `protogen:"open.v1"`
@@ -513,8 +522,11 @@ type ETHSignEIP1559Request struct {
 	Data                 []byte                         `protobuf:"bytes,9,opt,name=data,proto3" json:"data,omitempty"`
 	HostNonceCommitment  *AntiKleptoHostNonceCommitment `protobuf:"bytes,10,opt,name=host_nonce_commitment,json=hostNonceCommitment,proto3" json:"host_nonce_commitment,omitempty"`
 	AddressCase          ETHAddressCase                 `protobuf:"varint,11,opt,name=address_case,json=addressCase,proto3,enum=shiftcrypto.bitbox02.ETHAddressCase" json:"address_case,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// For streaming: if non-zero, data field should be empty and data will be requested in chunks
+	DataLength     uint32                    `protobuf:"varint,12,opt,name=data_length,json=dataLength,proto3" json:"data_length,omitempty"`
+	PaymentRequest *BTCPaymentRequestRequest `protobuf:"bytes,13,opt,name=payment_request,json=paymentRequest,proto3" json:"payment_request,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ETHSignEIP1559Request) Reset() {
@@ -624,6 +636,116 @@ func (x *ETHSignEIP1559Request) GetAddressCase() ETHAddressCase {
 	return ETHAddressCase_ETH_ADDRESS_CASE_MIXED
 }
 
+func (x *ETHSignEIP1559Request) GetDataLength() uint32 {
+	if x != nil {
+		return x.DataLength
+	}
+	return 0
+}
+
+func (x *ETHSignEIP1559Request) GetPaymentRequest() *BTCPaymentRequestRequest {
+	if x != nil {
+		return x.PaymentRequest
+	}
+	return nil
+}
+
+type ETHSignDataRequestChunkResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Offset        uint32                 `protobuf:"varint,1,opt,name=offset,proto3" json:"offset,omitempty"`
+	Length        uint32                 `protobuf:"varint,2,opt,name=length,proto3" json:"length,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ETHSignDataRequestChunkResponse) Reset() {
+	*x = ETHSignDataRequestChunkResponse{}
+	mi := &file_eth_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ETHSignDataRequestChunkResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ETHSignDataRequestChunkResponse) ProtoMessage() {}
+
+func (x *ETHSignDataRequestChunkResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_eth_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ETHSignDataRequestChunkResponse.ProtoReflect.Descriptor instead.
+func (*ETHSignDataRequestChunkResponse) Descriptor() ([]byte, []int) {
+	return file_eth_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ETHSignDataRequestChunkResponse) GetOffset() uint32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *ETHSignDataRequestChunkResponse) GetLength() uint32 {
+	if x != nil {
+		return x.Length
+	}
+	return 0
+}
+
+type ETHSignDataResponseChunkRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Chunk         []byte                 `protobuf:"bytes,1,opt,name=chunk,proto3" json:"chunk,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ETHSignDataResponseChunkRequest) Reset() {
+	*x = ETHSignDataResponseChunkRequest{}
+	mi := &file_eth_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ETHSignDataResponseChunkRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ETHSignDataResponseChunkRequest) ProtoMessage() {}
+
+func (x *ETHSignDataResponseChunkRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_eth_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ETHSignDataResponseChunkRequest.ProtoReflect.Descriptor instead.
+func (*ETHSignDataResponseChunkRequest) Descriptor() ([]byte, []int) {
+	return file_eth_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ETHSignDataResponseChunkRequest) GetChunk() []byte {
+	if x != nil {
+		return x.Chunk
+	}
+	return nil
+}
+
 type ETHSignMessageRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Deprecated: use chain_id instead.
@@ -639,7 +761,7 @@ type ETHSignMessageRequest struct {
 
 func (x *ETHSignMessageRequest) Reset() {
 	*x = ETHSignMessageRequest{}
-	mi := &file_eth_proto_msgTypes[3]
+	mi := &file_eth_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -651,7 +773,7 @@ func (x *ETHSignMessageRequest) String() string {
 func (*ETHSignMessageRequest) ProtoMessage() {}
 
 func (x *ETHSignMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_eth_proto_msgTypes[3]
+	mi := &file_eth_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -664,7 +786,7 @@ func (x *ETHSignMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ETHSignMessageRequest.ProtoReflect.Descriptor instead.
 func (*ETHSignMessageRequest) Descriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{3}
+	return file_eth_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ETHSignMessageRequest) GetCoin() ETHCoin {
@@ -711,7 +833,7 @@ type ETHSignResponse struct {
 
 func (x *ETHSignResponse) Reset() {
 	*x = ETHSignResponse{}
-	mi := &file_eth_proto_msgTypes[4]
+	mi := &file_eth_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -723,7 +845,7 @@ func (x *ETHSignResponse) String() string {
 func (*ETHSignResponse) ProtoMessage() {}
 
 func (x *ETHSignResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_eth_proto_msgTypes[4]
+	mi := &file_eth_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -736,7 +858,7 @@ func (x *ETHSignResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ETHSignResponse.ProtoReflect.Descriptor instead.
 func (*ETHSignResponse) Descriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{4}
+	return file_eth_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ETHSignResponse) GetSignature() []byte {
@@ -759,7 +881,7 @@ type ETHSignTypedMessageRequest struct {
 
 func (x *ETHSignTypedMessageRequest) Reset() {
 	*x = ETHSignTypedMessageRequest{}
-	mi := &file_eth_proto_msgTypes[5]
+	mi := &file_eth_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -771,7 +893,7 @@ func (x *ETHSignTypedMessageRequest) String() string {
 func (*ETHSignTypedMessageRequest) ProtoMessage() {}
 
 func (x *ETHSignTypedMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_eth_proto_msgTypes[5]
+	mi := &file_eth_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -784,7 +906,7 @@ func (x *ETHSignTypedMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ETHSignTypedMessageRequest.ProtoReflect.Descriptor instead.
 func (*ETHSignTypedMessageRequest) Descriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{5}
+	return file_eth_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ETHSignTypedMessageRequest) GetChainId() uint64 {
@@ -832,7 +954,7 @@ type ETHTypedMessageValueResponse struct {
 
 func (x *ETHTypedMessageValueResponse) Reset() {
 	*x = ETHTypedMessageValueResponse{}
-	mi := &file_eth_proto_msgTypes[6]
+	mi := &file_eth_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -844,7 +966,7 @@ func (x *ETHTypedMessageValueResponse) String() string {
 func (*ETHTypedMessageValueResponse) ProtoMessage() {}
 
 func (x *ETHTypedMessageValueResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_eth_proto_msgTypes[6]
+	mi := &file_eth_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -857,7 +979,7 @@ func (x *ETHTypedMessageValueResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ETHTypedMessageValueResponse.ProtoReflect.Descriptor instead.
 func (*ETHTypedMessageValueResponse) Descriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{6}
+	return file_eth_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ETHTypedMessageValueResponse) GetRootObject() ETHTypedMessageValueResponse_RootObject {
@@ -875,15 +997,18 @@ func (x *ETHTypedMessageValueResponse) GetPath() []uint32 {
 }
 
 type ETHTypedMessageValueRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Value         []byte                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Value []byte                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	// If non-zero, value should be empty and data will be streamed via
+	// DataRequestChunk/DataResponseChunk.
+	DataLength    uint32 `protobuf:"varint,2,opt,name=data_length,json=dataLength,proto3" json:"data_length,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ETHTypedMessageValueRequest) Reset() {
 	*x = ETHTypedMessageValueRequest{}
-	mi := &file_eth_proto_msgTypes[7]
+	mi := &file_eth_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -895,7 +1020,7 @@ func (x *ETHTypedMessageValueRequest) String() string {
 func (*ETHTypedMessageValueRequest) ProtoMessage() {}
 
 func (x *ETHTypedMessageValueRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_eth_proto_msgTypes[7]
+	mi := &file_eth_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -908,7 +1033,7 @@ func (x *ETHTypedMessageValueRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ETHTypedMessageValueRequest.ProtoReflect.Descriptor instead.
 func (*ETHTypedMessageValueRequest) Descriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{7}
+	return file_eth_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ETHTypedMessageValueRequest) GetValue() []byte {
@@ -916,6 +1041,13 @@ func (x *ETHTypedMessageValueRequest) GetValue() []byte {
 		return x.Value
 	}
 	return nil
+}
+
+func (x *ETHTypedMessageValueRequest) GetDataLength() uint32 {
+	if x != nil {
+		return x.DataLength
+	}
+	return 0
 }
 
 type ETHRequest struct {
@@ -929,6 +1061,7 @@ type ETHRequest struct {
 	//	*ETHRequest_SignTypedMsg
 	//	*ETHRequest_TypedMsgValue
 	//	*ETHRequest_SignEip1559
+	//	*ETHRequest_DataResponseChunk
 	Request       isETHRequest_Request `protobuf_oneof:"request"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -936,7 +1069,7 @@ type ETHRequest struct {
 
 func (x *ETHRequest) Reset() {
 	*x = ETHRequest{}
-	mi := &file_eth_proto_msgTypes[8]
+	mi := &file_eth_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -948,7 +1081,7 @@ func (x *ETHRequest) String() string {
 func (*ETHRequest) ProtoMessage() {}
 
 func (x *ETHRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_eth_proto_msgTypes[8]
+	mi := &file_eth_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -961,7 +1094,7 @@ func (x *ETHRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ETHRequest.ProtoReflect.Descriptor instead.
 func (*ETHRequest) Descriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{8}
+	return file_eth_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ETHRequest) GetRequest() isETHRequest_Request {
@@ -1034,6 +1167,15 @@ func (x *ETHRequest) GetSignEip1559() *ETHSignEIP1559Request {
 	return nil
 }
 
+func (x *ETHRequest) GetDataResponseChunk() *ETHSignDataResponseChunkRequest {
+	if x != nil {
+		if x, ok := x.Request.(*ETHRequest_DataResponseChunk); ok {
+			return x.DataResponseChunk
+		}
+	}
+	return nil
+}
+
 type isETHRequest_Request interface {
 	isETHRequest_Request()
 }
@@ -1066,6 +1208,10 @@ type ETHRequest_SignEip1559 struct {
 	SignEip1559 *ETHSignEIP1559Request `protobuf:"bytes,7,opt,name=sign_eip1559,json=signEip1559,proto3,oneof"`
 }
 
+type ETHRequest_DataResponseChunk struct {
+	DataResponseChunk *ETHSignDataResponseChunkRequest `protobuf:"bytes,8,opt,name=data_response_chunk,json=dataResponseChunk,proto3,oneof"`
+}
+
 func (*ETHRequest_Pub) isETHRequest_Request() {}
 
 func (*ETHRequest_Sign) isETHRequest_Request() {}
@@ -1080,6 +1226,8 @@ func (*ETHRequest_TypedMsgValue) isETHRequest_Request() {}
 
 func (*ETHRequest_SignEip1559) isETHRequest_Request() {}
 
+func (*ETHRequest_DataResponseChunk) isETHRequest_Request() {}
+
 type ETHResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Response:
@@ -1088,6 +1236,7 @@ type ETHResponse struct {
 	//	*ETHResponse_Sign
 	//	*ETHResponse_AntikleptoSignerCommitment
 	//	*ETHResponse_TypedMsgValue
+	//	*ETHResponse_DataRequestChunk
 	Response      isETHResponse_Response `protobuf_oneof:"response"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1095,7 +1244,7 @@ type ETHResponse struct {
 
 func (x *ETHResponse) Reset() {
 	*x = ETHResponse{}
-	mi := &file_eth_proto_msgTypes[9]
+	mi := &file_eth_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1107,7 +1256,7 @@ func (x *ETHResponse) String() string {
 func (*ETHResponse) ProtoMessage() {}
 
 func (x *ETHResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_eth_proto_msgTypes[9]
+	mi := &file_eth_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1120,7 +1269,7 @@ func (x *ETHResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ETHResponse.ProtoReflect.Descriptor instead.
 func (*ETHResponse) Descriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{9}
+	return file_eth_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ETHResponse) GetResponse() isETHResponse_Response {
@@ -1166,6 +1315,15 @@ func (x *ETHResponse) GetTypedMsgValue() *ETHTypedMessageValueResponse {
 	return nil
 }
 
+func (x *ETHResponse) GetDataRequestChunk() *ETHSignDataRequestChunkResponse {
+	if x != nil {
+		if x, ok := x.Response.(*ETHResponse_DataRequestChunk); ok {
+			return x.DataRequestChunk
+		}
+	}
+	return nil
+}
+
 type isETHResponse_Response interface {
 	isETHResponse_Response()
 }
@@ -1186,6 +1344,10 @@ type ETHResponse_TypedMsgValue struct {
 	TypedMsgValue *ETHTypedMessageValueResponse `protobuf:"bytes,4,opt,name=typed_msg_value,json=typedMsgValue,proto3,oneof"`
 }
 
+type ETHResponse_DataRequestChunk struct {
+	DataRequestChunk *ETHSignDataRequestChunkResponse `protobuf:"bytes,5,opt,name=data_request_chunk,json=dataRequestChunk,proto3,oneof"`
+}
+
 func (*ETHResponse_Pub) isETHResponse_Response() {}
 
 func (*ETHResponse_Sign) isETHResponse_Response() {}
@@ -1193,6 +1355,8 @@ func (*ETHResponse_Sign) isETHResponse_Response() {}
 func (*ETHResponse_AntikleptoSignerCommitment) isETHResponse_Response() {}
 
 func (*ETHResponse_TypedMsgValue) isETHResponse_Response() {}
+
+func (*ETHResponse_DataRequestChunk) isETHResponse_Response() {}
 
 type ETHSignTypedMessageRequest_MemberType struct {
 	state         protoimpl.MessageState                 `protogen:"open.v1"`
@@ -1206,7 +1370,7 @@ type ETHSignTypedMessageRequest_MemberType struct {
 
 func (x *ETHSignTypedMessageRequest_MemberType) Reset() {
 	*x = ETHSignTypedMessageRequest_MemberType{}
-	mi := &file_eth_proto_msgTypes[10]
+	mi := &file_eth_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1218,7 +1382,7 @@ func (x *ETHSignTypedMessageRequest_MemberType) String() string {
 func (*ETHSignTypedMessageRequest_MemberType) ProtoMessage() {}
 
 func (x *ETHSignTypedMessageRequest_MemberType) ProtoReflect() protoreflect.Message {
-	mi := &file_eth_proto_msgTypes[10]
+	mi := &file_eth_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1231,7 +1395,7 @@ func (x *ETHSignTypedMessageRequest_MemberType) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use ETHSignTypedMessageRequest_MemberType.ProtoReflect.Descriptor instead.
 func (*ETHSignTypedMessageRequest_MemberType) Descriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{5, 0}
+	return file_eth_proto_rawDescGZIP(), []int{7, 0}
 }
 
 func (x *ETHSignTypedMessageRequest_MemberType) GetType() ETHSignTypedMessageRequest_DataType {
@@ -1272,7 +1436,7 @@ type ETHSignTypedMessageRequest_Member struct {
 
 func (x *ETHSignTypedMessageRequest_Member) Reset() {
 	*x = ETHSignTypedMessageRequest_Member{}
-	mi := &file_eth_proto_msgTypes[11]
+	mi := &file_eth_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1284,7 +1448,7 @@ func (x *ETHSignTypedMessageRequest_Member) String() string {
 func (*ETHSignTypedMessageRequest_Member) ProtoMessage() {}
 
 func (x *ETHSignTypedMessageRequest_Member) ProtoReflect() protoreflect.Message {
-	mi := &file_eth_proto_msgTypes[11]
+	mi := &file_eth_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1297,7 +1461,7 @@ func (x *ETHSignTypedMessageRequest_Member) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ETHSignTypedMessageRequest_Member.ProtoReflect.Descriptor instead.
 func (*ETHSignTypedMessageRequest_Member) Descriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{5, 1}
+	return file_eth_proto_rawDescGZIP(), []int{7, 1}
 }
 
 func (x *ETHSignTypedMessageRequest_Member) GetName() string {
@@ -1324,7 +1488,7 @@ type ETHSignTypedMessageRequest_StructType struct {
 
 func (x *ETHSignTypedMessageRequest_StructType) Reset() {
 	*x = ETHSignTypedMessageRequest_StructType{}
-	mi := &file_eth_proto_msgTypes[12]
+	mi := &file_eth_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1336,7 +1500,7 @@ func (x *ETHSignTypedMessageRequest_StructType) String() string {
 func (*ETHSignTypedMessageRequest_StructType) ProtoMessage() {}
 
 func (x *ETHSignTypedMessageRequest_StructType) ProtoReflect() protoreflect.Message {
-	mi := &file_eth_proto_msgTypes[12]
+	mi := &file_eth_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1349,7 +1513,7 @@ func (x *ETHSignTypedMessageRequest_StructType) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use ETHSignTypedMessageRequest_StructType.ProtoReflect.Descriptor instead.
 func (*ETHSignTypedMessageRequest_StructType) Descriptor() ([]byte, []int) {
-	return file_eth_proto_rawDescGZIP(), []int{5, 2}
+	return file_eth_proto_rawDescGZIP(), []int{7, 2}
 }
 
 func (x *ETHSignTypedMessageRequest_StructType) GetName() string {
@@ -1370,7 +1534,7 @@ var File_eth_proto protoreflect.FileDescriptor
 
 const file_eth_proto_rawDesc = "" +
 	"\n" +
-	"\teth.proto\x12\x14shiftcrypto.bitbox02\x1a\fcommon.proto\x1a\x10antiklepto.proto\"\xb2\x02\n" +
+	"\teth.proto\x12\x14shiftcrypto.bitbox02\x1a\fcommon.proto\x1a\x10antiklepto.proto\x1a\tbtc.proto\"\xb2\x02\n" +
 	"\rETHPubRequest\x12\x18\n" +
 	"\akeypath\x18\x01 \x03(\rR\akeypath\x121\n" +
 	"\x04coin\x18\x02 \x01(\x0e2\x1d.shiftcrypto.bitbox02.ETHCoinR\x04coin\x12O\n" +
@@ -1382,7 +1546,7 @@ const file_eth_proto_rawDesc = "" +
 	"\n" +
 	"OutputType\x12\v\n" +
 	"\aADDRESS\x10\x00\x12\b\n" +
-	"\x04XPUB\x10\x01\"\xc2\x03\n" +
+	"\x04XPUB\x10\x01\"\xe3\x03\n" +
 	"\x0eETHSignRequest\x121\n" +
 	"\x04coin\x18\x01 \x01(\x0e2\x1d.shiftcrypto.bitbox02.ETHCoinR\x04coin\x12\x18\n" +
 	"\akeypath\x18\x02 \x03(\rR\akeypath\x12\x14\n" +
@@ -1395,7 +1559,9 @@ const file_eth_proto_rawDesc = "" +
 	"\x15host_nonce_commitment\x18\t \x01(\v23.shiftcrypto.bitbox02.AntiKleptoHostNonceCommitmentR\x13hostNonceCommitment\x12\x19\n" +
 	"\bchain_id\x18\n" +
 	" \x01(\x04R\achainId\x12G\n" +
-	"\faddress_case\x18\v \x01(\x0e2$.shiftcrypto.bitbox02.ETHAddressCaseR\vaddressCase\"\xd8\x03\n" +
+	"\faddress_case\x18\v \x01(\x0e2$.shiftcrypto.bitbox02.ETHAddressCaseR\vaddressCase\x12\x1f\n" +
+	"\vdata_length\x18\f \x01(\rR\n" +
+	"dataLength\"\xd2\x04\n" +
 	"\x15ETHSignEIP1559Request\x12\x19\n" +
 	"\bchain_id\x18\x01 \x01(\x04R\achainId\x12\x18\n" +
 	"\akeypath\x18\x02 \x03(\rR\akeypath\x12\x14\n" +
@@ -1408,7 +1574,15 @@ const file_eth_proto_rawDesc = "" +
 	"\x04data\x18\t \x01(\fR\x04data\x12g\n" +
 	"\x15host_nonce_commitment\x18\n" +
 	" \x01(\v23.shiftcrypto.bitbox02.AntiKleptoHostNonceCommitmentR\x13hostNonceCommitment\x12G\n" +
-	"\faddress_case\x18\v \x01(\x0e2$.shiftcrypto.bitbox02.ETHAddressCaseR\vaddressCase\"\xfa\x01\n" +
+	"\faddress_case\x18\v \x01(\x0e2$.shiftcrypto.bitbox02.ETHAddressCaseR\vaddressCase\x12\x1f\n" +
+	"\vdata_length\x18\f \x01(\rR\n" +
+	"dataLength\x12W\n" +
+	"\x0fpayment_request\x18\r \x01(\v2..shiftcrypto.bitbox02.BTCPaymentRequestRequestR\x0epaymentRequest\"Q\n" +
+	"\x1fETHSignDataRequestChunkResponse\x12\x16\n" +
+	"\x06offset\x18\x01 \x01(\rR\x06offset\x12\x16\n" +
+	"\x06length\x18\x02 \x01(\rR\x06length\"7\n" +
+	"\x1fETHSignDataResponseChunkRequest\x12\x14\n" +
+	"\x05chunk\x18\x01 \x01(\fR\x05chunk\"\xfa\x01\n" +
 	"\x15ETHSignMessageRequest\x121\n" +
 	"\x04coin\x18\x01 \x01(\x0e2\x1d.shiftcrypto.bitbox02.ETHCoinR\x04coin\x12\x18\n" +
 	"\akeypath\x18\x02 \x03(\rR\akeypath\x12\x10\n" +
@@ -1459,9 +1633,11 @@ const file_eth_proto_rawDesc = "" +
 	"\aUNKNOWN\x10\x00\x12\n" +
 	"\n" +
 	"\x06DOMAIN\x10\x01\x12\v\n" +
-	"\aMESSAGE\x10\x02\"3\n" +
+	"\aMESSAGE\x10\x02\"T\n" +
 	"\x1bETHTypedMessageValueRequest\x12\x14\n" +
-	"\x05value\x18\x01 \x01(\fR\x05value\"\xc6\x04\n" +
+	"\x05value\x18\x01 \x01(\fR\x05value\x12\x1f\n" +
+	"\vdata_length\x18\x02 \x01(\rR\n" +
+	"dataLength\"\xaf\x05\n" +
 	"\n" +
 	"ETHRequest\x127\n" +
 	"\x03pub\x18\x01 \x01(\v2#.shiftcrypto.bitbox02.ETHPubRequestH\x00R\x03pub\x12:\n" +
@@ -1470,13 +1646,15 @@ const file_eth_proto_rawDesc = "" +
 	"\x14antiklepto_signature\x18\x04 \x01(\v20.shiftcrypto.bitbox02.AntiKleptoSignatureRequestH\x00R\x13antikleptoSignature\x12X\n" +
 	"\x0esign_typed_msg\x18\x05 \x01(\v20.shiftcrypto.bitbox02.ETHSignTypedMessageRequestH\x00R\fsignTypedMsg\x12[\n" +
 	"\x0ftyped_msg_value\x18\x06 \x01(\v21.shiftcrypto.bitbox02.ETHTypedMessageValueRequestH\x00R\rtypedMsgValue\x12P\n" +
-	"\fsign_eip1559\x18\a \x01(\v2+.shiftcrypto.bitbox02.ETHSignEIP1559RequestH\x00R\vsignEip1559B\t\n" +
-	"\arequest\"\xe1\x02\n" +
+	"\fsign_eip1559\x18\a \x01(\v2+.shiftcrypto.bitbox02.ETHSignEIP1559RequestH\x00R\vsignEip1559\x12g\n" +
+	"\x13data_response_chunk\x18\b \x01(\v25.shiftcrypto.bitbox02.ETHSignDataResponseChunkRequestH\x00R\x11dataResponseChunkB\t\n" +
+	"\arequest\"\xc8\x03\n" +
 	"\vETHResponse\x125\n" +
 	"\x03pub\x18\x01 \x01(\v2!.shiftcrypto.bitbox02.PubResponseH\x00R\x03pub\x12;\n" +
 	"\x04sign\x18\x02 \x01(\v2%.shiftcrypto.bitbox02.ETHSignResponseH\x00R\x04sign\x12t\n" +
 	"\x1cantiklepto_signer_commitment\x18\x03 \x01(\v20.shiftcrypto.bitbox02.AntiKleptoSignerCommitmentH\x00R\x1aantikleptoSignerCommitment\x12\\\n" +
-	"\x0ftyped_msg_value\x18\x04 \x01(\v22.shiftcrypto.bitbox02.ETHTypedMessageValueResponseH\x00R\rtypedMsgValueB\n" +
+	"\x0ftyped_msg_value\x18\x04 \x01(\v22.shiftcrypto.bitbox02.ETHTypedMessageValueResponseH\x00R\rtypedMsgValue\x12e\n" +
+	"\x12data_request_chunk\x18\x05 \x01(\v25.shiftcrypto.bitbox02.ETHSignDataRequestChunkResponseH\x00R\x10dataRequestChunkB\n" +
 	"\n" +
 	"\bresponse*2\n" +
 	"\aETHCoin\x12\a\n" +
@@ -1503,7 +1681,7 @@ func file_eth_proto_rawDescGZIP() []byte {
 }
 
 var file_eth_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_eth_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_eth_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_eth_proto_goTypes = []any{
 	(ETHCoin)(0),                                  // 0: shiftcrypto.bitbox02.ETHCoin
 	(ETHAddressCase)(0),                           // 1: shiftcrypto.bitbox02.ETHAddressCase
@@ -1513,54 +1691,60 @@ var file_eth_proto_goTypes = []any{
 	(*ETHPubRequest)(nil),                         // 5: shiftcrypto.bitbox02.ETHPubRequest
 	(*ETHSignRequest)(nil),                        // 6: shiftcrypto.bitbox02.ETHSignRequest
 	(*ETHSignEIP1559Request)(nil),                 // 7: shiftcrypto.bitbox02.ETHSignEIP1559Request
-	(*ETHSignMessageRequest)(nil),                 // 8: shiftcrypto.bitbox02.ETHSignMessageRequest
-	(*ETHSignResponse)(nil),                       // 9: shiftcrypto.bitbox02.ETHSignResponse
-	(*ETHSignTypedMessageRequest)(nil),            // 10: shiftcrypto.bitbox02.ETHSignTypedMessageRequest
-	(*ETHTypedMessageValueResponse)(nil),          // 11: shiftcrypto.bitbox02.ETHTypedMessageValueResponse
-	(*ETHTypedMessageValueRequest)(nil),           // 12: shiftcrypto.bitbox02.ETHTypedMessageValueRequest
-	(*ETHRequest)(nil),                            // 13: shiftcrypto.bitbox02.ETHRequest
-	(*ETHResponse)(nil),                           // 14: shiftcrypto.bitbox02.ETHResponse
-	(*ETHSignTypedMessageRequest_MemberType)(nil), // 15: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.MemberType
-	(*ETHSignTypedMessageRequest_Member)(nil),     // 16: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.Member
-	(*ETHSignTypedMessageRequest_StructType)(nil), // 17: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.StructType
-	(*AntiKleptoHostNonceCommitment)(nil),         // 18: shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
-	(*AntiKleptoSignatureRequest)(nil),            // 19: shiftcrypto.bitbox02.AntiKleptoSignatureRequest
-	(*PubResponse)(nil),                           // 20: shiftcrypto.bitbox02.PubResponse
-	(*AntiKleptoSignerCommitment)(nil),            // 21: shiftcrypto.bitbox02.AntiKleptoSignerCommitment
+	(*ETHSignDataRequestChunkResponse)(nil),       // 8: shiftcrypto.bitbox02.ETHSignDataRequestChunkResponse
+	(*ETHSignDataResponseChunkRequest)(nil),       // 9: shiftcrypto.bitbox02.ETHSignDataResponseChunkRequest
+	(*ETHSignMessageRequest)(nil),                 // 10: shiftcrypto.bitbox02.ETHSignMessageRequest
+	(*ETHSignResponse)(nil),                       // 11: shiftcrypto.bitbox02.ETHSignResponse
+	(*ETHSignTypedMessageRequest)(nil),            // 12: shiftcrypto.bitbox02.ETHSignTypedMessageRequest
+	(*ETHTypedMessageValueResponse)(nil),          // 13: shiftcrypto.bitbox02.ETHTypedMessageValueResponse
+	(*ETHTypedMessageValueRequest)(nil),           // 14: shiftcrypto.bitbox02.ETHTypedMessageValueRequest
+	(*ETHRequest)(nil),                            // 15: shiftcrypto.bitbox02.ETHRequest
+	(*ETHResponse)(nil),                           // 16: shiftcrypto.bitbox02.ETHResponse
+	(*ETHSignTypedMessageRequest_MemberType)(nil), // 17: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.MemberType
+	(*ETHSignTypedMessageRequest_Member)(nil),     // 18: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.Member
+	(*ETHSignTypedMessageRequest_StructType)(nil), // 19: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.StructType
+	(*AntiKleptoHostNonceCommitment)(nil),         // 20: shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
+	(*BTCPaymentRequestRequest)(nil),              // 21: shiftcrypto.bitbox02.BTCPaymentRequestRequest
+	(*AntiKleptoSignatureRequest)(nil),            // 22: shiftcrypto.bitbox02.AntiKleptoSignatureRequest
+	(*PubResponse)(nil),                           // 23: shiftcrypto.bitbox02.PubResponse
+	(*AntiKleptoSignerCommitment)(nil),            // 24: shiftcrypto.bitbox02.AntiKleptoSignerCommitment
 }
 var file_eth_proto_depIdxs = []int32{
 	0,  // 0: shiftcrypto.bitbox02.ETHPubRequest.coin:type_name -> shiftcrypto.bitbox02.ETHCoin
 	2,  // 1: shiftcrypto.bitbox02.ETHPubRequest.output_type:type_name -> shiftcrypto.bitbox02.ETHPubRequest.OutputType
 	0,  // 2: shiftcrypto.bitbox02.ETHSignRequest.coin:type_name -> shiftcrypto.bitbox02.ETHCoin
-	18, // 3: shiftcrypto.bitbox02.ETHSignRequest.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
+	20, // 3: shiftcrypto.bitbox02.ETHSignRequest.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
 	1,  // 4: shiftcrypto.bitbox02.ETHSignRequest.address_case:type_name -> shiftcrypto.bitbox02.ETHAddressCase
-	18, // 5: shiftcrypto.bitbox02.ETHSignEIP1559Request.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
+	20, // 5: shiftcrypto.bitbox02.ETHSignEIP1559Request.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
 	1,  // 6: shiftcrypto.bitbox02.ETHSignEIP1559Request.address_case:type_name -> shiftcrypto.bitbox02.ETHAddressCase
-	0,  // 7: shiftcrypto.bitbox02.ETHSignMessageRequest.coin:type_name -> shiftcrypto.bitbox02.ETHCoin
-	18, // 8: shiftcrypto.bitbox02.ETHSignMessageRequest.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
-	17, // 9: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.types:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest.StructType
-	18, // 10: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
-	4,  // 11: shiftcrypto.bitbox02.ETHTypedMessageValueResponse.root_object:type_name -> shiftcrypto.bitbox02.ETHTypedMessageValueResponse.RootObject
-	5,  // 12: shiftcrypto.bitbox02.ETHRequest.pub:type_name -> shiftcrypto.bitbox02.ETHPubRequest
-	6,  // 13: shiftcrypto.bitbox02.ETHRequest.sign:type_name -> shiftcrypto.bitbox02.ETHSignRequest
-	8,  // 14: shiftcrypto.bitbox02.ETHRequest.sign_msg:type_name -> shiftcrypto.bitbox02.ETHSignMessageRequest
-	19, // 15: shiftcrypto.bitbox02.ETHRequest.antiklepto_signature:type_name -> shiftcrypto.bitbox02.AntiKleptoSignatureRequest
-	10, // 16: shiftcrypto.bitbox02.ETHRequest.sign_typed_msg:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest
-	12, // 17: shiftcrypto.bitbox02.ETHRequest.typed_msg_value:type_name -> shiftcrypto.bitbox02.ETHTypedMessageValueRequest
-	7,  // 18: shiftcrypto.bitbox02.ETHRequest.sign_eip1559:type_name -> shiftcrypto.bitbox02.ETHSignEIP1559Request
-	20, // 19: shiftcrypto.bitbox02.ETHResponse.pub:type_name -> shiftcrypto.bitbox02.PubResponse
-	9,  // 20: shiftcrypto.bitbox02.ETHResponse.sign:type_name -> shiftcrypto.bitbox02.ETHSignResponse
-	21, // 21: shiftcrypto.bitbox02.ETHResponse.antiklepto_signer_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoSignerCommitment
-	11, // 22: shiftcrypto.bitbox02.ETHResponse.typed_msg_value:type_name -> shiftcrypto.bitbox02.ETHTypedMessageValueResponse
-	3,  // 23: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.MemberType.type:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest.DataType
-	15, // 24: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.MemberType.array_type:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest.MemberType
-	15, // 25: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.Member.type:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest.MemberType
-	16, // 26: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.StructType.members:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest.Member
-	27, // [27:27] is the sub-list for method output_type
-	27, // [27:27] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	21, // 7: shiftcrypto.bitbox02.ETHSignEIP1559Request.payment_request:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest
+	0,  // 8: shiftcrypto.bitbox02.ETHSignMessageRequest.coin:type_name -> shiftcrypto.bitbox02.ETHCoin
+	20, // 9: shiftcrypto.bitbox02.ETHSignMessageRequest.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
+	19, // 10: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.types:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest.StructType
+	20, // 11: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
+	4,  // 12: shiftcrypto.bitbox02.ETHTypedMessageValueResponse.root_object:type_name -> shiftcrypto.bitbox02.ETHTypedMessageValueResponse.RootObject
+	5,  // 13: shiftcrypto.bitbox02.ETHRequest.pub:type_name -> shiftcrypto.bitbox02.ETHPubRequest
+	6,  // 14: shiftcrypto.bitbox02.ETHRequest.sign:type_name -> shiftcrypto.bitbox02.ETHSignRequest
+	10, // 15: shiftcrypto.bitbox02.ETHRequest.sign_msg:type_name -> shiftcrypto.bitbox02.ETHSignMessageRequest
+	22, // 16: shiftcrypto.bitbox02.ETHRequest.antiklepto_signature:type_name -> shiftcrypto.bitbox02.AntiKleptoSignatureRequest
+	12, // 17: shiftcrypto.bitbox02.ETHRequest.sign_typed_msg:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest
+	14, // 18: shiftcrypto.bitbox02.ETHRequest.typed_msg_value:type_name -> shiftcrypto.bitbox02.ETHTypedMessageValueRequest
+	7,  // 19: shiftcrypto.bitbox02.ETHRequest.sign_eip1559:type_name -> shiftcrypto.bitbox02.ETHSignEIP1559Request
+	9,  // 20: shiftcrypto.bitbox02.ETHRequest.data_response_chunk:type_name -> shiftcrypto.bitbox02.ETHSignDataResponseChunkRequest
+	23, // 21: shiftcrypto.bitbox02.ETHResponse.pub:type_name -> shiftcrypto.bitbox02.PubResponse
+	11, // 22: shiftcrypto.bitbox02.ETHResponse.sign:type_name -> shiftcrypto.bitbox02.ETHSignResponse
+	24, // 23: shiftcrypto.bitbox02.ETHResponse.antiklepto_signer_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoSignerCommitment
+	13, // 24: shiftcrypto.bitbox02.ETHResponse.typed_msg_value:type_name -> shiftcrypto.bitbox02.ETHTypedMessageValueResponse
+	8,  // 25: shiftcrypto.bitbox02.ETHResponse.data_request_chunk:type_name -> shiftcrypto.bitbox02.ETHSignDataRequestChunkResponse
+	3,  // 26: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.MemberType.type:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest.DataType
+	17, // 27: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.MemberType.array_type:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest.MemberType
+	17, // 28: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.Member.type:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest.MemberType
+	18, // 29: shiftcrypto.bitbox02.ETHSignTypedMessageRequest.StructType.members:type_name -> shiftcrypto.bitbox02.ETHSignTypedMessageRequest.Member
+	30, // [30:30] is the sub-list for method output_type
+	30, // [30:30] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_eth_proto_init() }
@@ -1570,7 +1754,8 @@ func file_eth_proto_init() {
 	}
 	file_common_proto_init()
 	file_antiklepto_proto_init()
-	file_eth_proto_msgTypes[8].OneofWrappers = []any{
+	file_btc_proto_init()
+	file_eth_proto_msgTypes[10].OneofWrappers = []any{
 		(*ETHRequest_Pub)(nil),
 		(*ETHRequest_Sign)(nil),
 		(*ETHRequest_SignMsg)(nil),
@@ -1578,12 +1763,14 @@ func file_eth_proto_init() {
 		(*ETHRequest_SignTypedMsg)(nil),
 		(*ETHRequest_TypedMsgValue)(nil),
 		(*ETHRequest_SignEip1559)(nil),
+		(*ETHRequest_DataResponseChunk)(nil),
 	}
-	file_eth_proto_msgTypes[9].OneofWrappers = []any{
+	file_eth_proto_msgTypes[11].OneofWrappers = []any{
 		(*ETHResponse_Pub)(nil),
 		(*ETHResponse_Sign)(nil),
 		(*ETHResponse_AntikleptoSignerCommitment)(nil),
 		(*ETHResponse_TypedMsgValue)(nil),
+		(*ETHResponse_DataRequestChunk)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1591,7 +1778,7 @@ func file_eth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_eth_proto_rawDesc), len(file_eth_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

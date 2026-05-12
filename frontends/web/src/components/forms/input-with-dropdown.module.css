@@ -20,23 +20,12 @@
     justify-self: flex-start;
 }
 
-.align-right label {
-    flex-grow: 1;
-    text-align: right;
+.errorText {
+    color: var(--color-error) !important;
 }
 
 .align-right input {
     text-align: right;
-}
-
-.isTransparent input[disabled] {
-    border-color: var(--background);
-    color: var(--color-default) !important;
-    cursor: default;
-}
-
-.errorText {
-    color: var(--color-error) !important;
 }
 
 .inputDropdownWrapper {
@@ -69,12 +58,13 @@ input.inputField {
     will-change: border-color;
 }
 
-input.inputField:disabled {
+input.inputField[readonly] {
     border-color: var(--background-quaternary) !important;
     color: var(--color-secondary);
-    cursor: not-allowed;
-    opacity: 1; 
-    -webkit-text-fill-color: var(--color-secondary); 
+    cursor: text;
+    opacity: 1;
+    text-overflow: clip;
+    -webkit-text-fill-color: var(--color-secondary);
 }
 
 input.inputField:focus {
@@ -143,7 +133,7 @@ input.inputField::placeholder {
     border-right: none;
 }
 
-.inputDropdownWrapper:focus-within .inputField:disabled {
+.inputDropdownWrapper:focus-within .inputField[readonly] {
     border-color: var(--color-blue) !important;
     border-right: none;
 }

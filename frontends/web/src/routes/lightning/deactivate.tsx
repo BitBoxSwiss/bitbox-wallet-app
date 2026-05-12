@@ -83,7 +83,7 @@ export const LightningDeactivate = () => {
 
   return (
     <Main>
-      <Status dismissible="" type="warning" hidden={!deactivateError}>
+      <Status dismissibleKey="" type="warning" hidden={!deactivateError}>
         {deactivateError}
       </Status>
       <Header title="Shut down lightning wallet" />

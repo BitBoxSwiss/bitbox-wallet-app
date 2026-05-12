@@ -50,7 +50,7 @@
 }
 
 .select :global(.react-select__option):hover {
-    background-color: var(--background-custom-select-hover);
+    background-color: var(--background-tap-active);
 }
 
 .select :global(.react-select__option--is-selected),
@@ -86,6 +86,10 @@
     width: 100%;
 }
 
+.select :global(.react-select__value-container) {
+    padding-right: 0;
+}
+
 .selectLabelText {
     flex-grow: 1;
     margin-left: 6px;
@@ -103,6 +107,13 @@
     align-items: center;
     color: var(--color-default);
     display: flex;
+}
+
+:global(button:disabled) .valueContainer,
+:global(button:disabled) .triggerLabel,
+:global(button:disabled) .triggerBalance,
+:global(button:disabled) .triggerAccountName {
+    color: var(--color-secondary);
 }
 
 .select :global(.react-select__option--is-selected) .selectLabelText {
@@ -124,7 +135,7 @@
     align-items: center;
     background-color: var(--background-secondary);
     border: 1px #ccc solid;
-    border-radius: 4px;
+    border-radius: var(--radius-xl);
     color: var(--color-default);
     cursor: pointer;
     display: flex;
@@ -135,10 +146,23 @@
     width: 100%;
 }
 
+.layoutOnTwoLines {
+    background: transparent;
+    border-color: transparent;
+    margin-bottom: 0;
+    padding-left: var(--space-quarter);
+    padding-right: var(--space-quarter);
+}
+
+.layoutOnTwoLines .triggerContent {
+    flex-wrap: wrap;
+}
+
 .triggerContent {
     align-items: center;
     display: flex;
     flex: 1;
+    gap: var(--space-eight) var(--space-quarter);
     overflow: hidden;
 }
 
@@ -150,8 +174,8 @@
 .triggerLabel {
     flex-grow: 1;
     flex-shrink: 1;
-    margin-left: var(--space-half);
     overflow: hidden;
+    text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -162,11 +186,50 @@
     text-transform: uppercase;
     white-space: nowrap;
 }
+.trigger .triggerBalance {
+    padding-right: var(--space-quarter);
+}
+
+.layoutOnTwoLines .triggerAccountName {
+    flex-basis: 100%;
+    text-align: left;
+    overflow: hidden;
+    padding-left: calc(var(--space-quarter) + var(--logo-image-width));
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.triggerAccountName {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+}
 
 .placeholderText {
     flex: 1;
     text-align: left;
 }
+
+.stackedSelect :global(.react-select__control),
+.stackedSelect :global(.react-select__control:hover) {
+    background: transparent;
+    border: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: none;
+    min-height: 68px;
+    outline: none;
+    padding-bottom: var(--space-three-quarter);
+    padding-left: 0;
+    padding-top: var(--space-three-quarter);
+    padding-right: 0;
+}
+
+.stackedSelect :global(.react-select__control--is-focused) {
+    border-color: transparent !important;
+    /* using box-shadow instead of border here fixes an ugly Windows rendering bug */
+    box-shadow: inset 0 0 0 1px var(--color-blue) !important;
+}
+
 
 @media screen and (max-width: 768px) {
     .groupHeader {

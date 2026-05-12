@@ -19,6 +19,15 @@
     word-break: keep-all;
 }
 
+.exchangeLink {
+    display: inline-flex;
+    font-size: var(--size-default);
+    font-weight: normal;
+    line-height: 1.6;
+    margin: 0;
+    word-break: keep-all;
+}
+
 .exchangeContainer {
     width: 100%;
 }

@@ -24,7 +24,7 @@ export const ActionableItem = ({
   return (
     <>
       {notButton ? (
-        <div className={`${styles.container || ''} ${className}`}>
+        <div className={`${styles.container || ''} ${disabled ? styles.disabled || '' : ''} ${className}`}>
           {children}
           {icon && icon}
         </div>

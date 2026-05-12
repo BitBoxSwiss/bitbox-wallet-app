@@ -16,8 +16,6 @@
   },
   "accountSummary": {
     "balance": "余额",
-    "exportSummary": "将帐户摘要导出为CSV文件并保存到下载文件夹中",
-    "fiatBalance": "法币余额",
     "name": "账户名",
     "noAccount": "还未添加账户",
     "title": "帐户汇总",

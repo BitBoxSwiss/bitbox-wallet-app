@@ -104,6 +104,9 @@ var fixedURLWhitelist = []string{
 	"https://github.com/bitcoin/bips/",
 	// iOS app settings
 	"app-settings:",
+	// Swapkit
+	"https://swapkit.dev/",
+	"https://docs.swapkit.dev/",
 	// Others
 	"https://cointracking.info/import/bitbox/",
 }
@@ -946,8 +949,8 @@ func (backend *Backend) CoinFiatPrices(coin coinpkg.Coin) *coinpkg.FormattedAmou
 	const isFee = false
 	coinAmount := coin.SetAmount(big.NewRat(1, 1), isFee)
 	return &coinpkg.FormattedAmountWithConversions{
-		Amount: coin.Unit(isFee),
-		Unit:   coin.GetFormatUnit(isFee),
+		Amount: "1",
+		Unit:   coin.Unit(isFee),
 		Conversions: coinpkg.Conversions(
 			coinAmount,
 			coin,

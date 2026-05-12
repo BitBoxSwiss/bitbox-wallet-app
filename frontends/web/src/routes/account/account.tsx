@@ -4,7 +4,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
-import { statusChanged, syncAddressesCount, syncdone } from '@/api/accountsync';
+import { statusChanged, syncAddressesCount, syncdone, transactionsChanged } from '@/api/accountsync';
 import { TDevices } from '@/api/devices';
 import { getMarketVendors, MarketVendors } from '@/api/market';
 import { Balance } from '@/components/balance/balance';
@@ -16,6 +16,7 @@ import { Message } from '@/components/message/message';
 import { useLoad, useSubscribe, useSync } from '@/hooks/api';
 import { useBitsurance } from '@/hooks/bitsurance';
 import { useDebounce } from '@/hooks/debounce';
+import { useScrollIntoView } from '@/hooks/scroll-into-view';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
@@ -37,6 +38,7 @@ import { TransactionHistorySkeleton } from '@/routes/account/transaction-history
 import { RatesContext } from '@/contexts/RatesContext';
 import { OfflineError } from '@/components/banners/offline-error';
 import style from './account.module.css';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 type Props = {
   accounts: accountApi.TAccount[];
@@ -70,7 +72,7 @@ const RemountAccount = ({
   devices,
 }: Props) => {
   const { t } = useTranslation();
-
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const { btcUnit } = useContext(RatesContext);
 
   const [balance, setBalance] = useState<accountApi.TBalance>();
@@ -149,14 +151,25 @@ const RemountAccount = ({
   }, [code, onAccountChanged, status]);
 
   useEffect(() => {
+    return transactionsChanged(code, setTransactions);
+  }, [code]);
+
+  useEffect(() => {
     onAccountChanged(status);
   }, [btcUnit, onAccountChanged, status]);
 
+  // <Main> has overflow-y:auto, so window.scrollBy has no effect.
+  // Thus, need to use useScrollIntoView.
+  const scrollSearchIntoView = useScrollIntoView(searchInputRef, 48);
+
   useEffect(() => {
     if (showSearchBar && searchInputRef.current) {
-      searchInputRef.current?.focus();
+      searchInputRef.current.focus();
+      if (isMobile) {
+        setTimeout(scrollSearchIntoView, 500);
+      }
     }
-  }, [showSearchBar]);
+  }, [showSearchBar, scrollSearchIntoView, isMobile]);
 
   const hasDataLoaded = balance !== undefined && transactions !== undefined;
 
@@ -254,7 +267,6 @@ const RemountAccount = ({
                   <BuyReceiveCTA
                     account={account}
                     code={code}
-                    exchangeSupported={exchangeSupported}
                     unit={balance.available.unit}
                     balanceList={[balance]}
                   />

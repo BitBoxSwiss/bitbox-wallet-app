@@ -11,11 +11,12 @@ import { deregisterTest } from '@/api/keystores';
 import { getVersion } from '@/api/bitbox02';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
-import { CloseXWhite, CogGray, Coins, Device, Eject, Linechart, RedDot, ShieldGray } from '@/components/icon';
+import { CloseXWhite, CogLight, Coins, Device, Eject, Linechart, RedDot, ShieldLight } from '@/components/icon';
 import { getAccountsByKeystore } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms';
+import { NewBadge } from '@/components/new-badge/new-badge';
 import { ConnectedKeystore } from '../keystore/connected-keystore';
 import style from './sidebar.module.css';
 
@@ -175,12 +176,19 @@ const Sidebar = ({
             <div key="market" className={style.sidebarItem}>
               <NavLink
                 className={({ isActive }) => isActive || userInSpecificAccountMarketPage ? style.sidebarActive : ''}
-                to="/market/info">
+                to="/market/select">
                 <div className={style.single}>
                   <Coins />
                 </div>
-                <span className={style.sidebarLabel}>
+                <span className={`${style.sidebarLabel || ''} ${style.marketplaceLabel || ''}`}>
                   {t('generic.buySell')}
+                  <NewBadge
+                    className={style.marketplaceNudgeDot}
+                    configKey="hasSeenMarketplaceNudge"
+                    hideOnPathPrefix="/market/"
+                    pathname={pathname}
+                    type="dot"
+                  />
                 </span>
               </NavLink>
             </div>
@@ -190,7 +198,7 @@ const Sidebar = ({
                 to="/bitsurance/bitsurance"
               >
                 <div className={style.single}>
-                  <ShieldGray alt={t('sidebar.insurance')} />
+                  <ShieldLight alt={t('sidebar.insurance')} />
                 </div>
                 <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
               </NavLink>
@@ -205,7 +213,7 @@ const Sidebar = ({
             title={t('sidebar.settings')}
             onClick={handleSidebarItemClick}>
             <div className={style.single}>
-              <CogGray alt={t('sidebar.settings')} />
+              <CogLight alt={t('sidebar.settings')} />
             </div>
             <span className={style.sidebarLabel}>
               {t('sidebar.settings')}

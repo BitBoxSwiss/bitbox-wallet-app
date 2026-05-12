@@ -15,7 +15,7 @@ type TProps = {
   // used as keyName in the config if dismissing the status should be persisted, so it is not
   // shown again. Use an empty string if it should be dismissible without storing it in the
   // config, so the status will be shown again the next time.
-  dismissible: string;
+  dismissibleKey: string;
   className?: string;
   children: ReactNode;
 };
@@ -24,32 +24,33 @@ export const Status = ({
   hidden,
   type = 'warning',
   noIcon = false,
-  dismissible,
+  dismissibleKey,
   className = '',
   children,
 }: TProps) => {
-  const [show, setShow] = useState(dismissible ? false : true);
+  // note: dismissible can be falsy i.e. empty string ''
+  const [show, setShow] = useState(dismissibleKey ? false : true);
 
   const { isDarkMode } = useDarkmode();
 
   const checkConfig = useCallback(async () => {
-    if (dismissible) {
+    if (dismissibleKey) {
       const config = await getConfig();
-      setShow(!config ? true : !config.frontend[dismissible]);
+      setShow(!config ? true : !config.frontend[dismissibleKey]);
     }
-  }, [dismissible]);
+  }, [dismissibleKey]);
 
   useEffect(() => {
     checkConfig();
   }, [checkConfig]);
 
   const dismiss = async () => {
-    if (!dismissible) {
+    if (!dismissibleKey) {
       return;
     }
     setConfig({
       frontend: {
-        [dismissible]: true,
+        [dismissibleKey]: true,
       }
     });
     setShow(false);
@@ -67,7 +68,7 @@ export const Status = ({
             {children}
           </div>
           <button
-            hidden={!dismissible}
+            hidden={!dismissibleKey}
             className={style.closeButton}
             onClick={dismiss}
           >

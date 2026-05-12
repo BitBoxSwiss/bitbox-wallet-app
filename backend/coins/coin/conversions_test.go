@@ -23,11 +23,43 @@ func TestBtc2Sat(t *testing.T) {
 	require.Equal(t, "12345", coin.Btc2Sat(new(big.Rat).SetFloat64(0.00012345)).FloatString(0))
 }
 
+func TestToUnitRat(t *testing.T) {
+	testCoin := coinMock.CoinMock{
+		DecimalsFunc: func(isFee bool) uint {
+			if isFee {
+				return 8
+			}
+			return 18
+		},
+	}
+	amount, err := coin.NewAmountFromString(
+		"1.234567890123456789",
+		new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil),
+	)
+	require.NoError(t, err)
+	feeAmount, err := coin.NewAmountFromString("123.45678901", big.NewInt(1e8))
+	require.NoError(t, err)
+
+	require.Equal(
+		t,
+		"1.234567890123456789",
+		coin.ToUnitRat(amount, &testCoin, false).FloatString(18),
+	)
+	require.Equal(
+		t,
+		"123.45678901",
+		coin.ToUnitRat(feeAmount, &testCoin, true).FloatString(8),
+	)
+}
+
 func mockCoin(t *testing.T) coinMock.CoinMock {
 	t.Helper()
 	return coinMock.CoinMock{
 		UnitFunc: func(isFee bool) string {
 			return "BTC"
+		},
+		DecimalsFunc: func(isFee bool) uint {
+			return 8
 		},
 
 		ToUnitFunc: func(amount coin.Amount, isFee bool) float64 {

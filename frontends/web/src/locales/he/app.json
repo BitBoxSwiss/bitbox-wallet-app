@@ -18,8 +18,6 @@
   "accountSummary": {
     "availableBalance": "יתרה זמינה",
     "balance": "יתרה",
-    "exportSummary": "ייצא סיכום חשבונות כקובץ רשומות לתיקיית ההורדות",
-    "fiatBalance": "יתרה במטבע פיאט",
     "name": "שם חשבון",
     "noAccount": "אין חשבונות להצגה",
     "title": "סיכום חשבונות",

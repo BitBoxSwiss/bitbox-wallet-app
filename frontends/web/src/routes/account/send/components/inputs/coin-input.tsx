@@ -3,7 +3,7 @@
 import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TAmountWithConversions, TBalance } from '@/api/account';
-import { Checkbox, Input } from '@/components/forms';
+import { Checkbox, NumberInput } from '@/components/forms';
 import style from './coin-input.module.css';
 
 type TProps = {
@@ -29,14 +29,12 @@ export const CoinInput = ({
 }: TProps) => {
   const { t } = useTranslation();
   return (
-    <Input
-      type="number"
-      inputMode="numeric"
+    <NumberInput
       step="any"
       min="0"
       label={balance ? balance.available.unit : t('send.amount.label')}
       id="amount"
-      onInput={(e: ChangeEvent<HTMLInputElement>) => onAmountChange(e.target.value)}
+      onChange={onAmountChange}
       disabled={sendAll}
       error={amountError}
       value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}

@@ -234,7 +234,7 @@ export function Receive() {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Status dismissible="" type="warning" hidden={!receiveError}>
+          <Status dismissibleKey="" type="warning" hidden={!receiveError}>
             {receiveError}
           </Status>
           <Header title={<h2>{t('lightning.receive.title')}</h2>} />

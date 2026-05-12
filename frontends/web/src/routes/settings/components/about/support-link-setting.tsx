@@ -2,18 +2,21 @@
 
 import { useTranslation } from 'react-i18next';
 import { open } from '@/api/system';
-import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { ExternalLinkGray } from '@/components/icon';
 import { getSupportLink } from '@/utils/url_constants';
+import { SettingsItem } from '../settingsItem/settingsItem';
 
 export const SupportLink = () => {
   const { t } = useTranslation();
 
   return (
     <SettingsItem
+      icon={<ExternalLinkGray />}
       settingName={t('newSettings.about.supportLink.title')}
       secondaryText={t('newSettings.about.supportLink.description')}
-      displayedValue={'support.bitbox.swiss'}
+      title={getSupportLink()}
       onClick={() => open(getSupportLink())}
     />
   );
 };
+

@@ -103,42 +103,77 @@ func (a AccountsList) lookupByTransactionInternalID(internalID string) (accounts
 	return nil, nil
 }
 
+func compareAccountCoins(coin1, coin2 coinpkg.Coin) int {
+	getOrder := func(c coinpkg.Coin) (int, bool) {
+		order, ok := map[coinpkg.Code]int{
+			coinpkg.CodeBTC:  0,
+			coinpkg.CodeTBTC: 1,
+			coinpkg.CodeLTC:  2,
+			coinpkg.CodeTLTC: 3,
+		}[c.Code()]
+		if ok {
+			return order, true
+		}
+		// We want to sort ETH and ERC20 tokens with the same priority even though they have
+		// different coin codes, so we use the chain ID.
+		ethCoin, ok := c.(*eth.Coin)
+		if ok {
+			switch ethCoin.ChainID() {
+			case params.MainnetChainConfig.ChainID.Uint64():
+				return 4, true
+			case params.SepoliaChainConfig.ChainID.Uint64():
+				return 5, true
+			}
+		}
+		return 0, false
+	}
+	order1, ok1 := getOrder(coin1)
+	order2, ok2 := getOrder(coin2)
+	if !ok1 || !ok2 {
+		// In case we deal with a coin we didn't specify, we fallback to ordering by coin code.
+		return strings.Compare(string(coin1.Code()), string(coin2.Code()))
+	}
+	return order1 - order2
+}
+
+func lessAccountSortOrder(coin1 coinpkg.Coin, accountConfig1 *config.Account, coin2 coinpkg.Coin, accountConfig2 *config.Account) bool {
+	coinCmp := compareAccountCoins(coin1, coin2)
+	if coinCmp != 0 {
+		return coinCmp < 0
+	}
+
+	if len(accountConfig1.SigningConfigurations) > 0 && len(accountConfig2.SigningConfigurations) > 0 {
+		signingCfg1 := accountConfig1.SigningConfigurations[0]
+		signingCfg2 := accountConfig2.SigningConfigurations[0]
+		// An error should never happen here, but if it does, we just sort as if it was account
+		// number 0.
+		accountNumber1, _ := signingCfg1.AccountNumber()
+		accountNumber2, _ := signingCfg2.AccountNumber()
+		if accountNumber1 != accountNumber2 {
+			return accountNumber1 < accountNumber2
+		}
+		// Same coin, same account number: for ETH coins, put regular account first, followed by
+		// its children ERC20 token accounts.
+		ethCoin1, ok1 := coin1.(*eth.Coin)
+		ethCoin2, ok2 := coin2.(*eth.Coin)
+		if ok1 && ok2 {
+			if ethCoin1.ERC20Token() != nil && ethCoin2.ERC20Token() != nil {
+				// ERC20 tokens sorted by code.
+				return accountConfig1.Code < accountConfig2.Code
+			}
+			// ETH parent account comes before its ERC20 tokens.
+			return ethCoin2.ERC20Token() != nil
+		}
+	}
+
+	// Unspecified account ordering: default to ordering by code.
+	return accountConfig1.Code < accountConfig2.Code
+}
+
 // sortAccounts sorts the accounts in-place by 1) keystore name 2) root fingerprint 3) coin
 // 4) account number.
 func sortAccounts(accounts []accounts.Interface, accountsConfig config.AccountsConfig) {
-	compareCoin := func(coin1, coin2 coinpkg.Coin) int {
-		getOrder := func(c coinpkg.Coin) (int, bool) {
-			order, ok := map[coinpkg.Code]int{
-				coinpkg.CodeBTC:  0,
-				coinpkg.CodeTBTC: 1,
-				coinpkg.CodeLTC:  2,
-				coinpkg.CodeTLTC: 3,
-			}[c.Code()]
-			if ok {
-				return order, true
-			}
-			// We want to sort ETH and ERC20 tokens with the same priority even though they have
-			// different coin codes, so we use the chain ID.
-			ethCoin, ok := c.(*eth.Coin)
-			if ok {
-				switch ethCoin.ChainID() {
-				case params.MainnetChainConfig.ChainID.Uint64():
-					return 4, true
-				case params.SepoliaChainConfig.ChainID.Uint64():
-					return 5, true
-				}
-			}
-			return 0, false
-		}
-		order1, ok1 := getOrder(coin1)
-		order2, ok2 := getOrder(coin2)
-		if !ok1 || !ok2 {
-			// In case we deal with a coin we didn't specify, we fallback to ordering by coin code.
-			return strings.Compare(string(coin1.Code()), string(coin2.Code()))
-		}
-		return order1 - order2
-	}
-	less := func(i, j int) bool {
+	sort.Slice(accounts, func(i, j int) bool {
 		acct1 := accounts[i]
 		acct2 := accounts[j]
 		rootFingerprint1, err1 := acct1.Config().Config.SigningConfigurations.RootFingerprint()
@@ -153,35 +188,13 @@ func sortAccounts(accounts []accounts.Interface, accountsConfig config.AccountsC
 				return cmp < 0
 			}
 		}
-		coinCmp := compareCoin(acct1.Coin(), acct2.Coin())
-		if coinCmp == 0 && len(acct1.Config().Config.SigningConfigurations) > 0 && len(acct2.Config().Config.SigningConfigurations) > 0 {
-			signingCfg1 := acct1.Config().Config.SigningConfigurations[0]
-			signingCfg2 := acct2.Config().Config.SigningConfigurations[0]
-			// An error should never happen here, but if it does, we just sort as if it was account
-			// number 0.
-			accountNumber1, _ := signingCfg1.AccountNumber()
-			accountNumber2, _ := signingCfg2.AccountNumber()
-			if accountNumber1 != accountNumber2 {
-				return accountNumber1 < accountNumber2
-			}
-			// Same coin, same account number: for ETH coins, put regular account first, followed by
-			// its children ERC20 token accounts.
-			ethCoin1, ok1 := acct1.Coin().(*eth.Coin)
-			ethCoin2, ok2 := acct2.Coin().(*eth.Coin)
-			if ok1 && ok2 {
-				if ethCoin1.ERC20Token() != nil && ethCoin2.ERC20Token() != nil {
-					// ERC20 tokens sorted by code.
-					return acct1.Config().Config.Code < acct2.Config().Config.Code
-				}
-				// ETH parent account comes before its ERC20 tokens.
-				return ethCoin2.ERC20Token() != nil
-			}
-			// Unspecified account ordering: default to ordering by code.
-			return acct1.Config().Config.Code < acct2.Config().Config.Code
-		}
-		return coinCmp < 0
-	}
-	sort.Slice(accounts, less)
+		return lessAccountSortOrder(
+			acct1.Coin(),
+			acct1.Config().Config,
+			acct2.Coin(),
+			acct2.Config().Config,
+		)
+	})
 }
 
 // filterAccounts fetches all persisted accounts that pass the provided filter. Testnet/regtest
@@ -283,7 +296,7 @@ func (backend *Backend) convertToFiat(coin coinpkg.Coin, amount coinpkg.Amount, 
 	return new(big.Rat).Mul(
 		new(big.Rat).SetFrac(
 			amount.BigInt(),
-			coinpkg.DecimalsExp(coin),
+			coinpkg.DecimalsExp(coin, false),
 		),
 		new(big.Rat).SetFloat64(price),
 	), nil
@@ -603,6 +616,14 @@ func defaultAccountName(coin coinpkg.Coin, accountNumber uint16) string {
 	return coin.Name()
 }
 
+func configuredAccountName(coin coinpkg.Coin, accountConfig *config.Account) (string, error) {
+	accountNumber, err := accountConfig.SigningConfigurations.AccountNumber()
+	if err != nil {
+		return coin.Name(), err
+	}
+	return defaultAccountName(coin, accountNumber), nil
+}
+
 // createAndPersistAccountConfig adds an account for the given coin and account number. The account
 // numbers start at 0 (first account). The added account will be a unified account supporting all
 // types that the keystore supports. The keypaths will be standard BIP44 keypaths for the respective
@@ -852,6 +873,9 @@ func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode
 		acct := accountsConfig.Lookup(accountCode)
 		if acct == nil {
 			return errp.Newf("Could not find account %s", accountCode)
+		}
+		if active {
+			acct.Inactive = false
 		}
 		return acct.SetTokenActive(tokenCode, active)
 	})
@@ -1146,13 +1170,9 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			}
 			erc20AccountCode := Erc20AccountCode(persistedConfig.Code, erc20TokenCode)
 
-			tokenName := token.Name()
-
-			accountNumber, err := accountConfig.Config.SigningConfigurations[0].AccountNumber()
+			tokenName, err := configuredAccountName(token, persistedConfig)
 			if err != nil {
 				backend.log.WithError(err).Error("could not get account number")
-			} else if accountNumber > 0 {
-				tokenName = fmt.Sprintf("%s %d", tokenName, accountNumber+1)
 			}
 
 			erc20Config := &config.Account{
@@ -1715,11 +1735,13 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		}
 	}
 	log.Info("marking account as used")
+	var emitUpdate bool
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(account.Config().Config.Code)
 		if acct == nil {
 			return errp.Newf("could not find account")
 		}
+		emitUpdate = !acct.Used || acct.HiddenBecauseUnused
 		acct.Used = true
 		acct.HiddenBecauseUnused = false
 
@@ -1729,7 +1751,9 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		log.WithError(err).Error("checkAccountUsed")
 		return
 	}
-	backend.emitAccountsStatusChanged()
+	if emitUpdate {
+		backend.emitAccountsStatusChanged()
+	}
 	backend.maybeAddHiddenUnusedAccounts()
 }
 
