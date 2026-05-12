@@ -20,10 +20,18 @@ struct WidgetAppGroupSync {
         let accounts: [Account]
     }
 
+    private static let serialQueue = DispatchQueue(label: "swiss.bitbox.WidgetAppGroupSync")
+
     func sync() {
-        #if TARGET_TESTNET
-        return
-        #else
+        #if !TARGET_TESTNET
+        Self.serialQueue.sync {
+            performSync()
+        }
+        #endif
+    }
+
+    #if !TARGET_TESTNET
+    private func performSync() {
         let appSupportDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         guard let defaults = UserDefaults(suiteName: WidgetShared.appGroupID) else {
             return
@@ -73,6 +81,6 @@ struct WidgetAppGroupSync {
         if changed {
             WidgetCenter.shared.reloadAllTimelines()
         }
-        #endif
     }
+    #endif
 }

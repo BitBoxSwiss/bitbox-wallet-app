@@ -1892,11 +1892,12 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 
 func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	type result struct {
-		Success      bool                   `json:"success"`
-		ErrorCode    errp.ErrorCode         `json:"errorCode,omitempty"`
-		ErrorMessage string                 `json:"errorMessage,omitempty"`
-		ErrorData    *swapkit.APIErrorData  `json:"errorData,omitempty"`
-		Quote        *swapkit.QuoteResponse `json:"quote,omitempty"`
+		Success             bool                   `json:"success"`
+		ErrorCode           errp.ErrorCode         `json:"errorCode,omitempty"`
+		ErrorMessage        string                 `json:"errorMessage,omitempty"`
+		ErrorData           *swapkit.APIErrorData  `json:"errorData,omitempty"`
+		ValidationErrorCode errp.ErrorCode         `json:"validationErrorCode,omitempty"`
+		Quote               *swapkit.QuoteResponse `json:"quote,omitempty"`
 	}
 	errorResult := func(code errp.ErrorCode, message string, data *swapkit.APIErrorData) result {
 		return result{
@@ -1935,7 +1936,6 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	}
 	sellAmount := request.SellAmount
 	var validationErrorCode errp.ErrorCode
-	var validationErrorMessage string
 	if request.SellAccountCode != "" {
 		account, err := handlers.backend.GetAccountFromCode(request.SellAccountCode)
 		if err != nil {
@@ -1951,7 +1951,6 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 					return errorResult(errp.ErrorCode(validationErr.Error()), validationErr.Error(), nil)
 				}
 				validationErrorCode = errp.ErrorCode(validationErr.Error())
-				validationErrorMessage = validationErr.Error()
 			} else {
 				return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 			}
@@ -1969,13 +1968,17 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 		sellAmount,
 	)
 	if quoteError != nil {
-		return errorResult(quoteError.ErrorCode, quoteError.Message, quoteError.Data)
+		response := errorResult(quoteError.ErrorCode, quoteError.Message, quoteError.Data)
+		if validationErrorCode != "" {
+			response.ValidationErrorCode = validationErrorCode
+		}
+		return response
 	}
 	if validationErrorCode != "" {
 		return result{
 			Success:      false,
 			ErrorCode:    validationErrorCode,
-			ErrorMessage: validationErrorMessage,
+			ErrorMessage: string(validationErrorCode),
 			Quote:        quoteResponse,
 		}
 	}

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v4.51.1
+- iOS: fix App Store submission by packaging Inter as TTF fonts
+
 ## v4.51.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.1
 - Format addresses in groups of 4 characters

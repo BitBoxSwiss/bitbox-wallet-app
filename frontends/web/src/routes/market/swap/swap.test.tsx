@@ -268,7 +268,7 @@ describe('routes/market/swap', () => {
     });
     vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
       success: false,
-      errorCode: 'NoRoutesFoundError',
+      errorCode: 'noRoutesFound',
       errorData: {
         buyCoin: 'USDC',
         sellCoin: 'ETH',
@@ -300,6 +300,46 @@ describe('routes/market/swap', () => {
     expect(await screen.findByText('No route found from ETH to USDC. Try entering a larger amount. Otherwise try again later.')).toBeInTheDocument();
     expect(screen.queryByText(/ETH\.ETH/)).not.toBeInTheDocument();
     expect(screen.queryByText(/ETH\.USDC/)).not.toBeInTheDocument();
+  });
+
+  it('shows insufficient funds warning together with no-route errors', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+      success: false,
+      errorCode: 'noRoutesFound',
+      errorData: {
+        buyCoin: 'ETH',
+        sellCoin: 'BTC',
+      },
+      errorMessage: 'No routes found',
+      validationErrorCode: 'insufficientFunds',
+    });
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[sellAccount, buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '2');
+
+    expect(await screen.findByText('No route found from BTC to ETH. Try entering a larger amount. Otherwise try again later.')).toBeInTheDocument();
+    expect(screen.getByText(/insufficient funds/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
   });
 
   it('keeps quote output visible for insufficient funds', async () => {

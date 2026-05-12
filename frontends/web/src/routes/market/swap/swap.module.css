@@ -34,8 +34,9 @@
 }
 
 .flipAccountsButton {
+  border-radius: 0;
   margin-left: -21px;
-  margin-top: -10px;
+  margin-top: -16px;
   min-height: auto;
   padding: var(--space-quarter);
   position: absolute;
