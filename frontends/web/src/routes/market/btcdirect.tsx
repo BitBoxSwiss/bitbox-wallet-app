@@ -8,6 +8,7 @@ import { parseExternalBtcAmount } from '@/api/coins';
 import { AppContext } from '@/contexts/AppContext';
 import { AccountCode, TAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { useLoad } from '@/hooks/api';
+import { useAccountSynced } from '@/hooks/account';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { getConfig } from '@/utils/config';
@@ -48,7 +49,8 @@ export const BTCDirect = ({
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
 
-  const btcdirectInfo = useLoad(() => getBTCDirectInfo(action, code));
+  const fetchBTCDirectInfo = useCallback(() => getBTCDirectInfo(action, code), [action, code]);
+  const btcdirectInfo = useAccountSynced(code, fetchBTCDirectInfo);
 
   const [blocking, setBlocking] = useState(false);
 
@@ -209,6 +211,8 @@ export const BTCDirect = ({
     t('generic.sell', { context: translationContext })
   );
 
+  const syncInProgress = !btcdirectInfo?.success && btcdirectInfo?.errorMessage === 'syncInProgress';
+
   return (
     <div className="contentWithGuide">
       <div className="container">
@@ -230,7 +234,13 @@ export const BTCDirect = ({
             ) : (
               <div style={{ height }}>
                 <UseDisableBackButton />
-                {!iframeLoaded && <Spinner text={t('loading')} />}
+                {!iframeLoaded && (
+                  syncInProgress ? (
+                    <Spinner text={t('account.syncing')} />
+                  ) : (
+                    <Spinner text={t('loading')} />
+                  )
+                )}
                 {blocking && (
                   <div className={style.blocking}></div>
                 )}

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
@@ -22,6 +22,8 @@ import { convertScriptType } from '@/utils/request-addess';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useAccountSynced } from '@/hooks/account';
+import { Message } from '@/components/message/message';
 import style from './iframe.module.css';
 
 type TProps = {
@@ -43,7 +45,6 @@ export const Pocket = ({
   const [blocking, setBlocking] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
-  const [iframeURL, setIframeUrl] = useState('');
   const config = useLoad(getConfig);
   const accountInfo = useLoad(getInfo(code));
 
@@ -51,15 +52,7 @@ export const Pocket = ({
   const { agreedTerms, setAgreedTerms } = useVendorTerms(!!config?.frontend?.skipPocketDisclaimer);
   const signingRef = useRef(false);
 
-  useEffect(() => {
-    getPocketURL(action).then(response => {
-      if (response.success) {
-        setIframeUrl(response.url);
-      } else {
-        alertUser(t('unknownError', { errorMessage: response.errorMessage }));
-      }
-    });
-  }, [action, t]);
+  const pocketInfo = useAccountSynced(code, useCallback(() => getPocketURL(action), [action]));
 
   useEffect(() => {
     // enable paymentRequestError only when the action is sell.
@@ -263,11 +256,11 @@ export const Pocket = ({
   };
 
   const onMessage = (m: MessageEvent) => {
-    if (!iframeURL || !code) {
+    if (!pocketInfo?.success || !code) {
       return;
     }
     // verify the origin of the received message
-    if (m.origin !== new URL(iframeURL).origin) {
+    if (m.origin !== new URL(pocketInfo.url).origin) {
       return;
     }
 
@@ -323,23 +316,35 @@ export const Pocket = ({
           ) : (
             <div style={{ height }}>
               <UseDisableBackButton />
-              {!iframeLoaded && <Spinner text={t('loading')} /> }
+              {!iframeLoaded && (
+                <Spinner text={t('loading')} />
+              )}
               {blocking && (
                 <div className={style.blocking}></div>
               )}
-              <iframe
-                onLoad={() => {
-                  onIframeLoad();
-                }}
-                ref={iframeRef}
-                title="Pocket"
-                width="100%"
-                height={height}
-                frameBorder="0"
-                className={style.iframe}
-                allow="camera; payment; clipboard-write;"
-                src={iframeURL}>
-              </iframe>
+              { pocketInfo?.success ? (
+                <iframe
+                  onLoad={() => {
+                    onIframeLoad();
+                  }}
+                  ref={iframeRef}
+                  title="Pocket"
+                  width="100%"
+                  height={height}
+                  frameBorder="0"
+                  className={style.iframe}
+                  allow="camera; payment; clipboard-write;"
+                  src={pocketInfo.url}>
+                </iframe>
+              ) : (
+                pocketInfo?.success === false && (
+                  <Message type="error">
+                    {pocketInfo?.errorMessage
+                      ? pocketInfo.errorMessage
+                      : t('genericError')}
+                  </Message>
+                )
+              )}
             </div>
           )}
           <Dialog

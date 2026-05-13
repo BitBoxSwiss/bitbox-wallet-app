@@ -20,6 +20,7 @@ import { getURLOrigin } from '@/utils/url';
 import { ConfirmBitrefill } from './bitrefill-confirm';
 import { AppContext } from '@/contexts/AppContext';
 import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useAccountSynced } from '@/hooks/account';
 import style from './iframe.module.css';
 
 // Map coins supported by Bitrefill
@@ -48,7 +49,9 @@ export const Bitrefill = ({
   const { isDevServers } = useContext(AppContext);
   const account = findAccount(accounts, code);
 
-  const bitrefillInfo = useLoad(() => getBitrefillInfo('spend', code));
+  const fetchBitrefillInfo = useCallback(() => getBitrefillInfo('spend', code), [code]);
+  const bitrefillInfo = useAccountSynced(code, fetchBitrefillInfo);
+
 
   const config = useLoad(getConfig);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
@@ -189,12 +192,7 @@ export const Bitrefill = ({
     };
   }, [handleMessage]);
 
-  if (
-    !account
-    || !config
-    || !bitrefillInfo?.success
-    || !bitrefillInfo.address
-  ) {
+  if (!account || !config) {
     return null;
   }
 
@@ -222,7 +220,9 @@ export const Bitrefill = ({
               />
             ) : (
               <div style={{ height }}>
-                {!iframeLoaded && <Spinner text={t('loading')} />}
+                {!iframeLoaded && (
+                  <Spinner text={t('loading')} />
+                )}
                 { bitrefillInfo?.success && (
                   <iframe
                     ref={iframeRef}
