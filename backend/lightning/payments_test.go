@@ -3,10 +3,12 @@
 package lightning
 
 import (
+	"errors"
 	"math/big"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/stretchr/testify/require"
@@ -151,4 +153,84 @@ func TestValidateApprovedLightningFee(t *testing.T) {
 	err := checkApprovedPaymentFee(10, 9)
 	require.Error(t, err)
 	require.Equal(t, errPaymentApprovalRequired, errp.Cause(err))
+}
+
+func TestCheckPaymentBalance(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name          string
+		totalDebitSat uint64
+		availableSat  int64
+		expectedErr   error
+	}{
+		{
+			name:          "total debit below available balance",
+			totalDebitSat: 99,
+			availableSat:  100,
+		},
+		{
+			name:          "total debit equals available balance",
+			totalDebitSat: 100,
+			availableSat:  100,
+		},
+		{
+			name:          "total debit exceeds available balance",
+			totalDebitSat: 101,
+			availableSat:  100,
+			expectedErr:   errLightningInsufficientFunds,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			balance := accounts.NewBalance(coinpkg.NewAmountFromInt64(testCase.availableSat), coinpkg.NewAmountFromInt64(0))
+			err := checkPaymentBalance(&paymentFee{TotalDebitSat: testCase.totalDebitSat}, balance)
+			require.Equal(t, testCase.expectedErr, errp.Cause(err))
+		})
+	}
+}
+
+func TestLightningPaymentError(t *testing.T) {
+	t.Parallel()
+
+	unrelatedErr := errors.New("network unavailable")
+	testCases := []struct {
+		name                  string
+		err                   error
+		expectedErr           error
+		expectedErrorContains []string
+	}{
+		{
+			name:                  "typed SDK insufficient funds",
+			err:                   breez_sdk_spark.NewSdkErrorInsufficientFunds(),
+			expectedErr:           errLightningInsufficientFunds,
+			expectedErrorContains: []string{"SdkError: InsufficientFunds", "lightningInsufficientFunds"},
+		},
+		{
+			name:                  "Spark insufficient funds",
+			err:                   breez_sdk_spark.NewSdkErrorSparkError("Tree service error: insufficient funds"),
+			expectedErr:           errLightningInsufficientFunds,
+			expectedErrorContains: []string{"Tree service error: insufficient funds", "lightningInsufficientFunds"},
+		},
+		{
+			name:        "unrelated error",
+			err:         unrelatedErr,
+			expectedErr: unrelatedErr,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := lightningPaymentError(testCase.err)
+			require.Equal(t, testCase.expectedErr, errp.Cause(err))
+			for _, expectedText := range testCase.expectedErrorContains {
+				require.Contains(t, err.Error(), expectedText)
+			}
+		})
+	}
 }

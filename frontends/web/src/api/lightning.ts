@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { apiGet, apiPost } from '../utils/request';
-import { AccountCode, TBalance, TTransactionStatus } from './account';
-import { TSubscriptionCallback, TUnsubscribe, subscribeEndpoint } from './subscribe';
+import type { AccountCode, TBalance, TTransactionStatus } from './account';
+import type { TSubscriptionCallback, TUnsubscribe } from './subscribe';
+import { subscribeEndpoint } from './subscribe';
 
 export type TLightningResponse<T> =
   | {
@@ -19,6 +20,10 @@ export type TLightningAccount = {
   rootFingerprint: string;
   code: AccountCode;
   num: number;
+};
+
+export type TLightningBalance = TBalance & {
+  availableSat: number;
 };
 
 export type TLightningInvoice = {
@@ -134,8 +139,8 @@ export const postDeactivate = async (): Promise<void> => {
   return postApiResponse<void, undefined>('lightning/deactivate', undefined, 'Error calling postDeactivate');
 };
 
-export const getLightningBalance = async (): Promise<TBalance> => {
-  return getApiResponse<TBalance>('lightning/balance', 'Error calling getLightningBalance');
+export const getLightningBalance = async (): Promise<TLightningBalance> => {
+  return getApiResponse<TLightningBalance>('lightning/balance', 'Error calling getLightningBalance');
 };
 
 export const getListPayments = async (): Promise<TLightningPayment[]> => {
