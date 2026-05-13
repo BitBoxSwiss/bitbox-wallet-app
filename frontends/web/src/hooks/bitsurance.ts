@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
-import { getConfig, setConfig } from '@/utils/config';
+import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { getScriptName } from '@/routes/account/utils';
 
 /**
@@ -45,6 +46,7 @@ export const useBitsurance = (
   account?: accountApi.TAccount,
 ) => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
 
   const [insured, setInsured] = useState(false);
   const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
@@ -74,15 +76,15 @@ export const useBitsurance = (
       return;
     }
 
-    // we fetch the config after the lookup as it could have changed.
-    const config = await getConfig();
-    let cancelledAccounts: string[] = config.frontend.bitsuranceNotifyCancellation;
+    // We fetch the config after the lookup as it could have changed.
+    const freshConfig = await getConfig();
+    let cancelledAccounts: string[] = freshConfig.frontend?.bitsuranceNotifyCancellation ?? [];
 
     if (cancelledAccounts?.includes(code)) {
       alertUser(t('account.insuranceExpired'));
-      // remove the pending notification from the frontend settings.
-      config.frontend.bitsuranceNotifyCancellation = cancelledAccounts.filter(accountCode => accountCode !== code);
-      setConfig(config);
+      const filtered = cancelledAccounts.filter(accountCode => accountCode !== code);
+      // Remove the pending notification from the frontend settings.
+      setConfig({ frontend: { bitsuranceNotifyCancellation: filtered } });
     }
 
     const bitsuranceAccount = insuredAccounts.bitsuranceAccounts[0];
@@ -93,7 +95,7 @@ export const useBitsurance = (
     }
 
     setInsured(false);
-  }, [t, account, code, checkUncoveredUTXOs]);
+  }, [t, account, code, checkUncoveredUTXOs, setConfig]);
 
   useEffect(() => {
     maybeCheckBitsuranceStatus();

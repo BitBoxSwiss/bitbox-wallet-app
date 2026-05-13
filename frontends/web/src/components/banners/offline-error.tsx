@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Message } from '../message/message';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import style from './offline-errors.module.css';
 
 type Props = {
@@ -13,13 +12,9 @@ type Props = {
 export const OfflineError = ({
   error,
 }: Props) => {
-
   const { t } = useTranslation();
-  const [usesProxy, setUsesProxy] = useState<boolean>();
-
-  useEffect(() => {
-    getConfig().then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
-  }, []);
+  const { config } = useConfig();
+  const usesProxy = config?.backend.proxy.useProxy;
 
   // Status: offline error
   const offlineErrorTextLines: string[] = [];

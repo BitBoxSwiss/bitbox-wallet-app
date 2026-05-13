@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
+import type { TConfig } from '@/api/config';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 vi.mock('@/utils/request', () => ({
@@ -10,15 +11,24 @@ vi.mock('@/i18n/i18n');
 vi.mock('@/utils/env', () => ({
   runningInIOS: vi.fn(() => false),
 }));
+vi.mock('@/contexts/ConfigProvider', () => ({
+  useConfig: vi.fn(() => ({
+    config: {
+      backend: {} as TConfig['backend'],
+      frontend: { expertFee: false },
+    },
+    setConfig: vi.fn(),
+  })),
+}));
 
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { FeeTargets } from './feetargets';
 import { apiGet } from '@/utils/request';
 import { runningInIOS } from '@/utils/env';
+import { useConfig } from '@/contexts/ConfigProvider';
 
-import * as utilsConfig from '@/utils/config';
-const getConfig = vi.spyOn(utilsConfig, 'getConfig');
 const mockRunningInIOS = vi.mocked(runningInIOS);
+const mockUseConfig = vi.mocked(useConfig);
 
 vi.mock('@/hooks/mediaquery', () => ({
   useMediaQuery: vi.fn().mockReturnValue(true),
@@ -29,10 +39,16 @@ describe('routes/account/send/feetargets', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockRunningInIOS.mockReturnValue(false);
+    mockUseConfig.mockReturnValue({
+      config: {
+        backend: {} as TConfig['backend'],
+        frontend: { expertFee: false },
+      },
+      setConfig: vi.fn(),
+    });
   });
 
   it('should call onFeeTargetChange with default', () => new Promise<void>(async done => {
-    getConfig.mockReturnValue(Promise.resolve({ frontend: { expertFee: false } }));
     const apiGetMock = (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'normal',
       feeTargets: [
@@ -60,7 +76,13 @@ describe('routes/account/send/feetargets', () => {
 
   it('normalizes custom fee values from iOS decimal input', async () => {
     mockRunningInIOS.mockReturnValue(true);
-    getConfig.mockReturnValue(Promise.resolve({ frontend: { expertFee: true } }));
+    mockUseConfig.mockReturnValue({
+      config: {
+        backend: {} as TConfig['backend'],
+        frontend: { expertFee: true },
+      },
+      setConfig: vi.fn(),
+    });
     const apiGetMock = (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'custom',
       feeTargets: [],

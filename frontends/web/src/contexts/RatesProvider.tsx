@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { RatesContext } from './RatesContext';
 import { Fiat } from '@/api/account';
 import { BtcUnit, setBtcUnit as setBackendBtcUnit } from '@/api/coins';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from './ConfigProvider';
 import { reinitializeAccounts } from '@/api/backend';
 import { equal } from '@/utils/equal';
 
@@ -13,26 +13,24 @@ type TProps = {
 };
 
 export const RatesProvider = ({ children }: TProps) => {
+  const { config, setConfig } = useConfig();
   const [defaultCurrency, setDefaultCurrency] = useState<Fiat>('USD');
   const [activeCurrencies, setActiveCurrencies] = useState<Fiat[]>(['USD', 'EUR', 'CHF']);
   const [btcUnit, setBtcUnit] = useState<BtcUnit>('default');
 
+  const updateRatesConfig = useCallback((): Promise<void> => {
+    if (config === undefined) {
+      return Promise.resolve();
+    }
+    setDefaultCurrency(config.backend.mainFiat);
+    setActiveCurrencies(config.backend.fiatList);
+    setBtcUnit(config.backend.btcUnit);
+    return Promise.resolve();
+  }, [config]);
+
   useEffect(() => {
     updateRatesConfig();
-  }, []);
-
-  const updateRatesConfig = async () => {
-    const appConf = await getConfig();
-
-    if (appConf.backend?.mainFiat) {
-      setDefaultCurrency(appConf.backend.mainFiat);
-    }
-
-    if (appConf.backend?.fiatList && appConf.backend?.btcUnit) {
-      setActiveCurrencies(appConf.backend.fiatList);
-      setBtcUnit(appConf.backend.btcUnit);
-    }
-  };
+  }, [updateRatesConfig]);
 
   const rotateDefaultCurrency = async () => {
     const index = activeCurrencies.indexOf(defaultCurrency);

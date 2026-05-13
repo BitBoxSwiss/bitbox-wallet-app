@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, useCallback, useEffect, useState } from 'react';
-import { getConfig, setConfig } from '@/utils/config';
+import { ReactNode } from 'react';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
 import { Message } from '@/components/message/message';
@@ -28,21 +28,15 @@ export const Status = ({
   className = '',
   children,
 }: TProps) => {
-  // note: dismissible can be falsy i.e. empty string ''
-  const [show, setShow] = useState(dismissibleKey ? false : true);
-
+  const { config, setConfig } = useConfig();
   const { isDarkMode } = useDarkmode();
 
-  const checkConfig = useCallback(async () => {
-    if (dismissibleKey) {
-      const config = await getConfig();
-      setShow(!config ? true : !config.frontend[dismissibleKey]);
-    }
-  }, [dismissibleKey]);
-
-  useEffect(() => {
-    checkConfig();
-  }, [checkConfig]);
+  // note: dismissibleKey can be falsy i.e. empty string ''
+  const show = hidden
+    ? false
+    : dismissibleKey
+      ? !config?.frontend?.[dismissibleKey]
+      : true;
 
   const dismiss = async () => {
     if (!dismissibleKey) {
@@ -53,10 +47,9 @@ export const Status = ({
         [dismissibleKey]: true,
       }
     });
-    setShow(false);
   };
 
-  if (hidden || !show) {
+  if (!show) {
     return null;
   }
 

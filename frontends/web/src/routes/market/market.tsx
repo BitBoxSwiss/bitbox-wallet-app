@@ -24,7 +24,7 @@ import { InfoButton } from '@/components/infobutton/infobutton';
 import { MarketTab } from './components/markettab';
 import { Deals } from './components/deals';
 import { getNativeLocale } from '@/api/nativelocale';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { CountrySelect, TOption } from './components/countryselect';
 import { getBTCDirectOTCLink, getPocketOTCLink, InfoContent, TInfoContentProps } from './components/infocontent';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
@@ -42,6 +42,7 @@ export const Market = ({
   code,
 }: TProps) => {
   const { t } = useTranslation();
+  const { config, setConfig } = useConfig();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -54,7 +55,6 @@ export const Market = ({
 
   const regionCodes = useLoad(marketAPI.getMarketRegionCodes);
   const nativeLocale = useLoad(getNativeLocale);
-  const config = useLoad(getConfig);
   const swapStatus = useLoad(getSwapStatus, [accounts]);
 
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
@@ -93,13 +93,13 @@ export const Market = ({
     setRegions(regions);
 
     // if user had selected no region before, do not pre-select any.
-    if (config.frontend.selectedExchangeRegion === '') {
+    if (config.frontend?.selectedExchangeRegion === '') {
       return;
     }
 
-    if (config.frontend.selectedExchangeRegion) {
+    if (config.frontend?.selectedExchangeRegion) {
       // pre-select config region
-      setSelectedRegion(config.frontend.selectedExchangeRegion);
+      setSelectedRegion(String(config.frontend.selectedExchangeRegion));
       return;
     }
 
