@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
-import { getInfo, TAccount, AccountCode } from '@/api/account';
+import { getInfo, TAccount, AccountCode, ScriptType, TSigningConfiguration } from '@/api/account';
 import { findAccount } from '@/routes/account/utils';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
@@ -20,6 +20,19 @@ type TProps = {
   code: AccountCode;
 };
 
+export const getDefaultSigningConfigurationIndex = (
+  signingConfigurations: TSigningConfiguration[],
+  receiveScriptType: ScriptType | undefined,
+): number => {
+  if (!receiveScriptType) {
+    return 0;
+  }
+  const index = signingConfigurations.findIndex(
+    cfg => cfg.bitcoinSimple?.scriptType === receiveScriptType
+  );
+  return index === -1 ? 0 : index;
+};
+
 export const XPubDetail = ({
   accounts,
   code,
@@ -27,7 +40,11 @@ export const XPubDetail = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const info = useLoad(getInfo(code));
-  const [viewXPub, setViewXPub] = useState<number>(0);
+  const [viewXPub, setViewXPub] = useState<number | undefined>();
+
+  useEffect(() => {
+    setViewXPub(undefined);
+  }, [code]);
 
   const account = findAccount(accounts, code);
   if (!account || !info) {
@@ -38,7 +55,11 @@ export const XPubDetail = ({
   if (numberOfXPubs === 0) {
     return null;
   }
-  const safeViewXPub = Math.max(0, Math.min(viewXPub, numberOfXPubs - 1));
+  const defaultViewXPub = getDefaultSigningConfigurationIndex(
+    info.signingConfigurations,
+    account.receiveScriptType
+  );
+  const safeViewXPub = Math.max(0, Math.min(viewXPub ?? defaultViewXPub, numberOfXPubs - 1));
   const config = info.signingConfigurations[safeViewXPub];
   if (!config) {
     return null;
@@ -46,7 +67,7 @@ export const XPubDetail = ({
   const xpubTypes = info.signingConfigurations.map(cfg => cfg.bitcoinSimple?.scriptType);
 
   const showNextXPub = () => {
-    setViewXPub(prev => (prev + 1) % numberOfXPubs);
+    setViewXPub((safeViewXPub + 1) % numberOfXPubs);
   };
 
   const xpubType = xpubTypes[(safeViewXPub + 1) % numberOfXPubs];

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Bitcoin: show account details for the persisted receive address type by default
 
 ## v4.51.1
 - iOS: fix App Store submission by packaging Inter as TTF fonts
