@@ -346,7 +346,7 @@ const RemountAccount = ({
         unit={balance?.available.unit}
         hasIncomingBalance={balance && balance.hasIncoming}
         hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
-        hasNoBalance={balance && balance.available.amount === '0'}
+        hasNoBalance={balance && !balance.hasAvailable}
       />
     </GuideWrapper>
   );
