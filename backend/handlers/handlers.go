@@ -93,6 +93,7 @@ type Backend interface {
 	CheckForUpdateIgnoringErrors() *backend.UpdateFile
 	Banners() *banners.Banners
 	Environment() backend.Environment
+	ClearCache() error
 	ExportLogs() error
 	ExportNotes() error
 	ImportNotes(jsonLines []byte) (*backend.ImportNotesResult, error)
@@ -263,6 +264,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonly).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChanged).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/clear-cache", handlers.postClearCache).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/export-log", handlers.postExportLog).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/export", handlers.postExportNotes).Methods("POST")
@@ -1652,6 +1654,17 @@ func (handlers *Handlers) postOnAuthSettingChanged(r *http.Request) interface{} 
 	handlers.backend.Environment().OnAuthSettingChanged(
 		handlers.backend.Config().AppConfig().Backend.Authentication)
 	return nil
+}
+
+func (handlers *Handlers) postClearCache(r *http.Request) interface{} {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+	if err := handlers.backend.ClearCache(); err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
+	return result{Success: true}
 }
 
 func (handlers *Handlers) postExportLog(r *http.Request) interface{} {

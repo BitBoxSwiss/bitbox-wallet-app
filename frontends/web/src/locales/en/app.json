@@ -1940,6 +1940,16 @@
       "title-tltc": "Litecoin Testnet Electrum servers"
     },
     "expert": {
+      "clearCache": {
+        "description": "Clear the cache of the BitBoxApp. This can help fix issues in the app.",
+        "dialog": {
+          "description": "Clear the cache of the BitBoxApp. If you are experiencing issues with the BitBoxApp, this can help resolve them.",
+          "note": "Your account names, notes and wallets are not affected.",
+          "primaryCTA": "Clear Cache",
+          "title": "Clear cache"
+        },
+        "title": "Clear cache"
+      },
       "coinControl": "Enable coin control",
       "electrum": {
         "description": "You can connect to your own Electrum full node.",

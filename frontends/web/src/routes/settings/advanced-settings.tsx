@@ -14,6 +14,7 @@ import { EnableTorProxySetting } from './components/advanced-settings/enable-tor
 import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-software-keystore';
 import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
+import { ClearCacheSetting } from './components/advanced-settings/clear-cache-setting';
 import { CustomGapLimitSettings } from './components/advanced-settings/custom-gap-limit-setting';
 import { getConfig } from '@/utils/config';
 import { MobileHeader } from './components/mobile-header';
@@ -91,6 +92,7 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
                 <CustomGapLimitSettings backendConfig={backendConfig} onChangeConfig={setConfig} />
                 <UnlockSoftwareKeystore deviceIDs={deviceIDs}/>
                 <ConnectFullNodeSetting />
+                <ClearCacheSetting />
                 <ExportLogSetting />
               </WithSettingsTabs>
             </ViewContent>

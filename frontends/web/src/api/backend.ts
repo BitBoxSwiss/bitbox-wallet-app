@@ -141,6 +141,10 @@ export const exportLogs = (): Promise<TSuccess> => {
   return apiPost('export-log');
 };
 
+export const clearCache = (): Promise<TSuccess> => {
+  return apiPost('clear-cache');
+};
+
 export const exportNotes = (): Promise<(FailResponse & { aborted: boolean }) | SuccessResponse> => {
   return apiPost('notes/export');
 };
