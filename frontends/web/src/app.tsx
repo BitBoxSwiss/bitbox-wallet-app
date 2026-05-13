@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useEffect, useMemo, Fragment } from 'react';
+import { useCallback, useEffect, useMemo, Fragment, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { getTransactionList, TAccount, getAccounts } from './api/account';
 import { useSync } from './hooks/api';
 import { useDefault } from './hooks/default';
 import { usePrevious } from './hooks/previous';
@@ -11,8 +12,7 @@ import { usePlatformClass } from './hooks/platform';
 import { useAppReady } from './hooks/appready';
 import { AppRouter } from './routes/router';
 import { Wizard as BitBox02Wizard } from './routes/device/bitbox02/wizard';
-import { getAccounts } from './api/account';
-import { syncAccountsList } from './api/accountsync';
+import { syncAccountsList, syncdone } from './api/accountsync';
 import { getDeviceList } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
 import { syncNewTxs } from './api/transactions';
@@ -27,14 +27,122 @@ import { RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
+import { useToast } from './components/toast/toast';
 import { Providers } from './contexts/providers';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
 import { getBottomNavKey } from './components/bottom-navigation/utils';
 import styles from './app.module.css';
 
+const IncomingTxIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1 17H17M9 11V1M9 11L13 7M9 11L5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+type TIncomingTransactionNotifierProps = {
+  activeAccounts: TAccount[];
+};
+
+const IncomingTransactionNotifier = ({ activeAccounts }: TIncomingTransactionNotifierProps) => {
+  const { t } = useTranslation();
+  const { showToast } = useToast();
+  const shownIncomingTxIDsRef = useRef<Record<string, boolean>>({});
+  const initializedAccountsRef = useRef<Record<string, boolean>>({});
+  const seedingAccountsRef = useRef<Record<string, boolean>>({});
+
+  const markIncomingAsSeen = useCallback((accountCode: string, txID: string) => {
+    shownIncomingTxIDsRef.current[`${accountCode}:${txID}`] = true;
+  }, []);
+
+  const showIncomingTxToast = useCallback((amount: string, unit: string) => {
+    showToast({
+      icon: <IncomingTxIcon />,
+      message: t('notification.incomingTxToast', {
+        amount,
+        unit,
+      }),
+      type: 'info',
+    });
+  }, [showToast, t]);
+
+  const seedIncomingTransactionsForAccount = useCallback(async (account: TAccount) => {
+    if (initializedAccountsRef.current[account.code] || seedingAccountsRef.current[account.code]) {
+      return;
+    }
+
+    seedingAccountsRef.current[account.code] = true;
+    try {
+      const transactions = await getTransactionList(account.code);
+      if (!transactions.success) {
+        return;
+      }
+      transactions.list
+        .filter(tx => tx.type === 'receive')
+        .forEach(tx => markIncomingAsSeen(account.code, tx.internalID));
+      initializedAccountsRef.current[account.code] = true;
+    } finally {
+      seedingAccountsRef.current[account.code] = false;
+    }
+  }, [markIncomingAsSeen]);
+
+  // Seed known incoming transactions for active accounts so we only toast truly new ones.
+  useEffect(() => {
+    void Promise.all(activeAccounts.map(account => seedIncomingTransactionsForAccount(account)));
+  }, [activeAccounts, seedIncomingTransactionsForAccount]);
+
+  useEffect(() => {
+    return syncNewTxs((meta) => {
+      notifyUser(t('notification.newTxs', {
+        count: meta.count,
+        accountName: meta.accountName,
+      }));
+    });
+  }, [t]);
+
+  const detectAndToastIncomingForAccount = useCallback(async (account: TAccount) => {
+    if (!initializedAccountsRef.current[account.code]) {
+      return;
+    }
+
+    const transactions = await getTransactionList(account.code);
+    if (!transactions.success) {
+      return;
+    }
+
+    // New transactions are sorted to the front. Check only the latest window.
+    const recentTransactions = transactions.list.slice(0, 30);
+    recentTransactions
+      .filter(tx => tx.type === 'receive')
+      .reverse()
+      .forEach((tx) => {
+        const txKey = `${account.code}:${tx.internalID}`;
+        if (shownIncomingTxIDsRef.current[txKey]) {
+          return;
+        }
+        markIncomingAsSeen(account.code, tx.internalID);
+        showIncomingTxToast(tx.amount.amount, tx.amount.unit);
+      });
+  }, [markIncomingAsSeen, showIncomingTxToast]);
+
+  useEffect(() => {
+    const unsubscribers = activeAccounts.map((account) => {
+      return syncdone(account.code, () => {
+        void (async () => {
+          await seedIncomingTransactionsForAccount(account);
+          await detectAndToastIncomingForAccount(account);
+        })();
+      });
+    });
+    return () => {
+      unsubscribers.forEach(unsubscribe => unsubscribe());
+    };
+  }, [activeAccounts, detectAndToastIncomingForAccount, seedIncomingTransactionsForAccount]);
+
+  return null;
+};
+
 export const App = () => {
   usePlatformClass();
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   useIgnoreDrop();
@@ -46,15 +154,6 @@ export const App = () => {
 
   const deviceIDs = Object.keys(devices);
   const firstDevice = deviceIDs[0];
-
-  useEffect(() => {
-    return syncNewTxs((meta) => {
-      notifyUser(t('notification.newTxs', {
-        count: meta.count,
-        accountName: meta.accountName,
-      }));
-    });
-  }, [t]);
 
   const maybeRoute = useCallback(() => {
     const currentURL = window.location.hash.replace(/^#/, '');
@@ -173,6 +272,7 @@ export const App = () => {
     <ConnectedApp>
       <Providers>
         <Darkmode />
+        <IncomingTransactionNotifier activeAccounts={activeAccounts} />
         <div className="app">
           <AuthRequired/>
           <Sidebar

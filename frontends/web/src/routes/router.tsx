@@ -42,6 +42,7 @@ import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 import { AllAccounts } from '@/routes/accounts/all-accounts';
 import { More } from '@/routes/settings/more';
+import { ToastDemo } from '@/routes/settings/toast-demo';
 
 type TAppRouterProps = {
   devices: TDevices;
@@ -252,6 +253,13 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
     />
   </InjectParams>);
 
+  const ToastDemoEl = (<InjectParams>
+    <ToastDemo
+      devices={devices}
+      hasAccounts={hasAccounts}
+    />
+  </InjectParams>);
+
   const AdvancedSettingsEl = (<InjectParams>
     <AdvancedSettings
       devices={devices}
@@ -329,6 +337,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="device-settings/recovery-words/:deviceID" element={RecoveryWordsEl} />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
           <Route path="advanced-settings" element={AdvancedSettingsEl} />
+          <Route path="toast-demo" element={ToastDemoEl} />
           <Route path="electrum" element={<ElectrumSettings />} />
           <Route path="manage-accounts" element={
             <ManageAccounts
