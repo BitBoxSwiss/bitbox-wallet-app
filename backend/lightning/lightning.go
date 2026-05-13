@@ -3,7 +3,12 @@
 package lightning
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
+	"io"
 	"net/http"
 	"os"
 	"path"
@@ -29,12 +34,21 @@ const (
 	breezApiKeyUrl = "https://bitboxapp.shiftcrypto.dev/lightning/breez-api-key"
 )
 
+// Keep this local to avoid importing backend.Environment and creating a package cycle.
+type environment interface {
+	CanEncryptLightningMnemonic() bool
+	StoreLightningEncryptionKey(accountCode string, encryptionKey string) error
+	LoadLightningEncryptionKey(accountCode string) (string, error)
+	DeleteLightningEncryptionKey(accountCode string) error
+}
+
 // Lightning manages the Breez SDK lightning node.
 type Lightning struct {
 	observable.Implementation
 
 	backendConfig      *config.Config
 	cacheDirectoryPath string
+	environment        environment
 	getKeystore        func() keystore.Keystore
 	synced             bool
 
@@ -48,6 +62,7 @@ type Lightning struct {
 // NewLightning creates a new instance of the Lightning struct.
 func NewLightning(config *config.Config,
 	cacheDirectoryPath string,
+	environment environment,
 	getKeystore func() keystore.Keystore,
 	httpClient *http.Client,
 	ratesUpdater *rates.RateUpdater,
@@ -55,6 +70,7 @@ func NewLightning(config *config.Config,
 	return &Lightning{
 		backendConfig:      config,
 		cacheDirectoryPath: cacheDirectoryPath,
+		environment:        environment,
 		getKeystore:        getKeystore,
 		log:                logging.Get().WithGroup("lightning"),
 		synced:             false,
@@ -64,7 +80,8 @@ func NewLightning(config *config.Config,
 	}
 }
 
-// Activate first creates a mnemonic from the keystore entropy then connects to instance.
+// Activate first creates a mnemonic from the keystore entropy, persists it, and connects to the
+// instance.
 func (lightning *Lightning) Activate() error {
 	if lightning.Account() != nil {
 		return errp.New("Lightning accounts already configured")
@@ -91,13 +108,25 @@ func (lightning *Lightning) Activate() error {
 		return errp.New("Error generating mnemonic")
 	}
 
+	accountCode := types.Code(strings.Join([]string{"v0-", hex.EncodeToString(fingerprint), "-ln-0"}, ""))
+	sealedMnemonic, err := lightning.sealMnemonic(string(accountCode), entropyMnemonic)
+	if err != nil {
+		lightning.log.WithError(err).Warn("Error configuring Lightning secure storage")
+		return errp.New("Could not configure Lightning secure storage on this device")
+	}
+
 	lightningAccount := config.LightningAccountConfig{
-		Mnemonic:        entropyMnemonic,
+		Mnemonic:        sealedMnemonic,
 		RootFingerprint: fingerprint,
-		Code:            types.Code(strings.Join([]string{"v0-", hex.EncodeToString(fingerprint), "-ln-0"}, "")),
+		Code:            accountCode,
 		Number:          0,
 	}
 	if err = lightning.SetAccount(&lightningAccount); err != nil {
+		if lightning.environment.CanEncryptLightningMnemonic() {
+			if deleteErr := lightning.environment.DeleteLightningEncryptionKey(string(accountCode)); deleteErr != nil {
+				lightning.log.WithError(deleteErr).Warn("Error deleting lightning encryption key after activation failure")
+			}
+		}
 		return err
 	}
 
@@ -149,6 +178,12 @@ func (lightning *Lightning) Deactivate() error {
 		return err
 	}
 
+	if lightning.environment.CanEncryptLightningMnemonic() {
+		if err := lightning.environment.DeleteLightningEncryptionKey(string(account.Code)); err != nil {
+			lightning.log.WithError(err).Warn("Error deleting lightning encryption key")
+		}
+	}
+
 	return nil
 }
 
@@ -172,7 +207,6 @@ func (lightning *Lightning) Balance() (*accounts.Balance, error) {
 		// before returning the balance
 		EnsureSynced: &ensureSynced,
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -201,9 +235,15 @@ func (lightning *Lightning) connect(_ bool) error {
 			return err
 		}
 
+		mnemonic, err := lightning.unsealMnemonic(account)
+		if err != nil {
+			lightning.log.WithError(err).Warn("Error unlocking Lightning mnemonic")
+			return errp.New("Error unlocking Lightning mnemonic from the device")
+		}
+
 		// Construct the seed using mnemonic words or entropy bytes
 		var seed breez_sdk_spark.Seed = breez_sdk_spark.SeedMnemonic{
-			Mnemonic:   account.Mnemonic,
+			Mnemonic:   mnemonic,
 			Passphrase: nil,
 		}
 
@@ -219,7 +259,9 @@ func (lightning *Lightning) connect(_ bool) error {
 		config.PrivateEnabledDefault = true
 		// Set the maximum fee to the fastest network recommended fee at the time of claim
 		// with a leeway of 1 sats/vbyte
-		networkRecommendedInterface := breez_sdk_spark.MaxFee(breez_sdk_spark.MaxFeeNetworkRecommended{LeewaySatPerVbyte: 1})
+		networkRecommendedInterface := breez_sdk_spark.MaxFee(
+			breez_sdk_spark.MaxFeeNetworkRecommended{LeewaySatPerVbyte: 1},
+		)
 		config.MaxDepositClaimFee = &networkRecommendedInterface
 
 		connectRequest := breez_sdk_spark.ConnectRequest{
@@ -250,6 +292,96 @@ func (lightning *Lightning) connect(_ bool) error {
 		lightning.sdkService = sdk
 	}
 	return nil
+}
+
+func (lightning *Lightning) sealMnemonic(accountCode string, mnemonic string) (string, error) {
+	if !lightning.environment.CanEncryptLightningMnemonic() {
+		return mnemonic, nil
+	}
+
+	encryptionKey := make([]byte, 32)
+	if _, err := io.ReadFull(rand.Reader, encryptionKey); err != nil {
+		return "", err
+	}
+
+	sealedMnemonic, err := encryptMnemonic(mnemonic, encryptionKey)
+	if err != nil {
+		return "", err
+	}
+
+	if err := lightning.environment.StoreLightningEncryptionKey(
+		accountCode,
+		base64.StdEncoding.EncodeToString(encryptionKey),
+	); err != nil {
+		return "", err
+	}
+
+	return sealedMnemonic, nil
+}
+
+func (lightning *Lightning) unsealMnemonic(account *config.LightningAccountConfig) (string, error) {
+	if !lightning.environment.CanEncryptLightningMnemonic() {
+		return account.Mnemonic, nil
+	}
+
+	encryptionKeyBase64, err := lightning.environment.LoadLightningEncryptionKey(string(account.Code))
+	if err != nil {
+		return "", err
+	}
+
+	encryptionKey, err := base64.StdEncoding.DecodeString(encryptionKeyBase64)
+	if err != nil {
+		return "", err
+	}
+
+	mnemonic, err := decryptMnemonic(account.Mnemonic, encryptionKey)
+	if err != nil {
+		return "", err
+	}
+
+	return mnemonic, nil
+}
+
+func encryptMnemonic(mnemonic string, encryptionKey []byte) (string, error) {
+	block, err := aes.NewCipher(encryptionKey)
+	if err != nil {
+		return "", err
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", err
+	}
+	ciphertext := gcm.Seal(nil, nonce, []byte(mnemonic), nil)
+	return base64.StdEncoding.EncodeToString(append(nonce, ciphertext...)), nil
+}
+
+func decryptMnemonic(sealedMnemonic string, encryptionKey []byte) (string, error) {
+	rawCiphertext, err := base64.StdEncoding.DecodeString(sealedMnemonic)
+	if err != nil {
+		return "", err
+	}
+	block, err := aes.NewCipher(encryptionKey)
+	if err != nil {
+		return "", err
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+	if len(rawCiphertext) < gcm.NonceSize() {
+		return "", errp.New("ciphertext too short")
+	}
+	nonce := rawCiphertext[:gcm.NonceSize()]
+	ciphertext := rawCiphertext[gcm.NonceSize():]
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return "", err
+	}
+	return string(plaintext), nil
 }
 
 func (lightning *Lightning) getBreezApiKey() (*string, error) {
