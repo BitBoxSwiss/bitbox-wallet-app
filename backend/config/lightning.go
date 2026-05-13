@@ -9,8 +9,8 @@ import (
 
 // LightningAccountConfig is the configuration of a single Lightning account.
 type LightningAccountConfig struct {
-	// Mnemonic is the wallet node generated from the device entropy.
-	Mnemonic string `json:"mnemonic"`
+	// Seed is the wallet seed generated from the device entropy.
+	Seed string `json:"seed"`
 	// RootFingerprint is fingerprint of the keystore that generated the entropy.
 	RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
 	// Code is the code of the lightning account.
