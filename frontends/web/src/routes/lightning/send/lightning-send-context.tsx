@@ -3,19 +3,23 @@
 import { ReactNode, createContext, useCallback, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  TPaymentInputType,
+  type TLightningBalance,
+  type TPaymentInputType,
   TPaymentInputTypeVariant,
-  TPreparePaymentResponse,
+  type TPreparePaymentResponse,
   TSdkError,
+  getLightningBalance,
   getParsePaymentInput,
   postPreparePayment,
   postSendPayment,
 } from '@/api/lightning';
+import { useLoad } from '@/hooks/api';
 
 type TSendStep = 'select-invoice' | 'edit-invoice' | 'preparing' | 'confirm' | 'sending' | 'success';
 
 type TLightningSendContext = {
   customAmount?: number;
+  customAmountError?: string;
   inputError?: string;
   paymentDetails?: TPaymentInputType;
   paymentQuote?: TPreparePaymentResponse;
@@ -33,6 +37,11 @@ const isValidCustomAmount = (amount?: number): amount is number => (
   typeof amount === 'number' && Number.isFinite(amount) && Number.isInteger(amount) && amount > 0
 );
 
+export const customAmountExceedsAvailableBalance = (
+  amount: number | undefined,
+  balance: TLightningBalance | undefined,
+): boolean => isValidCustomAmount(amount) && balance !== undefined && amount > balance.availableSat;
+
 const LightningSendContext = createContext<TLightningSendContext | null>(null);
 
 type TProps = {
@@ -41,12 +50,16 @@ type TProps = {
 
 export const LightningSendProvider = ({ children }: TProps) => {
   const { t } = useTranslation();
+  const lightningBalance = useLoad(getLightningBalance);
   const [step, setStep] = useState<TSendStep>('select-invoice');
   const [paymentDetails, setPaymentDetails] = useState<TPaymentInputType>();
   const [paymentQuote, setPaymentQuote] = useState<TPreparePaymentResponse>();
   const [customAmount, setCustomAmount] = useState<number>();
   const [inputError, setInputError] = useState<string>();
   const [sendError, setSendError] = useState<string>();
+  const customAmountError = customAmountExceedsAvailableBalance(customAmount, lightningBalance)
+    ? t('error.lightningInsufficientFunds')
+    : undefined;
 
   const toErrorMessage = useCallback((error: unknown): string => {
     if (error instanceof TSdkError && error.code) {
@@ -70,6 +83,11 @@ export const LightningSendProvider = ({ children }: TProps) => {
     setStep('edit-invoice');
   }, []);
 
+  const updateCustomAmount = useCallback((amount?: number) => {
+    setCustomAmount(amount);
+    setSendError(undefined);
+  }, []);
+
   const preparePayment = useCallback(async (
     nextPaymentDetails?: TPaymentInputType,
     nextCustomAmount?: number,
@@ -81,6 +99,10 @@ export const LightningSendProvider = ({ children }: TProps) => {
     }
     if (!currentPaymentDetails.invoice.amountSat && !isValidCustomAmount(nextCustomAmount)) {
       setSendError(t('send.error.invalidAmount'));
+      return;
+    }
+    if (!currentPaymentDetails.invoice.amountSat && customAmountExceedsAvailableBalance(nextCustomAmount, lightningBalance)) {
+      setSendError(t('error.lightningInsufficientFunds'));
       return;
     }
 
@@ -99,7 +121,7 @@ export const LightningSendProvider = ({ children }: TProps) => {
       setPaymentQuote(undefined);
       setSendError(toErrorMessage(error));
     }
-  }, [paymentDetails, toErrorMessage, t]);
+  }, [lightningBalance, paymentDetails, toErrorMessage, t]);
 
   const parsePaymentInput = useCallback(async (rawInput: string) => {
     setInputError(undefined);
@@ -162,6 +184,7 @@ export const LightningSendProvider = ({ children }: TProps) => {
   return (
     <LightningSendContext.Provider value={{
       customAmount,
+      customAmountError,
       inputError,
       paymentDetails,
       paymentQuote,
@@ -170,7 +193,7 @@ export const LightningSendProvider = ({ children }: TProps) => {
       returnToEditInvoice,
       sendError,
       sendPayment,
-      setCustomAmount,
+      setCustomAmount: updateCustomAmount,
       step,
       parsePaymentInput,
     }}>

@@ -100,13 +100,21 @@ func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
 		Conversions: coin.Conversions(balance.Available(), btcCoin, false, lightning.ratesUpdater),
 	}
 
+	type lightningBalanceResponse struct {
+		accounts.FormattedAccountBalance
+		AvailableSat uint64 `json:"availableSat"`
+	}
+
 	return responseDto{
 		Success: true,
-		Data: accounts.FormattedAccountBalance{
-			HasAvailable: balance.Available().BigInt().Sign() > 0,
-			Available:    formattedAvailableAmount,
-			HasIncoming:  false,
-			Incoming:     coin.FormattedAmountWithConversions{},
+		Data: lightningBalanceResponse{
+			FormattedAccountBalance: accounts.FormattedAccountBalance{
+				HasAvailable: balance.Available().BigInt().Sign() > 0,
+				Available:    formattedAvailableAmount,
+				HasIncoming:  false,
+				Incoming:     coin.FormattedAmountWithConversions{},
+			},
+			AvailableSat: balance.Available().BigInt().Uint64(),
 		},
 	}
 }

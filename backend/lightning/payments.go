@@ -3,15 +3,20 @@
 package lightning
 
 import (
+	"errors"
 	"math/big"
 	"strconv"
+	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 )
 
-const errPaymentApprovalRequired errp.ErrorCode = "paymentApprovalRequired"
+const (
+	errPaymentApprovalRequired    errp.ErrorCode = "paymentApprovalRequired"
+	errLightningInsufficientFunds errp.ErrorCode = "lightningInsufficientFunds"
+)
 
 type lightningInvoice struct {
 	Bolt11      string  `json:"bolt11"`
@@ -230,6 +235,27 @@ func checkApprovedPaymentFee(fee uint64, approvedFee uint64) error {
 	return nil
 }
 
+func checkPaymentBalance(fee *paymentFee, balance *accounts.Balance) error {
+	if new(big.Int).SetUint64(fee.TotalDebitSat).Cmp(balance.Available().BigInt()) > 0 {
+		return errLightningInsufficientFunds
+	}
+	return nil
+}
+
+func lightningPaymentError(err error) error {
+	if err == nil {
+		return nil
+	}
+	if errors.Is(err, breez_sdk_spark.ErrSdkErrorInsufficientFunds) {
+		return errp.WithMessage(errLightningInsufficientFunds, err.Error())
+	}
+	// Spark currently wraps insufficient funds as SdkErrorSparkError with this text.
+	if strings.Contains(strings.ToLower(err.Error()), "insufficient funds") {
+		return errp.WithMessage(errLightningInsufficientFunds, err.Error())
+	}
+	return err
+}
+
 // PreparePayment computes the fee quote for the provided payment request.
 func (lightning *Lightning) PreparePayment(paymentInvoice string, amountSat *uint64) (*paymentFee, error) {
 	if err := lightning.CheckActive(); err != nil {
@@ -237,11 +263,18 @@ func (lightning *Lightning) PreparePayment(paymentInvoice string, amountSat *uin
 	}
 	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareSendPaymentRequest(paymentInvoice, amountSat))
 	if err != nil {
-		return nil, err
+		return nil, lightningPaymentError(err)
 	}
 
 	fee, err := preparedPaymentFee(prepareResponse)
 	if err != nil {
+		return nil, err
+	}
+	balance, err := lightning.Balance()
+	if err != nil {
+		return nil, err
+	}
+	if err := checkPaymentBalance(fee, balance); err != nil {
 		return nil, err
 	}
 	lightning.log.Printf("Lightning Fee: %v sats", fee.FeeSat)
@@ -260,11 +293,18 @@ func (lightning *Lightning) SendPayment(paymentInvoice string, amount *uint64, a
 
 	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareSendPaymentRequest(paymentInvoice, amount))
 	if err != nil {
-		return err
+		return lightningPaymentError(err)
 	}
 
 	fee, err := preparedPaymentFee(prepareResponse)
 	if err != nil {
+		return err
+	}
+	balance, err := lightning.Balance()
+	if err != nil {
+		return err
+	}
+	if err := checkPaymentBalance(fee, balance); err != nil {
 		return err
 	}
 	if err := checkApprovedPaymentFee(fee.FeeSat, approvedFee); err != nil {
@@ -282,7 +322,7 @@ func (lightning *Lightning) SendPayment(paymentInvoice string, amount *uint64, a
 	_, err = lightning.sdkService.SendPayment(payRequest)
 
 	if err != nil {
-		return err
+		return lightningPaymentError(err)
 	}
 	return nil
 }

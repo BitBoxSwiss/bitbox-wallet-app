@@ -7,11 +7,13 @@ import { Button, Input } from '@/components/forms';
 import { Column, Grid } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { useLightningSendContext } from '../lightning-send-context';
+import styles from './edit-invoice-step.module.css';
 
 export const EditInvoiceStep = () => {
   const { t } = useTranslation();
   const {
     customAmount,
+    customAmountError,
     paymentDetails,
     preparePayment,
     resetPayment,
@@ -22,6 +24,10 @@ export const EditInvoiceStep = () => {
     return null;
   }
 
+  const amountLabel = customAmountError ? (
+    <span className={styles.errorLabel}>{customAmountError}</span>
+  ) : t('lightning.receive.amountSats.label');
+
   return (
     <View fitContent minHeight="100%">
       <ViewContent>
@@ -30,7 +36,7 @@ export const EditInvoiceStep = () => {
             <Input
               type="number"
               min="0"
-              label={t('lightning.receive.amountSats.label')}
+              label={amountLabel}
               placeholder={t('lightning.receive.amountSats.placeholder')}
               id="amountSatsInput"
               onInput={(event: ChangeEvent<HTMLInputElement>) => setCustomAmount(event.target.valueAsNumber)}
@@ -53,7 +59,7 @@ export const EditInvoiceStep = () => {
         <Button
           primary
           onClick={preparePayment}
-          disabled={!customAmount}>
+          disabled={!customAmount || !!customAmountError}>
           {t('button.continue')}
         </Button>
         <Button secondary onClick={resetPayment}>
