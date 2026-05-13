@@ -1,0 +1,20 @@
+.navLabel {
+  margin: 0 0 var(--space-quarter);
+  font-size: 14px;
+  color: var(--color-secondary);
+}
+
+.scriptTypes {
+  margin-top: var(--space-half);
+}
+
+.scriptTypes label {
+  flex-direction: row !important;
+  align-items: baseline !important;
+}
+
+.scriptTypeHint {
+  margin-left: var(--space-quarter);
+  font-size: 14px;
+  color: var(--color-secondary);
+}

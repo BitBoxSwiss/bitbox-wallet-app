@@ -1,186 +1,104 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@/contexts/AppContext';
-import { useLoad } from '@/hooks/api';
-import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
 import { setAccountReceiveScriptType } from '@/api/backend';
-import { alertUser } from '@/components/alert/Alert';
-import { getScriptName, isEthereumBased } from '@/routes/account/utils';
-import { CopyableInput } from '@/components/copy/Copy';
-import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
-import { Button, Radio } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { Header, Main } from '@/components/layout';
+import { View, ViewContent } from '@/components/view/view';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
+import { Button } from '@/components/forms';
 import { Message } from '@/components/message/message';
-import { ReceiveGuide } from './components/guide';
-import { Header } from '@/components/layout';
-import { QRCode } from '@/components/qrcode/qrcode';
-import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
-import { connectKeystore } from '@/api/keystores';
+import { alertUser } from '@/components/alert/Alert';
+import { findAccount, getAddressURIPrefix } from '@/routes/account/utils';
+import {
+  handleVerifyAddressWithDeviceResult,
+  verifyAddressWithDevice,
+} from '@/routes/account/components/verify-address';
+import { useReceiveAddresses } from './components/use-receive-addresses';
+import { AddressCard } from './components/address-card';
+import { VerifyPrompt } from './components/verify-prompt';
+import { MoreOptions } from './components/more-options';
+import { AddressCycler } from './components/address-cycler';
+import { ScriptTypePicker } from './components/script-type-picker';
 import style from './receive.module.css';
 
-type TProps = {
+type TWrapperProps = {
   accounts: accountApi.TAccount[];
   code: accountApi.AccountCode;
 };
 
-type TAddressTypeDialogProps = {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  preselectedAddressType: number;
-  availableScriptTypes?: accountApi.ScriptType[];
-  insured: boolean;
-  handleAddressTypeChosen: (addressType: number) => void | Promise<void>;
+type TProps = {
+  account: accountApi.TAccount;
 };
 
-const AddressTypeDialog = ({
-  open,
-  setOpen,
-  preselectedAddressType,
-  availableScriptTypes,
-  insured,
-  handleAddressTypeChosen,
-}: TAddressTypeDialogProps) => {
-  const { t } = useTranslation();
-  const [addressType, setAddressType] = useState<number>(preselectedAddressType);
+type TVerifyState = 'idle' | 'connecting' | 'verifying' | 'verified' | 'error';
 
-  useEffect(() => {
-    setAddressType(preselectedAddressType);
-  }, [open, preselectedAddressType]);
 
-  return (
-    <Dialog open={open} onClose={() => setOpen(false)} medium title={t('receive.changeScriptType')} >
-      <form
-        onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-          e.preventDefault();
-          handleAddressTypeChosen(addressType);
-        }}
-        style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
-      >
-        <DialogScrollContent>
-          {availableScriptTypes && availableScriptTypes.map((scriptType, i) => (
-            <div key={scriptType}>
-              <Radio
-                checked={addressType === i}
-                id={scriptType}
-                name="scriptType"
-                onChange={() => setAddressType(i)}
-                title={getScriptName(scriptType)}>
-                {t(`receive.scriptType.${scriptType}`)}
-              </Radio>
-              {scriptType === 'p2tr' && addressType === i && (
-                <Message type="warning" className={style.messageContainer}>
-                  {t('receive.taprootWarning')}
-                </Message>
-              )}
-            </div>
-          ))}
-          {insured && (
-            <Message type="warning">
-              {t('receive.bitsuranceWarning')}
-            </Message>
-          )}
-        </DialogScrollContent>
-        <DialogButtons>
-          <Button primary type="submit">
-            {t('button.done')}
-          </Button>
-        </DialogButtons>
-      </form>
-    </Dialog>
-  );
-};
-
-// For BTC/LTC: all possible address types we want to offer to the user, ordered by priority (first one is default).
-// Types that are not available in the addresses delivered by the backend should be ignored.
-const scriptTypes: accountApi.ScriptType[] = ['p2wpkh', 'p2tr', 'p2wpkh-p2sh'];
-
-// Find index in list of receive addresses that matches the given script type, or -1 if not found.
-const getIndexOfMatchingScriptType = (
-  receiveAddresses: accountApi.TReceiveAddressList[],
-  scriptType: accountApi.ScriptType
-): number => {
-  if (!receiveAddresses) {
-    return -1;
+export const Receive = ({ accounts, code }: TWrapperProps) => {
+  const account = findAccount(accounts, code);
+  if (!account) {
+    return null;
   }
-  return receiveAddresses.findIndex(addrs => addrs.scriptType !== null && scriptType === addrs.scriptType);
+  return <ReceiveInner account={account} />;
 };
 
-const getAvailableScriptTypes = (
-  receiveAddresses: accountApi.TReceiveAddressList[],
-): accountApi.ScriptType[] => {
-  return scriptTypes.filter(scriptType => getIndexOfMatchingScriptType(receiveAddresses, scriptType) >= 0);
-};
-
-const getReceiveScriptTypeIndex = (
-  availableScriptTypes: accountApi.ScriptType[],
-  receiveScriptType?: accountApi.ScriptType,
-): number => {
-  if (!receiveScriptType) {
-    return 0;
-  }
-  const scriptTypeIndex = availableScriptTypes.findIndex(scriptType => scriptType === receiveScriptType);
-  return scriptTypeIndex >= 0 ? scriptTypeIndex : 0;
-};
-
-export const Receive = ({
-  accounts,
-  code,
-}: TProps) => {
+const ReceiveInner = ({ account }: TProps) => {
   const { t } = useTranslation();
-  const [verifying, setVerifying] = useState<false | 'secure' | 'insecure'>(false);
-  const [activeIndex, setActiveIndex] = useState<number>(0);
-  // index into `availableScriptTypes`, or 0 if none are available.
-  const [addressType, setAddressType] = useState<number>(0);
-  const [addressTypeDialog, setAddressTypeDialog] = useState<boolean>(false);
-  const [currentAddresses, setCurrentAddresses] = useState<accountApi.TReceiveAddress[]>();
-  const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
-
-  const account = accounts.find(({ code: accountCode }) => accountCode === code);
-  const insured = account?.bitsuranceStatus === 'active';
-
-  // first array index: address types. second array index: unused addresses of that address type.
-  const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
-  const availableScriptTypes = receiveAddresses ? getAvailableScriptTypes(receiveAddresses) : undefined;
-  const hasManyScriptTypes = availableScriptTypes && availableScriptTypes.length > 1;
-
+  const navigate = useNavigate();
   const { isTesting } = useContext(AppContext);
+  const { code, receiveScriptType } = account;
+
+  const {
+    availableScriptTypes,
+    addressTypeIndex,
+    setAddressTypeIndex,
+    activeIndex,
+    setActiveIndex,
+    addresses,
+    currentAddress,
+    hasMultipleScriptTypes,
+    hasMultipleAddresses,
+  } = useReceiveAddresses(code, receiveScriptType);
+
+  const [verifyState, setVerifyState] = useState<TVerifyState>('idle');
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
 
   useEffect(() => {
-    if (receiveAddresses) {
-      setAddressType(getReceiveScriptTypeIndex(
-        getAvailableScriptTypes(receiveAddresses),
-        account?.receiveScriptType,
-      ));
-    }
-  }, [account?.receiveScriptType, receiveAddresses]);
+    setVerifyState('idle');
+  }, [code, addressTypeIndex]);
 
-  useEffect(() => {
-    if (receiveAddresses) {
-      const scriptTypes = getAvailableScriptTypes(receiveAddresses);
-      const scriptType = scriptTypes[addressType] as accountApi.ScriptType;
-      let addressIndex = scriptTypes.length > 0 ? getIndexOfMatchingScriptType(receiveAddresses, scriptType) : 0;
-      if (addressIndex === -1) {
-        addressIndex = 0;
-      }
-      setCurrentAddressIndex(addressIndex);
-      setCurrentAddresses(receiveAddresses[addressIndex]?.addresses);
-    }
-  }, [addressType, receiveAddresses]);
-
-  const handleAddressTypeChosen = async (addressType: number) => {
-    const scriptType = availableScriptTypes?.[addressType];
-
-    setActiveIndex(0);
-    setAddressType(addressType);
-    setAddressTypeDialog(false);
-
-    if (!scriptType || account?.receiveScriptType === scriptType) {
+  const handleVerify = useCallback(async () => {
+    if (!currentAddress) {
       return;
     }
+    setVerifyState('connecting');
+    const result = await verifyAddressWithDevice({
+      code,
+      addressID: currentAddress.addressID,
+      rootFingerprint: account.keystore.rootFingerprint,
+      onSecureVerificationStart: () => setVerifyState('verifying'),
+    });
+    handleVerifyAddressWithDeviceResult(result, {
+      onUserAbort: () => setVerifyState('error'),
+      onConnectFailed: () => setVerifyState('error'),
+      onSkipDeviceVerification: () => setVerifyState('verified'),
+      onVerified: () => setVerifyState('verified'),
+      onVerifyFailed: () => setVerifyState('error'),
+    });
+  }, [code, currentAddress, account]);
 
+  const handleScriptTypeChange = useCallback(async (nextIndex: number) => {
+    const scriptType = availableScriptTypes[nextIndex];
+    if (!scriptType || nextIndex === addressTypeIndex) {
+      return;
+    }
+    setAddressTypeIndex(nextIndex);
+    if (receiveScriptType === scriptType) {
+      return;
+    }
     try {
       const response = await setAccountReceiveScriptType(code, scriptType);
       if (!response.success) {
@@ -189,198 +107,82 @@ export const Receive = ({
     } catch (err) {
       console.error('Failed to persist receive script type', err);
     }
-  };
+  }, [availableScriptTypes, addressTypeIndex, setAddressTypeIndex, receiveScriptType, code, t]);
 
-  const verifyAddress = async (addressesIndex: number) => {
-    if (!receiveAddresses || account === undefined) {
-      return;
-    }
-    const connectResult = await connectKeystore(account.keystore.rootFingerprint);
-    if (!connectResult.success) {
-      return;
-    }
-
-    const hasSecureOutput = await accountApi.hasSecureOutput(code)();
-    if (!hasSecureOutput.hasSecureOutput) {
-      setVerifying('insecure');
-      // For the software keystore, the dialog is dismissed manually.
-      return;
-    }
-
-    // For devices with a display, the dialog is dismissed by tapping the device.
-    setVerifying('secure');
-    try {
-      const addressesAtIndex = receiveAddresses[addressesIndex] as accountApi.TReceiveAddressList;
-      const address = addressesAtIndex.addresses[activeIndex] as accountApi.TReceiveAddress;
-      await accountApi.verifyAddress(code, address.addressID);
-    } finally {
-      setVerifying(false);
-    }
-  };
-
-  const previous = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    if (!verifying && activeIndex > 0) {
-      setActiveIndex(activeIndex - 1);
-    }
-  };
-
-  const next = (e: React.SyntheticEvent, numAddresses: number) => {
-    e.preventDefault();
-    if (!verifying && activeIndex < numAddresses - 1) {
-      setActiveIndex(activeIndex + 1);
-    }
-  };
-
-  let uriPrefix = '';
-  if (account) {
-    if (account.coinCode === 'btc' || account.coinCode === 'tbtc') {
-      uriPrefix = 'bitcoin:';
-    } else if (account.coinCode === 'ltc' || account.coinCode === 'tltc') {
-      uriPrefix = 'litecoin:';
-    }
-  }
-
-  const currentAddress = currentAddresses?.[activeIndex];
-  const address = currentAddress?.address || '';
-  const displayAddress = currentAddress?.displayAddress ?? '';
-  const displayedMainAddress = verifying ? displayAddress : (address ? address.substring(0, 8) + '...' : '');
+  const uriPrefix = getAddressURIPrefix(account.coinCode);
+  const isVerifying = verifyState === 'verifying';
 
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
-          <div className="content narrow isVerticallyCentered">
-            <div className="box large text-center">
-              { currentAddresses && (
-                <div style={{ position: 'relative' }}>
-                  <div className={style.qrCodeContainer}>
-                    <QRCode data={undefined} />
-                  </div>
-                  <div className={style.labels}>
-                    { currentAddresses.length > 1 && (
-                      <button
-                        className={style.previous}
-                        onClick={previous}>
-                        {(verifying || activeIndex === 0) ? (
-                          <ArrowCirlceLeft />
-                        ) : (
-                          <ArrowCirlceLeftActive title={t('button.previous')} />
-                        )}
-                      </button>
-                    )}
-                    <p className={style.label}>
-                      {t('receive.label')} {currentAddresses.length > 1 ? `(${activeIndex + 1}/${currentAddresses.length})` : ''}
-                    </p>
-                    { currentAddresses.length > 1 && (
-                      <button
-                        className={style.next}
-                        onClick={e => next(e, currentAddresses.length)}>
-                        {(verifying || activeIndex >= currentAddresses.length - 1) ? (
-                          <ArrowCirlceRight />
-                        ) : (
-                          <ArrowCirlceRightActive title={t('button.next')} />
-                        )}
-                      </button>
-                    )}
-                  </div>
-                  <CopyableInput
-                    disabled={true}
-                    value={address}
-                    displayValue={displayedMainAddress}
-                    flexibleHeight
-                  />
-                  { (hasManyScriptTypes || insured) && (
-                    <button
-                      className={style.changeType}
-                      onClick={() => setAddressTypeDialog(true)}>
-                      {t('receive.changeScriptType')}
-                    </button>
+    <Main>
+      <Header hideSidebarToggler title={
+        <>
+          <h2 className="hide-on-small">{t('receive.title', { accountName: account.coinName })}</h2>
+          <MobileHeader
+            onClick={() => navigate(-1)}
+            title={t('receive.title', { accountName: account.coinName })}
+          />
+        </>
+      } />
+      <View>
+        <ViewContent>
+          {currentAddress && addresses && (
+            <div className={style.content}>
+              <div className={style.alwaysVerify}>
+                <Message type="info">
+                  <p className={style.alwaysVerifyTitle}>{t('receive.alwaysVerifyTitle')}</p>
+                  <p className={style.alwaysVerifyBody}>{t('receive.alwaysVerifyBody')}</p>
+                </Message>
+              </div>
+              <AddressCard
+                currentAddress={currentAddress}
+                uriPrefix={uriPrefix}
+                isVerifying={isVerifying}
+              />
+
+              {isVerifying ? (
+                <VerifyPrompt isTesting={isTesting} />
+              ) : (
+                <>
+                  {(hasMultipleAddresses || hasMultipleScriptTypes) && (
+                    <MoreOptions
+                      open={showMoreOptions}
+                      onToggle={() => setShowMoreOptions(prev => !prev)}
+                    >
+                      {hasMultipleAddresses && (
+                        <AddressCycler
+                          addresses={addresses}
+                          activeIndex={activeIndex}
+                          onIndexChange={setActiveIndex}
+                        />
+                      )}
+                      {hasMultipleScriptTypes && (
+                        <ScriptTypePicker
+                          availableScriptTypes={availableScriptTypes}
+                          selectedIndex={addressTypeIndex}
+                          onChange={handleScriptTypeChange}
+                        />
+                      )}
+                    </MoreOptions>
                   )}
 
-                  <AddressTypeDialog
-                    open={addressTypeDialog}
-                    setOpen={setAddressTypeDialog}
-                    preselectedAddressType={addressType}
-                    availableScriptTypes={availableScriptTypes}
-                    insured={insured}
-                    handleAddressTypeChosen={handleAddressTypeChosen}
-                  />
-
-                  <div className="buttons">
+                  <div className={style.actions}>
                     <Button
-                      disabled={verifying !== false}
-                      onClick={() => verifyAddress(currentAddressIndex)}
-                      primary>
+                      secondary
+                      className={style.backButton}
+                      onClick={() => navigate(-1)}
+                    >
+                      {t('button.back')}
+                    </Button>
+                    <Button primary onClick={handleVerify}>
                       {t('receive.verifyBitBox02')}
                     </Button>
-                    <BackButton enableEsc={!addressTypeDialog && !verifying}>
-                      {t('button.back')}
-                    </BackButton>
                   </div>
-                  { verifying && (
-                    <div className={style.hide}></div>
-                  )}
-                  <Dialog
-                    open={!!(account && verifying)}
-                    title={t('receive.verifyBitBox02')}
-                    // disable exit/escape for secure outputs like the BitBox02, where the dialog is
-                    // dimissed by tapping the device
-                    onClose={verifying === 'insecure' ? () => {
-                      setVerifying(false);
-                    } : undefined}
-                    medium centered>
-                    {account && (
-                      <>
-                        {verifying && (
-                          <UseBackButton handler={() => {
-                            if (verifying === 'insecure') {
-                              setVerifying(false);
-                            }
-                            return false;
-                          }} />
-                        )}
-                        <div className="text-center">
-                          { isEthereumBased(account.coinCode) && (
-                            <p>
-                              <strong>
-                                {t('receive.onlyThisCoin.warning', {
-                                  coinName: account.coinName,
-                                })}
-                              </strong><br />
-                              {t('receive.onlyThisCoin.description')}
-                            </p>
-                          )}
-                          <QRCode data={uriPrefix + address} />
-                          <p>{t('receive.verifyInstruction')}</p>
-                        </div>
-                        <div className="m-bottom-half">
-                          <CopyableInput
-                            value={address}
-                            displayValue={displayAddress}
-                            dataTestId="receive-address"
-                            flexibleHeight
-                          />
-                        </div>
-                        {isTesting && (
-                          <Message type="warning">
-                            {t('receive.verifyTestnetWarning')}
-                          </Message>
-                        )}
-                      </>
-                    )}
-                  </Dialog>
-                </div>
+                </>
               )}
             </div>
-          </div>
-        </div>
-      </div>
-      <ReceiveGuide
-        hasMultipleAddresses={currentAddresses ? currentAddresses.length > 1 : false}
-        hasDifferentFormats={receiveAddresses ? receiveAddresses.length > 1 : false}
-      />
-    </div>
+          )}
+        </ViewContent>
+      </View>
+    </Main>
   );
 };

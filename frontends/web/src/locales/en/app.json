@@ -1335,43 +1335,8 @@
       "insurance": "Insurance guide",
       "manageAccount": "Manage accounts guide",
       "manageDevice": "Manage device guide",
-      "receive": "Receive guide",
       "send": "Send guide",
       "walletConnect": "WalletConnect guide"
-    },
-    "receive": {
-      "address": {
-        "text": "You can give the address to others to send you some coins. Just make sure they are sending to the correct address.",
-        "title": "What do I do with an address?"
-      },
-      "addressChange": {
-        "text": "As soon as you transact, a new address is automatically added to the list so there are always 20 addresses available which have never received any coins.",
-        "title": "When do the addresses change?"
-      },
-      "addressFormats": {
-        "text": "By default, the address type is Native Segwit. This address type is widely adopted by other wallets/exchanges and gives you the best fee rates for everyday transactions. However, you may also choose to send to Taproot (Bitcoin only), which is the newest address type, but may not be widely supported yet.",
-        "title": "When do I use “Change address type”?"
-      },
-      "howVerify": {
-        "text": "You can verify addresses directly on the BitBox during the send/receive process.",
-        "title": "How can I verify an address securely?"
-      },
-      "plugout": {
-        "text": "No, once you sent coins to your BitBox address, you do not need to leave your BitBox plugged in. You are free to disconnect your BitBox.",
-        "title": "Do I need to leave my BitBox plugged in while receiving?"
-      },
-      "why20": {
-        "text": "During start-up the app generates addresses derived from your seed to see if they have received funds. As the app can generate an almost infinite number of addresses, it could spend years determining the balance. To limit this search it stops after it sees 20 addresses that have never received funds. This is the \"gap limit\" and 20 is a de-facto standard though the number is arbitrary. These are the 20 addresses you can choose from.",
-        "title": "Why only 20 addresses?"
-      },
-      "whyMany": {
-        "text": "To maintain privacy and security, never hand out the same address twice. If you have used an address, click on on the right arrow for a new address. You can generate up to 20 addresses at a time. Think of addresses like invoice numbers. All addresses are derived from your single backup seed.",
-        "title": "Why so many addresses?"
-      },
-      "whyVerify": {
-        "text": "You shouldn't trust your computer to generate and display authentic addresses. It's big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
-        "title": "Why should I verify the address securely?"
-      }
     },
     "send": {
       "change": {
@@ -1729,17 +1694,26 @@
     }
   },
   "receive": {
-    "bitsuranceWarning": "This is an insured account, meaning it can only receive to Native Segwit. This is so you don't accidently receive to Taproot, which is not insured.",
+    "alwaysVerifyBody": "Be sure the sender has the same address displayed on your BitBox.",
+    "alwaysVerifyTitle": "Always verify address on BitBox",
     "changeScriptType": "Change address type",
-    "label": "Your address",
+    "continueOnBitBox": "Continue on BitBox",
+    "getNewAddress": "Get new address",
+    "moreOptions": "More options",
     "onlyThisCoin": {
       "description": "To receive other tokens, enable them in the settings. If you deposit other tokens, they might not be accessible.",
       "warning": "Make sure to only receive {{coinName}} on this address."
     },
     "qrCodeCopiedMessage": "Copied!",
-    "scriptType": {
-      "p2tr": "Taproot (newest format)",
-      "p2wpkh": "Native Segwit (default)"
+    "scriptTypeHint": {
+      "p2tr": "Newest format",
+      "p2wpkh": "Default",
+      "p2wpkh-p2sh": "Compatibility"
+    },
+    "scriptTypeName": {
+      "p2tr": "Taproot",
+      "p2wpkh": "Native segwit",
+      "p2wpkh-p2sh": "Wrapped segwit"
     },
     "selectAccount": "Select account",
     "taprootWarning": "Note: Taproot is a new Bitcoin feature and is not yet widely adopted. Funds received on Taproot addresses may not be visible in third party watch-only wallets. Many wallets and exchanges are not yet able to send to Taproot addresses.",

@@ -42,6 +42,7 @@
 - Fullscreen region select on mobile
 - Change portfolio chart default to year
 - iOS: live price widget with 24-hour chart
+- Receive screen revamp
 
 ## v4.50.1
 - Fix a bug that would delay showing watch-only accounts.

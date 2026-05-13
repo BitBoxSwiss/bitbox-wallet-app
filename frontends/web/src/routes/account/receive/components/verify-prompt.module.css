@@ -1,0 +1,16 @@
+.bb02 {
+  margin-top: calc(var(--space-default) * 1.5);
+}
+
+.continueText {
+  margin: 0 0 var(--space-three-quarter);
+  font-size: 18px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .bb02Illustration {
+    max-width: min(200px, 70%);
+    margin: auto;
+  }
+}

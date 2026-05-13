@@ -1,0 +1,48 @@
+.card {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-default);
+  padding: var(--space-half);
+  border-radius: var(--radius-xl);
+  background-color: var(--background-secondary);
+}
+
+.qrWrap {
+  flex: 0 0 auto;
+  width: 240px;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: blur(0);
+  transition: filter 280ms ease;
+}
+
+.qrWrap.blurred {
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+.right {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.address {
+  margin: 0;
+  font-family: var(--monospace, monospace);
+  font-size: 14px;
+  overflow-wrap: break-word;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .qrWrap {
+    width: 128px;
+    height: 128px;
+  }
+}
