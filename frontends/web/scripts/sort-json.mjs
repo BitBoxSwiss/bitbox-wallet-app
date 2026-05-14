@@ -27,7 +27,16 @@ import path from 'path';
 const ACCEPTED_EXTENSION = '.json';
 
 const getJsonFiles = (targetPath) => {
-  const stat = fs.statSync(targetPath);
+  let files = [];
+
+  let stat;
+  try {
+    stat = fs.statSync(targetPath);
+  } catch (err) {
+    console.error(`Cannot access path: ${targetPath}`);
+    console.error(err.message);
+    return files;
+  }
 
   if (stat.isFile()) {
     return path.extname(targetPath) === ACCEPTED_EXTENSION
@@ -35,16 +44,36 @@ const getJsonFiles = (targetPath) => {
       : [];
   }
 
-  let files = [];
+  let entries;
+  try {
+    entries = fs.readdirSync(targetPath);
+  } catch (err) {
+    console.error(`Cannot read directory: ${targetPath}`);
+    console.error(err.message);
+    return files;
+  }
 
-  for (const entry of fs.readdirSync(targetPath)) {
+  for (const entry of entries) {
     const fullPath = path.join(targetPath, entry);
-    const entryStat = fs.statSync(fullPath);
 
-    if (entryStat.isDirectory()) {
-      files = files.concat(getJsonFiles(fullPath));
-    } else if (path.extname(fullPath) === ACCEPTED_EXTENSION) {
-      files.push(fullPath);
+    let entryStat;
+    try {
+      entryStat = fs.statSync(fullPath);
+    } catch (err) {
+      console.error(`Cannot stat: ${fullPath}`);
+      console.error(err.message);
+      continue;
+    }
+
+    try {
+      if (entryStat.isDirectory()) {
+        files = files.concat(getJsonFiles(fullPath));
+      } else if (entryStat.isFile() && path.extname(fullPath) === ACCEPTED_EXTENSION) {
+        files.push(fullPath);
+      }
+    } catch (err) {
+      console.error(`Error processing: ${fullPath}`);
+      console.error(err.message);
     }
   }
 
