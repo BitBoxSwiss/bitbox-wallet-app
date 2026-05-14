@@ -2121,7 +2121,24 @@
     "recommended": "Recommended",
     "route": "Swap route",
     "routesPlaceholder": "Routes will appear here after entering an amount",
-    "unexpectedError": "Some unexpected error occurred."
+    "unexpectedError": "Some unexpected error occurred.",
+    "utxoSelection": {
+      "automatic": {
+        "description": "BitBoxApp selects UTXOs automatically. The selected inputs are shown before you confirm the swap.",
+        "disabledDescription": "BitBoxApp selects UTXOs automatically. Manual selection is available when coin control is enabled.",
+        "select": "Select UTXOs",
+        "selectedTitle": "Automatically selected UTXOs",
+        "title": "Automatic UTXO selection"
+      },
+      "manual": {
+        "change": "Change UTXOs",
+        "clear": "Use automatic selection",
+        "description": "{{count}} UTXO selected. Only selected UTXOs are available to fund the swap and network fee.",
+        "selectedTitle": "Manually selected UTXOs",
+        "title": "Manual UTXO selection"
+      },
+      "sendSelectedCoins": "Send selected coins"
+    }
   },
   "transactions": {
     "errorLoadTransactions": "There was an error loading the transactions",

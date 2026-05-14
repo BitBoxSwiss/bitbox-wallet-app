@@ -35,9 +35,9 @@ func mustKeypath(t *testing.T, keypath string) signing.AbsoluteKeypath {
 	return kp
 }
 
-func testAccount(t *testing.T, config *config.Account) *Account {
+func testAccount(t *testing.T) *Account {
 	t.Helper()
-	account := mockAccount(t, config)
+	account := mockAccount(t, nil)
 	account.coin.TstSetMakeBlockchain(func() blockchain.Interface {
 		return &blockchainMocks.BlockchainMock{
 			MockRelayFee: func() (btcutil.Amount, error) {
@@ -137,7 +137,7 @@ func TestGetFeePerKb(t *testing.T) {
 			wantErr: errp.New("Fee could not be estimated"),
 		},
 	}
-	account := testAccount(t, nil)
+	account := testAccount(t)
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			gotAmount, err := account.getFeePerKb(tc.args)
@@ -371,7 +371,7 @@ func TestTxProposal(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			account := testAccount(t, nil)
+			account := testAccount(t)
 			if tc.satoshi {
 				account.coin.SetFormatUnit(coin.BtcUnitSats)
 			}
@@ -387,4 +387,35 @@ func TestTxProposal(t *testing.T) {
 
 		})
 	}
+}
+
+func TestActiveTxProposalSelectedUTXOs(t *testing.T) {
+	account := testAccount(t)
+	selectedOutPoint := *wire.NewOutPoint(&chainhash.Hash{}, 1)
+	_, _, _, err := account.TxProposal(&accounts.TxProposalArgs{
+		RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
+		Amount:           coin.NewSendAmount("0.0001"),
+		FeeTargetCode:    accounts.FeeTargetCodeCustom,
+		CustomFee:        "10",
+		SelectedUTXOs: map[wire.OutPoint]struct{}{
+			selectedOutPoint: {},
+		},
+	})
+	require.NoError(t, err)
+
+	selectedUTXOs := account.ActiveTxProposalSelectedUTXOs()
+	require.Len(t, selectedUTXOs, 1)
+	require.Equal(t, selectedOutPoint.String(), selectedUTXOs[0].OutPoint)
+	require.NotEmpty(t, selectedUTXOs[0].Address)
+}
+
+func TestSelectedUTXOsAmount(t *testing.T) {
+	account := testAccount(t)
+	selectedOutPoint := *wire.NewOutPoint(&chainhash.Hash{}, 1)
+
+	amount, err := account.SelectedUTXOsAmount(map[wire.OutPoint]struct{}{
+		selectedOutPoint: {},
+	})
+	require.NoError(t, err)
+	require.Equal(t, coin.NewAmountFromInt64(1000000), amount)
 }

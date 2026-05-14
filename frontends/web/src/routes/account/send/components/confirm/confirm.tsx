@@ -11,22 +11,8 @@ import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
 import { FiatValue } from '@/components/amount/fiat-value';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { SelectedUTXOs } from './selected-utxos';
 import style from './confirm.module.css';
-
-type TUTXOsByAddress = {
-  [address: string]: string[];
-};
-
-const groupUTXOsByAddress = (selectedUTXOs: TSelectedUTXOs): TUTXOsByAddress => {
-  const utxosByAddress: TUTXOsByAddress = {};
-  for (const [outpoint, address] of Object.entries(selectedUTXOs)) {
-    if (!utxosByAddress[address]) {
-      utxosByAddress[address] = [];
-    }
-    utxosByAddress[address].push(outpoint);
-  }
-  return utxosByAddress;
-};
 
 type TransactionDetails = {
   selectedReceiverAccountNumber?: number;
@@ -155,25 +141,7 @@ export const ConfirmSend = ({
           {/* Selected UTXOs grouped by address */}
           { hasSelectedUTXOs && (
             <Column col="2" className={style.confirmItem}>
-              <span className={style.label}>
-                {t('send.confirm.selected-coins')}
-              </span>
-              <div>
-                { Object.entries(groupUTXOsByAddress(selectedUTXOs)).map(([address, outpoints]) => (
-                  <div key={address} className={style.addressGroup}>
-                    <div className={style.address}>
-                      {address}
-                    </div>
-                    <ul>
-                      {outpoints.map((outpoint) => (
-                        <li key={outpoint} className={style.valueOriginal}>
-                          {outpoint}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )) }
-              </div>
+              <SelectedUTXOs selectedUTXOs={selectedUTXOs} />
             </Column>
           )}
 

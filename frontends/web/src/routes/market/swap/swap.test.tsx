@@ -40,6 +40,20 @@ vi.mock('./components/swap-confirm', () => ({
 vi.mock('./components/swap-result', () => ({
   SwapResult: () => null,
 }));
+vi.mock('@/routes/account/send/coin-control', () => ({
+  CoinControl: ({
+    onSelectedUTXOsChange,
+  }: {
+    onSelectedUTXOsChange: (selectedUTXOs: Record<string, string>) => void;
+  }) => (
+    <button
+      type="button"
+      onClick={() => onSelectedUTXOsChange({ 'txid:0': 'bc1qaddress' })}
+    >
+      Coin control
+    </button>
+  ),
+}));
 vi.mock('./components/input-with-account-selector', () => ({
   InputWithAccountSelector: ({
     id,
@@ -70,6 +84,7 @@ vi.mock('@/api/account', async (importOriginal) => {
   return {
     ...actual,
     getBalance: vi.fn(),
+    getUTXOsAmount: vi.fn(),
     hasSwapPaymentRequest: vi.fn(),
     proposeTx: vi.fn(),
     sendTx: vi.fn(),
@@ -195,6 +210,15 @@ describe('routes/market/swap', () => {
     });
 
     vi.mocked(accountApi.getBalance).mockResolvedValue({ success: false });
+    vi.mocked(accountApi.getUTXOsAmount).mockResolvedValue({
+      success: true,
+      amount: {
+        amount: '0.5',
+        conversions: {},
+        estimated: false,
+        unit: 'BTC',
+      },
+    });
     vi.mocked(coinsApi.parseExternalBtcAmount).mockResolvedValue({ success: false, amount: '' });
     vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
       success: true,
@@ -433,5 +457,79 @@ describe('routes/market/swap', () => {
 
     expect(swapButton).toBeDisabled();
     expect(screen.queryByText('THORChain + Mayachain')).not.toBeInTheDocument();
+  });
+
+  it('prefills sell amount from selected UTXOs when send selected coins is checked', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[sellAccount, buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.click(screen.getByRole('button', { name: 'Coin control' }));
+
+    await waitFor(() => {
+      expect(accountApi.getUTXOsAmount).toHaveBeenCalledWith('btc-account', ['txid:0']);
+    });
+
+    await user.click(await screen.findByLabelText('Send selected coins'));
+
+    expect(screen.getByTestId('swapSendAmount')).toHaveTextContent('0.5');
+    await waitFor(() => {
+      expect(swapApi.getSwapQuote).toHaveBeenCalledWith({
+        buyCoinCode: 'eth',
+        sellAccountCode: 'btc-account',
+        sellAmount: '0.5',
+        sellCoinCode: 'btc',
+      });
+    });
+  });
+
+  it('restores manual sell amount when send selected coins is unchecked', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[sellAccount, buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1.2');
+    await user.click(screen.getByRole('button', { name: 'Coin control' }));
+    const sendSelectedCoins = await screen.findByLabelText('Send selected coins');
+
+    await user.click(sendSelectedCoins);
+    expect(screen.getByTestId('swapSendAmount')).toHaveTextContent('0.5');
+
+    await user.click(sendSelectedCoins);
+    expect(await screen.findByLabelText('swapSendAmount')).toHaveValue('1.2');
   });
 });

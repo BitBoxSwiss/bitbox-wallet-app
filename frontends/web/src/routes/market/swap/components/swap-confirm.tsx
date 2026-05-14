@@ -10,19 +10,25 @@ import { PointToBitBox02 } from '@/components/icon';
 import { Column, Grid } from '@/components/layout';
 import { FiatValue } from '@/components/amount/fiat-value';
 import style from './swap-confirm.module.css';
+import { SelectedUTXOs } from '@/routes/account/send/components/confirm/selected-utxos';
+import type { TSelectedUTXOs } from '@/routes/account/send/utxos';
 
 type TProps = {
   isConfirming: boolean;
   expectedOutput: TAmountWithConversions;
   feeAmount: TAmountWithConversions;
+  selectedUTXOs?: TSelectedUTXOs;
   sellAmount: TAmountWithConversions;
+  utxoSelectionMode?: 'automatic' | 'manual';
 };
 
 export const ConfirmSwap = ({
   isConfirming,
   expectedOutput,
   feeAmount,
+  selectedUTXOs,
   sellAmount,
+  utxoSelectionMode,
 }: TProps) => {
   const { t } = useTranslation();
   const isSmall = useMediaQuery('(max-width: 320px)');
@@ -73,6 +79,14 @@ export const ConfirmSwap = ({
               enableRotateUnit
             />
           </Column>
+          {utxoSelectionMode && selectedUTXOs && Object.keys(selectedUTXOs).length > 0 && (
+            <Column col="2" textAlign="start" className={style.confirmItem}>
+              <SelectedUTXOs
+                selectedUTXOs={selectedUTXOs}
+                title={t(`swap.utxoSelection.${utxoSelectionMode}.selectedTitle`)}
+              />
+            </Column>
+          )}
           <Column col="2" textAlign="start" className={style.label}>
             {t('generic.receiveWithoutCoinCode')}
           </Column>

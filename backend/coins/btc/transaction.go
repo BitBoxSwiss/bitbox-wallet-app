@@ -277,3 +277,31 @@ func (account *Account) TxProposal(
 		coin.NewAmountFromInt64(int64(txProposal.Fee)),
 		coin.NewAmountFromInt64(int64(txProposal.Total())), nil
 }
+
+// SelectedUTXO describes an input selected for the active transaction proposal.
+type SelectedUTXO struct {
+	OutPoint string `json:"outPoint"`
+	Address  string `json:"address"`
+}
+
+// ActiveTxProposalSelectedUTXOs returns the selected inputs of the active transaction proposal.
+func (account *Account) ActiveTxProposalSelectedUTXOs() []SelectedUTXO {
+	defer account.activeTxProposalLock.RLock()()
+	txProposal := account.activeTxProposal
+	if txProposal == nil {
+		return nil
+	}
+	selectedUTXOs := make([]SelectedUTXO, 0, len(txProposal.Psbt.UnsignedTx.TxIn))
+	for _, txIn := range txProposal.Psbt.UnsignedTx.TxIn {
+		utxo := txProposal.PreviousOutputs[txIn.PreviousOutPoint]
+		address := ""
+		if utxo.Address != nil {
+			address = utxo.Address.EncodeForHumans()
+		}
+		selectedUTXOs = append(selectedUTXOs, SelectedUTXO{
+			OutPoint: txIn.PreviousOutPoint.String(),
+			Address:  address,
+		})
+	}
+	return selectedUTXOs
+}

@@ -16,17 +16,6 @@
   color: var(--color-secondary);
 }
 
-.confirmItem ul {
-  list-style-type: square;
-  margin: 0;
-  margin-top: var(--space-quarter);
-  padding-left: var(--space-half);
-}
-
-.addressGroup {
-  margin-top: var(--space-quarter);
-}
-
 .unit {
   color: var(--color-secondary);
   font-size: var(--size-default);
