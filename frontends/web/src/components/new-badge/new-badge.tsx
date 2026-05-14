@@ -4,8 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFrontendBadgeConfigKey } from '@/api/config';
 import { Badge } from '@/components/badge/badge';
-import { useLoad } from '@/hooks/api';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 
 type TProps = {
   className?: string;
@@ -27,7 +26,7 @@ export const NewBadge = ({
   type = 'new',
 }: TProps) => {
   const { t } = useTranslation();
-  const config = useLoad(getConfig);
+  const { config, setConfig } = useConfig();
   const [showBadge, setShowBadge] = useState<boolean | undefined>(undefined);
 
   const persistAsSeen = useCallback(() => {
@@ -36,7 +35,7 @@ export const NewBadge = ({
     }
     setShowBadge(false);
     setConfig({ frontend: { [configKey]: true } });
-  }, [configKey, showBadge]);
+  }, [configKey, setConfig, showBadge]);
 
   useEffect(() => {
     if (!config) {
