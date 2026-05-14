@@ -2,27 +2,25 @@
 
 import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TConfig, TFrontendConfig } from '@/api/config';
+import type { TFrontendConfig } from '@/api/config';
 import { Toggle } from '@/components/toggle/toggle';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { useConfig } from '@/contexts/ConfigProvider';
 
 type TProps = {
   frontendConfig?: TFrontendConfig;
-  onChangeConfig: (config: TConfig) => void;
 };
 
-export const EnableCustomFeesToggleSetting = ({ frontendConfig, onChangeConfig }: TProps) => {
+export const EnableCustomFeesToggleSetting = ({ frontendConfig }: TProps) => {
   const { t } = useTranslation();
   const { setConfig } = useConfig();
 
   const handleToggleFee = async (e: ChangeEvent<HTMLInputElement>) => {
-    const config = await setConfig({
+    await setConfig({
       frontend: {
         expertFee: e.target.checked
       },
     });
-    onChangeConfig(config);
   };
 
   return (

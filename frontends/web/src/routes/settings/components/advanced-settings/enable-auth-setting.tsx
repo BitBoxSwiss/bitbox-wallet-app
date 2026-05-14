@@ -2,7 +2,7 @@
 
 import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TBackendConfig, TConfig } from '@/api/config';
+import type { TBackendConfig } from '@/api/config';
 import { Toggle } from '@/components/toggle/toggle';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { useConfig } from '@/contexts/ConfigProvider';
@@ -11,10 +11,9 @@ import { runningInAndroid, runningInIOS } from '@/utils/env';
 
 type TProps = {
   backendConfig?: TBackendConfig;
-  onChangeConfig: (config: TConfig) => void;
 };
 
-export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => {
+export const EnableAuthSetting = ({ backendConfig }: TProps) => {
   const { t } = useTranslation();
   const { setConfig } = useConfig();
 
@@ -39,11 +38,10 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
   };
 
   const updateConfig = async (auth: boolean) => {
-    const config = await setConfig({
+    await setConfig({
       backend: { authentication: auth },
     });
     onAuthSettingChanged();
-    onChangeConfig(config);
   };
 
   if (!runningInAndroid() && !runningInIOS()) {

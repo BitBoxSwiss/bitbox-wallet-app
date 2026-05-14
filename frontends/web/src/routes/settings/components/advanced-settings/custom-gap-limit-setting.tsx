@@ -6,16 +6,15 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button, Input } from '@/components/forms';
 import { useConfig } from '@/contexts/ConfigProvider';
-import type { TBackendConfig, TConfig } from '@/api/config';
+import type { TBackendConfig } from '@/api/config';
 import { Message } from '@/components/message/message';
 import { useMediaQuery } from '@/hooks/mediaquery';
 
 type TProps = {
   backendConfig?: TBackendConfig;
-  onChangeConfig: (config: TConfig) => void;
 };
 
-export const CustomGapLimitSettings = ({ backendConfig, onChangeConfig }: TProps) => {
+export const CustomGapLimitSettings = ({ backendConfig }: TProps) => {
   const { t } = useTranslation();
   const { setConfig } = useConfig();
   const [showDialog, setShowDialog] = useState(false);
@@ -37,14 +36,13 @@ export const CustomGapLimitSettings = ({ backendConfig, onChangeConfig }: TProps
   }, [backendConfig]);
 
   const handleSave = async () => {
-    const config = await setConfig({
+    await setConfig({
       backend: {
         ...backendConfig,
         gapLimitReceive: Number(gapLimitReceive),
         gapLimitChange: Number(gapLimitChange),
       },
     });
-    onChangeConfig(config);
     setShowDialog(false);
   };
 

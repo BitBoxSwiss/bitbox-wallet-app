@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TConfig, TProxyConfig } from '@/api/config';
+import type { TProxyConfig } from '@/api/config';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { TorProxyDialog } from './tor-proxy-dialog';
 import { Message } from '@/components/message/message';
@@ -10,10 +10,9 @@ import { runningInIOS } from '@/utils/env';
 import styles from './enable-tor-proxy-setting.module.css';
 type TProps = {
   proxyConfig?: TProxyConfig;
-  onChangeConfig: (config: TConfig) => void;
 };
 
-export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) => {
+export const EnableTorProxySetting = ({ proxyConfig }: TProps) => {
   const { t } = useTranslation();
   const [showTorProxyDialog, setShowTorProxyDialog] = useState(false);
   const [showRestartMessage, setShowRestartMessage] = useState(false);
@@ -48,7 +47,6 @@ export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) =
         open={showTorProxyDialog}
         proxyConfig={proxyConfig}
         onCloseDialog={() => setShowTorProxyDialog(false)}
-        onChangeConfig={onChangeConfig}
         handleShowRestartMessage={setShowRestartMessage}
       />
     </>

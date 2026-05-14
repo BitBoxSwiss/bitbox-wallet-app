@@ -23,7 +23,7 @@ import { GlobalBanners } from '@/components/banners';
 
 export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
-  const { config, setConfig } = useConfig();
+  const { config } = useConfig();
 
   const deviceIDs = Object.keys(devices);
 
@@ -49,12 +49,12 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
-                <EnableCustomFeesToggleSetting frontendConfig={config?.frontend} onChangeConfig={setConfig} />
-                <EnableCoinControlSetting frontendConfig={config?.frontend} onChangeConfig={setConfig} />
-                <EnableAuthSetting backendConfig={config?.backend} onChangeConfig={setConfig} />
-                <EnableTorProxySetting proxyConfig={config?.backend?.proxy} onChangeConfig={setConfig} />
-                <RestartInTestnetSetting onChangeConfig={setConfig} />
-                <CustomGapLimitSettings backendConfig={config?.backend} onChangeConfig={setConfig} />
+                <EnableCustomFeesToggleSetting frontendConfig={config?.frontend} />
+                <EnableCoinControlSetting frontendConfig={config?.frontend} />
+                <EnableAuthSetting backendConfig={config?.backend} />
+                <EnableTorProxySetting proxyConfig={config?.backend?.proxy} />
+                <RestartInTestnetSetting />
+                <CustomGapLimitSettings backendConfig={config?.backend} />
                 <UnlockSoftwareKeystore deviceIDs={deviceIDs}/>
                 <ConnectFullNodeSetting />
                 <ExportLogSetting />

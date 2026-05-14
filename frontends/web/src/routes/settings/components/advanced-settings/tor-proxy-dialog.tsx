@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import type { TConfig, TProxyConfig } from '@/api/config';
+import type { TProxyConfig } from '@/api/config';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Toggle } from '@/components/toggle/toggle';
@@ -15,11 +15,10 @@ type TProps = {
   open: boolean;
   proxyConfig?: TProxyConfig;
   onCloseDialog: () => void;
-  onChangeConfig: (config: TConfig) => void;
   handleShowRestartMessage: (show: boolean) => void;
 };
 
-export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfig, handleShowRestartMessage }: TProps) => {
+export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, handleShowRestartMessage }: TProps) => {
   const { setConfig } = useConfig();
   const [proxyAddress, setProxyAddress] = useState<string>();
   const { t } = useTranslation();
@@ -49,11 +48,10 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
   };
 
   const setProxyConfig = async (proxyConfig: TProxyConfig) => {
-    const config = await setConfig({
+    await setConfig({
       backend: { proxy: proxyConfig },
     });
     setProxyAddress(proxyConfig.proxyAddress);
-    onChangeConfig(config);
     handleShowRestartMessage(true);
   };
 

@@ -2,7 +2,6 @@
 
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TConfig } from '@/api/config';
 import { AppContext } from '@/contexts/AppContext';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
@@ -10,11 +9,7 @@ import { View, ViewButtons, ViewHeader } from '@/components/view/view';
 import { Button } from '@/components/forms';
 import { UseBackButton } from '@/hooks/backbutton';
 
-type TProps = {
-  onChangeConfig: (config: TConfig) => void;
-};
-
-export const RestartInTestnetSetting = ({ onChangeConfig }: TProps) => {
+export const RestartInTestnetSetting = () => {
   const { t } = useTranslation();
   const { setConfig } = useConfig();
   const [showRestartMessage, setShowRestartMessage] = useState(false);
@@ -22,23 +17,21 @@ export const RestartInTestnetSetting = ({ onChangeConfig }: TProps) => {
 
   const handleRestart = async () => {
     setShowRestartMessage(true);
-    const config = await setConfig({
+    await setConfig({
       backend: {
         startInTestnet: !isTesting
       },
     });
-    onChangeConfig(config);
   };
 
   const handleReset = async () => {
     setShowRestartMessage(false);
     if (!isTesting) {
-      const config = await setConfig({
+      await setConfig({
         backend: {
           startInTestnet: false
         },
       });
-      onChangeConfig(config);
     }
   };
 
