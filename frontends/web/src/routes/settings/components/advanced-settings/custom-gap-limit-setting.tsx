@@ -6,14 +6,13 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button, Input } from '@/components/forms';
 import { useConfig } from '@/contexts/ConfigProvider';
-import type { TConfig as ApiTConfig } from '@/api/config';
-import type { TBackendConfig } from '@/routes/settings/advanced-settings';
+import type { TBackendConfig, TConfig } from '@/api/config';
 import { Message } from '@/components/message/message';
 import { useMediaQuery } from '@/hooks/mediaquery';
 
 type TProps = {
   backendConfig?: TBackendConfig;
-  onChangeConfig: (config: ApiTConfig) => void;
+  onChangeConfig: (config: TConfig) => void;
 };
 
 export const CustomGapLimitSettings = ({ backendConfig, onChangeConfig }: TProps) => {

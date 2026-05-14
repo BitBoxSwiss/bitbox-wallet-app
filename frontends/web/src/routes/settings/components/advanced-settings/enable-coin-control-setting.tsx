@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, Dispatch } from 'react';
+import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TConfig, TFrontendConfig } from '@/api/config';
 import { Toggle } from '@/components/toggle/toggle';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { TConfig, TFrontendConfig } from '@/routes/settings/advanced-settings';
 import { useConfig } from '@/contexts/ConfigProvider';
 
 type TProps = {
   frontendConfig?: TFrontendConfig;
-  onChangeConfig: Dispatch<TConfig>;
+  onChangeConfig: (config: TConfig) => void;
 };
 
 export const EnableCoinControlSetting = ({ frontendConfig, onChangeConfig }: TProps) => {
@@ -19,9 +19,9 @@ export const EnableCoinControlSetting = ({ frontendConfig, onChangeConfig }: TPr
   const handleToggleFee = async (e: ChangeEvent<HTMLInputElement>) => {
     const config = await setConfig({
       frontend: {
-        'coinControl': e.target.checked
+        coinControl: e.target.checked
       },
-    }) as TConfig;
+    });
     onChangeConfig(config);
   };
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
-import type { TConfig } from '@/api/config';
+import { mockConfig } from '@/test/mock-config';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -17,20 +17,16 @@ const mockedGetConfig = vi.mocked(getConfig);
 
 describe('routes/market/components/markettab', () => {
   beforeEach(() => {
-    mockedGetConfig.mockResolvedValue({
-      backend: {} as TConfig['backend'],
-      frontend: {},
-    });
+    mockedGetConfig.mockResolvedValue(mockConfig());
   });
 
   it('shows the new badge on swap when enabled', async () => {
-    mockedGetConfig.mockResolvedValue({
-      backend: {} as TConfig['backend'],
+    mockedGetConfig.mockResolvedValue(mockConfig({
       frontend: {
         hasSeenOtcMarketTab: true,
         hasSeenSwapMarketTab: false,
       }
-    });
+    }));
 
     render(
       <MarketTab
@@ -44,13 +40,12 @@ describe('routes/market/components/markettab', () => {
   });
 
   it('hides the new badge on swap when disabled', async () => {
-    mockedGetConfig.mockResolvedValue({
-      backend: {} as TConfig['backend'],
+    mockedGetConfig.mockResolvedValue(mockConfig({
       frontend: {
         hasSeenOtcMarketTab: true,
         hasSeenSwapMarketTab: true,
       }
-    });
+    }));
 
     render(
       <MarketTab
@@ -86,13 +81,12 @@ describe('routes/market/components/markettab', () => {
   });
 
   it('shows the new badge on otc when enabled', async () => {
-    mockedGetConfig.mockResolvedValue({
-      backend: {} as TConfig['backend'],
+    mockedGetConfig.mockResolvedValue(mockConfig({
       frontend: {
         hasSeenOtcMarketTab: false,
         hasSeenSwapMarketTab: true,
       }
-    });
+    }));
 
     render(
       <MarketTab

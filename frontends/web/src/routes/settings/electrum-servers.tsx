@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
+import type { TBtcCoinConfigKey } from '@/api/config';
 import type { TElectrumServer } from '@/api/node';
 import { ElectrumAddServer } from './electrum-add-server';
 import { ElectrumServer } from './electrum-server';
@@ -11,7 +12,7 @@ import { Button } from '@/components/forms';
 import style from './electrum.module.css';
 
 type Props = {
-  coin: 'btc' | 'tbtc' | 'ltc' | 'tltc';
+  coin: TBtcCoinConfigKey;
 };
 
 export const ElectrumServers = ({

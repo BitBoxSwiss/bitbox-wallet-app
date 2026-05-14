@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Dispatch, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TProxyConfig } from '@/routes/settings/advanced-settings';
+import type { TConfig, TProxyConfig } from '@/api/config';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { TorProxyDialog } from './tor-proxy-dialog';
 import { Message } from '@/components/message/message';
@@ -10,7 +10,7 @@ import { runningInIOS } from '@/utils/env';
 import styles from './enable-tor-proxy-setting.module.css';
 type TProps = {
   proxyConfig?: TProxyConfig;
-  onChangeConfig: Dispatch<any>;
+  onChangeConfig: (config: TConfig) => void;
 };
 
 export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) => {

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode } from 'react';
+import type { TDismissibleFrontendConfigKey } from '@/api/config';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -15,7 +16,7 @@ type TProps = {
   // used as keyName in the config if dismissing the status should be persisted, so it is not
   // shown again. Use an empty string if it should be dismissible without storing it in the
   // config, so the status will be shown again the next time.
-  dismissibleKey: string;
+  dismissibleKey: TDismissibleFrontendConfigKey | '';
   className?: string;
   children: ReactNode;
 };

@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, Dispatch } from 'react';
+import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TBackendConfig, TConfig } from '@/api/config';
 import { Toggle } from '@/components/toggle/toggle';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { TBackendConfig, TConfig } from '@/routes/settings/advanced-settings';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { onAuthSettingChanged, TAuthEventObject, subscribeAuth, forceAuth } from '@/api/backend';
 import { runningInAndroid, runningInIOS } from '@/utils/env';
 
 type TProps = {
   backendConfig?: TBackendConfig;
-  onChangeConfig: Dispatch<TConfig>;
+  onChangeConfig: (config: TConfig) => void;
 };
 
 export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => {
@@ -41,7 +41,7 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
   const updateConfig = async (auth: boolean) => {
     const config = await setConfig({
       backend: { authentication: auth },
-    }) as TConfig;
+    });
     onAuthSettingChanged();
     onChangeConfig(config);
   };

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
-import type { TConfig } from '@/api/config';
+import { mockConfig } from '@/test/mock-config';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -214,10 +214,7 @@ describe('routes/market/swap', () => {
         }],
       },
     });
-    vi.mocked(config.getConfig).mockResolvedValue({
-      frontend: {},
-      backend: {} as TConfig['backend'],
-    });
+    vi.mocked(config.getConfig).mockResolvedValue(mockConfig());
   });
 
   it('renders grouped provider label after quote fetch', async () => {

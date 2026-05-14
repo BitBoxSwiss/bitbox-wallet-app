@@ -21,36 +21,9 @@ import { EnableAuthSetting } from './components/advanced-settings/enable-auth-se
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 
-export type TProxyConfig = {
-  proxyAddress: string;
-  useProxy: boolean;
-};
-
-export type TFrontendConfig = {
-  expertFee?: boolean;
-  coinControl?: boolean;
-};
-
-export type TBackendConfig = {
-  proxy?: TProxyConfig;
-  authentication?: boolean;
-  startInTestnet?: boolean;
-  gapLimitReceive?: number;
-  gapLimitChange?: number;
-};
-
-export type TConfig = {
-  backend?: TBackendConfig;
-  frontend?: TFrontendConfig;
-};
-
 export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   const { config, setConfig } = useConfig();
-
-  const frontendConfig = config?.frontend as TFrontendConfig | undefined;
-  const backendConfig = config?.backend as TBackendConfig | undefined;
-  const proxyConfig = config?.backend?.proxy as TProxyConfig | undefined;
 
   const deviceIDs = Object.keys(devices);
 
@@ -76,12 +49,12 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
-                <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-                <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-                <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
-                <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
+                <EnableCustomFeesToggleSetting frontendConfig={config?.frontend} onChangeConfig={setConfig} />
+                <EnableCoinControlSetting frontendConfig={config?.frontend} onChangeConfig={setConfig} />
+                <EnableAuthSetting backendConfig={config?.backend} onChangeConfig={setConfig} />
+                <EnableTorProxySetting proxyConfig={config?.backend?.proxy} onChangeConfig={setConfig} />
                 <RestartInTestnetSetting onChangeConfig={setConfig} />
-                <CustomGapLimitSettings backendConfig={backendConfig} onChangeConfig={setConfig} />
+                <CustomGapLimitSettings backendConfig={config?.backend} onChangeConfig={setConfig} />
                 <UnlockSoftwareKeystore deviceIDs={deviceIDs}/>
                 <ConnectFullNodeSetting />
                 <ExportLogSetting />

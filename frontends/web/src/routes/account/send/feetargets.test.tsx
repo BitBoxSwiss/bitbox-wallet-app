@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
-import type { TConfig } from '@/api/config';
+import { mockConfig } from '@/test/mock-config';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 vi.mock('@/utils/request', () => ({
@@ -13,10 +13,7 @@ vi.mock('@/utils/env', () => ({
 }));
 vi.mock('@/contexts/ConfigProvider', () => ({
   useConfig: vi.fn(() => ({
-    config: {
-      backend: {} as TConfig['backend'],
-      frontend: { expertFee: false },
-    },
+    config: mockConfig({ frontend: { expertFee: false } }),
     setConfig: vi.fn(),
   })),
 }));
@@ -40,10 +37,7 @@ describe('routes/account/send/feetargets', () => {
     vi.clearAllMocks();
     mockRunningInIOS.mockReturnValue(false);
     mockUseConfig.mockReturnValue({
-      config: {
-        backend: {} as TConfig['backend'],
-        frontend: { expertFee: false },
-      },
+      config: mockConfig({ frontend: { expertFee: false } }),
       setConfig: vi.fn(),
     });
   });
@@ -77,10 +71,7 @@ describe('routes/account/send/feetargets', () => {
   it('normalizes custom fee values from iOS decimal input', async () => {
     mockRunningInIOS.mockReturnValue(true);
     mockUseConfig.mockReturnValue({
-      config: {
-        backend: {} as TConfig['backend'],
-        frontend: { expertFee: true },
-      },
+      config: mockConfig({ frontend: { expertFee: true } }),
       setConfig: vi.fn(),
     });
     const apiGetMock = (apiGet as Mock).mockResolvedValue({

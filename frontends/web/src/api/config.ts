@@ -14,13 +14,69 @@ export type TBtcCoinConfig = Readonly<{
   electrumServers: TElectrumServerInfo[];
 }>;
 
+/** BTC-based coin keys in backend config (see backend/config/config.go). */
+export type TBtcCoinConfigKey = 'btc' | 'tbtc' | 'ltc' | 'tltc';
+
 export type TEthCoinConfig = Readonly<{
   activeERC20Tokens: string[];
-} & Record<string, unknown>>;
+}>;
 
 export type TProxyConfig = Readonly<{
   useProxy: boolean;
   proxyAddress: string;
+}>;
+
+/** Keys used by NewBadge to mark UI elements as seen. */
+export type TFrontendBadgeConfigKey =
+  | 'hasSeenMarketplaceNudge'
+  | 'hasSeenSwapMarketTab'
+  | 'hasSeenOtcMarketTab';
+
+/** Dynamic frontend keys written when dismissing Status banners. */
+export type TDynamicDismissibleFrontendKey =
+  | `update-${string}`
+  | `banner-backup-${string}`
+  | `banner-${string}-${string}`;
+
+/** Known static frontend keys written when dismissing Status banners. */
+export type TKnownDismissibleFrontendConfigKey =
+  | 'walletConnectDisclaimerDismissed'
+  | 'skipTestingWarning'
+  | 'mobile-data-warning';
+
+export type TDismissibleFrontendConfigKey =
+  | TKnownDismissibleFrontendConfigKey
+  | TDynamicDismissibleFrontendKey;
+
+export type TFrontendConfig = Readonly<{
+  guideShown?: boolean;
+  hideAmounts?: boolean;
+  darkmode?: boolean;
+  expertFee?: boolean;
+  coinControl?: boolean;
+  selectedExchangeRegion?: string;
+  hideEnableRememberWalletDialog?: boolean;
+  hasUsedWalletConnect?: boolean;
+  bitsuranceNotifyCancellation?: string[];
+
+  hasSeenMarketplaceNudge?: boolean;
+  hasSeenSwapMarketTab?: boolean;
+  hasSeenOtcMarketTab?: boolean;
+
+  skipBitrefillWidgetDisclaimer?: boolean;
+  skipBTCDirectWidgetDisclaimer?: boolean;
+  skipBTCDirectOTCDisclaimer?: boolean;
+  skipMoonpayDisclaimer?: boolean;
+  skipPocketDisclaimer?: boolean;
+  skipPocketOTCDisclaimer?: boolean;
+  skipBitsuranceDisclaimer?: boolean;
+  skipSwapkitDisclaimer?: boolean;
+
+  walletConnectDisclaimerDismissed?: boolean;
+  skipTestingWarning?: boolean;
+  'mobile-data-warning'?: boolean;
+}> & Readonly<{
+  [key in TDynamicDismissibleFrontendKey]?: boolean;
 }>;
 
 export type TBackendConfig = Readonly<{
@@ -44,39 +100,29 @@ export type TBackendConfig = Readonly<{
   startInTestnet: boolean;
   gapLimitReceive: number;
   gapLimitChange: number;
-} & Record<string, unknown>>;
-
-export type TFrontendConfig = Readonly<{
-  guideShown?: boolean;
-  hideAmounts?: boolean;
-  darkmode?: boolean;
-  expertFee?: boolean;
-  coinControl?: boolean;
-  selectedExchangeRegion?: string;
-  hideEnableRememberWalletDialog?: boolean;
-  hasUsedWalletConnect?: boolean;
-  bitsuranceNotifyCancellation?: string[];
-
-  skipBitrefillWidgetDisclaimer?: boolean;
-  skipBTCDirectWidgetDisclaimer?: boolean;
-  skipBTCDirectOTCDisclaimer?: boolean;
-  skipMoonpayDisclaimer?: boolean;
-  skipPocketDisclaimer?: boolean;
-  skipBitsuranceDisclaimer?: boolean;
-} & Record<string, unknown>>;
+}>;
 
 export type TConfig = {
   readonly backend: TBackendConfig;
   readonly frontend: TFrontendConfig;
 };
 
+/** Partial backend config for updates; null clears userLanguage (see i18n.ts). */
+export type TBackendConfigUpdate =
+  Omit<Partial<TBackendConfig>, 'userLanguage'> & {
+    userLanguage?: string | null;
+  };
+
+export type TFrontendConfigUpdate = Partial<TFrontendConfig>;
+
 export type TConfigUpdate = {
-  backend?: (Omit<Partial<TBackendConfig>, 'userLanguage'> & { userLanguage?: string | null });
-  frontend?: Partial<TFrontendConfig> & Record<string, unknown>;
+  backend?: TBackendConfigUpdate;
+  frontend?: TFrontendConfigUpdate;
 };
 
 /**
- * Fetch current config from the backend.
+ * Fetch raw config from the backend. Keys may be missing; use getConfig from
+ * @/utils/config for a normalized TConfig.
  */
 export const getConfig = (): Promise<Partial<TConfig>> => {
   return apiGet('config');
@@ -85,6 +131,6 @@ export const getConfig = (): Promise<Partial<TConfig>> => {
 /**
  * Post a config object to the backend.
  */
-export const setConfig = (config: Partial<TConfig>): Promise<void> => {
+export const setConfig = (config: TConfig): Promise<void> => {
   return apiPost('config', config);
 };

@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { Dispatch, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { TConfig, TProxyConfig } from '@/api/config';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Toggle } from '@/components/toggle/toggle';
@@ -9,14 +10,13 @@ import { Button, Input } from '@/components/forms';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { socksProxyCheck } from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
-import { TConfig, TProxyConfig } from '@/routes/settings/advanced-settings';
 
 type TProps = {
   open: boolean;
   proxyConfig?: TProxyConfig;
   onCloseDialog: () => void;
-  onChangeConfig: (config: any) => void;
-  handleShowRestartMessage: Dispatch<boolean>;
+  onChangeConfig: (config: TConfig) => void;
+  handleShowRestartMessage: (show: boolean) => void;
 };
 
 export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfig, handleShowRestartMessage }: TProps) => {
@@ -36,8 +36,7 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
     if (!proxyConfig || proxyAddress === undefined) {
       return;
     }
-    const proxy = proxyConfig;
-    proxy.proxyAddress = proxyAddress.trim();
+    const proxy = { ...proxyConfig, proxyAddress: proxyAddress.trim() };
 
     const result = await socksProxyCheck(proxy.proxyAddress);
     const { success, errorMessage } = result;
@@ -52,7 +51,7 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
   const setProxyConfig = async (proxyConfig: TProxyConfig) => {
     const config = await setConfig({
       backend: { proxy: proxyConfig },
-    }) as TConfig;
+    });
     setProxyAddress(proxyConfig.proxyAddress);
     onChangeConfig(config);
     handleShowRestartMessage(true);

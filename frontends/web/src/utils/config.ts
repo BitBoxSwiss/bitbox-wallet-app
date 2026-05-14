@@ -4,15 +4,18 @@ import { getConfig as apiGetConfig, setConfig as apiSetConfig, type TConfig, typ
 
 let pendingConfig: TConfigUpdate = {};
 
-const normalizeConfig = (raw?: Partial<TConfig>): TConfig => {
-  const backend = (raw?.backend && typeof raw.backend === 'object'
-    ? { ...raw.backend }
-    : {}) as TConfig['backend'];
-  const frontend = (raw?.frontend && typeof raw.frontend === 'object'
+export const emptyBackendConfig = (): TConfig['backend'] => ({} as TConfig['backend']);
+
+export const emptyFrontendConfig = (): TConfig['frontend'] => ({});
+
+const normalizeConfig = (raw?: Partial<TConfig>): TConfig => ({
+  backend: raw?.backend && typeof raw.backend === 'object'
+    ? { ...emptyBackendConfig(), ...raw.backend }
+    : emptyBackendConfig(),
+  frontend: raw?.frontend && typeof raw.frontend === 'object'
     ? { ...raw.frontend }
-    : {}) as TConfig['frontend'];
-  return { backend, frontend };
-};
+    : emptyFrontendConfig(),
+});
 
 /**
  * Fetch current config from the backend.
@@ -28,15 +31,25 @@ export const getConfig = (): Promise<TConfig> => {
 export const setConfig = (object: TConfigUpdate): Promise<TConfig> => {
   return getConfig()
     .then((currentConfig) => {
-      const nextConfig = {
-        backend: Object.assign({}, currentConfig.backend, pendingConfig.backend, object.backend),
-        frontend: Object.assign({}, currentConfig.frontend, pendingConfig.frontend, object.frontend)
-      } as TConfig;
+      const nextConfig: TConfig = {
+        backend: Object.assign(
+          {},
+          currentConfig.backend,
+          pendingConfig.backend,
+          object.backend,
+        ) as TConfig['backend'],
+        frontend: Object.assign(
+          {},
+          currentConfig.frontend,
+          pendingConfig.frontend,
+          object.frontend,
+        ),
+      };
       pendingConfig = nextConfig;
       return apiSetConfig(nextConfig)
         .then(() => {
           pendingConfig = {};
-          return nextConfig as TConfig;
+          return nextConfig;
         });
     });
 };

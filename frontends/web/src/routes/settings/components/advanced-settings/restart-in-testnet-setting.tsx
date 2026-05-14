@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Dispatch, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TConfig as ApiTConfig } from '@/api/config';
+import type { TConfig } from '@/api/config';
 import { AppContext } from '@/contexts/AppContext';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
@@ -11,7 +11,7 @@ import { Button } from '@/components/forms';
 import { UseBackButton } from '@/hooks/backbutton';
 
 type TProps = {
-  onChangeConfig: Dispatch<ApiTConfig>;
+  onChangeConfig: (config: TConfig) => void;
 };
 
 export const RestartInTestnetSetting = ({ onChangeConfig }: TProps) => {
