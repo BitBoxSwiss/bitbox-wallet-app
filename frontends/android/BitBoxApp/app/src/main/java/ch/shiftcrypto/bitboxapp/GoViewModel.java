@@ -171,6 +171,26 @@ public class GoViewModel extends AndroidViewModel {
         }
 
         @Override
+        public boolean canEncryptLightningMnemonic() {
+            return true;
+        }
+
+        @Override
+        public void storeLightningEncryptionKey(String accountCode, String encryptionKey) throws Exception {
+            LightningEncryptionHelper.storeKey(getApplication(), accountCode, encryptionKey);
+        }
+
+        @Override
+        public String loadLightningEncryptionKey(String accountCode) throws Exception {
+            return LightningEncryptionHelper.loadKey(getApplication(), accountCode);
+        }
+
+        @Override
+        public void deleteLightningEncryptionKey(String accountCode) throws Exception {
+            LightningEncryptionHelper.deleteKey(getApplication(), accountCode);
+        }
+
+        @Override
         public void bluetoothConnect(String identifier) {
         }
 

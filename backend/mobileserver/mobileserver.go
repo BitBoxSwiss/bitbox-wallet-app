@@ -74,6 +74,10 @@ type GoEnvironmentInterface interface {
 	DetectDarkTheme() bool
 	Auth()
 	OnAuthSettingChanged(bool)
+	CanEncryptLightningMnemonic() bool
+	StoreLightningEncryptionKey(string, string) error
+	LoadLightningEncryptionKey(string) (string, error)
+	DeleteLightningEncryptionKey(string) error
 	BluetoothConnect(string)
 }
 
@@ -185,15 +189,19 @@ func Serve(dataDir string, testnet bool, environment GoEnvironmentInterface, goA
 				}
 				return []usb.DeviceInfo{deviceInfo{i}}
 			},
-			SystemOpenFunc:           environment.SystemOpen,
-			UsingMobileDataFunc:      environment.UsingMobileData,
-			NativeLocaleFunc:         environment.NativeLocale,
-			GetSaveFilenameFunc:      environment.GetSaveFilename,
-			SetDarkThemeFunc:         environment.SetDarkTheme,
-			DetectDarkThemeFunc:      environment.DetectDarkTheme,
-			AuthFunc:                 environment.Auth,
-			OnAuthSettingChangedFunc: environment.OnAuthSettingChanged,
-			BluetoothConnectFunc:     environment.BluetoothConnect,
+			SystemOpenFunc:                   environment.SystemOpen,
+			UsingMobileDataFunc:              environment.UsingMobileData,
+			NativeLocaleFunc:                 environment.NativeLocale,
+			GetSaveFilenameFunc:              environment.GetSaveFilename,
+			SetDarkThemeFunc:                 environment.SetDarkTheme,
+			DetectDarkThemeFunc:              environment.DetectDarkTheme,
+			AuthFunc:                         environment.Auth,
+			OnAuthSettingChangedFunc:         environment.OnAuthSettingChanged,
+			CanEncryptLightningMnemonicFunc:  environment.CanEncryptLightningMnemonic,
+			StoreLightningEncryptionKeyFunc:  environment.StoreLightningEncryptionKey,
+			LoadLightningEncryptionKeyFunc:   environment.LoadLightningEncryptionKey,
+			DeleteLightningEncryptionKeyFunc: environment.DeleteLightningEncryptionKey,
+			BluetoothConnectFunc:             environment.BluetoothConnect,
 		},
 	)
 }

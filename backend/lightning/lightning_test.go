@@ -12,7 +12,47 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newTestLightning(t *testing.T) *Lightning {
+type testEnvironment struct {
+	canEncrypt bool
+	keys       map[string]string
+	storeErr   error
+	loadErr    error
+	deleteErr  error
+	loadCalls  int
+}
+
+func (e *testEnvironment) CanEncryptLightningMnemonic() bool {
+	return e.canEncrypt
+}
+
+func (e *testEnvironment) StoreLightningEncryptionKey(accountCode string, encryptionKey string) error {
+	if e.storeErr != nil {
+		return e.storeErr
+	}
+	if e.keys == nil {
+		e.keys = map[string]string{}
+	}
+	e.keys[accountCode] = encryptionKey
+	return nil
+}
+
+func (e *testEnvironment) LoadLightningEncryptionKey(accountCode string) (string, error) {
+	e.loadCalls++
+	if e.loadErr != nil {
+		return "", e.loadErr
+	}
+	return e.keys[accountCode], nil
+}
+
+func (e *testEnvironment) DeleteLightningEncryptionKey(accountCode string) error {
+	if e.deleteErr != nil {
+		return e.deleteErr
+	}
+	delete(e.keys, accountCode)
+	return nil
+}
+
+func newTestLightning(t *testing.T, environment environment) *Lightning {
 	t.Helper()
 
 	appConfigFilename := test.TstTempFile("appConfig")
@@ -22,9 +62,14 @@ func newTestLightning(t *testing.T) *Lightning {
 	cfg, err := config.NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 
+	if environment == nil {
+		environment = &testEnvironment{}
+	}
+
 	return NewLightning(
 		cfg,
 		test.TstTempDir("lightning-cache"),
+		environment,
 		func() keystore.Keystore { return nil },
 		&http.Client{},
 		nil,
@@ -33,7 +78,7 @@ func newTestLightning(t *testing.T) *Lightning {
 }
 
 func TestAccount(t *testing.T) {
-	lightning := newTestLightning(t)
+	lightning := newTestLightning(t, nil)
 	require.Nil(t, lightning.Account())
 
 	require.NoError(t, lightning.backendConfig.ModifyLightningConfig(func(cfg *config.LightningConfig) error {
@@ -50,7 +95,7 @@ func TestAccount(t *testing.T) {
 }
 
 func TestSetAccount(t *testing.T) {
-	lightning := newTestLightning(t)
+	lightning := newTestLightning(t, nil)
 
 	account := &config.LightningAccountConfig{
 		Mnemonic:        "test mnemonic",
@@ -72,4 +117,29 @@ func TestSetAccount(t *testing.T) {
 	require.NoError(t, lightning.SetAccount(nil))
 	require.Nil(t, lightning.Account())
 	require.Empty(t, lightning.backendConfig.LightningConfig().Accounts)
+}
+
+func TestSealAndUnsealMnemonicEncrypted(t *testing.T) {
+	env := &testEnvironment{canEncrypt: true}
+	lightning := newTestLightning(t, env)
+
+	sealedMnemonic, err := lightning.sealMnemonic("v0-deadbeef-ln-0", "test mnemonic")
+	require.NoError(t, err)
+	require.NotEqual(t, "test mnemonic", sealedMnemonic)
+
+	mnemonic, err := lightning.unsealMnemonic(&config.LightningAccountConfig{
+		Code:     "v0-deadbeef-ln-0",
+		Mnemonic: sealedMnemonic,
+	})
+	require.NoError(t, err)
+	require.Equal(t, "test mnemonic", mnemonic)
+	require.Equal(t, 1, env.loadCalls)
+
+	mnemonic, err = lightning.unsealMnemonic(&config.LightningAccountConfig{
+		Code:     "v0-deadbeef-ln-0",
+		Mnemonic: sealedMnemonic,
+	})
+	require.NoError(t, err)
+	require.Equal(t, "test mnemonic", mnemonic)
+	require.Equal(t, 2, env.loadCalls)
 }

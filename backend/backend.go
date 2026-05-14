@@ -196,6 +196,15 @@ type Environment interface {
 	// OnAuthSettingChanged is called when the authentication (screen lock) setting is changed.
 	// This is also called when the app launches with the current setting.
 	OnAuthSettingChanged(enabled bool)
+	// CanEncryptLightningMnemonic reports whether Lightning mnemonics should be stored encrypted on
+	// this platform.
+	CanEncryptLightningMnemonic() bool
+	// StoreLightningEncryptionKey persists a backend-generated Lightning seed encryption key.
+	StoreLightningEncryptionKey(accountCode string, encryptionKey string) error
+	// LoadLightningEncryptionKey retrieves the stored Lightning seed encryption key.
+	LoadLightningEncryptionKey(accountCode string) (string, error)
+	// DeleteLightningEncryptionKey removes the persisted Lightning seed encryption key.
+	DeleteLightningEncryptionKey(accountCode string) error
 	// BluetoothConnect tries to connect to the peripheral by the given identifier.
 	// Use `backend.bluetooth.State()` to track failure.
 	BluetoothConnect(identifier string)
@@ -349,6 +358,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 	backend.lightning = lightning.NewLightning(backend.config,
 		backend.arguments.CacheDirectoryPath(),
+		backend.environment,
 		backend.Keystore, backend.httpClient,
 		backend.ratesUpdater,
 		btcCoin)

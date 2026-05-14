@@ -92,6 +92,26 @@ func (webdevEnvironment) Auth() {
 func (webdevEnvironment) OnAuthSettingChanged(enabled bool) {
 }
 
+// CanEncryptLightningMnemonic implements backend.Environment.
+func (webdevEnvironment) CanEncryptLightningMnemonic() bool {
+	return false
+}
+
+// StoreLightningEncryptionKey implements backend.Environment.
+func (webdevEnvironment) StoreLightningEncryptionKey(accountCode string, encryptionKey string) error {
+	return nil
+}
+
+// LoadLightningEncryptionKey implements backend.Environment.
+func (webdevEnvironment) LoadLightningEncryptionKey(accountCode string) (string, error) {
+	return "", nil
+}
+
+// DeleteLightningEncryptionKey implements backend.Environment.
+func (webdevEnvironment) DeleteLightningEncryptionKey(accountCode string) error {
+	return nil
+}
+
 // BluetoothConnect implements backend.Environment.
 func (webdevEnvironment) BluetoothConnect(identifier string) {
 }

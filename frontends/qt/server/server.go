@@ -196,8 +196,12 @@ func serve(
 				log.Info("Qt auth")
 				authResult(mobileserver.AuthResultOk)
 			},
-			OnAuthSettingChangedFunc: func(bool) {},
-			BluetoothConnectFunc:     func(string) {},
+			OnAuthSettingChangedFunc:         func(bool) {},
+			CanEncryptLightningMnemonicFunc:  func() bool { return false },
+			StoreLightningEncryptionKeyFunc:  func(string, string) error { return nil },
+			LoadLightningEncryptionKeyFunc:   func(string) (string, error) { return "", nil },
+			DeleteLightningEncryptionKeyFunc: func(string) error { return nil },
+			BluetoothConnectFunc:             func(string) {},
 		},
 	)
 }
