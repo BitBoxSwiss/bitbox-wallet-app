@@ -4,8 +4,11 @@
  * Sort all keys in JSON files alphabetically (recursively).
  *
  * Usage:
- *   node ./scripts/sort-json.mjs ./src/locales
- *   node ./scripts/sort-json.mjs ./src/locales/en/common.json
+ *   Sort mode:
+ *     node ./scripts/sort-json.mjs ./src/locales
+ *
+ *   Check/lint mode:
+ *     node ./scripts/sort-json.mjs ./src/locales --check
  *
  * Features:
  * - Recursively scans directories
@@ -15,6 +18,7 @@
  * - Pretty prints with 2-space indentation
  * - Adds trailing newline
  * - Deterministic sorting
+ * - --check mode is a dry run without modifying any files to check that all files are sorted alphabetically, fails with exits with code 1 in case some files are not sorted
  */
 
 import fs from 'fs';
@@ -64,13 +68,13 @@ const sortObject = (value) => {
   return value;
 };
 
-const processFile = (filePath) => {
+const processFile = (filePath, checkMode) => {
   try {
     const original = fs.readFileSync(filePath, 'utf8');
 
     if (!original.trim()) {
       console.log(`Skipped empty file: ${filePath}`);
-      return;
+      return false;
     }
 
     const parsed = JSON.parse(original);
@@ -78,23 +82,41 @@ const processFile = (filePath) => {
 
     const output = `${JSON.stringify(sorted, null, 2)}\n`;
 
-    if (output !== original) {
+    const changed = output !== original;
+
+    if (checkMode) {
+      if (changed) {
+        console.error(`Not sorted: ${filePath}`);
+      } else {
+        console.log(`OK: ${filePath}`);
+      }
+
+      return changed;
+    }
+
+    if (changed) {
       fs.writeFileSync(filePath, output, 'utf8');
       console.log(`Sorted: ${filePath}`);
     } else {
       console.log(`Already sorted: ${filePath}`);
     }
+
+    return false;
   } catch (error) {
     console.error(`Failed: ${filePath}`);
     console.error(error.message);
+    process.exit(1);
   }
 };
 
 const main = () => {
   const target = process.argv[2];
+  const checkMode = process.argv.includes('--check');
 
   if (!target) {
-    console.error('Usage: node sort-json <file-or-directory>');
+    console.error(
+      'Usage: node ./scripts/sort-json.mjs <file-or-directory> [--check]'
+    );
     process.exit(1);
   }
 
@@ -109,14 +131,26 @@ const main = () => {
 
   if (files.length === 0) {
     console.log('No JSON files found.');
-    return;
+    process.exit(0);
   }
 
-  files.forEach(processFile);
+  let hasChanges = false;
+
+  files.forEach((file) => {
+    const changed = processFile(file, checkMode);
+
+    if (changed) {
+      hasChanges = true;
+    }
+  });
+
+  if (checkMode && hasChanges) {
+    console.error('Not all JSON files are sorted!');
+    process.exit(1);
+  }
 
   console.log('FINISHED');
   process.exit(0);
-
 };
 
 main();
