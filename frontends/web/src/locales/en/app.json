@@ -30,11 +30,11 @@
     },
     "contractAddress": "Contract address",
     "contractAddressWarning": "Do not send any coins to the contract address otherwise they will be lost. Contract address is just for informational purposes.",
+    "descriptorWarning": "To ensure smooth compatibility with other wallets, apps, or services, please copy the entire descriptor. Selecting and copying only the xpub might cause the account to be imported with an incorrect script type, which could lead to issues.",
     "exportTransactions": "Export transaction history",
     "exportTransactionsDisabled": "No transactions",
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
-    "descriptorWarning": "To ensure smooth compatibility with other wallets, apps, or services, please copy the entire descriptor. Selecting and copying only the xpub might cause the account to be imported with an incorrect script type, which could lead to issues.",
     "scriptType": "Script type",
     "title": "Account information",
     "usedAddresses": "View used addresses",
@@ -1399,6 +1399,16 @@
         "title": "Why is there a network fee?"
       }
     },
+    "settings": {
+      "sats": {
+        "text": "A Satoshi ('sat' for short) is the smallest unit of Bitcoin. One Satoshi is a hundred millionth of a bitcoin (0.00000001 BTC). It is named after the creator of Bitcoin, Satoshi Nakamoto.",
+        "title": "What is a Satoshi?"
+      },
+      "servers": {
+        "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CoinGecko. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
+        "title": "Which servers does this app talk to?"
+      }
+    },
     "settings-electrum": {
       "connection": {
         "text": "If you intend to only connect to your node when you are on the same network (e.g. your home wifi), then using regular network communication is sufficient.\nIn this case it is advisable that your Electrum server provides a TLS certificate to encrypt the communication.\nIf you intend to connect to your node from anywhere, using Tor is the better option. No TLS certificate is necessary in that case.",
@@ -1426,16 +1436,6 @@
       "why": {
         "text": "Running your own node is not necessary but improves privacy and reduces the need to trust others.\nFirstly, it means that you are using Bitcoin more privately as the BitBoxApp won't connect to our servers to fetch your transaction history; instead it will fetch that information from your own node.\nSecondly, running your own node means that your node verifies all transactions itself, making sure that the consensus rules are enforced.",
         "title": "Why should I run my own node?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "A Satoshi ('sat' for short) is the smallest unit of Bitcoin. One Satoshi is a hundred millionth of a bitcoin (0.00000001 BTC). It is named after the creator of Bitcoin, Satoshi Nakamoto.",
-        "title": "What is a Satoshi?"
-      },
-      "servers": {
-        "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CoinGecko. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
-        "title": "Which servers does this app talk to?"
       }
     },
     "title": "Guide",
@@ -2028,6 +2028,21 @@
       "title": "Success"
     }
   },
+  "swap": {
+    "completed": "Swap completed",
+    "confirmOnBitBox": "Confirm swap on BitBox",
+    "fastest": "Fastest",
+    "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
+    "fetchingRoutes": "Fetching routes...",
+    "new": "New swap",
+    "noRouteFound": "No route found",
+    "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",
+    "oneRouteAvailable": "One route available",
+    "recommended": "Recommended",
+    "route": "Swap route",
+    "routesPlaceholder": "Routes will appear here after entering an amount",
+    "unexpectedError": "Some unexpected error occurred."
+  },
   "testWallet": {
     "connect": {
       "description": "A software test wallet to test without a device in Testnet.",
@@ -2107,21 +2122,6 @@
     },
     "vsize": "Virtual size",
     "weight": "Weight"
-  },
-  "swap": {
-    "completed": "Swap completed",
-    "confirmOnBitBox": "Confirm swap on BitBox",
-    "fastest": "Fastest",
-    "fetchingRoutes": "Fetching routes...",
-    "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
-    "new": "New swap",
-    "noRouteFound": "No route found",
-    "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",
-    "oneRouteAvailable": "One route available",
-    "recommended": "Recommended",
-    "route": "Swap route",
-    "routesPlaceholder": "Routes will appear here after entering an amount",
-    "unexpectedError": "Some unexpected error occurred."
   },
   "transactions": {
     "errorLoadTransactions": "There was an error loading the transactions",
