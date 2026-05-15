@@ -54,9 +54,6 @@ const handleError = (endpoint: string) => {
 export const apiGet = (endpoint: string): Promise<any> => {
   // if apiGet() is invoked immediately this can error with:
   // request.js:64 Uncaught TypeError: Cannot read properties of undefined
-  // (reading 'runningInQtWebEngine')
-  // TODO: maybe use extConfig('{{ ENGINE_QTWEB }}', 'no') === 'yes' instead of runningInQtWebEngine()?
-  // drawback: not treeshakeable
   if (runningInQtWebEngine()) {
     return call(JSON.stringify({
       method: 'GET',
