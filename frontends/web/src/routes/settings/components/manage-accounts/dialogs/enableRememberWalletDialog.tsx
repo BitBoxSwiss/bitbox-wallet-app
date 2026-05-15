@@ -17,9 +17,7 @@ export const EnableRememberWalletDialog = ({ open, onClose }: Props) => {
   const [shouldNotShowDialog, setShouldNotShowDialog] = useState(false);
 
   useEffect(() => {
-    if (config !== undefined && config.frontend) {
-      setShouldNotShowDialog(!!config.frontend.hideEnableRememberWalletDialog);
-    }
+    setShouldNotShowDialog(!!config?.frontend.hideEnableRememberWalletDialog);
   }, [config]);
 
   if (shouldNotShowDialog) {

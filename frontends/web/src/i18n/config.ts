@@ -13,7 +13,7 @@ export const languageFromConfig: LanguageDetectorAsyncModule = {
   detect: (cb) => {
     getConfig().then(({ backend }) => {
       if (backend && backend.userLanguage) {
-        cb(backend.userLanguage as string);
+        cb(backend.userLanguage);
         return;
       }
       getNativeLocale().then(locale => {

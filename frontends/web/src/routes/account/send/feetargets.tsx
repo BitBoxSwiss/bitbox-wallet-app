@@ -63,7 +63,7 @@ export const FeeTargets = ({
     if (!config || !feeTargets) {
       return;
     }
-    const withCustomFee = config.frontend?.expertFee || feeTargets.feeTargets.length === 0;
+    const withCustomFee = config.frontend.expertFee || feeTargets.feeTargets.length === 0;
     const options = feeTargets.feeTargets.map(({ code, feeRateInfo }) => ({
       value: code,
       label: t(`send.feeTarget.label.${code}`) + (withCustomFee && feeRateInfo ? ` (${feeRateInfo})` : ''),
@@ -126,7 +126,7 @@ export const FeeTargets = ({
     }
 
     const feetargetInfo = feeTargets?.feeTargets.find(({ code }) => code === option.value);
-    const withCustomFee = config?.frontend?.expertFee || feeTargets?.feeTargets.length === 0;
+    const withCustomFee = config?.frontend.expertFee || feeTargets?.feeTargets.length === 0;
     if (withCustomFee && feetargetInfo) {
       return (
         <>

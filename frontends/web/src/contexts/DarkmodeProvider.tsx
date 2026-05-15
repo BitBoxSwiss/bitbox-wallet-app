@@ -60,10 +60,9 @@ export const DarkModeProvider = ({ children }: TProps) => {
       }
       if (preferredDarkMode === darkmode) {
         // Remove darkmode from config, so it uses the same mode as the OS.
-        const { darkmode: _, ...frontend } = config.frontend;
         setConfig({
           frontend: {
-            ...frontend,
+            ...config.frontend,
             darkmode: undefined,
           },
         });
