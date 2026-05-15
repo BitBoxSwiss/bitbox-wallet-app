@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { i18n } from '@/i18n/i18n';
-import { alertUser } from '@/components/alert/Alert';
 import { call } from './transport-qt';
 import { mobileCall } from './transport-mobile';
 import { runningInQtWebEngine, runningOnMobile } from './env';
@@ -40,9 +38,6 @@ const handleError = (endpoint: string) => {
           return;
         }
         console.error('error from endpoint', endpoint, json);
-        // TODO: remove i18n.t dependency because if cyclic i18n<->request dependency
-        // TODO: deprecate alertUser
-        alertUser(i18n.t('genericError'));
         reject(json.error);
         return;
       }
