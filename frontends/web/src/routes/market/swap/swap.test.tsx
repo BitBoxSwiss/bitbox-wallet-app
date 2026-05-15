@@ -6,6 +6,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom';
 
 vi.mock('@/i18n/i18n');
+// initialize i18n once at startup
+import '@/i18n/i18n';
+
 vi.mock('@/components/alert/Alert', () => ({
   alertUser: vi.fn(),
 }));
