@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Move insurance to Marketplace
 
 ## v4.51.1
 - iOS: fix App Store submission by packaging Inter as TTF fonts

@@ -2,14 +2,16 @@
 
 import { useTranslation } from 'react-i18next';
 import { PillButton, PillButtonGroup } from '../../../components/pillbuttongroup/pillbuttongroup';
-import { TMarketAction } from '@/api/market';
+import type { TMarketAction } from '@/api/market';
 import { NewBadge } from '@/components/new-badge/new-badge';
 import style from './markettab.module.css';
 
+export type TMarketplaceTab = TMarketAction | 'insure';
 
 type TProps = {
-  onChangeTab: (tab: TMarketAction) => void;
-  activeTab: TMarketAction;
+  onChangeTab: (tab: TMarketplaceTab) => void;
+  activeTab: TMarketplaceTab;
+  className?: string;
   showSwap: boolean;
 };
 
@@ -17,11 +19,12 @@ type TProps = {
 export const MarketTab = ({
   onChangeTab,
   activeTab,
+  className,
   showSwap,
 }: TProps) => {
   const { t } = useTranslation();
   return (
-    <PillButtonGroup size="large">
+    <PillButtonGroup className={className} size="large">
       <PillButton
         active={activeTab === 'buy'}
         onClick={() => onChangeTab('buy')}
@@ -70,6 +73,12 @@ export const MarketTab = ({
             testID="otc-new-badge"
           />
         </span>
+      </PillButton>
+      <PillButton
+        active={activeTab === 'insure'}
+        onClick={() => onChangeTab('insure')}
+      >
+        {t('generic.insure')}
       </PillButton>
     </PillButtonGroup>
   );

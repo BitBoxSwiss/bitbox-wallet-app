@@ -14,7 +14,7 @@ export const getBottomNavKey = (pathname: string): string => {
   if (pathname.startsWith('/market/')) {
     return 'market';
   }
-  if (pathname.startsWith('/settings') || pathname.startsWith('/bitsurance/')) {
+  if (pathname.startsWith('/settings')) {
     return 'more';
   }
   return 'other';
