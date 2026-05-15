@@ -7,7 +7,6 @@ import { PasswordInput } from '../../../components/password';
 import { alertUser } from '../../../components/alert/Alert';
 import { apiPost } from '../../../utils/request';
 import { DialogLegacy } from '../../../components/dialog/dialog-legacy';
-// TODO: use DialogButtons
 import style from '../../../components/dialog/dialog.module.css';
 
 class Create extends Component {
