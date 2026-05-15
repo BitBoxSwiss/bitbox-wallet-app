@@ -135,7 +135,7 @@ CSS Modules co-located with components. See `src/style/variables.css` for shared
 ### Translations
 Use `useTranslation()` from `react-i18next` to get `t()`. Translation keys live in
 `src/locales/{lang}/app.json` (namespace: `app`). English (`en/app.json`) is the reference. Keys
-are nested by feature area and must be **sorted alphabetically**. New user-facing strings must have
+are nested by feature area and should be **sorted alphabetically**, use `make webfix` to fix sorting, use `make weblint` to check translation keys are sorted. New user-facing strings must have
 a translation key — never hardcode display text.
 
 ### Form Components

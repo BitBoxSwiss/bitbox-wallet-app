@@ -5,7 +5,7 @@ dev:
 lint:
 	npm run lint
 fix:
-	npm run lint -- --fix
+	npm run fix
 jstest:
 	npm test
 jstest-watch:
