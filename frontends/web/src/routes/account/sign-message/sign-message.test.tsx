@@ -2,6 +2,7 @@
 
 import '../../../../__mocks__/i18n';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
+import '@testing-library/jest-dom';
 
 vi.mock('@/i18n/i18n');
 
