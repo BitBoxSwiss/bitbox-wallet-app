@@ -3,6 +3,7 @@
 import '../../../__mocks__/i18n';
 import { Mock, beforeAll, describe, expect, it, vi } from 'vitest';
 import { render, fireEvent, act } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { Alert, alertUser } from './Alert';
 
 vi.mock('@/utils/request', () => ({

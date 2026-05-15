@@ -2,6 +2,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { MultilineMarkup, SimpleMarkup } from './markup';
 
 describe('SimpleMarkup', () => {
