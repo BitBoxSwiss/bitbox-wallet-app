@@ -80,11 +80,14 @@ export const useBitsurance = (
     const freshConfig = await getConfig();
     let cancelledAccounts: string[] = freshConfig.frontend?.bitsuranceNotifyCancellation ?? [];
 
-    if (cancelledAccounts?.includes(code)) {
+    if (cancelledAccounts.includes(code)) {
       alertUser(t('account.insuranceExpired'));
       const filtered = cancelledAccounts.filter(accountCode => accountCode !== code);
-      // Remove the pending notification from the frontend settings.
-      setConfig({ frontend: { bitsuranceNotifyCancellation: filtered } });
+      try {
+        await setConfig({ frontend: { bitsuranceNotifyCancellation: filtered } });
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     const bitsuranceAccount = insuredAccounts.bitsuranceAccounts[0];
