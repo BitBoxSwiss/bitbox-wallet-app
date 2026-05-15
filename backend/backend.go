@@ -338,6 +338,12 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.ratesUpdater.Observe(func(event observable.Event) {
 		backend.Notify(event)
 		backend.notifyCoinFiatPrices()
+		if backend.lightning != nil && backend.lightning.Account() != nil {
+			backend.Notify(observable.Event{
+				Subject: "lightning/list-payments",
+				Action:  action.Reload,
+			})
+		}
 	})
 
 	backend.banners = banners.NewBanners(backend.DevServers())
@@ -354,6 +360,13 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		btcCoin)
 
 	backend.lightning.Observe(backend.Notify)
+	backend.lightning.Observe(func(event observable.Event) {
+		if event.Subject != "lightning/account" {
+			return
+		}
+		defer backend.accountsAndKeystoreLock.Lock()()
+		backend.configureHistoryExchangeRates()
+	})
 
 	backend.bluetooth = bluetooth.New(log)
 	backend.bluetooth.Observe(backend.Notify)
@@ -369,6 +382,9 @@ func (backend *Backend) configureHistoryExchangeRates() {
 	var coins []string
 	for _, acct := range backend.accounts {
 		coins = append(coins, string(acct.Coin().Code()))
+	}
+	if backend.lightning != nil && backend.lightning.Account() != nil {
+		coins = append(coins, string(coinpkg.CodeBTC))
 	}
 	fiats := backend.config.AppConfig().Backend.FiatList
 	backend.ratesUpdater.ReconfigureHistory(coins, fiats)

@@ -4,26 +4,27 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TLightningPayment } from '@/api/lightning';
 import { Dialog } from '@/components/dialog/dialog';
-import { getTxSign } from '@/utils/transaction';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { TxDetailRow } from '@/components/transactions/components/tx-detail-dialog/tx-detail-row';
-import { AddressOrTxId } from '@/components/transactions/components/tx-detail-dialog/address-or-tx-id';
+import { parseTimeLongWithYear } from '@/utils/date';
+import { getTxSign } from '@/utils/transaction';
 import styles from '@/components/transactions/components/tx-detail-dialog/tx-detail-dialog.module.css';
 
 type TTxDetailsDialog = {
   open: boolean;
   onClose: () => void;
   payment: TLightningPayment;
-  sign: string;
 };
 
 export const PaymentDetailsDialog = ({
   open,
   onClose,
   payment,
-  sign,
 }: TTxDetailsDialog) => {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+
+  const typeText = payment.type === 'receive' ? t('generic.received') : t('generic.sent');
+  const sign = payment.amount.amount === '0' ? '' : getTxSign(payment.type);
 
   return (
     <Dialog
@@ -35,55 +36,65 @@ export const PaymentDetailsDialog = ({
       {payment && (
         <div className={styles.container}>
           <TxDetailRow>
-            <p className={styles.label}>Memo</p>
+            <p className={styles.label}>{t('lightning.send.confirm.memo')}</p>
             <span>{payment.description || '-'}</span>
           </TxDetailRow>
           <TxDetailRow>
             <p className={styles.label}>{t('transaction.details.date')}</p>
-            <span>{payment.timestamp ? new Date(payment.timestamp * 1000).toString() : '-'}</span>
+            <span>{payment.time ? parseTimeLongWithYear(payment.time, i18n.language) : '-'}</span>
           </TxDetailRow>
           <TxDetailRow>
-            <p className={styles.label}>Amount</p>
-            <span>{payment.amountSat} sat</span>
-          </TxDetailRow>
-          <TxDetailRow>
-            <p className={styles.label}>{t('transaction.details.fiat')}</p>
+            <p className={styles.label}>{t('transaction.details.amount')}</p>
             <span>
               <AmountWithUnit
-                amount={{
-                  amount: `${payment.amountSat}`,
-                  unit: 'sat',
-                  estimated: false
-                }}
-                sign={sign}
+                amount={payment.amount}
+                unitClassName={styles.rowUnit}
+              />
+            </span>
+          </TxDetailRow>
+          {payment.type === 'send' && (
+            <TxDetailRow>
+              <p className={styles.label}>{t('transaction.fee')}</p>
+              <span>
+                <AmountWithUnit
+                  amount={payment.fee}
+                  unitClassName={styles.rowUnit}
+                />
+              </span>
+            </TxDetailRow>
+          )}
+          {!payment.amountAtTime.estimated && (
+            <TxDetailRow>
+              <p className={styles.label}>{t('transaction.details.historicalValue')}</p>
+              <span>
+                <AmountWithUnit
+                  amount={payment.amountAtTime}
+                  convertToFiat
+                  sign={sign}
+                  unitClassName={styles.rowUnit}
+                />
+              </span>
+            </TxDetailRow>
+          )}
+          <TxDetailRow>
+            <p className={styles.label}>{t('transaction.details.currentValue')}</p>
+            <span>
+              <AmountWithUnit
+                amount={payment.amount}
                 convertToFiat
+                sign={sign}
+                unitClassName={styles.rowUnit}
               />
             </span>
           </TxDetailRow>
           <TxDetailRow>
-            <p className={styles.label}>Fee</p>
-            <span>{payment.feesSat} sat</span>
+            <p className={styles.label}>{t('transaction.details.type')}</p>
+            <span>{typeText}</span>
           </TxDetailRow>
           <TxDetailRow>
-            <p className={styles.label}>Type</p>
-            <span>{payment.type}</span>
+            <p className={styles.label}>{t('transaction.details.status')}</p>
+            <span>{t(`transaction.status.${payment.status}`, { context: payment.type })}</span>
           </TxDetailRow>
-          <TxDetailRow>
-            <p className={styles.label}>Status</p>
-            <span>{payment.status}</span>
-          </TxDetailRow>
-          {payment.paymentPreimage && (
-            <TxDetailRow>
-              <p className={styles.label}>Preimage</p>
-              <AddressOrTxId values={[payment.paymentPreimage]} />
-            </TxDetailRow>
-          )}
-          {payment.paymentHash && (
-            <TxDetailRow>
-              <p className={styles.label}>Payment Hash</p>
-              <AddressOrTxId values={[payment.paymentHash]} />
-            </TxDetailRow>
-          )}
         </div>
       )}
     </Dialog>
@@ -121,7 +132,6 @@ export const PaymentDetails = ({
         onClose();
       }}
       payment={payment}
-      sign={getTxSign(payment.type)}
     />
   );
 };

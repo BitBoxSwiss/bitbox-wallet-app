@@ -22,8 +22,8 @@ import { unsubscribe } from '../../utils/subscriptions';
 import { GlobalBanners } from '@/components/banners';
 import { Status } from '../../components/status/status';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
-import { Transaction } from '@/components/transactions/transaction';
 import { PaymentDetails } from './components/payment-details';
+import { LightningPayment } from './components/lightning-payment';
 import styles from './lightning.module.css';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
@@ -35,7 +35,7 @@ export const Lightning = () => {
   const [syncedAddressesCount] = useState<number>();
   const [payments, setPayments] = useState<TLightningPayment[]>();
   const [error, setError] = useState<string>();
-  const [detailID, setDetailID] = useState<accountApi.TTransaction['internalID'] | null>(null);
+  const [detailID, setDetailID] = useState<TLightningPayment['id'] | null>(null);
   const devices = useLoad(getDeviceList);
   const boardingAddress = useLoad(getBoardingAddress);
 
@@ -119,55 +119,11 @@ export const Lightning = () => {
               ) : (
                 payments && payments.length > 0 ? (
                   payments
-                    .map(payment => ({ // TODO: giant hack start
-                      internalID: payment.id,
-                      addresses: [],
-                      amountAtTime: {
-                        amount: payment.amountSat.toString(),
-                        conversions: {}, // TODO: add conversions
-                        unit: 'sat' as accountApi.NativeCoinUnit,
-                        estimated: false
-                      },
-                      deductedAmountAtTime: {
-                        amount: payment.type === 'send' ? (payment.amountSat + payment.feesSat).toString() : '',
-                        conversions: {}, // TODO: add conversions
-                        unit: 'sat' as accountApi.NativeCoinUnit,
-                        estimated: false
-                      },
-                      amount: {
-                        amount: payment.amountSat.toString(),
-                        unit: 'sat' as accountApi.NativeCoinUnit,
-                        estimated: false
-                      },
-                      fee: {
-                        amount: payment.feesSat.toString(),
-                        unit: 'sat' as accountApi.NativeCoinUnit,
-                        estimated: false
-                      },
-                      feeRatePerKb: {
-                        amount: '',
-                        unit: 'sat' as accountApi.NativeCoinUnit,
-                        estimated: false
-                      },
-                      type: payment.type,
-                      txID: payment.id,
-                      note: payment.description || '',
-                      status: payment.status,
-                      time: payment.timestamp ? new Date(payment.timestamp * 1000).toString() : null, // TODO: remove hack?
-                      // most of these are not for lightning
-                      gas: 0,
-                      nonce: null,
-                      numConfirmationsComplete: payment.status === 'pending' ? 1 : 0,
-                      size: 0,
-                      numConfirmations: 0,
-                      vsize: 0,
-                      weight: 0
-                    })) // TODO: giant hack end
                     .map((payment) => (
-                      <Transaction
-                        key={payment.internalID}
-                        onShowDetail={(internalID: string) => {
-                          setDetailID(internalID);
+                      <LightningPayment
+                        key={payment.id}
+                        onShowDetail={(id: string) => {
+                          setDetailID(id);
                         }}
                         {...payment}
                       />
