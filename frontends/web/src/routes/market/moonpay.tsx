@@ -14,6 +14,7 @@ import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { MoonpayTerms } from '@/components/terms/moonpay-terms';
 import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { Message } from '@/components/message/message';
 import style from './iframe.module.css';
 
 type TProps = {
@@ -62,8 +63,8 @@ export const Moonpay = ({ accounts, code }: TProps) => {
             ) : (
               <div style={{ height }}>
                 <UseDisableBackButton />
-                {!iframeLoaded && <Spinner text={t('loading')} />}
-                { moonpay && (
+                {(!moonpay || moonpay.success) && !iframeLoaded && <Spinner text={t('loading')} />}
+                { moonpay?.success && (
                   <iframe
                     onLoad={() => {
                       onIframeLoad();
@@ -76,6 +77,11 @@ export const Moonpay = ({ accounts, code }: TProps) => {
                     allow="camera; payment"
                     src={`${moonpay.url}&colorCode=%235E94BF&theme=${isDarkMode ? 'dark' : 'light'}`}>
                   </iframe>
+                )}
+                { moonpay?.success === false && (
+                  <Message type="error">
+                    {moonpay.errorMessage || t('genericError')}
+                  </Message>
                 )}
               </div>
             )}

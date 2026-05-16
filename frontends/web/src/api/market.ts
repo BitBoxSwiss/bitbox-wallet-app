@@ -47,13 +47,17 @@ export const getMarketDeals = (
   return apiGet(`market/deals/${action}/${accountCode}?region=${region}`);
 };
 
-export type MoonpayBuyInfo = {
+export type TMoonpayBuyInfoResponse = {
+  success: true;
   url: string;
   address: string;
+} | {
+  success: false;
+  errorMessage: string;
 };
 
 export const getMoonpayBuyInfo = (code: AccountCode) => {
-  return (): Promise<MoonpayBuyInfo> => {
+  return (): Promise<TMoonpayBuyInfoResponse> => {
     return apiGet(`market/moonpay/buy-info/${code}`);
   };
 };

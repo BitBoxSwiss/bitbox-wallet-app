@@ -249,7 +249,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/market/btcdirect/info/{action}/{code}", handlers.getMarketBtcDirectInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/quote", handlers.postSwapkitQuote).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/swap/sign", handlers.postSwapSign).Methods("POST")
-	getAPIRouter(apiRouter)("/market/moonpay/buy-info/{code}", handlers.getMarketMoonpayBuyInfo).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/market/moonpay/buy-info/{code}", handlers.getMarketMoonpayBuyInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/pocket/api-url/{action}", handlers.getMarketPocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/market/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/market/bitrefill/info/{action}/{code}", handlers.getMarketBitrefillInfo).Methods("GET")
@@ -1453,10 +1453,17 @@ func (handlers *Handlers) getMarketVendors(r *http.Request) interface{} {
 	return supported
 }
 
-func (handlers *Handlers) getMarketMoonpayBuyInfo(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getMarketMoonpayBuyInfo(r *http.Request) interface{} {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		URL          string `json:"url,omitempty"`
+		Address      string `json:"address,omitempty"`
+	}
+
 	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
-		return nil, err
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 
 	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
@@ -1471,16 +1478,13 @@ func (handlers *Handlers) getMarketMoonpayBuyInfo(r *http.Request) (interface{},
 	}
 	buy, err := market.MoonpayInfo(acct, params)
 	if err != nil {
-		return nil, err
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
-	resp := struct {
-		URL     string `json:"url"`
-		Address string `json:"address"`
-	}{
+	return result{
+		Success: true,
 		URL:     buy.URL,
 		Address: buy.Address,
 	}
-	return resp, nil
 }
 
 func (handlers *Handlers) getMarketBtcDirectInfo(r *http.Request) interface{} {
