@@ -30,7 +30,14 @@ export const getKeystores = (): Promise<TKeystores> => {
 
 export type TTestKeystoreEdition = 'btc-only' | 'multi';
 
-export const registerTest = (pin: string, edition: TTestKeystoreEdition): Promise<null> => {
+type TRegisterTestResponse = {
+  success: true;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
+export const registerTest = (pin: string, edition: TTestKeystoreEdition): Promise<TRegisterTestResponse> => {
   return apiPost('test/register', { pin, edition });
 };
 
