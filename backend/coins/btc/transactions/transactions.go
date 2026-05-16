@@ -348,18 +348,24 @@ func (transactions *Transactions) removeTxForAddress(
 
 		for _, txIn := range txInfo.Tx.TxIn {
 			transactions.log.Debug("Deleting transaction iput")
-			dbTx.DeleteInput(txIn.PreviousOutPoint)
+			if err := dbTx.DeleteInput(txIn.PreviousOutPoint); err != nil {
+				return errp.WithMessage(err, "failed to delete input")
+			}
 		}
 
 		// Remove the outputs added by this tx.
 		for index := range txInfo.Tx.TxOut {
-			dbTx.DeleteOutput(wire.OutPoint{
+			if err := dbTx.DeleteOutput(wire.OutPoint{
 				Hash:  txHash,
 				Index: uint32(index),
-			})
+			}); err != nil {
+				return errp.WithMessage(err, "failed to delete output")
+			}
 		}
 
-		dbTx.DeleteTx(txHash)
+		if err := dbTx.DeleteTx(txHash); err != nil {
+			return errp.WithMessage(err, "failed to delete tx")
+		}
 		if err := transactions.notifier.Delete(txHash[:]); err != nil {
 			transactions.log.WithError(err).Error("Failed notifier.Delete")
 		}
