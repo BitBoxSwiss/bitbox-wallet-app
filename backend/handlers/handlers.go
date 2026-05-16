@@ -258,7 +258,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp", handlers.getAOPP).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancel).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApprove).Methods("POST")
-	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccount).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/connect-keystore", handlers.postConnectKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonly).Methods("POST")
@@ -1626,16 +1626,21 @@ func (handlers *Handlers) getAOPP(r *http.Request) interface{} {
 	return handlers.backend.AOPP()
 }
 
-func (handlers *Handlers) postAOPPChooseAccount(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAOPPChooseAccount(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
 	var request struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return nil, errp.WithStack(err)
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
 	handlers.backend.AOPPChooseAccount(request.AccountCode)
-	return nil, nil
+	return response{Success: true}
 }
 
 func (handlers *Handlers) postAOPPCancel(r *http.Request) interface{} {
