@@ -229,7 +229,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitialize).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/chart-data", handlers.getChartData).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoins).Methods("GET")
-	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystore).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/test/register", handlers.postRegisterTestKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiat).Methods("GET")
@@ -1003,18 +1003,23 @@ func (handlers *Handlers) getDevicesRegistered(*http.Request) interface{} {
 	return jsonDevices
 }
 
-func (handlers *Handlers) postRegisterTestKeystore(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postRegisterTestKeystore(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
 	if !handlers.backend.Testing() {
-		return nil, errp.New("Test keystore not available")
+		return response{Success: false, ErrorMessage: "Test keystore not available"}
 	}
 	var jsonBody struct {
 		PIN string `json:"pin"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	handlers.backend.RegisterTestKeystore(jsonBody.PIN)
-	return nil, nil
+	return response{Success: true}
 }
 
 func (handlers *Handlers) postDeregisterTestKeystore(*http.Request) interface{} {

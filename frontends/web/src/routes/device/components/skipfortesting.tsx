@@ -23,8 +23,10 @@ export const SkipForTesting = ({
   const [testPIN, setTestPIN] = useState('');
   const registerTestingDevice = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    await registerTest(testPIN);
-    setDialog(false);
+    const response = await registerTest(testPIN);
+    if (response.success) {
+      setDialog(false);
+    }
   };
 
   if (!isTesting) {

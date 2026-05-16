@@ -28,7 +28,14 @@ export const getKeystores = (): Promise<TKeystores> => {
   return apiGet('keystores');
 };
 
-export const registerTest = (pin: string): Promise<null> => {
+type TRegisterTestResponse = {
+  success: true;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
+export const registerTest = (pin: string): Promise<TRegisterTestResponse> => {
   return apiPost('test/register', { pin });
 };
 
