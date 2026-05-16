@@ -221,7 +221,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/status", handlers.getSwapStatus).Methods("GET")
-	getAPIRouter(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-account-receive-script-type", handlers.postSetAccountReceiveScriptType).Methods("POST")
@@ -889,7 +889,7 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 }
 
 // getAccountsBalanceSummary returns the total balance summary of all coins and accounts.
-func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) interface{} {
 	type response struct {
 		Success      bool                            `json:"success"`
 		TotalBalance *backend.AccountsBalanceSummary `json:"accountsBalanceSummary"`
@@ -897,9 +897,9 @@ func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) (interface{},
 
 	totalBalance, err := handlers.backend.AccountsBalanceSummary()
 	if err != nil {
-		return response{Success: false}, nil
+		return response{Success: false}
 	}
-	return response{Success: true, TotalBalance: totalBalance}, nil
+	return response{Success: true, TotalBalance: totalBalance}
 }
 
 func (handlers *Handlers) postSetAccountActive(r *http.Request) interface{} {
