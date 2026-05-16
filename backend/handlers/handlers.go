@@ -25,6 +25,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -234,10 +235,10 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/{coinCode}/fiat-prices", handlers.getCoinFiatPrices).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTBTC)).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeLTC)).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTBTC)).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeLTC)).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/btc/parse-external-amount", handlers.getBTCParseExternalAmount).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownload).Methods("POST")
@@ -1147,13 +1148,26 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getHeadersStatus(coinCode coinpkg.Code) func(*http.Request) (interface{}, error) {
-	return func(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getHeadersStatus(coinCode coinpkg.Code) func(*http.Request) interface{} {
+	type response struct {
+		Success      bool            `json:"success"`
+		ErrorMessage string          `json:"errorMessage,omitempty"`
+		Status       *headers.Status `json:"status,omitempty"`
+	}
+
+	return func(*http.Request) interface{} {
 		coin, err := handlers.backend.Coin(coinCode)
 		if err != nil {
-			return nil, err
+			return response{Success: false, ErrorMessage: err.Error()}
 		}
-		return coin.(*btc.Coin).Headers().Status()
+		status, err := coin.(*btc.Coin).Headers().Status()
+		if err != nil {
+			return response{Success: false, ErrorMessage: err.Error()}
+		}
+		return response{
+			Success: true,
+			Status:  status,
+		}
 	}
 }
 

@@ -20,19 +20,20 @@ export const HeadersSync = ({ coinCode }: TProps) => {
   const mounted = useMountedRef();
 
   useEffect(() => {
-    if (mounted.current && status && (status.tip === status.targetHeight)) {
+    if (mounted.current && status?.success && (status.status.tip === status.status.targetHeight)) {
       setTimeout(() => setHidden(true), 4000);
     }
   }, [mounted, status]);
 
-  if (!status || hidden) {
+  if (!status || !status.success || hidden) {
     return null;
   }
 
-  const total = status.targetHeight - status.tipAtInitTime;
-  const value = 100 * (status.tip - status.tipAtInitTime) / total;
+  const headersStatus = status.status;
+  const total = headersStatus.targetHeight - headersStatus.tipAtInitTime;
+  const value = 100 * (headersStatus.tip - headersStatus.tipAtInitTime) / total;
   const loaded = !total || value >= 100;
-  const formatted = new Intl.NumberFormat(i18n.language).format(status.tip);
+  const formatted = new Intl.NumberFormat(i18n.language).format(headersStatus.tip);
 
   return (
     <div className={style.syncContainer}>

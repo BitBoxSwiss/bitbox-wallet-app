@@ -75,10 +75,13 @@ describe('hooks for api calls', () => {
   describe('useSubscribe', () => {
     it('should return proper value of a subscription function', () => {
       const MOCK_RETURN_STATUS: TStatus = {
-        tipAtInitTime: 2408855,
-        tip: 2408940,
-        tipHashHex: '0000000000000015f61742c773181dd368527575a6ac02ea5ecbace8e73cc083',
-        targetHeight: 2408940
+        success: true,
+        status: {
+          tipAtInitTime: 2408855,
+          tip: 2408940,
+          tipHashHex: '0000000000000015f61742c773181dd368527575a6ac02ea5ecbace8e73cc083',
+          targetHeight: 2408940
+        }
       };
 
       const mockSubscribe = vi.fn().mockImplementation(() => (cb: TSubscriptionCallback<any>) => mockSubscribeEndpoint(cb));
