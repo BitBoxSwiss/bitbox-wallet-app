@@ -318,7 +318,9 @@ func (account *Account) Initialize() error {
 			account.log.Debug("Connection to blockchain backend established")
 		}
 	}
-	account.coin.Initialize()
+	if err := account.coin.Initialize(); err != nil {
+		return err
+	}
 	account.SetOffline(account.coin.Blockchain().ConnectionError())
 	account.coin.Blockchain().RegisterOnConnectionErrorChangedEvent(onConnectionStatusChanged)
 	theHeaders := account.coin.Headers()
