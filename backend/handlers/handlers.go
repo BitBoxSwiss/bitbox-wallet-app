@@ -201,7 +201,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/qr", handlers.getQRCode).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/config", handlers.getAppConfig).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/config/default", handlers.getDefaultConfig).Methods("GET")
-	getAPIRouter(apiRouter)("/config", handlers.postAppConfig).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/config", handlers.postAppConfig).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/native-locale", handlers.getNativeLocale).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/notify-user", handlers.postNotify).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/open", handlers.postOpen).Methods("POST")
@@ -542,12 +542,20 @@ func (handlers *Handlers) getDefaultConfig(*http.Request) interface{} {
 	return handlers.backend.DefaultAppConfig()
 }
 
-func (handlers *Handlers) postAppConfig(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAppConfig(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
 	appConfig := config.AppConfig{}
 	if err := json.NewDecoder(r.Body).Decode(&appConfig); err != nil {
-		return nil, errp.WithStack(err)
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return nil, handlers.backend.Config().SetAppConfig(appConfig)
+	if err := handlers.backend.Config().SetAppConfig(appConfig); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
 }
 
 // getNativeLocaleHandler returns user preferred UI language as reported
