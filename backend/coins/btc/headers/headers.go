@@ -82,9 +82,9 @@ const (
 
 // Interface represents the public API of this package.
 //
-//go:generate mockery -name Interface
+//go:generate mockery --name Interface
 type Interface interface {
-	Initialize()
+	Initialize() error
 	SubscribeEvent(f func(Event)) func()
 	VerifiedHeaderByHeight(int) (*wire.BlockHeader, error)
 	HeaderByHeight(int) (*wire.BlockHeader, error)
@@ -180,8 +180,12 @@ func (headers *Headers) TipHeight() int {
 }
 
 // Initialize starts the syncing process.
-func (headers *Headers) Initialize() {
-	headers.tipAtInitTime = headers.tip()
+func (headers *Headers) Initialize() error {
+	tip, err := headers.db.Tip()
+	if err != nil {
+		return err
+	}
+	headers.tipAtInitTime = tip
 	headers.log.Infof("last tip loaded: %d", headers.tipAtInitTime)
 	go headers.download()
 	go headers.blockchain.HeadersSubscribe(
@@ -190,6 +194,7 @@ func (headers *Headers) Initialize() {
 		},
 	)
 	headers.kickChan <- struct{}{}
+	return nil
 }
 
 func (headers *Headers) download() {
@@ -370,15 +375,16 @@ func (headers *Headers) canConnect(db DBInterface, tip int, header *wire.BlockHe
 	return nil
 }
 
-func (headers *Headers) reorg(db DBInterface, tip int) {
+func (headers *Headers) reorg(db DBInterface, tip int) error {
 	// Simple reorg method: re-fetch headers up to the maximum reorg limit. The server can shorten
 	// our chain by sending a fake header and set us back by `reorgLimit` blocks, but it needs to
 	// contain the correct PoW to do so.
 	newTip := max(tip-reorgLimit, -1)
 	if err := db.RevertTo(newTip); err != nil {
-		panic(err)
+		return err
 	}
 	headers.kick()
+	return nil
 }
 
 func (headers *Headers) notifyEvent(event Event) {
@@ -395,7 +401,9 @@ func (headers *Headers) processBatch(
 		err := headers.canConnect(db, tip+1, header)
 		if errp.Cause(err) == errPrevHash {
 			headers.log.WithError(err).Infof("Reorg detected at height %d", tip+1)
-			headers.reorg(db, tip)
+			if err := headers.reorg(db, tip); err != nil {
+				return err
+			}
 			return nil
 		}
 		if err != nil {
@@ -461,15 +469,6 @@ func (headers *Headers) update(blockHeight int) {
 	headers.kick()
 	headers.targetHeight = blockHeight
 	headers.notifyEvent(EventNewTip)
-}
-
-func (headers *Headers) tip() int {
-	defer headers.lock.RLock()()
-	tip, err := headers.db.Tip()
-	if err != nil {
-		panic(err)
-	}
-	return tip
 }
 
 // Status returns the current sync status.

@@ -52,7 +52,7 @@ func (s *testSuite) SetupTest() {
 
 	}
 	s.coin.TstSetMakeBlockchain(func() blockchain.Interface { return blockchainMock })
-	s.coin.Initialize()
+	s.Require().NoError(s.coin.Initialize())
 }
 
 func (s *testSuite) TearDownTest() {

@@ -61,7 +61,7 @@ type Coin interface {
 	BlockExplorerTransactionURLPrefix() string
 
 	// Initialize initializes the coin by connecting to a full node, downloading the headers, etc.
-	Initialize()
+	Initialize() error
 
 	// SmallestUnit returns the name of the smallest unit of a given coin
 	SmallestUnit() string
