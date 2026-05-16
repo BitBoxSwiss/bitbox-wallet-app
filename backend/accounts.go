@@ -1267,7 +1267,7 @@ func (backend *Backend) persistETHAccountConfig(
 	log.Info("persist account")
 	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
 	if err != nil {
-		panic(err)
+		return errp.WithMessage(err, "could not parse keypath")
 	}
 	extendedPublicKey, err := keystore.ExtendedPublicKey(coin, absoluteKeypath)
 	if err != nil {
