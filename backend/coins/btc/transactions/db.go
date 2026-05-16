@@ -41,7 +41,7 @@ type DBTxInterface interface {
 	PutTx(txHash chainhash.Hash, tx *wire.MsgTx, height int, headerTimestamp *time.Time) error
 
 	// DeleteTx deletes a transaction (nothing happens if not found).
-	DeleteTx(txHash chainhash.Hash)
+	DeleteTx(txHash chainhash.Hash) error
 
 	// AddAddressToTx adds an address associated with a transaction. Retrieve them with `TxInfo()`.
 	AddAddressToTx(chainhash.Hash, blockchain.ScriptHashHex) error
@@ -69,7 +69,7 @@ type DBTxInterface interface {
 	Input(wire.OutPoint) (*chainhash.Hash, error)
 
 	// DeleteInput deletes an input (nothing happens if not found).
-	DeleteInput(wire.OutPoint)
+	DeleteInput(wire.OutPoint) error
 
 	// PutOutput stores an Output.
 	PutOutput(wire.OutPoint, *wire.TxOut) error
@@ -79,7 +79,7 @@ type DBTxInterface interface {
 	Outputs() (map[wire.OutPoint]*wire.TxOut, error)
 
 	// DeleteOutput deletes an output (nothing happens if not found).
-	DeleteOutput(wire.OutPoint)
+	DeleteOutput(wire.OutPoint) error
 
 	// PutAddressHistory stores an address history.
 	PutAddressHistory(blockchain.ScriptHashHex, blockchain.TxHistory) error
