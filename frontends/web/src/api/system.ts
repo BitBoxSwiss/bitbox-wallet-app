@@ -2,6 +2,13 @@
 
 import { apiPost } from '@/utils/request';
 
+type TNotifyUserResponse = {
+  success: true;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
 type TOpenResponse = {
   success: true;
 } | {
@@ -9,7 +16,7 @@ type TOpenResponse = {
   errorMessage: string;
 };
 
-export const notifyUser = (text: string) => {
+export const notifyUser = (text: string): Promise<TNotifyUserResponse> => {
   return apiPost('notify-user', { text });
 };
 
