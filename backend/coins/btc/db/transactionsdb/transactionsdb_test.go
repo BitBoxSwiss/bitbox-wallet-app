@@ -263,7 +263,7 @@ func TestTxQuick(t *testing.T) {
 				require.True(t,
 					!txInfo.CreatedTimestamp.After(now) || *txInfo.CreatedTimestamp == now)
 
-				tx.DeleteTx(txHash)
+				require.NoError(t, tx.DeleteTx(txHash))
 				delete(allTxHashes, txHash)
 				require.True(t, checkTxHashes())
 			})
@@ -328,7 +328,7 @@ func TestInput(t *testing.T) {
 		require.Nil(t, input)
 
 		// no-op, does not exist yet
-		tx.DeleteInput(outpoint1)
+		require.NoError(t, tx.DeleteInput(outpoint1))
 
 		require.NoError(t, tx.PutInput(outpoint1, txhash1))
 		require.NoError(t, tx.PutInput(outpoint2, txhash2))
@@ -351,7 +351,7 @@ func TestInput(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, &txhash2, input)
 
-		tx.DeleteInput(outpoint1)
+		require.NoError(t, tx.DeleteInput(outpoint1))
 		input, err = tx.Input(outpoint1)
 		require.NoError(t, err)
 		require.Nil(t, input)
@@ -376,7 +376,7 @@ func TestInputQuick(t *testing.T) {
 
 		for _, outPoint := range allOutpoints {
 			t.Run("", func(t *testing.T) {
-				tx.DeleteInput(outPoint)
+				require.NoError(t, tx.DeleteInput(outPoint))
 				txHash, err := tx.Input(outPoint)
 				require.NoError(t, err)
 				require.Nil(t, txHash)
@@ -475,7 +475,7 @@ func TestOutputsQuick(t *testing.T) {
 		for outPoint := range allOutputs {
 			t.Run("", func(t *testing.T) {
 				delete(allOutputs, outPoint)
-				tx.DeleteOutput(outPoint)
+				require.NoError(t, tx.DeleteOutput(outPoint))
 				require.True(t, checkOutputs())
 				output, err := tx.Output(outPoint)
 				require.NoError(t, err)

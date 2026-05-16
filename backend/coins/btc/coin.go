@@ -31,6 +31,7 @@ import (
 // Coin models a Bitcoin-related coin.
 type Coin struct {
 	initOnce sync.Once
+	initErr  error
 	code     coinpkg.Code
 	name     string
 	// unit is the main unit of the coin, e.g. 'BTC'
@@ -90,7 +91,7 @@ func (coin *Coin) TstSetMakeBlockchain(f func() blockchain.Interface) {
 }
 
 // Initialize implements coinpkg.Coin.
-func (coin *Coin) Initialize() {
+func (coin *Coin) Initialize() error {
 	coin.initOnce.Do(func() {
 		// Init blockchain
 		coin.blockchain = coin.makeBlockchain()
@@ -107,14 +108,18 @@ func (coin *Coin) Initialize() {
 			path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.bin", coin.code)),
 			coin.log)
 		if err != nil {
-			coin.log.WithError(err).Panic("Could not open headers DB")
+			coin.initErr = errp.WithMessage(err, "could not open headers DB")
+			return
 		}
 		coin.headers = headers.NewHeaders(
 			coin.net,
 			db,
 			coin.blockchain,
 			coin.log)
-		coin.headers.Initialize()
+		if err := coin.headers.Initialize(); err != nil {
+			coin.initErr = errp.WithMessage(err, "could not initialize headers")
+			return
+		}
 		coin.headers.SubscribeEvent(func(event headers.Event) {
 			if event == headers.EventSyncing || event == headers.EventSynced {
 				status, err := coin.headers.Status()
@@ -129,6 +134,7 @@ func (coin *Coin) Initialize() {
 			}
 		})
 	})
+	return coin.initErr
 }
 
 // Name implements coinpkg.Coin.
