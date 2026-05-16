@@ -672,7 +672,10 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		return
 	}
 
-	account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
+	if err := account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history); err != nil {
+		account.reportFatalSyncError(err, "UpdateAddressHistory failed")
+		return
+	}
 	account.incAndEmitSyncCounter()
 	account.ensureAddresses()
 }
