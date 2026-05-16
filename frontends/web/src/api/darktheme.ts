@@ -2,7 +2,14 @@
 
 import { apiGet, apiPost } from '@/utils/request';
 
-export const setDarkTheme = (isDark: boolean): Promise<null> => {
+type TSetDarkThemeResponse = {
+  success: true;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
+export const setDarkTheme = (isDark: boolean): Promise<TSetDarkThemeResponse> => {
   return apiPost('set-dark-theme', isDark);
 };
 

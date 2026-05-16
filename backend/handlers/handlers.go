@@ -210,7 +210,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileData).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/authenticate", handlers.postAuthenticate).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/force-auth", handlers.postForceAuth).Methods("POST")
-	getAPIRouter(apiRouter)("/set-dark-theme", handlers.postDarkTheme).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/set-dark-theme", handlers.postDarkTheme).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/detect-dark-theme", handlers.getDetectDarkTheme).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/version", handlers.getVersion).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/testing", handlers.getTesting).Methods("GET")
@@ -616,13 +616,18 @@ func (handlers *Handlers) postForceAuth(r *http.Request) interface{} {
 	return nil
 }
 
-func (handlers *Handlers) postDarkTheme(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postDarkTheme(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
 	var isDark bool
 	if err := json.NewDecoder(r.Body).Decode(&isDark); err != nil {
-		return nil, errp.WithStack(err)
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	handlers.backend.Environment().SetDarkTheme(isDark)
-	return nil, nil
+	return response{Success: true}
 }
 
 func (handlers *Handlers) getDetectDarkTheme(r *http.Request) interface{} {
