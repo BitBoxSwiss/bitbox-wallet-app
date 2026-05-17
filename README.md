@@ -48,7 +48,7 @@ The below instructions assume a unix environment.
 To build the app or run the development workflow, the following dependencies need to be installed:
 
 - [Go](https://golang.org/doc/install) version 1.26
-- [Node.js](https://nodejs.org/) version 20.x
+- [Node.js](https://nodejs.org/) version 24.x
 - [NPM](https://docs.npmjs.com/about-npm-versions) version 10.x or newer
 - [Qt](https://www.qt.io) version 6.8.2
   - install Qt for your platform, including the WebEngine component
