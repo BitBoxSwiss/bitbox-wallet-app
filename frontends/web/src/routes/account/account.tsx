@@ -313,7 +313,7 @@ const RemountAccount = ({
                     `}>
                       <SearchInput
                         ref={searchInputRef}
-                        placeholder="Search transactions..."
+                        placeholder={t('accountSummary.searchPlaceholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.currentTarget.value)}
                       />

@@ -1,0 +1,18 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+.container {
+  margin-bottom: var(--space-default);
+}
+
+.empty {
+  color: var(--color-secondary);
+  margin: 0 0 var(--space-default);
+}
+
+.pageGroup {
+  margin-bottom: var(--space-default);
+}
+
+.pageTitle {
+  margin-top: var(--space-default);
+}

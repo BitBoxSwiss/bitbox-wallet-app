@@ -6,7 +6,6 @@ import { Toggle } from '@/components/toggle/toggle';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { onAuthSettingChanged, TAuthEventObject, subscribeAuth, forceAuth } from '@/api/backend';
-import { runningInAndroid, runningInIOS } from '@/utils/env';
 
 export const EnableAuthSetting = () => {
   const { t } = useTranslation();
@@ -38,10 +37,6 @@ export const EnableAuthSetting = () => {
     });
     onAuthSettingChanged();
   };
-
-  if (!runningInAndroid() && !runningInIOS()) {
-    return null;
-  }
 
   return (
     <SettingsItem
