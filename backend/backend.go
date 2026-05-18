@@ -968,9 +968,17 @@ func (backend *Backend) CheckElectrumServer(serverInfo *config.ServerInfo) error
 
 // RegisterTestKeystore adds a keystore derived deterministically from a PIN, for convenience in
 // devmode.
-func (backend *Backend) RegisterTestKeystore(pin string) {
-	softwareBasedKeystore := software.NewKeystoreFromPIN(pin)
+func (backend *Backend) RegisterTestKeystore(pin string, edition software.Edition) error {
+	switch edition {
+	case "":
+		edition = software.EditionMulti
+	case software.EditionMulti, software.EditionBTCOnly:
+	default:
+		return errp.Newf("Unsupported test keystore edition: %s", edition)
+	}
+	softwareBasedKeystore := software.NewKeystoreFromPINWithEdition(pin, edition)
 	backend.registerKeystore(softwareBasedKeystore)
+	return nil
 }
 
 // NotifyUser creates a desktop notification.

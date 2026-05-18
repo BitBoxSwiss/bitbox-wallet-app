@@ -11,7 +11,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
@@ -40,30 +40,53 @@ type Keystore struct {
 	// The master extended private key from which all keys are derived.
 	master     *hdkeychain.ExtendedKey
 	identifier string
+	edition    Edition
 	log        *logrus.Entry
 }
+
+// Edition models the coin set supported by the software keystore.
+type Edition string
+
+const (
+	// EditionMulti supports all coins that the software keystore can sign for.
+	EditionMulti Edition = "multi"
+	// EditionBTCOnly only supports Bitcoin accounts.
+	EditionBTCOnly Edition = "btc-only"
+)
 
 // NewKeystore creates a new keystore with the given configuration, index and key.
 func NewKeystore(
 	master *hdkeychain.ExtendedKey,
 ) *Keystore {
+	return NewKeystoreWithEdition(master, EditionMulti)
+}
+
+// NewKeystoreWithEdition creates a new keystore with the given edition.
+func NewKeystoreWithEdition(
+	master *hdkeychain.ExtendedKey,
+	edition Edition,
+) *Keystore {
+	if edition == "" {
+		edition = EditionMulti
+	}
 	publicKey, _ := master.ECPubKey()
 	hash := sha256.Sum256(publicKey.SerializeCompressed())
 	return &Keystore{
 		master:     master,
 		identifier: hex.EncodeToString(hash[:]),
+		edition:    edition,
 		log:        logging.Get().WithGroup("software"),
 	}
 }
 
-// NewKeystoreFromPIN creates a new unique keystore derived from the PIN.
-func NewKeystoreFromPIN(pin string) *Keystore {
+// NewKeystoreFromPINWithEdition creates a new unique keystore derived from the PIN.
+func NewKeystoreFromPINWithEdition(pin string, edition Edition) *Keystore {
 	seed := pbkdf2.Key([]byte(pin), []byte("BitBox"), 64, hdkeychain.RecommendedSeedLen, sha256.New)
 	master, err := hdkeychain.NewMaster(seed, &chaincfg.TestNet3Params)
 	if err != nil {
 		panic(errp.WithStack(err))
 	}
-	return NewKeystore(master)
+	return NewKeystoreWithEdition(master, edition)
 }
 
 // Type implements keystore.Keystore.
@@ -103,7 +126,10 @@ func (keystore *Keystore) Configuration() *signing.Configuration {
 }
 
 // SupportsCoin implements keystore.Keystore.
-func (keystore *Keystore) SupportsCoin(coin coin.Coin) bool {
+func (keystore *Keystore) SupportsCoin(coin coinpkg.Coin) bool {
+	if keystore.edition == EditionBTCOnly && (coin == nil || !coinpkg.IsBitcoinOnly(coin.Code())) {
+		return false
+	}
 	switch coin.(type) {
 	case *btc.Coin, *eth.Coin:
 		return true
@@ -113,7 +139,7 @@ func (keystore *Keystore) SupportsCoin(coin coin.Coin) bool {
 }
 
 // SupportsAccount implements keystore.Keystore.
-func (keystore *Keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
+func (keystore *Keystore) SupportsAccount(coin coinpkg.Coin, meta interface{}) bool {
 	if !keystore.SupportsCoin(coin) {
 		return false
 	}
@@ -142,17 +168,17 @@ func (keystore *Keystore) Identifier() (string, error) {
 }
 
 // CanVerifyAddress implements keystore.Keystore.
-func (keystore *Keystore) CanVerifyAddress(coin.Coin) (bool, bool, error) {
+func (keystore *Keystore) CanVerifyAddress(coinpkg.Coin) (bool, bool, error) {
 	return false, false, nil
 }
 
 // VerifyAddressBTC implements keystore.Keystore.
-func (keystore *Keystore) VerifyAddressBTC(*signing.Configuration, types.Derivation, coin.Coin) error {
+func (keystore *Keystore) VerifyAddressBTC(*signing.Configuration, types.Derivation, coinpkg.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 
 // VerifyAddressETH implements keystore.Keystore.
-func (keystore *Keystore) VerifyAddressETH(*signing.Configuration, coin.Coin) error {
+func (keystore *Keystore) VerifyAddressETH(*signing.Configuration, coinpkg.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 
@@ -162,13 +188,13 @@ func (keystore *Keystore) CanVerifyExtendedPublicKey() bool {
 }
 
 // VerifyExtendedPublicKey implements keystore.Keystore.
-func (keystore *Keystore) VerifyExtendedPublicKey(coin coin.Coin, configuration *signing.Configuration) error {
+func (keystore *Keystore) VerifyExtendedPublicKey(coin coinpkg.Coin, configuration *signing.Configuration) error {
 	return errp.New("The software-based keystore has no secure output to display the public key.")
 }
 
 // ExtendedPublicKey implements keystore.Keystore.
 func (keystore *Keystore) ExtendedPublicKey(
-	coin coin.Coin, absoluteKeypath signing.AbsoluteKeypath,
+	coin coinpkg.Coin, absoluteKeypath signing.AbsoluteKeypath,
 ) (*hdkeychain.ExtendedKey, error) {
 	extendedPrivateKey, err := absoluteKeypath.Derive(keystore.master)
 	if err != nil {
@@ -179,7 +205,7 @@ func (keystore *Keystore) ExtendedPublicKey(
 
 // BTCXPubs implements keystore.Keystore.
 func (keystore *Keystore) BTCXPubs(
-	coin coin.Coin, keypaths []signing.AbsoluteKeypath) ([]*hdkeychain.ExtendedKey, error) {
+	coin coinpkg.Coin, keypaths []signing.AbsoluteKeypath) ([]*hdkeychain.ExtendedKey, error) {
 	xpubs := make([]*hdkeychain.ExtendedKey, len(keypaths))
 	for i, keypath := range keypaths {
 		xpub, err := keystore.ExtendedPublicKey(coin, keypath)
@@ -292,8 +318,15 @@ func (keystore *Keystore) SignTransaction(
 ) error {
 	switch specificProposedTx := proposedTransaction.(type) {
 	case *btc.ProposedTransaction:
+		if keystore.edition == EditionBTCOnly &&
+			!coinpkg.IsBitcoinOnly(specificProposedTx.TXProposal.Coin.Code()) {
+			return errp.Newf("coin not supported: %s", specificProposedTx.TXProposal.Coin.Code())
+		}
 		return keystore.signBTCTransaction(specificProposedTx)
 	case *eth.TxProposal:
+		if keystore.edition == EditionBTCOnly {
+			return errp.Newf("coin not supported: %s", specificProposedTx.Coin.Code())
+		}
 		return keystore.signETHTransaction(specificProposedTx)
 	default:
 		panic("unknown proposal type")
@@ -301,12 +334,12 @@ func (keystore *Keystore) SignTransaction(
 }
 
 // CanSignMessage implements keystore.Keystore.
-func (keystore *Keystore) CanSignMessage(code coin.Code) bool {
-	return code == coin.CodeBTC ||
-		code == coin.CodeTBTC ||
-		code == coin.CodeRBTC ||
-		code == coin.CodeETH ||
-		code == coin.CodeSEPETH
+func (keystore *Keystore) CanSignMessage(code coinpkg.Code) bool {
+	if coinpkg.IsBitcoinOnly(code) {
+		return true
+	}
+	return keystore.edition == EditionMulti &&
+		(code == coinpkg.CodeETH || code == coinpkg.CodeSEPETH)
 }
 
 func btcMessageHash(message []byte) ([]byte, error) {
@@ -321,11 +354,11 @@ func btcMessageHash(message []byte) ([]byte, error) {
 }
 
 // SignBTCMessage implements keystore.Keystore.
-func (keystore *Keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coinCode coin.Code) ([]byte, error) {
+func (keystore *Keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coinCode coinpkg.Code) ([]byte, error) {
 	if scriptType == signing.ScriptTypeP2TR {
 		return nil, errp.New("taproot not supported")
 	}
-	if coinCode != coin.CodeBTC && coinCode != coin.CodeTBTC && coinCode != coin.CodeRBTC {
+	if !coinpkg.IsBitcoinOnly(coinCode) {
 		return nil, errp.Newf("coin not supported: %s", coinCode)
 	}
 	xprv, err := keypath.Derive(keystore.master)
@@ -346,6 +379,9 @@ func (keystore *Keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 // SignETHMessage implements keystore.Keystore.
 func (keystore *Keystore) SignETHMessage(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	_ = chainID
+	if keystore.edition == EditionBTCOnly {
+		return nil, errp.New("coin not supported: eth")
+	}
 	xprv, err := keypath.Derive(keystore.master)
 	if err != nil {
 		return nil, err

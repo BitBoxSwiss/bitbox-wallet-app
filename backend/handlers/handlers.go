@@ -37,6 +37,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bluetooth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
@@ -86,7 +87,7 @@ type Backend interface {
 	CoinFiatPrices(coinpkg.Coin) *coinpkg.FormattedAmountWithConversions
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(*config.ServerInfo) error
-	RegisterTestKeystore(string)
+	RegisterTestKeystore(string, software.Edition) error
 	NotifyUser(string)
 	SystemOpen(string) error
 	ReinitializeAccounts()
@@ -990,12 +991,15 @@ func (handlers *Handlers) postRegisterTestKeystore(r *http.Request) (interface{}
 		return nil, errp.New("Test keystore not available")
 	}
 	var jsonBody struct {
-		PIN string `json:"pin"`
+		PIN     string           `json:"pin"`
+		Edition software.Edition `json:"edition"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	handlers.backend.RegisterTestKeystore(jsonBody.PIN)
+	if err := handlers.backend.RegisterTestKeystore(jsonBody.PIN, jsonBody.Edition); err != nil {
+		return nil, err
+	}
 	return nil, nil
 }
 

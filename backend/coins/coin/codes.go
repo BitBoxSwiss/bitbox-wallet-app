@@ -42,3 +42,13 @@ var TestnetCoins = map[Code]struct{}{
 	CodeSEPETH: {},
 	CodeRBTC:   {},
 }
+
+// IsBitcoinOnly returns true for Bitcoin mainnet, testnet, or regtest coin codes.
+func IsBitcoinOnly(code Code) bool {
+	switch code {
+	case CodeBTC, CodeTBTC, CodeRBTC:
+		return true
+	default:
+		return false
+	}
+}

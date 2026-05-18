@@ -1013,6 +1013,7 @@
     "title": "Custom gap limit settings"
   },
   "generic": {
+    "bitcoinOnly": "Bitcoin-only",
     "buy": "Buy {{coinCode}}",
     "buySell": "Marketplace",
     "buy_bitcoin": "Buy Bitcoin",

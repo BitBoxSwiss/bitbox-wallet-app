@@ -3,8 +3,8 @@
 import React, { ReactNode, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
-import { registerTest } from '@/api/keystores';
-import { Button } from '@/components/forms';
+import { registerTest, type TTestKeystoreEdition } from '@/api/keystores';
+import { Button, Checkbox } from '@/components/forms';
 import { PasswordSingleInput } from '@/components/password';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 
@@ -21,9 +21,11 @@ export const SkipForTesting = ({
   const { isTesting } = useContext(AppContext);
   const [dialog, setDialog] = useState(false);
   const [testPIN, setTestPIN] = useState('');
+  const [btcOnly, setBTCOnly] = useState(false);
   const registerTestingDevice = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    await registerTest(testPIN);
+    const edition: TTestKeystoreEdition = btcOnly ? 'btc-only' : 'multi';
+    await registerTest(testPIN, edition);
     setDialog(false);
   };
 
@@ -48,6 +50,12 @@ export const SkipForTesting = ({
             autoFocus
             label={t('testWallet.prompt.passwordLabel')}
             onValidPassword={(pw) => setTestPIN(pw ? pw : '')}/>
+          <Checkbox
+            id="test-wallet-btc-only"
+            checked={btcOnly}
+            onChange={e => setBTCOnly((e.target as HTMLInputElement).checked)}
+            label={t('generic.bitcoinOnly')}
+          />
           <DialogButtons>
             <Button primary type="submit">
               {t('testWallet.prompt.button')}

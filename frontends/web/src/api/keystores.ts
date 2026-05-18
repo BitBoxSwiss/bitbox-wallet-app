@@ -28,8 +28,10 @@ export const getKeystores = (): Promise<TKeystores> => {
   return apiGet('keystores');
 };
 
-export const registerTest = (pin: string): Promise<null> => {
-  return apiPost('test/register', { pin });
+export type TTestKeystoreEdition = 'btc-only' | 'multi';
+
+export const registerTest = (pin: string, edition: TTestKeystoreEdition): Promise<null> => {
+  return apiPost('test/register', { pin, edition });
 };
 
 export const deregisterTest = (): Promise<null> => {
