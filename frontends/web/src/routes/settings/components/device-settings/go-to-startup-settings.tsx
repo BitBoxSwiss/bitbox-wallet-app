@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PointToBitBox02 } from '@/components/icon';
 import { gotoStartupSettings } from '@/api/bitbox02';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
@@ -24,7 +25,9 @@ const StartupSettingsWaitDialog = ({ show }: TStartupSettingsWaitDialogProps) =>
   return (
     <WaitDialog
       title={t('bitbox02Settings.gotoStartupSettings.title')} >
-      {t('bitbox02Settings.gotoStartupSettings.description')}
+      <p>{t('bitbox02Settings.gotoStartupSettings.description')}</p>
+      <p>{t('confirm.info')}</p>
+      <PointToBitBox02 />
     </WaitDialog>
   );
 };
