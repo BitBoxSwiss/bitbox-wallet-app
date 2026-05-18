@@ -157,11 +157,6 @@ func (keystore *Keystore) SupportsAccount(coin coinpkg.Coin, meta interface{}) b
 	}
 }
 
-// SupportsMultipleAccounts implements keystore.Keystore.
-func (keystore *Keystore) SupportsMultipleAccounts() bool {
-	return true
-}
-
 // Identifier implements keystore.Keystore.
 func (keystore *Keystore) Identifier() (string, error) {
 	return keystore.identifier, nil

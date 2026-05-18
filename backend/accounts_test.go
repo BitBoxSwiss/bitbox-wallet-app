@@ -337,16 +337,13 @@ func TestObserveKeystoreNameChanged(t *testing.T) {
 
 func TestNextAccountNumber(t *testing.T) {
 	fingerprintEmpty := []byte{0x77, 0x77, 0x77, 0x77}
-	ks := func(fingerprint []byte, supportsMultipleAccounts bool) *keystoremock.KeystoreMock {
+	ks := func(fingerprint []byte) *keystoremock.KeystoreMock {
 		return &keystoremock.KeystoreMock{
 			SupportsCoinFunc: func(coin coinpkg.Coin) bool {
 				return true
 			},
 			RootFingerprintFunc: func() ([]byte, error) {
 				return fingerprint, nil
-			},
-			SupportsMultipleAccountsFunc: func() bool {
-				return supportsMultipleAccounts
 			},
 		}
 	}
@@ -405,26 +402,19 @@ func TestNextAccountNumber(t *testing.T) {
 		},
 	}
 
-	num, err := nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprintEmpty, true), accountsConfig)
+	num, err := nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprintEmpty), accountsConfig)
 	require.NoError(t, err)
 	require.Equal(t, uint16(0), num)
 
-	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprintEmpty, false), accountsConfig)
-	require.NoError(t, err)
-	require.Equal(t, uint16(0), num)
-
-	num, err = nextAccountNumber(coinpkg.CodeBTC, ks(rootFingerprint1, true), accountsConfig)
+	num, err = nextAccountNumber(coinpkg.CodeBTC, ks(rootFingerprint1), accountsConfig)
 	require.NoError(t, err)
 	require.Equal(t, uint16(1), num)
 
-	_, err = nextAccountNumber(coinpkg.CodeBTC, ks(rootFingerprint1, false), accountsConfig)
-	require.Equal(t, errAccountLimitReached, errp.Cause(err))
-
-	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(rootFingerprint1, true), accountsConfig)
+	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(rootFingerprint1), accountsConfig)
 	require.NoError(t, err)
 	require.Equal(t, uint16(4), num)
 
-	_, err = nextAccountNumber(coinpkg.CodeTBTC, ks(rootFingerprint2, true), accountsConfig)
+	_, err = nextAccountNumber(coinpkg.CodeTBTC, ks(rootFingerprint2), accountsConfig)
 	require.Equal(t, errAccountLimitReached, errp.Cause(err))
 }
 
@@ -693,9 +683,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				return true
 			},
 			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-				return true
-			},
-			SupportsMultipleAccountsFunc: func() bool {
 				return true
 			},
 			BTCXPubsFunc: func(coin coinpkg.Coin, keypaths []signing.AbsoluteKeypath,
@@ -1028,9 +1015,6 @@ func TestTaprootUpgrade(t *testing.T) {
 				return true
 			}
 		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 		BTCXPubsFunc:          keystoreHelper.BTCXPubs,
 	}
@@ -1059,9 +1043,6 @@ func TestTaprootUpgrade(t *testing.T) {
 			default:
 				return true
 			}
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
 		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 		BTCXPubsFunc:          keystoreHelper.BTCXPubs,

@@ -727,10 +727,6 @@ func nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accoun
 			nextAccountNumber = accountNumber + 1
 		}
 	}
-	if !keystore.SupportsMultipleAccounts() && nextAccountNumber >= 1 {
-		return 0, errp.WithStack(errAccountLimitReached)
-	}
-
 	if int(nextAccountNumber) >= accountsHardLimit(coinCode) {
 		return 0, errp.WithStack(errAccountLimitReached)
 	}
