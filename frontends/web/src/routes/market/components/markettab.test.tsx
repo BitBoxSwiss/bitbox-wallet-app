@@ -4,6 +4,7 @@ import '../../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom';
 import { MarketTab } from './markettab';
 import { getConfig } from '@/utils/config';
 
