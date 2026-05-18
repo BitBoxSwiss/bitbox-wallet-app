@@ -13,6 +13,8 @@
 
 	<key>CFBundleIconFile</key>
 	<string>icon.icns</string>
+	<key>CFBundleIconName</key>
+	<string>icon</string>
 
 	<key>CFBundleIdentifier</key>
 	<string>ch.shiftcrypto.wallet.testnet</string>
