@@ -25,8 +25,10 @@ export const SkipForTesting = ({
   const registerTestingDevice = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     const edition: TTestKeystoreEdition = btcOnly ? 'btc-only' : 'multi';
-    await registerTest(testPIN, edition);
-    setDialog(false);
+    const response = await registerTest(testPIN, edition);
+    if (response.success) {
+      setDialog(false);
+    }
   };
 
   if (!isTesting) {
