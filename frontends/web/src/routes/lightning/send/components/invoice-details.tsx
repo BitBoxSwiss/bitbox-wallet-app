@@ -56,39 +56,80 @@ const AmountValue = ({ amount, showFiat = false }: TAmountValueProps) => {
   );
 };
 
-type TPaymentDetailsProps = {
-  input: TPaymentInputType;
-  quote: TPreparePaymentResponse;
+const satsAmount = (amountSat?: number): TAmountWithConversions | undefined => {
+  if (amountSat === undefined) {
+    return undefined;
+  }
+  return {
+    amount: amountSat.toString(),
+    unit: 'sat',
+    estimated: false,
+  };
 };
 
-export const PaymentDetails = ({ input, quote }: TPaymentDetailsProps) => {
+type TProps = {
+  fees?: TPreparePaymentResponse;
+  totalWithFiat?: boolean;
+};
+
+type TPaymentAmountDetailsProps = {
+  amountSat?: number;
+};
+
+type TPaymentDetailsProps = {
+  input: TPaymentInputType;
+  fees: TPreparePaymentResponse;
+};
+
+export const PaymentAmountDetails = ({ amountSat }: TPaymentAmountDetailsProps) => {
   const { t } = useTranslation();
-  const { invoice } = input;
-  const invoiceAmount = useInvoiceAmount(quote.amountSat);
-  const feeAmount = useInvoiceAmount(quote.feeSat);
-  const totalDebitAmount = useInvoiceAmount(quote.totalDebitSat);
+  const invoiceAmount = useInvoiceAmount(amountSat);
+
+  return (
+    <div className={styles.info}>
+      <h2 className={styles.label}>{t('lightning.send.confirm.amount')}</h2>
+      <AmountValue amount={invoiceAmount} showFiat />
+    </div>
+  );
+};
+
+export const PaymentFeeDetails = ({ fees, totalWithFiat = false }: TProps) => {
+  const { t } = useTranslation();
+  const feeAmount = satsAmount(fees?.feeSat);
+  const totalDebitAmountSat = satsAmount(fees?.totalDebitSat);
+  const convertedTotalDebitAmount = useInvoiceAmount(totalWithFiat ? fees?.totalDebitSat : undefined);
+  const totalDebitAmount = totalWithFiat ? convertedTotalDebitAmount || totalDebitAmountSat : totalDebitAmountSat;
+  const showTotalFiat = totalWithFiat && convertedTotalDebitAmount !== undefined;
 
   return (
     <>
-      <h1 className={styles.title}>{t('lightning.send.confirm.title')}</h1>
-      <div className={styles.info}>
-        <h2 className={styles.label}>{t('lightning.send.confirm.amount')}</h2>
-        <AmountValue amount={invoiceAmount} showFiat />
-      </div>
-      {invoice.description && (
-        <div className={styles.info}>
-          <h2 className={styles.label}>{t('lightning.send.confirm.memo')}</h2>
-          {invoice.description}
-        </div>
-      )}
       <div className={styles.info}>
         <h2 className={styles.label}>{t('send.fee.label')}</h2>
         <AmountValue amount={feeAmount} />
       </div>
       <div className={styles.info}>
         <h2 className={styles.label}>{t('send.confirm.total')}</h2>
-        <AmountValue amount={totalDebitAmount} showFiat />
+        <AmountValue amount={totalDebitAmount} showFiat={showTotalFiat} />
       </div>
+    </>
+  );
+};
+
+export const PaymentDetails = ({ input, fees }: TPaymentDetailsProps) => {
+  const { t } = useTranslation();
+  const { invoice } = input;
+
+  return (
+    <>
+      <h1 className={styles.title}>{t('lightning.send.confirm.title')}</h1>
+      <PaymentAmountDetails amountSat={fees.amountSat} />
+      {invoice.description && (
+        <div className={styles.info}>
+          <h2 className={styles.label}>{t('lightning.send.confirm.memo')}</h2>
+          {invoice.description}
+        </div>
+      )}
+      <PaymentFeeDetails fees={fees} totalWithFiat />
     </>
   );
 };
