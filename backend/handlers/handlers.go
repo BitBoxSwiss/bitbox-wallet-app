@@ -325,7 +325,7 @@ func NewHandlers(
 	getBitBox02BootloaderHandlers := func(deviceID string) *bitbox02bootloaderHandlers.Handlers {
 		defer handlersMapLock.Lock()()
 		if _, ok := bitbox02BootloaderHandlersMap[deviceID]; !ok {
-			bitbox02BootloaderHandlersMap[deviceID] = bitbox02bootloaderHandlers.NewHandlers(getAPIRouter(
+			bitbox02BootloaderHandlersMap[deviceID] = bitbox02bootloaderHandlers.NewHandlers(getAPIRouterNoError(
 				apiRouter.PathPrefix(fmt.Sprintf("/devices/bitbox02-bootloader/%s", deviceID)).Subrouter(),
 			), log)
 		}
