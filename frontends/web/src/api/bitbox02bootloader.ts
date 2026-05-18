@@ -2,6 +2,7 @@
 
 import { apiGet, apiPost } from '@/utils/request';
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
+import type { SuccessResponse } from './response';
 
 export type TStatus = {
   upgrading: boolean;
@@ -42,32 +43,43 @@ type TInfo = {
   additionalUpgradeFollows: boolean;
 };
 
+type TBootloaderErrorResponse = {
+  success: false;
+  errorMessage?: string;
+};
+
+export type TBootloaderResponse = SuccessResponse | TBootloaderErrorResponse;
+
+type TInfoResponse = (SuccessResponse & { info: TInfo }) | TBootloaderErrorResponse;
+
+type TShowFirmwareHashResponse = (SuccessResponse & { enabled: boolean }) | TBootloaderErrorResponse;
+
 export const getInfo = (
   deviceID: string,
-): Promise<TInfo> => {
+): Promise<TInfoResponse> => {
   return apiGet(`devices/bitbox02-bootloader/${deviceID}/info`);
 };
 
 export const upgradeFirmware = (
   deviceID: string,
-): Promise<void> => {
+): Promise<TBootloaderResponse> => {
   return apiPost(`devices/bitbox02-bootloader/${deviceID}/upgrade-firmware`);
 };
 
 export const reboot = (
   deviceID: string,
-): Promise<void> => {
+): Promise<TBootloaderResponse> => {
   return apiPost(`devices/bitbox02-bootloader/${deviceID}/reboot`);
 };
 
 export const screenRotate = (
   deviceID: string,
-): Promise<void> => {
+): Promise<TBootloaderResponse> => {
   return apiPost(`devices/bitbox02-bootloader/${deviceID}/screen-rotate`);
 };
 
 export const getShowFirmwareHash = (deviceID: string) => {
-  return (): Promise<boolean> => {
+  return (): Promise<TShowFirmwareHashResponse> => {
     return apiGet(`devices/bitbox02-bootloader/${deviceID}/show-firmware-hash-enabled`);
   };
 };
@@ -75,7 +87,7 @@ export const getShowFirmwareHash = (deviceID: string) => {
 export const setShowFirmwareHash = (
   deviceID: string,
   enabled: boolean,
-) => {
+): Promise<TBootloaderResponse> => {
   return apiPost(
     `devices/bitbox02-bootloader/${deviceID}/set-firmware-hash-enabled`,
     enabled,
