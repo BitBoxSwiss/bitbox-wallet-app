@@ -100,7 +100,7 @@ export const BackupsV2 = ({
       <div className={backupStyle.stepContext}>
         {
           errorText && (
-            <Toast theme="warning">
+            <Toast type="warning">
               {errorText}
             </Toast>
           )

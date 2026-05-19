@@ -9,17 +9,20 @@ import style from './Toast.module.css';
 
 type TToastProps = {
   type?: TMessageTypes;
+  // Deprecated prop kept for compatibility with the existing callsites.
+  theme?: TMessageTypes;
   icon?: ReactNode;
+  className?: string;
   onClose?: () => void;
   children: ReactNode;
 };
 
-export const Toast = ({ type = 'info', icon, onClose, children }: TToastProps) => {
+export const Toast = ({ type, theme, icon, className = '', onClose, children }: TToastProps) => {
+  const resolvedType = type || theme || 'info';
   const { isDarkMode } = useDarkmode();
   const iconWithSpacing = icon ? <span className={style.icon}>{icon}</span> : undefined;
-  const className = [style.toast, style.toastItem].filter(Boolean).join(' ');
   return (
-    <Message icon={iconWithSpacing} type={type} className={className}>
+    <Message icon={iconWithSpacing} type={resolvedType} className={`${style.toast || ''} ${className || ''}`.trim()}>
       <div className={style.container}>
         <div className={style.content}>{children}</div>
         <button

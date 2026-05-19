@@ -8,6 +8,7 @@ import { BackNavigationProvider } from './BackNavigationContext';
 import { WCWeb3WalletProvider } from './WCWeb3WalletProvider';
 import { RatesProvider } from './RatesProvider';
 import { LocalizationProvider } from './localization-provider';
+import { ToastProvider } from './toast-provider';
 
 type Props = {
   children: ReactNode;
@@ -21,9 +22,11 @@ export const Providers = ({ children }: Props) => {
           <DarkModeProvider>
             <LocalizationProvider>
               <RatesProvider>
-                <WCWeb3WalletProvider>
-                  {children}
-                </WCWeb3WalletProvider>
+                <ToastProvider>
+                  <WCWeb3WalletProvider>
+                    {children}
+                  </WCWeb3WalletProvider>
+                </ToastProvider>
               </RatesProvider>
             </LocalizationProvider>
           </DarkModeProvider>
