@@ -64,6 +64,8 @@ struct WidgetDataService {
             return nil
         }
 
+        async let currentPriceFromSimplePrice = fetchCurrentPrice(coinCode: coinCode, currency: currency)
+
         do {
             let (data, response) = try await session.data(from: url)
             let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
@@ -85,18 +87,21 @@ struct WidgetDataService {
                 return nil
             }
 
-            guard let currentPrice = prices.last,
+            guard let rangeCurrentPrice = prices.last,
                   let firstPrice = prices.first,
-                  currentPrice.isFinite,
+                  rangeCurrentPrice.isFinite,
                   firstPrice.isFinite,
                   firstPrice != 0 else {
                 return nil
             }
+            let simplePrice = await currentPriceFromSimplePrice
+            let currentPrice = simplePrice ?? rangeCurrentPrice
+            let chartPrices = simplePrice.map { prices + [$0] } ?? prices
             let change = (currentPrice - firstPrice) / firstPrice * 100
             let result = PriceData(
                 price: currentPrice,
                 change24h: change,
-                chartPrices: prices,
+                chartPrices: chartPrices,
                 coinCode: WidgetShared.normalizeCoinCode(coinCode),
                 currency: currency.uppercased()
             )
@@ -107,11 +112,40 @@ struct WidgetDataService {
         }
     }
 
+    private func fetchCurrentPrice(coinCode: String, currency: String) async -> Double? {
+        guard let url = simplePriceURL(for: coinCode, currency: currency) else {
+            return nil
+        }
+
+        do {
+            let (data, response) = try await session.data(from: url)
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+            guard statusCode == 200,
+                  let decoded = try? JSONDecoder().decode([String: [String: Double]].self, from: data) else {
+                return nil
+            }
+            let geckoID = WidgetCoinMetadata.geckoID(for: coinCode)
+            let geckoCurrency = currency.lowercased()
+            guard let currentPrice = decoded[geckoID]?[geckoCurrency],
+                  currentPrice.isFinite else {
+                return nil
+            }
+            return currentPrice
+        } catch {
+            return nil
+        }
+    }
+
     private func chartURL(for coinCode: String, currency: String) -> URL? {
         let now = Int(Date().timeIntervalSince1970)
         let oneDayAgo = now - Self.chartRangeSeconds
         let geckoID = WidgetCoinMetadata.geckoID(for: coinCode)
         return URL(string: "https://exchangerates.shiftcrypto.io/api/v3/coins/\(geckoID)/market_chart/range?vs_currency=\(currency.lowercased())&from=\(oneDayAgo)&to=\(now)")
+    }
+
+    private func simplePriceURL(for coinCode: String, currency: String) -> URL? {
+        let geckoID = WidgetCoinMetadata.geckoID(for: coinCode)
+        return URL(string: "https://exchangerates.shiftcrypto.io/api/v3/simple/price?ids=\(geckoID)&vs_currencies=\(currency.lowercased())")
     }
 
     private static func makeSession() -> URLSession {

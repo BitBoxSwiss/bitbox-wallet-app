@@ -46,7 +46,8 @@ The widget shows **one coin at a time**. The user switches coins with left/right
 
 ## 3. How prices are fetched
 
-The widget calls the **Shift Crypto CoinGecko Mirror API**:
+The widget calls the **Shift Crypto CoinGecko Mirror API**. It uses the chart endpoint for historical
+data:
 
 ```
 https://exchangerates.shiftcrypto.io/api/v3/coins/{geckoID}/market_chart/range
@@ -55,15 +56,24 @@ https://exchangerates.shiftcrypto.io/api/v3/coins/{geckoID}/market_chart/range
   &to={now}
 ```
 
+It also calls the simple price endpoint for a fresher current price:
+
+```
+https://exchangerates.shiftcrypto.io/api/v3/simple/price
+  ?ids={geckoID}
+  &vs_currencies={currency}
+```
+
 Where `geckoID` maps `btc` -> `bitcoin`, `ltc` -> `litecoin`, `eth` -> `ethereum`.
 
-This returns 24 hours of price data points. From that response:
+The chart response returns 24 hours of price data points. The simple price response is appended to
+that series when available. From those responses:
 
-- **Current price** = last data point.
-- **24-hour change** = percentage difference between first and last data points.
-- **Chart data** = all returned price points (used for the sparkline).
+- **Current price** = simple price when available, otherwise the chart response's last data point.
+- **24-hour change** = percentage difference between the chart response's first data point and the current price.
+- **Chart data** = all returned chart price points plus the simple price when available (used for the sparkline).
 
-The request has a **10-second timeout**.
+Each request has a **10-second timeout**.
 
 ---
 
