@@ -63,6 +63,14 @@ func accountsHardLimit(coinCode coinpkg.Code) int {
 	}
 }
 
+// coinPolicy returns the active coin policy for the backend's current network mode.
+func (backend *Backend) coinPolicy() coinPolicy {
+	return coinPolicy{
+		testing: backend.Testing(),
+		regtest: backend.arguments.Regtest(),
+	}
+}
+
 // AccountsList is an accounts.Interface slice which implements a lookup method.
 type AccountsList []accounts.Interface
 
@@ -201,17 +209,10 @@ func sortAccounts(accounts []accounts.Interface, accountsConfig config.AccountsC
 // accounts are not loaded in mainnet and vice versa.
 func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, filter func(*config.AccountsConfig, *config.Account) bool) []*config.Account {
 	var accounts []*config.Account
+	policy := backend.coinPolicy()
 	for _, account := range accountsConfig.Accounts {
-		if !backend.arguments.Regtest() {
-			if _, isTestnet := coinpkg.TestnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
-				// Don't load testnet accounts when running normally, nor mainnet accounts when running
-				// in testing mode
-				continue
-			}
-		}
-		if isRegtest := account.CoinCode == coinpkg.CodeRBTC; isRegtest != backend.arguments.Regtest() {
-			// Don't load regtest accounts when running normally, nor mainnet accounts when running
-			// in regtest mode.
+		if !policy.coinEnabled(account.CoinCode) {
+			// Don't load accounts from another network mode.
 			continue
 		}
 		_, err := backend.Coin(account.CoinCode)
@@ -231,23 +232,8 @@ func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, fi
 
 // SupportedCoins returns the list of coins that can be used with the given keystore.
 func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Code {
-	allCoins := []coinpkg.Code{
-		coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC,
-		coinpkg.CodeLTC, coinpkg.CodeTLTC,
-		coinpkg.CodeETH, coinpkg.CodeSEPETH,
-	}
 	var availableCoins []coinpkg.Code
-	for _, coinCode := range allCoins {
-		if _, isTestnet := coinpkg.TestnetCoins[coinCode]; !backend.arguments.Regtest() && isTestnet != backend.Testing() {
-			// Don't load testnet accounts when running normally, nor mainnet accounts when running
-			// in testing mode
-			continue
-		}
-		if isRegtest := coinCode == coinpkg.CodeRBTC; isRegtest != backend.arguments.Regtest() {
-			// Don't load regtest accounts when running normally, nor mainnet accounts when running
-			// in regtest mode.
-			continue
-		}
+	for _, coinCode := range backend.coinPolicy().supportedCoins() {
 		coin, err := backend.Coin(coinCode)
 		if err != nil {
 			backend.log.WithError(err).Errorf("AvailableCoins")
@@ -1373,46 +1359,27 @@ outer:
 // a user-facing setting. Now we simply use it for migration to decide which coins to add by
 // default.
 func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore, accountsConfig *config.AccountsConfig) error {
-	if backend.Testing() {
-		if backend.arguments.Regtest() {
-			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinpkg.CodeRBTC) {
-				if _, err := backend.createAndPersistAccountConfig(
-					coinpkg.CodeRBTC, 0, false, "", keystore, nil, accountsConfig); err != nil {
-					return err
-				}
-			}
-		} else {
-			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeSEPETH} {
-				if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
-					if _, err := backend.createAndPersistAccountConfig(
-						coinCode, 0, false, "", keystore, nil, accountsConfig); err != nil {
-						return err
+	for _, coinCode := range backend.coinPolicy().supportedCoins() {
+		if !backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
+			continue
+		}
 
-					}
-				}
+		// In the past, ERC20 tokens were configured to be active or inactive globally, now they are
+		// active/inactive per ETH account. We use the previous global settings to decide the default
+		// set of active tokens, for a smoother migration for the user.
+		var activeTokens []string
+		if coinCode == coinpkg.CodeETH {
+			for _, tokenCode := range backend.config.AppConfig().Backend.ETH.DeprecatedActiveERC20Tokens {
+				prefix := "eth-erc20-"
+				// Old config entries did not contain this prefix, but the token codes in the new config
+				// do, to match the codes listed in erc20.go
+				activeTokens = append(activeTokens, prefix+tokenCode)
 			}
 		}
-	} else {
-		for _, coinCode := range []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeETH} {
-			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
-				// In the past, ERC20 tokens were configured to be active or inactive globally, now they are
-				// active/inactive per ETH account. We use the previous global settings to decide the default
-				// set of active tokens, for a smoother migration for the user.
-				var activeTokens []string
-				if coinCode == coinpkg.CodeETH {
-					for _, tokenCode := range backend.config.AppConfig().Backend.ETH.DeprecatedActiveERC20Tokens {
-						prefix := "eth-erc20-"
-						// Old config entries did not contain this prefix, but the token codes in the new config
-						// do, to match the codes listed in erc20.go
-						activeTokens = append(activeTokens, prefix+tokenCode)
-					}
-				}
 
-				if _, err := backend.createAndPersistAccountConfig(
-					coinCode, 0, false, "", keystore, activeTokens, accountsConfig); err != nil {
-					return err
-				}
-			}
+		if _, err := backend.createAndPersistAccountConfig(
+			coinCode, 0, false, "", keystore, activeTokens, accountsConfig); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -1625,16 +1592,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 	}
 
 	// Enable accounts discovery for these coins.
-	var coinCodes []coinpkg.Code
-	switch {
-	case backend.arguments.Regtest():
-		coinCodes = []coinpkg.Code{coinpkg.CodeRBTC}
-	case backend.Testing():
-		coinCodes = []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC}
-	default:
-		coinCodes = []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC}
-	}
-	for _, coinCode := range coinCodes {
+	for _, coinCode := range backend.coinPolicy().discoveryCoins() {
 		coin, err := backend.Coin(coinCode)
 		if err != nil {
 			backend.log.Errorf("could not find coin %s", coinCode)
