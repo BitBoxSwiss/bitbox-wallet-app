@@ -2,6 +2,9 @@ import Foundation
 import WidgetKit
 
 struct Provider: TimelineProvider {
+    private static let refreshInterval: TimeInterval = 10 * 60
+    private static let retryInterval: TimeInterval = 60
+
     private let dataService = WidgetDataService()
 
     func placeholder(in context: Context) -> SimpleEntry {
@@ -48,15 +51,14 @@ struct Provider: TimelineProvider {
 
         if let exactCacheHit {
             let entry = resolvedEntry(for: coinCode, currency: currency, data: exactCacheHit)
-            let nextUpdate = Date().addingTimeInterval(15 * 60)
+            let nextUpdate = Date().addingTimeInterval(Self.refreshInterval)
             completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
         } else {
             Task {
                 let fetched = await dataService.fetchChartData(coinCode: coinCode, currency: currency)
                 let data = fetched ?? dataService.cachedFallback(for: coinCode, currency: currency)
                 let entry = resolvedEntry(for: coinCode, currency: currency, data: data)
-                let retryMinutes = fetched == nil ? 1 : 15
-                let nextUpdate = Date().addingTimeInterval(TimeInterval(retryMinutes * 60))
+                let nextUpdate = Date().addingTimeInterval(fetched == nil ? Self.retryInterval : Self.refreshInterval)
                 completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
             }
         }

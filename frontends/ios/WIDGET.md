@@ -73,7 +73,7 @@ Every successful API response is saved to `UserDefaults` as a `CachedPriceRecord
 
 **Cache key format:** `cachedPriceData_btc_USD` (one entry per coin+currency pair).
 
-**Cache TTL:** 1 hour. After that, the cached entry is considered stale and ignored.
+**Cache TTL:** 10 minutes. After that, the cached entry is considered stale and ignored.
 
 ### Cache-first strategy
 
@@ -81,7 +81,7 @@ When the widget refreshes, it follows this order:
 
 1. **Check cache** for the selected coin + currency.
 2. **If exact match found** (same coin AND same currency, not expired):
-   - Show the cached data immediately (no waiting). The next iOS-scheduled timeline reload will refresh it inline.
+   - Show the cached data immediately (no waiting). The next iOS-scheduled timeline reload will check again.
 3. **If no match** (cache miss, wrong currency, or expired):
    - Fetch from the network (blocking - the widget waits for the response).
    - If the network fails, try the cache as a last resort (even a different currency).
@@ -100,7 +100,9 @@ If the network fetch fails:
 
 ## 5. Refresh schedule
 
-- iOS calls the widget's timeline roughly **every 15 minutes**. This is not exact - iOS controls the actual timing based on widget budget, battery, and usage patterns.
+- The widget asks iOS for another timeline after **10 minutes**.
+- This is not exact - iOS controls the actual timing based on widget budget, battery, and usage patterns.
+- With the 10-minute cache TTL, each iOS-granted timeline reload should either use recent cached data or fetch fresh data.
 - If a network fetch fails, the widget asks iOS to retry in **1 minute**.
 - If the user changes their currency or accounts in the app, a refresh is triggered immediately.
 
