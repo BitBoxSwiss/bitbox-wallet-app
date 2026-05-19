@@ -18,7 +18,7 @@ enum WidgetShared {
 
     enum Cache {
         static let priceDataPrefix = "cachedPriceData"
-        static let priceTTL: TimeInterval = 3600
+        static let priceTTL: TimeInterval = 10 * 60
     }
 
     static func normalizeCoinCode(_ code: String) -> String {
