@@ -24,22 +24,20 @@ export const Bitsurance = ({ accounts }: TProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   const [insuredAccounts, setInsuredAccounts] = useState<TAccount[]>([]);
-  const [redirecting, setRedirecting] = useState(() => accounts.some(({ bitsuranceStatus }) => bitsuranceStatus));
   const [scanDone, setScanDone] = useState(false);
   const [scanLoading, setScanLoading] = useState(false);
 
   const amount = '100.000€';
+  const hasBitsuranceAccount = accounts.some(({ bitsuranceStatus }) => bitsuranceStatus);
 
   useEffect(() => {
-    if (accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)) {
+    if (hasBitsuranceAccount) {
       // replace current history item when redirecting so that the user can go back
       navigate('/market/bitsurance/dashboard', { replace: true });
-    } else {
-      setRedirecting(false);
     }
 
     return () => setInsuredAccounts([]);
-  }, [accounts, navigate]);
+  }, [accounts, hasBitsuranceAccount, navigate]);
 
   const detect = async (redirectToDashboard: boolean) => {
     setScanLoading(true);
@@ -79,7 +77,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
     navigate('/market/bitsurance/account');
   };
 
-  if (redirecting) {
+  if (hasBitsuranceAccount) {
     return null;
   }
 

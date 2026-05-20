@@ -2,7 +2,7 @@
 
 import 'flag-icons';
 import { useState, useEffect } from 'react';
-import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
 import { i18n } from '@/i18n/i18n';
@@ -18,7 +18,7 @@ import { Spinner } from '@/components/spinner/Spinner';
 import { Dialog } from '@/components/dialog/dialog';
 import { alertUser } from '@/components/alert/Alert';
 import { InfoButton } from '@/components/infobutton/infobutton';
-import { getMarketActionFromSearchParams, getMarketSelectPath } from './components/marketplace-navigation';
+import { getMarketActionFromSearchParams } from './components/marketplace-navigation';
 import { Deals } from './components/deals';
 import { getNativeLocale } from '@/api/nativelocale';
 import { useConfig } from '@/contexts/ConfigProvider';
@@ -27,7 +27,7 @@ import { getBTCDirectOTCLink, getPocketOTCLink, InfoContent, TInfoContentProps }
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
 import { open } from '@/api/system';
-import type { TMarketplaceOutletContext } from './marketplace-layout';
+import { useMarketContext } from './market-context';
 import style from './market.module.css';
 
 type TProps = {
@@ -42,23 +42,29 @@ export const Market = ({
   const { t } = useTranslation();
   const { config, setConfig } = useConfig();
   const navigate = useNavigate();
-  const marketplaceContext = useOutletContext<TMarketplaceOutletContext | undefined>();
   const [searchParams] = useSearchParams();
-  const marketAccountCode = marketplaceContext?.marketAccountCode;
-  const setMarketAccountCode = marketplaceContext?.setMarketAccountCode;
+  const {
+    marketAccountCode,
+    regions,
+    selectedRegion,
+    setMarketAccountCode,
+    setRegions,
+    setSelectedRegion,
+  } = useMarketContext();
   const validRouteAccountCode = accounts.some(account => account.code === code) ? code : '';
   const validMarketAccountCode = accounts.some(account => account.code === marketAccountCode) ? marketAccountCode : '';
 
   const [selectedAccount, setSelectedAccount] = useState<string>(validRouteAccountCode || validMarketAccountCode || '');
-  const [localSelectedRegion, setLocalSelectedRegion] = useState('');
-  const [localRegions, setLocalRegions] = useState<TOption[]>([]);
   const [info, setInfo] = useState<TInfoContentProps>();
   const [supportedAccounts, setSupportedAccounts] = useState<TAccount[]>(accounts);
   const activeTab = getMarketActionFromSearchParams(searchParams);
-  const regions = marketplaceContext?.regions ?? localRegions;
-  const selectedRegion = marketplaceContext?.selectedRegion ?? localSelectedRegion;
-  const setRegions = marketplaceContext?.setRegions ?? setLocalRegions;
-  const setSelectedRegion = marketplaceContext?.setSelectedRegion ?? setLocalSelectedRegion;
+  const selectedAccountIsValid = accounts.some(account => account.code === selectedAccount);
+  const connectedAccountCode = accounts.find(account => account.keystore.connected)?.code;
+  const nextSelectedAccount = validRouteAccountCode
+    || (selectedAccountIsValid ? selectedAccount : '')
+    || connectedAccountCode
+    || accounts[0]?.code
+    || '';
 
   const regionCodes = useLoad(marketAPI.getMarketRegionCodes);
   const nativeLocale = useLoad(getNativeLocale);
@@ -71,26 +77,28 @@ export const Market = ({
     agreedTerms: agreedPocketOTCTerms,
   } = useVendorTerms(config?.frontend.skipPocketOTCDisclaimer ?? false);
 
-  // keep account list in sync and ensure a valid selected account.
+  // keep account list in sync.
   useEffect(() => {
     setSupportedAccounts(accounts);
-    const selectedAccountIsValid = accounts.some(account => account.code === selectedAccount);
-    const accountOfConnectedKeystore = accounts.find(account => account.keystore.connected);
-    const nextAccount = validRouteAccountCode
-      || (selectedAccountIsValid ? selectedAccount : '')
-      || accountOfConnectedKeystore?.code
-      || accounts[0]?.code
-      || '';
-    if (nextAccount) {
-      setMarketAccountCode?.(nextAccount);
-      if (!validRouteAccountCode) {
-        navigate(getMarketSelectPath(activeTab, nextAccount), { replace: true });
-      }
+  }, [accounts]);
+
+  // ensure a valid selected account.
+  useEffect(() => {
+    if (nextSelectedAccount) {
+      setMarketAccountCode(nextSelectedAccount);
     }
-    if (nextAccount !== selectedAccount) {
-      setSelectedAccount(nextAccount);
+    if (nextSelectedAccount !== selectedAccount) {
+      setSelectedAccount(nextSelectedAccount);
     }
-  }, [accounts, activeTab, navigate, selectedAccount, setMarketAccountCode, validRouteAccountCode]);
+  }, [nextSelectedAccount, selectedAccount, setMarketAccountCode]);
+
+  // keep URLs normalized to include the selected account.
+  useEffect(() => {
+    if (validRouteAccountCode || !nextSelectedAccount) {
+      return;
+    }
+    navigate(`/market/select/${nextSelectedAccount}?tab=${activeTab}`, { replace: true });
+  }, [activeTab, navigate, nextSelectedAccount, validRouteAccountCode]);
 
   // update region Select component when `regionList` or `config` gets populated.
   useEffect(() => {
@@ -144,9 +152,9 @@ export const Market = ({
 
   const handleAccountChange = async (accountCode: string) => {
     if (await promptConnectKeystore(accountCode)) {
-      setMarketAccountCode?.(accountCode);
+      setMarketAccountCode(accountCode);
       setSelectedAccount(accountCode);
-      navigate(getMarketSelectPath(activeTab, accountCode), { replace: true });
+      navigate(`/market/select/${accountCode}?tab=${activeTab}`, { replace: true });
     }
   };
 

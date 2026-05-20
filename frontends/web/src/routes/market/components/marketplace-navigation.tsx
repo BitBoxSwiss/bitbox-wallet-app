@@ -7,6 +7,7 @@ import { useLoad } from '@/hooks/api';
 import { MarketTab } from './markettab';
 import type { TMarketplaceTab } from './markettab';
 import type { TMarketAction } from '@/api/market';
+import { useMarketContext } from '../market-context';
 import style from './markettab.module.css';
 
 type TProps = {
@@ -17,24 +18,12 @@ type TProps = {
   showSwap?: boolean;
 };
 
-let cachedShowSwap: boolean | undefined;
-
-export const getInsurancePath = (accounts?: TAccount[]) => {
-  return accounts?.some(({ bitsuranceStatus }) => bitsuranceStatus)
-    ? '/market/bitsurance/dashboard'
-    : '/market/bitsurance';
-};
-
 export const getMarketActionFromSearchParams = (searchParams: URLSearchParams): TMarketAction => {
   const tab = searchParams.get('tab');
   if (tab === 'buy' || tab === 'sell' || tab === 'spend' || tab === 'swap' || tab === 'otc') {
     return tab;
   }
   return 'buy';
-};
-
-export const getMarketSelectPath = (tab: TMarketAction, code?: string) => {
-  return `/market/select${code ? `/${code}` : ''}?tab=${tab}`;
 };
 
 export const MarketplaceNavigation = ({
@@ -44,15 +33,16 @@ export const MarketplaceNavigation = ({
   onChangeTab,
   showSwap,
 }: TProps) => {
+  const { setShowSwap, showSwap: contextShowSwap } = useMarketContext();
   const swapStatus = useLoad(showSwap === undefined ? getSwapStatus : null, [accounts]);
-  const showSwapTab = showSwap ?? swapStatus?.available ?? cachedShowSwap ?? false;
+  const showSwapTab = showSwap ?? swapStatus?.available ?? contextShowSwap ?? false;
 
   useEffect(() => {
     const nextShowSwap = showSwap ?? swapStatus?.available;
     if (nextShowSwap !== undefined) {
-      cachedShowSwap = nextShowSwap;
+      setShowSwap(nextShowSwap);
     }
-  }, [showSwap, swapStatus?.available]);
+  }, [setShowSwap, showSwap, swapStatus?.available]);
 
   return (
     <MarketTab

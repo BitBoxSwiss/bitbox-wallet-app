@@ -11,8 +11,6 @@ i18n
     resources: {
       en: {
         translation: {
-          'generic.insure': 'Insure',
-          'generic.swap': 'Swap',
           'key': 'value'
         }
       }

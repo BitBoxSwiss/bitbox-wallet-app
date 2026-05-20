@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { TAccount } from '@/api/account';
@@ -10,40 +10,27 @@ import { isBitcoinOnly } from '@/routes/account/utils';
 import { BitsuranceGuide } from '@/routes/bitsurance/guide';
 import { MarketGuide } from './guide';
 import {
-  getInsurancePath,
   getMarketActionFromSearchParams,
-  getMarketSelectPath,
   MarketplaceNavigation,
 } from './components/marketplace-navigation';
-import type { TOption } from './components/countryselect';
 import type { TMarketplaceTab } from './components/markettab';
+import { MarketProvider, useMarketContext } from './market-context';
 
 type TProps = {
   accounts: TAccount[];
 };
 
-export type TMarketplaceOutletContext = {
-  marketAccountCode?: string;
-  regions: TOption[];
-  selectedRegion: string;
-  setMarketAccountCode: (accountCode: string) => void;
-  setRegions: (regions: TOption[]) => void;
-  setSelectedRegion: (region: string) => void;
-};
-
-export const MarketplaceLayout = ({ accounts }: TProps) => {
+const MarketplaceLayoutContent = ({ accounts }: TProps) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { code } = useParams();
   const [searchParams] = useSearchParams();
+  const { marketAccountCode, setMarketAccountCode } = useMarketContext();
 
   const isBitsurance = pathname.startsWith('/market/bitsurance');
   const isMarketSelect = pathname.startsWith('/market/select');
   const showMarketplaceNavigation = !pathname.startsWith('/market/bitsurance/widget');
-  const [marketAccountCode, setMarketAccountCode] = useState(isMarketSelect ? code : undefined);
-  const [regions, setRegions] = useState<TOption[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState('');
   const activeTab: TMarketplaceTab = isBitsurance ? 'insure' : getMarketActionFromSearchParams(searchParams);
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
@@ -52,23 +39,18 @@ export const MarketplaceLayout = ({ accounts }: TProps) => {
     if (isMarketSelect && code) {
       setMarketAccountCode(code);
     }
-  }, [code, isMarketSelect]);
-
-  const outletContext = useMemo<TMarketplaceOutletContext>(() => ({
-    marketAccountCode,
-    regions,
-    selectedRegion,
-    setMarketAccountCode,
-    setRegions,
-    setSelectedRegion,
-  }), [marketAccountCode, regions, selectedRegion]);
+  }, [code, isMarketSelect, setMarketAccountCode]);
 
   const handleChangeTab = (tab: TMarketplaceTab) => {
     if (tab === 'insure') {
-      navigate(getInsurancePath(accounts));
+      const bitsurancePath = accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)
+        ? '/market/bitsurance/dashboard'
+        : '/market/bitsurance';
+      navigate(bitsurancePath);
       return;
     }
-    navigate(getMarketSelectPath(tab, isMarketSelect ? code || marketAccountCode : marketAccountCode));
+    const marketSelectAccountCode = isMarketSelect ? code || marketAccountCode : marketAccountCode;
+    navigate(`/market/select${marketSelectAccountCode ? `/${marketSelectAccountCode}` : ''}?tab=${tab}`);
   };
 
   return (
@@ -87,7 +69,7 @@ export const MarketplaceLayout = ({ accounts }: TProps) => {
               onChangeTab={handleChangeTab}
             />
           )}
-          <Outlet context={outletContext} />
+          <Outlet />
         </GuidedContent>
         {isBitsurance ? (
           <BitsuranceGuide />
@@ -96,5 +78,17 @@ export const MarketplaceLayout = ({ accounts }: TProps) => {
         )}
       </GuideWrapper>
     </Main>
+  );
+};
+
+export const MarketplaceLayout = ({ accounts }: TProps) => {
+  const { pathname } = useLocation();
+  const { code } = useParams();
+  const isMarketSelect = pathname.startsWith('/market/select');
+
+  return (
+    <MarketProvider initialMarketAccountCode={isMarketSelect ? code : undefined}>
+      <MarketplaceLayoutContent accounts={accounts} />
+    </MarketProvider>
   );
 };

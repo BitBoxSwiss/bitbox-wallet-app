@@ -92,7 +92,7 @@ const Sidebar = ({
   };
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
-  const userInSpecificAccountMarketPage = pathname.startsWith('/market');
+  const inMarketSection = pathname.startsWith('/market');
 
   return (
     <div className={style.sidebarContainer}>
@@ -150,7 +150,7 @@ const Sidebar = ({
           <>
             <div key="market" className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive || userInSpecificAccountMarketPage ? style.sidebarActive : ''}
+                className={({ isActive }) => isActive || inMarketSection ? style.sidebarActive : ''}
                 to="/market/select">
                 <div className={style.single}>
                   <Coins />

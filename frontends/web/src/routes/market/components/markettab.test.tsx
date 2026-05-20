@@ -7,7 +7,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { MarketTab } from './markettab';
-import { getMarketSelectPath } from './marketplace-navigation';
 import { useConfig } from '@/contexts/ConfigProvider';
 
 vi.mock('@/contexts/ConfigProvider', () => ({
@@ -126,13 +125,5 @@ describe('routes/market/components/markettab', () => {
     );
 
     expect(await screen.findByTestId('otc-new-badge')).toBeInTheDocument();
-  });
-
-  it('preserves the account code in market select tab paths', () => {
-    expect(getMarketSelectPath('sell', 'btc-1')).toBe('/market/select/btc-1?tab=sell');
-  });
-
-  it('builds market select tab paths without account code', () => {
-    expect(getMarketSelectPath('sell')).toBe('/market/select?tab=sell');
   });
 });
