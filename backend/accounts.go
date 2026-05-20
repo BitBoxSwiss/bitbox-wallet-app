@@ -600,55 +600,30 @@ func (backend *Backend) createAndPersistAccountConfig(
 		WithField("coinCode", coinCode).
 		WithField("accountNumber", accountNumber)
 	log.Info("Persisting new account config")
-	accountNumberHardened := uint32(accountNumber) + hardenedKeystart
 
-	switch coinCode {
-	case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC:
-		bip44Coin := 1 + hardenedKeystart
-		if coinCode == coinpkg.CodeBTC {
-			bip44Coin = hardenedKeystart
-		}
+	derivationSpec, err := newAccountDerivationSpec(coinCode, accountNumber)
+	if err != nil {
+		return "", err
+	}
+
+	switch derivationSpec.kind {
+	case accountDerivationKindBTC:
 		return accountCode, backend.persistBTCAccountConfig(keystore, accountCoin,
 			accountCode,
 			hiddenBecauseUnused,
 			name,
-			[]scriptTypeWithKeypath{
-				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2TR, signing.NewAbsoluteKeypathFromUint32(86+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2PKH, signing.NewAbsoluteKeypathFromUint32(44+hardenedKeystart, bip44Coin, accountNumberHardened)},
-			},
+			derivationSpec.btcConfigs,
 			accountsConfig,
 		)
-	case coinpkg.CodeLTC, coinpkg.CodeTLTC:
-		bip44Coin := 1 + hardenedKeystart
-		if coinCode == coinpkg.CodeLTC {
-			bip44Coin = 2 + hardenedKeystart
-		}
-		return accountCode, backend.persistBTCAccountConfig(keystore, accountCoin,
-			accountCode,
-			hiddenBecauseUnused,
-			name,
-			[]scriptTypeWithKeypath{
-				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
-			},
-			accountsConfig,
-		)
-	case coinpkg.CodeETH, coinpkg.CodeSEPETH:
-		bip44Coin := "1'"
-		if coinCode == coinpkg.CodeETH {
-			bip44Coin = "60'"
-		}
+	case accountDerivationKindETH:
 		return accountCode, backend.persistETHAccountConfig(
 			keystore, accountCoin, accountCode, hiddenBecauseUnused,
-			// TODO: Use []uint32 instead of a string keypath
-			fmt.Sprintf("m/44'/%s/0'/0/%d", bip44Coin, accountNumber),
+			derivationSpec.ethKeypath,
 			name,
 			activeTokens,
 			accountsConfig)
 	default:
-		return "", errp.Newf("Unrecognized coin code: %s", coinCode)
+		panic("unhandled account derivation kind")
 	}
 }
 
@@ -1167,11 +1142,6 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 	return nil
 }
 
-type scriptTypeWithKeypath struct {
-	scriptType signing.ScriptType
-	keypath    signing.AbsoluteKeypath
-}
-
 // adds a combined BTC account with the given script types.
 func (backend *Backend) persistBTCAccountConfig(
 	keystore keystore.Keystore,
@@ -1235,7 +1205,7 @@ func (backend *Backend) persistETHAccountConfig(
 	coin coinpkg.Coin,
 	code accountsTypes.Code,
 	hiddenBecauseUnused bool,
-	keypath string,
+	keypath signing.AbsoluteKeypath,
 	name string,
 	activeTokens []string,
 	accountsConfig *config.AccountsConfig,
@@ -1243,7 +1213,7 @@ func (backend *Backend) persistETHAccountConfig(
 	log := backend.log.
 		WithField("code", code).
 		WithField("name", name).
-		WithField("keypath", keypath)
+		WithField("keypath", keypath.Encode())
 
 	if !keystore.SupportsAccount(coin, nil) {
 		log.Info("skipping unsupported account")
@@ -1251,11 +1221,7 @@ func (backend *Backend) persistETHAccountConfig(
 	}
 
 	log.Info("persist account")
-	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
-	if err != nil {
-		panic(err)
-	}
-	extendedPublicKey, err := keystore.ExtendedPublicKey(coin, absoluteKeypath)
+	extendedPublicKey, err := keystore.ExtendedPublicKey(coin, keypath)
 	if err != nil {
 		return err
 	}
@@ -1267,7 +1233,7 @@ func (backend *Backend) persistETHAccountConfig(
 	signingConfigurations := signing.Configurations{
 		signing.NewEthereumConfiguration(
 			rootFingerprint,
-			absoluteKeypath,
+			keypath,
 			extendedPublicKey,
 		),
 	}
@@ -1401,18 +1367,18 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 				if err != nil {
 					return err
 				}
-				bip44Coin := 1 + hardenedKeystart
-				if account.CoinCode == coinpkg.CodeBTC {
-					bip44Coin = hardenedKeystart
+				bip44Coin, ok := coinpkg.BIP44CoinType(account.CoinCode)
+				if !ok {
+					return errp.Newf("Unrecognized coin code: %s", account.CoinCode)
 				}
 				accountNumber, err := account.SigningConfigurations[0].AccountNumber()
 				if err != nil {
 					return err
 				}
 				keypath := signing.NewAbsoluteKeypathFromUint32(
-					86+hdkeychain.HardenedKeyStart,
-					bip44Coin,
-					uint32(accountNumber)+hdkeychain.HardenedKeyStart)
+					86+hardenedKeystart,
+					bip44Coin+hardenedKeystart,
+					uint32(accountNumber)+hardenedKeystart)
 				extendedPublicKey, err := keystore.ExtendedPublicKey(accountCoin, keypath)
 				if err != nil {
 					return err
