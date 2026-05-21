@@ -26,8 +26,9 @@ import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { FiatValue } from '@/components/amount/fiat-value';
-import { TProposalError, txProposalErrorHandling } from './services';
+import { TProposalError } from './services';
 import { CoinControl } from './coin-control';
+import { useTxProposal } from './use-tx-proposal';
 import { connectKeystore } from '@/api/keystores';
 import { SubTitle } from '@/components/title';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -67,9 +68,6 @@ export const Send = ({
   const { btcUnit, defaultCurrency } = useContext(RatesContext);
   const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
   const [utxoDialogActive, setUtxoDialogActive] = useState(false);
-  // in case there are multiple parallel tx proposals we can ignore all other but the last one
-  const lastProposal = useRef<Promise<accountApi.TTxProposalResult> | null>(null);
-  const proposeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // state used for the "Receiver address" input - what the user types or the account's address that is selected
   const [recipientInput, setRecipientInput] = useState<string>('');
@@ -77,18 +75,12 @@ export const Send = ({
   const [selectedReceiverAccount, setSelectedReceiverAccount] = useState<accountApi.TAccount | null>(null);
   const [amount, setAmount] = useState<string>('');
   const [fiatAmount, setFiatAmount] = useState<string>('');
-  const [valid, setValid] = useState<boolean>(false);
   const [sendAll, setSendAll] = useState<boolean>(false);
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
-  const [isUpdatingProposal, setIsUpdatingProposal] = useState<boolean>(false);
   const [note, setNote] = useState<string>('');
   const [customFee, setCustomFee] = useState<string>('');
   const [errorHandling, setErrorHandling] = useState<TProposalError>({});
 
-  const [proposedFee, setProposedFee] = useState<accountApi.TAmountWithConversions>();
-  const [proposedTotal, setProposedTotal] = useState<accountApi.TAmountWithConversions>();
-  const [proposedAmount, setProposedAmount] = useState<accountApi.TAmountWithConversions>();
-  const [recipientDisplayAddress, setRecipientDisplayAddress] = useState('');
   const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
   const [sendResult, setSendResult] = useState<accountApi.TSendTx>();
 
@@ -97,23 +89,6 @@ export const Send = ({
   const prevBtcUnit = usePrevious(btcUnit);
 
   const balance = useAccountBalance(account.code, btcUnit);
-
-  const handleContinue = () => {
-    setSendAll(false);
-    setIsConfirming(false);
-    setRecipientInput('');
-    setSelectedReceiverAccount(null);
-    setProposedAmount(undefined);
-    setProposedFee(undefined);
-    setProposedTotal(undefined);
-    setRecipientDisplayAddress('');
-    setFiatAmount('');
-    setAmount('');
-    setNote('');
-    setCustomFee('');
-    setSendResult(undefined);
-    selectedUTXOsRef.current = {};
-  };
 
   const handleRetry = () => {
     setSendResult(undefined);
@@ -197,75 +172,42 @@ export const Send = ({
     }
   }, [account.coinCode, defaultCurrency, t]);
 
-  const txProposal = useCallback((
-    updateFiat: boolean,
-    result: accountApi.TTxProposalResult,
-  ) => {
-    setValid(result.success);
-    if (result.success) {
-      setErrorHandling({});
-      setProposedFee(result.fee);
-      setProposedAmount(result.amount);
-      setProposedTotal(result.total);
-      setRecipientDisplayAddress(result.recipientDisplayAddress);
-      setIsUpdatingProposal(false);
-      if (updateFiat) {
-        convertToFiat(result.amount.amount);
-      }
-    } else {
-      const errorHandling = txProposalErrorHandling(result.errorCode);
-      setErrorHandling(errorHandling);
-      setIsUpdatingProposal(false);
+  const clearFeeOnError = useCallback((errorHandling: TProposalError) => (
+    !!errorHandling.amountError
+    || Object.keys(errorHandling).length === 0
+  ), []);
 
-      if (
-        errorHandling.amountError
-        || Object.keys(errorHandling).length === 0
-      ) {
-        setProposedFee(undefined);
-      }
-      setRecipientDisplayAddress('');
-    }
-  }, [convertToFiat]);
+  const {
+    clearProposal,
+    isUpdatingProposal,
+    proposedAmount,
+    proposedFee,
+    proposedTotal,
+    recipientDisplayAddress,
+    setRecipientDisplayAddress,
+    valid,
+    validateAndDisplayFee,
+  } = useTxProposal({
+    accountCode: account.code,
+    clearFeeOnError,
+    getValidTxInputData,
+    onProposedAmount: convertToFiat,
+    setErrorHandling,
+  });
 
-  const validateAndDisplayFee = useCallback((
-    updateFiat: boolean = true,
-  ) => {
-    setProposedTotal(undefined);
-    setErrorHandling({});
-    const txInput = getValidTxInputData();
-    if (!txInput) {
-      return;
-    }
-    if (proposeTimeout.current) {
-      clearTimeout(proposeTimeout.current);
-      proposeTimeout.current = null;
-    }
-    setIsUpdatingProposal(true);
-    // defer the transaction proposal
-    proposeTimeout.current = setTimeout(async () => {
-      let proposePromise;
-      try {
-        proposePromise = accountApi.proposeTx(account.code, txInput);
-        // keep this as the last known proposal
-        lastProposal.current = proposePromise;
-        const result = await proposePromise;
-        // continue only if this is the most recent proposal
-        if (proposePromise === lastProposal.current) {
-          txProposal(updateFiat, result);
-        }
-      } catch (error) {
-        if (proposePromise === lastProposal.current) {
-          setValid(false);
-          console.error('Failed to propose transaction:', error);
-        }
-      } finally {
-        // cleanup regardless of success or failure
-        if (proposePromise === lastProposal.current) {
-          lastProposal.current = null;
-        }
-      }
-    }, 400); // Delay the proposal by 400 ms
-  }, [account.code, getValidTxInputData, txProposal]);
+  const handleContinue = () => {
+    setSendAll(false);
+    setIsConfirming(false);
+    setRecipientInput('');
+    setSelectedReceiverAccount(null);
+    clearProposal();
+    setFiatAmount('');
+    setAmount('');
+    setNote('');
+    setCustomFee('');
+    setSendResult(undefined);
+    selectedUTXOsRef.current = {};
+  };
 
   useEffect(() => {
     validateAndDisplayFee(updateFiat);
