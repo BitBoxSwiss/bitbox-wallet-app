@@ -1,0 +1,51 @@
+.form {
+  margin: 0 auto;
+  max-width: 540px;
+  width: 100%;
+}
+
+.field {
+  margin-bottom: var(--space-half);
+  width: 100%;
+}
+
+.field > label {
+  display: block;
+  margin-bottom: var(--space-quarter);
+}
+
+.assetField {
+  align-items: center;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-quaternary);
+  border-radius: var(--radius-xl);
+  color: var(--color-default);
+  display: flex;
+  gap: var(--space-quarter);
+  min-height: var(--input-height);
+  padding: 0 var(--space-half);
+}
+
+.assetField img {
+  height: 20px;
+  width: 20px;
+}
+
+.assetLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetBalance {
+  color: var(--color-secondary);
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.buttons {
+  margin-top: var(--space-large);
+}
