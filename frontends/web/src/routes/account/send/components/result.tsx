@@ -12,9 +12,12 @@ import { CopyableInput } from '@/components/copy/Copy';
 type TProps = {
   children?: ReactNode;
   code: AccountCode;
-  onContinue: () => void;
+  doneRoute?: string;
+  onContinue?: () => void;
   onRetry: () => void;
   result: TSendTx | undefined;
+  showSuccessActions?: boolean;
+  successMessage?: string;
 };
 
 /**
@@ -25,12 +28,16 @@ type TProps = {
 export const SendResult = ({
   children,
   code,
-  result,
+  doneRoute,
   onContinue,
+  result,
   onRetry,
+  showSuccessActions = true,
+  successMessage,
 }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const donePath = doneRoute || `/account/${code}`;
 
   if (!result) {
     return null;
@@ -47,7 +54,7 @@ export const SendResult = ({
             </p>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => navigate(`/account/${code}`)}>
+            <Button primary onClick={() => navigate(donePath)}>
               {t('button.done')}
             </Button>
             <Button secondary onClick={() => onRetry()}>
@@ -68,7 +75,7 @@ export const SendResult = ({
             </p>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => navigate(`/account/${code}`)}>
+            <Button primary onClick={() => navigate(donePath)}>
               {t('button.done')}
             </Button>
             <Button secondary onClick={() => navigate(`/market/select/${code}`, { replace: true })}>
@@ -93,7 +100,7 @@ export const SendResult = ({
             />
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => navigate(`/account/${code}`)}>
+            <Button primary onClick={() => navigate(donePath)}>
               {t('button.done')}
             </Button>
             <Button secondary onClick={() => onRetry()}>
@@ -110,18 +117,22 @@ export const SendResult = ({
       <ViewHeader />
       <ViewContent withIcon="success">
         <p>
-          {t('send.success')}
+          {successMessage || t('send.success')}
         </p>
         {children}
       </ViewContent>
-      <ViewButtons>
-        <Button primary onClick={() => navigate(`/account/${code}`)}>
-          {t('button.done')}
-        </Button>
-        <Button secondary onClick={() => onContinue()}>
-          {t('send.newTransaction')}
-        </Button>
-      </ViewButtons>
+      {showSuccessActions && (
+        <ViewButtons>
+          <Button primary onClick={() => navigate(donePath)}>
+            {t('button.done')}
+          </Button>
+          {onContinue && (
+            <Button secondary onClick={() => onContinue()}>
+              {t('send.newTransaction')}
+            </Button>
+          )}
+        </ViewButtons>
+      )}
     </View>
   );
 };
