@@ -27,3 +27,14 @@ export const txProposalErrorHandling = (errorCode?: string): TProposalError => {
     return {};
   }
 };
+
+export const txProposalExceptionHandling = (error: unknown): TProposalError => {
+  const { t } = i18n;
+  if (error instanceof Error && error.message) {
+    return { feeError: error.message };
+  }
+  if (typeof error === 'string' && error) {
+    return { feeError: error };
+  }
+  return { feeError: t('genericError') };
+};

@@ -10,7 +10,8 @@
 }
 
 .receive,
-.send {
+.send,
+.topUp {
     background-color: var(--color-blue);
     border-radius: 2px;
     color: var(--color-alt);
@@ -28,13 +29,15 @@
 }
 
 .receive,
-.send {
+.send,
+.topUp {
     margin-left: var(--space-quarter);
 }
 
 .buy:hover,
 .receive:hover,
-.send:not(.disabled):hover {
+.send:not(.disabled):hover,
+.topUp:hover {
     background-color: var(--color-lightblue);
 }
 
@@ -45,7 +48,8 @@
 
 @media (max-width: 768px) {
     .send,
-    .receive {
+    .receive,
+    .topUp {
         font-size: var(--size-small);
     }
 }

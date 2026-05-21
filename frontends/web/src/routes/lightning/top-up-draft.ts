@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { convertFromCurrency, convertToCurrency, type BtcUnit } from '@/api/coins';
+import type { TTopUpSourceAccount } from '@/api/lightning';
 import { usePrevious } from '@/hooks/previous';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { TProposalError } from '@/routes/account/send/services';
@@ -13,7 +14,7 @@ type TUseTopUpDraftProps = {
   boardingAddress?: string;
   btcUnit?: BtcUnit;
   defaultCurrency: accountApi.Fiat;
-  sourceAccount?: accountApi.TAccount;
+  sourceAccount?: TTopUpSourceAccount;
 };
 
 export const useTopUpDraft = ({

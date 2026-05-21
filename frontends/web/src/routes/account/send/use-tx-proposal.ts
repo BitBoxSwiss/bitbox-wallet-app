@@ -3,7 +3,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as accountApi from '@/api/account';
-import { TProposalError, txProposalErrorHandling } from './services';
+import { TProposalError, txProposalErrorHandling, txProposalExceptionHandling } from './services';
 
 type TUseTxProposalProps = {
   accountCode?: accountApi.AccountCode;
@@ -26,6 +26,8 @@ export const useTxProposal = ({
 }: TUseTxProposalProps) => {
   const lastProposal = useRef<Promise<accountApi.TTxProposalResult> | null>(null);
   const proposeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const accountCodeRef = useRef(accountCode);
+  const getValidTxInputDataRef = useRef(getValidTxInputData);
 
   const [valid, setValid] = useState(false);
   const [isUpdatingProposal, setIsUpdatingProposal] = useState(false);
@@ -33,6 +35,9 @@ export const useTxProposal = ({
   const [proposedTotal, setProposedTotal] = useState<accountApi.TAmountWithConversions>();
   const [proposedAmount, setProposedAmount] = useState<accountApi.TAmountWithConversions>();
   const [recipientDisplayAddress, setRecipientDisplayAddress] = useState('');
+
+  accountCodeRef.current = accountCode;
+  getValidTxInputDataRef.current = getValidTxInputData;
 
   const cancelPendingProposal = useCallback(() => {
     if (proposeTimeout.current) {
@@ -94,8 +99,8 @@ export const useTxProposal = ({
     cancelPendingProposal();
     setProposedTotal(undefined);
     setErrorHandling({});
-    const txInput = getValidTxInputData();
-    if (!txInput || !accountCode) {
+    const txInput = getValidTxInputDataRef.current();
+    if (!txInput || !accountCodeRef.current) {
       if (clearOnInvalidInput) {
         clearProposal();
       }
@@ -105,7 +110,15 @@ export const useTxProposal = ({
     proposeTimeout.current = setTimeout(async () => {
       let proposePromise: Promise<accountApi.TTxProposalResult> | null = null;
       try {
-        proposePromise = accountApi.proposeTx(accountCode, txInput);
+        const latestAccountCode = accountCodeRef.current;
+        const latestTxInput = getValidTxInputDataRef.current();
+        if (!latestTxInput || !latestAccountCode) {
+          if (clearOnInvalidInput) {
+            clearProposal();
+          }
+          return;
+        }
+        proposePromise = accountApi.proposeTx(latestAccountCode, latestTxInput);
         lastProposal.current = proposePromise;
         const result = await proposePromise;
         if (proposePromise === lastProposal.current) {
@@ -113,8 +126,8 @@ export const useTxProposal = ({
         }
       } catch (error) {
         if (proposePromise === lastProposal.current) {
-          setValid(false);
-          setIsUpdatingProposal(false);
+          setErrorHandling(txProposalExceptionHandling(error));
+          clearProposal();
           console.error('Failed to propose transaction:', error);
         }
       } finally {
@@ -125,11 +138,9 @@ export const useTxProposal = ({
       }
     }, 400);
   }, [
-    accountCode,
     cancelPendingProposal,
     clearOnInvalidInput,
     clearProposal,
-    getValidTxInputData,
     handleProposal,
     setErrorHandling,
   ]);

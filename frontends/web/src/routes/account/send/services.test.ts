@@ -2,7 +2,7 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { i18n as interfacei18n } from 'i18next';
-import { txProposalErrorHandling } from './services';
+import { txProposalErrorHandling, txProposalExceptionHandling } from './services';
 import { alertUser } from '@/components/alert/Alert';
 
 vi.mock('i18next', async () => {
@@ -33,12 +33,12 @@ describe('send services', () => {
 
     it('returns invalid amount message on invalidAmount error', () => {
       const result = txProposalErrorHandling('invalidAmount');
-      expect(result).toEqual({ amountError: 'send.error.invalidAmount', proposedFee: undefined });
+      expect(result).toEqual({ amountError: 'send.error.invalidAmount' });
     });
 
     it('returns insufficient funds message on insufficientFunds error', () => {
       const result = txProposalErrorHandling('insufficientFunds');
-      expect(result).toEqual({ amountError: 'send.error.insufficientFunds', proposedFee: undefined });
+      expect(result).toEqual({ amountError: 'send.error.insufficientFunds' });
     });
 
     it('returns fee too low message on feeTooLow error', () => {
@@ -53,8 +53,22 @@ describe('send services', () => {
 
     it('returns proposed fee undefined and alerts the user when error is unknown', () => {
       const result = txProposalErrorHandling('unknownError');
-      expect(result).toEqual({ proposedFee: undefined });
+      expect(result).toEqual({});
       expect(alertUser).toHaveBeenCalledWith('unknownError');
+    });
+
+  });
+
+  describe('txProposalExceptionHandling', () => {
+
+    it('returns thrown error message as fee error', () => {
+      const result = txProposalExceptionHandling(new Error('proposal failed'));
+      expect(result).toEqual({ feeError: 'proposal failed' });
+    });
+
+    it('falls back to generic error for unknown thrown values', () => {
+      const result = txProposalExceptionHandling({});
+      expect(result).toEqual({ feeError: 'genericError' });
     });
 
   });

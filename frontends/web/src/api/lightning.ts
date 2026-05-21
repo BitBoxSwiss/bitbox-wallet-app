@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { apiGet, apiPost } from '../utils/request';
-import { AccountCode, TAmountWithConversions, TBalance, TTransactionStatus } from './account';
+import { AccountCode, TAccountBase, TAmountWithConversions, TBalance, TTransactionStatus } from './account';
 import { TSubscriptionCallback, TUnsubscribe, subscribeEndpoint } from './subscribe';
 
 export type TLightningResponse<T> =
@@ -19,6 +19,21 @@ export type TLightningAccount = {
   rootFingerprint: string;
   code: AccountCode;
   num: number;
+};
+
+export type TTopUpSourceAccount = TAccountBase & {
+  coinCode: 'btc';
+  isToken: false;
+};
+
+export type TTopUpInfo = {
+  success: true;
+  sourceAccounts: TTopUpSourceAccount[];
+  defaultSourceAccountCode?: AccountCode;
+  accountToConnectRootFingerprint?: string;
+} | {
+  success: false;
+  errorMessage: string;
 };
 
 export type TLightningInvoice = {
@@ -148,6 +163,10 @@ export const getParsePaymentInput = async (params: TParsePaymentInputRequest): P
 
 export const getBoardingAddress = async (): Promise<string> => {
   return getApiResponse<string>('lightning/boarding-address', 'Error calling getBoardingAddress');
+};
+
+export const getTopUpInfo = async (): Promise<TTopUpInfo> => {
+  return apiGet('lightning/top-up/info');
 };
 
 export const postPreparePayment = async (data: TPreparePaymentRequest): Promise<TPreparePaymentResponse> => {

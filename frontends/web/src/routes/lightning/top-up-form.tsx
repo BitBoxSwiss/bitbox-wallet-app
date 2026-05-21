@@ -2,6 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
+import type { TTopUpSourceAccount } from '@/api/lightning';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
@@ -46,9 +47,9 @@ type TProps = {
   recipientDisplayAddress: string;
   sendDisabled: boolean;
   sendResult?: accountApi.TSendTx;
-  sourceAccount?: accountApi.TAccount;
+  sourceAccount?: TTopUpSourceAccount;
   sourceAccountCode?: accountApi.AccountCode;
-  sourceAccounts: accountApi.TAccount[];
+  sourceAccounts: TTopUpSourceAccount[];
 };
 
 type TEmptyStateProps = {

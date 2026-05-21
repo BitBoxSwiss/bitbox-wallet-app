@@ -9,7 +9,6 @@ import {
   getLightningBalance,
   getListPayments,
   subscribeListPayments,
-  getBoardingAddress,
 } from '../../api/lightning';
 import { Balance } from '../../components/balance/balance';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
@@ -37,7 +36,6 @@ export const Lightning = () => {
   const [error, setError] = useState<string>();
   const [detailID, setDetailID] = useState<TLightningPayment['id'] | null>(null);
   const devices = useLoad(getDeviceList);
-  const boardingAddress = useLoad(getBoardingAddress);
 
   const onStateChange = useCallback(async () => {
     try {
@@ -113,7 +111,6 @@ export const Lightning = () => {
               </div>
             </ViewHeader>
             <ViewContent fullWidth>
-              { <>Boarding address: {boardingAddress ?? ''}</> }
               {offlineErrorTextLines.length || !hasDataLoaded ? (
                 <Spinner text={initializingSpinnerText} />
               ) : (

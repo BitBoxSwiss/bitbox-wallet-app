@@ -1644,6 +1644,15 @@
         "message": "Transaction confirmed and sent!"
       },
       "title": "Send Lightning"
+    },
+    "topUp": {
+      "button": "Top up",
+      "from": "From",
+      "noActiveSourceAccount": "You need at least one active Bitcoin account to top up your lightning wallet.",
+      "success": {
+        "message": "Top up created!"
+      },
+      "title": "Top up lightning wallet"
     }
   },
   "loading": "loading…",

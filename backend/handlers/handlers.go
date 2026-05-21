@@ -70,6 +70,7 @@ type Backend interface {
 	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
 	SwapAccounts() (backend.SwapAccounts, error)
 	SwapStatus() backend.SwapStatus
+	LightningTopUpInfo() (backend.LightningTopUpInfo, error)
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
 	AccountsFiatAndCoinBalance(backend.AccountsList, string) (*big.Rat, map[coinpkg.Code]*big.Int, error)
 	Keystore() keystore.Keystore
@@ -277,6 +278,7 @@ func NewHandlers(
 
 	getAPIRouterNoError(apiRouter)("/online", handlers.getOnline).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/show-backup-banner/{rootFingerprint}", handlers.getKeystoreShowBackupBanner).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/top-up/info", handlers.getLightningTopUpInfo).Methods("GET")
 
 	lightning.NewHandlers(
 		getAPIRouterNoError(apiRouter.PathPrefix("/lightning").Subrouter()),
@@ -838,6 +840,40 @@ func (handlers *Handlers) getSwapAccounts(*http.Request) interface{} {
 
 func (handlers *Handlers) getSwapStatus(*http.Request) interface{} {
 	return handlers.backend.SwapStatus()
+}
+
+func (handlers *Handlers) getLightningTopUpInfo(*http.Request) interface{} {
+	type response struct {
+		Success                         bool                `json:"success"`
+		ErrorMessage                    string              `json:"errorMessage,omitempty"`
+		SourceAccounts                  []accountBaseJSON   `json:"sourceAccounts"`
+		DefaultSourceAccountCode        *accountsTypes.Code `json:"defaultSourceAccountCode,omitempty"`
+		AccountToConnectRootFingerprint jsonp.HexBytes      `json:"accountToConnectRootFingerprint,omitempty"`
+	}
+
+	topUpInfo, err := handlers.backend.LightningTopUpInfo()
+	if err != nil {
+		return response{
+			Success:      false,
+			ErrorMessage: err.Error(),
+		}
+	}
+
+	result := response{
+		Success:                         true,
+		SourceAccounts:                  make([]accountBaseJSON, len(topUpInfo.SourceAccounts)),
+		DefaultSourceAccountCode:        topUpInfo.DefaultSourceAccountCode,
+		AccountToConnectRootFingerprint: topUpInfo.AccountToConnectRootFingerprint,
+	}
+	for i, account := range topUpInfo.SourceAccounts {
+		result.SourceAccounts[i] = newAccountBaseJSON(
+			account.Keystore,
+			account.AccountConfig,
+			account.AccountCoin,
+			account.KeystoreConnected,
+		)
+	}
+	return result
 }
 
 func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
