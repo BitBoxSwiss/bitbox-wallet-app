@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AccountCode, TUsedAddress } from '@/api/account';
 import { Button } from '@/components/forms';
-import { Copy, OutlinedFileProtectPrimary } from '@/components/icon';
+import { CopyAddressButton } from '@/components/copy/copy-address-button';
+import { OutlinedFileProtectPrimary } from '@/components/icon';
 import style from './addresses.module.css';
 
 type TProps = {
@@ -18,12 +19,7 @@ export const AddressActions = ({ code, address, onCopy }: TProps) => {
   const navigate = useNavigate();
   return (
     <div className={style.inlineActions}>
-      <Button transparent inline className={style.linkAction} onClick={() => onCopy(address)}>
-        <span className={style.linkActionLabel}>
-          <Copy className={style.linkActionIcon} />
-          {t('button.copyAddress')}
-        </span>
-      </Button>
+      <CopyAddressButton mode="action" onClick={() => onCopy(address)} />
       {address.canSignMsg && (
         <Button transparent inline className={style.linkAction} onClick={() => navigate(`/account/${code}/addresses/${address.addressID}/sign-message`)}>
           <span className={style.linkActionLabel}>

@@ -1,0 +1,25 @@
+.moreOptionsWrap {
+  margin-top: calc(var(--space-quarter) * 3);
+  text-align: center;
+}
+
+.moreOptionsLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-quarter);
+}
+
+.moreOptionsChevron {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease-out;
+}
+
+.moreOptionsChevronOpen {
+  transform: rotate(0deg);
+}
+
+@media (max-width: 768px) {
+  .showMoreOptions {
+    margin-bottom: calc(var(--space-default) * 1.5);
+  }
+}

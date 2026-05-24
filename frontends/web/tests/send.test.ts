@@ -38,7 +38,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort, browserName
     await page.getByRole('button', { name: 'Verify address on BitBox' }).click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
     const receiveAddress = await getReceiveAddressData(page, host, servewalletPort);
-    await expect(addressLocator).toHaveValue(receiveAddress.displayAddress);
+    await expect(addressLocator).toContainText(receiveAddress.displayAddress);
     recvAdd = receiveAddress.address;
     expect(recvAdd).toContain('bcrt1');
     console.log(`Receive address: ${recvAdd}`);
@@ -95,7 +95,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort, browserName
     await verifyButton.click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
     const receiveAddress = await getReceiveAddressData(page, host, servewalletPort);
-    await expect(addressLocator).toHaveValue(receiveAddress.displayAddress);
+    await expect(addressLocator).toContainText(receiveAddress.displayAddress);
     secondAccountCode = getAccountCodeFromUrl(page.url());
     recvAdd = receiveAddress.address;
     expect(recvAdd).toContain('bcrt1');
@@ -166,7 +166,7 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort, browserName
     await verifyButton.click();
     const addressLocator = page.locator('[data-testid="receive-address"]');
     const receiveAddress = await getReceiveAddressData(page, host, servewalletPort);
-    await expect(addressLocator).toHaveValue(receiveAddress.displayAddress);
+    await expect(addressLocator).toContainText(receiveAddress.displayAddress);
     recvAdd = receiveAddress.address;
     expect(recvAdd).toContain('bcrt1');
     console.log(`Receive address: ${recvAdd}`);
