@@ -47,6 +47,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/useragent"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
@@ -198,6 +199,8 @@ type Environment interface {
 	// BluetoothConnect tries to connect to the peripheral by the given identifier.
 	// Use `backend.bluetooth.State()` to track failure.
 	BluetoothConnect(identifier string)
+	// UserAgentHost returns the host platform/device token used in the app's outbound user agent.
+	UserAgentHost() string
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -287,6 +290,13 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		useProxy,
 		backendConfig.AppConfig().Backend.Proxy.ProxyAddress,
 	)
+	userAgentHost := useragent.HostFromRuntime()
+	if environment != nil {
+		if host := environment.UserAgentHost(); host != "" {
+			userAgentHost = host
+		}
+	}
+	backendProxy = backendProxy.WithUserAgent(useragent.String(versioninfo.Version.String(), userAgentHost))
 	hclient, err := backendProxy.GetHTTPClient()
 	if err != nil {
 		return nil, err

@@ -21,6 +21,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/useragent"
 	"github.com/sirupsen/logrus"
 )
 
@@ -94,6 +95,11 @@ func (webdevEnvironment) OnAuthSettingChanged(enabled bool) {
 
 // BluetoothConnect implements backend.Environment.
 func (webdevEnvironment) BluetoothConnect(identifier string) {
+}
+
+// UserAgentHost implements backend.Environment.
+func (webdevEnvironment) UserAgentHost() string {
+	return useragent.HostFromRuntime()
 }
 
 // NativeLocale naively implements backend.Environment.
