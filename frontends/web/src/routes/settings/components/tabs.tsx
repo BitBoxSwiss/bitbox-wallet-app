@@ -163,17 +163,32 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
           url="/settings/no-accounts"
         />
       )}
-      {deviceIDs.length ? deviceIDs.map(id => (
-        <TabWithVersionCheck
-          icon={isDarkMode ? <USBLight className={styles.tabIcon} /> : <USBDark className={styles.tabIcon} />}
-          key={`device-${id}`}
-          deviceID={id}
-          device={devices[id] as TPlatformName}
-          hideMobileMenu={hideMobileMenu}
-          name={t('sidebar.device')}
-          url={`/settings/device-settings/${id}`}
-        />
-      )) : (
+      {deviceIDs.length ? deviceIDs.flatMap(id => {
+        const device = devices[id] as TPlatformName;
+        const tabs = [
+          <TabWithVersionCheck
+            icon={isDarkMode ? <USBLight className={styles.tabIcon} /> : <USBDark className={styles.tabIcon} />}
+            key={`device-${id}`}
+            deviceID={id}
+            device={device}
+            hideMobileMenu={hideMobileMenu}
+            name={t('sidebar.device')}
+            url={`/settings/device-settings/${id}`}
+          />
+        ];
+        if (device === 'bitbox02') {
+          tabs.push(
+            <Tab
+              icon={isDarkMode ? <USBLight className={styles.tabIcon} /> : <USBDark className={styles.tabIcon} />}
+              key={`backup-functionality-${id}`}
+              hideMobileMenu={hideMobileMenu}
+              name={t('deviceSettings.backups.title')}
+              url={`/settings/backup-functionality/${id}`}
+            />
+          );
+        }
+        return tabs;
+      }) : (
         <Tab
           icon={isDarkMode ? <USBLight className={styles.tabIcon} /> : <USBDark className={styles.tabIcon} />}
           key="no-device"

@@ -85,6 +85,7 @@ export const App = () => {
       deviceIDs.length === 0
       && (
         currentURL.startsWith('/settings/device-settings/')
+        || currentURL.startsWith('/settings/backup-functionality/')
         || currentURL.startsWith('/manage-backups/')
       )
     ) {

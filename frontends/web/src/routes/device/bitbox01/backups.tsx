@@ -17,6 +17,7 @@ import { Restore } from './restore';
 type BackupsProps = {
   deviceID: string;
   showCreate?: boolean;
+  showCheck?: boolean;
   showRestore?: boolean;
   requireConfirmation?: boolean;
   onRestore?: () => void;
@@ -89,6 +90,7 @@ class Backups extends Component<Props, State> {
       t,
       children,
       showCreate = false,
+      showCheck = showCreate,
       showRestore = true,
       deviceID,
       requireConfirmation = true,
@@ -146,7 +148,7 @@ class Backups extends Component<Props, State> {
             )
           }
           {
-            showCreate && (
+            showCheck && (
               <Check
                 selectedBackup={selectedBackup}
                 deviceID={deviceID} />
