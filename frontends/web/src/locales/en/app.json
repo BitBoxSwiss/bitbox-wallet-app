@@ -1644,6 +1644,12 @@
         "message": "Transaction confirmed and sent!"
       },
       "title": "Send Lightning"
+    },
+    "sparkStatus": {
+      "degraded": "The Spark network is experiencing degraded performance. Lightning payments may be delayed.",
+      "major": "The Spark network is experiencing a major outage. Lightning payments may be unavailable.",
+      "partial": "The Spark network is partially unavailable. Lightning payments may be unavailable.",
+      "unknown": "The Spark network status is unknown. Lightning payments may be unavailable."
     }
   },
   "loading": "loading…",

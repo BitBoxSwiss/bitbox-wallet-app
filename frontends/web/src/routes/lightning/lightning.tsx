@@ -10,6 +10,8 @@ import {
   getListPayments,
   subscribeListPayments,
   getBoardingAddress,
+  getSparkStatus,
+  TSparkStatus,
 } from '../../api/lightning';
 import { Balance } from '../../components/balance/balance';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
@@ -27,6 +29,9 @@ import { LightningPayment } from './components/lightning-payment';
 import styles from './lightning.module.css';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
+import { useMountedRef } from '@/hooks/mount';
+
+const sparkStatusPollInterval = 60 * 1000;
 
 export const Lightning = () => {
   const { t } = useTranslation();
@@ -34,8 +39,10 @@ export const Lightning = () => {
   const [balance, setBalance] = useState<accountApi.TBalance>();
   const [syncedAddressesCount] = useState<number>();
   const [payments, setPayments] = useState<TLightningPayment[]>();
+  const [sparkStatus, setSparkStatus] = useState<TSparkStatus>();
   const [error, setError] = useState<string>();
   const [detailID, setDetailID] = useState<TLightningPayment['id'] | null>(null);
+  const mounted = useMountedRef();
   const devices = useLoad(getDeviceList);
   const boardingAddress = useLoad(getBoardingAddress);
 
@@ -57,19 +64,63 @@ export const Lightning = () => {
     return () => unsubscribe(subscriptions);
   }, [onStateChange, btcUnit]);
 
+  const loadSparkStatus = useCallback(async () => {
+    try {
+      const status = await getSparkStatus();
+      if (mounted.current) {
+        setSparkStatus(status);
+      }
+    } catch (err) {
+      console.error(err);
+      if (mounted.current) {
+        setSparkStatus({
+          status: 'unknown',
+        });
+      }
+    }
+  }, [mounted]);
+
+  useEffect(() => {
+    loadSparkStatus();
+    const interval = window.setInterval(loadSparkStatus, sparkStatusPollInterval);
+    return () => window.clearInterval(interval);
+  }, [loadSparkStatus]);
+
   const hasDataLoaded = balance !== undefined;
+
+  const statusBanners = (
+    <>
+      <Status
+        dismissibleKey="lightning-alpha-warning"
+        type="warning">
+        This is an alpha release intended for preview and testing. Only use lightning with a small amount of funds!
+      </Status>
+      <Status
+        hidden={sparkStatus === undefined || sparkStatus.status === 'operational'}
+        dismissibleKey=""
+        type={sparkStatus?.status === 'major' ? 'error' : 'warning'}>
+        {sparkStatus !== undefined && sparkStatus.status !== 'operational' && t(`lightning.sparkStatus.${sparkStatus.status}`)}
+      </Status>
+      <GlobalBanners devices={devices || {}} />
+    </>
+  );
 
   if (error) {
     return (
-      <View textCenter verticallyCentered>
-        <ViewHeader title={t('unknownError', { errorMessage: error })} />
-      </View>
+      <GuideWrapper>
+        <GuidedContent>
+          <Main>
+            <ContentWrapper>
+              {statusBanners}
+            </ContentWrapper>
+            <View textCenter verticallyCentered>
+              <ViewHeader title={t('unknownError', { errorMessage: error })} />
+            </View>
+          </Main>
+        </GuidedContent>
+        <LightningGuide />
+      </GuideWrapper>
     );
-  }
-
-  if (!balance) {
-    // Wait for the nodeState to become available
-    return <Spinner />;
   }
 
   const canSend = balance && balance.hasAvailable;
@@ -89,12 +140,7 @@ export const Lightning = () => {
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <Status
-              dismissibleKey="lightning-alpha-warning"
-              type="warning">
-              This is an alpha release intended for preview and testing. Only use lightning with a small amount of funds!
-            </Status>
-            <GlobalBanners devices={devices || {}} />
+            {statusBanners}
           </ContentWrapper>
           <Header
             title={
