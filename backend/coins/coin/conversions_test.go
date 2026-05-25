@@ -87,6 +87,15 @@ func TestConversions(t *testing.T) {
 	require.Equal(t, "2.59", conversions["USD"])
 }
 
+func TestUnformattedConversions(t *testing.T) {
+	updater := rates.MockRateUpdater()
+	defer updater.Stop()
+	testCoin := mockCoin(t)
+
+	conversions := coin.UnformattedConversions(coin.NewAmountFromInt64(123456789000), &testCoin, false, updater)
+	require.Equal(t, "25925.93", conversions["USD"])
+}
+
 func TestConversionsAtTime(t *testing.T) {
 	updater := rates.MockRateUpdater()
 	defer updater.Stop()

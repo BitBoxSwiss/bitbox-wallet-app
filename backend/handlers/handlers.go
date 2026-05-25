@@ -85,6 +85,7 @@ type Backend interface {
 	Deregister(deviceID string)
 	RatesUpdater() *rates.RateUpdater
 	CoinFiatPrices(coinpkg.Coin) *coinpkg.FormattedAmountWithConversions
+	BTCSatAmount(source string, amount string) (*coinpkg.FormattedAmountWithConversions, error)
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(*config.ServerInfo) error
 	RegisterTestKeystore(string)
@@ -243,7 +244,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/btc/parse-external-amount", handlers.getBTCParseExternalAmount).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/coins/btc/sats-amount", handlers.getBTCSatsAmount).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/btc/sat-amount", handlers.getBTCSatAmount).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownload).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
@@ -1033,42 +1034,26 @@ func (handlers *Handlers) postDeregisterTestKeystore(*http.Request) interface{} 
 	return nil
 }
 
-// getBTCSatsAmount taks a sats parameter in input and returns a FormattedAmount
-// object with the fiat conversions.
-func (handlers *Handlers) getBTCSatsAmount(r *http.Request) interface{} {
+// getBTCSatAmount takes an amount in sats or the default fiat currency and
+// returns a BTC amount in sats with fiat conversions.
+func (handlers *Handlers) getBTCSatAmount(r *http.Request) interface{} {
 	type response struct {
-		Success bool                                   `json:"success"`
-		Amount  coinpkg.FormattedAmountWithConversions `json:"amount"`
+		Success      bool                                   `json:"success"`
+		Amount       coinpkg.FormattedAmountWithConversions `json:"amount,omitempty"`
+		ErrorMessage string                                 `json:"errorMessage,omitempty"`
 	}
 
-	satsAmount := r.URL.Query().Get("sats")
-	satsInt, valid := new(big.Int).SetString(satsAmount, 10)
-	if !valid {
-		return response{
-			Success: false,
-		}
-	}
-
-	btcCoin, err := handlers.backend.Coin(coinpkg.CodeBTC)
+	amount, err := handlers.backend.BTCSatAmount(
+		r.URL.Query().Get("source"),
+		r.URL.Query().Get("amount"),
+	)
 	if err != nil {
-		handlers.log.WithError(err).Error("Failded getting coin " + coinpkg.CodeBTC)
-		return response{
-			Success: false,
-		}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
-	coinAmount := coinpkg.NewAmount(satsInt)
 	return response{
 		Success: true,
-		Amount: coinpkg.FormattedAmountWithConversions{
-			Amount: btcCoin.FormatAmount(coinAmount, false),
-			Unit:   btcCoin.GetFormatUnit(false),
-			Conversions: coinpkg.Conversions(
-				coinAmount,
-				btcCoin,
-				false,
-				handlers.backend.RatesUpdater()),
-		},
+		Amount:  *amount,
 	}
 }
 

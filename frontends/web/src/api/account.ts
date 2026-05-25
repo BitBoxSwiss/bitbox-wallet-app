@@ -201,6 +201,7 @@ type Conversions = {
 export type TAmountWithConversions = {
   amount: string;
   conversions?: Conversions;
+  unformattedConversions?: Conversions;
   unit: CoinUnit;
   estimated: boolean;
 };

@@ -38,15 +38,32 @@ export const parseExternalBtcAmount = (amount: string): Promise<TAmount> => {
   return apiGet(`coins/btc/parse-external-amount?amount=${amount}`);
 };
 
-type TSatsAmountResponse = {
-  success: true;
-  amount: TAmountWithConversions;
-} | {
-  success: false;
+export type TBtcSatAmount = TAmountWithConversions & {
+  unit: 'sat';
 };
 
-export const getBtcSatsAmount = (sats: string): Promise<TSatsAmountResponse> => {
-  return apiGet(`coins/btc/sats-amount?sats=${sats}`);
+type TBtcSatAmountRequest = {
+  source: 'sat' | 'fiat';
+  amount: string;
+};
+
+type TBtcSatAmountResponse = {
+  success: true;
+  amount: TBtcSatAmount;
+} | {
+  success: false;
+  errorMessage?: string;
+};
+
+export const getBtcSatAmount = ({
+  source,
+  amount,
+}: TBtcSatAmountRequest): Promise<TBtcSatAmountResponse> => {
+  const searchParams = new URLSearchParams({
+    source,
+    amount,
+  });
+  return apiGet(`coins/btc/sat-amount?${searchParams}`);
 };
 
 type TConvertCurrency = {

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent } from '../../../components/view/view';
-import { Button, Input, OptionalLabel } from '../../../components/forms';
+import { Button, Input, NumberInput, OptionalLabel } from '../../../components/forms';
 import {
   TLightningPayment,
   TReceivePaymentResponse,
@@ -13,15 +13,16 @@ import {
   getReceivePayment,
   subscribeListPayments
 } from '../../../api/lightning';
+import { getBtcSatAmount, type TBtcSatAmount } from '@/api/coins';
 import { Status } from '../../../components/status/status';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { unsubscribe } from '../../../utils/subscriptions';
 import { Spinner } from '../../../components/spinner/Spinner';
 import { Checked, Copy, EditActive } from '../../../components/icon';
-import { getBtcSatsAmount } from '../../../api/coins';
-import { TAmountWithConversions } from '../../../api/account';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { useNavigate } from 'react-router-dom';
+import { RatesContext } from '@/contexts/RatesContext';
+import { useMountedRef } from '@/hooks/mount';
 import styles from './receive.module.css';
 
 type TStep = 'create-invoice' | 'wait' | 'invoice' | 'success';
@@ -29,20 +30,24 @@ type TStep = 'create-invoice' | 'wait' | 'invoice' | 'success';
 export function Receive() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { defaultCurrency } = useContext(RatesContext);
+  const mounted = useMountedRef();
+  const amountRequestId = useRef(0);
   const [inputSatsText, setInputSatsText] = useState<string>('');
-  const [invoiceAmount, setInvoiceAmount] = useState<TAmountWithConversions>();
+  const [inputFiatText, setInputFiatText] = useState<string>('');
+  const [invoiceAmount, setInvoiceAmount] = useState<TBtcSatAmount>();
   const [description, setDescription] = useState<string>('');
-  const [disableConfirm, setDisableConfirm] = useState(true);
   const [receivePaymentResponse, setReceivePaymentResponse] = useState<TReceivePaymentResponse>();
   const [receiveError, setReceiveError] = useState<string>();
   const [step, setStep] = useState<TStep>('create-invoice');
   const [payments, setPayments] = useState<TLightningPayment[]>();
+  const invoiceAmountSat = invoiceAmount ? Number(invoiceAmount.amount) : undefined;
 
   const newInvoice = useCallback(() => {
     setInputSatsText('');
+    setInputFiatText('');
     setInvoiceAmount(undefined);
     setDescription('');
-    setDisableConfirm(true);
     setReceivePaymentResponse(undefined);
     setReceiveError(undefined);
     setStep('create-invoice');
@@ -60,15 +65,61 @@ export function Receive() {
       setReceiveError(undefined);
       if (step === 'success') {
         setInputSatsText('');
+        setInputFiatText('');
       }
       break;
     }
   }, [step, navigate]);
 
-  const onAmountSatsChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const target = event.target as HTMLInputElement;
-    setInputSatsText(target.value);
-  }, []);
+  const handleSatsAmountChange = useCallback(async (satsText: string) => {
+    const requestId = ++amountRequestId.current;
+    setInputSatsText(satsText);
+
+    if (!satsText) {
+      setInvoiceAmount(undefined);
+      setInputFiatText('');
+      return;
+    }
+
+    const response = await getBtcSatAmount({ source: 'sat', amount: satsText });
+    if (!mounted.current || requestId !== amountRequestId.current) {
+      return;
+    }
+    if (!response.success) {
+      console.error('Failed to convert sats amount:', response.errorMessage);
+      setInvoiceAmount(undefined);
+      setInputFiatText('');
+      return;
+    }
+
+    setInvoiceAmount(response.amount);
+    setInputFiatText(response.amount.unformattedConversions?.[defaultCurrency] ?? '');
+  }, [defaultCurrency, mounted]);
+
+  const handleFiatAmountChange = useCallback(async (fiatText: string) => {
+    const requestId = ++amountRequestId.current;
+    setInputFiatText(fiatText);
+
+    if (!fiatText) {
+      setInvoiceAmount(undefined);
+      setInputSatsText('');
+      return;
+    }
+
+    const response = await getBtcSatAmount({ source: 'fiat', amount: fiatText });
+    if (!mounted.current || requestId !== amountRequestId.current) {
+      return;
+    }
+    if (!response.success) {
+      console.error('Failed to convert fiat amount:', response.errorMessage);
+      setInvoiceAmount(undefined);
+      setInputSatsText('');
+      return;
+    }
+
+    setInvoiceAmount(response.amount);
+    setInputSatsText(response.amount.amount);
+  }, [mounted]);
 
   const onDescriptionChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
@@ -85,26 +136,6 @@ export function Receive() {
   }, [onPaymentsChange]);
 
   useEffect(() => {
-    getBtcSatsAmount(inputSatsText).then((response) => {
-      if (response.success) {
-        setInvoiceAmount(response.amount);
-      }
-    });
-  }, [inputSatsText]);
-
-
-  useEffect(() => {
-    (async () => {
-      const inputSats = Number(inputSatsText);
-      if (inputSats > 0) {
-        setDisableConfirm(false);
-        return;
-      }
-      setDisableConfirm(true);
-    })();
-  }, [inputSatsText]);
-
-  useEffect(() => {
     if (payments && receivePaymentResponse && step === 'invoice') {
       const payment = payments.find((payment) => payment.type === 'receive' && payment.invoice === receivePaymentResponse.invoice);
       if (payment?.status === 'complete') {
@@ -115,10 +146,14 @@ export function Receive() {
 
   const receivePayment = useCallback(async () => {
     setReceiveError(undefined);
+    if (invoiceAmountSat === undefined || invoiceAmountSat <= 0) {
+      setReceiveError(t('send.error.invalidAmount'));
+      return;
+    }
     setStep('wait');
     try {
       const receivePaymentResponse = await getReceivePayment({
-        amountSat: Number(inputSatsText),
+        amountSat: invoiceAmountSat,
         description,
       });
       setReceivePaymentResponse(receivePaymentResponse);
@@ -131,7 +166,7 @@ export function Receive() {
         setReceiveError(String(e));
       }
     }
-  }, [description, inputSatsText]);
+  }, [description, invoiceAmountSat, t]);
 
   const renderSteps = () => {
     switch (step) {
@@ -142,15 +177,24 @@ export function Receive() {
             <Grid col="1">
               <Column>
                 <h1 className={styles.title}>{t('lightning.receive.subtitle')}</h1>
-                <span>{t('lightning.receive.amountSats.label')} ({<AmountWithUnit alwaysShowAmounts amount={invoiceAmount || { amount: '', unit: 'sat', estimated: true }} enableRotateUnit convertToFiat/>})</span>
-                <Input
-                  type="number"
+                <NumberInput
+                  step="1"
                   min="0"
+                  label={t('lightning.receive.amountSats.label')}
                   placeholder={t('lightning.receive.amountSats.placeholder')}
                   id="amountSatsInput"
-                  onInput={onAmountSatsChange}
+                  onChange={handleSatsAmountChange}
                   value={inputSatsText}
                   autoFocus
+                />
+                <NumberInput
+                  step="any"
+                  min="0"
+                  label={defaultCurrency}
+                  placeholder={t('lightning.receive.amountSats.placeholder')}
+                  id="amountFiatInput"
+                  onChange={handleFiatAmountChange}
+                  value={inputFiatText}
                 />
                 <Input
                   label={t('lightning.receive.description.label')}
@@ -164,7 +208,7 @@ export function Receive() {
             </Grid>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={receivePayment} disabled={disableConfirm}>
+            <Button primary onClick={receivePayment} disabled={invoiceAmountSat === undefined || invoiceAmountSat <= 0}>
               {t('lightning.receive.invoice.create')}
             </Button>
             <Button secondary onClick={back}>
