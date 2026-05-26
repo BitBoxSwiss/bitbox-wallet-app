@@ -11,6 +11,14 @@ import { act } from 'react';
 
 const useMountedRefSpy = vi.spyOn(utils, 'useMountedRef');
 
+const deferred = <T, >() => {
+  let resolve: (value: T) => void = () => {};
+  const promise = new Promise<T>((nextResolve) => {
+    resolve = nextResolve;
+  });
+  return { promise, resolve };
+};
+
 describe('hooks for api calls', () => {
   beforeEach(() => {
     useMountedRefSpy.mockReturnValue({ current: true });
@@ -69,6 +77,39 @@ describe('hooks for api calls', () => {
 
       await waitFor(() => expect(result.current.versionInfo).toBeUndefined());
       expect(mockApiCall).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores stale resolved values when dependencies change', async () => {
+      const firstRequest = deferred<string>();
+      const secondRequest = deferred<string>();
+      const mockApiCall = vi.fn()
+        .mockReturnValueOnce(firstRequest.promise)
+        .mockReturnValueOnce(secondRequest.promise);
+
+      const { result } = renderHook(() => {
+        const [state, setState] = useState(1);
+        const value = useLoad(() => mockApiCall(state), [state]);
+        return { setState, value };
+      });
+
+      await waitFor(() => expect(mockApiCall).toHaveBeenCalledTimes(1));
+
+      act(() => result.current.setState(2));
+
+      await waitFor(() => expect(mockApiCall).toHaveBeenCalledTimes(2));
+
+      await act(async () => {
+        secondRequest.resolve('second');
+        await secondRequest.promise;
+      });
+      await waitFor(() => expect(result.current.value).toBe('second'));
+
+      await act(async () => {
+        firstRequest.resolve('first');
+        await firstRequest.promise;
+      });
+
+      expect(result.current.value).toBe('second');
     });
   });
 

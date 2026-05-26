@@ -50,6 +50,7 @@ import { LightningDeactivate } from './lightning/deactivate';
 import { LightningSetLnurlAddress } from './lightning/set-lnurl-address';
 import { Send as LightningSend } from './lightning/send/send';
 import { Receive as LightningReceive } from './lightning/receive/receive';
+import { LightningTopUp } from './lightning/topup/topup';
 
 type TAppRouterProps = {
   devices: TDevices;
@@ -356,6 +357,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
           <Route path="send" element={<LightningSend />} />
           <Route path="receive" element={<LightningReceive />} />
+          <Route path="topup" element={<LightningTopUp activeAccounts={activeAccounts} hasAccounts={hasAccounts} />} />
         </Route>
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
         <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />

@@ -9,7 +9,6 @@ import {
   getLightningBalance,
   getListPayments,
   subscribeListPayments,
-  getBoardingAddress,
   getSparkStatus,
   TSparkStatus,
 } from '../../api/lightning';
@@ -40,7 +39,6 @@ export const Lightning = () => {
   const [balance, setBalance] = useState<accountApi.TBalance>();
   const [syncedAddressesCount] = useState<number>();
   const [payments, setPayments] = useState<TLightningPayment[]>();
-  const [boardingAddress, setBoardingAddress] = useState<string>();
   const [sparkStatus, setSparkStatus] = useState<TSparkStatus>();
   const [error, setError] = useState<string>();
   const [detailID, setDetailID] = useState<TLightningPayment['id'] | null>(null);
@@ -50,17 +48,15 @@ export const Lightning = () => {
   const onStateChange = useCallback(async () => {
     try {
       setError(undefined);
-      const [balance, payments, boardingAddress] = await Promise.all([
+      const [balance, payments] = await Promise.all([
         getLightningBalance(),
         getListPayments(),
-        getBoardingAddress(),
       ]);
       if (!mounted.current) {
         return;
       }
       setBalance(balance);
       setPayments(payments);
-      setBoardingAddress(boardingAddress);
     } catch (err: any) {
       if (!mounted.current) {
         return;
@@ -159,6 +155,7 @@ export const Lightning = () => {
       : '';
 
   const offlineErrorTextLines: string[] = [];
+
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -183,7 +180,6 @@ export const Lightning = () => {
               </div>
             </ViewHeader>
             <ViewContent fullWidth>
-              { <>Boarding address: {boardingAddress ?? ''}</> }
               {offlineErrorTextLines.length || !hasDataLoaded ? (
                 <Spinner text={initializingSpinnerText} />
               ) : (
