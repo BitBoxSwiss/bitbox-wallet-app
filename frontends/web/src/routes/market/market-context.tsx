@@ -4,10 +4,8 @@ import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useStat
 import type { TOption } from './components/countryselect';
 
 type TMarketContext = {
-  marketAccountCode?: string;
   regions: TOption[];
   selectedRegion: string;
-  setMarketAccountCode: Dispatch<SetStateAction<string | undefined>>;
   setRegions: Dispatch<SetStateAction<TOption[]>>;
   setSelectedRegion: Dispatch<SetStateAction<string>>;
   setShowSwap: Dispatch<SetStateAction<boolean | undefined>>;
@@ -18,24 +16,19 @@ const MarketContext = createContext<TMarketContext | null>(null);
 
 type TProps = {
   children: ReactNode;
-  initialMarketAccountCode?: string;
 };
 
 export const MarketProvider = ({
   children,
-  initialMarketAccountCode,
 }: TProps) => {
-  const [marketAccountCode, setMarketAccountCode] = useState<string | undefined>(initialMarketAccountCode);
   const [regions, setRegions] = useState<TOption[]>([]);
   const [selectedRegion, setSelectedRegion] = useState('');
   const [showSwap, setShowSwap] = useState<boolean | undefined>();
 
   return (
     <MarketContext.Provider value={{
-      marketAccountCode,
       regions,
       selectedRegion,
-      setMarketAccountCode,
       setRegions,
       setSelectedRegion,
       setShowSwap,

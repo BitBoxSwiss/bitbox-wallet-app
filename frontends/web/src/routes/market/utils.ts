@@ -1,6 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { TVendorName } from '@/api/market';
+import type { TMarketAction, TVendorName } from '@/api/market';
+
+export const getMarketActionFromSearchParams = (
+  searchParams: URLSearchParams,
+): TMarketAction => {
+  const tab = searchParams.get('tab');
+  switch (tab) {
+  case 'buy':
+  case 'sell':
+  case 'spend':
+  case 'swap':
+  case 'otc':
+    return tab;
+  default:
+    return 'buy';
+  }
+};
 
 /**
  * Gets formatted name for vendors.

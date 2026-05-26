@@ -20,6 +20,7 @@ import style from './dashboard.module.css';
 
 type TProps = {
   accounts: TAccount[];
+  code: string;
 };
 
 type TAccountStatusIconProps = {
@@ -46,7 +47,7 @@ const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
   }
 };
 
-export const BitsuranceDashboard = ({ accounts }: TProps) => {
+export const BitsuranceDashboard = ({ accounts, code }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const mounted = useMountedRef();
@@ -116,7 +117,7 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
           <Button
             className={style.button}
             primary
-            onClick={() => navigate('/market/bitsurance/account')}
+            onClick={() => navigate(`/market/bitsurance/account/${code}`)}
             title={t('bitsurance.dashboard.button')}>
             <span>+</span>
             {t('bitsurance.dashboard.button')}

@@ -17,9 +17,10 @@ import style from './bitsurance.module.css';
 
 type TProps = {
   accounts: TAccount[];
+  code: string;
 };
 
-export const Bitsurance = ({ accounts }: TProps) => {
+export const Bitsurance = ({ accounts, code }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
@@ -31,13 +32,13 @@ export const Bitsurance = ({ accounts }: TProps) => {
   const hasBitsuranceAccount = accounts.some(({ bitsuranceStatus }) => bitsuranceStatus);
 
   useEffect(() => {
-    if (hasBitsuranceAccount) {
+    if (code && hasBitsuranceAccount) {
       // replace current history item when redirecting so that the user can go back
-      navigate('/market/bitsurance/dashboard', { replace: true });
+      navigate(`/market/bitsurance/dashboard/${code}`, { replace: true });
     }
 
     return () => setInsuredAccounts([]);
-  }, [accounts, hasBitsuranceAccount, navigate]);
+  }, [accounts, code, hasBitsuranceAccount, navigate]);
 
   const detect = async (redirectToDashboard: boolean) => {
     setScanLoading(true);
@@ -54,7 +55,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
       setInsuredAccounts(insured);
       setScanDone(true);
       if (insured.length && redirectToDashboard) {
-        navigate('/market/bitsurance/dashboard');
+        navigate(`/market/bitsurance/dashboard/${code}`);
       }
     } finally {
       setScanLoading(false);
@@ -74,7 +75,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
     // we force a detection to verify if there is any new insured account
     // before proceeding to the next step.
     await detect(false);
-    navigate('/market/bitsurance/account');
+    navigate(`/market/bitsurance/account/${code}`);
   };
 
   if (hasBitsuranceAccount) {

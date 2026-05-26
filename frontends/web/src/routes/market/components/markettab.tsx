@@ -11,7 +11,6 @@ export type TMarketplaceTab = TMarketAction | 'insure';
 type TProps = {
   onChangeTab: (tab: TMarketplaceTab) => void;
   activeTab: TMarketplaceTab;
-  className?: string;
   showSwap: boolean;
 };
 
@@ -19,12 +18,11 @@ type TProps = {
 export const MarketTab = ({
   onChangeTab,
   activeTab,
-  className,
   showSwap,
 }: TProps) => {
   const { t } = useTranslation();
   return (
-    <PillButtonGroup className={className} size="large">
+    <PillButtonGroup className={style.navigation} size="large">
       <PillButton
         active={activeTab === 'buy'}
         onClick={() => onChangeTab('buy')}

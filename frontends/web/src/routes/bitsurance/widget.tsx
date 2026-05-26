@@ -110,7 +110,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     try {
       let message = JSON.parse(m.data);
       if (message?.type === 'showInsuranceDashboard') {
-        navigate('/market/bitsurance/dashboard');
+        navigate(`/market/bitsurance/dashboard/${code}`);
         return;
       }
 

@@ -18,14 +18,13 @@ type TProps = {
 
 export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<string>(code);
   const [disabled, setDisabled] = useState<boolean>(false);
   const [btcAccounts, setBtcAccounts] = useState<TAccount[]>();
 
   const { t } = useTranslation();
 
-  const handleChangeAccount = (selected: string) => {
-    setSelected(selected);
+  const handleChangeAccount = (accountCode: string) => {
+    navigate(`/market/bitsurance/account/${accountCode}`, { replace: true });
   };
 
   const detect = useCallback(async () => {
@@ -69,7 +68,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   const handleProceed = async () => {
     setDisabled(true);
     try {
-      const account = btcAccounts?.find(acc => acc.code === selected);
+      const account = btcAccounts?.find(acc => acc.code === code);
       if (account === undefined) {
         return;
       }
@@ -80,7 +79,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
     } finally {
       setDisabled(false);
     }
-    navigate(`/market/bitsurance/widget/${selected}`);
+    navigate(`/market/bitsurance/widget/${code}`);
   };
 
   if (btcAccounts === undefined) {
@@ -102,7 +101,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
             title={t('bitsuranceAccount.select')}
             disabled={disabled}
             accounts={btcAccounts}
-            selected={selected}
+            selected={code}
             onChange={handleChangeAccount}
             onProceed={handleProceed}
           />

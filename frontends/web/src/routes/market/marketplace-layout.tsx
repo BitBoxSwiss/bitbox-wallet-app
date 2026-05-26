@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect } from 'react';
-import { Outlet, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import type { ReactNode } from 'react';
+import { matchPath, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { TAccount } from '@/api/account';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
@@ -9,48 +9,113 @@ import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbut
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { BitsuranceGuide } from '@/routes/bitsurance/guide';
 import { MarketGuide } from './guide';
-import {
-  getMarketActionFromSearchParams,
-  MarketplaceNavigation,
-} from './components/marketplace-navigation';
+import { MarketplaceNavigation } from './components/marketplace-navigation';
 import type { TMarketplaceTab } from './components/markettab';
-import { MarketProvider, useMarketContext } from './market-context';
+import { MarketProvider } from './market-context';
+import { getMarketActionFromSearchParams } from './utils';
 
 type TProps = {
   accounts: TAccount[];
+  children: ReactNode;
 };
 
-const MarketplaceLayoutContent = ({ accounts }: TProps) => {
+const reservedBitsuranceRoutes = ['account', 'dashboard', 'widget'];
+const bitsurancePathPrefix = '/market/bitsurance';
+
+const getRouteMarketAccountCode = (pathname: string): string | undefined => {
+  const marketSelectMatch = matchPath({ path: '/market/select/:code', end: true }, pathname);
+  if (marketSelectMatch?.params.code) {
+    return marketSelectMatch.params.code;
+  }
+
+  const bitsuranceIntroMatch = matchPath({ path: '/market/bitsurance/:code', end: true }, pathname);
+  if (bitsuranceIntroMatch?.params.code && !reservedBitsuranceRoutes.includes(bitsuranceIntroMatch.params.code)) {
+    return bitsuranceIntroMatch.params.code;
+  }
+
+  const bitsuranceStepMatch = matchPath({ path: '/market/bitsurance/:step/:code', end: true }, pathname);
+  if (
+    bitsuranceStepMatch?.params.step
+    && reservedBitsuranceRoutes.includes(bitsuranceStepMatch.params.step)
+    && bitsuranceStepMatch.params.code
+  ) {
+    return bitsuranceStepMatch.params.code;
+  }
+  return undefined;
+};
+
+const getFallbackAccountCode = (accounts: TAccount[]) => {
+  return accounts.find(account => account.keystore.connected)?.code
+    || accounts[0]?.code
+    || '';
+};
+
+const getBitsurancePathWithAccountCode = (
+  pathname: string,
+  accountCode: string,
+) => {
+  const normalizedIntroMatch = matchPath({ path: '/market/bitsurance/:code', end: true }, pathname);
+  if (normalizedIntroMatch?.params.code && !reservedBitsuranceRoutes.includes(normalizedIntroMatch.params.code)) {
+    return pathname;
+  }
+  const normalizedStepMatch = matchPath({ path: '/market/bitsurance/:step/:code', end: true }, pathname);
+  if (
+    normalizedStepMatch?.params.step
+    && reservedBitsuranceRoutes.includes(normalizedStepMatch.params.step)
+    && normalizedStepMatch.params.code
+  ) {
+    return pathname;
+  }
+  if (matchPath({ path: '/market/bitsurance/account', end: true }, pathname)) {
+    return `${bitsurancePathPrefix}/account/${accountCode}`;
+  }
+  if (matchPath({ path: '/market/bitsurance/widget', end: true }, pathname)) {
+    return `${bitsurancePathPrefix}/widget/${accountCode}`;
+  }
+  if (matchPath({ path: '/market/bitsurance/dashboard', end: true }, pathname)) {
+    return `${bitsurancePathPrefix}/dashboard/${accountCode}`;
+  }
+  return `${bitsurancePathPrefix}/${accountCode}`;
+};
+
+const MarketplaceLayoutContent = ({ accounts, children }: TProps) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { code } = useParams();
   const [searchParams] = useSearchParams();
-  const { marketAccountCode, setMarketAccountCode } = useMarketContext();
 
   const isBitsurance = pathname.startsWith('/market/bitsurance');
-  const isMarketSelect = pathname.startsWith('/market/select');
-  const showMarketplaceNavigation = !pathname.startsWith('/market/bitsurance/widget');
-  const activeTab: TMarketplaceTab = isBitsurance ? 'insure' : getMarketActionFromSearchParams(searchParams);
+  const routeMarketAccountCode = getRouteMarketAccountCode(pathname);
+  const selectedAccountCode = routeMarketAccountCode || getFallbackAccountCode(accounts);
+  const isBitsuranceDashboard = !!matchPath({ path: '/market/bitsurance/dashboard/:code', end: true }, pathname);
+  const isBitsuranceWidget = !!matchPath({ path: '/market/bitsurance/widget/:code', end: true }, pathname);
+  const showMarketplaceNavigation = !isBitsuranceWidget;
+  const activeTab: TMarketplaceTab = isBitsurance
+    ? 'insure'
+    : getMarketActionFromSearchParams(searchParams);
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
+  const normalizedBitsurancePath = isBitsurance && selectedAccountCode
+    ? getBitsurancePathWithAccountCode(pathname, selectedAccountCode)
+    : '';
+  const shouldNormalizeBitsurancePath = isBitsurance
+    && !!normalizedBitsurancePath
+    && pathname !== normalizedBitsurancePath;
 
-  useEffect(() => {
-    if (isMarketSelect && code) {
-      setMarketAccountCode(code);
-    }
-  }, [code, isMarketSelect, setMarketAccountCode]);
+  if (shouldNormalizeBitsurancePath) {
+    return <Navigate to={normalizedBitsurancePath} replace />;
+  }
 
   const handleChangeTab = (tab: TMarketplaceTab) => {
     if (tab === 'insure') {
       const bitsurancePath = accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)
-        ? '/market/bitsurance/dashboard'
-        : '/market/bitsurance';
+        ? `${bitsurancePathPrefix}/dashboard${selectedAccountCode ? `/${selectedAccountCode}` : ''}`
+        : `${bitsurancePathPrefix}${selectedAccountCode ? `/${selectedAccountCode}` : ''}`;
       navigate(bitsurancePath);
       return;
     }
-    const marketSelectAccountCode = isMarketSelect ? code || marketAccountCode : marketAccountCode;
-    navigate(`/market/select${marketSelectAccountCode ? `/${marketSelectAccountCode}` : ''}?tab=${tab}`);
+    const marketSelectPath = selectedAccountCode ? `/market/select/${selectedAccountCode}` : '/market/select';
+    navigate(`${marketSelectPath}?tab=${tab}`);
   };
 
   return (
@@ -58,7 +123,7 @@ const MarketplaceLayoutContent = ({ accounts }: TProps) => {
       <GuideWrapper>
         <GuidedContent>
           <Header title={<h2>{t('generic.buySell')}</h2>}>
-            {pathname.startsWith('/market/bitsurance/dashboard') && (
+            {isBitsuranceDashboard && (
               <HideAmountsButton />
             )}
           </Header>
@@ -69,7 +134,7 @@ const MarketplaceLayoutContent = ({ accounts }: TProps) => {
               onChangeTab={handleChangeTab}
             />
           )}
-          <Outlet />
+          {children}
         </GuidedContent>
         {isBitsurance ? (
           <BitsuranceGuide />
@@ -81,14 +146,12 @@ const MarketplaceLayoutContent = ({ accounts }: TProps) => {
   );
 };
 
-export const MarketplaceLayout = ({ accounts }: TProps) => {
-  const { pathname } = useLocation();
-  const { code } = useParams();
-  const isMarketSelect = pathname.startsWith('/market/select');
-
+export const MarketplaceLayout = ({ accounts, children }: TProps) => {
   return (
-    <MarketProvider initialMarketAccountCode={isMarketSelect ? code : undefined}>
-      <MarketplaceLayoutContent accounts={accounts} />
+    <MarketProvider>
+      <MarketplaceLayoutContent accounts={accounts}>
+        {children}
+      </MarketplaceLayoutContent>
     </MarketProvider>
   );
 };

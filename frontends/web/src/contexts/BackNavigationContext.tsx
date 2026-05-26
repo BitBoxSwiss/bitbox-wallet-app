@@ -70,19 +70,11 @@ const implicitBackRules: ImplicitBackRule[] = [
     previousPattern: '/account/:code',
   })),
   {
-    currentPattern: '/market/bitsurance',
-    previousPattern: '/market/select',
-  },
-  {
-    currentPattern: '/market/bitsurance',
+    currentPattern: '/market/bitsurance/:code',
     previousPattern: '/market/select/:code',
   },
   {
-    currentPattern: '/market/bitsurance/dashboard',
-    previousPattern: '/market/select',
-  },
-  {
-    currentPattern: '/market/bitsurance/dashboard',
+    currentPattern: '/market/bitsurance/dashboard/:code',
     previousPattern: '/market/select/:code',
   },
 ];
