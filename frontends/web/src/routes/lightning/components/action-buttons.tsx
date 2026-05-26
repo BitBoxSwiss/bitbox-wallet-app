@@ -24,6 +24,9 @@ export const ActionButtons = ({ canSend }: TProps) => {
       <Link key="receive" to={'/lightning/receive'} className={style.receive}>
         <span>{t('generic.receiveWithoutCoinCode')}</span>
       </Link>
+      <Link key="topUp" to={'/lightning/topup'} className={style.topUp}>
+        <span>{t('lightning.topUp.action')}</span>
+      </Link>
     </div>
   );
 };

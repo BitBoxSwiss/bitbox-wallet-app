@@ -9,7 +9,6 @@ import {
   getLightningBalance,
   getListPayments,
   subscribeListPayments,
-  getBoardingAddress,
   getSparkStatus,
   TSparkStatus,
 } from '../../api/lightning';
@@ -44,7 +43,6 @@ export const Lightning = () => {
   const [detailID, setDetailID] = useState<TLightningPayment['id'] | null>(null);
   const mounted = useMountedRef();
   const devices = useLoad(getDeviceList);
-  const boardingAddress = useLoad(getBoardingAddress);
 
   const onStateChange = useCallback(async () => {
     try {
@@ -135,6 +133,7 @@ export const Lightning = () => {
       : '';
 
   const offlineErrorTextLines: string[] = [];
+
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -159,7 +158,6 @@ export const Lightning = () => {
               </div>
             </ViewHeader>
             <ViewContent fullWidth>
-              { <>Boarding address: {boardingAddress ?? ''}</> }
               {offlineErrorTextLines.length || !hasDataLoaded ? (
                 <Spinner text={initializingSpinnerText} />
               ) : (
