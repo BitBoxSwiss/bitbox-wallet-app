@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Bitcoin: show account details for the persisted receive address type by default
+- Electrum: prevent panic on transaction that is confirmed and still in mempool
 
 ## v4.51.1
 - iOS: fix App Store submission by packaging Inter as TTF fonts
