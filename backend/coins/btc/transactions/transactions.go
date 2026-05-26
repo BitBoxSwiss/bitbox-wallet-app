@@ -363,13 +363,48 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 		return
 	}
 	err := DBUpdate(transactions.db, func(dbTx DBTxInterface) error {
-		txsSet := map[chainhash.Hash]struct{}{}
+		txsSet := map[chainhash.Hash]int{}
 		for _, txInfo := range txs {
-			txsSet[txInfo.TXHash.Hash()] = struct{}{}
+			hash := txInfo.TXHash.Hash()
+			haveHeight, haveTX := txsSet[hash]
+
+			// Electrum returns both confirmed transactions and
+			// mempool transactions. But if the server is still
+			// purging a recently mined transaction from the mempool
+			// exactly at the time of the call, it might appear
+			// twice, once with a valid height and once with no
+			// height. In that case we don't want to error out but
+			// instead just keep the confirmed TX.
+			switch {
+			// Two transactions both with a non-zero height, this is
+			// definitely wrong.
+			case haveTX && haveHeight > 0 && txInfo.Height > 0:
+				return errp.New("duplicate tx ids in address " +
+					"history returned by server")
+
+			// Two transactions both with a (below) zero height,
+			// this is also wrong.
+			case haveTX && haveHeight <= 0 && txInfo.Height <= 0:
+				return errp.New("duplicate tx ids in address " +
+					"history returned by server")
+
+			// We already had a mempool TX but now found a confirmed
+			// one, so we keep the confirmed.
+			case haveTX && haveHeight <= 0 && txInfo.Height > 0:
+				txsSet[txInfo.TXHash.Hash()] = txInfo.Height
+
+			// We already had a confirmed TX but now found a mempool
+			// one, which we just ignore.
+			case haveTX && haveHeight > 0 && txInfo.Height <= 0:
+				continue
+
+			// The default case means we don't have the TX yet, in
+			// which case we add it to the set.
+			default:
+				txsSet[txInfo.TXHash.Hash()] = txInfo.Height
+			}
 		}
-		if len(txsSet) != len(txs) {
-			return errp.New("duplicate tx ids in address history returned by server")
-		}
+
 		previousHistory, err := dbTx.AddressHistory(scriptHashHex)
 		if err != nil {
 			return err
@@ -384,10 +419,25 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 			transactions.removeTxForAddress(dbTx, scriptHashHex, entry.TXHash.Hash())
 		}
 
-		if err := dbTx.PutAddressHistory(scriptHashHex, txs); err != nil {
+		// We want to deduplicate the list of transactions but in the
+		// same order as we received them. This is why we do it slightly
+		// more complicated than just turning the map into a slice
+		// again.
+		dedupTXs := make([]*blockchain.TxInfo, 0, len(txs))
+		for _, txInfo := range txs {
+			// If this isn't the exact value in the dedup map, we
+			// skip it, as it's a duplicate.
+			existingHeight, existing := txsSet[txInfo.TXHash.Hash()]
+			if !existing || existingHeight != txInfo.Height {
+				continue
+			}
+
+			dedupTXs = append(dedupTXs, txInfo)
+		}
+		if err := dbTx.PutAddressHistory(scriptHashHex, dedupTXs); err != nil {
 			return err
 		}
-		for _, txInfo := range txs {
+		for _, txInfo := range dedupTXs {
 			txHash := txInfo.TXHash.Hash()
 			height := txInfo.Height
 			tx, headerTimestamp := transactions.getTransactionCached(dbTx, txHash, height)

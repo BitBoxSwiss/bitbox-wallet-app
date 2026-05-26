@@ -332,6 +332,202 @@ func (s *transactionsSuite) TestBalance() {
 	s.Require().Equal(newBalance(expectedAmount2, 0), balance)
 }
 
+// TestUpdateAddressHistoryDuplicateTxs exercises every branch of the switch
+// inside UpdateAddressHistory that handles a tx hash appearing twice in the
+// server-returned history, plus the downstream dedup that decides what
+// actually gets persisted. The switch has four arms:
+//
+//  1. Both copies confirmed (Height > 0):                error / logrus.Panic
+//  2. Mempool first (Height <= 0), then confirmed:       upgrade to confirmed
+//  3. Confirmed first, then mempool (Height <= 0):       ignore the mempool copy
+//  4. Default (no prior entry, only add):                store the entry
+//
+// For non-error cases the test additionally pins down the *observable* outcome:
+// after the call, Transactions() must return exactly one entry with the
+// expected Height, and Balance() must classify that entry as Available (for
+// confirmed) or Incoming (for mempool / unconfirmed-parent). This guards the
+// downstream-loop dedup contract: case 3 in particular previously appeared
+// correct from the switch's perspective while the unfiltered txs slice was
+// still being persisted, silently overwriting the confirmed entry with the
+// mempool one.
+func (s *transactionsSuite) TestUpdateAddressHistoryDuplicateTxs() {
+	cases := []struct {
+		name string
+		// heights is the sequence of Height values returned by the
+		// (mock) server for one address — all sharing the same tx hash
+		// in the duplicate cases.
+		heights []int
+		// wantHeight is the Height the test expects to find indexed
+		// after UpdateAddressHistory returns. Unused when wantPanic.
+		wantHeight int
+		wantPanic  bool
+	}{
+		{
+			// Default branch: single new mempool tx, no duplicate.
+			name:       "default branch (single mempool tx)",
+			heights:    []int{0},
+			wantHeight: 0,
+		},
+		{
+			// Default branch: single new confirmed tx, no duplicate.
+			name:       "default branch (single confirmed tx)",
+			heights:    []int{10},
+			wantHeight: 10,
+		},
+		{
+			// Case 2: dedup must upgrade the mempool entry to
+			// confirmed.
+			name:       "mempool then confirmed",
+			heights:    []int{0, 10},
+			wantHeight: 10,
+		},
+		{
+			// Case 3: dedup must keep the confirmed entry and
+			// discard the mempool one. Before the slice-level
+			// dedup, the downstream processTxForAddress loop
+			// silently overwrote the confirmed Height with 0.
+			name:       "confirmed then mempool",
+			heights:    []int{10, 0},
+			wantHeight: 10,
+		},
+		{
+			// Case 2 variant: Electrum can return Height == -1 for
+			// "unconfirmed with unconfirmed parents". The switch
+			// treats Height <= 0 as mempool so the confirmed entry
+			// must still win.
+			name:       "unconfirmed-parent then confirmed",
+			heights:    []int{-1, 10},
+			wantHeight: 10,
+		},
+		{
+			// Case 3 variant: same as above with order reversed.
+			name:       "confirmed then unconfirmed-parent",
+			heights:    []int{10, -1},
+			wantHeight: 10,
+		},
+		{
+			// Case 1: two confirmed entries with the same hash is
+			// a real server bug; the switch returns an error from
+			// DBUpdate, which UpdateAddressHistory turns into a
+			// logrus.Panic.
+			name:      "two confirmed duplicates panics",
+			heights:   []int{10, 11},
+			wantPanic: true,
+		},
+		{
+			// Case 1b: same-hash, same-height mempool entries are
+			// also rejected. The switch arm that catches this is
+			// the "both <= 0" arm, distinct from the "both > 0"
+			// arm above.
+			name:      "two identical mempool entries panic",
+			heights:   []int{0, 0},
+			wantPanic: true,
+		},
+		{
+			// Case 1b variant: an unconfirmed-with-parent pair is
+			// also a server bug (a tx can't simultaneously be
+			// "in mempool, parents confirmed" and "in mempool,
+			// parents unconfirmed").
+			name:      "mempool then unconfirmed-parent panics",
+			heights:   []int{0, -1},
+			wantPanic: true,
+		},
+	}
+
+	for _, tc := range cases {
+		s.Run(tc.name, func() {
+			// Reset the suite's DB / mocks / transactions instance
+			// so each case runs against a clean slate.
+			s.SetupTest()
+
+			addressList, err := s.addressChain.EnsureAddresses()
+			s.Require().NoError(err)
+			address := addressList[0]
+
+			const amount = btcutil.Amount(1000)
+			tx := newTx(chainhash.HashH(nil), 0, address, amount)
+			s.blockchainMock.RegisterTxs(tx)
+
+			entries := make([]*blockchainpkg.TxInfo, len(tc.heights))
+			for i, h := range tc.heights {
+				entries[i] = &blockchainpkg.TxInfo{
+					TXHash: blockchainpkg.TXHash(tx.TxHash()),
+					Height: h,
+				}
+			}
+
+			// After dedup, processTxForAddress is called once with
+			// wantHeight (or once per element in the panic case,
+			// but the panic happens first so nothing fires).
+			// Register one VerifiedHeaderByHeight return per
+			// confirmed entry the dedup might still process; .Once
+			// expectations that aren't consumed don't fail the
+			// test.
+			for _, h := range tc.heights {
+				if h > 0 {
+					s.headersMock.
+						On("VerifiedHeaderByHeight", h).
+						Return(nil, nil).Once()
+				}
+			}
+
+			if tc.wantPanic {
+				// In the panic case, DBUpdate returns the
+				// "duplicate tx ids" error before reaching the
+				// notifier.Put loop, so we bypass the helper
+				// (which would register Put expectations that
+				// never fire) and call the API directly.
+				s.Require().Panics(func() {
+					s.transactions.UpdateAddressHistory(
+						address.PubkeyScriptHashHex(), entries,
+					)
+				})
+				return
+			}
+
+			// All non-error branches must complete without panicking.
+			s.updateAddressHistory(address, entries)
+
+			// Exactly one indexed tx, at the height the dedup chose.
+			indexed, err := s.transactions.Transactions(
+				func(blockchainpkg.ScriptHashHex) bool { return false },
+			)
+			s.Require().NoError(err)
+			s.Require().Len(indexed, 1)
+			s.Require().Equal(tc.wantHeight, indexed[0].Height,
+				"final stored height after dedup")
+
+			// notifier.Put fires once per processTxForAddress call;
+			// the dedup must collapse all occurrences of a single
+			// hash into one downstream call. Counting Put calls
+			// catches dedup bugs that the per-hash-keyed PutTx
+			// happens to hide.
+			putCalls := 0
+			for _, c := range s.notifierMock.Calls {
+				if c.Method == "Put" {
+					putCalls++
+				}
+			}
+			s.Require().Equalf(1, putCalls,
+				"expected one notifier.Put per unique tx hash, got %d", putCalls)
+
+			// Balance reflects the chosen height. A positive height
+			// means the tx is confirmed and its output spendable;
+			// any other height (0 or -1) classifies the output as
+			// incoming because the tx's inputs aren't ours either.
+			balance, err := s.transactions.Balance()
+			s.Require().NoError(err)
+			if tc.wantHeight > 0 {
+				s.Require().Equal(newBalance(amount, 0), balance,
+					"confirmed tx must contribute to available balance")
+			} else {
+				s.Require().Equal(newBalance(0, amount), balance,
+					"unconfirmed tx must contribute to incoming balance")
+			}
+		})
+	}
+}
+
 func (s *transactionsSuite) TestRemoveTransaction() {
 	addresses, err := s.addressChain.EnsureAddresses()
 	s.Require().NoError(err)
