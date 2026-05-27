@@ -80,6 +80,7 @@ type Account struct {
 	// updateLock covers balance, blockNumber, nextNonce, transactions and activeTxProposal.
 	updateLock   locker.Locker
 	balance      coin.Amount
+	rawBalance   coin.Amount
 	blockNumber  *big.Int
 	transactions []*accounts.TransactionData
 
@@ -111,6 +112,7 @@ func NewAccount(
 		signingConfiguration: nil,
 		httpClient:           httpClient,
 		balance:              coin.NewAmountFromInt64(0),
+		rawBalance:           coin.NewAmountFromInt64(0),
 
 		enqueueUpdateCh: enqueueUpdateCh,
 
@@ -411,8 +413,9 @@ func (account *Account) Update(
 		}
 	}
 
+	account.rawBalance = coin.NewAmount(balance)
 	pendingAmount := pendingTxsAmount(outgoingTransactionsData, account.coin.erc20Token != nil)
-	account.balance = coin.NewAmount(balance.Sub(balance, pendingAmount))
+	account.balance = coin.NewAmount(new(big.Int).Sub(balance, pendingAmount))
 
 	if account.initDone != nil {
 		account.initDone()

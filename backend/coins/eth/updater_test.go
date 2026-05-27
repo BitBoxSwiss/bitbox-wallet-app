@@ -244,6 +244,65 @@ func TestUpdateBalancesWithError(t *testing.T) {
 
 }
 
+func TestProbeActiveBalancesOnlyActiveAccounts(t *testing.T) {
+	activeAccount := newAccount(t, nil, false)
+	defer activeAccount.Close()
+	inactiveAccount := newAccount(t, nil, false)
+	defer inactiveAccount.Close()
+
+	activeAddress, err := activeAccount.Address()
+	require.NoError(t, err)
+
+	fetcher := &mocks.BalanceAndBlockNumberFetcherMock{
+		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+			require.Equal(t, []common.Address{activeAddress.Address}, addresses)
+			return map[common.Address]*big.Int{
+				activeAddress.Address: big.NewInt(0),
+			}, nil
+		},
+		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
+			require.Fail(t, "unchanged probe should not trigger a full update")
+			return nil, nil
+		},
+	}
+
+	updater := eth.NewUpdater(nil, nil, nil, nil)
+	updater.SetAccountActivity(activeAccount, true)
+	updater.ProbeActiveAccountBalances([]*eth.Account{activeAccount, inactiveAccount}, fetcher)
+
+	require.Len(t, fetcher.BalancesCalls(), 1)
+	require.Empty(t, fetcher.BlockNumberCalls())
+}
+
+func TestProbeActiveBalancesTriggersUpdateOnBalanceChange(t *testing.T) {
+	account := newAccount(t, nil, false)
+	defer account.Close()
+
+	address, err := account.Address()
+	require.NoError(t, err)
+
+	remoteBalance := big.NewInt(1000)
+	fetcher := &mocks.BalanceAndBlockNumberFetcherMock{
+		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+			require.Equal(t, []common.Address{address.Address}, addresses)
+			return map[common.Address]*big.Int{
+				address.Address: new(big.Int).Set(remoteBalance),
+			}, nil
+		},
+		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
+			return big.NewInt(101), nil
+		},
+	}
+
+	updater := eth.NewUpdater(nil, nil, nil, nil)
+	updater.SetAccountActivity(account, true)
+	updater.ProbeActiveAccountBalances([]*eth.Account{account}, fetcher)
+
+	require.Len(t, fetcher.BalancesCalls(), 1)
+	require.Len(t, fetcher.BlockNumberCalls(), 1)
+	assertAccountBalance(t, account, remoteBalance)
+}
+
 func makeConfirmedTx(id string) *accounts.TransactionData {
 	amount := coin.NewAmountFromInt64(1)
 	return &accounts.TransactionData{

@@ -639,6 +639,28 @@ func (backend *Backend) ManualReconnect(reconnectETH bool) {
 	}
 }
 
+// SetAccountActivity marks an account as foreground-active for short-lived background refreshes.
+func (backend *Backend) SetAccountActivity(accountCode accountsTypes.Code, active bool) error {
+	for _, account := range backend.Accounts() {
+		if account.Config().Config.Code != accountCode {
+			continue
+		}
+		ethAccount, ok := account.(*eth.Account)
+		if !ok {
+			return nil
+		}
+		if active && backend.environment != nil && backend.environment.UsingMobileData() {
+			active = false
+		}
+		backend.ethupdater.SetAccountActivity(ethAccount, active)
+		return nil
+	}
+	if !active {
+		return nil
+	}
+	return errp.Newf("unknown account code %q", accountCode)
+}
+
 // Testing returns whether this backend is for testing only.
 func (backend *Backend) Testing() bool {
 	return backend.testing

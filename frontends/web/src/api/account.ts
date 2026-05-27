@@ -113,6 +113,13 @@ export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEth
   return apiPost('accounts/eth-account-code', { address });
 };
 
+export const setAccountActivity = (
+  code: AccountCode,
+  active: boolean,
+): Promise<SuccessResponse> => {
+  return apiPost(`account/${code}/activity`, { active });
+};
+
 export type TStatus = {
   disabled: boolean;
   synced: boolean;
