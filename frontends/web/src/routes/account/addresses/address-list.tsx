@@ -19,6 +19,7 @@ import style from './addresses.module.css';
 type TProps = {
   code: AccountCode;
   accountName: string;
+  blockExplorerAddressPrefix?: string;
   usedAddressesResponse: TUsedAddressesResponse | undefined;
   error: string | null;
   searchTerm: string;
@@ -37,6 +38,7 @@ type TProps = {
 export const AddressList = ({
   code,
   accountName,
+  blockExplorerAddressPrefix,
   usedAddressesResponse,
   error,
   searchTerm,
@@ -126,7 +128,12 @@ export const AddressList = ({
                           isExpanded={isExpanded}
                           onToggle={() => onToggleExpand(address.addressID)}
                         >
-                          <AddressActions code={code} address={address} onCopy={onStartCopy} />
+                          <AddressActions
+                            code={code}
+                            address={address}
+                            blockExplorerAddressPrefix={blockExplorerAddressPrefix}
+                            onCopy={onStartCopy}
+                          />
                         </AddressRowAccordion>
                       </div>
                     );

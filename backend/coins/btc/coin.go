@@ -36,11 +36,12 @@ type Coin struct {
 	// unit is the main unit of the coin, e.g. 'BTC'
 	unit string
 	// formatUnit keeps track of the unit used, e.g. 'BTC' or 'sat' depening on if sat mode is enabled
-	formatUnit            coinpkg.BtcUnit
-	net                   *chaincfg.Params
-	dbFolder              string
-	makeBlockchain        func() blockchain.Interface
-	blockExplorerTxPrefix string
+	formatUnit                 coinpkg.BtcUnit
+	net                        *chaincfg.Params
+	dbFolder                   string
+	makeBlockchain             func() blockchain.Interface
+	blockExplorerTxPrefix      string
+	blockExplorerAddressPrefix string
 
 	observable.Implementation
 
@@ -60,17 +61,19 @@ func NewCoin(
 	dbFolder string,
 	servers []*config.ServerInfo,
 	blockExplorerTxPrefix string,
+	blockExplorerAddressPrefix string,
 	socksProxy socksproxy.SocksProxy,
 ) *Coin {
 	log := logging.Get().WithGroup("coin").WithField("code", code)
 	coin := &Coin{
-		code:                  code,
-		name:                  name,
-		unit:                  unit,
-		formatUnit:            formatUnit,
-		net:                   net,
-		dbFolder:              dbFolder,
-		blockExplorerTxPrefix: blockExplorerTxPrefix,
+		code:                       code,
+		name:                       name,
+		unit:                       unit,
+		formatUnit:                 formatUnit,
+		net:                        net,
+		dbFolder:                   dbFolder,
+		blockExplorerTxPrefix:      blockExplorerTxPrefix,
+		blockExplorerAddressPrefix: blockExplorerAddressPrefix,
 		makeBlockchain: func() blockchain.Interface {
 			return electrum.NewElectrumConnection(
 				servers,
@@ -244,6 +247,11 @@ func (coin *Coin) String() string {
 // BlockExplorerTransactionURLPrefix implements coinpkg.Coin.
 func (coin *Coin) BlockExplorerTransactionURLPrefix() string {
 	return coin.blockExplorerTxPrefix
+}
+
+// BlockExplorerAddressURLPrefix returns the URL prefix of the block explorer for addresses.
+func (coin *Coin) BlockExplorerAddressURLPrefix() string {
+	return coin.blockExplorerAddressPrefix
 }
 
 // SmallestUnit implements coinpkg.Coin.

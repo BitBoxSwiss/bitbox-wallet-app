@@ -78,6 +78,7 @@ func TestFormatAmount(t *testing.T) {
 			t.TempDir(),
 			nil,
 			"",
+			"",
 			socksproxy.NewSocksProxy(false, ""),
 		)
 
@@ -95,6 +96,7 @@ func TestFormatAmount(t *testing.T) {
 			&chaincfg.MainNetParams,
 			t.TempDir(),
 			nil,
+			"",
 			"",
 			socksproxy.NewSocksProxy(false, ""),
 		)

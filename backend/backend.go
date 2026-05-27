@@ -69,9 +69,13 @@ var fixedURLWhitelist = []string{
 	"https://www.coingecko.com/",
 	// Block explorers.
 	"https://mempool.space/tx/",
+	"https://mempool.space/address/",
 	"https://mempool.space/testnet/tx/",
+	"https://mempool.space/testnet/address/",
 	"https://sochain.com/tx/LTCTEST/",
+	"https://sochain.com/address/LTCTEST/",
 	"https://blockchair.com/litecoin/transaction/",
+	"https://blockchair.com/litecoin/address/",
 	"https://etherscan.io/tx/",
 	"https://etherscan.io/address/",
 	"https://sepolia.etherscan.io/tx/",
@@ -533,23 +537,23 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	switch {
 	case code == coinpkg.CodeRBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", coinpkg.BtcUnitDefault, &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
+		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", coinpkg.BtcUnitDefault, &chaincfg.RegressionNetParams, dbFolder, servers, "", "", backend.socksProxy)
 	case code == coinpkg.CodeTBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", btcFormatUnit, &chaincfg.TestNet3Params, dbFolder, servers,
-			"https://mempool.space/testnet/tx/", backend.socksProxy)
+			"https://mempool.space/testnet/tx/", "https://mempool.space/testnet/address/", backend.socksProxy)
 	case code == coinpkg.CodeBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", btcFormatUnit, &chaincfg.MainNetParams, dbFolder, servers,
-			"https://mempool.space/tx/", backend.socksProxy)
+			"https://mempool.space/tx/", "https://mempool.space/address/", backend.socksProxy)
 	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", coinpkg.BtcUnitDefault, &ltc.TestNet4Params, dbFolder, servers,
-			"https://sochain.com/tx/LTCTEST/", backend.socksProxy)
+			"https://sochain.com/tx/LTCTEST/", "https://sochain.com/address/LTCTEST/", backend.socksProxy)
 	case code == coinpkg.CodeLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
-			"https://blockchair.com/litecoin/transaction/", backend.socksProxy)
+			"https://blockchair.com/litecoin/transaction/", "https://blockchair.com/litecoin/address/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
 		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
