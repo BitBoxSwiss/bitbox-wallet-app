@@ -84,7 +84,7 @@ xcrun altool --list-providers --username "APPLE_ID" --password "PASSWORD"
 The build requires `Microsoft Visual Studio 2022 Community Edition`, with the `MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)`
 individual component.
 
-It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.26`, `node@20`, `QT 6.8.2` with `qtwebengine`, `nsis`
+It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.26`, `node@24`, `QT 6.8.2` with `qtwebengine`, `nsis`
 and possibly other tools.
 
 Some of the tools are easy to install with `choco`:

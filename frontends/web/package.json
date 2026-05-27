@@ -2,6 +2,9 @@
   "private": true,
   "name": "bitboxapp",
   "version": "0.0.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
     "@stylistic/eslint-plugin": "^5.6.1",
