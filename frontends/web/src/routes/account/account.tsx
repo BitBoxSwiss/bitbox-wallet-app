@@ -14,6 +14,7 @@ import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Message } from '@/components/message/message';
 import { useLoad, useSubscribe, useSync } from '@/hooks/api';
+import { useAccountActivity } from '@/hooks/account-activity';
 import { useBitsurance } from '@/hooks/bitsurance';
 import { useDebounce } from '@/hooks/debounce';
 import { useScrollIntoView } from '@/hooks/scroll-into-view';
@@ -22,7 +23,7 @@ import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
 import { AccountGuide } from './guide';
 import { BuyReceiveCTA } from './info/buy-receive-cta';
-import { isBitcoinBased } from './utils';
+import { isBitcoinBased, isEthereumBased } from './utils';
 import { MultilineMarkup } from '@/utils/markup';
 import { Dialog } from '@/components/dialog/dialog';
 import { A } from '@/components/anchor/anchor';
@@ -91,6 +92,9 @@ const RemountAccount = ({
   const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
+  const isEthereumAccount = account !== undefined && isEthereumBased(account.coinCode);
+
+  useAccountActivity(code, isEthereumAccount);
 
   const { insured, uncoveredFunds, clearUncoveredFunds } = useBitsurance(code, account);
 
