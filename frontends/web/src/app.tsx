@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, Fragment } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { getAccounts } from './api/account';
 import { useSync } from './hooks/api';
 import { useDefault } from './hooks/default';
 import { usePrevious } from './hooks/previous';
@@ -11,12 +11,9 @@ import { usePlatformClass } from './hooks/platform';
 import { useAppReady } from './hooks/appready';
 import { AppRouter } from './routes/router';
 import { Wizard as BitBox02Wizard } from './routes/device/bitbox02/wizard';
-import { getAccounts } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
-import { syncNewTxs } from './api/transactions';
-import { notifyUser } from './api/system';
 import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
 import { Aopp } from './components/aopp/aopp';
@@ -26,15 +23,14 @@ import { Sidebar } from './components/sidebar/sidebar';
 import { RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { AuthRequired } from './components/auth/authrequired';
+import { IncomingTransactionNotifier } from './components/toast/incoming-transaction-notifier';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
 import { getBottomNavKey } from './components/bottom-navigation/utils';
 import styles from './app.module.css';
-
 export const App = () => {
   usePlatformClass();
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   useIgnoreDrop();
@@ -46,15 +42,6 @@ export const App = () => {
 
   const deviceIDs = Object.keys(devices);
   const firstDevice = deviceIDs[0];
-
-  useEffect(() => {
-    return syncNewTxs((meta) => {
-      notifyUser(t('notification.newTxs', {
-        count: meta.count,
-        accountName: meta.accountName,
-      }));
-    });
-  }, [t]);
 
   const maybeRoute = useCallback(() => {
     const currentURL = window.location.hash.replace(/^#/, '');
@@ -173,6 +160,7 @@ export const App = () => {
     <ConnectedApp>
       <Providers>
         <Darkmode />
+        <IncomingTransactionNotifier activeAccounts={activeAccounts} />
         <div className="app">
           <AuthRequired/>
           <Sidebar

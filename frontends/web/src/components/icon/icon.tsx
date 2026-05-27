@@ -17,6 +17,7 @@ import arrowFloorUpRedSVG from './assets/icons/arrow-floor-up-red.svg';
 import arrowFloorDownGreenSVG from './assets/icons/arrow-floor-down-green.svg';
 import arrowFloorUpWhiteSVG from './assets/icons/arrow-floor-up-white.svg';
 import arrowFloorDownWhiteSVG from './assets/icons/arrow-floor-down-white.svg';
+import arrowFloorDownBlueSVG from './assets/icons/arrow-floor-down-blue.svg';
 import arrowCircleLeftSVG from './assets/icons/arrow-circle-left.svg';
 import arrowCircleLeftActiveSVG from './assets/icons/arrow-circle-left-active.svg';
 import arrowCircleRightSVG from './assets/icons/arrow-circle-right.svg';
@@ -132,6 +133,7 @@ export const ArrowUpRed = (props: ImgProps) => (<img src={arrowUpRedSVG} draggab
 export const ArrowUTurn = (props: ImgProps) => (<img src={arrowUTurn} draggable={false} {...props} />);
 export const ArrowFloorUpRed = (props: ImgProps) => (<img src={arrowFloorUpRedSVG} draggable={false} {...props} />);
 export const ArrowFloorDownGreen = (props: ImgProps) => (<img src={arrowFloorDownGreenSVG} draggable={false} {...props} />);
+export const ArrowFloorDownBlue = (props: ImgProps) => (<img src={arrowFloorDownBlueSVG} draggable={false} {...props} />);
 export const ArrowFloorUpWhite = (props: ImgProps) => (<img src={arrowFloorUpWhiteSVG} draggable={false} {...props} />);
 export const ArrowFloorDownWhite = (props: ImgProps) => (<img src={arrowFloorDownWhiteSVG} draggable={false} {...props} />);
 export const ArrowCirlceLeft = (props: ImgProps) => (<img src={arrowCircleLeftSVG} draggable={false} {...props} />);

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactChild } from 'react';
+import React, { ReactChild, useContext } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
 import { TAccount } from '@/api/account';
 import { TDevices } from '@/api/devices';
+import { AppContext } from '@/contexts/AppContext';
 import { AddAccount } from './account/add/add-account';
 import { Moonpay } from './market/moonpay';
 import { Market } from './market/market';
@@ -42,6 +43,7 @@ import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 import { AllAccounts } from '@/routes/accounts/all-accounts';
 import { More } from '@/routes/settings/more';
+import { ToastDemo } from '@/routes/settings/toast-demo';
 
 type TAppRouterProps = {
   devices: TDevices;
@@ -60,6 +62,7 @@ const InjectParams = ({ children }: TInjectParamsProps) => {
 };
 
 export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
+  const { isDevServers } = useContext(AppContext);
   const hasAccounts = accounts.length > 0;
   const Homepage = (<DeviceSwitch
     key={devicesKey('device-switch-default')}
@@ -252,6 +255,13 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
     />
   </InjectParams>);
 
+  const ToastDemoEl = (<InjectParams>
+    <ToastDemo
+      devices={devices}
+      hasAccounts={hasAccounts}
+    />
+  </InjectParams>);
+
   const AdvancedSettingsEl = (<InjectParams>
     <AdvancedSettings
       devices={devices}
@@ -329,6 +339,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="device-settings/recovery-words/:deviceID" element={RecoveryWordsEl} />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
           <Route path="advanced-settings" element={AdvancedSettingsEl} />
+          {isDevServers && <Route path="toast-demo" element={ToastDemoEl} />}
           <Route path="electrum" element={<ElectrumSettings />} />
           <Route path="manage-accounts" element={
             <ManageAccounts
