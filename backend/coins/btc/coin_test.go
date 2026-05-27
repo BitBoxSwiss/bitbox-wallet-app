@@ -22,7 +22,8 @@ import (
 )
 
 const (
-	explorer = "https://some-explorer.com"
+	explorer        = "https://some-explorer.com/tx/"
+	addressExplorer = "https://some-explorer.com/address/"
 )
 
 func TestMain(m *testing.M) {
@@ -45,7 +46,7 @@ func (s *testSuite) SetupTest() {
 	s.dbFolder = test.TstTempDir("btc-dbfolder")
 
 	s.coin = NewCoin(s.code, "Some coin", s.unit, coin.BtcUnitDefault, s.net, s.dbFolder, nil,
-		explorer, socksproxy.NewSocksProxy(false, ""))
+		explorer, addressExplorer, socksproxy.NewSocksProxy(false, ""))
 	blockchainMock := &blockchainMock.BlockchainMock{}
 	blockchainMock.MockHeadersSubscribe = func(
 		result func(*types.Header)) {
@@ -75,6 +76,7 @@ func (s *testSuite) TestCoin() {
 	s.Require().Equal(uint(8), s.coin.Decimals(false))
 	s.Require().Equal(uint(8), s.coin.Decimals(true))
 	s.Require().Equal(explorer, s.coin.BlockExplorerTransactionURLPrefix())
+	s.Require().Equal(addressExplorer, s.coin.BlockExplorerAddressURLPrefix())
 }
 
 func (s *testSuite) TestFormatAmount() {

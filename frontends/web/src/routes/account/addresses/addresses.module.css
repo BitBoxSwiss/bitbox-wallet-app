@@ -169,7 +169,8 @@
 .inlineActions {
   align-items: center;
   display: flex;
-  gap: clamp(2rem, 16vw, 10rem);
+  flex-wrap: wrap;
+  gap: var(--space-half) clamp(1rem, 6vw, 4rem);
   justify-content: center;
   margin-bottom: var(--space-quarter);
   margin-top: var(--space-quarter);

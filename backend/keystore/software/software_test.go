@@ -57,8 +57,8 @@ func TestCanSignMessage(t *testing.T) {
 }
 
 func TestEditionSupport(t *testing.T) {
-	btcCoin := btc.NewCoin(coin.CodeTBTC, "Bitcoin Testnet", "TBTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "", socksproxy.NewSocksProxy(false, ""))
-	ltcCoin := btc.NewCoin(coin.CodeTLTC, "Litecoin Testnet", "TLTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "", socksproxy.NewSocksProxy(false, ""))
+	btcCoin := btc.NewCoin(coin.CodeTBTC, "Bitcoin Testnet", "TBTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "", "", socksproxy.NewSocksProxy(false, ""))
+	ltcCoin := btc.NewCoin(coin.CodeTLTC, "Litecoin Testnet", "TLTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "", "", socksproxy.NewSocksProxy(false, ""))
 	ethCoin := eth.NewCoin(nil, coin.CodeSEPETH, "Sepolia", "ETH", "ETH", params.SepoliaChainConfig, "", nil, nil)
 
 	multi := NewKeystoreWithEdition(makeRootXprv(t), EditionMulti)
@@ -117,7 +117,7 @@ func TestSignBTCMessageUnsupported(t *testing.T) {
 
 func TestSignTransactionBTCOnlyRejectsLitecoin(t *testing.T) {
 	keystore := NewKeystoreWithEdition(makeRootXprv(t), EditionBTCOnly)
-	ltcCoin := btc.NewCoin(coin.CodeTLTC, "Litecoin Testnet", "TLTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "", socksproxy.NewSocksProxy(false, ""))
+	ltcCoin := btc.NewCoin(coin.CodeTLTC, "Litecoin Testnet", "TLTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "", "", socksproxy.NewSocksProxy(false, ""))
 
 	err := keystore.SignTransaction(&btc.ProposedTransaction{
 		TXProposal: &maketx.TxProposal{

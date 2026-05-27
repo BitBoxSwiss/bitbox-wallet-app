@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Bitcoin: show account details for the persisted receive address type by default
+- Add external block explorer links to used addresses
 
 ## v4.51.1
 - iOS: fix App Store submission by packaging Inter as TTF fonts

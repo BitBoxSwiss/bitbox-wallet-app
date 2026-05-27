@@ -478,6 +478,9 @@ func newAccountJSON(
 
 	contractAddress := ""
 	blockExplorerAddressPrefix := ""
+	if btcCoin, ok := accountCoin.(*btc.Coin); ok {
+		blockExplorerAddressPrefix = btcCoin.BlockExplorerAddressURLPrefix()
+	}
 	if ethCoin, ok := accountCoin.(*eth.Coin); ok && ethCoin.ERC20Token() != nil {
 		contractAddress = ethCoin.ERC20Token().ContractAddress().Hex()
 		blockExplorerURLPrefix := ethCoin.BlockExplorerURLPrefix()
