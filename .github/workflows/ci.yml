@@ -73,7 +73,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontends/web
-          npm install
+          npm ci --ignore-scripts
 
       - name: Build frontend
         run: |
@@ -164,7 +164,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: frontends/mobiletests
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Enable KVM group perms
         run: |

@@ -35,7 +35,7 @@ Run `make buildweb` before the first `make webdev` to install npm dependencies. 
   `make servewallet-simulator`, `make servewallet-prodservers`.
 - The Go backend does **not** hot-reload — restart it after code changes. The Vite frontend
   hot-reloads automatically.
-- `make buildweb` performs a clean web build (`npm ci && npm run build`) used by desktop packages.
+- `make buildweb` performs a clean web build (`npm ci --ignore-scripts && npm run build`) used by desktop packages.
 - `make webtest` and `make webtestwatch` run Vitest unit tests (one-shot and watch mode).
 - `make webe2etest` runs Playwright E2E tests. `make weblint` runs ESLint + type-check.
   `make webfix` auto-fixes lint issues.
