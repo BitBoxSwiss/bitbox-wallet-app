@@ -5,45 +5,43 @@ import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button, Input } from '@/components/forms';
-import { setConfig } from '@/utils/config';
-import type { TBackendConfig, TConfig } from '@/routes/settings/advanced-settings';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { Message } from '@/components/message/message';
 import { useMediaQuery } from '@/hooks/mediaquery';
 
-type TProps = {
-  backendConfig?: TBackendConfig;
-  onChangeConfig: (config: TConfig) => void;
-};
+const DEFAULT_GAP_LIMIT_RECEIVE = 20;
+const DEFAULT_GAP_LIMIT_CHANGE = 6;
+const MAX_LIMIT = 2000;
 
-export const CustomGapLimitSettings = ({ backendConfig, onChangeConfig }: TProps) => {
+export const CustomGapLimitSettings = () => {
   const { t } = useTranslation();
+  const { config, setConfig } = useConfig();
   const [showDialog, setShowDialog] = useState(false);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const DEFAULT_GAP_LIMIT_RECEIVE = 20;
-  const DEFAULT_GAP_LIMIT_CHANGE = 6;
-  const MAX_LIMIT = 2000;
-
   const [showRestartMessage, setShowRestartMessage] = useState(false);
-  const [gapLimitReceive, setGapLimitReceive] = useState<number | string>(backendConfig?.gapLimitReceive || DEFAULT_GAP_LIMIT_RECEIVE);
-  const [gapLimitChange, setGapLimitChange] = useState<number | string>(backendConfig?.gapLimitChange || DEFAULT_GAP_LIMIT_CHANGE);
+  const [gapLimitReceive, setGapLimitReceive] = useState<number | string>(DEFAULT_GAP_LIMIT_RECEIVE);
+  const [gapLimitChange, setGapLimitChange] = useState<number | string>(DEFAULT_GAP_LIMIT_CHANGE);
 
   useEffect(() => {
-    if (backendConfig) {
-      setGapLimitReceive(backendConfig.gapLimitReceive || DEFAULT_GAP_LIMIT_RECEIVE);
-      setGapLimitChange(backendConfig.gapLimitChange || DEFAULT_GAP_LIMIT_CHANGE);
+    if (!config) {
+      return;
     }
-  }, [backendConfig]);
+    setGapLimitReceive(config.backend.gapLimitReceive || DEFAULT_GAP_LIMIT_RECEIVE);
+    setGapLimitChange(config.backend.gapLimitChange || DEFAULT_GAP_LIMIT_CHANGE);
+  }, [config]);
+
+  if (!config) {
+    return null;
+  }
 
   const handleSave = async () => {
-    const config = await setConfig({
+    await setConfig({
       backend: {
-        ...backendConfig,
-        gapLimitReceive,
-        gapLimitChange,
+        gapLimitReceive: Number(gapLimitReceive),
+        gapLimitChange: Number(gapLimitChange),
       },
     });
-    onChangeConfig(config);
     setShowDialog(false);
   };
 

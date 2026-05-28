@@ -9,11 +9,10 @@ import { MarketGuide } from './guide';
 import { AccountCode, TAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { useDarkmode } from '@/hooks/darkmode';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { i18n } from '@/i18n/i18n';
 import { alertUser } from '@/components/alert/Alert';
 import { parseExternalBtcAmount } from '@/api/coins';
-import { useLoad } from '@/hooks/api';
 import { BitrefillTerms, localeMapping } from '@/components/terms/bitrefill-terms';
 import { getBitrefillInfo } from '@/api/market';
 import { getURLOrigin } from '@/utils/url';
@@ -45,17 +44,15 @@ export const Bitrefill = ({
   region,
 }: TProps) => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const { isDarkMode } = useDarkmode();
   const { isDevServers } = useContext(AppContext);
   const account = findAccount(accounts, code);
 
   const fetchBitrefillInfo = useCallback(() => getBitrefillInfo('spend', code), [code]);
   const bitrefillInfo = useAccountSynced(code, fetchBitrefillInfo);
-
-
-  const config = useLoad(getConfig);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(!!config?.frontend?.skipBitrefillWidgetDisclaimer);
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitrefillWidgetDisclaimer ?? false);
 
   const [pendingPayment, setPendingPayment] = useState<boolean>(false);
   const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);

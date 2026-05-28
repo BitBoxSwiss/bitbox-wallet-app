@@ -1,21 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, Dispatch } from 'react';
+import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toggle } from '@/components/toggle/toggle';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { TBackendConfig, TConfig } from '@/routes/settings/advanced-settings';
-import { setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { onAuthSettingChanged, TAuthEventObject, subscribeAuth, forceAuth } from '@/api/backend';
 import { runningInAndroid, runningInIOS } from '@/utils/env';
 
-type TProps = {
-  backendConfig?: TBackendConfig;
-  onChangeConfig: Dispatch<TConfig>;
-};
-
-export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => {
+export const EnableAuthSetting = () => {
   const { t } = useTranslation();
+  const { config, setConfig } = useConfig();
 
   const handleToggleAuth = async (e: ChangeEvent<HTMLInputElement>) => {
     // Before updating the config we need the user to authenticate.
@@ -38,11 +33,10 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
   };
 
   const updateConfig = async (auth: boolean) => {
-    const config = await setConfig({
+    await setConfig({
       backend: { authentication: auth },
-    }) as TConfig;
+    });
     onAuthSettingChanged();
-    onChangeConfig(config);
   };
 
   if (!runningInAndroid() && !runningInIOS()) {
@@ -54,9 +48,9 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
       settingName={t('newSettings.advancedSettings.authentication.title')}
       secondaryText={t('newSettings.advancedSettings.authentication.description')}
       extraComponent={
-        backendConfig !== undefined ? (
+        config ? (
           <Toggle
-            checked={backendConfig?.authentication || false}
+            checked={config.backend.authentication}
             onChange={handleToggleAuth}
           />
         ) : null

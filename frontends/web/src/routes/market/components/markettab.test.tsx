@@ -1,31 +1,41 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
+import type { TConfig } from '@/api/config';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { MarketTab } from './markettab';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 
-vi.mock('@/utils/config', () => ({
-  getConfig: vi.fn(),
-  setConfig: vi.fn(),
+vi.mock('@/contexts/ConfigProvider', () => ({
+  useConfig: vi.fn(() => ({
+    config: { frontend: {}, backend: {} } as TConfig,
+    setConfig: vi.fn(),
+  })),
 }));
 
-const mockedGetConfig = vi.mocked(getConfig);
+const mockUseConfig = vi.mocked(useConfig);
 
 describe('routes/market/components/markettab', () => {
   beforeEach(() => {
-    mockedGetConfig.mockResolvedValue({ frontend: {} });
+    vi.clearAllMocks();
+    mockUseConfig.mockReturnValue({
+      config: { frontend: {}, backend: {} } as TConfig,
+      setConfig: vi.fn(),
+    });
   });
 
   it('shows the new badge on swap when enabled', async () => {
-    mockedGetConfig.mockResolvedValue({
-      frontend: {
-        hasSeenOtcMarketTab: true,
-        hasSeenSwapMarketTab: false,
-      }
+    mockUseConfig.mockReturnValue({
+      config: {
+        frontend: {
+          hasSeenOtcMarketTab: true,
+          hasSeenSwapMarketTab: false,
+        },
+      } as TConfig,
+      setConfig: vi.fn(),
     });
 
     render(
@@ -40,11 +50,14 @@ describe('routes/market/components/markettab', () => {
   });
 
   it('hides the new badge on swap when disabled', async () => {
-    mockedGetConfig.mockResolvedValue({
-      frontend: {
-        hasSeenOtcMarketTab: true,
-        hasSeenSwapMarketTab: true,
-      }
+    mockUseConfig.mockReturnValue({
+      config: {
+        frontend: {
+          hasSeenOtcMarketTab: true,
+          hasSeenSwapMarketTab: true,
+        },
+      } as TConfig,
+      setConfig: vi.fn(),
     });
 
     render(
@@ -55,9 +68,6 @@ describe('routes/market/components/markettab', () => {
       />,
     );
 
-    await waitFor(() => {
-      expect(mockedGetConfig).toHaveBeenCalled();
-    });
     expect(screen.queryByTestId('swap-new-badge')).not.toBeInTheDocument();
   });
 
@@ -81,11 +91,14 @@ describe('routes/market/components/markettab', () => {
   });
 
   it('shows the new badge on otc when enabled', async () => {
-    mockedGetConfig.mockResolvedValue({
-      frontend: {
-        hasSeenOtcMarketTab: false,
-        hasSeenSwapMarketTab: true,
-      }
+    mockUseConfig.mockReturnValue({
+      config: {
+        frontend: {
+          hasSeenOtcMarketTab: false,
+          hasSeenSwapMarketTab: true,
+        },
+      } as TConfig,
+      setConfig: vi.fn(),
     });
 
     render(
