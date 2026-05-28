@@ -23,6 +23,32 @@ enum WidgetAppGroupStore {
         defaults?.set(index, forKey: WidgetShared.Keys.selectedCoinIndex)
     }
 
+    static func forceFreshPriceReloadToken() -> Int {
+        let requested = defaults?.integer(
+            forKey: WidgetShared.Keys.freshPriceReloadRequestedToken
+        ) ?? 0
+        guard requested > 0 else {
+            return 0
+        }
+        let fulfilled = defaults?.bool(
+            forKey: WidgetShared.freshPriceReloadFulfilledKey(for: requested)
+        ) == true
+        return fulfilled ? 0 : requested
+    }
+
+    static func markForceFreshPriceReloadFulfilled(_ token: Int) {
+        guard token > 0 else {
+            return
+        }
+        let requested = defaults?.integer(
+            forKey: WidgetShared.Keys.freshPriceReloadRequestedToken
+        ) ?? 0
+        guard requested == token else {
+            return
+        }
+        defaults?.set(true, forKey: WidgetShared.freshPriceReloadFulfilledKey(for: token))
+    }
+
     static func selectedCoinCode() -> String {
         let coins = activeCoins()
         guard !coins.isEmpty else {

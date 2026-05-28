@@ -45,20 +45,29 @@ struct Provider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> Void) {
         let coinCode = WidgetAppGroupStore.selectedCoinCode()
         let currency = WidgetAppGroupStore.userCurrency()
+        let forceFreshPriceReloadToken = WidgetAppGroupStore.forceFreshPriceReloadToken()
+        let forceFreshPriceReload = forceFreshPriceReloadToken > 0
 
         let cached = dataService.cachedFallback(for: coinCode, currency: currency)
         let exactCacheHit = cached.flatMap { $0.currency.uppercased() == currency.uppercased() ? $0 : nil }
 
-        if let exactCacheHit {
+        if !forceFreshPriceReload, let exactCacheHit {
             let entry = resolvedEntry(for: coinCode, currency: currency, data: exactCacheHit)
             let nextUpdate = Date().addingTimeInterval(Self.refreshInterval)
             completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
         } else {
             Task {
                 let fetched = await dataService.fetchChartData(coinCode: coinCode, currency: currency)
-                let data = fetched ?? dataService.cachedFallback(for: coinCode, currency: currency)
+                if fetched != nil || exactCacheHit != nil {
+                    WidgetAppGroupStore.markForceFreshPriceReloadFulfilled(
+                        forceFreshPriceReloadToken
+                    )
+                }
+                let data = fetched ?? cached
                 let entry = resolvedEntry(for: coinCode, currency: currency, data: data)
-                let nextUpdate = Date().addingTimeInterval(fetched == nil ? Self.retryInterval : Self.refreshInterval)
+                let nextUpdate = Date().addingTimeInterval(
+                    fetched == nil && exactCacheHit == nil ? Self.retryInterval : Self.refreshInterval
+                )
                 completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
             }
         }
