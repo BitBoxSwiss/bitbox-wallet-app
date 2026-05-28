@@ -200,14 +200,14 @@ struct BitBoxAppApp: App {
                         setupGoAPI(goAPI: goAPI)
                         MobileserverSetOnline(NetworkMonitor.shared.isOnline())
                         Task.detached(priority: .utility) {
-                            widgetSync.sync()
+                            widgetSync.sync(forceReload: true)
                         }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                         MobileserverManualReconnect()
                         MobileserverTriggerAuth()
                         Task.detached(priority: .utility) {
-                            widgetSync.sync()
+                            widgetSync.sync(forceReload: true)
                         }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
@@ -219,7 +219,7 @@ struct BitBoxAppApp: App {
                             }
                         }
                         Task.detached(priority: .userInitiated) {
-                            widgetSync.sync()
+                            widgetSync.sync(forceReload: true)
                             await MainActor.run {
                                 if bgTask != .invalid {
                                     UIApplication.shared.endBackgroundTask(bgTask)

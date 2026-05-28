@@ -22,16 +22,16 @@ struct WidgetAppGroupSync {
 
     private static let serialQueue = DispatchQueue(label: "swiss.bitbox.WidgetAppGroupSync")
 
-    func sync() {
+    func sync(forceReload: Bool = false) {
         #if !TARGET_TESTNET
         Self.serialQueue.sync {
-            performSync()
+            performSync(forceReload: forceReload)
         }
         #endif
     }
 
     #if !TARGET_TESTNET
-    private func performSync() {
+    private func performSync(forceReload: Bool) {
         let appSupportDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         guard let defaults = UserDefaults(suiteName: WidgetShared.appGroupID) else {
             return
@@ -78,8 +78,31 @@ struct WidgetAppGroupSync {
             }
         }
 
-        if changed {
+        if forceReload {
+            let token = defaults.integer(
+                forKey: WidgetShared.Keys.freshPriceReloadRequestedToken
+            ) + 1
+            defaults.set(token, forKey: WidgetShared.Keys.freshPriceReloadRequestedToken)
+            removeStaleFreshPriceReloadFulfilledTokens(before: token, defaults: defaults)
+        }
+
+        if changed || forceReload {
             WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+
+    private func removeStaleFreshPriceReloadFulfilledTokens(
+        before token: Int,
+        defaults: UserDefaults
+    ) {
+        let firstToken = max(1, token - WidgetShared.freshPriceReloadFulfilledCleanupCount)
+        guard firstToken < token else {
+            return
+        }
+        for fulfilledToken in firstToken..<token {
+            defaults.removeObject(
+                forKey: WidgetShared.freshPriceReloadFulfilledKey(for: fulfilledToken)
+            )
         }
     }
     #endif
