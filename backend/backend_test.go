@@ -318,6 +318,20 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	return b
 }
 
+func TestDevicesRegisteredReturnsSnapshot(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	unlock := b.devicesLock.Lock()
+	b.devices["device-id"] = nil
+	unlock()
+
+	devices := b.DevicesRegistered()
+	delete(devices, "device-id")
+
+	require.Contains(t, b.DevicesRegistered(), "device-id")
+}
+
 func TestRegisterKeystore(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
 	rootKey1 := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")

@@ -5,6 +5,7 @@ package backend
 import (
 	"encoding/hex"
 	"fmt"
+	"maps"
 	"math/big"
 	"net/http"
 	"net/url"
@@ -217,7 +218,8 @@ type Backend struct {
 
 	notifier *Notifier
 
-	devices map[string]device.Interface
+	devices     map[string]device.Interface
+	devicesLock locker.Locker
 
 	usbManager *usb.Manager
 	bluetooth  *bluetooth.Bluetooth
@@ -721,7 +723,8 @@ func (backend *Backend) UsbUpdate() {
 
 // DevicesRegistered returns a map of device IDs to device of registered devices.
 func (backend *Backend) DevicesRegistered() map[string]device.Interface {
-	return backend.devices
+	defer backend.devicesLock.RLock()()
+	return maps.Clone(backend.devices)
 }
 
 // HTTPClient is a getter method for the HTTPClient instance.
@@ -847,9 +850,11 @@ func (backend *Backend) DeregisterKeystore() {
 
 // Register registers the given device at this backend.
 func (backend *Backend) Register(theDevice device.Interface) error {
+	unlock := backend.devicesLock.Lock()
 	backend.devices[theDevice.Identifier()] = theDevice
-
 	mainKeystore := len(backend.devices) == 1
+	unlock()
+
 	theDevice.SetOnEvent(func(event deviceevent.Event, data interface{}) {
 		backend.events <- deviceEvent{
 			DeviceID: theDevice.Identifier(),
@@ -903,9 +908,15 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 
 // Deregister deregisters the device with the given ID from this backend.
 func (backend *Backend) Deregister(deviceID string) {
-	if device, ok := backend.devices[deviceID]; ok {
-		backend.onDeviceUninit(deviceID)
+	unlock := backend.devicesLock.Lock()
+	device, ok := backend.devices[deviceID]
+	if ok {
 		delete(backend.devices, deviceID)
+	}
+	unlock()
+
+	if ok {
+		backend.onDeviceUninit(deviceID)
 		backend.DeregisterKeystore()
 
 		backend.Notify(observable.Event{
