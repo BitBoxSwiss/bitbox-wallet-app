@@ -45,7 +45,7 @@ import { SwapServiceSelector } from './components/swap-service-selector';
 import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
 import { RatesContext } from '@/contexts/RatesContext';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { SwapkitTerms } from '@/components/terms/swapkit-terms';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -159,8 +159,8 @@ export const Swap = ({
     [btcUnit, sellAccount],
   );
 
-  const config = useLoad(getConfig);
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(!!config?.frontend?.skipSwapkitDisclaimer);
+  const { config } = useConfig();
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipSwapkitDisclaimer ?? false);
 
   const isSameCoinAccount = (
     candidate: TSwapAccount,

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
+import type { TConfig } from '@/api/config';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom';
@@ -96,13 +97,12 @@ vi.mock('@/api/swap', async (importOriginal) => {
     signSwap: vi.fn(),
   };
 });
-vi.mock('@/utils/config', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/utils/config')>();
-  return {
-    ...actual,
-    getConfig: vi.fn(),
-  };
-});
+vi.mock('@/contexts/ConfigProvider', () => ({
+  useConfig: vi.fn(() => ({
+    config: { frontend: {}, backend: {} } as TConfig,
+    setConfig: vi.fn(),
+  })),
+}));
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -110,9 +110,11 @@ import { MemoryRouter } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import * as coinsApi from '@/api/coins';
 import * as swapApi from '@/api/swap';
-import * as config from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Swap } from './swap';
+
+const mockUseConfig = vi.mocked(useConfig);
 
 const sellAccount: accountApi.TAccount = {
   keystore: {
@@ -217,9 +219,9 @@ describe('routes/market/swap', () => {
         }],
       },
     });
-    vi.mocked(config.getConfig).mockResolvedValue({
-      frontend: {},
-      backend: {},
+    mockUseConfig.mockReturnValue({
+      config: { frontend: {}, backend: {} } as TConfig,
+      setConfig: vi.fn(),
     });
   });
 
