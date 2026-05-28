@@ -32,6 +32,7 @@ func NewHandlers(
 	handleNoError("/activate", lightning.PostActivate).Methods("POST")
 	handleNoError("/deactivate", lightning.PostDeactivate).Methods("POST")
 	handleNoError("/balance", lightning.GetBalance).Methods("GET")
+	handleNoError("/spark-status", lightning.GetSparkStatus).Methods("GET")
 	handleNoError("/list-payments", lightning.GetListPayments).Methods("GET")
 	handleNoError("/parse-payment-input", lightning.GetParsePaymentInput).Methods("GET")
 	handleNoError("/prepare-payment", lightning.PostPreparePayment).Methods("POST")
@@ -109,6 +110,15 @@ func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
 			Incoming:     coin.FormattedAmountWithConversions{},
 		},
 	}
+}
+
+// GetSparkStatus handles the GET request to retrieve the Spark network status.
+func (lightning *Lightning) GetSparkStatus(_ *http.Request) interface{} {
+	status, err := lightning.SparkStatus()
+	if err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true, Data: status}
 }
 
 // GetListPayments handles the GET request to list payments.

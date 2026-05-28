@@ -3,12 +3,15 @@
 package lightning
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
+	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/stretchr/testify/require"
 )
 
@@ -72,4 +75,55 @@ func TestSetAccount(t *testing.T) {
 	require.NoError(t, lightning.SetAccount(nil))
 	require.Nil(t, lightning.Account())
 	require.Empty(t, lightning.backendConfig.LightningConfig().Accounts)
+}
+
+func TestServiceStatus(t *testing.T) {
+	tests := []struct {
+		name     string
+		status   breez_sdk_spark.ServiceStatus
+		expected string
+	}{
+		{name: "operational", status: breez_sdk_spark.ServiceStatusOperational, expected: "operational"},
+		{name: "degraded", status: breez_sdk_spark.ServiceStatusDegraded, expected: "degraded"},
+		{name: "partial", status: breez_sdk_spark.ServiceStatusPartial, expected: "partial"},
+		{name: "major", status: breez_sdk_spark.ServiceStatusMajor, expected: "major"},
+		{name: "unknown", status: breez_sdk_spark.ServiceStatusUnknown, expected: "unknown"},
+		{name: "unrecognized", status: breez_sdk_spark.ServiceStatus(99), expected: "unknown"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.expected, serviceStatus(tt.status))
+		})
+	}
+}
+
+func TestSparkStatus(t *testing.T) {
+	lightning := &Lightning{
+		sparkStatus: func() (breez_sdk_spark.SparkStatus, error) {
+			return breez_sdk_spark.SparkStatus{
+				Status: breez_sdk_spark.ServiceStatusPartial,
+			}, nil
+		},
+	}
+
+	status, err := lightning.SparkStatus()
+	require.NoError(t, err)
+	require.Equal(t, &SparkStatus{
+		Status: "partial",
+	}, status)
+}
+
+func TestSparkStatus_Error(t *testing.T) {
+	sdkErr := errors.New("boom")
+	lightning := &Lightning{
+		sparkStatus: func() (breez_sdk_spark.SparkStatus, error) {
+			return breez_sdk_spark.SparkStatus{}, sdkErr
+		},
+	}
+
+	status, err := lightning.SparkStatus()
+	require.Nil(t, status)
+	require.Error(t, err)
+	require.Equal(t, sdkErr, errp.Cause(err))
 }

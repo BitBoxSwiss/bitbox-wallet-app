@@ -25,9 +25,7 @@ import (
 	"github.com/tyler-smith/go-bip39"
 )
 
-const (
-	breezApiKeyUrl = "https://bitboxapp.shiftcrypto.dev/lightning/breez-api-key"
-)
+const breezApiKeyUrl = "https://bitboxapp.shiftcrypto.dev/lightning/breez-api-key"
 
 // Lightning manages the Breez SDK lightning node.
 type Lightning struct {
@@ -40,6 +38,7 @@ type Lightning struct {
 
 	log          *logrus.Entry
 	sdkService   *breez_sdk_spark.BreezSdk
+	sparkStatus  func() (breez_sdk_spark.SparkStatus, error)
 	httpClient   *http.Client
 	ratesUpdater *rates.RateUpdater
 	btcCoin      coin.Coin
@@ -58,6 +57,7 @@ func NewLightning(config *config.Config,
 		getKeystore:        getKeystore,
 		log:                logging.Get().WithGroup("lightning"),
 		synced:             false,
+		sparkStatus:        breez_sdk_spark.GetSparkStatus,
 		httpClient:         httpClient,
 		ratesUpdater:       ratesUpdater,
 		btcCoin:            btcCoin,
@@ -181,6 +181,44 @@ func (lightning *Lightning) Balance() (*accounts.Balance, error) {
 
 	amount := coin.NewAmountFromInt64(int64(balanceSats))
 	return accounts.NewBalance(amount, coin.Amount{}), nil
+}
+
+// SparkStatus is the operational status of the Spark network.
+type SparkStatus struct {
+	// Status represents the current status.
+	Status string `json:"status"`
+}
+
+func serviceStatus(status breez_sdk_spark.ServiceStatus) string {
+	switch status {
+	case breez_sdk_spark.ServiceStatusOperational:
+		return "operational"
+	case breez_sdk_spark.ServiceStatusDegraded:
+		return "degraded"
+	case breez_sdk_spark.ServiceStatusPartial:
+		return "partial"
+	case breez_sdk_spark.ServiceStatusMajor:
+		return "major"
+	default:
+		return "unknown"
+	}
+}
+
+// SparkStatus queries the Spark service and returns the current Spark network status.
+// It returns an error if the Breez SDK status request fails. Tests can override the status request
+// through the Lightning.sparkStatus field.
+func (lightning *Lightning) SparkStatus() (*SparkStatus, error) {
+	getSparkStatus := lightning.sparkStatus
+	if getSparkStatus == nil {
+		getSparkStatus = breez_sdk_spark.GetSparkStatus
+	}
+	status, err := getSparkStatus()
+	if err != nil {
+		return nil, errp.Wrap(err, "breez: get spark status")
+	}
+	return &SparkStatus{
+		Status: serviceStatus(status.Status),
+	}, nil
 }
 
 func accountBreezFolder(accountCode types.Code) string {

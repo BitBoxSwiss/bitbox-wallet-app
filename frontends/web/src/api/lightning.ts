@@ -66,6 +66,12 @@ export type TPreparePaymentResponse = {
   totalDebitSat: number;
 };
 
+export type TServiceStatus = 'operational' | 'degraded' | 'partial' | 'major' | 'unknown';
+
+export type TSparkStatus = {
+  status: TServiceStatus;
+};
+
 export enum TPaymentInputTypeVariant {
   BOLT11 = 'bolt11',
 }
@@ -136,6 +142,10 @@ export const postDeactivate = async (): Promise<void> => {
 
 export const getLightningBalance = async (): Promise<TBalance> => {
   return getApiResponse<TBalance>('lightning/balance', 'Error calling getLightningBalance');
+};
+
+export const getSparkStatus = async (): Promise<TSparkStatus> => {
+  return getApiResponse<TSparkStatus>('lightning/spark-status', 'Error calling getSparkStatus');
 };
 
 export const getListPayments = async (): Promise<TLightningPayment[]> => {
