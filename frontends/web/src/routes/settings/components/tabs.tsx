@@ -148,20 +148,24 @@ export const Tab = ({
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const upgradeDot = canUpgrade ? (
-    <RedDot className={styles.canUpgradeDot} width={8} height={8} />
-  ) : null;
+  const upgradeDot = (
+    canUpgrade ? (
+      <RedDot className={styles.canUpgradeDot} width={8} height={8} />
+    ) : null
+  );
 
   const isManageDeviceItem = url.includes('device-settings');
   const showRedDotOnMobile = isManageDeviceItem && canUpgrade;
 
-  const settingName = icon ? (
-    <div className={styles.iconContainer}>
-      {icon}
-      <span>{name}</span>
-    </div>
-  ) : (
-    <div>{name}</div>
+  const settingName = (
+    icon ? (
+      <div className={styles.iconContainer}>
+        {icon}
+        <span>{name}</span>
+      </div>
+    ) : (
+      <div>{name}</div>
+    )
   );
 
   if (!hideMobileMenu) {

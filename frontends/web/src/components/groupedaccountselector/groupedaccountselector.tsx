@@ -45,9 +45,11 @@ const TriggerContent = ({
 }: TTriggerContentProps) => {
   const { t } = useTranslation();
   const { btcUnit } = useContext(RatesContext);
-  const displayedCoinUnit = option?.coinCode && option.coinUnit
-    ? getDisplayedCoinUnit(option.coinCode, option.coinUnit, btcUnit)
-    : undefined;
+  const displayedCoinUnit = (
+    option?.coinCode && option.coinUnit
+      ? getDisplayedCoinUnit(option.coinCode, option.coinUnit, btcUnit)
+      : undefined
+  );
   return (
     option && option.coinCode ? (
       <div className={styles.triggerContent}>

@@ -51,8 +51,10 @@ export const AccountsSummary = ({
   const hasMultipleAccountsPerCoin = Object.values(accountsPerCoin).some(
     coinAccounts => coinAccounts !== undefined && coinAccounts.length > 1
   );
-  const showTotalBalance = accountsByKeystore.length > 1
-    || (accountsByKeystore.length > 0 && hasMultipleAccountsPerCoin);
+  const showTotalBalance = (
+    accountsByKeystore.length > 1
+    || (accountsByKeystore.length > 0 && hasMultipleAccountsPerCoin)
+  );
 
   const [chartData, setChartData] = useState<accountApi.TChartData>();
   const [accountsBalanceSummary, setAccountsBalanceSummary] = useState<accountApi.TAccountsBalanceSummary>();

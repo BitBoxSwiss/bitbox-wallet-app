@@ -184,21 +184,25 @@ const RemountAccount = ({
   }
 
   // Status: not synced
-  const notSyncedText = (status !== undefined && !status.synced && syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
-    '\n' + t('account.syncedAddressesCount', {
-      count: syncedAddressesCount.toString(),
-      defaultValue: 0,
-    } as any)
-  ) : '';
+  const notSyncedText = (
+    (status !== undefined && !status.synced && syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
+      '\n' + t('account.syncedAddressesCount', {
+        count: syncedAddressesCount.toString(),
+        defaultValue: 0,
+      } as any)
+    ) : ''
+  );
 
   const exchangeSupported = supportedVendors && supportedVendors.vendors.length > 0;
 
-  const isAccountEmpty = balance
+  const isAccountEmpty = (
+    balance
     && !balance.hasAvailable
     && !balance.hasIncoming
     && transactions
     && transactions.success
-    && transactions.list.length === 0;
+    && transactions.list.length === 0
+  );
 
 
   const actionButtonsProps = {

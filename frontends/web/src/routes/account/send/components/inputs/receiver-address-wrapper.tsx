@@ -67,15 +67,17 @@ export const ReceiverAddressWrapper = ({
   const [selectedAccount, setSelectedAccount] = useState<TOption<TAccount | null> | null>(null);
   const [accountSyncStatus, setAccountSyncStatus] = useState<{ [code: string]: accountApi.TStatus }>({});
 
-  const accountOptions: TAccountOption[] = accounts && accounts.length > 0 ? accounts.map(account => {
-    const accountNumber = account.accountNumber;
+  const accountOptions: TAccountOption[] = (
+    accounts && accounts.length > 0 ? accounts.map(account => {
+      const accountNumber = account.accountNumber;
 
-    return {
-      label: `${account.name} ${accountNumber ? `(Account #${accountNumber + 1})` : ''}`,
-      value: account,
-      disabled: !accountSyncStatus[account.code]?.synced
-    };
-  }) : [];
+      return {
+        label: `${account.name} ${accountNumber ? `(Account #${accountNumber + 1})` : ''}`,
+        value: account,
+        disabled: !accountSyncStatus[account.code]?.synced
+      };
+    }) : []
+  );
 
   const checkFirmwareSupport = useCallback(async (selectedAccount: accountApi.TAccount) => {
     const rootFingerprint = selectedAccount.keystore.rootFingerprint;

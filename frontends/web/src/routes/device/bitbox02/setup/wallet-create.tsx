@@ -65,9 +65,11 @@ export const CreateWallet = ({
     try {
       const result = await bitbox02.setDeviceName(deviceID, deviceName);
       if (!result.success) {
-        const errorText = result.code === bitbox02.errUserAbort
-          ? t('bitbox02Settings.deviceName.error_104')
-          : result.message;
+        const errorText = (
+          result.code === bitbox02.errUserAbort
+            ? t('bitbox02Settings.deviceName.error_104')
+            : result.message
+        );
         alertUser(errorText || t('genericError'), {
           asDialog: false,
           callback: () => onAbort(),

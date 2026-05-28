@@ -51,10 +51,12 @@ export const Vasp = ({
     );
   }
 
-  const logoClasses = prominent ? `
+  const logoClasses = (
+    prominent ? `
     ${styles.logo || ''}
     ${styles.prominent || ''}
-  ` : styles.logo as string;
+  ` : styles.logo as string
+  );
   return (
     <div>
       <img className={logoClasses} src={VASPLogoMap[knownVasp]} alt={knownVasp} />

@@ -243,9 +243,11 @@ const Addresses = ({
         </span>
       );
     }
-    const labelKey = status === 'failed'
-      ? 'transaction.tx.send_to_self_failed'
-      : 'transaction.tx.send_to_self';
+    const labelKey = (
+      status === 'failed'
+        ? 'transaction.tx.send_to_self_failed'
+        : 'transaction.tx.send_to_self'
+    );
     return (
       <span className={styles.txNoteWithAddress}>
         <span className={styles.txType}>
@@ -268,12 +270,14 @@ const Addresses = ({
     );
   }
 
-  const label = isMobile
-    ? (type === 'receive' ? t('generic.received') : t('generic.sent'))
-    : (type === 'receive'
-      ? t('transaction.tx.receive', { context: status })
-      : t('transaction.tx.send', { context: status })
-    );
+  const label = (
+    isMobile
+      ? (type === 'receive' ? t('generic.received') : t('generic.sent'))
+      : (type === 'receive'
+        ? t('transaction.tx.receive', { context: status })
+        : t('transaction.tx.send', { context: status })
+      )
+  );
 
   return (
     <span className={styles.txNoteWithAddress}>

@@ -203,10 +203,12 @@ export const BTCDirect = ({
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
-  const title = action === 'buy' ? (
-    t('generic.buy', { context: translationContext })
-  ) : (
-    t('generic.sell', { context: translationContext })
+  const title = (
+    action === 'buy' ? (
+      t('generic.buy', { context: translationContext })
+    ) : (
+      t('generic.sell', { context: translationContext })
+    )
   );
 
   const syncInProgress = !btcdirectInfo?.success && btcdirectInfo?.errorMessage === 'syncInProgress';

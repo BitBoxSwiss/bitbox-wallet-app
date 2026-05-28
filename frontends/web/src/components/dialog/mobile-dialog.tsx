@@ -105,9 +105,11 @@ export const MobileDialog = ({
     ${isDragging && style.dragging || ''}
   `.trim();
 
-  const modalStyle: React.CSSProperties = dragY > 0
-    ? { transform: `translateY(${dragY}px)` }
-    : {};
+  const modalStyle: React.CSSProperties = (
+    dragY > 0
+      ? { transform: `translateY(${dragY}px)` }
+      : {}
+  );
 
   return (
     <div
