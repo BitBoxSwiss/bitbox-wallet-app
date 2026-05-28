@@ -5,7 +5,12 @@ import i18next, { i18n as I18nType } from 'i18next';
 import { getI18NConfig } from './i18n';
 
 vi.mock('@/utils/request', () => ({
-  apiGet: vi.fn().mockResolvedValue('en'), // default native locale
+  apiGet: vi.fn().mockImplementation((endpoint: string) => {
+    if (endpoint === 'config') {
+      return Promise.resolve({ backend: { userLanguage: '' }, frontend: {} });
+    }
+    return Promise.resolve('en'); // default native locale
+  }),
   apiPost: vi.fn().mockResolvedValue({}),
 }));
 
