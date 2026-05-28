@@ -90,9 +90,6 @@ func makeBitBox02Multi() *keystoremock.KeystoreMock {
 				return true
 			}
 		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
 		ExtendedPublicKeyFunc: ksHelper.ExtendedPublicKey,
 		BTCXPubsFunc:          ksHelper.BTCXPubs,
 	}

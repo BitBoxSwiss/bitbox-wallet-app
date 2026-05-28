@@ -335,99 +335,6 @@ func TestObserveKeystoreNameChanged(t *testing.T) {
 	})
 }
 
-func TestNextAccountNumber(t *testing.T) {
-	fingerprintEmpty := []byte{0x77, 0x77, 0x77, 0x77}
-	ks := func(fingerprint []byte, supportsMultipleAccounts bool) *keystoremock.KeystoreMock {
-		return &keystoremock.KeystoreMock{
-			SupportsCoinFunc: func(coin coinpkg.Coin) bool {
-				return true
-			},
-			RootFingerprintFunc: func() ([]byte, error) {
-				return fingerprint, nil
-			},
-			SupportsMultipleAccountsFunc: func() bool {
-				return supportsMultipleAccounts
-			},
-		}
-	}
-
-	xprv, err := hdkeychain.NewMaster(make([]byte, hdkeychain.RecommendedSeedLen), &chaincfg.TestNet3Params)
-	require.NoError(t, err)
-	xpub, err := xprv.Neuter()
-	require.NoError(t, err)
-
-	accountsConfig := &config.AccountsConfig{
-		Accounts: []*config.Account{
-			{
-				CoinCode: coinpkg.CodeBTC,
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(
-						signing.ScriptTypeP2WPKH,
-						rootFingerprint1,
-						mustKeypath("m/84'/0'/0'"),
-						xpub,
-					),
-				},
-			},
-			{
-				CoinCode: coinpkg.CodeBTC,
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(
-						signing.ScriptTypeP2WPKHP2SH,
-						rootFingerprint1,
-						mustKeypath("m/49'/0'/0'"),
-						xpub,
-					),
-				},
-			},
-			{
-				CoinCode: coinpkg.CodeTBTC,
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(
-						signing.ScriptTypeP2WPKH,
-						rootFingerprint1,
-						mustKeypath("m/84'/0'/3'"),
-						xpub,
-					),
-				},
-			},
-			{
-				CoinCode: coinpkg.CodeTBTC,
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(
-						signing.ScriptTypeP2WPKH,
-						rootFingerprint2,
-						mustKeypath("m/84'/0'/5'"),
-						xpub,
-					),
-				},
-			},
-		},
-	}
-
-	num, err := nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprintEmpty, true), accountsConfig)
-	require.NoError(t, err)
-	require.Equal(t, uint16(0), num)
-
-	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprintEmpty, false), accountsConfig)
-	require.NoError(t, err)
-	require.Equal(t, uint16(0), num)
-
-	num, err = nextAccountNumber(coinpkg.CodeBTC, ks(rootFingerprint1, true), accountsConfig)
-	require.NoError(t, err)
-	require.Equal(t, uint16(1), num)
-
-	_, err = nextAccountNumber(coinpkg.CodeBTC, ks(rootFingerprint1, false), accountsConfig)
-	require.Equal(t, errAccountLimitReached, errp.Cause(err))
-
-	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(rootFingerprint1, true), accountsConfig)
-	require.NoError(t, err)
-	require.Equal(t, uint16(4), num)
-
-	_, err = nextAccountNumber(coinpkg.CodeTBTC, ks(rootFingerprint2, true), accountsConfig)
-	require.Equal(t, errAccountLimitReached, errp.Cause(err))
-}
-
 func TestSupportedCoins(t *testing.T) {
 	t.Run("all coins supported, mainnet", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
@@ -693,9 +600,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				return true
 			},
 			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-				return true
-			},
-			SupportsMultipleAccountsFunc: func() bool {
 				return true
 			},
 			BTCXPubsFunc: func(coin coinpkg.Coin, keypaths []signing.AbsoluteKeypath,
@@ -1028,9 +932,6 @@ func TestTaprootUpgrade(t *testing.T) {
 				return true
 			}
 		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 		BTCXPubsFunc:          keystoreHelper.BTCXPubs,
 	}
@@ -1059,9 +960,6 @@ func TestTaprootUpgrade(t *testing.T) {
 			default:
 				return true
 			}
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
 		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 		BTCXPubsFunc:          keystoreHelper.BTCXPubs,

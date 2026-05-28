@@ -111,11 +111,6 @@ func (keystore *keystore) SupportsAccount(coin coinpkg.Coin, meta interface{}) b
 	}
 }
 
-// SupportsMultipleAccounts implements keystore.Keystore.
-func (keystore *keystore) SupportsMultipleAccounts() bool {
-	return true
-}
-
 // CanVerifyAddress implements keystore.Keystore.
 func (keystore *keystore) CanVerifyAddress(coin coinpkg.Coin) (bool, bool, error) {
 	const optional = false

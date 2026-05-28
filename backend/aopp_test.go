@@ -68,9 +68,6 @@ func makeKeystore(
 				return true
 			}
 		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
 		CanSignMessageFunc: func(coinpkg.Code) bool {
 			return true
 		},

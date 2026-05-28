@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"math"
 	"math/big"
 	"sort"
 	"strings"
@@ -625,77 +624,6 @@ func (backend *Backend) createAndPersistAccountConfig(
 	default:
 		panic("unhandled account derivation kind")
 	}
-}
-
-// findHiddenAccount finds the first (lowest account number) account which is hidden because it is
-// unused. Returns nil if no such account exists.
-func findHiddenAccount(
-	coinCode coinpkg.Code,
-	keystore keystore.Keystore,
-	accountsConfig *config.AccountsConfig) (*config.Account, error) {
-	rootFingerprint, err := keystore.RootFingerprint()
-	if err != nil {
-		return nil, err
-	}
-	smallestHiddenAccountNumber := uint16(math.MaxUint16)
-	var result *config.Account
-
-	for _, account := range accountsConfig.Accounts {
-		if coinCode != account.CoinCode {
-			continue
-		}
-		if !account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint) {
-			continue
-		}
-		if len(account.SigningConfigurations) == 0 {
-			continue
-		}
-		accountNumber, err := account.SigningConfigurations[0].AccountNumber()
-		if err != nil {
-			continue
-		}
-		if account.HiddenBecauseUnused && accountNumber < smallestHiddenAccountNumber {
-			smallestHiddenAccountNumber = accountNumber
-			result = account
-		}
-	}
-	return result, nil
-}
-
-// nextAccountNumber checks if an account for the given coin can be added, and if so, returns the
-// account number of the new account.
-func nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accountsConfig *config.AccountsConfig) (uint16, error) {
-	rootFingerprint, err := keystore.RootFingerprint()
-	if err != nil {
-		return 0, err
-	}
-	nextAccountNumber := uint16(0)
-	for _, account := range accountsConfig.Accounts {
-		if coinCode != account.CoinCode {
-			continue
-		}
-		if !account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint) {
-			continue
-		}
-		if len(account.SigningConfigurations) == 0 {
-			continue
-		}
-		accountNumber, err := account.SigningConfigurations[0].AccountNumber()
-		if err != nil {
-			continue
-		}
-		if accountNumber+1 > nextAccountNumber {
-			nextAccountNumber = accountNumber + 1
-		}
-	}
-	if !keystore.SupportsMultipleAccounts() && nextAccountNumber >= 1 {
-		return 0, errp.WithStack(errAccountLimitReached)
-	}
-
-	if int(nextAccountNumber) >= accountsHardLimit(coinCode) {
-		return 0, errp.WithStack(errAccountLimitReached)
-	}
-	return nextAccountNumber, nil
 }
 
 // CanAddAccount returns true if it is possible to add an account for the given coin and keystore,
@@ -1511,50 +1439,32 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 			WithField("rootFingerprint", hex.EncodeToString(rootFingerprint)).
 			WithField("coinCode", coinCode)
 
-		maxAccountNumber := -1
-		var maxAccount *config.Account
-		for _, accountConfig := range cfg.Accounts {
-			if coinCode != accountConfig.CoinCode {
-				continue
-			}
-			if !accountConfig.SigningConfigurations.ContainsRootFingerprint(rootFingerprint) {
-				continue
-			}
-			accountNumber, err := accountConfig.SigningConfigurations[0].AccountNumber()
-			if err != nil {
-				continue
-			}
-			if maxAccount == nil || int(accountNumber) > maxAccountNumber {
-				maxAccountNumber = int(accountNumber)
-				maxAccount = accountConfig
-			}
+		nextAccountNumber, ok := nextDiscoveryAccountNumber(
+			coinCode,
+			accountCandidates(cfg, rootFingerprint, coinCode),
+		)
+		if !ok {
+			return nil
 		}
-		// Account scan gap limit:
-		// - Previous account must be used for the next one to be scanned, but:
-		// - The first 5 accounts are always scanned as before we had accounts discovery, the
-		//   BitBoxApp allowed manual creation of 5 accounts, so we need to always scan these
-		nextAccountNumber := maxAccountNumber + 1
-		if maxAccount == nil || maxAccount.Used || nextAccountNumber < accountsHardLimit(coinCode) {
-			accountCode, err := backend.createAndPersistAccountConfig(
-				coinCode,
-				uint16(nextAccountNumber),
-				true,
-				"",
-				backend.keystore,
-				nil,
-				cfg,
-			)
-			if err != nil {
-				log.WithError(err).Error("adding hidden account failed")
-				return nil
-			}
-			log.
-				WithField("accountCode", accountCode).
-				WithField("accountNumber", nextAccountNumber).
-				Info("automatically created hidden account")
-			return &accountCode
+
+		accountCode, err := backend.createAndPersistAccountConfig(
+			coinCode,
+			nextAccountNumber,
+			true,
+			"",
+			backend.keystore,
+			nil,
+			cfg,
+		)
+		if err != nil {
+			log.WithError(err).Error("adding hidden account failed")
+			return nil
 		}
-		return nil
+		log.
+			WithField("accountCode", accountCode).
+			WithField("accountNumber", nextAccountNumber).
+			Info("automatically created hidden account")
+		return &accountCode
 	}
 
 	// Enable accounts discovery for these coins.
