@@ -20,7 +20,7 @@ import style from './dashboard.module.css';
 
 type TProps = {
   accounts: TAccount[];
-  code: string;
+  code: AccountCode;
 };
 
 type TAccountStatusIconProps = {

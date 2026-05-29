@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ReactNode } from 'react';
-import { matchPath, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, type ReactNode } from 'react';
+import { matchPath, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { TAccount } from '@/api/account';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
@@ -89,7 +89,6 @@ const MarketplaceLayoutContent = ({ accounts, children }: TProps) => {
   const selectedAccountCode = routeMarketAccountCode || getFallbackAccountCode(accounts);
   const isBitsuranceDashboard = !!matchPath({ path: '/market/bitsurance/dashboard/:code', end: true }, pathname);
   const isBitsuranceWidget = !!matchPath({ path: '/market/bitsurance/widget/:code', end: true }, pathname);
-  const showMarketplaceNavigation = !isBitsuranceWidget;
   const activeTab: TMarketplaceTab = isBitsurance
     ? 'insure'
     : getMarketActionFromSearchParams(searchParams);
@@ -102,9 +101,11 @@ const MarketplaceLayoutContent = ({ accounts, children }: TProps) => {
     && !!normalizedBitsurancePath
     && pathname !== normalizedBitsurancePath;
 
-  if (shouldNormalizeBitsurancePath) {
-    return <Navigate to={normalizedBitsurancePath} replace />;
-  }
+  useEffect(() => {
+    if (shouldNormalizeBitsurancePath) {
+      navigate(normalizedBitsurancePath, { replace: true });
+    }
+  }, [navigate, normalizedBitsurancePath, shouldNormalizeBitsurancePath]);
 
   const handleChangeTab = (tab: TMarketplaceTab) => {
     if (tab === 'insure') {
@@ -127,9 +128,8 @@ const MarketplaceLayoutContent = ({ accounts, children }: TProps) => {
               <HideAmountsButton />
             )}
           </Header>
-          {showMarketplaceNavigation && (
+          {!isBitsuranceWidget && (
             <MarketplaceNavigation
-              accounts={accounts}
               activeTab={activeTab}
               onChangeTab={handleChangeTab}
             />
@@ -148,7 +148,7 @@ const MarketplaceLayoutContent = ({ accounts, children }: TProps) => {
 
 export const MarketplaceLayout = ({ accounts, children }: TProps) => {
   return (
-    <MarketProvider>
+    <MarketProvider accounts={accounts}>
       <MarketplaceLayoutContent accounts={accounts}>
         {children}
       </MarketplaceLayoutContent>

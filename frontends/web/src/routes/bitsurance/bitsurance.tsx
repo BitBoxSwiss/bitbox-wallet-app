@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TAccount } from '@/api/account';
+import { AccountCode, TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
 import { A } from '@/components/anchor/anchor';
@@ -17,7 +17,7 @@ import style from './bitsurance.module.css';
 
 type TProps = {
   accounts: TAccount[];
-  code: string;
+  code: AccountCode;
 };
 
 export const Bitsurance = ({ accounts, code }: TProps) => {

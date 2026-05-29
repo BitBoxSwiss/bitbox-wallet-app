@@ -83,7 +83,7 @@ describe('routes/market/components/markettab', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Swap' }));
+    await user.click(screen.getByRole('button', { name: /generic\.swap/ }));
 
     expect(onChangeTab).toHaveBeenCalledWith('swap');
   });
@@ -100,7 +100,7 @@ describe('routes/market/components/markettab', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Insure' }));
+    await user.click(screen.getByRole('button', { name: /generic\.insure/ }));
 
     expect(onChangeTab).toHaveBeenCalledWith('insure');
   });
