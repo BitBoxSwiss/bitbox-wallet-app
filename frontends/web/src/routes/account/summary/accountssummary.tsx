@@ -5,9 +5,11 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { statusChanged, syncdone } from '@/api/accountsync';
+import { subscribeListPayments } from '@/api/lightning';
 import { unsubscribe } from '@/utils/subscriptions';
 import { TUnsubscribe } from '@/utils/transport-common';
 import { useMountedRef } from '@/hooks/mount';
+import { useLightning } from '@/hooks/lightning';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View } from '@/components/view/view';
 import { Chart } from './chart';
@@ -44,6 +46,7 @@ export const AccountsSummary = ({
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
   const { defaultCurrency } = useContext(RatesContext);
+  const { lightningAccount } = useLightning();
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
 
@@ -51,7 +54,8 @@ export const AccountsSummary = ({
   const hasMultipleAccountsPerCoin = Object.values(accountsPerCoin).some(
     coinAccounts => coinAccounts !== undefined && coinAccounts.length > 1
   );
-  const showTotalBalance = accountsByKeystore.length > 1
+  const showTotalBalance = lightningAccount !== null
+    || accountsByKeystore.length > 1
     || (accountsByKeystore.length > 0 && hasMultipleAccountsPerCoin);
 
   const [chartData, setChartData] = useState<accountApi.TChartData>();
@@ -124,7 +128,7 @@ export const AccountsSummary = ({
 
   useEffect(() => {
     // for subscriptions and unsubscriptions
-    // runs only on component mount and unmount.
+    // re-subscribes when accounts or lightning account state changes.
     const subscriptions: TUnsubscribe[] = [];
     accounts.forEach(account => {
       const currentCode = account.code;
@@ -136,8 +140,16 @@ export const AccountsSummary = ({
       }
       ));
     });
+    if (lightningAccount !== null) {
+      subscriptions.push(subscribeListPayments(() => {
+        if (mounted.current) {
+          getChartData();
+          getAccountsBalanceSummary();
+        }
+      }));
+    }
     return () => unsubscribe(subscriptions);
-  }, [update, accounts]);
+  }, [accounts, getAccountsBalanceSummary, getChartData, lightningAccount, mounted, update]);
 
 
   useEffect(() => {
@@ -145,7 +157,7 @@ export const AccountsSummary = ({
     // & whenever any of the dependencies change.
     getChartData();
     getAccountsBalanceSummary();
-  }, [getChartData, getAccountsBalanceSummary, defaultCurrency]);
+  }, [getChartData, getAccountsBalanceSummary, defaultCurrency, lightningAccount]);
 
   useEffect(() => {
     return () => {
