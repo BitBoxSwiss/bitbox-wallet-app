@@ -174,7 +174,7 @@ func NewHandlers(
 			WriteBufferSize: 1024,
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
-		log: logging.Get().WithGroup("handlers"),
+		log: log,
 	}
 
 	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
@@ -552,9 +552,11 @@ func (handlers *Handlers) postAppConfig(r *http.Request) interface{} {
 
 	appConfig := config.AppConfig{}
 	if err := json.NewDecoder(r.Body).Decode(&appConfig); err != nil {
+		handlers.log.WithField("handler", "postAppConfig").WithError(err).Error("handler failed")
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.backend.Config().SetAppConfig(appConfig); err != nil {
+		handlers.log.WithField("handler", "postAppConfig").WithError(err).Error("handler failed")
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{Success: true}
@@ -591,9 +593,11 @@ func (handlers *Handlers) postOpen(r *http.Request) interface{} {
 
 	var url string
 	if err := json.NewDecoder(r.Body).Decode(&url); err != nil {
+		handlers.log.WithField("handler", "postOpen").WithError(err).Error("handler failed")
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.backend.SystemOpen(url); err != nil {
+		handlers.log.WithField("handler", "postOpen").WithError(err).Error("handler failed")
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{Success: true}
@@ -907,6 +911,7 @@ func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) interface{} {
 
 	totalBalance, err := handlers.backend.AccountsBalanceSummary()
 	if err != nil {
+		handlers.log.WithField("handler", "getAccountsBalanceSummary").WithError(err).Error("handler failed")
 		return response{Success: false}
 	}
 	return response{Success: true, TotalBalance: totalBalance}
@@ -1517,6 +1522,7 @@ func (handlers *Handlers) getMarketMoonpayBuyInfo(r *http.Request) interface{} {
 
 	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
+		handlers.log.WithField("handler", "getMarketMoonpayBuyInfo").WithError(err).Error("handler failed")
 		return result{Success: false, ErrorMessage: err.Error()}
 	}
 
@@ -1532,6 +1538,7 @@ func (handlers *Handlers) getMarketMoonpayBuyInfo(r *http.Request) interface{} {
 	}
 	buy, err := market.MoonpayInfo(acct, params)
 	if err != nil {
+		handlers.log.WithField("handler", "getMarketMoonpayBuyInfo").WithError(err).Error("handler failed")
 		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	return result{
