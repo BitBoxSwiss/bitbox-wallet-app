@@ -51,8 +51,8 @@ func hashMerkleRoot(merkle []blockchain.TXHash, start chainhash.Hash, pos int) c
 func (transactions *Transactions) verifyTransactions() {
 	unverifiedTransactions, err := transactions.unverifiedTransactions()
 	if err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithError(err).Error("unverifiedTransactions")
+		return
 	}
 	transactions.log.Debugf("verifying %d transactions", len(unverifiedTransactions))
 	for txHash, height := range unverifiedTransactions {
