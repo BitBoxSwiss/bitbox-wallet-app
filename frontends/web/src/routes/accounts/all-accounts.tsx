@@ -73,7 +73,7 @@ const AccountItem = ({ account }: TAccountItemProp) => {
 export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
   const { t } = useTranslation();
   const accountsByKeystore = getAccountsByKeystore(accounts);
-  useOnlyVisitableOnMobile('/settings/manage-accounts');
+  useOnlyVisitableOnMobile('/account-summary');
 
   return (
     <Main>
