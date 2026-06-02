@@ -12,7 +12,15 @@ import { BackButtonContext, THandler } from '@/contexts/BackButtonContext';
  *   this may fall through to the native exit prompt when no in-app back target is allowed).
  */
 export const useBackButton = (handler: THandler) => {
-  const { pushHandler, popHandler } = useContext(BackButtonContext);
+  const context = useContext(BackButtonContext);
+
+  if (!context) {
+    throw new Error(
+      'useBackButton must be used within BackButtonProvider'
+    );
+  }
+
+  const { pushHandler, popHandler } = context;
 
   // Keep the latest handler logic without changing the identity used in the stack.
   const latestHandlerRef = useRef<THandler>(handler);
