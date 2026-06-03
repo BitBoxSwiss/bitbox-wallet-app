@@ -116,10 +116,7 @@ const processFile = (filePath, checkMode) => {
     if (checkMode) {
       if (changed) {
         console.error(`Not sorted: ${filePath}`);
-      } else {
-        console.log(`OK: ${filePath}`);
       }
-
       return changed;
     }
 
