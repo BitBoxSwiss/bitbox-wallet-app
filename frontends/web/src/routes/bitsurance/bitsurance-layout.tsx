@@ -7,7 +7,6 @@ import type { TAccount } from '@/api/account';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { MarketplaceNavigation } from '@/routes/market/components/marketplace-navigation';
-import { MarketProvider } from '@/routes/market/market-context';
 import { useMarketplaceTabNavigation } from '@/routes/market/use-marketplace-tab-navigation';
 import { getFallbackMarketAccountCode } from '@/routes/market/utils';
 import { getBitsurancePathWithAccountCode, getRouteBitsuranceAccountCode } from './utils';
@@ -63,11 +62,9 @@ const BitsuranceLayoutContent = ({ accounts, children }: TProps) => {
 
 export const BitsuranceLayout = ({ accounts, children }: TProps) => {
   return (
-    <MarketProvider accounts={accounts}>
-      <BitsuranceLayoutContent accounts={accounts}>
-        {children}
-      </BitsuranceLayoutContent>
-    </MarketProvider>
+    <BitsuranceLayoutContent accounts={accounts}>
+      {children}
+    </BitsuranceLayoutContent>
   );
 };
 

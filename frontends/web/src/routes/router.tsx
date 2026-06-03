@@ -8,6 +8,7 @@ import { AddAccount } from './account/add/add-account';
 import { Moonpay } from './market/moonpay';
 import { Market } from './market/market';
 import { MarketplaceLayout } from './market/marketplace-layout';
+import { MarketProvider } from './market/market-context';
 import { Pocket } from './market/pocket';
 import { BTCDirect } from './market/btcdirect';
 import { BTCDirectOTC } from './market/btcdirect-otc';
@@ -250,12 +251,14 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
   );
 
   const MarketplaceRoutesEl = (
-    <Routes>
-      <Route path="select" element={MarketSelectEl} />
-      <Route path="select/:code" element={MarketSelectEl} />
-      <Route path="bitsurance/widget/:code" element={BitsuranceWidgetRouteEl} />
-      <Route path="bitsurance/*" element={BitsuranceRoutesEl} />
-    </Routes>
+    <MarketProvider accounts={activeAccounts}>
+      <Routes>
+        <Route path="select" element={MarketSelectEl} />
+        <Route path="select/:code" element={MarketSelectEl} />
+        <Route path="bitsurance/widget/:code" element={BitsuranceWidgetRouteEl} />
+        <Route path="bitsurance/*" element={BitsuranceRoutesEl} />
+      </Routes>
+    </MarketProvider>
   );
 
   const PocketBuyEl = (<InjectParams>

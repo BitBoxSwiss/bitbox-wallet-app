@@ -8,7 +8,6 @@ import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { MarketGuide } from './guide';
 import { MarketplaceNavigation } from './components/marketplace-navigation';
-import { MarketProvider } from './market-context';
 import { useMarketplaceTabNavigation } from './use-marketplace-tab-navigation';
 import { getFallbackMarketAccountCode, getMarketActionFromSearchParams, getRouteMarketAccountCode } from './utils';
 
@@ -48,10 +47,8 @@ const MarketplaceLayoutContent = ({ accounts, children }: TProps) => {
 
 export const MarketplaceLayout = ({ accounts, children }: TProps) => {
   return (
-    <MarketProvider accounts={accounts}>
-      <MarketplaceLayoutContent accounts={accounts}>
-        {children}
-      </MarketplaceLayoutContent>
-    </MarketProvider>
+    <MarketplaceLayoutContent accounts={accounts}>
+      {children}
+    </MarketplaceLayoutContent>
   );
 };
