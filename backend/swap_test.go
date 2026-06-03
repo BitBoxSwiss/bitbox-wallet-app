@@ -3,6 +3,7 @@
 package backend
 
 import (
+	"encoding/json"
 	"slices"
 	"testing"
 
@@ -356,14 +357,16 @@ func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
 		Signature: "sig",
 	}
 
+	selectedUTXOs := []string{"txid1:0", "txid2:1"}
 	txInput, err := swapSignTxInput(paymentRequest, sellCoin, &paymentrequest.Slip24AddressDerivation{
 		Eth: &paymentrequest.Slip24EthAddressDerivation{
 			Keypath: []uint32{2147483692, 2147483708, 2147483648, 0, 0},
 		},
-	})
+	}, selectedUTXOs)
 	require.NoError(t, err)
 	require.Equal(t, "1GqULdYGDRfF3w85yGmEq8LTWecpKn8JMJ", txInput.Address)
 	require.Equal(t, "100000000", txInput.Amount)
+	require.Equal(t, selectedUTXOs, txInput.SelectedUTXOS)
 	require.NotNil(t, txInput.PaymentRequest)
 	require.NotNil(t, txInput.PaymentRequest.Memos[0].CoinPurchase)
 	require.NotNil(t, txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation)
@@ -413,8 +416,13 @@ func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
 			Keypath:    []uint32{2147483697, 2147483648, 2147483648, 0, 5},
 			ScriptType: "p2wpkh",
 		},
-	})
+	}, nil)
 	require.NoError(t, err)
+	require.NotNil(t, txInput.SelectedUTXOS)
+	require.Empty(t, txInput.SelectedUTXOS)
+	jsonTxInput, err := json.Marshal(txInput)
+	require.NoError(t, err)
+	require.Contains(t, string(jsonTxInput), `"selectedUTXOS":[]`)
 	require.NotNil(t, txInput.PaymentRequest)
 	require.NotNil(t, txInput.PaymentRequest.Memos[0].CoinPurchase)
 	require.NotNil(t, txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation)

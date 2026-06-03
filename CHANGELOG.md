@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Bitcoin: show account details for the persisted receive address type by default
+- Bitcoin: enable UTXO selection for swaps.
 - Add external block explorer links to used addresses
 
 ## v4.51.1

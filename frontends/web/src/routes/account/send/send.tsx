@@ -434,7 +434,9 @@ export const Send = ({
                   {t('send.transactionDetails')}
                 </SubTitle>
                 <CoinControl
-                  account={account}
+                  accountCode={account.code}
+                  coinCode={account.coinCode}
+                  explorerURL={account.blockExplorerTxPrefix}
                   onSelectedUTXOsChange={handleSelectedUTXOsChange}
                   onCoinControlDialogActiveChange={setUtxoDialogActive}
                 />

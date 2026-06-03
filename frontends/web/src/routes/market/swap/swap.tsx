@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   getBalance,
+  getUTXOsAmount,
   hasSwapPaymentRequest,
   proposeTx,
   sendTx,
@@ -33,20 +34,23 @@ import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { alertUser } from '@/components/alert/Alert';
 import { Message } from '@/components/message/message';
-import { Button, Label } from '@/components/forms';
+import { Button, Checkbox, Label } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
-import { findAccount, getDisplayedCoinUnit, isBitcoinOnly } from '@/routes/account/utils';
+import { findAccount, getDisplayedCoinUnit, isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
 import { useLoad } from '@/hooks/api';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
+import { CoinControl } from '@/routes/account/send/coin-control';
+import type { TSelectedUTXOs } from '@/routes/account/send/utxos';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
+import { useMountedRef } from '@/hooks/mount';
 import { SwapkitTerms } from '@/components/terms/swapkit-terms';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import style from './swap.module.css';
@@ -91,6 +95,7 @@ export const Swap = ({
 }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const mounted = useMountedRef();
   const { activeCurrencies, btcUnit, defaultCurrency } = useContext(RatesContext);
   // accounts is added as a dependency, to reload swap accounts when the account list changes.
   const loadedSwapAccounts = useLoad(getSwapAccounts, [accounts]);
@@ -132,8 +137,12 @@ export const Swap = ({
   const [routeError, setRouteError] = useState<string | undefined>();
   // Drives the button disabled/loading state for the whole confirm flow.
   const [isConfirmInFlight, setIsConfirmInFlight] = useState(false);
+  const [selectedUTXOs, setSelectedUTXOs] = useState<TSelectedUTXOs>({});
+  const [useSelectedUTXOs, setUseSelectedUTXOs] = useState(false);
+  const [selectedUTXOsAmount, setSelectedUTXOsAmount] = useState('');
   // Prevents double-submit before the button disabled state has re-rendered.
   const confirmInFlightRef = useRef(false);
+  const utxoAmountRequestRef = useRef(0);
 
   const sellAccount = useMemo(
     () => sellAccountCode && sellAccounts
@@ -141,12 +150,20 @@ export const Swap = ({
       : undefined,
     [sellAccounts, sellAccountCode],
   );
+  const sellBlockExplorerTxPrefix = useMemo(
+    () => sellAccountCode
+      ? findAccount(accounts, sellAccountCode)?.blockExplorerTxPrefix
+      : undefined,
+    [accounts, sellAccountCode],
+  );
   const buyAccount = useMemo(
     () => buyAccountCode && buyAccounts
       ? findAccount(buyAccounts, buyAccountCode)
       : undefined,
     [buyAccounts, buyAccountCode],
   );
+  const hasSelectedUTXOs = Object.keys(selectedUTXOs).length > 0;
+  const effectiveSellAmount = useSelectedUTXOs ? selectedUTXOsAmount : sellAmount;
 
   const selectedRoute = useMemo(
     () => routes.find(route => route.routeId === selectedRouteId),
@@ -161,6 +178,71 @@ export const Swap = ({
 
   const { config } = useConfig();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipSwapkitDisclaimer ?? false);
+  const showCoinControl = sellAccount !== undefined
+    && sellBlockExplorerTxPrefix !== undefined
+    && (config?.frontend.coinControl ?? false)
+    && isBitcoinBased(sellAccount.coinCode);
+
+  const handleSellAccountCodeChange = useCallback((accountCode: AccountCode) => {
+    utxoAmountRequestRef.current++;
+    setSelectedUTXOs({});
+    setUseSelectedUTXOs(false);
+    setSelectedUTXOsAmount('');
+    setSellAccountCode(accountCode);
+  }, []);
+
+  const fetchSelectedUTXOsAmount = useCallback(async (selectedUTXOs: TSelectedUTXOs): Promise<string | undefined> => {
+    if (!sellAccountCode) {
+      return;
+    }
+    const outpoints = Object.keys(selectedUTXOs);
+    const requestID = ++utxoAmountRequestRef.current;
+    if (outpoints.length === 0) {
+      return;
+    }
+    const result = await getUTXOsAmount(sellAccountCode, outpoints);
+    if (!mounted.current || requestID !== utxoAmountRequestRef.current) {
+      return;
+    }
+    if (result.success) {
+      return result.amount.amount;
+    }
+    alertUser(result.errorMessage || t('genericError'));
+  }, [mounted, sellAccountCode, t]);
+
+  const handleSelectedUTXOsChange = useCallback((selectedUTXOs: TSelectedUTXOs) => {
+    setSelectedUTXOs(selectedUTXOs);
+    if (Object.keys(selectedUTXOs).length === 0) {
+      utxoAmountRequestRef.current++;
+      setUseSelectedUTXOs(false);
+      setSelectedUTXOsAmount('');
+      return;
+    }
+    if (useSelectedUTXOs) {
+      setSelectedUTXOsAmount('');
+      fetchSelectedUTXOsAmount(selectedUTXOs).then(amount => {
+        if (amount !== undefined && mounted.current) {
+          setSelectedUTXOsAmount(amount);
+        }
+      });
+    }
+  }, [fetchSelectedUTXOsAmount, mounted, useSelectedUTXOs]);
+
+  const handleUseSelectedUTXOsChange = useCallback(async (useSelectedUTXOs: boolean) => {
+    if (!useSelectedUTXOs) {
+      utxoAmountRequestRef.current++;
+      setUseSelectedUTXOs(false);
+      return;
+    }
+    if (!hasSelectedUTXOs) {
+      return;
+    }
+    const amount = await fetchSelectedUTXOsAmount(selectedUTXOs);
+    if (amount !== undefined && mounted.current) {
+      setSelectedUTXOsAmount(amount);
+      setUseSelectedUTXOs(true);
+    }
+  }, [fetchSelectedUTXOsAmount, hasSelectedUTXOs, mounted, selectedUTXOs]);
 
   const isSameCoinAccount = (
     candidate: TSwapAccount,
@@ -177,13 +259,16 @@ export const Swap = ({
       return;
     }
     if (!swapAccounts.sellAccounts.some(account => account.code === sellAccountCode)) {
-      setSellAccountCode(
+      const nextSellAccountCode = (
         swapAccounts.defaultSellAccountCode && swapAccounts.sellAccounts.some(
           account => account.code === swapAccounts.defaultSellAccountCode,
         )
           ? swapAccounts.defaultSellAccountCode
-          : swapAccounts.sellAccounts[0]?.code,
+          : swapAccounts.sellAccounts[0]?.code
       );
+      if (nextSellAccountCode) {
+        handleSellAccountCodeChange(nextSellAccountCode);
+      }
     }
     const selectedSellAccount = swapAccounts.sellAccounts.find(account => account.code === sellAccountCode);
     if (!swapAccounts.buyAccounts.some(account => account.code === buyAccountCode)) {
@@ -196,7 +281,7 @@ export const Swap = ({
           : swapAccounts.buyAccounts.find(account => !isSameCoinAccount(account, selectedSellAccount))?.code,
       );
     }
-  }, [buyAccountCode, navigate, sellAccountCode, swapAccounts]);
+  }, [buyAccountCode, handleSellAccountCodeChange, navigate, sellAccountCode, swapAccounts]);
 
   // enable flip button
   useEffect(() => {
@@ -231,7 +316,7 @@ export const Swap = ({
   const handleFlipAccounts = () => {
     if (buyAccountCode && sellAccountCode) {
       clearQuoteState();
-      setSellAccountCode(buyAccountCode);
+      handleSellAccountCodeChange(buyAccountCode);
       setSellAmount(expectedOutput);
       setBuyAccountCode(sellAccountCode);
     }
@@ -249,7 +334,7 @@ export const Swap = ({
     let isCancelled = false;
     const sellCoinCode = sellAccount?.coinCode;
     const buyCoinCode = buyAccount?.coinCode;
-    const amount = Number(sellAmount);
+    const amount = Number(effectiveSellAmount);
 
     setRoutes([]);
     setSelectedRouteId(undefined);
@@ -259,7 +344,7 @@ export const Swap = ({
     if (
       !sellCoinCode
       || !buyCoinCode
-      || !sellAmount
+      || !effectiveSellAmount
       || Number.isNaN(amount)
       || amount <= 0
       || sellAccountCode === buyAccountCode
@@ -278,7 +363,7 @@ export const Swap = ({
         const response = await getSwapQuote({
           buyCoinCode,
           sellAccountCode,
-          sellAmount,
+          sellAmount: effectiveSellAmount,
           sellCoinCode,
         });
         if (isCancelled) {
@@ -354,10 +439,10 @@ export const Swap = ({
     buyAccount?.coinCode,
     buyAccountCode,
     clearQuoteState,
+    effectiveSellAmount,
     resetQuoteStateWithError,
     sellAccount?.coinCode,
     sellAccountCode,
-    sellAmount,
     t,
   ]);
 
@@ -405,7 +490,7 @@ export const Swap = ({
     setIsConfirmInFlight(true);
 
     try {
-      if (!buyAccountCode || !sellAccountCode || !selectedRouteId || !sellAmount || !buyAccount) {
+      if (!buyAccountCode || !sellAccountCode || !selectedRouteId || !effectiveSellAmount || !buyAccount) {
         alertUser(t('genericError'));
         return;
       }
@@ -429,7 +514,8 @@ export const Swap = ({
         buyAccountCode,
         routeId: selectedRouteId,
         sellAccountCode,
-        sellAmount,
+        sellAmount: effectiveSellAmount,
+        selectedUTXOs: useSelectedUTXOs ? Object.keys(selectedUTXOs) : [],
       });
       if (!response.success) {
         alertUser(response.errorMessage || t('genericError'));
@@ -596,6 +682,27 @@ export const Swap = ({
                   </span>
                 )}
               </div>
+              {showCoinControl && sellAccount && sellAccountCode && sellBlockExplorerTxPrefix !== undefined && (
+                <div className={style.coinControlRow}>
+                  <CoinControl
+                    key={sellAccountCode}
+                    accountCode={sellAccountCode}
+                    coinCode={sellAccount.coinCode}
+                    explorerURL={sellBlockExplorerTxPrefix}
+                    onSelectedUTXOsChange={handleSelectedUTXOsChange}
+                  />
+                  <div className={style.selectedUTXOs}>
+                    {hasSelectedUTXOs && (
+                      <Checkbox
+                        id="swapUseSelectedUTXOs"
+                        checked={useSelectedUTXOs}
+                        label={t('send.maximumSelectedCoins')}
+                        onChange={event => handleUseSelectedUTXOsChange(event.target.checked)}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
               {!sellAccounts || !sellAccountCode ? (
                 <Skeleton />
               ) : (
@@ -604,11 +711,12 @@ export const Swap = ({
                   id="swapSendAmount"
                   accountCode={sellAccountCode}
                   isAccountDisabled={account => isSameCoinAccount(account, buyAccount)}
-                  onChangeAccountCode={setSellAccountCode}
-                  value={sellAmount}
+                  onChangeAccountCode={handleSellAccountCodeChange}
+                  value={effectiveSellAmount}
                   onChangeValue={setSellAmount}
                   placeholder="0"
                   placeholderFiat={placeholderFiat}
+                  readOnlyAmount={useSelectedUTXOs}
                 />
               )}
               <Message

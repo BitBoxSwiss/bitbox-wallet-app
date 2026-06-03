@@ -13,6 +13,9 @@ import '@/i18n/i18n';
 vi.mock('@/components/alert/Alert', () => ({
   alertUser: vi.fn(),
 }));
+vi.mock('@/api/accountsync', () => ({
+  syncdone: vi.fn(() => vi.fn()),
+}));
 vi.mock('@/components/dialog/firmware-upgrade-required-dialog', () => ({
   FirmwareUpgradeRequiredDialog: () => null,
 }));
@@ -75,6 +78,8 @@ vi.mock('@/api/account', async (importOriginal) => {
   return {
     ...actual,
     getBalance: vi.fn(),
+    getUTXOs: vi.fn(),
+    getUTXOsAmount: vi.fn(),
     hasSwapPaymentRequest: vi.fn(),
     proposeTx: vi.fn(),
     sendTx: vi.fn(),
@@ -201,6 +206,17 @@ describe('routes/market/swap', () => {
     });
 
     vi.mocked(accountApi.getBalance).mockResolvedValue({ success: false });
+    vi.mocked(accountApi.getUTXOs).mockResolvedValue([]);
+    vi.mocked(accountApi.getUTXOsAmount).mockResolvedValue({ success: false });
+    vi.mocked(accountApi.hasSwapPaymentRequest).mockResolvedValue({ success: true });
+    vi.mocked(accountApi.proposeTx).mockResolvedValue({
+      success: true,
+      amount: { amount: '1', estimated: false, unit: 'BTC' },
+      fee: { amount: '0.0001', estimated: false, unit: 'BTC' },
+      recipientDisplayAddress: 'bc1qswap',
+      total: { amount: '1.0001', estimated: false, unit: 'BTC' },
+    });
+    vi.mocked(accountApi.sendTx).mockResolvedValue({ success: true, txId: 'txid' });
     vi.mocked(coinsApi.parseExternalBtcAmount).mockResolvedValue({ success: false, amount: '' });
     vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
       success: true,
@@ -217,6 +233,19 @@ describe('routes/market/swap', () => {
           providers: ['thorchain', 'mayachain'],
           routeId: 'route-1',
         }],
+      },
+    });
+    vi.mocked(swapApi.signSwap).mockResolvedValue({
+      success: true,
+      expectedBuyAmount: '1.23',
+      swapId: 'swap-id',
+      txInput: {
+        address: 'bc1qswap',
+        amount: '1',
+        paymentRequest: null,
+        selectedUTXOs: [],
+        sendAll: 'no',
+        useHighestFee: true,
       },
     });
     mockUseConfig.mockReturnValue({
@@ -258,6 +287,183 @@ describe('routes/market/swap', () => {
         sellAccountCode: 'btc-account',
         sellAmount: '1',
         sellCoinCode: 'btc',
+      });
+    });
+  });
+
+  it('prefills the sell amount from selected UTXOs when the checkbox is checked', async () => {
+    const user = userEvent.setup();
+
+    mockUseConfig.mockReturnValue({
+      config: {
+        backend: {},
+        frontend: {
+          coinControl: true,
+        },
+      } as TConfig,
+      setConfig: vi.fn(),
+    });
+    vi.mocked(accountApi.getUTXOs).mockResolvedValue([
+      {
+        address: 'bc1qselectedaddress',
+        addressReused: false,
+        amount: {
+          amount: '123',
+          estimated: false,
+          unit: 'BTC',
+        },
+        headerTimestamp: null,
+        isChange: false,
+        note: '',
+        outPoint: 'txid1:0',
+        scriptType: 'p2wpkh',
+        txId: 'txid1',
+        txOutput: 0,
+      },
+      {
+        address: 'bc1qselectedaddress',
+        addressReused: false,
+        amount: {
+          amount: '456',
+          estimated: false,
+          unit: 'BTC',
+        },
+        headerTimestamp: null,
+        isChange: false,
+        note: '',
+        outPoint: 'txid2:1',
+        scriptType: 'p2wpkh',
+        txId: 'txid2',
+        txOutput: 1,
+      },
+    ]);
+    let resolveUpdatedUTXOsAmount: (
+      result: Awaited<ReturnType<typeof accountApi.getUTXOsAmount>>
+    ) => void = () => {};
+    vi.mocked(accountApi.getUTXOsAmount)
+      .mockResolvedValueOnce({
+        success: true,
+        amount: {
+          amount: '0.30000003',
+          estimated: false,
+          unit: 'BTC',
+        },
+      })
+      .mockReturnValueOnce(new Promise(resolve => {
+        resolveUpdatedUTXOsAmount = resolve;
+      }));
+
+    render(
+      <RatesContext.Provider
+        value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+        <MemoryRouter>
+          <Swap accounts={[sellAccount, buyAccount]} />
+        </MemoryRouter>
+      </RatesContext.Provider>,
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    expect(screen.queryByRole('checkbox', { name: 'Send selected coins' })).not.toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Coin control' }));
+
+    const checkboxes = await screen.findAllByRole('checkbox');
+    await user.click(checkboxes[0]!);
+    await user.click(checkboxes[1]!);
+
+    expect(accountApi.getUTXOsAmount).not.toHaveBeenCalled();
+    const useSelectedUTXOsCheckbox = await screen.findByRole('checkbox', { name: 'Send selected coins' });
+    expect(useSelectedUTXOsCheckbox).toBeEnabled();
+    await user.type(screen.getByLabelText('swapSendAmount'), '0.5');
+    await user.click(useSelectedUTXOsCheckbox);
+
+    await waitFor(() => {
+      expect(accountApi.getUTXOsAmount).toHaveBeenLastCalledWith(
+        'btc-account',
+        ['txid1:0', 'txid2:1'],
+      );
+    });
+    expect(screen.getByTestId('swapSendAmount')).toHaveTextContent('0.30000003');
+    expect(screen.queryByLabelText('swapSendAmount')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(swapApi.getSwapQuote).toHaveBeenCalledWith({
+        buyCoinCode: 'eth',
+        sellAccountCode: 'btc-account',
+        sellAmount: '0.30000003',
+        sellCoinCode: 'btc',
+      });
+    });
+    const swapButton = screen.getByRole('button', { name: 'Swap' });
+    await waitFor(() => expect(swapButton).toBeEnabled());
+    await user.click(checkboxes[1]!);
+    await waitFor(() => {
+      expect(accountApi.getUTXOsAmount).toHaveBeenLastCalledWith(
+        'btc-account',
+        ['txid1:0'],
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('swapSendAmount')).toBeEmptyDOMElement();
+      expect(swapButton).toBeDisabled();
+    });
+    resolveUpdatedUTXOsAmount({
+      success: true,
+      amount: {
+        amount: '0.10000000',
+        estimated: false,
+        unit: 'BTC',
+      },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('swapSendAmount')).toHaveTextContent('0.10000000');
+    });
+    await waitFor(() => {
+      expect(swapApi.getSwapQuote).toHaveBeenCalledWith({
+        buyCoinCode: 'eth',
+        sellAccountCode: 'btc-account',
+        sellAmount: '0.10000000',
+        sellCoinCode: 'btc',
+      });
+    });
+    await waitFor(() => expect(swapButton).toBeEnabled());
+    await user.click(swapButton);
+    await waitFor(() => {
+      expect(swapApi.signSwap).toHaveBeenLastCalledWith({
+        buyAccountCode: 'eth-account',
+        routeId: 'route-1',
+        sellAccountCode: 'btc-account',
+        sellAmount: '0.10000000',
+        selectedUTXOs: ['txid1:0'],
+      });
+    });
+
+    await user.click(screen.getByRole('checkbox', { name: 'Send selected coins' }));
+    expect(screen.getByLabelText('swapSendAmount')).toHaveValue('0.5');
+    await waitFor(() => {
+      expect(swapApi.getSwapQuote).toHaveBeenCalledWith({
+        buyCoinCode: 'eth',
+        sellAccountCode: 'btc-account',
+        sellAmount: '0.5',
+        sellCoinCode: 'btc',
+      });
+    });
+    await waitFor(() => expect(swapButton).toBeEnabled());
+    await user.click(swapButton);
+    await waitFor(() => {
+      expect(swapApi.signSwap).toHaveBeenLastCalledWith({
+        buyAccountCode: 'eth-account',
+        routeId: 'route-1',
+        sellAccountCode: 'btc-account',
+        sellAmount: '0.5',
+        selectedUTXOs: [],
       });
     });
   });

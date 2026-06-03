@@ -54,6 +54,7 @@ func NewHandlers(
 	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
 	handleFunc("/info", handlers.ensureAccountInitialized(handlers.getAccountInfo)).Methods("GET")
 	handleFunc("/utxos", handlers.ensureAccountInitialized(handlers.getUTXOs)).Methods("GET")
+	handleFunc("/utxos/amount", handlers.ensureAccountInitialized(handlers.postUTXOsAmount)).Methods("POST")
 	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
@@ -375,6 +376,50 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 	return result, nil
 }
 
+func parseSelectedUTXOs(selectedUTXOStrings []string) (map[wire.OutPoint]struct{}, error) {
+	selectedUTXOs := map[wire.OutPoint]struct{}{}
+	for _, outPointString := range selectedUTXOStrings {
+		outPoint, err := util.ParseOutPoint([]byte(outPointString))
+		if err != nil {
+			return nil, err
+		}
+		selectedUTXOs[*outPoint] = struct{}{}
+	}
+	return selectedUTXOs, nil
+}
+
+func (handlers *Handlers) postUTXOsAmount(r *http.Request) (interface{}, error) {
+	accountConfig := handlers.account.Config()
+	var request struct {
+		SelectedUTXOs []string `json:"selectedUTXOs"`
+	}
+	type response struct {
+		Success      bool                                 `json:"success"`
+		ErrorMessage string                               `json:"errorMessage,omitempty"`
+		Amount       *coin.FormattedAmountWithConversions `json:"amount,omitempty"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	selectedUTXOs, err := parseSelectedUTXOs(request.SelectedUTXOs)
+	if err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	t, ok := handlers.account.(*btc.Account)
+	if !ok {
+		return response{Success: false, ErrorMessage: "Interface must be of type btc.Account"}, nil
+	}
+	amount, err := t.SelectedUTXOsAmount(selectedUTXOs)
+	if err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	amountResponse := amount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
+	return response{
+		Success: true,
+		Amount:  &amountResponse,
+	}, nil
+}
+
 func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) {
 	accountConfig := handlers.account.Config()
 	type balance struct {
@@ -438,13 +483,9 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	} else {
 		input.Amount = coin.NewSendAmount(jsonBody.Amount)
 	}
-	input.SelectedUTXOs = map[wire.OutPoint]struct{}{}
-	for _, outPointString := range jsonBody.SelectedUTXOS {
-		outPoint, err := util.ParseOutPoint([]byte(outPointString))
-		if err != nil {
-			return err
-		}
-		input.SelectedUTXOs[*outPoint] = struct{}{}
+	input.SelectedUTXOs, err = parseSelectedUTXOs(jsonBody.SelectedUTXOS)
+	if err != nil {
+		return err
 	}
 	input.Note = jsonBody.Note
 	if jsonBody.PaymentRequest != nil {

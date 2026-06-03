@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TAccount } from '@/api/account';
+import type { AccountCode, CoinCode } from '@/api/account';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { Button } from '@/components/forms';
 import { TSelectedUTXOs, UTXOs } from './utxos';
@@ -10,13 +10,17 @@ import { isBitcoinBased } from '../utils';
 import style from './coin-control.module.css';
 
 type TProps = {
-  account: TAccount;
+  accountCode: AccountCode;
+  coinCode: CoinCode;
+  explorerURL: string;
   onSelectedUTXOsChange: (selectedUTXOs: TSelectedUTXOs) => void;
   onCoinControlDialogActiveChange?: (active: boolean) => void;
 };
 
 export const CoinControl = ({
-  account,
+  accountCode,
+  coinCode,
+  explorerURL,
   onSelectedUTXOsChange,
   onCoinControlDialogActiveChange,
 }: TProps) => {
@@ -27,11 +31,11 @@ export const CoinControl = ({
   const [showUTXODialog, setShowUTXODialog] = useState(false);
 
   useEffect(() => {
-    if (!isBitcoinBased(account.coinCode) || !config) {
+    if (!isBitcoinBased(coinCode) || !config) {
       return;
     }
     setCoinControlEnabled(config.frontend.coinControl ?? false);
-  }, [account.coinCode, config]);
+  }, [coinCode, config]);
 
   // Notify parent whenever dialog visibility changes
   useEffect(() => {
@@ -47,9 +51,9 @@ export const CoinControl = ({
   return (
     <>
       <UTXOs
-        accountCode={account.code}
+        accountCode={accountCode}
         active={showUTXODialog}
-        explorerURL={account.blockExplorerTxPrefix}
+        explorerURL={explorerURL}
         onClose={() => {
           setShowUTXODialog(false);
         }}

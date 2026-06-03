@@ -79,6 +79,7 @@ export type TSwapSignRequest = {
   routeId: string;
   sellAccountCode: AccountCode;
   sellAmount: string;
+  selectedUTXOs: string[];
 };
 
 export type TSwapSignResponse = {

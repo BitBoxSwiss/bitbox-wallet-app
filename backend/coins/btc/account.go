@@ -1054,6 +1054,29 @@ func (account *Account) SpendableOutputs() ([]*SpendableOutput, error) {
 	return account.makeSpendableOutputs(utxos), nil
 }
 
+// SelectedUTXOsAmount returns the total amount of the selected spendable outputs.
+func (account *Account) SelectedUTXOsAmount(selectedUTXOs map[wire.OutPoint]struct{}) (coin.Amount, error) {
+	amount := coin.NewAmountFromInt64(0)
+	if len(selectedUTXOs) == 0 {
+		return amount, nil
+	}
+	if !account.Synced() {
+		return amount, accounts.ErrSyncInProgress
+	}
+	outputs, err := account.transactions.SpendableOutputs()
+	if err != nil {
+		return amount, err
+	}
+	for outPoint := range selectedUTXOs {
+		output, ok := outputs[outPoint]
+		if !ok {
+			return amount, errp.New("selected UTXO not found")
+		}
+		amount = coin.SumAmounts(amount, coin.NewAmountFromInt64(output.TxOut.Value))
+	}
+	return amount, nil
+}
+
 // ReusedAddressesForOutputs returns the subset of the provided outputs whose addresses are reused
 // across all indexed wallet outputs.
 func (account *Account) ReusedAddressesForOutputs(

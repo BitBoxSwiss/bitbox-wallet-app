@@ -29,6 +29,20 @@
   margin-bottom: var(--space-half);
 }
 
+.coinControlRow {
+  margin-bottom: var(--space-half);
+  min-height: 2rem;
+  position: relative;
+}
+
+.selectedUTXOs {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
 .flipContainer {
   text-align: center;
 }

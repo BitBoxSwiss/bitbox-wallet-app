@@ -437,6 +437,21 @@ export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {
   return apiGet(`account/${code}/utxos`);
 };
 
+export type TUTXOsAmount = {
+  amount: TAmountWithConversions;
+  success: true;
+} | {
+  errorMessage?: string;
+  success: false;
+};
+
+export const getUTXOsAmount = (
+  code: AccountCode,
+  selectedUTXOs: string[],
+): Promise<TUTXOsAmount> => {
+  return apiPost(`account/${code}/utxos/amount`, { selectedUTXOs });
+};
+
 type TSecureOutput = {
   hasSecureOutput: boolean;
   optional: boolean;

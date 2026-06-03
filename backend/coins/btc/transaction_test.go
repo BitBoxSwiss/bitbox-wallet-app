@@ -35,9 +35,9 @@ func mustKeypath(t *testing.T, keypath string) signing.AbsoluteKeypath {
 	return kp
 }
 
-func testAccount(t *testing.T, config *config.Account) *Account {
+func testAccount(t *testing.T) *Account {
 	t.Helper()
-	account := mockAccount(t, config)
+	account := mockAccount(t, nil)
 	account.coin.TstSetMakeBlockchain(func() blockchain.Interface {
 		return &blockchainMocks.BlockchainMock{
 			MockRelayFee: func() (btcutil.Amount, error) {
@@ -73,6 +73,26 @@ func testAccount(t *testing.T, config *config.Account) *Account {
 		},
 	}
 	return account
+}
+
+func TestSelectedUTXOsAmount(t *testing.T) {
+	account := testAccount(t)
+	outpoint := *wire.NewOutPoint(&chainhash.Hash{}, 1)
+	amount, err := account.SelectedUTXOsAmount(map[wire.OutPoint]struct{}{
+		outpoint: {},
+	})
+	require.NoError(t, err)
+	require.Equal(t, coin.NewAmountFromInt64(1000000), amount)
+}
+
+func TestSelectedUTXOsAmountErrorsIfOutputIsMissing(t *testing.T) {
+	account := testAccount(t)
+	hash := chainhash.Hash{1}
+	outpoint := *wire.NewOutPoint(&hash, 0)
+	_, err := account.SelectedUTXOsAmount(map[wire.OutPoint]struct{}{
+		outpoint: {},
+	})
+	require.Error(t, err)
 }
 
 func TestGetFeePerKb(t *testing.T) {
@@ -137,7 +157,7 @@ func TestGetFeePerKb(t *testing.T) {
 			wantErr: errp.New("Fee could not be estimated"),
 		},
 	}
-	account := testAccount(t, nil)
+	account := testAccount(t)
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			gotAmount, err := account.getFeePerKb(tc.args)
@@ -371,7 +391,7 @@ func TestTxProposal(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			account := testAccount(t, nil)
+			account := testAccount(t)
 			if tc.satoshi {
 				account.coin.SetFormatUnit(coin.BtcUnitSats)
 			}
