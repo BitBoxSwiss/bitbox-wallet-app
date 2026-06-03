@@ -39,6 +39,7 @@ import { Bitsurance } from './bitsurance/bitsurance';
 import { BitsuranceAccount } from './bitsurance/account';
 import { BitsuranceWidget } from './bitsurance/widget';
 import { BitsuranceDashboard } from './bitsurance/dashboard';
+import { BitsuranceLayout, BitsuranceWidgetLayout } from './bitsurance/bitsurance-layout';
 import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 import { AllAccounts } from '@/routes/accounts/all-accounts';
@@ -161,6 +162,12 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
       code={''} />
   </InjectParams>);
 
+  const BitsuranceWidgetRouteEl = (
+    <BitsuranceWidgetLayout>
+      {BitsuranceWidgetEl}
+    </BitsuranceWidgetLayout>
+  );
+
   const BitsuranceEl = (<InjectParams>
     <Bitsurance
       accounts={activeAccounts}
@@ -226,19 +233,29 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
     />
   </InjectParams>);
 
-  const MarketplaceRoutesEl = (
+  const MarketSelectEl = (
     <MarketplaceLayout accounts={activeAccounts}>
-      <Routes>
-        <Route path="select" element={MarketEl} />
-        <Route path="select/:code" element={MarketEl} />
-        <Route path="bitsurance">
-          <Route path=":code" element={BitsuranceEl} />
-          <Route path="account/:code" element={BitsuranceAccountEl} />
-          <Route path="widget/:code" element={BitsuranceWidgetEl} />
-          <Route path="dashboard/:code" element={BitsuranceDashboardEl} />
-        </Route>
-      </Routes>
+      {MarketEl}
     </MarketplaceLayout>
+  );
+
+  const BitsuranceRoutesEl = (
+    <BitsuranceLayout accounts={activeAccounts}>
+      <Routes>
+        <Route path=":code" element={BitsuranceEl} />
+        <Route path="account/:code" element={BitsuranceAccountEl} />
+        <Route path="dashboard/:code" element={BitsuranceDashboardEl} />
+      </Routes>
+    </BitsuranceLayout>
+  );
+
+  const MarketplaceRoutesEl = (
+    <Routes>
+      <Route path="select" element={MarketSelectEl} />
+      <Route path="select/:code" element={MarketSelectEl} />
+      <Route path="bitsurance/widget/:code" element={BitsuranceWidgetRouteEl} />
+      <Route path="bitsurance/*" element={BitsuranceRoutesEl} />
+    </Routes>
   );
 
   const PocketBuyEl = (<InjectParams>
