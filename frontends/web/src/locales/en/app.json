@@ -53,6 +53,7 @@
     "name": "Account name",
     "noAccount": "There are no accounts to show.",
     "portfolio": "Portfolio",
+    "searchPlaceholder": "Search transactions...",
     "title": "My portfolio",
     "total": "Total",
     "totalAssets": "Total assets",
@@ -1988,6 +1989,9 @@
       "title": "Manage notes"
     },
     "restart": "Please re-start the BitBoxApp for the changes to take effect.",
+    "search": {
+      "noResults": "No settings found"
+    },
     "services": {
       "title": "Services"
     },

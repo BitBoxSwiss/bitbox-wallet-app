@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { View, ViewContent } from '@/components/view/view';
 import { Header, Main } from '@/components/layout';
-import { Tabs } from './components/tabs';
+import { Tabs, WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
@@ -41,7 +41,9 @@ export const MobileSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsT
         } />
       <View fullscreen={false}>
         <ViewContent>
-          <Tabs devices={devices} hasAccounts={hasAccounts} />
+          <WithSettingsTabs devices={devices} hasAccounts={hasAccounts} renderDefaultTabs={false}>
+            <Tabs devices={devices} hasAccounts={hasAccounts} />
+          </WithSettingsTabs>
         </ViewContent>
       </View>
     </Main>

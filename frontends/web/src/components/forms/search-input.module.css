@@ -6,3 +6,23 @@
   pointer-events: none;
   width: 20px;
 }
+
+.clearButton {
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex: none;
+  height: 24px;
+  justify-content: center;
+  margin: auto 0;
+  padding: 0;
+  width: 24px;
+}
+
+.clearButton img,
+.clearButton svg {
+  height: 20px;
+  width: 20px;
+}
