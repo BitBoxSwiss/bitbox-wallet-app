@@ -205,6 +205,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/config/default", handlers.getDefaultConfig).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/config", handlers.postAppConfig).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/native-locale", handlers.getNativeLocale).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/number-format", handlers.getNumberFormat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/notify-user", handlers.postNotify).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/open", handlers.postOpen).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdate).Methods("GET")
@@ -567,6 +568,10 @@ func (handlers *Handlers) postAppConfig(r *http.Request) interface{} {
 // The response value may be invalid or unsupported by the app.
 func (handlers *Handlers) getNativeLocale(*http.Request) interface{} {
 	return handlers.backend.Environment().NativeLocale()
+}
+
+func (handlers *Handlers) getNumberFormat(*http.Request) interface{} {
+	return handlers.backend.Environment().NumberFormat()
 }
 
 func (handlers *Handlers) postNotify(r *http.Request) interface{} {

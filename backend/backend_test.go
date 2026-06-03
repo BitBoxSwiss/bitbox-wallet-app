@@ -226,6 +226,10 @@ func (e environment) NativeLocale() string {
 	return ""
 }
 
+func (e environment) NumberFormat() *NumberFormat {
+	return nil
+}
+
 func (e environment) GetSaveFilename(string) string {
 	return ""
 }

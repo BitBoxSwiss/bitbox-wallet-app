@@ -185,9 +185,12 @@ func Serve(dataDir string, testnet bool, environment GoEnvironmentInterface, goA
 				}
 				return []usb.DeviceInfo{deviceInfo{i}}
 			},
-			SystemOpenFunc:           environment.SystemOpen,
-			UsingMobileDataFunc:      environment.UsingMobileData,
-			NativeLocaleFunc:         environment.NativeLocale,
+			SystemOpenFunc:      environment.SystemOpen,
+			UsingMobileDataFunc: environment.UsingMobileData,
+			NativeLocaleFunc:    environment.NativeLocale,
+			NumberFormatFunc: func() *backend.NumberFormat {
+				return nil
+			},
 			GetSaveFilenameFunc:      environment.GetSaveFilename,
 			SetDarkThemeFunc:         environment.SetDarkTheme,
 			DetectDarkThemeFunc:      environment.DetectDarkTheme,

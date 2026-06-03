@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"runtime"
 	"strings"
 
@@ -118,6 +119,49 @@ func (webdevEnvironment) NativeLocale() string {
 	// used in the frontend and breaks UI in unexpected ways.
 	// We are always UTF-8 anyway.
 	return strings.Split(v, ".")[0]
+}
+
+func normalizeAppleSeparator(s string) string {
+	// macOS defaults encodes narrow no-break space as \U202f
+	return strings.ReplaceAll(s, `\\U202f`, "\u202f")
+}
+
+func parseAppleICUNumberSymbols(out []byte) *backendPkg.NumberFormat {
+	result := &backendPkg.NumberFormat{}
+
+	re := regexp.MustCompile(`(\d+)\s*=\s*"([^"]*)"`)
+	for _, m := range re.FindAllStringSubmatch(string(out), -1) {
+		switch m[1] {
+		case "0":
+			result.DecimalSeparator = normalizeAppleSeparator(m[2])
+		case "1":
+			result.GroupSeparator = normalizeAppleSeparator(m[2])
+		}
+	}
+
+	if result.DecimalSeparator == "" &&
+		result.GroupSeparator == "" {
+		return nil
+	}
+
+	return result
+}
+
+// NumberFormatting in webdev
+func (webdevEnvironment) NumberFormat() *backendPkg.NumberFormat {
+	log := logging.Get().WithGroup("servewallet")
+	if runtime.GOOS != "darwin" {
+		return nil
+	}
+
+	out, err := exec.Command("defaults", "read", "-g", "AppleICUNumberSymbols").Output()
+
+	if err != nil {
+		log.Warnf("failed to read AppleICUNumberSymbols via defaults: %v", err)
+		return nil
+	}
+
+	return parseAppleICUNumberSymbols(out)
 }
 
 // GetSaveFilename implements backend.Environment.

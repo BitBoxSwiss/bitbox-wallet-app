@@ -181,6 +181,7 @@ type BackendEnvironment struct {
 	// NativeLocaleFunc is used by the backend to query native app layer for user
 	// preferred UI language.
 	NativeLocaleFunc         func() string
+	NumberFormatFunc         func() *backend.NumberFormat
 	GetSaveFilenameFunc      func(string) string
 	SetDarkThemeFunc         func(bool)
 	DetectDarkThemeFunc      func() bool
@@ -226,6 +227,14 @@ func (env *BackendEnvironment) NativeLocale() string {
 		return env.NativeLocaleFunc()
 	}
 	return ""
+}
+
+// NumberFormat implements backend.Environment.
+func (env *BackendEnvironment) NumberFormat() *backend.NumberFormat {
+	if env.NumberFormatFunc != nil {
+		return env.NumberFormatFunc()
+	}
+	return nil
 }
 
 // GetSaveFilename implements backend.Environment.
