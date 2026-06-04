@@ -111,6 +111,7 @@ import * as accountApi from '@/api/account';
 import * as coinsApi from '@/api/coins';
 import * as swapApi from '@/api/swap';
 import { useConfig } from '@/contexts/ConfigProvider';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Swap } from './swap';
 
@@ -229,21 +230,23 @@ describe('routes/market/swap', () => {
     const user = userEvent.setup();
 
     render(
-      <RatesContext.Provider
-        value={{
-          activeCurrencies: [],
-          addToActiveCurrencies: vi.fn(),
-          btcUnit: 'default',
-          defaultCurrency: 'USD',
-          removeFromActiveCurrencies: vi.fn(),
-          rotateBtcUnit: vi.fn(),
-          rotateDefaultCurrency: vi.fn(),
-          updateDefaultCurrency: vi.fn(),
-        }}>
-        <MemoryRouter>
-          <Swap accounts={[sellAccount, buyAccount]} />
-        </MemoryRouter>
-      </RatesContext.Provider>,
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
     );
 
     const agreeButton = await screen.findByTestId('agree-swap-terms');
@@ -283,21 +286,23 @@ describe('routes/market/swap', () => {
     });
 
     render(
-      <RatesContext.Provider
-        value={{
-          activeCurrencies: [],
-          addToActiveCurrencies: vi.fn(),
-          btcUnit: 'default',
-          defaultCurrency: 'USD',
-          removeFromActiveCurrencies: vi.fn(),
-          rotateBtcUnit: vi.fn(),
-          rotateDefaultCurrency: vi.fn(),
-          updateDefaultCurrency: vi.fn(),
-        }}>
-        <MemoryRouter>
-          <Swap accounts={[buyAccount]} />
-        </MemoryRouter>
-      </RatesContext.Provider>,
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
     );
 
     await user.click(await screen.findByTestId('agree-swap-terms'));
@@ -323,21 +328,23 @@ describe('routes/market/swap', () => {
     });
 
     render(
-      <RatesContext.Provider
-        value={{
-          activeCurrencies: [],
-          addToActiveCurrencies: vi.fn(),
-          btcUnit: 'default',
-          defaultCurrency: 'USD',
-          removeFromActiveCurrencies: vi.fn(),
-          rotateBtcUnit: vi.fn(),
-          rotateDefaultCurrency: vi.fn(),
-          updateDefaultCurrency: vi.fn(),
-        }}>
-        <MemoryRouter>
-          <Swap accounts={[sellAccount, buyAccount]} />
-        </MemoryRouter>
-      </RatesContext.Provider>,
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
     );
 
     await user.click(await screen.findByTestId('agree-swap-terms'));
@@ -365,21 +372,23 @@ describe('routes/market/swap', () => {
     });
 
     render(
-      <RatesContext.Provider
-        value={{
-          activeCurrencies: [],
-          addToActiveCurrencies: vi.fn(),
-          btcUnit: 'default',
-          defaultCurrency: 'USD',
-          removeFromActiveCurrencies: vi.fn(),
-          rotateBtcUnit: vi.fn(),
-          rotateDefaultCurrency: vi.fn(),
-          updateDefaultCurrency: vi.fn(),
-        }}>
-        <MemoryRouter>
-          <Swap accounts={[sellAccount, buyAccount]} />
-        </MemoryRouter>
-      </RatesContext.Provider>,
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
     );
 
     await user.click(await screen.findByTestId('agree-swap-terms'));
@@ -408,21 +417,23 @@ describe('routes/market/swap', () => {
       .mockImplementationOnce(() => new Promise(() => {}));
 
     render(
-      <RatesContext.Provider
-        value={{
-          activeCurrencies: [],
-          addToActiveCurrencies: vi.fn(),
-          btcUnit: 'default',
-          defaultCurrency: 'USD',
-          removeFromActiveCurrencies: vi.fn(),
-          rotateBtcUnit: vi.fn(),
-          rotateDefaultCurrency: vi.fn(),
-          updateDefaultCurrency: vi.fn(),
-        }}>
-        <MemoryRouter>
-          <Swap accounts={[sellAccount, buyAccount]} />
-        </MemoryRouter>
-      </RatesContext.Provider>,
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
     );
 
     await user.click(await screen.findByTestId('agree-swap-terms'));

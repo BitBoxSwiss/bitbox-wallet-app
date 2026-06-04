@@ -14,6 +14,7 @@ import userEvent from '@testing-library/user-event';
 import * as accountApi from '@/api/account';
 import * as keystoresApi from '@/api/keystores';
 import { SignMessage } from './sign-message';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 
 const mockAccount: accountApi.TAccount = {
   keystore: {
@@ -107,12 +108,14 @@ describe('routes/account/sign-message', () => {
     const user = userEvent.setup();
 
     render(
-      <MemoryRouter>
-        <SignMessage
-          accounts={[mockAccount]}
-          code={mockAccount.code}
-        />
-      </MemoryRouter>
+      <BackButtonProvider>
+        <MemoryRouter>
+          <SignMessage
+            accounts={[mockAccount]}
+            code={mockAccount.code}
+          />
+        </MemoryRouter>
+      </BackButtonProvider>
     );
 
     await screen.findByDisplayValue(groupAddress('bc1qnativeexample'));
@@ -160,12 +163,14 @@ describe('routes/account/sign-message', () => {
 
     const user = userEvent.setup();
     render(
-      <MemoryRouter>
-        <SignMessage
-          accounts={[mockAccount]}
-          code={mockAccount.code}
-        />
-      </MemoryRouter>
+      <BackButtonProvider>
+        <MemoryRouter>
+          <SignMessage
+            accounts={[mockAccount]}
+            code={mockAccount.code}
+          />
+        </MemoryRouter>
+      </BackButtonProvider>
     );
 
     await screen.findByPlaceholderText('Enter the message to sign');
@@ -197,12 +202,14 @@ describe('routes/account/sign-message', () => {
 
     const user = userEvent.setup();
     render(
-      <MemoryRouter>
-        <SignMessage
-          accounts={[mockAccount]}
-          code={mockAccount.code}
-        />
-      </MemoryRouter>
+      <BackButtonProvider>
+        <MemoryRouter>
+          <SignMessage
+            accounts={[mockAccount]}
+            code={mockAccount.code}
+          />
+        </MemoryRouter>
+      </BackButtonProvider>
     );
 
     await user.type(
@@ -239,19 +246,21 @@ describe('routes/account/sign-message', () => {
     const user = userEvent.setup();
 
     render(
-      <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/${usedAddress.addressID}/sign-message`]}>
-        <Routes>
-          <Route
-            path="/account/:code/addresses/:addressID/sign-message"
-            element={(
-              <SignMessage
-                accounts={[mockAccount]}
-                code={mockAccount.code}
-              />
-            )}
-          />
-        </Routes>
-      </MemoryRouter>
+      <BackButtonProvider>
+        <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/${usedAddress.addressID}/sign-message`]}>
+          <Routes>
+            <Route
+              path="/account/:code/addresses/:addressID/sign-message"
+              element={(
+                <SignMessage
+                  accounts={[mockAccount]}
+                  code={mockAccount.code}
+                />
+              )}
+            />
+          </Routes>
+        </MemoryRouter>
+      </BackButtonProvider>
     );
 
     expect(screen.queryByText('Change address type')).not.toBeInTheDocument();
@@ -280,19 +289,21 @@ describe('routes/account/sign-message', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/invalid-address-id/sign-message`]}>
-        <Routes>
-          <Route
-            path="/account/:code/addresses/:addressID/sign-message"
-            element={(
-              <SignMessage
-                accounts={[mockAccount]}
-                code={mockAccount.code}
-              />
-            )}
-          />
-        </Routes>
-      </MemoryRouter>
+      <BackButtonProvider>
+        <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/invalid-address-id/sign-message`]}>
+          <Routes>
+            <Route
+              path="/account/:code/addresses/:addressID/sign-message"
+              element={(
+                <SignMessage
+                  accounts={[mockAccount]}
+                  code={mockAccount.code}
+                />
+              )}
+            />
+          </Routes>
+        </MemoryRouter>
+      </BackButtonProvider>
     );
 
     await screen.findByText('Address not found.');
@@ -322,12 +333,14 @@ describe('routes/account/sign-message', () => {
     const user = userEvent.setup();
 
     render(
-      <MemoryRouter>
-        <SignMessage
-          accounts={[ethAccount]}
-          code={ethAccount.code}
-        />
-      </MemoryRouter>
+      <BackButtonProvider>
+        <MemoryRouter>
+          <SignMessage
+            accounts={[ethAccount]}
+            code={ethAccount.code}
+          />
+        </MemoryRouter>
+      </BackButtonProvider>
     );
 
     await user.type(
@@ -367,12 +380,14 @@ describe('routes/account/sign-message', () => {
 
     const user = userEvent.setup();
     render(
-      <MemoryRouter>
-        <SignMessage
-          accounts={[mockAccount]}
-          code={mockAccount.code}
-        />
-      </MemoryRouter>
+      <BackButtonProvider>
+        <MemoryRouter>
+          <SignMessage
+            accounts={[mockAccount]}
+            code={mockAccount.code}
+          />
+        </MemoryRouter>
+      </BackButtonProvider>
     );
 
     await user.type(

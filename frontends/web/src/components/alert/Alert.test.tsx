@@ -11,6 +11,7 @@ vi.mock('@/utils/request', () => ({
 }));
 
 import { apiGet } from '@/utils/request';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 
 (apiGet as Mock).mockImplementation(endpoint => {
   switch (endpoint) {
@@ -36,7 +37,11 @@ describe('Alert', () => {
   });
 
   function renderAlert() {
-    return render(<Alert/>);
+    return render(
+      <BackButtonProvider>
+        <Alert/>
+      </BackButtonProvider>
+    );
   }
 
   it('should render the Alert component properly', () => {

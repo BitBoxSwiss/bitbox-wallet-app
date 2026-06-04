@@ -32,6 +32,7 @@ import userEvent from '@testing-library/user-event';
 import * as accountApi from '@/api/account';
 import * as keystoresApi from '@/api/keystores';
 import { open } from '@/api/system';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { Addresses } from './addresses';
 
 const blockExplorerAddressPrefix = 'https://example.com/address/';
@@ -91,11 +92,13 @@ const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAcco
     const [accounts, setAccounts] = useState(initialAccounts);
     setAccountsState = setAccounts;
     return (
-      <Routes>
-        <Route path="/account/:code/addresses" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
-        <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
-        <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
-      </Routes>
+      <BackButtonProvider>
+        <Routes>
+          <Route path="/account/:code/addresses" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
+          <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
+          <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
+        </Routes>
+      </BackButtonProvider>
     );
   };
 
