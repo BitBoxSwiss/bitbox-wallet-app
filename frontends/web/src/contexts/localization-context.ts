@@ -8,4 +8,4 @@ type LocalizationContextProps = {
 };
 
 
-export const LocalizationContext = createContext<LocalizationContextProps>({}as LocalizationContextProps);
+export const LocalizationContext = createContext<LocalizationContextProps>({} as LocalizationContextProps);

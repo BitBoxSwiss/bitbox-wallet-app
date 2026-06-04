@@ -353,10 +353,18 @@ int main(int argc, char *argv[])
     QResource::registerResource(QCoreApplication::applicationDirPath() + "/assets.rcc");
 
     QString preferredLocale = "";
-    QStringList uiLangs = QLocale::system().uiLanguages();
+    QLocale locale = QLocale::system();
+
+    QStringList uiLangs = locale.uiLanguages();
     if (!uiLangs.isEmpty()) {
         preferredLocale = uiLangs.first();
     }
+
+    QString decimalSeparator(locale.decimalPoint());
+    QString groupSeparator(locale.groupSeparator());
+
+    std::string decimalSeparatorStr = decimalSeparator.toUtf8().toStdString();
+    std::string groupSeparatorStr = groupSeparator.toUtf8().toStdString();
 
     webClass = new WebClass();
 
@@ -391,6 +399,8 @@ int main(int argc, char *argv[])
                                       Q_ARG(QString, APPNAME),
                                       Q_ARG(QString, msg));
         },
+        decimalSeparatorStr.c_str(),
+        groupSeparatorStr.c_str(),
         // user preferred UI language
         preferredLocale.toStdString().c_str(),
         // getSaveFilenameCallback
