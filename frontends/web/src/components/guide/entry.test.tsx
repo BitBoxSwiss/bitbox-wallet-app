@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import '../../../__mocks__/i18n';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Entry, TEntryProp } from './entry';
+vi.mock('@/i18n/i18n');
 
 vi.mock('@/utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue(''),
