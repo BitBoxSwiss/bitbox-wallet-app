@@ -38,7 +38,7 @@ export const Bitsurance = ({ accounts, code }: TProps) => {
     }
 
     return () => setInsuredAccounts([]);
-  }, [accounts, code, hasBitsuranceAccount, navigate]);
+  }, [code, hasBitsuranceAccount, navigate]);
 
   const detect = async (redirectToDashboard: boolean) => {
     setScanLoading(true);

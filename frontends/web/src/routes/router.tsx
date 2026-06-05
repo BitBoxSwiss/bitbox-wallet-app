@@ -181,6 +181,39 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
       code={''} />
   </InjectParams>);
 
+  const BitsuranceIntroRouteEl = (
+    <InjectParams>
+      <BitsuranceLayout
+        accounts={activeAccounts}
+        code=""
+      >
+        {BitsuranceEl}
+      </BitsuranceLayout>
+    </InjectParams>
+  );
+
+  const BitsuranceAccountRouteEl = (
+    <InjectParams>
+      <BitsuranceLayout
+        accounts={activeAccounts}
+        code=""
+      >
+        {BitsuranceAccountEl}
+      </BitsuranceLayout>
+    </InjectParams>
+  );
+
+  const BitsuranceDashboardRouteEl = (
+    <InjectParams>
+      <BitsuranceLayout
+        accounts={activeAccounts}
+        code=""
+      >
+        {BitsuranceDashboardEl}
+      </BitsuranceLayout>
+    </InjectParams>
+  );
+
   const AccDashboardWC = (<InjectParams>
     <DashboardWalletConnect
       accounts={activeAccounts}
@@ -235,19 +268,22 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
   </InjectParams>);
 
   const MarketSelectEl = (
-    <MarketplaceLayout accounts={activeAccounts}>
-      {MarketEl}
-    </MarketplaceLayout>
+    <InjectParams>
+      <MarketplaceLayout
+        accounts={activeAccounts}
+        code=""
+      >
+        {MarketEl}
+      </MarketplaceLayout>
+    </InjectParams>
   );
 
   const BitsuranceRoutesEl = (
-    <BitsuranceLayout accounts={activeAccounts}>
-      <Routes>
-        <Route path=":code" element={BitsuranceEl} />
-        <Route path="account/:code" element={BitsuranceAccountEl} />
-        <Route path="dashboard/:code" element={BitsuranceDashboardEl} />
-      </Routes>
-    </BitsuranceLayout>
+    <Routes>
+      <Route path=":code" element={BitsuranceIntroRouteEl} />
+      <Route path="account/:code" element={BitsuranceAccountRouteEl} />
+      <Route path="dashboard/:code" element={BitsuranceDashboardRouteEl} />
+    </Routes>
   );
 
   const MarketplaceRoutesEl = (

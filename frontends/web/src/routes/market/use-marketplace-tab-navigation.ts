@@ -2,7 +2,6 @@
 
 import { useNavigate } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
-import { bitsurancePathPrefix } from '@/routes/bitsurance/utils';
 import type { TMarketplaceTab } from './components/markettab';
 
 export const useMarketplaceTabNavigation = (
@@ -14,8 +13,8 @@ export const useMarketplaceTabNavigation = (
   return (tab: TMarketplaceTab) => {
     if (tab === 'insure') {
       const bitsurancePath = accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)
-        ? `${bitsurancePathPrefix}/dashboard${selectedAccountCode ? `/${selectedAccountCode}` : ''}`
-        : `${bitsurancePathPrefix}${selectedAccountCode ? `/${selectedAccountCode}` : ''}`;
+        ? `/market/bitsurance/dashboard${selectedAccountCode ? `/${selectedAccountCode}` : ''}`
+        : `/market/bitsurance${selectedAccountCode ? `/${selectedAccountCode}` : ''}`;
       navigate(bitsurancePath);
       return;
     }

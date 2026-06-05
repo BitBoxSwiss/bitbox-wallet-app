@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { matchPath } from 'react-router-dom';
 import type { TMarketAction, TVendorName } from '@/api/market';
 import type { TAccount } from '@/api/account';
 
@@ -8,15 +7,6 @@ export const getFallbackMarketAccountCode = (accounts: TAccount[]) => {
   return accounts.find(account => account.keystore.connected)?.code
     || accounts[0]?.code
     || '';
-};
-
-export const getRouteMarketAccountCode = (pathname: string): string | undefined => {
-  const marketSelectMatch = matchPath({ path: '/market/select/:code', end: true }, pathname);
-  if (marketSelectMatch?.params.code) {
-    return marketSelectMatch.params.code;
-  }
-
-  return undefined;
 };
 
 export const getMarketActionFromSearchParams = (

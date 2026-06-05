@@ -13,7 +13,7 @@ import { View, ViewContent } from '@/components/view/view';
 import { useLoad } from '@/hooks/api';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { getRegionNameFromLocale } from '@/i18n/utils';
-import { getMarketActionFromSearchParams, getVendorFormattedName } from './utils';
+import { getFallbackMarketAccountCode, getMarketActionFromSearchParams, getVendorFormattedName } from './utils';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Dialog } from '@/components/dialog/dialog';
 import { alertUser } from '@/components/alert/Alert';
@@ -53,11 +53,7 @@ export const Market = ({
   const [info, setInfo] = useState<TInfoContentProps>();
   const [supportedAccounts, setSupportedAccounts] = useState<TAccount[]>(accounts);
   const activeTab = getMarketActionFromSearchParams(searchParams);
-  const connectedAccountCode = accounts.find(account => account.keystore.connected)?.code;
-  const selectedAccount = validRouteAccountCode
-    || connectedAccountCode
-    || accounts[0]?.code
-    || '';
+  const selectedAccount = validRouteAccountCode || getFallbackMarketAccountCode(accounts);
 
   const regionCodes = useLoad(marketAPI.getMarketRegionCodes);
   const nativeLocale = useLoad(getNativeLocale);

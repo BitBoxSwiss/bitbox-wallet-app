@@ -1,41 +1,30 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, type ReactNode } from 'react';
-import { matchPath, useLocation, useNavigate } from 'react-router-dom';
+import type { ReactNode } from 'react';
+import { matchPath, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import type { TAccount } from '@/api/account';
+import type { AccountCode, TAccount } from '@/api/account';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
-import { MarketplaceNavigation } from '@/routes/market/components/marketplace-navigation';
+import { MarketTab } from '@/routes/market/components/markettab';
+import { useMarketContext } from '@/routes/market/market-context';
 import { useMarketplaceTabNavigation } from '@/routes/market/use-marketplace-tab-navigation';
 import { getFallbackMarketAccountCode } from '@/routes/market/utils';
-import { getBitsurancePathWithAccountCode, getRouteBitsuranceAccountCode } from './utils';
 import { BitsuranceGuide } from './guide';
 
 type TProps = {
   accounts: TAccount[];
   children: ReactNode;
+  code: AccountCode;
 };
 
-const BitsuranceLayoutContent = ({ accounts, children }: TProps) => {
+export const BitsuranceLayout = ({ accounts, children, code }: TProps) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const { showSwap } = useMarketContext();
 
-  const routeMarketAccountCode = getRouteBitsuranceAccountCode(pathname);
-  const selectedAccountCode = routeMarketAccountCode || getFallbackMarketAccountCode(accounts);
+  const selectedAccountCode = code || getFallbackMarketAccountCode(accounts);
   const isBitsuranceDashboard = !!matchPath({ path: '/market/bitsurance/dashboard/:code', end: true }, pathname);
-  const normalizedBitsurancePath = selectedAccountCode
-    ? getBitsurancePathWithAccountCode(pathname, selectedAccountCode)
-    : '';
-  const shouldNormalizeBitsurancePath = !!normalizedBitsurancePath
-    && pathname !== normalizedBitsurancePath;
-
-  useEffect(() => {
-    if (shouldNormalizeBitsurancePath) {
-      navigate(normalizedBitsurancePath, { replace: true });
-    }
-  }, [navigate, normalizedBitsurancePath, shouldNormalizeBitsurancePath]);
 
   const handleChangeTab = useMarketplaceTabNavigation(accounts, selectedAccountCode);
 
@@ -48,23 +37,16 @@ const BitsuranceLayoutContent = ({ accounts, children }: TProps) => {
               <HideAmountsButton />
             )}
           </Header>
-          <MarketplaceNavigation
+          <MarketTab
             activeTab="insure"
             onChangeTab={handleChangeTab}
+            showSwap={showSwap ?? false}
           />
           {children}
         </GuidedContent>
         <BitsuranceGuide />
       </GuideWrapper>
     </Main>
-  );
-};
-
-export const BitsuranceLayout = ({ accounts, children }: TProps) => {
-  return (
-    <BitsuranceLayoutContent accounts={accounts}>
-      {children}
-    </BitsuranceLayoutContent>
   );
 };
 
