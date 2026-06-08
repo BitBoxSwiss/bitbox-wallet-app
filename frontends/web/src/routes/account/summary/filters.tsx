@@ -18,6 +18,10 @@ export const Filters = ({
   onTogglePercent
 }: TChartFiltersProps) => {
   const { t } = useTranslation();
+  const toggleSymbolClassName = (active: boolean) => [
+    styles.toggleSymbol,
+    active ? styles.toggleSymbolActive : undefined,
+  ].filter((className): className is string => !!className).join(' ');
   return (
     <PillButtonGroup className={styles.filters}>
       <PillButton
@@ -49,9 +53,9 @@ export const Filters = ({
         {t('chart.filter.all')}
       </PillButton>
       <span className={styles.toggleWrapper}>
-        <span className={`${styles.toggleSymbol} ${!showPercent ? styles.toggleSymbolActive : ''}`}>∑</span>
+        <span className={toggleSymbolClassName(!showPercent)}>∑</span>
         <Toggle checked={showPercent} onChange={onTogglePercent} />
-        <span className={`${styles.toggleSymbol} ${showPercent ? styles.toggleSymbolActive : ''}`}>%</span>
+        <span className={toggleSymbolClassName(showPercent)}>%</span>
       </span>
     </PillButtonGroup>
   );

@@ -516,7 +516,7 @@ export const Chart = ({
       chartInitialized.current = true;
       updateRange(chart, chartDisplay);
     }
-  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile, getDisplayChartData, handleCrosshair]);
+  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, data.chartFiat, hasData, hideAmounts, i18n.language, isMobile, getDisplayChartData, handleCrosshair]);
 
   const reinitializeChart = () => {
     removeChart();
