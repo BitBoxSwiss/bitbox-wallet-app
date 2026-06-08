@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useEffect, useMemo, Fragment } from 'react';
+import { useCallback, useContext, useEffect, useMemo, Fragment } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import type { TAccount } from './api/account';
+import type { TDevices } from './api/devices';
 import { useSync } from './hooks/api';
 import { useDefault } from './hooks/default';
 import { usePrevious } from './hooks/previous';
@@ -28,9 +30,84 @@ import { Darkmode } from './components/darkmode/darkmode';
 import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 import { Providers } from './contexts/providers';
+import { AppContext } from './contexts/AppContext';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
-import { getBottomNavKey } from './components/bottom-navigation/utils';
+import { getBottomNavKey, shouldShowBottomNavigation } from './components/bottom-navigation/utils';
 import styles from './app.module.css';
+
+type TAppFrameProps = {
+  accounts: TAccount[];
+  activeAccounts: TAccount[];
+  devices: TDevices;
+  devicesKey: (prefix: string) => string;
+  showBottomNavigation: boolean;
+  tabKey: string | undefined;
+};
+
+const AppFrame = ({
+  accounts,
+  activeAccounts,
+  devices,
+  devicesKey,
+  showBottomNavigation,
+  tabKey,
+}: TAppFrameProps) => {
+  const { marketIframeActive } = useContext(AppContext);
+  const showMobileBottomNavigation = showBottomNavigation && !marketIframeActive;
+
+  return (
+    <>
+      <Darkmode />
+      <div className="app">
+        <AuthRequired/>
+        <Sidebar
+          accounts={activeAccounts}
+          devices={devices}
+        />
+        <div className={`
+          ${styles.appContent || ''}
+          ${showMobileBottomNavigation && styles.hasBottomNavigation || ''}
+          ${marketIframeActive && styles.hasMarketIframe || ''}
+        `}>
+          <WCSigningRequest />
+          <Aopp />
+          <KeystoreConnectPrompt />
+          {
+            Object.entries(devices).map(([deviceID, platformName]) => {
+              if (platformName === 'bitbox02') {
+                return (
+                  <Fragment key={deviceID}>
+                    <BitBox02Wizard
+                      deviceID={deviceID}
+                    />
+                  </Fragment>
+                );
+              }
+              return null;
+            })
+          }
+          <div key={tabKey} className={styles.tabTransition}>
+            <AppRouter
+              accounts={accounts}
+              activeAccounts={activeAccounts}
+              devices={devices}
+              devicesKey={devicesKey}
+            />
+          </div>
+          <RouterWatcher />
+        </div>
+        {showMobileBottomNavigation && (
+          <BottomNavigation
+            devices={devices}
+            activeAccounts={activeAccounts}
+          />
+        )}
+        <Alert />
+        <Confirm />
+      </div>
+    </>
+  );
+};
 
 export const App = () => {
   usePlatformClass();
@@ -160,60 +237,24 @@ export const App = () => {
   const activeAccounts = useMemo(() => accounts.filter(acct => acct.active), [accounts]);
   const tabKey = useMemo(() => getBottomNavKey(pathname), [pathname]);
 
-  const isBitboxBootloader = firstDevice && devices[firstDevice] === 'bitbox02-bootloader';
-  const showBottomNavigation = (deviceIDs.length > 0 || activeAccounts.length > 0) && !isBitboxBootloader;
+  const showBottomNavigation = shouldShowBottomNavigation({
+    activeAccounts,
+    devices,
+    pathname,
+  });
 
 
   return (
     <ConnectedApp>
       <Providers>
-        <Darkmode />
-        <div className="app">
-          <AuthRequired/>
-          <Sidebar
-            accounts={activeAccounts}
-            devices={devices}
-          />
-          <div className={`
-            ${styles.appContent || ''}
-            ${showBottomNavigation && styles.hasBottomNavigation || ''}
-          `}>
-            <WCSigningRequest />
-            <Aopp />
-            <KeystoreConnectPrompt />
-            {
-              Object.entries(devices).map(([deviceID, platformName]) => {
-                if (platformName === 'bitbox02') {
-                  return (
-                    <Fragment key={deviceID}>
-                      <BitBox02Wizard
-                        deviceID={deviceID}
-                      />
-                    </Fragment>
-                  );
-                }
-                return null;
-              })
-            }
-            <div key={tabKey} className={styles.tabTransition}>
-              <AppRouter
-                accounts={accounts}
-                activeAccounts={activeAccounts}
-                devices={devices}
-                devicesKey={devicesKey}
-              />
-            </div>
-            <RouterWatcher />
-          </div>
-          {showBottomNavigation && (
-            <BottomNavigation
-              devices={devices}
-              activeAccounts={activeAccounts}
-            />
-          )}
-          <Alert />
-          <Confirm />
-        </div>
+        <AppFrame
+          accounts={accounts}
+          activeAccounts={activeAccounts}
+          devices={devices}
+          devicesKey={devicesKey}
+          showBottomNavigation={showBottomNavigation}
+          tabKey={tabKey}
+        />
       </Providers>
     </ConnectedApp>
   );

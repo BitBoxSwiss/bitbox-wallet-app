@@ -9,6 +9,7 @@ import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
 import { RedDot } from '@/components/icon';
 import { NewBadge } from '@/components/new-badge/new-badge';
+import { useSlidingIndicator } from './use-sliding-indicator';
 import styles from './bottom-navigation.module.css';
 
 type Props = {
@@ -29,69 +30,104 @@ export const BottomNavigation = ({
 
   const onlyHasOneAccount = activeAccounts.length === 1;
   const accountCode = activeAccounts[0]?.code || '';
+  const accountLabel = onlyHasOneAccount ? t('account.account') : t('account.accounts');
+  const portfolioLabel = t('accountSummary.portfolio');
+  const marketLabel = t('generic.buySell');
+  const moreLabel = t('settings.more');
+
+  const portfolioActive = pathname.startsWith('/account-summary');
+  const accountsActive = pathname.startsWith('/account/') || pathname.startsWith('/accounts/');
+  const marketActive = pathname.startsWith('/market/');
+  const moreActive = pathname.startsWith('/settings') || pathname.startsWith('/bitsurance/');
+  const activeIndex = portfolioActive ? 0 : accountsActive ? 1 : marketActive ? 2 : moreActive ? 3 : undefined;
+  const {
+    containerRef,
+    indicatorStyle,
+    labelRefs,
+  } = useSlidingIndicator(activeIndex, `${portfolioLabel}:${accountLabel}:${marketLabel}:${moreLabel}`);
 
   return (
-    <div className={styles.container}>
-      <Link
-        className={`
-          ${styles.link || ''}
-          ${pathname.startsWith('/account-summary') && styles.active || ''}
-        `}
-        to="/account-summary"
-      >
-        <PortfolioIconSVG />
-        {t('accountSummary.portfolio')}
-      </Link>
-      <Link
-        className={`
-          ${styles.link || ''}
-          ${pathname.startsWith('/account/') || pathname.startsWith('/accounts/') ? (styles.active || '') : ''}
-        `}
-        to={
-          onlyHasOneAccount && accountCode ?
-            `/account/${accountCode}` :
-            '/accounts/all'
-        }
-      >
-        <AccountIconSVG />
-        {onlyHasOneAccount ? t('account.account') : t('account.accounts')}
-      </Link>
-      <Link
-        className={`
-          ${styles.link || ''}
-          ${pathname.startsWith('/market/') && styles.active || ''}
-        `}
-        to="/market/select"
-      >
-        <MarketIconSVG />
-        <span className={styles.marketplaceLabel}>
-          {t('generic.buySell')}
-          <NewBadge
-            className={styles.marketplaceNudgeDot}
-            configKey="hasSeenMarketplaceNudge"
-            hideOnPathPrefix="/market/"
-            pathname={pathname}
-            type="dot"
-          />
-        </span>
-      </Link>
-      <Link
-        className={`
-          ${styles.link || ''}
-          ${pathname.startsWith('/settings') ? (styles.active || '') : ''}
-        `}
-        to="/settings/more"
-      >
-        <MoreIconSVG />
-        {canUpgrade && (
-          <RedDot
-            className={styles.redDot}
-            width={8}
-            height={8}
+    <>
+      <div aria-hidden="true" className={styles.bottomGlass} />
+      <div className={styles.container} ref={containerRef}>
+        <Link
+          className={`
+            ${styles.link || ''}
+            ${portfolioActive && styles.active || ''}
+          `}
+          to="/account-summary"
+        >
+          <PortfolioIconSVG />
+          <span ref={element => labelRefs.current[0] = element}>
+            {portfolioLabel}
+          </span>
+        </Link>
+        <Link
+          className={`
+            ${styles.link || ''}
+            ${accountsActive ? (styles.active || '') : ''}
+          `}
+          to={
+            onlyHasOneAccount && accountCode ?
+              `/account/${accountCode}` :
+              '/accounts/all'
+          }
+        >
+          <AccountIconSVG />
+          <span ref={element => labelRefs.current[1] = element}>
+            {accountLabel}
+          </span>
+        </Link>
+        <Link
+          className={`
+            ${styles.link || ''}
+            ${marketActive && styles.active || ''}
+          `}
+          to="/market/select"
+        >
+          <MarketIconSVG />
+          <span className={styles.marketplaceLabel}>
+            <span ref={element => labelRefs.current[2] = element}>
+              {marketLabel}
+            </span>
+            <NewBadge
+              className={styles.marketplaceNudgeDot}
+              configKey="hasSeenMarketplaceNudge"
+              hideOnPathPrefix="/market/"
+              pathname={pathname}
+              type="dot"
+            />
+          </span>
+        </Link>
+        <Link
+          className={`
+            ${styles.link || ''}
+            ${moreActive ? (styles.active || '') : ''}
+          `}
+          to="/settings/more"
+        >
+          <MoreIconSVG />
+          <span className={styles.moreLabel}>
+            <span ref={element => labelRefs.current[3] = element}>
+              {moreLabel}
+            </span>
+            {canUpgrade && (
+              <RedDot
+                className={styles.redDot}
+                width={8}
+                height={8}
+              />
+            )}
+          </span>
+        </Link>
+        {indicatorStyle && (
+          <span
+            aria-hidden="true"
+            className={styles.activeIndicator}
+            style={indicatorStyle}
           />
         )}
-        {t('settings.more')}
-      </Link>
-    </div>
+      </div>
+    </>
   );
 };

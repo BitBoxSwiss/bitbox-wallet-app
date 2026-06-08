@@ -1,30 +1,68 @@
 .container {
   align-items: center;
-  background-color: var(--background-secondary);
-  bottom: 0;
-  border-top: 2px solid var(--bottom-navigation-border-color);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  background-color: var(--bottom-navigation-background-color);
+  border: 1px solid var(--bottom-navigation-border-color);
+  border-radius: var(--radius-full);
+  bottom: var(--bottom-navigation-bottom-offset);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.26);
   display: none;
-  padding: var(--space-half);
-  padding-top: calc(var(--space-half) - env(safe-area-inset-bottom, 0));
-  padding-left: calc(calc(env(safe-area-inset-bottom, 0) / 2) + var(--space-half));
-  padding-right: calc(calc(env(safe-area-inset-bottom, 0) / 2) + var(--space-half));
-  position: fixed;
-  width: 100%;
-  height: var(--bottom-navigation-height);
+  gap: var(--space-eight);
+  height: var(--bottom-navigation-bar-height);
   justify-content: space-between;
+  left: var(--space-half);
+  padding: var(--space-three-quarter) var(--space-half);
+  position: fixed;
+  right: var(--space-half);
+  z-index: 3;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.bottomGlass {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  background-color: var(--bottom-navigation-bottom-glass-background-color);
+  bottom: -2px;
+  display: none;
+  height: var(--bottom-navigation-bottom-glass-height);
+  left: 0;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, .2) 40%,
+    rgba(0, 0, 0, .75) 78%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, .2) 40%,
+    rgba(0, 0, 0, .75) 78%,
+    #000 100%
+  );
+  pointer-events: none;
+  position: fixed;
+  right: 0;
+  z-index: 2;
 }
 
 .link {
     align-items: center;
-    color: var(--color-text);
+    color: var(--color-default);
     display: flex;
-    font-size: min(1.2rem, 18px);
+    font-size: 1rem;
+    flex: 1 1 0;
     flex-direction: column;
     gap: 4px;
+    height: 100%;
     justify-content: center;
+    min-width: 0;
     position: relative;
     text-align: center;
     text-decoration: none;
+    white-space: nowrap;
 }
 
 .link svg {
@@ -37,21 +75,28 @@
     color: var(--color-primary);
 }
 
-.link.active::after {
+.activeIndicator {
     content: '';
     position: absolute;
-    bottom: -7px;
-    left: 0px;
-    width: 100%;
     height: 3px;
     background-color: var(--color-primary);
     border-radius: var(--radius-xl);
+    pointer-events: none;
+    transition:
+        left 220ms ease-out,
+        width 220ms ease-out;
 }
 
 .marketplaceLabel {
     align-items: center;
     display: inline-flex;
-    gap: 2px;
+    position: relative;
+}
+
+.moreLabel {
+    align-items: center;
+    display: inline-flex;
+    position: relative;
 }
 
 .marketplaceNudgeDot {
@@ -60,22 +105,26 @@
     display: inline-block;
     flex-shrink: 0;
     height: 8px;
-    left: -2px;
+    left: calc(100% + var(--space-eight));
     max-width: 8px;
-    position: relative;
+    position: absolute;
     width: 8px;
-    top: -7px;
+    top: 0;
 }
 
 @media (max-width: 768px) {
     .container {
         display: flex;
-        gap: .2rem;
+    }
+
+    .bottomGlass {
+        display: block;
     }
 }
 
 .redDot {
-    margin-top: 14px;
+    flex-shrink: 0;
+    left: calc(100% + var(--space-eight));
     position: absolute;
-    right: -8px;
+    top: 0;
 }
