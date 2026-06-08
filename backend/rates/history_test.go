@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package rates
 
 import (
@@ -90,7 +92,7 @@ func TestUpdateHistory(t *testing.T) {
 	}
 
 	g := fixedTimeRange(time.Unix(wantStartUnix, 0), time.Unix(wantEndUnix, 0))
-	n, err := updater.updateHistory(context.Background(), "btc", "USD", g)
+	n, err := updater.updateHistory(t.Context(), "btc", "USD", g)
 	require.NoError(t, err, "updater.updateHistory err")
 	assert.Equal(t, 2, n, "updater.updateHistory n")
 	wantHistory := map[string][]exchangeRate{
@@ -119,7 +121,7 @@ func TestFetchGeckoMarketRangeInvalidCoinFiat(t *testing.T) {
 		{"", "USD"},
 	}
 	for _, test := range tt {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		ctx, cancel := context.WithTimeout(t.Context(), time.Second)
 		var updater RateUpdater
 		g := fixedTimeRange(time.Now().Add(-time.Hour), time.Now())
 		_, err := updater.fetchGeckoMarketRange(ctx, test.coin, test.fiat, g)
@@ -230,8 +232,8 @@ func BenchmarkDumpHistoryBucket(b *testing.B) {
 	}
 	updater := NewRateUpdater(nil, test.TstTempDir("BenchmarkDumpHistoryBucket"))
 	defer updater.Stop()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		err := updater.dumpHistoryBucket("btcUSD", rates)
 		require.NoError(b, err, "updater.dumpHistoryBucket")
 	}
@@ -252,8 +254,8 @@ func BenchmarkLoadHistoryBucket(b *testing.B) {
 
 	updater2 := NewRateUpdater(nil, dbdir)
 	defer updater2.Stop()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		rates, err := updater2.loadHistoryBucket("btcUSD")
 		require.NoError(b, err, "updater.loadHistoryBucket")
 		require.Len(b, rates, 5000, "len(rates)")

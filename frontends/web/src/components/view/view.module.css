@@ -295,17 +295,17 @@
 
 @media (min-width: 1200px) {
     .title {
-        --size-subheader: 28px;
+        --size-subheader: 2.8rem;
     }
     .header,
     .inner p {
-        --size-default: 20px;
+        --size-default: min(2rem, 36px);
     }
     .fullscreen {
-        --size-default: 18px;
+        --size-default: 1.8rem;
     }
     .inner footer p {
-        --size-default: 14px;
+        --size-default: 1.4rem;
     }
 }
 
@@ -346,7 +346,7 @@
 
     .footer p {
         text-align: right;
-        font-size: var(--size-small);
+        font-size: var(--size-smaller);
     }
 
     .footer img {

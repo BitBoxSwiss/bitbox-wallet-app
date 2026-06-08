@@ -32,8 +32,10 @@
 }
 
 .outerContainer {
+  border-radius: var(--radius-xl);
   display: flex;
   margin: auto;
+  overflow: hidden;
   position: relative;
 }
 
@@ -48,6 +50,10 @@
 
 .qrCodeContainer:hover {
   cursor: pointer;
+}
+
+.qrImage {
+  border-radius: var(--radius-xl);
 }
 
 .show {

@@ -1,52 +1,43 @@
-/**
- * Copyright 2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActionMeta } from 'react-select';
-import { TOption } from './dropdown';
+import { TOption, TGroupedOption, isGroupedOptions } from './dropdown';
 import { ChevronLeftDark } from '@/components/icon';
 import { UseBackButton } from '@/hooks/backbutton';
 import styles from './mobile-fullscreen-selector.module.css';
 
-type Props<T, IsMulti extends boolean = false> = {
+type Props<T, IsMulti extends boolean = false, TExtra = object, TOptionExt = object> = {
   title: string;
-  options: TOption<T>[];
-  renderOptions: (option: TOption<T>) => ReactNode;
+  options?: TOption<T>[] | TGroupedOption<T, TExtra, TOptionExt>[];
+  renderOptions: (option: TOption<T> & TOptionExt, isSelectedValue: boolean) => ReactNode;
+  renderGroupHeader?: (group: TGroupedOption<T, TExtra, TOptionExt>) => ReactNode;
+  renderTrigger?: ((props: { onClick: () => void }) => ReactNode);
   value: IsMulti extends true ? TOption<T>[] : TOption<T>;
   onSelect: (newValue: IsMulti extends true ? TOption<T>[] : TOption<T>, actionMeta: ActionMeta<TOption<T>>) => void;
   isMulti?: boolean;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
-}
+};
 
-export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
+export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TExtra = object, TOptionExt = object>({
   title,
   options,
   renderOptions,
+  renderGroupHeader,
+  renderTrigger,
   value,
   onSelect,
   isMulti,
   isOpen: controlledIsOpen,
   onOpenChange,
-}: Props<T, IsMulti>) => {
+}: Props<T, IsMulti, TExtra, TOptionExt>) => {
   const [localIsOpen, setLocalIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const { t } = useTranslation();
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : localIsOpen;
+  const isGrouped = isGroupedOptions(options);
 
   useEffect(() => {
     if (!isOpen) {
@@ -74,11 +65,18 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
     if (isMulti) {
       return (value as TOption<T>[]).some((v) => v.value === option.value);
     }
-    return (value as TOption<T>).value === option.value;
+    return value ? (value as TOption<T>).value === option.value : false;
   };
+
+  const isDisabledOption = (option: TOption<T> & TOptionExt) => (
+    Boolean((option as TOption<T> & TOptionExt & { disabled?: boolean }).disabled)
+  );
 
   const handleSelect = (option: TOption<T>, e: React.MouseEvent) => {
     e.stopPropagation();
+    if ((option as TOption<T> & { disabled?: boolean }).disabled) {
+      return;
+    }
     if (isMulti) {
       const currentValues = value as TOption<T>[];
       const isCurrentlySelected = currentValues.some((v) => v.value === option.value);
@@ -99,23 +97,87 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
 
   const displayValue = isMulti
     ? (value as TOption<T>[]).map(v => v.label).reverse().join(', ')
-    : (value as TOption<T>).label;
+    : (value as TOption<T>)?.label || '';
 
-  const filteredOptions = options.filter(option =>
-    option.label.toLowerCase().includes(searchText.toLowerCase())
+  const getFilteredOptions = () => {
+    if (!options) {
+      return [];
+    }
+    const searchLower = searchText.toLowerCase();
+
+    if (isGrouped) {
+      return (options as TGroupedOption<T, TExtra, TOptionExt>[])
+        .map(group => ({
+          ...group,
+          options: group.options.filter(opt =>
+            opt.label.toLowerCase().includes(searchLower)
+          ),
+        }))
+        .filter(group => group.options.length > 0);
+    }
+
+    return (options as (TOption<T> & TOptionExt)[]).filter(opt =>
+      opt.label.toLowerCase().includes(searchLower)
+    );
+  };
+
+  const filteredOptions = getFilteredOptions();
+
+  const renderFlatOptions = (flatOptions: (TOption<T> & TOptionExt)[]) => (
+    flatOptions.map((option) => (
+      <button
+        key={JSON.stringify(option.value)}
+        className={`
+          ${styles.optionItem || ''} 
+          ${isDisabledOption(option) ? styles.disabledOption || '' : ''}
+          ${isSelected(option) ? styles.selectedOption || '' : ''}`
+        }
+        disabled={isDisabledOption(option)}
+        onClick={(e) => handleSelect(option, e)}
+      >
+        <div className={styles.optionContent}>{renderOptions(option, false)}</div>
+      </button>
+    ))
   );
+
+  const renderGroupedOptions = (groupedOptions: TGroupedOption<T, TExtra, TOptionExt>[]) => (
+    groupedOptions.map((group) => (
+      <div key={group.label} className={styles.group}>
+        <div className={styles.groupHeader}>
+          {renderGroupHeader ? renderGroupHeader(group) : <span>{group.label}</span>}
+        </div>
+        {group.options.map((option) => (
+          <button
+            key={JSON.stringify(option.value)}
+            type="button"
+            className={`${styles.optionItem || ''} ${isDisabledOption(option) ? styles.disabledOption || '' : ''} ${isSelected(option) ? styles.selectedOption || '' : ''}`}
+            disabled={isDisabledOption(option)}
+            onClick={(e) => handleSelect(option, e)}
+          >
+            <div className={styles.optionContent}>{renderOptions(option, false)}</div>
+          </button>
+        ))}
+      </div>
+    ))
+  );
+
+  const hasResults = isGrouped
+    ? (filteredOptions as TGroupedOption<T, TExtra, TOptionExt>[]).length > 0
+    : (filteredOptions as (TOption<T> & TOptionExt)[]).length > 0;
 
   return (
     <div className={styles.dropdownContainer}>
-      <UseBackButton handler={() => {
-        handleClose();
-        return false;
-      }}
-      />
-      {onOpenChange ? (
-        <div
-          className={styles.mobileSelectorTrigger}
-        >
+      {isOpen && (
+        <UseBackButton handler={() => {
+          handleClose();
+          return false;
+        }}
+        />
+      )}
+      {renderTrigger ? (
+        renderTrigger({ onClick: handleOpen })
+      ) : onOpenChange ? (
+        <div className={styles.mobileSelectorTrigger}>
           <span className={styles.mobileSelectorValue}>{displayValue}</span>
         </div>
       ) : (
@@ -125,8 +187,7 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
         >
           <span className={styles.mobileSelectorValue}>{displayValue}</span>
         </button>
-      )
-      }
+      )}
 
       {isOpen && (
         <div className={styles.fullscreenOverlay}>
@@ -141,13 +202,14 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
                 type="button"
                 aria-label="Close"
               >
-                <ChevronLeftDark className={styles.backButtonIcon} />
+                <ChevronLeftDark />
               </button>
               <h3 className={styles.fullscreenTitle}>{title}</h3>
             </div>
 
             <div className={styles.searchContainer}>
               <input
+                id="search"
                 type="text"
                 className={styles.searchInput}
                 placeholder={`${t('generic.search')}`}
@@ -157,16 +219,10 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false>({
             </div>
 
             <div className={styles.optionsList}>
-              {filteredOptions.length > 0 ? (
-                filteredOptions.map((option) => (
-                  <button
-                    key={String(option.value)}
-                    className={`${styles.optionItem} ${isSelected(option) ? styles.selectedOption : ''}`}
-                    onClick={(e) => handleSelect(option, e)}
-                  >
-                    <div className={styles.optionContent}>{renderOptions(option)}</div>
-                  </button>
-                ))
+              {hasResults ? (
+                isGrouped
+                  ? renderGroupedOptions(filteredOptions as TGroupedOption<T, TExtra, TOptionExt>[])
+                  : renderFlatOptions(filteredOptions as (TOption<T> & TOptionExt)[])
               ) : (
                 <div className={styles.noOptions}>{t('generic.noOptions')}</div>
               )}

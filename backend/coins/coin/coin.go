@@ -1,17 +1,4 @@
-// Copyright 2018 Shift Devices AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package coin
 
@@ -74,7 +61,7 @@ type Coin interface {
 	BlockExplorerTransactionURLPrefix() string
 
 	// Initialize initializes the coin by connecting to a full node, downloading the headers, etc.
-	Initialize()
+	Initialize() error
 
 	// SmallestUnit returns the name of the smallest unit of a given coin
 	SmallestUnit() string
@@ -83,12 +70,12 @@ type Coin interface {
 	Close() error
 }
 
-// DecimalsExp returns the conversion exponential from the smallest unit to the standard unit
+// DecimalsExp returns the conversion exponential from the smallest unit to the selected unit
 // (BTC, LTC; ETH, etc.). e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc.
-func DecimalsExp(coin Coin) *big.Int {
+func DecimalsExp(coin Coin, isFee bool) *big.Int {
 	return new(big.Int).Exp(
 		big.NewInt(10),
-		big.NewInt(int64(coin.Decimals(false))),
+		big.NewInt(int64(coin.Decimals(isFee))),
 		nil,
 	)
 }

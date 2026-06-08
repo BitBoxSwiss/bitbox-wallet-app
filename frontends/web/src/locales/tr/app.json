@@ -1,7 +1,6 @@
 {
   "account": {
     "disconnect": "Bağlantı koptu. Tekrar deneniyor...",
-    "export": "Dışarı Aktar",
     "exportTransactions": "İşlemleri İndirilenler Klasörüne CSV Dosyası Olarak Dışa Aktar",
     "fatalError": "Beklenmeyen bir hata oluştu.",
     "incoming": "Gelen",
@@ -34,11 +33,8 @@
   "accountSummary": {
     "availableBalance": "Mevcut bakiye",
     "balance": "Bakiye",
-    "exportSummary": "Hesap Özetini İndirilenler Klasörüne CSV Dosyası Olarak Dışa Aktar",
-    "fiatBalance": "Fiat Bakiyesi",
     "name": "Hesap adı",
     "noAccount": "Gösterilecek hesap yok.",
-    "subtotalWithCoinName": "Toplam ({{coinName}})",
     "title": "Portföyüm",
     "total": "Toplam",
     "transactionHistory": "İşlem geçmişi"
@@ -237,7 +233,7 @@
   },
   "bootloader": {
     "button": "Donanım yazılımını şimdi yükselt",
-    "progress": "Yükseltme: {{progress}}%",
+    "progress": "Yükseltme",
     "success": "Yükseltme başarılı! Lütfen cihazı tekrar takın. Bu kez, düğmeye dokunmayın."
   },
   "button": {
@@ -252,10 +248,8 @@
     "next": "Sonraki",
     "ok": "Tamam",
     "previous": "Önceki",
-    "receive": "Alınan",
     "restore": "Geri Yükle",
     "select": "Seç",
-    "send": "Gönder",
     "unlock": "Kilidini aç",
     "update": "Güncelleştirme",
     "upgrade": "Yükselt"
@@ -373,9 +367,6 @@
       "text": "Bakiyeniz sıfırdan fazla olduğunda \"Gönder\" butonu etkinleşir.",
       "title": "Neden hiçbir şey gönderemiyorum {{unit}}?"
     },
-    "accountTransactionAttributesBTC": {
-      "title": ""
-    },
     "accountTransactionAttributesGeneric": {
       "text": "Onaylar: İlk işlem yayınınız, bir madenci bir bloğa dahil edinceye kadar onaylanmaz, ardından bir onay verilir. Ağda yayınlanan her blok, işleminize başka bir onay ekler. Genel olarak, tüccarlar ve diğer ağ aktörler üç ila altı onay aldığında işlemleri gerçekleştirir.\nİşlem Kimliği: Bir blok gezgininde bir işlem aramanıza izin veren benzersiz bir kimlik numarası.\nÜcret: Madencilere, işlemleri onaylamalarını teşvik etmek için işlem ücreti ödenir. Daha fazla bilgi için, gönder düğmesine tıklayın.",
       "title": "İşlem detaylarındaki bilgiler neler?"
@@ -430,7 +421,6 @@
     },
     "bitbox": {
       "ejectBitbox": {
-        "text": "",
         "title": "BitBox'ı nasıl çıkarabilirim?"
       },
       "ejectSD": {
@@ -452,7 +442,6 @@
         "title": "Bir adresi güvenli bir şekilde nasıl doğrulayabilirim?"
       },
       "why20": {
-        "text": "",
         "title": "Neden sadece 20 adres?"
       },
       "whyMany": {
@@ -482,16 +471,16 @@
         "title": "Neden ağ ücreti var?"
       }
     },
-    "settings-electrum": {
-      "what": {
-        "text": "Shift sunucularını kullanmak yerine cüzdanınıza kendi tam node'larınızla güç vermek mümkündür.",
-        "title": "Bu nedir?"
-      }
-    },
     "settings": {
       "servers": {
         "text": "Bu uygulama, güncellemeleri kontrol etmek, işlemleri yüklemek ve eşleştirilmiş mobil uygulamalara bilgi göndermek için Shift Crypto sunucuları ile iletişim kurar.\nBu uygulama aynı zamanda CoinGecko'den en son döviz kurlarını alıyor. Tüm dönüşümler yerel olarak hesaplanır, bu işleminizin miktarı ile ilgili hiçbir veri iletilmediği anlamına gelir.\nNot: Ethereum ve ERC20 Tokens için Etherscan.io API'lerini kullanıyoruz.",
         "title": "Bu uygulama hangi sunucularla konuşuyor?"
+      }
+    },
+    "settings-electrum": {
+      "what": {
+        "text": "Shift sunucularını kullanmak yerine cüzdanınıza kendi tam node'larınızla güç vermek mümkündür.",
+        "title": "Bu nedir?"
       }
     },
     "title": "Kılavuz",
@@ -575,10 +564,6 @@
       "caps": "UYARI: Büyük harf kilidi (⇪) aktif",
       "paste": "Metni yapıştırmak için \"GÖSTER\" butonunu etkinleştirin {{label}}\""
     }
-  },
-  "random": {
-    "button": "Rastgele Sayı Üret",
-    "description": "BitBox'ınız aşağıdaki {{bits}}-bit random sayıları üretti:"
   },
   "receive": {
     "label": "Sizin adresiniz",

@@ -1,23 +1,8 @@
-/**
- * Copyright 2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useContext } from 'react';
 import type { TAmountWithConversions, TTransactionType } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
-import { Arrow } from '@/components/transactions/components/arrows';
 import { Amount } from '@/components/amount/amount';
 import { getTxSign } from '@/utils/transaction';
 import styles from './conversion-amount.module.css';
@@ -31,7 +16,7 @@ type TConversionAmountProps = {
 const btcUnits: Readonly<string[]> = ['BTC', 'TBTC', 'sat', 'tsat'];
 
 /**
- * Renders a formattted conversion amount optionally with send-to-self icon or estimate symbol
+ * Renders a formatted conversion amount, optionally with an estimate symbol.
  */
 export const ConversionAmount = ({
   amount,
@@ -39,33 +24,27 @@ export const ConversionAmount = ({
   type,
 }: TConversionAmountProps) => {
   const { defaultCurrency } = useContext(RatesContext);
-  const conversion = amount?.conversions && amount?.conversions[defaultCurrency];
 
   const sign = getTxSign(type);
   const estimatedPrefix = '\u2248'; // ≈
-  const sendToSelf = type === 'send_to_self';
   const recv = type === 'receive';
-  const amountToShow = recv || sendToSelf ? amount : deductedAmount;
-  const conversionUnit = sendToSelf ? amountToShow.unit : defaultCurrency;
+  const amountToShow = recv ? amount : deductedAmount;
+  const conversionUnit = defaultCurrency;
+  const conversion = amountToShow?.conversions && amountToShow?.conversions[defaultCurrency];
 
-  // we skip the estimated conversion prefix when the Tx is send to self, or both coin and conversion are in BTC units.
-  const skipEstimatedPrefix = sendToSelf || (btcUnits.includes(conversionUnit) && btcUnits.includes(amountToShow.unit));
+  // we skip the estimated conversion prefix when both coin and conversion are in BTC units.
+  const skipEstimatedPrefix = btcUnits.includes(conversionUnit) && btcUnits.includes(amountToShow.unit);
 
   return (
     <span className={styles.txConversionAmount}>
-      {(conversion || sendToSelf) && amountToShow ? (
+      {conversion && amountToShow ? (
         <>
-          {sendToSelf && (
-            <span className={styles.txSmallInlineIcon}>
-              <Arrow type="send_to_self" />
-            </span>
-          )}
           {amountToShow.estimated && !skipEstimatedPrefix && (
             <span className={styles.txPrefix}>{estimatedPrefix}{' '}</span>
           )}
-          {conversion && !sendToSelf ? sign : null}
+          {conversion !== '0' ? sign : null}
           <Amount
-            amount={sendToSelf ? amountToShow.amount : conversion || ''}
+            amount={conversion || ''}
             unit={conversionUnit}
           />
           <span className={styles.txUnit}>

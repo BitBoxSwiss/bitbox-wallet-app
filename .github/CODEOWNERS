@@ -1,0 +1,5 @@
+# Default code owners for the repository.
+* @BitBoxSwiss/app
+
+# Keep repository policy changes owned explicitly as well.
+/.github/ @BitBoxSwiss/app

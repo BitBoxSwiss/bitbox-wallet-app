@@ -1,16 +1,4 @@
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package coin
 
@@ -36,6 +24,22 @@ const (
 	// There are some more coin codes for the supported erc20 tokens in erc20.go.
 )
 
+var bip44CoinTypes = map[Code]uint32{
+	CodeBTC:    0,
+	CodeTBTC:   1,
+	CodeRBTC:   1,
+	CodeLTC:    2,
+	CodeTLTC:   1,
+	CodeETH:    60,
+	CodeSEPETH: 1,
+}
+
+// BIP44CoinType returns the unhardened BIP44 coin type for a coin code.
+func BIP44CoinType(code Code) (uint32, bool) {
+	coinType, ok := bip44CoinTypes[code]
+	return coinType, ok
+}
+
 // BtcUnit defines how BTC values are formatted.
 type BtcUnit string
 
@@ -52,4 +56,15 @@ var TestnetCoins = map[Code]struct{}{
 	CodeTBTC:   {},
 	CodeTLTC:   {},
 	CodeSEPETH: {},
+	CodeRBTC:   {},
+}
+
+// IsBitcoinOnly returns true for Bitcoin mainnet, testnet, or regtest coin codes.
+func IsBitcoinOnly(code Code) bool {
+	switch code {
+	case CodeBTC, CodeTBTC, CodeRBTC:
+		return true
+	default:
+		return false
+	}
 }

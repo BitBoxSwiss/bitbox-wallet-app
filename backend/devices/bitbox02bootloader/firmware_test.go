@@ -1,16 +1,4 @@
-// Copyright 2021 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package bitbox02bootloader
 
@@ -20,6 +8,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
@@ -38,24 +27,40 @@ func testHash(t *testing.T, info firmwareInfo, expectedProduct bitbox02common.Pr
 	hash := sha256.Sum256(binary)
 	expectedHash, err := os.ReadFile(hashFile)
 	require.NoError(t, err)
-	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]))
+	require.Equal(t, strings.TrimSpace(string(expectedHash)), hex.EncodeToString(hash[:]), hashFile)
 }
 
 func TestBundledFirmware(t *testing.T) {
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02Multi] {
-		testHash(t, fw, bitbox02common.ProductBitBox02Multi, fmt.Sprintf("assets/firmware.v%s.signed.bin.sha256", fw.version))
+		t.Run("bitbox02-multi/"+fw.version.String(), func(t *testing.T) {
+			filename := fmt.Sprintf("assets/firmware-bitbox02-multi.v%s.signed.bin.sha256", fw.version)
+			if fw.version.String() == "9.17.1" {
+				filename = fmt.Sprintf("assets/firmware.v%s.signed.bin.sha256", fw.version)
+			}
+			testHash(t, fw, bitbox02common.ProductBitBox02Multi, filename)
+		})
 	}
 
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02BTCOnly] {
-		testHash(t, fw, bitbox02common.ProductBitBox02BTCOnly, fmt.Sprintf("assets/firmware-btc.v%s.signed.bin.sha256", fw.version))
+		t.Run("bitbox02-btconly/"+fw.version.String(), func(t *testing.T) {
+			filename := fmt.Sprintf("assets/firmware-bitbox02-btconly.v%s.signed.bin.sha256", fw.version)
+			if fw.version.String() == "9.17.1" {
+				filename = fmt.Sprintf("assets/firmware-btc.v%s.signed.bin.sha256", fw.version)
+			}
+			testHash(t, fw, bitbox02common.ProductBitBox02BTCOnly, filename)
+		})
 	}
 
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02PlusMulti] {
-		testHash(t, fw, bitbox02common.ProductBitBox02PlusMulti, fmt.Sprintf("assets/firmware-bb02plus-multi.v%s.signed.bin.sha256", fw.version))
+		t.Run("bitbox02nova-multi/"+fw.version.String(), func(t *testing.T) {
+			testHash(t, fw, bitbox02common.ProductBitBox02PlusMulti, fmt.Sprintf("assets/firmware-bitbox02nova-multi.v%s.signed.bin.sha256", fw.version))
+		})
 	}
 
 	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02PlusBTCOnly] {
-		testHash(t, fw, bitbox02common.ProductBitBox02PlusBTCOnly, fmt.Sprintf("assets/firmware-bb02plus-btconly.v%s.signed.bin.sha256", fw.version))
+		t.Run("bitbox02nova-btconly/"+fw.version.String(), func(t *testing.T) {
+			testHash(t, fw, bitbox02common.ProductBitBox02PlusBTCOnly, fmt.Sprintf("assets/firmware-bitbox02nova-btconly.v%s.signed.bin.sha256", fw.version))
+		})
 	}
 }
 

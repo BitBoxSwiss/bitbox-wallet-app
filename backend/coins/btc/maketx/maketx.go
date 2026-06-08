@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package maketx
 
@@ -21,13 +9,14 @@ import (
 	"sort"
 	"time"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/btcutil/psbt"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
@@ -49,22 +38,22 @@ type TxProposal struct {
 	// Amount is the amount that is sent out. The fee is not included and is deducted on top.
 	Amount btcutil.Amount
 	// Fee is the mining fee used.
-	Fee         btcutil.Amount
-	Transaction *wire.MsgTx
+	Fee btcutil.Amount
 	// ChangeAddress is the address of the wallet to which the change of the transaction is sent.
 	ChangeAddress   *addresses.AccountAddress
 	PreviousOutputs PreviousOutputs
-	PaymentRequest  *accounts.PaymentRequest
+	PaymentRequest  *paymentrequest.Request
 	// If not empty, we are sending to a silent payment recipient. The keystore needs access to this
 	// to be able to generate the silent payment output. See BIP-352.
 	SilentPaymentAddress string
 	// OutIndex is the index of the output we send to.
 	OutIndex int
+	Psbt     *psbt.Packet
 }
 
 // SigHashes computes the hashes cache to speed up per-input sighash computations.
 func (txProposal *TxProposal) SigHashes() *txscript.TxSigHashes {
-	return txscript.NewTxSigHashes(txProposal.Transaction, txProposal.PreviousOutputs)
+	return txscript.NewTxSigHashes(txProposal.Psbt.UnsignedTx, txProposal.PreviousOutputs)
 }
 
 // Total is amount+fee.
@@ -209,15 +198,19 @@ func NewTxSpendAll(
 	log.WithField("fee", maxRequiredFee).Debug("Preparing transaction to spend all outputs")
 
 	setRBF(coin, unsignedTransaction)
+	psbt, err := psbt.NewFromUnsignedTx(unsignedTransaction)
+	if err != nil {
+		return nil, err
+	}
 	return &TxProposal{
 		Coin:                 coin,
 		Amount:               btcutil.Amount(output.Value),
 		Fee:                  maxRequiredFee,
-		Transaction:          unsignedTransaction,
 		PreviousOutputs:      spendableOutputs,
 		SilentPaymentAddress: outputInfo.silentPaymentAddress,
 		// Only one output in send-all
 		OutIndex: 0,
+		Psbt:     psbt,
 	}, nil
 }
 
@@ -307,15 +300,20 @@ func NewTx(
 		}
 
 		setRBF(coin, unsignedTransaction)
+		psbt, err := psbt.NewFromUnsignedTx(unsignedTransaction)
+		if err != nil {
+			return nil, err
+		}
+
 		return &TxProposal{
 			Coin:                 coin,
 			Amount:               targetAmount,
 			Fee:                  finalFee,
-			Transaction:          unsignedTransaction,
 			ChangeAddress:        changeAddress,
 			PreviousOutputs:      previousOutputs,
 			SilentPaymentAddress: outputInfo.silentPaymentAddress,
 			OutIndex:             outIndex,
+			Psbt:                 psbt,
 		}, nil
 	}
 }

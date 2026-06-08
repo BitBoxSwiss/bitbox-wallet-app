@@ -1,41 +1,21 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, Dispatch } from 'react';
+import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toggle } from '@/components/toggle/toggle';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { TConfig, TFrontendConfig } from '@/routes/settings/advanced-settings';
-import { setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 
-type TProps = {
-  frontendConfig?: TFrontendConfig;
-  onChangeConfig: Dispatch<TConfig>;
-}
-
-export const EnableCoinControlSetting = ({ frontendConfig, onChangeConfig }: TProps) => {
+export const EnableCoinControlSetting = () => {
   const { t } = useTranslation();
+  const { config, setConfig } = useConfig();
 
   const handleToggleFee = async (e: ChangeEvent<HTMLInputElement>) => {
-    const config = await setConfig({
+    await setConfig({
       frontend: {
-        'coinControl': e.target.checked
+        coinControl: e.target.checked
       },
-    }) as TConfig;
-    onChangeConfig(config);
+    });
   };
 
   return (
@@ -43,9 +23,9 @@ export const EnableCoinControlSetting = ({ frontendConfig, onChangeConfig }: TPr
       settingName={t('settings.expert.coinControl')}
       secondaryText={t('newSettings.advancedSettings.coinControl.description')}
       extraComponent={
-        frontendConfig !== undefined ? (
+        config ? (
           <Toggle
-            checked={frontendConfig?.coinControl || false}
+            checked={config.frontend.coinControl || false}
             onChange={handleToggleFee}
           />
         ) : null

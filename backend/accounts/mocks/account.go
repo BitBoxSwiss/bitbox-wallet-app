@@ -46,7 +46,7 @@ var _ accounts.Interface = &InterfaceMock{}
 //			FeeTargetsFunc: func() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
 //				panic("mock out the FeeTargets method")
 //			},
-//			GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+//			GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 //				panic("mock out the GetUnusedReceiveAddresses method")
 //			},
 //			InfoFunc: func() *accounts.Info {
@@ -67,7 +67,7 @@ var _ accounts.Interface = &InterfaceMock{}
 //			OfflineFunc: func() error {
 //				panic("mock out the Offline method")
 //			},
-//			SendTxFunc: func(txNote string) error {
+//			SendTxFunc: func(txNote string) (string, error) {
 //				panic("mock out the SendTx method")
 //			},
 //			SetTxNoteFunc: func(txID string, note string) error {
@@ -120,7 +120,7 @@ type InterfaceMock struct {
 	FeeTargetsFunc func() ([]accounts.FeeTarget, accounts.FeeTargetCode)
 
 	// GetUnusedReceiveAddressesFunc mocks the GetUnusedReceiveAddresses method.
-	GetUnusedReceiveAddressesFunc func() []accounts.AddressList
+	GetUnusedReceiveAddressesFunc func() ([]accounts.AddressList, error)
 
 	// InfoFunc mocks the Info method.
 	InfoFunc func() *accounts.Info
@@ -141,7 +141,7 @@ type InterfaceMock struct {
 	OfflineFunc func() error
 
 	// SendTxFunc mocks the SendTx method.
-	SendTxFunc func(txNote string) error
+	SendTxFunc func(txNote string) (string, error)
 
 	// SetTxNoteFunc mocks the SetTxNote method.
 	SetTxNoteFunc func(txID string, note string) error
@@ -498,7 +498,7 @@ func (mock *InterfaceMock) FeeTargetsCalls() []struct {
 }
 
 // GetUnusedReceiveAddresses calls GetUnusedReceiveAddressesFunc.
-func (mock *InterfaceMock) GetUnusedReceiveAddresses() []accounts.AddressList {
+func (mock *InterfaceMock) GetUnusedReceiveAddresses() ([]accounts.AddressList, error) {
 	if mock.GetUnusedReceiveAddressesFunc == nil {
 		panic("InterfaceMock.GetUnusedReceiveAddressesFunc: method is nil but Interface.GetUnusedReceiveAddresses was just called")
 	}
@@ -692,7 +692,7 @@ func (mock *InterfaceMock) OfflineCalls() []struct {
 }
 
 // SendTx calls SendTxFunc.
-func (mock *InterfaceMock) SendTx(txNote string) error {
+func (mock *InterfaceMock) SendTx(txNote string) (string, error) {
 	if mock.SendTxFunc == nil {
 		panic("InterfaceMock.SendTxFunc: method is nil but Interface.SendTx was just called")
 	}

@@ -1,17 +1,19 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import type { FailResponse } from './response';
 import { apiGet } from '@/utils/request';
-import { FailResponse } from './response';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export type Backup = {
-    id: string;
-    date: string;
-    name: string;
+  id: string;
+  date: string;
+  name: string;
 };
 
 type BackupResponse = {
-    success: true;
-    backups: Backup[];
-}
+  success: true;
+  backups: Backup[];
+};
 
 export const getBackupList = (
   deviceID: string

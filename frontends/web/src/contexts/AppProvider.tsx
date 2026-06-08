@@ -1,45 +1,36 @@
-/**
- * Copyright 2023-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, useEffect, useState } from 'react';
-import { getConfig, setConfig } from '@/utils/config';
+import { useConfig } from './ConfigProvider';
 import { AppContext } from './AppContext';
 import { useLoad } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
 import { getNativeLocale } from '@/api/nativelocale';
 import { getDevServers, getTesting } from '@/api/backend';
+import { getOnline, subscribeOnline } from '@/api/online';
 import { i18nextFormat } from '@/i18n/utils';
-import type { TChartDisplay } from './AppContext';
+import type { TChartDisplay, TSessionConfig } from './AppContext';
 import { useOrientation } from '@/hooks/orientation';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import { useSync } from '@/hooks/api';
 
 type TProps = {
-    children: ReactNode;
-}
+  children: ReactNode;
+};
 
 export const AppProvider = ({ children }: TProps) => {
+  const { config, setConfig } = useConfig();
   const nativeLocale = i18nextFormat(useDefault(useLoad(getNativeLocale), 'de-CH'));
   const isTesting = useDefault(useLoad(getTesting), false);
+  const isOnline = useSync(getOnline, subscribeOnline);
   const isDevServers = useDefault(useLoad(getDevServers), false);
   const [guideShown, setGuideShown] = useState(false);
   const [guideExists, setGuideExists] = useState(false);
   const [hideAmounts, setHideAmounts] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState(false);
-  const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('all');
+  const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('year');
   const [firmwareUpdateDialogOpen, setFirmwareUpdateDialogOpen] = useState(false);
+  const [tmpConfig, setTmpConfig] = useState<TSessionConfig>({});
 
   const orientation = useOrientation();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -58,6 +49,13 @@ export const AppProvider = ({ children }: TProps) => {
     setActiveSidebar(prev => !prev);
   };
 
+  const updateSessionConfig = (object: TSessionConfig) => {
+    setTmpConfig(old => ({
+      ...old,
+      ...object,
+    }));
+  };
+
   useEffect(() => {
     if (activeSidebar && isMobile && orientation === 'portrait') {
       setActiveSidebar(false);
@@ -65,19 +63,17 @@ export const AppProvider = ({ children }: TProps) => {
   }, [activeSidebar, isMobile, orientation]);
 
   useEffect(() => {
-    getConfig().then(({ frontend }) => {
-      if (frontend) {
-        if (frontend.guideShown !== undefined) {
-          setGuideShown(frontend.guideShown);
-        }
-        if (frontend.hideAmounts !== undefined) {
-          setHideAmounts(frontend.hideAmounts);
-        }
-      } else {
-        setGuideShown(true);
-      }
-    });
-  }, []);
+    if (!config) {
+      return;
+    }
+    const { frontend } = config;
+    if (frontend.guideShown !== undefined) {
+      setGuideShown(frontend.guideShown);
+    }
+    if (frontend.hideAmounts !== undefined) {
+      setHideAmounts(frontend.hideAmounts);
+    }
+  }, [config]);
 
   return (
     <AppContext.Provider
@@ -89,6 +85,7 @@ export const AppProvider = ({ children }: TProps) => {
         hideAmounts,
         isTesting,
         isDevServers,
+        isOnline,
         nativeLocale,
         chartDisplay,
         setActiveSidebar,
@@ -98,10 +95,11 @@ export const AppProvider = ({ children }: TProps) => {
         toggleHideAmounts,
         toggleSidebar,
         setFirmwareUpdateDialogOpen,
-        firmwareUpdateDialogOpen
+        firmwareUpdateDialogOpen,
+        sessionConfig: tmpConfig,
+        updateSessionConfig,
       }}>
       {children}
     </AppContext.Provider>
   );
 };
-

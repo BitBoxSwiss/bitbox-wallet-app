@@ -18,6 +18,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
     "module": "esnext",
     "moduleResolution": "node",
     "noUnusedLocals": true,
@@ -30,6 +31,7 @@
     "types": ["node"]
   },
   "include": [
-    "src"
+    "src",
+    "tests",
   ]
 }

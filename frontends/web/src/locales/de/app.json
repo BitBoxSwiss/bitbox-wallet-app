@@ -1,7 +1,10 @@
 {
   "account": {
-    "disconnect": "Verbindung unterbrochen. Erneut verbinden... ",
-    "export": "Export",
+    "account": "Konto",
+    "accounts": "Konten",
+    "backupReminder": "Deine Wallet <strong>{{name}}</strong> hat {{threshold}} {{fiat}} überschritten!\n\nWir empfehlen ein Backup auf Papier zu erstellen, für zusätzlichen Schutz. Es ist einfach und geht schnell.",
+    "backupReminderLink": "Backup erstellen",
+    "disconnect": "Verbindung unterbrochen. Erneut verbinden…",
     "exportTransactions": "Exportiere Transaktionen im Download Ordner als CSV Datei",
     "fatalError": "Ein unerwarteter Fehler ist aufgetreten.",
     "incoming": "Eingehend",
@@ -16,6 +19,7 @@
     "warning": "Warnung!"
   },
   "accountInfo": {
+    "accountDetails": "Kontodetails",
     "address": "Adresse",
     "buyCTA": {
       "information": {
@@ -23,32 +27,34 @@
         "start": "Lege los, indem du einige Coins auf das Wallet einzahlst oder direkt in der BitBoxApp kaufst."
       }
     },
+    "contractAddress": "Contract‑Adresse",
+    "contractAddressWarning": "Sende keine Coins an die Contract-Adresse, sonst gehen sie verloren. Die Contract-Adresse dient nur zu Informationszwecken.",
+    "descriptorWarning": "Um eine reibungslose Kompatibilität mit anderen Wallets, Apps oder Diensten sicherzustellen, kopiere bitte den gesamten Descriptor. Wenn du nur den xpub auswählst und kopierst, kann das Konto mit einem falschen Script‑Typ importiert werden, was zu Problemen führen kann.",
+    "exportTransactions": "Transaktionsverlauf exportieren",
+    "exportTransactionsDisabled": "Keine Transaktionen",
     "extendedPublicKey": "Erweiterter Public Key",
-    "label": "Konto Informationen",
+    "label": "Kontoinformationen",
     "scriptType": "Script-Typ",
-    "taproot": "Der Taproot erweiterte Public Key wird nicht angezeigt, um versehentlichen Missbrauch zu verhindern, da Unterstützung für Rohformate für diesen Script-Typ nicht weit verbreitet ist. Wenn du diesen Schlüssel ansehen möchtest, verbinde dein Gerät mit einer Wallet-Software welche das Output-Descriptor Format unterstützt.",
-    "title": "Konto Informationen",
+    "title": "Kontoinformationen",
+    "usedAddresses": "Verwendete Adressen anzeigen",
     "verify": "Auf Gerät bestätigen",
+    "viewAccountDetails": "Kontodetails anzeigen",
     "xpubTypeChangeBtn": {
       "p2pkh": "Legacy-P2PKH erweiterten Public Key anzeigen",
       "p2tr": "Taproot anzeigen",
-      "p2wpkh": "Native Segwit anzeigen",
-      "p2wpkh-p2sh": "Älteren Segwit erweiterten öffentlichen Schlüssel anzeigen"
+      "p2wpkh": "Native Segwit anzeigen"
     },
     "xpubTypeInfo": "Derzeit wird der {{scriptType}} erweiterte Public Key angezeigt ({{current}} von {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Kontostand",
     "balance": "Saldo",
-    "coin": "Coin",
-    "exportSummary": "Kontozusammenfassung als CSV Datei zum Download Ordner exportieren",
-    "fiatBalance": "Fiat Kontostand",
     "name": "Konto Name",
-    "noAccount": "Keine Konten verfügbar",
+    "noAccount": "Keine Konten verfügbar.",
     "portfolio": "Portfolio",
-    "subtotalWithCoinName": "Summe ({{coinName}})",
     "title": "Kontenübersicht",
     "total": "Gesamt",
+    "totalAssets": "Gesamtvermögen",
     "transactionHistory": "Transaktionsübersicht"
   },
   "addAccount": {
@@ -70,6 +76,36 @@
       "title": "Konto hinzugefügt"
     },
     "title": "Konto hinzufügen"
+  },
+  "addresses": {
+    "changeCopyBody": "Verwende keine Change-Adresse, um Coins zu empfangen. Zum Empfangen klicke <receiveLink>hier</receiveLink>.",
+    "columnAddress": "Adresse",
+    "columnLastUsed": "Zuletzt verwendet",
+    "detail": {
+      "address": "Adresse"
+    },
+    "empty": "Es wurden noch keine Adressen verwendet.",
+    "emptyFiltered": "Keine passenden Adressen gefunden.",
+    "filter": {
+      "changeAddresses": "Wechselgeldadressen",
+      "receiveAddresses": "Empfangsadressen"
+    },
+    "listDescriptionPrefix": "Diese Seite zeigt alle verwendeten Adressen des Kontos",
+    "loadFailed": "Verwendete Adressen konnten nicht geladen werden.",
+    "loadNotSupported": "Verwendete Adressen sind für diesen Kontotyp nicht verfügbar.",
+    "loadSyncInProgress": "Verwendete Adressen werden synchronisiert. Bitte versuche es in Kürze erneut.",
+    "notFound": "Adresse nicht gefunden.",
+    "searchPlaceholder": "Adresse suchen",
+    "skipDeviceVerification": "Verifizierung auf Gerät überspringen",
+    "skipVerifyBody": "Die Adresse nicht auf dem Gerät zu überprüfen kann dazu führen, dass eine Adresse kopiert wird, die nicht zu deiner BitBox gehört.",
+    "skipVerifyConfirm": "Ja, Verifizierung überspringen",
+    "skipVerifyQuestion": "Bist du sicher, dass du fortfahren möchtest?",
+    "skipVerifyTitle": "Verifizierung auf Gerät überspringen?",
+    "skipVerifyWarning": "Warnung",
+    "title": "Verwendete Adressen",
+    "unverifiedAddressWarning": "Diese Adresse wurde nicht auf dem Gerät verifiziert.",
+    "verifyConnectFailed": "Verbindung mit gewähltem Gerät konnte nicht hergestellt werden.",
+    "verifyFailed": "Verifizierung der Adresse fehlgeschlagen."
   },
   "aopp": {
     "addressRequest": "{{host}} fordert eine Empfangsadresse an.",
@@ -95,13 +131,16 @@
   },
   "auth": {
     "authButton": "Authentifizieren",
+    "dismissButton": "Abbrechen",
+    "missing": "Bitte konfiguriere eine Displaysperre in den Systemeinstellungen deines Geräts.",
     "title": "Bitte authentifiziere dich, um fortzufahren"
   },
   "backup": {
     "check": {
+      "aborted": "Überprüfung des Backups wurde auf dem Gerät abgebrochen.",
       "checking": "Backup wird geprüft…",
       "confirmTitle": "Backup überprüfen",
-      "notOK": "Dein Backup entspricht NICHT deiner aktuellen Wallet.",
+      "notOK": "Keine Backups auf der microSD-Karte passen zur Wallet deiner BitBox. Dies kann passieren, wenn du eine microSD-Karte einsteckst, die mit einer anderen BitBox verwendet wurde. Nutze die korrekte microSD-Karte, die mit dieser BitBox eingerichtet wurde, und versuche es erneut.",
       "ok": "Erfolg! Dein Backup entspricht deiner aktuellen Wallet.",
       "password": {
         "label": "Wiederherstellungspasswort",
@@ -129,11 +168,13 @@
     "description": "Wähle eine  <strong>Wallet Backup</strong> Datei aus.",
     "insert": "Bitte stecke die Micro-SD-Karte ein um deine Backups zu verwalten.",
     "insertButton": "Ich habe die Mikro-SD-Karte eingesteckt.",
+    "link": "Gehe zu Backups verwalten",
     "list": "Deine Backups auf der microSD Karte",
     "noBackups": "Es befinden sich keine Backups auf der microSD Karte.",
     "restore": {
       "confirmTitle": "Von Backup wiederherstellen",
       "error": {
+        "e104": "Wiederherstellung des Backups wurde abgebrochen.",
         "e200": "microSD Karte nicht gefunden",
         "general": "Fehler beim Wiederherstellen von Backup"
       },
@@ -151,9 +192,9 @@
     },
     "showMnemonic": {
       "checkboxLabel": "Ich habe die Informationen oben gelesen",
-      "description": "Dir werden Recovery-Words angezeigt, die ein Backup deiner Wallet sind. Schreibe diese auf ein Stück Papier. \n\n<strong>Bewahre diese Wörter nicht digital auf und mache kein Foto von ihnen.</strong>\n\n<strong>Sprich die Wörter nicht laut aus.</strong>\n\n<strong>Dieses Backup ist nicht Passwort geschützt.</strong>\n\nNachdem du die Wörter aufgeschrieben hast wirst du gefragt werden sie nochmals zu bestätigen.\n",
-      "title": "Recovery-Wörter anzeigen",
-      "warning": "<strong>Teile deine Wiederherstellungswörter niemals mit irgendjemandem.</strong> Deine Wiederherstellungswörter ermöglichen vollen Zugriff zu deinem Wallet . Wenn dich jemand nach deinen Wiederherstellungswörtern fragt, handelt es sich um einen Betrüger. Gebe diese nicht weiter!"
+      "description": "Die BitBox wird Wiederherstellungswörter (\"recovery words\") anzeigen, die ein Backup deiner Wallet darstellen. Schreibe diese auf ein Stück Papier. \n\n<strong>Bewahre die Wörter nicht digital auf und mache kein Foto von ihnen.</strong>\n\n<strong>Sprich die Wörter nicht laut aus.</strong>\n\n<strong>Dieses Backup ist nicht passwortgeschützt.</strong>\n\nNachdem du die Wörter aufgeschrieben hast, wirst du aufgefordert, sie nochmals zu bestätigen.\n",
+      "title": "Wiederherstellungswörter anzeigen",
+      "warning": "<strong>Teile deine Wiederherstellungswörter niemals mit irgendjemandem.</strong> Die Wiederherstellungswörter ermöglichen vollen Zugriff zu deiner Wallet. Wenn dich jemand nach deinen Wiederherstellungswörtern fragt, handelt es sich um einen Betrüger. Gib die Wörter nicht weiter!"
     },
     "title": "Backups verwalten"
   },
@@ -188,9 +229,23 @@
     "confirmWordsText": "Anschließend bestätigst du jedes Wort auf deiner BitBox, um das Backup zu prüfen.",
     "followInstructions": "Befolge die Anweisungen auf deiner BitBox.",
     "followInstructionsMnemonic": "Folge den Anweisungen auf deiner BitBox, gib deine Wiederherstellungswörter ein und stelle dein Wallet wieder her.",
-    "followInstructionsMnemonicTitle": "Mit Wiederherstellungs-Wörtern wiederherstellen"
+    "followInstructionsMnemonicTitle": "Von Wiederherstellungswörtern wiederherstellen"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "Bluetooth ist jetzt auf deiner BitBox deaktiviert. Falls du in Zukunft iPhones verbinden möchtest, musst du es erneut aktivieren.",
+      "alertEnabled": "Bluetooth ist jetzt aktiviert.",
+      "description": "Bluetooth wird zum Verbinden mit iPhone verwendet.",
+      "error_104": "Änderung der Bluetooth-Einstellungen wurde abgebrochen.",
+      "titleDisabled": "Bluetooth aktvieren",
+      "titleEnabled": "Bluetooth deaktivieren"
+    },
+    "changePassword": {
+      "description": "Ändere das Gerätepasswort der BitBox.",
+      "error_104": "Ändern des Gerätepasswortes wurde abgebrochen.",
+      "success": "Passwort erfolgreich geändert",
+      "title": "Gerätepasswort ändern"
+    },
     "deviceName": {
       "current": "Aktueller Gerätename",
       "error": "Gerätename konnte nicht festgelegt werden",
@@ -281,7 +336,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Entferne die microSD-Karte aus deiner BitBox und bewahre sie sicher auf.",
-      "storeMnemonic": "Bitte bewahre deine Wiederherstellungs-Wörter an einem sicheren Ort auf.",
+      "storeMnemonic": "Bitte bewahre deine Wiederherstellungswörter an einem sicheren Ort auf.",
       "success": "Dein Backup wurde erfolgreich erstellt."
     },
     "stepInsertSD": {
@@ -364,14 +419,19 @@
     "connected": "Verbunden",
     "connectionFailed": "Fehlgeschlagen",
     "connectionIssues": "Verbindungsprobleme?",
+    "connectionIssuesLink": "Siehe hier",
+    "disabledGloballyDescription": "Bitte aktiviere Bluetooth, um deine BitBox zu verbinden.",
+    "disabledGloballyTitle": "Der Zugriff auf Bluetooth ist deaktiviert.",
+    "disabledPermissionDescription": "Bitte erlaube Bluetooth, um deine BitBox zu verbinden.",
+    "disabledPermissionTitle": "Zugriff auf Bluetooth ist für die BitBoxApp deaktiviert.",
     "enable": "Aktiviere Bluetooth.",
     "select": "BitBox auswählen"
   },
   "bootloader": {
     "button": "Firmware jetzt aktualisieren",
     "button_install": "Firmware jetzt installieren",
-    "progress": "Aktualisiere: {{progress}}%",
-    "progress_install": "Installation: {{progress}}%",
+    "progress": "Aktualisiere",
+    "progress_install": "Installation",
     "success": "Aktualisierung erfolgreich! Bitte ziehe das Gerät ab und stecke es dann wieder ein. Dieses mal brauchst du den Knopf nicht zu berühren. "
   },
   "button": {
@@ -381,6 +441,7 @@
     "check": "Backup überprüfen",
     "continue": "Weiter",
     "copy": "Kopieren",
+    "copyAddress": "Adresse kopieren",
     "create": "Erstellen",
     "dismiss": "Ausblenden",
     "done": "Fertig",
@@ -389,23 +450,72 @@
     "ok": "OK",
     "previous": "Zurück",
     "proceedOnBitBox": "Fahre mit deiner BitBox fort",
-    "receive": "Erhalten",
     "restore": "Wiederherstellen",
     "select": "Auswählen",
-    "send": "Senden",
     "unlock": "Entsperren",
     "update": "Update",
     "upgrade": "Aktualisieren"
   },
   "buy": {
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": "Unzureichendes Guthaben um Gutschein zu kaufen."
+      },
+      "transactionNote": "Gesendet an Bitrefill"
+    },
     "exchange": {
       "bankTransfer": "Überweisung",
       "bestDeal": "Bestes Angebot",
       "buy": "Kaufen",
+      "buyServices": "Kaufoptionen",
       "creditCard": "Kreditkarte",
+      "description_bitrefill": "Gutscheine, Prepaid-Karten & mehr kaufen",
+      "description_btcdirect-otc": "BTC Direct - Private Trading Desk",
+      "description_pocket-otc": "Pocket Private",
+      "description_swapkit": "Dezentrales Swapping mit BTC, ETH, USDT etc.",
       "fast": "Schnell",
       "fee": "Gebühr",
       "infoContent": {
+        "bitrefill": {
+          "disclaimer": {
+            "account": {
+              "link": "Bitrefill Kauflimits",
+              "text": "Du kannst Bitrefill in einem beschränkten Rahmen verwenden, ohne ein Konto zu erstellen. Um deine Ausgabelimits zu erhöhen, kannst du ein einfaches Konto erstellen oder ein verifizierter Kunde werden. Für weitere Details, siehe die Kauflimits von Bitrefill.",
+              "title": "Konto und Limits"
+            },
+            "claims": {
+              "link": "Bitrefill Support",
+              "text": "Solltest du Probleme mit einem Kauf haben, kontaktiere bitte Bitrefill innerhalb von 30 Tagen nach deiner Bestellung.",
+              "title": "Reklamationen"
+            },
+            "dataProtection": {
+              "link": "Bitrefill Datenschutzerklärung",
+              "text": "Die BitBoxApp sammelt keine persönlichen Daten. Bitrefill sammelt Informationen entsprechend ihrer Datenschutzerklärung.",
+              "title": "Datenschutz"
+            },
+            "fees": {
+              "text": "Bitrefill fordert keine expliziten Gebühren, aber Produktpreise können einen Aufpreis enthalten, der vom Händler, der Region und dem von Bitrefill angewendeten Wechselkurs abhängig sein kann.",
+              "title": "Gebühren"
+            },
+            "intro": {
+              "text": "Bitrefill ist eine Online-Plattform, über die du Geschenkkarten kaufen, Handys aufladen und Rechnungen mit Bitcoin oder anderen Kryptowährungen bezahlen kannst. Es ist eine einfache Möglichkeit, Coins für alltägliche Waren und Dienstleistungen auszugeben, ohne es in traditionelles Geld umzuwandeln. Bitrefill bietet eine große Auswahl an Produkten von globalen Marken und ist beliebt bei Menschen, die von Krypto leben oder privat einkaufen möchten.",
+              "title_bitcoin": "Bitcoin ausgeben mit Bitrefill",
+              "title_crypto": "Krypto ausgeben mit Bitrefill"
+            },
+            "security": {
+              "link": "BitBox Sicherheitsbedrohungsmodell",
+              "text": "Bitrefill ist ein externer Dienstleister der nicht vom Sicherheitsbedrohungsmodell der BitBox abgedeckt wird.  Wenn du einen Kauf tätigst, wird der Betrag an eine Adresse von Bitrefill gesendet. Die BitBox kann nicht unabhängig verifizieren, dass diese Adresse korrekt ist.",
+              "title": "Sicherheitshinweis"
+            },
+            "validEmail": {
+              "text": "Manche temporären E-Mail-Anbieter werden nicht von Bitrefill unterstützt, weshalb du eventuell keine Rechnung erhältst. Dein Gutscheincode wird trotzdem am Ende des Vorgangs angezeigt.",
+              "title": "Gültige E-Mail-Adresse"
+            }
+          },
+          "infobox": {
+            "intro": "Bitrefill ist eine Online-Plattform, auf der Bitcoin und andere Kryptowährungen über Gutscheine und weitere Dienstleistungen für alltägliche Ausgaben verwendet werden können. Über die Integration in der BitBoxApp kannst du deine Coins direkt von deiner BitBox ausgeben, ohne sie auf eine Börse oder andere Wallet schicken zu müssen."
+          }
+        },
         "btcdirect": {
           "disclaimer": {
             "dataProtection": {
@@ -440,7 +550,6 @@
             },
             "title": "Haftungsausschluss"
           },
-          "info": "Erhalte einen persönlichen Kundenberater, reduzierte Gebühren und platziere Bestellungen direkt über deinen Kontakt bei BTC Direct.",
           "infobox": {
             "intro_btconly": "Erhalte persönliche Unterstützung für grossvolumige, ausserbörsliche (OTC) Bitcoin-Transaktionen.",
             "intro_multi": "Erhalte persönliche Unterstützung für grossvolumige ausserbörsliche (OTC) Transaktionen für Bitcoin, Ethereum Stablecoins und mehr.",
@@ -451,9 +560,7 @@
             "listItem3": "Mindestauftragwert: 50.000 €.",
             "listItem4": "Transparente Gebühren zwischen 0,5 % - 1 %, inklusive persönlicher Kundenbetreuung .",
             "manager": "Du hast einen persönlichen Kundenberater, der dich bei jedem Schritt unterstützt und dir eine sichere, unkomplizierte Abwicklung mit festen Gebühren und minimaler Preisabweichung bietet."
-          },
-          "link": "Zugang zum BTC Direct - Private Trading Desk",
-          "title": "Kauf oder Verkauf über 50.000 €?"
+          }
         },
         "btcdirectWidget": {
           "disclaimer": {
@@ -465,6 +572,7 @@
             "paymentMethods": {
               "buy": "Kaufen: Zahle mit EUR und erhalte deine Coins direkt auf deine BitBox. Du kannst zwischen einmaligen und wiederkehrenden Käufen auswählen. Bei Banküberweisungen greift der Wechselkurs zu dem Zeitpunkt, wenn BTC Direct das Geld erhält. Direkte Zahlungsmethoden nutzen einen für eine kurze Zeit festgelegten Wechselkurs.",
               "note": "Hinweis: Wechselkurse von BTC Direct können leicht von denen der BitBoxApp abweichen.",
+              "sell": "Verkaufen: Sende deine Kryptowährungen an BTC Direct und erhalte EUR auf dein Bankkonto. Der Wechselkurs wird in dem Moment festgelegt, wenn BTC Direct deine Coins erhält.",
               "title": "Zahlungsmethoden und Gebühren"
             },
             "security": {
@@ -472,8 +580,8 @@
               "link": "Bedrohungsmodell der BitBox02",
               "title": "Sicherheit"
             },
-            "title_bitcoin": "Kaufe Bitcoin mit BTC Direct",
-            "title_crypto": "Kaufe Krypto mit BTC Direct"
+            "title_bitcoin": "Kaufe und verkaufe Bitcoin mit BTC Direct",
+            "title_crypto": "Kaufe und verkaufe Krypto mit BTC Direct"
           },
           "infobox": {
             "feesBuying": {
@@ -483,7 +591,11 @@
               "sofort": "Sofort: {{fee}}%",
               "title": "Gebühren beim Kauf"
             },
-            "intro": "Europäisches Kaufen von Kryptowährungen mit EUR.",
+            "feesSelling": {
+              "bankTransfer": "Banküberweisung: {{fee}}%",
+              "title": "Verkaufsgebühren"
+            },
+            "intro": "Europäisches Kaufen und Verkaufen von Kryptowährungen mit EUR.",
             "payment": {
               "bancontact": "Bancontact",
               "bankTransfer": "Banküberweisung, SEPA Instant, iDEAL",
@@ -545,14 +657,55 @@
             "title": "Identitätsprüfung"
           }
         },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "info": "Die BitBoxApp erhebt keine personenbezogenen Daten. Pocket Private erhebt gemäß ihrer Datenschutzerklärung die notwendigen Informationen, um regulatorische Standards zu erfüllen.",
+              "link": "Pocket Datenschutzerklärung",
+              "title": "Datenschutz"
+            },
+            "kyc": {
+              "info": "Für die Nutzung von Pocket Private ist eine Identitätsprüfung erforderlich. Dein Account Manager führt dich durch den Prozess und beantwortet alle Fragen, die du möglicherweise hast.",
+              "title": "Identitätsprüfung"
+            },
+            "partnership": {
+              "text": "In Partnerschaft mit Pocket Private bietet BitBox den Handel großer Bitcoin-Transaktionen an. Kunden von Pocket Private wird ein Account Manager für persönliche Unterstützung zugewiesen.",
+              "title": "Kaufen und Verkaufen mit Pocket Private"
+            },
+            "payment": {
+              "info": [
+                "<strong>Bitcoin kaufen:</strong> Gib große Kaufaufträge bei deinem Account Manager auf und bezahle per Banküberweisung. Deine Bitcoin werden nach der Zahlung direkt auf deine BitBox gesendet.",
+                "<strong>Bitcoin verkaufen:</strong> Die Banküberweisung erfolgt, sobald du Bitcoin an Pocket Private sendest. Persönliche Unterstützung ist bei Bedarf verfügbar.",
+                "<strong>Handelsgebühren:</strong> Die Handelsgebühren basieren auf dem lebenslangen Volumen. Das bedeutet, dass deine Gebühr sinkt, je höher dein gesamtes Handelsvolumen ist, unabhängig von der Ordergröße."
+              ],
+              "title": "Zahlungsmethoden und Gebühren"
+            },
+            "security": {
+              "info": "Pocket Private ist ein externer Dienst der nicht durch das Sicherheitsbedrohungsmodell der BitBox abgedeckt ist. Pocket Private ist jedoch bestens mit BitBox-Produkten vertraut und bietet sichere, kompetente Unterstützung. BitBox-Produkte verifizieren Bitcoin-Adressen während Transaktionen, um einen sicheren Empfang zu gewährleisten.",
+              "link": "BitBox Sicherheitsbedrohungsmodell",
+              "title": "Sicherheit"
+            }
+          },
+          "infobox": {
+            "intro": "Erhalte persönliche Unterstützung und bessere Gebühren für hochbeträgige Over-the-Counter-Trades (OTC) mit Bitcoin. Bei Pocket Private sinken deine Gebühren mit deinem lebenslangen Volumen, sodass du unabhängig von der Ordergröße immer die beste Gebühr erhältst.",
+            "learnmore": "Erfahre mehr über Pocket Private",
+            "tradingVolume": "Handelsvolumen (Insgesamtes Volumen)",
+            "transactionFee": "Transaktionsgebühr"
+          }
+        },
         "region": {
           "title": "Wähle die Region aus, in der dein Bankkonto registriert ist, um zu sehen, welche Optionen dir zur Verfügung stehen."
         }
       },
       "noExchanges": "Leider sind in dieser Region keine Börsen verfügbar.",
+      "otcInfo": "Erhalte persönliche Unterstützung und reduzierte Gebühren für Over-the-Counter Handel mit hohem Volumen.",
       "region": "Region",
       "selectRegion": "Nicht angegeben",
-      "sell": "Verkaufen"
+      "sell": "Verkaufen",
+      "sellServices": "Verkaufsoptionen",
+      "spend": "Ausgeben",
+      "spendServices": "Ausgabeoptionen",
+      "swapServices": "Swapoptionen"
     },
     "info": {
       "continue": "Zustimmen und fortfahren",
@@ -629,7 +782,8 @@
   "confirmOnDevice": "Bitte bestätige auf deinem Gerät.",
   "connectKeystore": {
     "promptNoName": "Bitte verbinde deine BitBox, um fortzufahren.",
-    "promptWithName": "Verbinde deine BitBox „{{name}}“ um fortzufahren."
+    "promptWithName": "Verbinde deine BitBox „{{name}}“ um fortzufahren.",
+    "swapHint": "Bitte verbinde eine BitBox Multi Edition für Swaps."
   },
   "darkmode": {
     "toggle": "Dark mode"
@@ -646,9 +800,12 @@
         "description": "Erstelle oder überprüfe das MicroSD-Karten-Backup."
       },
       "showRecoveryWords": {
-        "description": "Zeige und überprüfe die Wiederherstellungswörter."
+        "description": "Zeige und überprüfe die Wiederherstellungswörter auf der BitBox."
       },
       "title": "Backups"
+    },
+    "bluetoothFirmware": {
+      "title": "Bluetooth-Firmware"
     },
     "deviceInformation": {
       "attestation": {
@@ -656,6 +813,10 @@
       },
       "deviceName": {
         "description": "Ändere den Namen deines Geräts."
+      },
+      "passwordStretchingAlgo": {
+        "description": "Der verwendete Algorithmus, um den Seed auf deiner BitBox zu verschlüsseln.",
+        "title": "Entsperralgorithmus"
       },
       "rootFingerprint": {
         "description": "Der Root-Fingerabdruck ist eine eindeutige Kennung für das aktuell verwendete Wallet. Es kann dir helfen, zwischen verschiedenen Wallets zu unterscheiden, falls du Passphrasen verwendest."
@@ -665,12 +826,15 @@
       },
       "title": "Geräteinformationen"
     },
+    "deviceSettings": {
+      "title": "Geräteeinstellungen"
+    },
     "expert": {
       "bip85": {
         "description": "Erstelle \"Child Keys\" nach dem BIP85-Standard mit deiner BitBox-Wallet.",
         "disclaimer": "Ich verstehe die Funktionsweise der \"Child Keys\" und die damit verbundenen Sicherheitsaspekte.",
         "how": {
-          "description": "Die \"Child Keys\" werden als Mnemonic auf deiner BitBox angezeigt. Du kannst beliebig viele \"Child Keys\" erstellen. Beim Erstellen eines \"Child Keys\" wirst du nach dem Key-Index (z.B. 1, 2, 3, etc.) und der gewünschten Länge der Mnemonic (12, 18 oder 24 Recovery-Wörter) gefragt. Es ist wichtig, dass du dir den Key-Index und die Anzahl der Wörter merkst, um später denselben \"Child Key\" erneut anzeigen zu können.",
+          "description": "Die \"Child Keys\" werden als Mnemonic auf deiner BitBox angezeigt. Du kannst beliebig viele \"Child Keys\" erstellen. Beim Erstellen eines \"Child Keys\" wirst du nach dem Key-Index (z.B. 1, 2, 3, etc.) und der gewünschten Länge der Mnemonic (12, 18 oder 24 Wiederherstellungswörter) gefragt. Es ist wichtig, dass du dir den Key-Index und die Anzahl der Wörter merkst, um später denselben \"Child Key\" erneut anzeigen zu können.",
           "title": "Wie funktioniert es?"
         },
         "recover": {
@@ -701,12 +865,12 @@
       }
     },
     "firmware": {
-      "firmwareVersion": "Firmware Version",
+      "firmwareVersion": "Firmware-Version",
       "newVersion": {
         "label": "Verfügbare Version"
       },
       "title": "Firmware",
-      "upToDate": "Dein Gerät ist auf dem aktuellen Stand  ",
+      "upToDate": "Dein Gerät ist auf dem aktuellen Stand.",
       "upgradeAvailable": "Neues Upgrade verfügbar",
       "version": {
         "label": "Version"
@@ -756,10 +920,13 @@
     "wrongKeystore2": "Falls du ein optionale Passphrase nutzt, stelle sicher, dass du die richtige Passphrase für dieses Konto eingegeben hast."
   },
   "exchange": {
+    "btcdirect": {
+      "currencyMismatch": "Unerwartete Währung in Zahlungsaufforderung",
+      "insufficientFunds": "Unzureichendes Guthaben auf dem ausgewählten Konto."
+    },
     "buySell": {
       "coinNotSupported": "Keine Optionen für diesen Coin-Typ verfügbar.",
-      "regionNotSupported": "Keine Optionen für diese Region verfügbar.",
-      "updateNow": "Jetzt aktualisieren"
+      "regionNotSupported": "Keine Optionen für diese Region verfügbar."
     },
     "pocket": {
       "terms": {
@@ -776,9 +943,8 @@
           "title": "Zahlungsmethoden und Gebühren"
         },
         "kyc": {
+          "info": "Pocket verlangt ggf. zusätzliche Dokumente zur Verifizierung. Bitte prüfe das FAQ von Pocket für weitere Informationen.",
           "link": "Lese die Pocket FAQs",
-          "p1": "Für Transaktionen bis 1.000 EUR/CHF innerhalb von 30 Tagen sind keine weiteren Unterlagen nötig.",
-          "p2": "Für größere Beträge ist ein Telefonat mit Pocket notwendig, um den KYC/AML Prozess abzuschließen.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
@@ -793,6 +959,41 @@
           "title": "Kaufe und verkaufe Bitcoin mit Pocket"
         }
       }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "link": "SwapKit Datenschutzerklärung",
+          "text": "Die BitBoxApp erfährt und erhebt keine personenbezogenen Daten. SwapKit kann ihrer Datenschutzerklärung entsprechend Daten erfassen.",
+          "title": "Datenschutz"
+        },
+        "fees": {
+          "note": "Hinweis: Die Wechselkurse von SwapKit können von den Kursen in der BitBoxApp abweichen.",
+          "text": "Für jeden Swap wird eine feste Gebühr von 1,5 % erhoben",
+          "title": "Gebühren"
+        },
+        "intro": {
+          "text": "SwapKit bietet einen SDK/API-Service für non-custodial Swaps an. Wir arbeiten mit SwapKit zusammen, um Swaps mit Kryptowährungen über verschiedene Blockchains hinweg an einem Ort bereitzustellen. Dadurch werden schnelle, einfache und non-custodial Swaps ermöglicht, sodass du die Kontrolle über deine Assets behältst.",
+          "title": "Kryptowährungen Swappen mit SwapKit"
+        },
+        "protocol": {
+          "link": "Erfahre mehr über SwapKit-Anbieter",
+          "text": "Die SwapKit API nutzt mehrere Anbieter, um Swaps durchzuführen. Anbieter können im Laufe der Zeit hinzugefügt oder entfernt werden, um aktuelle Anforderungen zu erfüllen und die Leistung zu verbessern.",
+          "title": "SwapKit Anbieter"
+        },
+        "security": {
+          "link": "BitBox Sicherheitsbedrohungsmodell",
+          "text": "SwapKit ist ein externer Dienst und wird nicht durch das Sicherheitsbedrohungsmodell der BitBox abgedeckt. Wir arbeiten jedoch eng mit SwapKit zusammen, um die Sicherheit zu verbessern, indem Zahlungsanfragen in die BitBox-Firmware integriert werden. Das bedeutet, dass die BitBox bei einem Swap die Zieladresse als „SwapKit“ anzeigt.",
+          "title": "Sicherheit"
+        },
+        "slippage": {
+          "text": "Slippage ist die Differenz zwischen dem Preis, den du beim Start eines Swaps erwartest, und dem Preis, den du tatsächlich erhältst, wenn der Swap abgeschlossen ist. Da sich Preise von Kryptowährungen schnell bewegen können und sich die Liquidität während der Transaktion ändern kann, kann der endgültige Betrag, den du erhältst, niedriger sein als geschätzt.",
+          "title": "Slippage"
+        }
+      },
+      "infobox": {
+        "intro": "Tausche jede Kryptowährung in der BitBoxApp in eine andere – ohne Limits oder KYC. Dieser Swap-Service wird von SwapKit bereitgestellt, einem Aggregator für dezentrale Swap-Dienstleister."
+      }
     }
   },
   "fiat": {
@@ -803,18 +1004,48 @@
   "footer": {
     "appVersion": "App Version:"
   },
+  "gapLimit": {
+    "change": "Gap-Limit für Wechseladressen",
+    "description": "Lege benutzerdefinierte Gap-Limits für Bitcoin Empfangs- und Wechseladressen fest.",
+    "maxValue": "Das Gap-Limit darf nicht größer als {{max}} sein.",
+    "minValue": "Das Gap-Limit muss größer als {{min}} sein.",
+    "receive": "Gap-Limit für Empfangsadressen.",
+    "title": "Benutzerdefiniertes Gap-Limit"
+  },
   "generic": {
     "buy": "Kaufe {{coinCode}}",
-    "buySell": "Kaufen & Verkaufen",
+    "buySell": "Marktplatz",
     "buy_bitcoin": "Kaufe Bitcoin",
     "buy_crypto": "Krypto kaufen",
+    "calculating": "Berechne…",
+    "close": "Schließen",
+    "enable": "Aktivieren",
     "enabled_false": "Deaktiviert",
     "enabled_true": "Aktiviert",
+    "max": "Max",
+    "new": "Neu",
+    "noOptionOnIos": "Nicht verfügbar auf iOS",
     "noOptions": "Keine Optionen gefunden",
+    "paymentRequestNote": "{{name}} Zahlung {{orderId}}",
     "receive": "Erhalte {{coinCode}}",
+    "receiveWithoutCoinCode": "Empfangen",
     "receive_bitcoin": "Erhalte Bitcoin",
     "receive_crypto": "Erhalte Crypto",
-    "search": "Suchen…"
+    "received": "Empfangen",
+    "reset": "Zurücksetzen",
+    "resetToDefault": "Auf Standardwerte zurücksetzen",
+    "retry": "Erneut versuchen",
+    "search": "Suchen…",
+    "searchButton": "Suche",
+    "sell": "{{coinCode}} verkaufen",
+    "sell_bitcoin": "Bitcoin verkaufen",
+    "sell_crypto": "Krypto verkaufen",
+    "send": "Senden",
+    "sent": "Gesendet",
+    "spend_bitcoin": "Bitcoin ausgeben",
+    "spend_crypto": "Krypto ausgeben",
+    "swap": "Swap",
+    "unknown": "Unbekannt"
   },
   "genericError": "Ein Fehler ist aufgetreten. Falls du Probleme bemerkst, starte die Applikation bitte neu.",
   "goal": {
@@ -861,8 +1092,12 @@
       "title": "Was bedeutet \"Eingehend\"?"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "Klicke \"Transaktionen exportieren\" unter \"Kontoinformationen\" und öffne den Downloads-Ordner, um die exportierte CSV-Datei zu finden. Diese ist hilfreich für Dienste wie CoinTracking für Steuererklärungen.",
+        "title": "Wie kann ich meine Transaktionshistorie exportieren? (z.B. für CoinTracking)"
+      },
       "multipleXPubs": {
-        "text": "Jeder xpub ist an den angezeigten \"Typ\" gebunden: Entweder \"Native SegWit (bech32)\", \"Wrapped segwit\" oder \"Taproot\". Dies sind Skripttypen, die von {{coinName}} verwendet werden. Die BitBoxApp kombiniert sie und unterstützt mehrere Skripttypen im selben Konto. Da jeder Skripttyp einen anderen xpub verwendet, gibt es mehrere xpubs pro Konto.\n\nWenn du nur auf den Standardadressen empfängst, benötigst du nur den \"bech32\" xpub. Wenn du jedoch auch Coins auf \"kompatible Adresse\" erhältst, werden diese auf dem xpub \"wrapped SegWit\" angezeigt.",
+        "text": "Jeder xpub ist an den angezeigten \"Typ\" gebunden: Entweder \"Native SegWit (bech32)\" oder \"Taproot\". Dies sind Skripttypen, die von {{coinName}} verwendet werden. Die BitBoxApp kombiniert sie und unterstützt mehrere Skripttypen im selben Konto. Da jeder Skripttyp einen anderen xpub verwendet, gibt es mehrere xpubs pro Konto.\n\nWenn du nur auf den Standardadressen empfängst, benötigst du nur den \"bech32\" xpub. Wenn du jedoch auch Coins auf \"Taproot\" erhältst, werden diese unter dem xpub \"Taproot\" angezeigt.",
         "title": "Warum gibt es mehrere xpubs?"
       },
       "privacy": {
@@ -910,6 +1145,10 @@
       "text": "Dies ist eine Transaktionen die ins Netzwerk geschickt wurde und darauf wartet bestätigt zu werden.",
       "title": "Was ist eine ausstehende Transaktion?"
     },
+    "accountTransactionEstimation": {
+      "text": "Die BitBoxApp kennzeichnet Fiat-Beträge mit einem Schätzungszeichen, bis die Transaktion bestätigt ist und ein endgültiger Wechselkurs vorliegt.",
+      "title": "Warum zeigen neue Transaktionen ein Schätzungszeichen an?"
+    },
     "accountTransactionLabel": {
       "text": "Es ist die Adresse an die du Coins erhalten oder geschickt hast.",
       "title": "Welche Adresse wird bei jeder Transaktion angezeigt?"
@@ -920,7 +1159,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin und Litecoin können eine beliebige Anzahl an Konten haben. Nach fünf Konten kannst du nur dann ein weiteres Konto hinzufügen, wenn das vorherige Konto verwendet wurde.\nAndere Coins können maximal fünf Konten haben.",
+        "text": "Bitcoin und Litecoin können eine beliebige Anzahl an Konten haben. Nach sechs Konten kannst du nur dann ein weiteres Konto hinzufügen, wenn das vorherige Konto verwendet wurde.\nAndere Coins können maximal fünf Konten haben.",
         "title": "Wie viele Konten kann ich erstellen?"
       },
       "howtoAddTokens": {
@@ -956,6 +1195,10 @@
       }
     },
     "appendix": {
+      "feedback": {
+        "link": "Lass es uns wissen.",
+        "text": "Du hast Feedback?"
+      },
       "link": "Kontaktiere uns!",
       "questionService": "Probleme mit {{serviceName}}?",
       "text": "Du hast Fragen?",
@@ -1003,6 +1246,29 @@
         "title": "Wie kann ich die Micro-SD-Karte auswerfen?"
       }
     },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "Das könnte bedeuten, dass du einen E-Mail-Anbieter verwendet hast, der von Bitrefill nicht unterstützt wird. Wenn du eine Rechnung benötigst, kontaktiere den Bitrefill-Support.",
+        "title": "Ich habe keine Rechnung von Bitrefill erhalten"
+      },
+      "kyc": {
+        "link": {
+          "text": "Bitrefill Kauflimits"
+        },
+        "text": "Nein, Bitrefill benötigt keine Verifizierung der Identität. Du kannst Käufe auch ohne KYC bis zu bestimmten Limits tätigen. Für mehr Details, siehe die Richtlinie zu Kauflimits von Bitrefill:",
+        "title": "Benötigt Bitrefill eine KYC-Verifizierung?"
+      },
+      "limits": {
+        "link": {
+          "text": "Bitrefill Kontoverifizierung"
+        },
+        "text": "Du kannst deine Kauflimits erhöhen indem du ein verifizierter Kunde wirst. Bitte folge dem Link um die Verifizierung abzuschließen:",
+        "title": "Wie kann ich meine Kauflimits mit Bitrefill erhöhen?"
+      }
+    },
     "bitsurance": {
       "faq": {
         "link": {
@@ -1039,10 +1305,6 @@
         "title": "Brauche ich eine Bitcoin-Versicherung?"
       }
     },
-    "cointracking": {
-      "text": "Klicke auf \"Exportieren\" und öffne den Download-Ordner. Dort findest du die exportierte CSV Datei. Klicke dann auf den untenstehenden Link, lade deine BitBox-CSV-Datei hoch und importiere die Daten, um sie für deinen CoinTracking-Portfoliomanager zu verwenden und deine Steuerberichte zu erstellen.",
-      "title": "Wie importiere ich meine Transaktionen in CoinTracking?"
-    },
     "device": {
       "attestation": {
         "link": {
@@ -1065,11 +1327,11 @@
     },
     "guideTitle": {
       "account": "Konto Guide",
-      "accountInformation": "Konto Informationen Guide",
+      "accountInformation": "Kontoinformationen Guide",
       "accountSummary": "Kontenübersicht Guide",
       "advancedSettings": "Erweiterte Einstellungen Guide",
       "appearance": "Ansicht Guide",
-      "buySell": "Kaufen & Verkaufen Guide",
+      "buySell": "Marktplatz Guide",
       "insurance": "Versicherung Guide",
       "manageAccount": "Konten verwalten Guide",
       "manageDevice": "Gerät verwalten Guide",
@@ -1087,11 +1349,11 @@
         "title": "Wann ändern sich die Adressen?"
       },
       "addressFormats": {
-        "text": "Standardmäßig ist der Adresstyp Native Segwit. Dieser Adresstyp wird von vielen anderen Wallets/Börsen akzeptiert und bietet dir die besten Gebührensätze für alltägliche Transaktionen. Du kannst aber auch an Taproot (nur Bitcoin) senden, den neuesten Adresstyp, der aber noch nicht überall unterstützt wird. Wenn du Probleme hast, an Native Segwit (den Standard-Adresstyp) zu senden, kannst du auch auf den älteren Wrapped Segwit-Adresstyp umsteigen, der möglicherweise mit mehr Wallets/Börsen kompatibel ist.",
+        "text": "Standardmäßig ist der Adresstyp Native Segwit. Dieser Adresstyp wird von vielen anderen Wallets/Börsen akzeptiert und bietet dir die besten Gebührensätze für alltägliche Transaktionen. Du kannst aber auch an Taproot (nur Bitcoin) senden, den neuesten Adresstyp, der aber noch nicht überall unterstützt wird.",
         "title": "Wann sollte ich den Adresstyp ändern?"
       },
       "howVerify": {
-        "text": "BitBox01: Klicke auf das BitBox-Symbol in der Seitenleiste links und siehe dir den Abschnitt \"Zwei-Faktor Autorisierung\" an. Die Anleitung wird aktualisiert und du kannst von dort aus den Anweisungen folgen.\n\nBitBox02: Dank des eingebauten Displays kannst du die Adresse direkt auf dem Gerät während des Send-/Empfangsprozesses verifizieren. ",
+        "text": "Du kannst Adressen direkt auf der BitBox während des Sendens/Empfangens prüfen.",
         "title": "Wie kann ich die Adresse sicher verifizieren?"
       },
       "plugout": {
@@ -1107,7 +1369,7 @@
         "title": "Warum gibt es mehrere Adressen?"
       },
       "whyVerify": {
-        "text": "Einer der Gründe für den Kauf einer Hardwarewallet, ist dass du deinem Computer aufgrund der großen Angriffsfläche nicht vertrauen solltest. Daher solltest du nicht darauf vertrauen, dass dein Computer authentische Adressen generiert und anzeigt. \nBitbox01: Mit dem Knopf zur sicheren Überprüfung der Adresse sendet die BitBox01 die Adresse an ein gekoppeltes Mobiltelefon, auf welchem du die Adresse  überprüfen kannst. \nBitBox02: Die BitBox02 hat ein eingebautes Display, auf dem die Adresse sicher angezeigt werden kann. ",
+        "text": "Du solltest nicht darauf vertrauen, dass dein Computer echte Adressen generiert und anzeigt. Durch die grosse Angriffsfläche ist er deutlich anfälliger als eine Hardware-Wallet. Die Adresse kann direkt auf dem BitBox-Display überprüft werden.",
         "title": "Warum sollte ich die Adresse verifizieren?"
       }
     },
@@ -1137,6 +1399,16 @@
         "title": "Warum gibt es eine Netzwerk Gebühr?"
       }
     },
+    "settings": {
+      "sats": {
+        "text": "Ein Satoshi (kurz \"sat\") ist die kleinste Einheit eines Bitcoins. Ein Satoshi ist ein Hundertmillionstel eines Bitcoins (0,00000001 BTC). Benannt ist er nach dem Erfinder von Bitcoin, Satoshi Nakamoto.",
+        "title": "Was ist ein Satoshi?"
+      },
+      "servers": {
+        "text": "Diese App kommuniziert mit Servern von Shift Crypto, um nach Updates zu suchen, Transaktionen zu laden und Informationen an verbundene Smartphone Apps zu senden.\nAußerdem werden die neuesten Wechselkurse von CoinGecko abgerufen. (Die Conversions werden lokal berechnet, es werden keine Beträge von dir übertragen.)\nInfo: Für Ethereum und ERC-20 tokens verwenden wir die Etherscan.io APIs.",
+        "title": "Mit welchen Servern kommuniziert die Applikation?"
+      }
+    },
     "settings-electrum": {
       "connection": {
         "text": "Wenn du nur dann eine Verbindung zu deinem Full Node herstellen möchtest, wenn du dich im selben Netzwerk befindest (z. B. in deinem Heim-WLAN), ist die Verwendung einer regulären Netzwerkkommunikation ausreichend.\nIn diesem Fall ist es ratsam, dass dein Electrum-Server ein TLS-Zertifikat zum Verschlüsseln der Kommunikation bereitstellt.\nWenn du von überall aus eine Verbindung zu deinem Full Node herstellen möchtest, ist die Verwendung von Tor die bessere Option. In diesem Fall ist kein TLS-Zertifikat erforderlich.",
@@ -1164,16 +1436,6 @@
       "why": {
         "text": "Einen eigenen Full Node zu betreiben ist nicht erforderlich. Er verbessert jedoch deine Privatsphäre und verringert die Notwendigkeit, anderen Netzwerkteilnehmern zu vertrauen.\nZum einen erlaubt er dir Bitcoin privater verwenden, da die BitBoxApp dann keine Verbindung zu unseren Servern herstellt, um deinen Transaktionsverlauf abzurufen. Stattdessen werden diese Informationen von deinem eigenen Full Node abgerufen.\nDes Weiteren, verifiziert dein Full Node alle Transaktionen selbst, wodurch sichergestellt wird, dass die Konsensregeln eingehalten werden. ",
         "title": "Warum sollte ich meinen eigenen Full Node betreiben?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "Ein Satoshi (kurz \"sat\") ist die kleinste Einheit eines Bitcoins. Ein Satoshi ist ein Hundertmillionstel eines Bitcoins (0,00000001 BTC). Benannt ist er nach dem Erfinder von Bitcoin, Satoshi Nakamoto.",
-        "title": "Was ist ein Satoshi?"
-      },
-      "servers": {
-        "text": "Diese App kommuniziert mit Servern von Shift Crypto, um nach Updates zu suchen, Transaktionen zu laden und Informationen an verbundene Smartphone Apps zu senden.\nAußerdem werden die neuesten Wechselkurse von CoinGecko abgerufen. (Die Conversions werden lokal berechnet, es werden keine Beträge von dir übertragen.)\nInfo: Für Ethereum und ERC-20 tokens verwenden wir die Etherscan.io APIs.",
-        "title": "Mit welchen Servern kommuniziert die Applikation?"
       }
     },
     "title": "Guide",
@@ -1215,7 +1477,7 @@
         "title": "Ich habe mein Gerät verloren. Was nun?"
       },
       "useWithoutDevice": {
-        "text": "Leider ist dies zum aktuellen Zeitpunkt nicht möglich. ",
+        "text": "Ja, du kannst Wallets in den Kontoeinstellungen speichern. So kannst du dein Portfolio auch ohne BitBox checken.",
         "title": "Kann ich die App auch ohne Gerät benutzen?"
       },
       "welcome": {
@@ -1272,6 +1534,10 @@
     "title": "Sprache auswählen"
   },
   "loading": "laden...",
+  "logo": {
+    "label": "{{name}} Logo",
+    "placeholderLabel": "{{name}} Platzhalter Logo"
+  },
   "manageAccounts": {
     "accountHidden": "Dieses Konto wurde aus deinen watch-only-Konten ausgeblendet. Verbinde deine BitBox, um es wieder anzuzeigen.",
     "editAccount": "Bearbeiten",
@@ -1293,6 +1559,14 @@
     "about": {
       "appVersion": {
         "title": "App-Version"
+      },
+      "feedbackLink": {
+        "description": "Wenn du allgemeines Feedback hast",
+        "title": "Feedback"
+      },
+      "supportLink": {
+        "description": "Wenn du ein Problem hast oder Hilfe benötigst",
+        "title": "Support"
       }
     },
     "advancedSettings": {
@@ -1381,7 +1655,7 @@
   "passphrase": {
     "considerations": {
       "button": "Backup-Hinweise",
-      "message": "Die Passphrase schützt dein Wallet-Backup (microSD oder Wiederherstellungswörter). Wer dein Backup findet, kommt ohne Passphrase nicht an dein Wallet.\n\nZum Wiederherstellen eines passphrase-geschützten Wallets benötigst du daher <strong>Backup und Passphrase<strong>. \n\nGeht die Passphrase verloren, ist auch der Zugriff auf deine Coins verloren. Bewahre sie deshalb getrennt vom Backup auf.",
+      "message": "Die Passphrase schützt dein Wallet-Backup (microSD oder Wiederherstellungswörter). Wer dein Backup findet, kommt ohne Passphrase nicht an dein Wallet.\n\nZum Wiederherstellen eines passphrase-geschützten Wallets benötigst du daher <strong>Backup und Passphrase</strong>. \n\nGeht die Passphrase verloren, ist auch der Zugriff auf deine Coins verloren. Bewahre sie deshalb getrennt vom Backup auf.",
       "title": "Backup-Hinweise"
     },
     "disable": "Passphrase deaktivieren",
@@ -1443,7 +1717,7 @@
     },
     "why": {
       "button": "Warum sollte man eine Passphrase benutzen?",
-      "message": "Die BitBox schützt den Seed im Gerät, aber das Backup (microSD oder Wiederherstellungswörter) gewährt vollen Zugriff – daher bewahre es sicher auf.\n\nDa eine Passphrase aus demselben Seed ein neues Wallet erzeugt, benötigt ein passphrase-geschütztes Wallet zum Wiederherstellen <strong>Backup UND Passphrase<strong>. Findet jemand dein Backup, braucht er trotzdem die Passphrase.\n\nMit der Passphrase-Funktion kannst du zudem mehrere Wallets („versteckte Wallets“) auf demselben Gerät anlegen, zusätzlich zum Standard-Wallet.",
+      "message": "Die BitBox schützt den Seed im Gerät, aber das Backup (microSD oder Wiederherstellungswörter) gewährt vollen Zugriff – daher bewahre es sicher auf.\n\nDa eine Passphrase aus demselben Seed ein neues Wallet erzeugt, benötigt ein passphrase-geschütztes Wallet zum Wiederherstellen <strong>Backup UND Passphrase</strong>. Findet jemand dein Backup, braucht er trotzdem die Passphrase.\n\nMit der Passphrase-Funktion kannst du zudem mehrere Wallets („versteckte Wallets“) auf demselben Gerät anlegen, zusätzlich zum Standard-Wallet.",
       "title": "Warum sollte man eine Passphrase benutzen?"
     }
   },
@@ -1454,12 +1728,8 @@
       "paste": "Um Text einzufügen, aktiviere \"Anzeigen\" {{label}}\"."
     }
   },
-  "random": {
-    "button": "Zufallszahl generieren",
-    "description": "Deine BitBox hat die folgende {{bits}}-Bit-Zufallszahl generiert:"
-  },
   "receive": {
-    "bitsuranceWarning": "Dies ist ein versichertes Konto, das heißt, es kann nur an Native Segwit empfangen. Dadurch wird verhinderst, dass du versehentlich an Wrapped Segwit oder Taproot empfängst, welche nicht versichert sind.",
+    "bitsuranceWarning": "Dies ist ein versichertes Konto, das heißt, es kann nur an Native Segwit empfangen. Dadurch wird verhindert, dass du versehentlich an Taproot-Adressen empfängst, welche nicht versichert sind.",
     "changeScriptType": "Adresstyp ändern",
     "label": "Meine Adresse",
     "onlyThisCoin": {
@@ -1469,15 +1739,15 @@
     "qrCodeCopiedMessage": "Kopiert!",
     "scriptType": {
       "p2tr": "Taproot (neuestes Format)",
-      "p2wpkh": "Native-Segwit (standard)",
-      "p2wpkh-p2sh": "Wrapped-Segwit (kompatibles Format)"
+      "p2wpkh": "Native-Segwit (standard)"
     },
     "selectAccount": "Konto auswählen",
     "taprootWarning": "Hinweis: Taproot ist ein neues Adressformat und noch nicht weit verbreitet. Gelder, die über Taproot-Adressen eingehen, sind möglicherweise nicht in Watch-Only-Wallets von Drittanbietern sichtbar. Viele Wallets und Börsen sind noch nicht in der Lage, an Taproot-Adressen zu senden.",
     "title": "{{accountName}} empfangen",
     "verify": "Adresse sicher verifizieren",
     "verifyBitBox02": "Adresse auf BitBox überprüfen",
-    "verifyInstruction": "Bitte bestätige, dass die folgende Adresse mit der Adresse auf deinem Gerät übereinstimmt."
+    "verifyInstruction": "Bitte bestätige, dass die folgende Adresse mit der Adresse auf deinem Gerät übereinstimmt.",
+    "verifyTestnetWarning": "Dies ist ein Testnet-Konto, Coins auf diesen Adressen haben keinen Wert"
   },
   "reset": {
     "description": "Alle Daten auf dem Gerät werden gelöscht. Inklusive deiner Private-Keys!",
@@ -1572,13 +1842,15 @@
     },
     "edit": "Transaktion bearbeiten",
     "error": {
+      "accountNotSynced": "Dieses Konto wurde noch nicht synchronisiert. Bitte warte, bis die Synchronisierung abgeschlossen ist und versuche es erneut.",
       "erc20InsufficientGasFunds": "Nicht genügend Ether für diese ERC20-Transaktion. Bitte füge deinem Wallet Ether hinzu und versuche es erneut.",
       "feeTooLow": "Gebühr zu niedrig",
       "feesNotAvailable": "Gebühren konnten nicht geschätzt werden",
       "insufficientFunds": "Unzureichende Mittel",
       "invalidAddress": "ungültige Adresse",
       "invalidAmount": "ungültige Menge",
-      "invalidData": "ungültige Daten"
+      "invalidData": "ungültige Daten",
+      "syncInProgress": "Dieses Konto synchronisiert noch. Bitte warte, bis die Synchronisierung abgeschlossen ist und versuche es erneut."
     },
     "fee": {
       "customPlaceholder": "Betrag eingeben",
@@ -1627,6 +1899,10 @@
     "priority": "Priorität",
     "scanQR": "QR Code scannen",
     "scanQRNoCameraMessage": "Kamera nicht gefunden. Bitte stelle sicher, dass dein Gerät eine Kamera unterstützt und die Berechtigungen korrekt eingestellt sind.",
+    "sendToAccount": {
+      "placeholder": "Konto auswählen",
+      "title": "An Konto senden"
+    },
     "success": "Die Transaktion wurde signiert und versendet.",
     "title": "{{accountName}} senden",
     "toggleCoinControl": "Coin Control",
@@ -1634,7 +1910,6 @@
   },
   "settings": {
     "about": "Über die App",
-    "accounts": "Konten",
     "advancedSettings": "Erweiterte Einstellungen",
     "appearance": "Ansicht",
     "electrum": {
@@ -1701,13 +1976,11 @@
       "import": {
         "accountNames_one": "{{count}} Kontoname importiert.",
         "accountNames_other": "{{count}} Kontonamen importiert.",
-        "accountNames_zero": "0 Kontonamen importiert.",
         "description": "Stelle deine Transaktionsnotizen und Kontonamen von einem zuvor erstellten Backup wieder her.",
         "title": "Notizen importieren",
         "tooLarge": "Datei zu groß.",
         "transactionNotes_one": "{{count}} Transaktionsnotiz importiert.",
-        "transactionNotes_other": "{{count}} Transaktionsnotizen importiert.",
-        "transactionNotes_zero": "0 Transaktionsnotizen importiert."
+        "transactionNotes_other": "{{count}} Transaktionsnotizen importiert."
       },
       "title": "Notizen verwalten"
     },
@@ -1725,6 +1998,20 @@
     "leave": "Verlassen",
     "settings": "Einstellungen"
   },
+  "signMessage": {
+    "addressLabel": "Adresse",
+    "emptyMessage": "Bitte gib eine Nachricht zum Signieren ein.",
+    "error": "Fehler beim Signieren der Nachricht. Bitte versuche es erneut.",
+    "messageLabel": "Nachricht",
+    "messagePlaceholder": "Nachricht zum Signieren eingeben",
+    "resultDescription": "Nachricht signiert",
+    "signButton": "Auf Gerät signieren",
+    "signMessage": "Nachricht signieren",
+    "signOnBitBoxSubtitle": "Nachricht auf BitBox signieren",
+    "signatureLabel": "Signatur",
+    "signing": "Bitte bestätige die Nachricht auf deinem Gerät.",
+    "unsupportedTaproot": "Das Signieren von Nachrichten ist noch nicht für Taproot-Adressen unterstützt. Bitte kehre zurück und ändere den Adresstyp."
+  },
   "success": {
     "create": {
       "info1": "Ein Backup deiner Wallet wurde sicher auf der microSD Karte gesichert. Entferne die Karte und bewahre diese an einem sicheren Ort auf.",
@@ -1738,6 +2025,21 @@
       "summary": "Du hast erfolgreich deine Wallet aus einem Backup wiederhergestellt.",
       "title": "Erfolg"
     }
+  },
+  "swap": {
+    "completed": "Swap durchgeführt",
+    "confirmOnBitBox": "Bestätige Swap auf der BitBox",
+    "fastest": "Am schnellsten",
+    "fetchQuotesError": "Preise können derzeit nicht abgerufen werden. Bitte versuche es erneut.",
+    "fetchingRoutes": "Sammle Routen...",
+    "new": "Neuer Swap",
+    "noRouteFound": "Keine Route gefunden",
+    "noRouteFoundForPair": "Keine Route von {{sellCoin}} an {{buyCoin}} gefunden. Versuche es mit einem höheren Betrag oder versuche es später erneut.",
+    "oneRouteAvailable": "Eine Route verfügbar",
+    "recommended": "Empfohlen",
+    "route": "Swap Route",
+    "routesPlaceholder": "Routen werden hier angezeigt, nachdem ein Betrag eingegeben wurde",
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten."
   },
   "testWallet": {
     "connect": {
@@ -1767,15 +2069,17 @@
     }
   },
   "transaction": {
+    "advanced": "Erweitert",
     "confirmation": "Bestätigungen",
     "details": {
       "activity": "Aktivität",
       "address": "Adresse",
       "amount": "Betrag",
+      "currentValue": "Aktueller Wert",
       "date": "Datum",
-      "fiat": "Fiat",
       "fiatAmount": "Fiatbetrag",
-      "fiatAtTime": "Fiat zur Transaktionszeit",
+      "historicalValue": "Historischer Wert",
+      "sentToSelf": "Gesendet an sich selbst",
       "status": "Status",
       "title": "Transaktionsdetails",
       "type": "Typ"
@@ -1785,10 +2089,7 @@
     "fee": "Gebühr",
     "fiatHistorical": "Historisch",
     "gas": "Gas",
-    "note": {
-      "edit": "Notiz bearbeiten",
-      "save": "Notiz speichern"
-    },
+    "no-results": "Keine Transaktionen für \"{{searchTerm}}\" gefunden",
     "pending": "Ausstehende Transaktion",
     "size": "Größe",
     "status": {
@@ -1813,7 +2114,9 @@
       "receive_pending": "Empfangen an",
       "send_complete": "Gesendet an",
       "send_failed": "Fehlgeschlagener Versand an",
-      "send_pending": "Gesendet an"
+      "send_pending": "Gesendet an",
+      "send_to_self": "<amount /> an sich selbst gesendet",
+      "send_to_self_failed": "An sich selbst senden von <amount /> fehlgeschlagen"
     },
     "vsize": "Virtuelle Größe",
     "weight": "Gewicht"
@@ -1829,6 +2132,18 @@
       "e109_normal": "Gerätepasswort inkorrekt.  {{remainingAttempts}} Versuche verbleibend, bevor sich das Gerät in den Werkszustand zurücksetzt. ",
       "e109_touch": "$t(unlock.error.e109_normal) Beim nächsten Loginversuch musst du die LED lange halten.",
       "e113": "Aufgrund zu vieler Loginversuche musst du beim nächsten Versuch die LED 4 Sekunden lang drücken."
+    },
+    "forgotPassword": {
+      "button": "Siehe hier",
+      "dialogDescription": "Wenn du dein Gerätepasswort vergessen hast, kannst du deine Wallet trotzdem über dein Backup wiederherstellen:",
+      "dialogTitle": "Gerätepasswort vergessen?",
+      "info": "Passwort vergessen?",
+      "stillHavingIssues": "Hast du immer noch Probleme?",
+      "supportLink": "Support kontaktieren",
+      "text1": "Nach zehn falschen Eingaben des Gerätepassworts wird dein Gerät automatisch auf die Werkseinstellungen zurückgesetzt.",
+      "text2": "Du kannst deine Wallet über eine microSD-Karte oder die Wiederherstellungswörter wiederherstellen, ohne dafür das alte Gerätepasswort zu benötigen. Während der Wiederherstellung kannst du ein neues Gerätepasswort festlegen.",
+      "title1": "Gerät setzt sich nach wiederholten Fehlversuchen zurück",
+      "title2": "Wallet von Backup wiederherstellen"
     },
     "input": {
       "label": "Gerätepasswort",
@@ -1869,7 +2184,6 @@
     },
     "pairingSuccess": "Dapp erfolgreich verbunden. Du kannst auf der Dapp-Website fortfahren.",
     "signingRequest": {
-      "account": "Konto",
       "chain": "Netzwerk",
       "dapp": "Dapp",
       "data": "Daten",
@@ -1889,6 +2203,7 @@
   },
   "warning": {
     "coincontrol": "Ein oder mehrere UTXOs haben eine mehrfach verwendete Adresse. Beachte  dass der Empfänger alle UTXOs sehen wird welche mit diesen Adressen verbunden sind.",
+    "offline": "Du bist derzeit offline. Du kannst keine Transaktionen senden oder die neuesten Wechselkurse einsehen.",
     "sdcard": "Bewahre deine microSD Karte separat von deiner BitBox auf. Die microSD Karte wird nur benötigt, wenn du deine Backups verwalten willst. Für den normalen Betrieb ist sie nicht erforderlich.",
     "testnet": "Testnet-Modus aktiv. Transaktionen und Coins sind hier nicht echt und haben keinen Wert. Nur zu Testzwecken verwenden."
   },
@@ -1896,7 +2211,8 @@
     "connect": "Verbinde deine BitBox",
     "getStarted": "Starte die Installation der Firmware auf deiner BitBox.",
     "loadingAccounts": "Lade Konten",
-    "message": "Bitte verbinde deine BitBox und tippen sie auf der Seite an, um fortzufahren.",
+    "message": "Verbinde deine BitBox und tippe sie an der Seite an, um fortzufahren.",
+    "messageIOS": "Bitte verbinde deine BitBox02 Nova und tippe auf die Seite, um fortzufahren.",
     "title": "Willkommen"
   }
 }

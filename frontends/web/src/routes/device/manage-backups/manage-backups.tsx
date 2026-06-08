@@ -1,19 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
 import { TDevices } from '@/api/devices';
@@ -28,8 +13,8 @@ import { SDCardCheck } from '@/routes/device/bitbox02/sdcardcheck';
 
 type TProps = {
   deviceID: string | null;
-  devices: TDevices
-}
+  devices: TDevices;
+};
 
 export const ManageBackups = ({
   deviceID,
@@ -121,19 +106,43 @@ const ManageBackupGuide = ({
   case 'bitbox':
     return (
       <Guide>
-        <Entry key="guide.backups.whatIsABackup" entry={t('guide.backups.whatIsABackup', { returnObjects: true })} />
-        <Entry key="guide.backups.encrypt" entry={t('guide.backups.encrypt', { returnObjects: true })} />
-        <Entry key="guide.backups.check" entry={t('guide.backups.check', { returnObjects: true })} />
-        <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften', { returnObjects: true })} />
+        <Entry key="guide.backups.whatIsABackup" entry={{
+          text: t('guide.backups.whatIsABackup.text'),
+          title: t('guide.backups.whatIsABackup.title'),
+        }} />
+        <Entry key="guide.backups.encrypt" entry={{
+          text: t('guide.backups.encrypt.text'),
+          title: t('guide.backups.encrypt.title'),
+        }} />
+        <Entry key="guide.backups.check" entry={{
+          text: t('guide.backups.check.text'),
+          title: t('guide.backups.check.title'),
+        }} />
+        <Entry key="guide.backups.howOften" entry={{
+          text: t('guide.backups.howOften.text'),
+          title: t('guide.backups.howOften.title'),
+        }} />
       </Guide>
     );
   case 'bitbox02':
     return (
       <Guide>
-        <Entry key="guide.backupsBB02.whatIsABackup" entry={t('guide.backupsBB02.whatIsABackup', { returnObjects: true })} />
-        <Entry key="guide.backupsBB02.encrypt" entry={t('guide.backupsBB02.encrypt', { returnObjects: true })} shown={true} />
-        <Entry key="guide.backupsBB02.check" entry={t('guide.backupsBB02.check', { returnObjects: true })} />
-        <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften', { returnObjects: true })} />
+        <Entry key="guide.backupsBB02.whatIsABackup" entry={{
+          text: t('guide.backupsBB02.whatIsABackup.text'),
+          title: t('guide.backupsBB02.whatIsABackup.title'),
+        }} />
+        <Entry key="guide.backupsBB02.encrypt" entry={{
+          text: t('guide.backupsBB02.encrypt.text'),
+          title: t('guide.backupsBB02.encrypt.title'),
+        }} shown={true} />
+        <Entry key="guide.backupsBB02.check" entry={{
+          text: t('guide.backupsBB02.check.text'),
+          title: t('guide.backupsBB02.check.title'),
+        }} />
+        <Entry key="guide.backups.howOften" entry={{
+          text: t('guide.backups.howOften.text'),
+          title: t('guide.backups.howOften.title'),
+        }} />
       </Guide>
     );
   default:

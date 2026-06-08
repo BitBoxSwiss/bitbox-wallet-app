@@ -13,61 +13,116 @@ jobs:
   setup-env:
     runs-on: ubuntu-22.04
     outputs:
-      ci_image: ${{ steps.set-ci-image.outputs.ci_image }}
+      ci_image_version: ${{ steps.set-ci-image-version.outputs.ci_image_version }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Read CI Image Version
-        id: set-ci-image
+        id: set-ci-image-version
         run: |
-          # Use alternative image when running on GitHub workflows CI to avoid potential
-          # rate limiting when executing jobs in parallel: they can't cache docker images
-          # and always pull.
-          #
-          # To update this image, generate a personal token with write:packages scope
-          # on https://github.com/settings/tokens and authenticate yourself locally with
-          # "docker login ghcr.io -u <github-username>" using the
-          # newly generated token as password.
-          # Once logged in, tag an new image:
-          #   docker tag shiftcrypto/bitbox-wallet-app:VERSION \
-          #     ghcr.io/bitboxswiss/bitbox-wallet-app-ci:VERSION
-          # and push as usual:
-          #   docker push ghcr.io/bitboxswiss/bitbox-wallet-app-ci:VERSION
-          # Lastly, update the next line to use the newly pushed image version.
-          # See docs for more details:
-          # https://docs.github.com/en/packages/guides/pushing-and-pulling-docker-images
-          #
           # Keep this in sync with default in scripts/github-ci.sh.
           CI_IMAGE_VERSION=$(cat .containerversion)
-          echo "ci_image=ghcr.io/bitboxswiss/bitbox-wallet-app-ci:$CI_IMAGE_VERSION" >> $GITHUB_OUTPUT
+          echo "ci_image_version=$CI_IMAGE_VERSION" >> $GITHUB_OUTPUT
 
   test-lint:
     runs-on: ubuntu-22.04
     needs: setup-env
+    container:
+      image: shiftcrypto/bitbox-wallet-app:${{ needs.setup-env.outputs.ci_image_version }}
     steps:
       - name: Clone the repo
         with:
           submodules: recursive
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Run CI script
         # The script also runs golang-ci but it's ok: doesn't take too long and may be useful
         # to keep its linter errors in this log, too.
         run: ./scripts/github-ci.sh ci
         env:
           OS_NAME: linux
-          CI_IMAGE: ${{ needs.setup-env.outputs.ci_image }}
+
+  playwright:
+    runs-on: ubuntu-latest
+    needs: test-lint
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [Chromium, WebKit]
+    name: Playwright (${{ matrix.project }})
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download simulator v9.24.0 from simulators.json
+        run: |
+          set -euo pipefail
+          simulator_url=$(jq -r '.[] | select(.url | contains("firmware%2Fv9.24.0/")) | .url' backend/devices/bitbox02/testdata/simulators.json)
+          simulator_sha=$(jq -r '.[] | select(.url | contains("firmware%2Fv9.24.0/")) | .sha256' backend/devices/bitbox02/testdata/simulators.json)
+          mkdir -p simulator-bin
+          curl -L "$simulator_url" -o simulator-bin/simulator
+          echo "$simulator_sha  simulator-bin/simulator" | sha256sum -c -
+          chmod +x simulator-bin/simulator
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          cache: npm
+          cache-dependency-path: frontends/web/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd frontends/web
+          npm ci --ignore-scripts
+
+      - name: Build frontend
+        run: |
+          cd frontends/web
+          npm run build
+
+      - name: Install Playwright browsers
+        run: |
+          cd frontends/web
+          if [ "${{ matrix.project }}" = "Chromium" ]; then
+            npx playwright install --with-deps chromium
+          else
+            npx playwright install --with-deps webkit
+          fi
+
+      - name: Setup Python 3
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.11
+
+      - name: Install Python dependencies
+        run: |
+          pip install ecdsa bech32
+
+      - name: Run Playwright tests
+        env:
+          PLAYWRIGHT_USE_PREBUILT_WEB: "1"
+          SIMULATOR_PATH: ${{ github.workspace }}/simulator-bin/simulator
+        run: cd frontends/web && npx playwright test --project="${{ matrix.project }}"
+
+      - name: Upload Playwright artifacts and logs.
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-artifacts-and-logs-${{ matrix.project }}
+          path: frontends/web/test-results/*
 
   android:
     runs-on: ubuntu-22.04
     needs: setup-env
     outputs:
       artifact-url: ${{ steps.upload.outputs.artifact-url }}
+    container:
+      image: shiftcrypto/bitbox-wallet-app:${{ needs.setup-env.outputs.ci_image_version }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Enable caching
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           key: ${{runner.os}}-android
           path: |
@@ -77,71 +132,73 @@ jobs:
         run: ./scripts/github-ci.sh android
         env:
           OS_NAME: linux
-          CI_IMAGE: ${{ needs.setup-env.outputs.ci_image }}
       - name: Upload APK
         id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          path: frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
+          path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
           name: BitBoxApp-android-${{github.sha}}.apk
           if-no-files-found: error
+
   qt-linux:
     runs-on: ubuntu-22.04
     needs: setup-env
+    container:
+      image: shiftcrypto/bitbox-wallet-app:${{ needs.setup-env.outputs.ci_image_version }}
     outputs:
       artifact-url-ai: ${{ steps.upload-ai.outputs.artifact-url }}
       artifact-url-deb: ${{ steps.upload-deb.outputs.artifact-url }}
       artifact-url-rpm: ${{ steps.upload-rpm.outputs.artifact-url }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Build Qt-Linux
         run: ./scripts/github-ci.sh qt-linux
         env:
           OS_NAME: linux
-          CI_IMAGE: ${{ needs.setup-env.outputs.ci_image }}
       - name: Upload AppImage
         id: upload-ai
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          path: frontends/qt/build/linux/BitBoxApp-*.AppImage
+          path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/BitBoxApp-*.AppImage
           name: BitBoxApp-linux-${{github.sha}}.AppImage
           if-no-files-found: error
       - name: Upload deb
         id: upload-deb
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          path: frontends/qt/build/linux/bitbox_*.deb
+          path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/bitbox_*.deb
           name: BitBoxApp-linux-${{github.sha}}.deb
           if-no-files-found: error
       - name: Upload rpm
         id: upload-rpm
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          path: frontends/qt/build/linux/bitbox-*.rpm
+          path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/bitbox-*.rpm
           name: BitBoxApp-linux-${{github.sha}}.rpm
           if-no-files-found: error
   macos:
-    runs-on: macos-14
+    runs-on: macos-15
     outputs:
       artifact-url: ${{ steps.upload.outputs.artifact-url }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.23.x
+          # Take Go version to install from go.mod.
+          go-version-file: 'go.mod'
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.x'
       - name: Install Qt
@@ -159,6 +216,15 @@ jobs:
           ./scripts/github-ci.sh qt-osx;
         env:
           OS_NAME: osx
+      - name: Ad-hoc sign BitBox.app
+        run: |
+          APP_PATH="$(go env GOPATH)/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/osx/BitBox.app"
+          echo "Signing app at $APP_PATH"
+          codesign --deep --force --verbose --sign - "$APP_PATH"
+      - name: Verify BitBox.app signature
+        run: |
+          APP_PATH="$(go env GOPATH)/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/osx/BitBox.app"
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
       - name: Archive app
         run: >
           pushd ~/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/osx;
@@ -166,22 +232,22 @@ jobs:
           popd;
       - name: Upload app
         id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           path: BitBoxApp-macos.zip
           name: BitBoxApp-macos-${{github.sha}}.zip
           if-no-files-found: error
   ios:
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       GO_SRC_DIR: src/github.com/BitBoxSwiss/bitbox-wallet-app
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           # Take Go version to install from go.mod.
           go-version-file: 'go.mod'
@@ -194,9 +260,9 @@ jobs:
           mkdir -p $GOPATH/$(dirname $GO_SRC_DIR)
           cp -a ${{github.workspace}} $GOPATH/$(dirname $GO_SRC_DIR)
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
       - name: Build iOS app
         run: |
           make gomobileinit
@@ -212,15 +278,15 @@ jobs:
       MINGW_BIN: /C/mingw64/bin
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           # Take Go version to install from go.mod
           go-version-file: 'go.mod'
@@ -244,11 +310,9 @@ jobs:
       - name: Build Windows app
         run: |
           make qt-windows
-          cd frontends/qt
-          makensis setup.nsi
       - name: Upload Installer
         id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           path: frontends/qt/BitBox-installer.exe
           name: BitBoxApp-windows-${{ github.sha }}.exe
@@ -260,11 +324,18 @@ jobs:
     if: ${{ !cancelled() && github.event_name == 'push' }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - name: Create vars
         id: vars
         run: |
-          echo "git_sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "git_sha_short=$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
+          {
+            echo "git_shortlog<<EOF"
+            git shortlog HEAD~..HEAD
+            echo EOF
+          } >> ${GITHUB_OUTPUT}
       - name: Message for success
         uses: mattermost/action-mattermost-notify@master
         continue-on-error: true
@@ -274,12 +345,15 @@ jobs:
           MATTERMOST_ICON_URL: https://cdn4.iconfinder.com/data/icons/basic-ui-2-line/32/check-mark-checklist-complete-done-512.png
           MATTERMOST_CHANNEL: eng-artifacts
           TEXT: |
-            **New artifacts built**
+            **${{ github.repository }}: Artifacts built**
             ([${{ github.ref_name }}](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}), [${{ steps.vars.outputs.git_sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}), [artifacts](https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}#artifacts))
             * Android - [APK](${{needs.android.outputs.artifact-url}})
             * Linux - [AppImage](${{needs.qt-linux.outputs.artifact-url-ai}}), [DEB](${{needs.qt-linux.outputs.artifact-url-deb}}), [RPM](${{needs.qt-linux.outputs.artifact-url-rpm}})
             * MacOS - [Zip](${{needs.macos.outputs.artifact-url}})
             * Windows - [EXE](${{needs.windows.outputs.artifact-url}})
+            ```
+            ${{ steps.vars.outputs.git_shortlog }}
+            ```
 
       - name: Message for failure
         uses: mattermost/action-mattermost-notify@master
@@ -297,11 +371,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: 'go.mod'
       - name: Run simulator tests

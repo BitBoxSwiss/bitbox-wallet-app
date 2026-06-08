@@ -1,18 +1,4 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { MutableRefObject, useContext, useEffect, useRef, useState } from 'react';
 import { t } from 'i18next';
@@ -26,7 +12,7 @@ import { TStage, WCIncomingSignRequestDialog } from './incoming-signing-request-
 type TSigningRequestData = {
   topic: string;
   id: number;
-}
+};
 
 export const WCSigningRequest = () => {
   const { web3wallet, isWalletInitialized } = useContext(WCWeb3WalletContext);
@@ -37,7 +23,7 @@ export const WCSigningRequest = () => {
   const requestDataRef = useRef<TSigningRequestData>();
 
   const launchSignDialog = ({ topic, id, apiCaller, dialogContent }: TLaunchSignDialog) => {
-    const { signingData, currentSession, accountAddress, accountName, chain, method } = dialogContent;
+    const { signingData, currentSession, accountAddress, accountName, chain, displayAddress, method } = dialogContent;
 
     // storing data to be used whenever
     // user accepts or rejects later
@@ -51,6 +37,7 @@ export const WCSigningRequest = () => {
     setDialogContent({
       accountAddress,
       accountName,
+      displayAddress,
       signingData,
       chain,
       currentSession,

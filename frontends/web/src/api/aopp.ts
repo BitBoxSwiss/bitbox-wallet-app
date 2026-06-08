@@ -1,56 +1,42 @@
-/**
- * Copyright 2021 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { AccountCode } from './account';
-import { apiGet, apiPost } from '@/utils/request';
+import type { AccountCode } from './account';
 import type { TUnsubscribe } from '@/utils/transport-common';
+import type { NonEmptyArray } from '@/utils/types';
+import { apiGet, apiPost } from '@/utils/request';
 import { subscribeEndpoint } from './subscribe';
 
-export interface Account {
-    name: string;
-    code: AccountCode;
-}
+type TAccount = {
+  name: string;
+  code: AccountCode;
+};
 
-interface Accounts extends Array<Account> {
-    0: Account,
-}
+type Accounts = NonEmptyArray<TAccount>;
 
 export type Aopp = {
-    state: 'error';
-    errorCode: 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
-    callback: string;
+  state: 'error';
+  errorCode: 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
+  callback: string;
 } | {
-    state: 'inactive';
+  state: 'inactive';
 } | {
-    state: 'user-approval' | 'awaiting-keystore' | 'syncing';
-    message: string;
-    callback: string;
-    xpubRequired: boolean;
+  state: 'user-approval' | 'awaiting-keystore' | 'syncing';
+  message: string;
+  callback: string;
+  xpubRequired: boolean;
 } | {
-    state: 'choosing-account';
-    accounts: Accounts;
-    message: string;
-    callback: string;
+  state: 'choosing-account';
+  accounts: Accounts;
+  message: string;
+  callback: string;
 } | {
-    state: 'signing' | 'success';
-    address: string;
-    addressID: string;
-    message: string;
-    callback: string;
-    accountCode: AccountCode;
+  state: 'signing' | 'success';
+  address: string;
+  displayAddress: string;
+  addressID: string;
+  message: string;
+  callback: string;
+  accountCode: AccountCode;
 };
 
 export const cancel = (): Promise<null> => {
@@ -61,7 +47,14 @@ export const approve = (): Promise<null> => {
   return apiPost('aopp/approve');
 };
 
-export const chooseAccount = (accountCode: AccountCode): Promise<null> => {
+type TChooseAccountResponse = {
+  success: true;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
+export const chooseAccount = (accountCode: AccountCode): Promise<TChooseAccountResponse> => {
   return apiPost('aopp/choose-account', { accountCode });
 };
 

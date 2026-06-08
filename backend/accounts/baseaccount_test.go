@@ -1,16 +1,4 @@
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package accounts
 
@@ -26,6 +14,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
@@ -117,6 +106,9 @@ func TestBaseAccount(t *testing.T) {
 		CodeFunc: func() coin.Code {
 			return coin.CodeTBTC
 		},
+		DecimalsFunc: func(isFee bool) uint {
+			return 8
+		},
 		SmallestUnitFunc: func() string {
 			return "satoshi"
 		},
@@ -175,7 +167,7 @@ func TestBaseAccount(t *testing.T) {
 		}
 
 		require.NoError(t, account.SetTxNote("test-tx-id", "another test note"))
-		require.Equal(t, types.EventStatusChanged, checkEvent())
+		require.Equal(t, types.EventTransactionsChanged, checkEvent())
 		require.Equal(t, "another test note", account.TxNote("test-tx-id"))
 
 		// Test notes migration from v4.27.0 to v4.28.0
@@ -186,6 +178,7 @@ func TestBaseAccount(t *testing.T) {
 		require.Equal(t, "legacy note in split account, p2wpkh-p2sh", account.TxNote("legacy-4"))
 		// Setting a note sets it in the main notes file, and wipes it out in legacy note files.
 		require.NoError(t, account.SetTxNote("legacy-1", "updated legacy note"))
+		require.Equal(t, types.EventTransactionsChanged, checkEvent())
 		require.Equal(t, "updated legacy note", account.TxNote("legacy-1"))
 	})
 
@@ -196,7 +189,7 @@ func TestBaseAccount(t *testing.T) {
 		return result.String()
 	}
 
-	const header = "Time,Type,Amount,Unit,Fee,Fee Unit,Address,Transaction ID,Note\n"
+	const header = "Time,Type,Amount,Unit,Fee,Fee Unit,Address,Transaction ID,Historical value,Historical value currency,Note\n"
 	fee := coin.NewAmountFromInt64(101)
 	timestamp := time.Date(2020, 2, 30, 16, 44, 20, 0, time.UTC)
 
@@ -207,9 +200,9 @@ func TestBaseAccount(t *testing.T) {
 		require.NoError(t, account.SetTxNote("some-internal-tx-id", "some note, with a comma"))
 		require.Equal(t,
 			header+
-				`2020-03-01T16:44:20Z,sent,123,satoshi,101,satoshi,some-address,some-tx-id,"some note, with a comma"
-2020-03-01T16:44:20Z,sent_to_yourself,456,satoshi,,,another-address,some-tx-id,"some note, with a comma"
-2020-03-01T16:44:20Z,received,789,satoshi,,,some-address-2,some-tx-id-2,
+				`2020-03-01T16:44:20Z,sent,123,satoshi,101,satoshi,some-address,some-tx-id,,,"some note, with a comma"
+2020-03-01T16:44:20Z,sent_to_yourself,456,satoshi,,,another-address,some-tx-id,,,"some note, with a comma"
+2020-03-01T16:44:20Z,received,789,satoshi,,,some-address-2,some-tx-id-2,,,
 `,
 			export(account, []*TransactionData{
 				{
@@ -254,6 +247,12 @@ func TestBaseAccount(t *testing.T) {
 			CodeFunc: func() coin.Code {
 				return "eth-erc20-usdt"
 			},
+			DecimalsFunc: func(isFee bool) uint {
+				if isFee {
+					return 18
+				}
+				return 6
+			},
 			SmallestUnitFunc: func() string {
 				return "wei"
 			},
@@ -273,9 +272,9 @@ func TestBaseAccount(t *testing.T) {
 		require.NoError(t, account.SetTxNote("some-internal-tx-id", "some note, with a comma"))
 		require.Equal(t,
 			header+
-				`2020-03-01T16:44:20Z,sent,123,USDT,101,wei,some-address,some-tx-id,"some note, with a comma"
-2020-03-01T16:44:20Z,sent_to_yourself,456,USDT,,,another-address,some-tx-id,"some note, with a comma"
-2020-03-01T16:44:20Z,received,789,USDT,,,some-address-2,some-tx-id-2,
+				`2020-03-01T16:44:20Z,sent,123,USDT,101,wei,some-address,some-tx-id,,,"some note, with a comma"
+2020-03-01T16:44:20Z,sent_to_yourself,456,USDT,,,another-address,some-tx-id,,,"some note, with a comma"
+2020-03-01T16:44:20Z,received,789,USDT,,,some-address-2,some-tx-id-2,,,
 `,
 			export(account, []*TransactionData{
 				{
@@ -314,5 +313,76 @@ func TestBaseAccount(t *testing.T) {
 					},
 				},
 			}))
+	})
+
+	t.Run("exportCSV with historical value", func(t *testing.T) {
+		rateUpdater := rates.MockRateUpdater()
+		defer rateUpdater.Stop()
+
+		mockCoin := &mocks.CoinMock{
+			CodeFunc: func() coin.Code {
+				return coin.CodeBTC
+			},
+			DecimalsFunc: func(isFee bool) uint {
+				return 8
+			},
+			SmallestUnitFunc: func() string {
+				return "satoshi"
+			},
+			UnitFunc: func(isFee bool) string {
+				return "BTC"
+			},
+			ToUnitFunc: func(amount coin.Amount, isFee bool) float64 {
+				amountInt64, _ := amount.Int64()
+				return float64(amountInt64) / 1e8
+			},
+			FormatAmountFunc: func(amount coin.Amount, isFee bool) string {
+				return amount.BigInt().String()
+			},
+			GetFormatUnitFunc: func(isFee bool) string {
+				return "BTC"
+			},
+		}
+		account := NewBaseAccount(&AccountConfig{
+			Config: &config.Account{
+				Code: "test",
+				Name: "Test",
+			},
+			DBFolder:        test.TstTempDir("baseaccount_test_dbfolder_rates"),
+			NotesFolder:     test.TstTempDir("baseaccount_test_notesfolder_rates"),
+			RateUpdater:     rateUpdater,
+			GetMainCurrency: func() string { return "USD" },
+			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
+		}, mockCoin, logging.Get().WithGroup("baseaccount_test"))
+		require.NoError(t, account.Initialize("test-account-identifier-rates"))
+
+		timestamp := time.Unix(1598832062, 0).UTC()
+		require.Equal(t,
+			header+
+				`2020-08-31T00:01:02Z,received,10000000,satoshi,,,address-1,some-tx-id,0.12,USD,
+2020-08-31T00:01:02Z,received,2345678,satoshi,,,address-2,some-tx-id,,,
+`,
+			export(account, []*TransactionData{
+				{
+					Type:       TxTypeReceive,
+					TxID:       "some-tx-id",
+					InternalID: "some-internal-tx-id",
+					Timestamp:  &timestamp,
+					Amount:     coin.NewAmountFromInt64(12345678),
+					Addresses: []AddressAndAmount{
+						{
+							Address: "address-1",
+							Amount:  coin.NewAmountFromInt64(10000000),
+							Ours:    false,
+						},
+						{
+							Address: "address-2",
+							Amount:  coin.NewAmountFromInt64(2345678),
+							Ours:    false,
+						},
+					},
+				},
+			}),
+		)
 	})
 }

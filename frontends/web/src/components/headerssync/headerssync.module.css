@@ -19,21 +19,20 @@
 }
 
 .syncMessage {
-    height: 16px;
+    height: var(--size-default);
     width: 100%;
     max-width: var(--content-width);
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
     color: var(--color-secondary);
     text-align: right;
     margin: 0 auto;
     margin-bottom: 1px;
-    padding: 0 var(--spacing-large);
+    padding: 0 var(--space-default);
 }
 
 .syncText {
     display: inline-block;
-    height: 100%;
-    font-variant: tabular-nums;
+    font-variant-numeric: tabular-nums;
 }
 
 .spinnerContainer {
@@ -51,7 +50,7 @@
     animation: changeContent .8s linear infinite;
     display: block;
     content: "⠋";
-    font-size: 14px;
+    font-size: var(--size-small);
     margin-left: 3px;
 }
 
@@ -69,12 +68,12 @@
 
 @media (max-width: 900px) {
     .syncMessage {
-        padding: 0 var(--spacing-default);
+        padding: 0 var(--space-half);
     }
 }
 
 @media (max-width: 640px) {
     .syncMessage {
-        padding: 0 var(--spacing-half);
+        padding: 0 var(--space-quarter);
     }
 }

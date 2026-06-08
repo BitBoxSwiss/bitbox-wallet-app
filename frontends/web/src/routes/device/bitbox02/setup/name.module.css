@@ -1,17 +1,16 @@
-/* TODO: ideally fontsize of those labels would just use the default from View component */
-.wizardLabel label {
-  font-size: var(--size-wizard-text) !important;
+.input {
+  margin-bottom: 0;
 }
 
-.inputError input,
-.inputError input:focus {
+.inputFieldError,
+.inputFieldError:focus-within {
   border-color: var(--color-danger);
 }
 
 .errorMessage {
   color: var(--color-danger);
   display: block;
-  font-size: var(--size-medium);
+  font-size: var(--size-default);
   padding-top: var(--space-quarter);
 }
 

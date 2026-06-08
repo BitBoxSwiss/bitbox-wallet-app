@@ -1,17 +1,4 @@
-// Copyright 2018 Shift Devices AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package keystore
 
@@ -21,6 +8,7 @@ import (
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/ethereum/go-ethereum/core/types"
 )
@@ -55,10 +43,26 @@ var (
 // ErrSigningAborted is used when the user aborts a signing in process (e.g. abort on HW wallet).
 var ErrSigningAborted = errors.New("signing aborted by user")
 
+// Event instances are emitted by keystore implementations.
+type Event string
+
+const (
+	// EventNameChanged is emitted when the keystore name changes.
+	EventNameChanged Event = "nameChanged"
+)
+
+// NameChangedEvent is the payload for EventNameChanged.
+type NameChangedEvent struct {
+	Name            string
+	RootFingerprint []byte
+}
+
 // Keystore supports hardened key derivation according to BIP32 and signing of transactions.
 //
 //go:generate moq -pkg mocks -out mocks/keystore.go . Keystore
 type Keystore interface {
+	observable.Interface
+
 	// Type denotes the type of the keystore.
 	Type() Type
 
@@ -77,15 +81,6 @@ type Keystore interface {
 	// SupportsAccount returns true if they keystore supports the given coin/account.
 	// meta is a coin-specific metadata related to the account type.
 	SupportsAccount(coinInstance coin.Coin, meta interface{}) bool
-
-	// SupportsUnifiedAccounts returns true if the keystore supports signing transactions with mixed
-	// input script types in BTC/LTC, for single-sig accounts.
-	// If false, the backend will add one account per supported script type.
-	SupportsUnifiedAccounts() bool
-
-	// SupportsMultipleAccounts returns true if the keystore can handle more than one account per
-	// coin.
-	SupportsMultipleAccounts() bool
 
 	// CanVerifyAddress returns whether the keystore supports to output an address securely.
 	// This is typically done through a screen on the device or through a paired mobile phone.
@@ -113,19 +108,24 @@ type Keystore interface {
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(coin.Coin, signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 
+	// BTCXPubs returns the xpubs at the given keypaths. It attempts to fetch them in one go if
+	// possible.
+	BTCXPubs(coin.Coin, []signing.AbsoluteKeypath) ([]*hdkeychain.ExtendedKey, error)
+
 	// CanSignMessage returns true if the keystore can sign a message for a coin.
 	CanSignMessage(coin.Code) bool
 
 	// SignBTCMessage signs the message using the private key at the keypath. The scriptType is
 	// required to compute and verify the address. The returned signature is a 65 byte signature in
 	// Electrum format.
-	SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error)
+	SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coin.Code) ([]byte, error)
 
-	// SignETHMessage signs the message using the private key at the keypath. The result contains a
+	// SignETHMessage signs the message using the private key at the keypath for the given chain ID.
+	// The result contains a
 	// 65 byte signature. The first 64 bytes are the secp256k1 signature in / compact format (R and
 	// S values), and the last byte is the recoverable id (recid). 27 is added to the recID to denote
 	// an uncompressed pubkey. Returns ErrSigningAborted if the user aborts.
-	SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
+	SignETHMessage(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
 
 	// ETHSignTypedMessage signs an Ethereum EIP-712 typed message. The result contains a
 	// 65 byte signature. The first 64 bytes are the secp256k1 signature in / compact format (R and
@@ -146,4 +146,18 @@ type Keystore interface {
 
 	// SupportsPaymentRequests returns nil if the device supports silent payments, or an error indicating why it is not supported.
 	SupportsPaymentRequests() error
+
+	// SupportsSwapPaymentRequests reports whether the device supports swap payment requests, or an
+	// error indicating why it is not supported.
+	SupportsSwapPaymentRequests() error
+
+	// Features reports optional capabilities supported by this keystore.
+	Features() *Features
+}
+
+// Features enumerates optional capabilities that can differ per keystore implementation.
+type Features struct {
+	// SupportsSendToSelf indicates whether the keystore can explicitly verify outputs that belong to
+	// the same keystore (used for the send-to-self recipient dropdown flow).
+	SupportsSendToSelf bool `json:"supportsSendToSelf"`
 }

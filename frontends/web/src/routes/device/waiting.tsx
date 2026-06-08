@@ -1,18 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -48,7 +34,7 @@ export const Waiting = () => {
   useEffect(() => {
     const deviceValues = Object.values(devices);
     if (deviceValues.length === 1 && deviceValues[0] === 'bitbox') {
-      navigate(`settings/device-settings/${Object.keys(devices)[0]}`);
+      navigate(`settings/device-settings/${Object.keys(devices)[0] as string}`);
     }
   }, [devices, navigate]);
 
@@ -64,7 +50,7 @@ export const Waiting = () => {
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header title={<h2>{t('welcome.title')}</h2>}>
             <OutlinedSettingsButton />
@@ -74,7 +60,7 @@ export const Waiting = () => {
               <div>
                 {isDarkMode ? (<AppLogoInverted />) : (<AppLogo />)}
                 <p className={style.waitingText}>
-                  {t('welcome.message')}
+                  {runningInIOS() ? t('welcome.messageIOS') : t('welcome.message')}
                 </p>
                 <Bluetooth />
               </div>
@@ -86,7 +72,10 @@ export const Waiting = () => {
         </Footer>
       </GuidedContent>
       <Guide>
-        <Entry entry={t('guide.waiting.welcome', { returnObjects: true })} shown={true} />
+        <Entry entry={{
+          text: t('guide.waiting.welcome.text'),
+          title: t('guide.waiting.welcome.title'),
+        }} shown={true} />
         { runningInIOS() && (
           <Entry entry={{
             link: {
@@ -115,8 +104,14 @@ export const Waiting = () => {
           text: t('guide.waiting.lostDevice.text'),
           title: t('guide.waiting.lostDevice.title'),
         }} />
-        <Entry entry={t('guide.waiting.internet', { returnObjects: true })} />
-        <Entry entry={t('guide.waiting.useWithoutDevice', { returnObjects: true })} />
+        <Entry entry={{
+          text: t('guide.waiting.internet.text'),
+          title: t('guide.waiting.internet.title'),
+        }} />
+        <Entry entry={{
+          text: t('guide.waiting.useWithoutDevice.text'),
+          title: t('guide.waiting.useWithoutDevice.title'),
+        }} />
       </Guide>
     </GuideWrapper>
   );

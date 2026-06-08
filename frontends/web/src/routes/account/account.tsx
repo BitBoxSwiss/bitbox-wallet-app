@@ -1,62 +1,47 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2022-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
-import { statusChanged, syncAddressesCount, syncdone } from '@/api/accountsync';
-import { bitsuranceLookup } from '@/api/bitsurance';
+import { statusChanged, syncAddressesCount, syncdone, transactionsChanged } from '@/api/accountsync';
 import { TDevices } from '@/api/devices';
-import { getExchangeSupported, SupportedExchanges } from '@/api/exchanges';
-import { useSDCard } from '@/hooks/sdcard';
-import { alertUser } from '@/components/alert/Alert';
+import { getMarketVendors, MarketVendors } from '@/api/market';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
-import { Info } from '@/components/icon';
+import { InfoBlue, LoupeBlue } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 import { useLoad, useSubscribe, useSync } from '@/hooks/api';
+import { useBitsurance } from '@/hooks/bitsurance';
+import { useDebounce } from '@/hooks/debounce';
+import { useScrollIntoView } from '@/hooks/scroll-into-view';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
 import { AccountGuide } from './guide';
 import { BuyReceiveCTA } from './info/buy-receive-cta';
 import { isBitcoinBased } from './utils';
-import { getScriptName } from './utils';
 import { MultilineMarkup } from '@/utils/markup';
 import { Dialog } from '@/components/dialog/dialog';
 import { A } from '@/components/anchor/anchor';
-import { getConfig, setConfig } from '@/utils/config';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
-import { Transaction } from '@/components/transactions/transaction';
+import { TransactionList } from './components/transaction-list';
 import { TransactionDetails } from '@/components/transactions/details';
-import { Button } from '@/components/forms';
+import { Button, SearchInput } from '@/components/forms';
 import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
-import style from './account.module.css';
 import { RatesContext } from '@/contexts/RatesContext';
+import { OfflineError } from '@/components/banners/offline-error';
+import style from './account.module.css';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 type Props = {
-  accounts: accountApi.IAccount[];
+  accounts: accountApi.TAccount[];
   code: accountApi.AccountCode;
   devices: TDevices;
 };
@@ -69,6 +54,17 @@ export const Account = (props: Props) => {
   return <RemountAccount key={props.code} {...props} />;
 };
 
+const getBitsuranceGuideLink = (
+  resolvedLanguage: string | undefined,
+): string => {
+  switch (resolvedLanguage) {
+  case 'de':
+    return 'https://bitbox.swiss/redirects/bitsurance-segwit-migration-guide-de/';
+  default:
+    return 'https://bitbox.swiss/redirects/bitsurance-segwit-migration-guide-en/';
+  }
+};
+
 // Re-mounted when `code` changes, and `code` is guaranteed to be non-empty.
 const RemountAccount = ({
   accounts,
@@ -76,80 +72,54 @@ const RemountAccount = ({
   devices,
 }: Props) => {
   const { t } = useTranslation();
-
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const { btcUnit } = useContext(RatesContext);
 
-  const [balance, setBalance] = useState<accountApi.IBalance>();
-  const status: accountApi.IStatus | undefined = useSync(
+  const [balance, setBalance] = useState<accountApi.TBalance>();
+  const status: accountApi.TStatus | undefined = useSync(
     () => accountApi.getStatus(code),
     cb => statusChanged(code, cb),
   );
   const syncedAddressesCount = useSubscribe(syncAddressesCount(code));
   const [transactions, setTransactions] = useState<accountApi.TTransactions>();
-  const [usesProxy, setUsesProxy] = useState<boolean>();
-  const [insured, setInsured] = useState<boolean>(false);
-  const [uncoveredFunds, setUncoveredFunds] = useState<string[]>([]);
-  const [detailID, setDetailID] = useState<accountApi.ITransaction['internalID'] | null>(null);
-  const supportedExchanges = useLoad<SupportedExchanges>(getExchangeSupported(code), [code]);
+  const [detailID, setDetailID] = useState<accountApi.TTransaction['internalID'] | null>(null);
+  const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 200);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
-  const getBitsuranceGuideLink = (): string => {
-    switch (i18n.resolvedLanguage) {
-    case 'de':
-      return 'https://bitbox.swiss/redirects/bitsurance-segwit-migration-guide-de/';
-    default:
-      return 'https://bitbox.swiss/redirects/bitsurance-segwit-migration-guide-en/';
-    }
-  };
+  const { insured, uncoveredFunds, clearUncoveredFunds } = useBitsurance(code, account);
 
-  const checkUncoveredUTXOs = useCallback(async () => {
-    const uncoveredScripts: accountApi.ScriptType[] = [];
-    const utxos = await accountApi.getUTXOs(code);
-    utxos.forEach((utxo) => {
-      if (utxo.scriptType !== 'p2wpkh' && !uncoveredScripts.includes(utxo.scriptType)) {
-        uncoveredScripts.push(utxo.scriptType);
-      }
+  const loadingTransactions = transactions?.success === undefined;
+  const hasTransactions = transactions?.success && transactions.list.length > 0;
+
+  const filteredTransactions = useMemo(() => {
+    if (!transactions?.success) {
+      return [];
+    }
+
+    if (!debouncedSearchTerm.trim()) {
+      return transactions.list;
+    }
+
+    const searchLower = debouncedSearchTerm.toLowerCase().trim();
+
+    return transactions.list.filter(tx => {
+      const noteMatch = tx.note?.toLowerCase().includes(searchLower);
+      const addressMatch = tx.addresses?.some(address =>
+        address.toLowerCase().includes(searchLower)
+      );
+      const txIdMatch = tx.txID?.toLowerCase().includes(searchLower);
+
+      return noteMatch || addressMatch || txIdMatch;
     });
-    setUncoveredFunds(uncoveredScripts.map(getScriptName));
-  }, [code]);
+  }, [transactions, debouncedSearchTerm]);
 
-  const maybeCheckBitsuranceStatus = useCallback(async () => {
-    if (account?.bitsuranceStatus) {
-      const insuredAccounts = await bitsuranceLookup(code);
-      if (!insuredAccounts.success) {
-        alertUser(insuredAccounts.errorMessage || t('genericError'));
-        return;
-      }
-
-      // we fetch the config after the lookup as it could have changed.
-      const config = await getConfig();
-      let cancelledAccounts: string[] = config.frontend.bitsuranceNotifyCancellation;
-      if (cancelledAccounts?.some(accountCode => accountCode === code)) {
-        alertUser(t('account.insuranceExpired'));
-        // remove the pending notification from the frontend settings.
-        config.frontend.bitsuranceNotifyCancellation = cancelledAccounts.filter(accountCode => accountCode !== code);
-        setConfig(config);
-      }
-
-      let bitsuranceAccount = insuredAccounts.bitsuranceAccounts[0];
-      if (bitsuranceAccount.status === 'active') {
-        setInsured(true);
-        checkUncoveredUTXOs();
-        return;
-      }
-    }
-    setInsured(false);
-  }, [t, account, code, checkUncoveredUTXOs]);
-
-  useEffect(() => {
-    maybeCheckBitsuranceStatus();
-    getConfig().then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
-  }, [maybeCheckBitsuranceStatus]);
-
-  const hasCard = useSDCard(devices, [code]);
-
-  const onAccountChanged = useCallback((status: accountApi.IStatus | undefined) => {
+  const onAccountChanged = useCallback((status: accountApi.TStatus | undefined) => {
     if (status === undefined || status.fatalError) {
       return;
     }
@@ -181,21 +151,25 @@ const RemountAccount = ({
   }, [code, onAccountChanged, status]);
 
   useEffect(() => {
+    return transactionsChanged(code, setTransactions);
+  }, [code]);
+
+  useEffect(() => {
     onAccountChanged(status);
   }, [btcUnit, onAccountChanged, status]);
 
-  const exportAccount = () => {
-    if (status === undefined || status.fatalError) {
-      return;
+  // <Main> has overflow-y:auto, so window.scrollBy has no effect.
+  // Thus, need to use useScrollIntoView.
+  const scrollSearchIntoView = useScrollIntoView(searchInputRef, 48);
+
+  useEffect(() => {
+    if (showSearchBar && searchInputRef.current) {
+      searchInputRef.current.focus();
+      if (isMobile) {
+        setTimeout(scrollSearchIntoView, 500);
+      }
     }
-    accountApi.exportAccount(code)
-      .then(result => {
-        if (result !== null && !result.success) {
-          alertUser(result.errorMessage);
-        }
-      })
-      .catch(console.error);
-  };
+  }, [showSearchBar, scrollSearchIntoView, isMobile]);
 
   const hasDataLoaded = balance !== undefined && transactions !== undefined;
 
@@ -209,16 +183,6 @@ const RemountAccount = ({
     );
   }
 
-  // Status: offline error
-  const offlineErrorTextLines: string[] = [];
-  if (status !== undefined && status.offlineError !== null) {
-    offlineErrorTextLines.push(t('account.reconnecting'));
-    offlineErrorTextLines.push(status.offlineError);
-    if (usesProxy) {
-      offlineErrorTextLines.push(t('account.maybeProxyError'));
-    }
-  }
-
   // Status: not synced
   const notSyncedText = (status !== undefined && !status.synced && syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
     '\n' + t('account.syncedAddressesCount', {
@@ -227,7 +191,7 @@ const RemountAccount = ({
     } as any)
   ) : '';
 
-  const exchangeSupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
+  const exchangeSupported = supportedVendors && supportedVendors.vendors.length > 0;
 
   const isAccountEmpty = balance
     && !balance.hasAvailable
@@ -246,32 +210,33 @@ const RemountAccount = ({
     account
   };
 
-  const loadingTransactions = transactions?.success === undefined;
-  const hasTransactions = transactions?.success && transactions.list.length > 0;
-
   return (
     <GuideWrapper>
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
-            <Status hidden={!hasCard} type="warning">
-              {t('warning.sdcard')}
-            </Status>
-            <Status className={style.status} hidden={status === undefined || !status.offlineError} type="error">
-              {offlineErrorTextLines.join('\n')}
-            </Status>
-            <Status className={style.status} hidden={status === undefined || status.synced || !!status.offlineError} type="info">
+            <OfflineError error={status?.offlineError} />
+            <GlobalBanners code={code} devices={devices} />
+            <Message
+              className={style.status}
+              hidden={status === undefined || status.synced || !!status.offlineError}
+              type="info">
               {t('account.initializing')}
               {notSyncedText}
-            </Status>
+            </Message>
           </ContentWrapper>
-          <Dialog open={insured && uncoveredFunds.length !== 0} medium title={t('account.warning')} onClose={() => setUncoveredFunds([])}>
+          <Dialog
+            open={insured && uncoveredFunds.length !== 0}
+            medium
+            title={t('account.warning')}
+            onClose={clearUncoveredFunds}>
             <MultilineMarkup tagName="p" markup={t('account.uncoveredFunds', {
               name: account.name,
               uncovered: uncoveredFunds,
             })} />
-            <A href={getBitsuranceGuideLink()}>{t('account.uncoveredFundsLink')}</A>
+            <A href={getBitsuranceGuideLink(i18n.resolvedLanguage)}>
+              {t('account.uncoveredFundsLink')}
+            </A>
           </Dialog>
           <Header
             title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
@@ -279,7 +244,7 @@ const RemountAccount = ({
               to={`/account/${code}/info`}
               title={t('accountInfo.title')}
               className={style.accountInfoLink}>
-              <Info className={style.accountIcon} />
+              <InfoBlue className={style.accountIcon} />
               <span className="hide-on-small">
                 {t('accountInfo.label')}
               </span>
@@ -291,21 +256,17 @@ const RemountAccount = ({
           )}
           <View>
             <ViewHeader>
-              <label className="labelXLarge">
-                {t('accountSummary.availableBalance')}
-              </label>
               <div className={style.balanceHeader}>
                 <Balance balance={balance} />
                 {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
               </div>
             </ViewHeader>
-            <ViewContent fullWidth>
+            <ViewContent>
               <div className={style.accountHeader}>
                 {isAccountEmpty && (
                   <BuyReceiveCTA
                     account={account}
                     code={code}
-                    exchangeSupported={exchangeSupported}
                     unit={balance.available.unit}
                     balanceList={[balance]}
                   />
@@ -316,37 +277,59 @@ const RemountAccount = ({
                     {t('transactions.errorLoadTransactions')}
                   </p>
                 ) : !isAccountEmpty && (
-                  <SubTitle className={style.titleWithButton}>
-                    {t('accountSummary.transactionHistory')}
-                    <Button
-                      transparent
-                      disabled={!hasTransactions}
-                      className={style.exportButton}
-                      onClick={exportAccount}
-                      title={t('account.exportTransactions')}>
-                      {t('account.export')}
-                    </Button>
-                  </SubTitle>
+                  <>
+                    <div className={style.titleRow}>
+                      <SubTitle className={style.titleWithButton}>
+                        {t('accountSummary.transactionHistory')}
+                      </SubTitle>
+
+                      <Button
+                        className={style.searchButton}
+                        transparent
+                        disabled={!hasTransactions}
+                        onClick={() => {
+                          if (showSearchBar) {
+                            setShowSearchBar(false);
+                            setSearchTerm('');
+                          } else {
+                            setShowSearchBar(true);
+                          }
+                        }}
+                      >
+                        {showSearchBar ? (
+                          <>✕ {t('generic.close')}</>
+                        ) : (
+                          <>
+                            <LoupeBlue className={style.loupe} />
+                            {t('generic.searchButton')}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+
+                    <div className={`
+                      ${style.searchContainer || ''}
+                      ${!showSearchBar && style.searchHidden || ''}
+                    `}>
+                      <SearchInput
+                        ref={searchInputRef}
+                        placeholder={t('accountSummary.searchPlaceholder')}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.currentTarget.value)}
+                      />
+                    </div>
+                  </>
                 )}
               </div>
 
               {loadingTransactions && <TransactionHistorySkeleton />}
 
-              {hasTransactions ? (
-                transactions.list.map(tx => (
-                  <Transaction
-                    key={tx.internalID}
-                    onShowDetail={(internalID: accountApi.ITransaction['internalID']) => {
-                      setDetailID(internalID);
-                    }}
-                    {...tx}
-                  />
-                ))
-              ) : transactions?.success && (
-                <p className={style.emptyTransactions}>
-                  {t('transactions.placeholder')}
-                </p>
-              )}
+              <TransactionList
+                transactionSuccess={transactions?.success ?? false}
+                filteredTransactions={filteredTransactions}
+                debouncedSearchTerm={debouncedSearchTerm}
+                onShowDetail={setDetailID}
+              />
 
               <TransactionDetails
                 accountCode={code}
@@ -363,7 +346,7 @@ const RemountAccount = ({
         unit={balance?.available.unit}
         hasIncomingBalance={balance && balance.hasIncoming}
         hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
-        hasNoBalance={balance && balance.available.amount === '0'}
+        hasNoBalance={balance && !balance.hasAvailable}
       />
     </GuideWrapper>
   );

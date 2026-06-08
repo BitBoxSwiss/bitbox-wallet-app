@@ -1,25 +1,11 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { Button, Input } from '@/components/forms';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
-import { getDeviceInfo, setDeviceName } from '@/api/bitbox02';
+import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
+import { getDeviceInfo, setDeviceName, errUserAbort } from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { DeviceNameErrorMessage } from '@/routes/device/bitbox02/setup/name';
@@ -29,7 +15,7 @@ import nameStyle from '@/routes/device/bitbox02/setup/name.module.css';
 type TDeviceNameSettingProps = {
   deviceName: string;
   deviceID: string;
-}
+};
 
 type TDialogProps = {
   open: boolean;
@@ -38,11 +24,11 @@ type TDialogProps = {
   onInputChange: (value: string) => void;
   name: string;
   handleUpdateName: () => void;
-}
+};
 
 type TWaitDialogProps = {
   inProgress: boolean;
-}
+};
 
 const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) => {
   const { t } = useTranslation();
@@ -57,6 +43,11 @@ const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) =>
     try {
       const setNameResult = await setDeviceName(deviceID, name);
       if (!setNameResult.success) {
+        // Distinguish “user aborted” (code 104) from other failures
+        if (setNameResult.code === errUserAbort) {
+          alertUser(t('bitbox02Settings.deviceName.error_104'));
+          return;
+        }
         throw new Error(setNameResult.message);
       }
       const deviceInfoResult = await getDeviceInfo(deviceID);
@@ -110,29 +101,24 @@ const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, name, 
       onClose={onClose}
       title={t('bitbox02Settings.deviceName.title')}
       small>
-      <div className="columnsContainer half">
-        <div className="columns half">
-          <div className="column">
-            <label>
-              {t('bitbox02Settings.deviceName.current')}
-            </label>
-            <p className="m-bottom-half">
-              {currentName}
-            </p>
-          </div>
-          <div className="column">
-            <Input
-              className={`m-none ${error && !nameIsTooShort ? nameStyle.inputError : ''}`}
-              label={t('bitbox02Settings.deviceName.input')}
-              onInput={(e) => onInputChange(e.target.value)}
-              placeholder={t('bitbox02Settings.deviceName.placeholder')}
-              value={name}
-              id="deviceName"
-            />
-            <DeviceNameErrorMessage error={error} invalidChars={invalidChars} />
-          </div>
-        </div>
-      </div>
+      <DialogScrollContent>
+        <p className="m-top-none m-bottom-half">
+          {t('bitbox02Settings.deviceName.current')}
+          <br />
+          {currentName}
+        </p>
+        <Input
+          autoFocus
+          className={nameStyle.input}
+          classNameInputField={error && !nameIsTooShort ? nameStyle.inputFieldError : ''}
+          label={t('bitbox02Settings.deviceName.input')}
+          onInput={(e) => onInputChange(e.target.value)}
+          placeholder={t('bitbox02Settings.deviceName.placeholder')}
+          value={name}
+          id="deviceName"
+        />
+        <DeviceNameErrorMessage error={error} invalidChars={invalidChars} />
+      </DialogScrollContent>
       <DialogButtons>
         <Button
           primary

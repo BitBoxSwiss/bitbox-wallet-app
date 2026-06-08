@@ -1,52 +1,42 @@
-# Copyright 2018 Shift Devices AG
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 SHELL    := /bin/bash
 WEBROOT  := frontends/web
 
+include version.mk.inc
+
+GO_LDFLAGS := $(GO_VERSION_LDFLAGS)
+GO_RUN := go run -mod=vendor -ldflags "$(GO_LDFLAGS)"
+
 catch:
 	@echo "Choose a make target."
 envinit:
-	# Keep golangci-lint version in sync with what's in .github/workflows/ci.yml.
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.61.0
-	go install github.com/vektra/mockery/v2@v2.46.0
-	go install github.com/matryer/moq@v0.4.0
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v2.9.0
+	go install github.com/vektra/mockery/v2@v2.53.5
+	go install github.com/matryer/moq@v0.6.0
 	go install golang.org/x/tools/cmd/goimports@latest
 	$(MAKE) gomobileinit
 gomobileinit:
 	# TODO: replace with go install golang.org/x/mobile/cmd/gomobile@latest once https://github.com/golang/mobile/pull/105 is merged.
-	git clone https://github.com/BitBoxSwiss/mobile.git /tmp/mobile && cd /tmp/mobile/cmd/gomobile && go install .
+	git clone -b bitbox-20260215 https://github.com/BitBoxSwiss/mobile.git /tmp/mobile && cd /tmp/mobile/cmd/gomobile && go install .
 	gomobile init
 servewallet:
-	go run -mod=vendor ./cmd/servewallet
-servewallet-reload:
-	@echo "Starting servewallet with auto-reload on Go file changes..."
-	@command -v air >/dev/null 2>&1 || { echo "Installing air for auto-reload..."; go install github.com/air-verse/air@latest; }
-	air -c scripts/air.toml
+	$(GO_RUN) ./cmd/servewallet
 servewallet-mainnet:
-	go run -mod=vendor ./cmd/servewallet -mainnet
+	$(GO_RUN) ./cmd/servewallet -mainnet
 servewallet-regtest:
-	rm -f appfolder.dev/cache/headers-rbtc.bin && rm -rf appfolder.dev/cache/account-*rbtc* && go run -mod=vendor ./cmd/servewallet -regtest
+	rm -f appfolder.dev/cache/headers-rbtc.bin && rm -rf appfolder.dev/cache/account-*rbtc* && $(GO_RUN) ./cmd/servewallet -regtest
 servewallet-prodservers:
-	go run -mod=vendor ./cmd/servewallet -devservers=false
+	$(GO_RUN) ./cmd/servewallet -devservers=false
 servewallet-mainnet-prodservers:
-	go run -mod=vendor ./cmd/servewallet -mainnet -devservers=false
+	$(GO_RUN) ./cmd/servewallet -mainnet -devservers=false
+servewallet-simulator:
+	$(GO_RUN) ./cmd/servewallet -simulator=true
 buildweb:
 	node --version
 	npm --version
 	rm -rf ${WEBROOT}/build
-	cd ${WEBROOT} && npm ci
+	cd ${WEBROOT} && npm ci --ignore-scripts
 	cd ${WEBROOT} && npm run build
 webdev:
 	cd ${WEBROOT} && $(MAKE) dev
@@ -58,6 +48,10 @@ webtest:
 	cd ${WEBROOT} && $(MAKE) jstest
 webtestwatch:
 	cd ${WEBROOT} && $(MAKE) jstest-watch
+webserve:
+	cd ${WEBROOT} && $(MAKE) serve
+webe2etest:
+	cd ${WEBROOT} && $(MAKE) test-e2e
 qt-linux: # run inside dockerdev
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) linux
@@ -69,8 +63,10 @@ qt-windows:
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) windows
 android:
-	$(MAKE) buildweb
 	cd frontends/android && ${MAKE} apk-debug
+# Create signed .apk and .aab.
+android-assemble-release:
+	cd frontends/android && ${MAKE} assemble-release
 ios:
 	cd frontends/ios && ${MAKE} build
 osx-sec-check:
@@ -93,11 +89,9 @@ dockerinit:
 	./scripts/container.sh build --platform linux/amd64 --pull -t shiftcrypto/bitbox-wallet-app:$(shell cat .containerversion) .
 dockerdev:
 	./scripts/dockerdev.sh
-locize-push:
-	cd ${WEBROOT}/src/locales && locize sync
-locize-pull:
-	cd ${WEBROOT}/src/locales && locize download
-locize-fix:
-	locize format ${WEBROOT}/src/locales --format json
 go-vendor:
 	go mod vendor
+update-bitbox02-api-go:
+	./scripts/update-bitbox02-api-go.sh
+update-btc-checkpoints:
+	go run cmd/playground/update_btc_checkpoints/main.go

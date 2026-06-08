@@ -1,0 +1,115 @@
+.loadingWrap {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 220px;
+}
+
+.fieldLabel {
+  color: var(--color-secondary);
+  display: block;
+  font-size: var(--size-default);
+  margin: var(--space-half) 0 var(--space-quarter);
+}
+
+.copyableInput {
+  overflow: auto !important;
+}
+
+.copyableInputMessage {
+  min-height: 112px;
+}
+
+.messageTextarea,
+.messageDisplay {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-quaternary);
+  border-radius: var(--radius-xl);
+  color: var(--color-default);
+  font-size: var(--size-default);
+  line-height: 1.3;
+  margin-bottom: var(--space-default);
+  min-height: 112px;
+  padding: var(--space-three-quarter);
+  width: 100%;
+}
+
+.messageTextarea {
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  transition: border-color .2s ease-out;
+  will-change: border-color;
+}
+
+.messageTextarea:focus {
+  border-color: var(--color-blue);
+}
+
+.messageDisplay {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.signSubtitle {
+  color: var(--color-secondary);
+  font-size: var(--size-default);
+  margin: 0 0 var(--space-default);
+  text-align: center;
+}
+
+.signingText {
+  color: var(--color-secondary);
+  margin: 0;
+  text-align: center;
+}
+
+.successMessage {
+  align-items: center;
+  color: var(--color-secondary);
+  display: flex;
+  font-size: var(--size-default);
+  gap: var(--space-quarter);
+  justify-content: center;
+  margin-bottom: var(--space-half);
+}
+
+.successIcon {
+  height: 18px;
+  width: 18px;
+}
+
+.footerButtons {
+  align-items: center;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: var(--space-half);
+  justify-content: space-between;
+  margin-top: var(--space-default);
+}
+
+.footerButtonsLeft {
+  justify-content: flex-end;
+}
+
+.backButtonWrap {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .footerButtons {
+    flex-direction: column;
+  }
+
+  .footerButtons > * {
+    width: 100%;
+  }
+
+  .backButtonWrap {
+    display: none;
+  }
+}
+
+.confirmViewTitle {
+  text-align: center;
+}

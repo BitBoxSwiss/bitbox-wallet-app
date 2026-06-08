@@ -1,16 +1,4 @@
-// Copyright 2023 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package config
 
@@ -40,7 +28,7 @@ func TestNewConfig(t *testing.T) {
 
 	accountsJsonBytes, err := os.ReadFile(accountsConfigFilename)
 	require.NoError(t, err)
-	expectedAccountsJsonBytes, err := json.Marshal(newDefaultAccountsonfig())
+	expectedAccountsJsonBytes, err := json.Marshal(newDefaultAccountsConfig())
 	require.NoError(t, err)
 	require.JSONEq(t, string(expectedAccountsJsonBytes), string(accountsJsonBytes))
 
@@ -124,4 +112,88 @@ func TestMigrationsAtLoad(t *testing.T) {
 	cfg3, err := NewConfig(appConfigFilename, accountsConfigFilename)
 	require.NoError(t, err)
 	require.Equal(t, cfg2, cfg3)
+}
+
+func TestMigrateElectrumXUpgradesLegacyDefaultServers(t *testing.T) {
+	appconf := AppConfig{
+		Backend: Backend{
+			BTC: btcCoinConfig{
+				ElectrumServers: []*ServerInfo{
+					{
+						Server:  "btc1.shiftcrypto.io:50001",
+						TLS:     true,
+						PEMCert: "",
+					},
+					{
+						Server:  "btc2.shiftcrypto.io:50002",
+						TLS:     true,
+						PEMCert: "",
+					},
+				},
+			},
+			LTC: btcCoinConfig{
+				ElectrumServers: []*ServerInfo{
+					{
+						Server:  "ltc1.shiftcrypto.io:50011",
+						TLS:     true,
+						PEMCert: "",
+					},
+					{
+						Server:  "ltc2.shiftcrypto.io:50012",
+						TLS:     true,
+						PEMCert: "",
+					},
+				},
+			},
+		},
+	}
+
+	migrateElectrumX(&appconf)
+
+	require.Equal(t, defaultBTCElectrumServers, serverAddresses(appconf.Backend.BTC.ElectrumServers))
+	require.Equal(t, defaultLTCElectrumServers, serverAddresses(appconf.Backend.LTC.ElectrumServers))
+	for _, server := range appconf.Backend.BTC.ElectrumServers {
+		require.True(t, server.TLS)
+		require.Equal(t, shiftRootCA, server.PEMCert)
+	}
+	for _, server := range appconf.Backend.LTC.ElectrumServers {
+		require.True(t, server.TLS)
+		require.Equal(t, shiftRootCA, server.PEMCert)
+	}
+}
+
+func TestMigrateElectrumXLeavesCustomServersUntouched(t *testing.T) {
+	appconf := AppConfig{
+		Backend: Backend{
+			BTC: btcCoinConfig{
+				ElectrumServers: []*ServerInfo{
+					{
+						Server:  "btc1.shiftcrypto.io:443",
+						TLS:     true,
+						PEMCert: shiftRootCA,
+					},
+					{
+						Server:  "custom.example.com:50002",
+						TLS:     true,
+						PEMCert: "custom-cert",
+					},
+				},
+			},
+		},
+	}
+
+	migrateElectrumX(&appconf)
+
+	require.Equal(t, []string{
+		"btc1.shiftcrypto.io:443",
+		"custom.example.com:50002",
+	}, serverAddresses(appconf.Backend.BTC.ElectrumServers))
+}
+
+func serverAddresses(servers []*ServerInfo) []string {
+	result := make([]string, 0, len(servers))
+	for _, server := range servers {
+		result = append(result, server.Server)
+	}
+	return result
 }

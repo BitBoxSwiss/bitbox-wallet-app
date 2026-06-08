@@ -1,6 +1,13 @@
 .container {
     padding: calc(var(--space-default) * 1.5) 0;
     text-align: center;
+    white-space: normal;
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-quarter);
 }
 
 .buttons {
@@ -15,7 +22,6 @@
 
 @media (max-width: 425px) {
     .buttons button {
-        padding: var(--space-quarter);
-        font-size: 14px;
+        font-size: var(--size-small);
     }
 }

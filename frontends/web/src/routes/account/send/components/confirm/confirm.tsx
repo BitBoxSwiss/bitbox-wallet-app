@@ -1,79 +1,78 @@
-/**
- * Copyright 2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, TAmountWithConversions } from '@/api/account';
+import type { CoinCode, FeeTargetCode, TAmountWithConversions } from '@/api/account';
+import type { TSelectedUTXOs } from '../../utxos';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import { Amount } from '@/components/amount/amount';
 import { customFeeUnit } from '@/routes/account/utils';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
+import { Column, Grid } from '@/components/layout';
 import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
-import { FiatValue } from '../fiat-value';
+import { FiatValue } from '@/components/amount/fiat-value';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import style from './confirm.module.css';
 
+type TUTXOsByAddress = {
+  [address: string]: string[];
+};
+
+const groupUTXOsByAddress = (selectedUTXOs: TSelectedUTXOs): TUTXOsByAddress => {
+  const utxosByAddress: TUTXOsByAddress = {};
+  for (const [outpoint, address] of Object.entries(selectedUTXOs)) {
+    if (!utxosByAddress[address]) {
+      utxosByAddress[address] = [];
+    }
+    utxosByAddress[address].push(outpoint);
+  }
+  return utxosByAddress;
+};
+
 type TransactionDetails = {
+  selectedReceiverAccountNumber?: number;
+  selectedReceiverAccountName?: string;
   proposedAmount?: TAmountWithConversions;
   proposedFee?: TAmountWithConversions;
   proposedTotal?: TAmountWithConversions;
   feeTarget?: FeeTargetCode;
   customFee: string;
-  recipientAddress: string;
-  activeCurrency: Fiat;
+  recipientDisplayAddress: string;
 };
 
 type TConfirmSendProps = {
-  baseCurrencyUnit: ConversionUnit;
   note: string;
   hasSelectedUTXOs: boolean;
   isConfirming: boolean;
-  selectedUTXOs: string[];
+  selectedUTXOs: TSelectedUTXOs;
   coinCode: CoinCode;
   transactionDetails: TransactionDetails;
-}
+};
 
 export const ConfirmSend = ({
-  baseCurrencyUnit,
   note,
   hasSelectedUTXOs,
   isConfirming,
   selectedUTXOs,
   coinCode,
-  transactionDetails
+  transactionDetails,
 }: TConfirmSendProps) => {
 
   const { t } = useTranslation();
+
   const {
     proposedFee,
     proposedAmount,
     proposedTotal,
     customFee,
     feeTarget,
-    recipientAddress,
-    activeCurrency: fiatUnit
+    selectedReceiverAccountName,
+    selectedReceiverAccountNumber,
+    recipientDisplayAddress,
   } = transactionDetails;
-
 
   if (!isConfirming) {
     return null;
   }
-
-  const canShowSendAmountFiatValue = proposedAmount && proposedAmount.conversions && proposedAmount.conversions[fiatUnit];
-  const canShowFeeFiatValue = proposedFee && proposedFee.conversions && proposedFee.conversions[fiatUnit];
-  const canShowTotalFiatValue = (proposedTotal && proposedTotal.conversions) && proposedTotal.conversions[fiatUnit];
 
   return (
     <View fullscreen width="840px">
@@ -83,112 +82,156 @@ export const ConfirmSend = ({
         <Message type="info">
           {t('send.confirm.infoMessage')}
         </Message>
-        <div className={style.bitBoxContainer}>
-          <PointToBitBox02 />
-        </div>
 
-        {/*Send amount*/}
-        <div className={style.confirmItem}>
-          <label>{t('button.send')}</label>
-          <div className={style.confirmationItemWrapper}>
-            <p className={style.valueOriginalLarge}>
-              {(proposedAmount &&
-              <Amount alwaysShowAmounts amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
-              {' '}
-              <span className={style.unit}>
-                {(proposedAmount && proposedAmount.unit) || 'N/A'}
-              </span>
-            </p>
-            {canShowSendAmountFiatValue &&
-            (<FiatValue baseCurrencyUnit={baseCurrencyUnit} amount={proposedAmount.conversions![fiatUnit] || ''} />)
-            }
-          </div>
-        </div>
+        <Grid col="2">
 
-        {/*To (recipient address)*/}
-        <div className={style.confirmItem}>
-          <label>{t('send.confirm.to')}</label>
-          <div className={style.confirmationItemWrapper}>
-            <p className={`${style.valueOriginal}`}>
-              {recipientAddress || 'N/A'}
-            </p>
-          </div>
-        </div>
-
-        {/*Note*/}
-        {note ? (
-          <div className={style.confirmItem}>
-            <label>{t('note.title')}</label>
-            <p className={style.valueOriginal}>{note}</p>
-          </div>
-        ) : null}
-
-        {/*Selected UTXOs*/}
-        {
-          hasSelectedUTXOs && (
-            <div className={style.confirmItem}>
-              <label>{t('send.confirm.selected-coins')}</label>
-              <ul>
-                {
-                  selectedUTXOs.map((uxto, i) => (
-                    <li className={style.valueOriginal} key={`selectedCoin-${i}`}>{uxto}</li>
-                  ))
-                }
-
-              </ul>
-
+          <Column col="2">
+            <div className={style.bitBoxContainer}>
+              <PointToBitBox02 />
             </div>
-          )
-        }
+          </Column>
 
+          {/* Send amount */}
+          <Column col="2">
+            <span className={style.label}>
+              {t('generic.send')}
+            </span>
+          </Column>
+          <Column className={style.confirmItem}>
+            <span className={style.valueOriginalLarge}>
+              <AmountWithUnit
+                amount={proposedAmount}
+                enableRotateUnit
+                unitClassName={style.unit}
+              />
+            </span>
+          </Column>
+          <Column className={style.confirmItem}>
+            <FiatValue
+              amount={proposedAmount}
+              className={style.valueOriginalLarge}
+              enableRotateUnit
+            />
+          </Column>
 
-        {/*Fee*/}
-        <div className={style.confirmItem}>
-          <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
-          <div className={style.confirmationItemWrapper}>
-            <p className={style.valueOriginal}>
-              {(proposedFee &&
-              <Amount alwaysShowAmounts amount={proposedFee.amount} unit={proposedFee.unit}/>) || 'N/A'} {' '}
-              <span className={style.unit}>
-                {(proposedFee && proposedFee.unit) || 'N/A'}
+          {/* To (recipient address) */}
+          <Column col="2">
+            <span className={style.label}>
+              {t('send.confirm.to')}
+            </span>
+          </Column>
+          <Column col="2" className={style.confirmItem}>
+            <span>
+              {selectedReceiverAccountName
+                ? selectedReceiverAccountName
+                : recipientDisplayAddress
+              }
+              {' '}
+              {selectedReceiverAccountNumber !== undefined && (
+                <span className={style.address}>
+                  (Account #{selectedReceiverAccountNumber})
+                </span>
+              )}
+            </span>
+            {selectedReceiverAccountName && (
+              <span className={style.address}>
+                {recipientDisplayAddress}
               </span>
+            )}
+          </Column>
+
+          {/* Note */}
+          {note ? (
+            <Column col="2" className={style.confirmItem}>
+              <span className={style.label}>
+                {t('note.title')}
+              </span>
+              <span>
+                {note}
+              </span>
+            </Column>
+          ) : null}
+
+          {/* Selected UTXOs grouped by address */}
+          { hasSelectedUTXOs && (
+            <Column col="2" className={style.confirmItem}>
+              <span className={style.label}>
+                {t('send.confirm.selected-coins')}
+              </span>
+              <div>
+                { Object.entries(groupUTXOsByAddress(selectedUTXOs)).map(([address, outpoints]) => (
+                  <div key={address} className={style.addressGroup}>
+                    <div className={style.address}>
+                      {address}
+                    </div>
+                    <ul>
+                      {outpoints.map((outpoint) => (
+                        <li key={outpoint} className={style.valueOriginal}>
+                          {outpoint}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )) }
+              </div>
+            </Column>
+          )}
+
+          {/* Fee */}
+          <Column col="2">
+            <span className={style.label}>
+              {t('send.fee.label')}
+              {feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}
+            </span>
+          </Column>
+          <Column className={style.confirmItem}>
+            <span>
+              <AmountWithUnit
+                amount={proposedFee}
+                alwaysShowAmounts
+                enableRotateUnit
+                unitClassName={style.unit}
+              />
+              {' '}
               {customFee ? (
                 <small>
-                  <br/>
+                  <br />
                   ({customFee} {customFeeUnit(coinCode)})
                 </small>
               ) : null}
-            </p>
-            {canShowFeeFiatValue && (
-              <FiatValue baseCurrencyUnit={baseCurrencyUnit} amount={proposedFee.conversions![fiatUnit] || ''} />
-            )}
-          </div>
-        </div>
+            </span>
+          </Column>
+          <Column className={style.confirmItem}>
+            <FiatValue
+              amount={proposedFee}
+              enableRotateUnit
+            />
+          </Column>
 
-        {/*Total*/}
-        <div className={style.confirmItem}>
-          <div className={style.totalWrapper}>
-            <label>{t('send.confirm.total')}</label>
-            <p className={style.valueOriginal}>
-              <strong>
-                {(proposedTotal &&
-              <Amount alwaysShowAmounts amount={proposedTotal.amount} unit={proposedTotal.unit}/>) || 'N/A'}
-              </strong>
-              {' '}
-              <span className={style.unit}>{(proposedTotal && proposedTotal.unit) || 'N/A'}</span>
-            </p>
-            {canShowTotalFiatValue && (
-              <FiatValue
-                className={style.totalFiatValue}
-                baseCurrencyUnit={baseCurrencyUnit}
-                amount={proposedTotal.conversions![fiatUnit] || ''}
-              />
-            )}
-          </div>
-        </div>
+          {/* Total */}
+          <Column col="2">
+            <span className={style.label}>
+              {t('send.confirm.total')}
+            </span>
+          </Column>
+          <Column className={style.valueOriginalLarge}>
+            <AmountWithUnit
+              amount={proposedTotal}
+              alwaysShowAmounts
+              enableRotateUnit
+              unitClassName={style.unit}
+            />
+          </Column>
+          <Column className={style.valueOriginalLarge}>
+            <FiatValue
+              className={style.totalFiatValue}
+              amount={proposedTotal}
+              enableRotateUnit
+            />
+          </Column>
 
+        </Grid>
       </ViewContent>
     </View>
   );
-
 };

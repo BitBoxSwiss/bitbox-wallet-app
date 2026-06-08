@@ -1,17 +1,4 @@
-// Copyright 2018 Shift Devices AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package maketx_test
 
@@ -40,8 +27,8 @@ import (
 
 var noDust = btcutil.Amount(0)
 
-var tltc = btc.NewCoin(coin.CodeTLTC, "Litecoin Testnet", "TBTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "", socksproxy.NewSocksProxy(false, ""))
-var tbtc = btc.NewCoin(coin.CodeTBTC, "Bitcoin Testnet", "TBTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "https://blockstream.info/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
+var tltc = btc.NewCoin(coin.CodeTLTC, "Litecoin Testnet", "TBTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "", "", socksproxy.NewSocksProxy(false, ""))
+var tbtc = btc.NewCoin(coin.CodeTBTC, "Bitcoin Testnet", "TBTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "https://mempool.space/testnet/tx/", "https://mempool.space/testnet/address/", socksproxy.NewSocksProxy(false, ""))
 
 // For reference, tx vsizes assuming two outputs (normal + change), for N inputs:
 // 1 inputs: 226
@@ -165,7 +152,7 @@ func (s *newTxSuite) check(
 		s.Require().NoError(err)
 	}
 
-	tx := txProposal.Transaction
+	tx := txProposal.Psbt.UnsignedTx
 
 	// Check invariants independent of the particular coin selection algorithm.
 	s.Require().Equal(s.coin, txProposal.Coin)

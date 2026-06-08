@@ -1,28 +1,16 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2023-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AppContext } from '@/contexts/AppContext';
 import { useLoad } from '@/hooks/api';
 import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
+import { setAccountReceiveScriptType } from '@/api/backend';
+import { alertUser } from '@/components/alert/Alert';
 import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { CopyableInput } from '@/components/copy/Copy';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button, Radio } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Message } from '@/components/message/message';
@@ -30,10 +18,11 @@ import { ReceiveGuide } from './components/guide';
 import { Header } from '@/components/layout';
 import { QRCode } from '@/components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
+import { connectKeystore } from '@/api/keystores';
 import style from './receive.module.css';
 
 type TProps = {
-  accounts: accountApi.IAccount[];
+  accounts: accountApi.TAccount[];
   code: accountApi.AccountCode;
 };
 
@@ -43,7 +32,7 @@ type TAddressTypeDialogProps = {
   preselectedAddressType: number;
   availableScriptTypes?: accountApi.ScriptType[];
   insured: boolean;
-  handleAddressTypeChosen: (addressType: number) => void;
+  handleAddressTypeChosen: (addressType: number) => void | Promise<void>;
 };
 
 const AddressTypeDialog = ({
@@ -57,36 +46,43 @@ const AddressTypeDialog = ({
   const { t } = useTranslation();
   const [addressType, setAddressType] = useState<number>(preselectedAddressType);
 
+  useEffect(() => {
+    setAddressType(preselectedAddressType);
+  }, [open, preselectedAddressType]);
+
   return (
     <Dialog open={open} onClose={() => setOpen(false)} medium title={t('receive.changeScriptType')} >
-      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        handleAddressTypeChosen(addressType);
-      }}>
-        {availableScriptTypes && availableScriptTypes.map((scriptType, i) => (
-          <div key={scriptType}>
-            <Radio
-              checked={addressType === i}
-              id={scriptType}
-              name="scriptType"
-              onChange={() => setAddressType(i)}
-              title={getScriptName(scriptType)}>
-              {t(`receive.scriptType.${scriptType}`)}
-            </Radio>
-            {scriptType === 'p2tr' && addressType === i && (
-              <div className={style.messageContainer}>
-                <Message type="warning">
+      <form
+        onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          handleAddressTypeChosen(addressType);
+        }}
+        style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
+      >
+        <DialogScrollContent>
+          {availableScriptTypes && availableScriptTypes.map((scriptType, i) => (
+            <div key={scriptType}>
+              <Radio
+                checked={addressType === i}
+                id={scriptType}
+                name="scriptType"
+                onChange={() => setAddressType(i)}
+                title={getScriptName(scriptType)}>
+                {t(`receive.scriptType.${scriptType}`)}
+              </Radio>
+              {scriptType === 'p2tr' && addressType === i && (
+                <Message type="warning" className={style.messageContainer}>
                   {t('receive.taprootWarning')}
                 </Message>
-              </div>
-            )}
-          </div>
-        ))}
-        {insured && (
-          <Message type="warning">
-            {t('receive.bitsuranceWarning')}
-          </Message>
-        )}
+              )}
+            </div>
+          ))}
+          {insured && (
+            <Message type="warning">
+              {t('receive.bitsuranceWarning')}
+            </Message>
+          )}
+        </DialogScrollContent>
         <DialogButtons>
           <Button primary type="submit">
             {t('button.done')}
@@ -103,13 +99,30 @@ const scriptTypes: accountApi.ScriptType[] = ['p2wpkh', 'p2tr', 'p2wpkh-p2sh'];
 
 // Find index in list of receive addresses that matches the given script type, or -1 if not found.
 const getIndexOfMatchingScriptType = (
-  receiveAddresses: accountApi.ReceiveAddressList[],
+  receiveAddresses: accountApi.TReceiveAddressList[],
   scriptType: accountApi.ScriptType
 ): number => {
   if (!receiveAddresses) {
     return -1;
   }
   return receiveAddresses.findIndex(addrs => addrs.scriptType !== null && scriptType === addrs.scriptType);
+};
+
+const getAvailableScriptTypes = (
+  receiveAddresses: accountApi.TReceiveAddressList[],
+): accountApi.ScriptType[] => {
+  return scriptTypes.filter(scriptType => getIndexOfMatchingScriptType(receiveAddresses, scriptType) >= 0);
+};
+
+const getReceiveScriptTypeIndex = (
+  availableScriptTypes: accountApi.ScriptType[],
+  receiveScriptType?: accountApi.ScriptType,
+): number => {
+  if (!receiveScriptType) {
+    return 0;
+  }
+  const scriptTypeIndex = availableScriptTypes.findIndex(scriptType => scriptType === receiveScriptType);
+  return scriptTypeIndex >= 0 ? scriptTypeIndex : 0;
 };
 
 export const Receive = ({
@@ -122,7 +135,7 @@ export const Receive = ({
   // index into `availableScriptTypes`, or 0 if none are available.
   const [addressType, setAddressType] = useState<number>(0);
   const [addressTypeDialog, setAddressTypeDialog] = useState<boolean>(false);
-  const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
+  const [currentAddresses, setCurrentAddresses] = useState<accountApi.TReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
@@ -130,40 +143,59 @@ export const Receive = ({
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
+  const availableScriptTypes = receiveAddresses ? getAvailableScriptTypes(receiveAddresses) : undefined;
+  const hasManyScriptTypes = availableScriptTypes && availableScriptTypes.length > 1;
 
-  const availableScriptTypes = useRef<accountApi.ScriptType[]>();
-
-  const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
+  const { isTesting } = useContext(AppContext);
 
   useEffect(() => {
     if (receiveAddresses) {
-      // All script types that are present in the addresses delivered by the backend. Will be empty for if there are no such addresses, e.g. in Ethereum.
-      availableScriptTypes.current = scriptTypes.filter(sc => getIndexOfMatchingScriptType(receiveAddresses, sc) >= 0);
+      setAddressType(getReceiveScriptTypeIndex(
+        getAvailableScriptTypes(receiveAddresses),
+        account?.receiveScriptType,
+      ));
     }
-  }, [receiveAddresses]);
+  }, [account?.receiveScriptType, receiveAddresses]);
 
   useEffect(() => {
-    if (receiveAddresses && availableScriptTypes.current) {
-      let addressIndex = availableScriptTypes.current.length > 0 ? getIndexOfMatchingScriptType(receiveAddresses, availableScriptTypes.current[addressType]) : 0;
+    if (receiveAddresses) {
+      const scriptTypes = getAvailableScriptTypes(receiveAddresses);
+      const scriptType = scriptTypes[addressType] as accountApi.ScriptType;
+      let addressIndex = scriptTypes.length > 0 ? getIndexOfMatchingScriptType(receiveAddresses, scriptType) : 0;
       if (addressIndex === -1) {
         addressIndex = 0;
       }
       setCurrentAddressIndex(addressIndex);
-      setCurrentAddresses(receiveAddresses[addressIndex].addresses);
+      setCurrentAddresses(receiveAddresses[addressIndex]?.addresses);
     }
-  }, [addressType, availableScriptTypes, receiveAddresses]);
+  }, [addressType, receiveAddresses]);
 
-  const handleAddressTypeChosen = (addressType: number) => {
+  const handleAddressTypeChosen = async (addressType: number) => {
+    const scriptType = availableScriptTypes?.[addressType];
+
     setActiveIndex(0);
     setAddressType(addressType);
     setAddressTypeDialog(false);
+
+    if (!scriptType || account?.receiveScriptType === scriptType) {
+      return;
+    }
+
+    try {
+      const response = await setAccountReceiveScriptType(code, scriptType);
+      if (!response.success) {
+        alertUser(response.errorMessage || t('genericError'));
+      }
+    } catch (err) {
+      console.error('Failed to persist receive script type', err);
+    }
   };
 
   const verifyAddress = async (addressesIndex: number) => {
-    if (!receiveAddresses || code === undefined) {
+    if (!receiveAddresses || account === undefined) {
       return;
     }
-    const connectResult = await accountApi.connectKeystore(code);
+    const connectResult = await connectKeystore(account.keystore.rootFingerprint);
     if (!connectResult.success) {
       return;
     }
@@ -178,7 +210,9 @@ export const Receive = ({
     // For devices with a display, the dialog is dismissed by tapping the device.
     setVerifying('secure');
     try {
-      await accountApi.verifyAddress(code, receiveAddresses[addressesIndex].addresses[activeIndex].addressID);
+      const addressesAtIndex = receiveAddresses[addressesIndex] as accountApi.TReceiveAddressList;
+      const address = addressesAtIndex.addresses[activeIndex] as accountApi.TReceiveAddress;
+      await accountApi.verifyAddress(code, address.addressID);
     } finally {
       setVerifying(false);
     }
@@ -207,13 +241,10 @@ export const Receive = ({
     }
   }
 
-  let address = '';
-  if (currentAddresses) {
-    address = currentAddresses[activeIndex].address;
-    if (!verifying) {
-      address = address.substring(0, 8) + '...';
-    }
-  }
+  const currentAddress = currentAddresses?.[activeIndex];
+  const address = currentAddress?.address || '';
+  const displayAddress = currentAddress?.displayAddress ?? '';
+  const displayedMainAddress = verifying ? displayAddress : (address ? address.substring(0, 8) + '...' : '');
 
   return (
     <div className="contentWithGuide">
@@ -233,9 +264,9 @@ export const Receive = ({
                         className={style.previous}
                         onClick={previous}>
                         {(verifying || activeIndex === 0) ? (
-                          <ArrowCirlceLeft height="24" width="24" />
+                          <ArrowCirlceLeft />
                         ) : (
-                          <ArrowCirlceLeftActive height="24" width="24" title={t('button.previous')} />
+                          <ArrowCirlceLeftActive title={t('button.previous')} />
                         )}
                       </button>
                     )}
@@ -247,14 +278,19 @@ export const Receive = ({
                         className={style.next}
                         onClick={e => next(e, currentAddresses.length)}>
                         {(verifying || activeIndex >= currentAddresses.length - 1) ? (
-                          <ArrowCirlceRight height="24" width="24" />
+                          <ArrowCirlceRight />
                         ) : (
-                          <ArrowCirlceRightActive height="24" width="24" title={t('button.next')} />
+                          <ArrowCirlceRightActive title={t('button.next')} />
                         )}
                       </button>
                     )}
                   </div>
-                  <CopyableInput disabled={true} value={address} flexibleHeight />
+                  <CopyableInput
+                    disabled={true}
+                    value={address}
+                    displayValue={displayedMainAddress}
+                    flexibleHeight
+                  />
                   { (hasManyScriptTypes || insured) && (
                     <button
                       className={style.changeType}
@@ -267,7 +303,7 @@ export const Receive = ({
                     open={addressTypeDialog}
                     setOpen={setAddressTypeDialog}
                     preselectedAddressType={addressType}
-                    availableScriptTypes={availableScriptTypes.current}
+                    availableScriptTypes={availableScriptTypes}
                     insured={insured}
                     handleAddressTypeChosen={handleAddressTypeChosen}
                   />
@@ -320,8 +356,18 @@ export const Receive = ({
                           <p>{t('receive.verifyInstruction')}</p>
                         </div>
                         <div className="m-bottom-half">
-                          <CopyableInput value={address} flexibleHeight />
+                          <CopyableInput
+                            value={address}
+                            displayValue={displayAddress}
+                            dataTestId="receive-address"
+                            flexibleHeight
+                          />
                         </div>
+                        {isTesting && (
+                          <Message type="warning">
+                            {t('receive.verifyTestnetWarning')}
+                          </Message>
+                        )}
                       </>
                     )}
                   </Dialog>

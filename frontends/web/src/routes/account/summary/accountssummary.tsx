@@ -1,19 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2023-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,30 +8,31 @@ import { statusChanged, syncdone } from '@/api/accountsync';
 import { unsubscribe } from '@/utils/subscriptions';
 import { TUnsubscribe } from '@/utils/transport-common';
 import { useMountedRef } from '@/hooks/mount';
-import { useSDCard } from '@/hooks/sdcard';
-import { Status } from '@/components/status/status';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View } from '@/components/view/view';
 import { Chart } from './chart';
-import { SummaryBalance } from './summarybalance';
-import { CoinBalance } from './coinbalance';
+import { KeystoreBalance } from './keystorebalance';
+import { TotalBalanceForAllKeystores } from './total-balance-for-all-keystores';
 import { AddBuyReceiveOnEmptyBalances } from '@/routes/account/info/buy-receive-cta';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '@/contexts/AppContext';
-import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
+import { getAccountsByKeystore, getAccountsPerCoin } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { BackupReminder } from '@/components/banners/backup';
+import { OfflineError } from '@/components/banners/offline-error';
+import style from './accountssummary.module.css';
 
 type TProps = {
-  accounts: accountApi.IAccount[];
+  accounts: accountApi.TAccount[];
   devices: TDevices;
 };
 
 export type Balances = {
-  [code: string]: accountApi.IBalance;
+  [code: string]: accountApi.TBalance;
 };
 
 export const AccountsSummary = ({
@@ -61,55 +47,43 @@ export const AccountsSummary = ({
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
 
-  const [summaryData, setSummaryData] = useState<accountApi.TSummary>();
-  const [balancePerCoin, setBalancePerCoin] = useState<accountApi.TAccountsBalance>();
-  const [accountsTotalBalance, setAccountsTotalBalance] = useState<accountApi.TAccountsTotalBalance>();
-  const [coinsTotalBalance, setCoinsTotalBalance] = useState<accountApi.TCoinsTotalBalance>();
+  const accountsPerCoin = getAccountsPerCoin(accounts);
+  const hasMultipleAccountsPerCoin = Object.values(accountsPerCoin).some(
+    coinAccounts => coinAccounts !== undefined && coinAccounts.length > 1
+  );
+  const showTotalBalance = accountsByKeystore.length > 1
+    || (accountsByKeystore.length > 0 && hasMultipleAccountsPerCoin);
+
+  const [chartData, setChartData] = useState<accountApi.TChartData>();
+  const [accountsBalanceSummary, setAccountsBalanceSummary] = useState<accountApi.TAccountsBalanceSummary>();
   const [balances, setBalances] = useState<Balances>();
+  const [offlineError, setOfflineError] = useState<string | null>(null);
 
-  const hasCard = useSDCard(devices);
-
-  const getAccountSummary = useCallback(async () => {
+  const getChartData = useCallback(async () => {
     // replace previous timer if present
     if (summaryReqTimerID.current) {
       window.clearTimeout(summaryReqTimerID.current);
+      summaryReqTimerID.current = undefined;
     }
-    const summary = await accountApi.getSummary();
+    let delay = 1000;
+    const chartDataResponse = await accountApi.getChartData();
     if (!mounted.current) {
       return;
     }
-    if (summary.success) {
-      setSummaryData(summary.data);
+    if (chartDataResponse.success) {
+      setChartData(chartDataResponse.data);
+      delay = chartDataResponse.data.chartDataMissing ? 1000 : 10000;
     }
+    summaryReqTimerID.current = window.setTimeout(getChartData, delay);
   }, [mounted]);
 
-  const getAccountsBalance = useCallback(async () => {
-    const balance = await accountApi.getAccountsBalance();
+  const getAccountsBalanceSummary = useCallback(async () => {
+    const response = await accountApi.getAccountsBalanceSummary();
     if (!mounted.current) {
       return;
     }
-    if (balance.success) {
-      setBalancePerCoin(balance.balance);
-    }
-  }, [mounted]);
-
-  const getAccountsTotalBalance = useCallback(async () => {
-    const totalBalance = await accountApi.getAccountsTotalBalance();
-    if (!mounted.current) {
-      return;
-    }
-    if (totalBalance.success) {
-      setAccountsTotalBalance(totalBalance.totalBalance);
-    }
-  }, [mounted]);
-
-  const getCoinsTotalBalance = useCallback(async () => {
-    const coinBalance = await accountApi.getCoinsTotalBalance();
-    if (!mounted.current) {
-      return;
-    }
-    if (coinBalance.success) {
-      setCoinsTotalBalance(coinBalance.coinsTotalBalance);
+    if (response.success) {
+      setAccountsBalanceSummary(response.accountsBalanceSummary);
     }
   }, [mounted]);
 
@@ -123,6 +97,7 @@ export const AccountsSummary = ({
     if (status.disabled || !mounted.current) {
       return;
     }
+    setOfflineError(status.offlineError);
     if (!status.synced) {
       return accountApi.init(code);
     }
@@ -142,12 +117,10 @@ export const AccountsSummary = ({
   const update = useCallback((code: accountApi.AccountCode) => {
     if (mounted.current) {
       onStatusChanged(code);
-      getAccountSummary();
-      getAccountsBalance();
-      getAccountsTotalBalance();
-      getCoinsTotalBalance();
+      getChartData();
+      getAccountsBalanceSummary();
     }
-  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, getCoinsTotalBalance, mounted, onStatusChanged]);
+  }, [getChartData, getAccountsBalanceSummary, mounted, onStatusChanged]);
 
   useEffect(() => {
     // for subscriptions and unsubscriptions
@@ -170,42 +143,43 @@ export const AccountsSummary = ({
   useEffect(() => {
     // handles fetching data and runs on component mount
     // & whenever any of the dependencies change.
-    getAccountSummary();
-    getAccountsBalance();
-    getAccountsTotalBalance();
-    getCoinsTotalBalance();
-  }, [getAccountSummary, getAccountsBalance, getAccountsTotalBalance, getCoinsTotalBalance, defaultCurrency]);
+    getChartData();
+    getAccountsBalanceSummary();
+  }, [getChartData, getAccountsBalanceSummary, defaultCurrency]);
 
-  // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
-    // set new timer
-    const delay = (!summaryData || summaryData.chartDataMissing) ? 1000 : 10000;
-    summaryReqTimerID.current = window.setTimeout(getAccountSummary, delay);
     return () => {
-      // replace previous timer if present
       if (summaryReqTimerID.current) {
         window.clearTimeout(summaryReqTimerID.current);
       }
     };
-  }, [summaryData, getAccountSummary]);
+  }, []);
 
   useEffect(() => {
     accounts.forEach(account => {
       onStatusChanged(account.code);
     });
-    getAccountsBalance();
-    getCoinsTotalBalance();
-  }, [onStatusChanged, getAccountsBalance, getCoinsTotalBalance, accounts]);
+    getAccountsBalanceSummary();
+  }, [onStatusChanged, getAccountsBalanceSummary, accounts]);
+
+  useEffect(() => {
+    getAccountsBalanceSummary();
+  }, [defaultCurrency, getAccountsBalanceSummary]);
 
   return (
     <GuideWrapper>
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
-            <Status hidden={!hasCard} type="warning">
-              {t('warning.sdcard')}
-            </Status>
+            <OfflineError error={offlineError} />
+            <GlobalBanners devices={devices} />
+            {accountsByKeystore.map(({ keystore }) => (
+              <BackupReminder
+                key={keystore.rootFingerprint}
+                keystore={keystore}
+                accountsBalanceSummary={accountsBalanceSummary}
+              />
+            ))}
           </ContentWrapper>
           <Header title={<h2>{t('accountSummary.title')}</h2>}>
             <HideAmountsButton />
@@ -213,38 +187,43 @@ export const AccountsSummary = ({
           <View>
             <Chart
               hideAmounts={hideAmounts}
-              data={summaryData}
+              data={chartData}
               noDataPlaceholder={
                 (accounts.length && accounts.length <= Object.keys(balances || {}).length) ? (
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
-            {accountsByKeystore.length > 1 && (
-              <CoinBalance
-                summaryData={summaryData}
-                coinsBalances={coinsTotalBalance}
-              />
-            )}
-            {accountsByKeystore &&
+            <div className={style.keystoresContainer} data-testid="account-summary-keystores">
+              {showTotalBalance && (
+                <TotalBalanceForAllKeystores
+                  summaryData={chartData}
+                  coinsBalances={accountsBalanceSummary?.coinsTotalBalance}
+                />
+              )}
+              {accountsByKeystore &&
               (accountsByKeystore.map(({ keystore, accounts }) =>
                 (
-                  <SummaryBalance
-                    keystoreDisambiguatorName={isAmbiguousName(keystore.name, accountsByKeystore) ? keystore.rootFingerprint : undefined}
-                    connected={keystore.connected}
-                    keystoreName={keystore.name}
+                  <KeystoreBalance
                     key={keystore.rootFingerprint}
                     accounts={accounts}
-                    totalBalancePerCoin={balancePerCoin ? balancePerCoin[keystore.rootFingerprint] : undefined}
-                    totalBalance={accountsTotalBalance ? accountsTotalBalance[keystore.rootFingerprint] : undefined}
+                    accountsByKeystore={accountsByKeystore}
+                    keystore={keystore}
+                    keystoreBalance={accountsBalanceSummary?.keystoresBalance[keystore.rootFingerprint]}
                     balances={balances}
+                    showUnitPrice={!showTotalBalance}
                   />
                 )
               ))}
+            </div>
+
           </View>
         </Main>
       </GuidedContent>
       <Guide title={t('guide.guideTitle.accountSummary')}>
-        <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription', { returnObjects: true })} />
+        <Entry key="accountSummaryDescription" entry={{
+          text: t('guide.accountSummaryDescription.text'),
+          title: t('guide.accountSummaryDescription.title'),
+        }} />
         <Entry key="accountSummaryAmount" entry={{
           link: {
             text: 'www.coingecko.com',
@@ -253,7 +232,10 @@ export const AccountsSummary = ({
           text: t('guide.accountSummaryAmount.text'),
           title: t('guide.accountSummaryAmount.title')
         }} />
-        <Entry key="trackingModePortfolioChart" entry={t('guide.trackingModePortfolioChart', { returnObjects: true })} />
+        <Entry key="trackingModePortfolioChart" entry={{
+          text: t('guide.trackingModePortfolioChart.text'),
+          title: t('guide.trackingModePortfolioChart.title'),
+        }} />
       </Guide>
     </GuideWrapper>
   );

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { TLanguagesList } from '@/components/language/types';
 import { i18n as Ii18n } from 'i18next';
 

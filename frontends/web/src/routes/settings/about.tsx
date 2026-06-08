@@ -1,18 +1,4 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
@@ -25,6 +11,9 @@ import { Entry } from '@/components/guide/entry';
 import { TPagePropsWithSettingsTabs } from './types';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { FeedbackLink } from './components/about/feedback-link-setting';
+import { SupportLink } from './components/about/support-link-setting';
+import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 
 export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
@@ -33,7 +22,7 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header
             hideSidebarToggler
@@ -44,9 +33,9 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
               </>
             } />
           <View fullscreen={false}>
-            <ViewContent fullWidth>
+            <ViewContent>
               <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
-                <AppVersion />
+                <AboutSettingsContent />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -57,12 +46,29 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   );
 };
 
+export const AboutSettingsContent = () => {
+  const sections: TSettingsContentSection[] = [
+    {
+      id: 'about',
+      items: [
+        { id: 'app-version', content: <AppVersion /> },
+        { id: 'feedback', content: <FeedbackLink /> },
+        { id: 'support', content: <SupportLink /> },
+      ],
+    },
+  ];
+
+  return <SettingsContent sections={sections} />;
+};
 
 const AboutGuide = () => {
   const { t } = useTranslation();
   return (
     <Guide>
-      <Entry key="guide.settings.servers" entry={t('guide.settings.servers', { returnObjects: true })} />
+      <Entry key="guide.settings.servers" entry={{
+        text: t('guide.settings.servers.text'),
+        title: t('guide.settings.servers.title'),
+      }} />
     </Guide>
   );
 };

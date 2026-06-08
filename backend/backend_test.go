@@ -1,16 +1,4 @@
-// Copyright 2021 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package backend
 
@@ -34,7 +22,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
@@ -80,12 +67,19 @@ var rootFingerprint2 = []byte{0x66, 0x66, 0x66, 0x66}
 // A keystore with a similar config to a BitBox02 Multi - supporting unified and multiple accounts,
 // no legacy P2PKH.
 func makeBitBox02Multi() *keystoremock.KeystoreMock {
+	ksHelper := keystoreHelper1()
 	return &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock name", nil
 		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return rootFingerprint1, nil
+		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
 		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
@@ -96,13 +90,8 @@ func makeBitBox02Multi() *keystoremock.KeystoreMock {
 				return true
 			}
 		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
-		ExtendedPublicKeyFunc: keystoreHelper1().ExtendedPublicKey,
+		ExtendedPublicKeyFunc: ksHelper.ExtendedPublicKey,
+		BTCXPubsFunc:          ksHelper.BTCXPubs,
 	}
 }
 
@@ -110,6 +99,9 @@ func makeBitBox02Multi() *keystoremock.KeystoreMock {
 // accounts, no legacy P2PKH.
 func makeBitBox02BTCOnly() *keystoremock.KeystoreMock {
 	ks := makeBitBox02Multi()
+	ks.SupportsCoinFunc = func(coin coinpkg.Coin) bool {
+		return coin.Code() == coinpkg.CodeBTC || coin.Code() == coinpkg.CodeTBTC || coin.Code() == coinpkg.CodeRBTC
+	}
 	ks.SupportsAccountFunc = func(coin coinpkg.Coin, meta interface{}) bool {
 		switch coin.(type) {
 		case *btc.Coin:
@@ -126,7 +118,7 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 	t.Helper()
 	return &accountsMocks.InterfaceMock{
 		ObserveFunc: func(func(observable.Event)) func() {
-			return nil
+			return func() {}
 		},
 		CoinFunc: func() coinpkg.Coin {
 			return coin
@@ -146,9 +138,14 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 		FatalErrorFunc: func() bool {
 			return false
 		},
-		GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			result := []accounts.AddressList{}
 			for _, signingConfig := range config.Config.SigningConfigurations {
+				scriptType := signingConfig.ScriptType()
+				if scriptType == signing.ScriptTypeP2WPKHP2SH {
+					// We don't support wrapped segwit in receive flows anymore.
+					continue
+				}
 				addressChain := addresses.NewAddressChain(
 					signingConfig,
 					coin.Net(), 20, false,
@@ -158,7 +155,6 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 					log)
 				addresses, err := addressChain.EnsureAddresses()
 				require.NoError(t, err)
-				scriptType := signingConfig.ScriptType()
 				result = append(result, accounts.AddressList{
 					ScriptType: &scriptType,
 					Addresses: []accounts.Address{
@@ -167,16 +163,17 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 				})
 
 			}
-			return result
+			return result, nil
 		},
-		CloseFunc: func() {},
+		CloseFunc:  func() {},
+		SyncedFunc: func() bool { return true },
 	}
 }
 
 func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) *accountsMocks.InterfaceMock {
 	return &accountsMocks.InterfaceMock{
 		ObserveFunc: func(func(observable.Event)) func() {
-			return nil
+			return func() {}
 		},
 		CoinFunc: func() coinpkg.Coin {
 			return coin
@@ -191,7 +188,7 @@ func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *
 			return nil, nil
 		},
 		FatalErrorFunc: func() bool { return false },
-		GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			return []accounts.AddressList{
 				{
 					Addresses: []accounts.Address{
@@ -201,9 +198,10 @@ func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *
 						},
 					},
 				},
-			}
+			}, nil
 		},
-		CloseFunc: func() {},
+		CloseFunc:  func() {},
+		SyncedFunc: func() bool { return true },
 	}
 }
 
@@ -226,6 +224,10 @@ func (e environment) UsingMobileData() bool {
 
 func (e environment) NativeLocale() string {
 	return ""
+}
+
+func (e environment) NumberFormat() *NumberFormat {
+	return nil
 }
 
 func (e environment) GetSaveFilename(string) string {
@@ -271,7 +273,7 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	}
 	b.ratesUpdater.SetCoingeckoURL("unused") // avoid hitting real API
 
-	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 		return MockBtcAccount(t, config, coin, gapLimits, log)
 	}
 	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
@@ -320,6 +322,20 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	return b
 }
 
+func TestDevicesRegisteredReturnsSnapshot(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	unlock := b.devicesLock.Lock()
+	b.devices["device-id"] = nil
+	unlock()
+
+	devices := b.DevicesRegistered()
+	delete(devices, "device-id")
+
+	require.Contains(t, b.DevicesRegistered(), "device-id")
+}
+
 func TestRegisterKeystore(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
 	rootKey1 := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
@@ -334,12 +350,18 @@ func TestRegisterKeystore(t *testing.T) {
 	// A keystore with a similar config to a BitBox02 - supporting unified accounts, no legacy
 	// P2PKH.
 	ks1 := &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock keystore 1", nil
 		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return rootFingerprint1, nil
 		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
+		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
 			case *btc.Coin:
@@ -349,18 +371,22 @@ func TestRegisterKeystore(t *testing.T) {
 				return true
 			}
 		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
 		ExtendedPublicKeyFunc: keystoreHelper1.ExtendedPublicKey,
+		BTCXPubsFunc:          keystoreHelper1.BTCXPubs,
 	}
 	ks2 := &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock keystore 2", nil
 		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return rootFingerprint2, nil
 		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
+		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
 			case *btc.Coin:
@@ -370,10 +396,8 @@ func TestRegisterKeystore(t *testing.T) {
 				return true
 			}
 		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
 		ExtendedPublicKeyFunc: keystoreHelper2.ExtendedPublicKey,
+		BTCXPubsFunc:          keystoreHelper2.BTCXPubs,
 	}
 
 	b := newBackend(t, testnetDisabled, regtestDisabled)
@@ -394,10 +418,6 @@ func TestRegisterKeystore(t *testing.T) {
 	require.Equal(t, "Bitcoin", b.Config().AccountsConfig().Accounts[0].Name)
 	require.Equal(t, "Litecoin", b.Config().AccountsConfig().Accounts[1].Name)
 	require.Equal(t, "Ethereum", b.Config().AccountsConfig().Accounts[2].Name)
-	// All accounts default to not being watch-only.
-	for _, acct := range b.Accounts() {
-		require.Nil(t, acct.Config().Config.Watch)
-	}
 
 	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
 	require.Equal(t, "Mock keystore 1", b.Config().AccountsConfig().Keystores[0].Name)
@@ -408,7 +428,7 @@ func TestRegisterKeystore(t *testing.T) {
 
 	// Deregistering the keystore leaves the loaded accounts (watchonly), and leaves the persisted
 	// accounts and keystores.
-	// Mark accounts as watch-only.
+	// Enable watch-only for the keystore.
 	require.NoError(t, b.SetWatchonly(rootFingerprint1, true))
 
 	b.DeregisterKeystore()
@@ -439,33 +459,13 @@ func TestRegisterKeystore(t *testing.T) {
 
 	b.DeregisterKeystore()
 
-	// Disable watch-only for two accounts, one of each keystore. Now, all accounts plus the
-	// non-watch only accounts of the connected keystore will be loaded.
-	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
-		f := false
-		cfg.Lookup("v0-55555555-btc-0").Watch = &f
-		cfg.Lookup("v0-66666666-ltc-0").Watch = &f
-		return nil
-	}))
-	b.registerKeystore(ks1)
-	checkShownAccountsLen(t, b, 5, 6)
-	// v0-55555555-btc-0 loaded even though watch=false, as the keystore is connected.
-	require.NotNil(t, b.Accounts().lookup("v0-55555555-btc-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-66666666-btc-0"))
-	// v0-66666666-ltc-0 not loaded (watch=false).
-	require.Nil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
-
-	b.DeregisterKeystore()
-	checkShownAccountsLen(t, b, 4, 6)
-	// v0-55555555-btc-0 not loaded (watch = false)
+	// Stop watching the first keystore while no keystore is connected.
+	require.NoError(t, b.SetWatchonly(rootFingerprint1, false))
+	checkShownAccountsLen(t, b, 3, 6)
 	require.Nil(t, b.Accounts().lookup("v0-55555555-btc-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
-	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0"))
+	require.Nil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
+	require.Nil(t, b.Accounts().lookup("v0-55555555-eth-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-btc-0"))
-	// v0-66666666-ltc-0 not loaded (watch=false).
-	require.Nil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
 }

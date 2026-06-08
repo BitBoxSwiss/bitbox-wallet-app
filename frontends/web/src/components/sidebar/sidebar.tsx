@@ -1,44 +1,30 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2021-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useKeystores } from '@/hooks/backend';
 import type { TDevices } from '@/api/devices';
-import type { IAccount } from '@/api/account';
+import type { TAccount } from '@/api/account';
 import { deregisterTest } from '@/api/keystores';
 import { getVersion } from '@/api/bitbox02';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
-import { CloseXWhite, Cog, CogGray, Coins, Device, Eject, Linechart, RedDot, ShieldGray, USBSuccess } from '@/components/icon';
-import { getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
+import { CloseXWhite, CogLight, Coins, Device, Eject, Linechart, RedDot, ShieldLight } from '@/components/icon';
+import { getAccountsByKeystore } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
-import { Badge } from '@/components/badge/badge';
 import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms';
+import { NewBadge } from '@/components/new-badge/new-badge';
+import { ConnectedKeystore } from '../keystore/connected-keystore';
 import style from './sidebar.module.css';
 
 type SidebarProps = {
   devices: TDevices;
-  accounts: IAccount[];
+  accounts: TAccount[];
 };
 
-type TGetAccountLinkProps = IAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
+type TGetAccountLinkProps = TAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
 
 const GetAccountLink = ({
   coinCode,
@@ -106,7 +92,7 @@ const Sidebar = ({
   };
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
-  const userInSpecificAccountExchangePage = (pathname.startsWith('/exchange'));
+  const userInSpecificAccountMarketPage = (pathname.startsWith('/market'));
 
   return (
     <div className={style.sidebarContainer}>
@@ -124,7 +110,10 @@ const Sidebar = ({
         </div>
 
         { accounts.length ? (
-          <div key="account-summary" className={`${style.sidebarItem} ${style.sidebarPortfolio}`}>
+          <div
+            key="account-summary"
+            className={`${style.sidebarItem || ''} ${style.sidebarPortfolio || ''}`}
+          >
             <NavLink
               className={({ isActive }) => isActive ? style.sidebarActive : ''}
               to={'/account-summary'}
@@ -138,46 +127,43 @@ const Sidebar = ({
           </div>
         ) : null }
 
-        { accountsByKeystore.map(keystore => (
-          <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
-            <div className={style.sidebarHeaderContainer}>
-              <span
-                className={style.sidebarHeader}
-                hidden={!keystore.accounts.length}>
-                <span className="p-right-quarter">
-                  {`${keystore.keystore.name} `}
-                  { isAmbiguousName(keystore.keystore.name, accountsByKeystore) ? (
-                    // Disambiguate accounts group by adding the fingerprint.
-                    // The most common case where this would happen is when adding accounts from the
-                    // same seed using different passphrases.
-                    <> ({keystore.keystore.rootFingerprint})</>
-                  ) : null }
-                </span>
-                <Badge
-                  className={keystore.keystore.connected ? style.sidebarIconVisible : style.sidebarIconHidden}
-                  icon={props => <USBSuccess {...props} />}
-                  type="success"
-                  title={t('device.keystoreConnected')} />
-              </span>
+        <div data-testid="sidebar-keystores">
+          { accountsByKeystore.map(keystore => (
+            <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
+              <div className={style.sidebarHeaderContainer}>
+                <ConnectedKeystore
+                  accountsByKeystore={accountsByKeystore}
+                  className={style.sidebarHeader}
+                  keystore={keystore.keystore}
+                  connectedIconOnly={true}
+                />
+              </div>
+              { keystore.accounts.map(acc => (
+                <GetAccountLink key={`account-${acc.code}`} {...acc} handleSidebarItemClick={handleSidebarItemClick} />
+              ))}
             </div>
-            { keystore.accounts.map(acc => (
-              <GetAccountLink key={`account-${acc.code}`} {...acc} handleSidebarItemClick={handleSidebarItemClick} />
-            ))}
-          </div>
-        )) }
+          )) }
+        </div>
 
         <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
         { accounts.length ? (
           <>
-            <div key="exchange" className={style.sidebarItem}>
+            <div key="market" className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive || userInSpecificAccountExchangePage ? style.sidebarActive : ''}
-                to="/exchange/info">
+                className={({ isActive }) => isActive || userInSpecificAccountMarketPage ? style.sidebarActive : ''}
+                to="/market/select">
                 <div className={style.single}>
                   <Coins />
                 </div>
-                <span className={style.sidebarLabel}>
+                <span className={`${style.sidebarLabel || ''} ${style.marketplaceLabel || ''}`}>
                   {t('generic.buySell')}
+                  <NewBadge
+                    className={style.marketplaceNudgeDot}
+                    configKey="hasSeenMarketplaceNudge"
+                    hideOnPathPrefix="/market/"
+                    pathname={pathname}
+                    type="dot"
+                  />
                 </span>
               </NavLink>
             </div>
@@ -187,7 +173,7 @@ const Sidebar = ({
                 to="/bitsurance/bitsurance"
               >
                 <div className={style.single}>
-                  <ShieldGray alt={t('sidebar.insurance')} />
+                  <ShieldLight alt={t('sidebar.insurance')} />
                 </div>
                 <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
               </NavLink>
@@ -201,9 +187,8 @@ const Sidebar = ({
             to={'/settings'}
             title={t('sidebar.settings')}
             onClick={handleSidebarItemClick}>
-            <div className="stacked">
-              <CogGray alt={t('sidebar.settings')} />
-              <Cog alt={t('sidebar.settings')} />
+            <div className={style.single}>
+              <CogLight alt={t('sidebar.settings')} />
             </div>
             <span className={style.sidebarLabel}>
               {t('sidebar.settings')}

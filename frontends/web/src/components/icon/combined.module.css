@@ -9,7 +9,7 @@
 
 .bitbox02 {
     display: inline-block;
-    max-width: 264px;
+    max-width: min(264px, 80%);
     position: relative;
     right: -16px;
 }

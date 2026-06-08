@@ -30,7 +30,7 @@
 
 .spinnerText {
     margin: 0;
-    padding: 0 var(--spacing-default);
+    padding: 0 var(--space-half);
     text-align: center;
 }
 
@@ -82,14 +82,21 @@
 .toggler {
     width: 32px;
     height: 32px;
-    margin-right: var(--spacing-default);
+    margin-right: var(--space-half);
     display: flex;
     flex-direction: row;
     align-items: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .toggler img {
     width: 20px;
+    transition: opacity 0.15s ease;
+}
+
+.toggler:active img {
+    opacity: 0.5;
 }
 
 @media (min-width: 1200px) {

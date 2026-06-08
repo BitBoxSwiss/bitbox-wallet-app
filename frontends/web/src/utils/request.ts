@@ -1,22 +1,5 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2022-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { i18n } from '@/i18n/i18n';
-import { alertUser } from '@/components/alert/Alert';
 import { call } from './transport-qt';
 import { mobileCall } from './transport-mobile';
 import { runningInQtWebEngine, runningOnMobile } from './env';
@@ -55,9 +38,6 @@ const handleError = (endpoint: string) => {
           return;
         }
         console.error('error from endpoint', endpoint, json);
-        // TODO: remove i18n.t dependency because if cyclic i18n<->request dependency
-        // TODO: deprecate alertUser
-        alertUser(i18n.t('genericError'));
         reject(json.error);
         return;
       }
@@ -69,9 +49,6 @@ const handleError = (endpoint: string) => {
 export const apiGet = (endpoint: string): Promise<any> => {
   // if apiGet() is invoked immediately this can error with:
   // request.js:64 Uncaught TypeError: Cannot read properties of undefined
-  // (reading 'runningInQtWebEngine')
-  // TODO: maybe use extConfig('{{ ENGINE_QTWEB }}', 'no') === 'yes' instead of runningInQtWebEngine()?
-  // drawback: not treeshakeable
   if (runningInQtWebEngine()) {
     return call(JSON.stringify({
       method: 'GET',

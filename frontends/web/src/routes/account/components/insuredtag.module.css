@@ -1,16 +1,15 @@
 .insured {
-    padding: 4px 10px;
-    border-radius: var(--space-half);
-    border: 1px solid;
-    font-size: var(--size-small);
-    line-height: 14px;
-    background: var(--color-palegreen);
-    border-color: var(--color-lightgreen);
-    color: var(--color-darkgreen);
-    margin: 0px 10px;
-    text-decoration: none;
-    white-space: nowrap;
-    max-height: 24px;
+  background: var(--color-palegreen);
+  border-radius: var(--space-half);
+  border: 1px solid;
+  border-color: var(--color-lightgreen);
+  color: var(--color-darkgreen);
+  font-size: var(--size-smaller);
+  margin: 0px 10px;
+  max-height: 2.4rem;
+  padding: .4rem 10px;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .insured div {

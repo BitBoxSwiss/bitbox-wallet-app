@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package addresses_test
 
@@ -71,6 +59,14 @@ func (s *addressTestSuite) TestScriptHashHex() {
 	s.Require().Equal(
 		blockchain.ScriptHashHex("1f4444773ff74188b4d8ccff2a2efec0cae61efce152cafef97b6fadb96382b5"),
 		s.address.PubkeyScriptHashHex())
+	s.Require().Equal(
+		addresses.AddressID("1f4444773ff74188b4d8ccff2a2efec0cae61efce152cafef97b6fadb96382b5"),
+		addresses.NewAddressID(s.address.PubkeyScript()),
+	)
+	s.Require().Equal(
+		"1f4444773ff74188b4d8ccff2a2efec0cae61efce152cafef97b6fadb96382b5",
+		s.address.ID(),
+	)
 }
 
 func TestAddressP2TR(t *testing.T) {

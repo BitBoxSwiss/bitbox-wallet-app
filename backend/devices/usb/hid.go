@@ -1,16 +1,6 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
+
+//go:build !ios && !android
 
 package usb
 
@@ -20,6 +10,7 @@ import (
 	"runtime"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid/hiddevice"
 	"github.com/karalabe/hid"
 )
 
@@ -101,7 +92,7 @@ func (info hidDeviceInfo) Identifier() string {
 // singleThreadedDevice runs all hidapi functions in the same OS thread. See the docs of the
 // `funcCalls` variable for more info. Implements io.ReadWriteCloser, like `hid.Device`.
 type singleThreadedDevice struct {
-	device hid.Device
+	device io.ReadWriteCloser
 }
 
 // Write wraps hid.Device.Write to run in a dedicated OS thread.
@@ -147,9 +138,13 @@ func (info hidDeviceInfo) Open() (io.ReadWriteCloser, error) {
 		if result.err != nil {
 			return nil, result.err
 		}
-		return singleThreadedDevice{device: result.value}, nil
+		return singleThreadedDevice{device: hiddevice.New(result.value)}, nil
 	}
-	return info.DeviceInfo.Open()
+	hidDevice, err := info.DeviceInfo.Open()
+	if err != nil {
+		return nil, err
+	}
+	return hiddevice.New(hidDevice), nil
 }
 
 // DeviceInfos returns a slice of all recognized devices.

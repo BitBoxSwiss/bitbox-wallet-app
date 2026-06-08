@@ -1,7 +1,10 @@
 {
   "account": {
+    "account": "Account",
+    "accounts": "Accounts",
+    "backupReminder": "Your wallet <strong>{{name}}</strong> passed {{fiat}} {{threshold}}!\n\nWe recommend creating a paper backup for extra protection. It's quick and simple.",
+    "backupReminderLink": "Create paper backup",
     "disconnect": "Connection lost. Retrying…",
-    "export": "Export",
     "exportTransactions": "Export transactions to downloads folder as CSV file",
     "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
@@ -11,11 +14,13 @@
     "maybeProxyError": "Tor proxy enabled. Ensure that your Tor proxy is running properly, or disable the proxy setting.",
     "reconnecting": "Lost connection, trying to reconnect…",
     "syncedAddressesCount": "Scanned {{count}} addresses",
+    "syncing": "Syncing the account, please wait…",
     "uncoveredFunds": "You have coins on the following uncovered address types of your <strong>{{name}}</strong> account: {{uncovered}}.\nSince the account is insured, only coins received via the <strong>Native Segwit</strong> address type are covered. Coins on different address types, even if they are on the same account, are not insured.\nPlease move all your coins from the unsupported address types to the <strong>Native Segwit</strong> address type, so all your coins on this account are insured.",
     "uncoveredFundsLink": "Follow this guide on how to move your coins.",
     "warning": "Warning!"
   },
   "accountInfo": {
+    "accountDetails": "Account details",
     "address": "Address",
     "buyCTA": {
       "information": {
@@ -23,32 +28,35 @@
         "start": "Get started by depositing some coins to the wallet or buying directly in the BitBoxApp."
       }
     },
+    "contractAddress": "Contract address",
+    "contractAddressWarning": "Do not send any coins to the contract address otherwise they will be lost. Contract address is just for informational purposes.",
+    "descriptorWarning": "To ensure smooth compatibility with other wallets, apps, or services, please copy the entire descriptor. Selecting and copying only the xpub might cause the account to be imported with an incorrect script type, which could lead to issues.",
+    "exportTransactions": "Export transaction history",
+    "exportTransactionsDisabled": "No transactions",
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
     "scriptType": "Script type",
-    "taproot": "The Taproot extended public key is not shown to protect from accidental misuse, as raw formats for this script type are not widely supported. If you want to view this key, connect your device to wallet software that supports the output descriptor format.",
     "title": "Account information",
+    "usedAddresses": "View used addresses",
     "verify": "Verify on device",
+    "viewAccountDetails": "View account details",
     "xpubTypeChangeBtn": {
       "p2pkh": "View legacy P2PKH extended public key",
       "p2tr": "View Taproot",
-      "p2wpkh": "View Native Segwit",
-      "p2wpkh-p2sh": "View older Segwit extended public key"
+      "p2wpkh": "View Native Segwit"
     },
     "xpubTypeInfo": "Currently displaying {{scriptType}} extended public key ({{current}} of {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Available balance",
     "balance": "Balance",
-    "coin": "Coin",
-    "exportSummary": "Export accounts summary to downloads folder as CSV file",
-    "fiatBalance": "Fiat balance",
     "name": "Account name",
     "noAccount": "There are no accounts to show.",
     "portfolio": "Portfolio",
-    "subtotalWithCoinName": "Total ({{coinName}})",
+    "searchPlaceholder": "Search transactions...",
     "title": "My portfolio",
     "total": "Total",
+    "totalAssets": "Total assets",
     "transactionHistory": "Transaction history"
   },
   "addAccount": {
@@ -71,6 +79,36 @@
     },
     "title": "Add account"
   },
+  "addresses": {
+    "changeCopyBody": "Do not use a change address to receive coins. To receive coins, click <receiveLink>here</receiveLink>.",
+    "columnAddress": "Address",
+    "columnLastUsed": "Last used",
+    "detail": {
+      "address": "Address"
+    },
+    "empty": "No addresses have been used yet.",
+    "emptyFiltered": "No addresses match your filters.",
+    "filter": {
+      "changeAddresses": "Change addresses",
+      "receiveAddresses": "Receive addresses"
+    },
+    "listDescriptionPrefix": "This page shows all used addresses of account",
+    "loadFailed": "Could not load used addresses.",
+    "loadNotSupported": "Used addresses are not available for this account type.",
+    "loadSyncInProgress": "Used addresses are still syncing. Please try again shortly.",
+    "notFound": "Address not found.",
+    "searchPlaceholder": "Search address",
+    "skipDeviceVerification": "Skip device verification",
+    "skipVerifyBody": "Not verifying the address on the device can result in copying an address that doesn’t belong to your BitBox.",
+    "skipVerifyConfirm": "Yes, skip verification",
+    "skipVerifyQuestion": "Are you sure you want to proceed?",
+    "skipVerifyTitle": "Skip device verification?",
+    "skipVerifyWarning": "Warning",
+    "title": "Used addresses",
+    "unverifiedAddressWarning": "This address has not been verified on the device.",
+    "verifyConnectFailed": "Could not connect to the selected device.",
+    "verifyFailed": "Address verification failed."
+  },
   "aopp": {
     "addressRequest": "{{host}} is requesting a receiving address.",
     "addressRequestWithLogo": "is requesting a receiving address",
@@ -86,7 +124,6 @@
       "message": "Proceed on {{host}}",
       "title": "Address successfully sent"
     },
-    "syncing": "Syncing the account, please wait.",
     "title": "Address request",
     "xpubRequested": "Sharing your xpub lets external services see your account addresses. Your coins are still safe and remain in your control."
   },
@@ -95,13 +132,16 @@
   },
   "auth": {
     "authButton": "Authenticate",
+    "dismissButton": "Cancel",
+    "missing": "Please setup a screen lock in the system settings of your device.",
     "title": "Please authenticate to continue"
   },
   "backup": {
     "check": {
+      "aborted": "Checking backup was aborted on the device",
       "checking": "Checking backup…",
       "confirmTitle": "Check backup",
-      "notOK": "Backup does NOT match the wallet.",
+      "notOK": "No backups on the microSD card matched the wallet on the BitBox. This can occur if you inserted a microSD card that was used to set-up another BitBox. Please locate the correct microSD card used to set-up this BitBox and try again.",
       "ok": "Backup matches the wallet.",
       "password": {
         "label": "Recovery password",
@@ -129,11 +169,13 @@
     "description": "Select <strong>wallet backup file</strong>",
     "insert": "Please insert the microSD card to manage backups.",
     "insertButton": "I have inserted the microSD card",
+    "link": "Go to manage backups",
     "list": "Your microSD card backups",
     "noBackups": "There are no backups on this microSD card.",
     "restore": {
       "confirmTitle": "Restore backup",
       "error": {
+        "e104": "Restoring backup was aborted.",
         "e200": "microSD card not found",
         "general": "Error restoring the backup"
       },
@@ -191,6 +233,20 @@
     "followInstructionsMnemonicTitle": "Restore from recovery words"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "Bluetooth is now disabled on your BitBox. If you want to connect with iPhones in the future, you will need to re-enable it.",
+      "alertEnabled": "Bluetooth is now enabled.",
+      "description": "Bluetooth is used for connecting with iPhone.",
+      "error_104": "Changing the bluetooth setting was aborted.",
+      "titleDisabled": "Enable Bluetooth",
+      "titleEnabled": "Disable Bluetooth"
+    },
+    "changePassword": {
+      "description": "Change the device password of the BitBox.",
+      "error_104": "Changing the password was aborted.",
+      "success": "Password changed successfully",
+      "title": "Change device password"
+    },
     "deviceName": {
       "current": "Current device name",
       "error": "Device name could not be set",
@@ -364,14 +420,19 @@
     "connected": "connected",
     "connectionFailed": "failed",
     "connectionIssues": "Having connection issues?",
+    "connectionIssuesLink": "See here",
+    "disabledGloballyDescription": "Please turn on Bluetooth to connect to your BitBox.",
+    "disabledGloballyTitle": "Bluetooth access is disabled.",
+    "disabledPermissionDescription": "Please allow Bluetooth to connect to your BitBox.",
+    "disabledPermissionTitle": "Bluetooth access is disabled for BitBoxApp.",
     "enable": "Please turn on Bluetooth",
     "select": "Select your BitBox"
   },
   "bootloader": {
     "button": "Upgrade firmware now",
     "button_install": "Install firmware now",
-    "progress": "Upgrading: {{progress}}%",
-    "progress_install": "Installing: {{progress}}%",
+    "progress": "Upgrading",
+    "progress_install": "Installing",
     "success": "Upgrade successful! Please replug the device. This time, do not touch the button."
   },
   "button": {
@@ -381,6 +442,7 @@
     "check": "Check backup",
     "continue": "Continue",
     "copy": "Copy",
+    "copyAddress": "Copy address",
     "create": "Create",
     "dismiss": "Dismiss",
     "done": "Done",
@@ -389,23 +451,72 @@
     "ok": "OK",
     "previous": "Previous",
     "proceedOnBitBox": "Proceed on your BitBox",
-    "receive": "Receive",
     "restore": "Restore",
     "select": "Select",
-    "send": "Send",
     "unlock": "Unlock",
     "update": "Update",
     "upgrade": "Upgrade"
   },
   "buy": {
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": "Insufficient funds to buy gift card."
+      },
+      "transactionNote": "Sent to Bitrefill"
+    },
     "exchange": {
       "bankTransfer": "Bank transfer",
       "bestDeal": "Best deal",
       "buy": "Buy",
+      "buyServices": "Buy services",
       "creditCard": "Credit card",
+      "description_bitrefill": "Shop gift cards, phone refills & more",
+      "description_btcdirect-otc": "BTC Direct - Private trading desk",
+      "description_pocket-otc": "Pocket Private",
+      "description_swapkit": "Decentralized swapping BTC, ETH, USDT etc",
       "fast": "Fast",
       "fee": "fee",
       "infoContent": {
+        "bitrefill": {
+          "disclaimer": {
+            "account": {
+              "link": "Bitrefill purchasing limits",
+              "text": "You can use Bitrefill without creating an account, within certain limits. To increase your spending limits, you can create a basic account or become a verified customer. For full details, see Bitrefill’s purchasing limits.",
+              "title": "Account and limits"
+            },
+            "claims": {
+              "link": "Bitrefill support",
+              "text": "If you experience any issues with a purchase, please contact Bitrefill directly within 30 days of your order.",
+              "title": "Claims"
+            },
+            "dataProtection": {
+              "link": "Bitrefill privacy policy",
+              "text": "The BitBoxApp does not collect personal data. Bitrefill collects information according to its Privacy Policy.",
+              "title": "Data Protection"
+            },
+            "fees": {
+              "text": "Bitrefill doesn’t charge explicit fees, but product prices may include a markup, which can vary depending on the retailer, region, and the exchange rate Bitrefill applies.",
+              "title": "Fees"
+            },
+            "intro": {
+              "text": "Bitrefill is an online platform that lets you buy gift cards, top up mobile phones, and pay bills using bitcoin or other cryptocurrencies. It’s an easy way to spend crypto on everyday goods and services without converting it into traditional money. Bitrefill offers a wide range of products from global brands and is popular among people who want to live on crypto or shop privately.",
+              "title_bitcoin": "Spend bitcoin with Bitrefill",
+              "title_crypto": "Spend crypto with Bitrefill"
+            },
+            "security": {
+              "link": "BitBox security threat model",
+              "text": "Bitrefill is an external service that is not covered by the BitBox security threat model. When you make a purchase, your payment is sent to a Bitrefill address. The BitBox cannot verify that this address is correct.",
+              "title": "Security notice"
+            },
+            "validEmail": {
+              "text": "Various temporary email providers are not supported by Bitrefill and thus you may not receive your invoice. Your gift card code/voucher will still be present at the end of the workflow.",
+              "title": "Valid email addresses"
+            }
+          },
+          "infobox": {
+            "intro": "Bitrefill is an online platform where you can spend bitcoin and other cryptocurrencies on everyday essentials by purchasing gift cards, mobile top-ups, and a variety of services. The integration with the BitBoxApp lets you spend your coins directly from your BitBox without moving them to an exchange or another wallet."
+          }
+        },
         "btcdirect": {
           "disclaimer": {
             "dataProtection": {
@@ -427,20 +538,19 @@
               "fee": "Minimum trade amounts of €50,000 apply, with a transparent fee between 0.5% and 1%.",
               "sell": "Sell bitcoin:",
               "sell2": "Lock in a fixed OTC price when placing a sell order. EUR payment is made once you send crypto to BTC Direct. Personal assistance is available if needed.",
-              "title": "Payment Methods and Fees"
+              "title": "Payment methods and fees"
             },
             "personal": {
               "text": "Each Private Trading client is assigned a dedicated account manager for personalized assistance via phone, video call, email, or chat. Buy and sell prices are immediately fixed when the order is placed, even if settlement occurs later. Orders are executed through BTC Direct's OTC desk, minimizing slippage.",
               "title": "Personal service with fixed pricing"
             },
             "security": {
-              "link": "BitBox02 security threat model",
-              "text": "BTC Direct's Private Trading Desk is an external service not covered by the BitBox02 security threat model. However, BTC Direct is well-acquainted with BitBox products and offers secure, knowledgeable guidance. BitBox products verify crypto addresses during transactions to ensure secure delivery.",
+              "link": "BitBox security threat model",
+              "text": "BTC Direct's Private Trading Desk is an external service not covered by the BitBox security threat model. However, BTC Direct is well-acquainted with BitBox products and offers secure, knowledgeable guidance. BitBox products verify crypto addresses during transactions to ensure secure delivery.",
               "title": "Security"
             },
             "title": "Disclaimer"
           },
-          "info": "Get a personal advisor, reduced fees and place orders directly through your contact at BTC Direct.",
           "infobox": {
             "intro_btconly": "Get personal assistance for high-value, over-the-counter (OTC) Bitcoin trades.",
             "intro_multi": "Get personal assistance for high-value over-the-counter (OTC) trades for Bitcoin, Ethereum stablecoins, and more.",
@@ -451,13 +561,11 @@
             "listItem3": "Minimum order amount: €50,000.",
             "listItem4": "Transparent fees fixed at 0.5%-1%, including personal guidance.",
             "manager": "You'll have a dedicated account manager guiding you at every step, ensuring a secure, straightforward experience with fixed rates and minimal slippage."
-          },
-          "link": "Access BTC Direct - Private Trading Desk",
-          "title": "Buying or selling over €50,000?"
+          }
         },
         "btcdirectWidget": {
           "disclaimer": {
-            "description": "We work with BTC Direct, a trusted European broker, to make buying cryptocurrencies easy within the BitBoxApp. This service is available across Europe using bank transfers, credit cards and many local payment methods.",
+            "description": "We work with BTC Direct, a trusted European broker, to make buying and selling cryptocurrencies easy within the BitBoxApp. This service is available across Europe using bank transfers, credit cards and many local payment methods.",
             "kyc": {
               "description": "Customer identity verification is required for all trades. You’ll need to take a selfie and take a picture of an official document.",
               "title": "Identity verification"
@@ -465,15 +573,16 @@
             "paymentMethods": {
               "buy": "Buying: Pay in EUR to get the coins delivered directly to your BitBox. You can choose between one-time and recurring buys. For bank transfers, the exchange rate is fixed when BTC Direct receives the money. Instant methods use a fixed conversion rate for a limited time.",
               "note": "Note: BTC Direct exchange rates may differ slightly from the BitBoxApp rates.",
-              "title": "Payment Methods and Fees"
+              "sell": "Selling: Send your cryptocurrency to BTC Direct and receive EUR in your bank account. The exchange rate is fixed as soon as BTC Direct receives your coins.",
+              "title": "Payment methods and fees"
             },
             "security": {
               "description": "BTC Direct is an external service not covered by the BitBox security threat model. We closely work with BTC Direct to enhance overall security.",
-              "link": "BitBox02 security threat model",
+              "link": "BitBox security threat model",
               "title": "Security"
             },
-            "title_bitcoin": "Buy bitcoin with BTC Direct",
-            "title_crypto": "Buy crypto with BTC Direct"
+            "title_bitcoin": "Buy and sell bitcoin with BTC Direct",
+            "title_crypto": "Buy and sell crypto with BTC Direct"
           },
           "infobox": {
             "feesBuying": {
@@ -481,9 +590,13 @@
               "bankTransfer": "Bank transfer, SEPA, iDEAL: {{fee}}%",
               "creditDebitCard": "Credit cards, Cartes Bancaires: {{fee}}%",
               "sofort": "Sofort: {{fee}}%",
-              "title": "Fees for Buying"
+              "title": "Fees for buying"
             },
-            "intro": "European buying of cryptocurrencies with EUR.",
+            "feesSelling": {
+              "bankTransfer": "Bank transfer: {{fee}}%",
+              "title": "Fees for selling"
+            },
+            "intro": "European buying and selling of cryptocurrencies with EUR.",
             "payment": {
               "bancontact": "Bancontact",
               "bankTransfer": "Bank transfer, SEPA Instant, iDEAL",
@@ -545,14 +658,55 @@
             "title": "Identity verification"
           }
         },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "info": "The BitBoxApp does not collect personal data. Pocket Private collects necessary information as per their Privacy Policy to meet regulatory standards.",
+              "link": "Pocket privacy policy",
+              "title": "Data Protection"
+            },
+            "kyc": {
+              "info": "Customer identity verification is required for using Pocket Private. Your account manager will guide you through the process and answer any questions you might have.",
+              "title": "Identity verification"
+            },
+            "partnership": {
+              "text": "In partnership with Pocket Private, BitBox offers large transaction trading for Bitcoin. Pocket Private clients are assigned an account manager for personal assistance.",
+              "title": "Buy and sell with Pocket Private"
+            },
+            "payment": {
+              "info": [
+                "<strong>Buying bitcoin:</strong> Place large buy orders with your account manager and pay via bank transfer. Your Bitcoin is delivered directly to your BitBox after payment.",
+                "<strong>Sell bitcoin:</strong> Bank payment is made once you send bitcoin to Pocket Private. Personal assistance is available if needed.",
+                "<strong>Trading fees:</strong> Trading fees are based on lifetime volume, meaning your fee decreases as your total trading volume increases, regardless of order size."
+              ],
+              "title": "Payment methods and fees"
+            },
+            "security": {
+              "info": "Pocket Private is an external service not covered by the BitBox security threat model. However, Pocket Private is well-acquainted with BitBox products and offers secure, knowledgeable guidance. BitBox products verify Bitcoin addresses during transactions to ensure secure delivery.",
+              "link": "BitBox security threat model",
+              "title": "Security"
+            }
+          },
+          "infobox": {
+            "intro": "Get personal assistance and better fees for high-value over-the-counter (OTC) trades for Bitcoin. With Pocket Private, your fees decrease with your lifetime volume, so you always get the best fee no matter the order size.",
+            "learnmore": "Learn more about Pocket Private",
+            "tradingVolume": "Trading volume (lifetime volume)",
+            "transactionFee": "Transaction fee"
+          }
+        },
         "region": {
           "title": "Select the region your bank account is registered in to see which options are available to you."
         }
       },
       "noExchanges": "Sorry, there are no available exchanges in this region.",
+      "otcInfo": "Get personal assistance and reduced fees for large volume over-the-counter trading.",
       "region": "Region",
       "selectRegion": "Not specified",
-      "sell": "Sell"
+      "sell": "Sell",
+      "sellServices": "Sell services",
+      "spend": "Spend",
+      "spendServices": "Spend services",
+      "swapServices": "Swap services"
     },
     "info": {
       "continue": "Agree and continue",
@@ -583,8 +737,8 @@
           "title": "Data protection"
         },
         "security": {
-          "descriptionGeneric_bitcoin": "When you buy Bitcoin via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
-          "descriptionGeneric_crypto": "When you buy crypto via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "descriptionGeneric_bitcoin": "When you buy Bitcoin via a partner exchange, you are using an external service. This service is out of scope of the BitBox security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "descriptionGeneric_crypto": "When you buy crypto via a partner exchange, you are using an external service. This service is out of scope of the BitBox security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
           "link": "Security threat model",
           "title": "Security model"
         },
@@ -611,7 +765,7 @@
     "oldLabel": "Current device password"
   },
   "chart": {
-    "dataMissing": "Gathering historical data... stay tuned.",
+    "dataMissing": "Loading chart, come back later...",
     "dataOldTimestamp": "Historical exchange rates updating. The chart is not displaying data after {{time}}.",
     "dataUpdating": "updating data…",
     "filter": {
@@ -629,7 +783,8 @@
   "confirmOnDevice": "Please confirm on your device.",
   "connectKeystore": {
     "promptNoName": "Please connect your BitBox to continue",
-    "promptWithName": "Please connect your BitBox named \"{{name}}\" to continue"
+    "promptWithName": "Please connect your BitBox named \"{{name}}\" to continue",
+    "swapHint": "Please connect a BitBox Multi to Swap."
   },
   "darkmode": {
     "toggle": "Dark mode"
@@ -646,9 +801,12 @@
         "description": "Create or verify your microSD card backup."
       },
       "showRecoveryWords": {
-        "description": "Show and verify recovery words."
+        "description": "Show and verify recovery words on the BitBox screen."
       },
       "title": "Backups"
+    },
+    "bluetoothFirmware": {
+      "title": "Bluetooth firmware"
     },
     "deviceInformation": {
       "attestation": {
@@ -657,6 +815,10 @@
       "deviceName": {
         "description": "Change the name of your device."
       },
+      "passwordStretchingAlgo": {
+        "description": "The algorithm used to encrypt the seed on your BitBox.",
+        "title": "Unlock algorithm"
+      },
       "rootFingerprint": {
         "description": "The root fingerprint is a unique identifier for the wallet currently in use. It can help you distinguish between different wallets if you use passphrases."
       },
@@ -664,6 +826,9 @@
         "description": "The model of the secure chip."
       },
       "title": "Device information"
+    },
+    "deviceSettings": {
+      "title": "Device settings"
     },
     "expert": {
       "bip85": {
@@ -701,7 +866,7 @@
       }
     },
     "firmware": {
-      "firmwareVersion": "Firmware Version",
+      "firmwareVersion": "Firmware version",
       "newVersion": {
         "label": "Available version"
       },
@@ -756,10 +921,13 @@
     "wrongKeystore2": " If you are using the optional passphrase, make sure you have entered the correct passphrase for the account."
   },
   "exchange": {
+    "btcdirect": {
+      "currencyMismatch": "Unexpected currency in payment request",
+      "insufficientFunds": "Insufficient funds on the selected account."
+    },
     "buySell": {
       "coinNotSupported": "No options available for this coin type.",
-      "regionNotSupported": "No options available for this region.",
-      "updateNow": "Update now"
+      "regionNotSupported": "No options available for this region."
     },
     "pocket": {
       "terms": {
@@ -773,17 +941,16 @@
           "note": "Note: Pocket's exchange rates may differ from the BitBoxApp rates.",
           "p1": "<strong>Buying bitcoin:</strong> Use SEPA bank transfer to send EUR or CHF and get bitcoin delivered directly to your BitBox after Pocket receives the transfer, usually the same day.",
           "p2": "<strong>Selling bitcoin:</strong> Send Bitcoin to Pocket and receive EUR or CHF in your registered bank account. The exchange rate is fixed when Pocket receives your Bitcoin.",
-          "title": "Payment Methods and Fees"
+          "title": "Payment methods and fees"
         },
         "kyc": {
+          "info": "Pocket may require identification documents. Please refer to their FAQs for more information.",
           "link": "Read Pocket FAQs",
-          "p1": "No additional documents are needed for exchanges up to 1000 EUR/CHF within a 30-day period.",
-          "p2": "For larger amounts, a call with Pocket is required to complete the KYC/AML process.",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
         "security": {
-          "link": "BitBox02 security threat model",
-          "p1": "Using Pocket is an external service and is not covered by the BitBox02 security threat model. However, we closely work with Pocket to enhance overall security.",
+          "link": "BitBox security threat model",
+          "p1": "Using Pocket is an external service and is not covered by the BitBox security threat model. However, we closely work with Pocket to enhance overall security.",
           "p2": "<strong>Buying bitcoin:</strong> You’ll get an email to confirm your bitcoin receive address through a second communication channel.",
           "p3": "<strong>Selling bitcoin:</strong> The BitBox verifies the Bitcoin deposit address cryptographically and displays \"Pocket\" on the hardware wallet.",
           "title": "Security"
@@ -792,6 +959,41 @@
           "p1": "We work with Pocket, a Swiss broker, to make buying and selling bitcoin easy within the BitBoxApp. This service is available across Europe where SEPA bank transfers are supported.",
           "title": "Buy and sell bitcoin with Pocket"
         }
+      }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "link": "SwapKit privacy policy",
+          "text": "The BitBoxApp does not learn or collect any personal data. SwapKit may collect some data as explained in their Privacy Policy.",
+          "title": "Data Protection"
+        },
+        "fees": {
+          "note": "Note: SwapKit's exchange rates may differ from the BitBoxApp rates.",
+          "text": "A flat rate of 1.5% is applied to each swap",
+          "title": "Fees"
+        },
+        "intro": {
+          "text": "SwapKit offers an SDK/API service for non-custodial swaps. We work with SwapKit to provide cryptocurrency swapping across different blockchains in one place. It helps power fast, simple, and non-custodial trading, so you stay in control of your assets.",
+          "title": "Swapping cryptocurrency with SwapKit"
+        },
+        "protocol": {
+          "link": "Learn about SwapKit providers",
+          "text": "SwapKit API uses multiple providers to perform Swaps. Providers may be added/removed over time in order to facilitate the latest swapping requirements and improved performance.",
+          "title": "SwapKit providers"
+        },
+        "security": {
+          "link": "BitBox security threat model",
+          "text": "SwapKit is an external service and is not covered by the BitBox security threat model. However, we closely work with SwapKit to improve security by implementing payment requests into the BitBox firmware. This means the BitBox will display the destination address as “SwapKit” when making a swap.",
+          "title": "Security"
+        },
+        "slippage": {
+          "text": "Slippage is the difference between the price you expect when you start a swap and the price you actually receive when the swap is completed. Because cryptocurrency prices can move quickly and liquidity can change during the transaction, the final amount you receive may be lower than estimated.",
+          "title": "Slippage"
+        }
+      },
+      "infobox": {
+        "intro": "Swap any cryptocurrency in the BitBoxApp to another without limits or KYC. This swapping service is provided by SwapKit, an aggregator for decentralised swapping services."
       }
     }
   },
@@ -803,18 +1005,49 @@
   "footer": {
     "appVersion": "App version:"
   },
+  "gapLimit": {
+    "change": "Gap limit for change addresses",
+    "description": "Configure custom gap limits for bitcoin receive and change addresses.",
+    "maxValue": "The gap limit must not exceed {{max}}.",
+    "minValue": "The gap limit must be at least {{min}}.",
+    "receive": "Gap limit for receive addresses",
+    "title": "Custom gap limit settings"
+  },
   "generic": {
+    "bitcoinOnly": "Bitcoin-only",
     "buy": "Buy {{coinCode}}",
-    "buySell": "Buy & sell",
+    "buySell": "Marketplace",
     "buy_bitcoin": "Buy Bitcoin",
     "buy_crypto": "Buy crypto",
+    "calculating": "Calculating…",
+    "close": "Close",
+    "enable": "Enable",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "max": "Max",
+    "new": "New",
+    "noOptionOnIos": "Not available on iOS",
     "noOptions": "No options found",
+    "paymentRequestNote": "{{name}} payment {{orderId}}",
     "receive": "Receive {{coinCode}}",
+    "receiveWithoutCoinCode": "Receive",
     "receive_bitcoin": "Receive Bitcoin",
     "receive_crypto": "Receive crypto",
-    "search": "Search…"
+    "received": "Received",
+    "reset": "Reset",
+    "resetToDefault": "Reset to default",
+    "retry": "Retry",
+    "search": "Search…",
+    "searchButton": "Search",
+    "sell": "Sell {{coinCode}}",
+    "sell_bitcoin": "Sell Bitcoin",
+    "sell_crypto": "Sell crypto",
+    "send": "Send",
+    "sent": "Sent",
+    "spend_bitcoin": "Spend bitcoin",
+    "spend_crypto": "Spend crypto",
+    "swap": "Swap",
+    "unknown": "Unknown"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {
@@ -861,8 +1094,12 @@
       "title": "What does incoming mean?"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "\"Export transactions\" under \"Account info\" and open your downloads folder to find the exported CSV file. This can be useful for services like CoinTracking for tax reporting.",
+        "title": "How can I export my transaction history? (e.g., for CoinTracking)"
+      },
       "multipleXPubs": {
-        "text": "Each xpub is tied to the \"Type\" shown: either \"Native Segwit (bech32)\", \"Wrapped Segwit\" or “Taproot” (Bitcoin only). These are script types used by {{coinName}}. The BitBoxApp combines them, supporting multiple script types in the same account. Because each script type gives a different xpub, there are multiple xpubs per account.\n\nIf you consistently receive on the default address (Native Segwit), you only need the \"bech32\" xpub. However, if you also receive funds to \"Wrapped Segwit\" or “Taproot”, you also need to use the \"Wrapped Segwit\" and “Taproot” extended public keys respectively.",
+        "text": "Each xpub is tied to the \"Type\" shown: either \"Native Segwit (bech32)\", or “Taproot” (Bitcoin only). These are script types used by {{coinName}}. The BitBoxApp combines them, supporting multiple script types in the same account. Because each script type gives a different xpub, there are multiple xpubs per account.\n\nIf you consistently receive on the default address (Native Segwit), you only need the \"bech32\" xpub. However, if you also receive funds to “Taproot”, you also need to use “Taproot” extended public key.",
         "title": "Why are there multiple xpubs?"
       },
       "privacy": {
@@ -910,6 +1147,10 @@
       "text": "A transaction broadcast to the network but not yet confirmed.",
       "title": "What is a pending transaction?"
     },
+    "accountTransactionEstimation": {
+      "text": "The BitBoxApp will prefix fiat amounts with an estimation sign until the transaction is confirmed and a final conversion rate is received.",
+      "title": "Why do new transactions show an estimation sign?"
+    },
     "accountTransactionLabel": {
       "text": "It’s the address you received coins from or sent coins to.",
       "title": "Which address is displayed for each transaction?"
@@ -920,7 +1161,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin and Litecoin can have an arbitrary amount of accounts. After five accounts, you can only add another account if the previous account has been used. \nOther coins can have a maximum of five accounts.",
+        "text": "Bitcoin and Litecoin can have an arbitrary amount of accounts. After six accounts, you can only add another account if the previous account has been used. \nOther coins can have a maximum of five accounts.",
         "title": "How many accounts can I create?"
       },
       "howtoAddTokens": {
@@ -956,6 +1197,10 @@
       }
     },
     "appendix": {
+      "feedback": {
+        "link": "Let us know.",
+        "text": "Have feedback?"
+      },
       "link": "Contact us!",
       "questionService": "Having issues with {{serviceName}}?",
       "text": "Another question?",
@@ -1003,6 +1248,29 @@
         "title": "How can I eject the microSD card?"
       }
     },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "This may be because you used an email provider that Bitrefill doesn't support. If you need the invoice, please contact Bitrefill support and they can supply you with your invoice.",
+        "title": "I did not receive an invoice from Bitrefill"
+      },
+      "kyc": {
+        "link": {
+          "text": "Bitrefill purchasing limits"
+        },
+        "text": "No, Bitrefill does not require identity verification. You can make purchases without KYC up to certain limits. For full details, please see Bitrefill's purchasing limits policy:",
+        "title": "Does Bitrefill require KYC?"
+      },
+      "limits": {
+        "link": {
+          "text": "Bitrefill account verification"
+        },
+        "text": "You can raise your purchase limits by becoming a verified customer. Please visit the following link to complete the verification process:",
+        "title": "How do I increase my purchasing limits with Bitrefill?"
+      }
+    },
     "bitsurance": {
       "faq": {
         "link": {
@@ -1039,10 +1307,6 @@
         "title": "Do I need Bitcoin insurance?"
       }
     },
-    "cointracking": {
-      "text": "Click the \"Export\" button and open the downloads folder where you will find the CSV export. Then click the link below, upload your BitBox CSV file and import the data in order to use it for your CoinTracking portfolio manager and to create your tax reports.",
-      "title": "How to import my transactions into CoinTracking?"
-    },
     "device": {
       "attestation": {
         "link": {
@@ -1069,7 +1333,7 @@
       "accountSummary": "Account summary guide",
       "advancedSettings": "Advanced settings guide",
       "appearance": "Appearance guide",
-      "buySell": "Buy & sell guide",
+      "buySell": "Marketplace guide",
       "insurance": "Insurance guide",
       "manageAccount": "Manage accounts guide",
       "manageDevice": "Manage device guide",
@@ -1087,11 +1351,11 @@
         "title": "When do the addresses change?"
       },
       "addressFormats": {
-        "text": "By default, the address type is Native Segwit. This address type is widely adopted by other wallets/exchanges and gives you the best fee rates for everyday transactions. However, you may also choose to send to Taproot (Bitcoin only), which is the newest address type, but may not be widely supported yet. Alternatively, if you are having issues sending to Native Segwit (the default type), you can try switching to the older Wrapped Segwit address type that may be compatible with more wallets/exchanges.",
+        "text": "By default, the address type is Native Segwit. This address type is widely adopted by other wallets/exchanges and gives you the best fee rates for everyday transactions. However, you may also choose to send to Taproot (Bitcoin only), which is the newest address type, but may not be widely supported yet.",
         "title": "When do I use “Change address type”?"
       },
       "howVerify": {
-        "text": "For the BitBox01, click on the BitBox icon in the sidebar on the left and see the Pairing section. The guide will update and you can continue following the instructions from there.\nFor the BitBox02, you can verify addresses directly on the device during the send/receive process.",
+        "text": "You can verify addresses directly on the BitBox during the send/receive process.",
         "title": "How can I verify an address securely?"
       },
       "plugout": {
@@ -1107,7 +1371,7 @@
         "title": "Why so many addresses?"
       },
       "whyVerify": {
-        "text": "You shouldn’t trust your computer to generate and display authentic addresses. It’s big attack surface makes it significantly more vulnerable than a hardware wallet. For the BitBox01, The button to verify the address securely sends the address to a paired mobile phone, from which you can also scan and verify the QR code. For the BitBox02, the address can be verified directly on the BitBox02 display.",
+        "text": "You shouldn't trust your computer to generate and display authentic addresses. It's big attack surface makes it significantly more vulnerable than a hardware wallet. The address can be verified directly on the BitBox display.",
         "title": "Why should I verify the address securely?"
       }
     },
@@ -1137,6 +1401,16 @@
         "title": "Why is there a network fee?"
       }
     },
+    "settings": {
+      "sats": {
+        "text": "A Satoshi ('sat' for short) is the smallest unit of Bitcoin. One Satoshi is a hundred millionth of a bitcoin (0.00000001 BTC). It is named after the creator of Bitcoin, Satoshi Nakamoto.",
+        "title": "What is a Satoshi?"
+      },
+      "servers": {
+        "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CoinGecko. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
+        "title": "Which servers does this app talk to?"
+      }
+    },
     "settings-electrum": {
       "connection": {
         "text": "If you intend to only connect to your node when you are on the same network (e.g. your home wifi), then using regular network communication is sufficient.\nIn this case it is advisable that your Electrum server provides a TLS certificate to encrypt the communication.\nIf you intend to connect to your node from anywhere, using Tor is the better option. No TLS certificate is necessary in that case.",
@@ -1164,16 +1438,6 @@
       "why": {
         "text": "Running your own node is not necessary but improves privacy and reduces the need to trust others.\nFirstly, it means that you are using Bitcoin more privately as the BitBoxApp won't connect to our servers to fetch your transaction history; instead it will fetch that information from your own node.\nSecondly, running your own node means that your node verifies all transactions itself, making sure that the consensus rules are enforced.",
         "title": "Why should I run my own node?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "A Satoshi ('sat' for short) is the smallest unit of Bitcoin. One Satoshi is a hundred millionth of a bitcoin (0.00000001 BTC). It is named after the creator of Bitcoin, Satoshi Nakamoto.",
-        "title": "What is a Satoshi?"
-      },
-      "servers": {
-        "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CoinGecko. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
-        "title": "Which servers does this app talk to?"
       }
     },
     "title": "Guide",
@@ -1215,7 +1479,7 @@
         "title": "I lost my device. Now what?"
       },
       "useWithoutDevice": {
-        "text": "Unfortunately, this is not yet possible at the moment.",
+        "text": "Yes, you can remember wallets in the manage account settings. This way you can see your portfolio without using a BitBox.",
         "title": "Can I use the app without a device?"
       },
       "welcome": {
@@ -1272,6 +1536,10 @@
     "title": "Select language"
   },
   "loading": "loading…",
+  "logo": {
+    "label": "{{name}} logo",
+    "placeholderLabel": "{{name}} placeholder logo"
+  },
   "manageAccounts": {
     "accountHidden": "This account has been hidden from your watch-only accounts. To see it again, please plug in your BitBox.",
     "editAccount": "Edit",
@@ -1293,6 +1561,14 @@
     "about": {
       "appVersion": {
         "title": "App version"
+      },
+      "feedbackLink": {
+        "description": "If you have general feedback",
+        "title": "Feedback"
+      },
+      "supportLink": {
+        "description": "If you have an issue or need help",
+        "title": "Support"
       }
     },
     "advancedSettings": {
@@ -1454,12 +1730,8 @@
       "paste": "to paste text, enable \"SHOW {{label}}\""
     }
   },
-  "random": {
-    "button": "Generate random number",
-    "description": "Your BitBox generated the following {{bits}}-bit random number:"
-  },
   "receive": {
-    "bitsuranceWarning": "This is an insured account, meaning it can only receive to Native Segwit. This is so you don't accidently receive to Wrapped Segwit or Taproot, which are not insured.",
+    "bitsuranceWarning": "This is an insured account, meaning it can only receive to Native Segwit. This is so you don't accidently receive to Taproot, which is not insured.",
     "changeScriptType": "Change address type",
     "label": "Your address",
     "onlyThisCoin": {
@@ -1469,15 +1741,15 @@
     "qrCodeCopiedMessage": "Copied!",
     "scriptType": {
       "p2tr": "Taproot (newest format)",
-      "p2wpkh": "Native Segwit (default)",
-      "p2wpkh-p2sh": "Wrapped Segwit (compatible format)"
+      "p2wpkh": "Native Segwit (default)"
     },
     "selectAccount": "Select account",
     "taprootWarning": "Note: Taproot is a new Bitcoin feature and is not yet widely adopted. Funds received on Taproot addresses may not be visible in third party watch-only wallets. Many wallets and exchanges are not yet able to send to Taproot addresses.",
     "title": "Receive {{accountName}}",
     "verify": "Verify address securely",
     "verifyBitBox02": "Verify address on BitBox",
-    "verifyInstruction": "Please verify that the following address matches the one displayed on your device."
+    "verifyInstruction": "Please verify that the following address matches the one displayed on your device.",
+    "verifyTestnetWarning": "This is a testnet account, coins received to this address have no value"
   },
   "reset": {
     "description": "All data will be deleted from this device. That includes your Private Key!",
@@ -1572,13 +1844,15 @@
     },
     "edit": "Edit transaction",
     "error": {
+      "accountNotSynced": "The account is not synced yet. Please wait until syncing is complete and try again.",
       "erc20InsufficientGasFunds": "You do not have enough Ether to pay for this ERC20 transaction. Please add Ether to your wallet and try again.",
       "feeTooLow": "fee too low",
       "feesNotAvailable": "Could not estimate fees",
       "insufficientFunds": "insufficient funds",
       "invalidAddress": "invalid address",
       "invalidAmount": "invalid amount",
-      "invalidData": "invalid data"
+      "invalidData": "invalid data",
+      "syncInProgress": "The account is still syncing. Please wait until syncing is complete and try again."
     },
     "fee": {
       "customPlaceholder": "Enter amount",
@@ -1627,14 +1901,17 @@
     "priority": "Priority",
     "scanQR": "Scan QR code",
     "scanQRNoCameraMessage": "Camera not found. Please ensure that your device supports a camera and permissions are correctly set.",
+    "sendToAccount": {
+      "placeholder": "Select account",
+      "title": "Send to account"
+    },
     "success": "The transaction has been signed and sent.",
     "title": "Send {{accountName}}",
-    "toggleCoinControl": "Toggle coin control",
+    "toggleCoinControl": "Coin control",
     "transactionDetails": "Transaction details"
   },
   "settings": {
     "about": "About",
-    "accounts": "Accounts",
     "advancedSettings": "Advanced settings",
     "appearance": "Appearance",
     "electrum": {
@@ -1712,6 +1989,9 @@
       "title": "Manage notes"
     },
     "restart": "Please re-start the BitBoxApp for the changes to take effect.",
+    "search": {
+      "noResults": "No settings found"
+    },
     "services": {
       "title": "Services"
     },
@@ -1724,6 +2004,20 @@
     "insurance": "Insurance",
     "leave": "Leave",
     "settings": "Settings"
+  },
+  "signMessage": {
+    "addressLabel": "Address",
+    "emptyMessage": "Please enter a message to sign.",
+    "error": "Failed to sign message. Please try again.",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Enter the message to sign",
+    "resultDescription": "Message signed",
+    "signButton": "Sign on device",
+    "signMessage": "Sign message",
+    "signOnBitBoxSubtitle": "Sign message on BitBox",
+    "signatureLabel": "Signature",
+    "signing": "Please confirm the message on your device.",
+    "unsupportedTaproot": "Message signing is not supported for Taproot addresses yet. Please go back and change the address type."
   },
   "success": {
     "create": {
@@ -1738,6 +2032,21 @@
       "summary": "You have successfully restored a wallet from your backup.",
       "title": "Success"
     }
+  },
+  "swap": {
+    "completed": "Swap completed",
+    "confirmOnBitBox": "Confirm swap on BitBox",
+    "fastest": "Fastest",
+    "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
+    "fetchingRoutes": "Fetching routes...",
+    "new": "New swap",
+    "noRouteFound": "No route found",
+    "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",
+    "oneRouteAvailable": "One route available",
+    "recommended": "Recommended",
+    "route": "Swap route",
+    "routesPlaceholder": "Routes will appear here after entering an amount",
+    "unexpectedError": "Some unexpected error occurred."
   },
   "testWallet": {
     "connect": {
@@ -1767,15 +2076,17 @@
     }
   },
   "transaction": {
+    "advanced": "Advanced",
     "confirmation": "Confirmations",
     "details": {
       "activity": "Activity",
       "address": "Address",
       "amount": "Amount",
+      "currentValue": "Current value",
       "date": "Date",
-      "fiat": "Fiat",
       "fiatAmount": "Fiat amount",
-      "fiatAtTime": "Fiat at time of transaction",
+      "historicalValue": "Historical value",
+      "sentToSelf": "Sent to self",
       "status": "Status",
       "title": "Transaction Details",
       "type": "Type"
@@ -1785,10 +2096,7 @@
     "fee": "Fee",
     "fiatHistorical": "Historical",
     "gas": "Gas",
-    "note": {
-      "edit": "Edit note",
-      "save": "Save note"
-    },
+    "no-results": "No transactions found matching \"{{searchTerm}}\"",
     "pending": "Pending transaction",
     "size": "Size",
     "status": {
@@ -1813,7 +2121,9 @@
       "receive_pending": "Received to",
       "send_complete": "Sent to",
       "send_failed": "Failed sending to",
-      "send_pending": "Sent to"
+      "send_pending": "Sent to",
+      "send_to_self": "Sent <amount /> to self",
+      "send_to_self_failed": "Failed sending <amount /> to self"
     },
     "vsize": "Virtual size",
     "weight": "Weight"
@@ -1829,6 +2139,18 @@
       "e109_normal": "Wrong device password. {{remainingAttempts}} attempts remain before the device is reset.",
       "e109_touch": "$t(unlock.error.e109_normal) The next login requires holding the touch button.",
       "e113": "Due to many login attempts, the next login requires holding the touch button for 4 seconds."
+    },
+    "forgotPassword": {
+      "button": "See here",
+      "dialogDescription": "If you forgot your device password, you can still restore from your wallet backup:",
+      "dialogTitle": "Forgot your device password?",
+      "info": "Forgot your password?",
+      "stillHavingIssues": "Still having issues?",
+      "supportLink": "Contact support",
+      "text1": "After entering the wrong device password 10 times, your device automatically resets to factory settings.",
+      "text2": "You can restore your wallet from a microSD card or paper backup, without needing the old device password. During restore, you can set a new device password.",
+      "title1": "Device resets after repeated failed attempts",
+      "title2": "Restore from your wallet backup"
     },
     "input": {
       "label": "Device password",
@@ -1869,7 +2191,6 @@
     },
     "pairingSuccess": "Dapp successfully connected. You can continue on the dapp website.",
     "signingRequest": {
-      "account": "Account",
       "chain": "Chain",
       "dapp": "Dapp",
       "data": "Data",
@@ -1889,6 +2210,7 @@
   },
   "warning": {
     "coincontrol": "One or more UTXOs have a reused address. Be aware the receiver will see all UTXOs associated with those addresses.",
+    "offline": "You are currently offline. You will not be able to send transactions or see the latest exchange rates.",
     "sdcard": "Keep the microSD card stored separate from the BitBox, unless you want to manage backups.",
     "testnet": "You are using Testnet mode. Transactions and coins here are not real and have no value. Only use for testing purposes."
   },
@@ -1897,6 +2219,7 @@
     "getStarted": "Let's get started by installing firmware on your BitBox.",
     "loadingAccounts": "Loading accounts",
     "message": "Please connect your BitBox and tap the side to continue.",
+    "messageIOS": "Please connect your BitBox Nova and tap the side to continue.",
     "title": "Welcome"
   }
 }

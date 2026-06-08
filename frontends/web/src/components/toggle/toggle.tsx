@@ -1,33 +1,24 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
+import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import style from './toggle.module.css';
 
-export type TToggleProps = JSX.IntrinsicElements['input']
+export type TToggleProps = JSX.IntrinsicElements['input'];
 
-export const Toggle = (
-  {
-    className = '',
-    ...props
-  }: TToggleProps
-) => {
+export const Toggle = ({
+  className = '',
+  onChange,
+  ...props
+}: TToggleProps) => {
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    triggerHapticFeedback();
+    onChange?.(e);
+  };
   return (
-    <label className={`${style.container} ${className}`}>
+    <label className={`${style.container || ''} ${className}`}>
       <input
         type="checkbox"
+        onChange={handleChange}
         {...props} />
       <span className={style.slider}></span>
     </label>

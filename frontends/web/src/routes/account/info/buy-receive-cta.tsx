@@ -1,51 +1,32 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import type { AccountCode, CoinUnit, IAccount, IBalance } from '@/api/account';
+import type { AccountCode, CoinUnit, TAccount, TBalance } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Button } from '@/components/forms';
 import { Balances } from '@/routes/account/summary/accountssummary';
 import { isBitcoinCoin, isEthereumBased } from '@/routes/account/utils';
-import { getExchangeSupportedAccounts } from '@/routes/exchange/utils';
-import { WalletConnectLight } from '@/components/icon';
-import { useMountedRef } from '@/hooks/mount';
+import { ArrowFloorDownWhite, Coins, WalletConnectLight } from '@/components/icon';
 import { SubTitle } from '@/components/title';
 import styles from './buy-receive-cta.module.css';
 
 type TBuyReceiveCTAProps = {
-  balanceList?: IBalance[];
+  balanceList?: TBalance[];
   code?: AccountCode;
   unit?: CoinUnit;
-  exchangeSupported?: boolean;
-  account?: IAccount;
+  account?: TAccount;
 };
 
 type TAddBuyReceiveOnEmpyBalancesProps = {
   balances?: Balances;
-  accounts: IAccount[];
-}
+  accounts: TAccount[];
+};
 
 export const BuyReceiveCTA = ({
   balanceList,
   code,
   unit,
-  exchangeSupported = true,
   account,
 }: TBuyReceiveCTAProps) => {
   const { t } = useTranslation();
@@ -53,7 +34,7 @@ export const BuyReceiveCTA = ({
   const isBitcoin = isBitcoinCoin(unit);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const onExchangeCTA = () => navigate(code ? `/exchange/info/${code}` : '/exchange/info');
+  const onMarketCTA = () => navigate(code ? `/market/select/${code}` : '/market/select');
   const onWalletConnect = () => code && navigate(`/account/${code}/wallet-connect/dashboard`);
   const onReceiveCTA = () => {
     if (balanceList) {
@@ -77,7 +58,8 @@ export const BuyReceiveCTA = ({
       </p>
       <div className={styles.buttons}>
         {balanceList && (
-          <Button primary onClick={onReceiveCTA}>
+          <Button className={styles.button} primary onClick={onReceiveCTA}>
+            <ArrowFloorDownWhite width={18} height={18} />
             {/* "Receive Bitcoin", "Receive crypto" or "Receive LTC" (via placeholder "Receive {{coinCode}}") */}
             {t('generic.receive', {
               context: isBitcoin ? 'bitcoin' : (unit ? '' : 'crypto'),
@@ -85,8 +67,9 @@ export const BuyReceiveCTA = ({
             })}
           </Button>
         )}
-        {(exchangeSupported && !isMobile) && (
-          <Button primary onClick={onExchangeCTA}>
+        {!isMobile && (
+          <Button className={styles.button} primary onClick={onMarketCTA}>
+            <Coins width={18} height={18} />
             {t('generic.buySell')}
           </Button>
         )}
@@ -107,23 +90,9 @@ export const BuyReceiveCTA = ({
 };
 
 export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyReceiveOnEmpyBalancesProps) => {
-  const mounted = useMountedRef();
-  const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>();
   const onlyHasOneActiveAccount = accounts.length === 1;
 
-  useEffect(() => {
-    if (mounted.current) {
-      getExchangeSupportedAccounts(accounts)
-        .then(supportedAccounts => {
-          if (mounted.current) {
-            setSupportedAccounts(supportedAccounts);
-          }
-        })
-        .catch(console.error);
-    }
-  }, [accounts, mounted]);
-
-  if (balances === undefined || supportedAccounts === undefined) {
+  if (balances === undefined) {
     return null;
   }
   const balanceList = (
@@ -142,7 +111,7 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyRece
     return (
       <BuyReceiveCTA
         balanceList={balanceList}
-        code={onlyHasOneActiveAccount ? accounts[0].code : undefined}
+        code={onlyHasOneActiveAccount ? accounts[0]?.code : undefined}
         unit="BTC"
       />
     );
@@ -151,7 +120,6 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyRece
   return (
     <BuyReceiveCTA
       balanceList={balanceList}
-      exchangeSupported={supportedAccounts.length > 0}
     />
   );
 };

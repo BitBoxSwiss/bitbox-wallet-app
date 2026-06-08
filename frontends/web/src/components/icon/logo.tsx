@@ -1,19 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2021-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 /* Imported svg source (excluding BitBox logos): http://cryptoicons.co/ */
 
@@ -25,6 +10,8 @@ import BitBoxSwissInvertedLogo from './assets/bitbox-swisscross-inverted-logo.sv
 import BitBoxSwissLogo from './assets/bitbox-swisscross-logo.svg';
 import BitBox02Logo from './assets/bitbox02-logo.svg';
 import BitBox02InvertedLogo from './assets/bitbox02inverted-logo.svg';
+import BitBox02NovaLogo from './assets/bitbox02nova-logo.svg';
+import BitBox02NovaInvertedLogo from './assets/bitbox02nova-inverted-logo.svg';
 import BTC from './assets/btc-color.svg';
 import BTC_GREY from './assets/btc-white.svg';
 import ETH from './assets/eth-color.svg';
@@ -62,17 +49,19 @@ type ImgProps = JSX.IntrinsicElements['img'];
 export const BitBox = (props: ImgProps) => <img {...props} draggable={false} src={BitBoxLogo} alt="BitBox" className={style.logo} />;
 export const BitBox02 = (props: ImgProps) => <img {...props} draggable={false} src={BitBox02Logo} alt="BitBox02" className={style.logo} />;
 export const BitBox02Inverted = (props: ImgProps) => <img {...props} draggable={false} src={BitBox02InvertedLogo} alt="BitBox02" className={style.logo} />;
+export const BitBox02Nova = (props: ImgProps) => <img {...props} draggable={false} src={BitBox02NovaLogo} alt="BitBox02Nova" className={style.logo} />;
+export const BitBox02NovaInverted = (props: ImgProps) => <img {...props} draggable={false} src={BitBox02NovaInvertedLogo} alt="BitBox02Nova" className={style.logo} />;
 export const AppLogo = (props: ImgProps) => <img {...props} draggable={false} src={AppLogoImg} alt="BitBox" className={style.logo} />;
 export const AppLogoInverted = (props: ImgProps) => <img {...props} draggable={false} src={AppLogoInvertedImg} alt="BitBox" className={style.logo} />;
 export const BitBoxSwiss = (props: ImgProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
 export const BitBoxSwissInverted = (props: ImgProps) => <img {...props} draggable={false} src={BitBoxSwissInvertedLogo} alt="BitBox" className={style.logo} />;
 export const Shift = (props: ImgProps) => <img {...props} draggable={false} src={ShiftLogo} alt="Shift Crypto" className={style.logo} />;
-export const SwissMadeOpenSource = ({ className, ...props }: ImgProps) => <img {...props} draggable={false} src={SwissOpenSourceLight} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${className ? className : ''}`} />;
-export const SwissMadeOpenSourceDark = ({ className, ...props }: ImgProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${className ? className : ''}`} />;
+export const SwissMadeOpenSource = ({ className, ...props }: ImgProps) => <img {...props} draggable={false} src={SwissOpenSourceLight} alt="Swiss Made Open Source" className={`${style.swissOpenSource || ''} ${className ? className : ''}`} />;
+export const SwissMadeOpenSourceDark = ({ className, ...props }: ImgProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource || ''} ${className ? className : ''}`} />;
 
 type LogoMap = {
   [key in CoinCode]: string[];
-}
+};
 
 const logoMap: LogoMap = {
   'btc': [BTC, BTC_GREY],
@@ -101,7 +90,7 @@ type LogoProps = {
   className?: string;
   coinCode: CoinCode;
   stacked?: boolean;
-}
+};
 
 export const Logo = ({
   coinCode,

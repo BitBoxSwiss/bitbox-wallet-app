@@ -1,16 +1,4 @@
-// Copyright 2021 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package config
 
@@ -93,6 +81,36 @@ func TestSetTokenActive(t *testing.T) {
 	require.Equal(t, []string{"TOKEN-2"}, acct.ActiveTokens)
 }
 
+func TestSetReceiveScriptType(t *testing.T) {
+	keypath84, err := signing.NewAbsoluteKeypath("m/84'/0'/0'")
+	require.NoError(t, err)
+	keypath86, err := signing.NewAbsoluteKeypath("m/86'/0'/0'")
+	require.NoError(t, err)
+
+	acct := &Account{
+		SigningConfigurations: signing.Configurations{
+			signing.NewBitcoinConfiguration(
+				signing.ScriptTypeP2WPKH,
+				[]byte{1, 2, 3, 4},
+				keypath84,
+				test.TstMustXKey("xpub661MyMwAqRbcGAo79WnM4653Aog3nKuTYq2Wy1iURzbaGE36dgnPPMxX5oCvCiky5bFbS2jS9RfAHVtpCNCEBwy6BUjLxhXYGu19NwTgrFX"),
+			),
+			signing.NewBitcoinConfiguration(
+				signing.ScriptTypeP2TR,
+				[]byte{1, 2, 3, 4},
+				keypath86,
+				test.TstMustXKey("xpub661MyMwAqRbcGAo79WnM4653Aog3nKuTYq2Wy1iURzbaGE36dgnPPMxX5oCvCiky5bFbS2jS9RfAHVtpCNCEBwy6BUjLxhXYGu19NwTgrFX"),
+			),
+		},
+	}
+
+	require.NoError(t, acct.SetReceiveScriptType(signing.ScriptTypeP2TR))
+	require.NotNil(t, acct.ReceiveScriptType)
+	require.Equal(t, signing.ScriptTypeP2TR, *acct.ReceiveScriptType)
+
+	require.Error(t, acct.SetReceiveScriptType(signing.ScriptTypeP2WPKHP2SH))
+}
+
 func TestGetOrAddKeystore(t *testing.T) {
 	cfg := &AccountsConfig{}
 	fp1 := []byte("aaaa")
@@ -125,7 +143,7 @@ func TestMigrateActiveToken(t *testing.T) {
 		appConfig:         NewDefaultAppConfig(),
 
 		accountsConfigFilename: "accountsConfigFilename",
-		accountsConfig:         newDefaultAccountsonfig(),
+		accountsConfig:         newDefaultAccountsConfig(),
 	}
 
 	accountConf := config.accountsConfig

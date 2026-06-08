@@ -1,22 +1,11 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package transactions_test
 
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsMock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
@@ -73,6 +62,19 @@ func (blockchain *BlockchainMock) TransactionGet(txHash chainhash.Hash) (*wire.M
 	return tx, nil
 }
 
+func (blockchain *BlockchainMock) Headers(startHeight int, count int) (*blockchainpkg.HeadersResult, error) {
+	headers := make([]*wire.BlockHeader, 0, count)
+	for i := 0; i < count; i++ {
+		headers = append(headers, &wire.BlockHeader{
+			Timestamp: time.Unix(int64(startHeight+i), 0),
+		})
+	}
+	return &blockchainpkg.HeadersResult{
+		Headers: headers,
+		Max:     count,
+	}, nil
+}
+
 func (blockchain *BlockchainMock) ConnectionError() error {
 	return nil
 }
@@ -109,6 +111,7 @@ func (s *transactionsSuite) SetupTest() {
 	s.headersMock = &headersMock.Interface{}
 	s.headersMock.On("SubscribeEvent", mock.AnythingOfType("func(headers.Event)")).Return(func() {})
 	s.headersMock.On("TipHeight").Return(15).Once()
+	s.headersMock.On("HeaderByHeight", mock.Anything).Return((*wire.BlockHeader)(nil), nil)
 	s.notifierMock = &accountsMock.Notifier{}
 	s.transactions = transactions.NewTransactions(
 		s.net,
@@ -131,7 +134,7 @@ func (s *transactionsSuite) updateAddressHistory(
 		s.notifierMock.On("Put", tx.TXHash[:]).Return(nil).Once()
 	}
 
-	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), txs)
+	s.Require().NoError(s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), txs))
 }
 
 func newTx(
@@ -165,6 +168,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	tx1 := newTx(chainhash.HashH(nil), 0, address, expectedAmount)
 	s.blockchainMock.RegisterTxs(tx1)
 	const expectedHeight = 10
+	expectedTimestamp := time.Unix(expectedHeight, 0)
 	s.headersMock.On("VerifiedHeaderByHeight", expectedHeight).Return(nil, nil).Once()
 	s.updateAddressHistory(address, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: expectedHeight},
@@ -177,16 +181,24 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	}
 	spendableOutputs, err := s.transactions.SpendableOutputs()
 	s.Require().NoError(err)
-	s.Require().Equal(
-		map[wire.OutPoint]*transactions.SpendableOutput{
-			{Hash: tx1.TxHash(), Index: 0}: utxo,
-		},
-		spendableOutputs,
-	)
+	expected := map[wire.OutPoint]*wire.TxOut{
+		{Hash: tx1.TxHash(), Index: 0}: utxo.TxOut,
+	}
+	actual := make(map[wire.OutPoint]*wire.TxOut)
+	for outpoint, spendable := range spendableOutputs {
+		actual[outpoint] = spendable.TxOut
+	}
+	s.Require().Equal(expected, actual)
+	outPoint := wire.OutPoint{Hash: tx1.TxHash(), Index: 0}
+	s.Require().Contains(spendableOutputs, outPoint)
+	s.Require().NotNil(spendableOutputs[outPoint].HeaderTimestamp)
+	s.Require().Equal(expectedTimestamp.UnixNano(), spendableOutputs[outPoint].HeaderTimestamp.UnixNano())
 	transactions, err := s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false })
 	s.Require().NoError(err)
 	s.Require().Len(transactions, 1)
 	s.Require().Equal(expectedHeight, transactions[0].Height)
+	s.Require().NotNil(transactions[0].Timestamp)
+	s.Require().Equal(expectedTimestamp.UnixNano(), transactions[0].Timestamp.UnixNano())
 }
 
 // TestSpendableOutputs checks that the utxo set is correct. Only confirmed (or unconfirmed outputs

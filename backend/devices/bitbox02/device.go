@@ -1,22 +1,12 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package bitbox02 implements the Device and Keystore interfaces to integrate the bitbox02 into the
 // app.
 package bitbox02
 
 import (
+	"slices"
+
 	deviceevent "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -28,16 +18,24 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// ProductName is the name of the BitBox02 product.
-// If you change this, be sure to check the frontend and other places which assume this is a
+// If you change these, be sure to check the frontend and other places which assume they are
 // constant.
-const ProductName = "bitbox02"
+const (
+	// BitBox02ProductName is the name of the BitBox02 product.
+	BitBox02ProductName = "bitbox02"
+	// BitBox02NovaProductName is the name of the BitBox02 Nova product.
+	BitBox02NovaProductName = "bitbox02nova"
+	// PlatformName is the name of the BitVox02 platform.
+	PlatformName = "bitbox02"
+)
 
 // Device implements device.Device.
 type Device struct {
 	firmware.Device
-	deviceID string
-	log      *logrus.Entry
+	deviceID    string
+	productName string
+	log         *logrus.Entry
+	keystore    *keystore
 
 	observable.Implementation
 }
@@ -51,10 +49,16 @@ func NewDevice(
 	communication firmware.Communication,
 	opts ...firmware.DeviceOption,
 ) *Device {
+	productName := BitBox02ProductName
+	// BitBox02Plus is the internal code name for the BitBox Nova.
+	if product == bitbox02common.ProductBitBox02PlusBTCOnly ||
+		product == bitbox02common.ProductBitBox02PlusMulti {
+		productName = BitBox02NovaProductName
+	}
 	log := logging.Get().
 		WithGroup("device").
 		WithField("deviceID", deviceID).
-		WithField("productName", ProductName).
+		WithField("productName", productName).
 		WithField("product", product)
 
 	log.Info("Plugged in device")
@@ -67,8 +71,13 @@ func NewDevice(
 			logger{log},
 			opts...,
 		),
-		deviceID: deviceID,
-		log:      log,
+		deviceID:    deviceID,
+		productName: productName,
+		log:         log,
+	}
+	device.keystore = &keystore{
+		device: device,
+		log:    device.log,
 	}
 	device.Device.SetOnEvent(func(ev firmware.Event, meta interface{}) {
 		switch ev {
@@ -89,6 +98,7 @@ func NewDevice(
 		case firmware.EventStatusChanged:
 			switch device.Device.Status() {
 			case firmware.StatusInitialized:
+				device.keystore.clearRootFingerprintCache()
 				device.Notify(observable.Event{
 					Subject: string(deviceevent.EventKeystoreAvailable),
 					Action:  action.Replace,
@@ -116,7 +126,12 @@ func (device *Device) init() {
 
 // ProductName implements device.Device.
 func (device *Device) ProductName() string {
-	return ProductName
+	return device.productName
+}
+
+// PlatformName implements device.Device.
+func (device *Device) PlatformName() string {
+	return PlatformName
 }
 
 // Identifier implements device.Device.
@@ -129,14 +144,38 @@ func (device *Device) Keystore() keystoreInterface.Keystore {
 	if device.Status() != firmware.StatusInitialized {
 		return nil
 	}
-	return &keystore{
-		device: device,
-		log:    device.log,
-	}
+	return device.keystore
 }
 
 // SetOnEvent implements device.Device.
 func (device *Device) SetOnEvent(onEvent func(deviceevent.Event, interface{})) {
+}
+
+// SetDeviceName updates the device name and notifies keystore observers.
+func (device *Device) SetDeviceName(deviceName string) error {
+	if err := device.Device.SetDeviceName(deviceName); err != nil {
+		return err
+	}
+
+	if ks := device.Keystore(); ks != nil {
+		if bb02Keysytore, ok := ks.(*keystore); ok {
+			rootFingerprint, err := bb02Keysytore.RootFingerprint()
+			if err != nil {
+				// Best effort, not critical.
+				return nil
+			}
+
+			bb02Keysytore.Notify(observable.Event{
+				Subject: string(keystoreInterface.EventNameChanged),
+				Action:  action.Replace,
+				Object: keystoreInterface.NameChangedEvent{
+					Name:            deviceName,
+					RootFingerprint: slices.Clone(rootFingerprint),
+				},
+			})
+		}
+	}
+	return nil
 }
 
 // Reset factory resets the device.

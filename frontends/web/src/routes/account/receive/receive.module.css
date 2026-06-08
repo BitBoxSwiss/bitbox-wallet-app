@@ -2,7 +2,7 @@
     align-items: center;
     display: flex;
     justify-content: space-between;
-    margin: var(--spacing-default) 0;
+    margin: var(--space-half) 0;
 }
 
 .label {
@@ -19,31 +19,23 @@
     min-height: 260px;
 }
 
-.arrowLeft,
-.arrowRight {
-    width: 16px;
-    position: relative;
-    top: 3px;
-}
-
-.arrowLeft {
-    margin-right: 3px;
-}
-
-.arrowRight {
-    margin-left: 3px;
-}
-
 .previous,
 .next {
     appearance: none;
     background: none;
     border: 0;
     color: var(--color-blue);
-    font-size: var(--size-button);
+    font-size: var(--size-default);
     line-height: 1;
     padding: 0;
     text-decoration: none;
+}
+
+.previous img,
+.next img {
+    display: block;
+    height: min(2.4rem, 36px);
+    width: min(2.4rem, 36px);
 }
 
 .hide {
@@ -62,11 +54,12 @@
     color: var(--color-secondary);
     cursor: pointer;
     display: inline-block;
+    font-size: var(--size-small);
     text-align: center;
     text-decoration: underline;
     padding: var(--space-quarter);
 }
 
 .messageContainer {
-    margin-top: var(--spacing-default);
+    margin-top: var(--space-quarter);
 }

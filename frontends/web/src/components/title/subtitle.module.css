@@ -7,6 +7,6 @@
 
 @media (min-width: 1200px) {
   .subtitle {
-    --size-subheader: 20px;
+    --size-subheader: min(2rem, 36px);
   }
 }

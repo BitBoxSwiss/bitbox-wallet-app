@@ -1,8 +1,139 @@
 # Changelog
 
 ## Unreleased
+- Bitcoin: show account details for the persisted receive address type by default
+- Add external block explorer links to used addresses
+- Settings search
+- Support macOS "Number Format" system setting
+
+## v4.51.1
+- iOS: fix App Store submission by packaging Inter as TTF fonts
+
+## v4.51.0
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.1
+- Format addresses in groups of 4 characters
+- iOS: Add haptic feedback on account summary chart scrolls
+- Portfolio: reduce waiting time to display the chart
+- iOS: Add haptic feedback on toggle component
+- Apply rounded corners in several places and components of the app
+- Send: enable rotating currencies in send window.
+- Show the fee's fiat value in send-to-self txs for consistency with others, and include the send-to-self amount in the left-side label
+- Ethereum WalletConnect: ensure deterministic signatures for typed messages
+- Show 9 decimals for ETH balances in portfolio page, account page, and transaction history
+- Show "full" ETH balance (up to 18 decimal places) in Account information view
+- Use Inter as default font
+- Add forgot password info during unlock
+- Export transactions CSV: add historical value and historical value currency columns.
+- Show total fiat amount in Bitrefill confirmation step
+- Show contract address in Ethereum token account info
+- Harmonize iOS and Android back swipe/button navigation to only work in expected situations
+- Bitcoin: remove option to receive to wrapped segwit addresses
+- Fix coin control reused-address labels
+- Revamp portfolio / account summary detail (table)
+- Sort wallets by name first, then by root fingerprint when names match.
+- Bitcoin: persist account receive script type
+- Bitcoin: display output descriptor in account details
+- Bitcoin: add a used addresses list in account info
+- Bitcoin and Ethereum: add message signing for addresses
+- iOS: use numeric keyboard for coin and fiat input
+- Scroll to tx search field on mobile
+- iOS: Haptic feedback on copy and chart filters change
+- Subtle tab transition (mobile navigation)
+- Enable large streamed payloads (Wallet Connect)
+- Revamp Marketplace UI
+- Add Pocket Private to the OTC tab
+- Add the support for performing swaps between cryptocurrencies through SwapKit
+- Fullscreen region select on mobile
+- Change portfolio chart default to year
+- iOS: live price widget with 24-hour chart
+
+## v4.50.1
+- Fix a bug that would delay showing watch-only accounts.
+
+## v4.50.0
+- Bundle BitBox02 Nova firmware version v9.25.0
+- Add a dropdown on the "Receiver address" input in the send screen to select an account
+- Add feedback link to guide and about settings
+- Move active currencies to top of currency dropdown
+- Export logs now includes rotated log file (log.txt.1) when present
+- Fix hang when adding an account with no keystores connected
+- Android: fix connectivity misdetection when switching between WIFI and cellular network.
+- Android: dropped support for Android versions lower than 7.
+- Sort backups from newest to oldest in manage backups
+- Android: fix display of external links from Bitrefill
+- fix language sometimes not persistent across app restarts
+- Android: fix layout issues with status and navigation bars.
+- Android: make the UI work with responsive font sizes and adhere to OS font size settings
+- Android: prompt to save exported files instead of sharing
+- Add "Change device password" functionality (in Settings)
+- Add icons for CTA and action buttons in account page
+- Restructure "Manage device" tab in settings
+- Responsive account selector (Marketplace)
+- iOS: Improve Bluetooth alert messaging by distinguishing between system-wide Bluetooth being disabled and the app lacking Bluetooth permission.
+- Ethereum: use shiftcrypto.io Etherscan proxy.
+- Fixes a bug that would cause the portfolio chart to not load.
+
+## v4.49.0
+- Bundle BitBox02 Nova firmware version v9.24.0
+- macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
+- Added BTC Direct sell option
+- Added a banner to remind user to backup their seed phrase when an account reaches a certain threshold.
+- Gracefully shut down Electrum connections upon closing the app
+- Show the selected coin's address on the confirmation screen
+- Fetch balances of multiple ETH accounts at the same time, instead of one by one.
+- Fix wrong btc/ltc transaction timestamp during header sync
+- Ethereum bugfix: show all internal transactions that share the same transaction ID
+- Allow up to 6 unused BTC/LTC accounts (previously 5)
+- Add support for New Zealand Dollar (NZD)
+- Fix empty suggested name for BTC account when only BTC is supported by the BitBox.
+- iOS: add launch screen and smooth transition upon opening the app for the first time.
+- Android: fix screen lock authentication loop bug
+- Android/iOS: fix screen lock bug when no authentication is configured on the device
+- Add expert setting to configure gap limit for bitcoin transaction discovery
+- Fix potential crash in the AOPP workflow
+- Windows: fix send/feetarget dropdown UI rendering bug
+- More efficient account initialization by fetching all account Bitcoin xpubs at once
+- Enable search transactions by note, address, or txid
+- Move "Export" (export transactions) to account info page
+- Show coinfinty logo when requesting an address
+- Update decimal formatting for stablecoin transactions
+- Change block explorer to mempool.space
+- Integrate Bitrefill and add spending section
+- Revamp transaction detail dialog
+
+## v4.48.8
+- Bundle BitBox02 Nova firmware version v9.23.3
+
+## v4.48.7
+- ios: fix Pocket user verification button
+
+## v4.48.6
+- Android: restore support for Android 6 and Android 5
+
+## v4.48.5
+- Bundle BitBox02 firmware version v9.23.2
+- iOS: fix wrong timezone when confirming time on BitBox02 (it would always show the time in UTC)
+
+## v4.48.4
+- macOS: fix potential USB communication issue with BitBox02 bootloaders <v1.1.2 and firmwares <v9.23.1
+
+## v4.48.3
+- Linux: fix compatiblity with some versions of Mesa also when using the AppImage
+
+## v4.48.2
+- iOS: Fix blank screens after prolonged inactivity
+
+## v4.48.1
+- Bundle BitBox02 firmware version v9.23.1
+- Format BTC/sat spaces consistently in account summary and total balance
+- Improved offline UX: added detection to show an offline warning banner and auto-reconnect when back online
+- iOS: various UI improvements
+- Add option to disable Bluetooth for BitBox02 Nova (non-iOS devices only)
+- Disabled the option to enable Tor proxy on iOS
+- Android: Fix occasional crash when unplugging the BitBox
 
 ## v4.48.0
+- Bundle BitBox02 firmware version v9.23.0
 - Removed the BTC/sat switch from the general settings in favor of a rotating unit in the account balance.
 - Reduced support for BitBox01
 - Fix a bug that would prevent the app to perform firmware upgrade when offline.
@@ -13,6 +144,7 @@
 - Added support to show on the BitBox when a transaction's recipient is an address of a different account on the device.
 - Persist third party widget sessions
 - Change notes export file type to JSON Lines
+- Add received date to coin control transaction details
 
 ## v4.47.3
 - Upgrade Etherscan API to V2

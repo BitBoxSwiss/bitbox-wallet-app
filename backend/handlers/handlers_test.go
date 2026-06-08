@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package handlers_test
 
@@ -50,17 +38,18 @@ type backendEnv struct {
 	Locale string // returned by NativeLocale
 }
 
-func (e *backendEnv) NotifyUser(string)             {}
-func (e *backendEnv) SystemOpen(string) error       { return nil }
-func (e *backendEnv) DeviceInfos() []usb.DeviceInfo { return nil }
-func (e *backendEnv) UsingMobileData() bool         { return false }
-func (e *backendEnv) NativeLocale() string          { return e.Locale }
-func (e *backendEnv) GetSaveFilename(string) string { return "" }
-func (e *backendEnv) SetDarkTheme(bool)             {}
-func (e *backendEnv) DetectDarkTheme() bool         { return false }
-func (e *backendEnv) Auth()                         {}
-func (e *backendEnv) OnAuthSettingChanged(bool)     {}
-func (e *backendEnv) BluetoothConnect(string)       {}
+func (e *backendEnv) NotifyUser(string)                   {}
+func (e *backendEnv) SystemOpen(string) error             { return nil }
+func (e *backendEnv) DeviceInfos() []usb.DeviceInfo       { return nil }
+func (e *backendEnv) UsingMobileData() bool               { return false }
+func (e *backendEnv) NativeLocale() string                { return e.Locale }
+func (e *backendEnv) NumberFormat() *backend.NumberFormat { return nil }
+func (e *backendEnv) GetSaveFilename(string) string       { return "" }
+func (e *backendEnv) SetDarkTheme(bool)                   {}
+func (e *backendEnv) DetectDarkTheme() bool               { return false }
+func (e *backendEnv) Auth()                               {}
+func (e *backendEnv) OnAuthSettingChanged(bool)           {}
+func (e *backendEnv) BluetoothConnect(string)             {}
 
 func TestGetNativeLocale(t *testing.T) {
 	const ptLocale = "pt"

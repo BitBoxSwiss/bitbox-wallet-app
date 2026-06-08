@@ -1,58 +1,37 @@
+// SPDX-License-Identifier: Apache-2.0
 
-/**
- * Copyright 2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import { Dispatch, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TConfig } from '@/routes/settings/advanced-settings';
 import { AppContext } from '@/contexts/AppContext';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { View, ViewButtons, ViewHeader } from '@/components/view/view';
 import { Button } from '@/components/forms';
-import { setConfig } from '@/utils/config';
 import { UseBackButton } from '@/hooks/backbutton';
 
-type TProps = {
-  onChangeConfig: Dispatch<TConfig>;
-}
-
-export const RestartInTestnetSetting = ({ onChangeConfig }: TProps) => {
+export const RestartInTestnetSetting = () => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
   const [showRestartMessage, setShowRestartMessage] = useState(false);
   const { isTesting } = useContext(AppContext);
 
   const handleRestart = async () => {
     setShowRestartMessage(true);
-    const config = await setConfig({
+    await setConfig({
       backend: {
         startInTestnet: !isTesting
       },
     });
-    onChangeConfig(config);
   };
 
   const handleReset = async () => {
     setShowRestartMessage(false);
     if (!isTesting) {
-      const config = await setConfig({
+      await setConfig({
         backend: {
           startInTestnet: false
         },
       });
-      onChangeConfig(config);
     }
   };
 

@@ -1,37 +1,41 @@
+.trigger,
+.triggerContent,
+.valueContainer {
+    --logo-image-width: 20px;
+}
+
 .balance, .balanceSingleValue {
     color: var(--color-secondary);
     margin-left: auto;
+    max-width: 100%;
+    overflow: hidden;
     text-transform: uppercase;
     white-space: nowrap;
 }
 
 .balanceSingleValue {
+    margin-left: var(--space-quarter);
     margin-right: var(--space-quarter);
-}
-
-.dropdown {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-labelledby='chevron down' color='%23777'%3E%3Cdefs/%3E%3Cpolyline points='6 10 12 16 18 10'/%3E%3C/svg%3E%0A");
-    background-repeat: no-repeat;
-    font-weight: 400;
-    height: calc(var(--space-quarter) * 3);
-    padding: 0 calc(var(--space-quarter) + var(--space-eight));
 }
 
 .groupHeader {
     align-items: center;
     display: flex;
+    font-weight: 500;
     padding: var(--space-eight) 0;
+    padding-left: calc(var(--space-eight) + var(--space-quarter));
     padding-bottom: 8px;
 }
 
 .select {
+    font-size: min(var(--size-default), 24px);
     margin-bottom: var(--space-half);
+    width: 100%;
 }
 
 .select :global(.react-select__group-heading) {
     color: var(--color-default);
-    font-size: var(--size-default);
+    font-size: min(var(--size-default), 24px);
     margin: 0;
     padding-right: var(--space-quarter);
     text-transform: unset;
@@ -46,7 +50,7 @@
 }
 
 .select :global(.react-select__option):hover {
-    background-color: var(--background-custom-select-hover);
+    background-color: var(--background-tap-active);
 }
 
 .select :global(.react-select__option--is-selected),
@@ -72,14 +76,22 @@
 
 .select :global(.react-select__control) {
     background-color: var(--background-secondary);
+    min-height: var(--input-height);
     padding: var(--space-quarter) var(--space-eight);
 }
 
 .select :global(.react-select__single-value) {
+    margin-left: 0;
+    margin-right: 0;
     width: 100%;
 }
 
+.select :global(.react-select__value-container) {
+    padding-right: 0;
+}
+
 .selectLabelText {
+    flex-grow: 1;
     margin-left: 6px;
 }
 
@@ -97,12 +109,135 @@
     display: flex;
 }
 
+:global(button:disabled) .valueContainer,
+:global(button:disabled) .triggerLabel,
+:global(button:disabled) .triggerBalance,
+:global(button:disabled) .triggerAccountName {
+    color: var(--color-secondary);
+}
+
 .select :global(.react-select__option--is-selected) .selectLabelText {
     color: var(--color-default);
 }
 
 .valueContainer > img {
-    width: 20px;
-    height: 20px;
+    width: var(--logo-image-width);
+    height: var(--logo-image-width);
 }
 
+.groupLabel {
+    color: var(--color-default);
+    font-size: var(--size-default);
+    margin-right: var(--space-quarter);
+}
+
+.trigger {
+    align-items: center;
+    background-color: var(--background-secondary);
+    border: 1px #ccc solid;
+    border-radius: var(--radius-xl);
+    color: var(--color-default);
+    cursor: pointer;
+    display: flex;
+    font-size: var(--size-default);
+    margin-bottom: 0;
+    min-height: var(--input-height);
+    padding: var(--space-quarter) var(--space-half);
+    width: 100%;
+}
+
+.layoutOnTwoLines {
+    background: transparent;
+    border-color: transparent;
+    margin-bottom: 0;
+    padding-left: var(--space-quarter);
+    padding-right: var(--space-quarter);
+}
+
+.layoutOnTwoLines .triggerContent {
+    flex-wrap: wrap;
+}
+
+.triggerContent {
+    align-items: center;
+    display: flex;
+    flex: 1;
+    gap: var(--space-eight) var(--space-quarter);
+    overflow: hidden;
+}
+
+.triggerContent > img {
+    width: var(--logo-image-width);
+    height: var(--logo-image-width);
+}
+
+.triggerLabel {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.triggerBalance {
+    color: var(--color-secondary);
+    margin-left: auto;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.trigger .triggerBalance {
+    padding-right: var(--space-quarter);
+}
+
+.layoutOnTwoLines .triggerAccountName {
+    flex-basis: 100%;
+    text-align: left;
+    overflow: hidden;
+    padding-left: calc(var(--space-quarter) + var(--logo-image-width));
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.triggerAccountName {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+}
+
+.placeholderText {
+    flex: 1;
+    text-align: left;
+}
+
+.stackedSelect :global(.react-select__control),
+.stackedSelect :global(.react-select__control:hover) {
+    background: transparent;
+    border: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: none;
+    min-height: 68px;
+    outline: none;
+    padding-bottom: var(--space-three-quarter);
+    padding-left: 0;
+    padding-top: var(--space-three-quarter);
+    padding-right: 0;
+}
+
+.stackedSelect :global(.react-select__control--is-focused) {
+    border-color: transparent !important;
+    /* using box-shadow instead of border here fixes an ugly Windows rendering bug */
+    box-shadow: inset 0 0 0 1px var(--color-blue) !important;
+}
+
+
+@media screen and (max-width: 768px) {
+    .groupHeader {
+        padding-left: 0;
+    }
+}
+
+.buttons {
+    margin-top: var(--space-half);
+    text-align: center;
+}

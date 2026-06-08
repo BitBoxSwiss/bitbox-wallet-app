@@ -1,21 +1,8 @@
-/**
- * Copyright 2022 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { MultilineMarkup, SimpleMarkup } from './markup';
 
 describe('SimpleMarkup', () => {
@@ -57,9 +44,13 @@ describe('multilineMarkup', () => {
     expect(paragraphs).toHaveLength(2);
     const first = paragraphs[0];
     const last = paragraphs[1];
+    // @ts-ignore noUncheckedIndexedAccess
     expect(first.textContent).toBe('foo bar baz');
+    // @ts-ignore noUncheckedIndexedAccess
     expect(first.querySelector('strong')).toHaveTextContent('bar');
+    // @ts-ignore noUncheckedIndexedAccess
     expect(last.textContent).toBe('booz');
+    // @ts-ignore noUncheckedIndexedAccess
     expect(last.querySelector('strong')).toHaveTextContent('booz');
   });
 });

@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package main
 
@@ -20,14 +8,17 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"runtime"
 	"strings"
 
 	backendPkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02/simulator"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	backendHandlers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
@@ -37,6 +28,7 @@ import (
 const (
 	port    = 8082
 	address = "0.0.0.0"
+	darwin  = "darwin"
 )
 
 var backend *backendPkg.Backend
@@ -69,6 +61,11 @@ func (webdevEnvironment) NotifyUser(text string) {
 
 // DeviceInfos implements backend.Environment.
 func (webdevEnvironment) DeviceInfos() []usb.DeviceInfo {
+	testDeviceInfo := simulator.TestDeviceInfo()
+	if testDeviceInfo != nil {
+		// We are in "test device" mode.
+		return []usb.DeviceInfo{testDeviceInfo}
+	}
 	return usb.DeviceInfos()
 }
 
@@ -87,7 +84,7 @@ func (webdevEnvironment) Auth() {
 	log := logging.Get().WithGroup("servewallet")
 	log.Info("Webdev Auth")
 	if backend != nil {
-		backend.AuthResult(true)
+		backend.AuthResult(backendPkg.AuthResultOk)
 		log.Info("Webdev Auth OK")
 	}
 }
@@ -103,14 +100,68 @@ func (webdevEnvironment) BluetoothConnect(identifier string) {
 // NativeLocale naively implements backend.Environment.
 // This version is unlikely to work on Windows.
 func (webdevEnvironment) NativeLocale() string {
+	log := logging.Get().WithGroup("servewallet")
 	v := os.Getenv("LC_ALL")
 	if v == "" {
-		v = os.Getenv("LANG")
+		if lang, ok := os.LookupEnv("LANG"); ok {
+			v = lang
+		} else if runtime.GOOS == darwin {
+			out, err := exec.Command("defaults", "read", "-g", "AppleLocale").Output()
+			if err != nil {
+				log.Warnf("failed to read AppleLocale via defaults: %v", err)
+			} else {
+				v = strings.Split(strings.TrimSpace(string(out)), "@")[0]
+			}
+		}
 	}
+
 	// Strip charset from the LANG. It is unsupported by JS Date formatting
 	// used in the frontend and breaks UI in unexpected ways.
 	// We are always UTF-8 anyway.
 	return strings.Split(v, ".")[0]
+}
+
+func normalizeAppleSeparator(s string) string {
+	// macOS defaults encodes narrow no-break space as \U202f
+	return strings.ReplaceAll(s, `\\U202f`, "\u202f")
+}
+
+func parseAppleICUNumberSymbols(out []byte) *backendPkg.NumberFormat {
+	result := &backendPkg.NumberFormat{}
+
+	re := regexp.MustCompile(`(\d+)\s*=\s*"([^"]*)"`)
+	for _, m := range re.FindAllStringSubmatch(string(out), -1) {
+		switch m[1] {
+		case "0":
+			result.DecimalSeparator = normalizeAppleSeparator(m[2])
+		case "1":
+			result.GroupSeparator = normalizeAppleSeparator(m[2])
+		}
+	}
+
+	if result.DecimalSeparator == "" &&
+		result.GroupSeparator == "" {
+		return nil
+	}
+
+	return result
+}
+
+// NumberFormatting in webdev
+func (webdevEnvironment) NumberFormat() *backendPkg.NumberFormat {
+	log := logging.Get().WithGroup("servewallet")
+	if runtime.GOOS != "darwin" {
+		return nil
+	}
+
+	out, err := exec.Command("defaults", "read", "-g", "AppleICUNumberSymbols").Output()
+
+	if err != nil {
+		log.Warnf("failed to read AppleICUNumberSymbols via defaults: %v", err)
+		return nil
+	}
+
+	return parseAppleICUNumberSymbols(out)
 }
 
 // GetSaveFilename implements backend.Environment.
@@ -138,6 +189,10 @@ func main() {
 	devservers := flag.Bool("devservers", true, "switch to dev servers")
 	gapLimitsReceive := flag.Uint("gapLimitReceive", 0, "gap limit for receive addresses")
 	gapLimitsChange := flag.Uint("gapLimitChange", 0, "gap limit for change addresses")
+	simulatorPort := flag.Int("simulatorPort", 15423, "port for the BitBox02 simulator")
+	useSimulator := flag.Bool("simulator", false, "use the BitBox02 simulator")
+	aoppUrl := flag.String("aoppUrl", "", "AOPP URL for testing AOPP flow")
+
 	flag.Parse()
 
 	var gapLimits *btctypes.GapLimits
@@ -159,6 +214,11 @@ func main() {
 		}
 	}(log)
 	log.Info("--------------- Started application --------------")
+	log.WithField("goos", runtime.GOOS).
+		WithField("goarch", runtime.GOARCH).
+		WithField("version", versioninfo.Version).
+		Info("environment")
+
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
 	newBackend, err := backendPkg.NewBackend(
@@ -177,6 +237,19 @@ func main() {
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
 	fmt.Printf("Listening on: http://localhost:%d\n", port)
+
+	if *useSimulator {
+		// The simulator is only allowed when running in testnet mode.
+		if !backend.Testing() {
+			log.Panic("The BitBox02 simulator can only be used in testnet mode.")
+		}
+		simulator.Init(*simulatorPort)
+	}
+
+	if *aoppUrl != "" {
+		backend.HandleURI(*aoppUrl)
+	}
+
 	if err := http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router); err != nil {
 		log.WithFields(logrus.Fields{"address": address, "port": port, "error": err.Error()}).Fatal("Failed to listen for HTTP")
 	}

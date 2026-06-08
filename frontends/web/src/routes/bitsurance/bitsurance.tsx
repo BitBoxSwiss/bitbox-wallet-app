@@ -1,29 +1,15 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { IAccount } from '@/api/account';
+import { TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
 import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
 import { Checked, Sync, SyncLight } from '@/components/icon';
-import { Column, ColumnButtons, Grid, GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import { Column, ColumnButtons, GuidedContent, GuideWrapper, Header, Main, ResponsiveGrid } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { useDarkmode } from '@/hooks/darkmode';
 import { BitsuranceGuide } from './guide';
@@ -31,14 +17,14 @@ import { i18n } from '@/i18n/i18n';
 import style from './bitsurance.module.css';
 
 type TProps = {
-    accounts: IAccount[];
-}
+  accounts: TAccount[];
+};
 
 export const Bitsurance = ({ accounts }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
-  const [insuredAccounts, setInsuredAccounts] = useState<IAccount[]>([]);
+  const [insuredAccounts, setInsuredAccounts] = useState<TAccount[]>([]);
   const [redirecting, setRedirecting] = useState(true);
   const [scanDone, setScanDone] = useState(false);
   const [scanLoading, setScanLoading] = useState(false);
@@ -104,7 +90,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
             <ViewContent>
               <p className={style.noVspace}>{t('bitsurance.intro.text1', { amount })}</p>
               <div className={style.gridContainer}>
-                <Grid col="2" textAlign="left">
+                <ResponsiveGrid col="2" textAlign="start">
                   <Column asCard>
                     <h3 className={style.title}>
                       {t('bitsurance.insure.title')}
@@ -134,7 +120,9 @@ export const Bitsurance = ({ accounts }: TProps) => {
                     </h3>
                     <p className={style.cardBody}>{t('bitsurance.detect.text')}</p>
                     {!insuredAccounts.length && scanDone && (
-                      <p className={`${style.cardBody2} ${style.errorMessage}`}>{t('bitsurance.detect.notInsured')}</p>
+                      <p className={`${style.cardBody2 || ''} ${style.errorMessage || ''}`}>
+                        {t('bitsurance.detect.notInsured')}
+                      </p>
                     )}
                     <ColumnButtons className={style.ctaButton}>
                       <Button
@@ -148,7 +136,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
                     </ColumnButtons>
 
                   </Column>
-                </Grid>
+                </ResponsiveGrid>
               </div>
             </ViewContent>
           </View>

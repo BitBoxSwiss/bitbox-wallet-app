@@ -3,6 +3,15 @@ import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import stylistic from '@stylistic/eslint-plugin';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Stylistic rules showed as warnings during development, errors otherwise
+// process.env.NODE_ENV can be undefined during weblint, so we explicitly check for 'development'
+const stylisticSeverity = process.env.NODE_ENV === 'development' ? 'warn' : 'error';
 
 export default tseslint.config(
   {
@@ -22,27 +31,26 @@ export default tseslint.config(
       }
     },
     'rules': {
-      'brace-style': ['error', '1tbs'],
-      'comma-spacing': ['error', { 'before': false, 'after': true }],
-      'curly': 'error',
-      'indent': ['error', 2, { 'SwitchCase': 0 }],
+      'no-param-reassign': ['error'],
+      'brace-style': [stylisticSeverity, '1tbs'],
+      'comma-spacing': [stylisticSeverity, { 'before': false, 'after': true }],
+      'curly': [stylisticSeverity],
       'jsx-a11y/anchor-is-valid': 0,
       'jsx-a11y/alt-text' : 0,
-      'jsx-quotes': ['error', 'prefer-double'],
-      'keyword-spacing': 'error',
+      'jsx-quotes': [stylisticSeverity, 'prefer-double'],
+      'keyword-spacing': [stylisticSeverity],
       'eqeqeq': 'error',
-      'no-multi-spaces': 'error',
-      'no-trailing-spaces': 'error',
-      'object-curly-spacing': ['error', 'always'],
-      'quotes': ['error', 'single'],
-      'semi': 'error',
-      'space-before-blocks': ['error', 'always'],
-      'space-in-parens': ['error', 'never'],
-      'no-extra-semi': 'error',
-      'arrow-spacing': 'error',
-      'space-infix-ops': 'error',
+      'no-multi-spaces': [stylisticSeverity],
+      'no-trailing-spaces': [stylisticSeverity],
+      'object-curly-spacing': [stylisticSeverity, 'always'],
+      'quotes': [stylisticSeverity, 'single'],
+      'space-before-blocks': [stylisticSeverity, 'always'],
+      'space-in-parens': [stylisticSeverity, 'never'],
+      'no-extra-semi': [stylisticSeverity],
+      'arrow-spacing': [stylisticSeverity],
+      'space-infix-ops': [stylisticSeverity],
       'react/no-unused-prop-types': 'error',
-      'react/jsx-equals-spacing': ['error', 'never'],
+      'react/jsx-equals-spacing': [stylisticSeverity, 'never'],
       'react/react-in-jsx-scope': 'off',
       'no-case-declarations': 'off',
       'react/no-children-prop': 'off',
@@ -53,14 +61,28 @@ export default tseslint.config(
       'no-empty': 'off',
       'react/display-name': 'off',
       'react-hooks/exhaustive-deps': 'error',
+      'react-hooks/rules-of-hooks': 'error',
       'no-async-promise-executor': 'off',
-      'react/jsx-wrap-multilines': ['error', {
+      'react/jsx-wrap-multilines': [stylisticSeverity, {
         'arrow': 'parens-new-line',
         'assignment': 'parens-new-line',
         'condition': 'parens-new-line',
         'logical': 'parens-new-line'
       }],
-      '@stylistic/type-generic-spacing': ['error'],
+      '@stylistic/type-generic-spacing': [stylisticSeverity],
+      '@stylistic/indent': [stylisticSeverity, 2, { "SwitchCase": 0 }],
+      '@stylistic/semi': [stylisticSeverity, "always"],
+      '@stylistic/member-delimiter-style': [stylisticSeverity, {
+        "multiline": {
+          "delimiter": "semi",
+          "requireLast": true
+        },
+        "singleline": {
+          "delimiter": "semi",
+          "requireLast": false
+        },
+        "multilineDetection": "brackets"
+      }],
     },
   },
   {
@@ -83,7 +105,7 @@ export default tseslint.config(
     'languageOptions': {
       parserOptions: {
         project: true,
-        tsconfigRootDir: './',
+        tsconfigRootDir: __dirname,
       }
     }
   },

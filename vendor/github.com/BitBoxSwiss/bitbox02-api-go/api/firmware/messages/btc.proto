@@ -1,17 +1,4 @@
-// Copyright 2019 Shift Cryptosecurity AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 syntax = "proto3";
 package shiftcrypto.bitbox02;
@@ -93,6 +80,17 @@ message BTCPubRequest {
   bool display = 5;
 }
 
+message BTCXpubsRequest{
+  enum XPubType {
+    UNKNOWN = 0;
+    XPUB = 1;
+    TPUB = 2;
+  }
+  BTCCoin coin = 1;
+  XPubType xpub_type = 2;
+  repeated Keypath keypaths = 3;
+}
+
 message BTCScriptConfigWithKeypath {
   BTCScriptConfig script_config = 2;
   repeated uint32 keypath = 3;
@@ -164,6 +162,7 @@ enum BTCOutputType {
   P2WPKH = 3;
   P2WSH = 4;
   P2TR = 5;
+  OP_RETURN = 6;
 }
 
 message BTCSignOutputRequest {
@@ -247,8 +246,27 @@ message BTCPaymentRequestRequest {
     message TextMemo {
       string note = 1;
     }
+    message CoinPurchaseMemo {
+      uint32 coin_type = 1; // SLIP-44 coin type
+      string amount = 2; // Human-readable amount (e.g. "0.25 ETH")
+      string address = 3; // Address to send the purchased coins to
+      // Derivation info for verifying address ownership.
+      // NOT part of the SLIP-24 sighash.
+      message EthAddressDerivation {
+        repeated uint32 keypath = 1; // Keypath to the address
+      }
+      message BtcAddressDerivation {
+        // Script config + keypath are needed to derive BTC/LTC-family addresses.
+        BTCScriptConfigWithKeypath script_config = 1;
+      }
+      oneof address_derivation {
+        EthAddressDerivation eth = 4;
+        BtcAddressDerivation btc = 5;
+      }
+    }
     oneof memo {
       TextMemo text_memo = 1;
+      CoinPurchaseMemo coin_purchase_memo = 2;
     }
   }
 
@@ -281,6 +299,7 @@ message BTCRequest {
     BTCSignMessageRequest sign_message = 6;
     AntiKleptoSignatureRequest antiklepto_signature = 7;
     BTCPaymentRequestRequest payment_request = 8;
+    BTCXpubsRequest xpubs = 9;
   }
 }
 
@@ -291,5 +310,6 @@ message BTCResponse {
     BTCSignNextResponse sign_next = 3;
     BTCSignMessageResponse sign_message = 4;
     AntiKleptoSignerCommitment antiklepto_signer_commitment = 5;
+    PubsResponse pubs = 6;
   }
 }

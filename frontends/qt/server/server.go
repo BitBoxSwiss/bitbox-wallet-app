@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package main
 
@@ -66,9 +54,12 @@ import (
 	"strings"
 	"unsafe"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02/simulator"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/mobileserver"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
 )
@@ -103,18 +94,35 @@ func matchDarkTheme(themeName string) bool {
 	return strings.Contains(strings.ToLower(themeName), "dark")
 }
 
+//export setOnline
+func setOnline(isReachable bool) {
+	bridgecommon.SetOnline(isReachable)
+}
+
+func deviceInfos() []usb.DeviceInfo {
+	testDeviceInfo := simulator.TestDeviceInfo()
+	if testDeviceInfo != nil {
+		return []usb.DeviceInfo{testDeviceInfo}
+	}
+	return usb.DeviceInfos()
+}
+
 //export serve
 func serve(
 	cppHeapFreeFn C.cppHeapFree,
 	pushNotificationsFn C.pushNotificationsCallback,
 	responseFn C.responseCallback,
 	notifyUserFn C.notifyUserCallback,
+	preferredDecimalSeparator *C.cchar_t,
+	preferredGroupSeparator *C.cchar_t,
 	preferredLocale *C.cchar_t,
 	getSaveFilenameFn C.getSaveFilenameCallback,
 ) {
 	log := logging.Get().WithGroup("server")
 	log.WithField("args", os.Args).Info("Started Qt application")
 	testnet := flag.Bool("testnet", false, "activate testnets")
+	simulatorPort := flag.Int("simulatorPort", 15423, "port for the BitBox02 simulator")
+	useSimulator := flag.Bool("simulator", false, "use the BitBox02 simulator. It implies --testnet.")
 
 	if runtime.GOOS == "darwin" {
 		// eat "-psn_xxxx" on Mac, which is passed when starting an app from Finder for the first time.
@@ -140,12 +148,29 @@ func serve(
 		}
 	}
 
+	if *useSimulator {
+		simulator.Init(*simulatorPort)
+	}
+
 	// Capture C string early to avoid potential use when it's already popped
 	// from the stack.
 	nativeLocale := C.GoString(preferredLocale)
 
+	decimalSeparator := C.GoString(preferredDecimalSeparator)
+	groupSeparator := C.GoString(preferredGroupSeparator)
+
+	var numberFormat *backend.NumberFormat
+
+	if decimalSeparator != "" && groupSeparator != "" {
+		numberFormat = &backend.NumberFormat{
+			DecimalSeparator: decimalSeparator,
+			GroupSeparator:   groupSeparator,
+		}
+	}
+
 	bridgecommon.Serve(
 		*testnet,
+		*useSimulator,
 		gapLimits,
 		&nativeCommunication{
 			respond: func(queryID int, response string) {
@@ -165,10 +190,11 @@ func serve(
 				defer C.free(unsafe.Pointer(cText))
 				C.notifyUser(notifyUserFn, cText)
 			},
-			DeviceInfosFunc:     usb.DeviceInfos,
+			DeviceInfosFunc:     deviceInfos,
 			SystemOpenFunc:      system.Open,
 			UsingMobileDataFunc: func() bool { return false },
 			NativeLocaleFunc:    func() string { return nativeLocale },
+			NumberFormatFunc:    func() *backend.NumberFormat { return numberFormat },
 			GetSaveFilenameFunc: func(suggestedFilename string) string {
 				cSuggestedFilename := C.CString(suggestedFilename)
 				defer C.free(unsafe.Pointer(cSuggestedFilename))
@@ -184,7 +210,7 @@ func serve(
 			DetectDarkThemeFunc: detectDarkTheme,
 			AuthFunc: func() {
 				log.Info("Qt auth")
-				authResult(true)
+				authResult(mobileserver.AuthResultOk)
 			},
 			OnAuthSettingChangedFunc: func(bool) {},
 			BluetoothConnectFunc:     func(string) {},
@@ -211,8 +237,8 @@ func backendShutdown() {
 	bridgecommon.Shutdown()
 }
 
-func authResult(ok bool) {
-	bridgecommon.AuthResult(ok)
+func authResult(result string) {
+	mobileserver.AuthResult(result)
 }
 
 // Don't remove - needed for the C compilation.

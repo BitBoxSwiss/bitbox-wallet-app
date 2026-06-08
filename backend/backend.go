@@ -1,29 +1,20 @@
-// Copyright 2018 Shift Devices AG
-// Copyright 2022 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package backend
 
 import (
+	"encoding/hex"
 	"fmt"
-	"io"
+	"maps"
+	"math/big"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -49,6 +40,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	utilConfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
@@ -59,10 +51,11 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 )
 
 func init() {
-	electrum.SetClientSoftwareVersion(Version)
+	electrum.SetClientSoftwareVersion(versioninfo.Version)
 }
 
 // fixedURLWhitelist is always allowed by SystemOpen, in addition to some
@@ -72,15 +65,22 @@ var fixedURLWhitelist = []string{
 	"https://bitbox.swiss/",
 	"https://shop.bitbox.swiss/",
 	"https://shiftcrypto.support/",
+	"https://support.bitbox.swiss",
 	// Exchange rates.
 	"https://www.coingecko.com/",
 	// Block explorers.
-	"https://blockstream.info/tx/",
-	"https://blockstream.info/testnet/tx/",
+	"https://mempool.space/tx/",
+	"https://mempool.space/address/",
+	"https://mempool.space/testnet/tx/",
+	"https://mempool.space/testnet/address/",
 	"https://sochain.com/tx/LTCTEST/",
+	"https://sochain.com/address/LTCTEST/",
 	"https://blockchair.com/litecoin/transaction/",
+	"https://blockchair.com/litecoin/address/",
 	"https://etherscan.io/tx/",
+	"https://etherscan.io/address/",
 	"https://sepolia.etherscan.io/tx/",
+	"https://sepolia.etherscan.io/address/",
 	// Moonpay onramp
 	"https://www.moonpay.com/",
 	"https://support.moonpay.com/",
@@ -92,6 +92,10 @@ var fixedURLWhitelist = []string{
 	// BTCDirect
 	"https://btcdirect.eu/",
 	"https://start.btcdirect.eu/",
+	// Bitrefill
+	"https://www.bitrefill.com/",
+	"https://embed.bitrefill.com/",
+	"https://help.bitrefill.com/",
 	// Bitsurance
 	"https://www.bitsurance.eu/",
 	"https://get.bitsurance.eu/",
@@ -102,6 +106,11 @@ var fixedURLWhitelist = []string{
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
 	"https://github.com/bitcoin/bips/",
+	// iOS app settings
+	"app-settings:",
+	// Swapkit
+	"https://swapkit.dev/",
+	"https://docs.swapkit.dev/",
 	// Others
 	"https://cointracking.info/import/bitbox/",
 }
@@ -124,16 +133,41 @@ type deviceEvent struct {
 
 type authEventType string
 
+// AuthResultType represents the possible results of the authentication flow.
+type AuthResultType string
+
 const (
+	// authRequired is fired when we need the user to authenticate.
 	authRequired authEventType = "auth-required"
-	authForced   authEventType = "auth-forced"
-	authCanceled authEventType = "auth-canceled"
-	authOk       authEventType = "auth-ok"
-	authErr      authEventType = "auth-err"
+	// authForced is fired when we need the user to authenticate even if
+	// the authentication flag is not set in the settings. This allows to check
+	// that the user is able to authenticate before enabling the screen lock.
+	authForced authEventType = "auth-forced"
+	// authResult is fired when the authentication flow produced a result.
+	authResult authEventType = "auth-result"
+
+	// AuthResultOk means that the authentication succeeded.
+	AuthResultOk AuthResultType = "authres-ok"
+	// AuthResultErr means that there is an authentication error.
+	// E.g. on Android when a biometric is valid, but not recognized.
+	AuthResultErr AuthResultType = "authres-err"
+	// AuthResultCancel means that the authentication has been aborted
+	// by the user.
+	AuthResultCancel AuthResultType = "authres-cancel"
+	// AuthResultMissing means that there is no authentication method configured
+	// on the device.
+	AuthResultMissing AuthResultType = "authres-missing"
 )
 
 type authEventObject struct {
-	Typ authEventType `json:"typ"`
+	Typ    authEventType   `json:"typ"`
+	Result *AuthResultType `json:"result,omitempty"`
+}
+
+// NumberFormat can contain different decimal and group separators specified by the user to format numbers can be empty in case the user did not overwrite.
+type NumberFormat struct {
+	DecimalSeparator string `json:"decimal"`
+	GroupSeparator   string `json:"group"`
 }
 
 // Environment represents functionality where the implementation depends on the environment the app
@@ -158,6 +192,7 @@ type Environment interface {
 	// to return empty string or unsupported value, in which case the app will use
 	// English by default.
 	NativeLocale() string
+	NumberFormat() *NumberFormat
 	// Invoke a file picker dialog for the user to select a destination to store a file.
 	// `suggestedFilename` is the proposed/default destination.
 	// The function should return the empty string if the user aborted the process.
@@ -190,7 +225,8 @@ type Backend struct {
 
 	notifier *Notifier
 
-	devices map[string]device.Interface
+	devices     map[string]device.Interface
+	devicesLock locker.Locker
 
 	usbManager *usb.Manager
 	bluetooth  *bluetooth.Bluetooth
@@ -199,6 +235,8 @@ type Backend struct {
 	accounts                AccountsList
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
+	// Called to remove the current keystore observer, if any.
+	unobserveKeystore func()
 
 	connectKeystore connectKeystore
 
@@ -206,7 +244,7 @@ type Backend struct {
 
 	// makeBtcAccount creates a BTC account. In production this is `btc.NewAccount`, but can be
 	// overridden in unit tests for mocking.
-	makeBtcAccount func(*accounts.AccountConfig, *btc.Coin, *types.GapLimits, func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), *logrus.Entry) accounts.Interface
+	makeBtcAccount func(*accounts.AccountConfig, *btc.Coin, *types.GapLimits, func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), *logrus.Entry) accounts.Interface
 	// makeEthAccount creates an ETH account. In production this is `eth.NewAccount`, but can be
 	// overridden in unit tests for mocking.
 	makeEthAccount func(*accounts.AccountConfig, *eth.Coin, *http.Client, *logrus.Entry) accounts.Interface
@@ -223,10 +261,10 @@ type Backend struct {
 
 	socksProxy socksproxy.SocksProxy
 	// can be a regular or, if Tor is enabled in the config, a SOCKS5 proxy client.
-	httpClient          *http.Client
-	etherScanHTTPClient *http.Client
-	ratesUpdater        *rates.RateUpdater
-	banners             *banners.Banners
+	httpClient           *http.Client
+	etherScanRateLimiter *rate.Limiter
+	ratesUpdater         *rates.RateUpdater
+	banners              *banners.Banners
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
 	tstCheckAccountUsed func(accounts.Interface) bool
@@ -235,6 +273,16 @@ type Backend struct {
 
 	// testing tells us whether the app is in testing mode
 	testing bool
+
+	// isOnline indicates whether the backend is online, i.e. able to connect to the internet.
+	isOnline atomic.Bool
+
+	// ethupdater takes care of updating ETH accounts.
+	ethupdater *eth.Updater
+
+	// skipETHInitialSync suppresses the per-account ETH init refresh while startup loads persisted
+	// accounts, so the updater's initial batch refresh is the only startup sync round.
+	skipETHInitialSync bool
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -246,8 +294,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	log.Infof("backend config: %+v", backendConfig.AppConfig().Backend)
 	log.Infof("frontend config: %+v", backendConfig.AppConfig().Frontend)
+	// Disable on iOS as it does not work there.
+	useProxy := backendConfig.AppConfig().Backend.Proxy.UseProxy && runtime.GOOS != "ios"
 	backendProxy := socksproxy.NewSocksProxy(
-		backendConfig.AppConfig().Backend.Proxy.UseProxy,
+		useProxy,
 		backendConfig.AppConfig().Backend.Proxy.ProxyAddress,
 	)
 	hclient, err := backendProxy.GetHTTPClient()
@@ -255,27 +305,32 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		return nil, err
 	}
 
+	accountUpdate := make(chan *eth.Account)
+
 	backend := &Backend{
 		arguments:   arguments,
 		environment: environment,
 		config:      backendConfig,
-		events:      make(chan interface{}, 1000),
+		events:      make(chan interface{}),
 
 		devices:  map[string]device.Interface{},
 		coins:    map[coinpkg.Code]coinpkg.Coin{},
 		accounts: []accounts.Interface{},
 		aopp:     AOPP{State: aoppStateInactive},
-		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(*btc.Account, blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error), log *logrus.Entry) accounts.Interface {
+		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
 		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-			return eth.NewAccount(config, coin, httpClient, log)
+			return eth.NewAccount(config, coin, httpClient, log, accountUpdate)
 		},
 
 		log: log,
 
-		testing: backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
+		testing:              backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
+		etherScanRateLimiter: rate.NewLimiter(rate.Limit(etherscan.CallsPerSec), 1),
 	}
+	// TODO: remove when connectivity check is present on all platforms
+	backend.isOnline.Store(true)
 
 	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
 	if err != nil {
@@ -284,16 +339,19 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.notifier = notifier
 	backend.socksProxy = backendProxy
 	backend.httpClient = hclient
-	backend.etherScanHTTPClient = hclient
+	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts)
 
 	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
 	if err := os.MkdirAll(ratesCache, 0700); err != nil {
 		log.Errorf("RateUpdater DB cache dir: %v", err)
 	}
 	backend.ratesUpdater = rates.NewRateUpdater(hclient, ratesCache)
-	backend.ratesUpdater.Observe(backend.Notify)
+	backend.ratesUpdater.Observe(func(event observable.Event) {
+		backend.Notify(event)
+		backend.notifyCoinFiatPrices()
+	})
 
-	backend.banners = banners.NewBanners()
+	backend.banners = banners.NewBanners(backend.DevServers())
 	backend.banners.Observe(backend.Notify)
 
 	backend.bluetooth = bluetooth.New(log)
@@ -357,7 +415,7 @@ func (backend *Backend) Authenticate(force bool) {
 	if backend.config.AppConfig().Backend.Authentication || force {
 		backend.environment.Auth()
 	} else {
-		backend.AuthResult(true)
+		backend.AuthResult(AuthResultOk)
 	}
 }
 
@@ -368,17 +426,6 @@ func (backend *Backend) TriggerAuth() {
 		Action:  action.Replace,
 		Object: authEventObject{
 			Typ: authRequired,
-		},
-	})
-}
-
-// CancelAuth triggers an auth-canceled notification.
-func (backend *Backend) CancelAuth() {
-	backend.Notify(observable.Event{
-		Subject: "auth",
-		Action:  action.Replace,
-		Object: authEventObject{
-			Typ: authCanceled,
 		},
 	})
 }
@@ -404,17 +451,14 @@ func (backend *Backend) ForceAuth() {
 
 // AuthResult triggers an auth-ok or auth-err notification
 // depending on the input value.
-func (backend *Backend) AuthResult(ok bool) {
-	backend.log.Infof("Auth result: %v", ok)
-	typ := authErr
-	if ok {
-		typ = authOk
-	}
+func (backend *Backend) AuthResult(result AuthResultType) {
+	backend.log.Infof("Auth result: %v", result)
 	backend.Notify(observable.Event{
 		Subject: "auth",
 		Action:  action.Replace,
 		Object: authEventObject{
-			Typ: typ,
+			Typ:    authResult,
+			Result: &result,
 		},
 	})
 }
@@ -458,18 +502,18 @@ mCMuGBNHsbrs6rI1hbI4Qq6GYazLaDRqdCufTA==
 
 	switch code {
 	case coinpkg.CodeBTC:
-		return []*config.ServerInfo{{Server: "btc1.shiftcrypto.dev:50001", TLS: true, PEMCert: devShiftCA}}
+		return []*config.ServerInfo{{Server: "btc1.shiftcrypto.dev:443", TLS: true, PEMCert: devShiftCA}}
 	case coinpkg.CodeTBTC:
-		return []*config.ServerInfo{{Server: "tbtc1.shiftcrypto.dev:51001", TLS: true, PEMCert: devShiftCA}}
+		return []*config.ServerInfo{{Server: "tbtc1.shiftcrypto.dev:443", TLS: true, PEMCert: devShiftCA}}
 	case coinpkg.CodeRBTC:
 		return []*config.ServerInfo{
 			{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""},
 			{Server: "127.0.0.1:52002", TLS: false, PEMCert: ""},
 		}
 	case coinpkg.CodeLTC:
-		return []*config.ServerInfo{{Server: "ltc1.shiftcrypto.dev:50011", TLS: true, PEMCert: devShiftCA}}
+		return []*config.ServerInfo{{Server: "ltc1.shiftcrypto.dev:443", TLS: true, PEMCert: devShiftCA}}
 	case coinpkg.CodeTLTC:
-		return []*config.ServerInfo{{Server: "tltc1.shiftcrypto.dev:51011", TLS: true, PEMCert: devShiftCA}}
+		return []*config.ServerInfo{{Server: "tltc1.shiftcrypto.dev:443", TLS: true, PEMCert: devShiftCA}}
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
 	}
@@ -502,39 +546,39 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	switch {
 	case code == coinpkg.CodeRBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", coinpkg.BtcUnitDefault, &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
+		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", coinpkg.BtcUnitDefault, &chaincfg.RegressionNetParams, dbFolder, servers, "", "", backend.socksProxy)
 	case code == coinpkg.CodeTBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", btcFormatUnit, &chaincfg.TestNet3Params, dbFolder, servers,
-			"https://blockstream.info/testnet/tx/", backend.socksProxy)
+			"https://mempool.space/testnet/tx/", "https://mempool.space/testnet/address/", backend.socksProxy)
 	case code == coinpkg.CodeBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", btcFormatUnit, &chaincfg.MainNetParams, dbFolder, servers,
-			"https://blockstream.info/tx/", backend.socksProxy)
+			"https://mempool.space/tx/", "https://mempool.space/address/", backend.socksProxy)
 	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", coinpkg.BtcUnitDefault, &ltc.TestNet4Params, dbFolder, servers,
-			"https://sochain.com/tx/LTCTEST/", backend.socksProxy)
+			"https://sochain.com/tx/LTCTEST/", "https://sochain.com/address/LTCTEST/", backend.socksProxy)
 	case code == coinpkg.CodeLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
-			"https://blockchair.com/litecoin/transaction/", backend.socksProxy)
+			"https://blockchair.com/litecoin/transaction/", "https://blockchair.com/litecoin/address/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
-		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
+		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
-			"https://etherscan.io/tx/",
+			"https://etherscan.io/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeSEPETH:
-		etherScan := etherscan.NewEtherScan("11155111", backend.etherScanHTTPClient)
+		etherScan := etherscan.NewEtherScan("11155111", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig,
-			"https://sepolia.etherscan.io/tx/",
+			"https://sepolia.etherscan.io/",
 			etherScan,
 			nil)
 	case erc20Token != nil:
-		etherScan := etherscan.NewEtherScan("1", backend.etherScanHTTPClient)
+		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
-			"https://etherscan.io/tx/",
+			"https://etherscan.io/",
 			etherScan,
 			erc20Token.token,
 		)
@@ -546,10 +590,31 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	return coin, nil
 }
 
+func (backend *Backend) updateETHAccounts() error {
+	backend.log.Debug("Updating ETH accounts balances")
+
+	accountsChainID := map[string][]*eth.Account{}
+	for _, account := range backend.Accounts() {
+		ethAccount, ok := account.(*eth.Account)
+		if ok {
+			chainID := ethAccount.ETHCoin().ChainIDstr()
+			accountsChainID[chainID] = append(accountsChainID[chainID], ethAccount)
+		}
+
+	}
+
+	for chainID, ethAccounts := range accountsChainID {
+		etherScanClient := etherscan.NewEtherScan(chainID, backend.httpClient, backend.etherScanRateLimiter)
+		backend.ethupdater.UpdateBalancesAndBlockNumber(ethAccounts, etherScanClient)
+	}
+
+	return nil
+}
+
 // ManualReconnect triggers reconnecting to Electrum servers if their connection is down.
 // Only coin connections that were previously established are reconnected.
 // Calling this is a no-op for coins that are already connected.
-func (backend *Backend) ManualReconnect() {
+func (backend *Backend) ManualReconnect(reconnectETH bool) {
 	var electrumCoinCodes []coinpkg.Code
 	if backend.Testing() {
 		electrumCoinCodes = []coinpkg.Code{
@@ -581,6 +646,10 @@ func (backend *Backend) ManualReconnect() {
 		}
 		blockchain.ManualReconnect()
 	}
+	if reconnectETH {
+		backend.log.Info("Reconnecting ETH accounts")
+		backend.ethupdater.EnqueueUpdateForAllAccounts()
+	}
 }
 
 // Testing returns whether this backend is for testing only.
@@ -592,14 +661,6 @@ func (backend *Backend) Testing() bool {
 func (backend *Backend) Accounts() AccountsList {
 	defer backend.accountsAndKeystoreLock.RLock()()
 	return slices.Clone(backend.accounts)
-}
-
-// KeystoreTotalAmount represents the total balance amount of the accounts belonging to a keystore.
-type KeystoreTotalAmount = struct {
-	// FiatUnit is the fiat unit of the total amount
-	FiatUnit string `json:"fiatUnit"`
-	// Total formatted for frontend visualization
-	Total string `json:"total"`
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
@@ -626,9 +687,7 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // client.
 func (backend *Backend) Start() <-chan interface{} {
 	backend.usbManager = usb.NewManager(
-		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
-		backend.socksProxy,
 		backend.environment.DeviceInfos,
 		backend.Register,
 		backend.Deregister)
@@ -642,13 +701,17 @@ func (backend *Backend) Start() <-chan interface{} {
 	}
 
 	defer backend.accountsAndKeystoreLock.Lock()()
+	backend.skipETHInitialSync = true
 	backend.initPersistedAccounts()
+	backend.skipETHInitialSync = false
 	backend.emitAccountsStatusChanged()
 
 	backend.ratesUpdater.StartCurrentRates()
 	backend.configureHistoryExchangeRates()
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
+
+	go backend.ethupdater.PollBalances()
 
 	if backend.config.AppConfig().Backend.StartInTestnet {
 		if err := backend.config.ModifyAppConfig(func(c *config.AppConfig) error { c.Backend.StartInTestnet = false; return nil }); err != nil {
@@ -667,7 +730,8 @@ func (backend *Backend) UsbUpdate() {
 
 // DevicesRegistered returns a map of device IDs to device of registered devices.
 func (backend *Backend) DevicesRegistered() map[string]device.Interface {
-	return backend.devices
+	defer backend.devicesLock.RLock()()
+	return maps.Clone(backend.devices)
 }
 
 // HTTPClient is a getter method for the HTTPClient instance.
@@ -683,17 +747,18 @@ func (backend *Backend) Keystore() keystore.Keystore {
 
 // registerKeystore registers the given keystore at this backend.
 // if another keystore is already registered, it will be replaced.
-func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
+func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 	defer backend.accountsAndKeystoreLock.Lock()()
 	// Only for logging, if there is an error we continue anyway.
-	fingerprint, err := keystore.RootFingerprint()
+	fingerprint, err := ks.RootFingerprint()
 	if err != nil {
 		backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
 		return
 	}
-	log := backend.log.WithField("rootFingerprint", fingerprint)
+	log := backend.log.WithField("rootFingerprint", hex.EncodeToString(fingerprint))
 	log.Info("registering keystore")
-	backend.keystore = keystore
+	backend.observeKeystore(ks)
+	backend.keystore = ks
 	backend.Notify(observable.Event{
 		Subject: "keystores",
 		Action:  action.Reload,
@@ -704,7 +769,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	}
 
 	persistKeystore := func(accountsConfig *config.AccountsConfig) error {
-		keystoreName, err := keystore.Name()
+		keystoreName, err := ks.Name()
 		if err != nil {
 			return errp.WithMessage(err, "could not retrieve keystore name")
 		}
@@ -724,9 +789,9 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		// needed on the persisted accounts.
 		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)
 		if len(accounts) != 0 {
-			return backend.updatePersistedAccounts(keystore, accounts)
+			return backend.updatePersistedAccounts(ks, accounts)
 		}
-		return backend.persistDefaultAccountConfigs(keystore, accountsConfig)
+		return backend.persistDefaultAccountConfigs(ks, accountsConfig)
 	})
 	if err != nil {
 		log.WithError(err).Error("Could not persist default accounts")
@@ -741,6 +806,26 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	go backend.maybeAddHiddenUnusedAccounts()
 }
 
+func (backend *Backend) observeKeystore(ks keystore.Keystore) {
+	if backend.unobserveKeystore != nil {
+		backend.unobserveKeystore()
+		backend.unobserveKeystore = nil
+	}
+	backend.unobserveKeystore = ks.Observe(func(event observable.Event) {
+		if event.Subject != string(keystore.EventNameChanged) {
+			return
+		}
+		nameChanged, ok := event.Object.(keystore.NameChangedEvent)
+		if !ok {
+			backend.log.WithField("subject", event.Subject).Warn("keystore name change event without payload")
+			return
+		}
+		if err := backend.updateKeystoreName(nameChanged.RootFingerprint, nameChanged.Name); err != nil {
+			backend.log.WithError(err).Error("could not persist keystore name after name change")
+		}
+	})
+}
+
 // DeregisterKeystore removes the registered keystore.
 func (backend *Backend) DeregisterKeystore() {
 	defer backend.accountsAndKeystoreLock.Lock()()
@@ -751,7 +836,11 @@ func (backend *Backend) DeregisterKeystore() {
 	}
 	// Only for logging, if there is an error we continue anyway.
 	fingerprint, _ := backend.keystore.RootFingerprint()
-	backend.log.WithField("rootFingerprint", fingerprint).Info("deregistering keystore")
+	backend.log.WithField("rootFingerprint", hex.EncodeToString(fingerprint)).Info("deregistering keystore")
+	if backend.unobserveKeystore != nil {
+		backend.unobserveKeystore()
+		backend.unobserveKeystore = nil
+	}
 	backend.keystore = nil
 	backend.Notify(observable.Event{
 		Subject: "keystores",
@@ -768,9 +857,11 @@ func (backend *Backend) DeregisterKeystore() {
 
 // Register registers the given device at this backend.
 func (backend *Backend) Register(theDevice device.Interface) error {
+	unlock := backend.devicesLock.Lock()
 	backend.devices[theDevice.Identifier()] = theDevice
-
 	mainKeystore := len(backend.devices) == 1
+	unlock()
+
 	theDevice.SetOnEvent(func(event deviceevent.Event, data interface{}) {
 		backend.events <- deviceEvent{
 			DeviceID: theDevice.Identifier(),
@@ -792,7 +883,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		backend.Notify(observable.Event{
 			Subject: fmt.Sprintf(
 				"devices/%s/%s/%s",
-				theDevice.ProductName(),
+				theDevice.PlatformName(),
 				theDevice.Identifier(),
 				event.Subject),
 			Action: event.Action,
@@ -814,17 +905,25 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	switch theDevice.ProductName() {
 	case bitbox.ProductName:
 		backend.banners.Activate(banners.KeyBitBox01)
-	case bitbox02.ProductName:
+	case bitbox02.BitBox02ProductName:
 		backend.banners.Activate(banners.KeyBitBox02)
+	case bitbox02.BitBox02NovaProductName:
+		backend.banners.Activate(banners.KeyBitBox02Nova)
 	}
 	return nil
 }
 
 // Deregister deregisters the device with the given ID from this backend.
 func (backend *Backend) Deregister(deviceID string) {
-	if device, ok := backend.devices[deviceID]; ok {
-		backend.onDeviceUninit(deviceID)
+	unlock := backend.devicesLock.Lock()
+	device, ok := backend.devices[deviceID]
+	if ok {
 		delete(backend.devices, deviceID)
+	}
+	unlock()
+
+	if ok {
+		backend.onDeviceUninit(deviceID)
 		backend.DeregisterKeystore()
 
 		backend.Notify(observable.Event{
@@ -834,8 +933,10 @@ func (backend *Backend) Deregister(deviceID string) {
 		switch device.ProductName() {
 		case bitbox.ProductName:
 			backend.banners.Deactivate(banners.KeyBitBox01)
-		case bitbox02.ProductName:
+		case bitbox02.BitBox02ProductName:
 			backend.banners.Deactivate(banners.KeyBitBox02)
+		case bitbox02.BitBox02NovaProductName:
+			backend.banners.Deactivate(banners.KeyBitBox02Nova)
 		}
 
 	}
@@ -844,6 +945,35 @@ func (backend *Backend) Deregister(deviceID string) {
 // RatesUpdater returns the backend's ratesUpdater instance.
 func (backend *Backend) RatesUpdater() *rates.RateUpdater {
 	return backend.ratesUpdater
+}
+
+// CoinFiatPrices returns the fiat prices of 1 display-unit of the given coin
+// in all supported fiat currencies, formatted with thousand separators.
+// The successful response matches the frontend TAmountWithConversions shape.
+func (backend *Backend) CoinFiatPrices(coin coinpkg.Coin) *coinpkg.FormattedAmountWithConversions {
+	const isFee = false
+	coinAmount := coin.SetAmount(big.NewRat(1, 1), isFee)
+	return &coinpkg.FormattedAmountWithConversions{
+		Amount: "1",
+		Unit:   coin.Unit(isFee),
+		Conversions: coinpkg.Conversions(
+			coinAmount,
+			coin,
+			isFee,
+			backend.ratesUpdater),
+	}
+}
+
+// notifyCoinFiatPrices pushes per-coin fiat price events for all initialized coins.
+func (backend *Backend) notifyCoinFiatPrices() {
+	defer backend.coinsLock.RLock()()
+	for code, coin := range backend.coins {
+		backend.Notify(observable.Event{
+			Subject: fmt.Sprintf("coins/%s/fiat-prices", code),
+			Action:  action.Replace,
+			Object:  backend.CoinFiatPrices(coin),
+		})
+	}
 }
 
 // DownloadCert downloads the first element of the remote certificate chain.
@@ -860,9 +990,17 @@ func (backend *Backend) CheckElectrumServer(serverInfo *config.ServerInfo) error
 
 // RegisterTestKeystore adds a keystore derived deterministically from a PIN, for convenience in
 // devmode.
-func (backend *Backend) RegisterTestKeystore(pin string) {
-	softwareBasedKeystore := software.NewKeystoreFromPIN(pin)
+func (backend *Backend) RegisterTestKeystore(pin string, edition software.Edition) error {
+	switch edition {
+	case "":
+		edition = software.EditionMulti
+	case software.EditionMulti, software.EditionBTCOnly:
+	default:
+		return errp.Newf("Unsupported test keystore edition: %s", edition)
+	}
+	softwareBasedKeystore := software.NewKeystoreFromPINWithEdition(pin, edition)
 	backend.registerKeystore(softwareBasedKeystore)
+	return nil
 }
 
 // NotifyUser creates a desktop notification.
@@ -906,6 +1044,10 @@ func (backend *Backend) Close() error {
 	errors := []string{}
 
 	backend.uninitAccounts(true)
+	if backend.unobserveKeystore != nil {
+		backend.unobserveKeystore()
+		backend.unobserveKeystore = nil
+	}
 
 	for _, coin := range backend.coins {
 		if err := coin.Close(); err != nil {
@@ -918,6 +1060,8 @@ func (backend *Backend) Close() error {
 	if len(errors) > 0 {
 		return errp.New(strings.Join(errors, "; "))
 	}
+
+	backend.ethupdater.Close()
 	return nil
 }
 
@@ -941,6 +1085,26 @@ func (backend *Backend) HandleURI(uri string) {
 	default:
 		backend.log.Warningf("Unknown URI scheme: %s", uri)
 	}
+}
+
+// SetOnline sets the backend's online status and notifies the frontend.
+func (backend *Backend) SetOnline(online bool) {
+	backend.log.Infof("Setting online status to %v", online)
+	// If coming back online, trigger a reconnection.
+	if online && !backend.isOnline.Load() {
+		backend.ManualReconnect(true)
+	}
+	backend.isOnline.Store(online)
+	backend.Notify(observable.Event{
+		Subject: "online",
+		Action:  action.Reload,
+		Object:  online,
+	})
+}
+
+// IsOnline returns whether the backend is online, i.e. able to connect to the internet.
+func (backend *Backend) IsOnline() bool {
+	return backend.isOnline.Load()
 }
 
 // GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
@@ -974,8 +1138,6 @@ func (backend *Backend) CancelConnectKeystore() {
 }
 
 // SetWatchonly sets the keystore's watchonly flag to `watchonly`.
-// When enabling watchonly, all currently loaded accounts of that keystore are turned into watchonly accounts.
-// When disabling watchonly, all the watchonly status of all of the keystore's persisted accounts is reset.
 func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) error {
 	err := backend.config.ModifyAccountsConfig(func(config *config.AccountsConfig) error {
 		ks, err := config.LookupKeystore(rootFingerprint)
@@ -989,28 +1151,10 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 		return err
 	}
 
-	if !watchonly {
-		// When disabling watchonly of the keystore, we reset the Watch flag for each of its
-		// accounts, so that when the user enables watchonly for this keystore again, it does not
-		// show all accounts again - they first need to be loaded via their keystore.
-		return backend.AccountSetWatch(
-			func(account *config.Account) bool {
-				return account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint)
-			},
-			nil,
-		)
-	}
-
-	accounts := backend.Accounts()
-	// When enabling watchonly, we turn the currently loaded accounts into watch-only accounts.
-	t := true
-	return backend.AccountSetWatch(
-		func(account *config.Account) bool {
-			// Apply to each currently loaded account.
-			return !account.HiddenBecauseUnused && accounts.lookup(account.Code) != nil
-		},
-		&t,
-	)
+	defer backend.accountsAndKeystoreLock.Lock()()
+	backend.initAccounts(false)
+	backend.emitAccountsStatusChanged()
+	return nil
 }
 
 // ExportLogs function copy and save log.txt file to help users provide it to support while troubleshooting.
@@ -1028,28 +1172,20 @@ func (backend *Backend) ExportLogs() error {
 	}
 	backend.log.Infof("Export logs to %s.", path)
 
-	file, err := os.Create(path)
+	exportFile, err := os.Create(path)
 	if err != nil {
 		backend.log.WithError(err).Error("error creating new log file")
 		return err
 	}
 	logFilePath := filepath.Join(utilConfig.AppDir(), "log.txt")
 
-	existingLogFile, err := os.Open(logFilePath)
-	if err != nil {
-		backend.log.WithError(err).Error("error opening existing log file")
+	if err := logging.WriteCombinedLog(exportFile, logFilePath); err != nil {
+		backend.log.WithError(err).Error("error copying existing logs to new file")
+		_ = exportFile.Close()
 		return err
 	}
-
-	defer func() {
-		if err := existingLogFile.Close(); err != nil {
-			backend.log.WithError(err).Error("error closing existing log file")
-		}
-	}()
-
-	_, err = io.Copy(file, existingLogFile)
-	if err != nil {
-		backend.log.WithError(err).Error("error copying existing log to new file")
+	if err := exportFile.Close(); err != nil {
+		backend.log.WithError(err).Error("error closing new log file")
 		return err
 	}
 	backend.log.Infof("Exported logs copied to %s.", path)

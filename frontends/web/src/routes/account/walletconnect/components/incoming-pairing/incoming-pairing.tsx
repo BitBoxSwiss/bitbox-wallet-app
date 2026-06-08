@@ -1,19 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
 
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CoreTypes, SignClientTypes } from '@walletconnect/types';
@@ -25,12 +11,12 @@ import { SUPPORTED_CHAINS } from '@/utils/walletconnect';
 import styles from './incoming-pairing.module.css';
 
 type TIncomingPairingProps = {
-    currentProposal: SignClientTypes.EventArguments['session_proposal'];
-    pairingMetadata: CoreTypes.Metadata;
-    receiveAddress: string;
-    onReject: () => void;
-    onApprove: () => void;
-}
+  currentProposal: SignClientTypes.EventArguments['session_proposal'];
+  pairingMetadata: CoreTypes.Metadata;
+  receiveAddress: string;
+  onReject: () => void;
+  onApprove: () => void;
+};
 
 const PairingContainer = ({ pairingMetadata }: {pairingMetadata: TIncomingPairingProps['pairingMetadata']}) => {
   const { name, description, url, icons } = pairingMetadata;

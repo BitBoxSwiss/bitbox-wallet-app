@@ -1,14 +1,19 @@
-
 .addAccountBtn {
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-half);
 }
 
 .accountNameInactive {
     color: var(--color-secondary);
 }
 
+.editAccount {
+    align-items: baseline;
+    display: flex;
+}
+
 .disabledText {
     color: var(--color-secondary);
+    font-size: var(--size-small);
     margin: 0;
 }
 
@@ -23,10 +28,14 @@
     align-items: center;
     display: flex;
     flex-wrap: wrap;
-    font-size: 20px;
+    font-size: 2rem;
     font-weight: 400;
     margin: 0 0 var(--space-quarter) 0;
     width: 50%;
+}
+
+.connectedKeystore {
+    flex-wrap: wrap;
 }
 
 .keystoreName {
@@ -54,11 +63,12 @@
 }
 
 .coinLogo {
+    display: block;
     position: relative;
     z-index: 2;
 }
 
-.acccountLink {
+.accountLink {
     align-items: center;
     display: flex;
     flex-basis: 0;
@@ -73,32 +83,34 @@
 
 .editBtn img {
     margin-right: var(--space-quarter);
-    max-width: 18px;
-    height: auto;
+    height: var(--size-default);
     vertical-align: text-bottom;
 }
 
 .toggleLabel {
-    align-items: center;
+    align-items: baseline;
     display: flex;
     justify-content: space-between;
 }
 
 .toggleLabelText {
+    align-items: baseline;
     color: var(--color-secondary);
+    display: flex;
 }
 
 .toggleLabelText img {
     color: var(--color-secondary);
     margin-right: var(--space-quarter);
-    max-width: 18px;
-    vertical-align: bottom;
+    max-height: var(--size-default);
+    height: auto;
+    width: var(--size-default);
 }
 
 .toggle {
     flex-basis: 60px;
     flex-shrink: 0;
-    margin-left: var(--spacing-half);
+    margin-left: var(--space-quarter);
 }
 
 .accountActive {
@@ -111,6 +123,7 @@
     flex-basis: 100%;
     flex-direction: column;
     flex-wrap: wrap;
+    max-width: 100%;
     padding: 0 0 0 4px;
 }
 
@@ -132,63 +145,12 @@
     padding: 10px 0 0 0;
 }
 
-.token {
+.expandBtn {
     align-items: center;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    min-height: var(--item-height);
-    padding: 10px 0;
-    position: relative;
-    width: 100%;
-}
-
-.token::before {
-    background-color: #ddd;
-    content: "";
-    height: 22px;
-    left: 10px;
-    position: absolute;
-    top: -13px;
-    right: 8px;
-    width: 3px;
-}
-
-.token:first-child::before {
-    height: 16px;
-    top: -7px;
-}
-
-.token img:first-child {
-    margin-right: 0;
-}
-
-.tokenIcon {
-    max-height: 24px;
-    max-width: 24px;
-}
-
-.tokenName {
-    flex: 1;
-    display: inline-block;
-    padding-left: 20px;
-}
-
-.tokenInactive {
-    color: var(--color-tertiary);
-    transition: color 0.2s ease;
-}
-
-.expandBtn {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.4' aria-labelledby='chevron down' color='%235e94bf'%3E%3Cdefs/%3E%3Cpolyline points='6 10 12 16 18 10'/%3E%3C/svg%3E%0A");
-    background-position: 100% center;
-    background-repeat: no-repeat;
+    gap: var(--space-quarter);
     height: 40px;
     padding: 0 var(--space-default);
-}
-
-.expandBtnOpen {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.4' aria-labelledby='chevron down' color='%235e94bf'%3E%3Cdefs/%3E%3Cpolyline points='6 16 12 10 18 16'/%3E%3C/svg%3E%0A");
 }
 
 .expandBtn,
@@ -197,6 +159,14 @@
     border-color: transparent !important;
     margin-left: 10px;
     outline: none;
+}
+
+.expandIcon {
+    transition: transform 0.2s ease;
+}
+
+.expandIconOpen {
+    transform: rotate(180deg);
 }
 
 

@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package bridgecommon provides common util functions to bridge the backend to a native
 // environment.
@@ -32,6 +20,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bluetooth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
@@ -123,6 +112,16 @@ func HandleURI(uri string) {
 	globalBackend.HandleURI(uri)
 }
 
+// SetOnline should be called when the network connection changed.
+func SetOnline(isOnline bool) {
+	mu.RLock()
+	defer mu.RUnlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.SetOnline(isOnline)
+}
+
 // TriggerAuth triggers an authentication request notification.
 func TriggerAuth() {
 	mu.Lock()
@@ -133,25 +132,16 @@ func TriggerAuth() {
 	globalBackend.TriggerAuth()
 }
 
-// CancelAuth triggers an authentication canceled notification.
-func CancelAuth() {
-	mu.Lock()
-	defer mu.Unlock()
-	if globalBackend == nil {
-		return
-	}
-	globalBackend.CancelAuth()
-}
-
 // AuthResult triggers an authentication result notification
 // on the base of the input value.
-func AuthResult(ok bool) {
+func AuthResult(result backend.AuthResultType) {
 	mu.Lock()
 	defer mu.Unlock()
 	if globalBackend == nil {
 		return
 	}
-	globalBackend.AuthResult(ok)
+
+	globalBackend.AuthResult(result)
 }
 
 // UsingMobileDataChanged should be called when the network connnection changed.
@@ -176,7 +166,9 @@ func ManualReconnect() {
 	if globalBackend == nil {
 		return
 	}
-	globalBackend.ManualReconnect()
+	// We pass false as by default we do not want
+	// to reconnect ETH accounts.
+	globalBackend.ManualReconnect(false)
 
 }
 
@@ -189,6 +181,7 @@ type BackendEnvironment struct {
 	// NativeLocaleFunc is used by the backend to query native app layer for user
 	// preferred UI language.
 	NativeLocaleFunc         func() string
+	NumberFormatFunc         func() *backend.NumberFormat
 	GetSaveFilenameFunc      func(string) string
 	SetDarkThemeFunc         func(bool)
 	DetectDarkThemeFunc      func() bool
@@ -234,6 +227,14 @@ func (env *BackendEnvironment) NativeLocale() string {
 		return env.NativeLocaleFunc()
 	}
 	return ""
+}
+
+// NumberFormat implements backend.Environment.
+func (env *BackendEnvironment) NumberFormat() *backend.NumberFormat {
+	if env.NumberFormatFunc != nil {
+		return env.NumberFormatFunc()
+	}
+	return nil
 }
 
 // GetSaveFilename implements backend.Environment.
@@ -283,6 +284,7 @@ func (env *BackendEnvironment) BluetoothConnect(identifier string) {
 // Serve serves the BitBox API for use in a native client.
 func Serve(
 	testnet bool,
+	simulator bool,
 	gapLimits *btctypes.GapLimits,
 	communication NativeCommunication,
 	backendEnvironment backend.Environment) {
@@ -298,8 +300,13 @@ func Serve(
 	log.Info("--------------- Started application --------------")
 	log.WithField("goos", runtime.GOOS).
 		WithField("goarch", runtime.GOARCH).
-		WithField("version", backend.Version).
+		WithField("version", versioninfo.Version).
 		Info("environment")
+
+	if simulator {
+		log.Info("Simulator mode enabled, ensuring testnet mode is enabled")
+		testnet = true
+	}
 
 	var err error
 	globalBackend, err = backend.NewBackend(

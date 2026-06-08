@@ -1,18 +1,4 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
 import { i18n } from '@/i18n/i18n';
@@ -42,11 +28,26 @@ export const BitsuranceGuide = () => {
 
   return (
     <Guide title={t('guide.guideTitle.insurance')}>
-      <Entry key="guide.bitsurance.why" entry={t('guide.bitsurance.why', { returnObjects: true })} shown={true} />
-      <Entry key="guide.bitsurance.who" entry={t('guide.bitsurance.who', { returnObjects: true })} />
-      <Entry key="guide.bitsurance.what" entry={t('guide.bitsurance.what', { returnObjects: true })} />
-      <Entry key="guide.bitsurance.status" entry={t('guide.bitsurance.status', { returnObjects: true })} />
-      <Entry key="guide.bitsurance.renew" entry={t('guide.bitsurance.renew', { returnObjects: true })} />
+      <Entry key="guide.bitsurance.why" entry={{
+        text: t('guide.bitsurance.why.text'),
+        title: t('guide.bitsurance.why.title'),
+      }} shown={true} />
+      <Entry key="guide.bitsurance.who" entry={{
+        text: t('guide.bitsurance.who.text'),
+        title: t('guide.bitsurance.who.title'),
+      }} />
+      <Entry key="guide.bitsurance.what" entry={{
+        text: t('guide.bitsurance.what.text'),
+        title: t('guide.bitsurance.what.title'),
+      }} />
+      <Entry key="guide.bitsurance.status" entry={{
+        text: t('guide.bitsurance.status.text'),
+        title: t('guide.bitsurance.status.title'),
+      }} />
+      <Entry key="guide.bitsurance.renew" entry={{
+        text: t('guide.bitsurance.renew.text'),
+        title: t('guide.bitsurance.renew.title'),
+      }} />
 
       <Entry key="guide.bitsurance.privacy" entry={{
         link: {

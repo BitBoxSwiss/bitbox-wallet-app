@@ -1,23 +1,8 @@
-// Copyright 2018 Shift Devices AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package handlers
 
 import (
-	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -27,21 +12,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
-	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -51,6 +36,10 @@ import (
 type Handlers struct {
 	account accounts.Interface
 	log     *logrus.Entry
+}
+
+func formatAddressForDisplay(account accounts.Interface, address string) string {
+	return backendutil.FormatAddress(account.Coin().Code(), address)
 }
 
 // NewHandlers creates a new Handlers instance.
@@ -70,13 +59,16 @@ func NewHandlers(
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.postAccountTxProposal)).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
+	handleFunc("/used-addresses", handlers.ensureAccountInitialized(handlers.getUsedAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
-	handleFunc("/sign-address", handlers.ensureAccountInitialized(handlers.postSignBTCAddress)).Methods("POST")
+	handleFunc("/btc-sign-message-unused-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageUnusedAddress)).Methods("POST")
+	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageForAddress)).Methods("POST")
+	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignETHMessageForAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/has-payment-request", handlers.ensureAccountInitialized(handlers.getHasPaymentRequest)).Methods("GET")
+	handleFunc("/has-swap-payment-request", handlers.ensureAccountInitialized(handlers.getHasSwapPaymentRequest)).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
-	handleFunc("/connect-keystore", handlers.ensureAccountInitialized(handlers.postConnectKeystore)).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
 	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
 	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(handlers.postEthSignWalletConnectTx)).Methods("POST")
@@ -141,9 +133,6 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 	amount := txInfo.Amount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
 	var formattedTime *string
 	timestamp := txInfo.Timestamp
-	if timestamp == nil {
-		timestamp = txInfo.CreatedTimestamp
-	}
 
 	deductedAmountAtTime := txInfo.DeductedAmount.FormatWithConversionsAtTime(handlers.account.Coin(), timestamp, accountConfig.RateUpdater)
 	amountAtTime := txInfo.Amount.FormatWithConversionsAtTime(handlers.account.Coin(), timestamp, accountConfig.RateUpdater)
@@ -278,12 +267,71 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 }
 
 func (handlers *Handlers) getAccountInfo(*http.Request) (interface{}, error) {
-	return handlers.account.Info(), nil
+	type bitcoinSimpleInfo struct {
+		KeyInfo    signing.KeyInfo    `json:"keyInfo"`
+		ScriptType signing.ScriptType `json:"scriptType"`
+		Descriptor string             `json:"descriptor"`
+	}
+	type signingConfigurationInfo struct {
+		BitcoinSimple  *bitcoinSimpleInfo      `json:"bitcoinSimple,omitempty"`
+		EthereumSimple *signing.EthereumSimple `json:"ethereumSimple,omitempty"`
+	}
+	type accountInfo struct {
+		SigningConfigurations []signingConfigurationInfo `json:"signingConfigurations"`
+	}
+
+	info := handlers.account.Info()
+	if info == nil {
+		return nil, nil
+	}
+
+	var btcNet *chaincfg.Params
+	if btcCoin, ok := handlers.account.Coin().(*btc.Coin); ok {
+		btcNet = btcCoin.Net()
+	}
+
+	result := accountInfo{
+		SigningConfigurations: make([]signingConfigurationInfo, 0, len(info.SigningConfigurations)),
+	}
+	for _, cfg := range info.SigningConfigurations {
+		signingConfig := signingConfigurationInfo{}
+		if cfg.BitcoinSimple != nil {
+			if btcNet == nil {
+				return nil, errp.New("bitcoin network unavailable for bitcoin signing config")
+			}
+			descriptor, err := cfg.BitcoinSimple.Descriptor(btcNet)
+			if err != nil {
+				return nil, err
+			}
+			signingConfig.BitcoinSimple = &bitcoinSimpleInfo{
+				KeyInfo:    cfg.BitcoinSimple.KeyInfo,
+				ScriptType: cfg.BitcoinSimple.ScriptType,
+				Descriptor: descriptor,
+			}
+		}
+		if cfg.EthereumSimple != nil {
+			signingConfig.EthereumSimple = cfg.EthereumSimple
+		}
+		result.SigningConfigurations = append(result.SigningConfigurations, signingConfig)
+	}
+	return result, nil
 }
 
 func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 	accountConfig := handlers.account.Config()
-	result := []map[string]interface{}{}
+	type utxoResponse struct {
+		OutPoint        string                              `json:"outPoint"`
+		TxID            string                              `json:"txId"`
+		TxOutput        uint32                              `json:"txOutput"`
+		Amount          coin.FormattedAmountWithConversions `json:"amount"`
+		Address         string                              `json:"address"`
+		ScriptType      signing.ScriptType                  `json:"scriptType"`
+		Note            string                              `json:"note"`
+		AddressReused   bool                                `json:"addressReused"`
+		IsChange        bool                                `json:"isChange"`
+		HeaderTimestamp *string                             `json:"headerTimestamp"`
+	}
+	result := []utxoResponse{}
 
 	t, ok := handlers.account.(*btc.Account)
 
@@ -291,38 +339,36 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 		return result, errp.New("Interface must be of type btc.Account")
 	}
 
-	addressCounts := make(map[string]int)
-
 	spendableOutputs, err := t.SpendableOutputs()
 	if err != nil {
 		return nil, err
 	}
-
-	for _, output := range spendableOutputs {
-		address := output.Address.EncodeForHumans()
-		addressCounts[address]++
-	}
-
-	spendableOutputs, err = t.SpendableOutputs()
+	reusedAddresses, err := t.ReusedAddressesForOutputs(spendableOutputs)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, output := range spendableOutputs {
 		address := output.Address.EncodeForHumans()
-		addressReused := addressCounts[address] > 1
-
+		_, addressReused := reusedAddresses[output.Address.PubkeyScriptHashHex()]
+		var formattedTime *string
+		timestamp := output.HeaderTimestamp
+		if timestamp != nil {
+			t := timestamp.Format(time.RFC3339)
+			formattedTime = &t
+		}
 		result = append(result,
-			map[string]interface{}{
-				"outPoint":      output.OutPoint.String(),
-				"txId":          output.OutPoint.Hash.String(),
-				"txOutput":      output.OutPoint.Index,
-				"amount":        coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
-				"address":       address,
-				"scriptType":    output.Address.AccountConfiguration.ScriptType(),
-				"note":          handlers.account.TxNote(output.OutPoint.Hash.String()),
-				"addressReused": addressReused,
-				"isChange":      output.IsChange,
+			utxoResponse{
+				OutPoint:        output.OutPoint.String(),
+				TxID:            output.OutPoint.Hash.String(),
+				TxOutput:        output.OutPoint.Index,
+				Amount:          coin.ConvertBTCAmount(handlers.account.Coin(), btcutil.Amount(output.TxOut.Value), false, accountConfig.RateUpdater),
+				Address:         address,
+				ScriptType:      output.Address.AccountConfiguration.ScriptType(),
+				Note:            handlers.account.TxNote(output.OutPoint.Hash.String()),
+				AddressReused:   addressReused,
+				IsChange:        output.IsChange,
+				HeaderTimestamp: formattedTime,
 			})
 	}
 
@@ -357,51 +403,6 @@ func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) 
 	}, nil
 }
 
-type slip24Request struct {
-	RecipientName string `json:"recipientName"`
-	Nonce         string `json:"nonce"`
-	Memos         []struct {
-		Type string `json:"type"`
-		Text string `json:"text"`
-	} `json:"memos"`
-	Outputs []struct {
-		Amount  uint64 `json:"amount"`
-		Address string `json:"address"`
-	} `json:"outputs"`
-	Signature string `json:"signature"`
-}
-
-func (slip24 slip24Request) toPaymentRequest() (*accounts.PaymentRequest, error) {
-	if len(slip24.Outputs) != 1 {
-		return nil, errp.New("Missing or multiple payment request output unsupported")
-	}
-
-	if len(slip24.Nonce) > 0 {
-		return nil, errp.New("Nonce value unsupported")
-	}
-
-	sigBytes, err := base64.StdEncoding.DecodeString(slip24.Signature)
-	if err != nil {
-		return nil, err
-	}
-
-	memos := []accounts.TextMemo{}
-	for _, memo := range slip24.Memos {
-		if memo.Type != "text" {
-			return nil, errp.New("Payment request non-text memo unsupported")
-		}
-		memos = append(memos, accounts.TextMemo{Note: memo.Text})
-	}
-
-	return &accounts.PaymentRequest{
-		RecipientName: slip24.RecipientName,
-		Nonce:         nil,
-		Signature:     sigBytes,
-		TotalAmount:   slip24.Outputs[0].Amount,
-		Memos:         memos,
-	}, nil
-}
-
 type sendTxInput struct {
 	accounts.TxProposalArgs
 }
@@ -412,13 +413,13 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		SendAll   string `json:"sendAll"`
 		FeeTarget string `json:"feeTarget"`
 		// Provided in Sat/vByte for BTC/LTC and in Gwei for ETH.
-		CustomFee      string         `json:"customFee"`
-		Amount         string         `json:"amount"`
-		SelectedUTXOS  []string       `json:"selectedUTXOS"`
-		Note           string         `json:"note"`
-		Counter        int            `json:"counter"`
-		PaymentRequest *slip24Request `json:"paymentRequest"`
-		UseHighestFee  bool           `json:"useHighestFee"`
+		CustomFee      string                 `json:"customFee"`
+		Amount         string                 `json:"amount"`
+		SelectedUTXOS  []string               `json:"selectedUTXOS"`
+		Note           string                 `json:"note"`
+		Counter        int                    `json:"counter"`
+		PaymentRequest *paymentrequest.Slip24 `json:"paymentRequest"`
+		UseHighestFee  bool                   `json:"useHighestFee"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
@@ -447,7 +448,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.Note = jsonBody.Note
 	if jsonBody.PaymentRequest != nil {
-		paymentRequest, err := jsonBody.PaymentRequest.toPaymentRequest()
+		paymentRequest, err := jsonBody.PaymentRequest.ToRequest()
 		if err != nil {
 			return err
 		}
@@ -458,6 +459,14 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 }
 
 func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success      bool   `json:"success"`
+		Aborted      bool   `json:"aborted,omitempty"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+		TxID         string `json:"txId,omitempty"`
+	}
+
 	var txNote string
 	if err := json.NewDecoder(r.Body).Decode(&txNote); err != nil {
 		// In case unmarshaling of the tx. note fails for some reason we do not want to abort send
@@ -465,27 +474,40 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 		// not return but only log an error here.
 		handlers.log.WithError(err).Error("Failed to unmarshal transaction note")
 	}
-	err := handlers.account.SendTx(txNote)
+	txID, err := handlers.account.SendTx(txNote)
 	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
-		return map[string]interface{}{"success": false, "aborted": true}, nil
+		return response{Success: false, Aborted: true}, nil
 	}
 	if err != nil {
 		handlers.log.WithError(err).Error("Failed to send transaction")
-		result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
-		if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
-			result["errorCode"] = errors.ERC20InsufficientGasFunds.Error()
+		result := response{Success: false, ErrorMessage: err.Error()}
+
+		cause := errp.Cause(err)
+		if validationErr, ok := cause.(errors.TxValidationError); ok {
+			result.ErrorCode = validationErr.Error()
+		} else if errCode, ok := cause.(errp.ErrorCode); ok {
+			result.ErrorCode = errCode.Error()
+		} else if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
+			result.ErrorCode = errors.ErrERC20InsufficientGasFunds.Error()
 		}
+
 		return result, nil
 	}
-	return map[string]interface{}{"success": true}, nil
+	return response{Success: true, TxID: txID}, nil
+}
+
+type txProposalResponse struct {
+	Success                 bool                                 `json:"success"`
+	ErrorCode               string                               `json:"errorCode,omitempty"`
+	Amount                  *coin.FormattedAmountWithConversions `json:"amount,omitempty"`
+	Fee                     *coin.FormattedAmountWithConversions `json:"fee,omitempty"`
+	Total                   *coin.FormattedAmountWithConversions `json:"total,omitempty"`
+	RecipientDisplayAddress string                               `json:"recipientDisplayAddress,omitempty"`
 }
 
 func txProposalError(err error) (interface{}, error) {
 	if validationErr, ok := errp.Cause(err).(errors.TxValidationError); ok {
-		return map[string]interface{}{
-			"success":   false,
-			"errorCode": validationErr.Error(),
-		}, nil
+		return txProposalResponse{Success: false, ErrorCode: validationErr.Error()}, nil
 	}
 	return nil, errp.WithMessage(err, "Failed to create transaction proposal")
 }
@@ -500,11 +522,15 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 	if err != nil {
 		return txProposalError(err)
 	}
-	return map[string]interface{}{
-		"success": true,
-		"amount":  outputAmount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
-		"fee":     fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater),
-		"total":   total.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
+	amountResponse := outputAmount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
+	feeResponse := fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater)
+	totalResponse := total.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
+	return txProposalResponse{
+		Success:                 true,
+		Amount:                  &amountResponse,
+		Fee:                     &feeResponse,
+		Total:                   &totalResponse,
+		RecipientDisplayAddress: formatAddressForDisplay(handlers.account, input.RecipientAddress),
 	}, nil
 }
 
@@ -512,6 +538,10 @@ func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, erro
 	type jsonFeeTarget struct {
 		Code        accounts.FeeTargetCode `json:"code"`
 		FeeRateInfo string                 `json:"feeRateInfo"`
+	}
+	type response struct {
+		FeeTargets       []jsonFeeTarget        `json:"feeTargets"`
+		DefaultFeeTarget accounts.FeeTargetCode `json:"defaultFeeTarget"`
 	}
 
 	feeTargets, defaultFeeTarget := handlers.account.FeeTargets()
@@ -522,9 +552,9 @@ func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, erro
 			FeeRateInfo: feeTarget.FormattedFeeRate(),
 		})
 	}
-	return map[string]interface{}{
-		"feeTargets":       result,
-		"defaultFeeTarget": defaultFeeTarget,
+	return response{
+		FeeTargets:       result,
+		DefaultFeeTarget: defaultFeeTarget,
 	}, nil
 }
 
@@ -567,20 +597,26 @@ func (handlers *Handlers) getAccountStatus(*http.Request) (interface{}, error) {
 func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error) {
 
 	type jsonAddress struct {
-		Address   string `json:"address"`
-		AddressID string `json:"addressID"`
+		Address        string `json:"address"`
+		DisplayAddress string `json:"displayAddress"`
+		AddressID      string `json:"addressID"`
 	}
 	type jsonAddressList struct {
 		ScriptType *signing.ScriptType `json:"scriptType"`
 		Addresses  []jsonAddress       `json:"addresses"`
 	}
 	addressList := []jsonAddressList{}
-	for _, addresses := range handlers.account.GetUnusedReceiveAddresses() {
+	unusedAddressList, err := handlers.account.GetUnusedReceiveAddresses()
+	if err != nil {
+		return nil, err
+	}
+	for _, addresses := range unusedAddressList {
 		addrs := []jsonAddress{}
 		for _, address := range addresses.Addresses {
 			addrs = append(addrs, jsonAddress{
-				Address:   address.EncodeForHumans(),
-				AddressID: address.ID(),
+				Address:        address.EncodeForHumans(),
+				DisplayAddress: formatAddressForDisplay(handlers.account, address.EncodeForHumans()),
+				AddressID:      address.ID(),
 			})
 		}
 		addressList = append(addressList, jsonAddressList{
@@ -589,6 +625,65 @@ func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error
 		})
 	}
 	return addressList, nil
+}
+
+type usedAddressesProvider interface {
+	accounts.Interface
+	GetUsedAddresses() ([]btc.UsedAddress, error)
+}
+
+func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
+	type jsonUsedAddress struct {
+		Address        string              `json:"address"`
+		DisplayAddress string              `json:"displayAddress"`
+		AddressID      string              `json:"addressID"`
+		AddressType    btc.UsedAddressType `json:"addressType"`
+		CanSignMsg     bool                `json:"canSignMsg"`
+		LastUsed       *string             `json:"lastUsed"`
+	}
+	type response struct {
+		Success   bool              `json:"success"`
+		Addresses []jsonUsedAddress `json:"addresses"`
+		ErrorCode string            `json:"errorCode,omitempty"`
+	}
+
+	btcAccount, ok := handlers.account.(usedAddressesProvider)
+	if !ok {
+		return response{Success: false, ErrorCode: "notSupported"}, nil
+	}
+
+	usedAddresses, err := btcAccount.GetUsedAddresses()
+	if err != nil {
+		if errp.Cause(err) == accounts.ErrSyncInProgress {
+			return response{Success: false, ErrorCode: accounts.ErrSyncInProgress.Error()}, nil
+		}
+		if handlers.log != nil {
+			handlers.log.WithField("code", handlers.account.Config().Config.Code).WithError(err).Error(
+				"failed to load used addresses",
+			)
+		}
+		// Return success: false instead of error to avoid breaking the frontend.
+		return response{Success: false, ErrorCode: "loadFailed"}, nil
+	}
+
+	result := make([]jsonUsedAddress, len(usedAddresses))
+	for i, addr := range usedAddresses {
+		var lastUsed *string
+		if addr.LastUsed != nil {
+			formatted := addr.LastUsed.Format(time.RFC3339)
+			lastUsed = &formatted
+		}
+		result[i] = jsonUsedAddress{
+			Address:        addr.Address,
+			DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), addr.Address),
+			AddressID:      addr.AddressID,
+			AddressType:    addr.AddressType,
+			CanSignMsg:     addr.CanSignMsg,
+			LastUsed:       lastUsed,
+		}
+	}
+
+	return response{Success: true, Addresses: result}, nil
 }
 
 func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error) {
@@ -619,7 +714,7 @@ func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interfac
 	}
 	canVerify, err := btcAccount.VerifyExtendedPublicKey(input.SigningConfigIndex)
 	// User canceled keystore connect prompt - no special action or message needed in the frontend.
-	if errp.Cause(err) == context.Canceled {
+	if errp.Cause(err) == errp.ErrUserAbort {
 		return result{Success: true}, nil
 	}
 	if err != nil {
@@ -635,13 +730,18 @@ func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interfac
 }
 
 func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, error) {
+	type response struct {
+		HasSecureOutput bool `json:"hasSecureOutput"`
+		Optional        bool `json:"optional"`
+	}
+
 	hasSecureOutput, optional, err := handlers.account.CanVerifyAddresses()
 	if err != nil {
 		return nil, err
 	}
-	return map[string]interface{}{
-		"hasSecureOutput": hasSecureOutput,
-		"optional":        optional,
+	return response{
+		HasSecureOutput: hasSecureOutput,
+		Optional:        optional,
 	}, nil
 }
 
@@ -655,15 +755,6 @@ func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
 	}
 
 	return nil, handlers.account.SetTxNote(args.InternalTxID, args.Note)
-}
-
-func (handlers *Handlers) postConnectKeystore(r *http.Request) (interface{}, error) {
-	type response struct {
-		Success bool `json:"success"`
-	}
-
-	_, err := handlers.account.Config().ConnectKeystore()
-	return response{Success: err == nil}, nil
 }
 
 type signingResponse struct {
@@ -761,48 +852,108 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 	}, nil
 }
 
-func (handlers *Handlers) postSignBTCAddress(r *http.Request) (interface{}, error) {
-	type response struct {
-		Success      bool   `json:"success"`
-		Address      string `json:"address"`
-		Signature    string `json:"signature"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
-		ErrorCode    string `json:"errorCode,omitempty"`
-	}
+type signMessageForAddressResponse struct {
+	Success        bool   `json:"success"`
+	Address        string `json:"address,omitempty"`
+	DisplayAddress string `json:"displayAddress,omitempty"`
+	Signature      string `json:"signature,omitempty"`
+	ErrorMessage   string `json:"errorMessage,omitempty"`
+	ErrorCode      string `json:"errorCode,omitempty"`
+}
 
+func (handlers *Handlers) signMessageForAddressErrorResponse(err error) signMessageForAddressResponse {
+	cause := errp.Cause(err)
+	if errCode, ok := cause.(errp.ErrorCode); ok {
+		return signMessageForAddressResponse{Success: false, ErrorCode: string(errCode)}
+	}
+	handlers.log.WithField("code", handlers.account.Config().Config.Code).WithError(err).Error("unexpected error signing message")
+	return signMessageForAddressResponse{Success: false, ErrorMessage: "An unexpected error occurred."}
+}
+
+func (handlers *Handlers) postSignBTCMessageUnusedAddress(r *http.Request) (interface{}, error) {
 	var request struct {
-		AccountCode types.Code         `json:"accountCode"`
-		Msg         string             `json:"msg"`
-		Format      signing.ScriptType `json:"format"`
+		Msg    string             `json:"msg"`
+		Format signing.ScriptType `json:"format"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
 	}
 
-	account, ok := handlers.account.(*btc.Account)
+	btcAccount, ok := handlers.account.(*btc.Account)
 	if !ok {
-		return response{
+		return signMessageForAddressResponse{
 			Success:      false,
-			ErrorMessage: "An account must be BTC based to support address signing.",
+			ErrorMessage: "Must be a BTC based account",
 		}, nil
 	}
 
-	address, signature, err := btc.SignBTCAddress(
-		account,
-		request.Msg,
-		request.Format)
+	address, signature, err := btc.SignBTCMessageUnusedAddress(btcAccount, request.Msg, request.Format)
 	if err != nil {
-		if firmware.IsErrorAbort(err) {
-			return response{Success: false, ErrorCode: errp.ErrUserAbort.Error()}, nil
-		}
-		if errp.Cause(err) == backend.ErrWrongKeystore {
-			return response{Success: false, ErrorCode: backend.ErrWrongKeystore.Error()}, nil
-		}
-
-		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return handlers.signMessageForAddressErrorResponse(err), nil
 	}
-	return response{Success: true, Address: address, Signature: signature}, nil
+	return signMessageForAddressResponse{
+		Success:        true,
+		Address:        address,
+		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
+		Signature:      signature,
+	}, nil
+}
+
+func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) (interface{}, error) {
+	var request struct {
+		AddressID string `json:"addressID"`
+		Msg       string `json:"msg"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	btcAccount, ok := handlers.account.(*btc.Account)
+	if !ok {
+		return signMessageForAddressResponse{
+			Success:      false,
+			ErrorMessage: "Must be a BTC based account",
+		}, nil
+	}
+
+	address, signature, err := btcAccount.SignBTCMessageForAddress(request.AddressID, request.Msg)
+	if err != nil {
+		return handlers.signMessageForAddressErrorResponse(err), nil
+	}
+	return signMessageForAddressResponse{
+		Success:        true,
+		Address:        address,
+		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
+		Signature:      signature,
+	}, nil
+}
+
+func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) (interface{}, error) {
+	var request struct {
+		Msg string `json:"msg"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	ethAccount, ok := handlers.account.(*eth.Account)
+	if !ok {
+		return signMessageForAddressResponse{
+			Success:      false,
+			ErrorMessage: "Must be an ETH based account",
+		}, nil
+	}
+
+	address, signature, err := ethAccount.SignETHMessage(request.Msg)
+	if err != nil {
+		return handlers.signMessageForAddressErrorResponse(err), nil
+	}
+	return signMessageForAddressResponse{
+		Success:        true,
+		Address:        address,
+		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
+		Signature:      signature,
+	}, nil
 }
 
 func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, error) {
@@ -812,19 +963,40 @@ func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, er
 		ErrorCode    string `json:"errorCode,omitempty"`
 	}
 
-	account, ok := handlers.account.(*btc.Account)
-	if !ok {
+	switch handlers.account.(type) {
+	case *btc.Account, *eth.Account:
+	default:
 		return response{
 			Success:      false,
-			ErrorMessage: "An account must be BTC based to support payment requests.",
+			ErrorMessage: "An account must be BTC or ETH based to support payment requests.",
 		}, nil
 	}
 
-	keystore, err := account.Config().ConnectKeystore()
+	keystore, err := handlers.account.Config().ConnectKeystore()
 	if err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	err = keystore.SupportsPaymentRequests()
+	if err != nil {
+		return response{Success: false, ErrorCode: err.Error()}, nil
+	}
+
+	return response{Success: true}, nil
+}
+
+func (handlers *Handlers) getHasSwapPaymentRequest(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+
+	accountKeystore, err := handlers.account.Config().ConnectKeystore()
+	if err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	err = accountKeystore.SupportsSwapPaymentRequests()
 	if err != nil {
 		return response{Success: false, ErrorCode: err.Error()}, nil
 	}

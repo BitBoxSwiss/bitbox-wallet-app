@@ -28,17 +28,18 @@
 }
 
 .guideClose img {
-    width: 18px;
-    height: 18px;
     color: var(--color-blue);
+    max-height: var(--size-default);
+    width: var(--size-default);
 }
 
 .guideCloseText {
     margin-left: var(--space-eight);
 }
 
-.disabled {
-    opacity: 0.4;    
+.guideDisabled:disabled {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .header {
@@ -59,14 +60,21 @@
     width: 32px;
     height: 32px;
     margin-bottom: var(--space-quarter);
-    margin-right: var(--spacing-default);
+    margin-right: var(--space-half);
     display: flex;
     flex-direction: row;
     align-items: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .sidebarToggler img {
     width: 20px;
+    transition: opacity 0.15s ease;
+}
+
+.sidebarToggler:active img {
+    opacity: 0.5;
 }
 
 .title {
@@ -78,7 +86,7 @@
 
 .title > * {
     margin: 0;
-    font-size: var(--header-default-font-size);
+    font-size: var(--size-header);
     font-weight: 400;
     line-height: 1;
     display: inline-flex;

@@ -1,0 +1,104 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { showMnemonic } from '@/api/bitbox02';
+import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
+import { UseBackButton, UseDisableBackButton } from '@/hooks/backbutton';
+import { Main } from '@/components/layout';
+import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import { Button, Checkbox } from '@/components/forms';
+import { PointToBitBox02 } from '@/components/icon';
+import { Message } from '@/components/message/message';
+
+const CONTENT_MIN_HEIGHT = 'min(56rem, 100vh)';
+
+type TProps = {
+  deviceID: string;
+};
+
+type TStatus = 'info' | 'progress' | 'success';
+
+export const RecoveryWords = ({ deviceID }: TProps) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const [status, setStatus] = useState<TStatus>('info');
+  const [agree, setAgree] = useState<boolean>(false);
+
+  const confirmShowWords = async () => {
+    setStatus('progress');
+    await showMnemonic(deviceID);
+    navigate(-1);
+  };
+
+  const handleAbort = () => navigate(-1);
+
+  if (status === 'progress') {
+    return (
+      <Main>
+        <View
+          key="progress"
+          fullscreen
+          minHeight={CONTENT_MIN_HEIGHT}
+          verticallyCentered>
+          <ViewHeader small title={t('backup.showMnemonic.title')} />
+          <ViewContent>
+            <Message type="warning">
+              <SimpleMarkup tagName="span" markup={t('backup.showMnemonic.warning')}/>
+            </Message>
+            <p>
+              <MultilineMarkup
+                markup={t('backup.showMnemonic.description')}
+                tagName="span"
+                withBreaks />
+            </p>
+            <p>{t('bitbox02Interact.followInstructions')}</p>
+            <UseDisableBackButton />
+            <PointToBitBox02 />
+          </ViewContent>
+        </View>
+      </Main>
+    );
+  }
+
+  return (
+    <View
+      key="info"
+      fullscreen
+      minHeight={CONTENT_MIN_HEIGHT}
+      verticallyCentered>
+      <UseBackButton handler={() => {
+        handleAbort();
+        return false;
+      }} />
+      <ViewHeader small title={t('backup.showMnemonic.title')} />
+      <ViewContent>
+        <Message type="warning">
+          <SimpleMarkup tagName="span" markup={t('backup.showMnemonic.warning')}/>
+        </Message>
+        <p>
+          <MultilineMarkup
+            markup={t('backup.showMnemonic.description')}
+            tagName="span"
+            withBreaks />
+          <br />
+          <Checkbox
+            checked={agree}
+            id="confirmationCheckbox"
+            label={t('backup.showMnemonic.checkboxLabel')}
+            onChange={e => setAgree(e.target.checked)} />
+        </p>
+      </ViewContent>
+      <ViewButtons>
+        <Button disabled={!agree} primary onClick={confirmShowWords}>
+          {t('button.next')}
+        </Button>
+        <Button secondary onClick={handleAbort}>
+          {t('dialog.cancel')}
+        </Button>
+      </ViewButtons>
+    </View>
+  );
+};

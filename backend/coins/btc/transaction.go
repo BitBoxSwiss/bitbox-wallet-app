@@ -1,17 +1,4 @@
-// Copyright 2018 Shift Devices AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package btc
 
@@ -22,7 +9,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -166,10 +152,10 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 				continue
 			}
 		}
+		addressID := addresses.NewAddressID(txOut.TxOut.PkScript)
 		wireUTXO[outPoint] = maketx.UTXO{
-			TxOut: txOut.TxOut,
-			Address: account.GetAddress(
-				blockchain.NewScriptHashHex(txOut.TxOut.PkScript)),
+			TxOut:   txOut.TxOut,
+			Address: account.AddressByID(addressID),
 		}
 	}
 	feeRatePerKb, err := account.getFeePerKb(args)
@@ -231,48 +217,42 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		}
 	}
 	account.log.Debugf("creating tx with %d inputs, %d outputs",
-		len(txProposal.Transaction.TxIn), len(txProposal.Transaction.TxOut))
+		len(txProposal.Psbt.UnsignedTx.TxIn), len(txProposal.Psbt.UnsignedTx.TxOut))
 	return utxo, txProposal, nil
 }
 
-// GetAddress returns the address in the account with the given `scriptHashHex`. Returns nil if the
+// AddressByID returns the address in the account with the given address ID. Returns nil if the
 // address does not exist in the account.
-func (account *Account) GetAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
-	for _, subacc := range account.subaccounts {
-		if address := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
-			return address
-		}
-		if address := subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
-			return address
-		}
-	}
-	return nil
+func (account *Account) AddressByID(addressID addresses.AddressID) *addresses.AccountAddress {
+	address, _ := account.lookupAddressByID(addressID)
+	return address
 }
 
 // SendTx implements accounts.Interface.
-func (account *Account) SendTx(txNote string) error {
+func (account *Account) SendTx(txNote string) (string, error) {
 	unlock := account.activeTxProposalLock.RLock()
 	txProposal := account.activeTxProposal
 	unlock()
 	if txProposal == nil {
-		return errp.New("No active tx proposal")
+		return "", errp.New("No active tx proposal")
 	}
 
 	account.log.Info("Signing and sending transaction")
-	if err := account.signTransaction(txProposal, account.coin.Blockchain().TransactionGet); err != nil {
-		return errp.WithMessage(err, "Failed to sign transaction")
+	signedTx, err := account.signTransaction(txProposal, account.coin.Blockchain().TransactionGet)
+	if err != nil {
+		return "", errp.WithMessage(err, "Failed to sign transaction")
 	}
 
 	account.log.Info("Signed transaction is broadcasted")
-	if err := account.coin.Blockchain().TransactionBroadcast(txProposal.Transaction); err != nil {
-		return err
+	if err := account.coin.Blockchain().TransactionBroadcast(signedTx); err != nil {
+		return "", err
 	}
 
-	if err := account.SetTxNote(txProposal.Transaction.TxHash().String(), txNote); err != nil {
+	if err := account.SetTxNote(signedTx.TxHash().String(), txNote); err != nil {
 		// Not critical.
 		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
 	}
-	return nil
+	return signedTx.TxID(), nil
 }
 
 // TxProposal creates a tx from the relevant input and returns information about it for display in

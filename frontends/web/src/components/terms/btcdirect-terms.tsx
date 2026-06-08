@@ -1,41 +1,27 @@
-/**
- * Copyright 2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { Button, Checkbox } from '@/components/forms';
-import { setConfig } from '@/utils/config';
-import { IAccount } from '@/api/account';
+import { useConfig } from '@/contexts/ConfigProvider';
+import { TAccount } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
-import { getBTCDirectAboutUsLink } from '@/routes/exchange/components/infocontent';
+import { getBTCDirectAboutUsLink } from '@/routes/market/components/infocontent';
 import { getBTCDirectPrivacyLink } from './btcdirect-otc-terms';
 import style from './terms.module.css';
 
 type TProps = {
-  account: IAccount;
+  account: TAccount;
   onAgreedTerms: () => void;
-}
-
-const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-  setConfig({ frontend: { skipBTCDirectWidgetDisclaimer: e.target.checked } });
 };
 
 export const BTCDirectTerms = ({ account, onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
+  const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
+    setConfig({ frontend: { skipBTCDirectWidgetDisclaimer: e.target.checked } });
+  };
 
   const isBitcoin = isBitcoinOnly(account.coinCode);
 
@@ -54,6 +40,9 @@ export const BTCDirectTerms = ({ account, onAgreedTerms }: TProps) => {
         <ul>
           <li>
             <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.buy')}</p>
+          </li>
+          <li>
+            <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.sell')}</p>
           </li>
         </ul>
         <p>{t('buy.exchange.infoContent.btcdirectWidget.disclaimer.paymentMethods.note')}</p>

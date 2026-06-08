@@ -1,23 +1,11 @@
 #!/bin/sh -ex
-# Copyright 2018 Shift Devices AG
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 apt-get update
 apt-get install -y --no-install-recommends curl ca-certificates
 
 # add repository for node/npm
-curl -sL https://deb.nodesource.com/setup_20.x | bash -
+curl -sL https://deb.nodesource.com/setup_24.x | bash -
 
 apt-get install -y --no-install-recommends \
     clang \
@@ -79,10 +67,9 @@ pip install -U pip && pip install aqtinstall
 # qtwebengine is for rendering the frontend.
 aqt install-qt linux desktop 6.8.2 -m qtpositioning qtserialport qtwebchannel qtwebengine --outputdir /opt/qt6
 
-npm install -g npm@10
-npm install -g locize-cli
+npm install -g npm@11
 
-curl https://dl.google.com/go/go1.23.7.linux-amd64.tar.gz | tar -xz -C /usr/local
+curl https://dl.google.com/go/go1.26.0.linux-amd64.tar.gz | tar -xz -C /usr/local
 
 # fuse is needed to run the linuxdeployqt appimage.
 apt-get install -y --no-install-recommends fuse
@@ -101,4 +88,4 @@ gem install --no-document fpm
 # Needed for Android.
 apt-get install -y --no-install-recommends openjdk-17-jdk
 # Keep versions in sync with build.gradle and frontends/android/Makefile.
-/opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;21.2.6472646" "platforms;android-34" "build-tools;34.0.0" "platform-tools" "cmake;3.31.6"
+/opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;28.2.13676358" "platforms;android-35" "build-tools;35.0.0" "platform-tools" "cmake;3.31.6"

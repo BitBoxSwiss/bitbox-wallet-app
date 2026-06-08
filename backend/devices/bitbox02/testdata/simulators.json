@@ -13,6 +13,22 @@
     },
     {
         "url": "https://github.com/BitBoxSwiss/bitbox02-firmware/releases/download/firmware%2Fv9.22.0/bitbox02-multi-v9.22.0-simulator1.0.0-linux-amd64",
-        "sha256": "p91c415dd976745bc3dc8e73b45225f198fe4a49d3164302e4e818c467c2a13f7"
+        "sha256": "3af12697f6fd51b155bf277ef01ef3eea5290908bff99a4aae83a95cb144ced1"
+    },
+    {
+        "url": "https://github.com/BitBoxSwiss/bitbox02-firmware/releases/download/firmware%2Fv9.23.0/bitbox02-multi-v9.23.0-simulator1.0.0-linux-amd64",
+        "sha256": "2740eb4be1abd1eb8603478c7a00874f2bff66e620c229348094a427ae8a1fde"
+    },
+    {
+        "url": "https://github.com/BitBoxSwiss/bitbox02-firmware/releases/download/firmware%2Fv9.24.0/bitbox02-multi-v9.24.0-simulator1.0.0-linux-amd64",
+        "sha256": "a64cefb90461f479e373b5f5dee4f340f07b4619fbcb55c87784f541b4400e34"
+    },
+    {
+        "url": "https://github.com/BitBoxSwiss/bitbox02-firmware/releases/download/firmware%2Fv9.25.1/bitbox02-multi-v9.25.1-simulator1.0.0-linux-amd64",
+        "sha256": "f4b4294a1a339b3a7d52cc0f4d93a19846099807f03adefab2b42bf9899bd5d4"
+    },
+    {
+        "url": "https://github.com/BitBoxSwiss/bitbox02-firmware/releases/download/firmware%2Fv9.26.1/bitbox02-multi-v9.26.1-simulator1.0.0-linux-amd64",
+        "sha256": "91ddf47eb0653ce8b3d3344a8e329fc7fef90adfa51e39c5214830cf6e21cccf"
     }
 ]

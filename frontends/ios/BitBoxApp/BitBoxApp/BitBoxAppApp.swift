@@ -8,6 +8,7 @@
 import SwiftUI
 import Mobileserver
 import LocalAuthentication
+import Network
 
 protocol MessageHandlersProtocol {
     func callResponseHandler(queryID: Int, response: String)
@@ -42,13 +43,13 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
             context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
                 DispatchQueue.main.async {
                     if success {
-                        MobileserverAuthResult(true);
+                        MobileserverAuthResult(MobileserverAuthResultOk);
                     } else {
                         if let laError = authenticationError as? LAError,
                            laError.code == .userCancel {
-                            MobileserverCancelAuth();
+                            MobileserverAuthResult(MobileserverAuthResultCancel);
                         } else {
-                            MobileserverAuthResult(false);
+                            MobileserverAuthResult(MobileserverAuthResultErr);
                         }
                     }
                 }
@@ -56,7 +57,7 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
         } else {
             // Biometric authentication not available
             DispatchQueue.main.async {
-                MobileserverAuthResult(false);
+                MobileserverAuthResult(MobileserverAuthResultMissing);
             }
         }
     }
@@ -101,6 +102,9 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
     }
 
     func setDarkTheme(_ p0: Bool) {
+        DispatchQueue.main.async {
+            AppTheme.shared.isDark = p0
+        }
     }
 
     // Helper method to get the root view controller
@@ -130,6 +134,14 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
         }
         // Ensure we run on the main thread
         DispatchQueue.main.async {
+            if urlString == "app-settings:" {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    // opens app settings page in the system settings
+                    UIApplication.shared.open(url)
+                }
+                return
+            }
+
             if url.isFileURL {
                 // Local file path, use UIDocumentInteractionController
                 if let rootViewController = self.getRootViewController() {
@@ -175,20 +187,49 @@ class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersPro
 @main
 struct BitBoxAppApp: App {
     @StateObject private var bluetoothManager = BluetoothManager()
+    private let widgetSync = WidgetAppGroupSync()
 
     var body: some Scene {
         WindowGroup {
             GridLayout(alignment: .leading) {
                 let goAPI = GoAPI()
+                ZStack(alignment: .top) {
                 WebView(setHandlers: goAPI)
                     .edgesIgnoringSafeArea(.all)
                     .onAppear {
                         setupGoAPI(goAPI: goAPI)
+                        MobileserverSetOnline(NetworkMonitor.shared.isOnline())
+                        Task.detached(priority: .utility) {
+                            widgetSync.sync(forceReload: true)
+                        }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                         MobileserverManualReconnect()
                         MobileserverTriggerAuth()
+                        Task.detached(priority: .utility) {
+                            widgetSync.sync(forceReload: true)
+                        }
                     }
+                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
+                        var bgTask: UIBackgroundTaskIdentifier = .invalid
+                        bgTask = UIApplication.shared.beginBackgroundTask(withName: "WidgetSync") {
+                            if bgTask != .invalid {
+                                UIApplication.shared.endBackgroundTask(bgTask)
+                                bgTask = .invalid
+                            }
+                        }
+                        Task.detached(priority: .userInitiated) {
+                            widgetSync.sync(forceReload: true)
+                            await MainActor.run {
+                                if bgTask != .invalid {
+                                    UIApplication.shared.endBackgroundTask(bgTask)
+                                    bgTask = .invalid
+                                }
+                            }
+                        }
+                    }
+                StatusBarCover()
+                }
             }
             .onOpenURL { url in
                 MobileserverHandleURI(url.absoluteString)
@@ -210,5 +251,61 @@ struct BitBoxAppApp: App {
         let testnet = false;
         #endif
         MobileserverServe(appSupportDirectory.path, testnet, goEnvironment, goAPI)
+    }
+}
+
+/// only visible while the keyboard is on screen.
+private struct StatusBarCover: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @StateObject private var keyboard = KeyboardObserver()
+    @ObservedObject private var theme = AppTheme.shared
+
+    // app settings win, OS fallback.
+    private var useDark: Bool {
+        theme.isDark ?? (colorScheme == .dark)
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            if keyboard.isVisible && geometry.size.width < 1200 {
+                let safeTop = geometry.safeAreaInsets.top
+                Color(uiColor: useDark
+                      ? UIColor(red: 0x1D/255, green: 0x1D/255, blue: 0x1B/255, alpha: 1)  // #1D1D1B
+                      : UIColor(red: 0xF5/255, green: 0xF5/255, blue: 0xF5/255, alpha: 1)) // #F5F5F5
+                    .frame(width: geometry.size.width, height: safeTop)
+                    .ignoresSafeArea(edges: .top)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+/// Dark-mode flag comes from web. 
+// `nil` until set, then fallbacks to OS.
+final class AppTheme: ObservableObject {
+    static let shared = AppTheme()
+    @Published var isDark: Bool? = nil
+}
+
+private final class KeyboardObserver: ObservableObject {
+    @Published var isVisible = false
+
+    private var tokens: [NSObjectProtocol] = []
+
+    init() {
+        let nc = NotificationCenter.default
+        tokens.append(nc.addObserver(
+            forName: UIResponder.keyboardWillShowNotification,
+            object: nil, queue: .main
+        ) { [weak self] _ in self?.isVisible = true })
+
+        tokens.append(nc.addObserver(
+            forName: UIResponder.keyboardWillHideNotification,
+            object: nil, queue: .main
+        ) { [weak self] _ in self?.isVisible = false })
+    }
+
+    deinit {
+        tokens.forEach { NotificationCenter.default.removeObserver($0) }
     }
 }

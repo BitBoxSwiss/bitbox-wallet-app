@@ -7,7 +7,6 @@
 
 > A Go implementation of Verkle Tree datastructure defined in the [spec](https://github.com/crate-crypto/verkle-trie-ref/tree/master/verkle). 
 
-
 ## Test & Benchmarks
 
 To run the tests and benchmarks, run the following commands:

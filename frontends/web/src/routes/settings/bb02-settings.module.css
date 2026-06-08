@@ -1,11 +1,3 @@
-.section {
-    margin-bottom: var(--space-default)
-}
-
-.section h3 {
-    margin-bottom: var(--space-half)
-}
-
 .skeletonWrapper {
     margin-bottom: var(--space-half);
 }
@@ -14,9 +6,5 @@
 @media (max-width: 768px) {
     .skeletonWrapper {
          margin-bottom: 2px;
-    }
-
-    .withMobilePadding {
-        padding: 0 var(--space-half);
     }
 }

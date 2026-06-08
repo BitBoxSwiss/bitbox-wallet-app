@@ -1,16 +1,4 @@
-// Copyright 2021 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package backend
 
@@ -25,12 +13,14 @@ import (
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
-	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/stretchr/testify/require"
 )
 
@@ -52,16 +42,22 @@ func defaultParams() url.Values {
 func makeKeystore(
 	t *testing.T,
 	expectedScriptType *signing.ScriptType,
-	extendedPublicKey func(coinpkg.Coin, signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error),
+	keystoreHelper *software.Keystore,
 ) *keystoremock.KeystoreMock {
 	t.Helper()
 
 	return &keystoremock.KeystoreMock{
+		ObserveFunc: func(func(observable.Event)) func() {
+			return func() {}
+		},
 		NameFunc: func() (string, error) {
 			return "Mock keystore", nil
 		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return rootFingerprint1, nil
+		},
+		SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+			return true
 		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
@@ -72,29 +68,28 @@ func makeKeystore(
 				return true
 			}
 		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
 		CanSignMessageFunc: func(coinpkg.Code) bool {
 			return true
 		},
-		SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+		SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coinpkg.Code) ([]byte, error) {
 			require.Equal(t, *expectedScriptType, scriptType)
 			require.Equal(t, dummyMsg, string(message))
 			return []byte(dummySignature), nil
 		},
-		SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+		SignETHMessageFunc: func(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 			require.Equal(t, dummyMsg, string(message))
 			return []byte(dummySignature), nil
 		},
-		ExtendedPublicKeyFunc: extendedPublicKey,
+		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+		BTCXPubsFunc:          keystoreHelper.BTCXPubs,
 	}
 }
 
 func scriptTypeRef(s signing.ScriptType) *signing.ScriptType { return &s }
+
+func formatAOPPDisplayAddress(coinCode coinpkg.Code, address string) string {
+	return backendutil.FormatAddress(coinCode, address)
+}
 
 func TestAOPPSuccess(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
@@ -132,16 +127,6 @@ func TestAOPPSuccess(t *testing.T) {
 			scriptType:  scriptTypeRef(signing.ScriptTypeP2WPKH),
 			address:     "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3",
 			addressID:   "9959e354fad09a47b0a5b0ac8af1b5f95924526241689b3ed7c472e79d95bde6",
-			accountCode: "v0-55555555-btc-0",
-			accountName: "Bitcoin",
-		},
-		{
-			asset:       "btc",
-			coinCode:    coinpkg.CodeBTC,
-			format:      "p2sh",
-			scriptType:  scriptTypeRef(signing.ScriptTypeP2WPKHP2SH),
-			address:     "3C4J3CSPSYD3ibV8u1DqqPRtfsUsSbnuPX",
-			addressID:   "58c9954205732bcae1b9dd7eccda521ba5257749680fad3336556e0d46f68866",
 			accountCode: "v0-55555555-btc-0",
 			accountName: "Bitcoin",
 		},
@@ -188,7 +173,7 @@ func TestAOPPSuccess(t *testing.T) {
 			// Add a second account so we can test the choosing-account step. If there is only one
 			// account, the account is used automatically, skipping the step where the user chooses
 			// the account.
-			ks := makeKeystore(t, test.scriptType, keystoreHelper.ExtendedPublicKey)
+			ks := makeKeystore(t, test.scriptType, keystoreHelper)
 			b.registerKeystore(ks)
 			_, err := b.CreateAndPersistAccountConfig(
 				test.coinCode,
@@ -235,7 +220,7 @@ func TestAOPPSuccess(t *testing.T) {
 				b.AOPP(),
 			)
 
-			b.registerKeystore(makeKeystore(t, test.scriptType, keystoreHelper.ExtendedPublicKey))
+			b.registerKeystore(makeKeystore(t, test.scriptType, keystoreHelper))
 
 			require.Equal(t,
 				AOPP{
@@ -261,14 +246,15 @@ func TestAOPPSuccess(t *testing.T) {
 						{Name: test.accountName, Code: test.accountCode},
 						{Name: "Second account", Code: regularAccountCode(rootFingerprint1, test.coinCode, 1)},
 					},
-					AccountCode:  test.accountCode,
-					Address:      test.address,
-					AddressID:    test.addressID,
-					Callback:     callback,
-					Message:      dummyMsg,
-					coinCode:     test.coinCode,
-					format:       test.format,
-					XpubRequired: test.xpubRequired,
+					AccountCode:    test.accountCode,
+					Address:        test.address,
+					DisplayAddress: formatAOPPDisplayAddress(test.coinCode, test.address),
+					AddressID:      test.addressID,
+					Callback:       callback,
+					Message:        dummyMsg,
+					coinCode:       test.coinCode,
+					format:         test.format,
+					XpubRequired:   test.xpubRequired,
 				},
 				b.AOPP(),
 			)
@@ -290,7 +276,7 @@ func TestAOPPSuccess(t *testing.T) {
 		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
 		b.AOPPApprove()
 		require.Equal(t, aoppStateAwaitingKeystore, b.AOPP().State)
-		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey))
+		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper))
 		require.Equal(t, aoppStateSuccess, b.AOPP().State)
 	})
 
@@ -305,7 +291,7 @@ func TestAOPPSuccess(t *testing.T) {
 		defer b.Close()
 		params := defaultParams()
 		params.Set("callback", server.URL)
-		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey))
+		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper))
 		b.HandleURI(uriPrefix + params.Encode())
 		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
 		b.AOPPApprove()
@@ -317,7 +303,7 @@ func TestAOPPSuccess(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 		params := defaultParams()
-		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey))
+		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper))
 		b.HandleURI(uriPrefix + params.Encode())
 		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
 		b.DeregisterKeystore()
@@ -330,13 +316,13 @@ func TestAOPPSuccess(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 		params := defaultParams()
-		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey))
+		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper))
 		fingerprint, err := b.keystore.RootFingerprint()
 		require.NoError(t, err)
 		b.SetWatchonly(fingerprint, true)
 		b.DeregisterKeystore()
 
-		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey)
+		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper)
 		ks2.RootFingerprintFunc = func() ([]byte, error) {
 			return rootFingerprint2, nil
 		}
@@ -360,7 +346,7 @@ func TestAOPPFailures(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
 	rootKey := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
 	keystoreHelper := software.NewKeystore(rootKey)
-	ks := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey)
+	ks := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper)
 
 	t.Run("wrong_version", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
@@ -414,7 +400,7 @@ func TestAOPPFailures(t *testing.T) {
 		params := defaultParams()
 		b.HandleURI(uriPrefix + params.Encode())
 		b.AOPPApprove()
-		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey)
+		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper)
 		ks2.CanSignMessageFunc = func(coinpkg.Code) bool {
 			return false
 		}
@@ -450,9 +436,9 @@ func TestAOPPFailures(t *testing.T) {
 		params := defaultParams()
 		b.HandleURI(uriPrefix + params.Encode())
 		b.AOPPApprove()
-		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper.ExtendedPublicKey)
-		ks2.SignBTCMessageFunc = func([]byte, signing.AbsoluteKeypath, signing.ScriptType) ([]byte, error) {
-			return nil, firmware.NewError(firmware.ErrUserAbort, "")
+		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper)
+		ks2.SignBTCMessageFunc = func([]byte, signing.AbsoluteKeypath, signing.ScriptType, coinpkg.Code) ([]byte, error) {
+			return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
 		}
 		b.registerKeystore(ks2)
 		b.AOPPChooseAccount("v0-55555555-btc-0")

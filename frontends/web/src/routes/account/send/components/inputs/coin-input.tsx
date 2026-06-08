@@ -1,19 +1,21 @@
-import { ChangeEvent } from 'react';
+// SPDX-License-Identifier: Apache-2.0
+
+import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Checkbox, Input } from '@/components/forms';
-import { TAmountWithConversions, IBalance } from '@/api/account';
+import type { TAmountWithConversions, TBalance } from '@/api/account';
+import { Checkbox, NumberInput } from '@/components/forms';
 import style from './coin-input.module.css';
 
 type TProps = {
-    balance?: IBalance
-    onAmountChange: (amount: string) => void;
-    onSendAllChange: (sendAll: boolean) => void;
-    sendAll: boolean;
-    amountError?: string;
-    proposedAmount?: TAmountWithConversions;
-    amount: string;
-    hasSelectedUTXOs: boolean;
-}
+  balance?: TBalance;
+  onAmountChange: (amount: string) => void;
+  onSendAllChange: (sendAll: boolean) => void;
+  sendAll: boolean;
+  amountError?: string;
+  proposedAmount?: TAmountWithConversions;
+  amount: string;
+  hasSelectedUTXOs: boolean;
+};
 
 export const CoinInput = ({
   balance,
@@ -27,13 +29,12 @@ export const CoinInput = ({
 }: TProps) => {
   const { t } = useTranslation();
   return (
-    <Input
-      type="number"
+    <NumberInput
       step="any"
       min="0"
       label={balance ? balance.available.unit : t('send.amount.label')}
       id="amount"
-      onInput={(e: ChangeEvent<HTMLInputElement>) => onAmountChange(e.target.value)}
+      onChange={onAmountChange}
       disabled={sendAll}
       error={amountError}
       value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}

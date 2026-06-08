@@ -1,16 +1,4 @@
-// Copyright 2021 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 #include <singleapplication.h>
 #include <QApplication>
@@ -37,6 +25,8 @@
 #include <QMenu>
 #include <QSystemTrayIcon>
 #include <QMessageBox>
+#include <QGuiApplication>
+#include <QStyleHints>
 #include <QtGlobal>
 #include <QtSystemDetection>
 #if defined(_WIN32)
@@ -57,6 +47,7 @@
 #include "libserver.h"
 #include "webclass.h"
 #include "urlhandler.h"
+#include "network.h"
 
 #define APPNAME "BitBoxApp"
 
@@ -73,6 +64,21 @@ static bool pageLoaded = false;
 static WebClass* webClass;
 static QMutex webClassMutex;
 static QSystemTrayIcon* trayIcon;
+
+namespace {
+
+// Choose the appropriate tray icon based on the color scheme
+QIcon trayIconForScheme(Qt::ColorScheme scheme) {
+    QIcon icon = (scheme == Qt::ColorScheme::Dark)
+        ? QIcon(":/trayicon.png")
+        : QIcon(":/trayicon-dark.png");
+#if defined(Q_OS_MAC)
+    icon.setIsMask(true);
+#endif
+    return icon;
+}
+
+}
 
 class BitBoxApp : public SingleApplication
 {
@@ -139,6 +145,10 @@ public:
             hardcodedMimeType = "text/css";
         } else if (path.endsWith(".svg")) {
             hardcodedMimeType = "image/svg+xml";
+        } else if (path.endsWith(".ttf")) {
+            hardcodedMimeType = "font/ttf";
+        } else if (path.endsWith(".otf")) {
+            hardcodedMimeType = "font/otf";
         } else {
             // Fallback to detected mimetype.
             hardcodedMimeType = mimeType.name();
@@ -171,7 +181,7 @@ public:
         // We treat the exchange pages specially because we need to allow exchange
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
-        bool onExchangePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/exchange/.*$)").arg(scheme)));
+        bool onExchangePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/market/.*$)").arg(scheme)));
         bool onBitsurancePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/bitsurance/.*$)").arg(scheme)));
         if (onExchangePage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
@@ -251,33 +261,12 @@ public:
 
 int main(int argc, char *argv[])
 {
-    // Make `@media (prefers-color-scheme: light/dark)` CSS rules work.
-    // See https://github.com/qutebrowser/qutebrowser/issues/5915#issuecomment-737115530
-    // This might only be needed for Qt 5.15.2, should revisit this when updating Qt.
-    qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--blink-settings=preferredColorScheme=1");
-
     // QT configuration parameters which change the attack surface for memory
     // corruption vulnerabilities
 #if QT_VERSION >= QT_VERSION_CHECK(5,8,0)
     qputenv("QT_ENABLE_REGEXP_JIT", "0");
     qputenv("QV4_FORCE_INTERPRETER", "1");
     qputenv("DRAW_USE_LLVM", "0");
-#endif
-
-    // The QtWebEngine may make a clone3 syscall introduced in glibc v2.34.
-    // The syscall is missing from the Chromium sandbox whitelist in Qt versions 5.15.2
-    // and earlier which visually results in a blank app screen.
-    // Disabling the sandbox allows all syscalls.
-    //
-    // See the following for more details.
-    // https://github.com/BitBoxSwiss/bitbox-wallet-app/issues/1447
-    // https://bugreports.qt.io/browse/QTBUG-96214
-    // https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/1944468
-#if defined(Q_OS_LINUX)
-    const static char* kDisableWebSandbox = "QTWEBENGINE_DISABLE_SANDBOX";
-    if (!qEnvironmentVariableIsSet(kDisableWebSandbox)) {
-        qputenv(kDisableWebSandbox, "1");
-    }
 #endif
 
     QString renderMode = qEnvironmentVariable("BITBOXAPP_RENDER", "software");
@@ -353,8 +342,8 @@ int main(int argc, char *argv[])
         view->adjustSize();
     }
 
-    externalPage = new QWebEnginePage(view);
     profile = new QWebEngineProfile("BitBoxApp");
+    externalPage = new QWebEnginePage(profile, view);
     mainPage = new WebEnginePage(profile);
     view->setPage(mainPage);
 
@@ -364,12 +353,22 @@ int main(int argc, char *argv[])
     QResource::registerResource(QCoreApplication::applicationDirPath() + "/assets.rcc");
 
     QString preferredLocale = "";
-    QStringList uiLangs = QLocale::system().uiLanguages();
+    QLocale locale = QLocale::system();
+
+    QStringList uiLangs = locale.uiLanguages();
     if (!uiLangs.isEmpty()) {
         preferredLocale = uiLangs.first();
     }
 
+    QString decimalSeparator(locale.decimalPoint());
+    QString groupSeparator(locale.groupSeparator());
+
+    std::string decimalSeparatorStr = decimalSeparator.toUtf8().toStdString();
+    std::string groupSeparatorStr = groupSeparator.toUtf8().toStdString();
+
     webClass = new WebClass();
+
+    setupReachabilityNotifier();
 
     serve(
         // cppHeapFree
@@ -400,6 +399,8 @@ int main(int argc, char *argv[])
                                       Q_ARG(QString, APPNAME),
                                       Q_ARG(QString, msg));
         },
+        decimalSeparatorStr.c_str(),
+        groupSeparatorStr.c_str(),
         // user preferred UI language
         preferredLocale.toStdString().c_str(),
         // getSaveFilenameCallback
@@ -416,6 +417,9 @@ int main(int argc, char *argv[])
             memcpy(result, cString, strlen(cString)+1);
             return result;
         });
+
+    // Trigger the online status change event once at startup.
+    setOnline(isReachable());
 
     RequestInterceptor interceptor;
     view->page()->profile()->setUrlRequestInterceptor(&interceptor);
@@ -447,11 +451,19 @@ int main(int argc, char *argv[])
         QObject::connect(quitAction, &QAction::triggered, &a, &QCoreApplication::quit);
         auto trayIconMenu = new QMenu(view);
         trayIconMenu->addAction(quitAction);
-
-        trayIcon = new QSystemTrayIcon(QIcon(":/trayicon.png"), view);
+        auto* styleHints = QGuiApplication::styleHints();
+        QIcon trayIconIcon = trayIconForScheme(styleHints->colorScheme());
+        trayIcon = new QSystemTrayIcon(trayIconForScheme(QGuiApplication::styleHints()->colorScheme()), view);
         trayIcon->setToolTip(APPNAME);
         trayIcon->setContextMenu(trayIconMenu);
         trayIcon->show();
+        // Update the tray icon on color scheme changes
+        QObject::connect(styleHints, &QStyleHints::colorSchemeChanged, [](Qt::ColorScheme scheme) {
+            if (trayIcon == nullptr) {
+                return;
+            }
+            trayIcon->setIcon(trayIconForScheme(scheme));
+        });
     }
 
     QObject::connect(&a, &QApplication::aboutToQuit, [&]() {

@@ -1,19 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { Link, LinkProps } from 'react-router-dom';
@@ -23,19 +8,20 @@ type TButtonStyleProp =
   ({ danger: true } & Omit<TButtonStyleBase, 'danger'>)
   | ({ primary: true } & Omit<TButtonStyleBase, 'primary'>)
   | ({ secondary: true } & Omit<TButtonStyleBase, 'secondary'>)
-  | ({ transparent: true } & Omit<TButtonStyleBase, 'transparent'>)
+  | ({ transparent: true } & Omit<TButtonStyleBase, 'transparent'>);
 
 type TButtonStyleBase = {
   danger?: false;
   primary?: false;
   secondary?: false;
   transparent?: false;
-}
+};
 
 type TProps = TButtonStyleProp & {
   disabled?: boolean;
   children: ReactNode;
-}
+  inline?: boolean;
+};
 
 type TButtonLink = LinkProps & TProps;
 
@@ -47,17 +33,20 @@ export const ButtonLink = ({
   className = '',
   children,
   disabled,
+  inline,
   ...props
 }: TButtonLink) => {
-  const classNames = [
-    style[
+  const classNames = `
+    ${style[
       (primary && 'primary')
       || (secondary && 'secondary')
       || (transparent && 'transparent')
       || (danger && 'danger')
       || 'button'
-    ], className
-  ].join(' ');
+    ] || ''}
+    ${inline && style.inline || ''}
+    ${className || ''}
+  `.trim();
 
   if (disabled) {
     return (
@@ -87,17 +76,20 @@ export const Button = ({
   danger,
   className = '',
   children,
+  inline,
   ...props
 }: TButton) => {
-  const classNames = [
-    style[
+  const classNames = `
+    ${style[
       (primary && 'primary')
       || (secondary && 'secondary')
       || (transparent && 'transparent')
       || (danger && 'danger')
       || 'button'
-    ], className
-  ].join(' ');
+    ] || ''}
+    ${inline && style.inline || ''}
+    ${className || ''}
+  `.trim();
 
   return (
     <button

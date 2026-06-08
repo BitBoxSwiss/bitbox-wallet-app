@@ -1,19 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2021-2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,13 +6,21 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 import style from '@/components/dialog/dialog.module.css';
 
 type Props = {
-    includeDefault?: boolean;
-    title?: string;
-    children?: React.ReactNode;
-}
+  includeDefault?: boolean;
+  small?: boolean;
+  medium?: boolean;
+  large?: boolean;
+  noSidebarOffset?: boolean;
+  title?: string;
+  children?: React.ReactNode;
+};
 
 export const WaitDialog = ({
   includeDefault,
+  small,
+  medium,
+  large,
+  noSidebarOffset = false,
   title,
   children,
 }: Props) => {
@@ -48,8 +41,13 @@ export const WaitDialog = ({
     if (!overlay.current || !modal.current) {
       return;
     }
-    overlay.current.classList.add(style.activeOverlay);
-    modal.current.classList.add(style.activeModal);
+    // TODO: this component should use state instead of keeping ref to modify classList
+    if (style.activeOverlay) {
+      overlay.current.classList.add(style.activeOverlay);
+    }
+    if (style.activeModal) {
+      modal.current.classList.add(style.activeModal);
+    }
   };
 
   useEffect(() => {
@@ -69,13 +67,22 @@ export const WaitDialog = ({
 
   const hasChildren = React.Children.toArray(children).length > 0;
 
+  const modalClass = `
+    ${style.modal || ''}
+    ${small && style.small || ''}
+    ${medium && style.medium || ''}
+    ${large && style.large || ''}
+    ${style.open || ''}
+    ${noSidebarOffset && style.noSidebarOffset || ''}
+  `.trim();
+
   return (
     <div
       className={style.overlay}
       ref={overlay}
       style={{ zIndex: 10001 }}>
       <UseDisableBackButton />
-      <div className={[style.modal, style.open].join(' ')} ref={modal}>
+      <div className={modalClass} ref={modal}>
         {
           title && (
             <div className={style.header}>
@@ -84,14 +91,12 @@ export const WaitDialog = ({
           )
         }
         <div className={style.contentContainer}>
-          <div className={style.content}>
-            { (hasChildren && includeDefault) ? defaultContent : null }
-            { hasChildren ? (
-              <div className="flex flex-column flex-start">
-                {children}
-              </div>
-            ) : defaultContent }
-          </div>
+          { (hasChildren && includeDefault) ? defaultContent : null }
+          { hasChildren ? (
+            <div className="flex flex-column flex-start">
+              {children}
+            </div>
+          ) : defaultContent }
         </div>
       </div>
     </div>

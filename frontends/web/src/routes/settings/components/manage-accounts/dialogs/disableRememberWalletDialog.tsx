@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
@@ -6,7 +8,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
-}
+};
 export const DisableRememberWalletDialog = ({ open, onClose, onConfirm }: Props) => {
   const { t } = useTranslation();
 

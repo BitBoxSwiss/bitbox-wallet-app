@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package transactionsdb
 
@@ -111,7 +99,7 @@ func TestTxSerialization(t *testing.T) {
 	}
 	txHash := tx.TxHash()
 
-	dbTx.PutTx(txHash, tx, 999)
+	dbTx.PutTx(txHash, tx, 999, nil)
 
 	retrievedTx, err := dbTx.TxInfo(txHash)
 	require.NoError(t, err)
@@ -198,6 +186,9 @@ func TestTxQuick(t *testing.T) {
 			txOuts []wire.TxOut,
 			txLocktime uint32,
 			expectedHeight int,
+			setHeaderTimestamp bool,
+			headerTimestampSeconds int32,
+			headerTimestampNanos uint32,
 		) bool {
 			txInRefs := make([]*wire.TxIn, len(txIns))
 			for k, v := range txIns {
@@ -214,7 +205,13 @@ func TestTxQuick(t *testing.T) {
 				LockTime: txLocktime,
 			}
 			expectedTxHash := expectedTx.TxHash()
-			if err := tx.PutTx(expectedTxHash, expectedTx, expectedHeight); err != nil {
+			var headerTimestamp *time.Time
+			if setHeaderTimestamp {
+				nanos := int64(headerTimestampNanos % 1e9)
+				timestamp := time.Unix(int64(headerTimestampSeconds), nanos)
+				headerTimestamp = &timestamp
+			}
+			if err := tx.PutTx(expectedTxHash, expectedTx, expectedHeight, headerTimestamp); err != nil {
 				return false
 			}
 			txInfo, err := tx.TxInfo(expectedTxHash)
@@ -230,7 +227,14 @@ func TestTxQuick(t *testing.T) {
 			if txInfo.Height != expectedHeight {
 				return false
 			}
-			if txInfo.HeaderTimestamp != nil {
+			if setHeaderTimestamp {
+				if txInfo.HeaderTimestamp == nil {
+					return false
+				}
+				if txInfo.HeaderTimestamp.UnixNano() != headerTimestamp.UnixNano() {
+					return false
+				}
+			} else if txInfo.HeaderTimestamp != nil {
 				return false
 			}
 			if txInfo.CreatedTimestamp == nil {
@@ -259,11 +263,37 @@ func TestTxQuick(t *testing.T) {
 				require.True(t,
 					!txInfo.CreatedTimestamp.After(now) || *txInfo.CreatedTimestamp == now)
 
-				tx.DeleteTx(txHash)
+				require.NoError(t, tx.DeleteTx(txHash))
 				delete(allTxHashes, txHash)
 				require.True(t, checkTxHashes())
 			})
 		}
+	})
+}
+
+func TestPutTxHeaderTimestampNotOverwrittenWithNil(t *testing.T) {
+	testTx(func(tx *Tx) {
+		msgTx := &wire.MsgTx{
+			Version: wire.TxVersion,
+			TxIn: []*wire.TxIn{
+				wire.NewTxIn(&wire.OutPoint{Hash: chainhash.HashH(nil), Index: 0}, nil, nil),
+			},
+			TxOut:    []*wire.TxOut{wire.NewTxOut(123, []byte("dummyPubKeyScript"))},
+			LockTime: 0,
+		}
+		txHash := msgTx.TxHash()
+
+		t1 := time.Unix(123456, 789)
+		require.NoError(t, tx.PutTx(txHash, msgTx, 100, &t1))
+
+		// Should not clear existing HeaderTimestamp.
+		require.NoError(t, tx.PutTx(txHash, msgTx, 101, nil))
+
+		txInfo, err := tx.TxInfo(txHash)
+		require.NoError(t, err)
+		require.NotNil(t, txInfo.HeaderTimestamp)
+		require.Equal(t, t1.UnixNano(), txInfo.HeaderTimestamp.UnixNano())
+		require.Equal(t, 101, txInfo.Height)
 	})
 }
 
@@ -298,7 +328,7 @@ func TestInput(t *testing.T) {
 		require.Nil(t, input)
 
 		// no-op, does not exist yet
-		tx.DeleteInput(outpoint1)
+		require.NoError(t, tx.DeleteInput(outpoint1))
 
 		require.NoError(t, tx.PutInput(outpoint1, txhash1))
 		require.NoError(t, tx.PutInput(outpoint2, txhash2))
@@ -321,7 +351,7 @@ func TestInput(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, &txhash2, input)
 
-		tx.DeleteInput(outpoint1)
+		require.NoError(t, tx.DeleteInput(outpoint1))
 		input, err = tx.Input(outpoint1)
 		require.NoError(t, err)
 		require.Nil(t, input)
@@ -346,7 +376,7 @@ func TestInputQuick(t *testing.T) {
 
 		for _, outPoint := range allOutpoints {
 			t.Run("", func(t *testing.T) {
-				tx.DeleteInput(outPoint)
+				require.NoError(t, tx.DeleteInput(outPoint))
 				txHash, err := tx.Input(outPoint)
 				require.NoError(t, err)
 				require.Nil(t, txHash)
@@ -392,11 +422,11 @@ func TestOutput(t *testing.T) {
 		require.NoError(t, tx.PutOutput(outpoint2, output2))
 
 		// Test actual db store against fixtures to ensure compatibility does not break
-		require.Equal(t,
+		require.JSONEq(t,
 			`{"Value":12345,"PkScript":"c2NyaXB0MQ=="}`,
 			string(getRawValue(tx, "outputs", []byte("5555555555555555555555555555555555555555555555555555555555555555:2"))),
 		)
-		require.Equal(t,
+		require.JSONEq(t,
 			`{"Value":67890,"PkScript":"c2NyaXB0Mg=="}`,
 			string(getRawValue(tx, "outputs", []byte("6666666666666666666666666666666666666666666666666666666666666666:32"))),
 		)
@@ -445,7 +475,7 @@ func TestOutputsQuick(t *testing.T) {
 		for outPoint := range allOutputs {
 			t.Run("", func(t *testing.T) {
 				delete(allOutputs, outPoint)
-				tx.DeleteOutput(outPoint)
+				require.NoError(t, tx.DeleteOutput(outPoint))
 				require.True(t, checkOutputs())
 				output, err := tx.Output(outPoint)
 				require.NoError(t, err)
@@ -488,11 +518,11 @@ func TestAddressHistory(t *testing.T) {
 		require.NoError(t, tx.PutAddressHistory(key2, txHistory2))
 
 		// Test actual db store against fixtures to ensure compatibility does not break
-		require.Equal(t,
+		require.JSONEq(t,
 			`[{"height":10,"tx_hash":"5555555555555555555555555555555555555555555555555555555555555555"},{"height":20,"tx_hash":"6666666666666666666666666666666666666666666666666666666666666666"}]`,
 			string(getRawValue(tx, "addressHistories", []byte(key1))),
 		)
-		require.Equal(t,
+		require.JSONEq(t,
 			`[{"height":15,"tx_hash":"8888888888888888888888888888888888888888888888888888888888888888"}]`,
 			string(getRawValue(tx, "addressHistories", []byte(key2))),
 		)

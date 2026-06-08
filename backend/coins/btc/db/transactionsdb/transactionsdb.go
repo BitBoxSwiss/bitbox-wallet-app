@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package transactionsdb
 
@@ -143,12 +131,15 @@ func (tx *Tx) TxInfo(txHash chainhash.Hash) (
 }
 
 // PutTx implements transactions.DBTxInterface.
-func (tx *Tx) PutTx(txHash chainhash.Hash, msgTx *wire.MsgTx, height int) error {
+func (tx *Tx) PutTx(txHash chainhash.Hash, msgTx *wire.MsgTx, height int, headerTimestamp *time.Time) error {
 	var verified *bool
 	err := tx.modifyTx(txHash[:], func(walletTx *transactions.DBTxInfo) {
 		verified = walletTx.Verified
 		walletTx.Tx = msgTx
 		walletTx.Height = height
+		if headerTimestamp != nil {
+			walletTx.HeaderTimestamp = headerTimestamp
+		}
 	})
 	if err != nil {
 		return err
@@ -164,16 +155,16 @@ func (tx *Tx) PutTx(txHash chainhash.Hash, msgTx *wire.MsgTx, height int) error 
 	return nil
 }
 
-// DeleteTx implements transactions.DBTxInterface. It panics if called from a read-only db
-// transaction.
-func (tx *Tx) DeleteTx(txHash chainhash.Hash) {
+// DeleteTx implements transactions.DBTxInterface.
+func (tx *Tx) DeleteTx(txHash chainhash.Hash) error {
 	bucketTransactions, err := tx.tx.CreateBucketIfNotExists([]byte(bucketTransactionsKey))
 	if err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
 	if err := bucketTransactions.Delete(txHash[:]); err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
+	return nil
 }
 
 // AddAddressToTx implements transactions.DBTxInterface.
@@ -224,10 +215,10 @@ func (tx *Tx) UnverifiedTransactions() ([]chainhash.Hash, error) {
 func (tx *Tx) MarkTxVerified(txHash chainhash.Hash, headerTimestamp time.Time) error {
 	bucketUnverifiedTransactions, err := tx.tx.CreateBucketIfNotExists([]byte(bucketUnverifiedTransactionsKey))
 	if err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
 	if err := bucketUnverifiedTransactions.Delete(txHash[:]); err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
 	return tx.modifyTx(txHash[:], func(walletTx *transactions.DBTxInfo) {
 		truth := true
@@ -257,16 +248,16 @@ func (tx *Tx) Input(outPoint wire.OutPoint) (*chainhash.Hash, error) {
 	return nil, nil
 }
 
-// DeleteInput implements transactions.DBTxInterface. It panics if called from a read-only db
-// transaction.
-func (tx *Tx) DeleteInput(outPoint wire.OutPoint) {
+// DeleteInput implements transactions.DBTxInterface.
+func (tx *Tx) DeleteInput(outPoint wire.OutPoint) error {
 	bucketInputs, err := tx.tx.CreateBucketIfNotExists([]byte(bucketInputsKey))
 	if err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
 	if err := bucketInputs.Delete([]byte(outPoint.String())); err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
+	return nil
 }
 
 // PutOutput implements transactions.DBTxInterface.
@@ -317,16 +308,16 @@ func (tx *Tx) Outputs() (map[wire.OutPoint]*wire.TxOut, error) {
 	return outputs, nil
 }
 
-// DeleteOutput implements transactions.DBTxInterface. It panics if called from a read-only db
-// transaction.
-func (tx *Tx) DeleteOutput(outPoint wire.OutPoint) {
+// DeleteOutput implements transactions.DBTxInterface.
+func (tx *Tx) DeleteOutput(outPoint wire.OutPoint) error {
 	bucketOutputs, err := tx.tx.CreateBucketIfNotExists([]byte(bucketOutputsKey))
 	if err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
 	if err := bucketOutputs.Delete([]byte(outPoint.String())); err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
+	return nil
 }
 
 // PutAddressHistory implements transactions.DBTxInterface.

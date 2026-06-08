@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import checker from 'vite-plugin-checker';
 import eslint from 'vite-plugin-eslint';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { configDefaults } from 'vitest/config';
 
 export default defineConfig((env) => {
   const envVars = loadEnv(env.mode, process.cwd(), '')
@@ -30,6 +31,10 @@ export default defineConfig((env) => {
       globals: true,
       pool: 'forks',
       setupFiles: './vite.setup-tests.mjs',
+      exclude: [
+        ...configDefaults.exclude,
+        'tests/**'
+        ],
     },
     server: {
       port: typeof port !== 'undefined' ? port : 8080,

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+
 # This script requires convert tool from ImageMagick and optipng.
 # The output is nondeterministic.
 set -e

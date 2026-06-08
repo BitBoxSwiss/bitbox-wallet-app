@@ -1,25 +1,12 @@
-/**
- * Copyright 2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import { useSync } from '@/hooks/api';
 import { connect, getState, syncState, TPeripheral } from '@/api/bluetooth';
 import { runningInIOS } from '@/utils/env';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
+import { A } from '@/components/anchor/anchor';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { Badge } from '@/components/badge/badge';
 import { HorizontallyCenteredSpinner, SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
@@ -31,7 +18,11 @@ const isConnectedOrConnecting = (peripheral: TPeripheral) => {
   return peripheral.connectionState === 'connecting' || peripheral.connectionState === 'connected';
 };
 
-const _Bluetooth = () => {
+type Props = {
+  peripheralContainerClassName?: string;
+};
+
+const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
   const { t } = useTranslation();
   const state = useSync(getState, syncState);
   const [showConnectionIssues, setShowConnectionIssues] = useState(false);
@@ -44,6 +35,8 @@ const _Bluetooth = () => {
       scanningTimeoutRef.current = setTimeout(() => {
         if (state.scanning && state.peripherals.length === 0) {
           setShowConnectionIssues(true);
+        } else {
+          setShowConnectionIssues(false);
         }
       }, TIMEOUT_MS);
     } else {
@@ -64,19 +57,72 @@ const _Bluetooth = () => {
   if (!state) {
     return null;
   }
-  if (!state.bluetoothAvailable) {
+
+  // if Bluetooth is unauthorized, prompt the user to enable it
+  // since its on/off state is unknown
+  if (state.bluetoothUnauthorized) {
     return (
-      <Status type="warning">
-        {t('bluetooth.enable')}
-      </Status>
+      <Message type="warning">
+        <div className={styles.bluetoothDisabledContainer}>
+          <span className={styles.bluetoothDisabledTitle}>
+            {t('bluetooth.disabledPermissionTitle')}
+          </span>
+          <span >
+            {t('bluetooth.disabledPermissionDescription')}
+          </span>
+          <A className={styles.link} href="app-settings:">
+            {t('generic.enable')}
+          </A>
+        </div>
+      </Message>
     );
   }
+
+  if (!state.bluetoothAvailable) {
+    return (
+      <Message type="warning">
+        <div className={styles.bluetoothDisabledContainer}>
+          <span className={styles.bluetoothDisabledTitle}>
+            {t('bluetooth.disabledGloballyTitle')}
+          </span>
+          <span >
+            {t('bluetooth.disabledGloballyDescription')}
+          </span>
+        </div>
+      </Message>
+    );
+  }
+
   const hasConnection = state.peripherals.some(isConnectedOrConnecting);
   return (
     <>
-      <div className={styles.label}>
-        {t('bluetooth.select')}
-      </div>
+      {state.scanning && state.peripherals.length === 0 && (
+        <div>
+          <HorizontallyCenteredSpinner />
+        </div>
+      )}
+      {state.peripherals.length > 0 ? (
+        <div className={styles.label}>
+          {t('bluetooth.select')}
+        </div>
+      ) : showConnectionIssues ? (
+        <Message type="info" className={styles.connectionIssues}>
+          <span>
+            {t('bluetooth.connectionIssues')}
+          </span>
+          {' '}
+          <Button
+            transparent
+            inline
+            onClick={(e) => {
+              e.preventDefault();
+              setDialogOpen(true);
+            }}
+          >
+            {t('bluetooth.connectionIssuesLink')}
+          </Button>
+        </Message>
+      ) : null}
       <div className={styles.container}>
         {state.peripherals.map(peripheral => {
           const onClick = !hasConnection ? () => connect(peripheral.identifier) : undefined;
@@ -85,6 +131,7 @@ const _Bluetooth = () => {
           ) : undefined;
           return (
             <ActionableItem
+              className={peripheralContainerClassName}
               key={peripheral.identifier}
               icon={connectingIcon}
               onClick={onClick}>
@@ -108,21 +155,9 @@ const _Bluetooth = () => {
           );
         })}
       </div>
-      {state.scanning && (
-        <HorizontallyCenteredSpinner />
-      )}
-
-      {showConnectionIssues && (
-        <div className={styles.connectionIssuesLink}>
-          <Button
-            transparent
-            onClick={(e) => {
-              e.preventDefault();
-              setDialogOpen(true);
-            }}
-          >
-            {t('bluetooth.connectionIssues')}
-          </Button>
+      {state.scanning && state.peripherals.length > 0 && (
+        <div>
+          <HorizontallyCenteredSpinner />
         </div>
       )}
 
@@ -131,9 +166,9 @@ const _Bluetooth = () => {
   );
 };
 
-export const Bluetooth = () => {
+export const Bluetooth = ({ peripheralContainerClassName = '' }: Props) => {
   if (!runningInIOS()) {
     return null;
   }
-  return <_Bluetooth />;
+  return <BluetoothInner peripheralContainerClassName={peripheralContainerClassName} />;
 };

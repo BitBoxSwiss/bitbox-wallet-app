@@ -1,23 +1,50 @@
-.content {
-    font-size: 16px;
-    margin: 0;
+.upgradingTitle {
+    text-align: center;
 }
 
 .progressBar {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    width: 100%;
+    height: 8px;
     margin: var(--space-quarter) 0;
+    background-color: var(--color-info-background);
+    border-radius: var(--radius-full);
+}
+
+.progressBar::-webkit-progress-bar {
+    background-color: var(--color-info-background);
+    border-radius: var(--radius-full);
+}
+
+.progressBar::-webkit-progress-value {
+    background-color: var(--color-blue);
+    border-radius: var(--radius-full);
+}
+
+.progressBar::-moz-progress-bar {
+    background-color: var(--color-blue);
+    border-radius: var(--radius-full);
+}
+
+.progressInfo {
+    display: flex;
+    font-size: 1.6rem;
+    justify-content: space-between;
+    margin: 0 0 var(--space-default);
 }
 
 .additionalUpgrade {
-    font-size: 16px;
+    font-size: 1.6rem;
     margin: 0;
     margin-top: var(--space-eight);
 }
 
 @media (max-width: 768px) {
     .content,
-    .additionalUpgrade
-    {
-        font-size: 14px;
+    .additionalUpgrade {
+        font-size: var(--size-small);
     }
 }
 

@@ -1,16 +1,4 @@
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package accounts
 
@@ -48,10 +36,15 @@ type AccountConfig struct {
 	// `backend.config.ModifyAccountsConfig()` instead.
 	Config   *config.Account
 	DBFolder string
+	// SkipInitialSync suppresses the ETH init-time per-account update when a startup batch sync
+	// will refresh the account right after loading.
+	SkipInitialSync bool
 	// NotesFolder is the folder where the transaction notes are stored. Full path.
 	NotesFolder     string
 	ConnectKeystore func() (keystore.Keystore, error)
 	RateUpdater     *rates.RateUpdater
+	// Returns the currency selected by the user in app settings.
+	GetMainCurrency func() string
 	GetNotifier     func(signing.Configurations) Notifier
 	GetSaveFilename func(suggestedFilename string) string
 	// Opens a file in a default application. The filename is not checked.
@@ -70,7 +63,7 @@ type BaseAccount struct {
 	// synced indicates whether the account has loaded and finished the initial sync of the
 	// addresses.
 	synced  atomic.Bool
-	offline error
+	offline atomic.Pointer[error]
 
 	// notes handles transaction notes.
 	notes *notes.Notes
@@ -128,13 +121,17 @@ func (account *BaseAccount) ResetSynced() {
 
 // Offline implements Interface.
 func (account *BaseAccount) Offline() error {
-	return account.offline
+	errorPtr := account.offline.Load()
+	if errorPtr == nil {
+		return nil
+	}
+	return *errorPtr
 }
 
 // SetOffline sets the account offline status and emits the EventStatusChanged() if the status
 // changed.
 func (account *BaseAccount) SetOffline(offline error) {
-	account.offline = offline
+	account.offline.Store(&offline)
 	account.Notify(observable.Event{
 		Subject: string(types.EventStatusChanged),
 		Action:  action.Reload,
@@ -233,15 +230,17 @@ func (account *BaseAccount) migrateLegacyNotes() error {
 
 // SetTxNote implements accounts.Account.
 func (account *BaseAccount) SetTxNote(txID string, note string) error {
-	if _, err := account.notes.SetTxNote(txID, note); err != nil {
+	changed, err := account.notes.SetTxNote(txID, note)
+	if err != nil {
 		return err
 	}
-	// Prompt refresh.
-	account.Notify(observable.Event{
-		Subject: string(types.EventStatusChanged),
-		Action:  action.Reload,
-		Object:  nil,
-	})
+	if changed {
+		account.Notify(observable.Event{
+			Subject: string(types.EventTransactionsChanged),
+			Action:  action.Reload,
+			Object:  nil,
+		})
+	}
 	return nil
 }
 
@@ -262,6 +261,8 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 		"Fee Unit",
 		"Address",
 		"Transaction ID",
+		"Historical value",
+		"Historical value currency",
 		"Note",
 	})
 	if err != nil {
@@ -290,6 +291,7 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 		if transaction.Timestamp != nil {
 			timeString = transaction.Timestamp.Format(time.RFC3339)
 		}
+		historicalValue, historicalValueCurrency := account.historicalValueAndCurrency(transaction)
 		for _, addressAndAmount := range transaction.Addresses {
 			if transactionType == "sent" && addressAndAmount.Ours {
 				transactionType = "sent_to_yourself"
@@ -311,19 +313,48 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 				feeUnit,
 				addressAndAmount.Address,
 				transaction.TxID,
+				historicalValue,
+				historicalValueCurrency,
 				account.TxNote(transaction.InternalID),
 			})
 			if err != nil {
 				return errp.WithStack(err)
 			}
 			// a multitx is output in one row per receive address. Show the tx fee only in the
-			// first row.
+			// first row. Historical value is also a tx-level detail shown in the first row.
 			feeString = ""
 			feeUnit = ""
+			historicalValue = ""
+			historicalValueCurrency = ""
 		}
 	}
 	writer.Flush()
 	return writer.Error()
+}
+
+func (account *BaseAccount) historicalValueAndCurrency(transaction *TransactionData) (string, string) {
+	if account.config.RateUpdater == nil || account.config.GetMainCurrency == nil {
+		return "", ""
+	}
+
+	mainCurrency := account.config.GetMainCurrency()
+	if mainCurrency == "" {
+		return "", ""
+	}
+
+	amountAtTime := transaction.Amount.FormatWithConversionsAtTime(
+		account.Coin(),
+		transaction.Timestamp,
+		account.config.RateUpdater,
+	)
+	if amountAtTime.Estimated {
+		return "", ""
+	}
+	conversion, ok := amountAtTime.Conversions[mainCurrency]
+	if !ok || conversion == "" {
+		return "", ""
+	}
+	return conversion, mainCurrency
 }
 
 func (account *BaseAccount) notifySyncDone() {

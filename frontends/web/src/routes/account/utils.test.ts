@@ -1,33 +1,27 @@
-/**
- * Copyright 2023-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect } from 'vitest';
-import { CoinCode, CoinUnit, IAccount } from '@/api/account';
-import { getAccountsByKeystore } from './utils';
+import { CoinCode, CoinUnit, TAccount } from '@/api/account';
+import {
+  getAccountsByKeystore,
+  getAddressURIPrefix,
+  getCoinCode,
+  isBitcoinBased,
+  isBitcoinCoin,
+  isBitcoinOnly,
+  isMessageSigningSupported,
+} from './utils';
 
 
 const createAccount = ({
   keystore,
   ...props
-}: Partial<Omit<IAccount, 'keystore'>> & {
-  keystore: Partial<IAccount['keystore']> | undefined
+}: Partial<Omit<TAccount, 'keystore'>> & {
+  keystore: Partial<TAccount['keystore']> | undefined;
 }) => {
   return {
     active: true,
-    blockExplorerTxPrefix: 'https://blockstream.info/testnet/tx/',
+    blockExplorerTxPrefix: 'https://mempool.space/testnet/tx/',
     code: 'v0-123de678-tbtc-0',
     coinCode: 'tbtc' as CoinCode,
     coinName: 'Bitcoin Testnet',
@@ -42,7 +36,6 @@ const createAccount = ({
       ...keystore
     },
     name: 'Account 1',
-    watch: true,
     ...props,
   };
 };
@@ -56,16 +49,16 @@ describe('utils/getAccountsByKeystore', () => {
   });
 
   it('should return a new empty array', () => {
-    const accounts: IAccount[] = [];
+    const accounts: TAccount[] = [];
     const result = getAccountsByKeystore(accounts);
     expect(accounts).not.toBe(result);
   });
 
   it('should return one keystore entry with 2 accounts', () => {
-    const accounts: IAccount[] = [
+    const accounts: TAccount[] = [
       {
         active: true,
-        blockExplorerTxPrefix: 'https://blockstream.info/testnet/tx/',
+        blockExplorerTxPrefix: 'https://mempool.space/testnet/tx/',
         code: 'v0-123de678-tbtc-0',
         coinCode: 'tbtc',
         coinName: 'Bitcoin Testnet',
@@ -79,10 +72,9 @@ describe('utils/getAccountsByKeystore', () => {
           watchonly: true
         },
         name: 'Account 1',
-        watch: true
       }, {
         active: true,
-        blockExplorerTxPrefix: 'https://blockstream.info/testnet/tx/',
+        blockExplorerTxPrefix: 'https://mempool.space/testnet/tx/',
         code: 'v0-123de678-tbtc-1',
         coinCode: 'tbtc',
         coinName: 'Bitcoin Testnet',
@@ -96,19 +88,21 @@ describe('utils/getAccountsByKeystore', () => {
           watchonly: true
         },
         name: 'Account 2',
-        watch: true
       }
     ];
     const result = getAccountsByKeystore(accounts);
     expect(result.length).toBe(1);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts.length).toBe(2);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts[0].code).toBe(accounts[0].code);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts[1].code).toBe(accounts[1].code);
   });
 
   it('should return two keystores with their respective accounts', () => {
 
-    const accounts: IAccount[] = [
+    const accounts: TAccount[] = [
       createAccount({ code: 'a1', name: 'A1', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
       createAccount({ code: 'a2', name: 'A2', keystore: { name: 'W1', rootFingerprint: 'w1' } }),
       createAccount({ code: 'b1', name: 'B1', keystore: { name: 'W2', rootFingerprint: 'w2' } }),
@@ -120,13 +114,55 @@ describe('utils/getAccountsByKeystore', () => {
     const result = getAccountsByKeystore(accounts);
 
     expect(result.length).toBe(2);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts.length).toBe(3);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[1].accounts.length).toBe(4);
 
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts.every(({ keystore }) => keystore.rootFingerprint === 'w1')).toBe(true);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[1].accounts.every(({ keystore }) => keystore.rootFingerprint === 'w2')).toBe(true);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[0].accounts[2].code).toBe(accounts[6].code);
+    // @ts-ignore noUncheckedIndexedAccess
     expect(result[1].accounts[3].code).toBe(accounts[5].code);
   });
+});
 
+describe('utils/bitcoin coin helpers', () => {
+  it('treats rbtc coin codes as bitcoin-only and bitcoin-based', () => {
+    expect(isBitcoinOnly('rbtc')).toBe(true);
+    expect(isBitcoinBased('rbtc')).toBe(true);
+  });
+
+  it('treats rbtc unit as bitcoin coin', () => {
+    expect(isBitcoinCoin('RBTC' as CoinUnit)).toBe(true);
+  });
+
+  it('uses bitcoin URI prefix for rbtc', () => {
+    expect(getAddressURIPrefix('rbtc')).toBe('bitcoin:');
+  });
+
+  it('maps rbtc to canonical btc coin code', () => {
+    expect(getCoinCode('rbtc' as CoinCode)).toBe('btc');
+  });
+});
+
+describe('utils/isMessageSigningSupported', () => {
+  it('supports btc, tbtc and rbtc message signing', () => {
+    expect(isMessageSigningSupported('btc')).toBe(true);
+    expect(isMessageSigningSupported('tbtc')).toBe(true);
+    expect(isMessageSigningSupported('rbtc')).toBe(true);
+  });
+
+  it('supports sepolia and eth message signing', () => {
+    expect(isMessageSigningSupported('eth')).toBe(true);
+    expect(isMessageSigningSupported('sepeth')).toBe(true);
+  });
+
+  it('does not support litecoin message signing', () => {
+    expect(isMessageSigningSupported('ltc')).toBe(false);
+    expect(isMessageSigningSupported('tltc')).toBe(false);
+  });
 });

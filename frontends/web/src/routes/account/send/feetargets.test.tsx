@@ -1,110 +1,48 @@
-/**
- * Copyright 2020 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
-import { describe, expect, it, Mock, vi } from 'vitest';
+import type { TConfig } from '@/api/config';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 vi.mock('@/utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue(''),
 }));
 vi.mock('@/i18n/i18n');
+vi.mock('@/utils/env', () => ({
+  runningInIOS: vi.fn(() => false),
+}));
+vi.mock('@/contexts/ConfigProvider', () => ({
+  useConfig: vi.fn(() => ({
+    config: { frontend: { expertFee: false } } as TConfig,
+    setConfig: vi.fn(),
+  })),
+}));
 
-import { render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { FeeTargets } from './feetargets';
 import { apiGet } from '@/utils/request';
+import { runningInIOS } from '@/utils/env';
+import { useConfig } from '@/contexts/ConfigProvider';
 
-import * as utilsConfig from '@/utils/config';
-const getConfig = vi.spyOn(utilsConfig, 'getConfig');
+const mockRunningInIOS = vi.mocked(runningInIOS);
+const mockUseConfig = vi.mocked(useConfig);
+
+vi.mock('@/hooks/mediaquery', () => ({
+  useMediaQuery: vi.fn().mockReturnValue(true),
+  useContext: vi.fn(),
+}));
 
 describe('routes/account/send/feetargets', () => {
-
-  it('should match the snapshot', async () => {
-    getConfig.mockReturnValue(Promise.resolve({
-      frontend: { expertFee: false }
-    }));
-    (apiGet as Mock).mockResolvedValue({
-      defaultFeeTarget: 'economy',
-      feeTargets: [
-        { code: 'low' },
-        { code: 'economy' },
-      ],
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRunningInIOS.mockReturnValue(false);
+    mockUseConfig.mockReturnValue({
+      config: { frontend: { expertFee: false } } as TConfig,
+      setConfig: vi.fn(),
     });
-
-    const { container } = render(
-      <FeeTargets
-        accountCode="btc"
-        coinCode="btc"
-        disabled={false}
-        fiatUnit="USD"
-        proposedFee={{
-          amount: '1',
-          estimated: false,
-          unit: 'ETH',
-          conversions: {
-            AUD: '0.02',
-            BRL: '12900',
-            CAD: '0.02',
-            CHF: '0.01',
-            CNY: '0.08',
-            CZK: '0.06',
-            EUR: '0.02',
-            GBP: '0.02',
-            HKD: '19880',
-            NOK: '0.02',
-            ILS: '0.02',
-            JPY: '1.30',
-            KRW: '14.43',
-            PLN: '2',
-            RUB: '0.88',
-            SEK: '0.1',
-            SGD: '32233',
-            USD: '0.02',
-            BTC: '0.02',
-            sat: '2000000',
-          },
-        }}
-        customFee=""
-        onCustomFee={vi.fn()}
-        onFeeTargetChange={vi.fn()} />,
-    );
-    waitFor(() => expect(container).toMatchSnapshot());
-  });
-
-  it('should match the snapshot with empty feetargets', async () => {
-    getConfig.mockReturnValue(Promise.resolve({ frontend: { expertFee: false } }));
-    (apiGet as Mock).mockResolvedValue({
-      defaultFeeTarget: '',
-      feeTargets: [],
-    });
-
-    const { container } = render(
-      <FeeTargets
-        accountCode="eth"
-        coinCode="eth"
-        disabled={false}
-        fiatUnit="EUR"
-        customFee=""
-        onCustomFee={vi.fn()}
-        onFeeTargetChange={vi.fn()} />,
-    );
-    await waitFor(() => expect(container).toMatchSnapshot());
   });
 
   it('should call onFeeTargetChange with default', () => new Promise<void>(async done => {
-    getConfig.mockReturnValue(Promise.resolve({ frontend: { expertFee: false } }));
     const apiGetMock = (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'normal',
       feeTargets: [
@@ -123,11 +61,59 @@ describe('routes/account/send/feetargets', () => {
         accountCode="btc"
         coinCode="btc"
         disabled={false}
-        fiatUnit="USD"
         customFee=""
         onCustomFee={vi.fn()}
         onFeeTargetChange={onFeeTargetChangeCB} />,
     );
     await waitFor(() => expect(apiGetMock).toHaveBeenCalled());
   }));
+
+  it('normalizes custom fee values from iOS decimal input', async () => {
+    mockRunningInIOS.mockReturnValue(true);
+    mockUseConfig.mockReturnValue({
+      config: { frontend: { expertFee: true } } as TConfig,
+      setConfig: vi.fn(),
+    });
+    const apiGetMock = (apiGet as Mock).mockResolvedValue({
+      defaultFeeTarget: 'custom',
+      feeTargets: [],
+    });
+    const onCustomFee = vi.fn();
+
+    const props = {
+      accountCode: 'btc' as const,
+      coinCode: 'btc' as const,
+      disabled: false,
+      onCustomFee,
+      onFeeTargetChange: vi.fn(),
+    };
+    const { container, rerender } = render(
+      <FeeTargets
+        {...props}
+        customFee=""
+      />,
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
+    let input: HTMLInputElement | null = null;
+    await waitFor(() => {
+      expect(apiGetMock).toHaveBeenCalled();
+      input = container.querySelector<HTMLInputElement>('#proposedFee');
+      expect(input).toBeTruthy();
+    });
+    if (!input) {
+      throw new Error('Custom fee input not found');
+    }
+    fireEvent.input(input, { target: { value: '1e2,3.4abc' } });
+    rerender(
+      <FeeTargets
+        {...props}
+        customFee="12.34"
+      />,
+    );
+
+    expect(onCustomFee).toHaveBeenCalledWith('12.34');
+    expect(input).toHaveValue('12,34');
+  });
 });

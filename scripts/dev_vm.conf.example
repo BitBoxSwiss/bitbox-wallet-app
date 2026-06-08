@@ -1,0 +1,8 @@
+# Copy this file to dev_vm.conf and adjust to your setup.
+# dev_vm.conf is gitignored.
+
+# SSH host alias or hostname for your VM as configured in `~/.ssh/config`
+VM="my_vm"
+
+# Absolute path to the bitbox-wallet-app checkout on the VM
+PROJECT_DIR="/home/user/bitbox-wallet-app"

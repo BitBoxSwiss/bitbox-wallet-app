@@ -1,40 +1,28 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { Dispatch, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { TConfigBackendProxy } from '@/api/config';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Toggle } from '@/components/toggle/toggle';
 import { Button, Input } from '@/components/forms';
-import { setConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { socksProxyCheck } from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
-import { TConfig, TProxyConfig } from '@/routes/settings/advanced-settings';
 
 type TProps = {
   open: boolean;
-  proxyConfig?: TProxyConfig;
   onCloseDialog: () => void;
-  onChangeConfig: (config: any) => void;
-  handleShowRestartMessage: Dispatch<boolean>;
-}
+  handleShowRestartMessage: (show: boolean) => void;
+};
 
-export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfig, handleShowRestartMessage }: TProps) => {
+export const TorProxyDialog = ({ open, onCloseDialog, handleShowRestartMessage }: TProps) => {
+  const { config, setConfig } = useConfig();
+  const proxyConfig = config?.backend.proxy;
   const [proxyAddress, setProxyAddress] = useState<string>();
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     if (proxyConfig) {
@@ -47,8 +35,7 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
     if (!proxyConfig || proxyAddress === undefined) {
       return;
     }
-    const proxy = proxyConfig;
-    proxy.proxyAddress = proxyAddress.trim();
+    const proxy = { ...proxyConfig, proxyAddress: proxyAddress.trim() };
 
     const result = await socksProxyCheck(proxy.proxyAddress);
     const { success, errorMessage } = result;
@@ -60,12 +47,11 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
     }
   };
 
-  const setProxyConfig = async (proxyConfig: TProxyConfig) => {
-    const config = await setConfig({
+  const setProxyConfig = async (proxyConfig: TConfigBackendProxy) => {
+    await setConfig({
       backend: { proxy: proxyConfig },
-    }) as TConfig;
+    });
     setProxyAddress(proxyConfig.proxyAddress);
-    onChangeConfig(config);
     handleShowRestartMessage(true);
   };
 
@@ -82,8 +68,7 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
     handleShowRestartMessage(false);
   };
 
-  // if no config nor proxyAddress
-  if (!proxyConfig || proxyConfig === undefined || proxyAddress === undefined) {
+  if (!proxyConfig || proxyAddress === undefined) {
     return null;
   }
 
@@ -93,6 +78,7 @@ export const TorProxyDialog = ({ open, proxyConfig, onCloseDialog, onChangeConfi
         <p className="m-none">{t('settings.expert.useProxy')}</p>
         <Toggle
           id="useProxy"
+          autoFocus={!isMobile}
           checked={proxyConfig.useProxy}
           onChange={handleToggleProxy} />
       </div>

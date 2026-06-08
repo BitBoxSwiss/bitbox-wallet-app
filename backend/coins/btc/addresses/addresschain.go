@@ -1,21 +1,8 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package addresses
 
 import (
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -31,7 +18,7 @@ type AddressChain struct {
 	gapLimit             int
 	change               bool
 	addresses            []*AccountAddress
-	addressesLookup      map[blockchain.ScriptHashHex]*AccountAddress
+	addressesByID        map[AddressID]*AccountAddress
 	addressesLock        locker.Locker
 	isAddressUsed        func(*AccountAddress) (bool, error)
 	log                  *logrus.Entry
@@ -52,7 +39,7 @@ func NewAddressChain(
 		gapLimit:             gapLimit,
 		change:               change,
 		addresses:            []*AccountAddress{},
-		addressesLookup:      map[blockchain.ScriptHashHex]*AccountAddress{},
+		addressesByID:        map[AddressID]*AccountAddress{},
 		isAddressUsed:        isAddressUsed,
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
 			"gap-limit": gapLimit, "change": change,
@@ -85,7 +72,7 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 		addresses.log,
 	)
 	addresses.addresses = append(addresses.addresses, address)
-	addresses.addressesLookup[address.PubkeyScriptHashHex()] = address
+	addresses.addressesByID[address.PubkeyScriptHashHex()] = address
 	return address
 }
 
@@ -106,11 +93,11 @@ func (addresses *AddressChain) unusedTailCount() (int, error) {
 	return count, nil
 }
 
-// LookupByScriptHashHex returns the address which matches the provided scriptHashHex. Returns nil
+// LookupByAddressID returns the address which matches the provided address ID. Returns nil
 // if not found.
-func (addresses *AddressChain) LookupByScriptHashHex(hashHex blockchain.ScriptHashHex) *AccountAddress {
+func (addresses *AddressChain) LookupByAddressID(addressID AddressID) *AccountAddress {
 	defer addresses.addressesLock.RLock()()
-	return addresses.addressesLookup[hashHex]
+	return addresses.addressesByID[addressID]
 }
 
 // EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused

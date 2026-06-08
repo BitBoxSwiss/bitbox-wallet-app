@@ -1,18 +1,4 @@
-/**
- * Copyright 2023-2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
@@ -27,11 +13,17 @@ import { WithSettingsTabs } from './components/tabs';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
+import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
 import { TPagePropsWithSettingsTabs } from './types';
 import { GlobalBanners } from '@/components/banners';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import style from './general.module.css';
+import { isNotesSettingsVisible } from './settings-availability';
+
+type TProps = {
+  hasAccounts: boolean;
+};
+
 export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (
@@ -39,7 +31,7 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header
             hideSidebarToggler
@@ -50,24 +42,9 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
               </>
             } />
           <View fullscreen={false}>
-            <ViewContent fullWidth>
+            <ViewContent>
               <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu devices={devices}>
-                <SubTitle className={style.subtitleWithMobilePadding}>
-                  {t('settings.appearance')}
-                </SubTitle>
-                <LanguageDropdownSetting />
-                <DefaultCurrencyDropdownSetting />
-                <ActiveCurrenciesDropdownSetting />
-                <DarkmodeToggleSetting />
-                { hasAccounts ? (
-                  <>
-                    <SubTitle className={`m-top-default ${style.subtitleWithMobilePadding}`}>
-                      {t('settings.notes.title')}
-                    </SubTitle>
-                    <NotesExport />
-                    <NotesImport />
-                  </>
-                ) : null }
+                <GeneralSettingsContent hasAccounts={hasAccounts} />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -79,12 +56,46 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
   );
 };
 
+export const GeneralSettingsContent = ({
+  hasAccounts,
+}: TProps) => {
+  const { t } = useTranslation();
+
+  const sections: TSettingsContentSection[] = [
+    {
+      id: 'appearance',
+      items: [
+        { id: 'language', content: <LanguageDropdownSetting /> },
+        { id: 'default-currency', content: <DefaultCurrencyDropdownSetting /> },
+        { id: 'active-currencies', content: <ActiveCurrenciesDropdownSetting /> },
+        { id: 'dark-mode', content: <DarkmodeToggleSetting /> },
+      ],
+      title: <SubTitle>{t('settings.appearance')}</SubTitle>,
+    },
+    ...(isNotesSettingsVisible(hasAccounts) ? [{
+      id: 'notes',
+      items: [
+        { id: 'export-notes', content: <NotesExport /> },
+        { id: 'import-notes', content: <NotesImport /> },
+      ],
+      title: <SubTitle className="m-top-default">{t('settings.notes.title')}</SubTitle>,
+    }] : []),
+  ];
+
+  return (
+    <SettingsContent sections={sections} />
+  );
+};
+
 const GeneralGuide = () => {
   const { t } = useTranslation();
 
   return (
     <Guide title={t('guide.guideTitle.appearance')}>
-      <Entry key="guide.settings.sats" entry={t('guide.settings.sats', { returnObjects: true })} />
+      <Entry key="guide.settings.sats" entry={{
+        text: t('guide.settings.sats.text'),
+        title: t('guide.settings.sats.title'),
+      }} />
       <Entry key="guide.accountRates" entry={{
         link: {
           text: 'www.coingecko.com',

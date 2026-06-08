@@ -13,4 +13,5 @@
     font-size: var(--size-small);
     margin: 0;
     text-transform: capitalize;
+    word-break: keep-all;
 }

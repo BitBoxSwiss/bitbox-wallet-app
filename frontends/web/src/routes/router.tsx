@@ -1,32 +1,23 @@
-/**
- * Copyright 2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactChild } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
-import { IAccount } from '@/api/account';
+import { TAccount } from '@/api/account';
 import { TDevices } from '@/api/devices';
-import { AddAccount } from './account/add/add';
-import { Moonpay } from './exchange/moonpay';
-import { ExchangeInfo } from './exchange/info';
-import { Exchange } from './exchange/exchange';
-import { Pocket } from './exchange/pocket';
-import { BTCDirect } from './exchange/btcdirect';
-import { BTCDirectOTC } from './exchange/btcdirect-otc';
+import { AddAccount } from './account/add/add-account';
+import { Moonpay } from './market/moonpay';
+import { Market } from './market/market';
+import { Pocket } from './market/pocket';
+import { BTCDirect } from './market/btcdirect';
+import { BTCDirectOTC } from './market/btcdirect-otc';
+import { PocketOTC } from './market/pocket-otc';
+import { Bitrefill } from './market/bitrefill';
+import { Swap } from './market/swap/swap';
 import { Info } from './account/info/info';
+import { XPubDetail } from './account/info/xpub-detail';
 import { Receive } from './account/receive/receive';
+import { Addresses } from './account/addresses/addresses';
+import { SignMessage } from './account/sign-message/sign-message';
 import { SendWrapper } from './account/send/send-wrapper';
 import { AccountsSummary } from './account/summary/accountssummary';
 import { DeviceSwitch } from './device/deviceswitch';
@@ -35,6 +26,7 @@ import { ManageBackups } from './device/manage-backups/manage-backups';
 import { ManageAccounts } from './settings/manage-accounts';
 import { ElectrumSettings } from './settings/electrum';
 import { Passphrase } from './device/bitbox02/passphrase';
+import { RecoveryWords } from './device/bitbox02/recovery-words';
 import { Bip85 } from './device/bitbox02/bip85';
 import { Account } from './account/account';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
@@ -52,23 +44,22 @@ import { AllAccounts } from '@/routes/accounts/all-accounts';
 import { More } from '@/routes/settings/more';
 
 type TAppRouterProps = {
-    devices: TDevices;
-    deviceIDs: string[];
-    accounts: IAccount[];
-    activeAccounts: IAccount[];
-    devicesKey: ((input: string) => string)
-}
+  devices: TDevices;
+  accounts: TAccount[];
+  activeAccounts: TAccount[];
+  devicesKey: ((input: string) => string);
+};
 
 type TInjectParamsProps = {
   children: ReactChild;
-}
+};
 
 const InjectParams = ({ children }: TInjectParamsProps) => {
   const params = useParams();
   return React.cloneElement(children as React.ReactElement, params);
 };
 
-export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
+export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
   const hasAccounts = accounts.length > 0;
   const Homepage = (<DeviceSwitch
     key={devicesKey('device-switch-default')}
@@ -96,6 +87,16 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     </InjectParams>
   );
 
+  const NoAccounts = (
+    <InjectParams>
+      <NoDeviceConnected
+        key="no-accounts"
+        devices={devices}
+        hasAccounts={hasAccounts}
+      />
+    </InjectParams>
+  );
+
   const Acc = (<InjectParams>
     <Account
       code={'' /* dummy to satisfy TS */}
@@ -112,7 +113,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const AccSend = (<InjectParams>
     <SendWrapper
       code={'' /* dummy to satisfy TS */}
-      accounts={activeAccounts} />
+      activeAccounts={activeAccounts}
+    />
   </InjectParams>);
 
   const AccReceive = (<InjectParams>
@@ -123,6 +125,26 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const AccInfo = (<InjectParams>
     <Info
+      code={''}
+      devices={devices}
+      accounts={activeAccounts} />
+  </InjectParams>);
+
+  const AccXPubDetail = (<InjectParams>
+    <XPubDetail
+      code={''}
+      accounts={activeAccounts} />
+  </InjectParams>);
+
+  const AccAddresses = (<InjectParams>
+    <Addresses
+      code={''}
+      devices={devices}
+      accounts={activeAccounts} />
+  </InjectParams>);
+
+  const AccSignMessage = (<InjectParams>
+    <SignMessage
       code={''}
       accounts={activeAccounts} />
   </InjectParams>);
@@ -152,47 +174,61 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     />
   </InjectParams>);
 
-  const ExchangeInfoEl = (<InjectParams>
-    <ExchangeInfo
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
-
   const MoonpayEl = (<InjectParams>
     <Moonpay
       code={''}
       accounts={activeAccounts} />
   </InjectParams>);
 
-  const BTCDirectEl = (<InjectParams>
+  const BTCDirectBuyEl = (<InjectParams>
     <BTCDirect
-      code={''}
-      accounts={activeAccounts} />
+      accounts={activeAccounts}
+      action="buy"
+      code={''} />
   </InjectParams>);
 
-  const ExchangeEl = (<InjectParams>
-    <Exchange
+  const BTCDirectSellEl = (<InjectParams>
+    <BTCDirect
+      accounts={activeAccounts}
+      action="sell"
+      code={''} />
+  </InjectParams>);
+
+  const BitrefillEl = (<InjectParams>
+    <Bitrefill
       code={''}
       accounts={activeAccounts}
-      deviceIDs={deviceIDs}
+      region={''} />
+  </InjectParams>);
+
+  const SwapEl = (<InjectParams>
+    <Swap
+      accounts={accounts} />
+  </InjectParams>);
+
+  const MarketEl = (<InjectParams>
+    <Market
+      accounts={activeAccounts}
+      code={''}
     />
   </InjectParams>);
 
   const PocketBuyEl = (<InjectParams>
     <Pocket
-      code={''}
       action="buy"
+      code={''}
     />
   </InjectParams>);
 
   const PocketSellEl = (<InjectParams>
     <Pocket
-      code={''}
       action="sell"
+      code={''}
     />
   </InjectParams>);
 
   const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>;
+  const RecoveryWordsEl = <InjectParams><RecoveryWords deviceID={''} /></InjectParams>;
   const Bip85El = <InjectParams><Bip85 deviceID={''} /></InjectParams>;
 
   const ManageBackupsEl = (<InjectParams><ManageBackups
@@ -205,12 +241,11 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     <MobileSettings
       devices={devices}
       hasAccounts={hasAccounts}
-
     />
   </InjectParams>);
 
   const MoreEl = (<InjectParams>
-    <More />
+    <More devices={devices} />
   </InjectParams>);
 
   const GeneralEl = (<InjectParams>
@@ -246,23 +281,36 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route index element={Acc} />
           <Route path="send" element={AccSend} />
           <Route path="receive" element={AccReceive} />
+          <Route path="addresses" element={AccAddresses} />
+          <Route path="addresses/:addressID" element={AccAddresses} />
+          <Route path="addresses/:addressID/verify" element={AccAddresses} />
+          <Route path="addresses/:addressID/sign-message" element={AccSignMessage} />
           <Route path="info" element={AccInfo} />
+          <Route path="info/xpub-detail" element={AccXPubDetail} />
+          <Route path="sign-message" element={AccSignMessage} />
           <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
           <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
         </Route>
         <Route path="add-account" element={<AddAccount accounts={accounts}/>} />
         <Route path="account-summary" element={AccountsSummaryEl} />
-        <Route path="exchange">
-          <Route path="info" element={ExchangeInfoEl} >
-            <Route index element={ExchangeInfoEl} />
-            <Route path=":code" element={ExchangeInfoEl} />
-          </Route>
-          <Route path="btcdirect/buy/:code" element={BTCDirectEl} />
+        <Route path="market">
+          <Route path="select" element={MarketEl} />
+          <Route path="select/:code" element={MarketEl} />
+          <Route path="btcdirect/buy/:code" element={BTCDirectBuyEl} />
+          <Route path="btcdirect/buy/:code/:region" element={BTCDirectBuyEl} />
+          <Route path="btcdirect/sell/:code" element={BTCDirectSellEl} />
+          <Route path="btcdirect/sell/:code/:region" element={BTCDirectSellEl} />
+          <Route path="bitrefill/spend/:code" element={BitrefillEl} />
+          <Route path="bitrefill/spend/:code/:region" element={BitrefillEl} />
           <Route path="moonpay/buy/:code" element={MoonpayEl} />
+          <Route path="moonpay/buy/:code/:region" element={MoonpayEl} />
           <Route path="pocket/buy/:code" element={PocketBuyEl} />
+          <Route path="pocket/buy/:code/:region" element={PocketBuyEl} />
           <Route path="pocket/sell/:code" element={PocketSellEl} />
-          <Route path="select/:code" element={ExchangeEl} />
+          <Route path="pocket/sell/:code/:region" element={PocketSellEl} />
           <Route path="btcdirect-otc" element={<BTCDirectOTC/>} />
+          <Route path="pocket-otc" element={<PocketOTC/>} />
+          <Route path="swap" element={SwapEl} />
         </Route>
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
         <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
@@ -286,8 +334,9 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path="about" element={AboutEl} />
           <Route path="device-settings/:deviceID" element={Device} />
           <Route path="no-device-connected" element={NoDevice} />
-          <Route path="no-accounts" element={NoDevice} />
+          <Route path="no-accounts" element={NoAccounts} />
           <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
+          <Route path="device-settings/recovery-words/:deviceID" element={RecoveryWordsEl} />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
           <Route path="advanced-settings" element={AdvancedSettingsEl} />
           <Route path="electrum" element={<ElectrumSettings />} />

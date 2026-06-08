@@ -1,16 +1,4 @@
-// Copyright 2018-2019 Shift Cryptosecurity AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package firmware
 
@@ -69,7 +57,9 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 	var bluetooth *BluetoothInfo
 	if deviceInfoResponse.DeviceInfo.Bluetooth != nil {
 		bluetooth = &BluetoothInfo{
-			FirmwareHash: hex.EncodeToString(deviceInfoResponse.DeviceInfo.Bluetooth.FirmwareHash),
+			FirmwareHash:    hex.EncodeToString(deviceInfoResponse.DeviceInfo.Bluetooth.FirmwareHash),
+			FirmwareVersion: deviceInfoResponse.DeviceInfo.Bluetooth.FirmwareVersion,
+			Enabled:         deviceInfoResponse.DeviceInfo.Bluetooth.Enabled,
 		}
 	}
 
@@ -80,6 +70,13 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 		MnemonicPassphraseEnabled: deviceInfoResponse.DeviceInfo.MnemonicPassphraseEnabled,
 		SecurechipModel:           deviceInfoResponse.DeviceInfo.SecurechipModel,
 		Bluetooth:                 bluetooth,
+	}
+
+	// Before v9.25.0, this field did not exist and there was only one stretching algo.
+	if device.version.AtLeast(semver.NewSemVer(9, 25, 0)) {
+		deviceInfo.PasswordStretchingAlgo = deviceInfoResponse.DeviceInfo.PasswordStretchingAlgo
+	} else {
+		deviceInfo.PasswordStretchingAlgo = "V1"
 	}
 
 	return deviceInfo, nil
@@ -120,6 +117,31 @@ func (device *Device) SetPassword(seedLen int) error {
 	return nil
 }
 
+// ChangePassword invokes the password change workflow on the device. Should be called only if
+// the device is initialized (deviceInfo.Initialized is true).
+func (device *Device) ChangePassword() error {
+	if !device.version.AtLeast(semver.NewSemVer(9, 25, 0)) {
+		return UnsupportedError("9.25.0")
+	}
+	if device.status != StatusInitialized {
+		return errp.New("invalid status")
+	}
+	request := &messages.Request{
+		Request: &messages.Request_ChangePassword{
+			ChangePassword: &messages.ChangePasswordRequest{},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	return nil
+}
+
 func (device *Device) reboot(purpose messages.RebootRequest_Purpose) error {
 	request := &messages.Request{
 		Request: &messages.Request_Reboot{
@@ -147,7 +169,8 @@ func (device *Device) GotoStartupSettings() error {
 	return device.reboot(messages.RebootRequest_SETTINGS)
 }
 
-// Reset factory resets the device. You must call device.Init() afterwards.
+// Reset factory resets the device. The device will reobot.
+// You must not use this instance anymore afterwards.
 func (device *Device) Reset() error {
 	request := &messages.Request{
 		Request: &messages.Request_Reset_{

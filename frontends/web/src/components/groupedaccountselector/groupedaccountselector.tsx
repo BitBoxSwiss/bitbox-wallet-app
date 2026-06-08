@@ -1,177 +1,217 @@
-/**
- * Copyright 2023-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps, GroupProps, GroupHeadingProps as ReactSelectGroupHeadingProps } from 'react-select';
-import { AccountCode, IAccount } from '@/api/account';
+import type { AccountCode, CoinCode, CoinUnit, TAccountBase, TAmountWithConversions } from '@/api/account';
 import { Button } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
-import { AppContext } from '@/contexts/AppContext';
-import { USBSuccess } from '@/components/icon';
+import { USBSuccess, ChevronDownDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
 import { InsuredShield } from '@/routes/account/components/insuredtag';
-import { getAccountsByKeystore } from '@/routes/account/utils';
+import { RatesContext } from '@/contexts/RatesContext';
+import { getAccountsByKeystore, getDisplayedCoinUnit } from '@/routes/account/utils';
+import { Dropdown, TOption as TDropdownOption, TGroupedOption as TDropdownGroupedOption } from '@/components/dropdown/dropdown';
 import { createGroupedOptions, getBalancesForGroupedAccountSelector } from './services';
+import { AmountWithUnit } from '../amount/amount-with-unit';
 import styles from './groupedaccountselector.module.css';
 
-export type TGroupedOption = {
-  label: string;
+type TGroupAccountSelector = {
   connected: boolean;
-  options: TOption[];
-}
+};
 
-export type TOption = {
-  label: string;
-  value: AccountCode;
+type TOptionAccountSelector = {
   disabled: boolean;
-  coinCode?: IAccount['coinCode'];
-  balance?: string;
+  active?: boolean;
+  coinCode?: CoinCode;
+  coinUnit?: CoinUnit;
+  balance?: TAmountWithConversions;
   insured?: boolean;
-}
-
-type TAccountSelector = {
-  title: string;
-  disabled?: boolean;
-  selected?: string;
-  onChange: (value: string) => void;
-  onProceed: () => void;
-  accounts: IAccount[]
-}
-
-const SelectSingleValue = (props: SingleValueProps<TOption>) => {
-  const { hideAmounts } = useContext(AppContext);
-  const { label, coinCode, balance, insured } = props.data;
-  return (
-    <div className={styles.singleValueContainer}>
-      <components.SingleValue {...props}>
-        <div className={styles.valueContainer}>
-          {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
-          <span className={styles.selectLabelText}>{label}</span>
-          {insured && <InsuredShield/>}
-          {coinCode && balance && <span className={styles.balanceSingleValue}>{hideAmounts ? `*** ${coinCode}` : balance}</span>}
-        </div>
-      </components.SingleValue>
-    </div>
-  );
 };
 
-const SelectOption = (props: OptionProps<TOption>) => {
-  const { hideAmounts } = useContext(AppContext);
-  const { label, coinCode, balance, insured } = props.data;
+export type TOption = TDropdownOption<AccountCode> & TOptionAccountSelector;
 
+export type TGroupedOption = TDropdownGroupedOption<AccountCode, TGroupAccountSelector, TOptionAccountSelector>;
+
+type TTriggerContentProps = {
+  option: TOption | undefined;
+  stackedLayout?: boolean;
+};
+
+const missingBalancePlaceholder = '-';
+
+const TriggerContent = ({
+  option,
+  stackedLayout = false,
+}: TTriggerContentProps) => {
+  const { t } = useTranslation();
+  const { btcUnit } = useContext(RatesContext);
+  const displayedCoinUnit = option?.coinCode && option.coinUnit
+    ? getDisplayedCoinUnit(option.coinCode, option.coinUnit, btcUnit)
+    : undefined;
   return (
-    <components.Option {...props}>
-      <div className={styles.valueContainer}>
-        {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
-        <span className={styles.selectLabelText}>{label}</span>
-        {insured && <InsuredShield/>}
-        {coinCode && balance && <span className={styles.balance}>{hideAmounts ? `*** ${coinCode}` : balance}</span>}
+    option && option.coinCode ? (
+      <div className={styles.triggerContent}>
+        <Logo coinCode={option.coinCode} alt={option.coinCode} />
+        <span className={styles.triggerLabel}>
+          {stackedLayout ? (
+            displayedCoinUnit
+          ) : option.label}
+        </span>
+        {option.insured && <InsuredShield />}
+        {stackedLayout ? (
+          <span className={styles.triggerAccountName}>
+            {option.label}
+          </span>
+        ) : (
+          option.coinCode && (
+            <span className={styles.triggerBalance}>
+              {option.balance ? (
+                <AmountWithUnit
+                  maxDecimals={9}
+                  amount={option.balance}
+                />
+              ) : missingBalancePlaceholder}
+            </span>
+          )
+        )}
       </div>
-    </components.Option>
+    ) : (
+      <span className={styles.placeholderText}>
+        {t('buy.info.selectLabel')}
+      </span>
+    )
   );
 };
 
-const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => {
-  return (
-    <components.DropdownIndicator {...props}>
-      <div className={styles.dropdown} />
-    </components.DropdownIndicator>
-  );
-};
-
-const Group = (props: GroupProps<TOption>) => (
-  <div>
-    <components.Group {...props} />
+const renderGroupHeader = (group: TGroupedOption) => (
+  <div className={styles.groupHeader}>
+    <span className={styles.groupLabel} data-testid="grouped-account-selector-group-label">{group.label}</span>
+    {group.connected && (
+      <Badge
+        icon={props => <USBSuccess {...props} />}
+        type="success"
+      />
+    )}
   </div>
 );
 
-type GroupHeadingProps = {
-  customData: TGroupedOption
-} & ReactSelectGroupHeadingProps<TOption>
-
-const GroupHeading = (
-  { customData, ...props }: GroupHeadingProps
-) => {
-  return (
-    <div className={`${styles.groupHeader}`}>
-      <components.GroupHeading {...props} data={customData} />
-      {customData.connected && (
-        <Badge
-          icon={props => <USBSuccess {...props} />}
-          type="success"
-        />
-      )}
-    </div>
-  );
+type TAccountSelector<T extends TAccountBase> = {
+  title?: string;
+  disabled?: boolean;
+  isAccountDisabled?: (account: T) => boolean;
+  selected?: string;
+  onChange: (value: string) => void;
+  onProceed?: () => void;
+  accounts: T[];
+  stackedLayout?: boolean;
+  className?: string;
 };
 
-export const GroupedAccountSelector = ({ title, disabled, selected, onChange, onProceed, accounts }: TAccountSelector) => {
+export const GroupedAccountSelector = <T extends TAccountBase, >({
+  title,
+  disabled,
+  isAccountDisabled,
+  selected,
+  onChange,
+  onProceed,
+  accounts,
+  stackedLayout,
+  className = '',
+}: TAccountSelector<T>) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<TGroupedOption[]>();
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     //setting options without balance
     const accountsByKeystore = getAccountsByKeystore(accounts);
-    const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore);
+    const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore, isAccountDisabled);
     setOptions(groupedOpts);
     //asynchronously fetching each account's balance
-    getBalancesForGroupedAccountSelector(groupedOpts).then(setOptions);
-  }, [accounts]);
+    getBalancesForGroupedAccountSelector(groupedOpts).then(nextOptions => {
+      if (!cancelled) {
+        setOptions(nextOptions);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [accounts, isAccountDisabled]);
 
   if (!options) {
     return null;
   }
 
+  const selectedOption: TOption | undefined = (
+    !selected
+      ? { label: t('buy.info.selectLabel'), value: 'choose', disabled: true }
+      : options.flatMap(o => o.options).find(opt => opt.value === selected)
+  );
+
+  const renderOption = (option: TOption, isSelectedValue: boolean) => {
+    const isStacked = stackedLayout && isSelectedValue;
+    return (
+      <div className={`${styles.valueContainer || ''} ${isStacked ? styles.layoutOnTwoLines || '' : ''}`}>
+        <TriggerContent option={option} stackedLayout={isStacked} />
+      </div>
+    );
+  };
+
+  const renderTrigger = ({ onClick }: { onClick: () => void }) => {
+    return (
+      <button
+        type="button"
+        className={`
+          ${styles.trigger || ''}
+          ${stackedLayout && styles.layoutOnTwoLines || ''}
+        `}
+        onClick={onClick}
+      >
+        <TriggerContent option={selectedOption} stackedLayout={stackedLayout} />
+        <ChevronDownDark />
+      </button>
+    );
+  };
+
   return (
     <>
-      <h1 className="title text-center">{title}</h1>
-      <Select
-        className={styles.select}
+      {title && (
+        <h1 className="title text-center">{title}</h1>
+      )}
+      <Dropdown<AccountCode, false, TGroupAccountSelector, TOptionAccountSelector>
+        className={`
+          ${styles.select || ''}
+          ${stackedLayout ? styles.stackedSelect || '' : ''}
+          ${className}
+        `.trim()}
         classNamePrefix="react-select"
         options={options}
         isSearchable={false}
-        value={selected === '' ? {
-          label: t('buy.info.selectLabel'),
-          value: 'choose',
-          disabled: true
-        } : options.flatMap(o => o.options).find(opt => opt.value === selected)}
+        value={selectedOption}
         onChange={(e) => {
-          const value = (e as SingleValue<TOption>)?.value || '';
+          const value = e?.value || '';
           onChange(value);
         }}
-        components={{
-          Group,
-          GroupHeading: (props) => <GroupHeading customData={props.data as TGroupedOption} {...props} />,
-          DropdownIndicator,
-          Option: SelectOption,
-          SingleValue: SelectSingleValue,
-          IndicatorSeparator: () => null
-        }}
-        defaultValue={options[0].options[0]}
+        renderOptions={renderOption}
+        renderGroupHeader={renderGroupHeader}
+        mobileFullScreen
+        title={title}
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        renderTrigger={renderTrigger}
+        isOptionDisabled={option => Boolean((option as TOption).disabled)}
       />
-      <div className="buttons text-center">
-        <Button
-          primary
-          onClick={onProceed}
-          disabled={!selected || disabled}>
-          {t('buy.info.next')}
-        </Button>
-      </div>
+      {onProceed && (
+        <div className={styles.buttons}>
+          <Button
+            primary
+            onClick={onProceed}
+            disabled={!selected || disabled}>
+            {t('buy.info.next')}
+          </Button>
+        </div>
+      )}
     </>
-
   );
 };

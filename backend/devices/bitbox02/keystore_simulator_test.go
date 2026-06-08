@@ -1,19 +1,6 @@
-// Copyright 2025 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 //go:build bitbox02_simulator
-// +build bitbox02_simulator
 
 package bitbox02
 
@@ -21,9 +8,11 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/sha256"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"hash"
 	"io"
 	"net"
 	"net/http"
@@ -41,13 +30,14 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -59,11 +49,13 @@ import (
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/mocks"
 	"github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
+	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
 )
@@ -71,8 +63,8 @@ import (
 var (
 	log     = logging.Get().WithGroup("simulator tx signing test")
 	network = &chaincfg.MainNetParams
-	coinBTC = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", coinpkg.BtcUnitDefault, network, ".", []*config.ServerInfo{}, "https://blockstream.info/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
-	coinLTC = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, ".", []*config.ServerInfo{}, "", socksproxy.NewSocksProxy(false, ""))
+	coinBTC = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", coinpkg.BtcUnitDefault, network, ".", []*config.ServerInfo{}, "https://mempool.space/testnet/tx/", "https://mempool.space/testnet/address/", socksproxy.NewSocksProxy(false, ""))
+	coinLTC = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, ".", []*config.ServerInfo{}, "", "", socksproxy.NewSocksProxy(false, ""))
 	coinETH = eth.NewCoin(nil, "Etheruem", "ETH", "ETH", "ETH", params.MainnetChainConfig, "", nil, nil)
 )
 
@@ -167,6 +159,15 @@ func downloadSimulators() ([]string, error) {
 		return nil, err
 	}
 
+	hashesMatch := func(file *os.File, expectedHash string) (bool, error) {
+		hasher := sha256.New()
+		if _, err := io.Copy(hasher, file); err != nil {
+			return false, err
+		}
+		actualHash := hex.EncodeToString(hasher.Sum(nil))
+		return actualHash == expectedHash, nil
+	}
+
 	fileNotExistOrHashMismatch := func(filename, expectedHash string) (bool, error) {
 		file, err := os.Open(filename)
 		if os.IsNotExist(err) {
@@ -177,13 +178,11 @@ func downloadSimulators() ([]string, error) {
 		}
 		defer file.Close()
 
-		hasher := sha256.New()
-		if _, err := io.Copy(hasher, file); err != nil {
+		match, err := hashesMatch(file, expectedHash)
+		if err != nil {
 			return false, err
 		}
-		actualHash := hex.EncodeToString(hasher.Sum(nil))
-
-		return actualHash != expectedHash, nil
+		return !match, nil
 	}
 
 	downloadFile := func(url, filename string) error {
@@ -222,13 +221,30 @@ func downloadSimulators() ([]string, error) {
 			return nil, err
 		}
 		if doDownload {
+			fmt.Printf("Downloading %s to %s\n", simulator.URL, filename)
 			if err := downloadFile(simulator.URL, filename); err != nil {
 				return nil, err
+			}
+			// If we downloaded the file, check again the hash.
+			file, err := os.Open(filename)
+			if err != nil {
+				// This should never happen, as we just downloaded it
+				return nil, err
+			}
+			match, err := hashesMatch(file, simulator.Sha256)
+			if err != nil {
+				return nil, err
+			}
+			if !match {
+				return nil, errp.Newf("downloaded file %s does not match expected hash %s", filename, simulator.Sha256)
 			}
 			if err := os.Chmod(filename, 0755); err != nil {
 				return nil, err
 			}
+		} else {
+			fmt.Printf("Skipping download of %s, file %s already exists and has the correct hash\n", simulator.URL, filename)
 		}
+
 		filenames = append(filenames, filename)
 	}
 	return filenames, nil
@@ -324,13 +340,41 @@ func TestSimulatorExtendedPublicKeyBTC(t *testing.T) {
 	})
 }
 
+func TestSimulatorBTCXPubs(t *testing.T) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
+		t.Helper()
+		xpubs, err := device.Keystore().BTCXPubs(
+			coinBTC,
+			[]signing.AbsoluteKeypath{
+				mustKeypath("m/49'/0'/0'"),
+				mustKeypath("m/84'/0'/0'"),
+				mustKeypath("m/86'/0'/0'"),
+			})
+		require.NoError(t, err)
+		require.Len(t, xpubs, 3)
+		require.Equal(t,
+			"xpub6ChfoYNiJY34r2UB1G34amVyozrf4jamF4aqkaQYYUA46Y6EUntw2ntChyQN9AZsSn58iGtsRRTfVR9G3FyikFX9KcrLWC8N7VU1qsjKjbY",
+			xpubs[0].String(),
+		)
+		require.Equal(t,
+			"xpub6BrUqPwnpwg7jpetDNH4r2y7Y2ffL1P6qkVAGE87Z3nL3frMLj2ZifEQCHbRPQzYG9Lkyb2syWJFBuoR7c63WdzGvEQRNSgvKDZRBXb1pBQ",
+			xpubs[1].String(),
+		)
+		require.Equal(t,
+			"xpub6CG8oqX3D1QhmUeLXh6URhZcGExCLKYX8DLFC4EXAUy2CC9oui5GdyiV1TJkbBwdgFyQ8T2phzRK5da7CaCEoudz5YhorpNEWFZcAd84i9X",
+			xpubs[2].String(),
+		)
+	})
+}
+
 func makeConfig(t *testing.T, device *Device, scriptType signing.ScriptType, keypath signing.AbsoluteKeypath) *signing.Configuration {
 	t.Helper()
 	xpubStr, err := device.BTCXPub(messages.BTCCoin_BTC, keypath.ToUInt32(), messages.BTCPubRequest_XPUB, false)
 	require.NoError(t, err)
 	xpub, err := hdkeychain.NewKeyFromString(xpubStr)
 	require.NoError(t, err)
-	rootFingerprint := []byte{1, 2, 3, 4}
+	rootFingerprint, err := device.RootFingerprint()
+	require.NoError(t, err)
 	return signing.NewBitcoinConfiguration(scriptType, rootFingerprint, keypath, xpub)
 }
 
@@ -412,29 +456,29 @@ func makeTx(t *testing.T, device *Device, recipient *maketx.OutputInfo) *btc.Pro
 	)
 	require.NoError(t, err)
 
-	return &btc.ProposedTransaction{
+	proposedTransaction := &btc.ProposedTransaction{
 		TXProposal:                   txProposal,
 		AccountSigningConfigurations: configurations,
 		GetPrevTx: func(chainhash.Hash) (*wire.MsgTx, error) {
 			return prevTx, nil
 		},
-		GetKeystoreAddress: func(account *btc.Account, scriptHashHex blockchain.ScriptHashHex) (*addresses.AccountAddress, bool, error) {
+		GetKeystoreAddress: func(coinCode coinpkg.Code, addressID addresses.AddressID) (*addresses.AccountAddress, error) {
 			for _, address := range addrs {
-				if address.PubkeyScriptHashHex() == scriptHashHex {
-					return address, true, nil
+				if address.PubkeyScriptHashHex() == addressID {
+					return address, nil
 				}
 			}
 			for _, address := range addrsInDifferentAccount {
-				if address.PubkeyScriptHashHex() == scriptHashHex {
-					return address, false, nil
+				if address.PubkeyScriptHashHex() == addressID {
+					return address, nil
 				}
 			}
-			return nil, false, nil
+			return nil, nil
 		},
-		Signatures: make([]*types.Signature, len(txProposal.Transaction.TxIn)),
 		FormatUnit: coinpkg.BtcUnitDefault,
 	}
-
+	require.NoError(t, proposedTransaction.Update())
+	return proposedTransaction
 }
 
 func TestSimulatorSignBTCTransactionSendSelfDifferentAccount(t *testing.T) {
@@ -450,18 +494,16 @@ func TestSimulatorSignBTCTransactionSendSelfDifferentAccount(t *testing.T) {
 		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(selfAddress.PubkeyScript()))
 
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
-		require.NoError(t, proposedTransaction.Finalize())
-		require.NoError(
-			t,
-			btc.TxValidityCheck(
-				proposedTransaction.TXProposal.Transaction,
-				proposedTransaction.TXProposal.PreviousOutputs,
-				proposedTransaction.TXProposal.SigHashes()))
+		_, err := proposedTransaction.FinalizeAndExtract()
+		require.NoError(t, err)
 
+		switch {
+		case device.Version().AtLeast(semver.NewSemVer(9, 26, 0)):
+			require.Contains(t, stdOut.String(), "ADDRESS: This BitBox (account #2): bc1q eunl pt8u mlyy v0mp zpe3 uauq lezs h39c twg4 e5")
 		// Send-to-self message from different accounts is only available on v9.22 and later.
-		if device.Version().AtLeast(semver.NewSemVer(9, 22, 0)) {
+		case device.Version().AtLeast(semver.NewSemVer(9, 22, 0)):
 			require.Contains(t, stdOut.String(), "ADDRESS: This BitBox (account #2): bc1qeunlpt8umlyyv0mpzpe3uauqlezsh39ctwg4e5")
-		} else if device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
+		case device.Version().AtLeast(semver.NewSemVer(9, 20, 0)):
 			require.Contains(t, stdOut.String(), "ADDRESS: bc1qeunlpt8umlyyv0mpzpe3uauqlezsh39ctwg4e5")
 		}
 	})
@@ -476,18 +518,19 @@ func TestSimulatorSignBTCTransactionMixedInputs(t *testing.T) {
 		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(pkScript))
 
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
-		require.NoError(t, proposedTransaction.Finalize())
-		require.NoError(
-			t,
-			btc.TxValidityCheck(
-				proposedTransaction.TXProposal.Transaction,
-				proposedTransaction.TXProposal.PreviousOutputs,
-				proposedTransaction.TXProposal.SigHashes()))
+		_, err = proposedTransaction.FinalizeAndExtract()
+		require.NoError(t, err)
 
-		// Before simulator v9.20, address confirmation data was not written to stdout.
-		if device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
+		if device.Version().AtLeast(semver.NewSemVer(9, 26, 0)) {
+			require.Contains(t, stdOut.String(), "ADDRESS: 18p3 G8gQ 3oKy 4U9E qnWs 7UZs wdqA MhE3 r8")
+		} else if device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
 			require.Contains(t, stdOut.String(), "ADDRESS: 18p3G8gQ3oKy4U9EqnWs7UZswdqAMhE3r8")
+		} else {
+			// Before simulator v9.20, address confirmation data was not written to stdout.
+			return
 		}
+		// Change address is not confirmed, it is verified automatically.
+		require.NotContains(t, stdOut.String(), proposedTransaction.TXProposal.ChangeAddress.String())
 	})
 }
 
@@ -504,18 +547,16 @@ func TestSimulatorSignBTCTransactionSendSelfSameAccount(t *testing.T) {
 		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(selfAddress.PubkeyScript()))
 
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
-		require.NoError(t, proposedTransaction.Finalize())
-		require.NoError(
-			t,
-			btc.TxValidityCheck(
-				proposedTransaction.TXProposal.Transaction,
-				proposedTransaction.TXProposal.PreviousOutputs,
-				proposedTransaction.TXProposal.SigHashes()))
+		_, err := proposedTransaction.FinalizeAndExtract()
+		require.NoError(t, err)
 
+		switch {
+		case device.Version().AtLeast(semver.NewSemVer(9, 26, 0)):
+			require.Contains(t, stdOut.String(), "ADDRESS: This BitBox (same account): bc1p g848 p0rv mj0r 3j06 4prl pw0g ecyz kwlp t7nd zdlm h2mv kyu2 99ps etgx hf")
 		// v9.22 changed the format of the output string.
-		if device.Version().AtLeast(semver.NewSemVer(9, 22, 0)) {
+		case device.Version().AtLeast(semver.NewSemVer(9, 22, 0)):
 			require.Contains(t, stdOut.String(), "ADDRESS: This BitBox (same account): bc1pg848p0rvmj0r3j064prlpw0gecyzkwlpt7ndzdlmh2mvkyu299psetgxhf")
-		} else if device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
+		case device.Version().AtLeast(semver.NewSemVer(9, 20, 0)):
 			// Before simulator v9.20, address confirmation data was not written to stdout.
 			require.Contains(t, stdOut.String(), "ADDRESS: This BitBox02: bc1pg848p0rvmj0r3j064prlpw0gecyzkwlpt7ndzdlmh2mvkyu299psetgxhf")
 		}
@@ -538,17 +579,12 @@ func TestSimulatorSignBTCTransactionSilentPayment(t *testing.T) {
 		}
 
 		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
-		require.NoError(t, proposedTransaction.Finalize())
-		require.NoError(
-			t,
-			btc.TxValidityCheck(
-				proposedTransaction.TXProposal.Transaction,
-				proposedTransaction.TXProposal.PreviousOutputs,
-				proposedTransaction.TXProposal.SigHashes()))
+		_, err := proposedTransaction.FinalizeAndExtract()
+		require.NoError(t, err)
 
 		found := false
 		expectedSilentPaymentOutputPkScript := "5120d826829cb603fc008e5ef99d0818f2126d3569c3ab8a6cd069f07a20e892bd59"
-		for _, o := range proposedTransaction.TXProposal.Transaction.TxOut {
+		for _, o := range proposedTransaction.TXProposal.Psbt.UnsignedTx.TxOut {
 			if hex.EncodeToString(o.PkScript) == expectedSilentPaymentOutputPkScript {
 				found = true
 				break
@@ -567,6 +603,8 @@ func TestSimulatorVerifyAddressBTC(t *testing.T) {
 			accountConfiguration *signing.Configuration
 			derivation           types.Derivation
 			expectedAddress      string
+			// expected from v9.26
+			expected926 string
 		}
 		tests := []test{
 			{
@@ -574,24 +612,28 @@ func TestSimulatorVerifyAddressBTC(t *testing.T) {
 				accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2TR, mustKeypath("m/86'/0'/0'")),
 				derivation:           types.Derivation{Change: false, AddressIndex: 0},
 				expectedAddress:      "bc1pg848p0rvmj0r3j064prlpw0gecyzkwlpt7ndzdlmh2mvkyu299psetgxhf",
+				expected926:          "bc1p g848 p0rv mj0r 3j06 4prl pw0g ecyz kwlp t7nd zdlm h2mv kyu2 99ps etgx hf",
 			},
 			{
 				coin:                 coinBTC,
 				accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2TR, mustKeypath("m/86'/0'/0'")),
 				derivation:           types.Derivation{Change: true, AddressIndex: 10},
 				expectedAddress:      "bc1pru6697hz78fxc7dvz36qvgkne59kht86eyk7cefc6hpvgud4z76qxjc8we",
+				expected926:          "bc1p ru66 97hz 78fx c7dv z36q vgkn e59k ht86 eyk7 cefc 6hpv gud4 z76q xjc8 we",
 			},
 			{
 				coin:                 coinBTC,
 				accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2WPKH, mustKeypath("m/84'/0'/0'")),
 				derivation:           types.Derivation{Change: false, AddressIndex: 0},
 				expectedAddress:      "bc1qljxfdh29amtq6u2xgltc0e6d9vemtt5m6mc5nd",
+				expected926:          "bc1q ljxf dh29 amtq 6u2x gltc 0e6d 9vem tt5m 6mc5 nd",
 			},
 			{
 				coin:                 coinBTC,
 				accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2WPKHP2SH, mustKeypath("m/49'/0'/0'")),
 				derivation:           types.Derivation{Change: false, AddressIndex: 0},
 				expectedAddress:      "3PSdXEXzzmqVXSV6DECyaaaaDYVyaHQ8AD",
+				expected926:          "3PSd XEXz zmqV XSV6 DECy aaaa DYVy aHQ8 AD",
 			},
 		}
 		if device.Version().AtLeast(semver.NewSemVer(9, 23, 0)) {
@@ -602,12 +644,14 @@ func TestSimulatorVerifyAddressBTC(t *testing.T) {
 					accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2WPKH, mustKeypath("m/84'/2'/0'")),
 					derivation:           types.Derivation{Change: false, AddressIndex: 0},
 					expectedAddress:      "ltc1qmgh3jwrt636mya08dytcsm7gxsxva8ckcu93jm",
+					expected926:          "ltc1 qmgh 3jwr t636 mya0 8dyt csm7 gxsx va8c kcu9 3jm",
 				},
 				test{
 					coin:                 coinLTC,
 					accountConfiguration: makeConfig(t, device, signing.ScriptTypeP2WPKHP2SH, mustKeypath("m/49'/2'/0'")),
 					derivation:           types.Derivation{Change: false, AddressIndex: 0},
 					expectedAddress:      "MFbeAVCwWdVvi5SeZh4zTpyz2gfPFdhs9c",
+					expected926:          "MFbe AVCw WdVv i5Se Zh4z Tpyz 2gfP Fdhs 9c",
 				},
 			)
 		}
@@ -618,13 +662,17 @@ func TestSimulatorVerifyAddressBTC(t *testing.T) {
 				test.accountConfiguration,
 				test.derivation,
 				test.coin))
+			expectedAddress := test.expectedAddress
+			if device.Version().AtLeast(semver.NewSemVer(9, 26, 0)) {
+				expectedAddress = test.expected926
+			}
 			require.Eventually(t,
 				func() bool {
 					return strings.Contains(
 						stdOut.String(),
 						fmt.Sprintf(
 							"CONFIRM SCREEN START\nTITLE: %s\nBODY: %s\nCONFIRM SCREEN END\n",
-							test.coin.Name(), test.expectedAddress))
+							test.coin.Name(), expectedAddress))
 				},
 				time.Second, 10*time.Millisecond)
 		}
@@ -638,16 +686,20 @@ func TestSimulatorVerifyAddressETH(t *testing.T) {
 		type test struct {
 			keypath         signing.AbsoluteKeypath
 			expectedAddress string
+			// expected from v9.26
+			expected926 string
 		}
 
 		tests := []test{
 			{
 				keypath:         mustKeypath("m/44'/60'/0'/0/0"),
 				expectedAddress: "0x416E88840Eb6353E49252Da2a2c140eA1f969D1a",
+				expected926:     "0x 416E 8884 0Eb6 353E 4925 2Da2 a2c1 40eA 1f96 9D1a",
 			},
 			{
 				keypath:         mustKeypath("m/44'/60'/0'/0/1"),
 				expectedAddress: "0x6A2A567cB891DeF8eA8C215C85f93d2f0F844ceB",
+				expected926:     "0x 6A2A 567c B891 DeF8 eA8C 215C 85f9 3d2f 0F84 4ceB",
 			},
 		}
 
@@ -655,6 +707,10 @@ func TestSimulatorVerifyAddressETH(t *testing.T) {
 			xpub, err := device.Keystore().ExtendedPublicKey(coinETH, test.keypath)
 			require.NoError(t, err)
 			stdOut.Truncate(0)
+			expectedAddress := test.expectedAddress
+			if device.Version().AtLeast(semver.NewSemVer(9, 26, 0)) {
+				expectedAddress = test.expected926
+			}
 
 			addressConfiguration := signing.NewEthereumConfiguration(
 				[]byte{1, 2, 3, 4}, test.keypath, xpub)
@@ -666,9 +722,142 @@ func TestSimulatorVerifyAddressETH(t *testing.T) {
 						stdOut.String(),
 						fmt.Sprintf(
 							"CONFIRM SCREEN START\nTITLE: Ethereum\nBODY: %s\nCONFIRM SCREEN END\n",
-							test.expectedAddress))
+							expectedAddress))
 				},
 				time.Second, 10*time.Millisecond)
 		}
 	})
+}
+
+func computePaymentRequestSighash(paymentRequest *paymentrequest.Request, slip44 uint32, outputValue uint64, outputAddress string) ([]byte, error) {
+
+	hashDataLenPrefixed := func(hasher hash.Hash, data []byte) {
+		_ = wire.WriteVarInt(hasher, 0, uint64(len(data)))
+		hasher.Write(data)
+	}
+
+	sighash := sha256.New()
+
+	// versionMagic
+	sighash.Write([]byte("SL\x00\x24"))
+
+	// nonce
+	hashDataLenPrefixed(sighash, paymentRequest.Nonce)
+
+	// recipientName
+	hashDataLenPrefixed(sighash, []byte(paymentRequest.RecipientName))
+
+	// memos
+	_ = wire.WriteVarInt(sighash, 0, uint64(len(paymentRequest.Memos)))
+	for _, memo := range paymentRequest.Memos {
+		_ = binary.Write(sighash, binary.LittleEndian, uint32(1))
+		noteBytes := []byte{}
+		if memo.Text != nil {
+			noteBytes = []byte(memo.Text.Note)
+		}
+		hashDataLenPrefixed(sighash, noteBytes)
+	}
+
+	// coinType
+	_ = binary.Write(sighash, binary.LittleEndian, slip44)
+
+	// outputsHash (only one output for now)
+	outputHasher := sha256.New()
+	_ = binary.Write(outputHasher, binary.LittleEndian, outputValue)
+	hashDataLenPrefixed(outputHasher, []byte(outputAddress))
+	sighash.Write(outputHasher.Sum(nil))
+
+	return sighash.Sum(nil), nil
+}
+
+func TestSimulatorSignBTCPaymentRequest(t *testing.T) {
+	testInitializedSimulators(t, func(t *testing.T, device *Device, stdOut *bytes.Buffer) {
+		t.Helper()
+
+		if !device.Version().AtLeast(semver.NewSemVer(9, 24, 0)) {
+			// While payment requests were added in v9.19.0, the simulator only enabled the
+			// test merchant in v9.24.0.
+			t.Skip()
+		}
+
+		address, err := btcutil.DecodeAddress(
+			"bc1q2q0j6gmfxynj40p0kxsr9jkagcvgpuqv2zgq8j",
+			&chaincfg.MainNetParams)
+		require.NoError(t, err)
+		pkScript, err := util.PkScriptFromAddress(address)
+		require.NoError(t, err)
+		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(pkScript))
+
+		txProposal := proposedTransaction.TXProposal
+		recipientOutput := txProposal.Psbt.UnsignedTx.TxOut[txProposal.OutIndex]
+		value := uint64(recipientOutput.Value)
+
+		paymentRequest := &paymentrequest.Request{
+			RecipientName: "Test Merchant", // Hard-coded test merchant in simulator
+			Nonce:         nil,
+			TotalAmount:   value,
+			Memos: []paymentrequest.Memo{
+				{
+					Text: &paymentrequest.TextMemo{
+						Note: "TextMemo line1\nTextMemo line2",
+					},
+				},
+			},
+		}
+
+		// Sign the payment request.
+		sighash, err := computePaymentRequestSighash(paymentRequest, 0, value, address.String())
+		require.NoError(t, err)
+		privKey, _ := btcec.PrivKeyFromBytes([]byte("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+		require.NoError(t, err)
+		signature := ecdsa.SignCompact(privKey, sighash, true)
+		paymentRequest.Signature = signature[1:]
+
+		proposedTransaction.TXProposal.PaymentRequest = paymentRequest
+
+		require.NoError(t, device.Keystore().SignTransaction(proposedTransaction))
+		_, err = proposedTransaction.FinalizeAndExtract()
+		require.NoError(t, err)
+
+		const expected1 = `CONFIRM TRANSACTION ADDRESS SCREEN START
+AMOUNT: 2.50000000 BTC
+ADDRESS: Test Merchant
+CONFIRM TRANSACTION ADDRESS SCREEN END`
+
+		const expected2 = `BODY: Memo from
+
+Test Merchant
+CONFIRM SCREEN END
+CONFIRM SCREEN START
+TITLE: Memo 1/2
+BODY: TextMemo line1
+CONFIRM SCREEN END
+CONFIRM SCREEN START
+TITLE: Memo 2/2
+BODY: TextMemo line2
+CONFIRM SCREEN END`
+
+		require.Eventually(t,
+			func() bool {
+				return strings.Contains(
+					stdOut.String(), expected1) &&
+					strings.Contains(
+						stdOut.String(), expected2) &&
+					!strings.Contains(stdOut.String(), address.String())
+			},
+			time.Second, 10*time.Millisecond)
+	})
+}
+
+func TestComputePaymentRequestSighashNilTextMemo(t *testing.T) {
+	paymentRequest := &paymentrequest.Request{
+		RecipientName: "Test Merchant",
+		Memos: []paymentrequest.Memo{
+			{},
+		},
+	}
+
+	sighash, err := computePaymentRequestSighash(paymentRequest, 0, 1, "bc1q2q0j6gmfxynj40p0kxsr9jkagcvgpuqv2zgq8j")
+	require.NoError(t, err)
+	require.Len(t, sighash, sha256.Size)
 }

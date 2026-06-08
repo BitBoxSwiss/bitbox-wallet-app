@@ -1,17 +1,4 @@
-// Copyright 2020 Shift Devices AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package btc
 
@@ -19,6 +6,7 @@ import (
 	"encoding/hex"
 	"math/big"
 	"os"
+	"path"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
@@ -35,7 +23,8 @@ import (
 )
 
 const (
-	explorer = "https://some-explorer.com"
+	explorer        = "https://some-explorer.com/tx/"
+	addressExplorer = "https://some-explorer.com/address/"
 )
 
 func TestMain(m *testing.M) {
@@ -58,14 +47,14 @@ func (s *testSuite) SetupTest() {
 	s.dbFolder = test.TstTempDir("btc-dbfolder")
 
 	s.coin = NewCoin(s.code, "Some coin", s.unit, coin.BtcUnitDefault, s.net, s.dbFolder, nil,
-		explorer, socksproxy.NewSocksProxy(false, ""))
+		explorer, addressExplorer, socksproxy.NewSocksProxy(false, ""))
 	blockchainMock := &blockchainMock.BlockchainMock{}
 	blockchainMock.MockHeadersSubscribe = func(
 		result func(*types.Header)) {
 
 	}
 	s.coin.TstSetMakeBlockchain(func() blockchain.Interface { return blockchainMock })
-	s.coin.Initialize()
+	s.Require().NoError(s.coin.Initialize())
 }
 
 func (s *testSuite) TearDownTest() {
@@ -79,6 +68,28 @@ func TestSuite(t *testing.T) {
 	suite.Run(t, &testSuite{code: coin.CodeLTC, unit: "LTC", net: &ltc.MainNetParams})
 }
 
+func (s *testSuite) TestInitializeRetriesAfterError() {
+	dbFolder := path.Join(s.dbFolder, "missing")
+	btcCoin := NewCoin(s.code, "Some coin", s.unit, coin.BtcUnitDefault, s.net, dbFolder, nil,
+		explorer, addressExplorer, socksproxy.NewSocksProxy(false, ""))
+	closeCount := 0
+	btcCoin.TstSetMakeBlockchain(func() blockchain.Interface {
+		return &blockchainMock.BlockchainMock{
+			MockClose: func() {
+				closeCount++
+			},
+			MockHeadersSubscribe: func(func(*types.Header)) {},
+		}
+	})
+
+	s.Require().Error(btcCoin.Initialize())
+	s.Require().Equal(1, closeCount)
+
+	s.Require().NoError(os.MkdirAll(dbFolder, 0700))
+	s.Require().NoError(btcCoin.Initialize())
+	s.Require().Equal(1, closeCount)
+}
+
 func (s *testSuite) TestCoin() {
 	s.Require().Equal(s.net, s.coin.Net())
 	s.Require().Equal(s.code, s.coin.Code())
@@ -88,6 +99,7 @@ func (s *testSuite) TestCoin() {
 	s.Require().Equal(uint(8), s.coin.Decimals(false))
 	s.Require().Equal(uint(8), s.coin.Decimals(true))
 	s.Require().Equal(explorer, s.coin.BlockExplorerTransactionURLPrefix())
+	s.Require().Equal(addressExplorer, s.coin.BlockExplorerAddressURLPrefix())
 }
 
 func (s *testSuite) TestFormatAmount() {

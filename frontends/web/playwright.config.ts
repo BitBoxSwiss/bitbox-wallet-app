@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { defineConfig, devices } from '@playwright/test';
+import * as path from 'path';
+
+// Read defaults from environment variables if set, otherwise fallback
+const HOST = process.env.HOST || 'localhost';
+const FRONTEND_PORT = parseInt(process.env.FRONTEND_PORT || '8080', 10);
+const PLAYWRIGHT_SLOW_MO = parseInt(process.env.PLAYWRIGHT_SLOW_MO || '0', 10);
+const PLAYWRIGHT_USE_PREBUILT_WEB = process.env.PLAYWRIGHT_USE_PREBUILT_WEB === '1';
+
+export default defineConfig({
+  testDir: path.join(__dirname, 'tests'),
+  testMatch: ['**/*.test.ts'],
+  webServer: [
+    {
+      command: PLAYWRIGHT_USE_PREBUILT_WEB
+        ? `npx vite preview --host ${HOST} --port ${FRONTEND_PORT}`
+        : `make -C ../.. buildweb && make -C ../.. webserve`,
+      port: FRONTEND_PORT,
+      reuseExistingServer: true, // If a server is already listening on FRONTEND_PORT, use it. Useful for local development.
+      timeout: 120_000,
+    },
+  ],
+  timeout: 180_000,
+  workers: 1, // Tests are not parallel-safe yet.
+  use: {
+    baseURL: `http://${HOST}:${FRONTEND_PORT}`,
+    headless: true,
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
+    launchOptions: {
+      // By default, tests are not run in slow motion.
+      // Can be enabled by setting the PLAYWRIGHT_SLOW_MO environment variable to a value > 0.
+      // This is useful for running tests locally.
+      slowMo: PLAYWRIGHT_SLOW_MO,
+    },
+  },
+  reporter: [['html', { open: 'never' }], ['list']],
+  outputDir: 'test-results/',
+  retries: 3,
+  projects: [
+    {
+      name: 'Chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'WebKit',
+      use: { ...devices['Desktop Safari'] },
+    },
+  ],
+});

@@ -13,6 +13,8 @@
 
 	<key>CFBundleIconFile</key>
 	<string>icon.icns</string>
+	<key>CFBundleIconName</key>
+	<string>icon</string>
 
 	<key>CFBundleIdentifier</key>
 	<string>ch.shiftcrypto.wallet</string>
@@ -21,10 +23,10 @@
 	<string>APPL</string>
 
 	<key>CFBundleVersion</key>
-	<string>4.48.0</string>
+	<string>0.0.1</string>
 
 	<key>CFBundleShortVersionString</key>
-	<string>4.48.0</string>
+	<string>0.0.1</string>
 
 	<key>CFBundleSignature</key>
 	<string>????</string>

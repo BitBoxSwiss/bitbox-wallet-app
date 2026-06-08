@@ -1,4 +1,5 @@
 /appfolder.dev
+scripts/dev_vm.conf
 /cmd/playground/
 **/*/output.log
 
@@ -51,6 +52,7 @@ tags
 !/frontends/web/src/locales/tr/
 !/frontends/web/src/locales/zh/
 !/frontends/web/src/locales/cs/
-.aider*
-build-errors.log
-servewallet
+
+# Playwright files
+/frontends/web/playwright-report/
+/frontends/web/test-results/

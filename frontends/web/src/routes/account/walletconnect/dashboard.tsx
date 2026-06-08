@@ -1,18 +1,4 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -21,8 +7,9 @@ import { useLoad } from '@/hooks/api';
 import { SessionTypes } from '@walletconnect/types';
 import { getSdkError } from '@walletconnect/utils';
 import { WCWeb3WalletContext } from '@/contexts/WCWeb3WalletContext';
-import { getAddressFromEIPString, truncateAddress } from '@/utils/walletconnect';
-import { AccountCode, IAccount, getReceiveAddressList } from '@/api/account';
+import { truncateMiddle } from '@/utils/address';
+import { getAddressFromEIPString } from '@/utils/walletconnect';
+import { AccountCode, TAccount, getReceiveAddressList } from '@/api/account';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { WCSessionCard } from './components/session-card/session-card';
@@ -33,9 +20,9 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import styles from './dashboard.module.css';
 
 type TProps = {
-  accounts: IAccount[];
+  accounts: TAccount[];
   code: AccountCode;
-}
+};
 
 export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();
@@ -78,7 +65,7 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
     return null;
   }
 
-  const receiveAddress = truncateAddress(receiveAddresses[0].addresses[0].address);
+  const receiveAddress = truncateMiddle(receiveAddresses[0].addresses[0].address, 6, 6);
   const accountName = (accounts && accounts.find(acct => acct.code === code))?.name || '';
   const hasSession = sessions && sessions.length > 0;
 
@@ -89,7 +76,7 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
           <ContentWrapper>
             <Status
               type="info"
-              dismissible="walletConnectDisclaimerDismissed"
+              dismissibleKey="walletConnectDisclaimerDismissed"
             >
               {t('walletConnect.dashboard.disclaimer')}
             </Status>
@@ -114,10 +101,12 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
                   <div className={styles.sessionCardsContainer}>
                     <p className={styles.allSessionsHeading}>{t('walletConnect.dashboard.allSessions')}</p>
                     {sessions.map(session => {
+                      const eip155 = session.namespaces['eip155'];
+                      const receiveAddress = eip155?.accounts[0] && getAddressFromEIPString(eip155.accounts[0]) || '';
                       return (
                         <WCSessionCard
                           key={session.topic}
-                          receiveAddress={session.namespaces['eip155'].accounts[0] ? getAddressFromEIPString(session.namespaces['eip155'].accounts[0]) : ''}
+                          receiveAddress={receiveAddress}
                           metadata={session.peer.metadata}
                           onDisconnect={() => handleDisconnectSession(session.topic)}
                         />

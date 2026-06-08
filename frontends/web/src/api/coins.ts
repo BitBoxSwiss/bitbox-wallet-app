@@ -1,31 +1,26 @@
-/**
- * Copyright 2021 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
+import type { CoinCode, Fiat, NativeCoinUnit } from './account';
+import type { TUnsubscribe } from '@/utils/transport-common';
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
-import type { CoinCode, Fiat } from './account';
 import { apiPost, apiGet } from '@/utils/request';
 
 export type BtcUnit = 'default' | 'sat';
 
+export type THeadersStatus = {
+  targetHeight: number;
+  tip: number;
+  tipAtInitTime: number;
+  tipHashHex: string;
+};
+
 export type TStatus = {
-    targetHeight: number;
-    tip: number;
-    tipAtInitTime: number;
-    tipHashHex: string;
-}
+  success: true;
+  status: THeadersStatus;
+} | {
+  success: false;
+  errorMessage: string;
+};
 
 export const subscribeCoinHeaders = (coinCode: CoinCode) => (
   (cb: TSubscriptionCallback<TStatus>) => (
@@ -33,7 +28,7 @@ export const subscribeCoinHeaders = (coinCode: CoinCode) => (
   )
 );
 
-export type TSetBtcUnitResponse = {
+type TSetBtcUnitResponse = {
   success: boolean;
 };
 
@@ -44,7 +39,7 @@ export const setBtcUnit = (unit: BtcUnit): Promise<TSetBtcUnitResponse> => {
 export type TAmount = {
   success: boolean;
   amount: string;
-}
+};
 
 export const parseExternalBtcAmount = (amount: string): Promise<TAmount> => {
   return apiGet(`coins/btc/parse-external-amount?amount=${amount}`);
@@ -87,3 +82,20 @@ export const convertToCurrency = ({
 }: TConvertCurrency): Promise<TConvertToCurrencyResponse> => {
   return apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${fiatUnit}&amount=${amount}`);
 };
+
+type TCoinFiatPrices = {
+  amount: string;
+  unit: NativeCoinUnit;
+  conversions: Record<Fiat, string>;
+  estimated: boolean;
+} | null;
+
+export const getCoinFiatPrices = (coinCode: CoinCode): Promise<TCoinFiatPrices> => {
+  return apiGet(`coins/${coinCode}/fiat-prices`);
+};
+
+export const subscribeCoinFiatPrices = (coinCode: CoinCode) => (
+  (cb: TSubscriptionCallback<TCoinFiatPrices>): TUnsubscribe => (
+    subscribeEndpoint(`coins/${coinCode}/fiat-prices`, cb)
+  )
+);

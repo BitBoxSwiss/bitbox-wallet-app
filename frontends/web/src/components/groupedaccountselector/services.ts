@@ -1,21 +1,40 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import type { TAccountBase } from '@/api/account';
 import { getBalance } from '@/api/account';
 import { TAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { TGroupedOption, TOption } from './groupedaccountselector';
 
-export const createGroupedOptions = (accountsByKeystore: TAccountsByKeystore[]) => {
+export const createGroupedOptions = <T extends TAccountBase>(
+  accountsByKeystore: TAccountsByKeystore<T>[],
+  isAccountDisabled?: (account: T) => boolean,
+) => {
   return accountsByKeystore.map(({ keystore, accounts }) => ({
     label: `${keystore.name} ${isAmbiguousName(keystore.name, accountsByKeystore) ? `(${keystore.rootFingerprint})` : ''}`,
     connected: keystore.connected,
-    options: accounts.map((account) => ({ label: account.name, value: account.code, coinCode: account.coinCode, disabled: false })) as TOption[]
+    options: accounts.map((account) => ({
+      label: account.name,
+      value: account.code,
+      coinCode: account.coinCode,
+      coinUnit: account.coinUnit,
+      active: account.active,
+      disabled: isAccountDisabled ? isAccountDisabled(account) : false,
+    })) as TOption[]
   }));
 };
 
 const appendBalance = async (option: TOption) => {
+  if (option.balance) {
+    return { ...option };
+  }
+  if (!option.active) {
+    return { ...option };
+  }
   const balance = await getBalance(option.value);
   if (!balance.success) {
     return { ... option };
   }
-  return { ...option, balance: `${balance.balance.available.amount} ${balance.balance.available.unit}` };
+  return { ...option, balance: balance.balance.available };
 };
 
 export const getBalancesForGroupedAccountSelector = async (originalGroupedOptions: TGroupedOption[]) => {

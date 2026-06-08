@@ -1,18 +1,4 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
@@ -24,7 +10,7 @@ type TProps = {
 
 type TCreateProps = TProps & {
   backupType: 'sdcard' | 'mnemonic';
-}
+};
 
 export const CreateWalletSuccess = ({
   backupType,
@@ -66,7 +52,10 @@ export const RestoreFromSDCardSuccess = ({ onContinue }: TProps) => {
       verticallyCentered
       withBottomBar
       width="700px">
-      <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
+      <ViewHeader
+        small
+        title={t('bitbox02Wizard.stepBackupSuccess.title')}
+      />
       <ViewContent textAlign="left">
         <p>
           {t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}
@@ -100,7 +89,10 @@ export const RestoreFromMnemonicSuccess = ({ onContinue }: TProps) => {
       verticallyCentered
       withBottomBar
       width="700px">
-      <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
+      <ViewHeader
+        small
+        title={t('bitbox02Wizard.stepBackupSuccess.title')}
+      />
       <ViewContent textAlign="left">
         <p className="m-bottom-default">
           {t('bitbox02Wizard.stepBackupSuccess.fundsSafe')}

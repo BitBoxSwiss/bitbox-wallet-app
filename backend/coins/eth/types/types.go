@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package types
 
@@ -42,6 +30,8 @@ type TransactionWithMetadata struct {
 	// Only applies if Height > 0.
 	// false if contract execution failed, otherwise true.
 	Success bool
+	// Tip height at which the receipt was last checked successfully.
+	LastReceiptCheckHeight uint64
 	// Number of broadcast attempts.
 	BroadcastAttempts uint16
 }
@@ -78,22 +68,24 @@ func (txh *TransactionWithMetadata) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	return json.Marshal(map[string]interface{}{
-		"tx":                txSerialized,
-		"height":            txh.Height,
-		"gasUsed":           hexutil.Uint64(txh.GasUsed),
-		"success":           txh.Success,
-		"broadcastAttempts": txh.BroadcastAttempts,
+		"tx":                     txSerialized,
+		"height":                 txh.Height,
+		"gasUsed":                hexutil.Uint64(txh.GasUsed),
+		"success":                txh.Success,
+		"lastReceiptCheckHeight": txh.LastReceiptCheckHeight,
+		"broadcastAttempts":      txh.BroadcastAttempts,
 	})
 }
 
 // UnmarshalJSON implements json.Unmarshaler. Used for DB serialization.
 func (txh *TransactionWithMetadata) UnmarshalJSON(input []byte) error {
 	m := struct {
-		TransactionRLP    []byte         `json:"tx"`
-		Height            uint64         `json:"height"`
-		GasUsed           hexutil.Uint64 `json:"gasUsed"`
-		Success           bool           `json:"success"`
-		BroadcastAttempts uint16         `json:"broadcastAttempts"`
+		TransactionRLP         []byte         `json:"tx"`
+		Height                 uint64         `json:"height"`
+		GasUsed                hexutil.Uint64 `json:"gasUsed"`
+		Success                bool           `json:"success"`
+		LastReceiptCheckHeight uint64         `json:"lastReceiptCheckHeight"`
+		BroadcastAttempts      uint16         `json:"broadcastAttempts"`
 	}{}
 	if err := json.Unmarshal(input, &m); err != nil {
 		return err
@@ -105,6 +97,7 @@ func (txh *TransactionWithMetadata) UnmarshalJSON(input []byte) error {
 	txh.Height = m.Height
 	txh.GasUsed = uint64(m.GasUsed)
 	txh.Success = m.Success
+	txh.LastReceiptCheckHeight = m.LastReceiptCheckHeight
 	txh.BroadcastAttempts = m.BroadcastAttempts
 	return nil
 }

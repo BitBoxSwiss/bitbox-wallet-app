@@ -1,16 +1,4 @@
-// Copyright 2019 Shift Cryptosecurity AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 syntax = "proto3";
 package shiftcrypto.bitbox02;
@@ -29,16 +17,23 @@ message DeviceInfoResponse {
   message Bluetooth {
     // Hash of the currently active Bluetooth firmware on the device.
     bytes firmware_hash = 1;
+    // Firmware version, formated as an unsigned integer "1", "2", etc.
+    string firmware_version = 2;
+    // True if Bluetooth is enabled
+    bool enabled = 3;
   }
   string name = 1;
   bool initialized = 2;
   string version = 3;
   bool mnemonic_passphrase_enabled = 4;
   uint32 monotonic_increments_remaining = 5;
-  // From v9.6.0: "ATECC608A" or "ATECC608B".
+  // From v9.6.0: "ATECC608A" or "ATECC608B" or "OPTIGA_TRUST_M_V3".
   string securechip_model = 6;
   // Only present in Bluetooth-enabled devices.
   optional Bluetooth bluetooth = 7;
+  // From v9.25.0. This together with `securechip_model` determines the password stretching
+  // algorithm.
+  string password_stretching_algo = 8;
 }
 
 message InsertRemoveSDCardRequest {
@@ -61,4 +56,7 @@ message SetDeviceNameRequest {
 
 message SetPasswordRequest {
     bytes entropy = 1;
+}
+
+message ChangePasswordRequest{
 }

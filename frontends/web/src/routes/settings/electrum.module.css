@@ -41,7 +41,7 @@
 .servers li .server > div:last-child button {
     border: none;
     border-radius: 2px;
-    font-size: var(--size-small);
+    font-size: var(--size-smaller);
     padding: var(--space-quarter) var(--space-half);
     word-break: normal;
 }
@@ -102,11 +102,11 @@
 }
 
 .textarea {
-    width: 100%;
-    border-radius: 2px;
     border-color: var(--background-quaternary);
-    padding: var(--space-half) var(--space-half);
+    border-radius: var(--radius-xl);
     margin-bottom: var(--space-quarter);
+    padding: var(--space-half);
+    width: 100%;
 }
 
 .block {
@@ -128,7 +128,7 @@
 }
 
 .addServer > div:first-child p {
-    margin-top: var(--spacing-default);
+    margin-top: var(--space-half);
 }
 
 @media (max-width: 768px) {

@@ -1,16 +1,4 @@
-// Copyright 2018-2019 Shift Cryptosecurity AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package firmware
 
@@ -47,7 +35,7 @@ func (device *Device) pair() error {
 		device.log.Info("noise static keypair created")
 		kp, err := cipherSuite.GenerateKeypair(rand.Reader)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		keypair = &kp
 		if err := device.config.SetAppNoiseStaticKeypair(keypair); err != nil {
@@ -65,19 +53,19 @@ func (device *Device) pair() error {
 		Initiator:     true,
 	})
 	if err != nil {
-		panic(err)
+		return err
 	}
 	responseBytes, err := device.rawQuery([]byte(opICanHasHandShaek))
 	if err != nil {
 		return err
 	}
 	if string(responseBytes) != responseSuccess {
-		panic(string(responseBytes))
+		return errp.Newf("unexpected handshake start response: %x", responseBytes)
 	}
 	// do handshake:
 	msg, _, _, err := handshake.WriteMessage(nil, nil)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	responseBytes, err = device.handshakeQuery(msg)
 	if err != nil {
@@ -85,11 +73,11 @@ func (device *Device) pair() error {
 	}
 	_, _, _, err = handshake.ReadMessage(nil, responseBytes)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	msg, device.sendCipher, device.receiveCipher, err = handshake.WriteMessage(nil, nil)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	responseBytes, err = device.handshakeQuery(msg)
 	if err != nil {
@@ -98,7 +86,7 @@ func (device *Device) pair() error {
 
 	device.deviceNoiseStaticPubkey = handshake.PeerStatic()
 	if len(device.deviceNoiseStaticPubkey) != 32 {
-		panic(errp.New("expected 32 byte remote static pubkey"))
+		return errp.New("expected 32 byte remote static pubkey")
 	}
 
 	pairingVerificationRequiredByApp := !device.options.optionalNoisePairingConfirmation && !device.config.ContainsDeviceStaticPubkey(device.deviceNoiseStaticPubkey)

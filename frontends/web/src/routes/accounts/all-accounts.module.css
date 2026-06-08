@@ -1,7 +1,6 @@
 .container {
   display: flex;
   flex-direction: column;
-  font-size: 14px;
   gap: var(--space-half);
   width: 100%;
 }
@@ -10,76 +9,67 @@
   background-color: var(--background-secondary);
 }
 
-.keystoreHeader {
-  color: var(--color-tertiary);
-  display: flex;
-  font-weight: 500;
-  gap: 4px;
-}
-
 .keystoreName {
-  color: var(--color-text);
+  color: var(--color-tertiary);
 }
 
 .accountsList {
   display: flex;
   flex-direction: column;
-  margin-top: var(--space-half);
-  gap: var(--space-half);
+  margin: var(--space-half) 0;
+  gap: var(--space-quarter);
 }
 
 .accountItem {
-  display: flex;
   align-items: center;
-  text-decoration: none;
-  gap: 0;
+  background-color: var(--background-secondary);
+  border-radius: var(--radius-lg);
+  display: flex;
   color: var(--color-text);
+  gap: var(--space-quarter);
+  padding: var(--space-half) var(--space-three-quarter);
+  text-decoration: none;
+  transition: background-color 120ms ease;
+}
+
+.accountItem:active {
+  background-color: var(--background-tap-active);
 }
 
 .accountIcon {
+  display: block;
   flex: 0 0 auto;
-  margin-right: 8px;
+}
+
+.accountIcon img {
+  display: block;
+  max-width: 24px;
 }
 
 .accountName {
+  flex-basis: auto;
+  flex-grow: 1;
+  flex-shrink: 1;
   margin: 0;
-  margin-right: 8px;
-  width: 100%;
+  margin-right: 0;
   overflow: hidden;
-  white-space: nowrap;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .accountBalanceContainer {
-  display: flex;
   align-items: baseline;
-  margin-left: auto;
-  text-align: right;
-  font-size: 16px;
   color: var(--color-secondary);
-  width: 100%;
-  overflow: hidden;
+  display: flex;
+  flex-shrink: 1;
+  flex-grow: 1;
+  font-size: var(--size-default);
   justify-content: flex-end;
-}
-
-.accountBalance {
+  margin-left: auto;
+  max-width: 60%;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  margin-right: 4px;
-}
-
-.coinUnit {
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.chevron {
-  margin-top: 6px;
-  color: var(--color-mediumgray);
-  font-size: 18px;
-  margin-left: 4px;
-  flex-shrink: 0;
+  overflow: clip;
+  text-align: right;
 }
 
 .emptyState {

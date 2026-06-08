@@ -1,17 +1,4 @@
-// Copyright 2018 Shift Devices AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package accounts
 
@@ -20,6 +7,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/wire"
@@ -33,19 +21,15 @@ type AddressList struct {
 	Addresses  []Address
 }
 
-// TextMemo represents a slip-0024 text memo.
-type TextMemo struct {
-	Note string
-}
-
-// PaymentRequest contains the data needed to fulfill a slip-0024 payment request.
-// Text memos are the only memo type supported, currently.
-type PaymentRequest struct {
-	RecipientName string
-	Memos         []TextMemo
-	Nonce         []byte
-	TotalAmount   uint64
-	Signature     []byte
+// FindAddressListByScriptType returns the first address list with the requested script type, or
+// nil if none matches.
+func FindAddressListByScriptType(addressLists []AddressList, scriptType signing.ScriptType) *AddressList {
+	for i := range addressLists {
+		if addressLists[i].ScriptType != nil && *addressLists[i].ScriptType == scriptType {
+			return &addressLists[i]
+		}
+	}
+	return nil
 }
 
 // TxProposalArgs are the arguments needed when creating a tx proposal.
@@ -59,7 +43,7 @@ type TxProposalArgs struct {
 	UseHighestFee  bool
 	SelectedUTXOs  map[wire.OutPoint]struct{}
 	Note           string
-	PaymentRequest *PaymentRequest
+	PaymentRequest *paymentrequest.Request
 }
 
 // Interface is the API of a Account.
@@ -86,21 +70,22 @@ type Interface interface {
 	Transactions() (OrderedTransactions, error)
 	// Must enforce that initial sync is done before returning.
 	Balance() (*Balance, error)
-	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none
-	// available.
-	SendTx(txNote string) error
+	// SendTx signs and sends the active tx proposal, set by TxProposal, and returns its
+	// id. Errors if none available.
+	SendTx(txNote string) (string, error)
 	FeeTargets() ([]FeeTarget, FeeTargetCode)
 	TxProposal(*TxProposalArgs) (coin.Amount, coin.Amount, coin.Amount, error)
 	// GetUnusedReceiveAddresses gets a list of list of receive addresses. The result can be one
-	// list of addresses, or if there are multiple types of addresses (e.g. `bc1...` vs `3...`), a
-	// list of lists.
-	GetUnusedReceiveAddresses() []AddressList
+	// list of addresses, or if there are multiple types of addresses (e.g. `bc1q...` vs `bc1p...`),
+	// a list of lists. Returns `ErrSyncInProgress` if the account is not synced yet. Returns an
+	// error if the account is not initialized yet.
+	GetUnusedReceiveAddresses() ([]AddressList, error)
 	CanVerifyAddresses() (bool, bool, error)
 	VerifyAddress(addressID string) (bool, error)
 
 	Notes() *notes.Notes
 	TxNote(txID string) string
-	// SetTxNote sets a tx note and refreshes the account.
+	// SetTxNote sets a tx note and refreshes transactions if the note changed.
 	SetTxNote(txID string, note string) error
 
 	// ExportCSV exports the given transaction in CSV format (comma-separated).

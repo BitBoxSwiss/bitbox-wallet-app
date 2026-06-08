@@ -1,18 +1,4 @@
-/**
- * Copyright 2024-2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode } from 'react';
 import Select, {
@@ -21,11 +7,14 @@ import Select, {
   OptionProps,
   DropdownIndicatorProps,
   MultiValueProps,
+  GroupProps,
+  GroupHeadingProps,
   Props as ReactSelectProps,
   ActionMeta,
 } from 'react-select';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { MobileFullscreenSelector } from './mobile-fullscreen-selector';
+import { ChevronDownDark } from '@/components/icon';
 import styles from './dropdown.module.css';
 
 export type TOption<T = any> = {
@@ -33,11 +22,32 @@ export type TOption<T = any> = {
   value: T;
 };
 
-type SelectProps<T = any, IsMulti extends boolean = false> = Omit<
+export type TGroupedOption<T, TExtra = object, TOptionExt = object> = {
+  label: string;
+  options: (TOption<T> & TOptionExt)[];
+} & TExtra;
+
+export const isGroupedOptions = <T, >(
+  options: TOption<T>[] | TGroupedOption<T>[] | undefined
+): options is TGroupedOption<T>[] => {
+  if (!options || options.length === 0) {
+    return false;
+  }
+  const firstOption = options[0];
+  if (!firstOption) {
+    return false;
+  }
+  return 'options' in firstOption && Array.isArray((firstOption as TGroupedOption<T>).options);
+};
+
+type SelectProps<T, IsMulti extends boolean = false, TExtra = object, TOptionExt = object> = Omit<
   ReactSelectProps<TOption<T>>,
-  'onChange'
+  'onChange' | 'options'
 > & {
-  renderOptions: (selectedItem: TOption<T>) => ReactNode; // Function to render options and selected value for single dropdown
+  options?: TOption<T>[] | TGroupedOption<T, TExtra, TOptionExt>[];
+  renderOptions?: (selectedItem: TOption<T> & TOptionExt, isSelectedValue: boolean) => ReactNode;
+  renderGroupHeader?: (group: TGroupedOption<T, TExtra, TOptionExt>) => ReactNode;
+  renderTrigger?: ((props: { onClick: () => void }) => ReactNode);
   onChange: (
     newValue: IsMulti extends true ? TOption<T>[] : TOption<T>,
     actionMeta: ActionMeta<TOption<T>>
@@ -50,7 +60,7 @@ type SelectProps<T = any, IsMulti extends boolean = false> = Omit<
 
 const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
   <components.DropdownIndicator {...props}>
-    <div className={styles.dropdown} />
+    <ChevronDownDark />
   </components.DropdownIndicator>
 );
 
@@ -59,7 +69,7 @@ const SelectSingleValue = (props: SingleValueProps<TOption> & { selectProps: any
 
   return (
     <components.SingleValue {...props}>
-      {renderOptions(props.data)}
+      {renderOptions(props.data, true)}
     </components.SingleValue>
   );
 };
@@ -68,7 +78,7 @@ const Option = (props: OptionProps<TOption> & { selectProps: any }) => {
   const { renderOptions } = props.selectProps;
   return (
     <components.Option {...props}>
-      {renderOptions(props.data)}
+      {renderOptions(props.data, false)}
     </components.Option>
   );
 };
@@ -100,36 +110,51 @@ const CustomMultiValue = ({ index, getValue }: MultiValueProps<TOption>) => {
   );
 };
 
-export const Dropdown = <T, IsMulti extends boolean = false>({
+const Group = (props: GroupProps<TOption>) => (
+  <div>
+    <components.Group {...props} />
+  </div>
+);
+
+const createGroupHeading = <T, TExtra = object, TOptionExt = object>(
+  renderGroupHeader?: (group: TGroupedOption<T, TExtra, TOptionExt>) => ReactNode
+) => (props: GroupHeadingProps<TOption<T>>) => {
+  if (renderGroupHeader) {
+    return (
+      <div className={styles.groupHeader}>
+        {renderGroupHeader(props.data as unknown as TGroupedOption<T, TExtra, TOptionExt>)}
+      </div>
+    );
+  }
+  return <components.GroupHeading {...props} />;
+};
+
+export const Dropdown = <T, IsMulti extends boolean = false, TExtra = object, TOptionExt = object>({
   classNamePrefix = 'react-select',
   renderOptions,
+  renderGroupHeader,
+  renderTrigger,
   className,
   onChange,
   title = '',
   mobileFullScreen = false,
   isOpen,
   onOpenChange,
+  options,
   ...props
-}: SelectProps<T, IsMulti>) => {
+}: SelectProps<T, IsMulti, TExtra, TOptionExt>) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const isGrouped = isGroupedOptions(options);
 
   if (isMobile && mobileFullScreen) {
-    const options: TOption<T>[] = props.options
-      ? (props.options as TOption<T>[]).filter(
-        (option): option is TOption<T> =>
-          option !== null &&
-            typeof option === 'object' &&
-            'value' in option &&
-            'label' in option
-      )
-      : [];
-
     return (
       <MobileFullscreenSelector
         title={title}
         options={options}
-        renderOptions={renderOptions}
-        value={props.value as any}
+        renderOptions={renderOptions || (() => null)}
+        renderGroupHeader={renderGroupHeader}
+        renderTrigger={renderTrigger}
+        value={props.value as IsMulti extends true ? TOption<T>[] : TOption<T>}
         onSelect={onChange}
         isMulti={props.isMulti}
         isOpen={isOpen}
@@ -138,23 +163,49 @@ export const Dropdown = <T, IsMulti extends boolean = false>({
     );
   }
 
+  const componentOverrides: ReactSelectProps<TOption<T>>['components'] = {
+    DropdownIndicator,
+    SingleValue: (singleValueProps: SingleValueProps<TOption<T>>) =>
+      singleValueProps.isMulti ? undefined : (
+        <SelectSingleValue
+          {...singleValueProps}
+          selectProps={{
+            ...singleValueProps.selectProps,
+            renderOptions,
+            renderTrigger,
+          }}
+        />
+      ),
+    Option: (optionProps: OptionProps<TOption<T>>) => (
+      <Option
+        {...optionProps}
+        selectProps={{
+          ...optionProps.selectProps,
+          renderOptions
+        }}
+      />
+    ),
+    MultiValue: props.isMulti ? CustomMultiValue : undefined,
+    IndicatorSeparator: () => null,
+    MultiValueRemove: () => null,
+  };
+
+  if (isGrouped) {
+    componentOverrides.Group = Group;
+    componentOverrides.GroupHeading = createGroupHeading<T, TExtra, TOptionExt>(renderGroupHeader);
+  }
+
   return (
     <Select
       className={`
-        ${styles.select}
+        ${styles.select || ''}
         ${className || ''}
-        `}
+      `}
       classNamePrefix={classNamePrefix}
       isClearable={false}
       hideSelectedOptions={false}
-      components={{
-        DropdownIndicator,
-        SingleValue: (props) => props.isMulti ? undefined : <SelectSingleValue {...props} selectProps={{ ...props.selectProps, renderOptions }} />,
-        Option: (props) => <Option {...props} selectProps={{ ...props.selectProps, renderOptions }} />,
-        MultiValue: props.isMulti ? CustomMultiValue : undefined, // uses MultiValue only for multi-select
-        IndicatorSeparator: () => null,
-        MultiValueRemove: () => null,
-      }}
+      options={options}
+      components={componentOverrides}
       onChange={(selected, actionMeta) => {
         const handleChange = props.isMulti
           ? (onChange as (value: TOption<T>[], actionMeta: ActionMeta<TOption<T>>) => void)
@@ -165,4 +216,3 @@ export const Dropdown = <T, IsMulti extends boolean = false>({
     />
   );
 };
-

@@ -1,0 +1,30 @@
+.table {
+  overflow: auto;
+}
+
+.table table {
+  border-collapse: collapse;
+  font-size: var(--size-default);
+  text-align: left;
+  width: 100%;
+}
+
+.table td,
+.table th {
+  padding: var(--space-quarter);
+  vertical-align: top;
+}
+
+.table td {
+  border-top: 1px solid var(--color-mediumgray);
+}
+
+.table td:not(:last-child),
+.table th:not(:last-child) {
+  padding-left: 0;
+}
+
+.table td:last-child,
+.table th:last-child {
+  padding-right: 0;
+}

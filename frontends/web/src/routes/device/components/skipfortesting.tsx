@@ -1,32 +1,17 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2024-2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactNode, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
-import { registerTest } from '@/api/keystores';
-import { Button } from '@/components/forms';
+import { registerTest, type TTestKeystoreEdition } from '@/api/keystores';
+import { Button, Checkbox } from '@/components/forms';
 import { PasswordSingleInput } from '@/components/password';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 
 type TProps = {
   children?: ReactNode;
   className?: string;
-}
+};
 
 export const SkipForTesting = ({
   children,
@@ -36,10 +21,14 @@ export const SkipForTesting = ({
   const { isTesting } = useContext(AppContext);
   const [dialog, setDialog] = useState(false);
   const [testPIN, setTestPIN] = useState('');
+  const [btcOnly, setBTCOnly] = useState(false);
   const registerTestingDevice = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    await registerTest(testPIN);
-    setDialog(false);
+    const edition: TTestKeystoreEdition = btcOnly ? 'btc-only' : 'multi';
+    const response = await registerTest(testPIN, edition);
+    if (response.success) {
+      setDialog(false);
+    }
   };
 
   if (!isTesting) {
@@ -63,6 +52,12 @@ export const SkipForTesting = ({
             autoFocus
             label={t('testWallet.prompt.passwordLabel')}
             onValidPassword={(pw) => setTestPIN(pw ? pw : '')}/>
+          <Checkbox
+            id="test-wallet-btc-only"
+            checked={btcOnly}
+            onChange={e => setBTCOnly((e.target as HTMLInputElement).checked)}
+            label={t('generic.bitcoinOnly')}
+          />
           <DialogButtons>
             <Button primary type="submit">
               {t('testWallet.prompt.button')}

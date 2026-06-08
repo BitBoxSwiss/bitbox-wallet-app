@@ -1,0 +1,16 @@
+html, body {
+  font-family: sans-serif;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.bitrefill-widget {
+  display: flex;
+  justify-content: center;
+}
+
+iframe {
+  border: none;
+  min-height: 100vh;
+}

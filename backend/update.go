@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package backend
 
@@ -18,17 +6,13 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 )
 
 const updateFileURL = "https://bitboxapp.shiftcrypto.io/desktop.json"
-
-var (
-	// Version of the backend as displayed to the user.
-	Version = semver.NewSemVer(4, 48, 0)
-)
 
 // UpdateFile is retrieved from the server.
 type UpdateFile struct {
@@ -66,11 +50,11 @@ func (backend *Backend) checkForUpdate() (*UpdateFile, error) {
 		return nil, errp.WithStack(err)
 	}
 
-	if Version.AtLeast(updateFile.NewVersion) {
+	if versioninfo.Version.AtLeast(updateFile.NewVersion) {
 		return nil, nil
 	}
 
-	updateFile.CurrentVersion = Version
+	updateFile.CurrentVersion = versioninfo.Version
 	return &updateFile, nil
 }
 

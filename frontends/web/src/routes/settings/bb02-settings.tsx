@@ -1,18 +1,4 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect } from 'react';
 import { useLoad } from '@/hooks/api';
@@ -30,6 +16,9 @@ import { alertUser } from '@/components/alert/Alert';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { AttestationCheckSetting } from './components/device-settings/attestation-check-setting';
 import { FirmwareSetting } from './components/device-settings/firmware-setting';
+import { BluetoothFirmwareSetting } from './components/device-settings/bluetooth-firmware-setting';
+import { BluetoothToggleEnabledSetting } from './components/device-settings/bluetooth-toggle-enabled-setting';
+import { ChangeDevicePasswordSetting } from './components/device-settings/change-password-setting';
 import { SecureChipSetting } from './components/device-settings/secure-chip-setting';
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
@@ -39,14 +28,21 @@ import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
 import { MobileHeader } from './components/mobile-header';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
+import {
+  isBluetoothToggleSettingVisible,
+  isDeviceBluetoothSupported,
+} from './settings-availability';
 import styles from './bb02-settings.module.css';
 
-type TProps = {
+type TCommonProps = {
   deviceID: string;
-}
+};
 
-type TWrapperProps = TProps & TPagePropsWithSettingsTabs;
+type TWrapperProps = TCommonProps & TPagePropsWithSettingsTabs;
+
+type TProps = TCommonProps;
 
 export const StyledSkeleton = () => {
   return (
@@ -63,7 +59,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
       <GuideWrapper>
         <GuidedContent>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header
             hideSidebarToggler
@@ -74,13 +70,13 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
               </>
             }/>
           <View fullscreen={false}>
-            <ViewContent fullWidth>
+            <ViewContent>
               <WithSettingsTabs
                 devices={devices}
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
-                <Content deviceID={deviceID} />
+                <ManageDeviceSettingsContent deviceID={deviceID} />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -91,7 +87,9 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
   );
 };
 
-const Content = ({ deviceID }: TProps) => {
+export const ManageDeviceSettingsContent = ({
+  deviceID,
+}: TProps) => {
   const { t } = useTranslation();
 
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
@@ -110,78 +108,118 @@ const Content = ({ deviceID }: TProps) => {
       .catch(console.error);
   }, [deviceID, t]);
 
-  return (
-    <>
-      {/*"Backups" section*/}
-      <div className={styles.section}>
-        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.backups.title')}</SubTitle>
-        <ManageBackupSetting deviceID={deviceID} />
-        <ShowRecoveryWordsSetting deviceID={deviceID} />
-      </div>
-
-      {/*"Device information" section*/}
-      <div className={styles.section}>
-        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceInformation.title')}</SubTitle>
-        {deviceInfo ? (
-          <DeviceNameSetting
-            deviceName={deviceInfo.name}
-            deviceID={deviceID}
-          />
-        ) :
-          <StyledSkeleton />
-        }
-        <AttestationCheckSetting deviceID={deviceID} />
+  const sections: TSettingsContentSection[] = [
+    {
+      id: 'backups',
+      items: [
+        { id: 'manage-backups', content: <ManageBackupSetting deviceID={deviceID} /> },
+        { id: 'show-recovery-words', content: <ShowRecoveryWordsSetting deviceID={deviceID} /> },
+      ],
+      title: <SubTitle className="m-top-default">{t('deviceSettings.backups.title')}</SubTitle>,
+    },
+    {
+      id: 'device-settings',
+      items: [
         {
-          versionInfo ? (
+          id: 'device-name',
+          content: deviceInfo ? (
+            <DeviceNameSetting
+              deviceName={deviceInfo.name}
+              deviceID={deviceID}
+            />
+          ) : (
+            <StyledSkeleton />
+          ),
+        },
+        ...(isBluetoothToggleSettingVisible(deviceInfo) ? [{
+          id: 'bluetooth',
+          content: <BluetoothToggleEnabledSetting deviceID={deviceID} />,
+        }] : []),
+        {
+          id: 'device-password',
+          content: versionInfo ? (
+            <ChangeDevicePasswordSetting
+              deviceID={deviceID}
+              canChangePassword={versionInfo.canChangePassword}
+            />
+          ) : (
+            <StyledSkeleton />
+          ),
+        },
+      ],
+      title: <SubTitle className="m-top-default">{t('deviceSettings.deviceSettings.title')}</SubTitle>,
+    },
+    {
+      id: 'device-information',
+      items: [
+        {
+          id: 'firmware',
+          content: versionInfo ? (
             <FirmwareSetting
               deviceID={deviceID}
               versionInfo={versionInfo}
             />
-          ) :
+          ) : (
             <StyledSkeleton />
-        }
+          ),
+        },
+        ...(isDeviceBluetoothSupported(deviceInfo) ? [{
+          id: 'bluetooth-firmware',
+          content: (
+            <BluetoothFirmwareSetting
+              firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
+            />
+          ),
+        }] : []),
+        { id: 'authenticity-check', content: <AttestationCheckSetting deviceID={deviceID} /> },
         {
-          deviceInfo && deviceInfo.securechipModel !== '' ?
-            <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
-            :
-            <StyledSkeleton />
-        }
+          id: 'root-fingerprint',
+          content: rootFingerprintResult && rootFingerprintResult.success
+            ? <RootFingerprintSetting rootFingerprint={rootFingerprintResult.rootFingerprint} />
+            : <StyledSkeleton />,
+        },
         {
-          rootFingerprintResult && rootFingerprintResult.success ?
-            <RootFingerprintSetting rootFingerprint={rootFingerprintResult.rootFingerprint} />
-            :
-            <StyledSkeleton />
-        }
-      </div>
-
-      {/*"Expert settings" section*/}
-      <div className={styles.section}>
-        <SubTitle className={styles.withMobilePadding}>{t('settings.expert.title')}</SubTitle>
+          id: 'secure-chip',
+          content: deviceInfo && deviceInfo.securechipModel !== ''
+            ? <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
+            : <StyledSkeleton />,
+        },
+      ],
+      title: <SubTitle className="m-top-default">{t('deviceSettings.deviceInformation.title')}</SubTitle>,
+    },
+    {
+      id: 'expert-settings',
+      items: [
         {
-          deviceInfo ? (
+          id: 'passphrase',
+          content: deviceInfo ? (
             <PassphraseSetting
               passphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
               deviceID={deviceID}
             />
           ) : (
             <StyledSkeleton />
-          )
-        }
+          ),
+        },
         {
-          versionInfo ? (
+          id: 'bip85',
+          content: versionInfo ? (
             <Bip85Setting
               canBIP85={versionInfo.canBIP85}
               deviceID={deviceID}
             />
           ) : (
             <StyledSkeleton />
-          )
-        }
-        <GoToStartupSettings deviceID={deviceID} />
-        <FactoryResetSetting deviceID={deviceID} />
-      </div>
-    </>
-  );
+          ),
+        },
+        { id: 'startup-settings', content: <GoToStartupSettings deviceID={deviceID} /> },
+        { id: 'factory-reset', content: <FactoryResetSetting deviceID={deviceID} /> },
+      ],
+      title: <SubTitle className="m-top-default">{t('settings.expert.title')}</SubTitle>,
+    },
+  ];
+
+  return <SettingsContent sections={sections} />;
 };
 
 export { BB02Settings };

@@ -1,27 +1,31 @@
-/**
- * Copyright 2023-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
-import type { TDevices, TProductName } from '@/api/devices';
+import type { TDevices, TPlatformName } from '@/api/devices';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
+import { useDarkmode } from '@/hooks/darkmode';
 import { SettingsItem } from './settingsItem/settingsItem';
-import { RedDot } from '@/components/icon';
+import { SettingsSearchContent } from './settings-search-content';
+import { Button, SearchInput } from '@/components/forms';
+import { useSettingsSearch } from '../use-settings-search';
+import {
+  AdvancedSettingsIcon,
+  AdvancedSettingsIconDark,
+  RedDot,
+  CogLight,
+  CogDark,
+  AccountsIconLight,
+  AccountsIconDark,
+  InfoIconLight,
+  InfoIconDark,
+  USBLight,
+  USBDark,
+  LoupeBlue,
+} from '@/components/icon';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import styles from './tabs.module.css';
 
 type TWithSettingsTabsProps = {
@@ -29,37 +33,107 @@ type TWithSettingsTabsProps = {
   devices: TDevices;
   hasAccounts: boolean;
   hideMobileMenu?: boolean;
-}
+  renderDefaultTabs?: boolean;
+};
 
 type TTab = {
   name: string;
   url: string;
   hideMobileMenu?: boolean;
   canUpgrade?: boolean;
-}
+  icon?: ReactNode;
+};
 
 type TTabs = {
   devices: TDevices;
   hasAccounts: boolean;
   hideMobileMenu?: boolean;
-}
+};
 
 export const WithSettingsTabs = ({
   children,
   devices,
   hideMobileMenu,
   hasAccounts,
+  renderDefaultTabs = true,
 }: TWithSettingsTabsProps) => {
+  const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [showSearchBar, setShowSearchBar] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const {
+    searchResults,
+    searchTerm,
+    showSearchResults,
+    updateSearchTerm,
+  } = useSettingsSearch({
+    devices,
+    hasAccounts,
+  });
+  const showDesktopSearchBar = showSearchBar || searchTerm.trim().length > 0;
+  const showSearchBarInput = isMobile || showDesktopSearchBar;
+
+  useEffect(() => {
+    if (!isMobile && showSearchBarInput) {
+      searchInputRef.current?.focus();
+    }
+  }, [isMobile, showSearchBarInput]);
+
   return (
     <>
-      <div className="hide-on-small">
-        <Tabs
-          hideMobileMenu={hideMobileMenu}
+      {showSearchBarInput ? (
+        <div className={styles.searchContainer}>
+          <SearchInput
+            autoFocus={!isMobile}
+            onChange={event => updateSearchTerm(event.currentTarget.value)}
+            onClear={() => updateSearchTerm('')}
+            placeholder={t('generic.search')}
+            ref={searchInputRef}
+            value={searchTerm}
+            variant="clear"
+          />
+        </div>
+      ) : null}
+      {renderDefaultTabs ? (
+        <div className="hide-on-small">
+          <div className={styles.desktopTabsRow}>
+            <Tabs
+              hideMobileMenu={hideMobileMenu}
+              devices={devices}
+              hasAccounts={hasAccounts}
+            />
+            <div className={styles.searchToggleContainer}>
+              <Button
+                className={styles.searchButton}
+                onClick={() => {
+                  if (showDesktopSearchBar) {
+                    setShowSearchBar(false);
+                    updateSearchTerm('');
+                  } else {
+                    setShowSearchBar(true);
+                  }
+                }}
+                transparent
+              >
+                {showDesktopSearchBar ? (
+                  <>✕ {t('generic.close')}</>
+                ) : (
+                  <>
+                    <LoupeBlue className={styles.loupe} />
+                    {t('generic.searchButton')}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {showSearchResults ? (
+        <SettingsSearchContent
           devices={devices}
-          hasAccounts={hasAccounts}
+          searchResults={searchResults}
         />
-      </div>
-      {children}
+      ) : children}
     </>
   );
 };
@@ -69,19 +143,35 @@ export const Tab = ({
   url,
   hideMobileMenu,
   canUpgrade,
+  icon,
 }: TTab) => {
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   const upgradeDot = canUpgrade ? (
     <RedDot className={styles.canUpgradeDot} width={8} height={8} />
   ) : null;
+
+  const isManageDeviceItem = url.includes('device-settings');
+  const showRedDotOnMobile = isManageDeviceItem && canUpgrade;
+
+  const settingName = icon ? (
+    <div className={styles.iconContainer}>
+      {icon}
+      <span>{name}</span>
+    </div>
+  ) : (
+    <div>{name}</div>
+  );
 
   if (!hideMobileMenu) {
     // Will only be shown on mobile (index/general settings page)
     return (
       <div key={url} className="show-on-small">
         <SettingsItem
-          settingName={name}
+          settingName={settingName}
           onClick={() => navigate(url)}
+          canUpgrade={showRedDotOnMobile}
         />
       </div>
     );
@@ -90,10 +180,10 @@ export const Tab = ({
   return (
     <NavLink
       key={url}
-      className={({ isActive }) => isActive ? `${styles.active} hide-on-small` : 'hide-on-small'}
+      className={({ isActive }) => isActive ? `${styles.active || ''} hide-on-small` : 'hide-on-small'}
       to={url}
     >
-      {name}
+      {isMobile ? settingName : name}
       {upgradeDot}
     </NavLink>
   );
@@ -101,8 +191,8 @@ export const Tab = ({
 
 type TTabWithVersionCheck = TTab & {
   deviceID: string;
-  device: TProductName;
-}
+  device: TPlatformName;
+};
 
 const TabWithVersionCheck = ({ deviceID, device, ...props }: TTabWithVersionCheck) => {
   const isBitBox02 = device === 'bitbox02';
@@ -117,10 +207,13 @@ const TabWithVersionCheck = ({ deviceID, device, ...props }: TTabWithVersionChec
 
 export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
   const { t } = useTranslation();
+  const { isDarkMode } = useDarkmode();
   const deviceIDs = Object.keys(devices);
+
   return (
     <div className={styles.container}>
       <Tab
+        icon={isDarkMode ? <CogLight className={styles.tabIcon} /> : <CogDark className={styles.tabIcon} />}
         key="general"
         hideMobileMenu={hideMobileMenu}
         name={t('settings.general')}
@@ -128,6 +221,7 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
       />
       {hasAccounts ? (
         <Tab
+          icon={isDarkMode ? <AccountsIconLight className={styles.tabIcon} /> : <AccountsIconDark className={styles.tabIcon} />}
           key="manage-accounts"
           hideMobileMenu={hideMobileMenu}
           name={t('manageAccounts.title')}
@@ -135,6 +229,7 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
         />
       ) : (
         <Tab
+          icon={isDarkMode ? <AccountsIconLight className={styles.tabIcon} /> : <AccountsIconDark className={styles.tabIcon} />}
           key="no-accounts"
           hideMobileMenu={hideMobileMenu}
           name={t('manageAccounts.title')}
@@ -143,15 +238,17 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
       )}
       {deviceIDs.length ? deviceIDs.map(id => (
         <TabWithVersionCheck
+          icon={isDarkMode ? <USBLight className={styles.tabIcon} /> : <USBDark className={styles.tabIcon} />}
           key={`device-${id}`}
           deviceID={id}
-          device={devices[id]}
+          device={devices[id] as TPlatformName}
           hideMobileMenu={hideMobileMenu}
           name={t('sidebar.device')}
           url={`/settings/device-settings/${id}`}
         />
       )) : (
         <Tab
+          icon={isDarkMode ? <USBLight className={styles.tabIcon} /> : <USBDark className={styles.tabIcon} />}
           key="no-device"
           hideMobileMenu={hideMobileMenu}
           name={t('sidebar.device')}
@@ -159,12 +256,14 @@ export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
         />
       )}
       <Tab
+        icon={isDarkMode ? <AdvancedSettingsIcon className={styles.tabIcon} /> : <AdvancedSettingsIconDark className={styles.tabIcon} />}
         key="advanced-settings"
         hideMobileMenu={hideMobileMenu}
         name={t('settings.advancedSettings')}
         url="/settings/advanced-settings"
       />
       <Tab
+        icon={isDarkMode ? <InfoIconLight className={styles.tabIcon} /> : <InfoIconDark className={styles.tabIcon} />}
         key="about"
         hideMobileMenu={hideMobileMenu}
         name={t('settings.about')}

@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package handlers
 
@@ -18,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -39,6 +28,7 @@ type BitBox02 interface {
 	DeviceInfo() (*firmware.DeviceInfo, error)
 	SetDeviceName(deviceName string) error
 	SetPassword(seedLen int) error
+	ChangePassword() error
 	CreateBackup() error
 	ListBackups() ([]*firmware.Backup, error)
 	CheckBackup(bool) (string, error)
@@ -55,6 +45,7 @@ type BitBox02 interface {
 	GotoStartupSettings() error
 	RootFingerprint() ([]byte, error)
 	BIP85AppBip39() error
+	BluetoothToggleEnabled() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -77,6 +68,7 @@ func NewHandlers(
 	handleFunc("/info", handlers.getDeviceInfo).Methods("GET")
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
+	handleFunc("/change-password", handlers.postChangePassword).Methods("POST")
 	handleFunc("/backups/create", handlers.postCreateBackup).Methods("POST")
 	handleFunc("/backups/check", handlers.postCheckBackup).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupsList).Methods("GET")
@@ -92,6 +84,7 @@ func NewHandlers(
 	handleFunc("/goto-startup-settings", handlers.postGotoStartupSettings).Methods("POST")
 	handleFunc("/root-fingerprint", handlers.getRootFingerprint).Methods("GET")
 	handleFunc("/invoke-bip85", handlers.postInvokeBIP85Handler).Methods("POST")
+	handleFunc("/bluetooth/toggle-enabled", handlers.postBluetoothToggleEnabled).Methods("POST")
 	return handlers
 }
 
@@ -108,12 +101,18 @@ func (handlers *Handlers) Uninit() {
 	handlers.device = nil
 }
 
-func maybeBB02Err(err error, log *logrus.Entry) map[string]interface{} {
-	result := map[string]interface{}{"success": false}
+type bitbox02Response struct {
+	Success bool   `json:"success"`
+	Code    int32  `json:"code,omitempty"`
+	Message string `json:"message,omitempty"`
+}
+
+func maybeBB02Err(err error, log *logrus.Entry) bitbox02Response {
+	result := bitbox02Response{Success: false}
 
 	if bb02Error, ok := errp.Cause(err).(*firmware.Error); ok {
-		result["code"] = bb02Error.Code
-		result["message"] = bb02Error.Message
+		result.Code = bb02Error.Code
+		result.Message = bb02Error.Message
 		log.WithField("bitbox02-error", bb02Error.Code).Warning("Received an error from Bitbox02")
 	} else {
 		log.WithField("error", err).Error("Received an error from when querying the BitBox02")
@@ -132,45 +131,57 @@ func (handlers *Handlers) getAttestationHandler(_ *http.Request) interface{} {
 }
 
 func (handlers *Handlers) getDeviceInfo(_ *http.Request) interface{} {
+	type response struct {
+		Success    bool                 `json:"success"`
+		DeviceInfo *firmware.DeviceInfo `json:"deviceInfo,omitempty"`
+	}
+
 	handlers.log.Debug("Get Device Info")
 	deviceInfo, err := handlers.device.DeviceInfo()
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{
-		"success":    true,
-		"deviceInfo": deviceInfo,
+	return response{
+		Success:    true,
+		DeviceInfo: deviceInfo,
 	}
 }
 
 func (handlers *Handlers) postSetDeviceName(r *http.Request) interface{} {
 	jsonBody := map[string]string{}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return map[string]interface{}{"success": false}
+		return bitbox02Response{Success: false}
 	}
 	deviceName := jsonBody["name"]
 	if err := handlers.device.SetDeviceName(strings.TrimSpace(deviceName)); err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}
+	return bitbox02Response{Success: true}
 }
 
 func (handlers *Handlers) postSetPassword(r *http.Request) interface{} {
 	var seedLen int
 	if err := json.NewDecoder(r.Body).Decode(&seedLen); err != nil {
-		return map[string]interface{}{"success": false}
+		return bitbox02Response{Success: false}
 	}
 	if err := handlers.device.SetPassword(seedLen); err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}
+	return bitbox02Response{Success: true}
+}
 
+func (handlers *Handlers) postChangePassword(_ *http.Request) interface{} {
+	err := handlers.device.ChangePassword()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log)
+	}
+	return bitbox02Response{Success: true}
 }
 
 func (handlers *Handlers) postCreateBackup(r *http.Request) interface{} {
 	var backupMethod string
 	if err := json.NewDecoder(r.Body).Decode(&backupMethod); err != nil {
-		return map[string]interface{}{"success": false}
+		return bitbox02Response{Success: false}
 	}
 	switch backupMethod {
 	case "sdcard":
@@ -182,69 +193,87 @@ func (handlers *Handlers) postCreateBackup(r *http.Request) interface{} {
 			return maybeBB02Err(err, handlers.log)
 		}
 	default:
-		return map[string]interface{}{"success": false}
+		return bitbox02Response{Success: false}
 	}
-	return map[string]interface{}{"success": true}
+	return bitbox02Response{Success: true}
 }
 
 func (handlers *Handlers) getBackupsList(_ *http.Request) interface{} {
+	type backupResponse struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+		Date string `json:"date"`
+	}
+	type response struct {
+		Success bool             `json:"success"`
+		Backups []backupResponse `json:"backups"`
+	}
+
 	handlers.log.Debug("List backups ")
 	backups, err := handlers.device.ListBackups()
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	result := []map[string]string{}
+	sort.Slice(backups, func(i, j int) bool {
+		return backups[i].Time.After(backups[j].Time)
+	})
+	result := []backupResponse{}
 	for _, backup := range backups {
-		result = append(result, map[string]string{
-			"id":   backup.ID,
-			"name": backup.Name,
-			"date": backup.Time.Format(time.RFC3339),
+		result = append(result, backupResponse{
+			ID:   backup.ID,
+			Name: backup.Name,
+			Date: backup.Time.Format(time.RFC3339),
 		})
 	}
-	return map[string]interface{}{
-		"success": true,
-		"backups": result,
+	return response{
+		Success: true,
+		Backups: result,
 	}
 }
 
 func (handlers *Handlers) postCheckBackup(r *http.Request) interface{} {
+	type response struct {
+		Success  bool   `json:"success"`
+		BackupID string `json:"backupID,omitempty"`
+	}
+
 	handlers.log.Debug("Checking Backup")
 	jsonBody := map[string]bool{}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return map[string]interface{}{"success": false}
+		return response{Success: false}
 	}
 	backupID, err := handlers.device.CheckBackup(jsonBody["silent"])
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{
-		"success":  true,
-		"backupID": backupID,
+	return response{
+		Success:  true,
+		BackupID: backupID,
 	}
 }
 
 func (handlers *Handlers) postBackupsRestore(r *http.Request) interface{} {
 	var backupID string
 
-	type response struct {
-		Success bool   `json:"success"`
-		Message string `json:"message,omitempty"`
-	}
-
 	if err := json.NewDecoder(r.Body).Decode(&backupID); err != nil {
-		return response{Success: false, Message: err.Error()}
+		return bitbox02Response{Success: false, Message: err.Error()}
 	}
 	if err := handlers.device.RestoreBackup(backupID); err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}
+	return bitbox02Response{Success: true}
 }
 
 func (handlers *Handlers) getChannelHash(_ *http.Request) interface{} {
+	type response struct {
+		Hash           string `json:"hash"`
+		DeviceVerified bool   `json:"deviceVerified"`
+	}
+
 	hash, deviceVerified := handlers.device.ChannelHash()
-	return map[string]interface{}{
-		"hash":           hash,
-		"deviceVerified": deviceVerified,
+	return response{
+		Hash:           hash,
+		DeviceVerified: deviceVerified,
 	}
 }
 
@@ -261,8 +290,10 @@ func (handlers *Handlers) getCheckSDCard(_ *http.Request) interface{} {
 	handlers.log.Debug("Checking if SD Card is inserted")
 	sdCardInserted, err := handlers.device.CheckSDCard()
 	if err != nil {
+		handlers.log.WithError(err).Error("CheckSDCard failed")
 		return false
 	}
+	handlers.log.Infof("CheckSDCard result: %v", sdCardInserted)
 	return sdCardInserted
 }
 
@@ -272,18 +303,18 @@ func (handlers *Handlers) postInsertSDCard(r *http.Request) interface{} {
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}
+	return bitbox02Response{Success: true}
 }
 
 func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) interface{} {
 	var enabled bool
 	if err := json.NewDecoder(r.Body).Decode(&enabled); err != nil {
-		return map[string]interface{}{"success": false}
+		return bitbox02Response{Success: false}
 	}
 	if err := handlers.device.SetMnemonicPassphraseEnabled(enabled); err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}
+	return bitbox02Response{Success: true}
 }
 
 func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
@@ -310,8 +341,9 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		CanBackupWithRecoveryWords bool `json:"canBackupWithRecoveryWords"`
 		// If true, it is possible to create a 12-word seed by passing `16` as `seedLen` to
 		// `SetPassword()`. Otherwise, only `32` is allowed, corresponding to 24 words.
-		CanCreate12Words bool `json:"canCreate12Words"`
-		CanBIP85         bool `json:"canBIP85"`
+		CanCreate12Words  bool `json:"canCreate12Words"`
+		CanBIP85          bool `json:"canBIP85"`
+		CanChangePassword bool `json:"canChangePassword"`
 	}{
 		CurrentVersion:             currentVersion.String(),
 		NewVersion:                 newVersionStr,
@@ -320,6 +352,7 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		CanBackupWithRecoveryWords: currentVersion.AtLeast(semver.NewSemVer(9, 13, 0)),
 		CanCreate12Words:           currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
 		CanBIP85:                   currentVersion.AtLeast(semver.NewSemVer(9, 18, 0)),
+		CanChangePassword:          currentVersion.AtLeast(semver.NewSemVer(9, 25, 0)),
 	}
 }
 
@@ -336,7 +369,7 @@ func (handlers *Handlers) postResetHandler(_ *http.Request) interface{} {
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}
+	return bitbox02Response{Success: true}
 }
 
 func (handlers *Handlers) postShowMnemonicHandler(_ *http.Request) interface{} {
@@ -344,7 +377,7 @@ func (handlers *Handlers) postShowMnemonicHandler(_ *http.Request) interface{} {
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}
+	return bitbox02Response{Success: true}
 }
 
 func (handlers *Handlers) postRestoreFromMnemonicHandler(_ *http.Request) interface{} {
@@ -352,7 +385,7 @@ func (handlers *Handlers) postRestoreFromMnemonicHandler(_ *http.Request) interf
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}
+	return bitbox02Response{Success: true}
 }
 
 func (handlers *Handlers) postGotoStartupSettings(_ *http.Request) interface{} {
@@ -360,17 +393,22 @@ func (handlers *Handlers) postGotoStartupSettings(_ *http.Request) interface{} {
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}
+	return bitbox02Response{Success: true}
 }
 
 func (handlers *Handlers) getRootFingerprint(_ *http.Request) interface{} {
+	type response struct {
+		Success         bool   `json:"success"`
+		RootFingerprint string `json:"rootFingerprint,omitempty"`
+	}
+
 	fingerprint, err := handlers.device.RootFingerprint()
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{
-		"success":         true,
-		"rootFingerprint": hex.EncodeToString(fingerprint),
+	return response{
+		Success:         true,
+		RootFingerprint: hex.EncodeToString(fingerprint),
 	}
 }
 
@@ -379,5 +417,13 @@ func (handlers *Handlers) postInvokeBIP85Handler(_ *http.Request) interface{} {
 	if err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}
+	return bitbox02Response{Success: true}
+}
+
+func (handlers *Handlers) postBluetoothToggleEnabled(_ *http.Request) interface{} {
+	err := handlers.device.BluetoothToggleEnabled()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log)
+	}
+	return bitbox02Response{Success: true}
 }

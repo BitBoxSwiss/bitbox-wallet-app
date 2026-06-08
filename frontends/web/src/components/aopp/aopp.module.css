@@ -28,7 +28,7 @@
 .message {
     background-color: var(--background-secondary);
     border-color: var(--background-quaternary);
-    border-radius: 2px;
+    border-radius: var(--radius-xl);
     border-style: solid;
     border-width: 1px;
     font-family: var(--font-family);
@@ -42,6 +42,6 @@
 }
 @media (min-width: 1200px) {
     .message {
-        --size-default: 18px;
+        --size-default: 1.8rem;
     }
 }

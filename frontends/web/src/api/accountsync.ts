@@ -1,21 +1,7 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { TUnsubscribe } from '@/utils/transport-common';
-import * as accountAPI from './account';
+import type { TUnsubscribe } from '@/utils/transport-common';
+import type { AccountCode, TAccount, TStatus, TTransactions } from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 /**
@@ -24,7 +10,7 @@ import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
  * Returns a method to unsubscribe.
  */
 export const syncAccountsList = (
-  cb: (accounts: accountAPI.IAccount[],) => void
+  cb: (accounts: TAccount[]) => void
 ): TUnsubscribe => {
   return subscribeEndpoint('accounts', cb);
 };
@@ -34,7 +20,7 @@ export const syncAccountsList = (
  * event to receive the progress of the address sync.
  * Meant to be used with `useSubscribe`.
  */
-export const syncAddressesCount = (code: accountAPI.AccountCode) => {
+export const syncAddressesCount = (code: AccountCode) => {
   return (
     cb: TSubscriptionCallback<number>
   ) => {
@@ -48,8 +34,8 @@ export const syncAddressesCount = (code: accountAPI.AccountCode) => {
  * Returns a method to unsubscribe.
  */
 export const statusChanged = (
-  code: accountAPI.AccountCode,
-  cb: TSubscriptionCallback<accountAPI.IStatus>,
+  code: AccountCode,
+  cb: TSubscriptionCallback<TStatus>,
 ): TUnsubscribe => {
   return subscribeEndpoint(`account/${code}/status`, cb);
 };
@@ -59,8 +45,19 @@ export const statusChanged = (
  * Returns a method to unsubscribe.
  */
 export const syncdone = (
-  code: accountAPI.AccountCode,
+  code: AccountCode,
   cb: () => void,
 ): TUnsubscribe => {
   return subscribeEndpoint(`account/${code}/sync-done`, cb);
+};
+
+/**
+ * Fired when the account transaction list changed.
+ * Returns a method to unsubscribe.
+ */
+export const transactionsChanged = (
+  code: AccountCode,
+  cb: TSubscriptionCallback<TTransactions>,
+): TUnsubscribe => {
+  return subscribeEndpoint(`account/${code}/transactions`, cb);
 };

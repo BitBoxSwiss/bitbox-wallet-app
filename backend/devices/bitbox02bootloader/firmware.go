@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package bitbox02bootloader
 
@@ -34,30 +22,27 @@ var intermediateFirmwareBinaryMulti_9_17_1 []byte
 
 // BitBox02
 
-//go:embed assets/firmware-btc.v9.23.0.signed.bin.gz
+//go:embed assets/firmware-bitbox02-btconly.v9.26.1.signed.bin.gz
 var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 23, 0)
-var firmwareMonotonicVersionBtcOnly uint32 = 43
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 26, 1)
+var firmwareMonotonicVersionBtcOnly uint32 = 49
 
-//go:embed assets/firmware.v9.23.0.signed.bin.gz
+//go:embed assets/firmware-bitbox02-multi.v9.26.1.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 23, 0)
-var firmwareMonotonicVersionMulti uint32 = 43
+var firmwareVersionMulti = semver.NewSemVer(9, 26, 1)
+var firmwareMonotonicVersionMulti uint32 = 49
 
-// BitBox02 Plus.
+// BitBox02 Nova.
 
-//go:embed assets/firmware-bb02plus-btconly.v9.23.0.signed.bin.gz
+//go:embed assets/firmware-bitbox02nova-btconly.v9.26.1.signed.bin.gz
 var firmwareBB02PlusBinaryBTCOnly []byte
-var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 23, 0)
-var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 43
+var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 26, 1)
+var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 49
 
-// TODO: set to false / remove before production. This is only to allow upgrading unsigned firmware.
-const plusIsPlaceholder = false
-
-//go:embed assets/firmware-bb02plus-multi.v9.23.0.signed.bin.gz
+//go:embed assets/firmware-bitbox02nova-multi.v9.26.1.signed.bin.gz
 var firmwareBB02PlusBinaryMulti []byte
-var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 23, 0)
-var firmwareBB02PlusMonotonicVersionMulti uint32 = 43
+var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 26, 1)
+var firmwareBB02PlusMonotonicVersionMulti uint32 = 49
 
 type firmwareInfo struct {
 	version          *semver.SemVer

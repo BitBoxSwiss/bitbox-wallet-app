@@ -1,22 +1,8 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { checkSDCard, insertSDCard } from '@/api/bitbox02';
+import { checkSDCard, insertSDCard, errUserAbort } from '@/api/bitbox02';
 import { View, ViewHeader } from '@/components/view/view';
 import { alertUser } from '@/components/alert/Alert';
 import { Wait } from './wait';
@@ -52,13 +38,18 @@ export const WithSDCard = ({
       if (result.success) {
         return;
       }
-      if (result.message) {
+
+      // User pressed “Abort” on the device
+      if (result.code === errUserAbort) {
+        alertUser(t('backup.restore.error.e104'), { asDialog: false, callback: onAbort });
+      } else if (result.message) {
+        // Other errors:
         alertUser(result.message, { asDialog: false, callback: onAbort });
       }
     } catch (error) {
       console.error(error);
     }
-  }, [deviceID, onAbort]);
+  }, [deviceID, onAbort, t]);
 
   useEffect(() => {
     ensureSDCard();

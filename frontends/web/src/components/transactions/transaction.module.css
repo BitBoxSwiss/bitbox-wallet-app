@@ -3,6 +3,7 @@
   line-height: 1.25;
   margin-bottom: var(--space-half);
 }
+
 @media (max-width: 768px) {
   .tx {
     margin-bottom: var(--space-quarter);
@@ -11,10 +12,13 @@
 
 .txContent {
   background-color: var(--background-secondary);
+  border-radius: var(--radius-xl);
   display: flex;
   justify-content: space-between;
   padding: var(--space-half) 0;
+  transition: background-color 120ms ease;
 }
+
 @media (max-width: 768px) {
   .txContent {
     padding: 10px 0 8px 0;
@@ -32,6 +36,11 @@
   width: 32px;
 }
 @media (max-width: 768px) {
+
+  .txContent:active {
+    background-color: var(--background-tap-active);
+  }
+  
   .txIcon {
     flex-basis: 74px;
   }
@@ -59,11 +68,16 @@
   flex-direction: column;
   flex-grow: 1;
   flex-shrink: 0;
-  font-size: 14px;
+  font-size: var(--size-small);
   line-height: 1.285714;
   padding: 0 var(--space-quarter) 0 48px;
   text-align: right;
   white-space: nowrap;
+}
+@media (max-width: 768px) {
+  .txAmountsColumn {
+    padding-right: var(--space-half);
+  }
 }
 @media (max-width: 560px) {
   .txAmountsColumn {
@@ -73,17 +87,16 @@
     padding-left: 24px;
   }
 }
-@media (max-width: 768px) {
+@media (max-width: 425px) {
   .txAmountsColumn {
-    padding-right: var(--space-half);
+    padding-left: 12px;
   }
 }
 
 .txAmount {
   align-items: baseline;
-  font-size: 16px;
-  font-variant: tabular-nums;
-  gap: 3px;
+  font-size: var(--size-default);
+  font-variant-numeric: tabular-nums;
   justify-content: flex-end;
   line-height: 1.25;
   display: flex;
@@ -105,7 +118,7 @@
 
 .txUnit {
   color: var(--color-secondary);
-  font-size: 14px;
+  font-size: var(--size-small);
   line-height: 1.285714;
 }
 
@@ -116,7 +129,7 @@
 }
 .txNoteText {
   color: var(--color-default);
-  font-size: 16px;
+  font-size: var(--size-default);
   line-height: 1.25;
 }
 @media (max-width: 560px) {
@@ -130,7 +143,7 @@
   align-items: center;
   color: var(--color-secondary);
   display: flex;
-  font-size: 14px;
+  font-size: var(--size-small);
   line-height: 1.285714;
   padding-bottom: 6px;
 }
@@ -167,21 +180,25 @@
 
 .txNoteWithAddress {
   display: block;
+  font-variant-numeric: tabular-nums;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .addresses {
   color: var(--color-secondary);
-  font-size: 14px;
+  font-size: var(--size-small);
   font-weight: normal;
   line-height: 1.285714;
 }
 .txType {
   color: var(--color-default);
-  font-size: 16px;
+  font-size: var(--size-default);
   line-height: 1.25;
+  max-width: 100%;
+  text-overflow: ellipsis;
 }
 
 .txDateLong {
@@ -217,6 +234,21 @@
 @media (max-width: 768px) {
   .txShowDetailBtn {
     display: none;
+  }
+  
+  .addresses {
+    opacity: 0;
+  }
+
+  .txNoteWithAddress {
+    text-overflow: unset;
+  }
+
+}
+
+@media (max-width: 320px) {
+  .txNoteWithAddress{
+    text-overflow: ellipsis;
   }
 }
 .iconLoupe {

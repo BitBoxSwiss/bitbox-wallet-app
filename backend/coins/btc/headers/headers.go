@@ -1,25 +1,16 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package headers
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
 	"time"
+
+	_ "embed"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
@@ -36,6 +27,46 @@ import (
 
 const reorgLimit = 100
 
+//go:embed checkpoints.json
+var checkpointsJSONRaw []byte
+
+var checkpointsByNet = mustLoadCheckpoints(checkpointsJSONRaw)
+
+func mustLoadCheckpoints(jsonRaw []byte) map[wire.BitcoinNet]*chaincfg.Checkpoint {
+	var file CheckpointsJSONFile
+	if err := json.Unmarshal(jsonRaw, &file); err != nil {
+		panic(errp.WithStack(err))
+	}
+
+	mustUnhex := func(s string) *chainhash.Hash {
+		hash, err := chainhash.NewHashFromStr(s)
+		if err != nil {
+			panic(err)
+		}
+		return hash
+	}
+
+	mustCheckpoint := func(label string, checkpoint CheckpointJSON) *chaincfg.Checkpoint {
+		if checkpoint.Height <= 0 {
+			panic(errp.Newf("invalid checkpoint height for %s: %d", label, checkpoint.Height))
+		}
+		if checkpoint.Hash == "" {
+			panic(errp.Newf("missing checkpoint hash for %s", label))
+		}
+		return &chaincfg.Checkpoint{
+			Height: checkpoint.Height,
+			Hash:   mustUnhex(checkpoint.Hash),
+		}
+	}
+
+	return map[wire.BitcoinNet]*chaincfg.Checkpoint{
+		chaincfg.MainNetParams.Net:  mustCheckpoint("btc/mainnet", file.BTC.Mainnet),
+		chaincfg.TestNet3Params.Net: mustCheckpoint("btc/testnet3", file.BTC.Testnet3),
+		ltc.MainNetParams.Net:       mustCheckpoint("ltc/mainnet", file.LTC.Mainnet),
+		ltc.TestNet4Params.Net:      mustCheckpoint("ltc/testnet4", file.LTC.Testnet4),
+	}
+}
+
 // Event instances are sent to the onEvent callback.
 type Event string
 
@@ -51,11 +82,12 @@ const (
 
 // Interface represents the public API of this package.
 //
-//go:generate mockery -name Interface
+//go:generate mockery --name Interface
 type Interface interface {
-	Initialize()
+	Initialize() error
 	SubscribeEvent(f func(Event)) func()
 	VerifiedHeaderByHeight(int) (*wire.BlockHeader, error)
+	HeaderByHeight(int) (*wire.BlockHeader, error)
 	TipHeight() int
 	Status() (*Status, error)
 }
@@ -118,41 +150,17 @@ func NewHeaders(
 	}
 }
 
-// checkpoint returns the latest checkpoint for the current chain. It panics if the network is
-// unknown.
+// checkpoint returns the latest checkpoint for the current chain.
 func (headers *Headers) checkpoint() *chaincfg.Checkpoint {
 	// We define our own checkpoints over using headers.net.Checkpoints, because they are defined in
 	// the vendored btcd dep, and we want to control it. Furthermore, the chaincfg.Params are evil
 	// globals registered in the lib's `init()`, so we can't replicate the instances ourselves.
 
-	mustUnhex := func(s string) *chainhash.Hash {
-		hash, err := chainhash.NewHashFromStr(s)
-		if err != nil {
-			panic(err)
-		}
-		return hash
-	}
-	switch headers.net.Net {
-	case chaincfg.MainNetParams.Net: // BTC
-		return &chaincfg.Checkpoint{
-			Height: 629350,
-			Hash:   mustUnhex("000000000000000000076807241b4e0f830c638cc1122cb67bfb856c58a21017"),
-		}
-	case chaincfg.TestNet3Params.Net: // TBTC
-		return &chaincfg.Checkpoint{
-			Height: 1723210,
-			Hash:   mustUnhex("00000000a2aa46899e5eda73c816b55903799a4feb321c903d9baeacc9443925")}
-	case ltc.MainNetParams.Net: // LTC
-		return &chaincfg.Checkpoint{
-			Height: 1837000,
-			Hash:   mustUnhex("43e55db47d6fdbc6e9f1d2f7a8974689f10bc3abf6e27355564dd5e18bfa53e4")}
-	case ltc.TestNet4Params.Net: // TLTC
-		return &chaincfg.Checkpoint{
-			Height: 1464330,
-			Hash:   mustUnhex("4329edb4d3eb20baded30bc67f59ce7d951de176012688124a65fe55e60244b4")}
-	default:
+	checkpoint, ok := checkpointsByNet[headers.net.Net]
+	if !ok {
 		return nil
 	}
+	return checkpoint
 }
 
 // SubscribeEvent subscribes to header events. The provided callback will be notified of events. The
@@ -172,8 +180,12 @@ func (headers *Headers) TipHeight() int {
 }
 
 // Initialize starts the syncing process.
-func (headers *Headers) Initialize() {
-	headers.tipAtInitTime = headers.tip()
+func (headers *Headers) Initialize() error {
+	tip, err := headers.db.Tip()
+	if err != nil {
+		return err
+	}
+	headers.tipAtInitTime = tip
 	headers.log.Infof("last tip loaded: %d", headers.tipAtInitTime)
 	go headers.download()
 	go headers.blockchain.HeadersSubscribe(
@@ -182,6 +194,7 @@ func (headers *Headers) Initialize() {
 		},
 	)
 	headers.kickChan <- struct{}{}
+	return nil
 }
 
 func (headers *Headers) download() {
@@ -362,15 +375,16 @@ func (headers *Headers) canConnect(db DBInterface, tip int, header *wire.BlockHe
 	return nil
 }
 
-func (headers *Headers) reorg(db DBInterface, tip int) {
+func (headers *Headers) reorg(db DBInterface, tip int) error {
 	// Simple reorg method: re-fetch headers up to the maximum reorg limit. The server can shorten
 	// our chain by sending a fake header and set us back by `reorgLimit` blocks, but it needs to
 	// contain the correct PoW to do so.
 	newTip := max(tip-reorgLimit, -1)
 	if err := db.RevertTo(newTip); err != nil {
-		panic(err)
+		return err
 	}
 	headers.kick()
+	return nil
 }
 
 func (headers *Headers) notifyEvent(event Event) {
@@ -387,7 +401,9 @@ func (headers *Headers) processBatch(
 		err := headers.canConnect(db, tip+1, header)
 		if errp.Cause(err) == errPrevHash {
 			headers.log.WithError(err).Infof("Reorg detected at height %d", tip+1)
-			headers.reorg(db, tip)
+			if err := headers.reorg(db, tip); err != nil {
+				return err
+			}
 			return nil
 		}
 		if err != nil {
@@ -433,6 +449,13 @@ func (headers *Headers) VerifiedHeaderByHeight(height int) (*wire.BlockHeader, e
 	return headers.db.HeaderByHeight(height)
 }
 
+// HeaderByHeight returns the header at the given height. Returns nil if the headers are not synced
+// up to this height yet.
+func (headers *Headers) HeaderByHeight(height int) (*wire.BlockHeader, error) {
+	defer headers.lock.RLock()()
+	return headers.db.HeaderByHeight(height)
+}
+
 func (headers *Headers) kick() {
 	select {
 	case headers.kickChan <- struct{}{}:
@@ -446,15 +469,6 @@ func (headers *Headers) update(blockHeight int) {
 	headers.kick()
 	headers.targetHeight = blockHeight
 	headers.notifyEvent(EventNewTip)
-}
-
-func (headers *Headers) tip() int {
-	defer headers.lock.RLock()()
-	tip, err := headers.db.Tip()
-	if err != nil {
-		panic(err)
-	}
-	return tip
 }
 
 // Status returns the current sync status.

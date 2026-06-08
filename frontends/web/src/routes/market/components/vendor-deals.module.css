@@ -1,0 +1,69 @@
+.container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.paymentMethodContainer {
+    align-items: baseline;
+    display: flex;
+}
+
+.exchangeName {
+    flex-basis: 100px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    font-size: var(--size-default);
+    font-weight: normal;
+    line-height: 1.6;
+    margin: 0;
+    word-break: keep-all;
+}
+
+.exchangeLink {
+    display: inline-flex;
+    font-size: var(--size-default);
+    font-weight: normal;
+    line-height: 1.6;
+    margin: 0;
+    word-break: keep-all;
+}
+
+.exchangeContainer {
+    width: 100%;
+}
+
+.badgeContainer {
+    margin-left: auto;
+}
+
+.outerContainer {
+    position: relative;
+}
+
+.paymentMethodsContainer {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: var(--space-eight);
+    padding-right: var(--space-quarter);
+}
+
+.paymentMethodName,
+.dealDescription {
+    color: var(--color-default);
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.6;
+    margin: 0;
+}
+.paymentMethodName img {
+    margin-right: var(--space-quarter);
+}
+
+@media (max-width: 425px) {
+    .exchangeName {
+        flex-basis: 180px;
+        max-width: 180px;
+        width: 180px;
+    }
+}

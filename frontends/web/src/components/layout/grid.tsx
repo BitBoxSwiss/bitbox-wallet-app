@@ -1,66 +1,95 @@
-/**
- * Copyright 2021 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode } from 'react';
 import style from './grid.module.css';
 
+type TTextAlign = 'start' | 'center' | 'end';
+type TCol = '1' | '2';
+
 type TGridProps = {
   children: ReactNode;
-  col?: '1' | '2';
-  textAlign?: 'center' | 'left';
-}
+  className?: string;
+  col?: TCol;
+  responsive?: boolean;
+  textAlign?: TTextAlign;
+};
 
-export const Grid = ({
+/**
+ * ResponsiveGrid component
+ * @param className - optional className for styling, for example to overwrite --grid-min-height CSS variable
+ * @param col - render a grid with 1 or 2 columns
+ * @param responsive - prevent columns from breaking onto newlines (only in case of col="2")
+ * @param textAlign - control text alignment
+ */
+export const ResponsiveGrid = ({
   children,
+  className = '',
   col = '2',
+  responsive = true,
   textAlign,
 }: TGridProps) => {
-  const styles = `
-    ${style.grid}
-    ${style[`grid-columns-${col}`]}
-    ${textAlign !== undefined ? style[textAlign] : ''}
+  const classNames = `
+    ${style.grid || ''}
+    ${style[`grid-columns-${col}`] || ''}
+    ${responsive ? (style.responsive || '') : ''}
+    ${textAlign && style[`align-${textAlign}`] || ''}
+    ${className}
   `;
   return (
-    <section className={styles}>
+    <section className={classNames.trim()}>
       {children}
     </section>
   );
 };
 
+/**
+ * Grid component (same as ResponsiveGrid but not responisve)
+ * @param className - optional className for styling, for example to overwrite --grid-min-height CSS variable
+ * @param col - render a grid with 1 or 2 columns
+ * @param responsive - prevent columns from breaking onto newlines (only in case of col="2")
+ * @param textAlign - control text alignment
+ */
+export const Grid = ({
+  children,
+  responsive = false,
+  ...props
+}: TGridProps) => (
+  <ResponsiveGrid responsive={responsive} {...props}>
+    {children}
+  </ResponsiveGrid>
+);
+
 type TColumnProps = {
   asCard?: boolean;
   className?: string;
   children: ReactNode;
-  textCenter?: boolean;
-}
+  col?: TCol;
+  textAlign?: TTextAlign;
+};
 
+/**
+ * Column component
+ * @param asCard - renders a container as card style
+ * @param className - optional className for styling, for example to overwrite --grid-min-height CSS variable
+ * @param col - can be 1 or 2 columns, this is useful for mixing 1 and 2 col
+ * @param textAlign - control text alignment
+ */
 export const Column = ({
   asCard,
   children,
   className,
-  textCenter,
+  col = '1',
+  textAlign,
 }: TColumnProps) => {
   const classNames = `
-    ${style.column}
-    ${asCard ? style.columnAsCard : ''}
+    ${style.column || ''}
+    ${asCard && style.columnAsCard || ''}
+    ${textAlign && style[`align-${textAlign}`] || ''}
+    ${style[`column-${col}`] || ''}
     ${className || ''}
-    ${textCenter ? style.textCenter : ''}
   `;
   return (
-    <div className={classNames}>
+    <div className={classNames.trim()}>
       {children}
     </div>
   );
@@ -70,18 +99,20 @@ type TColumnButtonsProps = {
   children: ReactNode;
   className?: string;
   inline?: boolean;
-}
+};
 
 export const ColumnButtons = ({
   children,
   className = '',
   inline,
 }: TColumnButtonsProps) => {
-  const classNames = `${style.columnButtons} ${
-    inline ? style.columnButtonsInline : ''
-  } ${className}`;
+  const classNames = `
+    ${style.columnButtons || ''}
+    ${inline && style.columnButtonsInline || ''}
+    ${className}
+  `;
   return (
-    <div className={classNames}>
+    <div className={classNames.trim()}>
       {children}
     </div>
   );

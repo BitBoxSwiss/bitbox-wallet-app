@@ -9,28 +9,72 @@
     justify-content: flex-start;
 }
 
-@media (max-width: 768px) {
-    .accountHeader {
-        padding: 0 var(--space-half);
-    }
-}
-
-.balanceHeader {
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+.accountHeader {
     margin-bottom: var(--space-half);
 }
 
+.titleRow {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.searchButton {
+    align-items: center;
+    display: flex;
+    gap: var(--space-eight);
+    justify-content: flex-end;
+    padding: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.loupe {
+    width: var(--size-default);
+}
+
+.button {
+    height: 37px;
+    min-height: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-quarter);
+}
+
+@media (max-width: 768px) {
+    .button {
+        min-height: var(--button-height);
+    }
+}
+
+.subTitle {
+    color: var(--color-secondary);
+    font-size: var(--size-subheader);
+    font-weight: normal;
+    margin: 0;
+}
+
+.balanceHeader {
+    align-items: flex-end;
+    color: var(--color-default);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-half);
+    min-height: var(--button-height);
+}
+
 .actionsContainer {
-    --size-default: 14px;
+    --size-default: var(--size-small);
     display: flex;
     flex-grow: 1;
     flex-shrink: 0;
     flex-wrap: nowrap;
+    gap: var(--space-quarter);
     justify-content: flex-end;
-    margin-top: var(--space-half);
+    margin-top: 0;
     padding-bottom: 0;
 }
 
@@ -38,44 +82,13 @@
     word-break: normal;
 }
 
-.exchange,
-.receive,
-.walletConnect,
-.send {
-    align-items: center;
-    background-color: var(--color-blue);
-    border-radius: 2px;
-    color: var(--color-alt);
-    display: inline-flex;
-    font-size: var(--size-default);
-    justify-content: center;
-    margin: 0 0 var(--space-quarter) var(--space-quarter);
-    min-height: calc(var(--item-height) / 1.5);
-    min-width: calc(var(--item-height) * 2);
-    padding: var(--space-quarter) var(--space-half);
-    text-align: center;
-    text-decoration: none;
-    transition: background-color ease-out 0.2s;
-    width: auto;
-    will-change: background-color;
-}
-
-.walletConnect {
-    justify-content: center;
-}
-
 .withWalletConnect.actionsContainer {
     justify-content: flex-end;
 }
 
-.withWalletConnect .walletConnect {
-    display: flex;
-}
-
-.buy:hover,
-.receive:hover,
-.send:not(.disabled):hover {
-    background-color: var(--color-lightblue);
+.iconWalletConnect {
+    height: var(--size-header);
+    max-width: var(--size-header);
 }
 
 .disabled {
@@ -92,10 +105,15 @@
     text-decoration: none;
 }
 
+.accountInfoLink:focus,
+.accountInfoLink:hover {
+    color: var(--color-lightblue);
+}
+
 .accountIcon {
-    width: 18px;
-    height: 18px;
+    height: var(--size-default);
     margin-right: var(--space-eight);
+    width: var(--size-default);
 }
 
 .errorLoadTransactions {
@@ -107,7 +125,7 @@
     color: var(--color-secondary);
     display: flex;
     justify-content: space-between;
-    margin-bottom: var(--space-quarter) !important; /* overwrite default subTitle margin */
+    margin-bottom: 0 !important; /* overwrite default subTitle margin */
 }
 .titleWithButton button {
     padding-left: var(--space-half);
@@ -121,7 +139,6 @@
 }
 
 @media (max-width: 768px) {
-
     .accountInfoLink {
         margin-right: 0;
         padding: 0 var(--space-quarter);
@@ -134,6 +151,7 @@
     .actionsContainer {
         justify-content: center;
         margin-bottom: var(--space-half);
+        margin-top: var(--space-half);
         padding-bottom: 0;
         width: 100%;
     }
@@ -146,41 +164,12 @@
         margin-bottom: 0;
     }
 
-    .withWalletConnect .buy,
-    .withWalletConnect .receive,
-    .withWalletConnect .send {
-        max-width: 25%;
-    }
-
-    .withWalletConnect .walletConnect {
-        align-items: center;
-        display: flex;
-        justify-content: center;
-        max-width: 15%;
-    }
-
     .actionsContainer a,
-    .actionsContainer > span {
-        flex: 1 0 30%;
-        max-width: 30%;
+    .actionsContainer > button {
+        flex: 1;
         min-width: unset;
     }
 
-    .exchange,
-    .send,
-    .receive,
-    .walletConnect {
-        font-size: var(--size-small);
-        width: auto;
-    }
-
-
-    .exchange:first-child,
-    .send:first-child,
-    .receive:first-child,
-    .walletConnect:first-child {
-        margin-left: 0;
-    }
 }
 
 .status {
@@ -189,4 +178,26 @@
 
 .txHistorySkeleton {
     margin-top: var(--space-quarter);
+}
+
+.searchContainer {
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+}
+
+.searchHidden {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+@media (max-width: 768px) {
+
+    .searchButton {
+        font-size: var(--size-small);
+        height: var(--item-height-small);
+        text-align: left;
+    }
+    
 }

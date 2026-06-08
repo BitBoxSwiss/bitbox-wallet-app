@@ -47,9 +47,9 @@ The below instructions assume a unix environment.
 
 To build the app or run the development workflow, the following dependencies need to be installed:
 
-- [Go](https://golang.org/doc/install) version 1.23
-- [Node.js](https://nodejs.org/) version 20.x
-- [NPM](https://docs.npmjs.com/about-npm-versions) version 10.x or newer
+- [Go](https://golang.org/doc/install) version 1.26
+- [Node.js](https://nodejs.org/) version 24.x
+- [NPM](https://docs.npmjs.com/about-npm-versions) version 11.x (bundled with Node 24)
 - [Qt](https://www.qt.io) version 6.8.2
   - install Qt for your platform, including the WebEngine component
 
@@ -79,10 +79,31 @@ full node.
 
 Run `make envinit` to fetch golangci-lint and some other devtools.
 
-Run `make servewallet` and `make webdev` in seperate terminals.
+Run `make servewallet` and `make webdev` in separate terminals.
 
 Before the first use of `make webdev`, you also need to run `make buildweb`, to install the dev
 dependencies.
+
+#### Local development with BB02 simulator
+
+The app can be used together with a [BB02 simulator](https://github.com/BitBoxSwiss/bitbox02-firmware/tree/master/test/simulator).
+
+In order to do so:
+
+* Build the simulator (checkout https://github.com/BitBoxSwiss/bitbox02-firmware/, then from the root repo run `make dockerdev` followed by `make simulator`)
+
+* Execute the simulator.
+
+  * Use `--port` if you want it to listen to a custom port (default is 15423)
+
+  * Set the environment variable `FAKE_MEMORY_FILEPATH` to a filepath if you want the simulator to write to file rather than in memory. This allows to re-use the same seed across different executions.
+
+* Launch the BBApp in simulator mode by providing a custom flag `--simulator`.
+
+
+If the simulator is listening on a custom port, `--simulatorPort=<port>` must also be provided.
+
+Note: the simulator is currently only supported in the servewallet and in the Qt app and only when the app runs in testnet mode.
 
 #### Watch and build the UI
 
@@ -92,23 +113,24 @@ code in `frontends/web/src` are automatically detected and rebuilt.
 
 #### UI testing
 
-The tests are run using [jest](https://jestjs.io)
-and [ts-jest](https://www.npmjs.com/package/ts-jest) preprocessor.
-
-Because the app is based on [preact](https://preactjs.com),
-we use [preact-render-spy](https://www.npmjs.com/package/preact-render-spy) package
-instead of [enzyme](https://airbnb.io/enzyme/) to test app components rendering
-and their state.
+The frontend tests are run using [vitest](https://vitest.dev/) and [@testing-library/react](https://testing-library.com/).
 
 To run all test suites, execute `make webtest`.
-If you plan on spending a lot of time in `frontends/web/src` space
-or just keen on doing TDD, use jest's tests watcher:
 
-    cd frontends/web/
-    make jstest-watch
+#### E2E testing
 
-To generate coverage report, execute `make jstest-cover` from `frontends/web` dir
-and open `coverage/lcov-report/index.html` in a browser.
+Playwright is used to perform automatic test on some use cases on the webdev version.
+
+Tests are located under [`frontends/web/tests`](/frontends/web/tests) and can be run with
+
+`make webe2etest`
+
+More info can be found [here](/frontends/web/tests/README.md)
+Appium is used to perform automatic test on Android emulators.
+The test runs automatically on PRs and push to master in the Github CI.
+
+`make mobilee2etest` can be used to launch the tests; however, when ran locally, this requires an Android emulator
+to be already running. In CI, the emulator is automatically spawned from a Github Action.
 
 #### Run the HTTP API
 
@@ -145,7 +167,14 @@ use a port_number of your choice, launch the following command and go to `http:/
 QTWEBENGINE_REMOTE_DEBUGGING=<port_number> ./frontends/qt/build/osx/BitBox.app/Contents/MacOS/BitBox
 ```
 
-see also https://doc.qt.io/qt-5/qtwebengine-debugging.html
+Or on Windows using PowerShell
+
+```
+$env:QTWEBENGINE_REMOTE_DEBUGGING=<port_number>
+Start-Process .\BitBox.exe
+```
+
+see also https://doc.qt.io/qt-6/qtwebengine-debugging.html
 
 ### CI
 
@@ -155,6 +184,36 @@ Run `make ci` to run all static analysis tools and tests.
 
 To statically compile the UI, run `make buildweb` again, which compiles the web ui into a compact
 bundle.
+
+## Develop using a remote VM
+
+You can run the full development environment on a remote VM and forward the ports to your local
+machine. This is useful for agentic coding workflows (e.g. with Claude Code) where all code
+execution happens in an isolated VM, keeping your local machine clean and safe.
+
+### Prerequisites
+
+- SSH access to the VM (configured in `~/.ssh/config`)
+- [tmux](https://github.com/tmux/tmux) installed on the VM
+- The repository cloned on the VM with `make envinit` completed
+
+### Setup
+
+```
+cp scripts/dev_vm.conf.example scripts/dev_vm.conf
+```
+
+Edit `scripts/dev_vm.conf` with your VM's SSH host and the path to the repo on the VM.
+
+### Usage
+
+```
+./scripts/dev_vm.sh            # Start webdev + servewallet on VM, open SSH tunnel
+./scripts/dev_vm.sh logs       # Attach to tmux session on VM (Ctrl-b d to detach)
+./scripts/dev_vm.sh stop       # Stop everything
+```
+
+The frontend is available at [localhost:8080](http://localhost:8080) on your local machine.
 
 ## Develop using Docker
 

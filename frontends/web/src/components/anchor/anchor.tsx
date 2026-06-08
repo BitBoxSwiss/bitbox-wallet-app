@@ -1,22 +1,10 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, SyntheticEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { open } from '@/api/system';
+import { alertUser } from '@/components/alert/Alert';
+import { runningInIOS } from '@/utils/env';
 import style from './anchor.module.css';
 
 type TProps = {
@@ -25,7 +13,7 @@ type TProps = {
   href: string;
   icon?: ReactNode;
   title?: string;
-}
+};
 
 /**
  * Renders a link to an external URL or file, which will open in the native browser or application.
@@ -46,13 +34,26 @@ export const A = ({
   children,
   ...props
 }: TProps) => {
+  const { t } = useTranslation();
+
   return (
     <span
-      className={`${style.link} ${className || ''}`}
+      className={`
+        ${(runningInIOS() ? style.linkIos : style.link) || ''}
+        ${className || ''}
+      `}
       title={props.title || href}
       onClick={(e: SyntheticEvent) => {
         e.preventDefault();
-        open(href).catch(console.error);
+        open(href)
+          .then(response => {
+            if (!response.success) {
+              alertUser(response.errorMessage
+                ? t('unknownError', { errorMessage: response.errorMessage })
+                : t('genericError'));
+            }
+          })
+          .catch(console.error);
       }}
       tabIndex={0}
       {...props}>

@@ -1,25 +1,13 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
+
 import { ReactNode, createElement } from 'react';
 import { IWalletKit } from '@reown/walletkit';
 import { ArbitrumLogo, OptimismLogo, BaseLogo, ETHLogo } from '@/components/icon';
+import { truncateMiddle } from '@/utils/truncate';
 
 type TSupportedChainDetail = {
-  [key: string]: { name: string; icon: ReactNode; }
-}
+  [key: string]: { name: string; icon: ReactNode };
+};
 
 export const SUPPORTED_CHAINS: TSupportedChainDetail = {
   'eip155:1': {
@@ -65,17 +53,14 @@ export const getAddressFromEIPString = (address: string) => {
   return parts.length > 2 ? parts[2] : '';
 };
 
-export const truncateAddress = (address: string) => {
-  if (!address) {
-    return '';
-  }
-  return `${address.substring(0, 6)}...${address.substring(address.length - 6)}`;
-};
-
+export const truncateAddress = (address: string) =>
+  truncateMiddle(address, 6, 6);
 export const getTopicFromURI = (wcURI: string) => {
   try {
-    // Split the URI by ':' and then by '@', and take the part before the '@'
-    return wcURI.split(':')[1].split('@')[0];
+    // Split the URI by ':'
+    const afterColon = wcURI.split(':')[1] || '';
+    // return before the '@' or empty string
+    return afterColon.split('@')[0] || '';
   } catch {
     return '';
   }
@@ -108,21 +93,21 @@ export const rejectMessage = (id: number) => {
 };
 
 export const decodeEthMessage = (hex: string) => {
-  hex = hex.trim();
-  if (hex.startsWith('0x')) {
-    hex = hex.substring(2);
+  let message = hex.trim();
+  if (message.startsWith('0x')) {
+    message = message.substring(2);
   }
 
   // Validate input.
-  if (hex.length % 2 !== 0 || !/^[0-9a-fA-F]*$/.test(hex)) {
+  if (message.length % 2 !== 0 || !/^[0-9a-fA-F]*$/.test(message)) {
     console.error('Invalid hex string');
     return null;
   }
 
   // Create a Uint8Array from the hex string.
-  const bytes = new Uint8Array(hex.length / 2);
+  const bytes = new Uint8Array(message.length / 2);
   for (let i = 0; i < bytes.length; i++) {
-    const byte = parseInt(hex.substring(i * 2, i * 2 + 2), 16);
+    const byte = parseInt(message.substring(i * 2, i * 2 + 2), 16);
     if (isNaN(byte)) {
       console.error('Invalid byte in hex string');
       return null;

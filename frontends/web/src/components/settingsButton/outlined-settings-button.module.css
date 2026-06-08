@@ -7,6 +7,6 @@
 }
 
 .button img {
-    width: 22px;
-    height: 22px;
+    height: var(--size-subheader);
+    width: var(--size-subheader);
 }

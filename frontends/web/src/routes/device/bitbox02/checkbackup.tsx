@@ -1,18 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useState } from 'react';
 import * as bitbox02API from '@/api/bitbox02';
@@ -21,13 +7,14 @@ import { Backup } from '@/api/backup';
 import { alertUser } from '@/components/alert/Alert';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
+import { PointToBitBox02 } from '@/components/icon';
 import { useTranslation } from 'react-i18next';
 
 type TProps = {
-    deviceID: string;
-    backups: Backup[];
-    disabled: boolean;
-}
+  deviceID: string;
+  backups: Backup[];
+  disabled: boolean;
+};
 
 export const Check = ({ deviceID, backups, disabled }: TProps) => {
   const [activeDialog, setActiveDialog] = useState(false);
@@ -37,7 +24,7 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
   const { t } = useTranslation();
 
   const checkBackup = async () => {
-    setMessage(t('backup.check.confirmTitle'));
+    setMessage('');
     try {
       const result = await bitbox02API.checkBackup(deviceID, true);
       if (result.success) {
@@ -53,7 +40,12 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
       const check = await bitbox02API.checkBackup(deviceID, false);
       if (!check.success) {
         setActiveDialog(true);
-        setMessage(t('backup.check.notOK'));
+        if (check.code === bitbox02API.errUserAbort) {
+          setMessage(t('backup.check.aborted'));
+          setFoundBackup(undefined);
+        } else {
+          setMessage(t('backup.check.notOK'));
+        }
         setUserVerified(true);
         return;
       }
@@ -64,39 +56,50 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
     }
   };
 
+  const isWaitingForDevice = foundBackup !== undefined && !userVerified && message === '';
+
   return (
-    <div>
+    <>
       <Button
         primary
         disabled={disabled}
-        onClick={checkBackup}
-      >
+        onClick={checkBackup}>
         {t('button.check')}
       </Button>
-      <Dialog open={activeDialog} title={message}>
+      <Dialog
+        open={activeDialog}
+        title={t('backup.check.confirmTitle')}>
         <form onSubmit={(e) => {
           e.preventDefault();
           setActiveDialog(false);
           setUserVerified(false);
         }}>
+          {message && (
+            <p>{message}</p>
+          )}
           { foundBackup !== undefined && (
             <BackupsListItem
               backup={foundBackup}
               radio={false} />
           )}
+          {isWaitingForDevice && (
+            <>
+              <p className="text-center">{t('confirm.info')}</p>
+              <PointToBitBox02 />
+            </>
+          )}
           <DialogButtons>
             {userVerified && (
               <Button
                 autoFocus
-                disabled={!userVerified}
                 primary
                 type="submit">
-                { userVerified ? t('button.ok') : t('accountInfo.verify') }
+                {t('button.ok')}
               </Button>
             )}
           </DialogButtons>
         </form>
       </Dialog>
-    </div>
+    </>
   );
 };

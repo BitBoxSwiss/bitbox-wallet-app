@@ -1,38 +1,80 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2021-2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import { UseBackButton } from '@/hooks/backbutton';
-import { useEsc, useKeydown } from '@/hooks/keyboard';
+import { useEsc, useFocusTrap } from '@/hooks/keyboard';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import { MobileDialog } from './mobile-dialog';
 import style from './dialog.module.css';
 
+type TDialogContainerProps = {
+  centered?: boolean;
+  children: React.ReactNode;
+  contentContainerRef: React.RefObject<HTMLDivElement>;
+  handleCloseClick: () => void;
+  onClose?: () => void;
+  slim?: boolean;
+  title?: string;
+};
+
+const DialogContainer = ({
+  centered,
+  children,
+  contentContainerRef,
+  handleCloseClick,
+  onClose,
+  slim,
+  title,
+}: TDialogContainerProps) => {
+
+  const headerClass = `
+    ${style.header || ''}
+    ${centered && !onClose && style.centered || ''}
+  `.trim();
+
+  const contentClass = `
+    ${style.contentContainer || ''}
+    ${slim && style.slim || ''}
+  `.trim();
+
+  return (
+    <>
+      {title && (
+        <div className={headerClass}>
+          <h3 className={style.title}>
+            {title}
+          </h3>
+          {onClose && (
+            <button
+              className={style.closeButton}
+              onClick={handleCloseClick}
+              data-testid="close-button">
+              <CloseXDark className="show-in-lightmode" />
+              <CloseXWhite className="show-in-darkmode" />
+            </button>
+          )}
+        </div>
+      )}
+      <div className={contentClass} ref={contentContainerRef}>
+        {children}
+      </div>
+    </>
+  );
+};
+
 type TProps = {
-    title?: string;
-    small?: boolean;
-    medium?: boolean;
-    large?: boolean;
-    slim?: boolean;
-    centered?: boolean;
-    onClose?: (e?: Event) => void;
-    children: React.ReactNode;
-    open: boolean;
-}
+  title?: string;
+  small?: boolean;
+  medium?: boolean;
+  large?: boolean;
+  slim?: boolean;
+  centered?: boolean;
+  noSidebarOffset?: boolean;
+  onClose?: () => void;
+  children: React.ReactNode;
+  open: boolean;
+};
 
 export const Dialog = ({
   title,
@@ -41,200 +83,174 @@ export const Dialog = ({
   large,
   slim,
   centered,
+  noSidebarOffset = false,
   onClose,
   children,
   open,
 }: TProps) => {
-  const [currentTab, setCurrentTab] = useState<number>(0);
-  const [renderDialog, setRenderDialog] = useState<boolean>(false);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'opening' | 'open' | 'closing'>('idle');
   const modalRef = useRef<HTMLDivElement>(null);
-  const modalContentRef = useRef<HTMLDivElement>(null);
-  const timerIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const contentContainerRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const getFocusables = useCallback((): (NodeListOf<HTMLElement> | null) => {
-    if (!modalContentRef.current) {
-      return null;
-    }
-    return modalContentRef.current.querySelectorAll('a, button, input, textarea');
-  }, [modalContentRef]);
+  useFocusTrap(modalRef, status === 'open');
 
-  const getNextIndex = useCallback((elements: NodeListOf<HTMLElement>, isNext: boolean): number => {
-    const focusables = Array.from(elements);
-    const arr = isNext ? focusables : focusables.reverse();
-    const current = isNext ? currentTab : (arr.length - 1) - currentTab;
-    let next = isNext ? currentTab + 1 : arr.length - currentTab;
-    next = arr.findIndex((item, i) => (i >= next && !item.hasAttribute('disabled')));
-    next = next < 0 ? arr.findIndex((item, i) => (i <= current && !item.hasAttribute('disabled'))) : next;
-    return isNext ? next : (arr.length - 1) - next;
-  }, [currentTab]);
+  // create a stable ref so deactivate() doesn't recreate
+  // on every parent re-render
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
-  const updateIndex = useCallback((isNext: boolean) => {
-    const focusables = getFocusables();
-    if (!focusables) {
-      return;
+  /**
+   * Deactivate (close) animation handler.
+   * If fireOnClose = true, it means user action triggered the close,
+   * so we call onClose(). If false, it means parent controlled it, so skip.
+   */
+  const deactivate = useCallback((fireOnClose: boolean) => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
     }
-    const target = getNextIndex(focusables, isNext);
-    setCurrentTab(target);
-    focusables[target].focus();
-  }, [getFocusables, getNextIndex, setCurrentTab]);
+    setStatus('closing');
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!renderDialog) {
-      return;
-    }
-    const isTab = e.keyCode === 9;
-    if (isTab) {
-      e.preventDefault();
-      if (e.shiftKey) {
-        updateIndex(false);
-      } else {
-        updateIndex(true);
+    closeTimerRef.current = setTimeout(() => {
+      setIsVisible(false);
+      setStatus('idle');
+
+      if (fireOnClose && onCloseRef.current) {
+        onCloseRef.current();
       }
-    }
-  }, [updateIndex, renderDialog]);
+    }, 400); // match CSS transition
 
-  useKeydown(handleKeyDown);
-
-  const activate = useCallback(() => {
-    if (!modalRef.current || !overlayRef.current || !modalContentRef.current) {
-      return;
-    }
-    if (timerIdRef.current) {
-      clearTimeout(timerIdRef.current);
-    }
-    overlayRef.current.classList.add(style.activeOverlay);
-    // Minor delay
-    timerIdRef.current = setTimeout(() => modalRef.current?.classList.add(style.open), 10);
-
-    // Focus first
-    const focusables = getFocusables();
-    if (focusables && focusables.length && focusables[0].getAttribute('autofocus') !== 'false') {
-      focusables[0].focus();
-    }
-  }, [getFocusables, modalRef, overlayRef, timerIdRef]);
-
-  const deactivateModal = useCallback((fireOnCloseProp: boolean) => {
-    if (!modalRef.current || !overlayRef.current) {
-      return;
-    }
-    overlayRef.current.classList.remove(style.closingOverlay);
-    setRenderDialog(false);
-    if (onClose && fireOnCloseProp) {
-      onClose();
-    }
-  }, [modalRef, overlayRef, setRenderDialog, onClose]);
-
-  const deactivate = useCallback((fireOnCloseProp: boolean) => {
-    if (!modalRef.current || !overlayRef.current) {
-      return;
-    }
-
-    if (timerIdRef.current) {
-      clearTimeout(timerIdRef.current);
-    }
-
-    overlayRef.current.classList.remove(style.activeOverlay);
-    overlayRef.current.classList.add(style.closingOverlay);
-    modalRef.current?.classList.remove(style.open);
-
-    const onTransitionEnd = (event: TransitionEvent) => {
-      if (event.target === modalRef.current) {
-        deactivateModal(fireOnCloseProp);
-        modalRef.current?.removeEventListener('transitionend', onTransitionEnd);
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
       }
     };
+  }, []);
 
-    const hasTransition = parseFloat(window.getComputedStyle(modalRef.current).transitionDuration) > 0;
-
-    if (hasTransition) {
-      modalRef.current.addEventListener('transitionend', onTransitionEnd);
-      // fallback in-case the 'transitionend' event didn't fire
-      timerIdRef.current = setTimeout(() => deactivateModal(fireOnCloseProp), 400);
-    } else {
-      deactivateModal(fireOnCloseProp);
-    }
-  }, [deactivateModal]);
-
-  const closeHandler = useCallback(() => {
-    if (onClose !== undefined) {
-      deactivate(true);
-      return false;
-    }
-    return true;
-  }, [onClose, deactivate]);
-
-  useEsc(useCallback(() => {
-    if (!renderDialog) {
-      return;
-    }
-    if (onClose !== undefined) {
-      deactivate(true);
-    }
-  }, [renderDialog, onClose, deactivate]));
-
+  // Handle external open state changes.
   useEffect(() => {
     if (open) {
-      setRenderDialog(true);
-    } else {
+      setIsVisible(true);
+      setStatus('opening');
+      const id = setTimeout(() => setStatus('open'), 20);
+      return () => clearTimeout(id);
+    } else if (isVisible) {
+      // When parent closes it (open=false), skip firing onClose again.
       deactivate(false);
     }
-  }, [setRenderDialog, open, deactivate]);
+  }, [open, isVisible, deactivate]);
 
-  useEffect(() => {
-    if (renderDialog) {
-      activate();
+  // ESC closes dialog (fires onClose)
+  useEsc(() => {
+    if (open && onClose) {
+      deactivate(true);
     }
-  }, [activate, renderDialog]);
+  });
 
+  // Overlay click closes dialog (fires onClose)
+  const mouseDownTarget = useRef<EventTarget | null>(null);
 
-  const handleTap = (e: React.MouseEvent<HTMLDivElement>) => {
-    const validTap = e.target === e.currentTarget;
-    if (validTap && isMobile) {
-      closeHandler();
-    }
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    mouseDownTarget.current = e.target;
   };
 
-  if (!renderDialog) {
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (
+      mouseDownTarget.current === e.currentTarget
+      && e.target === e.currentTarget
+      && open
+      && onClose
+    ) {
+      deactivate(true);
+    }
+    mouseDownTarget.current = null;
+  };
+
+  // Close button handler
+  const handleCloseClick = useCallback(() => {
+    if (open && onClose) {
+      deactivate(true);
+    }
+  }, [deactivate, onClose, open]);
+
+  // Back button handler (mobile)
+  const handleBackButton = useCallback(() => {
+    deactivate(true);
+    return false;
+  }, [deactivate]);
+
+  // Drag close handler (mobile bottom sheet)
+  const handleDragClose = useCallback(() => {
+    deactivate(true);
+  }, [deactivate]);
+
+  if (!isVisible) {
     return null;
   }
 
-  const isSmall = small ? style.small : '';
-  const isMedium = medium ? style.medium : '';
-  const isLarge = large ? style.large : '';
-  const isSlim = slim ? style.slim : '';
-  const isCentered = centered && !onClose ? style.centered : '';
+  const modalClass = `
+    ${style.modal || ''}
+    ${small && style.small || ''}
+    ${medium && style.medium || ''}
+    ${large && style.large || ''}
+    ${noSidebarOffset && style.noSidebarOffset || ''}
+    ${status === 'open' && style.open || ''}
+  `.trim();
+
+  const overlayClass = `
+    ${style.overlay || ''}
+    ${(status === 'opening' || status === 'open') && style.activeOverlay || ''}
+    ${status === 'closing' && style.closingOverlay || ''}
+  `.trim();
 
   return (
-    <div onClick={handleTap} className={style.overlay} ref={overlayRef}>
-      <UseBackButton handler={closeHandler}/>
-      <div
-        className={[style.modal, isSmall, isMedium, isLarge].join(' ')}
-        ref={modalRef}>
-        {
-          title && (
-            <div className={[style.header, isCentered].join(' ')}>
-              <h3 className={style.title}>{title}</h3>
-              { onClose ? (
-                <button className={style.closeButton} onClick={closeHandler}>
-                  <CloseXDark className="show-in-lightmode" />
-                  <CloseXWhite className="show-in-darkmode" />
-                </button>
-              ) : null }
-            </div>
-          )
-        }
-        <div
-          className={[style.contentContainer, isSlim].join(' ')}
-          ref={modalContentRef}>
-          <div className={style.content}>
+    <div
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      className={overlayClass}
+    >
+      <UseBackButton handler={handleBackButton} />
+      {isMobile ? (
+        <MobileDialog
+          status={status}
+          canClose={!!onClose}
+          onDragClose={handleDragClose}
+          modalClass={modalClass}
+          modalRef={modalRef}
+          contentContainerRef={contentContainerRef}
+        >
+          <DialogContainer
+            centered={centered}
+            contentContainerRef={contentContainerRef}
+            handleCloseClick={handleCloseClick}
+            onClose={onClose}
+            slim={slim}
+            title={title}>
             {children}
-          </div>
+          </DialogContainer>
+        </MobileDialog>
+      ) : (
+        <div className={modalClass} ref={modalRef}>
+          <DialogContainer
+            centered={centered}
+            contentContainerRef={contentContainerRef}
+            handleCloseClick={handleCloseClick}
+            onClose={onClose}
+            slim={slim}
+            title={title}>
+            {children}
+          </DialogContainer>
         </div>
-      </div>
+      )}
     </div>
   );
+};
+
+type DialogButtonsProps = {
+  children: React.ReactNode;
 };
 
 /**
@@ -255,13 +271,25 @@ export const Dialog = ({
  *   </Dialog>
  * ```
  */
-
-interface DialogButtonsProps {
-    children: React.ReactNode;
-}
-
 export const DialogButtons = ({ children }: DialogButtonsProps) => {
   return (
-    <div className={style.dialogButtons}>{children}</div>
+    <div className={style.dialogButtons}>
+      {children}
+    </div>
+  );
+};
+
+
+type DialogScrollContentProps = {
+  children: React.ReactNode;
+};
+
+export const DialogScrollContent = ({
+  children,
+}: DialogScrollContentProps) => {
+  return (
+    <div className={style.dialogScrollContent}>
+      {children}
+    </div>
   );
 };

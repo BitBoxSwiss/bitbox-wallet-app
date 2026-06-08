@@ -1,22 +1,7 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '@/hooks/api';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
@@ -28,56 +13,33 @@ import { EnableTorProxySetting } from './components/advanced-settings/enable-tor
 import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-software-keystore';
 import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
-import { getConfig } from '@/utils/config';
+import { CustomGapLimitSettings } from './components/advanced-settings/custom-gap-limit-setting';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { EnableAuthSetting } from './components/advanced-settings/enable-auth-setting';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
+import { AppContext } from '@/contexts/AppContext';
+import {
+  isExportLogsSettingVisible,
+  isScreenLockSettingVisible,
+  isTestWalletSettingVisible,
+} from './settings-availability';
 
-export type TProxyConfig = {
-  proxyAddress: string;
-  useProxy: boolean;
-}
-
-export type TFrontendConfig = {
-  expertFee?: boolean;
-  coinControl?: boolean;
-}
-
-export type TBackendConfig = {
-  proxy?: TProxyConfig
-  authentication?: boolean;
-  startInTestnet?: boolean;
-}
-
-export type TConfig = {
-  backend?: TBackendConfig
-  frontend?: TFrontendConfig
-}
+type TProps = {
+  devices: TPagePropsWithSettingsTabs['devices'];
+};
 
 export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
-  const fetchedConfig = useLoad(getConfig) as TConfig;
-  const [config, setConfig] = useState<TConfig>();
-
-  const frontendConfig = config?.frontend;
-  const backendConfig = config?.backend;
-  const proxyConfig = config?.backend?.proxy;
-
-  useEffect(() => {
-    setConfig(fetchedConfig);
-  }, [fetchedConfig]);
-
-  const deviceIDs = Object.keys(devices);
-
   return (
     <GuideWrapper>
       <GuidedContent>
         <Main>
           <ContentWrapper>
-            <GlobalBanners />
+            <GlobalBanners devices={devices} />
           </ContentWrapper>
           <Header
             hideSidebarToggler
@@ -88,20 +50,13 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
               </>
             } />
           <View fullscreen={false}>
-            <ViewContent fullWidth>
+            <ViewContent>
               <WithSettingsTabs
                 devices={devices}
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
-                <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-                <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-                <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
-                <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
-                <RestartInTestnetSetting onChangeConfig={setConfig} />
-                <UnlockSoftwareKeystore deviceIDs={deviceIDs}/>
-                <ConnectFullNodeSetting />
-                <ExportLogSetting />
+                <AdvancedSettingsContent devices={devices} />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -113,14 +68,54 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
   );
 };
 
+export const AdvancedSettingsContent = ({
+  devices,
+}: TProps) => {
+  const { isTesting } = useContext(AppContext);
+
+  const deviceIDs = Object.keys(devices);
+  const sections: TSettingsContentSection[] = [
+    {
+      id: 'advanced-settings',
+      items: [
+        { id: 'custom-fees', content: <EnableCustomFeesToggleSetting /> },
+        { id: 'coin-control', content: <EnableCoinControlSetting /> },
+        ...(isScreenLockSettingVisible() ? [{
+          id: 'screen-lock',
+          content: <EnableAuthSetting />,
+        }] : []),
+        { id: 'tor-proxy', content: <EnableTorProxySetting /> },
+        { id: 'testnet-mode', content: <RestartInTestnetSetting /> },
+        { id: 'gap-limit', content: <CustomGapLimitSettings /> },
+        ...(isTestWalletSettingVisible({ deviceIDs, isTesting }) ? [{
+          id: 'test-wallet',
+          content: <UnlockSoftwareKeystore />,
+        }] : []),
+        { id: 'full-node', content: <ConnectFullNodeSetting /> },
+        ...(isExportLogsSettingVisible() ? [{
+          id: 'export-logs',
+          content: <ExportLogSetting />,
+        }] : []),
+      ],
+    },
+  ];
+
+  return <SettingsContent sections={sections} />;
+};
 
 const AdvancedSettingsGuide = () => {
   const { t } = useTranslation();
 
   return (
     <Guide title={t('guide.guideTitle.advancedSettings')}>
-      <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why', { returnObjects: true })} />
-      <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor', { returnObjects: true })} />
+      <Entry key="guide.settings-electrum.why" entry={{
+        text: t('guide.settings-electrum.why.text'),
+        title: t('guide.settings-electrum.why.title'),
+      }} />
+      <Entry key="guide.settings-electrum.tor" entry={{
+        text: t('guide.settings-electrum.tor.text'),
+        title: t('guide.settings-electrum.tor.title'),
+      }} />
     </Guide>
   );
 };

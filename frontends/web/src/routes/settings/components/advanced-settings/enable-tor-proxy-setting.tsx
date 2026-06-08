@@ -1,58 +1,49 @@
-/**
- * Copyright 2023-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { Dispatch, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { TorProxyDialog } from './tor-proxy-dialog';
 import { Message } from '@/components/message/message';
-import { TProxyConfig } from '@/routes/settings/advanced-settings';
+import { runningInIOS } from '@/utils/env';
 import styles from './enable-tor-proxy-setting.module.css';
 
-type TProps = {
-  proxyConfig?: TProxyConfig;
-  onChangeConfig: Dispatch<any>;
-}
-
-export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) => {
+export const EnableTorProxySetting = () => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const [showTorProxyDialog, setShowTorProxyDialog] = useState(false);
   const [showRestartMessage, setShowRestartMessage] = useState(false);
 
-  const proxyEnabled = proxyConfig ? proxyConfig.useProxy : false;
+  const proxyEnabled = config?.backend.proxy.useProxy ?? false;
+
+  // NOTE: if you enable this again on iOS, also enable it in the backend, where it is also disabled.
+  const isIOS = runningInIOS();
+  const displayedValue = (
+    isIOS
+      ? t('generic.noOptionOnIos')
+      : proxyEnabled
+        ? t('generic.enabled_true')
+        : t('generic.enabled_false')
+  );
 
   return (
     <>
       { showRestartMessage ? (
-        <Message type="warning">
+        <Message className={styles.restartMessage} type="warning">
           {t('settings.restart')}
         </Message>
       ) : null }
       <SettingsItem
-        className={styles.settingItem}
+        className={styles.torProxyContainer}
         settingName={t('settings.expert.useProxy')}
-        onClick={() => setShowTorProxyDialog(true)}
+        onClick={isIOS ? undefined : () => setShowTorProxyDialog(true)}
         secondaryText={t('newSettings.advancedSettings.torProxy.description')}
-        displayedValue={proxyEnabled ? t('generic.enabled_true') : t('generic.enabled_false')}
+        displayedValue={displayedValue}
       />
       <TorProxyDialog
         open={showTorProxyDialog}
-        proxyConfig={proxyConfig}
         onCloseDialog={() => setShowTorProxyDialog(false)}
-        onChangeConfig={onChangeConfig}
         handleShowRestartMessage={setShowRestartMessage}
       />
     </>

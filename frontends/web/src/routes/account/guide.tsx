@@ -1,28 +1,13 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { IAccount } from '@/api/account';
+import { TAccount } from '@/api/account';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { isBitcoinBased } from './utils';
 
 type Props = {
-  account: IAccount;
+  account: TAccount;
   unit?: string;
   hasNoBalance?: boolean;
   hasIncomingBalance?: boolean;
@@ -39,31 +24,64 @@ export const AccountGuide = ({
   const { t } = useTranslation();
   return (
     <Guide title={t('guide.guideTitle.account')}>
-      <Entry key="accountDescription" entry={t('guide.accountDescription', { returnObjects: true })} />
+      <Entry key="accountDescription" entry={{
+        text: t('guide.accountDescription.text'),
+        title: t('guide.accountDescription.title'),
+      }} />
       {hasNoBalance && (
-        <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', {
-          unit,
-          returnObjects: true
-        })} />
+        <Entry key="accountSendDisabled" entry={{
+          text: t('guide.accountSendDisabled.text'),
+          title: t('guide.accountSendDisabled.title', { unit }),
+        }} />
       )}
-      <Entry key="accountReload" entry={t('guide.accountReload', { returnObjects: true })} />
+      <Entry key="accountReload" entry={{
+        text: t('guide.accountReload.text'),
+        title: t('guide.accountReload.title'),
+      }} />
       {hasTransactions && (
-        <Entry key="accountTransactionLabel" entry={t('guide.accountTransactionLabel', { returnObjects: true })} />
+        <Entry key="accountTransactionLabel" entry={{
+          text: t('guide.accountTransactionLabel.text'),
+          title: t('guide.accountTransactionLabel.title'),
+        }} />
       )}
       {hasTransactions && (
-        <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime', { returnObjects: true })} />
+        <Entry key="accountTransactionTime" entry={{
+          text: t('guide.accountTransactionTime.text'),
+          title: t('guide.accountTransactionTime.title'),
+        }} />
       )}
       {hasTransactions && (
-        <Entry key="accountTransactionAttributesGeneric" entry={t('guide.accountTransactionAttributesGeneric', { returnObjects: true })} />
+        <Entry key="accountTransactionAttributesGeneric" entry={{
+          text: t('guide.accountTransactionAttributesGeneric.text'),
+          title: t('guide.accountTransactionAttributesGeneric.title'),
+        }} />
       )}
       {hasTransactions && isBitcoinBased(account.coinCode) && (
-        <Entry key="accountTransactionAttributesBTC" entry={t('guide.accountTransactionAttributesBTC', { returnObjects: true })} />
+        <Entry key="accountTransactionAttributesBTC" entry={{
+          text: t('guide.accountTransactionAttributesBTC.text'),
+          title: t('guide.accountTransactionAttributesBTC.title'),
+        }} />
       )}
       {hasIncomingBalance && (
-        <Entry key="accountIncomingBalance" entry={t('guide.accountIncomingBalance', { returnObjects: true })} />
+        <Entry key="accountIncomingBalance" entry={{
+          text: t('guide.accountIncomingBalance.text'),
+          title: t('guide.accountIncomingBalance.title'),
+        }} />
       )}
-      <Entry key="accountTransactionConfirmation" entry={t('guide.accountTransactionConfirmation', { returnObjects: true })} />
-      <Entry key="accountFiat" entry={t('guide.accountFiat', { returnObjects: true })} />
+      <Entry key="accountTransactionConfirmation" entry={{
+        text: t('guide.accountTransactionConfirmation.text'),
+        title: t('guide.accountTransactionConfirmation.title'),
+      }} />
+      {hasTransactions && (
+        <Entry key="accountTransactionEstimation" entry={{
+          text: t('guide.accountTransactionEstimation.text'),
+          title: t('guide.accountTransactionEstimation.title'),
+        }} />
+      )}
+      <Entry key="accountFiat" entry={{
+        text: t('guide.accountFiat.text'),
+        title: t('guide.accountFiat.title'),
+      }} />
 
       { /* careful, also used in Settings */ }
       <Entry key="accountRates" entry={{
@@ -75,13 +93,13 @@ export const AccountGuide = ({
         title: t('guide.accountRates.title')
       }} />
 
-      <Entry key="cointracking" entry={{
+      <Entry key="guide.accountInfo.exportTransactions" entry={{
         link: {
           text: 'CoinTracking',
           url: 'https://cointracking.info/import/bitbox/?ref=BITBOX',
         },
-        text: t('guide.cointracking.text'),
-        title: t('guide.cointracking.title')
+        text: t('guide.accountInfo.exportTransactions.text'),
+        title: t('guide.accountInfo.exportTransactions.title')
       }} />
     </Guide>
   );

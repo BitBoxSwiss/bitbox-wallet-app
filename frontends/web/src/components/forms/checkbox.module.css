@@ -7,7 +7,7 @@
 .checkbox input + label {
     display: inline-block;
     max-width: 100%;
-    padding-left: 2em;
+    padding-left: calc(var(--size-default) * 1.5);
     position: relative;
 }
 
@@ -27,7 +27,7 @@
 }
 
 .checkbox input + label::before {
-    border: 1px solid var(--background-tertiary);
+    border: var(--border-width) solid var(--background-tertiary);
     border-radius: 2px;
     top: 2px;
 }
@@ -37,22 +37,22 @@
 }
 .warning input + label::before {
     border-color: var(--background-secondary);
-    outline: 1px solid var(--color-warning);
+    outline: var(--border-width) solid var(--color-warning);
 }
 .info input + label::before {
     border-color: var(--background-secondary);
-    outline: 1px solid var(--color-info);
+    outline: var(--border-width) solid var(--color-info);
 }
 
 .checkbox input + label::after {
     background: transparent;
     border: solid var(--background-secondary);
-    border-width: 0px 2px 2px 0;
+    border-width: 0 2px 2px 0;
     width: 0.35em;
     height: 0.55em;
     position: absolute;
-    top: 6px;
-    left: 6px;
+    top: min(0.6rem, 9px);
+    left: min(0.6rem, 10px);
     margin-left: -1px;
     margin-top: -2px;
     opacity: 0;

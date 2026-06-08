@@ -1,41 +1,27 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
 import { VersionInfo, upgradeDeviceFirmware } from '@/api/bitbox02';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
 import { Checked, RedDot } from '@/components/icon';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 
 export type TProps = {
-    deviceID: string;
-    versionInfo: VersionInfo;
-    asButton?: boolean;
-}
+  deviceID: string;
+  versionInfo: VersionInfo;
+  asButton?: boolean;
+};
 
 export type TUpgradeDialogProps = {
-    open: boolean;
-    versionInfo: VersionInfo;
-    confirming: boolean;
-    onUpgradeFirmware: () => void;
-    onClose: () => void;
-}
+  open: boolean;
+  versionInfo: VersionInfo;
+  confirming: boolean;
+  onUpgradeFirmware: () => void;
+  onClose: () => void;
+};
 
 const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) => {
   const { t } = useTranslation();
@@ -95,12 +81,14 @@ const UpgradeDialog = ({
   }
   return (
     <Dialog onClose={onClose} open={open} title={t('upgradeFirmware.title')}>
-      {confirming ? t('confirmOnDevice') : (
-        <p>{t('upgradeFirmware.description', {
-          currentVersion: versionInfo.currentVersion,
-          newVersion: versionInfo.newVersion,
-        })}</p>
-      )}
+      <DialogScrollContent>
+        {confirming ? t('confirmOnDevice') : (
+          <p>{t('upgradeFirmware.description', {
+            currentVersion: versionInfo.currentVersion,
+            newVersion: versionInfo.newVersion,
+          })}</p>
+        )}
+      </DialogScrollContent>
       { !confirming && (
         <DialogButtons>
           <Button

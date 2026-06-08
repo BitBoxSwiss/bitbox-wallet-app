@@ -1,18 +1,4 @@
-/**
- * Copyright 2022-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode } from 'react';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -20,19 +6,20 @@ import { LanguageSwitch } from '@/components/language/language';
 import { Version } from '@/components/layout/version';
 import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
 import { AnimatedChecked, Abort, Close } from '@/components/icon/icon';
+import { UseBackButton } from '@/hooks/backbutton';
 import style from './view.module.css';
 
 type TViewProps = {
-    dialog?: boolean;
-    fitContent?: boolean;
-    fullscreen?: boolean;
-    children: ReactNode;
-    minHeight?: string;
-    onClose?: () => void;
-    textCenter?: boolean;
-    verticallyCentered?: boolean;
-    width?: string;
-    withBottomBar?: boolean;
+  dialog?: boolean;
+  fitContent?: boolean;
+  fullscreen?: boolean;
+  children: ReactNode;
+  minHeight?: string;
+  onClose?: () => void;
+  textCenter?: boolean;
+  verticallyCentered?: boolean;
+  width?: string;
+  withBottomBar?: boolean;
 };
 
 /**
@@ -60,19 +47,17 @@ export const View = ({
   withBottomBar,
 }: TViewProps) => {
   const { isDarkMode } = useDarkmode();
-  const containerClasses = `${
-    style[fullscreen ? 'fullscreen' : 'fill']
-  } ${
-    verticallyCentered ? style.verticallyCentered : ''
-  } ${
-    dialog ? style.dialog : ''
-  }`;
+  const containerClasses = `
+    ${style[fullscreen ? 'fullscreen' : 'fill'] || ''}
+    ${verticallyCentered && style.verticallyCentered || ''}
+    ${dialog && style.dialog || ''}
+  `;
   let classNames = style.inner;
   if (fitContent) {
-    classNames += ` ${style.fit}`;
+    classNames += ` ${style.fit || ''}`;
   }
   if (textCenter) {
-    classNames += ` ${style.textCenter}`;
+    classNames += ` ${style.textCenter || ''}`;
   }
   const inlineStyles = {
     ...(minHeight && { minHeight }),
@@ -86,9 +71,15 @@ export const View = ({
         {children}
       </div>
       {onClose && (
-        <button className={style.closeButton} onClick={onClose}>
-          <Close />
-        </button>
+        <>
+          <UseBackButton handler={() => {
+            onClose();
+            return false;
+          }} />
+          <button className={style.closeButton} onClick={onClose}>
+            <Close />
+          </button>
+        </>
       )}
       {withBottomBar && (
         <div style={{ marginTop: 'auto' }}>
@@ -111,7 +102,7 @@ type TViewContentProps = {
   minHeight?: string;
   textAlign?: 'center' | 'left';
   withIcon?: 'success' | 'error';
-}
+};
 
 const ViewIcon = ({
   withIcon,
@@ -144,9 +135,9 @@ export const ViewContent = ({
   withIcon,
   ...props
 }: TViewContentProps) => {
-  const align = textAlign ? style[`text-${textAlign}`] : '';
-  const containerWidth = fullWidth ? style.fullWidth : '';
-  const classes = `${style.content} ${containerWidth} ${align}`;
+  const align = textAlign && style[`text-${textAlign}`] || '';
+  const containerWidth = fullWidth && style.fullWidth || '';
+  const classes = `${style.content || ''} ${containerWidth} ${align}`;
   return (
     <div
       className={classes}
@@ -159,11 +150,11 @@ export const ViewContent = ({
 };
 
 type THeaderProps = {
-    small?: boolean;
-    title?: ReactNode;
-    withAppLogo?: boolean;
-    children?: ReactNode;
-}
+  small?: boolean;
+  title?: ReactNode;
+  withAppLogo?: boolean;
+  children?: ReactNode;
+};
 
 /**
  * ViewHeader component to render the view's title and a byline
@@ -178,7 +169,10 @@ export const ViewHeader = ({
   withAppLogo,
 }: THeaderProps) => {
   const { isDarkMode } = useDarkmode();
-  const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
+  const headerStyles = small ? `
+    ${style.header || ''}
+    ${style.smallHeader || ''}
+  ` : style.header;
   return (
     <header className={headerStyles}>
       {withAppLogo && (
@@ -195,13 +189,16 @@ export const ViewHeader = ({
 type TViewButtonsProps = {
   reverseRow?: boolean;
   children?: ReactNode;
-}
+};
 
 /**
  * ViewButtons component use as container for buttons
  */
 export const ViewButtons = ({ reverseRow, children }: TViewButtonsProps) => {
-  const classNames = `${style.buttons} ${reverseRow ? style.reverseRow : ''}`;
+  const classNames = `
+    ${style.buttons || ''}
+    ${reverseRow && style.reverseRow || ''}
+  `;
   return (
     <div className={classNames}>
       {children}

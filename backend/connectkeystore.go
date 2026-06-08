@@ -1,16 +1,4 @@
-// Copyright 2023 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package backend
 
@@ -46,6 +34,9 @@ type connectKeystore struct {
 }
 
 func compareRootFingerprint(ks keystore.Keystore, rootFingerprint []byte) error {
+	if len(rootFingerprint) == 0 {
+		return nil
+	}
 	keystoreRootFingerprint, err := ks.RootFingerprint()
 	if err != nil {
 		return err
@@ -57,8 +48,9 @@ func compareRootFingerprint(ks keystore.Keystore, rootFingerprint []byte) error 
 }
 
 // connect blocks until the keystore with the given rootFingerprint is connected and then returns
-// that keystore. If it is already connected, the it is returned immediately. If the next keystore
-// being connected is not the right fingerprint, `errWrongKeystore` is returned.
+// that keystore. If rootFingerprint is empty, any connected keystore is accepted. If it is already
+// connected, the it is returned immediately. If the next keystore being connected is not the right
+// fingerprint, `errWrongKeystore` is returned.
 //
 // Only one such call is supported at once. If another call is aleady ongoing, `errReplaced` is returned.
 // If `c.cancel(err)` is called, this function returns `err`.

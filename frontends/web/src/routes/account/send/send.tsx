@@ -1,35 +1,23 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2023-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { Component } from 'react';
+import { useState, useRef, useEffect, useCallback, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TSelectedUTXOs } from './utxos';
+import { useMountedRef } from '@/hooks/mount';
+import { usePrevious } from '@/hooks/previous';
 import * as accountApi from '@/api/account';
 import { syncdone } from '@/api/accountsync';
-import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
+import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount, type BtcUnit } from '@/api/coins';
 import { View, ViewContent } from '@/components/view/view';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { Button } from '@/components/forms';
 import { BackButton } from '@/components/backbutton/backbutton';
-import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
-import { translate, TranslateProps } from '@/decorators/translate';
-import { Amount } from '@/components/amount/amount';
+import { Column, ColumnButtons, GuideWrapper, GuidedContent, Header, Main, ResponsiveGrid } from '@/components/layout';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { FeeTargets } from './feetargets';
-import { isBitcoinBased } from '@/routes/account/utils';
+import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
 import { SendResult } from './components/result';
@@ -37,503 +25,536 @@ import { ReceiverAddressInput } from './components/inputs/receiver-address-input
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
-import { FiatValue } from './components/fiat-value';
-import { TSelectedUTXOs } from './utxos';
+import { FiatValue } from '@/components/amount/fiat-value';
 import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
+import { connectKeystore } from '@/api/keystores';
+import { SubTitle } from '@/components/title';
+import { RatesContext } from '@/contexts/RatesContext';
 import style from './send.module.css';
 
-type SendProps = {
-  account: accountApi.IAccount;
-  activeCurrency: accountApi.Fiat;
-}
+type TProps = {
+  account: accountApi.TAccount;
+  activeAccounts?: accountApi.TAccount[];
+};
 
-type Props = SendProps & TranslateProps;
+const useAccountBalance = (accountCode: accountApi.AccountCode, btcUnit?: BtcUnit) => {
+  const mounted = useMountedRef();
+  const [balance, setBalance] = useState<accountApi.TBalance>();
 
-export type State = {
-    balance?: accountApi.IBalance;
-    proposedFee?: accountApi.TAmountWithConversions;
-    proposedTotal?: accountApi.TAmountWithConversions;
-    recipientAddress: string;
-    proposedAmount?: accountApi.TAmountWithConversions;
-    valid: boolean;
-    amount: string;
-    fiatAmount: string;
-    sendAll: boolean;
-    feeTarget?: accountApi.FeeTargetCode;
-    customFee: string;
-    isConfirming: boolean;
-    sendResult?: accountApi.TSendTx;
-    isUpdatingProposal: boolean;
-    errorHandling: TProposalError;
-    note: string;
-}
-
-class Send extends Component<Props, State> {
-  private selectedUTXOs: TSelectedUTXOs = {};
-  private unsubscribe?: () => void;
-
-  // in case there are multiple parallel tx proposals we can ignore all other but the last one
-  private lastProposal: Promise<accountApi.TTxProposalResult> | null = null;
-  private proposeTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  public readonly state: State = {
-    recipientAddress: '',
-    amount: '',
-    fiatAmount: '',
-    valid: false,
-    sendAll: false,
-    isConfirming: false,
-    isUpdatingProposal: false,
-    note: '',
-    customFee: '',
-    errorHandling: {},
-  };
-
-  public componentDidMount() {
-    const updateBalance = (code: string) => accountApi.getBalance(code)
-      .then(balance => {
-        if (!balance.success) {
-          return;
-        }
-        this.setState({ balance: balance.balance });
-      })
-      .catch(console.error);
-
-    updateBalance(this.props.account.code);
-
-    const currentCode = this.props.account.code;
-    this.unsubscribe = syncdone(currentCode, () => {
-      if (this.props.account.code === currentCode) {
-        updateBalance(currentCode);
+  const updateBalance = useCallback(async (code: accountApi.AccountCode) => {
+    if (mounted.current) {
+      const result = await accountApi.getBalance(code);
+      if (result.success && mounted.current) {
+        setBalance(result.balance);
       }
-    });
-  }
-
-  public componentWillUnmount() {
-    if (this.unsubscribe) {
-      this.unsubscribe();
     }
-  }
+  }, [mounted]);
 
-  private reset = () => {
-    this.setState({
-      sendAll: false,
-      isConfirming: false,
-      recipientAddress: '',
-      proposedAmount: undefined,
-      proposedFee: undefined,
-      proposedTotal: undefined,
-      fiatAmount: '',
-      amount: '',
-      note: '',
-      customFee: '',
-    });
-    this.selectedUTXOs = {};
+  useEffect(() => {
+    updateBalance(accountCode);
+    return syncdone(accountCode, () => updateBalance(accountCode));
+  }, [accountCode, updateBalance, btcUnit]);
+
+  return balance;
+};
+
+export const Send = ({
+  account,
+  activeAccounts,
+}: TProps) => {
+  const { t } = useTranslation();
+  const { btcUnit, defaultCurrency } = useContext(RatesContext);
+  const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
+  const [utxoDialogActive, setUtxoDialogActive] = useState(false);
+  // in case there are multiple parallel tx proposals we can ignore all other but the last one
+  const lastProposal = useRef<Promise<accountApi.TTxProposalResult> | null>(null);
+  const proposeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // state used for the "Receiver address" input - what the user types or the account's address that is selected
+  const [recipientInput, setRecipientInput] = useState<string>('');
+  // the selected account when sending to another account (for confirmation display with account name and number)
+  const [selectedReceiverAccount, setSelectedReceiverAccount] = useState<accountApi.TAccount | null>(null);
+  const [amount, setAmount] = useState<string>('');
+  const [fiatAmount, setFiatAmount] = useState<string>('');
+  const [valid, setValid] = useState<boolean>(false);
+  const [sendAll, setSendAll] = useState<boolean>(false);
+  const [isConfirming, setIsConfirming] = useState<boolean>(false);
+  const [isUpdatingProposal, setIsUpdatingProposal] = useState<boolean>(false);
+  const [note, setNote] = useState<string>('');
+  const [customFee, setCustomFee] = useState<string>('');
+  const [errorHandling, setErrorHandling] = useState<TProposalError>({});
+
+  const [proposedFee, setProposedFee] = useState<accountApi.TAmountWithConversions>();
+  const [proposedTotal, setProposedTotal] = useState<accountApi.TAmountWithConversions>();
+  const [proposedAmount, setProposedAmount] = useState<accountApi.TAmountWithConversions>();
+  const [recipientDisplayAddress, setRecipientDisplayAddress] = useState('');
+  const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
+  const [sendResult, setSendResult] = useState<accountApi.TSendTx>();
+
+  const [updateFiat, setUpdateFiat] = useState<boolean>(true);
+  const prevDefaultCurrency = usePrevious(defaultCurrency);
+  const prevBtcUnit = usePrevious(btcUnit);
+
+  const balance = useAccountBalance(account.code, btcUnit);
+
+  const handleContinue = () => {
+    setSendAll(false);
+    setIsConfirming(false);
+    setRecipientInput('');
+    setSelectedReceiverAccount(null);
+    setProposedAmount(undefined);
+    setProposedFee(undefined);
+    setProposedTotal(undefined);
+    setRecipientDisplayAddress('');
+    setFiatAmount('');
+    setAmount('');
+    setNote('');
+    setCustomFee('');
+    setSendResult(undefined);
+    selectedUTXOsRef.current = {};
   };
 
-  private send = async () => {
-    const code = this.props.account.code;
-    const connectResult = await accountApi.connectKeystore(code);
+  const handleRetry = () => {
+    setSendResult(undefined);
+  };
+
+  const handleSend = useCallback(async () => {
+    const rootFingerprint = account.keystore.rootFingerprint;
+    const connectResult = await connectKeystore(rootFingerprint);
     if (!connectResult.success) {
       return;
     }
-
-    this.setState({ isConfirming: true });
+    setIsConfirming(true);
     try {
-      const result = await accountApi.sendTx(code, this.state.note);
-      this.setState({ sendResult: result, isConfirming: false });
+      const result = await accountApi.sendTx(account.code, note);
+      setSendResult(result);
     } catch (err) {
       console.error(err);
     } finally {
       // The following method allows pressing escape again.
-      this.setState({ isConfirming: false, });
+      setIsConfirming(false);
     }
-  };
+  }, [account.code, account.keystore.rootFingerprint, note]);
 
-  private getValidTxInputData = (): Required<accountApi.TTxInput> | false => {
+  const getValidTxInputData = useCallback((): Required<accountApi.TTxInput> | false => {
     if (
-      !this.state.recipientAddress
-      || this.state.feeTarget === undefined
-      || (!this.state.sendAll && !this.state.amount)
-      || (this.state.feeTarget === 'custom' && !this.state.customFee)
+      !recipientInput
+      || feeTarget === undefined
+      || (!sendAll && !amount)
+      || (feeTarget === 'custom' && !customFee)
     ) {
       return false;
     }
     return {
-      address: this.state.recipientAddress,
-      amount: this.state.amount,
-      feeTarget: this.state.feeTarget,
-      customFee: this.state.customFee,
-      sendAll: (this.state.sendAll ? 'yes' : 'no'),
-      selectedUTXOs: Object.keys(this.selectedUTXOs),
+      address: recipientInput,
+      amount,
+      feeTarget,
+      customFee,
+      sendAll: (sendAll ? 'yes' : 'no'),
+      selectedUTXOs: Object.keys(selectedUTXOsRef.current),
       paymentRequest: null,
       useHighestFee: false
     };
-  };
+  }, [recipientInput, feeTarget, sendAll, amount, customFee]);
 
-  private validateAndDisplayFee = (updateFiat: boolean = true) => {
-    this.setState({
-      proposedTotal: undefined,
-      errorHandling: {},
-    });
-    const txInput = this.getValidTxInputData();
-    if (!txInput) {
-      return;
-    }
-    if (this.proposeTimeout) {
-      clearTimeout(this.proposeTimeout);
-      this.proposeTimeout = null;
-    }
-    this.setState({ isUpdatingProposal: true });
-    // defer the transaction proposal
-    this.proposeTimeout = setTimeout(async () => {
-      const proposePromise = accountApi.proposeTx(this.props.account.code, txInput);
-      // keep this as the last known proposal
-      this.lastProposal = proposePromise;
-      try {
-        const result = await proposePromise;
-        // continue only if this is the most recent proposal
-        if (proposePromise === this.lastProposal) {
-          this.txProposal(updateFiat, result);
-        }
-      } catch (error) {
-        this.setState({ valid: false });
-        console.error('Failed to propose transaction:', error);
-      } finally {
-        // cleanup regardless of success or failure
-        if (proposePromise === this.lastProposal) {
-          this.lastProposal = null;
-        }
-      }
-    }, 400); // Delay the proposal by 400 ms
-  };
-
-  private txProposal = (
-    updateFiat: boolean,
-    result: accountApi.TTxProposalResult,
-  ) => {
-    this.setState({ valid: result.success });
-    if (result.success) {
-      this.setState({
-        errorHandling: {},
-        proposedFee: result.fee,
-        proposedAmount: result.amount,
-        proposedTotal: result.total,
-        isUpdatingProposal: false,
-      });
-      if (updateFiat) {
-        this.convertToFiat(result.amount.amount);
-      }
-    } else {
-      const errorHandling = txProposalErrorHandling(result.errorCode);
-      this.setState({ errorHandling, isUpdatingProposal: false });
-      if (errorHandling.amountError
-        || Object.keys(errorHandling).length === 0) {
-        this.setState({ proposedFee: undefined });
-      }
-    }
-  };
-
-  private handleFiatInput = (fiatAmount: string) => {
-    this.setState({ fiatAmount });
-    this.convertFromFiat(fiatAmount);
-  };
-
-  private convertToFiat = async (amount: string) => {
+  const convertToFiat = useCallback(async (amount: string) => {
     if (amount) {
-      const coinCode = this.props.account.coinCode;
+      const coinCode = account.coinCode;
       const data = await convertToCurrency({
         amount,
         coinCode,
-        fiatUnit: this.props.activeCurrency,
+        fiatUnit: defaultCurrency,
       });
       if (data.success) {
-        this.setState({ fiatAmount: data.fiatAmount });
+        setFiatAmount(data.fiatAmount);
       } else {
-        this.setState({ errorHandling: { amountError: this.props.t('send.error.invalidAmount') } });
+        setErrorHandling({
+          amountError: t('send.error.invalidAmount')
+        });
       }
     } else {
-      this.setState({ fiatAmount: '' });
+      setFiatAmount('');
     }
-  };
+  }, [account.coinCode, defaultCurrency, t]);
 
-  private convertFromFiat = async (amount: string) => {
+  const convertFromFiat = useCallback(async (amount: string) => {
     if (amount) {
-      const coinCode = this.props.account.coinCode;
+      const coinCode = account.coinCode;
       const data = await convertFromCurrency({
         amount,
         coinCode,
-        fiatUnit: this.props.activeCurrency,
+        fiatUnit: defaultCurrency,
       });
       if (data.success) {
-        this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
+        setAmount(data.amount);
+        setUpdateFiat(false);
       } else {
-        this.setState({ errorHandling: { amountError: this.props.t('send.error.invalidAmount') } });
+        setErrorHandling({ amountError: t('send.error.invalidAmount') });
       }
     } else {
-      this.setState({ amount: '' });
+      setAmount('');
     }
+  }, [account.coinCode, defaultCurrency, t]);
+
+  const txProposal = useCallback((
+    updateFiat: boolean,
+    result: accountApi.TTxProposalResult,
+  ) => {
+    setValid(result.success);
+    if (result.success) {
+      setErrorHandling({});
+      setProposedFee(result.fee);
+      setProposedAmount(result.amount);
+      setProposedTotal(result.total);
+      setRecipientDisplayAddress(result.recipientDisplayAddress);
+      setIsUpdatingProposal(false);
+      if (updateFiat) {
+        convertToFiat(result.amount.amount);
+      }
+    } else {
+      const errorHandling = txProposalErrorHandling(result.errorCode);
+      setErrorHandling(errorHandling);
+      setIsUpdatingProposal(false);
+
+      if (
+        errorHandling.amountError
+        || Object.keys(errorHandling).length === 0
+      ) {
+        setProposedFee(undefined);
+      }
+      setRecipientDisplayAddress('');
+    }
+  }, [convertToFiat]);
+
+  const validateAndDisplayFee = useCallback((
+    updateFiat: boolean = true,
+  ) => {
+    setProposedTotal(undefined);
+    setErrorHandling({});
+    const txInput = getValidTxInputData();
+    if (!txInput) {
+      return;
+    }
+    if (proposeTimeout.current) {
+      clearTimeout(proposeTimeout.current);
+      proposeTimeout.current = null;
+    }
+    setIsUpdatingProposal(true);
+    // defer the transaction proposal
+    proposeTimeout.current = setTimeout(async () => {
+      let proposePromise;
+      try {
+        proposePromise = accountApi.proposeTx(account.code, txInput);
+        // keep this as the last known proposal
+        lastProposal.current = proposePromise;
+        const result = await proposePromise;
+        // continue only if this is the most recent proposal
+        if (proposePromise === lastProposal.current) {
+          txProposal(updateFiat, result);
+        }
+      } catch (error) {
+        if (proposePromise === lastProposal.current) {
+          setValid(false);
+          console.error('Failed to propose transaction:', error);
+        }
+      } finally {
+        // cleanup regardless of success or failure
+        if (proposePromise === lastProposal.current) {
+          lastProposal.current = null;
+        }
+      }
+    }, 400); // Delay the proposal by 400 ms
+  }, [account.code, getValidTxInputData, txProposal]);
+
+  useEffect(() => {
+    validateAndDisplayFee(updateFiat);
+  }, [amount, customFee, feeTarget, fiatAmount, updateFiat, validateAndDisplayFee]);
+
+  useEffect(() => {
+    const currencyChanged = prevDefaultCurrency !== undefined && prevDefaultCurrency !== defaultCurrency;
+    const btcUnitChanged = prevBtcUnit !== undefined && prevBtcUnit !== btcUnit;
+
+    if (!currencyChanged && !btcUnitChanged) {
+      return;
+    }
+
+    if (btcUnitChanged && isBitcoinOnly(account.coinCode)) {
+      if (sendAll && getValidTxInputData()) {
+        validateAndDisplayFee(true);
+      } else if (amount) {
+        const fiatUnit = prevBtcUnit === 'default' ? 'BTC' : 'sat';
+        convertFromCurrency({
+          amount,
+          coinCode: account.coinCode,
+          fiatUnit
+        }).then((data) => {
+          if (data.success) {
+            setAmount(data.amount);
+            setUpdateFiat(false);
+          } else {
+            setErrorHandling({ amountError: t('send.error.invalidAmount') });
+          }
+        }).catch(() => {
+          setErrorHandling({ amountError: t('send.error.invalidAmount') });
+        });
+      }
+      return;
+    }
+
+    if (currencyChanged) {
+      const amountToConvert = sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount;
+      convertToFiat(amountToConvert);
+    }
+  }, [
+    account.coinCode,
+    defaultCurrency,
+    amount,
+    btcUnit,
+    convertToFiat,
+    getValidTxInputData,
+    prevDefaultCurrency,
+    prevBtcUnit,
+    proposedAmount,
+    sendAll,
+    t,
+    validateAndDisplayFee,
+  ]);
+
+  const handleFeeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
+    setFeeTarget(feeTarget);
+    setCustomFee('');
+    setUpdateFiat(sendAll);
   };
 
-  private feeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
-    this.setState(
-      { feeTarget, customFee: '' },
-      () => this.validateAndDisplayFee(this.state.sendAll),
-    );
+  const handleFiatInput = (fiatAmount: string) => {
+    setFiatAmount(fiatAmount);
+    convertFromFiat(fiatAmount);
   };
 
-  private onSelectedUTXOsChange = (selectedUTXOs: TSelectedUTXOs) => {
-    this.selectedUTXOs = selectedUTXOs;
-    this.validateAndDisplayFee(true);
+  const handleSelectedUTXOsChange = (selectedUTXOs: TSelectedUTXOs) => {
+    selectedUTXOsRef.current = selectedUTXOs;
+    setUpdateFiat(true);
+    validateAndDisplayFee(true);
   };
 
-  private hasSelectedUTXOs = (): boolean => {
-    return Object.keys(this.selectedUTXOs).length !== 0;
+  const hasSelectedUTXOs = (): boolean => {
+    return Object.keys(selectedUTXOsRef.current).length !== 0;
   };
 
-  private parseQRResult = async (uri: string) => {
-    let address;
-    let amount = '';
+  // when user types in the input field or selects from dropdown
+  const handleRecipientInputChange = (input: string) => {
+    setRecipientInput(input.replace(/\s/g, ''));
+    setRecipientDisplayAddress('');
+    setUpdateFiat(true);
+    setSelectedReceiverAccount(null);
+  };
+
+
+  const parseQRResult = async (uri: string) => {
+    let qrAddress;
+    let qrAmount = '';
     try {
       const url = new URL(uri);
       if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:' && url.protocol !== 'ethereum:') {
-        alertUser(this.props.t('invalidFormat'));
+        alertUser(t('invalidFormat'));
         return;
       }
-      address = url.pathname;
-      if (isBitcoinBased(this.props.account.coinCode)) {
-        amount = url.searchParams.get('amount') || '';
+      qrAddress = url.pathname;
+      if (isBitcoinBased(account.coinCode)) {
+        qrAmount = url.searchParams.get('amount') || '';
       }
     } catch {
-      address = uri;
+      qrAddress = uri;
     }
-    let updateState = {
-      recipientAddress: address,
-      sendAll: false,
-      fiatAmount: ''
-    } as Pick<State, keyof State>;
+    qrAddress = qrAddress.replace(/\s/g, '');
 
-    const coinCode = this.props.account.coinCode;
-    if (amount) {
-      if (coinCode === 'btc' || coinCode === 'tbtc') {
-        const result = await parseExternalBtcAmount(amount);
+    if (qrAmount) {
+      if (account.coinCode === 'btc' || account.coinCode === 'tbtc') {
+        const result = await parseExternalBtcAmount(qrAmount);
         if (result.success) {
-          updateState['amount'] = result.amount;
+          setAmount(result.amount);
         } else {
-          updateState['errorHandling'] = { amountError: this.props.t('send.error.invalidAmount') };
-          this.setState(updateState);
+          setRecipientInput(qrAddress);
+          setSendAll(false);
+          setFiatAmount('');
+          setErrorHandling({ amountError: t('send.error.invalidAmount') });
           return;
         }
       } else {
-        updateState['amount'] = amount;
+        setAmount(qrAmount);
       }
     }
-
-    this.setState(updateState, () => {
-      this.convertToFiat(this.state.amount);
-      this.validateAndDisplayFee(true);
-    });
+    setRecipientInput(qrAddress);
+    setRecipientDisplayAddress('');
+    setSelectedReceiverAccount(null);
+    setSendAll(false);
+    setFiatAmount('');
+    convertToFiat(qrAmount);
+    setUpdateFiat(true);
   };
 
-  private onReceiverAddressInputChange = (recipientAddress: string) => {
-    this.setState({ recipientAddress }, () => {
-      this.validateAndDisplayFee(true);
-    });
+  const handleCoinAmountChange = (amount: string) => {
+    convertToFiat(amount);
+    setAmount(amount);
+    setUpdateFiat(true);
   };
 
-  private onCoinAmountChange = (amount: string) => {
-    this.convertToFiat(amount);
-    this.setState({ amount }, () => {
-      this.validateAndDisplayFee(true);
-    });
-  };
-
-  private onSendAllChange = (sendAll: boolean) => {
+  const handleSendAllChange = (sendAll: boolean) => {
     if (!sendAll) {
-      this.convertToFiat(this.state.amount);
+      convertToFiat(amount);
     }
-    this.setState({ sendAll }, () => {
-      this.validateAndDisplayFee(true);
-    });
+    setSendAll(sendAll);
+    setUpdateFiat(true);
   };
 
-  private handleContinue = () => {
-    this.setState({
-      sendResult: undefined,
-    });
-    this.reset();
+  const handleCustomFee = (customFee: string) => {
+    setCustomFee(customFee);
+    setUpdateFiat(false);
   };
 
-  public render() {
-    const {
-      account,
-      activeCurrency,
-      t,
-    } = this.props;
+  const handleNodeChange = (note: string) => setNote(note);
 
-    const {
-      balance,
-      proposedFee,
-      proposedTotal,
-      recipientAddress,
-      proposedAmount,
-      valid,
-      amount,
-      /* data, */
-      fiatAmount,
-      sendAll,
-      feeTarget,
-      customFee,
-      isConfirming,
-      sendResult,
-      isUpdatingProposal,
-      errorHandling,
-      note,
-    } = this.state;
-
-    const waitDialogTransactionDetails = {
-      proposedFee,
-      proposedAmount,
-      proposedTotal,
-      customFee,
-      feeTarget,
-      recipientAddress,
-      activeCurrency,
-    };
-
-    return (
-      <GuideWrapper>
-        <GuidedContent>
-          <Main>
-            <Header
-              title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
-            >
-              <HideAmountsButton />
-            </Header>
-            <View>
-              <ViewContent>
-                <div>
-                  <label className="labelXLarge">{t('send.availableBalance')}</label>
+  return (
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Header
+            title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
+          >
+            <HideAmountsButton />
+          </Header>
+          <View>
+            <ViewContent>
+              <div className={style.sendHeader}>
+                <div className={style.availableBalance}>
+                  <Balance balance={balance} />
                 </div>
-                <Balance balance={balance} noRotateFiat/>
-                <div className={`flex flex-row flex-between ${style.container}`}>
-                  <label className="labelXLarge">{t('send.transactionDetails')}</label>
-                  <div className={style.coinControlButtonContainer}>
-                    <CoinControl
-                      account={account}
-                      onSelectedUTXOsChange={this.onSelectedUTXOsChange}
+                <SubTitle className={style.subTitle}>
+                  {t('send.transactionDetails')}
+                </SubTitle>
+                <CoinControl
+                  account={account}
+                  onSelectedUTXOsChange={handleSelectedUTXOsChange}
+                  onCoinControlDialogActiveChange={setUtxoDialogActive}
+                />
+              </div>
+              <ResponsiveGrid className={style.sendForm}>
+                <Column col="2">
+                  <ReceiverAddressInput
+                    account={account}
+                    activeAccounts={activeAccounts}
+                    addressError={errorHandling.addressError}
+                    onInputChange={handleRecipientInputChange}
+                    onAccountChange={setSelectedReceiverAccount}
+                    recipientAddress={recipientInput}
+                    parseQRResult={parseQRResult}
+                  />
+                </Column>
+                <Column>
+                  <CoinInput
+                    balance={balance}
+                    onAmountChange={handleCoinAmountChange}
+                    onSendAllChange={handleSendAllChange}
+                    sendAll={sendAll}
+                    amountError={errorHandling.amountError}
+                    proposedAmount={proposedAmount}
+                    amount={amount}
+                    hasSelectedUTXOs={hasSelectedUTXOs()}
+                  />
+                </Column>
+                <Column>
+                  <FiatInput
+                    onFiatChange={handleFiatInput}
+                    disabled={sendAll}
+                    error={errorHandling.amountError}
+                    fiatAmount={fiatAmount}
+                    label={defaultCurrency}
+                  />
+                </Column>
+                <Column>
+                  <FeeTargets
+                    accountCode={account.code}
+                    coinCode={account.coinCode}
+                    disabled={!amount && !sendAll}
+                    proposedFee={proposedFee}
+                    customFee={customFee}
+                    showCalculatingFeeLabel={isUpdatingProposal}
+                    onFeeTargetChange={handleFeeTargetChange}
+                    onCustomFee={handleCustomFee}
+                    error={errorHandling.feeError}
+                    // value={feeTarget}
+                  />
+                </Column>
+                <Column>
+                  <NoteInput
+                    note={note}
+                    onNoteChange={handleNodeChange}
+                  />
+                  <ColumnButtons
+                    className="m-top-default m-bottom-xlarge"
+                    inline>
+                    <Button
+                      primary
+                      onClick={handleSend}
+                      disabled={!getValidTxInputData() || !valid || isUpdatingProposal}>
+                      {t('send.button')}
+                    </Button>
+                    <BackButton
+                      enableEsc={!isConfirming && !utxoDialogActive}
+                    >
+                      {t('button.back')}
+                    </BackButton>
+                  </ColumnButtons>
+                </Column>
+              </ResponsiveGrid>
+            </ViewContent>
+            <ConfirmSend
+              note={note}
+              hasSelectedUTXOs={hasSelectedUTXOs()}
+              isConfirming={isConfirming}
+              selectedUTXOs={selectedUTXOsRef.current}
+              coinCode={account.coinCode}
+              transactionDetails={{
+                selectedReceiverAccountName: selectedReceiverAccount?.name,
+                selectedReceiverAccountNumber: selectedReceiverAccount?.accountNumber,
+                proposedFee,
+                proposedAmount,
+                proposedTotal,
+                customFee,
+                feeTarget,
+                recipientDisplayAddress,
+              }}
+            />
+            {sendResult && (
+              <SendResult
+                code={account.code}
+                result={sendResult}
+                onContinue={handleContinue}
+                onRetry={handleRetry}>
+                <p>
+                  {proposedAmount && (
+                    <AmountWithUnit
+                      amount={proposedAmount}
+                      alwaysShowAmounts
+                      enableRotateUnit
+                      unitClassName={style.unit}
                     />
-                  </div>
-
-                </div>
-                <Grid col="1">
-                  <Column>
-                    <ReceiverAddressInput
-                      accountCode={account.code}
-                      addressError={errorHandling.addressError}
-                      onInputChange={this.onReceiverAddressInputChange}
-                      recipientAddress={recipientAddress}
-                      parseQRResult={this.parseQRResult}
+                  )}
+                  <br />
+                  {(proposedAmount && proposedAmount.conversions && proposedAmount.conversions[defaultCurrency]) ? (
+                    <FiatValue
+                      amount={proposedAmount}
+                      enableRotateUnit
                     />
-                  </Column>
-                </Grid>
-                <Grid>
-                  <Column>
-                    <CoinInput
-                      balance={balance}
-                      onAmountChange={this.onCoinAmountChange}
-                      onSendAllChange={this.onSendAllChange}
-                      sendAll={sendAll}
-                      amountError={errorHandling.amountError}
-                      proposedAmount={proposedAmount}
-                      amount={amount}
-                      hasSelectedUTXOs={this.hasSelectedUTXOs()}
-                    />
-                  </Column>
-                  <Column>
-                    <FiatInput
-                      onFiatChange={this.handleFiatInput}
-                      disabled={sendAll}
-                      error={errorHandling.amountError}
-                      fiatAmount={fiatAmount}
-                      label={activeCurrency}
-                    />
-                  </Column>
-                </Grid>
-                <Grid>
-                  <Column>
-                    <FeeTargets
-                      accountCode={account.code}
-                      coinCode={account.coinCode}
-                      disabled={!amount && !sendAll}
-                      fiatUnit={activeCurrency}
-                      proposedFee={proposedFee}
-                      customFee={customFee}
-                      showCalculatingFeeLabel={isUpdatingProposal}
-                      onFeeTargetChange={this.feeTargetChange}
-                      onCustomFee={customFee => this.setState({ customFee }, this.validateAndDisplayFee)}
-                      error={errorHandling.feeError} />
-                  </Column>
-                  <Column>
-                    <NoteInput
-                      note={note}
-                      onNoteChange={note => this.setState({ note: note })}
-                    />
-                    <ColumnButtons
-                      className="m-top-default m-bottom-xlarge"
-                      inline>
-                      <Button
-                        primary
-                        onClick={this.send}
-                        disabled={!this.getValidTxInputData() || !valid || isUpdatingProposal}>
-                        {t('send.button')}
-                      </Button>
-                      <BackButton
-                        enableEsc>
-                        {t('button.back')}
-                      </BackButton>
-                    </ColumnButtons>
-                  </Column>
-                </Grid>
-              </ViewContent>
-              <ConfirmSend
-                baseCurrencyUnit={activeCurrency}
-                note={note}
-                hasSelectedUTXOs={this.hasSelectedUTXOs()}
-                isConfirming={isConfirming}
-                selectedUTXOs={Object.keys(this.selectedUTXOs)}
-                coinCode={account.coinCode}
-                transactionDetails={waitDialogTransactionDetails}
-              />
-              {sendResult && (
-                <SendResult
-                  code={account.code}
-                  result={sendResult}
-                  onContinue={this.handleContinue}
-                  onRetry={() => this.setState({ sendResult: undefined })}>
-                  <p>
-                    {(proposedAmount &&
-                    <Amount alwaysShowAmounts amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
-                    {' '}
-                    <span className={style.unit}>
-                      {(proposedAmount && proposedAmount.unit) || 'N/A'}
-                    </span>
-                  </p>
-                  {(proposedAmount && proposedAmount.conversions && proposedAmount.conversions[activeCurrency]) ? (
-                    <FiatValue baseCurrencyUnit={activeCurrency} amount={proposedAmount.conversions[activeCurrency] || ''} />
                   ) : null}
-                </SendResult>
-              )}
-            </View>
-          </Main>
-        </GuidedContent>
-        <SendGuide coinCode={account.coinCode} />
-      </GuideWrapper>
-
-    );
-  }
-}
-
-const TranslatedSend = translate()(Send);
-export { TranslatedSend as Send };
+                </p>
+              </SendResult>
+            )}
+          </View>
+        </Main>
+      </GuidedContent>
+      <SendGuide coinCode={account.coinCode} />
+    </GuideWrapper>
+  );
+};

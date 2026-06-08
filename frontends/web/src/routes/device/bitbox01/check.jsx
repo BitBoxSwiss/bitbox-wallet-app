@@ -1,18 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
@@ -20,7 +6,6 @@ import { Button } from '../../../components/forms';
 import { DialogLegacy } from '../../../components/dialog/dialog-legacy';
 import { PasswordSingleInput } from '../../../components/password';
 import { apiPost } from '../../../utils/request';
-// TODO: use DialogButtons
 import style from '../../../components/dialog/dialog.module.css';
 
 class Check extends Component {
@@ -99,7 +84,7 @@ class Check extends Component {
               onClose={this.abort}>
               { message ? (
                 <div>
-                  <p style={{ minHeight: '3rem' }}>{message}</p>
+                  <p style={{ minHeight: '48px' }}>{message}</p>
                   <div className={style.actions}>
                     <Button secondary onClick={this.abort}>
                       {t('button.back')}

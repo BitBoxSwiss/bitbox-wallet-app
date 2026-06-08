@@ -1,36 +1,23 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { Button, Checkbox } from '@/components/forms';
-import { setConfig } from '@/utils/config';
-import { IAccount } from '@/api/account';
+import { useConfig } from '@/contexts/ConfigProvider';
+import { TAccount } from '@/api/account';
+import { Col, Colgroup, Table, Tbody, Td, Th, Thead, Tr } from '@/components/table/table';
 import { A } from '@/components/anchor/anchor';
 import style from './terms.module.css';
 
 type TProps = {
-  account: IAccount;
+  account: TAccount;
   onAgreedTerms: () => void;
-}
+};
 
 export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
+  const { setConfig } = useConfig();
 
   const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
     setConfig({ frontend: { skipMoonpayDisclaimer: e.target.checked } });
@@ -53,34 +40,32 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
           {t('buy.info.disclaimer.payment.title')}
         </h2>
         <p>{t('buy.info.disclaimer.payment.details', { coinCode })}</p>
-        <div className={style.table}>
-          <table>
-            <colgroup>
-              <col width="*" />
-              <col width="50px" />
-              <col width="*" />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>{t('buy.info.disclaimer.payment.table.method')}</th>
-                <th>{t('buy.info.disclaimer.payment.table.fee')}</th>
-                <th>{t('buy.info.disclaimer.payment.table.description')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{t('buy.info.disclaimer.payment.table.1_method')}</td>
-                <td className={style.nowrap}>1.9 %</td>
-                <td>{t('buy.info.disclaimer.payment.table.1_description')}</td>
-              </tr>
-              <tr>
-                <td>{t('buy.info.disclaimer.payment.table.2_method')}</td>
-                <td className={style.nowrap}>4.9 %</td>
-                <td>{t('buy.info.disclaimer.payment.table.2_description')}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <Colgroup>
+            <Col width="*" />
+            <Col width="50px" />
+            <Col width="*" />
+          </Colgroup>
+          <Thead>
+            <Tr>
+              <Th>{t('buy.info.disclaimer.payment.table.method')}</Th>
+              <Th>{t('buy.info.disclaimer.payment.table.fee')}</Th>
+              <Th>{t('buy.info.disclaimer.payment.table.description')}</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            <Tr>
+              <Td>{t('buy.info.disclaimer.payment.table.1_method')}</Td>
+              <Td className={style.nowrap}>1.9 %</Td>
+              <Td>{t('buy.info.disclaimer.payment.table.1_description')}</Td>
+            </Tr>
+            <Tr>
+              <Td>{t('buy.info.disclaimer.payment.table.2_method')}</Td>
+              <Td className={style.nowrap}>4.9 %</Td>
+              <Td>{t('buy.info.disclaimer.payment.table.2_description')}</Td>
+            </Tr>
+          </Tbody>
+        </Table>
         <p>{t('buy.info.disclaimer.payment.footnote')}</p>
         <h2 className={style.title}>
           {t('buy.info.disclaimer.security.title')}

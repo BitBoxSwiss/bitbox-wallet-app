@@ -1,37 +1,24 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { FormEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
 import { Button, Input } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { checkSDCard } from '@/api/bitbox02';
-import style from './name.module.css';
 import { useValidateDeviceName } from '@/hooks/devicename';
 import { TDeviceNameError } from '@/utils/types';
+import style from './name.module.css';
 
 type TProps = {
   onDeviceName: (name: string) => void;
   onBack: () => void;
-}
+};
 
 type TSetDeviceNameProps = TProps & {
   missingSDCardWarning?: boolean;
-}
+};
 
 export const SetDeviceName = ({
   onDeviceName,
@@ -54,25 +41,29 @@ export const SetDeviceName = ({
         withBottomBar
         verticallyCentered
         width="600px">
-        <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
+        <ViewHeader
+          small
+          title={t('bitbox02Wizard.stepCreate.title')}
+        >
           <p>{t('bitbox02Wizard.stepCreate.description')}</p>
           {missingSDCardWarning && (
-            <Status className="m-bottom-half" type="warning">
+            <Message className="m-bottom-half" type="warning">
               <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
-            </Status>
+            </Message>
           )}
         </ViewHeader>
         <ViewContent textAlign="left" minHeight="140px">
           <Input
             autoFocus
-            className={`${style.wizardLabel} ${error && !nameIsTooShort ? style.inputError : ''}`}
+            className={style.input}
+            classNameInputField={error && !nameIsTooShort && style.inputFieldError || ''}
             label={t('bitbox02Wizard.stepCreate.nameLabel')}
             onInput={(e) => setDeviceName(e.target.value)}
             placeholder={t('bitbox02Wizard.stepCreate.namePlaceholder')}
             value={deviceName}
-            id="deviceName">
-            <DeviceNameErrorMessage error={error} invalidChars={invalidChars} />
-          </Input>
+            id="deviceName"
+          />
+          <DeviceNameErrorMessage error={error} invalidChars={invalidChars} />
         </ViewContent>
         <ViewButtons>
           <Button
@@ -81,12 +72,11 @@ export const SetDeviceName = ({
             type="submit">
             {t('button.continue')}
           </Button>
-          <Button
+          <BackButton
             onClick={onBack}
-            secondary
-            type="button">
+          >
             {t('button.back')}
-          </Button>
+          </BackButton>
         </ViewButtons>
       </View>
     </form>
@@ -94,9 +84,9 @@ export const SetDeviceName = ({
 };
 
 type TDeviceNameErrorMessageProps = {
-  error: TDeviceNameError
-  invalidChars?: string
-}
+  error: TDeviceNameError;
+  invalidChars?: string;
+};
 
 export const DeviceNameErrorMessage = ({ error, invalidChars }: TDeviceNameErrorMessageProps) => {
   const { t } = useTranslation();
@@ -116,7 +106,7 @@ export const DeviceNameErrorMessage = ({ error, invalidChars }: TDeviceNameError
 
 type TPropsWithSDCard = TProps & {
   deviceID: string;
-}
+};
 
 export const SetDeviceNameWithSDCard = ({
   deviceID,

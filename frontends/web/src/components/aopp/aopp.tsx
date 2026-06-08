@@ -1,18 +1,4 @@
-/**
- * Copyright 2021-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -31,7 +17,7 @@ import styles from './aopp.module.css';
 
 type TProps = {
   children: ReactNode;
-}
+};
 
 const Banner = ({ children }: TProps) => (
   <div className={styles.banner}>{children}</div>
@@ -178,7 +164,7 @@ export const Aopp = () => {
           <Vasp hostname={domain(aopp.callback)} />
         </ViewHeader>
         <ViewContent>
-          <p>{t('aopp.syncing')}</p>
+          <p>{t('account.syncing')}</p>
         </ViewContent>
         <ViewButtons>
           <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
@@ -199,7 +185,12 @@ export const Aopp = () => {
           <p>{t('aopp.signing')}</p>
           <Field>
             <Label>{t('aopp.labelAddress')}</Label>
-            <CopyableInput alignLeft flexibleHeight value={aopp.address} />
+            <CopyableInput
+              alignLeft
+              flexibleHeight
+              value={aopp.address}
+              displayValue={aopp.displayAddress}
+            />
           </Field>
           <Field>
             <Label>{t('aopp.labelMessage')}</Label>
@@ -226,11 +217,17 @@ export const Aopp = () => {
           </p>
           <Field>
             <Label>{t('aopp.labelAddress')}</Label>
-            <CopyableInput alignLeft flexibleHeight value={aopp.address} />
+            <CopyableInput
+              alignLeft
+              flexibleHeight
+              value={aopp.address}
+              displayValue={aopp.displayAddress}
+              dataTestId="aopp-address"
+            />
           </Field>
           <Field style={{ marginBottom: 0 }}>
             <Label>{t('aopp.labelMessage')}</Label>
-            <div className={styles.message}>
+            <div className={styles.message} data-testid="aopp-message">
               {aopp.message}
             </div>
           </Field>
@@ -239,11 +236,10 @@ export const Aopp = () => {
           <Button primary onClick={aoppAPI.cancel}>{t('button.done')}</Button>
           <VerifyAddress
             accountCode={aopp.accountCode}
-            address={aopp.address}
+            displayAddress={aopp.displayAddress}
             addressID={aopp.addressID} />
         </ViewButtons>
       </View>
     );
   }
 };
-

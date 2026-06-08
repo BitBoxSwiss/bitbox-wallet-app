@@ -1,16 +1,4 @@
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package backend
 
@@ -177,7 +165,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		}
 		totalNumberOfTransactions += len(txs)
 
-		coinDecimals := coin.DecimalsExp(account.Coin())
+		coinDecimals := coin.DecimalsExp(account.Coin(), false)
 
 		// HACK: The latest prices might deviate from the latest historical prices (which can lag
 		// behind by many minutes), which results in different total balances in the chart and the
@@ -335,6 +323,11 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			}
 		}
 		// Everything was zeroes.
+		// Keep historical zero-only series so wallets with transactions
+		// still render a chart instead of looking empty.
+		if len(s) > 0 {
+			return result
+		}
 		return []ChartEntry{}
 	}
 

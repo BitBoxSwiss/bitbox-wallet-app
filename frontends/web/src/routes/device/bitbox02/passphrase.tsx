@@ -1,19 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2021-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -26,16 +11,17 @@ import { Button, Checkbox } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { PointToBitBox02 } from '@/components/icon';
-import { Status } from '@/components/status/status';
+import { Message } from '@/components/message/message';
+import { BackButton } from '@/components/backbutton/backbutton';
 
 // The enable wizard has five steps that can be navigated by clicking
 // 'back' or 'continue'. On the last step the passphrase will be enabled.
 const FINAL_INFO_STEP = 5;
-const CONTENT_MIN_HEIGHT = '38em';
+const CONTENT_MIN_HEIGHT = 'min(56rem, 100vh)';
 
 type TProps = {
-    deviceID: string;
-}
+  deviceID: string;
+};
 
 type TStatus = 'info' | 'progress' | 'success';
 
@@ -157,7 +143,7 @@ export const Passphrase = ({ deviceID }: TProps) => {
 type TInfoProps = {
   handleAbort: () => void;
   setPassphrase: (enabled: boolean) => void;
-}
+};
 
 const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
   const { t } = useTranslation();
@@ -181,7 +167,7 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
     setInfoStep((infoStep) => infoStep + 1);
   };
 
-  type TStepData = { titleKey: string; messageKey: string; buttonTextKey: string; }[]
+  type TStepData = { titleKey: string; messageKey: string; buttonTextKey: string }[];
 
   const stepData: TStepData = [
     { titleKey: t('passphrase.intro.title'), messageKey: t('passphrase.intro.message'), buttonTextKey: t('passphrase.what.button') },
@@ -192,6 +178,10 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
     { titleKey: t('passphrase.summary.title'), messageKey: t('passphrase.summary.understandList'), buttonTextKey: t('passphrase.enable') },
   ];
 
+  const step = stepData[infoStep];
+  if (!step) {
+    return null;
+  }
   return (
     <View
       key={`step-${infoStep}`}
@@ -200,10 +190,10 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
       onClose={handleAbort}
       verticallyCentered
     >
-      <ViewHeader title={stepData[infoStep].titleKey} />
+      <ViewHeader title={step.titleKey} />
       {infoStep < FINAL_INFO_STEP && (
         <ViewContent>
-          <MultilineMarkup tagName="p" markup={stepData[infoStep].messageKey} />
+          <MultilineMarkup tagName="p" markup={step.messageKey} />
         </ViewContent>
       )}
       {infoStep >= FINAL_INFO_STEP && (
@@ -214,23 +204,23 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
             <SimpleMarkup key="info-3" tagName="li" markup={t('passphrase.summary.understandList.2')} />
             <SimpleMarkup key="info-4" tagName="li" markup={t('passphrase.summary.understandList.3')} />
           </ul>
-          <Status noIcon type={understood ? 'success' : 'warning'}>
+          <Message noIcon type={understood ? 'success' : 'warning'}>
             <Checkbox
               onChange={e => setUnderstood(e.target.checked)}
               id="understood"
               checked={understood}
               label={t('passphrase.summary.understand')}
               checkboxStyle={understood ? 'success' : 'warning'} />
-          </Status>
+          </Message>
         </ViewContent>
       )}
       <ViewButtons>
         <Button primary onClick={handleContinue} disabled={infoStep >= FINAL_INFO_STEP && !understood}>
-          {stepData[infoStep].buttonTextKey}
+          {step.buttonTextKey}
         </Button>
-        <Button secondary onClick={handleBack}>
+        <BackButton onClick={handleBack}>
           {t('button.back')}
-        </Button>
+        </BackButton>
       </ViewButtons>
     </View>
   );
@@ -254,9 +244,9 @@ const DisableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
         <Button primary onClick={() => setPassphrase(false)}>
           {t('passphrase.disableInfo.button')}
         </Button>
-        <Button secondary onClick={handleAbort}>
+        <BackButton onClick={handleAbort}>
           {t('button.back')}
-        </Button>
+        </BackButton>
       </ViewButtons>
     </View>
   );

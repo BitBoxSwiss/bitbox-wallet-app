@@ -1,31 +1,17 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useLoad } from '@/hooks/api';
 import { getQRCode } from '@/api/backend';
 import { Check } from '@/components/icon';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import style from './qrcode.module.css';
 
 type TProps = {
-    data?: string;
-    size?: number;
-    tapToCopy?: boolean;
+  data?: string;
+  size?: number;
+  tapToCopy?: boolean;
 };
 
 export const QRCode = ({
@@ -53,18 +39,17 @@ export const QRCode = ({
   return (
     tapToCopy ?
       <TapToCopyQRCode data={data} qrCodeData={qrCode.data} size={size} /> :
-      <img width={size} height={size} src={qrCode.data} />
+      <img className={style.qrImage} width={size} height={size} src={qrCode.data} />
   );
 };
 
 type TTapToCopyQRCodeProps = {
   data?: string;
-  qrCodeData: string
-  size: number
-}
+  qrCodeData: string;
+  size: number;
+};
 
 const TapToCopyQRCode = ({ data, qrCodeData, size }: TTapToCopyQRCodeProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [success, setSuccess] = useState(false);
 
   const { t } = useTranslation();
@@ -75,25 +60,36 @@ const TapToCopyQRCode = ({ data, qrCodeData, size }: TTapToCopyQRCodeProps) => {
     }
   }, [success]);
 
-
   const handleCopy = () => {
-    inputRef.current?.select();
-    if (document.execCommand('copy')) {
+    if (data) {
+      navigator.clipboard.writeText(data);
+      triggerHapticFeedback();
       setSuccess(true);
     }
   };
 
-
   return (
     <div onClick={handleCopy}>
-      <input className={style.hiddenInput} ref={inputRef} value={data} readOnly/>
       <div style={{ width: size, height: size }} className={style.outerContainer}>
-        <img className={`${style.qrCodeContainer}  ${success ? style.hide : style.show}`} width={size} height={size} src={qrCodeData} />
-        <div className={`${style.checkContainer} ${style.show}`}>
+        <img
+          className={`
+            ${style.qrCodeContainer || ''}
+            ${(success ? style.hide : style.show) || ''}
+          `}
+          width={size}
+          height={size}
+          src={qrCodeData}
+        />
+        <div className={`${style.checkContainer || ''} ${style.show || ''}`}>
           <Check width={size / 2} height={size / 2} />
         </div>
       </div>
-      <p className={`${style.copiedText} ${success ? style.show : style.hide}`}>{t('receive.qrCodeCopiedMessage')}</p>
+      <p className={`
+        ${style.copiedText || ''}
+        ${(success ? style.show : style.hide) || ''}
+      `}>
+        {t('receive.qrCodeCopiedMessage')}
+      </p>
     </div>
   );
 };

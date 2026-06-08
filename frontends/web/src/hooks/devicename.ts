@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { useCallback, useMemo } from 'react';
 import { TDeviceNameError } from '@/utils/types';
 

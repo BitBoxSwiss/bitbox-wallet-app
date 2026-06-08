@@ -1,34 +1,20 @@
-/**
- * Copyright 2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { useTranslation } from 'react-i18next';
-import type { TAmountWithConversions, TTransactionStatus, TTransactionType, ITransaction } from '@/api/account';
+import { Trans, useTranslation } from 'react-i18next';
+import type { TAmountWithConversions, TTransactionStatus, TTransactionType, TTransaction } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Loupe } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
 import { ProgressRing } from '@/components/progressRing/progressRing';
-import { Amount } from '@/components/amount/amount';
+import { AmountWithUnit } from '../amount/amount-with-unit';
 import { ConversionAmount } from '@/components/amount/conversion-amount';
 import { Arrow } from './components/arrows';
 import { getTxSign } from '@/utils/transaction';
 import styles from './transaction.module.css';
 
-type TTransactionProps = ITransaction & {
-  onShowDetail: (internalID: ITransaction['internalID']) => void;
-}
+type TTransactionProps = TTransaction & {
+  onShowDetail: (internalID: TTransaction['internalID']) => void;
+};
 
 export const Transaction = ({
   addresses,
@@ -51,13 +37,15 @@ export const Transaction = ({
         if (isMobile) {
           onShowDetail(internalID);
         }
-      }}>
-      <div className={styles.txContent}>
+      }}
+    >
+      <div className={styles.txContent} data-testid="transaction" data-tx-type={type}>
         <span className={styles.txIcon}>
           <Arrow status={status} type={type} />
         </span>
         <Status
           addresses={addresses}
+          amount={amountAtTime}
           note={note}
           numConfirmations={numConfirmations}
           numConfirmationsComplete={numConfirmationsComplete}
@@ -73,8 +61,9 @@ export const Transaction = ({
         <button
           className={styles.txShowDetailBtn}
           onClick={() => !isMobile && onShowDetail(internalID)}
-          type="button">
-          <Loupe className={styles.iconLoupe} />
+          type="button"
+          data-testid="tx-details-button">
+          <Loupe className={styles.iconLoupe} data-testid="tx-details"/>
         </button>
       </div>
     </section>
@@ -83,16 +72,18 @@ export const Transaction = ({
 
 type TStatus = {
   addresses: string[];
-  note?: ITransaction['note'];
+  amount: TAmountWithConversions;
+  note?: TTransaction['note'];
   numConfirmations: number;
   numConfirmationsComplete: number;
   status: TTransactionStatus;
   time?: string | null;
   type: TTransactionType;
-}
+};
 
 const Status = ({
   addresses,
+  amount,
   note,
   numConfirmations,
   numConfirmationsComplete,
@@ -115,6 +106,7 @@ const Status = ({
         ) : (
           <Addresses
             addresses={addresses}
+            amount={amount}
             status={status}
             type={type}
           />
@@ -150,9 +142,9 @@ const Status = ({
 
 type TAmountsProps = {
   amount: TAmountWithConversions;
-  deductedAmount: TAmountWithConversions,
+  deductedAmount: TAmountWithConversions;
   type: TTransactionType;
-}
+};
 
 const Amounts = ({
   amount,
@@ -161,34 +153,48 @@ const Amounts = ({
 }: TAmountsProps) => {
   const txTypeClass = `txAmount-${type}`;
   const recv = type === 'receive';
-  const displayAmount = recv ? amount.amount : deductedAmount.amount;
-  const sign = displayAmount ? getTxSign(type) : '';
+  const displayAmount = recv ? amount : deductedAmount;
 
   return (
-    <span className={`${styles.txAmountsColumn} ${styles[txTypeClass]}`}>
-      {/* <data value={amount.amount}> */}
+    <span
+      className={`
+      ${styles.txAmountsColumn || ''}
+      ${styles[txTypeClass] || ''}
+    `}
+      data-testid="tx-amounts"
+    >
       <span className={styles.txAmount}>
-        {sign}
-        <Amount
+        {displayAmount.amount !== '0' && getTxSign(type)}
+        <AmountWithUnit
           amount={displayAmount}
-          unit={recv ? amount.unit : deductedAmount.unit}
+          maxDecimals={9}
+          unitClassName={styles.txUnit}
         />
-        <span className={styles.txUnit}>
-          {' '}
-          {deductedAmount.unit}
-        </span>
       </span>
-      {/* </data> */}
       <ConversionAmount amount={amount} deductedAmount={deductedAmount} type={type} />
     </span>
   );
 };
 
-// <time dateTime="2018-07-07">July 7</time>
-
 type TDateProps = {
   time: string | null;
-}
+};
+
+type TAddressListProps = {
+  values: string[];
+};
+
+const AddressList = ({ values }: TAddressListProps) => (
+  <span className={styles.addresses}>
+    {values[0]}
+    {values.length > 1 && (
+      <span>
+        {' '}
+        (+{values.length - 1})
+      </span>
+    )}
+  </span>
+);
 
 const Date = ({
   time,
@@ -210,27 +216,64 @@ const Date = ({
 };
 
 type TAddresses = {
-  addresses: ITransaction['addresses'];
+  addresses: TTransaction['addresses'];
+  amount: TAmountWithConversions;
   status: TTransactionStatus;
   type: TTransactionType;
-}
+};
 
 const Addresses = ({
   addresses,
+  amount,
   status,
   type,
 }: TAddresses) => {
   const { t } = useTranslation();
-  const label = (
-    type === 'receive'
-      ? t('transaction.tx.receive', {
-        context: status
-      })
-      : t('transaction.tx.send', {
-        context: status
-      })
-    // send_to_self will currently show the send message
-  );
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  if (type === 'send_to_self') {
+    if (isMobile) {
+      return (
+        <span className={styles.txNoteWithAddress}>
+          <span className={styles.txType}>
+            {t('generic.sent')}
+          </span>
+          {' '}
+          <AddressList values={addresses} />
+        </span>
+      );
+    }
+    const labelKey = status === 'failed'
+      ? 'transaction.tx.send_to_self_failed'
+      : 'transaction.tx.send_to_self';
+    return (
+      <span className={styles.txNoteWithAddress}>
+        <span className={styles.txType}>
+          <Trans
+            i18nKey={labelKey}
+            components={{
+              amount: (
+                <AmountWithUnit
+                  amount={amount}
+                  maxDecimals={9}
+                  unitClassName={styles.txUnit}
+                />
+              ),
+            }}
+          />
+        </span>
+        {' '}
+        <AddressList values={addresses} />
+      </span>
+    );
+  }
+
+  const label = isMobile
+    ? (type === 'receive' ? t('generic.received') : t('generic.sent'))
+    : (type === 'receive'
+      ? t('transaction.tx.receive', { context: status })
+      : t('transaction.tx.send', { context: status })
+    );
 
   return (
     <span className={styles.txNoteWithAddress}>
@@ -238,15 +281,7 @@ const Addresses = ({
         {label}
       </span>
       {' '}
-      <span className={styles.addresses}>
-        {addresses[0]}
-        {addresses.length > 1 && (
-          <span>
-            {' '}
-            (+{addresses.length - 1})
-          </span>
-        )}
-      </span>
+      <AddressList values={addresses} />
     </span>
   );
 };

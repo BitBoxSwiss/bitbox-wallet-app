@@ -1,0 +1,26 @@
+.exchangeContainer {
+    padding-left: var(--space-half);
+    padding-right: 40px;
+}
+
+.label {
+    color: var(--color-gray-alt);
+    line-height: 1.375;
+    margin-top: var(--space-default);
+    margin-bottom: var(--space-eight);
+}
+
+.selectContainer {
+    position: relative;
+    margin-bottom: var(--space-half);
+}
+
+/* removes space between select box and actual dropdown */
+.selectContainer :global(.react-select__menu) {
+    margin: 0;
+}
+
+.offeringContainer {
+    line-height: 1.5;
+    margin-top: var(--space-quarter);
+}

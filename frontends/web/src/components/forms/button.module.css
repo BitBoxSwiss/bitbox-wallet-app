@@ -2,18 +2,19 @@
     align-items: center;
     appearance: none;
     border-color: transparent;
-    border-radius: 2px;
+    border-radius: var(--radius-xl);
     border-style: solid;
-    border-width: 1px;
+    border-width: var(--border-width);
     cursor: default;
     display: inline-flex;
     flex-direction: row;
     font-family: var(--font-family);
     font-size: var(--size-default);
+    font-variant-numeric: tabular-nums;
     font-weight: 400;
     justify-content: center;
+    min-height: var(--button-height);
     min-width: 100px;
-    height: 50px;
     outline: none;
     padding: 0 var(--space-default);
     position: relative;
@@ -66,19 +67,15 @@
 
 .danger {
     composes: button;
-    background-color: var(--color-softred);
-    border-color: var(--color-softred);
+    background-color: var(--color-error);
+    border-color: var(--color-error);
     color: var(--color-alt);
 }
 
 .danger:not([disabled]):focus,
 .danger:not([disabled]):hover {
-    background-color: var(--color-lightred);
-    border-color: var(--color-lightred);
-}
-
-.danger:focus {
-    outline-color: var(--color-swissred);
+    background-color: var(--color-softred);
+    border-color: var(--color-softred);
 }
 
 .transparent {
@@ -87,7 +84,6 @@
     border-color: transparent;
     color: var(--color-blue);
     display: inline-block;
-    height: 50px;
     min-width: 0;
 }
 
@@ -102,6 +98,13 @@
     opacity: 0.4;
 }
 
+.button.inline {
+    height: auto;
+    min-height: auto;
+    padding: 0;
+    text-decoration: underline;
+}
+
 .button[hidden] {
     display: none;
 }
@@ -109,5 +112,8 @@
 @media (max-width: 768px) {
     .button {
         min-width: 90px;
+    }
+    .button.inline {
+        min-width: auto;
     }
 }

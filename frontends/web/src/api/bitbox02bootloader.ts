@@ -1,18 +1,4 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { apiGet, apiPost } from '@/utils/request';
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
@@ -38,7 +24,14 @@ export const syncStatus = (deviceID: string) => {
   };
 };
 
-export type TVersionInfo = {
+type TProduct =
+  'bitbox02-multi'
+  | 'bitbox02-btconly'
+  | 'bitbox02-plus-multi'
+  | 'bitbox02-plus-btconly';
+
+type TInfo = {
+  product: TProduct;
   // Indicates whether the device has any firmware already installed on it.
   // It is considered "erased" if there's no firmware, and it also happens
   // to be the state in which BitBox02 is shipped to customers.
@@ -49,10 +42,10 @@ export type TVersionInfo = {
   additionalUpgradeFollows: boolean;
 };
 
-export const getVersionInfo = (
+export const getInfo = (
   deviceID: string,
-): Promise<TVersionInfo> => {
-  return apiGet(`devices/bitbox02-bootloader/${deviceID}/version-info`);
+): Promise<TInfo> => {
+  return apiGet(`devices/bitbox02-bootloader/${deviceID}/info`);
 };
 
 export const upgradeFirmware = (

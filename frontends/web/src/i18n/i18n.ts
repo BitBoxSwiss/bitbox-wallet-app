@@ -1,19 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import i18n from 'i18next';
 import { getNativeLocale } from '@/api/nativelocale';
@@ -40,13 +25,11 @@ import { languageFromConfig } from './config';
 import { localeMainLanguage } from './utils';
 import { setConfig } from '@/utils/config';
 
-const locizeProjectID = 'fe4e5a24-e4a2-4903-96fc-3d62c11fc502';
+const i18Init = i18n.use(languageFromConfig);
 
-let i18Init = i18n
-  .use(languageFromConfig);
-
-i18Init.init({
+export const getI18NConfig = () => ({
   fallbackLng: 'en',
+  returnEmptyString: false,
 
   // have a common namespace used around the full app
   ns: ['app', 'wallet'],
@@ -61,12 +44,9 @@ i18Init.init({
   react: {
     useSuspense : true, // Not using Suspense you will need to handle the not ready state yourself
   },
-
-  backend: {
-    projectId: locizeProjectID,
-    referenceLng: 'en'
-  },
 });
+
+i18Init.init(getI18NConfig());
 
 i18n.addResourceBundle('ar', 'app', appTranslationsAR);
 i18n.addResourceBundle('cs', 'app', appTranslationsCS);

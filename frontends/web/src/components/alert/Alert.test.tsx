@@ -1,22 +1,9 @@
-/**
- * Copyright 2022 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import '../../../__mocks__/i18n';
 import { Mock, beforeAll, describe, expect, it, vi } from 'vitest';
 import { render, fireEvent, act } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { Alert, alertUser } from './Alert';
 
 vi.mock('@/utils/request', () => ({
@@ -24,6 +11,7 @@ vi.mock('@/utils/request', () => ({
 }));
 
 import { apiGet } from '@/utils/request';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 
 (apiGet as Mock).mockImplementation(endpoint => {
   switch (endpoint) {
@@ -49,7 +37,11 @@ describe('Alert', () => {
   });
 
   function renderAlert() {
-    return render(<Alert/>);
+    return render(
+      <BackButtonProvider>
+        <Alert/>
+      </BackButtonProvider>
+    );
   }
 
   it('should render the Alert component properly', () => {

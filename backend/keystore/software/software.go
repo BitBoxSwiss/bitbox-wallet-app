@@ -1,74 +1,92 @@
-// Copyright 2018 Shift Devices AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package software
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"math/big"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/btcsuite/btcd/btcutil/psbt"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
+	"github.com/btcsuite/btcd/wire"
+	"github.com/ethereum/go-ethereum/accounts"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pbkdf2"
 )
 
 // Keystore implements a keystore in software.
 type Keystore struct {
+	observable.Implementation
+
 	// The master extended private key from which all keys are derived.
 	master     *hdkeychain.ExtendedKey
 	identifier string
+	edition    Edition
 	log        *logrus.Entry
 }
+
+// Edition models the coin set supported by the software keystore.
+type Edition string
+
+const (
+	// EditionMulti supports all coins that the software keystore can sign for.
+	EditionMulti Edition = "multi"
+	// EditionBTCOnly only supports Bitcoin accounts.
+	EditionBTCOnly Edition = "btc-only"
+)
 
 // NewKeystore creates a new keystore with the given configuration, index and key.
 func NewKeystore(
 	master *hdkeychain.ExtendedKey,
 ) *Keystore {
+	return NewKeystoreWithEdition(master, EditionMulti)
+}
+
+// NewKeystoreWithEdition creates a new keystore with the given edition.
+func NewKeystoreWithEdition(
+	master *hdkeychain.ExtendedKey,
+	edition Edition,
+) *Keystore {
+	if edition == "" {
+		edition = EditionMulti
+	}
 	publicKey, _ := master.ECPubKey()
 	hash := sha256.Sum256(publicKey.SerializeCompressed())
 	return &Keystore{
 		master:     master,
 		identifier: hex.EncodeToString(hash[:]),
+		edition:    edition,
 		log:        logging.Get().WithGroup("software"),
 	}
 }
 
-// NewKeystoreFromPIN creates a new unique keystore derived from the PIN.
-func NewKeystoreFromPIN(pin string) *Keystore {
+// NewKeystoreFromPINWithEdition creates a new unique keystore derived from the PIN.
+func NewKeystoreFromPINWithEdition(pin string, edition Edition) *Keystore {
 	seed := pbkdf2.Key([]byte(pin), []byte("BitBox"), 64, hdkeychain.RecommendedSeedLen, sha256.New)
 	master, err := hdkeychain.NewMaster(seed, &chaincfg.TestNet3Params)
 	if err != nil {
 		panic(errp.WithStack(err))
 	}
-	return NewKeystore(master)
+	return NewKeystoreWithEdition(master, edition)
 }
 
 // Type implements keystore.Keystore.
@@ -108,7 +126,10 @@ func (keystore *Keystore) Configuration() *signing.Configuration {
 }
 
 // SupportsCoin implements keystore.Keystore.
-func (keystore *Keystore) SupportsCoin(coin coin.Coin) bool {
+func (keystore *Keystore) SupportsCoin(coin coinpkg.Coin) bool {
+	if keystore.edition == EditionBTCOnly && (coin == nil || !coinpkg.IsBitcoinOnly(coin.Code())) {
+		return false
+	}
 	switch coin.(type) {
 	case *btc.Coin, *eth.Coin:
 		return true
@@ -118,7 +139,7 @@ func (keystore *Keystore) SupportsCoin(coin coin.Coin) bool {
 }
 
 // SupportsAccount implements keystore.Keystore.
-func (keystore *Keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
+func (keystore *Keystore) SupportsAccount(coin coinpkg.Coin, meta interface{}) bool {
 	if !keystore.SupportsCoin(coin) {
 		return false
 	}
@@ -136,33 +157,23 @@ func (keystore *Keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool
 	}
 }
 
-// SupportsUnifiedAccounts implements keystore.Keystore.
-func (keystore *Keystore) SupportsUnifiedAccounts() bool {
-	return true
-}
-
-// SupportsMultipleAccounts implements keystore.Keystore.
-func (keystore *Keystore) SupportsMultipleAccounts() bool {
-	return true
-}
-
 // Identifier implements keystore.Keystore.
 func (keystore *Keystore) Identifier() (string, error) {
 	return keystore.identifier, nil
 }
 
 // CanVerifyAddress implements keystore.Keystore.
-func (keystore *Keystore) CanVerifyAddress(coin.Coin) (bool, bool, error) {
+func (keystore *Keystore) CanVerifyAddress(coinpkg.Coin) (bool, bool, error) {
 	return false, false, nil
 }
 
 // VerifyAddressBTC implements keystore.Keystore.
-func (keystore *Keystore) VerifyAddressBTC(*signing.Configuration, types.Derivation, coin.Coin) error {
+func (keystore *Keystore) VerifyAddressBTC(*signing.Configuration, types.Derivation, coinpkg.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 
 // VerifyAddressETH implements keystore.Keystore.
-func (keystore *Keystore) VerifyAddressETH(*signing.Configuration, coin.Coin) error {
+func (keystore *Keystore) VerifyAddressETH(*signing.Configuration, coinpkg.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 
@@ -172,13 +183,13 @@ func (keystore *Keystore) CanVerifyExtendedPublicKey() bool {
 }
 
 // VerifyExtendedPublicKey implements keystore.Keystore.
-func (keystore *Keystore) VerifyExtendedPublicKey(coin coin.Coin, configuration *signing.Configuration) error {
+func (keystore *Keystore) VerifyExtendedPublicKey(coin coinpkg.Coin, configuration *signing.Configuration) error {
 	return errp.New("The software-based keystore has no secure output to display the public key.")
 }
 
 // ExtendedPublicKey implements keystore.Keystore.
 func (keystore *Keystore) ExtendedPublicKey(
-	coin coin.Coin, absoluteKeypath signing.AbsoluteKeypath,
+	coin coinpkg.Coin, absoluteKeypath signing.AbsoluteKeypath,
 ) (*hdkeychain.ExtendedKey, error) {
 	extendedPrivateKey, err := absoluteKeypath.Derive(keystore.master)
 	if err != nil {
@@ -187,10 +198,30 @@ func (keystore *Keystore) ExtendedPublicKey(
 	return extendedPrivateKey.Neuter()
 }
 
+// BTCXPubs implements keystore.Keystore.
+func (keystore *Keystore) BTCXPubs(
+	coin coinpkg.Coin, keypaths []signing.AbsoluteKeypath) ([]*hdkeychain.ExtendedKey, error) {
+	xpubs := make([]*hdkeychain.ExtendedKey, len(keypaths))
+	for i, keypath := range keypaths {
+		xpub, err := keystore.ExtendedPublicKey(coin, keypath)
+		if err != nil {
+			return nil, err
+		}
+		xpubs[i] = xpub
+	}
+	return xpubs, nil
+}
+
+// Features reports optional capabilities supported by the software keystore.
+func (keystore *Keystore) Features() *keystorePkg.Features {
+	return &keystorePkg.Features{
+		SupportsSendToSelf: true,
+	}
+}
+
 func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	keystore.log.Info("Sign transaction.")
-	transaction := btcProposedTx.TXProposal.Transaction
-	signatures := make([]*types.Signature, len(transaction.TxIn))
+	transaction := btcProposedTx.TXProposal.Psbt.UnsignedTx
 	sigHashes := btcProposedTx.TXProposal.SigHashes()
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := btcProposedTx.TXProposal.PreviousOutputs[txIn.PreviousOutPoint]
@@ -198,7 +229,11 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
-		address, _, err := btcProposedTx.GetKeystoreAddress(btcProposedTx.SendingAccount, spentOutput.Address.PubkeyScriptHashHex())
+		addressID := spentOutput.Address.PubkeyScriptHashHex()
+		address, err := btcProposedTx.GetKeystoreAddress(
+			btcProposedTx.TXProposal.Coin.Code(),
+			addressID,
+		)
 		if err != nil {
 			return err
 		}
@@ -225,11 +260,7 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			if err != nil {
 				return err
 			}
-			signatureSer := signature.Serialize()
-			signatures[index] = &types.Signature{
-				R: new(big.Int).SetBytes(signatureSer[:32]),
-				S: new(big.Int).SetBytes(signatureSer[32:]),
-			}
+			btcProposedTx.TXProposal.Psbt.Inputs[index].TaprootKeySpendSig = signature.Serialize()
 		} else {
 			var signatureHash []byte
 			isSegwit, subScript := address.ScriptForHashToSign()
@@ -250,16 +281,16 @@ func (keystore *Keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 				}
 				keystore.log.Debug("Calculated legacy signature hash")
 			}
-			signature := ecdsa.SignCompact(prv, signatureHash, true)
-
-			signatures[index] = &types.Signature{
-				R: new(big.Int).SetBytes(signature[1:33]),
-				S: new(big.Int).SetBytes(signature[33:]),
+			signature := ecdsa.Sign(prv, signatureHash).Serialize()
+			btcProposedTx.TXProposal.Psbt.Inputs[index].PartialSigs = []*psbt.PartialSig{
+				{
+					PubKey:    prv.PubKey().SerializeCompressed(),
+					Signature: append(signature, byte(txscript.SigHashAll)),
+				},
 			}
 		}
 	}
 
-	btcProposedTx.Signatures = signatures
 	return nil
 }
 
@@ -282,8 +313,15 @@ func (keystore *Keystore) SignTransaction(
 ) error {
 	switch specificProposedTx := proposedTransaction.(type) {
 	case *btc.ProposedTransaction:
+		if keystore.edition == EditionBTCOnly &&
+			!coinpkg.IsBitcoinOnly(specificProposedTx.TXProposal.Coin.Code()) {
+			return errp.Newf("coin not supported: %s", specificProposedTx.TXProposal.Coin.Code())
+		}
 		return keystore.signBTCTransaction(specificProposedTx)
 	case *eth.TxProposal:
+		if keystore.edition == EditionBTCOnly {
+			return errp.Newf("coin not supported: %s", specificProposedTx.Coin.Code())
+		}
 		return keystore.signETHTransaction(specificProposedTx)
 	default:
 		panic("unknown proposal type")
@@ -291,18 +329,69 @@ func (keystore *Keystore) SignTransaction(
 }
 
 // CanSignMessage implements keystore.Keystore.
-func (keystore *Keystore) CanSignMessage(coin.Code) bool {
-	return false
+func (keystore *Keystore) CanSignMessage(code coinpkg.Code) bool {
+	if coinpkg.IsBitcoinOnly(code) {
+		return true
+	}
+	return keystore.edition == EditionMulti &&
+		(code == coinpkg.CodeETH || code == coinpkg.CodeSEPETH)
+}
+
+func btcMessageHash(message []byte) ([]byte, error) {
+	var serialized bytes.Buffer
+	if err := wire.WriteVarString(&serialized, 0, "Bitcoin Signed Message:\n"); err != nil {
+		return nil, err
+	}
+	if err := wire.WriteVarString(&serialized, 0, string(message)); err != nil {
+		return nil, err
+	}
+	return chainhash.DoubleHashB(serialized.Bytes()), nil
 }
 
 // SignBTCMessage implements keystore.Keystore.
-func (keystore *Keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
-	return nil, errp.New("unsupported")
+func (keystore *Keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coinCode coinpkg.Code) ([]byte, error) {
+	if scriptType == signing.ScriptTypeP2TR {
+		return nil, errp.New("taproot not supported")
+	}
+	if !coinpkg.IsBitcoinOnly(coinCode) {
+		return nil, errp.Newf("coin not supported: %s", coinCode)
+	}
+	xprv, err := keypath.Derive(keystore.master)
+	if err != nil {
+		return nil, err
+	}
+	prv, err := xprv.ECPrivKey()
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	msgHash, err := btcMessageHash(message)
+	if err != nil {
+		return nil, err
+	}
+	return ecdsa.SignCompact(prv, msgHash, true), nil
 }
 
 // SignETHMessage implements keystore.Keystore.
-func (keystore *Keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	return nil, errp.New("unsupported")
+func (keystore *Keystore) SignETHMessage(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	_ = chainID
+	if keystore.edition == EditionBTCOnly {
+		return nil, errp.New("coin not supported: eth")
+	}
+	xprv, err := keypath.Derive(keystore.master)
+	if err != nil {
+		return nil, err
+	}
+	prv, err := xprv.ECPrivKey()
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	signature, err := crypto.Sign(accounts.TextHash(message), prv.ToECDSA())
+	if err != nil {
+		return nil, err
+	}
+	// 27 is the magic constant to add to the recoverable ID to denote an uncompressed pubkey.
+	signature[64] += 27
+	return signature, nil
 }
 
 // SignETHTypedMessage implements keystore.Keystore.
@@ -322,5 +411,11 @@ func (keystore *Keystore) SupportsEIP1559() bool {
 
 // SupportsPaymentRequests implements keystore.Keystore.
 func (keystore *Keystore) SupportsPaymentRequests() error {
+	return keystorePkg.ErrUnsupportedFeature
+}
+
+// SupportsSwapPaymentRequests reports whether the keystore supports the
+// payment-request signing flow used by swaps.
+func (keystore *Keystore) SupportsSwapPaymentRequests() error {
 	return keystorePkg.ErrUnsupportedFeature
 }

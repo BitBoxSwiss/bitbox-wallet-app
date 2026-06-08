@@ -1,28 +1,37 @@
-/**
- * Copyright 2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { useCallback } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { Input, TInputProps } from './input';
+import { normalizeNumberInputValue, numberInputValueToString, sanitizeNumberInputValue } from './input-number-utils';
+import { runningInIOS } from '@/utils/env';
 
-type Props = Omit<TInputProps, 'ref' | 'onInput'>;
+type Props = Omit<TInputProps, 'ref' | 'onInput' | 'onChange'> & {
+  onChange?: (value: string) => void;
+};
 
-export const NumberInput = (({
+export const NumberInput = forwardRef<HTMLInputElement, Props>(({
+  inputMode = 'decimal',
   onChange,
+  value,
+  defaultValue,
   ...props
-}: Props) => {
+}: Props, ref) => {
+  const isIOS = runningInIOS();
+  const reportedValue = useRef(numberInputValueToString(value === undefined ? defaultValue : value));
+  const [displayValue, setDisplayValue] = useState(
+    numberInputValueToString(value === undefined ? defaultValue : value)
+  );
+
+  useEffect(() => {
+    if (value === undefined) {
+      return;
+    }
+    const nextValue = numberInputValueToString(value);
+    if (nextValue !== reportedValue.current) {
+      setDisplayValue(nextValue);
+    }
+    reportedValue.current = nextValue;
+  }, [value]);
 
   // support pasting of various different formats
   // the function tries to do some light string replacement and see if it becomes a number
@@ -62,7 +71,7 @@ export const NumberInput = (({
       && dividedByDot[dividedByDot.length - 1]?.includes(',')
     ) {
       target.value = [
-        dividedByComma[0].replace(/[.]/g, ''), // replace dot in whole coins 1.000.000
+        dividedByComma[0]?.replace(/[.]/g, ''), // replace dot in whole coins 1.000.000
         dividedByComma[1], // rest i.e. 50
       ].join('.');
     } else if (
@@ -72,24 +81,45 @@ export const NumberInput = (({
       && dividedByComma[dividedByComma.length - 1]?.includes('.')
     ) {
       target.value = [
-        dividedByDot[0].replace(/[,]/g, ''), // replace comma in 1,000,000
+        dividedByDot[0]?.replace(/[,]/g, ''), // replace comma in 1,000,000
         dividedByDot[1], // rest i.e. 50
       ].join('.');
     } else {
       console.warn(`unexpected format ${text.replace(/[\d]/g, '9')}`);
       return;
     }
+    if (isIOS) {
+      setDisplayValue(target.value);
+      reportedValue.current = target.value;
+    }
     if (onChange) {
-      onChange({ ...event, target });
+      onChange(target.value);
     }
     event.preventDefault();
+  }, [isIOS, onChange]);
+
+  const handleIOSInput = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
+    const sanitizedValue = sanitizeNumberInputValue(target.value);
+    const normalizedValue = normalizeNumberInputValue(sanitizedValue);
+    setDisplayValue(sanitizedValue);
+    reportedValue.current = normalizedValue;
+    if (onChange) {
+      onChange(normalizedValue);
+    }
   }, [onChange]);
 
   return (
     <Input
       {...props}
-      type="number"
-      onInput={onChange}
+      ref={ref}
+      type={isIOS ? 'text' : 'number'}
+      inputMode={inputMode}
+      value={isIOS ? displayValue : value}
+      defaultValue={isIOS ? undefined : defaultValue}
+      onInput={isIOS ? handleIOSInput : (
+        onChange ? (e) => onChange(e.currentTarget.value) : undefined
+      )}
       onPaste={handlePaste}
     />
   );

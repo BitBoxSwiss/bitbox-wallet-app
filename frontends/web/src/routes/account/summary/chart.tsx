@@ -1,24 +1,10 @@
-/**
- * Copyright 2023-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
-import type { TSummary, ChartData } from '@/api/account';
+import { AutoscaleInfoProvider, createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
+import type { TChartData, ChartData, FormattedLineData } from '@/api/account';
 import { usePrevious } from '@/hooks/previous';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Amount } from '@/components/amount/amount';
@@ -28,15 +14,17 @@ import { getDarkmode } from '@/components/darkmode/darkmode';
 import { RatesContext } from '@/contexts/RatesContext';
 import { AppContext, TChartDisplay } from '@/contexts/AppContext';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
+import { triggerHapticFeedback } from '@/utils/transport-mobile';
+import { LinechartGray } from '@/components/icon';
 import styles from './chart.module.css';
 
 type TProps = {
-  data?: TSummary; // <- Hier kommen die Chart-Daten rein
+  data?: TChartData;
   noDataPlaceholder?: JSX.Element;
   hideAmounts?: boolean;
 };
 
-const defaultData: Readonly<TSummary> = {
+const defaultData: Readonly<TChartData> = {
   chartDataMissing: true,
   chartDataDaily: [],
   chartDataHourly: [],
@@ -49,7 +37,7 @@ const defaultData: Readonly<TSummary> = {
 
 type FormattedData = {
   [key: number]: string;
-}
+};
 
 const getUTCRange = () => {
   const now = new Date();
@@ -126,6 +114,51 @@ const renderDate = (
   );
 };
 
+const autoScaleProvider: AutoscaleInfoProvider = (original) => {
+  const res = original();
+  if (!res) {
+    return null;
+  }
+
+  let { minValue, maxValue } = res.priceRange;
+  const diff = maxValue - minValue;
+
+  // if all values are equal or range is extremely small
+  if (diff === 0 || diff < Math.abs(maxValue) * 0.001) {
+    const center = maxValue;
+
+    let padding: number;
+
+    // define a natural padding strategy
+    if (center === 0) {
+      padding = 0.0001;
+    } else if (center < 0.001) {
+      padding = 0.0001; // for very small BTC-like values
+    } else if (center < 1) {
+      padding = 0.1;
+    } else if (center < 1000) {
+      padding = center * 0.1;
+    } else {
+      padding = center * 0.05;
+    }
+
+    minValue = center - padding;
+    maxValue = center + padding;
+  }
+
+  // clamp to zero (balances never negative)
+  if (minValue < 0) {
+    minValue = 0;
+  }
+
+  return {
+    priceRange: {
+      minValue,
+      maxValue,
+    },
+  };
+};
+
 export const Chart = ({
   data = defaultData,
   noDataPlaceholder,
@@ -147,6 +180,7 @@ export const Chart = ({
   const chartInitialized = useRef(false);
   const lineSeries = useRef<ISeriesApi<'Area'>>();
   const formattedData = useRef<FormattedData>({});
+  const lastHapticTime = useRef<number | null>(null);
 
   const [source, setSource] = useState<'daily' | 'hourly'>(chartDisplay === 'week' ? 'hourly' : 'daily');
   const [difference, setDifference] = useState<number>();
@@ -199,13 +233,12 @@ export const Chart = ({
     formattedData.current = {};
 
     chartData.forEach(entry => {
-      if (formattedData.current) {
-        formattedData.current[entry.time as number] = entry.formattedValue;
-      }
+      formattedData.current[entry.time as number] = entry.formattedValue;
     });
   };
 
   const displayWeek = () => {
+    triggerHapticFeedback();
     if (source !== 'hourly' && lineSeries.current && data.chartDataHourly && chart.current) {
       lineSeries.current.setData(getFilteredChartData(data.chartDataHourly || [])); // <-- Hier anwenden
       setFormattedData(data.chartDataHourly || []);
@@ -216,6 +249,7 @@ export const Chart = ({
   };
 
   const displayMonth = () => {
+    triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
       lineSeries.current.setData(getFilteredChartData(data.chartDataDaily || [])); // <-- Hier anwenden
       setFormattedData(data.chartDataDaily || []);
@@ -226,6 +260,7 @@ export const Chart = ({
   };
 
   const displayYear = () => {
+    triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
       lineSeries.current.setData(getFilteredChartData(data.chartDataDaily)); // <-- Hier anwenden
       setFormattedData(data.chartDataDaily);
@@ -236,6 +271,7 @@ export const Chart = ({
   };
 
   const displayAll = () => {
+    triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
       lineSeries.current.setData(getFilteredChartData(data.chartDataDaily)); // <-- Hier anwenden
       setFormattedData(data.chartDataDaily);
@@ -295,9 +331,13 @@ export const Chart = ({
       setDiffSince('');
       return;
     }
-
-    // Portfolio-Performance (bestehende Logik)
-    const valueFrom = chartData[rangeFrom].value === 0 ? chartData[rangeFrom + 1].value : chartData[rangeFrom].value;
+    const nextValue = chartData[rangeFrom + 1] as FormattedLineData | undefined;
+    const valueFrom = chartData[rangeFrom].value === 0 ? nextValue?.value : chartData[rangeFrom].value;
+    if (!valueFrom || !Number.isFinite(valueFrom)) {
+      setDifference(0);
+      setDiffSince('');
+      return;
+    }
     const valueTo = data.chartTotal;
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
     setDifference(valueDiff / valueFrom);
@@ -321,10 +361,23 @@ export const Chart = ({
       || point.x < 0 || point.x > parent.clientWidth
       || point.y < 0 || point.y > parent.clientHeight
     ) {
-      setTooltipData(td => ({ ...td, toolTipVisible: false }));
+      setTooltipData((tooltipData) => ({
+        ...tooltipData,
+        toolTipVisible: false
+      }));
+      lastHapticTime.current = null;
       return;
     }
     const price = seriesData.get(lineSeries.current) as LineData<Time>;
+    if (!price) {
+      return;
+    }
+
+    const currentTime = time as number;
+    if (lastHapticTime.current !== currentTime) {
+      triggerHapticFeedback();
+      lastHapticTime.current = currentTime;
+    }
     const chartData = source === 'daily' ? data.chartDataDaily : data.chartDataHourly;
     const entry = chartData.find(e => Number(e.time) === time as number);
     const percentLabel = entry ? `${entry.percent.toFixed(2)}%` : '';
@@ -390,7 +443,7 @@ export const Chart = ({
             color: darkmode ? '#1D1D1B' : '#F5F5F5',
           },
           fontSize: 11,
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
           textColor: darkmode ? '#F5F5F5' : '#1D1D1B',
         },
         leftPriceScale: {
@@ -418,32 +471,42 @@ export const Chart = ({
       lineSeries.current = chart.current.addAreaSeries({
         priceLineVisible: false,
         lastValueVisible: false,
-        priceFormat: {
-          type: 'volume',
-        },
+        autoscaleInfoProvider: autoScaleProvider,
+        priceFormat: (
+          data.chartFiat === 'BTC' ? {
+            minMove: 0.000001,
+            type: 'custom',
+            formatter: (price: number) => {
+              if (price <= 0) {
+                return '0';
+              }
+              return price.toLocaleString(i18n.language, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 8,
+              });
+            }
+          } : {
+            type: 'volume',
+          }),
         topColor: darkmode ? '#5E94BF' : '#DFF1FF',
         bottomColor: darkmode ? '#1D1D1B' : '#F5F5F5',
         lineColor: 'rgba(94, 148, 192, 1)',
         crosshairMarkerRadius: 6,
       });
       const isChartDisplayWeekly = chartDisplay === 'week';
-      // Chart wird with diesen Daten initialisiert:
-      lineSeries.current.setData(
-        getFilteredChartData(
-          isChartDisplayWeekly
-            ? data.chartDataHourly
-            : data.chartDataDaily
-        )
-      );
-      setFormattedData(
+      const dataToDisplay = (
         isChartDisplayWeekly
           ? data.chartDataHourly
           : data.chartDataDaily
       );
+      lineSeries.current.setData(getFilteredChartData(dataToDisplay));
+      setFormattedData(dataToDisplay);
       chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
       chart.current.subscribeCrosshairMove(handleCrosshair);
       chart.current.timeScale().fitContent();
-      ref.current?.classList.remove(styles.invisible);
+      if (styles.invisible) {
+        ref.current?.classList.remove(styles.invisible);
+      }
       chartInitialized.current = true;
       updateRange(chart, chartDisplay);
     }
@@ -588,7 +651,6 @@ export const Chart = ({
               <Amount
                 amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue}
                 unit={chartFiat}
-                removeBtcTrailingZeroes
                 onMobileClick={rotateDefaultCurrency}
               />
             ) : (
@@ -616,14 +678,19 @@ export const Chart = ({
         <div
           style={{ minHeight: chartHeight }}
           className={`
-          ${styles.transitionDiv}
-          ${showAnimationOverlay ? '' : styles.overlayRemove}`}
+          ${styles.transitionDiv || ''}
+          ${showAnimationOverlay ? '' : styles.overlayRemove || ''}`}
         />
       )}
       <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>
         {chartDataMissing ? (
-          <div className={styles.chartUpdatingMessage} style={{ height: chartHeight }}>
-            {t('chart.dataMissing')}
+          <div className={styles.chartUnavailableMessageContainer} style={{ height: chartHeight }}>
+            <div className={styles.chartUnavailableMessage}>
+              <LinechartGray />
+              <p>
+                {t('chart.dataMissing')}
+              </p>
+            </div>
           </div>
         ) : hasData ? !chartIsUpToDate && (
           <div className={styles.chartUpdatingMessage}>

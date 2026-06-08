@@ -1,5 +1,5 @@
 // Copyright (c) 2013-2014 The btcsuite developers
-// Copyright (c) 2015-2022 The Decred developers
+// Copyright (c) 2015-2024 The Decred developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -47,6 +47,16 @@ func NewSignature(r *secp256k1.FieldVal, s *secp256k1.ModNScalar) *Signature {
 	sig.r.Set(r).Normalize()
 	sig.s.Set(s)
 	return &sig
+}
+
+// R returns the r value of the signature.
+func (sig *Signature) R() secp256k1.FieldVal {
+	return sig.r
+}
+
+// S returns the s value of the signature.
+func (sig *Signature) S() secp256k1.ModNScalar {
+	return sig.s
 }
 
 // Serialize returns the Schnorr signature in the more strict format.
@@ -166,7 +176,7 @@ func schnorrVerify(sig *Signature, hash []byte, pubKey *secp256k1.PublicKey) err
 	// e = BLAKE-256(r || m) (Ensure r is padded to 32 bytes)
 	var commitmentInput [scalarSize * 2]byte
 	sig.r.PutBytesUnchecked(commitmentInput[0:scalarSize])
-	copy(commitmentInput[scalarSize:], hash[:])
+	copy(commitmentInput[scalarSize:], hash)
 	commitment := blake256.Sum256(commitmentInput[:])
 
 	// Step 6.
@@ -293,7 +303,7 @@ func schnorrSign(privKey, nonce *secp256k1.ModNScalar, hash []byte) (*Signature,
 	// e = BLAKE-256(r || m) (Ensure r is padded to 32 bytes)
 	var commitmentInput [scalarSize * 2]byte
 	r.PutBytesUnchecked(commitmentInput[0:scalarSize])
-	copy(commitmentInput[scalarSize:], hash[:])
+	copy(commitmentInput[scalarSize:], hash)
 	commitment := blake256.Sum256(commitmentInput[:])
 
 	// Step 8.

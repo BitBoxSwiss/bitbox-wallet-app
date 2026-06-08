@@ -6,8 +6,8 @@
 }
 
 .button img {
-    width: 18px;
-    height: 18px;
+    max-height: var(--size-default);
+    width: var(--size-default);
 }
 
 .buttonText {

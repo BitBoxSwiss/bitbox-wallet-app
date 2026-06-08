@@ -35,7 +35,7 @@ Install Go, Qt and create-dmg. Note that qt@6 from homebrew does **not** work as
 
 ```
 # Install Go. Can also use the official installer
-brew install go@1.23
+brew install go@1.26
 brew install create-dmg
 # Install Qt. Can also use the official installer.
 pip install aqtinstall
@@ -43,12 +43,12 @@ aqt list-qt mac desktop --arch 6.8.2
 aqt install-qt mac desktop 6.8.2 --modules qtpositioning qtserialport qtwebchannel qtwebengine --outputdir ~/Qt
 ```
 
-Make sure you have `qt@6/bin`,  `qt@6/libexec`, `go@1.23/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`:
+Make sure you have `qt@6/bin`,  `qt@6/libexec`, `go@1.26/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`:
 
 ```bash
 export PATH="$PATH:$HOME/Qt/6.8.2/macos/bin"
 export PATH="$PATH:$HOME/Qt/6.8.2/macos/libexec"
-export PATH="$PATH:/usr/local/opt/go@1.23/bin"
+export PATH="$PATH:/usr/local/opt/go@1.26/bin"
 export PATH="$PATH:$HOME/go/bin"
 ```
 
@@ -84,7 +84,7 @@ xcrun altool --list-providers --username "APPLE_ID" --password "PASSWORD"
 The build requires `Microsoft Visual Studio 2022 Community Edition`, with the `MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)`
 individual component.
 
-It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.23`, `node@20`, `QT 6.8.2` with `qtwebengine`, `nsis`
+It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.26`, `node@24`, `QT 6.8.2` with `qtwebengine`, `nsis`
 and possibly other tools.
 
 Some of the tools are easy to install with `choco`:
@@ -105,16 +105,14 @@ Build the QT frontend for Windows: `make qt-windows`
 
 Build artifacts:
 * `frontends\qt\build\windows\*`
-
-To create the installer, run the NSIS UI, then: compile NSI scripts -> frontend/qt/setup.nsi, or run
-`makensis setup.nsi`.
+* `frontends\qt\build\BitBox-installer.exe`
 
 ## Android
 
 ### Build
 Enter the Docker environment: `make dockerdev`
 
-Within the Docker dev environment, build the Android App: `make android`
+Within the Docker dev environment, build the **debug version** of the Android App: `make android`
 
 To update the app icon, execute `frontends/android/mkicon.sh`.
 The script isn't run during `make android` build.
@@ -129,6 +127,25 @@ After connecting the device via USB, it is possible to verify the connection wit
 
 Inside `frontends/android` folder: `make deploy-debug`
 
+### Release build
+
+To assemble the signed release .apk and .aab files, run `make android-assemble-release`.
+
+The keystore file `frontends/android/BitBoxApp/app/bitboxapp.jks` must be present.
+
+Build artifacts:
+* `frontends/android/BitBoxApp/app/build/outputs/apk/release/app-release.apk`
+* `frontends/android/BitBoxApp/app/build/outputs/bundle/release/app-release.aab`
+
+
+### Deploy troubleshooting
+If the apk install goes wrong, here are some Android configuration that could help:
+* Enable developer options
+* Enable install via USB
+* Enable USB debugging
+* Set USB configuration to charge when the device is connected
+* Disable MIUI optimization and restart (for Xiaomi devices)
+
 ## iOS
 
 The instructions here are preliminary, as the iOS app is still in development.
@@ -142,14 +159,6 @@ To build the app and run it in the simulator:
 Open XCode, load the project in /frontends/ios/BitBoxApp/BitBoxApp.xcodeproj.
 
 In the menu, hit Project->Run (or ⌘R).
-
-### Deploy troubleshooting
-If the apk install goes wrong, here are some Android configuration that could help:
-* Enable developer options
-* Enable install via USB
-* Enable USB debugging
-* Set USB configuration to charge when the device is connected
-* Disable MIUI optimization and restart (for Xiaomi devices)
 
 ## Cross compile from GNU/Linux to Windows
 It is not currently possible to cross compile the BitBox wallet for Windows.

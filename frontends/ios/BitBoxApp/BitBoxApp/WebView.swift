@@ -8,10 +8,11 @@
 import SwiftUI
 import WebKit
 import Mobileserver
+import UIKit
 
 // We setup a custom scheme qrc:/... to load web resources from our local bundle.
 // This serves two purposes:
-// - the React router is the BrowserRouter, so if we loaded index.html as a file, routing 
+// - the React router is the BrowserRouter, so if we loaded index.html as a file, routing
 //   to e.g. /accounts-summary would try to load this file as an absolute path.
 //   Using the custom scheme, the base will always be qrc:/, so it would route to qrc:/accounts-summary,
 //   which works with the BrowserRouter. If we used the HashRouter, it would work with a custom scheme or by
@@ -35,11 +36,24 @@ import Mobileserver
 let scheme = "qrc"
 
 class JavascriptBridge: NSObject, WKScriptMessageHandler {
+    weak var webView: WKWebView?
+    
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "goCall", let body = message.body as? [String: AnyObject] {
             let queryID = body["queryID"] as! Int
             let query = body["query"] as! String
             MobileserverBackendCall(queryID, query)
+        } else if message.name == "appReady" {
+            DispatchQueue.main.async {
+                UIView.animate(withDuration: 0.3) {
+                    self.webView?.alpha = 1.0
+                }
+            }
+        } else if message.name == "hapticFeedback" {
+            DispatchQueue.main.async {
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+            }
         }
     }
 }
@@ -95,6 +109,8 @@ class CustomSchemeHandler: NSObject, WKURLSchemeHandler {
         case "jpg", "jpeg": return "image/jpeg"
         case "gif": return "image/gif"
         case "svg": return "image/svg+xml"
+        case "ttf": return "font/ttf"
+        case "otf": return "font/otf"
         default: return "application/octet-stream"
         }
     }
@@ -107,17 +123,23 @@ struct WebView: UIViewRepresentable {
         let contentController = WKUserContentController()
         let bridge = JavascriptBridge()
         contentController.add(bridge, name: "goCall")
+        contentController.add(bridge, name: "appReady")
+        contentController.add(bridge, name: "hapticFeedback")
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
 
         let customSchemeHandler = CustomSchemeHandler()
         config.setURLSchemeHandler(customSchemeHandler, forURLScheme: scheme)
 
-        // Allows third-party cookies. Needed for onramp iframe'd widgets like MoonPay.  
+        // Allows third-party cookies. Needed for onramp iframe'd widgets like MoonPay.
         config.websiteDataStore = WKWebsiteDataStore.default()
 
         // TODO: check if official - needed to allow loading the bundle with <script type="module" src="...">
         config.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
+
+        // Allow widgets like Pocket to call window.open(). Pocket uses it to launch user
+        // verification in the browser, for example.
+        config.preferences.javaScriptCanOpenWindowsAutomatically = true
 
         // The QR code scanner uses a <video> element with an playsInline attribute.
         // This setting allows this attribute. Otherwise the QR code scanner would
@@ -128,6 +150,14 @@ struct WebView: UIViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
+        webView.allowsBackForwardNavigationGestures = false
+        // hide the WebView initially to prevent white flash (flicker) on initial load
+        webView.alpha = 0.0
+        
+        // set webView reference in bridge for appReady handling
+        bridge.webView = webView
+
+        context.coordinator.attachBackSwipeGesture(to: webView)
         
         // Disables automatic content inset adjustment to prevent safe area issues
         // https://developer.apple.com/documentation/uikit/uiscrollview/contentinsetadjustmentbehavior-swift.property
@@ -148,6 +178,9 @@ struct WebView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
+        guard uiView.url == nil else {
+            return
+        }
         uiView.load(URLRequest(url: URL(string: scheme + ":/index.html")!))
     }
     
@@ -156,6 +189,40 @@ struct WebView: UIViewRepresentable {
     }
     
     class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+        private weak var webView: WKWebView?
+
+        func attachBackSwipeGesture(to webView: WKWebView) {
+            self.webView = webView
+            let gesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handleBackSwipe(_:)))
+            gesture.edges = .left
+            webView.addGestureRecognizer(gesture)
+        }
+
+        @objc private func handleBackSwipe(_ gesture: UIScreenEdgePanGestureRecognizer) {
+            guard gesture.state == .ended, let webView = webView else {
+                return
+            }
+            webView.evaluateJavaScript("window.onBackButtonPressed ? window.onBackButtonPressed() : true;") { result, error in
+                if error != nil {
+                    if webView.canGoBack {
+                        webView.goBack()
+                    }
+                    return
+                }
+                let shouldGoBack: Bool
+                if let boolValue = result as? Bool {
+                    shouldGoBack = boolValue
+                } else if let stringValue = result as? String {
+                    shouldGoBack = (stringValue as NSString).boolValue
+                } else {
+                    shouldGoBack = true
+                }
+                if shouldGoBack && webView.canGoBack {
+                    webView.goBack()
+                }
+            }
+        }
+
         // Intercept all URLs
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             guard let url = navigationAction.request.url else {
@@ -182,6 +249,11 @@ struct WebView: UIViewRepresentable {
             return nil
         }
 
+        // Reload root page when WKWebView content process is terminated by the system.
+        // Avoids blank screens when foregrounding the app after long inactivity.
+        func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+            webView.load((URLRequest(url: URL(string: scheme + ":/index.html")!)))
+        }
 
         // Automatically grant camera permission when used in the webview.
         // The camera permission was already granted at install time via

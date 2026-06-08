@@ -1,13 +1,12 @@
 .container {
-  --size-default: 14px;
   align-items: center;
   background-color: var(--background-secondary);
+  border-radius: var(--radius-xl);
   border: none;
   color: var(--color-default);
   display: flex;
   font-size: var(--size-default);
   justify-content: space-between;
-  line-height: 1.571428;
   padding: 16px;
   text-align: left;
   width: 100%;
@@ -15,6 +14,17 @@
 
 .isButton {
   cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.isButton:active {
+  background-color: var(--background-tap-active);
+}
+
+.disabled {
+  color: var(--color-secondary);
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .content {
@@ -40,5 +50,9 @@
 
   .hideDisplayedValueOnSmall {
     display: none;
+  }
+
+  .container {
+    min-height: 64px;
   }
 }

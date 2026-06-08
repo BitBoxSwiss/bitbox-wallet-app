@@ -1,21 +1,27 @@
 .rates {
   cursor: default;
-  line-height: 1;
   margin: 0;
+  max-width: 100%;
   white-space: nowrap;
 }
 
 .unit {
-  font-weight: 400;
   color: var(--color-secondary);
-  font-variant: normal;
-  position: relative;
   cursor: default;
+  flex-grow: 0;
+  flex-shrink: 0;
+  font-size: var(--size-smaller);
+  font-variant: normal;
+  font-weight: 400;
+  margin-left: .4ch;
+  position: relative;
 }
 
 .availableFiatAmount {
-  color: var(--color-default);
-  padding-right: var(--space-quarter) !important;
+  align-items: baseline;
+  display: inline-flex;
+  flex-grow: 0;
+  justify-content: flex-start;
   text-align: right;
 }
 
@@ -41,10 +47,5 @@
 @media (max-width: 880px) {
   .fiatRow {
     bottom: 0;
-  }
-
-  .availableFiatAmount,
-  .availableFiatUnit {
-    line-height: 24px;
   }
 }

@@ -1,17 +1,4 @@
-// Copyright 2018 Shift Devices AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package eth
 
@@ -43,14 +30,14 @@ type TransactionsSource interface {
 // Coin models an Ethereum coin.
 type Coin struct {
 	observable.Implementation
-	client                rpcclient.Interface
-	code                  coinpkg.Code
-	name                  string
-	unit                  string
-	feeUnit               string
-	net                   *params.ChainConfig
-	blockExplorerTxPrefix string
-	erc20Token            *erc20.Token
+	client                 rpcclient.Interface
+	code                   coinpkg.Code
+	name                   string
+	unit                   string
+	feeUnit                string
+	net                    *params.ChainConfig
+	blockExplorerURLPrefix string
+	erc20Token             *erc20.Token
 
 	transactionsSource TransactionsSource
 
@@ -69,18 +56,18 @@ func NewCoin(
 	unit string,
 	feeUnit string,
 	net *params.ChainConfig,
-	blockExplorerTxPrefix string,
+	blockExplorerURLPrefix string,
 	transactionsSource TransactionsSource,
 	erc20Token *erc20.Token,
 ) *Coin {
 	return &Coin{
-		client:                client,
-		code:                  code,
-		name:                  name,
-		unit:                  unit,
-		feeUnit:               feeUnit,
-		net:                   net,
-		blockExplorerTxPrefix: blockExplorerTxPrefix,
+		client:                 client,
+		code:                   code,
+		name:                   name,
+		unit:                   unit,
+		feeUnit:                feeUnit,
+		net:                    net,
+		blockExplorerURLPrefix: blockExplorerURLPrefix,
 
 		transactionsSource: transactionsSource,
 
@@ -107,8 +94,15 @@ func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids
 func (coin *Coin) ChainID() uint64 { return coin.net.ChainID.Uint64() }
 
+// ChainIDstr returns the chain ID of the network as a string.
+func (coin *Coin) ChainIDstr() string {
+	return coin.net.ChainID.String()
+}
+
 // Initialize implements coin.Coin.
-func (coin *Coin) Initialize() {}
+func (coin *Coin) Initialize() error {
+	return nil
+}
 
 // Name implements coin.Coin.
 func (coin *Coin) Name() string {
@@ -153,13 +147,20 @@ func (coin *Coin) unitFactor(isFee bool) *big.Int {
 func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
 	factor := coin.unitFactor(isFee)
 	s := new(big.Rat).SetFrac(amount.BigInt(), factor).FloatString(18)
-	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
+	s = strings.TrimRight(strings.TrimRight(s, "0"), ".")
+	// For USDC/USDT, display 2 decimals when there's only 1
+	if coin.unit == "USDC" || coin.unit == "USDT" {
+		parts := strings.Split(s, ".")
+		if len(parts) == 2 && len(parts[1]) == 1 {
+			s += "0"
+		}
+	}
+	return s
 }
 
 // ToUnit implements coin.Coin.
 func (coin *Coin) ToUnit(amount coinpkg.Amount, isFee bool) float64 {
-	factor := coin.unitFactor(isFee)
-	result, _ := new(big.Rat).SetFrac(amount.BigInt(), factor).Float64()
+	result, _ := coinpkg.ToUnitRat(amount, coin, isFee).Float64()
 	return result
 }
 
@@ -181,9 +182,17 @@ func (coin *Coin) ParseAmount(amount string) (coinpkg.Amount, error) {
 	return coin.SetAmount(amountRat, false), nil
 }
 
+// BlockExplorerURLPrefix returns the shared base URL prefix of the block explorer.
+func (coin *Coin) BlockExplorerURLPrefix() string {
+	return coin.blockExplorerURLPrefix
+}
+
 // BlockExplorerTransactionURLPrefix implements coin.Coin.
 func (coin *Coin) BlockExplorerTransactionURLPrefix() string {
-	return coin.blockExplorerTxPrefix
+	if coin.blockExplorerURLPrefix == "" {
+		return ""
+	}
+	return coin.blockExplorerURLPrefix + "tx/"
 }
 
 // TransactionsSource returns an instance of TransactionsSource.

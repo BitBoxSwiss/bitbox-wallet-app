@@ -1,18 +1,4 @@
-/**
- * Copyright 2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +9,7 @@ import { PointToBitBox02 } from '@/components/icon';
 import { invokeBIP85 } from '@/api/bitbox02';
 import { SimpleMarkup } from '@/utils/markup';
 import { A } from '@/components/anchor/anchor';
-import { Column, Grid } from '@/components/layout';
+import { Column, ResponsiveGrid } from '@/components/layout';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { BackButton } from '@/components/backbutton/backbutton';
@@ -34,7 +20,7 @@ type Status = 'info-what' | 'info-how' | 'info-recover' | 'info-security' | 'pro
 
 type TProps = {
   deviceID: string;
-}
+};
 
 export const Bip85 = ({
   deviceID,
@@ -52,9 +38,9 @@ export const Bip85 = ({
         key="bip85-info-what"
         fullscreen
         verticallyCentered>
-        <ViewHeader title={t('deviceSettings.expert.bip85.what.title')} />
+        <ViewHeader small title={t('deviceSettings.expert.bip85.what.title')} />
         <ViewContent minHeight="280px">
-          <Grid>
+          <ResponsiveGrid>
             <Column>
               <p>
                 {t('deviceSettings.expert.bip85.what.description')}
@@ -66,7 +52,7 @@ export const Bip85 = ({
                 <br />
               </p>
             </Column>
-            <Column textCenter>
+            <Column textAlign="center">
               <img
                 src={isDarkMode ? bip85GraphicLight : bip85Graphic}
                 style={{ height: 'auto', width: '100%' }}
@@ -74,7 +60,7 @@ export const Bip85 = ({
                 height="147"
               />
             </Column>
-          </Grid>
+          </ResponsiveGrid>
         </ViewContent>
         <ViewButtons>
           <Button
@@ -106,11 +92,10 @@ export const Bip85 = ({
             onClick={() => setStatus('info-recover')}>
             {t('button.continue')}
           </Button>
-          <Button
-            secondary
+          <BackButton
             onClick={() => setStatus('info-what')}>
             {t('button.back')}
-          </Button>
+          </BackButton>
         </ViewButtons>
       </View>
     );
@@ -135,11 +120,10 @@ export const Bip85 = ({
             }}>
             {t('button.continue')}
           </Button>
-          <Button
-            secondary
+          <BackButton
             onClick={() => setStatus('info-how')}>
             {t('button.back')}
-          </Button>
+          </BackButton>
         </ViewButtons>
       </View>
     );
@@ -172,11 +156,10 @@ export const Bip85 = ({
             }}>
             {t('button.proceedOnBitBox')}
           </Button>
-          <Button
-            secondary
+          <BackButton
             onClick={() => setStatus('info-recover')}>
             {t('button.back')}
-          </Button>
+          </BackButton>
         </ViewButtons>
       </View>
     );

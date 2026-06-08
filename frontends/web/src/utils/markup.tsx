@@ -1,26 +1,11 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2022-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import React, { Fragment, createElement } from 'react';
 
 type TMarkupProps = {
-    tagName: keyof JSX.IntrinsicElements;
-    markup: string;
-    key?: string;
+  tagName: keyof JSX.IntrinsicElements;
+  markup: string;
+  key?: string;
 } & React.HTMLAttributes<HTMLElement>;
 
 const captureStrongElement = /^(.*)<strong>(.*)<\/strong>(.*)$/m;
@@ -52,7 +37,7 @@ type TMultiMarkupProps = {
 
 /**
  * **<MultilineMarkup>** splits a text by newline and renders each
- * line with the `<SimmpleMarkup>` component.
+ * line with the `<SimpleMarkup>` component.
  */
 export const MultilineMarkup = ({ tagName, markup, withBreaks, ...props }: TMultiMarkupProps) => {
   return (

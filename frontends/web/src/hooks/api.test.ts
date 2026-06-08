@@ -1,18 +1,4 @@
-/**
- * Copyright 2022 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
@@ -60,15 +46,42 @@ describe('hooks for api calls', () => {
 
       await waitFor(() => expect(mockApiCall).toHaveBeenCalledTimes(4));
     });
+
+    it('clears response when apiCall becomes null', async () => {
+      const mockApiCall = vi.fn().mockImplementation(() => Promise.resolve({ canUpgrade: true }));
+
+      const { result } = renderHook(() => {
+        const [deviceID, setDeviceID] = useState('test-device');
+        const [isBitBox02, setIsBitBox02] = useState(true);
+
+        const versionInfo = useLoad(
+          (isBitBox02 && deviceID) ? () => mockApiCall() : null,
+          [deviceID, isBitBox02]
+        );
+
+        return { versionInfo, setDeviceID, setIsBitBox02 };
+      });
+
+      await waitFor(() => expect(result.current.versionInfo).toEqual({ canUpgrade: true }));
+      expect(mockApiCall).toHaveBeenCalledTimes(1);
+
+      act(() => result.current.setDeviceID(''));
+
+      await waitFor(() => expect(result.current.versionInfo).toBeUndefined());
+      expect(mockApiCall).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('useSubscribe', () => {
     it('should return proper value of a subscription function', () => {
       const MOCK_RETURN_STATUS: TStatus = {
-        tipAtInitTime: 2408855,
-        tip: 2408940,
-        tipHashHex: '0000000000000015f61742c773181dd368527575a6ac02ea5ecbace8e73cc083',
-        targetHeight: 2408940
+        success: true,
+        status: {
+          tipAtInitTime: 2408855,
+          tip: 2408940,
+          tipHashHex: '0000000000000015f61742c773181dd368527575a6ac02ea5ecbace8e73cc083',
+          targetHeight: 2408940
+        }
       };
 
       const mockSubscribe = vi.fn().mockImplementation(() => (cb: TSubscriptionCallback<any>) => mockSubscribeEndpoint(cb));

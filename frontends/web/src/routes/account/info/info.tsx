@@ -1,119 +1,166 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2022-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '@/hooks/api';
-import { getInfo, IAccount, AccountCode } from '@/api/account';
-import { isBitcoinBased } from '@/routes/account/utils';
-import { Header } from '@/components/layout';
+import { useSync } from '@/hooks/api';
+import { useMountedRef } from '@/hooks/mount';
+import { TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
+import { findAccount, isBitcoinBased, isMessageSigningSupported } from '@/routes/account/utils';
+import { TDevices } from '@/api/devices';
+import { Header, Main } from '@/components/layout';
+import { View, ViewContent } from '@/components/view/view';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { GlobalBanners } from '@/components/banners';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { BackButton } from '@/components/backbutton/backbutton';
-import { SigningConfiguration } from './signingconfiguration';
-import { BitcoinBasedAccountInfoGuide } from './guide';
-import { Status } from '@/components/status/status';
+import { ActionableItem } from '@/components/actionable-item/actionable-item';
+import { QRCodeLight, QRCodeDark, OutlinedUploadDark, OutlinedUploadLight, OutlinedUnorderedListDark, OutlinedUnorderedListLight, OutlinedFileProtectDark, OutlinedFileProtectLight } from '@/components/icon';
+import { useDarkmode } from '@/hooks/darkmode';
+import { alertUser } from '@/components/alert/Alert';
+import { statusChanged, syncdone } from '@/api/accountsync';
 import style from './info.module.css';
 
 type TProps = {
-  accounts: IAccount[];
+  accounts: TAccount[];
   code: AccountCode;
+  devices: TDevices;
 };
 
 export const Info = ({
   accounts,
   code,
+  devices,
 }: TProps) => {
   const { t } = useTranslation();
-  const info = useLoad(getInfo(code));
-  const [viewXPub, setViewXPub] = useState<number>(0);
-  const account = accounts.find(({ code: accountCode }) => accountCode === code);
+  const { isDarkMode } = useDarkmode();
+  const navigate = useNavigate();
+  const status: TStatus | undefined = useSync(
+    () => getStatus(code),
+    cb => statusChanged(code, cb),
+  );
+  const accountReady = (
+    status !== undefined
+    && !status.fatalError
+    && status.synced
+    && status.offlineError === null
+  );
+  const mounted = useMountedRef();
+  const [transactions, setTransactions] = useState<TTransactions | undefined>();
 
-  if (!account || !info) {
+  useEffect(() => {
+    if (!accountReady) {
+      setTransactions(undefined);
+      return;
+    }
+    const fetch = () => {
+      getTransactionList(code)
+        .then(txs => {
+          if (mounted.current) {
+            setTransactions(txs);
+          }
+        })
+        .catch(console.error);
+    };
+    fetch();
+    return syncdone(code, fetch);
+  }, [code, accountReady, mounted]);
+
+  const transactionsLoaded = transactions?.success === true;
+  const hasTransactions = transactionsLoaded && transactions.list.length > 0;
+
+  const account = findAccount(accounts, code);
+  if (!account) {
     return null;
   }
 
-  const config = info.signingConfigurations[viewXPub];
-  const numberOfXPubs = info.signingConfigurations.length;
-  const xpubTypes = info.signingConfigurations.map(cfg => cfg.bitcoinSimple?.scriptType);
-
-  const showNextXPub = () => {
-    if (!info) {
+  const handleExport = async () => {
+    if (status === undefined || status.fatalError) {
       return;
     }
-    const numberOfXPubs = info.signingConfigurations.length;
-    setViewXPub((viewXPub + 1) % numberOfXPubs);
+    try {
+      const exportedResult = await exportAccount(code);
+      if (exportedResult !== null && !exportedResult.success) {
+        alertUser(exportedResult.errorMessage);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const xpubType = xpubTypes[(viewXPub + 1) % numberOfXPubs];
+  const isBtcBased = isBitcoinBased(account.coinCode);
+  const canSignMessage = isMessageSigningSupported(account.coinCode);
 
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('accountInfo.title')}</h2>} />
-          <div className="content padded">
-            <div className="box larger">
-              { isBitcoinBased(account.coinCode) ? (
-                <h2 className={style.title}>
-                  {t('accountInfo.extendedPublicKey')}
-                </h2>
-              ) : null }
-              { (config.bitcoinSimple !== undefined && numberOfXPubs > 1) ? (
-                <p className={style.xPubInfo}>
-                  {t('accountInfo.xpubTypeInfo', {
-                    current: `${viewXPub + 1}`,
-                    numberOfXPubs: numberOfXPubs.toString(),
-                    scriptType: config.bitcoinSimple.scriptType.toUpperCase(),
-                  })}
-                  <br />
-                  {xpubType && (
-                    <button className={style.nextButton} onClick={showNextXPub}>
-                      {t(`accountInfo.xpubTypeChangeBtn.${xpubType}`)}
-                    </button>
+    <Main>
+      <ContentWrapper>
+        <GlobalBanners devices={devices} />
+      </ContentWrapper>
+      <Header hideSidebarToggler title={
+        <>
+          <h2 className="hide-on-small">{t('accountInfo.title')}</h2>
+          <MobileHeader onClick={() => navigate(-1)} title={t('accountInfo.title')} />
+        </>
+      } />
+      <View fullscreen={false}>
+        <ViewContent>
+          <div className={style.menuList}>
+            <ActionableItem
+              onClick={handleExport}
+              disabled={hasTransactions !== true}
+            >
+              <div className={style.actionItem}>
+                {isDarkMode ? <OutlinedUploadLight className={style.actionIcon} aria-hidden alt="" /> : <OutlinedUploadDark className={style.actionIcon} aria-hidden alt="" />}
+                <div className={style.actionText}>
+                  <span>{t('accountInfo.exportTransactions')}</span>
+                  {transactionsLoaded && !hasTransactions && (
+                    <span className={style.actionHint}>{t('accountInfo.exportTransactionsDisabled')}</span>
                   )}
-                </p>
-              ) : null}
-              { (config.bitcoinSimple?.scriptType === 'p2tr') ? (
-                <>
-                  <Status type="info">
-                    {t('accountInfo.taproot')}
-                  </Status>
-                  <BackButton enableEsc>
-                    {t('button.back')}
-                  </BackButton>
-                </>
-              ) : (
-                <SigningConfiguration
-                  key={viewXPub}
-                  account={account}
-                  code={code}
-                  info={config}
-                  signingConfigIndex={viewXPub}>
-                  <BackButton enableEsc>
-                    {t('button.back')}
-                  </BackButton>
-                </SigningConfiguration>
-              )}
-            </div>
+                </div>
+              </div>
+            </ActionableItem>
+            <ActionableItem
+              onClick={() => navigate(`/account/${code}/info/xpub-detail`)}
+            >
+              <div className={style.actionItem}>
+                {isDarkMode ? <QRCodeLight className={style.actionIcon} aria-hidden alt="" /> : <QRCodeDark className={style.actionIcon} aria-hidden alt="" />}
+                <span>{t('accountInfo.viewAccountDetails')}</span>
+              </div>
+            </ActionableItem>
+            {canSignMessage && (
+              <ActionableItem
+                onClick={() => navigate(`/account/${code}/sign-message`)}
+              >
+                <div className={style.actionItem}>
+                  {isDarkMode ?
+                    <OutlinedFileProtectLight className={style.actionIcon} aria-hidden alt="" /> :
+                    <OutlinedFileProtectDark className={style.actionIcon} aria-hidden alt="" />
+                  }
+                  <span>{t('signMessage.signMessage')}</span>
+                </div>
+              </ActionableItem>
+            )}
+            {isBtcBased && (
+              <ActionableItem
+                onClick={() => navigate(`/account/${code}/addresses`)}
+              >
+                <div className={style.actionItem}>
+                  {isDarkMode ?
+                    <OutlinedUnorderedListLight className={style.actionIcon} aria-hidden alt="" /> :
+                    <OutlinedUnorderedListDark className={style.actionIcon} aria-hidden alt="" />
+                  }
+                  <span>{t('accountInfo.usedAddresses')}</span>
+                </div>
+              </ActionableItem>
+            )}
           </div>
-        </div>
-      </div>
-      { isBitcoinBased(account.coinCode) ? (
-        <BitcoinBasedAccountInfoGuide coinName={account.coinName} />
-      ) : null }
-    </div>
+          <div className={`${style.footerButtons || ''} hide-on-small`}>
+            <BackButton enableEsc>
+              {t('button.back')}
+            </BackButton>
+          </div>
+        </ViewContent>
+      </View>
+    </Main>
   );
 };

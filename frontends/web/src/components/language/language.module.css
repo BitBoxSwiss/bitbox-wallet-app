@@ -50,10 +50,6 @@
 
 @media (max-width: 768px) {
     .link {
-        font-size: var(--size-small);
-    }
-
-    .language {
-        font-size: var(--size-small) !important;
+        font-size: var(--size-smaller);
     }
 }

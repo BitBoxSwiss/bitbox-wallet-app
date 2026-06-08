@@ -1,20 +1,10 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package transactions
 
 import (
+	"time"
+
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
@@ -34,7 +24,8 @@ import (
 
 // SpendableOutput is an unspent coin.
 type SpendableOutput struct {
-	*wire.TxOut
+	TxOut           *wire.TxOut
+	HeaderTimestamp *time.Time
 }
 
 // ScriptHashHex returns the hash of the PkScript of the output, in hex format.
@@ -67,7 +58,7 @@ type Interface interface {
 	// UpdateAddressHistory should be called when initializing a wallet address, or when the history of
 	// an address changes (a new transaction that touches it appears or disappears). The transactions
 	// are downloaded and indexed.
-	UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo)
+	UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) error
 }
 
 // Transactions handles wallet transactions: keeping an index of the transactions, inputs, (unspent)
@@ -90,6 +81,10 @@ type Transactions struct {
 
 	closed     bool
 	closedLock locker.Locker
+
+	headerTimestampCacheLock locker.Locker
+	// headerTimestampCache maps confirmed block heights to the corresponding header timestamp.
+	headerTimestampCache map[int]*time.Time
 }
 
 // NewTransactions creates a new instance of Transactions.
@@ -113,6 +108,8 @@ func NewTransactions(
 		blockchain:   blockchain,
 		notifier:     notifier,
 		log:          log.WithFields(logrus.Fields{"group": "transactions", "net": net.Name}),
+
+		headerTimestampCache: map[int]*time.Time{},
 	}
 	transactions.unsubscribeHeadersEvent = headers.SubscribeEvent(transactions.onHeadersEvent)
 	return transactions
@@ -134,31 +131,92 @@ func (transactions *Transactions) isClosed() bool {
 	return transactions.closed
 }
 
+func (transactions *Transactions) getCachedTimestampAtHeight(height int, txInfoHeaderTimestamp *time.Time) *time.Time {
+	// Cache by height only works for confirmed txs.
+	if height > 0 {
+		unlock := transactions.headerTimestampCacheLock.RLock()
+		if cached, ok := transactions.headerTimestampCache[height]; ok {
+			unlock()
+			return cached
+		}
+		unlock()
+	}
+
+	// If the tx timestamp is already known from the db, use it and populate the cache.
+	if txInfoHeaderTimestamp != nil {
+		if height > 0 {
+			unlock := transactions.headerTimestampCacheLock.Lock()
+			transactions.headerTimestampCache[height] = txInfoHeaderTimestamp
+			unlock()
+		}
+		return txInfoHeaderTimestamp
+	}
+
+	if height <= 0 {
+		return nil
+	}
+
+	// Try to get the header timestamp from already-synced headers.
+	header, err := transactions.headers.HeaderByHeight(height)
+	if err != nil {
+		transactions.log.WithError(err).Error("HeaderByHeight")
+	} else if header != nil {
+		timestamp := header.Timestamp
+		headerTimestamp := &timestamp
+		unlock := transactions.headerTimestampCacheLock.Lock()
+		transactions.headerTimestampCache[height] = headerTimestamp
+		unlock()
+		return headerTimestamp
+	}
+
+	headersResult, err := transactions.blockchain.Headers(height, 1)
+	if err != nil {
+		transactions.log.WithError(err).Error("blockchain.Headers")
+		return nil
+	}
+	if len(headersResult.Headers) != 1 {
+		transactions.log.WithFields(logrus.Fields{"height": height, "headers": len(headersResult.Headers)}).
+			Error("unexpected headers result size")
+		return nil
+	}
+	timestamp := headersResult.Headers[0].Timestamp
+	headerTimestamp := &timestamp
+
+	unlock := transactions.headerTimestampCacheLock.Lock()
+	transactions.headerTimestampCache[height] = headerTimestamp
+	unlock()
+	return headerTimestamp
+}
+
+// processTxForAddress stores and indexes a transaction for the given address.
+// It returns true if the transaction became newly confirmed while processing this address, so
+// verification can be started after the DB update succeeds.
 func (transactions *Transactions) processTxForAddress(
-	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
+	dbTx DBTxInterface,
+	scriptHashHex blockchain.ScriptHashHex,
+	txHash chainhash.Hash,
+	tx *wire.MsgTx,
+	height int,
+	headerTimestamp *time.Time,
+) (bool, error) {
 	txInfo, err := dbTx.TxInfo(txHash)
 	if err != nil {
-		transactions.log.WithError(err).Panic("Failed to retrieve tx info")
+		return false, errp.WithMessage(err, "failed to retrieve tx info")
 	}
 
-	if err := dbTx.PutTx(txHash, tx, height); err != nil {
-		transactions.log.WithError(err).Panic("Failed to put tx")
+	if err := dbTx.PutTx(txHash, tx, height, headerTimestamp); err != nil {
+		return false, errp.WithMessage(err, "failed to put tx")
 	}
 
-	if err := transactions.notifier.Put(txHash[:]); err != nil {
-		transactions.log.WithError(err).Error("Failed notifier.Put")
-	}
-
-	// Newly confirmed tx. Try to verify it.
-	if txInfo.Height <= 0 && height > 0 {
-		transactions.log.Debug("Try to verify newly confirmed tx")
-		go transactions.verifyTransaction(txHash, height)
-	}
+	newlyConfirmed := txInfo.Height <= 0 && height > 0
 
 	if err := dbTx.AddAddressToTx(txHash, scriptHashHex); err != nil {
-		transactions.log.WithError(err).Panic("Failed to add address to tx")
+		return false, errp.WithMessage(err, "failed to add address to tx")
 	}
-	transactions.processInputsAndOutputsForAddress(dbTx, scriptHashHex, txHash, tx)
+	if err := transactions.processInputsAndOutputsForAddress(dbTx, scriptHashHex, txHash, tx); err != nil {
+		return false, err
+	}
+	return newlyConfirmed, nil
 }
 
 // Go through the tx and extract all inputs and outputs which touch the address.
@@ -166,7 +224,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 	dbTx DBTxInterface,
 	scriptHashHex blockchain.ScriptHashHex,
 	txHash chainhash.Hash,
-	tx *wire.MsgTx) {
+	tx *wire.MsgTx) error {
 	// Gather transaction inputs that spend outputs of the given address.
 	for _, txIn := range tx.TxIn {
 		// Since transactions can be processed in any order, and we might process the same tx
@@ -175,7 +233,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 		// since the output that it spends might be indexed later.
 		txInTxHash, err := dbTx.Input(txIn.PreviousOutPoint)
 		if err != nil {
-			transactions.log.WithError(err).Panic("Failed to retrieve input from previous outpoint")
+			return errp.WithMessage(err, "failed to retrieve input from previous outpoint")
 		}
 		if txInTxHash != nil && *txInTxHash != txHash {
 			transactions.log.WithFields(logrus.Fields{"txIn.PreviousOutPoint": txIn.PreviousOutPoint,
@@ -183,7 +241,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 				Warning("Double spend detected")
 		}
 		if err := dbTx.PutInput(txIn.PreviousOutPoint, txHash); err != nil {
-			transactions.log.WithError(err).Panic("Failed to store the transaction input")
+			return errp.WithMessage(err, "failed to store the transaction input")
 		}
 	}
 	// Gather transaction outputs that belong to us.
@@ -195,23 +253,24 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 				txOut,
 			)
 			if err != nil {
-				transactions.log.WithError(err).Panic("Failed to store the transaction output")
+				return errp.WithMessage(err, "failed to store the transaction output")
 			}
 		}
 	}
+	return nil
 }
 
-func (transactions *Transactions) allInputsOurs(dbTx DBTxInterface, transaction *wire.MsgTx) bool {
+func (transactions *Transactions) allInputsOurs(dbTx DBTxInterface, transaction *wire.MsgTx) (bool, error) {
 	for _, txIn := range transaction.TxIn {
 		txOut, err := dbTx.Output(txIn.PreviousOutPoint)
 		if err != nil {
-			transactions.log.WithError(err).Panic("Failed to retrieve output")
+			return false, errp.WithMessage(err, "failed to retrieve output")
 		}
 		if txOut == nil {
-			return false
+			return false, nil
 		}
 	}
-	return true
+	return true, nil
 }
 
 // SpendableOutputs returns all unspent outputs of the wallet which are eligible to be spent. Those
@@ -225,7 +284,10 @@ func (transactions *Transactions) SpendableOutputs() (map[wire.OutPoint]*Spendab
 		}
 		result := map[wire.OutPoint]*SpendableOutput{}
 		for outPoint, txOut := range outputs {
-			spent := transactions.isInputSpent(dbTx, outPoint)
+			spent, err := transactions.isInputSpent(dbTx, outPoint)
+			if err != nil {
+				return nil, err
+			}
 			if !spent {
 				txInfo, err := dbTx.TxInfo(outPoint.Hash)
 				if err != nil {
@@ -233,9 +295,18 @@ func (transactions *Transactions) SpendableOutputs() (map[wire.OutPoint]*Spendab
 				}
 				confirmed := txInfo.Height > 0
 
-				if confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx) {
+				spendable := confirmed
+				if !spendable {
+					allInputsOurs, err := transactions.allInputsOurs(dbTx, txInfo.Tx)
+					if err != nil {
+						return nil, err
+					}
+					spendable = allInputsOurs
+				}
+				if spendable {
 					result[outPoint] = &SpendableOutput{
-						TxOut: txOut,
+						TxOut:           txOut,
+						HeaderTimestamp: txInfo.HeaderTimestamp,
 					}
 				}
 			}
@@ -244,63 +315,77 @@ func (transactions *Transactions) SpendableOutputs() (map[wire.OutPoint]*Spendab
 	})
 }
 
-func (transactions *Transactions) isInputSpent(dbTx DBTxInterface, outPoint wire.OutPoint) bool {
+func (transactions *Transactions) isInputSpent(dbTx DBTxInterface, outPoint wire.OutPoint) (bool, error) {
 	input, err := dbTx.Input(outPoint)
 	if err != nil {
-		transactions.log.WithError(err).Panic("Failed to retrieve input for outPoint")
+		return false, errp.WithMessage(err, "failed to retrieve input for outPoint")
 	}
-	return input != nil
+	return input != nil, nil
 }
 
+// removeTxForAddress removes the address association for a transaction.
+// It returns true if the transaction was removed from the wallet index entirely, so notifier
+// cleanup can happen after the DB update succeeds.
 func (transactions *Transactions) removeTxForAddress(
-	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash) {
+	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash) (bool, error) {
 	transactions.log.Debug("Remove transaction for address")
 	txInfo, err := dbTx.TxInfo(txHash)
 	if err != nil {
-		transactions.log.WithError(err).Panic("Failed to retrieve tx info")
+		return false, errp.WithMessage(err, "failed to retrieve tx info")
 	}
 	if txInfo == nil {
 		// Not yet indexed.
 		transactions.log.Debug("Transaction hash not listed")
-		return
+		return false, nil
 	}
 
 	transactions.log.Debug("Deleting transaction address")
 	empty, err := dbTx.RemoveAddressFromTx(txHash, scriptHashHex)
 	if err != nil {
-		transactions.log.WithError(err).Panic("Failed to remove address from tx")
+		return false, errp.WithMessage(err, "failed to remove address from tx")
 	}
 	if empty {
 		// Tx is not touching any of our outputs anymore. Remove.
 
 		for _, txIn := range txInfo.Tx.TxIn {
 			transactions.log.Debug("Deleting transaction iput")
-			dbTx.DeleteInput(txIn.PreviousOutPoint)
+			if err := dbTx.DeleteInput(txIn.PreviousOutPoint); err != nil {
+				return false, errp.WithMessage(err, "failed to delete input")
+			}
 		}
 
 		// Remove the outputs added by this tx.
 		for index := range txInfo.Tx.TxOut {
-			dbTx.DeleteOutput(wire.OutPoint{
+			if err := dbTx.DeleteOutput(wire.OutPoint{
 				Hash:  txHash,
 				Index: uint32(index),
-			})
+			}); err != nil {
+				return false, errp.WithMessage(err, "failed to delete output")
+			}
 		}
 
-		dbTx.DeleteTx(txHash)
-		if err := transactions.notifier.Delete(txHash[:]); err != nil {
-			transactions.log.WithError(err).Error("Failed notifier.Delete")
+		if err := dbTx.DeleteTx(txHash); err != nil {
+			return false, errp.WithMessage(err, "failed to delete tx")
 		}
 	}
+	return empty, nil
 }
 
 // UpdateAddressHistory should be called when initializing a wallet address, or when the history of
 // an address changes (a new transaction that touches it appears or disappears). The transactions
 // are downloaded and indexed.
-func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) {
+func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) error {
 	if transactions.isClosed() {
 		transactions.log.Debug("UpdateAddressHistory after the instance was closed")
-		return
+		return nil
 	}
+	type txToVerify struct {
+		txHash chainhash.Hash
+		height int
+	}
+	var txsToNotify []chainhash.Hash
+	var txsToVerify []txToVerify
+	var txsToDeleteFromNotifier []chainhash.Hash
 	err := DBUpdate(transactions.db, func(dbTx DBTxInterface) error {
 		txsSet := map[chainhash.Hash]struct{}{}
 		for _, txInfo := range txs {
@@ -320,7 +405,13 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 			// A tx was previously in the address history but is not anymore.  If the tx was already
 			// downloaded and indexed, it will be removed.  If it is currently downloading (enqueued for
 			// indexing), it will not be processed.
-			transactions.removeTxForAddress(dbTx, scriptHashHex, entry.TXHash.Hash())
+			removed, err := transactions.removeTxForAddress(dbTx, scriptHashHex, entry.TXHash.Hash())
+			if err != nil {
+				return err
+			}
+			if removed {
+				txsToDeleteFromNotifier = append(txsToDeleteFromNotifier, entry.TXHash.Hash())
+			}
 		}
 
 		if err := dbTx.PutAddressHistory(scriptHashHex, txs); err != nil {
@@ -329,33 +420,68 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 		for _, txInfo := range txs {
 			txHash := txInfo.TXHash.Hash()
 			height := txInfo.Height
-			tx := transactions.getTransactionCached(dbTx, txHash)
-			transactions.processTxForAddress(dbTx, scriptHashHex, txHash, tx, height)
+			tx, headerTimestamp, err := transactions.getTransactionCached(dbTx, txHash, height)
+			if err != nil {
+				return err
+			}
+			newlyConfirmed, err := transactions.processTxForAddress(
+				dbTx, scriptHashHex, txHash, tx, height, headerTimestamp,
+			)
+			if err != nil {
+				return err
+			}
+			txsToNotify = append(txsToNotify, txHash)
+			if newlyConfirmed {
+				txsToVerify = append(txsToVerify, txToVerify{txHash: txHash, height: height})
+			}
 		}
 		return nil
 	})
 	if err != nil {
-		transactions.log.WithError(err).Panic("Failed to update address history")
+		return errp.WithMessage(err, "failed to update address history")
 	}
+	for _, txHash := range txsToDeleteFromNotifier {
+		if err := transactions.notifier.Delete(txHash[:]); err != nil {
+			transactions.log.WithError(err).Error("Failed notifier.Delete")
+		}
+	}
+	for _, txHash := range txsToNotify {
+		if err := transactions.notifier.Put(txHash[:]); err != nil {
+			transactions.log.WithError(err).Error("Failed notifier.Put")
+		}
+	}
+	if len(txsToVerify) != 0 {
+		go func() {
+			for _, tx := range txsToVerify {
+				transactions.log.Debug("Try to verify newly confirmed tx")
+				transactions.verifyTransaction(tx.txHash, tx.height)
+			}
+		}()
+	}
+	return nil
 }
 
 // getTransactionCached requires transactions lock.
 func (transactions *Transactions) getTransactionCached(
 	dbTx DBTxInterface,
 	txHash chainhash.Hash,
-) *wire.MsgTx {
+	height int,
+) (*wire.MsgTx, *time.Time, error) {
 	txInfo, err := dbTx.TxInfo(txHash)
 	if err != nil {
-		transactions.log.WithError(err).Panic("Failed to retrieve transaction info")
+		return nil, nil, errp.WithMessage(err, "failed to retrieve transaction info")
 	}
+
+	headerTimestamp := transactions.getCachedTimestampAtHeight(height, txInfo.HeaderTimestamp)
+
 	if txInfo.Tx != nil {
-		return txInfo.Tx
+		return txInfo.Tx, headerTimestamp, nil
 	}
 	tx, err := transactions.blockchain.TransactionGet(txHash)
 	if err != nil {
-		transactions.log.WithError(err).Panic("TransactionGet failed")
+		return nil, nil, errp.WithMessage(err, "TransactionGet failed")
 	}
-	return tx
+	return tx, headerTimestamp, nil
 }
 
 // Balance computes the confirmed and unconfirmed balance of the account.
@@ -368,7 +494,11 @@ func (transactions *Transactions) Balance() (*accounts.Balance, error) {
 		var available, incoming int64
 		for outPoint, txOut := range outputs {
 			// What is spent can not be available nor incoming.
-			if spent := transactions.isInputSpent(dbTx, outPoint); spent {
+			spent, err := transactions.isInputSpent(dbTx, outPoint)
+			if err != nil {
+				return nil, err
+			}
+			if spent {
 				continue
 			}
 			txInfo, err := dbTx.TxInfo(outPoint.Hash)
@@ -376,7 +506,15 @@ func (transactions *Transactions) Balance() (*accounts.Balance, error) {
 				return nil, err
 			}
 			confirmed := txInfo.Height > 0
-			if confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx) {
+			availableOutput := confirmed
+			if !availableOutput {
+				allInputsOurs, err := transactions.allInputsOurs(dbTx, txInfo.Tx)
+				if err != nil {
+					return nil, err
+				}
+				availableOutput = allInputsOurs
+			}
+			if availableOutput {
 				available += txOut.Value
 			} else {
 				incoming += txOut.Value
@@ -399,15 +537,14 @@ func (transactions *Transactions) outputToAddress(pkScript []byte) string {
 func (transactions *Transactions) txInfo(
 	dbTx DBTxInterface,
 	txInfo *DBTxInfo,
-	isChange func(blockchain.ScriptHashHex) bool) *accounts.TransactionData {
+	isChange func(blockchain.ScriptHashHex) bool) (*accounts.TransactionData, error) {
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
 	allInputsOurs := true
 	for _, txIn := range txInfo.Tx.TxIn {
 		spentOut, err := dbTx.Output(txIn.PreviousOutPoint)
 		if err != nil {
-			// TODO
-			transactions.log.WithError(err).Panic("Output() failed")
+			return nil, errp.WithMessage(err, "Output() failed")
 		}
 		if spentOut != nil {
 			sumOurInputs += btcutil.Amount(spentOut.Value)
@@ -426,8 +563,7 @@ func (transactions *Transactions) txInfo(
 			Index: uint32(index),
 		})
 		if err != nil {
-			// TODO
-			transactions.log.WithError(err).Panic("Output() failed")
+			return nil, errp.WithMessage(err, "Output() failed")
 		}
 		addressAndAmount := accounts.AddressAndAmount{
 			Address: transactions.outputToAddress(txOut.PkScript),
@@ -515,7 +651,7 @@ func (transactions *Transactions) txInfo(
 		Weight:           btcdBlockchain.GetTransactionWeight(btcutilTx),
 		CreatedTimestamp: txInfo.CreatedTimestamp,
 		IsErc20:          false,
-	}
+	}, nil
 }
 
 // Transactions returns an ordered list of transactions.
@@ -532,7 +668,11 @@ func (transactions *Transactions) Transactions(
 			if err != nil {
 				return nil, err
 			}
-			txs = append(txs, transactions.txInfo(dbTx, txInfo, isChange))
+			txData, err := transactions.txInfo(dbTx, txInfo, isChange)
+			if err != nil {
+				return nil, err
+			}
+			txs = append(txs, txData)
 		}
 		return accounts.NewOrderedTransactions(txs), nil
 	})

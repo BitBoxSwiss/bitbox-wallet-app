@@ -1,48 +1,27 @@
-/**
- * Copyright 2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
-*
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, useContext, createContext, useEffect, useState, useCallback } from 'react';
 import { runningOnMobile } from '@/utils/env';
 import { AppContext } from './AppContext';
+import { useBackNavigation } from './BackNavigationContext';
 
 export type THandler = () => boolean;
 
 type TProps = {
   pushHandler: (handler: THandler) => void;
   popHandler: (handler: THandler) => void;
-}
+};
 
-export const BackButtonContext = createContext<TProps>({
-  pushHandler: () => {
-    console.error('pushHandler called out of context');
-    return true;
-  },
-  popHandler: () => {
-    console.error('popHandler called out of context');
-    return true;
-  },
-});
+export const BackButtonContext = createContext<TProps | null>(null);
 
 type TProviderProps = {
   children: ReactNode;
-}
+};
 
 export const BackButtonProvider = ({ children }: TProviderProps) => {
   const [handlers, setHandlers] = useState<THandler[]>([]);
   const { guideShown, toggleGuide } = useContext(AppContext);
+  const { handleSystemBack } = useBackNavigation();
 
   const callTopHandler = useCallback(() => {
     // On mobile, the guide covers the whole screen.
@@ -54,11 +33,14 @@ export const BackButtonProvider = ({ children }: TProviderProps) => {
     }
 
     if (handlers.length > 0) {
-      const topHandler = handlers[handlers.length - 1];
-      return topHandler();
+      const topHandler = handlers[handlers.length - 1] as THandler;
+      const shouldContinue = topHandler();
+      if (!shouldContinue) {
+        return false;
+      }
     }
-    return true;
-  }, [handlers, guideShown, toggleGuide]);
+    return handleSystemBack();
+  }, [handlers, guideShown, toggleGuide, handleSystemBack]);
 
   const pushHandler = useCallback((handler: THandler) => {
     setHandlers((prevStack) => [...prevStack, handler]);

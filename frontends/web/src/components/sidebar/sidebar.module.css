@@ -42,7 +42,7 @@
     /* mobile viewport bug fix */
     min-height: -webkit-fill-available;
     overflow-y: auto;
-    padding: 0 0 calc(var(--spacing-default) + env(safe-area-inset-bottom)) 0;
+    padding: 0 0 calc(var(--space-half) + env(safe-area-inset-bottom)) 0;
     position: fixed;
     top: 0;
     width: var(--sidebar-width-large);
@@ -64,8 +64,8 @@
     flex-direction: row;
     height: 70px;
     justify-content: space-between;
-    padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-large);
-    padding-top: calc(var(--spacing-default) + var(--spacing-half) + env(safe-area-inset-top, 0));
+    padding: calc(var(--space-half) + var(--space-quarter)) var(--space-default);
+    padding-top: calc(var(--space-half) + var(--space-quarter) + env(safe-area-inset-top, 0));
     background-size: cover;
     background-color: rgba(0, 0, 0, 0.1);
     opacity: 1;
@@ -80,7 +80,9 @@
 
 .sidebarHeaderContainer {
     margin-top: var(--sidebar-margin);
-    margin-bottom: var(--sidebar-header-size);
+    margin-bottom: 12px;
+    margin-left: 1px;
+    margin-right: var(--space-three-quarter);
     padding: 0 var(--sidebar-margin);
     display: flex;
     flex-direction: row;
@@ -88,14 +90,9 @@
     align-items: center;
 }
 
-.sidebarPortfolio + .sidebarHeaderContainer {
-    margin-top: 28px;
-}
-
 .sidebarHeader {
-    font-size: var(--sidebar-header-size);
-    line-height: var(--sidebar-header-line-height);
     color: var(--color-secondary);
+    font-size: var(--size-smaller);
 }
 
 .sidebarIconVisible {
@@ -108,19 +105,24 @@
 
 .sidebarItem {
     display: block;
+    margin: 0 var(--space-three-quarter);
+}
+
+.sidebarPortfolio {
+    margin-top: var(--space-three-quarter);
 }
 
 .sidebarItem > a,
 .sidebarItem > button {
-    background-color: transparent;
     align-items: center;
-    border-radius: 2px;
+    background-color: transparent;
+    border-radius: var(--radius-xl);
     color: white;
     cursor: default;
     display: flex;
     flex-direction: row;
-    height: var(--sidebar-item-height);
     justify-content: center;
+    min-height: var(--sidebar-item-height);
     overflow: hidden;
     position: relative;
     text-decoration: none;
@@ -138,6 +140,7 @@
 .sidebarItem :global(.stacked),
 .sidebarItem .single {
     margin: 0 var(--sidebar-icon-margin) 0 var(--sidebar-margin);
+    margin-left: 20px;
     height: var(--sidebar-icon-size);
 }
 
@@ -180,16 +183,33 @@ a.sidebarActive .single img,
 }
 
 .sidebarLabel {
-    background-color: transparent;
     color: var(--color-light);
-    line-height: 1;
     flex: 1;
-    padding-top: 0;
-    padding-right: var(--space-default);
-    font-size: var(--size-default);
+    font-size: var(--size-small);
     font-weight: 400;
+    padding-right: var(--space-half);
+    padding-top: 0;
     transition: all 0.2s ease;
     word-break: break-word;
+}
+
+.marketplaceLabel {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--space-eight);
+}
+
+.marketplaceNudgeDot {
+    background: var(--color-blue);
+    border-radius: var(--radius-full);
+    display: inline-block;
+    flex-shrink: 0;
+    height: 8px;
+    left: -2px;
+    max-width: 8px;
+    position: relative;
+    width: 8px;
+    top: -7px;
 }
 
 @media (max-width: 1199px) {

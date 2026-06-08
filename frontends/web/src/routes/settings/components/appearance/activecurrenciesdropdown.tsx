@@ -1,18 +1,4 @@
-/**
- * Copyright 2023-2024 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useContext, useEffect, useState } from 'react';
 import { ActionMeta } from 'react-select';
@@ -25,9 +11,9 @@ import activeCurrenciesDropdownStyle from './activecurrenciesdropdown.module.css
 import settingsDropdownStyles from './settingsdropdown.module.css';
 
 type SelectOption = {
-    label: string;
-    value: Fiat;
-}
+  label: string;
+  value: Fiat;
+};
 
 type TSelectProps = {
   options: SelectOption[];
@@ -35,6 +21,13 @@ type TSelectProps = {
   activeCurrencies: Fiat[];
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+};
+
+const sortCurrencyOptions = (options: SelectOption[], activeCurrencies: Fiat[]): SelectOption[] => {
+  const byLabel = (a: SelectOption, b: SelectOption) => a.label.localeCompare(b.label);
+  const selected = options.filter(opt => activeCurrencies.includes(opt.value)).sort(byLabel);
+  const others = options.filter(opt => !activeCurrencies.includes(opt.value)).sort(byLabel);
+  return [...selected, ...others];
 };
 
 export const ActiveCurrenciesDropdown = ({
@@ -61,22 +54,23 @@ export const ActiveCurrenciesDropdown = ({
     const selected = formattedActiveCurrencies.findIndex(currency => currency.value === value) >= 0;
     const isDefaultCurrency = defaultCurrency === value;
     return (
-      <div
-        className={`${activeCurrenciesDropdownStyle.optionContainer} 
-        ${isDefaultCurrency ? activeCurrenciesDropdownStyle.defaultCurrency : ''}`}
-      >
+      <div className={`
+        ${activeCurrenciesDropdownStyle.optionContainer || ''}
+        ${isDefaultCurrency && activeCurrenciesDropdownStyle.defaultCurrency || ''}
+      `}>
         <span>{label}</span>
         {isDefaultCurrency ? <p className={activeCurrenciesDropdownStyle.defaultLabel}>{t('fiat.default')}</p> : null}
         {selected && !isDefaultCurrency ? <SelectedCheckLight /> : null}
       </div>
     );
   };
+  const sortedOptions = sortCurrencyOptions(options, activeCurrencies);
 
   return (
     <Dropdown
       isMulti
       closeMenuOnSelect={false}
-      options={options}
+      options={sortedOptions}
       value={formattedActiveCurrencies}
       title={t('newSettings.appearance.activeCurrencies.title')}
       mobileFullScreen

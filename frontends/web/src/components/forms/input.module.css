@@ -1,10 +1,22 @@
-.input {
+.inputContainer {
     width: 100%;
     margin-bottom: var(--space-half);
     position: relative;
 }
 
-.input label {
+.inputContainer input[type=checkbox] {
+    width: auto;
+    height: auto;
+}
+
+.labelContainer {
+    align-items: baseline;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.labelContainer label {
     display: block;
     margin: 0 0 var(--space-quarter) 0;
 }
@@ -15,7 +27,6 @@
 
 .align-right label {
     flex-grow: 1;
-    justify-self: flex-end;
     text-align: right;
 }
 
@@ -23,53 +34,102 @@
     text-align: right;
 }
 
-.input input {
+.inputField {
     background-color: var(--background-secondary);
     border-color: var(--background-quaternary);
-    border-radius: 2px;
+    border-radius: var(--radius-xl);
     border-style: solid;
-    border-width: 1px;
-    font-family: var(--font-family);
-    font-size: var(--size-default);
-    font-weight: 400;
-    height: 52px;
+    border-width: var(--border-width);
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-eight); /* in case there is a child */
+    height: var(--input-height);
     padding: 0 var(--space-half);
     width: 100%;
     transition: border-color .2s ease-out;
     will-change: border-color;
 }
 
-.input input:focus {
+.inputField input {
+    background-color: transparent;
+    border: none;
+    font-family: var(--font-family);
+    font-size: var(--size-default);
+    font-variant-numeric: tabular-nums;
+    font-weight: 400;
+    height: var(--input-height);
+    padding: 0;
+    width: 100%;
+}
+.inputField input:focus {
+    outline: none;
+}
+
+.inputField:focus-within {
     border-color: var(--color-blue);
     outline: none;
 }
 
-.input input::placeholder {
+.inputField:has(input:invalid) {
+    border-color: var(--color-error);
+}
+
+.inputField input::placeholder {
     color: var(--color-secondary);
 }
 
-.input input[disabled] {
-    background-color: var(--background-secondary) !important;
-    border-color: var(--background) !important;
+.inputField input[disabled] {
+    background-color: transparent;
+    border-color: transparent;
     color: var(--color-secondary) !important;
     cursor: not-allowed;
 }
 
+.isTransparent .inputField {
+    background-color: transparent;
+    border-color: transparent;
+    padding: 0;
+}
+
 .isTransparent input[disabled] {
-    border-color: var(--background);
     color: var(--color-default) !important;
     cursor: default;
 }
 
-.errorText {
-    color: var(--color-softred) !important;
-}
-
-.errorText > span > span {
-    margin-left: 5px;
-}
-
-.input input[type=checkbox] {
-    width: auto;
+.isTransparent .inputField input,
+.isTransparent .inputField {
     height: auto;
+    min-height: 0;
 }
+
+.errorText {
+    color: var(--color-error) !important;
+    display: inline-block;
+}
+
+.errorText::first-letter {
+    text-transform: capitalize;
+}
+
+.align-right .errorText {
+    text-align: right;
+}
+
+.inputField input[type=number],
+.inputField input[type=password],
+.inputField input[type=text] {
+    background: transparent;
+}
+
+/* webkit */
+.inputField input[type=number]::-webkit-inner-spin-button,
+.inputField input[type=number]::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+}
+
+/* firefox */
+.inputField input[type=number] {
+  -moz-appearance: textfield;
+}
+

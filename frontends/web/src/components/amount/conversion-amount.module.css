@@ -6,27 +6,34 @@
 .txConversionAmount {
   align-items: baseline;
   display: flex;
-  font-variant: tabular-nums;
+  font-variant-numeric: tabular-nums;
   margin-left: auto;
-  gap: 3px;
+}
+
+.txPrefix {
+  margin-right: .4ch;
+}
+
+.txUnit {
+  margin-left: .4ch;
 }
 
 .txPrefix,
 .txUnit {
   color: var(--color-secondary);
-  font-size: 14px;
-  line-height: 1.285714;
+  font-size: var(--size-small);
   white-space: nowrap;
 }
 
 .txConversionAmount .txUnit {
-  font-size: 12px;
+  font-size: var(--size-smaller);
   flex-shrink: 0;
+  max-width: 100%;
 }
 
 .txSmallInlineIcon img {
-  max-height: 15px;
-  max-width: 15px;
+  max-height: 1.5rem;
+  max-width: 1.5rem;
   vertical-align: text-bottom;
 }
 .txConversionAmount .txSmallInlineIcon {

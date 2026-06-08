@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitrefill</title>
+
+<link href="./bitrefill.css" rel="stylesheet">
+
+<div class="bitrefill-widget" id="bitrefill-widget-container">
+
+</div>
+
+<script lang="js">
+  // NOTE: please note this static page is for development purposes only and may not be in sync with the actual version
+  ;(() => {
+    // Abort if not embedded in another context
+    if (window.top === window) {
+      showError('Unexpected error');
+      return;
+    }
+
+    // Polyfill if crypto.randomUUID is not available, i.e. in Qt WebEngine
+    if (!crypto.randomUUID) {
+      crypto.randomUUID = function () {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+          (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+      };
+    }
+
+    const onMessage = (event) => {
+      const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+      switch (data?.event) {
+        case 'configuration': {
+          const {
+            ref,
+            utm_source,
+            theme,
+            hl,
+            paymentMethods,
+            refundAddress,
+            paymentPending,
+            region,
+            showPaymentInfo,
+          } = data || {};
+
+          if ( // ensure critical parameters are available
+            !ref
+            || !utm_source
+            || !refundAddress
+            || !paymentMethods
+          ) {
+            showError(`Unexpected error:
+              ${!ref ? 'Referral code missing' : ''}
+              ${!utm_source ? 'UTM source missing' : ''}
+              ${!refundAddress ? 'Refund address missing' : ''}
+              ${!paymentMethods ? 'Payment method missing' : ''}
+            `);
+            return;
+          }
+
+          const bitrefillUrl = new URL('https://embed.bitrefill.com/');
+
+          if (region) {
+            bitrefillUrl.pathname = region;
+          }
+
+          bitrefillUrl.search = new URLSearchParams({
+            ref: ref,
+            utm_source: utm_source,
+            theme: theme,
+            hl: hl,
+            paymentMethods: paymentMethods,
+            refundAddress: refundAddress,
+            paymentPending: paymentPending,
+            showPaymentInfo: showPaymentInfo
+          }).toString();
+          
+          const iframe = document.createElement('iframe');
+          iframe.src = bitrefillUrl;
+          iframe.title = "Bitrefill";
+          iframe.width="100%"
+          iframe.height="100%"
+          iframe.sandbox = "allow-same-origin allow-popups allow-scripts allow-forms";
+          document.getElementById('bitrefill-widget-container').appendChild(iframe);
+
+          break;
+        }
+        case 'payment_intent': {
+          // Forward payment intent to the app
+          window.parent.postMessage(data, '*');
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('message', onMessage);
+
+    // Request the parent to send attributes
+    window.parent.postMessage({
+      event: 'request-configuration'
+    }, '*');
+
+    function showError(message) {
+      document.body.append(
+        Object.assign(document.createElement('h1'), {
+          style: 'color: red; padding: 1rem;',
+          textContent: message,
+        })
+      );
+    }
+
+  })();
+</script>

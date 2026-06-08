@@ -1,27 +1,15 @@
-/**
- * Copyright 2023 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VersionInfo } from '@/api/bitbox02';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
-import { Column, ColumnButtons, Grid } from '@/components/layout';
+import { Column, ColumnButtons, Grid, ResponsiveGrid } from '@/components/layout';
 import { Button, Label } from '@/components/forms';
 import { Toggle } from '@/components/toggle/toggle';
-import { Info } from '@/components/icon';
+import { InfoBlue } from '@/components/icon';
+import { BackButton } from '@/components/backbutton/backbutton';
 import style from './choose.module.css';
 
 export type TWalletSetupChoices = 'create-wallet' | 'restore-sdcard' | 'restore-mnemonic';
@@ -37,13 +25,14 @@ type Props = {
     options?: TWalletCreateOptions,
   ) => void;
   versionInfo: VersionInfo;
-}
+};
 
 export const SetupOptions = ({
   onSelectSetup,
   versionInfo,
 }: Props) => {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [advanced, setAdvanced] = useState(false);
   const [withMnemonic, setWithMnemonic] = useState(false);
   const [with12Words, setWith12Words] = useState(false);
@@ -61,8 +50,8 @@ export const SetupOptions = ({
         withBottomBar
         width="1100px">
         <ViewHeader small title={t('seed.create')} />
-        <ViewContent fullWidth>
-          <Grid col="1" textAlign="left">
+        <ViewContent>
+          <Grid col="1" textAlign="start">
             <Column asCard>
               <h3 className="title">
                 {t('bitbox02Wizard.advanced.title')}
@@ -131,12 +120,12 @@ export const SetupOptions = ({
                 </p>
                 <p className="m-top-quarter m-bottom-default">
                   <small>
-                    <Info className={style.textIcon} />
+                    <InfoBlue className={style.textIcon} />
                     {t('bitbox02Wizard.advanced.seed12WordInfo')}
                   </small>
                 </p>
               </div>
-              <ColumnButtons inline>
+              <ColumnButtons inline={!isMobile}>
                 <Button
                   onClick={() => onSelectSetup('create-wallet', {
                     withMnemonic,
@@ -145,15 +134,15 @@ export const SetupOptions = ({
                   primary>
                   {t('seed.create')}
                 </Button>
-                <Button
+                <BackButton
                   onClick={() => {
                     setWithMnemonic(false);
                     setWith12Words(false);
                     setAdvanced(false);
                   }}
-                  secondary>
+                >
                   {t('button.back')}
-                </Button>
+                </BackButton>
               </ColumnButtons>
             </Column>
           </Grid>
@@ -171,12 +160,12 @@ export const SetupOptions = ({
       width="1100px">
       <ViewHeader small title={t('bitbox02Wizard.stepUninitialized.title')}>
         <p>
-          <Info className={style.textIcon} />
+          <InfoBlue className={style.textIcon} />
           {t('bitbox02Wizard.initialize.tip')}
         </p>
       </ViewHeader>
-      <ViewContent fullWidth>
-        <Grid>
+      <ViewContent>
+        <ResponsiveGrid>
           <Column asCard className={style.cardHeight}>
             <h3 className="title">
               {t('button.create')}
@@ -222,7 +211,7 @@ export const SetupOptions = ({
               </Button>
             </ColumnButtons>
           </Column>
-        </Grid>
+        </ResponsiveGrid>
       </ViewContent>
     </View>
   );

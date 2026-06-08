@@ -1,0 +1,39 @@
+.address {
+  color: var(--color-secondary);
+}
+
+.confirmItem {
+  margin-bottom: var(--space-three-quarter);
+}
+
+.bitBoxContainer {
+  margin-bottom: var(--space-half);
+}
+
+.label {
+  color: var(--color-secondary);
+}
+
+.confirmItem ul {
+  list-style-type: square;
+  margin: 0;
+  margin-top: var(--space-quarter);
+  padding-left: var(--space-half);
+}
+
+.addressGroup {
+  margin-top: var(--space-quarter);
+}
+
+.unit {
+  color: var(--color-secondary);
+  font-size: var(--size-default);
+}
+
+.title {
+  text-align: center;
+}
+
+.valueOriginalLarge {
+  font-size: var(--size-header);
+}

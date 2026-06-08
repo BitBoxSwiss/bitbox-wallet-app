@@ -1,19 +1,4 @@
-/**
- * Copyright 2018 Shift Devices AG
- * Copyright 2022-2025 Shift Crypto AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,12 +10,13 @@ import { Entry } from '../../../../components/guide/entry';
 import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import Blink from './components/blink';
-import RandomNumber from './components/randomnumber';
 import ChangePIN from './components/changepin';
 import Reset from './components/reset';
 import UpgradeFirmware from '../components/upgradefirmware';
 import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../../../components/settingsButton/settingsItem';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
+import { Banner } from '@/components/banners/banner';
 
 type Props = {
   deviceID: string;
@@ -78,6 +64,9 @@ export const Settings = ({ deviceID }: Props) => {
     <div className="contentWithGuide">
       <div className="container">
         <div className="innerContainer scrollableContainer">
+          <ContentWrapper>
+            <Banner msgKey="bitbox01" />
+          </ContentWrapper>
           <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} />
           <div className="content padded">
             <div className="columnsContainer">
@@ -109,7 +98,6 @@ export const Settings = ({ deviceID }: Props) => {
                     <SettingsItem optionalText={t(`deviceSettings.hardware.sdcard.${sdcard ? 'true' : 'false' }`)}>
                       {t('deviceSettings.hardware.sdcard.label')}
                     </SettingsItem>
-                    <RandomNumber apiPrefix={`devices/${deviceID}`} />
                     <Blink deviceID={deviceID} />
                   </div>
                 </div>
@@ -120,8 +108,14 @@ export const Settings = ({ deviceID }: Props) => {
         </div>
       </div>
       <Guide>
-        <Entry key="guide.bitbox.ejectBitbox" entry={t('guide.bitbox.ejectBitbox', { returnObjects: true })} />
-        <Entry key="guide.bitbox.ejectSD" entry={t('guide.bitbox.ejectSD', { returnObjects: true })} />
+        <Entry key="guide.bitbox.ejectBitbox" entry={{
+          text: t('guide.bitbox.ejectBitbox.text'),
+          title: t('guide.bitbox.ejectBitbox.title'),
+        }} />
+        <Entry key="guide.bitbox.ejectSD" entry={{
+          text: t('guide.bitbox.ejectSD.text'),
+          title: t('guide.bitbox.ejectSD.title'),
+        }} />
       </Guide>
     </div>
   );

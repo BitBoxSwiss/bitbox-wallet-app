@@ -26,11 +26,11 @@
 }
 
 .accountName {
-    font-size: 20px;
+    font-size: 2rem;
 }
 
 .receiveAddress {
-    font-size: 16px;
+    font-size: 1.6rem;
 }
 
 @media (max-width: 768px) {
@@ -42,7 +42,7 @@
         font-size: var(--size-subheader);
     }
     .headerContainer p {
-        font-size: var(--size-small);
+        font-size: var(--size-smaller);
     }
     .headerContainer img {
         width: 36px;

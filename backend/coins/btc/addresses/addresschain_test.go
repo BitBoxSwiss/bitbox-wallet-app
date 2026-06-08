@@ -1,16 +1,4 @@
-// Copyright 2018 Shift Devices AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package addresses_test
 
@@ -89,17 +77,17 @@ func (s *addressChainTestSuite) TestGetUnused() {
 	s.Require().Equal(newAddresses[1], unusedAddresses[0])
 }
 
-func (s *addressChainTestSuite) TestLookupByScriptHashHex() {
+func (s *addressChainTestSuite) TestLookupByAddressID() {
 	s.isAddressUsed = func(*addresses.AccountAddress) bool { return false }
 	newAddresses, err := s.addresses.EnsureAddresses()
 	s.Require().NoError(err)
 	for _, address := range newAddresses {
 		s.Require().Equal(address,
-			s.addresses.LookupByScriptHashHex(address.PubkeyScriptHashHex()))
+			s.addresses.LookupByAddressID(addresses.AddressID(address.ID())))
 	}
 	firstAddress := newAddresses[0]
 	// Produce addresses beyond the gapLimit to ensure the gapLimit does not confuse
-	// LookupByScriptHashHex().
+	// LookupByAddressID().
 	s.isAddressUsed = func(addr *addresses.AccountAddress) bool {
 		return addr == firstAddress
 	}
@@ -107,8 +95,8 @@ func (s *addressChainTestSuite) TestLookupByScriptHashHex() {
 	s.Require().NoError(err)
 	s.Require().Len(newAddresses, 1)
 	s.Require().Equal(
-		newAddresses[0], s.addresses.LookupByScriptHashHex(newAddresses[0].PubkeyScriptHashHex()))
-	s.Require().Nil(s.addresses.LookupByScriptHashHex(test.GetAddress(signing.ScriptTypeP2PKH).PubkeyScriptHashHex()))
+		newAddresses[0], s.addresses.LookupByAddressID(addresses.AddressID(newAddresses[0].ID())))
+	s.Require().Nil(s.addresses.LookupByAddressID(addresses.AddressID(test.GetAddress(signing.ScriptTypeP2PKH).ID())))
 }
 
 func (s *addressChainTestSuite) TestEnsureAddresses() {
@@ -143,7 +131,7 @@ func (s *addressChainTestSuite) TestEnsureAddresses() {
 	s.Require().Len(newAddresses, s.gapLimit)
 	for index, address := range newAddresses {
 		s.Require().Equal(uint32(index), address.AbsoluteKeypath().ToUInt32()[1])
-		s.Require().Equal(getPubKey(index), address.TstPublicKey())
+		s.Require().Equal(getPubKey(index), address.PublicKey)
 	}
 	// Address statuses are still the same, so calling it again won't produce more addresses.
 	addrs, err := s.addresses.EnsureAddresses()

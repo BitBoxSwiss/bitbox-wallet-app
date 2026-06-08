@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package coin
 
 import (
@@ -19,6 +21,11 @@ func Sat2Btc(amount *big.Rat) *big.Rat {
 // Btc2Sat converts a big.Rat amount of BTC in an equivalent amount of Sat.
 func Btc2Sat(amount *big.Rat) *big.Rat {
 	return new(big.Rat).Mul(amount, big.NewRat(btc2SatUnit, 1))
+}
+
+// ToUnitRat converts an amount in the coin's smallest unit to the currently selected display unit.
+func ToUnitRat(amount Amount, coin Coin, isFee bool) *big.Rat {
+	return new(big.Rat).SetFrac(amount.BigInt(), DecimalsExp(coin, isFee))
 }
 
 // FormatAsPlainCurrency handles formatting for currencies in a simplified way.
@@ -47,16 +54,18 @@ func FormatAsCurrency(amount *big.Rat, currency string) string {
 	return formatted
 }
 
+// ConversionsMap maps formmatted conversions of a coin amount into fiat currencies.
+type ConversionsMap map[string]string
+
 // Conversions handles fiat conversions.
-func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.RateUpdater) map[string]string {
-	conversions := map[string]string{}
+func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.RateUpdater) ConversionsMap {
+	conversions := ConversionsMap{}
 	rates := ratesUpdater.LatestPrice()
 	if rates != nil {
 		unit := coin.Unit(isFee)
 
-		conversions = map[string]string{}
 		for key, value := range rates[unit] {
-			convertedAmount := new(big.Rat).Mul(new(big.Rat).SetFloat64(coin.ToUnit(amount, isFee)), new(big.Rat).SetFloat64(value))
+			convertedAmount := new(big.Rat).Mul(ToUnitRat(amount, coin, isFee), new(big.Rat).SetFloat64(value))
 			conversions[key] = FormatAsCurrency(convertedAmount, key)
 		}
 	}
@@ -66,14 +75,14 @@ func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.Ra
 // ConversionsAtTime handles fiat conversions at a specific time.
 // It returns the map of conversions and a bool indicating if the rates have been estimated
 // using the latest instead of the historical rates for recent transactions.
-func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.RateUpdater, timeStamp *time.Time) (map[string]string, bool) {
+func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.RateUpdater, timeStamp *time.Time) (ConversionsMap, bool) {
 	latestRatesTime := ratesUpdater.HistoryLatestTimestampCoin(string(coin.Code()))
 	historicalRatesNotAvailable := latestRatesTime.IsZero() || latestRatesTime.Before(*timeStamp)
 	if historicalRatesNotAvailable && time.Since(*timeStamp) < 2*time.Hour {
 		return Conversions(amount, coin, isFee, ratesUpdater), true
 	}
 
-	conversions := map[string]string{}
+	conversions := ConversionsMap{}
 	lastRates := ratesUpdater.LatestPrice()
 	if lastRates != nil {
 		unit := coin.Unit(isFee)
@@ -82,7 +91,7 @@ func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *rates
 			if value == 0 {
 				conversions[currency] = ""
 			} else {
-				convertedAmount := new(big.Rat).Mul(new(big.Rat).SetFloat64(coin.ToUnit(amount, isFee)), new(big.Rat).SetFloat64(value))
+				convertedAmount := new(big.Rat).Mul(ToUnitRat(amount, coin, isFee), new(big.Rat).SetFloat64(value))
 				conversions[currency] = FormatAsCurrency(convertedAmount, currency)
 			}
 		}

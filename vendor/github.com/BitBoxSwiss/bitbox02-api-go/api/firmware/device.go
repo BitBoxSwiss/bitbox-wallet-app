@@ -1,17 +1,4 @@
-// Copyright 2018-2019 Shift Cryptosecurity AG
-// Copyright 2020 Shift Crypto AG
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package firmware contains the API to the physical device.
 package firmware
@@ -116,6 +103,10 @@ type Device struct {
 type BluetoothInfo struct {
 	// FirmwareHash is the hex-encoded 32 byte Bluetooth firmware hash.
 	FirmwareHash string `json:"firmwareHash"`
+	// FirmwareVersion is the Bluetooth firmware version, formated as "major.minor.patch".
+	FirmwareVersion string `json:"firmwareVersion"`
+	// Enabled is true if Bluetooth is enabled.
+	Enabled bool `json:"enabled"`
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -129,6 +120,9 @@ type DeviceInfo struct {
 	SecurechipModel string `json:"securechipModel"`
 	// Available on Bluetooth-enabled devices, Will be `nil` otherwise.
 	Bluetooth *BluetoothInfo `json:"bluetooth"`
+	// This information is only available since firmwae v9.25.0. Will be an empty string for older
+	// firmware versions.
+	PasswordStretchingAlgo string `json:"passwordStretchingAlgo"`
 }
 
 // NewDevice creates a new instance of Device.
@@ -166,14 +160,13 @@ func NewDevice(
 	}
 }
 
-// info uses the opInfo api endpoint to learn about the version, platform/edition, and unlock
+// Info uses the opInfo api endpoint to learn about the version, platform/edition, and unlock
 // status (true if unlocked).
-func (device *Device) info() (*semver.SemVer, common.Product, bool, error) {
-
+func Info(communication Communication) (*semver.SemVer, common.Product, bool, error) {
 	// CAREFUL: hwwInfo is called on the raw transport, not on device.rawQuery, which behaves
 	// differently depending on the firmware version. Reason: the version is not
 	// available (this call is used to get the version), so it must work for all firmware versions.
-	response, err := device.communication.Query([]byte(hwwInfo))
+	response, err := communication.Query([]byte(hwwInfo))
 	if err != nil {
 		return nil, "", false, err
 	}
@@ -221,6 +214,10 @@ func (device *Device) info() (*semver.SemVer, common.Product, bool, error) {
 		return nil, "", false, errp.New("unexpected reply")
 	}
 	return version, product, unlocked, nil
+}
+
+func (device *Device) info() (*semver.SemVer, common.Product, bool, error) {
+	return Info(device.communication)
 }
 
 // Version returns the firmware version.

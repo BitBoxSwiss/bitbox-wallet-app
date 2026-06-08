@@ -53,6 +53,9 @@ type VerkleProof struct {
 }
 
 func (vp *VerkleProof) Copy() *VerkleProof {
+	if vp == nil {
+		return nil
+	}
 	ret := &VerkleProof{
 		OtherStems:            make([][StemSize]byte, len(vp.OtherStems)),
 		DepthExtensionPresent: make([]byte, len(vp.DepthExtensionPresent)),
@@ -71,6 +74,35 @@ func (vp *VerkleProof) Copy() *VerkleProof {
 	}
 
 	return ret
+}
+
+func (vp *VerkleProof) Equal(other *VerkleProof) error {
+	if len(vp.OtherStems) != len(other.OtherStems) {
+		return fmt.Errorf("different number of other stems: %d != %d", len(vp.OtherStems), len(other.OtherStems))
+	}
+	for i := range vp.OtherStems {
+		if vp.OtherStems[i] != other.OtherStems[i] {
+			return fmt.Errorf("different other stem: %x != %x", vp.OtherStems[i], other.OtherStems[i])
+		}
+	}
+	if len(vp.DepthExtensionPresent) != len(other.DepthExtensionPresent) {
+		return fmt.Errorf("different number of depth extension present: %d != %d", len(vp.DepthExtensionPresent), len(other.DepthExtensionPresent))
+	}
+	if !bytes.Equal(vp.DepthExtensionPresent, other.DepthExtensionPresent) {
+		return fmt.Errorf("different depth extension present: %x != %x", vp.DepthExtensionPresent, other.DepthExtensionPresent)
+	}
+	if len(vp.CommitmentsByPath) != len(other.CommitmentsByPath) {
+		return fmt.Errorf("different number of commitments by path: %d != %d", len(vp.CommitmentsByPath), len(other.CommitmentsByPath))
+	}
+	for i := range vp.CommitmentsByPath {
+		if vp.CommitmentsByPath[i] != other.CommitmentsByPath[i] {
+			return fmt.Errorf("different commitment by path: %x != %x", vp.CommitmentsByPath[i], other.CommitmentsByPath[i])
+		}
+	}
+	if vp.D != other.D {
+		return fmt.Errorf("different D: %x != %x", vp.D, other.D)
+	}
+	return nil
 }
 
 type Proof struct {
@@ -116,6 +148,40 @@ func (sd StateDiff) Copy() StateDiff {
 		}
 	}
 	return ret
+}
+
+func (sd StateDiff) Equal(other StateDiff) error {
+	if len(sd) != len(other) {
+		return fmt.Errorf("different number of stem state diffs: %d != %d", len(sd), len(other))
+	}
+	for i := range sd {
+		if sd[i].Stem != other[i].Stem {
+			return fmt.Errorf("different stem: %x != %x", sd[i].Stem, other[i].Stem)
+		}
+		if len(sd[i].SuffixDiffs) != len(other[i].SuffixDiffs) {
+			return fmt.Errorf("different number of suffix state diffs: %d != %d", len(sd[i].SuffixDiffs), len(other[i].SuffixDiffs))
+		}
+		for j := range sd[i].SuffixDiffs {
+			if sd[i].SuffixDiffs[j].Suffix != other[i].SuffixDiffs[j].Suffix {
+				return fmt.Errorf("different suffix: %x != %x", sd[i].SuffixDiffs[j].Suffix, other[i].SuffixDiffs[j].Suffix)
+			}
+			if sd[i].SuffixDiffs[j].CurrentValue != nil && other[i].SuffixDiffs[j].CurrentValue != nil {
+				if *sd[i].SuffixDiffs[j].CurrentValue != *other[i].SuffixDiffs[j].CurrentValue {
+					return fmt.Errorf("different current value: %x != %x", *sd[i].SuffixDiffs[j].CurrentValue, *other[i].SuffixDiffs[j].CurrentValue)
+				}
+			} else if sd[i].SuffixDiffs[j].CurrentValue != nil || other[i].SuffixDiffs[j].CurrentValue != nil {
+				return fmt.Errorf("different current value: %x != %x", sd[i].SuffixDiffs[j].CurrentValue, other[i].SuffixDiffs[j].CurrentValue)
+			}
+			if sd[i].SuffixDiffs[j].NewValue != nil && other[i].SuffixDiffs[j].NewValue != nil {
+				if *sd[i].SuffixDiffs[j].NewValue != *other[i].SuffixDiffs[j].NewValue {
+					return fmt.Errorf("different new value: %x != %x", *sd[i].SuffixDiffs[j].NewValue, *other[i].SuffixDiffs[j].NewValue)
+				}
+			} else if sd[i].SuffixDiffs[j].NewValue != nil || other[i].SuffixDiffs[j].NewValue != nil {
+				return fmt.Errorf("different new value: %x != %x", sd[i].SuffixDiffs[j].NewValue, other[i].SuffixDiffs[j].NewValue)
+			}
+		}
+	}
+	return nil
 }
 
 func GetCommitmentsForMultiproof(root VerkleNode, keys [][]byte, resolver NodeResolverFn) (*ProofElements, []byte, []Stem, error) {
