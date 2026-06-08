@@ -146,11 +146,6 @@ const autoScaleProvider: AutoscaleInfoProvider = (original) => {
     maxValue = center + padding;
   }
 
-  // clamp to zero (balances never negative)
-  if (minValue < 0) {
-    minValue = 0;
-  }
-
   return {
     priceRange: {
       minValue,
@@ -189,7 +184,7 @@ export const Chart = ({
   const [tooltipData, setTooltipData] = useState<{
     toolTipVisible: boolean;
     toolTipValue?: string;
-    toolTipPercent?: string; // added percent
+    toolTipPerformance?: string;
     toolTipTop: number;
     toolTipLeft: number;
     toolTipTime: number;
@@ -198,16 +193,15 @@ export const Chart = ({
     toolTipTop: 0,
     toolTipLeft: 0,
     toolTipTime: 0,
-    toolTipPercent: undefined, // init
+    toolTipPerformance: undefined,
   });
 
   const [showPercent, setShowPercent] = useState(false);
 
-  // Hilfsfunktion zum Filtern der Chart-Daten basierend auf showPercent
-  const getFilteredChartData = useCallback((chartData: ChartData) => {
+  const getDisplayChartData = useCallback((chartData: ChartData) => {
     return chartData.map(entry => ({
       ...entry,
-      value: showPercent ? entry.percent : entry.amount // <-- Hier setzen wir value basierend auf showPercent
+      value: showPercent ? entry.performance * 100 : entry.value
     }));
   }, [showPercent]);
 
@@ -240,7 +234,7 @@ export const Chart = ({
   const displayWeek = () => {
     triggerHapticFeedback();
     if (source !== 'hourly' && lineSeries.current && data.chartDataHourly && chart.current) {
-      lineSeries.current.setData(getFilteredChartData(data.chartDataHourly || [])); // <-- Hier anwenden
+      lineSeries.current.setData(getDisplayChartData(data.chartDataHourly || []));
       setFormattedData(data.chartDataHourly || []);
       chart.current.applyOptions({ timeScale: { timeVisible: true } });
     }
@@ -251,7 +245,7 @@ export const Chart = ({
   const displayMonth = () => {
     triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(getFilteredChartData(data.chartDataDaily || [])); // <-- Hier anwenden
+      lineSeries.current.setData(getDisplayChartData(data.chartDataDaily || []));
       setFormattedData(data.chartDataDaily || []);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
@@ -262,7 +256,7 @@ export const Chart = ({
   const displayYear = () => {
     triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(getFilteredChartData(data.chartDataDaily)); // <-- Hier anwenden
+      lineSeries.current.setData(getDisplayChartData(data.chartDataDaily));
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
@@ -273,7 +267,7 @@ export const Chart = ({
   const displayAll = () => {
     triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(getFilteredChartData(data.chartDataDaily)); // <-- Hier anwenden
+      lineSeries.current.setData(getDisplayChartData(data.chartDataDaily));
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
@@ -331,6 +325,18 @@ export const Chart = ({
       setDiffSince('');
       return;
     }
+    if (showPercent) {
+      const valueFrom = chartData[rangeFrom].performance;
+      const valueTo = chartData[chartData.length - 1]?.performance;
+      if (valueTo === undefined || !Number.isFinite(valueFrom) || !Number.isFinite(valueTo)) {
+        setDifference(0);
+        setDiffSince('');
+        return;
+      }
+      setDifference(valueTo - valueFrom);
+      setDiffSince(`${(valueFrom * 100).toFixed(2)}% (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`);
+      return;
+    }
     const nextValue = chartData[rangeFrom + 1] as FormattedLineData | undefined;
     const valueFrom = chartData[rangeFrom].value === 0 ? nextValue?.value : chartData[rangeFrom].value;
     if (!valueFrom || !Number.isFinite(valueFrom)) {
@@ -343,7 +349,7 @@ export const Chart = ({
     setDifference(valueDiff / valueFrom);
 
     setDiffSince(`${chartData[rangeFrom].formattedValue} (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`);
-  }, [data, i18n.language, source]);
+  }, [data, i18n.language, showPercent, source]);
 
   // Moved handleCrosshair before removeChart to satisfy hook dependencies
   const handleCrosshair = useCallback(({
@@ -380,7 +386,7 @@ export const Chart = ({
     }
     const chartData = source === 'daily' ? data.chartDataDaily : data.chartDataHourly;
     const entry = chartData.find(e => Number(e.time) === time as number);
-    const percentLabel = entry ? `${entry.percent.toFixed(2)}%` : '';
+    const performanceLabel = entry ? `${(entry.performance * 100).toFixed(2)}%` : '';
     const coordinate = lineSeries.current.priceToCoordinate(price.value);
     if (!coordinate) {
       return;
@@ -389,7 +395,7 @@ export const Chart = ({
     setTooltipData({
       toolTipVisible: true,
       toolTipValue: formattedData.current?.[time as number] || '',
-      toolTipPercent: percentLabel,
+      toolTipPerformance: performanceLabel,
       toolTipTop: Math.floor(y),
       toolTipLeft: Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70))),
       toolTipTime: time as number,
@@ -499,7 +505,7 @@ export const Chart = ({
           ? data.chartDataHourly
           : data.chartDataDaily
       );
-      lineSeries.current.setData(getFilteredChartData(dataToDisplay));
+      lineSeries.current.setData(getDisplayChartData(dataToDisplay));
       setFormattedData(dataToDisplay);
       chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
       chart.current.subscribeCrosshairMove(handleCrosshair);
@@ -510,7 +516,7 @@ export const Chart = ({
       chartInitialized.current = true;
       updateRange(chart, chartDisplay);
     }
-  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile, getFilteredChartData, handleCrosshair]);
+  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, hasData, hideAmounts, i18n.language, isMobile, getDisplayChartData, handleCrosshair]);
 
   const reinitializeChart = () => {
     removeChart();
@@ -518,13 +524,13 @@ export const Chart = ({
   };
 
   if (source === 'daily' && prevChartDataDaily?.length !== data.chartDataDaily.length) {
-    lineSeries.current?.setData(getFilteredChartData(data.chartDataDaily)); // <-- Hier anwenden
+    lineSeries.current?.setData(getDisplayChartData(data.chartDataDaily));
     chart.current?.timeScale().fitContent();
     setFormattedData(data.chartDataDaily);
   }
 
   if (source === 'hourly' && prevChartDataHourly?.length !== data.chartDataHourly.length) {
-    lineSeries.current?.setData(getFilteredChartData(data.chartDataHourly)); // <-- Hier anwenden
+    lineSeries.current?.setData(getDisplayChartData(data.chartDataHourly));
     chart.current?.timeScale().fitContent();
     setFormattedData(data.chartDataHourly);
   }
@@ -544,6 +550,15 @@ export const Chart = ({
   const onTogglePercent = () => {
     setShowPercent(!showPercent);
   };
+
+  useEffect(() => {
+    if (!lineSeries.current) {
+      return;
+    }
+    const chartData = source === 'daily' ? data.chartDataDaily : data.chartDataHourly;
+    lineSeries.current.setData(getDisplayChartData(chartData));
+    calculateChange();
+  }, [calculateChange, data.chartDataDaily, data.chartDataHourly, getDisplayChartData, showPercent, source]);
 
   useEffect(() => {
     if (!chartInitialized.current) {
@@ -636,11 +651,6 @@ export const Chart = ({
 
   const chartHeight = `${!isMobile ? height : mobileHeight}px`;
 
-  // Compute last percent for summary
-  const summaryData = source === 'daily' ? data.chartDataDaily : data.chartDataHourly;
-  const lastEntry = summaryData.length > 0 ? summaryData[summaryData.length - 1] : undefined;
-  const lastPercentFraction = lastEntry ? lastEntry.percent / 100 : undefined;
-
   return (
     <section className={styles.chart}>
       <header>
@@ -662,9 +672,9 @@ export const Chart = ({
           </div>
           {!showMobileTotalValue ? (
             <PercentageDiff
-              hasDifference={showPercent ? lastPercentFraction !== undefined && Number.isFinite(lastPercentFraction) : !!hasDifference}
-              difference={showPercent ? lastPercentFraction : difference}
-              title={showPercent && lastEntry ? `${lastEntry.percent.toFixed(2)}%` : diffSince}
+              hasDifference={!!hasDifference}
+              difference={difference}
+              title={diffSince}
             />
           ) : (
             <span className={styles.diffValue}>
@@ -713,9 +723,9 @@ export const Chart = ({
             <span>
               <h2 className={styles.toolTipValue}>
                 <Amount amount={toolTipValue} unit={chartFiat} />
-                {tooltipData.toolTipPercent && (
-                  <span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
-                    ({tooltipData.toolTipPercent})
+                {tooltipData.toolTipPerformance && (
+                  <span className={styles.toolTipPerformance}>
+                    ({tooltipData.toolTipPerformance})
                   </span>
                 )}
               </h2>

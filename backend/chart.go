@@ -29,19 +29,18 @@ func (backend *Backend) allCoinCodes() []string {
 
 // ChartEntry is one data point in the chart timeseries.
 type ChartEntry struct {
-	Time           int64   `json:"time"`
-	Value          float64 `json:"value"`
-	FormattedValue string  `json:"formattedValue"`
-	Amount         float64 `json:"amount"`     // Coin-Betrag
-	Percent        float64 `json:"percent"`    // Wird 0 bleiben
-	FiatAtTime     float64 `json:"fiatAtTime"` // Fiat-Wert basierend auf historischem Preis
+	Time               int64   `json:"time"`
+	Value              float64 `json:"value"`
+	FormattedValue     string  `json:"formattedValue"`
+	Performance        float64 `json:"performance"`
+	NetInvestmentValue float64 `json:"netInvestmentValue"`
 }
 
 // RatChartEntry exploits composition to extend ChartEntry and save high precision values.
 type RatChartEntry struct {
 	ChartEntry
-	RatValue      *big.Rat
-	SumFiatAtTime *big.Rat // Umbenannt von FiatAtTime
+	RatValue         *big.Rat
+	NetInvestmentRat *big.Rat
 }
 
 // Chart has all data needed to show a time-based chart of their assets to the user.
@@ -71,52 +70,36 @@ func (backend *Backend) addChartData(
 	fiat string,
 	coinDecimals *big.Int,
 	timeseries []accounts.TimeseriesEntry,
+	performanceTimeseries []accounts.MarketPerformanceEntry,
 	chartEntries map[int64]RatChartEntry,
 ) {
+	netInvestmentByTime := map[int64]*big.Rat{}
+	for _, e := range performanceTimeseries {
+		netInvestmentByTime[e.Time.Unix()] = e.NetInvestmentValue
+	}
 	for _, e := range timeseries {
 		timestamp := e.Time.Unix()
 		chartEntry := chartEntries[timestamp]
 
 		chartEntry.Time = timestamp
 
-		// Portfolio-Wert zu historischem Preis (wie bisher)
 		coinAmount := new(big.Rat).SetFrac(e.Value.BigInt(), coinDecimals)
 		price := backend.RatesUpdater().HistoricalPriceAt(string(coinCode), fiat, e.Time)
 		fiatValue := new(big.Rat).Mul(coinAmount, new(big.Rat).SetFloat64(price))
-
-		// Verwende SumFiatAtTime direkt aus TimeseriesEntry
-		var sumFiatAtTime *big.Rat
-		if e.SumFiatAtTime != nil {
-			sumFiatAtTime = new(big.Rat).Set(e.SumFiatAtTime)
-		} else {
-			sumFiatAtTime = new(big.Rat) // Fallback: 0
-		}
-
-		// Berechne Percent: currentFiatBalance / sumFiatAtTime
-		var percentValue float64
-		fiatValueFloat, _ := fiatValue.Float64()
-		sumFiatAtTimeFloat, _ := sumFiatAtTime.Float64()
-		if sumFiatAtTimeFloat != 0 {
-			percentValue = (fiatValueFloat / sumFiatAtTimeFloat) * 100
+		netInvestmentValue := new(big.Rat)
+		if value, ok := netInvestmentByTime[timestamp]; ok && value != nil {
+			netInvestmentValue.Set(value)
 		}
 
 		if chartEntry.RatValue == nil {
 			chartEntry.RatValue = new(big.Rat).Set(fiatValue)
-			chartEntry.SumFiatAtTime = sumFiatAtTime
-			chartEntry.Percent = percentValue
+			chartEntry.NetInvestmentRat = new(big.Rat).Set(netInvestmentValue)
 		} else {
 			chartEntry.RatValue.Add(chartEntry.RatValue, fiatValue)
-			if chartEntry.SumFiatAtTime == nil {
-				chartEntry.SumFiatAtTime = sumFiatAtTime
+			if chartEntry.NetInvestmentRat == nil {
+				chartEntry.NetInvestmentRat = new(big.Rat).Set(netInvestmentValue)
 			} else {
-				chartEntry.SumFiatAtTime.Add(chartEntry.SumFiatAtTime, sumFiatAtTime)
-			}
-
-			// Recalculate percent for aggregated values
-			newFiatValueFloat, _ := chartEntry.RatValue.Float64()
-			newSumFiatAtTimeFloat, _ := chartEntry.SumFiatAtTime.Float64()
-			if newSumFiatAtTimeFloat != 0 {
-				chartEntry.Percent = (newFiatValueFloat / newSumFiatAtTimeFloat) * 100
+				chartEntry.NetInvestmentRat.Add(chartEntry.NetInvestmentRat, netInvestmentValue)
 			}
 		}
 		chartEntries[timestamp] = chartEntry
@@ -219,6 +202,33 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			earliestTxTime.Truncate(24*time.Hour),
 			until,
 			24*time.Hour,
+		)
+		if errp.Cause(err) == errors.ErrNotAvailable {
+			backend.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing")
+			chartDataMissing = true
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		timeseriesHourly, err := txs.Timeseries(
+			hourlyFrom,
+			until,
+			time.Hour,
+		)
+		if errp.Cause(err) == errors.ErrNotAvailable {
+			backend.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing")
+			chartDataMissing = true
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		performanceTimeseriesDaily, err := txs.MarketPerformanceTimeseries(
+			earliestTxTime.Truncate(24*time.Hour),
+			until,
+			24*time.Hour,
 			backend.RatesUpdater(),
 			string(account.Coin().Code()),
 			fiat,
@@ -232,7 +242,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		if err != nil {
 			return nil, err
 		}
-		timeseriesHourly, err := txs.Timeseries(
+		performanceTimeseriesHourly, err := txs.MarketPerformanceTimeseries(
 			hourlyFrom,
 			until,
 			time.Hour,
@@ -250,8 +260,8 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			return nil, err
 		}
 
-		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesDaily, chartEntriesDaily)
-		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesHourly, chartEntriesHourly)
+		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesDaily, performanceTimeseriesDaily, chartEntriesDaily)
+		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesHourly, performanceTimeseriesHourly, chartEntriesHourly)
 
 	}
 
@@ -260,24 +270,21 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		i := 0
 		for _, entry := range s {
 			floatValue, _ := entry.RatValue.Float64()
-			var marketPerformanceValue float64
-			var percentValue float64
-
-			if entry.SumFiatAtTime != nil {
-				marketPerformanceValue, _ = entry.SumFiatAtTime.Float64()
-				// Berechne Prozent: (aktueller Wert / Marktwert) * 100 - 100
-				if marketPerformanceValue != 0 {
-					percentValue = (floatValue / marketPerformanceValue * 100) - 100
-				}
+			var netInvestmentValue float64
+			if entry.NetInvestmentRat != nil {
+				netInvestmentValue, _ = entry.NetInvestmentRat.Float64()
+			}
+			var performance float64
+			if netInvestmentValue > 0 {
+				performance = (floatValue / netInvestmentValue) - 1
 			}
 
 			result[i] = ChartEntry{
-				Time:           entry.Time,
-				Value:          floatValue,
-				FormattedValue: coin.FormatAsCurrency(entry.RatValue, fiat),
-				Amount:         floatValue,
-				Percent:        percentValue, // Jetzt wird der echte Prozentwert berechnet!
-				FiatAtTime:     marketPerformanceValue,
+				Time:               entry.Time,
+				Value:              floatValue,
+				FormattedValue:     coin.FormatAsCurrency(entry.RatValue, fiat),
+				Performance:        performance,
+				NetInvestmentValue: netInvestmentValue,
 			}
 			i++
 		}
@@ -286,30 +293,22 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		// Manually add the last point with the current total, to make the last point match.
 		if isUpToDate && !currentTotalMissing {
 			total, _ := currentTotal.Float64()
-
-			// Hole FiatAtTime vom letzten ChartEntry
-			var lastFiatAtTime float64
-			var lastPercent float64
-
+			var netInvestmentValue float64
+			var performance float64
 			if len(result) > 0 {
 				lastEntry := result[len(result)-1]
-				lastFiatAtTime = lastEntry.FiatAtTime
-
-				// Berechne Prozent: (aktueller Marktwert / FiatAtTime) * 100 - 100
-				if lastFiatAtTime != 0 {
-					lastPercent = (total / lastFiatAtTime * 100) - 100
+				netInvestmentValue = lastEntry.NetInvestmentValue
+				if netInvestmentValue > 0 {
+					performance = (total / netInvestmentValue) - 1
 				}
-			} else {
-				lastFiatAtTime = total // Fallback
 			}
 
 			result = append(result, ChartEntry{
-				Time:           time.Now().Unix(),
-				Value:          total,
-				FormattedValue: coin.FormatAsCurrency(currentTotal, fiat),
-				Amount:         total,
-				Percent:        lastPercent, // Korrekt berechneter Prozentwert
-				FiatAtTime:     lastFiatAtTime,
+				Time:               time.Now().Unix(),
+				Value:              total,
+				FormattedValue:     coin.FormatAsCurrency(currentTotal, fiat),
+				Performance:        performance,
+				NetInvestmentValue: netInvestmentValue,
 			})
 		}
 

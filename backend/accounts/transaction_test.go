@@ -3,13 +3,25 @@
 package accounts
 
 import (
+	"math/big"
 	"testing"
 	"time"
-	"math/big"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/stretchr/testify/require"
 )
+
+type testRatesProvider struct {
+	prices map[time.Time]float64
+}
+
+func (provider testRatesProvider) LatestPrice() map[string]map[string]float64 {
+	return nil
+}
+
+func (provider testRatesProvider) HistoricalPriceAt(_ string, _ string, timestamp time.Time) float64 {
+	return provider.prices[timestamp]
+}
 
 func TestOrderedTransactions(t *testing.T) {
 	tt := func(t time.Time) *time.Time { return &t }
@@ -99,79 +111,136 @@ func TestOrderedTransactions(t *testing.T) {
 		time.Date(2020, 9, 9, 13, 0, 0, 0, time.UTC),
 		time.Date(2020, 9, 21, 13, 0, 0, 0, time.UTC),
 		24*time.Hour,
-		nil, // ratesProvider - nil für Tests
-		"",  // coinCode - leer für Tests
-		"",  // fiat - leer für Tests
-		nil, // coinDecimals - nil für Tests
 	)
 	require.NoError(t, err)
 	require.Equal(t, []TimeseriesEntry{
 		{
-			Time:           time.Date(2020, 9, 9, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(0),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 9, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(0),
 		},
 		{
-			Time:           time.Date(2020, 9, 10, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(200),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 10, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(200),
 		},
 		{
-			Time:           time.Date(2020, 9, 11, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(190),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 11, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(190),
 		},
 		{
-			Time:           time.Date(2020, 9, 12, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(190),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 12, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(190),
 		},
 		{
-			Time:           time.Date(2020, 9, 13, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(190),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 13, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(190),
 		},
 		{
-			Time:           time.Date(2020, 9, 14, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(190),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 14, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(190),
 		},
 		{
-			Time:           time.Date(2020, 9, 15, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(290),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 15, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(290),
 		},
 		{
-			Time:           time.Date(2020, 9, 16, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(290),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 16, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(290),
 		},
 		{
-			Time:           time.Date(2020, 9, 17, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(290),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 17, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(290),
 		},
 		{
-			Time:           time.Date(2020, 9, 18, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(290),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 18, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(290),
 		},
 		{
-			Time:           time.Date(2020, 9, 19, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(290),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 19, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(290),
 		},
 		{
-			Time:           time.Date(2020, 9, 20, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(590),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 20, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(590),
 		},
 		{
-			Time:           time.Date(2020, 9, 21, 13, 0, 0, 0, time.UTC),
-			Value:          coin.NewAmountFromInt64(589),
-			SumFiatAtTime:  new(big.Rat),
+			Time:  time.Date(2020, 9, 21, 13, 0, 0, 0, time.UTC),
+			Value: coin.NewAmountFromInt64(589),
 		},
 	}, timeseries)
+}
+
+func TestMarketPerformanceTimeseriesCashflows(t *testing.T) {
+	tt := func(t time.Time) *time.Time { return &t }
+	date := func(day int) time.Time {
+		return time.Date(2020, 9, day, 12, 0, 0, 0, time.UTC)
+	}
+	fee := coin.NewAmountFromInt64(10)
+	txs := []*TransactionData{
+		{
+			Timestamp: tt(date(10)),
+			Height:    10,
+			Type:      TxTypeReceive,
+			Amount:    coin.NewAmountFromInt64(100),
+		},
+		{
+			Timestamp: tt(date(11)),
+			Height:    11,
+			Type:      TxTypeReceive,
+			Amount:    coin.NewAmountFromInt64(100),
+		},
+		{
+			Timestamp: tt(date(12)),
+			Height:    12,
+			Type:      TxTypeSend,
+			Amount:    coin.NewAmountFromInt64(50),
+		},
+		{
+			Timestamp: tt(date(13)),
+			Height:    13,
+			Type:      TxTypeSendSelf,
+			Amount:    coin.NewAmountFromInt64(20),
+			Fee:       &fee,
+		},
+		{
+			Timestamp: tt(date(14)),
+			Height:    14,
+			Type:      TxTypeSend,
+			Amount:    coin.NewAmountFromInt64(50),
+			Fee:       &fee,
+			Status:    TxStatusFailed,
+		},
+	}
+
+	ordered := NewOrderedTransactions(txs)
+	timeseries, err := ordered.MarketPerformanceTimeseries(
+		time.Date(2020, 9, 10, 13, 0, 0, 0, time.UTC),
+		time.Date(2020, 9, 14, 13, 0, 0, 0, time.UTC),
+		24*time.Hour,
+		testRatesProvider{prices: map[time.Time]float64{
+			date(10): 1,
+			date(11): 2,
+			date(12): 3,
+			date(13): 4,
+			date(14): 5,
+		}},
+		"btc",
+		"USD",
+		big.NewInt(100),
+	)
+	require.NoError(t, err)
+	require.Len(t, timeseries, 5)
+	requireRatEqual(t, "1", timeseries[0].NetInvestmentValue)
+	requireRatEqual(t, "3", timeseries[1].NetInvestmentValue)
+	requireRatEqual(t, "3/2", timeseries[2].NetInvestmentValue)
+	requireRatEqual(t, "3/2", timeseries[3].NetInvestmentValue)
+	requireRatEqual(t, "3/2", timeseries[4].NetInvestmentValue)
+}
+
+func requireRatEqual(t *testing.T, expected string, actual *big.Rat) {
+	t.Helper()
+	expectedRat, ok := new(big.Rat).SetString(expected)
+	require.True(t, ok)
+	require.Equal(t, expectedRat, actual)
 }
 
 // TestOrderedTransactionsWithFailedTransactions tests that the cumulative balance takes into

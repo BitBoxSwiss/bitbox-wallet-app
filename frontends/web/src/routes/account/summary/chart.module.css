@@ -168,6 +168,12 @@
   padding: 0 2px;
 }
 
+.toolTipPerformance {
+  color: var(--color-secondary);
+  font-size: var(--size-default);
+  margin-left: var(--space-quarter);
+}
+
 .toolTipTime {
   white-space: nowrap;
 }
@@ -189,4 +195,3 @@
 .toggleSymbolActive {
   color: var(--color-primary);
 }
-
