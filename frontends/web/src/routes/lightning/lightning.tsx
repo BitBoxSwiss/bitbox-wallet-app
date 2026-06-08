@@ -20,7 +20,6 @@ import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layo
 import { Spinner } from '../../components/spinner/Spinner';
 import { ActionButtons } from './components/action-buttons';
 import { LightningGuide } from './guide';
-import { unsubscribe } from '../../utils/subscriptions';
 import { GlobalBanners } from '@/components/banners';
 import { Status } from '../../components/status/status';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
@@ -30,39 +29,56 @@ import styles from './lightning.module.css';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
+import { useLightning } from '@/hooks/lightning';
 
 const sparkStatusPollInterval = 60 * 1000;
 
 export const Lightning = () => {
   const { t } = useTranslation();
   const { btcUnit } = useContext(RatesContext);
+  const { isLightningReady, lightningAccount } = useLightning();
   const [balance, setBalance] = useState<accountApi.TBalance>();
   const [syncedAddressesCount] = useState<number>();
   const [payments, setPayments] = useState<TLightningPayment[]>();
+  const [boardingAddress, setBoardingAddress] = useState<string>();
   const [sparkStatus, setSparkStatus] = useState<TSparkStatus>();
   const [error, setError] = useState<string>();
   const [detailID, setDetailID] = useState<TLightningPayment['id'] | null>(null);
   const mounted = useMountedRef();
   const devices = useLoad(getDeviceList);
-  const boardingAddress = useLoad(getBoardingAddress);
 
   const onStateChange = useCallback(async () => {
     try {
       setError(undefined);
-      setBalance(await getLightningBalance());
-      setPayments(await getListPayments());
+      const [balance, payments, boardingAddress] = await Promise.all([
+        getLightningBalance(),
+        getListPayments(),
+        getBoardingAddress(),
+      ]);
+      if (!mounted.current) {
+        return;
+      }
+      setBalance(balance);
+      setPayments(payments);
+      setBoardingAddress(boardingAddress);
     } catch (err: any) {
-      const errorMessage = err?.errorMessage || err;
+      if (!mounted.current) {
+        return;
+      }
+      const errorMessage = err?.errorMessage || err?.message || String(err);
       setError(errorMessage);
     }
-  }, []);
+  }, [mounted]);
 
   useEffect(() => {
+    if (!lightningAccount || !isLightningReady) {
+      return;
+    }
+
     onStateChange();
 
-    const subscriptions = [subscribeListPayments(onStateChange)];
-    return () => unsubscribe(subscriptions);
-  }, [onStateChange, btcUnit]);
+    return subscribeListPayments(onStateChange);
+  }, [btcUnit, isLightningReady, lightningAccount, onStateChange]);
 
   const loadSparkStatus = useCallback(async () => {
     try {
@@ -121,6 +137,14 @@ export const Lightning = () => {
         <LightningGuide />
       </GuideWrapper>
     );
+  }
+
+  if (
+    lightningAccount === undefined
+    || isLightningReady === undefined
+    || (lightningAccount && !isLightningReady)
+  ) {
+    return <Spinner text={t('lightning.initializing')} />;
   }
 
   const canSend = balance && balance.hasAvailable;

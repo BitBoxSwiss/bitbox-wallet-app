@@ -8,7 +8,7 @@ export const getBottomNavKey = (pathname: string): string => {
   if (pathname.startsWith('/account-summary')) {
     return 'portfolio';
   }
-  if (pathname.startsWith('/account/') || pathname.startsWith('/accounts/')) {
+  if (pathname.startsWith('/account/') || pathname.startsWith('/accounts/') || pathname.startsWith('/lightning')) {
     return 'accounts';
   }
   if (pathname.startsWith('/market/')) {

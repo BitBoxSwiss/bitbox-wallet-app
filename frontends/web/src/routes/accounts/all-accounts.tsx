@@ -87,10 +87,15 @@ const AccountItem = ({ account }: TAccountItemProp) => {
 
 const LightningItem = () => {
   const { t } = useTranslation();
+  const { isLightningReady } = useLightning();
   const [balance, setBalance] = useState<accountApi.TAmountWithConversions>();
   const mounted = useMountedRef();
 
   useEffect(() => {
+    if (!isLightningReady) {
+      return;
+    }
+
     const fetchBalance = async () => {
       try {
         const response = await getLightningBalance();
@@ -104,7 +109,7 @@ const LightningItem = () => {
     };
 
     fetchBalance();
-  }, [mounted]);
+  }, [isLightningReady, mounted]);
 
   return (
     <AccountRow
@@ -133,7 +138,7 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
       <View width="768px" fullscreen={false}>
         <ViewContent>
           <div className={styles.container} data-testid="all-accounts-keystores">
-            {lightningAccount !== null && (
+            {lightningAccount && (
               <div className={styles.accountsList}>
                 <LightningItem />
               </div>

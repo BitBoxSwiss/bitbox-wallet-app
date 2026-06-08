@@ -1593,6 +1593,7 @@
         "title": "Disabling lightning wallet..."
       }
     },
+    "initializing": "Lightning account initializing...",
     "payments": {
       "header": {
         "amount": "Amount",
