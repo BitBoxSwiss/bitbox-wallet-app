@@ -2,23 +2,21 @@
 
 import { ReactNode } from 'react';
 import { LightningContext } from './LightningContext';
-import { getLightningAccount, subscribeLightningAccount } from '../api/lightning';
+import { getLightningAccount, getLightningReady, subscribeLightningAccount, subscribeLightningReady } from '../api/lightning';
 import { useSync } from '../hooks/api';
-import { useDefault } from '../hooks/default';
 
 type TProps = {
   children: ReactNode;
 };
 
 export const LightningProvider = ({ children }: TProps) => {
-  const lightningAccount = useDefault(
-    useSync(getLightningAccount, subscribeLightningAccount),
-    null,
-  );
+  const lightningAccount = useSync(getLightningAccount, subscribeLightningAccount);
+  const isLightningReady = useSync(getLightningReady, subscribeLightningReady);
 
   return (
     <LightningContext.Provider
       value={{
+        isLightningReady,
         lightningAccount
       }}>
       {children}

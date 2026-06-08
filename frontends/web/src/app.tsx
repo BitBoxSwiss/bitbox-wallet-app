@@ -15,6 +15,7 @@ import { getAccounts } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
+import { getLightningAccount, subscribeLightningAccount } from './api/lightning';
 import { syncNewTxs } from './api/transactions';
 import { notifyUser } from './api/system';
 import { ConnectedApp } from './connected';
@@ -42,10 +43,13 @@ export const App = () => {
 
   const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
+  const lightningAccount = useSync(getLightningAccount, subscribeLightningAccount);
   const prevDevices = usePrevious(devices);
 
   const deviceIDs = Object.keys(devices);
   const firstDevice = deviceIDs[0];
+  const hasLoadedLightningAccount = lightningAccount !== undefined;
+  const hasLightningAccount = lightningAccount !== undefined && lightningAccount !== null;
 
   useEffect(() => {
     return syncNewTxs((meta) => {
@@ -68,15 +72,17 @@ export const App = () => {
       return;
     }
     // if no accounts are registered on specified views route to /
-    if (accounts.length === 0 && (
+    const canNavigateWithLightningAccount = currentURL === '/settings/more' || currentURL === '/accounts/all';
+    const requiresRegularAccount =
       currentURL.startsWith('/account-summary')
       || currentURL.startsWith('/add-account')
       || currentURL.startsWith('/settings/manage-accounts')
       || currentURL.startsWith('/accounts/')
-      // Workaround on mobile where the bottom menu is not shown when there are no devices/accounts.
-      // If one is on "More" and the bottom menu disappears, one is stuck.
-      || currentURL === '/settings/more'
-    )) {
+      || currentURL === '/settings/more';
+    const shouldRedirectNoRegularAccount =
+      !canNavigateWithLightningAccount
+      || hasLoadedLightningAccount && !hasLightningAccount;
+    if (accounts.length === 0 && requiresRegularAccount && shouldRedirectNoRegularAccount) {
       navigate('/');
       return;
     }
@@ -127,7 +133,7 @@ export const App = () => {
       return;
     }
 
-  }, [accounts, deviceIDs, firstDevice, navigate]);
+  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, hasLoadedLightningAccount, navigate]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});
@@ -165,60 +171,67 @@ export const App = () => {
   const activeAccounts = useMemo(() => accounts.filter(acct => acct.active), [accounts]);
   const tabKey = useMemo(() => getBottomNavKey(pathname), [pathname]);
 
-  const isBitboxBootloader = firstDevice && devices[firstDevice] === 'bitbox02-bootloader';
-  const showBottomNavigation = (deviceIDs.length > 0 || activeAccounts.length > 0) && !isBitboxBootloader;
+  const isBitboxBootloader = Boolean(firstDevice && devices[firstDevice] === 'bitbox02-bootloader');
+  const showBottomNavigation = (
+    deviceIDs.length > 0
+    || activeAccounts.length > 0
+    || hasLightningAccount
+  ) && !isBitboxBootloader;
 
 
   return (
     <ConnectedApp>
       <Providers>
-        <Darkmode />
-        <div className="app">
-          <AuthRequired/>
-          <Sidebar
-            accounts={activeAccounts}
-            devices={devices}
-          />
-          <div className={`
-            ${styles.appContent || ''}
-            ${showBottomNavigation && styles.hasBottomNavigation || ''}
-          `}>
-            <WCSigningRequest />
-            <Aopp />
-            <KeystoreConnectPrompt />
-            {
-              Object.entries(devices).map(([deviceID, platformName]) => {
-                if (platformName === 'bitbox02') {
-                  return (
-                    <Fragment key={deviceID}>
-                      <BitBox02Wizard
-                        deviceID={deviceID}
-                      />
-                    </Fragment>
-                  );
-                }
-                return null;
-              })
-            }
-            <div key={tabKey} className={styles.tabTransition}>
-              <AppRouter
-                accounts={accounts}
-                activeAccounts={activeAccounts}
-                devices={devices}
-                devicesKey={devicesKey}
-              />
-            </div>
-            <RouterWatcher />
-          </div>
-          {showBottomNavigation && (
-            <BottomNavigation
+        <>
+          <Darkmode />
+          <div className="app">
+            <AuthRequired/>
+            <Sidebar
+              accounts={activeAccounts}
               devices={devices}
-              activeAccounts={activeAccounts}
             />
-          )}
-          <Alert />
-          <Confirm />
-        </div>
+            <div className={`
+              ${styles.appContent || ''}
+              ${showBottomNavigation && styles.hasBottomNavigation || ''}
+            `}>
+              <WCSigningRequest />
+              <Aopp />
+              <KeystoreConnectPrompt />
+              {
+                Object.entries(devices).map(([deviceID, platformName]) => {
+                  if (platformName === 'bitbox02') {
+                    return (
+                      <Fragment key={deviceID}>
+                        <BitBox02Wizard
+                          deviceID={deviceID}
+                        />
+                      </Fragment>
+                    );
+                  }
+                  return null;
+                })
+              }
+              <div key={tabKey} className={styles.tabTransition}>
+                <AppRouter
+                  accounts={accounts}
+                  activeAccounts={activeAccounts}
+                  devices={devices}
+                  devicesKey={devicesKey}
+                />
+              </div>
+              <RouterWatcher />
+            </div>
+            {showBottomNavigation && (
+              <BottomNavigation
+                devices={devices}
+                activeAccounts={activeAccounts}
+                hasLightningAccount={hasLightningAccount}
+              />
+            )}
+            <Alert />
+            <Confirm />
+          </div>
+        </>
       </Providers>
     </ConnectedApp>
   );

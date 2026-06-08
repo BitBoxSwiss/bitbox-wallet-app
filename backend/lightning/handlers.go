@@ -29,6 +29,7 @@ func NewHandlers(
 	lightning *Lightning,
 ) {
 	handleNoError("/account", lightning.GetAccount).Methods("GET")
+	handleNoError("/ready", lightning.GetReady).Methods("GET")
 	handleNoError("/activate", lightning.PostActivate).Methods("POST")
 	handleNoError("/deactivate", lightning.PostDeactivate).Methods("POST")
 	handleNoError("/balance", lightning.GetBalance).Methods("GET")
@@ -64,6 +65,11 @@ func (lightning *Lightning) GetAccount(_ *http.Request) interface{} {
 		Code:            account.Code,
 		Number:          account.Number,
 	}
+}
+
+// GetReady handles the GET request to retrieve whether the lightning SDK is ready.
+func (lightning *Lightning) GetReady(_ *http.Request) interface{} {
+	return responseDto{Success: true, Data: lightning.Ready()}
 }
 
 // PostActivate handles the POST request to activate lightning.
