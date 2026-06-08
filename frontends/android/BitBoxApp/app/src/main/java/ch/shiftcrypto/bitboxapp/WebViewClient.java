@@ -54,12 +54,6 @@ public class WebViewClient extends android.webkit.WebViewClient {
         // Execute the CSS setup in the WebView.
         view.evaluateJavascript(cssSetupInjected, null);
 
-        // override the default readText method, that doesn't work
-        // because of read permission denied.
-        view.evaluateJavascript(
-                "navigator.clipboard.readText = () => {" +
-                        "    return android.readFromClipboard();" +
-                        "};", null);
     }
 
     @Override
