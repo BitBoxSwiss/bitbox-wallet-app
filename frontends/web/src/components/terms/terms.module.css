@@ -44,3 +44,10 @@
 .nowrap {
   white-space: nowrap;
 }
+
+
+@media (max-width: 768px) {
+  .disclaimerContainer {
+    padding-bottom: 64px;
+  }
+}

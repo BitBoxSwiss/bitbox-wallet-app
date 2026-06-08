@@ -14,7 +14,7 @@ import { Message } from '@/components/message/message';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { MoonpayTerms } from '@/components/terms/moonpay-terms';
-import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useMarketIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
 import style from './iframe.module.css';
 
 type TProps = {
@@ -32,6 +32,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
   const account = findAccount(accounts, code);
   const { containerRef, height, iframeLoaded, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipMoonpayDisclaimer ?? false);
+  useMarketIframeActive(!!account && !!config && agreedTerms && moonpay?.success === true);
 
   if (!account || !config) {
     return null;
