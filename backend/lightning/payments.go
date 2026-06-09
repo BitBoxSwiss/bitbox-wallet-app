@@ -62,10 +62,14 @@ type paymentFee struct {
 
 // ParsePaymentInput validates and classifies a lightning input string.
 func (lightning *Lightning) ParsePaymentInput(inputStr string) (*parsePaymentInputResponse, error) {
-	if err := lightning.CheckActive(); err != nil {
+	lightning.sdkServiceMu.RLock()
+	defer lightning.sdkServiceMu.RUnlock()
+
+	sdkService, err := lightning.activeSDKLocked()
+	if err != nil {
 		return nil, err
 	}
-	input, err := lightning.sdkService.Parse(inputStr)
+	input, err := sdkService.Parse(inputStr)
 	if err != nil {
 		return nil, err
 	}
@@ -243,10 +247,14 @@ func checkApprovedPaymentFee(fee uint64, approvedFee uint64) error {
 
 // PreparePayment computes the fee quote for the provided payment request.
 func (lightning *Lightning) PreparePayment(paymentInvoice string, amountSat *uint64) (*paymentFee, error) {
-	if err := lightning.CheckActive(); err != nil {
+	lightning.sdkServiceMu.RLock()
+	defer lightning.sdkServiceMu.RUnlock()
+
+	sdkService, err := lightning.activeSDKLocked()
+	if err != nil {
 		return nil, err
 	}
-	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareSendPaymentRequest(paymentInvoice, amountSat))
+	prepareResponse, err := sdkService.PrepareSendPayment(prepareSendPaymentRequest(paymentInvoice, amountSat))
 	if err != nil {
 		return nil, err
 	}
@@ -261,7 +269,11 @@ func (lightning *Lightning) PreparePayment(paymentInvoice string, amountSat *uin
 
 // SendPayment executes a payment for the provided payment request.
 func (lightning *Lightning) SendPayment(paymentInvoice string, amount *uint64, approvedFee uint64) error {
-	if err := lightning.CheckActive(); err != nil {
+	lightning.sdkServiceMu.RLock()
+	defer lightning.sdkServiceMu.RUnlock()
+
+	sdkService, err := lightning.activeSDKLocked()
+	if err != nil {
 		return err
 	}
 	lightning.log.Infof("Sending payment to %+v", paymentInvoice)
@@ -269,7 +281,7 @@ func (lightning *Lightning) SendPayment(paymentInvoice string, amount *uint64, a
 		lightning.log.Infof("Optional amount: %+v sat", *amount)
 	}
 
-	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareSendPaymentRequest(paymentInvoice, amount))
+	prepareResponse, err := sdkService.PrepareSendPayment(prepareSendPaymentRequest(paymentInvoice, amount))
 	if err != nil {
 		return err
 	}
@@ -290,7 +302,7 @@ func (lightning *Lightning) SendPayment(paymentInvoice string, amount *uint64, a
 		PrepareResponse: prepareResponse,
 		Options:         &options,
 	}
-	_, err = lightning.sdkService.SendPayment(payRequest)
+	_, err = sdkService.SendPayment(payRequest)
 
 	if err != nil {
 		return err
@@ -300,14 +312,18 @@ func (lightning *Lightning) SendPayment(paymentInvoice string, amount *uint64, a
 
 // BoardingAddress returns a bitcoin address that can be used to fund lightning.
 func (lightning *Lightning) BoardingAddress() (string, error) {
-	if err := lightning.CheckActive(); err != nil {
+	lightning.sdkServiceMu.RLock()
+	defer lightning.sdkServiceMu.RUnlock()
+
+	sdkService, err := lightning.activeSDKLocked()
+	if err != nil {
 		return "", err
 	}
 	request := breez_sdk_spark.ReceivePaymentRequest{
 		PaymentMethod: breez_sdk_spark.ReceivePaymentMethodBitcoinAddress{},
 	}
 
-	response, err := lightning.sdkService.ReceivePayment(request)
+	response, err := sdkService.ReceivePayment(request)
 	if err != nil {
 		return "", err
 	}
@@ -321,7 +337,11 @@ func (lightning *Lightning) BoardingAddress() (string, error) {
 
 // ReceivePayment creates a BOLT11 invoice and returns an app-facing response.
 func (lightning *Lightning) ReceivePayment(amountSat uint64, description string) (*receivePaymentResponse, error) {
-	if err := lightning.CheckActive(); err != nil {
+	lightning.sdkServiceMu.RLock()
+	defer lightning.sdkServiceMu.RUnlock()
+
+	sdkService, err := lightning.activeSDKLocked()
+	if err != nil {
 		return nil, err
 	}
 	if len(description) < 1 {
@@ -335,7 +355,7 @@ func (lightning *Lightning) ReceivePayment(amountSat uint64, description string)
 		},
 	}
 
-	response, err := lightning.sdkService.ReceivePayment(request)
+	response, err := sdkService.ReceivePayment(request)
 	if err != nil {
 		return nil, err
 	}
@@ -348,10 +368,14 @@ func (lightning *Lightning) ReceivePayment(amountSat uint64, description string)
 
 // ListPayments fetches lightning payments and converts them to the app-facing contract.
 func (lightning *Lightning) ListPayments() ([]lightningPayment, error) {
-	if err := lightning.CheckActive(); err != nil {
+	lightning.sdkServiceMu.RLock()
+	defer lightning.sdkServiceMu.RUnlock()
+
+	sdkService, err := lightning.activeSDKLocked()
+	if err != nil {
 		return nil, err
 	}
-	response, err := lightning.sdkService.ListPayments(breez_sdk_spark.ListPaymentsRequest{})
+	response, err := sdkService.ListPayments(breez_sdk_spark.ListPaymentsRequest{})
 	if err != nil {
 		return nil, err
 	}
