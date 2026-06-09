@@ -3,6 +3,7 @@
 package lightning
 
 import (
+	"errors"
 	"math/big"
 	"testing"
 
@@ -282,4 +283,84 @@ func coinAmountWithConversions(amount string) coin.FormattedAmountWithConversion
 
 func stringPointer(value string) *string {
 	return &value
+}
+
+func TestCheckPaymentBalance(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name          string
+		totalDebitSat uint64
+		availableSat  int64
+		expectedErr   error
+	}{
+		{
+			name:          "total debit below available balance",
+			totalDebitSat: 99,
+			availableSat:  100,
+		},
+		{
+			name:          "total debit equals available balance",
+			totalDebitSat: 100,
+			availableSat:  100,
+		},
+		{
+			name:          "total debit exceeds available balance",
+			totalDebitSat: 101,
+			availableSat:  100,
+			expectedErr:   errLightningInsufficientFunds,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			balance := accounts.NewBalance(coin.NewAmountFromInt64(testCase.availableSat), coin.NewAmountFromInt64(0))
+			err := checkPaymentBalance(&paymentFee{TotalDebitSat: testCase.totalDebitSat}, balance)
+			require.Equal(t, testCase.expectedErr, errp.Cause(err))
+		})
+	}
+}
+
+func TestLightningPaymentError(t *testing.T) {
+	t.Parallel()
+
+	unrelatedErr := errors.New("network unavailable")
+	testCases := []struct {
+		name                  string
+		err                   error
+		expectedErr           error
+		expectedErrorContains []string
+	}{
+		{
+			name:                  "typed SDK insufficient funds",
+			err:                   breez_sdk_spark.NewSdkErrorInsufficientFunds(),
+			expectedErr:           errLightningInsufficientFunds,
+			expectedErrorContains: []string{"SdkError: InsufficientFunds", "lightningInsufficientFunds"},
+		},
+		{
+			name:                  "Spark already used invoice",
+			err:                   breez_sdk_spark.NewSdkErrorSparkError("Service error: status: AlreadyExists, message: preimage request already exists for paymentHash abc, details: DUPLICATE_OPERATION"),
+			expectedErr:           errLightningInvoiceAlreadyUsed,
+			expectedErrorContains: []string{"preimage request already exists", "lightningInvoiceAlreadyUsed"},
+		},
+		{
+			name:        "unrelated error",
+			err:         unrelatedErr,
+			expectedErr: unrelatedErr,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := lightningPaymentError(testCase.err)
+			require.Equal(t, testCase.expectedErr, errp.Cause(err))
+			for _, expectedText := range testCase.expectedErrorContains {
+				require.Contains(t, err.Error(), expectedText)
+			}
+		})
+	}
 }

@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { apiGet, apiPost } from '../utils/request';
-import { AccountCode, TAmountWithConversions, TBalance, TTransactionStatus } from './account';
-import { TSubscriptionCallback, TUnsubscribe, subscribeEndpoint } from './subscribe';
+import type { AccountCode, TAmountWithConversions, TBalance, TTransactionStatus } from '@/api/account';
+import type { TSubscriptionCallback, TUnsubscribe } from '@/api/subscribe';
+import { subscribeEndpoint } from '@/api/subscribe';
+import { apiGet, apiPost } from '@/utils/request';
 
 export type TLightningResponse<T> =
   | {

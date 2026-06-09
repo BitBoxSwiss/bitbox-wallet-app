@@ -2,28 +2,34 @@
 
 import { ChangeEvent, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { Button, Input } from '@/components/forms';
 import { Column, Grid } from '@/components/layout';
 import { Status } from '@/components/status/status';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { ScanQRVideo } from '@/routes/account/send/components/inputs/scan-qr-video';
 import { runningInAndroid, runningInIOS } from '@/utils/env';
-import { useLightningSendContext } from '../lightning-send-context';
 import styles from '../send.module.css';
 
-export const SelectInvoiceStep = () => {
+type TProps = {
+  inputError?: string;
+  onCancel: () => void;
+  onSubmit: (input: string) => Promise<boolean>;
+};
+
+export const SelectInvoiceStep = ({
+  inputError,
+  onCancel,
+  onSubmit,
+}: TProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { inputError, parsePaymentInput } = useLightningSendContext();
   const [invoiceInput, setInvoiceInput] = useState('');
 
   const scanQRVideo = useMemo(() => (
-    <ScanQRVideo onResult={parsePaymentInput} />
-  ), [parsePaymentInput]);
+    <ScanQRVideo onResult={(result: string) => void onSubmit(result)} />
+  ), [onSubmit]);
 
   const submitInvoiceInput = async () => {
-    const success = await parsePaymentInput(invoiceInput);
+    const success = await onSubmit(invoiceInput);
     if (success) {
       setInvoiceInput('');
     }
@@ -52,7 +58,7 @@ export const SelectInvoiceStep = () => {
         <Button disabled={!invoiceInput} primary onClick={submitInvoiceInput}>
           {t('generic.send')}
         </Button>
-        <Button secondary onClick={() => navigate('/lightning')}>
+        <Button secondary onClick={onCancel}>
           {t('button.back')}
         </Button>
       </ViewButtons>
