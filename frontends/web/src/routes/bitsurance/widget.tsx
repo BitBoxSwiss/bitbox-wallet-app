@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { getInfo, signBTCMessageUnusedAddress, type ScriptType } from '@/api/account';
+import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { BitsuranceTerms } from '@/components/terms/bitsurance-terms';
 import { useLoad } from '@/hooks/api';
@@ -14,6 +15,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { getBitsuranceURL } from '@/api/bitsurance';
 import { convertScriptType } from '@/utils/request-addess';
 import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { BitsuranceGuide } from './guide';
 import style from './widget.module.css';
 
 type TProps = {
@@ -132,32 +134,38 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   };
 
   return (
-    <>
-      <div ref={containerRef} className={style.container}>
-        { !agreedTerms ? (
-          <BitsuranceTerms
-            onAgreedTerms={() => setAgreedTerms(true)}
-          />
-        ) : (
-          <div style={{ height }}>
-            <UseDisableBackButton />
-            {!iframeLoaded && <Spinner text={t('loading')} /> }
-            <iframe
-              onLoad={() => {
-                onIframeLoad();
-              }}
-              ref={iframeRef}
-              title="Bitsurance"
-              width="100%"
-              height={height}
-              frameBorder="0"
-              className={style.iframe}
-              allow="camera; payment"
-              src={iframeURL}>
-            </iframe>
+    <Main>
+      <GuideWrapper>
+        <GuidedContent>
+          <Header title={<h2>{t('generic.buySell')}</h2>} />
+          <div ref={containerRef} className={style.container}>
+            { !agreedTerms ? (
+              <BitsuranceTerms
+                onAgreedTerms={() => setAgreedTerms(true)}
+              />
+            ) : (
+              <div style={{ height }}>
+                <UseDisableBackButton />
+                {!iframeLoaded && <Spinner text={t('loading')} /> }
+                <iframe
+                  onLoad={() => {
+                    onIframeLoad();
+                  }}
+                  ref={iframeRef}
+                  title="Bitsurance"
+                  width="100%"
+                  height={height}
+                  frameBorder="0"
+                  className={style.iframe}
+                  allow="camera; payment"
+                  src={iframeURL}>
+                </iframe>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </>
+        </GuidedContent>
+        <BitsuranceGuide />
+      </GuideWrapper>
+    </Main>
   );
 };
