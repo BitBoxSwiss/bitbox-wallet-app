@@ -49,19 +49,3 @@ export const BitsuranceLayout = ({ accounts, children, code }: TProps) => {
     </Main>
   );
 };
-
-export const BitsuranceWidgetLayout = ({ children }: { children: ReactNode }) => {
-  const { t } = useTranslation();
-
-  return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
-          <Header title={<h2>{t('generic.buySell')}</h2>} />
-          {children}
-        </GuidedContent>
-        <BitsuranceGuide />
-      </GuideWrapper>
-    </Main>
-  );
-};

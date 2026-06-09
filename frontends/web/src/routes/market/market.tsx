@@ -13,6 +13,8 @@ import { View, ViewContent } from '@/components/view/view';
 import { useLoad } from '@/hooks/api';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { getRegionNameFromLocale } from '@/i18n/utils';
+import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
+import { MarketTab } from './components/markettab';
 import { getFallbackMarketAccountCode, getMarketActionFromSearchParams, getVendorFormattedName } from './utils';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Dialog } from '@/components/dialog/dialog';
@@ -27,6 +29,9 @@ import { GroupedAccountSelector } from '@/components/groupedaccountselector/grou
 import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
 import { open } from '@/api/system';
 import { useMarketContext } from './market-context';
+import { MarketGuide } from './guide';
+import { isBitcoinOnly } from '../account/utils';
+import { useMarketplaceTabNavigation } from './use-marketplace-tab-navigation';
 import style from './market.module.css';
 
 type TProps = {
@@ -38,10 +43,19 @@ export const Market = ({
   accounts,
   code,
 }: TProps) => {
+
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const { showSwap } = useMarketContext();
+
+  const selectedAccountCode = code || getFallbackMarketAccountCode(accounts);
+  const activeTab = getMarketActionFromSearchParams(searchParams);
+  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
+  const handleChangeTab = useMarketplaceTabNavigation(accounts, selectedAccountCode);
+
   const { config, setConfig } = useConfig();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const {
     regions,
     selectedRegion,
@@ -51,7 +65,6 @@ export const Market = ({
   const validRouteAccountCode = accounts.some(account => account.code === code) ? code : '';
 
   const [info, setInfo] = useState<TInfoContentProps>();
-  const activeTab = getMarketActionFromSearchParams(searchParams);
   const selectedAccount = validRouteAccountCode || getFallbackMarketAccountCode(accounts);
 
   const regionCodes = useLoad(marketAPI.getMarketRegionCodes);
@@ -217,83 +230,94 @@ export const Market = ({
   };
 
   return (
-    <>
-      <Dialog
-        medium
-        title={info && info.vendorName !== 'region' ? getVendorFormattedName(info.vendorName) : t('buy.exchange.region')}
-        onClose={() => setInfo(undefined)}
-        open={!!info}
-      >
-        {info && (
-          <InfoContent
-            action={info.action}
-            accounts={accounts}
-            vendorName={info.vendorName}
-            paymentFees={info.paymentFees}
+    <Main>
+      <GuideWrapper>
+        <GuidedContent>
+          <Header title={<h2>{t('generic.buySell')}</h2>} />
+          <MarketTab
+            activeTab={activeTab}
+            onChangeTab={handleChangeTab}
+            showSwap={showSwap ?? false}
           />
-        )}
-      </Dialog>
-      <View
-        fullscreen={false}
-        minHeight="600px"
-        width="550px"
-      >
-        <ViewContent fullWidth>
-          <div className={style.exchangeContainer}>
-            {regions.length ? (
-              <>
-                {activeTab !== 'swap' && (
+          <Dialog
+            medium
+            title={info && info.vendorName !== 'region' ? getVendorFormattedName(info.vendorName) : t('buy.exchange.region')}
+            onClose={() => setInfo(undefined)}
+            open={!!info}
+          >
+            {info && (
+              <InfoContent
+                action={info.action}
+                accounts={accounts}
+                vendorName={info.vendorName}
+                paymentFees={info.paymentFees}
+              />
+            )}
+          </Dialog>
+          <View
+            fullscreen={false}
+            minHeight="600px"
+            width="550px"
+          >
+            <ViewContent fullWidth>
+              <div className={style.exchangeContainer}>
+                {regions.length ? (
                   <>
-                    <label className={style.label}>
-                      {t('buy.exchange.region')}
-                    </label>
-
-                    <div className={style.selectContainer}>
-                      <CountrySelect
-                        onChangeRegion={handleChangeRegion}
-                        regions={regions}
-                        selectedRegion={selectedRegion}
-                      />
-                      <InfoButton onClick={() => setInfo({
-                        action: activeTab,
-                        vendorName: 'region',
-                        paymentFees: {}
-                      })} />
-                    </div>
-
-                    {activeTab !== 'otc' && (
+                    {activeTab !== 'swap' && (
                       <>
                         <label className={style.label}>
-                          {t('account.account')}
+                          {t('buy.exchange.region')}
                         </label>
+
                         <div className={style.selectContainer}>
-                          <GroupedAccountSelector
-                            accounts={accounts}
-                            selected={selectedAccount}
-                            onChange={handleAccountChange}
+                          <CountrySelect
+                            onChangeRegion={handleChangeRegion}
+                            regions={regions}
+                            selectedRegion={selectedRegion}
                           />
+                          <InfoButton onClick={() => setInfo({
+                            action: activeTab,
+                            vendorName: 'region',
+                            paymentFees: {}
+                          })} />
                         </div>
+
+                        {activeTab !== 'otc' && (
+                          <>
+                            <label className={style.label}>
+                              {t('account.account')}
+                            </label>
+                            <div className={style.selectContainer}>
+                              <GroupedAccountSelector
+                                accounts={accounts}
+                                selected={selectedAccount}
+                                onChange={handleAccountChange}
+                              />
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
-                  </>
-                )}
 
-                <div className={style.offeringContainer}>
-                  {(activeTab === 'swap' || !!selectedAccount) && (
-                    <label className={style.label}>{getServicesLabel(activeTab)}</label>
-                  )}
-                  <Deals
-                    marketDealsResponse={getDealReponse(activeTab)}
-                    goToVendor={goToVendor}
-                    action={activeTab}
-                    setInfo={setInfo}
-                  />
-                </div>
-              </>
-            ) : <Spinner />}
-          </div>
-        </ViewContent>
-      </View>
-    </>
+                    <div className={style.offeringContainer}>
+                      {(activeTab === 'swap' || !!selectedAccount) && (
+                        <label className={style.label}>{getServicesLabel(activeTab)}</label>
+                      )}
+                      <Deals
+                        marketDealsResponse={getDealReponse(activeTab)}
+                        goToVendor={goToVendor}
+                        action={activeTab}
+                        setInfo={setInfo}
+                      />
+                    </div>
+                  </>
+                ) : <Spinner />}
+              </div>
+            </ViewContent>
+          </View>
+        </GuidedContent>
+        <MarketGuide translationContext={translationContext} />
+      </GuideWrapper>
+    </Main>
   );
 };

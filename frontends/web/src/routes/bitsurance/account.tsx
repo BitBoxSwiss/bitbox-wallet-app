@@ -10,6 +10,7 @@ import { View, ViewContent } from '@/components/view/view';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
 import { connectKeystore } from '@/api/keystores';
+import { BitsuranceLayout } from './bitsurance-layout';
 
 type TProps = {
   accounts: TAccount[];
@@ -87,26 +88,31 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   }
 
   return (
-    <View
-      fullscreen={false}
-      minHeight="600px"
-      verticallyCentered
-      width="550px"
+    <BitsuranceLayout
+      accounts={accounts}
+      code={code}
     >
-      <ViewContent>
-        { btcAccounts.length === 0 ? (
-          <div>{t('bitsuranceAccount.noAccount')}</div>
-        ) : (
-          <GroupedAccountSelector
-            title={t('bitsuranceAccount.select')}
-            disabled={disabled}
-            accounts={btcAccounts}
-            selected={code}
-            onChange={handleChangeAccount}
-            onProceed={handleProceed}
-          />
-        )}
-      </ViewContent>
-    </View>
+      <View
+        fullscreen={false}
+        minHeight="600px"
+        verticallyCentered
+        width="550px"
+      >
+        <ViewContent>
+          { btcAccounts.length === 0 ? (
+            <div>{t('bitsuranceAccount.noAccount')}</div>
+          ) : (
+            <GroupedAccountSelector
+              title={t('bitsuranceAccount.select')}
+              disabled={disabled}
+              accounts={btcAccounts}
+              selected={code}
+              onChange={handleChangeAccount}
+              onProceed={handleProceed}
+            />
+          )}
+        </ViewContent>
+      </View>
+    </BitsuranceLayout>
   );
 };
