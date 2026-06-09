@@ -51,7 +51,6 @@ export const Market = ({
   const validRouteAccountCode = accounts.some(account => account.code === code) ? code : '';
 
   const [info, setInfo] = useState<TInfoContentProps>();
-  const [supportedAccounts, setSupportedAccounts] = useState<TAccount[]>(accounts);
   const activeTab = getMarketActionFromSearchParams(searchParams);
   const selectedAccount = validRouteAccountCode || getFallbackMarketAccountCode(accounts);
 
@@ -65,11 +64,6 @@ export const Market = ({
   const {
     agreedTerms: agreedPocketOTCTerms,
   } = useVendorTerms(config?.frontend.skipPocketOTCDisclaimer ?? false);
-
-  // keep account list in sync.
-  useEffect(() => {
-    setSupportedAccounts(accounts);
-  }, [accounts]);
 
   // keep URLs normalized to include the selected account.
   useEffect(() => {
@@ -121,7 +115,7 @@ export const Market = ({
   const otcDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('otc', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
 
   const promptConnectKeystore = async (accountCode: string): Promise<boolean> => {
-    const account = supportedAccounts.find(acc => acc.code === accountCode);
+    const account = accounts.find(acc => acc.code === accountCode);
     if (!account) {
       return false;
     }
@@ -274,7 +268,7 @@ export const Market = ({
                         </label>
                         <div className={style.selectContainer}>
                           <GroupedAccountSelector
-                            accounts={supportedAccounts}
+                            accounts={accounts}
                             selected={selectedAccount}
                             onChange={handleAccountChange}
                           />
