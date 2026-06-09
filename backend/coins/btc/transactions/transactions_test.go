@@ -201,6 +201,20 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	s.Require().Equal(expectedTimestamp.UnixNano(), transactions[0].Timestamp.UnixNano())
 }
 
+func (s *transactionsSuite) TestUpdateAddressHistoryRejectsMismatchingTxHash() {
+	addresses, err := s.addressChain.EnsureAddresses()
+	s.Require().NoError(err)
+	address := addresses[0]
+	tx1 := newTx(chainhash.HashH(nil), 0, address, 123)
+	claimedTxHash := chainhash.HashH([]byte("claimed transaction"))
+	s.blockchainMock.transactions[claimedTxHash] = tx1
+
+	err = s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchainpkg.TxInfo{
+		{TXHash: blockchainpkg.TXHash(claimedTxHash), Height: 0},
+	})
+	s.Require().ErrorContains(err, "transaction hash mismatch")
+}
+
 // TestSpendableOutputs checks that the utxo set is correct. Only confirmed (or unconfirmed outputs
 // we own) outputs can be spent.
 func (s *transactionsSuite) TestSpendableOutputs() {

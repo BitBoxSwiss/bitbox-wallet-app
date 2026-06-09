@@ -31,6 +31,14 @@ func (transactions *Transactions) unverifiedTransactions() (map[chainhash.Hash]i
 			if err != nil {
 				return nil, err
 			}
+			if txInfo.Tx == nil {
+				transactions.log.Warning("Transaction body missing")
+				continue
+			}
+			if txInfo.Tx.TxHash() != txHash {
+				transactions.handleTxInclusionVerificationFailed(txHash, "Transaction hash verification failed")
+				continue
+			}
 			result[txHash] = txInfo.Height
 		}
 		return result, nil
@@ -46,6 +54,10 @@ func hashMerkleRoot(merkle []blockchain.TXHash, start chainhash.Hash, pos int) c
 		}
 	}
 	return start
+}
+
+func (transactions *Transactions) handleTxInclusionVerificationFailed(txHash chainhash.Hash, reason string) {
+	transactions.log.WithField("txHash", txHash.String()).Warning(reason)
 }
 
 func (transactions *Transactions) verifyTransactions() {
@@ -86,7 +98,7 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 	}
 	expectedMerkleRoot := hashMerkleRoot(merkle.Merkle, txHash, merkle.Pos)
 	if expectedMerkleRoot != header.MerkleRoot {
-		transactions.log.Warning("Merkle root verification failed")
+		transactions.handleTxInclusionVerificationFailed(txHash, "Merkle root verification failed")
 		return
 	}
 	transactions.log.Debugf("Merkle root verification succeeded")
