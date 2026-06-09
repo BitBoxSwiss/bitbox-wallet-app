@@ -554,6 +554,14 @@
     "title": "Dil Seçin"
   },
   "loading": "Yükleniyor…",
+  "newSettings": {
+    "appearance": {
+      "marketPerformanceChart": {
+        "description": "Portföy grafiğinde değer değişimlerini net yatırma ve çekme işlemleriyle karşılaştırma seçeneği gösterir.",
+        "title": "Portföy performansı"
+      }
+    }
+  },
   "notification": {
     "newTxs_one": "{{accountName}}'da yeni işlem",
     "newTxs_other": "{{count}} Yeni işlem: {{accountName}}"

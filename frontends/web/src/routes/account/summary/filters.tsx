@@ -15,6 +15,7 @@ export const Filters = ({
   onDisplayYear,
   onDisplayAll,
   showPercent,
+  showPercentToggle,
   onTogglePercent
 }: TChartFiltersProps) => {
   const { t } = useTranslation();
@@ -22,6 +23,10 @@ export const Filters = ({
     styles.toggleSymbol,
     active ? styles.toggleSymbolActive : undefined,
   ].filter((className): className is string => !!className).join(' ');
+  const sumSymbolClassName = [
+    toggleSymbolClassName(!showPercent),
+    styles.toggleSymbolStart,
+  ].join(' ');
   return (
     <PillButtonGroup className={styles.filters}>
       <PillButton
@@ -52,11 +57,13 @@ export const Filters = ({
       >
         {t('chart.filter.all')}
       </PillButton>
-      <span className={styles.toggleWrapper}>
-        <span className={toggleSymbolClassName(!showPercent)}>∑</span>
-        <Toggle checked={showPercent} onChange={onTogglePercent} />
-        <span className={toggleSymbolClassName(showPercent)}>%</span>
-      </span>
+      {showPercentToggle && (
+        <span className={styles.toggleWrapper}>
+          <span className={sumSymbolClassName}>∑</span>
+          <Toggle checked={showPercent} onChange={onTogglePercent} />
+          <span className={toggleSymbolClassName(showPercent)}>%</span>
+        </span>
+      )}
     </PillButtonGroup>
   );
 };

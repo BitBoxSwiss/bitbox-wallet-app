@@ -236,6 +236,45 @@ func TestMarketPerformanceTimeseriesCashflows(t *testing.T) {
 	requireRatEqual(t, "3/2", timeseries[4].NetInvestmentValue)
 }
 
+func TestMarketPerformanceTimeseriesCanReachZeroNetInvestment(t *testing.T) {
+	tt := func(t time.Time) *time.Time { return &t }
+	date := func(day int) time.Time {
+		return time.Date(2020, 9, day, 12, 0, 0, 0, time.UTC)
+	}
+	txs := []*TransactionData{
+		{
+			Timestamp: tt(date(10)),
+			Height:    10,
+			Type:      TxTypeReceive,
+			Amount:    coin.NewAmountFromInt64(100),
+		},
+		{
+			Timestamp: tt(date(11)),
+			Height:    11,
+			Type:      TxTypeSend,
+			Amount:    coin.NewAmountFromInt64(100),
+		},
+	}
+
+	ordered := NewOrderedTransactions(txs)
+	timeseries, err := ordered.MarketPerformanceTimeseries(
+		time.Date(2020, 9, 10, 13, 0, 0, 0, time.UTC),
+		time.Date(2020, 9, 11, 13, 0, 0, 0, time.UTC),
+		24*time.Hour,
+		testRatesProvider{prices: map[time.Time]float64{
+			date(10): 1,
+			date(11): 1,
+		}},
+		"btc",
+		"USD",
+		big.NewInt(100),
+	)
+	require.NoError(t, err)
+	require.Len(t, timeseries, 2)
+	requireRatEqual(t, "1", timeseries[0].NetInvestmentValue)
+	requireRatEqual(t, "0", timeseries[1].NetInvestmentValue)
+}
+
 func requireRatEqual(t *testing.T, expected string, actual *big.Rat) {
 	t.Helper()
 	expectedRat, ok := new(big.Rat).SetString(expected)

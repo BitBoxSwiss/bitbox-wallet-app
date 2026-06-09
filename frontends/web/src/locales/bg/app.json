@@ -512,6 +512,14 @@
     "title": "Избор на език"
   },
   "loading": "зареждане...",
+  "newSettings": {
+    "appearance": {
+      "marketPerformanceChart": {
+        "description": "Показва опция в графиката на портфейла за сравняване на промените в стойността с нетните депозити и тегления.",
+        "title": "Ефективност на портфейла"
+      }
+    }
+  },
   "notification": {
     "newTxs_one": "Нова транзакция в {{accountName}}",
     "newTxs_other": "{{count}} нови транзакции в {{accountName}}"

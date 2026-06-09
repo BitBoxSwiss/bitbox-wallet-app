@@ -1405,6 +1405,10 @@
         "description": "Qual idioma você deseja que o BitBoxApp use.",
         "title": "Idioma"
       },
+      "marketPerformanceChart": {
+        "description": "Mostra uma opção no gráfico da carteira para comparar mudanças de valor com depósitos e saques líquidos.",
+        "title": "Desempenho da carteira"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "Agora você pode visualizar as contas associadas a esta carteira sem inserir seu dispositivo BitBox. No entanto, a BitBox ainda é necessário para realizar transações e exibir endereços de recebimento.",

@@ -13,6 +13,7 @@ import { Filters } from './filters';
 import { getDarkmode } from '@/components/darkmode/darkmode';
 import { RatesContext } from '@/contexts/RatesContext';
 import { AppContext, TChartDisplay } from '@/contexts/AppContext';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
 import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import { LinechartGray } from '@/components/icon';
@@ -37,6 +38,19 @@ const defaultData: Readonly<TChartData> = {
 
 type FormattedData = {
   [key: number]: string;
+};
+
+const hasValidMarketPerformance = (entry?: FormattedLineData): entry is FormattedLineData => (
+  !!entry
+  && entry.netInvestmentValue > 0
+  && Number.isFinite(entry.performance)
+);
+
+const formatMarketPerformanceLabel = (entry?: FormattedLineData) => {
+  if (!hasValidMarketPerformance(entry)) {
+    return undefined;
+  }
+  return `${(entry.performance * 100).toFixed(2)}%`;
 };
 
 const getUTCRange = () => {
@@ -167,7 +181,9 @@ export const Chart = ({
   const { t, i18n } = useTranslation();
   const { chartDisplay, setChartDisplay } = useContext(AppContext);
   const { defaultCurrency, rotateDefaultCurrency } = useContext(RatesContext);
+  const { config, setConfig } = useConfig();
   const [searchParams] = useSearchParams();
+  const isMarketPerformanceChartEnabled = config?.frontend.marketPerformanceChart === true;
 
   const ref = useRef<HTMLDivElement>(null);
   const refToolTip = useRef<HTMLSpanElement>(null);
@@ -196,14 +212,23 @@ export const Chart = ({
     toolTipPerformance: undefined,
   });
 
-  const [showPercent, setShowPercent] = useState(false);
+  const [showPercent, setShowPercent] = useState(true);
+  const showMarketPerformance = showPercent && isMarketPerformanceChartEnabled;
 
   const getDisplayChartData = useCallback((chartData: ChartData) => {
     return chartData.map(entry => ({
       ...entry,
-      value: showPercent ? entry.performance * 100 : entry.value
+      value: showMarketPerformance ? entry.performance * 100 : entry.value
     }));
-  }, [showPercent]);
+  }, [showMarketPerformance]);
+
+  useEffect(() => {
+    if (!isMarketPerformanceChartEnabled) {
+      setShowPercent(false);
+      return;
+    }
+    setShowPercent(config?.frontend.marketPerformanceChartMode !== 'sum');
+  }, [config?.frontend.marketPerformanceChartMode, isMarketPerformanceChartEnabled]);
 
   useEffect(() => {
     setTooltipData({
@@ -325,16 +350,22 @@ export const Chart = ({
       setDiffSince('');
       return;
     }
-    if (showPercent) {
-      const valueFrom = chartData[rangeFrom].performance;
-      const valueTo = chartData[chartData.length - 1]?.performance;
-      if (valueTo === undefined || !Number.isFinite(valueFrom) || !Number.isFinite(valueTo)) {
+    if (showMarketPerformance) {
+      const entryFrom = chartData[rangeFrom];
+      const entryTo = chartData[chartData.length - 1];
+      if (!hasValidMarketPerformance(entryFrom) || !hasValidMarketPerformance(entryTo)) {
         setDifference(0);
         setDiffSince('');
         return;
       }
-      setDifference(valueTo - valueFrom);
-      setDiffSince(`${(valueFrom * 100).toFixed(2)}% (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`);
+      const entryFromLabel = formatMarketPerformanceLabel(entryFrom);
+      if (entryFromLabel === undefined) {
+        setDifference(0);
+        setDiffSince('');
+        return;
+      }
+      setDifference(entryTo.performance - entryFrom.performance);
+      setDiffSince(`${entryFromLabel} (${renderDate(Number(entryFrom.time) * 1000, i18n.language, source)})`);
       return;
     }
     const nextValue = chartData[rangeFrom + 1] as FormattedLineData | undefined;
@@ -349,7 +380,7 @@ export const Chart = ({
     setDifference(valueDiff / valueFrom);
 
     setDiffSince(`${chartData[rangeFrom].formattedValue} (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`);
-  }, [data, i18n.language, showPercent, source]);
+  }, [data, i18n.language, showMarketPerformance, source]);
 
   // Moved handleCrosshair before removeChart to satisfy hook dependencies
   const handleCrosshair = useCallback(({
@@ -386,7 +417,7 @@ export const Chart = ({
     }
     const chartData = source === 'daily' ? data.chartDataDaily : data.chartDataHourly;
     const entry = chartData.find(e => Number(e.time) === time as number);
-    const performanceLabel = entry ? `${(entry.performance * 100).toFixed(2)}%` : '';
+    const performanceLabel = showMarketPerformance ? formatMarketPerformanceLabel(entry) : undefined;
     const coordinate = lineSeries.current.priceToCoordinate(price.value);
     if (!coordinate) {
       return;
@@ -400,7 +431,7 @@ export const Chart = ({
       toolTipLeft: Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70))),
       toolTipTime: time as number,
     });
-  }, [source, data.chartDataDaily, data.chartDataHourly]);
+  }, [showMarketPerformance, source, data.chartDataDaily, data.chartDataHourly]);
 
   const removeChart = useCallback(() => {
     if (chartInitialized.current) {
@@ -548,7 +579,13 @@ export const Chart = ({
   }
 
   const onTogglePercent = () => {
-    setShowPercent(!showPercent);
+    const nextShowPercent = !showPercent;
+    setShowPercent(nextShowPercent);
+    setConfig({
+      frontend: {
+        marketPerformanceChartMode: nextShowPercent ? 'percent' : 'sum',
+      },
+    }).catch(console.error);
   };
 
   useEffect(() => {
@@ -646,6 +683,7 @@ export const Chart = ({
     onDisplayYear: displayYear,
     onDisplayAll: displayAll,
     showPercent,
+    showPercentToggle: isMarketPerformanceChartEnabled,
     onTogglePercent,
   };
 
@@ -723,6 +761,7 @@ export const Chart = ({
             <span>
               <h2 className={styles.toolTipValue}>
                 <Amount amount={toolTipValue} unit={chartFiat} />
+                <span className={styles.toolTipUnit}>{chartFiat}</span>
                 {tooltipData.toolTipPerformance && (
                   <span className={styles.toolTipPerformance}>
                     ({tooltipData.toolTipPerformance})

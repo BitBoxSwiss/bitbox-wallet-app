@@ -1403,6 +1403,10 @@
         "description": "De taal waarin je de BitBoxApp wilt gebruiken.",
         "title": "Taal"
       },
+      "marketPerformanceChart": {
+        "description": "Toont een optie in de portefeuillegrafiek om waardeveranderingen te vergelijken met netto stortingen en opnames.",
+        "title": "Portefeuilleprestaties"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "Je kunt nu de accounts in deze wallet bekijken zonder je BitBox in te voeren. Je moet nog steeds de BitBox gebruiken om transacties te ondertekenen en om ontvangstadressen weer te geven.",

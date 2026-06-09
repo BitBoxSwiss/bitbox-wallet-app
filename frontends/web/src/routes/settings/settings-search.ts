@@ -61,6 +61,11 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
     page: 'general',
   },
   {
+    id: 'market-performance-chart',
+    getTitle: ({ t }) => t('newSettings.appearance.marketPerformanceChart.title'),
+    page: 'general',
+  },
+  {
     id: 'dark-mode',
     getTitle: ({ t }) => t('darkmode.toggle'),
     page: 'general',

@@ -1613,6 +1613,10 @@
         "description": "Jaký jazyk chcete v BitBoxApp používat.",
         "title": "Jazyk"
       },
+      "marketPerformanceChart": {
+        "description": "Zobrazí v grafu portfolia možnost porovnat změny hodnoty s čistými vklady a výběry.",
+        "title": "Výkonnost portfolia"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "Nyní můžete zobrazit účty spojené s touto peněženkou, aniž byste museli připojit svůj BitBox. Pro provádění transakcí a zobrazování přijímacích adres je však BitBox stále nutný.",

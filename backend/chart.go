@@ -65,6 +65,31 @@ type Chart struct {
 	LastTimestamp int64 `json:"lastTimestamp"`
 }
 
+func chartPerformance(value, netInvestmentValue float64) float64 {
+	if netInvestmentValue <= 0 {
+		return 0
+	}
+	return (value / netInvestmentValue) - 1
+}
+
+func currentTotalChartEntry(now time.Time, currentTotal *big.Rat, fiat string, previous []ChartEntry) ChartEntry {
+	total, _ := currentTotal.Float64()
+	var netInvestmentValue float64
+	var performance float64
+	if len(previous) > 0 {
+		lastEntry := previous[len(previous)-1]
+		netInvestmentValue = lastEntry.NetInvestmentValue
+		performance = lastEntry.Performance
+	}
+	return ChartEntry{
+		Time:               now.Unix(),
+		Value:              total,
+		FormattedValue:     coin.FormatAsCurrency(currentTotal, fiat),
+		Performance:        performance,
+		NetInvestmentValue: netInvestmentValue,
+	}
+}
+
 func (backend *Backend) addChartData(
 	coinCode coin.Code,
 	fiat string,
@@ -274,10 +299,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			if entry.NetInvestmentRat != nil {
 				netInvestmentValue, _ = entry.NetInvestmentRat.Float64()
 			}
-			var performance float64
-			if netInvestmentValue > 0 {
-				performance = (floatValue / netInvestmentValue) - 1
-			}
+			performance := chartPerformance(floatValue, netInvestmentValue)
 
 			result[i] = ChartEntry{
 				Time:               entry.Time,
@@ -292,24 +314,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 
 		// Manually add the last point with the current total, to make the last point match.
 		if isUpToDate && !currentTotalMissing {
-			total, _ := currentTotal.Float64()
-			var netInvestmentValue float64
-			var performance float64
-			if len(result) > 0 {
-				lastEntry := result[len(result)-1]
-				netInvestmentValue = lastEntry.NetInvestmentValue
-				if netInvestmentValue > 0 {
-					performance = (total / netInvestmentValue) - 1
-				}
-			}
-
-			result = append(result, ChartEntry{
-				Time:               time.Now().Unix(),
-				Value:              total,
-				FormattedValue:     coin.FormatAsCurrency(currentTotal, fiat),
-				Performance:        performance,
-				NetInvestmentValue: netInvestmentValue,
-			})
+			result = append(result, currentTotalChartEntry(time.Now(), currentTotal, fiat, result))
 		}
 
 		// Truncate leading zeroes, if there are any keep the first one to start the chart with 0

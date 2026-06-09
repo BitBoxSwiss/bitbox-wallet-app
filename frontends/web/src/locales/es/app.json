@@ -1613,6 +1613,10 @@
         "description": "Qué idioma quieres que utilice la BitBoxApp.",
         "title": "Idioma"
       },
+      "marketPerformanceChart": {
+        "description": "Muestra una opción en el gráfico de la cartera para comparar los cambios de valor con los depósitos y retiros netos.",
+        "title": "Rendimiento de la cartera"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "Ahora puedes ver las cuentas asociadas a esta billetera sin insertar tu dispositivo BitBox. Sin embargo, tu BitBox sigue siendo necesaria para realizar transacciones y mostrar las direcciones de recepción.",

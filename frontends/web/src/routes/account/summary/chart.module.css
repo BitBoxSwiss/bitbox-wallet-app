@@ -179,17 +179,21 @@
 }
 
 .toggleWrapper {
-  display: flex;
   align-items: center;
-  margin: 0 var(--space-half);
+  display: flex;
   height: 28.5px;
+  margin: 0 0 0 var(--space-half);
 }
 
 .toggleSymbol {
-  font-size: 1.2rem;
-  font-weight: bold;;
-  margin: 0 var(--space-half);
   color: var(--color-secondary);
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 0 var(--space-half);
+}
+
+.toggleSymbolStart {
+  margin-right: var(--space-half);
 }
 
 .toggleSymbolActive {

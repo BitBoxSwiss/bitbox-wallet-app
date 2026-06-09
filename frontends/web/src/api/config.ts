@@ -57,6 +57,8 @@ export type TConfigFrontend = Readonly<{
   darkmode?: boolean;
   expertFee?: boolean;
   coinControl?: boolean;
+  marketPerformanceChart?: boolean;
+  marketPerformanceChartMode?: 'sum' | 'percent';
   selectedExchangeRegion?: string;
   hideEnableRememberWalletDialog?: boolean;
   hasUsedWalletConnect?: boolean;

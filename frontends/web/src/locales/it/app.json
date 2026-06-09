@@ -1613,6 +1613,10 @@
         "description": "In che lingua preferisci visualizzare la BitBoxApp.",
         "title": "Lingua"
       },
+      "marketPerformanceChart": {
+        "description": "Mostra un'opzione nel grafico del portafoglio per confrontare le variazioni di valore con depositi e prelievi netti.",
+        "title": "Performance del portafoglio"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "Ora puoi visualizzare gli account associati a questo wallet senza inserire il tuo dispositivo BitBox. Tuttavia, il BitBox è ancora necessario per effettuare transazioni e visualizzare gli indirizzi di ricezione.",

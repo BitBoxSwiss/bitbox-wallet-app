@@ -1387,6 +1387,10 @@
         "description": "Izberite jezik, ki ga želite uporabiti v BitBoxApp-u.",
         "title": "Jezik"
       },
+      "marketPerformanceChart": {
+        "description": "Prikaže možnost v grafikonu portfelja za primerjavo sprememb vrednosti z neto pologi in dvigi.",
+        "title": "Uspešnost portfelja"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "Zdaj si lahko ogledate račune, povezane s to denarnico, ne da bi BitBox vstavili v računalnik ali telefon. Seveda je BitBox še vedno potreben za izvajanje transakcij in prikaz prejemnih naslovov."

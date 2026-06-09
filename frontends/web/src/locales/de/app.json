@@ -1613,6 +1613,10 @@
         "description": "Welche Sprache die BitBoxApp verwenden soll.",
         "title": "Sprache"
       },
+      "marketPerformanceChart": {
+        "description": "Zeigt eine Option im Portfolio-Chart an, um Wertänderungen mit Netto-Einzahlungen und -Auszahlungen zu vergleichen.",
+        "title": "Portfolio-Performance"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "Die Konten dieser Wallet sind nun sichtbar, ohne die BitBox anzuschließen. Die BitBox wird weiterhin benötigt, um Transaktionen zu erstellen und Empfangsadressen anzuzeigen.",

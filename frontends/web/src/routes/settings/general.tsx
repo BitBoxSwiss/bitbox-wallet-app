@@ -8,6 +8,7 @@ import { NotesImport } from './components/appearance/notesImport';
 import { NotesExport } from './components/appearance/notesExport';
 import { DefaultCurrencyDropdownSetting } from './components/appearance/defaultCurrencyDropdownSetting';
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
+import { MarketPerformanceToggleSetting } from './components/appearance/marketPerformanceToggleSetting';
 import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeCurrenciesDropdownSetting';
 import { WithSettingsTabs } from './components/tabs';
 import { MobileHeader } from './components/mobile-header';
@@ -68,6 +69,7 @@ export const GeneralSettingsContent = ({
         { id: 'language', content: <LanguageDropdownSetting /> },
         { id: 'default-currency', content: <DefaultCurrencyDropdownSetting /> },
         { id: 'active-currencies', content: <ActiveCurrenciesDropdownSetting /> },
+        { id: 'market-performance-chart', content: <MarketPerformanceToggleSetting /> },
         { id: 'dark-mode', content: <DarkmodeToggleSetting /> },
       ],
       title: <SubTitle>{t('settings.appearance')}</SubTitle>,
