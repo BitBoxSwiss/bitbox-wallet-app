@@ -4,12 +4,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { TAccount } from '@/api/account';
+import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
+import { MarketTab } from '@/routes/market/components/markettab';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { Spinner } from '@/components/spinner/Spinner';
 import { View, ViewContent } from '@/components/view/view';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
 import { connectKeystore } from '@/api/keystores';
+import { BitsuranceGuide } from './guide';
 
 type TProps = {
   accounts: TAccount[];
@@ -87,26 +90,39 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   }
 
   return (
-    <View
-      fullscreen={false}
-      minHeight="600px"
-      verticallyCentered
-      width="550px"
-    >
-      <ViewContent>
-        { btcAccounts.length === 0 ? (
-          <div>{t('bitsuranceAccount.noAccount')}</div>
-        ) : (
-          <GroupedAccountSelector
-            title={t('bitsuranceAccount.select')}
-            disabled={disabled}
-            accounts={btcAccounts}
-            selected={code}
-            onChange={handleChangeAccount}
-            onProceed={handleProceed}
+    <Main>
+      <GuideWrapper>
+        <GuidedContent>
+          <Header title={<h2>{t('generic.buySell')}</h2>} />
+          <MarketTab
+            accounts={accounts}
+            activeTab="insure"
+            code={code}
           />
-        )}
-      </ViewContent>
-    </View>
+          <View
+            fullscreen={false}
+            minHeight="600px"
+            verticallyCentered
+            width="550px"
+          >
+            <ViewContent>
+              { btcAccounts.length === 0 ? (
+                <div>{t('bitsuranceAccount.noAccount')}</div>
+              ) : (
+                <GroupedAccountSelector
+                  title={t('bitsuranceAccount.select')}
+                  disabled={disabled}
+                  accounts={btcAccounts}
+                  selected={code}
+                  onChange={handleChangeAccount}
+                  onProceed={handleProceed}
+                />
+              )}
+            </ViewContent>
+          </View>
+        </GuidedContent>
+        <BitsuranceGuide />
+      </GuideWrapper>
+    </Main>
   );
 };
