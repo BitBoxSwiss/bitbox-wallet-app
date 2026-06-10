@@ -25,7 +25,8 @@ const ProductName = "bitbox02-bootloader"
 // Device provides the API to communicate with the BitBox02 bootloader.
 type Device struct {
 	bootloader.Device
-	deviceID string
+	deviceID          string
+	bootloaderVersion *semver.SemVer
 
 	log *logrus.Entry
 
@@ -46,8 +47,9 @@ func NewDevice(
 		WithField("product", product)
 	log.Info("Plugged in device")
 	device := &Device{
-		deviceID: deviceID,
-		log:      log,
+		deviceID:          deviceID,
+		bootloaderVersion: version,
+		log:               log,
 	}
 	device.Device = *bootloader.NewDevice(
 		version,
@@ -88,7 +90,7 @@ func (device *Device) Init(testing bool) error {
 	// Loop all but the last firmware.
 	for i := 0; i < len(firmwares)-1; i++ {
 		fwInfo := firmwares[i]
-		if fwInfo.monotonicVersion+1 == currentFirmwareVersion {
+		if fwInfo.continuesUpgrade(currentFirmwareVersion, device.bootloaderVersion) {
 			device.log.Infof("continuing upgrade on %d", currentFirmwareVersion)
 			go func() {
 				if err := device.UpgradeFirmware(); err != nil {
@@ -140,7 +142,7 @@ func (device *Device) firmwareBootRequired() (bool, error) {
 	// Loop all but the last firmware.
 	for i := 0; i < len(firmwares)-1; i++ {
 		fwInfo := firmwares[i]
-		if fwInfo.monotonicVersion == currentFirmwareVersion {
+		if fwInfo.bootRequired(currentFirmwareVersion, device.bootloaderVersion) {
 			return true, nil
 		}
 	}
