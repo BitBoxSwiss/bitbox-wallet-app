@@ -5,14 +5,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
-import { i18n } from '@/i18n/i18n';
 import * as marketAPI from '@/api/market';
 import { getSwapStatus } from '@/api/swap';
 import { AccountCode, TAccount } from '@/api/account';
 import { View, ViewContent } from '@/components/view/view';
 import { useLoad } from '@/hooks/api';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
-import { getRegionNameFromLocale } from '@/i18n/utils';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { MarketTab } from './components/markettab';
 import { getFallbackMarketAccountCode, getMarketActionFromSearchParams, getVendorFormattedName } from './utils';
@@ -21,7 +19,6 @@ import { Dialog } from '@/components/dialog/dialog';
 import { alertUser } from '@/components/alert/Alert';
 import { InfoButton } from '@/components/infobutton/infobutton';
 import { Deals } from './components/deals';
-import { getNativeLocale } from '@/api/nativelocale';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { CountrySelect, TOption } from './components/countryselect';
 import { getBTCDirectOTCLink, getPocketOTCLink, InfoContent, TInfoContentProps } from './components/infocontent';
@@ -55,16 +52,12 @@ export const Market = ({
   const {
     regions,
     selectedRegion,
-    setRegions,
     setSelectedRegion,
   } = useMarketContext();
   const validRouteAccountCode = accounts.some(account => account.code === code) ? code : '';
 
   const [info, setInfo] = useState<TInfoContentProps>();
   const selectedAccount = validRouteAccountCode || getFallbackMarketAccountCode(accounts);
-
-  const regionCodes = useLoad(marketAPI.getMarketRegionCodes);
-  const nativeLocale = useLoad(getNativeLocale);
 
   const {
     agreedTerms: agreedBTCDirectOTCTerms,
@@ -81,41 +74,6 @@ export const Market = ({
     }
     navigate(`/market/select/${selectedAccount}?tab=${activeTab}`, { replace: true });
   }, [activeTab, navigate, selectedAccount, validRouteAccountCode]);
-
-  // update region Select component when `regionList` or `config` gets populated.
-  useEffect(() => {
-    if (!regionCodes || !config) {
-      return;
-    }
-    const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' });
-    const regions: TOption[] = regionCodes.map(code => ({
-      value: code,
-      label: regionNames.of(code) || code
-    }));
-
-    regions.sort((a, b) => a.label.localeCompare(b.label, i18n.language));
-    setRegions(regions);
-
-    // if user had selected no region before, do not pre-select any.
-    if (config.frontend.selectedExchangeRegion === '') {
-      setSelectedRegion('');
-      return;
-    }
-
-    if (config.frontend.selectedExchangeRegion) {
-      // pre-select config region
-      setSelectedRegion(config.frontend.selectedExchangeRegion);
-      return;
-    }
-
-    // user never selected a region preference, will derive it from native locale.
-    const userRegion = getRegionNameFromLocale(nativeLocale || '');
-    //Region is available in the list
-    const regionAvailable = !!(regionCodes.find(code => code === userRegion));
-    //Pre-selecting the region
-    const nextRegion = regionAvailable ? userRegion : '';
-    setSelectedRegion(nextRegion);
-  }, [regionCodes, config, nativeLocale, setRegions, setSelectedRegion]);
 
   const buyDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('buy', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
   const sellDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('sell', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
