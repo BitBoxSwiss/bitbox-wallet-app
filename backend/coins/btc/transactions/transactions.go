@@ -43,7 +43,7 @@ func ensureTxHash(txHash chainhash.Hash, tx *wire.MsgTx) error {
 	}
 	actualTxHash := tx.TxHash()
 	if actualTxHash != txHash {
-		return errp.Newf("transaction hash mismatch: expected %s, got %s", txHash, actualTxHash)
+		return errp.New("transaction hash mismatch")
 	}
 	return nil
 }
