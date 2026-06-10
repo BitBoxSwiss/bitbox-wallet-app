@@ -13,7 +13,7 @@ import { useLoad } from '@/hooks/api';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { MarketTab } from './components/markettab';
-import { getFallbackMarketAccountCode, getMarketActionFromSearchParams, getVendorFormattedName } from './utils';
+import { getFallbackMarketAccountCode, getVendorFormattedName } from './utils';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Dialog } from '@/components/dialog/dialog';
 import { alertUser } from '@/components/alert/Alert';
@@ -43,7 +43,7 @@ export const Market = ({
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
 
-  const activeTab = getMarketActionFromSearchParams(searchParams);
+  const activeTab: marketAPI.TMarketAction = searchParams.get('tab') as marketAPI.TMarketAction || 'buy';
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
