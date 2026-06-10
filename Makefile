@@ -2,7 +2,6 @@
 
 SHELL    := /bin/bash
 WEBROOT  := frontends/web
-MOBILETESTROOT := frontends/mobiletests
 
 include version.mk.inc
 
@@ -37,7 +36,7 @@ buildweb:
 	node --version
 	npm --version
 	rm -rf ${WEBROOT}/build
-	cd ${WEBROOT} && npm ci
+	cd ${WEBROOT} && npm ci --ignore-scripts
 	cd ${WEBROOT} && npm run build
 webdev:
 	cd ${WEBROOT} && $(MAKE) dev
@@ -53,8 +52,6 @@ webserve:
 	cd ${WEBROOT} && $(MAKE) serve
 webe2etest:
 	cd ${WEBROOT} && $(MAKE) test-e2e
-mobilee2etest:
-	cd ${MOBILETESTROOT} && ./run.sh
 qt-linux: # run inside dockerdev
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) linux

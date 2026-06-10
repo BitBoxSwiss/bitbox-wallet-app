@@ -123,7 +123,7 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
   const { t } = useTranslation();
   const { lightningAccount } = useLightning();
   const accountsByKeystore = getAccountsByKeystore(accounts);
-  useOnlyVisitableOnMobile('/settings/manage-accounts');
+  useOnlyVisitableOnMobile('/account-summary');
 
   return (
     <Main>

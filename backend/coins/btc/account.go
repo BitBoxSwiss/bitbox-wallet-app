@@ -282,7 +282,22 @@ func (account *Account) Initialize() error {
 	if account.initialized {
 		return nil
 	}
-	account.initialized = true
+	defer func() {
+		if account.initialized {
+			return
+		}
+		if account.transactions != nil {
+			account.transactions.Close()
+			account.transactions = nil
+		}
+		if account.db != nil {
+			if closeErr := account.db.Close(); closeErr != nil {
+				account.log.WithError(closeErr).Error("couldn't close db")
+			}
+			account.db = nil
+		}
+		account.subaccounts = nil
+	}()
 
 	signingConfigurations := account.Config().Config.SigningConfigurations
 	if len(signingConfigurations) == 0 {
@@ -318,9 +333,10 @@ func (account *Account) Initialize() error {
 			account.log.Debug("Connection to blockchain backend established")
 		}
 	}
-	account.coin.Initialize()
+	if err := account.coin.Initialize(); err != nil {
+		return err
+	}
 	account.SetOffline(account.coin.Blockchain().ConnectionError())
-	account.coin.Blockchain().RegisterOnConnectionErrorChangedEvent(onConnectionStatusChanged)
 	theHeaders := account.coin.Headers()
 	account.transactions = transactions.NewTransactions(
 		account.coin.Net(), account.db, theHeaders, account.Synchronizer,
@@ -344,9 +360,13 @@ func (account *Account) Initialize() error {
 		account.subaccounts = append(account.subaccounts, subacc)
 	}
 
+	if err := account.BaseAccount.Initialize(accountIdentifier); err != nil {
+		return err
+	}
+	account.coin.Blockchain().RegisterOnConnectionErrorChangedEvent(onConnectionStatusChanged)
+	account.initialized = true
 	go account.ensureAddresses()
-
-	return account.BaseAccount.Initialize(accountIdentifier)
+	return nil
 }
 
 // XPubVersionForScriptType returns the xpub version bytes for the given coin and script type.
@@ -672,7 +692,10 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		return
 	}
 
-	account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
+	if err := account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history); err != nil {
+		account.reportFatalSyncError(err, "UpdateAddressHistory failed")
+		return
+	}
 	account.incAndEmitSyncCounter()
 	account.ensureAddresses()
 }

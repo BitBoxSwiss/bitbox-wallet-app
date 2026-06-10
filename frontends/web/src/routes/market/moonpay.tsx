@@ -5,11 +5,12 @@ import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { AccountCode, TAccount } from '@/api/account';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { getMoonpayBuyInfo } from '@/api/market';
 import { MarketGuide } from './guide';
 import { Header } from '@/components/layout';
 import { MobileHeader } from '../settings/components/mobile-header';
+import { Message } from '@/components/message/message';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { MoonpayTerms } from '@/components/terms/moonpay-terms';
@@ -23,14 +24,14 @@ type TProps = {
 
 export const Moonpay = ({ accounts, code }: TProps) => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const { isDarkMode } = useDarkmode();
 
-  const config = useLoad(getConfig);
   const moonpay = useLoad(getMoonpayBuyInfo(code));
 
   const account = findAccount(accounts, code);
   const { containerRef, height, iframeLoaded, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(!!config?.frontend?.skipMoonpayDisclaimer);
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipMoonpayDisclaimer ?? false);
 
   if (!account || !config) {
     return null;
@@ -62,8 +63,8 @@ export const Moonpay = ({ accounts, code }: TProps) => {
             ) : (
               <div style={{ height }}>
                 <UseDisableBackButton />
-                {!iframeLoaded && <Spinner text={t('loading')} />}
-                { moonpay && (
+                {(!moonpay || moonpay.success) && !iframeLoaded && <Spinner text={t('loading')} />}
+                { moonpay?.success && (
                   <iframe
                     onLoad={() => {
                       onIframeLoad();
@@ -76,6 +77,11 @@ export const Moonpay = ({ accounts, code }: TProps) => {
                     allow="camera; payment"
                     src={`${moonpay.url}&colorCode=%235E94BF&theme=${isDarkMode ? 'dark' : 'light'}`}>
                   </iframe>
+                )}
+                { moonpay?.success === false && (
+                  <Message type="error">
+                    {moonpay.errorMessage || t('genericError')}
+                  </Message>
                 )}
               </div>
             )}

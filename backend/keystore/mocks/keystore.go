@@ -75,9 +75,6 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			SupportsEIP1559Func: func() bool {
 //				panic("mock out the SupportsEIP1559 method")
 //			},
-//			SupportsMultipleAccountsFunc: func() bool {
-//				panic("mock out the SupportsMultipleAccounts method")
-//			},
 //			SupportsPaymentRequestsFunc: func() error {
 //				panic("mock out the SupportsPaymentRequests method")
 //			},
@@ -159,9 +156,6 @@ type KeystoreMock struct {
 
 	// SupportsEIP1559Func mocks the SupportsEIP1559 method.
 	SupportsEIP1559Func func() bool
-
-	// SupportsMultipleAccountsFunc mocks the SupportsMultipleAccounts method.
-	SupportsMultipleAccountsFunc func() bool
 
 	// SupportsPaymentRequestsFunc mocks the SupportsPaymentRequests method.
 	SupportsPaymentRequestsFunc func() error
@@ -288,9 +282,6 @@ type KeystoreMock struct {
 		// SupportsEIP1559 holds details about calls to the SupportsEIP1559 method.
 		SupportsEIP1559 []struct {
 		}
-		// SupportsMultipleAccounts holds details about calls to the SupportsMultipleAccounts method.
-		SupportsMultipleAccounts []struct {
-		}
 		// SupportsPaymentRequests holds details about calls to the SupportsPaymentRequests method.
 		SupportsPaymentRequests []struct {
 		}
@@ -343,7 +334,6 @@ type KeystoreMock struct {
 	lockSupportsCoin                    sync.RWMutex
 	lockSupportsDeterministicEntropy    sync.RWMutex
 	lockSupportsEIP1559                 sync.RWMutex
-	lockSupportsMultipleAccounts        sync.RWMutex
 	lockSupportsPaymentRequests         sync.RWMutex
 	lockSupportsSwapPaymentRequests     sync.RWMutex
 	lockType                            sync.RWMutex
@@ -970,33 +960,6 @@ func (mock *KeystoreMock) SupportsEIP1559Calls() []struct {
 	mock.lockSupportsEIP1559.RLock()
 	calls = mock.calls.SupportsEIP1559
 	mock.lockSupportsEIP1559.RUnlock()
-	return calls
-}
-
-// SupportsMultipleAccounts calls SupportsMultipleAccountsFunc.
-func (mock *KeystoreMock) SupportsMultipleAccounts() bool {
-	if mock.SupportsMultipleAccountsFunc == nil {
-		panic("KeystoreMock.SupportsMultipleAccountsFunc: method is nil but Keystore.SupportsMultipleAccounts was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockSupportsMultipleAccounts.Lock()
-	mock.calls.SupportsMultipleAccounts = append(mock.calls.SupportsMultipleAccounts, callInfo)
-	mock.lockSupportsMultipleAccounts.Unlock()
-	return mock.SupportsMultipleAccountsFunc()
-}
-
-// SupportsMultipleAccountsCalls gets all the calls that were made to SupportsMultipleAccounts.
-// Check the length with:
-//
-//	len(mockedKeystore.SupportsMultipleAccountsCalls())
-func (mock *KeystoreMock) SupportsMultipleAccountsCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockSupportsMultipleAccounts.RLock()
-	calls = mock.calls.SupportsMultipleAccounts
-	mock.lockSupportsMultipleAccounts.RUnlock()
 	return calls
 }
 

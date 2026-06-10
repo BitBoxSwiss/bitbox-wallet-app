@@ -5,7 +5,7 @@ apt-get update
 apt-get install -y --no-install-recommends curl ca-certificates
 
 # add repository for node/npm
-curl -sL https://deb.nodesource.com/setup_20.x | bash -
+curl -sL https://deb.nodesource.com/setup_24.x | bash -
 
 apt-get install -y --no-install-recommends \
     clang \
@@ -67,7 +67,7 @@ pip install -U pip && pip install aqtinstall
 # qtwebengine is for rendering the frontend.
 aqt install-qt linux desktop 6.8.2 -m qtpositioning qtserialport qtwebchannel qtwebengine --outputdir /opt/qt6
 
-npm install -g npm@10
+npm install -g npm@11
 
 curl https://dl.google.com/go/go1.26.0.linux-amd64.tar.gz | tar -xz -C /usr/local
 

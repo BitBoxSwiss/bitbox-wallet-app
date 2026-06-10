@@ -90,9 +90,6 @@ func makeBitBox02Multi() *keystoremock.KeystoreMock {
 				return true
 			}
 		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
 		ExtendedPublicKeyFunc: ksHelper.ExtendedPublicKey,
 		BTCXPubsFunc:          ksHelper.BTCXPubs,
 	}
@@ -229,6 +226,10 @@ func (e environment) NativeLocale() string {
 	return ""
 }
 
+func (e environment) NumberFormat() *NumberFormat {
+	return nil
+}
+
 func (e environment) GetSaveFilename(string) string {
 	return ""
 }
@@ -319,6 +320,20 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	}
 	require.NoError(t, err)
 	return b
+}
+
+func TestDevicesRegisteredReturnsSnapshot(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	unlock := b.devicesLock.Lock()
+	b.devices["device-id"] = nil
+	unlock()
+
+	devices := b.DevicesRegistered()
+	delete(devices, "device-id")
+
+	require.Contains(t, b.DevicesRegistered(), "device-id")
 }
 
 func TestRegisterKeystore(t *testing.T) {

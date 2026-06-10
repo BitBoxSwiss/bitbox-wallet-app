@@ -13,11 +13,16 @@ import { WithSettingsTabs } from './components/tabs';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
+import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
 import { TPagePropsWithSettingsTabs } from './types';
 import { GlobalBanners } from '@/components/banners';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import style from './general.module.css';
+import { isNotesSettingsVisible } from './settings-availability';
+
+type TProps = {
+  hasAccounts: boolean;
+};
 
 export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
@@ -39,22 +44,7 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu devices={devices}>
-                <SubTitle className={style.subtitleWithMobilePadding}>
-                  {t('settings.appearance')}
-                </SubTitle>
-                <LanguageDropdownSetting />
-                <DefaultCurrencyDropdownSetting />
-                <ActiveCurrenciesDropdownSetting />
-                <DarkmodeToggleSetting />
-                { hasAccounts ? (
-                  <>
-                    <SubTitle className={`m-top-default ${style.subtitleWithMobilePadding || ''}`}>
-                      {t('settings.notes.title')}
-                    </SubTitle>
-                    <NotesExport />
-                    <NotesImport />
-                  </>
-                ) : null }
+                <GeneralSettingsContent hasAccounts={hasAccounts} />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -63,6 +53,37 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
       <GeneralGuide />
     </GuideWrapper>
 
+  );
+};
+
+export const GeneralSettingsContent = ({
+  hasAccounts,
+}: TProps) => {
+  const { t } = useTranslation();
+
+  const sections: TSettingsContentSection[] = [
+    {
+      id: 'appearance',
+      items: [
+        { id: 'language', content: <LanguageDropdownSetting /> },
+        { id: 'default-currency', content: <DefaultCurrencyDropdownSetting /> },
+        { id: 'active-currencies', content: <ActiveCurrenciesDropdownSetting /> },
+        { id: 'dark-mode', content: <DarkmodeToggleSetting /> },
+      ],
+      title: <SubTitle>{t('settings.appearance')}</SubTitle>,
+    },
+    ...(isNotesSettingsVisible(hasAccounts) ? [{
+      id: 'notes',
+      items: [
+        { id: 'export-notes', content: <NotesExport /> },
+        { id: 'import-notes', content: <NotesImport /> },
+      ],
+      title: <SubTitle className="m-top-default">{t('settings.notes.title')}</SubTitle>,
+    }] : []),
+  ];
+
+  return (
+    <SettingsContent sections={sections} />
   );
 };
 

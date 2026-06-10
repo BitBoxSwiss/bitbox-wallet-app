@@ -71,6 +71,10 @@ public class Util {
         if (extension != null) {
             if (extension.equals("js")) {
                 type = "text/javascript";
+            } else if (extension.equals("ttf")) {
+                type = "font/ttf";
+            } else if (extension.equals("otf")) {
+                type = "font/otf";
             } else {
                 type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
             }

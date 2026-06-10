@@ -4,17 +4,13 @@ package bitbox
 
 import (
 	"encoding/json"
-	"os"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox/mocks"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -31,14 +27,12 @@ type dbbTestSuite struct {
 	suite.Suite
 	mockCommunication *mocks.CommunicationInterface
 	mockCommClosed    bool
-	configDir         string
 	dbb               *Device
 
 	log *logrus.Entry
 }
 
 func (s *dbbTestSuite) SetupTest() {
-	s.configDir = test.TstTempDir("dbb_device_test")
 	s.log = logging.Get().WithGroup("bitbox_test")
 	s.mockCommunication = new(mocks.CommunicationInterface)
 	s.mockCommunication.On("SendPlain", jsonArgumentMatcher(map[string]interface{}{"ping": ""})).
@@ -49,15 +43,14 @@ func (s *dbbTestSuite) SetupTest() {
 	})
 	s.mockCommClosed = false
 	dbb, err := NewDevice(deviceID, false, /* bootloader */
-		lowestSupportedFirmwareVersion, s.configDir, s.mockCommunication, socksproxy.NewSocksProxy(false, ""))
-	s.Require().NoError(dbb.Init(true))
+		lowestSupportedFirmwareVersion, s.mockCommunication)
 	s.Require().NoError(err)
+	s.Require().NoError(dbb.Init(true))
 	s.dbb = dbb
 }
 
 func (s *dbbTestSuite) TearDownTest() {
 	s.dbb.Close()
-	_ = os.RemoveAll(s.configDir)
 }
 
 func TestDBBTestSuite(t *testing.T) {
@@ -159,10 +152,8 @@ func (s *dbbTestSuite) TestCreateWallet() {
 }
 
 func (s *dbbTestSuite) TestDeviceClose() {
-	s.Require().False(s.dbb.closed, "s.dbb.closed")
 	s.Require().False(s.mockCommClosed, "s.mockCommClosed")
 	s.dbb.Close()
-	s.Require().True(s.dbb.closed, "s.dbb.closed")
 	s.Require().True(s.mockCommClosed, "s.mockCommClosed")
 }
 
@@ -178,42 +169,4 @@ func (s *dbbTestSuite) TestDeviceStatusEvent() {
 	s.dbb.onStatusChanged()
 	s.Require().True(fired, "onEvent fired")
 	s.Require().True(seen, "EventStatusChanged")
-}
-
-func TestNewDeviceReadsChannel(t *testing.T) {
-	configDir := test.TstTempDir("dbb_device_test")
-	defer func() { _ = os.RemoveAll(configDir) }()
-	mobchan := relay.NewChannelWithRandomKey(socksproxy.NewSocksProxy(false, ""))
-	if err := mobchan.StoreToConfigFile(configDir); err != nil {
-		t.Fatal(err)
-	}
-
-	// TODO: Also run a relay server stub when available instead of hitting prod server; see TestPingMobile.
-	comm := new(mocks.CommunicationInterface)
-	comm.On("SendPlain", jsonArgumentMatcher(map[string]interface{}{"ping": ""})).
-		Return(map[string]interface{}{"ping": ""}, nil)
-	comm.On("Close")
-	dbb, err := NewDevice("test-device-id", false, /* bootloader */
-		lowestSupportedFirmwareVersion, configDir, comm, socksproxy.NewSocksProxy(false, ""))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer dbb.Close()
-
-	if dbb.mobileChannel() == nil {
-		t.Error("dbb.mobileChannel() returned nil")
-	}
-	if id := dbb.mobileChannel().ChannelID; id != mobchan.ChannelID {
-		t.Errorf("channel ID = %q; want %q", id, mobchan.ChannelID)
-	}
-}
-
-func (s *dbbTestSuite) TestListenForMobile() {
-	// TODO: Need to be able to replace relay.DefaultServer URL in tests.
-	s.T().Skip("implement once relay server URL can be replaced in testing")
-}
-
-func (s *dbbTestSuite) TestPingMobile() {
-	// TODO: Need to be able to replace relay.DefaultServer URL in tests.
-	s.T().Skip("implement once relay server URL can be replaced in testing")
 }

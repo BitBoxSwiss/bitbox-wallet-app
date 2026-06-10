@@ -100,7 +100,9 @@ func (coin *Coin) ChainIDstr() string {
 }
 
 // Initialize implements coin.Coin.
-func (coin *Coin) Initialize() {}
+func (coin *Coin) Initialize() error {
+	return nil
+}
 
 // Name implements coin.Coin.
 func (coin *Coin) Name() string {

@@ -1,24 +1,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Dispatch, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TProxyConfig } from '@/routes/settings/advanced-settings';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { TorProxyDialog } from './tor-proxy-dialog';
 import { Message } from '@/components/message/message';
 import { runningInIOS } from '@/utils/env';
 import styles from './enable-tor-proxy-setting.module.css';
-type TProps = {
-  proxyConfig?: TProxyConfig;
-  onChangeConfig: Dispatch<any>;
-};
 
-export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) => {
+export const EnableTorProxySetting = () => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const [showTorProxyDialog, setShowTorProxyDialog] = useState(false);
   const [showRestartMessage, setShowRestartMessage] = useState(false);
 
-  const proxyEnabled = proxyConfig ? proxyConfig.useProxy : false;
+  const proxyEnabled = config?.backend.proxy.useProxy ?? false;
 
   // NOTE: if you enable this again on iOS, also enable it in the backend, where it is also disabled.
   const isIOS = runningInIOS();
@@ -46,9 +43,7 @@ export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) =
       />
       <TorProxyDialog
         open={showTorProxyDialog}
-        proxyConfig={proxyConfig}
         onCloseDialog={() => setShowTorProxyDialog(false)}
-        onChangeConfig={onChangeConfig}
         handleShowRestartMessage={setShowRestartMessage}
       />
     </>

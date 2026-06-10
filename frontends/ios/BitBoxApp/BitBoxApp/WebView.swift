@@ -109,6 +109,8 @@ class CustomSchemeHandler: NSObject, WKURLSchemeHandler {
         case "jpg", "jpeg": return "image/jpeg"
         case "gif": return "image/gif"
         case "svg": return "image/svg+xml"
+        case "ttf": return "font/ttf"
+        case "otf": return "font/otf"
         default: return "application/octet-stream"
         }
     }

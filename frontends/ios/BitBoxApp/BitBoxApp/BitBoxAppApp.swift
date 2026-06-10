@@ -200,14 +200,14 @@ struct BitBoxAppApp: App {
                         setupGoAPI(goAPI: goAPI)
                         MobileserverSetOnline(NetworkMonitor.shared.isOnline())
                         Task.detached(priority: .utility) {
-                            widgetSync.sync()
+                            widgetSync.sync(forceReload: true)
                         }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                         MobileserverManualReconnect()
                         MobileserverTriggerAuth()
                         Task.detached(priority: .utility) {
-                            widgetSync.sync()
+                            widgetSync.sync(forceReload: true)
                         }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
@@ -219,7 +219,7 @@ struct BitBoxAppApp: App {
                             }
                         }
                         Task.detached(priority: .userInitiated) {
-                            widgetSync.sync()
+                            widgetSync.sync(forceReload: true)
                             await MainActor.run {
                                 if bgTask != .invalid {
                                     UIApplication.shared.endBackgroundTask(bgTask)
@@ -267,7 +267,7 @@ private struct StatusBarCover: View {
 
     var body: some View {
         GeometryReader { geometry in
-            if keyboard.isVisible {
+            if keyboard.isVisible && geometry.size.width < 1200 {
                 let safeTop = geometry.safeAreaInsets.top
                 Color(uiColor: useDark
                       ? UIColor(red: 0x1D/255, green: 0x1D/255, blue: 0x1B/255, alpha: 1)  // #1D1D1B

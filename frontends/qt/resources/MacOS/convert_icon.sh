@@ -1,10 +1,21 @@
+#!/bin/bash
 # SPDX-License-Identifier: Apache-2.0
+# Generates Assets.car and icon.icns from Apple Icon Composer file using Xcode 26 ACtool
 
-convert ../app_icon_source.png -resize 1024x icon_1024x1024x32.png
-convert ../app_icon_source.png -resize 512x icon_512x512x32.png
-convert ../app_icon_source.png -resize 256x icon_256x256x32.png
-convert ../app_icon_source.png -resize 32x icon_32x32x32.png
-convert ../app_icon_source.png -resize 16x icon_16x16x32.png
-png2icns icon.icns icon_1024x1024x32.png icon_512x512x32.png icon_256x256x32.png icon_32x32x32.png icon_16x16x32.png
-rm icon_1024x1024x32.png icon_512x512x32.png icon_256x256x32.png icon_32x32x32.png icon_16x16x32.png
+set -euo pipefail
+
+cd "$(dirname "$0")"
+
+xcrun actool "$PWD/icon.icon" \
+	--compile . \
+	--app-icon icon \
+	--enable-on-demand-resources NO \
+	--minimum-deployment-target 10.15 \
+	--platform macosx \
+	--output-partial-info-plist icon-partial.plist
+
+test -f Assets.car
+test -f icon.icns
+
+rm icon-partial.plist
 cp icon.icns Testnet.app/Contents/Resources/icon.icns

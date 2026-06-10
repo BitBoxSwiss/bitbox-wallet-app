@@ -12,16 +12,7 @@ type TProps = {
   popHandler: (handler: THandler) => void;
 };
 
-export const BackButtonContext = createContext<TProps>({
-  pushHandler: () => {
-    console.error('pushHandler called out of context');
-    return true;
-  },
-  popHandler: () => {
-    console.error('popHandler called out of context');
-    return true;
-  },
-});
+export const BackButtonContext = createContext<TProps | null>(null);
 
 type TProviderProps = {
   children: ReactNode;

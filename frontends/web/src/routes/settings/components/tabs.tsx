@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
 import type { TDevices, TPlatformName } from '@/api/devices';
@@ -8,6 +8,9 @@ import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
 import { useDarkmode } from '@/hooks/darkmode';
 import { SettingsItem } from './settingsItem/settingsItem';
+import { SettingsSearchContent } from './settings-search-content';
+import { Button, SearchInput } from '@/components/forms';
+import { useSettingsSearch } from '../use-settings-search';
 import {
   AdvancedSettingsIcon,
   AdvancedSettingsIconDark,
@@ -20,6 +23,7 @@ import {
   InfoIconDark,
   USBLight,
   USBDark,
+  LoupeBlue,
 } from '@/components/icon';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import styles from './tabs.module.css';
@@ -29,6 +33,7 @@ type TWithSettingsTabsProps = {
   devices: TDevices;
   hasAccounts: boolean;
   hideMobileMenu?: boolean;
+  renderDefaultTabs?: boolean;
 };
 
 type TTab = {
@@ -50,17 +55,85 @@ export const WithSettingsTabs = ({
   devices,
   hideMobileMenu,
   hasAccounts,
+  renderDefaultTabs = true,
 }: TWithSettingsTabsProps) => {
+  const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [showSearchBar, setShowSearchBar] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const {
+    searchResults,
+    searchTerm,
+    showSearchResults,
+    updateSearchTerm,
+  } = useSettingsSearch({
+    devices,
+    hasAccounts,
+  });
+  const showDesktopSearchBar = showSearchBar || searchTerm.trim().length > 0;
+  const showSearchBarInput = isMobile || showDesktopSearchBar;
+
+  useEffect(() => {
+    if (!isMobile && showSearchBarInput) {
+      searchInputRef.current?.focus();
+    }
+  }, [isMobile, showSearchBarInput]);
+
   return (
     <>
-      <div className="hide-on-small">
-        <Tabs
-          hideMobileMenu={hideMobileMenu}
+      {showSearchBarInput ? (
+        <div className={styles.searchContainer}>
+          <SearchInput
+            autoFocus={!isMobile}
+            onChange={event => updateSearchTerm(event.currentTarget.value)}
+            onClear={() => updateSearchTerm('')}
+            placeholder={t('generic.search')}
+            ref={searchInputRef}
+            value={searchTerm}
+            variant="clear"
+          />
+        </div>
+      ) : null}
+      {renderDefaultTabs ? (
+        <div className="hide-on-small">
+          <div className={styles.desktopTabsRow}>
+            <Tabs
+              hideMobileMenu={hideMobileMenu}
+              devices={devices}
+              hasAccounts={hasAccounts}
+            />
+            <div className={styles.searchToggleContainer}>
+              <Button
+                className={styles.searchButton}
+                onClick={() => {
+                  if (showDesktopSearchBar) {
+                    setShowSearchBar(false);
+                    updateSearchTerm('');
+                  } else {
+                    setShowSearchBar(true);
+                  }
+                }}
+                transparent
+              >
+                {showDesktopSearchBar ? (
+                  <>✕ {t('generic.close')}</>
+                ) : (
+                  <>
+                    <LoupeBlue className={styles.loupe} />
+                    {t('generic.searchButton')}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {showSearchResults ? (
+        <SettingsSearchContent
           devices={devices}
-          hasAccounts={hasAccounts}
+          searchResults={searchResults}
         />
-      </div>
-      {children}
+      ) : children}
     </>
   );
 };

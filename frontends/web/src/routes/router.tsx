@@ -92,6 +92,16 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
     </InjectParams>
   );
 
+  const NoAccounts = (
+    <InjectParams>
+      <NoDeviceConnected
+        key="no-accounts"
+        devices={devices}
+        hasAccounts={hasAccounts}
+      />
+    </InjectParams>
+  );
+
   const Acc = (<InjectParams>
     <Account
       code={'' /* dummy to satisfy TS */}
@@ -336,7 +346,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="about" element={AboutEl} />
           <Route path="device-settings/:deviceID" element={Device} />
           <Route path="no-device-connected" element={NoDevice} />
-          <Route path="no-accounts" element={NoDevice} />
+          <Route path="no-accounts" element={NoAccounts} />
           <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
           <Route path="device-settings/recovery-words/:deviceID" element={RecoveryWordsEl} />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />

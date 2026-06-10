@@ -141,7 +141,7 @@
 .tooltip {
   background: var(--background-secondary);
   border: 1px solid var(--background);
-  border-radius: 3px;
+  border-radius: var(--radius-xl);
   font-size: var(--size-smaller);
   margin-top: -25px;
   min-width: 140px;
@@ -154,8 +154,11 @@
 }
 
 .toolTipValue {
-  font-weight: normal;
+  align-items: baseline;
+  display: flex;
   font-size: 1.6rem;
+  font-weight: normal;
+  justify-content: center;
   margin: 0 0 4px 0;
 }
 

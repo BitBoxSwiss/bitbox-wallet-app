@@ -47,7 +47,14 @@ export const approve = (): Promise<null> => {
   return apiPost('aopp/approve');
 };
 
-export const chooseAccount = (accountCode: AccountCode): Promise<null> => {
+type TChooseAccountResponse = {
+  success: true;
+} | {
+  success: false;
+  errorMessage: string;
+};
+
+export const chooseAccount = (accountCode: AccountCode): Promise<TChooseAccountResponse> => {
   return apiPost('aopp/choose-account', { accountCode });
 };
 

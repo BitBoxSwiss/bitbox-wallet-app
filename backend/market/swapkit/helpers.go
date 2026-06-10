@@ -34,7 +34,7 @@ const (
 	// ErrInvalidRequest is returned when the quote request is invalid, for example due to missing or invalid fields.
 	ErrInvalidRequest errp.ErrorCode = "invalidRequest"
 	// ErrNoRoutesFound is returned when SwapKit cannot route the selected pair.
-	ErrNoRoutesFound errp.ErrorCode = "NoRoutesFoundError"
+	ErrNoRoutesFound errp.ErrorCode = "noRoutesFound"
 )
 
 const noRoutesFoundMessage = "No routes found"

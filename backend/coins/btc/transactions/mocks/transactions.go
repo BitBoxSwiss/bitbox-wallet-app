@@ -33,7 +33,7 @@ var _ transactions.Interface = &InterfaceMock{}
 //			TransactionsFunc: func(isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error) {
 //				panic("mock out the Transactions method")
 //			},
-//			UpdateAddressHistoryFunc: func(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo)  {
+//			UpdateAddressHistoryFunc: func(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) error {
 //				panic("mock out the UpdateAddressHistory method")
 //			},
 //		}
@@ -56,7 +56,7 @@ type InterfaceMock struct {
 	TransactionsFunc func(isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error)
 
 	// UpdateAddressHistoryFunc mocks the UpdateAddressHistory method.
-	UpdateAddressHistoryFunc func(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo)
+	UpdateAddressHistoryFunc func(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -203,7 +203,7 @@ func (mock *InterfaceMock) TransactionsCalls() []struct {
 }
 
 // UpdateAddressHistory calls UpdateAddressHistoryFunc.
-func (mock *InterfaceMock) UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) {
+func (mock *InterfaceMock) UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) error {
 	if mock.UpdateAddressHistoryFunc == nil {
 		panic("InterfaceMock.UpdateAddressHistoryFunc: method is nil but Interface.UpdateAddressHistory was just called")
 	}
@@ -217,7 +217,7 @@ func (mock *InterfaceMock) UpdateAddressHistory(scriptHashHex blockchain.ScriptH
 	mock.lockUpdateAddressHistory.Lock()
 	mock.calls.UpdateAddressHistory = append(mock.calls.UpdateAddressHistory, callInfo)
 	mock.lockUpdateAddressHistory.Unlock()
-	mock.UpdateAddressHistoryFunc(scriptHashHex, txs)
+	return mock.UpdateAddressHistoryFunc(scriptHashHex, txs)
 }
 
 // UpdateAddressHistoryCalls gets all the calls that were made to UpdateAddressHistory.
