@@ -3,6 +3,7 @@
 import '../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { HeadersSync } from './headerssync';
 import { TStatus } from '@/api/coins';
 import * as apiHooks from '@/hooks/api';
@@ -30,10 +31,13 @@ describe('components/headerssync/headerssync', () => {
   describe('renders proper progress', () => {
     it('has 100% progress', () => {
       const MOCKED_SUBSCRIBE_VALUE: TStatus = {
-        tipAtInitTime: 2408855,
-        tip: 2408940,
-        tipHashHex: '0000000000000015f61742c773181dd368527575a6ac02ea5ecbace8e73cc083',
-        targetHeight: 2408940
+        success: true,
+        status: {
+          tipAtInitTime: 2408855,
+          tip: 2408940,
+          tipHashHex: '0000000000000015f61742c773181dd368527575a6ac02ea5ecbace8e73cc083',
+          targetHeight: 2408940
+        }
       };
       useSubscribeSpy.mockReturnValueOnce(MOCKED_SUBSCRIBE_VALUE);
 
@@ -44,10 +48,13 @@ describe('components/headerssync/headerssync', () => {
 
     it('has 50% progress', () => {
       const MOCKED_SUBSCRIBE_VALUE: TStatus = {
-        tipAtInitTime: 2408855,
-        tip: 2408897.5,
-        tipHashHex: '0000000000000015f61742c773181dd368527575a6ac02ea5ecbace8e73cc083',
-        targetHeight: 2408940
+        success: true,
+        status: {
+          tipAtInitTime: 2408855,
+          tip: 2408897.5,
+          tipHashHex: '0000000000000015f61742c773181dd368527575a6ac02ea5ecbace8e73cc083',
+          targetHeight: 2408940
+        }
       };
       useSubscribeSpy.mockReturnValueOnce(MOCKED_SUBSCRIBE_VALUE);
 

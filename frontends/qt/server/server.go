@@ -54,6 +54,7 @@ import (
 	"strings"
 	"unsafe"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02/simulator"
@@ -112,6 +113,8 @@ func serve(
 	pushNotificationsFn C.pushNotificationsCallback,
 	responseFn C.responseCallback,
 	notifyUserFn C.notifyUserCallback,
+	preferredDecimalSeparator *C.cchar_t,
+	preferredGroupSeparator *C.cchar_t,
 	preferredLocale *C.cchar_t,
 	getSaveFilenameFn C.getSaveFilenameCallback,
 ) {
@@ -153,6 +156,18 @@ func serve(
 	// from the stack.
 	nativeLocale := C.GoString(preferredLocale)
 
+	decimalSeparator := C.GoString(preferredDecimalSeparator)
+	groupSeparator := C.GoString(preferredGroupSeparator)
+
+	var numberFormat *backend.NumberFormat
+
+	if decimalSeparator != "" && groupSeparator != "" {
+		numberFormat = &backend.NumberFormat{
+			DecimalSeparator: decimalSeparator,
+			GroupSeparator:   groupSeparator,
+		}
+	}
+
 	bridgecommon.Serve(
 		*testnet,
 		*useSimulator,
@@ -179,6 +194,7 @@ func serve(
 			SystemOpenFunc:      system.Open,
 			UsingMobileDataFunc: func() bool { return false },
 			NativeLocaleFunc:    func() string { return nativeLocale },
+			NumberFormatFunc:    func() *backend.NumberFormat { return numberFormat },
 			GetSaveFilenameFunc: func(suggestedFilename string) string {
 				cSuggestedFilename := C.CString(suggestedFilename)
 				defer C.free(unsafe.Pointer(cSuggestedFilename))

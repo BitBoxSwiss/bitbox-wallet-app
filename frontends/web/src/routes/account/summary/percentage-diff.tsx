@@ -5,6 +5,7 @@ import { AppContext } from '@/contexts/AppContext';
 import { localizePercentage } from '@/utils/localize';
 import { ArrowDownRed, ArrowUpGreen } from '@/components/icon';
 import styles from './percentage-diff.module.css';
+import { LocalizationContext } from '@/contexts/localization-context';
 
 type TPercentageDiff = {
   hasDifference: boolean;
@@ -18,10 +19,12 @@ export const PercentageDiff = ({
   title,
 }: TPercentageDiff) => {
   const { hideAmounts, nativeLocale } = useContext(AppContext);
+  const { decimal, group } = useContext(LocalizationContext);
   const positive = difference && difference > 0;
   const style = difference && positive ? 'up' : 'down';
   const className = hasDifference ? styles[style] : '';
-  const formattedDifference = difference && localizePercentage(difference, nativeLocale);
+  const formattedDifference = difference && localizePercentage(difference, nativeLocale, { decimal, group });
+
   return (
     <span className={className} title={title}>
       {hasDifference ? (

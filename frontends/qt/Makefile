@@ -68,8 +68,9 @@ osx:
 	/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $(APP_VERSION)" build/osx/BitBox.app/Contents/Info.plist
 	mkdir -p build/osx/BitBox.app/Contents/Resources
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
+	cp resources/MacOS/Assets.car build/osx/BitBox.app/Contents/Resources/
 	# Create a universal binary for libbreez_sdk_spark_bindings.dylib
-	mkdir build/osx/BitBox.app/Contents/Frameworks
+	mkdir -p build/osx/BitBox.app/Contents/Frameworks
 	lipo -create \
 		../../vendor/github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/darwin-amd64/libbreez_sdk_spark_bindings.dylib \
 		../../vendor/github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/darwin-aarch64/libbreez_sdk_spark_bindings.dylib \
@@ -81,5 +82,6 @@ osx:
 	cp build/assets.rcc build/osx/BitBox.app/Contents/MacOS/
 	install_name_tool -change libserver.so @executable_path/../Frameworks/libserver.so build/osx/BitBox.app/Contents/MacOS/BitBox
 	cp -r resources/MacOS/Testnet.app build/osx/Testnet.app
+	cp build/osx/BitBox.app/Contents/Resources/Assets.car build/osx/Testnet.app/Contents/Resources/
 windows:
 	bash make_windows.sh

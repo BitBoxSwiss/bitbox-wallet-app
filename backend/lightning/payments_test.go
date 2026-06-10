@@ -30,6 +30,7 @@ func makeTestLightning() *Lightning {
 			".",
 			[]*config.ServerInfo{},
 			"",
+			"",
 			socksproxy.NewSocksProxy(false, ""),
 		),
 		ratesUpdater: rates.NewRateUpdater(nil, "/dev/null"),

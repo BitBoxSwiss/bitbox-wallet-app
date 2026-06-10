@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { Input, NumberInput } from '@/components/forms';
 import { Message } from '@/components/message/message';
 import { customFeeUnit, getCoinCode, isEthereumBased } from '@/routes/account/utils';
@@ -42,8 +42,8 @@ export const FeeTargets = ({
   error
 }: Props) => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const { defaultCurrency } = useContext(RatesContext);
-  const config = useLoad(getConfig);
   const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
   const [options, setOptions] = useState<TOption[] | null>(null);
   const [noFeeTargets, setNoFeeTargets] = useState<boolean>(false);
@@ -125,6 +125,9 @@ export const FeeTargets = ({
       return null;
     }
 
+    if (!config) {
+      return null;
+    }
     const feetargetInfo = feeTargets?.feeTargets.find(({ code }) => code === option.value);
     const withCustomFee = config.frontend.expertFee || feeTargets?.feeTargets.length === 0;
     if (withCustomFee && feetargetInfo) {

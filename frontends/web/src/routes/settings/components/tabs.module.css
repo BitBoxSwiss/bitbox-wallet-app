@@ -4,6 +4,43 @@
     word-break: keep-all;
 }
 
+.searchContainer {
+    margin-bottom: var(--space-default);
+}
+
+.desktopTabsRow {
+    align-items: flex-start;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-default);
+    width: 100%;
+}
+
+.desktopTabsRow .container {
+    margin-bottom: 0;
+}
+
+.searchToggleContainer {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: flex-end;
+    margin-left: var(--space-default);
+}
+
+.searchButton {
+    align-items: start;
+    display: flex;
+    gap: var(--space-eight);
+    justify-content: flex-end;
+    padding: 0;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.loupe {
+    width: var(--size-default);
+}
+
 .container a {
     margin-right: var(--space-default);
     font-size: var(--size-subheader);

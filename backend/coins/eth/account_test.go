@@ -229,34 +229,46 @@ func outgoingTxs(t *testing.T, account *Account) []*ethtypes.TransactionWithMeta
 func TestOutgoingTransactionIsFinal(t *testing.T) {
 	tx := newTestOutgoingTx()
 	tests := []struct {
-		name      string
-		height    uint64
-		tipHeight uint64
-		expected  bool
+		name                   string
+		height                 uint64
+		tipHeight              uint64
+		lastReceiptCheckHeight uint64
+		expected               bool
 	}{
 		{
-			name:      "pending",
-			height:    0,
-			tipHeight: 100,
-			expected:  false,
+			name:                   "pending",
+			height:                 0,
+			tipHeight:              100,
+			lastReceiptCheckHeight: 100,
+			expected:               false,
 		},
 		{
-			name:      "eleven confirmations",
-			height:    90,
-			tipHeight: 100,
-			expected:  false,
+			name:                   "eleven confirmations",
+			height:                 90,
+			tipHeight:              100,
+			lastReceiptCheckHeight: 100,
+			expected:               false,
 		},
 		{
-			name:      "twelve confirmations",
-			height:    89,
-			tipHeight: 100,
-			expected:  true,
+			name:                   "twelve confirmations but not checked at finality",
+			height:                 89,
+			tipHeight:              100,
+			lastReceiptCheckHeight: 99,
+			expected:               false,
 		},
 		{
-			name:      "future height",
-			height:    101,
-			tipHeight: 100,
-			expected:  false,
+			name:                   "twelve confirmations checked at finality",
+			height:                 89,
+			tipHeight:              100,
+			lastReceiptCheckHeight: 100,
+			expected:               true,
+		},
+		{
+			name:                   "future height",
+			height:                 101,
+			tipHeight:              100,
+			lastReceiptCheckHeight: 100,
+			expected:               false,
 		},
 	}
 
@@ -264,8 +276,9 @@ func TestOutgoingTransactionIsFinal(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			require.Equal(t, test.expected, outgoingTransactionIsFinal(
 				&ethtypes.TransactionWithMetadata{
-					Transaction: tx,
-					Height:      test.height,
+					Transaction:            tx,
+					Height:                 test.height,
+					LastReceiptCheckHeight: test.lastReceiptCheckHeight,
 				},
 				test.tipHeight,
 			))
@@ -277,10 +290,11 @@ func TestUpdateOutgoingTransactionsSkipsFinalTransactions(t *testing.T) {
 	account := newAccountWithOptions(t, true, make(chan *Account, 1))
 	defer account.Close()
 	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
-		Transaction: newTestOutgoingTx(),
-		Height:      89,
-		GasUsed:     21000,
-		Success:     true,
+		Transaction:            newTestOutgoingTx(),
+		Height:                 89,
+		GasUsed:                21000,
+		Success:                true,
+		LastReceiptCheckHeight: 100,
 	})
 
 	var receiptCalls int
@@ -293,6 +307,40 @@ func TestUpdateOutgoingTransactionsSkipsFinalTransactions(t *testing.T) {
 
 	account.updateOutgoingTransactions(100)
 	require.Equal(t, 0, receiptCalls)
+}
+
+func TestUpdateOutgoingTransactionsPollsFinalTransactionUntilFinalityChecked(t *testing.T) {
+	account := newAccountWithOptions(t, true, make(chan *Account, 1))
+	defer account.Close()
+	tx := newTestOutgoingTx()
+	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
+		Transaction:            tx,
+		Height:                 89,
+		GasUsed:                21000,
+		Success:                true,
+		LastReceiptCheckHeight: 99,
+	})
+
+	var receiptCalls int
+	account.ETHCoin().TstSetClient(&mocks.InterfaceMock{
+		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+			receiptCalls++
+			require.Equal(t, tx.Hash(), hash)
+			return &rpcclient.RPCTransactionReceipt{
+				Receipt: gethtypes.Receipt{
+					Status:  gethtypes.ReceiptStatusSuccessful,
+					GasUsed: 21000,
+				},
+				BlockNumber: 89,
+			}, nil
+		},
+	})
+
+	account.updateOutgoingTransactions(100)
+	require.Equal(t, 1, receiptCalls)
+	txs := outgoingTxs(t, account)
+	require.Len(t, txs, 1)
+	require.Equal(t, uint64(100), txs[0].LastReceiptCheckHeight)
 }
 
 func TestUpdateOutgoingTransactionsPollsRecentConfirmedTransactions(t *testing.T) {

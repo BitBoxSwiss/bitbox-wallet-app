@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/stretchr/testify/require"
@@ -43,6 +44,10 @@ func (e environment) UsingMobileData() bool {
 
 func (e environment) NativeLocale() string {
 	return ""
+}
+
+func (e environment) NumberFormat() *backend.NumberFormat {
+	return nil
 }
 
 func (e environment) GetSaveFilename(string) string {

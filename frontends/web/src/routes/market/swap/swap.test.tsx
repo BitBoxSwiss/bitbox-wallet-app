@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
+import type { TConfig } from '@/api/config';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import '@testing-library/jest-dom';
 
 vi.mock('@/i18n/i18n');
+// initialize i18n once at startup
+import '@/i18n/i18n';
+
 vi.mock('@/components/alert/Alert', () => ({
   alertUser: vi.fn(),
 }));
@@ -92,13 +97,12 @@ vi.mock('@/api/swap', async (importOriginal) => {
     signSwap: vi.fn(),
   };
 });
-vi.mock('@/utils/config', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/utils/config')>();
-  return {
-    ...actual,
-    getConfig: vi.fn(),
-  };
-});
+vi.mock('@/contexts/ConfigProvider', () => ({
+  useConfig: vi.fn(() => ({
+    config: { frontend: {}, backend: {} } as TConfig,
+    setConfig: vi.fn(),
+  })),
+}));
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -106,9 +110,12 @@ import { MemoryRouter } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import * as coinsApi from '@/api/coins';
 import * as swapApi from '@/api/swap';
-import * as config from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Swap } from './swap';
+
+const mockUseConfig = vi.mocked(useConfig);
 
 const sellAccount: accountApi.TAccount = {
   keystore: {
@@ -213,9 +220,9 @@ describe('routes/market/swap', () => {
         }],
       },
     });
-    vi.mocked(config.getConfig).mockResolvedValue({
-      frontend: {},
-      backend: {},
+    mockUseConfig.mockReturnValue({
+      config: { frontend: {}, backend: {} } as TConfig,
+      setConfig: vi.fn(),
     });
   });
 
@@ -223,21 +230,23 @@ describe('routes/market/swap', () => {
     const user = userEvent.setup();
 
     render(
-      <RatesContext.Provider
-        value={{
-          activeCurrencies: [],
-          addToActiveCurrencies: vi.fn(),
-          btcUnit: 'default',
-          defaultCurrency: 'USD',
-          removeFromActiveCurrencies: vi.fn(),
-          rotateBtcUnit: vi.fn(),
-          rotateDefaultCurrency: vi.fn(),
-          updateDefaultCurrency: vi.fn(),
-        }}>
-        <MemoryRouter>
-          <Swap accounts={[sellAccount, buyAccount]} />
-        </MemoryRouter>
-      </RatesContext.Provider>,
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
     );
 
     const agreeButton = await screen.findByTestId('agree-swap-terms');
@@ -268,7 +277,7 @@ describe('routes/market/swap', () => {
     });
     vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
       success: false,
-      errorCode: 'NoRoutesFoundError',
+      errorCode: 'noRoutesFound',
       errorData: {
         buyCoin: 'USDC',
         sellCoin: 'ETH',
@@ -277,21 +286,23 @@ describe('routes/market/swap', () => {
     });
 
     render(
-      <RatesContext.Provider
-        value={{
-          activeCurrencies: [],
-          addToActiveCurrencies: vi.fn(),
-          btcUnit: 'default',
-          defaultCurrency: 'USD',
-          removeFromActiveCurrencies: vi.fn(),
-          rotateBtcUnit: vi.fn(),
-          rotateDefaultCurrency: vi.fn(),
-          updateDefaultCurrency: vi.fn(),
-        }}>
-        <MemoryRouter>
-          <Swap accounts={[buyAccount]} />
-        </MemoryRouter>
-      </RatesContext.Provider>,
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
     );
 
     await user.click(await screen.findByTestId('agree-swap-terms'));
@@ -300,6 +311,48 @@ describe('routes/market/swap', () => {
     expect(await screen.findByText('No route found from ETH to USDC. Try entering a larger amount. Otherwise try again later.')).toBeInTheDocument();
     expect(screen.queryByText(/ETH\.ETH/)).not.toBeInTheDocument();
     expect(screen.queryByText(/ETH\.USDC/)).not.toBeInTheDocument();
+  });
+
+  it('shows insufficient funds warning together with no-route errors', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+      success: false,
+      errorCode: 'noRoutesFound',
+      errorData: {
+        buyCoin: 'ETH',
+        sellCoin: 'BTC',
+      },
+      errorMessage: 'No routes found',
+      validationErrorCode: 'insufficientFunds',
+    });
+
+    render(
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '2');
+
+    expect(await screen.findByText('No route found from BTC to ETH. Try entering a larger amount. Otherwise try again later.')).toBeInTheDocument();
+    expect(screen.getByText(/insufficient funds/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
   });
 
   it('keeps quote output visible for insufficient funds', async () => {
@@ -319,21 +372,23 @@ describe('routes/market/swap', () => {
     });
 
     render(
-      <RatesContext.Provider
-        value={{
-          activeCurrencies: [],
-          addToActiveCurrencies: vi.fn(),
-          btcUnit: 'default',
-          defaultCurrency: 'USD',
-          removeFromActiveCurrencies: vi.fn(),
-          rotateBtcUnit: vi.fn(),
-          rotateDefaultCurrency: vi.fn(),
-          updateDefaultCurrency: vi.fn(),
-        }}>
-        <MemoryRouter>
-          <Swap accounts={[sellAccount, buyAccount]} />
-        </MemoryRouter>
-      </RatesContext.Provider>,
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
     );
 
     await user.click(await screen.findByTestId('agree-swap-terms'));
@@ -362,21 +417,23 @@ describe('routes/market/swap', () => {
       .mockImplementationOnce(() => new Promise(() => {}));
 
     render(
-      <RatesContext.Provider
-        value={{
-          activeCurrencies: [],
-          addToActiveCurrencies: vi.fn(),
-          btcUnit: 'default',
-          defaultCurrency: 'USD',
-          removeFromActiveCurrencies: vi.fn(),
-          rotateBtcUnit: vi.fn(),
-          rotateDefaultCurrency: vi.fn(),
-          updateDefaultCurrency: vi.fn(),
-        }}>
-        <MemoryRouter>
-          <Swap accounts={[sellAccount, buyAccount]} />
-        </MemoryRouter>
-      </RatesContext.Provider>,
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
     );
 
     await user.click(await screen.findByTestId('agree-swap-terms'));

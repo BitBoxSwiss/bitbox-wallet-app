@@ -6,7 +6,6 @@ import { Button } from '../../../components/forms';
 import { DialogLegacy } from '../../../components/dialog/dialog-legacy';
 import { PasswordSingleInput } from '../../../components/password';
 import { apiPost } from '../../../utils/request';
-// TODO: use DialogButtons
 import style from '../../../components/dialog/dialog.module.css';
 
 class Check extends Component {

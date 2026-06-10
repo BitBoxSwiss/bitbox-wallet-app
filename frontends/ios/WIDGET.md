@@ -27,7 +27,9 @@ When the app launches (or enters foreground / background), `WidgetAppGroupSync` 
 2. Reads `accounts.json` -> collects all active (non-inactive, non-hidden) coin codes.
 3. Normalizes coin codes (`tbtc` -> `btc`, `sepeth` -> `eth`, `tltc` -> `ltc`).
 4. Writes the currency and coin list to shared `UserDefaults`.
-5. If anything changed, tells iOS to reload the widget timeline.
+5. Tells iOS to reload the widget timeline on app launch / foreground / background.
+6. Marks that lifecycle reload as a fresh-price reload so the widget tries the network before its
+   cache once.
 
 **Fallback:** If the user's currency isn't supported by the API (e.g. `BTC` or `sat`), it falls back to `USD`.
 
@@ -46,7 +48,8 @@ The widget shows **one coin at a time**. The user switches coins with left/right
 
 ## 3. How prices are fetched
 
-The widget calls the **Shift Crypto CoinGecko Mirror API**:
+The widget calls the **Shift Crypto CoinGecko Mirror API**. It uses the chart endpoint for historical
+data:
 
 ```
 https://exchangerates.shiftcrypto.io/api/v3/coins/{geckoID}/market_chart/range
@@ -55,15 +58,25 @@ https://exchangerates.shiftcrypto.io/api/v3/coins/{geckoID}/market_chart/range
   &to={now}
 ```
 
+It also calls the simple price endpoint for a fresher current price:
+
+```
+https://exchangerates.shiftcrypto.io/api/v3/simple/price
+  ?ids={geckoID}
+  &vs_currencies={currency}
+```
+
 Where `geckoID` maps `btc` -> `bitcoin`, `ltc` -> `litecoin`, `eth` -> `ethereum`.
 
-This returns 24 hours of price data points. From that response:
+The chart response returns 24 hours of price data points. The simple price response is appended to
+that series when available. From those responses:
 
-- **Current price** = last data point.
-- **24-hour change** = percentage difference between first and last data points.
-- **Chart data** = all returned price points (used for the sparkline).
+- **Current price** = simple price when available, otherwise the chart response's last data point.
+- **24-hour change** = percentage difference between the chart response's first data point and the current price.
+- **Chart data** = all returned chart price points plus the simple price when available (used for the sparkline).
 
-The request has a **10-second timeout**.
+The chart request has a **10-second timeout**. The simple price request uses a shorter
+**1-second timeout** so the widget can fall back to the chart price quickly.
 
 ---
 
@@ -73,7 +86,7 @@ Every successful API response is saved to `UserDefaults` as a `CachedPriceRecord
 
 **Cache key format:** `cachedPriceData_btc_USD` (one entry per coin+currency pair).
 
-**Cache TTL:** 1 hour. After that, the cached entry is considered stale and ignored.
+**Cache TTL:** 10 minutes. After that, the cached entry is considered stale and ignored.
 
 ### Cache-first strategy
 
@@ -81,12 +94,15 @@ When the widget refreshes, it follows this order:
 
 1. **Check cache** for the selected coin + currency.
 2. **If exact match found** (same coin AND same currency, not expired):
-   - Show the cached data immediately (no waiting). The next iOS-scheduled timeline reload will refresh it inline.
+   - Show the cached data immediately (no waiting). The next iOS-scheduled timeline reload will check again.
 3. **If no match** (cache miss, wrong currency, or expired):
    - Fetch from the network (blocking - the widget waits for the response).
    - If the network fails, try the cache as a last resort (even a different currency).
 
 Switching to a coin with a warm cache feels instant. The first switch to a coin whose cache is cold (or expired) performs one inline fetch before rendering.
+
+App lifecycle reloads (launch / foreground / background) try a fresh network fetch before using an
+exact cache. If that fetch fails and exact cached data exists, normal cache-first reloads resume.
 
 ### Fallback chain
 
@@ -100,9 +116,12 @@ If the network fetch fails:
 
 ## 5. Refresh schedule
 
-- iOS calls the widget's timeline roughly **every 15 minutes**. This is not exact - iOS controls the actual timing based on widget budget, battery, and usage patterns.
-- If a network fetch fails, the widget asks iOS to retry in **1 minute**.
+- The widget asks iOS for another timeline after **10 minutes**.
+- This is not exact - iOS controls the actual timing based on widget budget, battery, and usage patterns.
+- With the 10-minute cache TTL, each iOS-granted timeline reload should either use recent cached data or fetch fresh data.
+- If a network fetch fails and no exact cached data is available, the widget asks iOS to retry in **1 minute**.
 - If the user changes their currency or accounts in the app, a refresh is triggered immediately.
+- App launch / foreground / background also triggers a network-first widget timeline reload.
 
 ---
 

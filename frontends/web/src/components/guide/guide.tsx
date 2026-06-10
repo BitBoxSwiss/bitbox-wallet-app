@@ -28,7 +28,11 @@ const Guide = ({ children, title = t('guide.title') }: TProps) => {
   const { t } = useTranslation();
   return (
     <div className={style.wrapper}>
-      <div className={[style.overlay, guideShown && style.show].join(' ')} onClick={toggleGuide}></div>
+      <div
+        data-testid="guide-overlay"
+        className={[style.overlay, guideShown && style.show].join(' ')}
+        onClick={toggleGuide}
+      ></div>
       <div className={[style.guide, guideShown && style.show].join(' ')}>
         <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
           <h2>{title}</h2>

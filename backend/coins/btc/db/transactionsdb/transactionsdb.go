@@ -155,16 +155,16 @@ func (tx *Tx) PutTx(txHash chainhash.Hash, msgTx *wire.MsgTx, height int, header
 	return nil
 }
 
-// DeleteTx implements transactions.DBTxInterface. It panics if called from a read-only db
-// transaction.
-func (tx *Tx) DeleteTx(txHash chainhash.Hash) {
+// DeleteTx implements transactions.DBTxInterface.
+func (tx *Tx) DeleteTx(txHash chainhash.Hash) error {
 	bucketTransactions, err := tx.tx.CreateBucketIfNotExists([]byte(bucketTransactionsKey))
 	if err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
 	if err := bucketTransactions.Delete(txHash[:]); err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
+	return nil
 }
 
 // AddAddressToTx implements transactions.DBTxInterface.
@@ -215,10 +215,10 @@ func (tx *Tx) UnverifiedTransactions() ([]chainhash.Hash, error) {
 func (tx *Tx) MarkTxVerified(txHash chainhash.Hash, headerTimestamp time.Time) error {
 	bucketUnverifiedTransactions, err := tx.tx.CreateBucketIfNotExists([]byte(bucketUnverifiedTransactionsKey))
 	if err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
 	if err := bucketUnverifiedTransactions.Delete(txHash[:]); err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
 	return tx.modifyTx(txHash[:], func(walletTx *transactions.DBTxInfo) {
 		truth := true
@@ -248,16 +248,16 @@ func (tx *Tx) Input(outPoint wire.OutPoint) (*chainhash.Hash, error) {
 	return nil, nil
 }
 
-// DeleteInput implements transactions.DBTxInterface. It panics if called from a read-only db
-// transaction.
-func (tx *Tx) DeleteInput(outPoint wire.OutPoint) {
+// DeleteInput implements transactions.DBTxInterface.
+func (tx *Tx) DeleteInput(outPoint wire.OutPoint) error {
 	bucketInputs, err := tx.tx.CreateBucketIfNotExists([]byte(bucketInputsKey))
 	if err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
 	if err := bucketInputs.Delete([]byte(outPoint.String())); err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
+	return nil
 }
 
 // PutOutput implements transactions.DBTxInterface.
@@ -308,16 +308,16 @@ func (tx *Tx) Outputs() (map[wire.OutPoint]*wire.TxOut, error) {
 	return outputs, nil
 }
 
-// DeleteOutput implements transactions.DBTxInterface. It panics if called from a read-only db
-// transaction.
-func (tx *Tx) DeleteOutput(outPoint wire.OutPoint) {
+// DeleteOutput implements transactions.DBTxInterface.
+func (tx *Tx) DeleteOutput(outPoint wire.OutPoint) error {
 	bucketOutputs, err := tx.tx.CreateBucketIfNotExists([]byte(bucketOutputsKey))
 	if err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
 	if err := bucketOutputs.Delete([]byte(outPoint.String())); err != nil {
-		panic(errp.WithStack(err))
+		return errp.WithStack(err)
 	}
+	return nil
 }
 
 // PutAddressHistory implements transactions.DBTxInterface.
