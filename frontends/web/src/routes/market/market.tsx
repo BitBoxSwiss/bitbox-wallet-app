@@ -39,7 +39,6 @@ export const Market = ({
   accounts,
   code,
 }: TProps) => {
-
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
 
@@ -54,10 +53,9 @@ export const Market = ({
     selectedRegion,
     setSelectedRegion,
   } = useMarketContext();
-  const validRouteAccountCode = accounts.some(account => account.code === code) ? code : '';
 
   const [info, setInfo] = useState<TInfoContentProps>();
-  const selectedAccount = validRouteAccountCode || getFallbackMarketAccountCode(accounts);
+  const selectedAccount = code || getFallbackMarketAccountCode(accounts);
 
   const {
     agreedTerms: agreedBTCDirectOTCTerms,
@@ -69,11 +67,11 @@ export const Market = ({
 
   // keep URLs normalized to include the selected account.
   useEffect(() => {
-    if (validRouteAccountCode || !selectedAccount) {
+    if (!selectedAccount) {
       return;
     }
     navigate(`/market/select/${selectedAccount}?tab=${activeTab}`, { replace: true });
-  }, [activeTab, navigate, selectedAccount, validRouteAccountCode]);
+  }, [activeTab, navigate, selectedAccount]);
 
   const buyDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('buy', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
   const sellDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('sell', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
@@ -111,7 +109,6 @@ export const Market = ({
       alertUser(t('connectKeystore.swapHint'));
     }
   };
-
 
   const getDealReponse = (action: marketAPI.TMarketAction) => {
     switch (action) {
