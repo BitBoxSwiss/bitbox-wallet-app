@@ -31,7 +31,6 @@ import { open } from '@/api/system';
 import { useMarketContext } from './market-context';
 import { MarketGuide } from './guide';
 import { isBitcoinOnly } from '../account/utils';
-import { useMarketplaceTabNavigation } from './use-marketplace-tab-navigation';
 import style from './market.module.css';
 
 type TProps = {
@@ -46,13 +45,10 @@ export const Market = ({
 
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const { showSwap } = useMarketContext();
 
-  const selectedAccountCode = code || getFallbackMarketAccountCode(accounts);
   const activeTab = getMarketActionFromSearchParams(searchParams);
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
-  const handleChangeTab = useMarketplaceTabNavigation(accounts, selectedAccountCode);
 
   const { config, setConfig } = useConfig();
   const navigate = useNavigate();
@@ -235,9 +231,9 @@ export const Market = ({
         <GuidedContent>
           <Header title={<h2>{t('generic.buySell')}</h2>} />
           <MarketTab
+            accounts={accounts}
             activeTab={activeTab}
-            onChangeTab={handleChangeTab}
-            showSwap={showSwap ?? false}
+            code={code}
           />
           <Dialog
             medium

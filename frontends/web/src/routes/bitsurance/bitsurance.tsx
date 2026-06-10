@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AccountCode, TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
+import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
+import { MarketTab } from '@/routes/market/components/markettab';
 import { alertUser } from '@/components/alert/Alert';
 import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
@@ -13,7 +15,7 @@ import { Column, ColumnButtons, ResponsiveGrid } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { useDarkmode } from '@/hooks/darkmode';
 import { i18n } from '@/i18n/i18n';
-import { BitsuranceLayout } from './bitsurance-layout';
+import { BitsuranceGuide } from './guide';
 import style from './bitsurance.module.css';
 
 type TProps = {
@@ -25,6 +27,7 @@ export const Bitsurance = ({ accounts, code }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
+
   const [insuredAccounts, setInsuredAccounts] = useState<TAccount[]>([]);
   const [scanDone, setScanDone] = useState(false);
   const [scanLoading, setScanLoading] = useState(false);
@@ -84,64 +87,72 @@ export const Bitsurance = ({ accounts, code }: TProps) => {
   }
 
   return (
-    <BitsuranceLayout
-      accounts={accounts}
-      code={code}
-    >
-      <View fullscreen={false}>
-        <ViewContent>
-          <p className={style.noVspace}>{t('bitsurance.intro.text1', { amount })}</p>
-          <div className={style.gridContainer}>
-            <ResponsiveGrid col="2" textAlign="start">
-              <Column asCard>
-                <h3 className={style.title}>
-                  {t('bitsurance.insure.title')}
-                </h3>
-                <p className={style.cardBody}>{t('bitsurance.insure.text')}</p>
-                <ul className={style.clean}>
-                  <li><Checked/><span>{t('bitsurance.insure.listItem1')}</span></li>
-                  <li><Checked/><span>{t('bitsurance.insure.listItem2')}</span></li>
-                  <li><Checked/><span>{t('bitsurance.insure.listItem3')}</span></li>
-                </ul>
-                <p className={style.cardBody2}>
-                  {t('bitsurance.insure.text2')} {' '}
-                  <A href={getBitsurancePageLink()}>{t('bitsurance.intro.link')}</A>.
-                </p>
-                <p className={style.cardBody2}>
-                  {t('bitsurance.insure.text3')}
-                </p>
-                <ColumnButtons className={style.ctaButton}>
-                  <Button onClick={maybeProceed} primary>
-                    {t('bitsurance.insure.button')}
-                  </Button>
-                </ColumnButtons>
-              </Column>
-              <Column asCard>
-                <h3 className={style.title}>
-                  {t('bitsurance.detect.title')}
-                </h3>
-                <p className={style.cardBody}>{t('bitsurance.detect.text')}</p>
-                {!insuredAccounts.length && scanDone && (
-                  <p className={`${style.cardBody2 || ''} ${style.errorMessage || ''}`}>
-                    {t('bitsurance.detect.notInsured')}
-                  </p>
-                )}
-                <ColumnButtons className={style.ctaButton}>
-                  <Button
-                    onClick={() => detect(true)}
-                    disabled={scanLoading}
-                    secondary
-                  >
-                    {isDarkMode ? <SyncLight/> : <Sync/>}
-                    {t('bitsurance.detect.button')}
-                  </Button>
-                </ColumnButtons>
+    <Main>
+      <GuideWrapper>
+        <GuidedContent>
+          <Header title={<h2>{t('generic.buySell')}</h2>} />
+          <MarketTab
+            accounts={accounts}
+            activeTab="insure"
+            code={code}
+          />
+          <View fullscreen={false}>
+            <ViewContent>
+              <p className={style.noVspace}>{t('bitsurance.intro.text1', { amount })}</p>
+              <div className={style.gridContainer}>
+                <ResponsiveGrid col="2" textAlign="start">
+                  <Column asCard>
+                    <h3 className={style.title}>
+                      {t('bitsurance.insure.title')}
+                    </h3>
+                    <p className={style.cardBody}>{t('bitsurance.insure.text')}</p>
+                    <ul className={style.clean}>
+                      <li><Checked/><span>{t('bitsurance.insure.listItem1')}</span></li>
+                      <li><Checked/><span>{t('bitsurance.insure.listItem2')}</span></li>
+                      <li><Checked/><span>{t('bitsurance.insure.listItem3')}</span></li>
+                    </ul>
+                    <p className={style.cardBody2}>
+                      {t('bitsurance.insure.text2')} {' '}
+                      <A href={getBitsurancePageLink()}>{t('bitsurance.intro.link')}</A>.
+                    </p>
+                    <p className={style.cardBody2}>
+                      {t('bitsurance.insure.text3')}
+                    </p>
+                    <ColumnButtons className={style.ctaButton}>
+                      <Button onClick={maybeProceed} primary>
+                        {t('bitsurance.insure.button')}
+                      </Button>
+                    </ColumnButtons>
+                  </Column>
+                  <Column asCard>
+                    <h3 className={style.title}>
+                      {t('bitsurance.detect.title')}
+                    </h3>
+                    <p className={style.cardBody}>{t('bitsurance.detect.text')}</p>
+                    {!insuredAccounts.length && scanDone && (
+                      <p className={`${style.cardBody2 || ''} ${style.errorMessage || ''}`}>
+                        {t('bitsurance.detect.notInsured')}
+                      </p>
+                    )}
+                    <ColumnButtons className={style.ctaButton}>
+                      <Button
+                        onClick={() => detect(true)}
+                        disabled={scanLoading}
+                        secondary
+                      >
+                        {isDarkMode ? <SyncLight/> : <Sync/>}
+                        {t('bitsurance.detect.button')}
+                      </Button>
+                    </ColumnButtons>
 
-              </Column>
-            </ResponsiveGrid>
-          </div>
-        </ViewContent>
-      </View>
-    </BitsuranceLayout>
+                  </Column>
+                </ResponsiveGrid>
+              </div>
+            </ViewContent>
+          </View>
+        </GuidedContent>
+        <BitsuranceGuide />
+      </GuideWrapper>
+    </Main>
   );
 };
