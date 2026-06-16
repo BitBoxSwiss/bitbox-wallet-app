@@ -448,7 +448,9 @@ int main(int argc, char *argv[])
     channel.registerObject("backend", webClass);
     view->page()->setWebChannel(&channel);
     view->settings()->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, true);
-    view->settings()->setAttribute(QWebEngineSettings::JavascriptCanPaste, true);
+    // Disabled to prevent iframes from reading clipboard. To enable clipboard reading in the top
+    // frame, a custom bridge would be necessary.
+    view->settings()->setAttribute(QWebEngineSettings::JavascriptCanPaste, false);
     view->show();
     view->load(QUrl(QString("%1:/index.html").arg(scheme)));
 
