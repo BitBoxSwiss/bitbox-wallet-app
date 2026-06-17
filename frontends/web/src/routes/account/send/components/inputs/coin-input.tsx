@@ -26,8 +26,9 @@ export const CoinInput = ({
   proposedAmount,
   amount,
   hasSelectedUTXOs
-}: TProps) => {
+}: TProps): JSX.Element => {
   const { t } = useTranslation();
+
   return (
     <NumberInput
       step="any"
