@@ -193,11 +193,10 @@ const RemountAccount = ({
 
   const exchangeSupported = supportedVendors && supportedVendors.vendors.length > 0;
 
-  const isAccountEmpty = balance
+  const isAccountEmpty = !!balance
     && !balance.hasAvailable
     && !balance.hasIncoming
-    && transactions
-    && transactions.success
+    && transactions?.success === true
     && transactions.list.length === 0;
 
 
@@ -255,15 +254,17 @@ const RemountAccount = ({
             <HeadersSync coinCode={account.coinCode} />
           )}
           <View>
-            <ViewHeader>
-              <div className={style.balanceHeader}>
-                <Balance balance={balance} />
-                {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
-              </div>
-            </ViewHeader>
+            {!isAccountEmpty && (
+              <ViewHeader>
+                <div className={style.balanceHeader}>
+                  <Balance balance={balance} />
+                  <ActionButtons {...actionButtonsProps} />
+                </div>
+              </ViewHeader>
+            )}
             <ViewContent>
               <div className={style.accountHeader}>
-                {isAccountEmpty && (
+                {isAccountEmpty && balance && (
                   <BuyReceiveCTA
                     account={account}
                     code={code}

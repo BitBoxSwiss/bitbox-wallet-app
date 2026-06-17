@@ -22,6 +22,7 @@ type TProps = {
   data?: TChartData;
   noDataPlaceholder?: JSX.Element;
   hideAmounts?: boolean;
+  hideSummaryOnNoData?: boolean;
 };
 
 const defaultData: Readonly<TChartData> = {
@@ -162,7 +163,8 @@ const autoScaleProvider: AutoscaleInfoProvider = (original) => {
 export const Chart = ({
   data = defaultData,
   noDataPlaceholder,
-  hideAmounts = false
+  hideAmounts = false,
+  hideSummaryOnNoData = false,
 }: TProps) => {
   const height: number = 300;
   const mobileHeight: number = 150;
@@ -618,6 +620,8 @@ export const Chart = ({
   const hasDifference = difference && Number.isFinite(difference);
   const disableFilters = !hasData || chartDataMissing;
   const disableWeeklyFilters = !hasHourlyData || chartDataMissing;
+  const showNoDataPlaceholder = !chartDataMissing && !hasData;
+  const hideSummary = hideSummaryOnNoData && showNoDataPlaceholder;
   const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile;
   const chartFiltersProps = {
     display: chartDisplay,
@@ -633,37 +637,41 @@ export const Chart = ({
 
   return (
     <section className={styles.chart}>
-      <header>
-        <div className={styles.summary}>
-          <div className={styles.totalValue}>
-            {formattedChartTotal !== null ? (
-              // remove trailing zeroes for BTC fiat total
-              <Amount
-                amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue}
-                unit={chartFiat}
-                onMobileClick={rotateDefaultCurrency}
-              />
-            ) : (
-              <Skeleton minWidth="220px" />
-            )}
-            <span className={styles.totalUnit}>
-              {chartTotal !== null && <AmountUnit unit={chartFiat} rotateUnit={rotateDefaultCurrency}/>}
-            </span>
-          </div>
-          {!showMobileTotalValue ? (
-            <PercentageDiff
-              hasDifference={!!hasDifference}
-              difference={difference}
-              title={diffSince}
-            />
-          ) : (
-            <span className={styles.diffValue}>
-              {renderDate(toolTipTime * 1000, i18n.language, source)}
-            </span>
+      {(!hideSummary || !isMobile) && (
+        <header>
+          {!hideSummary && (
+            <div className={styles.summary}>
+              <div className={styles.totalValue}>
+                {formattedChartTotal !== null ? (
+                  // remove trailing zeroes for BTC fiat total
+                  <Amount
+                    amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue}
+                    unit={chartFiat}
+                    onMobileClick={rotateDefaultCurrency}
+                  />
+                ) : (
+                  <Skeleton minWidth="220px" />
+                )}
+                <span className={styles.totalUnit}>
+                  {chartTotal !== null && <AmountUnit unit={chartFiat} rotateUnit={rotateDefaultCurrency}/>}
+                </span>
+              </div>
+              {!showMobileTotalValue ? (
+                <PercentageDiff
+                  hasDifference={!!hasDifference}
+                  difference={difference}
+                  title={diffSince}
+                />
+              ) : (
+                <span className={styles.diffValue}>
+                  {renderDate(toolTipTime * 1000, i18n.language, source)}
+                </span>
+              )}
+            </div>
           )}
-        </div>
-        {!isMobile && <Filters {...chartFiltersProps} />}
-      </header>
+          {!isMobile && <Filters {...chartFiltersProps} />}
+        </header>
+      )}
       {!chartDataMissing && hasChartAnimationParam && (
         <div
           style={{ minHeight: chartHeight }}

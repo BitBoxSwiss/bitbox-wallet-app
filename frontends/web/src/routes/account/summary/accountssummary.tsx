@@ -58,6 +58,14 @@ export const AccountsSummary = ({
   const [accountsBalanceSummary, setAccountsBalanceSummary] = useState<accountApi.TAccountsBalanceSummary>();
   const [balances, setBalances] = useState<Balances>();
   const [offlineError, setOfflineError] = useState<string | null>(null);
+  const balancesLoaded = accounts.length > 0
+    && accounts.every(account => balances?.[account.code] !== undefined);
+  const balanceList = accounts
+    .map(account => balances?.[account.code])
+    .filter((balance): balance is accountApi.TBalance => !!balance);
+  const isPortfolioEmpty = balancesLoaded
+    && balanceList.every(balance => !balance.hasAvailable && !balance.hasIncoming);
+  const hideChartSummaryOnNoData = !balancesLoaded || isPortfolioEmpty;
 
   const getChartData = useCallback(async () => {
     // replace previous timer if present
@@ -188,8 +196,9 @@ export const AccountsSummary = ({
             <Chart
               hideAmounts={hideAmounts}
               data={chartData}
+              hideSummaryOnNoData={hideChartSummaryOnNoData}
               noDataPlaceholder={
-                (accounts.length && accounts.length <= Object.keys(balances || {}).length) ? (
+                balancesLoaded ? (
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
