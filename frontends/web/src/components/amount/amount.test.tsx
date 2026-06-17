@@ -129,14 +129,24 @@ describe('Amount formatting', () => {
   });
 
   describe('BTC/LTC coins amounts', () => {
-    let coins: NativeCoinUnit[] = ['BTC', 'TBTC', 'LTC', 'TLTC'];
+    let coins: NativeCoinUnit[] = ['BTC', 'TBTC', 'RBTC', 'LTC', 'TLTC'];
     coins.forEach(coin => {
 
-      it('10.00000000 ' + coin + ' gets spaced', () => {
-        const { getByTestId } = render(<Amount amount="10.00000000" unit={coin}/>);
+      it('10.00000000 ' + coin + ' becomes 10', () => {
+        const { container } = render(<Amount amount="10.00000000" unit={coin}/>);
+        expect(container.textContent).toBe('10');
+      });
+
+      it('0.00000000 ' + coin + ' becomes 0', () => {
+        const { container } = render(<Amount amount="0.00000000" unit={coin}/>);
+        expect(container.textContent).toBe('0');
+      });
+
+      it('0.03000000 ' + coin + ' gets spaced', () => {
+        const { getByTestId } = render(<Amount amount="0.03000000" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
         const values = [
-          '10.00',
+          '0.03',
           '000',
           '000'
         ];

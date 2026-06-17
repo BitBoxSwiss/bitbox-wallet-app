@@ -5,6 +5,7 @@
 - Add external block explorer links to used addresses
 - Settings search
 - Support macOS "Number Format" system setting
+- Show whole BTC and LTC amounts without decimal places
 
 ## v4.51.1
 - iOS: fix App Store submission by packaging Inter as TTF fonts

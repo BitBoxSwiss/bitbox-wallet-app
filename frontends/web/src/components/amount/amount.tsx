@@ -76,6 +76,10 @@ const formatBtc = (
   if (dot === -1) {
     return formatLocalizedAmount(amount, group, decimal);
   }
+  const fractionalPart = amount.slice(dot + 1);
+  if (/^0+$/.test(fractionalPart)) {
+    return formatLocalizedAmount(stripTrailingZeros(amount), group, decimal);
+  }
   // localize the first part, everything up to the second decimal place, the rest is grouped by spaces
   const formattedPart = formatLocalizedAmount(amount.slice(0, dot + 3), group, decimal);
   return (
