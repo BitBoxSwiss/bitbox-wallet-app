@@ -315,6 +315,16 @@ func TestIsWhitelistedSystemOpenURL(t *testing.T) {
 	}
 }
 
+func TestSystemOpenExplorer(t *testing.T) {
+	b := newBackend(t, false, false)
+
+	onion := "http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/tx/abc"
+	clearnet := "https://mempool.space/tx/abc"
+
+	require.Error(t, b.SystemOpenExplorer("http://evil.onion/", clearnet))
+	require.NoError(t, b.SystemOpenExplorer(onion, clearnet))
+}
+
 type environment struct{}
 
 func (e environment) NotifyUser(msg string) {

@@ -1073,6 +1073,22 @@ func (backend *Backend) SystemOpen(url string) error {
 	return errp.Newf("Blocked /open with url: %s", url)
 }
 
+// SystemOpenExplorer opens an explorer URL chooser with onion and clearnet options.
+// Platforms that do not support a chooser fall back to opening the onion URL.
+func (backend *Backend) SystemOpenExplorer(onionURL, clearnetURL string) error {
+	backend.log.Infof("SystemOpenExplorer: attempting to open onion url: %v, clearnet url: %v", onionURL, clearnetURL)
+	if !isWhitelistedSystemOpenURL(onionURL) || !isWhitelistedSystemOpenURL(clearnetURL) {
+		return errp.Newf("Blocked /open-explorer with url: %s %s", onionURL, clearnetURL)
+	}
+	type explorerChooser interface {
+		SystemOpenExplorer(onionURL, clearnetURL string) error
+	}
+	if chooser, ok := backend.environment.(explorerChooser); ok {
+		return chooser.SystemOpenExplorer(onionURL, clearnetURL)
+	}
+	return backend.environment.SystemOpen(onionURL)
+}
+
 // Environment returns the app native environment.
 func (backend *Backend) Environment() Environment {
 	return backend.environment

@@ -47,6 +47,20 @@ public class Util {
         }
     }
 
+    public static void systemOpenExplorerChooser(Application application, String onionUrl, String clearnetUrl) throws Exception {
+        Context context = application.getApplicationContext();
+        Intent onionIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(onionUrl));
+        Intent clearnetIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(clearnetUrl));
+        Intent chooserIntent = Intent.createChooser(onionIntent, null);
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{clearnetIntent});
+        chooserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            context.startActivity(chooserIntent);
+        } catch (ActivityNotFoundException e) {
+            throw new Exception("There are no applications available to handle explorer URLs");
+        }
+    }
+
     public static void log(String msg) {
         Log.d("bitboxapp", msg);
     }

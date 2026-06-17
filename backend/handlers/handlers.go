@@ -91,6 +91,7 @@ type Backend interface {
 	RegisterTestKeystore(string, software.Edition) error
 	NotifyUser(string)
 	SystemOpen(string) error
+	SystemOpenExplorer(onionURL, clearnetURL string) error
 	ReinitializeAccounts()
 	CheckForUpdateIgnoringErrors() *backend.UpdateFile
 	Banners() *banners.Banners
@@ -208,6 +209,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/number-format", handlers.getNumberFormat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/notify-user", handlers.postNotify).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/open", handlers.postOpen).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/open-explorer", handlers.postOpenExplorer).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdate).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBanners).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileData).Methods("GET")
@@ -603,6 +605,28 @@ func (handlers *Handlers) postOpen(r *http.Request) interface{} {
 	}
 	if err := handlers.backend.SystemOpen(url); err != nil {
 		handlers.log.WithField("handler", "postOpen").WithError(err).Error("handler failed")
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
+}
+
+func (handlers *Handlers) postOpenExplorer(r *http.Request) interface{} {
+	type request struct {
+		OnionURL    string `json:"onionUrl"`
+		ClearnetURL string `json:"clearnetUrl"`
+	}
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	var jsonBody request
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		handlers.log.WithField("handler", "postOpenExplorer").WithError(err).Error("handler failed")
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	if err := handlers.backend.SystemOpenExplorer(jsonBody.OnionURL, jsonBody.ClearnetURL); err != nil {
+		handlers.log.WithField("handler", "postOpenExplorer").WithError(err).Error("handler failed")
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{Success: true}

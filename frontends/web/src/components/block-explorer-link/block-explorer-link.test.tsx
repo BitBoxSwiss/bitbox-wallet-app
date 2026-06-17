@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { BlockExplorerLink } from './block-explorer-link';
-import { open } from '@/api/system';
+import { open, openExplorerUrls } from '@/api/system';
 import type { TConfig } from '@/api/config';
 
 vi.mock('@/i18n/i18n', () => ({
@@ -22,6 +22,12 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('@/api/system', () => ({
   open: vi.fn().mockResolvedValue({ success: true }),
+  openExplorerUrls: vi.fn().mockResolvedValue({ success: true }),
+}));
+
+vi.mock('@/utils/env', () => ({
+  runningInAndroid: vi.fn(() => false),
+  runningInIOS: vi.fn(() => false),
 }));
 
 vi.mock('@/contexts/ConfigProvider', () => ({
@@ -32,10 +38,12 @@ vi.mock('@/contexts/ConfigProvider', () => ({
 }));
 
 import { useConfig } from '@/contexts/ConfigProvider';
+import { runningInAndroid } from '@/utils/env';
 
 describe('BlockExplorerLink', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(runningInAndroid).mockReturnValue(false);
     vi.mocked(useConfig).mockReturnValue({
       config: { frontend: { useOnionExplorerUrls: false }, backend: {} } as TConfig,
       setConfig: vi.fn(),
@@ -56,6 +64,7 @@ describe('BlockExplorerLink', () => {
     await user.click(screen.getByText('Open explorer'));
 
     expect(open).toHaveBeenCalledWith('https://mempool.space/tx/abc123');
+    expect(openExplorerUrls).not.toHaveBeenCalled();
   });
 
   it('opens onion URL when onion explorer URLs are enabled', async () => {
@@ -78,5 +87,31 @@ describe('BlockExplorerLink', () => {
     expect(open).toHaveBeenCalledWith(
       'http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/tx/abc123',
     );
+    expect(openExplorerUrls).not.toHaveBeenCalled();
+  });
+
+  it('shows Android chooser when onion explorer URLs are enabled on Android', async () => {
+    vi.mocked(runningInAndroid).mockReturnValue(true);
+    vi.mocked(useConfig).mockReturnValue({
+      config: { frontend: { useOnionExplorerUrls: true }, backend: {} } as TConfig,
+      setConfig: vi.fn(),
+    });
+    const user = userEvent.setup();
+
+    render(
+      <BlockExplorerLink
+        prefix="https://mempool.space/tx/"
+        id="abc123">
+        Open explorer
+      </BlockExplorerLink>,
+    );
+
+    await user.click(screen.getByText('Open explorer'));
+
+    expect(openExplorerUrls).toHaveBeenCalledWith(
+      'http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/tx/abc123',
+      'https://mempool.space/tx/abc123',
+    );
+    expect(open).not.toHaveBeenCalled();
   });
 });

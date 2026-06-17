@@ -67,6 +67,7 @@ type GoEnvironmentInterface interface {
 	NotifyUser(string)
 	DeviceInfo() GoDeviceInfoInterface
 	SystemOpen(string) error
+	SystemOpenExplorer(onionURL, clearnetURL string) error
 	UsingMobileData() bool
 	NativeLocale() string
 	GetSaveFilename(string) string
@@ -185,8 +186,9 @@ func Serve(dataDir string, testnet bool, environment GoEnvironmentInterface, goA
 				}
 				return []usb.DeviceInfo{deviceInfo{i}}
 			},
-			SystemOpenFunc:      environment.SystemOpen,
-			UsingMobileDataFunc: environment.UsingMobileData,
+			SystemOpenFunc:         environment.SystemOpen,
+			SystemOpenExplorerFunc: environment.SystemOpenExplorer,
+			UsingMobileDataFunc:    environment.UsingMobileData,
 			NativeLocaleFunc:    environment.NativeLocale,
 			NumberFormatFunc: func() *backend.NumberFormat {
 				return nil
