@@ -10,6 +10,7 @@ type TProps = {
   disabled: boolean;
   error?: string;
   fiatAmount: string;
+  hideValue?: boolean;
 };
 
 export const FiatInput = ({
@@ -18,7 +19,8 @@ export const FiatInput = ({
   disabled,
   error,
   fiatAmount,
-}: TProps) => {
+  hideValue = false,
+}: TProps): JSX.Element => {
   const { t } = useTranslation();
   return (
     <NumberInput
@@ -29,8 +31,8 @@ export const FiatInput = ({
       onChange={onFiatChange}
       disabled={disabled}
       error={error}
-      value={fiatAmount}
-      placeholder={t('send.amount.placeholder')}
+      value={hideValue ? '' : fiatAmount}
+      placeholder={hideValue ? '***' : t('send.amount.placeholder')}
     />
   );
 };

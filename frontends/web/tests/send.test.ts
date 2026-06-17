@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { expect } from '@playwright/test';
+import { expect, type Route } from '@playwright/test';
 import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
 import { launchRegtest, setupRegtestWallet, sendCoins, mineBlocks, cleanupRegtest } from './helpers/regtest';
 import { ChildProcess } from 'child_process';
-import { deleteAccountsFile } from './helpers/fs';
+import { deleteAccountsFile, deleteConfigFile } from './helpers/fs';
 import { getAccountCodeFromUrl, getReceiveAddressData, waitForAccountTransactions } from './helpers/account';
 
 let servewallet: ServeWallet | undefined;
@@ -114,19 +114,45 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort, browserName
     const availableBalance = page.getByTestId('availableBalance');
     await availableBalance.getByTestId(`amount-unit-${currentFiat}`).click();
     await expect(fiatLabel).not.toHaveText(currentFiat);
+    await page.getByRole('button', { name: /Hide amounts/i }).click();
+    await expect(availableBalance).toContainText('***');
 
     await page.fill('#recipientAddress', recvAdd);
     await page.click('#sendAll');
     const reviewButton = page.getByRole('button', { name: 'Review' });
     await expect(reviewButton).toBeEnabled();
+    await expect(page.locator('#amount')).toHaveValue('');
+    await expect(page.locator('#amount')).toHaveAttribute('placeholder', '***');
+    await expect(page.locator('#fiatAmount')).toHaveValue('');
+    await expect(page.locator('#fiatAmount')).toHaveAttribute('placeholder', '***');
+    let releaseSendTxRequest: () => void = () => {};
+    const sendTxRequestGate = new Promise<void>((resolve) => {
+      releaseSendTxRequest = resolve;
+    });
+    const sendTxRouteHandler = async (route: Route) => {
+      await sendTxRequestGate;
+      await route.continue();
+    };
+    await page.route('**/sendtx', sendTxRouteHandler);
     const sendTxResponse = page.waitForResponse((response) =>
       response.url().includes('/sendtx') && response.request().method() === 'POST'
     );
     await reviewButton.click();
+    const sendConfirm = page.getByTestId('send-confirm');
+    try {
+      await expect(sendConfirm).toContainText('Send');
+      await expect(sendConfirm).toContainText('Network fee');
+      await expect(sendConfirm).toContainText('Total');
+      await expect(sendConfirm).not.toContainText('***');
+    } finally {
+      releaseSendTxRequest();
+    }
     await sendTxResponse;
+    await page.unroute('**/sendtx', sendTxRouteHandler);
     const doneButton = page.getByRole('button', { name: 'Done' });
     await expect(doneButton).toBeVisible();
     await doneButton.click();
+    await page.getByRole('button', { name: /Show amounts/i }).click();
     await mineBlocks(12);
     await Promise.all([
       waitForAccountTransactions(page, host, servewalletPort, firstAccountCode, 2),
@@ -225,9 +251,11 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort, browserName
 
 test.beforeEach(async () => {
   deleteAccountsFile();
+  deleteConfigFile();
 });
 
 test.afterAll(async () => {
   await servewallet?.stop();
   await cleanupRegtest(regtest);
+  deleteConfigFile();
 });

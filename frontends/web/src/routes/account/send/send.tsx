@@ -31,6 +31,7 @@ import { CoinControl } from './coin-control';
 import { connectKeystore } from '@/api/keystores';
 import { SubTitle } from '@/components/title';
 import { RatesContext } from '@/contexts/RatesContext';
+import { AppContext } from '@/contexts/AppContext';
 import style from './send.module.css';
 
 type TProps = {
@@ -65,6 +66,7 @@ export const Send = ({
 }: TProps) => {
   const { t } = useTranslation();
   const { btcUnit, defaultCurrency } = useContext(RatesContext);
+  const { hideAmounts } = useContext(AppContext);
   const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
   const [utxoDialogActive, setUtxoDialogActive] = useState(false);
   // in case there are multiple parallel tx proposals we can ignore all other but the last one
@@ -414,6 +416,7 @@ export const Send = ({
   };
 
   const handleNodeChange = (note: string) => setNote(note);
+  const hideSendAllAmount = hideAmounts && sendAll;
 
   return (
     <GuideWrapper>
@@ -461,6 +464,7 @@ export const Send = ({
                     proposedAmount={proposedAmount}
                     amount={amount}
                     hasSelectedUTXOs={hasSelectedUTXOs()}
+                    hideValue={hideSendAllAmount}
                   />
                 </Column>
                 <Column>
@@ -470,6 +474,7 @@ export const Send = ({
                     error={errorHandling.amountError}
                     fiatAmount={fiatAmount}
                     label={defaultCurrency}
+                    hideValue={hideSendAllAmount}
                   />
                 </Column>
                 <Column>
