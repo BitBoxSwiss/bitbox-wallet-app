@@ -37,8 +37,18 @@ let scheme = "qrc"
 
 class JavascriptBridge: NSObject, WKScriptMessageHandler {
     weak var webView: WKWebView?
+
+    private func isTrustedMainFrameMessage(_ message: WKScriptMessage) -> Bool {
+        guard message.frameInfo.isMainFrame else {
+            return false
+        }
+        return message.frameInfo.securityOrigin.`protocol` == scheme
+    }
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard isTrustedMainFrameMessage(message) else {
+            return
+        }
         if message.name == "goCall", let body = message.body as? [String: AnyObject] {
             let queryID = body["queryID"] as! Int
             let query = body["query"] as! String
@@ -229,10 +239,16 @@ struct WebView: UIViewRepresentable {
                 decisionHandler(.cancel)
                 return
             }
+            let isMainFrame = navigationAction.targetFrame?.isMainFrame ?? false
+            if isMainFrame && url.scheme != scheme {
+                // TODO: figure out if there are links (not target=_blank which are handled below) that
+                // should be intercepted here to be opened in the system browser instead.
+                // Only the bundled app may replace the privileged main frame.
+                // External target=_blank links are handled in createWebViewWith.
+                decisionHandler(.cancel)
+                return
+            }
             print("Loading URL: " + url.absoluteString)
-            // TODO: figure out if there are links (not target=_blank which are handled below) that
-            // should be intercepted here to be opened in the system browser instead.
-            // For now, allow everything.
             decisionHandler(.allow)
         }
         
