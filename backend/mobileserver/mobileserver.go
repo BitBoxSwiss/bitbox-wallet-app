@@ -189,7 +189,7 @@ func Serve(dataDir string, testnet bool, environment GoEnvironmentInterface, goA
 			SystemOpenFunc:         environment.SystemOpen,
 			SystemOpenExplorerFunc: environment.SystemOpenExplorer,
 			UsingMobileDataFunc:    environment.UsingMobileData,
-			NativeLocaleFunc:    environment.NativeLocale,
+			NativeLocaleFunc:       environment.NativeLocale,
 			NumberFormatFunc: func() *backend.NumberFormat {
 				return nil
 			},
