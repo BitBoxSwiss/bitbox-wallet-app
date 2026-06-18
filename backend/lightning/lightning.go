@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -55,6 +56,7 @@ type Lightning struct {
 
 	log          *logrus.Entry
 	sdkService   *breez_sdk_spark.BreezSdk
+	sdkServiceMu sync.RWMutex
 	sparkStatus  func() (breez_sdk_spark.SparkStatus, error)
 	httpClient   *http.Client
 	ratesUpdater *rates.RateUpdater
@@ -152,6 +154,9 @@ func (lightning *Lightning) Connect() {
 
 // Disconnect closes an active Breez SDK instance. After this, no requests should be made.
 func (lightning *Lightning) Disconnect() {
+	lightning.sdkServiceMu.Lock()
+	defer lightning.sdkServiceMu.Unlock()
+
 	if lightning.sdkService != nil {
 		if err := lightning.sdkService.Disconnect(); err != nil {
 			lightning.log.WithError(err).Warn("BreezSDK: Error disconnecting SDK")
@@ -161,6 +166,13 @@ func (lightning *Lightning) Disconnect() {
 		lightning.sdkService = nil
 		lightning.synced = false
 	}
+}
+
+func (lightning *Lightning) activeSDKLocked() (*breez_sdk_spark.BreezSdk, error) {
+	if lightning.Account() == nil || lightning.sdkService == nil {
+		return nil, errp.New("Lightning not initialized")
+	}
+	return lightning.sdkService, nil
 }
 
 // Deactivate disconnects the instance, deletes cache folder and changes the config to inactive.
@@ -192,20 +204,25 @@ func (lightning *Lightning) Deactivate() error {
 
 // CheckActive returns an error if the lightning service has not been activated.
 func (lightning *Lightning) CheckActive() error {
-	if lightning.Account() == nil || lightning.sdkService == nil {
-		return errp.New("Lightning not initialized")
-	}
-	return nil
+	lightning.sdkServiceMu.RLock()
+	defer lightning.sdkServiceMu.RUnlock()
+
+	_, err := lightning.activeSDKLocked()
+	return err
 }
 
 // Balance returns the balance of the lightning account.
 func (lightning *Lightning) Balance() (*accounts.Balance, error) {
-	if err := lightning.CheckActive(); err != nil {
+	lightning.sdkServiceMu.RLock()
+	defer lightning.sdkServiceMu.RUnlock()
+
+	sdkService, err := lightning.activeSDKLocked()
+	if err != nil {
 		return nil, err
 	}
 
 	ensureSynced := false
-	info, err := lightning.sdkService.GetInfo(breez_sdk_spark.GetInfoRequest{
+	info, err := sdkService.GetInfo(breez_sdk_spark.GetInfoRequest{
 		// EnsureSynced: true will ensure the SDK is synced with the Spark network
 		// before returning the balance
 		EnsureSynced: &ensureSynced,
@@ -264,6 +281,9 @@ func accountBreezFolder(accountCode types.Code) string {
 
 // connect initializes the connection configuration and calls connect to create a Breez SDK instance.
 func (lightning *Lightning) connect(_ bool) error {
+	lightning.sdkServiceMu.Lock()
+	defer lightning.sdkServiceMu.Unlock()
+
 	account := lightning.Account()
 
 	if account != nil && lightning.sdkService == nil {
