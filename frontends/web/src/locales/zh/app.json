@@ -509,6 +509,14 @@
     "title": "选择语言"
   },
   "loading": "载入中...",
+  "newSettings": {
+    "appearance": {
+      "marketPerformanceChart": {
+        "description": "在投资组合图表中显示一个选项，用于将价值变化与净存入和提取进行比较。",
+        "title": "投资组合表现"
+      }
+    }
+  },
   "notification": {
     "newTxs_other": "{{count}} 新交易： {{accountName}}"
   },

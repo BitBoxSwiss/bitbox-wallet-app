@@ -168,6 +168,8 @@ export const init = (code: AccountCode): Promise<null> => {
 
 export type FormattedLineData = LineData & {
   formattedValue: string;
+  performance: number;
+  netInvestmentValue: number;
 };
 
 export type ChartData = FormattedLineData[];

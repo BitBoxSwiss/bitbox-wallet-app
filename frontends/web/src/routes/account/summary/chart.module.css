@@ -168,7 +168,34 @@
   padding: 0 2px;
 }
 
+.toolTipPerformance {
+  color: var(--color-secondary);
+  font-size: var(--size-default);
+  margin-left: var(--space-quarter);
+}
+
 .toolTipTime {
   white-space: nowrap;
 }
 
+.toggleWrapper {
+  align-items: center;
+  display: flex;
+  height: 28.5px;
+  margin: 0 0 0 var(--space-half);
+}
+
+.toggleSymbol {
+  color: var(--color-secondary);
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 0 var(--space-half);
+}
+
+.toggleSymbolStart {
+  margin-right: var(--space-half);
+}
+
+.toggleSymbolActive {
+  color: var(--color-primary);
+}

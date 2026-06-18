@@ -13,6 +13,7 @@ import { Filters } from './filters';
 import { getDarkmode } from '@/components/darkmode/darkmode';
 import { RatesContext } from '@/contexts/RatesContext';
 import { AppContext, TChartDisplay } from '@/contexts/AppContext';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
 import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import { LinechartGray } from '@/components/icon';
@@ -37,6 +38,19 @@ const defaultData: Readonly<TChartData> = {
 
 type FormattedData = {
   [key: number]: string;
+};
+
+const hasValidMarketPerformance = (entry?: FormattedLineData): entry is FormattedLineData => (
+  !!entry
+  && entry.netInvestmentValue > 0
+  && Number.isFinite(entry.performance)
+);
+
+const formatMarketPerformanceLabel = (entry?: FormattedLineData) => {
+  if (!hasValidMarketPerformance(entry)) {
+    return undefined;
+  }
+  return `${(entry.performance * 100).toFixed(2)}%`;
 };
 
 const getUTCRange = () => {
@@ -146,11 +160,6 @@ const autoScaleProvider: AutoscaleInfoProvider = (original) => {
     maxValue = center + padding;
   }
 
-  // clamp to zero (balances never negative)
-  if (minValue < 0) {
-    minValue = 0;
-  }
-
   return {
     priceRange: {
       minValue,
@@ -172,7 +181,9 @@ export const Chart = ({
   const { t, i18n } = useTranslation();
   const { chartDisplay, setChartDisplay } = useContext(AppContext);
   const { defaultCurrency, rotateDefaultCurrency } = useContext(RatesContext);
+  const { config, setConfig } = useConfig();
   const [searchParams] = useSearchParams();
+  const isMarketPerformanceChartEnabled = config?.frontend.marketPerformanceChart === true;
 
   const ref = useRef<HTMLDivElement>(null);
   const refToolTip = useRef<HTMLSpanElement>(null);
@@ -189,6 +200,7 @@ export const Chart = ({
   const [tooltipData, setTooltipData] = useState<{
     toolTipVisible: boolean;
     toolTipValue?: string;
+    toolTipPerformance?: string;
     toolTipTop: number;
     toolTipLeft: number;
     toolTipTime: number;
@@ -197,7 +209,26 @@ export const Chart = ({
     toolTipTop: 0,
     toolTipLeft: 0,
     toolTipTime: 0,
+    toolTipPerformance: undefined,
   });
+
+  const [showPercent, setShowPercent] = useState(true);
+  const showMarketPerformance = showPercent && isMarketPerformanceChartEnabled;
+
+  const getDisplayChartData = useCallback((chartData: ChartData) => {
+    return chartData.map(entry => ({
+      ...entry,
+      value: showMarketPerformance ? entry.performance * 100 : entry.value
+    }));
+  }, [showMarketPerformance]);
+
+  useEffect(() => {
+    if (!isMarketPerformanceChartEnabled) {
+      setShowPercent(false);
+      return;
+    }
+    setShowPercent(config?.frontend.marketPerformanceChartMode !== 'sum');
+  }, [config?.frontend.marketPerformanceChartMode, isMarketPerformanceChartEnabled]);
 
   useEffect(() => {
     setTooltipData({
@@ -228,7 +259,7 @@ export const Chart = ({
   const displayWeek = () => {
     triggerHapticFeedback();
     if (source !== 'hourly' && lineSeries.current && data.chartDataHourly && chart.current) {
-      lineSeries.current.setData(data.chartDataHourly || []);
+      lineSeries.current.setData(getDisplayChartData(data.chartDataHourly || []));
       setFormattedData(data.chartDataHourly || []);
       chart.current.applyOptions({ timeScale: { timeVisible: true } });
     }
@@ -239,7 +270,7 @@ export const Chart = ({
   const displayMonth = () => {
     triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(data.chartDataDaily || []);
+      lineSeries.current.setData(getDisplayChartData(data.chartDataDaily || []));
       setFormattedData(data.chartDataDaily || []);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
@@ -250,7 +281,7 @@ export const Chart = ({
   const displayYear = () => {
     triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(data.chartDataDaily);
+      lineSeries.current.setData(getDisplayChartData(data.chartDataDaily));
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
@@ -261,7 +292,7 @@ export const Chart = ({
   const displayAll = () => {
     triggerHapticFeedback();
     if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(data.chartDataDaily);
+      lineSeries.current.setData(getDisplayChartData(data.chartDataDaily));
       setFormattedData(data.chartDataDaily);
       chart.current.applyOptions({ timeScale: { timeVisible: false } });
     }
@@ -311,17 +342,30 @@ export const Chart = ({
     const logicalrange = chart.current.timeScale().getVisibleLogicalRange() as LogicalRange;
     const visiblerange = lineSeries.current.barsInLogicalRange(logicalrange);
     if (!visiblerange) {
-      // if the chart is empty, during first load, barsInLogicalRange is null
       return;
     }
     const rangeFrom = Math.max(Math.floor(visiblerange.barsBefore), 0);
     if (!chartData[rangeFrom]) {
-      // when data series have changed it triggers subscribeVisibleLogicalRangeChange
-      // but at this point the setVisibleRange has not executed what the new range
-      // should be and therefore barsBefore might still point to the old range
-      // so we have to ignore this call and expect setVisibleRange with correct range
       setDifference(0);
       setDiffSince('');
+      return;
+    }
+    if (showMarketPerformance) {
+      const entryFrom = chartData[rangeFrom];
+      const entryTo = chartData[chartData.length - 1];
+      if (!hasValidMarketPerformance(entryFrom) || !hasValidMarketPerformance(entryTo)) {
+        setDifference(0);
+        setDiffSince('');
+        return;
+      }
+      const entryFromLabel = formatMarketPerformanceLabel(entryFrom);
+      if (entryFromLabel === undefined) {
+        setDifference(0);
+        setDiffSince('');
+        return;
+      }
+      setDifference(entryTo.performance - entryFrom.performance);
+      setDiffSince(`${entryFromLabel} (${renderDate(Number(entryFrom.time) * 1000, i18n.language, source)})`);
       return;
     }
     const nextValue = chartData[rangeFrom + 1] as FormattedLineData | undefined;
@@ -334,20 +378,12 @@ export const Chart = ({
     const valueTo = data.chartTotal;
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
     setDifference(valueDiff / valueFrom);
+
     setDiffSince(`${chartData[rangeFrom].formattedValue} (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`);
-  }, [data, i18n.language, source]);
+  }, [data, i18n.language, showMarketPerformance, source]);
 
-  const removeChart = useCallback(() => {
-    if (chartInitialized.current) {
-      chart.current?.timeScale().unsubscribeVisibleLogicalRangeChange(calculateChange);
-      chart.current?.unsubscribeCrosshairMove(handleCrosshair);
-      chart.current?.remove();
-      chart.current = undefined;
-      chartInitialized.current = false;
-    }
-  }, [calculateChange]);
-
-  const handleCrosshair = ({
+  // Moved handleCrosshair before removeChart to satisfy hook dependencies
+  const handleCrosshair = useCallback(({
     point,
     time,
     seriesData
@@ -379,33 +415,33 @@ export const Chart = ({
       triggerHapticFeedback();
       lastHapticTime.current = currentTime;
     }
+    const chartData = source === 'daily' ? data.chartDataDaily : data.chartDataHourly;
+    const entry = chartData.find(e => Number(e.time) === time as number);
+    const performanceLabel = showMarketPerformance ? formatMarketPerformanceLabel(entry) : undefined;
     const coordinate = lineSeries.current.priceToCoordinate(price.value);
     if (!coordinate) {
       return;
     }
-    const coordinateY = (
-      (coordinate - tooltip.clientHeight > 0)
-        ? coordinate - tooltip.clientHeight
-        : Math.max(
-          0,
-          Math.min(
-            parent.clientHeight - tooltip.clientHeight,
-            coordinate + 70
-          )
-        )
-    );
-
-    const toolTipTop = Math.floor(Math.max(coordinateY, 0));
-    const toolTipLeft = Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70)));
-
+    const y = coordinate - tooltip.clientHeight > 0 ? coordinate - tooltip.clientHeight : Math.max(0, Math.min(parent.clientHeight - tooltip.clientHeight, coordinate + 70));
     setTooltipData({
       toolTipVisible: true,
-      toolTipValue: formattedData.current ? formattedData.current[time as number] : '',
-      toolTipTop,
-      toolTipLeft,
+      toolTipValue: formattedData.current?.[time as number] || '',
+      toolTipPerformance: performanceLabel,
+      toolTipTop: Math.floor(y),
+      toolTipLeft: Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70))),
       toolTipTime: time as number,
     });
-  };
+  }, [showMarketPerformance, source, data.chartDataDaily, data.chartDataHourly]);
+
+  const removeChart = useCallback(() => {
+    if (chartInitialized.current) {
+      chart.current?.timeScale().unsubscribeVisibleLogicalRangeChange(calculateChange);
+      chart.current?.unsubscribeCrosshairMove(handleCrosshair);
+      chart.current?.remove();
+      chart.current = undefined;
+      chartInitialized.current = false;
+    }
+  }, [calculateChange, handleCrosshair]);
 
   const initChart = useCallback(() => {
     const darkmode = getDarkmode();
@@ -500,7 +536,7 @@ export const Chart = ({
           ? data.chartDataHourly
           : data.chartDataDaily
       );
-      lineSeries.current.setData(dataToDisplay);
+      lineSeries.current.setData(getDisplayChartData(dataToDisplay));
       setFormattedData(dataToDisplay);
       chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
       chart.current.subscribeCrosshairMove(handleCrosshair);
@@ -511,7 +547,7 @@ export const Chart = ({
       chartInitialized.current = true;
       updateRange(chart, chartDisplay);
     }
-  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, data.chartFiat, hasData, hideAmounts, i18n.language, isMobile]);
+  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, data.chartFiat, hasData, hideAmounts, i18n.language, isMobile, getDisplayChartData, handleCrosshair]);
 
   const reinitializeChart = () => {
     removeChart();
@@ -519,13 +555,13 @@ export const Chart = ({
   };
 
   if (source === 'daily' && prevChartDataDaily?.length !== data.chartDataDaily.length) {
-    lineSeries.current?.setData(data.chartDataDaily);
+    lineSeries.current?.setData(getDisplayChartData(data.chartDataDaily));
     chart.current?.timeScale().fitContent();
     setFormattedData(data.chartDataDaily);
   }
 
   if (source === 'hourly' && prevChartDataHourly?.length !== data.chartDataHourly.length) {
-    lineSeries.current?.setData(data.chartDataHourly);
+    lineSeries.current?.setData(getDisplayChartData(data.chartDataHourly));
     chart.current?.timeScale().fitContent();
     setFormattedData(data.chartDataHourly);
   }
@@ -541,6 +577,25 @@ export const Chart = ({
       }
     });
   }
+
+  const onTogglePercent = () => {
+    const nextShowPercent = !showPercent;
+    setShowPercent(nextShowPercent);
+    setConfig({
+      frontend: {
+        marketPerformanceChartMode: nextShowPercent ? 'percent' : 'sum',
+      },
+    }).catch(console.error);
+  };
+
+  useEffect(() => {
+    if (!lineSeries.current) {
+      return;
+    }
+    const chartData = source === 'daily' ? data.chartDataDaily : data.chartDataHourly;
+    lineSeries.current.setData(getDisplayChartData(chartData));
+    calculateChange();
+  }, [calculateChange, data.chartDataDaily, data.chartDataHourly, getDisplayChartData, showPercent, source]);
 
   useEffect(() => {
     if (!chartInitialized.current) {
@@ -627,6 +682,9 @@ export const Chart = ({
     onDisplayMonth: displayMonth,
     onDisplayYear: displayYear,
     onDisplayAll: displayAll,
+    showPercent,
+    showPercentToggle: isMarketPerformanceChartEnabled,
+    onTogglePercent,
   };
 
   const chartHeight = `${!isMobile ? height : mobileHeight}px`;
@@ -704,6 +762,11 @@ export const Chart = ({
               <h2 className={styles.toolTipValue}>
                 <Amount amount={toolTipValue} unit={chartFiat} />
                 <span className={styles.toolTipUnit}>{chartFiat}</span>
+                {tooltipData.toolTipPerformance && (
+                  <span className={styles.toolTipPerformance}>
+                    ({tooltipData.toolTipPerformance})
+                  </span>
+                )}
               </h2>
               <span className={styles.toolTipTime}>
                 {renderDate(toolTipTime * 1000, i18n.language, source)}

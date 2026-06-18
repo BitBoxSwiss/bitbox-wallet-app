@@ -14,6 +14,7 @@ vi.mock('@/utils/env', () => ({
 }));
 
 const translations: Record<string, string> = {
+  'newSettings.appearance.marketPerformanceChart.title': 'Portfolio performance',
   'testWallet.connect.title': 'Test wallet',
   'testWallet.disconnect.title': 'Disconnect test wallet',
 };
@@ -47,6 +48,16 @@ describe('settings search', () => {
       id: 'test-wallet',
       page: 'advanced',
       title: 'Disconnect test wallet',
+    }]);
+  });
+
+  it('includes the market performance setting in general settings search', () => {
+    const results = filterSettingsSearchItems(getItems(false), 'portfolio performance');
+
+    expect(results).toEqual([{
+      id: 'market-performance-chart',
+      page: 'general',
+      title: 'Portfolio performance',
     }]);
   });
 });

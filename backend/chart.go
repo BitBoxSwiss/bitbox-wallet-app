@@ -29,15 +29,18 @@ func (backend *Backend) allCoinCodes() []string {
 
 // ChartEntry is one data point in the chart timeseries.
 type ChartEntry struct {
-	Time           int64   `json:"time"`
-	Value          float64 `json:"value"`
-	FormattedValue string  `json:"formattedValue"`
+	Time               int64   `json:"time"`
+	Value              float64 `json:"value"`
+	FormattedValue     string  `json:"formattedValue"`
+	Performance        float64 `json:"performance"`
+	NetInvestmentValue float64 `json:"netInvestmentValue"`
 }
 
 // RatChartEntry exploits composition to extend ChartEntry and save high precision values.
 type RatChartEntry struct {
 	ChartEntry
-	RatValue *big.Rat
+	RatValue         *big.Rat
+	NetInvestmentRat *big.Rat
 }
 
 // Chart has all data needed to show a time-based chart of their assets to the user.
@@ -62,34 +65,67 @@ type Chart struct {
 	LastTimestamp int64 `json:"lastTimestamp"`
 }
 
+func chartPerformance(value, netInvestmentValue float64) float64 {
+	if netInvestmentValue <= 0 {
+		return 0
+	}
+	return (value / netInvestmentValue) - 1
+}
+
+func currentTotalChartEntry(now time.Time, currentTotal *big.Rat, fiat string, previous []ChartEntry) ChartEntry {
+	total, _ := currentTotal.Float64()
+	var netInvestmentValue float64
+	var performance float64
+	if len(previous) > 0 {
+		lastEntry := previous[len(previous)-1]
+		netInvestmentValue = lastEntry.NetInvestmentValue
+		performance = lastEntry.Performance
+	}
+	return ChartEntry{
+		Time:               now.Unix(),
+		Value:              total,
+		FormattedValue:     coin.FormatAsCurrency(currentTotal, fiat),
+		Performance:        performance,
+		NetInvestmentValue: netInvestmentValue,
+	}
+}
+
 func (backend *Backend) addChartData(
 	coinCode coin.Code,
 	fiat string,
 	coinDecimals *big.Int,
 	timeseries []accounts.TimeseriesEntry,
+	performanceTimeseries []accounts.MarketPerformanceEntry,
 	chartEntries map[int64]RatChartEntry,
 ) {
+	netInvestmentByTime := map[int64]*big.Rat{}
+	for _, e := range performanceTimeseries {
+		netInvestmentByTime[e.Time.Unix()] = e.NetInvestmentValue
+	}
 	for _, e := range timeseries {
-		price := backend.RatesUpdater().HistoricalPriceAt(
-			string(coinCode),
-			fiat,
-			e.Time)
 		timestamp := e.Time.Unix()
 		chartEntry := chartEntries[timestamp]
 
 		chartEntry.Time = timestamp
-		fiatValue := new(big.Rat).Mul(
-			new(big.Rat).SetFrac(
-				e.Value.BigInt(),
-				coinDecimals,
-			),
-			new(big.Rat).SetFloat64(price),
-		)
+
+		coinAmount := new(big.Rat).SetFrac(e.Value.BigInt(), coinDecimals)
+		price := backend.RatesUpdater().HistoricalPriceAt(string(coinCode), fiat, e.Time)
+		fiatValue := new(big.Rat).Mul(coinAmount, new(big.Rat).SetFloat64(price))
+		netInvestmentValue := new(big.Rat)
+		if value, ok := netInvestmentByTime[timestamp]; ok && value != nil {
+			netInvestmentValue.Set(value)
+		}
 
 		if chartEntry.RatValue == nil {
 			chartEntry.RatValue = new(big.Rat).Set(fiatValue)
+			chartEntry.NetInvestmentRat = new(big.Rat).Set(netInvestmentValue)
 		} else {
-			chartEntry.RatValue.Add(fiatValue, chartEntry.RatValue)
+			chartEntry.RatValue.Add(chartEntry.RatValue, fiatValue)
+			if chartEntry.NetInvestmentRat == nil {
+				chartEntry.NetInvestmentRat = new(big.Rat).Set(netInvestmentValue)
+			} else {
+				chartEntry.NetInvestmentRat.Add(chartEntry.NetInvestmentRat, netInvestmentValue)
+			}
 		}
 		chartEntries[timestamp] = chartEntry
 	}
@@ -214,39 +250,73 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			return nil, err
 		}
 
-		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesDaily, chartEntriesDaily)
-		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesHourly, chartEntriesHourly)
+		performanceTimeseriesDaily, err := txs.MarketPerformanceTimeseries(
+			earliestTxTime.Truncate(24*time.Hour),
+			until,
+			24*time.Hour,
+			backend.RatesUpdater(),
+			string(account.Coin().Code()),
+			fiat,
+			coinDecimals,
+		)
+		if errp.Cause(err) == errors.ErrNotAvailable {
+			backend.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing")
+			chartDataMissing = true
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		performanceTimeseriesHourly, err := txs.MarketPerformanceTimeseries(
+			hourlyFrom,
+			until,
+			time.Hour,
+			backend.RatesUpdater(),
+			string(account.Coin().Code()),
+			fiat,
+			coinDecimals,
+		)
+		if errp.Cause(err) == errors.ErrNotAvailable {
+			backend.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing")
+			chartDataMissing = true
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesDaily, performanceTimeseriesDaily, chartEntriesDaily)
+		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesHourly, performanceTimeseriesHourly, chartEntriesHourly)
 
 	}
 
 	toSortedSlice := func(s map[int64]RatChartEntry, fiat string) []ChartEntry {
 		result := make([]ChartEntry, len(s))
 		i := 0
-		// Discard the RatValue, which is not used anymore
 		for _, entry := range s {
 			floatValue, _ := entry.RatValue.Float64()
+			var netInvestmentValue float64
+			if entry.NetInvestmentRat != nil {
+				netInvestmentValue, _ = entry.NetInvestmentRat.Float64()
+			}
+			performance := chartPerformance(floatValue, netInvestmentValue)
+
 			result[i] = ChartEntry{
-				Time:           entry.Time,
-				Value:          floatValue,
-				FormattedValue: coin.FormatAsCurrency(entry.RatValue, fiat),
+				Time:               entry.Time,
+				Value:              floatValue,
+				FormattedValue:     coin.FormatAsCurrency(entry.RatValue, fiat),
+				Performance:        performance,
+				NetInvestmentValue: netInvestmentValue,
 			}
 			i++
 		}
 		sort.Slice(result, func(i, j int) bool { return result[i].Time < result[j].Time })
 
 		// Manually add the last point with the current total, to make the last point match.
-		// The last point might not match the account total otherwise because:
-		// 1) unconfirmed tx are not in the timeseries
-		// 2) coingecko might not have rates yet up until after all transactions, so they'd also be
-		// missing form the timeseries (`until` is up to 2h in the past).
 		if isUpToDate && !currentTotalMissing {
-			total, _ := currentTotal.Float64()
-			result = append(result, ChartEntry{
-				Time:           time.Now().Unix(),
-				Value:          total,
-				FormattedValue: coin.FormatAsCurrency(currentTotal, fiat),
-			})
+			result = append(result, currentTotalChartEntry(time.Now(), currentTotal, fiat, result))
 		}
+
 		// Truncate leading zeroes, if there are any keep the first one to start the chart with 0
 		for i, e := range result {
 			if e.Value > 0 {

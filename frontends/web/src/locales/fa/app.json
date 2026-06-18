@@ -511,6 +511,14 @@
     "title": "زبان مورد نظر را انتخاب كنيد"
   },
   "loading": "در حال بارگذاری…",
+  "newSettings": {
+    "appearance": {
+      "marketPerformanceChart": {
+        "description": "گزینه‌ای را در نمودار سبد نمایش می‌دهد تا تغییرات ارزش را با خالص واریزها و برداشت‌ها مقایسه کنید.",
+        "title": "عملکرد سبد"
+      }
+    }
+  },
   "notification": {
     "newTxs_one": "تراکنش جدید در: {{accountName}}",
     "newTxs_other": ""

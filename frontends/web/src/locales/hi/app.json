@@ -512,6 +512,14 @@
     "title": "भाषा चुनिए"
   },
   "loading": "लोड हो रहा है…",
+  "newSettings": {
+    "appearance": {
+      "marketPerformanceChart": {
+        "description": "पोर्टफ़ोलियो चार्ट में मूल्य बदलावों की तुलना शुद्ध जमा और निकासी से करने का विकल्प दिखाता है।",
+        "title": "पोर्टफ़ोलियो प्रदर्शन"
+      }
+    }
+  },
   "notification": {
     "newTxs_one": "{{accountName}} में इसमें नया ट्रांजेक्शन",
     "newTxs_other": "{{accountName}} में {{count}} नए ट्रांजेक्शंस"

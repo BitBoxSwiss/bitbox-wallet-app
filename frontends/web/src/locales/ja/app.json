@@ -1405,6 +1405,10 @@
         "description": "BitBoxAppで使用する言語を選択してください。",
         "title": "言語"
       },
+      "marketPerformanceChart": {
+        "description": "ポートフォリオのチャートに、価値の変動を純入金額と純出金額と比較するオプションを表示します。",
+        "title": "ポートフォリオのパフォーマンス"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "BitBoxデバイスを挿入せずに、このウォレットに関連付けられたアカウントを閲覧できるようになりました。ただし、取引の実行や受取用アドレスの表示には、BitBoxが引き続き必要です。",

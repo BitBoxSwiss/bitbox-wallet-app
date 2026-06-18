@@ -1615,6 +1615,10 @@
         "description": "Which language you want the BitBoxApp to use.",
         "title": "Language"
       },
+      "marketPerformanceChart": {
+        "description": "Show an option in the portfolio chart to compare value changes against net deposits and withdrawals.",
+        "title": "Portfolio performance"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "You can now view the accounts associated with this wallet without inserting your BitBox device. However, the BitBox is still required for making transactions and displaying receive addresses.",

@@ -1448,6 +1448,10 @@
         "description": "Bahasa yang anda mahu BitBoxApp gunakan.",
         "title": "Bahasa"
       },
+      "marketPerformanceChart": {
+        "description": "Tunjukkan pilihan dalam carta portfolio untuk membandingkan perubahan nilai dengan deposit dan pengeluaran bersih.",
+        "title": "Prestasi portfolio"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "Anda kini boleh melihat akaun yang dikaitkan dengan dompet ini tanpa memasukkan peranti BitBox anda. Walau bagaimanapun, BitBox masih diperlukan untuk membuat transaksi dan memaparkan alamat terima.",

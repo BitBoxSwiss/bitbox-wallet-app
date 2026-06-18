@@ -1613,6 +1613,10 @@
         "description": "Quelle langue souhaitez-vous que la BitBoxApp utilise ?",
         "title": "Langue"
       },
+      "marketPerformanceChart": {
+        "description": "Affiche une option dans le graphique du portefeuille pour comparer les variations de valeur aux dépôts et retraits nets.",
+        "title": "Performance du portefeuille"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "Vous pouvez désormais voir les comptes associés à ce portefeuille sans insérer votre appareil BitBox. Cependant, le BitBox est toujours requis pour effectuer des transactions et afficher les adresses de réception.",
