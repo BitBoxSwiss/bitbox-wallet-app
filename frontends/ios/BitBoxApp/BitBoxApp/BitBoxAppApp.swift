@@ -91,6 +91,20 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
         // TODO: hide app window contents in app switcher, maybe always not just when auth is on.
     }
 
+    func canEncryptLightningMnemonic() -> Bool {
+        false
+    }
+
+    func storeLightningEncryptionKey(_ accountCode: String?, p1 encryptionKey: String?) throws {
+    }
+
+    func loadLightningEncryptionKey(_ accountCode: String?, error: NSErrorPointer) -> String {
+        ""
+    }
+
+    func deleteLightningEncryptionKey(_ accountCode: String?) throws {
+    }
+
     func bluetoothConnect(_ identifier: String?) {
         guard let identifier = identifier else {
             return

@@ -100,7 +100,7 @@ func TestModifyLightningConfig(t *testing.T) {
 	require.NoError(t, cfg.ModifyLightningConfig(func(lightningCfg *LightningConfig) error {
 		require.Empty(t, lightningCfg.Accounts)
 		lightningCfg.Accounts = []*LightningAccountConfig{{
-			Mnemonic:        "test",
+			Seed:            "test",
 			Code:            "v0-deadbeef-ln-0",
 			Number:          0,
 			RootFingerprint: []byte{0xde, 0xad, 0xbe, 0xef},
@@ -134,7 +134,7 @@ func TestLightningConfigPersistence(t *testing.T) {
 
 	err = os.WriteFile(lightningConfigFilename, []byte(`{
 		"accounts": [{
-			"mnemonic": "test",
+			"seed": "test",
 			"rootFingerprint": "deadbeef",
 			"code": "v0-deadbeef-ln-0",
 			"num": 0
@@ -157,7 +157,7 @@ func TestLightningConfigPersistence(t *testing.T) {
 	require.NoError(t, err)
 	require.JSONEq(t, `{
 		"accounts": [{
-			"mnemonic": "test",
+			"seed": "test",
 			"rootFingerprint": "deadbeef",
 			"code": "v0-deadbeef-ln-0",
 			"num": 0
