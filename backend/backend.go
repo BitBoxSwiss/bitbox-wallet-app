@@ -211,6 +211,8 @@ type Environment interface {
 	// BluetoothConnect tries to connect to the peripheral by the given identifier.
 	// Use `backend.bluetooth.State()` to track failure.
 	BluetoothConnect(identifier string)
+	// UserAgentPlatform returns the platform/device token used in the app's outbound user agent.
+	UserAgentPlatform() string
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -341,7 +343,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	backend.notifier = notifier
 	backend.socksProxy = backendProxy
-	backend.updateChecker = newUpdateChecker(&backend.socksProxy)
+	backend.updateChecker = newUpdateChecker(&backend.socksProxy, backend.userAgent())
 	backend.updateChecker.Observe(backend.Notify)
 	backend.httpClient = hclient
 	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts)

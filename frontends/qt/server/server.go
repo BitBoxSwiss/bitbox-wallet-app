@@ -62,6 +62,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/mobileserver"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/useragent"
 )
 
 // nativeCommunication implements bridge.NativeCommunication.
@@ -206,8 +207,9 @@ func serve(
 				filename := C.GoString(cFilename)
 				return filename
 			},
-			SetDarkThemeFunc:    func(bool) {},
-			DetectDarkThemeFunc: detectDarkTheme,
+			SetDarkThemeFunc:      func(bool) {},
+			DetectDarkThemeFunc:   detectDarkTheme,
+			UserAgentPlatformFunc: useragent.PlatformFromRuntime,
 			AuthFunc: func() {
 				log.Info("Qt auth")
 				authResult(mobileserver.AuthResultOk)
