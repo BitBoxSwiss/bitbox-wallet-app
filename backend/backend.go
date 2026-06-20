@@ -211,6 +211,8 @@ type Environment interface {
 	// BluetoothConnect tries to connect to the peripheral by the given identifier.
 	// Use `backend.bluetooth.State()` to track failure.
 	BluetoothConnect(identifier string)
+	// UserAgentHost returns the host platform/device token used in the app's outbound user agent.
+	UserAgentHost() string
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
