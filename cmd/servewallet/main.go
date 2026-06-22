@@ -142,8 +142,14 @@ func (webdevEnvironment) NativeLocale() string {
 }
 
 func normalizeAppleSeparator(s string) string {
-	// macOS defaults encodes narrow no-break space as \U202f
-	return strings.ReplaceAll(s, `\\U202f`, "\u202f")
+	// macOS defaults may encode narrow no-break space as \U202f.
+	replacer := strings.NewReplacer(
+		`\\U202f`, "\u202f",
+		`\\U202F`, "\u202f",
+		`\U202f`, "\u202f",
+		`\U202F`, "\u202f",
+	)
+	return replacer.Replace(s)
 }
 
 func parseAppleICUNumberSymbols(out []byte) *backendPkg.NumberFormat {
