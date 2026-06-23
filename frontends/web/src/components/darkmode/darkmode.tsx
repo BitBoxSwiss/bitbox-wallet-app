@@ -10,10 +10,8 @@ export const Darkmode = () => {
   return null;
 };
 /**
- * Retrieve dark mode state for
- * conditional rendering in class
- * components. Use `useDarkmode`
- * hook for functional components.
+ * @deprecated Retrieve dark mode state for conditional rendering in class components.
+ * Use `useDarkmode` hook for functional components.
  * @returns {boolean} darkmode
  */
 export const getDarkmode = () => darkmode;
