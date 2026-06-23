@@ -33,6 +33,10 @@
     padding: var(--space-default);
 }
 
+.grid.grid-columns-1 .columnAsCard + .columnAsCard {
+    margin-top: var(--space-default);
+}
+
 @media (max-width: 768px) {
     .grid.responsive {
         display: block;
