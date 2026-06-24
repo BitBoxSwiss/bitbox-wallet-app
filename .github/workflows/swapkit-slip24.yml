@@ -1,0 +1,27 @@
+# See reference docs at
+# https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+name: swapkit-slip24
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 9,21 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  live-test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v6
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Run live SwapKit SLIP-24 test
+        run: |
+          go version
+          SWAPKIT_LIVE_TEST=1 go test -mod=vendor ./backend/market/swapkit -run TestSwapKitLiveSlip24 -count=1 -v
