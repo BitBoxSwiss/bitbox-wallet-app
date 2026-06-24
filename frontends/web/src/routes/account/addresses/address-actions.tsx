@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AccountCode, TUsedAddress } from '@/api/account';
-import { A } from '@/components/anchor/anchor';
+import { BlockExplorerLink } from '@/components/block-explorer-link/block-explorer-link';
 import { Button } from '@/components/forms';
 import { Copy, ExternalLink, OutlinedFileProtectPrimary } from '@/components/icon';
 import style from './addresses.module.css';
@@ -35,15 +35,16 @@ export const AddressActions = ({ code, address, blockExplorerAddressPrefix, onCo
         </Button>
       )}
       {blockExplorerAddressPrefix && (
-        <A
+        <BlockExplorerLink
           className={style.linkAction}
-          href={`${blockExplorerAddressPrefix}${address.address}`}
+          prefix={blockExplorerAddressPrefix}
+          id={address.address}
           title={`${t('transaction.explorerTitle')}\n${blockExplorerAddressPrefix}${address.address}`}>
           <span className={style.linkActionLabel}>
             <ExternalLink className={style.linkActionIcon} />
             {t('transaction.explorerTitle')}
           </span>
-        </A>
+        </BlockExplorerLink>
       )}
     </div>
   );

@@ -161,6 +161,10 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
         }
     }
 
+    func systemOpenExplorer(_ onionURL: String?, clearnetURL: String?) throws {
+        try systemOpen(onionURL)
+    }
+
     func usingMobileData() -> Bool {
         // Implement logic to check if using mobile data
         // Example: return a dummy value

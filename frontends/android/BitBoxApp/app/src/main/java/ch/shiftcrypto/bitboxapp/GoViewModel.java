@@ -154,6 +154,11 @@ public class GoViewModel extends AndroidViewModel {
         }
 
         @Override
+        public void systemOpenExplorer(String onionUrl, String clearnetUrl) throws Exception {
+            Util.systemOpenExplorerChooser(getApplication(), onionUrl, clearnetUrl);
+        }
+
+        @Override
         public void auth() {
             Util.log("Auth requested from backend");
             requestAuth();

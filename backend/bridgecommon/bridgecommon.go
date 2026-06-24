@@ -174,10 +174,11 @@ func ManualReconnect() {
 
 // BackendEnvironment implements backend.Environment.
 type BackendEnvironment struct {
-	NotifyUserFunc      func(string)
-	DeviceInfosFunc     func() []usb.DeviceInfo
-	SystemOpenFunc      func(string) error
-	UsingMobileDataFunc func() bool
+	NotifyUserFunc         func(string)
+	DeviceInfosFunc        func() []usb.DeviceInfo
+	SystemOpenFunc         func(string) error
+	SystemOpenExplorerFunc func(onionURL, clearnetURL string) error
+	UsingMobileDataFunc    func() bool
 	// NativeLocaleFunc is used by the backend to query native app layer for user
 	// preferred UI language.
 	NativeLocaleFunc         func() string
@@ -211,6 +212,14 @@ func (env *BackendEnvironment) SystemOpen(url string) error {
 		return env.SystemOpenFunc(url)
 	}
 	return nil
+}
+
+// SystemOpenExplorer opens a chooser with onion and clearnet explorer URLs when supported.
+func (env *BackendEnvironment) SystemOpenExplorer(onionURL, clearnetURL string) error {
+	if env.SystemOpenExplorerFunc != nil {
+		return env.SystemOpenExplorerFunc(onionURL, clearnetURL)
+	}
+	return env.SystemOpen(onionURL)
 }
 
 // UsingMobileData implements backend.Environment.

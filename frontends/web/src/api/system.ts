@@ -23,3 +23,7 @@ export const notifyUser = (text: string): Promise<TNotifyUserResponse> => {
 export const open = (href: string): Promise<TOpenResponse> => {
   return apiPost('open', href);
 };
+
+export const openExplorerUrls = (onionUrl: string, clearnetUrl: string): Promise<TOpenResponse> => {
+  return apiPost('open-explorer', { onionUrl, clearnetUrl });
+};

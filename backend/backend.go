@@ -74,6 +74,10 @@ var fixedURLWhitelist = []string{
 	"https://mempool.space/address/",
 	"https://mempool.space/testnet/tx/",
 	"https://mempool.space/testnet/address/",
+	"http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/tx/",
+	"http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/address/",
+	"http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/testnet/tx/",
+	"http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/testnet/address/",
 	"https://sochain.com/tx/LTCTEST/",
 	"https://sochain.com/address/LTCTEST/",
 	"https://blockchair.com/litecoin/transaction/",
@@ -1067,6 +1071,22 @@ func (backend *Backend) SystemOpen(url string) error {
 	}
 
 	return errp.Newf("Blocked /open with url: %s", url)
+}
+
+// SystemOpenExplorer opens an explorer URL chooser with onion and clearnet options.
+// Platforms that do not support a chooser fall back to opening the onion URL.
+func (backend *Backend) SystemOpenExplorer(onionURL, clearnetURL string) error {
+	backend.log.Infof("SystemOpenExplorer: attempting to open onion url: %v, clearnet url: %v", onionURL, clearnetURL)
+	if !isWhitelistedSystemOpenURL(onionURL) || !isWhitelistedSystemOpenURL(clearnetURL) {
+		return errp.Newf("Blocked /open-explorer with url: %s %s", onionURL, clearnetURL)
+	}
+	type explorerChooser interface {
+		SystemOpenExplorer(onionURL, clearnetURL string) error
+	}
+	if chooser, ok := backend.environment.(explorerChooser); ok {
+		return chooser.SystemOpenExplorer(onionURL, clearnetURL)
+	}
+	return backend.environment.SystemOpen(onionURL)
 }
 
 // Environment returns the app native environment.

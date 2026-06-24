@@ -247,7 +247,22 @@ func TestIsWhitelistedSystemOpenURL(t *testing.T) {
 			allowed: true,
 		},
 		{
-			name:    "blocks host prefix bypass",
+			name:    "allows mempool onion tx URL",
+			url:     "http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/tx/abc123",
+			allowed: true,
+		},
+		{
+			name:    "allows mempool onion testnet address URL",
+			url:     "http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/testnet/address/bc1qexample",
+			allowed: true,
+		},
+		{
+			name:    "blocks mempool onion path prefix bypass",
+			url:     "http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/txevil/123",
+			allowed: false,
+		},
+		{
+			name:    "blocks wrong host prefix bypass",
 			url:     "https://support.bitbox.swiss.evil.example/de_DE/",
 			allowed: false,
 		},
@@ -298,6 +313,16 @@ func TestIsWhitelistedSystemOpenURL(t *testing.T) {
 			require.Equal(t, tt.allowed, isWhitelistedSystemOpenURL(tt.url))
 		})
 	}
+}
+
+func TestSystemOpenExplorer(t *testing.T) {
+	b := newBackend(t, false, false)
+
+	onion := "http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/tx/abc"
+	clearnet := "https://mempool.space/tx/abc"
+
+	require.Error(t, b.SystemOpenExplorer("http://evil.onion/", clearnet))
+	require.NoError(t, b.SystemOpenExplorer(onion, clearnet))
 }
 
 type environment struct{}
