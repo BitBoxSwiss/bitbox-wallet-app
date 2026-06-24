@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import type { CoinUnit, ConversionUnit, TAmountWithConversions } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Amount } from '@/components/amount/amount';
-import { isBitcoinCoin } from '@/routes/account/utils';
+import { isBitcoinCoin, isBitcoinCoinBased } from '@/routes/account/utils';
 import style from './amount-with-unit.module.css';
 
 type TAmountWithUnitProps = {
@@ -53,7 +53,7 @@ export const AmountWithUnit = ({
   }
 
   const enableClick = enableRotateUnit && (convertToFiat || isBitcoinCoin(amount.unit));
-  const stripTrailingZeros = removeTrailingZeros && displayedUnit === 'BTC';
+  const stripTrailingZeros = removeTrailingZeros && isBitcoinCoinBased(amount.unit);
 
   return (
     <span className={`
