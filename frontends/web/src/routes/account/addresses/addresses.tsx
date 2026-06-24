@@ -133,9 +133,11 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
     return null;
   }
 
-  const currentExpandedAddressID = view === 'verify'
-    ? (selectedAddress?.addressID || null)
-    : expandedAddressID;
+  const currentExpandedAddressID = (
+    view === 'verify'
+      ? (selectedAddress?.addressID || null)
+      : expandedAddressID
+  );
 
   return (
     <Main>

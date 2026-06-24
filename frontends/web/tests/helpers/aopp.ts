@@ -11,8 +11,10 @@ import type { Readable } from 'stream';
 export async function startAOPPServer(): Promise<
   ChildProcessByStdio<null, Readable, Readable>
 > {
-  const PROJECT_ROOT = process.env.GITHUB_WORKSPACE ||
-    path.resolve(__dirname, '../../../..');
+  const PROJECT_ROOT = (
+    process.env.GITHUB_WORKSPACE ||
+    path.resolve(__dirname, '../../../..')
+  );
 
   const scriptPath = path.resolve(PROJECT_ROOT, 'frontends/web/tests/util/aopp/server.py');
 

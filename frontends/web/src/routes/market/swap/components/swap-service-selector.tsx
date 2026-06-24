@@ -138,26 +138,30 @@ export const SwapServiceSelector = ({
   selectedRouteId,
 }: Props) => {
   const { t } = useTranslation();
-  const options: TOption[] = buyUnit ? routes.map((route, index) => ({
-    amount: {
-      amount: route.expectedBuyAmount,
-      unit: buyUnit,
-      estimated: false,
-      conversions: {},
-    },
-    label: route.providers
-      .map(provider => getSwapProviderMetadata(provider).displayName)
-      .filter(displayName => displayName)
-      .join(' + ') || t('generic.unknown'),
-    isRecommended: index === 0,
-    isFast: false,
-    providers: route.providers,
-    value: route.routeId,
-  })) : [];
+  const options: TOption[] = (
+    buyUnit ? routes.map((route, index) => ({
+      amount: {
+        amount: route.expectedBuyAmount,
+        unit: buyUnit,
+        estimated: false,
+        conversions: {},
+      },
+      label: route.providers
+        .map(provider => getSwapProviderMetadata(provider).displayName)
+        .filter(displayName => displayName)
+        .join(' + ') || t('generic.unknown'),
+      isRecommended: index === 0,
+      isFast: false,
+      providers: route.providers,
+      value: route.routeId,
+    })) : []
+  );
 
-  const selectedOption = selectedRouteId
-    ? options.find(option => option.value === selectedRouteId)
-    : undefined;
+  const selectedOption = (
+    selectedRouteId
+      ? options.find(option => option.value === selectedRouteId)
+      : undefined
+  );
 
   if (!isLoading && error) {
     return (

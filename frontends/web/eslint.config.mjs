@@ -3,6 +3,7 @@ import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import stylistic from '@stylistic/eslint-plugin';
+import { softBrackets } from './node_vendor/eslint-plugin-soft-brackets/lib/index.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
@@ -24,6 +25,7 @@ export default tseslint.config(
       react: pluginReact,
       'react-hooks': pluginReactHooks,
       '@stylistic': stylistic,
+      'soft-brackets': softBrackets,
     },
     'settings': {
       'react': {
@@ -83,6 +85,8 @@ export default tseslint.config(
         },
         "multilineDetection": "brackets"
       }],
+      // custom
+      'soft-brackets/multiline-assignment-parens': 'error'
     },
   },
   {

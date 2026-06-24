@@ -102,48 +102,50 @@ class Initialize extends Component<Props, State> {
       }
     }
 
-    const content = showInfo ? (
-      <div className="box large">
-        <h3 className="subTitle">{t('initialize.info.subtitle')}</h3>
-        <ul>
-          <li>{t('initialize.info.description1')}</li>
-          <li>{t('initialize.info.description2')}</li>
-        </ul>
-        <p>{t('initialize.info.description3')}</p>
-        <div className="buttons">
-          <Button primary onClick={this.handleStart}>
-            {t('button.continue')}
-          </Button>
-          <Button
-            secondary
-            onClick={goBack}>
-            {t('button.abort')}
-          </Button>
+    const content = (
+      showInfo ? (
+        <div className="box large">
+          <h3 className="subTitle">{t('initialize.info.subtitle')}</h3>
+          <ul>
+            <li>{t('initialize.info.description1')}</li>
+            <li>{t('initialize.info.description2')}</li>
+          </ul>
+          <p>{t('initialize.info.description3')}</p>
+          <div className="buttons">
+            <Button primary onClick={this.handleStart}>
+              {t('button.continue')}
+            </Button>
+            <Button
+              secondary
+              onClick={goBack}>
+              {t('button.abort')}
+            </Button>
+          </div>
         </div>
-      </div>
-    ) : (
-      <form onSubmit={this.handleSubmit} className="box large">
-        <PasswordRepeatInput
-          pattern="^.{4,}$"
-          label={t('initialize.input.label')}
-          repeatLabel={t('initialize.input.labelRepeat')}
-          repeatPlaceholder={t('initialize.input.placeholderRepeat')}
-          disabled={status === stateEnum.WAITING}
-          onValidPassword={this.setValidPassword} />
-        <div className="buttons">
-          <Button
-            type="submit"
-            primary
-            disabled={!password || status === stateEnum.WAITING}>
-            {t('initialize.create')}
-          </Button>
-          <Button
-            secondary
-            onClick={goBack}>
-            {t('button.abort')}
-          </Button>
-        </div>
-      </form>
+      ) : (
+        <form onSubmit={this.handleSubmit} className="box large">
+          <PasswordRepeatInput
+            pattern="^.{4,}$"
+            label={t('initialize.input.label')}
+            repeatLabel={t('initialize.input.labelRepeat')}
+            repeatPlaceholder={t('initialize.input.placeholderRepeat')}
+            disabled={status === stateEnum.WAITING}
+            onValidPassword={this.setValidPassword} />
+          <div className="buttons">
+            <Button
+              type="submit"
+              primary
+              disabled={!password || status === stateEnum.WAITING}>
+              {t('initialize.create')}
+            </Button>
+            <Button
+              secondary
+              onClick={goBack}>
+              {t('button.abort')}
+            </Button>
+          </div>
+        </form>
+      )
     );
 
     return (

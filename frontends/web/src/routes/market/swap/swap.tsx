@@ -306,14 +306,16 @@ export const Swap = ({
           response.success
           || response.errorCode === NO_ROUTES_FOUND_ERROR
         ) {
-          const noRouteFoundMessage = !response.success
+          const noRouteFoundMessage = (
+            !response.success
             && response.errorData?.sellCoin
             && response.errorData?.buyCoin
-            ? t('swap.noRouteFoundForPair', {
-              buyCoin: response.errorData.buyCoin,
-              sellCoin: response.errorData.sellCoin,
-            })
-            : t('swap.noRouteFound');
+              ? t('swap.noRouteFoundForPair', {
+                buyCoin: response.errorData.buyCoin,
+                sellCoin: response.errorData.sellCoin,
+              })
+              : t('swap.noRouteFound')
+          );
           resetQuoteStateWithError({
             error: noRouteFoundMessage,
             errorCode: response.success ? undefined : validationErrorCode ?? response.errorCode,
@@ -548,14 +550,16 @@ export const Swap = ({
     );
   }
 
-  const placeholderFiat = !isFetchingRoutes ? (
-    <>
-      0.00
-      <span className={style.unit}>
-        {defaultCurrency}
-      </span>
-    </>
-  ) : undefined;
+  const placeholderFiat = (
+    !isFetchingRoutes ? (
+      <>
+        0.00
+        <span className={style.unit}>
+          {defaultCurrency}
+        </span>
+      </>
+    ) : undefined
+  );
 
   return (
     <GuideWrapper>

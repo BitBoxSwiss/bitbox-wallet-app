@@ -145,9 +145,11 @@ const ethSignTypedDataHandler = async ({
   const apiCaller = async () => {
     // If the typed data to be signed includes its own chainId, we use that.
     // Otherwise, use the id in the params.
-    const chainId = typedData?.domain?.chainId ?
-      Number(typedData.domain.chainId) :
-      Number(params.chainId.replace(/^eip155:/, ''));
+    const chainId = (
+      typedData?.domain?.chainId ?
+        Number(typedData.domain.chainId) :
+        Number(params.chainId.replace(/^eip155:/, ''))
+    );
     const result = await ethSignTypedMessage(accountCode, chainId, data);
     if (result.success) {
       const response = { id, jsonrpc: '2.0', result: result.signature };
@@ -197,9 +199,11 @@ const ethSignOrSendTransactionHandler = async (
 
     return { success: false, error: result };
   };
-  const formattedMethod = isSendAndSign ?
-    t('walletConnect.signingRequest.method.sendTransaction') :
-    t('walletConnect.signingRequest.method.signTransaction');
+  const formattedMethod = (
+    isSendAndSign ?
+      t('walletConnect.signingRequest.method.sendTransaction') :
+      t('walletConnect.signingRequest.method.signTransaction')
+  );
 
   launchSignDialog({
     topic,

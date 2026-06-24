@@ -79,16 +79,18 @@ export const SwapResult = ({
     }
 
     if (result.errorCode) {
-      const errorMessage = result.errorCode === 'wrongKeystore'
-        ? (
-          <>
-            {t('error.wrongKeystore')}
-            <br />
-            <br />
-            {t('error.wrongKeystore2')}
-          </>
-        )
-        : t(`send.error.${result.errorCode}`);
+      const errorMessage = (
+        result.errorCode === 'wrongKeystore'
+          ? (
+            <>
+              {t('error.wrongKeystore')}
+              <br />
+              <br />
+              {t('error.wrongKeystore2')}
+            </>
+          )
+          : t(`send.error.${result.errorCode}`)
+      );
 
       return (
         <View fullscreen textCenter verticallyCentered width="520px">
