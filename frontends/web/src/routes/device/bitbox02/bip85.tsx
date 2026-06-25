@@ -11,8 +11,10 @@ import { SimpleMarkup } from '@/utils/markup';
 import { A } from '@/components/anchor/anchor';
 import { Column, ResponsiveGrid } from '@/components/layout';
 import { useDarkmode } from '@/hooks/darkmode';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import bip85Graphic from './assets/bip85-graphic.svg';
 import bip85GraphicLight from './assets/bip85-graphic-light.svg';
 
@@ -28,8 +30,10 @@ export const Bip85 = ({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [status, setStatus] = useState<Status>('info-what');
   const [disclaimer, setDisclaimer] = useState(false);
+  const handleClose = () => navigate(-1);
 
   switch (status) {
   case 'info-what':
@@ -37,7 +41,12 @@ export const Bip85 = ({
       <View
         key="bip85-info-what"
         fullscreen
+        onClose={isMobile ? undefined : handleClose}
         verticallyCentered>
+        <MobileHeader
+          title={t('deviceSettings.expert.bip85.title')}
+          withViewPadding
+        />
         <ViewHeader small title={t('deviceSettings.expert.bip85.what.title')} />
         <ViewContent minHeight="280px">
           <ResponsiveGrid>
@@ -68,9 +77,9 @@ export const Bip85 = ({
             onClick={() => setStatus('info-how')}>
             {t('button.continue')}
           </Button>
-          <BackButton>
+          <DesktopBackButton>
             {t('button.back')}
-          </BackButton>
+          </DesktopBackButton>
         </ViewButtons>
       </View>
     );
@@ -79,7 +88,13 @@ export const Bip85 = ({
       <View
         key="bip85-info-how"
         fullscreen
+        onClose={isMobile ? undefined : handleClose}
         verticallyCentered>
+        <MobileHeader
+          onClick={() => setStatus('info-what')}
+          title={t('deviceSettings.expert.bip85.title')}
+          withViewPadding
+        />
         <ViewHeader title={t('deviceSettings.expert.bip85.how.title')} />
         <ViewContent minHeight="280px">
           <SimpleMarkup
@@ -92,10 +107,10 @@ export const Bip85 = ({
             onClick={() => setStatus('info-recover')}>
             {t('button.continue')}
           </Button>
-          <BackButton
+          <DesktopBackButton
             onClick={() => setStatus('info-what')}>
             {t('button.back')}
-          </BackButton>
+          </DesktopBackButton>
         </ViewButtons>
       </View>
     );
@@ -104,7 +119,13 @@ export const Bip85 = ({
       <View
         key="bip85-info-recover"
         fullscreen
+        onClose={isMobile ? undefined : handleClose}
         verticallyCentered>
+        <MobileHeader
+          onClick={() => setStatus('info-how')}
+          title={t('deviceSettings.expert.bip85.title')}
+          withViewPadding
+        />
         <ViewHeader title={t('deviceSettings.expert.bip85.recover.title')} />
         <ViewContent minHeight="280px">
           <SimpleMarkup
@@ -120,10 +141,10 @@ export const Bip85 = ({
             }}>
             {t('button.continue')}
           </Button>
-          <BackButton
+          <DesktopBackButton
             onClick={() => setStatus('info-how')}>
             {t('button.back')}
-          </BackButton>
+          </DesktopBackButton>
         </ViewButtons>
       </View>
     );
@@ -132,7 +153,13 @@ export const Bip85 = ({
       <View
         key="bip85-info-security"
         fullscreen
+        onClose={isMobile ? undefined : handleClose}
         verticallyCentered>
+        <MobileHeader
+          onClick={() => setStatus('info-recover')}
+          title={t('deviceSettings.expert.bip85.title')}
+          withViewPadding
+        />
         <ViewHeader title={t('deviceSettings.expert.bip85.security.title')} />
         <ViewContent minHeight="280px">
           <p>
@@ -156,10 +183,10 @@ export const Bip85 = ({
             }}>
             {t('button.proceedOnBitBox')}
           </Button>
-          <BackButton
+          <DesktopBackButton
             onClick={() => setStatus('info-recover')}>
             {t('button.back')}
-          </BackButton>
+          </DesktopBackButton>
         </ViewButtons>
       </View>
     );

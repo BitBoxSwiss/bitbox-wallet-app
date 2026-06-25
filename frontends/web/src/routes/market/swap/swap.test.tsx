@@ -35,6 +35,7 @@ vi.mock('@/components/guide/entry', () => ({
 }));
 vi.mock('@/components/backbutton/backbutton', () => ({
   BackButton: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  DesktopBackButton: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 vi.mock('@/components/spinner/SpinnerAnimation', () => ({
   SpinnerRingAnimated: () => null,

@@ -4,6 +4,10 @@
     position: relative;
 }
 
+.withViewPadding {
+    padding: 0 var(--space-half);
+}
+
 .backButton {
     align-items: center;
     background-color: transparent;
@@ -36,7 +40,13 @@
     margin: 0 auto;
     position: absolute;
     left: calc(50%);
-    transform: translateX(calc(-50% + 16px));
+    transform: translateX(calc(-50% + 8px));
+    white-space: nowrap;
+}
+
+.titleOnly .headerText {
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 @media (max-width: 768px) {
@@ -50,8 +60,8 @@
         display: none;
     }
 
-    .headerText {
-        left: calc(50% + 8px);
-        transform: translateX(calc(-50% + 8px));
+    .titleOnly .headerText {
+        left: 50%;
+        transform: translateX(-50%);
     }
 }

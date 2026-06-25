@@ -5,12 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { showMnemonic } from '@/api/bitbox02';
 import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
-import { UseBackButton, UseDisableBackButton } from '@/hooks/backbutton';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Button, Checkbox } from '@/components/forms';
 import { PointToBitBox02 } from '@/components/icon';
 import { Message } from '@/components/message/message';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 const CONTENT_MIN_HEIGHT = 'min(56rem, 100vh)';
 
@@ -26,6 +28,7 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
 
   const [status, setStatus] = useState<TStatus>('info');
   const [agree, setAgree] = useState<boolean>(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const confirmShowWords = async () => {
     setStatus('progress');
@@ -69,13 +72,14 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
       fullscreen
       minHeight={CONTENT_MIN_HEIGHT}
       verticallyCentered>
-      <UseBackButton handler={() => {
-        handleAbort();
-        return false;
-      }} />
-      <ViewHeader small title={t('backup.showMnemonic.title')} />
+      <MobileHeader
+        onClick={handleAbort}
+        title={t('backup.showMnemonic.title')}
+        withViewPadding
+      />
+      <ViewHeader className="hide-on-small" small title={t('backup.showMnemonic.title')} />
       <ViewContent>
-        <Message type="warning">
+        <Message className={isMobile ? 'm-top-default' : ''} type="warning">
           <SimpleMarkup tagName="span" markup={t('backup.showMnemonic.warning')}/>
         </Message>
         <p>
@@ -95,7 +99,7 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
         <Button disabled={!agree} primary onClick={confirmShowWords}>
           {t('button.next')}
         </Button>
-        <Button secondary onClick={handleAbort}>
+        <Button className="hide-on-small" secondary onClick={handleAbort}>
           {t('dialog.cancel')}
         </Button>
       </ViewButtons>

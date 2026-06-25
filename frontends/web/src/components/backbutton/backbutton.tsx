@@ -4,6 +4,7 @@ import { ReactNode, useCallback } from 'react';
 import { useEsc } from '@/hooks/keyboard';
 import { Button } from '@/components/forms/button';
 import { useBackButton } from '@/hooks/backbutton';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { useBackNavigation } from '@/contexts/BackNavigationContext';
 
 type TBackButton = {
@@ -53,4 +54,12 @@ export const BackButton = ({
       {children}
     </Button>
   );
+};
+
+export const DesktopBackButton = (props: TBackButton) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  if (isMobile) {
+    return null;
+  }
+  return <BackButton {...props} />;
 };
