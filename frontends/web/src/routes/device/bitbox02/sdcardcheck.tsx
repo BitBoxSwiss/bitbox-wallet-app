@@ -6,7 +6,7 @@ import { checkSDCard } from '@/api/bitbox02';
 import { Button } from '@/components/forms';
 import { PointToBitBox02 } from '@/components/icon';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
 
 type TProps = {
@@ -44,9 +44,9 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
               onClick={check}>
               {t('button.ok')}
             </Button>
-            <BackButton enableEsc>
+            <DesktopBackButton enableEsc>
               {t('button.back')}
-            </BackButton>
+            </DesktopBackButton>
           </ViewButtons>
         </View>
       ) : children}

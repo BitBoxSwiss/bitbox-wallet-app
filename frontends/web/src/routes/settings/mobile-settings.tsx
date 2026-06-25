@@ -7,6 +7,7 @@ import { Tabs, WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { useBackNavigation } from '@/contexts/BackNavigationContext';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { useNavigate } from 'react-router-dom';
@@ -21,8 +22,12 @@ import { useNavigate } from 'react-router-dom';
 export const MobileSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { goBack } = useBackNavigation();
   useOnlyVisitableOnMobile('/settings/general');
   const handleClick = () => {
+    if (goBack()) {
+      return;
+    }
     // go to home page if no devices or accounts (waiting.tsx will be shown)
     if (Object.keys(devices).length === 0 && !hasAccounts) {
       navigate('/');

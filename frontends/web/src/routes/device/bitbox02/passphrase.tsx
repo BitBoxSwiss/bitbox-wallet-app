@@ -12,7 +12,9 @@ import { alertUser } from '@/components/alert/Alert';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { PointToBitBox02 } from '@/components/icon';
 import { Message } from '@/components/message/message';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 // The enable wizard has five steps that can be navigated by clicking
 // 'back' or 'continue'. On the last step the passphrase will be enabled.
@@ -147,6 +149,7 @@ type TInfoProps = {
 
 const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const [infoStep, setInfoStep] = useState(0);
   const [understood, setUnderstood] = useState(false);
@@ -187,9 +190,14 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
       key={`step-${infoStep}`}
       fullscreen
       minHeight={CONTENT_MIN_HEIGHT}
-      onClose={handleAbort}
+      onClose={isMobile ? undefined : handleAbort}
       verticallyCentered
     >
+      <MobileHeader
+        onClick={handleBack}
+        title={t('deviceSettings.expert.passphrase.title')}
+        withViewPadding
+      />
       <ViewHeader title={step.titleKey} />
       {infoStep < FINAL_INFO_STEP && (
         <ViewContent>
@@ -218,9 +226,9 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
         <Button primary onClick={handleContinue} disabled={infoStep >= FINAL_INFO_STEP && !understood}>
           {step.buttonTextKey}
         </Button>
-        <BackButton onClick={handleBack}>
+        <DesktopBackButton onClick={handleBack}>
           {t('button.back')}
-        </BackButton>
+        </DesktopBackButton>
       </ViewButtons>
     </View>
   );
@@ -228,14 +236,19 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
 
 const DisableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   return (
     <View
       key="step-disable-info1"
       fullscreen
       minHeight={CONTENT_MIN_HEIGHT}
-      onClose={handleAbort}
+      onClose={isMobile ? undefined : handleAbort}
       verticallyCentered>
+      <MobileHeader
+        onClick={handleAbort}
+        title={t('deviceSettings.expert.passphrase.title')}
+        withViewPadding />
       <ViewHeader title={t('passphrase.disable')} />
       <ViewContent>
         <MultilineMarkup tagName="p" markup={t('passphrase.disableInfo.message')} />
@@ -244,9 +257,9 @@ const DisableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
         <Button primary onClick={() => setPassphrase(false)}>
           {t('passphrase.disableInfo.button')}
         </Button>
-        <BackButton onClick={handleAbort}>
+        <DesktopBackButton onClick={handleAbort}>
           {t('button.back')}
-        </BackButton>
+        </DesktopBackButton>
       </ViewButtons>
     </View>
   );
