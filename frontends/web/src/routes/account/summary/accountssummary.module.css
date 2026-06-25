@@ -139,6 +139,13 @@
     width: 100%;
 }
 
+.assetBalanceLogo {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    object-fit: contain;
+}
+
 .assetBalanceDetailsRow {
     display: flex;
     flex-direction: row;

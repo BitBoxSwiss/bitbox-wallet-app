@@ -20,7 +20,7 @@ export const AssetBalanceWithUnitPrice = ({ amount, coinCode, coinName, dataTest
   return (
     <div className={style.assetBalanceRow}>
       <div className={style.assetBalanceInfoFull}>
-        <Logo coinCode={coinCode} active={true} alt={coinCode} />
+        <Logo className={style.assetBalanceLogo} coinCode={coinCode} active={true} alt={coinCode} />
         <div className={style.assetBalanceDetailsRow}>
           <div className={style.assetBalanceDetailsCol}>
             <span
