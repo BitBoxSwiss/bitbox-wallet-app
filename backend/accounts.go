@@ -1208,6 +1208,10 @@ func (backend *Backend) initPersistedAccounts() {
 	// will not be loaded, unless their keystore has watch-only enabled.
 outer:
 	for _, account := range backend.filterAccounts(&persistedAccounts, keystoreConnectedOrWatch) {
+		if account.HiddenBecauseUnused && !backend.discovery.hiddenAccountsCanLoad() {
+			continue
+		}
+
 		coin, err := backend.Coin(account.CoinCode)
 		if err != nil {
 			backend.log.Errorf("skipping persisted account %s/%s, could not find coin",
@@ -1361,6 +1365,8 @@ func (backend *Backend) ReinitializeAccounts() {
 
 	backend.log.Info("Reinitializing accounts")
 	backend.initAccounts(true)
+	backend.executeAccountDiscoveryActionsLocked(
+		backend.discovery.connect(backend.discoveryAccountStatusesLocked()))
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
@@ -1420,10 +1426,80 @@ func (backend *Backend) uninitAccounts(force bool) {
 //     and still be able to receive to P2TR in the highest account. Such a P2TR
 //     account would not be discovered by other BIP44-compatible software.
 func (backend *Backend) maybeAddHiddenUnusedAccounts() {
+	defer backend.accountsAndKeystoreLock.Lock()()
+	backend.executeAccountDiscoveryActionsLocked(backend.discovery.runNow())
+}
+
+// executeStartHiddenDiscoveryLocked loads hidden persisted accounts and adds
+// the current hidden discovery frontier for all discovery coins.
+//
+// The accountsAndKeystoreLock must be held when calling this function.
+func (backend *Backend) executeStartHiddenDiscoveryLocked() {
+	backend.initPersistedAccounts()
+	backend.emitAccountsStatusChanged()
+	backend.configureHistoryExchangeRates()
+	backend.addHiddenDiscoveryAccountsForCoinsLocked(backend.coinPolicy().discoveryCoins())
+}
+
+// discoveryAccountStatus converts a runtime account into the state needed by hidden discovery
+// policy.
+func (backend *Backend) discoveryAccountStatus(account accounts.Interface) accountDiscoveryStatus {
+	return accountDiscoveryStatus{
+		code:     account.Config().Config.Code,
+		coinCode: account.Coin().Code(),
+		hidden:   account.Config().Config.HiddenBecauseUnused,
+		synced:   account.Synced(),
+	}
+}
+
+// discoveryAccountStatusesLocked returns a snapshot of all runtime accounts for hidden discovery
+// policy.
+//
+// The accountsAndKeystoreLock must be held when calling this function.
+func (backend *Backend) discoveryAccountStatusesLocked() []accountDiscoveryStatus {
+	statuses := make([]accountDiscoveryStatus, 0, len(backend.accounts))
+	for _, account := range backend.accounts {
+		statuses = append(statuses, backend.discoveryAccountStatus(account))
+	}
+	return statuses
+}
+
+// executeAccountDiscoveryActionsLocked applies hidden discovery actions to config/runtime
+// accounts.
+//
+// The accountsAndKeystoreLock must be held when calling this function.
+func (backend *Backend) executeAccountDiscoveryActionsLocked(actions accountDiscoveryActions) {
+	if actions.start {
+		backend.executeStartHiddenDiscoveryLocked()
+	}
+	if len(actions.addCoins) != 0 {
+		backend.addHiddenDiscoveryAccountsForCoinsLocked(actions.addCoins)
+	}
+}
+
+// updateHiddenDiscoveryAfterAccountSync sends one account sync result through the discovery
+// coordinator. If usageKnown is false, the event may open hidden discovery but will not advance the
+// account's coin.
+func (backend *Backend) updateHiddenDiscoveryAfterAccountSync(
+	account accounts.Interface,
+	usageKnown bool,
+) {
+	defer backend.accountsAndKeystoreLock.Lock()()
+	if backend.accounts.lookup(account.Config().Config.Code) != account {
+		return
+	}
+	backend.executeAccountDiscoveryActionsLocked(
+		backend.discovery.syncDone(backend.discoveryAccountStatus(account), usageKnown))
+}
+
+// addHiddenDiscoveryAccountsForCoinsLocked adds the next hidden discovery account for each selected
+// coin when the account gap rules say another account should be scanned.
+//
+// The accountsAndKeystoreLock must be held when calling this function.
+func (backend *Backend) addHiddenDiscoveryAccountsForCoinsLocked(coinCodes []coinpkg.Code) {
 	if backend.tstMaybeAddHiddenUnusedAccounts != nil {
 		defer backend.tstMaybeAddHiddenUnusedAccounts()
 	}
-	defer backend.accountsAndKeystoreLock.Lock()()
 	if backend.keystore == nil {
 		return
 	}
@@ -1468,7 +1544,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 	}
 
 	// Enable accounts discovery for these coins.
-	for _, coinCode := range backend.coinPolicy().discoveryCoins() {
+	for _, coinCode := range coinCodes {
 		coin, err := backend.Coin(coinCode)
 		if err != nil {
 			backend.log.Errorf("could not find coin %s", coinCode)
@@ -1513,12 +1589,15 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		txs, err := account.Transactions()
 		if err != nil {
 			log.WithError(err).Error("discoverAccount")
+			if !account.FatalError() {
+				backend.updateHiddenDiscoveryAfterAccountSync(account, false)
+			}
 			return
 		}
 
 		if len(txs) == 0 {
 			// Invoke this here too because even if an account is unused, we scan up to 5 accounts.
-			backend.maybeAddHiddenUnusedAccounts()
+			backend.updateHiddenDiscoveryAfterAccountSync(account, true)
 			return
 		}
 	}
@@ -1527,7 +1606,9 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(account.Config().Config.Code)
 		if acct == nil {
-			return errp.Newf("could not find account")
+			// Runtime-only accounts, such as ERC20 token accounts, do not have their own persisted
+			// account config to mark as used.
+			return nil
 		}
 		emitUpdate = !acct.Used || acct.HiddenBecauseUnused
 		acct.Used = true
@@ -1542,7 +1623,7 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 	if emitUpdate {
 		backend.emitAccountsStatusChanged()
 	}
-	backend.maybeAddHiddenUnusedAccounts()
+	backend.updateHiddenDiscoveryAfterAccountSync(account, true)
 }
 
 // LookupEthAccountCode takes an Ethereum address and returns the corresponding account code and account name
