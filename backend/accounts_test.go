@@ -233,7 +233,7 @@ func TestSortAccounts(t *testing.T) {
 	for i := range accountConfigs {
 		c, err := backend.Coin(accountConfigs[i].CoinCode)
 		require.NoError(t, err)
-		backend.createAndAddAccount(c, accountConfigs[i])
+		backend.createAndAddAccount(c, accountConfigs[i], accountLoadOptions{})
 	}
 	unlockFN()
 
@@ -292,7 +292,7 @@ func TestObserveKeystoreNameChanged(t *testing.T) {
 	for i := range accountConfigs {
 		c, err := backend.Coin(accountConfigs[i].CoinCode)
 		require.NoError(t, err)
-		backend.createAndAddAccount(c, accountConfigs[i])
+		backend.createAndAddAccount(c, accountConfigs[i], accountLoadOptions{})
 	}
 	unlockFN()
 
@@ -638,6 +638,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/0'"), test.TstMustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
 			},
 		},
+		accountLoadOptions{},
 	)
 	unlockFN()
 	require.Len(t, b.Accounts(), 1)
@@ -660,6 +661,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/2'/0'"), test.TstMustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
 			},
 		},
+		accountLoadOptions{},
 	)
 	unlockFN()
 	require.Len(t, b.Accounts(), 2)
@@ -682,6 +684,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			},
 			ActiveTokens: []string{"eth-erc20-mkr"},
 		},
+		accountLoadOptions{},
 	)
 	unlockFN()
 	// 2 more accounts: the added ETH account plus the active token for the ETH account.
@@ -711,6 +714,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			},
 			ActiveTokens: []string{"eth-erc20-usdt", "eth-erc20-bat"},
 		},
+		accountLoadOptions{},
 	)
 	unlockFN()
 	// 3 more accounts: the added ETH account plus the two active tokens for the ETH account.
@@ -770,32 +774,26 @@ func TestETHInitialSyncMode(t *testing.T) {
 	t.Run("startup-watchonly-load", func(t *testing.T) {
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.skipETHInitialSync = true
-			defer func() { b.skipETHInitialSync = false }()
-			b.initPersistedAccounts()
+			b.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
 		}()
 
 		require.Equal(t, expected, captured)
 	})
 
-	t.Run("non-startup-reinit", func(t *testing.T) {
-		func() {
-			defer b.accountsAndKeystoreLock.Lock()()
-			b.uninitAccounts(true)
-		}()
-
+	t.Run("reinit-batch-load", func(t *testing.T) {
 		captured = map[accountsTypes.Code]bool{}
-		expectedNoSkip := map[accountsTypes.Code]bool{
-			"v0-55555555-eth-0":                false,
-			"v0-55555555-eth-0-eth-erc20-usdt": false,
+		enqueueAllAccountsRefreshes := 0
+		b.enqueueETHUpdateForAllAccountsAsync = func() {
+			enqueueAllAccountsRefreshes++
 		}
 
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.initPersistedAccounts()
+			b.initAccounts(true)
 		}()
 
-		require.Equal(t, expectedNoSkip, captured)
+		require.Equal(t, expected, captured)
+		require.Equal(t, 1, enqueueAllAccountsRefreshes)
 	})
 }
 

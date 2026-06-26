@@ -36,8 +36,8 @@ type AccountConfig struct {
 	// `backend.config.ModifyAccountsConfig()` instead.
 	Config   *config.Account
 	DBFolder string
-	// SkipInitialSync suppresses the ETH init-time per-account update when a startup batch sync
-	// will refresh the account right after loading.
+	// SkipInitialSync suppresses the ETH init-time per-account update when a batch sync will
+	// refresh the account right after loading.
 	SkipInitialSync bool
 	// NotesFolder is the folder where the transaction notes are stored. Full path.
 	NotesFolder     string

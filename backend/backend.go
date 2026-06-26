@@ -259,6 +259,10 @@ type Backend struct {
 	// makeEthAccount creates an ETH account. In production this is `eth.NewAccount`, but can be
 	// overridden in unit tests for mocking.
 	makeEthAccount func(*accounts.AccountConfig, *eth.Coin, *http.Client, *logrus.Entry) accounts.Interface
+	// enqueueETHUpdateForAllAccountsAsync asks the ETH updater to refresh all ETH accounts without
+	// blocking the caller. In production this is `ethupdater.EnqueueUpdateForAllAccountsAsync`, but
+	// can be overridden in unit tests.
+	enqueueETHUpdateForAllAccountsAsync func()
 
 	onAccountInit   func(accounts.Interface)
 	onAccountUninit func(accounts.Interface)
@@ -291,10 +295,6 @@ type Backend struct {
 
 	// ethupdater takes care of updating ETH accounts.
 	ethupdater *eth.Updater
-
-	// skipETHInitialSync suppresses the per-account ETH init refresh while startup loads persisted
-	// accounts, so the updater's initial batch refresh is the only startup sync round.
-	skipETHInitialSync bool
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -352,6 +352,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.socksProxy = backendProxy
 	backend.httpClient = hclient
 	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts)
+	backend.enqueueETHUpdateForAllAccountsAsync = backend.ethupdater.EnqueueUpdateForAllAccountsAsync
 
 	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
 	if err := os.MkdirAll(ratesCache, 0700); err != nil {
@@ -742,9 +743,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	}
 
 	defer backend.accountsAndKeystoreLock.Lock()()
-	backend.skipETHInitialSync = true
-	backend.initPersistedAccounts()
-	backend.skipETHInitialSync = false
+	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
 	backend.emitAccountsStatusChanged()
 
 	backend.ratesUpdater.StartCurrentRates()
@@ -892,7 +891,7 @@ func (backend *Backend) DeregisterKeystore() {
 	backend.uninitAccounts(false)
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
 	// keystore. For now we just remove all, then re-add the rest.
-	backend.initPersistedAccounts()
+	backend.initPersistedAccounts(accountLoadOptions{})
 	backend.emitAccountsStatusChanged()
 	backend.connectKeystore.onDisconnect()
 }
