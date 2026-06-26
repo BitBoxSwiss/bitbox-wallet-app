@@ -104,28 +104,3 @@ func nextAccountNumberAfter(candidates []accountCandidate) uint16 {
 	}
 	return nextAccountNumber
 }
-
-func nextDiscoveryAccountNumber(
-	coinCode coinpkg.Code,
-	candidates []accountCandidate,
-) (uint16, bool) {
-	maxAccountNumber := -1
-	var maxAccount *config.Account
-	for _, candidate := range candidates {
-		if maxAccount == nil || int(candidate.number) > maxAccountNumber {
-			maxAccountNumber = int(candidate.number)
-			maxAccount = candidate.account
-		}
-	}
-
-	// Account scan gap limit:
-	// - Previous account must be used for the next one to be scanned, but:
-	// - The first accounts up to the hard limit are always scanned as before we had accounts
-	//   discovery, the BitBoxApp allowed manual creation of that many accounts, so we need to scan
-	//   these.
-	nextAccountNumber := maxAccountNumber + 1
-	if maxAccount == nil || maxAccount.Used || nextAccountNumber < accountsHardLimit(coinCode) {
-		return uint16(nextAccountNumber), true
-	}
-	return 0, false
-}

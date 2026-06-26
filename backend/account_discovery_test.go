@@ -7,6 +7,7 @@ import (
 
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -87,4 +88,31 @@ func TestAccountDiscoveryCoordinatorForceStart(t *testing.T) {
 		coordinator.runNow(),
 	)
 	require.True(t, coordinator.hiddenAccountsCanLoad())
+}
+
+func TestNextDiscoveryAccountNumber(t *testing.T) {
+	account4 := &config.Account{Code: "account-4"}
+	account5 := &config.Account{Code: "account-5"}
+	usedAccount5 := &config.Account{Code: "used-account-5", Used: true}
+
+	accountNumber, ok := nextDiscoveryAccountNumber(coinpkg.CodeBTC, nil)
+	require.True(t, ok)
+	require.Equal(t, uint16(0), accountNumber)
+
+	accountNumber, ok = nextDiscoveryAccountNumber(coinpkg.CodeBTC, []accountCandidate{
+		{account: account4, number: 4},
+	})
+	require.True(t, ok)
+	require.Equal(t, uint16(5), accountNumber)
+
+	_, ok = nextDiscoveryAccountNumber(coinpkg.CodeBTC, []accountCandidate{
+		{account: account5, number: 5},
+	})
+	require.False(t, ok)
+
+	accountNumber, ok = nextDiscoveryAccountNumber(coinpkg.CodeBTC, []accountCandidate{
+		{account: usedAccount5, number: 5},
+	})
+	require.True(t, ok)
+	require.Equal(t, uint16(6), accountNumber)
 }
