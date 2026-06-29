@@ -238,9 +238,9 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { titleText, nextButtonText } = getTextFor(step);
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Header title={<h2>{t('manageAccounts.title')}</h2>} />
           <View
             fitContent
@@ -318,9 +318,9 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
               </ViewButtons>
             </form>
           </View>
-        </GuidedContent>
-        <AddAccountGuide accounts={accounts} />
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <AddAccountGuide accounts={accounts} />
+    </GuideWrapper>
   );
 };

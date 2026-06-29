@@ -112,7 +112,7 @@ export const BackupsV2 = ({
               <div className={`${backupStyle.listContainerWrapper || ''} ${isScrollable ? backupStyle.showFade || '' : ''}`}>
                 <div ref={scrollableContainerRef} className={backupStyle.listContainer}>
                   {
-                    backups.backups.map(backup => (
+                    [...backups.backups, ...backups.backups, ...backups.backups].map(backup => (
                       <div key={backup.id} className={backupStyle.item}>
                         <BackupsListItem
                           disabled={restoring}

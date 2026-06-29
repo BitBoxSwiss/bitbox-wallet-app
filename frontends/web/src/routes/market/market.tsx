@@ -232,9 +232,9 @@ export const Market = ({
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Dialog
             medium
             title={info && info.vendorName !== 'region' ? getVendorFormattedName(info.vendorName) : t('buy.exchange.region')}
@@ -322,9 +322,9 @@ export const Market = ({
               </div>
             </ViewContent>
           </View>
-        </GuidedContent>
-        <MarketGuide translationContext={translationContext} />
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <MarketGuide translationContext={translationContext} />
+    </GuideWrapper>
   );
 };

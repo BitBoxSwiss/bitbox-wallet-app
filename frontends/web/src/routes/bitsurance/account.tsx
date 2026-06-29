@@ -90,9 +90,9 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   }
 
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Header title={<h2>{t('bitsuranceAccount.title')}</h2>} />
           <View width="550px" verticallyCentered fullscreen={false}>
             <ViewContent>
@@ -110,9 +110,9 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
               )}
             </ViewContent>
           </View>
-        </GuidedContent>
-        <BitsuranceGuide/>
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <BitsuranceGuide/>
+    </GuideWrapper>
   );
 };
