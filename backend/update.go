@@ -9,6 +9,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/useragent"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 )
 
@@ -34,7 +35,11 @@ func (backend *Backend) checkForUpdate() (*UpdateFile, error) {
 		return nil, errp.WithStack(err)
 	}
 
-	response, err := client.Get(updateFileURL)
+	request, err := backend.newUpdateRequest()
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -56,6 +61,25 @@ func (backend *Backend) checkForUpdate() (*UpdateFile, error) {
 
 	updateFile.CurrentVersion = versioninfo.Version
 	return &updateFile, nil
+}
+
+func (backend *Backend) newUpdateRequest() (*http.Request, error) {
+	request, err := http.NewRequest(http.MethodGet, updateFileURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("User-Agent", backend.userAgent())
+	return request, nil
+}
+
+func (backend *Backend) userAgent() string {
+	host := useragent.HostFromRuntime()
+	if backend.environment != nil {
+		if environmentHost := backend.environment.UserAgentHost(); environmentHost != "" {
+			host = environmentHost
+		}
+	}
+	return useragent.String(versioninfo.Version.String(), host)
 }
 
 // CheckForUpdateIgnoringErrors suppresses any errors that are triggered, for example, when offline.
