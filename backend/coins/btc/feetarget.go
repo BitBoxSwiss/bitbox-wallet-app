@@ -29,10 +29,15 @@ func (feeTarget *FeeTarget) Code() accounts.FeeTargetCode {
 
 // FormattedFeeRate returns a string showing the fee rate.
 func (feeTarget *FeeTarget) FormattedFeeRate() string {
-	if feeTarget.feeRatePerKb == nil {
+	return FormatFeeRate(feeTarget.feeRatePerKb)
+}
+
+// FormatFeeRate returns a string showing the fee rate.
+func FormatFeeRate(feeRatePerKb *btcutil.Amount) string {
+	if feeRatePerKb == nil {
 		return ""
 	}
-	feePerByte := fmt.Sprintf("%.03f", float64(*feeTarget.feeRatePerKb)/1000.0)
+	feePerByte := fmt.Sprintf("%.03f", float64(*feeRatePerKb)/1000.0)
 	// Truncate trailing zeroes, and final '.' if the number has no decimal places.
 	feePerByte = strings.TrimRight(strings.TrimRight(feePerByte, "0"), ".")
 	return feePerByte + " sat/vB"

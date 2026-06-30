@@ -103,10 +103,10 @@ type Transaction struct {
 	Note                     string                              `json:"note"`
 
 	// BTC specific fields.
-	VSize        int64                               `json:"vsize"`
-	Size         int64                               `json:"size"`
-	Weight       int64                               `json:"weight"`
-	FeeRatePerKb coin.FormattedAmountWithConversions `json:"feeRatePerKb"`
+	VSize       int64  `json:"vsize"`
+	Size        int64  `json:"size"`
+	Weight      int64  `json:"weight"`
+	FeeRateInfo string `json:"feeRateInfo"`
 
 	// ETH specific fields
 	Gas   uint64  `json:"gas"`
@@ -172,10 +172,7 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 			txInfoJSON.VSize = txInfo.VSize
 			txInfoJSON.Size = txInfo.Size
 			txInfoJSON.Weight = txInfo.Weight
-			feeRatePerKb := txInfo.FeeRatePerKb
-			if feeRatePerKb != nil {
-				txInfoJSON.FeeRatePerKb = coin.ConvertBTCAmount(handlers.account.Coin(), *feeRatePerKb, true, accountConfig.RateUpdater)
-			}
+			txInfoJSON.FeeRateInfo = btc.FormatFeeRate(txInfo.FeeRatePerKb)
 		case *eth.Coin:
 			txInfoJSON.Gas = txInfo.Gas
 			txInfoJSON.Nonce = txInfo.Nonce

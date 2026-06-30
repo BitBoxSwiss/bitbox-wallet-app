@@ -2094,6 +2094,7 @@
     "explorer": "Transaction ID",
     "explorerTitle": "Open in external block explorer",
     "fee": "Fee",
+    "feeRate": "Fee rate",
     "fiatHistorical": "Historical",
     "gas": "Gas",
     "no-results": "No transactions found matching \"{{searchTerm}}\"",

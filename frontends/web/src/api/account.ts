@@ -231,7 +231,7 @@ export type TTransaction = {
   amount: TAmountWithConversions;
   amountAtTime: TAmountWithConversions;
   fee: TAmountWithConversions;
-  feeRatePerKb: TAmountWithConversions;
+  feeRateInfo: string;
   deductedAmountAtTime: TAmountWithConversions;
   gas: number;
   nonce: number | null;

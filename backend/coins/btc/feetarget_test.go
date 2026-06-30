@@ -43,6 +43,25 @@ func TestFeeTarget(t *testing.T) {
 	)
 }
 
+func TestFormatFeeRate(t *testing.T) {
+	require.Equal(t,
+		"",
+		FormatFeeRate(nil),
+	)
+	require.Equal(t,
+		"0.123 sat/vB",
+		FormatFeeRate(amt(123)),
+	)
+	require.Equal(t,
+		"123.456 sat/vB",
+		FormatFeeRate(amt(123456)),
+	)
+	require.Equal(t,
+		"1 sat/vB",
+		FormatFeeRate(amt(1000)),
+	)
+}
+
 func TestFeeTargets(t *testing.T) {
 	// empty slice
 	var feeTargets FeeTargets
