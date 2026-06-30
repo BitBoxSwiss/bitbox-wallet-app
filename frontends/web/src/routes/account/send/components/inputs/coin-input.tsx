@@ -15,6 +15,7 @@ type TProps = {
   proposedAmount?: TAmountWithConversions;
   amount: string;
   hasSelectedUTXOs: boolean;
+  hideValue?: boolean;
 };
 
 export const CoinInput = ({
@@ -25,9 +26,12 @@ export const CoinInput = ({
   amountError,
   proposedAmount,
   amount,
-  hasSelectedUTXOs
-}: TProps) => {
+  hasSelectedUTXOs,
+  hideValue = false
+}: TProps): JSX.Element => {
   const { t } = useTranslation();
+  const value = hideValue ? '' : sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount;
+
   return (
     <NumberInput
       step="any"
@@ -37,8 +41,8 @@ export const CoinInput = ({
       onChange={onAmountChange}
       disabled={sendAll}
       error={amountError}
-      value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
-      placeholder={t('send.amount.placeholder')}
+      value={value}
+      placeholder={hideValue ? '***' : t('send.amount.placeholder')}
       labelSection={
         <Checkbox
           label={t(hasSelectedUTXOs ? 'send.maximumSelectedCoins' : 'send.maximum')}
