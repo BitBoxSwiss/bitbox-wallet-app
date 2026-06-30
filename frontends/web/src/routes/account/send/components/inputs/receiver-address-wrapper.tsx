@@ -33,6 +33,7 @@ type TReceiverAddressWrapperProps = {
   onAccountChange?: (account: TAccount | null) => void;
   recipientAddress: string;
   children?: React.ReactNode;
+  pasteButton?: React.ReactNode;
 };
 
 const AccountOption = ({ option, isSelectedValue }: Props) => {
@@ -59,6 +60,7 @@ export const ReceiverAddressWrapper = ({
   onAccountChange,
   recipientAddress,
   children,
+  pasteButton,
 }: TReceiverAddressWrapperProps) => {
   const { t } = useTranslation();
   const [showFirmwareUpgradeDialog, setShowFirmwareUpgradeDialog] = useState(false);
@@ -159,6 +161,7 @@ export const ReceiverAddressWrapper = ({
         label={t('send.address.label')}
         error={error}
         align="left"
+        className={pasteButton && selectedAccount === null ? receiverStyles.inputWithPasteButton : ''}
         placeholder={t('send.address.placeholder')}
         onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
         value={recipientAddress}
@@ -181,6 +184,7 @@ export const ReceiverAddressWrapper = ({
           </span>
         ) : undefined}
       >
+        {selectedAccount === null && pasteButton}
         {children}
       </InputWithDropdown>
       <FirmwareUpgradeRequiredDialog
