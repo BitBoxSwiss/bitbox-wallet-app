@@ -22,32 +22,45 @@ var intermediateFirmwareBinaryMulti_9_17_1 []byte
 
 // BitBox02
 
-//go:embed assets/firmware-bitbox02-btconly.v9.26.1.signed.bin.gz
-var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 26, 1)
-var firmwareMonotonicVersionBtcOnly uint32 = 49
+//go:embed assets/firmware-bitbox02-btconly.v9.26.2.signed.bin.gz
+var intermediateFirmwareBinaryBTCOnly_9_26_2 []byte
 
-//go:embed assets/firmware-bitbox02-multi.v9.26.1.signed.bin.gz
+//go:embed assets/firmware-bitbox02-multi.v9.26.2.signed.bin.gz
+var intermediateFirmwareBinaryMulti_9_26_2 []byte
+
+//go:embed assets/firmware-bitbox02-btconly.v9.26.3.signed.bin.gz
+var firmwareBinaryBTCOnly []byte
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 26, 3)
+var firmwareMonotonicVersionBtcOnly uint32 = 51
+
+//go:embed assets/firmware-bitbox02-multi.v9.26.3.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 26, 1)
-var firmwareMonotonicVersionMulti uint32 = 49
+var firmwareVersionMulti = semver.NewSemVer(9, 26, 3)
+var firmwareMonotonicVersionMulti uint32 = 51
 
 // BitBox02 Nova.
 
-//go:embed assets/firmware-bitbox02nova-btconly.v9.26.1.signed.bin.gz
-var firmwareBB02PlusBinaryBTCOnly []byte
-var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 26, 1)
-var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 49
+//go:embed assets/firmware-bitbox02nova-btconly.v9.26.2.signed.bin.gz
+var intermediateFirmwareBB02PlusBinaryBTCOnly_9_26_2 []byte
 
-//go:embed assets/firmware-bitbox02nova-multi.v9.26.1.signed.bin.gz
+//go:embed assets/firmware-bitbox02nova-multi.v9.26.2.signed.bin.gz
+var intermediateFirmwareBB02PlusBinaryMulti_9_26_2 []byte
+
+//go:embed assets/firmware-bitbox02nova-btconly.v9.26.3.signed.bin.gz
+var firmwareBB02PlusBinaryBTCOnly []byte
+var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 26, 3)
+var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 51
+
+//go:embed assets/firmware-bitbox02nova-multi.v9.26.3.signed.bin.gz
 var firmwareBB02PlusBinaryMulti []byte
-var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 26, 1)
-var firmwareBB02PlusMonotonicVersionMulti uint32 = 49
+var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 26, 3)
+var firmwareBB02PlusMonotonicVersionMulti uint32 = 51
 
 type firmwareInfo struct {
-	version          *semver.SemVer
-	monotonicVersion uint32
-	binaryGzip       []byte
+	version                     *semver.SemVer
+	monotonicVersion            uint32
+	completionBootloaderVersion *semver.SemVer
+	binaryGzip                  []byte
 }
 
 func (fi firmwareInfo) signedBinary() ([]byte, error) {
@@ -74,8 +87,9 @@ func (fi firmwareInfo) firmwareHash() ([]byte, error) {
 // The last entry in the slice is the latest firmware update to which one can upgrade.
 // The other entries are intermediate upgrades that are required before upgrading to the latest one.
 // Each one has to be flashed and booted before being able to continue upgrading.
-// The intermediate upgrades, when run, bump the monotonic version by one so we know whether it has
-// booted/run at least once.
+// By default, an intermediate upgrade signals that it booted by bumping the monotonic firmware
+// version by one. Bootloader-upgrade intermediates can instead set completionBootloaderVersion to
+// signal completion through the bootloader version.
 var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 	// BitBox02
 	bitbox02common.ProductBitBox02Multi: {
@@ -83,6 +97,12 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 			version:          semver.NewSemVer(9, 17, 1),
 			monotonicVersion: 36,
 			binaryGzip:       intermediateFirmwareBinaryMulti_9_17_1,
+		},
+		{
+			version:                     semver.NewSemVer(9, 26, 2),
+			monotonicVersion:            50,
+			completionBootloaderVersion: semver.NewSemVer(1, 2, 2),
+			binaryGzip:                  intermediateFirmwareBinaryMulti_9_26_2,
 		},
 		{
 			version:          firmwareVersionMulti,
@@ -97,6 +117,12 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 			binaryGzip:       intermediateFirmwareBinaryBTCOnly_9_17_1,
 		},
 		{
+			version:                     semver.NewSemVer(9, 26, 2),
+			monotonicVersion:            50,
+			completionBootloaderVersion: semver.NewSemVer(1, 2, 2),
+			binaryGzip:                  intermediateFirmwareBinaryBTCOnly_9_26_2,
+		},
+		{
 			version:          firmwareVersionBTCOnly,
 			monotonicVersion: firmwareMonotonicVersionBtcOnly,
 			binaryGzip:       firmwareBinaryBTCOnly,
@@ -105,12 +131,24 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 	// BitBox02 Plus.
 	bitbox02common.ProductBitBox02PlusMulti: {
 		{
+			version:                     semver.NewSemVer(9, 26, 2),
+			monotonicVersion:            50,
+			completionBootloaderVersion: semver.NewSemVer(1, 2, 2),
+			binaryGzip:                  intermediateFirmwareBB02PlusBinaryMulti_9_26_2,
+		},
+		{
 			version:          firmwareBB02PlusVersionMulti,
 			monotonicVersion: firmwareBB02PlusMonotonicVersionMulti,
 			binaryGzip:       firmwareBB02PlusBinaryMulti,
 		},
 	},
 	bitbox02common.ProductBitBox02PlusBTCOnly: {
+		{
+			version:                     semver.NewSemVer(9, 26, 2),
+			monotonicVersion:            50,
+			completionBootloaderVersion: semver.NewSemVer(1, 2, 2),
+			binaryGzip:                  intermediateFirmwareBB02PlusBinaryBTCOnly_9_26_2,
+		},
 		{
 			version:          firmwareBB02PlusVersionBTCOnly,
 			monotonicVersion: firmwareBB02PlusMonotonicVersionBtcOnly,
@@ -153,4 +191,40 @@ func nextFirmware(product bitbox02common.Product, currentFirmwareVersion uint32)
 		}
 	}
 	return &firmwares[len(firmwares)-1], nil
+}
+
+// continuesUpgrade reports whether this intermediate upgrade completed and the
+// upgrade flow should continue with the next bundled firmware.
+//
+// Legacy intermediates signal completion by incrementing the monotonic firmware
+// version. Bootloader intermediates keep the same firmware version and signal
+// completion through the bootloader version.
+func (fi firmwareInfo) continuesUpgrade(
+	currentFirmwareVersion uint32,
+	bootloaderVersion *semver.SemVer,
+) bool {
+	if fi.completionBootloaderVersion != nil {
+		return currentFirmwareVersion == fi.monotonicVersion &&
+			bootloaderVersion.AtLeast(fi.completionBootloaderVersion)
+	}
+	return currentFirmwareVersion == fi.monotonicVersion+1
+}
+
+// bootRequired reports whether this intermediate firmware is installed but has
+// not completed yet, so the device must boot once before upgrading further.
+//
+// Legacy intermediates require a boot while currentFirmwareVersion still equals
+// fi.monotonicVersion, as legacy intermediates increment the montonic counter. Bootloader
+// intermediates require a boot until the bootloader version reaches completionBootloaderVersion.
+func (fi firmwareInfo) bootRequired(
+	currentFirmwareVersion uint32,
+	bootloaderVersion *semver.SemVer,
+) bool {
+	if currentFirmwareVersion != fi.monotonicVersion {
+		return false
+	}
+	if fi.completionBootloaderVersion != nil {
+		return !bootloaderVersion.AtLeast(fi.completionBootloaderVersion)
+	}
+	return true
 }

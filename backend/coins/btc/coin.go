@@ -120,11 +120,29 @@ func (coin *Coin) Initialize() {
 				status, err := coin.headers.Status()
 				if err != nil {
 					coin.log.WithError(err).Error("Could not get headers status")
+					coin.Notify(observable.Event{
+						Subject: fmt.Sprintf("coins/%s/headers/status", coin.code),
+						Action:  action.Replace,
+						Object: struct {
+							Success      bool   `json:"success"`
+							ErrorMessage string `json:"errorMessage,omitempty"`
+						}{
+							Success:      false,
+							ErrorMessage: err.Error(),
+						},
+					})
+					return
 				}
 				coin.Notify(observable.Event{
 					Subject: fmt.Sprintf("coins/%s/headers/status", coin.code),
 					Action:  action.Replace,
-					Object:  status,
+					Object: struct {
+						Success bool            `json:"success"`
+						Status  *headers.Status `json:"status"`
+					}{
+						Success: true,
+						Status:  status,
+					},
 				})
 			}
 		})

@@ -8,17 +8,20 @@ enum WidgetShared {
     static let invalidGeckoCurrencies: Set<String> = ["BTC", "sat"]
 
     static let supportedCoinCodes: Set<String> = ["btc", "ltc", "eth"]
+    static let freshPriceReloadFulfilledCleanupCount = 16
 
     enum Keys {
         static let sharedCurrency = "mainFiat"
         static let rawMainFiat = "rawMainFiat"
         static let sharedCoins = "activeCoins"
         static let selectedCoinIndex = "selectedCoinIndex"
+        static let freshPriceReloadFulfilledPrefix = "freshPriceReloadFulfilled"
+        static let freshPriceReloadRequestedToken = "freshPriceReloadRequestedToken"
     }
 
     enum Cache {
         static let priceDataPrefix = "cachedPriceData"
-        static let priceTTL: TimeInterval = 3600
+        static let priceTTL: TimeInterval = 10 * 60
     }
 
     static func normalizeCoinCode(_ code: String) -> String {
@@ -36,5 +39,9 @@ enum WidgetShared {
 
     static func cacheKey(for coinCode: String, currency: String) -> String {
         "\(Cache.priceDataPrefix)_\(normalizeCoinCode(coinCode))_\(currency.uppercased())"
+    }
+
+    static func freshPriceReloadFulfilledKey(for token: Int) -> String {
+        "\(Keys.freshPriceReloadFulfilledPrefix)_\(token)"
     }
 }

@@ -130,6 +130,9 @@ func (c *client) TransactionGet(txHash chainhash.Hash) (*wire.MsgTx, error) {
 	if err := tx.BtcDecode(bytes.NewReader(rawTx), 0, wire.WitnessEncoding); err != nil {
 		return nil, err
 	}
+	if txHash != tx.TxHash() {
+		return nil, errp.New("Response is unexpected (transaction hash mismatch)")
+	}
 	return tx, nil
 }
 

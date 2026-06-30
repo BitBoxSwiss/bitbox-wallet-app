@@ -134,7 +134,7 @@ func (s *transactionsSuite) updateAddressHistory(
 		s.notifierMock.On("Put", tx.TXHash[:]).Return(nil).Once()
 	}
 
-	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), txs)
+	s.Require().NoError(s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), txs))
 }
 
 func newTx(
@@ -199,6 +199,20 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	s.Require().Equal(expectedHeight, transactions[0].Height)
 	s.Require().NotNil(transactions[0].Timestamp)
 	s.Require().Equal(expectedTimestamp.UnixNano(), transactions[0].Timestamp.UnixNano())
+}
+
+func (s *transactionsSuite) TestUpdateAddressHistoryRejectsMismatchingTxHash() {
+	addresses, err := s.addressChain.EnsureAddresses()
+	s.Require().NoError(err)
+	address := addresses[0]
+	tx1 := newTx(chainhash.HashH(nil), 0, address, 123)
+	claimedTxHash := chainhash.HashH([]byte("claimed transaction"))
+	s.blockchainMock.transactions[claimedTxHash] = tx1
+
+	err = s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchainpkg.TxInfo{
+		{TXHash: blockchainpkg.TXHash(claimedTxHash), Height: 0},
+	})
+	s.Require().ErrorContains(err, "transaction hash mismatch")
 }
 
 // TestSpendableOutputs checks that the utxo set is correct. Only confirmed (or unconfirmed outputs

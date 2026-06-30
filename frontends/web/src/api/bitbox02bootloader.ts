@@ -3,11 +3,21 @@
 import { apiGet, apiPost } from '@/utils/request';
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 
+type TProduct =
+  'bitbox02-multi'
+  | 'bitbox02-btconly'
+  | 'bitbox02-plus-multi'
+  | 'bitbox02-plus-btconly';
+
 export type TStatus = {
   upgrading: boolean;
   errMsg?: string;
   progress: number;
   upgradeSuccessful: boolean;
+  erased: boolean;
+  product: TProduct;
+  // This is true if there is more than one upgrade to be performed (intermediate and final).
+  additionalUpgradeFollows: boolean;
 };
 
 export const getStatus = (
@@ -24,22 +34,13 @@ export const syncStatus = (deviceID: string) => {
   };
 };
 
-type TProduct =
-  'bitbox02-multi'
-  | 'bitbox02-btconly'
-  | 'bitbox02-plus-multi'
-  | 'bitbox02-plus-btconly';
-
 type TInfo = {
-  product: TProduct;
   // Indicates whether the device has any firmware already installed on it.
   // It is considered "erased" if there's no firmware, and it also happens
   // to be the state in which BitBox02 is shipped to customers.
   erased: boolean;
   // Indicates whether the user can install/upgrade firmware.
   canUpgrade: boolean;
-  // This is true if there is more than one upgrade to be performed (intermediate and final).
-  additionalUpgradeFollows: boolean;
 };
 
 export const getInfo = (

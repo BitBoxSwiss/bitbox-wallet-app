@@ -7,11 +7,19 @@ import { apiPost, apiGet } from '@/utils/request';
 
 export type BtcUnit = 'default' | 'sat';
 
-export type TStatus = {
+export type THeadersStatus = {
   targetHeight: number;
   tip: number;
   tipAtInitTime: number;
   tipHashHex: string;
+};
+
+export type TStatus = {
+  success: true;
+  status: THeadersStatus;
+} | {
+  success: false;
+  errorMessage: string;
 };
 
 export const subscribeCoinHeaders = (coinCode: CoinCode) => (

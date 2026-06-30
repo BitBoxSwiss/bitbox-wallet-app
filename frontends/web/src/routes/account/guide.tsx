@@ -30,8 +30,8 @@ export const AccountGuide = ({
       }} />
       {hasNoBalance && (
         <Entry key="accountSendDisabled" entry={{
-          text: t('guide.accountSendDisabled.text', { unit }),
-          title: t('guide.accountSendDisabled.title'),
+          text: t('guide.accountSendDisabled.text'),
+          title: t('guide.accountSendDisabled.title', { unit }),
         }} />
       )}
       <Entry key="accountReload" entry={{

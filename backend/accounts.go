@@ -310,7 +310,7 @@ type coinFormattedAmount struct {
 
 // getCoinsTotalBalance returns the total balances grouped by coins.
 func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
-	var coinFormattedAmounts []coinFormattedAmount
+	coinFormattedAmounts := []coinFormattedAmount{}
 	var sortedCoins []coinpkg.Code
 	totalCoinsBalances := make(map[coinpkg.Code]*big.Int)
 

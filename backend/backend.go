@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime"
 	"slices"
@@ -980,18 +981,61 @@ func (backend *Backend) NotifyUser(text string) {
 	backend.environment.NotifyUser(text)
 }
 
+func isWhitelistedSystemOpenURL(rawURL string) bool {
+	parsedURL, err := url.Parse(rawURL)
+	if err != nil || parsedURL.User != nil {
+		return false
+	}
+	for _, whitelisted := range fixedURLWhitelist {
+		parsedWhitelisted, err := url.Parse(whitelisted)
+		if err != nil {
+			continue
+		}
+		// Some whitelisted URLs, such as app-settings:, do not have a host.
+		if parsedWhitelisted.Host == "" {
+			if rawURL == whitelisted {
+				return true
+			}
+			continue
+		}
+		if !strings.EqualFold(parsedURL.Scheme, parsedWhitelisted.Scheme) {
+			continue
+		}
+		if !strings.EqualFold(parsedURL.Hostname(), parsedWhitelisted.Hostname()) {
+			continue
+		}
+		port := parsedURL.Port()
+		if port != "" && port != "443" {
+			continue
+		}
+		requestedPath := parsedURL.Path
+		if requestedPath != "" {
+			requestedPath = path.Clean(requestedPath)
+		}
+		whitelistedPath := parsedWhitelisted.Path
+		if whitelistedPath != "" {
+			whitelistedPath = path.Clean(whitelistedPath)
+		}
+		whitelistedPath = strings.TrimRight(whitelistedPath, "/")
+		if whitelistedPath == "" ||
+			requestedPath == whitelistedPath ||
+			strings.HasPrefix(requestedPath, whitelistedPath+"/") {
+			return true
+		}
+	}
+	return false
+}
+
 // SystemOpen opens the given URL using backend.environment.
-// It consults fixedURLWhitelist, matching the URL with each whitelist item.
-// If an item is a prefix of url, it is allowed to be openend.
+// It consults fixedURLWhitelist, matching scheme and host exactly. The path must
+// match the whitelisted path exactly or be within it.
 //
 // If none matched, an ad-hoc URL construction failed or opening a URL failed,
 // an error is returned.
 func (backend *Backend) SystemOpen(url string) error {
 	backend.log.Infof("SystemOpen: attempting to open url: %v", url)
-	for _, whitelisted := range fixedURLWhitelist {
-		if strings.HasPrefix(url, whitelisted) {
-			return backend.environment.SystemOpen(url)
-		}
+	if isWhitelistedSystemOpenURL(url) {
+		return backend.environment.SystemOpen(url)
 	}
 
 	return errp.Newf("Blocked /open with url: %s", url)
