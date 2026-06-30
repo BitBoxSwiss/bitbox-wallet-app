@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TAmountWithConversions } from '@/api/account';
-import { getBtcSatsAmount } from '@/api/coins';
+import type { TAmountWithConversions } from '@/api/account';
+import { getBtcSatAmount } from '@/api/coins';
 import { TPaymentInputType, TPreparePaymentResponse } from '@/api/lightning';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -21,7 +21,7 @@ const useInvoiceAmount = (amountSat?: number) => {
       return;
     }
 
-    getBtcSatsAmount(amountSat.toString())
+    getBtcSatAmount({ source: 'sat', amount: amountSat.toString() })
       .then((response) => {
         if (mounted.current && response.success) {
           setInvoiceAmount(response.amount);
