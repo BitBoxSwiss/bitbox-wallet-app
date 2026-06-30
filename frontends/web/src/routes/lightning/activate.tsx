@@ -80,7 +80,7 @@ export const LightningActivate = () => {
   }, [activateLightning, activationStarted, step]);
 
   useEffect(() => {
-    if (step === 'confirm' && activationStarted && lightningAccount !== null) {
+    if (step === 'confirm' && activationStarted && lightningAccount) {
       setStep('activating');
     }
   }, [activationStarted, lightningAccount, step]);

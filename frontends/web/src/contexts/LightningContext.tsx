@@ -4,7 +4,8 @@ import { createContext } from 'react';
 import { TLightningAccount } from '@/api/lightning';
 
 type Props = {
-  lightningAccount: TLightningAccount | null;
+  isLightningReady: boolean | undefined;
+  lightningAccount: TLightningAccount | null | undefined;
 };
 
 export const LightningContext = createContext<Props>({} as Props);

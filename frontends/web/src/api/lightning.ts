@@ -133,6 +133,10 @@ export const getLightningAccount = async (): Promise<TLightningAccount | null> =
   return apiGet('lightning/account');
 };
 
+export const getLightningReady = async (): Promise<boolean> => {
+  return getApiResponse<boolean>('lightning/ready', 'Error calling getLightningReady');
+};
+
 export const postActivate = async (): Promise<void> => {
   return postApiResponse<void, undefined>('lightning/activate', undefined, 'Error calling postActivate');
 };
@@ -179,6 +183,10 @@ export const getReceivePayment = async (params: TReceivePaymentRequest): Promise
 
 export const subscribeLightningAccount = (cb: TSubscriptionCallback<TLightningAccount | null>): TUnsubscribe => {
   return subscribeEndpoint('lightning/account', cb);
+};
+
+export const subscribeLightningReady = (cb: TSubscriptionCallback<boolean>): TUnsubscribe => {
+  return subscribeEndpoint('lightning/ready', cb);
 };
 
 export const subscribeListPayments = (cb: TSubscriptionCallback<TLightningPayment[]>) => {

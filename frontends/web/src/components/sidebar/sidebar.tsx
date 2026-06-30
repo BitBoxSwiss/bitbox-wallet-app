@@ -148,7 +148,7 @@ const Sidebar = ({
           </div>
         ) : null }
 
-        {lightningAccount !== null && (
+        {lightningAccount && (
           <GetLightningLink key="lightning" handleSidebarItemClick={handleSidebarItemClick} />
         )}
 
