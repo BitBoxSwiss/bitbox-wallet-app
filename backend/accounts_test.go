@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
@@ -64,6 +63,28 @@ func checkShownAccountsLen(t *testing.T, b *Backend, expectedLoaded int, expecte
 		}
 	}
 	require.Equal(t, expectedPersisted, cntPersisted)
+}
+
+// installSyncedAccountMocks configures test account constructors whose Synced methods are controlled
+// by the returned map. Tests use this to model startup sync progress without network activity.
+func installSyncedAccountMocks(t *testing.T, b *Backend) map[accountsTypes.Code]bool {
+	t.Helper()
+	synced := map[accountsTypes.Code]bool{}
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
+		accountMock := MockBtcAccount(t, config, coin, gapLimits, log)
+		accountMock.SyncedFunc = func() bool {
+			return synced[config.Config.Code]
+		}
+		return accountMock
+	}
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
+		accountMock := MockEthAccount(config, coin, httpClient, log)
+		accountMock.SyncedFunc = func() bool {
+			return synced[config.Config.Code]
+		}
+		return accountMock
+	}
+	return synced
 }
 
 // TestAccounts performs a series of typical actions related accounts.
@@ -1077,6 +1098,228 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-6"))
 }
 
+// TestHiddenDiscoveryStartsAfterVisibleAccountsSynced verifies the startup priority rule: hidden
+// discovery does not create scanning accounts while any visible account is still doing initial sync.
+func TestHiddenDiscoveryStartsAfterVisibleAccountsSynced(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	synced := installSyncedAccountMocks(t, b)
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-1"))
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-ltc-1"))
+
+	synced["v0-55555555-btc-0"] = true
+	synced["v0-55555555-eth-0"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-btc-0"), true)
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-eth-0"), true)
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-1"))
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-ltc-1"))
+
+	synced["v0-55555555-ltc-0"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-ltc-0"), true)
+	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-1"))
+	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-ltc-1"))
+}
+
+// TestHiddenDiscoveryAdvancesOnlySyncedCoin verifies that after startup discovery has opened, a
+// hidden account sync only advances discovery for its own coin and non-discovery coins are ignored.
+func TestHiddenDiscoveryAdvancesOnlySyncedCoin(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	synced := installSyncedAccountMocks(t, b)
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	synced["v0-55555555-btc-0"] = true
+	synced["v0-55555555-ltc-0"] = true
+	synced["v0-55555555-eth-0"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-btc-0"), true)
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-ltc-0"), true)
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-eth-0"), true)
+	require.NotNil(t, b.Accounts().lookup("v0-55555555-btc-1"))
+	require.NotNil(t, b.Accounts().lookup("v0-55555555-ltc-1"))
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-2"))
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-ltc-2"))
+
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-eth-1"))
+
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-btc-1"), true)
+	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-2"))
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-ltc-2"))
+}
+
+// TestHiddenDiscoveryStartsAfterNonFatalTransactionError verifies that a transient transaction
+// loading error does not keep hidden discovery closed after visible accounts have synced.
+func TestHiddenDiscoveryStartsAfterNonFatalTransactionError(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	synced := installSyncedAccountMocks(t, b)
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	synced["v0-55555555-btc-0"] = true
+	synced["v0-55555555-ltc-0"] = true
+	synced["v0-55555555-eth-0"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-btc-0"), true)
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-eth-0"), true)
+	ltcAccount := b.Accounts().lookup("v0-55555555-ltc-0")
+	ltcAccount.(*accountsMocks.InterfaceMock).TransactionsFunc = func() (accounts.OrderedTransactions, error) {
+		return nil, errp.New("transactions unavailable")
+	}
+
+	b.tstCheckAccountUsed = nil
+	b.checkAccountUsed(ltcAccount)
+	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-1"))
+	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-ltc-1"))
+}
+
+// TestHiddenDiscoveryRefreshesVisibleAccountsAfterReinitialize verifies that account changes before
+// hidden discovery starts are included in the visible startup gate.
+func TestHiddenDiscoveryRefreshesVisibleAccountsAfterReinitialize(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	synced := installSyncedAccountMocks(t, b)
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	synced["v0-55555555-btc-0"] = true
+	synced["v0-55555555-ltc-0"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-btc-0"), true)
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-ltc-0"), true)
+
+	newAccountCode, err := b.CreateAndPersistAccountConfig(coinpkg.CodeBTC, "new account", ks)
+	require.NoError(t, err)
+	require.Equal(t, accountsTypes.Code("v0-55555555-btc-1"), newAccountCode)
+
+	synced["v0-55555555-eth-0"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-eth-0"), true)
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-2"))
+
+	synced["v0-55555555-btc-1"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-btc-1"), true)
+	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-2"))
+}
+
+// TestHiddenDiscoveryIgnoresStaleAccountAfterReinitialize verifies that an old runtime account
+// callback cannot satisfy the refreshed visible startup gate after accounts are rebuilt.
+func TestHiddenDiscoveryIgnoresStaleAccountAfterReinitialize(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	synced := installSyncedAccountMocks(t, b)
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+
+	staleEthAccount := b.Accounts().lookup("v0-55555555-eth-0")
+	synced["v0-55555555-btc-0"] = true
+	synced["v0-55555555-ltc-0"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-btc-0"), true)
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-ltc-0"), true)
+
+	newAccountCode, err := b.CreateAndPersistAccountConfig(coinpkg.CodeBTC, "new account", ks)
+	require.NoError(t, err)
+	require.Equal(t, accountsTypes.Code("v0-55555555-btc-1"), newAccountCode)
+
+	synced["v0-55555555-eth-0"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(staleEthAccount, true)
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-2"))
+
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-eth-0"), true)
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-2"))
+
+	synced["v0-55555555-btc-1"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-btc-1"), true)
+	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-2"))
+}
+
+// TestHiddenDiscoveryStartsAfterERC20TokenWithTransactions verifies that runtime-only token accounts
+// do not block hidden discovery after their transaction history has been classified.
+func TestHiddenDiscoveryStartsAfterERC20TokenWithTransactions(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	synced := installSyncedAccountMocks(t, b)
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	b.registerKeystore(ks)
+	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", true))
+
+	synced["v0-55555555-btc-0"] = true
+	synced["v0-55555555-ltc-0"] = true
+	synced["v0-55555555-eth-0"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-btc-0"), true)
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-ltc-0"), true)
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-eth-0"), true)
+	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-1"))
+
+	tokenAccountCode := accountsTypes.Code("v0-55555555-eth-0-eth-erc20-usdt")
+	synced[tokenAccountCode] = true
+	tokenAccount := b.Accounts().lookup(tokenAccountCode)
+	tokenAccount.(*accountsMocks.InterfaceMock).TransactionsFunc = func() (accounts.OrderedTransactions, error) {
+		return accounts.OrderedTransactions{&accounts.TransactionData{}}, nil
+	}
+
+	b.tstCheckAccountUsed = nil
+	b.checkAccountUsed(tokenAccount)
+	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-1"))
+	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-ltc-1"))
+}
+
+// TestPersistedHiddenDiscoveryAccountsWaitForVisibleSync verifies that hidden accounts from a
+// previous run are not initialized during registration before visible accounts have priority.
+func TestPersistedHiddenDiscoveryAccountsWaitForVisibleSync(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	synced := installSyncedAccountMocks(t, b)
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) {
+		return rootFingerprint1, nil
+	}
+	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+		if err := b.persistDefaultAccountConfigs(ks, cfg); err != nil {
+			return err
+		}
+		_, err := b.createAndPersistAccountConfig(coinpkg.CodeBTC, 1, true, "", ks, nil, cfg)
+		return err
+	}))
+
+	b.registerKeystore(ks)
+	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-1"))
+	require.Nil(t, b.Accounts().lookup("v0-55555555-btc-1"))
+
+	synced["v0-55555555-btc-0"] = true
+	synced["v0-55555555-ltc-0"] = true
+	synced["v0-55555555-eth-0"] = true
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-ltc-0"), true)
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-eth-0"), true)
+	b.updateHiddenDiscoveryAfterAccountSync(b.Accounts().lookup("v0-55555555-btc-0"), true)
+	require.NotNil(t, b.Accounts().lookup("v0-55555555-btc-1"))
+}
+
 func TestWatchonly(t *testing.T) {
 	// No watchonly - accounts are loaded when registering keystore and unloaded when deregistering
 	// keystore.
@@ -1117,18 +1360,8 @@ func TestWatchonly(t *testing.T) {
 		rootFingerprint, err := ks.RootFingerprint()
 		require.NoError(t, err)
 
-		hiddenAccountsAdded := make(chan struct{})
-		b.tstMaybeAddHiddenUnusedAccounts = func() {
-			close(hiddenAccountsAdded)
-		}
-
 		b.registerKeystore(ks)
-
-		select {
-		case <-hiddenAccountsAdded:
-		case <-time.After(5 * time.Second):
-			require.Fail(t, "expected hidden accounts to be added")
-		}
+		b.maybeAddHiddenUnusedAccounts()
 
 		require.Greater(t, len(b.Config().AccountsConfig().Accounts), 3)
 
@@ -1286,13 +1519,6 @@ func TestWatchonly(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 
-		// registering a keystore calls `go maybeAddHiddenunusedAccounts()` - we need wait for it to
-		// complete to avoid race conditions in this test about which account is added at what time.
-		hiddenAccountsAdded := make(chan struct{})
-		b.tstMaybeAddHiddenUnusedAccounts = func() {
-			close(hiddenAccountsAdded)
-		}
-
 		ks := makeBitBox02Multi()
 		ks.RootFingerprintFunc = func() ([]byte, error) {
 			return rootFingerprint1, nil
@@ -1304,15 +1530,8 @@ func TestWatchonly(t *testing.T) {
 		b.registerKeystore(ks)
 		checkShownAccountsLen(t, b, 3, 3)
 
-		select {
-		case <-hiddenAccountsAdded:
-		case <-time.After(5 * time.Second):
-			require.Fail(t, "expected hidden accounts to be added")
-		}
-
 		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 
-		// An account has already been added as part of autodiscover, so we add two.
 		newAccountCode1, err := b.CreateAndPersistAccountConfig(
 			coinpkg.CodeBTC,
 			"Bitcoin account name",
