@@ -918,6 +918,8 @@
     "aoppVersion": "Unknown version.",
     "keystoreTimeout": "Wallet request expired. Please try again.",
     "lightningInsufficientFunds": "Insufficient funds in your Lightning wallet.",
+    "lightningInvalidAmount": "Invalid amount.",
+    "lightningInvalidPaymentInput": "Invalid invoice or payment request.",
     "lightningInvoiceAlreadyUsed": "This Lightning invoice was already used. Please request a new invoice.",
     "paymentApprovalRequired": "Payment fee increased. Please review and approve again.",
     "wrongKeystore": "Wrong wallet connected. Please make sure to insert the correct device matching this account.",
@@ -1657,6 +1659,9 @@
       },
       "invoice": {
         "input": "Or paste your invoice here"
+      },
+      "lnurlPay": {
+        "invalidAmount": "Enter an amount between {{minAmount}} and {{maxAmount}} sats."
       },
       "qrCode": {
         "label": "Scan lightning invoice"

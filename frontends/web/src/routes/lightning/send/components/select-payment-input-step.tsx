@@ -16,22 +16,22 @@ type TProps = {
   onSubmit: (input: string) => Promise<boolean>;
 };
 
-export const SelectInvoiceStep = ({
+export const SelectPaymentInputStep = ({
   inputError,
   onCancel,
   onSubmit,
 }: TProps) => {
   const { t } = useTranslation();
-  const [invoiceInput, setInvoiceInput] = useState('');
+  const [paymentInput, setPaymentInput] = useState('');
 
   const scanQRVideo = useMemo(() => (
     <ScanQRVideo onResult={(result: string) => void onSubmit(result)} />
   ), [onSubmit]);
 
-  const submitInvoiceInput = async () => {
-    const success = await onSubmit(invoiceInput);
+  const submitPaymentInput = async () => {
+    const success = await onSubmit(paymentInput);
     if (success) {
-      setInvoiceInput('');
+      setPaymentInput('');
     }
   };
 
@@ -47,15 +47,15 @@ export const SelectInvoiceStep = ({
             {scanQRVideo}
             <Input
               placeholder={t('lightning.send.invoice.input')}
-              onInput={(event: ChangeEvent<HTMLInputElement>) => setInvoiceInput(event.target.value)}
-              value={invoiceInput}
+              onInput={(event: ChangeEvent<HTMLInputElement>) => setPaymentInput(event.target.value)}
+              value={paymentInput}
               autoFocus={!runningInAndroid() && !runningInIOS()}
             />
           </Column>
         </Grid>
       </ViewContent>
       <ViewButtons>
-        <Button disabled={!invoiceInput} primary onClick={submitInvoiceInput}>
+        <Button disabled={!paymentInput} primary onClick={submitPaymentInput}>
           {t('generic.send')}
         </Button>
         <Button secondary onClick={onCancel}>

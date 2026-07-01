@@ -3,6 +3,7 @@
 package lightning
 
 import (
+	"encoding/json"
 	"errors"
 	"math/big"
 	"strconv"
@@ -16,20 +17,32 @@ import (
 )
 
 const (
-	errPaymentApprovalRequired     errp.ErrorCode = "paymentApprovalRequired"
-	errLightningInsufficientFunds  errp.ErrorCode = "lightningInsufficientFunds"
-	errLightningInvoiceAlreadyUsed errp.ErrorCode = "lightningInvoiceAlreadyUsed"
+	errPaymentApprovalRequired      errp.ErrorCode = "paymentApprovalRequired"
+	errLightningInvalidAmount       errp.ErrorCode = "lightningInvalidAmount"
+	errLightningInvalidPaymentInput errp.ErrorCode = "lightningInvalidPaymentInput"
+	errLightningInsufficientFunds   errp.ErrorCode = "lightningInsufficientFunds"
+	errLightningInvoiceAlreadyUsed  errp.ErrorCode = "lightningInvoiceAlreadyUsed"
 )
 
-type lightningInvoice struct {
-	Bolt11      string  `json:"bolt11"`
+type lightningBolt11Invoice struct {
+	Invoice     string  `json:"invoice"`
 	Description *string `json:"description,omitempty"`
 	AmountSat   *uint64 `json:"amountSat,omitempty"`
 }
 
-type parsePaymentInputResponse struct {
-	Type    string           `json:"type"`
-	Invoice lightningInvoice `json:"invoice"`
+type lightningLNURLPay struct {
+	Input        string  `json:"input"`
+	Address      *string `json:"address,omitempty"`
+	Domain       string  `json:"domain"`
+	Description  *string `json:"description,omitempty"`
+	MinAmountSat uint64  `json:"minAmountSat"`
+	MaxAmountSat uint64  `json:"maxAmountSat"`
+}
+
+type paymentInput struct {
+	Type     string                  `json:"type"`
+	Bolt11   *lightningBolt11Invoice `json:"invoice,omitempty"`
+	LNURLPay *lightningLNURLPay      `json:"lnurlPay,omitempty"`
 }
 
 type lightningPayment struct {
@@ -50,12 +63,14 @@ type receivePaymentResponse struct {
 }
 
 type preparePaymentRequest struct {
-	Bolt11    string  `json:"bolt11"`
-	AmountSat *uint64 `json:"amountSat"`
+	Type         string  `json:"type"`
+	PaymentInput string  `json:"paymentInput"`
+	AmountSat    *uint64 `json:"amountSat,omitempty"`
 }
 
 type sendPaymentRequest struct {
-	Bolt11         string  `json:"bolt11"`
+	Type           string  `json:"type"`
+	PaymentInput   string  `json:"paymentInput"`
 	AmountSat      *uint64 `json:"amountSat"`
 	ApprovedFeeSat uint64  `json:"approvedFeeSat"`
 }
@@ -66,14 +81,73 @@ type paymentFee struct {
 	TotalDebitSat uint64 `json:"totalDebitSat"`
 }
 
+const (
+	paymentInputTypeBolt11   = "bolt11"
+	paymentInputTypeLNURLPay = "lnurlPay"
+)
+
+type msatToSatRounding int
+
+const (
+	roundToFloor msatToSatRounding = iota
+	roundToCeil
+)
+
+func msatToSat(msat uint64, rounding msatToSatRounding) uint64 {
+	if rounding == roundToCeil {
+		return (msat + 999) / 1000
+	}
+	return msat / 1000
+}
+
+func validateLNURLPayAmount(payRequest breez_sdk_spark.LnurlPayRequestDetails, amountSat uint64) error {
+	if amountSat == 0 {
+		return errLightningInvalidAmount
+	}
+	if amountSat < msatToSat(payRequest.MinSendable, roundToCeil) ||
+		amountSat > msatToSat(payRequest.MaxSendable, roundToFloor) {
+		return errLightningInvalidAmount
+	}
+	return nil
+}
+
+func lnurlPayDescription(metadataStr string) *string {
+	var metadata [][]string
+	if err := json.Unmarshal([]byte(metadataStr), &metadata); err != nil {
+		return nil
+	}
+	for _, entry := range metadata {
+		// LUD-06 requires a text/plain entry:
+		// https://github.com/lnurl/luds/blob/luds/06.md
+		// Use the first valid one as the payment description and ignore malformed entries.
+		if len(entry) >= 2 && entry[0] == "text/plain" {
+			description := entry[1]
+			return &description
+		}
+	}
+	return nil
+}
+
+func toLightningLNURLPay(inputStr string, payRequest breez_sdk_spark.LnurlPayRequestDetails) lightningLNURLPay {
+	return lightningLNURLPay{
+		Input:        inputStr,
+		Address:      payRequest.Address,
+		Domain:       payRequest.Domain,
+		Description:  lnurlPayDescription(payRequest.MetadataStr),
+		MinAmountSat: msatToSat(payRequest.MinSendable, roundToCeil),
+		MaxAmountSat: msatToSat(payRequest.MaxSendable, roundToFloor),
+	}
+}
+
 // ParsePaymentInput validates and classifies a lightning input string.
-func (lightning *Lightning) ParsePaymentInput(inputStr string) (*parsePaymentInputResponse, error) {
+func (lightning *Lightning) ParsePaymentInput(inputStr string) (*paymentInput, error) {
 	if err := lightning.CheckActive(); err != nil {
 		return nil, err
 	}
 	input, err := lightning.sdkService.Parse(inputStr)
 	if err != nil {
-		return nil, err
+		lightning.log.WithError(err).Error("Parse lightning payment input failed")
+		return nil, errLightningInvalidPaymentInput
 	}
 
 	switch inputType := input.(type) {
@@ -85,14 +159,14 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*parsePaymentInp
 		var amountSat *uint64
 		if inputType.Field0.AmountMsat != nil {
 			amount = strconv.FormatUint(*inputType.Field0.AmountMsat, 10)
-			value := *inputType.Field0.AmountMsat / 1000
+			value := msatToSat(*inputType.Field0.AmountMsat, roundToCeil)
 			amountSat = &value
 		}
 		lightning.log.Printf("Input is BOLT11 invoice for %s msats", amount)
-		return &parsePaymentInputResponse{
-			Type: "bolt11",
-			Invoice: lightningInvoice{
-				Bolt11:      inputType.Field0.Invoice.Bolt11,
+		return &paymentInput{
+			Type: paymentInputTypeBolt11,
+			Bolt11: &lightningBolt11Invoice{
+				Invoice:     inputType.Field0.Invoice.Bolt11,
 				Description: inputType.Field0.Description,
 				AmountSat:   amountSat,
 			},
@@ -101,6 +175,21 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*parsePaymentInp
 	case breez_sdk_spark.InputTypeLnurlPay:
 		lightning.log.Printf("Input is LNURL-Pay/Lightning address accepting min/max %d/%d msats",
 			inputType.Field0.MinSendable, inputType.Field0.MaxSendable)
+		lnurlPay := toLightningLNURLPay(inputStr, inputType.Field0)
+		return &paymentInput{
+			Type:     paymentInputTypeLNURLPay,
+			LNURLPay: &lnurlPay,
+		}, nil
+
+	case breez_sdk_spark.InputTypeLightningAddress:
+		lightning.log.Printf("Input is Lightning address %s accepting min/max %d/%d msats",
+			inputType.Field0.Address, inputType.Field0.PayRequest.MinSendable, inputType.Field0.PayRequest.MaxSendable)
+		lnurlPay := toLightningLNURLPay(inputStr, inputType.Field0.PayRequest)
+		lnurlPay.Address = &inputType.Field0.Address
+		return &paymentInput{
+			Type:     paymentInputTypeLNURLPay,
+			LNURLPay: &lnurlPay,
+		}, nil
 
 	case breez_sdk_spark.InputTypeLnurlWithdraw:
 		lightning.log.Printf("Input is LNURL-Withdraw for min/max %d/%d msats",
@@ -132,7 +221,6 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*parsePaymentInp
 
 	default:
 		lightning.log.Errorf("Input type not supported %T", input)
-		return nil, errp.New("Invoice format not supported")
 	}
 	return nil, errp.New("Invoice format not supported")
 }
@@ -216,7 +304,7 @@ func parseLightningUint(value interface{ String() string }) uint64 {
 	return parsed
 }
 
-func prepareSendPaymentRequest(paymentInvoice string, amount *uint64) breez_sdk_spark.PrepareSendPaymentRequest {
+func prepareBolt11PaymentRequest(paymentInvoice string, amount *uint64) breez_sdk_spark.PrepareSendPaymentRequest {
 	request := breez_sdk_spark.PrepareSendPaymentRequest{
 		PaymentRequest: paymentInvoice,
 	}
@@ -227,7 +315,17 @@ func prepareSendPaymentRequest(paymentInvoice string, amount *uint64) breez_sdk_
 	return request
 }
 
-func preparedPaymentFee(prepareResponse breez_sdk_spark.PrepareSendPaymentResponse) (*paymentFee, error) {
+func prepareLNURLPayRequest(
+	payRequest breez_sdk_spark.LnurlPayRequestDetails,
+	amount uint64,
+) breez_sdk_spark.PrepareLnurlPayRequest {
+	return breez_sdk_spark.PrepareLnurlPayRequest{
+		Amount:     new(big.Int).SetUint64(amount),
+		PayRequest: payRequest,
+	}
+}
+
+func preparedBolt11PaymentFee(prepareResponse breez_sdk_spark.PrepareSendPaymentResponse) (*paymentFee, error) {
 	if paymentMethod, ok := prepareResponse.PaymentMethod.(breez_sdk_spark.SendPaymentMethodBolt11Invoice); ok {
 		amountSat := parseLightningUint(prepareResponse.Amount)
 		feeSat := paymentMethod.LightningFeeSats
@@ -238,6 +336,14 @@ func preparedPaymentFee(prepareResponse breez_sdk_spark.PrepareSendPaymentRespon
 		}, nil
 	}
 	return nil, errp.Newf("Payment method %v not supported", prepareResponse.PaymentMethod)
+}
+
+func preparedLNURLPayFee(prepareResponse breez_sdk_spark.PrepareLnurlPayResponse) *paymentFee {
+	return &paymentFee{
+		AmountSat:     prepareResponse.AmountSats,
+		FeeSat:        prepareResponse.FeeSats,
+		TotalDebitSat: prepareResponse.AmountSats + prepareResponse.FeeSats,
+	}
 }
 
 func checkApprovedPaymentFee(fee uint64, approvedFee uint64) error {
@@ -269,18 +375,46 @@ func lightningPaymentError(err error) error {
 	return err
 }
 
-// PreparePayment computes the fee quote for the provided payment request.
-func (lightning *Lightning) PreparePayment(paymentInvoice string, amountSat *uint64) (*paymentFee, error) {
+func (lightning *Lightning) parseLNURLPayRequest(inputStr string) (*breez_sdk_spark.LnurlPayRequestDetails, error) {
+	input, err := lightning.sdkService.Parse(inputStr)
+	if err != nil {
+		lightning.log.WithError(err).Error("Parse LNURL-Pay request failed")
+		return nil, errLightningInvalidPaymentInput
+	}
+
+	switch inputType := input.(type) {
+	case breez_sdk_spark.InputTypeLnurlPay:
+		return &inputType.Field0, nil
+	case breez_sdk_spark.InputTypeLightningAddress:
+		return &inputType.Field0.PayRequest, nil
+	default:
+		return nil, errLightningInvalidPaymentInput
+	}
+}
+
+// PreparePayment computes the fee quote for the provided payment input.
+func (lightning *Lightning) PreparePayment(request preparePaymentRequest) (*paymentFee, error) {
+	switch request.Type {
+	case paymentInputTypeBolt11:
+		return lightning.prepareBolt11Payment(request.PaymentInput, request.AmountSat)
+	case paymentInputTypeLNURLPay:
+		return lightning.prepareLNURLPay(request.PaymentInput, request.AmountSat)
+	default:
+		return nil, errp.New("Payment type not supported")
+	}
+}
+
+func (lightning *Lightning) prepareBolt11Payment(paymentInvoice string, amountSat *uint64) (*paymentFee, error) {
 	if err := lightning.CheckActive(); err != nil {
 		return nil, err
 	}
-	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareSendPaymentRequest(paymentInvoice, amountSat))
+	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareBolt11PaymentRequest(paymentInvoice, amountSat))
 	if err != nil {
 		lightning.log.WithError(err).Error("Prepare lightning payment failed")
 		return nil, lightningPaymentError(err)
 	}
 
-	fee, err := preparedPaymentFee(prepareResponse)
+	fee, err := preparedBolt11PaymentFee(prepareResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -295,27 +429,79 @@ func (lightning *Lightning) PreparePayment(paymentInvoice string, amountSat *uin
 	return fee, nil
 }
 
-// SendPayment executes a payment for the provided payment request.
-func (lightning *Lightning) SendPayment(paymentInvoice string, amount *uint64, approvedFee uint64) error {
+func (lightning *Lightning) prepareLNURLPay(inputStr string, amountSat *uint64) (*paymentFee, error) {
+	if err := lightning.CheckActive(); err != nil {
+		return nil, err
+	}
+	if amountSat == nil || *amountSat == 0 {
+		return nil, errLightningInvalidAmount
+	}
+
+	payRequest, err := lightning.parseLNURLPayRequest(inputStr)
+	if err != nil {
+		return nil, err
+	}
+	if err := validateLNURLPayAmount(*payRequest, *amountSat); err != nil {
+		return nil, err
+	}
+
+	prepareResponse, err := lightning.sdkService.PrepareLnurlPay(prepareLNURLPayRequest(*payRequest, *amountSat))
+	if err != nil {
+		lightning.log.WithError(err).Error("Prepare LNURL-Pay failed")
+		return nil, lightningPaymentError(err)
+	}
+
+	fee := preparedLNURLPayFee(prepareResponse)
+	balance, err := lightning.Balance()
+	if err != nil {
+		return nil, err
+	}
+	if err := checkPaymentBalance(fee, balance); err != nil {
+		return fee, err
+	}
+	lightning.log.Printf("LNURL-Pay Fee: %v sats", fee.FeeSat)
+	return fee, nil
+}
+
+// SendPayment executes the provided payment input.
+func (lightning *Lightning) SendPayment(request sendPaymentRequest) error {
+	switch request.Type {
+	case paymentInputTypeBolt11:
+		return lightning.sendBolt11Payment(request)
+	case paymentInputTypeLNURLPay:
+		return lightning.sendLNURLPay(request)
+	default:
+		return errp.New("Payment type not supported")
+	}
+}
+
+func (lightning *Lightning) sendBolt11Payment(request sendPaymentRequest) error {
 	if err := lightning.CheckActive(); err != nil {
 		return err
 	}
-	lightning.log.Infof("Sending payment to %+v", paymentInvoice)
-	if amount != nil {
-		lightning.log.Infof("Optional amount: %+v sat", *amount)
+	lightning.log.Infof("Sending payment to %+v", request.PaymentInput)
+	if request.AmountSat != nil {
+		lightning.log.Infof("Optional amount: %+v sat", *request.AmountSat)
 	}
 
-	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareSendPaymentRequest(paymentInvoice, amount))
+	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareBolt11PaymentRequest(request.PaymentInput, request.AmountSat))
 	if err != nil {
 		lightning.log.WithError(err).Error("Prepare send lightning payment failed")
 		return lightningPaymentError(err)
 	}
 
-	fee, err := preparedPaymentFee(prepareResponse)
+	fee, err := preparedBolt11PaymentFee(prepareResponse)
 	if err != nil {
 		return err
 	}
-	if err := checkApprovedPaymentFee(fee.FeeSat, approvedFee); err != nil {
+	if err := checkApprovedPaymentFee(fee.FeeSat, request.ApprovedFeeSat); err != nil {
+		return err
+	}
+	balance, err := lightning.Balance()
+	if err != nil {
+		return err
+	}
+	if err := checkPaymentBalance(fee, balance); err != nil {
 		return err
 	}
 
@@ -331,6 +517,53 @@ func (lightning *Lightning) SendPayment(paymentInvoice string, amount *uint64, a
 
 	if err != nil {
 		lightning.log.WithError(err).Error("Send lightning payment failed")
+		return lightningPaymentError(err)
+	}
+	return nil
+}
+
+func (lightning *Lightning) sendLNURLPay(request sendPaymentRequest) error {
+	if err := lightning.CheckActive(); err != nil {
+		return err
+	}
+	if request.AmountSat == nil || *request.AmountSat == 0 {
+		return errLightningInvalidAmount
+	}
+
+	lightning.log.Infof("Sending LNURL-Pay payment to %+v", request.PaymentInput)
+	lightning.log.Infof("Amount: %+v sat", *request.AmountSat)
+
+	payRequest, err := lightning.parseLNURLPayRequest(request.PaymentInput)
+	if err != nil {
+		return err
+	}
+	if err := validateLNURLPayAmount(*payRequest, *request.AmountSat); err != nil {
+		return err
+	}
+
+	prepareResponse, err := lightning.sdkService.PrepareLnurlPay(prepareLNURLPayRequest(*payRequest, *request.AmountSat))
+	if err != nil {
+		lightning.log.WithError(err).Error("Prepare LNURL-Pay failed")
+		return lightningPaymentError(err)
+	}
+
+	fee := preparedLNURLPayFee(prepareResponse)
+	if err := checkApprovedPaymentFee(fee.FeeSat, request.ApprovedFeeSat); err != nil {
+		return err
+	}
+	balance, err := lightning.Balance()
+	if err != nil {
+		return err
+	}
+	if err := checkPaymentBalance(fee, balance); err != nil {
+		return err
+	}
+
+	_, err = lightning.sdkService.LnurlPay(breez_sdk_spark.LnurlPayRequest{
+		PrepareResponse: prepareResponse,
+	})
+	if err != nil {
+		lightning.log.WithError(err).Error("Send LNURL-Pay failed")
 		return lightningPaymentError(err)
 	}
 	return nil

@@ -8,7 +8,6 @@ import { Button, Input, NumberInput, OptionalLabel } from '../../../components/f
 import {
   TLightningPayment,
   TReceivePaymentResponse,
-  TSdkError,
   getLightningAddress,
   getListPayments,
   getReceivePayment,
@@ -27,6 +26,7 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { CopyableInput } from '@/components/copy/Copy';
 import { useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
+import { toLightningErrorMessage } from '@/api/lightning-errors';
 import styles from './receive.module.css';
 
 type TStep = 'create-invoice' | 'wait' | 'invoice' | 'success';
@@ -165,11 +165,7 @@ export function Receive() {
       setStep('invoice');
     } catch (e) {
       setStep('create-invoice');
-      if (e instanceof TSdkError) {
-        setReceiveError(e.message);
-      } else {
-        setReceiveError(String(e));
-      }
+      setReceiveError(toLightningErrorMessage(t, e));
     }
   }, [description, invoiceAmountSat, t]);
 
