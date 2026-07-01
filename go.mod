@@ -3,7 +3,7 @@ module github.com/BitBoxSwiss/bitbox-wallet-app
 go 1.26.0
 
 require (
-	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260420184007-d546462995df
+	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260701210453-54ce69d38ae3
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d
 	github.com/breez/breez-sdk-spark-go v0.13.1
 	github.com/btcsuite/btcd v0.25.0
@@ -20,7 +20,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.4
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	github.com/tyler-smith/go-bip39 v1.1.0
 	go.etcd.io/bbolt v1.4.3
 	golang.org/x/crypto v0.46.0
