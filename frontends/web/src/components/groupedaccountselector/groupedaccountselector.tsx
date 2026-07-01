@@ -148,6 +148,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
       ? { label: t('buy.info.selectLabel'), value: 'choose', disabled: true }
       : options.flatMap(o => o.options).find(opt => opt.value === selected)
   );
+  const isProceedDisabled = disabled || !selectedOption || selectedOption.disabled;
 
   const renderOption = (option: TOption, isSelectedValue: boolean) => {
     const isStacked = stackedLayout && isSelectedValue;
@@ -207,7 +208,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
           <Button
             primary
             onClick={onProceed}
-            disabled={!selected || disabled}>
+            disabled={isProceedDisabled}>
             {t('buy.info.next')}
           </Button>
         </div>

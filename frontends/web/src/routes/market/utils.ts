@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TVendorName } from '@/api/market';
+import type { TAccount } from '@/api/account';
+
+export const getFallbackMarketAccountCode = (accounts: TAccount[]) => {
+  return accounts.find(account => account.keystore.connected)?.code
+    || accounts[0]?.code
+    || '';
+};
 
 /**
  * Gets formatted name for vendors.
