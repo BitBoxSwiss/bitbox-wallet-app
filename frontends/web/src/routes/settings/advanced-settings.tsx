@@ -13,6 +13,7 @@ import { EnableTorProxySetting } from './components/advanced-settings/enable-tor
 import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-software-keystore';
 import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
+import { ClearCacheSetting } from './components/advanced-settings/clear-cache-setting';
 import { CustomGapLimitSettings } from './components/advanced-settings/custom-gap-limit-setting';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
@@ -92,6 +93,7 @@ export const AdvancedSettingsContent = ({
           content: <UnlockSoftwareKeystore />,
         }] : []),
         { id: 'full-node', content: <ConnectFullNodeSetting /> },
+        { id: 'clear-cache', content: <ClearCacheSetting /> },
         ...(isExportLogsSettingVisible() ? [{
           id: 'export-logs',
           content: <ExportLogSetting />,
