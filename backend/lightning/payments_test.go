@@ -5,6 +5,7 @@ package lightning
 import (
 	"errors"
 	"math/big"
+	"os"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -33,7 +34,7 @@ func makeTestLightning() *Lightning {
 			"",
 			socksproxy.NewSocksProxy(false, ""),
 		),
-		ratesUpdater: rates.NewRateUpdater(nil, "/dev/null"),
+		ratesUpdater: rates.NewRateUpdater(nil, os.DevNull),
 	}
 }
 

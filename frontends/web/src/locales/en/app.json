@@ -452,6 +452,7 @@
     "previous": "Previous",
     "proceedOnBitBox": "Proceed on your BitBox",
     "restore": "Restore",
+    "review": "Review",
     "select": "Select",
     "unlock": "Unlock",
     "update": "Update",
@@ -1654,6 +1655,25 @@
       "major": "The Spark network is experiencing a major outage. Lightning payments may be unavailable.",
       "partial": "The Spark network is partially unavailable. Lightning payments may be unavailable.",
       "unknown": "The Spark network status is unknown. Lightning payments may be unavailable."
+    },
+    "topUp": {
+      "action": "Top up",
+      "available": "Available",
+      "confirm": {
+        "amount": "Amount",
+        "continue": "Continue on your BitBox.",
+        "networkFee": "Network fee",
+        "receiver": "Receiver",
+        "title": "Confirm and send transaction",
+        "total": "Total"
+      },
+      "from": "From",
+      "noBitcoinAccounts": "No Bitcoin accounts active. Please activate a Bitcoin account to top-up.",
+      "success": {
+        "message": "Top up created!"
+      },
+      "title": "Top up lightning wallet",
+      "to": "To"
     }
   },
   "loading": "loading…",
