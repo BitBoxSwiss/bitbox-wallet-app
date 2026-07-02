@@ -41,6 +41,16 @@ export const useVendorIframeResizeHeight = (): TVendorIframeResizeHeight => {
     };
   }, [onResize]);
 
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element || !('ResizeObserver' in window)) {
+      return;
+    }
+    const resizeObserver = new ResizeObserver(onResize);
+    resizeObserver.observe(element);
+    return () => resizeObserver.disconnect();
+  }, [onResize]);
+
   const onIframeLoad = useCallback(() => {
     setIframeLoaded(true);
     onResize();

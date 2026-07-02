@@ -6,7 +6,7 @@ import { SubTitle } from '@/components/title';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
-import { Header } from '@/components/layout';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Backups } from '@/routes/device/bitbox01/backups';
 import { BackupsV2 } from '@/routes/device/bitbox02/backups';
 import { SDCardCheck } from '@/routes/device/bitbox02/sdcardcheck';
@@ -27,9 +27,9 @@ export const ManageBackups = ({
   }
 
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer scrollableContainer">
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Header
             title={<h2>{t('backup.title')}</h2>}
           />
@@ -39,13 +39,13 @@ export const ManageBackups = ({
               devices={devices}
             />
           </div>
-        </div>
-      </div>
+        </Main>
+      </GuidedContent>
       <ManageBackupGuide
         deviceID={deviceID}
         devices={devices}
       />
-    </div>
+    </GuideWrapper>
   );
 };
 
