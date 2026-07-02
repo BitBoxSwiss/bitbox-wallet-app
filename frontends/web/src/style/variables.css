@@ -104,6 +104,8 @@
     --button-height: min(5rem, 70px);
     --input-height: min(5.2rem, 72px);
     --input-qr-button: min(4.2rem, 60px);
+    --input-second-icon-left: 32px;
+    --input-two-icons-padding-left: 80px;
 }
 
 :root,

@@ -4,9 +4,9 @@ import { ChangeEvent, useCallback, useContext, useMemo, useRef, useState } from 
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { getReceiveAddressList } from '@/api/account';
-import { debug } from '@/utils/env';
+import { debug, runningInIOS } from '@/utils/env';
 import { ReceiverAddressWrapper } from './receiver-address-wrapper';
-import { QRCodeLight, QRCodeDark } from '@/components/icon';
+import { Paste, QRCodeLight, QRCodeDark } from '@/components/icon';
 import { DarkModeContext } from '@/contexts/DarkmodeContext';
 import { Input } from '@/components/forms';
 import { useMediaQuery } from '@/hooks/mediaquery';
@@ -41,6 +41,20 @@ export const ScanQRButton = ({ onClick, withDropdown = false }: TToggleScanQRBut
   );
 };
 
+const PasteButton = ({ onClick }: { onClick: () => void }) => {
+  const { t } = useTranslation();
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${style.qrButton || ''} ${style.pasteButton || ''}`}
+      title={t('button.paste')}
+      aria-label={t('button.paste')}>
+      <Paste />
+    </button>
+  );
+};
+
 export const ReceiverAddressInput = ({
   account,
   activeAccounts,
@@ -54,6 +68,7 @@ export const ReceiverAddressInput = ({
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [activeScanQR, setActiveScanQR] = useState(false);
   const accountCode = account?.code;
+  const showPasteButton = runningInIOS() && typeof navigator.clipboard?.readText === 'function'; // only show on ios & if clipboard API is available
 
   const accountsForReceiverDropdown = useMemo(() =>
     activeAccounts?.filter(acc =>
@@ -94,6 +109,20 @@ export const ReceiverAddressInput = ({
     parseQRResultRef.current(result);
   }, []);
 
+  const handlePasteFromClipboard = useCallback(async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        onInputChange(text);
+        onAccountChange?.(null);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, [onAccountChange, onInputChange]);
+
+  const pasteButton = showPasteButton ? <PasteButton onClick={handlePasteFromClipboard} /> : undefined;
+
   return (
     <>
       {activeScanQR && (
@@ -113,7 +142,7 @@ export const ReceiverAddressInput = ({
           onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
           value={recipientAddress}
           className={style.inputWithIcon}
-          classNameInputField={style.inputFieldWithIcon}
+          classNameInputField={`${style.inputFieldWithIcon || ''} ${showPasteButton ? style.inputFieldWithPasteButton || '' : ''}`}
           labelSection={debug ? (
             <span id="sendToSelf" className={`${style.action || ''} ${style.sendToSelf || ''}`} onClick={handleSendToSelf}>
               Send to self
@@ -121,6 +150,7 @@ export const ReceiverAddressInput = ({
           ) : undefined}
           autoFocus={!isMobile}>
           <ScanQRButton onClick={toggleScanQR} />
+          {pasteButton}
         </Input>
       ) : (
         <ReceiverAddressWrapper
@@ -129,6 +159,7 @@ export const ReceiverAddressInput = ({
           onInputChange={onInputChange}
           onAccountChange={onAccountChange}
           recipientAddress={recipientAddress}
+          pasteButton={pasteButton}
         >
           <ScanQRButton onClick={toggleScanQR} withDropdown />
         </ReceiverAddressWrapper>
@@ -136,4 +167,3 @@ export const ReceiverAddressInput = ({
     </>
   );
 };
-

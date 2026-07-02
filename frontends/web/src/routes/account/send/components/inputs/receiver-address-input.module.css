@@ -6,6 +6,14 @@
   padding-left: var(--input-qr-button);
 }
 
+.inputFieldWithPasteButton {
+  padding-left: var(--input-two-icons-padding-left);
+}
+
+.inputWithPasteButton input {
+  padding-left: var(--input-two-icons-padding-left);
+}
+
 .action {
   color: var(--color-blue);
   font-size: var(--size-smaller);
@@ -39,4 +47,26 @@
   height: var(--size-subheader);
   margin-left: var(--space-half);
   width: var(--size-subheader);
+}
+
+.pasteButton {
+  border-radius: var(--radius-md);
+  justify-content: center;
+  left: var(--input-second-icon-left);
+  transition: background-color 120ms ease-out;
+  width: calc(var(--size-subheader) + var(--space-quarter));
+}
+
+.pasteButton img {
+  margin-left: 0;
+}
+
+.pasteButton:active,
+.pasteButton:focus {
+  background-color: var(--color-info-background);
+}
+
+.pasteButton:focus-visible {
+  outline: var(--border-width) solid var(--color-blue);
+  outline-offset: calc(var(--border-width) * -1);
 }
