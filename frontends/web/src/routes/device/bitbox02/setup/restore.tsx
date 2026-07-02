@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { BackupsV2 } from '@/routes/device/bitbox02/backups';
 import { Backup } from '@/api/backup';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 
 type Props = {
   deviceID: string;
@@ -27,6 +28,11 @@ export const RestoreFromSDCardBackup = ({
       verticallyCentered
       withBottomBar
       width="700px">
+      <MobileHeader
+        onClick={onBack}
+        withViewPadding
+        title={t('bitbox02Wizard.stepUninitialized.title')}
+      />
       <ViewHeader
         small
         title={t('backup.restore.confirmTitle')}
@@ -39,10 +45,10 @@ export const RestoreFromSDCardBackup = ({
           onSelectBackup={onSelectBackup}
           onRestoreBackup={onRestoreBackup}
         >
-          <BackButton
+          <DesktopBackButton
             onClick={onBack}>
             {t('button.back')}
-          </BackButton>
+          </DesktopBackButton>
         </BackupsV2>
       </ViewContent>
     </View>

@@ -34,7 +34,7 @@ import { Entry } from '@/components/guide/entry';
 import { alertUser } from '@/components/alert/Alert';
 import { Message } from '@/components/message/message';
 import { Button, Label } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
@@ -499,9 +499,10 @@ export const Swap = ({
             <Header
               hideSidebarToggler
               title={
-                <h2>
-                  {t('generic.swap')}
-                </h2>
+                <>
+                  <h2 className="hide-on-small">{t('generic.swap')}</h2>
+                  <MobileHeader withGuide title={t('generic.swap')} />
+                </>
               }
             />
             <View
@@ -515,9 +516,9 @@ export const Swap = ({
                 </p>
               </ViewContent>
               <ViewButtons>
-                <BackButton>
+                <DesktopBackButton>
                   {t('button.back')}
-                </BackButton>
+                </DesktopBackButton>
               </ViewButtons>
             </View>
           </Main>
@@ -534,9 +535,10 @@ export const Swap = ({
             <Header
               hideSidebarToggler
               title={
-                <h2>
-                  {t('generic.swap')}
-                </h2>
+                <>
+                  <h2 className="hide-on-small">{t('generic.swap')}</h2>
+                  <MobileHeader withGuide title={t('generic.swap')} />
+                </>
               }
             />
             <SwapkitTerms
@@ -676,9 +678,9 @@ export const Swap = ({
                   {isConfirmInFlight ? t('loading') : t('generic.swap')}
                 </span>
               </Button>
-              <BackButton className="hide-on-small">
+              <DesktopBackButton>
                 {t('button.back')}
-              </BackButton>
+              </DesktopBackButton>
             </ViewButtons>
           </View>
 

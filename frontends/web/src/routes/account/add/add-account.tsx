@@ -16,7 +16,8 @@ import { CoinDropDown } from '@/components/dropdown/coin-dropdown';
 import { SubTitle } from '@/components/title';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { UseBackButton } from '@/hooks/backbutton';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { AddAccountGuide } from './add-account-guide';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import styles from './add-account.module.css';
@@ -241,7 +242,13 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
     <Main>
       <GuideWrapper>
         <GuidedContent>
-          <Header title={<h2>{t('manageAccounts.title')}</h2>} />
+          <Header
+            title={
+              <>
+                <h2 className="hide-on-small">{t('manageAccounts.title')}</h2>
+                <MobileHeader onClick={back} withGuide title={t('manageAccounts.title')} />
+              </>
+            } />
           <View
             fitContent
             textCenter
@@ -309,11 +316,11 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
                     {t('addAccount.success.addAnotherAccount')}
                   </Button>
                 ) : (
-                  <BackButton
+                  <DesktopBackButton
                     onClick={back}
                   >
                     {t('button.back')}
-                  </BackButton>
+                  </DesktopBackButton>
                 )}
               </ViewButtons>
             </form>
