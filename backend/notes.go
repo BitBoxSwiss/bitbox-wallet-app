@@ -114,12 +114,14 @@ func (backend *Backend) exportNotes(writer io.Writer) error {
 			}
 		}
 
-		notesData := account.Notes().Data()
-		for txID, note := range notesData.TransactionNotes {
+		for txID, noteEntry := range account.Notes().TransactionNoteEntries() {
+			if noteEntry.Note == "" {
+				continue
+			}
 			entry := bip329Entry{
 				Type:  bip329TypeTx,
 				Ref:   txID,
-				Label: note,
+				Label: noteEntry.Note,
 				// We use this to aid the import back into the BitBoxApp, as the same txID can be in
 				// multiple accounts with different labels (e.g. and ERC20 token in the ERC20 token
 				// account as well as in the parent ETH account), and the origin label is not a good
