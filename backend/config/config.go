@@ -9,6 +9,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
+	utilconfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
 )
@@ -357,7 +358,10 @@ func (config *Config) save(filename string, conf interface{}) error {
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	return errp.WithStack(os.WriteFile(filename, jsonBytes, 0644)) // #nosec G306
+	if err := os.WriteFile(filename, jsonBytes, 0600); err != nil {
+		return errp.WithStack(err)
+	}
+	return utilconfig.EnsurePrivateFile(filename)
 }
 
 // migrateFiatList moves fiatList from appconf.Frontend to appconf.Backend.

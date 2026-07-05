@@ -7,6 +7,7 @@
 - Support macOS "Number Format" system setting
 - Move insurance to Marketplace
 - Add clear cache button to settings
+- Restrict local permissions for BitBoxApp config files and directories
 
 ## v4.51.1
 - iOS: fix App Store submission by packaging Inter as TTF fonts
