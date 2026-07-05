@@ -26,12 +26,20 @@ import (
 )
 
 const (
-	port    = 8082
-	address = "0.0.0.0"
-	darwin  = "darwin"
+	port               = 8082
+	defaultBindAddress = "127.0.0.1"
+	bindAddressEnvVar  = "BITBOX_DEV_BIND_HOST"
+	darwin             = "darwin"
 )
 
 var backend *backendPkg.Backend
+
+func bindAddress() string {
+	if address := os.Getenv(bindAddressEnvVar); address != "" {
+		return address
+	}
+	return defaultBindAddress
+}
 
 // webdevEnvironment implements backend.Environment.
 type webdevEnvironment struct {
@@ -209,6 +217,7 @@ func (webdevEnvironment) DetectDarkTheme() bool {
 
 func main() {
 	config.SetAppDir("appfolder.dev")
+	address := bindAddress()
 
 	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
 	regtest := flag.Bool("regtest", false, "use regtest instead of testnet coins")
