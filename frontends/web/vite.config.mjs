@@ -7,6 +7,7 @@ import { configDefaults } from 'vitest/config';
 
 export default defineConfig((env) => {
   const envVars = loadEnv(env.mode, process.cwd(), '')
+  const host = envVars.BITBOX_DEV_BIND_HOST || '127.0.0.1'
   const port = envVars.VITE_PORT
   return {
     // Relative base path so the js/css files are referenced with `./index-...js` instead of
@@ -37,6 +38,7 @@ export default defineConfig((env) => {
         ],
     },
     server: {
+      host,
       port: typeof port !== 'undefined' ? port : 8080,
       strictPort: true,
     }
