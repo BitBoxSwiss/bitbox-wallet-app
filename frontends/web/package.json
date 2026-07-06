@@ -52,7 +52,7 @@
   },
   "scripts": {
     "dev": "npm run start",
-    "start": "vite --cors --host",
+    "start": "vite --cors",
     "build": "npm run typescript && vite build",
     "lint": "npm run typescript && eslint ./src ./tests",
     "postlint": "node ./scripts/sort-json.mjs ./src/locales --check",
