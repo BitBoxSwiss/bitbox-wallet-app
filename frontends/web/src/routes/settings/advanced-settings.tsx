@@ -82,10 +82,10 @@ export const AdvancedSettingsContent = ({
     {
       id: 'advanced-settings',
       items: [
-        {
+        ...(lightningAccount !== undefined ? [{
           id: 'lightning-wallet',
           content: lightningAccount === null ? <EnableLightning /> : <DisableLightning />,
-        },
+        }] : []),
         { id: 'custom-fees', content: <EnableCustomFeesToggleSetting /> },
         { id: 'coin-control', content: <EnableCoinControlSetting /> },
         ...(isScreenLockSettingVisible() ? [{

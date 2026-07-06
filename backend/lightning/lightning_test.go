@@ -124,6 +124,25 @@ func TestSetAccount(t *testing.T) {
 	require.Empty(t, lightning.backendConfig.LightningConfig().Accounts)
 }
 
+func TestReady(t *testing.T) {
+	lightning := newTestLightning(t, nil)
+	require.False(t, lightning.Ready())
+
+	require.NoError(t, lightning.SetAccount(&config.LightningAccountConfig{
+		Seed:            "test mnemonic",
+		RootFingerprint: []byte{0xde, 0xad, 0xbe, 0xef},
+		Code:            "v0-deadbeef-ln-0",
+		Number:          0,
+	}))
+	require.False(t, lightning.Ready())
+
+	lightning.sdkService = &breez_sdk_spark.BreezSdk{}
+	require.True(t, lightning.Ready())
+
+	require.NoError(t, lightning.SetAccount(nil))
+	require.False(t, lightning.Ready())
+}
+
 func TestServiceStatus(t *testing.T) {
 	tests := []struct {
 		name     string

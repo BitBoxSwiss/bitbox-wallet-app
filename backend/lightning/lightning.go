@@ -160,6 +160,7 @@ func (lightning *Lightning) Disconnect() {
 		lightning.sdkService.Destroy()
 		lightning.sdkService = nil
 		lightning.synced = false
+		lightning.notifyReady()
 	}
 }
 
@@ -196,6 +197,19 @@ func (lightning *Lightning) CheckActive() error {
 		return errp.New("Lightning not initialized")
 	}
 	return nil
+}
+
+// Ready returns true if the lightning account is configured and the SDK is connected.
+func (lightning *Lightning) Ready() bool {
+	return lightning.Account() != nil && lightning.sdkService != nil
+}
+
+func (lightning *Lightning) notifyReady() {
+	lightning.Notify(observable.Event{
+		Subject: "lightning/ready",
+		Action:  action.Replace,
+		Object:  lightning.Ready(),
+	})
 }
 
 // Balance returns the balance of the lightning account.
@@ -331,6 +345,7 @@ func (lightning *Lightning) connect(_ bool) error {
 		}
 
 		lightning.sdkService = sdk
+		lightning.notifyReady()
 	}
 	return nil
 }
@@ -471,6 +486,7 @@ func (lightning *Lightning) SetAccount(account *config.LightningAccountConfig) e
 		Subject: "lightning/account",
 		Action:  action.Reload,
 	})
+	lightning.notifyReady()
 
 	return nil
 }

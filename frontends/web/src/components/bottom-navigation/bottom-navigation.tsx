@@ -11,15 +11,17 @@ import { RedDot } from '@/components/icon';
 import { NewBadge } from '@/components/new-badge/new-badge';
 import styles from './bottom-navigation.module.css';
 
-type Props = {
+type TProps = {
   activeAccounts: TAccount[];
   devices: TDevices;
+  hasLightningAccount: boolean;
 };
 
 export const BottomNavigation = ({
   activeAccounts,
   devices,
-}: Props) => {
+  hasLightningAccount,
+}: TProps) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const deviceID = Object.keys(devices)[0];
@@ -27,8 +29,15 @@ export const BottomNavigation = ({
   const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID, isBitBox02]);
   const canUpgrade = versionInfo ? versionInfo.canUpgrade : false;
 
-  const onlyHasOneAccount = activeAccounts.length === 1;
+  const accountCount = activeAccounts.length + (hasLightningAccount ? 1 : 0);
+  const onlyHasOneAccount = accountCount === 1;
   const accountCode = activeAccounts[0]?.code || '';
+  const accountTabURL = onlyHasOneAccount && accountCode
+    ? `/account/${accountCode}`
+    : onlyHasOneAccount && hasLightningAccount
+      ? '/lightning'
+      : '/accounts/all';
+  const onlyHasLightningAccount = hasLightningAccount && activeAccounts.length === 0;
 
   return (
     <div className={styles.container}>
@@ -45,36 +54,34 @@ export const BottomNavigation = ({
       <Link
         className={`
           ${styles.link || ''}
-          ${pathname.startsWith('/account/') || pathname.startsWith('/accounts/') ? (styles.active || '') : ''}
+          ${pathname.startsWith('/account/') || pathname.startsWith('/accounts/') || pathname.startsWith('/lightning') ? (styles.active || '') : ''}
         `}
-        to={
-          onlyHasOneAccount && accountCode ?
-            `/account/${accountCode}` :
-            '/accounts/all'
-        }
+        to={accountTabURL}
       >
         <AccountIconSVG />
         {onlyHasOneAccount ? t('account.account') : t('account.accounts')}
       </Link>
-      <Link
-        className={`
-          ${styles.link || ''}
-          ${pathname.startsWith('/market/') && styles.active || ''}
-        `}
-        to="/market/select"
-      >
-        <MarketIconSVG />
-        <span className={styles.marketplaceLabel}>
-          {t('generic.buySell')}
-          <NewBadge
-            className={styles.marketplaceNudgeDot}
-            configKey="hasSeenMarketplaceNudge"
-            hideOnPathPrefix="/market/"
-            pathname={pathname}
-            type="dot"
-          />
-        </span>
-      </Link>
+      {!onlyHasLightningAccount && (
+        <Link
+          className={`
+            ${styles.link || ''}
+            ${pathname.startsWith('/market/') && styles.active || ''}
+          `}
+          to="/market/select"
+        >
+          <MarketIconSVG />
+          <span className={styles.marketplaceLabel}>
+            {t('generic.buySell')}
+            <NewBadge
+              className={styles.marketplaceNudgeDot}
+              configKey="hasSeenMarketplaceNudge"
+              hideOnPathPrefix="/market/"
+              pathname={pathname}
+              type="dot"
+            />
+          </span>
+        </Link>
+      )}
       <Link
         className={`
           ${styles.link || ''}
