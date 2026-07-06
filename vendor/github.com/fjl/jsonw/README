@@ -1,0 +1,5 @@
+JSONW - yet another json writer
+-------------------------------
+
+This is a small library for producing JSON payloads.
+See the Go API documentation at https://pkg.go.dev/github.com/fjl/jsonw
