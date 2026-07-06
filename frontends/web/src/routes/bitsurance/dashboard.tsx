@@ -7,15 +7,16 @@ import { AccountCode, TAccount, getBalance } from '@/api/account';
 import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '@/api/bitsurance';
 import { useMountedRef } from '@/hooks/mount';
 import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
+import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
+import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
+import { MarketTab } from '@/routes/market/components/markettab';
 import { Button } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
-import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { A } from '@/components/anchor/anchor';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Balances } from '@/routes/account/summary/accountssummary';
 import { Skeleton } from '@/components/skeleton/skeleton';
-import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ExternalLink, GreenDot, OrangeDot, RedDot, YellowDot } from '@/components/icon';
 import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
 import { BitsuranceGuide } from './guide';
@@ -23,6 +24,7 @@ import style from './dashboard.module.css';
 
 type TProps = {
   accounts: TAccount[];
+  code: AccountCode;
 };
 
 type TAccountStatusIconProps = {
@@ -49,9 +51,10 @@ const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
   }
 };
 
-export const BitsuranceDashboard = ({ accounts }: TProps) => {
+export const BitsuranceDashboard = ({ accounts, code }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
   const mounted = useMountedRef();
   const [balances, setBalances] = useState<Balances>();
   const [insurances, setInsurances] = useState<TInsurancesByCode>();
@@ -109,10 +112,18 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('sidebar.insurance')}</h2>} >
+          <Header title={<h2>{t('generic.buySell')}</h2>}>
             <HideAmountsButton />
           </Header>
-          <View>
+          <MarketTab
+            accounts={accounts}
+            activeTab="insure"
+            code={code}
+          />
+          <View
+            minHeight="600px"
+            verticallyCentered
+          >
             <ViewContent>
 
               <div className={style.headerContainer}>
@@ -122,8 +133,8 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                 <Button
                   className={style.button}
                   primary
-                  onClick={() => navigate('/bitsurance/account')}
-                  title={t('account.exportTransactions')}>
+                  onClick={() => navigate(`/market/bitsurance/account/${code}`)}
+                  title={t('bitsurance.dashboard.button')}>
                   <span>+</span>
                   {t('bitsurance.dashboard.button')}
                 </Button>
@@ -135,9 +146,9 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                     <div key={keystore.rootFingerprint}>
                       <p className={style.keystore}>{keystore.name}
                         { isAmbiguousName(keystore.name, accountsByKeystore) ? (
-                        // Disambiguate accounts group by adding the fingerprint.
-                        // The most common case where this would happen is when adding accounts from the
-                        // same seed using different passphrases.
+                          // Disambiguate accounts group by adding the fingerprint.
+                          // The most common case where this would happen is when adding accounts from the
+                          // same seed using different passphrases.
                           <span className={style.subtle}> ({keystore.rootFingerprint})</span>
                         ) : null }
                       </p>

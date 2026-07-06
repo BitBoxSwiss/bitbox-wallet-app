@@ -1,27 +1,45 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PillButton, PillButtonGroup } from '../../../components/pillbuttongroup/pillbuttongroup';
-import { TMarketAction } from '@/api/market';
+import type { AccountCode, TAccount } from '@/api/account';
+import type { TMarketAction } from '@/api/market';
+import { useMarketContext } from '@/routes/market/market-context';
+import { PillButton, PillButtonGroup } from '@/components/pillbuttongroup/pillbuttongroup';
 import { NewBadge } from '@/components/new-badge/new-badge';
 import style from './markettab.module.css';
 
+export type TMarketplaceTab = TMarketAction | 'insure';
 
 type TProps = {
-  onChangeTab: (tab: TMarketAction) => void;
-  activeTab: TMarketAction;
-  showSwap: boolean;
+  accounts: TAccount[];
+  activeTab: TMarketplaceTab;
+  code: AccountCode;
 };
 
-
 export const MarketTab = ({
-  onChangeTab,
+  accounts,
   activeTab,
-  showSwap,
+  code,
 }: TProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { showSwap } = useMarketContext();
+
+  const onChangeTab = (tab: TMarketplaceTab) => {
+    if (tab === 'insure') {
+      navigate(
+        accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)
+          ? `/market/bitsurance/dashboard/${code}`
+          : `/market/bitsurance/${code}`
+      );
+      return;
+    }
+    navigate(`/market/select/${code}?tab=${tab}`);
+  };
+
   return (
-    <PillButtonGroup size="large">
+    <PillButtonGroup className={style.navigation} size="large">
       <PillButton
         active={activeTab === 'buy'}
         onClick={() => onChangeTab('buy')}
@@ -70,6 +88,12 @@ export const MarketTab = ({
             testID="otc-new-badge"
           />
         </span>
+      </PillButton>
+      <PillButton
+        active={activeTab === 'insure'}
+        onClick={() => onChangeTab('insure')}
+      >
+        {t('generic.insure')}
       </PillButton>
     </PillButtonGroup>
   );

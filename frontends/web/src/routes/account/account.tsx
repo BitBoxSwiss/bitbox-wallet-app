@@ -239,7 +239,7 @@ const RemountAccount = ({
             </A>
           </Dialog>
           <Header
-            title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
+            title={<h2><span>{account.name}</span>{insured && (<Insured code={code} />)}</h2>}>
             <Link
               to={`/account/${code}/info`}
               title={t('accountInfo.title')}
