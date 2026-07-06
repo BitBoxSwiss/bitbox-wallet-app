@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import type { TAccount } from '@/api/account';
-import { getBottomNavKey, shouldShowBottomNavigation } from './utils';
+import { getBottomNavIndex, getBottomNavKey, shouldShowBottomNavigation } from './utils';
 
 const activeAccount = { active: true } as TAccount;
 
@@ -13,6 +13,16 @@ describe('getBottomNavKey', () => {
     expect(getBottomNavKey('/market/btcdirect/sell/btc/CH')).toBe('market');
     expect(getBottomNavKey('/market/bitrefill/spend/btc')).toBe('market');
     expect(getBottomNavKey('/market/pocket/buy/btc')).toBe('market');
+  });
+});
+
+describe('getBottomNavIndex', () => {
+  it('maps bottom-navigation keys to their visible tab indexes', () => {
+    expect(getBottomNavIndex('portfolio')).toBe(0);
+    expect(getBottomNavIndex('accounts')).toBe(1);
+    expect(getBottomNavIndex('market')).toBe(2);
+    expect(getBottomNavIndex('more')).toBe(3);
+    expect(getBottomNavIndex('other')).toBeUndefined();
   });
 });
 

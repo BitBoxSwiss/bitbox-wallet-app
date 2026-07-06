@@ -3,11 +3,13 @@
 import { useContext, useEffect } from 'react';
 import { AppContext } from '@/contexts/AppContext';
 
-export const useMarketIframeActive = (active: boolean) => {
-  const { setMarketIframeActive } = useContext(AppContext);
+export const useVendorIframeActive = (active: boolean) => {
+  const { setVendorIframeActive } = useContext(AppContext);
 
   useEffect(() => {
-    setMarketIframeActive?.(active);
-    return () => setMarketIframeActive?.(false);
-  }, [active, setMarketIframeActive]);
+    setVendorIframeActive?.(active);
+    return () => setVendorIframeActive?.(false);
+  }, [active, setVendorIframeActive]);
 };
+
+export const useMarketIframeActive = useVendorIframeActive;

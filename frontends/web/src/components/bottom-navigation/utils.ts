@@ -3,11 +3,16 @@
 import type { TAccount } from '@/api/account';
 import type { TDevices } from '@/api/devices';
 
+const bottomNavKeys = ['portfolio', 'accounts', 'market', 'more'] as const;
+
+export type TBottomNavItem = typeof bottomNavKeys[number];
+export type TBottomNavKey = TBottomNavItem | 'other';
+
 /**
  * Maps a pathname to the bottom-navigation tab it belongs to.
  * Used to detect tab changes for animations and state resets.
  */
-export const getBottomNavKey = (pathname: string): string => {
+export const getBottomNavKey = (pathname: string): TBottomNavKey => {
   if (pathname.startsWith('/account-summary')) {
     return 'portfolio';
   }
@@ -21,6 +26,11 @@ export const getBottomNavKey = (pathname: string): string => {
     return 'more';
   }
   return 'other';
+};
+
+export const getBottomNavIndex = (key: TBottomNavKey): number | undefined => {
+  const index = bottomNavKeys.indexOf(key as TBottomNavItem);
+  return index === -1 ? undefined : index;
 };
 
 type TShouldShowBottomNavigationArgs = {

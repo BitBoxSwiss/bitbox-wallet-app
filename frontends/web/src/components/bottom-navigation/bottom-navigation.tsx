@@ -10,6 +10,7 @@ import { getVersion } from '@/api/bitbox02';
 import { RedDot } from '@/components/icon';
 import { NewBadge } from '@/components/new-badge/new-badge';
 import { useSlidingIndicator } from './use-sliding-indicator';
+import { getBottomNavIndex, getBottomNavKey } from './utils';
 import styles from './bottom-navigation.module.css';
 
 type Props = {
@@ -35,11 +36,12 @@ export const BottomNavigation = ({
   const marketLabel = t('generic.buySell');
   const moreLabel = t('settings.more');
 
-  const portfolioActive = pathname.startsWith('/account-summary');
-  const accountsActive = pathname.startsWith('/account/') || pathname.startsWith('/accounts/');
-  const marketActive = pathname.startsWith('/market/');
-  const moreActive = pathname.startsWith('/settings') || pathname.startsWith('/bitsurance/');
-  const activeIndex = portfolioActive ? 0 : accountsActive ? 1 : marketActive ? 2 : moreActive ? 3 : undefined;
+  const bottomNavKey = getBottomNavKey(pathname);
+  const portfolioActive = bottomNavKey === 'portfolio';
+  const accountsActive = bottomNavKey === 'accounts';
+  const marketActive = bottomNavKey === 'market';
+  const moreActive = bottomNavKey === 'more';
+  const activeIndex = getBottomNavIndex(bottomNavKey);
   const {
     containerRef,
     indicatorStyle,

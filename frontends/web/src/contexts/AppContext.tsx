@@ -15,7 +15,7 @@ type AppContextProps = {
   hideAmounts: boolean;
   isTesting: boolean;
   isDevServers: boolean;
-  marketIframeActive: boolean;
+  vendorIframeActive: boolean;
   isOnline?: boolean;
   nativeLocale: string;
   firmwareUpdateDialogOpen: boolean;
@@ -23,7 +23,7 @@ type AppContextProps = {
   setActiveSidebar: Dispatch<SetStateAction<boolean>>;
   setGuideExists: Dispatch<SetStateAction<boolean>>;
   setHideAmounts: Dispatch<SetStateAction<boolean>>;
-  setMarketIframeActive: Dispatch<SetStateAction<boolean>>;
+  setVendorIframeActive: Dispatch<SetStateAction<boolean>>;
   setChartDisplay: Dispatch<SetStateAction<TChartDisplay>>;
   setFirmwareUpdateDialogOpen: Dispatch<SetStateAction<boolean>>;
   toggleGuide: () => void;

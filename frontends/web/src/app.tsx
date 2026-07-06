@@ -52,8 +52,8 @@ const AppFrame = ({
   showBottomNavigation,
   tabKey,
 }: TAppFrameProps) => {
-  const { marketIframeActive } = useContext(AppContext);
-  const showMobileBottomNavigation = showBottomNavigation && !marketIframeActive;
+  const { vendorIframeActive } = useContext(AppContext);
+  const showMobileBottomNavigation = showBottomNavigation && !vendorIframeActive;
 
   return (
     <>
@@ -67,7 +67,7 @@ const AppFrame = ({
         <div className={`
           ${styles.appContent || ''}
           ${showMobileBottomNavigation && styles.hasBottomNavigation || ''}
-          ${marketIframeActive && styles.hasMarketIframe || ''}
+          ${vendorIframeActive && styles.hasMarketIframe || ''}
         `}>
           <WCSigningRequest />
           <Aopp />
