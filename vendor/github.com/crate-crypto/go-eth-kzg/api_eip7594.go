@@ -18,13 +18,11 @@ func (ctx *Context) ComputeCells(blob *Blob, numGoRoutines int) ([CellsPerExtBlo
 	// Bit reverse the polynomial representing the Blob so that it is in normal order
 	domain.BitReverse(polynomial)
 
-	// Convert the polynomial in lagrange form to a polynomial in monomial form
-	polyCoeff := ctx.domain.IfftFr(polynomial)
+	// Convert the polynomial in lagrange form to a polynomial in monomial form (in place)
+	ctx.domain.IfftFr(polynomial)
+	polyCoeff := polynomial
 
-	// Extend the polynomial
-	cosetEvaluations := ctx.fk20.ComputeExtendedPolynomial(polyCoeff)
-
-	return serializeCells(cosetEvaluations)
+	return ctx.computeCellsFromPolyCoeff(polyCoeff, numGoRoutines)
 }
 
 func (ctx *Context) ComputeCellsAndKZGProofs(blob *Blob, numGoRoutines int) ([CellsPerExtBlob]*Cell, [CellsPerExtBlob]KZGProof, error) {
@@ -36,24 +34,37 @@ func (ctx *Context) ComputeCellsAndKZGProofs(blob *Blob, numGoRoutines int) ([Ce
 	// Bit reverse the polynomial representing the Blob so that it is in normal order
 	domain.BitReverse(polynomial)
 
-	// Convert the polynomial in lagrange form to a polynomial in monomial form
-	polyCoeff := ctx.domain.IfftFr(polynomial)
+	// Convert the polynomial in lagrange form to a polynomial in monomial form (in place)
+	ctx.domain.IfftFr(polynomial)
+	polyCoeff := polynomial
 
-	return ctx.computeCellsAndKZGProofsFromPolyCoeff(polyCoeff, numGoRoutines)
-}
-
-func (ctx *Context) computeCellsAndKZGProofsFromPolyCoeff(polyCoeff []fr.Element, _ int) ([CellsPerExtBlob]*Cell, [CellsPerExtBlob]KZGProof, error) {
-	// Compute all proofs and cells
-	proofs, cosetEvaluations, err := kzgmulti.ComputeMultiPointKZGProofs(ctx.fk20, polyCoeff)
+	cells, err := ctx.computeCellsFromPolyCoeff(polyCoeff, numGoRoutines)
 	if err != nil {
 		return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, err
 	}
 
-	if len(cosetEvaluations) != CellsPerExtBlob {
-		return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, ErrNumCosetEvaluationsCheck
+	proofs, err := ctx.computeKZGProofsFromPolyCoeff(polyCoeff, numGoRoutines)
+	if err != nil {
+		return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, err
 	}
+
+	return cells, proofs, nil
+}
+
+func (ctx *Context) computeCellsFromPolyCoeff(polyCoeff []fr.Element, _ int) ([CellsPerExtBlob]*Cell, error) {
+	cosetEvaluations := ctx.fk20.ComputeExtendedPolynomial(polyCoeff)
+
+	return serializeCells(cosetEvaluations)
+}
+
+func (ctx *Context) computeKZGProofsFromPolyCoeff(polyCoeff []fr.Element, _ int) ([CellsPerExtBlob]KZGProof, error) {
+	proofs, err := kzgmulti.ComputeMultiPointKZGProofs(ctx.fk20, polyCoeff)
+	if err != nil {
+		return [CellsPerExtBlob]KZGProof{}, err
+	}
+
 	if len(proofs) != CellsPerExtBlob {
-		return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, ErrNumProofsCheck
+		return [CellsPerExtBlob]KZGProof{}, ErrNumProofsCheck
 	}
 
 	// Serialize proofs
@@ -62,12 +73,7 @@ func (ctx *Context) computeCellsAndKZGProofsFromPolyCoeff(polyCoeff []fr.Element
 		serializedProofs[i] = KZGProof(SerializeG1Point(proof))
 	}
 
-	// Serialize Cells
-	cells, err := serializeCells(cosetEvaluations)
-	if err != nil {
-		return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, err
-	}
-	return cells, serializedProofs, nil
+	return serializedProofs, nil
 }
 
 func serializeCells(cosetEvaluations [][]fr.Element) ([CellsPerExtBlob]*Cell, error) {
@@ -84,26 +90,26 @@ func serializeCells(cosetEvaluations [][]fr.Element) ([CellsPerExtBlob]*Cell, er
 	return Cells, nil
 }
 
-func (ctx *Context) RecoverCellsAndComputeKZGProofs(cellIDs []uint64, cells []*Cell, numGoRoutines int) ([CellsPerExtBlob]*Cell, [CellsPerExtBlob]KZGProof, error) {
+func (ctx *Context) recoverPolynomialCoeffs(cellIDs []uint64, cells []*Cell) ([]fr.Element, error) {
 	if len(cellIDs) != len(cells) {
-		return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, ErrNumCellIDsNotEqualNumCells
+		return nil, ErrNumCellIDsNotEqualNumCells
 	}
 
 	// Check that the cell Ids are ordered (ascending)
 	if !isAscending(cellIDs) {
-		return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, ErrCellIDsNotOrdered
+		return nil, ErrCellIDsNotOrdered
 	}
 
 	// Check that each CellId is less than CellsPerExtBlob
 	for _, cellID := range cellIDs {
 		if cellID >= CellsPerExtBlob {
-			return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, ErrFoundInvalidCellID
+			return nil, ErrFoundInvalidCellID
 		}
 	}
 
 	// Check that we have enough cells to perform reconstruction
 	if len(cellIDs) < ctx.dataRecovery.NumBlocksNeededToReconstruct() {
-		return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, ErrNotEnoughCellsForReconstruction
+		return nil, ErrNotEnoughCellsForReconstruction
 	}
 
 	// Find the missing cell IDs and bit reverse them
@@ -124,7 +130,7 @@ func (ctx *Context) RecoverCellsAndComputeKZGProofs(cellIDs []uint64, cells []*C
 		// Deserialize the cell
 		cellEvals, err := deserializeCell(cell)
 		if err != nil {
-			return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, err
+			return nil, err
 		}
 		// Place the cell in the correct position in the data array
 		copy(extendedBlob[cellID*scalarsPerCell:], cellEvals)
@@ -132,12 +138,26 @@ func (ctx *Context) RecoverCellsAndComputeKZGProofs(cellIDs []uint64, cells []*C
 	// Bit reverse the extendedBlob so that it is in normal order
 	domain.BitReverse(extendedBlob)
 
-	polyCoeff, err := ctx.dataRecovery.RecoverPolynomialCoefficients(extendedBlob, missingCellIds)
+	return ctx.dataRecovery.RecoverPolynomialCoefficients(extendedBlob, missingCellIds)
+}
+
+func (ctx *Context) RecoverCellsAndComputeKZGProofs(cellIDs []uint64, cells []*Cell, numGoRoutines int) ([CellsPerExtBlob]*Cell, [CellsPerExtBlob]KZGProof, error) {
+	polyCoeff, err := ctx.recoverPolynomialCoeffs(cellIDs, cells)
 	if err != nil {
 		return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, err
 	}
 
-	return ctx.computeCellsAndKZGProofsFromPolyCoeff(polyCoeff, numGoRoutines)
+	recoveredCells, err := ctx.computeCellsFromPolyCoeff(polyCoeff, numGoRoutines)
+	if err != nil {
+		return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, err
+	}
+
+	proofs, err := ctx.computeKZGProofsFromPolyCoeff(polyCoeff, numGoRoutines)
+	if err != nil {
+		return [CellsPerExtBlob]*Cell{}, [CellsPerExtBlob]KZGProof{}, err
+	}
+
+	return recoveredCells, proofs, nil
 }
 
 func (ctx *Context) VerifyCellKZGProofBatch(commitments []KZGCommitment, cellIndices []uint64, cells []*Cell, proofs []KZGProof) error {
@@ -205,7 +225,7 @@ func isAscending(slice []uint64) bool {
 	return true
 }
 
-// deduplicateCommitments takes a slice of KZGCommitments and returns two slices:
+// deduplicateKZGCommitments takes a slice of KZGCommitments and returns two slices:
 // a deduplicated slice of KZGCommitments and a slice of indices.
 //
 // Each index in the slice of indices corresponds to the position of the

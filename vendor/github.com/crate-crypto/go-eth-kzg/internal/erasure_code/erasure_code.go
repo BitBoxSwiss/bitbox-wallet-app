@@ -97,7 +97,8 @@ func (dr *DataRecovery) Encode(polyCoeff []fr.Element) []fr.Element {
 	for i := len(polyCoeff); i < len(dr.domainExtended.Roots); i++ {
 		polyCoeff = append(polyCoeff, fr.Element{})
 	}
-	return dr.domainExtended.FftFr(polyCoeff)
+	dr.domainExtended.FftFr(polyCoeff)
+	return polyCoeff
 }
 
 // NumBlocksNeededToReconstruct returns the number of blocks that are needed to reconstruct
@@ -109,7 +110,11 @@ func (dr *DataRecovery) NumBlocksNeededToReconstruct() int {
 func (dr *DataRecovery) RecoverPolynomialCoefficients(data []fr.Element, missingIndices []BlockErasureIndex) ([]fr.Element, error) {
 	zX := dr.constructVanishingPolyOnIndices(missingIndices)
 
-	zXEval := dr.domainExtended.FftFr(zX)
+	// Compute zX evaluations without mutating zX since we need zX later for a coset FFT
+	zXForEval := make([]fr.Element, len(zX))
+	copy(zXForEval, zX)
+	dr.domainExtended.FftFr(zXForEval)
+	zXEval := zXForEval
 
 	if len(zXEval) != len(data) {
 		return nil, errors.New("length of data and zXEval should be equal")
@@ -120,10 +125,13 @@ func (dr *DataRecovery) RecoverPolynomialCoefficients(data []fr.Element, missing
 		eZEval[i].Mul(&data[i], &zXEval[i])
 	}
 
-	dzPoly := dr.domainExtended.IfftFr(eZEval)
+	dr.domainExtended.IfftFr(eZEval)
+	dzPoly := eZEval
 
-	cosetZxEval := dr.domainExtendedCoset.CosetFFtFr(zX)
-	cosetDzEVal := dr.domainExtendedCoset.CosetFFtFr(dzPoly)
+	dr.domainExtendedCoset.CosetFFtFr(zX)
+	cosetZxEval := zX
+	dr.domainExtendedCoset.CosetFFtFr(dzPoly)
+	cosetDzEVal := dzPoly
 
 	cosetQuotientEval := make([]fr.Element, len(cosetZxEval))
 	cosetZxEval = fr.BatchInvert(cosetZxEval)
@@ -132,10 +140,10 @@ func (dr *DataRecovery) RecoverPolynomialCoefficients(data []fr.Element, missing
 		cosetQuotientEval[i].Mul(&cosetDzEVal[i], &cosetZxEval[i])
 	}
 
-	polyCoeff := dr.domainExtendedCoset.CosetIFFtFr(cosetQuotientEval)
+	dr.domainExtendedCoset.CosetIFFtFr(cosetQuotientEval)
 
 	// Truncate the polynomial coefficients to the number of scalars in the data word
-	polyCoeff = polyCoeff[:dr.numScalarsInDataWord]
+	polyCoeff := cosetQuotientEval[:dr.numScalarsInDataWord]
 	return polyCoeff, nil
 }
 
