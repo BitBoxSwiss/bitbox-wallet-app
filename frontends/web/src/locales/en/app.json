@@ -1606,6 +1606,9 @@
       "title": "Payment history"
     },
     "receive": {
+      "address": {
+        "label": "Lightning address"
+      },
       "amountSats": {
         "label": "Sat",
         "placeholder": "Enter amount"

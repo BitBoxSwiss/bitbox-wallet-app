@@ -79,6 +79,7 @@ func newTestLightning(t *testing.T, environment environment) *Lightning {
 		&http.Client{},
 		nil,
 		nil,
+		false,
 	)
 }
 
@@ -141,6 +142,14 @@ func TestReady(t *testing.T) {
 
 	require.NoError(t, lightning.SetAccount(nil))
 	require.False(t, lightning.Ready())
+}
+
+func TestLnurlDomain(t *testing.T) {
+	require.Equal(t, lnurlDomainProd, newTestLightning(t, nil).lnurlDomain())
+
+	lightning := newTestLightning(t, nil)
+	lightning.devServers = true
+	require.Equal(t, lnurlDomainDev, lightning.lnurlDomain())
 }
 
 func TestServiceStatus(t *testing.T) {
