@@ -1,4 +1,11 @@
 
+.container {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-quarter);
+  position: relative;
+}
+
 .arrow {
   line-height: 1;
   vertical-align: text-bottom;
@@ -18,6 +25,21 @@
   color: var(--color-softred);
 }
 
+.button {
+  align-items: center;
+  appearance: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  padding: 0;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+}
+
 .diffValue {
   font-size: var(--size-header);
 }
@@ -25,4 +47,47 @@
 .diffUnit {
   font-size: var(--size-default);
   padding: 0 4px;
+}
+
+.badge {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  vertical-align: middle;
+  z-index: 120;
+}
+
+.badgeContent {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-eight);
+}
+
+.badgeIcon {
+  display: block;
+  flex-shrink: 0;
+  height: 15px;
+  width: 20px;
+}
+
+.valueBadgeIcon {
+  height: 14px;
+  width: 14px;
+}
+
+.badgeVisible {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .container {
+    gap: 0;
+  }
+
+  .badge {
+    left: 50%;
+    position: absolute;
+    top: calc(100% + var(--space-eight));
+    transform: translateX(-50%);
+  }
 }
