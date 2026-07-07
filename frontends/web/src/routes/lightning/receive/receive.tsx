@@ -46,7 +46,7 @@ export function Receive() {
   const [step, setStep] = useState<TStep>('create-invoice');
   const [payments, setPayments] = useState<TLightningPayment[]>();
   const lightningAddress = useSync(getLightningAddress, subscribeLightningAddress);
-  const invoiceAmountSat = invoiceAmount ? Number(invoiceAmount.amount) : undefined;
+  const invoiceAmountSat = invoiceAmount ? invoiceAmount.amount : undefined;
 
   const newInvoice = useCallback(() => {
     setInputSatsText('');
@@ -149,9 +149,11 @@ export function Receive() {
     }
   }, [payments, receivePaymentResponse, step]);
 
+  const hasZeroOrSmallerInvoice = Number(invoiceAmountSat) <= 0;
+
   const receivePayment = useCallback(async () => {
     setReceiveError(undefined);
-    if (invoiceAmountSat === undefined || invoiceAmountSat <= 0) {
+    if (invoiceAmountSat === undefined || hasZeroOrSmallerInvoice) {
       setReceiveError(t('send.error.invalidAmount'));
       return;
     }
@@ -171,7 +173,7 @@ export function Receive() {
         setReceiveError(String(e));
       }
     }
-  }, [description, invoiceAmountSat, t]);
+  }, [description, hasZeroOrSmallerInvoice, invoiceAmountSat, t]);
 
   const renderSteps = () => {
     switch (step) {
@@ -222,7 +224,7 @@ export function Receive() {
             </Grid>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={receivePayment} disabled={invoiceAmountSat === undefined || invoiceAmountSat <= 0}>
+            <Button primary onClick={receivePayment} disabled={invoiceAmountSat === undefined || hasZeroOrSmallerInvoice}>
               {t('lightning.receive.invoice.create')}
             </Button>
             <Button secondary onClick={back}>

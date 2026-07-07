@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/skeleton/skeleton';
 import { useMountedRef } from '@/hooks/mount';
 import styles from '../send.module.css';
 
-const useInvoiceAmount = (amountSat?: number) => {
+const useInvoiceAmount = (amountSat?: string) => {
   const [invoiceAmount, setInvoiceAmount] = useState<TAmountWithConversions>();
   const mounted = useMountedRef();
 
@@ -21,7 +21,7 @@ const useInvoiceAmount = (amountSat?: number) => {
       return;
     }
 
-    getBtcSatAmount({ source: 'sat', amount: amountSat.toString() })
+    getBtcSatAmount({ source: 'sat', amount: amountSat })
       .then((response) => {
         if (mounted.current && response.success) {
           setInvoiceAmount(response.amount);
@@ -56,12 +56,12 @@ const AmountValue = ({ amount, showFiat = false }: TAmountValueProps) => {
   );
 };
 
-const satsAmount = (amountSat?: number): TAmountWithConversions | undefined => {
+const satsAmount = (amountSat?: string): TAmountWithConversions | undefined => {
   if (amountSat === undefined) {
     return undefined;
   }
   return {
-    amount: amountSat.toString(),
+    amount: amountSat,
     unit: 'sat',
     estimated: false,
   };
@@ -73,7 +73,7 @@ type TProps = {
 };
 
 type TPaymentAmountDetailsProps = {
-  amountSat?: number;
+  amountSat?: string;
 };
 
 type TPaymentDetailsProps = {

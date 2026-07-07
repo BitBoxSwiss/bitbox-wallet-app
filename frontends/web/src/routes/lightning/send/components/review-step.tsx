@@ -13,8 +13,11 @@ import { useMountedRef } from '@/hooks/mount';
 import { PaymentAmountDetails, PaymentDetails, PaymentFeeDetails } from './invoice-details';
 import { SendingSpinner } from './sending-spinner';
 
-const isValidCustomAmount = (amount?: number): amount is number => (
-  typeof amount === 'number' && Number.isFinite(amount) && Number.isInteger(amount) && amount > 0
+const isValidCustomAmount = (amount?: number) => (
+  typeof amount === 'number'
+  && Number.isFinite(amount)
+  && Number.isInteger(amount)
+  && amount > 0
 );
 
 type TProps = {
@@ -30,12 +33,12 @@ export const ReviewStep = ({
 }: TProps) => {
   const { t } = useTranslation();
   const mounted = useMountedRef();
-  const customAmountRef = useRef<number>();
+  const customAmountRef = useRef<string>();
   const invoice = paymentDetails?.type === TPaymentInputTypeVariant.BOLT11 ? paymentDetails.invoice : undefined;
-  const [customAmount, setCustomAmount] = useState<number>();
+  const [customAmount, setCustomAmount] = useState<string>();
   const debouncedCustomAmount = useDebounce(customAmount, 300);
   const [fees, setFees] = useState<TPreparePaymentResponse>();
-  const [preparedCustomAmount, setPreparedCustomAmount] = useState<number>();
+  const [preparedCustomAmount, setPreparedCustomAmount] = useState<string>();
   const [prepareError, setPrepareError] = useState<string>();
   const [isPreparing, setIsPreparing] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -58,7 +61,7 @@ export const ReviewStep = ({
     setIsPreparing(false);
   }, []);
 
-  const startPreparingFees = useCallback((amountSat?: number) => {
+  const startPreparingFees = useCallback((amountSat?: string) => {
     setIsPreparing(true);
     setFees(undefined);
     setPreparedCustomAmount(amountSat);
@@ -67,7 +70,7 @@ export const ReviewStep = ({
 
   const applyPreparedFees = useCallback((
     nextFees: TPreparePaymentResponse,
-    amountSat?: number,
+    amountSat?: string,
   ) => {
     setFees(nextFees);
     setPreparedCustomAmount(amountSat);
@@ -75,7 +78,7 @@ export const ReviewStep = ({
     setIsPreparing(false);
   }, []);
 
-  const applyPrepareError = useCallback((errorMessage: string, amountSat: number) => {
+  const applyPrepareError = useCallback((errorMessage: string, amountSat: string) => {
     setFees(undefined);
     setPreparedCustomAmount(amountSat);
     setPrepareError(errorMessage);
@@ -83,17 +86,17 @@ export const ReviewStep = ({
     setSendError(undefined);
   }, []);
 
-  const getActiveFees = useCallback((amountSat?: number) => (
+  const getActiveFees = useCallback((amountSat?: string) => (
     invoice?.amountSat === undefined
       ? preparedCustomAmount === amountSat ? fees : undefined
       : fees
   ), [fees, invoice?.amountSat, preparedCustomAmount]);
 
-  const preparePayment = useCallback(async (amountSat?: number) => {
+  const preparePayment = useCallback(async (amountSat?: string) => {
     if (!invoice) {
       return;
     }
-    if (invoice.amountSat === undefined && !isValidCustomAmount(amountSat)) {
+    if (invoice.amountSat === undefined && !isValidCustomAmount(Number(amountSat))) {
       return;
     }
     const isCustomAmount = amountSat !== undefined;
@@ -136,7 +139,7 @@ export const ReviewStep = ({
     toErrorMessage,
   ]);
 
-  const retryPreparePayment = useCallback(async (errorMessage: string, amountSat?: number) => {
+  const retryPreparePayment = useCallback(async (errorMessage: string, amountSat?: string) => {
     setSendError(errorMessage);
     await preparePayment(amountSat);
   }, [preparePayment]);
@@ -146,7 +149,7 @@ export const ReviewStep = ({
       return;
     }
     const isAmountlessInvoice = invoice.amountSat === undefined;
-    if (isAmountlessInvoice && !isValidCustomAmount(customAmount)) {
+    if (isAmountlessInvoice && !isValidCustomAmount(Number(customAmount))) {
       setSendError(t('send.error.invalidAmount'));
       return;
     }
@@ -267,8 +270,8 @@ export const ReviewStep = ({
                   placeholder={t('lightning.receive.amountSats.placeholder')}
                   id="amountSatsInput"
                   onInput={(event: ChangeEvent<HTMLInputElement>) => {
-                    const amount = event.target.valueAsNumber;
-                    setCustomAmount(Number.isNaN(amount) ? undefined : amount);
+                    const amount = event.target.value;
+                    setCustomAmount(Number.isNaN(Number(amount)) ? undefined : amount);
                   }}
                   value={customAmount ? `${customAmount}` : ''}
                   autoFocus

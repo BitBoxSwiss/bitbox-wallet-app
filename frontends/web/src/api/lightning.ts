@@ -25,7 +25,7 @@ export type TLightningAccount = {
 export type TLightningInvoice = {
   bolt11: string;
   description?: string;
-  amountSat?: number;
+  amountSat?: string;
 };
 
 export type TLightningPayment = {
@@ -42,7 +42,7 @@ export type TLightningPayment = {
 };
 
 export type TReceivePaymentRequest = {
-  amountSat: number;
+  amountSat: string;
   description: string;
 };
 
@@ -52,19 +52,19 @@ export type TReceivePaymentResponse = {
 
 export type TSendPaymentRequest = {
   bolt11: string;
-  amountSat?: number;
-  approvedFeeSat: number;
+  amountSat?: string;
+  approvedFeeSat: string;
 };
 
 export type TPreparePaymentRequest = {
   bolt11: string;
-  amountSat?: number;
+  amountSat?: string;
 };
 
 export type TPreparePaymentResponse = {
-  amountSat: number;
-  feeSat: number;
-  totalDebitSat: number;
+  amountSat: string;
+  feeSat: string;
+  totalDebitSat: string;
 };
 
 export type TServiceStatus = 'operational' | 'degraded' | 'partial' | 'major' | 'unknown';
