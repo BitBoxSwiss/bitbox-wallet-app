@@ -46,6 +46,7 @@ const Wrapper = ({
     isDevServers: false,
     isTesting: false,
     nativeLocale: 'en-US',
+    portfolioPercentageType: 'value',
     sessionConfig: {},
     setActiveSidebar: vi.fn(),
     setChartDisplay: vi.fn(),
@@ -56,6 +57,7 @@ const Wrapper = ({
     toggleGuide: vi.fn(),
     toggleHideAmounts: vi.fn(),
     toggleSidebar: vi.fn(),
+    updatePortfolioPercentageType: vi.fn(),
     updateSessionConfig: vi.fn(),
     vendorIframeActive: false,
   }}>

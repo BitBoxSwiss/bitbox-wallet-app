@@ -43,6 +43,7 @@ export const Entry = (props: TProps) => {
         {shown ? (
           <div className="flex-1">
             {entry.text.trim().split('\n').map((p, idx) => <p key={idx}>{p}</p>)}
+            {props.children}
             {entry.link && (
               <p>
                 {entry.link.url ? (
@@ -59,7 +60,6 @@ export const Entry = (props: TProps) => {
                 )}
               </p>
             )}
-            {props.children}
           </div>
         ) : null}
       </div>

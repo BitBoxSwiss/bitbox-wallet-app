@@ -1627,7 +1627,7 @@ func TestCheckAccountUsed(t *testing.T) {
 
 }
 
-func TestConvertBtcAmountToFiat(t *testing.T) {
+func TestConvertToFiat(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 	b.ratesUpdater = rates.MockRateUpdater()
@@ -1637,7 +1637,9 @@ func TestConvertBtcAmountToFiat(t *testing.T) {
 	amount := coinpkg.NewAmountFromInt64(100000000)
 	expectedValue := big.NewRat(21, 1)
 
-	converted, err := b.convertBtcAmountToFiat(amount, rates.USD.String())
+	btcCoin, err := b.Coin(coinpkg.CodeBTC)
+	require.NoError(t, err)
+	converted, err := b.convertToFiat(btcCoin, amount, rates.USD.String())
 	require.NoError(t, err)
 
 	require.Equal(t, expectedValue, converted)
