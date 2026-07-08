@@ -1362,7 +1362,7 @@
         "title": "Where are my lightning private keys stored?"
       },
       "providers": {
-        "text": "Yes, the lightning wallet utilizes Blockstream Greenlight and uses Breez as a liquidity provider. The BitBoxApp controls your lightning keys, while your own tiny lightning node is created in the cloud using Greenlight, an open-source project by Blockstream. This enables you to use your lightning wallet from multiple devices. The lightning channels of your node are managed automatically by Breez, who charge a small fee to create them.",
+        "text": "Yes, the lightning wallet uses Spark through the Breez SDK. The BitBoxApp controls your lightning keys, while Spark provides the external infrastructure needed to send and receive lightning payments. Fees may apply when using the service.",
         "title": "Are there external parties involved in this solution?"
       },
       "securedByBitBox": {
@@ -1590,6 +1590,9 @@
       }
     },
     "deactivate": {
+      "intro": {
+        "content": "Shutting down your lightning wallet will disconnect you from the server and you will no longer be able to use your lightning wallet to send and receive.\nFunds on your lightning wallet are not affected, you can still access them again by enabling lightning in the settings and connecting the BitBox02 wallet used to make that wallet."
+      },
       "success": {
         "message": "Success, your lightning wallet is now disabled"
       },
@@ -1667,7 +1670,7 @@
         "label": "Scan lightning invoice"
       },
       "sending": {
-        "connecting": "Connecting to node",
+        "connecting": "Preparing payment",
         "message": "Sending payment"
       },
       "success": {

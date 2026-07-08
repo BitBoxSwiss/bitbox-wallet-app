@@ -62,7 +62,7 @@ type breezSDK interface {
 	ListPayments(breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error)
 }
 
-// Lightning manages the Breez SDK lightning node.
+// Lightning manages the Breez SDK Spark integration.
 type Lightning struct {
 	observable.Implementation
 
