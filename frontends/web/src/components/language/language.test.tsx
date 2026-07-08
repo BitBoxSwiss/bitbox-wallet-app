@@ -3,6 +3,7 @@
 import { describe, expect, it, Mock, vi } from 'vitest';
 import { LanguageSwitch } from './language';
 import { render, fireEvent } from '@testing-library/react';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 
 import { useTranslation } from 'react-i18next';
 import { TLanguagesList } from './types';
@@ -30,7 +31,11 @@ describe('components/language/language', () => {
    * `RenderResult` from the render function of `@testing-library/react`.
    */
   function renderSwitchAndOpenDialog() {
-    const rendered = render(<LanguageSwitch languages={supportedLangs} />);
+    const rendered = render(
+      <BackButtonProvider>
+        <LanguageSwitch languages={supportedLangs} />
+      </BackButtonProvider>
+    );
     const btn = rendered.getByTitle('Select Language');
     fireEvent.click(btn);
     return rendered;

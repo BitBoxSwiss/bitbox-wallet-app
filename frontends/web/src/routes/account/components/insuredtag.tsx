@@ -5,10 +5,14 @@ import { Link } from 'react-router-dom';
 import { Shield } from '@/components/icon';
 import style from './insuredtag.module.css';
 
-export const Insured = () => {
+type TInsuredProps = {
+  code: string;
+};
+
+export const Insured = ({ code }: TInsuredProps) => {
   const { t } = useTranslation();
   return (
-    <Link className={style.insured} to="/bitsurance/dashboard">
+    <Link className={style.insured} to={`/market/bitsurance/dashboard/${code}`}>
       <div>
         <Shield/>
         <span>{t('account.insured')}</span>

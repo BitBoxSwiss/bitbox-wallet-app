@@ -13,6 +13,7 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { FeedbackLink } from './components/about/feedback-link-setting';
 import { SupportLink } from './components/about/support-link-setting';
+import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 
 export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
@@ -34,9 +35,7 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
-                <AppVersion />
-                <FeedbackLink />
-                <SupportLink />
+                <AboutSettingsContent />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -47,6 +46,20 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   );
 };
 
+export const AboutSettingsContent = () => {
+  const sections: TSettingsContentSection[] = [
+    {
+      id: 'about',
+      items: [
+        { id: 'app-version', content: <AppVersion /> },
+        { id: 'feedback', content: <FeedbackLink /> },
+        { id: 'support', content: <SupportLink /> },
+      ],
+    },
+  ];
+
+  return <SettingsContent sections={sections} />;
+};
 
 const AboutGuide = () => {
   const { t } = useTranslation();

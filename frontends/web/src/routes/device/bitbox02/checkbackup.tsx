@@ -7,6 +7,7 @@ import { Backup } from '@/api/backup';
 import { alertUser } from '@/components/alert/Alert';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
+import { PointToBitBox02 } from '@/components/icon';
 import { useTranslation } from 'react-i18next';
 
 type TProps = {
@@ -55,6 +56,8 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
     }
   };
 
+  const isWaitingForDevice = foundBackup !== undefined && !userVerified && message === '';
+
   return (
     <>
       <Button
@@ -78,6 +81,12 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
             <BackupsListItem
               backup={foundBackup}
               radio={false} />
+          )}
+          {isWaitingForDevice && (
+            <>
+              <p className="text-center">{t('confirm.info')}</p>
+              <PointToBitBox02 />
+            </>
           )}
           <DialogButtons>
             {userVerified && (

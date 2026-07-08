@@ -199,6 +199,9 @@ func (transactions *Transactions) getCachedTimestampAtHeight(height int, txInfoH
 	return headerTimestamp
 }
 
+// processTxForAddress stores and indexes a transaction for the given address.
+// It returns true if the transaction became newly confirmed while processing this address, so
+// verification can be started after the DB update succeeds.
 func (transactions *Transactions) processTxForAddress(
 	dbTx DBTxInterface,
 	scriptHashHex blockchain.ScriptHashHex,
@@ -206,30 +209,25 @@ func (transactions *Transactions) processTxForAddress(
 	tx *wire.MsgTx,
 	height int,
 	headerTimestamp *time.Time,
-) error {
+) (bool, error) {
 	txInfo, err := dbTx.TxInfo(txHash)
 	if err != nil {
-		return errp.WithMessage(err, "failed to retrieve tx info")
+		return false, errp.WithMessage(err, "failed to retrieve tx info")
 	}
 
 	if err := dbTx.PutTx(txHash, tx, height, headerTimestamp); err != nil {
-		return errp.WithMessage(err, "failed to put tx")
+		return false, errp.WithMessage(err, "failed to put tx")
 	}
 
-	if err := transactions.notifier.Put(txHash[:]); err != nil {
-		transactions.log.WithError(err).Error("Failed notifier.Put")
-	}
-
-	// Newly confirmed tx. Try to verify it.
-	if txInfo.Height <= 0 && height > 0 {
-		transactions.log.Debug("Try to verify newly confirmed tx")
-		go transactions.verifyTransaction(txHash, height)
-	}
+	newlyConfirmed := txInfo.Height <= 0 && height > 0
 
 	if err := dbTx.AddAddressToTx(txHash, scriptHashHex); err != nil {
-		return errp.WithMessage(err, "failed to add address to tx")
+		return false, errp.WithMessage(err, "failed to add address to tx")
 	}
-	return transactions.processInputsAndOutputsForAddress(dbTx, scriptHashHex, txHash, tx)
+	if err := transactions.processInputsAndOutputsForAddress(dbTx, scriptHashHex, txHash, tx); err != nil {
+		return false, err
+	}
+	return newlyConfirmed, nil
 }
 
 // Go through the tx and extract all inputs and outputs which touch the address.
@@ -336,46 +334,52 @@ func (transactions *Transactions) isInputSpent(dbTx DBTxInterface, outPoint wire
 	return input != nil, nil
 }
 
+// removeTxForAddress removes the address association for a transaction.
+// It returns true if the transaction was removed from the wallet index entirely, so notifier
+// cleanup can happen after the DB update succeeds.
 func (transactions *Transactions) removeTxForAddress(
-	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash) error {
+	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash) (bool, error) {
 	transactions.log.Debug("Remove transaction for address")
 	txInfo, err := dbTx.TxInfo(txHash)
 	if err != nil {
-		return errp.WithMessage(err, "failed to retrieve tx info")
+		return false, errp.WithMessage(err, "failed to retrieve tx info")
 	}
 	if txInfo == nil {
 		// Not yet indexed.
 		transactions.log.Debug("Transaction hash not listed")
-		return nil
+		return false, nil
 	}
 
 	transactions.log.Debug("Deleting transaction address")
 	empty, err := dbTx.RemoveAddressFromTx(txHash, scriptHashHex)
 	if err != nil {
-		return errp.WithMessage(err, "failed to remove address from tx")
+		return false, errp.WithMessage(err, "failed to remove address from tx")
 	}
 	if empty {
 		// Tx is not touching any of our outputs anymore. Remove.
 
 		for _, txIn := range txInfo.Tx.TxIn {
 			transactions.log.Debug("Deleting transaction iput")
-			dbTx.DeleteInput(txIn.PreviousOutPoint)
+			if err := dbTx.DeleteInput(txIn.PreviousOutPoint); err != nil {
+				return false, errp.WithMessage(err, "failed to delete input")
+			}
 		}
 
 		// Remove the outputs added by this tx.
 		for index := range txInfo.Tx.TxOut {
-			dbTx.DeleteOutput(wire.OutPoint{
+			if err := dbTx.DeleteOutput(wire.OutPoint{
 				Hash:  txHash,
 				Index: uint32(index),
-			})
+			}); err != nil {
+				return false, errp.WithMessage(err, "failed to delete output")
+			}
 		}
 
-		dbTx.DeleteTx(txHash)
-		if err := transactions.notifier.Delete(txHash[:]); err != nil {
-			transactions.log.WithError(err).Error("Failed notifier.Delete")
+		if err := dbTx.DeleteTx(txHash); err != nil {
+			return false, errp.WithMessage(err, "failed to delete tx")
 		}
 	}
-	return nil
+	return empty, nil
 }
 
 // UpdateAddressHistory should be called when initializing a wallet address, or when the history of
@@ -386,6 +390,13 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 		transactions.log.Debug("UpdateAddressHistory after the instance was closed")
 		return nil
 	}
+	type txToVerify struct {
+		txHash chainhash.Hash
+		height int
+	}
+	var txsToNotify []chainhash.Hash
+	var txsToVerify []txToVerify
+	var txsToDeleteFromNotifier []chainhash.Hash
 	err := DBUpdate(transactions.db, func(dbTx DBTxInterface) error {
 		txsSet := map[chainhash.Hash]struct{}{}
 		for _, txInfo := range txs {
@@ -405,8 +416,12 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 			// A tx was previously in the address history but is not anymore.  If the tx was already
 			// downloaded and indexed, it will be removed.  If it is currently downloading (enqueued for
 			// indexing), it will not be processed.
-			if err := transactions.removeTxForAddress(dbTx, scriptHashHex, entry.TXHash.Hash()); err != nil {
+			removed, err := transactions.removeTxForAddress(dbTx, scriptHashHex, entry.TXHash.Hash())
+			if err != nil {
 				return err
+			}
+			if removed {
+				txsToDeleteFromNotifier = append(txsToDeleteFromNotifier, entry.TXHash.Hash())
 			}
 		}
 
@@ -420,16 +435,39 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 			if err != nil {
 				return err
 			}
-			if err := transactions.processTxForAddress(
+			newlyConfirmed, err := transactions.processTxForAddress(
 				dbTx, scriptHashHex, txHash, tx, height, headerTimestamp,
-			); err != nil {
+			)
+			if err != nil {
 				return err
+			}
+			txsToNotify = append(txsToNotify, txHash)
+			if newlyConfirmed {
+				txsToVerify = append(txsToVerify, txToVerify{txHash: txHash, height: height})
 			}
 		}
 		return nil
 	})
 	if err != nil {
 		return errp.WithMessage(err, "failed to update address history")
+	}
+	for _, txHash := range txsToDeleteFromNotifier {
+		if err := transactions.notifier.Delete(txHash[:]); err != nil {
+			transactions.log.WithError(err).Error("Failed notifier.Delete")
+		}
+	}
+	for _, txHash := range txsToNotify {
+		if err := transactions.notifier.Put(txHash[:]); err != nil {
+			transactions.log.WithError(err).Error("Failed notifier.Put")
+		}
+	}
+	if len(txsToVerify) != 0 {
+		go func() {
+			for _, tx := range txsToVerify {
+				transactions.log.Debug("Try to verify newly confirmed tx")
+				transactions.verifyTransaction(tx.txHash, tx.height)
+			}
+		}()
 	}
 	return nil
 }

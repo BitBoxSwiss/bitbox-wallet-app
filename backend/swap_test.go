@@ -332,6 +332,7 @@ func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
 		".",
 		nil,
 		"",
+		"",
 		socksproxy.NewSocksProxy(false, ""),
 	)
 	paymentRequest := &paymentrequest.Slip24{
@@ -382,6 +383,7 @@ func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
 		&chaincfg.MainNetParams,
 		".",
 		nil,
+		"",
 		"",
 		socksproxy.NewSocksProxy(false, ""),
 	)

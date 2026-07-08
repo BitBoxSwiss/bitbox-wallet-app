@@ -35,7 +35,7 @@ Run `make buildweb` before the first `make webdev` to install npm dependencies. 
   `make servewallet-simulator`, `make servewallet-prodservers`.
 - The Go backend does **not** hot-reload — restart it after code changes. The Vite frontend
   hot-reloads automatically.
-- `make buildweb` performs a clean web build (`npm ci && npm run build`) used by desktop packages.
+- `make buildweb` performs a clean web build (`npm ci --ignore-scripts && npm run build`) used by desktop packages.
 - `make webtest` and `make webtestwatch` run Vitest unit tests (one-shot and watch mode).
 - `make webe2etest` runs Playwright E2E tests. `make weblint` runs ESLint + type-check.
   `make webfix` auto-fixes lint issues.
@@ -135,7 +135,7 @@ CSS Modules co-located with components. See `src/style/variables.css` for shared
 ### Translations
 Use `useTranslation()` from `react-i18next` to get `t()`. Translation keys live in
 `src/locales/{lang}/app.json` (namespace: `app`). English (`en/app.json`) is the reference. Keys
-are nested by feature area and must be **sorted alphabetically**. New user-facing strings must have
+are nested by feature area and should be **sorted alphabetically**, use `make webfix` to fix sorting, use `make weblint` to check translation keys are sorted. New user-facing strings must have
 a translation key — never hardcode display text.
 
 ### Form Components

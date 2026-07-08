@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect, useRef, ChangeEvent, useCallback, useContext } from 'react';
+import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
 import { Input, NumberInput } from '@/components/forms';
 import { Message } from '@/components/message/message';
 import { customFeeUnit, getCoinCode, isEthereumBased } from '@/routes/account/utils';
@@ -42,8 +42,8 @@ export const FeeTargets = ({
   error
 }: Props) => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const { defaultCurrency } = useContext(RatesContext);
-  const config = useLoad(getConfig);
   const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
   const [options, setOptions] = useState<TOption[] | null>(null);
   const [noFeeTargets, setNoFeeTargets] = useState<boolean>(false);
@@ -93,10 +93,6 @@ export const FeeTargets = ({
     onFeeTargetChange(value);
   };
 
-  const handleCustomFee = (event: ChangeEvent<HTMLInputElement>) => {
-    onCustomFee(event.target.value);
-  };
-
   const getProposeFeeText = (): string => {
     if (!proposedFee) {
       return '';
@@ -129,6 +125,9 @@ export const FeeTargets = ({
       return null;
     }
 
+    if (!config) {
+      return null;
+    }
     const feetargetInfo = feeTargets?.feeTargets.find(({ code }) => code === option.value);
     const withCustomFee = config.frontend.expertFee || feeTargets?.feeTargets.length === 0;
     if (withCustomFee && feetargetInfo) {
@@ -217,7 +216,7 @@ export const FeeTargets = ({
                   })}
                 id="proposedFee"
                 placeholder={t('send.fee.customPlaceholder')}
-                onChange={handleCustomFee}
+                onChange={onCustomFee}
                 ref={inputRef}
                 value={customFee}
               >

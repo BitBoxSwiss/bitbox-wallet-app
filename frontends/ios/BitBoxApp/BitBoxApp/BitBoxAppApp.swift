@@ -267,7 +267,7 @@ private struct StatusBarCover: View {
 
     var body: some View {
         GeometryReader { geometry in
-            if keyboard.isVisible {
+            if keyboard.isVisible && geometry.size.width < 1200 {
                 let safeTop = geometry.safeAreaInsets.top
                 Color(uiColor: useDark
                       ? UIColor(red: 0x1D/255, green: 0x1D/255, blue: 0x1B/255, alpha: 1)  // #1D1D1B

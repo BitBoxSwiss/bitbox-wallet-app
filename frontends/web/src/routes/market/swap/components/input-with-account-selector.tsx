@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import type { AccountCode, TAccountBase } from '@/api/account';
 import { convertToCurrency } from '@/api/coins';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -121,9 +121,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
             readOnly={readOnlyAmount}
             value={value}
             placeholder={placeholder}
-            onChange={(event: ChangeEvent<HTMLInputElement>) => {
-              onChangeValue && onChangeValue(event.target.value);
-            }}
+            onChange={onChangeValue}
           />
           <span className={style.inputUnit}>
             {displayedUnit}

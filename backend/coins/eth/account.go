@@ -191,7 +191,9 @@ func (account *Account) Initialize() error {
 		account.signingConfiguration.ExtendedPublicKey(),
 	)
 
-	account.coin.Initialize()
+	if err := account.coin.Initialize(); err != nil {
+		return err
+	}
 	account.initDone = account.Synchronizer.IncRequestsCounter()
 	if !account.Config().SkipInitialSync {
 		go account.EnqueueUpdate()

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PointToBitBox02, WarningOLD } from '@/components/icon';
+import { PointToBitBox02 } from '@/components/icon';
 import { changeDevicePassword, errUserAbort } from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
@@ -51,7 +51,6 @@ export const ChangeDevicePasswordSetting = ({ deviceID, canChangePassword }: TCh
       <SettingsItem
         settingName={t('bitbox02Settings.changePassword.title')}
         secondaryText={t('bitbox02Settings.changePassword.description')}
-        extraComponent={<WarningOLD width={20} height={20} />}
         displayedValue={t('bitbox02Wizard.advanced.outOfDate')}
       />
     );

@@ -14,6 +14,7 @@
     "maybeProxyError": "Tor proxy enabled. Ensure that your Tor proxy is running properly, or disable the proxy setting.",
     "reconnecting": "Lost connection, trying to reconnect…",
     "syncedAddressesCount": "Scanned {{count}} addresses",
+    "syncing": "Syncing the account, please wait…",
     "uncoveredFunds": "You have coins on the following uncovered address types of your <strong>{{name}}</strong> account: {{uncovered}}.\nSince the account is insured, only coins received via the <strong>Native Segwit</strong> address type are covered. Coins on different address types, even if they are on the same account, are not insured.\nPlease move all your coins from the unsupported address types to the <strong>Native Segwit</strong> address type, so all your coins on this account are insured.",
     "uncoveredFundsLink": "Follow this guide on how to move your coins.",
     "warning": "Warning!"
@@ -29,11 +30,11 @@
     },
     "contractAddress": "Contract address",
     "contractAddressWarning": "Do not send any coins to the contract address otherwise they will be lost. Contract address is just for informational purposes.",
+    "descriptorWarning": "To ensure smooth compatibility with other wallets, apps, or services, please copy the entire descriptor. Selecting and copying only the xpub might cause the account to be imported with an incorrect script type, which could lead to issues.",
     "exportTransactions": "Export transaction history",
     "exportTransactionsDisabled": "No transactions",
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
-    "descriptorWarning": "To ensure smooth compatibility with other wallets, apps, or services, please copy the entire descriptor. Selecting and copying only the xpub might cause the account to be imported with an incorrect script type, which could lead to issues.",
     "scriptType": "Script type",
     "title": "Account information",
     "usedAddresses": "View used addresses",
@@ -52,6 +53,7 @@
     "name": "Account name",
     "noAccount": "There are no accounts to show.",
     "portfolio": "Portfolio",
+    "searchPlaceholder": "Search transactions...",
     "title": "My portfolio",
     "total": "Total",
     "totalAssets": "Total assets",
@@ -122,7 +124,6 @@
       "message": "Proceed on {{host}}",
       "title": "Address successfully sent"
     },
-    "syncing": "Syncing the account, please wait.",
     "title": "Address request",
     "xpubRequested": "Sharing your xpub lets external services see your account addresses. Your coins are still safe and remain in your control."
   },
@@ -409,8 +410,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Error: Was not able to get xpub from account.",
     "noAccount": "There are no accounts that can be insured.",
-    "select": "Select account",
-    "title": "Insurance"
+    "select": "Select account"
   },
   "blink": {
     "button": "Blink"
@@ -1013,6 +1013,7 @@
     "title": "Custom gap limit settings"
   },
   "generic": {
+    "bitcoinOnly": "Bitcoin-only",
     "buy": "Buy {{coinCode}}",
     "buySell": "Marketplace",
     "buy_bitcoin": "Buy Bitcoin",
@@ -1022,6 +1023,7 @@
     "enable": "Enable",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "insure": "Insure",
     "max": "Max",
     "new": "New",
     "noOptionOnIos": "Not available on iOS",
@@ -1399,6 +1401,16 @@
         "title": "Why is there a network fee?"
       }
     },
+    "settings": {
+      "sats": {
+        "text": "A Satoshi ('sat' for short) is the smallest unit of Bitcoin. One Satoshi is a hundred millionth of a bitcoin (0.00000001 BTC). It is named after the creator of Bitcoin, Satoshi Nakamoto.",
+        "title": "What is a Satoshi?"
+      },
+      "servers": {
+        "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CoinGecko. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
+        "title": "Which servers does this app talk to?"
+      }
+    },
     "settings-electrum": {
       "connection": {
         "text": "If you intend to only connect to your node when you are on the same network (e.g. your home wifi), then using regular network communication is sufficient.\nIn this case it is advisable that your Electrum server provides a TLS certificate to encrypt the communication.\nIf you intend to connect to your node from anywhere, using Tor is the better option. No TLS certificate is necessary in that case.",
@@ -1426,16 +1438,6 @@
       "why": {
         "text": "Running your own node is not necessary but improves privacy and reduces the need to trust others.\nFirstly, it means that you are using Bitcoin more privately as the BitBoxApp won't connect to our servers to fetch your transaction history; instead it will fetch that information from your own node.\nSecondly, running your own node means that your node verifies all transactions itself, making sure that the consensus rules are enforced.",
         "title": "Why should I run my own node?"
-      }
-    },
-    "settings": {
-      "sats": {
-        "text": "A Satoshi ('sat' for short) is the smallest unit of Bitcoin. One Satoshi is a hundred millionth of a bitcoin (0.00000001 BTC). It is named after the creator of Bitcoin, Satoshi Nakamoto.",
-        "title": "What is a Satoshi?"
-      },
-      "servers": {
-        "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CoinGecko. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
-        "title": "Which servers does this app talk to?"
       }
     },
     "title": "Guide",
@@ -1940,6 +1942,15 @@
       "title-tltc": "Litecoin Testnet Electrum servers"
     },
     "expert": {
+      "clearCache": {
+        "description": "Clear the cache of the BitBoxApp. This can help fix issues in the app.",
+        "dialog": {
+          "description": "Clear the cache of the BitBoxApp. If you are experiencing issues with the BitBoxApp, this can help resolve them.",
+          "note": "Your account names, notes and wallets are not affected.",
+          "primaryCTA": "Clear Cache"
+        },
+        "title": "Clear cache"
+      },
       "coinControl": "Enable coin control",
       "electrum": {
         "description": "You can connect to your own Electrum full node.",
@@ -1987,6 +1998,9 @@
       "title": "Manage notes"
     },
     "restart": "Please re-start the BitBoxApp for the changes to take effect.",
+    "search": {
+      "noResults": "No settings found"
+    },
     "services": {
       "title": "Services"
     },
@@ -1996,7 +2010,6 @@
   "setup": "Setup device",
   "sidebar": {
     "device": "Manage device",
-    "insurance": "Insurance",
     "leave": "Leave",
     "settings": "Settings"
   },
@@ -2027,6 +2040,21 @@
       "summary": "You have successfully restored a wallet from your backup.",
       "title": "Success"
     }
+  },
+  "swap": {
+    "completed": "Swap completed",
+    "confirmOnBitBox": "Confirm swap on BitBox",
+    "fastest": "Fastest",
+    "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
+    "fetchingRoutes": "Fetching routes...",
+    "new": "New swap",
+    "noRouteFound": "No route found",
+    "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",
+    "oneRouteAvailable": "One route available",
+    "recommended": "Recommended",
+    "route": "Swap route",
+    "routesPlaceholder": "Routes will appear here after entering an amount",
+    "unexpectedError": "Some unexpected error occurred."
   },
   "testWallet": {
     "connect": {
@@ -2074,6 +2102,7 @@
     "explorer": "Transaction ID",
     "explorerTitle": "Open in external block explorer",
     "fee": "Fee",
+    "feeRate": "Fee rate",
     "fiatHistorical": "Historical",
     "gas": "Gas",
     "no-results": "No transactions found matching \"{{searchTerm}}\"",
@@ -2107,21 +2136,6 @@
     },
     "vsize": "Virtual size",
     "weight": "Weight"
-  },
-  "swap": {
-    "completed": "Swap completed",
-    "confirmOnBitBox": "Confirm swap on BitBox",
-    "fastest": "Fastest",
-    "fetchingRoutes": "Fetching routes...",
-    "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
-    "new": "New swap",
-    "noRouteFound": "No route found",
-    "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",
-    "oneRouteAvailable": "One route available",
-    "recommended": "Recommended",
-    "route": "Swap route",
-    "routesPlaceholder": "Routes will appear here after entering an amount",
-    "unexpectedError": "Some unexpected error occurred."
   },
   "transactions": {
     "errorLoadTransactions": "There was an error loading the transactions",

@@ -1,37 +1,45 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { apiGet, apiPost } from '@/utils/request';
+import { getConfig as apiGetConfig, setConfig as apiSetConfig, type TConfig, type TConfigBackend, type TConfigFrontend } from '@/api/config';
 
-type TConfig = {
-  backend?: unknown;
-  frontend?: unknown;
+/** Partial backend config for updates; null clears userLanguage (see i18n.ts). */
+type TConfigBackendUpdate =
+  Omit<Partial<TConfigBackend>, 'userLanguage'> & {
+    userLanguage?: string | null;
+  };
+
+type TConfigFrontendUpdate = Partial<TConfigFrontend>;
+
+export type TConfigUpdate = {
+  backend?: TConfigBackendUpdate;
+  frontend?: TConfigFrontendUpdate;
 };
 
-let pendingConfig: TConfig = {};
+let pendingConfig: TConfigUpdate = {};
 
 /**
- * get current configs
- * i.e. await getConfig()
- * returns a promise with backend and frontend configs
+ * Merge partial config with current, POST full TConfig to backend, return merged config.
+ * Does not refetch from the backend after POST.
  */
-export const getConfig = (): Promise<any> => {
-  return apiGet('config');
-};
-
-/**
- * expects an object with a backend or frontend config
- * i.e. await setConfig({ frontend: { language }})
- * returns a promise and passes the new config
- */
-export const setConfig = (object: TConfig) => {
-  return getConfig()
-    .then((currentConfig = {}) => {
-      const nextConfig = Object.assign(currentConfig, {
-        backend: Object.assign({}, currentConfig.backend, pendingConfig.backend, object.backend),
-        frontend: Object.assign({}, currentConfig.frontend, pendingConfig.frontend, object.frontend)
-      });
+export const setConfig = (object: TConfigUpdate): Promise<TConfig> => {
+  return apiGetConfig()
+    .then((currentConfig) => {
+      const nextConfig: TConfig = {
+        backend: Object.assign(
+          {},
+          currentConfig.backend,
+          pendingConfig.backend,
+          object.backend,
+        ) as TConfig['backend'],
+        frontend: Object.assign(
+          {},
+          currentConfig.frontend,
+          pendingConfig.frontend,
+          object.frontend,
+        ),
+      };
       pendingConfig = nextConfig;
-      return apiPost('config', nextConfig)
+      return apiSetConfig(nextConfig)
         .then(() => {
           pendingConfig = {};
           return nextConfig;

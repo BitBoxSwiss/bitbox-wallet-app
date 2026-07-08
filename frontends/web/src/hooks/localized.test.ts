@@ -17,7 +17,8 @@ describe('useLocalizedPunctuation', () => {
   describe('de-CH', () => {
     it('should use apostrophe for thousand and dot for decimal', () => {
       const { result } = renderHook(() => useLocalizedPunctuation('de-CH'));
-      expect(result.current).toEqual({ group: '’', decimal: '.' });
+      expect(result.current.group).toMatch(/['’]/); // node v24 changed from ’ to '
+      expect(result.current.decimal).toEqual('.');
     });
   });
 

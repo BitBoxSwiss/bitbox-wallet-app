@@ -85,7 +85,7 @@ type Interface interface {
 
 	Notes() *notes.Notes
 	TxNote(txID string) string
-	// SetTxNote sets a tx note and refreshes the account.
+	// SetTxNote sets a tx note and refreshes transactions if the note changed.
 	SetTxNote(txID string, note string) error
 
 	// ExportCSV exports the given transaction in CSV format (comma-separated).

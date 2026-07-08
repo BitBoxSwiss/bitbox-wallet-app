@@ -156,6 +156,7 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
           <AddressList
             code={code}
             accountName={account.name}
+            blockExplorerAddressPrefix={account.blockExplorerAddressPrefix}
             usedAddressesResponse={usedAddressesResponse}
             error={usedAddressesError}
             searchTerm={searchTerm}

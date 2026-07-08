@@ -2,15 +2,13 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TConfigFrontendBadgeKey } from '@/api/config';
 import { Badge } from '@/components/badge/badge';
-import { useLoad } from '@/hooks/api';
-import { getConfig, setConfig } from '@/utils/config';
-
-type TConfigKey = 'hasSeenMarketplaceNudge' | 'hasSeenSwapMarketTab' | 'hasSeenOtcMarketTab';
+import { useConfig } from '@/contexts/ConfigProvider';
 
 type TProps = {
   className?: string;
-  configKey: TConfigKey;
+  configKey: TConfigFrontendBadgeKey;
   hideOnPathPrefix?: string;
   markAsSeen?: boolean;
   pathname?: string;
@@ -28,7 +26,7 @@ export const NewBadge = ({
   type = 'new',
 }: TProps) => {
   const { t } = useTranslation();
-  const config = useLoad(getConfig);
+  const { config, setConfig } = useConfig();
   const [showBadge, setShowBadge] = useState<boolean | undefined>(undefined);
 
   const persistAsSeen = useCallback(() => {
@@ -37,14 +35,13 @@ export const NewBadge = ({
     }
     setShowBadge(false);
     setConfig({ frontend: { [configKey]: true } });
-  }, [configKey, showBadge]);
+  }, [configKey, setConfig, showBadge]);
 
   useEffect(() => {
     if (!config) {
       return;
     }
-    const frontendConfig = config.frontend as Record<string, unknown> | undefined;
-    const hasSeenBadge = Boolean(frontendConfig?.[configKey]);
+    const hasSeenBadge = config.frontend[configKey];
     setShowBadge(currentShowBadge => (
       currentShowBadge === false ? false : !hasSeenBadge
     ));

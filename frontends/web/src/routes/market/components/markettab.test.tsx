@@ -1,37 +1,71 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
+import type { TConfig } from '@/api/config';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom';
 import { MarketTab } from './markettab';
-import { getConfig } from '@/utils/config';
+import { useConfig } from '@/contexts/ConfigProvider';
+import { useMarketContext } from '@/routes/market/market-context';
 
-vi.mock('@/utils/config', () => ({
-  getConfig: vi.fn(),
-  setConfig: vi.fn(),
+const mockNavigate = vi.hoisted(() => vi.fn());
+
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => mockNavigate,
 }));
 
-const mockedGetConfig = vi.mocked(getConfig);
+vi.mock('@/contexts/ConfigProvider', () => ({
+  useConfig: vi.fn(() => ({
+    config: { frontend: {}, backend: {} } as TConfig,
+    setConfig: vi.fn(),
+  })),
+}));
+
+vi.mock('@/routes/market/market-context', () => ({
+  useMarketContext: vi.fn(() => ({
+    regions: [],
+    selectedRegion: '',
+    setSelectedRegion: vi.fn(),
+    showSwap: true,
+  })),
+}));
+
+const mockUseConfig = vi.mocked(useConfig);
+const mockUseMarketContext = vi.mocked(useMarketContext);
 
 describe('routes/market/components/markettab', () => {
   beforeEach(() => {
-    mockedGetConfig.mockResolvedValue({ frontend: {} });
+    vi.clearAllMocks();
+    mockUseConfig.mockReturnValue({
+      config: { frontend: {}, backend: {} } as TConfig,
+      setConfig: vi.fn(),
+    });
+    mockUseMarketContext.mockReturnValue({
+      regions: [],
+      selectedRegion: '',
+      setSelectedRegion: vi.fn(),
+      showSwap: true,
+    });
   });
 
   it('shows the new badge on swap when enabled', async () => {
-    mockedGetConfig.mockResolvedValue({
-      frontend: {
-        hasSeenOtcMarketTab: true,
-        hasSeenSwapMarketTab: false,
-      }
+    mockUseConfig.mockReturnValue({
+      config: {
+        frontend: {
+          hasSeenOtcMarketTab: true,
+          hasSeenSwapMarketTab: false,
+        },
+      } as TConfig,
+      setConfig: vi.fn(),
     });
 
     render(
       <MarketTab
+        accounts={[]}
         activeTab="buy"
-        onChangeTab={vi.fn()}
-        showSwap
+        code="code-123"
       />,
     );
 
@@ -39,59 +73,75 @@ describe('routes/market/components/markettab', () => {
   });
 
   it('hides the new badge on swap when disabled', async () => {
-    mockedGetConfig.mockResolvedValue({
-      frontend: {
-        hasSeenOtcMarketTab: true,
-        hasSeenSwapMarketTab: true,
-      }
+    mockUseConfig.mockReturnValue({
+      config: {
+        frontend: {
+          hasSeenOtcMarketTab: true,
+          hasSeenSwapMarketTab: true,
+        },
+      } as TConfig,
+      setConfig: vi.fn(),
     });
 
     render(
       <MarketTab
+        accounts={[]}
         activeTab="buy"
-        onChangeTab={vi.fn()}
-        showSwap
+        code="code-234"
       />,
     );
 
-    await waitFor(() => {
-      expect(mockedGetConfig).toHaveBeenCalled();
-    });
     expect(screen.queryByTestId('swap-new-badge')).not.toBeInTheDocument();
   });
 
-  it('emits swap tab selection when swap is clicked', async () => {
+  it('navigates to swap when swap is clicked', async () => {
     const user = userEvent.setup();
-    const onChangeTab = vi.fn();
 
     render(
       <MarketTab
+        accounts={[]}
         activeTab="buy"
-        onChangeTab={onChangeTab}
-        showSwap
+        code="code-345"
       />,
     );
 
-    const swapButton = screen.getByText('generic.swap').closest('button');
-    expect(swapButton).not.toBeNull();
-    await user.click(swapButton as HTMLButtonElement);
+    await user.click(screen.getByRole('button', { name: /generic\.swap/ }));
 
-    expect(onChangeTab).toHaveBeenCalledWith('swap');
+    expect(mockNavigate).toHaveBeenCalledWith('/market/select/code-345?tab=swap');
+  });
+
+  it('navigates to bitsurance when insure is clicked', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MarketTab
+        accounts={[]}
+        activeTab="buy"
+        code="code-456"
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: /generic\.insure/ }));
+
+    expect(mockNavigate).toHaveBeenCalledWith('/market/bitsurance/code-456');
   });
 
   it('shows the new badge on otc when enabled', async () => {
-    mockedGetConfig.mockResolvedValue({
-      frontend: {
-        hasSeenOtcMarketTab: false,
-        hasSeenSwapMarketTab: true,
-      }
+    mockUseConfig.mockReturnValue({
+      config: {
+        frontend: {
+          hasSeenOtcMarketTab: false,
+          hasSeenSwapMarketTab: true,
+        },
+      } as TConfig,
+      setConfig: vi.fn(),
     });
 
     render(
       <MarketTab
+        accounts={[]}
         activeTab="buy"
-        onChangeTab={vi.fn()}
-        showSwap
+        code="code-567"
       />,
     );
 

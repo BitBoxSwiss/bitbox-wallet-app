@@ -5,6 +5,7 @@ package backend
 import (
 	"encoding/hex"
 	"fmt"
+	"maps"
 	"math/big"
 	"net/http"
 	"net/url"
@@ -70,9 +71,13 @@ var fixedURLWhitelist = []string{
 	"https://www.coingecko.com/",
 	// Block explorers.
 	"https://mempool.space/tx/",
+	"https://mempool.space/address/",
 	"https://mempool.space/testnet/tx/",
+	"https://mempool.space/testnet/address/",
 	"https://sochain.com/tx/LTCTEST/",
+	"https://sochain.com/address/LTCTEST/",
 	"https://blockchair.com/litecoin/transaction/",
+	"https://blockchair.com/litecoin/address/",
 	"https://etherscan.io/tx/",
 	"https://etherscan.io/address/",
 	"https://sepolia.etherscan.io/tx/",
@@ -160,6 +165,12 @@ type authEventObject struct {
 	Result *AuthResultType `json:"result,omitempty"`
 }
 
+// NumberFormat can contain different decimal and group separators specified by the user to format numbers can be empty in case the user did not overwrite.
+type NumberFormat struct {
+	DecimalSeparator string `json:"decimal"`
+	GroupSeparator   string `json:"group"`
+}
+
 // Environment represents functionality where the implementation depends on the environment the app
 // runs in, e.g. Qt5/Mobile/webdev.
 type Environment interface {
@@ -182,6 +193,7 @@ type Environment interface {
 	// to return empty string or unsupported value, in which case the app will use
 	// English by default.
 	NativeLocale() string
+	NumberFormat() *NumberFormat
 	// Invoke a file picker dialog for the user to select a destination to store a file.
 	// `suggestedFilename` is the proposed/default destination.
 	// The function should return the empty string if the user aborted the process.
@@ -214,7 +226,8 @@ type Backend struct {
 
 	notifier *Notifier
 
-	devices map[string]device.Interface
+	devices     map[string]device.Interface
+	devicesLock locker.Locker
 
 	usbManager *usb.Manager
 	bluetooth  *bluetooth.Bluetooth
@@ -236,6 +249,10 @@ type Backend struct {
 	// makeEthAccount creates an ETH account. In production this is `eth.NewAccount`, but can be
 	// overridden in unit tests for mocking.
 	makeEthAccount func(*accounts.AccountConfig, *eth.Coin, *http.Client, *logrus.Entry) accounts.Interface
+	// enqueueETHUpdateForAllAccountsAsync asks the ETH updater to refresh all ETH accounts without
+	// blocking the caller. In production this is `ethupdater.EnqueueUpdateForAllAccountsAsync`, but
+	// can be overridden in unit tests.
+	enqueueETHUpdateForAllAccountsAsync func()
 
 	onAccountInit   func(accounts.Interface)
 	onAccountUninit func(accounts.Interface)
@@ -253,6 +270,7 @@ type Backend struct {
 	etherScanRateLimiter *rate.Limiter
 	ratesUpdater         *rates.RateUpdater
 	banners              *banners.Banners
+	started              bool
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
 	tstCheckAccountUsed func(accounts.Interface) bool
@@ -267,10 +285,6 @@ type Backend struct {
 
 	// ethupdater takes care of updating ETH accounts.
 	ethupdater *eth.Updater
-
-	// skipETHInitialSync suppresses the per-account ETH init refresh while startup loads persisted
-	// accounts, so the updater's initial batch refresh is the only startup sync round.
-	skipETHInitialSync bool
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -328,16 +342,9 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.socksProxy = backendProxy
 	backend.httpClient = hclient
 	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts)
+	backend.enqueueETHUpdateForAllAccountsAsync = backend.ethupdater.EnqueueUpdateForAllAccountsAsync
 
-	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
-	if err := os.MkdirAll(ratesCache, 0700); err != nil {
-		log.Errorf("RateUpdater DB cache dir: %v", err)
-	}
-	backend.ratesUpdater = rates.NewRateUpdater(hclient, ratesCache)
-	backend.ratesUpdater.Observe(func(event observable.Event) {
-		backend.Notify(event)
-		backend.notifyCoinFiatPrices()
-	})
+	backend.ratesUpdater = backend.newRatesUpdater()
 
 	backend.banners = banners.NewBanners(backend.DevServers())
 	backend.banners.Observe(backend.Notify)
@@ -346,6 +353,37 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.bluetooth.Observe(backend.Notify)
 
 	return backend, nil
+}
+
+func (backend *Backend) newRatesUpdater() *rates.RateUpdater {
+	ratesCache := filepath.Join(backend.arguments.CacheDirectoryPath(), "exchangerates")
+	if err := os.MkdirAll(ratesCache, 0700); err != nil {
+		backend.log.Errorf("RateUpdater DB cache dir: %v", err)
+	}
+	updater := rates.NewRateUpdater(backend.httpClient, ratesCache)
+	updater.Observe(func(event observable.Event) {
+		backend.Notify(event)
+		backend.notifyCoinFiatPrices()
+	})
+	return updater
+}
+
+func (backend *Backend) closeCoins() error {
+	unlock := backend.coinsLock.Lock()
+	coins := backend.coins
+	backend.coins = map[coinpkg.Code]coinpkg.Coin{}
+	unlock()
+
+	errors := []string{}
+	for code, coin := range coins {
+		if err := coin.Close(); err != nil {
+			errors = append(errors, fmt.Sprintf("%s: %v", code, err))
+		}
+	}
+	if len(errors) > 0 {
+		return errp.New(strings.Join(errors, "; "))
+	}
+	return nil
 }
 
 // configureHistoryExchangeRates changes backend.ratesUpdater settings.
@@ -534,23 +572,23 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	switch {
 	case code == coinpkg.CodeRBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", coinpkg.BtcUnitDefault, &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
+		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", coinpkg.BtcUnitDefault, &chaincfg.RegressionNetParams, dbFolder, servers, "", "", backend.socksProxy)
 	case code == coinpkg.CodeTBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", btcFormatUnit, &chaincfg.TestNet3Params, dbFolder, servers,
-			"https://mempool.space/testnet/tx/", backend.socksProxy)
+			"https://mempool.space/testnet/tx/", "https://mempool.space/testnet/address/", backend.socksProxy)
 	case code == coinpkg.CodeBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", btcFormatUnit, &chaincfg.MainNetParams, dbFolder, servers,
-			"https://mempool.space/tx/", backend.socksProxy)
+			"https://mempool.space/tx/", "https://mempool.space/address/", backend.socksProxy)
 	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", coinpkg.BtcUnitDefault, &ltc.TestNet4Params, dbFolder, servers,
-			"https://sochain.com/tx/LTCTEST/", backend.socksProxy)
+			"https://sochain.com/tx/LTCTEST/", "https://sochain.com/address/LTCTEST/", backend.socksProxy)
 	case code == coinpkg.CodeLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
-			"https://blockchair.com/litecoin/transaction/", backend.socksProxy)
+			"https://blockchair.com/litecoin/transaction/", "https://blockchair.com/litecoin/address/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
 		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)
 		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
@@ -675,9 +713,7 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // client.
 func (backend *Backend) Start() <-chan interface{} {
 	backend.usbManager = usb.NewManager(
-		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
-		backend.socksProxy,
 		backend.environment.DeviceInfos,
 		backend.Register,
 		backend.Deregister)
@@ -691,13 +727,12 @@ func (backend *Backend) Start() <-chan interface{} {
 	}
 
 	defer backend.accountsAndKeystoreLock.Lock()()
-	backend.skipETHInitialSync = true
-	backend.initPersistedAccounts()
-	backend.skipETHInitialSync = false
+	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
 	backend.emitAccountsStatusChanged()
 
 	backend.ratesUpdater.StartCurrentRates()
 	backend.configureHistoryExchangeRates()
+	backend.started = true
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
 
@@ -720,7 +755,8 @@ func (backend *Backend) UsbUpdate() {
 
 // DevicesRegistered returns a map of device IDs to device of registered devices.
 func (backend *Backend) DevicesRegistered() map[string]device.Interface {
-	return backend.devices
+	defer backend.devicesLock.RLock()()
+	return maps.Clone(backend.devices)
 }
 
 // HTTPClient is a getter method for the HTTPClient instance.
@@ -839,16 +875,18 @@ func (backend *Backend) DeregisterKeystore() {
 	backend.uninitAccounts(false)
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
 	// keystore. For now we just remove all, then re-add the rest.
-	backend.initPersistedAccounts()
+	backend.initPersistedAccounts(accountLoadOptions{})
 	backend.emitAccountsStatusChanged()
 	backend.connectKeystore.onDisconnect()
 }
 
 // Register registers the given device at this backend.
 func (backend *Backend) Register(theDevice device.Interface) error {
+	unlock := backend.devicesLock.Lock()
 	backend.devices[theDevice.Identifier()] = theDevice
-
 	mainKeystore := len(backend.devices) == 1
+	unlock()
+
 	theDevice.SetOnEvent(func(event deviceevent.Event, data interface{}) {
 		backend.events <- deviceEvent{
 			DeviceID: theDevice.Identifier(),
@@ -902,9 +940,15 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 
 // Deregister deregisters the device with the given ID from this backend.
 func (backend *Backend) Deregister(deviceID string) {
-	if device, ok := backend.devices[deviceID]; ok {
-		backend.onDeviceUninit(deviceID)
+	unlock := backend.devicesLock.Lock()
+	device, ok := backend.devices[deviceID]
+	if ok {
 		delete(backend.devices, deviceID)
+	}
+	unlock()
+
+	if ok {
+		backend.onDeviceUninit(deviceID)
 		backend.DeregisterKeystore()
 
 		backend.Notify(observable.Event{
@@ -971,9 +1015,17 @@ func (backend *Backend) CheckElectrumServer(serverInfo *config.ServerInfo) error
 
 // RegisterTestKeystore adds a keystore derived deterministically from a PIN, for convenience in
 // devmode.
-func (backend *Backend) RegisterTestKeystore(pin string) {
-	softwareBasedKeystore := software.NewKeystoreFromPIN(pin)
+func (backend *Backend) RegisterTestKeystore(pin string, edition software.Edition) error {
+	switch edition {
+	case "":
+		edition = software.EditionMulti
+	case software.EditionMulti, software.EditionBTCOnly:
+	default:
+		return errp.Newf("Unsupported test keystore edition: %s", edition)
+	}
+	softwareBasedKeystore := software.NewKeystoreFromPINWithEdition(pin, edition)
 	backend.registerKeystore(softwareBasedKeystore)
+	return nil
 }
 
 // NotifyUser creates a desktop notification.
@@ -1046,8 +1098,51 @@ func (backend *Backend) Environment() Environment {
 	return backend.environment
 }
 
+// ClearCache clears the backend cache directory and reinitializes cache-backed state.
+// User data such as configs, account names, wallets and notes is preserved.
+func (backend *Backend) ClearCache() error {
+	defer backend.accountsAndKeystoreLock.Lock()()
+
+	backend.log.Info("Clearing backend cache")
+
+	errors := []string{}
+
+	if backend.ratesUpdater != nil {
+		backend.ratesUpdater.Stop()
+	}
+
+	backend.uninitAccounts(true)
+	if err := backend.closeCoins(); err != nil {
+		backend.log.WithError(err).Error("could not close coins before clearing cache")
+		errors = append(errors, err.Error())
+	}
+
+	cacheDir := backend.arguments.CacheDirectoryPath()
+	if err := os.RemoveAll(cacheDir); err != nil {
+		backend.log.WithError(err).Error("could not remove cache directory")
+		errors = append(errors, err.Error())
+	}
+	if err := os.MkdirAll(cacheDir, 0700); err != nil {
+		backend.log.WithError(err).Error("could not recreate cache directory")
+		errors = append(errors, err.Error())
+	}
+
+	backend.ratesUpdater = backend.newRatesUpdater()
+	backend.initAccounts(true)
+	if backend.started {
+		backend.ratesUpdater.StartCurrentRates()
+	}
+	backend.notifyCoinFiatPrices()
+
+	if len(errors) > 0 {
+		return errp.New(strings.Join(errors, "; "))
+	}
+	return nil
+}
+
 // Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
+	backend.started = false
 	backend.ratesUpdater.Stop()
 	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
 	// which acquires the same lock.

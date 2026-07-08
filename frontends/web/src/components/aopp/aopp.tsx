@@ -164,7 +164,7 @@ export const Aopp = () => {
           <Vasp hostname={domain(aopp.callback)} />
         </ViewHeader>
         <ViewContent>
-          <p>{t('aopp.syncing')}</p>
+          <p>{t('account.syncing')}</p>
         </ViewContent>
         <ViewButtons>
           <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>

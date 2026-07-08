@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"runtime"
 	"strings"
 
@@ -25,12 +26,20 @@ import (
 )
 
 const (
-	port    = 8082
-	address = "0.0.0.0"
-	darwin  = "darwin"
+	port               = 8082
+	defaultBindAddress = "127.0.0.1"
+	bindAddressEnvVar  = "BITBOX_DEV_BIND_HOST"
+	darwin             = "darwin"
 )
 
 var backend *backendPkg.Backend
+
+func bindAddress() string {
+	if address := os.Getenv(bindAddressEnvVar); address != "" {
+		return address
+	}
+	return defaultBindAddress
+}
 
 // webdevEnvironment implements backend.Environment.
 type webdevEnvironment struct {
@@ -120,6 +129,55 @@ func (webdevEnvironment) NativeLocale() string {
 	return strings.Split(v, ".")[0]
 }
 
+func normalizeAppleSeparator(s string) string {
+	// macOS defaults may encode narrow no-break space as \U202f.
+	replacer := strings.NewReplacer(
+		`\\U202f`, "\u202f",
+		`\\U202F`, "\u202f",
+		`\U202f`, "\u202f",
+		`\U202F`, "\u202f",
+	)
+	return replacer.Replace(s)
+}
+
+func parseAppleICUNumberSymbols(out []byte) *backendPkg.NumberFormat {
+	result := &backendPkg.NumberFormat{}
+
+	re := regexp.MustCompile(`(\d+)\s*=\s*"([^"]*)"`)
+	for _, m := range re.FindAllStringSubmatch(string(out), -1) {
+		switch m[1] {
+		case "0":
+			result.DecimalSeparator = normalizeAppleSeparator(m[2])
+		case "1":
+			result.GroupSeparator = normalizeAppleSeparator(m[2])
+		}
+	}
+
+	if result.DecimalSeparator == "" &&
+		result.GroupSeparator == "" {
+		return nil
+	}
+
+	return result
+}
+
+// NumberFormatting in webdev
+func (webdevEnvironment) NumberFormat() *backendPkg.NumberFormat {
+	log := logging.Get().WithGroup("servewallet")
+	if runtime.GOOS != "darwin" {
+		return nil
+	}
+
+	out, err := exec.Command("defaults", "read", "-g", "AppleICUNumberSymbols").Output()
+
+	if err != nil {
+		log.Warnf("failed to read AppleICUNumberSymbols via defaults: %v", err)
+		return nil
+	}
+
+	return parseAppleICUNumberSymbols(out)
+}
+
 // GetSaveFilename implements backend.Environment.
 func (webdevEnvironment) GetSaveFilename(suggestedFilename string) string {
 	return suggestedFilename
@@ -139,6 +197,7 @@ func (webdevEnvironment) DetectDarkTheme() bool {
 
 func main() {
 	config.SetAppDir("appfolder.dev")
+	address := bindAddress()
 
 	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
 	regtest := flag.Bool("regtest", false, "use regtest instead of testnet coins")
