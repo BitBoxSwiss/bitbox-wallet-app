@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
 import { getDeviceList } from '../../api/devices';
 import {
+  TLightningBalance,
   TLightningPayment,
   getBlockExplorerTxPrefix,
   getLightningBalance,
@@ -28,6 +29,13 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { useLightning } from '@/hooks/lightning';
+import { Link } from 'react-router-dom';
+import {
+  formatExcessLightningFundingLimit,
+  formatLightningFundingLimit,
+  hasExceededLightningFundingLimit,
+  hasReachedLightningFundingLimit,
+} from './limits';
 import { TransactionList } from '@/routes/account/components/transaction-list';
 import type { TTransactionListItem } from '@/routes/account/components/transaction-list';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
@@ -57,7 +65,7 @@ const bitcoinDepositTransactionStatus = (
 
 type TLightningPageLayoutProps = {
   accountDataLoaded: boolean;
-  balance?: accountApi.TBalance;
+  balance?: TLightningBalance;
   canSend?: boolean;
   children: ReactNode;
   statusBanners: ReactNode;
@@ -71,6 +79,9 @@ const LightningPageLayout = ({
   statusBanners,
 }: TLightningPageLayoutProps) => {
   const { t } = useTranslation();
+  const fundingLimit = balance?.fundingLimit;
+  const canTopUp = fundingLimit !== undefined && !hasReachedLightningFundingLimit(fundingLimit);
+  const showFundingLimitWarning = hasExceededLightningFundingLimit(fundingLimit);
 
   return (
     <GuideWrapper>
@@ -88,6 +99,13 @@ const LightningPageLayout = ({
           >
             <HideAmountsButton />
           </Header>
+          <Status dismissibleKey="" type="warning" hidden={!showFundingLimitWarning}>
+            {t('lightning.limit.accountWarning', {
+              excess: formatExcessLightningFundingLimit(fundingLimit),
+              limit: formatLightningFundingLimit(fundingLimit),
+            })}{' '}
+            <Link to="/lightning/send">{t('lightning.limit.moveCoins')}</Link>
+          </Status>
           <View>
             <ViewHeader>
               <div className={accountStyle.balanceHeader}>
@@ -95,6 +113,7 @@ const LightningPageLayout = ({
                 <ActionButtons
                   accountDataLoaded={accountDataLoaded}
                   canSend={canSend}
+                  canTopUp={canTopUp}
                 />
               </div>
             </ViewHeader>
@@ -157,7 +176,7 @@ const paymentToTransaction = (
 };
 
 type TLightningInnerProps = {
-  balance: accountApi.TBalance;
+  balance: TLightningBalance;
   explorerURL?: string;
   payments: TLightningPayment[];
   statusBanners: ReactNode;
@@ -283,7 +302,7 @@ export const Lightning = () => {
   const { t } = useTranslation();
   const { btcUnit } = useContext(RatesContext);
   const { isLightningReady, lightningAccount } = useLightning();
-  const [balance, setBalance] = useState<accountApi.TBalance>();
+  const [balance, setBalance] = useState<TLightningBalance>();
   const [syncedAddressesCount] = useState<number>();
   const [payments, setPayments] = useState<TLightningPayment[]>();
   const [sparkStatus, setSparkStatus] = useState<TSparkStatus>();

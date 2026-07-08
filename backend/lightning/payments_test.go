@@ -95,6 +95,18 @@ func makeTestLightning() *Lightning {
 	}
 }
 
+type receivePaymentTestSDK struct {
+	breezSDK
+	request breez_sdk_spark.ReceivePaymentRequest
+}
+
+func (sdk *receivePaymentTestSDK) ReceivePayment(
+	request breez_sdk_spark.ReceivePaymentRequest,
+) (breez_sdk_spark.ReceivePaymentResponse, error) {
+	sdk.request = request
+	return breez_sdk_spark.ReceivePaymentResponse{PaymentRequest: "lnbc1invoice"}, nil
+}
+
 func TestToLightningPayment(t *testing.T) {
 	lightning := makeTestLightning()
 	description := "invoice description"
@@ -1721,6 +1733,72 @@ func TestValidateBitcoinPaymentAmountAgainstDustLimit(t *testing.T) {
 			))
 		})
 	}
+}
+
+func TestFundingLimitForBalance(t *testing.T) {
+	t.Parallel()
+
+	for _, testCase := range []struct {
+		name              string
+		availableSat      int64
+		incomingSat       int64
+		expectedMarginSat int64
+	}{
+		{
+			name:              "empty balance",
+			expectedMarginSat: lightningBalanceLimitSat,
+		},
+		{
+			name:              "available and incoming below limit",
+			availableSat:      lightningBalanceLimitSat / 2,
+			incomingSat:       lightningBalanceLimitSat/2 - 1,
+			expectedMarginSat: 1,
+		},
+		{
+			name:         "available and incoming equal limit",
+			availableSat: lightningBalanceLimitSat / 2,
+			incomingSat:  lightningBalanceLimitSat / 2,
+		},
+		{
+			name:              "available and incoming exceed limit",
+			availableSat:      lightningBalanceLimitSat / 2,
+			incomingSat:       lightningBalanceLimitSat/2 + 1,
+			expectedMarginSat: -1,
+		},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			balance := accounts.NewBalance(
+				coin.NewAmountFromInt64(testCase.availableSat),
+				coin.NewAmountFromInt64(testCase.incomingSat),
+			)
+			limit, err := fundingLimitForBalance(balance)
+			require.NoError(t, err)
+			require.Equal(t, fundingLimit{
+				LimitSat:  lightningBalanceLimitSat,
+				MarginSat: testCase.expectedMarginSat,
+			}, limit)
+		})
+	}
+}
+
+func TestReceivePaymentAllowsAmountAboveBalanceLimit(t *testing.T) {
+	lightning := newTestLightning(t, nil)
+	require.NoError(t, lightning.SetAccount(&config.LightningAccountConfig{Code: "v0-test-ln-0"}))
+	sdk := &receivePaymentTestSDK{}
+	lightning.sdkService = sdk
+	amountSat := uint64(lightningBalanceLimitSat + 1)
+
+	response, err := lightning.ReceivePayment(amountSat, "Over-limit invoice")
+	require.NoError(t, err)
+	require.Equal(t, &receivePaymentResponse{Invoice: "lnbc1invoice"}, response)
+	require.Equal(t, breez_sdk_spark.ReceivePaymentRequest{
+		PaymentMethod: breez_sdk_spark.ReceivePaymentMethodBolt11Invoice{
+			Description: "Over-limit invoice",
+			AmountSats:  &amountSat,
+		},
+	}, sdk.request)
 }
 
 func TestLightningPaymentError(t *testing.T) {

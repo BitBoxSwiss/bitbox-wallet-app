@@ -5,7 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { convertFromCurrency, convertToCurrency } from '@/api/coins';
-import { getBoardingAddress, getLightningBalance } from '@/api/lightning';
+import {
+  getLightningBalance,
+  lightningBalanceLimitErrorCode,
+  postPrepareTopUp,
+  type TPrepareTopUpResult,
+} from '@/api/lightning';
 import { connectKeystore } from '@/api/keystores';
 import { useLoad } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
@@ -16,6 +21,10 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { TopUpConfirm } from './topup-confirm';
 import { TopUpForm } from './topup-form';
 import { TopUpAborted, TopUpNoBitcoinAccounts, TopUpNoFundedBitcoinAccounts, TopUpSuccess } from './topup-result';
+import {
+  formatLightningFundingLimit,
+  formatRemainingLightningFundingLimit,
+} from '../limits';
 
 type TProps = {
   activeAccounts: accountApi.TAccount[];
@@ -23,34 +32,6 @@ type TProps = {
 };
 
 type TStep = 'form' | 'confirming' | 'success' | 'aborted';
-
-const useLightningBalance = () => {
-  const mounted = useMountedRef();
-  const balanceRequest = useRef(0);
-  const [balance, setBalance] = useState<accountApi.TBalance>();
-
-  const reloadBalance = useCallback(() => {
-    const request = ++balanceRequest.current;
-    getLightningBalance().then((nextBalance) => {
-      if (request === balanceRequest.current && mounted.current) {
-        setBalance(nextBalance);
-      }
-    }).catch(() => {
-      if (request === balanceRequest.current && mounted.current) {
-        setBalance(undefined);
-      }
-    });
-  }, [mounted]);
-
-  useEffect(() => {
-    reloadBalance();
-  }, [reloadBalance]);
-
-  return {
-    balance,
-    reloadBalance,
-  };
-};
 
 const getTopUpAccounts = async (accounts: accountApi.TAccount[]) => {
   const accountHasBalance = await Promise.all(accounts.map(async (account) => {
@@ -70,8 +51,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   const navigate = useNavigate();
   const { btcUnit, defaultCurrency } = useContext(RatesContext);
   const mounted = useMountedRef();
-  const boardingAddress = useRef<Promise<string> | null>(null);
-  const lastProposal = useRef<Promise<accountApi.TTxProposalResult> | null>(null);
+  const lastProposal = useRef<Promise<TPrepareTopUpResult> | null>(null);
   const proposeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const conversionRequest = useRef(0);
   const prevDefaultCurrency = usePrevious(defaultCurrency);
@@ -84,17 +64,16 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   const topUpAccounts = useLoad(() => getTopUpAccounts(btcAccounts), [btcAccounts]);
   const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>('');
   const sourceAccount = topUpAccounts?.find(account => account.code === sourceAccountCode);
-  const { balance: lightningBalance, reloadBalance: reloadLightningBalance } = useLightningBalance();
+  const lightningBalance = useLoad(() => getLightningBalance().catch(() => undefined));
   const sourceAmountUnit = sourceAccount
     ? getDisplayedCoinUnit(sourceAccount.coinCode, sourceAccount.coinUnit, btcUnit)
     : 'BTC';
-
   const [amount, setAmount] = useState('');
   const [fiatAmount, setFiatAmount] = useState('');
   const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
   const [customFee, setCustomFee] = useState('');
   const [note, setNote] = useState(() => t('lightning.topUp.note'));
-  const [proposal, setProposal] = useState<accountApi.TTxProposalResult>();
+  const [proposal, setProposal] = useState<TPrepareTopUpResult>();
   const [errorHandling, setErrorHandling] = useState<TProposalError>({});
   const [isUpdatingProposal, setIsUpdatingProposal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -102,6 +81,13 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   const [step, setStep] = useState<TStep>('form');
   const stepRef = useRef<TStep>('form');
   const isSubmittingRef = useRef(false);
+  const fundingLimitErrorMessage = proposal?.success === false
+    && proposal.errorCode === lightningBalanceLimitErrorCode
+    ? t(`error.${proposal.errorCode}`, {
+      limit: formatLightningFundingLimit(proposal.fundingLimit),
+      remaining: formatRemainingLightningFundingLimit(proposal.fundingLimit),
+    })
+    : undefined;
 
   useEffect(() => {
     stepRef.current = step;
@@ -166,16 +152,6 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
     }
   }, [defaultCurrency, mounted, sourceAccount, t]);
 
-  const getTopUpAddress = useCallback(() => {
-    if (!boardingAddress.current) {
-      boardingAddress.current = getBoardingAddress().catch((error) => {
-        boardingAddress.current = null;
-        throw error;
-      });
-    }
-    return boardingAddress.current;
-  }, []);
-
   const getValidProposalInput = useCallback(() => {
     if (!sourceAccount || feeTarget === undefined || !amount || (feeTarget === 'custom' && !customFee)) {
       return null;
@@ -207,18 +183,14 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
     }
     setIsUpdatingProposal(true);
     proposeTimeout.current = setTimeout(async () => {
-      let proposePromise: Promise<accountApi.TTxProposalResult> | null = null;
+      let proposePromise: Promise<TPrepareTopUpResult> | null = null;
       try {
-        proposePromise = getTopUpAddress().then(address => accountApi.proposeTx(proposalInput.sourceAccountCode, {
-          address,
+        proposePromise = postPrepareTopUp({
           amount: proposalInput.amount,
           customFee: proposalInput.customFee,
           feeTarget: proposalInput.feeTarget,
-          paymentRequest: null,
-          selectedUTXOs: [],
-          sendAll: 'no',
-          useHighestFee: false,
-        }));
+          sourceAccountCode: proposalInput.sourceAccountCode,
+        });
         lastProposal.current = proposePromise;
         const result = await proposePromise;
         if (proposePromise !== lastProposal.current || !mounted.current) {
@@ -235,7 +207,11 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
         if (keepCurrentProposal) {
           return;
         }
-        setErrorHandling(txProposalErrorHandling(result.errorCode));
+        setErrorHandling(
+          result.errorCode === lightningBalanceLimitErrorCode
+            ? {}
+            : txProposalErrorHandling(result.errorCode)
+        );
       } catch (error) {
         if (proposePromise === lastProposal.current && mounted.current) {
           setIsUpdatingProposal(false);
@@ -248,7 +224,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
         }
       }
     }, 400);
-  }, [getTopUpAddress, getValidProposalInput, mounted]);
+  }, [getValidProposalInput, mounted]);
 
   useEffect(() => {
     validateAndDisplayFee();
@@ -344,11 +320,9 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
       setIsSubmitting(false);
       return;
     }
-    reloadLightningBalance();
-
     try {
-      setStep('confirming');
       setSendError(undefined);
+      setStep('confirming');
       const result = await accountApi.sendTx(sourceAccount.code, note);
       if (!mounted.current) {
         return;
@@ -392,7 +366,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
         customFee={customFee}
         feeTarget={feeTarget}
         note={note}
-        proposal={proposal}
+        proposal={proposal?.success ? proposal : undefined}
         sourceAccount={sourceAccount}
       />
     );
@@ -414,11 +388,14 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
     return null;
   }
 
-  const canReview = !!proposal?.success && !isUpdatingProposal && !isSubmitting;
+  const canReview = !!proposal?.success
+    && !isUpdatingProposal
+    && !isSubmitting;
 
   return (
     <TopUpForm
       amount={amount}
+      balanceLimitError={fundingLimitErrorMessage}
       btcAccounts={topUpAccounts}
       canReview={canReview}
       customFee={customFee}
@@ -437,7 +414,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
       onNoteChange={setNote}
       onReview={handleReview}
       onSourceChange={handleSourceChange}
-      proposal={proposal}
+      proposal={proposal?.success ? proposal : undefined}
       sendError={sendError}
       sourceAccount={sourceAccount}
       sourceAccountCode={sourceAccountCode}

@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode, TAmountWithConversions, TBalance, TTransactionStatus } from '@/api/account';
+import type {
+  AccountCode,
+  FeeTargetCode,
+  TAmountWithConversions,
+  TBalance,
+  TTransactionStatus,
+  TTxProposalErrorCode,
+} from '@/api/account';
 import type { TSubscriptionCallback, TUnsubscribe } from '@/api/subscribe';
 import { subscribeEndpoint } from '@/api/subscribe';
 import { apiGet, apiPost } from '@/utils/request';
@@ -42,6 +49,39 @@ export type TLightningLNURLPay = {
 export type TLightningBitcoinPaymentInput = {
   address: string;
   amountSat?: number;
+};
+
+export type TLightningFundingLimit = {
+  limitSat: number;
+  marginSat: number;
+};
+
+export const lightningBalanceLimitErrorCode = 'lightningBalanceLimitExceeded' as const;
+
+export type TLightningBalance = TBalance & {
+  fundingLimit: TLightningFundingLimit;
+};
+
+export type TPrepareTopUpRequest = {
+  amount: string;
+  customFee: string;
+  feeTarget: FeeTargetCode;
+  sourceAccountCode: AccountCode;
+};
+
+export type TPrepareTopUpResult = {
+  amount: TAmountWithConversions;
+  fee: TAmountWithConversions;
+  recipientDisplayAddress: string;
+  success: true;
+  total: TAmountWithConversions;
+} | {
+  errorCode: typeof lightningBalanceLimitErrorCode;
+  fundingLimit: TLightningFundingLimit;
+  success: false;
+} | {
+  errorCode: TTxProposalErrorCode;
+  success: false;
 };
 
 export type TBitcoinDepositState = 'confirming' | 'claiming' | 'complete' | 'unclaimed';
@@ -261,8 +301,16 @@ export const postDeactivate = async (): Promise<void> => {
   return postApiResponse<void, undefined>('lightning/deactivate', undefined, 'Error calling postDeactivate');
 };
 
-export const getLightningBalance = async (): Promise<TBalance> => {
-  return getApiResponse<TBalance>('lightning/balance', 'Error calling getLightningBalance');
+export const getLightningBalance = async (): Promise<TLightningBalance> => {
+  return getApiResponse<TLightningBalance>('lightning/balance', 'Error calling getLightningBalance');
+};
+
+export const postPrepareTopUp = async (request: TPrepareTopUpRequest): Promise<TPrepareTopUpResult> => {
+  return postApiResponse<TPrepareTopUpResult, TPrepareTopUpRequest>(
+    'lightning/top-up/prepare',
+    request,
+    'Error calling postPrepareTopUp'
+  );
 };
 
 export const getBlockExplorerTxPrefix = async (): Promise<string> => {
@@ -279,10 +327,6 @@ export const getListPayments = async (): Promise<TLightningPayment[]> => {
 
 export const getParsePaymentInput = async (params: TParsePaymentInputRequest): Promise<TPaymentInput> => {
   return getApiResponse<TPaymentInput>(`lightning/parse-payment-input?${queryString(params)}`, 'Error calling getParsePaymentInput');
-};
-
-export const getBoardingAddress = async (): Promise<string> => {
-  return getApiResponse<string>('lightning/boarding-address', 'Error calling getBoardingAddress');
 };
 
 export const postPrepareCloseWithdraw = async (destinationAccountCode: AccountCode): Promise<TCloseWithdrawQuote> => {
