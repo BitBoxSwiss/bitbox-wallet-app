@@ -102,6 +102,11 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
     page: 'advanced',
   },
   {
+    id: 'lightning-settings',
+    getTitle: ({ t }) => t('lightning.settings.title'),
+    page: 'advanced',
+  },
+  {
     id: 'export-logs',
     isAvailable: isExportLogsSettingVisible,
     getTitle: ({ t }) => t('settings.expert.exportLogs.title'),

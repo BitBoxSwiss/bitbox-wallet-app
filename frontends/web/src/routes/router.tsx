@@ -34,6 +34,7 @@ import { General } from './settings/general';
 import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
+import { LightningSettings } from './settings/lightning-settings';
 import { Bitsurance } from './bitsurance/bitsurance';
 import { BitsuranceAccount } from './bitsurance/account';
 import { BitsuranceWidget } from './bitsurance/widget';
@@ -351,6 +352,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="device-settings/recovery-words/:deviceID" element={RecoveryWordsEl} />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
           <Route path="advanced-settings" element={AdvancedSettingsEl} />
+          <Route path="lightning-settings" element={<LightningSettings devices={devices} hasAccounts={hasAccounts} />} />
           <Route path="electrum" element={<ElectrumSettings />} />
           <Route path="manage-accounts" element={
             <ManageAccounts
