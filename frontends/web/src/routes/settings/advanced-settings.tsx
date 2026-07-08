@@ -2,7 +2,6 @@
 
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLightning } from '@/hooks/lightning';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
@@ -11,8 +10,7 @@ import { EnableCustomFeesToggleSetting } from './components/advanced-settings/en
 import { EnableCoinControlSetting } from './components/advanced-settings/enable-coin-control-setting';
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
-import { EnableLightning } from './components/advanced-settings/enable-lightning-setting';
-import { DisableLightning } from './components/advanced-settings/disable-lightning-setting';
+import { LightningSettingsSetting } from './components/advanced-settings/lightning-settings-setting';
 import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-software-keystore';
 import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
@@ -75,17 +73,13 @@ export const AdvancedSettingsContent = ({
   devices,
 }: TProps) => {
   const { isTesting } = useContext(AppContext);
-  const { lightningAccount } = useLightning();
 
   const deviceIDs = Object.keys(devices);
   const sections: TSettingsContentSection[] = [
     {
       id: 'advanced-settings',
       items: [
-        ...(lightningAccount !== undefined ? [{
-          id: 'lightning-wallet',
-          content: lightningAccount === null ? <EnableLightning /> : <DisableLightning />,
-        }] : []),
+        { id: 'lightning-settings', content: <LightningSettingsSetting /> },
         { id: 'custom-fees', content: <EnableCustomFeesToggleSetting /> },
         { id: 'coin-control', content: <EnableCoinControlSetting /> },
         ...(isScreenLockSettingVisible() ? [{

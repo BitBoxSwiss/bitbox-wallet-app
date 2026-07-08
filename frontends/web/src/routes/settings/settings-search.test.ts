@@ -14,6 +14,7 @@ vi.mock('@/utils/env', () => ({
 }));
 
 const translations: Record<string, string> = {
+  'lightning.settings.title': 'Lightning settings',
   'testWallet.connect.title': 'Test wallet',
   'testWallet.disconnect.title': 'Disconnect test wallet',
 };
@@ -48,5 +49,15 @@ describe('settings search', () => {
       page: 'advanced',
       title: 'Disconnect test wallet',
     }]);
+  });
+
+  it('includes the lightning settings row without a lightning account', () => {
+    const results = filterSettingsSearchItems(getItems(false), 'lightning settings');
+
+    expect(results).toContainEqual({
+      id: 'lightning-settings',
+      page: 'advanced',
+      title: 'Lightning settings',
+    });
   });
 });

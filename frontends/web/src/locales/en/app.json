@@ -1017,6 +1017,7 @@
     "title": "Custom gap limit settings"
   },
   "generic": {
+    "beta": "Beta",
     "bitcoinOnly": "Bitcoin-only",
     "buy": "Buy {{coinCode}}",
     "buySell": "Marketplace",
@@ -1649,6 +1650,20 @@
         "message": "Transaction confirmed and sent!"
       },
       "title": "Send Lightning"
+    },
+    "settings": {
+      "closeAndWithdrawFunds": "Close and withdraw funds",
+      "enableWallet": "Enable lightning wallet",
+      "enableWalletDescription": "Lightning enables instant and low fee payments.",
+      "expert": "Expert",
+      "information": "Information",
+      "manuallyClaimTopUp": "Manually claim top-up",
+      "serviceProvider": "Service provider",
+      "setLightningAddress": "Set lightning address",
+      "shutDownWallet": "Shut down lightning wallet",
+      "status": "Status",
+      "statusConnected": "Connected",
+      "title": "Lightning settings"
     },
     "sparkStatus": {
       "degraded": "The Spark network is experiencing degraded performance. Lightning payments may be delayed.",
