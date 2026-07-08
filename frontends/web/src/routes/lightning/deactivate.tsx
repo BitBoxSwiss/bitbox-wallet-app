@@ -23,7 +23,7 @@ export const LightningDeactivate = () => {
   const [step, setStep] = useState<TSteps>('intro');
   const [deactivateError, setDeactivateError] = useState<string>();
 
-  const dectivateNode = useCallback(async () => {
+  const deactivateWallet = useCallback(async () => {
     setStep('wait');
 
     try {
@@ -43,8 +43,7 @@ export const LightningDeactivate = () => {
           <ViewContent>
             <MultilineMarkup
               tagName="p"
-              markup={`Shutting down your lightning wallet will disconnect you from the Greenlight server and you will no longer be able to use your lightning wallet to send and receive.
-              Funds on your lightning wallet are not affected, you can still access them again by enabling lightning in the settings and connecting the BitBox02 wallet used to make that wallet.`}
+              markup={t('lightning.deactivate.intro.content')}
             />
             <Checkbox
               id="confirm"
@@ -54,7 +53,7 @@ export const LightningDeactivate = () => {
             </Checkbox>
           </ViewContent>
           <ViewButtons>
-            <Button danger disabled={!agree} onClick={() => dectivateNode()}>
+            <Button danger disabled={!agree} onClick={() => deactivateWallet()}>
               Shut down lightning wallet
             </Button>
             <Button secondary onClick={() => navigate(-1)}>
