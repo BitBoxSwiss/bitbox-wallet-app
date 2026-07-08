@@ -8,6 +8,7 @@ import { WithSettingsTabs } from './components/tabs';
 import { EnableCustomFeesToggleSetting } from './components/advanced-settings/enable-custom-fees-toggle-setting';
 import { EnableCoinControlSetting } from './components/advanced-settings/enable-coin-control-setting';
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
+import { EnableOnionExplorerSetting } from './components/advanced-settings/enable-onion-explorer-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
 import { LightningSettingsSetting } from './components/advanced-settings/lightning-settings-setting';
 import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-software-keystore';
@@ -74,6 +75,7 @@ export const AdvancedSettingsContent = () => {
           content: <EnableAuthSetting />,
         }] : []),
         { id: 'tor-proxy', content: <EnableTorProxySetting /> },
+        { id: 'onion-explorer', content: <EnableOnionExplorerSetting /> },
         { id: 'testnet-mode', content: <RestartInTestnetSetting /> },
         { id: 'gap-limit', content: <CustomGapLimitSettings /> },
         ...(isTestWalletSettingVisible({ deviceIDs, isTesting }) ? [{

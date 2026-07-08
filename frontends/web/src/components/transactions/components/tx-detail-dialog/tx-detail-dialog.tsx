@@ -12,6 +12,8 @@ import { TxDetailHeader } from '@/components/transactions/components/tx-detail-d
 import { AdvancedTxDetail } from '@/components/transactions/components/tx-detail-dialog/advanced-tx-detail';
 import { TxDetailRow } from '@/components/transactions/components/tx-detail-dialog/tx-detail-row';
 import { AddressOrTxId } from '@/components/transactions/components/tx-detail-dialog/address-or-tx-id';
+import { useConfig } from '@/contexts/ConfigProvider';
+import { getMempoolExplorerUrl } from '@/utils/explorer-url';
 import styles from './tx-detail-dialog.module.css';
 
 type TProps = {
@@ -44,6 +46,7 @@ export const TxDetailsDialog = ({
   explorerURL,
 }: TProps) => {
   const { t } = useTranslation();
+  const { config } = useConfig();
   const [transactionInfo, setTransactionInfo] = useState<TTransaction | null>(null);
 
   useEffect(() => {
@@ -158,7 +161,11 @@ export const TxDetailsDialog = ({
 
           {/* explorer link */}
           <div className={styles.explorerLinkContainer}>
-            <ExplorerLink href={explorerURL + transactionInfo.txID} />
+            <ExplorerLink href={getMempoolExplorerUrl(
+              explorerURL,
+              transactionInfo.txID,
+              config?.frontend.useOnionExplorerUrls ?? false,
+            )} />
           </div>
         </div>
 

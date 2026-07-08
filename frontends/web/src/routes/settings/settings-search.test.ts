@@ -19,6 +19,7 @@ vi.mock('@/utils/env', () => ({
 const translations: Record<string, string> = {
   'lightning.settings.enableWallet': 'Enable lightning wallet',
   'lightning.settings.title': 'Lightning settings',
+  'settings.expert.onionExplorer': 'Use .onion URLs for explorer links',
   'testnet.activate.title': 'Activate testnet',
   'testnet.deactivate.title': 'Deactivate testnet',
   'testWallet.connect.title': 'Test wallet',
@@ -118,5 +119,15 @@ describe('settings search', () => {
     const results = filterSettingsSearchItems(getItems(false, true), 'lightning');
 
     expect(results).toEqual([]);
+  });
+
+  it('includes the onion explorer setting', () => {
+    const results = filterSettingsSearchItems(getItems(false, true), 'onion');
+
+    expect(results).toContainEqual({
+      id: 'onion-explorer',
+      page: 'advanced',
+      title: 'Use .onion URLs for explorer links',
+    });
   });
 });
