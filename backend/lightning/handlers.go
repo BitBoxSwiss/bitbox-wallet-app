@@ -173,7 +173,7 @@ func (lightning *Lightning) PostPreparePayment(r *http.Request) interface{} {
 		return errorResponse(err)
 	}
 
-	fee, err := lightning.PreparePayment(jsonBody.Bolt11, jsonBody.AmountSat)
+	fee, err := lightning.PreparePayment(jsonBody)
 	if err != nil {
 		return errorResponse(err)
 	}
@@ -199,11 +199,13 @@ func (lightning *Lightning) GetReceivePayment(r *http.Request) interface{} {
 // PostSendPayment handles the POST request to send a payment.
 func (lightning *Lightning) PostSendPayment(r *http.Request) interface{} {
 	var jsonBody sendPaymentRequest
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&jsonBody); err != nil {
 		return errorResponse(err)
 	}
 
-	if err := lightning.SendPayment(jsonBody.Bolt11, jsonBody.AmountSat, jsonBody.ApprovedFeeSat); err != nil {
+	if err := lightning.SendPayment(jsonBody); err != nil {
 		return errorResponse(err)
 	}
 

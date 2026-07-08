@@ -174,7 +174,118 @@ func TestParseLightningUint(t *testing.T) {
 	require.Equal(t, uint64(99), parseLightningUint(big.NewInt(99)))
 }
 
-func TestPrepareSendPaymentRequest(t *testing.T) {
+func TestMsatToSatCeil(t *testing.T) {
+	t.Parallel()
+
+	require.Equal(t, uint64(0), msatToSat(0, roundToCeil))
+	require.Equal(t, uint64(1), msatToSat(1, roundToCeil))
+	require.Equal(t, uint64(1), msatToSat(1000, roundToCeil))
+	require.Equal(t, uint64(2), msatToSat(1001, roundToCeil))
+	require.Equal(t, uint64(2), msatToSat(2000, roundToCeil))
+}
+
+func TestMsatToSatFloor(t *testing.T) {
+	t.Parallel()
+
+	require.Equal(t, uint64(0), msatToSat(0, roundToFloor))
+	require.Equal(t, uint64(0), msatToSat(999, roundToFloor))
+	require.Equal(t, uint64(1), msatToSat(1000, roundToFloor))
+	require.Equal(t, uint64(1), msatToSat(1999, roundToFloor))
+	require.Equal(t, uint64(2), msatToSat(2000, roundToFloor))
+}
+
+func TestMsatToSatInvalidRoundingDefaultsToFloor(t *testing.T) {
+	t.Parallel()
+
+	require.NotPanics(t, func() {
+		require.Equal(t, uint64(1), msatToSat(1999, msatToSatRounding(99)))
+	})
+}
+
+func TestValidateLNURLPayAmount(t *testing.T) {
+	t.Parallel()
+
+	payRequest := breez_sdk_spark.LnurlPayRequestDetails{
+		MinSendable: 1500,
+		MaxSendable: 9999,
+	}
+
+	testCases := []struct {
+		name      string
+		amountSat uint64
+		wantErr   bool
+	}{
+		{
+			name:      "zero amount",
+			amountSat: 0,
+			wantErr:   true,
+		},
+		{
+			name:      "below rounded-up minimum",
+			amountSat: 1,
+			wantErr:   true,
+		},
+		{
+			name:      "at rounded-up minimum",
+			amountSat: 2,
+		},
+		{
+			name:      "at rounded-down maximum",
+			amountSat: 9,
+		},
+		{
+			name:      "above rounded-down maximum",
+			amountSat: 10,
+			wantErr:   true,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := validateLNURLPayAmount(payRequest, testCase.amountSat)
+			if testCase.wantErr {
+				require.ErrorIs(t, err, errLightningInvalidAmount)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestLnurlPayDescription(t *testing.T) {
+	t.Parallel()
+
+	description := lnurlPayDescription(`[["text/identifier","alice@example.com"],["text/plain","Coffee"]]`)
+	require.NotNil(t, description)
+	require.Equal(t, "Coffee", *description)
+
+	require.Nil(t, lnurlPayDescription(`[["text/identifier","alice@example.com"]]`))
+	require.Nil(t, lnurlPayDescription(`not-json`))
+}
+
+func TestToLightningLNURLPay(t *testing.T) {
+	t.Parallel()
+
+	address := "alice@example.com"
+	lnurlPay := toLightningLNURLPay("lnurl-input", breez_sdk_spark.LnurlPayRequestDetails{
+		MinSendable: 1500,
+		MaxSendable: 9999,
+		MetadataStr: `[["text/plain","Tip jar"]]`,
+		Domain:      "example.com",
+		Address:     &address,
+	})
+
+	require.Equal(t, "lnurl-input", lnurlPay.Input)
+	require.Equal(t, "alice@example.com", *lnurlPay.Address)
+	require.Equal(t, "example.com", lnurlPay.Domain)
+	require.Equal(t, "Tip jar", *lnurlPay.Description)
+	require.Equal(t, uint64(2), lnurlPay.MinAmountSat)
+	require.Equal(t, uint64(9), lnurlPay.MaxAmountSat)
+}
+
+func TestPrepareBolt11PaymentRequest(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
@@ -198,7 +309,7 @@ func TestPrepareSendPaymentRequest(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			request := prepareSendPaymentRequest("lnbc1invoice", testCase.amountSat)
+			request := prepareBolt11PaymentRequest("lnbc1invoice", testCase.amountSat)
 
 			require.Equal(t, "lnbc1invoice", request.PaymentRequest)
 			if testCase.expectedAmount == nil {
@@ -211,7 +322,25 @@ func TestPrepareSendPaymentRequest(t *testing.T) {
 	}
 }
 
-func TestPreparedPaymentFee(t *testing.T) {
+func TestPrepareLNURLPayRequest(t *testing.T) {
+	t.Parallel()
+
+	payRequest := breez_sdk_spark.LnurlPayRequestDetails{
+		Callback:    "https://example.com/lnurl-pay",
+		MinSendable: 1000,
+		MaxSendable: 100000,
+		MetadataStr: `[["text/plain","Coffee"]]`,
+		Domain:      "example.com",
+		Url:         "https://example.com/.well-known/lnurlp/alice",
+	}
+
+	request := prepareLNURLPayRequest(payRequest, 123)
+
+	require.Equal(t, 0, request.Amount.Cmp(big.NewInt(123)))
+	require.Equal(t, payRequest, request.PayRequest)
+}
+
+func TestPreparedBolt11PaymentFee(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
@@ -248,7 +377,7 @@ func TestPreparedPaymentFee(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			quote, err := preparedPaymentFee(testCase.response)
+			quote, err := preparedBolt11PaymentFee(testCase.response)
 
 			if testCase.expectedErr != "" {
 				require.Error(t, err)
@@ -262,6 +391,21 @@ func TestPreparedPaymentFee(t *testing.T) {
 			require.Equal(t, testCase.expected, quote)
 		})
 	}
+}
+
+func TestPreparedLNURLPayFee(t *testing.T) {
+	t.Parallel()
+
+	fee := preparedLNURLPayFee(breez_sdk_spark.PrepareLnurlPayResponse{
+		AmountSats: 123,
+		FeeSats:    7,
+	})
+
+	require.Equal(t, &paymentFee{
+		AmountSat:     123,
+		FeeSat:        7,
+		TotalDebitSat: 130,
+	}, fee)
 }
 
 func TestValidateApprovedLightningFee(t *testing.T) {

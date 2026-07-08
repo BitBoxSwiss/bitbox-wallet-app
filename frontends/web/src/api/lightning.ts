@@ -4,6 +4,7 @@ import type { AccountCode, TAmountWithConversions, TBalance, TTransactionStatus 
 import type { TSubscriptionCallback, TUnsubscribe } from '@/api/subscribe';
 import { subscribeEndpoint } from '@/api/subscribe';
 import { apiGet, apiPost } from '@/utils/request';
+import { type TLightningErrorCode, TSdkError } from './lightning-errors';
 
 export type TLightningResponse<T> =
   | {
@@ -13,7 +14,7 @@ export type TLightningResponse<T> =
   | {
     success: false;
     errorMessage?: string;
-    errorCode?: string;
+    errorCode?: TLightningErrorCode;
   };
 
 export type TLightningAccount = {
@@ -22,10 +23,19 @@ export type TLightningAccount = {
   num: number;
 };
 
-export type TLightningInvoice = {
-  bolt11: string;
+export type TLightningBolt11Invoice = {
+  invoice: string;
   description?: string;
   amountSat?: number;
+};
+
+export type TLightningLNURLPay = {
+  input: string;
+  address?: string;
+  domain: string;
+  description?: string;
+  minAmountSat: number;
+  maxAmountSat: number;
 };
 
 export type TLightningPayment = {
@@ -51,14 +61,25 @@ export type TReceivePaymentResponse = {
 };
 
 export type TSendPaymentRequest = {
-  bolt11: string;
+  type: TPaymentInputType.BOLT11;
+  paymentInput: string;
   amountSat?: number;
+  approvedFeeSat: number;
+} | {
+  type: TPaymentInputType.LNURL_PAY;
+  paymentInput: string;
+  amountSat: number;
   approvedFeeSat: number;
 };
 
 export type TPreparePaymentRequest = {
-  bolt11: string;
+  type: TPaymentInputType.BOLT11;
+  paymentInput: string;
   amountSat?: number;
+} | {
+  type: TPaymentInputType.LNURL_PAY;
+  paymentInput: string;
+  amountSat: number;
 };
 
 export type TPreparePaymentResponse = {
@@ -73,29 +94,22 @@ export type TSparkStatus = {
   status: TServiceStatus;
 };
 
-export enum TPaymentInputTypeVariant {
+export enum TPaymentInputType {
   BOLT11 = 'bolt11',
+  LNURL_PAY = 'lnurlPay',
 }
 
-export type TPaymentInputType = {
-  type: TPaymentInputTypeVariant.BOLT11;
-  invoice: TLightningInvoice;
+export type TPaymentInput = {
+  type: TPaymentInputType.BOLT11;
+  invoice: TLightningBolt11Invoice;
+} | {
+  type: TPaymentInputType.LNURL_PAY;
+  lnurlPay: TLightningLNURLPay;
 };
 
 export type TParsePaymentInputRequest = {
   s: string;
 };
-
-export class TSdkError extends Error {
-  code?: string;
-
-  constructor(message: string, code?: string) {
-    super(message);
-    this.code = code;
-
-    Object.setPrototypeOf(this, TSdkError.prototype);
-  }
-}
 
 const queryString = (params: Record<string, string | number | undefined | null>): string => {
   const searchParams = new URLSearchParams();
@@ -161,8 +175,8 @@ export const getListPayments = async (): Promise<TLightningPayment[]> => {
   return getApiResponse<TLightningPayment[]>('lightning/list-payments', 'Error calling getListPayments');
 };
 
-export const getParsePaymentInput = async (params: TParsePaymentInputRequest): Promise<TPaymentInputType> => {
-  return getApiResponse<TPaymentInputType>(`lightning/parse-payment-input?${queryString(params)}`, 'Error calling getParsePaymentInput');
+export const getParsePaymentInput = async (params: TParsePaymentInputRequest): Promise<TPaymentInput> => {
+  return getApiResponse<TPaymentInput>(`lightning/parse-payment-input?${queryString(params)}`, 'Error calling getParsePaymentInput');
 };
 
 export const getBoardingAddress = async (): Promise<string> => {

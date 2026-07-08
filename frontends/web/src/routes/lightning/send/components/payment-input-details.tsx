@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TAmountWithConversions } from '@/api/account';
 import { getBtcSatAmount } from '@/api/coins';
-import { TPaymentInputType, TPreparePaymentResponse } from '@/api/lightning';
+import { type TLightningLNURLPay, type TPreparePaymentResponse } from '@/api/lightning';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { useMountedRef } from '@/hooks/mount';
@@ -67,7 +67,7 @@ const satsAmount = (amountSat?: number): TAmountWithConversions | undefined => {
   };
 };
 
-type TProps = {
+type TPaymentFeeDetailsProps = {
   fees?: TPreparePaymentResponse;
   totalWithFiat?: boolean;
 };
@@ -76,9 +76,13 @@ type TPaymentAmountDetailsProps = {
   amountSat?: number;
 };
 
-type TPaymentDetailsProps = {
-  input: TPaymentInputType;
+type TBolt11PaymentDetailsProps = {
+  description?: string;
   fees: TPreparePaymentResponse;
+};
+
+type TLNURLPayRecipientDetailsProps = {
+  lnurlPay: TLightningLNURLPay;
 };
 
 export const PaymentAmountDetails = ({ amountSat }: TPaymentAmountDetailsProps) => {
@@ -93,7 +97,7 @@ export const PaymentAmountDetails = ({ amountSat }: TPaymentAmountDetailsProps) 
   );
 };
 
-export const PaymentFeeDetails = ({ fees, totalWithFiat = false }: TProps) => {
+export const PaymentFeeDetails = ({ fees, totalWithFiat = false }: TPaymentFeeDetailsProps) => {
   const { t } = useTranslation();
   const feeAmount = satsAmount(fees?.feeSat);
   const totalDebitAmountSat = satsAmount(fees?.totalDebitSat);
@@ -115,18 +119,37 @@ export const PaymentFeeDetails = ({ fees, totalWithFiat = false }: TProps) => {
   );
 };
 
-export const PaymentDetails = ({ input, fees }: TPaymentDetailsProps) => {
+export const LNURLPayRecipientDetails = ({ lnurlPay }: TLNURLPayRecipientDetailsProps) => {
   const { t } = useTranslation();
-  const { invoice } = input;
+
+  return (
+    <>
+      <h1 className={styles.title}>{t('lightning.send.confirm.title')}</h1>
+      <div className={styles.info}>
+        <h2 className={styles.label}>{t('send.confirm.to')}</h2>
+        {lnurlPay.address || lnurlPay.domain}
+      </div>
+      {lnurlPay.description && (
+        <div className={styles.info}>
+          <h2 className={styles.label}>{t('lightning.send.confirm.memo')}</h2>
+          {lnurlPay.description}
+        </div>
+      )}
+    </>
+  );
+};
+
+export const Bolt11PaymentDetails = ({ description, fees }: TBolt11PaymentDetailsProps) => {
+  const { t } = useTranslation();
 
   return (
     <>
       <h1 className={styles.title}>{t('lightning.send.confirm.title')}</h1>
       <PaymentAmountDetails amountSat={fees.amountSat} />
-      {invoice.description && (
+      {description && (
         <div className={styles.info}>
           <h2 className={styles.label}>{t('lightning.send.confirm.memo')}</h2>
-          {invoice.description}
+          {description}
         </div>
       )}
       <PaymentFeeDetails fees={fees} totalWithFiat />

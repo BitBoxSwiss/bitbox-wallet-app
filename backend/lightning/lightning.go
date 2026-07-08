@@ -55,7 +55,9 @@ type breezSDK interface {
 	RegisterLightningAddress(breez_sdk_spark.RegisterLightningAddressRequest) (breez_sdk_spark.LightningAddressInfo, error)
 	Parse(string) (breez_sdk_spark.InputType, error)
 	PrepareSendPayment(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error)
+	PrepareLnurlPay(breez_sdk_spark.PrepareLnurlPayRequest) (breez_sdk_spark.PrepareLnurlPayResponse, error)
 	SendPayment(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error)
+	LnurlPay(breez_sdk_spark.LnurlPayRequest) (breez_sdk_spark.LnurlPayResponse, error)
 	ReceivePayment(breez_sdk_spark.ReceivePaymentRequest) (breez_sdk_spark.ReceivePaymentResponse, error)
 	ListPayments(breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error)
 }
