@@ -18,7 +18,7 @@ export const FiatInput = ({
   disabled,
   error,
   fiatAmount,
-}: TProps) => {
+}: TProps): JSX.Element => {
   const { t } = useTranslation();
   return (
     <NumberInput
