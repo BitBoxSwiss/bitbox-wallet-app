@@ -38,6 +38,7 @@ func NewHandlers(
 	handleNoError("/activate", lightning.PostActivate).Methods("POST")
 	handleNoError("/deactivate", lightning.PostDeactivate).Methods("POST")
 	handleNoError("/balance", lightning.GetBalance).Methods("GET")
+	handleNoError("/balance-limit", lightning.GetBalanceLimit).Methods("GET")
 	handleNoError("/spark-status", lightning.GetSparkStatus).Methods("GET")
 	handleNoError("/list-payments", lightning.GetListPayments).Methods("GET")
 	handleNoError("/parse-payment-input", lightning.GetParsePaymentInput).Methods("GET")
@@ -171,6 +172,19 @@ func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
 			Incoming:     coin.FormattedAmountWithConversions{},
 		},
 	}
+}
+
+// GetBalanceLimit handles the GET request to retrieve the configured lightning balance limit.
+func (lightning *Lightning) GetBalanceLimit(r *http.Request) interface{} {
+	limit, err := lightning.BalanceLimit(parseBalanceLimitRequestAmountToSats(
+		r.URL.Query().Get("amount"),
+		r.URL.Query().Get("unit"),
+	))
+	if err != nil {
+		return errorResponse(err)
+	}
+
+	return responseDto{Success: true, Data: limit}
 }
 
 // GetSparkStatus handles the GET request to retrieve the Spark network status.

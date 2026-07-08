@@ -5,8 +5,10 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
 import { getDeviceList } from '../../api/devices';
 import {
+  TLightningBalanceLimit,
   TLightningPayment,
   getLightningBalance,
+  getLightningBalanceLimit,
   getListPayments,
   subscribeListPayments,
   getSparkStatus,
@@ -29,6 +31,13 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { useLightning } from '@/hooks/lightning';
+import { Link } from 'react-router-dom';
+import {
+  formatExcessLightningBalanceLimit,
+  formatLightningBalanceLimit,
+  hasExceededLightningBalanceLimit,
+  hasReachedLightningBalanceLimit,
+} from './limits';
 
 const sparkStatusPollInterval = 60 * 1000;
 
@@ -37,6 +46,7 @@ export const Lightning = () => {
   const { btcUnit } = useContext(RatesContext);
   const { isLightningReady, lightningAccount } = useLightning();
   const [balance, setBalance] = useState<accountApi.TBalance>();
+  const [balanceLimit, setBalanceLimit] = useState<TLightningBalanceLimit>();
   const [syncedAddressesCount] = useState<number>();
   const [payments, setPayments] = useState<TLightningPayment[]>();
   const [sparkStatus, setSparkStatus] = useState<TSparkStatus>();
@@ -48,14 +58,16 @@ export const Lightning = () => {
   const onStateChange = useCallback(async () => {
     try {
       setError(undefined);
-      const [balance, payments] = await Promise.all([
+      const [balance, nextBalanceLimit, payments] = await Promise.all([
         getLightningBalance(),
+        getLightningBalanceLimit(),
         getListPayments(),
       ]);
       if (!mounted.current) {
         return;
       }
       setBalance(balance);
+      setBalanceLimit(nextBalanceLimit);
       setPayments(payments);
     } catch (err: any) {
       if (!mounted.current) {
@@ -143,6 +155,8 @@ export const Lightning = () => {
   }
 
   const canSend = balance && balance.hasAvailable;
+  const canTopUp = balanceLimit !== undefined && !hasReachedLightningBalanceLimit(balanceLimit);
+  const showBalanceLimitWarning = hasExceededLightningBalanceLimit(balanceLimit);
 
   const initializingSpinnerText =
     syncedAddressesCount !== undefined && syncedAddressesCount > 1
@@ -171,11 +185,22 @@ export const Lightning = () => {
           >
             <HideAmountsButton />
           </Header>
+          <Status dismissibleKey="" type="warning" hidden={!showBalanceLimitWarning}>
+            {t('lightning.limit.accountWarning', {
+              excess: formatExcessLightningBalanceLimit(balanceLimit),
+              limit: formatLightningBalanceLimit(balanceLimit),
+            })}{' '}
+            {/* TODO: Prefill a BitBox account address once Lightning on-chain sends are supported. */}
+            <Link to="/lightning/send">{t('lightning.limit.moveCoins')}</Link>
+          </Status>
           <View>
             <ViewHeader>
               <div className={styles.header}>
                 <Balance balance={balance} />
-                <ActionButtons canSend={canSend} />
+                <ActionButtons
+                  canSend={canSend}
+                  canTopUp={canTopUp}
+                />
               </div>
             </ViewHeader>
             <ViewContent fullWidth>

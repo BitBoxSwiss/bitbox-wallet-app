@@ -35,7 +35,7 @@
 }
 
 .buy:hover,
-.receive:hover,
+.receive:not(.disabled):hover,
 .send:not(.disabled):hover,
 .topUp:not(.disabled):hover {
     background-color: var(--color-lightblue);

@@ -6,9 +6,13 @@ import style from './action-buttons.module.css';
 
 type TProps = {
   canSend?: boolean;
+  canTopUp?: boolean;
 };
 
-export const ActionButtons = ({ canSend }: TProps) => {
+export const ActionButtons = ({
+  canSend,
+  canTopUp,
+}: TProps) => {
   const { t } = useTranslation();
   return (
     <div className={style.actionsContainer}>
@@ -24,9 +28,18 @@ export const ActionButtons = ({ canSend }: TProps) => {
       <Link key="receive" to={'/lightning/receive'} className={style.receive}>
         <span>{t('generic.receiveWithoutCoinCode')}</span>
       </Link>
-      <Link key="topUp" to={'/lightning/topup'} className={style.topUp}>
-        <span>{t('lightning.topUp.action')}</span>
-      </Link>
+      {canTopUp ? (
+        <Link key="topUp" to={'/lightning/topup'} className={style.topUp}>
+          <span>{t('lightning.topUp.action')}</span>
+        </Link>
+      ) : (
+        <span
+          key="topUpDisabled"
+          aria-disabled="true"
+          className={[style.topUp || '', style.disabled || ''].join(' ').trim()}>
+          {t('lightning.topUp.action')}
+        </span>
+      )}
     </div>
   );
 };

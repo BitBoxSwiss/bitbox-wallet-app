@@ -38,6 +38,23 @@ export type TLightningLNURLPay = {
   maxAmountSat: number;
 };
 
+export type TLightningBalanceLimit = {
+  amount: TAmountWithConversions;
+  amountLabel: string;
+  remainingAmount: TAmountWithConversions;
+  remainingAmountLabel: string;
+  excessAmount: TAmountWithConversions;
+  excessAmountLabel: string;
+  limitReached: boolean;
+  limitExceeded: boolean;
+  amountExceedsLimit: boolean;
+};
+
+export type TLightningBalanceLimitRequest = {
+  amount?: string;
+  unit?: string;
+};
+
 export type TLightningPayment = {
   id: string;
   type: 'send' | 'receive';
@@ -203,6 +220,14 @@ export const postDeactivate = async (): Promise<void> => {
 
 export const getLightningBalance = async (): Promise<TBalance> => {
   return getApiResponse<TBalance>('lightning/balance', 'Error calling getLightningBalance');
+};
+
+export const getLightningBalanceLimit = async (params?: TLightningBalanceLimitRequest): Promise<TLightningBalanceLimit> => {
+  const searchParams = queryString(params || {});
+  return getApiResponse<TLightningBalanceLimit>(
+    `lightning/balance-limit${searchParams ? `?${searchParams}` : ''}`,
+    'Error calling getLightningBalanceLimit'
+  );
 };
 
 export const getSparkStatus = async (): Promise<TSparkStatus> => {
