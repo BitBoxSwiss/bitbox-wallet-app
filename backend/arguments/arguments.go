@@ -3,10 +3,10 @@
 package arguments
 
 import (
-	"os"
 	"path"
 
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
+	utilconfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 )
@@ -62,30 +62,42 @@ func NewArguments(
 		panic("Cannot use -regtest with -mainnet.")
 	}
 
+	if err := utilconfig.EnsurePrivateDir(mainDirectoryPath); err != nil {
+		panic("Cannot create the main directory.")
+	}
+
 	bitbox02DirectoryPath := path.Join(mainDirectoryPath, "bitbox02")
-	if err := os.MkdirAll(bitbox02DirectoryPath, 0700); err != nil {
+	if err := utilconfig.EnsurePrivateDir(bitbox02DirectoryPath); err != nil {
 		panic("Cannot create the bitbox02 directory.")
 	}
 
 	cacheDirectoryPath := path.Join(mainDirectoryPath, "cache")
-	if err := os.MkdirAll(cacheDirectoryPath, 0700); err != nil {
+	if err := utilconfig.EnsurePrivateDir(cacheDirectoryPath); err != nil {
 		panic("Cannot create the cache directory.")
 	}
 
 	notesDirectoryPath := path.Join(mainDirectoryPath, "notes")
-	if err := os.MkdirAll(notesDirectoryPath, 0700); err != nil {
+	if err := utilconfig.EnsurePrivateDir(notesDirectoryPath); err != nil {
 		panic("Cannot create the notes directory.")
 	}
 
 	log := logging.Get().WithGroup("arguments")
+	appConfigFilename := path.Join(mainDirectoryPath, "config.json")
+	if err := utilconfig.EnsurePrivateFileIfExists(appConfigFilename); err != nil {
+		log.WithError(err).Warn("Could not restrict app config file permissions")
+	}
+	accountsConfigFilename := path.Join(mainDirectoryPath, "accounts.json")
+	if err := utilconfig.EnsurePrivateFileIfExists(accountsConfigFilename); err != nil {
+		log.WithError(err).Warn("Could not restrict accounts config file permissions")
+	}
 	arguments := &Arguments{
 		mainDirectoryPath:     mainDirectoryPath,
 		bitbox02DirectoryPath: bitbox02DirectoryPath,
 
 		cacheDirectoryPath:     cacheDirectoryPath,
 		notesDirectoryPath:     notesDirectoryPath,
-		appConfigFilename:      path.Join(mainDirectoryPath, "config.json"),
-		accountsConfigFilename: path.Join(mainDirectoryPath, "accounts.json"),
+		appConfigFilename:      appConfigFilename,
+		accountsConfigFilename: accountsConfigFilename,
 		testing:                testing,
 		regtest:                regtest,
 		devservers:             devservers,
