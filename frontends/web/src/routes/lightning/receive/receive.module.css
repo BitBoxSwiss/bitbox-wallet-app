@@ -19,6 +19,10 @@
     margin: var(--space-half) 0;
 }
 
+.lightningAddress {
+    margin-bottom: var(--space-default);
+}
+
 .btnIcon {
     margin-right: var(--space-quarter);
     max-width: 1rem;

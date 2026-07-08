@@ -52,6 +52,13 @@ func (lightning *Lightning) OnEvent(e breez_sdk_spark.SdkEvent) {
 			Action:  action.Reload,
 		})
 		lightning.log.Infof("Spark: payment failed. Event: %v", e)
+	case breez_sdk_spark.SdkEventLightningAddressChanged:
+		lightning.Notify(observable.Event{
+			Subject: "lightning/address",
+			Action:  action.Replace,
+			Object:  lightningAddressString(event.LightningAddress),
+		})
+		lightning.log.Infof("Spark: lightning address changed. Event: %v", e)
 	default:
 		// Handle any future event types
 		lightning.log.Infof("Spark event: %v", e)

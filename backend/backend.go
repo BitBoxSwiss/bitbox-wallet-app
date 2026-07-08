@@ -369,7 +369,8 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		backend.environment,
 		backend.Keystore, backend.httpClient,
 		backend.ratesUpdater,
-		btcCoin)
+		btcCoin,
+		backend.DevServers())
 
 	backend.lightning.Observe(backend.Notify)
 	backend.lightning.Observe(func(event observable.Event) {

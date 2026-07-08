@@ -9,8 +9,10 @@ import {
   TLightningPayment,
   TReceivePaymentResponse,
   TSdkError,
+  getLightningAddress,
   getListPayments,
   getReceivePayment,
+  subscribeLightningAddress,
   subscribeListPayments
 } from '../../../api/lightning';
 import { getBtcSatAmount, type TBtcSatAmount } from '@/api/coins';
@@ -22,6 +24,8 @@ import { Checked, Copy, EditActive } from '../../../components/icon';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { useNavigate } from 'react-router-dom';
 import { RatesContext } from '@/contexts/RatesContext';
+import { CopyableInput } from '@/components/copy/Copy';
+import { useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import styles from './receive.module.css';
 
@@ -41,6 +45,7 @@ export function Receive() {
   const [receiveError, setReceiveError] = useState<string>();
   const [step, setStep] = useState<TStep>('create-invoice');
   const [payments, setPayments] = useState<TLightningPayment[]>();
+  const lightningAddress = useSync(getLightningAddress, subscribeLightningAddress);
   const invoiceAmountSat = invoiceAmount ? Number(invoiceAmount.amount) : undefined;
 
   const newInvoice = useCallback(() => {
@@ -176,6 +181,15 @@ export function Receive() {
           <ViewContent>
             <Grid col="1">
               <Column>
+                {lightningAddress && (
+                  <div className={styles.lightningAddress}>
+                    <p className={styles.label}>{t('lightning.receive.address.label')}</p>
+                    <CopyableInput
+                      value={lightningAddress}
+                      flexibleHeight
+                    />
+                  </div>
+                )}
                 <h1 className={styles.title}>{t('lightning.receive.subtitle')}</h1>
                 <NumberInput
                   step="1"

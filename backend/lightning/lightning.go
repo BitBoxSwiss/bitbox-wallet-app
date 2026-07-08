@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -33,6 +34,8 @@ import (
 const (
 	breezApiKeyUrl            = "https://bitboxapp.shiftcrypto.dev/lightning/breez-api-key"
 	encryptedMnemonicV1Prefix = "v1:"
+	lnurlDomainDev            = "lnurl.shiftcrypto.dev"
+	lnurlDomainProd           = "bitbox.pay"
 )
 
 // Keep this local to avoid importing backend.Environment and creating a package cycle.
@@ -41,6 +44,20 @@ type environment interface {
 	StoreLightningEncryptionKey(accountCode string, encryptionKey string) error
 	LoadLightningEncryptionKey(accountCode string) (string, error)
 	DeleteLightningEncryptionKey(accountCode string) error
+}
+
+type breezSDK interface {
+	Disconnect() error
+	Destroy()
+	GetInfo(breez_sdk_spark.GetInfoRequest) (breez_sdk_spark.GetInfoResponse, error)
+	GetLightningAddress() (*breez_sdk_spark.LightningAddressInfo, error)
+	CheckLightningAddressAvailable(breez_sdk_spark.CheckLightningAddressRequest) (bool, error)
+	RegisterLightningAddress(breez_sdk_spark.RegisterLightningAddressRequest) (breez_sdk_spark.LightningAddressInfo, error)
+	Parse(string) (breez_sdk_spark.InputType, error)
+	PrepareSendPayment(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error)
+	SendPayment(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error)
+	ReceivePayment(breez_sdk_spark.ReceivePaymentRequest) (breez_sdk_spark.ReceivePaymentResponse, error)
+	ListPayments(breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error)
 }
 
 // Lightning manages the Breez SDK lightning node.
@@ -54,11 +71,15 @@ type Lightning struct {
 	synced             bool
 
 	log          *logrus.Entry
-	sdkService   *breez_sdk_spark.BreezSdk
+	sdkService   breezSDK
 	sparkStatus  func() (breez_sdk_spark.SparkStatus, error)
 	httpClient   *http.Client
 	ratesUpdater *rates.RateUpdater
 	btcCoin      coin.Coin
+	devServers   bool
+
+	// Serializes lazy lightning address registration.
+	lightningAddressLock sync.Mutex
 }
 
 // NewLightning creates a new instance of the Lightning struct.
@@ -68,7 +89,8 @@ func NewLightning(config *config.Config,
 	getKeystore func() keystore.Keystore,
 	httpClient *http.Client,
 	ratesUpdater *rates.RateUpdater,
-	btcCoin coin.Coin) *Lightning {
+	btcCoin coin.Coin,
+	devServers bool) *Lightning {
 	return &Lightning{
 		backendConfig:      config,
 		cacheDirectoryPath: cacheDirectoryPath,
@@ -80,6 +102,7 @@ func NewLightning(config *config.Config,
 		httpClient:         httpClient,
 		ratesUpdater:       ratesUpdater,
 		btcCoin:            btcCoin,
+		devServers:         devServers,
 	}
 }
 
@@ -310,6 +333,8 @@ func (lightning *Lightning) connect(_ bool) error {
 		// Create the default config
 		config := breez_sdk_spark.DefaultConfig(breez_sdk_spark.NetworkMainnet)
 		config.ApiKey = apiKey
+		lnurlDomainConfig := lightning.lnurlDomain()
+		config.LnurlDomain = &lnurlDomainConfig
 		// It should already default to true, but we force it just in case.
 		config.PrivateEnabledDefault = true
 		// Set the maximum fee to the fastest network recommended fee at the time of claim
@@ -348,6 +373,13 @@ func (lightning *Lightning) connect(_ bool) error {
 		lightning.notifyReady()
 	}
 	return nil
+}
+
+func (lightning *Lightning) lnurlDomain() string {
+	if lightning.devServers {
+		return lnurlDomainDev
+	}
+	return lnurlDomainProd
 }
 
 func (lightning *Lightning) sealMnemonic(accountCode string, mnemonic string) (string, error) {

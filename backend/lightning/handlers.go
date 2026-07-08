@@ -29,6 +29,7 @@ func NewHandlers(
 	lightning *Lightning,
 ) {
 	handleNoError("/account", lightning.GetAccount).Methods("GET")
+	handleNoError("/address", lightning.GetLightningAddress).Methods("GET")
 	handleNoError("/ready", lightning.GetReady).Methods("GET")
 	handleNoError("/activate", lightning.PostActivate).Methods("POST")
 	handleNoError("/deactivate", lightning.PostDeactivate).Methods("POST")
@@ -65,6 +66,15 @@ func (lightning *Lightning) GetAccount(_ *http.Request) interface{} {
 		Code:            account.Code,
 		Number:          account.Number,
 	}
+}
+
+// GetLightningAddress handles the GET request to retrieve the registered lightning address.
+func (lightning *Lightning) GetLightningAddress(_ *http.Request) interface{} {
+	address, err := lightning.LightningAddress()
+	if err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true, Data: address}
 }
 
 // GetReady handles the GET request to retrieve whether the lightning SDK is ready.
