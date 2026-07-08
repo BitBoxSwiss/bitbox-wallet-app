@@ -9,7 +9,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
-// BTCSatAmount returns a BTC amount in sats with fiat conversions.
+// BTCSatAmount converts a BTC, sat, or fiat amount to sats with fiat conversions.
 func (backend *Backend) BTCSatAmount(source string, amount string) (*coinpkg.FormattedAmountWithConversions, error) {
 	const isFee = false
 	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
@@ -28,6 +28,14 @@ func (backend *Backend) BTCSatAmount(source string, amount string) (*coinpkg.For
 			return nil, errp.New("amount must be non-negative")
 		}
 		coinAmount = coinpkg.NewAmount(satsInt)
+	case "btc":
+		coinAmount, err = coinpkg.NewAmountFromString(amount, big.NewInt(100_000_000))
+		if err != nil {
+			return nil, errp.WithMessage(err, "invalid amount")
+		}
+		if coinAmount.BigInt().Sign() < 0 {
+			return nil, errp.New("amount must be non-negative")
+		}
 	case "fiat":
 		fiatRat, valid := new(big.Rat).SetString(amount)
 		if !valid {

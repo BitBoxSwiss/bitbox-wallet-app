@@ -1082,7 +1082,7 @@ func (handlers *Handlers) postDeregisterTestKeystore(*http.Request) interface{} 
 	return nil
 }
 
-// getBTCSatAmount takes an amount in sats or the default fiat currency and
+// getBTCSatAmount takes an amount in BTC, sats, or the default fiat currency and
 // returns a BTC amount in sats with fiat conversions.
 func (handlers *Handlers) getBTCSatAmount(r *http.Request) interface{} {
 	type response struct {

@@ -51,7 +51,7 @@ export type TBtcSatAmount = TAmountWithConversions & {
 };
 
 type TBtcSatAmountRequest = {
-  source: 'sat' | 'fiat';
+  source: 'btc' | 'sat' | 'fiat';
   amount: string;
 };
 

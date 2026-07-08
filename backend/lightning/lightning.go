@@ -275,6 +275,37 @@ func (lightning *Lightning) Balance() (*accounts.Balance, error) {
 	return accounts.NewBalance(available, lightning.unclaimedDepositsAmount(deposits.Deposits)), nil
 }
 
+type fundingLimit struct {
+	LimitSat  int64 `json:"limitSat"`
+	MarginSat int64 `json:"marginSat"`
+}
+
+const lightningBalanceLimitSat int64 = 200_000
+
+func fundingLimitForBalance(balance *accounts.Balance) (fundingLimit, error) {
+	totalBalance := coin.SumAmounts(balance.Available(), balance.Incoming())
+	totalBalanceSat, err := totalBalance.Int64()
+	if err != nil {
+		return fundingLimit{}, errp.Wrap(err, "lightning: funding limit balance")
+	}
+	return fundingLimit{
+		LimitSat:  lightningBalanceLimitSat,
+		MarginSat: lightningBalanceLimitSat - totalBalanceSat,
+	}, nil
+}
+
+func (lightning *Lightning) balanceWithFundingLimit() (*accounts.Balance, fundingLimit, error) {
+	balance, err := lightning.Balance()
+	if err != nil {
+		return nil, fundingLimit{}, err
+	}
+	limit, err := fundingLimitForBalance(balance)
+	if err != nil {
+		return nil, limit, err
+	}
+	return balance, limit, nil
+}
+
 // SparkStatus is the operational status of the Spark network.
 type SparkStatus struct {
 	// Status represents the current status.

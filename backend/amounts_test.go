@@ -40,6 +40,12 @@ func TestBTCSatAmount(t *testing.T) {
 				rate:   25000,
 			},
 			{
+				name:   "btc",
+				source: "btc",
+				amount: "0.000002",
+				rate:   25000,
+			},
+			{
 				name:   "fiat",
 				source: "fiat",
 				amount: "0.05",
@@ -63,6 +69,20 @@ func TestBTCSatAmount(t *testing.T) {
 				name:        "negative sat amount",
 				source:      "sat",
 				amount:      "-1",
+				rate:        25000,
+				errContains: "amount must be non-negative",
+			},
+			{
+				name:        "invalid btc amount",
+				source:      "btc",
+				amount:      "invalid",
+				rate:        25000,
+				errContains: "invalid amount",
+			},
+			{
+				name:        "negative btc amount",
+				source:      "btc",
+				amount:      "-0.000002",
 				rate:        25000,
 				errContains: "amount must be non-negative",
 			},
