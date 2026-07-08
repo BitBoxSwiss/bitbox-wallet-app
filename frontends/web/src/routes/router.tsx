@@ -47,6 +47,7 @@ import { More } from '@/routes/settings/more';
 import { Lightning } from './lightning/lightning';
 import { LightningActivate } from './lightning/activate';
 import { LightningDeactivate } from './lightning/deactivate';
+import { LightningSetLnurlAddress } from './lightning/set-lnurl-address';
 import { Send as LightningSend } from './lightning/send/send';
 import { Receive as LightningReceive } from './lightning/receive/receive';
 
@@ -352,6 +353,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route index element={<Lightning />} />
           <Route path="activate" element={<LightningActivate />} />
           <Route path="deactivate" element={<LightningDeactivate />} />
+          <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
           <Route path="send" element={<LightningSend />} />
           <Route path="receive" element={<LightningReceive />} />
         </Route>

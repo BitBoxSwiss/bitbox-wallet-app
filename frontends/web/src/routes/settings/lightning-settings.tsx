@@ -53,7 +53,7 @@ export const LightningSettings = ({
         />
         <SettingsItem
           settingName={t('lightning.settings.setLightningAddress')}
-          onClick={noop}
+          onClick={() => navigate('/lightning/set-lnurl-address/')}
         />
         <SettingsItem
           settingName={t('lightning.settings.manuallyClaimTopUp')}
