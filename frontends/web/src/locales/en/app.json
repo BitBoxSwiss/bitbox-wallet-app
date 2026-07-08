@@ -451,6 +451,7 @@
     "previous": "Previous",
     "proceedOnBitBox": "Proceed on your BitBox",
     "restore": "Restore",
+    "save": "Save",
     "select": "Select",
     "unlock": "Unlock",
     "update": "Update",
@@ -1595,6 +1596,21 @@
       }
     },
     "initializing": "Lightning account initializing...",
+    "lnurlAddress": {
+      "availability": {
+        "available": "This name is available",
+        "taken": "This name is taken"
+      },
+      "choose": "You can choose your own address below or randomly generate one.",
+      "description": "An LNURL address is a human readable address which you can easily share to receive lightning payments",
+      "generate": "Generate address",
+      "label": "LNURL",
+      "notice": "Please note, your address <strong>cannot be changed later.</strong>",
+      "success": {
+        "message": "Your LNURL address has been set."
+      },
+      "title": "Set LNURL address"
+    },
     "payments": {
       "header": {
         "amount": "Amount",

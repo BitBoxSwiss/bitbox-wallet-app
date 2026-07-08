@@ -1,0 +1,55 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+.addressInput {
+    margin-top: var(--space-default);
+}
+
+.generateButton {
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: var(--color-secondary);
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    padding: 0;
+}
+
+.generateButton:hover {
+    cursor: pointer;
+}
+
+.generateButton img {
+    height: 20px;
+    opacity: 0.75;
+    width: 20px;
+}
+
+.availability {
+    align-items: center;
+    display: flex;
+    font-size: var(--size-small);
+    gap: var(--space-quarter);
+    justify-content: center;
+    min-height: var(--space-default);
+}
+
+.available {
+    color: var(--color-success);
+}
+
+.taken {
+    color: var(--color-softred);
+}
+
+.statusIcon {
+    height: 16px;
+    width: 16px;
+}
+
+.successAddress {
+    color: var(--color-secondary);
+    display: block;
+    font-size: var(--size-small);
+    margin-top: var(--space-half);
+}
