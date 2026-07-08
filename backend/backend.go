@@ -74,6 +74,10 @@ var fixedURLWhitelist = []string{
 	"https://mempool.space/address/",
 	"https://mempool.space/testnet/tx/",
 	"https://mempool.space/testnet/address/",
+	"http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/tx/",
+	"http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/address/",
+	"http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/testnet/tx/",
+	"http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/testnet/address/",
 	"https://sochain.com/tx/LTCTEST/",
 	"https://sochain.com/address/LTCTEST/",
 	"https://blockchair.com/litecoin/transaction/",
@@ -1032,8 +1036,7 @@ func isWhitelistedSystemOpenURL(rawURL string) bool {
 		if !strings.EqualFold(parsedURL.Hostname(), parsedWhitelisted.Hostname()) {
 			continue
 		}
-		port := parsedURL.Port()
-		if port != "" && port != "443" {
+		if effectivePort(parsedURL) != effectivePort(parsedWhitelisted) {
 			continue
 		}
 		requestedPath := parsedURL.Path
@@ -1052,6 +1055,22 @@ func isWhitelistedSystemOpenURL(rawURL string) bool {
 		}
 	}
 	return false
+}
+
+// effectivePort returns the URL's port, falling back to the scheme's default
+// port (80 for http, 443 for https) when none is explicitly specified.
+func effectivePort(parsedURL *url.URL) string {
+	if port := parsedURL.Port(); port != "" {
+		return port
+	}
+	switch strings.ToLower(parsedURL.Scheme) {
+	case "http":
+		return "80"
+	case "https":
+		return "443"
+	default:
+		return ""
+	}
 }
 
 // SystemOpen opens the given URL using backend.environment.
