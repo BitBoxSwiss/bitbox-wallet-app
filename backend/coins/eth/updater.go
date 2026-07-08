@@ -89,7 +89,17 @@ func (u *Updater) Close() {
 
 // EnqueueUpdateForAllAccounts enqueues an update for all ETH accounts.
 func (u *Updater) EnqueueUpdateForAllAccounts() {
-	u.updateETHAccountsCh <- struct{}{}
+	select {
+	case u.updateETHAccountsCh <- struct{}{}:
+	case <-u.quit:
+	}
+}
+
+// EnqueueUpdateForAllAccountsAsync enqueues an update for all ETH accounts without blocking the
+// caller. This is useful when accounts are loaded while backend locks are held, as the update path
+// reads the backend account list.
+func (u *Updater) EnqueueUpdateForAllAccountsAsync() {
+	go u.EnqueueUpdateForAllAccounts()
 }
 
 // PollBalances updates the balances of all ETH accounts.

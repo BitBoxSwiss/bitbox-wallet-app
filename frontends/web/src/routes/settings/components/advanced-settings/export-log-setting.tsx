@@ -2,13 +2,12 @@
 
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
-import { debug } from '@/utils/env';
 import { alertUser } from '@/components/alert/Alert';
 import { exportLogs } from '@/api/backend';
 
 export const ExportLogSetting = () => {
   const { t } = useTranslation();
-  return debug === true ? null : (
+  return (
     <SettingsItem
       settingName={t('settings.expert.exportLogs.title')}
       onClick={async () => {

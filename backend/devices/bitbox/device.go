@@ -14,14 +14,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pbkdf2"
@@ -74,19 +72,17 @@ type CommunicationInterface interface {
 
 // DeviceInfo is the data returned from the device info api call.
 type DeviceInfo struct {
-	Version         string `json:"version"`
-	Serial          string `json:"serial"`
-	ID              string `json:"id"`
-	TFA             string `json:"TFA"`
-	Bootlock        bool   `json:"bootlock"`
-	Name            string `json:"name"`
-	SDCard          bool   `json:"sdcard"`
-	Lock            bool   `json:"lock"`
-	U2F             bool   `json:"U2F"`
-	U2FHijack       bool   `json:"U2F_hijack"`
-	Seeded          bool   `json:"seeded"`
-	NewHiddenWallet bool   `json:"new_hidden_wallet"`
-	Pairing         bool   `json:"pairing"`
+	Version   string `json:"version"`
+	Serial    string `json:"serial"`
+	ID        string `json:"id"`
+	TFA       string `json:"TFA"`
+	Bootlock  bool   `json:"bootlock"`
+	Name      string `json:"name"`
+	SDCard    bool   `json:"sdcard"`
+	Lock      bool   `json:"lock"`
+	U2F       bool   `json:"U2F"`
+	U2FHijack bool   `json:"U2F_hijack"`
+	Seeded    bool   `json:"seeded"`
 }
 
 // Device provides the API to communicate with the digital bitbox.
@@ -116,21 +112,9 @@ type Device struct {
 	// The password policy for the wallet recovery password.
 	recoveryPasswordPolicy *PasswordPolicy
 
-	// BitBox desktop app config directory.
-	// Used to read/store channel settings.
-	channelConfigDir string
-
 	mu sync.RWMutex
-	// If set, the channel can be used to communicate to the mobile.
-	// Channel readers should prefer accessing it using mobileChannel method.
-	channel *relay.Channel
 	// Device state change callback. Set in SetOnEvent.
 	onEvent func(event.Event, interface{})
-	// Indicates whether Close was called.
-	closed bool
-
-	// Is passed to relay channel
-	socksProxy socksproxy.SocksProxy
 
 	log *logrus.Entry
 
@@ -141,16 +125,11 @@ type Device struct {
 // bootloader enables the bootloader API and should be true only if the device is in bootloader mode.
 // communication is used for transporting messages to/from the device.
 // Use NewCommunication() for production.
-//
-// The channelConfigDir is the location of the channel settings file.
-// Callers can use util/config.AppDir to obtain user standard config dir.
 func NewDevice(
 	deviceID string,
 	bootloader bool,
 	version *semver.SemVer,
-	channelConfigDir string,
-	communication CommunicationInterface,
-	socksProxy socksproxy.SocksProxy) (*Device, error) {
+	communication CommunicationInterface) (*Device, error) {
 	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
 	log.WithField("version", version).Info("Plugged in device")
 
@@ -160,19 +139,11 @@ func NewDevice(
 	}
 	log = log.WithField("deviceID", deviceID).WithField("productName", ProductName)
 	device := &Device{
-		socksProxy:       socksProxy,
 		deviceID:         deviceID,
 		bootloaderStatus: bootloaderStatus,
 		version:          version,
 		communication:    communication,
-		closed:           false,
-		channel:          relay.NewChannelFromConfigFile(channelConfigDir, socksProxy),
-		channelConfigDir: channelConfigDir,
 		log:              log,
-	}
-
-	if device.channel != nil {
-		go device.listenForMobile()
 	}
 
 	if !bootloader {
@@ -277,7 +248,6 @@ func (dbb *Device) Close() {
 	defer dbb.mu.Unlock()
 	dbb.log.WithFields(logrus.Fields{"deviceID": dbb.deviceID}).Debug("Close connection")
 	dbb.communication.Close()
-	dbb.closed = true
 }
 
 func (dbb *Device) send(value interface{}, pin string) (map[string]interface{}, error) {
@@ -347,16 +317,6 @@ func (dbb *Device) deviceInfo(pin string) (*DeviceInfo, error) {
 	if deviceInfo.Seeded, ok = device["seeded"].(bool); !ok {
 		dbb.log = dbb.log.WithField("seeded", deviceInfo.Seeded)
 		return nil, errp.New("version")
-	}
-	if dbb.version.AtLeast(semver.NewSemVer(5, 0, 0)) {
-		if deviceInfo.NewHiddenWallet, ok = device["new_hidden_wallet"].(bool); !ok {
-			return nil, errp.New("new_hidden_wallet")
-		}
-	}
-	if dbb.version.AtLeast(semver.NewSemVer(6, 0, 0)) {
-		if deviceInfo.Pairing, ok = device["pairing"].(bool); !ok {
-			return nil, errp.New("pairing")
-		}
 	}
 	dbb.log.Debug("Device info")
 	return deviceInfo, nil
@@ -646,38 +606,6 @@ func (dbb *Device) CreateWallet(walletName string, backupPassword string) error 
 	return nil
 }
 
-// SetHiddenPassword creates a hidden pin/seed. Returns false if aborted by the user.
-func (dbb *Device) SetHiddenPassword(hiddenPIN string, hiddenBackupPassword string) (bool, error) {
-	if dbb.bootloaderStatus != nil {
-		return false, errp.WithStack(errNoBootloader)
-	}
-	if ok, err := dbb.pinPolicy.ValidatePassword(hiddenPIN); !ok {
-		return false, err
-	}
-	if ok, err := dbb.recoveryPasswordPolicy.ValidatePassword(hiddenBackupPassword); !ok {
-		return false, err
-	}
-	key := stretchKey(hiddenBackupPassword)
-	reply, err := dbb.send(
-		map[string]interface{}{
-			"hidden_password": map[string]string{
-				"key":      key,
-				"password": hiddenPIN,
-			},
-		},
-		dbb.pin)
-	if isErrorAbort(err) {
-		return false, nil
-	}
-	if err != nil {
-		return false, err
-	}
-	if reply["hidden_password"] != responseSuccess {
-		return false, errp.New("Unexpected result")
-	}
-	return true, nil
-}
-
 // isErrorAbort returns whether the user aborted the operation.
 func isErrorAbort(err error) bool {
 	dbbErr, ok := errp.Cause(err).(*Error)
@@ -897,130 +825,6 @@ func (dbb *Device) LockBootloader() error {
 	return nil
 }
 
-// ecdhPKhash passes the hash of the ECDH public key of the mobile to the device and returns its response.
-func (dbb *Device) ecdhPKhash(mobileECDHPKhash string) (interface{}, error) {
-	if dbb.bootloaderStatus != nil {
-		return nil, errp.WithStack(errNoBootloader)
-	}
-	command := map[string]interface{}{
-		"ecdh": map[string]interface{}{
-			"hash_pubkey": mobileECDHPKhash,
-		},
-	}
-	reply, err := dbb.send(command, dbb.pin)
-	if err != nil {
-		return nil, err
-	}
-	return reply["ecdh"], nil
-}
-
-// ecdhPK passes the ECDH public key of the mobile to the device and returns its response.
-func (dbb *Device) ecdhPK(mobileECDHPK string) (interface{}, error) {
-	if dbb.bootloaderStatus != nil {
-		return nil, errp.WithStack(errNoBootloader)
-	}
-	command := map[string]interface{}{
-		"ecdh": map[string]interface{}{
-			"pubkey": mobileECDHPK,
-		},
-	}
-	reply, err := dbb.send(command, dbb.pin)
-	if err != nil {
-		return nil, err
-	}
-	return reply["ecdh"], nil
-}
-
-// ecdhChallenge forwards a ecdh challenge command to the Bitbox.
-func (dbb *Device) ecdhChallenge() error {
-	if dbb.bootloaderStatus != nil {
-		return errp.WithStack(errNoBootloader)
-	}
-	command := map[string]interface{}{
-		"ecdh": map[string]interface{}{
-			"challenge": true,
-		},
-	}
-	reply, err := dbb.send(command, dbb.pin)
-	if err != nil {
-		return err
-	}
-	if reply["ecdh"] != responseSuccess {
-		return errp.New("Unexpected response from bitbox")
-	}
-	return nil
-}
-
-// StartPairing creates, stores and returns a new channel and finishes the pairing asynchronously.
-func (dbb *Device) StartPairing() (*relay.Channel, error) {
-	var removed bool
-	dbb.mu.Lock()
-	if dbb.channel != nil {
-		if err := dbb.channel.RemoveConfigFile(dbb.channelConfigDir); err != nil {
-			dbb.mu.Unlock()
-			return nil, errp.WithStack(err)
-		}
-		dbb.channel = nil
-		removed = true
-	}
-	dbb.mu.Unlock()
-	if removed {
-		dbb.fireEvent("pairingFalse")
-	}
-
-	channel := relay.NewChannelWithRandomKey(dbb.socksProxy)
-	go dbb.processPairing(channel)
-	return channel, nil
-}
-
-// HasMobileChannel returns whether a channel to a mobile exists.
-func (dbb *Device) HasMobileChannel() bool {
-	return dbb.mobileChannel() != nil
-}
-
-// PingMobile pings the mobile if a channel exists. Only returns no error if the pong was received.
-func (dbb *Device) PingMobile() error {
-	mob := dbb.mobileChannel()
-	if mob == nil {
-		return errp.New("bitbox: device's mobile channel is nil")
-	}
-	if err := mob.SendPing(); err != nil {
-		return err
-	}
-	return mob.WaitForPong(time.Second)
-}
-
-// listenForMobile runs an endless loop, periodically pinging the mobile channel
-// until the BitBox is closed or the channel is removed.
-// Each loop iteration results in either "mobileConnected" or "mobileDisconnected" event.
-//
-// It is run in a separate goroutine in NewDevice and dbb.FinishPairing.
-func (dbb *Device) listenForMobile() {
-	for {
-		dbb.mu.RLock()
-		ok := !dbb.closed && dbb.channel != nil
-		dbb.mu.RUnlock()
-		if !ok {
-			return
-		}
-
-		if dbb.PingMobile() != nil {
-			dbb.fireEvent("mobileDisconnected")
-		} else {
-			dbb.fireEvent("mobileConnected")
-		}
-		time.Sleep(10 * time.Second)
-	}
-}
-
-// mobileChannel is a helper which returns dbb's mobile channel or nil.
-// It is safe for concurrent use.
-func (dbb *Device) mobileChannel() *relay.Channel {
-	dbb.mu.RLock()
-	defer dbb.mu.RUnlock()
-	return dbb.channel
-}
-
 // ProductName implements device.Interface.
 func (dbb *Device) ProductName() string {
 	return ProductName
@@ -1039,43 +843,4 @@ func (dbb *Device) Identifier() string {
 // Keystore implements device.Interface.
 func (dbb *Device) Keystore() keystoreInterface.Keystore {
 	panic("BitBox01 keystore unavailable")
-}
-
-// Lock locks the device for 2FA. Returns true if successful and false if aborted by the user.
-func (dbb *Device) Lock() (bool, error) {
-	reply, err := dbb.sendKV("device", "lock", dbb.pin)
-	if isErrorAbort(err) {
-		return false, nil
-	}
-	if err != nil {
-		return false, errp.WithMessage(err, "Failed to lock the device")
-	}
-	replyDevice, ok := reply["device"].(map[string]interface{})
-	if !ok {
-		return false, errp.New("unexpected reply")
-	}
-	if replyLock, ok := replyDevice["lock"].(bool); !ok || !replyLock {
-		return false, errp.New("unexpected reply")
-	}
-	return true, nil
-}
-
-// FeatureSet are the device features one can modify with FeatureSet().
-type FeatureSet struct {
-	NewHiddenWallet *bool `json:"new_hidden_wallet,omitempty"`
-	Pairing         *bool `json:"pairing,omitempty"`
-}
-
-// FeatureSet modifies device features.
-func (dbb *Device) FeatureSet(featureSet *FeatureSet) error {
-	reply, err := dbb.send(map[string]interface{}{
-		"feature_set": featureSet,
-	}, dbb.pin)
-	if err != nil {
-		return errp.WithMessage(err, "Failed to set features")
-	}
-	if reply["feature_set"] != responseSuccess {
-		return errp.New("Unexpected result: feature_set != success")
-	}
-	return nil
 }

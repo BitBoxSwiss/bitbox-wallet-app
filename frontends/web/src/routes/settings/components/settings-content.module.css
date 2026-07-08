@@ -1,0 +1,21 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+.highlightedItem {
+  animation: settings-highlight-pulse 800ms ease-in-out 3;
+  border-radius: var(--radius-xl);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+@keyframes settings-highlight-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--color-blue-rgb), 0);
+    outline-color: transparent;
+  }
+
+  50% {
+    box-shadow: 0 0 0 4px rgba(var(--color-blue-rgb), 0.18);
+    outline-color: var(--color-primary);
+  }
+}

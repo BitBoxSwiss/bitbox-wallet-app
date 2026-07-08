@@ -38,17 +38,18 @@ type backendEnv struct {
 	Locale string // returned by NativeLocale
 }
 
-func (e *backendEnv) NotifyUser(string)             {}
-func (e *backendEnv) SystemOpen(string) error       { return nil }
-func (e *backendEnv) DeviceInfos() []usb.DeviceInfo { return nil }
-func (e *backendEnv) UsingMobileData() bool         { return false }
-func (e *backendEnv) NativeLocale() string          { return e.Locale }
-func (e *backendEnv) GetSaveFilename(string) string { return "" }
-func (e *backendEnv) SetDarkTheme(bool)             {}
-func (e *backendEnv) DetectDarkTheme() bool         { return false }
-func (e *backendEnv) Auth()                         {}
-func (e *backendEnv) OnAuthSettingChanged(bool)     {}
-func (e *backendEnv) BluetoothConnect(string)       {}
+func (e *backendEnv) NotifyUser(string)                   {}
+func (e *backendEnv) SystemOpen(string) error             { return nil }
+func (e *backendEnv) DeviceInfos() []usb.DeviceInfo       { return nil }
+func (e *backendEnv) UsingMobileData() bool               { return false }
+func (e *backendEnv) NativeLocale() string                { return e.Locale }
+func (e *backendEnv) NumberFormat() *backend.NumberFormat { return nil }
+func (e *backendEnv) GetSaveFilename(string) string       { return "" }
+func (e *backendEnv) SetDarkTheme(bool)                   {}
+func (e *backendEnv) DetectDarkTheme() bool               { return false }
+func (e *backendEnv) Auth()                               {}
+func (e *backendEnv) OnAuthSettingChanged(bool)           {}
+func (e *backendEnv) BluetoothConnect(string)             {}
 
 func TestGetNativeLocale(t *testing.T) {
 	const ptLocale = "pt"

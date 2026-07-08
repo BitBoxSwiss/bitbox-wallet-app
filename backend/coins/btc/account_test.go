@@ -48,7 +48,7 @@ func mockAccount(t *testing.T, accountConfig *config.Account) *Account {
 	defer func() { _ = os.RemoveAll(dbFolder) }()
 
 	coin := NewCoin(
-		code, "Bitcoin Testnet", unit, coin.BtcUnitDefault, net, dbFolder, nil, explorer, socksproxy.NewSocksProxy(false, ""))
+		code, "Bitcoin Testnet", unit, coin.BtcUnitDefault, net, dbFolder, nil, explorer, "", socksproxy.NewSocksProxy(false, ""))
 
 	blockchainMock := &blockchainMock.BlockchainMock{}
 	blockchainMock.MockRegisterOnConnectionErrorChangedEvent = func(f func(error)) {}

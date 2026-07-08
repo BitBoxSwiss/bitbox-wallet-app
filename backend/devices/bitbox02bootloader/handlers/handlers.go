@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02bootloader"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -31,7 +30,7 @@ type Handlers struct {
 
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
-	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route,
+	handleFunc func(string, func(*http.Request) interface{}) *mux.Route,
 	log *logrus.Entry,
 ) *Handlers {
 	handlers := &Handlers{log: log.WithField("device", "bitbox02-bootloader")}
@@ -60,34 +59,74 @@ func (handlers *Handlers) Uninit() {
 	handlers.device = nil
 }
 
-func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error) {
-	return handlers.device.Status(), nil
+type bootloaderResponse struct {
+	Success      bool   `json:"success"`
+	ErrorMessage string `json:"errorMessage,omitempty"`
 }
 
-func (handlers *Handlers) postUpgradeFirmwareHandler(_ *http.Request) (interface{}, error) {
-	return nil, handlers.device.UpgradeFirmware()
+func (handlers *Handlers) errorResponse(err error) bootloaderResponse {
+	handlers.log.WithError(err).Error("BitBox02 bootloader request failed")
+	return bootloaderResponse{Success: false, ErrorMessage: err.Error()}
 }
 
-func (handlers *Handlers) postRebootHandler(_ *http.Request) (interface{}, error) {
-	return nil, handlers.device.Reboot()
+func (handlers *Handlers) getStatusHandler(_ *http.Request) interface{} {
+	return handlers.device.Status()
 }
 
-func (handlers *Handlers) getShowFirmwareHashEnabledHandler(_ *http.Request) (interface{}, error) {
-	return handlers.device.ShowFirmwareHashEnabled()
+func (handlers *Handlers) postUpgradeFirmwareHandler(_ *http.Request) interface{} {
+	if err := handlers.device.UpgradeFirmware(); err != nil {
+		return handlers.errorResponse(err)
+	}
+	return bootloaderResponse{Success: true}
 }
 
-func (handlers *Handlers) postSetShowFirmwareHashEnabledHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postRebootHandler(_ *http.Request) interface{} {
+	if err := handlers.device.Reboot(); err != nil {
+		return handlers.errorResponse(err)
+	}
+	return bootloaderResponse{Success: true}
+}
+
+func (handlers *Handlers) getShowFirmwareHashEnabledHandler(_ *http.Request) interface{} {
+	type response struct {
+		Success bool `json:"success"`
+		Enabled bool `json:"enabled"`
+	}
+
+	enabled, err := handlers.device.ShowFirmwareHashEnabled()
+	if err != nil {
+		return handlers.errorResponse(err)
+	}
+	return response{Success: true, Enabled: enabled}
+}
+
+func (handlers *Handlers) postSetShowFirmwareHashEnabledHandler(r *http.Request) interface{} {
 	var enabled bool
 	if err := json.NewDecoder(r.Body).Decode(&enabled); err != nil {
-		return nil, errp.WithStack(err)
+		return bootloaderResponse{Success: false, ErrorMessage: err.Error()}
 	}
-	return nil, handlers.device.SetShowFirmwareHashEnabled(enabled)
+	if err := handlers.device.SetShowFirmwareHashEnabled(enabled); err != nil {
+		return handlers.errorResponse(err)
+	}
+	return bootloaderResponse{Success: true}
 }
 
-func (handlers *Handlers) getInfoHandler(_ *http.Request) (interface{}, error) {
-	return handlers.device.Info()
+func (handlers *Handlers) getInfoHandler(_ *http.Request) interface{} {
+	type response struct {
+		Success bool                     `json:"success"`
+		Info    *bitbox02bootloader.Info `json:"info,omitempty"`
+	}
+
+	info, err := handlers.device.Info()
+	if err != nil {
+		return handlers.errorResponse(err)
+	}
+	return response{Success: true, Info: info}
 }
 
-func (handlers *Handlers) postScreenRotateHandler(_ *http.Request) (interface{}, error) {
-	return nil, handlers.device.ScreenRotate()
+func (handlers *Handlers) postScreenRotateHandler(_ *http.Request) interface{} {
+	if err := handlers.device.ScreenRotate(); err != nil {
+		return handlers.errorResponse(err)
+	}
+	return bootloaderResponse{Success: true}
 }

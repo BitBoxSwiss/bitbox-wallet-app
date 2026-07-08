@@ -3,8 +3,12 @@
 import '../../../../__mocks__/i18n';
 import { useState } from 'react';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
+import '@testing-library/jest-dom';
 
 vi.mock('@/i18n/i18n');
+// initialize i18n once at startup
+import '@/i18n/i18n';
+
 vi.mock('@/components/qrcode/qrcode', () => ({
   QRCode: () => null,
 }));
@@ -18,13 +22,20 @@ vi.mock('@/api/backend', async (importOriginal) => {
 vi.mock('@/components/banners', () => ({
   GlobalBanners: () => null,
 }));
+vi.mock('@/api/system', () => ({
+  open: vi.fn().mockResolvedValue({ success: true }),
+}));
 
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as accountApi from '@/api/account';
 import * as keystoresApi from '@/api/keystores';
+import { open } from '@/api/system';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { Addresses } from './addresses';
+
+const blockExplorerAddressPrefix = 'https://example.com/address/';
 
 const mockAccount: accountApi.TAccount = {
   keystore: {
@@ -42,6 +53,7 @@ const mockAccount: accountApi.TAccount = {
   name: 'Bitcoin Account',
   isToken: false,
   blockExplorerTxPrefix: 'https://example.com/tx/',
+  blockExplorerAddressPrefix,
 };
 
 const groupAddress = (value: string): string => value.replace(/(.{4})/g, '$1 ').trim();
@@ -80,11 +92,13 @@ const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAcco
     const [accounts, setAccounts] = useState(initialAccounts);
     setAccountsState = setAccounts;
     return (
-      <Routes>
-        <Route path="/account/:code/addresses" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
-        <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
-        <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
-      </Routes>
+      <BackButtonProvider>
+        <Routes>
+          <Route path="/account/:code/addresses" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
+          <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
+          <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
+        </Routes>
+      </BackButtonProvider>
     );
   };
 
@@ -103,6 +117,7 @@ const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAcco
 describe('routes/account/addresses', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.mocked(open).mockClear().mockResolvedValue({ success: true });
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       value: vi.fn().mockImplementation((query: string) => ({
@@ -147,7 +162,19 @@ describe('routes/account/addresses', () => {
 
     expect(screen.getByPlaceholderText('Search address')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Copy address' })).toBeInTheDocument();
+    expect(screen.getByText('Open in external block explorer')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Verify address on device' })).not.toBeInTheDocument();
+  });
+
+  it('opens a used address in the external block explorer', async () => {
+    const user = userEvent.setup();
+
+    renderWithRoute('/account/btc-account/addresses');
+
+    await user.click(await screen.findByTitle(receiveAddress.address));
+    await user.click(screen.getByText('Open in external block explorer'));
+
+    expect(open).toHaveBeenCalledWith(`${blockExplorerAddressPrefix}${receiveAddress.address}`);
   });
 
   it('shows a warning and receive-page link before copying a change address', async () => {

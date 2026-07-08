@@ -127,20 +127,26 @@ type SyncProgress struct {
 	SyncedStorage       uint64 // Number of storage slots downloaded
 	SyncedStorageBytes  uint64 // Number of storage trie bytes persisted to disk
 
+	// Snap/1 specific fields
 	HealedTrienodes     uint64 // Number of state trie nodes downloaded
 	HealedTrienodeBytes uint64 // Number of state trie bytes persisted to disk
 	HealedBytecodes     uint64 // Number of bytecodes downloaded
 	HealedBytecodeBytes uint64 // Number of bytecodes persisted to disk
+	HealingTrienodes    uint64 // Number of state trie nodes pending
+	HealingBytecode     uint64 // Number of bytecodes pending
 
-	HealingTrienodes uint64 // Number of state trie nodes pending
-	HealingBytecode  uint64 // Number of bytecodes pending
+	// Snap/2 specific fields
+	SyncedAccessLists uint64 // Number of block access lists fetched during catch-up
+	TotalAccessLists  uint64 // Total number of block access lists to fetch for catch-up
+	TrieGenProgress   uint64 // Trie generation completion, in percent (0..100)
 
 	// "transaction indexing" fields
 	TxIndexFinishedBlocks  uint64 // Number of blocks whose transactions are already indexed
 	TxIndexRemainingBlocks uint64 // Number of blocks whose transactions are not indexed yet
 
-	// "historical state indexing" fields
-	StateIndexRemaining uint64 // Number of states remain unindexed
+	// "historical data indexing" fields
+	StateIndexRemaining    uint64 // Number of states remain unindexed
+	TrienodeIndexRemaining uint64 // Number of trienodes remain unindexed
 }
 
 // Done returns the indicator if the initial sync is finished or not.
@@ -148,7 +154,7 @@ func (prog SyncProgress) Done() bool {
 	if prog.CurrentBlock < prog.HighestBlock {
 		return false
 	}
-	return prog.TxIndexRemainingBlocks == 0 && prog.StateIndexRemaining == 0
+	return prog.TxIndexRemainingBlocks == 0 && prog.StateIndexRemaining == 0 && prog.TrienodeIndexRemaining == 0
 }
 
 // ChainSyncReader wraps access to the node's current sync status. If there's no

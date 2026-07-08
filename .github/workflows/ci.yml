@@ -16,7 +16,7 @@ jobs:
       ci_image_version: ${{ steps.set-ci-image-version.outputs.ci_image_version }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Read CI Image Version
         id: set-ci-image-version
@@ -34,7 +34,7 @@ jobs:
       - name: Clone the repo
         with:
           submodules: recursive
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Run CI script
         # The script also runs golang-ci but it's ok: doesn't take too long and may be useful
         # to keep its linter errors in this log, too.
@@ -51,7 +51,7 @@ jobs:
         project: [Chromium, WebKit]
     name: Playwright (${{ matrix.project }})
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Download simulator v9.24.0 from simulators.json
         run: |
@@ -66,14 +66,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: '24.x'
           cache: npm
           cache-dependency-path: frontends/web/package-lock.json
 
       - name: Install dependencies
         run: |
           cd frontends/web
-          npm install
+          npm ci --ignore-scripts
 
       - name: Build frontend
         run: |
@@ -106,7 +106,7 @@ jobs:
 
       - name: Upload Playwright artifacts and logs.
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-artifacts-and-logs-${{ matrix.project }}
           path: frontends/web/test-results/*
@@ -120,9 +120,9 @@ jobs:
       image: shiftcrypto/bitbox-wallet-app:${{ needs.setup-env.outputs.ci_image_version }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Enable caching
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           key: ${{runner.os}}-android
           path: |
@@ -134,7 +134,7 @@ jobs:
           OS_NAME: linux
       - name: Upload APK
         id: upload
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
           name: BitBoxApp-android-${{github.sha}}.apk
@@ -151,7 +151,7 @@ jobs:
       artifact-url-rpm: ${{ steps.upload-rpm.outputs.artifact-url }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Build Qt-Linux
@@ -160,21 +160,21 @@ jobs:
           OS_NAME: linux
       - name: Upload AppImage
         id: upload-ai
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/BitBoxApp-*.AppImage
           name: BitBoxApp-linux-${{github.sha}}.AppImage
           if-no-files-found: error
       - name: Upload deb
         id: upload-deb
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/bitbox_*.deb
           name: BitBoxApp-linux-${{github.sha}}.deb
           if-no-files-found: error
       - name: Upload rpm
         id: upload-rpm
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: /github/home/go/src/github.com/BitBoxSwiss/bitbox-wallet-app/frontends/qt/build/linux/bitbox-*.rpm
           name: BitBoxApp-linux-${{github.sha}}.rpm
@@ -185,7 +185,7 @@ jobs:
       artifact-url: ${{ steps.upload.outputs.artifact-url }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Install Go
@@ -196,7 +196,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -232,7 +232,7 @@ jobs:
           popd;
       - name: Upload app
         id: upload
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: BitBoxApp-macos.zip
           name: BitBoxApp-macos-${{github.sha}}.zip
@@ -243,7 +243,7 @@ jobs:
       GO_SRC_DIR: src/github.com/BitBoxSwiss/bitbox-wallet-app
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Install Go
@@ -262,7 +262,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
       - name: Build iOS app
         run: |
           make gomobileinit
@@ -278,13 +278,13 @@ jobs:
       MINGW_BIN: /C/mingw64/bin
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
       - name: Install Go
         uses: actions/setup-go@v6
         with:
@@ -312,7 +312,7 @@ jobs:
           make qt-windows
       - name: Upload Installer
         id: upload
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: frontends/qt/BitBox-installer.exe
           name: BitBoxApp-windows-${{ github.sha }}.exe
@@ -324,7 +324,7 @@ jobs:
     if: ${{ !cancelled() && github.event_name == 'push' }}
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Create vars
@@ -371,7 +371,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Install Go

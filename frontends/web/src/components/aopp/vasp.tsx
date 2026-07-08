@@ -36,14 +36,18 @@ const VASPHostnameMap: TVASPMap = {
   'testing.aopp.group': 'AOPP.group',
 };
 
+const matchesVaspHostname = (hostname: string, vasp: string): boolean => (
+  hostname === vasp || hostname.endsWith(`.${vasp}`)
+);
+
 export const Vasp = ({
   fallback,
   hostname,
   prominent,
   withLogoText,
 }: TVASPProps) => {
-  const subdomainOfVasp = Object.keys(VASPLogoMap).find((vasp) => hostname.endsWith(vasp));
-  const knownVasp = subdomainOfVasp || (hostname in VASPLogoMap && hostname);
+  const normalizedHostname = hostname.toLowerCase();
+  const knownVasp = Object.keys(VASPLogoMap).find((vasp) => matchesVaspHostname(normalizedHostname, vasp));
 
   if (!knownVasp) {
     return fallback || (
@@ -61,6 +65,7 @@ export const Vasp = ({
       <p className={`${styles.hostname as string} ${styles.capitalized as string}`}>
         {knownVasp in VASPHostnameMap ? VASPHostnameMap[knownVasp] : knownVasp}
       </p>
+      {normalizedHostname !== knownVasp ? (<p className={styles.hostname}>{hostname}</p>) : null}
       {withLogoText ? (<p>{withLogoText}</p>) : null}
     </div>
   );

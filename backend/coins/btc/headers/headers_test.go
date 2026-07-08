@@ -23,7 +23,7 @@ func TestClose(t *testing.T) {
 	headers.testDownloadFinished = func() {
 		close(didFinish)
 	}
-	headers.Initialize()
+	require.NoError(t, headers.Initialize())
 
 	require.NoError(t, headers.Close())
 	select {

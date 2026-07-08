@@ -30,17 +30,19 @@ import (
 
 // Coin models a Bitcoin-related coin.
 type Coin struct {
-	initOnce sync.Once
-	code     coinpkg.Code
-	name     string
+	initLock    sync.Mutex
+	initialized bool
+	code        coinpkg.Code
+	name        string
 	// unit is the main unit of the coin, e.g. 'BTC'
 	unit string
 	// formatUnit keeps track of the unit used, e.g. 'BTC' or 'sat' depening on if sat mode is enabled
-	formatUnit            coinpkg.BtcUnit
-	net                   *chaincfg.Params
-	dbFolder              string
-	makeBlockchain        func() blockchain.Interface
-	blockExplorerTxPrefix string
+	formatUnit                 coinpkg.BtcUnit
+	net                        *chaincfg.Params
+	dbFolder                   string
+	makeBlockchain             func() blockchain.Interface
+	blockExplorerTxPrefix      string
+	blockExplorerAddressPrefix string
 
 	observable.Implementation
 
@@ -60,17 +62,19 @@ func NewCoin(
 	dbFolder string,
 	servers []*config.ServerInfo,
 	blockExplorerTxPrefix string,
+	blockExplorerAddressPrefix string,
 	socksProxy socksproxy.SocksProxy,
 ) *Coin {
 	log := logging.Get().WithGroup("coin").WithField("code", code)
 	coin := &Coin{
-		code:                  code,
-		name:                  name,
-		unit:                  unit,
-		formatUnit:            formatUnit,
-		net:                   net,
-		dbFolder:              dbFolder,
-		blockExplorerTxPrefix: blockExplorerTxPrefix,
+		code:                       code,
+		name:                       name,
+		unit:                       unit,
+		formatUnit:                 formatUnit,
+		net:                        net,
+		dbFolder:                   dbFolder,
+		blockExplorerTxPrefix:      blockExplorerTxPrefix,
+		blockExplorerAddressPrefix: blockExplorerAddressPrefix,
 		makeBlockchain: func() blockchain.Interface {
 			return electrum.NewElectrumConnection(
 				servers,
@@ -90,63 +94,78 @@ func (coin *Coin) TstSetMakeBlockchain(f func() blockchain.Interface) {
 }
 
 // Initialize implements coinpkg.Coin.
-func (coin *Coin) Initialize() {
-	coin.initOnce.Do(func() {
-		// Init blockchain
-		coin.blockchain = coin.makeBlockchain()
+func (coin *Coin) Initialize() error {
+	coin.initLock.Lock()
+	defer coin.initLock.Unlock()
+	if coin.initialized {
+		return nil
+	}
 
-		// Init Headers
+	// Init blockchain
+	blockchain := coin.makeBlockchain()
 
-		// delete old db version (up to v4.10.0, bbolt was used):
-		oldDBFilename := path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.db", coin.code))
-		if _, err := os.Stat(oldDBFilename); err == nil {
-			_ = os.Remove(oldDBFilename)
+	// Init Headers
+
+	// delete old db version (up to v4.10.0, bbolt was used):
+	oldDBFilename := path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.db", coin.code))
+	if _, err := os.Stat(oldDBFilename); err == nil {
+		_ = os.Remove(oldDBFilename)
+	}
+
+	db, err := headersdb.NewDB(
+		path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.bin", coin.code)),
+		coin.log)
+	if err != nil {
+		blockchain.Close()
+		return errp.WithMessage(err, "could not open headers DB")
+	}
+	theHeaders := headers.NewHeaders(
+		coin.net,
+		db,
+		blockchain,
+		coin.log)
+	if err := theHeaders.Initialize(); err != nil {
+		if closeErr := db.Close(); closeErr != nil {
+			coin.log.WithError(closeErr).Error("could not close headers DB")
 		}
-
-		db, err := headersdb.NewDB(
-			path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.bin", coin.code)),
-			coin.log)
-		if err != nil {
-			coin.log.WithError(err).Panic("Could not open headers DB")
-		}
-		coin.headers = headers.NewHeaders(
-			coin.net,
-			db,
-			coin.blockchain,
-			coin.log)
-		coin.headers.Initialize()
-		coin.headers.SubscribeEvent(func(event headers.Event) {
-			if event == headers.EventSyncing || event == headers.EventSynced {
-				status, err := coin.headers.Status()
-				if err != nil {
-					coin.log.WithError(err).Error("Could not get headers status")
-					coin.Notify(observable.Event{
-						Subject: fmt.Sprintf("coins/%s/headers/status", coin.code),
-						Action:  action.Replace,
-						Object: struct {
-							Success      bool   `json:"success"`
-							ErrorMessage string `json:"errorMessage,omitempty"`
-						}{
-							Success:      false,
-							ErrorMessage: err.Error(),
-						},
-					})
-					return
-				}
+		blockchain.Close()
+		return errp.WithMessage(err, "could not initialize headers")
+	}
+	coin.blockchain = blockchain
+	coin.headers = theHeaders
+	coin.headers.SubscribeEvent(func(event headers.Event) {
+		if event == headers.EventSyncing || event == headers.EventSynced {
+			status, err := coin.headers.Status()
+			if err != nil {
+				coin.log.WithError(err).Error("Could not get headers status")
 				coin.Notify(observable.Event{
 					Subject: fmt.Sprintf("coins/%s/headers/status", coin.code),
 					Action:  action.Replace,
 					Object: struct {
-						Success bool            `json:"success"`
-						Status  *headers.Status `json:"status"`
+						Success      bool   `json:"success"`
+						ErrorMessage string `json:"errorMessage,omitempty"`
 					}{
-						Success: true,
-						Status:  status,
+						Success:      false,
+						ErrorMessage: err.Error(),
 					},
 				})
+				return
 			}
-		})
+			coin.Notify(observable.Event{
+				Subject: fmt.Sprintf("coins/%s/headers/status", coin.code),
+				Action:  action.Replace,
+				Object: struct {
+					Success bool            `json:"success"`
+					Status  *headers.Status `json:"status"`
+				}{
+					Success: true,
+					Status:  status,
+				},
+			})
+		}
 	})
+	coin.initialized = true
+	return nil
 }
 
 // Name implements coinpkg.Coin.
@@ -244,6 +263,11 @@ func (coin *Coin) String() string {
 // BlockExplorerTransactionURLPrefix implements coinpkg.Coin.
 func (coin *Coin) BlockExplorerTransactionURLPrefix() string {
 	return coin.blockExplorerTxPrefix
+}
+
+// BlockExplorerAddressURLPrefix returns the URL prefix of the block explorer for addresses.
+func (coin *Coin) BlockExplorerAddressURLPrefix() string {
+	return coin.blockExplorerAddressPrefix
 }
 
 // SmallestUnit implements coinpkg.Coin.

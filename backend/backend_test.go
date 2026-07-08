@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -89,9 +90,6 @@ func makeBitBox02Multi() *keystoremock.KeystoreMock {
 			default:
 				return true
 			}
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
 		},
 		ExtendedPublicKeyFunc: ksHelper.ExtendedPublicKey,
 		BTCXPubsFunc:          ksHelper.BTCXPubs,
@@ -324,6 +322,10 @@ func (e environment) NativeLocale() string {
 	return ""
 }
 
+func (e environment) NumberFormat() *NumberFormat {
+	return nil
+}
+
 func (e environment) GetSaveFilename(string) string {
 	return ""
 }
@@ -414,6 +416,42 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	}
 	require.NoError(t, err)
 	return b
+}
+
+func TestDevicesRegisteredReturnsSnapshot(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	unlock := b.devicesLock.Lock()
+	b.devices["device-id"] = nil
+	unlock()
+
+	devices := b.DevicesRegistered()
+	delete(devices, "device-id")
+
+	require.Contains(t, b.DevicesRegistered(), "device-id")
+}
+
+func TestClearCachePreservesUserData(t *testing.T) {
+	b := newBackend(t, false, false)
+	defer b.Close()
+
+	cacheFile := filepath.Join(b.arguments.CacheDirectoryPath(), "dummy-cache-file")
+	require.NoError(t, os.WriteFile(cacheFile, []byte("cache"), 0600))
+
+	noteFile := filepath.Join(b.arguments.NotesDirectoryPath(), "dummy-note-file")
+	require.NoError(t, os.WriteFile(noteFile, []byte("note"), 0600))
+
+	require.FileExists(t, b.arguments.AppConfigFilename())
+	require.FileExists(t, b.arguments.AccountsConfigFilename())
+
+	require.NoError(t, b.ClearCache())
+
+	require.NoFileExists(t, cacheFile)
+	require.DirExists(t, filepath.Join(b.arguments.CacheDirectoryPath(), "exchangerates"))
+	require.FileExists(t, noteFile)
+	require.FileExists(t, b.arguments.AppConfigFilename())
+	require.FileExists(t, b.arguments.AccountsConfigFilename())
 }
 
 func TestRegisterKeystore(t *testing.T) {

@@ -4,7 +4,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
-import { statusChanged, syncAddressesCount, syncdone } from '@/api/accountsync';
+import { statusChanged, syncAddressesCount, syncdone, transactionsChanged } from '@/api/accountsync';
 import { TDevices } from '@/api/devices';
 import { getMarketVendors, MarketVendors } from '@/api/market';
 import { Balance } from '@/components/balance/balance';
@@ -151,6 +151,10 @@ const RemountAccount = ({
   }, [code, onAccountChanged, status]);
 
   useEffect(() => {
+    return transactionsChanged(code, setTransactions);
+  }, [code]);
+
+  useEffect(() => {
     onAccountChanged(status);
   }, [btcUnit, onAccountChanged, status]);
 
@@ -235,7 +239,7 @@ const RemountAccount = ({
             </A>
           </Dialog>
           <Header
-            title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
+            title={<h2><span>{account.name}</span>{insured && (<Insured code={code} />)}</h2>}>
             <Link
               to={`/account/${code}/info`}
               title={t('accountInfo.title')}
@@ -309,7 +313,7 @@ const RemountAccount = ({
                     `}>
                       <SearchInput
                         ref={searchInputRef}
-                        placeholder="Search transactions..."
+                        placeholder={t('accountSummary.searchPlaceholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.currentTarget.value)}
                       />

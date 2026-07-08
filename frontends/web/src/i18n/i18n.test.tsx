@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import type { TConfig } from '@/api/config';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { waitFor } from '@testing-library/react';
 
 vi.mock('@/utils/request', () => ({
   apiPost: vi.fn().mockImplementation(() => Promise.resolve()),
-  apiGet: vi.fn().mockResolvedValue(''),
+  apiGet: vi.fn().mockImplementation((endpoint: string) => {
+    if (endpoint === 'config') {
+      return Promise.resolve({ backend: { userLanguage: '' }, frontend: {} } as TConfig);
+    }
+    return Promise.resolve('');
+  }),
 }));
 
 import { apiGet, apiPost } from '@/utils/request';
@@ -29,7 +35,9 @@ describe('i18n', () => {
       it(`sets userLanguage to ${test.userLang || 'null'} if native-locale is ${test.nativeLocale}`, async () => {
         (apiGet as Mock).mockImplementation(endpoint => {
           switch (endpoint) {
-          case 'config': { return Promise.resolve({}); }
+          case 'config': {
+            return Promise.resolve({ backend: { userLanguage: '' }, frontend: {} } as TConfig);
+          }
           case 'native-locale': { return Promise.resolve(test.nativeLocale); }
           default: { return Promise.resolve(); }
           }
@@ -40,7 +48,7 @@ describe('i18n', () => {
           expect(apiPost).toHaveBeenCalledWith('config', {
             frontend: {},
             backend: { userLanguage: test.userLang },
-          });
+          } as TConfig);
         });
       });
     });

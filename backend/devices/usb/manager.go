@@ -14,7 +14,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid"
@@ -74,7 +73,6 @@ func isBitBox02Bootloader(deviceInfo DeviceInfo) bool {
 // Manager listens for devices and notifies when a device has been inserted or removed.
 type Manager struct {
 	devices           map[string]device.Interface
-	channelConfigDir  string // passed to each bitbox01 device during initialization
 	bitbox02ConfigDir string // passed to each bitbox02 device during initialization
 
 	deviceInfos  func() []DeviceInfo
@@ -84,34 +82,25 @@ type Manager struct {
 	updateCh chan struct{}
 	quitCh   chan struct{}
 
-	socksProxy socksproxy.SocksProxy
-
 	log *logrus.Entry
 }
 
 // NewManager creates a new Manager. onRegister is called when a device has been
 // inserted. onUnregister is called when the device has been removed.
-//
-// The channelConfigDir argument is passed to each device during initialization,
-// before onRegister is called.
 func NewManager(
-	channelConfigDir string,
 	bitbox02ConfigDir string,
-	socksProxy socksproxy.SocksProxy,
 	deviceInfos func() []DeviceInfo,
 	onRegister func(device.Interface) error,
 	onUnregister func(string),
 ) *Manager {
 	return &Manager{
 		devices:           map[string]device.Interface{},
-		channelConfigDir:  channelConfigDir,
 		bitbox02ConfigDir: bitbox02ConfigDir,
 		deviceInfos:       deviceInfos,
 		onRegister:        onRegister,
 		onUnregister:      onUnregister,
 		updateCh:          make(chan struct{}),
 		quitCh:            make(chan struct{}),
-		socksProxy:        socksProxy,
 
 		log: logging.Get().WithGroup("manager"),
 	}
@@ -161,13 +150,11 @@ func (manager *Manager) makeBitBox(deviceInfo DeviceInfo) (*bitbox.Device, error
 		deviceID,
 		bootloader,
 		version,
-		manager.channelConfigDir,
 		bitbox.NewCommunication(
 			hidDevice,
 			version,
 			manager.log,
 		),
-		manager.socksProxy,
 	)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to establish communication to device")

@@ -2,8 +2,8 @@
 
 import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { Message } from './message';
-import '@testing-library/jest-dom'; // TODO needed?
 
 describe('components/message/message', () => {
 

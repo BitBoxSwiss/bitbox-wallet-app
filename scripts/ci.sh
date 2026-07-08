@@ -18,7 +18,7 @@ golangci-lint --version
 golangci-lint config verify
 golangci-lint run
 
-npm --prefix=frontends/web install # needed to install dev dependencies.
+npm --prefix=frontends/web ci --ignore-scripts # needed to install dev dependencies.
 make weblint
 npm --prefix=frontends/web test -- --no-color --no-watch
 

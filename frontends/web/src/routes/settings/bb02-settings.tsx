@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useLoad } from '@/hooks/api';
 import { useTranslation } from 'react-i18next';
-import { runningInIOS } from '@/utils/env';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { ViewContent, View } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
@@ -29,14 +28,21 @@ import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
 import { MobileHeader } from './components/mobile-header';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
+import {
+  isBluetoothToggleSettingVisible,
+  isDeviceBluetoothSupported,
+} from './settings-availability';
 import styles from './bb02-settings.module.css';
 
-type TProps = {
+type TCommonProps = {
   deviceID: string;
 };
 
-type TWrapperProps = TProps & TPagePropsWithSettingsTabs;
+type TWrapperProps = TCommonProps & TPagePropsWithSettingsTabs;
+
+type TProps = TCommonProps;
 
 export const StyledSkeleton = () => {
   return (
@@ -70,7 +76,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
-                <Content deviceID={deviceID} />
+                <ManageDeviceSettingsContent deviceID={deviceID} />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -81,7 +87,9 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
   );
 };
 
-const Content = ({ deviceID }: TProps) => {
+export const ManageDeviceSettingsContent = ({
+  deviceID,
+}: TProps) => {
   const { t } = useTranslation();
 
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
@@ -100,104 +108,118 @@ const Content = ({ deviceID }: TProps) => {
       .catch(console.error);
   }, [deviceID, t]);
 
-  return (
-    <>
-      {/*"Backups" section*/}
-      <div className={styles.section}>
-        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.backups.title')}</SubTitle>
-        <ManageBackupSetting deviceID={deviceID} />
-        <ShowRecoveryWordsSetting deviceID={deviceID} />
-      </div>
-
-      {/*"Device settings" section*/}
-      <div className={styles.section}>
-        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceSettings.title')}</SubTitle>
-        {deviceInfo ? (
-          <DeviceNameSetting
-            deviceName={deviceInfo.name}
-            deviceID={deviceID}
-          />
-        ) :
-          <StyledSkeleton />
-        }
-        { deviceInfo && deviceInfo.bluetooth && !runningInIOS()
-          ? <BluetoothToggleEnabledSetting deviceID={deviceID} />
-          : null
-        }
+  const sections: TSettingsContentSection[] = [
+    {
+      id: 'backups',
+      items: [
+        { id: 'manage-backups', content: <ManageBackupSetting deviceID={deviceID} /> },
+        { id: 'show-recovery-words', content: <ShowRecoveryWordsSetting deviceID={deviceID} /> },
+      ],
+      title: <SubTitle className="m-top-default">{t('deviceSettings.backups.title')}</SubTitle>,
+    },
+    {
+      id: 'device-settings',
+      items: [
         {
-          versionInfo ? (
+          id: 'device-name',
+          content: deviceInfo ? (
+            <DeviceNameSetting
+              deviceName={deviceInfo.name}
+              deviceID={deviceID}
+            />
+          ) : (
+            <StyledSkeleton />
+          ),
+        },
+        ...(isBluetoothToggleSettingVisible(deviceInfo) ? [{
+          id: 'bluetooth',
+          content: <BluetoothToggleEnabledSetting deviceID={deviceID} />,
+        }] : []),
+        {
+          id: 'device-password',
+          content: versionInfo ? (
             <ChangeDevicePasswordSetting
               deviceID={deviceID}
               canChangePassword={versionInfo.canChangePassword}
             />
           ) : (
             <StyledSkeleton />
-          )
-        }
-      </div>
-
-      {/*"Device information" section*/}
-      <div className={styles.section}>
-        <SubTitle className={styles.withMobilePadding}>{t('deviceSettings.deviceInformation.title')}</SubTitle>
+          ),
+        },
+      ],
+      title: <SubTitle className="m-top-default">{t('deviceSettings.deviceSettings.title')}</SubTitle>,
+    },
+    {
+      id: 'device-information',
+      items: [
         {
-          versionInfo ? (
+          id: 'firmware',
+          content: versionInfo ? (
             <FirmwareSetting
               deviceID={deviceID}
               versionInfo={versionInfo}
             />
-          ) :
+          ) : (
             <StyledSkeleton />
-        }
-        {
-          deviceInfo && deviceInfo.bluetooth ? (
+          ),
+        },
+        ...(isDeviceBluetoothSupported(deviceInfo) ? [{
+          id: 'bluetooth-firmware',
+          content: (
             <BluetoothFirmwareSetting
               firmwareVersion={deviceInfo.bluetooth.firmwareVersion}
             />
-          ) : null
-        }
-        <AttestationCheckSetting deviceID={deviceID} />
+          ),
+        }] : []),
+        { id: 'authenticity-check', content: <AttestationCheckSetting deviceID={deviceID} /> },
         {
-          rootFingerprintResult && rootFingerprintResult.success ?
-            <RootFingerprintSetting rootFingerprint={rootFingerprintResult.rootFingerprint} />
-            :
-            <StyledSkeleton />
-        }
+          id: 'root-fingerprint',
+          content: rootFingerprintResult && rootFingerprintResult.success
+            ? <RootFingerprintSetting rootFingerprint={rootFingerprintResult.rootFingerprint} />
+            : <StyledSkeleton />,
+        },
         {
-          deviceInfo && deviceInfo.securechipModel !== '' ?
-            <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
-            :
-            <StyledSkeleton />
-        }
-      </div>
-
-      {/*"Expert settings" section*/}
-      <div className={styles.section}>
-        <SubTitle className={styles.withMobilePadding}>{t('settings.expert.title')}</SubTitle>
+          id: 'secure-chip',
+          content: deviceInfo && deviceInfo.securechipModel !== ''
+            ? <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
+            : <StyledSkeleton />,
+        },
+      ],
+      title: <SubTitle className="m-top-default">{t('deviceSettings.deviceInformation.title')}</SubTitle>,
+    },
+    {
+      id: 'expert-settings',
+      items: [
         {
-          deviceInfo ? (
+          id: 'passphrase',
+          content: deviceInfo ? (
             <PassphraseSetting
               passphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
               deviceID={deviceID}
             />
           ) : (
             <StyledSkeleton />
-          )
-        }
+          ),
+        },
         {
-          versionInfo ? (
+          id: 'bip85',
+          content: versionInfo ? (
             <Bip85Setting
               canBIP85={versionInfo.canBIP85}
               deviceID={deviceID}
             />
           ) : (
             <StyledSkeleton />
-          )
-        }
-        <GoToStartupSettings deviceID={deviceID} />
-        <FactoryResetSetting deviceID={deviceID} />
-      </div>
-    </>
-  );
+          ),
+        },
+        { id: 'startup-settings', content: <GoToStartupSettings deviceID={deviceID} /> },
+        { id: 'factory-reset', content: <FactoryResetSetting deviceID={deviceID} /> },
+      ],
+      title: <SubTitle className="m-top-default">{t('settings.expert.title')}</SubTitle>,
+    },
+  ];
+
+  return <SettingsContent sections={sections} />;
 };
 
 export { BB02Settings };

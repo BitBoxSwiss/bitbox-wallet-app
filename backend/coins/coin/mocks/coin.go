@@ -38,7 +38,7 @@ var _ coin.Coin = &CoinMock{}
 //			GetFormatUnitFunc: func(isFee bool) string {
 //				panic("mock out the GetFormatUnit method")
 //			},
-//			InitializeFunc: func()  {
+//			InitializeFunc: func() error {
 //				panic("mock out the Initialize method")
 //			},
 //			NameFunc: func() string {
@@ -88,7 +88,7 @@ type CoinMock struct {
 	GetFormatUnitFunc func(isFee bool) string
 
 	// InitializeFunc mocks the Initialize method.
-	InitializeFunc func()
+	InitializeFunc func() error
 
 	// NameFunc mocks the Name method.
 	NameFunc func() string
@@ -376,7 +376,7 @@ func (mock *CoinMock) GetFormatUnitCalls() []struct {
 }
 
 // Initialize calls InitializeFunc.
-func (mock *CoinMock) Initialize() {
+func (mock *CoinMock) Initialize() error {
 	if mock.InitializeFunc == nil {
 		panic("CoinMock.InitializeFunc: method is nil but Coin.Initialize was just called")
 	}
@@ -385,7 +385,7 @@ func (mock *CoinMock) Initialize() {
 	mock.lockInitialize.Lock()
 	mock.calls.Initialize = append(mock.calls.Initialize, callInfo)
 	mock.lockInitialize.Unlock()
-	mock.InitializeFunc()
+	return mock.InitializeFunc()
 }
 
 // InitializeCalls gets all the calls that were made to Initialize.

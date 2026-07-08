@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -20,23 +19,17 @@ type Bitbox interface {
 	DeviceInfo() (*bitbox.DeviceInfo, error)
 	SetPassword(string) error
 	ChangePassword(string, string) error
-	SetHiddenPassword(string, string) (bool, error)
 	CreateWallet(string, string) error
 	Login(string) (bool, string, error)
 	Blink() error
 	Reset(string) (bool, error)
 	UnlockBootloader() (bool, error)
-	LockBootloader() error
 	EraseBackup(string) error
 	RestoreBackup(string, string) (bool, error)
 	CreateBackup(string, string) (bool, error)
 	BackupList() ([]map[string]string, error)
 	BootloaderUpgradeFirmware([]byte) error
-	StartPairing() (*relay.Channel, error)
-	HasMobileChannel() bool
-	Lock() (bool, error)
 	CheckBackup(string, string) (bool, error)
-	FeatureSet(*bitbox.FeatureSet) error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -55,27 +48,21 @@ func NewHandlers(
 	handleFunc("/status", handlers.getDeviceStatusHandler).Methods("GET")
 	handleFunc("/bootloader-status", handlers.getBootloaderStatusHandler).Methods("GET")
 	handleFunc("/info", handlers.getDeviceInfoHandler).Methods("GET")
-	handleFunc("/has-mobile-channel", handlers.getHasMobileChannelHandler).Methods("GET")
 	handleFunc("/bundled-firmware-version", handlers.getBundledFirmwareVersionHandler).Methods("GET")
 	handleFunc("/set-password", handlers.postSetPasswordHandler).Methods("POST")
 	handleFunc("/change-password", handlers.postChangePasswordHandler).Methods("POST")
-	handleFunc("/set-hidden-password", handlers.postSetHiddenPasswordHandler).Methods("POST")
 	handleFunc("/create-wallet", handlers.postCreateWalletHandler).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupListHandler).Methods("GET")
 	handleFunc("/blink", handlers.postBlinkDeviceHandler).Methods("POST")
 	handleFunc("/reset", handlers.postResetDeviceHandler).Methods("POST")
 	handleFunc("/login", handlers.postLoginHandler).Methods("POST")
-	handleFunc("/lock-bootloader", handlers.postLockBootloaderHandler).Methods("POST")
 	handleFunc("/unlock-bootloader", handlers.postUnlockBootloaderHandler).Methods("POST")
 	handleFunc("/backups/erase", handlers.postBackupsEraseHandler).Methods("POST")
 	handleFunc("/backups/restore", handlers.postBackupsRestoreHandler).Methods("POST")
 	handleFunc("/backups/create", handlers.postBackupsCreateHandler).Methods("POST")
 	handleFunc("/backups/check", handlers.postBackupsCheckHandler).Methods("POST")
-	handleFunc("/pairing/start", handlers.postPairingStartHandler).Methods("POST")
 	handleFunc("/bootloader/upgrade-firmware",
 		handlers.postBootloaderUpgradeFirmwareHandler).Methods("POST")
-	handleFunc("/lock", handlers.postLockHandler).Methods("POST")
-	handleFunc("/feature-set", handlers.postFeatureSetHandler).Methods("POST")
 	return handlers
 }
 
@@ -119,20 +106,6 @@ func (handlers *Handlers) postChangePasswordHandler(r *http.Request) (interface{
 	return map[string]interface{}{"success": true}, nil
 }
 
-func (handlers *Handlers) postSetHiddenPasswordHandler(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	pin := jsonBody["pin"]
-	backupPassword := jsonBody["backupPassword"]
-	success, err := handlers.bitbox.SetHiddenPassword(pin, backupPassword)
-	if err != nil {
-		return maybeDBBErr(err, handlers.log), nil
-	}
-	return map[string]interface{}{"success": true, "didCreate": success}, nil
-}
-
 func (handlers *Handlers) getBackupListHandler(_ *http.Request) (interface{}, error) {
 	backupList, err := handlers.bitbox.BackupList()
 	sdCardInserted := !bitbox.IsErrorSDCard(err)
@@ -162,10 +135,6 @@ func (handlers *Handlers) getDeviceInfoHandler(_ *http.Request) (interface{}, er
 		return nil, nil
 	}
 	return info, err
-}
-
-func (handlers *Handlers) getHasMobileChannelHandler(_ *http.Request) (interface{}, error) {
-	return handlers.bitbox.HasMobileChannel(), nil
 }
 
 func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (interface{}, error) {
@@ -220,10 +189,6 @@ func (handlers *Handlers) postCreateWalletHandler(r *http.Request) (interface{},
 		return maybeDBBErr(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil
-}
-
-func (handlers *Handlers) postLockBootloaderHandler(_ *http.Request) (interface{}, error) {
-	return nil, handlers.bitbox.LockBootloader()
 }
 
 func (handlers *Handlers) postUnlockBootloaderHandler(_ *http.Request) (interface{}, error) {
@@ -283,10 +248,6 @@ func (handlers *Handlers) postBackupsCreateHandler(r *http.Request) (interface{}
 	return map[string]interface{}{"success": true, "verification": verification}, nil
 }
 
-func (handlers *Handlers) postPairingStartHandler(r *http.Request) (interface{}, error) {
-	return handlers.bitbox.StartPairing()
-}
-
 func (handlers *Handlers) postBlinkDeviceHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Blink")
 	return nil, handlers.bitbox.Blink()
@@ -311,16 +272,4 @@ func (handlers *Handlers) postBootloaderUpgradeFirmwareHandler(_ *http.Request) 
 		return nil, err
 	}
 	return nil, handlers.bitbox.BootloaderUpgradeFirmware(binary)
-}
-
-func (handlers *Handlers) postLockHandler(_ *http.Request) (interface{}, error) {
-	return handlers.bitbox.Lock()
-}
-
-func (handlers *Handlers) postFeatureSetHandler(r *http.Request) (interface{}, error) {
-	featureSet := &bitbox.FeatureSet{}
-	if err := json.NewDecoder(r.Body).Decode(featureSet); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	return nil, handlers.bitbox.FeatureSet(featureSet)
 }

@@ -13,6 +13,9 @@ const (
 	// transactions, confirmations, etc.).
 	EventSyncDone Event = "sync-done"
 
+	// EventTransactionsChanged is fired when the transaction list should be reloaded.
+	EventTransactionsChanged Event = "transactions"
+
 	// EventSyncedAddressesCount is emitted when the frontend should receives a sync progress update.
 	EventSyncedAddressesCount Event = "synced-addresses-count"
 )

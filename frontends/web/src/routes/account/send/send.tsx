@@ -13,9 +13,10 @@ import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { Button } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, GuideWrapper, GuidedContent, Header, Main, ResponsiveGrid } from '@/components/layout';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { FeeTargets } from './feetargets';
 import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
@@ -420,7 +421,12 @@ export const Send = ({
       <GuidedContent>
         <Main>
           <Header
-            title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
+            title={
+              <>
+                <h2 className="hide-on-small">{t('send.title', { accountName: account.coinName })}</h2>
+                <MobileHeader withGuide title={t('send.title', { accountName: account.coinName })} />
+              </>
+            }
           >
             <HideAmountsButton />
           </Header>
@@ -500,11 +506,11 @@ export const Send = ({
                       disabled={!getValidTxInputData() || !valid || isUpdatingProposal}>
                       {t('send.button')}
                     </Button>
-                    <BackButton
+                    <DesktopBackButton
                       enableEsc={!isConfirming && !utxoDialogActive}
                     >
                       {t('button.back')}
-                    </BackButton>
+                    </DesktopBackButton>
                   </ColumnButtons>
                 </Column>
               </ResponsiveGrid>

@@ -2,7 +2,7 @@
 
 import { LanguageDetectorAsyncModule } from 'i18next';
 import { getNativeLocale } from '@/api/nativelocale';
-import { getConfig } from '@/utils/config';
+import { getConfig } from '@/api/config';
 import { i18nextFormat } from './utils';
 
 const defaultUserLanguage = 'en';
@@ -12,7 +12,7 @@ export const languageFromConfig: LanguageDetectorAsyncModule = {
   async: true,
   detect: (cb) => {
     getConfig().then(({ backend }) => {
-      if (backend && backend.userLanguage) {
+      if (backend.userLanguage) {
         cb(backend.userLanguage);
         return;
       }

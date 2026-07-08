@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"math"
 	"math/big"
 	"sort"
 	"strings"
@@ -60,6 +59,14 @@ func accountsHardLimit(coinCode coinpkg.Code) int {
 		return accountsHardLimitBTC
 	default:
 		return accountsHardLimitOthers
+	}
+}
+
+// coinPolicy returns the active coin policy for the backend's current network mode.
+func (backend *Backend) coinPolicy() coinPolicy {
+	return coinPolicy{
+		testing: backend.Testing(),
+		regtest: backend.arguments.Regtest(),
 	}
 }
 
@@ -201,17 +208,10 @@ func sortAccounts(accounts []accounts.Interface, accountsConfig config.AccountsC
 // accounts are not loaded in mainnet and vice versa.
 func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, filter func(*config.AccountsConfig, *config.Account) bool) []*config.Account {
 	var accounts []*config.Account
+	policy := backend.coinPolicy()
 	for _, account := range accountsConfig.Accounts {
-		if !backend.arguments.Regtest() {
-			if _, isTestnet := coinpkg.TestnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
-				// Don't load testnet accounts when running normally, nor mainnet accounts when running
-				// in testing mode
-				continue
-			}
-		}
-		if isRegtest := account.CoinCode == coinpkg.CodeRBTC; isRegtest != backend.arguments.Regtest() {
-			// Don't load regtest accounts when running normally, nor mainnet accounts when running
-			// in regtest mode.
+		if !policy.coinEnabled(account.CoinCode) {
+			// Don't load accounts from another network mode.
 			continue
 		}
 		_, err := backend.Coin(account.CoinCode)
@@ -231,23 +231,8 @@ func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, fi
 
 // SupportedCoins returns the list of coins that can be used with the given keystore.
 func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Code {
-	allCoins := []coinpkg.Code{
-		coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC,
-		coinpkg.CodeLTC, coinpkg.CodeTLTC,
-		coinpkg.CodeETH, coinpkg.CodeSEPETH,
-	}
 	var availableCoins []coinpkg.Code
-	for _, coinCode := range allCoins {
-		if _, isTestnet := coinpkg.TestnetCoins[coinCode]; !backend.arguments.Regtest() && isTestnet != backend.Testing() {
-			// Don't load testnet accounts when running normally, nor mainnet accounts when running
-			// in testing mode
-			continue
-		}
-		if isRegtest := coinCode == coinpkg.CodeRBTC; isRegtest != backend.arguments.Regtest() {
-			// Don't load regtest accounts when running normally, nor mainnet accounts when running
-			// in regtest mode.
-			continue
-		}
+	for _, coinCode := range backend.coinPolicy().supportedCoins() {
 		coin, err := backend.Coin(coinCode)
 		if err != nil {
 			backend.log.WithError(err).Errorf("AvailableCoins")
@@ -614,127 +599,31 @@ func (backend *Backend) createAndPersistAccountConfig(
 		WithField("coinCode", coinCode).
 		WithField("accountNumber", accountNumber)
 	log.Info("Persisting new account config")
-	accountNumberHardened := uint32(accountNumber) + hardenedKeystart
 
-	switch coinCode {
-	case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC:
-		bip44Coin := 1 + hardenedKeystart
-		if coinCode == coinpkg.CodeBTC {
-			bip44Coin = hardenedKeystart
-		}
+	derivationSpec, err := newAccountDerivationSpec(coinCode, accountNumber)
+	if err != nil {
+		return "", err
+	}
+
+	switch derivationSpec.kind {
+	case accountDerivationKindBTC:
 		return accountCode, backend.persistBTCAccountConfig(keystore, accountCoin,
 			accountCode,
 			hiddenBecauseUnused,
 			name,
-			[]scriptTypeWithKeypath{
-				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2TR, signing.NewAbsoluteKeypathFromUint32(86+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2PKH, signing.NewAbsoluteKeypathFromUint32(44+hardenedKeystart, bip44Coin, accountNumberHardened)},
-			},
+			derivationSpec.btcConfigs,
 			accountsConfig,
 		)
-	case coinpkg.CodeLTC, coinpkg.CodeTLTC:
-		bip44Coin := 1 + hardenedKeystart
-		if coinCode == coinpkg.CodeLTC {
-			bip44Coin = 2 + hardenedKeystart
-		}
-		return accountCode, backend.persistBTCAccountConfig(keystore, accountCoin,
-			accountCode,
-			hiddenBecauseUnused,
-			name,
-			[]scriptTypeWithKeypath{
-				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
-				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
-			},
-			accountsConfig,
-		)
-	case coinpkg.CodeETH, coinpkg.CodeSEPETH:
-		bip44Coin := "1'"
-		if coinCode == coinpkg.CodeETH {
-			bip44Coin = "60'"
-		}
+	case accountDerivationKindETH:
 		return accountCode, backend.persistETHAccountConfig(
 			keystore, accountCoin, accountCode, hiddenBecauseUnused,
-			// TODO: Use []uint32 instead of a string keypath
-			fmt.Sprintf("m/44'/%s/0'/0/%d", bip44Coin, accountNumber),
+			derivationSpec.ethKeypath,
 			name,
 			activeTokens,
 			accountsConfig)
 	default:
-		return "", errp.Newf("Unrecognized coin code: %s", coinCode)
+		panic("unhandled account derivation kind")
 	}
-}
-
-// findHiddenAccount finds the first (lowest account number) account which is hidden because it is
-// unused. Returns nil if no such account exists.
-func findHiddenAccount(
-	coinCode coinpkg.Code,
-	keystore keystore.Keystore,
-	accountsConfig *config.AccountsConfig) (*config.Account, error) {
-	rootFingerprint, err := keystore.RootFingerprint()
-	if err != nil {
-		return nil, err
-	}
-	smallestHiddenAccountNumber := uint16(math.MaxUint16)
-	var result *config.Account
-
-	for _, account := range accountsConfig.Accounts {
-		if coinCode != account.CoinCode {
-			continue
-		}
-		if !account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint) {
-			continue
-		}
-		if len(account.SigningConfigurations) == 0 {
-			continue
-		}
-		accountNumber, err := account.SigningConfigurations[0].AccountNumber()
-		if err != nil {
-			continue
-		}
-		if account.HiddenBecauseUnused && accountNumber < smallestHiddenAccountNumber {
-			smallestHiddenAccountNumber = accountNumber
-			result = account
-		}
-	}
-	return result, nil
-}
-
-// nextAccountNumber checks if an account for the given coin can be added, and if so, returns the
-// account number of the new account.
-func nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accountsConfig *config.AccountsConfig) (uint16, error) {
-	rootFingerprint, err := keystore.RootFingerprint()
-	if err != nil {
-		return 0, err
-	}
-	nextAccountNumber := uint16(0)
-	for _, account := range accountsConfig.Accounts {
-		if coinCode != account.CoinCode {
-			continue
-		}
-		if !account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint) {
-			continue
-		}
-		if len(account.SigningConfigurations) == 0 {
-			continue
-		}
-		accountNumber, err := account.SigningConfigurations[0].AccountNumber()
-		if err != nil {
-			continue
-		}
-		if accountNumber+1 > nextAccountNumber {
-			nextAccountNumber = accountNumber + 1
-		}
-	}
-	if !keystore.SupportsMultipleAccounts() && nextAccountNumber >= 1 {
-		return 0, errp.WithStack(errAccountLimitReached)
-	}
-
-	if int(nextAccountNumber) >= accountsHardLimit(coinCode) {
-		return 0, errp.WithStack(errAccountLimitReached)
-	}
-	return nextAccountNumber, nil
 }
 
 // CanAddAccount returns true if it is possible to add an account for the given coin and keystore,
@@ -1042,8 +931,19 @@ func (backend *Backend) gapLimits() *btctypes.GapLimits {
 	return gapLimits
 }
 
+// accountLoadOptions controls how persisted accounts are loaded into the runtime account registry.
+type accountLoadOptions struct {
+	// skipETHInitialSync suppresses per-account ETH init refreshes when the caller will refresh all
+	// loaded ETH accounts together.
+	skipETHInitialSync bool
+}
+
 // The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *config.Account) {
+func (backend *Backend) createAndAddAccount(
+	coin coinpkg.Coin,
+	persistedConfig *config.Account,
+	options accountLoadOptions,
+) {
 	if backend.accounts.lookup(persistedConfig.Code) != nil {
 		// Do not create/load account if it is already loaded.
 		return
@@ -1052,7 +952,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 	accountConfig := &accounts.AccountConfig{
 		Config:          persistedConfig,
 		DBFolder:        backend.arguments.CacheDirectoryPath(),
-		SkipInitialSync: backend.skipETHInitialSync,
+		SkipInitialSync: options.skipETHInitialSync,
 		NotesFolder:     backend.arguments.NotesDirectoryPath(),
 		ConnectKeystore: func() (keystore.Keystore, error) {
 			accountRootFingerprint, err := persistedConfig.SigningConfigurations.RootFingerprint()
@@ -1139,7 +1039,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 				ActiveTokens:          nil,
 			}
 
-			backend.createAndAddAccount(token, erc20Config)
+			backend.createAndAddAccount(token, erc20Config, options)
 		}
 	default:
 		panic("unknown coin type")
@@ -1179,11 +1079,6 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 	}
 	accountsConfig.Accounts = append(accountsConfig.Accounts, &account)
 	return nil
-}
-
-type scriptTypeWithKeypath struct {
-	scriptType signing.ScriptType
-	keypath    signing.AbsoluteKeypath
 }
 
 // adds a combined BTC account with the given script types.
@@ -1249,7 +1144,7 @@ func (backend *Backend) persistETHAccountConfig(
 	coin coinpkg.Coin,
 	code accountsTypes.Code,
 	hiddenBecauseUnused bool,
-	keypath string,
+	keypath signing.AbsoluteKeypath,
 	name string,
 	activeTokens []string,
 	accountsConfig *config.AccountsConfig,
@@ -1257,7 +1152,7 @@ func (backend *Backend) persistETHAccountConfig(
 	log := backend.log.
 		WithField("code", code).
 		WithField("name", name).
-		WithField("keypath", keypath)
+		WithField("keypath", keypath.Encode())
 
 	if !keystore.SupportsAccount(coin, nil) {
 		log.Info("skipping unsupported account")
@@ -1265,11 +1160,7 @@ func (backend *Backend) persistETHAccountConfig(
 	}
 
 	log.Info("persist account")
-	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
-	if err != nil {
-		panic(err)
-	}
-	extendedPublicKey, err := keystore.ExtendedPublicKey(coin, absoluteKeypath)
+	extendedPublicKey, err := keystore.ExtendedPublicKey(coin, keypath)
 	if err != nil {
 		return err
 	}
@@ -1281,7 +1172,7 @@ func (backend *Backend) persistETHAccountConfig(
 	signingConfigurations := signing.Configurations{
 		signing.NewEthereumConfiguration(
 			rootFingerprint,
-			absoluteKeypath,
+			keypath,
 			extendedPublicKey,
 		),
 	}
@@ -1297,7 +1188,7 @@ func (backend *Backend) persistETHAccountConfig(
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) initPersistedAccounts() {
+func (backend *Backend) initPersistedAccounts(options accountLoadOptions) {
 	// Only load accounts which belong to connected keystores or for which watchonly is enabled.
 	keystoreConnectedOrWatch := func(accountsConfig *config.AccountsConfig, account *config.Account) bool {
 		isWatch, err := accountsConfig.IsAccountWatchOnly(account)
@@ -1360,7 +1251,7 @@ outer:
 			}
 		}
 
-		backend.createAndAddAccount(coin, account)
+		backend.createAndAddAccount(coin, account, options)
 	}
 }
 
@@ -1373,46 +1264,27 @@ outer:
 // a user-facing setting. Now we simply use it for migration to decide which coins to add by
 // default.
 func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore, accountsConfig *config.AccountsConfig) error {
-	if backend.Testing() {
-		if backend.arguments.Regtest() {
-			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinpkg.CodeRBTC) {
-				if _, err := backend.createAndPersistAccountConfig(
-					coinpkg.CodeRBTC, 0, false, "", keystore, nil, accountsConfig); err != nil {
-					return err
-				}
-			}
-		} else {
-			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeSEPETH} {
-				if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
-					if _, err := backend.createAndPersistAccountConfig(
-						coinCode, 0, false, "", keystore, nil, accountsConfig); err != nil {
-						return err
+	for _, coinCode := range backend.coinPolicy().supportedCoins() {
+		if !backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
+			continue
+		}
 
-					}
-				}
+		// In the past, ERC20 tokens were configured to be active or inactive globally, now they are
+		// active/inactive per ETH account. We use the previous global settings to decide the default
+		// set of active tokens, for a smoother migration for the user.
+		var activeTokens []string
+		if coinCode == coinpkg.CodeETH {
+			for _, tokenCode := range backend.config.AppConfig().Backend.ETH.DeprecatedActiveERC20Tokens {
+				prefix := "eth-erc20-"
+				// Old config entries did not contain this prefix, but the token codes in the new config
+				// do, to match the codes listed in erc20.go
+				activeTokens = append(activeTokens, prefix+tokenCode)
 			}
 		}
-	} else {
-		for _, coinCode := range []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeETH} {
-			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
-				// In the past, ERC20 tokens were configured to be active or inactive globally, now they are
-				// active/inactive per ETH account. We use the previous global settings to decide the default
-				// set of active tokens, for a smoother migration for the user.
-				var activeTokens []string
-				if coinCode == coinpkg.CodeETH {
-					for _, tokenCode := range backend.config.AppConfig().Backend.ETH.DeprecatedActiveERC20Tokens {
-						prefix := "eth-erc20-"
-						// Old config entries did not contain this prefix, but the token codes in the new config
-						// do, to match the codes listed in erc20.go
-						activeTokens = append(activeTokens, prefix+tokenCode)
-					}
-				}
 
-				if _, err := backend.createAndPersistAccountConfig(
-					coinCode, 0, false, "", keystore, activeTokens, accountsConfig); err != nil {
-					return err
-				}
-			}
+		if _, err := backend.createAndPersistAccountConfig(
+			coinCode, 0, false, "", keystore, activeTokens, accountsConfig); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -1434,18 +1306,18 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 				if err != nil {
 					return err
 				}
-				bip44Coin := 1 + hardenedKeystart
-				if account.CoinCode == coinpkg.CodeBTC {
-					bip44Coin = hardenedKeystart
+				bip44Coin, ok := coinpkg.BIP44CoinType(account.CoinCode)
+				if !ok {
+					return errp.Newf("Unrecognized coin code: %s", account.CoinCode)
 				}
 				accountNumber, err := account.SigningConfigurations[0].AccountNumber()
 				if err != nil {
 					return err
 				}
 				keypath := signing.NewAbsoluteKeypathFromUint32(
-					86+hdkeychain.HardenedKeyStart,
-					bip44Coin,
-					uint32(accountNumber)+hdkeychain.HardenedKeyStart)
+					86+hardenedKeystart,
+					bip44Coin+hardenedKeystart,
+					uint32(accountNumber)+hardenedKeystart)
 				extendedPublicKey, err := keystore.ExtendedPublicKey(accountCoin, keypath)
 				if err != nil {
 					return err
@@ -1481,7 +1353,8 @@ func (backend *Backend) initAccounts(force bool) {
 	// Since initAccounts replaces all previous accounts, we need to properly close them first.
 	backend.uninitAccounts(force)
 
-	backend.initPersistedAccounts()
+	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
+	backend.enqueueETHInitialSyncLocked()
 
 	backend.emitAccountsStatusChanged()
 
@@ -1490,6 +1363,18 @@ func (backend *Backend) initAccounts(force bool) {
 	// Every time fiats or coins list is changed in the UI settings, ReinitializedAccounts
 	// is invoked which triggers this method.
 	backend.configureHistoryExchangeRates()
+}
+
+// enqueueETHInitialSyncLocked asks the ETH updater to refresh all loaded ETH accounts if any exist.
+//
+// The accountsAndKeystoreLock must be held when calling this function.
+func (backend *Backend) enqueueETHInitialSyncLocked() {
+	for _, account := range backend.accounts {
+		if _, ok := account.Coin().(*eth.Coin); ok {
+			backend.enqueueETHUpdateForAllAccountsAsync()
+			return
+		}
+	}
 }
 
 // ReinitializeAccounts uninits and then reinits all accounts. This is useful to reload the accounts
@@ -1578,63 +1463,36 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 			WithField("rootFingerprint", hex.EncodeToString(rootFingerprint)).
 			WithField("coinCode", coinCode)
 
-		maxAccountNumber := -1
-		var maxAccount *config.Account
-		for _, accountConfig := range cfg.Accounts {
-			if coinCode != accountConfig.CoinCode {
-				continue
-			}
-			if !accountConfig.SigningConfigurations.ContainsRootFingerprint(rootFingerprint) {
-				continue
-			}
-			accountNumber, err := accountConfig.SigningConfigurations[0].AccountNumber()
-			if err != nil {
-				continue
-			}
-			if maxAccount == nil || int(accountNumber) > maxAccountNumber {
-				maxAccountNumber = int(accountNumber)
-				maxAccount = accountConfig
-			}
+		nextAccountNumber, ok := nextDiscoveryAccountNumber(
+			coinCode,
+			accountCandidates(cfg, rootFingerprint, coinCode),
+		)
+		if !ok {
+			return nil
 		}
-		// Account scan gap limit:
-		// - Previous account must be used for the next one to be scanned, but:
-		// - The first 5 accounts are always scanned as before we had accounts discovery, the
-		//   BitBoxApp allowed manual creation of 5 accounts, so we need to always scan these
-		nextAccountNumber := maxAccountNumber + 1
-		if maxAccount == nil || maxAccount.Used || nextAccountNumber < accountsHardLimit(coinCode) {
-			accountCode, err := backend.createAndPersistAccountConfig(
-				coinCode,
-				uint16(nextAccountNumber),
-				true,
-				"",
-				backend.keystore,
-				nil,
-				cfg,
-			)
-			if err != nil {
-				log.WithError(err).Error("adding hidden account failed")
-				return nil
-			}
-			log.
-				WithField("accountCode", accountCode).
-				WithField("accountNumber", nextAccountNumber).
-				Info("automatically created hidden account")
-			return &accountCode
+
+		accountCode, err := backend.createAndPersistAccountConfig(
+			coinCode,
+			nextAccountNumber,
+			true,
+			"",
+			backend.keystore,
+			nil,
+			cfg,
+		)
+		if err != nil {
+			log.WithError(err).Error("adding hidden account failed")
+			return nil
 		}
-		return nil
+		log.
+			WithField("accountCode", accountCode).
+			WithField("accountNumber", nextAccountNumber).
+			Info("automatically created hidden account")
+		return &accountCode
 	}
 
 	// Enable accounts discovery for these coins.
-	var coinCodes []coinpkg.Code
-	switch {
-	case backend.arguments.Regtest():
-		coinCodes = []coinpkg.Code{coinpkg.CodeRBTC}
-	case backend.Testing():
-		coinCodes = []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC}
-	default:
-		coinCodes = []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC}
-	}
-	for _, coinCode := range coinCodes {
+	for _, coinCode := range backend.coinPolicy().discoveryCoins() {
 		coin, err := backend.Coin(coinCode)
 		if err != nil {
 			backend.log.Errorf("could not find coin %s", coinCode)
@@ -1661,7 +1519,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 				backend.log.Errorf("could not find newly persisted account %s", *newAccountCode)
 				continue
 			}
-			backend.createAndAddAccount(coin, accountConfig)
+			backend.createAndAddAccount(coin, accountConfig, accountLoadOptions{})
 			backend.emitAccountsStatusChanged()
 		}
 	}

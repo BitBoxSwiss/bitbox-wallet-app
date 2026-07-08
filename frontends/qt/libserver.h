@@ -48,7 +48,7 @@ extern "C" {
 extern void backendCall(int queryID, cchar_t* s);
 extern void setOnline(bool online);
 extern void handleURI(cchar_t* uri);
-extern void serve(cppHeapFree cppHeapFreeFn, pushNotificationsCallback pushNotificationsFn, responseCallback responseFn, notifyUserCallback notifyUserFn, cchar_t* preferredLocale, getSaveFilenameCallback getSaveFilenameFn);
+extern void serve(cppHeapFree cppHeapFreeFn, pushNotificationsCallback pushNotificationsFn, responseCallback responseFn, notifyUserCallback notifyUserFn, cchar_t* preferredDecimalSeparator, cchar_t* preferredGroupSeparator, cchar_t* preferredLocale, getSaveFilenameCallback getSaveFilenameFn);
 extern void systemOpen(cchar_t* url);
 extern void goLog(cchar_t* msg);
 extern void backendShutdown();

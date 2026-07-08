@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '@/hooks/api';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
@@ -14,53 +13,28 @@ import { EnableTorProxySetting } from './components/advanced-settings/enable-tor
 import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-software-keystore';
 import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
+import { ClearCacheSetting } from './components/advanced-settings/clear-cache-setting';
 import { CustomGapLimitSettings } from './components/advanced-settings/custom-gap-limit-setting';
-import { getConfig } from '@/utils/config';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { EnableAuthSetting } from './components/advanced-settings/enable-auth-setting';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
+import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
+import { AppContext } from '@/contexts/AppContext';
+import {
+  isExportLogsSettingVisible,
+  isScreenLockSettingVisible,
+  isTestWalletSettingVisible,
+} from './settings-availability';
 
-export type TProxyConfig = {
-  proxyAddress: string;
-  useProxy: boolean;
-};
-
-export type TFrontendConfig = {
-  expertFee?: boolean;
-  coinControl?: boolean;
-};
-
-export type TBackendConfig = {
-  proxy?: TProxyConfig;
-  authentication?: boolean;
-  startInTestnet?: boolean;
-  gapLimitReceive?: number;
-  gapLimitChange?: number;
-};
-
-export type TConfig = {
-  backend?: TBackendConfig;
-  frontend?: TFrontendConfig;
+type TProps = {
+  devices: TPagePropsWithSettingsTabs['devices'];
 };
 
 export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
-  const fetchedConfig = useLoad(getConfig) as TConfig;
-  const [config, setConfig] = useState<TConfig>();
-
-  const frontendConfig = config?.frontend;
-  const backendConfig = config?.backend;
-  const proxyConfig = config?.backend?.proxy;
-
-  useEffect(() => {
-    setConfig(fetchedConfig);
-  }, [fetchedConfig]);
-
-  const deviceIDs = Object.keys(devices);
-
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -83,15 +57,7 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
-                <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-                <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-                <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
-                <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
-                <RestartInTestnetSetting onChangeConfig={setConfig} />
-                <CustomGapLimitSettings backendConfig={backendConfig} onChangeConfig={setConfig} />
-                <UnlockSoftwareKeystore deviceIDs={deviceIDs}/>
-                <ConnectFullNodeSetting />
-                <ExportLogSetting />
+                <AdvancedSettingsContent devices={devices} />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -103,6 +69,41 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
   );
 };
 
+export const AdvancedSettingsContent = ({
+  devices,
+}: TProps) => {
+  const { isTesting } = useContext(AppContext);
+
+  const deviceIDs = Object.keys(devices);
+  const sections: TSettingsContentSection[] = [
+    {
+      id: 'advanced-settings',
+      items: [
+        { id: 'custom-fees', content: <EnableCustomFeesToggleSetting /> },
+        { id: 'coin-control', content: <EnableCoinControlSetting /> },
+        ...(isScreenLockSettingVisible() ? [{
+          id: 'screen-lock',
+          content: <EnableAuthSetting />,
+        }] : []),
+        { id: 'tor-proxy', content: <EnableTorProxySetting /> },
+        { id: 'testnet-mode', content: <RestartInTestnetSetting /> },
+        { id: 'gap-limit', content: <CustomGapLimitSettings /> },
+        ...(isTestWalletSettingVisible({ deviceIDs, isTesting }) ? [{
+          id: 'test-wallet',
+          content: <UnlockSoftwareKeystore />,
+        }] : []),
+        { id: 'full-node', content: <ConnectFullNodeSetting /> },
+        { id: 'clear-cache', content: <ClearCacheSetting /> },
+        ...(isExportLogsSettingVisible() ? [{
+          id: 'export-logs',
+          content: <ExportLogSetting />,
+        }] : []),
+      ],
+    },
+  ];
+
+  return <SettingsContent sections={sections} />;
+};
 
 const AdvancedSettingsGuide = () => {
   const { t } = useTranslation();

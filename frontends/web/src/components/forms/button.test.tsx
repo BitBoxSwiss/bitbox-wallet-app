@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { ButtonLink, Button } from './button';
 
 describe('components/forms/button', () => {

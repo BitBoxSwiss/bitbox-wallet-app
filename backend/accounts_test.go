@@ -232,7 +232,7 @@ func TestSortAccounts(t *testing.T) {
 	for i := range accountConfigs {
 		c, err := backend.Coin(accountConfigs[i].CoinCode)
 		require.NoError(t, err)
-		backend.createAndAddAccount(c, accountConfigs[i])
+		backend.createAndAddAccount(c, accountConfigs[i], accountLoadOptions{})
 	}
 	unlockFN()
 
@@ -291,7 +291,7 @@ func TestObserveKeystoreNameChanged(t *testing.T) {
 	for i := range accountConfigs {
 		c, err := backend.Coin(accountConfigs[i].CoinCode)
 		require.NoError(t, err)
-		backend.createAndAddAccount(c, accountConfigs[i])
+		backend.createAndAddAccount(c, accountConfigs[i], accountLoadOptions{})
 	}
 	unlockFN()
 
@@ -333,99 +333,6 @@ func TestObserveKeystoreNameChanged(t *testing.T) {
 		Subject: "accounts",
 		Action:  action.Reload,
 	})
-}
-
-func TestNextAccountNumber(t *testing.T) {
-	fingerprintEmpty := []byte{0x77, 0x77, 0x77, 0x77}
-	ks := func(fingerprint []byte, supportsMultipleAccounts bool) *keystoremock.KeystoreMock {
-		return &keystoremock.KeystoreMock{
-			SupportsCoinFunc: func(coin coinpkg.Coin) bool {
-				return true
-			},
-			RootFingerprintFunc: func() ([]byte, error) {
-				return fingerprint, nil
-			},
-			SupportsMultipleAccountsFunc: func() bool {
-				return supportsMultipleAccounts
-			},
-		}
-	}
-
-	xprv, err := hdkeychain.NewMaster(make([]byte, hdkeychain.RecommendedSeedLen), &chaincfg.TestNet3Params)
-	require.NoError(t, err)
-	xpub, err := xprv.Neuter()
-	require.NoError(t, err)
-
-	accountsConfig := &config.AccountsConfig{
-		Accounts: []*config.Account{
-			{
-				CoinCode: coinpkg.CodeBTC,
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(
-						signing.ScriptTypeP2WPKH,
-						rootFingerprint1,
-						mustKeypath("m/84'/0'/0'"),
-						xpub,
-					),
-				},
-			},
-			{
-				CoinCode: coinpkg.CodeBTC,
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(
-						signing.ScriptTypeP2WPKHP2SH,
-						rootFingerprint1,
-						mustKeypath("m/49'/0'/0'"),
-						xpub,
-					),
-				},
-			},
-			{
-				CoinCode: coinpkg.CodeTBTC,
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(
-						signing.ScriptTypeP2WPKH,
-						rootFingerprint1,
-						mustKeypath("m/84'/0'/3'"),
-						xpub,
-					),
-				},
-			},
-			{
-				CoinCode: coinpkg.CodeTBTC,
-				SigningConfigurations: signing.Configurations{
-					signing.NewBitcoinConfiguration(
-						signing.ScriptTypeP2WPKH,
-						rootFingerprint2,
-						mustKeypath("m/84'/0'/5'"),
-						xpub,
-					),
-				},
-			},
-		},
-	}
-
-	num, err := nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprintEmpty, true), accountsConfig)
-	require.NoError(t, err)
-	require.Equal(t, uint16(0), num)
-
-	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprintEmpty, false), accountsConfig)
-	require.NoError(t, err)
-	require.Equal(t, uint16(0), num)
-
-	num, err = nextAccountNumber(coinpkg.CodeBTC, ks(rootFingerprint1, true), accountsConfig)
-	require.NoError(t, err)
-	require.Equal(t, uint16(1), num)
-
-	_, err = nextAccountNumber(coinpkg.CodeBTC, ks(rootFingerprint1, false), accountsConfig)
-	require.Equal(t, errAccountLimitReached, errp.Cause(err))
-
-	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(rootFingerprint1, true), accountsConfig)
-	require.NoError(t, err)
-	require.Equal(t, uint16(4), num)
-
-	_, err = nextAccountNumber(coinpkg.CodeTBTC, ks(rootFingerprint2, true), accountsConfig)
-	require.Equal(t, errAccountLimitReached, errp.Cause(err))
 }
 
 func TestSupportedCoins(t *testing.T) {
@@ -695,9 +602,6 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 				return true
 			},
-			SupportsMultipleAccountsFunc: func() bool {
-				return true
-			},
 			BTCXPubsFunc: func(coin coinpkg.Coin, keypaths []signing.AbsoluteKeypath,
 			) ([]*hdkeychain.ExtendedKey, error) {
 				return nil, expectedErr
@@ -733,6 +637,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/0'"), test.TstMustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
 			},
 		},
+		accountLoadOptions{},
 	)
 	unlockFN()
 	require.Len(t, b.Accounts(), 1)
@@ -755,6 +660,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/2'/0'"), test.TstMustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
 			},
 		},
+		accountLoadOptions{},
 	)
 	unlockFN()
 	require.Len(t, b.Accounts(), 2)
@@ -777,6 +683,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			},
 			ActiveTokens: []string{"eth-erc20-mkr"},
 		},
+		accountLoadOptions{},
 	)
 	unlockFN()
 	// 2 more accounts: the added ETH account plus the active token for the ETH account.
@@ -806,6 +713,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			},
 			ActiveTokens: []string{"eth-erc20-usdt", "eth-erc20-bat"},
 		},
+		accountLoadOptions{},
 	)
 	unlockFN()
 	// 3 more accounts: the added ETH account plus the two active tokens for the ETH account.
@@ -865,32 +773,26 @@ func TestETHInitialSyncMode(t *testing.T) {
 	t.Run("startup-watchonly-load", func(t *testing.T) {
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.skipETHInitialSync = true
-			defer func() { b.skipETHInitialSync = false }()
-			b.initPersistedAccounts()
+			b.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
 		}()
 
 		require.Equal(t, expected, captured)
 	})
 
-	t.Run("non-startup-reinit", func(t *testing.T) {
-		func() {
-			defer b.accountsAndKeystoreLock.Lock()()
-			b.uninitAccounts(true)
-		}()
-
+	t.Run("reinit-batch-load", func(t *testing.T) {
 		captured = map[accountsTypes.Code]bool{}
-		expectedNoSkip := map[accountsTypes.Code]bool{
-			"v0-55555555-eth-0":                false,
-			"v0-55555555-eth-0-eth-erc20-usdt": false,
+		enqueueAllAccountsRefreshes := 0
+		b.enqueueETHUpdateForAllAccountsAsync = func() {
+			enqueueAllAccountsRefreshes++
 		}
 
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.initPersistedAccounts()
+			b.initAccounts(true)
 		}()
 
-		require.Equal(t, expectedNoSkip, captured)
+		require.Equal(t, expected, captured)
+		require.Equal(t, 1, enqueueAllAccountsRefreshes)
 	})
 }
 
@@ -1028,9 +930,6 @@ func TestTaprootUpgrade(t *testing.T) {
 				return true
 			}
 		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 		BTCXPubsFunc:          keystoreHelper.BTCXPubs,
 	}
@@ -1059,9 +958,6 @@ func TestTaprootUpgrade(t *testing.T) {
 			default:
 				return true
 			}
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
 		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 		BTCXPubsFunc:          keystoreHelper.BTCXPubs,

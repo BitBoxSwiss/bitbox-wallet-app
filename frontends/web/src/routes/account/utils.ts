@@ -58,6 +58,21 @@ export const isBitcoinBased = (coinCode: CoinCode): boolean => {
   }
 };
 
+export const isBitcoinCoinBased = (coinCode: CoinUnit): boolean => {
+  switch (coinCode) {
+  case 'BTC':
+  case 'TBTC':
+  case 'RBTC':
+  case 'sat':
+  case 'tsat':
+  case 'LTC':
+  case 'TLTC':
+    return true;
+  default:
+    return false;
+  }
+};
+
 export const isEthereumBased = (coinCode: CoinCode): boolean => {
   return coinCode === 'eth' || coinCode === 'sepeth' || coinCode.startsWith('eth-erc20-');
 };

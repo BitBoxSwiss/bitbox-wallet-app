@@ -4,19 +4,18 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
-import { getConfig } from '@/utils/config';
-import { ScriptType, signBTCMessageUnusedAddress } from '@/api/account';
-import { getInfo } from '@/api/account';
-import { Header } from '@/components/layout';
+import { useConfig } from '@/contexts/ConfigProvider';
+import { getInfo, signBTCMessageUnusedAddress, type ScriptType } from '@/api/account';
+import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { BitsuranceTerms } from '@/components/terms/bitsurance-terms';
 import { useLoad } from '@/hooks/api';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
-import { BitsuranceGuide } from './guide';
 import { getBitsuranceURL } from '@/api/bitsurance';
 import { convertScriptType } from '@/utils/request-addess';
 import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { BitsuranceGuide } from './guide';
 import style from './widget.module.css';
 
 type TProps = {
@@ -26,13 +25,13 @@ type TProps = {
 export const BitsuranceWidget = ({ code }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { config } = useConfig();
 
   const iframeURL = useLoad(getBitsuranceURL);
-  const config = useLoad(getConfig);
   const accountInfo = useLoad(getInfo(code));
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(!!config?.frontend?.skipBitsuranceDisclaimer);
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitsuranceDisclaimer ?? false);
   const signingRef = useRef(false);
 
   useEffect(() => {
@@ -113,7 +112,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     try {
       let message = JSON.parse(m.data);
       if (message?.type === 'showInsuranceDashboard') {
-        navigate('/bitsurance/dashboard');
+        navigate(`/market/bitsurance/dashboard/${code}`);
         return;
       }
 
@@ -135,38 +134,38 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   };
 
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className={style.header}>
-          <Header title={<h2>{t('bitsuranceAccount.title')}</h2>} />
-        </div>
-        <div ref={containerRef} className={style.container}>
-          { !agreedTerms ? (
-            <BitsuranceTerms
-              onAgreedTerms={() => setAgreedTerms(true)}
-            />
-          ) : (
-            <div style={{ height }}>
-              <UseDisableBackButton />
-              {!iframeLoaded && <Spinner text={t('loading')} /> }
-              <iframe
-                onLoad={() => {
-                  onIframeLoad();
-                }}
-                ref={iframeRef}
-                title="Bitsurance"
-                width="100%"
-                height={height}
-                frameBorder="0"
-                className={style.iframe}
-                allow="camera; payment"
-                src={iframeURL}>
-              </iframe>
-            </div>
-          )}
-        </div>
-      </div>
-      <BitsuranceGuide/>
-    </div>
+    <Main>
+      <GuideWrapper>
+        <GuidedContent>
+          <Header title={<h2>{t('generic.buySell')}</h2>} />
+          <div ref={containerRef} className={style.container}>
+            { !agreedTerms ? (
+              <BitsuranceTerms
+                onAgreedTerms={() => setAgreedTerms(true)}
+              />
+            ) : (
+              <div style={{ height }}>
+                <UseDisableBackButton />
+                {!iframeLoaded && <Spinner text={t('loading')} /> }
+                <iframe
+                  onLoad={() => {
+                    onIframeLoad();
+                  }}
+                  ref={iframeRef}
+                  title="Bitsurance"
+                  width="100%"
+                  height={height}
+                  frameBorder="0"
+                  className={style.iframe}
+                  allow="camera; payment"
+                  src={iframeURL}>
+                </iframe>
+              </div>
+            )}
+          </div>
+        </GuidedContent>
+        <BitsuranceGuide />
+      </GuideWrapper>
+    </Main>
   );
 };

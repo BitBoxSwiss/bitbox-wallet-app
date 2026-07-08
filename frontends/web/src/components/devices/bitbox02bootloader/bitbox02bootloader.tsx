@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as bitbox02BootloaderAPI from '@/api/bitbox02bootloader';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -23,13 +24,36 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     () => bitbox02BootloaderAPI.getStatus(deviceID),
     bitbox02BootloaderAPI.syncStatus(deviceID),
   );
-  const info = useLoad(
+  const infoResponse = useLoad(
     status === undefined || status.upgrading ? null : () => bitbox02BootloaderAPI.getInfo(deviceID),
     [deviceID, status?.upgrading],
   );
-  if (status === undefined || (info === undefined && !status.upgrading)) {
+  const [requestError, setRequestError] = useState<string>();
+
+  const runAction = async (action: () => Promise<bitbox02BootloaderAPI.TBootloaderResponse>) => {
+    const result = await action();
+    if (!result.success) {
+      setRequestError(result.errorMessage || t('genericError'));
+      return;
+    }
+    setRequestError(undefined);
+  };
+
+  if (status === undefined || (infoResponse === undefined && !status.upgrading)) {
     return null;
   }
+  if (infoResponse !== undefined && !infoResponse.success) {
+    return (
+      <View fitContent verticallyCentered width="556px">
+        <ViewContent>
+          <Message type="warning">
+            {infoResponse.errorMessage || t('genericError')}
+          </Message>
+        </ViewContent>
+      </View>
+    );
+  }
+  const info = infoResponse?.info;
 
   let contents;
   if (status.upgrading) {
@@ -91,14 +115,14 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           { info.canUpgrade ? (
             <Button
               primary
-              onClick={() => bitbox02BootloaderAPI.upgradeFirmware(deviceID)}>
+              onClick={() => runAction(() => bitbox02BootloaderAPI.upgradeFirmware(deviceID))}>
               {t('bootloader.button', { context: (info.erased ? 'install' : '') })}
             </Button>
           ) : null }
           { !info.erased && (
             <Button
               secondary
-              onClick={() => bitbox02BootloaderAPI.reboot(deviceID)}>
+              onClick={() => runAction(() => bitbox02BootloaderAPI.reboot(deviceID))}>
               {t('bb02Bootloader.abort', { context: !info.canUpgrade ? 'noUpgrade' : '' })}
             </Button>
           )}
@@ -107,7 +131,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           {t('bb02Bootloader.orientation')}&nbsp;
           <Button
             inline
-            onClick={() => bitbox02BootloaderAPI.screenRotate(deviceID)}
+            onClick={() => runAction(() => bitbox02BootloaderAPI.screenRotate(deviceID))}
             transparent>
             {t('bb02Bootloader.flipscreen')}
           </Button>
@@ -119,7 +143,9 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           </summary>
           <div>
             <br />
-            <ToggleShowFirmwareHash deviceID={deviceID} />
+            <ToggleShowFirmwareHash
+              deviceID={deviceID}
+              onError={setRequestError} />
           </div>
         </details>
       </div>
@@ -138,6 +164,11 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
         {status.errMsg && (
           <Message type="warning">
             {status.errMsg}
+          </Message>
+        )}
+        {requestError && (
+          <Message type="warning">
+            {requestError}
           </Message>
         )}
         {contents}

@@ -9,7 +9,8 @@ import { Column, ColumnButtons, Grid, ResponsiveGrid } from '@/components/layout
 import { Button, Label } from '@/components/forms';
 import { Toggle } from '@/components/toggle/toggle';
 import { InfoBlue } from '@/components/icon';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import style from './choose.module.css';
 
 export type TWalletSetupChoices = 'create-wallet' | 'restore-sdcard' | 'restore-mnemonic';
@@ -36,6 +37,11 @@ export const SetupOptions = ({
   const [advanced, setAdvanced] = useState(false);
   const [withMnemonic, setWithMnemonic] = useState(false);
   const [with12Words, setWith12Words] = useState(false);
+  const handleAdvancedBack = () => {
+    setWithMnemonic(false);
+    setWith12Words(false);
+    setAdvanced(false);
+  };
 
   if (advanced) {
     const {
@@ -49,6 +55,11 @@ export const SetupOptions = ({
         verticallyCentered
         withBottomBar
         width="1100px">
+        <MobileHeader
+          onClick={handleAdvancedBack}
+          title={t('bitbox02Wizard.stepUninitialized.title')}
+          withViewPadding
+        />
         <ViewHeader small title={t('seed.create')} />
         <ViewContent>
           <Grid col="1" textAlign="start">
@@ -134,15 +145,11 @@ export const SetupOptions = ({
                   primary>
                   {t('seed.create')}
                 </Button>
-                <BackButton
-                  onClick={() => {
-                    setWithMnemonic(false);
-                    setWith12Words(false);
-                    setAdvanced(false);
-                  }}
+                <DesktopBackButton
+                  onClick={handleAdvancedBack}
                 >
                   {t('button.back')}
-                </BackButton>
+                </DesktopBackButton>
               </ColumnButtons>
             </Column>
           </Grid>
