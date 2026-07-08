@@ -25,6 +25,12 @@ vi.mock('@/components/banners', () => ({
 vi.mock('@/api/system', () => ({
   open: vi.fn().mockResolvedValue({ success: true }),
 }));
+vi.mock('@/contexts/ConfigProvider', () => ({
+  useConfig: vi.fn(() => ({
+    config: { frontend: { useOnionExplorerUrls: false } },
+    setConfig: vi.fn(),
+  })),
+}));
 
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { act, render, screen, waitFor } from '@testing-library/react';

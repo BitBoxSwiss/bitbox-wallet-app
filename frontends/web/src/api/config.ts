@@ -57,6 +57,7 @@ export type TConfigFrontend = Readonly<{
   darkmode?: boolean;
   expertFee?: boolean;
   coinControl?: boolean;
+  useOnionExplorerUrls?: boolean;
   selectedExchangeRegion?: string;
   hideEnableRememberWalletDialog?: boolean;
   hasUsedWalletConnect?: boolean;

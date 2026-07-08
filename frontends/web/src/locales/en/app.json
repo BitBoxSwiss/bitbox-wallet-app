@@ -1582,6 +1582,9 @@
       "customFees": {
         "description": "Lets you enter your own fee when sending."
       },
+      "onionExplorer": {
+        "description": "Use mempool's .onion address for BTC block explorer links. Requires a Tor-capable browser."
+      },
       "restartInTestnet": {
         "description": "Explore and test features by using testnet."
       },
@@ -1952,6 +1955,7 @@
         "title": "Export logs"
       },
       "fee": "Enable custom fees",
+      "onionExplorer": "Use .onion URLs for BTC explorer links",
       "restartInTestnet": "Testnet mode",
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",

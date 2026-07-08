@@ -10,7 +10,7 @@ import {
   TUTXO,
 } from '@/api/account';
 import { syncdone } from '@/api/accountsync';
-import { A } from '@/components/anchor/anchor';
+import { BlockExplorerLink } from '@/components/block-explorer-link/block-explorer-link';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button, Checkbox } from '@/components/forms';
 import { ExternalLink } from '@/components/icon';
@@ -165,12 +165,13 @@ export const UTXOs = ({
                       </span>:<span className={style.tabularNums}>{utxo.txOutput}</span>
                     </div>
                   </div>
-                  <A
+                  <BlockExplorerLink
                     className={style.utxoExplorer}
-                    href={explorerURL + utxo.txId}
+                    prefix={explorerURL}
+                    explorerId={utxo.txId}
                     title={t('transaction.explorerTitle')}>
                     <ExternalLink />
-                  </A>
+                  </BlockExplorerLink>
                 </div>
               </Checkbox>
             </li>
