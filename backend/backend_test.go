@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -205,6 +206,101 @@ func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *
 	}
 }
 
+func TestIsWhitelistedSystemOpenURL(t *testing.T) {
+	tests := []struct {
+		name    string
+		url     string
+		allowed bool
+	}{
+		{
+			name:    "allows exact host and path",
+			url:     "https://bitbox.swiss/download/",
+			allowed: true,
+		},
+		{
+			name:    "allows support domain without path",
+			url:     "https://support.bitbox.swiss/de_DE/",
+			allowed: true,
+		},
+		{
+			name:    "allows uppercase host",
+			url:     "https://SUPPORT.BITBOX.SWISS/de_DE/",
+			allowed: true,
+		},
+		{
+			name:    "allows uppercase scheme",
+			url:     "HTTPS://support.bitbox.swiss/de_DE/",
+			allowed: true,
+		},
+		{
+			name:    "allows default https port",
+			url:     "https://bitbox.swiss:443/download/",
+			allowed: true,
+		},
+		{
+			name:    "allows exact app settings URL",
+			url:     "app-settings:",
+			allowed: true,
+		},
+		{
+			name:    "allows path below whitelist entry without trailing slash",
+			url:     "https://bitsurance.eu/support/faq",
+			allowed: true,
+		},
+		{
+			name:    "blocks host prefix bypass",
+			url:     "https://support.bitbox.swiss.evil.example/de_DE/",
+			allowed: false,
+		},
+		{
+			name:    "blocks path prefix bypass",
+			url:     "https://mempool.space/txevil/123",
+			allowed: false,
+		},
+		{
+			name:    "blocks path prefix bypass without trailing slash",
+			url:     "https://bitsurance.eu/supportevil/123",
+			allowed: false,
+		},
+		{
+			name:    "blocks path traversal out of whitelisted path",
+			url:     "https://bitsurance.eu/support/../evil",
+			allowed: false,
+		},
+		{
+			name:    "blocks app settings URL suffix",
+			url:     "app-settings:evil",
+			allowed: false,
+		},
+		{
+			name:    "blocks non-default port",
+			url:     "https://bitbox.swiss:444/download/",
+			allowed: false,
+		},
+		{
+			name:    "blocks userinfo",
+			url:     "https://attacker.example@bitbox.swiss/download/",
+			allowed: false,
+		},
+		{
+			name:    "blocks wrong scheme",
+			url:     "http://bitbox.swiss/download/",
+			allowed: false,
+		},
+		{
+			name:    "blocks malformed URL",
+			url:     "://bitbox.swiss/download/",
+			allowed: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.allowed, isWhitelistedSystemOpenURL(tt.url))
+		})
+	}
+}
+
 type environment struct{}
 
 func (e environment) NotifyUser(msg string) {
@@ -342,6 +438,28 @@ func TestDevicesRegisteredReturnsSnapshot(t *testing.T) {
 	delete(devices, "device-id")
 
 	require.Contains(t, b.DevicesRegistered(), "device-id")
+}
+
+func TestClearCachePreservesUserData(t *testing.T) {
+	b := newBackend(t, false, false)
+	defer b.Close()
+
+	cacheFile := filepath.Join(b.arguments.CacheDirectoryPath(), "dummy-cache-file")
+	require.NoError(t, os.WriteFile(cacheFile, []byte("cache"), 0600))
+
+	noteFile := filepath.Join(b.arguments.NotesDirectoryPath(), "dummy-note-file")
+	require.NoError(t, os.WriteFile(noteFile, []byte("note"), 0600))
+
+	require.FileExists(t, b.arguments.AppConfigFilename())
+	require.FileExists(t, b.arguments.AccountsConfigFilename())
+
+	require.NoError(t, b.ClearCache())
+
+	require.NoFileExists(t, cacheFile)
+	require.DirExists(t, filepath.Join(b.arguments.CacheDirectoryPath(), "exchangerates"))
+	require.FileExists(t, noteFile)
+	require.FileExists(t, b.arguments.AppConfigFilename())
+	require.FileExists(t, b.arguments.AccountsConfigFilename())
 }
 
 func TestRegisterKeystore(t *testing.T) {

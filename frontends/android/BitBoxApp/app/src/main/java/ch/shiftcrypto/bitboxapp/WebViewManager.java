@@ -25,7 +25,6 @@ public class WebViewManager {
     // BitBoxApp, it is useless, as any app can do this.
     //
     // Unfortunately there seems to be no simple way to include this header only in requests to Moonpay.
-    private static final String BASE_URL = "https://shiftcrypto.ch/";
     private static final int CAMERA_PERMISSION_REQUEST = 0;
 
     private final MainActivity activity;
@@ -96,10 +95,23 @@ public class WebViewManager {
         // webView.setWebContentsDebuggingEnabled(true); // enable remote debugging in chrome://inspect/#devices
         // Retrieve the current text zoom setting to adjust the base font size in the WebView.
         int initialZoom = webView.getSettings().getTextZoom();
-        webView.setWebViewClient(new WebViewClient(BASE_URL, activity.getAssets(), activity.getApplication(), initialZoom));
+        webView.setWebViewClient(new WebViewClient(WebMessageBridge.BASE_URL, activity.getAssets(), activity.getApplication(), initialZoom));
         webView.setWebChromeClient(webChromeClient);
-        webView.addJavascriptInterface(new JavascriptBridge(activity), "android");
-        webView.loadUrl(BASE_URL + "index.html");
+        if (!WebMessageBridge.isSupported()) {
+            showUnsupportedWebViewDialog();
+            return;
+        }
+        WebMessageBridge.install(webView, activity);
+        webView.loadUrl(WebMessageBridge.BASE_URL + "index.html");
+    }
+
+    private void showUnsupportedWebViewDialog() {
+        new AlertDialog.Builder(activity)
+                .setTitle("Update Android WebView")
+                .setMessage("This Android System WebView or Chrome version is too old to run BitBoxApp securely. Please update it and try again.")
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> Util.quit(activity))
+                .show();
     }
 
     public void handleRequestPermissionsResult(int requestCode, int[] grantResults) {

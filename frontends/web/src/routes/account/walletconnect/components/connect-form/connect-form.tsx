@@ -3,7 +3,7 @@
 import { SetStateAction, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { ScanQRButton } from '@/routes/account/send/components/inputs/receiver-address-input';
 import { ScanQRDialog } from '@/routes/account/send/components/dialogs/scan-qr-dialog';
@@ -76,9 +76,9 @@ export const WCConnectForm = ({
           />
         )}
         <div className={styles.formButtonsContainer}>
-          <BackButton disabled={connectLoading}>
+          <DesktopBackButton disabled={connectLoading}>
             {t('dialog.cancel')}
-          </BackButton>
+          </DesktopBackButton>
           <Button
             disabled={connectLoading || !uri}
             type="submit"

@@ -37,6 +37,17 @@ func getScriptHashHex(txOut *wire.TxOut) blockchain.ScriptHashHex {
 	return blockchain.NewScriptHashHex(txOut.PkScript)
 }
 
+func ensureTxHash(txHash chainhash.Hash, tx *wire.MsgTx) error {
+	if tx == nil {
+		return errp.Newf("missing transaction %s", txHash)
+	}
+	actualTxHash := tx.TxHash()
+	if actualTxHash != txHash {
+		return errp.New("transaction hash mismatch")
+	}
+	return nil
+}
+
 // Interface is the interface for the Transactions struct.
 //
 //go:generate moq -pkg mocks -out mocks/transactions.go . Interface
@@ -475,11 +486,17 @@ func (transactions *Transactions) getTransactionCached(
 	headerTimestamp := transactions.getCachedTimestampAtHeight(height, txInfo.HeaderTimestamp)
 
 	if txInfo.Tx != nil {
+		if err := ensureTxHash(txHash, txInfo.Tx); err != nil {
+			return nil, nil, err
+		}
 		return txInfo.Tx, headerTimestamp, nil
 	}
 	tx, err := transactions.blockchain.TransactionGet(txHash)
 	if err != nil {
 		return nil, nil, errp.WithMessage(err, "TransactionGet failed")
+	}
+	if err := ensureTxHash(txHash, tx); err != nil {
+		return nil, nil, err
 	}
 	return tx, headerTimestamp, nil
 }

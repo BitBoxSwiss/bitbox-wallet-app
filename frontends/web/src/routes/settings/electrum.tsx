@@ -8,8 +8,9 @@ import { ElectrumServers } from './electrum-servers';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { Button } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Header } from '@/components/layout';
+import { MobileHeader } from './components/mobile-header';
 
 export const ElectrumSettings = () => {
   const { t } = useTranslation();
@@ -29,7 +30,13 @@ export const ElectrumSettings = () => {
     <div className="contentWithGuide">
       <div className="container">
         <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} />
+          <Header
+            title={
+              <>
+                <h2 className="hide-on-small">{t('settings.expert.electrum.title')}</h2>
+                <MobileHeader withGuide title={t('settings.expert.electrum.title')} />
+              </>
+            } />
           <div className="content padded">
             <div className="flex flex-row flex-between flex-items-center tabs">
               <div className={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
@@ -60,9 +67,9 @@ export const ElectrumSettings = () => {
               )
             }
             <div style={{ marginBottom: 20 }}>
-              <BackButton>
+              <DesktopBackButton>
                 {t('button.back')}
-              </BackButton>
+              </DesktopBackButton>
             </div>
           </div>
         </div>

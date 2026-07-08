@@ -26,12 +26,20 @@ import (
 )
 
 const (
-	port    = 8082
-	address = "0.0.0.0"
-	darwin  = "darwin"
+	port               = 8082
+	defaultBindAddress = "127.0.0.1"
+	bindAddressEnvVar  = "BITBOX_DEV_BIND_HOST"
+	darwin             = "darwin"
 )
 
 var backend *backendPkg.Backend
+
+func bindAddress() string {
+	if address := os.Getenv(bindAddressEnvVar); address != "" {
+		return address
+	}
+	return defaultBindAddress
+}
 
 // webdevEnvironment implements backend.Environment.
 type webdevEnvironment struct {
@@ -142,8 +150,14 @@ func (webdevEnvironment) NativeLocale() string {
 }
 
 func normalizeAppleSeparator(s string) string {
-	// macOS defaults encodes narrow no-break space as \U202f
-	return strings.ReplaceAll(s, `\\U202f`, "\u202f")
+	// macOS defaults may encode narrow no-break space as \U202f.
+	replacer := strings.NewReplacer(
+		`\\U202f`, "\u202f",
+		`\\U202F`, "\u202f",
+		`\U202f`, "\u202f",
+		`\U202F`, "\u202f",
+	)
+	return replacer.Replace(s)
 }
 
 func parseAppleICUNumberSymbols(out []byte) *backendPkg.NumberFormat {
@@ -203,6 +217,7 @@ func (webdevEnvironment) DetectDarkTheme() bool {
 
 func main() {
 	config.SetAppDir("appfolder.dev")
+	address := bindAddress()
 
 	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
 	regtest := flag.Bool("regtest", false, "use regtest instead of testnet coins")

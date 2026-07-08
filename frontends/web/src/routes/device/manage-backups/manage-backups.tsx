@@ -3,10 +3,11 @@
 import { useTranslation } from 'react-i18next';
 import { TDevices } from '@/api/devices';
 import { SubTitle } from '@/components/title';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { Header } from '@/components/layout';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { Backups } from '@/routes/device/bitbox01/backups';
 import { BackupsV2 } from '@/routes/device/bitbox02/backups';
 import { SDCardCheck } from '@/routes/device/bitbox02/sdcardcheck';
@@ -31,7 +32,12 @@ export const ManageBackups = ({
       <div className="container">
         <div className="innerContainer scrollableContainer">
           <Header
-            title={<h2>{t('backup.title')}</h2>}
+            title={
+              <>
+                <h2 className="hide-on-small">{t('backup.title')}</h2>
+                <MobileHeader withGuide title={t('backup.title')} />
+              </>
+            }
           />
           <div className="content padded">
             <BackupsList
@@ -67,9 +73,9 @@ const BackupsList = ({
           deviceID={deviceID}
           showCreate={true}
           showRestore={false}>
-          <BackButton>
+          <DesktopBackButton>
             {t('button.back')}
-          </BackButton>
+          </DesktopBackButton>
         </Backups>
       </>
     );
@@ -81,9 +87,9 @@ const BackupsList = ({
           showCreate={true}
           showRestore={false}
           showRadio={false}>
-          <BackButton>
+          <DesktopBackButton>
             {t('button.back')}
-          </BackButton>
+          </DesktopBackButton>
         </BackupsV2>
       </SDCardCheck>
     );

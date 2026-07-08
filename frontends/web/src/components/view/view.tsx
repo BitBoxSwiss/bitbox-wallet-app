@@ -154,6 +154,7 @@ type THeaderProps = {
   title?: ReactNode;
   withAppLogo?: boolean;
   children?: ReactNode;
+  className?: string;
 };
 
 /**
@@ -167,6 +168,7 @@ export const ViewHeader = ({
   small,
   title,
   withAppLogo,
+  className = ''
 }: THeaderProps) => {
   const { isDarkMode } = useDarkmode();
   const headerStyles = small ? `
@@ -174,7 +176,7 @@ export const ViewHeader = ({
     ${style.smallHeader || ''}
   ` : style.header;
   return (
-    <header className={headerStyles}>
+    <header className={`${headerStyles || ''} ${className || ''}`}>
       {withAppLogo && (
         isDarkMode ? <AppLogoInverted /> : <AppLogo />
       )}

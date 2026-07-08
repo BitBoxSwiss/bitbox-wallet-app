@@ -12,13 +12,14 @@ import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button, Radio } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Message } from '@/components/message/message';
 import { ReceiveGuide } from './components/guide';
 import { Header } from '@/components/layout';
 import { QRCode } from '@/components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
 import { connectKeystore } from '@/api/keystores';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import style from './receive.module.css';
 
 type TProps = {
@@ -250,7 +251,13 @@ export const Receive = ({
     <div className="contentWithGuide">
       <div className="container">
         <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
+          <Header
+            title={
+              <>
+                <h2 className="hide-on-small">{t('receive.title', { accountName: account?.coinName })}</h2>
+                <MobileHeader withGuide title={t('receive.title', { accountName: account?.coinName })} />
+              </>
+            } />
           <div className="content narrow isVerticallyCentered">
             <div className="box large text-center">
               { currentAddresses && (
@@ -315,9 +322,9 @@ export const Receive = ({
                       primary>
                       {t('receive.verifyBitBox02')}
                     </Button>
-                    <BackButton enableEsc={!addressTypeDialog && !verifying}>
+                    <DesktopBackButton enableEsc={!addressTypeDialog && !verifying}>
                       {t('button.back')}
-                    </BackButton>
+                    </DesktopBackButton>
                   </div>
                   { verifying && (
                     <div className={style.hide}></div>

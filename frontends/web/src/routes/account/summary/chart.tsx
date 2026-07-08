@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/skeleton/skeleton';
 import { Amount } from '@/components/amount/amount';
 import { PercentageDiff } from './percentage-diff';
 import { Filters } from './filters';
-import { getDarkmode } from '@/components/darkmode/darkmode';
+import { useDarkmode } from '@/hooks/darkmode';
 import { RatesContext } from '@/contexts/RatesContext';
 import { AppContext, TChartDisplay } from '@/contexts/AppContext';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
@@ -170,6 +170,7 @@ export const Chart = ({
   const hasHourlyData = data.chartDataHourly && data.chartDataHourly.length > 0;
 
   const { t, i18n } = useTranslation();
+  const { isDarkMode } = useDarkmode();
   const { chartDisplay, setChartDisplay } = useContext(AppContext);
   const { defaultCurrency, rotateDefaultCurrency } = useContext(RatesContext);
   const [searchParams] = useSearchParams();
@@ -215,7 +216,6 @@ export const Chart = ({
   const prevChartFiat = usePrevious(data.chartFiat);
   const prevHideAmounts = usePrevious(hideAmounts);
   const hasChartAnimationParam = searchParams.get('with-chart-animation');
-
 
   const setFormattedData = (chartData: ChartData) => {
     formattedData.current = {};
@@ -408,7 +408,6 @@ export const Chart = ({
   };
 
   const initChart = useCallback(() => {
-    const darkmode = getDarkmode();
     if (ref.current && hasData && !data.chartDataMissing) {
       const chartWidth = !isMobile ? ref.current.offsetWidth : document.body.clientWidth;
       const chartHeight = !isMobile ? height : mobileHeight;
@@ -433,7 +432,7 @@ export const Chart = ({
             visible: false,
           },
           horzLines: {
-            color: darkmode ? '#333333' : '#dedede',
+            color: isDarkMode ? '#333333' : '#dedede',
             style: LineStyle.Solid,
             visible: !isMobile,
           },
@@ -441,11 +440,11 @@ export const Chart = ({
         layout: {
           background: {
             type: ColorType.Solid,
-            color: darkmode ? '#1D1D1B' : '#F5F5F5',
+            color: isDarkMode ? '#1D1D1B' : '#F5F5F5',
           },
           fontSize: 11,
           fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-          textColor: darkmode ? '#F5F5F5' : '#1D1D1B',
+          textColor: isDarkMode ? '#F5F5F5' : '#1D1D1B',
         },
         leftPriceScale: {
           borderVisible: false,
@@ -489,8 +488,8 @@ export const Chart = ({
           } : {
             type: 'volume',
           }),
-        topColor: darkmode ? '#5E94BF' : '#DFF1FF',
-        bottomColor: darkmode ? '#1D1D1B' : '#F5F5F5',
+        topColor: isDarkMode ? '#5E94BF' : '#DFF1FF',
+        bottomColor: isDarkMode ? '#1D1D1B' : '#F5F5F5',
         lineColor: 'rgba(94, 148, 192, 1)',
         crosshairMarkerRadius: 6,
       });
@@ -511,7 +510,7 @@ export const Chart = ({
       chartInitialized.current = true;
       updateRange(chart, chartDisplay);
     }
-  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, data.chartFiat, hasData, hideAmounts, i18n.language, isMobile]);
+  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, data.chartFiat, hasData, hideAmounts, i18n.language, isMobile, isDarkMode]);
 
   const reinitializeChart = () => {
     removeChart();

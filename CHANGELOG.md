@@ -5,6 +5,8 @@
 - Add external block explorer links to used addresses
 - Settings search
 - Support macOS "Number Format" system setting
+- Move insurance to Marketplace
+- Add clear cache button to settings
 
 ## v4.51.1
 - iOS: fix App Store submission by packaging Inter as TTF fonts

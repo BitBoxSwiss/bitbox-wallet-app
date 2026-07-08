@@ -85,7 +85,7 @@ export const BottomNavigation = ({
       <Link
         className={`
           ${styles.link || ''}
-          ${pathname.startsWith('/settings') || pathname.startsWith('/bitsurance/') ? (styles.active || '') : ''}
+          ${pathname.startsWith('/settings') ? (styles.active || '') : ''}
         `}
         to="/settings/more"
       >

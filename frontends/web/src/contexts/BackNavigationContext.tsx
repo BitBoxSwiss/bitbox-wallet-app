@@ -35,8 +35,7 @@ const getTabId = (pathname: string): TabId => {
   }
   if (pathname.startsWith('/manage-backups/')
     || pathname.startsWith('/settings')
-    || pathname.startsWith('/add-account')
-    || pathname.startsWith('/bitsurance/')) {
+    || pathname.startsWith('/add-account')) {
     return 'settings';
   }
   return 'unknown';
@@ -71,8 +70,12 @@ const implicitBackRules: ImplicitBackRule[] = [
     previousPattern: '/account/:code',
   })),
   {
-    currentPattern: '/bitsurance/bitsurance',
-    previousPattern: '/settings/more',
+    currentPattern: '/market/bitsurance/:code',
+    previousPattern: '/market/select/:code',
+  },
+  {
+    currentPattern: '/market/bitsurance/dashboard/:code',
+    previousPattern: '/market/select/:code',
   },
 ];
 

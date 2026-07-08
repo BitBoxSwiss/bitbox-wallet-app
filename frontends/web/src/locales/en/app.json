@@ -410,8 +410,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Error: Was not able to get xpub from account.",
     "noAccount": "There are no accounts that can be insured.",
-    "select": "Select account",
-    "title": "Insurance"
+    "select": "Select account"
   },
   "blink": {
     "button": "Blink"
@@ -1028,6 +1027,7 @@
     "enable": "Enable",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "insure": "Insure",
     "max": "Max",
     "new": "New",
     "noOptionOnIos": "Not available on iOS",
@@ -2079,6 +2079,15 @@
       "title-tltc": "Litecoin Testnet Electrum servers"
     },
     "expert": {
+      "clearCache": {
+        "description": "Clear the cache of the BitBoxApp. This can help fix issues in the app.",
+        "dialog": {
+          "description": "Clear the cache of the BitBoxApp. If you are experiencing issues with the BitBoxApp, this can help resolve them.",
+          "note": "Your account names, notes and wallets are not affected.",
+          "primaryCTA": "Clear Cache"
+        },
+        "title": "Clear cache"
+      },
       "coinControl": "Enable coin control",
       "electrum": {
         "description": "You can connect to your own Electrum full node.",
@@ -2138,7 +2147,6 @@
   "setup": "Setup device",
   "sidebar": {
     "device": "Manage device",
-    "insurance": "Insurance",
     "leave": "Leave",
     "settings": "Settings"
   },
@@ -2231,6 +2239,7 @@
     "explorer": "Transaction ID",
     "explorerTitle": "Open in external block explorer",
     "fee": "Fee",
+    "feeRate": "Fee rate",
     "fiatHistorical": "Historical",
     "gas": "Gas",
     "no-results": "No transactions found matching \"{{searchTerm}}\"",

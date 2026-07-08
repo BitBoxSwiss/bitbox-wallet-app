@@ -959,8 +959,19 @@ func (backend *Backend) gapLimits() *btctypes.GapLimits {
 	return gapLimits
 }
 
+// accountLoadOptions controls how persisted accounts are loaded into the runtime account registry.
+type accountLoadOptions struct {
+	// skipETHInitialSync suppresses per-account ETH init refreshes when the caller will refresh all
+	// loaded ETH accounts together.
+	skipETHInitialSync bool
+}
+
 // The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *config.Account) {
+func (backend *Backend) createAndAddAccount(
+	coin coinpkg.Coin,
+	persistedConfig *config.Account,
+	options accountLoadOptions,
+) {
 	if backend.accounts.lookup(persistedConfig.Code) != nil {
 		// Do not create/load account if it is already loaded.
 		return
@@ -969,7 +980,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 	accountConfig := &accounts.AccountConfig{
 		Config:          persistedConfig,
 		DBFolder:        backend.arguments.CacheDirectoryPath(),
-		SkipInitialSync: backend.skipETHInitialSync,
+		SkipInitialSync: options.skipETHInitialSync,
 		NotesFolder:     backend.arguments.NotesDirectoryPath(),
 		ConnectKeystore: func() (keystore.Keystore, error) {
 			accountRootFingerprint, err := persistedConfig.SigningConfigurations.RootFingerprint()
@@ -1056,7 +1067,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 				ActiveTokens:          nil,
 			}
 
-			backend.createAndAddAccount(token, erc20Config)
+			backend.createAndAddAccount(token, erc20Config, options)
 		}
 	default:
 		panic("unknown coin type")
@@ -1205,7 +1216,7 @@ func (backend *Backend) persistETHAccountConfig(
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) initPersistedAccounts() {
+func (backend *Backend) initPersistedAccounts(options accountLoadOptions) {
 	// Only load accounts which belong to connected keystores or for which watchonly is enabled.
 	keystoreConnectedOrWatch := func(accountsConfig *config.AccountsConfig, account *config.Account) bool {
 		isWatch, err := accountsConfig.IsAccountWatchOnly(account)
@@ -1268,7 +1279,7 @@ outer:
 			}
 		}
 
-		backend.createAndAddAccount(coin, account)
+		backend.createAndAddAccount(coin, account, options)
 	}
 }
 
@@ -1370,7 +1381,8 @@ func (backend *Backend) initAccounts(force bool) {
 	// Since initAccounts replaces all previous accounts, we need to properly close them first.
 	backend.uninitAccounts(force)
 
-	backend.initPersistedAccounts()
+	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
+	backend.enqueueETHInitialSyncLocked()
 
 	backend.emitAccountsStatusChanged()
 
@@ -1379,6 +1391,18 @@ func (backend *Backend) initAccounts(force bool) {
 	// Every time fiats or coins list is changed in the UI settings, ReinitializedAccounts
 	// is invoked which triggers this method.
 	backend.configureHistoryExchangeRates()
+}
+
+// enqueueETHInitialSyncLocked asks the ETH updater to refresh all loaded ETH accounts if any exist.
+//
+// The accountsAndKeystoreLock must be held when calling this function.
+func (backend *Backend) enqueueETHInitialSyncLocked() {
+	for _, account := range backend.accounts {
+		if _, ok := account.Coin().(*eth.Coin); ok {
+			backend.enqueueETHUpdateForAllAccountsAsync()
+			return
+		}
+	}
 }
 
 // ReinitializeAccounts uninits and then reinits all accounts. This is useful to reload the accounts
@@ -1523,7 +1547,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 				backend.log.Errorf("could not find newly persisted account %s", *newAccountCode)
 				continue
 			}
-			backend.createAndAddAccount(coin, accountConfig)
+			backend.createAndAddAccount(coin, accountConfig, accountLoadOptions{})
 			backend.emitAccountsStatusChanged()
 		}
 	}
