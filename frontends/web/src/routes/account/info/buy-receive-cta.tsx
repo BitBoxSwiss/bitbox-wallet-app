@@ -6,7 +6,7 @@ import type { AccountCode, CoinUnit, TAccount, TBalance } from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Button } from '@/components/forms';
 import { Balances } from '@/routes/account/summary/accountssummary';
-import { isBitcoinCoin, isEthereumBased } from '@/routes/account/utils';
+import { isBitcoinCoin, isEthereumBased } from '@/utils/coin';
 import { ArrowFloorDownWhite, Coins, WalletConnectLight } from '@/components/icon';
 import { SubTitle } from '@/components/title';
 import styles from './buy-receive-cta.module.css';

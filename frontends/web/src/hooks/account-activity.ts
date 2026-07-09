@@ -2,12 +2,9 @@
 
 import { useEffect } from 'react';
 import * as accountApi from '@/api/account';
+import { isEthereumBased } from '@/utils/coin';
 
 const activityRefreshMs = 30_000;
-
-const isEthereumBased = (coinCode: accountApi.CoinCode): boolean => {
-  return coinCode === 'eth' || coinCode === 'sepeth' || coinCode.startsWith('eth-erc20-');
-};
 
 export const useEthAccountActivity = (
   code: accountApi.AccountCode,

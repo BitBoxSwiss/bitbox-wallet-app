@@ -23,7 +23,7 @@ import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
 import { AccountGuide } from './guide';
 import { BuyReceiveCTA } from './info/buy-receive-cta';
-import { isBitcoinBased } from './utils';
+import { isBitcoinBased } from '@/utils/coin';
 import { MultilineMarkup } from '@/utils/markup';
 import { Dialog } from '@/components/dialog/dialog';
 import { A } from '@/components/anchor/anchor';

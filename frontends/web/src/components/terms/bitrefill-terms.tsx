@@ -3,7 +3,7 @@ import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { i18n } from '@/i18n/i18n';
 import { TAccount } from '@/api/account';
-import { isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/utils/coin';
 import { getBitrefillHelpLink, getBitrefillLimitsLink } from '@/routes/market/bitrefill-guide';
 import { Button, Checkbox } from '@/components/forms';
 import { useConfig } from '@/contexts/ConfigProvider';

@@ -11,7 +11,7 @@ import { DarkModeContext } from '@/contexts/DarkmodeContext';
 import { Input } from '@/components/forms';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { ScanQRDialog } from '@/routes/account/send/components/dialogs/scan-qr-dialog';
-import { isBitcoinBased } from '@/routes/account/utils';
+import { isBitcoinBased } from '@/utils/coin';
 import style from './receiver-address-input.module.css';
 
 type TReceiverAddressInputProps = {
@@ -136,4 +136,3 @@ export const ReceiverAddressInput = ({
     </>
   );
 };
-

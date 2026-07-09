@@ -9,6 +9,7 @@ import * as marketAPI from '@/api/market';
 import { getSwapStatus } from '@/api/swap';
 import { AccountCode, TAccount } from '@/api/account';
 import { View, ViewContent } from '@/components/view/view';
+import { isBitcoinOnly } from '@/utils/coin';
 import { useLoad } from '@/hooks/api';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
@@ -27,7 +28,6 @@ import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
 import { open } from '@/api/system';
 import { useMarketContext } from './market-context';
 import { MarketGuide } from './guide';
-import { isBitcoinOnly } from '../account/utils';
 import style from './market.module.css';
 
 type TProps = {

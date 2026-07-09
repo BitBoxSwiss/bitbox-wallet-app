@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinBased, isBitcoinOnly } from '@/utils/coin';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { CoinCode } from '@/api/account';

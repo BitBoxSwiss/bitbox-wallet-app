@@ -18,7 +18,7 @@ import { Column, ColumnButtons, GuideWrapper, GuidedContent, Header, Main, Respo
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { FeeTargets } from './feetargets';
-import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinBased, isBitcoinOnly } from '@/utils/coin';
 import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
 import { SendResult } from './components/result';
