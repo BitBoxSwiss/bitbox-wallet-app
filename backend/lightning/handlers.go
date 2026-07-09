@@ -30,6 +30,10 @@ func NewHandlers(
 ) {
 	handleNoError("/account", lightning.GetAccount).Methods("GET")
 	handleNoError("/address", lightning.GetLightningAddress).Methods("GET")
+	handleNoError("/address/domain", lightning.GetAddressDomain).Methods("GET")
+	handleNoError("/address/availability", lightning.GetAddressAvailability).Methods("GET")
+	handleNoError("/address/generate", lightning.PostGenerateAddress).Methods("POST")
+	handleNoError("/address/register", lightning.PostRegisterAddress).Methods("POST")
 	handleNoError("/ready", lightning.GetReady).Methods("GET")
 	handleNoError("/activate", lightning.PostActivate).Methods("POST")
 	handleNoError("/deactivate", lightning.PostDeactivate).Methods("POST")
@@ -71,6 +75,47 @@ func (lightning *Lightning) GetAccount(_ *http.Request) interface{} {
 // GetLightningAddress handles the GET request to retrieve the registered lightning address.
 func (lightning *Lightning) GetLightningAddress(_ *http.Request) interface{} {
 	address, err := lightning.LightningAddress()
+	if err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true, Data: address}
+}
+
+// GetAddressDomain handles the GET request to retrieve the configured lightning address domain.
+func (lightning *Lightning) GetAddressDomain(_ *http.Request) interface{} {
+	return responseDto{Success: true, Data: lightning.AddressDomain()}
+}
+
+// GetAddressAvailability handles the GET request to check lightning address username availability.
+func (lightning *Lightning) GetAddressAvailability(r *http.Request) interface{} {
+	availability, err := lightning.AddressAvailability(r.URL.Query().Get("username"))
+	if err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true, Data: availability}
+}
+
+// PostGenerateAddress handles the POST request to generate an available lightning address username.
+func (lightning *Lightning) PostGenerateAddress(_ *http.Request) interface{} {
+	address, err := lightning.GenerateAddress()
+	if err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true, Data: address}
+}
+
+// PostRegisterAddress handles the POST request to register a lightning address username.
+func (lightning *Lightning) PostRegisterAddress(r *http.Request) interface{} {
+	var jsonBody struct {
+		Username string `json:"username"`
+	}
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&jsonBody); err != nil {
+		return errorResponse(err)
+	}
+
+	address, err := lightning.RegisterAddress(jsonBody.Username)
 	if err != nil {
 		return errorResponse(err)
 	}

@@ -4,6 +4,18 @@
     margin-top: var(--space-default);
 }
 
+.addressInputField input {
+    min-width: 0;
+}
+
+.domain {
+    align-items: center;
+    color: var(--color-secondary);
+    display: flex;
+    flex-shrink: 0;
+    font-size: var(--size-default);
+}
+
 .generateButton {
     align-items: center;
     background: transparent;
@@ -17,6 +29,11 @@
 
 .generateButton:hover {
     cursor: pointer;
+}
+
+.generateButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .generateButton img {
