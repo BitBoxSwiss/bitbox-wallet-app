@@ -33,10 +33,10 @@ var firmwareBinaryBTCOnly []byte
 var firmwareVersionBTCOnly = semver.NewSemVer(9, 26, 3)
 var firmwareMonotonicVersionBtcOnly uint32 = 51
 
-//go:embed assets/firmware-bitbox02-multi.v9.26.3.signed.bin.gz
+//go:embed assets/firmware-bitbox02-multi.v9.26.4.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 26, 3)
-var firmwareMonotonicVersionMulti uint32 = 51
+var firmwareVersionMulti = semver.NewSemVer(9, 26, 4)
+var firmwareMonotonicVersionMulti uint32 = 52
 
 // BitBox02 Nova.
 
@@ -51,10 +51,10 @@ var firmwareBB02PlusBinaryBTCOnly []byte
 var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 26, 3)
 var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 51
 
-//go:embed assets/firmware-bitbox02nova-multi.v9.26.3.signed.bin.gz
+//go:embed assets/firmware-bitbox02nova-multi.v9.26.4.signed.bin.gz
 var firmwareBB02PlusBinaryMulti []byte
-var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 26, 3)
-var firmwareBB02PlusMonotonicVersionMulti uint32 = 51
+var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 26, 4)
+var firmwareBB02PlusMonotonicVersionMulti uint32 = 52
 
 type firmwareInfo struct {
 	version                     *semver.SemVer
