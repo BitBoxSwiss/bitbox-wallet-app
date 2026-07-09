@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { TAccount } from '@/api/account';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
-import { isBitcoinBased } from './utils';
+import { isBitcoinBased } from '@/utils/coin';
 
 type Props = {
   account: TAccount;

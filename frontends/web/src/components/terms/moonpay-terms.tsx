@@ -2,7 +2,7 @@
 
 import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/utils/coin';
 import { Button, Checkbox } from '@/components/forms';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { TAccount } from '@/api/account';
