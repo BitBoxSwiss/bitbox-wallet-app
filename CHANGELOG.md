@@ -9,6 +9,12 @@
 - Add clear cache button to settings
 - Restrict local permissions for BitBoxApp config files and directories
 
+## v4.51.2
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.3
+- Restrict third party widget access to the top frame
+- iOS: improve price widget
+- Fix potential app blank screen when disconnecting the BitBox
+
 ## v4.51.1
 - iOS: fix App Store submission by packaging Inter as TTF fonts
 
