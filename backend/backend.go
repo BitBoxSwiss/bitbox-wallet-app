@@ -686,10 +686,11 @@ func (backend *Backend) SetAccountActivity(accountCode accountsTypes.Code, activ
 		}
 		ethAccount, ok := account.(*eth.Account)
 		if !ok {
+			backend.log.
+				WithField("code", accountCode).
+				WithField("coinCode", account.Config().Config.CoinCode).
+				Warn("account activity request ignored for non-ETH account")
 			return nil
-		}
-		if active && backend.environment != nil && backend.environment.UsingMobileData() {
-			active = false
 		}
 		backend.ethupdater.SetAccountActivity(ethAccount, active)
 		return nil

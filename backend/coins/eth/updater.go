@@ -186,11 +186,12 @@ func (u *Updater) probeActiveAccounts() {
 	}
 }
 
-// PollBalances updates the balances of all ETH accounts.
-// It does that in three different cases:
-// - When a timer triggers the update.
-// - When the signanl to update all accounts is sent through UpdateETHAccountsCh.
-// - When a specific account is updated through EnqueueUpdateForAccount.
+// PollBalances keeps ETH account balances and block heights up to date.
+// It does that in four different cases:
+// - When a timer triggers an update of all accounts.
+// - When the signal to update all accounts is sent through updateETHAccountsCh.
+// - When a specific account is updated through enqueueUpdateForAccount.
+// - When foreground activity triggers a cheap active-account balance probe.
 func (u *Updater) PollBalances() {
 	timer := time.After(0)
 	activeProbeTimer := time.After(activeProbeInterval)
