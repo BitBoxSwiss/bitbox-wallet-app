@@ -8,7 +8,7 @@ import { debug } from '@/utils/env';
 import { ReceiverAddressInputField } from './receiver-address-input-field';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { ScanQR } from './scan-qr';
-import { isBitcoinBased } from '@/routes/account/utils';
+import { isBitcoinBased } from '@/utils/coin';
 import style from './receiver-address-input.module.css';
 
 type TReceiverAddressInputProps = {
