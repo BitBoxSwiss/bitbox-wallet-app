@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		8E1846EB2E0AFF6000802D8B /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1846EA2E0AFF5B00802D8B /* NetworkMonitor.swift */; };
 		8E1846EC2E0AFF6000802D8B /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1846EA2E0AFF5B00802D8B /* NetworkMonitor.swift */; };
+		9A0000010000000000000002 /* LightningEncryptionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0000010000000000000001 /* LightningEncryptionHelper.swift */; };
+		9A0000010000000000000003 /* LightningEncryptionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0000010000000000000001 /* LightningEncryptionHelper.swift */; };
 		B536195B2E4B2D1B00B3E10D /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B536195A2E4B2D1B00B3E10D /* Launch Screen.storyboard */; };
 		B536195C2E4B2D1B00B3E10D /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B536195A2E4B2D1B00B3E10D /* Launch Screen.storyboard */; };
 		A11AC9CA2F33A45B00AB2B88 /* BreezSdkSpark in Frameworks */ = {isa = PBXBuildFile; productRef = A11AC9C92F33A45B00AB2B88 /* BreezSdkSpark */; };
@@ -113,6 +115,7 @@
 
 /* Begin PBXFileReference section */
 		8E1846EA2E0AFF5B00802D8B /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		9A0000010000000000000001 /* LightningEncryptionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightningEncryptionHelper.swift; sourceTree = "<group>"; };
 		B536195A2E4B2D1B00B3E10D /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		D700B5F82C888CB9000496D4 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		D700B5F92C986A3C000496D4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -236,6 +239,7 @@
 				D700B5F92C986A3C000496D4 /* Info.plist */,
 				D76518B52B1F45B300DC03A9 /* assets */,
 				D76516082B1F3B1300DC03A9 /* BitBoxAppApp.swift */,
+				9A0000010000000000000001 /* LightningEncryptionHelper.swift */,
 				EEEE00000000000000000003 /* WidgetAppGroupSync.swift */,
 				CCCC00010000000000000004 /* WidgetShared.swift */,
 				D76516322B1F3D1A00DC03A9 /* WebView.swift */,
@@ -543,6 +547,7 @@
 				8E1846EC2E0AFF6000802D8B /* NetworkMonitor.swift in Sources */,
 				D721B20E2D36A00000767080 /* Bluetooth.swift in Sources */,
 				D700B5FE2CA2FFAF000496D4 /* BitBoxAppApp.swift in Sources */,
+				9A0000010000000000000003 /* LightningEncryptionHelper.swift in Sources */,
 				EEEE00000000000000000002 /* WidgetAppGroupSync.swift in Sources */,
 				CCCC00010000000000000002 /* WidgetShared.swift in Sources */,
 			);
@@ -556,6 +561,7 @@
 				8E1846EB2E0AFF6000802D8B /* NetworkMonitor.swift in Sources */,
 				D721B20D2D369EC100767080 /* Bluetooth.swift in Sources */,
 				D76516092B1F3B1300DC03A9 /* BitBoxAppApp.swift in Sources */,
+				9A0000010000000000000002 /* LightningEncryptionHelper.swift in Sources */,
 				EEEE00000000000000000001 /* WidgetAppGroupSync.swift in Sources */,
 				CCCC00010000000000000001 /* WidgetShared.swift in Sources */,
 			);
