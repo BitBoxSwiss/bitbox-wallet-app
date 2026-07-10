@@ -18,7 +18,7 @@ base:
 clean:
 	-rm -rf build
 	cd server && $(MAKE) clean
-linux:
+linux-bin:
 	$(MAKE) clean
 	cd server && $(MAKE) linux
 	$(MAKE) base
@@ -28,6 +28,7 @@ linux:
 	mv build/BitBox build/linux-tmp
 	cp build/assets.rcc build/linux-tmp/
 	cp server/libserver.so build/linux-tmp
+linux: linux-bin
 	cd build/linux-tmp && \
 		/opt/linuxdeployqt-continuous-x86_64.AppImage --appimage-extract && \
 		./squashfs-root/AppRun BitBox \
