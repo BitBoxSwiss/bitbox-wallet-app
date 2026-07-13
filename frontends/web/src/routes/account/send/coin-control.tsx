@@ -6,7 +6,7 @@ import type { TAccount } from '@/api/account';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { Button } from '@/components/forms';
 import { TSelectedUTXOs, UTXOs } from './utxos';
-import { isBitcoinBased } from '../utils';
+import { isBitcoinBased } from '@/utils/coin';
 import style from './coin-control.module.css';
 
 type TProps = {

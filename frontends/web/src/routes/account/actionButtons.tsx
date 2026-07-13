@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowFloorDownWhite, ArrowFloorUpWhite, Coins, WalletConnectLight } from '@/components/icon';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { AccountCode, TAccount, CoinCode } from '@/api/account';
-import { isEthereumBased } from './utils';
+import { isEthereumBased } from '@/utils/coin';
 import { ButtonLink } from '@/components/forms';
 import { connectKeystore } from '@/api/keystores';
 import style from './account.module.css';

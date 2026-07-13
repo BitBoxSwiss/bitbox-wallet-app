@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import type { TAccount } from '@/api/account';
 import type { TMarketAction, TVendorName, TPaymentMethod } from '@/api/market';
-import { isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/utils/coin';
 import { i18n } from '@/i18n/i18n';
 import { A } from '@/components/anchor/anchor';
 import { PocketOTCTradingVolumeTable } from '@/components/terms/pocket-otc-terms';

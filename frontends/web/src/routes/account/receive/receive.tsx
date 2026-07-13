@@ -4,11 +4,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
 import { useLoad } from '@/hooks/api';
+import { useEthAccountActivity } from '@/hooks/account-activity';
 import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
 import { setAccountReceiveScriptType } from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
-import { getScriptName, isEthereumBased } from '@/routes/account/utils';
+import { getScriptName } from '@/routes/account/utils';
+import { isEthereumBased } from '@/utils/coin';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button, Radio } from '@/components/forms';
@@ -141,6 +143,7 @@ export const Receive = ({
 
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
   const insured = account?.bitsuranceStatus === 'active';
+  useEthAccountActivity(code, account?.coinCode);
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));

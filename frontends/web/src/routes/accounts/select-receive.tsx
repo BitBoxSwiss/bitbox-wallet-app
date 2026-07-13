@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { TAccount } from '@/api/account';
 import { Header } from '@/components/layout';
-import { isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/utils/coin';
 import { View, ViewContent } from '@/components/view/view';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 

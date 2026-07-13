@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { CoinCode, FeeTargetCode, TAmountWithConversions } from '@/api/account';
 import type { TSelectedUTXOs } from '../../utxos';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import { customFeeUnit } from '@/routes/account/utils';
+import { customFeeUnit } from '@/utils/coin';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Column, Grid } from '@/components/layout';
 import { Message } from '@/components/message/message';
