@@ -1,0 +1,49 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+.accountBalance {
+    color: var(--color-secondary);
+    margin-left: auto;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.accountLogo {
+    height: 20px;
+    width: 20px;
+}
+
+.accountName {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.accountRow {
+    align-items: center;
+    background-color: var(--background-secondary);
+    border: var(--border-width) solid var(--background-quaternary);
+    border-radius: var(--radius-xl);
+    color: var(--color-default);
+    display: flex;
+    gap: var(--space-quarter);
+    min-height: var(--input-height);
+    margin-bottom: var(--space-half);
+    padding: var(--space-quarter) var(--space-half);
+}
+
+.accountSelector {
+    margin-bottom: var(--space-half);
+}
+
+.form {
+    max-width: 520px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.fieldLabel {
+    color: var(--color-secondary);
+    display: block;
+    margin-bottom: var(--space-quarter);
+}

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { DependencyList, useEffect, useState } from 'react';
+import { DependencyList, useEffect, useRef, useState } from 'react';
 import { TSubscriptionCallback, TUnsubscribe } from '@/api/subscribe';
 import { useMountedRef } from './mount';
 
@@ -54,13 +54,15 @@ export const useLoad = <T>(
 ): (T | undefined) => {
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
+  const request = useRef(0);
   const load = () => {
+    const currentRequest = ++request.current;
     setResponse(undefined);
     if (apiCall === null) {
       return;
     }
     apiCall().then((data) => {
-      if (mounted.current) {
+      if (currentRequest === request.current && mounted.current) {
         setResponse(data);
       }
     });
