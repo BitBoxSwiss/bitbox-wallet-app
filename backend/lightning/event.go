@@ -8,6 +8,13 @@ import (
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 )
 
+func (lightning *Lightning) notifyListPaymentsReload() {
+	lightning.Notify(observable.Event{
+		Subject: "lightning/list-payments",
+		Action:  action.Reload,
+	})
+}
+
 // OnEvent handles Breez SDK events and forwards relevant updates to observers.
 func (lightning *Lightning) OnEvent(e breez_sdk_spark.SdkEvent) {
 	switch event := e.(type) {
@@ -18,39 +25,37 @@ func (lightning *Lightning) OnEvent(e breez_sdk_spark.SdkEvent) {
 		// SDK was unable to claim some deposits automatically
 		unclaimedDeposits := event.UnclaimedDeposits
 		_ = unclaimedDeposits
+		lightning.notifyListPaymentsReload()
 		lightning.log.Infof("Spark: unable to claim some deposit automatically. Event: %v", e)
 	case breez_sdk_spark.SdkEventClaimedDeposits:
 		// Deposits were successfully claimed
 		claimedDeposits := event.ClaimedDeposits
 		_ = claimedDeposits
+		lightning.notifyListPaymentsReload()
 		lightning.log.Infof("Spark: deposit successfully claimed. Event: %v", e)
+	case breez_sdk_spark.SdkEventNewDeposits:
+		newDeposits := event.NewDeposits
+		_ = newDeposits
+		lightning.notifyListPaymentsReload()
+		lightning.log.Infof("Spark: new deposit detected. Event: %v", e)
 	case breez_sdk_spark.SdkEventPaymentSucceeded:
 		// A payment completed successfully
 		payment := event.Payment
 		_ = payment
 
-		lightning.Notify(observable.Event{
-			Subject: "lightning/list-payments",
-			Action:  action.Reload,
-		})
+		lightning.notifyListPaymentsReload()
 		lightning.log.Infof("Spark: payment completed successfully. Event: %v", e)
 	case breez_sdk_spark.SdkEventPaymentPending:
 		// A payment is pending (waiting for confirmation)
 		pendingPayment := event.Payment
 		_ = pendingPayment
-		lightning.Notify(observable.Event{
-			Subject: "lightning/list-payments",
-			Action:  action.Reload,
-		})
+		lightning.notifyListPaymentsReload()
 		lightning.log.Infof("Spark: payment waiting for confirmation. Event: %v", e)
 	case breez_sdk_spark.SdkEventPaymentFailed:
 		// A payment failed
 		failedPayment := event.Payment
 		_ = failedPayment
-		lightning.Notify(observable.Event{
-			Subject: "lightning/list-payments",
-			Action:  action.Reload,
-		})
+		lightning.notifyListPaymentsReload()
 		lightning.log.Infof("Spark: payment failed. Event: %v", e)
 	case breez_sdk_spark.SdkEventLightningAddressChanged:
 		lightning.Notify(observable.Event{

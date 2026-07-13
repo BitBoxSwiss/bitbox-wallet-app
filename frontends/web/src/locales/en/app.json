@@ -1593,6 +1593,20 @@
         "title": "Create lightning wallet"
       }
     },
+    "bitcoinDeposit": {
+      "claim": "Claim top-up or refund",
+      "label": "Bitcoin top-up",
+      "state": {
+        "claiming": "Claiming deposit",
+        "confirming": "Waiting for confirmations",
+        "unclaimed": "Claim required"
+      },
+      "stateShort": {
+        "claiming": "Claiming",
+        "confirming": "Confirming",
+        "unclaimed": "Claim required"
+      }
+    },
     "closeWithdrawFunds": {
       "accountDestination": "Account coins will be sent to",
       "confirm": "Confirm closing of lightning wallet",
