@@ -9,6 +9,9 @@
 - Add clear cache button to settings
 - Restrict local permissions for BitBoxApp config files and directories
 
+## v4.51.3
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.4
+
 ## v4.51.2
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.3
 - Restrict third party widget access to the top frame
