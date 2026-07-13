@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { DependencyList, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TSubscriptionCallback, TUnsubscribe } from '@/api/subscribe';
 import { useMountedRef } from './mount';
 
@@ -44,32 +44,46 @@ export const useSubscribe = <T>(
 };
 
 /**
- * useLoad is a hook to load a promise.
- * gets fired on first render, and returns undefined while loading.
- * Optionally pass a dependency array as 2nd arguemnt to control re-executing apiCall
+ * `useLoad` executes `apiCall` and returns its result.
+ *
+ * `apiCall` should be a stable callback (e.g. a callback created with
+ * `useCallback` or a module-level function). Otherwise, it may be called
+ * on every render, causing unnecessary requests.
+ *
+ * Pass `null` to disable loading.
+ * Returns `undefined` while loading.
+ *
+ * Good:
+ *   useLoad(getUpdate);
+ *   useLoad(useCallback(() => getVersion(deviceID), [deviceID]));
+ *
+ * Bad:
+ *   useLoad(() => getUpdate());
+ *   useLoad(() => getVersion(deviceID));
  */
 export const useLoad = <T>(
   apiCall: (() => Promise<T>) | null,
-  dependencies?: DependencyList,
 ): (T | undefined) => {
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
-  const load = () => {
+  const request = useRef(0);
+
+  useEffect(() => {
+    const currentRequest = ++request.current;
     setResponse(undefined);
     if (apiCall === null) {
       return;
     }
     apiCall().then((data) => {
-      if (mounted.current) {
+      if (
+        currentRequest === request.current // ignore older responses
+        && mounted.current // ignore response when unmounted
+      ) {
         setResponse(data);
       }
     });
-  };
-  useEffect(
-    () => load(),
-    // By default no dependencies are passed to only query once
-    dependencies || [] // eslint-disable-line react-hooks/exhaustive-deps
-  );
+  }, [apiCall, mounted]);
+
   return response;
 };
 
