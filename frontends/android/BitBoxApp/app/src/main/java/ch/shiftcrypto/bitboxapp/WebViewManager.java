@@ -13,6 +13,8 @@ import android.webkit.WebView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 /**
  * Encapsulates WebView configuration and interactions so that MainActivity can stay lean.
@@ -32,6 +34,7 @@ public class WebViewManager {
 
     private WebChromeClient webChromeClient;
     private WebView webView;
+    private Boolean keyboardVisible;
 
     public WebViewManager(MainActivity activity, GoViewModel goViewModel) {
         this.activity = activity;
@@ -102,7 +105,30 @@ public class WebViewManager {
             return;
         }
         WebMessageBridge.install(webView, activity);
+        installKeyboardVisibilityListener(webView);
         webView.loadUrl(WebMessageBridge.BASE_URL + "index.html");
+    }
+
+    private void installKeyboardVisibilityListener(WebView webView) {
+        ViewCompat.setOnApplyWindowInsetsListener(webView, (view, insets) -> {
+            notifyKeyboardVisibilityChanged(insets.isVisible(WindowInsetsCompat.Type.ime()));
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(webView);
+    }
+
+    private void notifyKeyboardVisibilityChanged(boolean visible) {
+        if (keyboardVisible != null && keyboardVisible == visible) {
+            return;
+        }
+        keyboardVisible = visible;
+        activity.runOnUiThread(() -> webView.evaluateJavascript(
+                "window.androidKeyboardVisible = " + visible + ";" +
+                        "if (window.onKeyboardVisibilityChanged) {" +
+                        "window.onKeyboardVisibilityChanged(" + visible + ");" +
+                        "}",
+                null
+        ));
     }
 
     private void showUnsupportedWebViewDialog() {

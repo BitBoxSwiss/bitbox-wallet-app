@@ -9,6 +9,7 @@ import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
 import { RedDot } from '@/components/icon';
 import { NewBadge } from '@/components/new-badge/new-badge';
+import { useAndroidKeyboardVisible } from './use-android-keyboard-visible';
 import { useSlidingIndicator } from './use-sliding-indicator';
 import { getBottomNavIndex, getBottomNavKey } from './utils';
 import styles from './bottom-navigation.module.css';
@@ -47,6 +48,11 @@ export const BottomNavigation = ({
     indicatorStyle,
     labelRefs,
   } = useSlidingIndicator(activeIndex, `${portfolioLabel}:${accountLabel}:${marketLabel}:${moreLabel}`);
+  const androidKeyboardVisible = useAndroidKeyboardVisible();
+
+  if (androidKeyboardVisible) {
+    return null;
+  }
 
   return (
     <>
