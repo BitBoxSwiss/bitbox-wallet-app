@@ -1663,7 +1663,7 @@
     "send": {
       "confirm": {
         "amount": "Amount",
-        "memo": "Memo",
+        "note": "Note",
         "title": "Confirm transaction details"
       },
       "invoice": {

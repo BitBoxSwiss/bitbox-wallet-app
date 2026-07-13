@@ -27,6 +27,11 @@
     gap: 0.2rem;
 }
 
+.availableBalance {
+    margin-bottom: var(--space-default);
+    text-align: left;
+}
+
 .successCheck {
     background-color: var(--color-success);
     border: .5rem solid var(--color-success);
