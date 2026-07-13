@@ -4,8 +4,10 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -13,8 +15,6 @@ import android.webkit.WebView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 /**
  * Encapsulates WebView configuration and interactions so that MainActivity can stay lean.
@@ -28,6 +28,7 @@ public class WebViewManager {
     //
     // Unfortunately there seems to be no simple way to include this header only in requests to Moonpay.
     private static final int CAMERA_PERMISSION_REQUEST = 0;
+    private static final int KEYBOARD_VISIBLE_THRESHOLD_DP = 100;
 
     private final MainActivity activity;
     private final GoViewModel goViewModel;
@@ -35,6 +36,7 @@ public class WebViewManager {
     private WebChromeClient webChromeClient;
     private WebView webView;
     private Boolean keyboardVisible;
+    private int keyboardBaselineHeight;
 
     public WebViewManager(MainActivity activity, GoViewModel goViewModel) {
         this.activity = activity;
@@ -110,11 +112,25 @@ public class WebViewManager {
     }
 
     private void installKeyboardVisibilityListener(WebView webView) {
-        ViewCompat.setOnApplyWindowInsetsListener(webView, (view, insets) -> {
-            notifyKeyboardVisibilityChanged(insets.isVisible(WindowInsetsCompat.Type.ime()));
-            return insets;
+        View rootView = activity.findViewById(R.id.root_layout);
+        View observedView = rootView != null ? rootView : webView;
+        observedView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            Rect visibleFrame = new Rect();
+            observedView.getWindowVisibleDisplayFrame(visibleFrame);
+
+            int visibleHeight = visibleFrame.height();
+            if (visibleHeight <= 0) {
+                return;
+            }
+
+            keyboardBaselineHeight = Math.max(keyboardBaselineHeight, visibleHeight);
+            int hiddenHeight = keyboardBaselineHeight - visibleHeight;
+            notifyKeyboardVisibilityChanged(hiddenHeight > dpToPx(KEYBOARD_VISIBLE_THRESHOLD_DP));
         });
-        ViewCompat.requestApplyInsets(webView);
+    }
+
+    private int dpToPx(int dp) {
+        return Math.round(dp * activity.getResources().getDisplayMetrics().density);
     }
 
     private void notifyKeyboardVisibilityChanged(boolean visible) {
