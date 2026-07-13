@@ -8,6 +8,7 @@
 - Move insurance to Marketplace
 - Add clear cache button to settings
 - Restrict local permissions for BitBoxApp config files and directories
+- Bitcoin: display zero amounts without decimal places
 
 ## v4.51.3
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.4
