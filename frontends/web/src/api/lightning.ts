@@ -60,6 +60,17 @@ export type TReceivePaymentResponse = {
   invoice: string;
 };
 
+export type TLightningAddressAvailability = {
+  username: string;
+  address: string;
+  available: boolean;
+};
+
+export type TGeneratedLightningAddress = {
+  username: string;
+  address: string;
+};
+
 export type TSendPaymentRequest = {
   type: TPaymentInputType.BOLT11;
   paymentInput: string;
@@ -149,6 +160,33 @@ export const getLightningAccount = async (): Promise<TLightningAccount | null> =
 
 export const getLightningAddress = async (): Promise<string | null> => {
   return getApiResponse<string | null>('lightning/address', 'Error calling getLightningAddress');
+};
+
+export const getLightningAddressDomain = async (): Promise<string> => {
+  return getApiResponse<string>('lightning/address/domain', 'Error calling getLightningAddressDomain');
+};
+
+export const getLightningAddressAvailability = async (username: string): Promise<TLightningAddressAvailability> => {
+  return getApiResponse<TLightningAddressAvailability>(
+    `lightning/address/availability?${queryString({ username })}`,
+    'Error calling getLightningAddressAvailability'
+  );
+};
+
+export const postGenerateLightningAddress = async (): Promise<TGeneratedLightningAddress> => {
+  return postApiResponse<TGeneratedLightningAddress, undefined>(
+    'lightning/address/generate',
+    undefined,
+    'Error calling postGenerateLightningAddress'
+  );
+};
+
+export const postRegisterLightningAddress = async (username: string): Promise<string> => {
+  return postApiResponse<string, { username: string }>(
+    'lightning/address/register',
+    { username },
+    'Error calling postRegisterLightningAddress'
+  );
 };
 
 export const getLightningReady = async (): Promise<boolean> => {

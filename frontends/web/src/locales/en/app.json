@@ -918,6 +918,9 @@
     "aoppUnsupportedKeystore": "The connected device cannot sign messages for this asset.",
     "aoppVersion": "Unknown version.",
     "keystoreTimeout": "Wallet request expired. Please try again.",
+    "lightningAddressChangeCooldown": "Please wait before changing your Lightning address again.",
+    "lightningAddressInvalidUsername": "Use only lowercase letters and numbers.",
+    "lightningAddressUsernameUnavailable": "This name is not available.",
     "lightningInsufficientFunds": "Insufficient funds in your Lightning wallet.",
     "lightningInvalidAmount": "Invalid amount.",
     "lightningInvalidPaymentInput": "Invalid invoice or payment request.",
@@ -1605,13 +1608,14 @@
     "lnurlAddress": {
       "availability": {
         "available": "This name is available",
+        "checking": "Checking availability...",
         "taken": "This name is taken"
       },
-      "choose": "You can choose your own address below or randomly generate one.",
+      "choose": "You can choose your own address below or generate one.",
       "description": "An LNURL address is a human readable address which you can easily share to receive lightning payments",
       "generate": "Generate address",
-      "label": "LNURL",
-      "notice": "Please note, your address <strong>cannot be changed later.</strong>",
+      "label": "LNURL username",
+      "notice": "Please note, your address can only be changed <strong>once every 24 hours.</strong>",
       "success": {
         "message": "Your LNURL address has been set."
       },

@@ -8,6 +8,9 @@ export enum TLightningErrorCode {
   INVALID_PAYMENT_INPUT = 'lightningInvalidPaymentInput',
   INSUFFICIENT_FUNDS = 'lightningInsufficientFunds',
   INVOICE_ALREADY_USED = 'lightningInvoiceAlreadyUsed',
+  ADDRESS_CHANGE_COOLDOWN = 'lightningAddressChangeCooldown',
+  ADDRESS_INVALID_USERNAME = 'lightningAddressInvalidUsername',
+  ADDRESS_USERNAME_UNAVAILABLE = 'lightningAddressUsernameUnavailable',
 }
 
 // Backend error codes arrive over JSON, so keep the lookup defensive for unknown runtime values.
@@ -17,6 +20,9 @@ const lightningErrorTranslationKeys: Partial<Record<string, string>> = {
   [TLightningErrorCode.INVALID_PAYMENT_INPUT]: 'error.lightningInvalidPaymentInput',
   [TLightningErrorCode.INSUFFICIENT_FUNDS]: 'error.lightningInsufficientFunds',
   [TLightningErrorCode.INVOICE_ALREADY_USED]: 'error.lightningInvoiceAlreadyUsed',
+  [TLightningErrorCode.ADDRESS_CHANGE_COOLDOWN]: 'error.lightningAddressChangeCooldown',
+  [TLightningErrorCode.ADDRESS_INVALID_USERNAME]: 'error.lightningAddressInvalidUsername',
+  [TLightningErrorCode.ADDRESS_USERNAME_UNAVAILABLE]: 'error.lightningAddressUsernameUnavailable',
 };
 
 export class TSdkError extends Error {

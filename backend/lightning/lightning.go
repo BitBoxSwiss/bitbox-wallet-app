@@ -158,7 +158,7 @@ func (lightning *Lightning) Activate() error {
 		return err
 	}
 
-	if err = lightning.connect(true); err != nil {
+	if err = lightning.connect(); err != nil {
 		if deactivateErr := lightning.Deactivate(); deactivateErr != nil {
 			lightning.log.Error(deactivateErr)
 		}
@@ -170,7 +170,7 @@ func (lightning *Lightning) Activate() error {
 
 // Connect needs to be called before any requests are made.
 func (lightning *Lightning) Connect() {
-	if err := lightning.connect(false); err != nil {
+	if err := lightning.connect(); err != nil {
 		lightning.log.WithError(err).Warn("BreezSDK: Error connecting SDK")
 	}
 }
@@ -302,7 +302,7 @@ func accountBreezFolder(accountCode types.Code) string {
 }
 
 // connect initializes the connection configuration and calls connect to create a Breez SDK instance.
-func (lightning *Lightning) connect(_ bool) error {
+func (lightning *Lightning) connect() error {
 	account := lightning.Account()
 
 	if account != nil && lightning.sdkService == nil {
@@ -373,6 +373,9 @@ func (lightning *Lightning) connect(_ bool) error {
 
 		lightning.sdkService = sdk
 		lightning.notifyReady()
+		if _, err := lightning.ensureLightningAddress(); err != nil {
+			lightning.log.WithError(err).Warn("BreezSDK: Error ensuring lightning address")
+		}
 	}
 	return nil
 }

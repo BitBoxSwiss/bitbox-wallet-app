@@ -1,63 +1,175 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import {
+  getLightningAddress,
+  getLightningAddressAvailability,
+  getLightningAddressDomain,
+  postGenerateLightningAddress,
+  postRegisterLightningAddress,
+} from '@/api/lightning';
+import { toLightningErrorMessage } from '@/api/lightning-errors';
 import { Button, Input } from '@/components/forms';
 import { Cancel, Checked, Sync, SyncLight } from '@/components/icon';
 import { Header, Main } from '@/components/layout';
+import { Spinner } from '@/components/spinner/Spinner';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { useDarkmode } from '@/hooks/darkmode';
+import { useDebounce } from '@/hooks/debounce';
+import { useMountedRef } from '@/hooks/mount';
 import { SimpleMarkup } from '@/utils/markup';
 import styles from './set-lnurl-address.module.css';
 
 const CONTENT_MIN_HEIGHT = '38em';
-const lnurlDomain = 'bitboxLN.swiss';
-// TODO: Remove mocked LNURL values once the backend supports address availability and registration.
-const initialUsername = 'tonybanana';
-const availableUsername = 'sausageman';
-const initialAddress = `${initialUsername}@${lnurlDomain}`;
-const noop = () => undefined;
+const availabilityDebounceMs = 300;
+const usernameRegexp = /^[a-z0-9]+$/;
+const maxUsernameLength = 64;
 
 type TStep = 'form' | 'success';
-type TAvailability = 'unchecked' | 'available' | 'taken';
+type TAvailability = 'unchecked' | 'checking' | 'available' | 'taken' | 'invalid' | 'error';
 
-const usernameFromAddress = (address: string) => address.split('@')[0]?.trim().toLowerCase() ?? '';
+const isValidUsername = (username: string) => (
+  username.length > 0
+    && username.length <= maxUsernameLength
+    && usernameRegexp.test(username)
+);
 
-const fullAddress = (address: string) => {
-  const username = usernameFromAddress(address);
-  return username ? `${username}@${lnurlDomain}` : '';
-};
+const normalizeUsername = (username: string) => username.trim().toLowerCase();
+
+const usernameFromAddress = (address: string | null) => address?.split('@')[0]?.trim().toLowerCase() ?? '';
 
 export const LightningSetLnurlAddress = () => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
-  const [address, setAddress] = useState(initialAddress);
+  const mounted = useMountedRef();
+  const availabilityRequestId = useRef(0);
+  const [domain, setDomain] = useState('');
+  const [username, setUsername] = useState('');
+  const [registeredUsername, setRegisteredUsername] = useState('');
+  const [address, setAddress] = useState('');
   const [availability, setAvailability] = useState<TAvailability>('unchecked');
+  const [error, setError] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [step, setStep] = useState<TStep>('form');
+  const debouncedUsername = useDebounce(username, availabilityDebounceMs);
 
-  const checkAvailability = (nextAddress: string) => {
-    const nextUsername = usernameFromAddress(nextAddress);
-    if (!nextUsername || nextUsername === initialUsername) {
+  // Load the backend-selected domain and auto-register an initial address if none exists yet.
+  useEffect(() => {
+    Promise.all([
+      getLightningAddressDomain(),
+      getLightningAddress(),
+    ]).then(([domain, address]) => {
+      if (!mounted.current) {
+        return;
+      }
+      const currentUsername = usernameFromAddress(address);
+      setDomain(domain);
+      setAddress(address ?? '');
+      setUsername(currentUsername);
+      setRegisteredUsername(currentUsername);
+      setAvailability('unchecked');
+    }).catch((err) => {
+      if (mounted.current) {
+        setError(toLightningErrorMessage(t, err));
+      }
+    });
+  }, [mounted, t]);
+
+  // Check availability when the user edits the username, ignoring stale responses.
+  useEffect(() => {
+    const nextUsername = normalizeUsername(debouncedUsername);
+    const requestId = ++availabilityRequestId.current;
+    setError('');
+
+    if (!nextUsername || nextUsername === registeredUsername) {
       setAvailability('unchecked');
       return;
     }
-    setAvailability(nextUsername === availableUsername ? 'available' : 'taken');
+
+    if (!isValidUsername(nextUsername)) {
+      setAvailability('invalid');
+      return;
+    }
+
+    setAvailability('checking');
+    getLightningAddressAvailability(nextUsername).then((result) => {
+      if (!mounted.current || requestId !== availabilityRequestId.current) {
+        return;
+      }
+      setAvailability(result.available ? 'available' : 'taken');
+    }).catch((err) => {
+      if (!mounted.current || requestId !== availabilityRequestId.current) {
+        return;
+      }
+      setError(toLightningErrorMessage(t, err));
+      setAvailability('error');
+    });
+  }, [debouncedUsername, mounted, registeredUsername, t]);
+
+  const generateAddress = async () => {
+    // Invalidate pending availability responses for the previous username.
+    availabilityRequestId.current += 1;
+    setIsGenerating(true);
+    setError('');
+    // The generated username still flows through the debounced availability check below.
+    // Keep the UI in checking until that final response arrives to avoid available/checking flicker.
+    setAvailability('checking');
+    try {
+      const generatedAddress = await postGenerateLightningAddress();
+      if (!mounted.current) {
+        return;
+      }
+      setUsername(generatedAddress.username);
+    } catch (err) {
+      if (mounted.current) {
+        setError(toLightningErrorMessage(t, err));
+        setAvailability('error');
+      }
+    } finally {
+      if (mounted.current) {
+        setIsGenerating(false);
+      }
+    }
   };
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const nextAddress = event.target.value;
-    setAddress(nextAddress);
-    checkAvailability(nextAddress);
+  const handleUsernameInput = (value: string) => {
+    const nextUsername = normalizeUsername(value);
+    // Invalidate pending availability responses while the user is still editing.
+    availabilityRequestId.current += 1;
+    setUsername(nextUsername);
+    setError('');
+    setAvailability('unchecked');
   };
 
-  const saveAddress = () => {
+  const saveAddress = async () => {
     if (availability !== 'available') {
       return;
     }
-    setAddress(fullAddress(address));
-    setStep('success');
+
+    setIsSaving(true);
+    setError('');
+    try {
+      const registeredAddress = await postRegisterLightningAddress(username);
+      if (!mounted.current) {
+        return;
+      }
+      setAddress(registeredAddress);
+      setRegisteredUsername(usernameFromAddress(registeredAddress));
+      setStep('success');
+    } catch (err) {
+      if (mounted.current) {
+        setError(toLightningErrorMessage(t, err));
+        setAvailability('error');
+      }
+    } finally {
+      if (mounted.current) {
+        setIsSaving(false);
+      }
+    }
   };
 
   const renderAvailability = () => {
@@ -76,12 +188,50 @@ export const LightningSetLnurlAddress = () => {
           {t('lightning.lnurlAddress.availability.taken')}
         </div>
       );
+    case 'invalid':
+      return (
+        <div className={`${styles.availability || ''} ${styles.taken || ''}`}>
+          <Cancel className={styles.statusIcon} />
+          {t('error.lightningAddressInvalidUsername')}
+        </div>
+      );
+    case 'checking':
+      return (
+        <div className={styles.availability}>
+          {t('lightning.lnurlAddress.availability.checking')}
+        </div>
+      );
+    case 'error':
+      return (
+        <div className={`${styles.availability || ''} ${styles.taken || ''}`}>
+          {error}
+        </div>
+      );
     case 'unchecked':
       return <div className={styles.availability} />;
     }
   };
 
   const renderStep = () => {
+    if (!domain && error) {
+      return (
+        <View textCenter verticallyCentered width="min(420px, 100%)">
+          <ViewContent>
+            <p>{t('unknownError', { errorMessage: error })}</p>
+          </ViewContent>
+          <ViewButtons>
+            <Button secondary onClick={() => navigate(-1)}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    }
+
+    if (!domain) {
+      return <Spinner text={t('lightning.initializing')} />;
+    }
+
     switch (step) {
     case 'form':
       return (
@@ -92,15 +242,18 @@ export const LightningSetLnurlAddress = () => {
             <SimpleMarkup tagName="p" markup={t('lightning.lnurlAddress.notice')} />
             <Input
               className={styles.addressInput}
+              classNameInputField={styles.addressInputField}
               id="lnurlAddress"
               label={t('lightning.lnurlAddress.label')}
-              onInput={handleChange}
-              value={address}
+              onInput={event => handleUsernameInput(event.target.value)}
+              value={username}
             >
+              <span className={styles.domain}>@{domain}</span>
               <button
                 aria-label={t('lightning.lnurlAddress.generate')}
                 className={styles.generateButton}
-                onClick={noop}
+                disabled={isGenerating || isSaving}
+                onClick={generateAddress}
                 type="button">
                 {isDarkMode ? <SyncLight /> : <Sync />}
               </button>
@@ -108,10 +261,10 @@ export const LightningSetLnurlAddress = () => {
             {renderAvailability()}
           </ViewContent>
           <ViewButtons>
-            <Button primary disabled={availability !== 'available'} onClick={saveAddress}>
+            <Button primary disabled={availability !== 'available' || isSaving} onClick={saveAddress}>
               {t('button.save')}
             </Button>
-            <Button secondary onClick={() => navigate(-1)}>
+            <Button secondary disabled={isSaving} onClick={() => navigate(-1)}>
               {t('dialog.cancel')}
             </Button>
           </ViewButtons>
