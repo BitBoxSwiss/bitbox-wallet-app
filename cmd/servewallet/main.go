@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strings"
@@ -180,7 +181,35 @@ func (webdevEnvironment) NumberFormat() *backendPkg.NumberFormat {
 
 // GetSaveFilename implements backend.Environment.
 func (webdevEnvironment) GetSaveFilename(suggestedFilename string) string {
+	if runtime.GOOS == darwin {
+		defaultDir := filepath.Dir(suggestedFilename)
+		defaultName := filepath.Base(suggestedFilename)
+		script := fmt.Sprintf(
+			`POSIX path of (choose file name with prompt "Choose export location" default location POSIX file "%s/" default name "%s")`,
+			escapeAppleScript(defaultDir),
+			escapeAppleScript(defaultName),
+		)
+		out, err := exec.Command("osascript", "-e", script).CombinedOutput() // #nosec G204
+		if err != nil {
+			// User cancellation from osascript should abort the export.
+			if strings.Contains(strings.ToLower(string(out)), "user canceled") {
+				return ""
+			}
+			logging.Get().
+				WithGroup("servewallet").
+				WithError(err).
+				WithField("output", strings.TrimSpace(string(out))).
+				Warn("save dialog failed, falling back to suggested filename")
+			return suggestedFilename
+		}
+		return strings.TrimSpace(string(out))
+	}
 	return suggestedFilename
+}
+
+func escapeAppleScript(input string) string {
+	escaped := strings.ReplaceAll(input, "\\", "\\\\")
+	return strings.ReplaceAll(escaped, "\"", "\\\"")
 }
 
 // SetDarkTheme implements backend.Environment.

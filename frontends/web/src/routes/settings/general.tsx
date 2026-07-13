@@ -3,9 +3,11 @@
 import { useTranslation } from 'react-i18next';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
+import type { TAccount } from '@/api/account';
 import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSetting';
 import { NotesImport } from './components/appearance/notesImport';
 import { NotesExport } from './components/appearance/notesExport';
+import { ExportBalanceStatementSetting } from './components/appearance/export-balance-statement-setting';
 import { DefaultCurrencyDropdownSetting } from './components/appearance/defaultCurrencyDropdownSetting';
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
 import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeCurrenciesDropdownSetting';
@@ -18,13 +20,18 @@ import { SubTitle } from '@/components/title';
 import { TPagePropsWithSettingsTabs } from './types';
 import { GlobalBanners } from '@/components/banners';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { isNotesSettingsVisible } from './settings-availability';
+import { isBalanceStatementSettingVisible, isNotesSettingsVisible } from './settings-availability';
 
-type TProps = {
+type TProps = TPagePropsWithSettingsTabs & {
+  accounts: TAccount[];
+};
+
+type TGeneralSettingsContentProps = {
+  accounts: TAccount[];
   hasAccounts: boolean;
 };
 
-export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const General = ({ devices, hasAccounts, accounts }: TProps) => {
   const { t } = useTranslation();
   return (
     <GuideWrapper>
@@ -44,7 +51,7 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu devices={devices}>
-                <GeneralSettingsContent hasAccounts={hasAccounts} />
+                <GeneralSettingsContent accounts={accounts} hasAccounts={hasAccounts} />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -57,8 +64,9 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
 };
 
 export const GeneralSettingsContent = ({
+  accounts,
   hasAccounts,
-}: TProps) => {
+}: TGeneralSettingsContentProps) => {
   const { t } = useTranslation();
 
   const sections: TSettingsContentSection[] = [
@@ -79,6 +87,13 @@ export const GeneralSettingsContent = ({
         { id: 'import-notes', content: <NotesImport /> },
       ],
       title: <SubTitle className="m-top-default">{t('settings.notes.title')}</SubTitle>,
+    }] : []),
+    ...(isBalanceStatementSettingVisible(hasAccounts) ? [{
+      id: 'other',
+      items: [
+        { id: 'export-balance-statement', content: <ExportBalanceStatementSetting accounts={accounts} /> },
+      ],
+      title: <SubTitle className="m-top-default">{t('settings.other')}</SubTitle>,
     }] : []),
   ];
 

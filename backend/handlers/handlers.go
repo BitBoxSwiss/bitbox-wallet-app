@@ -16,6 +16,7 @@ import (
 	"runtime/debug"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -98,6 +99,7 @@ type Backend interface {
 	ClearCache() error
 	ExportLogs() error
 	ExportNotes() error
+	ExportBalanceStatement(accountCodes []accountsTypes.Code, snapshotDate time.Time) error
 	ImportNotes(jsonLines []byte) (*backend.ImportNotesResult, error)
 	ChartData() (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
@@ -269,6 +271,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/export", handlers.postExportNotes).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/import", handlers.postImportNotes).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/accounts/balance-statement/export", handlers.postExportBalanceStatement).Methods("POST")
 
 	getAPIRouterNoError(apiRouter)("/bluetooth/state", handlers.getBluetoothState).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/bluetooth/connect", handlers.postBluetoothConnect).Methods("POST")
@@ -1765,6 +1768,36 @@ func (handlers *Handlers) postExportNotes(r *http.Request) interface{} {
 			return result{Success: false, Aborted: true}
 		}
 		handlers.log.WithError(err).Error("Error exporting notes")
+		return result{Success: false, Message: err.Error()}
+	}
+	return result{Success: true}
+}
+
+func (handlers *Handlers) postExportBalanceStatement(r *http.Request) interface{} {
+	type result struct {
+		Success bool   `json:"success"`
+		Message string `json:"message,omitempty"`
+		Aborted bool   `json:"aborted"`
+	}
+	var request struct {
+		AccountCodes []accountsTypes.Code `json:"accountCodes"`
+		SnapshotDate string               `json:"snapshotDate"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return result{Success: false, Message: err.Error()}
+	}
+	if request.SnapshotDate == "" {
+		return result{Success: false, Message: "snapshot date is required"}
+	}
+	snapshotDate, err := time.ParseInLocation("2006-01-02", request.SnapshotDate, time.Local)
+	if err != nil {
+		return result{Success: false, Message: "invalid snapshot date"}
+	}
+	if err := handlers.backend.ExportBalanceStatement(request.AccountCodes, snapshotDate); err != nil {
+		if errp.Cause(err) == errp.ErrUserAbort {
+			return result{Success: false, Aborted: true}
+		}
+		handlers.log.WithError(err).Error("Error exporting balance statement")
 		return result{Success: false, Message: err.Error()}
 	}
 	return result{Success: true}

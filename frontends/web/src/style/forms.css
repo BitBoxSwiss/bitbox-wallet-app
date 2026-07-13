@@ -14,6 +14,28 @@ textarea {
     border-radius: var(--radius-xl);
 }
 
+/* only the text color: an opaque background would paint over the bottom
+   border of the surrounding .inputField */
+input[type="date"] {
+    color: var(--color-default);
+}
+
+/* the native calendar icon is black, invert it in dark mode following the
+   same system/manual theme combinations as variables.css */
+@media (prefers-color-scheme: dark) {
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+    .light-mode input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: none;
+    }
+}
+@media (prefers-color-scheme: light) {
+    .dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+}
+
 textarea {
     resize: vertical;
 }
