@@ -1633,15 +1633,16 @@
     },
     "receive": {
       "address": {
-        "label": "Lightning address"
+        "label": "Lightning address",
+        "scanQRCode": "Scan QR code to receive"
       },
       "amountSats": {
-        "label": "Sat",
+        "label": "Sats",
         "placeholder": "Enter amount"
       },
       "description": {
         "label": "Description",
-        "optional": "(optional)",
+        "optional": "Optional",
         "placeholder": "Enter description"
       },
       "invoice": {

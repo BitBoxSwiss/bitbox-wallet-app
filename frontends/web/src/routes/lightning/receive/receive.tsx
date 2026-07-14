@@ -1,35 +1,31 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useContext, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
-import { View, ViewButtons, ViewContent } from '../../../components/view/view';
-import { Button, Input, NumberInput, OptionalLabel } from '../../../components/forms';
+import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
+import { View, ViewButtons, ViewContent } from '@/components/view/view';
+import { Button, Input, NumberInput, OptionalLabel } from '@/components/forms';
 import {
-  TLightningPayment,
   TReceivePaymentResponse,
+  getLightningBalance,
   getLightningAddress,
-  getListPayments,
   getReceivePayment,
   subscribeLightningAddress,
-  subscribeListPayments
-} from '../../../api/lightning';
+} from '@/api/lightning';
 import { getBtcSatAmount, type TBtcSatAmount } from '@/api/coins';
-import { Status } from '../../../components/status/status';
-import { QRCode } from '../../../components/qrcode/qrcode';
-import { unsubscribe } from '../../../utils/subscriptions';
-import { Spinner } from '../../../components/spinner/Spinner';
-import { Checked, Copy, EditActive } from '../../../components/icon';
+import { Status } from '@/components/status/status';
+import { QRCode } from '@/components/qrcode/qrcode';
+import { Spinner } from '@/components/spinner/Spinner';
+import { Checked, Copy, CreateInvoice } from '@/components/icon';
+import { FormattedAmount } from '@/components/amount/amount';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { useNavigate } from 'react-router-dom';
 import { RatesContext } from '@/contexts/RatesContext';
-import { CopyableInput } from '@/components/copy/Copy';
-import { useSync } from '@/hooks/api';
+import { useLoad, useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
+import { type TReceiveStep, useReceivePaymentSuccess } from './use-receive-payment-success';
 import styles from './receive.module.css';
-
-type TStep = 'create-invoice' | 'wait' | 'invoice' | 'success';
 
 export function Receive() {
   const { t } = useTranslation();
@@ -43,10 +39,24 @@ export function Receive() {
   const [description, setDescription] = useState<string>('');
   const [receivePaymentResponse, setReceivePaymentResponse] = useState<TReceivePaymentResponse>();
   const [receiveError, setReceiveError] = useState<string>();
-  const [step, setStep] = useState<TStep>('create-invoice');
-  const [payments, setPayments] = useState<TLightningPayment[]>();
+  const [step, setStep] = useState<TReceiveStep>('address');
+  const [balanceLoadAttempt, setBalanceLoadAttempt] = useState(0);
+  const lightningBalance = useLoad(getLightningBalance, [balanceLoadAttempt]);
   const lightningAddress = useSync(getLightningAddress, subscribeLightningAddress);
   const invoiceAmountSat = invoiceAmount ? Number(invoiceAmount.amount) : undefined;
+  const satsBalance = lightningBalance?.available.unit === 'sat'
+    ? lightningBalance.available.amount
+    : lightningBalance?.available.unformattedConversions?.sat;
+  const hasLightningBalance = lightningBalance !== undefined;
+  const onReceivePaymentSuccess = useCallback(() => {
+    setBalanceLoadAttempt(attempt => attempt + 1);
+    setStep('success');
+  }, []);
+  const { receivedPayment, resetReceivedPayment } = useReceivePaymentSuccess({
+    onSuccess: onReceivePaymentSuccess,
+    receivePaymentResponse,
+    step,
+  });
 
   const newInvoice = useCallback(() => {
     setInputSatsText('');
@@ -55,14 +65,29 @@ export function Receive() {
     setDescription('');
     setReceivePaymentResponse(undefined);
     setReceiveError(undefined);
+    resetReceivedPayment();
     setStep('create-invoice');
-    setPayments(undefined);
-  }, []);
+  }, [resetReceivedPayment]);
+
+  const cancelInvoice = useCallback(() => {
+    setInputSatsText('');
+    setInputFiatText('');
+    setInvoiceAmount(undefined);
+    setDescription('');
+    setReceivePaymentResponse(undefined);
+    setReceiveError(undefined);
+    resetReceivedPayment();
+    setStep('address');
+  }, [resetReceivedPayment]);
 
   const back = useCallback(() => {
     switch (step) {
-    case 'create-invoice':
+    case 'address':
       navigate('/lightning');
+      break;
+    case 'create-invoice':
+      setStep('address');
+      setReceiveError(undefined);
       break;
     case 'invoice':
     case 'success':
@@ -71,10 +96,11 @@ export function Receive() {
       if (step === 'success') {
         setInputSatsText('');
         setInputFiatText('');
+        resetReceivedPayment();
       }
       break;
     }
-  }, [step, navigate]);
+  }, [step, navigate, resetReceivedPayment]);
 
   const handleSatsAmountChange = useCallback(async (satsText: string) => {
     const requestId = ++amountRequestId.current;
@@ -131,24 +157,6 @@ export function Receive() {
     setDescription(target.value);
   }, []);
 
-  const onPaymentsChange = useCallback(() => {
-    getListPayments().then((payments) => setPayments(payments));
-  }, []);
-
-  useEffect(() => {
-    const subscriptions = [subscribeListPayments(onPaymentsChange)];
-    return () => unsubscribe(subscriptions);
-  }, [onPaymentsChange]);
-
-  useEffect(() => {
-    if (payments && receivePaymentResponse && step === 'invoice') {
-      const payment = payments.find((payment) => payment.type === 'receive' && payment.invoice === receivePaymentResponse.invoice);
-      if (payment?.status === 'complete') {
-        setStep('success');
-      }
-    }
-  }, [payments, receivePaymentResponse, step]);
-
   const receivePayment = useCallback(async () => {
     setReceiveError(undefined);
     if (invoiceAmountSat === undefined || invoiceAmountSat <= 0) {
@@ -169,23 +177,56 @@ export function Receive() {
     }
   }, [description, invoiceAmountSat, t]);
 
+  const successDescription = receivedPayment?.description || description;
+
   const renderSteps = () => {
     switch (step) {
+    case 'address':
+      if (lightningAddress === undefined) {
+        return <Spinner text={t('loading')} />;
+      }
+      return (
+        <View fitContent minHeight="100%">
+          <ViewContent textAlign="center">
+            <div className={styles.addressContent}>
+              <p className={styles.qrInstruction}>{t('lightning.receive.address.scanQRCode')}</p>
+              <div className={styles.addressQRCode}>
+                <QRCode data={lightningAddress || undefined} size={168} tapToCopy={false} />
+              </div>
+              {lightningAddress && (
+                <>
+                  <p className={styles.addressValue}>{lightningAddress}</p>
+                  <CopyButton
+                    className={styles.addressAction}
+                    contentClassName={styles.addressActionContent}
+                    data={lightningAddress}
+                    iconClassName={styles.addressActionIcon}
+                    successText={t('receive.qrCodeCopiedMessage')}>
+                    {t('button.copy')}
+                  </CopyButton>
+                </>
+              )}
+              <Button transparent className={styles.addressAction} onClick={newInvoice}>
+                <span className={styles.addressActionContent}>
+                  <CreateInvoice className={styles.createInvoiceIcon} height={18} width={18} />
+                  {t('lightning.receive.invoice.create')}
+                </span>
+              </Button>
+            </div>
+          </ViewContent>
+          <ViewButtons>
+            <Button secondary onClick={back}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
     case 'create-invoice':
       return (
         <View fitContent minHeight="100%">
           <ViewContent>
             <Grid col="1">
               <Column>
-                {lightningAddress && (
-                  <div className={styles.lightningAddress}>
-                    <p className={styles.label}>{t('lightning.receive.address.label')}</p>
-                    <CopyableInput
-                      value={lightningAddress}
-                      flexibleHeight
-                    />
-                  </div>
-                )}
                 <h1 className={styles.title}>{t('lightning.receive.subtitle')}</h1>
                 <NumberInput
                   step="1"
@@ -195,6 +236,11 @@ export function Receive() {
                   id="amountSatsInput"
                   onChange={handleSatsAmountChange}
                   value={inputSatsText}
+                  labelSection={hasLightningBalance ? (
+                    <span className={styles.balanceLabel}>
+                      {t('accountSummary.balance')}: <FormattedAmount amount={satsBalance || '0'} unit="sat" /> sats
+                    </span>
+                  ) : undefined}
                   autoFocus
                 />
                 <NumberInput
@@ -233,31 +279,42 @@ export function Receive() {
       return (
         <View fitContent minHeight="100%">
           <ViewContent textAlign="center">
-            <Grid col="1">
-              <Column>
-                <h1 className={styles.title}>{t('lightning.receive.invoice.title')}</h1>
-                <QRCode data={receivePaymentResponse?.invoice} />
-                <div className={styles.invoiceSummary}>
-                  {inputSatsText} sats ({invoiceAmount && (<AmountWithUnit alwaysShowAmounts amount={invoiceAmount} convertToFiat/>)})
-                  <br />
-                  {description}
-                </div>
-                <Button transparent onClick={back}>
-                  <EditActive className={styles.btnIcon} />
-                  {t('lightning.receive.invoice.edit')}
-                </Button>
-                <CopyButton data={receivePaymentResponse?.invoice} successText={t('lightning.receive.invoice.copied')}>
-                  {t('button.copy')}
-                </CopyButton>
-              </Column>
-            </Grid>
+            <div className={styles.invoiceContent}>
+              <p className={styles.qrInstruction}>{t('lightning.receive.invoice.title')}</p>
+              <div className={styles.invoiceQRCode}>
+                <QRCode data={receivePaymentResponse?.invoice} size={216} tapToCopy={false} />
+              </div>
+              <p className={styles.invoiceAmount}>
+                <span>{inputSatsText} sats</span>
+                {invoiceAmount && (
+                  <>
+                    {' '}
+                    <AmountWithUnit
+                      alwaysShowAmounts
+                      amount={invoiceAmount}
+                      amountClassName={styles.invoiceFiatAmount}
+                      convertToFiat
+                      unitClassName={styles.invoiceFiatAmount}
+                    />
+                  </>
+                )}
+              </p>
+              {description && (
+                <p className={styles.invoiceDescription}>{description}</p>
+              )}
+              <CopyButton
+                className={styles.invoiceCopyButton}
+                contentClassName={styles.addressActionContent}
+                data={receivePaymentResponse?.invoice}
+                iconClassName={styles.addressActionIcon}
+                successText={t('lightning.receive.invoice.copied')}>
+                {t('button.copy')}
+              </CopyButton>
+            </div>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => navigate('/lightning')}>
-              {t('button.done')}
-            </Button>
-            <Button secondary onClick={newInvoice}>
-              {t('lightning.receive.invoice.newInvoice')}
+            <Button secondary onClick={cancelInvoice}>
+              {t('dialog.cancel')}
             </Button>
           </ViewButtons>
         </View>
@@ -267,9 +324,26 @@ export function Receive() {
         <View fitContent textCenter verticallyCentered>
           <ViewContent withIcon="success">
             <p>{t('lightning.receive.success.message')}</p>
-            <span>{inputSatsText} sats ({invoiceAmount && (<AmountWithUnit alwaysShowAmounts amount={invoiceAmount} convertToFiat/>)})</span>
-            <br />
-            {description && ` / ${description}`}
+            <span className={styles.successAmount}>
+              {receivedPayment ? (
+                <>
+                  <AmountWithUnit alwaysShowAmounts amount={receivedPayment.amountAtTime} />
+                  {' ('}
+                  <AmountWithUnit alwaysShowAmounts amount={receivedPayment.amountAtTime} convertToFiat />
+                  {')'}
+                </>
+              ) : (
+                <>
+                  {inputSatsText} sats
+                  {invoiceAmount && (
+                    <> (<AmountWithUnit alwaysShowAmounts amount={invoiceAmount} convertToFiat />)</>
+                  )}
+                </>
+              )}
+            </span>
+            {successDescription && (
+              <p className={styles.successNote}>{successDescription}</p>
+            )}
           </ViewContent>
           <ViewButtons>
             <Button primary onClick={() => navigate('/lightning')}>
@@ -300,15 +374,28 @@ export function Receive() {
 }
 
 type TCopyButtonProps = {
+  className?: string;
+  contentClassName?: string;
   data?: string;
+  iconClassName?: string;
   successText?: string;
   children: string;
 };
 
-const CopyButton = ({ data, successText, children }: TCopyButtonProps) => {
+const CopyButton = ({
+  className,
+  contentClassName,
+  data,
+  iconClassName,
+  successText,
+  children,
+}: TCopyButtonProps) => {
   const [state, setState] = useState('ready');
   const [buttonText, setButtonText] = useState(children);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const iconProps = iconClassName
+    ? { className: iconClassName, height: 24, width: 24 }
+    : { className: styles.btnIcon };
 
   const copy = () => {
     textareaRef.current?.focus();
@@ -320,10 +407,12 @@ const CopyButton = ({ data, successText, children }: TCopyButtonProps) => {
   };
 
   return (
-    <Button transparent onClick={copy} disabled={!data}>
-      <textarea className={styles.hiddenInput} ref={textareaRef} value={data} readOnly></textarea>
-      {state === 'success' ? <Checked className={styles.btnIcon} /> : <Copy className={styles.btnIcon} />}
-      {buttonText}
+    <Button transparent className={className} onClick={copy} disabled={!data}>
+      <textarea aria-hidden="true" className={styles.hiddenInput} ref={textareaRef} tabIndex={-1} value={data} readOnly></textarea>
+      <span className={contentClassName}>
+        {state === 'success' ? <Checked {...iconProps} /> : <Copy {...iconProps} />}
+        {buttonText}
+      </span>
     </Button>
   );
 };

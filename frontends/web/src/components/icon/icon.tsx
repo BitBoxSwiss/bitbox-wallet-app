@@ -47,6 +47,7 @@ import greenDotSVG from './assets/icons/green-dot.svg';
 import yellowDotSVG from './assets/icons/yellow-dot.svg';
 import orangeDotSVG from './assets/icons/orange-dot.svg';
 import copySVG from './assets/icons/copy.svg';
+import createInvoiceSVG from './assets/icons/create-invoice.svg';
 import closeSVG from './assets/icons/close.svg';
 import closeXWhiteSVG from './assets/icons/close-x-white.svg';
 import closeXDarkSVG from './assets/icons/close-x-dark.svg';
@@ -157,6 +158,7 @@ export const CreditCard = (props: ImgProps) => (<img src={creditCardLightSVG} dr
 export const CogBlue = (props: ImgProps) => (<img src={cogBlueSVG} draggable={false} {...props} />);
 export const Coins = (props: ImgProps) => (<img src={coinsSVG} draggable={false} {...props} />);
 export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
+export const CreateInvoice = (props: ImgProps) => (<img src={createInvoiceSVG} draggable={false} {...props} />);
 export const Close = (props: ImgProps) => (<img src={closeSVG} draggable={false} {...props} />);
 export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} draggable={false} {...props} />);
 export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggable={false} {...props} />);
