@@ -79,10 +79,10 @@ export const screenRotate = (
   return apiPost(`devices/bitbox02-bootloader/${deviceID}/screen-rotate`);
 };
 
-export const getShowFirmwareHash = (deviceID: string) => {
-  return (): Promise<TShowFirmwareHashResponse> => {
-    return apiGet(`devices/bitbox02-bootloader/${deviceID}/show-firmware-hash-enabled`);
-  };
+export const getShowFirmwareHash = (
+  deviceID: string,
+): Promise<TShowFirmwareHashResponse> => {
+  return apiGet(`devices/bitbox02-bootloader/${deviceID}/show-firmware-hash-enabled`);
 };
 
 export const setShowFirmwareHash = (

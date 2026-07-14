@@ -7,6 +7,7 @@ import { useLoad } from '@/hooks/api';
 import { getEthAccountCodeAndNameByAddress } from '@/api/account';
 import { truncateMiddle } from '@/utils/address';
 import styles from './session-card.module.css';
+import { useCallback } from 'react';
 
 type TTextDataProps = {
   accountName: string;
@@ -54,7 +55,7 @@ const TextData = ({ accountName, receiveAddress, dAppName, dAppUrl, iconUrl }: T
 export const WCSessionCard = ({ metadata, receiveAddress, onDisconnect }: TWCSessionCardProps) => {
   const { t } = useTranslation();
   const { name, url, icons } = metadata;
-  const accountDetail = useLoad(() => getEthAccountCodeAndNameByAddress(receiveAddress), []);
+  const accountDetail = useLoad(useCallback(() => getEthAccountCodeAndNameByAddress(receiveAddress), [receiveAddress]));
   const truncatedAddress = truncateMiddle(receiveAddress, 6, 6);
   const accountName = accountDetail && accountDetail.success ? accountDetail.name : t('walletConnect.dashboard.unspecifiedAccount');
 

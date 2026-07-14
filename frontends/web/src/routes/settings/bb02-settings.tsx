@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLoad } from '@/hooks/api';
 import { useTranslation } from 'react-i18next';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
@@ -93,8 +93,8 @@ export const ManageDeviceSettingsContent = ({
   const { t } = useTranslation();
 
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
-  const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
-  const rootFingerprintResult = useLoad(() => getRootFingerprint(deviceID), [deviceID]);
+  const versionInfo = useLoad(useCallback(() => getVersion(deviceID), [deviceID]));
+  const rootFingerprintResult = useLoad(useCallback(() => getRootFingerprint(deviceID), [deviceID]));
 
   useEffect(() => {
     getDeviceInfo(deviceID)

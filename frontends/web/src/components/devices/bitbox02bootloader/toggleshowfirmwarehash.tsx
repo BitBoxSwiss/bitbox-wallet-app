@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { getShowFirmwareHash, setShowFirmwareHash } from '@/api/bitbox02bootloader';
@@ -14,7 +14,7 @@ type Props = {
 export const ToggleShowFirmwareHash = ({ deviceID, onError }: Props) => {
   const { t } = useTranslation();
   const [enabledState, setEnabledState] = useState<boolean>(false);
-  const enabledConfig = useLoad(getShowFirmwareHash(deviceID));
+  const enabledConfig = useLoad(useCallback(() => getShowFirmwareHash(deviceID), [deviceID]));
 
   useEffect(() => {
     if (enabledConfig === undefined) {

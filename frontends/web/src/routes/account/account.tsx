@@ -88,7 +88,7 @@ const RemountAccount = ({
   const debouncedSearchTerm = useDebounce(searchTerm, 200);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
+  const supportedVendors = useLoad<MarketVendors>(useCallback(() => getMarketVendors(code), [code]));
 
   const account = accounts && accounts.find(acct => acct.code === code);
 

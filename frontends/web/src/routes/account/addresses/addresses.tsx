@@ -4,9 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLoad } from '@/hooks/api';
-import * as accountApi from '@/api/account';
-import { AccountCode, TAccount } from '@/api/account';
-import { TDevices } from '@/api/devices';
+import { AccountCode, TAccount, getUsedAddresses, type TUsedAddress } from '@/api/account';
+import { type TDevices } from '@/api/devices';
 import { Header, Main } from '@/components/layout';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
@@ -35,12 +34,15 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
 
   const account = findAccount(accounts, code);
   const accountRootFingerprint = account?.keystore.rootFingerprint;
-  const usedAddressesResponse = useLoad(() => accountApi.getUsedAddresses(code), [code, usedAddressesLoadAttempt]);
+  const usedAddressesResponse = useLoad(useCallback(() => {
+    void usedAddressesLoadAttempt; // added so we can use it in the dependency list
+    return getUsedAddresses(code);
+  }, [code, usedAddressesLoadAttempt]));
 
   const [searchTerm, setSearchTerm] = useState('');
   const [addressTypeFilter, setAddressTypeFilter] = useState<'receive' | 'change'>('receive');
   const [expandedAddressID, setExpandedAddressID] = useState<string | null>(addressID || null);
-  const [changeCopyWarningAddress, setChangeCopyWarningAddress] = useState<accountApi.TUsedAddress | null>(null);
+  const [changeCopyWarningAddress, setChangeCopyWarningAddress] = useState<TUsedAddress | null>(null);
 
   const isVerifyView = !!addressID && location.pathname.endsWith('/verify');
   const view: TView = isVerifyView ? 'verify' : 'list';
@@ -109,7 +111,7 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
     setExpandedAddressID(prev => prev === id ? null : id);
   }, []);
 
-  const handleStartCopy = useCallback((address: accountApi.TUsedAddress) => {
+  const handleStartCopy = useCallback((address: TUsedAddress) => {
     if (address.addressType === 'change') {
       setChangeCopyWarningAddress(address);
       return;

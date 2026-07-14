@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { getDeviceInfo } from '@/api/bitbox02';
@@ -32,10 +32,9 @@ export const useSettingsSearch = ({
   const deviceId = Object.keys(devices)[0];
   const device = deviceId ? devices[deviceId] : undefined;
   const bb02DeviceId = device === 'bitbox02' ? deviceId : undefined;
-  const deviceInfoResult = useLoad(
-    bb02DeviceId ? () => getDeviceInfo(bb02DeviceId) : null,
-    [bb02DeviceId],
-  );
+  // bb02DeviceId! (with non-null assertion operator) is safe because this callback is only passed to useLoad for BitBox02 devices
+  const loadDeviceInfo = useCallback(() => getDeviceInfo(bb02DeviceId!), [bb02DeviceId]);
+  const deviceInfoResult = useLoad(bb02DeviceId ? loadDeviceInfo : null);
   const deviceInfo = deviceInfoResult?.success ? deviceInfoResult.deviceInfo : undefined;
   const searchItems = useMemo(() => getSettingsSearchItems({
     deviceInfo,

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
@@ -24,7 +25,9 @@ export const BottomNavigation = ({
   const { pathname } = useLocation();
   const deviceID = Object.keys(devices)[0];
   const isBitBox02 = deviceID && devices[deviceID] === 'bitbox02';
-  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID, isBitBox02]);
+  // deviceID! (with non-null assertion operator) is safe because this callback is only passed to useLoad for BitBox02 devices
+  const loadVersion = useCallback(() => getVersion(deviceID!), [deviceID]);
+  const versionInfo = useLoad(isBitBox02 ? loadVersion : null);
   const canUpgrade = versionInfo ? versionInfo.canUpgrade : false;
 
   const onlyHasOneAccount = activeAccounts.length === 1;

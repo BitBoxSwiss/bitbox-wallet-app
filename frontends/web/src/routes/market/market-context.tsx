@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useEffect, useState } from 'react';
+import { Dispatch, ReactNode, SetStateAction, createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TAccount } from '@/api/account';
 import type { TOption } from './components/countryselect';
@@ -38,7 +38,7 @@ export const MarketProvider = ({
   const { config } = useConfig();
   const { nativeLocale } = useContext(AppContext);
 
-  const swapStatus = useLoad(getSwapStatus, [accounts]);
+  const swapStatus = useLoad(useCallback(getSwapStatus, [accounts]));
   const regionCodes = useLoad(getMarketRegionCodes);
 
   // update region Select component when `regionList` or `config` gets populated.

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
@@ -39,7 +39,7 @@ export const XPubDetail = ({
 }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const info = useLoad(getInfo(code));
+  const info = useLoad(useCallback(() => getInfo(code), [code]));
   const [viewXPub, setViewXPub] = useState<number | undefined>();
 
   useEffect(() => {

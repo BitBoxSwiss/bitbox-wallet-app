@@ -56,10 +56,8 @@ export type TMoonpayBuyInfoResponse = {
   errorMessage: string;
 };
 
-export const getMoonpayBuyInfo = (code: AccountCode) => {
-  return (): Promise<TMoonpayBuyInfoResponse> => {
-    return apiGet(`market/moonpay/buy-info/${code}`);
-  };
+export const getMoonpayBuyInfo = (code: AccountCode): Promise<TMoonpayBuyInfoResponse> => {
+  return apiGet(`market/moonpay/buy-info/${code}`);
 };
 
 export type AddressVerificationResponse = {
@@ -119,8 +117,6 @@ export type MarketVendors= {
   vendors: string[];
 };
 
-export const getMarketVendors = (code: AccountCode) => {
-  return (): Promise<MarketVendors> => {
-    return apiGet(`market/vendors/${code}`);
-  };
+export const getMarketVendors = (code: AccountCode): Promise<MarketVendors> => {
+  return apiGet(`market/vendors/${code}`);
 };

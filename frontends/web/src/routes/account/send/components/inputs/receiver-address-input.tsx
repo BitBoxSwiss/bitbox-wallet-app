@@ -72,7 +72,7 @@ export const ReceiverAddressInput = ({
       return;
     }
     try {
-      const receiveAddresses = await getReceiveAddressList(accountCode)();
+      const receiveAddresses = await getReceiveAddressList(accountCode);
       if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 0) {
         onInputChange(receiveAddresses[0].addresses[0].address);
       }
