@@ -3,12 +3,13 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TPaymentInputType, type TLightningLNURLPay } from '@/api/lightning';
-import { Button, Input } from '@/components/forms';
+import { Button } from '@/components/forms';
 import { Column, Grid } from '@/components/layout';
 import { Status } from '@/components/status/status';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
-import { LNURLPayRecipientDetails, PaymentAmountDetails, PaymentFeeDetails } from './payment-input-details';
+import { LNURLPayRecipientDetails, PaymentFeeDetails } from './payment-input-details';
 import { type TPaymentReviewDetails, usePaymentReview } from '../hooks/use-payment-review';
+import { CustomPaymentAmount } from './custom-payment-amount';
 import { SendingSpinner } from './sending-spinner';
 
 type TProps = {
@@ -31,7 +32,6 @@ export const LNURLPayReviewStep = ({
   const {
     amountError,
     canSend,
-    customAmount,
     fees,
     isSending,
     preparedPayment,
@@ -58,29 +58,18 @@ export const LNURLPayReviewStep = ({
             <Status dismissibleKey="" type="warning" hidden={!sendError}>
               {sendError}
             </Status>
-            <Input
-              type="number"
-              min={lnurlPay.minAmountSat}
-              max={lnurlPay.maxAmountSat}
-              label={t('lightning.receive.amountSats.label')}
-              placeholder={t('lightning.receive.amountSats.placeholder')}
-              id="amountSatsInput"
-              onInput={(event) => {
-                const amount = event.currentTarget.valueAsNumber;
-                setCustomAmount(Number.isNaN(amount) ? undefined : amount);
-              }}
-              value={customAmount ?? ''}
-              autoFocus
+            <CustomPaymentAmount
+              key={lnurlPay.input}
+              minAmountSat={lnurlPay.minAmountSat}
+              maxAmountSat={lnurlPay.maxAmountSat}
+              onAmountChange={setCustomAmount}
             />
             <LNURLPayRecipientDetails lnurlPay={lnurlPay} />
             <Status dismissibleKey="" type="error" hidden={!prepareError}>
               {prepareError}
             </Status>
             {(preparedPayment?.status === 'preparing' || fees) && (
-              <>
-                <PaymentAmountDetails amountSat={fees?.amountSat} />
-                <PaymentFeeDetails fees={fees} totalWithFiat />
-              </>
+              <PaymentFeeDetails fees={fees} totalWithFiat />
             )}
           </Column>
         </Grid>

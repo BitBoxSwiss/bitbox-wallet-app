@@ -12,7 +12,6 @@ import {
   getReceivePayment,
   subscribeLightningAddress,
 } from '@/api/lightning';
-import { getBtcSatAmount, type TBtcSatAmount } from '@/api/coins';
 import { Status } from '@/components/status/status';
 import { QRCode } from '@/components/qrcode/qrcode';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -22,8 +21,8 @@ import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { useNavigate } from 'react-router-dom';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad, useSync } from '@/hooks/api';
-import { useMountedRef } from '@/hooks/mount';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
+import { useSatFiatAmount } from '../hooks/use-sat-fiat-amount';
 import { type TReceiveStep, useReceivePaymentSuccess } from './use-receive-payment-success';
 import styles from './receive.module.css';
 
@@ -31,11 +30,15 @@ export function Receive() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { defaultCurrency } = useContext(RatesContext);
-  const mounted = useMountedRef();
-  const amountRequestId = useRef(0);
-  const [inputSatsText, setInputSatsText] = useState<string>('');
-  const [inputFiatText, setInputFiatText] = useState<string>('');
-  const [invoiceAmount, setInvoiceAmount] = useState<TBtcSatAmount>();
+  const {
+    amount: invoiceAmount,
+    amountSat: invoiceAmountSat,
+    handleFiatAmountChange,
+    handleSatsAmountChange,
+    inputFiatText,
+    inputSatsText,
+    resetAmountInput,
+  } = useSatFiatAmount({ defaultCurrency });
   const [description, setDescription] = useState<string>('');
   const [receivePaymentResponse, setReceivePaymentResponse] = useState<TReceivePaymentResponse>();
   const [receiveError, setReceiveError] = useState<string>();
@@ -43,7 +46,6 @@ export function Receive() {
   const [balanceLoadAttempt, setBalanceLoadAttempt] = useState(0);
   const lightningBalance = useLoad(getLightningBalance, [balanceLoadAttempt]);
   const lightningAddress = useSync(getLightningAddress, subscribeLightningAddress);
-  const invoiceAmountSat = invoiceAmount ? Number(invoiceAmount.amount) : undefined;
   const satsBalance = lightningBalance?.available.unit === 'sat'
     ? lightningBalance.available.amount
     : lightningBalance?.available.unformattedConversions?.sat;
@@ -59,26 +61,22 @@ export function Receive() {
   });
 
   const newInvoice = useCallback(() => {
-    setInputSatsText('');
-    setInputFiatText('');
-    setInvoiceAmount(undefined);
+    resetAmountInput();
     setDescription('');
     setReceivePaymentResponse(undefined);
     setReceiveError(undefined);
     resetReceivedPayment();
     setStep('create-invoice');
-  }, [resetReceivedPayment]);
+  }, [resetAmountInput, resetReceivedPayment]);
 
   const cancelInvoice = useCallback(() => {
-    setInputSatsText('');
-    setInputFiatText('');
-    setInvoiceAmount(undefined);
+    resetAmountInput();
     setDescription('');
     setReceivePaymentResponse(undefined);
     setReceiveError(undefined);
     resetReceivedPayment();
     setStep('address');
-  }, [resetReceivedPayment]);
+  }, [resetAmountInput, resetReceivedPayment]);
 
   const back = useCallback(() => {
     switch (step) {
@@ -94,63 +92,12 @@ export function Receive() {
       setStep('create-invoice');
       setReceiveError(undefined);
       if (step === 'success') {
-        setInputSatsText('');
-        setInputFiatText('');
+        resetAmountInput();
         resetReceivedPayment();
       }
       break;
     }
-  }, [step, navigate, resetReceivedPayment]);
-
-  const handleSatsAmountChange = useCallback(async (satsText: string) => {
-    const requestId = ++amountRequestId.current;
-    setInputSatsText(satsText);
-
-    if (!satsText) {
-      setInvoiceAmount(undefined);
-      setInputFiatText('');
-      return;
-    }
-
-    const response = await getBtcSatAmount({ source: 'sat', amount: satsText });
-    if (!mounted.current || requestId !== amountRequestId.current) {
-      return;
-    }
-    if (!response.success) {
-      console.error('Failed to convert sats amount:', response.errorMessage);
-      setInvoiceAmount(undefined);
-      setInputFiatText('');
-      return;
-    }
-
-    setInvoiceAmount(response.amount);
-    setInputFiatText(response.amount.unformattedConversions?.[defaultCurrency] ?? '');
-  }, [defaultCurrency, mounted]);
-
-  const handleFiatAmountChange = useCallback(async (fiatText: string) => {
-    const requestId = ++amountRequestId.current;
-    setInputFiatText(fiatText);
-
-    if (!fiatText) {
-      setInvoiceAmount(undefined);
-      setInputSatsText('');
-      return;
-    }
-
-    const response = await getBtcSatAmount({ source: 'fiat', amount: fiatText });
-    if (!mounted.current || requestId !== amountRequestId.current) {
-      return;
-    }
-    if (!response.success) {
-      console.error('Failed to convert fiat amount:', response.errorMessage);
-      setInvoiceAmount(undefined);
-      setInputSatsText('');
-      return;
-    }
-
-    setInvoiceAmount(response.amount);
-    setInputSatsText(response.amount.amount);
-  }, [mounted]);
+  }, [step, navigate, resetAmountInput, resetReceivedPayment]);
 
   const onDescriptionChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;

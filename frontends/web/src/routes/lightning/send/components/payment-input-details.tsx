@@ -76,6 +76,10 @@ type TPaymentAmountDetailsProps = {
   amountSat?: number;
 };
 
+type TPaymentNoteDetailsProps = {
+  description?: string;
+};
+
 type TBolt11PaymentDetailsProps = {
   description?: string;
   fees: TPreparePaymentResponse;
@@ -93,6 +97,21 @@ export const PaymentAmountDetails = ({ amountSat }: TPaymentAmountDetailsProps) 
     <div className={styles.info}>
       <h2 className={styles.label}>{t('lightning.send.confirm.amount')}</h2>
       <AmountValue amount={invoiceAmount} showFiat />
+    </div>
+  );
+};
+
+export const PaymentNoteDetails = ({ description }: TPaymentNoteDetailsProps) => {
+  const { t } = useTranslation();
+
+  if (!description) {
+    return null;
+  }
+
+  return (
+    <div className={styles.info}>
+      <h2 className={styles.label}>{t('lightning.send.confirm.note')}</h2>
+      {description}
     </div>
   );
 };
@@ -129,12 +148,7 @@ export const LNURLPayRecipientDetails = ({ lnurlPay }: TLNURLPayRecipientDetails
         <h2 className={styles.label}>{t('send.confirm.to')}</h2>
         {lnurlPay.address || lnurlPay.domain}
       </div>
-      {lnurlPay.description && (
-        <div className={styles.info}>
-          <h2 className={styles.label}>{t('lightning.send.confirm.memo')}</h2>
-          {lnurlPay.description}
-        </div>
-      )}
+      <PaymentNoteDetails description={lnurlPay.description} />
     </>
   );
 };
@@ -146,12 +160,7 @@ export const Bolt11PaymentDetails = ({ description, fees }: TBolt11PaymentDetail
     <>
       <h1 className={styles.title}>{t('lightning.send.confirm.title')}</h1>
       <PaymentAmountDetails amountSat={fees.amountSat} />
-      {description && (
-        <div className={styles.info}>
-          <h2 className={styles.label}>{t('lightning.send.confirm.memo')}</h2>
-          {description}
-        </div>
-      )}
+      <PaymentNoteDetails description={description} />
       <PaymentFeeDetails fees={fees} totalWithFiat />
     </>
   );
