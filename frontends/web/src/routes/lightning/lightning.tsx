@@ -134,7 +134,6 @@ export const Lightning = () => {
       </GuideWrapper>
     );
   }
-
   if (
     lightningAccount === undefined
     || isLightningReady === undefined
