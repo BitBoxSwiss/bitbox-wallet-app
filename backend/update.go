@@ -3,16 +3,37 @@
 package backend
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 )
 
-const updateFileURL = "https://bitboxapp.shiftcrypto.io/desktop.json"
+const (
+	updateFileURL       = "https://bitboxapp.shiftcrypto.io/desktop.json"
+	updateCheckInterval = 24 * time.Hour
+)
+
+type updateCheckFunc func(context.Context) (*UpdateFile, error)
+
+type updateChecker struct {
+	observable.Implementation
+
+	check updateCheckFunc
+
+	latest     *UpdateFile
+	latestLock locker.Locker
+	cancel     context.CancelFunc
+}
 
 // UpdateFile is retrieved from the server.
 type UpdateFile struct {
@@ -26,15 +47,27 @@ type UpdateFile struct {
 	Description string `json:"description"`
 }
 
+func newUpdateChecker(proxy *socksproxy.SocksProxy) *updateChecker {
+	return &updateChecker{
+		check: func(ctx context.Context) (*UpdateFile, error) {
+			return checkForUpdate(ctx, proxy)
+		},
+	}
+}
+
 // checkForUpdate checks whether a newer version of this application has been released.
 // It returns the retrieved update file if a newer version has been released and nil otherwise.
-func (backend *Backend) checkForUpdate() (*UpdateFile, error) {
-	client, err := backend.socksProxy.GetHTTPClient()
+func checkForUpdate(ctx context.Context, proxy *socksproxy.SocksProxy) (*UpdateFile, error) {
+	client, err := proxy.GetHTTPClient()
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
 
-	response, err := client.Get(updateFileURL)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, updateFileURL, nil)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -58,12 +91,64 @@ func (backend *Backend) checkForUpdate() (*UpdateFile, error) {
 	return &updateFile, nil
 }
 
-// CheckForUpdateIgnoringErrors suppresses any errors that are triggered, for example, when offline.
-func (backend *Backend) CheckForUpdateIgnoringErrors() *UpdateFile {
-	updateFile, err := backend.checkForUpdate()
+func (checker *updateChecker) start() {
+	ctx, cancel := context.WithCancel(context.Background())
+	checker.cancel = cancel
+	go checker.run(ctx, updateCheckInterval)
+}
+
+func (checker *updateChecker) stop() {
+	if checker.cancel != nil {
+		checker.cancel()
+		checker.cancel = nil
+	}
+}
+
+// run checks immediately and waits for the interval after each attempt before retrying.
+func (checker *updateChecker) run(ctx context.Context, interval time.Duration) {
+	for {
+		checker.checkAndSet(ctx)
+
+		timer := time.NewTimer(interval)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return
+		case <-timer.C:
+		}
+	}
+}
+
+func (checker *updateChecker) checkAndSet(ctx context.Context) {
+	updateFile, err := checker.check(ctx)
+	if ctx.Err() != nil {
+		return
+	}
 	if err != nil {
 		logging.Get().WithGroup("update").WithError(err).Warn("Check for update failed.")
-		return nil
+		return
 	}
-	return updateFile
+	checker.set(updateFile)
+}
+
+func (checker *updateChecker) set(updateFile *UpdateFile) {
+	unlock := checker.latestLock.Lock()
+	checker.latest = updateFile
+	unlock()
+
+	checker.Notify(observable.Event{
+		Subject: "update",
+		Action:  action.Replace,
+		Object:  updateFile,
+	})
+}
+
+func (checker *updateChecker) get() *UpdateFile {
+	defer checker.latestLock.RLock()()
+	return checker.latest
+}
+
+// GetUpdate returns the result of the latest successful update check.
+func (backend *Backend) GetUpdate() *UpdateFile {
+	return backend.updateChecker.get()
 }

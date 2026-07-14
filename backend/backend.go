@@ -270,6 +270,7 @@ type Backend struct {
 	etherScanRateLimiter *rate.Limiter
 	ratesUpdater         *rates.RateUpdater
 	banners              *banners.Banners
+	updateChecker        *updateChecker
 	started              bool
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
@@ -340,6 +341,8 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	backend.notifier = notifier
 	backend.socksProxy = backendProxy
+	backend.updateChecker = newUpdateChecker(&backend.socksProxy)
+	backend.updateChecker.Observe(backend.Notify)
 	backend.httpClient = hclient
 	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts)
 	backend.enqueueETHUpdateForAllAccountsAsync = backend.ethupdater.EnqueueUpdateForAllAccountsAsync
@@ -725,6 +728,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	} else {
 		go backend.banners.Init(httpClient)
 	}
+	backend.updateChecker.start()
 
 	defer backend.accountsAndKeystoreLock.Lock()()
 	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
@@ -1143,6 +1147,7 @@ func (backend *Backend) ClearCache() error {
 // Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
 	backend.started = false
+	backend.updateChecker.stop()
 	backend.ratesUpdater.Stop()
 	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
 	// which acquires the same lock.
