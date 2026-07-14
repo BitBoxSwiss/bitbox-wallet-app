@@ -1,0 +1,90 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+}
+
+.description {
+    font-size: var(--size-default);
+    margin: 0 0 var(--space-quarter);
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-quarter);
+}
+
+.sectionTitle {
+    color: var(--color-tertiary);
+    font-size: var(--size-small);
+    font-weight: 400;
+    margin: 0;
+}
+
+.amountRow {
+    align-items: center;
+    display: flex;
+    gap: var(--space-half);
+    justify-content: space-between;
+}
+
+.amountWithUnit {
+    align-items: baseline;
+    display: inline-flex;
+    gap: 0.35ch;
+    white-space: nowrap;
+}
+
+.sats {
+    color: var(--color-default);
+    font-weight: 600;
+}
+
+.fiat {
+    color: var(--color-tertiary);
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.accountSelector {
+    margin-bottom: 0;
+}
+
+.confirm {
+    align-self: center;
+    margin-top: var(--space-default);
+}
+
+.failureContent,
+.successContent {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+}
+
+.failureMessage,
+.failureNote,
+.successMessage,
+.successNote {
+    margin: 0;
+}
+
+.transactionButton {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--space-quarter);
+    margin-top: var(--space-quarter);
+}
+
+.transactionIcon {
+    height: 18px;
+    width: 18px;
+}
+
+.doneButton {
+    width: 100%;
+}
