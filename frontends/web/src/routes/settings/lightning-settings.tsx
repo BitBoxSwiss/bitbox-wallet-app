@@ -66,7 +66,7 @@ export const LightningSettings = ({
         />
         <SettingsItem
           settingName={<span className={styles.danger}>{t('lightning.settings.closeAndWithdrawFunds')}</span>}
-          onClick={noop}
+          onClick={() => navigate('/lightning/close-withdraw-funds/')}
         />
       </>
     );

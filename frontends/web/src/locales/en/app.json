@@ -1593,6 +1593,22 @@
         "title": "Create lightning wallet"
       }
     },
+    "closeWithdrawFunds": {
+      "accountDestination": "Account coins will be sent to",
+      "confirm": "Confirm closing of lightning wallet",
+      "description": "This will close your lightning wallet and send all remaining coins to your BitBox wallet.",
+      "failure": {
+        "message": "Closing lightning wallet failed.",
+        "tryAgain": "Please try again."
+      },
+      "fee": "Fee",
+      "lightningBalanceToBeSent": "Lightning balance to be sent",
+      "success": {
+        "message": "Lightning wallet successfully closed. Coins will be sent to on-chain wallet.",
+        "note": "Your coins will appear in your wallet once the transaction is confirmed."
+      },
+      "viewTransaction": "View transaction"
+    },
     "deactivate": {
       "intro": {
         "content": "Shutting down your lightning wallet will disconnect you from the server and you will no longer be able to use your lightning wallet to send and receive.\nFunds on your lightning wallet are not affected, you can still access them again by enabling lightning in the settings and connecting the BitBox02 wallet used to make that wallet."
