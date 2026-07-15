@@ -18,15 +18,14 @@ import { AddressList } from './address-list';
 import { ChangeCopyWarningDialog } from './dialog/change-copy-warning-dialog';
 import { VerifyAddressDialog } from './verify-address-dialog';
 
-type TProps = {
+type TAddressesContentProps = {
   code: AccountCode;
   accounts: TAccount[];
-  devices: TDevices;
 };
 
 type TView = 'list' | 'verify';
 
-export const Addresses = ({ code, accounts, devices }: TProps) => {
+export const AddressesContent = ({ code, accounts }: TAddressesContentProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -138,6 +137,57 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
     : expandedAddressID;
 
   return (
+    <>
+      <AddressList
+        code={code}
+        accountName={account.name}
+        blockExplorerAddressPrefix={account.blockExplorerAddressPrefix}
+        usedAddressesResponse={usedAddressesResponse}
+        error={usedAddressesError}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        addressTypeFilter={addressTypeFilter}
+        receivePath={receivePath}
+        onAddressTypeFilterChange={setAddressTypeFilter}
+        filteredAddresses={filteredAddresses}
+        expandedAddressID={currentExpandedAddressID}
+        onToggleExpand={handleToggleExpand}
+        onStartCopy={handleStartCopy}
+        disableBackEsc={view === 'verify'}
+        onRetryLoad={() => setUsedAddressesLoadAttempt(prev => prev + 1)}
+      />
+      {changeCopyWarningAddress && (
+        <ChangeCopyWarningDialog
+          code={code}
+          selectedAddress={changeCopyWarningAddress}
+          onContinue={handleConfirmChangeCopy}
+          onClose={handleCloseChangeCopyWarning}
+        />
+      )}
+      {view === 'verify' && (
+        <VerifyAddressDialog
+          verification={verification}
+          selectedAddress={selectedAddress}
+          usedAddressesResponse={usedAddressesResponse}
+          coinCode={account.coinCode}
+          onClose={returnToList}
+        />
+      )}
+    </>
+  );
+};
+
+type TProps = {
+  code: AccountCode;
+  accounts: TAccount[];
+  devices: TDevices;
+};
+
+export const Addresses = ({ code, accounts, devices }: TProps) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  return (
     <Main>
       <ContentWrapper>
         <GlobalBanners devices={devices} />
@@ -153,41 +203,10 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
       />
       <View fullscreen={false}>
         <ViewContent>
-          <AddressList
+          <AddressesContent
             code={code}
-            accountName={account.name}
-            blockExplorerAddressPrefix={account.blockExplorerAddressPrefix}
-            usedAddressesResponse={usedAddressesResponse}
-            error={usedAddressesError}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            addressTypeFilter={addressTypeFilter}
-            receivePath={receivePath}
-            onAddressTypeFilterChange={setAddressTypeFilter}
-            filteredAddresses={filteredAddresses}
-            expandedAddressID={currentExpandedAddressID}
-            onToggleExpand={handleToggleExpand}
-            onStartCopy={handleStartCopy}
-            disableBackEsc={view === 'verify'}
-            onRetryLoad={() => setUsedAddressesLoadAttempt(prev => prev + 1)}
+            accounts={accounts}
           />
-          {changeCopyWarningAddress && (
-            <ChangeCopyWarningDialog
-              code={code}
-              selectedAddress={changeCopyWarningAddress}
-              onContinue={handleConfirmChangeCopy}
-              onClose={handleCloseChangeCopyWarning}
-            />
-          )}
-          {view === 'verify' && (
-            <VerifyAddressDialog
-              verification={verification}
-              selectedAddress={selectedAddress}
-              usedAddressesResponse={usedAddressesResponse}
-              coinCode={account.coinCode}
-              onClose={returnToList}
-            />
-          )}
         </ViewContent>
       </View>
     </Main>
