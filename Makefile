@@ -69,6 +69,8 @@ android-assemble-release:
 	cd frontends/android && ${MAKE} assemble-release
 ios:
 	cd frontends/ios && ${MAKE} build
+iostest:
+	cd frontends/ios && ${MAKE} iostest
 osx-sec-check:
 	@echo "Checking build output"
 	./scripts/osx-build-check.sh

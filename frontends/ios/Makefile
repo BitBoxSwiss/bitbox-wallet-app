@@ -1,3 +1,5 @@
+IOS_TEST_DESTINATION ?= platform=iOS Simulator,name=iPhone 16
+
 prepare:
 	cd ../../ && ${MAKE} buildweb
 	rm -rf BitBoxApp/BitBoxApp/assets/web/
@@ -12,3 +14,5 @@ build:
 	${MAKE} prepare
 	xcodebuild clean build -project BitBoxApp/BitBoxApp.xcodeproj -scheme BitBoxApp -configuration Release -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO
 	xcodebuild clean build -project BitBoxApp/BitBoxApp.xcodeproj -scheme "BitBoxApp Testnet" -configuration Release -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO
+iostest:
+	xcodebuild test -project BitBoxApp/BitBoxApp.xcodeproj -scheme BitBoxApp -configuration Debug -destination '$(IOS_TEST_DESTINATION)' -only-testing:BitBoxAppTests CODE_SIGNING_ALLOWED=NO

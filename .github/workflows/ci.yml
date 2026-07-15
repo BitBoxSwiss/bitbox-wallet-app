@@ -267,6 +267,9 @@ jobs:
         run: |
           make gomobileinit
           (cd $GOPATH/$GO_SRC_DIR; make ios)
+      - name: Test iOS app
+        run: |
+          (cd $GOPATH/$GO_SRC_DIR; make iostest)
   windows:
     runs-on: windows-2022
     outputs:
