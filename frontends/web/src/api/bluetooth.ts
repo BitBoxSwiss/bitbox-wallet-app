@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { apiGet, apiPost } from '@/utils/request';
+import { apiPost } from '@/utils/request';
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 
 export type TPeripheral = {
@@ -20,10 +20,6 @@ type TBluetoothState = {
   bluetoothUnauthorized: boolean;
   scanning: boolean;
   peripherals: TPeripheral[];
-};
-
-export const getState = (): Promise<TBluetoothState> => {
-  return apiGet('bluetooth/state');
 };
 
 export const connect = (identifier: string): Promise<void> => {

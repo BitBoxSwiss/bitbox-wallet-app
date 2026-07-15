@@ -8,7 +8,6 @@ import type { TUpdateFile } from '@/api/version';
 import { AppVersion } from './app-version-setting';
 
 const versionApiMocks = vi.hoisted(() => ({
-  getUpdate: vi.fn(),
   getVersion: vi.fn(),
   subscribeUpdate: vi.fn(),
 }));
@@ -46,20 +45,22 @@ const update: TUpdateFile = {
 
 describe('routes/settings/components/about/app-version-setting', () => {
   let notifyUpdate: ((update: TUpdateFile | null) => void) | undefined;
+  let initialUpdate: TUpdateFile | null;
 
   beforeEach(() => {
     vi.clearAllMocks();
     notifyUpdate = undefined;
+    initialUpdate = null;
     versionApiMocks.getVersion.mockResolvedValue('4.51.3');
-    versionApiMocks.getUpdate.mockResolvedValue(null);
     versionApiMocks.subscribeUpdate.mockImplementation((cb: typeof notifyUpdate) => {
       notifyUpdate = cb;
+      cb?.(initialUpdate);
       return () => {};
     });
   });
 
-  it('renders a cached update', async () => {
-    versionApiMocks.getUpdate.mockResolvedValue(update);
+  it('renders an update from the initial snapshot', async () => {
+    initialUpdate = update;
 
     render(<AppVersion />);
 

@@ -3,16 +3,15 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useConfig } from './ConfigProvider';
 import { AppContext } from './AppContext';
-import { useLoad } from '@/hooks/api';
+import { useLoad, useSubscribe } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
 import { getNativeLocale } from '@/api/nativelocale';
 import { getDevServers, getTesting } from '@/api/backend';
-import { getOnline, subscribeOnline } from '@/api/online';
+import { subscribeOnline } from '@/api/online';
 import { i18nextFormat } from '@/i18n/utils';
 import type { TChartDisplay, TSessionConfig } from './AppContext';
 import { useOrientation } from '@/hooks/orientation';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { useSync } from '@/hooks/api';
 
 type TProps = {
   children: ReactNode;
@@ -22,7 +21,7 @@ export const AppProvider = ({ children }: TProps) => {
   const { config, setConfig } = useConfig();
   const nativeLocale = i18nextFormat(useDefault(useLoad(getNativeLocale), 'de-CH'));
   const isTesting = useDefault(useLoad(getTesting), false);
-  const isOnline = useSync(getOnline, subscribeOnline);
+  const isOnline = useSubscribe(subscribeOnline);
   const isDevServers = useDefault(useLoad(getDevServers), false);
   const [guideShown, setGuideShown] = useState(false);
   const [guideExists, setGuideExists] = useState(false);

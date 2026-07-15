@@ -8,11 +8,14 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/gorilla/mux"
 )
@@ -80,6 +83,54 @@ func TestGetNativeLocale(t *testing.T) {
 	test.DecodeHandlerResponse(t, &locale, res.Body)
 	if locale != ptLocale {
 		t.Errorf("locale = %q; want %q", locale, ptLocale)
+	}
+}
+
+func TestEventSnapshot(t *testing.T) {
+	args := arguments.NewArguments(
+		test.TstTempDir("eventsnapshot"),
+		true,
+		false,
+		true,
+		nil,
+	)
+	back, err := backend.NewBackend(args, &backendEnv{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer back.Close()
+
+	h := handlers.NewHandlers(back, handlers.NewConnectionData(0, ""))
+	r := httptest.NewRequest(http.MethodPost, "/api/events/snapshot", strings.NewReader(`"online"`))
+	w := httptest.NewRecorder()
+	h.Router.ServeHTTP(w, r)
+	res := w.Result()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("res.StatusCode = %d; want %d", res.StatusCode, http.StatusOK)
+	}
+	var response struct {
+		Success bool `json:"success"`
+	}
+	test.DecodeHandlerResponse(t, &response, res.Body)
+	if !response.Success {
+		t.Fatal("snapshot request was not successful")
+	}
+
+	timeout := time.After(time.Second)
+	for {
+		select {
+		case value := <-h.Events():
+			event, ok := value.(observable.Event)
+			if !ok || event.Subject != "online" {
+				continue
+			}
+			if event.Action != action.Replace || event.Object != true {
+				t.Fatalf("unexpected snapshot event: %#v", event)
+			}
+			return
+		case <-timeout:
+			t.Fatal("timed out waiting for snapshot event")
+		}
 	}
 }
 

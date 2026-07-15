@@ -11,6 +11,7 @@ import { Message } from '@/components/message/message';
 import { Button, Field, Label, Select } from '@/components/forms';
 import { CopyableInput } from '@/components/copy/Copy';
 import { PointToBitBox02 } from '@/components/icon';
+import { useSubscribe } from '@/hooks/api';
 import { VerifyAddress } from './verifyaddress';
 import { Vasp } from './vasp';
 import styles from './aopp.module.css';
@@ -29,14 +30,9 @@ export const Aopp = () => {
   const { t } = useTranslation();
 
   const [accountCode, setAccountCode] = useState<accountAPI.AccountCode>('');
-  const [aopp, setAopp] = useState<aoppAPI.Aopp>();
+  const aopp = useSubscribe(aoppAPI.subscribeAOPP);
 
   const [prevAopp, setPrevAopp] = useState(aopp);
-
-  useEffect(() => {
-    aoppAPI.getAOPP().then(setAopp);
-    return aoppAPI.subscribeAOPP(setAopp);
-  }, []);
 
   useEffect(() => {
     if (aopp !== prevAopp) {

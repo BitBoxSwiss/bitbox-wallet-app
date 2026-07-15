@@ -8,7 +8,7 @@ export type TSubject = string;
 /**
  * This type enumerates the various actions of an event.
  */
-type TAction = 'replace' | 'reload';
+type TAction = 'replace';
 
 /**
  * This type models the events that are received from the backend.

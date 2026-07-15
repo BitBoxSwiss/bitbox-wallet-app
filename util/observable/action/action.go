@@ -9,6 +9,6 @@ const (
 	// Replace replaces the current value of the subject with the object.
 	Replace Action = "replace"
 
-	// Reload tells the listener to reload the state of the subject.
+	// Reload tells the event adapter to replace the event with the subject's current snapshot.
 	Reload Action = "reload"
 )

@@ -35,7 +35,6 @@ func NewHandlers(
 ) *Handlers {
 	handlers := &Handlers{log: log.WithField("device", "bitbox02-bootloader")}
 
-	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
 	handleFunc("/upgrade-firmware", handlers.postUpgradeFirmwareHandler).Methods("POST")
 	handleFunc("/reboot", handlers.postRebootHandler).Methods("POST")
 	handleFunc("/show-firmware-hash-enabled", handlers.getShowFirmwareHashEnabledHandler).Methods("GET")
@@ -67,10 +66,6 @@ type bootloaderResponse struct {
 func (handlers *Handlers) errorResponse(err error) bootloaderResponse {
 	handlers.log.WithError(err).Error("BitBox02 bootloader request failed")
 	return bootloaderResponse{Success: false, ErrorMessage: err.Error()}
-}
-
-func (handlers *Handlers) getStatusHandler(_ *http.Request) interface{} {
-	return handlers.device.Status()
 }
 
 func (handlers *Handlers) postUpgradeFirmwareHandler(_ *http.Request) interface{} {

@@ -5,7 +5,7 @@ import { subscribeEndpoint, TSubscriptionCallback, TUnsubscribe } from './subscr
 
 /**
  * Subscribes the given function on the "devices/registered" event
- * and receives a list of all available accounts from the backend.
+ * and receives a list of all available devices from the backend.
  * Returns a method to unsubscribe.
  */
 export const syncDeviceList = (

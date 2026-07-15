@@ -4,7 +4,7 @@ import type { AccountCode, CoinCode, ScriptType } from './account';
 import type { ERC20CoinCode } from './erc20';
 import type { FailResponse, SuccessResponse } from './response';
 import { apiGet, apiPost } from '@/utils/request';
-import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
+import { TSubscriptionCallback, subscribeEvent } from './subscribe';
 
 export type TCoin = {
   coinCode: CoinCode;
@@ -96,7 +96,7 @@ export const syncConnectKeystore = () => {
   return (
     cb: TSubscriptionCallback<TSyncConnectKeystore>
   ) => {
-    return subscribeEndpoint('connect-keystore', (
+    return subscribeEvent('connect-keystore', (
       obj: TSyncConnectKeystore,
     ) => {
       cb(obj);
@@ -130,7 +130,7 @@ export type TAuthEventObject = {
 export const subscribeAuth = (
   cb: TSubscriptionCallback<TAuthEventObject>
 ) => (
-  subscribeEndpoint('auth', cb)
+  subscribeEvent('auth', cb)
 );
 
 export const onAuthSettingChanged = (): Promise<void> => {

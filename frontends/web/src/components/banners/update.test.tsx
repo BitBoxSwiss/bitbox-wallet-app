@@ -7,7 +7,6 @@ import type { TUpdateFile } from '@/api/version';
 import { Update } from './update';
 
 const versionApiMocks = vi.hoisted(() => ({
-  getUpdate: vi.fn(),
   subscribeUpdate: vi.fn(),
 }));
 
@@ -32,19 +31,21 @@ const update: TUpdateFile = {
 
 describe('components/banners/update', () => {
   let notifyUpdate: ((update: TUpdateFile | null) => void) | undefined;
+  let initialUpdate: TUpdateFile | null;
 
   beforeEach(() => {
     vi.clearAllMocks();
     notifyUpdate = undefined;
-    versionApiMocks.getUpdate.mockResolvedValue(null);
+    initialUpdate = null;
     versionApiMocks.subscribeUpdate.mockImplementation((cb: typeof notifyUpdate) => {
       notifyUpdate = cb;
+      cb?.(initialUpdate);
       return () => {};
     });
   });
 
-  it('renders a cached update', async () => {
-    versionApiMocks.getUpdate.mockResolvedValue(update);
+  it('renders an update from the initial snapshot', async () => {
+    initialUpdate = update;
 
     render(<Update />);
 

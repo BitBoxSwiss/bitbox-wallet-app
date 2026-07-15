@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as bitbox02BootloaderAPI from '@/api/bitbox02bootloader';
 import { useDarkmode } from '@/hooks/darkmode';
-import { useSync, useLoad } from '@/hooks/api';
+import { useSubscribe, useLoad } from '@/hooks/api';
 import { Button } from '@/components/forms';
 import { View, ViewContent } from '@/components/view/view';
 import { BitBox02, BitBox02Inverted, BitBox02Nova, BitBox02NovaInverted } from '@/components/icon/logo';
@@ -20,10 +20,7 @@ type TProps = {
 export const BitBox02Bootloader = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
-  const status = useSync(
-    () => bitbox02BootloaderAPI.getStatus(deviceID),
-    bitbox02BootloaderAPI.syncStatus(deviceID),
-  );
+  const status = useSubscribe(bitbox02BootloaderAPI.syncStatus(deviceID));
   const infoResponse = useLoad(
     status === undefined || status.upgrading ? null : () => bitbox02BootloaderAPI.getInfo(deviceID),
     [deviceID, status?.upgrading],

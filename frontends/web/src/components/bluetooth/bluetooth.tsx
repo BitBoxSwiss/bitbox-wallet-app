@@ -2,8 +2,8 @@
 
 import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
-import { useSync } from '@/hooks/api';
-import { connect, getState, syncState, TPeripheral } from '@/api/bluetooth';
+import { useSubscribe } from '@/hooks/api';
+import { connect, syncState, TPeripheral } from '@/api/bluetooth';
 import { runningInIOS } from '@/utils/env';
 import { Message } from '@/components/message/message';
 import { A } from '@/components/anchor/anchor';
@@ -24,7 +24,7 @@ type Props = {
 
 const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
   const { t } = useTranslation();
-  const state = useSync(getState, syncState);
+  const state = useSubscribe(syncState);
   const [showConnectionIssues, setShowConnectionIssues] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const scanningTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);

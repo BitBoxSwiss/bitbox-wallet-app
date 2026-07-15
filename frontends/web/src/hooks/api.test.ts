@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import { TSubscriptionCallback } from '@/api/subscribe';
-import { useSubscribe, useLoad, useSync } from './api';
+import { useSubscribe, useLoad } from './api';
 import * as utils from './mount';
 import { TStatus } from '@/api/coins';
 import { act } from 'react';
@@ -90,52 +90,6 @@ describe('hooks for api calls', () => {
       const { result } = renderHook(() => useSubscribe(mockSubscribe()));
 
       expect(result.current).toBe(MOCK_RETURN_STATUS);
-    });
-  });
-
-
-  describe('useSync', () => {
-    it('should load promise and sync to a subscription function', async () => {
-      const apiValue = 'apiValue';
-      const subscriptionValue = 'subscriptionValue';
-      let subscriptionCallback: TSubscriptionCallback<any> | undefined;
-
-      //A mock api call which will return `apiValue` when resolved
-      const mockApiCall = vi.fn().mockResolvedValue(apiValue);
-
-      //A mock subscription fn, which accepts a callback
-      //callback will be saved to `subscriptionCallback`
-      //returns an empty fn (TUnsubscribe)
-      const mockSubscription = vi.fn((callback: TSubscriptionCallback<any>) => {
-        subscriptionCallback = callback;
-        return () => {}; // Mocking `TUnsubscribe` (a "no-op" / "empty" fn)
-      });
-
-      //Renders the hook
-      const { result } = renderHook(() => useSync(mockApiCall, mockSubscription));
-
-      // This waits for the hook to be rendered
-      // and then when the state changes the first time.
-      // This ensures that the hook has completed the API call
-      // and updated its internal state to be `apiValue`.
-      await waitFor(() => expect(result.current).toBe(apiValue));
-
-      await waitFor(() => expect(mockApiCall).toHaveBeenCalled());
-      await waitFor(() => expect(mockSubscription).toHaveBeenCalled());
-
-      // If `subscriptionCallback` is truthy
-      // it means, subscription was invoked by the hook.
-      if (subscriptionCallback) {
-        // We manually simulate receiving new data
-        // from the subscription fn.
-        act(() => {
-          subscriptionCallback && subscriptionCallback(subscriptionValue);
-        });
-      }
-
-      // Finally, we wait until the hook updates its internal state
-      // and returns it. The returned value should be `subscriptionValue`
-      await waitFor(() => expect(result.current).toBe(subscriptionValue));
     });
   });
 });

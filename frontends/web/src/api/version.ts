@@ -16,10 +16,6 @@ export const getVersion = (): Promise<string> => {
   return apiGet('version');
 };
 
-export const getUpdate = (): Promise<TUpdateFile | null> => {
-  return apiGet('update');
-};
-
 export const subscribeUpdate = (
   cb: TSubscriptionCallback<TUpdateFile | null>
 ) => (

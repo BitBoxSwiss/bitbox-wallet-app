@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TMessageTypes } from '@/utils/types';
-import { apiGet } from '@/utils/request';
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 
 export type TBannerInfo = {
@@ -13,10 +12,6 @@ export type TBannerInfo = {
   };
   dismissible?: boolean;
   type?: TMessageTypes;
-};
-
-export const getBanner = (msgKey: string): Promise<TBannerInfo> => {
-  return apiGet(`banners/${msgKey}`);
 };
 
 export const syncBanner = (

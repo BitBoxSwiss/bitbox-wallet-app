@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLoad, useSync } from '@/hooks/api';
-import { attestationCheckDone, getStatus, getVersion, verifyAttestation, statusChanged } from '@/api/bitbox02';
+import { useLoad, useSubscribe } from '@/hooks/api';
+import { attestationCheckDone, getVersion, statusChanged, TStatus } from '@/api/bitbox02';
 import { AppUpgradeRequired } from '@/components/appupgraderequired';
 import { FirmwareUpgradeRequired } from '@/routes/device/upgrade-firmware-required';
 import { Main } from '@/components/layout';
@@ -21,21 +21,13 @@ type TProps = {
 export const Wizard = ({ deviceID }: TProps) => {
   const navigate = useNavigate();
   const versionInfo = useLoad(() => getVersion(deviceID));
-  const attestation = useSync(
-    () => verifyAttestation(deviceID),
-    cb => attestationCheckDone(deviceID, () => {
-      verifyAttestation(deviceID).then(cb);
-    })
-  );
+  const attestation = useSubscribe<boolean | null>(cb => attestationCheckDone(deviceID, cb));
   const [setupChoice, setSetupChoice] = useState<'' | TWalletSetupChoices>('');
   const [createOptions, setCreateOptions] = useState<TWalletCreateOptions>();
   const [showWizard, setShowWizard] = useState<boolean>(false);
   // If true, we just pair and unlock, so we can hide some steps.
   const [unlockOnly, setUnlockOnly] = useState<boolean>(true);
-  const status = useSync(
-    () => getStatus(deviceID),
-    cb => statusChanged(deviceID, cb)
-  );
+  const status = useSubscribe<TStatus>(cb => statusChanged(deviceID, cb));
   const handleGetStarted = () => {
     setShowWizard(false);
     navigate('/account-summary?with-chart-animation=true');
