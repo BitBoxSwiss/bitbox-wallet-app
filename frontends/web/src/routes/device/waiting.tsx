@@ -4,9 +4,8 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { i18n } from '@/i18n/i18n';
-import { getDeviceList } from '@/api/devices';
 import { syncDeviceList } from '@/api/devicessync';
-import { useSync } from '@/hooks/api';
+import { useSubscribe } from '@/hooks/api';
 import { useKeystores } from '@/hooks/backend';
 import { useDarkmode } from '@/hooks/darkmode';
 import { useDefault } from '@/hooks/default';
@@ -28,7 +27,7 @@ export const Waiting = () => {
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
   const keystores = useKeystores();
-  const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
+  const devices = useDefault(useSubscribe(syncDeviceList), {});
 
   // BitBox01 does not have any accounts anymore, so we route directly to the device settings.
   useEffect(() => {

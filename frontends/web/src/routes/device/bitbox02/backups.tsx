@@ -2,10 +2,10 @@
 
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSync } from '@/hooks/api';
+import { useSubscribe } from '@/hooks/api';
 import { useIsScrollable } from '@/hooks/scrollable';
 import { restoreBackup, errUserAbort } from '@/api/bitbox02';
-import { getBackupList, subscribeBackupList } from '@/api/backup';
+import { subscribeBackupList } from '@/api/backup';
 import { Toast } from '@/components/toast/toast';
 import { BackupsListItem } from '@/routes/device/components/backup';
 import { Backup } from '@/api/backup';
@@ -41,7 +41,7 @@ export const BackupsV2 = ({
   const [errorText, setErrorText] = useState('');
   const scrollableContainerRef = useRef<HTMLDivElement>(null);
 
-  const backups = useSync(() => getBackupList(deviceID), subscribeBackupList(deviceID));
+  const backups = useSubscribe(subscribeBackupList(deviceID));
   const hasBackups = backups && backups.success && backups !== undefined;
   const hasMoreThanOneBackups = hasBackups && backups.backups.length > 1;
 

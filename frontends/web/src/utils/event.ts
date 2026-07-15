@@ -51,15 +51,15 @@ export const apiSubscribe = (
   subject: TSubject,
   observer: Observer
 ): TUnsubscribe => {
-  if (!subscribed) {
-    subscribed = apiWebsocket(handleEvent);
-  }
   let observers = subscriptions[subject];
   if (observers === undefined) {
     observers = [];
     subscriptions[subject] = observers;
   }
   observers.push(observer);
+  if (!subscribed) {
+    subscribed = apiWebsocket(handleEvent);
+  }
   return () => {
     if (!observers.includes(observer)) {
       console.warn('!observers.includes(observer)');

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getBanner, syncBanner, TBannerInfo } from '@/api/banners';
+import { syncBanner, TBannerInfo } from '@/api/banners';
+import { useSubscribe } from '@/hooks/api';
 import { Status } from '@/components/status/status';
 import { A } from '@/components/anchor/anchor';
 import style from './banner.module.css';
@@ -14,12 +14,7 @@ type TBannerProps = {
 export const Banner = ({ msgKey }: TBannerProps) => {
   const { i18n, t } = useTranslation();
   const { fallbackLng } = i18n.options;
-  const [banner, setBanner] = useState<TBannerInfo>();
-
-  useEffect(() => {
-    getBanner(msgKey).then(setBanner);
-    syncBanner(msgKey, setBanner);
-  }, [msgKey]);
+  const banner = useSubscribe<TBannerInfo>(cb => syncBanner(msgKey, cb));
 
   if (
     !banner

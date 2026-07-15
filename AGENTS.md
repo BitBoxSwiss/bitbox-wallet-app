@@ -108,10 +108,8 @@ Key custom hooks in `src/hooks/` handle all async data:
 
 - **`useLoad(apiCall, deps)`** — Calls a promise, returns `undefined` while loading, re-calls when
   deps change. Always checks `mounted.current` before `setState`.
-- **`useSubscribe(subscription)`** — Subscribes to a WebSocket event, returns `undefined` until the
-  first event. Unsubscribes on unmount.
-- **`useSync(apiCall, subscription)`** — Loads data once via `apiCall`, then stays in sync via
-  `subscription`. Best for data that changes in real time (account status, balance).
+- **`useSubscribe(subscription)`** — Subscribes to a backend value and requests its current snapshot
+  through the event stream. Returns `undefined` until the first event and unsubscribes on unmount.
 - **`useMountedRef()`** — Returns a ref that is `true` while mounted, `false` after unmount. Used
   to guard async `setState` calls.
 - **`useDefault(value, fallback)`** — Returns `fallback` when `value` is `undefined`.

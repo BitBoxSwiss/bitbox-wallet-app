@@ -87,6 +87,12 @@ func NewDevice(
 				Action:  action.Replace,
 				Object:  device.Device.Status(),
 			})
+		case firmware.EventAttestationCheckDone:
+			device.Notify(observable.Event{
+				Subject: string(ev),
+				Action:  action.Replace,
+				Object:  device.Attestation(),
+			})
 		default:
 			device.Notify(observable.Event{
 				Subject: string(ev),

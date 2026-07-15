@@ -24,10 +24,6 @@ export const subscribeKeystores = (
   return subscribeEndpoint('keystores', cb);
 };
 
-export const getKeystores = (): Promise<TKeystores> => {
-  return apiGet('keystores');
-};
-
 export type TTestKeystoreEdition = 'btc-only' | 'multi';
 
 type TRegisterTestResponse = {

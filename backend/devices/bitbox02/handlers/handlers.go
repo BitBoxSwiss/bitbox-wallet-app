@@ -61,7 +61,6 @@ func NewHandlers(
 ) *Handlers {
 	handlers := &Handlers{log: log.WithField("device", "bitbox02")}
 
-	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
 	handleFunc("/attestation", handlers.getAttestationHandler).Methods("GET")
 	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
 	handleFunc("/channel-hash-verify", handlers.postChannelHashVerify).Methods("POST")
@@ -71,7 +70,6 @@ func NewHandlers(
 	handleFunc("/change-password", handlers.postChangePassword).Methods("POST")
 	handleFunc("/backups/create", handlers.postCreateBackup).Methods("POST")
 	handleFunc("/backups/check", handlers.postCheckBackup).Methods("POST")
-	handleFunc("/backups/list", handlers.getBackupsList).Methods("GET")
 	handleFunc("/backups/restore", handlers.postBackupsRestore).Methods("POST")
 	handleFunc("/check-sdcard", handlers.getCheckSDCard).Methods("GET")
 	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
@@ -121,13 +119,14 @@ func maybeBB02Err(err error, log *logrus.Entry) bitbox02Response {
 	return result
 }
 
-func (handlers *Handlers) getStatusHandler(_ *http.Request) interface{} {
-	return handlers.device.Status()
+// Attestation returns the result of the device attestation check.
+func (handlers *Handlers) Attestation() interface{} {
+	handlers.log.Debug("Attestation")
+	return handlers.device.Attestation()
 }
 
 func (handlers *Handlers) getAttestationHandler(_ *http.Request) interface{} {
-	handlers.log.Debug("Attestation")
-	return handlers.device.Attestation()
+	return handlers.Attestation()
 }
 
 func (handlers *Handlers) getDeviceInfo(_ *http.Request) interface{} {
@@ -198,7 +197,8 @@ func (handlers *Handlers) postCreateBackup(r *http.Request) interface{} {
 	return bitbox02Response{Success: true}
 }
 
-func (handlers *Handlers) getBackupsList(_ *http.Request) interface{} {
+// Backups returns a device's current backup list in its API representation.
+func Backups(device BitBox02, log *logrus.Entry) interface{} {
 	type backupResponse struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
@@ -209,10 +209,10 @@ func (handlers *Handlers) getBackupsList(_ *http.Request) interface{} {
 		Backups []backupResponse `json:"backups"`
 	}
 
-	handlers.log.Debug("List backups ")
-	backups, err := handlers.device.ListBackups()
+	log.Debug("List backups ")
+	backups, err := device.ListBackups()
 	if err != nil {
-		return maybeBB02Err(err, handlers.log)
+		return maybeBB02Err(err, log)
 	}
 	sort.Slice(backups, func(i, j int) bool {
 		return backups[i].Time.After(backups[j].Time)

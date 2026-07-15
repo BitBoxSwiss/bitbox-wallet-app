@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, Fragment } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useSync } from './hooks/api';
+import { useSubscribe } from './hooks/api';
 import { useDefault } from './hooks/default';
 import { usePrevious } from './hooks/previous';
 import { useIgnoreDrop } from './hooks/drop';
@@ -11,9 +11,7 @@ import { usePlatformClass } from './hooks/platform';
 import { useAppReady } from './hooks/appready';
 import { AppRouter } from './routes/router';
 import { Wizard as BitBox02Wizard } from './routes/device/bitbox02/wizard';
-import { getAccounts } from './api/account';
 import { syncAccountsList } from './api/accountsync';
-import { getDeviceList } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
 import { syncNewTxs } from './api/transactions';
 import { notifyUser } from './api/system';
@@ -40,8 +38,8 @@ export const App = () => {
   useIgnoreDrop();
   useAppReady();
 
-  const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
-  const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
+  const accounts = useDefault(useSubscribe(syncAccountsList), []);
+  const devices = useDefault(useSubscribe(syncDeviceList), {});
   const prevDevices = usePrevious(devices);
 
   const deviceIDs = Object.keys(devices);

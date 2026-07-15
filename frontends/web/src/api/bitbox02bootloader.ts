@@ -21,12 +21,6 @@ export type TStatus = {
   additionalUpgradeFollows: boolean;
 };
 
-export const getStatus = (
-  deviceID: string,
-): Promise<TStatus> => {
-  return apiGet(`devices/bitbox02-bootloader/${deviceID}/status`);
-};
-
 export const syncStatus = (deviceID: string) => {
   return (
     cb: TSubscriptionCallback<TStatus>

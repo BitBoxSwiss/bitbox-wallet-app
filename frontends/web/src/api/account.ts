@@ -60,10 +60,6 @@ export type TAccount = TAccountBase & {
   accountNumber?: number;
 };
 
-export const getAccounts = (): Promise<TAccount[]> => {
-  return apiGet('accounts');
-};
-
 export type CoinFormattedAmount = {
   coinCode: CoinCode;
   coinName: string;

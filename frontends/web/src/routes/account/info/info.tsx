@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useSync } from '@/hooks/api';
+import { useSubscribe } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
-import { TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
+import { TAccount, AccountCode, TStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
 import { findAccount, isBitcoinBased, isMessageSigningSupported } from '@/routes/account/utils';
 import { TDevices } from '@/api/devices';
 import { Header, Main } from '@/components/layout';
@@ -35,10 +35,7 @@ export const Info = ({
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
-  const status: TStatus | undefined = useSync(
-    () => getStatus(code),
-    cb => statusChanged(code, cb),
-  );
+  const status: TStatus | undefined = useSubscribe(cb => statusChanged(code, cb));
   const accountReady = (
     status !== undefined
     && !status.fatalError

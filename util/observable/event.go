@@ -7,7 +7,7 @@ import "github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 // Event is passed to the listeners of an observable type.
 type Event struct {
 	// Subject identifies what changed.
-	// By convention, it corresponds to the corresponding GET endpoint of the REST API.
+	// By convention, it corresponds to a frontend subscription subject.
 	Subject string `json:"subject"`
 
 	// Action describes how the change has to be applied.

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { FailResponse } from './response';
-import { apiGet } from '@/utils/request';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export type Backup = {
@@ -15,14 +14,8 @@ type BackupResponse = {
   backups: Backup[];
 };
 
-export const getBackupList = (
-  deviceID: string
-): Promise<BackupResponse | FailResponse> => {
-  return apiGet(`devices/bitbox02/${deviceID}/backups/list`);
-};
-
 export const subscribeBackupList = (deviceID: string) => (
-  (cb: TSubscriptionCallback<BackupResponse>) => (
+  (cb: TSubscriptionCallback<BackupResponse | FailResponse>) => (
     subscribeEndpoint(`devices/bitbox02/${deviceID}/backups/list`, cb)
   )
 );

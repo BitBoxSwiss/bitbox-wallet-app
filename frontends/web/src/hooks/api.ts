@@ -72,29 +72,3 @@ export const useLoad = <T>(
   );
   return response;
 };
-
-/**
- * useSync is a hook to load a promise and sync to a subscription function.
- * It is a combination of useLoad and useSubscribe.
- * gets fired on first render, and returns undefined while loading,
- * re-renders on every update.
- */
-export const useSync = <T>(
-  apiCall: () => Promise<T>,
-  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
-): (T | undefined) => {
-  const [response, setResponse] = useState<T>();
-  const mounted = useMountedRef();
-  const onData = (data: T) => {
-    if (mounted.current) {
-      setResponse(data);
-    }
-  };
-  useEffect(
-    () => {
-      apiCall().then(onData);
-      return subscription(onData);
-    }, // we pass no dependencies because it's only queried once
-    []); // eslint-disable-line react-hooks/exhaustive-deps
-  return response;
-};

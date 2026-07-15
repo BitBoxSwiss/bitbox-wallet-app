@@ -13,7 +13,7 @@ import { InfoBlue, LoupeBlue } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Message } from '@/components/message/message';
-import { useLoad, useSubscribe, useSync } from '@/hooks/api';
+import { useLoad, useSubscribe } from '@/hooks/api';
 import { useBitsurance } from '@/hooks/bitsurance';
 import { useDebounce } from '@/hooks/debounce';
 import { useScrollIntoView } from '@/hooks/scroll-into-view';
@@ -76,9 +76,8 @@ const RemountAccount = ({
   const { btcUnit } = useContext(RatesContext);
 
   const [balance, setBalance] = useState<accountApi.TBalance>();
-  const status: accountApi.TStatus | undefined = useSync(
-    () => accountApi.getStatus(code),
-    cb => statusChanged(code, cb),
+  const status: accountApi.TStatus | undefined = useSubscribe(
+    cb => statusChanged(code, cb)
   );
   const syncedAddressesCount = useSubscribe(syncAddressesCount(code));
   const [transactions, setTransactions] = useState<accountApi.TTransactions>();

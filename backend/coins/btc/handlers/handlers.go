@@ -124,18 +124,18 @@ func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interf
 
 // getTxInfoJSON encodes a given transaction in JSON.
 // If `detail` is false, Coin related details, fees and historical fiat amount won't be included.
-func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail bool) Transaction {
-	accountConfig := handlers.account.Config()
+func getTxInfoJSON(account accounts.Interface, txInfo *accounts.TransactionData, detail bool) Transaction {
+	accountConfig := account.Config()
 	var feeString coin.FormattedAmountWithConversions
 	if txInfo.Fee != nil {
-		feeString = txInfo.Fee.FormatWithConversions(handlers.account.Coin(), true, accountConfig.RateUpdater)
+		feeString = txInfo.Fee.FormatWithConversions(account.Coin(), true, accountConfig.RateUpdater)
 	}
-	amount := txInfo.Amount.FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater)
+	amount := txInfo.Amount.FormatWithConversions(account.Coin(), false, accountConfig.RateUpdater)
 	var formattedTime *string
 	timestamp := txInfo.Timestamp
 
-	deductedAmountAtTime := txInfo.DeductedAmount.FormatWithConversionsAtTime(handlers.account.Coin(), timestamp, accountConfig.RateUpdater)
-	amountAtTime := txInfo.Amount.FormatWithConversionsAtTime(handlers.account.Coin(), timestamp, accountConfig.RateUpdater)
+	deductedAmountAtTime := txInfo.DeductedAmount.FormatWithConversionsAtTime(account.Coin(), timestamp, accountConfig.RateUpdater)
+	amountAtTime := txInfo.Amount.FormatWithConversionsAtTime(account.Coin(), timestamp, accountConfig.RateUpdater)
 
 	if timestamp != nil {
 		t := timestamp.Format(time.RFC3339)
@@ -162,12 +162,12 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 		DeductedAmountAtTime: deductedAmountAtTime,
 		Time:                 formattedTime,
 		Addresses:            addresses,
-		Note:                 handlers.account.TxNote(txInfo.InternalID),
+		Note:                 account.TxNote(txInfo.InternalID),
 		Fee:                  feeString,
 	}
 
 	if detail {
-		switch handlers.account.Coin().(type) {
+		switch account.Coin().(type) {
 		case *btc.Coin:
 			txInfoJSON.VSize = txInfo.VSize
 			txInfoJSON.Size = txInfo.Size
@@ -181,14 +181,15 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 	return txInfoJSON
 }
 
-func (handlers *Handlers) getAccountTransactions(*http.Request) (interface{}, error) {
+// Transactions returns an account's current transaction list in its API representation.
+func Transactions(account accounts.Interface) interface{} {
 	var result struct {
 		Success      bool          `json:"success"`
 		Transactions []Transaction `json:"list"`
 	}
-	txs, err := handlers.account.Transactions()
+	txs, err := account.Transactions()
 	if err != nil {
-		return result, nil
+		return result
 	}
 	result.Transactions = []Transaction{}
 	for _, txInfo := range txs {
@@ -196,10 +197,15 @@ func (handlers *Handlers) getAccountTransactions(*http.Request) (interface{}, er
 			// skipping 0 amount erc20 txs to mitigate Address Poisoning attack
 			continue
 		}
-		result.Transactions = append(result.Transactions, handlers.getTxInfoJSON(txInfo, false))
+		txInfoJSON := getTxInfoJSON(account, txInfo, false)
+		result.Transactions = append(result.Transactions, txInfoJSON)
 	}
 	result.Success = true
-	return result, nil
+	return result
+}
+
+func (handlers *Handlers) getAccountTransactions(*http.Request) (interface{}, error) {
+	return Transactions(handlers.account), nil
 }
 
 func (handlers *Handlers) getAccountTransaction(r *http.Request) (interface{}, error) {
@@ -213,7 +219,7 @@ func (handlers *Handlers) getAccountTransaction(r *http.Request) (interface{}, e
 			continue
 		}
 
-		return handlers.getTxInfoJSON(txInfo, true), nil
+		return getTxInfoJSON(handlers.account, txInfo, true), nil
 	}
 	return nil, nil
 }
@@ -574,21 +580,26 @@ type statusResponse struct {
 	FatalError bool `json:"fatalError"`
 }
 
-func (handlers *Handlers) getAccountStatus(*http.Request) (interface{}, error) {
-	if handlers.account == nil {
-		return statusResponse{Disabled: true}, nil
+// Status returns an account's current status in its API representation.
+func Status(account accounts.Interface) interface{} {
+	if account == nil {
+		return statusResponse{Disabled: true}
 	}
-	offlineErr := handlers.account.Offline()
+	offlineErr := account.Offline()
 	var offlineError *string
 	if offlineErr != nil {
 		s := offlineErr.Error()
 		offlineError = &s
 	}
 	return statusResponse{
-		Synced:       handlers.account.Synced(),
+		Synced:       account.Synced(),
 		OfflineError: offlineError,
-		FatalError:   handlers.account.FatalError(),
-	}, nil
+		FatalError:   account.FatalError(),
+	}
+}
+
+func (handlers *Handlers) getAccountStatus(*http.Request) (interface{}, error) {
+	return Status(handlers.account), nil
 }
 
 func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error) {

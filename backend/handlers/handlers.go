@@ -133,6 +133,8 @@ type Handlers struct {
 	// that is served, so the client knows where and how to connect to.
 	apiData           *ConnectionData
 	backendEvents     chan interface{}
+	eventQueue        chan queuedEvent
+	snapshots         map[string]func() interface{}
 	websocketUpgrader websocket.Upgrader
 	log               *logrus.Entry
 }
@@ -170,6 +172,8 @@ func NewHandlers(
 		backend:       backend,
 		apiData:       connData,
 		backendEvents: make(chan interface{}, 1000),
+		eventQueue:    make(chan queuedEvent, 1000),
+		snapshots:     map[string]func() interface{}{},
 		websocketUpgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -177,6 +181,8 @@ func NewHandlers(
 		},
 		log: log,
 	}
+	go handlers.processEvents()
+	handlers.registerSnapshots()
 
 	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
 		return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
@@ -201,6 +207,7 @@ func NewHandlers(
 	}
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
+	getAPIRouterNoError(apiRouter)("/events/snapshot", handlers.postEventsSnapshot).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/qr", handlers.getQRCode).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/config", handlers.getAppConfig).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/config/default", handlers.getDefaultConfig).Methods("GET")
@@ -209,9 +216,6 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/number-format", handlers.getNumberFormat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/notify-user", handlers.postNotify).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/open", handlers.postOpen).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdate).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBanners).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileData).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/authenticate", handlers.postAuthenticate).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/force-auth", handlers.postForceAuth).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-dark-theme", handlers.postDarkTheme).Methods("POST")
@@ -220,9 +224,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/testing", handlers.getTesting).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/dev-servers", handlers.getDevServers).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/status", handlers.getSwapStatus).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
@@ -237,8 +239,6 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystore).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiat).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/coins/{coinCode}/fiat-prices", handlers.getCoinFiatPrices).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/coins/{coinCode}/headers/status", handlers.getHeadersStatus).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/btc/parse-external-amount", handlers.getBTCParseExternalAmount).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownload).Methods("POST")
@@ -256,7 +256,6 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/market/bitrefill/info/{action}/{code}", handlers.getMarketBitrefillInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/bitsurance/lookup", handlers.postBitsuranceLookup).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/bitsurance/url", handlers.getBitsuranceURL).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/aopp", handlers.getAOPP).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancel).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApprove).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccount).Methods("POST")
@@ -270,10 +269,8 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/notes/export", handlers.postExportNotes).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/notes/import", handlers.postImportNotes).Methods("POST")
 
-	getAPIRouterNoError(apiRouter)("/bluetooth/state", handlers.getBluetoothState).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/bluetooth/connect", handlers.postBluetoothConnect).Methods("POST")
 
-	getAPIRouterNoError(apiRouter)("/online", handlers.getOnline).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/show-backup-banner/{rootFingerprint}", handlers.getKeystoreShowBackupBanner).Methods("GET")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
@@ -358,10 +355,10 @@ func NewHandlers(
 	events := backend.Start()
 	go func() {
 		for {
-			handlers.backendEvents <- <-events
+			handlers.pushEvent(<-events)
 		}
 	}()
-	backend.Observe(func(event observable.Event) { handlers.backendEvents <- event })
+	backend.Observe(func(event observable.Event) { handlers.pushEvent(event) })
 
 	return handlers
 }
@@ -610,18 +607,6 @@ func (handlers *Handlers) postOpen(r *http.Request) interface{} {
 	return response{Success: true}
 }
 
-func (handlers *Handlers) getUpdate(*http.Request) interface{} {
-	return handlers.backend.GetUpdate()
-}
-
-func (handlers *Handlers) getBanners(r *http.Request) interface{} {
-	return handlers.backend.Banners().GetMessage(banners.MessageKey(mux.Vars(r)["key"]))
-}
-
-func (handlers *Handlers) getUsingMobileData(r *http.Request) interface{} {
-	return handlers.backend.Environment().UsingMobileData()
-}
-
 func (handlers *Handlers) postAuthenticate(r *http.Request) interface{} {
 	type response struct {
 		Success      bool   `json:"success"`
@@ -705,7 +690,7 @@ func (handlers *Handlers) postAddAccount(r *http.Request) interface{} {
 	return response{Success: true, AccountCode: accountCode}
 }
 
-func (handlers *Handlers) getKeystores(*http.Request) interface{} {
+func (handlers *Handlers) keystores() interface{} {
 	type json struct {
 		Type keystore.Type `json:"type"`
 	}
@@ -769,7 +754,7 @@ func (handlers *Handlers) getKeystoreFeatures(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getAccounts(*http.Request) interface{} {
+func (handlers *Handlers) accounts() interface{} {
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
 
 	accounts := []*accountJSON{}
@@ -1115,8 +1100,8 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getCoinFiatPrices(r *http.Request) interface{} {
-	coin, err := handlers.backend.Coin(coinpkg.Code(mux.Vars(r)["coinCode"]))
+func (handlers *Handlers) coinFiatPrices(coinCode coinpkg.Code) interface{} {
+	coin, err := handlers.backend.Coin(coinCode)
 	if err != nil {
 		return nil
 	}
@@ -1164,14 +1149,13 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getHeadersStatus(r *http.Request) interface{} {
+func (handlers *Handlers) headersStatus(coinCode coinpkg.Code) interface{} {
 	type response struct {
 		Success      bool            `json:"success"`
 		ErrorMessage string          `json:"errorMessage,omitempty"`
 		Status       *headers.Status `json:"status,omitempty"`
 	}
 
-	coinCode := coinpkg.Code(mux.Vars(r)["coinCode"])
 	switch coinCode {
 	case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeLTC, coinpkg.CodeTLTC:
 	default:
@@ -1182,7 +1166,11 @@ func (handlers *Handlers) getHeadersStatus(r *http.Request) interface{} {
 	if err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	status, err := coin.(*btc.Coin).Headers().Status()
+	btcCoin := coin.(*btc.Coin)
+	if btcCoin.Headers() == nil {
+		return response{Success: false, ErrorMessage: "coin headers not initialized"}
+	}
+	status, err := btcCoin.Headers().Status()
 	if err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
@@ -1672,7 +1660,7 @@ func (handlers *Handlers) getMarketBitrefillInfo(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getAOPP(r *http.Request) interface{} {
+func (handlers *Handlers) aopp() interface{} {
 	return handlers.backend.AOPP()
 }
 
@@ -1793,10 +1781,6 @@ func (handlers *Handlers) postImportNotes(r *http.Request) interface{} {
 	return result{Success: true, Data: data}
 }
 
-func (handlers *Handlers) getBluetoothState(r *http.Request) interface{} {
-	return handlers.backend.Bluetooth().State()
-}
-
 func (handlers *Handlers) postBluetoothConnect(r *http.Request) interface{} {
 	var identifier string
 	if err := json.NewDecoder(r.Body).Decode(&identifier); err != nil {
@@ -1806,10 +1790,6 @@ func (handlers *Handlers) postBluetoothConnect(r *http.Request) interface{} {
 
 	handlers.backend.Environment().BluetoothConnect(identifier)
 	return nil
-}
-
-func (handlers *Handlers) getOnline(r *http.Request) interface{} {
-	return handlers.backend.IsOnline()
 }
 
 func (handlers *Handlers) getKeystoreShowBackupBanner(r *http.Request) interface{} {

@@ -1,17 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { apiSubscribe, TEvent, TUnsubscribe } from '@/utils/event';
-import { apiGet } from '@/utils/request';
+import { apiPost } from '@/utils/request';
 
 export type { TUnsubscribe };
 
 export type TSubscriptionCallback<T> = (eventObject: T) => void;
 
-/**
- * Subscribes the given function on an endpoint on which the backend
- * can push data through. This should be mostly used within api.
- */
-export const subscribeEndpoint = <T>(
+const observeEndpoint = <T>(
   endpoint: string,
   cb: TSubscriptionCallback<T>,
 ): TUnsubscribe => {
@@ -20,17 +16,32 @@ export const subscribeEndpoint = <T>(
     case 'replace':
       cb(event.object);
       break;
-    case 'reload':
-      // TODO: backend should push data with "replace" and not use "reload"
-      apiGet(event.subject)
-        .then(object => cb(object))
-        .catch(console.error);
-      break;
     default:
       throw new Error(`Event: ${JSON.stringify(event)} not supported`);
     }
   });
 };
+
+/**
+ * Subscribes to a backend value and requests its current snapshot through the
+ * same ordered event stream as live replacements.
+ */
+export const subscribeEndpoint = <T>(
+  endpoint: string,
+  cb: TSubscriptionCallback<T>,
+): TUnsubscribe => {
+  const unsubscribe = observeEndpoint(endpoint, cb);
+  apiPost('events/snapshot', endpoint).catch(console.error);
+  return unsubscribe;
+};
+
+/**
+ * Subscribes to transient backend events that do not have an initial snapshot.
+ */
+export const subscribeEvent = <T>(
+  endpoint: string,
+  cb: TSubscriptionCallback<T>,
+): TUnsubscribe => observeEndpoint(endpoint, cb);
 
 /**
  * Subscribes the given function to the backend/connected event.
@@ -41,5 +52,5 @@ export const subscribeEndpoint = <T>(
 export const backendConnected = (
   cb: (connected: boolean) => void
 ): TUnsubscribe => {
-  return subscribeEndpoint('backend/connected', cb);
+  return subscribeEvent('backend/connected', cb);
 };

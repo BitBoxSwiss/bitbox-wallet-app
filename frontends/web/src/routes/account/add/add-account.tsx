@@ -139,8 +139,6 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
   }, []);
 
   useEffect(() => {
-    startProcess();
-
     const unsubscribe = subscribeKeystores(() => {
       startProcess();
     });

@@ -3,7 +3,7 @@
 import type { TUnsubscribe } from '@/utils/transport-common';
 import type { SuccessResponse, FailResponse } from './response';
 import { apiGet, apiPost } from '@/utils/request';
-import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
+import { TSubscriptionCallback, subscribeEndpoint, subscribeEvent } from './subscribe';
 
 // BitBox02 error codes.
 export const errUserAbort = 104;
@@ -140,10 +140,6 @@ export type TStatus = 'connected'
   | 'unpaired'
   | 'uninitialized';
 
-export const getStatus = (deviceID: string): Promise<TStatus> => {
-  return apiGet(`devices/bitbox02/${deviceID}/status`);
-};
-
 type TChannelHash = {
   hash: string;
   deviceVerified: boolean;
@@ -200,7 +196,7 @@ export const channelHashChanged = (
   deviceID: string,
   cb: () => void,
 ): TUnsubscribe => {
-  return subscribeEndpoint(`devices/bitbox02/${deviceID}/channelHashChanged`, cb);
+  return subscribeEvent(`devices/bitbox02/${deviceID}/channelHashChanged`, cb);
 };
 
 /**
@@ -209,7 +205,7 @@ export const channelHashChanged = (
  */
 export const attestationCheckDone = (
   deviceID: string,
-  cb: () => void,
+  cb: TSubscriptionCallback<boolean | null>,
 ): TUnsubscribe => {
   return subscribeEndpoint(`devices/bitbox02/${deviceID}/attestationCheckDone`, cb);
 };

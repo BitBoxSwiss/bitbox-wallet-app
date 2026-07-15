@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { getStatus, statusChanged } from '@/api/bitbox02';
+import { statusChanged } from '@/api/bitbox02';
 import type { TDevices } from '@/api/devices';
-import { useSync } from '@/hooks/api';
+import { useSubscribe } from '@/hooks/api';
 import { BB02Settings } from '@/routes/settings/bb02-settings';
 
 type TProps = {
@@ -12,10 +12,7 @@ type TProps = {
 };
 
 export const BitBox02 = ({ deviceID, devices, hasAccounts }: TProps) => {
-  const status = useSync(
-    () => getStatus(deviceID),
-    cb => statusChanged(deviceID, cb)
-  );
+  const status = useSubscribe(cb => statusChanged(deviceID, cb));
   if (status !== 'initialized') {
     return null;
   }

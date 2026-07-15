@@ -90,10 +90,6 @@ type TCoinFiatPrices = {
   estimated: boolean;
 } | null;
 
-export const getCoinFiatPrices = (coinCode: CoinCode): Promise<TCoinFiatPrices> => {
-  return apiGet(`coins/${coinCode}/fiat-prices`);
-};
-
 export const subscribeCoinFiatPrices = (coinCode: CoinCode) => (
   (cb: TSubscriptionCallback<TCoinFiatPrices>): TUnsubscribe => (
     subscribeEndpoint(`coins/${coinCode}/fiat-prices`, cb)

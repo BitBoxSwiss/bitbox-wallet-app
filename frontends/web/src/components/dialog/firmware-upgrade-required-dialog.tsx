@@ -4,9 +4,8 @@ import { useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogButtons } from './dialog';
-import { getDeviceList } from '@/api/devices';
 import { syncDeviceList } from '@/api/devicessync';
-import { useSync } from '@/hooks/api';
+import { useSubscribe } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
 import { Button } from '@/components/forms';
 import { AppContext } from '@/contexts/AppContext';
@@ -20,7 +19,7 @@ export const FirmwareUpgradeRequiredDialog = ({ open, onClose }: TFirmwareUpgrad
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
-  const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
+  const devices = useDefault(useSubscribe(syncDeviceList), {});
   const deviceIDs = Object.keys(devices);
 
   const handleUpgrade = useCallback(() => {

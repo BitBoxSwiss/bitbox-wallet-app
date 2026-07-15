@@ -3,7 +3,7 @@
 import type { AccountCode } from './account';
 import type { TUnsubscribe } from '@/utils/transport-common';
 import type { NonEmptyArray } from '@/utils/types';
-import { apiGet, apiPost } from '@/utils/request';
+import { apiPost } from '@/utils/request';
 import { subscribeEndpoint } from './subscribe';
 
 type TAccount = {
@@ -56,10 +56,6 @@ type TChooseAccountResponse = {
 
 export const chooseAccount = (accountCode: AccountCode): Promise<TChooseAccountResponse> => {
   return apiPost('aopp/choose-account', { accountCode });
-};
-
-export const getAOPP = (): Promise<Aopp> => {
-  return apiGet('aopp');
 };
 
 export const subscribeAOPP = (
