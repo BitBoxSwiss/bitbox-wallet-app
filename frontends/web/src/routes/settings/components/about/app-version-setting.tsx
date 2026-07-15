@@ -13,13 +13,14 @@ export const AppVersion = () => {
   const { t } = useTranslation();
 
   const version = useLoad(getVersion);
-  const update = useSync(getUpdate, subscribeUpdate);
+  const updateState = useSync(getUpdate, subscribeUpdate, state => state.revision);
+  const update = updateState?.update;
 
   const secondaryText = !!update ? t('settings.info.out-of-date') : t('settings.info.up-to-date');
   const icon = !!update ? <RedDot width={8} height={8} /> : <Checked />;
   const versionNumber = !!version ? version : '-';
 
-  if (update === undefined) {
+  if (updateState === undefined) {
     return <StyledSkeleton />;
   }
 

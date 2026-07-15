@@ -31,6 +31,7 @@ type updateChecker struct {
 	check updateCheckFunc
 
 	latest     *UpdateFile
+	revision   uint64
 	latestLock locker.Locker
 	cancel     context.CancelFunc
 }
@@ -45,6 +46,12 @@ type UpdateFile struct {
 
 	// Description gives additional information on the release.
 	Description string `json:"description"`
+}
+
+// UpdateState is the revisioned result of the latest successful update check.
+type UpdateState struct {
+	Revision uint64      `json:"revision"`
+	Update   *UpdateFile `json:"update"`
 }
 
 func newUpdateChecker(proxy *socksproxy.SocksProxy) *updateChecker {
@@ -134,21 +141,29 @@ func (checker *updateChecker) checkAndSet(ctx context.Context) {
 func (checker *updateChecker) set(updateFile *UpdateFile) {
 	unlock := checker.latestLock.Lock()
 	checker.latest = updateFile
+	checker.revision++
+	state := UpdateState{
+		Revision: checker.revision,
+		Update:   checker.latest,
+	}
 	unlock()
 
 	checker.Notify(observable.Event{
 		Subject: "update",
 		Action:  action.Replace,
-		Object:  updateFile,
+		Object:  state,
 	})
 }
 
-func (checker *updateChecker) get() *UpdateFile {
+func (checker *updateChecker) get() UpdateState {
 	defer checker.latestLock.RLock()()
-	return checker.latest
+	return UpdateState{
+		Revision: checker.revision,
+		Update:   checker.latest,
+	}
 }
 
 // GetUpdate returns the result of the latest successful update check.
-func (backend *Backend) GetUpdate() *UpdateFile {
+func (backend *Backend) GetUpdate() UpdateState {
 	return backend.updateChecker.get()
 }

@@ -10,7 +10,7 @@ import style from './update.module.css';
 
 export const Update = () => {
   const { t } = useTranslation();
-  const file = useSync(getUpdate, subscribeUpdate);
+  const file = useSync(getUpdate, subscribeUpdate, state => state.revision)?.update;
   if (!file) {
     return null;
   }
