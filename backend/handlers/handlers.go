@@ -92,7 +92,7 @@ type Backend interface {
 	NotifyUser(string)
 	SystemOpen(string) error
 	ReinitializeAccounts()
-	GetUpdate() *backend.UpdateFile
+	GetUpdate() backend.UpdateState
 	Banners() *banners.Banners
 	Environment() backend.Environment
 	ClearCache() error

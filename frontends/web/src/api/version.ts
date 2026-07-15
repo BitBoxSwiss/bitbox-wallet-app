@@ -12,16 +12,21 @@ export type TUpdateFile = {
   description: string;
 };
 
+export type TUpdateState = {
+  revision: number;
+  update: TUpdateFile | null;
+};
+
 export const getVersion = (): Promise<string> => {
   return apiGet('version');
 };
 
-export const getUpdate = (): Promise<TUpdateFile | null> => {
+export const getUpdate = (): Promise<TUpdateState> => {
   return apiGet('update');
 };
 
 export const subscribeUpdate = (
-  cb: TSubscriptionCallback<TUpdateFile | null>
+  cb: TSubscriptionCallback<TUpdateState>
 ) => (
   subscribeEndpoint('update', cb)
 );

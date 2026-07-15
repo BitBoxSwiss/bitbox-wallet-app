@@ -66,11 +66,13 @@ func TestUpdateCheckerCheckAndSet(t *testing.T) {
 
 		checker.checkAndSet(context.Background())
 
-		require.Same(t, update, checker.get())
+		state := checker.get()
+		require.Equal(t, uint64(1), state.Revision)
+		require.Same(t, update, state.Update)
 		event := <-events
 		require.Equal(t, "update", event.Subject)
 		require.Equal(t, action.Replace, event.Action)
-		require.Same(t, update, event.Object)
+		require.Equal(t, state, event.Object)
 	})
 
 	t.Run("no update clears cached update", func(t *testing.T) {
@@ -79,7 +81,8 @@ func TestUpdateCheckerCheckAndSet(t *testing.T) {
 			check: func(context.Context) (*UpdateFile, error) {
 				return nil, nil
 			},
-			latest: &UpdateFile{Description: "old update"},
+			latest:   &UpdateFile{Description: "old update"},
+			revision: 4,
 		}
 		checker.Observe(func(event observable.Event) {
 			events <- event
@@ -87,8 +90,10 @@ func TestUpdateCheckerCheckAndSet(t *testing.T) {
 
 		checker.checkAndSet(context.Background())
 
-		require.Nil(t, checker.get())
-		require.Nil(t, (<-events).Object)
+		state := checker.get()
+		require.Equal(t, uint64(5), state.Revision)
+		require.Nil(t, state.Update)
+		require.Equal(t, state, (<-events).Object)
 	})
 
 	t.Run("error retains cached update", func(t *testing.T) {
@@ -98,7 +103,8 @@ func TestUpdateCheckerCheckAndSet(t *testing.T) {
 			check: func(context.Context) (*UpdateFile, error) {
 				return nil, errors.New("offline")
 			},
-			latest: update,
+			latest:   update,
+			revision: 4,
 		}
 		checker.Observe(func(event observable.Event) {
 			events <- event
@@ -106,7 +112,9 @@ func TestUpdateCheckerCheckAndSet(t *testing.T) {
 
 		checker.checkAndSet(context.Background())
 
-		require.Same(t, update, checker.get())
+		state := checker.get()
+		require.Equal(t, uint64(4), state.Revision)
+		require.Same(t, update, state.Update)
 		select {
 		case event := <-events:
 			t.Fatalf("unexpected event: %+v", event)
