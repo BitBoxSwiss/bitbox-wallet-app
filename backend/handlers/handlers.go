@@ -92,7 +92,7 @@ type Backend interface {
 	NotifyUser(string)
 	SystemOpen(string) error
 	ReinitializeAccounts()
-	CheckForUpdateIgnoringErrors() *backend.UpdateFile
+	GetUpdate() *backend.UpdateFile
 	Banners() *banners.Banners
 	Environment() backend.Environment
 	ClearCache() error
@@ -611,7 +611,7 @@ func (handlers *Handlers) postOpen(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) getUpdate(*http.Request) interface{} {
-	return handlers.backend.CheckForUpdateIgnoringErrors()
+	return handlers.backend.GetUpdate()
 }
 
 func (handlers *Handlers) getBanners(r *http.Request) interface{} {

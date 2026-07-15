@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useLoad } from '@/hooks/api';
+import { useLoad, useSync } from '@/hooks/api';
 import { useTranslation } from 'react-i18next';
-import { getUpdate, getVersion } from '@/api/version';
+import { getUpdate, getVersion, subscribeUpdate } from '@/api/version';
 import { open } from '@/api/system';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { StyledSkeleton } from '@/routes/settings/bb02-settings';
@@ -13,7 +13,7 @@ export const AppVersion = () => {
   const { t } = useTranslation();
 
   const version = useLoad(getVersion);
-  const update = useLoad(getUpdate);
+  const update = useSync(getUpdate, subscribeUpdate);
 
   const secondaryText = !!update ? t('settings.info.out-of-date') : t('settings.info.up-to-date');
   const icon = !!update ? <RedDot width={8} height={8} /> : <Checked />;
