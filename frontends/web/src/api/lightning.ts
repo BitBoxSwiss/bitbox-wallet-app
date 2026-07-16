@@ -38,6 +38,10 @@ export type TLightningLNURLPay = {
   maxAmountSat: number;
 };
 
+export type TLightningBitcoinAddress = {
+  address: string;
+};
+
 export type TLightningPayment = {
   id: string;
   type: 'send' | 'receive';
@@ -84,6 +88,11 @@ export type TGeneratedLightningAddress = {
 };
 
 export type TSendPaymentRequest = {
+  type: TPaymentInputType.BITCOIN_ADDRESS;
+  paymentInput: string;
+  amountSat: number;
+  approvedFeeSat: number;
+} | {
   type: TPaymentInputType.BOLT11;
   paymentInput: string;
   amountSat?: number;
@@ -96,6 +105,10 @@ export type TSendPaymentRequest = {
 };
 
 export type TPreparePaymentRequest = {
+  type: TPaymentInputType.BITCOIN_ADDRESS;
+  paymentInput: string;
+  amountSat: number;
+} | {
   type: TPaymentInputType.BOLT11;
   paymentInput: string;
   amountSat?: number;
@@ -118,11 +131,15 @@ export type TSparkStatus = {
 };
 
 export enum TPaymentInputType {
+  BITCOIN_ADDRESS = 'bitcoinAddress',
   BOLT11 = 'bolt11',
   LNURL_PAY = 'lnurlPay',
 }
 
 export type TPaymentInput = {
+  type: TPaymentInputType.BITCOIN_ADDRESS;
+  bitcoinAddress: TLightningBitcoinAddress;
+} | {
   type: TPaymentInputType.BOLT11;
   invoice: TLightningBolt11Invoice;
 } | {

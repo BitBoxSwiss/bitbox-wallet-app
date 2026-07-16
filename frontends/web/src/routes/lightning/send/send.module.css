@@ -20,6 +20,20 @@
     margin-bottom: var(--space-eight);
 }
 
+.receiverLabel {
+    align-items: center;
+    display: flex;
+    gap: var(--space-eight);
+}
+
+.receiverBadge {
+    padding: 3px 6px;
+}
+
+.address {
+    overflow-wrap: anywhere;
+}
+
 .amountLine {
     align-items: baseline;
     display: inline-flex;

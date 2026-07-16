@@ -287,6 +287,25 @@ func TestToLightningLNURLPay(t *testing.T) {
 	require.Equal(t, uint64(9), lnurlPay.MaxAmountSat)
 }
 
+func TestParseBitcoinPaymentInput(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{}
+	sdk.parseInput = func(input string) (breez_sdk_spark.InputType, error) {
+		require.Equal(t, "bitcoin:bc1qdestination", input)
+		return breez_sdk_spark.InputTypeBitcoinAddress{
+			Field0: breez_sdk_spark.BitcoinAddressDetails{Address: "bc1qdestination"},
+		}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	input, err := lightning.ParsePaymentInput("bitcoin:bc1qdestination")
+
+	require.NoError(t, err)
+	require.Equal(t, paymentInputTypeBitcoinAddress, input.Type)
+	require.Equal(t, "bc1qdestination", input.BitcoinAddress.Address)
+}
+
 func TestPrepareBolt11PaymentRequest(t *testing.T) {
 	t.Parallel()
 
@@ -475,6 +494,7 @@ type testPaymentSDK struct {
 	breezSDK
 
 	balanceSats      uint64
+	parseInput       func(string) (breez_sdk_spark.InputType, error)
 	prepareSend      func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error)
 	send             func(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error)
 	disconnectCalled bool
@@ -483,6 +503,10 @@ type testPaymentSDK struct {
 
 func (sdk *testPaymentSDK) GetInfo(breez_sdk_spark.GetInfoRequest) (breez_sdk_spark.GetInfoResponse, error) {
 	return breez_sdk_spark.GetInfoResponse{BalanceSats: sdk.balanceSats}, nil
+}
+
+func (sdk *testPaymentSDK) Parse(input string) (breez_sdk_spark.InputType, error) {
+	return sdk.parseInput(input)
 }
 
 func (sdk *testPaymentSDK) PrepareSendPayment(
@@ -545,6 +569,83 @@ func testBitcoinPrepareResponse(feeSat uint64) breez_sdk_spark.PrepareSendPaymen
 		Amount:    big.NewInt(10_000),
 		FeePolicy: breez_sdk_spark.FeePolicyFeesIncluded,
 	}
+}
+
+func testStandardBitcoinPrepareResponse(amountSat uint64, feeSat uint64) breez_sdk_spark.PrepareSendPaymentResponse {
+	return breez_sdk_spark.PrepareSendPaymentResponse{
+		PaymentMethod: breez_sdk_spark.SendPaymentMethodBitcoinAddress{
+			FeeQuote: breez_sdk_spark.SendOnchainFeeQuote{
+				SpeedFast: breez_sdk_spark.SendOnchainSpeedFeeQuote{
+					UserFeeSat:        feeSat - 1,
+					L1BroadcastFeeSat: 1,
+				},
+			},
+		},
+		Amount:    new(big.Int).SetUint64(amountSat),
+		FeePolicy: breez_sdk_spark.FeePolicyFeesExcluded,
+	}
+}
+
+func TestPrepareBitcoinPayment(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{balanceSats: 10_000}
+	sdk.prepareSend = func(request breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+		require.Equal(t, "bc1qdestination", request.PaymentRequest)
+		require.NotNil(t, request.Amount)
+		require.Zero(t, (*request.Amount).Cmp(big.NewInt(5_000)))
+		require.NotNil(t, request.FeePolicy)
+		require.Equal(t, breez_sdk_spark.FeePolicyFeesExcluded, *request.FeePolicy)
+		return testStandardBitcoinPrepareResponse(5_000, 1_000), nil
+	}
+	sdk.send = func(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+		t.Fatal("prepare must not send payment")
+		return breez_sdk_spark.SendPaymentResponse{}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+	amountSat := uint64(5_000)
+
+	fee, err := lightning.PreparePayment(preparePaymentRequest{
+		Type:         paymentInputTypeBitcoinAddress,
+		PaymentInput: "bc1qdestination",
+		AmountSat:    &amountSat,
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, &paymentFee{
+		AmountSat:     5_000,
+		FeeSat:        1_000,
+		TotalDebitSat: 6_000,
+	}, fee)
+}
+
+func TestSendBitcoinPayment(t *testing.T) {
+	t.Parallel()
+
+	prepareResponse := testStandardBitcoinPrepareResponse(5_000, 1_000)
+	sdk := &testPaymentSDK{balanceSats: 10_000}
+	sdk.prepareSend = func(request breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+		return prepareResponse, nil
+	}
+	sdk.send = func(request breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+		require.Equal(t, prepareResponse, request.PrepareResponse)
+		require.NotNil(t, request.Options)
+		options, ok := (*request.Options).(breez_sdk_spark.SendPaymentOptionsBitcoinAddress)
+		require.True(t, ok)
+		require.Equal(t, breez_sdk_spark.OnchainConfirmationSpeedFast, options.ConfirmationSpeed)
+		return breez_sdk_spark.SendPaymentResponse{}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+	amountSat := uint64(5_000)
+
+	err := lightning.SendPayment(sendPaymentRequest{
+		Type:           paymentInputTypeBitcoinAddress,
+		PaymentInput:   "bc1qdestination",
+		AmountSat:      &amountSat,
+		ApprovedFeeSat: 1_000,
+	})
+
+	require.NoError(t, err)
 }
 
 func TestPrepareCloseWithdraw(t *testing.T) {

@@ -1684,16 +1684,18 @@
       "confirm": {
         "amount": "Amount",
         "note": "Note",
+        "receiver": "Receiver",
         "title": "Confirm transaction details"
       },
       "invoice": {
-        "input": "Or paste your invoice here"
+        "input": "Or paste an address or invoice here"
       },
       "lnurlPay": {
         "invalidAmount": "Enter an amount between {{minAmount}} and {{maxAmount}} sats."
       },
+      "onChain": "On-chain",
       "qrCode": {
-        "label": "Scan lightning invoice"
+        "label": "Scan address or invoice"
       },
       "sending": {
         "connecting": "Preparing payment",
