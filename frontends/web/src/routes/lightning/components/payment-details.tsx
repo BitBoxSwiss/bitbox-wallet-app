@@ -36,7 +36,7 @@ export const PaymentDetailsDialog = ({
       {payment && (
         <div className={styles.container}>
           <TxDetailRow>
-            <p className={styles.label}>{t('lightning.send.confirm.memo')}</p>
+            <p className={styles.label}>{t('lightning.send.confirm.note')}</p>
             <span>{payment.description || '-'}</span>
           </TxDetailRow>
           <TxDetailRow>
