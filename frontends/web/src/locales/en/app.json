@@ -1617,6 +1617,10 @@
       },
       "fee": "Fee",
       "lightningBalanceToBeSent": "Lightning balance to be sent",
+      "partialFailure": {
+        "action": "Shut down wallet",
+        "message": "Funds were withdrawn, but the lightning wallet could not be closed. Please shut it down separately."
+      },
       "success": {
         "message": "Lightning wallet successfully closed. Coins will be sent to on-chain wallet.",
         "note": "Your coins will appear in your wallet once the transaction is confirmed."
@@ -1746,7 +1750,7 @@
         "total": "Total"
       },
       "from": "From",
-      "noBitcoinAccounts": "No Bitcoin accounts active. Please activate a Bitcoin account to top-up.",
+      "noBitcoinAccounts": "No Bitcoin accounts active. Please activate a Bitcoin account.",
       "success": {
         "message": "Top up created!"
       },

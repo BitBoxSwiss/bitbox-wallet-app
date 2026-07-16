@@ -70,6 +70,18 @@ export type TReceivePaymentResponse = {
   invoice: string;
 };
 
+export type TCloseWithdrawQuote = {
+  balance: TAmountWithConversions;
+  balanceSat: number;
+  fee: TAmountWithConversions;
+  feeSat: number;
+};
+
+export type TCloseWithdrawResult = {
+  txId?: string;
+  walletClosed: boolean;
+};
+
 export type TLightningAddressAvailability = {
   username: string;
   address: string;
@@ -233,6 +245,30 @@ export const getParsePaymentInput = async (params: TParsePaymentInputRequest): P
 
 export const getBoardingAddress = async (): Promise<string> => {
   return getApiResponse<string>('lightning/boarding-address', 'Error calling getBoardingAddress');
+};
+
+export const postPrepareCloseWithdraw = async (destinationAccountCode: AccountCode): Promise<TCloseWithdrawQuote> => {
+  return postApiResponse<TCloseWithdrawQuote, { destinationAccountCode: AccountCode }>(
+    'lightning/close-withdraw-funds/prepare',
+    { destinationAccountCode },
+    'Error calling postPrepareCloseWithdraw'
+  );
+};
+
+export const postCloseWithdraw = async (
+  destinationAccountCode: AccountCode,
+  approvedBalanceSat: number,
+  approvedFeeSat: number,
+): Promise<TCloseWithdrawResult> => {
+  return postApiResponse<TCloseWithdrawResult, {
+    destinationAccountCode: AccountCode;
+    approvedBalanceSat: number;
+    approvedFeeSat: number;
+  }>(
+    'lightning/close-withdraw-funds',
+    { destinationAccountCode, approvedBalanceSat, approvedFeeSat },
+    'Error calling postCloseWithdraw'
+  );
 };
 
 export const postPreparePayment = async (data: TPreparePaymentRequest): Promise<TPreparePaymentResponse> => {
