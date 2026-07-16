@@ -1733,6 +1733,7 @@
       },
       "from": "From",
       "noBitcoinAccounts": "No Bitcoin accounts active. Please activate a Bitcoin account to top-up.",
+      "noFundedBitcoinAccounts": "No Bitcoin accounts with an available balance. Receive Bitcoin before trying to top up again.",
       "success": {
         "message": "Top up created!"
       },
