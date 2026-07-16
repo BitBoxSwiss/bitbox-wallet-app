@@ -25,8 +25,7 @@ export const LanguageDropdownSetting = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   return (
     <SettingsItem
-      disabled={!isMobile}
-      onClick={!isMobileSelectorOpen ? () => setIsMobileSelectorOpen(true) : undefined}
+      onClick={isMobile && !isMobileSelectorOpen ? () => setIsMobileSelectorOpen(true) : undefined}
       settingName={<div className={styles.container}>{globe}{t('newSettings.appearance.language.title')}</div>}
       secondaryText={t('newSettings.appearance.language.description')}
       collapseOnSmall

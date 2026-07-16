@@ -367,7 +367,9 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.lightning = lightning.NewLightning(backend.config,
 		backend.arguments.CacheDirectoryPath(),
 		backend.environment,
-		backend.Keystore, backend.httpClient,
+		backend.Keystore,
+		backend.GetAccountFromCode,
+		backend.httpClient,
 		backend.ratesUpdater,
 		btcCoin,
 		backend.DevServers())

@@ -59,10 +59,18 @@ func (e *testEnvironment) DeleteLightningEncryptionKey(accountCode string) error
 
 func newTestLightning(t *testing.T, environment environment) *Lightning {
 	t.Helper()
+	return newTestLightningWithConfigFilename(t, environment, test.TstTempFile("lightningConfig"))
+}
+
+func newTestLightningWithConfigFilename(
+	t *testing.T,
+	environment environment,
+	lightningConfigFilename string,
+) *Lightning {
+	t.Helper()
 
 	appConfigFilename := test.TstTempFile("appConfig")
 	accountsConfigFilename := test.TstTempFile("accountsConfig")
-	lightningConfigFilename := test.TstTempFile("lightningConfig")
 
 	cfg, err := config.NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
@@ -76,6 +84,7 @@ func newTestLightning(t *testing.T, environment environment) *Lightning {
 		test.TstTempDir("lightning-cache"),
 		environment,
 		func() keystore.Keystore { return nil },
+		nil,
 		&http.Client{},
 		nil,
 		nil,

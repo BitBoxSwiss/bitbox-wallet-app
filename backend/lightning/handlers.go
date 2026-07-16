@@ -44,6 +44,8 @@ func NewHandlers(
 	handleNoError("/parse-payment-input", lightning.GetParsePaymentInput).Methods("GET")
 	handleNoError("/prepare-payment", lightning.PostPreparePayment).Methods("POST")
 	handleNoError("/boarding-address", lightning.GetBoardingAddress).Methods("GET")
+	handleNoError("/close-withdraw-funds/prepare", lightning.PostPrepareCloseWithdraw).Methods("POST")
+	handleNoError("/close-withdraw-funds", lightning.PostCloseWithdraw).Methods("POST")
 	handleNoError("/receive-payment", lightning.GetReceivePayment).Methods("GET")
 	handleNoError("/send-payment", lightning.PostSendPayment).Methods("POST")
 }
@@ -212,6 +214,48 @@ func (lightning *Lightning) GetBoardingAddress(_ *http.Request) interface{} {
 		return errorResponse(err)
 	}
 	return responseDto{Success: true, Data: address}
+}
+
+// PostPrepareCloseWithdraw handles the POST request to prepare a full-balance on-chain withdrawal.
+func (lightning *Lightning) PostPrepareCloseWithdraw(r *http.Request) interface{} {
+	var jsonBody struct {
+		DestinationAccountCode types.Code `json:"destinationAccountCode"`
+	}
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&jsonBody); err != nil {
+		return errorResponse(err)
+	}
+
+	quote, err := lightning.PrepareCloseWithdraw(jsonBody.DestinationAccountCode)
+	if err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true, Data: quote}
+}
+
+// PostCloseWithdraw handles the POST request to withdraw all funds and deactivate Lightning.
+func (lightning *Lightning) PostCloseWithdraw(r *http.Request) interface{} {
+	var jsonBody struct {
+		DestinationAccountCode types.Code `json:"destinationAccountCode"`
+		ApprovedBalanceSat     uint64     `json:"approvedBalanceSat"`
+		ApprovedFeeSat         uint64     `json:"approvedFeeSat"`
+	}
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&jsonBody); err != nil {
+		return errorResponse(err)
+	}
+
+	result, err := lightning.CloseWithdraw(
+		jsonBody.DestinationAccountCode,
+		jsonBody.ApprovedBalanceSat,
+		jsonBody.ApprovedFeeSat,
+	)
+	if err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true, Data: result}
 }
 
 // GetParsePaymentInput handles the GET request to parse a payment input.
