@@ -2,12 +2,14 @@
 
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { getLightningBalance } from '@/api/lightning';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { Checked } from '@/components/icon';
 import { SubTitle } from '@/components/title';
+import { useLoad } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
 import { SettingsItem } from './components/settingsItem/settingsItem';
 import { MobileHeader } from './components/mobile-header';
@@ -22,7 +24,11 @@ export const LightningSettings = ({
 }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { lightningAccount } = useLightning();
+  const { isLightningReady, lightningAccount } = useLightning();
+  const lightningBalance = useLoad(
+    lightningAccount && isLightningReady ? getLightningBalance : null,
+    [isLightningReady, lightningAccount]
+  );
 
   const renderContent = () => {
     if (lightningAccount === undefined) {
@@ -65,6 +71,7 @@ export const LightningSettings = ({
           onClick={() => navigate('/lightning/deactivate/')}
         />
         <SettingsItem
+          disabled={!lightningBalance?.hasAvailable}
           settingName={<span className={styles.danger}>{t('lightning.settings.closeAndWithdrawFunds')}</span>}
           onClick={() => navigate('/lightning/close-withdraw-funds/')}
         />

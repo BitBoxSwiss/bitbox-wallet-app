@@ -81,6 +81,18 @@ type paymentFee struct {
 	TotalDebitSat uint64 `json:"totalDebitSat"`
 }
 
+type closeWithdrawQuote struct {
+	Balance    coin.FormattedAmountWithConversions `json:"balance"`
+	BalanceSat uint64                              `json:"balanceSat"`
+	Fee        coin.FormattedAmountWithConversions `json:"fee"`
+	FeeSat     uint64                              `json:"feeSat"`
+}
+
+type closeWithdrawResult struct {
+	TxID         string `json:"txId,omitempty"`
+	WalletClosed bool   `json:"walletClosed"`
+}
+
 const (
 	paymentInputTypeBolt11   = "bolt11"
 	paymentInputTypeLNURLPay = "lnurlPay"
@@ -346,6 +358,40 @@ func preparedLNURLPayFee(prepareResponse breez_sdk_spark.PrepareLnurlPayResponse
 	}
 }
 
+func prepareBitcoinPaymentRequest(
+	destinationAddress string,
+	amountSat uint64,
+	feePolicy breez_sdk_spark.FeePolicy,
+) breez_sdk_spark.PrepareSendPaymentRequest {
+	amount := new(big.Int).SetUint64(amountSat)
+	return breez_sdk_spark.PrepareSendPaymentRequest{
+		PaymentRequest: destinationAddress,
+		Amount:         &amount,
+		FeePolicy:      &feePolicy,
+	}
+}
+
+func preparedBitcoinPaymentFee(
+	prepareResponse breez_sdk_spark.PrepareSendPaymentResponse,
+) (*paymentFee, error) {
+	paymentMethod, ok := prepareResponse.PaymentMethod.(breez_sdk_spark.SendPaymentMethodBitcoinAddress)
+	if !ok {
+		return nil, errp.Newf("Payment method %v not supported", prepareResponse.PaymentMethod)
+	}
+	feeQuote := paymentMethod.FeeQuote.SpeedFast
+	feeSat := feeQuote.UserFeeSat + feeQuote.L1BroadcastFeeSat
+	amountSat := parseLightningUint(prepareResponse.Amount)
+	totalDebitSat := amountSat + feeSat
+	if prepareResponse.FeePolicy == breez_sdk_spark.FeePolicyFeesIncluded {
+		totalDebitSat = amountSat
+	}
+	return &paymentFee{
+		AmountSat:     amountSat,
+		FeeSat:        feeSat,
+		TotalDebitSat: totalDebitSat,
+	}, nil
+}
+
 func checkApprovedPaymentFee(fee uint64, approvedFee uint64) error {
 	if fee > approvedFee {
 		return errPaymentApprovalRequired
@@ -567,6 +613,123 @@ func (lightning *Lightning) sendLNURLPay(request sendPaymentRequest) error {
 		return lightningPaymentError(err)
 	}
 	return nil
+}
+
+func (lightning *Lightning) prepareBitcoinPayment(
+	destinationAddress string,
+	amountSat uint64,
+	feePolicy breez_sdk_spark.FeePolicy,
+) (breez_sdk_spark.PrepareSendPaymentResponse, *paymentFee, error) {
+	if err := lightning.CheckActive(); err != nil {
+		return breez_sdk_spark.PrepareSendPaymentResponse{}, nil, err
+	}
+	if amountSat == 0 {
+		return breez_sdk_spark.PrepareSendPaymentResponse{}, nil, errLightningInvalidAmount
+	}
+
+	prepareResponse, err := lightning.sdkService.PrepareSendPayment(
+		prepareBitcoinPaymentRequest(destinationAddress, amountSat, feePolicy),
+	)
+	if err != nil {
+		lightning.log.WithError(err).Error("Prepare Bitcoin payment failed")
+		return breez_sdk_spark.PrepareSendPaymentResponse{}, nil, lightningPaymentError(err)
+	}
+
+	fee, err := preparedBitcoinPaymentFee(prepareResponse)
+	if err != nil {
+		return breez_sdk_spark.PrepareSendPaymentResponse{}, nil, err
+	}
+	balance, err := lightning.Balance()
+	if err != nil {
+		return breez_sdk_spark.PrepareSendPaymentResponse{}, nil, err
+	}
+	if err := checkPaymentBalance(fee, balance); err != nil {
+		return prepareResponse, fee, err
+	}
+	return prepareResponse, fee, nil
+}
+
+// PrepareCloseWithdraw prepares an on-chain payment that spends the full Lightning balance.
+func (lightning *Lightning) PrepareCloseWithdraw(destinationAddress string) (*closeWithdrawQuote, error) {
+	balance, err := lightning.Balance()
+	if err != nil {
+		return nil, err
+	}
+	if balance.Available().BigInt().Sign() <= 0 {
+		return nil, errLightningInvalidAmount
+	}
+	amountSat := balance.Available().BigInt().Uint64()
+	_, fee, err := lightning.prepareBitcoinPayment(
+		destinationAddress,
+		amountSat,
+		breez_sdk_spark.FeePolicyFeesIncluded,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	feeAmount := coin.NewAmountFromInt64(int64(fee.FeeSat))
+	return &closeWithdrawQuote{
+		Balance:    balance.Available().FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
+		BalanceSat: amountSat,
+		Fee:        feeAmount.FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
+		FeeSat:     fee.FeeSat,
+	}, nil
+}
+
+// CloseWithdraw spends the full Lightning balance on-chain and then deactivates the wallet.
+func (lightning *Lightning) CloseWithdraw(
+	destinationAddress string,
+	approvedBalanceSat uint64,
+	approvedFeeSat uint64,
+) (*closeWithdrawResult, error) {
+	balance, err := lightning.Balance()
+	if err != nil {
+		return nil, err
+	}
+	amountSat := balance.Available().BigInt().Uint64()
+	if amountSat != approvedBalanceSat {
+		return nil, errPaymentApprovalRequired
+	}
+	if balance.Available().BigInt().Sign() <= 0 {
+		return nil, errLightningInvalidAmount
+	}
+	prepareResponse, fee, err := lightning.prepareBitcoinPayment(
+		destinationAddress,
+		amountSat,
+		breez_sdk_spark.FeePolicyFeesIncluded,
+	)
+	if err != nil {
+		return nil, err
+	}
+	if err := checkApprovedPaymentFee(fee.FeeSat, approvedFeeSat); err != nil {
+		return nil, err
+	}
+
+	var options breez_sdk_spark.SendPaymentOptions = breez_sdk_spark.SendPaymentOptionsBitcoinAddress{
+		ConfirmationSpeed: breez_sdk_spark.OnchainConfirmationSpeedFast,
+	}
+	response, err := lightning.sdkService.SendPayment(breez_sdk_spark.SendPaymentRequest{
+		PrepareResponse: prepareResponse,
+		Options:         &options,
+	})
+	if err != nil {
+		lightning.log.WithError(err).Error("Send Bitcoin payment failed")
+		return nil, lightningPaymentError(err)
+	}
+
+	result := &closeWithdrawResult{}
+	if response.Payment.Details != nil {
+		if details, ok := (*response.Payment.Details).(breez_sdk_spark.PaymentDetailsWithdraw); ok {
+			result.TxID = details.TxId
+		}
+	}
+	if err := lightning.Deactivate(); err != nil {
+		lightning.log.WithError(err).Error("Bitcoin withdrawal succeeded but Lightning wallet deactivation failed")
+		return result, nil
+	}
+	result.WalletClosed = true
+	return result, nil
 }
 
 // BoardingAddress returns a bitcoin address that can be used to fund lightning.

@@ -189,7 +189,7 @@ func (lightning *Lightning) Disconnect() {
 	}
 }
 
-// Deactivate disconnects the instance, deletes cache folder and changes the config to inactive.
+// Deactivate changes the config to inactive, disconnects the instance and deletes the cache folder.
 func (lightning *Lightning) Deactivate() error {
 	account := lightning.Account()
 
@@ -197,14 +197,14 @@ func (lightning *Lightning) Deactivate() error {
 		return nil
 	}
 
+	if err := lightning.SetAccount(nil); err != nil {
+		return err
+	}
+
 	lightning.Disconnect()
 	workingDir := path.Join(lightning.cacheDirectoryPath, accountBreezFolder(account.Code))
 	if err := os.RemoveAll(workingDir); err != nil {
 		lightning.log.WithError(err).Error("Error deleting working directory")
-	}
-
-	if err := lightning.SetAccount(nil); err != nil {
-		return err
 	}
 
 	if lightning.environment.CanEncryptLightningMnemonic() {
