@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useCallback, useContext, useMemo, useState } from 'react';
 import type { Fiat, TTransaction, TTransactionType } from '@/api/account';
+import { RatesContext } from '@/contexts/RatesContext';
+import { useDebounce } from '@/hooks/debounce';
 
 export type TTransactionTypeFilter = 'all' | TTransactionType;
 export type TAmountUnitFilter = 'coin' | 'fiat';
@@ -14,15 +17,17 @@ export type TTransactionFilters = {
   amountUnit: TAmountUnitFilter;
 };
 
-export const emptyFilters: TTransactionFilters = {
+export const emptyFilters: TTransactionFilters = Object.freeze({
   fromDate: '',
   toDate: '',
   type: 'all',
   amountMin: '',
   amountMax: '',
   amountUnit: 'coin',
-};
+});
 
+// Inputs are expected to come from type="number" fields (canonical numeric
+// strings), so this parsing is intentionally not locale-aware.
 const parseBound = (input: string): number | null => {
   const trimmed = input.trim();
   if (trimmed === '') {
@@ -78,4 +83,33 @@ export const matchesFilters = (
   }
   const absValue = Math.abs(value);
   return (min === null || absValue >= min) && (max === null || absValue <= max);
+};
+
+export const useTransactionFilters = () => {
+  const { defaultCurrency } = useContext(RatesContext);
+  const [filters, setFilters] = useState<TTransactionFilters>(emptyFilters);
+  // Debounce free-text amount inputs so typing doesn't re-filter per keystroke.
+  const debouncedAmountMin = useDebounce(filters.amountMin, 200);
+  const debouncedAmountMax = useDebounce(filters.amountMax, 200);
+
+  const appliedFilters = useMemo(() => ({
+    ...filters,
+    amountMin: debouncedAmountMin,
+    amountMax: debouncedAmountMax,
+  }), [filters, debouncedAmountMin, debouncedAmountMax]);
+
+  const matches = useCallback(
+    (tx: TTransaction) => matchesFilters(tx, appliedFilters, defaultCurrency),
+    [appliedFilters, defaultCurrency],
+  );
+
+  const clearFilters = useCallback(() => setFilters(emptyFilters), []);
+
+  const isActive = filters.fromDate !== ''
+    || filters.toDate !== ''
+    || filters.type !== 'all'
+    || filters.amountMin.trim() !== ''
+    || filters.amountMax.trim() !== '';
+
+  return { filters, setFilters, clearFilters, isActive, matches };
 };

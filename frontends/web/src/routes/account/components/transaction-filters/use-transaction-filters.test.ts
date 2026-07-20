@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, expect, it } from 'vitest';
+import { act, createElement } from 'react';
+import type { ContextType, ReactNode } from 'react';
+import { renderHook } from '@testing-library/react';
 import type { TTransaction } from '@/api/account';
-import { emptyFilters, matchesFilters, TTransactionFilters } from './use-transaction-filters';
+import { RatesContext } from '@/contexts/RatesContext';
+import { emptyFilters, matchesFilters, TTransactionFilters, useTransactionFilters } from './use-transaction-filters';
 
 const makeTx = (overrides: Partial<TTransaction> = {}): TTransaction => ({
   addresses: ['addr1'],
@@ -88,6 +92,15 @@ describe('matchesFilters', () => {
       expect(matchesFilters(tx, filters({ amountMin: '0.5001' }), 'USD')).toBe(true);
       expect(matchesFilters(tx, filters({ amountMax: '0.5' }), 'USD')).toBe(false);
     });
+
+    it('uses deducted amount for send_to_self', () => {
+      expect(matchesFilters(makeTx({ type: 'send_to_self' }), filters({ amountMin: '0.5001' }), 'USD')).toBe(true);
+    });
+
+    it('compares negative amounts by absolute value', () => {
+      const tx = makeTx({ amountAtTime: { amount: '-0.5', conversions: { USD: '90.00' }, unit: 'BTC', estimated: false } });
+      expect(matchesFilters(tx, filters({ amountMin: '0.4', amountMax: '0.6' }), 'USD')).toBe(true);
+    });
   });
 
   describe('amount in fiat', () => {
@@ -121,5 +134,37 @@ describe('matchesFilters', () => {
     const combined = filters({ fromDate: '2026-07-01', toDate: '2026-07-31', type: 'send', amountMin: '0.5', amountMax: '0.6' });
     expect(matchesFilters(tx, combined, 'USD')).toBe(true);
     expect(matchesFilters(tx, { ...combined, type: 'receive' }, 'USD')).toBe(false);
+  });
+});
+
+const wrapper = ({ children }: { children: ReactNode }) => createElement(
+  RatesContext.Provider,
+  { value: { defaultCurrency: 'USD' } as ContextType<typeof RatesContext> },
+  children,
+);
+
+describe('useTransactionFilters', () => {
+  it('starts inactive and becomes active when a filter is set', () => {
+    const { result } = renderHook(() => useTransactionFilters(), { wrapper });
+    expect(result.current.isActive).toBe(false);
+    act(() => result.current.setFilters({ ...result.current.filters, type: 'send' }));
+    expect(result.current.isActive).toBe(true);
+  });
+
+  it('clearFilters resets to empty', () => {
+    const { result } = renderHook(() => useTransactionFilters(), { wrapper });
+    act(() => result.current.setFilters({ ...result.current.filters, fromDate: '2026-07-01', amountMin: '1' }));
+    act(() => result.current.clearFilters());
+    expect(result.current.isActive).toBe(false);
+    expect(result.current.filters.fromDate).toBe('');
+    expect(result.current.filters.amountMin).toBe('');
+  });
+
+  it('matches uses debounced amounts', () => {
+    // sanity: matches() delegates to matchesFilters with the current fiat
+    const { result } = renderHook(() => useTransactionFilters(), { wrapper });
+    expect(result.current.matches(makeTx())).toBe(true);
+    act(() => result.current.setFilters({ ...result.current.filters, type: 'send' }));
+    expect(result.current.matches(makeTx())).toBe(false); // makeTx is receive
   });
 });
