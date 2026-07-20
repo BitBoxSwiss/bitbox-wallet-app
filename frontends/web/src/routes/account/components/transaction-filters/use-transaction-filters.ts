@@ -17,7 +17,7 @@ export type TTransactionFilters = {
   amountUnit: TAmountUnitFilter;
 };
 
-export const emptyFilters: TTransactionFilters = Object.freeze({
+export const emptyFilters = Object.freeze<TTransactionFilters>({
   fromDate: '',
   toDate: '',
   type: 'all',
@@ -93,10 +93,13 @@ export const useTransactionFilters = () => {
   const debouncedAmountMax = useDebounce(filters.amountMax, 200);
 
   const appliedFilters = useMemo(() => ({
-    ...filters,
+    fromDate: filters.fromDate,
+    toDate: filters.toDate,
+    type: filters.type,
+    amountUnit: filters.amountUnit,
     amountMin: debouncedAmountMin,
     amountMax: debouncedAmountMax,
-  }), [filters, debouncedAmountMin, debouncedAmountMax]);
+  }), [filters.fromDate, filters.toDate, filters.type, filters.amountUnit, debouncedAmountMin, debouncedAmountMax]);
 
   const matches = useCallback(
     (tx: TTransaction) => matchesFilters(tx, appliedFilters, defaultCurrency),

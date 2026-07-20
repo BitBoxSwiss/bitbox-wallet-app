@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { act, createElement } from 'react';
 import type { ContextType, ReactNode } from 'react';
 import { renderHook } from '@testing-library/react';
@@ -160,11 +160,26 @@ describe('useTransactionFilters', () => {
     expect(result.current.filters.amountMin).toBe('');
   });
 
-  it('matches uses debounced amounts', () => {
+  it('matches delegates to matchesFilters', () => {
     // sanity: matches() delegates to matchesFilters with the current fiat
     const { result } = renderHook(() => useTransactionFilters(), { wrapper });
     expect(result.current.matches(makeTx())).toBe(true);
     act(() => result.current.setFilters({ ...result.current.filters, type: 'send' }));
     expect(result.current.matches(makeTx())).toBe(false); // makeTx is receive
+  });
+
+  it('applies amount bounds only after the debounce delay', () => {
+    vi.useFakeTimers();
+    try {
+      const { result } = renderHook(() => useTransactionFilters(), { wrapper });
+      // amountMin '1' excludes makeTx's displayed amount of 0.5
+      act(() => result.current.setFilters({ ...result.current.filters, amountMin: '1' }));
+      // debounced value not yet applied
+      expect(result.current.matches(makeTx())).toBe(true);
+      act(() => vi.advanceTimersByTime(200));
+      expect(result.current.matches(makeTx())).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
