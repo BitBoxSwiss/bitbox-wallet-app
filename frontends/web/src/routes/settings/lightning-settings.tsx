@@ -8,6 +8,8 @@ import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { Checked } from '@/components/icon';
 import { SubTitle } from '@/components/title';
+import { getKeystoreName } from '@/api/keystores';
+import { useLoad } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
 import { SettingsItem } from './components/settingsItem/settingsItem';
 import { MobileHeader } from './components/mobile-header';
@@ -23,6 +25,12 @@ export const LightningSettings = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { lightningAccount } = useLightning();
+  const keystoreNameResponse = useLoad(
+    lightningAccount
+      ? () => getKeystoreName(lightningAccount.rootFingerprint)
+      : null,
+    [lightningAccount?.rootFingerprint]
+  );
 
   const renderContent = () => {
     if (lightningAccount === undefined) {
@@ -39,6 +47,12 @@ export const LightningSettings = ({
       );
     }
 
+    const keystoreDisplayName = keystoreNameResponse === undefined
+      ? undefined
+      : keystoreNameResponse.success
+        ? `${keystoreNameResponse.keystoreName} (${lightningAccount.rootFingerprint})`
+        : lightningAccount.rootFingerprint;
+
     return (
       <>
         <SubTitle className={styles.sectionTitle}>{t('lightning.settings.information')}</SubTitle>
@@ -50,6 +64,10 @@ export const LightningSettings = ({
         <SettingsItem
           settingName={t('lightning.settings.serviceProvider')}
           displayedValue={serviceProvider}
+        />
+        <SettingsItem
+          settingName={t('lightning.settings.wallet')}
+          displayedValue={keystoreDisplayName}
         />
         <SettingsItem
           settingName={t('lightning.settings.setLightningAddress')}

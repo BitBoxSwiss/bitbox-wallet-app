@@ -1712,7 +1712,8 @@
       "shutDownWallet": "Shut down lightning wallet",
       "status": "Status",
       "statusConnected": "Connected",
-      "title": "Lightning settings"
+      "title": "Lightning settings",
+      "wallet": "Wallet"
     },
     "sparkStatus": {
       "degraded": "The Spark network is experiencing degraded performance. Lightning payments may be delayed.",
