@@ -7,8 +7,10 @@ import (
 	"math/big"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	btccoin "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -36,6 +38,18 @@ func makeTestLightning() *Lightning {
 		),
 		ratesUpdater: rates.NewRateUpdater(nil, os.DevNull),
 	}
+}
+
+type testPaymentsBreezSDK struct {
+	breezSDK
+
+	listPayments func(breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error)
+}
+
+func (sdk *testPaymentsBreezSDK) ListPayments(
+	request breez_sdk_spark.ListPaymentsRequest,
+) (breez_sdk_spark.ListPaymentsResponse, error) {
+	return sdk.listPayments(request)
 }
 
 func TestToLightningPayment(t *testing.T) {
@@ -78,6 +92,84 @@ func TestToLightningPayment(t *testing.T) {
 		),
 		Invoice: "lnbc1invoice",
 	}, payment)
+}
+
+func TestTransactions(t *testing.T) {
+	lightning := newTestLightning(t, nil)
+	require.NoError(t, lightning.SetAccount(&config.LightningAccountConfig{
+		Seed:            "test mnemonic",
+		RootFingerprint: []byte{0xde, 0xad, 0xbe, 0xef},
+		Code:            "v0-deadbeef-ln-0",
+		Number:          0,
+	}))
+
+	lightning.sdkService = &testPaymentsBreezSDK{
+		listPayments: func(request breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error) {
+			require.NotNil(t, request.AssetFilter)
+			_, ok := (*request.AssetFilter).(breez_sdk_spark.AssetFilterBitcoin)
+			require.True(t, ok)
+			return breez_sdk_spark.ListPaymentsResponse{
+				Payments: []breez_sdk_spark.Payment{
+					{
+						Id:          "receive-complete",
+						PaymentType: breez_sdk_spark.PaymentTypeReceive,
+						Status:      breez_sdk_spark.PaymentStatusCompleted,
+						Amount:      big.NewInt(100),
+						Fees:        big.NewInt(1),
+						Timestamp:   100,
+					},
+					{
+						Id:          "send-complete",
+						PaymentType: breez_sdk_spark.PaymentTypeSend,
+						Status:      breez_sdk_spark.PaymentStatusCompleted,
+						Amount:      big.NewInt(30),
+						Fees:        big.NewInt(2),
+						Timestamp:   200,
+					},
+					{
+						Id:          "receive-pending",
+						PaymentType: breez_sdk_spark.PaymentTypeReceive,
+						Status:      breez_sdk_spark.PaymentStatusPending,
+						Amount:      big.NewInt(1000),
+						Fees:        big.NewInt(0),
+						Timestamp:   300,
+					},
+					{
+						Id:          "send-failed",
+						PaymentType: breez_sdk_spark.PaymentTypeSend,
+						Status:      breez_sdk_spark.PaymentStatusFailed,
+						Amount:      big.NewInt(1000),
+						Fees:        big.NewInt(10),
+						Timestamp:   400,
+					},
+					{
+						Id:          "receive-no-timestamp",
+						PaymentType: breez_sdk_spark.PaymentTypeReceive,
+						Status:      breez_sdk_spark.PaymentStatusCompleted,
+						Amount:      big.NewInt(1000),
+						Fees:        big.NewInt(0),
+						Timestamp:   0,
+					},
+				},
+			}, nil
+		},
+	}
+
+	txs, err := lightning.Transactions()
+	require.NoError(t, err)
+	require.Len(t, txs, 3)
+
+	timeseries, err := txs.Timeseries(time.Unix(0, 0), time.Unix(300, 0), time.Hour)
+	require.Nil(t, timeseries)
+	require.Equal(t, accountErrors.ErrNotAvailable, errp.Cause(err))
+
+	hasUntimestampedReceive := false
+	for _, tx := range txs {
+		if tx.Timestamp == nil && tx.Type == accounts.TxTypeReceive && tx.Amount.BigInt().Cmp(big.NewInt(1000)) == 0 {
+			hasUntimestampedReceive = true
+		}
+	}
+	require.True(t, hasUntimestampedReceive)
 }
 
 func TestToLightningPaymentSparkInvoiceDetails(t *testing.T) {

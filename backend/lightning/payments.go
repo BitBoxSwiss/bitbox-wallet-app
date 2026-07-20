@@ -296,6 +296,35 @@ func (lightning *Lightning) toLightningPayment(payment breez_sdk_spark.Payment) 
 	return result
 }
 
+func toLightningTransaction(payment breez_sdk_spark.Payment) *accounts.TransactionData {
+	if toLightningPaymentStatus(payment.Status) != accounts.TxStatusComplete {
+		return nil
+	}
+
+	var timestamp *time.Time
+	if payment.Timestamp != 0 {
+		t := time.Unix(int64(payment.Timestamp), 0).UTC()
+		timestamp = &t
+	}
+	paymentType := toLightningPaymentType(payment.PaymentType)
+	amount := coin.NewAmountFromInt64(int64(parseLightningUint(payment.Amount)))
+	fee := coin.NewAmountFromInt64(int64(parseLightningUint(payment.Fees)))
+
+	tx := &accounts.TransactionData{
+		Fee:              &fee,
+		Timestamp:        timestamp,
+		Height:           1,
+		Status:           accounts.TxStatusComplete,
+		Type:             paymentType,
+		Amount:           amount,
+		CreatedTimestamp: timestamp,
+	}
+	if paymentType == accounts.TxTypeReceive {
+		tx.Fee = nil
+	}
+	return tx
+}
+
 func parseLightningUint(value interface{ String() string }) uint64 {
 	parsed, err := strconv.ParseUint(value.String(), 10, 64)
 	if err != nil {
@@ -617,21 +646,49 @@ func (lightning *Lightning) ReceivePayment(amountSat uint64, description string)
 	return &receivePaymentResponse{Invoice: response.PaymentRequest}, nil
 }
 
-// ListPayments fetches lightning payments and converts them to the app-facing contract.
-func (lightning *Lightning) ListPayments() ([]lightningPayment, error) {
+func (lightning *Lightning) listPayments() ([]breez_sdk_spark.Payment, error) {
 	if err := lightning.CheckActive(); err != nil {
 		return nil, err
 	}
-	response, err := lightning.sdkService.ListPayments(breez_sdk_spark.ListPaymentsRequest{})
+	assetFilter := breez_sdk_spark.AssetFilter(breez_sdk_spark.AssetFilterBitcoin{})
+	response, err := lightning.sdkService.ListPayments(breez_sdk_spark.ListPaymentsRequest{
+		AssetFilter: &assetFilter,
+	})
+	if err != nil {
+		return nil, errp.Wrap(err, "breez: list payments")
+	}
+	return response.Payments, nil
+}
+
+// ListPayments fetches lightning payments and converts them to the app-facing contract.
+func (lightning *Lightning) ListPayments() ([]lightningPayment, error) {
+	rawPayments, err := lightning.listPayments()
 	if err != nil {
 		return nil, err
 	}
 
-	lightning.log.Infof("List payments: %+v", response.Payments)
+	lightning.log.Infof("List payments: %+v", rawPayments)
 
-	payments := make([]lightningPayment, 0, len(response.Payments))
-	for _, payment := range response.Payments {
+	payments := make([]lightningPayment, 0, len(rawPayments))
+	for _, payment := range rawPayments {
 		payments = append(payments, lightning.toLightningPayment(payment))
 	}
 	return payments, nil
+}
+
+// Transactions fetches lightning payments and converts them to generic transaction data for charting.
+func (lightning *Lightning) Transactions() (accounts.OrderedTransactions, error) {
+	rawPayments, err := lightning.listPayments()
+	if err != nil {
+		return nil, err
+	}
+
+	txs := make([]*accounts.TransactionData, 0, len(rawPayments))
+	for _, payment := range rawPayments {
+		tx := toLightningTransaction(payment)
+		if tx != nil {
+			txs = append(txs, tx)
+		}
+	}
+	return accounts.NewOrderedTransactions(txs), nil
 }

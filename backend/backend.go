@@ -396,7 +396,7 @@ func (backend *Backend) newRatesUpdater() *rates.RateUpdater {
 	updater.Observe(func(event observable.Event) {
 		backend.Notify(event)
 		backend.notifyCoinFiatPrices()
-		if backend.lightning != nil && backend.lightning.Account() != nil {
+		if backend.hasLightningAccount() {
 			backend.Notify(observable.Event{
 				Subject: "lightning/list-payments",
 				Action:  action.Reload,
@@ -433,7 +433,7 @@ func (backend *Backend) configureHistoryExchangeRates() {
 	for _, acct := range backend.accounts {
 		coins = append(coins, string(acct.Coin().Code()))
 	}
-	if backend.lightning != nil && backend.lightning.Account() != nil {
+	if backend.hasLightningAccount() {
 		coins = append(coins, string(coinpkg.CodeBTC))
 	}
 	fiats := backend.config.AppConfig().Backend.FiatList
