@@ -1,0 +1,34 @@
+.filterRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-quarter) var(--space-half);
+    padding-bottom: var(--space-quarter);
+    width: 100%;
+}
+
+.dateGroup,
+.typeGroup,
+.amountGroup {
+    display: flex;
+    flex: 1 1 auto;
+    gap: var(--space-quarter);
+    min-width: 0;
+}
+
+.dateGroup > div,
+.typeGroup > div,
+.amountGroup > div {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+@media (max-width: 768px) {
+    .filterRow {
+        flex-direction: column;
+    }
+
+    .dateGroup,
+    .amountGroup {
+        flex-direction: row;
+    }
+}
