@@ -89,6 +89,7 @@ const RemountAccount = ({
   const [searchTerm, setSearchTerm] = useState<string>('');
   const debouncedSearchTerm = useDebounce(searchTerm, 200);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const { filters, setFilters, clearFilters, isActive: hasActiveFilters, matches } = useTransactionFilters();
 
@@ -175,6 +176,14 @@ const RemountAccount = ({
       }
     }
   }, [showSearchBar, scrollSearchIntoView, isMobile]);
+
+  const scrollFiltersIntoView = useScrollIntoView(filtersRef, 48);
+
+  useEffect(() => {
+    if (showFilters && isMobile) {
+      setTimeout(scrollFiltersIntoView, 500);
+    }
+  }, [showFilters, scrollFiltersIntoView, isMobile]);
 
   const hasDataLoaded = balance !== undefined && transactions !== undefined;
 
@@ -348,10 +357,12 @@ const RemountAccount = ({
                       />
                     </div>
 
-                    <div className={`
-                      ${style.searchContainer || ''}
-                      ${!showFilters && style.searchHidden || ''}
-                    `}>
+                    <div
+                      ref={filtersRef}
+                      className={`
+                        ${style.searchContainer || ''}
+                        ${!showFilters && style.searchHidden || ''}
+                      `}>
                       {balance && (
                         <TransactionFilters
                           filters={filters}

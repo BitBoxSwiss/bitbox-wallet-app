@@ -176,8 +176,30 @@ describe('useTransactionFilters', () => {
       act(() => result.current.setFilters({ ...result.current.filters, amountMin: '1' }));
       // debounced value not yet applied
       expect(result.current.matches(makeTx())).toBe(true);
+      expect(result.current.isActive).toBe(false);
       act(() => vi.advanceTimersByTime(200));
       expect(result.current.matches(makeTx())).toBe(false);
+      expect(result.current.isActive).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('keeps isActive true until a debounced amount clear is applied', () => {
+    vi.useFakeTimers();
+    try {
+      const { result } = renderHook(() => useTransactionFilters(), { wrapper });
+      act(() => result.current.setFilters({ ...result.current.filters, amountMin: '1' }));
+      act(() => vi.advanceTimersByTime(200));
+      expect(result.current.isActive).toBe(true);
+      act(() => result.current.clearFilters());
+      // The list is still filtered with the old amount until the debounce
+      // fires, so isActive must stay true in that window.
+      expect(result.current.isActive).toBe(true);
+      expect(result.current.matches(makeTx())).toBe(false);
+      act(() => vi.advanceTimersByTime(200));
+      expect(result.current.isActive).toBe(false);
+      expect(result.current.matches(makeTx())).toBe(true);
     } finally {
       vi.useRealTimers();
     }

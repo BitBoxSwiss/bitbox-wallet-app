@@ -189,6 +189,7 @@
 .searchContainer {
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    visibility: visible;
     width: 100%;
 }
 
@@ -196,6 +197,8 @@
     max-height: 0;
     opacity: 0;
     transform: translateY(-10px);
+    /* remove the collapsed controls from the tab order */
+    visibility: hidden;
 }
 
 @media (max-width: 768px) {

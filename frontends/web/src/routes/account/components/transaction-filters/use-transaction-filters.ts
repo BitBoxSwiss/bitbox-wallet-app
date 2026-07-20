@@ -108,11 +108,15 @@ export const useTransactionFilters = () => {
 
   const clearFilters = useCallback(() => setFilters(emptyFilters), []);
 
-  const isActive = filters.fromDate !== ''
-    || filters.toDate !== ''
-    || filters.type !== 'all'
-    || filters.amountMin.trim() !== ''
-    || filters.amountMax.trim() !== '';
+  // Derived from the applied (debounced) filters so it stays in sync with
+  // `matches`: e.g. right after clearing an amount filter, the list is still
+  // filtered with the old value for the debounce duration, and reporting
+  // "inactive" during that window would show the wrong empty state.
+  const isActive = appliedFilters.fromDate !== ''
+    || appliedFilters.toDate !== ''
+    || appliedFilters.type !== 'all'
+    || appliedFilters.amountMin.trim() !== ''
+    || appliedFilters.amountMax.trim() !== '';
 
   return { filters, setFilters, clearFilters, isActive, matches };
 };
