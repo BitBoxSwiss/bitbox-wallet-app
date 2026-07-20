@@ -25,6 +25,7 @@
 @media (max-width: 768px) {
     .filterRow {
         flex-direction: column;
+        flex-wrap: nowrap;
     }
 
     .dateGroup,
