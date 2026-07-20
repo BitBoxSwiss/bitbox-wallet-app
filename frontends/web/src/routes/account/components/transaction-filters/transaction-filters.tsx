@@ -62,6 +62,7 @@ export const TransactionFilters = ({
           type="number"
           inputMode="decimal"
           min="0"
+          step="any"
           id="tx-filter-amount-min"
           label={t('transactions.filters.amountMin')}
           value={filters.amountMin}
@@ -71,6 +72,7 @@ export const TransactionFilters = ({
           type="number"
           inputMode="decimal"
           min="0"
+          step="any"
           id="tx-filter-amount-max"
           label={t('transactions.filters.amountMax')}
           value={filters.amountMax}
@@ -79,6 +81,7 @@ export const TransactionFilters = ({
         <Select
           id="tx-filter-amount-unit"
           label={'\u00a0'}
+          aria-label={t('transactions.filters.unit')}
           options={[
             { value: 'coin', text: coinUnit },
             { value: 'fiat', text: fiatUnit },

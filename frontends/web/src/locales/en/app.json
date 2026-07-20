@@ -2150,7 +2150,8 @@
       "typeAll": "All types",
       "typeReceived": "Received",
       "typeSent": "Sent",
-      "typeSentToSelf": "Sent to self"
+      "typeSentToSelf": "Sent to self",
+      "unit": "Amount unit"
     },
     "placeholder": "No transactions yet."
   },

@@ -36,4 +36,22 @@ describe('TransactionFilters', () => {
     fireEvent.change(screen.getByLabelText('transactions.filters.amountMin'), { target: { value: '10' } });
     expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, amountMin: '10' });
   });
+
+  it('gives the unit select an accessible name', () => {
+    render(<TransactionFilters {...defaultProps} />);
+    expect(screen.getByRole('combobox', { name: 'transactions.filters.unit' })).toBeInTheDocument();
+  });
+
+  it('propagates date, max amount and unit changes', () => {
+    const onFiltersChange = vi.fn();
+    render(<TransactionFilters {...defaultProps} onFiltersChange={onFiltersChange} />);
+    fireEvent.change(screen.getByLabelText('transactions.filters.from'), { target: { value: '2026-07-01' } });
+    expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, fromDate: '2026-07-01' });
+    fireEvent.change(screen.getByLabelText('transactions.filters.to'), { target: { value: '2026-07-31' } });
+    expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, toDate: '2026-07-31' });
+    fireEvent.change(screen.getByLabelText('transactions.filters.amountMax'), { target: { value: '25' } });
+    expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, amountMax: '25' });
+    fireEvent.change(screen.getByRole('combobox', { name: 'transactions.filters.unit' }), { target: { value: 'fiat' } });
+    expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, amountUnit: 'fiat' });
+  });
 });
