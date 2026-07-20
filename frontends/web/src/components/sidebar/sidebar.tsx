@@ -82,6 +82,7 @@ const Sidebar = ({
   const [ canUpgrade, setCanUpgrade ] = useState(false);
   const { activeSidebar, toggleSidebar } = useContext(AppContext);
   const { lightningAccount } = useLightning();
+  const hasPortfolio = accounts.length > 0 || !!lightningAccount;
 
   const deviceIDs: string[] = Object.keys(devices);
 
@@ -121,7 +122,7 @@ const Sidebar = ({
       <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')}>
         <div key="app-logo" className={style.sidebarLogoContainer}>
           <Link
-            to={accounts.length ? '/account-summary' : '/'}
+            to={hasPortfolio ? '/account-summary' : '/'}
             onClick={handleSidebarItemClick}>
             <AppLogoInverted className={style.sidebarLogo} />
           </Link>
@@ -130,7 +131,7 @@ const Sidebar = ({
           </button>
         </div>
 
-        { accounts.length ? (
+        { hasPortfolio ? (
           <div
             key="account-summary"
             className={`${style.sidebarItem || ''} ${style.sidebarPortfolio || ''}`}
