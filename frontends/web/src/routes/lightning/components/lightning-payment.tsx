@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import type { TLightningPayment } from '@/api/lightning';
+import type { TBitcoinDepositState, TLightningPayment } from '@/api/lightning';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { Loupe } from '@/components/icon/icon';
+import { Loupe, WarningYellow } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
 import { ProgressRing } from '@/components/progressRing/progressRing';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
@@ -18,6 +18,7 @@ type TProps = TLightningPayment & {
 
 export const LightningPayment = ({
   amountAtTime,
+  bitcoinDeposit,
   deductedAmountAtTime,
   description,
   id,
@@ -38,9 +39,12 @@ export const LightningPayment = ({
       }}>
       <div className={styles.txContent} data-testid="transaction" data-tx-type={type}>
         <span className={styles.txIcon}>
-          <Arrow status={status} type={type} />
+          {bitcoinDeposit?.state === 'unclaimed'
+            ? <WarningYellow />
+            : <Arrow status={status} type={type} />}
         </span>
         <PaymentStatus
+          bitcoinDeposit={bitcoinDeposit}
           description={description}
           status={status}
           time={time}
@@ -63,29 +67,63 @@ export const LightningPayment = ({
   );
 };
 
-type TPaymentStatusProps = Pick<TLightningPayment, 'description' | 'status' | 'time' | 'type'>;
+type TPaymentStatusProps = Pick<TLightningPayment, 'bitcoinDeposit' | 'description' | 'status' | 'time' | 'type'>;
 
 const PaymentStatus = ({
+  bitcoinDeposit,
   description,
   status,
   time,
   type,
 }: TPaymentStatusProps) => {
+  const { t } = useTranslation();
   const showDate = status === 'complete' && !!time;
+  const isCompleteBitcoinDeposit = bitcoinDeposit?.state === 'complete';
 
   return (
     <span className={styles.txInfoColumn}>
       <span className={styles.txNote}>
-        <span className={description ? styles.txNoteText : styles.txType}>
-          {description || <FallbackLabel type={type} />}
+        <span className={description && !bitcoinDeposit ? styles.txNoteText : styles.txType}>
+          {bitcoinDeposit
+            ? t('lightning.bitcoinDeposit.label')
+            : description || <FallbackLabel type={type} />}
         </span>
       </span>
-      {showDate ? (
+      {bitcoinDeposit && !isCompleteBitcoinDeposit ? (
+        <BitcoinDepositProgress state={bitcoinDeposit.state} />
+      ) : showDate ? (
         <PaymentDate time={time} />
       ) : status === 'pending' ? (
         <PaymentProgress status={status} type={type} />
       ) : (
         <PaymentStatusText status={status} type={type} />
+      )}
+    </span>
+  );
+};
+
+type TBitcoinDepositProgressProps = {
+  state: TBitcoinDepositState;
+};
+
+const BitcoinDepositProgress = ({ state }: TBitcoinDepositProgressProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <span className={styles.txProgress}>
+      <span className={styles.txProgressTextLong}>
+        {t(`lightning.bitcoinDeposit.state.${state}`)}
+      </span>
+      <span className={styles.txProgressTextShort}>
+        {t(`lightning.bitcoinDeposit.stateShort.${state}`)}
+      </span>
+      {state !== 'unclaimed' && (
+        <ProgressRing
+          className={styles.iconProgress}
+          width={18}
+          value={state === 'confirming' ? 33 : 66}
+          isComplete={false}
+        />
       )}
     </span>
   );

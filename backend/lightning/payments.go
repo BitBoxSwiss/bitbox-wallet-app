@@ -5,6 +5,7 @@ package lightning
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math/big"
 	"strconv"
 	"strings"
@@ -45,6 +46,22 @@ type paymentInput struct {
 	LNURLPay *lightningLNURLPay      `json:"lnurlPay,omitempty"`
 }
 
+type bitcoinDepositState string
+
+const (
+	bitcoinDepositStateConfirming bitcoinDepositState = "confirming"
+	bitcoinDepositStateClaiming   bitcoinDepositState = "claiming"
+	bitcoinDepositStateComplete   bitcoinDepositState = "complete"
+	bitcoinDepositStateUnclaimed  bitcoinDepositState = "unclaimed"
+)
+
+type bitcoinDeposit struct {
+	TxID       string              `json:"txid"`
+	Vout       uint32              `json:"vout"`
+	State      bitcoinDepositState `json:"state"`
+	ClaimError string              `json:"claimError,omitempty"`
+}
+
 type lightningPayment struct {
 	ID                   string                              `json:"id"`
 	Type                 accounts.TxType                     `json:"type"`
@@ -56,6 +73,7 @@ type lightningPayment struct {
 	DeductedAmountAtTime coin.FormattedAmountWithConversions `json:"deductedAmountAtTime"`
 	Fee                  coin.FormattedAmountWithConversions `json:"fee"`
 	Invoice              string                              `json:"invoice,omitempty"`
+	BitcoinDeposit       *bitcoinDeposit                     `json:"bitcoinDeposit,omitempty"`
 }
 
 type receivePaymentResponse struct {
@@ -273,6 +291,13 @@ func (lightning *Lightning) toLightningPayment(payment breez_sdk_spark.Payment) 
 		DeductedAmountAtTime: deductedAmount.FormatWithConversionsAtTime(lightning.btcCoin, timestamp, lightning.ratesUpdater),
 		Fee:                  fee.FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
 	}
+	// Claimed Bitcoin deposits appear in ListPayments, sometimes without payment details. Mark them
+	// as complete top-ups based on the payment method so the frontend can identify them reliably.
+	if payment.Method == breez_sdk_spark.PaymentMethodDeposit && result.Status == accounts.TxStatusComplete {
+		result.BitcoinDeposit = &bitcoinDeposit{
+			State: bitcoinDepositStateComplete,
+		}
+	}
 
 	if payment.Details == nil {
 		return result
@@ -290,6 +315,10 @@ func (lightning *Lightning) toLightningPayment(payment breez_sdk_spark.Payment) 
 				result.Description = *details.InvoiceDetails.Description
 			}
 			result.Invoice = details.InvoiceDetails.Invoice
+		}
+	case breez_sdk_spark.PaymentDetailsDeposit:
+		if result.BitcoinDeposit != nil {
+			result.BitcoinDeposit.TxID = details.TxId
 		}
 	}
 
@@ -323,6 +352,65 @@ func toLightningTransaction(payment breez_sdk_spark.Payment) *accounts.Transacti
 		tx.Fee = nil
 	}
 	return tx
+}
+
+func bitcoinDepositClaimError(claimError *breez_sdk_spark.DepositClaimError) string {
+	if claimError == nil {
+		return ""
+	}
+	switch err := (*claimError).(type) {
+	case breez_sdk_spark.DepositClaimErrorMaxDepositClaimFeeExceeded:
+		return fmt.Sprintf(
+			"Claim fee too high: required %d sats at %d sat/vbyte",
+			err.RequiredFeeSats,
+			err.RequiredFeeRateSatPerVbyte,
+		)
+	case breez_sdk_spark.DepositClaimErrorMissingUtxo:
+		return "Deposit output could not be found"
+	case breez_sdk_spark.DepositClaimErrorGeneric:
+		return err.Message
+	default:
+		return "Deposit could not be claimed"
+	}
+}
+
+func bitcoinDepositStateFromSDK(deposit breez_sdk_spark.DepositInfo) bitcoinDepositState {
+	if deposit.ClaimError != nil {
+		return bitcoinDepositStateUnclaimed
+	}
+	if deposit.IsMature {
+		return bitcoinDepositStateClaiming
+	}
+	return bitcoinDepositStateConfirming
+}
+
+func (lightning *Lightning) toBitcoinDepositPayment(deposit breez_sdk_spark.DepositInfo) lightningPayment {
+	amount := coin.NewAmountFromInt64(int64(deposit.AmountSats))
+	depositInfo := &bitcoinDeposit{
+		TxID:       deposit.Txid,
+		Vout:       deposit.Vout,
+		State:      bitcoinDepositStateFromSDK(deposit),
+		ClaimError: bitcoinDepositClaimError(deposit.ClaimError),
+	}
+
+	return lightningPayment{
+		ID:                   fmt.Sprintf("bitcoin-deposit:%s:%d", deposit.Txid, deposit.Vout),
+		Type:                 accounts.TxTypeReceive,
+		Status:               accounts.TxStatusPending,
+		Amount:               amount.FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
+		AmountAtTime:         amount.FormatWithConversionsAtTime(lightning.btcCoin, nil, lightning.ratesUpdater),
+		DeductedAmountAtTime: coin.NewAmountFromInt64(0).FormatWithConversionsAtTime(lightning.btcCoin, nil, lightning.ratesUpdater),
+		Fee:                  coin.NewAmountFromInt64(0).FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
+		BitcoinDeposit:       depositInfo,
+	}
+}
+
+func (lightning *Lightning) unclaimedDepositsAmount(deposits []breez_sdk_spark.DepositInfo) coin.Amount {
+	amount := coin.NewAmountFromInt64(0)
+	for _, deposit := range deposits {
+		amount = coin.SumAmounts(amount, coin.NewAmountFromInt64(int64(deposit.AmountSats)))
+	}
+	return amount
 }
 
 func parseLightningUint(value interface{ String() string }) uint64 {
@@ -382,8 +470,8 @@ func checkApprovedPaymentFee(fee uint64, approvedFee uint64) error {
 	return nil
 }
 
-func checkPaymentBalance(fee *paymentFee, balance *accounts.Balance) error {
-	if new(big.Int).SetUint64(fee.TotalDebitSat).Cmp(balance.Available().BigInt()) > 0 {
+func checkPaymentBalance(fee *paymentFee, availableBalance coin.Amount) error {
+	if new(big.Int).SetUint64(fee.TotalDebitSat).Cmp(availableBalance.BigInt()) > 0 {
 		return errLightningInsufficientFunds
 	}
 	return nil
@@ -447,11 +535,11 @@ func (lightning *Lightning) prepareBolt11Payment(paymentInvoice string, amountSa
 	if err != nil {
 		return nil, err
 	}
-	balance, err := lightning.Balance()
+	availableBalance, err := lightning.availableBalance()
 	if err != nil {
 		return nil, err
 	}
-	if err := checkPaymentBalance(fee, balance); err != nil {
+	if err := checkPaymentBalance(fee, availableBalance); err != nil {
 		return fee, err
 	}
 	lightning.log.Printf("Lightning Fee: %v sats", fee.FeeSat)
@@ -481,11 +569,11 @@ func (lightning *Lightning) prepareLNURLPay(inputStr string, amountSat *uint64) 
 	}
 
 	fee := preparedLNURLPayFee(prepareResponse)
-	balance, err := lightning.Balance()
+	availableBalance, err := lightning.availableBalance()
 	if err != nil {
 		return nil, err
 	}
-	if err := checkPaymentBalance(fee, balance); err != nil {
+	if err := checkPaymentBalance(fee, availableBalance); err != nil {
 		return fee, err
 	}
 	lightning.log.Printf("LNURL-Pay Fee: %v sats", fee.FeeSat)
@@ -526,11 +614,11 @@ func (lightning *Lightning) sendBolt11Payment(request sendPaymentRequest) error 
 	if err := checkApprovedPaymentFee(fee.FeeSat, request.ApprovedFeeSat); err != nil {
 		return err
 	}
-	balance, err := lightning.Balance()
+	availableBalance, err := lightning.availableBalance()
 	if err != nil {
 		return err
 	}
-	if err := checkPaymentBalance(fee, balance); err != nil {
+	if err := checkPaymentBalance(fee, availableBalance); err != nil {
 		return err
 	}
 
@@ -580,11 +668,11 @@ func (lightning *Lightning) sendLNURLPay(request sendPaymentRequest) error {
 	if err := checkApprovedPaymentFee(fee.FeeSat, request.ApprovedFeeSat); err != nil {
 		return err
 	}
-	balance, err := lightning.Balance()
+	availableBalance, err := lightning.availableBalance()
 	if err != nil {
 		return err
 	}
-	if err := checkPaymentBalance(fee, balance); err != nil {
+	if err := checkPaymentBalance(fee, availableBalance); err != nil {
 		return err
 	}
 
@@ -666,10 +754,17 @@ func (lightning *Lightning) ListPayments() ([]lightningPayment, error) {
 	if err != nil {
 		return nil, err
 	}
+	deposits, err := lightning.sdkService.ListUnclaimedDeposits(breez_sdk_spark.ListUnclaimedDepositsRequest{})
+	if err != nil {
+		return nil, errp.Wrap(err, "breez: list unclaimed deposits")
+	}
 
 	lightning.log.Infof("List payments: %+v", rawPayments)
 
-	payments := make([]lightningPayment, 0, len(rawPayments))
+	payments := make([]lightningPayment, 0, len(deposits.Deposits)+len(rawPayments))
+	for _, deposit := range deposits.Deposits {
+		payments = append(payments, lightning.toBitcoinDepositPayment(deposit))
+	}
 	for _, payment := range rawPayments {
 		payments = append(payments, lightning.toLightningPayment(payment))
 	}

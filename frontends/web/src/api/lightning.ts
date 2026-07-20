@@ -38,6 +38,15 @@ export type TLightningLNURLPay = {
   maxAmountSat: number;
 };
 
+export type TBitcoinDepositState = 'confirming' | 'claiming' | 'complete' | 'unclaimed';
+
+export type TBitcoinDeposit = {
+  txid: string;
+  vout: number;
+  state: TBitcoinDepositState;
+  claimError?: string;
+};
+
 export type TLightningPayment = {
   id: string;
   type: 'send' | 'receive';
@@ -49,6 +58,7 @@ export type TLightningPayment = {
   deductedAmountAtTime: TAmountWithConversions;
   fee: TAmountWithConversions;
   invoice?: string;
+  bitcoinDeposit?: TBitcoinDeposit;
 };
 
 export type TReceivePaymentRequest = {
@@ -203,6 +213,10 @@ export const postDeactivate = async (): Promise<void> => {
 
 export const getLightningBalance = async (): Promise<TBalance> => {
   return getApiResponse<TBalance>('lightning/balance', 'Error calling getLightningBalance');
+};
+
+export const getBlockExplorerTxPrefix = async (): Promise<string> => {
+  return getApiResponse<string>('lightning/block-explorer-tx-prefix', 'Error calling getBlockExplorerTxPrefix');
 };
 
 export const getSparkStatus = async (): Promise<TSparkStatus> => {

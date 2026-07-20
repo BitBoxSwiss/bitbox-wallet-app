@@ -6,6 +6,7 @@ import * as accountApi from '../../api/account';
 import { getDeviceList } from '../../api/devices';
 import {
   TLightningPayment,
+  getBlockExplorerTxPrefix,
   getLightningBalance,
   getListPayments,
   subscribeListPayments,
@@ -43,6 +44,7 @@ export const Lightning = () => {
   const [error, setError] = useState<string>();
   const [detailID, setDetailID] = useState<TLightningPayment['id'] | null>(null);
   const mounted = useMountedRef();
+  const blockExplorerTxPrefix = useLoad(getBlockExplorerTxPrefix);
   const devices = useLoad(getDeviceList);
 
   const onStateChange = useCallback(async () => {
@@ -202,6 +204,7 @@ export const Lightning = () => {
 
               <PaymentDetails
                 id={detailID}
+                explorerURL={blockExplorerTxPrefix}
                 payment={payments?.find(payment => payment.id === detailID)}
                 onClose={() => setDetailID(null)}
               />
