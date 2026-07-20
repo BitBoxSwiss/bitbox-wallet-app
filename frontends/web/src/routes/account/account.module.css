@@ -20,6 +20,12 @@
     width: 100%;
 }
 
+.titleRowButtons {
+    align-items: center;
+    display: flex;
+    gap: var(--space-half);
+}
+
 .searchButton {
     align-items: center;
     display: flex;
