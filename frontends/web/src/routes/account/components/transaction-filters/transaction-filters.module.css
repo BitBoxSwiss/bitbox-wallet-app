@@ -41,6 +41,11 @@
     width: 100%;
 }
 
+/* hide the browser's dd.mm.yyyy format hint while a date field is empty */
+.dateGroup input[data-empty]:not(:focus)::-webkit-datetime-edit {
+    color: transparent;
+}
+
 @media (max-width: 768px) {
     .filterRow {
         flex-direction: column;

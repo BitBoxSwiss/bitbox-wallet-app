@@ -46,6 +46,7 @@ export const TransactionFilters = ({
           label={t('transactions.filters.from')}
           value={filters.fromDate}
           max={filters.toDate || undefined}
+          data-empty={filters.fromDate === '' || undefined}
           onChange={e => update({ fromDate: e.currentTarget.value })}
         />
         <Input
@@ -54,6 +55,7 @@ export const TransactionFilters = ({
           label={t('transactions.filters.to')}
           value={filters.toDate}
           min={filters.fromDate || undefined}
+          data-empty={filters.toDate === '' || undefined}
           onChange={e => update({ toDate: e.currentTarget.value })}
         />
       </div>
