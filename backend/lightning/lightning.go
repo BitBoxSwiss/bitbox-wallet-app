@@ -35,7 +35,9 @@ const (
 	breezApiKeyUrl            = "https://bitboxapp.shiftcrypto.dev/lightning/breez-api-key"
 	encryptedMnemonicV1Prefix = "v1:"
 	lnurlDomainDev            = "lnurl.shiftcrypto.dev"
-	lnurlDomainProd           = "bitbox.pay"
+	// Temporarily use the development LNURL server until the production domain is available.
+	// lnurlDomainProd = "bitbox.pay"
+	lnurlDomainProd = lnurlDomainDev
 )
 
 // Keep this local to avoid importing backend.Environment and creating a package cycle.
