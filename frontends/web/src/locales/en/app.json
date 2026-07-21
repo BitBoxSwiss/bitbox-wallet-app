@@ -1346,6 +1346,8 @@
       "appearance": "Appearance guide",
       "buySell": "Marketplace guide",
       "insurance": "Insurance guide",
+      "lightningReceive": "Receive Lightning guide",
+      "lightningSend": "Send Lightning guide",
       "manageAccount": "Manage accounts guide",
       "manageDevice": "Manage device guide",
       "receive": "Receive guide",
@@ -1369,9 +1371,45 @@
         "text": "Yes, the lightning wallet uses Spark through the Breez SDK. The BitBoxApp controls your lightning keys, while Spark provides the external infrastructure needed to send and receive lightning payments. Fees may apply when using the service.",
         "title": "Are there external parties involved in this solution?"
       },
+      "receive": {
+        "fee": {
+          "text": "No, the recipient does not pay a fee for receiving a Lightning payment. The sender pays the fees.",
+          "title": "Do I pay a fee when receiving?"
+        },
+        "invoiceOrAddress": {
+          "text": "Create an invoice when you want to request a specific amount. An invoice is for one payment and expires after 30 days. Share your Lightning address instead when the sender should choose the amount, or when you want them to save it for future payments. You can add an optional description to an invoice to help identify the payment later.",
+          "title": "When should I create an invoice instead of sharing my address?"
+        },
+        "payment": {
+          "text": "You can share your reusable Lightning address or create a BOLT11 invoice for a single payment. Share the QR code or the displayed text with the sender. The BitBoxApp does not need to remain open while you wait for the payment.",
+          "title": "How can I receive a Lightning payment?"
+        },
+        "reuseAddress": {
+          "text": "Yes. Unlike an invoice, your Lightning address can be used for multiple payments. The sender chooses the amount, and their wallet requests the payment details automatically. It is not an email address, even though it looks like one.",
+          "title": "Can I reuse my Lightning address?"
+        }
+      },
       "securedByBitBox": {
         "text": "No, the BitBox02 wallet is just used to create and restore your lightning wallet. Once your lightning wallet is created, it is a “hot wallet”.",
         "title": "Is my lightning wallet secured by my BitBox02?"
+      },
+      "send": {
+        "cancel": {
+          "text": "No. Lightning payments cannot be cancelled or reversed once sent. Always check the recipient, amount, description, and fee before sending. If you need a refund, ask the recipient to send the funds back. An unpaid invoice eventually expires.",
+          "title": "Can I cancel or reverse a Lightning payment?"
+        },
+        "fee": {
+          "text": "The fee depends on the payment amount and the route available at the time, so it is calculated shortly before you send. The fee and the total amount that will be deducted from your balance is shown before you confirm.",
+          "title": "How is the Lightning payment fee calculated?"
+        },
+        "invoiceAndAddress": {
+          "text": "A BOLT11 invoice is created for a single payment. It may already specify the amount, or it may ask you to enter one. Invoices expire and can only be paid once. A Lightning address is reusable and lets you choose any amount within the limits set by the recipient.",
+          "title": "What is the difference between an invoice and a Lightning address?"
+        },
+        "payment": {
+          "text": "Scan or paste a BOLT11 invoice, an LNURL-Pay request, or a Lightning address. A Lightning address looks like an email address, but it is used for payments.",
+          "title": "How do I send a Lightning payment?"
+        }
       }
     },
     "receive": {
