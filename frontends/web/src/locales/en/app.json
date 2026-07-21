@@ -2151,7 +2151,7 @@
       "typeReceived": "Received",
       "typeSent": "Sent",
       "typeSentToSelf": "Sent to self",
-      "unit": "Unit"
+      "unit": "Currency"
     },
     "placeholder": "No transactions yet."
   },
