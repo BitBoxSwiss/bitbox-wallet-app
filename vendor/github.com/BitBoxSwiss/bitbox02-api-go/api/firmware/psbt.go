@@ -12,9 +12,9 @@ import (
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
-	"github.com/btcsuite/btcd/btcutil/psbt"
-	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcd/psbt/v2"
+	"github.com/btcsuite/btcd/txscript/v2"
+	"github.com/btcsuite/btcd/wire/v2"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -544,6 +544,12 @@ func newBTCTxFromPSBT(
 				outputScriptConfigIndex = &outputIdx
 			}
 		}
+		var silentPayment *messages.BTCSignOutputRequest_SilentPayment
+		if outputOptions.SilentPaymentAddress != "" {
+			silentPayment = &messages.BTCSignOutputRequest_SilentPayment{
+				Address: outputOptions.SilentPaymentAddress,
+			}
+		}
 
 		if scriptConfig != nil {
 			outputs[outputIndex] = &messages.BTCSignOutputRequest{
@@ -552,16 +558,16 @@ func newBTCTxFromPSBT(
 				Keypath:                 ourKey.keypath(),
 				ScriptConfigIndex:       scriptConfigIndex,
 				OutputScriptConfigIndex: outputScriptConfigIndex,
+				SilentPayment:           silentPayment,
+				PaymentRequestIndex:     outputOptions.PaymentRequestIndex,
 			}
 		} else {
-			var silentPayment *messages.BTCSignOutputRequest_SilentPayment
 			var outputType messages.BTCOutputType
 			var payload []byte
-			if outputOptions.SilentPaymentAddress != "" {
-				silentPayment = &messages.BTCSignOutputRequest_SilentPayment{
-					Address: outputOptions.SilentPaymentAddress,
-				}
-			} else {
+			// A generated silent-payment output has no script yet. If a script is present,
+			// preserve it so invalid combinations such as OP_RETURN plus silent-payment
+			// metadata reach the firmware unchanged.
+			if silentPayment == nil || len(txOutput.PkScript) != 0 {
 				outputType, payload, err = payloadFromPkScript(txOutput.PkScript)
 				if err != nil {
 					return nil, err
@@ -643,14 +649,13 @@ func (device *Device) BTCSignPSBT(
 		case ourKey.taprootInternal != nil:
 			psbtInput.TaprootKeySpendSig = signatureCompact
 		case ourKey.taprootScript != nil:
-			psbtInput.TaprootScriptSpendSig = []*psbt.TaprootScriptSpendSig{
-				{
-					XOnlyPubKey: ourKey.taprootScript.XOnlyPubKey,
-					LeafHash:    ourKey.taprootScript.LeafHashes[0],
-					Signature:   signatureCompact,
-					SigHash:     txscript.SigHashDefault,
-				},
-			}
+			setTaprootScriptSpendSig(
+				signatureCompact,
+				psbtInput,
+				ourKey.taprootScript.XOnlyPubKey,
+				ourKey.taprootScript.LeafHashes[0],
+				txscript.SigHashDefault,
+			)
 		default:
 			panic("unreachable")
 		}
@@ -661,6 +666,39 @@ func (device *Device) BTCSignPSBT(
 	}
 
 	return nil
+}
+
+// setTaprootScriptSpendSig replaces or adds a script-path signature without dropping signatures
+// contributed by other signers.
+func setTaprootScriptSpendSig(
+	sig []byte,
+	psbtInput *psbt.PInput,
+	xOnlyPubKey []byte,
+	leafHash []byte,
+	sigHash txscript.SigHashType,
+) {
+	for index, partialSig := range psbtInput.TaprootScriptSpendSig {
+		samePubkey := bytes.Equal(partialSig.XOnlyPubKey, xOnlyPubKey)
+		sameLeaf := bytes.Equal(partialSig.LeafHash, leafHash)
+		if samePubkey && sameLeaf {
+			psbtInput.TaprootScriptSpendSig[index] = &psbt.TaprootScriptSpendSig{
+				XOnlyPubKey: xOnlyPubKey,
+				LeafHash:    leafHash,
+				Signature:   sig,
+				SigHash:     sigHash,
+			}
+			return
+		}
+	}
+	psbtInput.TaprootScriptSpendSig = append(
+		psbtInput.TaprootScriptSpendSig,
+		&psbt.TaprootScriptSpendSig{
+			XOnlyPubKey: xOnlyPubKey,
+			LeafHash:    leafHash,
+			Signature:   sig,
+			SigHash:     sigHash,
+		},
+	)
 }
 
 // setPartialSig replaces or adds a partial signature for the given public key,

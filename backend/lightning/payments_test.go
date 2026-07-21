@@ -22,7 +22,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
-	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )

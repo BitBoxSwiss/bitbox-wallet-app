@@ -1,4 +1,4 @@
-# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260701210453-54ce69d38ae3
+# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260829203843-f1be72b37f59
 ## explicit; go 1.26
 github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader
 github.com/BitBoxSwiss/bitbox02-api-go/api/common
@@ -46,39 +46,48 @@ github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/darwin-amd64
 github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/linux-aarch64
 github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/linux-amd64
 github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/windows-amd64
-# github.com/btcsuite/btcd v0.25.0
-## explicit; go 1.23.2
+# github.com/btcsuite/btcd v0.26.2
+## explicit; go 1.25.0
 github.com/btcsuite/btcd/blockchain
 github.com/btcsuite/btcd/blockchain/indexers
 github.com/btcsuite/btcd/blockchain/internal/workmath
 github.com/btcsuite/btcd/btcjson
-github.com/btcsuite/btcd/chaincfg
 github.com/btcsuite/btcd/database
 github.com/btcsuite/btcd/mempool
 github.com/btcsuite/btcd/mining
-github.com/btcsuite/btcd/txscript
-github.com/btcsuite/btcd/wire
-# github.com/btcsuite/btcd/btcec/v2 v2.3.5
-## explicit; go 1.22
+# github.com/btcsuite/btcd/address/v2 v2.0.0
+## explicit; go 1.25
+github.com/btcsuite/btcd/address/v2
+github.com/btcsuite/btcd/address/v2/base58
+github.com/btcsuite/btcd/address/v2/bech32
+# github.com/btcsuite/btcd/btcec/v2 v2.5.0
+## explicit; go 1.25
 github.com/btcsuite/btcd/btcec/v2
 github.com/btcsuite/btcd/btcec/v2/ecdsa
 github.com/btcsuite/btcd/btcec/v2/schnorr
-# github.com/btcsuite/btcd/btcutil v1.1.6
-## explicit; go 1.16
-github.com/btcsuite/btcd/btcutil
-github.com/btcsuite/btcd/btcutil/base58
-github.com/btcsuite/btcd/btcutil/bech32
-github.com/btcsuite/btcd/btcutil/gcs
-github.com/btcsuite/btcd/btcutil/gcs/builder
-github.com/btcsuite/btcd/btcutil/hdkeychain
-# github.com/btcsuite/btcd/btcutil/psbt v1.1.10
-## explicit; go 1.17
-github.com/btcsuite/btcd/btcutil/psbt
-# github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
-## explicit; go 1.17
-github.com/btcsuite/btcd/chaincfg/chainhash
-# github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
-## explicit
+# github.com/btcsuite/btcd/btcutil/v2 v2.0.1
+## explicit; go 1.25
+github.com/btcsuite/btcd/btcutil/v2
+github.com/btcsuite/btcd/btcutil/v2/gcs
+github.com/btcsuite/btcd/btcutil/v2/gcs/builder
+github.com/btcsuite/btcd/btcutil/v2/hdkeychain
+# github.com/btcsuite/btcd/chaincfg/v2 v2.0.0
+## explicit; go 1.23.2
+github.com/btcsuite/btcd/chaincfg/v2
+# github.com/btcsuite/btcd/chainhash/v2 v2.0.0
+## explicit; go 1.23.2
+github.com/btcsuite/btcd/chainhash/v2
+# github.com/btcsuite/btcd/psbt/v2 v2.0.0
+## explicit; go 1.25
+github.com/btcsuite/btcd/psbt/v2
+# github.com/btcsuite/btcd/txscript/v2 v2.0.0
+## explicit; go 1.25
+github.com/btcsuite/btcd/txscript/v2
+# github.com/btcsuite/btcd/wire/v2 v2.0.1
+## explicit; go 1.25
+github.com/btcsuite/btcd/wire/v2
+# github.com/btcsuite/btclog v1.0.0
+## explicit; go 1.17.0
 github.com/btcsuite/btclog
 # github.com/cespare/cp v1.1.1
 ## explicit
@@ -210,6 +219,9 @@ github.com/karalabe/hid/hidapi/windows
 github.com/karalabe/hid/libusb
 github.com/karalabe/hid/libusb/libusb
 github.com/karalabe/hid/libusb/libusb/os
+# github.com/kcalvinalvin/anet v0.0.0-20251112173137-d8ddc1f6dbee
+## explicit; go 1.20
+github.com/kcalvinalvin/anet
 # github.com/kkdai/bstream v1.0.0
 ## explicit; go 1.6
 github.com/kkdai/bstream
@@ -292,7 +304,7 @@ go.opentelemetry.io/otel/trace
 go.opentelemetry.io/otel/trace/embedded
 go.opentelemetry.io/otel/trace/internal/telemetry
 go.opentelemetry.io/otel/trace/noop
-# golang.org/x/crypto v0.53.0
+# golang.org/x/crypto v0.54.0
 ## explicit; go 1.25.0
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
@@ -327,13 +339,13 @@ golang.org/x/net/proxy
 # golang.org/x/sync v0.19.0
 ## explicit; go 1.24.0
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.46.0
+# golang.org/x/sys v0.47.0
 ## explicit; go 1.25.0
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/time v0.10.0
-## explicit; go 1.18
+# golang.org/x/time v0.15.0
+## explicit; go 1.25.0
 golang.org/x/time/rate
 # golang.org/x/tools v0.41.0
 ## explicit; go 1.24.0

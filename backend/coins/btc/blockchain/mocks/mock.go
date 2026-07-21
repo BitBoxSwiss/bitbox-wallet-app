@@ -7,9 +7,9 @@ import (
 
 	blockchain "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/block-client-go/electrum/types"
-	btcutil "github.com/btcsuite/btcd/btcutil"
-	chainhash "github.com/btcsuite/btcd/chaincfg/chainhash"
-	wire "github.com/btcsuite/btcd/wire"
+	btcutil "github.com/btcsuite/btcd/btcutil/v2"
+	chainhash "github.com/btcsuite/btcd/chainhash/v2"
+	wire "github.com/btcsuite/btcd/wire/v2"
 )
 
 // BlockchainMock implements blockchain.Interface for use in tests.

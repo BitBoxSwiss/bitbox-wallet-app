@@ -4,14 +4,15 @@
 package mocks
 
 import (
+	"sync"
+
 	btctypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
 	"github.com/ethereum/go-ethereum/core/types"
-	"sync"
 )
 
 // Ensure, that KeystoreMock does implement keystore.Keystore.

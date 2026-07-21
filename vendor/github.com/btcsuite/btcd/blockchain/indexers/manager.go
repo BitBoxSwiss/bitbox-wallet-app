@@ -9,10 +9,10 @@ import (
 	"fmt"
 
 	"github.com/btcsuite/btcd/blockchain"
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/btcutil/v2"
+	"github.com/btcsuite/btcd/chainhash/v2"
 	"github.com/btcsuite/btcd/database"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcd/wire/v2"
 )
 
 var (
@@ -309,7 +309,9 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 				if err != nil {
 					return err
 				}
-				block, err = btcutil.NewBlockFromBytes(blockBytes)
+				block, err = blockchain.DBBlockFromBytes(
+					blockBytes, *hash,
+				)
 				if err != nil {
 					return err
 				}
@@ -619,7 +621,7 @@ func dropIndex(db database.DB, idxKey []byte, idxName string, interrupt <-chan s
 		return subBucketClosure(dbTx, idxKey, nil)
 	})
 	if err != nil {
-		return nil
+		return err
 	}
 
 	// Iterate through each sub-bucket in reverse, deepest-first, deleting
@@ -668,6 +670,9 @@ func dropIndex(db database.DB, idxKey []byte, idxName string, interrupt <-chan s
 			}
 			return bucket.DeleteBucket(bucketName[len(bucketName)-1])
 		})
+		if err != nil {
+			return err
+		}
 	}
 
 	// Call extra index specific deinitialization for the transaction index.

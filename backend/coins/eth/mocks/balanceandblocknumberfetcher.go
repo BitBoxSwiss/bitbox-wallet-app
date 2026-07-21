@@ -5,10 +5,11 @@ package mocks
 
 import (
 	"context"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
-	ethcommon "github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"sync"
+
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 )
 
 // Ensure, that BalanceAndBlockNumberFetcherMock does implement eth.BalanceAndBlockNumberFetcher.

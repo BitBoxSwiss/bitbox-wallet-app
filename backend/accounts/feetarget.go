@@ -4,7 +4,7 @@ package accounts
 
 import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/btcutil/v2"
 )
 
 // FeeTarget interface has priority codes.

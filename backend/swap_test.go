@@ -14,7 +14,7 @@ import (
 	coinMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
-	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/stretchr/testify/require"
 )
 

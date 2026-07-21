@@ -49,12 +49,13 @@ import (
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/mocks"
 	"github.com/BitBoxSwiss/bitbox02-api-go/communication/u2fhid"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
+	addresspkg "github.com/btcsuite/btcd/address/v2"
 	"github.com/btcsuite/btcd/btcec/v2"
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcd/btcutil/v2"
+	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
+	"github.com/btcsuite/btcd/chaincfg/v2"
+	"github.com/btcsuite/btcd/chainhash/v2"
+	"github.com/btcsuite/btcd/wire/v2"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
@@ -780,7 +781,7 @@ func TestSimulatorSignBTCPaymentRequest(t *testing.T) {
 			t.Skip()
 		}
 
-		address, err := btcutil.DecodeAddress(
+		address, err := addresspkg.DecodeAddress(
 			"bc1q2q0j6gmfxynj40p0kxsr9jkagcvgpuqv2zgq8j",
 			&chaincfg.MainNetParams)
 		require.NoError(t, err)

@@ -2,7 +2,7 @@
 
 package headers
 
-import "github.com/btcsuite/btcd/wire"
+import "github.com/btcsuite/btcd/wire/v2"
 
 // DBInterface can be implemented by database backends to store/retrieve headers.
 type DBInterface interface {

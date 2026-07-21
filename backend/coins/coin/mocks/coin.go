@@ -4,10 +4,11 @@
 package mocks
 
 import (
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"math/big"
 	"sync"
+
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 )
 
 // Ensure, that CoinMock does implement coin.Coin.

@@ -18,7 +18,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/BitBoxSwiss/block-client-go/electrum/types"
-	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/stretchr/testify/suite"
 )
 
