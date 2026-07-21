@@ -6,9 +6,15 @@ import * as accountApi from '@/api/account';
 import { Transaction } from '@/components/transactions/transaction';
 import style from '../account.module.css';
 
+export type TTransactionListItem = accountApi.TTransaction & {
+  statusProgress?: number;
+  statusText?: string;
+  statusTextShort?: string;
+};
+
 type TransactionListProps = {
   transactionSuccess: boolean;
-  filteredTransactions: accountApi.TTransaction[];
+  filteredTransactions: TTransactionListItem[];
   debouncedSearchTerm: string;
   onShowDetail: (internalID: accountApi.TTransaction['internalID']) => void;
 };

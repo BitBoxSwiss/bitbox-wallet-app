@@ -1,32 +1,43 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import style from './action-buttons.module.css';
+import { ArrowFloorDownWhite, ArrowFloorUpWhite } from '@/components/icon';
+import { AccountActionButtonLink } from '@/routes/account/components/account-action-button-link';
+import { AccountActionButtons } from '@/routes/account/components/account-action-buttons';
 
 type TProps = {
+  accountDataLoaded: boolean;
   canSend?: boolean;
 };
 
-export const ActionButtons = ({ canSend }: TProps) => {
+export const ActionButtons = ({ accountDataLoaded, canSend }: TProps) => {
   const { t } = useTranslation();
+  const canClickSend = canSend && accountDataLoaded;
+
   return (
-    <div className={style.actionsContainer}>
-      {canSend ? (
-        <Link key="sendLink" to={'/lightning/send'} className={style.send}>
-          <span>{t('generic.send')}</span>
-        </Link>
-      ) : (
-        <span key="sendDisabled" className={[style.send || '', style.disabled || ''].join(' ').trim()}>
-          {t('generic.send')}
-        </span>
-      )}
-      <Link key="receive" to={'/lightning/receive'} className={style.receive}>
+    <AccountActionButtons>
+      <AccountActionButtonLink
+        disabled={!canClickSend}
+        to="/lightning/send"
+      >
+        <ArrowFloorUpWhite width={16} height={16} />
+        <span>{t('generic.send')}</span>
+      </AccountActionButtonLink>
+
+      <AccountActionButtonLink
+        disabled={!accountDataLoaded}
+        to="/lightning/receive"
+      >
+        <ArrowFloorDownWhite width={16} height={16} />
         <span>{t('generic.receiveWithoutCoinCode')}</span>
-      </Link>
-      <Link key="topUp" to={'/lightning/topup'} className={style.topUp}>
+      </AccountActionButtonLink>
+
+      <AccountActionButtonLink
+        disabled={!accountDataLoaded}
+        to="/lightning/topup"
+      >
         <span>{t('lightning.topUp.action')}</span>
-      </Link>
-    </div>
+      </AccountActionButtonLink>
+    </AccountActionButtons>
   );
 };
