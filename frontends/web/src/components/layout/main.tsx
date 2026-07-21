@@ -5,11 +5,15 @@ import style from './main.module.css';
 
 type TMainProps = {
   children: ReactNode;
+  noHorizontalScroll?: boolean;
 };
 
-export const Main = ({ children }: TMainProps) => {
+export const Main = ({
+  children,
+  noHorizontalScroll,
+}: TMainProps) => {
   return (
-    <main className={style.main}>
+    <main className={`${style.main || ''} ${noHorizontalScroll && style.noHorizontalScroll || ''}`.trim()}>
       {children}
     </main>
   );

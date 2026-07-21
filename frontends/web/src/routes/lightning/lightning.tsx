@@ -75,7 +75,7 @@ const LightningPageLayout = ({
   return (
     <GuideWrapper>
       <GuidedContent>
-        <Main>
+        <Main noHorizontalScroll>
           <ContentWrapper>
             {statusBanners}
           </ContentWrapper>
@@ -368,7 +368,7 @@ export const Lightning = () => {
     return (
       <GuideWrapper>
         <GuidedContent>
-          <Main>
+          <Main noHorizontalScroll>
             <ContentWrapper>
               {statusBanners}
             </ContentWrapper>

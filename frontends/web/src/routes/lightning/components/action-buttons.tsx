@@ -15,7 +15,7 @@ export const ActionButtons = ({ accountDataLoaded, canSend }: TProps) => {
   const canClickSend = canSend && accountDataLoaded;
 
   return (
-    <AccountActionButtons>
+    <AccountActionButtons compact>
       <AccountActionButtonLink
         disabled={!canClickSend}
         to="/lightning/send"

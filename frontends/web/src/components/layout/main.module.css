@@ -9,3 +9,7 @@
     overflow-y: auto;
     position: relative;
 }
+
+.noHorizontalScroll {
+    overflow-x: hidden;
+}
