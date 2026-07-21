@@ -10,9 +10,21 @@
 .typeGroup,
 .amountGroup {
     display: flex;
-    flex: 1 1 auto;
     gap: var(--space-quarter);
     min-width: 0;
+}
+
+/* zero flex-basis keeps all three groups on a single line on desktop */
+.typeGroup {
+    flex: 3 1 0;
+}
+
+.dateGroup {
+    flex: 6 1 0;
+}
+
+.amountGroup {
+    flex: 7 1 0;
 }
 
 .dateGroup > div,
@@ -22,10 +34,23 @@
     min-width: 0;
 }
 
+/* allow native controls to shrink below their intrinsic width */
+.filterRow input,
+.filterRow select {
+    min-width: 0;
+    width: 100%;
+}
+
 @media (max-width: 768px) {
     .filterRow {
         flex-direction: column;
         flex-wrap: nowrap;
+    }
+
+    .dateGroup,
+    .typeGroup,
+    .amountGroup {
+        flex: 0 0 auto;
     }
 
     .dateGroup,
