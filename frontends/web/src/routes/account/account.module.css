@@ -227,6 +227,7 @@
 
 .filterToggleOpen {
     background-color: var(--background-secondary);
+    border: solid var(--border-width) var(--background-quaternary);
     border-radius: var(--radius-xl);
 }
 
