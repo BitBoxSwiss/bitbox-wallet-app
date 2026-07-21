@@ -49,7 +49,11 @@
     }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 480px) {
+    .actionsContainer {
+        gap: var(--space-eight);
+    }
+
     .actionsContainer .button {
         padding-left: 10px;
         padding-right: 10px;
@@ -87,6 +91,41 @@
 
 .actionsContainer span {
     word-break: normal;
+}
+
+@container (max-width: 360px) {
+    .actionsContainer .button {
+        gap: calc(var(--space-eight) / 2);
+        padding-left: var(--space-eight);
+        padding-right: var(--space-eight);
+    }
+
+    .actionsContainer span {
+        font-size: var(--size-smaller);
+    }
+}
+
+
+@media (max-width: 768px) {
+    .actionsContainer {
+        container-type: inline-size;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .actionsContainer .button {
+        gap: var(--space-eight);
+        min-width: 0;
+        padding-left: clamp(var(--space-quarter), 3cqi, var(--space-half));
+        padding-right: clamp(var(--space-quarter), 3cqi, var(--space-half));
+    }
+
+    .actionsContainer span {
+        flex-shrink: 1;
+        font-size: clamp(var(--size-smaller), 4.6cqi, var(--size-small));
+        min-width: 0;
+        white-space: nowrap;
+    }
 }
 
 .withWalletConnect.actionsContainer {
@@ -159,6 +198,8 @@
         justify-content: center;
         margin-bottom: var(--space-half);
         margin-top: var(--space-half);
+        max-width: 100%;
+        min-width: 0;
         padding-bottom: 0;
         width: 100%;
     }
@@ -173,8 +214,8 @@
 
     .actionsContainer a,
     .actionsContainer > button {
-        flex: 1;
-        min-width: unset;
+        flex: 1 1 auto;
+        min-width: 0;
     }
 
 }
