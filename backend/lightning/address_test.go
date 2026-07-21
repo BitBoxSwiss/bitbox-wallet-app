@@ -339,7 +339,7 @@ func TestAddressAvailability(t *testing.T) {
 	require.Equal(t, &AddressAvailability{
 		GeneratedAddress: GeneratedAddress{
 			Username: "user123",
-			Address:  "user123@bitbox.pay",
+			Address:  "user123@" + lnurlDomainProd,
 		},
 		Available: true,
 	}, availability)
@@ -382,7 +382,7 @@ func TestGenerateAddressRetriesUnavailableUsernamesWithoutRegistering(t *testing
 	require.NotNil(t, generatedAddress)
 	require.Len(t, checkedUsernames, 2)
 	require.Equal(t, checkedUsernames[1], generatedAddress.Username)
-	require.Equal(t, generatedAddress.Username+"@bitbox.pay", generatedAddress.Address)
+	require.Equal(t, generatedAddress.Username+"@"+lnurlDomainProd, generatedAddress.Address)
 }
 
 func TestRegisterAddress(t *testing.T) {
