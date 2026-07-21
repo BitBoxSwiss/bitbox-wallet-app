@@ -161,6 +161,7 @@
     align-items: center;
     display: flex;
     font-weight: 500;
+    margin-top: var(--space-default);
     gap: var(--space-quarter);
     justify-content: center;
 }
