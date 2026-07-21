@@ -3,7 +3,7 @@
 import '../../../__mocks__/i18n';
 import { useContext } from 'react';
 import { Mock, afterEach, describe, expect, it, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { TBalance } from '@/api/account';
 import { Balance } from './balance';
 
@@ -22,6 +22,39 @@ vi.mock('react', () => ({
 }));
 
 describe('components/balance/balance', () => {
+  it('uses a custom unit rotator', () => {
+    const rotateBtcUnit = vi.fn();
+    const onRotateUnit = vi.fn();
+    (useContext as Mock).mockReturnValue({
+      defaultCurrency: 'USD',
+      decimal: '.',
+      group: ',',
+      rotateBtcUnit,
+    });
+    const amount = {
+      amount: '123',
+      unit: 'sat' as const,
+      estimated: false,
+      conversions: { USD: '1' },
+    };
+
+    const { getByTestId } = render(
+      <Balance
+        balance={{
+          available: amount,
+          hasAvailable: true,
+          hasIncoming: false,
+          incoming: amount,
+        }}
+        onRotateUnit={onRotateUnit}
+      />
+    );
+    fireEvent.click(getByTestId('amount-unit-sat'));
+
+    expect(onRotateUnit).toHaveBeenCalledOnce();
+    expect(rotateBtcUnit).not.toHaveBeenCalled();
+  });
+
   it('renders balance properly', () => {
     (useContext as Mock).mockReturnValue({
       btcUnit: 'default',

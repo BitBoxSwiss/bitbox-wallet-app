@@ -286,10 +286,10 @@ func (lightning *Lightning) toLightningPayment(payment breez_sdk_spark.Payment) 
 		Type:                 paymentType,
 		Status:               toLightningPaymentStatus(payment.Status),
 		Time:                 formattedTime,
-		Amount:               amount.FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
-		AmountAtTime:         amount.FormatWithConversionsAtTime(lightning.btcCoin, timestamp, lightning.ratesUpdater),
-		DeductedAmountAtTime: deductedAmount.FormatWithConversionsAtTime(lightning.btcCoin, timestamp, lightning.ratesUpdater),
-		Fee:                  fee.FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
+		Amount:               lightning.FormatAmountWithConversions(amount, false),
+		AmountAtTime:         lightning.formatAmountAtTime(amount, timestamp),
+		DeductedAmountAtTime: lightning.formatAmountAtTime(deductedAmount, timestamp),
+		Fee:                  lightning.FormatAmountWithConversions(fee, true),
 	}
 	// Claimed Bitcoin deposits appear in ListPayments, sometimes without payment details. Mark them
 	// as complete top-ups based on the payment method so the frontend can identify them reliably.
@@ -397,10 +397,10 @@ func (lightning *Lightning) toBitcoinDepositPayment(deposit breez_sdk_spark.Depo
 		ID:                   fmt.Sprintf("bitcoin-deposit:%s:%d", deposit.Txid, deposit.Vout),
 		Type:                 accounts.TxTypeReceive,
 		Status:               accounts.TxStatusPending,
-		Amount:               amount.FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
-		AmountAtTime:         amount.FormatWithConversionsAtTime(lightning.btcCoin, nil, lightning.ratesUpdater),
-		DeductedAmountAtTime: coin.NewAmountFromInt64(0).FormatWithConversionsAtTime(lightning.btcCoin, nil, lightning.ratesUpdater),
-		Fee:                  coin.NewAmountFromInt64(0).FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
+		Amount:               lightning.FormatAmountWithConversions(amount, false),
+		AmountAtTime:         lightning.formatAmountAtTime(amount, nil),
+		DeductedAmountAtTime: lightning.formatAmountAtTime(coin.NewAmountFromInt64(0), nil),
+		Fee:                  lightning.FormatAmountWithConversions(coin.NewAmountFromInt64(0), true),
 		BitcoinDeposit:       depositInfo,
 	}
 }

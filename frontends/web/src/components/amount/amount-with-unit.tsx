@@ -17,6 +17,7 @@ type TAmountWithUnitProps = {
   amountClassName?: string;
   unitClassName?: string;
   maxDecimals?: number;
+  onRotateUnit?: () => Promise<void>;
 };
 
 export const AmountWithUnit = ({
@@ -29,6 +30,7 @@ export const AmountWithUnit = ({
   amountClassName = '',
   unitClassName = '',
   maxDecimals,
+  onRotateUnit,
 }: TAmountWithUnitProps) => {
   const { rotateDefaultCurrency, defaultCurrency, rotateBtcUnit } = useContext(RatesContext);
 
@@ -49,7 +51,7 @@ export const AmountWithUnit = ({
   } else {
     displayedAmount = amount.amount;
     displayedUnit = amount.unit;
-    onClick = rotateBtcUnit;
+    onClick = onRotateUnit || rotateBtcUnit;
   }
 
   const enableClick = enableRotateUnit && (convertToFiat || isBitcoinCoin(amount.unit));

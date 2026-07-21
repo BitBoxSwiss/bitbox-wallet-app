@@ -163,18 +163,13 @@ func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
 		return errorResponse(err)
 	}
 
-	btcCoin := lightning.btcCoin
-
-	formattedAvailableAmount := coin.FormattedAmountWithConversions{
-		Amount:      btcCoin.FormatAmount(balance.Available(), false),
-		Unit:        btcCoin.GetFormatUnit(false),
-		Conversions: coin.Conversions(balance.Available(), btcCoin, false, lightning.ratesUpdater),
-	}
-	formattedIncomingAmount := coin.FormattedAmountWithConversions{
-		Amount:      btcCoin.FormatAmount(balance.Incoming(), false),
-		Unit:        btcCoin.GetFormatUnit(false),
-		Conversions: coin.Conversions(balance.Incoming(), btcCoin, false, lightning.ratesUpdater),
-	}
+	formattingCoin := lightning.formattingCoin()
+	formattedAvailableAmount := lightning.FormatAmountWithConversions(balance.Available(), false)
+	formattedAvailableAmount.UnformattedConversions = coin.UnformattedConversions(
+		balance.Available(), formattingCoin, false, lightning.ratesUpdater)
+	formattedIncomingAmount := lightning.FormatAmountWithConversions(balance.Incoming(), false)
+	formattedIncomingAmount.UnformattedConversions = coin.UnformattedConversions(
+		balance.Incoming(), formattingCoin, false, lightning.ratesUpdater)
 
 	return responseDto{
 		Success: true,

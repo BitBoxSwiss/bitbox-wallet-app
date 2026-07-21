@@ -30,7 +30,7 @@ import styles from './receive.module.css';
 export function Receive() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { defaultCurrency } = useContext(RatesContext);
+  const { defaultCurrency, lightningUnit } = useContext(RatesContext);
   const {
     amount: invoiceAmount,
     amountSat: invoiceAmountSat,
@@ -45,7 +45,7 @@ export function Receive() {
   const [receiveError, setReceiveError] = useState<string>();
   const [step, setStep] = useState<TReceiveStep>('address');
   const [balanceLoadAttempt, setBalanceLoadAttempt] = useState(0);
-  const lightningBalance = useLoad(getLightningBalance, [balanceLoadAttempt]);
+  const lightningBalance = useLoad(getLightningBalance, [balanceLoadAttempt, lightningUnit]);
   const lightningAddress = useSync(getLightningAddress, subscribeLightningAddress);
   const satsBalance = lightningBalance?.available.unit === 'sat'
     ? lightningBalance.available.amount

@@ -40,6 +40,26 @@ func makeTestLightning() *Lightning {
 	}
 }
 
+func TestFormatAmountWithConversionsUsesLightningUnit(t *testing.T) {
+	lightning := makeTestLightning()
+	lightning.backendConfig = newTestLightning(t, nil).backendConfig
+	btcCoin := lightning.btcCoin.(*btccoin.Coin)
+
+	btcCoin.SetFormatUnit(coin.BtcUnitDefault)
+	formatted := lightning.FormatAmountWithConversions(coin.NewAmountFromInt64(123), false)
+	require.Equal(t, "123", formatted.Amount)
+	require.Equal(t, "sat", formatted.Unit)
+
+	require.NoError(t, lightning.backendConfig.ModifyAppConfig(func(cfg *config.AppConfig) error {
+		cfg.Backend.LightningUnit = coin.BtcUnitDefault
+		return nil
+	}))
+	btcCoin.SetFormatUnit(coin.BtcUnitSats)
+	formatted = lightning.FormatAmountWithConversions(coin.NewAmountFromInt64(123), false)
+	require.Equal(t, "0.00000123", formatted.Amount)
+	require.Equal(t, "BTC", formatted.Unit)
+}
+
 type testPaymentsBreezSDK struct {
 	breezSDK
 
@@ -79,16 +99,16 @@ func TestToLightningPayment(t *testing.T) {
 		Time:        stringPointer("1970-01-01T00:00:42Z"),
 		Description: "invoice description",
 		Amount: coinAmountWithConversions(
-			"0.00000123",
+			"123",
 		),
 		AmountAtTime: coinAmountWithConversions(
-			"0.00000123",
+			"123",
 		),
 		DeductedAmountAtTime: coinAmountWithConversions(
-			"0.00000000",
+			"0",
 		),
 		Fee: coinAmountWithConversions(
-			"0.00000004",
+			"4",
 		),
 		Invoice: "lnbc1invoice",
 	}, payment)
@@ -200,16 +220,16 @@ func TestToLightningPaymentSparkInvoiceDetails(t *testing.T) {
 		Time:        stringPointer("1970-01-01T00:00:42Z"),
 		Description: "spark description",
 		Amount: coinAmountWithConversions(
-			"0.00000123",
+			"123",
 		),
 		AmountAtTime: coinAmountWithConversions(
-			"0.00000123",
+			"123",
 		),
 		DeductedAmountAtTime: coinAmountWithConversions(
-			"0.00000000",
+			"0",
 		),
 		Fee: coinAmountWithConversions(
-			"0.00000004",
+			"4",
 		),
 		Invoice: "lnsb1invoice",
 	}, payment)
@@ -237,8 +257,8 @@ func TestToLightningPaymentSparkNilInvoiceDetails(t *testing.T) {
 		require.Equal(t, accounts.TxTypeReceive, payment.Type)
 		require.Equal(t, accounts.TxStatusComplete, payment.Status)
 		require.Equal(t, stringPointer("1970-01-01T00:00:42Z"), payment.Time)
-		require.Equal(t, coinAmountWithConversions("0.00000123"), payment.Amount)
-		require.Equal(t, coinAmountWithConversions("0.00000004"), payment.Fee)
+		require.Equal(t, coinAmountWithConversions("123"), payment.Amount)
+		require.Equal(t, coinAmountWithConversions("4"), payment.Fee)
 	})
 }
 
@@ -309,7 +329,7 @@ func TestToBitcoinDepositPayment(t *testing.T) {
 				State: bitcoinDepositStateConfirming,
 			},
 			expectedID:  "bitcoin-deposit:txid-confirming:1",
-			expectedAmt: "0.00000123",
+			expectedAmt: "123",
 		},
 		{
 			name: "claiming deposit",
@@ -325,7 +345,7 @@ func TestToBitcoinDepositPayment(t *testing.T) {
 				State: bitcoinDepositStateClaiming,
 			},
 			expectedID:  "bitcoin-deposit:txid-claiming:2",
-			expectedAmt: "0.00000456",
+			expectedAmt: "456",
 		},
 		{
 			name: "unclaimed deposit",
@@ -343,7 +363,7 @@ func TestToBitcoinDepositPayment(t *testing.T) {
 				ClaimError: "claim failed",
 			},
 			expectedID:  "bitcoin-deposit:txid-unclaimed:3",
-			expectedAmt: "0.00000789",
+			expectedAmt: "789",
 		},
 	}
 
@@ -375,9 +395,9 @@ func TestToLightningPaymentSendWithMissingTimestamp(t *testing.T) {
 	require.Nil(t, payment.Time)
 	require.Equal(t, accounts.TxTypeSend, payment.Type)
 	require.Equal(t, accounts.TxStatusPending, payment.Status)
-	require.Equal(t, "0.00000100", payment.Amount.Amount)
-	require.Equal(t, "0.00000105", payment.DeductedAmountAtTime.Amount)
-	require.Equal(t, "0.00000005", payment.Fee.Amount)
+	require.Equal(t, "100", payment.Amount.Amount)
+	require.Equal(t, "105", payment.DeductedAmountAtTime.Amount)
+	require.Equal(t, "5", payment.Fee.Amount)
 	require.True(t, payment.AmountAtTime.Estimated)
 	require.True(t, payment.DeductedAmountAtTime.Estimated)
 }
@@ -725,7 +745,7 @@ func TestValidateApprovedLightningFee(t *testing.T) {
 func coinAmountWithConversions(amount string) coin.FormattedAmountWithConversions {
 	return coin.FormattedAmountWithConversions{
 		Amount:      amount,
-		Unit:        "BTC",
+		Unit:        "sat",
 		Conversions: coin.ConversionsMap{},
 		Estimated:   false,
 	}

@@ -4,7 +4,7 @@ package backend
 
 import coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 
-// coinCodeLightning is a portfolio-only pseudo coin code. Use BTC for formatting and conversions;
+// coinCodeLightning is a portfolio-only pseudo coin code. Use BTC rates for conversions;
 // backend.Coin(coinCodeLightning) does not resolve.
 const coinCodeLightning coinpkg.Code = "lightning"
 
@@ -20,16 +20,11 @@ func (backend *Backend) lightningFormattedBalance() (*coinFormattedAmount, error
 	if err != nil {
 		return nil, err
 	}
-	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
-	if err != nil {
-		return nil, err
+	formattedBalance := coinFormattedAmount{
+		CoinCode:        coinCodeLightning,
+		CoinName:        "Lightning",
+		FormattedAmount: backend.lightning.FormatAmountWithConversions(lightningBalance.Available(), false),
 	}
-	formattedBalance := backend.formattedCoinBalance(
-		coinCodeLightning,
-		"Lightning",
-		btcCoin,
-		lightningBalance.Available().BigInt(),
-	)
 	return &formattedBalance, nil
 }
 
