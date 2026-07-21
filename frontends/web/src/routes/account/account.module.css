@@ -20,12 +20,6 @@
     width: 100%;
 }
 
-.titleRowButtons {
-    align-items: center;
-    display: flex;
-    gap: var(--space-half);
-}
-
 .searchButton {
     align-items: center;
     display: flex;
@@ -199,6 +193,41 @@
     transform: translateY(-10px);
     /* remove the collapsed controls from the tab order */
     visibility: hidden;
+}
+
+.searchRow {
+    align-items: flex-start;
+    display: flex;
+    gap: var(--space-quarter);
+    width: 100%;
+}
+
+.searchRow > div {
+    flex: 1;
+    min-width: 0;
+}
+
+.filterToggle {
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex: none;
+    height: var(--input-height);
+    justify-content: center;
+    padding: 0;
+    width: var(--input-height);
+}
+
+.filterToggle img {
+    height: var(--size-default);
+    width: var(--size-default);
+}
+
+.filterToggleOpen {
+    background-color: var(--background-secondary);
+    border-radius: var(--radius-xl);
 }
 
 @media (max-width: 768px) {

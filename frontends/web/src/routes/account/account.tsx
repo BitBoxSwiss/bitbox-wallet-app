@@ -297,11 +297,52 @@ const RemountAccount = ({
                         {t('accountSummary.transactionHistory')}
                       </SubTitle>
 
-                      <div className={style.titleRowButtons}>
-                        <Button
-                          className={style.searchButton}
-                          transparent
-                          disabled={!hasTransactions}
+                      <Button
+                        className={style.searchButton}
+                        transparent
+                        disabled={!hasTransactions}
+                        onClick={() => {
+                          if (showSearchBar) {
+                            setShowSearchBar(false);
+                            setSearchTerm('');
+                            setShowFilters(false);
+                            clearFilters();
+                          } else {
+                            setShowSearchBar(true);
+                          }
+                        }}
+                      >
+                        {showSearchBar ? (
+                          <>✕ {t('generic.close')}</>
+                        ) : (
+                          <>
+                            <LoupeBlue className={style.loupe} />
+                            {t('generic.searchButton')}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+
+                    <div className={`
+                      ${style.searchContainer || ''}
+                      ${!showSearchBar && style.searchHidden || ''}
+                    `}>
+                      <div className={style.searchRow}>
+                        <SearchInput
+                          ref={searchInputRef}
+                          placeholder={t('accountSummary.searchPlaceholder')}
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.currentTarget.value)}
+                        />
+                        <button
+                          type="button"
+                          aria-label={t('transactions.filters.button')}
+                          aria-expanded={showFilters}
+                          title={t('transactions.filters.button')}
+                          className={`
+                            ${style.filterToggle || ''}
+                            ${showFilters && style.filterToggleOpen || ''}
+                          `}
                           onClick={() => {
                             if (showFilters) {
                               setShowFilters(false);
@@ -311,50 +352,9 @@ const RemountAccount = ({
                             }
                           }}
                         >
-                          {showFilters ? (
-                            <>✕ {t('generic.close')}</>
-                          ) : (
-                            <>
-                              <FilterBlue className={style.loupe} />
-                              {t('transactions.filters.button')}
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          className={style.searchButton}
-                          transparent
-                          disabled={!hasTransactions}
-                          onClick={() => {
-                            if (showSearchBar) {
-                              setShowSearchBar(false);
-                              setSearchTerm('');
-                            } else {
-                              setShowSearchBar(true);
-                            }
-                          }}
-                        >
-                          {showSearchBar ? (
-                            <>✕ {t('generic.close')}</>
-                          ) : (
-                            <>
-                              <LoupeBlue className={style.loupe} />
-                              {t('generic.searchButton')}
-                            </>
-                          )}
-                        </Button>
+                          <FilterBlue />
+                        </button>
                       </div>
-                    </div>
-
-                    <div className={`
-                      ${style.searchContainer || ''}
-                      ${!showSearchBar && style.searchHidden || ''}
-                    `}>
-                      <SearchInput
-                        ref={searchInputRef}
-                        placeholder={t('accountSummary.searchPlaceholder')}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.currentTarget.value)}
-                      />
                     </div>
 
                     <div
