@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/stretchr/testify/require"
@@ -121,4 +122,14 @@ func TestUpdateCheckerCheckAndSet(t *testing.T) {
 		default:
 		}
 	})
+}
+
+func TestNewUpdateRequestSetsUserAgent(t *testing.T) {
+	backend := &Backend{environment: environment{}}
+
+	request, err := newUpdateRequest(context.Background(), backend.userAgent())
+
+	require.NoError(t, err)
+	require.Equal(t, updateFileURL, request.URL.String())
+	require.Equal(t, "BitBoxApp/"+versioninfo.Version.String()+" (linux)", request.Header.Get("User-Agent"))
 }

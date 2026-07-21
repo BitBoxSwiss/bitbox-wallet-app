@@ -344,6 +344,10 @@ func (e environment) OnAuthSettingChanged(bool) {}
 
 func (e environment) BluetoothConnect(string) {}
 
+func (e environment) UserAgentPlatform() string {
+	return "linux"
+}
+
 type mockTransactionsSource struct {
 }
 
