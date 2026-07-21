@@ -46,6 +46,11 @@
     color: transparent;
 }
 
+.filterRow label {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+}
+
 @media (max-width: 768px) {
     .filterRow {
         flex-direction: column;
