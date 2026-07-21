@@ -29,6 +29,11 @@
     width: 100%;
 }
 
+.select select:focus {
+    border-color: var(--color-blue);
+    outline: none;
+}
+
 .select select[disabled] {
     background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 11 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.75 0.75L5.5 5.25L10.25 0.75' stroke='%23cccccc' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
