@@ -159,6 +159,9 @@ Check **outdated** dependencies: `npm outdated`.
 
 **Update a specific dependency** with a fixed semver `npm install modulename@specificversion --save-exact`, and with `--save-dev` for devDependencies.
 
+New production dependencies and license changes require review. See
+[Frontend dependency licenses](./docs/dependency-licenses.md) for the check and how to resolve failures.
+
 #### Qt WebEngine Debugging
 
 Set the following environment variable to debug the Qt WebEngine with Chrome developer tools,
