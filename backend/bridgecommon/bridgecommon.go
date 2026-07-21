@@ -348,8 +348,9 @@ func Serve(
 	globalHandlers = handlers.NewHandlers(globalBackend,
 		handlers.NewConnectionData(-1, globalToken))
 
-	events := globalHandlers.Events()
+	events, unsubscribe := globalHandlers.Events()
 	go func() {
+		defer unsubscribe()
 		for {
 			select {
 			case <-quitChan:
@@ -358,7 +359,10 @@ func Serve(
 				select {
 				case <-quitChan:
 					return
-				case event := <-events:
+				case event, ok := <-events:
+					if !ok {
+						return
+					}
 					func() {
 						mu.RLock()
 						defer mu.RUnlock()
