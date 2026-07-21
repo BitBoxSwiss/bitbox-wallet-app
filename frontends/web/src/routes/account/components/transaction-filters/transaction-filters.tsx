@@ -82,8 +82,7 @@ export const TransactionFilters = ({
         />
         <Select
           id="tx-filter-amount-unit"
-          label={'\u00a0'}
-          aria-label={t('transactions.filters.unit')}
+          label={t('transactions.filters.unit')}
           options={[
             { value: 'coin', text: coinUnit },
             { value: 'fiat', text: fiatUnit },
