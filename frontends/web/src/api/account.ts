@@ -179,11 +179,23 @@ type TChartDataResponse = {
   success: false;
 };
 
+export type TChartPerformance = {
+  moneyWeightedReturn: number | null;
+};
+
+export type TChartPerformanceByDisplay = {
+  week: TChartPerformance;
+  month: TChartPerformance;
+  year: TChartPerformance;
+  all: TChartPerformance;
+};
+
 export type TChartData = {
   chartDataMissing: boolean;
   chartDataDaily: ChartData;
   chartDataHourly: ChartData;
   chartFiat: ConversionUnit;
+  chartPerformance: TChartPerformanceByDisplay;
   chartTotal: number | null;
   formattedChartTotal: string | null;
   chartIsUpToDate: boolean; // only valid if chartDataMissing is false

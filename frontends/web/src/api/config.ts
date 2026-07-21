@@ -3,6 +3,7 @@
 import { apiGet, apiPost } from '@/utils/request';
 import type { Fiat } from '@/api/account';
 import type { BtcUnit } from '@/api/coins';
+import type { TPortfolioPercentageType } from '@/contexts/AppContext';
 
 type TElectrumServerInfo = Readonly<{
   server: string;
@@ -54,6 +55,7 @@ export type TConfigFrontendDismissibleKey =
 export type TConfigFrontend = Readonly<{
   guideShown?: boolean;
   hideAmounts?: boolean;
+  portfolioPercentageType?: TPortfolioPercentageType;
   darkmode?: boolean;
   expertFee?: boolean;
   coinControl?: boolean;

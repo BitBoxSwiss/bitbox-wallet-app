@@ -7,6 +7,7 @@ import { TDevices } from '@/api/devices';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import { unsubscribe } from '@/utils/subscriptions';
 import { TUnsubscribe } from '@/utils/transport-common';
+import { SimpleMarkup } from '@/utils/markup';
 import { useMountedRef } from '@/hooks/mount';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View } from '@/components/view/view';
@@ -224,6 +225,25 @@ export const AccountsSummary = ({
           text: t('guide.accountSummaryDescription.text'),
           title: t('guide.accountSummaryDescription.title'),
         }} />
+        <Entry key="accountSummaryPercentageMeaning" entry={{
+          text: t('guide.accountSummaryPercentageMeaning.text'),
+          title: t('guide.accountSummaryPercentageMeaning.title'),
+        }}>
+          <ul>
+            <SimpleMarkup
+              tagName="li"
+              markup={t('guide.accountSummaryPercentageMeaning.listOptions.0')}
+            />
+            <SimpleMarkup
+              tagName="li"
+              markup={t('guide.accountSummaryPercentageMeaning.listOptions.1')}
+            />
+          </ul>
+          <SimpleMarkup
+            tagName="p"
+            markup={t('guide.accountSummaryPercentageMeaning.outro')}
+          />
+        </Entry>
         <Entry key="accountSummaryAmount" entry={{
           link: {
             text: 'www.coingecko.com',

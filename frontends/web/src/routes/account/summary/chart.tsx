@@ -12,7 +12,7 @@ import { PercentageDiff } from './percentage-diff';
 import { Filters } from './filters';
 import { useDarkmode } from '@/hooks/darkmode';
 import { RatesContext } from '@/contexts/RatesContext';
-import { AppContext, TChartDisplay } from '@/contexts/AppContext';
+import { AppContext, TChartDisplay, TPortfolioPercentageType } from '@/contexts/AppContext';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
 import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import { LinechartGray } from '@/components/icon';
@@ -29,11 +29,20 @@ const defaultData: Readonly<TChartData> = {
   chartDataDaily: [],
   chartDataHourly: [],
   chartFiat: 'USD',
+  chartPerformance: {
+    week: { moneyWeightedReturn: null },
+    month: { moneyWeightedReturn: null },
+    year: { moneyWeightedReturn: null },
+    all: { moneyWeightedReturn: null },
+  },
   chartTotal: null,
   formattedChartTotal: null,
   chartIsUpToDate: false,
   lastTimestamp: 0,
 };
+
+const switchedBadgeVisibleMs = 2000;
+const switchedBadgeFadeMs = 180;
 
 type FormattedData = {
   [key: number]: string;
@@ -171,7 +180,12 @@ export const Chart = ({
 
   const { t, i18n } = useTranslation();
   const { isDarkMode } = useDarkmode();
-  const { chartDisplay, setChartDisplay } = useContext(AppContext);
+  const {
+    chartDisplay,
+    portfolioPercentageType,
+    setChartDisplay,
+    updatePortfolioPercentageType,
+  } = useContext(AppContext);
   const { defaultCurrency, rotateDefaultCurrency } = useContext(RatesContext);
   const [searchParams] = useSearchParams();
 
@@ -182,11 +196,15 @@ export const Chart = ({
   const lineSeries = useRef<ISeriesApi<'Area'>>();
   const formattedData = useRef<FormattedData>({});
   const lastHapticTime = useRef<number | null>(null);
+  const switchedBadgeHideTimeout = useRef<number>();
+  const switchedBadgeClearTimeout = useRef<number>();
 
   const [source, setSource] = useState<'daily' | 'hourly'>(chartDisplay === 'week' ? 'hourly' : 'daily');
-  const [difference, setDifference] = useState<number>();
+  const [valueDifference, setValueDifference] = useState<number>();
   const [diffSince, setDiffSince] = useState<string>();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isSwitchedBadgeVisible, setIsSwitchedBadgeVisible] = useState(false);
+  const [switchedToType, setSwitchedToType] = useState<TPortfolioPercentageType>();
   const [tooltipData, setTooltipData] = useState<{
     toolTipVisible: boolean;
     toolTipValue?: string;
@@ -303,6 +321,30 @@ export const Chart = ({
     return () => window.removeEventListener('resize', onResize);
   }, [onResize]);
 
+  useEffect(() => {
+    return () => {
+      if (switchedBadgeHideTimeout.current) {
+        window.clearTimeout(switchedBadgeHideTimeout.current);
+      }
+      if (switchedBadgeClearTimeout.current) {
+        window.clearTimeout(switchedBadgeClearTimeout.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!switchedToType) {
+      return;
+    }
+
+    setIsSwitchedBadgeVisible(false);
+    const animationFrame = window.requestAnimationFrame(() => {
+      setIsSwitchedBadgeVisible(true);
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [switchedToType]);
+
   const calculateChange = useCallback(() => {
     const chartData = data[source === 'daily' ? 'chartDataDaily' : 'chartDataHourly'];
     if (!chartData || !chart.current || !lineSeries.current) {
@@ -320,20 +362,20 @@ export const Chart = ({
       // but at this point the setVisibleRange has not executed what the new range
       // should be and therefore barsBefore might still point to the old range
       // so we have to ignore this call and expect setVisibleRange with correct range
-      setDifference(0);
+      setValueDifference(0);
       setDiffSince('');
       return;
     }
     const nextValue = chartData[rangeFrom + 1] as FormattedLineData | undefined;
     const valueFrom = chartData[rangeFrom].value === 0 ? nextValue?.value : chartData[rangeFrom].value;
     if (!valueFrom || !Number.isFinite(valueFrom)) {
-      setDifference(0);
+      setValueDifference(0);
       setDiffSince('');
       return;
     }
     const valueTo = data.chartTotal;
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
-    setDifference(valueDiff / valueFrom);
+    setValueDifference(valueDiff / valueFrom);
     setDiffSince(`${chartData[rangeFrom].formattedValue} (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`);
   }, [data, i18n.language, source]);
 
@@ -517,6 +559,31 @@ export const Chart = ({
     initChart();
   };
 
+  const togglePortfolioPercentageType = () => {
+    const nextType = portfolioPercentageType === 'moneyWeightedReturn'
+      ? 'value'
+      : 'moneyWeightedReturn';
+
+    updatePortfolioPercentageType(nextType);
+    setSwitchedToType(nextType);
+    setIsSwitchedBadgeVisible(false);
+
+    if (switchedBadgeHideTimeout.current) {
+      window.clearTimeout(switchedBadgeHideTimeout.current);
+    }
+    if (switchedBadgeClearTimeout.current) {
+      window.clearTimeout(switchedBadgeClearTimeout.current);
+    }
+    switchedBadgeHideTimeout.current = window.setTimeout(() => {
+      setIsSwitchedBadgeVisible(false);
+      switchedBadgeHideTimeout.current = undefined;
+    }, switchedBadgeVisibleMs);
+    switchedBadgeClearTimeout.current = window.setTimeout(() => {
+      setSwitchedToType(undefined);
+      switchedBadgeClearTimeout.current = undefined;
+    }, switchedBadgeVisibleMs + switchedBadgeFadeMs);
+  };
+
   if (source === 'daily' && prevChartDataDaily?.length !== data.chartDataDaily.length) {
     lineSeries.current?.setData(data.chartDataDaily);
     chart.current?.timeScale().fitContent();
@@ -601,9 +668,17 @@ export const Chart = ({
     formattedChartTotal,
   } = data;
 
-  if (!hasData && chartIsUpToDate && difference) {
+  const moneyWeightedReturn = data.chartPerformance[chartDisplay].moneyWeightedReturn;
+  const difference = portfolioPercentageType === 'moneyWeightedReturn'
+    ? moneyWeightedReturn
+    : valueDifference;
+  const switchedLabel = switchedToType
+    ? t(`chart.displayMode.${switchedToType === 'value' ? 'totalValue' : 'performance'}`)
+    : undefined;
+
+  if (!hasData && chartIsUpToDate && valueDifference) {
     setDiffSince('');
-    setDifference(0);
+    setValueDifference(0);
   }
 
   const {
@@ -614,7 +689,10 @@ export const Chart = ({
     toolTipTime,
   } = tooltipData;
 
-  const hasDifference = difference && Number.isFinite(difference);
+  const hasDifference = difference !== undefined
+    && difference !== null
+    && difference !== 0
+    && Number.isFinite(difference);
   const disableFilters = !hasData || chartDataMissing;
   const disableWeeklyFilters = !hasHourlyData || chartDataMissing;
   const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile;
@@ -651,8 +729,12 @@ export const Chart = ({
           </div>
           {!showMobileTotalValue ? (
             <PercentageDiff
+              badgeVisible={isSwitchedBadgeVisible}
               hasDifference={!!hasDifference}
-              difference={difference}
+              difference={difference ?? undefined}
+              onClick={togglePortfolioPercentageType}
+              switchedLabel={switchedLabel}
+              switchedType={switchedToType}
               title={diffSince}
             />
           ) : (

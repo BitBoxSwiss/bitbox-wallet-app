@@ -26,6 +26,10 @@ import bankDarkSVG from './assets/icons/bank.svg';
 import bankLightSVG from './assets/icons/bank-light.svg';
 import baseColorSVG from './assets/base-color.svg';
 import buyInfoSVG from './assets/icons/buy-info.svg';
+import chartPerformanceDarkSVG from './assets/icons/chart-performance-dark.svg';
+import chartPerformanceWhiteSVG from './assets/icons/chart-performance-white.svg';
+import chartValueDarkSVG from './assets/icons/chart-value-dark.svg';
+import chartValueWhiteSVG from './assets/icons/chart-value-white.svg';
 import checkedSmallSVG from './assets/icons/checked-small.svg';
 import checkSVG from './assets/icons/check.svg';
 import chevronRightDark from './assets/icons/chevron-right-dark.svg';
@@ -144,6 +148,10 @@ export const BaseLogo = (props: ImgProps) => (<img src={baseColorSVG} draggable=
 export const BitBox02StylizedDark = (props: ImgProps) => (<img src={BB02StylizedDark} draggable={false} {...props} />);
 export const BitBox02StylizedLight = (props: ImgProps) => (<img src={BB02StylizedLight} draggable={false} {...props} />);
 export const BuyInfo = (props: ImgProps) => (<img src={buyInfoSVG} draggable={false} {...props} />);
+export const ChartPerformanceDark = (props: ImgProps) => (<img src={chartPerformanceDarkSVG} draggable={false} {...props} />);
+export const ChartPerformanceWhite = (props: ImgProps) => (<img src={chartPerformanceWhiteSVG} draggable={false} {...props} />);
+export const ChartValueDark = (props: ImgProps) => (<img src={chartValueDarkSVG} draggable={false} {...props} />);
+export const ChartValueWhite = (props: ImgProps) => (<img src={chartValueWhiteSVG} draggable={false} {...props} />);
 // check icon on a green circle
 export const Checked = (props: ImgProps) => (<img src={checkedSmallSVG} draggable={false} {...props} />);
 // simple check for copy component

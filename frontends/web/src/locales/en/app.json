@@ -767,6 +767,10 @@
     "dataMissing": "Loading chart, come back later...",
     "dataOldTimestamp": "Historical exchange rates updating. The chart is not displaying data after {{time}}.",
     "dataUpdating": "updating data…",
+    "displayMode": {
+      "performance": "Performance",
+      "totalValue": "Value over time"
+    },
     "filter": {
       "all": "All",
       "month": "Month",
@@ -1132,8 +1136,17 @@
       "title": "How is the total amount calculated?"
     },
     "accountSummaryDescription": {
-      "text": "Here you can see the performance of your portfolio over time. A summary of your individual crypto accounts is displayed under the chart.",
+      "text": "Here you can see the value and performance of your portfolio over time. A summary of your individual crypto accounts is displayed under the chart.",
       "title": "What does this page show me?"
+    },
+    "accountSummaryPercentageMeaning": {
+      "listOptions": [
+        "Value over time: This is the change of your portfolio value over time, including deposits and withdrawals.",
+        "Performance: This is the money-weighted return (MWR). It takes into account deposits and withdrawals, so it reflects the performance of your portfolio."
+      ],
+      "outro": "You can switch between performance and value over time by clicking on the percentage, or in Settings under Appearance. By default, the app shows value over time.",
+      "text": "The percentage on your portfolio chart shows one of two options for the selected time range:",
+      "title": "What does the percentage mean?"
     },
     "accountTransactionAttributesBTC": {
       "text": "Virtual size: Determines the network fee. You successfully saved on fees if it is smaller than the transaction size.\nSize: Actual transaction size in bytes when serialized according to the underlying blockchain.\nWeight: A new metric introduced with Segwit to evaluate transaction and block sizes. Each segregated witness byte counts as one, everything else as four weight units. Instead of one megabyte in actual size, the block size limit is now four million weight units.",
@@ -1195,6 +1208,14 @@
         "text": "Accounts are great for managing funds for different people or purposes because they are separated. You can also share the \"extended public key\" of an account without revealing anything about your other accounts. This allows you to repeatedly receive funds without reusing addresses, such as receiving your wage or regularly buying crypto.",
         "title": "Why is this useful?"
       }
+    },
+    "appearancePortfolioPercentageOptions": {
+      "listOptions": [
+        "Value over time: This is the change of your portfolio value over time, including deposits and withdrawals.",
+        "Performance: This is the money-weighted return (MWR). It takes into account deposits and withdrawals, so it reflects the performance of your portfolio."
+      ],
+      "text": "The percentage on your portfolio chart shows one of two options:",
+      "title": "What does the portfolio percentage options mean?"
     },
     "appendix": {
       "feedback": {
@@ -1614,6 +1635,14 @@
       "language": {
         "description": "Which language you want the BitBoxApp to use.",
         "title": "Language"
+      },
+      "portfolioPerformance": {
+        "description": "Choose how the portfolio percentage is calculated.",
+        "options": {
+          "moneyWeightedReturn": "Performance",
+          "value": "Value over time"
+        },
+        "title": "Portfolio percentage"
       },
       "remebmerWallet": {
         "enable": {
