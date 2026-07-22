@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Foundation
+import UIKit
 import Mobileserver
 import LocalAuthentication
 import Network
@@ -84,6 +85,17 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
 
     func nativeLocale() -> String {
         return Locale.current.identifier
+    }
+
+    func userAgentPlatform() -> String {
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+            return "iphone"
+        case .pad:
+            return "ipad"
+        default:
+            return "ios"
+        }
     }
 
     func notifyUser(_ p0: String?) {

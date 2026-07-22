@@ -84,12 +84,22 @@ export const useLoad = <T>(
 export const useSync = <T>(
   apiCall: () => Promise<T>,
   subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
+  getRevision?: (data: T) => number,
 ): (T | undefined) => {
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
   const onData = (data: T) => {
     if (mounted.current) {
-      setResponse(data);
+      setResponse((current) => {
+        if (
+          current !== undefined
+          && getRevision !== undefined
+          && getRevision(current) >= getRevision(data)
+        ) {
+          return current;
+        }
+        return data;
+      });
     }
   };
   useEffect(

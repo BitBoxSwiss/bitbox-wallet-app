@@ -24,7 +24,10 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     () => bitbox02BootloaderAPI.getStatus(deviceID),
     bitbox02BootloaderAPI.syncStatus(deviceID),
   );
-  const infoResponse = useLoad(() => bitbox02BootloaderAPI.getInfo(deviceID));
+  const infoResponse = useLoad(
+    status === undefined || status.upgrading ? null : () => bitbox02BootloaderAPI.getInfo(deviceID),
+    [deviceID, status?.upgrading],
+  );
   const [requestError, setRequestError] = useState<string>();
 
   const runAction = async (action: () => Promise<bitbox02BootloaderAPI.TBootloaderResponse>) => {
@@ -36,10 +39,10 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     setRequestError(undefined);
   };
 
-  if (infoResponse === undefined) {
+  if (status === undefined || (infoResponse === undefined && !status.upgrading)) {
     return null;
   }
-  if (!infoResponse.success) {
+  if (infoResponse !== undefined && !infoResponse.success) {
     return (
       <View fitContent verticallyCentered width="556px">
         <ViewContent>
@@ -50,16 +53,16 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       </View>
     );
   }
-  const { info } = infoResponse;
+  const info = infoResponse?.info;
 
   let contents;
-  if (status && status.upgrading) {
+  if (status.upgrading) {
     if (status.upgradeSuccessful) {
       contents = (
         <div className="box large">
           <p style={{ marginBottom: 0 }}>
             {t('bb02Bootloader.success', {
-              context: (info.erased ? 'install' : ''),
+              context: (status.erased ? 'install' : ''),
             })}
           </p>
         </div>
@@ -69,9 +72,9 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       contents = (
         <>
           <SubTitle className={style.upgradingTitle}>
-            {t('bb02Bootloader.upgradeTitle', { context: (info.erased ? 'install' : '') })}
+            {t('bb02Bootloader.upgradeTitle', { context: (status.erased ? 'install' : '') })}
           </SubTitle>
-          { info.additionalUpgradeFollows ? (
+          { status.additionalUpgradeFollows ? (
             <p className={style.additionalUpgrade}>
               {t('bb02Bootloader.additionalUpgradeFollows1')}
             </p>
@@ -80,7 +83,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           <div className={style.progressInfo}>
             <span>
               {t('bootloader.progress', {
-                context: (info.erased ? 'install' : ''),
+                context: (status.erased ? 'install' : ''),
               })}
             </span>
             <span>
@@ -88,7 +91,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
             </span>
           </div>
 
-          { info.additionalUpgradeFollows ? (
+          { status.additionalUpgradeFollows ? (
             <p className={style.additionalUpgrade}>
               {t('bb02Bootloader.additionalUpgradeFollows2')}
             </p>
@@ -97,6 +100,9 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       );
     }
   } else {
+    if (info === undefined) {
+      return null;
+    }
     contents = (
       <div className="box large" style={{ minHeight: 340 }}>
         {info.erased && (
@@ -147,7 +153,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
   }
 
   const logo =
-    (info.product === 'bitbox02-plus-multi' || info.product === 'bitbox02-plus-btconly') ?
+    (status.product === 'bitbox02-plus-multi' || status.product === 'bitbox02-plus-btconly') ?
       (isDarkMode ? <BitBox02NovaInverted /> : <BitBox02Nova />) :
       (isDarkMode ? <BitBox02Inverted /> : <BitBox02 />);
 
@@ -155,7 +161,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     <View fitContent verticallyCentered width="556px">
       <ViewContent>
         {logo}
-        {status && status.errMsg && (
+        {status.errMsg && (
           <Message type="warning">
             {status.errMsg}
           </Message>

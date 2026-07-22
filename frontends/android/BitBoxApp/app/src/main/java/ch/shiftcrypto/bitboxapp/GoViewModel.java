@@ -208,6 +208,11 @@ public class GoViewModel extends AndroidViewModel {
         }
 
         @Override
+        public String userAgentPlatform() {
+            return "android";
+        }
+
+        @Override
         public void setDarkTheme(boolean isDark) {
             Util.log("Set Dark Theme GoViewModel - isdark: " + isDark);
             GoViewModel.this.isDarkTheme.postValue(isDark);
