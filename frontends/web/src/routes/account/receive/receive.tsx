@@ -15,7 +15,7 @@ import { Button, Radio } from '@/components/forms';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Message } from '@/components/message/message';
 import { ReceiveGuide } from './components/guide';
-import { Header } from '@/components/layout';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { QRCode } from '@/components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
 import { connectKeystore } from '@/api/keystores';
@@ -248,9 +248,9 @@ export const Receive = ({
   const displayedMainAddress = verifying ? displayAddress : (address ? address.substring(0, 8) + '...' : '');
 
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer scrollableContainer">
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Header
             title={
               <>
@@ -382,12 +382,12 @@ export const Receive = ({
               )}
             </div>
           </div>
-        </div>
-      </div>
+        </Main>
+      </GuidedContent>
       <ReceiveGuide
         hasMultipleAddresses={currentAddresses ? currentAddresses.length > 1 : false}
         hasDifferentFormats={receiveAddresses ? receiveAddresses.length > 1 : false}
       />
-    </div>
+    </GuideWrapper>
   );
 };

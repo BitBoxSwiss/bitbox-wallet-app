@@ -2,3 +2,4 @@
 
 export { useVendorIframeResizeHeight } from './vendor-iframe-resize-height';
 export { useVendorTerms } from './vendor-iframe-terms';
+export { useMarketIframeActive, useVendorIframeActive } from './vendor-iframe-active';

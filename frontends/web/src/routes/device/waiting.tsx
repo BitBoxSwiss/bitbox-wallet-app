@@ -42,7 +42,9 @@ export const Waiting = () => {
 
   if (loadingAccounts) {
     return (
-      <Spinner text={t('welcome.loadingAccounts')} />
+      <div className={style.loadingAccounts}>
+        <Spinner text={t('welcome.loadingAccounts')} />
+      </div>
     );
   }
   return (

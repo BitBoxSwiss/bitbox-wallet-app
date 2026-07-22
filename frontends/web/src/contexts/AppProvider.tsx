@@ -28,6 +28,7 @@ export const AppProvider = ({ children }: TProps) => {
   const [guideExists, setGuideExists] = useState(false);
   const [hideAmounts, setHideAmounts] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState(false);
+  const [vendorIframeActive, setVendorIframeActive] = useState(false);
   const [chartDisplay, setChartDisplay] = useState<TChartDisplay>('year');
   const [firmwareUpdateDialogOpen, setFirmwareUpdateDialogOpen] = useState(false);
   const [tmpConfig, setTmpConfig] = useState<TSessionConfig>({});
@@ -85,12 +86,14 @@ export const AppProvider = ({ children }: TProps) => {
         hideAmounts,
         isTesting,
         isDevServers,
+        vendorIframeActive,
         isOnline,
         nativeLocale,
         chartDisplay,
         setActiveSidebar,
         setGuideExists,
         setHideAmounts,
+        setVendorIframeActive,
         setChartDisplay,
         toggleHideAmounts,
         toggleSidebar,

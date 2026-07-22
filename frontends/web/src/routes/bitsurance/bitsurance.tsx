@@ -87,9 +87,9 @@ export const Bitsurance = ({ accounts, code }: TProps) => {
   }
 
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Header title={<h2>{t('generic.buySell')}</h2>} />
           <MarketTab
             accounts={accounts}
@@ -150,9 +150,9 @@ export const Bitsurance = ({ accounts, code }: TProps) => {
               </div>
             </ViewContent>
           </View>
-        </GuidedContent>
-        <BitsuranceGuide />
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <BitsuranceGuide />
+    </GuideWrapper>
   );
 };

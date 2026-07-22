@@ -19,9 +19,9 @@ export const NoDeviceConnected = ({
   const { t } = useTranslation();
 
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <ContentWrapper>
             <GlobalBanners devices={devices} />
           </ContentWrapper>
@@ -47,9 +47,9 @@ export const NoDeviceConnected = ({
               </WithSettingsTabs>
             </ViewContent>
           </View>
-        </GuidedContent>
-        <ManageDeviceGuide />
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <ManageDeviceGuide />
+    </GuideWrapper>
   );
 };

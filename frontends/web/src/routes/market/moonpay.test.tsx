@@ -18,6 +18,7 @@ vi.mock('@/hooks/darkmode', () => ({
   useDarkmode: () => ({ isDarkMode: false, toggleDarkmode: vi.fn() }),
 }));
 vi.mock('@/hooks/vendor-iframe', () => ({
+  useMarketIframeActive: vi.fn(),
   useVendorIframeResizeHeight: () => ({
     containerRef: { current: null },
     height: 480,
