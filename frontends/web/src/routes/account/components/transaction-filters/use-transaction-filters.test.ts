@@ -79,31 +79,40 @@ describe('matchesFilters', () => {
   });
 
   describe('amount in coin', () => {
+    const coin = (overrides: Partial<TTransactionFilters>) => filters({ amountUnit: 'coin', ...overrides });
+
     it('applies inclusive min/max bounds on the displayed amount', () => {
       const tx = makeTx(); // receive, amountAtTime 0.5
-      expect(matchesFilters(tx, filters({ amountMin: '0.5' }), 'USD')).toBe(true);
-      expect(matchesFilters(tx, filters({ amountMin: '0.6' }), 'USD')).toBe(false);
-      expect(matchesFilters(tx, filters({ amountMax: '0.5' }), 'USD')).toBe(true);
-      expect(matchesFilters(tx, filters({ amountMax: '0.4' }), 'USD')).toBe(false);
+      expect(matchesFilters(tx, coin({ amountMin: '0.5' }), 'USD')).toBe(true);
+      expect(matchesFilters(tx, coin({ amountMin: '0.6' }), 'USD')).toBe(false);
+      expect(matchesFilters(tx, coin({ amountMax: '0.5' }), 'USD')).toBe(true);
+      expect(matchesFilters(tx, coin({ amountMax: '0.4' }), 'USD')).toBe(false);
     });
 
     it('uses deducted amount for sends, matching what the list displays', () => {
       const tx = makeTx({ type: 'send' }); // deductedAmountAtTime 0.5001
-      expect(matchesFilters(tx, filters({ amountMin: '0.5001' }), 'USD')).toBe(true);
-      expect(matchesFilters(tx, filters({ amountMax: '0.5' }), 'USD')).toBe(false);
+      expect(matchesFilters(tx, coin({ amountMin: '0.5001' }), 'USD')).toBe(true);
+      expect(matchesFilters(tx, coin({ amountMax: '0.5' }), 'USD')).toBe(false);
     });
 
     it('uses deducted amount for send_to_self', () => {
-      expect(matchesFilters(makeTx({ type: 'send_to_self' }), filters({ amountMin: '0.5001' }), 'USD')).toBe(true);
+      expect(matchesFilters(makeTx({ type: 'send_to_self' }), coin({ amountMin: '0.5001' }), 'USD')).toBe(true);
     });
 
     it('compares negative amounts by absolute value', () => {
       const tx = makeTx({ amountAtTime: { amount: '-0.5', conversions: { USD: '90.00' }, unit: 'BTC', estimated: false } });
-      expect(matchesFilters(tx, filters({ amountMin: '0.4', amountMax: '0.6' }), 'USD')).toBe(true);
+      expect(matchesFilters(tx, coin({ amountMin: '0.4', amountMax: '0.6' }), 'USD')).toBe(true);
     });
   });
 
   describe('amount in fiat', () => {
+    it('is the default unit', () => {
+      const tx = makeTx(); // amountAtTime USD 90.00, coin 0.5
+      expect(emptyFilters.amountUnit).toBe('fiat');
+      expect(matchesFilters(tx, filters({ amountMin: '90' }), 'USD')).toBe(true);
+      expect(matchesFilters(tx, filters({ amountMin: '91' }), 'USD')).toBe(false);
+    });
+
     it('compares against the historical fiat value', () => {
       const tx = makeTx(); // amountAtTime USD 90.00
       expect(matchesFilters(tx, filters({ amountUnit: 'fiat', amountMin: '90' }), 'USD')).toBe(true);
@@ -131,7 +140,7 @@ describe('matchesFilters', () => {
 
   it('combines all criteria with AND', () => {
     const tx = makeTx({ type: 'send', time: '2026-07-10T12:00:00' });
-    const combined = filters({ fromDate: '2026-07-01', toDate: '2026-07-31', type: 'send', amountMin: '0.5', amountMax: '0.6' });
+    const combined = filters({ fromDate: '2026-07-01', toDate: '2026-07-31', type: 'send', amountUnit: 'coin', amountMin: '0.5', amountMax: '0.6' });
     expect(matchesFilters(tx, combined, 'USD')).toBe(true);
     expect(matchesFilters(tx, { ...combined, type: 'receive' }, 'USD')).toBe(false);
   });
@@ -172,8 +181,8 @@ describe('useTransactionFilters', () => {
     vi.useFakeTimers();
     try {
       const { result } = renderHook(() => useTransactionFilters(), { wrapper });
-      // amountMin '1' excludes makeTx's displayed amount of 0.5
-      act(() => result.current.setFilters({ ...result.current.filters, amountMin: '1' }));
+      // amountMin '100' excludes makeTx's displayed fiat amount of 90.00
+      act(() => result.current.setFilters({ ...result.current.filters, amountMin: '100' }));
       // debounced value not yet applied
       expect(result.current.matches(makeTx())).toBe(true);
       expect(result.current.isActive).toBe(false);
@@ -189,7 +198,7 @@ describe('useTransactionFilters', () => {
     vi.useFakeTimers();
     try {
       const { result } = renderHook(() => useTransactionFilters(), { wrapper });
-      act(() => result.current.setFilters({ ...result.current.filters, amountMin: '1' }));
+      act(() => result.current.setFilters({ ...result.current.filters, amountMin: '100' }));
       act(() => vi.advanceTimersByTime(200));
       expect(result.current.isActive).toBe(true);
       act(() => result.current.clearFilters());

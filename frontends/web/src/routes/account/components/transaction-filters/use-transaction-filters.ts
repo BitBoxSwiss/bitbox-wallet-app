@@ -23,7 +23,7 @@ export const emptyFilters = Object.freeze<TTransactionFilters>({
   type: 'all',
   amountMin: '',
   amountMax: '',
-  amountUnit: 'coin',
+  amountUnit: 'fiat',
 });
 
 // Inputs are expected to come from type="number" fields (canonical numeric
