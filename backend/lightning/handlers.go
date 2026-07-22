@@ -39,6 +39,7 @@ func NewHandlers(
 	handleNoError("/deactivate", lightning.PostDeactivate).Methods("POST")
 	handleNoError("/balance", lightning.GetBalance).Methods("GET")
 	handleNoError("/balance-limit", lightning.GetBalanceLimit).Methods("GET")
+	handleNoError("/block-explorer-tx-prefix", lightning.GetBlockExplorerTxPrefix).Methods("GET")
 	handleNoError("/spark-status", lightning.GetSparkStatus).Methods("GET")
 	handleNoError("/list-payments", lightning.GetListPayments).Methods("GET")
 	handleNoError("/parse-payment-input", lightning.GetParsePaymentInput).Methods("GET")
@@ -70,6 +71,14 @@ func (lightning *Lightning) GetAccount(_ *http.Request) interface{} {
 		RootFingerprint: account.RootFingerprint,
 		Code:            account.Code,
 		Number:          account.Number,
+	}
+}
+
+// GetBlockExplorerTxPrefix handles the GET request to retrieve the Bitcoin transaction explorer prefix.
+func (lightning *Lightning) GetBlockExplorerTxPrefix(_ *http.Request) interface{} {
+	return responseDto{
+		Success: true,
+		Data:    lightning.btcCoin.BlockExplorerTransactionURLPrefix(),
 	}
 }
 
@@ -162,14 +171,19 @@ func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
 		Unit:        btcCoin.GetFormatUnit(false),
 		Conversions: coin.Conversions(balance.Available(), btcCoin, false, lightning.ratesUpdater),
 	}
+	formattedIncomingAmount := coin.FormattedAmountWithConversions{
+		Amount:      btcCoin.FormatAmount(balance.Incoming(), false),
+		Unit:        btcCoin.GetFormatUnit(false),
+		Conversions: coin.Conversions(balance.Incoming(), btcCoin, false, lightning.ratesUpdater),
+	}
 
 	return responseDto{
 		Success: true,
 		Data: accounts.FormattedAccountBalance{
 			HasAvailable: balance.Available().BigInt().Sign() > 0,
 			Available:    formattedAvailableAmount,
-			HasIncoming:  false,
-			Incoming:     coin.FormattedAmountWithConversions{},
+			HasIncoming:  balance.Incoming().BigInt().Sign() > 0,
+			Incoming:     formattedIncomingAmount,
 		},
 	}
 }

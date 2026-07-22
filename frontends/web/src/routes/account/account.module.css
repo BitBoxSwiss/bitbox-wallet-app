@@ -49,6 +49,13 @@
     }
 }
 
+@media (max-width: 375px) {
+    .actionsContainer .button {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
 .subTitle {
     color: var(--color-secondary);
     font-size: var(--size-subheader);

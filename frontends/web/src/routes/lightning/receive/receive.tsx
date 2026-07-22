@@ -26,6 +26,7 @@ import { toLightningErrorMessage } from '@/api/lightning-errors';
 import { useSatFiatAmount } from '../hooks/use-sat-fiat-amount';
 import { type TReceiveStep, useReceivePaymentSuccess } from './use-receive-payment-success';
 import { formatExcessLightningBalanceLimit, formatLightningBalanceLimit } from '../limits';
+import { LightningReceiveGuide } from '../guide';
 import styles from './receive.module.css';
 
 export function Receive() {
@@ -345,6 +346,7 @@ export function Receive() {
           {renderSteps()}
         </Main>
       </GuidedContent>
+      {step !== 'success' && <LightningReceiveGuide />}
     </GuideWrapper>
   );
 }

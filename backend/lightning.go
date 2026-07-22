@@ -8,6 +8,10 @@ import coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 // backend.Coin(coinCodeLightning) does not resolve.
 const coinCodeLightning coinpkg.Code = "lightning"
 
+func (backend *Backend) hasLightningAccount() bool {
+	return backend.lightning != nil && backend.lightning.Account() != nil
+}
+
 func (backend *Backend) lightningFormattedBalance() (*coinFormattedAmount, error) {
 	if backend.lightning.Account() == nil {
 		return nil, nil

@@ -37,6 +37,10 @@ vi.mock('@/hooks/lightning', () => ({
   }),
 }));
 
+vi.mock('@/hooks/mediaquery', () => ({
+  useMediaQuery: () => false,
+}));
+
 vi.mock('./components/payment-details', () => ({
   PaymentDetails: () => null,
 }));
@@ -91,6 +95,7 @@ describe('Lightning balance limit', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.spyOn(devicesApi, 'getDeviceList').mockResolvedValue({});
+    vi.spyOn(lightningApi, 'getBlockExplorerTxPrefix').mockResolvedValue('https://example.com/tx/');
     vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(balance);
     vi.spyOn(lightningApi, 'getLightningBalanceLimit').mockResolvedValue(balanceLimit);
     vi.spyOn(lightningApi, 'getListPayments').mockResolvedValue([]);

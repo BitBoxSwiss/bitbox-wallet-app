@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
 import { getDeviceList } from '../../api/devices';
 import {
   TLightningBalanceLimit,
   TLightningPayment,
+  getBlockExplorerTxPrefix,
   getLightningBalance,
   getLightningBalanceLimit,
   getListPayments,
@@ -25,8 +26,6 @@ import { GlobalBanners } from '@/components/banners';
 import { Status } from '../../components/status/status';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 import { PaymentDetails } from './components/payment-details';
-import { LightningPayment } from './components/lightning-payment';
-import styles from './lightning.module.css';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
@@ -38,8 +37,272 @@ import {
   hasExceededLightningBalanceLimit,
   hasReachedLightningBalanceLimit,
 } from './limits';
+import { TransactionList } from '@/routes/account/components/transaction-list';
+import type { TTransactionListItem } from '@/routes/account/components/transaction-list';
+import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
+import { Button, SearchInput } from '@/components/forms';
+import { LoupeBlue } from '@/components/icon';
+import { SubTitle } from '@/components/title';
+import { useDebounce } from '@/hooks/debounce';
+import { useMediaQuery } from '@/hooks/mediaquery';
+import { useScrollIntoView } from '@/hooks/scroll-into-view';
+import accountStyle from '@/routes/account/account.module.css';
 
 const sparkStatusPollInterval = 60 * 1000;
+
+const bitcoinDepositTransactionStatus = (
+  bitcoinDeposit: NonNullable<TLightningPayment['bitcoinDeposit']>,
+): accountApi.TTransactionStatus => {
+  switch (bitcoinDeposit.state) {
+  case 'unclaimed':
+    return 'failed';
+  case 'complete':
+    return 'complete';
+  case 'claiming':
+  case 'confirming':
+    return 'pending';
+  }
+};
+
+type TLightningPageLayoutProps = {
+  accountDataLoaded: boolean;
+  balance?: accountApi.TBalance;
+  balanceLimit?: TLightningBalanceLimit;
+  canSend?: boolean;
+  children: ReactNode;
+  statusBanners: ReactNode;
+};
+
+const LightningPageLayout = ({
+  accountDataLoaded,
+  balance,
+  balanceLimit,
+  canSend,
+  children,
+  statusBanners,
+}: TLightningPageLayoutProps) => {
+  const { t } = useTranslation();
+  const canTopUp = balanceLimit !== undefined && !hasReachedLightningBalanceLimit(balanceLimit);
+  const showBalanceLimitWarning = hasExceededLightningBalanceLimit(balanceLimit);
+
+  return (
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <ContentWrapper>
+            {statusBanners}
+          </ContentWrapper>
+          <Header
+            title={
+              <h2>
+                <span>{t('lightning.accountLabel')}</span>
+              </h2>
+            }
+          >
+            <HideAmountsButton />
+          </Header>
+          <Status dismissibleKey="" type="warning" hidden={!showBalanceLimitWarning}>
+            {t('lightning.limit.accountWarning', {
+              excess: formatExcessLightningBalanceLimit(balanceLimit),
+              limit: formatLightningBalanceLimit(balanceLimit),
+            })}{' '}
+            {/* TODO: Prefill a BitBox account address once Lightning on-chain sends are supported. */}
+            <Link to="/lightning/send">{t('lightning.limit.moveCoins')}</Link>
+          </Status>
+          <View>
+            <ViewHeader>
+              <div className={accountStyle.balanceHeader}>
+                <Balance balance={balance} />
+                <ActionButtons
+                  accountDataLoaded={accountDataLoaded}
+                  canSend={canSend}
+                  canTopUp={canTopUp}
+                />
+              </div>
+            </ViewHeader>
+            <ViewContent>
+              {children}
+            </ViewContent>
+          </View>
+        </Main>
+      </GuidedContent>
+      <LightningGuide />
+    </GuideWrapper>
+  );
+};
+
+const paymentToTransaction = (
+  payment: TLightningPayment,
+  fallbackNote: string,
+  bitcoinDepositNote: string,
+  bitcoinDepositStateText: (state: NonNullable<TLightningPayment['bitcoinDeposit']>['state']) => string,
+  bitcoinDepositStateShortText: (state: NonNullable<TLightningPayment['bitcoinDeposit']>['state']) => string,
+): TTransactionListItem => {
+  const status = payment.bitcoinDeposit
+    ? bitcoinDepositTransactionStatus(payment.bitcoinDeposit)
+    : payment.status;
+  const isComplete = status === 'complete';
+  const statusProgress = payment.bitcoinDeposit?.state === 'confirming'
+    ? 33
+    : payment.bitcoinDeposit?.state === 'claiming'
+      ? 66
+      : undefined;
+
+  return {
+    addresses: [],
+    amount: payment.amount,
+    amountAtTime: payment.amountAtTime,
+    deductedAmountAtTime: payment.deductedAmountAtTime,
+    fee: payment.fee,
+    feeRateInfo: '',
+    gas: 0,
+    internalID: payment.id,
+    nonce: null,
+    note: payment.bitcoinDeposit ? bitcoinDepositNote : payment.description || fallbackNote,
+    numConfirmations: isComplete ? 1 : 0,
+    numConfirmationsComplete: 1,
+    size: 0,
+    status,
+    statusProgress,
+    statusText: payment.bitcoinDeposit && !isComplete
+      ? bitcoinDepositStateText(payment.bitcoinDeposit.state)
+      : undefined,
+    statusTextShort: payment.bitcoinDeposit && !isComplete
+      ? bitcoinDepositStateShortText(payment.bitcoinDeposit.state)
+      : undefined,
+    time: payment.time,
+    type: payment.type,
+    txID: payment.id,
+    vsize: 0,
+    weight: 0,
+  };
+};
+
+type TLightningInnerProps = {
+  balance: accountApi.TBalance;
+  balanceLimit: TLightningBalanceLimit;
+  explorerURL?: string;
+  payments: TLightningPayment[];
+  statusBanners: ReactNode;
+};
+
+const LightningInner = ({
+  balance,
+  balanceLimit,
+  explorerURL,
+  payments,
+  statusBanners,
+}: TLightningInnerProps) => {
+  const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [detailID, setDetailID] = useState<TLightningPayment['id'] | null>(null);
+  const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 200);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const hasPayments = payments.length > 0;
+  const lightningTransactions = useMemo(() => {
+    return payments.map(payment => paymentToTransaction(
+      payment,
+      payment.type === 'receive' ? t('generic.received') : t('generic.sent'),
+      t('lightning.bitcoinDeposit.label'),
+      (state) => t(`lightning.bitcoinDeposit.state.${state}`),
+      (state) => t(`lightning.bitcoinDeposit.stateShort.${state}`),
+    ));
+  }, [payments, t]);
+  const filteredTransactions = useMemo(() => {
+    const searchLower = debouncedSearchTerm.toLowerCase().trim();
+
+    if (!searchLower) {
+      return lightningTransactions;
+    }
+
+    return lightningTransactions.filter(tx => (
+      tx.note?.toLowerCase().includes(searchLower)
+      || tx.txID.toLowerCase().includes(searchLower)
+      || tx.status.toLowerCase().includes(searchLower)
+      || tx.type.toLowerCase().includes(searchLower)
+    ));
+  }, [debouncedSearchTerm, lightningTransactions]);
+
+  const scrollSearchIntoView = useScrollIntoView(searchInputRef, 48);
+
+  useEffect(() => {
+    if (showSearchBar && searchInputRef.current) {
+      searchInputRef.current.focus();
+      if (isMobile) {
+        setTimeout(scrollSearchIntoView, 500);
+      }
+    }
+  }, [showSearchBar, scrollSearchIntoView, isMobile]);
+
+  return (
+    <LightningPageLayout
+      accountDataLoaded
+      balance={balance}
+      balanceLimit={balanceLimit}
+      canSend={balance.hasAvailable}
+      statusBanners={statusBanners}
+    >
+      <div className={accountStyle.accountHeader}>
+        <div className={accountStyle.titleRow}>
+          <SubTitle className={accountStyle.titleWithButton}>
+            {t('accountSummary.transactionHistory')}
+          </SubTitle>
+
+          <Button
+            className={accountStyle.searchButton}
+            transparent
+            disabled={!hasPayments}
+            onClick={() => {
+              if (showSearchBar) {
+                setShowSearchBar(false);
+                setSearchTerm('');
+              } else {
+                setShowSearchBar(true);
+              }
+            }}
+          >
+            {showSearchBar ? (
+              <>✕ {t('generic.close')}</>
+            ) : (
+              <>
+                <LoupeBlue className={accountStyle.loupe} />
+                {t('generic.searchButton')}
+              </>
+            )}
+          </Button>
+        </div>
+
+        <div className={`
+          ${accountStyle.searchContainer || ''}
+          ${!showSearchBar && accountStyle.searchHidden || ''}
+        `}>
+          <SearchInput
+            ref={searchInputRef}
+            placeholder={t('accountSummary.searchPlaceholder')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.currentTarget.value)}
+          />
+        </div>
+      </div>
+
+      <TransactionList
+        transactionSuccess={true}
+        filteredTransactions={filteredTransactions}
+        debouncedSearchTerm={debouncedSearchTerm}
+        onShowDetail={setDetailID}
+      />
+
+      <PaymentDetails
+        id={detailID}
+        explorerURL={explorerURL}
+        payment={payments.find(payment => payment.id === detailID)}
+        onClose={() => setDetailID(null)}
+      />
+    </LightningPageLayout>
+  );
+};
 
 export const Lightning = () => {
   const { t } = useTranslation();
@@ -51,8 +314,8 @@ export const Lightning = () => {
   const [payments, setPayments] = useState<TLightningPayment[]>();
   const [sparkStatus, setSparkStatus] = useState<TSparkStatus>();
   const [error, setError] = useState<string>();
-  const [detailID, setDetailID] = useState<TLightningPayment['id'] | null>(null);
   const mounted = useMountedRef();
+  const blockExplorerTxPrefix = useLoad(getBlockExplorerTxPrefix);
   const devices = useLoad(getDeviceList);
 
   const onStateChange = useCallback(async () => {
@@ -110,7 +373,7 @@ export const Lightning = () => {
     return () => window.clearInterval(interval);
   }, [loadSparkStatus]);
 
-  const hasDataLoaded = balance !== undefined;
+  const hasDataLoaded = balance !== undefined && balanceLimit !== undefined && payments !== undefined;
 
   const statusBanners = (
     <>
@@ -155,8 +418,6 @@ export const Lightning = () => {
   }
 
   const canSend = balance && balance.hasAvailable;
-  const canTopUp = balanceLimit !== undefined && !hasReachedLightningBalanceLimit(balanceLimit);
-  const showBalanceLimitWarning = hasExceededLightningBalanceLimit(balanceLimit);
 
   const initializingSpinnerText =
     syncedAddressesCount !== undefined && syncedAddressesCount > 1
@@ -167,74 +428,31 @@ export const Lightning = () => {
         } as any)
       : '';
 
-  const offlineErrorTextLines: string[] = [];
+  if (!hasDataLoaded) {
+    return (
+      <LightningPageLayout
+        accountDataLoaded={false}
+        balance={balance}
+        balanceLimit={balanceLimit}
+        canSend={canSend}
+        statusBanners={statusBanners}
+      >
+        {initializingSpinnerText ? (
+          <Spinner text={initializingSpinnerText} />
+        ) : (
+          <TransactionHistorySkeleton />
+        )}
+      </LightningPageLayout>
+    );
+  }
 
   return (
-    <GuideWrapper>
-      <GuidedContent>
-        <Main>
-          <ContentWrapper>
-            {statusBanners}
-          </ContentWrapper>
-          <Header
-            title={
-              <h2>
-                <span>{t('lightning.accountLabel')}</span>
-              </h2>
-            }
-          >
-            <HideAmountsButton />
-          </Header>
-          <Status dismissibleKey="" type="warning" hidden={!showBalanceLimitWarning}>
-            {t('lightning.limit.accountWarning', {
-              excess: formatExcessLightningBalanceLimit(balanceLimit),
-              limit: formatLightningBalanceLimit(balanceLimit),
-            })}{' '}
-            {/* TODO: Prefill a BitBox account address once Lightning on-chain sends are supported. */}
-            <Link to="/lightning/send">{t('lightning.limit.moveCoins')}</Link>
-          </Status>
-          <View>
-            <ViewHeader>
-              <div className={styles.header}>
-                <Balance balance={balance} />
-                <ActionButtons
-                  canSend={canSend}
-                  canTopUp={canTopUp}
-                />
-              </div>
-            </ViewHeader>
-            <ViewContent fullWidth>
-              {offlineErrorTextLines.length || !hasDataLoaded ? (
-                <Spinner text={initializingSpinnerText} />
-              ) : (
-                payments && payments.length > 0 ? (
-                  payments
-                    .map((payment) => (
-                      <LightningPayment
-                        key={payment.id}
-                        onShowDetail={(id: string) => {
-                          setDetailID(id);
-                        }}
-                        {...payment}
-                      />
-                    ))
-                ) : (
-                  <div className={['flex flex-row flex-center', styles.empty || ''].join(' ').trim()}>
-                    <p>{t('lightning.payments.placeholder')}</p>
-                  </div>
-                )
-              )}
-
-              <PaymentDetails
-                id={detailID}
-                payment={payments?.find(payment => payment.id === detailID)}
-                onClose={() => setDetailID(null)}
-              />
-            </ViewContent>
-          </View>
-        </Main>
-      </GuidedContent>
-      <LightningGuide />
-    </GuideWrapper>
+    <LightningInner
+      balance={balance}
+      balanceLimit={balanceLimit}
+      explorerURL={blockExplorerTxPrefix}
+      payments={payments}
+      statusBanners={statusBanners}
+    />
   );
 };

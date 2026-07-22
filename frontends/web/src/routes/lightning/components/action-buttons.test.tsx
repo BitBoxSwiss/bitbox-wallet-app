@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
@@ -11,17 +11,17 @@ describe('ActionButtons', () => {
   it('keeps receive available and disables top up when the balance limit is reached', () => {
     const { container, rerender } = render(
       <MemoryRouter>
-        <ActionButtons canTopUp={false} />
+        <ActionButtons accountDataLoaded canTopUp={false} />
       </MemoryRouter>
     );
 
     expect(container.querySelector('a[href="/lightning/receive"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="/lightning/topup"]')).not.toBeInTheDocument();
-    expect(container.querySelector('[aria-disabled="true"]')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'lightning.topUp.action' })).toBeDisabled();
 
     rerender(
       <MemoryRouter>
-        <ActionButtons canTopUp />
+        <ActionButtons accountDataLoaded canTopUp />
       </MemoryRouter>
     );
 

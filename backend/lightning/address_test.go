@@ -77,6 +77,9 @@ type testBreezSDK struct {
 	getLightningAddress            func() (*breez_sdk_spark.LightningAddressInfo, error)
 	checkLightningAddressAvailable func(breez_sdk_spark.CheckLightningAddressRequest) (bool, error)
 	registerLightningAddress       func(breez_sdk_spark.RegisterLightningAddressRequest) (breez_sdk_spark.LightningAddressInfo, error)
+	getInfo                        func(breez_sdk_spark.GetInfoRequest) (breez_sdk_spark.GetInfoResponse, error)
+	listPayments                   func(breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error)
+	listUnclaimedDeposits          func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error)
 }
 
 func (sdk *testBreezSDK) GetLightningAddress() (*breez_sdk_spark.LightningAddressInfo, error) {
@@ -93,6 +96,22 @@ func (sdk *testBreezSDK) RegisterLightningAddress(
 	request breez_sdk_spark.RegisterLightningAddressRequest,
 ) (breez_sdk_spark.LightningAddressInfo, error) {
 	return sdk.registerLightningAddress(request)
+}
+
+func (sdk *testBreezSDK) GetInfo(request breez_sdk_spark.GetInfoRequest) (breez_sdk_spark.GetInfoResponse, error) {
+	return sdk.getInfo(request)
+}
+
+func (sdk *testBreezSDK) ListPayments(
+	request breez_sdk_spark.ListPaymentsRequest,
+) (breez_sdk_spark.ListPaymentsResponse, error) {
+	return sdk.listPayments(request)
+}
+
+func (sdk *testBreezSDK) ListUnclaimedDeposits(
+	request breez_sdk_spark.ListUnclaimedDepositsRequest,
+) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+	return sdk.listUnclaimedDeposits(request)
 }
 
 func TestEnsureLightningAddressExistingAddress(t *testing.T) {
@@ -320,7 +339,7 @@ func TestAddressAvailability(t *testing.T) {
 	require.Equal(t, &AddressAvailability{
 		GeneratedAddress: GeneratedAddress{
 			Username: "user123",
-			Address:  "user123@bitbox.pay",
+			Address:  "user123@" + lnurlDomainProd,
 		},
 		Available: true,
 	}, availability)
@@ -363,7 +382,7 @@ func TestGenerateAddressRetriesUnavailableUsernamesWithoutRegistering(t *testing
 	require.NotNil(t, generatedAddress)
 	require.Len(t, checkedUsernames, 2)
 	require.Equal(t, checkedUsernames[1], generatedAddress.Username)
-	require.Equal(t, generatedAddress.Username+"@bitbox.pay", generatedAddress.Address)
+	require.Equal(t, generatedAddress.Username+"@"+lnurlDomainProd, generatedAddress.Address)
 }
 
 func TestRegisterAddress(t *testing.T) {
@@ -626,4 +645,47 @@ func TestLightningAddressChangedEventNotifiesSubscribers(t *testing.T) {
 		Action:  action.Replace,
 		Object:  &address,
 	}, <-events)
+}
+
+func TestDepositEventsReloadPayments(t *testing.T) {
+	testCases := []struct {
+		name  string
+		event breez_sdk_spark.SdkEvent
+	}{
+		{
+			name: "new deposits",
+			event: breez_sdk_spark.SdkEventNewDeposits{
+				NewDeposits: []breez_sdk_spark.DepositInfo{{Txid: "txid"}},
+			},
+		},
+		{
+			name: "unclaimed deposits",
+			event: breez_sdk_spark.SdkEventUnclaimedDeposits{
+				UnclaimedDeposits: []breez_sdk_spark.DepositInfo{{Txid: "txid"}},
+			},
+		},
+		{
+			name: "claimed deposits",
+			event: breez_sdk_spark.SdkEventClaimedDeposits{
+				ClaimedDeposits: []breez_sdk_spark.DepositInfo{{Txid: "txid"}},
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			lightning := newTestLightning(t, nil)
+			events := make(chan observable.Event, 1)
+			lightning.Observe(func(event observable.Event) {
+				events <- event
+			})
+
+			lightning.OnEvent(testCase.event)
+
+			require.Equal(t, observable.Event{
+				Subject: "lightning/list-payments",
+				Action:  action.Reload,
+			}, <-events)
+		})
+	}
 }

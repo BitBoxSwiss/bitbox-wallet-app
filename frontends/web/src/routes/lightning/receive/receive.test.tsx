@@ -44,6 +44,10 @@ vi.mock('./use-receive-payment-success', () => ({
   }),
 }));
 
+vi.mock('../guide', () => ({
+  LightningReceiveGuide: () => null,
+}));
+
 const amount = (value: string) => ({
   amount: value,
   estimated: false,
