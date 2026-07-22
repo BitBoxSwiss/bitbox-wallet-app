@@ -4,6 +4,7 @@ import type { TFunction } from 'i18next';
 import type { DeviceInfo } from '@/api/bitbox02';
 import type { TDevices } from '@/api/devices';
 import {
+  isBalanceStatementSettingVisible,
   isBluetoothToggleSettingVisible,
   isDeviceBluetoothSupported,
   isDeviceSettingsVisible,
@@ -132,6 +133,12 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
     id: 'import-notes',
     isAvailable: ({ hasAccounts }) => isNotesSettingsVisible(hasAccounts),
     getTitle: ({ t }) => t('settings.notes.import.title'),
+    page: 'general',
+  },
+  {
+    id: 'export-balance-statement',
+    isAvailable: ({ hasAccounts }) => isBalanceStatementSettingVisible(hasAccounts),
+    getTitle: ({ t }) => t('settings.balanceStatement.export.title'),
     page: 'general',
   },
   {

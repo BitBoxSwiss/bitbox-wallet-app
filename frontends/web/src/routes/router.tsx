@@ -268,6 +268,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
 
   const GeneralEl = (<InjectParams>
     <General
+      accounts={activeAccounts}
       devices={devices}
       hasAccounts={hasAccounts}
     />
