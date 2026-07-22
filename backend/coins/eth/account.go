@@ -5,6 +5,7 @@ package eth
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -31,6 +32,7 @@ import (
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	ethcommon "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
@@ -880,6 +882,9 @@ func (account *Account) SignTypedMsg(
 	chainId uint64,
 	data string,
 ) (string, error) {
+	if chainId == 0 {
+		return "", errp.New("WalletConnect chain ID must not be zero")
+	}
 	keystore, err := account.Config().ConnectKeystore()
 	if err != nil {
 		return "", err
@@ -923,16 +928,17 @@ func (account *Account) SignETHMessage(message string) (string, string, error) {
 	return account.address.Address.Hex(), "0x" + hex.EncodeToString(signature), nil
 }
 
-// WalletConnectArgs are the tx proposal arguments received from Wallet Connect with Gas, GasPrice,
-// Value and Nonce being optional.
+// WalletConnectArgs are the transaction proposal arguments received from WalletConnect.
 type WalletConnectArgs struct {
-	From     string `json:"from"`
-	To       string `json:"to"`
-	Data     string `json:"data"`
-	Gas      string `json:"gas,omitempty"`
-	GasPrice string `json:"gasPrice,omitempty"`
-	Value    string `json:"value,omitempty"`
-	Nonce    string `json:"nonce,omitempty"`
+	From     string          `json:"from"`
+	To       string          `json:"to"`
+	Data     string          `json:"data"`
+	Input    json.RawMessage `json:"input,omitempty"`
+	Gas      string          `json:"gas,omitempty"`
+	GasPrice string          `json:"gasPrice,omitempty"`
+	Value    string          `json:"value,omitempty"`
+	Nonce    string          `json:"nonce,omitempty"`
+	ChainId  json.RawMessage `json:"chainId,omitempty"`
 }
 
 // EthSignWalletConnectTx signs an Ethereum Tx received from WalletConnect.
@@ -948,6 +954,27 @@ func (account *Account) EthSignWalletConnectTx(
 	var message ethereum.CallMsg
 	var gasPrice *big.Int
 	var value *big.Int
+
+	matches, err := account.MatchesAddress(proposedTx.From)
+	if err != nil {
+		return "", "", err
+	}
+	if !matches {
+		return "", "", errp.New("transaction from address does not match account")
+	}
+
+	if proposedTx.Input != nil {
+		return "", "", errp.New("transaction input field is unsupported; use data")
+	}
+	if proposedTx.ChainId != nil {
+		var proposedChainID hexutil.Uint64
+		if err := proposedChainID.UnmarshalJSON(proposedTx.ChainId); err != nil {
+			return "", "", errp.WithStack(err)
+		}
+		if uint64(proposedChainID) != chainId {
+			return "", "", errp.New("transaction chain ID does not match the WalletConnect request chain")
+		}
+	}
 
 	// Error if chaindId != account.coin.ChainID() (i.e. 1) until L2 RPCs and proper support are added
 	if chainId != account.coin.ChainID() {
