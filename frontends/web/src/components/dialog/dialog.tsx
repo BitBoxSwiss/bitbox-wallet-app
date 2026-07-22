@@ -178,14 +178,18 @@ export const Dialog = ({
 
   // Back button handler (mobile)
   const handleBackButton = useCallback(() => {
-    deactivate(true);
+    if (onClose) {
+      deactivate(true);
+    }
     return false;
-  }, [deactivate]);
+  }, [deactivate, onClose]);
 
   // Drag close handler (mobile bottom sheet)
   const handleDragClose = useCallback(() => {
-    deactivate(true);
-  }, [deactivate]);
+    if (onClose) {
+      deactivate(true);
+    }
+  }, [deactivate, onClose]);
 
   if (!isVisible) {
     return null;
