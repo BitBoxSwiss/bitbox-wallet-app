@@ -113,6 +113,7 @@ describe('routes/account/sign-message', () => {
           <SignMessage
             accounts={[mockAccount]}
             code={mockAccount.code}
+            view="new"
           />
         </MemoryRouter>
       </BackButtonProvider>
@@ -168,6 +169,7 @@ describe('routes/account/sign-message', () => {
           <SignMessage
             accounts={[mockAccount]}
             code={mockAccount.code}
+            view="new"
           />
         </MemoryRouter>
       </BackButtonProvider>
@@ -207,6 +209,7 @@ describe('routes/account/sign-message', () => {
           <SignMessage
             accounts={[mockAccount]}
             code={mockAccount.code}
+            view="new"
           />
         </MemoryRouter>
       </BackButtonProvider>
@@ -255,6 +258,7 @@ describe('routes/account/sign-message', () => {
                 <SignMessage
                   accounts={[mockAccount]}
                   code={mockAccount.code}
+                  view="new"
                 />
               )}
             />
@@ -298,6 +302,7 @@ describe('routes/account/sign-message', () => {
                 <SignMessage
                   accounts={[mockAccount]}
                   code={mockAccount.code}
+                  view="new"
                 />
               )}
             />
@@ -338,6 +343,7 @@ describe('routes/account/sign-message', () => {
           <SignMessage
             accounts={[ethAccount]}
             code={ethAccount.code}
+            view="new"
           />
         </MemoryRouter>
       </BackButtonProvider>
@@ -385,6 +391,7 @@ describe('routes/account/sign-message', () => {
           <SignMessage
             accounts={[mockAccount]}
             code={mockAccount.code}
+            view="new"
           />
         </MemoryRouter>
       </BackButtonProvider>
