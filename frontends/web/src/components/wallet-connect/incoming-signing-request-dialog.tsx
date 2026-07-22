@@ -64,7 +64,7 @@ export const WCIncomingSignRequestDialog = ({
   const textAreaRows = signingDataHeight > maxTextAreaRows ? maxTextAreaRows : signingDataHeight;
 
   return (
-    <Dialog open={open} large onClose={onReject}>
+    <Dialog open={open} large onClose={stage === 'initial' ? onReject : undefined}>
       <div className={styles.titleContainer}>
         {isDarkMode ? <WalletConnectLight height={32} width={32} /> : <WalletConnectDark height={40} width={40} />}
         <h3>{t('walletConnect.signingRequest.walletConnectRequest')}</h3>

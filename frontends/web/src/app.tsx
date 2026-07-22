@@ -73,7 +73,7 @@ const AppFrame = ({
           ${showMobileBottomNavigation && styles.hasBottomNavigation || ''}
           ${vendorIframeActive && styles.hasMarketIframe || ''}
         `}>
-          <WCSigningRequest />
+          <WCSigningRequest accounts={accounts} />
           <Aopp />
           <KeystoreConnectPrompt />
           {
