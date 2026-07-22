@@ -81,41 +81,16 @@ export const pairingHasEverBeenRejected = (topic: string, web3wallet: IWalletKit
         >= 0;
 };
 
-export const rejectMessage = (id: number) => {
-  return {
-    id,
-    jsonrpc: '2.0',
-    error: {
-      code: 5000,
-      message: 'User rejected.'
-    }
-  };
-};
-
 export const decodeEthMessage = (hex: string) => {
-  let message = hex.trim();
-  if (message.startsWith('0x')) {
-    message = message.substring(2);
-  }
-
-  // Validate input.
-  if (message.length % 2 !== 0 || !/^[0-9a-fA-F]*$/.test(message)) {
-    console.error('Invalid hex string');
+  if (!/^0x(?:[0-9a-fA-F]{2})*$/.test(hex)) {
     return null;
   }
 
-  // Create a Uint8Array from the hex string.
+  const message = hex.slice(2);
   const bytes = new Uint8Array(message.length / 2);
   for (let i = 0; i < bytes.length; i++) {
-    const byte = parseInt(message.substring(i * 2, i * 2 + 2), 16);
-    if (isNaN(byte)) {
-      console.error('Invalid byte in hex string');
-      return null;
-    }
-    bytes[i] = byte;
+    bytes[i] = Number.parseInt(message.slice(i * 2, i * 2 + 2), 16);
   }
 
-  // Create a TextDecoder and use it to convert the bytes to a string.
-  const decoder = new TextDecoder('utf-8');
-  return decoder.decode(bytes);
+  return new TextDecoder('utf-8').decode(bytes);
 };
