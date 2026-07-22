@@ -47,7 +47,11 @@ export const TransactionList = memo<TransactionListProps>(({
   if (hasSearchTerm) {
     return (
       <p className={style.emptyTransactions}>
-        {t('transaction.no-results', { searchTerm: debouncedSearchTerm })}
+        {hasActiveFilters ? (
+          t('transactions.filters.noResultsWithSearch', { searchTerm: debouncedSearchTerm })
+        ) : (
+          t('transaction.no-results', { searchTerm: debouncedSearchTerm })
+        )}
       </p>
     );
   }

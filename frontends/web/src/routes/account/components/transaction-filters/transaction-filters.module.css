@@ -16,7 +16,7 @@
 
 /* zero flex-basis keeps all three groups on a single line on desktop */
 .typeGroup {
-    flex: 3 1 0;
+    flex: 4 1 0;
 }
 
 .dateGroup {
@@ -41,6 +41,12 @@
     width: 100%;
 }
 
+/* keep long translated options clear of the chevron instead of under it */
+.filterRow select {
+    padding-right: var(--space-default);
+    text-overflow: ellipsis;
+}
+
 /* hide the browser's dd.mm.yyyy format hint while a date field is empty */
 .dateGroup input[data-empty]:not(:focus)::-webkit-datetime-edit {
     color: transparent;
@@ -49,6 +55,9 @@
 .filterRow label {
     color: var(--color-secondary);
     font-size: var(--size-small);
+    /* long translated labels wrap instead of spilling out of their field */
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 @media (max-width: 768px) {

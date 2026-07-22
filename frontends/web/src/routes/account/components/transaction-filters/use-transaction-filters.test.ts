@@ -162,11 +162,14 @@ describe('useTransactionFilters', () => {
 
   it('clearFilters resets to empty', () => {
     const { result } = renderHook(() => useTransactionFilters(), { wrapper });
-    act(() => result.current.setFilters({ ...result.current.filters, fromDate: '2026-07-01', amountMin: '1' }));
+    act(() => result.current.setFilters({
+      ...result.current.filters, fromDate: '2026-07-01', amountMin: '1', amountUnit: 'coin',
+    }));
     act(() => result.current.clearFilters());
     expect(result.current.isActive).toBe(false);
     expect(result.current.filters.fromDate).toBe('');
     expect(result.current.filters.amountMin).toBe('');
+    expect(result.current.filters.amountUnit).toBe('fiat');
   });
 
   it('matches delegates to matchesFilters', () => {

@@ -2145,6 +2145,7 @@
       "button": "Filter",
       "from": "From",
       "noResults": "No transactions match your filters",
+      "noResultsWithSearch": "No transactions match \"{{searchTerm}}\" and your filters",
       "to": "To",
       "type": "Type",
       "typeAll": "All types",

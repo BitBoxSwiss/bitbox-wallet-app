@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import '../../../../../__mocks__/i18n';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TransactionFilters } from './transaction-filters';
@@ -51,7 +52,9 @@ describe('TransactionFilters', () => {
     expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, toDate: '2026-07-31' });
     fireEvent.change(screen.getByLabelText('transactions.filters.amountMax'), { target: { value: '25' } });
     expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, amountMax: '25' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'transactions.filters.unit' }), { target: { value: 'fiat' } });
-    expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, amountUnit: 'fiat' });
+    // 'coin' differs from the 'fiat' default, so this assertion still
+    // discriminates a broken handler from a working one.
+    fireEvent.change(screen.getByRole('combobox', { name: 'transactions.filters.unit' }), { target: { value: 'coin' } });
+    expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, amountUnit: 'coin' });
   });
 });

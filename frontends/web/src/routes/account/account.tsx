@@ -329,6 +329,7 @@ const RemountAccount = ({
                           type="button"
                           aria-label={t('transactions.filters.button')}
                           aria-expanded={showFilters}
+                          aria-controls="transaction-filters"
                           title={t('transactions.filters.button')}
                           className={`
                             ${style.filterToggle || ''}
@@ -343,12 +344,14 @@ const RemountAccount = ({
                             }
                           }}
                         >
-                          <FilterBlue />
+                          <FilterBlue alt="" />
                         </button>
                       </div>
                     </div>
 
-                    <div className={`
+                    <div
+                      id="transaction-filters"
+                      className={`
                       ${style.searchContainer || ''}
                       ${!showFilters && style.searchHidden || ''}
                     `}>
