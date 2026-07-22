@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Bitcoin: show account details for the persisted receive address type by default
+- Bitcoin: improve initial sync speed by deferring accounts discovery
 - Add external block explorer links to used addresses
 - Settings search
 - Support macOS "Number Format" system setting

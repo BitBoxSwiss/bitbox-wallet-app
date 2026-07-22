@@ -236,6 +236,8 @@ type Backend struct {
 
 	accountsAndKeystoreLock locker.Locker
 	accounts                AccountsList
+	// discovery owns hidden account discovery state while backend executes its commands.
+	discovery *accountDiscoveryCoordinator
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
 	// Called to remove the current keystore observer, if any.
@@ -356,6 +358,8 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 	backend.bluetooth = bluetooth.New(log)
 	backend.bluetooth.Observe(backend.Notify)
+
+	backend.discovery = newAccountDiscoveryCoordinator(backend.coinPolicy().discoveryCoins())
 
 	return backend, nil
 }
@@ -790,6 +794,7 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 	log.Info("registering keystore")
 	backend.observeKeystore(ks)
 	backend.keystore = ks
+	backend.discovery.reset()
 	backend.Notify(observable.Event{
 		Subject: "keystores",
 		Action:  action.Reload,
@@ -829,12 +834,12 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 	}
 
 	backend.initAccounts(false)
+	backend.executeAccountDiscoveryActionsLocked(
+		backend.discovery.connect(backend.discoveryAccountStatusesLocked()))
 
 	backend.aoppKeystoreRegistered()
 
 	backend.connectKeystore.onConnect(backend.keystore)
-
-	go backend.maybeAddHiddenUnusedAccounts()
 }
 
 func (backend *Backend) observeKeystore(ks keystore.Keystore) {
