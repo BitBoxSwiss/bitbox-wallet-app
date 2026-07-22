@@ -648,44 +648,84 @@ func TestLightningAddressChangedEventNotifiesSubscribers(t *testing.T) {
 }
 
 func TestDepositEventsReloadPayments(t *testing.T) {
+	balanceReload := observable.Event{
+		Subject: "lightning/balance",
+		Action:  action.Reload,
+	}
+	listPaymentsReload := observable.Event{
+		Subject: "lightning/list-payments",
+		Action:  action.Reload,
+	}
+
 	testCases := []struct {
-		name  string
-		event breez_sdk_spark.SdkEvent
+		name     string
+		event    breez_sdk_spark.SdkEvent
+		expected []observable.Event
 	}{
 		{
 			name: "new deposits",
 			event: breez_sdk_spark.SdkEventNewDeposits{
 				NewDeposits: []breez_sdk_spark.DepositInfo{{Txid: "txid"}},
 			},
+			expected: []observable.Event{listPaymentsReload, balanceReload},
 		},
 		{
 			name: "unclaimed deposits",
 			event: breez_sdk_spark.SdkEventUnclaimedDeposits{
 				UnclaimedDeposits: []breez_sdk_spark.DepositInfo{{Txid: "txid"}},
 			},
+			expected: []observable.Event{listPaymentsReload, balanceReload},
 		},
 		{
 			name: "claimed deposits",
 			event: breez_sdk_spark.SdkEventClaimedDeposits{
 				ClaimedDeposits: []breez_sdk_spark.DepositInfo{{Txid: "txid"}},
 			},
+			expected: []observable.Event{listPaymentsReload, balanceReload},
+		},
+		{
+			name:     "synced",
+			event:    breez_sdk_spark.SdkEventSynced{},
+			expected: []observable.Event{balanceReload},
+		},
+		{
+			name: "payment succeeded",
+			event: breez_sdk_spark.SdkEventPaymentSucceeded{
+				Payment: breez_sdk_spark.Payment{Id: "payment-id"},
+			},
+			expected: []observable.Event{listPaymentsReload, balanceReload},
+		},
+		{
+			name: "payment pending",
+			event: breez_sdk_spark.SdkEventPaymentPending{
+				Payment: breez_sdk_spark.Payment{Id: "payment-id"},
+			},
+			expected: []observable.Event{listPaymentsReload, balanceReload},
+		},
+		{
+			name: "payment failed",
+			event: breez_sdk_spark.SdkEventPaymentFailed{
+				Payment: breez_sdk_spark.Payment{Id: "payment-id"},
+			},
+			expected: []observable.Event{listPaymentsReload, balanceReload},
 		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			lightning := newTestLightning(t, nil)
-			events := make(chan observable.Event, 1)
+			events := make(chan observable.Event, len(testCase.expected))
 			lightning.Observe(func(event observable.Event) {
 				events <- event
 			})
 
 			lightning.OnEvent(testCase.event)
 
-			require.Equal(t, observable.Event{
-				Subject: "lightning/list-payments",
-				Action:  action.Reload,
-			}, <-events)
+			var notified []observable.Event
+			for range testCase.expected {
+				notified = append(notified, <-events)
+			}
+			require.ElementsMatch(t, testCase.expected, notified)
 		})
 	}
 }

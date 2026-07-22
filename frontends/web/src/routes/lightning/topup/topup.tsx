@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { convertFromCurrency, convertToCurrency } from '@/api/coins';
-import { getBoardingAddress, getLightningBalance } from '@/api/lightning';
+import { getBoardingAddress } from '@/api/lightning';
 import { connectKeystore } from '@/api/keystores';
+import { useLightningBalance } from '@/hooks/lightning';
 import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
 import { getDisplayedCoinUnit, isBitcoinOnly } from '@/routes/account/utils';
@@ -22,34 +23,6 @@ type TProps = {
 };
 
 type TStep = 'form' | 'confirming' | 'success' | 'aborted';
-
-const useLightningBalance = () => {
-  const mounted = useMountedRef();
-  const balanceRequest = useRef(0);
-  const [balance, setBalance] = useState<accountApi.TBalance>();
-
-  const reloadBalance = useCallback(() => {
-    const request = ++balanceRequest.current;
-    getLightningBalance().then((nextBalance) => {
-      if (request === balanceRequest.current && mounted.current) {
-        setBalance(nextBalance);
-      }
-    }).catch(() => {
-      if (request === balanceRequest.current && mounted.current) {
-        setBalance(undefined);
-      }
-    });
-  }, [mounted]);
-
-  useEffect(() => {
-    reloadBalance();
-  }, [reloadBalance]);
-
-  return {
-    balance,
-    reloadBalance,
-  };
-};
 
 export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   const { t } = useTranslation();
@@ -69,7 +42,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   );
   const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>(btcAccounts[0]?.code || '');
   const sourceAccount = btcAccounts.find(account => account.code === sourceAccountCode);
-  const { balance: lightningBalance, reloadBalance: reloadLightningBalance } = useLightningBalance();
+  const lightningBalance = useLightningBalance();
   const sourceAmountUnit = sourceAccount
     ? getDisplayedCoinUnit(sourceAccount.coinCode, sourceAccount.coinUnit, btcUnit)
     : 'BTC';
@@ -322,7 +295,6 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
       setIsSubmitting(false);
       return;
     }
-    reloadLightningBalance();
 
     try {
       setStep('confirming');

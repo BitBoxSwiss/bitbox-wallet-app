@@ -7,7 +7,6 @@ import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { Button, Input, NumberInput, OptionalLabel } from '@/components/forms';
 import {
   TReceivePaymentResponse,
-  getLightningBalance,
   getLightningAddress,
   getReceivePayment,
   subscribeLightningAddress,
@@ -20,7 +19,8 @@ import { FormattedAmount } from '@/components/amount/amount';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { useNavigate } from 'react-router-dom';
 import { RatesContext } from '@/contexts/RatesContext';
-import { useLoad, useSync } from '@/hooks/api';
+import { useSync } from '@/hooks/api';
+import { useLightningBalance } from '@/hooks/lightning';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
 import { useSatFiatAmount } from '../hooks/use-sat-fiat-amount';
 import { type TReceiveStep, useReceivePaymentSuccess } from './use-receive-payment-success';
@@ -44,15 +44,13 @@ export function Receive() {
   const [receivePaymentResponse, setReceivePaymentResponse] = useState<TReceivePaymentResponse>();
   const [receiveError, setReceiveError] = useState<string>();
   const [step, setStep] = useState<TReceiveStep>('address');
-  const [balanceLoadAttempt, setBalanceLoadAttempt] = useState(0);
-  const lightningBalance = useLoad(getLightningBalance, [balanceLoadAttempt]);
+  const lightningBalance = useLightningBalance();
   const lightningAddress = useSync(getLightningAddress, subscribeLightningAddress);
   const satsBalance = lightningBalance?.available.unit === 'sat'
     ? lightningBalance.available.amount
     : lightningBalance?.available.unformattedConversions?.sat;
   const hasLightningBalance = lightningBalance !== undefined;
   const onReceivePaymentSuccess = useCallback(() => {
-    setBalanceLoadAttempt(attempt => attempt + 1);
     setStep('success');
   }, []);
   const { receivedPayment, resetReceivedPayment } = useReceivePaymentSuccess({

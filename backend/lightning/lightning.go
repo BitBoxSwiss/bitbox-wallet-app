@@ -384,6 +384,7 @@ func (lightning *Lightning) connect() error {
 
 		lightning.sdkService = sdk
 		lightning.notifyReady()
+		lightning.NotifyBalanceReload()
 		if _, err := lightning.ensureLightningAddress(); err != nil {
 			lightning.log.WithError(err).Warn("BreezSDK: Error ensuring lightning address")
 		}

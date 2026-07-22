@@ -401,6 +401,7 @@ func (backend *Backend) newRatesUpdater() *rates.RateUpdater {
 				Subject: "lightning/list-payments",
 				Action:  action.Reload,
 			})
+			backend.lightning.NotifyBalanceReload()
 		}
 	})
 	return updater

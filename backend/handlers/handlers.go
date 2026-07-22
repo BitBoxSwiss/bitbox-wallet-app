@@ -937,6 +937,8 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 	}
 	btcCoin.(*btc.Coin).SetFormatUnit(unit)
 
+	handlers.backend.Lightning().NotifyBalanceReload()
+
 	return response{Success: true}
 }
 

@@ -3,6 +3,7 @@
 import type { AccountCode, TAmountWithConversions, TBalance, TTransactionStatus } from '@/api/account';
 import type { TSubscriptionCallback, TUnsubscribe } from '@/api/subscribe';
 import { subscribeEndpoint } from '@/api/subscribe';
+import { apiSubscribe } from '@/utils/event';
 import { apiGet, apiPost } from '@/utils/request';
 import { type TLightningErrorCode, TSdkError } from './lightning-errors';
 
@@ -265,4 +266,24 @@ export const subscribeLightningReady = (cb: TSubscriptionCallback<boolean>): TUn
 
 export const subscribeListPayments = (cb: TSubscriptionCallback<TLightningPayment[]>) => {
   return subscribeEndpoint('lightning/list-payments', cb);
+};
+
+export const subscribeLightningBalance = (
+  cb: TSubscriptionCallback<TBalance | undefined>,
+): TUnsubscribe => {
+  let latest = 0;
+  return apiSubscribe('lightning/balance', () => {
+    const current = ++latest;
+    getLightningBalance()
+      .then(balance => {
+        if (current === latest) {
+          cb(balance);
+        }
+      })
+      .catch(console.error);
+  });
+};
+
+export const subscribeLightningBalanceChanged = (cb: () => void): TUnsubscribe => {
+  return apiSubscribe('lightning/balance', () => cb());
 };
