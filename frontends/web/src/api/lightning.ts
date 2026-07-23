@@ -4,7 +4,7 @@ import type { AccountCode, TAmountWithConversions, TBalance, TTransactionStatus 
 import type { TSubscriptionCallback, TUnsubscribe } from '@/api/subscribe';
 import { subscribeEndpoint } from '@/api/subscribe';
 import { apiGet, apiPost } from '@/utils/request';
-import { TLightningErrorCode, TSdkError } from './lightning-errors';
+import { TLightningErrorCode, type TLightningErrorData, TSdkError } from './lightning-errors';
 
 export type TLightningResponse<T> =
   | {
@@ -13,6 +13,7 @@ export type TLightningResponse<T> =
   }
   | {
     success: false;
+    errorData?: TLightningErrorData;
     errorMessage?: string;
     errorCode?: TLightningErrorCode;
   };
@@ -38,6 +39,11 @@ export type TLightningLNURLPay = {
   maxAmountSat: number;
 };
 
+export type TLightningBitcoinPaymentInput = {
+  address: string;
+  amountSat?: number;
+};
+
 export type TBitcoinDepositState = 'confirming' | 'claiming' | 'complete' | 'unclaimed';
 
 export type TBitcoinDeposit = {
@@ -59,6 +65,7 @@ export type TLightningPayment = {
   deductedAmountAtTime: TAmountWithConversions;
   fee: TAmountWithConversions;
   invoice?: string;
+  txId?: string;
   bitcoinDeposit?: TBitcoinDeposit;
 };
 
@@ -99,6 +106,12 @@ export type TGeneratedLightningAddress = {
 };
 
 export type TSendPaymentRequest = {
+  type: TPaymentInputType.BITCOIN_ADDRESS;
+  paymentInput: string;
+  amountSat: number;
+  approvedFeeSat: number;
+  idempotencyKey: string;
+} | {
   type: TPaymentInputType.BOLT11;
   paymentInput: string;
   amountSat?: number;
@@ -111,6 +124,11 @@ export type TSendPaymentRequest = {
 };
 
 export type TPreparePaymentRequest = {
+  type: TPaymentInputType.BITCOIN_ADDRESS;
+  paymentInput: string;
+  amountSat: number;
+  idempotencyKey?: string;
+} | {
   type: TPaymentInputType.BOLT11;
   paymentInput: string;
   amountSat?: number;
@@ -123,6 +141,7 @@ export type TPreparePaymentRequest = {
 export type TPreparePaymentResponse = {
   amountSat: number;
   feeSat: number;
+  idempotencyKey?: string;
   totalDebitSat: number;
 };
 
@@ -133,11 +152,15 @@ export type TSparkStatus = {
 };
 
 export enum TPaymentInputType {
+  BITCOIN_ADDRESS = 'bitcoinAddress',
   BOLT11 = 'bolt11',
   LNURL_PAY = 'lnurlPay',
 }
 
 export type TPaymentInput = {
+  type: TPaymentInputType.BITCOIN_ADDRESS;
+  bitcoinAddress: TLightningBitcoinPaymentInput;
+} | {
   type: TPaymentInputType.BOLT11;
   invoice: TLightningBolt11Invoice;
 } | {
@@ -162,7 +185,7 @@ const queryString = (params: Record<string, string | number | undefined | null>)
 const getApiResponse = async <T>(url: string, defaultError: string = 'Error'): Promise<T> => {
   const response: TLightningResponse<T> = await apiGet(url);
   if (!response.success) {
-    throw new TSdkError(response.errorMessage || defaultError, response.errorCode);
+    throw new TSdkError(response.errorMessage || defaultError, response.errorCode, response.errorData);
   }
   if (response.data === undefined) {
     throw new TSdkError(defaultError);
@@ -182,6 +205,7 @@ const postApiResponse = async <T, C extends object | undefined>(
     throw new TSdkError(
       response.errorMessage || defaultErrorMessage,
       response.errorCode || defaultErrorCode,
+      response.errorData,
     );
   }
   if (response.data === undefined) {
