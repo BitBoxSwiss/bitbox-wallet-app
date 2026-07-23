@@ -50,7 +50,10 @@ export const Bolt11ReviewStep = ({
   }
 
   return (
-    <View fitContent minHeight="100%">
+    <View
+      dialog={true}
+      fitContent
+      minHeight="100%">
       <ViewContent>
         <Grid col="1">
           <Column>

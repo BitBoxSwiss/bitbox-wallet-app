@@ -122,6 +122,7 @@ export const usePaymentReview = ({
 
       if (!needsCustomAmount) {
         setPreparedPayment(undefined);
+        // TODO: in lightning hack experiment this got called when the lightning wallet had 0 coins
         backToPaymentInput(toLightningErrorMessage(t, error));
         return;
       }
