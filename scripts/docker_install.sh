@@ -88,4 +88,4 @@ gem install --no-document fpm
 # Needed for Android.
 apt-get install -y --no-install-recommends openjdk-17-jdk
 # Keep versions in sync with build.gradle and frontends/android/Makefile.
-/opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;28.2.13676358" "platforms;android-35" "build-tools;35.0.0" "platform-tools" "cmake;3.31.6"
+/opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;28.2.13676358" "platforms;android-36" "build-tools;35.0.0" "platform-tools" "cmake;3.31.6"
