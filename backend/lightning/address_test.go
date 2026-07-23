@@ -428,7 +428,7 @@ func TestRegisterAddressReturnsSuccessWhenTimestampPersistenceFails(t *testing.T
 	cfg, err := config.NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 
-	lightning := NewLightning(cfg, t.TempDir(), nil, nil, &http.Client{}, nil, nil, false)
+	lightning := NewLightning(cfg, t.TempDir(), nil, nil, nil, &http.Client{}, nil, nil, false)
 	activateLightningAddressTest(t, lightning)
 	now := time.Date(2026, 7, 9, 12, 0, 0, 0, time.UTC)
 	withLightningAddressNow(t, now)

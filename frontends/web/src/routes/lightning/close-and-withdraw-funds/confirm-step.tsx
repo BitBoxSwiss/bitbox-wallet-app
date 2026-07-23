@@ -1,26 +1,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import type { AccountCode, TAccount } from '@/api/account';
-import { Amount } from '@/components/amount/amount';
+import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
+import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Button, Checkbox } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
+import { Skeleton } from '@/components/skeleton/skeleton';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
-import {
-  CONTENT_MIN_HEIGHT,
-  MOCK_AMOUNT_UNIT,
-  MOCK_FIAT_UNIT,
-  MOCK_LIGHTNING_BALANCE,
-  MOCK_WITHDRAW_FEE,
-  type TDisplayAmount,
-} from './constants';
+import { CONTENT_MIN_HEIGHT } from './constants';
 import styles from './close-withdraw-funds.module.css';
 
 type TProps = {
+  balance?: TAmountWithConversions;
   btcAccounts: TAccount[];
   canClose: boolean;
   confirmed: boolean;
   destinationAccountCode: AccountCode;
+  fee?: TAmountWithConversions;
+  isClosing: boolean;
   onCancel: () => void;
   onClose: () => void;
   onConfirmChange: () => void;
@@ -30,23 +27,31 @@ type TProps = {
 const AmountRow = ({
   amount,
 }: {
-  amount: TDisplayAmount;
-}) => (
-  <div className={styles.amountRow}>
-    <span className={`${styles.amountWithUnit || ''} ${styles.sats || ''}`}>
-      <Amount amount={amount.amount} unit={MOCK_AMOUNT_UNIT} /> {MOCK_AMOUNT_UNIT}
-    </span>
-    <span className={`${styles.amountWithUnit || ''} ${styles.fiat || ''}`}>
-      <Amount amount={amount.fiatAmount} unit={MOCK_FIAT_UNIT} /> {MOCK_FIAT_UNIT}
-    </span>
-  </div>
-);
+  amount?: TAmountWithConversions;
+}) => {
+  if (!amount) {
+    return <Skeleton />;
+  }
+  return (
+    <div className={styles.amountRow}>
+      <span className={`${styles.amountWithUnit || ''} ${styles.sats || ''}`}>
+        <AmountWithUnit amount={amount} />
+      </span>
+      <span className={`${styles.amountWithUnit || ''} ${styles.fiat || ''}`}>
+        <AmountWithUnit amount={amount} convertToFiat />
+      </span>
+    </div>
+  );
+};
 
 export const CloseWithdrawConfirm = ({
+  balance,
   btcAccounts,
   canClose,
   confirmed,
   destinationAccountCode,
+  fee,
+  isClosing,
   onCancel,
   onClose,
   onConfirmChange,
@@ -62,7 +67,7 @@ export const CloseWithdrawConfirm = ({
 
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>{t('lightning.closeWithdrawFunds.lightningBalanceToBeSent')}</h2>
-            <AmountRow amount={MOCK_LIGHTNING_BALANCE} />
+            <AmountRow amount={balance} />
           </section>
 
           <section className={styles.section}>
@@ -70,6 +75,7 @@ export const CloseWithdrawConfirm = ({
             <GroupedAccountSelector
               accounts={btcAccounts}
               className={styles.accountSelector}
+              disabled={isClosing}
               onChange={onDestinationAccountChange}
               selected={destinationAccountCode}
             />
@@ -77,13 +83,14 @@ export const CloseWithdrawConfirm = ({
 
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>{t('lightning.closeWithdrawFunds.fee')}</h2>
-            <AmountRow amount={MOCK_WITHDRAW_FEE} />
+            <AmountRow amount={fee} />
           </section>
 
           <Checkbox
             className={styles.confirm}
             id="confirmCloseWithdrawFunds"
             checked={confirmed}
+            disabled={isClosing}
             onChange={onConfirmChange}
           >
             {t('lightning.closeWithdrawFunds.confirm')}
@@ -91,10 +98,10 @@ export const CloseWithdrawConfirm = ({
         </div>
       </ViewContent>
       <ViewButtons>
-        <Button danger disabled={!canClose} onClick={onClose}>
+        <Button danger disabled={!canClose || isClosing} onClick={onClose}>
           {t('lightning.settings.closeAndWithdrawFunds')}
         </Button>
-        <Button secondary onClick={onCancel}>
+        <Button secondary disabled={isClosing} onClick={onCancel}>
           {t('dialog.cancel')}
         </Button>
       </ViewButtons>

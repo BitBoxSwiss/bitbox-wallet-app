@@ -73,6 +73,7 @@ type Lightning struct {
 	cacheDirectoryPath string
 	environment        environment
 	getKeystore        func() keystore.Keystore
+	getAccount         func(types.Code) (accounts.Interface, error)
 	synced             bool
 
 	log          *logrus.Entry
@@ -92,6 +93,7 @@ func NewLightning(config *config.Config,
 	cacheDirectoryPath string,
 	environment environment,
 	getKeystore func() keystore.Keystore,
+	getAccount func(types.Code) (accounts.Interface, error),
 	httpClient *http.Client,
 	ratesUpdater *rates.RateUpdater,
 	btcCoin coin.Coin,
@@ -101,6 +103,7 @@ func NewLightning(config *config.Config,
 		cacheDirectoryPath: cacheDirectoryPath,
 		environment:        environment,
 		getKeystore:        getKeystore,
+		getAccount:         getAccount,
 		log:                logging.Get().WithGroup("lightning"),
 		synced:             false,
 		sparkStatus:        breez_sdk_spark.GetSparkStatus,
@@ -192,7 +195,7 @@ func (lightning *Lightning) Disconnect() {
 	}
 }
 
-// Deactivate disconnects the instance, deletes cache folder and changes the config to inactive.
+// Deactivate changes the config to inactive, disconnects the instance and deletes the cache folder.
 func (lightning *Lightning) Deactivate() error {
 	account := lightning.Account()
 
@@ -200,14 +203,14 @@ func (lightning *Lightning) Deactivate() error {
 		return nil
 	}
 
+	if err := lightning.SetAccount(nil); err != nil {
+		return err
+	}
+
 	lightning.Disconnect()
 	workingDir := path.Join(lightning.cacheDirectoryPath, accountBreezFolder(account.Code))
 	if err := os.RemoveAll(workingDir); err != nil {
 		lightning.log.WithError(err).Error("Error deleting working directory")
-	}
-
-	if err := lightning.SetAccount(nil); err != nil {
-		return err
 	}
 
 	if lightning.environment.CanEncryptLightningMnemonic() {
