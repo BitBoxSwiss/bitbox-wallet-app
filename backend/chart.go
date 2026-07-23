@@ -10,6 +10,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
@@ -40,6 +41,17 @@ type RatChartEntry struct {
 	RatValue *big.Rat
 }
 
+// ChartTransaction is metadata for rendering transaction markers in the portfolio chart.
+type ChartTransaction struct {
+	Time                 int64                               `json:"time"`
+	InternalID           string                              `json:"internalID"`
+	AccountCode          string                              `json:"accountCode"`
+	ExplorerURL          string                              `json:"explorerURL"`
+	Type                 string                              `json:"type"`
+	AmountAtTime         coin.FormattedAmountWithConversions `json:"amountAtTime"`
+	DeductedAmountAtTime coin.FormattedAmountWithConversions `json:"deductedAmountAtTime"`
+}
+
 // Chart has all data needed to show a time-based chart of their assets to the user.
 type Chart struct {
 	// If true, we are missing historical exchange rates or block headers needed to compute the
@@ -60,6 +72,57 @@ type Chart struct {
 	IsUpToDate bool `json:"chartIsUpToDate"`
 	// Latest rate timestamp available among all enabled coins.
 	LastTimestamp int64 `json:"lastTimestamp"`
+	// Transactions shown as markers in the chart.
+	Transactions []ChartTransaction `json:"chartTransactions"`
+}
+
+func includeChartTransaction(tx *accounts.TransactionData) bool {
+	if tx.Timestamp == nil {
+		return false
+	}
+	if tx.Status == accounts.TxStatusFailed {
+		return false
+	}
+	return tx.Type == accounts.TxTypeSend || tx.Type == accounts.TxTypeReceive
+}
+
+func chartTransactionAmount(
+	amount coin.Amount,
+	accountCoin coin.Coin,
+	timestamp *time.Time,
+	rateUpdater *rates.RateUpdater,
+	fiat string,
+) coin.FormattedAmountWithConversions {
+	conversions := coin.ConversionsMap{}
+	estimated := false
+	if timestamp != nil {
+		latestRatesTime := rateUpdater.HistoryLatestTimestampCoin(string(accountCoin.Code()))
+		historicalRatesNotAvailable := latestRatesTime.IsZero() || latestRatesTime.Before(*timestamp)
+		if historicalRatesNotAvailable && time.Since(*timestamp) < 2*time.Hour {
+			latestRates := rateUpdater.LatestPrice()
+			if latestRates != nil {
+				if rate, ok := latestRates[accountCoin.Unit(false)][fiat]; ok {
+					convertedAmount := new(big.Rat).Mul(coin.ToUnitRat(amount, accountCoin, false), new(big.Rat).SetFloat64(rate))
+					conversions[fiat] = coin.FormatAsCurrency(convertedAmount, fiat)
+				}
+			}
+			estimated = true
+		} else {
+			rate := rateUpdater.HistoricalPriceAt(string(accountCoin.Code()), fiat, *timestamp)
+			if rate == 0 {
+				conversions[fiat] = ""
+			} else {
+				convertedAmount := new(big.Rat).Mul(coin.ToUnitRat(amount, accountCoin, false), new(big.Rat).SetFloat64(rate))
+				conversions[fiat] = coin.FormatAsCurrency(convertedAmount, fiat)
+			}
+		}
+	}
+	return coin.FormattedAmountWithConversions{
+		Amount:      accountCoin.FormatAmount(amount, false),
+		Unit:        accountCoin.GetFormatUnit(false),
+		Conversions: conversions,
+		Estimated:   estimated,
+	}
 }
 
 func (backend *Backend) addChartData(
@@ -104,6 +167,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	// key: unix timestamp.
 	chartEntriesDaily := map[int64]RatChartEntry{}
 	chartEntriesHourly := map[int64]RatChartEntry{}
+	chartTransactions := []ChartTransaction{}
 
 	fiat := backend.Config().AppConfig().Backend.MainFiat
 
@@ -136,6 +200,27 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			return nil, err
 		}
 		totalNumberOfTransactions += len(txs)
+
+		for _, tx := range txs {
+			if !includeChartTransaction(tx) {
+				continue
+			}
+			accountConfig := account.Config()
+			chartTransaction := ChartTransaction{
+				Time:        tx.Timestamp.Unix(),
+				InternalID:  tx.InternalID,
+				AccountCode: string(accountConfig.Config.Code),
+				ExplorerURL: account.Coin().BlockExplorerTransactionURLPrefix(),
+				Type:        string(tx.Type),
+			}
+			switch tx.Type {
+			case accounts.TxTypeReceive:
+				chartTransaction.AmountAtTime = chartTransactionAmount(tx.Amount, account.Coin(), tx.Timestamp, accountConfig.RateUpdater, fiat)
+			case accounts.TxTypeSend:
+				chartTransaction.DeductedAmountAtTime = chartTransactionAmount(tx.DeductedAmount, account.Coin(), tx.Timestamp, accountConfig.RateUpdater, fiat)
+			}
+			chartTransactions = append(chartTransactions, chartTransaction)
+		}
 
 		coinDecimals := coin.DecimalsExp(account.Coin(), false)
 
@@ -280,6 +365,15 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		chartTotal = &tot
 		formattedChartTotal = coin.FormatAsCurrency(currentTotal, fiat)
 	}
+	sort.Slice(chartTransactions, func(i, j int) bool {
+		if chartTransactions[i].Time != chartTransactions[j].Time {
+			return chartTransactions[i].Time < chartTransactions[j].Time
+		}
+		if chartTransactions[i].AccountCode != chartTransactions[j].AccountCode {
+			return chartTransactions[i].AccountCode < chartTransactions[j].AccountCode
+		}
+		return chartTransactions[i].InternalID < chartTransactions[j].InternalID
+	})
 	return &Chart{
 		DataMissing:    chartDataMissing,
 		DataDaily:      toSortedSlice(chartEntriesDaily, fiat),
@@ -289,5 +383,6 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		FormattedTotal: formattedChartTotal,
 		IsUpToDate:     isUpToDate,
 		LastTimestamp:  lastTimestamp,
+		Transactions:   chartTransactions,
 	}, nil
 }

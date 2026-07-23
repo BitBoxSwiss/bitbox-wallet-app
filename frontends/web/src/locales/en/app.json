@@ -773,7 +773,9 @@
       "month": "Month",
       "week": "Week",
       "year": "Year"
-    }
+    },
+    "transactions_one": "{{count}} transaction",
+    "transactions_other": "{{count}} transactions"
   },
   "checkSDcard": "checking microSD card",
   "clickHere": "Click here.",
