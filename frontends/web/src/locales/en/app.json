@@ -921,6 +921,7 @@
     "lightningAddressChangeCooldown": "Please wait before changing your Lightning address again.",
     "lightningAddressInvalidUsername": "Use only lowercase letters and numbers.",
     "lightningAddressUsernameUnavailable": "This name is not available.",
+    "lightningAmountBelowMinimum": "Enter at least {{minAmountSat}} sats for this address.",
     "lightningInsufficientFunds": "Insufficient funds in your Lightning wallet.",
     "lightningInvalidAmount": "Invalid amount.",
     "lightningInvalidPaymentInput": "Invalid invoice or payment request.",
@@ -1736,16 +1737,18 @@
       "confirm": {
         "amount": "Amount",
         "note": "Note",
+        "receiver": "Receiver",
         "title": "Confirm transaction details"
       },
       "invoice": {
-        "input": "Or paste your invoice here"
+        "input": "Or paste an address or invoice here"
       },
       "lnurlPay": {
         "invalidAmount": "Enter an amount between {{minAmount}} and {{maxAmount}} sats."
       },
+      "onChain": "On-chain",
       "qrCode": {
-        "label": "Scan lightning invoice"
+        "label": "Scan address or invoice"
       },
       "sending": {
         "connecting": "Preparing payment",
