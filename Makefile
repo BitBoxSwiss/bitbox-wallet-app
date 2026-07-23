@@ -52,6 +52,9 @@ webserve:
 	cd ${WEBROOT} && $(MAKE) serve
 webe2etest:
 	cd ${WEBROOT} && $(MAKE) test-e2e
+qt-linux-bin: # build only the executable, skip deb/rpm/AppImage packaging
+	$(MAKE) buildweb
+	cd frontends/qt && $(MAKE) linux-bin
 qt-linux: # run inside dockerdev
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) linux
