@@ -1,0 +1,156 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+.content {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+}
+
+.description {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+}
+
+.description p {
+    margin: 0;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-quarter);
+}
+
+.sectionTitle {
+    color: var(--color-tertiary);
+    font-size: var(--size-small);
+    font-weight: 400;
+    margin: 0;
+}
+
+.amountRows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.amountRow {
+    align-items: baseline;
+    display: flex;
+    gap: var(--space-half);
+    justify-content: space-between;
+}
+
+.amount {
+    color: var(--color-default);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.fiat {
+    color: var(--color-tertiary);
+    white-space: nowrap;
+}
+
+/* Both rows share one grid, so the labels land in one column and the buttons in
+   the other and each pair comes out the same width. The button column is sized
+   to the widest button's own label, so the buttons hug their text instead of
+   stretching, and the leftover width is absorbed by the label column, which
+   keeps the buttons flush with the right edge. */
+.feeActions {
+    align-items: center;
+    column-gap: var(--space-half);
+    display: grid;
+    grid-template-columns: 1fr max-content;
+    row-gap: var(--space-default);
+}
+
+.feeRow {
+    display: contents;
+}
+
+/* Once the leftover width can no longer hold a button label on one line, each
+   row stacks and the button spans the full width. Keyed to the container rather
+   than the viewport: the View caps this content at 420px, so window width says
+   nothing about how much room these rows actually have. */
+@container (max-width: 320px) {
+    .feeActions {
+        /* stretch, not the grid's center, so the rows fill the width and both
+           buttons end up equally wide */
+        align-items: stretch;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-default);
+    }
+
+    .feeRow {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-half);
+    }
+}
+
+.amountBlock {
+    min-width: 0;
+}
+
+.blockLabel {
+    color: var(--color-tertiary);
+    display: block;
+    font-size: var(--size-small);
+    font-weight: 400;
+    margin-bottom: 8px;
+}
+
+.blockAmounts {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-quarter);
+}
+
+.refundDestination {
+    display: flex;
+    flex-direction: column;
+}
+
+.accountSelector {
+    margin-bottom: 0;
+}
+
+/* Pinned to the second column so the buttons stay in their shared column even
+   when a row has no fee to show and contributes no label cell. Inert once the
+   container query turns the rows into flex columns. */
+.actionButton {
+    grid-column: 2;
+    min-width: 0;
+}
+
+.successContent {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+}
+
+.successMessage,
+.successNote {
+    margin: 0;
+}
+
+.transactionButton {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--space-quarter);
+}
+
+.transactionIcon {
+    height: 18px;
+    width: 18px;
+}
+
+.doneButton {
+    width: 100%;
+}

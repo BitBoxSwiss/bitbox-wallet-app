@@ -18,7 +18,7 @@ export const CloseWithdrawFailure = ({
   const { t } = useTranslation();
 
   return (
-    <View key="close-withdraw-funds-failure" minHeight={CONTENT_MIN_HEIGHT} textCenter width="min(420px, 100%)">
+    <View key="close-withdraw-funds-failure" minHeight={CONTENT_MIN_HEIGHT} textCenter>
       <ViewContent withIcon="error">
         <div className={styles.failureContent}>
           <p className={styles.failureMessage}>{t('lightning.closeWithdrawFunds.failure.message')}</p>

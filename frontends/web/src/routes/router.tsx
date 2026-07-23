@@ -51,6 +51,7 @@ import { LightningSetLnurlAddress } from './lightning/set-lnurl-address';
 import { Send as LightningSend } from './lightning/send/send';
 import { Receive as LightningReceive } from './lightning/receive/receive';
 import { LightningTopUp } from './lightning/topup/topup';
+import { LightningClaimTopUp } from './lightning/claim-top-up/claim-top-up';
 import { LightningCloseWithdrawFunds } from './lightning/close-and-withdraw-funds/close-withdraw-funds';
 
 type TAppRouterProps = {
@@ -356,6 +357,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="activate" element={<LightningActivate />} />
           <Route path="deactivate" element={<LightningDeactivate />} />
           <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
+          <Route path="claim-top-up" element={<LightningClaimTopUp activeAccounts={activeAccounts} />} />
           <Route path="close-withdraw-funds" element={<LightningCloseWithdrawFunds activeAccounts={activeAccounts} />} />
           <Route path="send" element={<LightningSend />} />
           <Route path="receive" element={<LightningReceive />} />
