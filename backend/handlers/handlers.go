@@ -69,6 +69,7 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() backend.AccountsList
+	DefaultLightningTopUpAccountCode() (*accountsTypes.Code, error)
 	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
 	SwapAccounts() (backend.SwapAccounts, error)
 	SwapStatus() backend.SwapStatus
@@ -227,6 +228,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore-name", handlers.getKeystoreName).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/topup/default-account", handlers.getDefaultLightningTopUpAccount).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/status", handlers.getSwapStatus).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
@@ -841,6 +843,24 @@ func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 		))
 	}
 	return accounts
+}
+
+func (handlers *Handlers) getDefaultLightningTopUpAccount(*http.Request) interface{} {
+	type response struct {
+		Success      bool                `json:"success"`
+		Data         *accountsTypes.Code `json:"data"`
+		ErrorMessage string              `json:"errorMessage,omitempty"`
+		ErrorCode    string              `json:"errorCode,omitempty"`
+	}
+
+	accountCode, err := handlers.backend.DefaultLightningTopUpAccountCode()
+	if err != nil {
+		if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
+			return response{Success: false, ErrorCode: string(errCode)}
+		}
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true, Data: accountCode}
 }
 
 func (handlers *Handlers) getSwapAccounts(*http.Request) interface{} {

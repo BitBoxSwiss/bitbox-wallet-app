@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { convertFromCurrency, convertToCurrency } from '@/api/coins';
-import { getBoardingAddress, getLightningBalance } from '@/api/lightning';
+import { getBoardingAddress, getDefaultLightningTopUpAccountCode, getLightningBalance } from '@/api/lightning';
 import { connectKeystore } from '@/api/keystores';
 import { useLoad } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
@@ -82,6 +82,9 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
     [activeAccounts]
   );
   const topUpAccounts = useLoad(() => getTopUpAccounts(btcAccounts), [btcAccounts]);
+  const defaultSourceAccountCode = useLoad(
+    () => getDefaultLightningTopUpAccountCode().catch(() => null)
+  );
   const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>('');
   const sourceAccount = topUpAccounts?.find(account => account.code === sourceAccountCode);
   const { balance: lightningBalance, reloadBalance: reloadLightningBalance } = useLightningBalance();
@@ -115,10 +118,17 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
       setSourceAccountCode('');
       return;
     }
-    if (!sourceAccountCode || !topUpAccounts.some(account => account.code === sourceAccountCode)) {
-      setSourceAccountCode(topUpAccounts[0]?.code || '');
+    if (defaultSourceAccountCode === undefined) {
+      return;
     }
-  }, [sourceAccountCode, topUpAccounts]);
+    if (!sourceAccountCode || !topUpAccounts.some(account => account.code === sourceAccountCode)) {
+      setSourceAccountCode(
+        topUpAccounts.find(account => account.code === defaultSourceAccountCode)?.code
+          || topUpAccounts[0]?.code
+          || ''
+      );
+    }
+  }, [defaultSourceAccountCode, sourceAccountCode, topUpAccounts]);
 
   const convertToFiat = useCallback(async (value: string) => {
     const request = ++conversionRequest.current;
