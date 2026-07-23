@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TAmountWithConversions } from '@/api/account';
 import { getBtcSatAmount } from '@/api/coins';
-import { type TLightningLNURLPay, type TPreparePaymentResponse } from '@/api/lightning';
+import { type TLightningBitcoinAddress, type TLightningLNURLPay, type TPreparePaymentResponse } from '@/api/lightning';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { Badge } from '@/components/badge/badge';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { useMountedRef } from '@/hooks/mount';
 import styles from '../send.module.css';
@@ -87,6 +88,26 @@ type TBolt11PaymentDetailsProps = {
 
 type TLNURLPayRecipientDetailsProps = {
   lnurlPay: TLightningLNURLPay;
+};
+
+type TProps = {
+  bitcoinAddress: TLightningBitcoinAddress;
+};
+
+export const BitcoinAddressRecipientDetails = ({ bitcoinAddress }: TProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className={styles.info}>
+      <h2 className={`${styles.label || ''} ${styles.receiverLabel || ''}`}>
+        {t('lightning.send.confirm.receiver')}
+        <Badge className={styles.receiverBadge} type="info">
+          {t('lightning.send.onChain')}
+        </Badge>
+      </h2>
+      <div className={styles.address}>{bitcoinAddress.address}</div>
+    </div>
+  );
 };
 
 export const PaymentAmountDetails = ({ amountSat }: TPaymentAmountDetailsProps) => {

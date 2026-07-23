@@ -150,7 +150,7 @@ const paymentToTransaction = (
       : undefined,
     time: payment.time,
     type: payment.type,
-    txID: payment.id,
+    txID: payment.bitcoinDeposit?.txid || payment.txId || payment.id,
     vsize: 0,
     weight: 0,
   };
