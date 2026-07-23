@@ -55,7 +55,7 @@ export const CloseWithdrawConfirm = ({
   const { t } = useTranslation();
 
   return (
-    <View key="close-withdraw-funds" minHeight={CONTENT_MIN_HEIGHT} width="min(420px, 100%)">
+    <View key="close-withdraw-funds" minHeight={CONTENT_MIN_HEIGHT}>
       <ViewContent>
         <div className={styles.content}>
           <p className={styles.description}>{t('lightning.closeWithdrawFunds.description')}</p>

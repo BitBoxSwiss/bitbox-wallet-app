@@ -19,7 +19,7 @@ export const CloseWithdrawSuccess = ({
   const { t } = useTranslation();
 
   return (
-    <View key="close-withdraw-funds-success" minHeight={CONTENT_MIN_HEIGHT} textCenter width="min(420px, 100%)">
+    <View key="close-withdraw-funds-success" minHeight={CONTENT_MIN_HEIGHT} textCenter>
       <ViewContent withIcon="success">
         <div className={styles.successContent}>
           <p className={styles.successMessage}>{t('lightning.closeWithdrawFunds.success.message')}</p>
