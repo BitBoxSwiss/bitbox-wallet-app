@@ -168,6 +168,10 @@ export const getLightningAccount = async (): Promise<TLightningAccount | null> =
   return apiGet('lightning/account');
 };
 
+export const getDefaultLightningTopUpAccountCode = async (): Promise<AccountCode | null> => {
+  return apiGet('lightning/topup/default-account');
+};
+
 export const getLightningAddress = async (): Promise<string | null> => {
   return getApiResponse<string | null>('lightning/address', 'Error calling getLightningAddress');
 };
