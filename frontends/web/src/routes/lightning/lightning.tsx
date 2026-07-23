@@ -41,6 +41,34 @@ import accountStyle from '@/routes/account/account.module.css';
 
 const sparkStatusPollInterval = 60 * 1000;
 
+const mockAmount = (amount: string, fiat: string): accountApi.TAmountWithConversions => ({
+  amount,
+  conversions: {
+    EUR: fiat,
+    USD: fiat,
+  },
+  estimated: false,
+  unit: 'sat',
+});
+
+// TODO: Remove once unclaimed bitcoin deposits can be triggered from real backend data.
+const mockUnclaimedBitcoinDeposit: TLightningPayment = {
+  id: 'mock-unclaimed-bitcoin-deposit',
+  amount: mockAmount('10000', '64.00'),
+  amountAtTime: mockAmount('10000', '64.00'),
+  bitcoinDeposit: {
+    state: 'unclaimed',
+    txid: 'ed3a5fded2f1d16f4cf833db9a8f23c6e3cde8b8f1a6c4b2f8d5a1e9c0b7a6d5',
+    vout: 0,
+  },
+  deductedAmountAtTime: mockAmount('10000', '64.00'),
+  description: '',
+  fee: mockAmount('0', '0.00'),
+  status: 'pending',
+  time: null,
+  type: 'receive',
+};
+
 const bitcoinDepositTransactionStatus = (
   bitcoinDeposit: NonNullable<TLightningPayment['bitcoinDeposit']>,
 ): accountApi.TTransactionStatus => {
@@ -176,16 +204,20 @@ const LightningInner = ({
   const [searchTerm, setSearchTerm] = useState<string>('');
   const debouncedSearchTerm = useDebounce(searchTerm, 200);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const hasPayments = payments.length > 0;
+  const paymentsWithMock = useMemo(() => [
+    mockUnclaimedBitcoinDeposit,
+    ...payments,
+  ], [payments]);
+  const hasPayments = paymentsWithMock.length > 0;
   const lightningTransactions = useMemo(() => {
-    return payments.map(payment => paymentToTransaction(
+    return paymentsWithMock.map(payment => paymentToTransaction(
       payment,
       payment.type === 'receive' ? t('generic.received') : t('generic.sent'),
       t('lightning.bitcoinDeposit.label'),
       (state) => t(`lightning.bitcoinDeposit.state.${state}`),
       (state) => t(`lightning.bitcoinDeposit.stateShort.${state}`),
     ));
-  }, [payments, t]);
+  }, [paymentsWithMock, t]);
   const filteredTransactions = useMemo(() => {
     const searchLower = debouncedSearchTerm.toLowerCase().trim();
 
@@ -272,7 +304,7 @@ const LightningInner = ({
       <PaymentDetails
         id={detailID}
         explorerURL={explorerURL}
-        payment={payments.find(payment => payment.id === detailID)}
+        payment={paymentsWithMock.find(payment => payment.id === detailID)}
         onClose={() => setDetailID(null)}
       />
     </LightningPageLayout>

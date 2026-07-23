@@ -17,6 +17,20 @@ import styles from './claim-top-up.module.css';
 
 const CONTENT_MIN_HEIGHT = '38em';
 
+const mockFeeAmount = (amount: string, fiat: string): TAmountWithConversions => ({
+  amount,
+  conversions: {
+    EUR: fiat,
+    USD: fiat,
+  },
+  estimated: false,
+  unit: 'sat',
+});
+
+// TODO: Replace with backend-provided claim/refund fee estimates.
+const MOCK_CLAIM_FEE = mockFeeAmount('100', '0.06');
+const MOCK_REFUND_FEE = mockFeeAmount('100', '0.06');
+
 type TLocationState = {
   deposits?: TLightningPayment[];
 };
@@ -35,6 +49,33 @@ const noop = () => undefined;
 const isUnclaimedBitcoinDeposit = (payment: TLightningPayment) => (
   payment.bitcoinDeposit?.state === 'unclaimed'
 );
+
+const sumStrings = (values: (string | undefined)[]) => {
+  const total = values.reduce((sum, value) => sum + Number(value || 0), 0);
+  return Number.isFinite(total) ? String(total) : '';
+};
+
+// TODO: Replace with a backend-provided total once claiming is wired up, so the
+// summing (and its rounding) does not happen in the frontend. Note that
+// balance.incoming is not it: that sums every deposit returned by
+// ListUnclaimedDeposits, including confirming and claiming ones.
+const sumAmounts = (amounts: TAmountWithConversions[]): TAmountWithConversions => {
+  const currencies = new Set(
+    amounts.flatMap(amount => Object.keys(amount.conversions || {}))
+  );
+  const conversions = Object.fromEntries(
+    [...currencies].map(currency => [
+      currency,
+      sumStrings(amounts.map(amount => amount.conversions?.[currency as keyof typeof amount.conversions])),
+    ])
+  );
+  return {
+    amount: sumStrings(amounts.map(amount => amount.amount)),
+    conversions,
+    estimated: amounts.some(amount => amount.estimated),
+    unit: amounts[0]?.unit || 'sat',
+  };
+};
 
 type TAmountRowProps = {
   amount: TAmountWithConversions;
@@ -153,6 +194,10 @@ export const LightningClaimTopUp = ({ activeAccounts }: TProps) => {
     return loadedDeposits.length > 0 ? loadedDeposits : routeDeposits;
   }, [payments, routeDeposits]);
   const hasRouteFallback = routeDeposits.length > 0;
+  const totalAmount = useMemo(
+    () => sumAmounts(deposits.map(deposit => deposit.amount)),
+    [deposits]
+  );
   const [action, setAction] = useState<TAction>('claim');
   const [step, setStep] = useState<TStep>('overview');
   const [refundDestinationAccountCode, setRefundDestinationAccountCode] = useState<AccountCode>(btcAccounts[0]?.code || '');
@@ -226,15 +271,12 @@ export const LightningClaimTopUp = ({ activeAccounts }: TProps) => {
                   />
                 </div>
               )}
-              {/* TODO: Pass the unclaimed total once the backend exposes one
-                  scoped to unclaimed deposits. balance.incoming is not it: that
-                  sums every deposit, including confirming and claiming ones. */}
               <AmountBlock
+                amount={totalAmount}
                 label={t('lightning.claimTopUp.confirm.totalAmount')}
               />
-              {/* TODO: Pass the claim/refund fee estimate once the backend
-                  exposes one. */}
               <AmountBlock
+                amount={isClaim ? MOCK_CLAIM_FEE : MOCK_REFUND_FEE}
                 label={t('lightning.claimTopUp.confirm.fee')}
               />
             </div>
@@ -283,16 +325,16 @@ export const LightningClaimTopUp = ({ activeAccounts }: TProps) => {
               )}
             </section>
 
-            {/* TODO: Pass amount to each FeeAction once the backend exposes
-                claim/refund fee estimates. */}
             <section className={styles.feeActions}>
               <FeeAction
+                amount={MOCK_CLAIM_FEE}
                 buttonText={t('lightning.claimTopUp.claimButton')}
                 disabled={deposits.length === 0}
                 label={t('lightning.claimTopUp.claimFee')}
                 onClick={() => startAction('claim')}
               />
               <FeeAction
+                amount={MOCK_REFUND_FEE}
                 buttonText={t('lightning.claimTopUp.refundButton')}
                 danger
                 disabled={deposits.length === 0}
