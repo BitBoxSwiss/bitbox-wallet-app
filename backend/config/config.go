@@ -90,6 +90,8 @@ type Backend struct {
 
 	// BtcUnit is the unit used to represent Bitcoin amounts. See `coin.BtcUnit` for details.
 	BtcUnit coin.BtcUnit `json:"btcUnit"`
+	// LightningUnit is the unit used to represent Lightning amounts.
+	LightningUnit coin.BtcUnit `json:"lightningUnit"`
 
 	// StartInTestnet represents whether the app should launch in testnet on the next start.
 	// It resets to `false` after the app starts.
@@ -226,9 +228,10 @@ func NewDefaultAppConfig() AppConfig {
 				DeprecatedActiveERC20Tokens: []string{},
 			},
 			// Copied from frontend/web/src/components/rates/rates.tsx.
-			FiatList: []string{rates.USD.String(), rates.EUR.String(), rates.CHF.String()},
-			MainFiat: rates.USD.String(),
-			BtcUnit:  coin.BtcUnitDefault,
+			FiatList:      []string{rates.USD.String(), rates.EUR.String(), rates.CHF.String()},
+			MainFiat:      rates.USD.String(),
+			BtcUnit:       coin.BtcUnitDefault,
+			LightningUnit: coin.BtcUnitSats,
 		},
 		Frontend: make(map[string]interface{}),
 	}

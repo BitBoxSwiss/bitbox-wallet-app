@@ -9,11 +9,13 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"io"
+	"math/big"
 	"net/http"
 	"os"
 	"path"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -85,6 +87,44 @@ type Lightning struct {
 
 	// Serializes lazy lightning address registration.
 	lightningAddressLock sync.Mutex
+}
+
+type formattingCoin struct {
+	coin.Coin
+	unit coin.BtcUnit
+}
+
+func (formatCoin formattingCoin) GetFormatUnit(isFee bool) string {
+	if formatCoin.unit == coin.BtcUnitSats {
+		return "sat"
+	}
+	return formatCoin.Coin.Unit(isFee)
+}
+
+func (formatCoin formattingCoin) FormatAmount(amount coin.Amount, isFee bool) string {
+	if formatCoin.unit == coin.BtcUnitSats {
+		return amount.BigInt().String()
+	}
+	return new(big.Rat).
+		SetFrac(amount.BigInt(), coin.DecimalsExp(formatCoin.Coin, isFee)).
+		FloatString(int(formatCoin.Coin.Decimals(isFee)))
+}
+
+func (lightning *Lightning) formattingCoin() coin.Coin {
+	unit := coin.BtcUnitSats
+	if lightning.backendConfig != nil && lightning.backendConfig.AppConfig().Backend.LightningUnit == coin.BtcUnitDefault {
+		unit = coin.BtcUnitDefault
+	}
+	return formattingCoin{Coin: lightning.btcCoin, unit: unit}
+}
+
+// FormatAmountWithConversions formats a Lightning amount using the independently configured unit.
+func (lightning *Lightning) FormatAmountWithConversions(amount coin.Amount, isFee bool) coin.FormattedAmountWithConversions {
+	return amount.FormatWithConversions(lightning.formattingCoin(), isFee, lightning.ratesUpdater)
+}
+
+func (lightning *Lightning) formatAmountAtTime(amount coin.Amount, timestamp *time.Time) coin.FormattedAmountWithConversions {
+	return amount.FormatWithConversionsAtTime(lightning.formattingCoin(), timestamp, lightning.ratesUpdater)
 }
 
 // NewLightning creates a new instance of the Lightning struct.

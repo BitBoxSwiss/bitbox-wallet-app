@@ -241,6 +241,7 @@ describe('routes/market/swap', () => {
             removeFromActiveCurrencies: vi.fn(),
             rotateBtcUnit: vi.fn(),
             rotateDefaultCurrency: vi.fn(),
+            rotateLightningUnit: vi.fn(),
             updateDefaultCurrency: vi.fn(),
           }}>
           <MemoryRouter>
@@ -297,6 +298,7 @@ describe('routes/market/swap', () => {
             removeFromActiveCurrencies: vi.fn(),
             rotateBtcUnit: vi.fn(),
             rotateDefaultCurrency: vi.fn(),
+            rotateLightningUnit: vi.fn(),
             updateDefaultCurrency: vi.fn(),
           }}>
           <MemoryRouter>
@@ -339,6 +341,7 @@ describe('routes/market/swap', () => {
             removeFromActiveCurrencies: vi.fn(),
             rotateBtcUnit: vi.fn(),
             rotateDefaultCurrency: vi.fn(),
+            rotateLightningUnit: vi.fn(),
             updateDefaultCurrency: vi.fn(),
           }}>
           <MemoryRouter>
@@ -383,6 +386,7 @@ describe('routes/market/swap', () => {
             removeFromActiveCurrencies: vi.fn(),
             rotateBtcUnit: vi.fn(),
             rotateDefaultCurrency: vi.fn(),
+            rotateLightningUnit: vi.fn(),
             updateDefaultCurrency: vi.fn(),
           }}>
           <MemoryRouter>
@@ -428,6 +432,7 @@ describe('routes/market/swap', () => {
             removeFromActiveCurrencies: vi.fn(),
             rotateBtcUnit: vi.fn(),
             rotateDefaultCurrency: vi.fn(),
+            rotateLightningUnit: vi.fn(),
             updateDefaultCurrency: vi.fn(),
           }}>
           <MemoryRouter>

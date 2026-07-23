@@ -55,7 +55,9 @@ func TestSetAppConfig(t *testing.T) {
 
 	appCfg := cfg.AppConfig()
 	require.Equal(t, coin.BtcUnitDefault, appCfg.Backend.BtcUnit)
+	require.Equal(t, coin.BtcUnitSats, appCfg.Backend.LightningUnit)
 	appCfg.Backend.BtcUnit = coin.BtcUnitSats
+	appCfg.Backend.LightningUnit = coin.BtcUnitDefault
 	appCfg.Frontend = map[string]interface{}{"foo": "bar"}
 	require.NoError(t, cfg.SetAppConfig(appCfg))
 
@@ -63,7 +65,24 @@ func TestSetAppConfig(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, cfg, cfg2)
 	require.Equal(t, coin.BtcUnitSats, cfg2.AppConfig().Backend.BtcUnit)
+	require.Equal(t, coin.BtcUnitDefault, cfg2.AppConfig().Backend.LightningUnit)
 	require.Equal(t, map[string]interface{}{"foo": "bar"}, cfg2.AppConfig().Frontend)
+}
+
+func TestMissingLightningUnitDefaultsToSats(t *testing.T) {
+	appConfigFilename := test.TstTempFile("appConfig")
+	accountsConfigFilename := test.TstTempFile("accountsConfig")
+	lightningConfigFilename := test.TstTempFile("lightningConfig")
+
+	require.NoError(t, os.WriteFile(
+		appConfigFilename,
+		[]byte(`{"backend":{"btcUnit":"default"},"frontend":{}}`),
+		0o600,
+	))
+
+	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
+	require.NoError(t, err)
+	require.Equal(t, coin.BtcUnitSats, cfg.AppConfig().Backend.LightningUnit)
 }
 
 func TestModifyAccountsConfig(t *testing.T) {

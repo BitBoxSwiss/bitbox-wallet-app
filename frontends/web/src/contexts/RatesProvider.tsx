@@ -17,6 +17,7 @@ export const RatesProvider = ({ children }: TProps) => {
   const [defaultCurrency, setDefaultCurrency] = useState<Fiat>('USD');
   const [activeCurrencies, setActiveCurrencies] = useState<Fiat[]>(['USD', 'EUR', 'CHF']);
   const [btcUnit, setBtcUnit] = useState<BtcUnit>('default');
+  const [lightningUnit, setLightningUnit] = useState<BtcUnit>('sat');
 
   useEffect(() => {
     if (config === undefined) {
@@ -25,6 +26,7 @@ export const RatesProvider = ({ children }: TProps) => {
     setDefaultCurrency(config.backend.mainFiat);
     setActiveCurrencies(config.backend.fiatList);
     setBtcUnit(config.backend.btcUnit);
+    setLightningUnit(config.backend.lightningUnit);
   }, [config]);
 
   const rotateDefaultCurrency = async () => {
@@ -51,6 +53,12 @@ export const RatesProvider = ({ children }: TProps) => {
     if (!response.success) {
       console.log('setBackendBtcUnit failed.');
     }
+  };
+
+  const rotateLightningUnit = async () => {
+    const unit: BtcUnit = lightningUnit === 'default' ? 'sat' : 'default';
+    await setConfig({ backend: { lightningUnit: unit } });
+    setLightningUnit(unit);
   };
 
   // this is a method to select / add a currency
@@ -82,11 +90,13 @@ export const RatesProvider = ({ children }: TProps) => {
         defaultCurrency,
         activeCurrencies,
         btcUnit,
+        lightningUnit,
         rotateDefaultCurrency,
         addToActiveCurrencies,
         updateDefaultCurrency,
         removeFromActiveCurrencies,
         rotateBtcUnit,
+        rotateLightningUnit,
       }}
     >
       {children}

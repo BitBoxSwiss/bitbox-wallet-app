@@ -71,6 +71,7 @@ const LightningPageLayout = ({
   statusBanners,
 }: TLightningPageLayoutProps) => {
   const { t } = useTranslation();
+  const { rotateLightningUnit } = useContext(RatesContext);
 
   return (
     <GuideWrapper>
@@ -91,7 +92,7 @@ const LightningPageLayout = ({
           <View>
             <ViewHeader>
               <div className={accountStyle.balanceHeader}>
-                <Balance balance={balance} />
+                <Balance balance={balance} onRotateUnit={rotateLightningUnit} />
                 <ActionButtons
                   accountDataLoaded={accountDataLoaded}
                   canSend={canSend}
@@ -281,7 +282,7 @@ const LightningInner = ({
 
 export const Lightning = () => {
   const { t } = useTranslation();
-  const { btcUnit } = useContext(RatesContext);
+  const { lightningUnit } = useContext(RatesContext);
   const { isLightningReady, lightningAccount } = useLightning();
   const [balance, setBalance] = useState<accountApi.TBalance>();
   const [syncedAddressesCount] = useState<number>();
@@ -321,7 +322,7 @@ export const Lightning = () => {
     onStateChange();
 
     return subscribeListPayments(onStateChange);
-  }, [btcUnit, isLightningReady, lightningAccount, onStateChange]);
+  }, [lightningUnit, isLightningReady, lightningAccount, onStateChange]);
 
   const loadSparkStatus = useCallback(async () => {
     try {
