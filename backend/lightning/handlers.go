@@ -4,6 +4,7 @@ package lightning
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -17,10 +18,11 @@ import (
 )
 
 type responseDto struct {
-	Success      bool        `json:"success"`
-	Data         interface{} `json:"data"`
-	ErrorMessage string      `json:"errorMessage,omitempty"`
-	ErrorCode    string      `json:"errorCode,omitempty"`
+	Success      bool                   `json:"success"`
+	Data         interface{}            `json:"data"`
+	ErrorData    map[string]interface{} `json:"errorData,omitempty"`
+	ErrorMessage string                 `json:"errorMessage,omitempty"`
+	ErrorCode    string                 `json:"errorCode,omitempty"`
 }
 
 // NewHandlers creates a new Handlers instance.
@@ -54,9 +56,28 @@ func NewHandlers(
 
 func errorResponse(err error) responseDto {
 	if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
-		return responseDto{Success: false, ErrorCode: string(errCode)}
+		response := responseDto{Success: false, ErrorCode: string(errCode)}
+		var amountBelowMinimum *lightningAmountBelowMinimumError
+		if errors.As(err, &amountBelowMinimum) {
+			response.ErrorData = map[string]interface{}{
+				"minAmountSat": amountBelowMinimum.minAmountSat,
+			}
+		}
+		return response
 	}
 	return responseDto{Success: false, ErrorMessage: err.Error()}
+}
+
+func preparePaymentErrorResponse(err error, fee *paymentFee) responseDto {
+	response := errorResponse(err)
+	if fee != nil && response.ErrorCode == string(errLightningInsufficientFunds) {
+		response.ErrorData = map[string]interface{}{
+			"amountSat":     fee.AmountSat,
+			"feeSat":        fee.FeeSat,
+			"totalDebitSat": fee.TotalDebitSat,
+		}
+	}
+	return response
 }
 
 // GetAccount handles the GET request to retrieve the configured lightning account.
@@ -325,7 +346,7 @@ func (lightning *Lightning) PostPreparePayment(r *http.Request) interface{} {
 
 	fee, err := lightning.PreparePayment(jsonBody)
 	if err != nil {
-		return errorResponse(err)
+		return preparePaymentErrorResponse(err, fee)
 	}
 
 	return responseDto{Success: true, Data: fee}

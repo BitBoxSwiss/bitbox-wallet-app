@@ -20,6 +20,20 @@
     margin-bottom: var(--space-eight);
 }
 
+.receiverLabel {
+    align-items: center;
+    display: flex;
+    gap: var(--space-eight);
+}
+
+.receiverBadge {
+    padding: calc(var(--space-three-quarter) / 4) calc(var(--space-three-quarter) / 2);
+}
+
+.address {
+    overflow-wrap: anywhere;
+}
+
 .amountLine {
     align-items: baseline;
     display: inline-flex;
