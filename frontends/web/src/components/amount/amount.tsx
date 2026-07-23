@@ -72,6 +72,9 @@ const formatBtc = (
   group: string,
   decimal: string
 ) => {
+  if (stripTrailingZeros(amount) === '0') {
+    return '0';
+  }
   const dot = amount.indexOf('.');
   if (dot === -1) {
     return formatLocalizedAmount(amount, group, decimal);

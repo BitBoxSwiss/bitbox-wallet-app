@@ -22,6 +22,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/useragent"
 	"github.com/sirupsen/logrus"
 )
 
@@ -123,6 +124,11 @@ func (webdevEnvironment) DeleteLightningEncryptionKey(accountCode string) error 
 
 // BluetoothConnect implements backend.Environment.
 func (webdevEnvironment) BluetoothConnect(identifier string) {
+}
+
+// UserAgentPlatform implements backend.Environment.
+func (webdevEnvironment) UserAgentPlatform() string {
+	return useragent.PlatformFromRuntime()
 }
 
 // NativeLocale naively implements backend.Environment.

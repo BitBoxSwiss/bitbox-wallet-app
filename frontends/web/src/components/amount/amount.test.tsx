@@ -129,8 +129,13 @@ describe('Amount formatting', () => {
   });
 
   describe('BTC/LTC coins amounts', () => {
-    let coins: NativeCoinUnit[] = ['BTC', 'TBTC', 'LTC', 'TLTC'];
+    let coins: NativeCoinUnit[] = ['BTC', 'TBTC', 'RBTC', 'LTC', 'TLTC'];
     coins.forEach(coin => {
+
+      it('0.00000000 ' + coin + ' becomes 0', () => {
+        const { container } = render(<Amount amount="0.00000000" unit={coin}/>);
+        expect(container.textContent).toBe('0');
+      });
 
       it('10.00000000 ' + coin + ' gets spaced', () => {
         const { getByTestId } = render(<Amount amount="10.00000000" unit={coin}/>);

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"runtime"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -32,6 +33,8 @@ func TestNewConfig(t *testing.T) {
 	expectedAccountsJsonBytes, err := json.Marshal(newDefaultAccountsConfig())
 	require.NoError(t, err)
 	require.JSONEq(t, string(expectedAccountsJsonBytes), string(accountsJsonBytes))
+	requirePrivateFileMode(t, appConfigFilename)
+	requirePrivateFileMode(t, accountsConfigFilename)
 
 	lightningJsonBytes, err := os.ReadFile(lightningConfigFilename)
 	require.NoError(t, err)
@@ -43,6 +46,25 @@ func TestNewConfig(t *testing.T) {
 	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 	require.Equal(t, cfg, cfg2)
+}
+
+func TestNewConfigRestrictsExistingConfigFiles(t *testing.T) {
+	appConfigFilename := test.TstTempFile("appConfig")
+	accountsConfigFilename := test.TstTempFile("accountsConfig")
+	lightningConfigFilename := test.TstTempFile("lightningConfig")
+
+	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
+	require.NoError(t, err)
+	require.NoError(t, os.Chmod(appConfigFilename, 0644))
+	require.NoError(t, os.Chmod(accountsConfigFilename, 0644))
+	require.NoError(t, os.Chmod(lightningConfigFilename, 0644))
+
+	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
+	require.NoError(t, err)
+	require.Equal(t, cfg, cfg2)
+	requirePrivateFileMode(t, appConfigFilename)
+	requirePrivateFileMode(t, accountsConfigFilename)
+	requirePrivateFileMode(t, lightningConfigFilename)
 }
 
 func TestSetAppConfig(t *testing.T) {
@@ -198,6 +220,16 @@ func TestMigrationsAtLoad(t *testing.T) {
 	cfg3, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 	require.Equal(t, cfg2, cfg3)
+}
+
+func requirePrivateFileMode(t *testing.T, filename string) {
+	t.Helper()
+	if runtime.GOOS == "windows" {
+		return
+	}
+	info, err := os.Stat(filename)
+	require.NoError(t, err)
+	require.Equal(t, os.FileMode(0600), info.Mode().Perm())
 }
 
 func TestMigrateElectrumXUpgradesLegacyDefaultServers(t *testing.T) {

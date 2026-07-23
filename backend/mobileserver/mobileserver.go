@@ -79,6 +79,7 @@ type GoEnvironmentInterface interface {
 	LoadLightningEncryptionKey(string) (string, error)
 	DeleteLightningEncryptionKey(string) error
 	BluetoothConnect(string)
+	UserAgentPlatform() string
 }
 
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
@@ -203,6 +204,7 @@ func Serve(dataDir string, testnet bool, environment GoEnvironmentInterface, goA
 			LoadLightningEncryptionKeyFunc:   environment.LoadLightningEncryptionKey,
 			DeleteLightningEncryptionKeyFunc: environment.DeleteLightningEncryptionKey,
 			BluetoothConnectFunc:             environment.BluetoothConnect,
+			UserAgentPlatformFunc:            environment.UserAgentPlatform,
 		},
 	)
 }

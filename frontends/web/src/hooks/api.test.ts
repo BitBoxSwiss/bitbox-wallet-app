@@ -178,5 +178,42 @@ describe('hooks for api calls', () => {
       // and returns it. The returned value should be `subscriptionValue`
       await waitFor(() => expect(result.current).toBe(subscriptionValue));
     });
+
+    it('keeps the response with the highest revision', async () => {
+      type TRevisionedValue = {
+        revision: number;
+        value: string;
+      };
+      const apiValue: TRevisionedValue = { revision: 1, value: 'apiValue' };
+      const subscriptionValue: TRevisionedValue = { revision: 2, value: 'subscriptionValue' };
+      let resolveApiCall: (value: TRevisionedValue) => void = () => {};
+      let subscriptionCallback: TSubscriptionCallback<TRevisionedValue> | undefined;
+      const apiPromise = new Promise<TRevisionedValue>((resolve) => {
+        resolveApiCall = resolve;
+      });
+      const mockApiCall = vi.fn(() => apiPromise);
+      const mockSubscription = vi.fn((callback: TSubscriptionCallback<TRevisionedValue>) => {
+        subscriptionCallback = callback;
+        return () => {};
+      });
+
+      const { result } = renderHook(() => useSync(
+        mockApiCall,
+        mockSubscription,
+        data => data.revision,
+      ));
+
+      act(() => subscriptionCallback?.(subscriptionValue));
+      await waitFor(() => expect(result.current).toBe(subscriptionValue));
+
+      await act(async () => {
+        resolveApiCall(apiValue);
+        await apiPromise;
+      });
+      expect(result.current).toBe(subscriptionValue);
+
+      act(() => subscriptionCallback?.(apiValue));
+      expect(result.current).toBe(subscriptionValue);
+    });
   });
 });
