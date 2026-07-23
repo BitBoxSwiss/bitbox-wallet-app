@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import * as accountApi from '@/api/account';
 import { getBalance } from '@/api/account';
-import { getLightningBalance } from '@/api/lightning';
 import { Logo } from '@/components/icon/logo';
 import { View, ViewContent } from '@/components/view/view';
 import { getAccountsByKeystore } from '@/routes/account/utils';
@@ -17,7 +16,7 @@ import { AllAccountsGuide } from '@/routes/accounts/all-accounts-guide';
 import { useMountedRef } from '@/hooks/mount';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
-import { useLightning } from '@/hooks/lightning';
+import { useLightning, useLightningBalance } from '@/hooks/lightning';
 import styles from './all-accounts.module.css';
 
 type AllAccountsProps = {
@@ -87,33 +86,11 @@ const AccountItem = ({ account }: TAccountItemProp) => {
 
 const LightningItem = () => {
   const { t } = useTranslation();
-  const { isLightningReady } = useLightning();
-  const [balance, setBalance] = useState<accountApi.TAmountWithConversions>();
-  const mounted = useMountedRef();
-
-  useEffect(() => {
-    if (!isLightningReady) {
-      return;
-    }
-
-    const fetchBalance = async () => {
-      try {
-        const response = await getLightningBalance();
-        if (!mounted.current) {
-          return;
-        }
-        setBalance(response.available);
-      } catch (error) {
-        console.error('Failed to fetch lightning balance', error);
-      }
-    };
-
-    fetchBalance();
-  }, [isLightningReady, mounted]);
+  const balance = useLightningBalance();
 
   return (
     <AccountRow
-      balance={balance}
+      balance={balance?.available}
       coinCode="lightning"
       name={t('lightning.accountLabel')}
       to="/lightning"

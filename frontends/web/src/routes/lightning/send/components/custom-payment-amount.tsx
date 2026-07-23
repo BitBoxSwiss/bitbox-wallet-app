@@ -2,11 +2,10 @@
 
 import { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getLightningBalance } from '@/api/lightning';
 import { Balance } from '@/components/balance/balance';
 import { NumberInput } from '@/components/forms';
 import { RatesContext } from '@/contexts/RatesContext';
-import { useLoad } from '@/hooks/api';
+import { useLightningBalance } from '@/hooks/lightning';
 import { useSatFiatAmount } from '../../hooks/use-sat-fiat-amount';
 import styles from '../send.module.css';
 
@@ -17,8 +16,7 @@ type TProps = {
 };
 
 export const PaymentBalance = () => {
-  const { btcUnit } = useContext(RatesContext);
-  const balance = useLoad(getLightningBalance, [btcUnit]);
+  const balance = useLightningBalance();
 
   return (
     <div className={styles.availableBalance}>

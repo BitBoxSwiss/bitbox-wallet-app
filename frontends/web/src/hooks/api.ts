@@ -94,7 +94,7 @@ export const useSync = <T>(
   };
   useEffect(
     () => {
-      apiCall().then(onData);
+      apiCall().then(onData).catch(console.error);
       return subscription(onData);
     }, // we pass no dependencies because it's only queried once
     []); // eslint-disable-line react-hooks/exhaustive-deps
