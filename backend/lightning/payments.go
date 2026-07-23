@@ -23,6 +23,7 @@ const (
 	errLightningInvalidPaymentInput errp.ErrorCode = "lightningInvalidPaymentInput"
 	errLightningInsufficientFunds   errp.ErrorCode = "lightningInsufficientFunds"
 	errLightningInvoiceAlreadyUsed  errp.ErrorCode = "lightningInvoiceAlreadyUsed"
+	lightningBalanceLimitSat                       = 200_000
 )
 
 type lightningBolt11Invoice struct {
@@ -78,6 +79,18 @@ type lightningPayment struct {
 
 type receivePaymentResponse struct {
 	Invoice string `json:"invoice"`
+}
+
+type balanceLimitResponse struct {
+	Amount               coin.FormattedAmountWithConversions `json:"amount"`
+	AmountLabel          string                              `json:"amountLabel"`
+	RemainingAmount      coin.FormattedAmountWithConversions `json:"remainingAmount"`
+	RemainingAmountLabel string                              `json:"remainingAmountLabel"`
+	ExcessAmount         coin.FormattedAmountWithConversions `json:"excessAmount"`
+	ExcessAmountLabel    string                              `json:"excessAmountLabel"`
+	LimitReached         bool                                `json:"limitReached"`
+	LimitExceeded        bool                                `json:"limitExceeded"`
+	AmountExceedsLimit   bool                                `json:"amountExceedsLimit"`
 }
 
 type preparePaymentRequest struct {
@@ -475,6 +488,98 @@ func checkPaymentBalance(fee *paymentFee, availableBalance coin.Amount) error {
 		return errLightningInsufficientFunds
 	}
 	return nil
+}
+
+func wouldExceedLightningBalanceLimit(availableAmount coin.Amount, requestedAmount coin.Amount) bool {
+	nextBalance := coin.SumAmounts(availableAmount, requestedAmount)
+	limit := coin.NewAmountFromInt64(int64(lightningBalanceLimitSat))
+	return nextBalance.BigInt().Cmp(limit.BigInt()) > 0
+}
+
+func (lightning *Lightning) formatBalanceLimitAmount(amount coin.Amount) coin.FormattedAmountWithConversions {
+	return coin.FormattedAmountWithConversions{
+		Amount:      lightning.btcCoin.FormatAmount(amount, false),
+		Unit:        lightning.btcCoin.GetFormatUnit(false),
+		Conversions: coin.ConversionsMap{},
+	}
+}
+
+func formatBalanceLimitLabel(amount coin.FormattedAmountWithConversions) string {
+	formattedAmount := amount.Amount
+	if strings.ContainsRune(formattedAmount, '.') {
+		formattedAmount = strings.TrimRight(strings.TrimRight(formattedAmount, "0"), ".")
+	}
+	return formattedAmount + " " + amount.Unit
+}
+
+// parseBalanceLimitRequestAmountToSats converts an optional balance-limit amount from BTC or
+// satoshi units into a satoshi-denominated coin amount. It returns nil for missing, invalid,
+// negative, or unsupported input, so BalanceLimit reports capacity without checking whether a
+// requested amount exceeds it.
+func parseBalanceLimitRequestAmountToSats(amount string, unit string) *coin.Amount {
+	if amount == "" {
+		return nil
+	}
+
+	switch unit {
+	case "sat", "tsat":
+		sats, valid := new(big.Int).SetString(amount, 10)
+		if !valid || sats.Sign() < 0 {
+			return nil
+		}
+		coinAmount := coin.NewAmount(sats)
+		return &coinAmount
+	case "BTC", "TBTC", "RBTC":
+		coinAmount, err := coin.NewAmountFromString(amount, big.NewInt(100_000_000))
+		if err != nil || coinAmount.BigInt().Sign() < 0 {
+			return nil
+		}
+		return &coinAmount
+	default:
+		return nil
+	}
+}
+
+// BalanceLimit returns the configured limit and whether the current/requested balance exceeds it.
+func (lightning *Lightning) BalanceLimit(requestedAmount *coin.Amount) (*balanceLimitResponse, error) {
+	balance, err := lightning.availableBalance()
+	if err != nil {
+		return nil, err
+	}
+
+	limit := coin.NewAmountFromInt64(int64(lightningBalanceLimitSat))
+	remaining := new(big.Int).Sub(limit.BigInt(), balance.BigInt())
+	if remaining.Sign() < 0 {
+		remaining = big.NewInt(0)
+	}
+	nextBalance := balance
+	if requestedAmount != nil {
+		nextBalance = coin.SumAmounts(nextBalance, *requestedAmount)
+	}
+	excess := new(big.Int).Sub(nextBalance.BigInt(), limit.BigInt())
+	if excess.Sign() < 0 {
+		excess = big.NewInt(0)
+	}
+	limitAmount := lightning.formatBalanceLimitAmount(limit)
+	remainingAmount := lightning.formatBalanceLimitAmount(coin.NewAmount(remaining))
+	excessAmount := lightning.formatBalanceLimitAmount(coin.NewAmount(excess))
+
+	amountExceedsLimit := false
+	if requestedAmount != nil {
+		amountExceedsLimit = wouldExceedLightningBalanceLimit(balance, *requestedAmount)
+	}
+
+	return &balanceLimitResponse{
+		Amount:               limitAmount,
+		AmountLabel:          formatBalanceLimitLabel(limitAmount),
+		RemainingAmount:      remainingAmount,
+		RemainingAmountLabel: formatBalanceLimitLabel(remainingAmount),
+		ExcessAmount:         excessAmount,
+		ExcessAmountLabel:    formatBalanceLimitLabel(excessAmount),
+		LimitReached:         balance.BigInt().Cmp(limit.BigInt()) >= 0,
+		LimitExceeded:        balance.BigInt().Cmp(limit.BigInt()) > 0,
+		AmountExceedsLimit:   amountExceedsLimit,
+	}, nil
 }
 
 func lightningPaymentError(err error) error {

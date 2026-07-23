@@ -40,6 +40,27 @@ func makeTestLightning() *Lightning {
 	}
 }
 
+type balanceLimitTestSDK struct {
+	breezSDK
+	balanceSats uint64
+}
+
+func (sdk *balanceLimitTestSDK) GetInfo(breez_sdk_spark.GetInfoRequest) (breez_sdk_spark.GetInfoResponse, error) {
+	return breez_sdk_spark.GetInfoResponse{BalanceSats: sdk.balanceSats}, nil
+}
+
+type receivePaymentTestSDK struct {
+	breezSDK
+	request breez_sdk_spark.ReceivePaymentRequest
+}
+
+func (sdk *receivePaymentTestSDK) ReceivePayment(
+	request breez_sdk_spark.ReceivePaymentRequest,
+) (breez_sdk_spark.ReceivePaymentResponse, error) {
+	sdk.request = request
+	return breez_sdk_spark.ReceivePaymentResponse{PaymentRequest: "lnbc1invoice"}, nil
+}
+
 type testPaymentsBreezSDK struct {
 	breezSDK
 
@@ -771,6 +792,154 @@ func TestCheckPaymentBalance(t *testing.T) {
 			require.Equal(t, testCase.expectedErr, errp.Cause(err))
 		})
 	}
+}
+
+func TestBalanceLimit(t *testing.T) {
+	lightning := newTestLightning(t, nil)
+	lightning.btcCoin = makeTestLightning().btcCoin
+	require.NoError(t, lightning.SetAccount(&config.LightningAccountConfig{Code: "v0-test-ln-0"}))
+
+	testCases := []struct {
+		name                       string
+		availableSat               uint64
+		formatUnit                 coin.BtcUnit
+		hasRequestedAmount         bool
+		requestedAmountSat         int64
+		expectedLimitAmount        string
+		expectedLimitLabel         string
+		expectedRemainingAmount    string
+		expectedRemainingLabel     string
+		expectedExcessAmount       string
+		expectedExcessLabel        string
+		expectedUnit               string
+		expectedLimitReached       bool
+		expectedLimitExceeded      bool
+		expectedAmountExceedsLimit bool
+	}{
+		{
+			name:                    "empty balance without requested amount",
+			formatUnit:              coin.BtcUnitDefault,
+			expectedLimitAmount:     "0.00200000",
+			expectedLimitLabel:      "0.002 BTC",
+			expectedRemainingAmount: "0.00200000",
+			expectedRemainingLabel:  "0.002 BTC",
+			expectedExcessAmount:    "0.00000000",
+			expectedExcessLabel:     "0 BTC",
+			expectedUnit:            "BTC",
+		},
+		{
+			name:                    "request exactly fills remaining capacity",
+			availableSat:            lightningBalanceLimitSat - 1,
+			formatUnit:              coin.BtcUnitSats,
+			hasRequestedAmount:      true,
+			requestedAmountSat:      1,
+			expectedLimitAmount:     "200000",
+			expectedLimitLabel:      "200000 sat",
+			expectedRemainingAmount: "1",
+			expectedRemainingLabel:  "1 sat",
+			expectedExcessAmount:    "0",
+			expectedExcessLabel:     "0 sat",
+			expectedUnit:            "sat",
+		},
+		{
+			name:                       "request exceeds remaining capacity by one sat",
+			availableSat:               lightningBalanceLimitSat - 1,
+			formatUnit:                 coin.BtcUnitSats,
+			hasRequestedAmount:         true,
+			requestedAmountSat:         2,
+			expectedLimitAmount:        "200000",
+			expectedLimitLabel:         "200000 sat",
+			expectedRemainingAmount:    "1",
+			expectedRemainingLabel:     "1 sat",
+			expectedExcessAmount:       "1",
+			expectedExcessLabel:        "1 sat",
+			expectedUnit:               "sat",
+			expectedAmountExceedsLimit: true,
+		},
+		{
+			name:                    "balance exactly at limit",
+			availableSat:            lightningBalanceLimitSat,
+			formatUnit:              coin.BtcUnitDefault,
+			hasRequestedAmount:      true,
+			expectedLimitAmount:     "0.00200000",
+			expectedLimitLabel:      "0.002 BTC",
+			expectedRemainingAmount: "0.00000000",
+			expectedRemainingLabel:  "0 BTC",
+			expectedExcessAmount:    "0.00000000",
+			expectedExcessLabel:     "0 BTC",
+			expectedUnit:            "BTC",
+			expectedLimitReached:    true,
+		},
+		{
+			name:                    "balance above limit clamps remaining to zero",
+			availableSat:            lightningBalanceLimitSat + 1,
+			formatUnit:              coin.BtcUnitSats,
+			expectedLimitAmount:     "200000",
+			expectedLimitLabel:      "200000 sat",
+			expectedRemainingAmount: "0",
+			expectedRemainingLabel:  "0 sat",
+			expectedExcessAmount:    "1",
+			expectedExcessLabel:     "1 sat",
+			expectedUnit:            "sat",
+			expectedLimitReached:    true,
+			expectedLimitExceeded:   true,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			lightning.btcCoin.(*btccoin.Coin).SetFormatUnit(testCase.formatUnit)
+			lightning.sdkService = &balanceLimitTestSDK{balanceSats: testCase.availableSat}
+
+			var requestedAmount *coin.Amount
+			if testCase.hasRequestedAmount {
+				amount := coin.NewAmountFromInt64(testCase.requestedAmountSat)
+				requestedAmount = &amount
+			}
+
+			limit, err := lightning.BalanceLimit(requestedAmount)
+			require.NoError(t, err)
+			require.Equal(t, coin.FormattedAmountWithConversions{
+				Amount:      testCase.expectedLimitAmount,
+				Unit:        testCase.expectedUnit,
+				Conversions: coin.ConversionsMap{},
+			}, limit.Amount)
+			require.Equal(t, testCase.expectedLimitLabel, limit.AmountLabel)
+			require.Equal(t, coin.FormattedAmountWithConversions{
+				Amount:      testCase.expectedRemainingAmount,
+				Unit:        testCase.expectedUnit,
+				Conversions: coin.ConversionsMap{},
+			}, limit.RemainingAmount)
+			require.Equal(t, testCase.expectedRemainingLabel, limit.RemainingAmountLabel)
+			require.Equal(t, coin.FormattedAmountWithConversions{
+				Amount:      testCase.expectedExcessAmount,
+				Unit:        testCase.expectedUnit,
+				Conversions: coin.ConversionsMap{},
+			}, limit.ExcessAmount)
+			require.Equal(t, testCase.expectedExcessLabel, limit.ExcessAmountLabel)
+			require.Equal(t, testCase.expectedLimitReached, limit.LimitReached)
+			require.Equal(t, testCase.expectedLimitExceeded, limit.LimitExceeded)
+			require.Equal(t, testCase.expectedAmountExceedsLimit, limit.AmountExceedsLimit)
+		})
+	}
+}
+
+func TestReceivePaymentAllowsAmountAboveBalanceLimit(t *testing.T) {
+	lightning := newTestLightning(t, nil)
+	require.NoError(t, lightning.SetAccount(&config.LightningAccountConfig{Code: "v0-test-ln-0"}))
+	sdk := &receivePaymentTestSDK{}
+	lightning.sdkService = sdk
+	amountSat := uint64(lightningBalanceLimitSat + 1)
+
+	response, err := lightning.ReceivePayment(amountSat, "Over-limit invoice")
+	require.NoError(t, err)
+	require.Equal(t, &receivePaymentResponse{Invoice: "lnbc1invoice"}, response)
+	require.Equal(t, breez_sdk_spark.ReceivePaymentRequest{
+		PaymentMethod: breez_sdk_spark.ReceivePaymentMethodBolt11Invoice{
+			Description: "Over-limit invoice",
+			AmountSats:  &amountSat,
+		},
+	}, sdk.request)
 }
 
 func TestLightningPaymentError(t *testing.T) {

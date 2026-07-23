@@ -42,6 +42,7 @@ const ReadonlyAccountRow = ({
 
 type TProps = {
   amount: string;
+  balanceLimitError?: string;
   btcAccounts: TAccount[];
   canReview: boolean;
   customFee: string;
@@ -69,6 +70,7 @@ type TProps = {
 
 export const TopUpForm = ({
   amount,
+  balanceLimitError,
   btcAccounts,
   canReview,
   customFee,
@@ -102,6 +104,9 @@ export const TopUpForm = ({
           <Header title={<h2>{t('lightning.topUp.title')}</h2>}>
             <HideAmountsButton />
           </Header>
+          <Status dismissibleKey="" type="error" hidden={!balanceLimitError}>
+            {balanceLimitError}
+          </Status>
           <Status dismissibleKey="" type="warning" hidden={!sendError}>
             {sendError}
           </Status>

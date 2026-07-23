@@ -5,9 +5,11 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
 import { getDeviceList } from '../../api/devices';
 import {
+  TLightningBalanceLimit,
   TLightningPayment,
   getBlockExplorerTxPrefix,
   getLightningBalance,
+  getLightningBalanceLimit,
   getListPayments,
   subscribeListPayments,
   getSparkStatus,
@@ -28,6 +30,13 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { useLightning } from '@/hooks/lightning';
+import { Link } from 'react-router-dom';
+import {
+  formatExcessLightningBalanceLimit,
+  formatLightningBalanceLimit,
+  hasExceededLightningBalanceLimit,
+  hasReachedLightningBalanceLimit,
+} from './limits';
 import { TransactionList } from '@/routes/account/components/transaction-list';
 import type { TTransactionListItem } from '@/routes/account/components/transaction-list';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
@@ -58,6 +67,7 @@ const bitcoinDepositTransactionStatus = (
 type TLightningPageLayoutProps = {
   accountDataLoaded: boolean;
   balance?: accountApi.TBalance;
+  balanceLimit?: TLightningBalanceLimit;
   canSend?: boolean;
   children: ReactNode;
   statusBanners: ReactNode;
@@ -66,11 +76,14 @@ type TLightningPageLayoutProps = {
 const LightningPageLayout = ({
   accountDataLoaded,
   balance,
+  balanceLimit,
   canSend,
   children,
   statusBanners,
 }: TLightningPageLayoutProps) => {
   const { t } = useTranslation();
+  const canTopUp = balanceLimit !== undefined && !hasReachedLightningBalanceLimit(balanceLimit);
+  const showBalanceLimitWarning = hasExceededLightningBalanceLimit(balanceLimit);
 
   return (
     <GuideWrapper>
@@ -88,6 +101,14 @@ const LightningPageLayout = ({
           >
             <HideAmountsButton />
           </Header>
+          <Status dismissibleKey="" type="warning" hidden={!showBalanceLimitWarning}>
+            {t('lightning.limit.accountWarning', {
+              excess: formatExcessLightningBalanceLimit(balanceLimit),
+              limit: formatLightningBalanceLimit(balanceLimit),
+            })}{' '}
+            {/* TODO: Prefill a BitBox account address once Lightning on-chain sends are supported. */}
+            <Link to="/lightning/send">{t('lightning.limit.moveCoins')}</Link>
+          </Status>
           <View>
             <ViewHeader>
               <div className={accountStyle.balanceHeader}>
@@ -95,6 +116,7 @@ const LightningPageLayout = ({
                 <ActionButtons
                   accountDataLoaded={accountDataLoaded}
                   canSend={canSend}
+                  canTopUp={canTopUp}
                 />
               </div>
             </ViewHeader>
@@ -158,6 +180,7 @@ const paymentToTransaction = (
 
 type TLightningInnerProps = {
   balance: accountApi.TBalance;
+  balanceLimit: TLightningBalanceLimit;
   explorerURL?: string;
   payments: TLightningPayment[];
   statusBanners: ReactNode;
@@ -165,6 +188,7 @@ type TLightningInnerProps = {
 
 const LightningInner = ({
   balance,
+  balanceLimit,
   explorerURL,
   payments,
   statusBanners,
@@ -216,6 +240,7 @@ const LightningInner = ({
     <LightningPageLayout
       accountDataLoaded
       balance={balance}
+      balanceLimit={balanceLimit}
       canSend={balance.hasAvailable}
       statusBanners={statusBanners}
     >
@@ -284,6 +309,7 @@ export const Lightning = () => {
   const { btcUnit } = useContext(RatesContext);
   const { isLightningReady, lightningAccount } = useLightning();
   const [balance, setBalance] = useState<accountApi.TBalance>();
+  const [balanceLimit, setBalanceLimit] = useState<TLightningBalanceLimit>();
   const [syncedAddressesCount] = useState<number>();
   const [payments, setPayments] = useState<TLightningPayment[]>();
   const [sparkStatus, setSparkStatus] = useState<TSparkStatus>();
@@ -295,14 +321,16 @@ export const Lightning = () => {
   const onStateChange = useCallback(async () => {
     try {
       setError(undefined);
-      const [balance, payments] = await Promise.all([
+      const [balance, nextBalanceLimit, payments] = await Promise.all([
         getLightningBalance(),
+        getLightningBalanceLimit(),
         getListPayments(),
       ]);
       if (!mounted.current) {
         return;
       }
       setBalance(balance);
+      setBalanceLimit(nextBalanceLimit);
       setPayments(payments);
     } catch (err: any) {
       if (!mounted.current) {
@@ -345,7 +373,7 @@ export const Lightning = () => {
     return () => window.clearInterval(interval);
   }, [loadSparkStatus]);
 
-  const hasDataLoaded = balance !== undefined && payments !== undefined;
+  const hasDataLoaded = balance !== undefined && balanceLimit !== undefined && payments !== undefined;
 
   const statusBanners = (
     <>
@@ -405,6 +433,7 @@ export const Lightning = () => {
       <LightningPageLayout
         accountDataLoaded={false}
         balance={balance}
+        balanceLimit={balanceLimit}
         canSend={canSend}
         statusBanners={statusBanners}
       >
@@ -420,6 +449,7 @@ export const Lightning = () => {
   return (
     <LightningInner
       balance={balance}
+      balanceLimit={balanceLimit}
       explorerURL={blockExplorerTxPrefix}
       payments={payments}
       statusBanners={statusBanners}
