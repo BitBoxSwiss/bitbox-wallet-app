@@ -25,6 +25,7 @@ import { getBTCDirectOTCLink, getPocketOTCLink, InfoContent, TInfoContentProps }
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
 import { open } from '@/api/system';
+import { useLightning } from '@/hooks/lightning';
 import { useMarketContext } from './market-context';
 import { MarketGuide } from './guide';
 import { isBitcoinOnly } from '../account/utils';
@@ -41,6 +42,7 @@ export const Market = ({
 }: TProps) => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
+  const { lightningAccount } = useLightning();
 
   const activeTab: marketAPI.TMarketAction = searchParams.get('tab') as marketAPI.TMarketAction || 'buy';
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
@@ -89,7 +91,10 @@ export const Market = ({
   };
 
   const handleAccountChange = async (accountCode: string) => {
-    if (await promptConnectKeystore(accountCode)) {
+    if (
+      lightningAccount?.code === accountCode
+      || await promptConnectKeystore(accountCode)
+    ) {
       navigate(`/market/select/${accountCode}?tab=${activeTab}`, { replace: true });
     }
   };

@@ -13,6 +13,7 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { getAccountsByKeystore, getDisplayedCoinUnit } from '@/routes/account/utils';
 import { unsubscribe } from '@/utils/subscriptions';
 import { Dropdown, TOption as TDropdownOption, TGroupedOption as TDropdownGroupedOption } from '@/components/dropdown/dropdown';
+import { useLightning } from '@/hooks/lightning';
 import { createGroupedOptions, getBalancesForGroupedAccountSelector } from './services';
 import { AmountWithUnit } from '../amount/amount-with-unit';
 import styles from './groupedaccountselector.module.css';
@@ -124,12 +125,37 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
   const [options, setOptions] = useState<TGroupedOption[]>();
   const [isOpen, setIsOpen] = useState(false);
 
+  const { lightningAccount } = useLightning();
+
   useEffect(() => {
     let cancelled = false;
     let balanceRequest = 0;
     //setting options without balance
     const accountsByKeystore = getAccountsByKeystore(accounts);
     const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore, isAccountDisabled);
+    // lighting hack
+    if (lightningAccount) {
+      groupedOpts.unshift({
+        label: 'Lighting',
+        connected: false,
+        options: [{
+          label: 'Lightning',
+          value: lightningAccount.code,
+          disabled: false,
+          active: true,
+          coinCode: 'btc',
+          coinUnit: 'sat',
+          balance: {
+            amount: '10000', // TODO
+            // conversions: {},
+            // unformattedConversions: {},
+            unit: 'sat',
+            estimated: false,
+          },
+          insured: false,
+        }]
+      });
+    }
     setOptions(groupedOpts);
     //asynchronously fetching each account's balance
     const loadBalances = async () => {
@@ -153,7 +179,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
       cancelled = true;
       unsubscribe(subscriptions);
     };
-  }, [accounts, isAccountDisabled]);
+  }, [accounts, isAccountDisabled, lightningAccount]);
 
   if (!options) {
     return null;
