@@ -215,7 +215,7 @@ export const LightningSetLnurlAddress = () => {
   const renderStep = () => {
     if (!domain && error) {
       return (
-        <View textCenter verticallyCentered width="min(420px, 100%)">
+        <View textCenter verticallyCentered>
           <ViewContent>
             <p>{t('unknownError', { errorMessage: error })}</p>
           </ViewContent>
@@ -235,7 +235,7 @@ export const LightningSetLnurlAddress = () => {
     switch (step) {
     case 'form':
       return (
-        <View key="step-form" minHeight={CONTENT_MIN_HEIGHT} width="min(420px, 100%)">
+        <View key="step-form" minHeight={CONTENT_MIN_HEIGHT}>
           <ViewContent>
             <p>{t('lightning.lnurlAddress.description')}</p>
             <p>{t('lightning.lnurlAddress.choose')}</p>
@@ -272,7 +272,7 @@ export const LightningSetLnurlAddress = () => {
       );
     case 'success':
       return (
-        <View fitContent textCenter verticallyCentered width="min(420px, 100%)">
+        <View fitContent textCenter verticallyCentered>
           <ViewContent withIcon="success">
             <p>{t('lightning.lnurlAddress.success.message')}</p>
             <span className={styles.successAddress}>{address}</span>
