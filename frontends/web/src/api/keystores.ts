@@ -61,3 +61,14 @@ export const connectAnyKeystore = (): Promise<TConnectKeystoreResponse> => {
 export const getKeystoreFeatures = (rootFingerprint: string): Promise<TKeystoreFeaturesResponse> => {
   return apiGet(`keystore/${rootFingerprint}/features`);
 };
+
+type TKeystoreNameResponse = {
+  success: true;
+  keystoreName: string;
+} | {
+  success: false;
+};
+
+export const getKeystoreName = (rootFingerprint: string): Promise<TKeystoreNameResponse> => {
+  return apiGet(`keystore-name?rootFingerprint=${encodeURIComponent(rootFingerprint)}`);
+};
