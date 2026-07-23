@@ -178,7 +178,7 @@ export const App = () => {
             ${styles.appContent || ''}
             ${showBottomNavigation && styles.hasBottomNavigation || ''}
           `}>
-            <WCSigningRequest />
+            <WCSigningRequest accounts={accounts} />
             <Aopp />
             <KeystoreConnectPrompt />
             {

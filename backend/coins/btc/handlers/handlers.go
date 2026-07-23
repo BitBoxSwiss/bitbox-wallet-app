@@ -787,17 +787,20 @@ func (handlers *Handlers) postEthSignMsg(r *http.Request) (interface{}, error) {
 
 func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, error) {
 	var args struct {
-		ChainId uint64 `json:"chainId"`
-		Data    string `json:"data"`
+		ChainId *uint64 `json:"chainId"`
+		Data    string  `json:"data"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
 		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	if args.ChainId == nil {
+		return signingResponse{Success: false, ErrorMessage: "chainId is required"}, nil
 	}
 	ethAccount, ok := handlers.account.(*eth.Account)
 	if !ok {
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
-	signature, err := ethAccount.SignTypedMsg(args.ChainId, args.Data)
+	signature, err := ethAccount.SignTypedMsg(*args.ChainId, args.Data)
 	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return signingResponse{Success: false, Aborted: true}, nil
 	}
@@ -818,7 +821,7 @@ func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, err
 func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface{}, error) {
 	var args struct {
 		Send    bool                  `json:"send"`
-		ChainId uint64                `json:"chainId"`
+		ChainId *uint64               `json:"chainId"`
 		Tx      eth.WalletConnectArgs `json:"tx"`
 	}
 	type response struct {
@@ -829,11 +832,14 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
 		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
 	}
+	if args.ChainId == nil {
+		return signingResponse{Success: false, ErrorMessage: "chainId is required"}, nil
+	}
 	ethAccount, ok := handlers.account.(*eth.Account)
 	if !ok {
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
-	txHash, rawTx, err := ethAccount.EthSignWalletConnectTx(args.Send, args.ChainId, args.Tx)
+	txHash, rawTx, err := ethAccount.EthSignWalletConnectTx(args.Send, *args.ChainId, args.Tx)
 	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
 		return signingResponse{Success: false, Aborted: true}, nil
 	}
