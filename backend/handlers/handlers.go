@@ -69,6 +69,7 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() backend.AccountsList
+	DefaultLightningTopUpAccountCode() *accountsTypes.Code
 	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
 	SwapAccounts() (backend.SwapAccounts, error)
 	SwapStatus() backend.SwapStatus
@@ -227,6 +228,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore-name", handlers.getKeystoreName).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/topup/default-account", handlers.getDefaultLightningTopUpAccount).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/status", handlers.getSwapStatus).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
@@ -841,6 +843,10 @@ func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 		))
 	}
 	return accounts
+}
+
+func (handlers *Handlers) getDefaultLightningTopUpAccount(*http.Request) interface{} {
+	return handlers.backend.DefaultLightningTopUpAccountCode()
 }
 
 func (handlers *Handlers) getSwapAccounts(*http.Request) interface{} {

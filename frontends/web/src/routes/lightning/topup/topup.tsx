@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { convertFromCurrency, convertToCurrency } from '@/api/coins';
-import { getBoardingAddress, getLightningBalance } from '@/api/lightning';
+import { getBoardingAddress, getDefaultLightningTopUpAccountCode, getLightningBalance } from '@/api/lightning';
 import { connectKeystore } from '@/api/keystores';
+import { useLoad } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
 import { getDisplayedCoinUnit, isBitcoinOnly } from '@/routes/account/utils';
@@ -67,7 +68,10 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
     () => activeAccounts.filter(account => account.active && account.coinCode === 'btc'),
     [activeAccounts]
   );
-  const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>(btcAccounts[0]?.code || '');
+  const defaultSourceAccountCode = useLoad(
+    () => getDefaultLightningTopUpAccountCode().catch(() => null)
+  );
+  const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>('');
   const sourceAccount = btcAccounts.find(account => account.code === sourceAccountCode);
   const { balance: lightningBalance, reloadBalance: reloadLightningBalance } = useLightningBalance();
   const sourceAmountUnit = sourceAccount
@@ -97,10 +101,17 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
       setSourceAccountCode('');
       return;
     }
-    if (!sourceAccountCode || !btcAccounts.some(account => account.code === sourceAccountCode)) {
-      setSourceAccountCode(btcAccounts[0]?.code || '');
+    if (defaultSourceAccountCode === undefined) {
+      return;
     }
-  }, [btcAccounts, sourceAccountCode]);
+    if (!sourceAccountCode || !btcAccounts.some(account => account.code === sourceAccountCode)) {
+      setSourceAccountCode(
+        btcAccounts.find(account => account.code === defaultSourceAccountCode)?.code
+          || btcAccounts[0]?.code
+          || ''
+      );
+    }
+  }, [btcAccounts, defaultSourceAccountCode, sourceAccountCode]);
 
   const convertToFiat = useCallback(async (value: string) => {
     const request = ++conversionRequest.current;
@@ -378,6 +389,10 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
 
   if (!btcAccounts.length) {
     return <TopUpNoBitcoinAccounts hasAccounts={hasAccounts} />;
+  }
+
+  if (defaultSourceAccountCode === undefined || !sourceAccount) {
+    return null;
   }
 
   const canReview = !!proposal?.success && !isUpdatingProposal && !isSubmitting;
