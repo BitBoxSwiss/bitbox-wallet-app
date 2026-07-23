@@ -4,6 +4,7 @@ package lightning
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -17,10 +18,11 @@ import (
 )
 
 type responseDto struct {
-	Success      bool        `json:"success"`
-	Data         interface{} `json:"data"`
-	ErrorMessage string      `json:"errorMessage,omitempty"`
-	ErrorCode    string      `json:"errorCode,omitempty"`
+	Success      bool                   `json:"success"`
+	Data         interface{}            `json:"data"`
+	ErrorData    map[string]interface{} `json:"errorData,omitempty"`
+	ErrorMessage string                 `json:"errorMessage,omitempty"`
+	ErrorCode    string                 `json:"errorCode,omitempty"`
 }
 
 // NewHandlers creates a new Handlers instance.
@@ -52,7 +54,14 @@ func NewHandlers(
 
 func errorResponse(err error) responseDto {
 	if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
-		return responseDto{Success: false, ErrorCode: string(errCode)}
+		response := responseDto{Success: false, ErrorCode: string(errCode)}
+		var amountBelowMinimum *lightningAmountBelowMinimumError
+		if errors.As(err, &amountBelowMinimum) {
+			response.ErrorData = map[string]interface{}{
+				"minAmountSat": amountBelowMinimum.minAmountSat,
+			}
+		}
+		return response
 	}
 	return responseDto{Success: false, ErrorMessage: err.Error()}
 }
@@ -308,9 +317,10 @@ func (lightning *Lightning) PostSendPayment(r *http.Request) interface{} {
 		return errorResponse(err)
 	}
 
-	if err := lightning.SendPayment(jsonBody); err != nil {
+	payment, err := lightning.SendPayment(jsonBody)
+	if err != nil {
 		return errorResponse(err)
 	}
 
-	return responseDto{Success: true}
+	return responseDto{Success: true, Data: payment}
 }
