@@ -36,6 +36,7 @@ export const PaymentDetailsDialog = ({
   const statusText = payment.bitcoinDeposit && payment.bitcoinDeposit.state !== 'complete'
     ? t(`lightning.bitcoinDeposit.state.${payment.bitcoinDeposit.state}`)
     : t(`transaction.status.${payment.status}`, { context: payment.type });
+  const txID = payment.bitcoinDeposit?.txid || payment.txId;
 
   return (
     <Dialog
@@ -110,20 +111,20 @@ export const PaymentDetailsDialog = ({
             <p className={styles.label}>{t('transaction.details.status')}</p>
             <span>{statusText}</span>
           </TxDetailRow>
+          {explorerURL && txID && (
+            <div className={styles.explorerLinkContainer}>
+              <A
+                className={styles.explorerLink}
+                href={explorerURL + txID}
+                title={`${t('transaction.explorerTitle')}\n${explorerURL}${txID}`}>
+                <ExternalLink />
+                {' '}
+                {t('transaction.explorerTitle')}
+              </A>
+            </div>
+          )}
           {payment.bitcoinDeposit && (
             <>
-              {explorerURL && payment.bitcoinDeposit.txid && (
-                <div className={styles.explorerLinkContainer}>
-                  <A
-                    className={styles.explorerLink}
-                    href={explorerURL + payment.bitcoinDeposit.txid}
-                    title={`${t('transaction.explorerTitle')}\n${explorerURL}${payment.bitcoinDeposit.txid}`}>
-                    <ExternalLink />
-                    {' '}
-                    {t('transaction.explorerTitle')}
-                  </A>
-                </div>
-              )}
               {payment.bitcoinDeposit.state === 'unclaimed' && (
                 <Button className={paymentStyles.claimButton} primary>
                   {t('lightning.bitcoinDeposit.claim')}

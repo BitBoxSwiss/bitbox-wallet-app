@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useEffect } from 'react';
+import { type ReactNode, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getLightningBalance } from '@/api/lightning';
 import { Balance } from '@/components/balance/balance';
@@ -11,6 +11,7 @@ import { useSatFiatAmount } from '../../hooks/use-sat-fiat-amount';
 import styles from '../send.module.css';
 
 type TProps = {
+  children?: ReactNode;
   maxAmountSat?: number;
   minAmountSat?: number;
   onAmountChange: (amountSat?: number) => void;
@@ -28,6 +29,7 @@ export const PaymentBalance = () => {
 };
 
 export const CustomPaymentAmount = ({
+  children,
   maxAmountSat,
   minAmountSat = 0,
   onAmountChange,
@@ -49,6 +51,7 @@ export const CustomPaymentAmount = ({
   return (
     <>
       <PaymentBalance />
+      {children}
       <NumberInput
         step="1"
         min={minAmountSat}
