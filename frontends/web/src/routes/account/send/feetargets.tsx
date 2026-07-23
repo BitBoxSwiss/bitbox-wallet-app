@@ -48,7 +48,7 @@ export const FeeTargets = ({
   const [options, setOptions] = useState<TOption[] | null>(null);
   const [noFeeTargets, setNoFeeTargets] = useState<boolean>(false);
 
-  const feeTargets = useLoad(() => accountApi.getFeeTargetList(accountCode));
+  const feeTargets = useLoad(useCallback(() => accountApi.getFeeTargetList(accountCode), [accountCode]));
 
   const inputRef = useRef<HTMLInputElement & { autofocus: boolean }>(null);
 

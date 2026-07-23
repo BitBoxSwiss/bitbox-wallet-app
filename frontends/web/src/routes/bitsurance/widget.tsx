@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
@@ -28,7 +28,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   const { config } = useConfig();
 
   const iframeURL = useLoad(getBitsuranceURL);
-  const accountInfo = useLoad(getInfo(code));
+  const accountInfo = useLoad(useCallback(() => getInfo(code), [code]));
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitsuranceDisclaimer ?? false);

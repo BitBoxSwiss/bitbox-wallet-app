@@ -40,7 +40,6 @@ export const AccountsSummary = ({
   devices,
 }: TProps) => {
   const { t } = useTranslation();
-  const summaryReqTimerID = useRef<number>();
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
   const { defaultCurrency } = useContext(RatesContext);
@@ -59,6 +58,8 @@ export const AccountsSummary = ({
   const [balances, setBalances] = useState<Balances>();
   const [offlineError, setOfflineError] = useState<string | null>(null);
 
+  const summaryReqTimerID = useRef<number>();
+
   const getChartData = useCallback(async () => {
     // replace previous timer if present
     if (summaryReqTimerID.current) {
@@ -75,6 +76,12 @@ export const AccountsSummary = ({
       delay = chartDataResponse.data.chartDataMissing ? 1000 : 10000;
     }
     summaryReqTimerID.current = window.setTimeout(getChartData, delay);
+
+    return () => {
+      if (summaryReqTimerID.current) {
+        window.clearTimeout(summaryReqTimerID.current);
+      }
+    };
   }, [mounted]);
 
   const getAccountsBalanceSummary = useCallback(async () => {
@@ -146,14 +153,6 @@ export const AccountsSummary = ({
     getChartData();
     getAccountsBalanceSummary();
   }, [getChartData, getAccountsBalanceSummary, defaultCurrency]);
-
-  useEffect(() => {
-    return () => {
-      if (summaryReqTimerID.current) {
-        window.clearTimeout(summaryReqTimerID.current);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     accounts.forEach(account => {

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { View, ViewContent } from '@/components/view/view';
@@ -29,8 +30,10 @@ export const More = ({ devices }: Props) => {
   const { isDarkMode } = useDarkmode();
   useOnlyVisitableOnMobile('/settings/general');
   const deviceID = Object.keys(devices)[0];
-  const isBitBox02 = deviceID && devices[deviceID] === 'bitbox02';
-  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID, isBitBox02]);
+  const isBitBox02 = deviceID !== undefined && devices[deviceID] === 'bitbox02';
+  // deviceID! (with non-null assertion operator) is safe because this callback is only passed to useLoad for BitBox02 devices
+  const loadVersionInfo = useCallback(() => getVersion(deviceID!), [deviceID]);
+  const versionInfo = useLoad(isBitBox02 ? loadVersionInfo : null);
   const canUpgrade = versionInfo ? versionInfo.canUpgrade : false;
 
   return (

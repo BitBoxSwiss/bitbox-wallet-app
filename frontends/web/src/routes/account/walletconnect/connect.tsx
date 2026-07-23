@@ -32,7 +32,7 @@ export const ConnectScreenWalletConnect = ({
   const { web3wallet, isWalletInitialized, pair } = useContext(WCWeb3WalletContext);
   const [currentProposal, setCurrentProposal] = useState<SignClientTypes.EventArguments['session_proposal']>();
   const { t } = useTranslation();
-  const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
+  const receiveAddresses = useLoad(useCallback(() => accountApi.getReceiveAddressList(code), [code]));
   const onSessionProposal = useCallback(
     (proposal: SignClientTypes.EventArguments['session_proposal']) => {
       setUri('');

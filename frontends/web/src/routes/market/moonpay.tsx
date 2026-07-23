@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -27,7 +28,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
   const { config } = useConfig();
   const { isDarkMode } = useDarkmode();
 
-  const moonpay = useLoad(getMoonpayBuyInfo(code));
+  const moonpay = useLoad(useCallback(() => getMoonpayBuyInfo(code), [code]));
 
   const account = findAccount(accounts, code);
   const { containerRef, height, iframeLoaded, onIframeLoad } = useVendorIframeResizeHeight();

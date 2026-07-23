@@ -93,7 +93,7 @@ export const Swap = ({
   const navigate = useNavigate();
   const { activeCurrencies, btcUnit, defaultCurrency } = useContext(RatesContext);
   // accounts is added as a dependency, to reload swap accounts when the account list changes.
-  const loadedSwapAccounts = useLoad(getSwapAccounts, [accounts]);
+  const loadedSwapAccounts = useLoad(useCallback(getSwapAccounts, [accounts]));
   const [retainedSwapAccounts, setRetainedSwapAccounts] = useState<TSwapAccounts>();
   useEffect(() => {
     if (loadedSwapAccounts !== undefined) {

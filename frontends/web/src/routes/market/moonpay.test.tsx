@@ -84,11 +84,11 @@ describe('routes/market/moonpay', () => {
   });
 
   it('renders the MoonPay iframe on success', async () => {
-    vi.mocked(marketApi.getMoonpayBuyInfo).mockReturnValue(() => Promise.resolve({
+    vi.mocked(marketApi.getMoonpayBuyInfo).mockResolvedValue({
       success: true,
       url: 'https://buy.moonpay.com?walletAddress=bc1qexample',
       address: 'bc1qexample',
-    }));
+    });
 
     render(
       <MemoryRouter>
@@ -104,10 +104,10 @@ describe('routes/market/moonpay', () => {
   });
 
   it('renders an error message on failure', async () => {
-    vi.mocked(marketApi.getMoonpayBuyInfo).mockReturnValue(() => Promise.resolve({
+    vi.mocked(marketApi.getMoonpayBuyInfo).mockResolvedValue({
       success: false,
       errorMessage: 'Account is not valid.',
-    }));
+    });
 
     render(
       <MemoryRouter>

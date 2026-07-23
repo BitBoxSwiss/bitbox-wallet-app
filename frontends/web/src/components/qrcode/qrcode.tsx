@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useMemo, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import { getQRCode } from '@/api/backend';
 import { Check } from '@/components/icon';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import style from './qrcode.module.css';
 
@@ -19,7 +19,12 @@ export const QRCode = ({
   size = 256,
   tapToCopy = true
 }: TProps) => {
-  const qrCode = useLoad(data !== undefined ? getQRCode(data) : null, [data]);
+
+  const loadQRCode = useMemo(
+    () => (data ? getQRCode(data) : null),
+    [data],
+  );
+  const qrCode = useLoad(loadQRCode);
 
   if (!qrCode) {
     if (data !== undefined) {

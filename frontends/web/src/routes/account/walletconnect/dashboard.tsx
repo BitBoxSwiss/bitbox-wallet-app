@@ -29,7 +29,7 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
   const { t } = useTranslation();
   const { web3wallet, isWalletInitialized, initializeWeb3Wallet } = useContext(WCWeb3WalletContext);
   const [sessions, setSessions] = useState<SessionTypes.Struct[]>();
-  const receiveAddresses = useLoad(getReceiveAddressList(code));
+  const receiveAddresses = useLoad(useCallback(() => getReceiveAddressList(code), [code]));
 
   const updateSessions = useCallback(() => {
     const activeSessions = Object.values(web3wallet?.getActiveSessions() || []);

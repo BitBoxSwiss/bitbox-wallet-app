@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'flag-icons';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
@@ -73,11 +73,20 @@ export const Market = ({
     navigate(`/market/select/${selectedAccount}?tab=${activeTab}`, { replace: true });
   }, [activeTab, navigate, selectedAccount]);
 
-  const buyDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('buy', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
-  const sellDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('sell', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
-  const spendDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('spend', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
-  const swapDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('swap', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
-  const otcDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('otc', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
+  const loadBuyDeal = useCallback(() => marketAPI.getMarketDeals('buy', selectedAccount, selectedRegion), [selectedAccount, selectedRegion]);
+  const buyDealsResponse = useLoad(selectedAccount ? loadBuyDeal : null);
+
+  const loadSellDeal = useCallback(() => marketAPI.getMarketDeals('sell', selectedAccount, selectedRegion), [selectedAccount, selectedRegion]);
+  const sellDealsResponse = useLoad(selectedAccount ? loadSellDeal : null);
+
+  const loadSpendDeal = useCallback(() => marketAPI.getMarketDeals('spend', selectedAccount, selectedRegion), [selectedAccount, selectedRegion]);
+  const spendDealsResponse = useLoad(selectedAccount ? loadSpendDeal : null);
+
+  const loadSwapDeal = useCallback(() => marketAPI.getMarketDeals('swap', selectedAccount, selectedRegion), [selectedAccount, selectedRegion]);
+  const swapDealsResponse = useLoad(selectedAccount ? loadSwapDeal : null);
+
+  const loadOTCDeal = useCallback(() => marketAPI.getMarketDeals('otc', selectedAccount, selectedRegion), [selectedAccount, selectedRegion]);
+  const otcDealsResponse = useLoad(selectedAccount ? loadOTCDeal : null);
 
   const promptConnectKeystore = async (accountCode: string): Promise<boolean> => {
     const account = accounts.find(acc => acc.code === accountCode);

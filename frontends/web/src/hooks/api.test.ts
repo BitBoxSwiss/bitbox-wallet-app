@@ -2,7 +2,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { TSubscriptionCallback } from '@/api/subscribe';
 import { useSubscribe, useLoad, useSync } from './api';
 import * as utils from './mount';
@@ -23,26 +23,19 @@ describe('hooks for api calls', () => {
       await waitFor(() => expect(result.current).toBe(true));
     });
 
-    it('re-calls apiCall when dependencies change', async () => {
-      // mock apiCall function
-      const mockApiCall = vi.fn().mockImplementation(() => Promise.resolve(true));
+    it('re-calls apiCall when apiCall changes', async () => {
+      const mockApiCall = vi.fn().mockResolvedValue(true);
 
-      // initialize hook with mock apiCall function and initial dependencies
       const { result } = renderHook(() => {
-        const [state, setState] = useState([3]);
-
-        //apiCall called for the first time during render
-        useLoad(() => mockApiCall(), state);
+        const [state, setState] = useState(3);
+        const load = useCallback(() => mockApiCall(state), [state]);
+        useLoad(load);
         return { setState };
       });
 
-      act(() => result.current.setState([4]));
-
-      // for the 3rd
-      act(() => result.current.setState([5]));
-
-      // for the 4th
-      act(() => result.current.setState([6]));
+      act(() => result.current.setState(4));
+      act(() => result.current.setState(5));
+      act(() => result.current.setState(6));
 
       await waitFor(() => expect(mockApiCall).toHaveBeenCalledTimes(4));
     });
@@ -54,9 +47,10 @@ describe('hooks for api calls', () => {
         const [deviceID, setDeviceID] = useState('test-device');
         const [isBitBox02, setIsBitBox02] = useState(true);
 
+        const loadVersionInfo = useCallback(() => mockApiCall(), []);
+
         const versionInfo = useLoad(
-          (isBitBox02 && deviceID) ? () => mockApiCall() : null,
-          [deviceID, isBitBox02]
+          isBitBox02 && deviceID ? loadVersionInfo : null
         );
 
         return { versionInfo, setDeviceID, setIsBitBox02 };

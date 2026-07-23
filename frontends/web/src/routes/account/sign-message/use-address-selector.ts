@@ -31,14 +31,14 @@ export const useAddressSelector = (code: AccountCode): TAddressSelector => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [usedAddressReloadVersion, setUsedAddressReloadVersion] = useState(0);
 
-  const receiveAddresses = useLoad(
-    isUsedAddressRoute ? null : accountApi.getReceiveAddressList(code),
-    [code, isUsedAddressRoute],
-  );
-  const usedAddressResponse = useLoad(
-    isUsedAddressRoute ? () => accountApi.getUsedAddresses(code) : null,
-    [code, usedAddressReloadVersion, isUsedAddressRoute],
-  );
+  const loadReceiveAddress = useCallback(() => accountApi.getReceiveAddressList(code), [code]);
+  const receiveAddresses = useLoad(isUsedAddressRoute ? null : loadReceiveAddress);
+
+  const loadUsedAddressResponse = useCallback(() => {
+    void usedAddressReloadVersion;
+    return accountApi.getUsedAddresses(code);
+  }, [code, usedAddressReloadVersion]);
+  const usedAddressResponse = useLoad(isUsedAddressRoute ? loadUsedAddressResponse : null);
 
   const currentReceiveAddressList = useMemo(() => {
     if (!receiveAddresses || receiveAddresses.length === 0) {

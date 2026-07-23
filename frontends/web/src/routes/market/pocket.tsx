@@ -40,13 +40,13 @@ export const Pocket = ({
   const navigate = useNavigate();
 
   // Pocket sell only works if the FW supports payment requests
-  const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(code));
+  const hasPaymentRequestResponse = useLoad(useCallback(() => hasPaymentRequest(code), [code]));
   const [fwRequiredDialog, setFwRequiredDialog] = useState(false);
 
   const [blocking, setBlocking] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
-  const accountInfo = useLoad(getInfo(code));
+  const accountInfo = useLoad(useCallback(() => getInfo(code), [code]));
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipPocketDisclaimer ?? false);

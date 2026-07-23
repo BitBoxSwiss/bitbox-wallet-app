@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as bitbox02BootloaderAPI from '@/api/bitbox02bootloader';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -24,9 +24,13 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     () => bitbox02BootloaderAPI.getStatus(deviceID),
     bitbox02BootloaderAPI.syncStatus(deviceID),
   );
+  const loadInfo = useCallback(() => {
+    void status?.upgrading; // added so we can use it in the dependency list
+    return bitbox02BootloaderAPI.getInfo(deviceID);
+  }, [deviceID, status?.upgrading]);
+
   const infoResponse = useLoad(
-    status === undefined || status.upgrading ? null : () => bitbox02BootloaderAPI.getInfo(deviceID),
-    [deviceID, status?.upgrading],
+    status === undefined || status.upgrading ? null : loadInfo
   );
   const [requestError, setRequestError] = useState<string>();
 

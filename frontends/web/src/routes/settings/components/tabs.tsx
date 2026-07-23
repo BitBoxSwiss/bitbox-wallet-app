@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
 import type { TDevices, TPlatformName } from '@/api/devices';
@@ -196,7 +196,8 @@ type TTabWithVersionCheck = TTab & {
 
 const TabWithVersionCheck = ({ deviceID, device, ...props }: TTabWithVersionCheck) => {
   const isBitBox02 = device === 'bitbox02';
-  const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID]);
+  const loadVersion = useCallback(() => getVersion(deviceID), [deviceID]);
+  const versionInfo = useLoad(isBitBox02 ? loadVersion : null);
   return (
     <Tab
       canUpgrade={versionInfo ? versionInfo.canUpgrade : false}

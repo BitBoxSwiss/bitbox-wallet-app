@@ -108,7 +108,7 @@ export const ReceiverAddressWrapper = ({
     }
     setSelectedAccount(selectedOption);
     try {
-      const receiveAddresses = await getReceiveAddressList(selectedAccountValue.code)();
+      const receiveAddresses = await getReceiveAddressList(selectedAccountValue.code);
       if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 0) {
         const address = receiveAddresses[0].addresses[0].address;
         onInputChange(address);

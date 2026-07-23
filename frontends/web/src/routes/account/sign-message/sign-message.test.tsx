@@ -97,7 +97,7 @@ describe('routes/account/sign-message', () => {
         }],
       },
     ];
-    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => receiveAddresses);
+    vi.spyOn(accountApi, 'getReceiveAddressList').mockResolvedValue(receiveAddresses);
     const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress').mockResolvedValue({
       success: true,
       address: 'bc1qnativeexample',
@@ -144,7 +144,7 @@ describe('routes/account/sign-message', () => {
 
   it('does not pre-connect keystore when rendering or changing receive address', async () => {
     const connectSpy = vi.spyOn(keystoresApi, 'connectKeystore');
-    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
+    vi.spyOn(accountApi, 'getReceiveAddressList').mockResolvedValue([
       {
         scriptType: 'p2wpkh',
         addresses: [
@@ -187,7 +187,7 @@ describe('routes/account/sign-message', () => {
   });
 
   it('returns to input state when signing is aborted on device', async () => {
-    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
+    vi.spyOn(accountApi, 'getReceiveAddressList').mockResolvedValue([
       {
         scriptType: 'p2wpkh',
         addresses: [{
@@ -317,7 +317,7 @@ describe('routes/account/sign-message', () => {
   });
 
   it('signs an ETH message using signETHMessageForAddress', async () => {
-    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
+    vi.spyOn(accountApi, 'getReceiveAddressList').mockResolvedValue([
       {
         scriptType: null,
         addresses: [{
@@ -373,7 +373,7 @@ describe('routes/account/sign-message', () => {
       errorCode: 'userAbort',
     });
     const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress');
-    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
+    vi.spyOn(accountApi, 'getReceiveAddressList').mockResolvedValue([
       {
         scriptType: 'p2wpkh',
         addresses: [{

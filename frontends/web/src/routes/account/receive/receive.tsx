@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
 import { useLoad } from '@/hooks/api';
@@ -143,7 +143,7 @@ export const Receive = ({
   const insured = account?.bitsuranceStatus === 'active';
 
   // first array index: address types. second array index: unused addresses of that address type.
-  const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
+  const receiveAddresses = useLoad(useCallback(() => accountApi.getReceiveAddressList(code), [code]));
   const availableScriptTypes = receiveAddresses ? getAvailableScriptTypes(receiveAddresses) : undefined;
   const hasManyScriptTypes = availableScriptTypes && availableScriptTypes.length > 1;
 

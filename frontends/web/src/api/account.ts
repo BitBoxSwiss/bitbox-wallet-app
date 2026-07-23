@@ -156,10 +156,8 @@ export type TSigningConfigurationList = null | {
   signingConfigurations: TSigningConfiguration[];
 };
 
-export const getInfo = (code: AccountCode) => {
-  return (): Promise<TSigningConfigurationList> => {
-    return apiGet(`account/${code}/info`);
-  };
+export const getInfo = (code: AccountCode): Promise<TSigningConfigurationList> => {
+  return apiGet(`account/${code}/info`);
 };
 
 export const init = (code: AccountCode): Promise<null> => {
@@ -327,10 +325,10 @@ export type Slip24 = {
   signature: string;
 };
 
-export const getReceiveAddressList = (code: AccountCode) => {
-  return (): Promise<NonEmptyArray<TReceiveAddressList> | null> => {
-    return apiGet(`account/${code}/receive-addresses`);
-  };
+export const getReceiveAddressList = (
+  code: AccountCode
+): Promise<NonEmptyArray<TReceiveAddressList> | null> => {
+  return apiGet(`account/${code}/receive-addresses`);
 };
 
 export type TTxInput = {
