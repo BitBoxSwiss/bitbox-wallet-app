@@ -1614,6 +1614,7 @@
         "title": "Connect your device"
       },
       "disclaimer": {
+        "checkboxLabel": "I have read the information above",
         "content": "Your lightning wallet will be made using a key derived from your BitBox. That way you can always restore your lightning wallet using your BitBox or backup.\n\nHowever, unlike the BitBox, the lightning wallet is a <strong>hot wallet</strong>. This means the keys for your lightning wallet are stored on the BitBoxApp, not on the BitBox. You should not use the lightning wallet for a large amount of funds or long term storage.\n\n          In addition, the lightning feature is currently in beta, meaning you may encounter bugs, reliability issues or it may stop working entirely.",
         "title": "How does it work with the BitBoxApp?"
       },
@@ -1674,6 +1675,39 @@
       },
       "wait": {
         "title": "Disabling lightning wallet..."
+      }
+    },
+    "disclaimer": {
+      "backups": {
+        "content": "The Lightning wallet private key is derived from the BitBox. This means you can restore your Lightning wallet using the same BitBox that was used to create it.",
+        "title": "Backups"
+      },
+      "beta": {
+        "content": "The lightning implementation in the BitBoxApp is a beta. This means you may encounter bugs or it may stop working entirely. Please understand the risks before using and do not top up your Lightning wallet with more coins than you are willing to lose.",
+        "title": "Beta"
+      },
+      "continue": "Agree and continue",
+      "fees": {
+        "receiving": {
+          "content": "Receiving lightning transactions is free. The sender pays the fees.",
+          "title": "Receiving"
+        },
+        "sending": {
+          "content": "The fee depends on the payment amount and the route available at the time, so it is calculated shortly before you send. The fee and the total amount that will be deducted from your balance are shown before you confirm.",
+          "title": "Sending"
+        },
+        "title": "Fees"
+      },
+      "securityModel": {
+        "content": "The Lightning wallet is a <strong>hot wallet</strong>. This means the keys are stored in the app and are therefore not protected by the BitBox. This allows you to use your Lightning wallet without needing a BitBox. Be sure to keep only a small amount of funds in your Lightning wallet.",
+        "title": "Security model"
+      },
+      "title": "Lightning disclaimer",
+      "trustModel": {
+        "breezLink": "Learn about Breez SDK",
+        "content": "The lightning integration in the BitBoxApp uses the Spark infrastructure and Breez SDK. Please note that, at this time, unilateral exit of your coins is not possible as the Breez SDK currently does not support it. Therefore, exiting your coins from your Lightning wallet relies on the Spark infrastructure being online and cooperative.",
+        "sparkLink": "Learn about Spark",
+        "title": "Trust model"
       }
     },
     "initializing": "Lightning account initializing...",

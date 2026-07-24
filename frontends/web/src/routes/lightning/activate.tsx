@@ -15,11 +15,12 @@ import { TKeystores, getKeystores, subscribeKeystores } from '../../api/keystore
 import { unsubscribe } from '../../utils/subscriptions';
 import { postActivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
+import { LightningDisclaimerContent } from './disclaimer';
 import styles from './activate.module.css';
 
 const CONTENT_MIN_HEIGHT = '38em';
 
-type TSteps = 'intro' | 'disclaimer' | 'connect' | 'confirm' | 'activating' | 'success';
+type TSteps = 'intro' | 'information' | 'disclaimer' | 'connect' | 'confirm' | 'activating' | 'success';
 
 export const LightningActivate = () => {
   const { t } = useTranslation();
@@ -98,7 +99,7 @@ export const LightningActivate = () => {
             />
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => setStep('disclaimer')}>
+            <Button primary onClick={() => setStep('information')}>
               {t('button.next')}
             </Button>
             <Button secondary onClick={() => navigate(-1)}>
@@ -107,9 +108,9 @@ export const LightningActivate = () => {
           </ViewButtons>
         </View>
       );
-    case 'disclaimer':
+    case 'information':
       return (
-        <View key="step-disclaimer" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
+        <View key="step-information" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
           <ViewHeader title={t('lightning.activate.disclaimer.title')} />
           <ViewContent>
             <MultilineMarkup
@@ -120,14 +121,31 @@ export const LightningActivate = () => {
               id="confirm"
               onChange={() => setAgree(!agree)}
               checked={agree}>
-              I have read the information above
+              {t('lightning.activate.disclaimer.checkboxLabel')}
             </Checkbox>
           </ViewContent>
           <ViewButtons>
-            <Button primary disabled={!agree} onClick={() => waitForConnect()}>
-              Create lightning wallet
+            <Button primary disabled={!agree} onClick={() => setStep('disclaimer')}>
+              {t('button.next')}
             </Button>
-            <Button secondary onClick={() => navigate(-1)}>
+            <Button secondary onClick={() => setStep('intro')}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    case 'disclaimer':
+      return (
+        <View key="step-disclaimer" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
+          <ViewHeader title={t('lightning.disclaimer.title')} />
+          <ViewContent>
+            <LightningDisclaimerContent />
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={() => waitForConnect()}>
+              {t('lightning.disclaimer.continue')}
+            </Button>
+            <Button secondary onClick={() => setStep('information')}>
               {t('button.back')}
             </Button>
           </ViewButtons>

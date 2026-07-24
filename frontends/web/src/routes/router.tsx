@@ -46,6 +46,7 @@ import { AllAccounts } from '@/routes/accounts/all-accounts';
 import { More } from '@/routes/settings/more';
 import { Lightning } from './lightning/lightning';
 import { LightningActivate } from './lightning/activate';
+import { LightningDisclaimer } from './lightning/disclaimer';
 import { LightningDeactivate } from './lightning/deactivate';
 import { LightningSetLnurlAddress } from './lightning/set-lnurl-address';
 import { Send as LightningSend } from './lightning/send/send';
@@ -354,6 +355,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
         <Route path="lightning">
           <Route index element={<Lightning />} />
           <Route path="activate" element={<LightningActivate />} />
+          <Route path="disclaimer" element={<LightningDisclaimer />} />
           <Route path="deactivate" element={<LightningDeactivate />} />
           <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
           <Route path="close-withdraw-funds" element={(
