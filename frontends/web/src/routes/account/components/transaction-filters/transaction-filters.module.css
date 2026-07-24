@@ -1,0 +1,79 @@
+.filterRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-quarter) var(--space-half);
+    padding-bottom: var(--space-quarter);
+    width: 100%;
+}
+
+.dateGroup,
+.typeGroup,
+.amountGroup {
+    display: flex;
+    gap: var(--space-quarter);
+    min-width: 0;
+}
+
+/* zero flex-basis keeps all three groups on a single line on desktop */
+.typeGroup {
+    flex: 4 1 0;
+}
+
+.dateGroup {
+    flex: 6 1 0;
+}
+
+.amountGroup {
+    flex: 7 1 0;
+}
+
+.dateGroup > div,
+.typeGroup > div,
+.amountGroup > div {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* allow native controls to shrink below their intrinsic width */
+.filterRow input,
+.filterRow select {
+    min-width: 0;
+    width: 100%;
+}
+
+/* keep long translated options clear of the chevron instead of under it */
+.filterRow select {
+    padding-right: var(--space-default);
+    text-overflow: ellipsis;
+}
+
+/* hide the browser's dd.mm.yyyy format hint while a date field is empty */
+.dateGroup input[data-empty]:not(:focus)::-webkit-datetime-edit {
+    color: transparent;
+}
+
+.filterRow label {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+    /* long translated labels wrap instead of spilling out of their field */
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+    .filterRow {
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+
+    .dateGroup,
+    .typeGroup,
+    .amountGroup {
+        flex: 0 0 auto;
+    }
+
+    .dateGroup,
+    .amountGroup {
+        flex-direction: row;
+    }
+}

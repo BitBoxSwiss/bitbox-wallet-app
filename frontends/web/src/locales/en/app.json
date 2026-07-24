@@ -2140,6 +2140,21 @@
   },
   "transactions": {
     "errorLoadTransactions": "There was an error loading the transactions",
+    "filters": {
+      "amountMax": "Max",
+      "amountMin": "Min",
+      "button": "Filter",
+      "from": "From",
+      "noResults": "No transactions match your filters",
+      "noResultsWithSearch": "No transactions match \"{{searchTerm}}\" and your filters",
+      "to": "To",
+      "type": "Type",
+      "typeAll": "All types",
+      "typeReceived": "Received",
+      "typeSent": "Sent",
+      "typeSentToSelf": "Sent to self",
+      "unit": "Currency"
+    },
     "placeholder": "No transactions yet."
   },
   "unknownError": "An unknown error occurred: {{errorMessage}}",
