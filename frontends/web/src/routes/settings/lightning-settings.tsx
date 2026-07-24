@@ -93,6 +93,10 @@ export const LightningSettings = ({
           settingName={t('lightning.settings.manuallyClaimTopUp')}
           onClick={noop}
         />
+        <SettingsItem
+          settingName={t('lightning.disclaimer.title')}
+          onClick={() => navigate('/lightning/disclaimer/')}
+        />
         <SubTitle className={styles.sectionTitle}>{t('lightning.settings.expert')}</SubTitle>
         <SettingsItem
           settingName={<span className={styles.danger}>{t('lightning.settings.shutDownWallet')}</span>}
