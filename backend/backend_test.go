@@ -248,7 +248,32 @@ func TestIsWhitelistedSystemOpenURL(t *testing.T) {
 			allowed: true,
 		},
 		{
-			name:    "blocks host prefix bypass",
+			name:    "allows mempool onion tx URL",
+			url:     "http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/tx/abc123",
+			allowed: true,
+		},
+		{
+			name:    "allows mempool onion tx URL with default http port",
+			url:     "http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion:80/tx/abc123",
+			allowed: true,
+		},
+		{
+			name:    "blocks mempool onion tx URL with https default port",
+			url:     "http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion:443/tx/abc123",
+			allowed: false,
+		},
+		{
+			name:    "allows mempool onion testnet address URL",
+			url:     "http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/testnet/address/bc1qexample",
+			allowed: true,
+		},
+		{
+			name:    "blocks mempool onion path prefix bypass",
+			url:     "http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/txevil/123",
+			allowed: false,
+		},
+		{
+			name:    "blocks wrong host prefix bypass",
 			url:     "https://support.bitbox.swiss.evil.example/de_DE/",
 			allowed: false,
 		},
