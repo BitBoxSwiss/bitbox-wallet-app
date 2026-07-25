@@ -97,8 +97,17 @@ func TestModifyAccountsConfig(t *testing.T) {
 	require.Equal(t, []*Account{{Used: true}}, cfg2.AccountsConfig().Accounts)
 
 	require.Error(t, cfg.ModifyAccountsConfig(func(accountsCfg *AccountsConfig) error {
+		accountsCfg.Accounts[0].Used = false
 		return errors.New("error")
 	}))
+	require.True(t, cfg.AccountsConfig().Accounts[0].Used)
+
+	cfg.accountsConfigFilename = t.TempDir()
+	require.Error(t, cfg.ModifyAccountsConfig(func(accountsCfg *AccountsConfig) error {
+		accountsCfg.Accounts[0].Used = false
+		return nil
+	}))
+	require.True(t, cfg.AccountsConfig().Accounts[0].Used)
 }
 
 func TestAccountsSnapshot(t *testing.T) {

@@ -9,7 +9,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/stretchr/testify/require"
@@ -22,7 +21,7 @@ func newRegistryAccount(
 	var observer func(observable.Event)
 	return &accountsMocks.InterfaceMock{
 		ConfigFunc: func() *accounts.AccountConfig {
-			return &accounts.AccountConfig{Config: &config.Account{Code: "account-code"}}
+			return &accounts.AccountConfig{Code: "account-code"}
 		},
 		InitializeFunc: initialize,
 		CloseFunc: func() {
@@ -41,10 +40,10 @@ func TestAccountRegistryLifecycle(t *testing.T) {
 	var initialized, uninitialized []accountsTypes.Code
 	registry := newAccountRegistry(accountRegistryLifecycle{
 		onInitialized: func(account accounts.Interface) {
-			initialized = append(initialized, account.Config().Config.Code)
+			initialized = append(initialized, account.Config().Code)
 		},
 		onUninitialized: func(account accounts.Interface) {
-			uninitialized = append(uninitialized, account.Config().Config.Code)
+			uninitialized = append(uninitialized, account.Config().Code)
 		},
 	})
 

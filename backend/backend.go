@@ -424,13 +424,9 @@ func (backend *Backend) handleAccountRegistryEvent(event observable.Event) {
 		return
 	}
 	backend.Notify(observable.Event{
-		Subject: fmt.Sprintf(
-			"account/%s/%s",
-			registryEvent.account.Config().Config.Code,
-			event.Subject,
-		),
-		Action: event.Action,
-		Object: registryEvent.object,
+		Subject: fmt.Sprintf("account/%s/%s", registryEvent.account.Config().Code, event.Subject),
+		Action:  event.Action,
+		Object:  registryEvent.object,
 	})
 	if event.Subject == string(accountsTypes.EventSyncDone) {
 		backend.notifyNewTxs(registryEvent.account)
@@ -457,12 +453,21 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 		return
 	}
 	if unnotifiedCount != 0 {
+		accountName := account.Coin().Name()
+		accountsConfig, err := backend.accountsDB.Snapshot()
+		if err != nil {
+			backend.log.WithError(err).Error("could not load account name")
+		} else {
+			if accountView := joinAccountView(account, accountsConfig); accountView != nil {
+				accountName = accountView.Record.Name
+			}
+		}
 		backend.Notify(observable.Event{
 			Subject: string(eventNewTxs),
 			Action:  action.Replace,
 			Object: map[string]interface{}{
 				"count":       unnotifiedCount,
-				"accountName": account.Config().Config.Name,
+				"accountName": accountName,
 			},
 		})
 		if err := notifier.MarkAllNotified(); err != nil {
@@ -666,8 +671,10 @@ func (backend *Backend) updateETHAccounts() error {
 	backend.log.Debug("Updating ETH accounts balances")
 
 	accountsChainID := map[string][]*eth.Account{}
-	for _, account := range backend.Accounts() {
-		ethAccount, ok := account.(*eth.Account)
+	accountViews := backend.Accounts()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		ethAccount, ok := accountView.Account.(*eth.Account)
 		if ok {
 			chainID := ethAccount.ETHCoin().ChainIDstr()
 			accountsChainID[chainID] = append(accountsChainID[chainID], ethAccount)
@@ -729,17 +736,20 @@ func (backend *Backend) Testing() bool {
 	return backend.testing
 }
 
-// Accounts returns the current accounts of the backend.
-func (backend *Backend) Accounts() AccountsList {
+// Accounts returns a coherent snapshot of loaded accounts joined with persisted metadata.
+func (backend *Backend) Accounts() AccountViews {
 	defer backend.accountsAndKeystoreLock.RLock()()
-	accounts := backend.accounts.all()
+	return backend.accountViewsLocked()
+}
+
+// accountViewsLocked requires accountsAndKeystoreLock to be held.
+func (backend *Backend) accountViewsLocked() AccountViews {
 	accountsConfig, err := backend.accountsDB.Snapshot()
 	if err != nil {
-		backend.log.WithError(err).Error("could not sort account snapshot")
-		return accounts
+		backend.log.WithError(err).Error("could not load account snapshot")
+		return AccountViews{}
 	}
-	sortAccounts(accounts, accountsConfig)
-	return accounts
+	return joinAccountViews(backend.accounts.all(), accountsConfig)
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
@@ -1276,26 +1286,16 @@ func (backend *Backend) IsOnline() bool {
 // GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
 // if found. It also initialize the account before returning it.
 func (backend *Backend) GetAccountFromCode(acctCode accountsTypes.Code) (accounts.Interface, error) {
-	// TODO: Refactor to make use of a map.
-	var acct accounts.Interface
-	for _, a := range backend.Accounts() {
-		if a.Config().Config.Inactive {
-			continue
-		}
-		if a.Config().Config.Code == acctCode {
-			acct = a
-			break
-		}
-	}
-	if acct == nil {
+	accountView := backend.Accounts().lookup(acctCode)
+	if accountView == nil || accountView.Record.Inactive {
 		return nil, fmt.Errorf("unknown account code %q", acctCode)
 	}
 
-	if err := acct.Initialize(); err != nil {
+	if err := accountView.Account.Initialize(); err != nil {
 		return nil, err
 	}
 
-	return acct, nil
+	return accountView.Account, nil
 }
 
 // CancelConnectKeystore cancels a pending keystore connection request if one exists.

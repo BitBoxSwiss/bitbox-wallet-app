@@ -67,12 +67,12 @@ type Backend interface {
 	DefaultAppConfig() config.AppConfig
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
-	Accounts() backend.AccountsList
+	Accounts() backend.AccountViews
 	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
 	SwapAccounts() (backend.SwapAccounts, error)
 	SwapStatus() backend.SwapStatus
-	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
-	AccountsFiatAndCoinBalance(backend.AccountsList, string) (*big.Rat, map[coinpkg.Code]*big.Int, error)
+	AccountsByKeystore() (backend.KeystoresAccountViewsMap, error)
+	AccountsFiatAndCoinBalance(backend.AccountViews, string) (*big.Rat, map[coinpkg.Code]*big.Int, error)
 	Keystore() keystore.Keystore
 	AccountsBalanceSummary() (*backend.AccountsBalanceSummary, error)
 	OnAccountInit(f func(accounts.Interface))
@@ -297,11 +297,11 @@ func NewHandlers(
 	}
 
 	backend.OnAccountInit(func(account accounts.Interface) {
-		log.WithField("code", account.Config().Config.Code).Debug("Initializing account")
-		getAccountHandlers(account.Config().Config.Code).Init(account)
+		log.WithField("code", account.Config().Code).Debug("Initializing account")
+		getAccountHandlers(account.Config().Code).Init(account)
 	})
 	backend.OnAccountUninit(func(account accounts.Interface) {
-		getAccountHandlers(account.Config().Config.Code).Uninit()
+		getAccountHandlers(account.Config().Code).Uninit()
 	})
 
 	deviceHandlersMap := map[string]*bitboxHandlers.Handlers{}
@@ -772,24 +772,20 @@ func (handlers *Handlers) getKeystoreFeatures(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) getAccounts(*http.Request) interface{} {
-	persistedAccounts := handlers.backend.Config().AccountsConfig()
-
 	accounts := []*accountJSON{}
-	for _, account := range handlers.backend.Accounts() {
-		if account.Config().Config.HiddenBecauseUnused {
+	accountViews := handlers.backend.Accounts()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		if accountView.Record.HiddenBecauseUnused {
 			continue
 		}
-
-		persistedAccount := account.Config().Config
-
-		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
+		rootFingerprint, err := accountView.Record.SigningConfigurations.RootFingerprint()
 		if err != nil {
-			handlers.log.WithField("code", account.Config().Config.Code).Error("could not identify root fingerprint")
+			handlers.log.WithField("code", accountView.Record.Code).Error("could not identify root fingerprint")
 			continue
 		}
-		keystore, err := persistedAccounts.LookupKeystore(rootFingerprint)
-		if err != nil {
-			handlers.log.WithField("code", account.Config().Config.Code).Error("could not find keystore of account")
+		if accountView.Keystore == nil {
+			handlers.log.WithField("code", accountView.Record.Code).Error("could not find keystore of account")
 			continue
 		}
 
@@ -804,10 +800,10 @@ func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 		}
 
 		accounts = append(accounts, newAccountJSON(
-			*keystore,
-			persistedAccount,
-			account.Coin(),
-			activeTokensJSON(persistedAccount, persistedAccount.ActiveTokens),
+			*accountView.Keystore,
+			&accountView.Record,
+			accountView.Account.Coin(),
+			activeTokensJSON(&accountView.Record, accountView.Record.ActiveTokens),
 			keystoreConnected,
 		))
 	}
@@ -1634,7 +1630,7 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interfa
 
 	err = market.PocketWidgetVerifyAddress(account, request.Address)
 	if err != nil {
-		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
+		handlers.log.WithField("code", account.Config().Code).Error(err)
 		if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
 			return response{Success: false, ErrorCode: string(errCode)}
 		}

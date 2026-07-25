@@ -3,12 +3,9 @@
 package backend
 
 import (
-	"bytes"
 	"encoding/hex"
 	"fmt"
 	"math/big"
-	"sort"
-	"strings"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -26,7 +23,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/ethereum/go-ethereum/params"
 )
 
 const (
@@ -73,135 +69,16 @@ func (backend *Backend) coinPolicy() coinPolicy {
 // AccountsList is an accounts.Interface slice which implements a lookup method.
 type AccountsList []accounts.Interface
 
-// KeystoresAccountsListMap is a map where keys are keystores' fingerprints and values are
-// AccountsLists of accounts belonging to each keystore.
-type KeystoresAccountsListMap map[string]AccountsList
+// KeystoresAccountViewsMap groups account views by their keystore fingerprints.
+type KeystoresAccountViewsMap map[string]AccountViews
 
 func (a AccountsList) lookup(code accountsTypes.Code) accounts.Interface {
 	for _, acct := range a {
-		if acct.Config().Config.Code == code {
+		if acct.Config().Code == code {
 			return acct
 		}
 	}
 	return nil
-}
-
-// lookupByTransactionInternalID finds the account which contains a transaction with this internal
-// tx ID. `nil, nil` is returned if not found. `err` is returned if there was an error fetching the
-// account transactions.
-func (a AccountsList) lookupByTransactionInternalID(internalID string) (accounts.Interface, error) {
-	for _, account := range a {
-		if account.FatalError() {
-			continue
-		}
-		if err := account.Initialize(); err != nil {
-			return nil, err
-		}
-		transactions, err := account.Transactions()
-		if err != nil {
-			return nil, err
-		}
-		for _, transactionData := range transactions {
-			if transactionData.InternalID == internalID {
-				return account, nil
-			}
-		}
-	}
-	return nil, nil
-}
-
-func compareAccountCoins(coin1, coin2 coinpkg.Coin) int {
-	getOrder := func(c coinpkg.Coin) (int, bool) {
-		order, ok := map[coinpkg.Code]int{
-			coinpkg.CodeBTC:  0,
-			coinpkg.CodeTBTC: 1,
-			coinpkg.CodeLTC:  2,
-			coinpkg.CodeTLTC: 3,
-		}[c.Code()]
-		if ok {
-			return order, true
-		}
-		// We want to sort ETH and ERC20 tokens with the same priority even though they have
-		// different coin codes, so we use the chain ID.
-		ethCoin, ok := c.(*eth.Coin)
-		if ok {
-			switch ethCoin.ChainID() {
-			case params.MainnetChainConfig.ChainID.Uint64():
-				return 4, true
-			case params.SepoliaChainConfig.ChainID.Uint64():
-				return 5, true
-			}
-		}
-		return 0, false
-	}
-	order1, ok1 := getOrder(coin1)
-	order2, ok2 := getOrder(coin2)
-	if !ok1 || !ok2 {
-		// In case we deal with a coin we didn't specify, we fallback to ordering by coin code.
-		return strings.Compare(string(coin1.Code()), string(coin2.Code()))
-	}
-	return order1 - order2
-}
-
-func lessAccountSortOrder(coin1 coinpkg.Coin, accountConfig1 *config.Account, coin2 coinpkg.Coin, accountConfig2 *config.Account) bool {
-	coinCmp := compareAccountCoins(coin1, coin2)
-	if coinCmp != 0 {
-		return coinCmp < 0
-	}
-
-	if len(accountConfig1.SigningConfigurations) > 0 && len(accountConfig2.SigningConfigurations) > 0 {
-		signingCfg1 := accountConfig1.SigningConfigurations[0]
-		signingCfg2 := accountConfig2.SigningConfigurations[0]
-		// An error should never happen here, but if it does, we just sort as if it was account
-		// number 0.
-		accountNumber1, _ := signingCfg1.AccountNumber()
-		accountNumber2, _ := signingCfg2.AccountNumber()
-		if accountNumber1 != accountNumber2 {
-			return accountNumber1 < accountNumber2
-		}
-		// Same coin, same account number: for ETH coins, put regular account first, followed by
-		// its children ERC20 token accounts.
-		ethCoin1, ok1 := coin1.(*eth.Coin)
-		ethCoin2, ok2 := coin2.(*eth.Coin)
-		if ok1 && ok2 {
-			if ethCoin1.ERC20Token() != nil && ethCoin2.ERC20Token() != nil {
-				// ERC20 tokens sorted by code.
-				return accountConfig1.Code < accountConfig2.Code
-			}
-			// ETH parent account comes before its ERC20 tokens.
-			return ethCoin2.ERC20Token() != nil
-		}
-	}
-
-	// Unspecified account ordering: default to ordering by code.
-	return accountConfig1.Code < accountConfig2.Code
-}
-
-// sortAccounts sorts the accounts in-place by 1) keystore name 2) root fingerprint 3) coin
-// 4) account number.
-func sortAccounts(accounts []accounts.Interface, accountsConfig config.AccountsConfig) {
-	sort.Slice(accounts, func(i, j int) bool {
-		acct1 := accounts[i]
-		acct2 := accounts[j]
-		rootFingerprint1, err1 := acct1.Config().Config.SigningConfigurations.RootFingerprint()
-		rootFingerprint2, err2 := acct2.Config().Config.SigningConfigurations.RootFingerprint()
-		if err1 == nil && err2 == nil {
-			keystore1, lookupErr1 := accountsConfig.LookupKeystore(rootFingerprint1)
-			keystore2, lookupErr2 := accountsConfig.LookupKeystore(rootFingerprint2)
-			if lookupErr1 == nil && lookupErr2 == nil && keystore1.Name != keystore2.Name {
-				return keystore1.Name < keystore2.Name
-			}
-			if cmp := bytes.Compare(rootFingerprint1, rootFingerprint2); cmp != 0 {
-				return cmp < 0
-			}
-		}
-		return lessAccountSortOrder(
-			acct1.Coin(),
-			acct1.Config().Config,
-			acct2.Coin(),
-			acct2.Config().Config,
-		)
-	})
 }
 
 // filterAccounts fetches all persisted accounts that pass the provided filter. Testnet/regtest
@@ -248,12 +125,10 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 
 // AccountsByKeystore returns a map of the current accounts of the backend, grouped
 // by keystore.
-func (backend *Backend) AccountsByKeystore() (KeystoresAccountsListMap, error) {
-	defer backend.accountsAndKeystoreLock.RLock()()
-	accountsByKeystore := KeystoresAccountsListMap{}
-	for _, account := range backend.accounts.all() {
-		persistedAccount := account.Config().Config
-		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
+func (backend *Backend) AccountsByKeystore() (KeystoresAccountViewsMap, error) {
+	accountsByKeystore := KeystoresAccountViewsMap{}
+	for _, account := range backend.Accounts() {
+		rootFingerprint, err := account.Record.SigningConfigurations.RootFingerprint()
 		if err != nil {
 			return nil, err
 		}
@@ -299,10 +174,11 @@ func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
 	var sortedCoins []coinpkg.Code
 	totalCoinsBalances := make(map[coinpkg.Code]*big.Int)
 
-	for _, account := range backend.Accounts() {
-		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
+	for _, accountView := range backend.Accounts() {
+		if accountView.Record.Inactive || accountView.Record.HiddenBecauseUnused {
 			continue
 		}
+		account := accountView.Account
 		if account.FatalError() {
 			continue
 		}
@@ -363,14 +239,16 @@ type KeystoreBalance = struct {
 }
 
 // AccountsFiatAndCoinBalance returns the total fiat balance and the balance for each coin, of a list of accounts.
-func (backend *Backend) AccountsFiatAndCoinBalance(accounts AccountsList, fiatUnit string) (*big.Rat, map[coinpkg.Code]*big.Int, error) {
+func (backend *Backend) AccountsFiatAndCoinBalance(accounts AccountViews, fiatUnit string) (*big.Rat, map[coinpkg.Code]*big.Int, error) {
 	keystoreBalance := new(big.Rat)
 	keystoreCoinsBalance := make(map[coinpkg.Code]*big.Int)
 
-	for _, account := range accounts {
-		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
+	for index := range accounts {
+		accountView := &accounts[index]
+		if accountView.Record.Inactive || accountView.Record.HiddenBecauseUnused {
 			continue
 		}
+		account := accountView.Account
 		if account.FatalError() {
 			continue
 		}
@@ -470,7 +348,7 @@ func (backend *Backend) AccountsBalanceSummary() (*AccountsBalanceSummary, error
 // and updates the internal state based on the retrieved information. If the accountCode is
 // provided, it checks the insurance status for that specific account; otherwise, it checks
 // the status for all active BTC accounts. If any account's insurance status changes, the
-// function persists the change, reinitializes the accounts, and emits a status change event.
+// function persists the change and emits a status change event.
 // Additionally, if an account's insurance is canceled or inactive, the account code is added
 // to the frontend config for notifying the user.
 func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([]bitsurance.AccountDetails, error) {
@@ -485,10 +363,11 @@ func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([
 		accountList = []accounts.Interface{acct}
 	} else {
 		// otherwise we'll check the status for all the active BTC accounts.
-		for _, account := range backend.Accounts() {
-			config := account.Config().Config
-			if !config.HiddenBecauseUnused && config.CoinCode == coinpkg.CodeBTC {
-				accountList = append(accountList, account)
+		accountViews := backend.Accounts()
+		for index := range accountViews {
+			accountView := &accountViews[index]
+			if !accountView.Record.HiddenBecauseUnused && accountView.Record.CoinCode == coinpkg.CodeBTC {
+				accountList = append(accountList, accountView.Account)
 			}
 		}
 	}
@@ -499,7 +378,7 @@ func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([
 		return nil, err
 	}
 
-	// if any account insurance status changed, persist the change and reinitialize the accounts.
+	// If any account insurance status changed, persist the change.
 	statusChange := false
 	err = backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		for _, bitsuranceAccount := range bitsuranceAccounts {
@@ -935,14 +814,17 @@ func (backend *Backend) createAndAddAccount(
 		// Do not create/load account if it is already loaded.
 		return
 	}
+	accountCode := persistedConfig.Code
+	signingConfigurations := persistedConfig.SigningConfigurations
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
-		Config:          persistedConfig,
-		DBFolder:        backend.arguments.CacheDirectoryPath(),
-		SkipInitialSync: options.skipETHInitialSync,
-		NotesFolder:     backend.arguments.NotesDirectoryPath(),
+		Code:                  accountCode,
+		SigningConfigurations: signingConfigurations,
+		DBFolder:              backend.arguments.CacheDirectoryPath(),
+		SkipInitialSync:       options.skipETHInitialSync,
+		NotesFolder:           backend.arguments.NotesDirectoryPath(),
 		ConnectKeystore: func() (keystore.Keystore, error) {
-			accountRootFingerprint, err := persistedConfig.SigningConfigurations.RootFingerprint()
+			accountRootFingerprint, err := signingConfigurations.RootFingerprint()
 			if err != nil {
 				return nil, err
 			}
@@ -953,9 +835,19 @@ func (backend *Backend) createAndAddAccount(
 			return backend.config.AppConfig().Backend.MainFiat
 		},
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
-			return backend.notifier.ForAccount(persistedConfig.Code)
+			return backend.notifier.ForAccount(accountCode)
 		},
-		GetSaveFilename:  backend.environment.GetSaveFilename,
+		GetSaveFilename: backend.environment.GetSaveFilename,
+		IsInsured: func() bool {
+			accountsConfig, err := backend.accountsDB.Snapshot()
+			if err != nil {
+				backend.log.WithError(err).Error("could not load account insurance status")
+				return false
+			}
+			record := accountsConfig.Lookup(accountCode)
+			return record != nil &&
+				record.InsuranceStatus == string(bitsurance.ActiveStatus)
+		},
 		UnsafeSystemOpen: backend.environment.SystemOpen,
 	}
 
@@ -970,9 +862,11 @@ func (backend *Backend) createAndAddAccount(
 		if err != nil {
 			return nil, err
 		}
-		for _, account := range accountsByKeystore[hex.EncodeToString(rootFingerprint)] {
+		accountViews := accountsByKeystore[hex.EncodeToString(rootFingerprint)]
+		for index := range accountViews {
+			accountView := &accountViews[index]
 			// This only makes sense for BTC accounts.
-			btcAccount, ok := account.(*btc.Account)
+			btcAccount, ok := accountView.Account.(*btc.Account)
 			if !ok {
 				continue
 			}
@@ -1011,19 +905,10 @@ func (backend *Backend) createAndAddAccount(
 			}
 			erc20AccountCode := Erc20AccountCode(persistedConfig.Code, erc20TokenCode)
 
-			tokenName, err := configuredAccountName(token, persistedConfig)
-			if err != nil {
-				backend.log.WithError(err).Error("could not get account number")
-			}
-
 			erc20Config := &config.Account{
-				Inactive:              persistedConfig.Inactive,
-				HiddenBecauseUnused:   persistedConfig.HiddenBecauseUnused,
 				CoinCode:              erc20CoinCode,
-				Name:                  tokenName,
 				Code:                  erc20AccountCode,
 				SigningConfigurations: persistedConfig.SigningConfigurations,
-				ActiveTokens:          nil,
 			}
 
 			backend.createAndAddAccount(token, erc20Config, options)
@@ -1375,26 +1260,41 @@ func (backend *Backend) ReinitializeAccounts() {
 // The accountsAndKeystoreLock must be held when calling this function.
 // if force is true, all accounts are uninitialized, even if they are watch-only.
 func (backend *Backend) uninitAccounts(force bool) {
-	accountsConfig := backend.config.AccountsConfig()
+	// This transitional implementation is removed once account membership is reconciled incrementally.
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records")
+		return
+	}
 	for _, account := range backend.accounts.all() {
+		accountConfig := accountsConfig.Lookup(account.Config().Code)
+		if accountConfig == nil {
+			accountConfig, _ = derivedTokenRecord(account, accountsConfig)
+		}
+
 		belongsToKeystore := false
-		if backend.keystore != nil {
+		if backend.keystore != nil && accountConfig != nil {
 			fingerprint, err := backend.keystore.RootFingerprint()
 			if err != nil {
 				backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
 			} else {
-				belongsToKeystore = account.Config().Config.SigningConfigurations.ContainsRootFingerprint(fingerprint)
+				belongsToKeystore =
+					accountConfig.SigningConfigurations.ContainsRootFingerprint(fingerprint)
 			}
 		}
 
-		isWatchonly, err := accountsConfig.IsAccountWatchOnly(account.Config().Config)
-		if err != nil {
-			backend.log.WithError(err).Error("could not determine watch status of account")
+		isWatchonly := false
+		if accountConfig != nil {
+			var err error
+			isWatchonly, err = accountsConfig.IsAccountWatchOnly(accountConfig)
+			if err != nil {
+				backend.log.WithError(err).Error("could not determine watch status of account")
+			}
 		}
 		if !force && (belongsToKeystore || isWatchonly) {
 			continue
 		}
-		backend.accounts.remove(account.Config().Config.Code)
+		backend.accounts.remove(account.Config().Code)
 	}
 }
 
@@ -1509,8 +1409,18 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		}
 	}
 
-	log := backend.log.WithField("accountCode", account.Config().Config.Code)
-	if !account.Config().Config.Used {
+	log := backend.log.WithField("accountCode", account.Config().Code)
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		log.WithError(err).Error("checkAccountUsed")
+		return
+	}
+	accountRecord := accountsConfig.Lookup(account.Config().Code)
+	if accountRecord == nil {
+		log.Error("could not find account")
+		return
+	}
+	if !accountRecord.Used {
 		txs, err := account.Transactions()
 		if err != nil {
 			log.WithError(err).Error("discoverAccount")
@@ -1525,8 +1435,8 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 	}
 	log.Info("marking account as used")
 	var emitUpdate bool
-	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
-		acct := accountsConfig.Lookup(account.Config().Config.Code)
+	err = backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
+		acct := accountsConfig.Lookup(account.Config().Code)
 		if acct == nil {
 			return errp.Newf("could not find account")
 		}
@@ -1550,8 +1460,10 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 // Used for handling Wallet Connect requests from anywhere in the app
 // Implemented only for pure ETH accounts (not ERC20s), as all Wallet Connect interactions are handled through the root ETH accounts.
 func (backend *Backend) LookupEthAccountCode(address string) (accountsTypes.Code, string, error) {
-	for _, account := range backend.Accounts() {
-		ethAccount, ok := account.(*eth.Account)
+	accountViews := backend.Accounts()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		ethAccount, ok := accountView.Account.(*eth.Account)
 		if !ok {
 			continue
 		}
@@ -1560,7 +1472,7 @@ func (backend *Backend) LookupEthAccountCode(address string) (accountsTypes.Code
 			return "", "", err
 		}
 		if matches && !eth.IsERC20(ethAccount) {
-			return ethAccount.Config().Config.Code, ethAccount.Config().Config.Name, nil
+			return accountView.Record.Code, accountView.Record.Name, nil
 		}
 	}
 	return "", "", errp.Newf("Account with address: %s not found", address)

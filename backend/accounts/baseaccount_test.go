@@ -13,7 +13,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin/mocks"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -44,14 +43,11 @@ func TestBaseAccount(t *testing.T) {
 
 	const accountIdentifier = "test-account-identifier"
 	cfg := &AccountConfig{
-		Config: &config.Account{
-			Code: "test",
-			Name: "Test",
-			SigningConfigurations: signing.Configurations{
-				signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
-				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
-				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
-			},
+		Code: "test",
+		SigningConfigurations: signing.Configurations{
+			signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
 		},
 		DBFolder:        test.TstTempDir("baseaccount_test_dbfolder"),
 		NotesFolder:     test.TstTempDir("baseaccount_test_notesfolder"),
@@ -120,8 +116,7 @@ func TestBaseAccount(t *testing.T) {
 	require.NoError(t, account.Initialize(accountIdentifier))
 
 	t.Run("config", func(t *testing.T) {
-		require.Equal(t, cfg, account.Config())
-
+		require.Same(t, cfg, account.Config())
 	})
 
 	t.Run("synchronizer", func(t *testing.T) {
@@ -344,10 +339,7 @@ func TestBaseAccount(t *testing.T) {
 			},
 		}
 		account := NewBaseAccount(&AccountConfig{
-			Config: &config.Account{
-				Code: "test",
-				Name: "Test",
-			},
+			Code:            "test",
 			DBFolder:        test.TstTempDir("baseaccount_test_dbfolder_rates"),
 			NotesFolder:     test.TstTempDir("baseaccount_test_notesfolder_rates"),
 			RateUpdater:     rateUpdater,
