@@ -184,7 +184,7 @@ func TestChartDataUsesAvailableBalanceForVisibleTotal(t *testing.T) {
 			return txs, nil
 		},
 	}
-	backend.accounts = AccountsList{account}
+	backend.accounts = accountRegistry{accounts: AccountsList{account}}
 
 	chart, err := backend.ChartData()
 
