@@ -21,6 +21,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -87,6 +88,7 @@ type Lightning struct {
 	environment            environment
 	getKeystore            func() keystore.Keystore
 	getAccount             func(types.Code) (accounts.Interface, error)
+	getReceiveScriptType   func(types.Code) (*signing.ScriptType, error)
 	synced                 bool
 
 	log           *logrus.Entry
@@ -111,6 +113,7 @@ func NewLightning(config *config.Config,
 	environment environment,
 	getKeystore func() keystore.Keystore,
 	getAccount func(types.Code) (accounts.Interface, error),
+	getReceiveScriptType func(types.Code) (*signing.ScriptType, error),
 	httpClient *http.Client,
 	socksProxy socksproxy.SocksProxy,
 	ratesUpdater *rates.RateUpdater,
@@ -121,6 +124,7 @@ func NewLightning(config *config.Config,
 		environment:            environment,
 		getKeystore:            getKeystore,
 		getAccount:             getAccount,
+		getReceiveScriptType:   getReceiveScriptType,
 		log:                    logging.Get().WithGroup("lightning"),
 		synced:                 false,
 		sparkStatus:            breez_sdk_spark.GetSparkStatus,

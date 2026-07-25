@@ -61,8 +61,9 @@ func TestSignWalletConnectTransactionChainDependencies(t *testing.T) {
 			nativeCoin := eth.NewCoin(newClient(), coinpkg.CodeSEPETH, "Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig, "", nil, nil)
 			updates := make(chan *eth.Account, 2)
 			account := eth.NewAccount(&accounts.AccountConfig{
-				Config:   &config.Account{Code: "account", SigningConfigurations: signing.Configurations{cfg}},
-				DBFolder: t.TempDir(), SkipInitialSync: true,
+				Code:                  "account",
+				SigningConfigurations: signing.Configurations{cfg},
+				DBFolder:              t.TempDir(), SkipInitialSync: true,
 				GetNotifier: func(signing.Configurations) accounts.Notifier { return nil },
 				ConnectKeystore: func() (keystore.Keystore, error) {
 					return &keystoremock.KeystoreMock{SignTransactionFunc: func(value interface{}) error {
@@ -77,6 +78,14 @@ func TestSignWalletConnectTransactionChainDependencies(t *testing.T) {
 			require.NoError(t, account.Initialize())
 			defer account.Close()
 			b := newBackend(t, true, false)
+			require.NoError(t, b.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
+				accountsConfig.Accounts = append(accountsConfig.Accounts, &config.Account{
+					Code:                  "account",
+					CoinCode:              coinpkg.CodeSEPETH,
+					SigningConfigurations: signing.Configurations{cfg},
+				})
+				return nil
+			}))
 			unlock := b.accountsAndKeystoreLock.Lock()
 			b.addAccount(account)
 			unlock()

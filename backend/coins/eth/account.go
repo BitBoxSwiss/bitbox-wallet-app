@@ -97,7 +97,7 @@ func NewAccount(
 	enqueueUpdateCh chan *Account,
 ) *Account {
 	log = log.WithField("group", "eth").
-		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Config.Code})
+		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Code})
 	log.Debug("Creating new account")
 
 	account := &Account{
@@ -151,7 +151,7 @@ func (account *Account) Initialize() error {
 	}
 	account.initialized = true
 
-	signingConfigurations := account.Config().Config.SigningConfigurations
+	signingConfigurations := account.Config().SigningConfigurations
 	if len(signingConfigurations) != 1 {
 		return errp.New("Ethereum only supports one signing config")
 	}
@@ -160,7 +160,7 @@ func (account *Account) Initialize() error {
 	account.signingConfiguration = signingConfiguration
 	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
-	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Config.Code)
+	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Code)
 	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
@@ -849,8 +849,9 @@ func (account *Account) Address() (*Address, error) {
 }
 
 // IsERC20 checks whether an account is an ERC20 token account.
-func IsERC20(account *Account) bool {
-	return account.coin.erc20Token != nil
+func IsERC20(account accounts.Interface) bool {
+	coin, isETH := account.Coin().(*Coin)
+	return isETH && coin.erc20Token != nil
 }
 
 // MatchesAddress checks whether the provided address matches the account.

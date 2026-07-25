@@ -108,7 +108,7 @@ func TestProxyConfig(t *testing.T) {
 
 func TestSparkStatusWithProxy(t *testing.T) {
 	cfg := newTestLightning(t, nil).backendConfig
-	lightning := NewLightning(cfg, t.TempDir(), nil, nil, nil, nil,
+	lightning := NewLightning(cfg, t.TempDir(), nil, nil, nil, nil, nil,
 		socksproxy.NewSocksProxy(true, "[::1]:9150"), nil, nil)
 	lightning.sparkStatus = func(request breez_sdk_spark.GetSparkStatusRequest) (breez_sdk_spark.SparkStatus, error) {
 		require.Equal(t, &breez_sdk_spark.ProxyConfig{Host: "::1", Port: 9150}, request.Proxy)
