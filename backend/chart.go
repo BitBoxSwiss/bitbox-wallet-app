@@ -13,9 +13,10 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
-func (backend *Backend) allCoinCodes() []string {
+func allCoinCodes(accountViews AccountViews) []string {
 	allCoinCodes := []string{}
-	for _, accountView := range backend.Accounts() {
+	for index := range accountViews {
+		accountView := &accountViews[index]
 		if accountView.Record.Inactive {
 			continue
 		}
@@ -107,9 +108,10 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	chartEntriesHourly := map[int64]RatChartEntry{}
 
 	fiat := backend.Config().AppConfig().Backend.MainFiat
+	accountViews := backend.Accounts()
 
 	// Chart data until this point in time.
-	until := backend.RatesUpdater().HistoryLatestTimestampFiat(backend.allCoinCodes(), fiat)
+	until := backend.RatesUpdater().HistoryLatestTimestampFiat(allCoinCodes(accountViews), fiat)
 	if until.IsZero() {
 		chartDataMissing = true
 		backend.log.Info("ChartDataMissing, until is zero")
@@ -121,7 +123,8 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	currentTotalMissing := false
 	// Total number of transactions across all active accounts.
 	totalNumberOfTransactions := 0
-	for _, accountView := range backend.Accounts() {
+	for index := range accountViews {
+		accountView := &accountViews[index]
 		if accountView.Record.Inactive {
 			continue
 		}

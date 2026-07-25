@@ -124,19 +124,24 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 	return availableCoins
 }
 
-// AccountsByKeystore returns a map of the current accounts of the backend, grouped
-// by keystore.
-func (backend *Backend) AccountsByKeystore() (KeystoresAccountViewsMap, error) {
+func groupAccountViewsByKeystore(accountViews AccountViews) (KeystoresAccountViewsMap, error) {
 	accountsByKeystore := KeystoresAccountViewsMap{}
-	for _, account := range backend.Accounts() {
-		rootFingerprint, err := account.Record.SigningConfigurations.RootFingerprint()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		rootFingerprint, err := accountView.Record.SigningConfigurations.RootFingerprint()
 		if err != nil {
 			return nil, err
 		}
 		hexFingerprint := hex.EncodeToString(rootFingerprint)
-		accountsByKeystore[hexFingerprint] = append(accountsByKeystore[hexFingerprint], account)
+		accountsByKeystore[hexFingerprint] = append(accountsByKeystore[hexFingerprint], *accountView)
 	}
 	return accountsByKeystore, nil
+}
+
+// AccountsByKeystore returns a map of the current accounts of the backend, grouped
+// by keystore.
+func (backend *Backend) AccountsByKeystore() (KeystoresAccountViewsMap, error) {
+	return groupAccountViewsByKeystore(backend.Accounts())
 }
 
 // accountFiatBalance returns an account's balance, converted in fiat currency.
@@ -170,12 +175,13 @@ type coinFormattedAmount struct {
 }
 
 // getCoinsTotalBalance returns the total balances grouped by coins.
-func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
+func (backend *Backend) coinsTotalBalance(accountViews AccountViews) ([]coinFormattedAmount, error) {
 	coinFormattedAmounts := []coinFormattedAmount{}
 	var sortedCoins []coinpkg.Code
 	totalCoinsBalances := make(map[coinpkg.Code]*big.Int)
 
-	for _, accountView := range backend.Accounts() {
+	for index := range accountViews {
+		accountView := &accountViews[index]
 		if accountView.Record.Inactive || accountView.Record.HiddenBecauseUnused {
 			continue
 		}
@@ -281,11 +287,13 @@ func (backend *Backend) AccountsFiatAndCoinBalance(accounts AccountViews, fiatUn
 }
 
 // keystoresBalance returns a map of accounts' total balances across coins, grouped by keystore.
-func (backend *Backend) keystoresBalance() (map[string]KeystoreBalance, error) {
+func (backend *Backend) keystoresBalance(
+	accountViews AccountViews,
+) (map[string]KeystoreBalance, error) {
 	keystoreBalanceMap := make(map[string]KeystoreBalance)
 	fiatUnit := backend.Config().AppConfig().Backend.MainFiat
 
-	accountsByKeystore, err := backend.AccountsByKeystore()
+	accountsByKeystore, err := groupAccountViewsByKeystore(accountViews)
 	if err != nil {
 		return nil, err
 	}
@@ -330,11 +338,12 @@ type AccountsBalanceSummary struct {
 
 // AccountsBalanceSummary returns the total balance for each coin and of each keystore.
 func (backend *Backend) AccountsBalanceSummary() (*AccountsBalanceSummary, error) {
-	keystoresBalance, err := backend.keystoresBalance()
+	accountViews := backend.Accounts()
+	keystoresBalance, err := backend.keystoresBalance(accountViews)
 	if err != nil {
 		return nil, err
 	}
-	coinsTotalBalance, err := backend.coinsTotalBalance()
+	coinsTotalBalance, err := backend.coinsTotalBalance(accountViews)
 	if err != nil {
 		return nil, err
 	}

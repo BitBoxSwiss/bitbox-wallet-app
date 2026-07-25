@@ -1343,12 +1343,13 @@ func (backend *Backend) IsOnline() bool {
 	return backend.isOnline.Load()
 }
 
-// GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
-// if found. It also initialize the account before returning it.
-func (backend *Backend) GetAccountFromCode(acctCode accountsTypes.Code) (accounts.Interface, error) {
-	accountView := backend.Accounts().lookup(acctCode)
+func accountFromViews(
+	accountViews AccountViews,
+	accountCode accountsTypes.Code,
+) (accounts.Interface, error) {
+	accountView := accountViews.lookup(accountCode)
 	if accountView == nil || accountView.Record.Inactive {
-		return nil, fmt.Errorf("unknown account code %q", acctCode)
+		return nil, fmt.Errorf("unknown account code %q", accountCode)
 	}
 
 	if err := accountView.Account.Initialize(); err != nil {
@@ -1356,6 +1357,12 @@ func (backend *Backend) GetAccountFromCode(acctCode accountsTypes.Code) (account
 	}
 
 	return accountView.Account, nil
+}
+
+// GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
+// if found. It also initialize the account before returning it.
+func (backend *Backend) GetAccountFromCode(accountCode accountsTypes.Code) (accounts.Interface, error) {
+	return accountFromViews(backend.Accounts(), accountCode)
 }
 
 // CancelConnectKeystore cancels a pending keystore connection request if one exists.
