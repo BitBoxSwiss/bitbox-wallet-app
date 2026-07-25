@@ -1651,7 +1651,7 @@ func TestKeystoresBalance(t *testing.T) {
 	b.ratesUpdater = rates.MockRateUpdater()
 	defer b.ratesUpdater.Stop()
 
-	keystoresBalance, err := b.keystoresBalance()
+	keystoresBalance, err := b.keystoresBalance(b.Accounts())
 	require.NoError(t, err)
 
 	require.NotNil(t, keystoresBalance[hex.EncodeToString(ks1Fingerprint)])
@@ -1718,7 +1718,7 @@ func TestCoinsTotalBalance(t *testing.T) {
 	b.ratesUpdater = rates.MockRateUpdater()
 	defer b.ratesUpdater.Stop()
 
-	coinsTotalBalance, err := b.coinsTotalBalance()
+	coinsTotalBalance, err := b.coinsTotalBalance(b.Accounts())
 	require.NoError(t, err)
 	require.Equal(t, coinpkg.CodeBTC, coinsTotalBalance[0].CoinCode)
 	require.Equal(t, "2.00000000", coinsTotalBalance[0].FormattedAmount.Amount)
