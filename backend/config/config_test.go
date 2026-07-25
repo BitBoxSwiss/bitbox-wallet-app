@@ -9,7 +9,9 @@ import (
 	"runtime"
 	"testing"
 
+	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/require"
 )
@@ -97,6 +99,56 @@ func TestModifyAccountsConfig(t *testing.T) {
 	require.Error(t, cfg.ModifyAccountsConfig(func(accountsCfg *AccountsConfig) error {
 		return errors.New("error")
 	}))
+}
+
+func TestAccountsSnapshot(t *testing.T) {
+	appConfigFilename := test.TstTempFile("appConfig")
+	accountsConfigFilename := test.TstTempFile("accountsConfig")
+
+	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename)
+	require.NoError(t, err)
+
+	watch := true
+	receiveScriptType := signing.ScriptTypeP2WPKH
+	backupReminderAllowed := true
+	code := accountsTypes.Code("account-code")
+	require.NoError(t, cfg.ModifyAccountsConfig(func(accountsCfg *AccountsConfig) error {
+		accountsCfg.Accounts = append(accountsCfg.Accounts, &Account{
+			Code:              code,
+			Name:              "Original",
+			Watch:             &watch,
+			ReceiveScriptType: &receiveScriptType,
+			ActiveTokens:      []string{"token"},
+		})
+		accountsCfg.Keystores = append(accountsCfg.Keystores, &Keystore{
+			RootFingerprint:       []byte{1, 2, 3, 4},
+			BackupReminderAllowed: &backupReminderAllowed,
+		})
+		return nil
+	}))
+
+	snapshot := cfg.AccountsSnapshot()
+	snapshotJSON, err := json.Marshal(snapshot)
+	require.NoError(t, err)
+	persistedJSON, err := json.Marshal(cfg.AccountsConfig())
+	require.NoError(t, err)
+	require.JSONEq(t, string(persistedJSON), string(snapshotJSON))
+
+	snapshotAccount := snapshot.Lookup(code)
+	snapshotAccount.Name = "Snapshot"
+	*snapshotAccount.Watch = false
+	*snapshotAccount.ReceiveScriptType = signing.ScriptTypeP2TR
+	snapshotAccount.ActiveTokens[0] = "snapshot-token"
+	snapshot.Keystores[0].RootFingerprint[0] = 9
+	*snapshot.Keystores[0].BackupReminderAllowed = false
+
+	persisted := cfg.AccountsConfig()
+	require.Equal(t, "Original", persisted.Lookup(code).Name)
+	require.True(t, *persisted.Lookup(code).Watch)
+	require.Equal(t, signing.ScriptTypeP2WPKH, *persisted.Lookup(code).ReceiveScriptType)
+	require.Equal(t, []string{"token"}, persisted.Lookup(code).ActiveTokens)
+	require.Equal(t, byte(1), persisted.Keystores[0].RootFingerprint[0])
+	require.True(t, *persisted.Keystores[0].BackupReminderAllowed)
 }
 
 // TestMigrationSaved tests that migrations are applied when a config is loaded, and that the

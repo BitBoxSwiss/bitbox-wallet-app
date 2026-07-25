@@ -118,6 +118,8 @@ type Backend interface {
 	ForceAuth()
 	CancelConnectKeystore()
 	SetWatchonly(rootFingerprint []byte, watchonly bool) error
+	KeystoreBackupReminderAllowed(rootFingerprint []byte) (*bool, error)
+	SetKeystoreBackupReminderAllowed(rootFingerprint []byte, allowed bool) error
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
 	Bluetooth() *bluetooth.Bluetooth
 	IsOnline() bool
@@ -1866,20 +1868,18 @@ func (handlers *Handlers) getKeystoreShowBackupBanner(r *http.Request) interface
 			Success: false,
 		}
 	}
-	if keystoreConfig, err := handlers.backend.Config().AccountsConfig().LookupKeystore(rootFingerprint); err == nil {
-		backupReminderConfig = keystoreConfig.BackupReminderAllowed
+	if allowed, err := handlers.backend.KeystoreBackupReminderAllowed(rootFingerprint); err == nil {
+		backupReminderConfig = allowed
 	}
 
 	show := overThreshold
 
 	if backupReminderConfig == nil {
 		show = false
-		if err := handlers.backend.Config().ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
-			keystoreConfig := cfg.GetOrAddKeystore(rootFingerprint)
-			value := !overThreshold
-			keystoreConfig.BackupReminderAllowed = &value
-			return nil
-		}); err != nil {
+		if err := handlers.backend.SetKeystoreBackupReminderAllowed(
+			rootFingerprint,
+			!overThreshold,
+		); err != nil {
 			handlers.log.WithError(err).Error("Could not persist backup reminder eligibility state")
 		}
 	} else if !*backupReminderConfig {

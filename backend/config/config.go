@@ -343,6 +343,13 @@ func (config *Config) AccountsConfig() AccountsConfig {
 	return config.accountsConfig
 }
 
+// AccountsSnapshot returns a coherent copy of the account and keystore records. Mutable metadata
+// and membership slices are detached; immutable signing configurations may be shared.
+func (config *Config) AccountsSnapshot() AccountsConfig {
+	defer config.accountsConfigLock.RLock()()
+	return cloneAccountsConfig(config.accountsConfig)
+}
+
 // ModifyAccountsConfig calls f with the current config, allowing f to make any changes, and
 // persists the result if f returns nil error.  It propagates the f's error as is.
 func (config *Config) ModifyAccountsConfig(f func(*AccountsConfig) error) error {

@@ -188,9 +188,8 @@ type ImportNotesResult struct {
 // ImportNotes imports notes from a jsonlines document according to BIP-329:
 // https://github.com/bitcoin/bips/blob/master/bip-0329.mediawiki
 //
-// Only accounts of connected/remembered keystores are considered, also deactivated accounts (except
-// for deactivated ERC-20 accounts). If a label in the import does not belong to one of them, it is
-// ignored.
+// Account labels are imported for non-hidden persisted accounts, including inactive accounts of
+// remembered but disconnected keystores. Transaction labels are imported only for loaded accounts.
 func (backend *Backend) ImportNotes(jsonLines []byte) (*ImportNotesResult, error) {
 	sanityCheck := func() error {
 		scanner := bufio.NewScanner(bytes.NewReader(jsonLines))
@@ -207,6 +206,10 @@ func (backend *Backend) ImportNotes(jsonLines []byte) (*ImportNotesResult, error
 		return nil
 	}
 	if err := sanityCheck(); err != nil {
+		return nil, err
+	}
+	accountsConfigSnapshot, err := backend.accountsDB.Snapshot()
+	if err != nil {
 		return nil, err
 	}
 	scanner := bufio.NewScanner(bytes.NewReader(jsonLines))
@@ -236,14 +239,14 @@ func (backend *Backend) ImportNotes(jsonLines []byte) (*ImportNotesResult, error
 			if entry.BitBoxApp != nil {
 				accountCode = entry.BitBoxApp.AccountCode
 			} else {
-				acctCode, err := backend.config.AccountsConfig().LookupByXpub(ref)
+				acctCode, err := accountsConfigSnapshot.LookupByXpub(ref)
 				if err != nil {
 					// Could not find any account for this label, skipping.
 					continue
 				}
 				accountCode = acctCode
 			}
-			err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+			err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 				acct := accountsConfig.Lookup(accountCode)
 				if acct == nil {
 					// Could not find account using this account code, cannot apply label. Skipping.

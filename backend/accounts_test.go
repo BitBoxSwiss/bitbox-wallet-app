@@ -58,7 +58,7 @@ func checkShownAccountsLen(t *testing.T, b *Backend, expectedLoaded int, expecte
 	t.Helper()
 	checkShownLoadedAccountsLen(t, b.Accounts(), expectedLoaded)
 	cntPersisted := 0
-	for _, acct := range b.Config().AccountsConfig().Accounts {
+	for _, acct := range accountsSnapshot(t, b).Accounts {
 		if !acct.HiddenBecauseUnused {
 			cntPersisted++
 		}
@@ -84,14 +84,15 @@ func TestAccounts(t *testing.T) {
 	defer b.Close()
 
 	require.Empty(t, b.Accounts())
-	require.Empty(t, b.Config().AccountsConfig().Accounts)
+	require.Empty(t, accountsSnapshot(t, b).Accounts)
 
 	// 1) Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(ks)
 	checkShownAccountsLen(t, b, 3, 3)
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
+	accountsConfig := accountsSnapshot(t, b)
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-btc-0"))
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-ltc-0"))
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-eth-0"))
 
 	// 2) Add a second BTC account
 	acctCode, err := b.CreateAndPersistAccountConfig(coinpkg.CodeBTC, "A second Bitcoin account", ks)
@@ -102,9 +103,10 @@ func TestAccounts(t *testing.T) {
 	// 3) Activate some ETH tokens
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", true))
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-bat", true))
+	accountsConfig = accountsSnapshot(t, b)
 	require.Equal(t,
 		[]string{"eth-erc20-usdt", "eth-erc20-bat"},
-		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
+		accountsConfig.Lookup("v0-55555555-eth-0").ActiveTokens,
 	)
 	checkShownAccountsLen(t, b, 6, 4)
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat"))
@@ -112,16 +114,18 @@ func TestAccounts(t *testing.T) {
 
 	// 4) Deactivate an ETH token
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", false))
+	accountsConfig = accountsSnapshot(t, b)
 	require.Equal(t,
 		[]string{"eth-erc20-bat"},
-		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
+		accountsConfig.Lookup("v0-55555555-eth-0").ActiveTokens,
 	)
 	checkShownAccountsLen(t, b, 5, 4)
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat"))
 
 	// 5) Rename an account
 	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH"))
-	require.Equal(t, "My ETH", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
+	accountsConfig = accountsSnapshot(t, b)
+	require.Equal(t, "My ETH", accountsConfig.Lookup("v0-55555555-eth-0").Name)
 	require.Equal(t, "My ETH", b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Name)
 
 	// 6) Deactivate an ETH account - it also deactivates the tokens.
@@ -130,14 +134,16 @@ func TestAccounts(t *testing.T) {
 
 	// 7) Reactivating a token also reactivates the parent ETH account.
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-bat", true))
-	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Inactive)
+	accountsConfig = accountsSnapshot(t, b)
+	require.False(t, accountsConfig.Lookup("v0-55555555-eth-0").Inactive)
 	require.False(t, b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
 	require.False(t, b.Accounts().lookup("v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
 
 	// 8) Rename an inactive account.
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
 	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH Renamed"))
-	require.Equal(t, "My ETH Renamed", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
+	accountsConfig = accountsSnapshot(t, b)
+	require.Equal(t, "My ETH Renamed", accountsConfig.Lookup("v0-55555555-eth-0").Name)
 	require.Equal(t, "My ETH Renamed", b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Name)
 }
 
@@ -155,7 +161,7 @@ func TestSetAccountReceiveScriptType(t *testing.T) {
 	accountCode := accountsTypes.Code("v0-55555555-btc-0")
 	require.NoError(t, b.SetAccountReceiveScriptType(accountCode, signing.ScriptTypeP2TR))
 
-	persistedAccount := b.Config().AccountsConfig().Lookup(accountCode)
+	persistedAccount := accountsSnapshot(t, b).Lookup(accountCode)
 	require.NotNil(t, persistedAccount)
 	require.NotNil(t, persistedAccount.ReceiveScriptType)
 	require.Equal(t, signing.ScriptTypeP2TR, *persistedAccount.ReceiveScriptType)
@@ -167,7 +173,7 @@ func TestSetAccountReceiveScriptType(t *testing.T) {
 
 	require.Error(t, b.SetAccountReceiveScriptType(accountCode, signing.ScriptTypeP2WPKHP2SH))
 
-	require.NoError(t, b.Config().ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	require.NoError(t, b.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		accountsConfig.Lookup(accountCode).InsuranceStatus = string(bitsurance.ActiveStatus)
 		return nil
 	}))
@@ -219,7 +225,7 @@ func TestSortAccounts(t *testing.T) {
 		{Code: "acct-eth-beta-1", CoinCode: coinpkg.CodeETH, SigningConfigurations: ethConfig(rootFingerprint1, "m/44'/60'/0'/0/0")},
 	}
 	backend := newBackend(t, testnetDisabled, regtestDisabled)
-	require.NoError(t, backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	require.NoError(t, backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		keystore1 := accountsConfig.GetOrAddKeystore(rootFingerprint1)
 		keystore1.Name = betaWalletName
 		keystore2 := accountsConfig.GetOrAddKeystore(rootFingerprint2)
@@ -281,7 +287,7 @@ func TestObserveKeystoreNameChanged(t *testing.T) {
 
 	backend := newBackend(t, testnetDisabled, regtestDisabled)
 	defer backend.Close()
-	require.NoError(t, backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	require.NoError(t, backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		accountsConfig.GetOrAddKeystore(rootFingerprint1).Name = "Beta"
 		accountsConfig.GetOrAddKeystore(rootFingerprint2).Name = "Alpha"
 		return nil
@@ -324,7 +330,8 @@ func TestObserveKeystoreNameChanged(t *testing.T) {
 		},
 	})
 
-	keystoreConfig, err := backend.Config().AccountsConfig().LookupKeystore(rootFingerprint1)
+	accountsConfig := accountsSnapshot(t, backend)
+	keystoreConfig, err := accountsConfig.LookupKeystore(rootFingerprint1)
 	require.NoError(t, err)
 	require.Equal(t, "Aardvark", keystoreConfig.Name)
 	require.Equal(t, accountsTypes.Code("acct-beta"), backend.Accounts()[0].Config().Config.Code)
@@ -425,6 +432,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "v0-55555555-btc-1", string(acctCode))
 
+		accountsConfig := accountsSnapshot(t, b)
 		require.Equal(t,
 			&config.Account{
 				CoinCode: "btc",
@@ -436,7 +444,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/1'"), test.TstMustXKey("xpub6CUmEcJb7juvpvNs2hKMc9BP1n82ixzUb4jyHUdYzSLmnXru3nb4hhGsfS23WRx8hgJLxMxZ7WcBGzTiYfiANUQZe3TVFghLrxvA2Ls7u4a")),
 				},
 			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-btc-1"),
+			accountsConfig.Lookup("v0-55555555-btc-1"),
 		)
 
 		// Add another Litecoin account.
@@ -447,6 +455,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.NoError(t, err)
 		require.Equal(t, "v0-55555555-ltc-1", string(acctCode))
+		accountsConfig = accountsSnapshot(t, b)
 		require.Equal(t,
 			&config.Account{
 				CoinCode: "ltc",
@@ -457,7 +466,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/2'/1'"), test.TstMustXKey("xpub6CrhULuXbYzo8Lk2iJY5dr6mWjHBKQuohcP99HcioFiouGuEBWEJDMbgLDD89hvJiT1wD94FnuQcSzE4QsxWDv2AQbiitk7EbNvE8mmT17M")),
 				},
 			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-ltc-1"),
+			accountsConfig.Lookup("v0-55555555-ltc-1"),
 		)
 
 		// Add another Ethereum account.
@@ -468,6 +477,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.NoError(t, err)
 		require.Equal(t, "v0-55555555-eth-1", string(acctCode))
+		accountsConfig = accountsSnapshot(t, b)
 		require.Equal(t,
 			&config.Account{
 				CoinCode: "eth",
@@ -477,7 +487,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 					signing.NewEthereumConfiguration(rootFingerprint1, mustKeypath("m/44'/60'/0'/0/1"), test.TstMustXKey("xpub6GP83vJASH1kUpndXSe3e942omyTYSPKaav6shfic7Lc3rFJR9ctA3AXaTf7rX7PuSZNUnaqj4hiqgnRXr26jitBz4jLhmFURtVxDykHbQm")),
 				},
 			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-eth-1"),
+			accountsConfig.Lookup("v0-55555555-eth-1"),
 		)
 
 		// Add another Bitcoin account.
@@ -488,6 +498,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.NoError(t, err)
 		require.Equal(t, "v0-55555555-btc-2", string(acctCode))
+		accountsConfig = accountsSnapshot(t, b)
 		require.Equal(t,
 			&config.Account{
 				CoinCode: "btc",
@@ -499,7 +510,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/2'"), test.TstMustXKey("xpub6CUmEcJb7juvtsy83LUg98DBNk2YXQLTRh6HvVCSxEpNKn2UoUhQKrs7CMEfnWtD1a9ezxQvLKHaKXGm1Wd2pamTesJPFxipMq9p225DVnP")),
 				},
 			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-btc-2"),
+			accountsConfig.Lookup("v0-55555555-btc-2"),
 		)
 
 		// Add another Litecoin account.
@@ -510,6 +521,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.NoError(t, err)
 		require.Equal(t, "v0-55555555-ltc-2", string(acctCode))
+		accountsConfig = accountsSnapshot(t, b)
 		require.Equal(t,
 			&config.Account{
 				CoinCode: "ltc",
@@ -520,7 +532,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/2'/2'"), test.TstMustXKey("xpub6CrhULuXbYzoAckL8qPdKvphNJQKF18vQmhaEgSMEjSB4uE3ZULChPrSQ4J2eD1zFW4rVGPe2x1AMY55F4PQSvE4KQaBzD63R5HKAu5e65a")),
 				},
 			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-ltc-2"),
+			accountsConfig.Lookup("v0-55555555-ltc-2"),
 		)
 
 		// Add another Ethereum account.
@@ -531,6 +543,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.NoError(t, err)
 		require.Equal(t, "v0-55555555-eth-2", string(acctCode))
+		accountsConfig = accountsSnapshot(t, b)
 		require.Equal(t,
 			&config.Account{
 				CoinCode: "eth",
@@ -540,11 +553,12 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 					signing.NewEthereumConfiguration(rootFingerprint1, mustKeypath("m/44'/60'/0'/0/2"), test.TstMustXKey("xpub6GP83vJASH1kWxg73WYnAjrLZPzGRoBScD2JqgnPtRK57yQ1eQQuAtTnMaY6wz6HKDo4WeApein4bYmeZZRjxz93yX6AtZCaFBJo9v1NX9r")),
 				},
 			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-eth-2"),
+			accountsConfig.Lookup("v0-55555555-eth-2"),
 		)
 
 		// Add BTC/LTC hidden accounts for scanning.
 		b.maybeAddHiddenUnusedAccounts()
+		accountsConfig = accountsSnapshot(t, b)
 		require.Equal(t,
 			&config.Account{
 				HiddenBecauseUnused: true,
@@ -557,7 +571,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/3'"), test.TstMustXKey("xpub6CUmEcJb7juvwkgAjf2f7WmD5oQx6xhizXTw2xRhPMjDq9SpZp3ELFauXdyU3XbLeHs4gvMMf6VeK7WoekdGQSXwrmVERdFtSPYiXhEFXwJ")),
 				},
 			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-btc-3"),
+			accountsConfig.Lookup("v0-55555555-btc-3"),
 		)
 		// Add another Bitcoin account. The previously added hidden account is unhidden instead of
 		// adding a new one. The name is overwritten.
@@ -568,6 +582,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.NoError(t, err)
 		require.Equal(t, "v0-55555555-btc-3", string(acctCode))
+		accountsConfig = accountsSnapshot(t, b)
 		require.Equal(t,
 			&config.Account{
 				CoinCode: "btc",
@@ -579,7 +594,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, rootFingerprint1, mustKeypath("m/49'/0'/3'"), test.TstMustXKey("xpub6CUmEcJb7juvwkgAjf2f7WmD5oQx6xhizXTw2xRhPMjDq9SpZp3ELFauXdyU3XbLeHs4gvMMf6VeK7WoekdGQSXwrmVERdFtSPYiXhEFXwJ")),
 				},
 			},
-			b.Config().AccountsConfig().Lookup("v0-55555555-btc-3"),
+			accountsConfig.Lookup("v0-55555555-btc-3"),
 		)
 
 	})
@@ -743,7 +758,7 @@ func TestETHInitialSyncMode(t *testing.T) {
 		return rootFingerprint1, nil
 	}
 
-	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+	require.NoError(t, b.accountsDB.Update(func(cfg *config.AccountsConfig) error {
 		if _, err := b.createAndPersistAccountConfig(
 			coinpkg.CodeETH,
 			0,
@@ -848,26 +863,29 @@ func TestInactiveAccount(t *testing.T) {
 	b.registerKeystore(bitbox02LikeKeystore)
 
 	checkShownAccountsLen(t, b, 3, 3)
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
-	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
+	accountsConfig := accountsSnapshot(t, b)
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-btc-0"))
+	require.False(t, accountsConfig.Lookup("v0-55555555-btc-0").Inactive)
 	require.False(t, b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0"))
-	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0").Inactive)
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-ltc-0"))
+	require.False(t, accountsConfig.Lookup("v0-55555555-ltc-0").Inactive)
 	require.False(t, b.Accounts().lookup("v0-55555555-ltc-0").Config().Config.Inactive)
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
-	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Inactive)
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-eth-0"))
+	require.False(t, accountsConfig.Lookup("v0-55555555-eth-0").Inactive)
 	require.False(t, b.Accounts().lookup("v0-55555555-eth-0").Config().Config.Inactive)
 
 	// Deactive an account.
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
 	checkShownAccountsLen(t, b, 3, 3)
-	require.True(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
+	accountsConfig = accountsSnapshot(t, b)
+	require.True(t, accountsConfig.Lookup("v0-55555555-btc-0").Inactive)
 	require.True(t, b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
 
 	// Reactivate.
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", true))
 	checkShownAccountsLen(t, b, 3, 3)
-	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
+	accountsConfig = accountsSnapshot(t, b)
+	require.False(t, accountsConfig.Lookup("v0-55555555-btc-0").Inactive)
 	require.False(t, b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Inactive)
 
 	// Deactivating an ETH account with tokens also removes the tokens
@@ -981,9 +999,10 @@ func TestTaprootUpgrade(t *testing.T) {
 	require.Equal(t,
 		signing.ScriptTypeP2WPKHP2SH, btcAccount.Config().Config.SigningConfigurations[1].ScriptType())
 	// Same for the persisted account config.
+	accountsConfig := accountsSnapshot(t, b)
 	require.Equal(t,
 		btcAccount.Config().Config.SigningConfigurations,
-		b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").SigningConfigurations)
+		accountsConfig.Lookup("v0-55555555-btc-0").SigningConfigurations)
 
 	// "Unplug", then insert an updated keystore with taproot support.
 	b.DeregisterKeystore()
@@ -1004,9 +1023,10 @@ func TestTaprootUpgrade(t *testing.T) {
 	require.Equal(t,
 		signing.ScriptTypeP2TR, btcAccount.Config().Config.SigningConfigurations[2].ScriptType())
 	// Same for the persisted account config.
+	accountsConfig = accountsSnapshot(t, b)
 	require.Equal(t,
 		btcAccount.Config().Config.SigningConfigurations,
-		b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").SigningConfigurations)
+		accountsConfig.Lookup("v0-55555555-btc-0").SigningConfigurations)
 }
 
 func TestRenameAccount(t *testing.T) {
@@ -1021,7 +1041,8 @@ func TestRenameAccount(t *testing.T) {
 
 	require.NoError(t, b.RenameAccount("v0-55555555-btc-0", "renamed"))
 	require.Equal(t, "renamed", b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Name)
-	require.Equal(t, "renamed", b.config.AccountsConfig().Lookup("v0-55555555-btc-0").Name)
+	accountsConfig := accountsSnapshot(t, b)
+	require.Equal(t, "renamed", accountsConfig.Lookup("v0-55555555-btc-0").Name)
 }
 
 func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
@@ -1044,14 +1065,15 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 	}
 
 	require.Len(t, b.Accounts(), 3+2*5)
-	require.Len(t, b.config.AccountsConfig().Accounts, 3+2*5)
+	accountsConfig := accountsSnapshot(t, b)
+	require.Len(t, accountsConfig.Accounts, 3+2*5)
 
 	for i := 1; i <= 5; i++ {
 		for _, addedAccountCode := range []string{
 			fmt.Sprintf("v0-55555555-btc-%d", i),
 			fmt.Sprintf("v0-55555555-ltc-%d", i),
 		} {
-			addedAccount := b.config.AccountsConfig().Lookup(accountsTypes.Code(addedAccountCode))
+			addedAccount := accountsConfig.Lookup(accountsTypes.Code(addedAccountCode))
 			require.NotNil(t, addedAccount)
 			require.True(t, addedAccount.HiddenBecauseUnused)
 
@@ -1062,19 +1084,22 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 	}
 
 	// One more call does nothing as the previous account must be used before new ones can be added.
-	require.Len(t, b.config.AccountsConfig().Accounts, 13)
+	require.Len(t, accountsConfig.Accounts, 13)
 	b.maybeAddHiddenUnusedAccounts()
-	require.Len(t, b.config.AccountsConfig().Accounts, 13)
+	accountsConfig = accountsSnapshot(t, b)
+	require.Len(t, accountsConfig.Accounts, 13)
 
 	// Mark the last account as used. Then one more hidden account can be added for scanning.
-	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+	require.NoError(t, b.accountsDB.Update(func(cfg *config.AccountsConfig) error {
 		cfg.Lookup("v0-55555555-btc-5").Used = true
 		return nil
 	}))
-	require.Nil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-6"))
+	accountsConfig = accountsSnapshot(t, b)
+	require.Nil(t, accountsConfig.Lookup("v0-55555555-btc-6"))
 	b.maybeAddHiddenUnusedAccounts()
-	require.Len(t, b.config.AccountsConfig().Accounts, 14)
-	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-6"))
+	accountsConfig = accountsSnapshot(t, b)
+	require.Len(t, accountsConfig.Accounts, 14)
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-btc-6"))
 }
 
 func TestWatchonly(t *testing.T) {
@@ -1130,7 +1155,7 @@ func TestWatchonly(t *testing.T) {
 			require.Fail(t, "expected hidden accounts to be added")
 		}
 
-		require.Greater(t, len(b.Config().AccountsConfig().Accounts), 3)
+		require.Greater(t, len(accountsSnapshot(t, b).Accounts), 3)
 
 		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 		b.DeregisterKeystore()
@@ -1324,7 +1349,7 @@ func TestWatchonly(t *testing.T) {
 		expectedNewAccountCode2 := accountsTypes.Code("v0-55555555-btc-2")
 		// Make sure the account to be added has not been added yet (autodiscover), so we know we
 		// are testing the intended account persistence.
-		require.Nil(t, b.Config().AccountsConfig().Lookup(expectedNewAccountCode2))
+		require.Nil(t, accountsSnapshot(t, b).Lookup(expectedNewAccountCode2))
 
 		newAccountCode2, err := b.CreateAndPersistAccountConfig(
 			coinpkg.CodeBTC,
