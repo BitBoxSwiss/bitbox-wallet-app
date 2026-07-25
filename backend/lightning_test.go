@@ -42,7 +42,7 @@ func TestPortfolioDataWithInitializingLightning(t *testing.T) {
 
 	require.NoError(t, b.lightning.SetAccount(&config.LightningAccountConfig{Code: "v0-test-ln-0"}))
 
-	balances, err := b.coinsTotalBalance()
+	balances, err := b.coinsTotalBalance(b.Accounts())
 	require.NoError(t, err)
 	require.Equal(t, []coinFormattedAmount{{
 		CoinCode: coinCodeLightning,
