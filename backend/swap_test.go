@@ -14,6 +14,7 @@ import (
 	coinMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg/v2"
@@ -94,8 +95,10 @@ func TestSwapBuyAccountsExcludeHiddenUnusedAccounts(t *testing.T) {
 	b.registerKeystore(ks)
 
 	btcAccountCode := accountsTypes.Code("v0-55555555-btc-0")
-	cfg := b.Config().AccountsConfig().Lookup(btcAccountCode)
-	cfg.HiddenBecauseUnused = true
+	require.NoError(t, b.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
+		accountsConfig.Lookup(btcAccountCode).HiddenBecauseUnused = true
+		return nil
+	}))
 
 	_, swapAccounts, err := b.swapAccounts()
 	require.NoError(t, err)
@@ -199,10 +202,12 @@ func TestPrepareSwapActivatesInactiveAccount(t *testing.T) {
 
 	btcAccountCode := accountsTypes.Code("v0-55555555-btc-0")
 	require.NoError(t, b.SetAccountActive(btcAccountCode, false))
-	require.True(t, b.Config().AccountsConfig().Lookup(btcAccountCode).Inactive)
+	accountsConfig := accountsSnapshot(t, b)
+	require.True(t, accountsConfig.Lookup(btcAccountCode).Inactive)
 
 	require.NoError(t, b.activateSwapBuyAccount(btcAccountCode))
-	require.False(t, b.Config().AccountsConfig().Lookup(btcAccountCode).Inactive)
+	accountsConfig = accountsSnapshot(t, b)
+	require.False(t, accountsConfig.Lookup(btcAccountCode).Inactive)
 }
 
 func TestPrepareSwapActivatesParentOfTokenDestination(t *testing.T) {
@@ -221,12 +226,14 @@ func TestPrepareSwapActivatesParentOfTokenDestination(t *testing.T) {
 
 	require.NoError(t, b.SetTokenActive(ethAccountCode, tokenCode, true))
 	require.NoError(t, b.SetAccountActive(ethAccountCode, false))
-	require.True(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
-	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+	accountsConfig := accountsSnapshot(t, b)
+	require.True(t, accountsConfig.Lookup(ethAccountCode).Inactive)
+	require.Contains(t, accountsConfig.Lookup(ethAccountCode).ActiveTokens, tokenCode)
 
 	require.NoError(t, b.activateSwapBuyAccount(tokenAccountCode))
-	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
-	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+	accountsConfig = accountsSnapshot(t, b)
+	require.False(t, accountsConfig.Lookup(ethAccountCode).Inactive)
+	require.Contains(t, accountsConfig.Lookup(ethAccountCode).ActiveTokens, tokenCode)
 }
 
 func TestPrepareSwapActivatesInactiveTokenDestination(t *testing.T) {
@@ -244,12 +251,14 @@ func TestPrepareSwapActivatesInactiveTokenDestination(t *testing.T) {
 	tokenAccountCode := Erc20AccountCode(ethAccountCode, tokenCode)
 
 	require.NoError(t, b.SetTokenActive(ethAccountCode, tokenCode, false))
-	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
-	require.NotContains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+	accountsConfig := accountsSnapshot(t, b)
+	require.False(t, accountsConfig.Lookup(ethAccountCode).Inactive)
+	require.NotContains(t, accountsConfig.Lookup(ethAccountCode).ActiveTokens, tokenCode)
 
 	require.NoError(t, b.activateSwapBuyAccount(tokenAccountCode))
-	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
-	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+	accountsConfig = accountsSnapshot(t, b)
+	require.False(t, accountsConfig.Lookup(ethAccountCode).Inactive)
+	require.Contains(t, accountsConfig.Lookup(ethAccountCode).ActiveTokens, tokenCode)
 }
 
 func TestPrepareSwapReturnsErrorForUnknownAccount(t *testing.T) {
