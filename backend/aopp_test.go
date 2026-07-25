@@ -8,12 +8,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"slices"
 	"sync/atomic"
 	"testing"
 
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
@@ -187,6 +189,12 @@ func TestAOPPSuccess(t *testing.T) {
 			)
 			require.NoError(t, err)
 			b.DeregisterKeystore()
+			// Load accounts in reverse order to verify that AOPP still returns sorted choices.
+			// The frontend selects the first choice by default.
+			require.NoError(t, b.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
+				slices.Reverse(accountsConfig.Accounts)
+				return nil
+			}))
 
 			callback := server.URL
 			params := defaultParams()
