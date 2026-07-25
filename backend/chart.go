@@ -14,9 +14,10 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
-func (backend *Backend) allCoinCodes() []string {
+func allCoinCodes(accountViews AccountViews) []string {
 	allCoinCodes := []string{}
-	for _, accountView := range backend.Accounts() {
+	for index := range accountViews {
+		accountView := &accountViews[index]
 		if accountView.Record.Inactive {
 			continue
 		}
@@ -30,8 +31,8 @@ func (backend *Backend) allCoinCodes() []string {
 }
 
 // chartCoinCodes returns the coin codes needed to load chart rate history.
-func (backend *Backend) chartCoinCodes() []string {
-	coinCodes := backend.allCoinCodes()
+func (backend *Backend) chartCoinCodes(accountViews AccountViews) []string {
+	coinCodes := allCoinCodes(accountViews)
 	if !backend.hasLightningAccount() || slices.Contains(coinCodes, string(coin.CodeBTC)) {
 		return coinCodes
 	}
@@ -187,9 +188,10 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	chartEntriesHourly := map[int64]RatChartEntry{}
 
 	fiat := backend.Config().AppConfig().Backend.MainFiat
+	accountViews := backend.Accounts()
 
 	// Chart data until this point in time.
-	until := backend.RatesUpdater().HistoryLatestTimestampFiat(backend.chartCoinCodes(), fiat)
+	until := backend.RatesUpdater().HistoryLatestTimestampFiat(backend.chartCoinCodes(accountViews), fiat)
 	if until.IsZero() {
 		chartDataMissing = true
 		backend.log.Info("ChartDataMissing, until is zero")
@@ -202,7 +204,8 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	// Total number of transactions across all active accounts.
 	totalNumberOfTransactions := 0
 	transactionHistoryMissing := false
-	for _, accountView := range backend.Accounts() {
+	for index := range accountViews {
+		accountView := &accountViews[index]
 		if accountView.Record.Inactive {
 			continue
 		}
