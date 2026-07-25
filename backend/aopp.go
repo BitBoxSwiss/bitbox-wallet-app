@@ -173,7 +173,7 @@ func (backend *Backend) aoppKeystoreRegistered() {
 	}
 	var accounts []account
 	var filteredDueToScriptType bool
-	for _, acct := range backend.accounts {
+	for _, acct := range backend.accounts.all() {
 		accountFingerprint, err := acct.Config().Config.SigningConfigurations.RootFingerprint()
 		if err != nil {
 			backend.log.WithError(err).Error("Account rootfingerprint not available")
@@ -311,7 +311,7 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 
 	log := backend.log.WithField("accountCode", code)
 	var account accounts.Interface
-	for _, acct := range backend.accounts {
+	for _, acct := range backend.accounts.all() {
 		if acct.Config().Config.Code == code {
 			account = acct
 			break

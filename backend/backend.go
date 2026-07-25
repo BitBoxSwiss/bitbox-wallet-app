@@ -13,7 +13,6 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
-	"slices"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -236,7 +235,7 @@ type Backend struct {
 	bluetooth  *bluetooth.Bluetooth
 
 	accountsAndKeystoreLock locker.Locker
-	accounts                AccountsList
+	accounts                accountRegistry
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
 	// Called to remove the current keystore observer, if any.
@@ -320,10 +319,9 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		accountsDB:  configAccountsDB{config: backendConfig},
 		events:      make(chan interface{}),
 
-		devices:  map[string]device.Interface{},
-		coins:    map[coinpkg.Code]coinpkg.Coin{},
-		accounts: []accounts.Interface{},
-		aopp:     AOPP{State: aoppStateInactive},
+		devices: map[string]device.Interface{},
+		coins:   map[coinpkg.Code]coinpkg.Coin{},
+		aopp:    AOPP{State: aoppStateInactive},
 		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
@@ -336,6 +334,19 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		testing:              backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
 		etherScanRateLimiter: rate.NewLimiter(rate.Limit(etherscan.CallsPerSec), 1),
 	}
+	backend.accounts = newAccountRegistry(accountRegistryLifecycle{
+		onInitialized: func(account accounts.Interface) {
+			if backend.onAccountInit != nil {
+				backend.onAccountInit(account)
+			}
+		},
+		onUninitialized: func(account accounts.Interface) {
+			if backend.onAccountUninit != nil {
+				backend.onAccountUninit(account)
+			}
+		},
+	})
+	backend.accounts.Observe(backend.handleAccountRegistryEvent)
 	// TODO: remove when connectivity check is present on all platforms
 	backend.isOnline.Store(true)
 
@@ -399,11 +410,32 @@ func (backend *Backend) closeCoins() error {
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) configureHistoryExchangeRates() {
 	var coins []string
-	for _, acct := range backend.accounts {
+	for _, acct := range backend.accounts.all() {
 		coins = append(coins, string(acct.Coin().Code()))
 	}
 	fiats := backend.config.AppConfig().Backend.FiatList
 	backend.ratesUpdater.ReconfigureHistory(coins, fiats)
+}
+
+func (backend *Backend) handleAccountRegistryEvent(event observable.Event) {
+	registryEvent, ok := event.Object.(accountRegistryEvent)
+	if !ok {
+		backend.log.WithField("subject", event.Subject).Error("account registry event missing account")
+		return
+	}
+	backend.Notify(observable.Event{
+		Subject: fmt.Sprintf(
+			"account/%s/%s",
+			registryEvent.account.Config().Config.Code,
+			event.Subject,
+		),
+		Action: event.Action,
+		Object: registryEvent.object,
+	})
+	if event.Subject == string(accountsTypes.EventSyncDone) {
+		backend.notifyNewTxs(registryEvent.account)
+		go backend.checkAccountUsed(registryEvent.account)
+	}
 }
 
 // ReconfigureHistoryExchangeRates updates the historical exchange-rate pairs to match the loaded
@@ -700,7 +732,14 @@ func (backend *Backend) Testing() bool {
 // Accounts returns the current accounts of the backend.
 func (backend *Backend) Accounts() AccountsList {
 	defer backend.accountsAndKeystoreLock.RLock()()
-	return slices.Clone(backend.accounts)
+	accounts := backend.accounts.all()
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not sort account snapshot")
+		return accounts
+	}
+	sortAccounts(accounts, accountsConfig)
+	return accounts
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.

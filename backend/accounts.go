@@ -251,7 +251,7 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 func (backend *Backend) AccountsByKeystore() (KeystoresAccountsListMap, error) {
 	defer backend.accountsAndKeystoreLock.RLock()()
 	accountsByKeystore := KeystoresAccountsListMap{}
-	for _, account := range backend.accounts {
+	for _, account := range backend.accounts.all() {
 		persistedAccount := account.Config().Config
 		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
 		if err != nil {
@@ -485,7 +485,7 @@ func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([
 		accountList = []accounts.Interface{acct}
 	} else {
 		// otherwise we'll check the status for all the active BTC accounts.
-		for _, account := range backend.accounts {
+		for _, account := range backend.Accounts() {
 			config := account.Config().Config
 			if !config.HiddenBecauseUnused && config.CoinCode == coinpkg.CodeBTC {
 				accountList = append(accountList, account)
@@ -779,7 +779,7 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	return nil
 }
 
-// updateKeystoreName persists a keystore name change and re-sorts the loaded accounts accordingly.
+// updateKeystoreName persists a keystore name change and updates account views.
 func (backend *Backend) updateKeystoreName(rootFingerprint []byte, name string) error {
 	if name == "" {
 		return errp.New("Name cannot be empty")
@@ -790,8 +790,6 @@ func (backend *Backend) updateKeystoreName(rootFingerprint []byte, name string) 
 	}); err != nil {
 		return err
 	}
-	defer backend.accountsAndKeystoreLock.Lock()()
-	sortAccounts(backend.accounts, backend.config.AccountsConfig())
 	backend.emitAccountsStatusChanged()
 	return nil
 }
@@ -799,26 +797,8 @@ func (backend *Backend) updateKeystoreName(rootFingerprint []byte, name string) 
 // addAccount adds the given account to the backend.
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {
-	backend.accounts = append(backend.accounts, account)
-	sortAccounts(backend.accounts, backend.config.AccountsConfig())
-
-	account.Observe(func(event observable.Event) {
-		backend.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/%s", account.Config().Config.Code, event.Subject),
-			Action:  event.Action,
-			Object:  event.Object,
-		})
-		if event.Subject == string(accountsTypes.EventSyncDone) {
-			backend.notifyNewTxs(account)
-			go backend.checkAccountUsed(account)
-		}
-	})
-	if err := account.Initialize(); err != nil {
+	if _, err := backend.accounts.add(account); err != nil {
 		backend.log.WithError(err).Error("error initializing account")
-		return
-	}
-	if backend.onAccountInit != nil {
-		backend.onAccountInit(account)
 	}
 }
 
@@ -1374,7 +1354,7 @@ func (backend *Backend) initAccounts(force bool) {
 //
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) enqueueETHInitialSyncLocked() {
-	for _, account := range backend.accounts {
+	for _, account := range backend.accounts.all() {
 		if _, ok := account.Coin().(*eth.Coin); ok {
 			backend.enqueueETHUpdateForAllAccountsAsync()
 			return
@@ -1395,10 +1375,8 @@ func (backend *Backend) ReinitializeAccounts() {
 // The accountsAndKeystoreLock must be held when calling this function.
 // if force is true, all accounts are uninitialized, even if they are watch-only.
 func (backend *Backend) uninitAccounts(force bool) {
-	keep := []accounts.Interface{}
 	accountsConfig := backend.config.AccountsConfig()
-	for _, account := range backend.accounts {
-
+	for _, account := range backend.accounts.all() {
 		belongsToKeystore := false
 		if backend.keystore != nil {
 			fingerprint, err := backend.keystore.RootFingerprint()
@@ -1414,16 +1392,10 @@ func (backend *Backend) uninitAccounts(force bool) {
 			backend.log.WithError(err).Error("could not determine watch status of account")
 		}
 		if !force && (belongsToKeystore || isWatchonly) {
-			// Do not uninit/remove account that is being watched.
-			keep = append(keep, account)
 			continue
 		}
-		if backend.onAccountUninit != nil {
-			backend.onAccountUninit(account)
-		}
-		account.Close()
+		backend.accounts.remove(account.Config().Config.Code)
 	}
-	backend.accounts = keep
 }
 
 // maybeAddHiddenUnusedAccounts adds a hidden account for scanning to facilitate accounts discovery.
