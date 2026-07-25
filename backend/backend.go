@@ -235,7 +235,8 @@ type Backend struct {
 	arguments   *arguments.Arguments
 	environment Environment
 
-	config *config.Config
+	config     *config.Config
+	accountsDB accountsDB
 
 	events chan interface{}
 
@@ -330,6 +331,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		arguments:   arguments,
 		environment: environment,
 		config:      backendConfig,
+		accountsDB:  configAccountsDB{config: backendConfig},
 		events:      make(chan interface{}),
 
 		devices:  map[string]device.Interface{},
@@ -864,7 +866,7 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 		return nil
 	}
 
-	err = backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err = backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		// Persist keystore with its name in the config.
 		if err := persistKeystore(accountsConfig); err != nil {
 			log.WithError(err).Error("Could not persist keystore")
@@ -1318,8 +1320,8 @@ func (backend *Backend) CancelConnectKeystore() {
 
 // SetWatchonly sets the keystore's watchonly flag to `watchonly`.
 func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) error {
-	err := backend.config.ModifyAccountsConfig(func(config *config.AccountsConfig) error {
-		ks, err := config.LookupKeystore(rootFingerprint)
+	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
+		ks, err := accountsConfig.LookupKeystore(rootFingerprint)
 		if err != nil {
 			return err
 		}
@@ -1334,6 +1336,33 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 	backend.initAccounts(false)
 	backend.emitAccountsStatusChanged()
 	return nil
+}
+
+// KeystoreBackupReminderAllowed returns the persisted backup reminder eligibility.
+func (backend *Backend) KeystoreBackupReminderAllowed(
+	rootFingerprint []byte,
+) (*bool, error) {
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return nil, err
+	}
+	keystoreConfig, err := accountsConfig.LookupKeystore(rootFingerprint)
+	if err != nil || keystoreConfig.BackupReminderAllowed == nil {
+		return nil, err
+	}
+	return keystoreConfig.BackupReminderAllowed, nil
+}
+
+// SetKeystoreBackupReminderAllowed persists the backup reminder eligibility.
+func (backend *Backend) SetKeystoreBackupReminderAllowed(
+	rootFingerprint []byte,
+	allowed bool,
+) error {
+	return backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
+		keystoreConfig := accountsConfig.GetOrAddKeystore(rootFingerprint)
+		keystoreConfig.BackupReminderAllowed = &allowed
+		return nil
+	})
 }
 
 // ExportLogs function copy and save log.txt file to help users provide it to support while troubleshooting.
