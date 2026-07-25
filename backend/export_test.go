@@ -26,10 +26,9 @@ func TestExportNotesRestrictsFilePermissions(t *testing.T) {
 	require.NoError(t, os.WriteFile(filename, []byte("stale contents"), 0644))
 	require.NoError(t, os.Chmod(filename, 0644))
 
-	backend := &Backend{
-		environment: fileExportEnvironment{filename: filename},
-		log:         logrus.NewEntry(logrus.New()),
-	}
+	backend := newBackend(t, testnetDisabled, regtestDisabled)
+	defer backend.Close()
+	backend.environment = fileExportEnvironment{filename: filename}
 	require.NoError(t, backend.ExportNotes())
 
 	info, err := os.Stat(filename)

@@ -54,13 +54,8 @@ func testCloseWithdrawAccount() accounts.Interface {
 	p2wpkh := signing.ScriptTypeP2WPKH
 	p2tr := signing.ScriptTypeP2TR
 	return &accountsMocks.InterfaceMock{
-		ConfigFunc: func() *accounts.AccountConfig {
-			return &accounts.AccountConfig{
-				Config: &config.Account{
-					CoinCode:          coin.CodeBTC,
-					ReceiveScriptType: &p2tr,
-				},
-			}
+		CoinFunc: func() coin.Coin {
+			return makeTestLightning().btcCoin
 		},
 		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			return []accounts.AddressList{
@@ -1226,7 +1221,36 @@ func newActivePaymentTestLightningWithConfigFilename(
 		require.Equal(t, testCloseWithdrawDestinationAccountCode, accountCode)
 		return testCloseWithdrawAccount(), nil
 	}
+	lightning.getReceiveScriptType = func(accountCode accountsTypes.Code) (*signing.ScriptType, error) {
+		require.Equal(t, testCloseWithdrawDestinationAccountCode, accountCode)
+		scriptType := signing.ScriptTypeP2TR
+		return &scriptType, nil
+	}
 	return lightning
+}
+
+func TestOnChainDestinationAddressReadsCurrentPreference(t *testing.T) {
+	lightning := newActivePaymentTestLightning(t, &testPaymentSDK{})
+	var scriptType *signing.ScriptType
+	var lookupErr error
+	lightning.getReceiveScriptType = func(accountCode accountsTypes.Code) (*signing.ScriptType, error) {
+		require.Equal(t, testCloseWithdrawDestinationAccountCode, accountCode)
+		return scriptType, lookupErr
+	}
+
+	address, err := lightning.onChainDestinationAddress(testCloseWithdrawDestinationAccountCode)
+	require.NoError(t, err)
+	require.Equal(t, testP2WPKHAddress, address)
+
+	p2tr := signing.ScriptTypeP2TR
+	scriptType = &p2tr
+	address, err = lightning.onChainDestinationAddress(testCloseWithdrawDestinationAccountCode)
+	require.NoError(t, err)
+	require.Equal(t, testP2TRAddress, address)
+
+	lookupErr = errors.New("snapshot unavailable")
+	_, err = lightning.onChainDestinationAddress(testCloseWithdrawDestinationAccountCode)
+	require.ErrorIs(t, err, lookupErr)
 }
 
 func testBitcoinPrepareResponse(feeSat uint64) breez_sdk_spark.PrepareSendPaymentResponse {

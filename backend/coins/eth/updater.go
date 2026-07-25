@@ -162,7 +162,7 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 		}
 		address, err := account.Address()
 		if err != nil {
-			u.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Config.Code)
+			u.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Code)
 			account.SetOffline(err)
 			continue
 		}
@@ -195,7 +195,7 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 		}
 		address, err := account.Address()
 		if err != nil {
-			u.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Config.Code)
+			u.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Code)
 			account.SetOffline(err)
 		}
 		var balance *big.Int
@@ -255,7 +255,7 @@ func (u *Updater) prefetchTokenTransactions(
 		}
 		address, err := account.Address()
 		if err != nil {
-			u.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Config.Code)
+			u.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Code)
 			account.SetOffline(err)
 			continue
 		}

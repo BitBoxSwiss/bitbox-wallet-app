@@ -88,15 +88,16 @@ func (backend *Backend) SwapAccounts() (SwapAccounts, error) {
 // swapAvailable reports whether swap can be shown. It is available when there is at least one
 // non-Bitcoin account currently available, including watch-only and inactive accounts.
 func (backend *Backend) swapAvailable() bool {
-	for _, account := range backend.Accounts() {
-		accountConfig := account.Config().Config
-		if accountConfig.HiddenBecauseUnused {
+	accountViews := backend.Accounts()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		if accountView.Record.HiddenBecauseUnused {
 			continue
 		}
-		if _, isTestnet := coinpkg.TestnetCoins[accountConfig.CoinCode]; isTestnet != backend.Testing() {
+		if _, isTestnet := coinpkg.TestnetCoins[accountView.Record.CoinCode]; isTestnet != backend.Testing() {
 			continue
 		}
-		if account.Coin().Code() == coinpkg.CodeBTC {
+		if accountView.Account.Coin().Code() == coinpkg.CodeBTC {
 			continue
 		}
 		return true
@@ -299,7 +300,7 @@ func (backend *Backend) accountHasNonZeroBalance(accountCode accountsTypes.Code)
 	if account == nil {
 		return false
 	}
-	balance, err := account.Balance()
+	balance, err := account.Account.Balance()
 	if err != nil {
 		backend.log.WithField("code", accountCode).WithError(err).Error("could not get account balance")
 		return false

@@ -287,7 +287,7 @@ func TestValidateSwapAccountSupportedAcceptsMainnetSwapAccounts(t *testing.T) {
 	for _, accountCode := range testCases {
 		account := b.Accounts().lookup(accountCode)
 		require.NotNil(t, account)
-		require.NoError(t, validateSwapAccountSupported(account))
+		require.NoError(t, validateSwapAccountSupported(account.Account))
 	}
 }
 
@@ -325,7 +325,7 @@ func TestValidateSwapAccountSupportedRejectsTestnetAccounts(t *testing.T) {
 		require.NotNil(t, account)
 		require.EqualError(
 			t,
-			validateSwapAccountSupported(account),
+			validateSwapAccountSupported(account.Account),
 			"Only supported mainnet BTC/LTC/ETH/ERC20 accounts are currently supported",
 		)
 	}
@@ -441,7 +441,7 @@ func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
 
 func setAccountBalance(t *testing.T, b *Backend, accountCode accountsTypes.Code, amount int64) {
 	t.Helper()
-	accountMock, ok := b.Accounts().lookup(accountCode).(*accountsMocks.InterfaceMock)
+	accountMock, ok := b.Accounts().lookup(accountCode).Account.(*accountsMocks.InterfaceMock)
 	require.True(t, ok)
 	accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 		return accounts.NewBalance(coinpkg.NewAmountFromInt64(amount), coinpkg.NewAmountFromInt64(0)), nil
@@ -450,8 +450,10 @@ func setAccountBalance(t *testing.T, b *Backend, accountCode accountsTypes.Code,
 
 func zeroAllAccountBalances(t *testing.T, b *Backend) {
 	t.Helper()
-	for _, account := range b.Accounts() {
-		setAccountBalance(t, b, account.Config().Config.Code, 0)
+	accountViews := b.Accounts()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		setAccountBalance(t, b, accountView.Record.Code, 0)
 	}
 }
 

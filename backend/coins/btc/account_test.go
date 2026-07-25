@@ -80,11 +80,12 @@ func mockAccount(t *testing.T, accountConfig *config.Account) *Account {
 
 	return NewAccount(
 		&accounts.AccountConfig{
-			Config:          accountConfig,
-			DBFolder:        dbFolder,
-			RateUpdater:     nil,
-			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
-			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
+			Code:                  accountConfig.Code,
+			SigningConfigurations: accountConfig.SigningConfigurations,
+			DBFolder:              dbFolder,
+			RateUpdater:           nil,
+			GetNotifier:           func(signing.Configurations) accounts.Notifier { return nil },
+			GetSaveFilename:       func(suggestedFilename string) string { return suggestedFilename },
 			ConnectKeystore: func() (keystore.Keystore, error) {
 				return mockKeystore(), nil
 			},

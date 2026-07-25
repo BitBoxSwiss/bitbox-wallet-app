@@ -15,7 +15,6 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/db/transactionsdb"
@@ -139,7 +138,7 @@ func NewAccount(
 	httpClient *http.Client,
 ) *Account {
 	log = log.WithField("group", "btc").
-		WithFields(logrus.Fields{"coin": coin.String(), "code": config.Config.Code})
+		WithFields(logrus.Fields{"coin": coin.String(), "code": config.Code})
 	log.Debug("Creating new account")
 
 	account := &Account{
@@ -156,7 +155,7 @@ func NewAccount(
 
 // String returns a representation of the account for logging.
 func (account *Account) String() string {
-	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.Config().Config.Code)
+	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.Config().Code)
 }
 
 // defaultGapLimits returns the default gap limits for this account.
@@ -299,13 +298,13 @@ func (account *Account) Initialize() error {
 		account.subaccounts = nil
 	}()
 
-	signingConfigurations := account.Config().Config.SigningConfigurations
+	signingConfigurations := account.Config().SigningConfigurations
 	if len(signingConfigurations) == 0 {
 		return errp.New("There must be a least one signing configuration")
 	}
 	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
-	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Config.Code)
+	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Code)
 	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
@@ -400,7 +399,7 @@ func (account *Account) Info() *accounts.Info {
 	}
 	// The internal extended key representation always uses the same version bytes (prefix xpub). We
 	// convert it here to the account-specific version (zpub, ypub, tpub, ...).
-	isInsuredAccount := account.Config().Config.InsuranceStatus == string(bitsurance.ActiveStatus)
+	isInsuredAccount := account.IsInsured()
 	var signingConfigurations []*signing.Configuration
 	for _, subacc := range account.subaccounts {
 		scriptType := subacc.signingConfiguration.ScriptType()
@@ -768,7 +767,7 @@ func (account *Account) GetUnusedReceiveAddresses() ([]accounts.AddressList, err
 			// We don't support wrapped segwit in receive flows anymore.
 			continue
 		}
-		if account.Config().Config.InsuranceStatus == string(bitsurance.ActiveStatus) && scriptType != signing.ScriptTypeP2WPKH {
+		if account.IsInsured() && scriptType != signing.ScriptTypeP2WPKH {
 			// Insured accounts can only receive on native segwit
 			continue
 		}
@@ -1186,7 +1185,7 @@ func signBTCMessageWithAddress(
 //	#1: is the first unused address corresponding to the account and the script type identified by the input values.
 //	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
 //	#3: is an optional error that could be generated during the execution of the function.
-func SignBTCMessageUnusedAddress(account accounts.Interface, message string, scriptType signing.ScriptType) (string, string, error) {
+func SignBTCMessageUnusedAddress(account *Account, message string, scriptType signing.ScriptType) (string, string, error) {
 	ks, err := getSignMessageKeystore(account)
 	if err != nil {
 		return "", "", err
@@ -1196,7 +1195,7 @@ func SignBTCMessageUnusedAddress(account accounts.Interface, message string, scr
 	if len(scriptType) == 0 {
 		scriptType = signing.ScriptTypeP2WPKH
 	}
-	signingConfigIdx := account.Config().Config.SigningConfigurations.FindScriptType(scriptType)
+	signingConfigIdx := account.Config().SigningConfigurations.FindScriptType(scriptType)
 	if signingConfigIdx == -1 {
 		err := errp.Newf("Unsupported format: %s", scriptType)
 		return "", "", err

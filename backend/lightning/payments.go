@@ -997,7 +997,7 @@ func (lightning *Lightning) onChainDestinationAddress(
 	if err != nil {
 		return "", err
 	}
-	if !coin.IsBitcoinOnly(account.Config().Config.CoinCode) {
+	if !coin.IsBitcoinOnly(account.Coin().Code()) {
 		return "", errp.Newf("account %q is not a Bitcoin account", destinationAccountCode)
 	}
 	addressLists, err := account.GetUnusedReceiveAddresses()
@@ -1005,8 +1005,12 @@ func (lightning *Lightning) onChainDestinationAddress(
 		return "", err
 	}
 
+	receiveScriptType, err := lightning.getReceiveScriptType(destinationAccountCode)
+	if err != nil {
+		return "", err
+	}
 	var addressList *accounts.AddressList
-	if receiveScriptType := account.Config().Config.ReceiveScriptType; receiveScriptType != nil {
+	if receiveScriptType != nil {
 		addressList = accounts.FindAddressListByScriptType(addressLists, *receiveScriptType)
 	}
 	if addressList == nil {
