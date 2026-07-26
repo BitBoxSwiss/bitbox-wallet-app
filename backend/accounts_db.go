@@ -7,7 +7,8 @@ import "github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 // accountsDB is the persistence boundary for account and keystore records.
 //
 // Snapshot returns one coherent, caller-owned view of all records. Update serializes and persists
-// record mutations.
+// record mutations. Update callbacks do not initialize runtime accounts or access hardware;
+// runtime reconciliation happens after they return.
 type accountsDB interface {
 	Snapshot() (config.AccountsConfig, error)
 	Update(func(*config.AccountsConfig) error) error

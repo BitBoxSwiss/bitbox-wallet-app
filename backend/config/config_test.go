@@ -94,20 +94,20 @@ func TestModifyAccountsConfig(t *testing.T) {
 	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename)
 	require.NoError(t, err)
 	require.Equal(t, cfg, cfg2)
-	require.Equal(t, []*Account{{Used: true}}, cfg2.AccountsConfig().Accounts)
+	require.Equal(t, []*Account{{Used: true}}, cfg2.AccountsSnapshot().Accounts)
 
 	require.Error(t, cfg.ModifyAccountsConfig(func(accountsCfg *AccountsConfig) error {
 		accountsCfg.Accounts[0].Used = false
 		return errors.New("error")
 	}))
-	require.True(t, cfg.AccountsConfig().Accounts[0].Used)
+	require.True(t, cfg.AccountsSnapshot().Accounts[0].Used)
 
 	cfg.accountsConfigFilename = t.TempDir()
 	require.Error(t, cfg.ModifyAccountsConfig(func(accountsCfg *AccountsConfig) error {
 		accountsCfg.Accounts[0].Used = false
 		return nil
 	}))
-	require.True(t, cfg.AccountsConfig().Accounts[0].Used)
+	require.True(t, cfg.AccountsSnapshot().Accounts[0].Used)
 }
 
 func TestAccountsSnapshot(t *testing.T) {
@@ -139,7 +139,7 @@ func TestAccountsSnapshot(t *testing.T) {
 	snapshot := cfg.AccountsSnapshot()
 	snapshotJSON, err := json.Marshal(snapshot)
 	require.NoError(t, err)
-	persistedJSON, err := json.Marshal(cfg.AccountsConfig())
+	persistedJSON, err := json.Marshal(cfg.AccountsSnapshot())
 	require.NoError(t, err)
 	require.JSONEq(t, string(persistedJSON), string(snapshotJSON))
 
@@ -151,7 +151,7 @@ func TestAccountsSnapshot(t *testing.T) {
 	snapshot.Keystores[0].RootFingerprint[0] = 9
 	*snapshot.Keystores[0].BackupReminderAllowed = false
 
-	persisted := cfg.AccountsConfig()
+	persisted := cfg.AccountsSnapshot()
 	require.Equal(t, "Original", persisted.Lookup(code).Name)
 	require.True(t, *persisted.Lookup(code).Watch)
 	require.Equal(t, signing.ScriptTypeP2WPKH, *persisted.Lookup(code).ReceiveScriptType)
@@ -186,7 +186,7 @@ func TestMigrationsAtLoad(t *testing.T) {
 	require.Equal(t, "de", cfg2.AppConfig().Backend.UserLanguage)
 	require.Equal(t,
 		[]*Account{{CoinCode: coin.CodeETH, ActiveTokens: nil}},
-		cfg2.AccountsConfig().Accounts)
+		cfg2.AccountsSnapshot().Accounts)
 
 	// The migrations were persisted.
 	cfg3, err := NewConfig(appConfigFilename, accountsConfigFilename)

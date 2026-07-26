@@ -13,6 +13,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -860,33 +861,60 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 		return account.SigningConfigurations.ContainsRootFingerprint(fingerprint)
 	}
 
-	persistKeystore := func(accountsConfig *config.AccountsConfig) error {
-		keystoreName, err := ks.Name()
-		if err != nil {
-			return errp.WithMessage(err, "could not retrieve keystore name")
-		}
-		keystoreCfg := accountsConfig.GetOrAddKeystore(fingerprint)
-		keystoreCfg.Name = keystoreName
-		keystoreCfg.LastConnected = time.Now()
-		return nil
+	keystoreName, keystoreNameErr := ks.Name()
+	if keystoreNameErr != nil {
+		log.WithError(keystoreNameErr).Error("Could not retrieve keystore name")
 	}
 
-	err = backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
-		// Persist keystore with its name in the config.
-		if err := persistKeystore(accountsConfig); err != nil {
-			log.WithError(err).Error("Could not persist keystore")
-		}
-
-		// Persist default accounts the first time, otherwise perform any migrations that may be
-		// needed on the persisted accounts.
-		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)
-		if len(accounts) != 0 {
-			return backend.updatePersistedAccounts(ks, accounts)
-		}
-		return backend.persistDefaultAccountConfigs(ks, accountsConfig)
-	})
+	accountsConfig, err := backend.accountsDB.Snapshot()
 	if err != nil {
-		log.WithError(err).Error("Could not persist default accounts")
+		log.WithError(err).Error("Could not load account records")
+		return
+	}
+	accounts := backend.filterAccounts(&accountsConfig, belongsToKeystore)
+	var defaultAccounts []config.Account
+	var taprootAccountCodes []accountsTypes.Code
+	if len(accounts) != 0 {
+		taprootAccountCodes, err = backend.maybeAddP2TR(ks, accounts)
+	} else {
+		defaultAccounts, err = backend.buildDefaultAccountConfigs(ks)
+	}
+	if err == nil {
+		err = backend.accountsDB.Update(func(persisted *config.AccountsConfig) error {
+			if keystoreNameErr == nil {
+				keystoreConfig := persisted.GetOrAddKeystore(fingerprint)
+				keystoreConfig.Name = keystoreName
+				keystoreConfig.LastConnected = time.Now()
+			}
+
+			if len(accounts) != 0 {
+				for _, prepared := range accounts {
+					if !slices.Contains(taprootAccountCodes, prepared.Code) {
+						continue
+					}
+					account := persisted.Lookup(prepared.Code)
+					if account != nil {
+						account.SigningConfigurations = prepared.SigningConfigurations
+					}
+				}
+				return nil
+			}
+			for index := range defaultAccounts {
+				if err := backend.persistAccount(defaultAccounts[index], persisted); err != nil {
+					return err
+				}
+			}
+			return nil
+		})
+	}
+	if err != nil {
+		log.WithError(err).Error("Could not update account records")
+		taprootAccountCodes = nil
+	} else {
+		for _, accountCode := range taprootAccountCodes {
+			log.WithField("code", accountCode).
+				Info("upgraded account with taproot subaccount")
+		}
 	}
 
 	backend.initAccounts(false)

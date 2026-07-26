@@ -337,12 +337,6 @@ func (config *Config) ModifyAppConfig(f func(*AppConfig) error) error {
 	return config.save(config.appConfigFilename, config.appConfig)
 }
 
-// AccountsConfig returns the accounts config.
-func (config *Config) AccountsConfig() AccountsConfig {
-	defer config.accountsConfigLock.RLock()()
-	return config.accountsConfig
-}
-
 // AccountsSnapshot returns a coherent copy of the account and keystore records. Mutable metadata
 // and membership slices are detached; immutable signing configurations may be shared.
 func (config *Config) AccountsSnapshot() AccountsConfig {
