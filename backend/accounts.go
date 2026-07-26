@@ -918,6 +918,61 @@ func (backend *Backend) createAndAddAccount(
 	}
 }
 
+// accountLoadableLocked reports whether a persisted account belongs in the runtime registry.
+// accountsAndKeystoreLock must be held.
+func (backend *Backend) accountLoadableLocked(
+	accountsConfig config.AccountsConfig,
+	account *config.Account,
+) (coinpkg.Coin, bool) {
+	if !backend.coinPolicy().coinEnabled(account.CoinCode) {
+		return nil, false
+	}
+	accountCoin, err := backend.Coin(account.CoinCode)
+	if err != nil {
+		backend.log.WithField("code", account.Code).WithError(err).Error("could not find account coin")
+		return nil, false
+	}
+
+	isWatchonly, err := accountsConfig.IsAccountWatchOnly(account)
+	if err != nil {
+		backend.log.WithField("code", account.Code).WithError(err).Error("could not determine watch status")
+		return nil, false
+	}
+	// Watch-only accounts are loaded regardless of support reported by the connected keystore. A
+	// mismatch is handled when that keystore is later used for an account operation.
+	if isWatchonly {
+		return accountCoin, true
+	}
+	if backend.keystore == nil {
+		return nil, false
+	}
+	rootFingerprint, err := backend.keystore.RootFingerprint()
+	if err != nil {
+		backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
+		return nil, false
+	}
+	if !account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint) {
+		return nil, false
+	}
+
+	// Persisted accounts may have been created by a more capable keystore with the same seed.
+	// For example, a BitBox02 Multi can persist altcoin accounts that must not be loaded when a
+	// BTC-only BitBox02 is connected later. Watch-only accounts are handled above.
+	switch accountCoin.(type) {
+	case *btc.Coin:
+		for _, signingConfig := range account.SigningConfigurations {
+			if !backend.keystore.SupportsAccount(accountCoin, signingConfig.ScriptType()) {
+				return nil, false
+			}
+		}
+	default:
+		if !backend.keystore.SupportsAccount(accountCoin, nil) {
+			return nil, false
+		}
+	}
+	return accountCoin, true
+}
+
 func (backend *Backend) emitAccountsStatusChanged() {
 	backend.Notify(observable.Event{
 		Subject: "accounts",
@@ -1061,69 +1116,18 @@ func (backend *Backend) persistETHAccountConfig(
 
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) initPersistedAccounts(options accountLoadOptions) {
-	// Only load accounts which belong to connected keystores or for which watchonly is enabled.
-	keystoreConnectedOrWatch := func(accountsConfig *config.AccountsConfig, account *config.Account) bool {
-		isWatch, err := accountsConfig.IsAccountWatchOnly(account)
-		if err != nil {
-			backend.log.WithError(err).Error("Can't determine watch status of account")
-		} else if isWatch {
-			return true
-		}
-
-		if backend.keystore == nil {
-			return false
-		}
-		rootFingerprint, err := backend.keystore.RootFingerprint()
-		if err != nil {
-			backend.log.WithError(err).Error("Could not retrieve root fingerprint")
-			return false
-		}
-
-		return account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint)
+	persistedAccounts, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records")
+		return
 	}
 
-	persistedAccounts := backend.config.AccountsConfig()
-
-	// In this loop, we add all accounts that match the filter, except for the ones whose signing
-	// configuration is not supported by the connected keystore. The latter can happen for example
-	// if a user connects a BitBox02 Multi edition first, which persists some altcoin accounts, and
-	// then connects a BitBox02 BTC-only with the same seed. In that case, the unsupported accounts
-	// will not be loaded, unless their keystore has watch-only enabled.
-outer:
-	for _, account := range backend.filterAccounts(&persistedAccounts, keystoreConnectedOrWatch) {
-		coin, err := backend.Coin(account.CoinCode)
-		if err != nil {
-			backend.log.Errorf("skipping persisted account %s/%s, could not find coin",
-				account.CoinCode, account.Code)
+	for _, account := range persistedAccounts.Accounts {
+		accountCoin, loadable := backend.accountLoadableLocked(persistedAccounts, account)
+		if !loadable {
 			continue
 		}
-
-		// Watch-only accounts are loaded regardless, and if later e.g. a BitBox02 BTC-only is
-		// inserted with the same seed as a Multi, we will need to catch that mismatch when the
-		// keystore will be used to e.g. display an Ethereum address etc.
-		if backend.keystore != nil {
-			isWatch, err := persistedAccounts.IsAccountWatchOnly(account)
-			if err != nil {
-				backend.log.WithError(err).Error("Could not retrieve root fingerprint")
-				continue
-			}
-			if !isWatch {
-				switch coin.(type) {
-				case *btc.Coin:
-					for _, cfg := range account.SigningConfigurations {
-						if !backend.keystore.SupportsAccount(coin, cfg.ScriptType()) {
-							continue outer
-						}
-					}
-				default:
-					if !backend.keystore.SupportsAccount(coin, nil) {
-						continue
-					}
-				}
-			}
-		}
-
-		backend.createAndAddAccount(coin, account, options)
+		backend.createAndAddAccount(accountCoin, account, options)
 	}
 }
 
