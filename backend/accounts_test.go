@@ -821,16 +821,18 @@ func TestETHInitialSyncMode(t *testing.T) {
 		return rootFingerprint1, nil
 	}
 
+	_, account, err := b.buildAccountConfig(
+		coinpkg.CodeETH,
+		0,
+		false,
+		"",
+		ks,
+		[]string{"eth-erc20-usdt"},
+	)
+	require.NoError(t, err)
+	require.NotNil(t, account)
 	require.NoError(t, b.accountsDB.Update(func(cfg *config.AccountsConfig) error {
-		if _, err := b.createAndPersistAccountConfig(
-			coinpkg.CodeETH,
-			0,
-			false,
-			"",
-			ks,
-			[]string{"eth-erc20-usdt"},
-			cfg,
-		); err != nil {
+		if err := b.persistAccount(*account, cfg); err != nil {
 			return err
 		}
 		cfg.GetOrAddKeystore(rootFingerprint1).Watchonly = true
