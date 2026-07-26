@@ -122,6 +122,7 @@ type Backend interface {
 	ForceAuth()
 	CancelConnectKeystore()
 	SetWatchonly(rootFingerprint []byte, watchonly bool) error
+	KeystoreName(rootFingerprint []byte) (string, error)
 	KeystoreBackupReminderAllowed(rootFingerprint []byte) (*bool, error)
 	SetKeystoreBackupReminderAllowed(rootFingerprint []byte, allowed bool) error
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
@@ -797,13 +798,13 @@ func (handlers *Handlers) getKeystoreName(r *http.Request) interface{} {
 	if err != nil {
 		return response{Success: false}
 	}
-	keystore, err := handlers.backend.Config().AccountsConfig().LookupKeystore(hexFingerprint)
+	keystoreName, err := handlers.backend.KeystoreName(hexFingerprint)
 	if err != nil {
 		return response{Success: false}
 	}
 	return response{
 		Success:      true,
-		KeystoreName: keystore.Name,
+		KeystoreName: keystoreName,
 	}
 }
 
