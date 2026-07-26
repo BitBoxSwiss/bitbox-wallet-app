@@ -556,6 +556,7 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-btc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0"))
+	watchedBTCAccount := b.Accounts().lookup("v0-55555555-btc-0").Account
 	require.Equal(t, "Bitcoin", accountsConfig.Accounts[0].Name)
 	require.Equal(t, "Litecoin", accountsConfig.Accounts[1].Name)
 	require.Equal(t, "Ethereum", accountsConfig.Accounts[2].Name)
@@ -574,6 +575,7 @@ func TestRegisterKeystore(t *testing.T) {
 
 	b.DeregisterKeystore()
 	checkShownAccountsLen(t, b, 3, 3)
+	require.Same(t, watchedBTCAccount, b.Accounts().lookup("v0-55555555-btc-0").Account)
 	accountsConfig = accountsSnapshot(t, b)
 	require.Len(t, accountsConfig.Keystores, 1)
 
@@ -581,6 +583,7 @@ func TestRegisterKeystore(t *testing.T) {
 	// automatically persist more accounts.
 	b.registerKeystore(ks1)
 	checkShownAccountsLen(t, b, 3, 3)
+	require.Same(t, watchedBTCAccount, b.Accounts().lookup("v0-55555555-btc-0").Account)
 	accountsConfig = accountsSnapshot(t, b)
 	require.Len(t, accountsConfig.Keystores, 1)
 
@@ -590,6 +593,7 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NoError(t, b.SetWatchonly(rootFingerprint2, true))
 
 	checkShownAccountsLen(t, b, 6, 6)
+	require.Same(t, watchedBTCAccount, b.Accounts().lookup("v0-55555555-btc-0").Account)
 	accountsConfig = accountsSnapshot(t, b)
 	require.NotNil(t, accountsConfig.Lookup("v0-66666666-btc-0"))
 	require.NotNil(t, accountsConfig.Lookup("v0-66666666-ltc-0"))
