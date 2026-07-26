@@ -616,7 +616,7 @@ func (backend *Backend) SetAccountActive(accountCode accountsTypes.Code, active 
 	if err != nil {
 		return err
 	}
-	backend.ReinitializeAccounts()
+	backend.emitAccountsStatusChanged()
 	return nil
 }
 
