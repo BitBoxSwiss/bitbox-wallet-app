@@ -922,7 +922,21 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 		}
 	}
 
-	backend.initAccounts(false)
+	accountsConfig, err = backend.accountsDB.Snapshot()
+	if err != nil {
+		log.WithError(err).Error("Could not load account records")
+		return
+	}
+	var membershipChanged, ethMembershipChanged bool
+	for _, accountCode := range taprootAccountCodes {
+		removed, removedETH := backend.removeAccountFamilyLocked(accountCode)
+		membershipChanged = membershipChanged || removed
+		ethMembershipChanged = ethMembershipChanged || removedETH
+	}
+	reconciled, reconciledETH := backend.reconcileAccountsLocked(accountsConfig)
+	membershipChanged = membershipChanged || reconciled
+	ethMembershipChanged = ethMembershipChanged || reconciledETH
+	backend.applyAccountReconcileEffectsLocked(membershipChanged, ethMembershipChanged)
 
 	backend.aoppKeystoreRegistered()
 
@@ -972,11 +986,14 @@ func (backend *Backend) DeregisterKeystore() {
 		Action:  action.Reload,
 	})
 
-	backend.uninitAccounts(false)
-	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
-	// keystore. For now we just remove all, then re-add the rest.
-	backend.initPersistedAccounts(accountLoadOptions{})
-	backend.emitAccountsStatusChanged()
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records")
+		backend.emitAccountsStatusChanged()
+	} else {
+		membershipChanged, ethMembershipChanged := backend.reconcileAccountsLocked(accountsConfig)
+		backend.applyAccountReconcileEffectsLocked(membershipChanged, ethMembershipChanged)
+	}
 	backend.connectKeystore.onDisconnect()
 }
 
