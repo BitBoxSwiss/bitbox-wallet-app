@@ -990,7 +990,7 @@ func TestInactiveAccount(t *testing.T) {
 	checkShownAccountsLen(t, b, 5, 3)
 }
 
-// Test that taproot subaccounts are added if a keytore gains taproot support (e.g. BitBox02 gained
+// Test that taproot subaccounts are added if a keystore gains taproot support (e.g. BitBox02 gained
 // taproot support in v9.10.0)
 func TestTaprootUpgrade(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
@@ -1078,13 +1078,19 @@ func TestTaprootUpgrade(t *testing.T) {
 		accountsConfig.Lookup("v0-55555555-btc-0").SigningConfigurations)
 
 	// "Unplug", then insert an updated keystore with taproot support.
+	require.NoError(t, b.SetWatchonly(fingerprint, true))
+	loadedBTCAccount := b.accounts.lookup("v0-55555555-btc-0")
+	loadedLTCAccount := b.accounts.lookup("v0-55555555-ltc-0")
 	b.DeregisterKeystore()
+	require.Same(t, loadedBTCAccount, b.accounts.lookup("v0-55555555-btc-0"))
 	b.registerKeystore(bitbox02Taproot)
 	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount = b.Accounts().lookup("v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
+	require.NotSame(t, loadedBTCAccount, btcAccount.Account)
 	ltcAccount = b.Accounts().lookup("v0-55555555-ltc-0")
 	require.NotNil(t, ltcAccount)
+	require.Same(t, loadedLTCAccount, ltcAccount.Account)
 	require.Equal(t, coinpkg.CodeBTC, b.Accounts()[0].Account.Coin().Code())
 	require.Len(t, btcAccount.Record.SigningConfigurations, 3)
 	// LTC (coin with no taproot support) unchanged.
