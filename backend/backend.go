@@ -1306,7 +1306,7 @@ func (backend *Backend) ClearCache() error {
 		backend.ratesUpdater.Stop()
 	}
 
-	backend.uninitAccounts(true)
+	backend.accounts.removeAll()
 	if err := backend.closeCoins(); err != nil {
 		backend.log.WithError(err).Error("could not close coins before clearing cache")
 		errors = append(errors, err.Error())
@@ -1331,7 +1331,15 @@ func (backend *Backend) ClearCache() error {
 	}
 	backend.ethOutgoing = outgoing
 	backend.ratesUpdater = backend.newRatesUpdater()
-	backend.initAccounts(true)
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records after clearing cache")
+		errors = append(errors, err.Error())
+	} else {
+		backend.reconcileAccountsLocked(accountsConfig)
+		backend.enqueueETHInitialSyncLocked()
+		backend.emitAccountsStatusChanged()
+	}
 	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
 	if err != nil {
 		backend.log.WithError(err).Error("could not recreate Bitcoin coin after clearing cache")
@@ -1339,6 +1347,8 @@ func (backend *Backend) ClearCache() error {
 	} else {
 		backend.lightning.SetRuntimeDependencies(backend.ratesUpdater, btcCoin)
 	}
+	// The new updater needs historical rates even when only Lightning is active.
+	backend.configureHistoryExchangeRates()
 	if backend.started {
 		backend.ratesUpdater.StartCurrentRates()
 	}
@@ -1373,7 +1383,7 @@ func (backend *Backend) Close() error {
 		errors = append(errors, outgoingErr.Error())
 	}
 
-	backend.uninitAccounts(true)
+	backend.accounts.removeAll()
 	if backend.unobserveKeystore != nil {
 		backend.unobserveKeystore()
 		backend.unobserveKeystore = nil

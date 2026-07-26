@@ -875,7 +875,7 @@ func TestETHInitialSyncMode(t *testing.T) {
 
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.uninitAccounts(true)
+			b.accounts.removeAll()
 			require.NoError(t, b.reconcileAccountsAndRefreshLocked())
 		}()
 
