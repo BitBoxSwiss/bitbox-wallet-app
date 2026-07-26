@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"slices"
+	"sync"
 	"testing"
 	"time"
 
@@ -145,6 +147,142 @@ func TestAccounts(t *testing.T) {
 	accountsConfig = accountsSnapshot(t, b)
 	require.Equal(t, "My ETH Renamed", accountsConfig.Lookup("v0-55555555-eth-0").Name)
 	require.Equal(t, "My ETH Renamed", b.Accounts().lookup("v0-55555555-eth-0").Record.Name)
+}
+
+func TestETHAccountWriteUsesPerAccountInitialSync(t *testing.T) {
+	backend := newBackend(t, testnetDisabled, regtestDisabled)
+	defer backend.Close()
+	keystore := makeBitBox02Multi()
+	discoveryDone := make(chan struct{}, 1)
+	backend.tstMaybeAddHiddenUnusedAccounts = func() {
+		discoveryDone <- struct{}{}
+	}
+	backend.registerKeystore(keystore)
+	<-discoveryDone
+	backend.tstMaybeAddHiddenUnusedAccounts = nil
+
+	btcAccount := backend.Accounts().lookup("v0-55555555-btc-0").Account
+	ethAccount := backend.Accounts().lookup("v0-55555555-eth-0").Account
+	ethRefreshes := 0
+	backend.enqueueETHUpdateForAllAccountsAsync = func() {
+		ethRefreshes++
+	}
+
+	accountCode, err := backend.CreateAndPersistAccountConfig(
+		coinpkg.CodeETH,
+		"A second Ethereum account",
+		keystore,
+	)
+	require.NoError(t, err)
+	accountView := backend.Accounts().lookup(accountCode)
+	require.NotNil(t, accountView)
+	require.False(t, accountView.Account.Config().SkipInitialSync)
+	require.Zero(t, ethRefreshes)
+	require.Same(t, btcAccount, backend.Accounts().lookup("v0-55555555-btc-0").Account)
+	require.Same(t, ethAccount, backend.Accounts().lookup("v0-55555555-eth-0").Account)
+}
+
+func TestTokenWriteReconcilesOnlyTokenAccount(t *testing.T) {
+	backend := newBackend(t, testnetDisabled, regtestDisabled)
+	defer backend.Close()
+	keystore := makeBitBox02Multi()
+	discoveryDone := make(chan struct{}, 1)
+	backend.tstMaybeAddHiddenUnusedAccounts = func() {
+		discoveryDone <- struct{}{}
+	}
+	backend.registerKeystore(keystore)
+	<-discoveryDone
+	backend.tstMaybeAddHiddenUnusedAccounts = nil
+
+	parentCode := accountsTypes.Code("v0-55555555-eth-0")
+	tokenCode := "eth-erc20-bat"
+	tokenAccountCode := Erc20AccountCode(parentCode, tokenCode)
+	btcAccount := backend.Accounts().lookup("v0-55555555-btc-0").Account
+	ethAccount := backend.Accounts().lookup(parentCode).Account
+
+	var initialized, uninitialized []accountsTypes.Code
+	backend.OnAccountInit(func(account accounts.Interface) {
+		if account.Config().Code != tokenAccountCode {
+			return
+		}
+		accountsConfig := accountsSnapshot(t, backend)
+		require.Contains(t, accountsConfig.Lookup(parentCode).ActiveTokens, tokenCode)
+		initialized = append(initialized, account.Config().Code)
+	})
+	backend.OnAccountUninit(func(account accounts.Interface) {
+		if account.Config().Code != tokenAccountCode {
+			return
+		}
+		accountsConfig := accountsSnapshot(t, backend)
+		require.NotContains(t, accountsConfig.Lookup(parentCode).ActiveTokens, tokenCode)
+		uninitialized = append(uninitialized, account.Config().Code)
+	})
+	ethRefreshes := 0
+	backend.enqueueETHUpdateForAllAccountsAsync = func() {
+		ethRefreshes++
+	}
+
+	var accountEvents int
+	unobserve := backend.Observe(func(event observable.Event) {
+		if event.Subject == "accounts" {
+			accountEvents++
+		}
+	})
+	defer unobserve()
+
+	require.NoError(t, backend.SetTokenActive(parentCode, tokenCode, true))
+	require.Equal(t, []accountsTypes.Code{tokenAccountCode}, initialized)
+	require.Same(t, btcAccount, backend.Accounts().lookup("v0-55555555-btc-0").Account)
+	require.Same(t, ethAccount, backend.Accounts().lookup(parentCode).Account)
+	tokenAccount := backend.Accounts().lookup(tokenAccountCode)
+	require.NotNil(t, tokenAccount)
+	require.False(t, tokenAccount.Account.Config().SkipInitialSync)
+	require.Zero(t, ethRefreshes)
+
+	require.NoError(t, backend.SetTokenActive(parentCode, tokenCode, false))
+	require.Equal(t, []accountsTypes.Code{tokenAccountCode}, uninitialized)
+	require.Nil(t, backend.Accounts().lookup(tokenAccountCode))
+	require.Zero(t, ethRefreshes)
+	require.Equal(t, 2, accountEvents)
+	accountsConfig := accountsSnapshot(t, backend)
+	require.False(t, slices.Contains(
+		accountsConfig.Lookup(parentCode).ActiveTokens,
+		tokenCode,
+	))
+}
+
+func TestConcurrentTokenWritesPreserveMembership(t *testing.T) {
+	backend := newBackend(t, testnetDisabled, regtestDisabled)
+	defer backend.Close()
+	backend.registerKeystore(makeBitBox02Multi())
+
+	parentCode := accountsTypes.Code("v0-55555555-eth-0")
+	tokenCodes := []string{"eth-erc20-bat", "eth-erc20-usdt"}
+	start := make(chan struct{})
+	errors := make(chan error, len(tokenCodes))
+	var waitGroup sync.WaitGroup
+	for _, tokenCode := range tokenCodes {
+		waitGroup.Add(1)
+		go func() {
+			defer waitGroup.Done()
+			<-start
+			errors <- backend.SetTokenActive(parentCode, tokenCode, true)
+		}()
+	}
+	close(start)
+	waitGroup.Wait()
+	close(errors)
+	for err := range errors {
+		require.NoError(t, err)
+	}
+
+	accountsConfig := accountsSnapshot(t, backend)
+	parent := accountsConfig.Lookup(parentCode)
+	require.NotNil(t, parent)
+	for _, tokenCode := range tokenCodes {
+		require.Contains(t, parent.ActiveTokens, tokenCode)
+		require.NotNil(t, backend.Accounts().lookup(Erc20AccountCode(parentCode, tokenCode)))
+	}
 }
 
 func TestSetAccountReceiveScriptType(t *testing.T) {

@@ -234,6 +234,9 @@ type Backend struct {
 	usbManager *usb.Manager
 	bluetooth  *bluetooth.Bluetooth
 
+	// accountsAndKeystoreLock protects the connected keystore and live account lifecycle. The
+	// accounts database synchronizes storage itself; hold this lock across a database write only
+	// when the write must be reconciled with runtime membership.
 	accountsAndKeystoreLock locker.Locker
 	accounts                accountRegistry
 	// keystore is nil if no keystore is connected.

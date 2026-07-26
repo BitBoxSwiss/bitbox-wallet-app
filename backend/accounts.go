@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
+	"slices"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -546,6 +547,8 @@ func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.K
 // `name` is the account name, shown to the user. If empty, a default name will be set.
 func (backend *Backend) CreateAndPersistAccountConfig(
 	coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accountsTypes.Code, error) {
+	defer backend.accountsAndKeystoreLock.Lock()()
+
 	var accountCode accountsTypes.Code
 	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		hiddenAccount, err := findHiddenAccount(coinCode, keystore, accountsConfig)
@@ -571,7 +574,9 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 	if err != nil {
 		return "", err
 	}
-	backend.ReinitializeAccounts()
+	if err := backend.reconcileAccountWriteLocked(accountCode); err != nil {
+		return "", err
+	}
 	return accountCode, nil
 }
 
@@ -595,6 +600,8 @@ func (backend *Backend) SetAccountActive(accountCode accountsTypes.Code, active 
 // SetTokenActive activates/deactivates an token on an account. `tokenCode` must be an ERC20 token
 // code, e.g. "eth-erc20-usdt", "eth-erc20-bat", etc.
 func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error {
+	defer backend.accountsAndKeystoreLock.Lock()()
+
 	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(accountCode)
 		if acct == nil {
@@ -608,7 +615,19 @@ func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode
 	if err != nil {
 		return err
 	}
-	backend.ReinitializeAccounts()
+	return backend.reconcileAccountWriteLocked(accountCode)
+}
+
+// reconcileAccountWriteLocked updates runtime membership and dependent services after a persisted
+// account-family write. Callers hold accountsAndKeystoreLock across both persistence and
+// reconciliation so joined views cannot combine new desired membership with stale runtime state.
+func (backend *Backend) reconcileAccountWriteLocked(accountCode accountsTypes.Code) error {
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return err
+	}
+	membershipChanged := backend.reconcileAccountFamilyLocked(accountsConfig, accountCode)
+	backend.applyAccountReconcileEffectsLocked(membershipChanged)
 	return nil
 }
 
@@ -673,12 +692,14 @@ func (backend *Backend) updateKeystoreName(rootFingerprint []byte, name string) 
 	return nil
 }
 
-// addAccount adds the given account to the backend.
+// addAccount adds the given account to the backend and reports whether registry membership changed.
 // The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) addAccount(account accounts.Interface) {
-	if _, err := backend.accounts.add(account); err != nil {
+func (backend *Backend) addAccount(account accounts.Interface) bool {
+	added, err := backend.accounts.add(account)
+	if err != nil {
 		backend.log.WithError(err).Error("error initializing account")
 	}
+	return added
 }
 
 // ConnectKeystore ensures that the keystore with the given root fingerprint is connected,
@@ -809,10 +830,10 @@ func (backend *Backend) createAndAddAccount(
 	coin coinpkg.Coin,
 	persistedConfig *config.Account,
 	options accountLoadOptions,
-) {
+) bool {
 	if backend.accounts.lookup(persistedConfig.Code) != nil {
 		// Do not create/load account if it is already loaded.
-		return
+		return false
 	}
 	accountCode := persistedConfig.Code
 	signingConfigurations := persistedConfig.SigningConfigurations
@@ -890,10 +911,10 @@ func (backend *Backend) createAndAddAccount(
 			getAddressByIDCallback,
 			backend.log,
 		)
-		backend.addAccount(account)
+		return backend.addAccount(account)
 	case *eth.Coin:
 		account = backend.makeEthAccount(accountConfig, specificCoin, backend.httpClient, backend.log)
-		backend.addAccount(account)
+		membershipChanged := backend.addAccount(account)
 
 		// Load ERC20 tokens enabled with this Ethereum account.
 		for _, erc20TokenCode := range persistedConfig.ActiveTokens {
@@ -911,8 +932,11 @@ func (backend *Backend) createAndAddAccount(
 				SigningConfigurations: persistedConfig.SigningConfigurations,
 			}
 
-			backend.createAndAddAccount(token, erc20Config, options)
+			if backend.createAndAddAccount(token, erc20Config, options) {
+				membershipChanged = true
+			}
 		}
+		return membershipChanged
 	default:
 		panic("unknown coin type")
 	}
@@ -971,6 +995,101 @@ func (backend *Backend) accountLoadableLocked(
 		}
 	}
 	return accountCoin, true
+}
+
+// isTokenAccountOf reports whether account is an ERC20 token derived from parentCode.
+func isTokenAccountOf(account accounts.Interface, parentCode accountsTypes.Code) bool {
+	return eth.IsERC20(account) &&
+		account.Config().Code == Erc20AccountCode(parentCode, string(account.Coin().Code()))
+}
+
+func (backend *Backend) removeAccountFamilyLocked(
+	accountCode accountsTypes.Code,
+) (membershipChanged bool) {
+	for _, account := range backend.accounts.all() {
+		if account.Config().Code != accountCode && !isTokenAccountOf(account, accountCode) {
+			continue
+		}
+		if backend.accounts.remove(account.Config().Code) {
+			membershipChanged = true
+		}
+	}
+	return membershipChanged
+}
+
+// reconcileAccountFamilyLocked reconciles one persisted account and its derived token accounts.
+// accountsAndKeystoreLock must be held.
+func (backend *Backend) reconcileAccountFamilyLocked(
+	accountsConfig config.AccountsConfig,
+	accountCode accountsTypes.Code,
+) (membershipChanged bool) {
+	record := accountsConfig.Lookup(accountCode)
+	if record == nil {
+		return false
+	}
+
+	accountCoin, loadable := backend.accountLoadableLocked(accountsConfig, record)
+	if !loadable {
+		return backend.removeAccountFamilyLocked(accountCode)
+	}
+
+	loadedAccount := backend.accounts.lookup(accountCode)
+	if loadedAccount == nil {
+		return backend.createAndAddAccount(
+			accountCoin,
+			record,
+			accountLoadOptions{},
+		)
+	}
+
+	if _, isETH := accountCoin.(*eth.Coin); !isETH {
+		return false
+	}
+
+	for _, account := range backend.accounts.all() {
+		if !isTokenAccountOf(account, accountCode) {
+			continue
+		}
+		if slices.Contains(record.ActiveTokens, string(account.Coin().Code())) {
+			continue
+		}
+		if backend.accounts.remove(account.Config().Code) {
+			membershipChanged = true
+		}
+	}
+	for _, tokenCode := range record.ActiveTokens {
+		tokenAccountCode := Erc20AccountCode(accountCode, tokenCode)
+		if backend.accounts.lookup(tokenAccountCode) != nil {
+			continue
+		}
+		tokenCoin, err := backend.Coin(coinpkg.Code(tokenCode))
+		if err != nil {
+			backend.log.WithField("code", tokenAccountCode).WithError(err).Error("could not find ERC20 token")
+			continue
+		}
+		tokenRecord := &config.Account{
+			CoinCode:              tokenCoin.Code(),
+			Code:                  tokenAccountCode,
+			SigningConfigurations: record.SigningConfigurations,
+		}
+		if backend.createAndAddAccount(
+			tokenCoin,
+			tokenRecord,
+			accountLoadOptions{},
+		) {
+			membershipChanged = true
+		}
+	}
+	return membershipChanged
+}
+
+// applyAccountReconcileEffectsLocked updates services and observers after membership reconciliation.
+// accountsAndKeystoreLock must be held.
+func (backend *Backend) applyAccountReconcileEffectsLocked(membershipChanged bool) {
+	backend.emitAccountsStatusChanged()
+	if membershipChanged {
+		backend.configureHistoryExchangeRates()
+	}
 }
 
 func (backend *Backend) emitAccountsStatusChanged() {
@@ -1249,16 +1368,6 @@ func (backend *Backend) enqueueETHInitialSyncLocked() {
 			return
 		}
 	}
-}
-
-// ReinitializeAccounts uninits and then reinits all accounts. This is useful to reload the accounts
-// if the configuration changed (e.g. which accounts are active). This is a stopgap measure until
-// accounts can be added and removed individually.
-func (backend *Backend) ReinitializeAccounts() {
-	defer backend.accountsAndKeystoreLock.Lock()()
-
-	backend.log.Info("Reinitializing accounts")
-	backend.initAccounts(true)
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
