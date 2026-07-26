@@ -688,6 +688,22 @@ func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode
 	return backend.reconcileAccountWriteLocked(accountCode)
 }
 
+// reconcileAccountsAndRefreshLocked loads or unloads accounts according to persisted records and the
+// connected keystore. It emits an account-list reload notification, reconfigures historical
+// exchange-rate fetching when the loaded account set changes, and requests a batch ETH refresh when
+// ETH/ERC20 accounts are added.
+// The caller must hold accountsAndKeystoreLock.
+func (backend *Backend) reconcileAccountsAndRefreshLocked() error {
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return err
+	}
+
+	membershipChanged, ethAccountsAdded := backend.reconcileAccountsLocked(accountsConfig)
+	backend.applyAccountReconcileEffectsLocked(membershipChanged, ethAccountsAdded)
+	return nil
+}
+
 // reconcileAccountWriteLocked updates runtime membership and dependent services after a persisted
 // account-family write. Callers hold accountsAndKeystoreLock across both persistence and
 // reconciliation so joined views cannot combine new desired membership with stale runtime state.
@@ -696,12 +712,13 @@ func (backend *Backend) reconcileAccountWriteLocked(accountCode accountsTypes.Co
 	if err != nil {
 		return err
 	}
-	membershipChanged := backend.reconcileAccountFamilyLocked(
+	membershipChanged, _ := backend.reconcileAccountFamilyLocked(
 		accountsConfig,
 		accountCode,
 		accountLoadOptions{},
 	)
-	backend.applyAccountReconcileEffectsLocked(membershipChanged)
+	// Newly initialized ETH accounts enqueue their own initial update.
+	backend.applyAccountReconcileEffectsLocked(membershipChanged, false)
 	return nil
 }
 
@@ -1127,28 +1144,30 @@ func (backend *Backend) reconcileAccountFamilyLocked(
 	accountsConfig config.AccountsConfig,
 	accountCode accountsTypes.Code,
 	options accountLoadOptions,
-) (membershipChanged bool) {
+) (membershipChanged bool, ethAccountsAdded bool) {
 	record := accountsConfig.Lookup(accountCode)
 	if record == nil {
-		return false
+		return false, false
 	}
 
 	accountCoin, loadable := backend.accountLoadableLocked(accountsConfig, record)
 	if !loadable {
-		return backend.removeAccountFamilyLocked(accountCode)
+		return backend.removeAccountFamilyLocked(accountCode), false
 	}
 
 	loadedAccount := backend.accounts.lookup(accountCode)
 	if loadedAccount == nil {
-		return backend.createAndAddAccount(
+		added := backend.createAndAddAccount(
 			accountCoin,
 			record,
 			options,
 		)
+		_, isETH := accountCoin.(*eth.Coin)
+		return added, added && isETH
 	}
 
 	if _, isETH := accountCoin.(*eth.Coin); !isETH {
-		return false
+		return false, false
 	}
 
 	for _, account := range backend.accounts.all() {
@@ -1183,9 +1202,10 @@ func (backend *Backend) reconcileAccountFamilyLocked(
 			options,
 		) {
 			membershipChanged = true
+			ethAccountsAdded = true
 		}
 	}
-	return membershipChanged
+	return membershipChanged, ethAccountsAdded
 }
 
 // reconcileAccountsLocked makes runtime membership match one authoritative accounts database
@@ -1193,7 +1213,7 @@ func (backend *Backend) reconcileAccountFamilyLocked(
 // accountsAndKeystoreLock must be held.
 func (backend *Backend) reconcileAccountsLocked(
 	accountsConfig config.AccountsConfig,
-) {
+) (membershipChanged bool, ethAccountsAdded bool) {
 	desiredAccountCodes := make(map[accountsTypes.Code]struct{}, len(accountsConfig.Accounts))
 	for _, record := range accountsConfig.Accounts {
 		desiredAccountCodes[record.Code] = struct{}{}
@@ -1201,24 +1221,35 @@ func (backend *Backend) reconcileAccountsLocked(
 			desiredAccountCodes[Erc20AccountCode(record.Code, tokenCode)] = struct{}{}
 		}
 
-		backend.reconcileAccountFamilyLocked(
+		changed, ethAdded := backend.reconcileAccountFamilyLocked(
 			accountsConfig,
 			record.Code,
 			accountLoadOptions{skipETHInitialSync: true},
 		)
+		membershipChanged = membershipChanged || changed
+		ethAccountsAdded = ethAccountsAdded || ethAdded
 	}
 
 	for _, account := range backend.accounts.all() {
 		if _, desired := desiredAccountCodes[account.Config().Code]; desired {
 			continue
 		}
-		backend.accounts.remove(account.Config().Code)
+		if backend.accounts.remove(account.Config().Code) {
+			membershipChanged = true
+		}
 	}
+	return membershipChanged, ethAccountsAdded
 }
 
 // applyAccountReconcileEffectsLocked updates services and observers after membership reconciliation.
 // accountsAndKeystoreLock must be held.
-func (backend *Backend) applyAccountReconcileEffectsLocked(membershipChanged bool) {
+func (backend *Backend) applyAccountReconcileEffectsLocked(
+	membershipChanged bool,
+	refreshAllETHAccounts bool,
+) {
+	if refreshAllETHAccounts {
+		backend.enqueueETHInitialSyncLocked()
+	}
 	backend.emitAccountsStatusChanged()
 	if membershipChanged {
 		backend.configureHistoryExchangeRates()
