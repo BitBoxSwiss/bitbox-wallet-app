@@ -1291,7 +1291,7 @@ func (backend *Backend) ClearCache() error {
 		backend.ratesUpdater.Stop()
 	}
 
-	backend.uninitAccounts(true)
+	backend.accounts.removeAll()
 	if err := backend.closeCoins(); err != nil {
 		backend.log.WithError(err).Error("could not close coins before clearing cache")
 		errors = append(errors, err.Error())
@@ -1308,7 +1308,14 @@ func (backend *Backend) ClearCache() error {
 	}
 
 	backend.ratesUpdater = backend.newRatesUpdater()
-	backend.initAccounts(true)
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records after clearing cache")
+		errors = append(errors, err.Error())
+	} else {
+		membershipChanged, ethMembershipChanged := backend.reconcileAccountsLocked(accountsConfig)
+		backend.applyAccountReconcileEffectsLocked(membershipChanged, ethMembershipChanged)
+	}
 	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
 	if err != nil {
 		backend.log.WithError(err).Error("could not recreate Bitcoin coin after clearing cache")
@@ -1342,7 +1349,7 @@ func (backend *Backend) Close() error {
 
 	errors := []string{}
 
-	backend.uninitAccounts(true)
+	backend.accounts.removeAll()
 	if backend.unobserveKeystore != nil {
 		backend.unobserveKeystore()
 		backend.unobserveKeystore = nil
