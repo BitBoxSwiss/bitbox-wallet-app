@@ -1418,6 +1418,8 @@ func (backend *Backend) CancelConnectKeystore() {
 
 // SetWatchonly sets the keystore's watchonly flag to `watchonly`.
 func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) error {
+	defer backend.accountsAndKeystoreLock.Lock()()
+
 	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		ks, err := accountsConfig.LookupKeystore(rootFingerprint)
 		if err != nil {
@@ -1430,9 +1432,12 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 		return err
 	}
 
-	defer backend.accountsAndKeystoreLock.Lock()()
-	backend.initAccounts(false)
-	backend.emitAccountsStatusChanged()
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return err
+	}
+	membershipChanged, ethMembershipChanged := backend.reconcileAccountsLocked(accountsConfig)
+	backend.applyAccountReconcileEffectsLocked(membershipChanged, ethMembershipChanged)
 	return nil
 }
 
