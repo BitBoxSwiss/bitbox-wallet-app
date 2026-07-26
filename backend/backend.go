@@ -795,7 +795,12 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.updateChecker.start()
 
 	defer backend.accountsAndKeystoreLock.Lock()()
-	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records")
+	} else {
+		backend.reconcileAccountsLocked(accountsConfig)
+	}
 	backend.emitAccountsStatusChanged()
 
 	backend.ratesUpdater.StartCurrentRates()

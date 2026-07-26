@@ -850,13 +850,21 @@ func TestETHInitialSyncMode(t *testing.T) {
 		return MockEthAccount(config, coin, httpClient, log)
 	}
 
+	enqueueAllAccountsRefreshes := 0
+	b.enqueueETHUpdateForAllAccountsAsync = func() {
+		enqueueAllAccountsRefreshes++
+	}
+
 	t.Run("startup-watchonly-load", func(t *testing.T) {
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
+			accountsConfig := accountsSnapshot(t, b)
+			b.reconcileAccountsLocked(accountsConfig)
 		}()
 
 		require.Equal(t, expected, captured)
+		// PollBalances performs the one initial refresh when startup completes.
+		require.Equal(t, 0, enqueueAllAccountsRefreshes)
 	})
 
 	t.Run("reinit-batch-load", func(t *testing.T) {
