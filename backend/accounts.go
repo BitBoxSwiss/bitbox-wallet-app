@@ -663,7 +663,8 @@ func (backend *Backend) reconcileAccountWriteLocked(accountCode accountsTypes.Co
 		accountCode,
 		accountLoadOptions{},
 	)
-	backend.applyAccountReconcileEffectsLocked(membershipChanged)
+	// Newly initialized ETH accounts enqueue their own initial update.
+	backend.applyAccountReconcileEffectsLocked(membershipChanged, false)
 	return nil
 }
 
@@ -1165,7 +1166,13 @@ func (backend *Backend) reconcileAccountsLocked(
 
 // applyAccountReconcileEffectsLocked updates services and observers after membership reconciliation.
 // accountsAndKeystoreLock must be held.
-func (backend *Backend) applyAccountReconcileEffectsLocked(membershipChanged bool) {
+func (backend *Backend) applyAccountReconcileEffectsLocked(
+	membershipChanged bool,
+	refreshAllETHAccounts bool,
+) {
+	if refreshAllETHAccounts {
+		backend.enqueueETHInitialSyncLocked()
+	}
 	backend.emitAccountsStatusChanged()
 	if membershipChanged {
 		backend.configureHistoryExchangeRates()
