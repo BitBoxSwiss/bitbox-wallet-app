@@ -1311,23 +1311,6 @@ func (backend *Backend) buildETHAccountConfig(
 	}, nil
 }
 
-// The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) initPersistedAccounts(options accountLoadOptions) {
-	persistedAccounts, err := backend.accountsDB.Snapshot()
-	if err != nil {
-		backend.log.WithError(err).Error("could not load account records")
-		return
-	}
-
-	for _, account := range persistedAccounts.Accounts {
-		accountCoin, loadable := backend.accountLoadableLocked(persistedAccounts, account)
-		if !loadable {
-			continue
-		}
-		backend.createAndAddAccount(accountCoin, account, options)
-	}
-}
-
 // buildDefaultAccountConfigs prepares the default accounts for the connected keystore (not manually
 // user-added). Currently the first bip44 account of BTC/LTC/ETH. ERC20 tokens are added if they were
 // configured to be active by the user in the past, when they could still configure them globally
@@ -1430,22 +1413,6 @@ func (backend *Backend) maybeAddP2TR(
 	return changedAccountCodes, nil
 }
 
-// The accountsAndKeystoreLock must be held when calling this function.
-// if force is true, all accounts are uninitialized first, even if they are watch-only.
-func (backend *Backend) initAccounts(force bool) {
-	// Since initAccounts replaces all previous accounts, we need to properly close them first.
-	backend.uninitAccounts(force)
-
-	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
-	backend.enqueueETHInitialSyncLocked()
-
-	backend.emitAccountsStatusChanged()
-
-	// The updater fetches rates only for active accounts, so update its configuration whenever
-	// this operation changes the loaded account set.
-	backend.configureHistoryExchangeRates()
-}
-
 // enqueueETHInitialSyncLocked asks the ETH updater to refresh all loaded ETH accounts if any exist.
 //
 // The accountsAndKeystoreLock must be held when calling this function.
@@ -1455,47 +1422,6 @@ func (backend *Backend) enqueueETHInitialSyncLocked() {
 			backend.enqueueETHUpdateForAllAccountsAsync()
 			return
 		}
-	}
-}
-
-// The accountsAndKeystoreLock must be held when calling this function.
-// if force is true, all accounts are uninitialized, even if they are watch-only.
-func (backend *Backend) uninitAccounts(force bool) {
-	// This transitional implementation is removed once account membership is reconciled incrementally.
-	accountsConfig, err := backend.accountsDB.Snapshot()
-	if err != nil {
-		backend.log.WithError(err).Error("could not load account records")
-		return
-	}
-	for _, account := range backend.accounts.all() {
-		accountConfig := accountsConfig.Lookup(account.Config().Code)
-		if accountConfig == nil {
-			accountConfig, _ = derivedTokenRecord(account, accountsConfig)
-		}
-
-		belongsToKeystore := false
-		if backend.keystore != nil && accountConfig != nil {
-			fingerprint, err := backend.keystore.RootFingerprint()
-			if err != nil {
-				backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
-			} else {
-				belongsToKeystore =
-					accountConfig.SigningConfigurations.ContainsRootFingerprint(fingerprint)
-			}
-		}
-
-		isWatchonly := false
-		if accountConfig != nil {
-			var err error
-			isWatchonly, err = accountsConfig.IsAccountWatchOnly(accountConfig)
-			if err != nil {
-				backend.log.WithError(err).Error("could not determine watch status of account")
-			}
-		}
-		if !force && (belongsToKeystore || isWatchonly) {
-			continue
-		}
-		backend.accounts.remove(account.Config().Code)
 	}
 }
 

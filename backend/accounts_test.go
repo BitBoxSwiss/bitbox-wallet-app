@@ -867,16 +867,16 @@ func TestETHInitialSyncMode(t *testing.T) {
 		require.Equal(t, 0, enqueueAllAccountsRefreshes)
 	})
 
-	t.Run("reinit-batch-load", func(t *testing.T) {
+	t.Run("reconcile-batch-load", func(t *testing.T) {
 		captured = map[accountsTypes.Code]bool{}
-		enqueueAllAccountsRefreshes := 0
-		b.enqueueETHUpdateForAllAccountsAsync = func() {
-			enqueueAllAccountsRefreshes++
-		}
+		enqueueAllAccountsRefreshes = 0
 
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.initAccounts(true)
+			b.accounts.removeAll()
+			accountsConfig := accountsSnapshot(t, b)
+			membershipChanged, ethMembershipChanged := b.reconcileAccountsLocked(accountsConfig)
+			b.applyAccountReconcileEffectsLocked(membershipChanged, ethMembershipChanged)
 		}()
 
 		require.Equal(t, expected, captured)

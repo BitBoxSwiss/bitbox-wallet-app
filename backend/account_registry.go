@@ -89,6 +89,13 @@ func (registry *accountRegistry) remove(code accountsTypes.Code) bool {
 	return false
 }
 
+func (registry *accountRegistry) removeAll() {
+	for _, account := range registry.accounts {
+		registry.closeAccount(account)
+	}
+	registry.accounts = AccountsList{}
+}
+
 func (registry *accountRegistry) closeAccount(account accounts.Interface) {
 	if registry.lifecycle.onUninitialized != nil {
 		registry.lifecycle.onUninitialized(account)
