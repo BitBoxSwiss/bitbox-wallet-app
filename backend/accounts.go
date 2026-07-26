@@ -696,7 +696,11 @@ func (backend *Backend) reconcileAccountWriteLocked(accountCode accountsTypes.Co
 	if err != nil {
 		return err
 	}
-	membershipChanged := backend.reconcileAccountFamilyLocked(accountsConfig, accountCode)
+	membershipChanged := backend.reconcileAccountFamilyLocked(
+		accountsConfig,
+		accountCode,
+		accountLoadOptions{},
+	)
 	backend.applyAccountReconcileEffectsLocked(membershipChanged)
 	return nil
 }
@@ -1122,6 +1126,7 @@ func (backend *Backend) removeAccountFamilyLocked(
 func (backend *Backend) reconcileAccountFamilyLocked(
 	accountsConfig config.AccountsConfig,
 	accountCode accountsTypes.Code,
+	options accountLoadOptions,
 ) (membershipChanged bool) {
 	record := accountsConfig.Lookup(accountCode)
 	if record == nil {
@@ -1138,7 +1143,7 @@ func (backend *Backend) reconcileAccountFamilyLocked(
 		return backend.createAndAddAccount(
 			accountCoin,
 			record,
-			accountLoadOptions{},
+			options,
 		)
 	}
 
@@ -1175,12 +1180,40 @@ func (backend *Backend) reconcileAccountFamilyLocked(
 		if backend.createAndAddAccount(
 			tokenCoin,
 			tokenRecord,
-			accountLoadOptions{},
+			options,
 		) {
 			membershipChanged = true
 		}
 	}
 	return membershipChanged
+}
+
+// reconcileAccountsLocked makes runtime membership match one authoritative accounts database
+// snapshot.
+// accountsAndKeystoreLock must be held.
+func (backend *Backend) reconcileAccountsLocked(
+	accountsConfig config.AccountsConfig,
+) {
+	desiredAccountCodes := make(map[accountsTypes.Code]struct{}, len(accountsConfig.Accounts))
+	for _, record := range accountsConfig.Accounts {
+		desiredAccountCodes[record.Code] = struct{}{}
+		for _, tokenCode := range record.ActiveTokens {
+			desiredAccountCodes[Erc20AccountCode(record.Code, tokenCode)] = struct{}{}
+		}
+
+		backend.reconcileAccountFamilyLocked(
+			accountsConfig,
+			record.Code,
+			accountLoadOptions{skipETHInitialSync: true},
+		)
+	}
+
+	for _, account := range backend.accounts.all() {
+		if _, desired := desiredAccountCodes[account.Config().Code]; desired {
+			continue
+		}
+		backend.accounts.remove(account.Config().Code)
+	}
 }
 
 // applyAccountReconcileEffectsLocked updates services and observers after membership reconciliation.
@@ -1604,7 +1637,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 			log.WithError(err).Error("could not load account records")
 			continue
 		}
-		backend.reconcileAccountFamilyLocked(accountsConfig, accountCode)
+		backend.reconcileAccountFamilyLocked(accountsConfig, accountCode, accountLoadOptions{})
 		// Discovery adds scanning accounts without restarting historical exchange-rate updates.
 		backend.emitAccountsStatusChanged()
 	}
