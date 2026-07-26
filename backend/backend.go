@@ -1007,7 +1007,6 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 	}
 	if err != nil {
 		log.WithError(err).Error("Could not update account records")
-		taprootAccountCodes = nil
 	} else {
 		for _, accountCode := range taprootAccountCodes {
 			log.WithField("code", accountCode).
@@ -1015,7 +1014,11 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 		}
 	}
 
-	backend.initAccounts(false)
+	// Existing accounts retain their runtime signing configurations until they are reloaded.
+	if err := backend.reconcileAccountsAndRefreshLocked(); err != nil {
+		log.WithError(err).Error("Could not load account records")
+		return
+	}
 
 	backend.aoppKeystoreRegistered()
 
@@ -1065,11 +1068,10 @@ func (backend *Backend) DeregisterKeystore() {
 		Action:  action.Reload,
 	})
 
-	backend.uninitAccounts(false)
-	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
-	// keystore. For now we just remove all, then re-add the rest.
-	backend.initPersistedAccounts(accountLoadOptions{})
-	backend.emitAccountsStatusChanged()
+	if err := backend.reconcileAccountsAndRefreshLocked(); err != nil {
+		backend.log.WithError(err).Error("could not load account records")
+		backend.emitAccountsStatusChanged()
+	}
 	backend.connectKeystore.onDisconnect()
 }
 
@@ -1352,7 +1354,6 @@ func (backend *Backend) ClearCache() error {
 func (backend *Backend) Close() error {
 	backend.started = false
 	backend.updateChecker.stop()
-	backend.ratesUpdater.Stop()
 	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
 	// which acquires the same lock.
 	if backend.usbManager != nil {
@@ -1363,6 +1364,9 @@ func (backend *Backend) Close() error {
 	outgoingErr := backend.ethOutgoing.Close()
 
 	defer backend.accountsAndKeystoreLock.Lock()()
+
+	// Device deregistration can reconfigure historical rates, so stop the updater afterward.
+	backend.ratesUpdater.Stop()
 
 	errors := []string{}
 	if outgoingErr != nil {

@@ -1084,8 +1084,9 @@ func TestInactiveAccount(t *testing.T) {
 	checkShownAccountsLen(t, b, 5, 3)
 }
 
-// Test that taproot subaccounts are added if a keytore gains taproot support (e.g. BitBox02 gained
-// taproot support in v9.10.0)
+// Test that taproot subaccounts are added if a keystore gains taproot support (e.g. BitBox02 gained
+// taproot support in v9.10.0). Watch-only accounts retain their runtime configurations until they
+// are unloaded and loaded again; even older firmware then loads the complete persisted configuration.
 func TestTaprootUpgrade(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
 	rootKey := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
@@ -1172,13 +1173,20 @@ func TestTaprootUpgrade(t *testing.T) {
 		accountsConfig.Lookup("v0-55555555-btc-0").SigningConfigurations)
 
 	// "Unplug", then insert an updated keystore with taproot support.
+	require.NoError(t, b.SetWatchonly(fingerprint, true))
+	loadedBTCAccount := b.accounts.lookup("v0-55555555-btc-0")
+	loadedLTCAccount := b.accounts.lookup("v0-55555555-ltc-0")
 	b.DeregisterKeystore()
+	require.Same(t, loadedBTCAccount, b.accounts.lookup("v0-55555555-btc-0"))
 	b.registerKeystore(bitbox02Taproot)
 	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount = b.Accounts().lookup("v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
+	require.Same(t, loadedBTCAccount, btcAccount.Account)
+	require.Len(t, btcAccount.Account.Config().SigningConfigurations, 2)
 	ltcAccount = b.Accounts().lookup("v0-55555555-ltc-0")
 	require.NotNil(t, ltcAccount)
+	require.Same(t, loadedLTCAccount, ltcAccount.Account)
 	require.Equal(t, coinpkg.CodeBTC, b.Accounts()[0].Account.Coin().Code())
 	require.Len(t, btcAccount.Record.SigningConfigurations, 3)
 	// LTC (coin with no taproot support) unchanged.
@@ -1199,10 +1207,14 @@ func TestTaprootUpgrade(t *testing.T) {
 	// visible. All signing configurations remain loaded so Taproot balances and history are not
 	// silently omitted.
 	b.DeregisterKeystore()
+	// Unload the watched accounts so the next connection constructs them from persisted data.
+	require.NoError(t, b.SetWatchonly(fingerprint, false))
+	checkShownAccountsLen(t, b, 0, 3)
 	b.registerKeystore(bitbox02NoTaproot)
 	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount = b.Accounts().lookup("v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
+	require.NotSame(t, loadedBTCAccount, btcAccount.Account)
 	require.Len(t, btcAccount.Account.Config().SigningConfigurations, 3)
 	accountsConfig = accountsSnapshot(t, b)
 	require.Equal(t,
