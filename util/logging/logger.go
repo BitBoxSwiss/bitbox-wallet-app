@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	utilconfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,7 +44,7 @@ func NewLogger(configuration *Configuration) *Logger {
 	case "STDERR":
 		logger.Out = os.Stderr
 	default:
-		if err := os.MkdirAll(filepath.Dir(configuration.Output), os.ModeDir|os.ModePerm); err != nil {
+		if err := os.MkdirAll(filepath.Dir(configuration.Output), 0700); err != nil {
 			fmt.Fprintf(os.Stderr, "Can't create log dir: %v; logging to stderr.\n", err)
 			logger.Out = os.Stderr
 			break
@@ -73,6 +74,14 @@ func (logger *Logger) WithGroup(group string) *logrus.Entry {
 func openRotatingWriter(name string) (*rotatingWriter, error) {
 	file, err := os.OpenFile(name, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
+		return nil, err
+	}
+	if err := utilconfig.EnsurePrivateFile(name); err != nil {
+		file.Close() //nolint:errcheck // returning chmod error
+		return nil, err
+	}
+	if err := utilconfig.EnsurePrivateFileIfExists(name + rotatedSuffix); err != nil {
+		file.Close() //nolint:errcheck // returning chmod error
 		return nil, err
 	}
 	// In earlier app versions, log file didn't have a size limit.
@@ -142,7 +151,10 @@ func rotate(logfile *os.File) (newfile *os.File, oldname string, err error) {
 		return nil, "", err
 	}
 	f, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY|os.O_APPEND, 0600)
-	return f, rotated, err
+	if err != nil {
+		return nil, "", err
+	}
+	return f, rotated, nil
 }
 
 // truncateHead keeps the last maxLogFileSizeBytes in the filename log file.
@@ -158,6 +170,10 @@ func truncateHead(filename string) error {
 	}
 	tempfile, err := os.OpenFile(filename+".tmp", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
 	if err != nil {
+		return err
+	}
+	if err := utilconfig.EnsurePrivateFile(tempfile.Name()); err != nil {
+		tempfile.Close() //nolint:errcheck // returning chmod error
 		return err
 	}
 	defer os.Remove(tempfile.Name()) //nolint:errcheck // clean up in case of a failure

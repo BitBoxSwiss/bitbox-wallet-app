@@ -14,6 +14,13 @@ import (
 var mu sync.RWMutex
 var appFolder string
 
+const (
+	// PrivateDirMode is used for directories containing app-private data.
+	PrivateDirMode os.FileMode = 0700
+	// PrivateFileMode is used for files containing app-private data.
+	PrivateFileMode os.FileMode = 0600
+)
+
 // SetAppDir sets the app folder (retrieved by AppDir()) and can only be called once.
 func SetAppDir(folder string) {
 	mu.Lock()
@@ -67,6 +74,61 @@ func AppDir() string {
 	appFolder = defaultAppFolder()
 	mu.Unlock()
 	return appFolder
+}
+
+// EnsurePrivateDir creates dir if needed and tightens permissions if it already exists.
+func EnsurePrivateDir(dir string) error {
+	if err := os.MkdirAll(dir, PrivateDirMode); err != nil {
+		return errp.WithStack(err)
+	}
+	info, err := os.Lstat(dir)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	// Ignore symlinks. The app does not create symlinks, so if it is a symlink, the user has a
+	// special setup we should not interfere with.
+	if info.Mode()&os.ModeSymlink != 0 {
+		return nil
+	}
+	if !info.IsDir() {
+		return errp.Newf("%s is not a directory", dir)
+	}
+	if info.Mode().Perm() == PrivateDirMode {
+		return nil
+	}
+	return errp.WithStack(os.Chmod(dir, PrivateDirMode))
+}
+
+// EnsurePrivateFile tightens permissions if filename already exists with a broader mode.
+func EnsurePrivateFile(filename string) error {
+	return ensurePrivateFile(filename, false)
+}
+
+// EnsurePrivateFileIfExists tightens permissions if filename exists with a broader mode.
+func EnsurePrivateFileIfExists(filename string) error {
+	return ensurePrivateFile(filename, true)
+}
+
+func ensurePrivateFile(filename string, ignoreMissing bool) error {
+	info, err := os.Lstat(filename)
+	if ignoreMissing && os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	// Ignore symlinks. The app does not create symlinks, so if it is a symlink, the user has a
+	// special setup we should not interfere with.
+	if info.Mode()&os.ModeSymlink != 0 {
+		return nil
+	}
+	if info.IsDir() {
+		return errp.Newf("%s is a directory", filename)
+	}
+	if info.Mode().Perm() == PrivateFileMode {
+		return nil
+	}
+	return errp.WithStack(os.Chmod(filename, PrivateFileMode))
 }
 
 // ExportsDir returns the absolute path to the folder which can be used to export files.

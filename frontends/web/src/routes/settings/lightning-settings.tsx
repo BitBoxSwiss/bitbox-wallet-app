@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { getLightningBalance, subscribeListPayments } from '@/api/lightning';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { Checked } from '@/components/icon';
 import { SubTitle } from '@/components/title';
+import { getKeystoreName } from '@/api/keystores';
+import { useLoad } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
 import { SettingsItem } from './components/settingsItem/settingsItem';
 import { MobileHeader } from './components/mobile-header';
@@ -22,7 +26,27 @@ export const LightningSettings = ({
 }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { lightningAccount } = useLightning();
+  const { isLightningReady, lightningAccount } = useLightning();
+  const keystoreNameResponse = useLoad(
+    lightningAccount
+      ? () => getKeystoreName(lightningAccount.rootFingerprint)
+      : null,
+    [lightningAccount?.rootFingerprint]
+  );
+  const [balanceLoadAttempt, setBalanceLoadAttempt] = useState(0);
+  const lightningBalance = useLoad(
+    lightningAccount && isLightningReady ? getLightningBalance : null,
+    [balanceLoadAttempt, isLightningReady, lightningAccount]
+  );
+
+  useEffect(() => {
+    if (!lightningAccount || !isLightningReady) {
+      return;
+    }
+    return subscribeListPayments(() => {
+      setBalanceLoadAttempt(current => current + 1);
+    });
+  }, [isLightningReady, lightningAccount]);
 
   const renderContent = () => {
     if (lightningAccount === undefined) {
@@ -39,6 +63,12 @@ export const LightningSettings = ({
       );
     }
 
+    const keystoreDisplayName = keystoreNameResponse === undefined
+      ? undefined
+      : keystoreNameResponse.success
+        ? `${keystoreNameResponse.keystoreName} (${lightningAccount.rootFingerprint})`
+        : lightningAccount.rootFingerprint;
+
     return (
       <>
         <SubTitle className={styles.sectionTitle}>{t('lightning.settings.information')}</SubTitle>
@@ -50,6 +80,10 @@ export const LightningSettings = ({
         <SettingsItem
           settingName={t('lightning.settings.serviceProvider')}
           displayedValue={serviceProvider}
+        />
+        <SettingsItem
+          settingName={t('lightning.settings.wallet')}
+          displayedValue={keystoreDisplayName}
         />
         <SettingsItem
           settingName={t('lightning.settings.setLightningAddress')}
@@ -65,6 +99,7 @@ export const LightningSettings = ({
           onClick={() => navigate('/lightning/deactivate/')}
         />
         <SettingsItem
+          disabled={!lightningBalance?.hasAvailable}
           settingName={<span className={styles.danger}>{t('lightning.settings.closeAndWithdrawFunds')}</span>}
           onClick={() => navigate('/lightning/close-withdraw-funds/')}
         />

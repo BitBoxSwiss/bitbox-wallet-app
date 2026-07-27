@@ -52,10 +52,13 @@ func (file *File) ReadJSON(object interface{}) error {
 
 // write writes the given data to the config file (and creates parent directories if necessary).
 func (file *File) write(data []byte) error {
-	if err := os.MkdirAll(file.dir, 0700); err != nil {
+	if err := EnsurePrivateDir(file.dir); err != nil {
 		return err
 	}
-	return os.WriteFile(file.Path(), data, 0600)
+	if err := os.WriteFile(file.Path(), data, PrivateFileMode); err != nil {
+		return err
+	}
+	return EnsurePrivateFile(file.Path())
 }
 
 // WriteJSON writes the given object as JSON to the config file.

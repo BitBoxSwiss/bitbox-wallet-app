@@ -7,6 +7,17 @@
 - Support macOS "Number Format" system setting
 - Move insurance to Marketplace
 - Add clear cache button to settings
+- Restrict local permissions for BitBoxApp config files and directories
+- Bitcoin: display zero amounts without decimal places
+
+## v4.51.3
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.4
+
+## v4.51.2
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.3
+- Restrict third party widget access to the top frame
+- iOS: improve price widget
+- Fix potential app blank screen when disconnecting the BitBox
 
 ## v4.51.1
 - iOS: fix App Store submission by packaging Inter as TTF fonts

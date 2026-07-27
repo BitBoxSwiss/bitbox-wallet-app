@@ -11,6 +11,7 @@ import { Message } from '@/components/message/message';
 import { PointToBitBox02 } from '@/components/icon';
 import { FiatValue } from '@/components/amount/fiat-value';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { getDisplayAccountNumber } from '@/routes/account/utils';
 import style from './confirm.module.css';
 
 type TUTXOsByAddress = {
@@ -70,6 +71,8 @@ export const ConfirmSend = ({
     recipientDisplayAddress,
   } = transactionDetails;
 
+  const displayReceiverAccountNumber = getDisplayAccountNumber(selectedReceiverAccountNumber);
+
   if (!isConfirming) {
     return null;
   }
@@ -127,9 +130,9 @@ export const ConfirmSend = ({
                 : recipientDisplayAddress
               }
               {' '}
-              {selectedReceiverAccountNumber !== undefined && (
+              {displayReceiverAccountNumber !== undefined && (
                 <span className={style.address}>
-                  (Account #{selectedReceiverAccountNumber})
+                  (Account #{displayReceiverAccountNumber})
                 </span>
               )}
             </span>

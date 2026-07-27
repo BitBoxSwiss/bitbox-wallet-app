@@ -6,6 +6,7 @@ import {
   getAccountsByKeystore,
   getAddressURIPrefix,
   getCoinCode,
+  getDisplayAccountNumber,
   isBitcoinBased,
   isBitcoinCoin,
   isBitcoinOnly,
@@ -39,6 +40,18 @@ const createAccount = ({
     ...props,
   };
 };
+
+describe('utils/getDisplayAccountNumber', () => {
+  it('returns undefined when the account number is unknown', () => {
+    expect(getDisplayAccountNumber(undefined)).toBeUndefined();
+    expect(getDisplayAccountNumber(null)).toBeUndefined();
+  });
+
+  it('converts zero-based account numbers to one-based display numbers', () => {
+    expect(getDisplayAccountNumber(0)).toBe(1);
+    expect(getDisplayAccountNumber(1)).toBe(2);
+  });
+});
 
 describe('utils/getAccountsByKeystore', () => {
 

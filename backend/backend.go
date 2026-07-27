@@ -221,6 +221,8 @@ type Environment interface {
 	// BluetoothConnect tries to connect to the peripheral by the given identifier.
 	// Use `backend.bluetooth.State()` to track failure.
 	BluetoothConnect(identifier string)
+	// UserAgentPlatform returns the platform/device token used in the app's outbound user agent.
+	UserAgentPlatform() string
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -281,6 +283,7 @@ type Backend struct {
 	ratesUpdater         *rates.RateUpdater
 	banners              *banners.Banners
 	lightning            *lightning.Lightning
+	updateChecker        *updateChecker
 	started              bool
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
@@ -351,6 +354,8 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	backend.notifier = notifier
 	backend.socksProxy = backendProxy
+	backend.updateChecker = newUpdateChecker(&backend.socksProxy, backend.userAgent())
+	backend.updateChecker.Observe(backend.Notify)
 	backend.httpClient = hclient
 	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts)
 	backend.enqueueETHUpdateForAllAccountsAsync = backend.ethupdater.EnqueueUpdateForAllAccountsAsync
@@ -367,7 +372,9 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.lightning = lightning.NewLightning(backend.config,
 		backend.arguments.CacheDirectoryPath(),
 		backend.environment,
-		backend.Keystore, backend.httpClient,
+		backend.Keystore,
+		backend.GetAccountFromCode,
+		backend.httpClient,
 		backend.ratesUpdater,
 		btcCoin,
 		backend.DevServers())
@@ -396,7 +403,7 @@ func (backend *Backend) newRatesUpdater() *rates.RateUpdater {
 	updater.Observe(func(event observable.Event) {
 		backend.Notify(event)
 		backend.notifyCoinFiatPrices()
-		if backend.lightning != nil && backend.lightning.Account() != nil {
+		if backend.hasLightningAccount() {
 			backend.Notify(observable.Event{
 				Subject: "lightning/list-payments",
 				Action:  action.Reload,
@@ -433,7 +440,7 @@ func (backend *Backend) configureHistoryExchangeRates() {
 	for _, acct := range backend.accounts {
 		coins = append(coins, string(acct.Coin().Code()))
 	}
-	if backend.lightning != nil && backend.lightning.Account() != nil {
+	if backend.hasLightningAccount() {
 		coins = append(coins, string(coinpkg.CodeBTC))
 	}
 	fiats := backend.config.AppConfig().Backend.FiatList
@@ -766,6 +773,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	} else {
 		go backend.banners.Init(httpClient)
 	}
+	backend.updateChecker.start()
 
 	defer backend.accountsAndKeystoreLock.Lock()()
 	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
@@ -1185,6 +1193,7 @@ func (backend *Backend) ClearCache() error {
 // Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
 	backend.started = false
+	backend.updateChecker.stop()
 	backend.ratesUpdater.Stop()
 	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
 	// which acquires the same lock.

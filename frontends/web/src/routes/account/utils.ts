@@ -10,6 +10,13 @@ export const findAccount = <T extends { code: AccountCode }>(
   return accounts.find(({ code }) => accountCode === code);
 };
 
+export const getDisplayAccountNumber = (accountNumber?: number | null): number | undefined => {
+  if (accountNumber === undefined || accountNumber === null) {
+    return undefined;
+  }
+  return accountNumber + 1;
+};
+
 export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
   switch (coinCode) {
   case 'btc':

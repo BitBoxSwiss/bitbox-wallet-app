@@ -35,7 +35,9 @@ const (
 	breezApiKeyUrl            = "https://bitboxapp.shiftcrypto.dev/lightning/breez-api-key"
 	encryptedMnemonicV1Prefix = "v1:"
 	lnurlDomainDev            = "lnurl.shiftcrypto.dev"
-	lnurlDomainProd           = "bitbox.pay"
+	// Temporarily use the development LNURL server until the production domain is available.
+	// lnurlDomainProd = "bitbox.pay"
+	lnurlDomainProd = lnurlDomainDev
 )
 
 // Keep this local to avoid importing backend.Environment and creating a package cycle.
@@ -60,6 +62,7 @@ type breezSDK interface {
 	LnurlPay(breez_sdk_spark.LnurlPayRequest) (breez_sdk_spark.LnurlPayResponse, error)
 	ReceivePayment(breez_sdk_spark.ReceivePaymentRequest) (breez_sdk_spark.ReceivePaymentResponse, error)
 	ListPayments(breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error)
+	ListUnclaimedDeposits(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error)
 }
 
 // Lightning manages the Breez SDK Spark integration.
@@ -70,6 +73,7 @@ type Lightning struct {
 	cacheDirectoryPath string
 	environment        environment
 	getKeystore        func() keystore.Keystore
+	getAccount         func(types.Code) (accounts.Interface, error)
 	synced             bool
 
 	log          *logrus.Entry
@@ -89,6 +93,7 @@ func NewLightning(config *config.Config,
 	cacheDirectoryPath string,
 	environment environment,
 	getKeystore func() keystore.Keystore,
+	getAccount func(types.Code) (accounts.Interface, error),
 	httpClient *http.Client,
 	ratesUpdater *rates.RateUpdater,
 	btcCoin coin.Coin,
@@ -98,6 +103,7 @@ func NewLightning(config *config.Config,
 		cacheDirectoryPath: cacheDirectoryPath,
 		environment:        environment,
 		getKeystore:        getKeystore,
+		getAccount:         getAccount,
 		log:                logging.Get().WithGroup("lightning"),
 		synced:             false,
 		sparkStatus:        breez_sdk_spark.GetSparkStatus,
@@ -189,7 +195,7 @@ func (lightning *Lightning) Disconnect() {
 	}
 }
 
-// Deactivate disconnects the instance, deletes cache folder and changes the config to inactive.
+// Deactivate changes the config to inactive, disconnects the instance and deletes the cache folder.
 func (lightning *Lightning) Deactivate() error {
 	account := lightning.Account()
 
@@ -197,14 +203,14 @@ func (lightning *Lightning) Deactivate() error {
 		return nil
 	}
 
+	if err := lightning.SetAccount(nil); err != nil {
+		return err
+	}
+
 	lightning.Disconnect()
 	workingDir := path.Join(lightning.cacheDirectoryPath, accountBreezFolder(account.Code))
 	if err := os.RemoveAll(workingDir); err != nil {
 		lightning.log.WithError(err).Error("Error deleting working directory")
-	}
-
-	if err := lightning.SetAccount(nil); err != nil {
-		return err
 	}
 
 	if lightning.environment.CanEncryptLightningMnemonic() {
@@ -237,10 +243,9 @@ func (lightning *Lightning) notifyReady() {
 	})
 }
 
-// Balance returns the balance of the lightning account.
-func (lightning *Lightning) Balance() (*accounts.Balance, error) {
+func (lightning *Lightning) availableBalance() (coin.Amount, error) {
 	if err := lightning.CheckActive(); err != nil {
-		return nil, err
+		return coin.Amount{}, err
 	}
 
 	ensureSynced := false
@@ -250,13 +255,24 @@ func (lightning *Lightning) Balance() (*accounts.Balance, error) {
 		EnsureSynced: &ensureSynced,
 	})
 	if err != nil {
+		return coin.Amount{}, errp.Wrap(err, "breez: get info")
+	}
+	return coin.NewAmountFromInt64(int64(info.BalanceSats)), nil
+}
+
+// Balance returns the balance of the lightning account.
+func (lightning *Lightning) Balance() (*accounts.Balance, error) {
+	available, err := lightning.availableBalance()
+	if err != nil {
 		return nil, err
 	}
 
-	balanceSats := info.BalanceSats
+	deposits, err := lightning.sdkService.ListUnclaimedDeposits(breez_sdk_spark.ListUnclaimedDepositsRequest{})
+	if err != nil {
+		return nil, errp.Wrap(err, "breez: list unclaimed deposits")
+	}
 
-	amount := coin.NewAmountFromInt64(int64(balanceSats))
-	return accounts.NewBalance(amount, coin.Amount{}), nil
+	return accounts.NewBalance(available, lightning.unclaimedDepositsAmount(deposits.Deposits)), nil
 }
 
 // SparkStatus is the operational status of the Spark network.

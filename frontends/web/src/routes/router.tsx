@@ -356,7 +356,12 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="activate" element={<LightningActivate />} />
           <Route path="deactivate" element={<LightningDeactivate />} />
           <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
-          <Route path="close-withdraw-funds" element={<LightningCloseWithdrawFunds activeAccounts={activeAccounts} />} />
+          <Route path="close-withdraw-funds" element={(
+            <LightningCloseWithdrawFunds
+              activeAccounts={activeAccounts}
+              hasAccounts={hasAccounts}
+            />
+          )} />
           <Route path="send" element={<LightningSend />} />
           <Route path="receive" element={<LightningReceive />} />
           <Route path="topup" element={<LightningTopUp activeAccounts={activeAccounts} hasAccounts={hasAccounts} />} />

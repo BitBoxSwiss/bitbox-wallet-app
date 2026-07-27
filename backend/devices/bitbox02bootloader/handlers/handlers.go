@@ -7,14 +7,13 @@ import (
 	"net/http"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02bootloader"
-	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
 
 // BitBox02Bootloader models the API of the bitbox02 package.
 type BitBox02Bootloader interface {
-	Status() *bootloader.Status
+	Status() *bitbox02bootloader.Status
 	UpgradeFirmware() error
 	Reboot() error
 	ShowFirmwareHashEnabled() (bool, error)

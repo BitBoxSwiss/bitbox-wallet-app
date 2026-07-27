@@ -70,6 +70,7 @@ import walletConnectDarkSVG from './assets/icons/wallet-connect-dark.svg';
 import walletConnectLightSVG from './assets/icons/wallet-connect-light.svg';
 import walletConnectDefaultSVG from './assets/icons/wallet-connect-default.svg';
 import warningSVG from './assets/icons/warning.svg';
+import warningYellowSVG from './assets/icons/warning-yellow.svg';
 import warningPNG from './assets/icons/warning.png';
 import warningOutlinedSVG from './assets/icons/warning-outlined.svg';
 import qrCodeDarkSVG from './assets/icons/qr-dark.svg';
@@ -205,6 +206,7 @@ export const Sync = (props: ImgProps) => (<img src={syncSVG} draggable={false} {
 export const SyncLight = (props: ImgProps) => (<img src={syncLightSVG} draggable={false} {...props} />);
 export const SelectedCheckLight = (props: ImgProps) => (<img src={selectedCheckLightSVG} draggable={false} {...props} />);
 export const Warning = (props: ImgProps) => (<img src={warningSVG} draggable={false} {...props} />);
+export const WarningYellow = (props: ImgProps) => (<img src={warningYellowSVG} draggable={false} {...props} />);
 /* WarningOLD is only used in attestation-check-settings and bip-85-settings */
 export const WarningOLD = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
 /* WarningOutlined is only used in factory reset */

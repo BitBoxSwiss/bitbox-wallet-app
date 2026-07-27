@@ -76,6 +76,10 @@ func (e environment) DeleteLightningEncryptionKey(string) error { return nil }
 
 func (e environment) BluetoothConnect(string) {}
 
+func (e environment) UserAgentPlatform() string {
+	return "linux"
+}
+
 // TestServeShutdownServe checks that you can call Serve twice in a row.
 func TestServeShutdownServe(t *testing.T) {
 	bridgecommon.Serve(

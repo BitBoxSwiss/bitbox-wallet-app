@@ -2,15 +2,15 @@
 
 import { useTranslation } from 'react-i18next';
 import { runningInAndroid } from '@/utils/env';
-import { getUpdate } from '@/api/version';
+import { getUpdate, subscribeUpdate } from '@/api/version';
 import { Status } from '@/components/status/status';
 import { AppDownloadLink } from '@/components/appdownloadlink/appdownloadlink';
-import { useLoad } from '@/hooks/api';
+import { useSync } from '@/hooks/api';
 import style from './update.module.css';
 
 export const Update = () => {
   const { t } = useTranslation();
-  const file = useLoad(getUpdate);
+  const file = useSync(getUpdate, subscribeUpdate, state => state.revision)?.update;
   if (!file) {
     return null;
   }

@@ -9,6 +9,7 @@ import { ReviewStep } from './components/review-step';
 import { SelectPaymentInputStep } from './components/select-payment-input-step';
 import { SuccessStep } from './components/success-step';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
+import { LightningSendGuide } from '../guide';
 
 type TSendStep = 'select-payment-input' | 'review' | 'success';
 
@@ -74,6 +75,7 @@ export const Send = () => {
           {step === 'success' && <SuccessStep />}
         </Main>
       </GuidedContent>
+      {step !== 'success' && <LightningSendGuide />}
     </GuideWrapper>
   );
 };

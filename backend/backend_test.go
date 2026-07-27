@@ -352,6 +352,10 @@ func (e environment) DeleteLightningEncryptionKey(string) error { return nil }
 
 func (e environment) BluetoothConnect(string) {}
 
+func (e environment) UserAgentPlatform() string {
+	return "linux"
+}
+
 type mockTransactionsSource struct {
 }
 

@@ -17,11 +17,10 @@ const ActiveCurrenciesDropdownSetting = () => {
 
   return (
     <SettingsItem
-      disabled={!isMobile}
       collapseOnSmall
       settingName={t('newSettings.appearance.activeCurrencies.title')}
       secondaryText={t('newSettings.appearance.activeCurrencies.description')}
-      onClick={!isMobileSelectorOpen ? () => setIsMobileSelectorOpen(true) : undefined}
+      onClick={isMobile && !isMobileSelectorOpen ? () => setIsMobileSelectorOpen(true) : undefined}
       extraComponent={
         <ActiveCurrenciesDropdown
           isOpen={isMobileSelectorOpen}

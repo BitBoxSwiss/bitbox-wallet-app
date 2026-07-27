@@ -4,6 +4,7 @@ package backend
 
 import (
 	"math/big"
+	"slices"
 	"sort"
 	"time"
 
@@ -25,6 +26,16 @@ func (backend *Backend) allCoinCodes() []string {
 		allCoinCodes = append(allCoinCodes, string(account.Coin().Code()))
 	}
 	return allCoinCodes
+}
+
+// chartCoinCodes returns the coin codes needed to load chart rate history.
+func (backend *Backend) chartCoinCodes() []string {
+	coinCodes := backend.allCoinCodes()
+	if !backend.hasLightningAccount() || slices.Contains(coinCodes, string(coin.CodeBTC)) {
+		return coinCodes
+	}
+	// Lightning transactions require BTC coin code
+	return append(coinCodes, string(coin.CodeBTC))
 }
 
 // ChartEntry is one data point in the chart timeseries.
@@ -95,6 +106,75 @@ func (backend *Backend) addChartData(
 	}
 }
 
+func (backend *Backend) addTxsToChart(
+	coinCode coin.Code,
+	logCoinCode coin.Code,
+	fiat string,
+	coinDecimals *big.Int,
+	txs accounts.OrderedTransactions,
+	until time.Time,
+	chartEntriesDaily map[int64]RatChartEntry,
+	chartEntriesHourly map[int64]RatChartEntry,
+) (bool, error) {
+	earliestPriceAvailable := backend.RatesUpdater().HistoryEarliestTimestamp(
+		string(coinCode),
+		fiat)
+
+	earliestTxTime, err := txs.EarliestTime()
+	if errp.Cause(err) == errors.ErrNotAvailable {
+		backend.log.WithField("coin", logCoinCode).Info("ChartDataMissing/earliestTxtime")
+		return true, nil
+	}
+	if err != nil {
+		return false, err
+	}
+
+	if earliestTxTime.IsZero() {
+		// Ignore the chart for this account, there is no timed transaction.
+		return false, nil
+	}
+	if earliestPriceAvailable.IsZero() || earliestTxTime.Before(earliestPriceAvailable) {
+		backend.log.
+			WithField("coin", logCoinCode).
+			WithField("earliestTxTime", earliestTxTime).
+			WithField("earliestPriceAvailable", earliestPriceAvailable).
+			Info("ChartDataMissing")
+		return true, nil
+	}
+
+	timeseriesDaily, err := txs.Timeseries(
+		earliestTxTime.Truncate(24*time.Hour),
+		until,
+		24*time.Hour,
+	)
+	if errp.Cause(err) == errors.ErrNotAvailable {
+		backend.log.WithField("coin", logCoinCode).Info("ChartDataMissing")
+		return true, nil
+	}
+	if err != nil {
+		return false, err
+	}
+
+	// Time from which the chart turns from daily points to hourly points.
+	hourlyFrom := time.Now().AddDate(0, 0, -7).Truncate(24 * time.Hour)
+	timeseriesHourly, err := txs.Timeseries(
+		hourlyFrom,
+		until,
+		time.Hour,
+	)
+	if errp.Cause(err) == errors.ErrNotAvailable {
+		backend.log.WithField("coin", logCoinCode).Info("ChartDataMissing")
+		return true, nil
+	}
+	if err != nil {
+		return false, err
+	}
+
+	backend.addChartData(coinCode, fiat, coinDecimals, timeseriesDaily, chartEntriesDaily)
+	backend.addChartData(coinCode, fiat, coinDecimals, timeseriesHourly, chartEntriesHourly)
+	return false, nil
+}
+
 // ChartData assembles chart data for all active accounts.
 func (backend *Backend) ChartData() (*Chart, error) {
 	// If true, we are missing headers or historical conversion rates necessary to compute the chart
@@ -108,7 +188,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	fiat := backend.Config().AppConfig().Backend.MainFiat
 
 	// Chart data until this point in time.
-	until := backend.RatesUpdater().HistoryLatestTimestampFiat(backend.allCoinCodes(), fiat)
+	until := backend.RatesUpdater().HistoryLatestTimestampFiat(backend.chartCoinCodes(), fiat)
 	if until.IsZero() {
 		chartDataMissing = true
 		backend.log.Info("ChartDataMissing, until is zero")
@@ -120,6 +200,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	currentTotalMissing := false
 	// Total number of transactions across all active accounts.
 	totalNumberOfTransactions := 0
+	transactionHistoryMissing := false
 	for _, account := range backend.Accounts() {
 		if account.Config().Config.Inactive {
 			continue
@@ -156,70 +237,27 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			continue
 		}
 
-		// Time from which the chart turns from daily points to hourly points.
-		hourlyFrom := time.Now().AddDate(0, 0, -7).Truncate(24 * time.Hour)
-
-		earliestPriceAvailable := backend.RatesUpdater().HistoryEarliestTimestamp(
-			string(account.Coin().Code()),
-			fiat)
-
-		earliestTxTime, err := txs.EarliestTime()
-		if errp.Cause(err) == errors.ErrNotAvailable {
-			backend.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing/earliestTxtime")
-			chartDataMissing = true
-			continue
-		}
-		if err != nil {
-			return nil, err
-		}
-
-		if earliestTxTime.IsZero() {
-			// Ignore the chart for this account, there is no timed transaction.
-			continue
-		}
-		if earliestPriceAvailable.IsZero() || earliestTxTime.Before(earliestPriceAvailable) {
-			chartDataMissing = true
-			backend.log.
-				WithField("coin", account.Coin().Code()).
-				WithField("earliestTxTime", earliestTxTime).
-				WithField("earliestPriceAvailable", earliestPriceAvailable).
-				Info("ChartDataMissing")
-			continue
-		}
-
-		timeseriesDaily, err := txs.Timeseries(
-			earliestTxTime.Truncate(24*time.Hour),
+		accountChartDataMissing, err := backend.addTxsToChart(
+			account.Coin().Code(),
+			account.Coin().Code(),
+			fiat,
+			coinDecimals,
+			txs,
 			until,
-			24*time.Hour,
+			chartEntriesDaily,
+			chartEntriesHourly,
 		)
-		if errp.Cause(err) == errors.ErrNotAvailable {
-			backend.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing")
-			chartDataMissing = true
-			continue
-		}
 		if err != nil {
 			return nil, err
 		}
-		timeseriesHourly, err := txs.Timeseries(
-			hourlyFrom,
-			until,
-			time.Hour,
-		)
-		if errp.Cause(err) == errors.ErrNotAvailable {
-			backend.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing")
+		if accountChartDataMissing {
 			chartDataMissing = true
 			continue
 		}
-		if err != nil {
-			return nil, err
-		}
-
-		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesDaily, chartEntriesDaily)
-		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesHourly, chartEntriesHourly)
 
 	}
 
-	if backend.lightning.Account() != nil {
+	if backend.hasLightningAccount() {
 		var err error
 		lightningBalance, err := backend.lightning.Balance()
 		if err != nil {
@@ -230,6 +268,38 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			return nil, err
 		}
 		currentTotal.Add(currentTotal, lightningBalanceAmount)
+
+		lightningTxs, err := backend.lightning.Transactions()
+		if err != nil {
+			backend.log.WithError(err).WithField("coin", coinCodeLightning).Info("ChartDataMissing/list-payments")
+			chartDataMissing = true
+			transactionHistoryMissing = true
+			lightningTxs = nil
+		}
+		totalNumberOfTransactions += len(lightningTxs)
+
+		if !chartDataMissing {
+			btcCoin, err := backend.Coin(coin.CodeBTC)
+			if err != nil {
+				return nil, err
+			}
+			lightningChartDataMissing, err := backend.addTxsToChart(
+				coin.CodeBTC,
+				coinCodeLightning,
+				fiat,
+				coin.DecimalsExp(btcCoin, false),
+				lightningTxs,
+				until,
+				chartEntriesDaily,
+				chartEntriesHourly,
+			)
+			if err != nil {
+				return nil, err
+			}
+			if lightningChartDataMissing {
+				chartDataMissing = true
+			}
+		}
 	}
 
 	toSortedSlice := func(s map[int64]RatChartEntry, fiat string) []ChartEntry {
@@ -281,7 +351,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	// Even if we are still gathering data (exchange rates, block headers), we know the result
 	// already if there are no transactions. This avoids showing the user a message that we are
 	// gathering data, only to show nothing in the end.
-	if chartDataMissing && totalNumberOfTransactions == 0 {
+	if chartDataMissing && totalNumberOfTransactions == 0 && !transactionHistoryMissing {
 		backend.log.Info("ChartDataMissing forced to false")
 		chartDataMissing = false
 	}

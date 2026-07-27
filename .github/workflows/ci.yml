@@ -238,7 +238,7 @@ jobs:
           name: BitBoxApp-macos-${{github.sha}}.zip
           if-no-files-found: error
   ios:
-    runs-on: macos-15
+    runs-on: macos-26
     env:
       GO_SRC_DIR: src/github.com/BitBoxSwiss/bitbox-wallet-app
     steps:

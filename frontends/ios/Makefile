@@ -1,4 +1,4 @@
-IOS_TEST_DESTINATION ?= platform=iOS Simulator,name=iPhone 16
+IOS_TEST_DESTINATION ?= platform=iOS Simulator,name=iPhone 17
 
 prepare:
 	cd ../../ && ${MAKE} buildweb

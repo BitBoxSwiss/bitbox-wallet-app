@@ -62,4 +62,41 @@ describe('components/groupedaccountselector', () => {
 
     expect(await screen.findByRole('button', { name: 'buy.info.next' })).not.toBeDisabled();
   });
+
+  it('disables the account selector', async () => {
+    render(
+      <GroupedAccountSelector
+        accounts={[account]}
+        disabled
+        selected={account.code}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByRole('combobox')).toBeDisabled();
+  });
+
+  it('disables the mobile account selector trigger', async () => {
+    vi.mocked(window.matchMedia).mockReturnValue({
+      addEventListener: vi.fn(),
+      addListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+      matches: true,
+      media: '(max-width: 768px)',
+      onchange: null,
+      removeEventListener: vi.fn(),
+      removeListener: vi.fn(),
+    });
+
+    render(
+      <GroupedAccountSelector
+        accounts={[account]}
+        disabled
+        selected={account.code}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByRole('button')).toBeDisabled();
+  });
 });

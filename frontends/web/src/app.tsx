@@ -71,7 +71,10 @@ export const App = () => {
       return;
     }
     // if no accounts are registered on specified views route to /
-    const canNavigateWithLightningAccount = currentURL === '/settings/more' || currentURL === '/accounts/all';
+    const canNavigateWithLightningAccount =
+      currentURL.startsWith('/account-summary')
+      || currentURL === '/settings/more'
+      || currentURL === '/accounts/all';
     const requiresRegularAccount =
       currentURL.startsWith('/account-summary')
       || currentURL.startsWith('/add-account')
@@ -110,8 +113,8 @@ export const App = () => {
       navigate('/');
       return;
     }
-    // if on index page and have at least 1 account, route to /account-summary
-    if (isIndex && accounts.length) {
+    // if on index page and have an account or Lightning, route to /account-summary
+    if (isIndex && (accounts.length || hasLightningAccount)) {
       // replace current history entry so that the user cannot go back to "index"
       navigate('/account-summary?with-chart-animation=true', { replace: true });
       return;
@@ -127,7 +130,7 @@ export const App = () => {
       return;
     }
 
-  }, [accounts, deviceIDs, firstDevice, lightningAccount, navigate]);
+  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, lightningAccount, navigate]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});
