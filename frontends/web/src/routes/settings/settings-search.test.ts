@@ -14,6 +14,7 @@ vi.mock('@/utils/env', () => ({
 }));
 
 const translations: Record<string, string> = {
+  'settings.expert.onionExplorer': 'Use .onion URLs for explorer links',
   'testWallet.connect.title': 'Test wallet',
   'testWallet.disconnect.title': 'Disconnect test wallet',
 };
@@ -48,5 +49,15 @@ describe('settings search', () => {
       page: 'advanced',
       title: 'Disconnect test wallet',
     }]);
+  });
+
+  it('includes the onion explorer setting', () => {
+    const results = filterSettingsSearchItems(getItems(false), 'onion');
+
+    expect(results).toContainEqual({
+      id: 'onion-explorer',
+      page: 'advanced',
+      title: 'Use .onion URLs for explorer links',
+    });
   });
 });

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add optional .onion block explorer links for BTC/TBTC in advanced settings
 - Bitcoin: show account details for the persisted receive address type by default
 - Add external block explorer links to used addresses
 - Settings search

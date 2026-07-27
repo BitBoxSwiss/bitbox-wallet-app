@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TTransaction, TAmountWithConversions, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
-import { A } from '@/components/anchor/anchor';
+import { BlockExplorerLink } from '@/components/block-explorer-link/block-explorer-link';
 import { Dialog } from '@/components/dialog/dialog';
 import { Note } from './note';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
@@ -154,14 +154,14 @@ export const TxDetailsDialog = ({
 
           {/* explorer link */}
           <div className={styles.explorerLinkContainer}>
-            <A
+            <BlockExplorerLink
               className={styles.explorerLink}
-              href={explorerURL + transactionInfo.txID}
-              title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>
+              prefix={explorerURL}
+              explorerId={transactionInfo.txID}>
               <ExternalLink />
               {' '}
               {t('transaction.explorerTitle')}
-            </A>
+            </BlockExplorerLink>
           </div>
         </div>
 
