@@ -87,7 +87,7 @@ export const TopUpNoFundedBitcoinAccounts = ({ btcAccounts }: TTopUpNoFundedBitc
   const navigate = useNavigate();
   const receiveRoute = btcAccounts.length === 1 && btcAccounts[0]
     ? `/account/${btcAccounts[0].code}/receive`
-    : '/accounts/select-receive';
+    : '/accounts/select-receive/bitcoin';
 
   return (
     <GuideWrapper>
