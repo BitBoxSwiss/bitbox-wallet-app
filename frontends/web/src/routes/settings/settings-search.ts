@@ -23,6 +23,7 @@ type TGetSettingsSearchItemsArgs = {
   deviceInfo?: DeviceInfo;
   devices: TDevices;
   hasAccounts: boolean;
+  isLightningEnabled: boolean | undefined;
   hasSoftwareKeystore: boolean;
   isTesting: boolean;
   t: TFunction;
@@ -103,7 +104,10 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
   },
   {
     id: 'lightning-settings',
-    getTitle: ({ t }) => t('lightning.settings.title'),
+    isAvailable: ({ isLightningEnabled }) => isLightningEnabled !== undefined,
+    getTitle: ({ isLightningEnabled, t }) => t(isLightningEnabled
+      ? 'lightning.settings.title'
+      : 'lightning.settings.enableWallet'),
     page: 'advanced',
   },
   {
@@ -239,6 +243,7 @@ export const getSettingsSearchItems = ({
   deviceInfo,
   devices,
   hasAccounts,
+  isLightningEnabled,
   hasSoftwareKeystore,
   isTesting,
   t,
@@ -248,6 +253,7 @@ export const getSettingsSearchItems = ({
     devices,
     deviceIDs: Object.keys(devices),
     hasAccounts,
+    isLightningEnabled,
     hasSoftwareKeystore,
     isTesting,
     t,
