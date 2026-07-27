@@ -7,6 +7,7 @@ import * as accountApi from '@/api/account';
 import { convertFromCurrency, convertToCurrency } from '@/api/coins';
 import { getBoardingAddress, getLightningBalance } from '@/api/lightning';
 import { connectKeystore } from '@/api/keystores';
+import { useLoad } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
 import { getDisplayedCoinUnit, isBitcoinOnly } from '@/routes/account/utils';
@@ -14,7 +15,7 @@ import { txProposalErrorHandling, type TProposalError } from '@/routes/account/s
 import { RatesContext } from '@/contexts/RatesContext';
 import { TopUpConfirm } from './topup-confirm';
 import { TopUpForm } from './topup-form';
-import { TopUpAborted, TopUpNoBitcoinAccounts, TopUpSuccess } from './topup-result';
+import { TopUpAborted, TopUpNoBitcoinAccounts, TopUpNoFundedBitcoinAccounts, TopUpSuccess } from './topup-result';
 
 type TProps = {
   activeAccounts: accountApi.TAccount[];
@@ -51,6 +52,19 @@ const useLightningBalance = () => {
   };
 };
 
+const getTopUpAccounts = async (accounts: accountApi.TAccount[]) => {
+  const accountHasBalance = await Promise.all(accounts.map(async (account) => {
+    try {
+      const balance = await accountApi.getBalance(account.code);
+      return !balance.success || balance.balance.hasAvailable;
+    } catch {
+      return true;
+    }
+  }));
+
+  return accounts.filter((_, index) => accountHasBalance[index]);
+};
+
 export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -67,8 +81,9 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
     () => activeAccounts.filter(account => account.active && account.coinCode === 'btc'),
     [activeAccounts]
   );
-  const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>(btcAccounts[0]?.code || '');
-  const sourceAccount = btcAccounts.find(account => account.code === sourceAccountCode);
+  const topUpAccounts = useLoad(() => getTopUpAccounts(btcAccounts), [btcAccounts]);
+  const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>('');
+  const sourceAccount = topUpAccounts?.find(account => account.code === sourceAccountCode);
   const { balance: lightningBalance, reloadBalance: reloadLightningBalance } = useLightningBalance();
   const sourceAmountUnit = sourceAccount
     ? getDisplayedCoinUnit(sourceAccount.coinCode, sourceAccount.coinUnit, btcUnit)
@@ -93,14 +108,17 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   }, [step]);
 
   useEffect(() => {
-    if (!btcAccounts.length) {
+    if (topUpAccounts === undefined) {
+      return;
+    }
+    if (!topUpAccounts.length) {
       setSourceAccountCode('');
       return;
     }
-    if (!sourceAccountCode || !btcAccounts.some(account => account.code === sourceAccountCode)) {
-      setSourceAccountCode(btcAccounts[0]?.code || '');
+    if (!sourceAccountCode || !topUpAccounts.some(account => account.code === sourceAccountCode)) {
+      setSourceAccountCode(topUpAccounts[0]?.code || '');
     }
-  }, [btcAccounts, sourceAccountCode]);
+  }, [sourceAccountCode, topUpAccounts]);
 
   const convertToFiat = useCallback(async (value: string) => {
     const request = ++conversionRequest.current;
@@ -376,8 +394,20 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
     );
   }
 
+  if (topUpAccounts === undefined) {
+    return null;
+  }
+
   if (!btcAccounts.length) {
     return <TopUpNoBitcoinAccounts hasAccounts={hasAccounts} />;
+  }
+
+  if (!topUpAccounts.length) {
+    return <TopUpNoFundedBitcoinAccounts btcAccounts={btcAccounts} />;
+  }
+
+  if (!sourceAccount) {
+    return null;
   }
 
   const canReview = !!proposal?.success && !isUpdatingProposal && !isSubmitting;
@@ -385,7 +415,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   return (
     <TopUpForm
       amount={amount}
-      btcAccounts={btcAccounts}
+      btcAccounts={topUpAccounts}
       canReview={canReview}
       customFee={customFee}
       defaultCurrency={defaultCurrency}
