@@ -1870,24 +1870,13 @@ func (handlers *Handlers) getKeystoreShowBackupBanner(r *http.Request) interface
 		backupReminderConfig = keystoreConfig.BackupReminderAllowed
 	}
 
-	boolPtr := func(value bool) *bool {
-		v := value
-		return &v
-	}
-
 	show := overThreshold
-	backupReminderAllowed := backupReminderConfig
 
 	if backupReminderConfig == nil {
-		if overThreshold {
-			show = false
-			backupReminderAllowed = boolPtr(false)
-		} else {
-			backupReminderAllowed = boolPtr(true)
-		}
+		show = false
 		if err := handlers.backend.Config().ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
 			keystoreConfig := cfg.GetOrAddKeystore(rootFingerprint)
-			value := *backupReminderAllowed
+			value := !overThreshold
 			keystoreConfig.BackupReminderAllowed = &value
 			return nil
 		}); err != nil {
