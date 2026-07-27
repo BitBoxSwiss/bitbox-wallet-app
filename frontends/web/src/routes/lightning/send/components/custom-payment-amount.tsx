@@ -17,12 +17,12 @@ type TProps = {
 };
 
 export const PaymentBalance = () => {
-  const { btcUnit } = useContext(RatesContext);
-  const balance = useLoad(getLightningBalance, [btcUnit]);
+  const { lightningUnit, rotateLightningUnit } = useContext(RatesContext);
+  const balance = useLoad(getLightningBalance, [lightningUnit]);
 
   return (
     <div className={styles.availableBalance}>
-      <Balance balance={balance} />
+      <Balance balance={balance} onRotateUnit={rotateLightningUnit} />
     </div>
   );
 };

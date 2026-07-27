@@ -107,6 +107,7 @@ export type TConfigBackend = Readonly<{
   mainFiat: Fiat;
   userLanguage: string;
   btcUnit: BtcUnit;
+  lightningUnit: BtcUnit;
   startInTestnet: boolean;
   gapLimitReceive: number;
   gapLimitChange: number;

@@ -8,8 +8,10 @@ type RatesContextProps = {
   defaultCurrency: Fiat;
   activeCurrencies: Fiat[];
   btcUnit?: BtcUnit;
+  lightningUnit?: BtcUnit;
   rotateDefaultCurrency: () => Promise<void>;
   rotateBtcUnit: () => Promise<void>;
+  rotateLightningUnit: () => Promise<void>;
   addToActiveCurrencies: (fiat: Fiat) => Promise<void>;
   updateDefaultCurrency: (fiat: Fiat) => void;
   removeFromActiveCurrencies: (fiat: Fiat) => Promise<void>;

@@ -9,10 +9,12 @@ import style from './balance.module.css';
 
 type TProps = {
   balance?: TBalance;
+  onRotateUnit?: () => Promise<void>;
 };
 
 export const Balance = ({
   balance,
+  onRotateUnit,
 }: TProps) => {
   const { t } = useTranslation();
   if (!balance) {
@@ -31,6 +33,7 @@ export const Balance = ({
           amount={balance.available}
           maxDecimals={9}
           enableRotateUnit
+          onRotateUnit={onRotateUnit}
           unitClassName={style.unit}
         />
         {' '}
