@@ -243,6 +243,16 @@ func TestIsWhitelistedSystemOpenURL(t *testing.T) {
 			allowed: true,
 		},
 		{
+			name:    "allows Spark website",
+			url:     "https://www.spark.money/",
+			allowed: true,
+		},
+		{
+			name:    "allows Breez SDK website",
+			url:     "https://breez.technology/sdk/",
+			allowed: true,
+		},
+		{
 			name:    "allows path below whitelist entry without trailing slash",
 			url:     "https://bitsurance.eu/support/faq",
 			allowed: true,
