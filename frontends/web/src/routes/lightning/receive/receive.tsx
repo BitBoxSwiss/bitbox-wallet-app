@@ -186,7 +186,7 @@ export function Receive() {
                   value={inputSatsText}
                   labelSection={hasLightningBalance ? (
                     <span className={styles.balanceLabel}>
-                      {t('accountSummary.balance')}: <FormattedAmount amount={satsBalance || '0'} unit="sat" /> sats
+                      {t('accountSummary.balance')}: <FormattedAmount amount={satsBalance || ''} unit="sat" /> sats
                     </span>
                   ) : undefined}
                   autoFocus
