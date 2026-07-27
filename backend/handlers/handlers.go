@@ -91,7 +91,7 @@ type Backend interface {
 	RegisterTestKeystore(string, software.Edition) error
 	NotifyUser(string)
 	SystemOpen(string) error
-	ReinitializeAccounts()
+	ReconfigureHistoryExchangeRates()
 	GetUpdate() backend.UpdateState
 	Banners() *banners.Banners
 	Environment() backend.Environment
@@ -230,7 +230,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-account-receive-script-type", handlers.postSetAccountReceiveScriptType).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccount).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitialize).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/rates/reconfigure-history", handlers.postReconfigureHistoryExchangeRates).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/chart-data", handlers.getChartData).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoins).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/test/register", handlers.postRegisterTestKeystore).Methods("POST")
@@ -1012,8 +1012,8 @@ func (handlers *Handlers) postSetAccountReceiveScriptType(r *http.Request) inter
 	return response{Success: true}
 }
 
-func (handlers *Handlers) postAccountsReinitialize(*http.Request) interface{} {
-	handlers.backend.ReinitializeAccounts()
+func (handlers *Handlers) postReconfigureHistoryExchangeRates(*http.Request) interface{} {
+	handlers.backend.ReconfigureHistoryExchangeRates()
 	return nil
 }
 
