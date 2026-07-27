@@ -5,12 +5,11 @@ package mocks
 
 import (
 	"context"
-	"sync"
-
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"math/big"
+	"sync"
 )
 
 // Ensure, that TokenTransactionsFetcherMock does implement eth.TokenTransactionsFetcher.
@@ -29,7 +28,7 @@ var _ eth.TokenTransactionsFetcher = &TokenTransactionsFetcherMock{}
 //			BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
 //				panic("mock out the BlockNumber method")
 //			},
-//			TokenTransactionsByContractFunc: func(blockTipHeight *big.Int, address ethcommon.Address, endBlock *big.Int) (map[ethcommon.Address][]*accounts.TransactionData, error) {
+//			TokenTransactionsByContractFunc: func(ctx context.Context, blockTipHeight *big.Int, address ethcommon.Address, startBlock *big.Int, endBlock *big.Int) (map[ethcommon.Address][]*accounts.TransactionData, *big.Int, error) {
 //				panic("mock out the TokenTransactionsByContract method")
 //			},
 //		}
@@ -46,7 +45,7 @@ type TokenTransactionsFetcherMock struct {
 	BlockNumberFunc func(ctx context.Context) (*big.Int, error)
 
 	// TokenTransactionsByContractFunc mocks the TokenTransactionsByContract method.
-	TokenTransactionsByContractFunc func(blockTipHeight *big.Int, address ethcommon.Address, endBlock *big.Int) (map[ethcommon.Address][]*accounts.TransactionData, error)
+	TokenTransactionsByContractFunc func(ctx context.Context, blockTipHeight *big.Int, address ethcommon.Address, startBlock *big.Int, endBlock *big.Int) (map[ethcommon.Address][]*accounts.TransactionData, *big.Int, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -64,10 +63,14 @@ type TokenTransactionsFetcherMock struct {
 		}
 		// TokenTransactionsByContract holds details about calls to the TokenTransactionsByContract method.
 		TokenTransactionsByContract []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// BlockTipHeight is the blockTipHeight argument value.
 			BlockTipHeight *big.Int
 			// Address is the address argument value.
 			Address ethcommon.Address
+			// StartBlock is the startBlock argument value.
+			StartBlock *big.Int
 			// EndBlock is the endBlock argument value.
 			EndBlock *big.Int
 		}
@@ -146,23 +149,27 @@ func (mock *TokenTransactionsFetcherMock) BlockNumberCalls() []struct {
 }
 
 // TokenTransactionsByContract calls TokenTransactionsByContractFunc.
-func (mock *TokenTransactionsFetcherMock) TokenTransactionsByContract(blockTipHeight *big.Int, address ethcommon.Address, endBlock *big.Int) (map[ethcommon.Address][]*accounts.TransactionData, error) {
+func (mock *TokenTransactionsFetcherMock) TokenTransactionsByContract(ctx context.Context, blockTipHeight *big.Int, address ethcommon.Address, startBlock *big.Int, endBlock *big.Int) (map[ethcommon.Address][]*accounts.TransactionData, *big.Int, error) {
 	if mock.TokenTransactionsByContractFunc == nil {
 		panic("TokenTransactionsFetcherMock.TokenTransactionsByContractFunc: method is nil but TokenTransactionsFetcher.TokenTransactionsByContract was just called")
 	}
 	callInfo := struct {
+		Ctx            context.Context
 		BlockTipHeight *big.Int
 		Address        ethcommon.Address
+		StartBlock     *big.Int
 		EndBlock       *big.Int
 	}{
+		Ctx:            ctx,
 		BlockTipHeight: blockTipHeight,
 		Address:        address,
+		StartBlock:     startBlock,
 		EndBlock:       endBlock,
 	}
 	mock.lockTokenTransactionsByContract.Lock()
 	mock.calls.TokenTransactionsByContract = append(mock.calls.TokenTransactionsByContract, callInfo)
 	mock.lockTokenTransactionsByContract.Unlock()
-	return mock.TokenTransactionsByContractFunc(blockTipHeight, address, endBlock)
+	return mock.TokenTransactionsByContractFunc(ctx, blockTipHeight, address, startBlock, endBlock)
 }
 
 // TokenTransactionsByContractCalls gets all the calls that were made to TokenTransactionsByContract.
@@ -170,13 +177,17 @@ func (mock *TokenTransactionsFetcherMock) TokenTransactionsByContract(blockTipHe
 //
 //	len(mockedTokenTransactionsFetcher.TokenTransactionsByContractCalls())
 func (mock *TokenTransactionsFetcherMock) TokenTransactionsByContractCalls() []struct {
+	Ctx            context.Context
 	BlockTipHeight *big.Int
 	Address        ethcommon.Address
+	StartBlock     *big.Int
 	EndBlock       *big.Int
 } {
 	var calls []struct {
+		Ctx            context.Context
 		BlockTipHeight *big.Int
 		Address        ethcommon.Address
+		StartBlock     *big.Int
 		EndBlock       *big.Int
 	}
 	mock.lockTokenTransactionsByContract.RLock()

@@ -3,6 +3,7 @@
 package eth
 
 import (
+	"context"
 	"math/big"
 	"strings"
 
@@ -22,9 +23,10 @@ import (
 // normal ETH full node does not expose an API endpoint to get transactions per address.
 type TransactionsSource interface {
 	Transactions(
+		ctx context.Context,
 		blockTipHeight *big.Int,
-		address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
-		[]*accounts.TransactionData, error)
+		address common.Address, startBlock, endBlock *big.Int, erc20Token *erc20.Token) (
+		[]*accounts.TransactionData, *big.Int, error)
 }
 
 // Coin models an Ethereum coin.

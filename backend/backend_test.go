@@ -352,10 +352,11 @@ type mockTransactionsSource struct {
 }
 
 func (m *mockTransactionsSource) Transactions(
+	ctx context.Context,
 	blockTipHeight *big.Int,
-	address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
-	[]*accounts.TransactionData, error) {
-	return []*accounts.TransactionData{}, nil
+	address common.Address, startBlock, endBlock *big.Int, erc20Token *erc20.Token) (
+	[]*accounts.TransactionData, *big.Int, error) {
+	return []*accounts.TransactionData{}, nil, nil
 }
 
 func newBackend(t *testing.T, testing, regtest bool) *Backend {

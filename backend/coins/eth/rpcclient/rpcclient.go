@@ -17,10 +17,14 @@ import (
 //
 //go:generate moq -pkg mocks -out mocks/rpcclient.go . Interface
 type Interface interface {
+	// TransactionReceiptWithBlockNumber returns ethereum.NotFound if the node has no receipt for
+	// the hash (e.g. a still-pending or dropped tx), which callers must distinguish from a transport
+	// error before rebroadcasting.
 	TransactionReceiptWithBlockNumber(
 		ctx context.Context, hash common.Hash) (*RPCTransactionReceipt, error)
 	// BlockNumber returns the current latest block number.
 	BlockNumber(ctx context.Context) (*big.Int, error)
+	// TransactionByHash returns ethereum.NotFound if the node does not know the transaction at all.
 	TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, isPending bool, err error)
 	// Balance returns the current confirmed balance of the address.
 	Balance(ctx context.Context, account common.Address) (*big.Int, error)
