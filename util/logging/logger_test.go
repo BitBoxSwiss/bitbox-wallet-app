@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
@@ -69,6 +70,8 @@ func TestNewLogger(t *testing.T) {
 	assert.Equal(t, "56789012345678901234", string(b1), "old truncated logfile")
 	b2, _ := os.ReadFile(logfile)
 	assert.Equal(t, "level=info msg=new\n", string(b2), "new logfile")
+	requirePrivateFileMode(t, logfile)
+	requirePrivateFileMode(t, logfile+rotatedSuffix)
 }
 
 func TestLoggerRotatingWriter(t *testing.T) {
@@ -104,4 +107,36 @@ func TestLoggerRotatingWriter(t *testing.T) {
 	assert.Equal(t, "0123456789", string(b1), "rotated logfile")
 	b2, _ := os.ReadFile(logfile)
 	assert.Equal(t, "level=info msg=newfile\n", string(b2), "new logfile")
+	requirePrivateFileMode(t, logfile)
+	requirePrivateFileMode(t, logfile+rotatedSuffix)
+}
+
+func TestRestrictExistingRotatedLog(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows file permissions behave differently")
+	}
+
+	logfile := filepath.Join(t.TempDir(), "log.txt")
+	require.NoError(t, os.WriteFile(logfile, []byte("active\n"), 0600), "write log.txt")
+	require.NoError(t, os.WriteFile(logfile+rotatedSuffix, []byte("rotated\n"), 0644), "write log.txt.1")
+
+	logger := NewLogger(&Configuration{Output: logfile, Level: logrus.InfoLevel})
+	if rot, ok := logger.Out.(*rotatingWriter); ok {
+		t.Cleanup(func() {
+			require.NoError(t, rot.logfile.Close())
+		})
+	}
+
+	requirePrivateFileMode(t, logfile)
+	requirePrivateFileMode(t, logfile+rotatedSuffix)
+}
+
+func requirePrivateFileMode(t *testing.T, filename string) {
+	t.Helper()
+	if runtime.GOOS == "windows" {
+		return
+	}
+	info, err := os.Stat(filename)
+	require.NoError(t, err)
+	require.Equal(t, os.FileMode(0600), info.Mode().Perm())
 }

@@ -192,6 +192,7 @@ type BackendEnvironment struct {
 	LoadLightningEncryptionKeyFunc   func(string) (string, error)
 	DeleteLightningEncryptionKeyFunc func(string) error
 	BluetoothConnectFunc             func(string)
+	UserAgentPlatformFunc            func() string
 }
 
 // NotifyUser implements backend.Environment.
@@ -315,6 +316,14 @@ func (env *BackendEnvironment) BluetoothConnect(identifier string) {
 	if env.BluetoothConnectFunc != nil {
 		env.BluetoothConnectFunc(identifier)
 	}
+}
+
+// UserAgentPlatform implements backend.Environment.
+func (env *BackendEnvironment) UserAgentPlatform() string {
+	if env.UserAgentPlatformFunc != nil {
+		return env.UserAgentPlatformFunc()
+	}
+	return ""
 }
 
 // Serve serves the BitBox API for use in a native client.

@@ -13,6 +13,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
+	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
 	"github.com/stretchr/testify/require"
 )
 
@@ -100,15 +101,52 @@ func TestNextFirmware(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, uint32(36), fwInfo.monotonicVersion)
 
-			fwInfo, err = nextFirmware(product, 36)
+			// The legacy intermediate signals completion by incrementing the monotonic version.
+			fwInfo, err = nextFirmware(product, fwInfo.monotonicVersion+1)
+			require.NoError(t, err)
+			require.Equal(t, uint32(50), fwInfo.monotonicVersion)
+
+			fwInfo, err = nextFirmware(product, fwInfo.monotonicVersion)
 			require.NoError(t, err)
 			require.Equal(t, &firmwares[len(firmwares)-1], fwInfo)
 		case bitbox02common.ProductBitBox02PlusMulti, bitbox02common.ProductBitBox02PlusBTCOnly:
 			fwInfo, err := nextFirmware(product, 1)
+			require.NoError(t, err)
+			require.Equal(t, uint32(50), fwInfo.monotonicVersion)
+
+			fwInfo, err = nextFirmware(product, fwInfo.monotonicVersion)
 			require.NoError(t, err)
 			require.Equal(t, &firmwares[len(firmwares)-1], fwInfo)
 		default:
 			require.Fail(t, "unknown product")
 		}
 	}
+}
+
+func TestIntermediateContinuesUpgrade(t *testing.T) {
+	legacyIntermediate := firmwareInfo{monotonicVersion: 36}
+	require.False(t, legacyIntermediate.continuesUpgrade(36, semver.NewSemVer(9, 9, 9)))
+	require.True(t, legacyIntermediate.continuesUpgrade(37, semver.NewSemVer(0, 0, 0)))
+
+	bootloaderIntermediate := firmwareInfo{
+		monotonicVersion:            50,
+		completionBootloaderVersion: semver.NewSemVer(1, 2, 2),
+	}
+	require.False(t, bootloaderIntermediate.continuesUpgrade(49, semver.NewSemVer(1, 2, 2)))
+	require.True(t, bootloaderIntermediate.continuesUpgrade(50, semver.NewSemVer(1, 2, 2)))
+	require.False(t, bootloaderIntermediate.continuesUpgrade(51, semver.NewSemVer(1, 2, 2)))
+}
+
+func TestIntermediateBootRequired(t *testing.T) {
+	legacyIntermediate := firmwareInfo{monotonicVersion: 36}
+	require.True(t, legacyIntermediate.bootRequired(36, semver.NewSemVer(9, 9, 9)))
+	require.False(t, legacyIntermediate.bootRequired(37, semver.NewSemVer(0, 0, 0)))
+
+	bootloaderIntermediate := firmwareInfo{
+		monotonicVersion:            50,
+		completionBootloaderVersion: semver.NewSemVer(1, 2, 2),
+	}
+	require.True(t, bootloaderIntermediate.bootRequired(50, semver.NewSemVer(1, 1, 9)))
+	require.False(t, bootloaderIntermediate.bootRequired(50, semver.NewSemVer(1, 2, 2)))
+	require.False(t, bootloaderIntermediate.bootRequired(50, semver.NewSemVer(1, 3, 0)))
 }

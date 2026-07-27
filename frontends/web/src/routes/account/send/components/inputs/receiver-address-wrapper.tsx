@@ -16,6 +16,7 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { Logo } from '@/components/icon';
+import { getDisplayAccountNumber } from '@/routes/account/utils';
 import receiverStyles from './receiver-address-input.module.css';
 import styles from './receiver-address-wrapper.module.css';
 
@@ -68,10 +69,10 @@ export const ReceiverAddressWrapper = ({
   const [accountSyncStatus, setAccountSyncStatus] = useState<{ [code: string]: accountApi.TStatus }>({});
 
   const accountOptions: TAccountOption[] = accounts && accounts.length > 0 ? accounts.map(account => {
-    const accountNumber = account.accountNumber;
+    const accountNumber = getDisplayAccountNumber(account.accountNumber);
 
     return {
-      label: `${account.name} ${accountNumber ? `(Account #${accountNumber + 1})` : ''}`,
+      label: `${account.name}${accountNumber !== undefined ? ` (Account #${accountNumber})` : ''}`,
       value: account,
       disabled: !accountSyncStatus[account.code]?.synced
     };
