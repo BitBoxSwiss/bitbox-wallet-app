@@ -80,6 +80,7 @@ type testBreezSDK struct {
 	getInfo                        func(breez_sdk_spark.GetInfoRequest) (breez_sdk_spark.GetInfoResponse, error)
 	listPayments                   func(breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error)
 	listUnclaimedDeposits          func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error)
+	recommendedFees                func() (breez_sdk_spark.RecommendedFees, error)
 }
 
 func (sdk *testBreezSDK) GetLightningAddress() (*breez_sdk_spark.LightningAddressInfo, error) {
@@ -112,6 +113,10 @@ func (sdk *testBreezSDK) ListUnclaimedDeposits(
 	request breez_sdk_spark.ListUnclaimedDepositsRequest,
 ) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
 	return sdk.listUnclaimedDeposits(request)
+}
+
+func (sdk *testBreezSDK) RecommendedFees() (breez_sdk_spark.RecommendedFees, error) {
+	return sdk.recommendedFees()
 }
 
 func TestEnsureLightningAddressExistingAddress(t *testing.T) {

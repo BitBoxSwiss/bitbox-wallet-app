@@ -3,38 +3,17 @@
 import { useTranslation } from 'react-i18next';
 import type { TAmountWithConversions } from '@/api/account';
 import type { TLightningPayment } from '@/api/lightning';
-import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Button } from '@/components/forms';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { AmountBlock } from './amount-block';
 import { CONTENT_MIN_HEIGHT } from './constants';
 import styles from './claim-top-up.module.css';
 
-type TAmountRowProps = {
-  amount: TAmountWithConversions;
-};
-
-const AmountRow = ({ amount }: TAmountRowProps) => (
-  <div className={styles.amountRow}>
-    <AmountWithUnit
-      alwaysShowAmounts
-      amount={amount}
-      amountClassName={styles.amount}
-    />
-    <AmountWithUnit
-      alwaysShowAmounts
-      amount={amount}
-      convertToFiat
-      amountClassName={styles.fiat}
-      unitClassName={styles.fiat}
-    />
-  </div>
-);
-
 type TFeeActionProps = {
   amount?: TAmountWithConversions;
   buttonText: string;
   danger?: boolean;
+  detail?: string;
   disabled?: boolean;
   label: string;
   onClick: () => void;
@@ -44,6 +23,7 @@ const FeeAction = ({
   amount,
   buttonText,
   danger,
+  detail,
   disabled,
   label,
   onClick,
@@ -68,27 +48,39 @@ const FeeAction = ({
 
   return (
     <div className={styles.feeRow}>
-      <AmountBlock amount={amount} label={label} />
+      <AmountBlock amount={amount} label={label}>
+        {detail}
+      </AmountBlock>
       {button}
     </div>
   );
 };
 
 type TProps = {
-  deposits: TLightningPayment[];
+  canClaim: boolean;
+  claimFee?: TAmountWithConversions;
+  deposit: TLightningPayment | null;
+  canRefund: boolean;
+  refundFeeRateSatPerVbyte?: number;
+  refundUnavailable: boolean;
   onCancel: () => void;
   onClaim: () => void;
   onRefund: () => void;
 };
 
 export const ClaimTopUpOverview = ({
-  deposits,
+  canClaim,
+  claimFee,
+  deposit,
+  canRefund,
+  refundFeeRateSatPerVbyte,
+  refundUnavailable,
   onCancel,
   onClaim,
   onRefund,
 }: TProps) => {
   const { t } = useTranslation();
-  const hasDeposits = deposits.length > 0;
+  const hasDeposit = !!deposit;
 
   return (
     <View key="claim-top-up" minHeight={CONTENT_MIN_HEIGHT}>
@@ -100,34 +92,37 @@ export const ClaimTopUpOverview = ({
           </div>
 
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t('lightning.claimTopUp.topUps')}</h2>
-            {hasDeposits ? (
-              <div className={styles.amountRows}>
-                {deposits.map(deposit => (
-                  <AmountRow
-                    key={deposit.id}
-                    amount={deposit.amount}
-                  />
-                ))}
-              </div>
+            {hasDeposit ? (
+              <AmountBlock
+                amount={deposit.amount}
+                label={t('lightning.claimTopUp.topUp')}
+              />
             ) : (
-              <p>{t('lightning.claimTopUp.empty')}</p>
+              <>
+                <h2 className={styles.sectionTitle}>{t('lightning.claimTopUp.topUp')}</h2>
+                <p>{t('lightning.claimTopUp.empty')}</p>
+              </>
             )}
           </section>
 
-          {/* TODO:Pass a fee to each FeeAction once the backend exposes
-              claim/refund fee estimates.*/}
           <section className={styles.feeActions}>
             <FeeAction
+              amount={claimFee}
               buttonText={t('lightning.claimTopUp.claimButton')}
-              disabled={!hasDeposits}
+              detail={hasDeposit && !canClaim ? t('lightning.claimTopUp.claimUnavailable') : undefined}
+              disabled={!hasDeposit || !canClaim}
               label={t('lightning.claimTopUp.claimFee')}
               onClick={onClaim}
             />
             <FeeAction
               buttonText={t('lightning.claimTopUp.refundButton')}
               danger
-              disabled={!hasDeposits}
+              detail={refundUnavailable
+                ? t('lightning.claimTopUp.refundUnavailable')
+                : refundFeeRateSatPerVbyte !== undefined
+                  ? t('lightning.claimTopUp.feeRate', { feeRate: refundFeeRateSatPerVbyte })
+                  : undefined}
+              disabled={!hasDeposit || !canRefund}
               label={t('lightning.claimTopUp.refundFee')}
               onClick={onRefund}
             />

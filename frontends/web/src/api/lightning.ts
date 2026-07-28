@@ -4,7 +4,7 @@ import type { AccountCode, TAmountWithConversions, TBalance, TTransactionStatus 
 import type { TSubscriptionCallback, TUnsubscribe } from '@/api/subscribe';
 import { subscribeEndpoint } from '@/api/subscribe';
 import { apiGet, apiPost } from '@/utils/request';
-import { type TLightningErrorCode, TSdkError } from './lightning-errors';
+import { TLightningErrorCode, TSdkError } from './lightning-errors';
 
 export type TLightningResponse<T> =
   | {
@@ -42,9 +42,10 @@ export type TBitcoinDepositState = 'confirming' | 'claiming' | 'complete' | 'unc
 
 export type TBitcoinDeposit = {
   txid: string;
-  vout: number;
   state: TBitcoinDepositState;
-  claimError?: string;
+  claimFee?: TAmountWithConversions;
+  claimFeeSat?: number;
+  refundFeeRateSatPerVbyte?: number;
 };
 
 export type TLightningPayment = {
@@ -80,6 +81,10 @@ export type TCloseWithdrawQuote = {
 export type TCloseWithdrawResult = {
   txId?: string;
   walletClosed: boolean;
+};
+
+export type TTopUpRecoveryResult = {
+  txId?: string;
 };
 
 export type TLightningAddressAvailability = {
@@ -165,10 +170,19 @@ const getApiResponse = async <T>(url: string, defaultError: string = 'Error'): P
   return response.data;
 };
 
-const postApiResponse = async <T, C extends object | undefined>(url: string, data: C, defaultError: string = 'Error'): Promise<T> => {
+const postApiResponse = async <T, C extends object | undefined>(
+  url: string,
+  data: C,
+  defaultError: string | { code: TLightningErrorCode } = 'Error',
+): Promise<T> => {
+  const defaultErrorMessage = typeof defaultError === 'string' ? defaultError : defaultError.code;
+  const defaultErrorCode = typeof defaultError === 'string' ? undefined : defaultError.code;
   const response: TLightningResponse<T> = await apiPost(url, data);
   if (!response.success) {
-    throw new TSdkError(response.errorMessage || defaultError, response.errorCode);
+    throw new TSdkError(
+      response.errorMessage || defaultErrorMessage,
+      response.errorCode || defaultErrorCode,
+    );
   }
   if (response.data === undefined) {
     return undefined as T;
@@ -271,11 +285,38 @@ export const postCloseWithdraw = async (
   );
 };
 
+export const postClaimTopUp = async (
+  paymentId: string,
+  approvedFeeSat: number,
+): Promise<TTopUpRecoveryResult> => {
+  return postApiResponse<TTopUpRecoveryResult, { paymentId: string; approvedFeeSat: number }>(
+    'lightning/claim-top-up',
+    { paymentId, approvedFeeSat },
+    { code: TLightningErrorCode.TOP_UP_CLAIM_FAILED }
+  );
+};
+
+export const postRefundTopUp = async (
+  paymentId: string,
+  destinationAccountCode: AccountCode,
+  approvedFeeRateSatPerVbyte: number,
+): Promise<TTopUpRecoveryResult> => {
+  return postApiResponse<TTopUpRecoveryResult, {
+    paymentId: string;
+    destinationAccountCode: AccountCode;
+    approvedFeeRateSatPerVbyte: number;
+  }>(
+    'lightning/refund-top-up',
+    { paymentId, destinationAccountCode, approvedFeeRateSatPerVbyte },
+    { code: TLightningErrorCode.TOP_UP_REFUND_FAILED }
+  );
+};
+
 export const postPreparePayment = async (data: TPreparePaymentRequest): Promise<TPreparePaymentResponse> => {
   return postApiResponse<TPreparePaymentResponse, TPreparePaymentRequest>(
     'lightning/prepare-payment',
     data,
-    'Error calling postPreparePayment'
+    { code: TLightningErrorCode.PAYMENT_PREPARATION_FAILED }
   );
 };
 
