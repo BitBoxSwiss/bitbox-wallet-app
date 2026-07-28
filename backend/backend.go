@@ -1297,9 +1297,18 @@ func (backend *Backend) ExportLogs() error {
 	}
 	backend.log.Infof("Export logs to %s.", path)
 
-	exportFile, err := os.Create(path)
+	exportFile, err := os.OpenFile(
+		path,
+		os.O_WRONLY|os.O_CREATE|os.O_TRUNC,
+		utilConfig.PrivateFileMode,
+	)
 	if err != nil {
 		backend.log.WithError(err).Error("error creating new log file")
+		return err
+	}
+	if err := utilConfig.EnsurePrivateFile(path); err != nil {
+		_ = exportFile.Close()
+		backend.log.WithError(err).Error("error restricting log file permissions")
 		return err
 	}
 	logFilePath := filepath.Join(utilConfig.AppDir(), "log.txt")
