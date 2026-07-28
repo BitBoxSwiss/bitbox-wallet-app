@@ -58,10 +58,11 @@ const (
 )
 
 type bitcoinDeposit struct {
-	TxID       string              `json:"txid"`
-	Vout       uint32              `json:"vout"`
-	State      bitcoinDepositState `json:"state"`
-	ClaimError string              `json:"claimError,omitempty"`
+	TxID                     string                               `json:"txid"`
+	State                    bitcoinDepositState                  `json:"state"`
+	ClaimFee                 *coin.FormattedAmountWithConversions `json:"claimFee,omitempty"`
+	ClaimFeeSat              *uint64                              `json:"claimFeeSat,omitempty"`
+	RefundFeeRateSatPerVbyte *uint64                              `json:"refundFeeRateSatPerVbyte,omitempty"`
 }
 
 type lightningPayment struct {
@@ -398,17 +399,24 @@ func bitcoinDepositStateFromSDK(deposit breez_sdk_spark.DepositInfo) bitcoinDepo
 	return bitcoinDepositStateConfirming
 }
 
+func bitcoinDepositPaymentID(deposit breez_sdk_spark.DepositInfo) string {
+	return fmt.Sprintf("bitcoin-deposit:%s:%d", deposit.Txid, deposit.Vout)
+}
+
 func (lightning *Lightning) toBitcoinDepositPayment(deposit breez_sdk_spark.DepositInfo) lightningPayment {
 	amount := coin.NewAmountFromInt64(int64(deposit.AmountSats))
 	depositInfo := &bitcoinDeposit{
-		TxID:       deposit.Txid,
-		Vout:       deposit.Vout,
-		State:      bitcoinDepositStateFromSDK(deposit),
-		ClaimError: bitcoinDepositClaimError(deposit.ClaimError),
+		TxID:  deposit.Txid,
+		State: bitcoinDepositStateFromSDK(deposit),
+	}
+	if feeSat, err := requiredClaimFeeSat(deposit.ClaimError); err == nil {
+		fee := lightning.formatSats(feeSat, true)
+		depositInfo.ClaimFee = &fee
+		depositInfo.ClaimFeeSat = &feeSat
 	}
 
 	return lightningPayment{
-		ID:                   fmt.Sprintf("bitcoin-deposit:%s:%d", deposit.Txid, deposit.Vout),
+		ID:                   bitcoinDepositPaymentID(deposit),
 		Type:                 accounts.TxTypeReceive,
 		Status:               accounts.TxStatusPending,
 		Amount:               amount.FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
@@ -422,6 +430,9 @@ func (lightning *Lightning) toBitcoinDepositPayment(deposit breez_sdk_spark.Depo
 func (lightning *Lightning) unclaimedDepositsAmount(deposits []breez_sdk_spark.DepositInfo) coin.Amount {
 	amount := coin.NewAmountFromInt64(0)
 	for _, deposit := range deposits {
+		if isRefundedDeposit(deposit) {
+			continue
+		}
 		amount = coin.SumAmounts(amount, coin.NewAmountFromInt64(int64(deposit.AmountSats)))
 	}
 	return amount
@@ -799,6 +810,15 @@ func (lightning *Lightning) closeWithdrawDestinationAddress(
 	return addressList.Addresses[0].EncodeForHumans(), nil
 }
 
+func (lightning *Lightning) formatSats(amountSat uint64, isFee bool) coin.FormattedAmountWithConversions {
+	amount := coin.NewAmount(new(big.Int).SetUint64(amountSat))
+	return amount.FormatWithConversions(lightning.btcCoin, isFee, lightning.ratesUpdater)
+}
+
+func isRefundedDeposit(deposit breez_sdk_spark.DepositInfo) bool {
+	return deposit.RefundTxId != nil
+}
+
 // PrepareCloseWithdraw prepares an on-chain payment that spends the full Lightning balance.
 func (lightning *Lightning) PrepareCloseWithdraw(
 	destinationAccountCode accountsTypes.Code,
@@ -969,7 +989,20 @@ func (lightning *Lightning) ListPayments() ([]lightningPayment, error) {
 
 	payments := make([]lightningPayment, 0, len(deposits.Deposits)+len(rawPayments))
 	for _, deposit := range deposits.Deposits {
+		if isRefundedDeposit(deposit) {
+			continue
+		}
 		payments = append(payments, lightning.toBitcoinDepositPayment(deposit))
+	}
+	if len(payments) > 0 {
+		feeRate, err := lightning.recommendedRefundFeeRate()
+		if err != nil {
+			lightning.log.WithError(err).Warn("Failed to get Bitcoin deposit refund fee rate")
+		} else {
+			for i := range payments {
+				payments[i].BitcoinDeposit.RefundFeeRateSatPerVbyte = &feeRate
+			}
+		}
 	}
 	for _, payment := range rawPayments {
 		payments = append(payments, lightning.toLightningPayment(payment))

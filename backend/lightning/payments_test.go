@@ -28,6 +28,11 @@ import (
 
 const testCloseWithdrawDestinationAccountCode accountsTypes.Code = "btc-0"
 
+const (
+	testP2TRAddress   = "bc1p5d7rjq7g6rdk2yhzks9smlaqtedr4dekq08ge8ztwac72sfr9rusxg3297"
+	testP2WPKHAddress = "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
+)
+
 type testPaymentAddress string
 
 func (address testPaymentAddress) ID() string {
@@ -58,11 +63,11 @@ func testCloseWithdrawAccount() accounts.Interface {
 			return []accounts.AddressList{
 				{
 					ScriptType: &p2wpkh,
-					Addresses:  []accounts.Address{testPaymentAddress("bc1qfallback")},
+					Addresses:  []accounts.Address{testPaymentAddress(testP2WPKHAddress)},
 				},
 				{
 					ScriptType: &p2tr,
-					Addresses:  []accounts.Address{testPaymentAddress("bc1pdestination")},
+					Addresses:  []accounts.Address{testPaymentAddress(testP2TRAddress)},
 				},
 			}, nil
 		},
@@ -85,18 +90,6 @@ func makeTestLightning() *Lightning {
 		),
 		ratesUpdater: rates.NewRateUpdater(nil, os.DevNull),
 	}
-}
-
-type testPaymentsBreezSDK struct {
-	breezSDK
-
-	listPayments func(breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error)
-}
-
-func (sdk *testPaymentsBreezSDK) ListPayments(
-	request breez_sdk_spark.ListPaymentsRequest,
-) (breez_sdk_spark.ListPaymentsResponse, error) {
-	return sdk.listPayments(request)
 }
 
 func TestToLightningPayment(t *testing.T) {
@@ -150,7 +143,7 @@ func TestTransactions(t *testing.T) {
 		Number:          0,
 	}))
 
-	lightning.sdkService = &testPaymentsBreezSDK{
+	lightning.sdkService = &testBreezSDK{
 		listPayments: func(request breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error) {
 			require.NotNil(t, request.AssetFilter)
 			_, ok := (*request.AssetFilter).(breez_sdk_spark.AssetFilterBitcoin)
@@ -331,9 +324,9 @@ func TestToLightningPaymentBitcoinDepositWithoutDetails(t *testing.T) {
 
 func TestToBitcoinDepositPayment(t *testing.T) {
 	lightning := makeTestLightning()
-	claimError := breez_sdk_spark.DepositClaimError(breez_sdk_spark.DepositClaimErrorGeneric{
-		Message: "claim failed",
-	})
+	claimError := testTopUpClaimError(123)
+	claimFee := lightning.formatSats(123, true)
+	claimFeeSat := uint64(123)
 
 	testCases := []struct {
 		name        string
@@ -352,7 +345,6 @@ func TestToBitcoinDepositPayment(t *testing.T) {
 			},
 			expected: bitcoinDeposit{
 				TxID:  "txid-confirming",
-				Vout:  1,
 				State: bitcoinDepositStateConfirming,
 			},
 			expectedID:  "bitcoin-deposit:txid-confirming:1",
@@ -368,7 +360,6 @@ func TestToBitcoinDepositPayment(t *testing.T) {
 			},
 			expected: bitcoinDeposit{
 				TxID:  "txid-claiming",
-				Vout:  2,
 				State: bitcoinDepositStateClaiming,
 			},
 			expectedID:  "bitcoin-deposit:txid-claiming:2",
@@ -381,13 +372,13 @@ func TestToBitcoinDepositPayment(t *testing.T) {
 				Vout:       3,
 				AmountSats: 789,
 				IsMature:   true,
-				ClaimError: &claimError,
+				ClaimError: claimError,
 			},
 			expected: bitcoinDeposit{
-				TxID:       "txid-unclaimed",
-				Vout:       3,
-				State:      bitcoinDepositStateUnclaimed,
-				ClaimError: "claim failed",
+				TxID:        "txid-unclaimed",
+				State:       bitcoinDepositStateUnclaimed,
+				ClaimFee:    &claimFee,
+				ClaimFeeSat: &claimFeeSat,
 			},
 			expectedID:  "bitcoin-deposit:txid-unclaimed:3",
 			expectedAmt: "0.00000789",
@@ -470,8 +461,12 @@ func TestListPaymentsIncludesBitcoinDeposits(t *testing.T) {
 						AmountSats: 200,
 						IsMature:   false,
 					},
+					{AmountSats: 400, RefundTxId: stringPointer("refund-txid")},
 				},
 			}, nil
+		},
+		recommendedFees: func() (breez_sdk_spark.RecommendedFees, error) {
+			return breez_sdk_spark.RecommendedFees{FastestFee: 12}, nil
 		},
 	})
 
@@ -481,6 +476,8 @@ func TestListPaymentsIncludesBitcoinDeposits(t *testing.T) {
 	require.Len(t, payments, 2)
 	require.Equal(t, "bitcoin-deposit:deposit-txid:1", payments[0].ID)
 	require.NotNil(t, payments[0].BitcoinDeposit)
+	require.NotNil(t, payments[0].BitcoinDeposit.RefundFeeRateSatPerVbyte)
+	require.Equal(t, uint64(12), *payments[0].BitcoinDeposit.RefundFeeRateSatPerVbyte)
 	require.Equal(t, "payment-id", payments[1].ID)
 	require.Nil(t, payments[1].BitcoinDeposit)
 }
@@ -497,6 +494,7 @@ func TestBalanceIncludesIncomingBitcoinDeposits(t *testing.T) {
 				Deposits: []breez_sdk_spark.DepositInfo{
 					{AmountSats: 200},
 					{AmountSats: 300},
+					{AmountSats: 400, RefundTxId: stringPointer("refund-txid")},
 				},
 			}, nil
 		},
@@ -824,11 +822,15 @@ func TestPreparedBitcoinPaymentFee(t *testing.T) {
 type testPaymentSDK struct {
 	breezSDK
 
-	balanceSats      uint64
-	prepareSend      func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error)
-	send             func(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error)
-	disconnectCalled bool
-	destroyCalled    bool
+	balanceSats           uint64
+	prepareSend           func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error)
+	send                  func(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error)
+	listUnclaimedDeposits func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error)
+	claimDeposit          func(breez_sdk_spark.ClaimDepositRequest) (breez_sdk_spark.ClaimDepositResponse, error)
+	refundDeposit         func(breez_sdk_spark.RefundDepositRequest) (breez_sdk_spark.RefundDepositResponse, error)
+	recommendedFees       func() (breez_sdk_spark.RecommendedFees, error)
+	disconnectCalled      bool
+	destroyCalled         bool
 }
 
 func (sdk *testPaymentSDK) GetInfo(breez_sdk_spark.GetInfoRequest) (breez_sdk_spark.GetInfoResponse, error) {
@@ -845,6 +847,28 @@ func (sdk *testPaymentSDK) SendPayment(
 	request breez_sdk_spark.SendPaymentRequest,
 ) (breez_sdk_spark.SendPaymentResponse, error) {
 	return sdk.send(request)
+}
+
+func (sdk *testPaymentSDK) ListUnclaimedDeposits(
+	request breez_sdk_spark.ListUnclaimedDepositsRequest,
+) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+	return sdk.listUnclaimedDeposits(request)
+}
+
+func (sdk *testPaymentSDK) ClaimDeposit(
+	request breez_sdk_spark.ClaimDepositRequest,
+) (breez_sdk_spark.ClaimDepositResponse, error) {
+	return sdk.claimDeposit(request)
+}
+
+func (sdk *testPaymentSDK) RefundDeposit(
+	request breez_sdk_spark.RefundDepositRequest,
+) (breez_sdk_spark.RefundDepositResponse, error) {
+	return sdk.refundDeposit(request)
+}
+
+func (sdk *testPaymentSDK) RecommendedFees() (breez_sdk_spark.RecommendedFees, error) {
+	return sdk.recommendedFees()
 }
 
 func (sdk *testPaymentSDK) Disconnect() error {
@@ -901,12 +925,243 @@ func testBitcoinPrepareResponse(feeSat uint64) breez_sdk_spark.PrepareSendPaymen
 	}
 }
 
+func testTopUpClaimError(requiredFeeSat uint64) *breez_sdk_spark.DepositClaimError {
+	claimError := breez_sdk_spark.DepositClaimError(breez_sdk_spark.DepositClaimErrorMaxDepositClaimFeeExceeded{
+		Tx:              "deposit-txid",
+		Vout:            1,
+		RequiredFeeSats: requiredFeeSat,
+	})
+	return &claimError
+}
+
+func testUnclaimedDeposit(requiredFeeSat uint64) breez_sdk_spark.DepositInfo {
+	return breez_sdk_spark.DepositInfo{
+		Txid:       "deposit-txid",
+		Vout:       1,
+		AmountSats: 10_000,
+		IsMature:   true,
+		ClaimError: testTopUpClaimError(requiredFeeSat),
+	}
+}
+
+func TestClaimTopUp(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{}
+	sdk.listUnclaimedDeposits = func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+		return breez_sdk_spark.ListUnclaimedDepositsResponse{
+			Deposits: []breez_sdk_spark.DepositInfo{
+				testUnclaimedDeposit(123),
+			},
+		}, nil
+	}
+	sdk.claimDeposit = func(request breez_sdk_spark.ClaimDepositRequest) (breez_sdk_spark.ClaimDepositResponse, error) {
+		require.Equal(t, "deposit-txid", request.Txid)
+		require.Equal(t, uint32(1), request.Vout)
+		require.NotNil(t, request.MaxFee)
+		maxFee, ok := (*request.MaxFee).(breez_sdk_spark.MaxFeeFixed)
+		require.True(t, ok)
+		require.Equal(t, uint64(123), maxFee.Amount)
+		details := breez_sdk_spark.PaymentDetails(breez_sdk_spark.PaymentDetailsDeposit{TxId: "claim-txid"})
+		return breez_sdk_spark.ClaimDepositResponse{
+			Payment: breez_sdk_spark.Payment{Details: &details},
+		}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	result, err := lightning.ClaimTopUp("bitcoin-deposit:deposit-txid:1", 123)
+
+	require.NoError(t, err)
+	require.Equal(t, "claim-txid", result.TxID)
+}
+
+func TestClaimTopUpRejectsIncreasedFee(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{}
+	sdk.listUnclaimedDeposits = func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+		return breez_sdk_spark.ListUnclaimedDepositsResponse{
+			Deposits: []breez_sdk_spark.DepositInfo{
+				testUnclaimedDeposit(124),
+			},
+		}, nil
+	}
+	sdk.claimDeposit = func(breez_sdk_spark.ClaimDepositRequest) (breez_sdk_spark.ClaimDepositResponse, error) {
+		t.Fatal("unapproved fee must not claim deposit")
+		return breez_sdk_spark.ClaimDepositResponse{}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	result, err := lightning.ClaimTopUp("bitcoin-deposit:deposit-txid:1", 123)
+
+	require.Nil(t, result)
+	require.Equal(t, errPaymentApprovalRequired, errp.Cause(err))
+}
+
+func TestClaimTopUpRejectsMissingDeposit(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{}
+	sdk.listUnclaimedDeposits = func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+		return breez_sdk_spark.ListUnclaimedDepositsResponse{}, nil
+	}
+	sdk.claimDeposit = func(breez_sdk_spark.ClaimDepositRequest) (breez_sdk_spark.ClaimDepositResponse, error) {
+		t.Fatal("missing deposit must not be claimed")
+		return breez_sdk_spark.ClaimDepositResponse{}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	result, err := lightning.ClaimTopUp("bitcoin-deposit:deposit-txid:1", 123)
+
+	require.Nil(t, result)
+	require.ErrorContains(t, err, "unclaimed deposit not found")
+}
+
+func TestRefundTopUp(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{}
+	sdk.listUnclaimedDeposits = func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+		return breez_sdk_spark.ListUnclaimedDepositsResponse{
+			Deposits: []breez_sdk_spark.DepositInfo{
+				testUnclaimedDeposit(123),
+			},
+		}, nil
+	}
+	sdk.recommendedFees = func() (breez_sdk_spark.RecommendedFees, error) {
+		return breez_sdk_spark.RecommendedFees{FastestFee: 12}, nil
+	}
+	sdk.refundDeposit = func(request breez_sdk_spark.RefundDepositRequest) (breez_sdk_spark.RefundDepositResponse, error) {
+		require.Equal(t, "deposit-txid", request.Txid)
+		require.Equal(t, uint32(1), request.Vout)
+		require.Equal(t, testP2TRAddress, request.DestinationAddress)
+		fee, ok := request.Fee.(breez_sdk_spark.FeeRate)
+		require.True(t, ok)
+		require.Equal(t, uint64(12), fee.SatPerVbyte)
+		return breez_sdk_spark.RefundDepositResponse{TxId: "refund-txid"}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	result, err := lightning.RefundTopUp("bitcoin-deposit:deposit-txid:1", testCloseWithdrawDestinationAccountCode, 12)
+
+	require.NoError(t, err)
+	require.Equal(t, "refund-txid", result.TxID)
+}
+
+func TestRefundTopUpUsesFastestRecommendedFeeRate(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{}
+	sdk.listUnclaimedDeposits = func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+		return breez_sdk_spark.ListUnclaimedDepositsResponse{
+			Deposits: []breez_sdk_spark.DepositInfo{
+				testUnclaimedDeposit(123),
+			},
+		}, nil
+	}
+	sdk.recommendedFees = func() (breez_sdk_spark.RecommendedFees, error) {
+		return breez_sdk_spark.RecommendedFees{FastestFee: 12, MinimumFee: 2}, nil
+	}
+	sdk.refundDeposit = func(request breez_sdk_spark.RefundDepositRequest) (breez_sdk_spark.RefundDepositResponse, error) {
+		fee, ok := request.Fee.(breez_sdk_spark.FeeRate)
+		require.True(t, ok)
+		require.Equal(t, uint64(12), fee.SatPerVbyte)
+		return breez_sdk_spark.RefundDepositResponse{TxId: "refund-txid"}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	result, err := lightning.RefundTopUp("bitcoin-deposit:deposit-txid:1", testCloseWithdrawDestinationAccountCode, 12)
+
+	require.NoError(t, err)
+	require.Equal(t, "refund-txid", result.TxID)
+}
+
+func TestRefundTopUpUsesMinimumFeeRate(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{}
+	sdk.listUnclaimedDeposits = func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+		return breez_sdk_spark.ListUnclaimedDepositsResponse{
+			Deposits: []breez_sdk_spark.DepositInfo{
+				testUnclaimedDeposit(123),
+			},
+		}, nil
+	}
+	sdk.recommendedFees = func() (breez_sdk_spark.RecommendedFees, error) {
+		return breez_sdk_spark.RecommendedFees{FastestFee: 1}, nil
+	}
+	sdk.refundDeposit = func(request breez_sdk_spark.RefundDepositRequest) (breez_sdk_spark.RefundDepositResponse, error) {
+		fee, ok := request.Fee.(breez_sdk_spark.FeeRate)
+		require.True(t, ok)
+		require.Equal(t, uint64(2), fee.SatPerVbyte)
+		return breez_sdk_spark.RefundDepositResponse{TxId: "refund-txid"}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	result, err := lightning.RefundTopUp("bitcoin-deposit:deposit-txid:1", testCloseWithdrawDestinationAccountCode, 2)
+
+	require.NoError(t, err)
+	require.Equal(t, "refund-txid", result.TxID)
+}
+
+func TestRefundTopUpRejectsDustOutput(t *testing.T) {
+	t.Parallel()
+
+	deposit := testUnclaimedDeposit(123)
+	deposit.AmountSats = 551
+	sdk := &testPaymentSDK{}
+	sdk.listUnclaimedDeposits = func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+		return breez_sdk_spark.ListUnclaimedDepositsResponse{
+			Deposits: []breez_sdk_spark.DepositInfo{deposit},
+		}, nil
+	}
+	sdk.recommendedFees = func() (breez_sdk_spark.RecommendedFees, error) {
+		return breez_sdk_spark.RecommendedFees{FastestFee: 1}, nil
+	}
+	sdk.refundDeposit = func(breez_sdk_spark.RefundDepositRequest) (breez_sdk_spark.RefundDepositResponse, error) {
+		t.Fatal("dust refund must not be attempted")
+		return breez_sdk_spark.RefundDepositResponse{}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	result, err := lightning.RefundTopUp("bitcoin-deposit:deposit-txid:1", testCloseWithdrawDestinationAccountCode, 2)
+
+	require.Nil(t, result)
+	require.ErrorContains(t, err, "minimum of 330 sats")
+}
+
+func TestRefundTopUpRejectsIncreasedFeeRate(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{}
+	sdk.listUnclaimedDeposits = func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+		return breez_sdk_spark.ListUnclaimedDepositsResponse{
+			Deposits: []breez_sdk_spark.DepositInfo{
+				testUnclaimedDeposit(123),
+			},
+		}, nil
+	}
+	sdk.recommendedFees = func() (breez_sdk_spark.RecommendedFees, error) {
+		return breez_sdk_spark.RecommendedFees{FastestFee: 13}, nil
+	}
+	sdk.refundDeposit = func(breez_sdk_spark.RefundDepositRequest) (breez_sdk_spark.RefundDepositResponse, error) {
+		t.Fatal("unapproved fee rate must not refund deposit")
+		return breez_sdk_spark.RefundDepositResponse{}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	result, err := lightning.RefundTopUp("bitcoin-deposit:deposit-txid:1", testCloseWithdrawDestinationAccountCode, 12)
+
+	require.Nil(t, result)
+	require.Equal(t, errPaymentApprovalRequired, errp.Cause(err))
+}
+
 func TestPrepareCloseWithdraw(t *testing.T) {
 	t.Parallel()
 
 	sdk := &testPaymentSDK{balanceSats: 10_000}
 	sdk.prepareSend = func(request breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
-		require.Equal(t, "bc1pdestination", request.PaymentRequest)
+		require.Equal(t, testP2TRAddress, request.PaymentRequest)
 		require.NotNil(t, request.Amount)
 		require.Zero(t, (*request.Amount).Cmp(big.NewInt(10_000)))
 		require.NotNil(t, request.FeePolicy)

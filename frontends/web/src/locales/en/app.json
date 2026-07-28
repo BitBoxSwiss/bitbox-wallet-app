@@ -1650,19 +1650,28 @@
     "claimTopUp": {
       "claimButton": "Claim top-up",
       "claimFee": "Claim fee",
+      "claimUnavailable": "Claim unavailable",
       "confirm": {
+        "amount": "Unclaimed top-up",
         "claimButton": "Confirm claim",
         "claimTitle": "Confirm top-up claim",
         "fee": "Fee",
         "refundButton": "Confirm refund",
         "refundDestination": "Refund destination",
-        "refundTitle": "Confirm top-up refund",
-        "totalAmount": "Unclaimed top-up total amount"
+        "refundTitle": "Confirm top-up refund"
       },
       "description": "You will need to create a transaction to claim the stuck amount.",
-      "empty": "No unclaimed top-ups.",
+      "empty": "No unclaimed top-up found.",
+      "failure": {
+        "claimFailedMessage": "Top-up claim failed.",
+        "claimFailedTryRefund": "Try refunding it to a Bitcoin account instead.",
+        "refundFailedMessage": "Top-up refund failed.",
+        "refundFailedTryAgain": "Please try again."
+      },
+      "feeRate": "{{feeRate}} sat/vByte",
       "refundButton": "Refund top-up",
       "refundFee": "Refund fee",
+      "refundUnavailable": "Refund unavailable",
       "success": {
         "claimMessage": "Claim transaction made",
         "claimNote": "Top-up coins will appear in your wallet once the transaction is confirmed.",
@@ -1672,7 +1681,7 @@
         "refundTitle": "Refund top-up"
       },
       "title": "Claim top-up",
-      "topUps": "Unclaimed top-ups",
+      "topUp": "Unclaimed top-up",
       "viewTransaction": "View transaction",
       "warning": "You can either claim the top-up or refund it. Either choice will have a fee."
     },
