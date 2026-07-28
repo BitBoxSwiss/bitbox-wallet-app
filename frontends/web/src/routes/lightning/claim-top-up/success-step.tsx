@@ -1,0 +1,47 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/forms';
+import { ExternalLink } from '@/components/icon';
+import { View, ViewButtons, ViewContent } from '@/components/view/view';
+import { CONTENT_MIN_HEIGHT, type TAction } from './constants';
+import styles from './claim-top-up.module.css';
+
+type TProps = {
+  action: TAction;
+  onDone: () => void;
+};
+
+const noop = () => undefined;
+
+export const ClaimTopUpSuccess = ({
+  action,
+  onDone,
+}: TProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <View key="claim-top-up-success" minHeight={CONTENT_MIN_HEIGHT} textCenter>
+      <ViewContent withIcon="success">
+        <div className={styles.successContent}>
+          <p className={styles.successMessage}>
+            {t(`lightning.claimTopUp.success.${action}Message`)}
+          </p>
+          <p className={styles.successNote}>
+            {t(`lightning.claimTopUp.success.${action}Note`)}
+          </p>
+          {/* TODO: Open the transaction in the block explorer once the txid is available. */}
+          <Button className={styles.transactionButton} transparent onClick={noop}>
+            <ExternalLink className={styles.transactionIcon} />
+            {t('lightning.claimTopUp.viewTransaction')}
+          </Button>
+        </div>
+      </ViewContent>
+      <ViewButtons>
+        <Button className={styles.doneButton} primary onClick={onDone}>
+          {t('button.done')}
+        </Button>
+      </ViewButtons>
+    </View>
+  );
+};

@@ -19,7 +19,6 @@ import { TPagePropsWithSettingsTabs } from './types';
 import styles from './lightning-settings.module.css';
 
 const serviceProvider = 'Spark';
-const noop = () => undefined;
 
 export const LightningSettings = ({
   devices,
@@ -88,10 +87,6 @@ export const LightningSettings = ({
         <SettingsItem
           settingName={t('lightning.settings.setLightningAddress')}
           onClick={() => navigate('/lightning/set-lnurl-address/')}
-        />
-        <SettingsItem
-          settingName={t('lightning.settings.manuallyClaimTopUp')}
-          onClick={noop}
         />
         <SubTitle className={styles.sectionTitle}>{t('lightning.settings.expert')}</SubTitle>
         <SettingsItem
