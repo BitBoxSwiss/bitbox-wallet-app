@@ -158,6 +158,8 @@ component state — no form library is used.
 
 ### Go
 - Must pass `gofmt` and `goimports`. Linting via `golangci-lint run` (config in `.golangci.yml`).
+- Create files containing sensitive data with owner-only (`0600`) permissions, and tighten the
+  permissions of existing destination files when overwriting them.
 
 ### TypeScript / React
 - ESLint config in `eslint.config.js`.

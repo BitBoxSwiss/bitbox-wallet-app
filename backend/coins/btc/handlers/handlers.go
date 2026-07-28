@@ -242,9 +242,18 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 
-	file, err := os.Create(path)
+	file, err := os.OpenFile(
+		path,
+		os.O_WRONLY|os.O_CREATE|os.O_TRUNC,
+		config.PrivateFileMode,
+	)
 	if err != nil {
 		handlers.log.WithError(err).Error("error creating file")
+		return result{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	if err := config.EnsurePrivateFile(path); err != nil {
+		_ = file.Close()
+		handlers.log.WithError(err).Error("error restricting file permissions")
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	if err := handlers.account.ExportCSV(file, transactions); err != nil {
