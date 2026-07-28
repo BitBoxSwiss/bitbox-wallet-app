@@ -91,7 +91,7 @@ export const WCIncomingPairing = ({
           }));
       } else {
         //unexpected error, display native error message
-        alertUser(e.messsage);
+        alertUser(e.message);
       }
       await handleRejectPairing();
     } finally {

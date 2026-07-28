@@ -1,112 +1,135 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { MutableRefObject, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { t } from 'i18next';
 import { WCWeb3WalletContext } from '@/contexts/WCWeb3WalletContext';
 import { SignClientTypes } from '@walletconnect/types';
-import { TEthSignHandlerParams, TLaunchSignDialog, TRequestDialogContent, handleWcEthSignRequest } from '@/utils/walletconnect-eth-sign-handlers';
+import {
+  TEthSignHandlerParams,
+  TLaunchSignDialog,
+  TRequestDialogContent,
+  createSessionRequestResponder,
+  handleWcEthSignRequest,
+} from '@/utils/walletconnect-eth-sign-handlers';
 import { alertUser } from '@/components/alert/Alert';
-import { rejectMessage } from '@/utils/walletconnect';
+import type { TAccount } from '@/api/account';
+import { connectKeystore } from '@/api/keystores';
 import { TStage, WCIncomingSignRequestDialog } from './incoming-signing-request-dialog';
 
-type TSigningRequestData = {
-  topic: string;
-  id: number;
+type TActiveSigningRequest = {
+  accountCode: TLaunchSignDialog['accountCode'];
+  apiCaller: TLaunchSignDialog['apiCaller'];
+  onReject: TLaunchSignDialog['onReject'];
+  processing: boolean;
 };
 
-export const WCSigningRequest = () => {
+type TProps = {
+  accounts: TAccount[];
+};
+
+export const WCSigningRequest = ({ accounts }: TProps) => {
   const { web3wallet, isWalletInitialized } = useContext(WCWeb3WalletContext);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<TRequestDialogContent>();
   const [stage, setStage] = useState<TStage>('initial');
-  const signMessageApiCallerRef: MutableRefObject<(() => Promise<any>) | undefined> = useRef();
-  const requestDataRef = useRef<TSigningRequestData>();
+  const activeRequestRef = useRef<TActiveSigningRequest>();
+  const successTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
-  const launchSignDialog = ({ topic, id, apiCaller, dialogContent }: TLaunchSignDialog) => {
-    const { signingData, currentSession, accountAddress, accountName, chain, displayAddress, method } = dialogContent;
-
-    // storing data to be used whenever
-    // user accepts or rejects later
-    // (see handleAcceptBtn & handleRejectBtn)
-    requestDataRef.current = { topic, id };
-
-    // storing the appropriate "signing api call" to be called later on (see handleAcceptBtn)
-    signMessageApiCallerRef.current = apiCaller;
-
-    // preparing to be displayed in the UI (dialog)
-    setDialogContent({
-      accountAddress,
-      accountName,
-      displayAddress,
-      signingData,
-      chain,
-      currentSession,
-      method
-    });
-
-    // opening the dialog
+  const launchSignDialog = ({ accountCode, apiCaller, dialogContent, onReject }: TLaunchSignDialog) => {
+    if (activeRequestRef.current) {
+      return false;
+    }
+    if (successTimerRef.current) {
+      clearTimeout(successTimerRef.current);
+      successTimerRef.current = undefined;
+    }
+    activeRequestRef.current = { accountCode, apiCaller, onReject, processing: false };
+    setDialogContent(dialogContent);
+    setStage('initial');
     setDialogOpen(true);
+    return true;
   };
 
   useEffect(() => {
-    if (!web3wallet && !isWalletInitialized) {
+    if (!web3wallet || !isWalletInitialized) {
       return;
     }
     const onSessionRequest = async (requestEvent: SignClientTypes.EventArguments['session_request']) => {
       const { topic, params, id } = requestEvent;
-      const activeSessions = Object.values(web3wallet?.getActiveSessions() || {});
-      const currentSession = activeSessions.find(session => session.topic === topic);
-      if (currentSession) {
-        const handlerArgs: TEthSignHandlerParams = {
-          topic,
-          id,
-          params,
-          currentSession,
-          launchSignDialog,
-        };
-        await handleWcEthSignRequest(params.request.method, handlerArgs);
-      }
+      const respond = createSessionRequestResponder(response =>
+        web3wallet.respondSessionRequest({ topic, response }));
+      const currentSession = web3wallet.getActiveSessions()[topic];
+      const handlerArgs: TEthSignHandlerParams = {
+        id,
+        params,
+        currentSession,
+        respond,
+        launchSignDialog,
+      };
+      await handleWcEthSignRequest(handlerArgs);
     };
-    web3wallet?.on('session_request', onSessionRequest);
+    web3wallet.on('session_request', onSessionRequest);
     return () => {
-      web3wallet?.off('session_request', onSessionRequest);
+      web3wallet.off('session_request', onSessionRequest);
+      if (successTimerRef.current) {
+        clearTimeout(successTimerRef.current);
+        successTimerRef.current = undefined;
+      }
     };
   }, [isWalletInitialized, web3wallet]);
 
   const handleRejectBtn = async () => {
-    setDialogOpen(false);
-    const requestData = requestDataRef.current;
-    if (requestData) {
-      const { topic, id } = requestData;
-      await web3wallet?.respondSessionRequest({ topic, response: rejectMessage(id) });
+    const request = activeRequestRef.current;
+    if (!request || request.processing) {
+      return;
     }
+
+    activeRequestRef.current = undefined;
+    setDialogOpen(false);
+    setStage('initial');
+    await request.onReject();
   };
 
   const handleAcceptBtn = async () => {
-    const apiCaller = signMessageApiCallerRef.current;
-    const requestData = requestDataRef.current;
-    if (apiCaller && requestData) {
-      setStage('confirming');
-      const { topic, id, } = requestData;
-      const { response, success, error } = await apiCaller();
-      if (success) {
-        //user proceeds to sign in BB02 device
-        await web3wallet?.respondSessionRequest({ topic, response });
-        setStage('accepted');
-        setTimeout(() => {
-          setDialogOpen(false);
-          setStage('initial');
-        }, 5000);
-      } else if (error.aborted) {
-        //rejected from BB02 device
-        setStage('initial');
+    const request = activeRequestRef.current;
+    if (!request || request.processing) {
+      return;
+    }
+
+    request.processing = true;
+    setStage('confirming');
+    const account = accounts.find(({ code }) => code === request.accountCode);
+    if (!account) {
+      activeRequestRef.current = undefined;
+      setDialogOpen(false);
+      setStage('initial');
+      await request.onReject();
+      return;
+    }
+    const connectResult = await connectKeystore(account.keystore.rootFingerprint);
+    if (!connectResult.success) {
+      activeRequestRef.current = undefined;
+      setDialogOpen(false);
+      setStage('initial');
+      await request.onReject();
+      return;
+    }
+    const result = await request.apiCaller();
+    activeRequestRef.current = undefined;
+    if (result.success) {
+      setStage('accepted');
+      successTimerRef.current = setTimeout(() => {
+        successTimerRef.current = undefined;
         setDialogOpen(false);
-        await web3wallet?.respondSessionRequest({ topic, response: rejectMessage(id) });
-      } else {
         setStage('initial');
-        const { errorMessage } = error;
-        alertUser(errorMessage ? errorMessage : t('pairing.error.text'));
-      }
+      }, 5000);
+      return;
+    }
+
+    setStage('initial');
+    setDialogOpen(false);
+    if (!result.aborted) {
+      alertUser(result.errorMessage || t('pairing.error.text'));
     }
   };
 
