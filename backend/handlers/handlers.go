@@ -93,7 +93,7 @@ type Backend interface {
 	RegisterTestKeystore(string, software.Edition) error
 	NotifyUser(string)
 	SystemOpen(string) error
-	ReinitializeAccounts()
+	ReconfigureHistoryExchangeRates()
 	GetUpdate() backend.UpdateState
 	Banners() *banners.Banners
 	Lightning() *lightning.Lightning
@@ -234,7 +234,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-account-receive-script-type", handlers.postSetAccountReceiveScriptType).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccount).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitialize).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/rates/reconfigure-history", handlers.postReconfigureHistoryExchangeRates).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/chart-data", handlers.getChartData).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoins).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/test/register", handlers.postRegisterTestKeystore).Methods("POST")
@@ -1042,8 +1042,8 @@ func (handlers *Handlers) postSetAccountReceiveScriptType(r *http.Request) inter
 	return response{Success: true}
 }
 
-func (handlers *Handlers) postAccountsReinitialize(*http.Request) interface{} {
-	handlers.backend.ReinitializeAccounts()
+func (handlers *Handlers) postReconfigureHistoryExchangeRates(*http.Request) interface{} {
+	handlers.backend.ReconfigureHistoryExchangeRates()
 	return nil
 }
 
@@ -1923,24 +1923,13 @@ func (handlers *Handlers) getKeystoreShowBackupBanner(r *http.Request) interface
 		backupReminderConfig = keystoreConfig.BackupReminderAllowed
 	}
 
-	boolPtr := func(value bool) *bool {
-		v := value
-		return &v
-	}
-
 	show := overThreshold
-	backupReminderAllowed := backupReminderConfig
 
 	if backupReminderConfig == nil {
-		if overThreshold {
-			show = false
-			backupReminderAllowed = boolPtr(false)
-		} else {
-			backupReminderAllowed = boolPtr(true)
-		}
+		show = false
 		if err := handlers.backend.Config().ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
 			keystoreConfig := cfg.GetOrAddKeystore(rootFingerprint)
-			value := *backupReminderAllowed
+			value := !overThreshold
 			keystoreConfig.BackupReminderAllowed = &value
 			return nil
 		}); err != nil {

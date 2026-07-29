@@ -18,7 +18,7 @@ base:
 clean:
 	-rm -rf build
 	cd server && $(MAKE) clean
-linux:
+linux-bin:
 	$(MAKE) clean
 	cd server && $(MAKE) linux
 	$(MAKE) base
@@ -29,6 +29,7 @@ linux:
 	cp build/assets.rcc build/linux-tmp/
 	cp server/libserver.so build/linux-tmp/lib
 	cp ../../vendor/github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/linux-amd64/libbreez_sdk_spark_bindings.so build/linux-tmp/lib
+linux: linux-bin
 	cd build/linux-tmp && \
 		/opt/linuxdeployqt-continuous-x86_64.AppImage --appimage-extract && \
 		./squashfs-root/AppRun BitBox \

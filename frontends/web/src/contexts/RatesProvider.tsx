@@ -4,8 +4,8 @@ import { ReactNode, useEffect, useState } from 'react';
 import { RatesContext } from './RatesContext';
 import { Fiat } from '@/api/account';
 import { BtcUnit, setBtcUnit as setBackendBtcUnit } from '@/api/coins';
+import { reconfigureHistoryRates } from '@/api/rates';
 import { useConfig } from './ConfigProvider';
-import { reinitializeAccounts } from '@/api/backend';
 import { equal } from '@/utils/equal';
 
 type TProps = {
@@ -71,9 +71,7 @@ export const RatesProvider = ({ children }: TProps) => {
 
   const handleChangeSelectedFiat = (selected: Fiat[]) => {
     setActiveCurrencies(selected);
-    // Need to reconfigure currency exchange rates updater
-    // which is done during accounts reset.
-    reinitializeAccounts();
+    void reconfigureHistoryRates();
   };
 
   return (

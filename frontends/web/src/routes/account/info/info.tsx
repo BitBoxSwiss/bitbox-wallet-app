@@ -129,7 +129,7 @@ export const Info = ({
             </ActionableItem>
             {canSignMessage && (
               <ActionableItem
-                onClick={() => navigate(`/account/${code}/sign-message`)}
+                onClick={() => navigate(`/account/${code}/sign-message/new`)}
               >
                 <div className={style.actionItem}>
                   {isDarkMode ?
