@@ -47,6 +47,43 @@
     text-overflow: ellipsis;
 }
 
+/* the unit pills size to their content instead of stretching like inputs */
+.amountGroup > .unitGroup {
+    flex: 0 0 auto;
+}
+
+.unitLabel {
+    color: var(--color-secondary);
+    display: block;
+    font-size: var(--size-small);
+    margin-bottom: var(--space-quarter);
+    text-align: left;
+}
+
+/* joined segmented control: two half pills sharing a border like the inputs */
+.filterRow .unitPills {
+    background: var(--background-secondary);
+    border: var(--border-width) solid var(--background-quaternary);
+    border-radius: 36px;
+    flex-wrap: nowrap;
+    gap: 0;
+    height: var(--input-height);
+    overflow: hidden;
+}
+
+/* buttons fill the bordered container so the row lines up with the inputs */
+.filterRow .unitPills button {
+    border-radius: 0;
+    height: 100%;
+    margin-bottom: 0;
+}
+
+/* the shared pill focus border reads as a blue square on these joined,
+   corner-less buttons; only keep it for keyboard focus */
+.filterRow .unitPills button:focus:not(:focus-visible):not([aria-pressed='true']) {
+    border-color: var(--background-secondary);
+}
+
 /* hide the browser's dd.mm.yyyy format hint while a date field is empty */
 .dateGroup input[data-empty]:not(:focus)::-webkit-datetime-edit {
     color: transparent;

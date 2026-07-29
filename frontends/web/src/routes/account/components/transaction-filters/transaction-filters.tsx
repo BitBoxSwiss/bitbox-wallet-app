@@ -2,7 +2,8 @@
 
 import { useTranslation } from 'react-i18next';
 import { Input, Select } from '@/components/forms';
-import type { TAmountUnitFilter, TTransactionFilters, TTransactionTypeFilter } from './use-transaction-filters';
+import { PillButton, PillButtonGroup } from '@/components/pillbuttongroup/pillbuttongroup';
+import type { TTransactionFilters, TTransactionTypeFilter } from './use-transaction-filters';
 import styles from './transaction-filters.module.css';
 
 type TProps = {
@@ -80,16 +81,29 @@ export const TransactionFilters = ({
           value={filters.amountMax}
           onChange={e => update({ amountMax: e.currentTarget.value })}
         />
-        <Select
-          id="tx-filter-amount-unit"
-          label={t('transactions.filters.unit')}
-          options={[
-            { value: 'coin', text: coinUnit },
-            { value: 'fiat', text: fiatUnit },
-          ]}
-          value={filters.amountUnit}
-          onChange={e => update({ amountUnit: e.currentTarget.value as TAmountUnitFilter })}
-        />
+        <div
+          className={styles.unitGroup}
+          role="group"
+          aria-labelledby="tx-filter-amount-unit-label"
+        >
+          <span id="tx-filter-amount-unit-label" className={styles.unitLabel}>
+            {t('transactions.filters.unit')}
+          </span>
+          <PillButtonGroup className={styles.unitPills}>
+            <PillButton
+              active={filters.amountUnit === 'coin'}
+              onClick={() => update({ amountUnit: 'coin' })}
+            >
+              {coinUnit}
+            </PillButton>
+            <PillButton
+              active={filters.amountUnit === 'fiat'}
+              onClick={() => update({ amountUnit: 'fiat' })}
+            >
+              {fiatUnit}
+            </PillButton>
+          </PillButtonGroup>
+        </div>
       </div>
     </div>
   );

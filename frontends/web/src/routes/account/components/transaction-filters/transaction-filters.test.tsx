@@ -23,10 +23,13 @@ describe('TransactionFilters', () => {
     expect(screen.getByLabelText('transactions.filters.amountMax')).toBeInTheDocument();
   });
 
-  it('offers coin and fiat units', () => {
+  it('offers coin and fiat units as pill buttons', () => {
     render(<TransactionFilters {...defaultProps} />);
-    expect(screen.getByRole('option', { name: 'BTC' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'USD' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'BTC' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'USD' })).toBeInTheDocument();
+    // the fiat default is marked as the pressed pill
+    expect(screen.getByRole('button', { name: 'USD' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'BTC' })).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('propagates changes via onFiltersChange', () => {
@@ -38,9 +41,9 @@ describe('TransactionFilters', () => {
     expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, amountMin: '10' });
   });
 
-  it('gives the unit select an accessible name', () => {
+  it('gives the unit pill group an accessible name', () => {
     render(<TransactionFilters {...defaultProps} />);
-    expect(screen.getByRole('combobox', { name: 'transactions.filters.unit' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'transactions.filters.unit' })).toBeInTheDocument();
   });
 
   it('propagates date, max amount and unit changes', () => {
@@ -54,7 +57,7 @@ describe('TransactionFilters', () => {
     expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, amountMax: '25' });
     // 'coin' differs from the 'fiat' default, so this assertion still
     // discriminates a broken handler from a working one.
-    fireEvent.change(screen.getByRole('combobox', { name: 'transactions.filters.unit' }), { target: { value: 'coin' } });
+    fireEvent.click(screen.getByRole('button', { name: 'BTC' }));
     expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, amountUnit: 'coin' });
   });
 });
