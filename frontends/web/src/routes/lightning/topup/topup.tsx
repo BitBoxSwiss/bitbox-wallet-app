@@ -116,7 +116,11 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
       return;
     }
     if (!sourceAccountCode || !topUpAccounts.some(account => account.code === sourceAccountCode)) {
-      setSourceAccountCode(topUpAccounts[0]?.code || '');
+      setSourceAccountCode(
+        topUpAccounts.find(account => account.keystore.connected)?.code
+          || topUpAccounts[0]?.code
+          || ''
+      );
     }
   }, [sourceAccountCode, topUpAccounts]);
 
