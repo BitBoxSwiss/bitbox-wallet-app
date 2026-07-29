@@ -9,6 +9,7 @@ import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
 import { RedDot } from '@/components/icon';
 import { NewBadge } from '@/components/new-badge/new-badge';
+import { getBottomNavKey } from './utils';
 import styles from './bottom-navigation.module.css';
 
 type TProps = {
@@ -24,6 +25,7 @@ export const BottomNavigation = ({
 }: TProps) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  const bottomNavKey = getBottomNavKey(pathname);
   const deviceID = Object.keys(devices)[0];
   const isBitBox02 = deviceID && devices[deviceID] === 'bitbox02';
   const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID, isBitBox02]);
@@ -44,7 +46,7 @@ export const BottomNavigation = ({
       <Link
         className={`
           ${styles.link || ''}
-          ${pathname.startsWith('/account-summary') && styles.active || ''}
+          ${bottomNavKey === 'portfolio' && styles.active || ''}
         `}
         to="/account-summary"
       >
@@ -54,7 +56,7 @@ export const BottomNavigation = ({
       <Link
         className={`
           ${styles.link || ''}
-          ${pathname.startsWith('/account/') || pathname.startsWith('/accounts/') || pathname.startsWith('/lightning') ? (styles.active || '') : ''}
+          ${bottomNavKey === 'accounts' && styles.active || ''}
         `}
         to={accountTabURL}
       >
@@ -65,7 +67,7 @@ export const BottomNavigation = ({
         <Link
           className={`
             ${styles.link || ''}
-            ${pathname.startsWith('/market/') && styles.active || ''}
+            ${bottomNavKey === 'market' && styles.active || ''}
           `}
           to="/market/select"
         >
@@ -85,7 +87,7 @@ export const BottomNavigation = ({
       <Link
         className={`
           ${styles.link || ''}
-          ${pathname.startsWith('/settings') ? (styles.active || '') : ''}
+          ${bottomNavKey === 'more' && styles.active || ''}
         `}
         to="/settings/more"
       >
