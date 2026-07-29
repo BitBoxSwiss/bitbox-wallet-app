@@ -6,7 +6,7 @@ import type { ContextType, ReactNode } from 'react';
 import { renderHook } from '@testing-library/react';
 import type { TTransaction } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
-import { emptyFilters, matchesFilters, TTransactionFilters, useTransactionFilters } from './use-transaction-filters';
+import { compareTransactions, emptyFilters, matchesFilters, TTransactionFilters, useTransactionFilters } from './use-transaction-filters';
 
 const makeTx = (overrides: Partial<TTransaction> = {}): TTransaction => ({
   addresses: ['addr1'],
@@ -143,6 +143,61 @@ describe('matchesFilters', () => {
     const combined = filters({ fromDate: '2026-07-01', toDate: '2026-07-31', type: 'send', amountUnit: 'coin', amountMin: '0.5', amountMax: '0.6' });
     expect(matchesFilters(tx, combined, 'USD')).toBe(true);
     expect(matchesFilters(tx, { ...combined, type: 'receive' }, 'USD')).toBe(false);
+  });
+});
+
+describe('compareTransactions', () => {
+  const early = makeTx({ internalID: 'early', time: '2026-07-01T12:00:00Z' });
+  const late = makeTx({ internalID: 'late', time: '2026-07-20T12:00:00Z' });
+  const pending = makeTx({ internalID: 'pending', time: null });
+
+  it('sorts by date, newest first by default', () => {
+    expect(emptyFilters.sortBy).toBe('date');
+    expect(emptyFilters.sortDir).toBe('desc');
+    const sorted = [early, late].sort((a, b) => compareTransactions(a, b, 'date', 'desc'));
+    expect(sorted.map(tx => tx.internalID)).toEqual(['late', 'early']);
+  });
+
+  it('sorts by date ascending', () => {
+    const sorted = [late, early].sort((a, b) => compareTransactions(a, b, 'date', 'asc'));
+    expect(sorted.map(tx => tx.internalID)).toEqual(['early', 'late']);
+  });
+
+  it('treats pending transactions (time null) as newest', () => {
+    const sorted = [pending, early, late].sort((a, b) => compareTransactions(a, b, 'date', 'desc'));
+    expect(sorted.map(tx => tx.internalID)).toEqual(['pending', 'late', 'early']);
+  });
+
+  it('sorts by the displayed coin amount magnitude', () => {
+    const small = makeTx({ internalID: 'small' }); // receive, amountAtTime 0.5
+    // send displays deductedAmountAtTime; negative sign must not affect order
+    const big = makeTx({
+      internalID: 'big',
+      type: 'send',
+      deductedAmountAtTime: { amount: '-2', conversions: {}, unit: 'BTC', estimated: false },
+    });
+    const asc = [big, small].sort((a, b) => compareTransactions(a, b, 'amount', 'asc'));
+    expect(asc.map(tx => tx.internalID)).toEqual(['small', 'big']);
+    const desc = [small, big].sort((a, b) => compareTransactions(a, b, 'amount', 'desc'));
+    expect(desc.map(tx => tx.internalID)).toEqual(['big', 'small']);
+  });
+
+  it('sorts by type alphabetically and reversed', () => {
+    const receive = makeTx({ internalID: 'r', type: 'receive' });
+    const send = makeTx({ internalID: 's', type: 'send' });
+    const toSelf = makeTx({ internalID: 'self', type: 'send_to_self' });
+    const asc = [toSelf, send, receive].sort((a, b) => compareTransactions(a, b, 'type', 'asc'));
+    expect(asc.map(tx => tx.internalID)).toEqual(['r', 's', 'self']);
+    const desc = [receive, send, toSelf].sort((a, b) => compareTransactions(a, b, 'type', 'desc'));
+    expect(desc.map(tx => tx.internalID)).toEqual(['self', 's', 'r']);
+  });
+
+  it('compares equal keys as ties so a stable sort keeps the incoming order', () => {
+    const a = makeTx({ internalID: 'a', type: 'receive' });
+    const b = makeTx({ internalID: 'b', type: 'receive' });
+    expect(compareTransactions(a, b, 'type', 'asc')).toBe(0);
+    // Math.abs: descending date ties yield -0, which sorts like 0
+    expect(Math.abs(compareTransactions(a, b, 'date', 'desc'))).toBe(0);
   });
 });
 

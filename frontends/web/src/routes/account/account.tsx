@@ -90,7 +90,7 @@ const RemountAccount = ({
   const debouncedSearchTerm = useDebounce(searchTerm, 200);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [showFilters, setShowFilters] = useState<boolean>(false);
-  const { filters, setFilters, clearFilters, isActive: hasActiveFilters, matches } = useTransactionFilters();
+  const { filters, setFilters, clearFilters, isActive: hasActiveFilters, matches, compare } = useTransactionFilters();
 
   const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
 
@@ -121,8 +121,8 @@ const RemountAccount = ({
         }
       }
       return matches(tx);
-    });
-  }, [transactions, debouncedSearchTerm, matches]);
+    }).sort(compare);
+  }, [transactions, debouncedSearchTerm, matches, compare]);
 
   const onAccountChanged = useCallback((status: accountApi.TStatus | undefined) => {
     if (status === undefined || status.fatalError) {

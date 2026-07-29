@@ -21,6 +21,22 @@ describe('TransactionFilters', () => {
     expect(screen.getByLabelText('transactions.filters.type')).toBeInTheDocument();
     expect(screen.getByLabelText('transactions.filters.amountMin')).toBeInTheDocument();
     expect(screen.getByLabelText('transactions.filters.amountMax')).toBeInTheDocument();
+    expect(screen.getByLabelText('transactions.filters.sortBy')).toBeInTheDocument();
+  });
+
+  it('propagates sort field and direction changes', () => {
+    const onFiltersChange = vi.fn();
+    render(<TransactionFilters {...defaultProps} onFiltersChange={onFiltersChange} />);
+    fireEvent.change(screen.getByLabelText('transactions.filters.sortBy'), { target: { value: 'amount' } });
+    expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, sortBy: 'amount' });
+    // default direction is descending; the toggle switches to ascending
+    fireEvent.click(screen.getByRole('button', { name: 'transactions.filters.sortDescending' }));
+    expect(onFiltersChange).toHaveBeenCalledWith({ ...emptyFilters, sortDir: 'asc' });
+  });
+
+  it('labels the direction toggle with the current direction', () => {
+    render(<TransactionFilters {...defaultProps} filters={{ ...emptyFilters, sortDir: 'asc' }} />);
+    expect(screen.getByRole('button', { name: 'transactions.filters.sortAscending' })).toBeInTheDocument();
   });
 
   it('offers coin and fiat units as pill buttons', () => {

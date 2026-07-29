@@ -2,8 +2,9 @@
 
 import { useTranslation } from 'react-i18next';
 import { Input, Select } from '@/components/forms';
+import { ArrowDown } from '@/components/icon';
 import { PillButton, PillButtonGroup } from '@/components/pillbuttongroup/pillbuttongroup';
-import type { TTransactionFilters, TTransactionTypeFilter } from './use-transaction-filters';
+import type { TSortByFilter, TTransactionFilters, TTransactionTypeFilter } from './use-transaction-filters';
 import styles from './transaction-filters.module.css';
 
 type TProps = {
@@ -24,8 +25,38 @@ export const TransactionFilters = ({
     onFiltersChange({ ...filters, ...patch });
   };
 
+  const sortAscending = filters.sortDir === 'asc';
+  const sortDirLabel = sortAscending
+    ? t('transactions.filters.sortAscending')
+    : t('transactions.filters.sortDescending');
+
   return (
     <div className={styles.filterRow}>
+      <div className={styles.sortGroup}>
+        <Select
+          id="tx-filter-sort"
+          label={t('transactions.filters.sortBy')}
+          options={[
+            { value: 'date', text: t('transactions.filters.sortDate') },
+            { value: 'amount', text: t('transactions.filters.sortAmount') },
+            { value: 'type', text: t('transactions.filters.sortType') },
+          ]}
+          value={filters.sortBy}
+          onChange={e => update({ sortBy: e.currentTarget.value as TSortByFilter })}
+        />
+        <button
+          type="button"
+          className={styles.sortDirButton}
+          aria-label={sortDirLabel}
+          title={sortDirLabel}
+          onClick={() => update({ sortDir: sortAscending ? 'desc' : 'asc' })}
+        >
+          <ArrowDown
+            alt=""
+            className={sortAscending ? styles.sortDirIconAsc : undefined}
+          />
+        </button>
+      </div>
       <div className={styles.typeGroup}>
         <Select
           id="tx-filter-type"
