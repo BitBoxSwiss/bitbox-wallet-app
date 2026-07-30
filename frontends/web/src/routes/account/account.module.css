@@ -195,18 +195,7 @@
     visibility: hidden;
 }
 
-.searchRow {
-    align-items: flex-start;
-    display: flex;
-    gap: var(--space-quarter);
-    width: 100%;
-}
-
-.searchRow > div {
-    flex: 1;
-    min-width: 0;
-}
-
+/* sits inside the search field, next to the loupe */
 .filterToggle {
     align-items: center;
     background: transparent;
@@ -214,21 +203,30 @@
     cursor: pointer;
     display: flex;
     flex: none;
-    height: var(--input-height);
+    height: 24px;
     justify-content: center;
+    margin: auto 0;
     padding: 0;
-    width: var(--input-height);
+    position: relative;
+    width: 24px;
 }
 
 .filterToggle img {
-    height: var(--size-default);
-    width: var(--size-default);
+    height: 20px;
+    width: 20px;
 }
 
-.filterToggleOpen {
-    background-color: var(--background-secondary);
-    border: solid var(--border-width) var(--background-quaternary);
-    border-radius: var(--radius-xl);
+/* the criteria are out of sight once the sheet or row is closed, so mark
+   the toggle while they still apply */
+.filterToggleActive::after {
+    background-color: var(--color-blue);
+    border-radius: 50%;
+    content: '';
+    height: 6px;
+    position: absolute;
+    right: -1px;
+    top: -1px;
+    width: 6px;
 }
 
 @media (max-width: 768px) {

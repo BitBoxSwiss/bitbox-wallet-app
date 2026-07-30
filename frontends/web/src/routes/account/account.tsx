@@ -9,7 +9,7 @@ import { TDevices } from '@/api/devices';
 import { getMarketVendors, MarketVendors } from '@/api/market';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
-import { FilterBlue, InfoBlue, LoupeBlue } from '@/components/icon';
+import { InfoBlue, LoupeBlue, Sliders } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Message } from '@/components/message/message';
@@ -318,35 +318,35 @@ const RemountAccount = ({
                       ${style.searchContainer || ''}
                       ${!showSearchBar && style.searchHidden || ''}
                     `}>
-                      <div className={style.searchRow}>
-                        <SearchInput
-                          ref={searchInputRef}
-                          placeholder={t('accountSummary.searchPlaceholder')}
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.currentTarget.value)}
-                        />
-                        <button
-                          type="button"
-                          aria-label={t('transactions.filters.button')}
-                          aria-expanded={showFilters}
-                          aria-controls="transaction-filters"
-                          title={t('transactions.filters.button')}
-                          className={`
-                            ${style.filterToggle || ''}
-                            ${showFilters && style.filterToggleOpen || ''}
-                          `}
-                          onClick={() => {
-                            if (showFilters) {
-                              setShowFilters(false);
-                              clearFilters();
-                            } else {
-                              setShowFilters(true);
-                            }
-                          }}
-                        >
-                          <FilterBlue alt="" />
-                        </button>
-                      </div>
+                      <SearchInput
+                        ref={searchInputRef}
+                        placeholder={t('accountSummary.searchPlaceholder')}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.currentTarget.value)}
+                        action={
+                          <button
+                            type="button"
+                            aria-label={t('transactions.filters.button')}
+                            aria-expanded={showFilters}
+                            aria-controls="transaction-filters"
+                            title={t('transactions.filters.button')}
+                            className={`
+                              ${style.filterToggle || ''}
+                              ${hasActiveFilters && style.filterToggleActive || ''}
+                            `}
+                            onClick={() => {
+                              if (showFilters) {
+                                setShowFilters(false);
+                                clearFilters();
+                              } else {
+                                setShowFilters(true);
+                              }
+                            }}
+                          >
+                            <Sliders alt="" />
+                          </button>
+                        }
+                      />
                     </div>
 
                     <div

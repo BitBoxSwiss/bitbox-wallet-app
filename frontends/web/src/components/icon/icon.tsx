@@ -55,7 +55,6 @@ import externalLinkGraySVG from './assets/icons/external-link-gray.svg';
 import eyeClosedSVG from './assets/icons/eye-closed.svg';
 import eyeOpenedSVG from './assets/icons/eye-opened.svg';
 import eyeOpenedDarkSVG from './assets/icons/eye-opened-dark.svg';
-import filterBlueSVG from './assets/icons/filter-blue.svg';
 import globeDarkSVG from './assets/icons/globe-dark.svg';
 import globeLightSVG from './assets/icons/globe-light.svg';
 import guideSVG from './assets/icons/guide.svg';
@@ -82,6 +81,7 @@ import outlinedFileProtectPrimarySVG from './assets/icons/outlined-file-protect-
 import outlinedUnorderedListDarkSVG from './assets/icons/outlined-unordered-list.svg';
 import outlinedUnorderedListLightSVG from './assets/icons/outlined-unordered-list-light.svg';
 import shieldSVG from './assets/icons/shield.svg';
+import slidersSVG from './assets/icons/sliders.svg';
 import shieldDarkSVG from './assets/icons/shield-dark.svg';
 import syncSVG from './assets/icons/sync.svg';
 import syncLightSVG from './assets/icons/sync-light.svg';
@@ -170,7 +170,6 @@ export const ExternalLinkGray = (props: ImgProps) => (<img src={externalLinkGray
 export const EyeClosed = (props: ImgProps) => (<img src={eyeClosedSVG} draggable={false} {...props} />);
 export const EyeOpened = (props: ImgProps) => (<img src={eyeOpenedSVG} draggable={false} {...props} />);
 export const EyeOpenedDark = (props: ImgProps) => (<img src={eyeOpenedDarkSVG} draggable={false} {...props} />);
-export const FilterBlue = (props: ImgProps) => (<img src={filterBlueSVG} draggable={false} {...props} />);
 export const GlobeDark = (props: ImgProps) => (<img src={globeDarkSVG} draggable={false} {...props} />);
 export const GlobeLight = (props: ImgProps) => (<img src={globeLightSVG} draggable={false} {...props} />);
 export const GreenDot = (props: ImgProps) => (<img src={greenDotSVG} draggable={false} {...props} />);
@@ -199,6 +198,7 @@ export const QRCodeLight = (props: ImgProps) => (<img src={qrCodeLightSVG} dragg
 export const RedDot = (props: ImgProps) => (<img src={redDotSVG} draggable={false} {...props} />);
 export const Shield = (props: ImgProps) => (<img src={shieldSVG} draggable={false} {...props} />);
 export const ShieldDark = (props: ImgProps) => (<img src={shieldDarkSVG} draggable={false} {...props} />);
+export const Sliders = (props: ImgProps) => (<img src={slidersSVG} draggable={false} {...props} />);
 export const SpinnerRingDark = (props: ImgProps) => (<img src={spinnerRingDarkSVG} draggable={false} {...props} />);
 export const SpinnerRingLight = (props: ImgProps) => (<img src={spinnerRingLightSVG} draggable={false} {...props} />);
 export const Sync = (props: ImgProps) => (<img src={syncSVG} draggable={false} {...props} />);

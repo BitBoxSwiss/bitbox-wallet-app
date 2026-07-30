@@ -3,6 +3,8 @@
   flex: none;
   height: 20px;
   margin: auto 0;
+  /* the icon renders after the input, so pull it to the front of the field */
+  order: -1;
   pointer-events: none;
   width: 20px;
 }
