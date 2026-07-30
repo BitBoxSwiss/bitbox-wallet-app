@@ -27,13 +27,13 @@
 }
 
 .title {
-  font-size: var(--size-default);
+  font-size: var(--size-small);
   font-weight: bold;
   text-align: left;
 }
 
 .disclaimer p {
-  font-size: var(--size-default);
+  font-size: var(--size-small);
   line-height: 1.5;
 }
 

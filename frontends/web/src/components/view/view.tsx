@@ -16,6 +16,7 @@ type TViewProps = {
   children: ReactNode;
   minHeight?: string;
   onClose?: () => void;
+  scrollableContent?: boolean;
   textCenter?: boolean;
   verticallyCentered?: boolean;
   width?: string;
@@ -29,6 +30,7 @@ type TViewProps = {
  * @param fullscreen wether the View container should cover the whole window
  * @param minHeight optional minimum height, useful for keeping content area same size through multiple views
  * @param onClose if a callback is provided it will render a close button that triggers the callback
+ * @param scrollableContent keeps the view within the visible area so that a scrollable element in the content area scrolls instead of the page, which keeps the buttons in view, implies fitContent
  * @param textCenter centers all text content in the view
  * @param verticallyCentered centers all text content in the view, has no effect in dialog mode
  * @param width can be used to overwrite the default width of the inner area
@@ -41,6 +43,7 @@ export const View = ({
   children,
   minHeight,
   onClose,
+  scrollableContent = false,
   textCenter,
   verticallyCentered = false,
   width,
@@ -49,11 +52,12 @@ export const View = ({
   const { isDarkMode } = useDarkmode();
   const containerClasses = `
     ${style[fullscreen ? 'fullscreen' : 'fill'] || ''}
+    ${scrollableContent && style.scrollableContent || ''}
     ${verticallyCentered && style.verticallyCentered || ''}
     ${dialog && style.dialog || ''}
   `;
   let classNames = style.inner;
-  if (fitContent) {
+  if (fitContent || scrollableContent) {
     classNames += ` ${style.fit || ''}`;
   }
   if (textCenter) {
