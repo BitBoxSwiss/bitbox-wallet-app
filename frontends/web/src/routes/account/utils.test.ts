@@ -144,6 +144,13 @@ describe('utils/getAccountsByKeystore', () => {
 });
 
 describe('utils/bitcoin coin helpers', () => {
+  it('treats btc, tbtc, and rbtc as bitcoin-only coin codes', () => {
+    expect(isBitcoinOnly('btc')).toBe(true);
+    expect(isBitcoinOnly('tbtc')).toBe(true);
+    expect(isBitcoinOnly('rbtc')).toBe(true);
+    expect(isBitcoinOnly('lightning')).toBe(false);
+  });
+
   it('treats rbtc coin codes as bitcoin-only and bitcoin-based', () => {
     expect(isBitcoinOnly('rbtc')).toBe(true);
     expect(isBitcoinBased('rbtc')).toBe(true);
