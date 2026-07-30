@@ -28,10 +28,14 @@ type Props = {
 
 type TReceiverAddressWrapperProps = {
   accounts?: TAccount[];
+  autoFocus?: boolean;
   error?: string | object;
+  inputLabel?: string;
+  inputPlaceholder?: string;
   onInputChange: (value: string) => void;
   onAccountChange?: (account: TAccount | null) => void;
   recipientAddress: string;
+  requireSendToSelfSupport?: boolean;
   children?: React.ReactNode;
 };
 
@@ -54,10 +58,14 @@ const AccountOption = ({ option, isSelectedValue }: Props) => {
 
 export const ReceiverAddressWrapper = ({
   accounts,
+  autoFocus,
   error,
+  inputLabel,
+  inputPlaceholder,
   onInputChange,
   onAccountChange,
   recipientAddress,
+  requireSendToSelfSupport = true,
   children,
 }: TReceiverAddressWrapperProps) => {
   const { t } = useTranslation();
@@ -78,6 +86,9 @@ export const ReceiverAddressWrapper = ({
   }) : [];
 
   const checkFirmwareSupport = useCallback(async (selectedAccount: accountApi.TAccount) => {
+    if (!requireSendToSelfSupport) {
+      return true;
+    }
     const rootFingerprint = selectedAccount.keystore.rootFingerprint;
     const connectResult = await connectKeystore(rootFingerprint);
     if (!connectResult.success) {
@@ -93,7 +104,7 @@ export const ReceiverAddressWrapper = ({
       return false;
     }
     return true;
-  }, [t]);
+  }, [requireSendToSelfSupport, t]);
 
   const handleSendToAccount = useCallback(async (selectedOption: TAccountOption) => {
     if (selectedOption.value === null || selectedOption.disabled) {
@@ -156,14 +167,14 @@ export const ReceiverAddressWrapper = ({
     <>
       <InputWithDropdown
         id="recipientAddress"
-        label={t('send.address.label')}
+        label={inputLabel ?? t('send.address.label')}
         error={error}
         align="left"
-        placeholder={t('send.address.placeholder')}
+        placeholder={inputPlaceholder ?? t('send.address.placeholder')}
         onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
         value={recipientAddress}
         readOnly={selectedAccount !== null}
-        autoFocus={!isMobile}
+        autoFocus={autoFocus ?? !isMobile}
         dropdownOptions={accountOptions}
         dropdownValue={selectedAccount}
         onDropdownChange={(selected) => {
