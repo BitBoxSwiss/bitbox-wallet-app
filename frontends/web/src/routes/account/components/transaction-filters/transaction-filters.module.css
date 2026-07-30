@@ -94,28 +94,39 @@
     text-align: left;
 }
 
-/* joined segmented control: two half pills sharing a border like the inputs */
+/* a full pill holding both options, with the selected one as a second full
+   pill lying on top of it — the outer pill keeps the top and bottom edges
+   straight, which overlapping two separate pills cannot do without hiding
+   the covered label */
 .filterRow .unitPills {
+    align-items: stretch;
     background: var(--background-secondary);
     border: var(--border-width) solid var(--background-quaternary);
-    border-radius: 36px;
+    border-radius: var(--input-height);
     flex-wrap: nowrap;
     gap: 0;
     height: var(--input-height);
-    overflow: hidden;
+    padding: 3px;
 }
 
-/* buttons fill the bordered container so the row lines up with the inputs */
 .filterRow .unitPills button {
-    border-radius: 0;
-    height: 100%;
+    background: transparent;
+    border-color: transparent;
+    border-radius: var(--input-height);
+    font-size: var(--size-small);
     margin-bottom: 0;
+    padding: 0 var(--space-half);
 }
 
-/* the shared pill focus border reads as a blue square on these joined,
-   corner-less buttons; only keep it for keyboard focus */
+.filterRow .unitPills button[aria-pressed='true'] {
+    background: var(--color-blue);
+    border-color: var(--color-blue);
+}
+
+/* keep the shared pill focus border for keyboard focus only, so clicking
+   a pill doesn't leave a ring behind */
 .filterRow .unitPills button:focus:not(:focus-visible):not([aria-pressed='true']) {
-    border-color: var(--background-secondary);
+    border-color: transparent;
 }
 
 /* hide the browser's dd.mm.yyyy format hint while a date field is empty */
