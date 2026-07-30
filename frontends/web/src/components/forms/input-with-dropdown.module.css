@@ -16,6 +16,10 @@
     margin: 0 0 var(--space-quarter) 0;
 }
 
+.labelSection {
+    margin-left: auto;
+}
+
 .align-left label {
     justify-self: flex-start;
 }
@@ -74,6 +78,10 @@ input.inputField:focus {
 
 input.inputField::placeholder {
     color: var(--color-secondary);
+}
+
+input.inputFieldWithoutIcon {
+    padding-left: var(--space-half);
 }
 
 .dropdown {
