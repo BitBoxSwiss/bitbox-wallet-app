@@ -154,6 +154,10 @@
     min-width: 0;
 }
 
+.assetBalanceDetailsRowCentered {
+    align-items: center;
+}
+
 .assetBalanceDetailsCol {
     display: flex;
     flex-direction: column;

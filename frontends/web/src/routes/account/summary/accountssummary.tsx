@@ -20,7 +20,7 @@ import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '@/contexts/AppContext';
-import { getAccountsByKeystore, getAccountsPerCoin } from '@/routes/account/utils';
+import { getAccountsByKeystore, getAccountsPerCoin, isBitcoinOnly } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
@@ -49,6 +49,8 @@ export const AccountsSummary = ({
   const { lightningAccount } = useLightning();
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
+  const hasActiveBitcoinAccount = accounts.some(account => account.active && isBitcoinOnly(account.coinCode));
+  const hasOnlyLightningAccount = !!lightningAccount && accounts.length === 0;
 
   const accountsPerCoin = getAccountsPerCoin(accounts);
   const hasMultipleAccountsPerCoin = Object.values(accountsPerCoin).some(
@@ -208,6 +210,8 @@ export const AccountsSummary = ({
             <div className={style.keystoresContainer} data-testid="account-summary-keystores">
               {showTotalBalance && (
                 <TotalBalanceForAllKeystores
+                  hideHeader={hasOnlyLightningAccount}
+                  hideLightningUnitPrice={hasActiveBitcoinAccount}
                   summaryData={chartData}
                   coinsBalances={accountsBalanceSummary?.coinsTotalBalance}
                 />

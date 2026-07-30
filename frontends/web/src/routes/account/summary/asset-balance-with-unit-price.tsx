@@ -8,20 +8,30 @@ import { Skeleton } from '@/components/skeleton/skeleton';
 import { useCoinUnitPrice } from '@/hooks/coin-unit-price';
 import style from './accountssummary.module.css';
 
-type Props = {
+type TProps = {
   amount?: TAmountWithConversions;
   coinCode: CoinCode;
   coinName: ReactNode;
   dataTestId?: string;
+  showUnitPrice?: boolean;
 };
 
-export const AssetBalanceWithUnitPrice = ({ amount, coinCode, coinName, dataTestId }: Props) => {
+export const AssetBalanceWithUnitPrice = ({
+  amount,
+  coinCode,
+  coinName,
+  dataTestId,
+  showUnitPrice = true,
+}: TProps) => {
   const unitPrice = useCoinUnitPrice(coinCode, amount?.unit);
   return (
     <div className={style.assetBalanceRow}>
       <div className={style.assetBalanceInfoFull}>
         <Logo className={style.assetBalanceLogo} coinCode={coinCode} active={true} alt={coinCode} />
-        <div className={style.assetBalanceDetailsRow}>
+        <div className={`
+          ${style.assetBalanceDetailsRow || ''}
+          ${!showUnitPrice ? style.assetBalanceDetailsRowCentered || '' : ''}
+        `}>
           <div className={style.assetBalanceDetailsCol}>
             <span
               className={`${style.assetBalanceName || ''}
@@ -31,15 +41,17 @@ export const AssetBalanceWithUnitPrice = ({ amount, coinCode, coinName, dataTest
               {coinName}
             </span>
 
-            <div data-testid="unit-price-amount">
-              <AmountWithUnit
-                alwaysShowAmounts
-                amountClassName={style.unitPrice}
-                amount={unitPrice}
-                convertToFiat
-                removeTrailingZeros
-              />
-            </div>
+            {showUnitPrice && (
+              <div data-testid="unit-price-amount">
+                <AmountWithUnit
+                  alwaysShowAmounts
+                  amountClassName={style.unitPrice}
+                  amount={unitPrice}
+                  convertToFiat
+                  removeTrailingZeros
+                />
+              </div>
+            )}
           </div>
           <div className={style.assetBalanceAmounts}>
             {amount ? (

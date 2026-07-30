@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import type { KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { BalanceSection } from './balance-section';
@@ -8,32 +10,61 @@ import { AssetBalanceWithUnitPrice } from './asset-balance-with-unit-price';
 import style from './accountssummary.module.css';
 
 type TProps = {
+  hideHeader?: boolean;
+  hideLightningUnitPrice?: boolean;
   summaryData?: accountApi.TChartData;
   coinsBalances?: accountApi.CoinFormattedAmount[];
 };
 
 export const TotalBalanceForAllKeystores = ({
+  hideHeader,
+  hideLightningUnitPrice,
   summaryData,
-  coinsBalances = [],
+  coinsBalances,
 }: TProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const openLightning = () => navigate('/lightning');
   return (
     <BalanceSection
+      hideHeader={hideHeader}
       name={<span>{t('accountSummary.totalAssets')}</span>}
       totalAmount={summaryData?.formattedChartTotal ?? undefined}
       fiatUnit={summaryData?.chartFiat}
     >
-      {coinsBalances.length > 0 ? coinsBalances.map((balance) => (
-        <div key={balance.coinCode} className={style.coinGroupCard}>
-          <AssetBalanceWithUnitPrice
-            amount={balance.formattedAmount}
-            coinCode={balance.coinCode}
-            coinName={balance.coinName}
-          />
-        </div>
-      )) : (
+      {coinsBalances === undefined ? (
         <LoadingSkeleton />
-      )}
+      ) : coinsBalances.map((balance) => {
+        const isLightning = balance.coinCode === 'lightning';
+        const onLightningKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+          if (event.key !== 'Enter' && event.key !== ' ') {
+            return;
+          }
+          event.preventDefault();
+          openLightning();
+        };
+
+        return (
+          <div
+            key={balance.coinCode}
+            className={`
+              ${style.coinGroupCard || ''}
+              ${isLightning ? style.clickable || '' : ''}
+            `}
+            onClick={isLightning ? openLightning : undefined}
+            onKeyDown={isLightning ? onLightningKeyDown : undefined}
+            role={isLightning ? 'button' : undefined}
+            tabIndex={isLightning ? 0 : undefined}
+          >
+            <AssetBalanceWithUnitPrice
+              amount={balance.formattedAmount}
+              coinCode={balance.coinCode}
+              coinName={balance.coinName}
+              showUnitPrice={!isLightning || !hideLightningUnitPrice}
+            />
+          </div>
+        );
+      })}
     </BalanceSection>
   );
 };
