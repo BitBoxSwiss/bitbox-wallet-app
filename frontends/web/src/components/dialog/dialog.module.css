@@ -219,6 +219,16 @@
       transform: translateY(0);
     }
 
+    /* opt-in bottom sheet that only takes the height its content needs,
+       instead of stretching to fill the overlay */
+    .modal.fitContent {
+        align-self: flex-end;
+    }
+
+    .modal.fitContent .contentContainer {
+        flex-grow: 0;
+    }
+
     /*header wont shrink*/
     .header {
         flex-shrink: 0;

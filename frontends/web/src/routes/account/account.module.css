@@ -229,6 +229,15 @@
     width: 6px;
 }
 
+/* the filter fields end in their own bottom margin plus the row's padding;
+   absorb the row padding so the gap above matches the sheet padding below */
+.filterSheetActions {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--space-quarter) * -1);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
 @media (max-width: 768px) {
 
     .searchButton {

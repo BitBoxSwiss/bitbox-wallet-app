@@ -328,7 +328,8 @@ const RemountAccount = ({
                             type="button"
                             aria-label={t('transactions.filters.button')}
                             aria-expanded={showFilters}
-                            aria-controls="transaction-filters"
+                            aria-controls={isMobile ? undefined : 'transaction-filters'}
+                            aria-haspopup={isMobile ? 'dialog' : undefined}
                             title={t('transactions.filters.button')}
                             className={`
                               ${style.filterToggle || ''}
@@ -337,7 +338,12 @@ const RemountAccount = ({
                             onClick={() => {
                               if (showFilters) {
                                 setShowFilters(false);
-                                clearFilters();
+                                // The inline row takes its criteria with it when it
+                                // collapses; the mobile sheet keeps them (closing the
+                                // search bar is what clears everything there).
+                                if (!isMobile) {
+                                  clearFilters();
+                                }
                               } else {
                                 setShowFilters(true);
                               }
@@ -349,21 +355,43 @@ const RemountAccount = ({
                       />
                     </div>
 
-                    <div
-                      id="transaction-filters"
-                      className={`
-                      ${style.searchContainer || ''}
-                      ${!showFilters && style.searchHidden || ''}
-                    `}>
-                      {balance && (
-                        <TransactionFilters
-                          filters={filters}
-                          onFiltersChange={setFilters}
-                          coinUnit={balance.available.unit}
-                          fiatUnit={defaultCurrency}
-                        />
-                      )}
-                    </div>
+                    {isMobile ? (
+                      <Dialog
+                        open={showFilters}
+                        title={t('transactions.filters.sheetTitle')}
+                        fitContent
+                        onClose={() => setShowFilters(false)}>
+                        {balance && (
+                          <TransactionFilters
+                            filters={filters}
+                            onFiltersChange={setFilters}
+                            coinUnit={balance.available.unit}
+                            fiatUnit={defaultCurrency}
+                          />
+                        )}
+                        <div className={style.filterSheetActions}>
+                          <Button transparent onClick={clearFilters}>
+                            {t('transactions.filters.clearAll')}
+                          </Button>
+                        </div>
+                      </Dialog>
+                    ) : (
+                      <div
+                        id="transaction-filters"
+                        className={`
+                        ${style.searchContainer || ''}
+                        ${!showFilters && style.searchHidden || ''}
+                      `}>
+                        {balance && (
+                          <TransactionFilters
+                            filters={filters}
+                            onFiltersChange={setFilters}
+                            coinUnit={balance.available.unit}
+                            fiatUnit={defaultCurrency}
+                          />
+                        )}
+                      </div>
+                    )}
                   </>
                 )}
               </div>
