@@ -64,7 +64,7 @@ jobs:
           chmod +x simulator-bin/simulator
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24.x'
           cache: npm
@@ -194,7 +194,7 @@ jobs:
           # Take Go version to install from go.mod.
           go-version-file: 'go.mod'
       - name: Install Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24.x'
       - name: Set up Python
@@ -260,7 +260,7 @@ jobs:
           mkdir -p $GOPATH/$(dirname $GO_SRC_DIR)
           cp -a ${{github.workspace}} $GOPATH/$(dirname $GO_SRC_DIR)
       - name: Install Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24.x'
       - name: Build iOS app
@@ -282,7 +282,7 @@ jobs:
         with:
           submodules: recursive
       - name: Install Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24.x'
       - name: Install Go
