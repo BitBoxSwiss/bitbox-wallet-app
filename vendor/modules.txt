@@ -50,8 +50,8 @@ github.com/btcsuite/btcd/wire
 github.com/btcsuite/btcd/btcec/v2
 github.com/btcsuite/btcd/btcec/v2/ecdsa
 github.com/btcsuite/btcd/btcec/v2/schnorr
-# github.com/btcsuite/btcd/btcutil v1.1.6
-## explicit; go 1.16
+# github.com/btcsuite/btcd/btcutil v1.2.0
+## explicit; go 1.23.2
 github.com/btcsuite/btcd/btcutil
 github.com/btcsuite/btcd/btcutil/base58
 github.com/btcsuite/btcd/btcutil/bech32
@@ -197,6 +197,9 @@ github.com/karalabe/hid/hidapi/windows
 github.com/karalabe/hid/libusb
 github.com/karalabe/hid/libusb/libusb
 github.com/karalabe/hid/libusb/libusb/os
+# github.com/kcalvinalvin/anet v0.0.0-20251112173137-d8ddc1f6dbee
+## explicit; go 1.20
+github.com/kcalvinalvin/anet
 # github.com/kkdai/bstream v1.0.0
 ## explicit; go 1.6
 github.com/kkdai/bstream
