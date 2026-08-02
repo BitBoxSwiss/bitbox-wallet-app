@@ -31,7 +31,17 @@
     }
 
     .appContent.hasBottomNavigation {
-       height: calc(100dvh - var(--bottom-navigation-height));
+       height: 100dvh;
+       max-height: 100dvh;
+    }
+
+    .appContent.hasMarketIframe {
+       height: 100dvh;
+       max-height: 100dvh;
+    }
+
+    .appContent.hasBottomNavigation main {
+        padding-bottom: var(--bottom-navigation-scroll-space);
     }
 
     .tabTransition {

@@ -19,7 +19,7 @@ import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { BTCDirectTerms } from '@/components/terms/btcdirect-terms';
 import { MarketGuide } from './guide';
 import { alertUser } from '@/components/alert/Alert';
-import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useMarketIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
 import { Message } from '@/components/message/message';
 import style from './iframe.module.css';
 
@@ -57,6 +57,7 @@ export const BTCDirect = ({
   const account = findAccount(accounts, code);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBTCDirectWidgetDisclaimer ?? false);
+  useMarketIframeActive(!!account && !!config && agreedTerms && btcdirectInfo?.success === true);
 
   const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
     const {

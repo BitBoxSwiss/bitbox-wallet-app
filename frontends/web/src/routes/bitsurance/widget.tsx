@@ -14,7 +14,7 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
 import { getBitsuranceURL } from '@/api/bitsurance';
 import { convertScriptType } from '@/utils/request-addess';
-import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useVendorIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
 import { BitsuranceGuide } from './guide';
 import style from './widget.module.css';
 
@@ -32,6 +32,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitsuranceDisclaimer ?? false);
+  useVendorIframeActive(agreedTerms && !!iframeURL);
   const signingRef = useRef(false);
 
   useEffect(() => {
@@ -134,9 +135,9 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   };
 
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Header title={<h2>{t('generic.buySell')}</h2>} />
           <div ref={containerRef} className={style.container}>
             { !agreedTerms ? (
@@ -163,9 +164,9 @@ export const BitsuranceWidget = ({ code }: TProps) => {
               </div>
             )}
           </div>
-        </GuidedContent>
-        <BitsuranceGuide />
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <BitsuranceGuide />
+    </GuideWrapper>
   );
 };
