@@ -55,9 +55,9 @@ export const StyledSkeleton = () => {
 const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
   const { t } = useTranslation();
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <ContentWrapper>
             <GlobalBanners devices={devices} />
           </ContentWrapper>
@@ -80,10 +80,10 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
               </WithSettingsTabs>
             </ViewContent>
           </View>
-        </GuidedContent>
-        <ManageDeviceGuide />
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <ManageDeviceGuide />
+    </GuideWrapper>
   );
 };
 

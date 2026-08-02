@@ -181,9 +181,9 @@ export const Market = ({
   };
 
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Header title={<h2>{t('generic.buySell')}</h2>} />
           <MarketTab
             accounts={accounts}
@@ -266,9 +266,9 @@ export const Market = ({
               </div>
             </ViewContent>
           </View>
-        </GuidedContent>
-        <MarketGuide translationContext={translationContext} />
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <MarketGuide translationContext={translationContext} />
+    </GuideWrapper>
   );
 };
