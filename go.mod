@@ -7,7 +7,7 @@ require (
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d
 	github.com/btcsuite/btcd v0.25.0
 	github.com/btcsuite/btcd/btcec/v2 v2.3.5
-	github.com/btcsuite/btcd/btcutil v1.1.6
+	github.com/btcsuite/btcd/btcutil v1.2.0
 	github.com/btcsuite/btcd/btcutil/psbt v1.1.10
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1
@@ -48,6 +48,7 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/holiman/uint256 v1.3.2 // indirect
+	github.com/kcalvinalvin/anet v0.0.0-20251112173137-d8ddc1f6dbee // indirect
 	github.com/kkdai/bstream v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
