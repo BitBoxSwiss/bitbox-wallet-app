@@ -23,7 +23,7 @@ func (e fileExportEnvironment) GetSaveFilename(string) string {
 
 func TestExportNotesRestrictsFilePermissions(t *testing.T) {
 	filename := filepath.Join(t.TempDir(), "notes.jsonl")
-	require.NoError(t, os.WriteFile(filename, nil, 0644))
+	require.NoError(t, os.WriteFile(filename, []byte("stale contents"), 0644))
 	require.NoError(t, os.Chmod(filename, 0644))
 
 	backend := &Backend{
@@ -35,6 +35,9 @@ func TestExportNotesRestrictsFilePermissions(t *testing.T) {
 	info, err := os.Stat(filename)
 	require.NoError(t, err)
 	require.Equal(t, utilconfig.PrivateFileMode, info.Mode().Perm())
+	contents, err := os.ReadFile(filename)
+	require.NoError(t, err)
+	require.Empty(t, contents)
 }
 
 func TestExportLogsRestrictsFilePermissions(t *testing.T) {
