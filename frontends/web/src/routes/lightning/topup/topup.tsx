@@ -93,7 +93,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   const [fiatAmount, setFiatAmount] = useState('');
   const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
   const [customFee, setCustomFee] = useState('');
-  const [note, setNote] = useState('');
+  const [note, setNote] = useState(() => t('lightning.topUp.note'));
   const [proposal, setProposal] = useState<accountApi.TTxProposalResult>();
   const [errorHandling, setErrorHandling] = useState<TProposalError>({});
   const [isUpdatingProposal, setIsUpdatingProposal] = useState(false);
