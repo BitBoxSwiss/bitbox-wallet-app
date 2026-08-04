@@ -323,8 +323,11 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	paymentRequest := btcProposedTx.TXProposal.PaymentRequest
 	var paymentRequestIndex *uint32
 	if paymentRequest != nil {
+		if paymentRequest.TotalAmount == nil || !paymentRequest.TotalAmount.IsUint64() {
+			return errp.New("BTC payment request amount overflows uint64")
+		}
 		btcPaymentRequests = []*messages.BTCPaymentRequestRequest{
-			newBTCPaymentRequest(paymentRequest),
+			newBTCPaymentRequest(paymentRequest, paymentRequest.TotalAmount.Uint64()),
 		}
 		prIndex := uint32(0)
 		paymentRequestIndex = &prIndex
@@ -387,7 +390,9 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 	case 2:
 		var paymentRequest *messages.BTCPaymentRequestRequest
 		if txProposal.PaymentRequest != nil {
-			paymentRequest = newBTCPaymentRequest(txProposal.PaymentRequest)
+			// total_amount is a legacy BTC-only protobuf field. EVM payment requests are
+			// displayed and validated against the arbitrary-precision amount parsed from the tx.
+			paymentRequest = newBTCPaymentRequest(txProposal.PaymentRequest, 0)
 		}
 		signature, err = keystore.device.ETHSignEIP1559(
 			txProposal.Coin.ChainID(),
@@ -434,7 +439,10 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 	return nil
 }
 
-func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) *messages.BTCPaymentRequestRequest {
+func newBTCPaymentRequest(
+	txPaymentRequest *paymentrequest.Request,
+	totalAmount uint64,
+) *messages.BTCPaymentRequestRequest {
 	memos := []*messages.BTCPaymentRequestRequest_Memo{}
 	for _, m := range txPaymentRequest.Memos {
 		var memo messages.BTCPaymentRequestRequest_Memo
@@ -492,7 +500,7 @@ func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) *messages.BT
 	return &messages.BTCPaymentRequestRequest{
 		RecipientName: txPaymentRequest.RecipientName,
 		Nonce:         txPaymentRequest.Nonce,
-		TotalAmount:   txPaymentRequest.TotalAmount,
+		TotalAmount:   totalAmount,
 		Signature:     txPaymentRequest.Signature,
 		Memos:         memos,
 	}
