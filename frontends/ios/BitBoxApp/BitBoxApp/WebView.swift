@@ -61,7 +61,9 @@ class JavascriptBridge: NSObject, WKScriptMessageHandler {
             }
         } else if message.name == "hapticFeedback" {
             DispatchQueue.main.async {
-                let generator = UIImpactFeedbackGenerator(style: .medium)
+                let body = message.body as? [String: Any]
+                let style = body?["style"] as? String
+                let generator = UIImpactFeedbackGenerator(style: style == "heavy" ? .heavy : .medium)
                 generator.impactOccurred()
             }
         }
