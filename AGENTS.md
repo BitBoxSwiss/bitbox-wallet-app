@@ -103,6 +103,14 @@ Functions in `src/api/` should stay as thin wrappers around the underlying reque
 should only type the function arguments and the returned promise, and should not add extra client
 side control flow or business logic on top of the request.
 
+### UUID Generation
+Do not call `crypto.randomUUID()` directly in bundled frontend code. Some Qt WebEngine builds may
+not expose it. Use `randomUUID()` from `src/utils/uuid.ts`, which falls back to
+`crypto.getRandomValues()`.
+
+Standalone files under `frontends/web/public/` that are not bundled with the React app must provide
+the same fallback locally.
+
 ### Data Loading Hooks
 Key custom hooks in `src/hooks/` handle all async data:
 

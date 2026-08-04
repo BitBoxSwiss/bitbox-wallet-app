@@ -372,7 +372,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
               hasAccounts={hasAccounts}
             />
           )} />
-          <Route path="send" element={<LightningSend />} />
+          <Route path="send" element={<LightningSend activeAccounts={activeAccounts} />} />
           <Route path="receive" element={<LightningReceive />} />
           <Route path="topup" element={<LightningTopUp activeAccounts={activeAccounts} hasAccounts={hasAccounts} />} />
         </Route>

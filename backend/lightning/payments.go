@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -17,15 +18,29 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
+	"github.com/google/uuid"
 )
 
 const (
 	errPaymentApprovalRequired      errp.ErrorCode = "paymentApprovalRequired"
+	errLightningAmountBelowMinimum  errp.ErrorCode = "lightningAmountBelowMinimum"
 	errLightningInvalidAmount       errp.ErrorCode = "lightningInvalidAmount"
 	errLightningInvalidPaymentInput errp.ErrorCode = "lightningInvalidPaymentInput"
 	errLightningInsufficientFunds   errp.ErrorCode = "lightningInsufficientFunds"
 	errLightningInvoiceAlreadyUsed  errp.ErrorCode = "lightningInvoiceAlreadyUsed"
 )
+
+type lightningAmountBelowMinimumError struct {
+	minAmountSat uint64
+}
+
+func (err *lightningAmountBelowMinimumError) Error() string {
+	return errLightningAmountBelowMinimum.Error()
+}
+
+func (err *lightningAmountBelowMinimumError) Cause() error {
+	return errLightningAmountBelowMinimum
+}
 
 type lightningBolt11Invoice struct {
 	Invoice     string  `json:"invoice"`
@@ -42,10 +57,16 @@ type lightningLNURLPay struct {
 	MaxAmountSat uint64  `json:"maxAmountSat"`
 }
 
+type lightningBitcoinAddress struct {
+	Address   string  `json:"address"`
+	AmountSat *uint64 `json:"amountSat,omitempty"`
+}
+
 type paymentInput struct {
-	Type     string                  `json:"type"`
-	Bolt11   *lightningBolt11Invoice `json:"invoice,omitempty"`
-	LNURLPay *lightningLNURLPay      `json:"lnurlPay,omitempty"`
+	Type           string                   `json:"type"`
+	Bolt11         *lightningBolt11Invoice  `json:"invoice,omitempty"`
+	LNURLPay       *lightningLNURLPay       `json:"lnurlPay,omitempty"`
+	BitcoinAddress *lightningBitcoinAddress `json:"bitcoinAddress,omitempty"`
 }
 
 type bitcoinDepositState string
@@ -75,6 +96,7 @@ type lightningPayment struct {
 	DeductedAmountAtTime coin.FormattedAmountWithConversions `json:"deductedAmountAtTime"`
 	Fee                  coin.FormattedAmountWithConversions `json:"fee"`
 	Invoice              string                              `json:"invoice,omitempty"`
+	TxID                 string                              `json:"txId,omitempty"`
 	BitcoinDeposit       *bitcoinDeposit                     `json:"bitcoinDeposit,omitempty"`
 }
 
@@ -93,12 +115,14 @@ type sendPaymentRequest struct {
 	PaymentInput   string  `json:"paymentInput"`
 	AmountSat      *uint64 `json:"amountSat"`
 	ApprovedFeeSat uint64  `json:"approvedFeeSat"`
+	IdempotencyKey string  `json:"idempotencyKey,omitempty"`
 }
 
 type paymentFee struct {
-	AmountSat     uint64 `json:"amountSat"`
-	FeeSat        uint64 `json:"feeSat"`
-	TotalDebitSat uint64 `json:"totalDebitSat"`
+	AmountSat      uint64 `json:"amountSat"`
+	FeeSat         uint64 `json:"feeSat"`
+	TotalDebitSat  uint64 `json:"totalDebitSat"`
+	IdempotencyKey string `json:"idempotencyKey,omitempty"`
 }
 
 type closeWithdrawQuote struct {
@@ -114,8 +138,9 @@ type closeWithdrawResult struct {
 }
 
 const (
-	paymentInputTypeBolt11   = "bolt11"
-	paymentInputTypeLNURLPay = "lnurlPay"
+	paymentInputTypeBitcoinAddress = "bitcoinAddress"
+	paymentInputTypeBolt11         = "bolt11"
+	paymentInputTypeLNURLPay       = "lnurlPay"
 )
 
 type msatToSatRounding int
@@ -185,24 +210,34 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*paymentInput, e
 	switch inputType := input.(type) {
 	case breez_sdk_spark.InputTypeBitcoinAddress:
 		lightning.log.Printf("Input is Bitcoin address %s", inputType.Field0.Address)
-
-	case breez_sdk_spark.InputTypeBolt11Invoice:
-		amount := "unknown"
-		var amountSat *uint64
-		if inputType.Field0.AmountMsat != nil {
-			amount = strconv.FormatUint(*inputType.Field0.AmountMsat, 10)
-			value := msatToSat(*inputType.Field0.AmountMsat, roundToCeil)
-			amountSat = &value
-		}
-		lightning.log.Printf("Input is BOLT11 invoice for %s msats", amount)
 		return &paymentInput{
-			Type: paymentInputTypeBolt11,
-			Bolt11: &lightningBolt11Invoice{
-				Invoice:     inputType.Field0.Invoice.Bolt11,
-				Description: inputType.Field0.Description,
-				AmountSat:   amountSat,
+			Type: paymentInputTypeBitcoinAddress,
+			BitcoinAddress: &lightningBitcoinAddress{
+				Address: inputType.Field0.Address,
 			},
 		}, nil
+
+	case breez_sdk_spark.InputTypeBip21:
+		for _, paymentMethod := range inputType.Field0.PaymentMethods {
+			if bolt11Invoice, ok := paymentMethod.(breez_sdk_spark.InputTypeBolt11Invoice); ok {
+				return lightning.bolt11PaymentInput(bolt11Invoice), nil
+			}
+		}
+		for _, paymentMethod := range inputType.Field0.PaymentMethods {
+			if bitcoinAddress, ok := paymentMethod.(breez_sdk_spark.InputTypeBitcoinAddress); ok {
+				lightning.log.Printf("Input is BIP21 Bitcoin address %s", bitcoinAddress.Field0.Address)
+				return &paymentInput{
+					Type: paymentInputTypeBitcoinAddress,
+					BitcoinAddress: &lightningBitcoinAddress{
+						Address:   bitcoinAddress.Field0.Address,
+						AmountSat: inputType.Field0.AmountSat,
+					},
+				}, nil
+			}
+		}
+
+	case breez_sdk_spark.InputTypeBolt11Invoice:
+		return lightning.bolt11PaymentInput(inputType), nil
 
 	case breez_sdk_spark.InputTypeLnurlPay:
 		lightning.log.Printf("Input is LNURL-Pay/Lightning address accepting min/max %d/%d msats",
@@ -255,6 +290,25 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*paymentInput, e
 		lightning.log.Errorf("Input type not supported %T", input)
 	}
 	return nil, errp.New("Invoice format not supported")
+}
+
+func (lightning *Lightning) bolt11PaymentInput(inputType breez_sdk_spark.InputTypeBolt11Invoice) *paymentInput {
+	amount := "unknown"
+	var amountSat *uint64
+	if inputType.Field0.AmountMsat != nil {
+		amount = strconv.FormatUint(*inputType.Field0.AmountMsat, 10)
+		value := msatToSat(*inputType.Field0.AmountMsat, roundToCeil)
+		amountSat = &value
+	}
+	lightning.log.Printf("Input is BOLT11 invoice for %s msats", amount)
+	return &paymentInput{
+		Type: paymentInputTypeBolt11,
+		Bolt11: &lightningBolt11Invoice{
+			Invoice:     inputType.Field0.Invoice.Bolt11,
+			Description: inputType.Field0.Description,
+			AmountSat:   amountSat,
+		},
+	}
 }
 
 func toLightningPaymentType(paymentType breez_sdk_spark.PaymentType) accounts.TxType {
@@ -334,6 +388,8 @@ func (lightning *Lightning) toLightningPayment(payment breez_sdk_spark.Payment) 
 		if result.BitcoinDeposit != nil {
 			result.BitcoinDeposit.TxID = details.TxId
 		}
+	case breez_sdk_spark.PaymentDetailsWithdraw:
+		result.TxID = details.TxId
 	}
 
 	return result
@@ -525,12 +581,59 @@ func checkPaymentBalance(fee *paymentFee, availableBalance coin.Amount) error {
 	return nil
 }
 
+// Breez SDK v0.13.1 emits on-chain minimum-amount failures as SdkErrorInvalidInput
+// strings from its vendored native payments implementation. The Go binding has no
+// structured minimum field. Examples:
+//   - "Amount is below the minimum of 294 sats required for this address"
+//   - "Amount is below the minimum of 5 sats required for this address after lowest fees of 2 sats"
+//
+// The fee-included wording also contains the fee in sats, so this matches only
+// the minimum amount and intentionally ignores the rest of the message.
+// TestPinnedBreezSDKMinimumAmountErrorMessage scans the pinned SDK blob so
+// SDK/vendor updates fail tests if this message shape disappears.
+var sdkMinimumSatAmountPattern = regexp.MustCompile(`(?i)\bamount\s+is\s+below\s+the\s+minimum\s+of\s+([0-9][0-9,_]*)\s+(?:sat|sats|satoshis)\b`)
+
+func parseLightningAmountBelowMinimum(message string) (uint64, bool, error) {
+	lowerMessage := strings.ToLower(message)
+	if !strings.Contains(lowerMessage, "amount") || !strings.Contains(lowerMessage, "minimum") {
+		return 0, false, nil
+	}
+
+	match := sdkMinimumSatAmountPattern.FindStringSubmatch(message)
+	if len(match) == 0 {
+		return 0, true, errp.Newf(
+			"unexpected SDK InvalidInput minimum-amount format %q: expected minimum sat amount",
+			message,
+		)
+	}
+	minimum := strings.NewReplacer(",", "", "_", "").Replace(match[1])
+	minAmountSat, err := strconv.ParseUint(minimum, 10, 64)
+	if err != nil {
+		return 0, true, errp.Newf(
+			"unexpected SDK InvalidInput minimum-amount format %q: %v",
+			message,
+			err,
+		)
+	}
+	return minAmountSat, true, nil
+}
+
 func lightningPaymentError(err error) error {
 	if err == nil {
 		return nil
 	}
 	if errors.Is(err, breez_sdk_spark.ErrSdkErrorInsufficientFunds) {
 		return errp.WithMessage(errLightningInsufficientFunds, err.Error())
+	}
+	var invalidInput *breez_sdk_spark.SdkErrorInvalidInput
+	if errors.As(err, &invalidInput) {
+		minAmountSat, isAmountBelowMinimum, parseErr := parseLightningAmountBelowMinimum(invalidInput.Field0)
+		if parseErr != nil {
+			return parseErr
+		}
+		if isAmountBelowMinimum {
+			return &lightningAmountBelowMinimumError{minAmountSat: minAmountSat}
+		}
 	}
 	errString := strings.ToLower(err.Error())
 	if strings.Contains(errString, "preimage request already exists") ||
@@ -560,6 +663,24 @@ func (lightning *Lightning) parseLNURLPayRequest(inputStr string) (*breez_sdk_sp
 // PreparePayment computes the fee quote for the provided payment input.
 func (lightning *Lightning) PreparePayment(request preparePaymentRequest) (*paymentFee, error) {
 	switch request.Type {
+	case paymentInputTypeBitcoinAddress:
+		if request.AmountSat == nil {
+			return nil, errLightningInvalidAmount
+		}
+		_, fee, err := lightning.prepareBitcoinPayment(
+			request.PaymentInput,
+			*request.AmountSat,
+			breez_sdk_spark.FeePolicyFeesExcluded,
+		)
+		if err != nil {
+			return fee, err
+		}
+		idempotencyKey, err := uuid.NewRandom()
+		if err != nil {
+			return nil, errp.Wrap(err, "generate idempotency key")
+		}
+		fee.IdempotencyKey = idempotencyKey.String()
+		return fee, nil
 	case paymentInputTypeBolt11:
 		return lightning.prepareBolt11Payment(request.PaymentInput, request.AmountSat)
 	case paymentInputTypeLNURLPay:
@@ -629,20 +750,58 @@ func (lightning *Lightning) prepareLNURLPay(inputStr string, amountSat *uint64) 
 }
 
 // SendPayment executes the provided payment input.
-func (lightning *Lightning) SendPayment(request sendPaymentRequest) error {
+func (lightning *Lightning) SendPayment(request sendPaymentRequest) (*lightningPayment, error) {
 	switch request.Type {
+	case paymentInputTypeBitcoinAddress:
+		return lightning.sendBitcoinPayment(request)
 	case paymentInputTypeBolt11:
 		return lightning.sendBolt11Payment(request)
 	case paymentInputTypeLNURLPay:
 		return lightning.sendLNURLPay(request)
 	default:
-		return errp.New("Payment type not supported")
+		return nil, errp.New("Payment type not supported")
 	}
 }
 
-func (lightning *Lightning) sendBolt11Payment(request sendPaymentRequest) error {
+func (lightning *Lightning) sendBitcoinPayment(request sendPaymentRequest) (*lightningPayment, error) {
+	if request.AmountSat == nil || *request.AmountSat == 0 {
+		return nil, errLightningInvalidAmount
+	}
+	if request.IdempotencyKey == "" {
+		return nil, errp.WithMessage(errLightningInvalidPaymentInput, "idempotency key missing")
+	}
+
+	prepareResponse, fee, err := lightning.prepareBitcoinPayment(
+		request.PaymentInput,
+		*request.AmountSat,
+		breez_sdk_spark.FeePolicyFeesExcluded,
+	)
+	if err != nil {
+		return nil, err
+	}
+	if err := checkApprovedPaymentFee(fee.FeeSat, request.ApprovedFeeSat); err != nil {
+		return nil, err
+	}
+
+	var options breez_sdk_spark.SendPaymentOptions = breez_sdk_spark.SendPaymentOptionsBitcoinAddress{
+		ConfirmationSpeed: breez_sdk_spark.OnchainConfirmationSpeedFast,
+	}
+	response, err := lightning.sdkService.SendPayment(breez_sdk_spark.SendPaymentRequest{
+		PrepareResponse: prepareResponse,
+		Options:         &options,
+		IdempotencyKey:  &request.IdempotencyKey,
+	})
+	if err != nil {
+		lightning.log.WithError(err).Error("Send Bitcoin payment failed")
+		return nil, lightningPaymentError(err)
+	}
+	payment := lightning.toLightningPayment(response.Payment)
+	return &payment, nil
+}
+
+func (lightning *Lightning) sendBolt11Payment(request sendPaymentRequest) (*lightningPayment, error) {
 	if err := lightning.CheckActive(); err != nil {
-		return err
+		return nil, err
 	}
 	lightning.log.Infof("Sending payment to %+v", request.PaymentInput)
 	if request.AmountSat != nil {
@@ -652,22 +811,22 @@ func (lightning *Lightning) sendBolt11Payment(request sendPaymentRequest) error 
 	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareBolt11PaymentRequest(request.PaymentInput, request.AmountSat))
 	if err != nil {
 		lightning.log.WithError(err).Error("Prepare send lightning payment failed")
-		return lightningPaymentError(err)
+		return nil, lightningPaymentError(err)
 	}
 
 	fee, err := preparedBolt11PaymentFee(prepareResponse)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := checkApprovedPaymentFee(fee.FeeSat, request.ApprovedFeeSat); err != nil {
-		return err
+		return nil, err
 	}
 	availableBalance, err := lightning.availableBalance()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := checkPaymentBalance(fee, availableBalance); err != nil {
-		return err
+		return nil, err
 	}
 
 	var options breez_sdk_spark.SendPaymentOptions = breez_sdk_spark.SendPaymentOptionsBolt11Invoice{
@@ -678,21 +837,22 @@ func (lightning *Lightning) sendBolt11Payment(request sendPaymentRequest) error 
 		PrepareResponse: prepareResponse,
 		Options:         &options,
 	}
-	_, err = lightning.sdkService.SendPayment(payRequest)
+	response, err := lightning.sdkService.SendPayment(payRequest)
 
 	if err != nil {
 		lightning.log.WithError(err).Error("Send lightning payment failed")
-		return lightningPaymentError(err)
+		return nil, lightningPaymentError(err)
 	}
-	return nil
+	payment := lightning.toLightningPayment(response.Payment)
+	return &payment, nil
 }
 
-func (lightning *Lightning) sendLNURLPay(request sendPaymentRequest) error {
+func (lightning *Lightning) sendLNURLPay(request sendPaymentRequest) (*lightningPayment, error) {
 	if err := lightning.CheckActive(); err != nil {
-		return err
+		return nil, err
 	}
 	if request.AmountSat == nil || *request.AmountSat == 0 {
-		return errLightningInvalidAmount
+		return nil, errLightningInvalidAmount
 	}
 
 	lightning.log.Infof("Sending LNURL-Pay payment to %+v", request.PaymentInput)
@@ -700,38 +860,39 @@ func (lightning *Lightning) sendLNURLPay(request sendPaymentRequest) error {
 
 	payRequest, err := lightning.parseLNURLPayRequest(request.PaymentInput)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := validateLNURLPayAmount(*payRequest, *request.AmountSat); err != nil {
-		return err
+		return nil, err
 	}
 
 	prepareResponse, err := lightning.sdkService.PrepareLnurlPay(prepareLNURLPayRequest(*payRequest, *request.AmountSat))
 	if err != nil {
 		lightning.log.WithError(err).Error("Prepare LNURL-Pay failed")
-		return lightningPaymentError(err)
+		return nil, lightningPaymentError(err)
 	}
 
 	fee := preparedLNURLPayFee(prepareResponse)
 	if err := checkApprovedPaymentFee(fee.FeeSat, request.ApprovedFeeSat); err != nil {
-		return err
+		return nil, err
 	}
 	availableBalance, err := lightning.availableBalance()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := checkPaymentBalance(fee, availableBalance); err != nil {
-		return err
+		return nil, err
 	}
 
-	_, err = lightning.sdkService.LnurlPay(breez_sdk_spark.LnurlPayRequest{
+	response, err := lightning.sdkService.LnurlPay(breez_sdk_spark.LnurlPayRequest{
 		PrepareResponse: prepareResponse,
 	})
 	if err != nil {
 		lightning.log.WithError(err).Error("Send LNURL-Pay failed")
-		return lightningPaymentError(err)
+		return nil, lightningPaymentError(err)
 	}
-	return nil
+	payment := lightning.toLightningPayment(response.Payment)
+	return &payment, nil
 }
 
 func (lightning *Lightning) prepareBitcoinPayment(

@@ -2,21 +2,25 @@
 
 import { ChangeEvent, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TAccount } from '@/api/account';
 import { Button, Input } from '@/components/forms';
 import { Column, Grid } from '@/components/layout';
 import { Status } from '@/components/status/status';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import { ReceiverAddressWrapper } from '@/routes/account/send/components/inputs/receiver-address-wrapper';
 import { ScanQRVideo } from '@/routes/account/send/components/inputs/scan-qr-video';
 import { runningInAndroid, runningInIOS } from '@/utils/env';
 import styles from '../send.module.css';
 
 type TProps = {
+  activeAccounts: TAccount[];
   inputError?: string;
   onCancel: () => void;
   onSubmit: (input: string) => Promise<boolean>;
 };
 
 export const SelectPaymentInputStep = ({
+  activeAccounts,
   inputError,
   onCancel,
   onSubmit,
@@ -27,6 +31,10 @@ export const SelectPaymentInputStep = ({
   const scanQRVideo = useMemo(() => (
     <ScanQRVideo onResult={(result: string) => void onSubmit(result)} />
   ), [onSubmit]);
+  const sendToSelfAccounts = useMemo(
+    () => activeAccounts.filter(account => account.coinCode === 'btc' && account.keystore.connected),
+    [activeAccounts]
+  );
 
   const submitPaymentInput = async () => {
     const success = await onSubmit(paymentInput);
@@ -45,12 +53,24 @@ export const SelectPaymentInputStep = ({
               {inputError && <Status dismissibleKey="" type="warning">{inputError}</Status>}
             </div>
             {scanQRVideo}
-            <Input
-              placeholder={t('lightning.send.invoice.input')}
-              onInput={(event: ChangeEvent<HTMLInputElement>) => setPaymentInput(event.target.value)}
-              value={paymentInput}
-              autoFocus={!runningInAndroid() && !runningInIOS()}
-            />
+            {sendToSelfAccounts.length > 0 ? (
+              <ReceiverAddressWrapper
+                accounts={sendToSelfAccounts}
+                autoFocus={!runningInAndroid() && !runningInIOS()}
+                inputLabel=""
+                inputPlaceholder={t('lightning.send.invoice.input')}
+                onInputChange={setPaymentInput}
+                recipientAddress={paymentInput}
+                requireSendToSelfSupport={false}
+              />
+            ) : (
+              <Input
+                placeholder={t('lightning.send.invoice.input')}
+                onInput={(event: ChangeEvent<HTMLInputElement>) => setPaymentInput(event.target.value)}
+                value={paymentInput}
+                autoFocus={!runningInAndroid() && !runningInIOS()}
+              />
+            )}
           </Column>
         </Grid>
       </ViewContent>

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Lightning: select a connected Bitcoin account as the send recipient
 - Bitcoin: show account details for the persisted receive address type by default
 - Add external block explorer links to used addresses
 - Settings search
