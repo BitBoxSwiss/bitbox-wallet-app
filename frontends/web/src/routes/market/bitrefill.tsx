@@ -18,7 +18,7 @@ import { getBitrefillInfo } from '@/api/market';
 import { getURLOrigin } from '@/utils/url';
 import { ConfirmBitrefill } from './bitrefill-confirm';
 import { AppContext } from '@/contexts/AppContext';
-import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useMarketIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
 import { useAccountSynced } from '@/hooks/account';
 import style from './iframe.module.css';
 
@@ -53,6 +53,7 @@ export const Bitrefill = ({
   const bitrefillInfo = useAccountSynced(code, fetchBitrefillInfo);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitrefillWidgetDisclaimer ?? false);
+  useMarketIframeActive(!!account && !!config && agreedTerms && bitrefillInfo?.success === true);
 
   const [pendingPayment, setPendingPayment] = useState<boolean>(false);
   const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);

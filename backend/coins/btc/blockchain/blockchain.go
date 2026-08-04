@@ -62,7 +62,7 @@ func (history TxHistory) Status() string {
 	}
 	status := bytes.Buffer{}
 	for _, tx := range history {
-		status.WriteString(fmt.Sprintf("%s:%d:", tx.TXHash.Hash().String(), tx.Height))
+		fmt.Fprintf(&status, "%s:%d:", tx.TXHash.Hash().String(), tx.Height)
 	}
 	return hex.EncodeToString(chainhash.HashB(status.Bytes()))
 }

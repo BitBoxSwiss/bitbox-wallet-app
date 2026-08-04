@@ -97,7 +97,11 @@
     --guide-width: 350px;
 
     /* bottom navigation */
-    --bottom-navigation-height: calc(min(7rem, 90px) + env(safe-area-inset-bottom, 0));
+    --bottom-navigation-bottom-glass-height: 120px;
+    --bottom-navigation-bottom-offset: calc(var(--space-half) + var(--space-three-quarter));
+    --bottom-navigation-bar-height: min(7rem, 90px);
+    --bottom-navigation-height: calc(var(--bottom-navigation-bar-height) + var(--bottom-navigation-bottom-offset));
+    --bottom-navigation-scroll-space: calc(var(--bottom-navigation-bar-height) + var(--space-default));
 
     /* form elements */
     --border-width: 0.1rem;
@@ -137,6 +141,8 @@
     
     --background-tap-active: #ececec;
     --separation-line-color: var(--color-lightgray);
+    --bottom-navigation-background-color: rgba(255, 255, 255, .50);
+    --bottom-navigation-bottom-glass-background-color: rgba(255, 255, 255, .18);
     --bottom-navigation-border-color: var(--color-mediumgray);
 }
 
@@ -167,7 +173,9 @@
 
         --background-tap-active: #4d4c4c;
         --separation-line-color: var(--color-darkgray);
-        --bottom-navigation-border-color: var(--color-gray);
+        --bottom-navigation-background-color: rgba(51, 51, 51, .50);
+        --bottom-navigation-bottom-glass-background-color: rgba(51, 51, 51, .18);
+        --bottom-navigation-border-color: #77777747;
     }
 }
 @media (prefers-color-scheme: light) {
@@ -197,7 +205,9 @@
 
         --background-tap-active: #4d4c4c;
         --separation-line-color: var(--color-darkgray);
-        --bottom-navigation-border-color: var(--color-gray);
+        --bottom-navigation-background-color: rgba(51, 51, 51, .50);
+        --bottom-navigation-bottom-glass-background-color: rgba(51, 51, 51, .18);
+        --bottom-navigation-border-color: #77777747;
     }
 }
 

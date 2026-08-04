@@ -4,8 +4,10 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -13,6 +15,9 @@ import android.webkit.WebView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 /**
  * Encapsulates WebView configuration and interactions so that MainActivity can stay lean.
@@ -26,12 +31,16 @@ public class WebViewManager {
     //
     // Unfortunately there seems to be no simple way to include this header only in requests to Moonpay.
     private static final int CAMERA_PERMISSION_REQUEST = 0;
+    private static final float KEYBOARD_VISIBLE_MIN_HEIGHT_RATIO = 0.15f;
 
     private final MainActivity activity;
     private final GoViewModel goViewModel;
 
     private WebChromeClient webChromeClient;
     private WebView webView;
+    private Boolean keyboardVisible;
+    private boolean imeInsetsKeyboardVisible;
+    private boolean windowBoundsKeyboardVisible;
 
     public WebViewManager(MainActivity activity, GoViewModel goViewModel) {
         this.activity = activity;
@@ -102,7 +111,60 @@ public class WebViewManager {
             return;
         }
         WebMessageBridge.install(webView, activity);
+        installKeyboardVisibilityListener(webView);
         webView.loadUrl(WebMessageBridge.BASE_URL + "index.html");
+    }
+
+    private void installKeyboardVisibilityListener(WebView webView) {
+        View rootView = activity.findViewById(R.id.root_layout);
+        View insetsView = rootView != null ? rootView : webView;
+        int initialPaddingBottom = insetsView.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(insetsView, (view, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            view.setPadding(
+                    view.getPaddingLeft(),
+                    view.getPaddingTop(),
+                    view.getPaddingRight(),
+                    initialPaddingBottom + systemBars.bottom
+            );
+            imeInsetsKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
+            notifyDetectedKeyboardVisibility();
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(insetsView);
+
+        View boundsView = activity.getWindow().getDecorView();
+        boundsView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            Rect visibleWindowBounds = new Rect();
+            boundsView.getWindowVisibleDisplayFrame(visibleWindowBounds);
+
+            int rootHeight = boundsView.getRootView().getHeight();
+            if (rootHeight <= 0) {
+                return;
+            }
+
+            int hiddenHeight = rootHeight - visibleWindowBounds.height();
+            windowBoundsKeyboardVisible = hiddenHeight > rootHeight * KEYBOARD_VISIBLE_MIN_HEIGHT_RATIO;
+            notifyDetectedKeyboardVisibility();
+        });
+    }
+
+    private void notifyDetectedKeyboardVisibility() {
+        notifyKeyboardVisibilityChanged(imeInsetsKeyboardVisible || windowBoundsKeyboardVisible);
+    }
+
+    private void notifyKeyboardVisibilityChanged(boolean visible) {
+        if (keyboardVisible != null && keyboardVisible == visible) {
+            return;
+        }
+        keyboardVisible = visible;
+        activity.runOnUiThread(() -> webView.evaluateJavascript(
+                "window.androidKeyboardVisible = " + visible + ";" +
+                        "if (window.onKeyboardVisibilityChanged) {" +
+                        "window.onKeyboardVisibilityChanged(" + visible + ");" +
+                        "}",
+                null
+        ));
     }
 
     private void showUnsupportedWebViewDialog() {

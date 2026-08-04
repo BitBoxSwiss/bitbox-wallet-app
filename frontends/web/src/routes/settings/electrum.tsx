@@ -9,7 +9,7 @@ import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { Button } from '@/components/forms';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
-import { Header } from '@/components/layout';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { MobileHeader } from './components/mobile-header';
 
 export const ElectrumSettings = () => {
@@ -27,9 +27,9 @@ export const ElectrumSettings = () => {
     setActiveTab(selectedTab);
   };
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer scrollableContainer">
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Header
             title={
               <>
@@ -72,8 +72,8 @@ export const ElectrumSettings = () => {
               </DesktopBackButton>
             </div>
           </div>
-        </div>
-      </div>
+        </Main>
+      </GuidedContent>
       <Guide>
         <Entry key="guide.settings-electrum.what" entry={{
           text: t('guide.settings-electrum.what.text'),
@@ -106,6 +106,6 @@ export const ElectrumSettings = () => {
           title: t('guide.settings-electrum.instructions.title')
         }} />
       </Guide>
-    </div>
+    </GuideWrapper>
   );
 };

@@ -96,6 +96,7 @@
     "loadFailed": "Could not load used addresses.",
     "loadNotSupported": "Used addresses are not available for this account type.",
     "loadSyncInProgress": "Used addresses are still syncing. Please try again shortly.",
+    "new": "New address",
     "notFound": "Address not found.",
     "searchPlaceholder": "Search address",
     "skipDeviceVerification": "Skip device verification",

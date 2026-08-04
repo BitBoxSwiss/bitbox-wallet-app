@@ -15,7 +15,7 @@ import {
 } from '@/components/icon';
 import { AddressNavigator } from '../components/address-navigator';
 import { TSignMessageController } from './use-sign-message-controller';
-import style from './sign-message.module.css';
+import style from './sign-message-views.module.css';
 
 type TProps = {
   controller: TSignMessageController;

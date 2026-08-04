@@ -158,6 +158,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
   const AccSignMessage = (<InjectParams>
     <SignMessage
       code={''}
+      view="new"
       accounts={activeAccounts} />
   </InjectParams>);
 
@@ -322,7 +323,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
           <Route path="addresses/:addressID/sign-message" element={AccSignMessage} />
           <Route path="info" element={AccInfo} />
           <Route path="info/xpub-detail" element={AccXPubDetail} />
-          <Route path="sign-message" element={AccSignMessage} />
+          <Route path="sign-message/:view" element={AccSignMessage} />
           <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
           <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
         </Route>

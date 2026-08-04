@@ -450,6 +450,13 @@ func (backend *Backend) configureHistoryExchangeRates() {
 	backend.ratesUpdater.ReconfigureHistory(coins, fiats)
 }
 
+// ReconfigureHistoryExchangeRates updates the historical exchange-rate pairs to match the loaded
+// accounts and configured fiat currencies.
+func (backend *Backend) ReconfigureHistoryExchangeRates() {
+	defer backend.accountsAndKeystoreLock.RLock()()
+	backend.configureHistoryExchangeRates()
+}
+
 func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 	notifier := account.Notifier()
 	if notifier == nil {

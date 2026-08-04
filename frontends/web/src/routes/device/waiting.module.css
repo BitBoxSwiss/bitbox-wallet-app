@@ -1,3 +1,13 @@
+.loadingAccounts {
+  background-color: var(--background-secondary);
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 1999;
+}
+
 .waitingText {
   margin-top: 0;
   margin-bottom: var(--space-half);
