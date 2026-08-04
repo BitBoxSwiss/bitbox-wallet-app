@@ -16,7 +16,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
@@ -73,16 +72,13 @@ func newAccountWithOptions(t *testing.T, skipInitialSync bool, enqueueUpdateCh c
 	coin := NewCoin(client, coin.CodeSEPETH, "Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig, "", nil, nil)
 	acct := NewAccount(
 		&accounts.AccountConfig{
-			Config: &config.Account{
-				Code:                  "accountcode",
-				Name:                  "accountname",
-				SigningConfigurations: signingConfigurations,
-			},
-			DBFolder:        dbFolder,
-			SkipInitialSync: skipInitialSync,
-			RateUpdater:     nil,
-			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
-			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
+			Code:                  "accountcode",
+			SigningConfigurations: signingConfigurations,
+			DBFolder:              dbFolder,
+			SkipInitialSync:       skipInitialSync,
+			RateUpdater:           nil,
+			GetNotifier:           func(signing.Configurations) accounts.Notifier { return nil },
+			GetSaveFilename:       func(suggestedFilename string) string { return suggestedFilename },
 			ConnectKeystore: func() (keystore.Keystore, error) {
 				ks := &keystoremock.KeystoreMock{
 					SupportsEIP1559Func: func() bool {

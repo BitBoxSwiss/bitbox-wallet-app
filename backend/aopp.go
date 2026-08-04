@@ -173,8 +173,10 @@ func (backend *Backend) aoppKeystoreRegistered() {
 	}
 	var accounts []account
 	var filteredDueToScriptType bool
-	for _, acct := range backend.accounts {
-		accountFingerprint, err := acct.Config().Config.SigningConfigurations.RootFingerprint()
+	accountViews := backend.accountViewsLocked()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		accountFingerprint, err := accountView.Record.SigningConfigurations.RootFingerprint()
 		if err != nil {
 			backend.log.WithError(err).Error("Account rootfingerprint not available")
 			backend.aoppSetError(errAOPPUnknown)
@@ -184,23 +186,25 @@ func (backend *Backend) aoppKeystoreRegistered() {
 		if err := compareRootFingerprint(backend.keystore, accountFingerprint); err != nil {
 			continue
 		}
-		if acct.Config().Config.Inactive || acct.Config().Config.HiddenBecauseUnused {
+		if accountView.Record.Inactive || accountView.Record.HiddenBecauseUnused {
 			continue
 		}
+		acct := accountView.Account
 		if acct.Coin().Code() != backend.aopp.coinCode {
 			continue
 		}
 		// Filter for the requested script type.
 		if acct.Coin().Code() == coinpkg.CodeBTC && backend.aopp.format != "any" {
 			expectedScriptType, ok := aoppBTCScriptTypeMap[backend.aopp.format]
-			if !ok || acct.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType) == -1 {
+			if !ok ||
+				accountView.Record.SigningConfigurations.FindScriptType(expectedScriptType) == -1 {
 				filteredDueToScriptType = true
 				continue
 			}
 		}
 		accounts = append(accounts, account{
-			Name: acct.Config().Config.Name,
-			Code: acct.Config().Config.Code,
+			Name: accountView.Record.Name,
+			Code: accountView.Record.Code,
 		})
 	}
 
@@ -310,22 +314,18 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 	backend.notifyAOPP()
 
 	log := backend.log.WithField("accountCode", code)
-	var account accounts.Interface
-	for _, acct := range backend.accounts {
-		if acct.Config().Config.Code == code {
-			account = acct
-			break
-		}
-	}
-	if account == nil {
+	accountView := backend.accountViewsLocked().lookup(code)
+	if accountView == nil {
 		log.Error("aopp: could not find account")
 		backend.aoppSetError(errAOPPUnknown)
 		return
 	}
+	account := accountView.Account
+	signingConfigurations := accountView.Record.SigningConfigurations
 	if err := account.Initialize(); err != nil {
 		log.
 			WithError(err).
-			WithField("code", account.Config().Config.Code).
+			WithField("code", account.Config().Code).
 			Error("could not initialize account")
 		backend.aoppSetError(errAOPPUnknown)
 		return
@@ -361,7 +361,7 @@ loop:
 	if err != nil {
 		log.
 			WithError(err).
-			WithField("code", account.Config().Config.Code).
+			WithField("code", account.Config().Code).
 			Error("get unused receive addresses")
 		backend.aoppSetError(errAOPPUnknown)
 		return
@@ -372,7 +372,7 @@ loop:
 	addr := addressList.Addresses[0]
 	if account.Coin().Code() == coinpkg.CodeBTC {
 		if backend.aopp.format == "any" {
-			signingConfigIdx = account.Config().Config.SigningConfigurations.FindScriptType(*addressList.ScriptType)
+			signingConfigIdx = signingConfigurations.FindScriptType(*addressList.ScriptType)
 			if signingConfigIdx == -1 {
 				log.Errorf("Unknown script type %s in receive addresses", *addressList.ScriptType)
 				backend.aoppSetError(errAOPPUnknown)
@@ -385,7 +385,7 @@ loop:
 				backend.aoppSetError(errAOPPUnknown)
 				return
 			}
-			signingConfigIdx = account.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType)
+			signingConfigIdx = signingConfigurations.FindScriptType(expectedScriptType)
 			if signingConfigIdx == -1 {
 				log.Errorf("Unknown aopp format param %s", backend.aopp.format)
 				backend.aoppSetError(errAOPPUnknown)
@@ -393,7 +393,8 @@ loop:
 			}
 			addressList = accounts.FindAddressListByScriptType(unused, expectedScriptType)
 			if addressList == nil || len(addressList.Addresses) == 0 {
-				log.WithField("code", account.Config().Config.Code).Errorf("AOPP script type not found: %s", expectedScriptType)
+				log.WithField("code", account.Config().Code).
+					Errorf("AOPP script type not found: %s", expectedScriptType)
 				backend.aoppSetError(errAOPPUnsupportedFormat)
 				return
 			}
@@ -409,7 +410,7 @@ loop:
 	var signature []byte
 	var xpub string
 	if backend.aopp.XpubRequired {
-		xpub = account.Config().Config.SigningConfigurations[signingConfigIdx].ExtendedPublicKey().String()
+		xpub = signingConfigurations[signingConfigIdx].ExtendedPublicKey().String()
 	}
 	var sig []byte
 	switch account.Coin().Code() {
@@ -417,7 +418,7 @@ loop:
 		sig, err = backend.keystore.SignBTCMessage(
 			[]byte(backend.aopp.Message),
 			addr.AbsoluteKeypath(),
-			account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
+			signingConfigurations[signingConfigIdx].ScriptType(),
 			account.Coin().Code(),
 		)
 	case coinpkg.CodeETH:

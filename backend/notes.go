@@ -65,11 +65,13 @@ func (backend *Backend) exportNotes(writer io.Writer) error {
 
 	backend.log.Infof("Exporting notes of %d accounts", len(accounts))
 
-	for _, account := range accounts {
+	for index := range accounts {
+		accountView := &accounts[index]
+		account := accountView.Account
 		if account.FatalError() {
 			continue
 		}
-		if account.Config().Config.HiddenBecauseUnused {
+		if accountView.Record.HiddenBecauseUnused {
 			continue
 		}
 		// We do not skip over inactive accounts - we want to export/import them so the user does
@@ -78,10 +80,10 @@ func (backend *Backend) exportNotes(writer io.Writer) error {
 		if err := account.Initialize(); err != nil {
 			return err
 		}
-		backend.log.WithField("code", account.Config().Config.Code).Info("Exporting name and notes of account")
+		backend.log.WithField("code", accountView.Record.Code).Info("Exporting name and notes of account")
 
-		accountName := account.Config().Config.Name
-		accountCode := account.Config().Config.Code
+		accountName := accountView.Record.Name
+		accountCode := accountView.Record.Code
 
 		// We have unified accounts, but to be compatible with BIP-329, we export the same account
 		// name for each xpub in the unified account, so other wallets that import one of the
@@ -92,7 +94,7 @@ func (backend *Backend) exportNotes(writer io.Writer) error {
 		ethCoin, isETHCoin := account.Coin().(*eth.Coin)
 		isERC20 := isETHCoin && ethCoin.ERC20Token() != nil
 		if accountName != "" && !isERC20 {
-			for _, signingConfig := range account.Config().Config.SigningConfigurations {
+			for _, signingConfig := range accountView.Record.SigningConfigurations {
 				entry := bip329Entry{
 					Type:  bip329TypeXpub,
 					Ref:   signingConfig.ExtendedPublicKey().String(),
@@ -104,8 +106,8 @@ func (backend *Backend) exportNotes(writer io.Writer) error {
 					//
 					// We add it anyway just in case, as it can't hurt and is more explicit.
 					BitBoxApp: &bip329BitBoxApp{
-						CoinCode:    account.Config().Config.CoinCode,
-						AccountCode: account.Config().Config.Code,
+						CoinCode:    accountView.Record.CoinCode,
+						AccountCode: accountView.Record.Code,
 					},
 				}
 				if err := json.NewEncoder(writer).Encode(entry); err != nil {
@@ -125,7 +127,7 @@ func (backend *Backend) exportNotes(writer io.Writer) error {
 				// account as well as in the parent ETH account), and the origin label is not a good
 				// fit (see docstring of `bip329BitBoxApp`).
 				BitBoxApp: &bip329BitBoxApp{
-					CoinCode:    account.Config().Config.CoinCode,
+					CoinCode:    accountView.Record.CoinCode,
 					AccountCode: accountCode,
 				},
 			}
@@ -188,9 +190,8 @@ type ImportNotesResult struct {
 // ImportNotes imports notes from a jsonlines document according to BIP-329:
 // https://github.com/bitcoin/bips/blob/master/bip-0329.mediawiki
 //
-// Only accounts of connected/remembered keystores are considered, also deactivated accounts (except
-// for deactivated ERC-20 accounts). If a label in the import does not belong to one of them, it is
-// ignored.
+// Account labels are imported for non-hidden persisted accounts, including inactive accounts of
+// remembered but disconnected keystores. Transaction labels are imported only for loaded accounts.
 func (backend *Backend) ImportNotes(jsonLines []byte) (*ImportNotesResult, error) {
 	sanityCheck := func() error {
 		scanner := bufio.NewScanner(bytes.NewReader(jsonLines))
@@ -209,9 +210,14 @@ func (backend *Backend) ImportNotes(jsonLines []byte) (*ImportNotesResult, error
 	if err := sanityCheck(); err != nil {
 		return nil, err
 	}
+	accountsConfigSnapshot, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return nil, err
+	}
 	scanner := bufio.NewScanner(bytes.NewReader(jsonLines))
 
 	result := &ImportNotesResult{}
+	accountViews := backend.Accounts()
 
 	for scanner.Scan() {
 		line := scanner.Bytes()
@@ -236,14 +242,14 @@ func (backend *Backend) ImportNotes(jsonLines []byte) (*ImportNotesResult, error
 			if entry.BitBoxApp != nil {
 				accountCode = entry.BitBoxApp.AccountCode
 			} else {
-				acctCode, err := backend.config.AccountsConfig().LookupByXpub(ref)
+				acctCode, err := accountsConfigSnapshot.LookupByXpub(ref)
 				if err != nil {
 					// Could not find any account for this label, skipping.
 					continue
 				}
 				accountCode = acctCode
 			}
-			err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+			err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 				acct := accountsConfig.Lookup(accountCode)
 				if acct == nil {
 					// Could not find account using this account code, cannot apply label. Skipping.
@@ -272,13 +278,18 @@ func (backend *Backend) ImportNotes(jsonLines []byte) (*ImportNotesResult, error
 			// Import transaction note.
 			var account accounts.Interface
 			if entry.BitBoxApp != nil {
-				account = backend.Accounts().lookup(entry.BitBoxApp.AccountCode)
+				accountView := accountViews.lookup(entry.BitBoxApp.AccountCode)
+				if accountView != nil {
+					account = accountView.Account
+				}
 			} else {
-				acct, err := backend.Accounts().lookupByTransactionInternalID(ref)
+				accountView, err := accountViews.lookupByTransactionInternalID(ref)
 				if err != nil {
 					return nil, err
 				}
-				account = acct
+				if accountView != nil {
+					account = accountView.Account
+				}
 			}
 			if account == nil {
 				// Could not find account containing this tx. Skipping.

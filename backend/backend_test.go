@@ -141,7 +141,7 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 		},
 		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			result := []accounts.AddressList{}
-			for _, signingConfig := range config.Config.SigningConfigurations {
+			for _, signingConfig := range config.SigningConfigurations {
 				scriptType := signingConfig.ScriptType()
 				if scriptType == signing.ScriptTypeP2WPKHP2SH {
 					// We don't support wrapped segwit in receive flows anymore.
@@ -195,7 +195,7 @@ func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *
 					Addresses: []accounts.Address{
 						eth.Address{
 							Address: crypto.PubkeyToAddress(
-								*config.Config.SigningConfigurations[0].PublicKey().ToECDSA()),
+								*config.SigningConfigurations[0].PublicKey().ToECDSA()),
 						},
 					},
 				},
@@ -531,22 +531,24 @@ func TestRegisterKeystore(t *testing.T) {
 	b.registerKeystore(ks1)
 	require.Equal(t, ks1, b.Keystore())
 	checkShownAccountsLen(t, b, 3, 3)
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
+	accountsConfig := accountsSnapshot(t, b)
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-btc-0"))
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-ltc-0"))
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-eth-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-btc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0"))
-	require.Equal(t, "Bitcoin", b.Config().AccountsConfig().Accounts[0].Name)
-	require.Equal(t, "Litecoin", b.Config().AccountsConfig().Accounts[1].Name)
-	require.Equal(t, "Ethereum", b.Config().AccountsConfig().Accounts[2].Name)
+	watchedBTCAccount := b.Accounts().lookup("v0-55555555-btc-0").Account
+	require.Equal(t, "Bitcoin", accountsConfig.Accounts[0].Name)
+	require.Equal(t, "Litecoin", accountsConfig.Accounts[1].Name)
+	require.Equal(t, "Ethereum", accountsConfig.Accounts[2].Name)
 
-	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
-	require.Equal(t, "Mock keystore 1", b.Config().AccountsConfig().Keystores[0].Name)
-	require.Equal(t, rootFingerprint1, []byte(b.Config().AccountsConfig().Keystores[0].RootFingerprint))
+	require.Len(t, accountsConfig.Keystores, 1)
+	require.Equal(t, "Mock keystore 1", accountsConfig.Keystores[0].Name)
+	require.Equal(t, rootFingerprint1, []byte(accountsConfig.Keystores[0].RootFingerprint))
 	// LastConnected might not be `time.Now()` anymore as some time may have passed in the unit
 	// tests, but we check that it was set and recent.
-	require.Less(t, time.Since(b.Config().AccountsConfig().Keystores[0].LastConnected), 10*time.Second)
+	require.Less(t, time.Since(accountsConfig.Keystores[0].LastConnected), 10*time.Second)
 
 	// Deregistering the keystore leaves the loaded accounts (watchonly), and leaves the persisted
 	// accounts and keystores.
@@ -555,13 +557,17 @@ func TestRegisterKeystore(t *testing.T) {
 
 	b.DeregisterKeystore()
 	checkShownAccountsLen(t, b, 3, 3)
-	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
+	require.Same(t, watchedBTCAccount, b.Accounts().lookup("v0-55555555-btc-0").Account)
+	accountsConfig = accountsSnapshot(t, b)
+	require.Len(t, accountsConfig.Keystores, 1)
 
 	// Registering the same keystore again loads the previously persisted accounts and does not
 	// automatically persist more accounts.
 	b.registerKeystore(ks1)
 	checkShownAccountsLen(t, b, 3, 3)
-	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
+	require.Same(t, watchedBTCAccount, b.Accounts().lookup("v0-55555555-btc-0").Account)
+	accountsConfig = accountsSnapshot(t, b)
+	require.Len(t, accountsConfig.Keystores, 1)
 
 	// Registering another keystore persists a set of initial default accounts and loads them.
 	b.DeregisterKeystore()
@@ -569,15 +575,17 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NoError(t, b.SetWatchonly(rootFingerprint2, true))
 
 	checkShownAccountsLen(t, b, 6, 6)
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-btc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-ltc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-eth-0"))
+	require.Same(t, watchedBTCAccount, b.Accounts().lookup("v0-55555555-btc-0").Account)
+	accountsConfig = accountsSnapshot(t, b)
+	require.NotNil(t, accountsConfig.Lookup("v0-66666666-btc-0"))
+	require.NotNil(t, accountsConfig.Lookup("v0-66666666-ltc-0"))
+	require.NotNil(t, accountsConfig.Lookup("v0-66666666-eth-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-btc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
-	require.Len(t, b.Config().AccountsConfig().Keystores, 2)
-	require.Equal(t, "Mock keystore 2", b.Config().AccountsConfig().Keystores[1].Name)
-	require.Equal(t, rootFingerprint2, []byte(b.Config().AccountsConfig().Keystores[1].RootFingerprint))
+	require.Len(t, accountsConfig.Keystores, 2)
+	require.Equal(t, "Mock keystore 2", accountsConfig.Keystores[1].Name)
+	require.Equal(t, rootFingerprint2, []byte(accountsConfig.Keystores[1].RootFingerprint))
 
 	b.DeregisterKeystore()
 
