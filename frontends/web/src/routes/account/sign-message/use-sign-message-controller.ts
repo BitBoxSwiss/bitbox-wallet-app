@@ -40,6 +40,7 @@ export type TSignMessageController = {
   previous: (event: SyntheticEvent) => void;
   next: (event: SyntheticEvent) => void;
   goBack: () => void;
+  reset: () => void;
   retryUsedAddressLoad: () => void;
 };
 
@@ -127,6 +128,7 @@ export const useSignMessageController = ({
     previous,
     next,
     goBack,
+    reset,
     retryUsedAddressLoad,
   };
 };

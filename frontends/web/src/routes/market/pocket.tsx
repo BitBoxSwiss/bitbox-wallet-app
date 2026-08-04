@@ -21,7 +21,7 @@ import { MarketGuide } from './guide';
 import { convertScriptType } from '@/utils/request-addess';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
-import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useMarketIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
 import { useAccountSynced } from '@/hooks/account';
 import { Message } from '@/components/message/message';
 import style from './iframe.module.css';
@@ -53,6 +53,7 @@ export const Pocket = ({
   const signingRef = useRef(false);
 
   const pocketInfo = useAccountSynced(code, useCallback(() => getPocketURL(action), [action]));
+  useMarketIframeActive(!!config && agreedTerms && pocketInfo?.success === true);
 
   useEffect(() => {
     // enable paymentRequestError only when the action is sell.

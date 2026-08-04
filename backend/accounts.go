@@ -1386,10 +1386,8 @@ func (backend *Backend) initAccounts(force bool) {
 
 	backend.emitAccountsStatusChanged()
 
-	// The updater fetches rates only for active accounts, so this seems the most
-	// appropriate place to update exchange rate configuration.
-	// Every time fiats or coins list is changed in the UI settings, ReinitializedAccounts
-	// is invoked which triggers this method.
+	// The updater fetches rates only for active accounts, so update its configuration whenever
+	// this operation changes the loaded account set.
 	backend.configureHistoryExchangeRates()
 }
 

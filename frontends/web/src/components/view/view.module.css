@@ -129,6 +129,7 @@
 @media (max-width: 768px) {
     .fill {
         padding: 0;
+        padding-bottom: var(--space-default);
     }
     .header {
         padding-left: var(--space-half);
