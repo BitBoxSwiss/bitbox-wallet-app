@@ -155,7 +155,7 @@ func (backend *Backend) ExportNotes() error {
 	err = func() error {
 		file, err := os.OpenFile(
 			path,
-			os.O_WRONLY|os.O_CREATE|os.O_TRUNC,
+			os.O_WRONLY|os.O_CREATE,
 			utilcfg.PrivateFileMode,
 		)
 		if err != nil {
@@ -163,6 +163,9 @@ func (backend *Backend) ExportNotes() error {
 		}
 		defer func() { _ = file.Close() }()
 		if err := utilcfg.EnsurePrivateFile(path); err != nil {
+			return err
+		}
+		if err := file.Truncate(0); err != nil {
 			return err
 		}
 
