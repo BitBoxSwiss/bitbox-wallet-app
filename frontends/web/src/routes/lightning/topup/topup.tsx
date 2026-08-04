@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { convertFromCurrency, convertToCurrency } from '@/api/coins';
-import { getBoardingAddress, getLightningBalance } from '@/api/lightning';
+import { getBoardingAddress, getLightningBalance, subscribeLightningBalance } from '@/api/lightning';
 import { connectKeystore } from '@/api/keystores';
-import { useLoad } from '@/hooks/api';
+import { useLoad, useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
 import { getDisplayedCoinUnit, isBitcoinOnly } from '@/routes/account/utils';
@@ -23,34 +23,6 @@ type TProps = {
 };
 
 type TStep = 'form' | 'confirming' | 'success' | 'aborted';
-
-const useLightningBalance = () => {
-  const mounted = useMountedRef();
-  const balanceRequest = useRef(0);
-  const [balance, setBalance] = useState<accountApi.TBalance>();
-
-  const reloadBalance = useCallback(() => {
-    const request = ++balanceRequest.current;
-    getLightningBalance().then((nextBalance) => {
-      if (request === balanceRequest.current && mounted.current) {
-        setBalance(nextBalance);
-      }
-    }).catch(() => {
-      if (request === balanceRequest.current && mounted.current) {
-        setBalance(undefined);
-      }
-    });
-  }, [mounted]);
-
-  useEffect(() => {
-    reloadBalance();
-  }, [reloadBalance]);
-
-  return {
-    balance,
-    reloadBalance,
-  };
-};
 
 const getTopUpAccounts = async (accounts: accountApi.TAccount[]) => {
   const accountHasBalance = await Promise.all(accounts.map(async (account) => {
@@ -84,7 +56,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   const topUpAccounts = useLoad(() => getTopUpAccounts(btcAccounts), [btcAccounts]);
   const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>('');
   const sourceAccount = topUpAccounts?.find(account => account.code === sourceAccountCode);
-  const { balance: lightningBalance, reloadBalance: reloadLightningBalance } = useLightningBalance();
+  const lightningBalance = useSync(getLightningBalance, subscribeLightningBalance);
   const sourceAmountUnit = sourceAccount
     ? getDisplayedCoinUnit(sourceAccount.coinCode, sourceAccount.coinUnit, btcUnit)
     : 'BTC';
@@ -344,7 +316,6 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
       setIsSubmitting(false);
       return;
     }
-    reloadLightningBalance();
 
     try {
       setStep('confirming');

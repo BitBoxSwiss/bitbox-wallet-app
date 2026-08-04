@@ -9,6 +9,7 @@ import {
   getBlockExplorerTxPrefix,
   getLightningBalance,
   getListPayments,
+  subscribeLightningBalance,
   subscribeListPayments,
   getSparkStatus,
   TSparkStatus,
@@ -25,7 +26,7 @@ import { Status } from '../../components/status/status';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 import { PaymentDetails } from './components/payment-details';
 import { RatesContext } from '@/contexts/RatesContext';
-import { useLoad } from '@/hooks/api';
+import { useLoad, useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { useLightning } from '@/hooks/lightning';
 import { TransactionList } from '@/routes/account/components/transaction-list';
@@ -283,7 +284,7 @@ export const Lightning = () => {
   const { t } = useTranslation();
   const { btcUnit } = useContext(RatesContext);
   const { isLightningReady, lightningAccount } = useLightning();
-  const [balance, setBalance] = useState<accountApi.TBalance>();
+  const balance = useSync(getLightningBalance, subscribeLightningBalance);
   const [syncedAddressesCount] = useState<number>();
   const [payments, setPayments] = useState<TLightningPayment[]>();
   const [sparkStatus, setSparkStatus] = useState<TSparkStatus>();
@@ -295,14 +296,10 @@ export const Lightning = () => {
   const onStateChange = useCallback(async () => {
     try {
       setError(undefined);
-      const [balance, payments] = await Promise.all([
-        getLightningBalance(),
-        getListPayments(),
-      ]);
+      const payments = await getListPayments();
       if (!mounted.current) {
         return;
       }
-      setBalance(balance);
       setPayments(payments);
     } catch (err: any) {
       if (!mounted.current) {

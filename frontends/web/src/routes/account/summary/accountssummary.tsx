@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { statusChanged, syncdone } from '@/api/accountsync';
-import { subscribeListPayments } from '@/api/lightning';
+import { subscribeLightningBalance } from '@/api/lightning';
 import { unsubscribe } from '@/utils/subscriptions';
 import { TUnsubscribe } from '@/utils/transport-common';
 import { useMountedRef } from '@/hooks/mount';
@@ -143,7 +143,7 @@ export const AccountsSummary = ({
       ));
     });
     if (lightningAccount !== null) {
-      subscriptions.push(subscribeListPayments(() => {
+      subscriptions.push(subscribeLightningBalance(() => {
         if (mounted.current) {
           getChartData();
           getAccountsBalanceSummary();
