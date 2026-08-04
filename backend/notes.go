@@ -153,11 +153,21 @@ func (backend *Backend) ExportNotes() error {
 		return errp.ErrUserAbort
 	}
 	err = func() error {
-		file, err := os.Create(path)
+		file, err := os.OpenFile(
+			path,
+			os.O_WRONLY|os.O_CREATE,
+			utilcfg.PrivateFileMode,
+		)
 		if err != nil {
 			return err
 		}
 		defer func() { _ = file.Close() }()
+		if err := utilcfg.EnsurePrivateFile(path); err != nil {
+			return err
+		}
+		if err := file.Truncate(0); err != nil {
+			return err
+		}
 
 		writer := bufio.NewWriter(file)
 		if err := backend.exportNotes(writer); err != nil {
