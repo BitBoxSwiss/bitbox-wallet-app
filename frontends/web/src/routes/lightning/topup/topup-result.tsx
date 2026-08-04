@@ -32,6 +32,7 @@ export const TopUpSuccess = () => {
           <View textCenter verticallyCentered>
             <ViewContent withIcon="success">
               <p>{t('lightning.topUp.success.message')}</p>
+              <p>{t('lightning.topUp.success.note')}</p>
             </ViewContent>
             <ViewButtons>
               <Button primary onClick={() => navigate('/lightning')}>

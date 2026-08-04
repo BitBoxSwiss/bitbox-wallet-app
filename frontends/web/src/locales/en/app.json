@@ -1855,7 +1855,8 @@
       "noFundedBitcoinAccounts": "No Bitcoin accounts with an available balance. Receive Bitcoin before trying to top up again.",
       "note": "Lightning top-up",
       "success": {
-        "message": "Top up created!"
+        "message": "Top up created!",
+        "note": "The top-up transaction will appear after one confirmation and complete after three confirmations. This usually takes 30+ minutes."
       },
       "title": "Top up lightning wallet",
       "to": "To"
