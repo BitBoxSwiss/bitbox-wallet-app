@@ -340,6 +340,9 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	paymentRequest := btcProposedTx.TXProposal.PaymentRequest
 	var paymentRequestIndex *uint32
 	if paymentRequest != nil {
+		if paymentRequest.TotalAmount == nil || !paymentRequest.TotalAmount.IsUint64() {
+			return errp.New("BTC payment request amount overflows uint64")
+		}
 		btcPaymentRequests = []*messages.BTCPaymentRequestRequest{
 			newBTCPaymentRequest(paymentRequest),
 		}
@@ -506,10 +509,17 @@ func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) *messages.BT
 		memos = append(memos, &memo)
 	}
 
+	// total_amount is a legacy BTC-only protobuf field. EVM payment requests are
+	// displayed and validated against the arbitrary-precision amount parsed from the tx.
+	totalAmount := uint64(0)
+	if amount := txPaymentRequest.TotalAmount; amount != nil && amount.IsUint64() {
+		totalAmount = amount.Uint64()
+	}
+
 	return &messages.BTCPaymentRequestRequest{
 		RecipientName: txPaymentRequest.RecipientName,
 		Nonce:         txPaymentRequest.Nonce,
-		TotalAmount:   txPaymentRequest.TotalAmount,
+		TotalAmount:   totalAmount,
 		Signature:     txPaymentRequest.Signature,
 		Memos:         memos,
 	}
