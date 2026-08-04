@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"hash"
 	"io"
+	"math/big"
 	"net"
 	"net/http"
 	"net/url"
@@ -790,13 +791,30 @@ func TestSimulatorSignBTCPaymentRequest(t *testing.T) {
 		proposedTransaction := makeTx(t, device, maketx.NewOutputInfo(pkScript))
 
 		txProposal := proposedTransaction.TXProposal
+		for _, testCase := range []struct {
+			name        string
+			totalAmount *big.Int
+		}{
+			{name: "nil total amount", totalAmount: nil},
+			{name: "amount exceeding uint64", totalAmount: new(big.Int).Lsh(big.NewInt(1), 64)},
+		} {
+			t.Run(testCase.name, func(t *testing.T) {
+				txProposal.PaymentRequest = &paymentrequest.Request{TotalAmount: testCase.totalAmount}
+				require.EqualError(
+					t,
+					device.Keystore().SignTransaction(proposedTransaction),
+					"BTC payment request amount overflows uint64",
+				)
+			})
+		}
+
 		recipientOutput := txProposal.Psbt.UnsignedTx.TxOut[txProposal.OutIndex]
 		value := uint64(recipientOutput.Value)
 
 		paymentRequest := &paymentrequest.Request{
 			RecipientName: "Test Merchant", // Hard-coded test merchant in simulator
 			Nonce:         nil,
-			TotalAmount:   value,
+			TotalAmount:   new(big.Int).SetUint64(value),
 			Memos: []paymentrequest.Memo{
 				{
 					Text: &paymentrequest.TextMemo{
