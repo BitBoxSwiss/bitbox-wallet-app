@@ -14,7 +14,14 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
 import { getBitsuranceURL } from '@/api/bitsurance';
 import { convertScriptType } from '@/utils/request-addess';
-import { useVendorIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import {
+  getVendorIframeMessageTarget,
+  postMessageToVendorIframe,
+  useVendorIframeActive,
+  useVendorIframeResizeHeight,
+  useVendorTerms,
+  type TVendorIframeMessageTarget,
+} from '@/hooks/vendor-iframe';
 import { BitsuranceGuide } from './guide';
 import style from './widget.module.css';
 
@@ -42,13 +49,12 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     };
   });
 
-  const sendAddressWithXPub = (address: string, sig: string, xpub: string) => {
-    const { current } = iframeRef;
-
-    if (!current) {
-      return;
-    }
-
+  const sendAddressWithXPub = (
+    target: TVendorIframeMessageTarget,
+    address: string,
+    sig: string,
+    xpub: string,
+  ) => {
     const message = serializeMessage({
       version: MessageVersion.V0,
       type: V0MessageType.Address,
@@ -57,7 +63,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
       signature: sig,
     });
 
-    current.contentWindow?.postMessage(message, '*');
+    postMessageToVendorIframe(target, message);
   };
 
   const getXPub = (wantedScriptType: ScriptType) => {
@@ -67,7 +73,10 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     return xpubConfig?.bitcoinSimple?.keyInfo.xpub;
   };
 
-  const handleRequestAddress = (message: RequestAddressV0Message) => {
+  const handleRequestAddress = (
+    target: TVendorIframeMessageTarget,
+    message: RequestAddressV0Message,
+  ) => {
     signingRef.current = true;
     const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
@@ -82,12 +91,12 @@ export const BitsuranceWidget = ({ code }: TProps) => {
           if (withExtendedPublicKey) {
             const xpub = getXPub(addressType as ScriptType);
             if (xpub) {
-              sendAddressWithXPub(response.address, response.signature, xpub);
+              sendAddressWithXPub(target, response.address, response.signature, xpub);
             } else {
               alertUser(t('bitsuranceAccount.errorNoXpub'));
             }
           } else {
-            sendAddressWithXPub(response.address, response.signature, '');
+            sendAddressWithXPub(target, response.address, response.signature, '');
           }
         } else {
           if (!['userAbort', 'wrongKeystore'].includes(response.errorCode || '')) {
@@ -104,8 +113,9 @@ export const BitsuranceWidget = ({ code }: TProps) => {
       return;
     }
 
-    // verify the origin of the received message
-    if (m.origin !== new URL(iframeURL).origin) {
+    const target = getVendorIframeMessageTarget(m, iframeRef.current);
+    // Verify that the message came from the current Bitsurance iframe and its expected origin.
+    if (!target || target.origin !== new URL(iframeURL).origin) {
       return;
     }
 
@@ -123,7 +133,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
         // we ignore further signing requests
         // while there is an ongoing one
         if (!signingRef.current) {
-          handleRequestAddress(message);
+          handleRequestAddress(target, message);
         }
         break;
       }
