@@ -136,6 +136,12 @@ describe('hooks for api calls', () => {
 
 
   describe('useSync', () => {
+    it('returns undefined when apiCall and subscription are null', () => {
+      const { result } = renderHook(() => useSync<string>(null, null));
+
+      expect(result.current).toBeUndefined();
+    });
+
     it('should load promise and sync to a subscription function', async () => {
       const apiValue = 'apiValue';
       const subscriptionValue = 'subscriptionValue';

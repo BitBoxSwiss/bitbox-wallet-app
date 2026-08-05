@@ -1,14 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TFunction } from 'i18next';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   filterSettingsSearchItems,
   getSettingsSearchItems,
 } from './settings-search';
 
+const isLightningFeatureAvailableMock = vi.hoisted(() => vi.fn(() => true));
+
 vi.mock('@/utils/env', () => ({
   debug: false,
+  isLightningFeatureAvailable: isLightningFeatureAvailableMock,
   runningInAndroid: () => false,
   runningInIOS: () => false,
 }));
@@ -35,6 +38,10 @@ const getItems = (
 });
 
 describe('settings search', () => {
+  beforeEach(() => {
+    isLightningFeatureAvailableMock.mockReturnValue(true);
+  });
+
   it('uses the connect title for the test wallet setting when no software wallet exists', () => {
     const results = filterSettingsSearchItems(getItems(false, true), 'test wallet');
 
@@ -78,6 +85,14 @@ describe('settings search', () => {
 
   it('hides the lightning setting while its state is loading', () => {
     const results = filterSettingsSearchItems(getItems(false, undefined), 'lightning');
+
+    expect(results).toEqual([]);
+  });
+
+  it('hides the lightning setting when the lightning feature is unavailable', () => {
+    isLightningFeatureAvailableMock.mockReturnValue(false);
+
+    const results = filterSettingsSearchItems(getItems(false, true), 'lightning');
 
     expect(results).toEqual([]);
   });

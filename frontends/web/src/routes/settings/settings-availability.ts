@@ -2,7 +2,7 @@
 
 import type { DeviceInfo } from '@/api/bitbox02';
 import type { TDevices } from '@/api/devices';
-import { debug, runningInAndroid, runningInIOS } from '@/utils/env';
+import { debug, isLightningFeatureAvailable, runningInAndroid, runningInIOS } from '@/utils/env';
 
 type TTestWalletVisibilityArgs = {
   deviceIDs: string[];
@@ -26,6 +26,10 @@ export const isBluetoothToggleSettingVisible = (deviceInfo?: DeviceInfo) => (
 );
 
 export const isScreenLockSettingVisible = () => runningInAndroid() || runningInIOS();
+
+export const isLightningSettingVisible = (isLightningEnabled: boolean | undefined) => (
+  isLightningFeatureAvailable() && isLightningEnabled !== undefined
+);
 
 export const isExportLogsSettingVisible = () => !debug;
 

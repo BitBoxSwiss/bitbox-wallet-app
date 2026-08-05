@@ -26,6 +26,7 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { BackupReminder } from '@/components/banners/backup';
 import { OfflineError } from '@/components/banners/offline-error';
+import { isLightningFeatureAvailable } from '@/utils/env';
 import style from './accountssummary.module.css';
 
 type TProps = {
@@ -64,6 +65,9 @@ export const AccountsSummary = ({
   const [accountsBalanceSummary, setAccountsBalanceSummary] = useState<accountApi.TAccountsBalanceSummary>();
   const [balances, setBalances] = useState<Balances>();
   const [offlineError, setOfflineError] = useState<string | null>(null);
+  const coinsTotalBalance = accountsBalanceSummary?.coinsTotalBalance.filter(balance => (
+    balance.coinCode !== 'lightning' || isLightningFeatureAvailable()
+  ));
 
   const getChartData = useCallback(async () => {
     // replace previous timer if present
@@ -213,7 +217,7 @@ export const AccountsSummary = ({
                   hideHeader={hasOnlyLightningAccount}
                   hideLightningUnitPrice={hasActiveBitcoinAccount}
                   summaryData={chartData}
-                  coinsBalances={accountsBalanceSummary?.coinsTotalBalance}
+                  coinsBalances={coinsTotalBalance}
                 />
               )}
               {accountsByKeystore &&
