@@ -4,6 +4,7 @@ import type { AccountCode } from '@/api/account';
 import type { TDevices } from '@/api/devices';
 import { Testing } from './testing';
 import { Update } from './update';
+import { FirmwareUpdateBanner } from './firmware-update';
 import { Banner } from './banner';
 import { MobileDataWarning } from './mobiledatawarning';
 import { Offline } from './offline';
@@ -22,6 +23,7 @@ export const GlobalBanners = ({
     <>
       <Testing />
       <Update />
+      <FirmwareUpdateBanner devices={devices} />
       <Banner msgKey="bitbox01" />
       <Banner msgKey="bitbox02" />
       <Banner msgKey="bitbox02nova" />
