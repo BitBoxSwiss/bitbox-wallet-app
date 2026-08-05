@@ -321,7 +321,7 @@ export type Slip24 = {
     };
   }>;
   outputs: Array<{
-    amount: number;
+    amount: number | string;
     address: string;
   }>;
   signature: string;

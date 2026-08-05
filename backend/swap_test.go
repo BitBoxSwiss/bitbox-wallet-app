@@ -12,9 +12,12 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
 )
 
@@ -349,7 +352,7 @@ func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
 		},
 		Outputs: []paymentrequest.Slip24Out{
 			{
-				Amount:  100000000,
+				Amount:  "100000000",
 				Address: "1GqULdYGDRfF3w85yGmEq8LTWecpKn8JMJ",
 			},
 		},
@@ -401,7 +404,7 @@ func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
 		},
 		Outputs: []paymentrequest.Slip24Out{
 			{
-				Amount:  100000000,
+				Amount:  "100000000",
 				Address: "1GqULdYGDRfF3w85yGmEq8LTWecpKn8JMJ",
 			},
 		},
@@ -428,6 +431,33 @@ func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
 		"p2wpkh",
 		txInput.PaymentRequest.Memos[0].CoinPurchase.AddressDerivation.Btc.ScriptType,
 	)
+}
+
+func TestSwapSignTxInputSupportsLargeERC20Amount(t *testing.T) {
+	daiCoin := eth.NewCoin(
+		nil,
+		coinpkg.Code("eth-erc20-dai0x6b17"),
+		"Dai",
+		"DAI",
+		"ETH",
+		params.MainnetChainConfig,
+		"",
+		nil,
+		erc20.NewToken("0x6b175474e89094c44da98b954eedeac495271d0f", 18),
+	)
+	paymentRequest := &paymentrequest.Slip24{
+		Outputs: []paymentrequest.Slip24Out{
+			{
+				Amount:  "55000000000000000000",
+				Address: "0x986f66F28C6a2BBE939dF3161D1D2b238933895c",
+			},
+		},
+	}
+
+	txInput, err := swapSignTxInput(paymentRequest, daiCoin, nil)
+	require.NoError(t, err)
+	require.Equal(t, "55", txInput.Amount)
+	require.Equal(t, "55000000000000000000", txInput.PaymentRequest.Outputs[0].Amount)
 }
 
 func setAccountBalance(t *testing.T, b *Backend, accountCode accountsTypes.Code, amount int64) {
