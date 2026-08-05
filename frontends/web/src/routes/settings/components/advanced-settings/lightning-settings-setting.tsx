@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/badge/badge';
 import { useLightning } from '@/hooks/lightning';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { isLightningFeatureAvailable } from '@/utils/env';
 import styles from './lightning-settings-setting.module.css';
 
 export const LightningSettingsSetting = () => {
@@ -12,7 +13,7 @@ export const LightningSettingsSetting = () => {
   const { t } = useTranslation();
   const { lightningAccount } = useLightning();
 
-  if (lightningAccount === undefined) {
+  if (!isLightningFeatureAvailable() || lightningAccount === undefined) {
     return null;
   }
 

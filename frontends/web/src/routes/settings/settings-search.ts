@@ -8,6 +8,7 @@ import {
   isDeviceBluetoothSupported,
   isDeviceSettingsVisible,
   isExportLogsSettingVisible,
+  isLightningSettingVisible,
   isNotesSettingsVisible,
   isScreenLockSettingVisible,
   isTestWalletSettingVisible,
@@ -104,7 +105,7 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
   },
   {
     id: 'lightning-settings',
-    isAvailable: ({ isLightningEnabled }) => isLightningEnabled !== undefined,
+    isAvailable: ({ isLightningEnabled }) => isLightningSettingVisible(isLightningEnabled),
     getTitle: ({ isLightningEnabled, t }) => t(isLightningEnabled
       ? 'lightning.settings.title'
       : 'lightning.settings.enableWallet'),

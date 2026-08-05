@@ -80,10 +80,11 @@ export const useLoad = <T>(
  * It is a combination of useLoad and useSubscribe.
  * gets fired on first render, and returns undefined while loading,
  * re-renders on every update.
+ * Passing null skips loading and subscribing.
  */
 export const useSync = <T>(
-  apiCall: () => Promise<T>,
-  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
+  apiCall: (() => Promise<T>) | null,
+  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe) | null,
   getRevision?: (data: T) => number,
 ): (T | undefined) => {
   const [response, setResponse] = useState<T>();
@@ -104,6 +105,10 @@ export const useSync = <T>(
   };
   useEffect(
     () => {
+      if (apiCall === null || subscription === null) {
+        setResponse(undefined);
+        return;
+      }
       apiCall().then(onData);
       return subscription(onData);
     }, // we pass no dependencies because it's only queried once
