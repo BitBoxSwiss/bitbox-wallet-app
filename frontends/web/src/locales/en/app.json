@@ -2548,7 +2548,6 @@
       "button": "Connect",
       "dappLabel": "Enter URI address of dapp",
       "invalidPairingUri": "Invalid pairing uri",
-      "missingNamespace": "Connecting app request did not define necessary namespace",
       "scanInstruction": "Point your camera at the WalletConnect QR code"
     },
     "dashboard": {
@@ -2558,11 +2557,14 @@
       "noConnectedSessions": "No accounts are currently connected to any dapps.",
       "unspecifiedAccount": "Unspecified account"
     },
-    "invalidPairingChain": "Error in approving pairing. Please make sure to use one of the supported chains: {{chains}}",
     "pairingRequest": {
       "approve": "Approve Connection",
+      "chains": "Chains",
+      "readOnly": "This connection can view your address but cannot request signatures or transactions.",
       "reject": "Reject",
-      "title": "New connection request from"
+      "rejectionFailed": "The request could not be rejected, but no session was created.",
+      "title": "New connection request from",
+      "unsupported": "This connection request is not supported."
     },
     "pairingSuccess": "Dapp successfully connected. You can continue on the dapp website.",
     "signingRequest": {
