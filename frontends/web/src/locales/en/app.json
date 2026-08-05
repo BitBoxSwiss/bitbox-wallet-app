@@ -310,7 +310,8 @@
     },
     "restoreFromMnemonic": {
       "e104": "Restoring from recovery words was canceled.",
-      "failed": "Restoring from recovery words failed, please try again."
+      "failed": "Restoring from recovery words failed, please try again.",
+      "securityNotice": "Recovering a wallet not created on a BitBox? A wallet created elsewhere may not have the same security as one created on your BitBox. If you are unsure, we recommend setting up a new wallet here and moving your funds to it."
     },
     "stepBackup": {
       "beforeProceed": "Before proceeding, please read these important security considerations:",
