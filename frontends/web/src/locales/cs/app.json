@@ -2549,7 +2549,6 @@
       "button": "Připojit",
       "dappLabel": "Zadejte URI adresu dapp",
       "invalidPairingUri": "Neplatné párování uri",
-      "missingNamespace": "Požadavek na připojení aplikace neobsahoval definici potřebného namespace",
       "scanInstruction": "Namířte kameru na WalletConnect QR kód"
     },
     "dashboard": {
@@ -2559,7 +2558,6 @@
       "noConnectedSessions": "V této chvíli nejsou k dapps připojeny žádné účty.",
       "unspecifiedAccount": "Nespecifikovaný účet"
     },
-    "invalidPairingChain": "Chyba při schvalování párování. Ujistěte se, že používáte jednu z podporovaných sítí: {{chains}}",
     "pairingRequest": {
       "approve": "Schválit připojení",
       "reject": "Odmítnout",
