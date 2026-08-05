@@ -1948,8 +1948,7 @@
     "connect": {
       "button": "Sambung",
       "dappLabel": "Masukkan alamat URI dapp",
-      "invalidPairingUri": "Uri gandingan tidak sah",
-      "missingNamespace": "Menyambung permintaan apl tidak mentakrifkan ruang nama yang diperlukan"
+      "invalidPairingUri": "Uri gandingan tidak sah"
     },
     "dashboard": {
       "allSessions": "Semua sesi",
@@ -1958,7 +1957,6 @@
       "noConnectedSessions": "Tiada akaun disambungkan ke mana-mana dapp pada masa ini.",
       "unspecifiedAccount": "Akaun tidak ditentukan"
     },
-    "invalidPairingChain": "Ralat dalam meluluskan gandingan. Sila pastikan anda menggunakan salah satu rangkaian yang disokong: {{chains}}",
     "pairingRequest": {
       "approve": "Luluskan Sambungan",
       "reject": "Tolak",

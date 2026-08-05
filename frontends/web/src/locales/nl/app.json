@@ -1901,8 +1901,7 @@
     "connect": {
       "button": "Verbinden",
       "dappLabel": "Voer het URI-address van de DApp in",
-      "invalidPairingUri": "Ongeldige koppel-URI",
-      "missingNamespace": "De verbindende app heeft niet de juiste namespace gedefinieerd"
+      "invalidPairingUri": "Ongeldige koppel-URI"
     },
     "dashboard": {
       "allSessions": "Alle sessies",
@@ -1911,7 +1910,6 @@
       "noConnectedSessions": "Geen van je accounts zijn op dit moment met een DApp verbonden.",
       "unspecifiedAccount": "Niet-gesprecificeerd account"
     },
-    "invalidPairingChain": "Error met het toestaan van de koppeling. Zorg ervoor dat je een van deze ondersteunde chains gebruikt: {{chains}}",
     "pairingRequest": {
       "approve": "Koppeling goedkeuren",
       "reject": "Afwijzen",

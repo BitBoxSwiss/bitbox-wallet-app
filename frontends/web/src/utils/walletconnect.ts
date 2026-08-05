@@ -48,6 +48,13 @@ export const EIP155_SIGNING_METHODS = {
   ETH_SEND_TRANSACTION: 'eth_sendTransaction'
 };
 
+export const EIP155_SUPPORTED_METHODS: string[] = Object.values(EIP155_SIGNING_METHODS);
+
+export const EIP155_SUPPORTED_EVENTS: string[] = [
+  'accountsChanged',
+  'chainChanged',
+];
+
 export const getAddressFromEIPString = (address: string) => {
   const parts = address.split(':');
   return parts.length > 2 ? parts[2] : '';

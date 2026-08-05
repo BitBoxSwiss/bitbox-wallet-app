@@ -2166,8 +2166,7 @@
     "connect": {
       "button": "Verbinden",
       "dappLabel": "Gebe die URI-Adresse der Dapp ein",
-      "invalidPairingUri": "Ungültige Pairing-URI",
-      "missingNamespace": "Connecting app request did not define necessary namespace"
+      "invalidPairingUri": "Ungültige Pairing-URI"
     },
     "dashboard": {
       "allSessions": "Alle Sitzungen",
@@ -2176,7 +2175,6 @@
       "noConnectedSessions": "Derzeit sind keine Konten mit Dapps verbunden.",
       "unspecifiedAccount": "Unbestimmtes Konto"
     },
-    "invalidPairingChain": "Fehler beim Genehmigen des Pairing. Bitte stelle sicher, dass du eines der unterstützten Netzwerke verwendest: {{chains}}",
     "pairingRequest": {
       "approve": "Verbindung erlauben",
       "reject": "Ablehnen",

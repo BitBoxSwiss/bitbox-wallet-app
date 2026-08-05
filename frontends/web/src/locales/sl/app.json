@@ -1888,8 +1888,7 @@
     "connect": {
       "button": "Poveži",
       "dappLabel": "Vnesi URI naslov za DApp",
-      "invalidPairingUri": "Napačen povezovalni URI",
-      "missingNamespace": "Napaka pri pridobovanju \"namespace\" ali \"connecting app request did not define necessary namespace\""
+      "invalidPairingUri": "Napačen povezovalni URI"
     },
     "dashboard": {
       "allSessions": "Vse seje",
@@ -1898,7 +1897,6 @@
       "noConnectedSessions": "Noben račun ni povezan s katero od DApp-ov",
       "unspecifiedAccount": "Nedoločen račun"
     },
-    "invalidPairingChain": "Napaka pri potrditvi povezave. Prepričajte se, da uporabljate eno od podprtih verig: {{chains}}",
     "pairingRequest": {
       "approve": "Potrdi povezavo",
       "reject": "Zavrni",
