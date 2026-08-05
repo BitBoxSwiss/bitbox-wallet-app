@@ -24,6 +24,7 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { AppContext } from '@/contexts/AppContext';
+import { isLightningFeatureAvailable } from '@/utils/env';
 import {
   isExportLogsSettingVisible,
   isScreenLockSettingVisible,
@@ -80,7 +81,10 @@ export const AdvancedSettingsContent = ({
     {
       id: 'advanced-settings',
       items: [
-        { id: 'lightning-settings', content: <LightningSettingsSetting /> },
+        ...(isLightningFeatureAvailable() ? [{
+          id: 'lightning-settings',
+          content: <LightningSettingsSetting />,
+        }] : []),
         { id: 'custom-fees', content: <EnableCustomFeesToggleSetting /> },
         { id: 'coin-control', content: <EnableCoinControlSetting /> },
         ...(isScreenLockSettingVisible() ? [{

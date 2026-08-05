@@ -34,6 +34,7 @@ import { Providers } from './contexts/providers';
 import { AppContext } from './contexts/AppContext';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
 import { getBottomNavKey, shouldShowBottomNavigation } from './components/bottom-navigation/utils';
+import { isLightningFeatureAvailable } from './utils/env';
 import styles from './app.module.css';
 
 type TAppFrameProps = {
@@ -123,12 +124,16 @@ export const App = () => {
 
   const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
-  const lightningAccount = useSync(getLightningAccount, subscribeLightningAccount);
+  const lightningFeatureAvailable = isLightningFeatureAvailable();
+  const lightningAccount = useSync(
+    lightningFeatureAvailable ? getLightningAccount : null,
+    lightningFeatureAvailable ? subscribeLightningAccount : null,
+  );
   const prevDevices = usePrevious(devices);
 
   const deviceIDs = Object.keys(devices);
   const firstDevice = deviceIDs[0];
-  const hasLightningAccount = lightningAccount !== undefined && lightningAccount !== null;
+  const hasLightningAccount = lightningFeatureAvailable && lightningAccount !== undefined && lightningAccount !== null;
 
   useEffect(() => {
     return syncNewTxs((meta) => {
@@ -163,7 +168,8 @@ export const App = () => {
       || currentURL === '/settings/more';
     const shouldRedirectNoRegularAccount =
       !canNavigateWithLightningAccount
-      || lightningAccount === null;
+      || lightningAccount === null
+      || !lightningFeatureAvailable;
     if (accounts.length === 0 && requiresRegularAccount && shouldRedirectNoRegularAccount) {
       navigate('/');
       return;
@@ -210,7 +216,7 @@ export const App = () => {
       return;
     }
 
-  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, lightningAccount, navigate]);
+  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, lightningAccount, lightningFeatureAvailable, navigate]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});
