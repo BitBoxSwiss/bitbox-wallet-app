@@ -38,6 +38,15 @@ export type TLightningLNURLPay = {
   maxAmountSat: number;
 };
 
+export type TLightningFundingLimit = {
+  limitSat: number;
+  marginSat: number;
+};
+
+export type TLightningBalance = TBalance & {
+  fundingLimit: TLightningFundingLimit;
+};
+
 export type TBitcoinDepositState = 'confirming' | 'claiming' | 'complete' | 'unclaimed';
 
 export type TBitcoinDeposit = {
@@ -223,8 +232,8 @@ export const postDeactivate = async (): Promise<void> => {
   return postApiResponse<void, undefined>('lightning/deactivate', undefined, 'Error calling postDeactivate');
 };
 
-export const getLightningBalance = async (): Promise<TBalance> => {
-  return getApiResponse<TBalance>('lightning/balance', 'Error calling getLightningBalance');
+export const getLightningBalance = async (): Promise<TLightningBalance> => {
+  return getApiResponse<TLightningBalance>('lightning/balance', 'Error calling getLightningBalance');
 };
 
 export const getBlockExplorerTxPrefix = async (): Promise<string> => {

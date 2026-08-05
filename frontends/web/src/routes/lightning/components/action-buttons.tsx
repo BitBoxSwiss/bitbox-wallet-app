@@ -8,9 +8,14 @@ import { AccountActionButtons } from '@/routes/account/components/account-action
 type TProps = {
   accountDataLoaded: boolean;
   canSend?: boolean;
+  canTopUp?: boolean;
 };
 
-export const ActionButtons = ({ accountDataLoaded, canSend }: TProps) => {
+export const ActionButtons = ({
+  accountDataLoaded,
+  canSend,
+  canTopUp,
+}: TProps) => {
   const { t } = useTranslation();
   const canClickSend = canSend && accountDataLoaded;
 
@@ -33,7 +38,7 @@ export const ActionButtons = ({ accountDataLoaded, canSend }: TProps) => {
       </AccountActionButtonLink>
 
       <AccountActionButtonLink
-        disabled={!accountDataLoaded}
+        disabled={!accountDataLoaded || !canTopUp}
         to="/lightning/topup"
       >
         <span>{t('lightning.topUp.action')}</span>

@@ -160,7 +160,7 @@ func (lightning *Lightning) PostDeactivate(_ *http.Request) interface{} {
 
 // GetBalance handles the GET request to retrieve the balance and its fiat conversions.
 func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
-	balance, err := lightning.Balance()
+	balance, limit, err := lightning.balanceWithFundingLimit()
 	if err != nil {
 		return errorResponse(err)
 	}
@@ -182,11 +182,17 @@ func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
 
 	return responseDto{
 		Success: true,
-		Data: accounts.FormattedAccountBalance{
-			HasAvailable: balance.Available().BigInt().Sign() > 0,
-			Available:    formattedAvailableAmount,
-			HasIncoming:  balance.Incoming().BigInt().Sign() > 0,
-			Incoming:     formattedIncomingAmount,
+		Data: struct {
+			accounts.FormattedAccountBalance
+			FundingLimit fundingLimit `json:"fundingLimit"`
+		}{
+			FormattedAccountBalance: accounts.FormattedAccountBalance{
+				HasAvailable: balance.Available().BigInt().Sign() > 0,
+				Available:    formattedAvailableAmount,
+				HasIncoming:  balance.Incoming().BigInt().Sign() > 0,
+				Incoming:     formattedIncomingAmount,
+			},
+			FundingLimit: limit,
 		},
 	}
 }
