@@ -24,9 +24,16 @@
     font-size: var(--size-default);
     font-variant-numeric: tabular-nums;
     font-weight: 400;
-    height: 52px;
+    /* matches Input, so selects and inputs stay aligned side by side */
+    height: var(--input-height);
     padding: 0 var(--space-half);
+    transition: border-color .2s ease-out;
     width: 100%;
+}
+
+.select select:focus {
+    border-color: var(--color-blue);
+    outline: none;
 }
 
 .select select[disabled] {

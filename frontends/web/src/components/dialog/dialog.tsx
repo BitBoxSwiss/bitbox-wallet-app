@@ -70,6 +70,8 @@ type TProps = {
   large?: boolean;
   slim?: boolean;
   centered?: boolean;
+  /** On mobile, size the bottom sheet to its content instead of full height. */
+  fitContent?: boolean;
   noSidebarOffset?: boolean;
   onClose?: () => void;
   children: React.ReactNode;
@@ -83,6 +85,7 @@ export const Dialog = ({
   large,
   slim,
   centered,
+  fitContent,
   noSidebarOffset = false,
   onClose,
   children,
@@ -196,6 +199,7 @@ export const Dialog = ({
     ${small && style.small || ''}
     ${medium && style.medium || ''}
     ${large && style.large || ''}
+    ${fitContent && style.fitContent || ''}
     ${noSidebarOffset && style.noSidebarOffset || ''}
     ${status === 'open' && style.open || ''}
   `.trim();

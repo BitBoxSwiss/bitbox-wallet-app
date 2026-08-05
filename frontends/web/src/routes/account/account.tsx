@@ -9,7 +9,7 @@ import { TDevices } from '@/api/devices';
 import { getMarketVendors, MarketVendors } from '@/api/market';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
-import { InfoBlue, LoupeBlue } from '@/components/icon';
+import { InfoBlue, LoupeBlue, Sliders } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Message } from '@/components/message/message';
@@ -31,6 +31,8 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { TransactionList } from './components/transaction-list';
+import { TransactionFilters } from './components/transaction-filters/transaction-filters';
+import { useTransactionFilters } from './components/transaction-filters/use-transaction-filters';
 import { TransactionDetails } from '@/components/transactions/details';
 import { Button, SearchInput } from '@/components/forms';
 import { SubTitle } from '@/components/title';
@@ -73,7 +75,7 @@ const RemountAccount = ({
 }: Props) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { btcUnit } = useContext(RatesContext);
+  const { btcUnit, defaultCurrency } = useContext(RatesContext);
 
   const [balance, setBalance] = useState<accountApi.TBalance>();
   const status: accountApi.TStatus | undefined = useSync(
@@ -87,6 +89,8 @@ const RemountAccount = ({
   const [searchTerm, setSearchTerm] = useState<string>('');
   const debouncedSearchTerm = useDebounce(searchTerm, 200);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [showFilters, setShowFilters] = useState<boolean>(false);
+  const { filters, setFilters, clearFilters, isActive: hasActiveFilters, matches, compare } = useTransactionFilters();
 
   const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
 
@@ -102,22 +106,23 @@ const RemountAccount = ({
       return [];
     }
 
-    if (!debouncedSearchTerm.trim()) {
-      return transactions.list;
-    }
-
     const searchLower = debouncedSearchTerm.toLowerCase().trim();
 
     return transactions.list.filter(tx => {
-      const noteMatch = tx.note?.toLowerCase().includes(searchLower);
-      const addressMatch = tx.addresses?.some(address =>
-        address.toLowerCase().includes(searchLower)
-      );
-      const txIdMatch = tx.txID?.toLowerCase().includes(searchLower);
+      if (searchLower) {
+        const noteMatch = tx.note?.toLowerCase().includes(searchLower);
+        const addressMatch = tx.addresses?.some(address =>
+          address.toLowerCase().includes(searchLower)
+        );
+        const txIdMatch = tx.txID?.toLowerCase().includes(searchLower);
 
-      return noteMatch || addressMatch || txIdMatch;
-    });
-  }, [transactions, debouncedSearchTerm]);
+        if (!(noteMatch || addressMatch || txIdMatch)) {
+          return false;
+        }
+      }
+      return matches(tx);
+    }).sort(compare);
+  }, [transactions, debouncedSearchTerm, matches, compare]);
 
   const onAccountChanged = useCallback((status: accountApi.TStatus | undefined) => {
     if (status === undefined || status.fatalError) {
@@ -291,6 +296,8 @@ const RemountAccount = ({
                           if (showSearchBar) {
                             setShowSearchBar(false);
                             setSearchTerm('');
+                            setShowFilters(false);
+                            clearFilters();
                           } else {
                             setShowSearchBar(true);
                           }
@@ -316,8 +323,75 @@ const RemountAccount = ({
                         placeholder={t('accountSummary.searchPlaceholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.currentTarget.value)}
+                        action={
+                          <button
+                            type="button"
+                            aria-label={t('transactions.filters.button')}
+                            aria-expanded={showFilters}
+                            aria-controls={isMobile ? undefined : 'transaction-filters'}
+                            aria-haspopup={isMobile ? 'dialog' : undefined}
+                            title={t('transactions.filters.button')}
+                            className={`
+                              ${style.filterToggle || ''}
+                              ${hasActiveFilters && style.filterToggleActive || ''}
+                            `}
+                            onClick={() => {
+                              if (showFilters) {
+                                setShowFilters(false);
+                                // The inline row takes its criteria with it when it
+                                // collapses; the mobile sheet keeps them (closing the
+                                // search bar is what clears everything there).
+                                if (!isMobile) {
+                                  clearFilters();
+                                }
+                              } else {
+                                setShowFilters(true);
+                              }
+                            }}
+                          >
+                            <Sliders alt="" />
+                          </button>
+                        }
                       />
                     </div>
+
+                    {isMobile ? (
+                      <Dialog
+                        open={showFilters}
+                        title={t('transactions.filters.sheetTitle')}
+                        fitContent
+                        onClose={() => setShowFilters(false)}>
+                        {balance && (
+                          <TransactionFilters
+                            filters={filters}
+                            onFiltersChange={setFilters}
+                            coinUnit={balance.available.unit}
+                            fiatUnit={defaultCurrency}
+                          />
+                        )}
+                        <div className={style.filterSheetActions}>
+                          <Button transparent onClick={clearFilters}>
+                            {t('transactions.filters.clearAll')}
+                          </Button>
+                        </div>
+                      </Dialog>
+                    ) : (
+                      <div
+                        id="transaction-filters"
+                        className={`
+                        ${style.searchContainer || ''}
+                        ${!showFilters && style.searchHidden || ''}
+                      `}>
+                        {balance && (
+                          <TransactionFilters
+                            filters={filters}
+                            onFiltersChange={setFilters}
+                            coinUnit={balance.available.unit}
+                            fiatUnit={defaultCurrency}
+                          />
+                        )}
+                      </div>
+                    )}
                   </>
                 )}
               </div>
@@ -328,6 +402,7 @@ const RemountAccount = ({
                 transactionSuccess={transactions?.success ?? false}
                 filteredTransactions={filteredTransactions}
                 debouncedSearchTerm={debouncedSearchTerm}
+                hasActiveFilters={hasActiveFilters}
                 onShowDetail={setDetailID}
               />
 

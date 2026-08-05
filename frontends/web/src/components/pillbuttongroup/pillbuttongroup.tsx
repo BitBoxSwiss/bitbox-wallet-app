@@ -40,6 +40,8 @@ export const PillButton = ({
 }: TPillTabButtonProps) => {
   return (
     <button
+      type="button"
+      aria-pressed={active}
       className={active && styles.active || ''}
       disabled={disabled}
       onClick={onClick}

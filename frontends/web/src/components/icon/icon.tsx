@@ -81,6 +81,7 @@ import outlinedFileProtectPrimarySVG from './assets/icons/outlined-file-protect-
 import outlinedUnorderedListDarkSVG from './assets/icons/outlined-unordered-list.svg';
 import outlinedUnorderedListLightSVG from './assets/icons/outlined-unordered-list-light.svg';
 import shieldSVG from './assets/icons/shield.svg';
+import slidersSVG from './assets/icons/sliders.svg';
 import shieldDarkSVG from './assets/icons/shield-dark.svg';
 import syncSVG from './assets/icons/sync.svg';
 import syncLightSVG from './assets/icons/sync-light.svg';
@@ -197,6 +198,7 @@ export const QRCodeLight = (props: ImgProps) => (<img src={qrCodeLightSVG} dragg
 export const RedDot = (props: ImgProps) => (<img src={redDotSVG} draggable={false} {...props} />);
 export const Shield = (props: ImgProps) => (<img src={shieldSVG} draggable={false} {...props} />);
 export const ShieldDark = (props: ImgProps) => (<img src={shieldDarkSVG} draggable={false} {...props} />);
+export const Sliders = (props: ImgProps) => (<img src={slidersSVG} draggable={false} {...props} />);
 export const SpinnerRingDark = (props: ImgProps) => (<img src={spinnerRingDarkSVG} draggable={false} {...props} />);
 export const SpinnerRingLight = (props: ImgProps) => (<img src={spinnerRingLightSVG} draggable={false} {...props} />);
 export const Sync = (props: ImgProps) => (<img src={syncSVG} draggable={false} {...props} />);
