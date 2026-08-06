@@ -10,7 +10,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
-	"github.com/ethereum/go-ethereum/core/types"
 )
 
 // Type denotes the type of a keystore.
@@ -164,10 +163,6 @@ type Keystore interface {
 	// SignTransaction signs the given transaction proposal. Returns ErrSigningAborted if the user
 	// aborts.
 	SignTransaction(interface{}) error
-
-	// SignETHWalletConnectTransaction signs a transaction proposed by Wallet Connect. Returns ErrSigningAborted if the user
-	// aborts.
-	SignETHWalletConnectTransaction(chainID uint64, tx *types.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error)
 
 	// SupportsEIP1559 returns whether the keystore supports EIP1559 type 2 transactions for Ethereum
 	SupportsEIP1559() bool

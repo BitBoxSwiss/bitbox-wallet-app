@@ -21,7 +21,6 @@ import (
 	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/btcsuite/btcd/psbt/v2"
-	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -440,7 +439,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 			paymentRequest = newBTCPaymentRequest(txProposal.PaymentRequest)
 		}
 		signature, err = keystore.device.ETHSignEIP1559(
-			txProposal.Coin.ChainID(),
+			txProposal.ChainID,
 			txProposal.Keypath.ToUInt32(),
 			tx.Nonce(),
 			tx.GasTipCap(),
@@ -457,7 +456,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 			return errp.New("payment requests require EIP-1559 support")
 		}
 		signature, err = keystore.device.ETHSign(
-			txProposal.Coin.ChainID(),
+			txProposal.ChainID,
 			txProposal.Keypath.ToUInt32(),
 			tx.Nonce(),
 			tx.GasPrice(),
@@ -476,7 +475,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 	if err != nil {
 		return err
 	}
-	signedTx, err := txProposal.Tx.WithSignature(txProposal.Signer, signature)
+	signedTx, err := txProposal.Tx.WithSignature(txProposal.Signer(), signature)
 	if err != nil {
 		return err
 	}
@@ -621,41 +620,15 @@ func (keystore *keystore) SignETHMessage(chainID uint64, message []byte, keypath
 }
 
 // SignETHTypedMessage implements keystore.Keystore.
-func (keystore *keystore) SignETHTypedMessage(chainId uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+func (keystore *keystore) SignETHTypedMessage(chainID uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	if err := keystore.SupportsFeature(keystorePkg.FeatureETHTypedMessageSigning); err != nil {
 		return nil, err
 	}
-	// SignETHTypedMessage is currently only used for WalletConnect. We disable antiklepto there, as
-	// some DeFi apps require deterministic signatures.
-	// Before v9.26.0, antiklepto could not be disabled.
+	// Some applications require deterministic signatures. Before v9.26.0, antiklepto could not be
+	// disabled.
 	useAntiklepto := !keystore.device.Version().AtLeast(semver.NewSemVer(9, 26, 0))
 
-	signature, err := keystore.device.ETHSignTypedMessage(chainId, keypath.ToUInt32(), data, useAntiklepto)
-	if firmware.IsErrorAbort(err) {
-		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
-	}
-	if err != nil {
-		return nil, err
-	}
-	return signature, nil
-}
-
-// SignETHWalletConnectTransaction implements keystore.Keystore.
-func (keystore *keystore) SignETHWalletConnectTransaction(chainId uint64, tx *ethTypes.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	if err := keystore.SupportsFeature(keystorePkg.FeatureETHTransactionSigning); err != nil {
-		return nil, err
-	}
-	signature, err := keystore.device.ETHSign(
-		chainId,
-		keypath.ToUInt32(),
-		tx.Nonce(),
-		tx.GasPrice(),
-		tx.Gas(),
-		*tx.To(),
-		tx.Value(),
-		tx.Data(),
-		messages.ETHAddressCase_ETH_ADDRESS_CASE_MIXED,
-	)
+	signature, err := keystore.device.ETHSignTypedMessage(chainID, keypath.ToUInt32(), data, useAntiklepto)
 	if firmware.IsErrorAbort(err) {
 		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
 	}
