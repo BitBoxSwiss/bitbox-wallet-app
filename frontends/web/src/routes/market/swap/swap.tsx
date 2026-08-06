@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   getBalance,
-  hasSwapPaymentRequest,
   proposeTx,
   sendTx,
   TBalance,
@@ -25,7 +24,6 @@ import {
   type TSwapQuoteErrorCode,
   type TSwapQuoteRoute,
 } from '@/api/swap';
-import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
@@ -123,8 +121,6 @@ export const Swap = ({
   }>();
   const [result, setResult] = useState<TSendTx | undefined>();
   const [canFlip, setCanFlip] = useState<boolean>(false);
-  const [fwRequiredDialog, setFwRequiredDialog] = useState(false);
-
   const [routes, setRoutes] = useState<TSwapQuoteRoute[]>([]);
   const [selectedRouteId, setSelectedRouteId] = useState<string | undefined>();
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
@@ -410,18 +406,6 @@ export const Swap = ({
         return;
       }
 
-      const paymentRequestSupport = await hasSwapPaymentRequest(sellAccountCode);
-      if (!paymentRequestSupport.success) {
-        if (paymentRequestSupport.errorCode === 'firmwareUpgradeRequired') {
-          setFwRequiredDialog(true);
-        } else if (paymentRequestSupport.errorCode) {
-          alertUser(t(`device.${paymentRequestSupport.errorCode}`));
-        } else {
-          alertUser(paymentRequestSupport.errorMessage || t('genericError'));
-        }
-        return;
-      }
-
       setResult(undefined);
       setConfirmDetails(undefined);
 
@@ -562,10 +546,6 @@ export const Swap = ({
   return (
     <GuideWrapper>
       <GuidedContent>
-        <FirmwareUpgradeRequiredDialog
-          open={fwRequiredDialog}
-          onClose={() => setFwRequiredDialog(false)}
-        />
         <Main>
           <Header
             hideSidebarToggler

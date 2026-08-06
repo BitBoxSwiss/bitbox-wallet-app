@@ -68,6 +68,9 @@ func makeKeystore(
 				return true
 			}
 		},
+		SupportsFeatureFunc: func(keystorePkg.Feature) error {
+			return nil
+		},
 		CanSignMessageFunc: func(coinpkg.Code) bool {
 			return true
 		},
@@ -444,6 +447,26 @@ func TestAOPPFailures(t *testing.T) {
 		b.AOPPChooseAccount("v0-55555555-btc-0")
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPSigningAborted, b.AOPP().ErrorCode)
+	})
+	t.Run("firmware_upgrade_required", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		params := defaultParams()
+		b.HandleURI(uriPrefix + params.Encode())
+		b.AOPPApprove()
+		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper)
+		ks2.SupportsFeatureFunc = func(feature keystorePkg.Feature) error {
+			require.Equal(t, keystorePkg.FeatureMessageSigning, feature)
+			return errp.WithStack(keystorePkg.ErrFirmwareUpgradeRequired)
+		}
+		b.registerKeystore(ks2)
+		require.Equal(t, aoppStateError, b.AOPP().State)
+		require.Equal(
+			t,
+			errp.ErrorCode(keystorePkg.ErrFirmwareUpgradeRequired.Error()),
+			b.AOPP().ErrorCode,
+		)
+		require.Empty(t, ks2.SignBTCMessageCalls())
 	})
 	t.Run("callback_failed", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)

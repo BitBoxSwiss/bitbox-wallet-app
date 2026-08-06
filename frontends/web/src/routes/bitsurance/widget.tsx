@@ -34,7 +34,6 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitsuranceDisclaimer ?? false);
   useVendorIframeActive(agreedTerms && !!iframeURL);
   const signingRef = useRef(false);
-
   useEffect(() => {
     window.addEventListener('message', onMessage);
     return () => {

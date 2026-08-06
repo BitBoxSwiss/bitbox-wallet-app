@@ -409,13 +409,14 @@ func (keystore *Keystore) SupportsEIP1559() bool {
 	return false
 }
 
-// SupportsPaymentRequests implements keystore.Keystore.
-func (keystore *Keystore) SupportsPaymentRequests() error {
-	return keystorePkg.ErrUnsupportedFeature
-}
-
-// SupportsSwapPaymentRequests reports whether the keystore supports the
-// payment-request signing flow used by swaps.
-func (keystore *Keystore) SupportsSwapPaymentRequests() error {
-	return keystorePkg.ErrUnsupportedFeature
+// SupportsFeature implements keystore.Keystore.
+func (keystore *Keystore) SupportsFeature(feature keystorePkg.Feature) error {
+	switch feature {
+	case keystorePkg.FeatureBTCTransactionSigning,
+		keystorePkg.FeatureETHTransactionSigning,
+		keystorePkg.FeatureMessageSigning:
+		return nil
+	default:
+		return keystorePkg.ErrUnsupportedFeature
+	}
 }

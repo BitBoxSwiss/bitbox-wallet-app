@@ -8,7 +8,7 @@ import { useConfig } from '@/contexts/ConfigProvider';
 import { Dialog } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
 import { verifyAddress, getPocketURL, TMarketAction } from '@/api/market';
-import { AccountCode, getInfo, getTransactionList, hasPaymentRequest, signBTCMessageUnusedAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { AccountCode, getInfo, getTransactionList, signBTCMessageUnusedAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { Header } from '@/components/layout';
 import { MobileHeader } from '../settings/components/mobile-header';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -20,7 +20,6 @@ import { alertUser } from '@/components/alert/Alert';
 import { MarketGuide } from './guide';
 import { convertScriptType } from '@/utils/request-addess';
 import { parseExternalBtcAmount } from '@/api/coins';
-import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { useMarketIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
 import { useAccountSynced } from '@/hooks/account';
 import { Message } from '@/components/message/message';
@@ -39,10 +38,6 @@ export const Pocket = ({
   const { config } = useConfig();
   const navigate = useNavigate();
 
-  // Pocket sell only works if the FW supports payment requests
-  const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(code));
-  const [fwRequiredDialog, setFwRequiredDialog] = useState(false);
-
   const [blocking, setBlocking] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
@@ -54,19 +49,6 @@ export const Pocket = ({
 
   const pocketInfo = useAccountSynced(code, useCallback(() => getPocketURL(action), [action]));
   useMarketIframeActive(!!config && agreedTerms && pocketInfo?.success === true);
-
-  useEffect(() => {
-    // enable paymentRequestError only when the action is sell.
-    if (action === 'sell' && hasPaymentRequestResponse?.success === false) {
-      if (hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired') {
-        setFwRequiredDialog(true);
-      } else if (hasPaymentRequestResponse?.errorCode) {
-        alertUser(t('device.' + hasPaymentRequestResponse.errorCode));
-      } else if (hasPaymentRequestResponse?.errorMessage) {
-        alertUser(hasPaymentRequestResponse?.errorMessage);
-      }
-    }
-  }, [action, hasPaymentRequestResponse, t]);
 
   useEffect(() => {
     window.addEventListener('message', onMessage);
@@ -355,13 +337,6 @@ export const Pocket = ({
             {t('buy.pocket.verifyBitBox02')}
             <PointToBitBox02 />
           </Dialog>
-          <FirmwareUpgradeRequiredDialog
-            open={fwRequiredDialog}
-            onClose={() => {
-              setFwRequiredDialog(false);
-              navigate(-1);
-            }}
-          />
         </div>
       </div>
       <MarketGuide vendor="pocket" translationContext="bitcoin" />

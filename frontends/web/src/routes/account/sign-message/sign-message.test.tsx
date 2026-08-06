@@ -130,7 +130,10 @@ describe('routes/account/sign-message', () => {
     await user.click(screen.getByRole('button', { name: 'Sign on device' }));
 
     await waitFor(() => {
-      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(mockAccount.keystore.rootFingerprint);
+      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(
+        mockAccount.keystore.rootFingerprint,
+        'messageSigning',
+      );
       expect(signMessageSpy).toHaveBeenCalledWith(
         mockAccount.code,
         'native-address-id',
@@ -222,7 +225,10 @@ describe('routes/account/sign-message', () => {
     await user.click(screen.getByRole('button', { name: 'Sign on device' }));
 
     await waitFor(() => {
-      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(mockAccount.keystore.rootFingerprint);
+      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(
+        mockAccount.keystore.rootFingerprint,
+        'messageSigning',
+      );
       expect(signMessageSpy).toHaveBeenCalledWith(
         mockAccount.code,
         'native-address-id',
@@ -276,7 +282,10 @@ describe('routes/account/sign-message', () => {
     await user.click(screen.getByRole('button', { name: 'Sign on device' }));
 
     await waitFor(() => {
-      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(mockAccount.keystore.rootFingerprint);
+      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(
+        mockAccount.keystore.rootFingerprint,
+        'messageSigning',
+      );
       expect(signMessageSpy).toHaveBeenCalledWith(
         mockAccount.code,
         usedAddress.addressID,
@@ -356,7 +365,10 @@ describe('routes/account/sign-message', () => {
     await user.click(screen.getByRole('button', { name: 'Sign on device' }));
 
     await waitFor(() => {
-      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(ethAccount.keystore.rootFingerprint);
+      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(
+        ethAccount.keystore.rootFingerprint,
+        'messageSigning',
+      );
       expect(ethSignSpy).toHaveBeenCalledWith(
         ethAccount.code,
         'eth sign test',
@@ -404,7 +416,10 @@ describe('routes/account/sign-message', () => {
     await user.click(screen.getByRole('button', { name: 'Sign on device' }));
 
     await waitFor(() => {
-      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(mockAccount.keystore.rootFingerprint);
+      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(
+        mockAccount.keystore.rootFingerprint,
+        'messageSigning',
+      );
     });
     expect(signMessageSpy).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Sign on device' })).toBeInTheDocument();
