@@ -42,9 +42,10 @@ export type TBitcoinDepositState = 'confirming' | 'claiming' | 'complete' | 'unc
 
 export type TBitcoinDeposit = {
   txid: string;
-  vout: number;
   state: TBitcoinDepositState;
-  claimError?: string;
+  claimFee?: TAmountWithConversions;
+  claimFeeSat?: number;
+  refundFeeRateSatPerVbyte?: number;
 };
 
 export type TLightningPayment = {
@@ -80,6 +81,10 @@ export type TCloseWithdrawQuote = {
 export type TCloseWithdrawResult = {
   txId?: string;
   walletClosed: boolean;
+};
+
+export type TTopUpRecoveryResult = {
+  txId?: string;
 };
 
 export type TLightningAddressAvailability = {
@@ -268,6 +273,33 @@ export const postCloseWithdraw = async (
     'lightning/close-withdraw-funds',
     { destinationAccountCode, approvedBalanceSat, approvedFeeSat },
     'Error calling postCloseWithdraw'
+  );
+};
+
+export const postClaimTopUp = async (
+  paymentId: string,
+  approvedFeeSat: number,
+): Promise<TTopUpRecoveryResult> => {
+  return postApiResponse<TTopUpRecoveryResult, { paymentId: string; approvedFeeSat: number }>(
+    'lightning/claim-top-up',
+    { paymentId, approvedFeeSat },
+    'Error calling postClaimTopUp'
+  );
+};
+
+export const postRefundTopUp = async (
+  paymentId: string,
+  destinationAccountCode: AccountCode,
+  approvedFeeRateSatPerVbyte: number,
+): Promise<TTopUpRecoveryResult> => {
+  return postApiResponse<TTopUpRecoveryResult, {
+    paymentId: string;
+    destinationAccountCode: AccountCode;
+    approvedFeeRateSatPerVbyte: number;
+  }>(
+    'lightning/refund-top-up',
+    { paymentId, destinationAccountCode, approvedFeeRateSatPerVbyte },
+    'Error calling postRefundTopUp'
   );
 };
 

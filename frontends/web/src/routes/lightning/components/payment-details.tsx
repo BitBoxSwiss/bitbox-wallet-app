@@ -38,6 +38,7 @@ export const PaymentDetailsDialog = ({
   const statusText = payment.bitcoinDeposit && payment.bitcoinDeposit.state !== 'complete'
     ? t(`lightning.bitcoinDeposit.state.${payment.bitcoinDeposit.state}`)
     : t(`transaction.status.${payment.status}`, { context: payment.type });
+  const bitcoinDeposit = payment.bitcoinDeposit;
 
   return (
     <Dialog
@@ -112,28 +113,26 @@ export const PaymentDetailsDialog = ({
             <p className={styles.label}>{t('transaction.details.status')}</p>
             <span>{statusText}</span>
           </TxDetailRow>
-          {payment.bitcoinDeposit && (
+          {bitcoinDeposit && (
             <>
-              {explorerURL && payment.bitcoinDeposit.txid && (
+              {explorerURL && bitcoinDeposit.txid && (
                 <div className={styles.explorerLinkContainer}>
                   <A
                     className={styles.explorerLink}
-                    href={explorerURL + payment.bitcoinDeposit.txid}
-                    title={`${t('transaction.explorerTitle')}\n${explorerURL}${payment.bitcoinDeposit.txid}`}>
+                    href={explorerURL + bitcoinDeposit.txid}
+                    title={`${t('transaction.explorerTitle')}\n${explorerURL}${bitcoinDeposit.txid}`}>
                     <ExternalLink />
                     {' '}
                     {t('transaction.explorerTitle')}
                   </A>
                 </div>
               )}
-              {payment.bitcoinDeposit.state === 'unclaimed' && (
+              {bitcoinDeposit.state === 'unclaimed' && (
                 <Button
                   className={paymentStyles.claimButton}
-                  onClick={() => navigate('/lightning/claim-top-up', {
-                    state: {
-                      deposits: [payment],
-                    },
-                  })}
+                  onClick={() => navigate(
+                    `/lightning/claim-top-up?paymentId=${encodeURIComponent(payment.id)}`
+                  )}
                   primary>
                   {t('lightning.bitcoinDeposit.claim')}
                 </Button>

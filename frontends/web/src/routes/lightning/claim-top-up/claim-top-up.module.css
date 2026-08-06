@@ -30,19 +30,6 @@
     margin: 0;
 }
 
-.amountRows {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-quarter);
-}
-
-.amountRow {
-    align-items: baseline;
-    display: flex;
-    gap: var(--space-half);
-    justify-content: space-between;
-}
-
 .amount {
     color: var(--color-default);
     font-weight: 600;
