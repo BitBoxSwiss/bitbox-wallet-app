@@ -3,7 +3,7 @@
 Update BitBox02 bundled firmware binaries in this folder.
 
 This replaces the 4 "current" bundled firmwares (BitBox02 + BitBox02 Nova, Multi + BTC-only)
-while keeping the fixed v9.17.1 files intact.
+while keeping the fixed v9.17.1 and v9.26.2 files intact.
 
 Expected input directory layout:
   firmware-bitbox02-btconly.v<version>.signed.bin
@@ -29,7 +29,7 @@ from pathlib import Path
 
 
 ASSETS_DIR = Path(__file__).resolve().parent
-FIXED_VERSION = "9.17.1"
+FIXED_VERSIONS = ("9.17.1", "9.26.2")
 
 VARIANTS = (
     "firmware-bitbox02-btconly",
@@ -66,8 +66,8 @@ def _normalize_version_tag(version: str) -> str:
         version_num = version[1:]
     else:
         version_num = version
-    if version_num == FIXED_VERSION:
-        raise ValueError(f"refusing to update fixed version v{FIXED_VERSION}")
+    if version_num in FIXED_VERSIONS:
+        raise ValueError(f"refusing to update fixed version v{version_num}")
     if not re.fullmatch(r"\d+\.\d+\.\d+", version_num):
         raise ValueError(f"invalid --version {version!r}; expected like 9.24.0 (or v9.24.0)")
     return f"v{version_num}"
@@ -104,7 +104,11 @@ def _ensure_not_gzipped(path: Path) -> None:
 
 
 def _find_single(glob_pattern: str) -> Path:
-    matches = sorted(ASSETS_DIR.glob(glob_pattern))
+    matches = sorted(
+        path
+        for path in ASSETS_DIR.glob(glob_pattern)
+        if not any(f".v{version}." in path.name for version in FIXED_VERSIONS)
+    )
     if len(matches) != 1:
         raise RuntimeError(f"expected exactly 1 match for {glob_pattern!r}, found {len(matches)}: {matches}")
     return matches[0]
@@ -139,7 +143,7 @@ def main(argv: list[str]) -> int:
     for variant, src_bin in expected_src_by_variant.items():
         _sha256_firmware_payload(src_bin, variant=variant)
 
-    # Resolve current bundled firmware files to delete (excluding fixed v9.17.1 legacy assets).
+    # Resolve current bundled firmware files to delete (excluding fixed assets).
     current_assets_gz: list[Path] = []
     current_assets_sha: list[Path] = []
     for variant in VARIANTS:
@@ -148,7 +152,7 @@ def main(argv: list[str]) -> int:
 
     # Ensure we don't touch the fixed files.
     for p in current_assets_gz + current_assets_sha:
-        if f".v{FIXED_VERSION}." in p.name:
+        if any(f".v{version}." in p.name for version in FIXED_VERSIONS):
             raise RuntimeError(f"refusing to touch fixed asset: {p}")
 
     planned_deletes = current_assets_gz + current_assets_sha
