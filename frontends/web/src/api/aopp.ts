@@ -15,7 +15,7 @@ type Accounts = NonEmptyArray<TAccount>;
 
 export type Aopp = {
   state: 'error';
-  errorCode: 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
+  errorCode: 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback' | 'firmwareUpgradeRequired';
   callback: string;
 } | {
   state: 'inactive';

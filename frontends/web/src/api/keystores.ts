@@ -47,15 +47,28 @@ export const deregisterTest = (): Promise<null> => {
 
 export type TConnectKeystoreResponse = {
   success: boolean;
-  errorCode?: string;
+  errorCode?: 'firmwareUpgradeRequired' | 'unsupportedFeature' | 'userAbort';
 };
 
-export const connectKeystore = (rootFingerprint: string): Promise<TConnectKeystoreResponse> => {
-  return apiPost('connect-keystore', { rootFingerprint });
+export type TKeystoreFeature =
+  | 'btcTransactionSigning'
+  | 'ethTransactionSigning'
+  | 'messageSigning'
+  | 'ethTypedMessageSigning'
+  | 'paymentRequests'
+  | 'swapPaymentRequests';
+
+export const connectKeystore = (
+  rootFingerprint: string,
+  requiredFeature?: TKeystoreFeature,
+): Promise<TConnectKeystoreResponse> => {
+  return apiPost('connect-keystore', { rootFingerprint, requiredFeature });
 };
 
-export const connectAnyKeystore = (): Promise<TConnectKeystoreResponse> => {
-  return apiPost('connect-keystore', { rootFingerprint: '' });
+export const connectAnyKeystore = (
+  requiredFeature?: TKeystoreFeature,
+): Promise<TConnectKeystoreResponse> => {
+  return apiPost('connect-keystore', { rootFingerprint: '', requiredFeature });
 };
 
 export const getKeystoreFeatures = (rootFingerprint: string): Promise<TKeystoreFeaturesResponse> => {

@@ -42,6 +42,10 @@ func formatAddressForDisplay(account accounts.Interface, address string) string 
 	return backendutil.FormatAddress(account.Coin().Code(), address)
 }
 
+func isFirmwareUpgradeRequired(err error) bool {
+	return errp.Cause(err) == keystore.ErrFirmwareUpgradeRequired
+}
+
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
 	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route, log *logrus.Entry) *Handlers {
@@ -66,8 +70,6 @@ func NewHandlers(
 	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageForAddress)).Methods("POST")
 	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignETHMessageForAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
-	handleFunc("/has-payment-request", handlers.ensureAccountInitialized(handlers.getHasPaymentRequest)).Methods("GET")
-	handleFunc("/has-swap-payment-request", handlers.ensureAccountInitialized(handlers.getHasSwapPaymentRequest)).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
 	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
@@ -498,6 +500,8 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 			result.ErrorCode = validationErr.Error()
 		} else if errCode, ok := cause.(errp.ErrorCode); ok {
 			result.ErrorCode = errCode.Error()
+		} else if isFirmwareUpgradeRequired(err) {
+			result.ErrorCode = keystore.ErrFirmwareUpgradeRequired.Error()
 		} else if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
 			result.ErrorCode = errors.ErrERC20InsufficientGasFunds.Error()
 		}
@@ -773,6 +777,20 @@ type signingResponse struct {
 	Signature    string `json:"signature"`
 	Aborted      bool   `json:"aborted"`
 	ErrorMessage string `json:"errorMessage"`
+	ErrorCode    string `json:"errorCode,omitempty"`
+}
+
+func newSigningErrorResponse(err error) signingResponse {
+	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
+		return signingResponse{Success: false, Aborted: true}
+	}
+	if isFirmwareUpgradeRequired(err) {
+		return signingResponse{
+			Success:   false,
+			ErrorCode: keystore.ErrFirmwareUpgradeRequired.Error(),
+		}
+	}
+	return signingResponse{Success: false, ErrorMessage: err.Error()}
 }
 
 func (handlers *Handlers) postEthSignMsg(r *http.Request) (interface{}, error) {
@@ -785,12 +803,11 @@ func (handlers *Handlers) postEthSignMsg(r *http.Request) (interface{}, error) {
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
 	signature, err := ethAccount.SignMsg(signInput)
-	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
-		return signingResponse{Success: false, Aborted: true}, nil
-	}
 	if err != nil {
-		handlers.log.WithError(err).Error("Failed to sign message")
-		result := signingResponse{Success: false, ErrorMessage: err.Error()}
+		result := newSigningErrorResponse(err)
+		if !result.Aborted {
+			handlers.log.WithError(err).Error("Failed to sign message")
+		}
 		return result, nil
 	}
 	return signingResponse{
@@ -815,12 +832,11 @@ func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, err
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
 	signature, err := ethAccount.SignTypedMsg(*args.ChainId, args.Data)
-	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
-		return signingResponse{Success: false, Aborted: true}, nil
-	}
 	if err != nil {
-		handlers.log.WithError(err).Error("Failed to sign typed data")
-		result := signingResponse{Success: false, ErrorMessage: err.Error()}
+		result := newSigningErrorResponse(err)
+		if !result.Aborted {
+			handlers.log.WithError(err).Error("Failed to sign typed data")
+		}
 		return result, nil
 	}
 	return signingResponse{
@@ -854,12 +870,11 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
 	txHash, rawTx, err := ethAccount.EthSignWalletConnectTx(args.Send, *args.ChainId, args.Tx)
-	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
-		return signingResponse{Success: false, Aborted: true}, nil
-	}
 	if err != nil {
-		handlers.log.WithError(err).Error("Failed to send transaction")
-		result := signingResponse{Success: false, ErrorMessage: err.Error()}
+		result := newSigningErrorResponse(err)
+		if !result.Aborted {
+			handlers.log.WithError(err).Error("Failed to send transaction")
+		}
 		return result, nil
 	}
 	return response{
@@ -882,6 +897,12 @@ func (handlers *Handlers) signMessageForAddressErrorResponse(err error) signMess
 	cause := errp.Cause(err)
 	if errCode, ok := cause.(errp.ErrorCode); ok {
 		return signMessageForAddressResponse{Success: false, ErrorCode: string(errCode)}
+	}
+	if isFirmwareUpgradeRequired(err) {
+		return signMessageForAddressResponse{
+			Success:   false,
+			ErrorCode: keystore.ErrFirmwareUpgradeRequired.Error(),
+		}
 	}
 	handlers.log.WithField("code", handlers.account.Config().Config.Code).WithError(err).Error("unexpected error signing message")
 	return signMessageForAddressResponse{Success: false, ErrorMessage: "An unexpected error occurred."}
@@ -971,52 +992,4 @@ func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) (interfa
 		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
 		Signature:      signature,
 	}, nil
-}
-
-func (handlers *Handlers) getHasPaymentRequest(r *http.Request) (interface{}, error) {
-	type response struct {
-		Success      bool   `json:"success"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
-		ErrorCode    string `json:"errorCode,omitempty"`
-	}
-
-	switch handlers.account.(type) {
-	case *btc.Account, *eth.Account:
-	default:
-		return response{
-			Success:      false,
-			ErrorMessage: "An account must be BTC or ETH based to support payment requests.",
-		}, nil
-	}
-
-	keystore, err := handlers.account.Config().ConnectKeystore()
-	if err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}, nil
-	}
-	err = keystore.SupportsPaymentRequests()
-	if err != nil {
-		return response{Success: false, ErrorCode: err.Error()}, nil
-	}
-
-	return response{Success: true}, nil
-}
-
-func (handlers *Handlers) getHasSwapPaymentRequest(r *http.Request) (interface{}, error) {
-	type response struct {
-		Success      bool   `json:"success"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
-		ErrorCode    string `json:"errorCode,omitempty"`
-	}
-
-	accountKeystore, err := handlers.account.Config().ConnectKeystore()
-	if err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}, nil
-	}
-
-	err = accountKeystore.SupportsSwapPaymentRequests()
-	if err != nil {
-		return response{Success: false, ErrorCode: err.Error()}, nil
-	}
-
-	return response{Success: true}, nil
 }

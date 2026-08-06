@@ -57,7 +57,6 @@ export const Bitrefill = ({
 
   const [pendingPayment, setPendingPayment] = useState<boolean>(false);
   const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);
-
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
   const handleConfiguration = useCallback(async (event: MessageEvent) => {

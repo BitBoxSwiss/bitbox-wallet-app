@@ -13,7 +13,7 @@ import { useLoad } from '@/hooks/api';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { MarketTab } from './components/markettab';
-import { getFallbackMarketAccountCode, getVendorFormattedName } from './utils';
+import { getFallbackMarketAccountCode, getRequiredKeystoreFeature, getVendorFormattedName } from './utils';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Dialog } from '@/components/dialog/dialog';
 import { alertUser } from '@/components/alert/Alert';
@@ -23,11 +23,13 @@ import { useConfig } from '@/contexts/ConfigProvider';
 import { CountrySelect, TOption } from './components/countryselect';
 import { getBTCDirectOTCLink, getPocketOTCLink, InfoContent, TInfoContentProps } from './components/infocontent';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
-import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
 import { open } from '@/api/system';
 import { useMarketContext } from './market-context';
 import { MarketGuide } from './guide';
 import { isBitcoinOnly } from '../account/utils';
+import { useFeatureConnect } from '@/hooks/keystore';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
+import type { TKeystoreFeature } from '@/api/keystores';
 import style from './market.module.css';
 
 type TProps = {
@@ -56,6 +58,12 @@ export const Market = ({
 
   const [info, setInfo] = useState<TInfoContentProps>();
   const selectedAccount = code || getFallbackMarketAccountCode(accounts);
+  const {
+    connect,
+    connectAny,
+    dismissFirmwareUpgrade,
+    firmwareUpgradeRequired,
+  } = useFeatureConnect();
 
   const {
     agreedTerms: agreedBTCDirectOTCTerms,
@@ -79,13 +87,15 @@ export const Market = ({
   const swapDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('swap', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
   const otcDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('otc', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
 
-  const promptConnectKeystore = async (accountCode: string): Promise<boolean> => {
+  const promptConnectKeystore = async (
+    accountCode: string,
+    requiredFeature?: TKeystoreFeature,
+  ): Promise<boolean> => {
     const account = accounts.find(acc => acc.code === accountCode);
     if (!account) {
       return false;
     }
-    const connectResult = await connectKeystore(account.keystore.rootFingerprint);
-    return connectResult.success;
+    return connect(account.keystore.rootFingerprint, requiredFeature);
   };
 
   const handleAccountChange = async (accountCode: string) => {
@@ -95,8 +105,8 @@ export const Market = ({
   };
 
   const handleGoToSwap = async () => {
-    const connectResult = await connectAnyKeystore();
-    if (!connectResult.success) {
+    const requiredFeature = getRequiredKeystoreFeature('swapkit', 'swap');
+    if (!await connectAny(requiredFeature)) {
       return;
     }
 
@@ -166,7 +176,12 @@ export const Market = ({
         return;
       }
     }
-    if (!selectedAccount || !await promptConnectKeystore(selectedAccount)) {
+    const account = accounts.find(({ code }) => code === selectedAccount);
+    if (!account) {
+      return;
+    }
+    const requiredFeature = getRequiredKeystoreFeature(vendor, activeTab, account.coinCode);
+    if (!await promptConnectKeystore(selectedAccount, requiredFeature)) {
       return;
     }
     navigate(`/market/${vendor}/${activeTab}/${selectedAccount}/${selectedRegion}`);
@@ -182,6 +197,12 @@ export const Market = ({
 
   return (
     <GuideWrapper>
+      {firmwareUpgradeRequired && (
+        <FirmwareUpgradeRequiredDialog
+          open
+          onClose={dismissFirmwareUpgrade}
+        />
+      )}
       <GuidedContent>
         <Main>
           <Header title={<h2>{t('generic.buySell')}</h2>} />

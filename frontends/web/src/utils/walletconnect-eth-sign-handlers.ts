@@ -60,6 +60,7 @@ export type TSignDialogResult = {
 } | {
   success: false;
   aborted?: boolean;
+  errorCode?: 'firmwareUpgradeRequired';
   errorMessage?: string;
 };
 
@@ -84,6 +85,7 @@ type TAccountDetails = {
 type TFailedSigningApiResult = {
   success: false;
   aborted?: boolean;
+  errorCode?: 'firmwareUpgradeRequired';
   errorMessage?: string;
 };
 

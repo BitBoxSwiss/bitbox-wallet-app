@@ -379,6 +379,7 @@ export const proposeTx = (
 export type TSendTxErrorCode =
   | TTxProposalErrorCode
   | 'erc20InsufficientGasFunds'
+  | 'firmwareUpgradeRequired'
   | 'syncInProgress'
   | 'wrongKeystore';
 
@@ -449,20 +450,6 @@ export const hasSecureOutput = (code: AccountCode) => {
   };
 };
 
-type THasPaymentRequest = {
-  success: boolean;
-  errorMessage?: string;
-  errorCode?: 'firmwareUpgradeRequired' | 'unsupportedFeature';
-};
-
-export const hasPaymentRequest = (code: AccountCode): Promise<THasPaymentRequest> => {
-  return apiGet(`account/${code}/has-payment-request`);
-};
-
-export const hasSwapPaymentRequest = (code: AccountCode): Promise<THasPaymentRequest> => {
-  return apiGet(`account/${code}/has-swap-payment-request`);
-};
-
 export type TAddAccount = {
   success: boolean;
   accountCode?: string;
@@ -477,12 +464,21 @@ export const addAccount = (coinCode: string, name: string): Promise<TAddAccount>
   });
 };
 
-export type TSignMessage = { success: false; aborted?: boolean; errorMessage?: string } | { success: true; signature: string };
+export type TSignMessage = {
+  success: false;
+  aborted?: boolean;
+  errorMessage?: string;
+  errorCode?: 'firmwareUpgradeRequired';
+} | {
+  success: true;
+  signature: string;
+};
 
 export type TSignWalletConnectTx = {
   success: false;
   aborted?: boolean;
   errorMessage?: string;
+  errorCode?: 'firmwareUpgradeRequired';
 } | {
   success: true;
   txHash: string;
@@ -514,7 +510,7 @@ type TAddressSignResponse = {
 } | {
   success: false;
   errorMessage?: string;
-  errorCode?: 'userAbort' | 'wrongKeystore';
+  errorCode?: 'firmwareUpgradeRequired' | 'userAbort' | 'wrongKeystore';
 };
 
 export const signBTCMessageUnusedAddress = (
