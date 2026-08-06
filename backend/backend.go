@@ -325,6 +325,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 
 	accountUpdate := make(chan *eth.Account)
+	etherScanRateLimiter := rate.NewLimiter(rate.Limit(etherscan.CallsPerSec), 1)
 
 	backend := &Backend{
 		arguments:   arguments,
@@ -340,13 +341,14 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
 		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-			return eth.NewAccount(config, coin, httpClient, log, accountUpdate)
+			chainClientProvider := eth.NewEtherscanChainClientProvider(httpClient, etherScanRateLimiter)
+			return eth.NewAccount(config, coin, chainClientProvider, log, accountUpdate)
 		},
 
 		log: log,
 
 		testing:              backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
-		etherScanRateLimiter: rate.NewLimiter(rate.Limit(etherscan.CallsPerSec), 1),
+		etherScanRateLimiter: etherScanRateLimiter,
 	}
 	// TODO: remove when connectivity check is present on all platforms
 	backend.isOnline.Store(true)
