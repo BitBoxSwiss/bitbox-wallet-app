@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v4.51.4
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.5
+
 ## v4.51.3
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.4
 
