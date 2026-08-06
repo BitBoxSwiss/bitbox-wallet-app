@@ -8,7 +8,7 @@ if (!appVersionFile.exists()) {
 def appVersion = appVersionFile.text.trim()
 
 android {
-    compileSdk 35
+    compileSdk 36
     // Keep in sync with android-env.mk.inc and the NDK installed in docker_install.sh.
     ndkVersion "28.2.13676358"
     defaultConfig {
@@ -16,7 +16,7 @@ android {
         minSdk 24
         // minSdkVersion should match the `-androidapi` gomobile bind flag
         // in backend/mobileserver/Makefile
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode 71
         versionName "${appVersion}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
