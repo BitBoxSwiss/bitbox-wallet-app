@@ -23,10 +23,18 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
 const testCloseWithdrawDestinationAccountCode accountsTypes.Code = "btc-0"
+
+const (
+	testP2PKHAddress  = "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+	testP2SHAddress   = "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy"
+	testP2TRAddress   = "bc1p5d7rjq7g6rdk2yhzks9smlaqtedr4dekq08ge8ztwac72sfr9rusxg3297"
+	testP2WPKHAddress = "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
+)
 
 type testPaymentAddress string
 
@@ -58,11 +66,11 @@ func testCloseWithdrawAccount() accounts.Interface {
 			return []accounts.AddressList{
 				{
 					ScriptType: &p2wpkh,
-					Addresses:  []accounts.Address{testPaymentAddress("bc1qfallback")},
+					Addresses:  []accounts.Address{testPaymentAddress(testP2WPKHAddress)},
 				},
 				{
 					ScriptType: &p2tr,
-					Addresses:  []accounts.Address{testPaymentAddress("bc1pdestination")},
+					Addresses:  []accounts.Address{testPaymentAddress(testP2TRAddress)},
 				},
 			}, nil
 		},
@@ -287,6 +295,25 @@ func TestToLightningPaymentSparkNilInvoiceDetails(t *testing.T) {
 		require.Equal(t, coinAmountWithConversions("0.00000123"), payment.Amount)
 		require.Equal(t, coinAmountWithConversions("0.00000004"), payment.Fee)
 	})
+}
+
+func TestToLightningPaymentWithdraw(t *testing.T) {
+	lightning := makeTestLightning()
+	details := breez_sdk_spark.PaymentDetails(breez_sdk_spark.PaymentDetailsWithdraw{
+		TxId: "withdraw-txid",
+	})
+
+	payment := lightning.toLightningPayment(breez_sdk_spark.Payment{
+		Id:          "spark-payment-id",
+		PaymentType: breez_sdk_spark.PaymentTypeSend,
+		Status:      breez_sdk_spark.PaymentStatusCompleted,
+		Amount:      big.NewInt(123),
+		Fees:        big.NewInt(4),
+		Details:     &details,
+	})
+
+	require.Equal(t, "spark-payment-id", payment.ID)
+	require.Equal(t, "withdraw-txid", payment.TxID)
 }
 
 func TestToLightningPaymentBitcoinDeposit(t *testing.T) {
@@ -637,6 +664,43 @@ func TestToLightningLNURLPay(t *testing.T) {
 	require.Equal(t, uint64(9), lnurlPay.MaxAmountSat)
 }
 
+func TestParseBitcoinPaymentInput(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{}
+	sdk.parseInput = func(input string) (breez_sdk_spark.InputType, error) {
+		require.Equal(t, "bc1qraw", input)
+		return breez_sdk_spark.InputTypeBitcoinAddress{
+			Field0: breez_sdk_spark.BitcoinAddressDetails{Address: "bc1qraw"},
+		}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	input, err := lightning.ParsePaymentInput("bc1qraw")
+
+	require.NoError(t, err)
+	require.Equal(t, paymentInputTypeBitcoinAddress, input.Type)
+	require.NotNil(t, input.BitcoinAddress)
+	require.Equal(t, "bc1qraw", input.BitcoinAddress.Address)
+	require.Nil(t, input.BitcoinAddress.AmountSat)
+}
+
+func TestParseBIP21PaymentInputNotSupported(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{}
+	sdk.parseInput = func(input string) (breez_sdk_spark.InputType, error) {
+		require.Equal(t, "bitcoin:bc1qfallback?lightning=lnbc1invoice", input)
+		return breez_sdk_spark.InputTypeBip21{}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	input, err := lightning.ParsePaymentInput("bitcoin:bc1qfallback?lightning=lnbc1invoice")
+
+	require.Nil(t, input)
+	require.EqualError(t, err, "Invoice format not supported")
+}
+
 func TestPrepareBolt11PaymentRequest(t *testing.T) {
 	t.Parallel()
 
@@ -764,12 +828,12 @@ func TestPrepareBitcoinPaymentRequest(t *testing.T) {
 	t.Parallel()
 
 	request := prepareBitcoinPaymentRequest(
-		"bc1qdestination",
+		testP2WPKHAddress,
 		10_000,
 		breez_sdk_spark.FeePolicyFeesIncluded,
 	)
 
-	require.Equal(t, "bc1qdestination", request.PaymentRequest)
+	require.Equal(t, testP2WPKHAddress, request.PaymentRequest)
 	require.NotNil(t, request.Amount)
 	require.Zero(t, (*request.Amount).Cmp(big.NewInt(10_000)))
 	require.NotNil(t, request.FeePolicy)
@@ -825,6 +889,7 @@ type testPaymentSDK struct {
 	breezSDK
 
 	balanceSats      uint64
+	parseInput       func(string) (breez_sdk_spark.InputType, error)
 	prepareSend      func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error)
 	send             func(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error)
 	disconnectCalled bool
@@ -833,6 +898,10 @@ type testPaymentSDK struct {
 
 func (sdk *testPaymentSDK) GetInfo(breez_sdk_spark.GetInfoRequest) (breez_sdk_spark.GetInfoResponse, error) {
 	return breez_sdk_spark.GetInfoResponse{BalanceSats: sdk.balanceSats}, nil
+}
+
+func (sdk *testPaymentSDK) Parse(input string) (breez_sdk_spark.InputType, error) {
+	return sdk.parseInput(input)
 }
 
 func (sdk *testPaymentSDK) PrepareSendPayment(
@@ -901,12 +970,146 @@ func testBitcoinPrepareResponse(feeSat uint64) breez_sdk_spark.PrepareSendPaymen
 	}
 }
 
+func testStandardBitcoinPrepareResponse(amountSat uint64, feeSat uint64) breez_sdk_spark.PrepareSendPaymentResponse {
+	return breez_sdk_spark.PrepareSendPaymentResponse{
+		PaymentMethod: breez_sdk_spark.SendPaymentMethodBitcoinAddress{
+			FeeQuote: breez_sdk_spark.SendOnchainFeeQuote{
+				SpeedFast: breez_sdk_spark.SendOnchainSpeedFeeQuote{
+					UserFeeSat:        feeSat - 1,
+					L1BroadcastFeeSat: 1,
+				},
+			},
+		},
+		Amount:    new(big.Int).SetUint64(amountSat),
+		FeePolicy: breez_sdk_spark.FeePolicyFeesExcluded,
+	}
+}
+
+func TestPrepareBitcoinPayment(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{balanceSats: 10_000}
+	sdk.prepareSend = func(request breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+		require.Equal(t, testP2WPKHAddress, request.PaymentRequest)
+		require.NotNil(t, request.Amount)
+		require.Zero(t, (*request.Amount).Cmp(big.NewInt(5_000)))
+		require.NotNil(t, request.FeePolicy)
+		require.Equal(t, breez_sdk_spark.FeePolicyFeesExcluded, *request.FeePolicy)
+		return testStandardBitcoinPrepareResponse(5_000, 1_000), nil
+	}
+	sdk.send = func(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+		t.Fatal("prepare must not send payment")
+		return breez_sdk_spark.SendPaymentResponse{}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+	amountSat := uint64(5_000)
+
+	fee, err := lightning.PreparePayment(preparePaymentRequest{
+		Type:         paymentInputTypeBitcoinAddress,
+		PaymentInput: testP2WPKHAddress,
+		AmountSat:    &amountSat,
+	})
+
+	require.NoError(t, err)
+	require.NotEmpty(t, fee.IdempotencyKey)
+	idempotencyKey, err := uuid.Parse(fee.IdempotencyKey)
+	require.NoError(t, err)
+	require.NotEqual(t, uuid.Nil, idempotencyKey)
+	fee.IdempotencyKey = ""
+	require.Equal(t, &paymentFee{
+		AmountSat:     5_000,
+		FeeSat:        1_000,
+		TotalDebitSat: 6_000,
+	}, fee)
+}
+
+func TestPrepareBitcoinPaymentRejectsBelowMinimum(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{balanceSats: 10_000}
+	sdk.prepareSend = func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+		t.Fatal("amount below minimum must not be prepared")
+		return breez_sdk_spark.PrepareSendPaymentResponse{}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+	amountSat := uint64(293)
+
+	fee, err := lightning.PreparePayment(preparePaymentRequest{
+		Type:         paymentInputTypeBitcoinAddress,
+		PaymentInput: testP2WPKHAddress,
+		AmountSat:    &amountSat,
+	})
+
+	require.Nil(t, fee)
+	var amountBelowMinimum *lightningAmountBelowMinimumError
+	require.ErrorAs(t, err, &amountBelowMinimum)
+	require.Equal(t, uint64(294), amountBelowMinimum.minAmountSat)
+}
+
+func TestSendBitcoinPayment(t *testing.T) {
+	t.Parallel()
+
+	prepareResponse := testStandardBitcoinPrepareResponse(5_000, 1_000)
+	idempotencyKey := "00000000-0000-4000-8000-000000000001"
+	sdk := &testPaymentSDK{balanceSats: 10_000}
+	sdk.prepareSend = func(request breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+		return prepareResponse, nil
+	}
+	sdk.send = func(request breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+		require.Equal(t, prepareResponse, request.PrepareResponse)
+		require.NotNil(t, request.Options)
+		options, ok := (*request.Options).(breez_sdk_spark.SendPaymentOptionsBitcoinAddress)
+		require.True(t, ok)
+		require.Equal(t, breez_sdk_spark.OnchainConfirmationSpeedFast, options.ConfirmationSpeed)
+		require.NotNil(t, request.IdempotencyKey)
+		require.Equal(t, idempotencyKey, *request.IdempotencyKey)
+		return breez_sdk_spark.SendPaymentResponse{}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+	amountSat := uint64(5_000)
+
+	err := lightning.SendPayment(sendPaymentRequest{
+		Type:           paymentInputTypeBitcoinAddress,
+		PaymentInput:   testP2WPKHAddress,
+		AmountSat:      &amountSat,
+		ApprovedFeeSat: 1_000,
+		IdempotencyKey: idempotencyKey,
+	})
+
+	require.NoError(t, err)
+}
+
+func TestSendBitcoinPaymentRequiresIdempotencyKey(t *testing.T) {
+	t.Parallel()
+
+	sdk := &testPaymentSDK{balanceSats: 10_000}
+	sdk.prepareSend = func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+		t.Fatal("payment must not be prepared without an idempotency key")
+		return breez_sdk_spark.PrepareSendPaymentResponse{}, nil
+	}
+	sdk.send = func(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+		t.Fatal("payment must not be sent without an idempotency key")
+		return breez_sdk_spark.SendPaymentResponse{}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+	amountSat := uint64(5_000)
+
+	err := lightning.SendPayment(sendPaymentRequest{
+		Type:           paymentInputTypeBitcoinAddress,
+		PaymentInput:   testP2WPKHAddress,
+		AmountSat:      &amountSat,
+		ApprovedFeeSat: 1_000,
+	})
+
+	require.ErrorIs(t, err, errLightningInvalidPaymentInput)
+}
+
 func TestPrepareCloseWithdraw(t *testing.T) {
 	t.Parallel()
 
 	sdk := &testPaymentSDK{balanceSats: 10_000}
 	sdk.prepareSend = func(request breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
-		require.Equal(t, "bc1pdestination", request.PaymentRequest)
+		require.Equal(t, testP2TRAddress, request.PaymentRequest)
 		require.NotNil(t, request.Amount)
 		require.Zero(t, (*request.Amount).Cmp(big.NewInt(10_000)))
 		require.NotNil(t, request.FeePolicy)
@@ -1108,10 +1311,56 @@ func TestCheckPaymentBalance(t *testing.T) {
 	}
 }
 
+func TestValidateBitcoinPaymentAmount(t *testing.T) {
+	t.Parallel()
+
+	lightning := makeTestLightning()
+	testCases := []struct {
+		name         string
+		address      string
+		minAmountSat uint64
+	}{
+		{
+			name:         "P2PKH",
+			address:      testP2PKHAddress,
+			minAmountSat: 546,
+		},
+		{
+			name:         "P2SH",
+			address:      testP2SHAddress,
+			minAmountSat: 540,
+		},
+		{
+			name:         "P2TR",
+			address:      testP2TRAddress,
+			minAmountSat: 330,
+		},
+		{
+			name:         "P2WPKH",
+			address:      testP2WPKHAddress,
+			minAmountSat: 294,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := lightning.validateBitcoinPaymentAmount(testCase.address, testCase.minAmountSat-1)
+			var amountBelowMinimum *lightningAmountBelowMinimumError
+			require.ErrorAs(t, err, &amountBelowMinimum)
+			require.Equal(t, testCase.minAmountSat, amountBelowMinimum.minAmountSat)
+
+			require.NoError(t, lightning.validateBitcoinPaymentAmount(testCase.address, testCase.minAmountSat))
+		})
+	}
+}
+
 func TestLightningPaymentError(t *testing.T) {
 	t.Parallel()
 
 	unrelatedErr := errors.New("network unavailable")
+	unrelatedInvalidInputErr := breez_sdk_spark.NewSdkErrorInvalidInput("Malformed payment request")
 	testCases := []struct {
 		name                  string
 		err                   error
@@ -1131,6 +1380,11 @@ func TestLightningPaymentError(t *testing.T) {
 			expectedErrorContains: []string{"preimage request already exists", "lightningInvoiceAlreadyUsed"},
 		},
 		{
+			name:        "unrelated SDK invalid input",
+			err:         unrelatedInvalidInputErr,
+			expectedErr: unrelatedInvalidInputErr,
+		},
+		{
 			name:        "unrelated error",
 			err:         unrelatedErr,
 			expectedErr: unrelatedErr,
@@ -1148,4 +1402,15 @@ func TestLightningPaymentError(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestErrorResponseAmountBelowMinimum(t *testing.T) {
+	t.Parallel()
+
+	response := errorResponse(&lightningAmountBelowMinimumError{minAmountSat: 294})
+
+	require.False(t, response.Success)
+	require.Equal(t, string(errLightningAmountBelowMinimum), response.ErrorCode)
+	require.Equal(t, map[string]interface{}{"minAmountSat": uint64(294)}, response.ErrorData)
+	require.Empty(t, response.ErrorMessage)
 }
