@@ -8,6 +8,7 @@ import { TEthSignHandlerParams, TLaunchSignDialog, TRequestDialogContent, handle
 import { alertUser } from '@/components/alert/Alert';
 import { rejectMessage } from '@/utils/walletconnect';
 import { TStage, WCIncomingSignRequestDialog } from './incoming-signing-request-dialog';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 
 type TSigningRequestData = {
   topic: string;
@@ -19,6 +20,7 @@ export const WCSigningRequest = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<TRequestDialogContent>();
   const [stage, setStage] = useState<TStage>('initial');
+  const [firmwareUpgradeRequired, setFirmwareUpgradeRequired] = useState(false);
   const signMessageApiCallerRef: MutableRefObject<(() => Promise<any>) | undefined> = useRef();
   const requestDataRef = useRef<TSigningRequestData>();
 
@@ -102,6 +104,11 @@ export const WCSigningRequest = () => {
         setStage('initial');
         setDialogOpen(false);
         await web3wallet?.respondSessionRequest({ topic, response: rejectMessage(id) });
+      } else if (error.errorCode === 'firmwareUpgradeRequired') {
+        setStage('initial');
+        setDialogOpen(false);
+        setFirmwareUpgradeRequired(true);
+        await web3wallet?.respondSessionRequest({ topic, response: rejectMessage(id) });
       } else {
         setStage('initial');
         const { errorMessage } = error;
@@ -110,17 +117,23 @@ export const WCSigningRequest = () => {
     }
   };
 
-  if (!dialogContent || !dialogOpen) {
-    return null;
-  }
-
   return (
-    <WCIncomingSignRequestDialog
-      content={dialogContent}
-      open={dialogOpen}
-      stage={stage}
-      onAccept={handleAcceptBtn}
-      onReject={handleRejectBtn}
-    />
+    <>
+      {firmwareUpgradeRequired && (
+        <FirmwareUpgradeRequiredDialog
+          open
+          onClose={() => setFirmwareUpgradeRequired(false)}
+        />
+      )}
+      {dialogContent && dialogOpen && (
+        <WCIncomingSignRequestDialog
+          content={dialogContent}
+          open={dialogOpen}
+          stage={stage}
+          onAccept={handleAcceptBtn}
+          onReject={handleRejectBtn}
+        />
+      )}
+    </>
   );
 };

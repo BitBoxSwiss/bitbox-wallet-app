@@ -24,6 +24,24 @@ const (
 	TypeSoftware Type = "software"
 )
 
+// Feature identifies a keystore capability that a workflow can require before it starts.
+type Feature string
+
+const (
+	// FeatureBTCTransactionSigning requires support for signing Bitcoin-family transactions.
+	FeatureBTCTransactionSigning Feature = "btcTransactionSigning"
+	// FeatureETHTransactionSigning requires support for signing Ethereum-family transactions.
+	FeatureETHTransactionSigning Feature = "ethTransactionSigning"
+	// FeatureMessageSigning requires support for signing Bitcoin or Ethereum messages.
+	FeatureMessageSigning Feature = "messageSigning"
+	// FeatureETHTypedMessageSigning requires support for signing EIP-712 typed messages.
+	FeatureETHTypedMessageSigning Feature = "ethTypedMessageSigning"
+	// FeaturePaymentRequests requires support for payment requests.
+	FeaturePaymentRequests Feature = "paymentRequests"
+	// FeatureSwapPaymentRequests requires support for swap payment requests.
+	FeatureSwapPaymentRequests Feature = "swapPaymentRequests"
+)
+
 // KeystoreError represents errors related to the keystore.
 //
 //revive:disable-line:exported
@@ -144,12 +162,9 @@ type Keystore interface {
 	// SupportsEIP1559 returns whether the keystore supports EIP1559 type 2 transactions for Ethereum
 	SupportsEIP1559() bool
 
-	// SupportsPaymentRequests returns nil if the device supports silent payments, or an error indicating why it is not supported.
-	SupportsPaymentRequests() error
-
-	// SupportsSwapPaymentRequests reports whether the device supports swap payment requests, or an
-	// error indicating why it is not supported.
-	SupportsSwapPaymentRequests() error
+	// SupportsFeature returns nil if the keystore supports the requested feature, or an error
+	// indicating why it is not supported.
+	SupportsFeature(Feature) error
 
 	// Features reports optional capabilities supported by this keystore.
 	Features() *Features

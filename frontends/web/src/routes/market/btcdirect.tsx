@@ -53,7 +53,6 @@ export const BTCDirect = ({
   const btcdirectInfo = useAccountSynced(code, fetchBTCDirectInfo);
 
   const [blocking, setBlocking] = useState(false);
-
   const account = findAccount(accounts, code);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBTCDirectWidgetDisclaimer ?? false);

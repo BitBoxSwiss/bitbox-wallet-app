@@ -90,7 +90,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
       'test-addr-id',
       'test message',
     );
-    expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(rootFingerprint);
+    expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(rootFingerprint, 'messageSigning');
   });
 
   it('signs ETH message for ethereum-based coin', async () => {
@@ -131,7 +131,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
       'eth test message',
     );
     expect(accountApi.signBTCMessageForAddress).not.toHaveBeenCalled();
-    expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(rootFingerprint);
+    expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(rootFingerprint, 'messageSigning');
   });
 
   it('handles connect-keystore userAbort by returning to input', async () => {
@@ -178,6 +178,30 @@ describe('routes/account/sign-message/use-sign-message', () => {
 
     expect(result.current.state).toBe('input');
     expect(result.current.error).toBeNull();
+    expect(accountApi.signBTCMessageForAddress).not.toHaveBeenCalled();
+  });
+
+  it('requires a firmware upgrade before signing', async () => {
+    vi.mocked(keystoresApi.connectKeystore).mockResolvedValue({
+      success: false,
+      errorCode: 'firmwareUpgradeRequired',
+    });
+
+    const { result } = renderHook(() => useSignMessage({
+      accountCode: 'btc-acc' as accountApi.AccountCode,
+      address: mockAddress,
+      rootFingerprint,
+    }));
+
+    act(() => {
+      result.current.setMessage('some message');
+    });
+
+    await act(async () => {
+      await result.current.handleSign();
+    });
+
+    expect(result.current.firmwareUpgradeRequired).toBe(true);
     expect(accountApi.signBTCMessageForAddress).not.toHaveBeenCalled();
   });
 

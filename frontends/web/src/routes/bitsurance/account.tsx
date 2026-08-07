@@ -11,8 +11,9 @@ import { Spinner } from '@/components/spinner/Spinner';
 import { View, ViewContent } from '@/components/view/view';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
-import { connectKeystore } from '@/api/keystores';
 import { BitsuranceGuide } from './guide';
+import { useFeatureConnect } from '@/hooks/keystore';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 
 type TProps = {
   accounts: TAccount[];
@@ -23,6 +24,11 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   const navigate = useNavigate();
   const [disabled, setDisabled] = useState<boolean>(false);
   const [btcAccounts, setBtcAccounts] = useState<TAccount[]>();
+  const {
+    connect,
+    dismissFirmwareUpgrade,
+    firmwareUpgradeRequired,
+  } = useFeatureConnect();
 
   const { t } = useTranslation();
 
@@ -58,15 +64,15 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   useEffect(() => {
     if (btcAccounts !== undefined && btcAccounts.length === 1) {
       const account = btcAccounts[0] as TAccount;
-      connectKeystore(account.keystore.rootFingerprint).then(connectResult => {
-        if (!connectResult.success) {
+      connect(account.keystore.rootFingerprint, 'messageSigning').then(success => {
+        if (!success) {
           return;
         }
         // replace current history item when redirecting so that the user can go back
         navigate(`/market/bitsurance/widget/${account.code}`, { replace: true });
       });
     }
-  }, [btcAccounts, navigate]);
+  }, [btcAccounts, connect, navigate]);
 
   const handleProceed = async () => {
     setDisabled(true);
@@ -75,8 +81,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
       if (account === undefined) {
         return;
       }
-      const connectResult = await connectKeystore(account.keystore.rootFingerprint);
-      if (!connectResult.success) {
+      if (!await connect(account.keystore.rootFingerprint, 'messageSigning')) {
         return;
       }
     } finally {
@@ -91,6 +96,12 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
 
   return (
     <GuideWrapper>
+      {firmwareUpgradeRequired && (
+        <FirmwareUpgradeRequiredDialog
+          open
+          onClose={dismissFirmwareUpgrade}
+        />
+      )}
       <GuidedContent>
         <Main>
           <Header title={<h2>{t('generic.buySell')}</h2>} />

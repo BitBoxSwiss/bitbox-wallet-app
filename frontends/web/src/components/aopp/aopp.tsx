@@ -13,6 +13,7 @@ import { CopyableInput } from '@/components/copy/Copy';
 import { PointToBitBox02 } from '@/components/icon';
 import { VerifyAddress } from './verifyaddress';
 import { Vasp } from './vasp';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import styles from './aopp.module.css';
 
 type TProps = {
@@ -61,6 +62,14 @@ export const Aopp = () => {
   }
   switch (aopp.state) {
   case 'error':
+    if (aopp.errorCode === 'firmwareUpgradeRequired') {
+      return (
+        <FirmwareUpgradeRequiredDialog
+          open
+          onClose={aoppAPI.cancel}
+        />
+      );
+    }
     return (
       <View
         fullscreen

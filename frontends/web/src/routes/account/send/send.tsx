@@ -18,7 +18,7 @@ import { Column, ColumnButtons, GuideWrapper, GuidedContent, Header, Main, Respo
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { FeeTargets } from './feetargets';
-import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinBased, isBitcoinOnly, isEthereumBased } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
 import { SendResult } from './components/result';
@@ -29,7 +29,8 @@ import { NoteInput } from './components/inputs/note-input';
 import { FiatValue } from '@/components/amount/fiat-value';
 import { TProposalError, txProposalErrorHandling } from './services';
 import { CoinControl } from './coin-control';
-import { connectKeystore } from '@/api/keystores';
+import { useFeatureConnect } from '@/hooks/keystore';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { SubTitle } from '@/components/title';
 import { RatesContext } from '@/contexts/RatesContext';
 import style from './send.module.css';
@@ -66,6 +67,11 @@ export const Send = ({
 }: TProps) => {
   const { t } = useTranslation();
   const { btcUnit, defaultCurrency } = useContext(RatesContext);
+  const {
+    connect,
+    dismissFirmwareUpgrade,
+    firmwareUpgradeRequired,
+  } = useFeatureConnect();
   const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
   const [utxoDialogActive, setUtxoDialogActive] = useState(false);
   // in case there are multiple parallel tx proposals we can ignore all other but the last one
@@ -122,8 +128,10 @@ export const Send = ({
 
   const handleSend = useCallback(async () => {
     const rootFingerprint = account.keystore.rootFingerprint;
-    const connectResult = await connectKeystore(rootFingerprint);
-    if (!connectResult.success) {
+    const requiredFeature = isEthereumBased(account.coinCode)
+      ? 'ethTransactionSigning'
+      : 'btcTransactionSigning';
+    if (!await connect(rootFingerprint, requiredFeature)) {
       return;
     }
     setIsConfirming(true);
@@ -136,7 +144,7 @@ export const Send = ({
       // The following method allows pressing escape again.
       setIsConfirming(false);
     }
-  }, [account.code, account.keystore.rootFingerprint, note]);
+  }, [account.code, account.coinCode, account.keystore.rootFingerprint, connect, note]);
 
   const getValidTxInputData = useCallback((): Required<accountApi.TTxInput> | false => {
     if (
@@ -418,6 +426,12 @@ export const Send = ({
 
   return (
     <GuideWrapper>
+      {firmwareUpgradeRequired && (
+        <FirmwareUpgradeRequiredDialog
+          open
+          onClose={dismissFirmwareUpgrade}
+        />
+      )}
       <GuidedContent>
         <Main>
           <Header

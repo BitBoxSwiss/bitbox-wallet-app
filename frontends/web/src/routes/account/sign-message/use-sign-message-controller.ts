@@ -36,6 +36,8 @@ export type TSignMessageController = {
   error: string | null;
   result: TSignatureResult | null;
   isTaprootAddress: boolean;
+  firmwareUpgradeRequired: boolean;
+  dismissFirmwareUpgrade: () => void;
   handleSign: () => Promise<void>;
   previous: (event: SyntheticEvent) => void;
   next: (event: SyntheticEvent) => void;
@@ -72,6 +74,8 @@ export const useSignMessageController = ({
     error,
     result,
     isTaprootAddress,
+    firmwareUpgradeRequired,
+    dismissFirmwareUpgrade,
     handleSign,
     reset,
   } = useSignMessage({
@@ -124,6 +128,8 @@ export const useSignMessageController = ({
     error,
     result,
     isTaprootAddress,
+    firmwareUpgradeRequired,
+    dismissFirmwareUpgrade,
     handleSign,
     previous,
     next,

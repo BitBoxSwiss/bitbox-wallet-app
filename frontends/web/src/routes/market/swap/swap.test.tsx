@@ -76,7 +76,6 @@ vi.mock('@/api/account', async (importOriginal) => {
   return {
     ...actual,
     getBalance: vi.fn(),
-    hasSwapPaymentRequest: vi.fn(),
     proposeTx: vi.fn(),
     sendTx: vi.fn(),
   };
