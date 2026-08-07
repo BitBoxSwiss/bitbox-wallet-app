@@ -43,9 +43,9 @@ test('Gap limits are correctly saved', async ({ page, host, frontendPort, servew
     const changeInput = page.locator('#gapLimitChange');
     await changeInput.clear();
     await changeInput.click();
-    await page.keyboard.press('1');
+    await page.keyboard.press('3');
     await expect(page.locator('label[for="gapLimitChange"]')).toHaveText(
-      'Gap limit for change addresses: The gap limit must be at least 6.'
+      'Gap limit for change addresses: The gap limit must be at least 20.'
     );
     await page.waitForTimeout(1000);
     await expect(changeInput).toBeFocused();
@@ -60,7 +60,7 @@ test('Gap limits are correctly saved', async ({ page, host, frontendPort, servew
     const recvInput = page.locator('#gapLimitReceive');
     await expect(recvInput).toHaveValue('50');
     const changeInput = page.locator('#gapLimitChange');
-    await expect(changeInput).toHaveValue('10');
+    await expect(changeInput).toHaveValue('30');
   });
 });
 

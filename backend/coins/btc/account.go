@@ -163,7 +163,7 @@ func (account *Account) String() string {
 func (account *Account) defaultGapLimits(signingConfiguration *signing.Configuration) types.GapLimits {
 	limits := types.GapLimits{
 		Receive: 20,
-		Change:  6,
+		Change:  20,
 	}
 
 	if signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
