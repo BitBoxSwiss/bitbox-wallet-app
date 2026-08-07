@@ -163,11 +163,10 @@ func (account *Account) String() string {
 func (account *Account) defaultGapLimits(signingConfiguration *signing.Configuration) types.GapLimits {
 	limits := types.GapLimits{
 		Receive: 20,
-		Change:  6,
+		Change:  20,
 	}
 
 	if signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
-		// Usually 6, but BWS uses 20, so for legacy accounts, we have to do that too.
 		// We increase it a bit more as some users still had change buried a bit deeper.
 		limits.Change = 25
 

@@ -109,6 +109,7 @@ func TestMigrationsAtLoad(t *testing.T) {
 	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename)
 	require.NoError(t, err)
 	appCfg := cfg.AppConfig()
+	appCfg.Backend.GapLimitChange = 6
 	appCfg.Frontend = map[string]interface{}{
 		"userLanguage": "de",
 	}
@@ -122,6 +123,7 @@ func TestMigrationsAtLoad(t *testing.T) {
 	// Loading the conf applies the migrations.
 	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename)
 	require.NoError(t, err)
+	require.Equal(t, 20, cfg2.AppConfig().Backend.GapLimitChange)
 	require.Equal(t, "de", cfg2.AppConfig().Backend.UserLanguage)
 	require.Equal(t,
 		[]*Account{{CoinCode: coin.CodeETH, ActiveTokens: nil}},
@@ -131,6 +133,31 @@ func TestMigrationsAtLoad(t *testing.T) {
 	cfg3, err := NewConfig(appConfigFilename, accountsConfigFilename)
 	require.NoError(t, err)
 	require.Equal(t, cfg2, cfg3)
+}
+
+func TestMigrateGapLimitChange(t *testing.T) {
+	tests := []struct {
+		name     string
+		value    int
+		expected int
+	}{
+		{name: "default", value: 0, expected: 0},
+		{name: "below old minimum", value: 5, expected: 20},
+		{name: "old minimum", value: 6, expected: 20},
+		{name: "below new minimum", value: 19, expected: 20},
+		{name: "new minimum", value: 20, expected: 20},
+		{name: "above new minimum", value: 21, expected: 21},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			appConfig := AppConfig{Backend: Backend{GapLimitChange: test.value}}
+
+			migrateGapLimitChange(&appConfig)
+
+			require.Equal(t, test.expected, appConfig.Backend.GapLimitChange)
+		})
+	}
 }
 
 func requirePrivateFileMode(t *testing.T, filename string) {

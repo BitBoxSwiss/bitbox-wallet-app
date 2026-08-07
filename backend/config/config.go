@@ -261,6 +261,7 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 	migrateFiatList(&appconf)
 	migrateFiatCode(&appconf)
 	migrateElectrumX(&appconf)
+	migrateGapLimitChange(&appconf)
 	migrateUserLanguage(&appconf)
 	if err := config.SetAppConfig(appconf); err != nil {
 		return nil, errp.WithStack(err)
@@ -499,5 +500,14 @@ func migrateUserLanguage(appconf *AppConfig) {
 	if lang, ok := frontconf["userLanguage"].(string); ok {
 		appconf.Backend.UserLanguage = lang
 		delete(frontconf, "userLanguage")
+	}
+}
+
+// migrateGapLimitChange raises a configured change gap limit to the new minimum. Zero is kept as
+// the sentinel value for using the account default.
+func migrateGapLimitChange(appconf *AppConfig) {
+	const minimumGapLimitChange = 20
+	if appconf.Backend.GapLimitChange > 0 && appconf.Backend.GapLimitChange < minimumGapLimitChange {
+		appconf.Backend.GapLimitChange = minimumGapLimitChange
 	}
 }
