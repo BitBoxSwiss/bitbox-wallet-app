@@ -10,7 +10,7 @@ import { Message } from '@/components/message/message';
 import { useMediaQuery } from '@/hooks/mediaquery';
 
 const DEFAULT_GAP_LIMIT_RECEIVE = 20;
-const DEFAULT_GAP_LIMIT_CHANGE = 6;
+const DEFAULT_GAP_LIMIT_CHANGE = 20;
 const MAX_LIMIT = 2000;
 
 export const CustomGapLimitSettings = () => {
