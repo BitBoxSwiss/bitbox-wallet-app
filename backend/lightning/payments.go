@@ -437,7 +437,7 @@ func parseLightningUint(value interface{ String() string }) uint64 {
 
 func prepareBolt11PaymentRequest(paymentInvoice string, amount *uint64) breez_sdk_spark.PrepareSendPaymentRequest {
 	request := breez_sdk_spark.PrepareSendPaymentRequest{
-		PaymentRequest: paymentInvoice,
+		PaymentRequest: breez_sdk_spark.PaymentRequestInput{Input: paymentInvoice},
 	}
 	if amount != nil {
 		optionalAmount := new(big.Int).SetUint64(*amount)
@@ -484,7 +484,7 @@ func prepareBitcoinPaymentRequest(
 ) breez_sdk_spark.PrepareSendPaymentRequest {
 	amount := new(big.Int).SetUint64(amountSat)
 	return breez_sdk_spark.PrepareSendPaymentRequest{
-		PaymentRequest: destinationAddress,
+		PaymentRequest: breez_sdk_spark.PaymentRequestInput{Input: destinationAddress},
 		Amount:         &amount,
 		FeePolicy:      &feePolicy,
 	}
