@@ -61,6 +61,7 @@ func (lightning *Lightning) PostPrepareTopUp(r *http.Request) interface{} {
 		Success      bool          `json:"success"`
 		ErrorCode    string        `json:"errorCode,omitempty"`
 		FundingLimit *fundingLimit `json:"fundingLimit,omitempty"`
+		MinAmountSat uint64        `json:"minAmountSat,omitempty"`
 		*topUpProposal
 	}
 
@@ -76,14 +77,24 @@ func (lightning *Lightning) PostPrepareTopUp(r *http.Request) interface{} {
 		return responseDto{Success: true, Data: result{Success: true, topUpProposal: proposal}}
 	}
 
-	if limitErr, ok := err.(*topUpFundingLimitError); ok {
+	var limitErr *topUpFundingLimitError
+	if errors.As(err, &limitErr) {
 		return responseDto{Success: true, Data: result{
 			Success:      false,
 			ErrorCode:    string(errLightningBalanceLimitExceeded),
 			FundingLimit: &limitErr.fundingLimit,
 		}}
 	}
-	if validationErr, ok := errp.Cause(err).(accountErrors.TxValidationError); ok {
+	var amountBelowMinimum *lightningAmountBelowMinimumError
+	if errors.As(err, &amountBelowMinimum) {
+		return responseDto{Success: true, Data: result{
+			Success:      false,
+			ErrorCode:    string(errLightningAmountBelowMinimum),
+			MinAmountSat: amountBelowMinimum.minAmountSat,
+		}}
+	}
+	var validationErr accountErrors.TxValidationError
+	if errors.As(err, &validationErr) {
 		return responseDto{Success: true, Data: result{Success: false, ErrorCode: validationErr.Error()}}
 	}
 	return errorResponse(err)

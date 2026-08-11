@@ -9,6 +9,7 @@ import * as accountApi from '@/api/account';
 import * as coinsApi from '@/api/coins';
 import * as keystoresApi from '@/api/keystores';
 import * as lightningApi from '@/api/lightning';
+import { TLightningErrorCode } from '@/api/lightning-errors';
 import { RatesContext } from '@/contexts/RatesContext';
 import { LightningTopUp } from './topup';
 
@@ -17,14 +18,20 @@ vi.mock('@/i18n/i18n');
 vi.mock('./topup-form', () => ({
   TopUpForm: ({
     balanceLimitError,
+    btcAccounts,
     canReview,
+    errorHandling,
+    minimumAmountError,
     onAmountChange,
     onFeeTargetChange,
     onReview,
     sendError,
   }: {
     balanceLimitError?: string;
+    btcAccounts: accountApi.TAccount[];
     canReview: boolean;
+    errorHandling: { amountError?: string };
+    minimumAmountError?: string;
     onAmountChange: (amount: string) => void;
     onFeeTargetChange: (feeTarget: accountApi.FeeTargetCode) => void;
     onReview: () => void;
@@ -34,7 +41,10 @@ vi.mock('./topup-form', () => ({
       <button onClick={() => onAmountChange('100000')}>Set amount</button>
       <button onClick={() => onFeeTargetChange('economy')}>Set fee target</button>
       <button disabled={!canReview} onClick={onReview}>Review</button>
+      <span data-testid="btc-accounts">{btcAccounts.map(account => account.code).join(',')}</span>
       <span data-testid="balance-limit-error">{balanceLimitError}</span>
+      <span data-testid="amount-error">{minimumAmountError || errorHandling.amountError}</span>
+      <span data-testid="fiat-amount-error">{errorHandling.amountError}</span>
       <span data-testid="send-error">{sendError}</span>
     </>
   ),
@@ -79,7 +89,7 @@ const lightningBalance = (marginSat = 150000): lightningApi.TLightningBalance =>
   incoming: amount('0'),
 });
 
-const renderTopUp = () => render(
+const renderTopUp = (activeAccounts = [account]) => render(
   <MemoryRouter>
     <RatesContext.Provider value={{
       defaultCurrency: 'USD',
@@ -91,7 +101,7 @@ const renderTopUp = () => render(
       updateDefaultCurrency: vi.fn(),
       removeFromActiveCurrencies: vi.fn(),
     }}>
-      <LightningTopUp activeAccounts={[account]} hasAccounts />
+      <LightningTopUp activeAccounts={activeAccounts} hasAccounts />
     </RatesContext.Provider>
   </MemoryRouter>
 );
@@ -99,8 +109,29 @@ const renderTopUp = () => render(
 describe('LightningTopUp', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    vi.spyOn(accountApi, 'getBalance').mockResolvedValue({ success: true, balance: lightningBalance() });
     vi.spyOn(lightningApi, 'subscribeLightningBalance').mockReturnValue(vi.fn());
+  });
+
+  it('shows every Bitcoin account without loading its balance', async () => {
+    const emptyAccount: accountApi.TAccount = {
+      ...account,
+      code: 'empty-btc-account',
+      name: 'Empty Bitcoin Account',
+      keystore: {
+        ...account.keystore,
+        connected: false,
+      },
+    };
+    const getBalance = vi.spyOn(accountApi, 'getBalance').mockResolvedValue({
+      success: true,
+      balance: lightningBalance(200000),
+    });
+    vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(lightningBalance());
+
+    renderTopUp([account, emptyAccount]);
+
+    expect(await screen.findByTestId('btc-accounts')).toHaveTextContent('btc-account,empty-btc-account');
+    expect(getBalance).not.toHaveBeenCalled();
   });
 
   it('prepares and sends a top-up through the dedicated endpoint', async () => {
@@ -152,6 +183,26 @@ describe('LightningTopUp', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Set fee target' }));
 
     await waitFor(() => expect(screen.getByTestId('balance-limit-error')).toHaveTextContent('Maximum top-up amount'));
+    expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
+  });
+
+  it('shows the minimum-amount error returned by the prepare endpoint', async () => {
+    vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(lightningBalance());
+    vi.spyOn(lightningApi, 'postPrepareTopUp').mockResolvedValue({
+      success: false,
+      errorCode: TLightningErrorCode.AMOUNT_BELOW_MINIMUM,
+      minAmountSat: 1000,
+    });
+    vi.spyOn(coinsApi, 'convertToCurrency').mockResolvedValue({ success: true, fiatAmount: '0.01' });
+    renderTopUp();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Set amount' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Set fee target' }));
+
+    await waitFor(() => expect(screen.getByTestId('amount-error')).toHaveTextContent(
+      'The amount must be at least 1000 sats.'
+    ));
+    expect(screen.getByTestId('fiat-amount-error')).toBeEmptyDOMElement();
     expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
   });
 });
