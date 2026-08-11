@@ -353,6 +353,8 @@ func (lightning *Lightning) connect() error {
 		config.ApiKey = apiKey
 		lnurlDomainConfig := lightning.lnurlDomain()
 		config.LnurlDomain = &lnurlDomainConfig
+		// Do not send unrecognized payment inputs to third-party parsers.
+		config.UseDefaultExternalInputParsers = false
 		// It should already default to true, but we force it just in case.
 		config.PrivateEnabledDefault = true
 		// Set the maximum fee to the fastest network recommended fee at the time of claim
