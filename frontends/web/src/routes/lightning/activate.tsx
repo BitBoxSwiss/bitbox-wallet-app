@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Logo } from '@/components/icon/logo';
+import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { useLightning } from '@/hooks/lightning';
 import { Header, Main } from '../../components/layout';
@@ -16,6 +17,7 @@ import { unsubscribe } from '../../utils/subscriptions';
 import { postActivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { LightningDisclaimerContent } from './disclaimer';
+import { LightningTorProxyWarning } from '@/components/banners/lightning-tor-proxy-warning';
 import styles from './activate.module.css';
 
 const CONTENT_MIN_HEIGHT = '38em';
@@ -221,9 +223,12 @@ export const LightningActivate = () => {
 
   return (
     <Main>
-      <Status dismissibleKey="" type="warning" hidden={!setupError}>
-        {setupError}
-      </Status>
+      <ContentWrapper>
+        <LightningTorProxyWarning />
+        <Status dismissibleKey="" type="warning" hidden={!setupError}>
+          {setupError}
+        </Status>
+      </ContentWrapper>
       <Header title={t('lightning.activate.title')} />
       {renderSteps()}
     </Main>

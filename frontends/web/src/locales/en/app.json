@@ -1888,7 +1888,8 @@
       },
       "title": "Top up lightning wallet",
       "to": "To"
-    }
+    },
+    "torProxyWarning": "Lightning does not use the Tor proxy. Lightning will continue to work over your regular internet connection."
   },
   "loading": "loading…",
   "logo": {
