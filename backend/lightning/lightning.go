@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	breezApiKeyUrl            = "https://bitboxapp.shiftcrypto.dev/lightning/breez-api-key"
+	breezApiKeyUrl            = "https://bitboxapp.shiftcrypto.io/lightning/breez-api-key"
 	encryptedMnemonicV1Prefix = "v1:"
 	lnurlDomainDev            = "lnurl.shiftcrypto.dev"
 	// Temporarily use the development LNURL server until the production domain is available.
