@@ -58,6 +58,11 @@
     margin-top: var(--space-default);
 }
 
+.incomingConfirm {
+    display: block;
+    margin-top: var(--space-half);
+}
+
 .failureContent,
 .successContent {
     align-items: center;
