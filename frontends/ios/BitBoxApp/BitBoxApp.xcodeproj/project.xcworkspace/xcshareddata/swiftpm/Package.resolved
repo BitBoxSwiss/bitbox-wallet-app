@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/breez/breez-sdk-spark-swift.git",
       "state" : {
-        "revision" : "eea58b31584be8354f6d8af8be33d27e7d704fe5",
-        "version" : "0.13.1"
+        "revision" : "eab0ae5dc169f85c528bae9a46b7691eb3e063cd",
+        "version" : "0.21.1"
       }
     },
     {

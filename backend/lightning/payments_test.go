@@ -663,7 +663,7 @@ func TestPrepareBolt11PaymentRequest(t *testing.T) {
 
 			request := prepareBolt11PaymentRequest("lnbc1invoice", testCase.amountSat)
 
-			require.Equal(t, "lnbc1invoice", request.PaymentRequest)
+			require.Equal(t, breez_sdk_spark.PaymentRequestInput{Input: "lnbc1invoice"}, request.PaymentRequest)
 			if testCase.expectedAmount == nil {
 				require.Nil(t, request.Amount)
 				return
@@ -769,7 +769,7 @@ func TestPrepareBitcoinPaymentRequest(t *testing.T) {
 		breez_sdk_spark.FeePolicyFeesIncluded,
 	)
 
-	require.Equal(t, "bc1qdestination", request.PaymentRequest)
+	require.Equal(t, breez_sdk_spark.PaymentRequestInput{Input: "bc1qdestination"}, request.PaymentRequest)
 	require.NotNil(t, request.Amount)
 	require.Zero(t, (*request.Amount).Cmp(big.NewInt(10_000)))
 	require.NotNil(t, request.FeePolicy)
@@ -906,7 +906,7 @@ func TestPrepareCloseWithdraw(t *testing.T) {
 
 	sdk := &testPaymentSDK{balanceSats: 10_000}
 	sdk.prepareSend = func(request breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
-		require.Equal(t, "bc1pdestination", request.PaymentRequest)
+		require.Equal(t, breez_sdk_spark.PaymentRequestInput{Input: "bc1pdestination"}, request.PaymentRequest)
 		require.NotNil(t, request.Amount)
 		require.Zero(t, (*request.Amount).Cmp(big.NewInt(10_000)))
 		require.NotNil(t, request.FeePolicy)
@@ -1120,7 +1120,7 @@ func TestLightningPaymentError(t *testing.T) {
 	}{
 		{
 			name:                  "typed SDK insufficient funds",
-			err:                   breez_sdk_spark.NewSdkErrorInsufficientFunds(),
+			err:                   breez_sdk_spark.NewSdkErrorInsufficientFunds(nil),
 			expectedErr:           errLightningInsufficientFunds,
 			expectedErrorContains: []string{"SdkError: InsufficientFunds", "lightningInsufficientFunds"},
 		},
