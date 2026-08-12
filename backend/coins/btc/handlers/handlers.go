@@ -204,6 +204,7 @@ func (handlers *Handlers) getAccountTransactions(r *http.Request) (interface{}, 
 
 	query := r.URL.Query()
 	filter, err := accounts.NewTransactionFilter(accounts.TransactionFilterParams{
+		Search:     query.Get("search"),
 		FromDate:   query.Get("fromDate"),
 		ToDate:     query.Get("toDate"),
 		Type:       query.Get("type"),
@@ -221,6 +222,7 @@ func (handlers *Handlers) getAccountTransactions(r *http.Request) (interface{}, 
 		visibleTxs,
 		handlers.account.Coin(),
 		handlers.account.Config().RateUpdater,
+		handlers.account.TxNote,
 		time.Now(),
 	)
 

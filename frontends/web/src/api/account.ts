@@ -251,6 +251,7 @@ export type TTransaction = {
 export type TTransactions = { success: false } | { success: true; list: TTransaction[]; total: number };
 
 export type TTransactionListFilters = {
+  search: string;
   fromDate: string;
   toDate: string;
   type: 'all' | TTransactionType;

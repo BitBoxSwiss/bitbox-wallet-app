@@ -62,6 +62,37 @@ func TestNewTransactionFilterRejectsInvalidParams(t *testing.T) {
 	}
 }
 
+func TestTransactionFilterMatchesSearch(t *testing.T) {
+	testCoin := transactionFilterTestCoin()
+	txs := OrderedTransactions{
+		{InternalID: "note", TxID: "first-tx", Addresses: []AddressAndAmount{{Address: "addr-one"}}},
+		{InternalID: "address", TxID: "second-tx", Addresses: []AddressAndAmount{{Address: "bc1qNeedleAddress"}}},
+		{InternalID: "txid", TxID: "ABC-NEEDLE-123", Addresses: []AddressAndAmount{{Address: "addr-three"}}},
+		{InternalID: "other", TxID: "fourth-tx", Addresses: []AddressAndAmount{{Address: "addr-four"}}},
+	}
+	notes := map[string]string{"note": "Payment for NEEDLE supplies"}
+	txNote := func(internalID string) string { return notes[internalID] }
+	now := time.Now()
+
+	testCases := []struct {
+		name     string
+		search   string
+		expected []string
+	}{
+		{name: "note", search: "  needle supplies ", expected: []string{"note"}},
+		{name: "address", search: "needleaddress", expected: []string{"address"}},
+		{name: "transaction ID", search: "abc-needle", expected: []string{"txid"}},
+		{name: "case insensitive", search: "NEEDLE", expected: []string{"note", "address", "txid"}},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			filter := transactionFilter(t, TransactionFilterParams{Search: testCase.search})
+			result := filter.Apply(txs, &testCoin, nil, txNote, now)
+			require.Equal(t, testCase.expected, transactionIDs(result))
+		})
+	}
+}
+
 func TestTransactionFilterMatchesDateTypeAndCoinAmount(t *testing.T) {
 	testCoin := transactionFilterTestCoin()
 	txs := OrderedTransactions{
@@ -102,7 +133,7 @@ func TestTransactionFilterMatchesDateTypeAndCoinAmount(t *testing.T) {
 		AmountUnit: "coin",
 	})
 
-	result := filter.Apply(txs, &testCoin, nil, time.Date(2026, time.July, 15, 12, 0, 0, 0, time.UTC))
+	result := filter.Apply(txs, &testCoin, nil, nil, time.Date(2026, time.July, 15, 12, 0, 0, 0, time.UTC))
 
 	require.Equal(t, []string{"matching-send"}, transactionIDs(result))
 }
@@ -115,8 +146,8 @@ func TestTransactionFilterTreatsPendingTransactionAsNow(t *testing.T) {
 	matching := transactionFilter(t, TransactionFilterParams{FromDate: "2026-07-14", ToDate: "2026-07-15"})
 	excluded := transactionFilter(t, TransactionFilterParams{ToDate: "2026-07-10"})
 
-	require.Equal(t, []string{"pending"}, transactionIDs(matching.Apply(txs, &testCoin, nil, now)))
-	require.Empty(t, excluded.Apply(txs, &testCoin, nil, now))
+	require.Equal(t, []string{"pending"}, transactionIDs(matching.Apply(txs, &testCoin, nil, nil, now)))
+	require.Empty(t, excluded.Apply(txs, &testCoin, nil, nil, now))
 }
 
 func TestTransactionFilterMatchesHistoricalFiatAmount(t *testing.T) {
@@ -138,8 +169,8 @@ func TestTransactionFilterMatchesHistoricalFiatAmount(t *testing.T) {
 		AmountMin: "0.01", AmountUnit: "fiat", Fiat: "JPY",
 	})
 
-	require.Equal(t, []string{"half-btc"}, transactionIDs(matching.Apply(txs, &testCoin, rateUpdater, time.Now())))
-	require.Empty(t, missingRate.Apply(txs, &testCoin, rateUpdater, time.Now()))
+	require.Equal(t, []string{"half-btc"}, transactionIDs(matching.Apply(txs, &testCoin, rateUpdater, nil, time.Now())))
+	require.Empty(t, missingRate.Apply(txs, &testCoin, rateUpdater, nil, time.Now()))
 }
 
 func TestTransactionFilterSortsTransactions(t *testing.T) {
@@ -164,7 +195,7 @@ func TestTransactionFilterSortsTransactions(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			filter := transactionFilter(t, testCase.params)
-			result := filter.Apply(txs, &testCoin, nil, time.Now())
+			result := filter.Apply(txs, &testCoin, nil, nil, time.Now())
 			require.Equal(t, testCase.expected, transactionIDs(result))
 		})
 	}
@@ -178,7 +209,7 @@ func TestTransactionFilterKeepsInputOrderForSortTies(t *testing.T) {
 	}
 	filter := transactionFilter(t, TransactionFilterParams{SortBy: "type", SortDir: "asc"})
 
-	require.Equal(t, []string{"first", "second"}, transactionIDs(filter.Apply(txs, &testCoin, nil, time.Now())))
+	require.Equal(t, []string{"first", "second"}, transactionIDs(filter.Apply(txs, &testCoin, nil, nil, time.Now())))
 	require.Equal(t, []*TransactionData{txs[0], txs[1]}, []*TransactionData(txs))
 }
 
@@ -190,7 +221,7 @@ func TestTransactionFilterUsesExactCoinAmounts(t *testing.T) {
 		AmountMin: "90071992.54740993", AmountMax: "90071992.54740993", AmountUnit: "coin",
 	})
 
-	require.Equal(t, []string{"large"}, transactionIDs(filter.Apply(txs, &testCoin, nil, time.Now())))
+	require.Equal(t, []string{"large"}, transactionIDs(filter.Apply(txs, &testCoin, nil, nil, time.Now())))
 }
 
 func TestTransactionFilterUsesCoinDisplayUnit(t *testing.T) {
@@ -207,5 +238,5 @@ func TestTransactionFilterUsesCoinDisplayUnit(t *testing.T) {
 		AmountMin: "50000000", AmountMax: "50000000", AmountUnit: "coin",
 	})
 
-	require.Equal(t, []string{"half-btc"}, transactionIDs(filter.Apply(txs, &satsCoin, nil, time.Now())))
+	require.Equal(t, []string{"half-btc"}, transactionIDs(filter.Apply(txs, &satsCoin, nil, nil, time.Now())))
 }

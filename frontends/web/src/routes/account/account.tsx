@@ -112,8 +112,9 @@ const RemountAccount = ({
 
   const transactionListFilters = useMemo<accountApi.TTransactionListFilters>(() => ({
     ...appliedFilters,
+    search: debouncedSearchTerm,
     fiat: defaultCurrency,
-  }), [appliedFilters, defaultCurrency]);
+  }), [appliedFilters, debouncedSearchTerm, defaultCurrency]);
 
   const loadTransactions = useCallback(() => {
     const requestID = ++transactionRequestID.current;
@@ -124,28 +125,7 @@ const RemountAccount = ({
     });
   }, [code, mounted, transactionListFilters]);
 
-  const filteredTransactions = useMemo(() => {
-    if (!transactions?.success) {
-      return [];
-    }
-
-    const searchLower = debouncedSearchTerm.toLowerCase().trim();
-
-    return transactions.list.filter(tx => {
-      if (searchLower) {
-        const noteMatch = tx.note?.toLowerCase().includes(searchLower);
-        const addressMatch = tx.addresses?.some(address =>
-          address.toLowerCase().includes(searchLower)
-        );
-        const txIdMatch = tx.txID?.toLowerCase().includes(searchLower);
-
-        if (!(noteMatch || addressMatch || txIdMatch)) {
-          return false;
-        }
-      }
-      return true;
-    });
-  }, [transactions, debouncedSearchTerm]);
+  const filteredTransactions = transactions?.success ? transactions.list : [];
 
   const onAccountChanged = useCallback((status: accountApi.TStatus | undefined) => {
     if (status === undefined || status.fatalError) {

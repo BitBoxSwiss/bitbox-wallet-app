@@ -47,6 +47,7 @@ const (
 
 // TransactionFilterParams contains the serialized transaction-list filters accepted by the API.
 type TransactionFilterParams struct {
+	Search     string
 	FromDate   string
 	ToDate     string
 	Type       string
@@ -60,6 +61,7 @@ type TransactionFilterParams struct {
 
 // TransactionFilter contains validated transaction-list filtering and sorting options.
 type TransactionFilter struct {
+	search     string
 	from       *time.Time
 	to         *time.Time
 	txType     *TxType
@@ -74,6 +76,7 @@ type TransactionFilter struct {
 // NewTransactionFilter validates serialized transaction-list filter parameters.
 func NewTransactionFilter(params TransactionFilterParams, location *time.Location) (TransactionFilter, error) {
 	filter := TransactionFilter{
+		search:     strings.ToLower(strings.TrimSpace(params.Search)),
 		amountUnit: TransactionFilterAmountUnitFiat,
 		sortBy:     TransactionSortByDate,
 		sortDir:    TransactionSortDirectionDescending,
@@ -164,11 +167,12 @@ func (filter TransactionFilter) Apply(
 	txs OrderedTransactions,
 	accountCoin coin.Coin,
 	rateUpdater *rates.RateUpdater,
+	txNote func(string) string,
 	now time.Time,
 ) OrderedTransactions {
 	result := make(OrderedTransactions, 0, len(txs))
 	for _, tx := range txs {
-		if filter.matches(tx, accountCoin, rateUpdater, now) {
+		if filter.matches(tx, accountCoin, rateUpdater, txNote, now) {
 			result = append(result, tx)
 		}
 	}
@@ -187,8 +191,12 @@ func (filter TransactionFilter) matches(
 	tx *TransactionData,
 	accountCoin coin.Coin,
 	rateUpdater *rates.RateUpdater,
+	txNote func(string) string,
 	now time.Time,
 ) bool {
+	if filter.search != "" && !filter.matchesSearch(tx, txNote) {
+		return false
+	}
 	txTime := tx.Timestamp
 	if txTime == nil {
 		txTime = &now
@@ -213,6 +221,18 @@ func (filter TransactionFilter) matches(
 	value.Abs(value)
 	return (filter.amountMin == nil || value.Cmp(filter.amountMin) >= 0) &&
 		(filter.amountMax == nil || value.Cmp(filter.amountMax) <= 0)
+}
+
+func (filter TransactionFilter) matchesSearch(tx *TransactionData, txNote func(string) string) bool {
+	if strings.Contains(strings.ToLower(tx.TxID), filter.search) {
+		return true
+	}
+	for _, address := range tx.Addresses {
+		if strings.Contains(strings.ToLower(address.Address), filter.search) {
+			return true
+		}
+	}
+	return txNote != nil && strings.Contains(strings.ToLower(txNote(tx.InternalID)), filter.search)
 }
 
 func (filter TransactionFilter) displayAmount(

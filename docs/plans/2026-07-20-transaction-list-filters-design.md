@@ -12,8 +12,8 @@ and mobile and fit the existing design language.
 
 ## Decisions
 
-- **Backend filtering and sorting** through query parameters on the account transactions
-  endpoint. Text search remains client-side over the returned list.
+- **Backend search, filtering, and sorting** through query parameters on the account
+  transactions endpoint.
 - **Fiat amounts match the value at transaction time** (`amountAtTime`, or
   `deductedAmountAtTime` for sends and self-transfers), agreeing with what the list rows
   display.
@@ -63,10 +63,10 @@ and mobile and fit the existing design language.
   the backend request.
 - `use-transaction-filters.test.ts`, `transaction-filters.test.tsx` — unit tests.
 
-`account.tsx` sends `appliedFilters` and `RatesContext.defaultCurrency` to
-`GET /account/{code}/transactions`, and applies only text search to the returned list.
-Transaction events trigger a refetch with the current filters. The endpoint also returns
-the unfiltered `total`, which keeps account-level empty states independent from filter results.
+`account.tsx` sends the debounced search term, `appliedFilters`, and
+`RatesContext.defaultCurrency` to `GET /account/{code}/transactions`. Transaction events
+trigger a refetch with the current query. The endpoint also returns the unfiltered `total`,
+which keeps account-level empty states independent from search and filter results.
 
 `backend/accounts/transaction_filter.go` validates filter values and owns matching and stable
 sorting. The account handler remains an adapter from query parameters to that backend type.
@@ -77,6 +77,8 @@ sorting. The account handler remains an adapter from query parameters to that ba
   Pending transactions (`time: null`) count as "now" and match ranges whose To is today
   or unset.
 - **Type:** exact match on `tx.type`; "All types" skips the check.
+- **Search:** case-insensitive substring match over transaction notes, addresses, and
+  transaction IDs; surrounding whitespace is ignored.
 - **Amount:** absolute values, inclusive bounds, either bound optional.
   - Coin mode: exact rational comparison in the account's display unit.
   - Fiat mode: the backend's historical conversion in `defaultCurrency`, agreeing with
@@ -92,9 +94,9 @@ value "Currency"), no-match empty state.
 
 ## Testing
 
-- Backend unit tests: parameter validation, date boundaries, null-time pending, each type,
-  exact coin bounds, historical fiat matching, missing-conversion exclusion, combined
-  filters, every sort mode/direction, and stable ties.
+- Backend unit tests: search across notes/addresses/transaction IDs, parameter validation,
+  date boundaries, null-time pending, each type, exact coin bounds, historical fiat matching,
+  missing-conversion exclusion, combined filters, every sort mode/direction, and stable ties.
 - Hook unit tests: debounce timing, applied filter state, and `isActive` consistency.
 - Component tests: all controls render with labels, coin+fiat options offered, every
   control propagates its change, unit select has an accessible name.
@@ -121,13 +123,15 @@ review of the working UI:
    persisted after choosing an option; they now use the same blue focus border as `Input`.
    This applies app-wide, not only to the filter row.
 8. **Filtering and sorting moved to the backend.** The frontend now sends filter query
-   parameters and retains only text search locally.
+   parameters while initially retaining text search locally.
+9. **Text search moved to the backend.** The frontend now includes its debounced search term
+   in the transaction-list query alongside the structured filters.
 
 ## Rejected alternatives
 
 - **Inline in account.tsx:** page component would roughly double; logic untestable in
   isolation.
-- **Backend text search:** notes, addresses, and transaction IDs are already present in the
-  filtered response, so the existing immediate client-side search remains appropriate.
+- **Client-side text search:** superseded by the backend-search revision above so all
+  transaction list matching is owned by the backend.
 - **Custom/third-party date picker:** new component surface or dependency; native first.
 - **Segmented chips for type:** no existing chip component; Select keeps design surface small.
