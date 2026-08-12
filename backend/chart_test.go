@@ -92,7 +92,6 @@ func TestChartTransactionMarkers(t *testing.T) {
 		timestamp := now.Add(-time.Hour)
 		markers := chartTransactionMarkers([]chartTransactionAccount{{
 			accountCoin: &accountCoin,
-			lightning:   true,
 			rateUpdater: rateUpdater,
 			txs: accounts.OrderedTransactions{{
 				Timestamp: &timestamp,
@@ -107,6 +106,5 @@ func TestChartTransactionMarkers(t *testing.T) {
 			Count:  1,
 			Amount: "12345678",
 		}, markers.Hourly[0].Receive)
-		require.True(t, markers.Hourly[0].Lightning)
 	})
 }

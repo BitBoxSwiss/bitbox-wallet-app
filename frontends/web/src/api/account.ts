@@ -190,6 +190,23 @@ export type FormattedLineData = LineData & {
 
 export type ChartData = FormattedLineData[];
 
+export type TChartTransactionMarkerAmount = {
+  amount: string;
+  count: number;
+  estimated: boolean;
+};
+
+export type TChartTransactionMarker = {
+  time: number;
+  receive: TChartTransactionMarkerAmount;
+  send: TChartTransactionMarkerAmount;
+};
+
+export type TChartTransactionMarkers = {
+  daily: TChartTransactionMarker[];
+  hourly: TChartTransactionMarker[];
+};
+
 type TChartDataResponse = {
   success: true;
   data: TChartData;
@@ -201,6 +218,7 @@ export type TChartData = {
   chartDataMissing: boolean;
   chartDataDaily: ChartData;
   chartDataHourly: ChartData;
+  chartTransactionMarkers?: TChartTransactionMarkers;
   chartFiat: ConversionUnit;
   chartTotal: number | null;
   formattedChartTotal: string | null;
@@ -208,8 +226,8 @@ export type TChartData = {
   lastTimestamp: number;
 };
 
-export const getChartData = (): Promise<TChartDataResponse> => {
-  return apiGet('chart-data');
+export const getChartData = (includeTransactionMarkers: boolean): Promise<TChartDataResponse> => {
+  return apiGet(`chart-data?includeTransactionMarkers=${String(includeTransactionMarkers)}`);
 };
 
 type Conversions = {
