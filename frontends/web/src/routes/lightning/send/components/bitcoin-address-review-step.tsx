@@ -8,7 +8,7 @@ import { Column, Grid } from '@/components/layout';
 import { Status } from '@/components/status/status';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { CustomPaymentAmount } from './custom-payment-amount';
-import { BitcoinAddressRecipientDetails, PaymentAmountDetails, PaymentFeeDetails } from './payment-input-details';
+import { BitcoinAddressRecipientDetails, PaymentAmountDetails, PaymentFeeDetails, PaymentNoteDetails } from './payment-input-details';
 import { SendingSpinner } from './sending-spinner';
 import { type TPaymentReviewDetails, usePaymentReview } from '../hooks/use-payment-review';
 
@@ -70,6 +70,7 @@ export const BitcoinAddressReviewStep = ({
                 <PaymentAmountDetails amountSat={bitcoinAddress.amountSat} />
               </>
             )}
+            <PaymentNoteDetails description={bitcoinAddress.description} />
             <Status dismissibleKey="" type="error" hidden={!prepareError}>
               {prepareError}
             </Status>

@@ -42,6 +42,7 @@ export type TLightningLNURLPay = {
 export type TLightningBitcoinPaymentInput = {
   address: string;
   amountSat?: number;
+  description?: string;
 };
 
 export type TBitcoinDepositState = 'confirming' | 'claiming' | 'complete' | 'unclaimed';

@@ -59,8 +59,9 @@ type lightningLNURLPay struct {
 }
 
 type lightningBitcoinPaymentInput struct {
-	Address   string  `json:"address"`
-	AmountSat *uint64 `json:"amountSat,omitempty"`
+	Address     string  `json:"address"`
+	AmountSat   *uint64 `json:"amountSat,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 type paymentInput struct {
@@ -212,7 +213,7 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*paymentInput, e
 
 	switch inputType := input.(type) {
 	case breez_sdk_spark.InputTypeBitcoinAddress:
-		lightning.log.Printf("Input is Bitcoin address %s", inputType.Field0.Address)
+		lightning.log.Print("Input is Bitcoin address")
 		return &paymentInput{
 			Type: paymentInputTypeBitcoinAddress,
 			BitcoinAddress: &lightningBitcoinPaymentInput{
@@ -220,23 +221,37 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*paymentInput, e
 			},
 		}, nil
 
-	case breez_sdk_spark.InputTypeBolt11Invoice:
-		amount := "unknown"
-		var amountSat *uint64
-		if inputType.Field0.AmountMsat != nil {
-			amount = strconv.FormatUint(*inputType.Field0.AmountMsat, 10)
-			value := msatToSat(*inputType.Field0.AmountMsat, roundToCeil)
-			amountSat = &value
+	case breez_sdk_spark.InputTypeBip21:
+		// The SDK accepts required parameters for payment methods that BitBoxApp cannot execute.
+		// Validate against the app's capabilities before selecting a supported fallback method.
+		if err := lightning.validateBIP21RequiredParameters(inputType.Field0); err != nil {
+			return nil, err
 		}
-		lightning.log.Printf("Input is BOLT11 invoice for %s msats", amount)
-		return &paymentInput{
-			Type: paymentInputTypeBolt11,
-			Bolt11: &lightningBolt11Invoice{
-				Invoice:     inputType.Field0.Invoice.Bolt11,
-				Description: inputType.Field0.Description,
-				AmountSat:   amountSat,
-			},
-		}, nil
+		for _, paymentMethod := range inputType.Field0.PaymentMethods {
+			if bolt11Invoice, ok := paymentMethod.(breez_sdk_spark.InputTypeBolt11Invoice); ok {
+				return lightning.bolt11PaymentInput(bolt11Invoice, inputType.Field0.Message), nil
+			}
+		}
+		for _, paymentMethod := range inputType.Field0.PaymentMethods {
+			if bitcoinAddress, ok := paymentMethod.(breez_sdk_spark.InputTypeBitcoinAddress); ok {
+				lightning.log.Print("Input is BIP21 Bitcoin address")
+				amountSat := inputType.Field0.AmountSat
+				if amountSat != nil && *amountSat == 0 {
+					amountSat = nil
+				}
+				return &paymentInput{
+					Type: paymentInputTypeBitcoinAddress,
+					BitcoinAddress: &lightningBitcoinPaymentInput{
+						Address:     bitcoinAddress.Field0.Address,
+						AmountSat:   amountSat,
+						Description: inputType.Field0.Message,
+					},
+				}, nil
+			}
+		}
+
+	case breez_sdk_spark.InputTypeBolt11Invoice:
+		return lightning.bolt11PaymentInput(inputType, nil), nil
 
 	case breez_sdk_spark.InputTypeLnurlPay:
 		lightning.log.Printf("Input is LNURL-Pay/Lightning address accepting min/max %d/%d msats",
@@ -289,6 +304,62 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*paymentInput, e
 		lightning.log.Errorf("Input type not supported %T", input)
 	}
 	return nil, errp.New("Invoice format not supported")
+}
+
+func (lightning *Lightning) validateBIP21RequiredParameters(details breez_sdk_spark.Bip21Details) error {
+	// Use the resolved URI because the original input can be a BIP353 address rather than a BIP21 URI.
+	_, query, _ := strings.Cut(details.Uri, "?")
+
+	for _, parameter := range strings.Split(query, "&") {
+		rawKey, value, _ := strings.Cut(parameter, "=")
+		key := strings.ToLower(rawKey)
+		if !strings.HasPrefix(key, "req-") || key == "req-amount" || key == "req-message" {
+			continue
+		}
+
+		if key == "req-lightning" {
+			// Bip21Details contains the parsed payment methods, but does not retain which method came
+			// from this required parameter. Parse its value again to distinguish supported BOLT11
+			// invoices from unsupported methods such as BOLT12.
+			paymentMethod, err := lightning.sdkService.Parse(value)
+			_, supported := paymentMethod.(breez_sdk_spark.InputTypeBolt11Invoice)
+			if err == nil && supported {
+				continue
+			}
+		}
+
+		return errp.WithMessage(
+			errLightningInvalidPaymentInput,
+			fmt.Sprintf("required BIP21 parameter %q not supported", rawKey),
+		)
+	}
+	return nil
+}
+
+func (lightning *Lightning) bolt11PaymentInput(
+	inputType breez_sdk_spark.InputTypeBolt11Invoice,
+	fallbackDescription *string,
+) *paymentInput {
+	amount := "unknown"
+	var amountSat *uint64
+	if inputType.Field0.AmountMsat != nil {
+		amount = strconv.FormatUint(*inputType.Field0.AmountMsat, 10)
+		value := msatToSat(*inputType.Field0.AmountMsat, roundToCeil)
+		amountSat = &value
+	}
+	description := inputType.Field0.Description
+	if description == nil {
+		description = fallbackDescription
+	}
+	lightning.log.Printf("Input is BOLT11 invoice for %s msats", amount)
+	return &paymentInput{
+		Type: paymentInputTypeBolt11,
+		Bolt11: &lightningBolt11Invoice{
+			Invoice:     inputType.Field0.Invoice.Bolt11,
+			Description: description,
+			AmountSat:   amountSat,
+		},
+	}
 }
 
 func toLightningPaymentType(paymentType breez_sdk_spark.PaymentType) accounts.TxType {
