@@ -142,15 +142,79 @@
   background: var(--background-secondary);
   border: 1px solid var(--background);
   border-radius: var(--radius-xl);
+  box-sizing: border-box;
   font-size: var(--size-smaller);
-  margin-top: -25px;
-  min-width: 140px;
+  max-width: calc(100% - 16px);
+  min-width: min(140px, calc(100% - 16px));
   padding: 12px 10px;
   pointer-events: none;
   position: absolute;
   text-align: center;
-  transition: left .03s ease-out, top .03s ease-out;
   z-index: 12;
+}
+
+@media (max-width: 768px) {
+  .tooltip {
+    max-height: calc(100% - 16px);
+    overflow: hidden;
+  }
+}
+
+.markerTooltipInner {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-quarter);
+  margin-top: var(--space-half);
+}
+
+.markerTooltipOnly {
+  margin-top: 0;
+}
+
+.markerTooltipTitle {
+  color: var(--color-secondary);
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+
+.markerTooltipRows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.markerTooltipRow {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 24px auto;
+}
+
+.markerTooltipIcon {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-width: 22px;
+}
+
+.markerTooltipIcon img {
+  height: 22px;
+  width: 22px;
+}
+
+.markerTooltipAmount {
+  align-items: baseline;
+  display: flex;
+  font-size: 1.4rem;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.markerTooltipAmountUnit {
+  color: var(--color-secondary);
+  font-size: var(--size-smaller);
 }
 
 .toolTipValue {
@@ -171,4 +235,3 @@
 .toolTipTime {
   white-space: nowrap;
 }
-
