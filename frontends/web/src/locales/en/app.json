@@ -1685,6 +1685,9 @@
         "tryAgain": "Please try again."
       },
       "fee": "Fee",
+      "incomingFunds": "Incoming funds",
+      "incomingWarning": "Incoming funds cannot be withdrawn when closing your lightning wallet. Please try again later to withdraw all funds.",
+      "incomingWarningConfirm": "I understand that incoming funds will not be withdrawn.",
       "lightningBalanceToBeSent": "Lightning balance to be sent",
       "partialFailure": {
         "action": "Shut down wallet",

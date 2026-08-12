@@ -5,6 +5,7 @@ import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/accoun
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Button, Checkbox } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
+import { Message } from '@/components/message/message';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { CONTENT_MIN_HEIGHT } from './constants';
@@ -17,10 +18,14 @@ type TProps = {
   confirmed: boolean;
   destinationAccountCode: AccountCode;
   fee?: TAmountWithConversions;
+  hasIncoming: boolean;
+  incoming?: TAmountWithConversions;
+  incomingConfirmed: boolean;
   isClosing: boolean;
   onCancel: () => void;
   onClose: () => void;
   onConfirmChange: () => void;
+  onIncomingConfirmChange: () => void;
   onDestinationAccountChange: (code: AccountCode) => void;
 };
 
@@ -51,10 +56,14 @@ export const CloseWithdrawConfirm = ({
   confirmed,
   destinationAccountCode,
   fee,
+  hasIncoming,
+  incoming,
+  incomingConfirmed,
   isClosing,
   onCancel,
   onClose,
   onConfirmChange,
+  onIncomingConfirmChange,
   onDestinationAccountChange,
 }: TProps) => {
   const { t } = useTranslation();
@@ -85,6 +94,30 @@ export const CloseWithdrawConfirm = ({
             <h2 className={styles.sectionTitle}>{t('lightning.closeWithdrawFunds.fee')}</h2>
             <AmountRow amount={fee} />
           </section>
+
+          {hasIncoming && (
+            <Message type="warning">
+              {t('lightning.closeWithdrawFunds.incomingWarning')}
+              {incoming && (
+                <>
+                  <br />
+                  {t('lightning.closeWithdrawFunds.incomingFunds')}:&nbsp;
+                  <AmountWithUnit amount={incoming} maxDecimals={9} />
+                  {' / '}
+                  <AmountWithUnit amount={incoming} convertToFiat />
+                </>
+              )}
+              <Checkbox
+                className={styles.incomingConfirm}
+                id="confirmIncomingFunds"
+                checked={incomingConfirmed}
+                disabled={isClosing}
+                onChange={onIncomingConfirmChange}
+              >
+                {t('lightning.closeWithdrawFunds.incomingWarningConfirm')}
+              </Checkbox>
+            </Message>
+          )}
 
           <Checkbox
             className={styles.confirm}

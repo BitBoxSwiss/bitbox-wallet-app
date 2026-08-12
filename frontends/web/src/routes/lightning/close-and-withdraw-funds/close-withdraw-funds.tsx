@@ -38,6 +38,9 @@ export const LightningCloseWithdrawFunds = ({
   const [confirmed, setConfirmed] = useState(false);
   const [step, setStep] = useState<TStep>('confirm');
   const [balance, setBalance] = useState<TAmountWithConversions>();
+  const [hasIncoming, setHasIncoming] = useState(false);
+  const [incoming, setIncoming] = useState<TAmountWithConversions>();
+  const [incomingConfirmed, setIncomingConfirmed] = useState(false);
   const [quote, setQuote] = useState<TPreparedQuote>();
   const [isClosing, setIsClosing] = useState(false);
   const [txID, setTxID] = useState<string>();
@@ -46,7 +49,11 @@ export const LightningCloseWithdrawFunds = ({
   const quoteRequest = useRef(0);
   const destinationAccount = btcAccounts.find(account => account.code === destinationAccountCode);
   const quoteMatchesDestination = quote?.destinationAccountCode === destinationAccountCode;
-  const canClose = confirmed && !!quote && quoteMatchesDestination && !isClosing;
+  const canClose = confirmed
+    && (!hasIncoming || incomingConfirmed)
+    && !!quote
+    && quoteMatchesDestination
+    && !isClosing;
 
   useEffect(() => {
     if (!btcAccounts.length) {
@@ -69,6 +76,8 @@ export const LightningCloseWithdrawFunds = ({
         return;
       }
       setBalance(lightningBalance.available);
+      setHasIncoming(lightningBalance.hasIncoming);
+      setIncoming(lightningBalance.incoming);
       if (!lightningBalance.hasAvailable) {
         return;
       }
@@ -169,10 +178,14 @@ export const LightningCloseWithdrawFunds = ({
           confirmed={confirmed}
           destinationAccountCode={destinationAccountCode}
           fee={quote?.fee}
+          hasIncoming={hasIncoming}
+          incoming={incoming}
+          incomingConfirmed={incomingConfirmed}
           isClosing={isClosing}
           onCancel={() => navigate(-1)}
           onClose={closeWithdraw}
           onConfirmChange={() => setConfirmed(current => !current)}
+          onIncomingConfirmChange={() => setIncomingConfirmed(current => !current)}
           onDestinationAccountChange={(code) => {
             setConfirmed(false);
             setDestinationAccountCode(code);
