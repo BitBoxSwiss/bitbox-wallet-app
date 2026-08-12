@@ -80,11 +80,13 @@ export const parseEthereumPaymentRequest = (
   return apiPost(`account/${code}/parse-ethereum-payment-request`, { uri });
 };
 
-export type CoinFormattedAmount = {
+export type CoinFormattedOptionalAmount = {
   coinCode: CoinCode;
   coinName: string;
-  formattedAmount: TAmountWithConversions;
+  formattedAmount?: TAmountWithConversions;
 };
+
+export type CoinFormattedAmount = Required<CoinFormattedOptionalAmount>;
 
 export type TAmountsByCoin = {
   [key in CoinCode]?: TAmountWithConversions;

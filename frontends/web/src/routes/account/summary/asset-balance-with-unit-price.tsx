@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, useContext } from 'react';
-import { CoinCode, TAmountWithConversions } from '@/api/account';
+import { CoinCode, CoinUnit, TAmountWithConversions } from '@/api/account';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Logo } from '@/components/icon/logo';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -14,6 +14,7 @@ type TProps = {
   amount?: TAmountWithConversions;
   coinCode: CoinCode;
   coinName: ReactNode;
+  coinUnit?: CoinUnit;
   dataTestId?: string;
   showUnitPrice?: boolean;
 };
@@ -22,11 +23,12 @@ export const AssetBalanceWithUnitPrice = ({
   amount,
   coinCode,
   coinName,
+  coinUnit,
   dataTestId,
   showUnitPrice = true,
 }: TProps) => {
   const { defaultCurrency } = useContext(RatesContext);
-  const unitPrice = useCoinUnitPrice(coinCode, amount?.unit);
+  const unitPrice = useCoinUnitPrice(coinCode, amount?.unit ?? coinUnit);
   const shouldShowUnitPrice = showUnitPrice
     && (!isBitcoinOnly(coinCode) || (defaultCurrency !== 'BTC' && defaultCurrency !== 'sat'));
 

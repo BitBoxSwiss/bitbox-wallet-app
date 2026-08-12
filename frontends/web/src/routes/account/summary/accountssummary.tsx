@@ -61,9 +61,27 @@ export const AccountsSummary = ({
   const [accountsBalanceSummary, setAccountsBalanceSummary] = useState<accountApi.TAccountsBalanceSummary>();
   const [balances, setBalances] = useState<Balances>();
   const [offlineError, setOfflineError] = useState<string | null>(null);
-  const coinsTotalBalance = accountsBalanceSummary?.coinsTotalBalance.filter(balance => (
-    balance.coinCode !== 'lightning' || isLightningFeatureAvailable()
-  ));
+  const coinBalancePlaceholders = Object.values(accountsPerCoin).flatMap(coinAccounts => {
+    const account = coinAccounts?.[0];
+    return account ? [{
+      coinCode: account.coinCode,
+      coinName: account.coinName,
+      coinUnit: account.coinUnit,
+    }] : [];
+  });
+  if (lightningAccount && isLightningFeatureAvailable()) {
+    const bitcoinIndex = coinBalancePlaceholders.findIndex(balance => balance.coinCode === 'btc');
+    coinBalancePlaceholders.splice(bitcoinIndex + 1, 0, {
+      coinCode: 'lightning',
+      coinName: 'Lightning',
+      coinUnit: 'BTC',
+    });
+  }
+  const coinsTotalBalance = accountsBalanceSummary
+    ? accountsBalanceSummary.coinsTotalBalance.filter(balance => (
+      balance.coinCode !== 'lightning' || isLightningFeatureAvailable()
+    ))
+    : coinBalancePlaceholders.length > 0 ? coinBalancePlaceholders : undefined;
 
   const getChartData = useCallback(async () => {
     // replace previous timer if present
