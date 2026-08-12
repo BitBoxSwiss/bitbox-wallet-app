@@ -248,7 +248,19 @@ export type TTransaction = {
   weight: number;
 };
 
-export type TTransactions = { success: false } | { success: true; list: TTransaction[] };
+export type TTransactions = { success: false } | { success: true; list: TTransaction[]; total: number };
+
+export type TTransactionListFilters = {
+  fromDate: string;
+  toDate: string;
+  type: 'all' | TTransactionType;
+  amountMin: string;
+  amountMax: string;
+  amountUnit: 'coin' | 'fiat';
+  fiat: Fiat;
+  sortBy: 'date' | 'amount' | 'type';
+  sortDir: 'asc' | 'desc';
+};
 
 type TNoteTx = {
   internalTxID: string;
@@ -262,8 +274,12 @@ export const postNotesTx = (code: AccountCode, {
   return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
 };
 
-export const getTransactionList = (code: AccountCode): Promise<TTransactions> => {
-  return apiGet(`account/${code}/transactions`);
+export const getTransactionList = (
+  code: AccountCode,
+  filters?: TTransactionListFilters,
+): Promise<TTransactions> => {
+  const query = filters === undefined ? '' : `?${new URLSearchParams(filters).toString()}`;
+  return apiGet(`account/${code}/transactions${query}`);
 };
 
 export const getTransaction = (code: AccountCode, id: TTransaction['internalID']): Promise<TTransaction | null> => {

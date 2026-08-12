@@ -12,8 +12,8 @@ and mobile and fit the existing design language.
 
 ## Decisions
 
-- **Client-side filtering** over the already-loaded transaction list, like the existing
-  search. No backend changes.
+- **Backend filtering and sorting** through query parameters on the account transactions
+  endpoint. Text search remains client-side over the returned list.
 - **Fiat amounts match the value at transaction time** (`amountAtTime`, or
   `deductedAmountAtTime` for sends and self-transfers), agreeing with what the list rows
   display.
@@ -57,16 +57,19 @@ and mobile and fit the existing design language.
 - `transaction-filters.tsx` — presentational filter row; receives state + setters as props.
 - `transaction-filters.module.css` — layout, 768px breakpoint.
 - `use-transaction-filters.ts` — filter state (`fromDate`, `toDate`, `type`, `amountMin`,
-  `amountMax`, `amountUnit`), plus `clearFilters()`, `isActive`, and
-  `matches(tx): boolean`. Amount inputs are debounced 200ms; dates and type apply
-  immediately. `appliedFilters` is memoized on scalar fields so `matches` keeps a stable
-  identity while an amount is being typed. `isActive` is derived from the debounced view
-  so it never disagrees with what the list shows.
+  `amountMax`, `amountUnit`, `sortBy`, `sortDir`), plus `clearFilters()`, `isActive`, and
+  the debounced `appliedFilters`. Amount inputs are debounced 200ms; other controls apply
+  immediately. `isActive` is derived from the debounced view so it never disagrees with
+  the backend request.
 - `use-transaction-filters.test.ts`, `transaction-filters.test.tsx` — unit tests.
 
-`account.tsx` composes both: `list.filter(tx => matchesSearch(tx) && matches(tx))`.
-Inputs come from `balance.available.unit` (coin) and `RatesContext.defaultCurrency`
-(fiat). `TransactionList` takes a `hasActiveFilters` prop to pick the right empty state.
+`account.tsx` sends `appliedFilters` and `RatesContext.defaultCurrency` to
+`GET /account/{code}/transactions`, and applies only text search to the returned list.
+Transaction events trigger a refetch with the current filters. The endpoint also returns
+the unfiltered `total`, which keeps account-level empty states independent from filter results.
+
+`backend/accounts/transaction_filter.go` validates filter values and owns matching and stable
+sorting. The account handler remains an adapter from query parameters to that backend type.
 
 ## Filtering semantics
 
@@ -75,9 +78,9 @@ Inputs come from `balance.available.unit` (coin) and `RatesContext.defaultCurren
   or unset.
 - **Type:** exact match on `tx.type`; "All types" skips the check.
 - **Amount:** absolute values, inclusive bounds, either bound optional.
-  - Coin mode: `parseFloat(displayAmount.amount)`.
-  - Fiat mode: `displayAmount.conversions[defaultCurrency]`, parsed after stripping the
-    backend's `'` thousand separators.
+  - Coin mode: exact rational comparison in the account's display unit.
+  - Fiat mode: the backend's historical conversion in `defaultCurrency`, agreeing with
+    `amountAtTime`/`deductedAmountAtTime` shown in the row.
   - Missing conversion while a fiat bound is active → transaction excluded.
   - min > max applies literally (empty result); no validation UI.
 
@@ -89,9 +92,10 @@ value "Currency"), no-match empty state.
 
 ## Testing
 
-- Hook/predicate unit tests: date boundaries, null-time pending, each type, coin bounds,
-  fiat-at-time matching, fiat as the default unit, missing-conversion exclusion,
-  negative amounts, debounce timing, `isActive` consistency, combined filters.
+- Backend unit tests: parameter validation, date boundaries, null-time pending, each type,
+  exact coin bounds, historical fiat matching, missing-conversion exclusion, combined
+  filters, every sort mode/direction, and stable ties.
+- Hook unit tests: debounce timing, applied filter state, and `isActive` consistency.
 - Component tests: all controls render with labels, coin+fiat options offered, every
   control propagates its change, unit select has an accessible name.
 - `make webtest`, `make weblint`, visual check desktop + mobile + dark mode.
@@ -116,11 +120,14 @@ review of the working UI:
 7. **Shared `Select` focus style** — dropdowns showed the OS accent focus ring, which
    persisted after choosing an option; they now use the same blue focus border as `Input`.
    This applies app-wide, not only to the filter row.
+8. **Filtering and sorting moved to the backend.** The frontend now sends filter query
+   parameters and retains only text search locally.
 
 ## Rejected alternatives
 
 - **Inline in account.tsx:** page component would roughly double; logic untestable in
   isolation.
-- **Backend filtering:** round-trips and Go work for no functional gain at these list sizes.
+- **Backend text search:** notes, addresses, and transaction IDs are already present in the
+  filtered response, so the existing immediate client-side search remains appropriate.
 - **Custom/third-party date picker:** new component surface or dependency; native first.
 - **Segmented chips for type:** no existing chip component; Select keeps design surface small.

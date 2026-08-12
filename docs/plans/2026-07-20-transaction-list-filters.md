@@ -4,7 +4,9 @@
 
 **Goal:** Add a collapsible filter row (date range, transaction type, amount min/max in coin or fiat) to the account transaction list, toggled by a Filter button next to the existing search button.
 
-**Architecture:** Client-side filtering, mirroring the existing search. A pure predicate + `useTransactionFilters` hook own the filter state; a presentational `TransactionFilters` component renders the row; `account.tsx` composes both and ANDs the predicate with the existing search filter. Design doc: `docs/plans/2026-07-20-transaction-list-filters-design.md`.
+**Architecture (superseded):** This implementation plan records the original client-side
+implementation. Filtering and sorting were subsequently moved to the backend; the current
+architecture is documented in `docs/plans/2026-07-20-transaction-list-filters-design.md`.
 
 **Tech Stack:** React + TypeScript, CSS Modules, i18next, Vitest + Testing Library. Existing components: `Input`, `Select`, `Button` from `@/components/forms`.
 
@@ -832,4 +834,4 @@ git commit -m "frontend: polish transaction filter layout"
 
 ## Out of scope (YAGNI, per design)
 
-- Backend filtering, URL/persisted filter state, active-filter badge, reset button, custom date picker, validation UI for min > max, filtering on other fiat currencies than the default.
+- URL/persisted filter state, active-filter badge, reset button, custom date picker, validation UI for min > max, filtering on other fiat currencies than the default.

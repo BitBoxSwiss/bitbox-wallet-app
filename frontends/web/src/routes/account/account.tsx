@@ -16,6 +16,7 @@ import { Message } from '@/components/message/message';
 import { useLoad, useSubscribe, useSync } from '@/hooks/api';
 import { useBitsurance } from '@/hooks/bitsurance';
 import { useDebounce } from '@/hooks/debounce';
+import { useMountedRef } from '@/hooks/mount';
 import { useScrollIntoView } from '@/hooks/scroll-into-view';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ActionButtons } from './actionButtons';
@@ -90,7 +91,15 @@ const RemountAccount = ({
   const debouncedSearchTerm = useDebounce(searchTerm, 200);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [showFilters, setShowFilters] = useState<boolean>(false);
-  const { filters, setFilters, clearFilters, isActive: hasActiveFilters, matches, compare } = useTransactionFilters();
+  const {
+    filters,
+    appliedFilters,
+    setFilters,
+    clearFilters,
+    isActive: hasActiveFilters,
+  } = useTransactionFilters();
+  const mounted = useMountedRef();
+  const transactionRequestID = useRef(0);
 
   const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
 
@@ -99,7 +108,21 @@ const RemountAccount = ({
   const { insured, uncoveredFunds, clearUncoveredFunds } = useBitsurance(code, account);
 
   const loadingTransactions = transactions?.success === undefined;
-  const hasTransactions = transactions?.success && transactions.list.length > 0;
+  const hasTransactions = transactions?.success && transactions.total > 0;
+
+  const transactionListFilters = useMemo<accountApi.TTransactionListFilters>(() => ({
+    ...appliedFilters,
+    fiat: defaultCurrency,
+  }), [appliedFilters, defaultCurrency]);
+
+  const loadTransactions = useCallback(() => {
+    const requestID = ++transactionRequestID.current;
+    return accountApi.getTransactionList(code, transactionListFilters).then(result => {
+      if (mounted.current && requestID === transactionRequestID.current) {
+        setTransactions(result);
+      }
+    });
+  }, [code, mounted, transactionListFilters]);
 
   const filteredTransactions = useMemo(() => {
     if (!transactions?.success) {
@@ -120,26 +143,24 @@ const RemountAccount = ({
           return false;
         }
       }
-      return matches(tx);
-    }).sort(compare);
-  }, [transactions, debouncedSearchTerm, matches, compare]);
+      return true;
+    });
+  }, [transactions, debouncedSearchTerm]);
 
   const onAccountChanged = useCallback((status: accountApi.TStatus | undefined) => {
     if (status === undefined || status.fatalError) {
       return;
     }
     if (status.synced && status.offlineError === null) {
-      Promise.all([
-        accountApi.getBalance(code).then(
-          balance => {
-            if (balance.success) {
-              setBalance(balance.balance);
-            }
-          }),
-        accountApi.getTransactionList(code).then(setTransactions),
-      ])
+      accountApi.getBalance(code).then(
+        balance => {
+          if (balance.success) {
+            setBalance(balance.balance);
+          }
+        })
         .catch(console.error);
     } else {
+      transactionRequestID.current++;
       setBalance(undefined);
       setTransactions(undefined);
     }
@@ -152,16 +173,27 @@ const RemountAccount = ({
   }, [code, status]);
 
   useEffect(() => {
-    return syncdone(code, () => onAccountChanged(status));
-  }, [code, onAccountChanged, status]);
+    return syncdone(code, () => {
+      onAccountChanged(status);
+      loadTransactions().catch(console.error);
+    });
+  }, [code, loadTransactions, onAccountChanged, status]);
 
   useEffect(() => {
-    return transactionsChanged(code, setTransactions);
-  }, [code]);
+    return transactionsChanged(code, () => {
+      loadTransactions().catch(console.error);
+    });
+  }, [code, loadTransactions]);
 
   useEffect(() => {
     onAccountChanged(status);
   }, [btcUnit, onAccountChanged, status]);
+
+  useEffect(() => {
+    if (status?.synced && status.offlineError === null) {
+      loadTransactions().catch(console.error);
+    }
+  }, [btcUnit, loadTransactions, status]);
 
   // <Main> has overflow-y:auto, so window.scrollBy has no effect.
   // Thus, need to use useScrollIntoView.
@@ -420,7 +452,7 @@ const RemountAccount = ({
         account={account}
         unit={balance?.available.unit}
         hasIncomingBalance={balance && balance.hasIncoming}
-        hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
+        hasTransactions={transactions !== undefined && transactions.success && transactions.total > 0}
         hasNoBalance={balance && !balance.hasAvailable}
       />
     </GuideWrapper>
