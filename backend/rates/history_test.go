@@ -113,6 +113,52 @@ func TestUpdateHistory(t *testing.T) {
 	assert.Equal(t, wantHistory, updater.history, "updater2.history")
 }
 
+func TestFetchGeckoMarketRangeNormalizesBitcoinUnitRates(t *testing.T) {
+	tt := []struct {
+		coin      string
+		fiat      string
+		wantValue float64
+	}{
+		{coin: "btc", fiat: BTC.String(), wantValue: 1},
+		{coin: "btc", fiat: SAT.String(), wantValue: unitSatoshi},
+		{coin: "tbtc", fiat: BTC.String(), wantValue: 1},
+		{coin: "eth-erc20-wbtc", fiat: BTC.String(), wantValue: 0.99904149},
+	}
+	for _, test := range tt {
+		t.Run(test.coin+"/"+test.fiat, func(t *testing.T) {
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, "GET", r.Method, "request method")
+				assert.Equal(t, "/coins/"+geckoCoin[test.coin]+"/market_chart/range", r.URL.Path, "URL path")
+				assert.Equal(t, "btc", r.URL.Query().Get("vs_currency"), "vs_currency query arg")
+
+				fmt.Fprintln(w, `{
+					"prices": [
+					  [
+					    1598918700000,
+					    0.99904149
+					  ]
+					]
+				}`)
+			}))
+			defer ts.Close()
+
+			updater := NewRateUpdater(http.DefaultClient, t.TempDir())
+			defer updater.Stop()
+			updater.SetCoingeckoURL(ts.URL)
+
+			rates, err := updater.fetchGeckoMarketRange(
+				t.Context(),
+				test.coin,
+				test.fiat,
+				fixedTimeRange(time.Unix(1598918462, 0), time.Unix(1599004862, 0)),
+			)
+			require.NoError(t, err)
+			require.Len(t, rates, 1)
+			assert.Equal(t, test.wantValue, rates[0].value)
+		})
+	}
+}
+
 func TestFetchGeckoMarketRangeInvalidCoinFiat(t *testing.T) {
 	tt := []struct{ coin, fiat string }{
 		{"BTC", "invalid"},
