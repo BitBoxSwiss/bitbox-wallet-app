@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
+import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
 import { ExternalLink } from '@/components/icon';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
@@ -9,13 +10,13 @@ import styles from './claim-top-up.module.css';
 
 type TProps = {
   action: TAction;
+  explorerURL?: string;
   onDone: () => void;
 };
 
-const noop = () => undefined;
-
 export const ClaimTopUpSuccess = ({
   action,
+  explorerURL,
   onDone,
 }: TProps) => {
   const { t } = useTranslation();
@@ -30,11 +31,12 @@ export const ClaimTopUpSuccess = ({
           <p className={styles.successNote}>
             {t(`lightning.claimTopUp.success.${action}Note`)}
           </p>
-          {/* TODO: Open the transaction in the block explorer once the txid is available. */}
-          <Button className={styles.transactionButton} transparent onClick={noop}>
-            <ExternalLink className={styles.transactionIcon} />
-            {t('lightning.claimTopUp.viewTransaction')}
-          </Button>
+          {explorerURL && (
+            <A className={styles.transactionButton} href={explorerURL}>
+              <ExternalLink className={styles.transactionIcon} />
+              {t('lightning.claimTopUp.viewTransaction')}
+            </A>
+          )}
         </div>
       </ViewContent>
       <ViewButtons>

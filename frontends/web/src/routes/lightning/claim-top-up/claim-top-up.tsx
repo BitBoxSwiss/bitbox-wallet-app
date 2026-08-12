@@ -1,22 +1,26 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { AccountCode, TAccount } from '@/api/account';
-import { getListPayments, type TLightningPayment } from '@/api/lightning';
+import {
+  getListPayments,
+  postClaimTopUp,
+  postRefundTopUp,
+  type TLightningPayment,
+  type TTopUpRecoveryResult,
+} from '@/api/lightning';
+import { TLightningErrorCode, TSdkError, toLightningErrorMessage } from '@/api/lightning-errors';
 import { Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { useLoad } from '@/hooks/api';
+import { useMountedRef } from '@/hooks/mount';
 import { ClaimTopUpConfirm } from './confirm-step';
+import { ClaimTopUpFailure } from './failure-step';
 import { ClaimTopUpOverview } from './overview-step';
 import { ClaimTopUpSuccess } from './success-step';
 import { type TAction, type TStep } from './constants';
-import { isUnclaimedBitcoinDeposit, sumAmounts } from './utils';
-
-type TLocationState = {
-  deposits?: TLightningPayment[];
-};
 
 type TProps = {
   activeAccounts: TAccount[];
@@ -24,26 +28,48 @@ type TProps = {
 
 type TInnerProps = {
   activeAccounts: TAccount[];
-  deposits: TLightningPayment[];
-  loading: boolean;
+  deposit: TLightningPayment | null | undefined;
+  reloadDeposit: () => void;
 };
 
-const LightningClaimTopUpInner = ({ activeAccounts, deposits, loading }: TInnerProps) => {
+const matchesBitcoinDeposit = (
+  payment: TLightningPayment,
+  paymentID: string,
+) => {
+  const bitcoinDeposit = payment.bitcoinDeposit;
+  return bitcoinDeposit?.state === 'unclaimed'
+    && payment.id === paymentID;
+};
+
+const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TInnerProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const btcAccounts = useMemo(
     () => activeAccounts.filter(account => account.active && account.coinCode === 'btc'),
     [activeAccounts]
   );
-  const totalAmount = useMemo(
-    () => sumAmounts(deposits.map(deposit => deposit.amount)),
-    [deposits]
-  );
   const [action, setAction] = useState<TAction>('claim');
   const [step, setStep] = useState<TStep>('overview');
   const [refundDestinationAccountCode, setRefundDestinationAccountCode] = useState<AccountCode>(btcAccounts[0]?.code || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recoveryError, setRecoveryError] = useState<string>();
+  const [txID, setTxID] = useState<string>();
+  const mounted = useMountedRef();
+  const isSubmittingRef = useRef(false);
   const isClaim = action === 'claim';
-  const canConfirm = isClaim || !!refundDestinationAccountCode;
+  const target = deposit?.bitcoinDeposit;
+  const refundFeeRateSatPerVbyte = target?.refundFeeRateSatPerVbyte;
+  const canStartRefund = refundFeeRateSatPerVbyte !== undefined;
+  const canConfirmRefund = canStartRefund && !!refundDestinationAccountCode;
+  const refundUnavailable = !!target && refundFeeRateSatPerVbyte === undefined;
+  const canConfirm = !!target && !isSubmitting && (
+    isClaim
+      ? target.claimFeeSat !== undefined
+      : canConfirmRefund
+  );
+  const refundDestinationAccount = btcAccounts.find(account => account.code === refundDestinationAccountCode);
+  const successTxPrefix = isClaim ? btcAccounts[0]?.blockExplorerTxPrefix : refundDestinationAccount?.blockExplorerTxPrefix;
+  const successExplorerURL = txID && successTxPrefix ? `${successTxPrefix}${txID}` : undefined;
 
   useEffect(() => {
     if (!btcAccounts.length) {
@@ -56,19 +82,92 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposits, loading }: TInnerP
   }, [btcAccounts, refundDestinationAccountCode]);
 
   const startAction = (nextAction: TAction) => {
+    setRecoveryError(undefined);
     setAction(nextAction);
     setStep('confirm');
   };
 
+  const confirmAction = async () => {
+    if (!deposit || !target || isSubmittingRef.current) {
+      return;
+    }
+    let recoverTopUp: () => Promise<TTopUpRecoveryResult>;
+    if (isClaim) {
+      const approvedFeeSat = target.claimFeeSat;
+      if (approvedFeeSat === undefined) {
+        return;
+      }
+      recoverTopUp = () => postClaimTopUp(deposit.id, approvedFeeSat);
+    } else {
+      const approvedFeeRateSatPerVbyte = target.refundFeeRateSatPerVbyte;
+      if (approvedFeeRateSatPerVbyte === undefined || !refundDestinationAccountCode) {
+        return;
+      }
+      recoverTopUp = () => postRefundTopUp(
+        deposit.id,
+        refundDestinationAccountCode,
+        approvedFeeRateSatPerVbyte,
+      );
+    }
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+    setRecoveryError(undefined);
+    try {
+      const result = await recoverTopUp();
+      if (!mounted.current) {
+        return;
+      }
+      setTxID(result.txId);
+      setStep('success');
+    } catch (error) {
+      if (!mounted.current) {
+        return;
+      }
+      const errorMessage = toLightningErrorMessage(t, error);
+      if (
+        error instanceof TSdkError
+        && error.code === TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED
+      ) {
+        setRecoveryError(errorMessage);
+        reloadDeposit();
+        setStep('confirm');
+        return;
+      }
+      console.error('Failed to recover Lightning top-up', error);
+      setRecoveryError(errorMessage);
+      setStep('failure');
+    } finally {
+      isSubmittingRef.current = false;
+      if (mounted.current) {
+        setIsSubmitting(false);
+      }
+    }
+  };
+
+  const tryRefundAfterClaimFailure = () => {
+    startAction('refund');
+  };
+
   const renderContent = () => {
-    if (loading) {
+    if (deposit === undefined) {
       return <Spinner text={t('lightning.initializing')} />;
     }
     if (step === 'success') {
       return (
         <ClaimTopUpSuccess
           action={action}
+          explorerURL={successExplorerURL}
           onDone={() => navigate('/lightning')}
+        />
+      );
+    }
+    if (step === 'failure') {
+      return (
+        <ClaimTopUpFailure
+          action={action}
+          errorMessage={!isClaim ? recoveryError : undefined}
+          onDone={() => navigate('/lightning')}
+          onRefund={canStartRefund ? tryRefundAfterClaimFailure : undefined}
         />
       );
     }
@@ -78,24 +177,27 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposits, loading }: TInnerP
           action={action}
           btcAccounts={btcAccounts}
           canConfirm={canConfirm}
+          fee={isClaim ? target?.claimFee : undefined}
+          feeRateSatPerVbyte={!isClaim ? refundFeeRateSatPerVbyte : undefined}
+          errorMessage={recoveryError}
+          isSubmitting={isSubmitting}
           refundDestinationAccountCode={refundDestinationAccountCode}
-          totalAmount={totalAmount}
+          refundUnavailable={!isClaim && refundUnavailable}
+          topUpAmount={deposit?.amount}
           onCancel={() => setStep('overview')}
-          onConfirm={() => {
-            if (isClaim) {
-              // TODO: Call the claim API here before advancing.
-            } else {
-              // TODO: Call the refund API (to refundDestinationAccountCode) here before advancing.
-            }
-            setStep('success');
-          }}
+          onConfirm={confirmAction}
           onRefundDestinationChange={setRefundDestinationAccountCode}
         />
       );
     }
     return (
       <ClaimTopUpOverview
-        deposits={deposits}
+        canClaim={target?.claimFeeSat !== undefined}
+        claimFee={target?.claimFee}
+        deposit={deposit}
+        canRefund={canStartRefund}
+        refundFeeRateSatPerVbyte={refundFeeRateSatPerVbyte}
+        refundUnavailable={refundUnavailable}
         onCancel={() => navigate(-1)}
         onClaim={() => startAction('claim')}
         onRefund={() => startAction('refund')}
@@ -117,25 +219,25 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposits, loading }: TInnerP
 };
 
 export const LightningClaimTopUp = ({ activeAccounts }: TProps) => {
-  const { state } = useLocation();
-  const routeDeposits = useMemo(
-    () => ((state as TLocationState | null)?.deposits ?? []).filter(isUnclaimedBitcoinDeposit),
-    [state]
-  );
-  const payments = useLoad(getListPayments);
-  const deposits = useMemo(() => {
-    if (payments === undefined) {
-      return routeDeposits;
+  const [searchParams] = useSearchParams();
+  const targetPaymentIDParam = searchParams.get('paymentId');
+  const [paymentsRevision, setPaymentsRevision] = useState(0);
+  const payments = useLoad(getListPayments, [paymentsRevision]);
+  const deposit = useMemo<TLightningPayment | null | undefined>(() => {
+    if (targetPaymentIDParam === null) {
+      return null;
     }
-    return payments.filter(isUnclaimedBitcoinDeposit);
-  }, [payments, routeDeposits]);
-  const loading = payments === undefined && routeDeposits.length === 0;
+    if (payments === undefined) {
+      return undefined;
+    }
+    return payments.find(payment => matchesBitcoinDeposit(payment, targetPaymentIDParam)) ?? null;
+  }, [payments, targetPaymentIDParam]);
 
   return (
     <LightningClaimTopUpInner
       activeAccounts={activeAccounts}
-      deposits={deposits}
-      loading={loading}
+      deposit={deposit}
+      reloadDeposit={() => setPaymentsRevision(current => current + 1)}
     />
   );
 };

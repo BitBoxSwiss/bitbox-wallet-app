@@ -59,6 +59,9 @@ type breezSDK interface {
 	SendPayment(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error)
 	LnurlPay(breez_sdk_spark.LnurlPayRequest) (breez_sdk_spark.LnurlPayResponse, error)
 	ReceivePayment(breez_sdk_spark.ReceivePaymentRequest) (breez_sdk_spark.ReceivePaymentResponse, error)
+	ClaimDeposit(breez_sdk_spark.ClaimDepositRequest) (breez_sdk_spark.ClaimDepositResponse, error)
+	RefundDeposit(breez_sdk_spark.RefundDepositRequest) (breez_sdk_spark.RefundDepositResponse, error)
+	RecommendedFees() (breez_sdk_spark.RecommendedFees, error)
 	ListPayments(breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error)
 	ListUnclaimedDeposits(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error)
 }
@@ -356,11 +359,11 @@ func (lightning *Lightning) connect() error {
 		// It should already default to true, but we force it just in case.
 		config.PrivateEnabledDefault = true
 		// Set the maximum fee to the fastest network recommended fee at the time of claim
-		// with a leeway of 1 sats/vbyte
-		networkRecommendedInterface := breez_sdk_spark.MaxFee(
+		// with a leeway of 1 sats/vbyte.
+		maxDepositClaimFee := breez_sdk_spark.MaxFee(
 			breez_sdk_spark.MaxFeeNetworkRecommended{LeewaySatPerVbyte: 1},
 		)
-		config.MaxDepositClaimFee = &networkRecommendedInterface
+		config.MaxDepositClaimFee = &maxDepositClaimFee
 
 		connectRequest := breez_sdk_spark.ConnectRequest{
 			Config:     config,

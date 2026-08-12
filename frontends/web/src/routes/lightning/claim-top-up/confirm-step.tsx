@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { Button } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
+import { Message } from '@/components/message/message';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { AmountBlock } from './amount-block';
 import { CONTENT_MIN_HEIGHT, type TAction } from './constants';
@@ -13,8 +14,13 @@ type TProps = {
   action: TAction;
   btcAccounts: TAccount[];
   canConfirm: boolean;
+  errorMessage?: string;
+  fee?: TAmountWithConversions;
+  feeRateSatPerVbyte?: number;
+  isSubmitting: boolean;
   refundDestinationAccountCode: AccountCode;
-  totalAmount: TAmountWithConversions;
+  refundUnavailable: boolean;
+  topUpAmount?: TAmountWithConversions;
   onCancel: () => void;
   onConfirm: () => void;
   onRefundDestinationChange: (code: AccountCode) => void;
@@ -24,8 +30,13 @@ export const ClaimTopUpConfirm = ({
   action,
   btcAccounts,
   canConfirm,
+  errorMessage,
+  fee,
+  feeRateSatPerVbyte,
+  isSubmitting,
   refundDestinationAccountCode,
-  totalAmount,
+  refundUnavailable,
+  topUpAmount,
   onCancel,
   onConfirm,
   onRefundDestinationChange,
@@ -38,6 +49,9 @@ export const ClaimTopUpConfirm = ({
       <ViewHeader title={t(`lightning.claimTopUp.confirm.${isClaim ? 'claimTitle' : 'refundTitle'}`)} />
       <ViewContent>
         <div className={styles.content}>
+          <Message hidden={!errorMessage} type="warning">
+            {errorMessage}
+          </Message>
           {!isClaim && (
             <div className={styles.refundDestination}>
               <span className={styles.blockLabel}>
@@ -46,25 +60,32 @@ export const ClaimTopUpConfirm = ({
               <GroupedAccountSelector
                 accounts={btcAccounts}
                 className={styles.accountSelector}
+                disabled={isSubmitting}
                 onChange={onRefundDestinationChange}
                 selected={refundDestinationAccountCode}
               />
             </div>
           )}
           <AmountBlock
-            amount={totalAmount}
-            label={t('lightning.claimTopUp.confirm.totalAmount')}
+            amount={topUpAmount}
+            label={t('lightning.claimTopUp.confirm.amount')}
           />
-          {/* TODO: Pass a fee once the backend exposes a claim/refund estimate. */}
           <AmountBlock
-            label={t('lightning.claimTopUp.confirm.fee')}
-          />
+            amount={fee}
+            label={t(`lightning.claimTopUp.confirm.${isClaim ? 'fee' : 'feeRate'}`)}
+          >
+            {/* The SDK exposes refund fee rates before broadcast, not an exact refund fee amount. */}
+            {refundUnavailable
+              ? t('lightning.claimTopUp.refundUnavailable')
+              : feeRateSatPerVbyte !== undefined
+                ? t('lightning.claimTopUp.feeRate', { feeRate: feeRateSatPerVbyte })
+                : undefined}
+          </AmountBlock>
         </div>
       </ViewContent>
       <ViewButtons>
-        {/* TODO: Trigger the actual claim/refund once the backend exposes it. */}
         {isClaim ? (
-          <Button primary onClick={onConfirm}>
+          <Button primary disabled={!canConfirm} onClick={onConfirm}>
             {t('lightning.claimTopUp.confirm.claimButton')}
           </Button>
         ) : (
@@ -72,7 +93,7 @@ export const ClaimTopUpConfirm = ({
             {t('lightning.claimTopUp.confirm.refundButton')}
           </Button>
         )}
-        <Button secondary onClick={onCancel}>
+        <Button secondary disabled={isSubmitting} onClick={onCancel}>
           {t('dialog.cancel')}
         </Button>
       </ViewButtons>

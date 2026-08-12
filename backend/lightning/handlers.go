@@ -44,6 +44,8 @@ func NewHandlers(
 	handleNoError("/parse-payment-input", lightning.GetParsePaymentInput).Methods("GET")
 	handleNoError("/prepare-payment", lightning.PostPreparePayment).Methods("POST")
 	handleNoError("/boarding-address", lightning.GetBoardingAddress).Methods("GET")
+	handleNoError("/claim-top-up", lightning.PostClaimTopUp).Methods("POST")
+	handleNoError("/refund-top-up", lightning.PostRefundTopUp).Methods("POST")
 	handleNoError("/close-withdraw-funds/prepare", lightning.PostPrepareCloseWithdraw).Methods("POST")
 	handleNoError("/close-withdraw-funds", lightning.PostCloseWithdraw).Methods("POST")
 	handleNoError("/receive-payment", lightning.GetReceivePayment).Methods("GET")
@@ -216,6 +218,49 @@ func (lightning *Lightning) GetBoardingAddress(_ *http.Request) interface{} {
 		return errorResponse(err)
 	}
 	return responseDto{Success: true, Data: address}
+}
+
+// PostClaimTopUp handles the POST request to manually claim a Bitcoin top-up.
+func (lightning *Lightning) PostClaimTopUp(r *http.Request) interface{} {
+	var jsonBody struct {
+		PaymentID      string `json:"paymentId"`
+		ApprovedFeeSat uint64 `json:"approvedFeeSat"`
+	}
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&jsonBody); err != nil {
+		return errorResponse(err)
+	}
+
+	result, err := lightning.ClaimTopUp(jsonBody.PaymentID, jsonBody.ApprovedFeeSat)
+	if err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true, Data: result}
+}
+
+// PostRefundTopUp handles the POST request to refund a Bitcoin top-up.
+func (lightning *Lightning) PostRefundTopUp(r *http.Request) interface{} {
+	var jsonBody struct {
+		PaymentID                  string     `json:"paymentId"`
+		DestinationAccountCode     types.Code `json:"destinationAccountCode"`
+		ApprovedFeeRateSatPerVbyte uint64     `json:"approvedFeeRateSatPerVbyte"`
+	}
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&jsonBody); err != nil {
+		return errorResponse(err)
+	}
+
+	result, err := lightning.RefundTopUp(
+		jsonBody.PaymentID,
+		jsonBody.DestinationAccountCode,
+		jsonBody.ApprovedFeeRateSatPerVbyte,
+	)
+	if err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true, Data: result}
 }
 
 // PostPrepareCloseWithdraw handles the POST request to prepare a full-balance on-chain withdrawal.
