@@ -61,10 +61,9 @@ type ChartTransactionMarkerAmount struct {
 
 // ChartTransactionMarker summarizes transactions in one chart bucket.
 type ChartTransactionMarker struct {
-	Time      int64                        `json:"time"`
-	Receive   ChartTransactionMarkerAmount `json:"receive"`
-	Send      ChartTransactionMarkerAmount `json:"send"`
-	Lightning bool                         `json:"lightning"`
+	Time    int64                        `json:"time"`
+	Receive ChartTransactionMarkerAmount `json:"receive"`
+	Send    ChartTransactionMarkerAmount `json:"send"`
 }
 
 // ChartTransactionMarkers contains marker buckets for both chart resolutions.
@@ -110,7 +109,6 @@ func includeChartTransaction(tx *accounts.TransactionData) bool {
 
 type chartTransactionAccount struct {
 	accountCoin coin.Coin
-	lightning   bool
 	rateUpdater *rates.RateUpdater
 	txs         accounts.OrderedTransactions
 }
@@ -123,9 +121,8 @@ type chartTransactionMarkerTotal struct {
 }
 
 type chartTransactionMarkerBucket struct {
-	receive   chartTransactionMarkerTotal
-	send      chartTransactionMarkerTotal
-	lightning bool
+	receive chartTransactionMarkerTotal
+	send    chartTransactionMarkerTotal
 }
 
 func (total *chartTransactionMarkerTotal) add(amount *big.Rat, estimated bool) {
@@ -159,15 +156,11 @@ func addChartTransactionMarker(
 	txType accounts.TxType,
 	amount *big.Rat,
 	estimated bool,
-	lightning bool,
 ) {
 	bucket := buckets[bucketTime]
 	if bucket == nil {
 		bucket = &chartTransactionMarkerBucket{}
 		buckets[bucketTime] = bucket
-	}
-	if lightning {
-		bucket.lightning = true
 	}
 	if txType == accounts.TxTypeReceive {
 		bucket.receive.add(amount, estimated)
@@ -183,10 +176,9 @@ func formatChartTransactionMarkers(
 	markers := make([]ChartTransactionMarker, 0, len(buckets))
 	for bucketTime, bucket := range buckets {
 		markers = append(markers, ChartTransactionMarker{
-			Time:      bucketTime,
-			Receive:   bucket.receive.formatted(fiat),
-			Send:      bucket.send.formatted(fiat),
-			Lightning: bucket.lightning,
+			Time:    bucketTime,
+			Receive: bucket.receive.formatted(fiat),
+			Send:    bucket.send.formatted(fiat),
 		})
 	}
 	sort.Slice(markers, func(i, j int) bool { return markers[i].Time < markers[j].Time })
@@ -244,12 +236,10 @@ func chartTransactionMarkers(
 			}
 
 			dailyTime := tx.Timestamp.Truncate(24 * time.Hour).Unix()
-			addChartTransactionMarker(
-				daily, dailyTime, tx.Type, fiatAmount, estimated, chartAccount.lightning)
+			addChartTransactionMarker(daily, dailyTime, tx.Type, fiatAmount, estimated)
 			if !tx.Timestamp.Before(hourlyFrom) {
 				hourlyTime := tx.Timestamp.Truncate(time.Hour).Unix()
-				addChartTransactionMarker(
-					hourly, hourlyTime, tx.Type, fiatAmount, estimated, chartAccount.lightning)
+				addChartTransactionMarker(hourly, hourlyTime, tx.Type, fiatAmount, estimated)
 			}
 		}
 	}
@@ -481,7 +471,6 @@ func (backend *Backend) ChartData(includeTransactionMarkers bool) (*Chart, error
 		if includeTransactionMarkers {
 			chartAccounts = append(chartAccounts, chartTransactionAccount{
 				accountCoin: btcCoin,
-				lightning:   true,
 				rateUpdater: backend.RatesUpdater(),
 				txs:         lightningTxs,
 			})

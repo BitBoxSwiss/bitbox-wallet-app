@@ -40,6 +40,9 @@ export const AccountsSummary = ({
 }: TProps) => {
   const { t } = useTranslation();
   const summaryReqTimerID = useRef<number>();
+  const chartRequestInFlight = useRef(false);
+  const chartMarkerRefreshQueued = useRef(false);
+  const lastChartTimestamp = useRef<number>();
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
   const { defaultCurrency } = useContext(RatesContext);
@@ -87,22 +90,60 @@ export const AccountsSummary = ({
       : coinBalancePlaceholders.length > 0 ? coinBalancePlaceholders : undefined
   );
 
-  const getChartData = useCallback(async () => {
+  const getChartData = useCallback(async (includeTransactionMarkers = false) => {
+    if (chartRequestInFlight.current) {
+      chartMarkerRefreshQueued.current = chartMarkerRefreshQueued.current || includeTransactionMarkers;
+      return;
+    }
     // replace previous timer if present
     if (summaryReqTimerID.current) {
       window.clearTimeout(summaryReqTimerID.current);
       summaryReqTimerID.current = undefined;
     }
-    let delay = 1000;
-    const chartDataResponse = await accountApi.getChartData();
+    chartRequestInFlight.current = true;
+    let delay = 10000;
+    let includeTransactionMarkersNext = includeTransactionMarkers;
+    const chartDataResponse = await accountApi.getChartData(includeTransactionMarkers)
+      .catch(() => undefined);
     if (!mounted.current) {
+      chartRequestInFlight.current = false;
       return;
     }
-    if (chartDataResponse.success) {
-      setChartData(chartDataResponse.data);
-      delay = chartDataResponse.data.chartDataMissing ? 1000 : 10000;
+    if (chartDataResponse?.success) {
+      const historyChanged = (
+        lastChartTimestamp.current !== undefined
+        && chartDataResponse.data.lastTimestamp !== lastChartTimestamp.current
+      );
+      lastChartTimestamp.current = chartDataResponse.data.lastTimestamp;
+      setChartData(current => ({
+        ...chartDataResponse.data,
+        chartTransactionMarkers: chartDataResponse.data.chartTransactionMarkers
+          ?? (current?.chartFiat === chartDataResponse.data.chartFiat
+            ? current.chartTransactionMarkers
+            : undefined)
+          ?? { daily: [], hourly: [] },
+      }));
+      if (chartDataResponse.data.chartDataMissing) {
+        delay = 1000;
+        includeTransactionMarkersNext = true;
+      } else if (!includeTransactionMarkers && historyChanged) {
+        delay = 0;
+        includeTransactionMarkersNext = true;
+      } else {
+        delay = 10000;
+        includeTransactionMarkersNext = false;
+      }
     }
-    summaryReqTimerID.current = window.setTimeout(getChartData, delay);
+    chartRequestInFlight.current = false;
+    if (chartMarkerRefreshQueued.current) {
+      chartMarkerRefreshQueued.current = false;
+      getChartData(true);
+      return;
+    }
+    summaryReqTimerID.current = window.setTimeout(
+      () => getChartData(includeTransactionMarkersNext),
+      delay,
+    );
   }, [mounted]);
 
   const getAccountsBalanceSummary = useCallback(async () => {
@@ -145,7 +186,7 @@ export const AccountsSummary = ({
   const update = useCallback((code: accountApi.AccountCode) => {
     if (mounted.current) {
       onStatusChanged(code);
-      getChartData();
+      getChartData(true);
       getAccountsBalanceSummary();
     }
   }, [getChartData, getAccountsBalanceSummary, mounted, onStatusChanged]);
@@ -167,7 +208,7 @@ export const AccountsSummary = ({
     if (lightningAccount !== null) {
       subscriptions.push(subscribeLightningBalance(() => {
         if (mounted.current) {
-          getChartData();
+          getChartData(true);
           getAccountsBalanceSummary();
         }
       }));
@@ -179,9 +220,9 @@ export const AccountsSummary = ({
   useEffect(() => {
     // handles fetching data and runs on component mount
     // & whenever any of the dependencies change.
-    getChartData();
+    getChartData(true);
     getAccountsBalanceSummary();
-  }, [getChartData, getAccountsBalanceSummary, defaultCurrency, lightningAccount]);
+  }, [accounts, defaultCurrency, getAccountsBalanceSummary, getChartData, lightningAccount]);
 
   useEffect(() => {
     return () => {
