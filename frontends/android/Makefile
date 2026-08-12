@@ -11,6 +11,7 @@ deploy-debug:
 clean:
 	cd BitBoxApp && ./gradlew clean
 prepare-android:
+	cd ../.. && ${MAKE} check-go-vendor
 	cd ../../ && ${MAKE} buildweb
 	rm -rf BitBoxApp/app/src/main/assets/web
 	mkdir -p BitBoxApp/app/src/main/assets/web
