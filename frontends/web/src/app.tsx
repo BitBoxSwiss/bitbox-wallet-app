@@ -153,8 +153,7 @@ export const App = () => {
     // if no accounts are registered on specified views route to /
     const canNavigateWithLightningAccount =
       currentURL.startsWith('/account-summary')
-      || currentURL === '/settings/more'
-      || currentURL === '/accounts/all';
+      || currentURL === '/settings/more';
     const requiresRegularAccount =
       currentURL.startsWith('/account-summary')
       || currentURL.startsWith('/add-account')
