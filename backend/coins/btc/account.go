@@ -174,7 +174,7 @@ func (account *Account) defaultGapLimits(signingConfiguration *signing.Configura
 		// Usually 20, but BWS used to not have any limit. We put it fairly high to cover most
 		// outliers.
 		limits.Receive = 60
-		account.log.Warning("increased change gap limit to 20 and gap limit to 60 for BWS compatibility")
+		account.log.Warning("increased change gap limit to 25 and gap limit to 60 for BWS compatibility")
 	}
 
 	return limits
