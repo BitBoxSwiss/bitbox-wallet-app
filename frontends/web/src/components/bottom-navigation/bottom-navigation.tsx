@@ -4,14 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
 import type { TDevices } from '@/api/devices';
-import { AccountIconSVG, MarketIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
+import { AccountIconSVG, LightningIconSVG, MarketIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
 import { RedDot } from '@/components/icon';
 import { NewBadge } from '@/components/new-badge/new-badge';
 import { useAndroidKeyboardVisible } from './use-android-keyboard-visible';
 import { useSlidingIndicator } from './use-sliding-indicator';
-import { getBottomNavIndex, getBottomNavKey } from './utils';
+import { getBottomNavIndex, getBottomNavItems, getBottomNavKey, type TBottomNavItem } from './utils';
 import styles from './bottom-navigation.module.css';
 
 type TProps = {
@@ -32,32 +32,43 @@ export const BottomNavigation = ({
   const versionInfo = useLoad(isBitBox02 ? () => getVersion(deviceID) : null, [deviceID, isBitBox02]);
   const canUpgrade = versionInfo ? versionInfo.canUpgrade : false;
 
-  const accountCount = activeAccounts.length + (hasLightningAccount ? 1 : 0);
-  const onlyHasOneAccount = accountCount === 1;
+  const onlyHasOneAccount = activeAccounts.length === 1;
   const accountCode = activeAccounts[0]?.code || '';
   const accountTabURL = onlyHasOneAccount && accountCode
     ? `/account/${accountCode}`
-    : onlyHasOneAccount && hasLightningAccount
-      ? '/lightning'
-      : '/accounts/all';
+    : '/accounts/all';
   const onlyHasLightningAccount = hasLightningAccount && activeAccounts.length === 0;
+  const showAccounts = !onlyHasLightningAccount;
+  const showMarket = !onlyHasLightningAccount;
   const accountLabel = onlyHasOneAccount ? t('account.account') : t('account.accounts');
   const portfolioLabel = t('accountSummary.portfolio');
+  const lightningLabel = 'Lightning';
   const marketLabel = t('generic.buySell');
   const moreLabel = t('settings.more');
+  const navItems = getBottomNavItems({ hasLightningAccount, showAccounts, showMarket });
 
   const bottomNavKey = getBottomNavKey(pathname);
   const portfolioActive = bottomNavKey === 'portfolio';
   const accountsActive = bottomNavKey === 'accounts';
+  const lightningActive = bottomNavKey === 'lightning';
   const marketActive = bottomNavKey === 'market';
   const moreActive = bottomNavKey === 'more';
-  const activeIndex = getBottomNavIndex(bottomNavKey);
+  const activeIndex = getBottomNavIndex(bottomNavKey, navItems);
   const {
     containerRef,
     indicatorStyle,
     labelRefs,
-  } = useSlidingIndicator(activeIndex, `${portfolioLabel}:${accountLabel}:${marketLabel}:${moreLabel}`);
+  } = useSlidingIndicator(activeIndex, navItems.map(item => ({
+    portfolio: portfolioLabel,
+    accounts: accountLabel,
+    lightning: lightningLabel,
+    market: marketLabel,
+    more: moreLabel,
+  }[item])).join(':'));
   const androidKeyboardVisible = useAndroidKeyboardVisible();
+  const setLabelRef = (item: TBottomNavItem) => (element: HTMLSpanElement | null) => {
+    labelRefs.current[navItems.indexOf(item)] = element;
+  };
 
   if (androidKeyboardVisible) {
     return null;
@@ -75,23 +86,39 @@ export const BottomNavigation = ({
           to="/account-summary"
         >
           <PortfolioIconSVG />
-          <span ref={element => labelRefs.current[0] = element}>
+          <span ref={setLabelRef('portfolio')}>
             {portfolioLabel}
           </span>
         </Link>
-        <Link
-          className={`
-            ${styles.link || ''}
-            ${accountsActive ? (styles.active || '') : ''}
-          `}
-          to={accountTabURL}
-        >
-          <AccountIconSVG />
-          <span ref={element => labelRefs.current[1] = element}>
-            {accountLabel}
-          </span>
-        </Link>
-        {!onlyHasLightningAccount && (
+        {showAccounts && (
+          <Link
+            className={`
+              ${styles.link || ''}
+              ${accountsActive ? (styles.active || '') : ''}
+            `}
+            to={accountTabURL}
+          >
+            <AccountIconSVG />
+            <span ref={setLabelRef('accounts')}>
+              {accountLabel}
+            </span>
+          </Link>
+        )}
+        {hasLightningAccount && (
+          <Link
+            className={`
+              ${styles.link || ''}
+              ${lightningActive && styles.active || ''}
+            `}
+            to="/lightning"
+          >
+            <LightningIconSVG />
+            <span ref={setLabelRef('lightning')}>
+              {lightningLabel}
+            </span>
+          </Link>
+        )}
+        {showMarket && (
           <Link
             className={`
               ${styles.link || ''}
@@ -101,7 +128,7 @@ export const BottomNavigation = ({
           >
             <MarketIconSVG />
             <span className={styles.marketplaceLabel}>
-              <span ref={element => labelRefs.current[2] = element}>
+              <span ref={setLabelRef('market')}>
                 {marketLabel}
               </span>
               <NewBadge
@@ -123,7 +150,7 @@ export const BottomNavigation = ({
         >
           <MoreIconSVG />
           <span className={styles.moreLabel}>
-            <span ref={element => labelRefs.current[3] = element}>
+            <span ref={setLabelRef('more')}>
               {moreLabel}
             </span>
             {canUpgrade && (

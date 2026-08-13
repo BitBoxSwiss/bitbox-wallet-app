@@ -3,10 +3,12 @@
 import type { TAccount } from '@/api/account';
 import type { TDevices } from '@/api/devices';
 
-const bottomNavKeys = ['portfolio', 'accounts', 'market', 'more'] as const;
+const bottomNavKeys = ['portfolio', 'accounts', 'lightning', 'market', 'more'] as const;
+const defaultBottomNavItems: TBottomNavItem[] = ['portfolio', 'accounts', 'market', 'more'];
 
 const LIGHTNING_SETTINGS_PATHS = [
   '/lightning/activate',
+  '/lightning/disclaimer',
   '/lightning/deactivate',
   '/lightning/set-lnurl-address',
   '/lightning/close-withdraw-funds',
@@ -19,6 +21,31 @@ const hasPathPrefix = (pathname: string, prefix: string): boolean => (
 export type TBottomNavItem = typeof bottomNavKeys[number];
 export type TBottomNavKey = TBottomNavItem | 'other';
 
+type TGetBottomNavItemsArgs = {
+  hasLightningAccount: boolean;
+  showAccounts: boolean;
+  showMarket: boolean;
+};
+
+export const getBottomNavItems = ({
+  hasLightningAccount,
+  showAccounts,
+  showMarket,
+}: TGetBottomNavItemsArgs): TBottomNavItem[] => {
+  const items: TBottomNavItem[] = ['portfolio'];
+  if (showAccounts) {
+    items.push('accounts');
+  }
+  if (hasLightningAccount) {
+    items.push('lightning');
+  }
+  if (showMarket) {
+    items.push('market');
+  }
+  items.push('more');
+  return items;
+};
+
 /**
  * Maps a pathname to the bottom-navigation tab it belongs to.
  * Used to detect tab changes for animations and state resets.
@@ -30,10 +57,12 @@ export const getBottomNavKey = (pathname: string): TBottomNavKey => {
   if (LIGHTNING_SETTINGS_PATHS.some(prefix => hasPathPrefix(pathname, prefix))) {
     return 'more';
   }
+  if (hasPathPrefix(pathname, '/lightning')) {
+    return 'lightning';
+  }
   if (
     pathname.startsWith('/account/')
     || pathname.startsWith('/accounts/')
-    || hasPathPrefix(pathname, '/lightning')
   ) {
     return 'accounts';
   }
@@ -46,8 +75,11 @@ export const getBottomNavKey = (pathname: string): TBottomNavKey => {
   return 'other';
 };
 
-export const getBottomNavIndex = (key: TBottomNavKey): number | undefined => {
-  const index = bottomNavKeys.indexOf(key as TBottomNavItem);
+export const getBottomNavIndex = (
+  key: TBottomNavKey,
+  items: TBottomNavItem[] = defaultBottomNavItems,
+): number | undefined => {
+  const index = items.indexOf(key as TBottomNavItem);
   return index === -1 ? undefined : index;
 };
 

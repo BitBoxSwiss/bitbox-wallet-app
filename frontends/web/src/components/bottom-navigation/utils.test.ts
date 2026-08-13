@@ -2,11 +2,26 @@
 
 import { describe, expect, it } from 'vitest';
 import type { TAccount } from '@/api/account';
-import { getBottomNavIndex, getBottomNavKey, shouldShowBottomNavigation } from './utils';
+import { getBottomNavIndex, getBottomNavItems, getBottomNavKey, shouldShowBottomNavigation } from './utils';
 
 const activeAccount = { active: true } as TAccount;
 
 describe('getBottomNavKey', () => {
+  it('maps Lightning wallet routes to the Lightning tab', () => {
+    expect(getBottomNavKey('/lightning')).toBe('lightning');
+    expect(getBottomNavKey('/lightning/send')).toBe('lightning');
+    expect(getBottomNavKey('/lightning/receive')).toBe('lightning');
+    expect(getBottomNavKey('/lightning/topup')).toBe('lightning');
+  });
+
+  it('maps Lightning setup and settings routes to the more tab', () => {
+    expect(getBottomNavKey('/lightning/activate')).toBe('more');
+    expect(getBottomNavKey('/lightning/disclaimer')).toBe('more');
+    expect(getBottomNavKey('/lightning/deactivate')).toBe('more');
+    expect(getBottomNavKey('/lightning/set-lnurl-address')).toBe('more');
+    expect(getBottomNavKey('/lightning/close-withdraw-funds')).toBe('more');
+  });
+
   it('maps marketplace routes to the market tab', () => {
     expect(getBottomNavKey('/market/select')).toBe('market');
     expect(getBottomNavKey('/market/moonpay/buy/btc')).toBe('market');
@@ -22,7 +37,57 @@ describe('getBottomNavIndex', () => {
     expect(getBottomNavIndex('accounts')).toBe(1);
     expect(getBottomNavIndex('market')).toBe(2);
     expect(getBottomNavIndex('more')).toBe(3);
+    expect(getBottomNavIndex('lightning')).toBeUndefined();
     expect(getBottomNavIndex('other')).toBeUndefined();
+  });
+
+  it('maps indexes when the Lightning shortcut is visible', () => {
+    const items = getBottomNavItems({
+      hasLightningAccount: true,
+      showAccounts: true,
+      showMarket: true,
+    });
+
+    expect(getBottomNavIndex('portfolio', items)).toBe(0);
+    expect(getBottomNavIndex('accounts', items)).toBe(1);
+    expect(getBottomNavIndex('lightning', items)).toBe(2);
+    expect(getBottomNavIndex('market', items)).toBe(3);
+    expect(getBottomNavIndex('more', items)).toBe(4);
+  });
+
+  it('skips the market index when the market tab is hidden', () => {
+    const items = getBottomNavItems({
+      hasLightningAccount: true,
+      showAccounts: true,
+      showMarket: false,
+    });
+
+    expect(getBottomNavIndex('lightning', items)).toBe(2);
+    expect(getBottomNavIndex('market', items)).toBeUndefined();
+    expect(getBottomNavIndex('more', items)).toBe(3);
+  });
+
+  it('skips the accounts index when only the Lightning shortcut is visible', () => {
+    const items = getBottomNavItems({
+      hasLightningAccount: true,
+      showAccounts: false,
+      showMarket: false,
+    });
+
+    expect(getBottomNavIndex('accounts', items)).toBeUndefined();
+    expect(getBottomNavIndex('lightning', items)).toBe(1);
+    expect(getBottomNavIndex('more', items)).toBe(2);
+  });
+
+  it('keeps the accounts index visible when no wallets are active', () => {
+    const items = getBottomNavItems({
+      hasLightningAccount: false,
+      showAccounts: true,
+      showMarket: true,
+    });
+
+    expect(getBottomNavIndex('accounts', items)).toBe(1);
+    expect(getBottomNavIndex('market', items)).toBe(2);
   });
 });
 
