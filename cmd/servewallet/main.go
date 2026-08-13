@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"sync"
 
 	backendPkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
@@ -44,6 +45,17 @@ func bindAddress() string {
 
 // webdevEnvironment implements backend.Environment.
 type webdevEnvironment struct {
+	// This is deliberately not secure storage. It exercises the encrypted mnemonic path in webdev
+	// and persists keys only so the development wallet remains usable across backend restarts.
+	lightningEncryptionKeys   *config.File
+	lightningEncryptionKeysMu *sync.Mutex
+}
+
+func newWebdevEnvironment(configDir string) webdevEnvironment {
+	return webdevEnvironment{
+		lightningEncryptionKeys:   config.NewFile(configDir, "lightning-encryption-keys.json"),
+		lightningEncryptionKeysMu: &sync.Mutex{},
+	}
 }
 
 // NotifyUser implements backend.Environment.
@@ -104,22 +116,60 @@ func (webdevEnvironment) OnAuthSettingChanged(enabled bool) {
 
 // CanEncryptLightningMnemonic implements backend.Environment.
 func (webdevEnvironment) CanEncryptLightningMnemonic() bool {
-	return false
+	return true
 }
 
 // StoreLightningEncryptionKey implements backend.Environment.
-func (webdevEnvironment) StoreLightningEncryptionKey(accountCode string, encryptionKey string) error {
-	return nil
+func (env webdevEnvironment) StoreLightningEncryptionKey(accountCode string, encryptionKey string) error {
+	env.lightningEncryptionKeysMu.Lock()
+	defer env.lightningEncryptionKeysMu.Unlock()
+
+	keys, err := env.loadLightningEncryptionKeys()
+	if err != nil {
+		return err
+	}
+	keys[accountCode] = encryptionKey
+	return env.lightningEncryptionKeys.WriteJSON(keys)
 }
 
 // LoadLightningEncryptionKey implements backend.Environment.
-func (webdevEnvironment) LoadLightningEncryptionKey(accountCode string) (string, error) {
-	return "", nil
+func (env webdevEnvironment) LoadLightningEncryptionKey(accountCode string) (string, error) {
+	env.lightningEncryptionKeysMu.Lock()
+	defer env.lightningEncryptionKeysMu.Unlock()
+
+	keys, err := env.loadLightningEncryptionKeys()
+	if err != nil {
+		return "", err
+	}
+	key, ok := keys[accountCode]
+	if !ok {
+		return "", fmt.Errorf("Lightning encryption key not found for account %q", accountCode)
+	}
+	return key, nil
 }
 
 // DeleteLightningEncryptionKey implements backend.Environment.
-func (webdevEnvironment) DeleteLightningEncryptionKey(accountCode string) error {
-	return nil
+func (env webdevEnvironment) DeleteLightningEncryptionKey(accountCode string) error {
+	env.lightningEncryptionKeysMu.Lock()
+	defer env.lightningEncryptionKeysMu.Unlock()
+
+	keys, err := env.loadLightningEncryptionKeys()
+	if err != nil {
+		return err
+	}
+	delete(keys, accountCode)
+	return env.lightningEncryptionKeys.WriteJSON(keys)
+}
+
+func (env webdevEnvironment) loadLightningEncryptionKeys() (map[string]string, error) {
+	keys := map[string]string{}
+	if !env.lightningEncryptionKeys.Exists() {
+		return keys, nil
+	}
+	if err := env.lightningEncryptionKeys.ReadJSON(&keys); err != nil {
+		return nil, err
+	}
+	return keys, nil
 }
 
 // BluetoothConnect implements backend.Environment.
@@ -262,15 +312,16 @@ func main() {
 
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
+	appDir := config.AppDir()
 	newBackend, err := backendPkg.NewBackend(
 		arguments.NewArguments(
-			config.AppDir(),
+			appDir,
 			!*mainnet,
 			*regtest,
 			*devservers,
 			gapLimits,
 		),
-		webdevEnvironment{})
+		newWebdevEnvironment(appDir))
 	if err != nil {
 		log.WithField("error", err).Panic(err)
 	}
