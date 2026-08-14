@@ -31,6 +31,7 @@ type Props = {
 type TReceiverAddressWrapperProps = {
   accounts?: TAccount[];
   autoFocus?: boolean;
+  classNameInputField?: string;
   error?: string | object;
   groupAccountsByKeystore?: boolean;
   inputLabel?: string;
@@ -62,6 +63,7 @@ const AccountOption = ({ option, isSelectedValue }: Props) => {
 export const ReceiverAddressWrapper = ({
   accounts,
   autoFocus,
+  classNameInputField,
   error,
   groupAccountsByKeystore = false,
   inputLabel,
@@ -182,6 +184,7 @@ export const ReceiverAddressWrapper = ({
       <InputWithDropdown
         id="recipientAddress"
         label={inputLabel ?? t('send.address.label')}
+        classNameInputField={classNameInputField}
         error={error}
         align="left"
         placeholder={inputPlaceholder ?? t('send.address.placeholder')}

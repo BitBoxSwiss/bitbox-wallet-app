@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { getReceiveAddressList } from '@/api/account';
 import { debug } from '@/utils/env';
-import { ReceiverAddressWrapper } from './receiver-address-wrapper';
-import { QRCodeLight, QRCodeDark } from '@/components/icon';
-import { DarkModeContext } from '@/contexts/DarkmodeContext';
-import { Input } from '@/components/forms';
+import { ReceiverAddressInputField } from './receiver-address-input-field';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { ScanQRDialog } from '@/routes/account/send/components/dialogs/scan-qr-dialog';
+import { ScanQR } from './scan-qr';
 import { isBitcoinBased } from '@/routes/account/utils';
 import style from './receiver-address-input.module.css';
 
@@ -22,23 +19,6 @@ type TReceiverAddressInputProps = {
   onAccountChange?: (account: accountApi.TAccount | null) => void;
   parseQRResult: (uri: string) => void;
   recipientAddress: string;
-};
-
-type TToggleScanQRButtonProps = {
-  onClick: () => void;
-  withDropdown?: boolean;
-};
-
-export const ScanQRButton = ({ onClick, withDropdown = false }: TToggleScanQRButtonProps) => {
-  const { isDarkMode } = useContext(DarkModeContext);
-  return (
-    <button type="button" onClick={onClick} className={`
-     ${style.qrButton || ''}
-     ${withDropdown ? style.withDropdown || '' : ''}`
-    }>
-      {isDarkMode ? <QRCodeLight /> : <QRCodeDark />}
-    </button>
-  );
 };
 
 export const ReceiverAddressInput = ({
@@ -63,7 +43,6 @@ export const ReceiverAddressInput = ({
       acc.keystore.rootFingerprint === account?.keystore.rootFingerprint
     ) || [], [activeAccounts, account]);
 
-  const isMobileSnapshotRef = useRef<boolean>(isMobile);
   const parseQRResultRef = useRef(parseQRResult);
   parseQRResultRef.current = parseQRResult;
 
@@ -82,13 +61,8 @@ export const ReceiverAddressInput = ({
   }, [accountCode, onInputChange]);
 
   const toggleScanQR = useCallback(() => {
-    setActiveScanQR(prev => {
-      if (!prev) {
-        isMobileSnapshotRef.current = isMobile;
-      }
-      return !prev;
-    });
-  }, [isMobile]);
+    setActiveScanQR(prev => !prev);
+  }, []);
 
   const handleParseQRResult = useCallback((result: string) => {
     parseQRResultRef.current(result);
@@ -97,43 +71,28 @@ export const ReceiverAddressInput = ({
   return (
     <>
       {activeScanQR && (
-        <ScanQRDialog
-          toggleScanQR={toggleScanQR}
-          onChangeActiveScanQR={setActiveScanQR}
-          parseQRResult={handleParseQRResult}
-          isMobile={isMobileSnapshotRef.current}
+        <ScanQR
+          onResult={handleParseQRResult}
+          onClose={() => setActiveScanQR(false)}
+          instruction={t('send.scanQRInstruction')}
         />
       )}
-      {!accountsForReceiverDropdown || accountsForReceiverDropdown.length === 0 ? (
-        <Input
-          label={t('send.address.label')}
-          placeholder={t('send.address.placeholder')}
-          id="recipientAddress"
-          error={addressError}
-          onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
-          value={recipientAddress}
-          className={style.inputWithIcon}
-          classNameInputField={style.inputFieldWithIcon}
-          labelSection={debug ? (
-            <span id="sendToSelf" className={`${style.action || ''} ${style.sendToSelf || ''}`} onClick={handleSendToSelf}>
-              Send to self
-            </span>
-          ) : undefined}
-          autoFocus={!isMobile}>
-          <ScanQRButton onClick={toggleScanQR} />
-        </Input>
-      ) : (
-        <ReceiverAddressWrapper
-          accounts={accountsForReceiverDropdown}
-          error={addressError}
-          onInputChange={onInputChange}
-          onAccountChange={onAccountChange}
-          recipientAddress={recipientAddress}
-        >
-          <ScanQRButton onClick={toggleScanQR} withDropdown />
-        </ReceiverAddressWrapper>
-      )}
+      <ReceiverAddressInputField
+        accounts={accountsForReceiverDropdown}
+        autoFocus={!isMobile}
+        error={addressError}
+        inputLabel={t('send.address.label')}
+        inputPlaceholder={t('send.address.placeholder')}
+        labelSection={debug ? (
+          <span id="sendToSelf" className={`${style.action || ''} ${style.sendToSelf || ''}`} onClick={handleSendToSelf}>
+            Send to self
+          </span>
+        ) : undefined}
+        onInputChange={onInputChange}
+        onAccountChange={onAccountChange}
+        onScanQR={toggleScanQR}
+        recipientAddress={recipientAddress}
+      />
     </>
   );
 };
-

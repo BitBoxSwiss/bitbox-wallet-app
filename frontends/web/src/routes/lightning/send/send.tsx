@@ -69,6 +69,7 @@ export const Send = ({ activeAccounts }: TProps) => {
               inputError={inputError}
               onCancel={() => navigate('/lightning')}
               onSubmit={submitPaymentInput}
+              onClearError={() => setInputError(undefined)}
             />
           )}
           {step === 'review' && paymentInput && (

@@ -62,3 +62,15 @@ export const triggerHapticFeedback = () => {
     window.webkit.messageHandlers.hapticFeedback.postMessage({});
   }
 };
+
+
+export const triggerLongHapticFeedback = () => {
+  if (!runningInIOS() || !window.webkit?.messageHandlers.hapticFeedback) {
+    return;
+  }
+  const PULSES = 3;
+  const GAP_MS = 80;
+  for (let i = 0; i < PULSES; i++) {
+    setTimeout(triggerHapticFeedback, i * GAP_MS);
+  }
+};

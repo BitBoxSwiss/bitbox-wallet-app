@@ -20,22 +20,6 @@
         margin-top: calc(var(--space-half) + var(--space-quarter));
     }
     .formButtonsContainer button + button {
-        margin-bottom: var(--space-half); /* elements are reversed due to flex-direction: column-reverse; so we have to use margin-bottom instead of top */
-    }
-
-    .mobileQRScanner {
-        display: flex;
-        flex-direction: column;
-        height: 220px;
         margin-bottom: var(--space-half);
     }
-
-    .mobileQRScanner video {
-        max-width: 100%;
-        height: 220px;
-        margin: 0 auto;
-        min-height: 200px;
-        object-fit: cover;
-    }
-
 }

@@ -8,6 +8,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as devicesApi from '@/api/devices';
 import * as lightningApi from '@/api/lightning';
+import { ConfigContext } from '@/contexts/ConfigContext';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Lightning } from './lightning';
 
@@ -71,18 +72,20 @@ const balance: lightningApi.TLightningBalance = {
 
 const renderLightning = () => render(
   <MemoryRouter>
-    <RatesContext.Provider value={{
-      defaultCurrency: 'EUR',
-      activeCurrencies: ['EUR'],
-      btcUnit: 'sat',
-      rotateDefaultCurrency: vi.fn(),
-      rotateBtcUnit: vi.fn(),
-      addToActiveCurrencies: vi.fn(),
-      updateDefaultCurrency: vi.fn(),
-      removeFromActiveCurrencies: vi.fn(),
-    }}>
-      <Lightning />
-    </RatesContext.Provider>
+    <ConfigContext.Provider value={{ config: undefined, setConfig: vi.fn() }}>
+      <RatesContext.Provider value={{
+        defaultCurrency: 'EUR',
+        activeCurrencies: ['EUR'],
+        btcUnit: 'sat',
+        rotateDefaultCurrency: vi.fn(),
+        rotateBtcUnit: vi.fn(),
+        addToActiveCurrencies: vi.fn(),
+        updateDefaultCurrency: vi.fn(),
+        removeFromActiveCurrencies: vi.fn(),
+      }}>
+        <Lightning />
+      </RatesContext.Provider>
+    </ConfigContext.Provider>
   </MemoryRouter>
 );
 
