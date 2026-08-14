@@ -1,0 +1,243 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--scan-qr-background);
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+.backdropOpen {
+  opacity: 1;
+}
+
+.container {
+  --scan-qr-focus-top: 50%;
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--scan-qr-background);
+  transform: translateY(100%);
+  transition: transform 300ms ease-out;
+}
+.containerOpen {
+  transform: translateY(0);
+}
+
+.fullscreen {
+  --scan-qr-content-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-default));
+}
+
+.container.fullscreen {
+  --scan-qr-focus-top: 35%;
+}
+
+@media (min-width: 769px) {
+  .backdrop:not(.fullscreen) {
+    background-color: var(--scan-qr-backdrop-background);
+  }
+  .container:not(.fullscreen) {
+    width: min(90vw, 460px);
+    height: min(85vh, 620px);
+    border-radius: 16px;
+  }
+  .focus {
+    width: 220px;
+    height: 220px;
+  }
+}
+
+.video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.spinnerContainer {
+  position: absolute;
+  top: var(--scan-qr-focus-top);
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.spinnerContainer img {
+  width: 36px;
+  height: 36px;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.focus {
+  position: absolute;
+  top: var(--scan-qr-focus-top);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(80vw, 320px);
+  height: min(80vw, 320px);
+  border-radius: 24px;
+  box-shadow: 0 0 0 100vmax var(--scan-qr-focus-background);
+}
+.instruction {
+  position: absolute;
+  top: calc(100% + var(--space-large));
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(80vw, 360px);
+  margin: 0;
+  color: var(--scan-qr-muted-foreground);
+  font-size: 24px;
+  text-align: center;
+}
+
+.corner {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 5px solid var(--scan-qr-foreground);
+}
+.topLeft {
+  top: -3px;
+  left: -3px;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 24px;
+}
+.topRight {
+  top: -3px;
+  right: -3px;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: 24px;
+}
+.bottomLeft {
+  bottom: -3px;
+  left: -3px;
+  border-right: none;
+  border-top: none;
+  border-bottom-left-radius: 24px;
+}
+.bottomRight {
+  bottom: -3px;
+  right: -3px;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 24px;
+}
+
+.closeButton {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 16px);
+  left: calc(env(safe-area-inset-left, 0px) + 16px);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+.closeButton img {
+  width: 24px;
+  height: 24px;
+}
+
+.controls {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 16px);
+  right: calc(env(safe-area-inset-right, 0px) + 16px);
+  z-index: 2;
+  display: flex;
+  gap: var(--space-quarter);
+}
+
+.controls button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--scan-qr-foreground);
+  cursor: pointer;
+}
+.controls button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.controls button::before {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--scan-qr-control-background);
+}
+.controls img,
+.controls svg {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.error {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-default);
+  color: var(--scan-qr-foreground);
+  text-align: center;
+}
+
+.processingOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--scan-qr-processing-background);
+}
+.processingOverlay img {
+  width: 36px;
+  height: 36px;
+}
+
+.contentSlot {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.contentSlot > * {
+  pointer-events: auto;
+}

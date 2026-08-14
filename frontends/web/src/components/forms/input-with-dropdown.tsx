@@ -87,7 +87,7 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
               isClearable={false}
               isOptionDisabled={isOptionDisabled}
               renderTrigger={isMobile ? ({ onClick }) => (
-                <button className={styles.dropdownTrigger} onClick={onClick}>
+                <button type="button" className={styles.dropdownTrigger} onClick={onClick}>
                   <ChevronDownDark />
                 </button>
               ) : undefined}

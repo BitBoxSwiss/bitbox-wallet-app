@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
 import { useTranslation } from 'react-i18next';
 
@@ -8,6 +8,7 @@ type TUseQRScannerOptions = {
   onStart?: () => void;
   onResult: (result: QrScanner.ScanResult) => void;
   onError: (error: any) => void;
+  stopOnResult?: boolean;
 };
 
 export const useQRScanner = (
@@ -15,14 +16,24 @@ export const useQRScanner = (
     onStart,
     onResult,
     onError,
+    stopOnResult = true,
   }: TUseQRScannerOptions
 ) => {
   const { t } = useTranslation();
-  const [initErrorMessage, setInitErrorMessage] = useState();
+  const [initErrorMessage, setInitErrorMessage] = useState<string | undefined>(undefined);
+  const [hasFlash, setHasFlash] = useState(false);
+  const [isFlashOn, setIsFlashOn] = useState(false);
   const scanner = useRef<QrScanner | null>(null);
   // loading is set to true while the scanner is being created/started/stopped/destroyed,
   // this allows to sync across re-renders.
   const loading = useRef<boolean>(false);
+
+  const onStartRef = useRef(onStart);
+  const onResultRef = useRef(onResult);
+  const onErrorRef = useRef(onError);
+  onStartRef.current = onStart;
+  onResultRef.current = onResult;
+  onErrorRef.current = onError;
 
   useEffect(() => {
     (async () => {
@@ -38,17 +49,20 @@ export const useQRScanner = (
         scanner.current = new QrScanner(
           videoRef.current,
           result => {
-            scanner.current?.stop();
-            onResult(result);
+            if (stopOnResult) {
+              scanner.current?.stop();
+            }
+            onResultRef.current(result);
           }, {
             onDecodeError: err => {
               const errorString = err.toString();
               if (err && !errorString.includes('No QR code found')) {
-                onError(err);
+                onErrorRef.current(err);
               }
             },
-            highlightScanRegion: true,
-            highlightCodeOutline: true,
+            // disabled bc we draw their own scan overlay.
+            highlightScanRegion: false,
+            highlightCodeOutline: false,
             calculateScanRegion: (v) => {
               const videoWidth = v.videoWidth;
               const videoHeight = v.videoHeight;
@@ -69,15 +83,20 @@ export const useQRScanner = (
         await new Promise(r => setTimeout(r, 300));
         await scanner.current?.start();
         loading.current = false;
-        if (onStart) {
-          onStart();
+        try {
+          setHasFlash(await scanner.current?.hasFlash() ?? false);
+        } catch {
+          setHasFlash(false);
+        }
+        if (onStartRef.current) {
+          onStartRef.current();
         }
       } catch (error: any) {
         const stringifiedError = error.toString();
         loading.current = false;
         const cameraNotFound = stringifiedError === 'Camera not found.';
         setInitErrorMessage(cameraNotFound ? t('send.scanQRNoCameraMessage') : stringifiedError);
-        onError(error);
+        onErrorRef.current(error);
       }
     })();
 
@@ -96,7 +115,25 @@ export const useQRScanner = (
         }
       })();
     };
-  }, [videoRef, onStart, onResult, onError, t]);
+  }, [videoRef, stopOnResult, t]);
 
-  return { initErrorMessage };
+  const toggleFlash = useCallback(async () => {
+    const stream = videoRef.current?.srcObject;
+    if (!(stream instanceof MediaStream)) {
+      return;
+    }
+    const track = stream.getVideoTracks()[0];
+    if (!track) {
+      return;
+    }
+    const nextOn = !isFlashOn;
+    try {
+      await track.applyConstraints({ advanced: [{ torch: nextOn }] } as unknown as MediaTrackConstraints);
+      setIsFlashOn(nextOn);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [videoRef, isFlashOn]);
+
+  return { initErrorMessage, hasFlash, isFlashOn, toggleFlash };
 };

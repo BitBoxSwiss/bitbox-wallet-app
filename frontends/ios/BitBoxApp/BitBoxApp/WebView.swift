@@ -59,12 +59,31 @@ class JavascriptBridge: NSObject, WKScriptMessageHandler {
                     self.webView?.alpha = 1.0
                 }
             }
+        } else if message.name == "readClipboard", let body = message.body as? [String: AnyObject] {
+            let requestID = body["requestId"] as? Int ?? 0
+            DispatchQueue.main.async {
+                self.respondWithClipboard(requestID: requestID, text: UIPasteboard.general.string ?? "")
+            }
         } else if message.name == "hapticFeedback" {
             DispatchQueue.main.async {
                 let generator = UIImpactFeedbackGenerator(style: .medium)
                 generator.impactOccurred()
             }
         }
+    }
+
+    private func respondWithClipboard(requestID: Int, text: String) {
+        let response: [String: Any] = [
+            "requestId": requestID,
+            "success": true,
+            "text": text,
+            "type": "clipboardReadResult",
+        ]
+        guard let data = try? JSONSerialization.data(withJSONObject: response),
+              let json = String(data: data, encoding: .utf8) else {
+            return
+        }
+        webView?.evaluateJavaScript("window.onIOSClipboardReadResult && window.onIOSClipboardReadResult(\(json));")
     }
 }
 
@@ -134,6 +153,7 @@ struct WebView: UIViewRepresentable {
         let bridge = JavascriptBridge()
         contentController.add(bridge, name: "goCall")
         contentController.add(bridge, name: "appReady")
+        contentController.add(bridge, name: "readClipboard")
         contentController.add(bridge, name: "hapticFeedback")
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
@@ -176,6 +196,40 @@ struct WebView: UIViewRepresentable {
         setHandlers.setMessageHandlers(handlers: MessageHandlers(webView: webView))
         let source = """
         window.runningOnIOS = true;
+        (function() {
+          if (window.top !== window) { return; }
+          var clipboardRequests = {};
+          var nextClipboardRequestId = 0;
+          window.onIOSClipboardReadResult = function(message) {
+            var pending = clipboardRequests[message.requestId];
+            if (!pending) { return; }
+            delete clipboardRequests[message.requestId];
+            if (message.success === false) {
+              pending.reject(new Error(message.error || 'Clipboard read failed'));
+              return;
+            }
+            pending.resolve(message.text || '');
+          };
+          var clipboard = navigator.clipboard || {};
+          var readText = function() {
+            return new Promise(function(resolve, reject) {
+              nextClipboardRequestId += 1;
+              clipboardRequests[nextClipboardRequestId] = { resolve: resolve, reject: reject };
+              window.webkit.messageHandlers.readClipboard.postMessage({
+                requestId: nextClipboardRequestId
+              });
+            });
+          };
+          try {
+            clipboard.readText = readText;
+          } catch (error) {}
+          if (!navigator.clipboard || navigator.clipboard.readText !== readText) {
+            Object.defineProperty(navigator, 'clipboard', {
+              value: Object.assign({}, clipboard, { readText: readText }),
+              configurable: true
+            });
+          }
+        })();
         """
         let userScript = WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: true)
         webView.configuration.userContentController.addUserScript(userScript)

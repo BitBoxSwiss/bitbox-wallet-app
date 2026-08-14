@@ -168,6 +168,7 @@ component state — no form library is used.
 - Types prefixed with `T` (`TProps`, `TBalance`, `TAccount`).
 - Named exports only — no default exports.
 - Path alias: `@/` maps to `src/` (e.g., `import { getBalance } from '@/api/account'`).
+- Do not add `void` before function calls.
 
 ### File Naming
 - Components: `my-component.tsx` (kebab-case filenames, PascalCase component names)
