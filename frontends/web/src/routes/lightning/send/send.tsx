@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import type { TAccount } from '@/api/account';
 import { type TPaymentInput, getParsePaymentInput } from '@/api/lightning';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { ReviewStep } from './components/review-step';
@@ -13,7 +14,11 @@ import { LightningSendGuide } from '../guide';
 
 type TSendStep = 'select-payment-input' | 'review' | 'success';
 
-export const Send = () => {
+type TProps = {
+  activeAccounts: TAccount[];
+};
+
+export const Send = ({ activeAccounts }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState<TSendStep>('select-payment-input');
@@ -60,6 +65,7 @@ export const Send = () => {
           <Header title={<h2>{t('lightning.send.title')}</h2>} />
           {step === 'select-payment-input' && (
             <SelectPaymentInputStep
+              activeAccounts={activeAccounts}
               inputError={inputError}
               onCancel={() => navigate('/lightning')}
               onSubmit={submitPaymentInput}

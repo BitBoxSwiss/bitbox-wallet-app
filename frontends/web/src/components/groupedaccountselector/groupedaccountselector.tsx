@@ -21,6 +21,11 @@ type TGroupAccountSelector = {
   connected: boolean;
 };
 
+export type TKeystoreGroupHeader = {
+  connected: boolean;
+  label: string;
+};
+
 type TOptionAccountSelector = {
   disabled: boolean;
   active?: boolean;
@@ -85,7 +90,7 @@ const TriggerContent = ({
   );
 };
 
-const renderGroupHeader = (group: TGroupedOption) => (
+export const renderKeystoreGroupHeader = (group: TKeystoreGroupHeader) => (
   <div className={styles.groupHeader}>
     <span className={styles.groupLabel} data-testid="grouped-account-selector-group-label">{group.label}</span>
     {group.connected && (
@@ -213,7 +218,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
           onChange(value);
         }}
         renderOptions={renderOption}
-        renderGroupHeader={renderGroupHeader}
+        renderGroupHeader={renderKeystoreGroupHeader}
         mobileFullScreen
         title={title}
         isOpen={isOpen}

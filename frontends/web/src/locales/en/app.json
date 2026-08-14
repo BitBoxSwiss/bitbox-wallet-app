@@ -1821,7 +1821,7 @@
         "title": "Confirm transaction details"
       },
       "invoice": {
-        "input": "Or paste an address or invoice here"
+        "input": "Or paste an address or invoice"
       },
       "lnurlPay": {
         "invalidAmount": "Enter an amount between {{minAmount}} and {{maxAmount}} sats."
