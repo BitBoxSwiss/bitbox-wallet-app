@@ -49,8 +49,8 @@ const PairingChains = ({ chains }: TPairingChainsProps) => {
           const chainDetail = SUPPORTED_CHAINS[chain];
           return chainDetail && (
             <li className={styles.chain} key={chain}>
-              {chainDetail.icon}
-              <span>{chainDetail.name}</span>
+              <img alt="" src={chainDetail.icon} />
+              <span>{t(chainDetail.nameKey)}</span>
             </li>
           );
         })}

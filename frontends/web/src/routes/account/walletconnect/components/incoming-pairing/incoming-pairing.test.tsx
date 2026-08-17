@@ -111,9 +111,9 @@ describe('WCIncomingPairing', () => {
     });
     const { approveSession, onApprove } = setup(proposal);
 
-    expect(screen.getByText('Optimism')).toBeInTheDocument();
-    expect(screen.getByText('Base')).toBeInTheDocument();
-    expect(screen.queryByText('Ethereum mainnet')).not.toBeInTheDocument();
+    expect(screen.getByText('evmChains.optimism')).toBeInTheDocument();
+    expect(screen.getByText('evmChains.base')).toBeInTheDocument();
+    expect(screen.queryByText('evmChains.ethereumMainnet')).not.toBeInTheDocument();
     expect(screen.getAllByRole('listitem')).toHaveLength(2);
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
@@ -145,7 +145,7 @@ describe('WCIncomingPairing', () => {
     const chains = Object.keys(SUPPORTED_CHAINS);
 
     Object.values(SUPPORTED_CHAINS).forEach(chain => {
-      expect(screen.getByText(chain.name)).toBeInTheDocument();
+      expect(screen.getByText(chain.nameKey)).toBeInTheDocument();
     });
     expect(screen.getByText('walletConnect.pairingRequest.readOnly')).toBeInTheDocument();
 
@@ -176,7 +176,7 @@ describe('WCIncomingPairing', () => {
     });
     setup(proposal);
 
-    expect(screen.getByText('Optimism')).toBeInTheDocument();
+    expect(screen.getByText('evmChains.optimism')).toBeInTheDocument();
     expect(screen.getByText('walletConnect.pairingRequest.readOnly')).toBeInTheDocument();
   });
 

@@ -1,36 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, createElement } from 'react';
 import { IWalletKit } from '@reown/walletkit';
-import { ArbitrumLogo, OptimismLogo, BaseLogo, ETHLogo } from '@/components/icon';
+import { EVM_CHAIN_REGISTRY } from '@/utils/evm-chain-registry';
+import type { TEVMChain } from '@/utils/evm-chain-registry';
 import { truncateMiddle } from '@/utils/truncate';
 
-type TSupportedChainDetail = {
-  [key: string]: { name: string; icon: ReactNode };
-};
-
-export const SUPPORTED_CHAINS: TSupportedChainDetail = {
-  'eip155:1': {
-    name: 'Ethereum mainnet',
-    icon: createElement(ETHLogo)
-  },
-  'eip155:10': {
-    name: 'Optimism',
-    icon: createElement(OptimismLogo)
-  },
-  'eip155:8453': {
-    name: 'Base',
-    icon: createElement(BaseLogo)
-  },
-  'eip155:42161': {
-    name: 'Arbitrum One',
-    icon: createElement(ArbitrumLogo)
-  },
-  'eip155:11155111': {
-    name: 'Ethereum Sepolia testnet',
-    icon: createElement(ETHLogo)
-  },
-};
+export const SUPPORTED_CHAINS: Record<string, TEVMChain> = Object.fromEntries(
+  Object.entries(EVM_CHAIN_REGISTRY).map(([chainID, chain]) => [`eip155:${chainID}`, chain]),
+);
 
 export const EIP155_SIGNING_METHODS = {
   PERSONAL_SIGN: 'personal_sign',
