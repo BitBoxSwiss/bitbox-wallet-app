@@ -350,9 +350,9 @@ export const Lightning = () => {
   const statusBanners = (
     <>
       <Status
-        dismissibleKey="lightning-alpha-warning"
+        dismissibleKey="lightning-beta-warning"
         type="warning">
-        This is an alpha release intended for preview and testing. Only use lightning with a small amount of funds!
+        {t('lightning.betaWarning')}
       </Status>
       <Status
         hidden={sparkStatus === undefined || sparkStatus.status === 'operational'}

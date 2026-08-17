@@ -46,7 +46,7 @@ type TConfigFrontendDismissibleKnownKey =
   | 'walletConnectDisclaimerDismissed'
   | 'skipTestingWarning'
   | 'mobile-data-warning'
-  | 'lightning-alpha-warning';
+  | 'lightning-beta-warning';
 
 export type TConfigFrontendDismissibleKey =
   | TConfigFrontendDismissibleKnownKey
@@ -79,7 +79,7 @@ export type TConfigFrontend = Readonly<{
   walletConnectDisclaimerDismissed?: boolean;
   skipTestingWarning?: boolean;
   'mobile-data-warning'?: boolean;
-  'lightning-alpha-warning'?: boolean;
+  'lightning-beta-warning'?: boolean;
 }> & Readonly<{
   [key in TConfigFrontendDismissibleDynamicKey]?: boolean;
 }>;
