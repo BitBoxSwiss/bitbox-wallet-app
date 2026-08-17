@@ -5,7 +5,6 @@ import alert from './assets/icons/alert-triangle.svg';
 import BB02StylizedDark from './assets/bitbox02-stylized-reflection-dark.png';
 import BB02StylizedLight from './assets/bitbox02-stylized-reflection-light.png';
 import infoBlueSVG from './assets/icons/info-icon-blue.svg';
-import arbitrumColorSVG from './assets/arbitrum-color.svg';
 import arrowDownSVG from './assets/icons/arrow-down-active.svg';
 import arrowDownGreenSVG from './assets/icons/arrow-down-green.svg';
 import arrowDownRedSVG from './assets/icons/arrow-down-red.svg';
@@ -24,7 +23,6 @@ import arrowCircleRightActiveSVG from './assets/icons/arrow-circle-right-active.
 import arrowSwapSVG from './assets/icons/arrow-swap.svg';
 import bankDarkSVG from './assets/icons/bank.svg';
 import bankLightSVG from './assets/icons/bank-light.svg';
-import baseColorSVG from './assets/base-color.svg';
 import buyInfoSVG from './assets/icons/buy-info.svg';
 import chartPerformanceDarkSVG from './assets/icons/chart-performance-dark.svg';
 import chartPerformanceWhiteSVG from './assets/icons/chart-performance-white.svg';
@@ -45,7 +43,6 @@ import creditCardLightSVG from './assets/icons/credit-card-light.svg';
 import deviceSVG from './assets/icons/device.svg';
 import editActiveSVG from './assets/icons/edit-active.svg';
 import ejectIconSVG from './assets/icons/eject.svg';
-import ethColorSVG from './assets/eth-color.svg';
 import redDotSVG from './assets/icons/red-dot.svg';
 import greenDotSVG from './assets/icons/green-dot.svg';
 import yellowDotSVG from './assets/icons/yellow-dot.svg';
@@ -71,7 +68,6 @@ import loupeSVG from './assets/icons/loupe.svg';
 import loupeBlueSVG from './assets/icons/loupe-blue.svg';
 import menuDarkSVG from './assets/icons/menu-dark.svg';
 import menuLightSVG from './assets/icons/menu-light.svg';
-import optimismColorSVG from './assets/optimism-color.svg';
 import walletConnectDarkSVG from './assets/icons/wallet-connect-dark.svg';
 import walletConnectLightSVG from './assets/icons/wallet-connect-light.svg';
 import walletConnectDefaultSVG from './assets/icons/wallet-connect-default.svg';
@@ -142,7 +138,6 @@ export const CaretDown = ({ className, ...props }: SVGProps) => (
 type ImgProps = JSX.IntrinsicElements['img'];
 
 export const Abort = (props: ImgProps) => (<img src={abortSVG} draggable={false} {...props} />);
-export const ArbitrumLogo = (props: ImgProps) => (<img src={arbitrumColorSVG} draggable={false} {...props} />);
 export const ArrowDown = (props: ImgProps) => (<img src={arrowDownSVG} draggable={false} {...props} />);
 export const ArrowDownGreen = (props: ImgProps) => (<img src={arrowDownGreenSVG} draggable={false} {...props} />);
 export const ArrowDownRed = (props: ImgProps) => (<img src={arrowDownRedSVG} draggable={false} {...props} />);
@@ -161,7 +156,6 @@ export const ArrowCirlceRightActive = (props: ImgProps) => (<img src={arrowCircl
 export const ArrowSwap = (props: ImgProps) => (<img src={arrowSwapSVG} draggable={false} {...props} />);
 export const BankDark = (props: ImgProps) => (<img src={bankDarkSVG} draggable={false} {...props} />);
 export const Bank = (props: ImgProps) => (<img src={bankLightSVG} draggable={false} {...props} />);
-export const BaseLogo = (props: ImgProps) => (<img src={baseColorSVG} draggable={false} {...props} />);
 export const BitBox02StylizedDark = (props: ImgProps) => (<img src={BB02StylizedDark} draggable={false} {...props} />);
 export const BitBox02StylizedLight = (props: ImgProps) => (<img src={BB02StylizedLight} draggable={false} {...props} />);
 export const BuyInfo = (props: ImgProps) => (<img src={buyInfoSVG} draggable={false} {...props} />);
@@ -189,7 +183,6 @@ export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggab
 export const Device = (props: ImgProps) => (<img src={deviceSVG} draggable={false} {...props} />);
 export const EditActive = (props: ImgProps) => (<img src={editActiveSVG} draggable={false} {...props} />);
 export const Eject = (props: ImgProps) => (<img src={ejectIconSVG} draggable={false} {...props} />);
-export const ETHLogo = (props: ImgProps) => (<img src={ethColorSVG} draggable={false} {...props} />);
 export const ExternalLink = (props: ImgProps) => (<img src={externalLinkSVG} draggable={false} {...props} />);
 export const ExternalLinkGray = (props: ImgProps) => (<img src={externalLinkGraySVG} draggable={false} {...props} />);
 export const EyeClosed = (props: ImgProps) => (<img src={eyeClosedSVG} draggable={false} {...props} />);
@@ -208,7 +201,6 @@ export const Loupe = (props: ImgProps) => (<img src={loupeSVG} draggable={false}
 export const LoupeBlue = (props: ImgProps) => (<img src={loupeBlueSVG} draggable={false} {...props} />);
 export const MenuDark = (props: ImgProps) => (<img src={menuDarkSVG} draggable={false} {...props} />);
 export const MenuLight = (props: ImgProps) => (<img src={menuLightSVG} draggable={false} {...props} />);
-export const OptimismLogo = (props: ImgProps) => (<img src={optimismColorSVG} draggable={false} {...props} />);
 export const OrangeDot = (props: ImgProps) => (<img src={orangeDotSVG} draggable={false} {...props} />);
 export const OutlinedUploadDark = (props: ImgProps) => (<img src={outlinedUploadDarkSVG} draggable={false} {...props} />);
 export const OutlinedUploadLight = (props: ImgProps) => (<img src={outlinedUploadLightSVG} draggable={false} {...props} />);
