@@ -100,6 +100,7 @@ describe('LightningTopUp', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.spyOn(accountApi, 'getBalance').mockResolvedValue({ success: true, balance: lightningBalance() });
+    vi.spyOn(lightningApi, 'subscribeLightningBalance').mockReturnValue(vi.fn());
   });
 
   it('prepares and sends a top-up through the dedicated endpoint', async () => {

@@ -411,3 +411,9 @@ export const subscribeLightningReady = (cb: TSubscriptionCallback<boolean>): TUn
 export const subscribeListPayments = (cb: TSubscriptionCallback<TLightningPayment[]>) => {
   return subscribeEndpoint('lightning/list-payments', cb);
 };
+
+export const subscribeLightningBalance = (
+  cb: TSubscriptionCallback<TLightningBalance>,
+): TUnsubscribe => {
+  return subscribeEndpoint('lightning/balance', cb);
+};
