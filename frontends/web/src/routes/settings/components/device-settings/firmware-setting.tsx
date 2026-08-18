@@ -6,24 +6,22 @@ import { AppContext } from '@/contexts/AppContext';
 import { VersionInfo, upgradeDeviceFirmware } from '@/api/bitbox02';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
-import { Checked, RedDot } from '@/components/icon';
+import { Checked, PointToBitBox02, RedDot } from '@/components/icon';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 
 export type TProps = {
   deviceID: string;
   versionInfo: VersionInfo;
   asButton?: boolean;
+  noSidebarOffset?: boolean;
 };
 
-export type TUpgradeDialogProps = {
-  open: boolean;
-  versionInfo: VersionInfo;
-  confirming: boolean;
-  onUpgradeFirmware: () => void;
-  onClose: () => void;
-};
-
-const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) => {
+const FirmwareSetting = ({
+  deviceID,
+  versionInfo,
+  asButton = false,
+  noSidebarOffset,
+}: TProps) => {
   const { t } = useTranslation();
   const { setFirmwareUpdateDialogOpen, firmwareUpdateDialogOpen } = useContext(AppContext);
   const [confirming, setConfirming] = useState(false);
@@ -35,9 +33,12 @@ const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) =>
 
   const handleUpgradeFirmware = async () => {
     setConfirming(true);
-    await upgradeDeviceFirmware(deviceID);
-    setConfirming(false);
-    setFirmwareUpdateDialogOpen(false);
+    try {
+      await upgradeDeviceFirmware(deviceID);
+      setFirmwareUpdateDialogOpen(false);
+    } finally {
+      setConfirming(false);
+    }
   };
 
   return (
@@ -61,6 +62,7 @@ const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) =>
         open={firmwareUpdateDialogOpen && canUpgrade}
         versionInfo={versionInfo}
         confirming={confirming}
+        noSidebarOffset={noSidebarOffset}
         onUpgradeFirmware={handleUpgradeFirmware}
         onClose={() => setFirmwareUpdateDialogOpen(false)}
       />
@@ -68,10 +70,20 @@ const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) =>
   );
 };
 
-const UpgradeDialog = ({
+export type TUpgradeDialogProps = {
+  open: boolean;
+  versionInfo: VersionInfo;
+  confirming: boolean;
+  noSidebarOffset?: boolean;
+  onUpgradeFirmware: () => void;
+  onClose: () => void;
+};
+
+export const UpgradeDialog = ({
   open,
   versionInfo,
   confirming,
+  noSidebarOffset,
   onUpgradeFirmware,
   onClose
 }: TUpgradeDialogProps) => {
@@ -81,11 +93,17 @@ const UpgradeDialog = ({
   }
   return (
     <Dialog
+      noSidebarOffset={noSidebarOffset}
       onClose={confirming ? undefined : onClose}
       open={open}
       title={t('upgradeFirmware.title')}>
       <DialogScrollContent>
-        {confirming ? t('confirmOnDevice') : (
+        {confirming ? (
+          <>
+            {t('confirmOnDevice')}
+            <PointToBitBox02 />
+          </>
+        ) : (
           <p>{t('upgradeFirmware.description', {
             currentVersion: versionInfo.currentVersion,
             newVersion: versionInfo.newVersion,

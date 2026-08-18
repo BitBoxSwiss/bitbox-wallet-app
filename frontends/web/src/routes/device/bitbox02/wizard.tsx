@@ -100,6 +100,7 @@ export const Wizard = ({ deviceID }: TProps) => {
         <SetupOptions
           key="choose-setup"
           versionInfo={versionInfo}
+          deviceID={deviceID}
           onSelectSetup={(
             type: TWalletSetupChoices,
             createOptions?: TWalletCreateOptions,

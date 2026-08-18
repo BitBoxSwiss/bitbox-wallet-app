@@ -4,13 +4,14 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VersionInfo } from '@/api/bitbox02';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { View, ViewContent, ViewHeader } from '@/components/view/view';
+import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Column, ColumnButtons, Grid, ResponsiveGrid } from '@/components/layout';
 import { Button, Label } from '@/components/forms';
 import { Toggle } from '@/components/toggle/toggle';
 import { InfoBlue } from '@/components/icon';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
+import { FirmwareSetting } from '@/routes/settings/components/device-settings/firmware-setting';
 import style from './choose.module.css';
 
 export type TWalletSetupChoices = 'create-wallet' | 'restore-sdcard' | 'restore-mnemonic';
@@ -21,6 +22,7 @@ export type TWalletCreateOptions = {
 };
 
 type Props = {
+  deviceID: string;
   onSelectSetup: (
     type: TWalletSetupChoices,
     options?: TWalletCreateOptions,
@@ -29,6 +31,7 @@ type Props = {
 };
 
 export const SetupOptions = ({
+  deviceID,
   onSelectSetup,
   versionInfo,
 }: Props) => {
@@ -37,11 +40,42 @@ export const SetupOptions = ({
   const [advanced, setAdvanced] = useState(false);
   const [withMnemonic, setWithMnemonic] = useState(false);
   const [with12Words, setWith12Words] = useState(false);
+  const [skipFWUpgrade, setSkipFWUpgrade] = useState(false);
   const handleAdvancedBack = () => {
     setWithMnemonic(false);
     setWith12Words(false);
     setAdvanced(false);
   };
+
+  if (versionInfo.canUpgrade && !skipFWUpgrade) {
+    return (
+      <View
+        fullscreen
+        textCenter
+        verticallyCentered
+        withBottomBar
+        width="620px">
+        <ViewHeader small title={t('deviceSettings.firmware.upgradeAvailable')}>
+        </ViewHeader>
+        <ViewContent>
+          <p>
+            {t('deviceSettings.firmware.upgradeAvailableDescription')}
+          </p>
+        </ViewContent>
+        <ViewButtons>
+          <FirmwareSetting
+            asButton
+            deviceID={deviceID}
+            versionInfo={versionInfo}
+            noSidebarOffset
+          />
+          <Button secondary onClick={() => setSkipFWUpgrade(true)}>
+            {t('generic.skip')}
+          </Button>
+        </ViewButtons>
+      </View>
+    );
+  }
 
   if (advanced) {
     const {
