@@ -114,8 +114,8 @@ describe('Lightning Send back navigation', () => {
 
   it('allows back from review but blocks it while sending', async () => {
     let resolvePayment: () => void = () => {};
-    vi.mocked(lightningApi.postSendPayment).mockReturnValue(new Promise<void>(resolve => {
-      resolvePayment = resolve;
+    vi.mocked(lightningApi.postSendPayment).mockReturnValue(new Promise<null>(resolve => {
+      resolvePayment = () => resolve(null);
     }));
     renderSend();
 

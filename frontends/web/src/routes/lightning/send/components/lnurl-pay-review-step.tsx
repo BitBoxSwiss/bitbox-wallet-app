@@ -41,6 +41,7 @@ export const LNURLPayReviewStep = ({
     sendError,
     sendPayment,
     setCustomAmount,
+    startNewLNURLPayment,
   } = usePaymentReview({
     paymentDetails,
     backToPaymentInput,
@@ -53,6 +54,8 @@ export const LNURLPayReviewStep = ({
   }
 
   const prepareError = amountError || (preparedPayment?.status === 'error' ? preparedPayment.error : undefined);
+  const paymentStatus = preparedPayment?.status;
+  const startsNewPayment = paymentStatus === 'completed' || paymentStatus === 'failed';
 
   return (
     <View fitContent minHeight="100%">
@@ -81,9 +84,15 @@ export const LNURLPayReviewStep = ({
       <ViewButtons>
         <Button
           primary
-          onClick={sendPayment}
-          disabled={!canSend}>
-          {t('generic.send')}
+          onClick={startsNewPayment ? startNewLNURLPayment : sendPayment}
+          disabled={paymentStatus === 'pending' || (!startsNewPayment && !canSend)}>
+          {paymentStatus === 'completed'
+            ? t('lightning.send.lnurlPay.sendAnother')
+            : paymentStatus === 'failed'
+              ? t('lightning.send.lnurlPay.tryAgain')
+              : paymentStatus === 'pending'
+                ? t('lightning.send.lnurlPay.waiting')
+                : t('generic.send')}
         </Button>
         <DesktopBackButton onClick={() => backToPaymentInput()}>
           {t('button.back')}

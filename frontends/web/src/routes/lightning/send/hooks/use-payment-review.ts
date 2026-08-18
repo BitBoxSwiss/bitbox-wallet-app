@@ -4,18 +4,60 @@ import { type TFunction } from 'i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TLightningErrorCode, TSdkError, toLightningErrorMessage } from '@/api/lightning-errors';
-import { TPaymentInputType, type TLightningBitcoinPaymentInput, type TLightningBolt11Invoice, type TLightningLNURLPay, type TPreparePaymentRequest, type TPreparePaymentResponse, type TSendPaymentRequest, postPreparePayment, postSendPayment } from '@/api/lightning';
+import {
+  TPaymentInputType,
+  type TLightningBitcoinPaymentInput,
+  type TLightningBolt11Invoice,
+  type TLightningLNURLPay,
+  type TPaymentFee,
+  type TPrepareLNURLPaymentResponse,
+  type TPreparePaymentRequest,
+  type TPreparePaymentResponse,
+  type TSendPaymentRequest,
+  getListPayments,
+  postPreparePayment,
+  postSendPayment,
+  postStartNewLNURLPayment,
+  subscribeListPayments,
+} from '@/api/lightning';
 import { useDebounce } from '@/hooks/debounce';
 import { useMountedRef } from '@/hooks/mount';
 
 type TPreparedPayment =
   | { status: 'preparing'; amountSat?: number }
-  | { status: 'ready'; amountSat?: number; fees: TPreparePaymentResponse }
-  | { status: 'error'; amountSat?: number; error: string; fees?: TPreparePaymentResponse };
+  | {
+    status: 'ready' | 'unknown';
+    amountSat?: number;
+    fees: TPaymentFee;
+    idempotencyKey?: string;
+  }
+  | {
+    status: 'pending' | 'completed' | 'failed';
+    amountSat?: number;
+    idempotencyKey: string;
+  }
+  | { status: 'error'; amountSat?: number; error: string; fees?: TPaymentFee };
+
+type TPreparePaymentOptions = {
+  idempotencyKey?: string;
+  silent?: boolean;
+};
 
 const isPositiveInteger = (amount?: number): amount is number => (
   typeof amount === 'number' && Number.isFinite(amount) && Number.isInteger(amount) && amount > 0
 );
+
+const isLNURLPaymentPreparation = (
+  response: TPreparePaymentResponse
+): response is TPrepareLNURLPaymentResponse => 'status' in response;
+
+const lnurlPaymentFee = (
+  response: Extract<TPrepareLNURLPaymentResponse, { status: 'ready' | 'unknown' }>
+): TPaymentFee => ({
+  amountSat: response.amountSat,
+  feeSat: response.feeSat,
+  totalDebitSat: response.totalDebitSat,
+});
 
 export type TPaymentReviewDetails = {
   type: TPaymentInputType.BITCOIN_ADDRESS;
@@ -55,7 +97,7 @@ const invalidAmountError = (paymentDetails: TPaymentReviewDetails, t: TFunction)
   return t('send.error.invalidAmount');
 };
 
-const insufficientFundsFees = (error: unknown): TPreparePaymentResponse | undefined => {
+const insufficientFundsFees = (error: unknown): TPaymentFee | undefined => {
   if (!(error instanceof TSdkError)
     || error.code !== TLightningErrorCode.INSUFFICIENT_FUNDS
     || !error.data
@@ -78,7 +120,8 @@ export const usePaymentReview = ({
     : undefined;
   const needsCustomAmount = fixedAmountSat === undefined;
   const mounted = useMountedRef();
-  const customAmountRef = useRef<number>();
+  const prepareGenerationRef = useRef(0);
+  const submittedAttemptKeyRef = useRef<string>();
   const [customAmount, setCustomAmount] = useState<number>();
   const debouncedCustomAmount = useDebounce(customAmount, 300);
   const [preparedPayment, setPreparedPayment] = useState<TPreparedPayment>();
@@ -89,7 +132,10 @@ export const usePaymentReview = ({
     ? invalidAmountError(paymentDetails, t)
     : undefined;
 
-  const preparePayment = useCallback(async (amountSat?: number, existingIdempotencyKey?: string) => {
+  const preparePayment = useCallback(async (
+    amountSat?: number,
+    { idempotencyKey, silent = false }: TPreparePaymentOptions = {},
+  ) => {
     let preparePaymentRequest: TPreparePaymentRequest;
     switch (paymentDetails.type) {
     case TPaymentInputType.BITCOIN_ADDRESS:
@@ -100,7 +146,7 @@ export const usePaymentReview = ({
         type: TPaymentInputType.BITCOIN_ADDRESS,
         paymentInput: paymentDetails.details.address,
         amountSat,
-        idempotencyKey: existingIdempotencyKey,
+        idempotencyKey,
       };
       break;
     case TPaymentInputType.BOLT11:
@@ -125,25 +171,64 @@ export const usePaymentReview = ({
       break;
     }
 
-    setPreparedPayment({
-      status: 'preparing',
-      amountSat,
-    });
+    const generation = ++prepareGenerationRef.current;
+    if (!silent) {
+      setPreparedPayment({
+        status: 'preparing',
+        amountSat,
+      });
+    }
 
     try {
-      const fees = await postPreparePayment(preparePaymentRequest);
+      const response = await postPreparePayment(preparePaymentRequest);
 
-      if (!mounted.current || (needsCustomAmount && customAmountRef.current !== amountSat)) {
+      if (!mounted.current
+        || generation !== prepareGenerationRef.current) {
+        return;
+      }
+
+      if (!isLNURLPaymentPreparation(response)) {
+        setPreparedPayment({
+          status: 'ready',
+          amountSat,
+          fees: response,
+        });
+        return;
+      }
+
+      const matchesSubmittedAttempt = submittedAttemptKeyRef.current === response.idempotencyKey;
+      if (matchesSubmittedAttempt
+        && (response.status === 'pending'
+          || response.status === 'completed'
+          || response.status === 'failed')) {
+        setIsSending(false);
+        if (response.status !== 'pending') {
+          submittedAttemptKeyRef.current = undefined;
+        }
+        if (response.status === 'completed') {
+          onSuccess();
+          return;
+        }
+      }
+
+      if (response.status === 'ready' || response.status === 'unknown') {
+        setPreparedPayment({
+          status: response.status,
+          amountSat,
+          fees: lnurlPaymentFee(response),
+          idempotencyKey: response.idempotencyKey,
+        });
         return;
       }
 
       setPreparedPayment({
-        status: 'ready',
+        status: response.status,
         amountSat,
-        fees,
+        idempotencyKey: response.idempotencyKey,
       });
     } catch (error) {
-      if (!mounted.current || (needsCustomAmount && customAmountRef.current !== amountSat)) {
+      if (!mounted.current
+        || generation !== prepareGenerationRef.current) {
         return;
       }
 
@@ -159,18 +244,20 @@ export const usePaymentReview = ({
         error: toLightningErrorMessage(t, error),
         fees: insufficientFundsFees(error),
       });
-      setSendError(undefined);
     }
   }, [
     backToPaymentInput,
     mounted,
     needsCustomAmount,
+    onSuccess,
     paymentDetails,
     t,
   ]);
 
   const fees = preparedPayment
-    && preparedPayment.status !== 'preparing'
+    && (preparedPayment.status === 'ready'
+      || preparedPayment.status === 'unknown'
+      || preparedPayment.status === 'error')
     && (!needsCustomAmount || preparedPayment.amountSat === currentAmountSat)
     ? preparedPayment.fees
     : undefined;
@@ -180,12 +267,9 @@ export const usePaymentReview = ({
       setSendError(invalidAmountError(paymentDetails, t));
       return;
     }
-
-    if (currentAmountSat === undefined) {
-      return;
-    }
-
-    if (preparedPayment?.status !== 'ready' || !fees) {
+    if (currentAmountSat === undefined
+      || (preparedPayment?.status !== 'ready' && preparedPayment?.status !== 'unknown')
+      || !fees) {
       return;
     }
 
@@ -214,16 +298,48 @@ export const usePaymentReview = ({
             approvedFeeSat: fees.feeSat,
           };
         case TPaymentInputType.LNURL_PAY:
+          if (!preparedPayment.idempotencyKey) {
+            throw new TSdkError('idempotency key missing', TLightningErrorCode.INVALID_PAYMENT_INPUT);
+          }
+          submittedAttemptKeyRef.current = preparedPayment.idempotencyKey;
           return {
             type: TPaymentInputType.LNURL_PAY,
             paymentInput: paymentDetails.details.input,
             amountSat: currentAmountSat,
             approvedFeeSat: fees.feeSat,
+            idempotencyKey: preparedPayment.idempotencyKey,
           };
         }
       })();
-      await postSendPayment(sendPaymentRequest);
-      onSuccess();
+      const result = await postSendPayment(sendPaymentRequest);
+
+      if (paymentDetails.type !== TPaymentInputType.LNURL_PAY
+        || sendPaymentRequest.type !== TPaymentInputType.LNURL_PAY) {
+        onSuccess();
+        return;
+      }
+      if (!mounted.current
+        || submittedAttemptKeyRef.current !== sendPaymentRequest.idempotencyKey) {
+        return;
+      }
+      if (!result) {
+        throw new TSdkError('payment result missing');
+      }
+
+      setIsSending(false);
+      if (result.status === 'completed') {
+        submittedAttemptKeyRef.current = undefined;
+        onSuccess();
+        return;
+      }
+      if (result.status === 'failed') {
+        submittedAttemptKeyRef.current = undefined;
+      }
+      setPreparedPayment({
+        status: result.status,
+        amountSat: currentAmountSat,
+        idempotencyKey: sendPaymentRequest.idempotencyKey,
+      });
     } catch (error) {
       if (!mounted.current) {
         return;
@@ -232,22 +348,28 @@ export const usePaymentReview = ({
       setIsSending(false);
       const errorMessage = toLightningErrorMessage(t, error);
 
-      if (error instanceof TSdkError && error.code === TLightningErrorCode.INVOICE_ALREADY_USED) {
+      if (error instanceof TSdkError
+        && error.code === TLightningErrorCode.INVOICE_ALREADY_USED
+        && paymentDetails.type !== TPaymentInputType.LNURL_PAY) {
         backToPaymentInput(errorMessage);
-        return;
-      }
-      // It is possible that the fee retrieved during the prepare phase is no longer valid and that we need to re-prepare.
-      if (error instanceof TSdkError && error.code === TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED) {
-        setSendError(errorMessage);
-        // Fixed-amount BOLT11 invoices already encode the amount; pass amountSat only when the user entered it.
-        const amountSat = paymentDetails.type === TPaymentInputType.BOLT11 && paymentDetails.details.amountSat !== undefined
-          ? undefined
-          : currentAmountSat;
-        await preparePayment(amountSat, fees.idempotencyKey);
         return;
       }
 
       setSendError(errorMessage);
+      const needsReprepare = paymentDetails.type === TPaymentInputType.LNURL_PAY
+        || (error instanceof TSdkError && error.code === TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED);
+      if (!needsReprepare) {
+        return;
+      }
+      // Fees and logical status may have changed while sending. LNURL retries also need to
+      // reconcile an ambiguous SDK result before another action is enabled.
+      const amountSat = paymentDetails.type === TPaymentInputType.BOLT11
+        && paymentDetails.details.amountSat !== undefined
+        ? undefined
+        : currentAmountSat;
+      await preparePayment(amountSat, {
+        idempotencyKey: fees.idempotencyKey,
+      });
     }
   }, [
     backToPaymentInput,
@@ -257,16 +379,51 @@ export const usePaymentReview = ({
     onSuccess,
     currentAmountSat,
     paymentDetails,
-    preparedPayment?.status,
+    preparedPayment,
     preparePayment,
     t,
   ]);
+
+  const startNewLNURLPayment = useCallback(async () => {
+    if (paymentDetails.type !== TPaymentInputType.LNURL_PAY
+      || !isValidAmount(paymentDetails, currentAmountSat)
+      || (preparedPayment?.status !== 'completed' && preparedPayment?.status !== 'failed')) {
+      return;
+    }
+
+    setIsSending(true);
+    setSendError(undefined);
+    submittedAttemptKeyRef.current = undefined;
+    try {
+      await postStartNewLNURLPayment({
+        paymentInput: paymentDetails.details.input,
+        amountSat: currentAmountSat,
+        idempotencyKey: preparedPayment.idempotencyKey,
+      });
+      if (!mounted.current) {
+        return;
+      }
+      await preparePayment(currentAmountSat);
+    } catch (error) {
+      if (!mounted.current) {
+        return;
+      }
+      setSendError(toLightningErrorMessage(t, error));
+      await preparePayment(currentAmountSat, { silent: true });
+    } finally {
+      if (mounted.current) {
+        setIsSending(false);
+      }
+    }
+  }, [currentAmountSat, mounted, paymentDetails, preparePayment, preparedPayment, t]);
 
   useEffect(() => {
     onSendingChange(isSending);
   }, [isSending, onSendingChange]);
 
   useEffect(() => {
+    prepareGenerationRef.current += 1;
+    submittedAttemptKeyRef.current = undefined;
     setCustomAmount(undefined);
     setPreparedPayment(undefined);
     setIsSending(false);
@@ -284,7 +441,8 @@ export const usePaymentReview = ({
       return;
     }
 
-    customAmountRef.current = customAmount;
+    prepareGenerationRef.current += 1;
+    submittedAttemptKeyRef.current = undefined;
     setSendError(undefined);
     setPreparedPayment(undefined);
   }, [customAmount, needsCustomAmount, paymentDetails.type]);
@@ -297,9 +455,37 @@ export const usePaymentReview = ({
     preparePayment(customAmount);
   }, [customAmount, debouncedCustomAmount, needsCustomAmount, preparePayment]);
 
+  const currentIdempotencyKey = preparedPayment
+    && preparedPayment.status !== 'preparing'
+    && preparedPayment.status !== 'error'
+    ? preparedPayment.idempotencyKey
+    : undefined;
+
+  useEffect(() => {
+    if (paymentDetails.type !== TPaymentInputType.LNURL_PAY
+      || currentAmountSat === undefined
+      || !currentIdempotencyKey) {
+      return;
+    }
+
+    const reconcilePayment = async () => {
+      try {
+        const payments = await getListPayments();
+        if (payments.some(payment => payment.id === currentIdempotencyKey)) {
+          await preparePayment(currentAmountSat, { silent: true });
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const unsubscribe = subscribeListPayments(reconcilePayment);
+    reconcilePayment();
+    return unsubscribe;
+  }, [currentAmountSat, currentIdempotencyKey, paymentDetails.type, preparePayment]);
+
   return {
-    canSend: preparedPayment?.status === 'ready' && !!fees,
-    customAmount,
+    canSend: (preparedPayment?.status === 'ready' || preparedPayment?.status === 'unknown') && !!fees,
     amountError,
     fees,
     isSending,
@@ -307,5 +493,6 @@ export const usePaymentReview = ({
     sendError,
     sendPayment,
     setCustomAmount,
+    startNewLNURLPayment,
   };
 };

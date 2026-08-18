@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TAmountWithConversions } from '@/api/account';
 import { getBtcSatAmount } from '@/api/coins';
-import { type TLightningBitcoinPaymentInput, type TLightningLNURLPay, type TPreparePaymentResponse } from '@/api/lightning';
+import { type TLightningBitcoinPaymentInput, type TLightningLNURLPay, type TPaymentFee } from '@/api/lightning';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Badge } from '@/components/badge/badge';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -69,7 +69,7 @@ const satsAmount = (amountSat?: number): TAmountWithConversions | undefined => {
 };
 
 type TPaymentFeeDetailsProps = {
-  fees?: TPreparePaymentResponse;
+  fees?: TPaymentFee;
   totalWithFiat?: boolean;
 };
 
@@ -83,7 +83,7 @@ type TPaymentNoteDetailsProps = {
 
 type TBolt11PaymentDetailsProps = {
   description?: string;
-  fees: TPreparePaymentResponse;
+  fees: TPaymentFee;
 };
 
 type TLNURLPayRecipientDetailsProps = {

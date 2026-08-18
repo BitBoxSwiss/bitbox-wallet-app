@@ -21,6 +21,8 @@ type LightningAccountConfig struct {
 	Number uint16 `json:"num"`
 	// LightningAddressLastChangedAt is the date/time when the lightning address was last changed manually.
 	LightningAddressLastChangedAt *time.Time `json:"lightningAddressLastChangedAt,omitempty"`
+	// LNURLPaymentIntents maps payment fingerprints to backend-owned idempotency keys.
+	LNURLPaymentIntents map[string]string `json:"lnurlPaymentIntents,omitempty"`
 }
 
 // LightningConfig holds information related to the lightning config.
@@ -34,4 +36,14 @@ func newDefaultLightningConfig() LightningConfig {
 	return LightningConfig{
 		Accounts: []*LightningAccountConfig{},
 	}
+}
+
+// LookupLNURLPaymentIntent returns the active account's payment idempotency key.
+func (config *Config) LookupLNURLPaymentIntent(fingerprint string) (string, bool) {
+	defer config.lightningConfigLock.RLock()()
+	if len(config.lightningConfig.Accounts) == 0 {
+		return "", false
+	}
+	idempotencyKey, ok := config.lightningConfig.Accounts[0].LNURLPaymentIntents[fingerprint]
+	return idempotencyKey, ok
 }

@@ -930,6 +930,8 @@
     "lightningInvalidAmount": "Invalid amount.",
     "lightningInvalidPaymentInput": "Invalid invoice or payment request.",
     "lightningInvoiceAlreadyUsed": "This Lightning invoice was already used. Please request a new invoice.",
+    "lightningPaymentAttemptChanged": "This payment attempt changed. Review its current status before continuing.",
+    "lightningPaymentNotFinal": "This payment is still pending or its result is unknown.",
     "lightningPaymentPreparationFailed": "Could not prepare payment. Please try again.",
     "lightningTopUpClaimFailed": "Please try claiming the top-up again.",
     "lightningTopUpRefundFailed": "Please try refunding the top-up again.",
@@ -1837,7 +1839,10 @@
         "placeholder": "Address or invoice"
       },
       "lnurlPay": {
-        "invalidAmount": "Enter an amount between {{minAmount}} and {{maxAmount}} sats."
+        "invalidAmount": "Enter an amount between {{minAmount}} and {{maxAmount}} sats.",
+        "sendAnother": "Send another payment",
+        "tryAgain": "Try again",
+        "waiting": "Waiting…"
       },
       "onChain": "On-chain",
       "pasteClipboard": "Paste from clipboard",
