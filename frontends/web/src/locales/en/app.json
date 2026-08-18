@@ -2170,6 +2170,7 @@
     "unlocking": "Unlocking…"
   },
   "upgradeFirmware": {
+    "banner": "BitBox update available. <updateLink>Update now</updateLink> for latest security improvements and features.",
     "button": "Upgrade firmware",
     "description": "Do you want to upgrade the firmware from version {{currentVersion}} to {{newVersion}}?",
     "label": "Your BitBox requires a firmware upgrade.",

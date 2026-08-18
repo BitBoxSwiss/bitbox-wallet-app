@@ -13,6 +13,9 @@
 - Add option to navigate to "Used addresses" in sign-message workflow
 - Floating mobile bottom navigation bar
 
+## v4.51.4
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.5
+
 ## v4.51.3
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.4
 
