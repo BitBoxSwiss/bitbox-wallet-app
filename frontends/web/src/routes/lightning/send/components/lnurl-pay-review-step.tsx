@@ -49,6 +49,7 @@ export const LNURLPayReviewStep = ({
   }
 
   const prepareError = amountError || (preparedPayment?.status === 'error' ? preparedPayment.error : undefined);
+  const logicalPaymentStatus = fees?.logicalPaymentStatus;
 
   return (
     <View fitContent minHeight="100%">
@@ -57,6 +58,12 @@ export const LNURLPayReviewStep = ({
           <Column>
             <Status dismissibleKey="" type="warning" hidden={!sendError}>
               {sendError}
+            </Status>
+            <Status dismissibleKey="" type="warning" hidden={logicalPaymentStatus !== 'inFlight'}>
+              {t('lightning.send.lnurlPay.paymentInFlight')}
+            </Status>
+            <Status dismissibleKey="" type="info" hidden={logicalPaymentStatus !== 'completed'}>
+              {t('lightning.send.lnurlPay.alreadyPaid')}
             </Status>
             <CustomPaymentAmount
               key={lnurlPay.input}
@@ -79,7 +86,11 @@ export const LNURLPayReviewStep = ({
           primary
           onClick={sendPayment}
           disabled={!canSend}>
-          {t('generic.send')}
+          {logicalPaymentStatus === 'completed'
+            ? t('lightning.send.lnurlPay.sendAnother')
+            : logicalPaymentStatus === 'inFlight'
+              ? t('generic.retry')
+              : t('generic.send')}
         </Button>
         <Button secondary onClick={() => backToPaymentInput()}>
           {t('button.back')}

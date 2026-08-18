@@ -1825,7 +1825,10 @@
         "input": "Or paste an address or invoice"
       },
       "lnurlPay": {
-        "invalidAmount": "Enter an amount between {{minAmount}} and {{maxAmount}} sats."
+        "alreadyPaid": "This payment was already sent.",
+        "invalidAmount": "Enter an amount between {{minAmount}} and {{maxAmount}} sats.",
+        "paymentInFlight": "The previous attempt may still be processing. Retrying will not send twice.",
+        "sendAnother": "Send another payment"
       },
       "onChain": "On-chain",
       "qrCode": {

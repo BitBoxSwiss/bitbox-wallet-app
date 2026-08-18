@@ -13,6 +13,11 @@ type TPreparedPayment =
   | { status: 'ready'; amountSat?: number; fees: TPreparePaymentResponse }
   | { status: 'error'; amountSat?: number; error: string; fees?: TPreparePaymentResponse };
 
+type TPreparePaymentOptions = {
+  idempotencyKey?: string;
+  startNew?: boolean;
+};
+
 const isPositiveInteger = (amount?: number): amount is number => (
   typeof amount === 'number' && Number.isFinite(amount) && Number.isInteger(amount) && amount > 0
 );
@@ -87,7 +92,10 @@ export const usePaymentReview = ({
     ? invalidAmountError(paymentDetails, t)
     : undefined;
 
-  const preparePayment = useCallback(async (amountSat?: number, existingIdempotencyKey?: string) => {
+  const preparePayment = useCallback(async (
+    amountSat?: number,
+    { idempotencyKey, startNew }: TPreparePaymentOptions = {},
+  ) => {
     let preparePaymentRequest: TPreparePaymentRequest;
     switch (paymentDetails.type) {
     case TPaymentInputType.BITCOIN_ADDRESS:
@@ -98,7 +106,7 @@ export const usePaymentReview = ({
         type: TPaymentInputType.BITCOIN_ADDRESS,
         paymentInput: paymentDetails.details.address,
         amountSat,
-        idempotencyKey: existingIdempotencyKey,
+        idempotencyKey,
       };
       break;
     case TPaymentInputType.BOLT11:
@@ -119,6 +127,7 @@ export const usePaymentReview = ({
         type: TPaymentInputType.LNURL_PAY,
         paymentInput: paymentDetails.details.input,
         amountSat,
+        startNew,
       };
       break;
     }
@@ -187,6 +196,12 @@ export const usePaymentReview = ({
       return;
     }
 
+    if (fees.logicalPaymentStatus === 'completed') {
+      setSendError(undefined);
+      await preparePayment(currentAmountSat, { startNew: true });
+      return;
+    }
+
     setIsSending(true);
     setSendError(undefined);
 
@@ -241,7 +256,7 @@ export const usePaymentReview = ({
         const amountSat = paymentDetails.type === TPaymentInputType.BOLT11 && paymentDetails.details.amountSat !== undefined
           ? undefined
           : currentAmountSat;
-        await preparePayment(amountSat, fees.idempotencyKey);
+        await preparePayment(amountSat, { idempotencyKey: fees.idempotencyKey });
         return;
       }
 

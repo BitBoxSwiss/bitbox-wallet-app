@@ -136,12 +136,14 @@ export type TPreparePaymentRequest = {
   type: TPaymentInputType.LNURL_PAY;
   paymentInput: string;
   amountSat: number;
+  startNew?: boolean;
 };
 
 export type TPreparePaymentResponse = {
   amountSat: number;
   feeSat: number;
   idempotencyKey?: string;
+  logicalPaymentStatus?: 'inFlight' | 'completed';
   totalDebitSat: number;
 };
 

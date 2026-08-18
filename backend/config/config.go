@@ -383,18 +383,44 @@ func (config *Config) LightningConfig() LightningConfig {
 // ModifyLightningConfig calls f with the current config, allowing f to make any changes, and
 // persists the result if f returns nil error. It propagates f's error as is.
 func (config *Config) ModifyLightningConfig(f func(*LightningConfig) error) error {
+	return config.modifyLightningConfig(f, false)
+}
+
+// ModifyLightningConfigRollbackOnSaveError modifies and persists the Lightning config, restoring
+// the in-memory config if either the modification or persistence fails.
+func (config *Config) ModifyLightningConfigRollbackOnSaveError(f func(*LightningConfig) error) error {
+	return config.modifyLightningConfig(f, true)
+}
+
+func (config *Config) modifyLightningConfig(f func(*LightningConfig) error, rollbackOnSaveError bool) error {
 	defer config.lightningConfigLock.Lock()()
 	backup, err := json.Marshal(config.lightningConfig)
 	if err != nil {
 		return errp.WithStack(err)
 	}
+	rollback := func() error {
+		var restored LightningConfig
+		if err := json.Unmarshal(backup, &restored); err != nil {
+			return err
+		}
+		config.lightningConfig = restored
+		return nil
+	}
 	if err := f(&config.lightningConfig); err != nil {
-		if rollbackErr := json.Unmarshal(backup, &config.lightningConfig); rollbackErr != nil {
+		if rollbackErr := rollback(); rollbackErr != nil {
 			return errp.Newf("modify lightning config failed: %v; rollback failed: %v", err, rollbackErr)
 		}
 		return err
 	}
-	return config.save(config.lightningConfigFilename, config.lightningConfig)
+	if err := config.save(config.lightningConfigFilename, config.lightningConfig); err != nil {
+		if rollbackOnSaveError {
+			if rollbackErr := rollback(); rollbackErr != nil {
+				return errp.Newf("save lightning config failed: %v; rollback failed: %v", err, rollbackErr)
+			}
+		}
+		return err
+	}
+	return nil
 }
 
 func (config *Config) save(filename string, conf interface{}) error {

@@ -68,10 +68,23 @@ func newTestLightningWithConfigFilename(
 	lightningConfigFilename string,
 ) *Lightning {
 	t.Helper()
+	return newTestLightningWithConfigFilenames(
+		t,
+		environment,
+		test.TstTempFile("appConfig"),
+		test.TstTempFile("accountsConfig"),
+		lightningConfigFilename,
+	)
+}
 
-	appConfigFilename := test.TstTempFile("appConfig")
-	accountsConfigFilename := test.TstTempFile("accountsConfig")
-
+func newTestLightningWithConfigFilenames(
+	t *testing.T,
+	environment environment,
+	appConfigFilename string,
+	accountsConfigFilename string,
+	lightningConfigFilename string,
+) *Lightning {
+	t.Helper()
 	cfg, err := config.NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 
