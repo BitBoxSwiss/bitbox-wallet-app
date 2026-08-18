@@ -92,6 +92,7 @@ const AppFrame = ({
               activeAccounts={activeAccounts}
               devices={devices}
               devicesKey={devicesKey}
+              showBottomNavigation={showMobileBottomNavigation}
             />
           </div>
           <RouterWatcher />
@@ -150,9 +151,6 @@ export const App = () => {
       || currentURL.startsWith('/add-account')
       || currentURL.startsWith('/settings/manage-accounts')
       || currentURL.startsWith('/accounts/')
-      // Workaround on mobile where the bottom menu is not shown when there are no devices/accounts.
-      // If one is on "More" and the bottom menu disappears, one is stuck.
-      || currentURL === '/settings/more'
     )) {
       navigate('/');
       return;

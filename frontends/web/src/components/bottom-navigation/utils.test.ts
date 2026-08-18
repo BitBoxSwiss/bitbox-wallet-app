@@ -14,6 +14,12 @@ describe('getBottomNavKey', () => {
     expect(getBottomNavKey('/market/bitrefill/spend/btc')).toBe('market');
     expect(getBottomNavKey('/market/pocket/buy/btc')).toBe('market');
   });
+
+  it('maps settings routes to the settings tab', () => {
+    expect(getBottomNavKey('/settings')).toBe('settings');
+    expect(getBottomNavKey('/settings/general')).toBe('settings');
+    expect(getBottomNavKey('/settings/device-settings/deviceID')).toBe('settings');
+  });
 });
 
 describe('getBottomNavIndex', () => {
@@ -21,7 +27,7 @@ describe('getBottomNavIndex', () => {
     expect(getBottomNavIndex('portfolio')).toBe(0);
     expect(getBottomNavIndex('accounts')).toBe(1);
     expect(getBottomNavIndex('market')).toBe(2);
-    expect(getBottomNavIndex('more')).toBe(3);
+    expect(getBottomNavIndex('settings')).toBe(3);
     expect(getBottomNavIndex('other')).toBeUndefined();
   });
 });

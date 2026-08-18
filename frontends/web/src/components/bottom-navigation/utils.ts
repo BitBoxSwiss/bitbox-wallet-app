@@ -3,7 +3,7 @@
 import type { TAccount } from '@/api/account';
 import type { TDevices } from '@/api/devices';
 
-const bottomNavKeys = ['portfolio', 'accounts', 'market', 'more'] as const;
+const bottomNavKeys = ['portfolio', 'accounts', 'market', 'settings'] as const;
 
 export type TBottomNavItem = typeof bottomNavKeys[number];
 export type TBottomNavKey = TBottomNavItem | 'other';
@@ -23,7 +23,7 @@ export const getBottomNavKey = (pathname: string): TBottomNavKey => {
     return 'market';
   }
   if (pathname.startsWith('/settings')) {
-    return 'more';
+    return 'settings';
   }
   return 'other';
 };

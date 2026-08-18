@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
 import type { TDevices } from '@/api/devices';
-import { AccountIconSVG, MarketIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
+import { AccountIconSVG, MarketIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
-import { RedDot } from '@/components/icon';
+import { CogBlue, CogDark, CogLight, RedDot } from '@/components/icon';
 import { NewBadge } from '@/components/new-badge/new-badge';
+import { useDarkmode } from '@/hooks/darkmode';
 import { useAndroidKeyboardVisible } from './use-android-keyboard-visible';
 import { useSlidingIndicator } from './use-sliding-indicator';
 import { getBottomNavIndex, getBottomNavKey } from './utils';
@@ -24,6 +25,7 @@ export const BottomNavigation = ({
   devices,
 }: Props) => {
   const { t } = useTranslation();
+  const { isDarkMode } = useDarkmode();
   const { pathname } = useLocation();
   const deviceID = Object.keys(devices)[0];
   const isBitBox02 = deviceID && devices[deviceID] === 'bitbox02';
@@ -35,19 +37,21 @@ export const BottomNavigation = ({
   const accountLabel = onlyHasOneAccount ? t('account.account') : t('account.accounts');
   const portfolioLabel = t('accountSummary.portfolio');
   const marketLabel = t('generic.buySell');
-  const moreLabel = t('settings.more');
+  const settingsLabel = t('sidebar.settings');
 
   const bottomNavKey = getBottomNavKey(pathname);
   const portfolioActive = bottomNavKey === 'portfolio';
   const accountsActive = bottomNavKey === 'accounts';
   const marketActive = bottomNavKey === 'market';
-  const moreActive = bottomNavKey === 'more';
+  const settingsActive = bottomNavKey === 'settings';
+  const InactiveSettingsIcon = isDarkMode ? CogLight : CogDark;
+  const SettingsIcon = settingsActive ? CogBlue : InactiveSettingsIcon;
   const activeIndex = getBottomNavIndex(bottomNavKey);
   const {
     containerRef,
     indicatorStyle,
     labelRefs,
-  } = useSlidingIndicator(activeIndex, `${portfolioLabel}:${accountLabel}:${marketLabel}:${moreLabel}`);
+  } = useSlidingIndicator(activeIndex, `${portfolioLabel}:${accountLabel}:${marketLabel}:${settingsLabel}`);
   const androidKeyboardVisible = useAndroidKeyboardVisible();
 
   if (androidKeyboardVisible) {
@@ -110,14 +114,14 @@ export const BottomNavigation = ({
         <Link
           className={`
             ${styles.link || ''}
-            ${moreActive ? (styles.active || '') : ''}
+            ${settingsActive ? (styles.active || '') : ''}
           `}
-          to="/settings/more"
+          to="/settings"
         >
-          <MoreIconSVG />
-          <span className={styles.moreLabel}>
+          <SettingsIcon alt="" height={24} width={24} />
+          <span className={styles.settingsLabel}>
             <span ref={element => labelRefs.current[3] = element}>
-              {moreLabel}
+              {settingsLabel}
             </span>
             {canUpgrade && (
               <RedDot
