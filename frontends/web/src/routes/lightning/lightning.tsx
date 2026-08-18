@@ -22,6 +22,7 @@ import { Spinner } from '../../components/spinner/Spinner';
 import { ActionButtons } from './components/action-buttons';
 import { LightningGuide } from './guide';
 import { GlobalBanners } from '@/components/banners';
+import { LightningTorProxyWarning } from '@/components/banners/lightning-tor-proxy-warning';
 import { Status } from '../../components/status/status';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 import { PaymentDetails } from './components/payment-details';
@@ -368,6 +369,7 @@ export const Lightning = () => {
 
   const statusBanners = (
     <>
+      <LightningTorProxyWarning dismissible />
       <Status
         dismissibleKey="lightning-beta-warning"
         type="warning">
