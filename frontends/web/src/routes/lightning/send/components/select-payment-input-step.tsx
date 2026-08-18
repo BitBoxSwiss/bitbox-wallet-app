@@ -134,10 +134,6 @@ export const SelectPaymentInputStep = ({
     }
   };
 
-  const inputLabel = t('lightning.send.invoice.label');
-  const enterInputLabel = t('lightning.send.enterInvoice');
-  const pasteLabel = t('lightning.send.pasteClipboard');
-
   if (mode === 'scan') {
     return (
       <ScanQR
@@ -162,7 +158,7 @@ export const SelectPaymentInputStep = ({
                 disabled={submitting}
                 onClick={() => requestClose(showInput)}>
                 <EditActive aria-hidden alt="" />
-                <span>{enterInputLabel}</span>
+                <span>{t('lightning.send.enterInvoice')}</span>
               </Button>
               <Button
                 transparent
@@ -170,7 +166,7 @@ export const SelectPaymentInputStep = ({
                 disabled={submitting}
                 onClick={handlePaste}>
                 <PasteActive aria-hidden alt="" />
-                <span>{pasteLabel}</span>
+                <span>{t('lightning.send.pasteClipboard')}</span>
               </Button>
             </div>
           </div>
@@ -193,8 +189,8 @@ export const SelectPaymentInputStep = ({
               accounts={sendToSelfAccounts}
               autoFocus
               groupAccountsByKeystore
-              inputLabel={inputLabel}
-              inputPlaceholder={inputLabel}
+              inputLabel={t('lightning.send.invoice.label')}
+              inputPlaceholder={t('lightning.send.invoice.placeholder')}
               onInputChange={setManualValue}
               onScanQR={showScanner}
               recipientAddress={manualValue}

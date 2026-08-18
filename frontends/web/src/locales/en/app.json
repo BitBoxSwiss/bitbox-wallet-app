@@ -1823,7 +1823,8 @@
       },
       "enterInvoice": "Enter address or invoice",
       "invoice": {
-        "label": "Address or invoice"
+        "label": "Enter payment details",
+        "placeholder": "Address or invoice"
       },
       "lnurlPay": {
         "invalidAmount": "Enter an amount between {{minAmount}} and {{maxAmount}} sats."
