@@ -80,7 +80,10 @@ const UpgradeDialog = ({
     return null;
   }
   return (
-    <Dialog onClose={onClose} open={open} title={t('upgradeFirmware.title')}>
+    <Dialog
+      onClose={confirming ? undefined : onClose}
+      open={open}
+      title={t('upgradeFirmware.title')}>
       <DialogScrollContent>
         {confirming ? t('confirmOnDevice') : (
           <p>{t('upgradeFirmware.description', {
