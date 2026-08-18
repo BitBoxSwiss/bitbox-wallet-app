@@ -24,6 +24,11 @@ import { useLoad, useSync } from '@/hooks/api';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
 import { useSatFiatAmount } from '../hooks/use-sat-fiat-amount';
 import { type TReceiveStep, useReceivePaymentSuccess } from './use-receive-payment-success';
+import {
+  formatExcessLightningFundingLimit,
+  formatLightningFundingLimit,
+  getLightningFundingLimitError,
+} from '../limits';
 import { LightningReceiveGuide } from '../guide';
 import styles from './receive.module.css';
 
@@ -47,6 +52,8 @@ export function Receive() {
   const [balanceLoadAttempt, setBalanceLoadAttempt] = useState(0);
   const lightningBalance = useLoad(getLightningBalance, [balanceLoadAttempt]);
   const lightningAddress = useSync(getLightningAddress, subscribeLightningAddress);
+  const fundingLimit = lightningBalance?.fundingLimit;
+  const fundingLimitError = getLightningFundingLimitError(fundingLimit, invoiceAmountSat);
   const satsBalance = lightningBalance?.available.unit === 'sat'
     ? lightningBalance.available.amount
     : lightningBalance?.available.unformattedConversions?.sat;
@@ -60,6 +67,22 @@ export function Receive() {
     receivePaymentResponse,
     step,
   });
+  const createInvoiceLimitWarning = fundingLimitError
+    ? t('lightning.limit.createInvoiceWarning', {
+      excess: formatExcessLightningFundingLimit(fundingLimit, invoiceAmountSat),
+      limit: formatLightningFundingLimit(fundingLimit),
+    })
+    : undefined;
+  const invoiceLimitWarning = fundingLimitError
+    ? t('lightning.limit.invoiceWarning', {
+      excess: formatExcessLightningFundingLimit(fundingLimit, invoiceAmountSat),
+      limit: formatLightningFundingLimit(fundingLimit),
+    })
+    : undefined;
+  const canCreateInvoice = (
+    invoiceAmountSat !== undefined
+    && invoiceAmountSat > 0
+  );
 
   const newInvoice = useCallback(() => {
     resetAmountInput();
@@ -210,9 +233,12 @@ export function Receive() {
                 />
               </Column>
             </Grid>
+            <Status dismissibleKey="" type="warning" hidden={!createInvoiceLimitWarning}>
+              {createInvoiceLimitWarning}
+            </Status>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={receivePayment} disabled={invoiceAmountSat === undefined || invoiceAmountSat <= 0}>
+            <Button primary onClick={receivePayment} disabled={!canCreateInvoice}>
               {t('lightning.receive.invoice.create')}
             </Button>
             <Button secondary onClick={back}>
@@ -227,6 +253,9 @@ export function Receive() {
       return (
         <View fitContent minHeight="100%">
           <ViewContent textAlign="center">
+            <Status dismissibleKey="" type="warning" hidden={!invoiceLimitWarning}>
+              {invoiceLimitWarning}
+            </Status>
             <div className={styles.invoiceContent}>
               <p className={styles.qrInstruction}>{t('lightning.receive.invoice.title')}</p>
               <div className={styles.invoiceQRCode}>

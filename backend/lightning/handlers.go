@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
+	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
 
@@ -45,13 +46,47 @@ func NewHandlers(
 	handleNoError("/list-payments", lightning.GetListPayments).Methods("GET")
 	handleNoError("/parse-payment-input", lightning.GetParsePaymentInput).Methods("GET")
 	handleNoError("/prepare-payment", lightning.PostPreparePayment).Methods("POST")
-	handleNoError("/boarding-address", lightning.GetBoardingAddress).Methods("GET")
 	handleNoError("/claim-top-up", lightning.PostClaimTopUp).Methods("POST")
 	handleNoError("/refund-top-up", lightning.PostRefundTopUp).Methods("POST")
+	handleNoError("/top-up/prepare", lightning.PostPrepareTopUp).Methods("POST")
 	handleNoError("/close-withdraw-funds/prepare", lightning.PostPrepareCloseWithdraw).Methods("POST")
 	handleNoError("/close-withdraw-funds", lightning.PostCloseWithdraw).Methods("POST")
 	handleNoError("/receive-payment", lightning.GetReceivePayment).Methods("GET")
 	handleNoError("/send-payment", lightning.PostSendPayment).Methods("POST")
+}
+
+// PostPrepareTopUp handles the POST request to validate and prepare a Lightning top-up.
+func (lightning *Lightning) PostPrepareTopUp(r *http.Request) interface{} {
+	type result struct {
+		Success      bool          `json:"success"`
+		ErrorCode    string        `json:"errorCode,omitempty"`
+		FundingLimit *fundingLimit `json:"fundingLimit,omitempty"`
+		*topUpProposal
+	}
+
+	var request prepareTopUpRequest
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&request); err != nil {
+		return errorResponse(err)
+	}
+
+	proposal, err := lightning.PrepareTopUp(request)
+	if err == nil {
+		return responseDto{Success: true, Data: result{Success: true, topUpProposal: proposal}}
+	}
+
+	if limitErr, ok := err.(*topUpFundingLimitError); ok {
+		return responseDto{Success: true, Data: result{
+			Success:      false,
+			ErrorCode:    string(errLightningBalanceLimitExceeded),
+			FundingLimit: &limitErr.fundingLimit,
+		}}
+	}
+	if validationErr, ok := errp.Cause(err).(accountErrors.TxValidationError); ok {
+		return responseDto{Success: true, Data: result{Success: false, ErrorCode: validationErr.Error()}}
+	}
+	return errorResponse(err)
 }
 
 func errorResponse(err error) responseDto {
@@ -183,7 +218,7 @@ func (lightning *Lightning) PostDeactivate(_ *http.Request) interface{} {
 
 // GetBalance handles the GET request to retrieve the balance and its fiat conversions.
 func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
-	balance, err := lightning.Balance()
+	balance, limit, err := lightning.balanceWithFundingLimit()
 	if err != nil {
 		return errorResponse(err)
 	}
@@ -205,11 +240,17 @@ func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
 
 	return responseDto{
 		Success: true,
-		Data: accounts.FormattedAccountBalance{
-			HasAvailable: balance.Available().BigInt().Sign() > 0,
-			Available:    formattedAvailableAmount,
-			HasIncoming:  balance.Incoming().BigInt().Sign() > 0,
-			Incoming:     formattedIncomingAmount,
+		Data: struct {
+			accounts.FormattedAccountBalance
+			FundingLimit fundingLimit `json:"fundingLimit"`
+		}{
+			FormattedAccountBalance: accounts.FormattedAccountBalance{
+				HasAvailable: balance.Available().BigInt().Sign() > 0,
+				Available:    formattedAvailableAmount,
+				HasIncoming:  balance.Incoming().BigInt().Sign() > 0,
+				Incoming:     formattedIncomingAmount,
+			},
+			FundingLimit: limit,
 		},
 	}
 }
@@ -230,15 +271,6 @@ func (lightning *Lightning) GetListPayments(_ *http.Request) interface{} {
 		return errorResponse(err)
 	}
 	return responseDto{Success: true, Data: payments}
-}
-
-// GetBoardingAddress handles the GET request to retrieve a bitcoin boarding address.
-func (lightning *Lightning) GetBoardingAddress(_ *http.Request) interface{} {
-	address, err := lightning.BoardingAddress()
-	if err != nil {
-		return errorResponse(err)
-	}
-	return responseDto{Success: true, Data: address}
 }
 
 // PostClaimTopUp handles the POST request to manually claim a Bitcoin top-up.
