@@ -53,8 +53,12 @@
 }
 
 .inputView {
-  width: 100%;
   animation: inputViewEnter 300ms ease-out;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 1;
+  width: 100%;
 }
 
 .inputViewClosing {
@@ -68,6 +72,8 @@
 .inputForm {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 1;
 }
 
 @keyframes inputViewEnter {

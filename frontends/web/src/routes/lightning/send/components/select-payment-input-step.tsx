@@ -177,8 +177,8 @@ export const SelectPaymentInputStep = ({
 
   return (
     <div className={`${styles.inputView || ''} ${inputClosing ? styles.inputViewClosing || '' : ''}`}>
-      <View>
-        <form className={styles.inputForm} onSubmit={handleSubmit}>
+      <form className={styles.inputForm} onSubmit={handleSubmit}>
+        <View>
           <ViewContent>
             {inputError && (
               <Message type="warning">
@@ -202,8 +202,8 @@ export const SelectPaymentInputStep = ({
               {t('button.continue')}
             </Button>
           </ViewButtons>
-        </form>
-      </View>
+        </View>
+      </form>
     </div>
   );
 };
