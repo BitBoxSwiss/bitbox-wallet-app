@@ -85,6 +85,8 @@ import outlinedFileProtectPrimarySVG from './assets/icons/outlined-file-protect-
 import outlinedUnorderedListDarkSVG from './assets/icons/outlined-unordered-list.svg';
 import outlinedUnorderedListLightSVG from './assets/icons/outlined-unordered-list-light.svg';
 import pasteActiveSVG from './assets/icons/paste-active.svg';
+import pasteDarkSVG from './assets/icons/paste-dark.svg';
+import pasteLightSVG from './assets/icons/paste-light.svg';
 import shieldSVG from './assets/icons/shield.svg';
 import shieldDarkSVG from './assets/icons/shield-dark.svg';
 import syncSVG from './assets/icons/sync.svg';
@@ -198,6 +200,8 @@ export const OutlinedFileProtectPrimary = (props: ImgProps) => (<img src={outlin
 export const OutlinedUnorderedListDark = (props: ImgProps) => (<img src={outlinedUnorderedListDarkSVG} draggable={false} {...props} />);
 export const OutlinedUnorderedListLight = (props: ImgProps) => (<img src={outlinedUnorderedListLightSVG} draggable={false} {...props} />);
 export const PasteActive = (props: ImgProps) => (<img src={pasteActiveSVG} draggable={false} {...props} />);
+export const PasteLight = (props: ImgProps) => (<img src={pasteLightSVG} draggable={false} {...props} />);
+export const PasteDark = (props: ImgProps) => (<img src={pasteDarkSVG} draggable={false} {...props} />);
 export const WalletConnectDark = (props: ImgProps) => (<img src={walletConnectDarkSVG} draggable={false} {...props} />);
 export const WalletConnectLight = (props: ImgProps) => (<img src={walletConnectLightSVG} draggable={false} {...props} />);
 export const WalletConnectDefaultLogo = (props: ImgProps) => (<img src={walletConnectDefaultSVG} draggable={false} {...props} />);

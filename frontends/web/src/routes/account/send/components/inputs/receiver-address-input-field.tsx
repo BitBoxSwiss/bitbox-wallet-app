@@ -3,7 +3,7 @@
 import { useContext } from 'react';
 import type { TAccount } from '@/api/account';
 import { Input } from '@/components/forms';
-import { PasteActive, QRCodeDark, QRCodeLight } from '@/components/icon';
+import { PasteDark, PasteLight, QRCodeDark, QRCodeLight } from '@/components/icon';
 import { DarkModeContext } from '@/contexts/DarkmodeContext';
 import { ReceiverAddressWrapper } from './receiver-address-wrapper';
 import styles from './receiver-address-input-field.module.css';
@@ -36,11 +36,14 @@ export const ScanQRButton = ({ onClick }: TIconButtonProps) => {
   );
 };
 
-const PasteButton = ({ onClick }: TIconButtonProps) => (
-  <button type="button" onClick={onClick} className={`${styles.iconButton || ''} ${styles.pasteButton || ''}`}>
-    <PasteActive />
-  </button>
-);
+const PasteButton = ({ onClick }: TIconButtonProps) => {
+  const { isDarkMode } = useContext(DarkModeContext);
+  return (
+    <button type="button" onClick={onClick} className={`${styles.iconButton || ''} ${styles.pasteButton || ''}`}>
+      {isDarkMode ? <PasteLight /> : <PasteDark />}
+    </button>
+  );
+};
 
 export const ReceiverAddressInputField = ({
   accounts = [],
