@@ -5,6 +5,10 @@ import { useTranslation } from 'react-i18next';
 import * as bitbox02 from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { Backup } from '@/api/backup';
+import { BackButton } from '@/components/backbutton/backbutton';
+import { Button } from '@/components/forms';
+import { Message } from '@/components/message/message';
+import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { SetPasswordWithBackup } from './password';
 import { RestoreFromSDCardBackup } from './restore';
 import { WithSDCard } from './sdcard';
@@ -59,7 +63,9 @@ export const RestoreFromMnemonic = ({
   onAbort,
 }: Props) => {
   const { t } = useTranslation();
-  const [status, setStatus] = useState<'intro' | 'setName' | 'restoreMnemonic'>('intro');
+  const [status, setStatus] = useState<
+    'securityNotice' | 'intro' | 'setName' | 'restoreMnemonic'
+  >('securityNotice');
 
   const restoreMnemonic = () => {
     bitbox02.restoreFromMnemonic(deviceID)
@@ -99,6 +105,32 @@ export const RestoreFromMnemonic = ({
   };
 
   switch (status) {
+  case 'securityNotice':
+    return (
+      <View
+        fullscreen
+        textCenter
+        verticallyCentered
+        withBottomBar
+        width="700px">
+        <ViewHeader
+          small
+          title={t('bitbox02Wizard.stepUninitialized.restoreMnemonic')} />
+        <ViewContent textAlign="left">
+          <Message type="info">
+            {t('bitbox02Wizard.restoreFromMnemonic.securityNotice')}
+          </Message>
+        </ViewContent>
+        <ViewButtons>
+          <Button primary onClick={() => setStatus('intro')}>
+            {t('button.continue')}
+          </Button>
+          <BackButton onClick={onAbort}>
+            {t('button.back')}
+          </BackButton>
+        </ViewButtons>
+      </View>
+    );
   case 'intro':
     return (
       <SetDeviceName
