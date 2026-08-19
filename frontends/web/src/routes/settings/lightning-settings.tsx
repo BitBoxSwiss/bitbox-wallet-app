@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { getLightningBalance, subscribeListPayments } from '@/api/lightning';
+import { getLightningBalance, subscribeLightningBalance } from '@/api/lightning';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
 import { Header, Main } from '@/components/layout';
@@ -11,7 +10,7 @@ import { View, ViewContent } from '@/components/view/view';
 import { Checked } from '@/components/icon';
 import { SubTitle } from '@/components/title';
 import { getKeystoreName } from '@/api/keystores';
-import { useLoad } from '@/hooks/api';
+import { useLoad, useSubscribe } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
 import { SettingsItem } from './components/settingsItem/settingsItem';
 import { MobileHeader } from './components/mobile-header';
@@ -32,20 +31,14 @@ export const LightningSettings = ({
       : null,
     [lightningAccount?.rootFingerprint]
   );
-  const [balanceLoadAttempt, setBalanceLoadAttempt] = useState(0);
-  const lightningBalance = useLoad(
+  const loadedLightningBalance = useLoad(
     lightningAccount && isLightningReady ? getLightningBalance : null,
-    [balanceLoadAttempt, isLightningReady, lightningAccount]
+    [isLightningReady, lightningAccount]
   );
-
-  useEffect(() => {
-    if (!lightningAccount || !isLightningReady) {
-      return;
-    }
-    return subscribeListPayments(() => {
-      setBalanceLoadAttempt(current => current + 1);
-    });
-  }, [isLightningReady, lightningAccount]);
+  const subscribedLightningBalance = useSubscribe(subscribeLightningBalance);
+  const lightningBalance = lightningAccount && isLightningReady
+    ? subscribedLightningBalance ?? loadedLightningBalance
+    : undefined;
 
   const renderContent = () => {
     if (lightningAccount === undefined) {

@@ -25,6 +25,10 @@ vi.mock('@/components/banners', () => ({
   GlobalBanners: () => null,
 }));
 
+vi.mock('@/components/banners/lightning-tor-proxy-warning', () => ({
+  LightningTorProxyWarning: () => null,
+}));
+
 vi.mock('@/components/hideamountsbutton/hideamountsbutton', () => ({
   HideAmountsButton: () => null,
 }));
@@ -90,6 +94,7 @@ describe('Lightning funding limit', () => {
     vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(balance);
     vi.spyOn(lightningApi, 'getListPayments').mockResolvedValue([]);
     vi.spyOn(lightningApi, 'getSparkStatus').mockResolvedValue({ status: 'operational' });
+    vi.spyOn(lightningApi, 'subscribeLightningBalance').mockReturnValue(vi.fn());
     vi.spyOn(lightningApi, 'subscribeListPayments').mockReturnValue(vi.fn());
   });
 

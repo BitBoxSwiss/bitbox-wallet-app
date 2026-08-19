@@ -9,10 +9,11 @@ import {
   getLightningBalance,
   lightningBalanceLimitErrorCode,
   postPrepareTopUp,
+  subscribeLightningBalance,
   type TPrepareTopUpResult,
 } from '@/api/lightning';
 import { connectKeystore } from '@/api/keystores';
-import { useLoad } from '@/hooks/api';
+import { useLoad, useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
 import { getDisplayedCoinUnit, isBitcoinOnly } from '@/routes/account/utils';
@@ -64,7 +65,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   const topUpAccounts = useLoad(() => getTopUpAccounts(btcAccounts), [btcAccounts]);
   const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>('');
   const sourceAccount = topUpAccounts?.find(account => account.code === sourceAccountCode);
-  const lightningBalance = useLoad(() => getLightningBalance().catch(() => undefined));
+  const lightningBalance = useSync(getLightningBalance, subscribeLightningBalance);
   const sourceAmountUnit = sourceAccount
     ? getDisplayedCoinUnit(sourceAccount.coinCode, sourceAccount.coinUnit, btcUnit)
     : 'BTC';
@@ -320,6 +321,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
       setIsSubmitting(false);
       return;
     }
+
     try {
       setSendError(undefined);
       setStep('confirming');

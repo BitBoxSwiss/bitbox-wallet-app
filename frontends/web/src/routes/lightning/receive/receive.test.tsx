@@ -88,6 +88,7 @@ describe('Lightning receive funding limit', () => {
     vi.spyOn(lightningApi, 'subscribeLightningAddress').mockReturnValue(vi.fn());
     vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(balance);
     vi.spyOn(lightningApi, 'getReceivePayment').mockResolvedValue({ invoice: 'lnbc1invoice' });
+    vi.spyOn(lightningApi, 'subscribeLightningBalance').mockReturnValue(vi.fn());
   });
 
   it('warns on the form and generated invoice without blocking creation', async () => {

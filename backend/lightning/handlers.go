@@ -216,11 +216,16 @@ func (lightning *Lightning) PostDeactivate(_ *http.Request) interface{} {
 	return responseDto{Success: true}
 }
 
-// GetBalance handles the GET request to retrieve the balance and its fiat conversions.
-func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
+type formattedLightningBalance struct {
+	accounts.FormattedAccountBalance
+	FundingLimit fundingLimit `json:"fundingLimit"`
+}
+
+// formattedBalance returns the lightning balance with its fiat conversions.
+func (lightning *Lightning) formattedBalance() (*formattedLightningBalance, error) {
 	balance, limit, err := lightning.balanceWithFundingLimit()
 	if err != nil {
-		return errorResponse(err)
+		return nil, err
 	}
 
 	btcCoin := lightning.btcCoin
@@ -238,20 +243,27 @@ func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
 		UnformattedConversions: coin.UnformattedConversions(balance.Incoming(), btcCoin, false, lightning.ratesUpdater),
 	}
 
+	return &formattedLightningBalance{
+		FormattedAccountBalance: accounts.FormattedAccountBalance{
+			HasAvailable: balance.Available().BigInt().Sign() > 0,
+			Available:    formattedAvailableAmount,
+			HasIncoming:  balance.Incoming().BigInt().Sign() > 0,
+			Incoming:     formattedIncomingAmount,
+		},
+		FundingLimit: limit,
+	}, nil
+}
+
+// GetBalance handles the GET request to retrieve the balance and its fiat conversions.
+func (lightning *Lightning) GetBalance(_ *http.Request) interface{} {
+	balance, err := lightning.formattedBalance()
+	if err != nil {
+		return errorResponse(err)
+	}
+
 	return responseDto{
 		Success: true,
-		Data: struct {
-			accounts.FormattedAccountBalance
-			FundingLimit fundingLimit `json:"fundingLimit"`
-		}{
-			FormattedAccountBalance: accounts.FormattedAccountBalance{
-				HasAvailable: balance.Available().BigInt().Sign() > 0,
-				Available:    formattedAvailableAmount,
-				HasIncoming:  balance.Incoming().BigInt().Sign() > 0,
-				Incoming:     formattedIncomingAmount,
-			},
-			FundingLimit: limit,
-		},
+		Data:    balance,
 	}
 }
 
