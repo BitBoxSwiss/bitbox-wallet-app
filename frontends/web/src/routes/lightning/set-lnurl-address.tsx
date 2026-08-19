@@ -11,6 +11,7 @@ import {
   postRegisterLightningAddress,
 } from '@/api/lightning';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Button, Input } from '@/components/forms';
 import { Cancel, Checked, Sync, SyncLight } from '@/components/icon';
 import { Header, Main } from '@/components/layout';
@@ -220,9 +221,9 @@ export const LightningSetLnurlAddress = () => {
             <p>{t('unknownError', { errorMessage: error })}</p>
           </ViewContent>
           <ViewButtons>
-            <Button secondary onClick={() => navigate(-1)}>
+            <BackButton onClick={() => navigate(-1)}>
               {t('button.back')}
-            </Button>
+            </BackButton>
           </ViewButtons>
         </View>
       );
@@ -264,9 +265,9 @@ export const LightningSetLnurlAddress = () => {
             <Button primary disabled={availability !== 'available' || isSaving} onClick={saveAddress}>
               {t('button.save')}
             </Button>
-            <Button secondary disabled={isSaving} onClick={() => navigate(-1)}>
+            <BackButton disabled={isSaving} onClick={() => navigate(-1)}>
               {t('dialog.cancel')}
-            </Button>
+            </BackButton>
           </ViewButtons>
         </View>
       );

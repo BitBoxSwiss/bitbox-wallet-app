@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import type { TAmountWithConversions } from '@/api/account';
 import type { TLightningPayment } from '@/api/lightning';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { AmountBlock } from './amount-block';
@@ -130,9 +131,9 @@ export const ClaimTopUpOverview = ({
         </div>
       </ViewContent>
       <ViewButtons>
-        <Button secondary onClick={onCancel}>
+        <BackButton onClick={onCancel}>
           {t('dialog.cancel')}
-        </Button>
+        </BackButton>
       </ViewButtons>
     </View>
   );

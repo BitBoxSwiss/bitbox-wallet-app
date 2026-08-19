@@ -2,6 +2,7 @@
 
 import { MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useBackButton } from '@/hooks/backbutton';
 import { useQRScanner } from '@/hooks/qrcodescanner';
 import { CloseXWhite, FlashWhite, FlashYellow } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
@@ -63,6 +64,11 @@ export const ScanQR = ({
     setOpen(false);
     closeTimer.current = setTimeout(onClosed, ANIMATION_MS);
   }, [onClose]);
+
+  useBackButton(() => {
+    requestClose();
+    return false;
+  });
 
   const handleValue = useCallback(async (value: string) => {
     const text = value.trim();

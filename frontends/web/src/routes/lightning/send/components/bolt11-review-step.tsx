@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { TPaymentInputType, type TLightningBolt11Invoice } from '@/api/lightning';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { Column, Grid } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -89,9 +90,9 @@ export const Bolt11ReviewStep = ({
           disabled={!canSend}>
           {t('generic.send')}
         </Button>
-        <Button secondary onClick={() => backToPaymentInput()}>
+        <BackButton onClick={() => backToPaymentInput()}>
           {t('button.back')}
-        </Button>
+        </BackButton>
       </ViewButtons>
     </View>
   );

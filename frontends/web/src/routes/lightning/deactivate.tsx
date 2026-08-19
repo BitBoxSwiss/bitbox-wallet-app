@@ -7,6 +7,7 @@ import { Header, Main } from '../../components/layout';
 import { View, ViewButtons, ViewContent } from '../../components/view/view';
 import { MultilineMarkup } from '../../utils/markup';
 import { Button, Checkbox } from '../../components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { postDeactivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { Spinner } from '../../components/spinner/Spinner';
@@ -56,9 +57,9 @@ export const LightningDeactivate = () => {
             <Button danger disabled={!agree} onClick={() => deactivateWallet()}>
               Shut down lightning wallet
             </Button>
-            <Button secondary onClick={() => navigate(-1)}>
+            <BackButton onClick={() => navigate(-1)}>
               {t('button.back')}
-            </Button>
+            </BackButton>
           </ViewButtons>
         </View>
       );

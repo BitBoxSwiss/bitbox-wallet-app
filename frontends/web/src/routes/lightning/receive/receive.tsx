@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { Button, Input, NumberInput, OptionalLabel } from '@/components/forms';
+import { BackButton } from '@/components/backbutton/backbutton';
 import {
   TReceivePaymentResponse,
   getLightningBalance,
@@ -185,9 +186,9 @@ export function Receive() {
             </div>
           </ViewContent>
           <ViewButtons>
-            <Button secondary onClick={back}>
+            <BackButton onClick={back}>
               {t('button.back')}
-            </Button>
+            </BackButton>
           </ViewButtons>
         </View>
       );
@@ -240,9 +241,9 @@ export function Receive() {
             <Button primary onClick={receivePayment} disabled={!canCreateInvoice}>
               {t('lightning.receive.invoice.create')}
             </Button>
-            <Button secondary onClick={back}>
+            <BackButton onClick={back}>
               {t('button.back')}
-            </Button>
+            </BackButton>
           </ViewButtons>
         </View>
       );
@@ -289,9 +290,9 @@ export function Receive() {
             </div>
           </ViewContent>
           <ViewButtons>
-            <Button secondary onClick={cancelInvoice}>
+            <BackButton onClick={cancelInvoice}>
               {t('dialog.cancel')}
-            </Button>
+            </BackButton>
           </ViewButtons>
         </View>
       );

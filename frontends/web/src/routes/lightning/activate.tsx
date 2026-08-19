@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Logo } from '@/components/icon/logo';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -104,9 +105,9 @@ export const LightningActivate = () => {
             <Button primary onClick={() => setStep('information')}>
               {t('button.next')}
             </Button>
-            <Button secondary onClick={() => navigate(-1)}>
+            <BackButton onClick={() => navigate(-1)}>
               {t('button.back')}
-            </Button>
+            </BackButton>
           </ViewButtons>
         </View>
       );
@@ -130,9 +131,9 @@ export const LightningActivate = () => {
             <Button primary disabled={!agree} onClick={() => setStep('disclaimer')}>
               {t('button.next')}
             </Button>
-            <Button secondary onClick={() => setStep('intro')}>
+            <BackButton onClick={() => setStep('intro')}>
               {t('button.back')}
-            </Button>
+            </BackButton>
           </ViewButtons>
         </View>
       );
@@ -142,9 +143,9 @@ export const LightningActivate = () => {
           <Button primary onClick={() => waitForConnect()}>
             {t('lightning.disclaimer.continue')}
           </Button>
-          <Button secondary onClick={() => setStep('information')}>
+          <BackButton onClick={() => setStep('information')}>
             {t('button.back')}
-          </Button>
+          </BackButton>
         </LightningDisclaimerContent>
       );
     case 'connect':
@@ -157,9 +158,9 @@ export const LightningActivate = () => {
             <PointToBitBox02 />
           </ViewContent>
           <ViewButtons>
-            <Button secondary onClick={() => navigate(-1)}>
+            <BackButton onClick={() => navigate(-1)}>
               {t('button.back')}
-            </Button>
+            </BackButton>
           </ViewButtons>
         </View>
       );

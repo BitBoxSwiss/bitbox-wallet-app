@@ -7,6 +7,7 @@ import '@testing-library/jest-dom';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as lightningApi from '@/api/lightning';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Receive } from './receive';
 
@@ -66,18 +67,20 @@ const balance: lightningApi.TLightningBalance = {
 
 const renderReceive = () => render(
   <MemoryRouter>
-    <RatesContext.Provider value={{
-      defaultCurrency: 'EUR',
-      activeCurrencies: ['EUR'],
-      btcUnit: 'sat',
-      rotateDefaultCurrency: vi.fn(),
-      rotateBtcUnit: vi.fn(),
-      addToActiveCurrencies: vi.fn(),
-      updateDefaultCurrency: vi.fn(),
-      removeFromActiveCurrencies: vi.fn(),
-    }}>
-      <Receive />
-    </RatesContext.Provider>
+    <BackButtonProvider>
+      <RatesContext.Provider value={{
+        defaultCurrency: 'EUR',
+        activeCurrencies: ['EUR'],
+        btcUnit: 'sat',
+        rotateDefaultCurrency: vi.fn(),
+        rotateBtcUnit: vi.fn(),
+        addToActiveCurrencies: vi.fn(),
+        updateDefaultCurrency: vi.fn(),
+        removeFromActiveCurrencies: vi.fn(),
+      }}>
+        <Receive />
+      </RatesContext.Provider>
+    </BackButtonProvider>
   </MemoryRouter>
 );
 

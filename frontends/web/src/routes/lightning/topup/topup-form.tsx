@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, CoinCode, ConversionUnit, FeeTargetCode, TAccount, TAmountWithConversions, TBalance, TTxProposalResult } from '@/api/account';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Button, NumberInput } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
@@ -172,9 +173,9 @@ export const TopUpForm = ({
                     onNoteChange={onNoteChange}
                   />
                   <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
-                    <Button secondary onClick={onBack}>
+                    <BackButton onClick={onBack}>
                       {t('button.back')}
-                    </Button>
+                    </BackButton>
                     <Button
                       primary
                       onClick={onReview}
