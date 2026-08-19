@@ -31,6 +31,7 @@ export type TPaymentReviewDetails = {
 type TUsePaymentReviewProps = {
   paymentDetails: TPaymentReviewDetails;
   backToPaymentInput: (nextInputError?: string) => void;
+  onSendingChange: (isSending: boolean) => void;
   onSuccess: () => void;
 };
 
@@ -67,6 +68,7 @@ const insufficientFundsFees = (error: unknown): TPreparePaymentResponse | undefi
 export const usePaymentReview = ({
   paymentDetails,
   backToPaymentInput,
+  onSendingChange,
   onSuccess,
 }: TUsePaymentReviewProps) => {
   const { t } = useTranslation();
@@ -259,6 +261,10 @@ export const usePaymentReview = ({
     preparePayment,
     t,
   ]);
+
+  useEffect(() => {
+    onSendingChange(isSending);
+  }, [isSending, onSendingChange]);
 
   useEffect(() => {
     setCustomAmount(undefined);

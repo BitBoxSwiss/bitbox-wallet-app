@@ -2,9 +2,9 @@
 
 import '../../../../__mocks__/i18n';
 import type { ReactNode } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as lightningApi from '@/api/lightning';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
@@ -65,8 +65,26 @@ const balance: lightningApi.TLightningBalance = {
   incoming: amount('0'),
 };
 
+const LocationPath = () => {
+  const location = useLocation();
+  return <span data-testid="location-path">{location.pathname}</span>;
+};
+
+const setMobileViewport = (matches: boolean) => {
+  vi.mocked(window.matchMedia).mockImplementation(query => ({
+    matches,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+};
+
 const renderReceive = () => render(
-  <MemoryRouter>
+  <MemoryRouter initialEntries={['/lightning/receive']}>
     <BackButtonProvider>
       <RatesContext.Provider value={{
         defaultCurrency: 'EUR',
@@ -80,13 +98,21 @@ const renderReceive = () => render(
       }}>
         <Receive />
       </RatesContext.Provider>
+      <LocationPath />
     </BackButtonProvider>
   </MemoryRouter>
 );
 
+const pressSystemBack = () => {
+  act(() => {
+    expect(window.onBackButtonPressed?.()).toBe(false);
+  });
+};
+
 describe('Lightning receive funding limit', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    setMobileViewport(false);
     vi.spyOn(lightningApi, 'getLightningAddress').mockResolvedValue('test@bitbox.swiss');
     vi.spyOn(lightningApi, 'subscribeLightningAddress').mockReturnValue(vi.fn());
     vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(balance);
@@ -114,5 +140,27 @@ describe('Lightning receive funding limit', () => {
       amountSat: 250000,
       description: '',
     });
+  });
+
+  it('uses the mobile header callback for the address, form, and invoice stages', async () => {
+    setMobileViewport(true);
+    renderReceive();
+
+    expect(await screen.findByText('test@bitbox.swiss', { selector: 'p' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.receive.invoice.create' }));
+    expect(await screen.findByLabelText('lightning.receive.description.label')).toBeInTheDocument();
+
+    pressSystemBack();
+    expect(screen.getByText('test@bitbox.swiss', { selector: 'p' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.receive.invoice.create' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'lightning.receive.invoice.create' }));
+    expect(await screen.findByTestId('invoice-qr')).toBeInTheDocument();
+
+    pressSystemBack();
+    expect(screen.getByText('test@bitbox.swiss', { selector: 'p' })).toBeInTheDocument();
+
+    pressSystemBack();
+    expect(screen.getByTestId('location-path')).toHaveTextContent('/lightning');
   });
 });

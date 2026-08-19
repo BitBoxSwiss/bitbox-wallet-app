@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { Button, Input, NumberInput, OptionalLabel } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import {
   TReceivePaymentResponse,
   getLightningBalance,
@@ -32,6 +32,7 @@ import {
   getLightningFundingLimitError,
 } from '../limits';
 import { LightningReceiveGuide } from '../guide';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import styles from './receive.module.css';
 
 export function Receive() {
@@ -186,9 +187,9 @@ export function Receive() {
             </div>
           </ViewContent>
           <ViewButtons>
-            <BackButton onClick={back}>
+            <DesktopBackButton onClick={back}>
               {t('button.back')}
-            </BackButton>
+            </DesktopBackButton>
           </ViewButtons>
         </View>
       );
@@ -241,9 +242,9 @@ export function Receive() {
             <Button primary onClick={receivePayment} disabled={!canCreateInvoice}>
               {t('lightning.receive.invoice.create')}
             </Button>
-            <BackButton onClick={back}>
+            <DesktopBackButton onClick={back}>
               {t('button.back')}
-            </BackButton>
+            </DesktopBackButton>
           </ViewButtons>
         </View>
       );
@@ -290,9 +291,9 @@ export function Receive() {
             </div>
           </ViewContent>
           <ViewButtons>
-            <BackButton onClick={cancelInvoice}>
+            <DesktopBackButton onClick={cancelInvoice}>
               {t('dialog.cancel')}
-            </BackButton>
+            </DesktopBackButton>
           </ViewButtons>
         </View>
       );
@@ -342,7 +343,17 @@ export function Receive() {
           <Status dismissibleKey="" type="warning" hidden={!receiveError}>
             {receiveError}
           </Status>
-          <Header title={<h2>{t('lightning.receive.title')}</h2>} />
+          <Header title={
+            <>
+              <h2 className="hide-on-small">{t('lightning.receive.title')}</h2>
+              <MobileHeader
+                onClick={step === 'invoice' ? cancelInvoice : back}
+                title={t('lightning.receive.title')}
+                variant={step === 'wait' || step === 'success' ? 'titleOnly' : 'back'}
+                withGuide
+              />
+            </>
+          } />
           {renderSteps()}
         </Main>
       </GuidedContent>

@@ -2,7 +2,7 @@
 
 import '../../../../__mocks__/i18n';
 import type { ReactNode } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TAccount, TAmountWithConversions } from '@/api/account';
@@ -152,6 +152,8 @@ describe('routes/lightning/claim-top-up', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.claimButton' }));
     fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.claimButton' }));
+    expect(await screen.findByText('lightning.claimTopUp.failure.claimFailedMessage')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'dialog.cancel' })).toBeInTheDocument();
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.refundButton' }));
 
     expect(screen.getByText('lightning.claimTopUp.confirm.refundDestination')).toBeInTheDocument();
@@ -191,5 +193,54 @@ describe('routes/lightning/claim-top-up', () => {
       bitcoinAccount.code,
       3,
     ));
+  });
+
+  it('allows back from confirmation but blocks Android back while submitting', async () => {
+    vi.mocked(window.matchMedia).mockImplementation(query => ({
+      matches: true,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }));
+    vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit(100)]);
+    let resolveClaim: (result: { txId: string }) => void = () => {};
+    vi.mocked(lightningApi.postClaimTopUp).mockReturnValue(new Promise(resolve => {
+      resolveClaim = resolve;
+    }));
+
+    render(
+      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
+        <BackButtonProvider>
+          <LightningClaimTopUp activeAccounts={[]} />
+        </BackButtonProvider>
+      </MemoryRouter>
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.claimButton' }));
+    expect(screen.getByText('lightning.claimTopUp.confirm.claimTitle')).toBeInTheDocument();
+    act(() => {
+      expect(window.onBackButtonPressed?.()).toBe(false);
+    });
+    expect(screen.getByRole('button', { name: 'lightning.claimTopUp.claimButton' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.claimButton' }));
+    const confirmButton = screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.claimButton' });
+    fireEvent.click(confirmButton);
+    await waitFor(() => expect(lightningApi.postClaimTopUp).toHaveBeenCalledOnce());
+
+    act(() => {
+      expect(window.onBackButtonPressed?.()).toBe(false);
+    });
+    expect(confirmButton).toBeDisabled();
+    expect(screen.getByText('lightning.claimTopUp.confirm.claimTitle')).toBeInTheDocument();
+
+    await act(async () => {
+      resolveClaim({ txId: 'claim-txid' });
+    });
+    expect(await screen.findByText('lightning.claimTopUp.success.claimMessage')).toBeInTheDocument();
   });
 });

@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { TPaymentInputType, type TLightningBolt11Invoice } from '@/api/lightning';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { Column, Grid } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -17,12 +17,14 @@ import { SendingSpinner } from './sending-spinner';
 type TProps = {
   invoice: TLightningBolt11Invoice;
   backToPaymentInput: (nextInputError?: string) => void;
+  onSendingChange: (isSending: boolean) => void;
   onSuccess: () => void;
 };
 
 export const Bolt11ReviewStep = ({
   invoice,
   backToPaymentInput,
+  onSendingChange,
   onSuccess,
 }: TProps) => {
   const { t } = useTranslation();
@@ -43,6 +45,7 @@ export const Bolt11ReviewStep = ({
   } = usePaymentReview({
     paymentDetails,
     backToPaymentInput,
+    onSendingChange,
     onSuccess,
   });
 
@@ -90,9 +93,9 @@ export const Bolt11ReviewStep = ({
           disabled={!canSend}>
           {t('generic.send')}
         </Button>
-        <BackButton onClick={() => backToPaymentInput()}>
+        <DesktopBackButton onClick={() => backToPaymentInput()}>
           {t('button.back')}
-        </BackButton>
+        </DesktopBackButton>
       </ViewButtons>
     </View>
   );

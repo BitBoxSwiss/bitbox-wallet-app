@@ -15,7 +15,9 @@ import { TLightningErrorCode, TSdkError, toLightningErrorMessage } from '@/api/l
 import { Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { useLoad } from '@/hooks/api';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 import { useMountedRef } from '@/hooks/mount';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { ClaimTopUpConfirm } from './confirm-step';
 import { ClaimTopUpFailure } from './failure-step';
 import { ClaimTopUpOverview } from './overview-step';
@@ -148,6 +150,20 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
     startAction('refund');
   };
 
+  const handleBack = () => {
+    if (step === 'confirm') {
+      setStep('overview');
+      return;
+    }
+    navigate(-1);
+  };
+
+  const headerBackEnabled = step === 'overview'
+    || (step === 'confirm' && !isSubmitting);
+  const headerTitle = step === 'success'
+    ? t(`lightning.claimTopUp.success.${action}Title`)
+    : t('lightning.claimTopUp.title');
+
   const renderContent = () => {
     if (deposit === undefined) {
       return <Spinner text={t('lightning.initializing')} />;
@@ -184,7 +200,7 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
           refundDestinationAccountCode={refundDestinationAccountCode}
           refundUnavailable={!isClaim && refundUnavailable}
           topUpAmount={deposit?.amount}
-          onCancel={() => setStep('overview')}
+          onCancel={handleBack}
           onConfirm={confirmAction}
           onRefundDestinationChange={setRefundDestinationAccountCode}
         />
@@ -198,7 +214,7 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
         canRefund={canStartRefund}
         refundFeeRateSatPerVbyte={refundFeeRateSatPerVbyte}
         refundUnavailable={refundUnavailable}
-        onCancel={() => navigate(-1)}
+        onCancel={handleBack}
         onClaim={() => startAction('claim')}
         onRefund={() => startAction('refund')}
       />
@@ -208,12 +224,19 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
   return (
     <Main>
       <Header
-        title={step === 'success'
-          ? t(`lightning.claimTopUp.success.${action}Title`)
-          : t('lightning.claimTopUp.title')
+        title={
+          <>
+            <h2 className="hide-on-small">{headerTitle}</h2>
+            <MobileHeader
+              onClick={handleBack}
+              title={headerTitle}
+              variant={headerBackEnabled ? 'back' : 'titleOnly'}
+            />
+          </>
         }
       />
       {renderContent()}
+      {isSubmitting && <UseDisableBackButton />}
     </Main>
   );
 };

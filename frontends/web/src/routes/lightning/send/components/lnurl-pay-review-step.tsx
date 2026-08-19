@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TPaymentInputType, type TLightningLNURLPay } from '@/api/lightning';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { Column, Grid } from '@/components/layout';
 import { Status } from '@/components/status/status';
@@ -16,12 +16,14 @@ import { SendingSpinner } from './sending-spinner';
 type TProps = {
   lnurlPay: TLightningLNURLPay;
   backToPaymentInput: (nextInputError?: string) => void;
+  onSendingChange: (isSending: boolean) => void;
   onSuccess: () => void;
 };
 
 export const LNURLPayReviewStep = ({
   lnurlPay,
   backToPaymentInput,
+  onSendingChange,
   onSuccess,
 }: TProps) => {
   const { t } = useTranslation();
@@ -42,6 +44,7 @@ export const LNURLPayReviewStep = ({
   } = usePaymentReview({
     paymentDetails,
     backToPaymentInput,
+    onSendingChange,
     onSuccess,
   });
 
@@ -82,9 +85,9 @@ export const LNURLPayReviewStep = ({
           disabled={!canSend}>
           {t('generic.send')}
         </Button>
-        <BackButton onClick={() => backToPaymentInput()}>
+        <DesktopBackButton onClick={() => backToPaymentInput()}>
           {t('button.back')}
-        </BackButton>
+        </DesktopBackButton>
       </ViewButtons>
     </View>
   );

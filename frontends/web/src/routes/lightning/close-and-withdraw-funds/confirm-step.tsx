@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button, Checkbox } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { Message } from '@/components/message/message';
@@ -135,9 +135,9 @@ export const CloseWithdrawConfirm = ({
         <Button danger disabled={!canClose || isClosing} onClick={onClose}>
           {t('lightning.settings.closeAndWithdrawFunds')}
         </Button>
-        <BackButton disabled={isClosing} onClick={onCancel}>
+        <DesktopBackButton disabled={isClosing} onClick={onCancel}>
           {t('dialog.cancel')}
-        </BackButton>
+        </DesktopBackButton>
       </ViewButtons>
     </View>
   );
