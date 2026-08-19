@@ -2,6 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { Message } from '@/components/message/message';
@@ -93,9 +94,9 @@ export const ClaimTopUpConfirm = ({
             {t('lightning.claimTopUp.confirm.refundButton')}
           </Button>
         )}
-        <Button secondary disabled={isSubmitting} onClick={onCancel}>
+        <BackButton disabled={isSubmitting} onClick={onCancel}>
           {t('dialog.cancel')}
-        </Button>
+        </BackButton>
       </ViewButtons>
     </View>
   );

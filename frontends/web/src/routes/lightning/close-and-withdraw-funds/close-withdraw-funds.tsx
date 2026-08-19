@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getLightningBalance, postCloseWithdraw, postPrepareCloseWithdraw, type TCloseWithdrawQuote } from '@/api/lightning';
 import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
@@ -160,9 +161,9 @@ export const LightningCloseWithdrawFunds = ({
             <Button primary onClick={() => navigate(primaryAction.route)}>
               {primaryAction.label}
             </Button>
-            <Button secondary onClick={() => navigate('/settings/lightning-settings')}>
+            <BackButton onClick={() => navigate('/settings/lightning-settings')}>
               {t('button.back')}
-            </Button>
+            </BackButton>
           </ViewButtons>
         </View>
       );

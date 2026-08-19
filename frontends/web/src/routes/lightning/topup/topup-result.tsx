@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
@@ -72,9 +73,9 @@ export const TopUpNoBitcoinAccounts = ({ hasAccounts }: TTopUpNoBitcoinAccountsP
               <Button primary onClick={() => navigate(primaryAction.route)}>
                 {primaryAction.label}
               </Button>
-              <Button secondary onClick={() => navigate('/lightning')}>
+              <BackButton onClick={() => navigate('/lightning')}>
                 {t('button.back')}
-              </Button>
+              </BackButton>
             </ViewButtons>
           </View>
         </Main>
@@ -103,9 +104,9 @@ export const TopUpNoFundedBitcoinAccounts = ({ btcAccounts }: TTopUpNoFundedBitc
               <Button primary onClick={() => navigate(receiveRoute)}>
                 {t('generic.receive', { context: 'bitcoin' })}
               </Button>
-              <Button secondary onClick={() => navigate('/lightning')}>
+              <BackButton onClick={() => navigate('/lightning')}>
                 {t('button.back')}
-              </Button>
+              </BackButton>
             </ViewButtons>
           </View>
         </Main>

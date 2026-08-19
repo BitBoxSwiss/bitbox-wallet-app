@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TPaymentInputType, type TLightningBitcoinPaymentInput } from '@/api/lightning';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { Column, Grid } from '@/components/layout';
 import { Status } from '@/components/status/status';
@@ -87,9 +88,9 @@ export const BitcoinAddressReviewStep = ({
           disabled={!canSend}>
           {t('generic.send')}
         </Button>
-        <Button secondary onClick={() => backToPaymentInput()}>
+        <BackButton onClick={() => backToPaymentInput()}>
           {t('button.back')}
-        </Button>
+        </BackButton>
       </ViewButtons>
     </View>
   );

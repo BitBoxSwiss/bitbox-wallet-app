@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { CONTENT_MIN_HEIGHT, type TAction } from './constants';
@@ -43,9 +44,9 @@ export const ClaimTopUpFailure = ({
             : t('button.done')}
         </Button>
         {canTryRefund && (
-          <Button className={styles.doneButton} secondary onClick={onDone}>
+          <BackButton className={styles.doneButton} onClick={onDone}>
             {t('dialog.cancel')}
-          </Button>
+          </BackButton>
         )}
       </ViewButtons>
     </View>

@@ -9,6 +9,7 @@ import type { TAccount, TAmountWithConversions } from '@/api/account';
 import type { TLightningPayment } from '@/api/lightning';
 import * as lightningApi from '@/api/lightning';
 import { TLightningErrorCode, TSdkError } from '@/api/lightning-errors';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { LightningClaimTopUp } from './claim-top-up';
 
 vi.mock('@/components/layout', () => ({
@@ -91,7 +92,9 @@ describe('routes/lightning/claim-top-up', () => {
 
     render(
       <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <LightningClaimTopUp activeAccounts={[]} />
+        <BackButtonProvider>
+          <LightningClaimTopUp activeAccounts={[]} />
+        </BackButtonProvider>
       </MemoryRouter>
     );
 
@@ -113,7 +116,9 @@ describe('routes/lightning/claim-top-up', () => {
 
     render(
       <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <LightningClaimTopUp activeAccounts={[]} />
+        <BackButtonProvider>
+          <LightningClaimTopUp activeAccounts={[]} />
+        </BackButtonProvider>
       </MemoryRouter>
     );
 
@@ -139,7 +144,9 @@ describe('routes/lightning/claim-top-up', () => {
 
     render(
       <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
+        <BackButtonProvider>
+          <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
+        </BackButtonProvider>
       </MemoryRouter>
     );
 
@@ -164,7 +171,9 @@ describe('routes/lightning/claim-top-up', () => {
 
     render(
       <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
+        <BackButtonProvider>
+          <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
+        </BackButtonProvider>
       </MemoryRouter>
     );
 
