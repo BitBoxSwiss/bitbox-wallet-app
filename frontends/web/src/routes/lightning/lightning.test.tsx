@@ -25,6 +25,10 @@ vi.mock('@/components/banners', () => ({
   GlobalBanners: () => null,
 }));
 
+vi.mock('@/components/banners/lightning-tor-proxy-warning', () => ({
+  LightningTorProxyWarning: () => null,
+}));
+
 vi.mock('@/components/hideamountsbutton/hideamountsbutton', () => ({
   HideAmountsButton: () => null,
 }));
