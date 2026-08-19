@@ -181,7 +181,9 @@ struct WebView: UIViewRepresentable {
         webView.configuration.userContentController.addUserScript(userScript)
          
         if #available(iOS 16.4, *) {
-            webView.isInspectable = true
+            // Set to true locally to debug with Safari Web Inspector, but keep it
+            // disabled in release builds to prevent access to the native bridge.
+            webView.isInspectable = false
         }
         
         return webView
