@@ -1828,16 +1828,20 @@
         "receiver": "Receiver",
         "title": "Confirm transaction details"
       },
+      "enterInvoice": "Enter address or invoice",
       "invoice": {
-        "input": "Or paste an address or invoice"
+        "label": "Enter payment details",
+        "placeholder": "Address or invoice"
       },
       "lnurlPay": {
         "invalidAmount": "Enter an amount between {{minAmount}} and {{maxAmount}} sats."
       },
       "onChain": "On-chain",
+      "pasteClipboard": "Paste from clipboard",
       "qrCode": {
         "label": "Scan address or invoice"
       },
+      "scanInstruction": "Point your camera at an invoice QR code",
       "sending": {
         "connecting": "Preparing payment",
         "message": "Sending payment"
@@ -2256,7 +2260,9 @@
     "noFeeTargets": "Fee rate estimations are currently unavailable. Please try again later or enter a custom fee.",
     "priority": "Priority",
     "scanQR": "Scan QR code",
+    "scanQRInstruction": "Point your camera at an address QR code",
     "scanQRNoCameraMessage": "Camera not found. Please ensure that your device supports a camera and permissions are correctly set.",
+    "scanQRToggleFlash": "Toggle flashlight",
     "sendToAccount": {
       "placeholder": "Select account",
       "title": "Send to account"
@@ -2539,7 +2545,8 @@
       "button": "Connect",
       "dappLabel": "Enter URI address of dapp",
       "invalidPairingUri": "Invalid pairing uri",
-      "missingNamespace": "Connecting app request did not define necessary namespace"
+      "missingNamespace": "Connecting app request did not define necessary namespace",
+      "scanInstruction": "Point your camera at the WalletConnect QR code"
     },
     "dashboard": {
       "allSessions": "All sessions",

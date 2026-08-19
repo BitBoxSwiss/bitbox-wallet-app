@@ -9,11 +9,12 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    margin-bottom: var(--space-quarter);
 }
 
 .labelContainer label {
     display: block;
-    margin: 0 0 var(--space-quarter) 0;
+    margin: 0;
 }
 
 .labelSection {
@@ -34,7 +35,7 @@
 
 .inputDropdownWrapper {
     display: grid;
-    grid-template-columns: 1fr minmax(160px, 280px);
+    grid-template-columns: minmax(0, 1fr) max-content;
     min-width: 0;
 }
 
@@ -54,7 +55,7 @@ input.inputField {
     font-weight: 400;
     height: var(--input-height);
     padding: 0 var(--space-half);
-    padding-left: var(--input-qr-button);
+    padding-left: calc(var(--space-half) + var(--space-default) + var(--space-default) + var(--space-quarter));
     padding-right: 0;
     text-overflow: ellipsis;
     transition: border-color .2s ease-out;
@@ -87,8 +88,8 @@ input.inputFieldWithoutIcon {
 .dropdown {
     font-size: var(--size-small);
     max-width: 280px;
-    min-width: 160px;
-    width: 100%;
+    min-width: 0;
+    width: max-content;
 }
 
 .dropdown :global(.react-select__control) { 
@@ -97,14 +98,20 @@ input.inputFieldWithoutIcon {
     border-bottom-left-radius: 0;
     border-left: none;
     height: var(--input-height);
+    justify-content: end;
+    min-width: 0;
     padding: 0;
     padding-right: var(--space-quarter);
+    width: 100%;
 }
 
 .dropdown :global(.react-select__value-container) {
+    flex: 0 1 auto;
     padding: 0;
     min-width: 0;
     overflow: hidden;
+    justify-self: end;
+    width: fit-content;
 }
 
 .dropdown :global(.react-select__control):hover {
@@ -120,10 +127,12 @@ input.inputFieldWithoutIcon {
     display: flex;
     font-size: var(--size-small);
     justify-content: flex-end;
+    justify-self: end;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    width: fit-content;
 }
 
 .dropdown :global(.react-select__input):hover {
@@ -154,21 +163,23 @@ input.inputFieldWithoutIcon {
     align-items: center;
     background-color: var(--background-secondary);
     border: 1px solid var(--background-quaternary);
-    border-left: hidden;
+    border-left: none;
     border-top-right-radius: var(--radius-xl);
     border-bottom-right-radius: var(--radius-xl);
     display: flex;
     height: var(--input-height);
-    justify-content: center;
+    justify-content: flex-end;
+    margin-left: -1px;
     padding-left: 0;
+    padding-right: var(--space-half);
     transition: border-color .2s ease-out;
-    width: 100%;
+    width: calc(100% + 1px);
     will-change: border-color;
 }
 
 @media (max-width: 768px) {
     .inputDropdownWrapper {
-        grid-template-columns: 90% 10%;
+        grid-template-columns: minmax(0, 1fr) var(--input-height);
     }
 
 }

@@ -1,11 +1,3 @@
-.inputWithIcon {
-  position: relative;
-}
-
-.inputFieldWithIcon {
-  padding-left: var(--input-qr-button);
-}
-
 .action {
   color: var(--color-blue);
   font-size: var(--size-smaller);
@@ -18,25 +10,4 @@
 
 .sendToSelf {
   color: var(--color-blue);
-}
-
-.qrButton {
-  align-items: center;
-  background-color: transparent;
-  bottom: 0;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  height: var(--input-height);
-  justify-content: flex-start;
-  padding: 0;
-  position: absolute;
-  left: 0;
-  width: var(--input-qr-button);
-}
-
-.qrButton img {
-  height: var(--size-subheader);
-  margin-left: var(--space-half);
-  width: var(--size-subheader);
 }

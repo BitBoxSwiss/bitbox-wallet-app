@@ -24,6 +24,7 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
   error,
   align = 'left',
   className = '',
+  classNameInputField = '',
   type = 'text',
   labelSection,
   dropdownOptions = [],
@@ -66,7 +67,7 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
           autoCorrect="off"
           spellCheck={false}
           type={type}
-          className={`${styles.inputField || ''} ${children ? '' : styles.inputFieldWithoutIcon || ''}`}
+          className={`${styles.inputField || ''} ${children ? '' : styles.inputFieldWithoutIcon || ''} ${classNameInputField}`}
           id={id}
           ref={ref}
           {...props}
@@ -87,7 +88,7 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
               isClearable={false}
               isOptionDisabled={isOptionDisabled}
               renderTrigger={isMobile ? ({ onClick }) => (
-                <button className={styles.dropdownTrigger} onClick={onClick}>
+                <button type="button" className={styles.dropdownTrigger} onClick={onClick}>
                   <ChevronDownDark />
                 </button>
               ) : undefined}
