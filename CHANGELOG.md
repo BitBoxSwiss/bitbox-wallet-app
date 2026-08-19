@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Warn about potential security risks when restoring an external wallet
 - Bitcoin: show account details for the persisted receive address type by default
 - Add external block explorer links to used addresses
 - Settings search
@@ -11,6 +12,9 @@
 - Bitcoin: display zero amounts without decimal places
 - Add option to navigate to "Used addresses" in sign-message workflow
 - Floating mobile bottom navigation bar
+
+## v4.51.4
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.5
 
 ## v4.51.3
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.4
