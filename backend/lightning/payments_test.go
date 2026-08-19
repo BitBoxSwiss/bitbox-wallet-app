@@ -672,22 +672,267 @@ func TestToLightningLNURLPay(t *testing.T) {
 func TestParseBitcoinPaymentInput(t *testing.T) {
 	t.Parallel()
 
-	sdk := &testPaymentSDK{}
-	sdk.parseInput = func(input string) (breez_sdk_spark.InputType, error) {
-		require.Equal(t, "bc1qraw", input)
-		return breez_sdk_spark.InputTypeBitcoinAddress{
-			Field0: breez_sdk_spark.BitcoinAddressDetails{Address: "bc1qraw"},
-		}, nil
+	amountSat := uint64(5_000)
+	zeroAmountSat := uint64(0)
+	description := "BIP21 payment note"
+	testCases := []struct {
+		name                string
+		input               string
+		parsed              breez_sdk_spark.InputType
+		expectedAddress     string
+		expectedAmount      *uint64
+		expectedDescription *string
+	}{
+		{
+			name:  "raw address",
+			input: "bc1qraw",
+			parsed: breez_sdk_spark.InputTypeBitcoinAddress{
+				Field0: breez_sdk_spark.BitcoinAddressDetails{Address: "bc1qraw"},
+			},
+			expectedAddress: "bc1qraw",
+		},
+		{
+			name:  "BIP21 URI without amount",
+			input: "bitcoin:bc1qnoamount",
+			parsed: breez_sdk_spark.InputTypeBip21{
+				Field0: breez_sdk_spark.Bip21Details{
+					PaymentMethods: []breez_sdk_spark.InputType{
+						breez_sdk_spark.InputTypeBitcoinAddress{
+							Field0: breez_sdk_spark.BitcoinAddressDetails{Address: "bc1qnoamount"},
+						},
+					},
+				},
+			},
+			expectedAddress: "bc1qnoamount",
+		},
+		{
+			name:  "BIP21 URI with amount and note",
+			input: "bitcoin:bc1qdestination?amount=0.00005&message=BIP21%20payment%20note",
+			parsed: breez_sdk_spark.InputTypeBip21{
+				Field0: breez_sdk_spark.Bip21Details{
+					AmountSat: &amountSat,
+					Message:   &description,
+					PaymentMethods: []breez_sdk_spark.InputType{
+						breez_sdk_spark.InputTypeBitcoinAddress{
+							Field0: breez_sdk_spark.BitcoinAddressDetails{Address: testP2WPKHAddress},
+						},
+					},
+				},
+			},
+			expectedAddress:     testP2WPKHAddress,
+			expectedAmount:      &amountSat,
+			expectedDescription: &description,
+		},
+		{
+			name:  "BIP21 URI with zero amount",
+			input: "bitcoin:bc1qzeroamount?amount=0",
+			parsed: breez_sdk_spark.InputTypeBip21{
+				Field0: breez_sdk_spark.Bip21Details{
+					AmountSat: &zeroAmountSat,
+					PaymentMethods: []breez_sdk_spark.InputType{
+						breez_sdk_spark.InputTypeBitcoinAddress{
+							Field0: breez_sdk_spark.BitcoinAddressDetails{Address: "bc1qzeroamount"},
+						},
+					},
+				},
+			},
+			expectedAddress: "bc1qzeroamount",
+		},
 	}
-	lightning := newActivePaymentTestLightning(t, sdk)
 
-	input, err := lightning.ParsePaymentInput("bc1qraw")
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 
-	require.NoError(t, err)
-	require.Equal(t, paymentInputTypeBitcoinAddress, input.Type)
-	require.NotNil(t, input.BitcoinAddress)
-	require.Equal(t, "bc1qraw", input.BitcoinAddress.Address)
-	require.Nil(t, input.BitcoinAddress.AmountSat)
+			sdk := &testPaymentSDK{}
+			sdk.parseInput = func(input string) (breez_sdk_spark.InputType, error) {
+				require.Equal(t, testCase.input, input)
+				return testCase.parsed, nil
+			}
+			lightning := newActivePaymentTestLightning(t, sdk)
+
+			input, err := lightning.ParsePaymentInput(testCase.input)
+
+			require.NoError(t, err)
+			require.Equal(t, paymentInputTypeBitcoinAddress, input.Type)
+			require.NotNil(t, input.BitcoinAddress)
+			require.Equal(t, testCase.expectedAddress, input.BitcoinAddress.Address)
+			require.Equal(t, testCase.expectedAmount, input.BitcoinAddress.AmountSat)
+			require.Equal(t, testCase.expectedDescription, input.BitcoinAddress.Description)
+		})
+	}
+}
+
+func TestParseBip21PrefersBolt11PaymentInput(t *testing.T) {
+	t.Parallel()
+
+	amountMsat := uint64(5_000_000)
+	amountSat := uint64(5_000)
+	invoiceDescription := "invoice description"
+	bip21Description := "BIP21 payment note"
+	bolt11PaymentMethod := func(description *string) breez_sdk_spark.InputTypeBolt11Invoice {
+		return breez_sdk_spark.InputTypeBolt11Invoice{
+			Field0: breez_sdk_spark.Bolt11InvoiceDetails{
+				AmountMsat:  &amountMsat,
+				Description: description,
+				Invoice: breez_sdk_spark.Bolt11Invoice{
+					Bolt11: "lnbc1invoice",
+				},
+			},
+		}
+	}
+
+	testCases := []struct {
+		name                string
+		input               string
+		paymentMethods      []breez_sdk_spark.InputType
+		expectedDescription string
+	}{
+		{
+			name:  "BIP21 URI with on-chain fallback and BOLT11 invoice",
+			input: "bitcoin:bc1qfallback?lightning=lnbc1invoice",
+			paymentMethods: []breez_sdk_spark.InputType{
+				breez_sdk_spark.InputTypeBitcoinAddress{
+					Field0: breez_sdk_spark.BitcoinAddressDetails{Address: "bc1qfallback"},
+				},
+				bolt11PaymentMethod(&invoiceDescription),
+			},
+			expectedDescription: invoiceDescription,
+		},
+		{
+			name:  "BIP21 URI note is fallback for descriptionless BOLT11 invoice",
+			input: "bitcoin:?lightning=lnbc1invoice&message=BIP21%20payment%20note",
+			paymentMethods: []breez_sdk_spark.InputType{
+				bolt11PaymentMethod(nil),
+			},
+			expectedDescription: bip21Description,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			sdk := &testPaymentSDK{}
+			sdk.parseInput = func(input string) (breez_sdk_spark.InputType, error) {
+				require.Equal(t, testCase.input, input)
+				return breez_sdk_spark.InputTypeBip21{
+					Field0: breez_sdk_spark.Bip21Details{
+						AmountSat:      &amountSat,
+						Message:        &bip21Description,
+						PaymentMethods: testCase.paymentMethods,
+					},
+				}, nil
+			}
+			lightning := newActivePaymentTestLightning(t, sdk)
+
+			input, err := lightning.ParsePaymentInput(testCase.input)
+
+			require.NoError(t, err)
+			require.Equal(t, paymentInputTypeBolt11, input.Type)
+			require.Nil(t, input.BitcoinAddress)
+			require.NotNil(t, input.Bolt11)
+			require.Equal(t, "lnbc1invoice", input.Bolt11.Invoice)
+			require.Equal(t, testCase.expectedDescription, *input.Bolt11.Description)
+			require.Equal(t, amountSat, *input.Bolt11.AmountSat)
+		})
+	}
+}
+
+func TestParseBip21RequiredPaymentMethods(t *testing.T) {
+	t.Parallel()
+
+	bitcoinAddress := breez_sdk_spark.InputTypeBitcoinAddress{
+		Field0: breez_sdk_spark.BitcoinAddressDetails{Address: testP2WPKHAddress},
+	}
+	bolt11Invoice := breez_sdk_spark.InputTypeBolt11Invoice{
+		Field0: breez_sdk_spark.Bolt11InvoiceDetails{
+			Invoice: breez_sdk_spark.Bolt11Invoice{Bolt11: "lnbc1invoice"},
+		},
+	}
+	bolt12Offer := breez_sdk_spark.InputTypeBolt12Offer{}
+
+	testCases := []struct {
+		name                     string
+		uri                      string
+		paymentMethods           []breez_sdk_spark.InputType
+		requiredPaymentInput     string
+		requiredPaymentMethod    breez_sdk_spark.InputType
+		expectedPaymentInputType string
+		expectError              bool
+	}{
+		{
+			name: "required BOLT11 invoice",
+			uri:  "bitcoin:" + testP2WPKHAddress + "?req-lightning=lnbc1invoice",
+			paymentMethods: []breez_sdk_spark.InputType{
+				bitcoinAddress,
+				bolt11Invoice,
+			},
+			requiredPaymentInput:     "lnbc1invoice",
+			requiredPaymentMethod:    bolt11Invoice,
+			expectedPaymentInputType: paymentInputTypeBolt11,
+		},
+		{
+			name: "required unsupported BOLT12 offer",
+			uri:  "bitcoin:" + testP2WPKHAddress + "?req-lno=lno1offer",
+			paymentMethods: []breez_sdk_spark.InputType{
+				bitcoinAddress,
+				bolt12Offer,
+			},
+			expectError: true,
+		},
+		{
+			name: "required unsupported BOLT12 in lightning parameter",
+			uri:  "bitcoin:" + testP2WPKHAddress + "?req-lightning=lno1offer",
+			paymentMethods: []breez_sdk_spark.InputType{
+				bitcoinAddress,
+				bolt12Offer,
+			},
+			requiredPaymentInput:  "lno1offer",
+			requiredPaymentMethod: bolt12Offer,
+			expectError:           true,
+		},
+		{
+			name: "optional unsupported method with on-chain fallback",
+			uri:  "bitcoin:" + testP2WPKHAddress + "?lno=lno1offer",
+			paymentMethods: []breez_sdk_spark.InputType{
+				bitcoinAddress,
+				bolt12Offer,
+			},
+			expectedPaymentInputType: paymentInputTypeBitcoinAddress,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			sdk := &testPaymentSDK{}
+			sdk.parseInput = func(input string) (breez_sdk_spark.InputType, error) {
+				if input == testCase.requiredPaymentInput {
+					return testCase.requiredPaymentMethod, nil
+				}
+				require.Equal(t, testCase.uri, input)
+				return breez_sdk_spark.InputTypeBip21{
+					Field0: breez_sdk_spark.Bip21Details{
+						Uri:            testCase.uri,
+						PaymentMethods: testCase.paymentMethods,
+					},
+				}, nil
+			}
+			lightning := newActivePaymentTestLightning(t, sdk)
+
+			input, err := lightning.ParsePaymentInput(testCase.uri)
+			if testCase.expectError {
+				require.ErrorIs(t, err, errLightningInvalidPaymentInput)
+				require.Nil(t, input)
+				return
+			}
+
+			require.NoError(t, err)
+			require.Equal(t, testCase.expectedPaymentInputType, input.Type)
+		})
+	}
 }
 
 func TestPrepareBolt11PaymentRequest(t *testing.T) {
