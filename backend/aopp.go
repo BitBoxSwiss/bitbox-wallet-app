@@ -248,9 +248,15 @@ func (backend *Backend) handleAOPP(uri url.URL) {
 		backend.aoppSetError(errAOPPInvalidRequest)
 		return
 	}
-	_, err := url.Parse(callback)
+	callbackURL, err := url.Parse(callback)
 	if err != nil {
 		log.WithError(err).Error("Invalid callback")
+		backend.aoppSetError(errAOPPInvalidRequest)
+		return
+	}
+	if !strings.EqualFold(callbackURL.Scheme, "https") ||
+		callbackURL.Host == "" {
+		log.Error("Invalid callback")
 		backend.aoppSetError(errAOPPInvalidRequest)
 		return
 	}
@@ -466,7 +472,23 @@ loop:
 		backend.aoppSetError(errAOPPUnknown)
 		return
 	}
-	resp, err := backend.httpClient.Post(backend.aopp.Callback, "application/json", bytes.NewBuffer(jsonBody))
+	// Only follow redirects while HTTPS is preserved, so signed data is never resent over a
+	// cleartext connection.
+	httpClient := *backend.httpClient
+	checkRedirect := httpClient.CheckRedirect
+	httpClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if !strings.EqualFold(req.URL.Scheme, "https") || req.URL.Host == "" {
+			return http.ErrUseLastResponse
+		}
+		if checkRedirect != nil {
+			return checkRedirect(req, via)
+		}
+		if len(via) >= 10 {
+			return http.ErrUseLastResponse
+		}
+		return nil
+	}
+	resp, err := httpClient.Post(backend.aopp.Callback, "application/json", bytes.NewBuffer(jsonBody))
 	if err != nil {
 		log.WithError(err).Error("Error calling callback")
 		backend.aoppSetError(errAOPPCallback)
