@@ -14,6 +14,7 @@
 - Add option to navigate to "Used addresses" in sign-message workflow
 - Floating mobile bottom navigation bar
 - Revamp QR Scanner
+- Mobile: Move settings into bottom navigation
 
 ## v4.51.4
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.5

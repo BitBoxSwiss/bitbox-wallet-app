@@ -3,8 +3,8 @@
 import type { TAccount } from '@/api/account';
 import type { TDevices } from '@/api/devices';
 
-const bottomNavKeys = ['portfolio', 'accounts', 'lightning', 'market', 'more'] as const;
-const defaultBottomNavItems: TBottomNavItem[] = ['portfolio', 'accounts', 'market', 'more'];
+const bottomNavKeys = ['portfolio', 'accounts', 'lightning', 'market', 'settings'] as const;
+const defaultBottomNavItems: TBottomNavItem[] = ['portfolio', 'accounts', 'lightning', 'market', 'settings'];
 
 const LIGHTNING_SETTINGS_PATHS = [
   '/lightning/activate',
@@ -42,7 +42,7 @@ export const getBottomNavItems = ({
   if (showMarket) {
     items.push('market');
   }
-  items.push('more');
+  items.push('settings');
   return items;
 };
 
@@ -55,7 +55,7 @@ export const getBottomNavKey = (pathname: string): TBottomNavKey => {
     return 'portfolio';
   }
   if (LIGHTNING_SETTINGS_PATHS.some(prefix => hasPathPrefix(pathname, prefix))) {
-    return 'more';
+    return 'settings';
   }
   if (hasPathPrefix(pathname, '/lightning')) {
     return 'lightning';
@@ -70,7 +70,7 @@ export const getBottomNavKey = (pathname: string): TBottomNavKey => {
     return 'market';
   }
   if (pathname.startsWith('/settings')) {
-    return 'more';
+    return 'settings';
   }
   return 'other';
 };

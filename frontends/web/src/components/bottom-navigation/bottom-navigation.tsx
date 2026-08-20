@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
 import type { TDevices } from '@/api/devices';
-import { AccountIconSVG, LightningIconSVG, MarketIconSVG, MoreIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
+import { AccountIconSVG, LightningIconSVG, MarketIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
-import { RedDot } from '@/components/icon';
+import { CogBlue, CogDark, CogLight, RedDot } from '@/components/icon';
 import { NewBadge } from '@/components/new-badge/new-badge';
+import { useDarkmode } from '@/hooks/darkmode';
 import { useAndroidKeyboardVisible } from './use-android-keyboard-visible';
 import { useSlidingIndicator } from './use-sliding-indicator';
 import { getBottomNavIndex, getBottomNavItems, getBottomNavKey, type TBottomNavItem } from './utils';
@@ -26,6 +27,7 @@ export const BottomNavigation = ({
   hasLightningAccount,
 }: TProps) => {
   const { t } = useTranslation();
+  const { isDarkMode } = useDarkmode();
   const { pathname } = useLocation();
   const deviceID = Object.keys(devices)[0];
   const isBitBox02 = deviceID && devices[deviceID] === 'bitbox02';
@@ -44,15 +46,17 @@ export const BottomNavigation = ({
   const portfolioLabel = t('accountSummary.portfolio');
   const lightningLabel = 'Lightning';
   const marketLabel = t('generic.buySell');
-  const moreLabel = t('settings.more');
   const navItems = getBottomNavItems({ hasLightningAccount, showAccounts, showMarket });
+  const settingsLabel = t('sidebar.settings');
 
   const bottomNavKey = getBottomNavKey(pathname);
   const portfolioActive = bottomNavKey === 'portfolio';
   const accountsActive = bottomNavKey === 'accounts';
   const lightningActive = bottomNavKey === 'lightning';
   const marketActive = bottomNavKey === 'market';
-  const moreActive = bottomNavKey === 'more';
+  const settingsActive = bottomNavKey === 'settings';
+  const InactiveSettingsIcon = isDarkMode ? CogLight : CogDark;
+  const SettingsIcon = settingsActive ? CogBlue : InactiveSettingsIcon;
   const activeIndex = getBottomNavIndex(bottomNavKey, navItems);
   const {
     containerRef,
@@ -63,7 +67,7 @@ export const BottomNavigation = ({
     accounts: accountLabel,
     lightning: lightningLabel,
     market: marketLabel,
-    more: moreLabel,
+    settings: settingsLabel,
   }[item])).join(':'));
   const androidKeyboardVisible = useAndroidKeyboardVisible();
   const setLabelRef = (item: TBottomNavItem) => (element: HTMLSpanElement | null) => {
@@ -144,14 +148,14 @@ export const BottomNavigation = ({
         <Link
           className={`
             ${styles.link || ''}
-            ${moreActive ? (styles.active || '') : ''}
+            ${settingsActive ? (styles.active || '') : ''}
           `}
-          to="/settings/more"
+          to="/settings"
         >
-          <MoreIconSVG />
-          <span className={styles.moreLabel}>
-            <span ref={setLabelRef('more')}>
-              {moreLabel}
+          <SettingsIcon alt="" height={24} width={24} />
+          <span className={styles.settingsLabel}>
+            <span ref={setLabelRef('settings')}>
+              {settingsLabel}
             </span>
             {canUpgrade && (
               <RedDot

@@ -7,10 +7,14 @@ import { Tabs, WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
-import { useBackNavigation } from '@/contexts/BackNavigationContext';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { useNavigate } from 'react-router-dom';
+
+type TProps = TPagePropsWithSettingsTabs & {
+  showBottomNavigation: boolean;
+};
+
 /**
  * The "index" page of the settings
  * that will only be shown on Mobile.
@@ -19,22 +23,10 @@ import { useNavigate } from 'react-router-dom';
  * we see on Desktop, as it's the equivalent
  * of "tabs" on Mobile.
  **/
-export const MobileSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const MobileSettings = ({ devices, hasAccounts, showBottomNavigation }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { goBack } = useBackNavigation();
   useOnlyVisitableOnMobile('/settings/general');
-  const handleClick = () => {
-    if (goBack()) {
-      return;
-    }
-    // go to home page if no devices or accounts (waiting.tsx will be shown)
-    if (Object.keys(devices).length === 0 && !hasAccounts) {
-      navigate('/');
-    } else {
-      navigate('/settings/more');
-    }
-  };
   return (
     <Main>
       <ContentWrapper>
@@ -42,7 +34,11 @@ export const MobileSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsT
       </ContentWrapper>
       <Header
         title={
-          <MobileHeader onClick={handleClick} title={t('settings.title')} />
+          <MobileHeader
+            onClick={showBottomNavigation ? undefined : () => navigate('/')}
+            title={t('settings.title')}
+            variant={showBottomNavigation ? 'titleOnly' : 'back'}
+          />
         } />
       <View fullscreen={false}>
         <ViewContent>

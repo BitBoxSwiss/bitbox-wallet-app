@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactChild } from 'react';
-import { Route, Routes, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { TAccount } from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { AddAccount } from './account/add/add-account';
@@ -43,7 +43,6 @@ import { BitsuranceDashboard } from './bitsurance/dashboard';
 import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 import { AllAccounts } from '@/routes/accounts/all-accounts';
-import { More } from '@/routes/settings/more';
 import { Lightning } from './lightning/lightning';
 import { LightningActivate } from './lightning/activate';
 import { LightningDisclaimer } from './lightning/disclaimer';
@@ -60,6 +59,7 @@ type TAppRouterProps = {
   accounts: TAccount[];
   activeAccounts: TAccount[];
   devicesKey: ((input: string) => string);
+  showBottomNavigation: boolean;
 };
 
 type TInjectParamsProps = {
@@ -71,7 +71,13 @@ const InjectParams = ({ children }: TInjectParamsProps) => {
   return React.cloneElement(children as React.ReactElement, params);
 };
 
-export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
+export const AppRouter = ({
+  devices,
+  devicesKey,
+  accounts,
+  activeAccounts,
+  showBottomNavigation,
+}: TAppRouterProps) => {
   const hasAccounts = accounts.length > 0;
   const Homepage = (<DeviceSwitch
     key={devicesKey('device-switch-default')}
@@ -271,11 +277,8 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
     <MobileSettings
       devices={devices}
       hasAccounts={hasAccounts}
+      showBottomNavigation={showBottomNavigation}
     />
-  </InjectParams>);
-
-  const MoreEl = (<InjectParams>
-    <More devices={devices} />
   </InjectParams>);
 
   const GeneralEl = (<InjectParams>
@@ -383,7 +386,7 @@ export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAp
         <Route path="accounts/all" element={AllAccountsEl} />
         <Route path="settings">
           <Route index element={MobileSettingsEl} />
-          <Route path="more" element={MoreEl} />
+          <Route path="more" element={<Navigate replace to="/settings" />} />
           <Route path="general" element={GeneralEl} />
           <Route path="about" element={AboutEl} />
           <Route path="device-settings/:deviceID" element={Device} />
