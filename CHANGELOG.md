@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add a mobile-only beta Lightning hot wallet, with send, receive, Bitcoin top-up, and on-chain withdrawal flows.
 - Warn about potential security risks when restoring an external wallet
 - Bitcoin: show account details for the persisted receive address type by default
 - Add external block explorer links to used addresses
