@@ -21,8 +21,6 @@ import { View, ViewContent } from '@/components/view/view';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { AccountGuide } from './manage-account-guide';
 import { WatchonlySetting } from './components/manage-accounts/watchonlySetting';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import { TokenListItem } from '@/components/token-list-item/token-list-item';
 import style from './manage-accounts.module.css';
@@ -195,9 +193,6 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <ContentWrapper>
-            <GlobalBanners devices={devices} />
-          </ContentWrapper>
           <Header
             hideSidebarToggler
             title={

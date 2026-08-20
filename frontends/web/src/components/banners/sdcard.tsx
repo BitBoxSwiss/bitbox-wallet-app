@@ -1,24 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import type { AccountCode } from '@/api/account';
 import type { TDevices } from '@/api/devices';
 import type { KeysOf } from '@/utils/types';
 import { useSDCard } from '@/hooks/sdcard';
 import { Message } from '@/components/message/message';
 
 type Props = {
-  code?: AccountCode;
   devices: TDevices;
 };
 
 export const SDCardWarning = ({
-  code,
   devices,
 }: Props) => {
   const { t } = useTranslation();
-  const hasCard = useSDCard(devices, code ? [code] : undefined);
+  const { key: locationKey } = useLocation();
+  const hasCard = useSDCard(devices, [locationKey]);
 
   const deviceList: KeysOf<TDevices> = Object.keys(devices);
   const firstDevice = deviceList[0];

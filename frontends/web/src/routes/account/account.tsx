@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { statusChanged, syncAddressesCount, syncdone, transactionsChanged } from '@/api/accountsync';
-import { TDevices } from '@/api/devices';
 import { getMarketVendors, MarketVendors } from '@/api/market';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
@@ -28,7 +27,6 @@ import { Dialog } from '@/components/dialog/dialog';
 import { A } from '@/components/anchor/anchor';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { TransactionList } from './components/transaction-list';
 import { TransactionDetails } from '@/components/transactions/details';
@@ -43,7 +41,6 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 type Props = {
   accounts: accountApi.TAccount[];
   code: accountApi.AccountCode;
-  devices: TDevices;
 };
 
 export const Account = (props: Props) => {
@@ -69,7 +66,6 @@ const getBitsuranceGuideLink = (
 const RemountAccount = ({
   accounts,
   code,
-  devices,
 }: Props) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -216,7 +212,6 @@ const RemountAccount = ({
         <Main>
           <ContentWrapper>
             <OfflineError error={status?.offlineError} />
-            <GlobalBanners code={code} devices={devices} />
             <Message
               className={style.status}
               hidden={status === undefined || status.synced || !!status.offlineError}
@@ -257,79 +252,83 @@ const RemountAccount = ({
           <View>
             <ViewHeader>
               <div className={style.balanceHeader}>
-                <Balance balance={balance} />
+                <Balance balance={balance} className={style.fadeIn} />
                 {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
               </div>
             </ViewHeader>
             <ViewContent>
-              <div className={style.accountHeader}>
-                {isAccountEmpty && (
-                  <BuyReceiveCTA
-                    account={account}
-                    code={code}
-                    unit={balance.available.unit}
-                    balanceList={[balance]}
-                  />
-                )}
-
-                {transactions?.success === false ? (
-                  <p className={style.errorLoadTransactions}>
-                    {t('transactions.errorLoadTransactions')}
-                  </p>
-                ) : !isAccountEmpty && (
-                  <>
-                    <div className={style.titleRow}>
-                      <SubTitle className={style.titleWithButton}>
-                        {t('accountSummary.transactionHistory')}
-                      </SubTitle>
-
-                      <Button
-                        className={style.searchButton}
-                        transparent
-                        disabled={!hasTransactions}
-                        onClick={() => {
-                          if (showSearchBar) {
-                            setShowSearchBar(false);
-                            setSearchTerm('');
-                          } else {
-                            setShowSearchBar(true);
-                          }
-                        }}
-                      >
-                        {showSearchBar ? (
-                          <>✕ {t('generic.close')}</>
-                        ) : (
-                          <>
-                            <LoupeBlue className={style.loupe} />
-                            {t('generic.searchButton')}
-                          </>
-                        )}
-                      </Button>
-                    </div>
-
-                    <div className={`
-                      ${style.searchContainer || ''}
-                      ${!showSearchBar && style.searchHidden || ''}
-                    `}>
-                      <SearchInput
-                        ref={searchInputRef}
-                        placeholder={t('accountSummary.searchPlaceholder')}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.currentTarget.value)}
+              {loadingTransactions ? (
+                <TransactionHistorySkeleton />
+              ) : (
+                <div className={style.fadeIn}>
+                  <div className={style.accountHeader}>
+                    {isAccountEmpty && (
+                      <BuyReceiveCTA
+                        account={account}
+                        code={code}
+                        unit={balance.available.unit}
+                        balanceList={[balance]}
                       />
-                    </div>
-                  </>
-                )}
-              </div>
+                    )}
 
-              {loadingTransactions && <TransactionHistorySkeleton />}
+                    {transactions?.success === false ? (
+                      <p className={style.errorLoadTransactions}>
+                        {t('transactions.errorLoadTransactions')}
+                      </p>
+                    ) : !isAccountEmpty && (
+                      <>
+                        <div className={style.titleRow}>
+                          <SubTitle className={style.titleWithButton}>
+                            {t('accountSummary.transactionHistory')}
+                          </SubTitle>
 
-              <TransactionList
-                transactionSuccess={transactions?.success ?? false}
-                filteredTransactions={filteredTransactions}
-                debouncedSearchTerm={debouncedSearchTerm}
-                onShowDetail={setDetailID}
-              />
+                          <Button
+                            className={style.searchButton}
+                            transparent
+                            disabled={!hasTransactions}
+                            onClick={() => {
+                              if (showSearchBar) {
+                                setShowSearchBar(false);
+                                setSearchTerm('');
+                              } else {
+                                setShowSearchBar(true);
+                              }
+                            }}
+                          >
+                            {showSearchBar ? (
+                              <>✕ {t('generic.close')}</>
+                            ) : (
+                              <>
+                                <LoupeBlue className={style.loupe} />
+                                {t('generic.searchButton')}
+                              </>
+                            )}
+                          </Button>
+                        </div>
+
+                        <div className={`
+                          ${style.searchContainer || ''}
+                          ${!showSearchBar && style.searchHidden || ''}
+                        `}>
+                          <SearchInput
+                            ref={searchInputRef}
+                            placeholder={t('accountSummary.searchPlaceholder')}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.currentTarget.value)}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <TransactionList
+                    transactionSuccess={transactions?.success ?? false}
+                    filteredTransactions={filteredTransactions}
+                    debouncedSearchTerm={debouncedSearchTerm}
+                    onShowDetail={setDetailID}
+                  />
+                </div>
+              )}
 
               <TransactionDetails
                 accountCode={code}
@@ -345,7 +344,7 @@ const RemountAccount = ({
         account={account}
         unit={balance?.available.unit}
         hasIncomingBalance={balance && balance.hasIncoming}
-        hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
+        hasTransactions={hasTransactions}
         hasNoBalance={balance && !balance.hasAvailable}
       />
     </GuideWrapper>

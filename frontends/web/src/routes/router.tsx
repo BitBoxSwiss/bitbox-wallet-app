@@ -120,13 +120,11 @@ export const AppRouter = ({
   const Acc = (<InjectParams>
     <Account
       code={'' /* dummy to satisfy TS */}
-      devices={devices}
       accounts={activeAccounts} />
   </InjectParams>);
 
   const AccountsSummaryEl = (<InjectParams>
     <AccountsSummary
-      devices={devices}
       accounts={activeAccounts} />
   </InjectParams>);
 
@@ -146,7 +144,6 @@ export const AppRouter = ({
   const AccInfo = (<InjectParams>
     <Info
       code={''}
-      devices={devices}
       accounts={activeAccounts} />
   </InjectParams>);
 
@@ -159,7 +156,6 @@ export const AppRouter = ({
   const AccAddresses = (<InjectParams>
     <Addresses
       code={''}
-      devices={devices}
       accounts={activeAccounts} />
   </InjectParams>);
 
@@ -398,7 +394,7 @@ export const AppRouter = ({
           <Route
             path="lightning-settings"
             element={lightningFeatureAvailable
-              ? <LightningSettings devices={devices} hasAccounts={hasAccounts} />
+              ? <LightningSettings />
               : <Navigate replace to="/settings/advanced-settings" />}
           />
           <Route path="electrum" element={<ElectrumSettings />} />

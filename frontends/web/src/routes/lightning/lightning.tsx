@@ -3,7 +3,6 @@
 import { type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
-import { getDeviceList } from '../../api/devices';
 import {
   TLightningBalance,
   TLightningPayment,
@@ -22,7 +21,6 @@ import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layo
 import { Spinner } from '../../components/spinner/Spinner';
 import { ActionButtons } from './components/action-buttons';
 import { LightningGuide } from './guide';
-import { GlobalBanners } from '@/components/banners';
 import { LightningTorProxyWarning } from '@/components/banners/lightning-tor-proxy-warning';
 import { Status } from '../../components/status/status';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
@@ -48,6 +46,7 @@ import { useDebounce } from '@/hooks/debounce';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { useScrollIntoView } from '@/hooks/scroll-into-view';
 import accountStyle from '@/routes/account/account.module.css';
+import style from './lightning.module.css';
 
 const sparkStatusPollInterval = 60 * 1000;
 
@@ -111,7 +110,7 @@ const LightningPageLayout = ({
           <View>
             <ViewHeader>
               <div className={accountStyle.balanceHeader}>
-                <Balance balance={balance} />
+                <Balance balance={balance} className={style.fadeIn} />
                 <ActionButtons
                   accountDataLoaded={accountDataLoaded}
                   canSend={canSend}
@@ -178,17 +177,13 @@ const paymentToTransaction = (
 };
 
 type TLightningInnerProps = {
-  balance: TLightningBalance;
   explorerURL?: string;
   payments: TLightningPayment[];
-  statusBanners: ReactNode;
 };
 
 const LightningInner = ({
-  balance,
   explorerURL,
   payments,
-  statusBanners,
 }: TLightningInnerProps) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -234,12 +229,7 @@ const LightningInner = ({
   }, [showSearchBar, scrollSearchIntoView, isMobile]);
 
   return (
-    <LightningPageLayout
-      accountDataLoaded
-      balance={balance}
-      canSend={balance.hasAvailable}
-      statusBanners={statusBanners}
-    >
+    <div className={style.fadeIn}>
       <div className={accountStyle.accountHeader}>
         <div className={accountStyle.titleRow}>
           <SubTitle className={accountStyle.titleWithButton}>
@@ -296,7 +286,7 @@ const LightningInner = ({
         payment={payments.find(payment => payment.id === detailID)}
         onClose={() => setDetailID(null)}
       />
-    </LightningPageLayout>
+    </div>
   );
 };
 
@@ -311,7 +301,6 @@ export const Lightning = () => {
   const [error, setError] = useState<string>();
   const mounted = useMountedRef();
   const blockExplorerTxPrefix = useLoad(getBlockExplorerTxPrefix);
-  const devices = useLoad(getDeviceList);
 
   const onStateChange = useCallback(async () => {
     try {
@@ -378,7 +367,6 @@ export const Lightning = () => {
         type={sparkStatus?.status === 'major' ? 'error' : 'warning'}>
         {sparkStatus !== undefined && sparkStatus.status !== 'operational' && t(`lightning.sparkStatus.${sparkStatus.status}`)}
       </Status>
-      <GlobalBanners devices={devices || {}} />
     </>
   );
 
@@ -404,7 +392,14 @@ export const Lightning = () => {
     || isLightningReady === undefined
     || (lightningAccount && !isLightningReady)
   ) {
-    return <Spinner text={t('lightning.initializing')} />;
+    return (
+      <LightningPageLayout
+        accountDataLoaded={false}
+        statusBanners={statusBanners}
+      >
+        <Spinner text={t('lightning.initializing')} />
+      </LightningPageLayout>
+    );
   }
 
   const canSend = balance && balance.hasAvailable;
@@ -436,11 +431,16 @@ export const Lightning = () => {
   }
 
   return (
-    <LightningInner
+    <LightningPageLayout
+      accountDataLoaded
       balance={balance}
-      explorerURL={blockExplorerTxPrefix}
-      payments={payments}
+      canSend={canSend}
       statusBanners={statusBanners}
-    />
+    >
+      <LightningInner
+        explorerURL={blockExplorerTxPrefix}
+        payments={payments}
+      />
+    </LightningPageLayout>
   );
 };

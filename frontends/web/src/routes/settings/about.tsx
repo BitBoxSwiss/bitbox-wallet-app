@@ -9,8 +9,6 @@ import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { TPagePropsWithSettingsTabs } from './types';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { FeedbackLink } from './components/about/feedback-link-setting';
 import { SupportLink } from './components/about/support-link-setting';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
@@ -21,9 +19,6 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <ContentWrapper>
-            <GlobalBanners devices={devices} />
-          </ContentWrapper>
           <Header
             hideSidebarToggler
             title={

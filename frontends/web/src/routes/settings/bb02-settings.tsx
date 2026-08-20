@@ -26,8 +26,6 @@ import { RootFingerprintSetting } from './components/device-settings/root-finger
 import { Bip85Setting } from './components/device-settings/bip85-setting';
 import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
 import { MobileHeader } from './components/mobile-header';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
 import {
@@ -58,9 +56,6 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <ContentWrapper>
-            <GlobalBanners devices={devices} />
-          </ContentWrapper>
           <Header
             hideSidebarToggler
             title={

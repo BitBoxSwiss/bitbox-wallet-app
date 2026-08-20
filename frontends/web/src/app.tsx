@@ -30,6 +30,7 @@ import { RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { AuthRequired } from './components/auth/authrequired';
 import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
+import { GlobalBannersProvider } from './contexts/global-banners-provider';
 import { Providers } from './contexts/providers';
 import { AppContext } from './contexts/AppContext';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
@@ -90,15 +91,17 @@ const AppFrame = ({
               return null;
             })
           }
-          <div key={tabKey} className={styles.tabTransition}>
-            <AppRouter
-              accounts={accounts}
-              activeAccounts={activeAccounts}
-              devices={devices}
-              devicesKey={devicesKey}
-              showBottomNavigation={showMobileBottomNavigation}
-            />
-          </div>
+          <GlobalBannersProvider devices={devices}>
+            <div key={tabKey} className={styles.tabTransition}>
+              <AppRouter
+                accounts={accounts}
+                activeAccounts={activeAccounts}
+                devices={devices}
+                devicesKey={devicesKey}
+                showBottomNavigation={showMobileBottomNavigation}
+              />
+            </div>
+          </GlobalBannersProvider>
           <RouterWatcher />
         </div>
         {showMobileBottomNavigation && (

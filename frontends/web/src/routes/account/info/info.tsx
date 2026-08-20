@@ -7,11 +7,8 @@ import { useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
 import { findAccount, isBitcoinBased, isMessageSigningSupported } from '@/routes/account/utils';
-import { TDevices } from '@/api/devices';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
@@ -24,13 +21,11 @@ import style from './info.module.css';
 type TProps = {
   accounts: TAccount[];
   code: AccountCode;
-  devices: TDevices;
 };
 
 export const Info = ({
   accounts,
   code,
-  devices,
 }: TProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
@@ -93,9 +88,6 @@ export const Info = ({
 
   return (
     <Main>
-      <ContentWrapper>
-        <GlobalBanners devices={devices} />
-      </ContentWrapper>
       <Header hideSidebarToggler title={
         <>
           <h2 className="hide-on-small">{t('accountInfo.title')}</h2>

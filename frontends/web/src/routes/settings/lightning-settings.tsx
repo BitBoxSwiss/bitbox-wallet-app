@@ -3,8 +3,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getLightningBalance, subscribeLightningBalance } from '@/api/lightning';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { Checked } from '@/components/icon';
@@ -14,14 +12,11 @@ import { useLoad, useSubscribe } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
 import { SettingsItem } from './components/settingsItem/settingsItem';
 import { MobileHeader } from './components/mobile-header';
-import { TPagePropsWithSettingsTabs } from './types';
 import styles from './lightning-settings.module.css';
 
 const serviceProvider = 'Spark';
 
-export const LightningSettings = ({
-  devices,
-}: TPagePropsWithSettingsTabs) => {
+export const LightningSettings = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { isLightningReady, lightningAccount } = useLightning();
@@ -100,9 +95,6 @@ export const LightningSettings = ({
 
   return (
     <Main>
-      <ContentWrapper>
-        <GlobalBanners devices={devices} />
-      </ContentWrapper>
       <Header
         hideSidebarToggler
         title={
