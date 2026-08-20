@@ -371,8 +371,12 @@ func (backend *Backend) PrepareSwap(
 	if len(paymentRequest.Outputs) != 1 {
 		return nil, errp.New("Missing or multiple payment request output unsupported")
 	}
-	if !slip24HasCoinPurchase(paymentRequest) {
-		return nil, errp.New("Missing coinPurchase payment request memo")
+	if err := validateSwapExpectedBuyAmount(
+		paymentRequest,
+		swapResponse.ExpectedBuyAmount,
+		buyAccount.Coin(),
+	); err != nil {
+		return nil, err
 	}
 	txInput, err := swapSignTxInput(paymentRequest, sellAccount.Coin(), destinationDerivation)
 	if err != nil {
@@ -471,16 +475,48 @@ func (backend *Backend) appendERC20SwapAccounts(
 	return sellAccounts, buyAccounts
 }
 
-func slip24HasCoinPurchase(paymentRequest *paymentrequest.Slip24) bool {
+func validateSwapExpectedBuyAmount(
+	paymentRequest *paymentrequest.Slip24,
+	expectedBuyAmount string,
+	buyCoin coinpkg.Coin,
+) error {
 	if paymentRequest == nil {
-		return false
+		return errp.New("Missing payment request")
 	}
+	var coinPurchase *paymentrequest.Slip24CoinPurchase
 	for _, memo := range paymentRequest.Memos {
-		if memo.CoinPurchase != nil {
-			return true
+		if memo.Type != "coinPurchase" {
+			continue
 		}
+		if memo.CoinPurchase == nil {
+			return errp.New("Missing coinPurchase payment request memo payload")
+		}
+		if coinPurchase != nil {
+			return errp.New("Multiple coinPurchase payment request memos unsupported")
+		}
+		coinPurchase = memo.CoinPurchase
 	}
-	return false
+	if coinPurchase == nil {
+		return errp.New("Missing coinPurchase payment request memo")
+	}
+
+	signedAmountParts := strings.Fields(coinPurchase.Amount)
+	if len(signedAmountParts) != 2 || signedAmountParts[1] != buyCoin.Unit(false) {
+		return errp.New("Invalid coinPurchase payment request amount")
+	}
+	unitFactor := coinpkg.DecimalsExp(buyCoin, false)
+	signedAmount, err := coinpkg.NewAmountFromString(signedAmountParts[0], unitFactor)
+	if err != nil || signedAmount.BigInt().Sign() <= 0 {
+		return errp.New("Invalid coinPurchase payment request amount")
+	}
+	expectedAmount, err := coinpkg.NewAmountFromString(strings.TrimSpace(expectedBuyAmount), unitFactor)
+	if err != nil || expectedAmount.BigInt().Sign() <= 0 {
+		return errp.New("Invalid expected buy amount")
+	}
+	if signedAmount.BigInt().Cmp(expectedAmount.BigInt()) != 0 {
+		return errp.New("Expected buy amount does not match signed payment request")
+	}
+	return nil
 }
 
 func frontendPaymentRequest(

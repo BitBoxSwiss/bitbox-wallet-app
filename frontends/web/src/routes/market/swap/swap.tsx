@@ -112,7 +112,6 @@ export const Swap = ({
   // Receive
   const [buyAccountCode, setBuyAccountCode] = useState<AccountCode | undefined>();
   const [expectedOutput, setExpectedOutput] = useState<string>('');
-  const [expectedOutputUnit, setExpectedOutputUnit] = useState<CoinUnit | undefined>();
 
   // Shows the fullscreen device-confirmation step after the tx proposal is ready.
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
@@ -210,7 +209,6 @@ export const Swap = ({
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
-    setExpectedOutputUnit(undefined);
     setQuoteErrorCode(undefined);
     setRouteError(undefined);
   }, []);
@@ -254,7 +252,6 @@ export const Swap = ({
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
-    setExpectedOutputUnit(undefined);
 
     if (
       !sellCoinCode
@@ -367,7 +364,6 @@ export const Swap = ({
     const updateExpectedOutput = async () => {
       if (!selectedRoute || !buyAccount) {
         setExpectedOutput('');
-        setExpectedOutputUnit(undefined);
         return;
       }
 
@@ -381,13 +377,11 @@ export const Swap = ({
         return;
       }
       setExpectedOutput(displayAmount.amount);
-      setExpectedOutputUnit(displayAmount.unit);
     };
 
     updateExpectedOutput().catch(() => {
       if (!canceled) {
         setExpectedOutput(selectedRoute?.expectedBuyAmount || '');
-        setExpectedOutputUnit(buyAccount?.coinUnit);
       }
     });
 
@@ -446,6 +440,12 @@ export const Swap = ({
         return;
       }
 
+      const finalExpectedOutput = await getSwapDisplayAmount(
+        response.expectedBuyAmount,
+        buyAccount.coinCode,
+        buyAccount.coinUnit,
+        btcUnit,
+      );
       let expectedOutputConversions: TAmountWithConversions['conversions'];
       const fiatConversions = await Promise.all(
         activeCurrencies.map(async fiatUnit => {
@@ -465,9 +465,9 @@ export const Swap = ({
 
       setConfirmDetails({
         expectedOutput: {
-          amount: expectedOutput,
+          amount: finalExpectedOutput.amount,
           conversions: expectedOutputConversions,
-          unit: expectedOutputUnit || buyAccount.coinUnit,
+          unit: finalExpectedOutput.unit,
           estimated: false,
         },
         feeAmount: proposal.fee,

@@ -41,7 +41,17 @@ vi.mock('@/components/spinner/SpinnerAnimation', () => ({
   SpinnerRingAnimated: () => null,
 }));
 vi.mock('./components/swap-confirm', () => ({
-  ConfirmSwap: () => null,
+  ConfirmSwap: ({
+    expectedOutput,
+  }: {
+    expectedOutput: { amount: string; unit: string };
+  }) => (
+    <div data-testid="confirm-swap-output">
+      {expectedOutput.amount}
+      {' '}
+      {expectedOutput.unit}
+    </div>
+  ),
 }));
 vi.mock('./components/swap-result', () => ({
   SwapResult: () => null,
@@ -264,6 +274,68 @@ describe('routes/market/swap', () => {
         sellCoinCode: 'btc',
       });
     });
+  });
+
+  it('uses the final receive amount in the confirmation', async () => {
+    const user = userEvent.setup();
+    const amount = (value: string, unit: accountApi.CoinUnit): accountApi.TAmountWithConversions => ({
+      amount: value,
+      conversions: {},
+      estimated: false,
+      unit,
+    });
+
+    vi.mocked(accountApi.hasSwapPaymentRequest).mockResolvedValue({ success: true });
+    vi.mocked(swapApi.signSwap).mockResolvedValue({
+      success: true,
+      expectedBuyAmount: '1.25',
+      swapId: 'swap-id',
+      txInput: {
+        address: 'deposit-address',
+        amount: '1',
+        paymentRequest: null,
+        selectedUTXOs: [],
+        sendAll: 'no',
+        useHighestFee: true,
+      },
+    });
+    vi.mocked(accountApi.proposeTx).mockResolvedValue({
+      success: true,
+      amount: amount('1', 'BTC'),
+      fee: amount('0.0001', 'BTC'),
+      recipientDisplayAddress: 'deposit-address',
+      total: amount('1.0001', 'BTC'),
+    });
+    vi.mocked(accountApi.sendTx).mockResolvedValue({ success: true, txId: 'tx-id' });
+
+    render(
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled());
+    expect(await screen.findByTestId('swapGetAmount')).toHaveTextContent('1.23');
+
+    await user.click(screen.getByRole('button', { name: 'Swap' }));
+
+    expect(await screen.findByTestId('confirm-swap-output')).toHaveTextContent('1.25 ETH');
   });
 
   it('shows no-route quote errors with display units', async () => {

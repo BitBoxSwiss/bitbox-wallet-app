@@ -322,6 +322,84 @@ func TestValidateSwapAccountSupportedRejectsTestnetAccounts(t *testing.T) {
 	}
 }
 
+func TestValidateSwapExpectedBuyAmount(t *testing.T) {
+	buyCoin := &coinMocks.CoinMock{
+		DecimalsFunc: func(bool) uint { return 6 },
+		UnitFunc:     func(bool) string { return "USDC" },
+	}
+	paymentRequest := func(memos ...paymentrequest.Slip24Memo) *paymentrequest.Slip24 {
+		return &paymentrequest.Slip24{Memos: memos}
+	}
+	coinPurchaseMemo := func(amount string) paymentrequest.Slip24Memo {
+		return paymentrequest.Slip24Memo{
+			Type: "coinPurchase",
+			CoinPurchase: &paymentrequest.Slip24CoinPurchase{
+				Amount: amount,
+			},
+		}
+	}
+
+	testCases := []struct {
+		name              string
+		expectedBuyAmount string
+		paymentRequest    *paymentrequest.Slip24
+		expectedError     string
+	}{
+		{
+			name:              "missing payment request",
+			expectedBuyAmount: "1.23",
+			expectedError:     "Missing payment request",
+		},
+		{
+			name:              "matching normalized decimal",
+			expectedBuyAmount: "1.230000",
+			paymentRequest:    paymentRequest(coinPurchaseMemo("1.23 USDC")),
+		},
+		{
+			name:              "mismatching amount",
+			expectedBuyAmount: "1.23",
+			paymentRequest:    paymentRequest(coinPurchaseMemo("1.24 USDC")),
+			expectedError:     "Expected buy amount does not match signed payment request",
+		},
+		{
+			name:              "mismatching unit",
+			expectedBuyAmount: "1.23",
+			paymentRequest:    paymentRequest(coinPurchaseMemo("1.23 USDT")),
+			expectedError:     "Invalid coinPurchase payment request amount",
+		},
+		{
+			name:              "sub-unit precision",
+			expectedBuyAmount: "1.2300001",
+			paymentRequest:    paymentRequest(coinPurchaseMemo("1.2300001 USDC")),
+			expectedError:     "Invalid coinPurchase payment request amount",
+		},
+		{
+			name:              "missing semantic memo",
+			expectedBuyAmount: "1.23",
+			paymentRequest: paymentRequest(paymentrequest.Slip24Memo{
+				Type:         "text",
+				CoinPurchase: &paymentrequest.Slip24CoinPurchase{Amount: "1.23 USDC"},
+			}),
+			expectedError: "Missing coinPurchase payment request memo",
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			err := validateSwapExpectedBuyAmount(
+				testCase.paymentRequest,
+				testCase.expectedBuyAmount,
+				buyCoin,
+			)
+			if testCase.expectedError == "" {
+				require.NoError(t, err)
+				return
+			}
+			require.EqualError(t, err, testCase.expectedError)
+		})
+	}
+}
+
 func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
 	sellCoin := btc.NewCoin(
 		coinpkg.CodeBTC,
