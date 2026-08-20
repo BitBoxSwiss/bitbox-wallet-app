@@ -95,6 +95,7 @@ const AppFrame = ({
               activeAccounts={activeAccounts}
               devices={devices}
               devicesKey={devicesKey}
+              showBottomNavigation={showMobileBottomNavigation}
             />
           </div>
           <RouterWatcher />
@@ -158,8 +159,7 @@ export const App = () => {
       currentURL.startsWith('/account-summary')
       || currentURL.startsWith('/add-account')
       || currentURL.startsWith('/settings/manage-accounts')
-      || currentURL.startsWith('/accounts/')
-      || currentURL === '/settings/more';
+      || currentURL.startsWith('/accounts/');
     const shouldRedirectNoRegularAccount =
       !canNavigateWithLightningAccount
       || lightningAccount === null;
