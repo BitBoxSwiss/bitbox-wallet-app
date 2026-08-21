@@ -1,4 +1,5 @@
 prepare:
+	cd ../.. && ${MAKE} check-go-vendor
 	cd ../../ && ${MAKE} buildweb
 	rm -rf BitBoxApp/BitBoxApp/assets/web/
 	mkdir -p BitBoxApp/BitBoxApp/assets/web/

@@ -5,6 +5,8 @@ WEBROOT  := frontends/web
 
 include version.mk.inc
 
+.PHONY: check-go-vendor
+
 GO_LDFLAGS := $(GO_VERSION_LDFLAGS)
 GO_RUN := go run -mod=vendor -ldflags "$(GO_LDFLAGS)"
 
@@ -52,17 +54,17 @@ webserve:
 	cd ${WEBROOT} && $(MAKE) serve
 webe2etest:
 	cd ${WEBROOT} && $(MAKE) test-e2e
-qt-linux-bin: # build only the executable, skip deb/rpm/AppImage packaging
+qt-linux-bin: check-go-vendor # build only the executable, skip deb/rpm/AppImage packaging
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) linux-bin
-qt-linux: # run inside dockerdev
+qt-linux: check-go-vendor # run inside dockerdev
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) linux
-qt-osx: # run on OSX.
+qt-osx: check-go-vendor # run on OSX.
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) osx
 	$(MAKE) osx-sec-check
-qt-windows:
+qt-windows: check-go-vendor
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) windows
 android:
@@ -94,6 +96,8 @@ dockerdev:
 	./scripts/dockerdev.sh
 go-vendor:
 	go mod vendor
+check-go-vendor:
+	bash ./scripts/check-go-vendor.sh
 update-bitbox02-api-go:
 	./scripts/update-bitbox02-api-go.sh
 update-btc-checkpoints:
