@@ -98,6 +98,9 @@ const (
 
 // AOPP holds all the state needed to process an AOPP (Address Ownership Proof Protocol) request.
 type AOPP struct {
+	// RequestID identifies this request so frontend actions cannot be applied to a newer request
+	// that replaced the one the user acted on.
+	RequestID uint64 `json:"requestID,omitempty"`
 	// State is the current state the request is in. See `aoppState*` for the possible values.
 	State aoppState `json:"state"`
 	// ErrorCode is an "aopp*" error code. Only applies if State == aoppStateError.
@@ -144,9 +147,12 @@ func (backend *Backend) notifyAOPP() {
 	})
 }
 
-// AOPPCancel resets the aopp state.
-func (backend *Backend) AOPPCancel() {
+// AOPPCancel resets the aopp state if requestID identifies the current request.
+func (backend *Backend) AOPPCancel(requestID uint64) {
 	defer backend.accountsAndKeystoreLock.Lock()()
+	if backend.aopp.RequestID != requestID {
+		return
+	}
 	backend.aopp = AOPP{State: aoppStateInactive}
 	backend.notifyAOPP()
 }
@@ -230,7 +236,11 @@ func (backend *Backend) aoppKeystoreRegistered() {
 func (backend *Backend) handleAOPP(uri url.URL) {
 	defer backend.accountsAndKeystoreLock.Lock()()
 
-	backend.aopp = AOPP{State: aoppStateInactive}
+	backend.aoppRequestSerial++
+	backend.aopp = AOPP{
+		RequestID: backend.aoppRequestSerial,
+		State:     aoppStateInactive,
+	}
 
 	log := backend.log.WithField("aopp-uri", uri.String())
 	q := uri.Query()
@@ -285,9 +295,9 @@ func (backend *Backend) handleAOPP(uri url.URL) {
 // AOPPApprove is called when the user approves the AOPP request, moving the state from
 // `aoppStateUserApproval` to either `aoppStateAwaitingKeystore` or `aoppStateChoosingAccount`
 // depending on if there is a keystore.
-func (backend *Backend) AOPPApprove() {
+func (backend *Backend) AOPPApprove(requestID uint64) {
 	defer backend.accountsAndKeystoreLock.Lock()()
-	if backend.aopp.State != aoppStateUserApproval {
+	if backend.aopp.RequestID != requestID || backend.aopp.State != aoppStateUserApproval {
 		return
 	}
 	backend.aopp.State = aoppStateAwaitingKeystore
@@ -485,7 +495,10 @@ loop:
 
 // AOPPChooseAccount is called when an AOPP request is being processed and the user has chosen an
 // account.
-func (backend *Backend) AOPPChooseAccount(code accountsTypes.Code) {
+func (backend *Backend) AOPPChooseAccount(requestID uint64, code accountsTypes.Code) {
 	defer backend.accountsAndKeystoreLock.Lock()()
+	if backend.aopp.RequestID != requestID {
+		return
+	}
 	backend.aoppChooseAccount(code)
 }

@@ -108,9 +108,9 @@ type Backend interface {
 	SetAccountReceiveScriptType(accountCode accountsTypes.Code, scriptType signing.ScriptType) error
 	RenameAccount(accountCode accountsTypes.Code, name string) error
 	AOPP() backend.AOPP
-	AOPPCancel()
-	AOPPApprove()
-	AOPPChooseAccount(code accountsTypes.Code)
+	AOPPCancel(requestID uint64)
+	AOPPApprove(requestID uint64)
+	AOPPChooseAccount(requestID uint64, code accountsTypes.Code)
 	GetAccountFromCode(code accountsTypes.Code) (accounts.Interface, error)
 	HTTPClient() *http.Client
 	LookupInsuredAccounts(accountCode accountsTypes.Code) ([]bitsurance.AccountDetails, error)
@@ -1684,23 +1684,48 @@ func (handlers *Handlers) postAOPPChooseAccount(r *http.Request) interface{} {
 
 	var request struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
+		RequestID   uint64             `json:"requestID"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
-	handlers.backend.AOPPChooseAccount(request.AccountCode)
+	handlers.backend.AOPPChooseAccount(request.RequestID, request.AccountCode)
 	return response{Success: true}
 }
 
 func (handlers *Handlers) postAOPPCancel(r *http.Request) interface{} {
-	handlers.backend.AOPPCancel()
-	return nil
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	var request struct {
+		RequestID uint64 `json:"requestID"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+
+	handlers.backend.AOPPCancel(request.RequestID)
+	return response{Success: true}
 }
 
 func (handlers *Handlers) postAOPPApprove(r *http.Request) interface{} {
-	handlers.backend.AOPPApprove()
-	return nil
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	var request struct {
+		RequestID uint64 `json:"requestID"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+
+	handlers.backend.AOPPApprove(request.RequestID)
+	return response{Success: true}
 }
 
 func (handlers *Handlers) postCancelConnectKeystore(r *http.Request) interface{} {
