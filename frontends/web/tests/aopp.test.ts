@@ -6,7 +6,7 @@ import { ServeWallet } from './helpers/servewallet';
 import { launchRegtest, setupRegtestWallet, sendCoins, mineBlocks, cleanupRegtest } from './helpers/regtest';
 import { startSimulator, stopSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
 import { ChildProcess } from 'child_process';
-import { startAOPPServer, generateAOPPRequest } from './helpers/aopp';
+import { startAOPPServer, generateAOPPRequest, type AOPPServer } from './helpers/aopp';
 import { assertFieldsCount } from './helpers/dom';
 import { deleteAccountsFile } from './helpers/fs';
 import { getAccountCodeFromUrl, getReceiveAddress, getReceiveAddressData, waitForAccountTransactions } from './helpers/account';
@@ -14,7 +14,7 @@ import { getAccountCodeFromUrl, getReceiveAddress, getReceiveAddressData, waitFo
 
 let servewallet: ServeWallet | undefined;
 let regtest: ChildProcess | undefined;
-let aoppServer: ChildProcess | undefined;
+let aoppServer: AOPPServer | undefined;
 let simulatorProc : ChildProcess | undefined;
 
 test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
@@ -104,7 +104,7 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
     aoppServer = await startAOPPServer();
     console.log('AOPP server started.');
     console.log('Generating AOPP request...');
-    aoppRequest = await generateAOPPRequest('rbtc');
+    aoppRequest = await generateAOPPRequest(aoppServer.caCertPath, 'rbtc');
     console.log(`AOPP Request URI: ${aoppRequest}`);
   });
 
@@ -121,8 +121,14 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
   await test.step('Kill servewallet and restart with AOPP request', async () => {
     await servewallet?.stop();
     console.log('Servewallet stopped.');
+    if (!aoppServer) {
+      throw new Error('AOPP server not started');
+    }
     servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
-    await servewallet.start({ extraFlags: { aoppUrl: aoppRequest } });
+    await servewallet.start({
+      env: { SSL_CERT_FILE: aoppServer.caCertPath },
+      extraFlags: { aoppUrl: aoppRequest },
+    });
     console.log('Servewallet restarted with AOPP request.');
   });
 
@@ -198,7 +204,7 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   await servewallet?.stop();
   if (aoppServer) {
-    aoppServer.kill('SIGTERM');
+    aoppServer.process.kill('SIGTERM');
     aoppServer = undefined;
   }
   await cleanupRegtest(regtest);

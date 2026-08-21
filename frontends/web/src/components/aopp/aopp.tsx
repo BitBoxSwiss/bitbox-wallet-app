@@ -23,7 +23,13 @@ const Banner = ({ children }: TProps) => (
   <div className={styles.banner}>{children}</div>
 );
 
-const domain = (callback: string): string => new URL(callback).host;
+const domain = (callback: string): string => {
+  try {
+    return new URL(callback).host;
+  } catch {
+    return '';
+  }
+};
 
 export const Aopp = () => {
   const { t } = useTranslation();
