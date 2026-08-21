@@ -2,6 +2,7 @@
 
 import { useContext } from 'react';
 import type { CoinUnit, ConversionUnit } from '@/api/account';
+import { isSupportedERC20Unit } from '@/api/erc20';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
@@ -207,15 +208,9 @@ export const FormattedAmount = ({
   case 'ETH':
   case 'SEPETH':
     return formatEth(displayedAmount, group, decimal, maxDecimals);
-  case 'USDT':
-  case 'USDC':
-  case 'LINK':
-  case 'BAT':
-  case 'MKR':
-  case 'ZRX':
-  case 'WBTC':
-  case 'PAXG':
-  case 'DAI':
+  }
+
+  if (isSupportedERC20Unit(unit)) {
     return formatEth(displayedAmount, group, decimal, maxDecimals);
   }
 

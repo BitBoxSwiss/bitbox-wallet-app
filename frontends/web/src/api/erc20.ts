@@ -21,3 +21,13 @@ export const supportedERC20Tokens: Readonly<TERC20Token[]> = [
   { code: 'eth-erc20-paxg', name: 'Pax Gold', unit: 'PAXG' },
   { code: 'eth-erc20-dai0x6b17', name: 'Dai', unit: 'DAI' },
 ];
+
+const supportedERC20Units = new Set(
+  supportedERC20Tokens.map(({ unit }) => unit)
+);
+
+export const isSupportedERC20Unit = (
+  unit: string,
+): unit is ERC20TokenUnit => (
+  supportedERC20Units.has(unit as ERC20TokenUnit)
+);
