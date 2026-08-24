@@ -361,9 +361,10 @@ func TestAOPPSuccess(t *testing.T) {
 		b.AOPPApprove()
 
 		for _, account := range b.AOPP().Accounts {
-			ac := b.accounts.lookup(account.Code)
-			require.NotNil(t, ac)
-			accountFingerprint, err := ac.Config().Config.SigningConfigurations.RootFingerprint()
+			accountView := b.Accounts().lookup(account.Code)
+			require.NotNil(t, accountView)
+			accountFingerprint, err :=
+				accountView.Record.SigningConfigurations.RootFingerprint()
 			require.NoError(t, err)
 			require.Equal(t, accountFingerprint, rootFingerprint2)
 		}

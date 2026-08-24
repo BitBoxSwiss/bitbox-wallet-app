@@ -337,20 +337,26 @@ func (config *Config) ModifyAppConfig(f func(*AppConfig) error) error {
 	return config.save(config.appConfigFilename, config.appConfig)
 }
 
-// AccountsConfig returns the accounts config.
-func (config *Config) AccountsConfig() AccountsConfig {
+// AccountsSnapshot returns a coherent copy of the account and keystore records. Mutable metadata
+// and membership slices are detached; immutable signing configurations may be shared.
+func (config *Config) AccountsSnapshot() AccountsConfig {
 	defer config.accountsConfigLock.RLock()()
-	return config.accountsConfig
+	return cloneAccountsConfig(config.accountsConfig)
 }
 
-// ModifyAccountsConfig calls f with the current config, allowing f to make any changes, and
-// persists the result if f returns nil error.  It propagates the f's error as is.
+// ModifyAccountsConfig calls f with a detached copy of the current config and publishes it after it
+// has been persisted. It propagates f's error as is.
 func (config *Config) ModifyAccountsConfig(f func(*AccountsConfig) error) error {
 	defer config.accountsConfigLock.Lock()()
-	if err := f(&config.accountsConfig); err != nil {
+	accountsConfig := cloneAccountsConfig(config.accountsConfig)
+	if err := f(&accountsConfig); err != nil {
 		return err
 	}
-	return config.save(config.accountsConfigFilename, config.accountsConfig)
+	if err := config.save(config.accountsConfigFilename, accountsConfig); err != nil {
+		return err
+	}
+	config.accountsConfig = accountsConfig
+	return nil
 }
 
 func (config *Config) save(filename string, conf interface{}) error {
