@@ -6,6 +6,7 @@ import { AppContext } from '@/contexts/AppContext';
 import { VersionInfo, upgradeDeviceFirmware } from '@/api/bitbox02';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Checked, PointToBitBox02, RedDot } from '@/components/icon';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 
@@ -110,7 +111,9 @@ export const UpgradeDialog = ({
           })}</p>
         )}
       </DialogScrollContent>
-      { !confirming && (
+      { confirming ? (
+        <UseDisableBackButton />
+      ) : (
         <DialogButtons>
           <Button
             primary
