@@ -35,6 +35,7 @@ import { General } from './settings/general';
 import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
+import { LightningSettings } from './settings/lightning-settings';
 import { Bitsurance } from './bitsurance/bitsurance';
 import { BitsuranceAccount } from './bitsurance/account';
 import { BitsuranceWidget } from './bitsurance/widget';
@@ -42,6 +43,16 @@ import { BitsuranceDashboard } from './bitsurance/dashboard';
 import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 import { AllAccounts } from '@/routes/accounts/all-accounts';
+import { Lightning } from './lightning/lightning';
+import { LightningActivate } from './lightning/activate';
+import { LightningDisclaimer } from './lightning/disclaimer';
+import { LightningDeactivate } from './lightning/deactivate';
+import { LightningSetLnurlAddress } from './lightning/set-lnurl-address';
+import { Send as LightningSend } from './lightning/send/send';
+import { Receive as LightningReceive } from './lightning/receive/receive';
+import { LightningTopUp } from './lightning/topup/topup';
+import { LightningClaimTopUp } from './lightning/claim-top-up/claim-top-up';
+import { LightningCloseWithdrawFunds } from './lightning/close-and-withdraw-funds/close-withdraw-funds';
 
 type TAppRouterProps = {
   devices: TDevices;
@@ -293,6 +304,12 @@ export const AppRouter = ({
 
   const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
 
+  const BitcoinReceiveAccountsSelectorEl = (
+    <InjectParams>
+      <ReceiveAccountsSelector activeAccounts={activeAccounts.filter(account => account.coinCode === 'btc')} />
+    </InjectParams>
+  );
+
   const AllAccountsEl = <InjectParams><AllAccounts accounts={activeAccounts} /></InjectParams>;
 
   return (
@@ -346,8 +363,26 @@ export const AppRouter = ({
           <Route path="pocket-otc" element={<PocketOTC/>} />
           <Route path="swap" element={SwapEl} />
         </Route>
+        <Route path="lightning">
+          <Route index element={<Lightning />} />
+          <Route path="activate" element={<LightningActivate />} />
+          <Route path="disclaimer" element={<LightningDisclaimer />} />
+          <Route path="deactivate" element={<LightningDeactivate />} />
+          <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
+          <Route path="claim-top-up" element={<LightningClaimTopUp activeAccounts={activeAccounts} />} />
+          <Route path="close-withdraw-funds" element={(
+            <LightningCloseWithdrawFunds
+              activeAccounts={activeAccounts}
+              hasAccounts={hasAccounts}
+            />
+          )} />
+          <Route path="send" element={<LightningSend activeAccounts={activeAccounts} />} />
+          <Route path="receive" element={<LightningReceive />} />
+          <Route path="topup" element={<LightningTopUp activeAccounts={activeAccounts} hasAccounts={hasAccounts} />} />
+        </Route>
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
         <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
+        <Route path="accounts/select-receive/bitcoin" element={BitcoinReceiveAccountsSelectorEl} />
         <Route path="accounts/all" element={AllAccountsEl} />
         <Route path="settings">
           <Route index element={MobileSettingsEl} />
@@ -361,6 +396,7 @@ export const AppRouter = ({
           <Route path="device-settings/recovery-words/:deviceID" element={RecoveryWordsEl} />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
           <Route path="advanced-settings" element={AdvancedSettingsEl} />
+          <Route path="lightning-settings" element={<LightningSettings devices={devices} hasAccounts={hasAccounts} />} />
           <Route path="electrum" element={<ElectrumSettings />} />
           <Route path="manage-accounts" element={
             <ManageAccounts

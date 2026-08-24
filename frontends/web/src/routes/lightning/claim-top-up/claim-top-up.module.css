@@ -1,0 +1,129 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+.content {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+}
+
+.description {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+}
+
+.description p {
+    margin: 0;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-quarter);
+}
+
+.sectionTitle {
+    color: var(--color-tertiary);
+    font-size: var(--size-small);
+    font-weight: 400;
+    margin: 0;
+}
+
+.amount {
+    color: var(--color-default);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.fiat {
+    color: var(--color-tertiary);
+    white-space: nowrap;
+}
+
+.feeActions {
+    align-items: center;
+    column-gap: var(--space-half);
+    display: grid;
+    grid-template-columns: 1fr max-content;
+    row-gap: var(--space-default);
+}
+
+.feeRow {
+    display: contents;
+}
+
+@container (max-width: 320px) {
+    .feeActions {
+        align-items: stretch;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-default);
+    }
+
+    .feeRow {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-half);
+    }
+}
+
+.amountBlock {
+    min-width: 0;
+}
+
+.blockLabel {
+    color: var(--color-tertiary);
+    display: block;
+    font-size: var(--size-small);
+    font-weight: 400;
+    margin-bottom: var(--space-quarter);
+}
+
+.blockAmounts {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-quarter);
+}
+
+.refundDestination {
+    display: flex;
+    flex-direction: column;
+}
+
+.accountSelector {
+    margin-bottom: 0;
+}
+
+.actionButton {
+    grid-column: 2;
+    min-width: 0;
+}
+
+.successContent {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+}
+
+.successMessage,
+.successNote {
+    margin: 0;
+}
+
+.transactionButton {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--space-quarter);
+}
+
+.transactionIcon {
+    height: 18px;
+    width: 18px;
+}
+
+.doneButton {
+    width: 100%;
+}

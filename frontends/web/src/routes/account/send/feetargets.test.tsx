@@ -27,6 +27,14 @@ import { useConfig } from '@/contexts/ConfigProvider';
 const mockRunningInIOS = vi.mocked(runningInIOS);
 const mockUseConfig = vi.mocked(useConfig);
 
+const deferred = <T, >() => {
+  let resolve: (value: T) => void = () => {};
+  const promise = new Promise<T>((nextResolve) => {
+    resolve = nextResolve;
+  });
+  return { promise, resolve };
+};
+
 vi.mock('@/hooks/mediaquery', () => ({
   useMediaQuery: vi.fn().mockReturnValue(true),
   useContext: vi.fn(),
@@ -67,6 +75,69 @@ describe('routes/account/send/feetargets', () => {
     );
     await waitFor(() => expect(apiGetMock).toHaveBeenCalled());
   }));
+
+  it('reloads fee targets when account changes', async () => {
+    const firstRequest = deferred<{
+      defaultFeeTarget: 'normal';
+      feeTargets: { code: 'low' | 'economy' }[];
+    }>();
+    const secondRequest = deferred<{
+      defaultFeeTarget: 'normal';
+      feeTargets: { code: 'low' | 'economy' }[];
+    }>();
+    const feeTargets: {
+      defaultFeeTarget: 'normal';
+      feeTargets: { code: 'low' | 'economy' }[];
+    } = {
+      defaultFeeTarget: 'normal',
+      feeTargets: [
+        { code: 'low' as const },
+        { code: 'economy' as const },
+      ],
+    };
+    const apiGetMock = (apiGet as Mock)
+      .mockReturnValueOnce(firstRequest.promise)
+      .mockReturnValueOnce(secondRequest.promise);
+    const onFeeTargetChange = vi.fn();
+    const props = {
+      coinCode: 'btc' as const,
+      disabled: false,
+      customFee: '',
+      onCustomFee: vi.fn(),
+      onFeeTargetChange,
+    };
+
+    const { rerender } = render(
+      <FeeTargets
+        {...props}
+        accountCode="btc-1"
+      />,
+    );
+
+    await waitFor(() => expect(apiGetMock).toHaveBeenCalledWith('account/btc-1/fee-targets'));
+    await act(async () => {
+      firstRequest.resolve(feeTargets);
+      await firstRequest.promise;
+    });
+    await waitFor(() => expect(onFeeTargetChange).toHaveBeenCalledTimes(1));
+
+    act(() => {
+      rerender(
+        <FeeTargets
+          {...props}
+          accountCode="btc-2"
+        />,
+      );
+    });
+
+    await waitFor(() => expect(apiGetMock).toHaveBeenCalledWith('account/btc-2/fee-targets'));
+    expect(apiGetMock).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      secondRequest.resolve(feeTargets);
+      await secondRequest.promise;
+    });
+    await waitFor(() => expect(onFeeTargetChange).toHaveBeenCalledTimes(2));
+  });
 
   it('normalizes custom fee values from iOS decimal input', async () => {
     mockRunningInIOS.mockReturnValue(true);

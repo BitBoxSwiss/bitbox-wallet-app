@@ -1,0 +1,17 @@
+.danger {
+  color: var(--color-danger);
+}
+
+.sectionTitle {
+  font-size: var(--size-default);
+  margin: var(--space-default) 0 var(--space-three-quarter);
+}
+
+.sectionTitle:first-child {
+  margin-top: 0;
+}
+
+.statusIcon {
+  height: 22px;
+  width: 22px;
+}

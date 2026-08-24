@@ -1,0 +1,113 @@
+.title {
+    font-size: 18px;
+    font-weight: 400;
+    margin-bottom: var(--space-default);
+    text-align: center;
+}
+
+.balanceLabel {
+    color: var(--color-secondary);
+    white-space: nowrap;
+}
+
+.addressContent {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.qrInstruction {
+    margin: var(--space-default) 0 var(--space-half);
+}
+
+.addressQRCode {
+    margin-bottom: var(--space-half);
+}
+
+.addressValue {
+    color: var(--color-secondary);
+    font-size: 14px;
+    margin: 0 0 var(--space-half);
+    overflow-wrap: anywhere;
+    text-align: center;
+}
+
+.addressContent .addressAction {
+    min-height: 36px;
+    padding: 0;
+}
+
+.addressAction + .addressAction {
+    margin-top: var(--space-quarter);
+}
+
+.addressActionContent {
+    align-items: center;
+    display: inline-flex;
+    line-height: 16px;
+}
+
+.addressActionIcon {
+    display: block;
+    flex: 0 0 16px;
+    height: 16px;
+    margin-right: var(--space-eight);
+    object-fit: contain;
+    width: 16px;
+}
+
+.createInvoiceIcon {
+    display: block;
+    flex: 0 0 18px;
+    height: 18px;
+    margin-right: var(--space-eight);
+    object-fit: contain;
+    width: 18px;
+}
+
+.invoiceContent {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.invoiceQRCode {
+    margin-bottom: var(--space-half);
+}
+
+.invoiceAmount {
+    font-size: 16px;
+    margin: 0 0 var(--space-half);
+}
+
+.invoiceFiatAmount {
+    color: var(--color-secondary);
+}
+
+.invoiceDescription {
+    font-size: 16px;
+    margin: 0 0 var(--space-half);
+}
+
+.invoiceContent .invoiceCopyButton {
+    min-height: 36px;
+    padding: 0;
+}
+
+.successAmount,
+.successNote {
+    font-weight: 600;
+}
+
+.btnIcon {
+    margin-right: var(--space-quarter);
+    max-width: 1rem;
+    vertical-align: top;
+}
+
+.hiddenInput {
+    height: 0;
+    opacity: 0;
+    padding: 0;
+    width: 0;
+}

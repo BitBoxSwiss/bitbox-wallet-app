@@ -3,6 +3,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, CoinCode, CoinUnit, TAccountBase, TAmountWithConversions } from '@/api/account';
+import { syncdone } from '@/api/accountsync';
 import { Button } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
 import { USBSuccess, ChevronDownDark } from '@/components/icon';
@@ -10,6 +11,7 @@ import { Badge } from '@/components/badge/badge';
 import { InsuredShield } from '@/routes/account/components/insuredtag';
 import { RatesContext } from '@/contexts/RatesContext';
 import { getAccountsByKeystore, getDisplayedCoinUnit } from '@/routes/account/utils';
+import { unsubscribe } from '@/utils/subscriptions';
 import { Dropdown, TOption as TDropdownOption, TGroupedOption as TDropdownGroupedOption } from '@/components/dropdown/dropdown';
 import { createGroupedOptions, getBalancesForGroupedAccountSelector } from './services';
 import { AmountWithUnit } from '../amount/amount-with-unit';
@@ -17,6 +19,11 @@ import styles from './groupedaccountselector.module.css';
 
 type TGroupAccountSelector = {
   connected: boolean;
+};
+
+export type TKeystoreGroupHeader = {
+  connected: boolean;
+  label: string;
 };
 
 type TOptionAccountSelector = {
@@ -83,7 +90,7 @@ const TriggerContent = ({
   );
 };
 
-const renderGroupHeader = (group: TGroupedOption) => (
+export const renderKeystoreGroupHeader = (group: TKeystoreGroupHeader) => (
   <div className={styles.groupHeader}>
     <span className={styles.groupLabel} data-testid="grouped-account-selector-group-label">{group.label}</span>
     {group.connected && (
@@ -124,18 +131,32 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
 
   useEffect(() => {
     let cancelled = false;
+    let balanceRequest = 0;
     //setting options without balance
     const accountsByKeystore = getAccountsByKeystore(accounts);
     const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore, isAccountDisabled);
     setOptions(groupedOpts);
     //asynchronously fetching each account's balance
-    getBalancesForGroupedAccountSelector(groupedOpts).then(nextOptions => {
-      if (!cancelled) {
-        setOptions(nextOptions);
+    const loadBalances = async () => {
+      const currentRequest = ++balanceRequest;
+      try {
+        const nextOptions = await getBalancesForGroupedAccountSelector(groupedOpts);
+        if (!cancelled && currentRequest === balanceRequest) {
+          setOptions(nextOptions);
+        }
+      } catch (error) {
+        if (!cancelled && currentRequest === balanceRequest) {
+          console.error('Failed to load account selector balances', error);
+        }
       }
-    });
+    };
+    const subscriptions = accounts
+      .filter(account => account.active)
+      .map(account => syncdone(account.code, loadBalances));
+    loadBalances();
     return () => {
       cancelled = true;
+      unsubscribe(subscriptions);
     };
   }, [accounts, isAccountDisabled]);
 
@@ -163,6 +184,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
     return (
       <button
         type="button"
+        disabled={disabled}
         className={`
           ${styles.trigger || ''}
           ${stackedLayout && styles.layoutOnTwoLines || ''}
@@ -187,6 +209,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
           ${className}
         `.trim()}
         classNamePrefix="react-select"
+        isDisabled={disabled}
         options={options}
         isSearchable={false}
         value={selectedOption}
@@ -195,7 +218,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
           onChange(value);
         }}
         renderOptions={renderOption}
-        renderGroupHeader={renderGroupHeader}
+        renderGroupHeader={renderKeystoreGroupHeader}
         mobileFullScreen
         title={title}
         isOpen={isOpen}

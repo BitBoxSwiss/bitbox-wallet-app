@@ -1,0 +1,41 @@
+.inputWithIcon {
+  position: relative;
+}
+
+.inputFieldWithIcon {
+  padding-left: calc(var(--space-half) + var(--space-default) + var(--space-default) + var(--space-quarter));
+}
+
+input.inputFieldWithoutPaste,
+.inputFieldWithoutPaste input {
+  padding-left: 56px;
+}
+
+.iconButton {
+  align-items: center;
+  background-color: transparent;
+  bottom: 0;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  height: var(--input-height);
+  justify-content: center;
+  left: var(--space-half);
+  padding: 0;
+  position: absolute;
+  width: var(--space-default);
+}
+
+.pasteButton {
+  left: calc(var(--space-half) + var(--space-default));
+}
+
+.iconButton img {
+  height: 24px;
+  width: 24px;
+}
+
+.pasteButton img {
+  height: 18px;
+  width: auto;
+}

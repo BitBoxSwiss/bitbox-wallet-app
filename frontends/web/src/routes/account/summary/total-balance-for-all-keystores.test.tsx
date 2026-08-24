@@ -2,6 +2,7 @@
 
 import '../../../../__mocks__/i18n';
 import { ReactNode } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import type { CoinCode, CoinFormattedAmount, CoinUnit, Fiat, TChartData } from '@/api/account';
@@ -120,12 +121,14 @@ const renderTotalAssets = (
   defaultCurrency: Fiat,
   balance: CoinFormattedAmount = btcBalance,
 ) => render(
-  <Wrapper defaultCurrency={defaultCurrency}>
-    <TotalBalanceForAllKeystores
-      summaryData={chartData(defaultCurrency)}
-      coinsBalances={[balance]}
-    />
-  </Wrapper>
+  <MemoryRouter>
+    <Wrapper defaultCurrency={defaultCurrency}>
+      <TotalBalanceForAllKeystores
+        summaryData={chartData(defaultCurrency)}
+        coinsBalances={[balance]}
+      />
+    </Wrapper>
+  </MemoryRouter>
 );
 
 describe('TotalBalanceForAllKeystores', () => {

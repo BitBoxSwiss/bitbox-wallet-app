@@ -14,6 +14,9 @@ import styles from './transaction.module.css';
 
 type TTransactionProps = TTransaction & {
   onShowDetail: (internalID: TTransaction['internalID']) => void;
+  statusProgress?: number;
+  statusText?: string;
+  statusTextShort?: string;
 };
 
 export const Transaction = ({
@@ -26,6 +29,9 @@ export const Transaction = ({
   numConfirmations,
   numConfirmationsComplete,
   status,
+  statusProgress,
+  statusText,
+  statusTextShort,
   time,
   type,
 }: TTransactionProps) => {
@@ -50,6 +56,9 @@ export const Transaction = ({
           numConfirmations={numConfirmations}
           numConfirmationsComplete={numConfirmationsComplete}
           status={status}
+          statusProgress={statusProgress}
+          statusText={statusText}
+          statusTextShort={statusTextShort}
           time={time}
           type={type}
         />
@@ -77,6 +86,9 @@ type TStatus = {
   numConfirmations: number;
   numConfirmationsComplete: number;
   status: TTransactionStatus;
+  statusProgress?: number;
+  statusText?: string;
+  statusTextShort?: string;
   time?: string | null;
   type: TTransactionType;
 };
@@ -88,13 +100,25 @@ const Status = ({
   numConfirmations,
   numConfirmationsComplete,
   status,
+  statusProgress,
+  statusText,
+  statusTextShort,
   time,
   type,
 }: TStatus) => {
   const { t } = useTranslation();
-  const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
-  const isComplete = numConfirmations >= numConfirmationsComplete;
-  const showProgress = !isComplete || numConfirmations < numConfirmationsComplete;
+  const customStatus = statusText !== undefined;
+  const defaultProgress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
+  const progress = statusProgress ?? defaultProgress;
+  const isFailed = status === 'failed';
+  const isComplete = customStatus
+    ? status === 'complete'
+    : numConfirmations >= numConfirmationsComplete;
+  const showStatus = customStatus
+    || isFailed
+    || !isComplete
+    || numConfirmations < numConfirmationsComplete;
+  const showProgressRing = !isFailed && (!customStatus || statusProgress !== undefined);
 
   return (
     <span className={styles.txInfoColumn}>
@@ -112,28 +136,30 @@ const Status = ({
           />
         )}
       </span>
-      {(showProgress) && (
+      {showStatus && (
         <span className={styles.txProgress}>
           <span className={styles.txProgressTextLong}>
-            {t(`transaction.status.${status}`, {
+            {statusText ?? t(`transaction.status.${status}`, {
               context: type
             })}
           </span>
           <span className={styles.txProgressTextShort}>
-            {t(`transaction.statusShort.${status}`, {
+            {statusTextShort ?? t(`transaction.statusShort.${status}`, {
               context: type
             })}
           </span>
-          <ProgressRing
-            className={styles.iconProgress}
-            width={18}
-            value={progress}
-            isComplete={isComplete}
-          />
+          {showProgressRing && (
+            <ProgressRing
+              className={styles.iconProgress}
+              width={18}
+              value={progress}
+              isComplete={isComplete}
+            />
+          )}
         </span>
       )}
       {' '}
-      {isComplete && !showProgress && time && (
+      {isComplete && !showStatus && time && (
         <Date time={time} />
       )}
     </span>

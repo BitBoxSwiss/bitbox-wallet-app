@@ -26,6 +26,29 @@ type TAccountItemProp = {
   account: accountApi.TAccount;
 };
 
+type TAccountRowProps = {
+  balance?: accountApi.TAmountWithConversions;
+  coinCode: accountApi.CoinCode;
+  name: string;
+  to: string;
+};
+
+const AccountRow = ({ balance, coinCode, name, to }: TAccountRowProps) => (
+  <Link to={to} className={styles.accountItem}>
+    <div className={styles.accountIcon}>
+      <Logo coinCode={coinCode} alt={name} />
+    </div>
+    <p className={styles.accountName}>
+      {name}
+    </p>
+
+    <div className={styles.accountBalanceContainer}>
+      <AmountWithUnit amount={balance}/>
+    </div>
+    <ChevronRightDark />
+  </Link>
+);
+
 const AccountItem = ({ account }: TAccountItemProp) => {
   const [balance, setBalance] = useState<accountApi.TAmountWithConversions>();
   const mounted = useMountedRef();
@@ -51,19 +74,12 @@ const AccountItem = ({ account }: TAccountItemProp) => {
   }, [account.code, mounted]);
 
   return (
-    <Link to={`/account/${account.code}`} className={styles.accountItem}>
-      <div className={styles.accountIcon}>
-        <Logo coinCode={account.coinCode} alt={account.name} />
-      </div>
-      <p className={styles.accountName}>
-        {account.name}
-      </p>
-
-      <div className={styles.accountBalanceContainer}>
-        <AmountWithUnit amount={balance} />
-      </div>
-      <ChevronRightDark />
-    </Link>
+    <AccountRow
+      balance={balance}
+      coinCode={account.coinCode}
+      name={account.name}
+      to={`/account/${account.code}`}
+    />
   );
 };
 

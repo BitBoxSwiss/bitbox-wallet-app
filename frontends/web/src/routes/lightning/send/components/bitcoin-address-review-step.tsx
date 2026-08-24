@@ -1,0 +1,100 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { TPaymentInputType, type TLightningBitcoinPaymentInput } from '@/api/lightning';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
+import { Button } from '@/components/forms';
+import { Column, Grid } from '@/components/layout';
+import { Status } from '@/components/status/status';
+import { View, ViewButtons, ViewContent } from '@/components/view/view';
+import { CustomPaymentAmount } from './custom-payment-amount';
+import { BitcoinAddressRecipientDetails, PaymentAmountDetails, PaymentFeeDetails, PaymentNoteDetails } from './payment-input-details';
+import { SendingSpinner } from './sending-spinner';
+import { type TPaymentReviewDetails, usePaymentReview } from '../hooks/use-payment-review';
+
+type TProps = {
+  bitcoinAddress: TLightningBitcoinPaymentInput;
+  backToPaymentInput: (nextInputError?: string) => void;
+  onSendingChange: (isSending: boolean) => void;
+  onSuccess: () => void;
+};
+
+export const BitcoinAddressReviewStep = ({
+  bitcoinAddress,
+  backToPaymentInput,
+  onSendingChange,
+  onSuccess,
+}: TProps) => {
+  const { t } = useTranslation();
+  const needsCustomAmount = bitcoinAddress.amountSat === undefined;
+  const paymentDetails = useMemo<TPaymentReviewDetails>(() => ({
+    type: TPaymentInputType.BITCOIN_ADDRESS,
+    details: bitcoinAddress,
+  }), [bitcoinAddress]);
+  const {
+    amountError,
+    canSend,
+    fees,
+    isSending,
+    preparedPayment,
+    sendError,
+    sendPayment,
+    setCustomAmount,
+  } = usePaymentReview({
+    paymentDetails,
+    backToPaymentInput,
+    onSendingChange,
+    onSuccess,
+  });
+
+  if (isSending) {
+    return <SendingSpinner />;
+  }
+
+  const prepareError = amountError || (preparedPayment?.status === 'error' ? preparedPayment.error : undefined);
+
+  return (
+    <View fitContent minHeight="100%">
+      <ViewContent>
+        <Grid col="1">
+          <Column>
+            <Status dismissibleKey="" type="warning" hidden={!sendError}>
+              {sendError}
+            </Status>
+            {needsCustomAmount ? (
+              <CustomPaymentAmount
+                key={bitcoinAddress.address}
+                onAmountChange={setCustomAmount}>
+                <BitcoinAddressRecipientDetails bitcoinAddress={bitcoinAddress} />
+              </CustomPaymentAmount>
+            ) : (
+              <>
+                <BitcoinAddressRecipientDetails bitcoinAddress={bitcoinAddress} />
+                <PaymentAmountDetails amountSat={bitcoinAddress.amountSat} />
+              </>
+            )}
+            <PaymentNoteDetails description={bitcoinAddress.description} />
+            <Status dismissibleKey="" type="error" hidden={!prepareError}>
+              {prepareError}
+            </Status>
+            {(preparedPayment?.status === 'preparing' || fees) && (
+              <PaymentFeeDetails fees={fees} totalWithFiat />
+            )}
+          </Column>
+        </Grid>
+      </ViewContent>
+      <ViewButtons>
+        <Button
+          primary
+          onClick={sendPayment}
+          disabled={!canSend}>
+          {t('generic.send')}
+        </Button>
+        <DesktopBackButton onClick={() => backToPaymentInput()}>
+          {t('button.back')}
+        </DesktopBackButton>
+      </ViewButtons>
+    </View>
+  );
+};

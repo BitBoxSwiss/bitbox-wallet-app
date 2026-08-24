@@ -103,6 +103,9 @@ Functions in `src/api/` should stay as thin wrappers around the underlying reque
 should only type the function arguments and the returned promise, and should not add extra client
 side control flow or business logic on top of the request.
 
+Standalone files under `frontends/web/public/` that are not bundled with the React app must provide
+the same fallback locally.
+
 ### Data Loading Hooks
 Key custom hooks in `src/hooks/` handle all async data:
 
@@ -167,6 +170,7 @@ component state — no form library is used.
 - Types prefixed with `T` (`TProps`, `TBalance`, `TAccount`).
 - Named exports only — no default exports.
 - Path alias: `@/` maps to `src/` (e.g., `import { getBalance } from '@/api/account'`).
+- Do not add `void` before function calls.
 
 ### File Naming
 - Components: `my-component.tsx` (kebab-case filenames, PascalCase component names)

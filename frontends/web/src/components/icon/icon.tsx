@@ -47,6 +47,7 @@ import greenDotSVG from './assets/icons/green-dot.svg';
 import yellowDotSVG from './assets/icons/yellow-dot.svg';
 import orangeDotSVG from './assets/icons/orange-dot.svg';
 import copySVG from './assets/icons/copy.svg';
+import createInvoiceSVG from './assets/icons/create-invoice.svg';
 import closeSVG from './assets/icons/close.svg';
 import closeXWhiteSVG from './assets/icons/close-x-white.svg';
 import closeXDarkSVG from './assets/icons/close-x-dark.svg';
@@ -55,6 +56,8 @@ import externalLinkGraySVG from './assets/icons/external-link-gray.svg';
 import eyeClosedSVG from './assets/icons/eye-closed.svg';
 import eyeOpenedSVG from './assets/icons/eye-opened.svg';
 import eyeOpenedDarkSVG from './assets/icons/eye-opened-dark.svg';
+import flashWhiteSVG from './assets/icons/flash-white.svg';
+import flashYellowSVG from './assets/icons/flash-yellow.svg';
 import globeDarkSVG from './assets/icons/globe-dark.svg';
 import globeLightSVG from './assets/icons/globe-light.svg';
 import guideSVG from './assets/icons/guide.svg';
@@ -69,6 +72,7 @@ import walletConnectDarkSVG from './assets/icons/wallet-connect-dark.svg';
 import walletConnectLightSVG from './assets/icons/wallet-connect-light.svg';
 import walletConnectDefaultSVG from './assets/icons/wallet-connect-default.svg';
 import warningSVG from './assets/icons/warning.svg';
+import warningYellowSVG from './assets/icons/warning-yellow.svg';
 import warningPNG from './assets/icons/warning.png';
 import warningOutlinedSVG from './assets/icons/warning-outlined.svg';
 import qrCodeDarkSVG from './assets/icons/qr-dark.svg';
@@ -80,6 +84,9 @@ import outlinedFileProtectLightSVG from './assets/icons/outlined-file-protect-li
 import outlinedFileProtectPrimarySVG from './assets/icons/outlined-file-protect-primary.svg';
 import outlinedUnorderedListDarkSVG from './assets/icons/outlined-unordered-list.svg';
 import outlinedUnorderedListLightSVG from './assets/icons/outlined-unordered-list-light.svg';
+import pasteActiveSVG from './assets/icons/paste-active.svg';
+import pasteDarkSVG from './assets/icons/paste-dark.svg';
+import pasteLightSVG from './assets/icons/paste-light.svg';
 import shieldSVG from './assets/icons/shield.svg';
 import shieldDarkSVG from './assets/icons/shield-dark.svg';
 import syncSVG from './assets/icons/sync.svg';
@@ -157,6 +164,7 @@ export const CreditCard = (props: ImgProps) => (<img src={creditCardLightSVG} dr
 export const CogBlue = (props: ImgProps) => (<img src={cogBlueSVG} draggable={false} {...props} />);
 export const Coins = (props: ImgProps) => (<img src={coinsSVG} draggable={false} {...props} />);
 export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
+export const CreateInvoice = (props: ImgProps) => (<img src={createInvoiceSVG} draggable={false} {...props} />);
 export const Close = (props: ImgProps) => (<img src={closeSVG} draggable={false} {...props} />);
 export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} draggable={false} {...props} />);
 export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggable={false} {...props} />);
@@ -169,6 +177,8 @@ export const ExternalLinkGray = (props: ImgProps) => (<img src={externalLinkGray
 export const EyeClosed = (props: ImgProps) => (<img src={eyeClosedSVG} draggable={false} {...props} />);
 export const EyeOpened = (props: ImgProps) => (<img src={eyeOpenedSVG} draggable={false} {...props} />);
 export const EyeOpenedDark = (props: ImgProps) => (<img src={eyeOpenedDarkSVG} draggable={false} {...props} />);
+export const FlashWhite = (props: ImgProps) => (<img src={flashWhiteSVG} draggable={false} {...props} />);
+export const FlashYellow = (props: ImgProps) => (<img src={flashYellowSVG} draggable={false} {...props} />);
 export const GlobeDark = (props: ImgProps) => (<img src={globeDarkSVG} draggable={false} {...props} />);
 export const GlobeLight = (props: ImgProps) => (<img src={globeLightSVG} draggable={false} {...props} />);
 export const GreenDot = (props: ImgProps) => (<img src={greenDotSVG} draggable={false} {...props} />);
@@ -189,6 +199,9 @@ export const OutlinedFileProtectLight = (props: ImgProps) => (<img src={outlined
 export const OutlinedFileProtectPrimary = (props: ImgProps) => (<img src={outlinedFileProtectPrimarySVG} draggable={false} {...props} />);
 export const OutlinedUnorderedListDark = (props: ImgProps) => (<img src={outlinedUnorderedListDarkSVG} draggable={false} {...props} />);
 export const OutlinedUnorderedListLight = (props: ImgProps) => (<img src={outlinedUnorderedListLightSVG} draggable={false} {...props} />);
+export const PasteActive = (props: ImgProps) => (<img src={pasteActiveSVG} draggable={false} {...props} />);
+export const PasteLight = (props: ImgProps) => (<img src={pasteLightSVG} draggable={false} {...props} />);
+export const PasteDark = (props: ImgProps) => (<img src={pasteDarkSVG} draggable={false} {...props} />);
 export const WalletConnectDark = (props: ImgProps) => (<img src={walletConnectDarkSVG} draggable={false} {...props} />);
 export const WalletConnectLight = (props: ImgProps) => (<img src={walletConnectLightSVG} draggable={false} {...props} />);
 export const WalletConnectDefaultLogo = (props: ImgProps) => (<img src={walletConnectDefaultSVG} draggable={false} {...props} />);
@@ -203,6 +216,7 @@ export const Sync = (props: ImgProps) => (<img src={syncSVG} draggable={false} {
 export const SyncLight = (props: ImgProps) => (<img src={syncLightSVG} draggable={false} {...props} />);
 export const SelectedCheckLight = (props: ImgProps) => (<img src={selectedCheckLightSVG} draggable={false} {...props} />);
 export const Warning = (props: ImgProps) => (<img src={warningSVG} draggable={false} {...props} />);
+export const WarningYellow = (props: ImgProps) => (<img src={warningYellowSVG} draggable={false} {...props} />);
 /* WarningOLD is only used in attestation-check-settings and bip-85-settings */
 export const WarningOLD = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
 /* WarningOutlined is only used in factory reset */

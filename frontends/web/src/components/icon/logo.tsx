@@ -27,6 +27,8 @@ import DAI from './assets/dai-color.svg';
 import DAI_GREY from './assets/dai-white.svg';
 import LINK from './assets/link-color.svg';
 import LINK_GREY from './assets/link-white.svg';
+import LIGHTNING from './assets/lightning-color.svg';
+import LIGHTNING_GREY from './assets/lightning-white.svg';
 import MKR from './assets/mkr-color.svg';
 import MKR_GREY from './assets/mkr-white.svg';
 import USDC from './assets/usdc-color.svg';
@@ -72,7 +74,6 @@ const logoMap: LogoMap = {
   'eth': [ETH, ETH_GREY],
   'sepeth': [ETH, ETH_GREY],
   'erc20Test': [ETH, ETH_GREY],
-
   'eth-erc20-usdt': [USDT, USDT_GREY],
   'eth-erc20-usdc': [USDC, USDC_GREY],
   'eth-erc20-dai0x6b17': [DAI, DAI_GREY],
@@ -82,6 +83,7 @@ const logoMap: LogoMap = {
   'eth-erc20-zrx': [ZRX, ZRX_GREY],
   'eth-erc20-wbtc': [WBTC, WBTC_GREY],
   'eth-erc20-paxg': [PAXG, PAXG_GREY],
+  'lightning': [LIGHTNING, LIGHTNING_GREY],
 };
 
 type LogoProps = {

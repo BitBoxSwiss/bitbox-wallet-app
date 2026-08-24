@@ -3,7 +3,7 @@
 import { ChangeEvent, useCallback, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertUser } from '@/components/alert/Alert';
-import { TOption } from '@/components/dropdown/dropdown';
+import { TGroupedOption, TOption } from '@/components/dropdown/dropdown';
 import { InputWithDropdown } from '@/components/forms/input-with-dropdown';
 import * as accountApi from '@/api/account';
 import { getReceiveAddressList, TAccount } from '@/api/account';
@@ -16,7 +16,8 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { Logo } from '@/components/icon';
-import { getDisplayAccountNumber } from '@/routes/account/utils';
+import { renderKeystoreGroupHeader } from '@/components/groupedaccountselector/groupedaccountselector';
+import { getAccountsByKeystore, getDisplayAccountNumber, isAmbiguousName } from '@/routes/account/utils';
 import receiverStyles from './receiver-address-input.module.css';
 import styles from './receiver-address-wrapper.module.css';
 
@@ -29,10 +30,16 @@ type Props = {
 
 type TReceiverAddressWrapperProps = {
   accounts?: TAccount[];
+  autoFocus?: boolean;
+  classNameInputField?: string;
   error?: string | object;
+  groupAccountsByKeystore?: boolean;
+  inputLabel?: string;
+  inputPlaceholder?: string;
   onInputChange: (value: string) => void;
   onAccountChange?: (account: TAccount | null) => void;
   recipientAddress: string;
+  requireSendToSelfSupport?: boolean;
   children?: React.ReactNode;
 };
 
@@ -55,10 +62,16 @@ const AccountOption = ({ option, isSelectedValue }: Props) => {
 
 export const ReceiverAddressWrapper = ({
   accounts,
+  autoFocus,
+  classNameInputField,
   error,
+  groupAccountsByKeystore = false,
+  inputLabel,
+  inputPlaceholder,
   onInputChange,
   onAccountChange,
   recipientAddress,
+  requireSendToSelfSupport = true,
   children,
 }: TReceiverAddressWrapperProps) => {
   const { t } = useTranslation();
@@ -68,7 +81,7 @@ export const ReceiverAddressWrapper = ({
   const [selectedAccount, setSelectedAccount] = useState<TOption<TAccount | null> | null>(null);
   const [accountSyncStatus, setAccountSyncStatus] = useState<{ [code: string]: accountApi.TStatus }>({});
 
-  const accountOptions: TAccountOption[] = accounts && accounts.length > 0 ? accounts.map(account => {
+  const toAccountOption = (account: TAccount): TAccountOption => {
     const accountNumber = getDisplayAccountNumber(account.accountNumber);
 
     return {
@@ -76,9 +89,22 @@ export const ReceiverAddressWrapper = ({
       value: account,
       disabled: !accountSyncStatus[account.code]?.synced
     };
-  }) : [];
+  };
+  const flatAccountOptions = accounts?.map(toAccountOption) ?? [];
+  const accountsByKeystore = getAccountsByKeystore(accounts ?? []);
+  const groupedAccountOptions: TGroupedOption<TAccount | null, { connected: boolean }>[] = accountsByKeystore.map(({ keystore, accounts }) => ({
+    connected: keystore.connected,
+    label: isAmbiguousName(keystore.name, accountsByKeystore)
+      ? `${keystore.name} (${keystore.rootFingerprint})`
+      : keystore.name,
+    options: accounts.map(toAccountOption),
+  }));
+  const accountOptions = groupAccountsByKeystore ? groupedAccountOptions : flatAccountOptions;
 
   const checkFirmwareSupport = useCallback(async (selectedAccount: accountApi.TAccount) => {
+    if (!requireSendToSelfSupport) {
+      return true;
+    }
     const rootFingerprint = selectedAccount.keystore.rootFingerprint;
     const connectResult = await connectKeystore(rootFingerprint);
     if (!connectResult.success) {
@@ -94,7 +120,7 @@ export const ReceiverAddressWrapper = ({
       return false;
     }
     return true;
-  }, [t]);
+  }, [requireSendToSelfSupport, t]);
 
   const handleSendToAccount = useCallback(async (selectedOption: TAccountOption) => {
     if (selectedOption.value === null || selectedOption.disabled) {
@@ -157,14 +183,15 @@ export const ReceiverAddressWrapper = ({
     <>
       <InputWithDropdown
         id="recipientAddress"
-        label={t('send.address.label')}
+        label={inputLabel ?? t('send.address.label')}
+        classNameInputField={classNameInputField}
         error={error}
         align="left"
-        placeholder={t('send.address.placeholder')}
+        placeholder={inputPlaceholder ?? t('send.address.placeholder')}
         onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
         value={recipientAddress}
         readOnly={selectedAccount !== null}
-        autoFocus={!isMobile}
+        autoFocus={autoFocus ?? !isMobile}
         dropdownOptions={accountOptions}
         dropdownValue={selectedAccount}
         onDropdownChange={(selected) => {
@@ -174,6 +201,7 @@ export const ReceiverAddressWrapper = ({
         }}
         dropdownPlaceholder={t('send.sendToAccount.placeholder')}
         dropdownTitle={t('send.sendToAccount.title')}
+        renderGroupHeader={groupAccountsByKeystore ? renderKeystoreGroupHeader : undefined}
         renderOptions={(e, isSelectedValue) => <AccountOption option={e} isSelectedValue={isSelectedValue} />}
         isOptionDisabled={(option) => (option as TAccountOption).disabled || false}
         labelSection={selectedAccount ? (

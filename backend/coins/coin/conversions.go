@@ -59,6 +59,21 @@ type ConversionsMap map[string]string
 
 // Conversions handles fiat conversions.
 func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.RateUpdater) ConversionsMap {
+	return conversions(amount, coin, isFee, ratesUpdater, FormatAsCurrency)
+}
+
+// UnformattedConversions handles fiat conversions without thousands separators, for form inputs.
+func UnformattedConversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.RateUpdater) ConversionsMap {
+	return conversions(amount, coin, isFee, ratesUpdater, FormatAsPlainCurrency)
+}
+
+func conversions(
+	amount Amount,
+	coin Coin,
+	isFee bool,
+	ratesUpdater *ratesPkg.RateUpdater,
+	format func(*big.Rat, string) string,
+) ConversionsMap {
 	conversions := ConversionsMap{}
 	rates := ratesUpdater.LatestPrice()
 	if rates != nil {
@@ -66,7 +81,7 @@ func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *ratesPkg.Ra
 
 		for key, value := range rates[unit] {
 			convertedAmount := new(big.Rat).Mul(ToUnitRat(amount, coin, isFee), new(big.Rat).SetFloat64(value))
-			conversions[key] = FormatAsCurrency(convertedAmount, key)
+			conversions[key] = format(convertedAmount, key)
 		}
 	}
 	return conversions

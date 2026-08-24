@@ -17,7 +17,7 @@ export type ConversionUnit = Fiat | 'sat';
 
 export type NativeCoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'RBTC' | 'tsat' | 'TLTC' | 'SEPETH';
 
-export type CoinCode = NativeCoinCode | ERC20CoinCode;
+export type CoinCode = NativeCoinCode | ERC20CoinCode | 'lightning';
 
 export type CoinUnit = NativeCoinUnit | ERC20TokenUnit;
 
@@ -201,6 +201,7 @@ type Conversions = {
 export type TAmountWithConversions = {
   amount: string;
   conversions?: Conversions;
+  unformattedConversions?: Conversions;
   unit: CoinUnit;
   estimated: boolean;
 };

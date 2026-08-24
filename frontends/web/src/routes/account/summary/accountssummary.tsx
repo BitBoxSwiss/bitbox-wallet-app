@@ -5,9 +5,11 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { statusChanged, syncdone } from '@/api/accountsync';
+import { subscribeLightningBalance } from '@/api/lightning';
 import { unsubscribe } from '@/utils/subscriptions';
 import { TUnsubscribe } from '@/utils/transport-common';
 import { useMountedRef } from '@/hooks/mount';
+import { useLightning } from '@/hooks/lightning';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View } from '@/components/view/view';
 import { Chart } from './chart';
@@ -18,7 +20,7 @@ import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { AppContext } from '@/contexts/AppContext';
-import { getAccountsByKeystore, getAccountsPerCoin } from '@/routes/account/utils';
+import { getAccountsByKeystore, getAccountsPerCoin, isBitcoinOnly } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { GlobalBanners } from '@/components/banners';
@@ -44,14 +46,18 @@ export const AccountsSummary = ({
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
   const { defaultCurrency } = useContext(RatesContext);
+  const { lightningAccount } = useLightning();
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
+  const hasActiveBitcoinAccount = accounts.some(account => account.active && isBitcoinOnly(account.coinCode));
+  const hasOnlyLightningAccount = !!lightningAccount && accounts.length === 0;
 
   const accountsPerCoin = getAccountsPerCoin(accounts);
   const hasMultipleAccountsPerCoin = Object.values(accountsPerCoin).some(
     coinAccounts => coinAccounts !== undefined && coinAccounts.length > 1
   );
-  const showTotalBalance = accountsByKeystore.length > 1
+  const showTotalBalance = lightningAccount !== null
+    || accountsByKeystore.length > 1
     || (accountsByKeystore.length > 0 && hasMultipleAccountsPerCoin);
 
   const [chartData, setChartData] = useState<accountApi.TChartData>();
@@ -124,7 +130,7 @@ export const AccountsSummary = ({
 
   useEffect(() => {
     // for subscriptions and unsubscriptions
-    // runs only on component mount and unmount.
+    // re-subscribes when accounts or lightning account state changes.
     const subscriptions: TUnsubscribe[] = [];
     accounts.forEach(account => {
       const currentCode = account.code;
@@ -136,8 +142,16 @@ export const AccountsSummary = ({
       }
       ));
     });
+    if (lightningAccount !== null) {
+      subscriptions.push(subscribeLightningBalance(() => {
+        if (mounted.current) {
+          getChartData();
+          getAccountsBalanceSummary();
+        }
+      }));
+    }
     return () => unsubscribe(subscriptions);
-  }, [update, accounts]);
+  }, [accounts, getAccountsBalanceSummary, getChartData, lightningAccount, mounted, update]);
 
 
   useEffect(() => {
@@ -145,7 +159,7 @@ export const AccountsSummary = ({
     // & whenever any of the dependencies change.
     getChartData();
     getAccountsBalanceSummary();
-  }, [getChartData, getAccountsBalanceSummary, defaultCurrency]);
+  }, [getChartData, getAccountsBalanceSummary, defaultCurrency, lightningAccount]);
 
   useEffect(() => {
     return () => {
@@ -196,6 +210,8 @@ export const AccountsSummary = ({
             <div className={style.keystoresContainer} data-testid="account-summary-keystores">
               {showTotalBalance && (
                 <TotalBalanceForAllKeystores
+                  hideHeader={hasOnlyLightningAccount}
+                  hideLightningUnitPrice={hasActiveBitcoinAccount}
                   summaryData={chartData}
                   coinsBalances={accountsBalanceSummary?.coinsTotalBalance}
                 />

@@ -37,6 +37,10 @@
     width: 100%;
 }
 
+.scrollableContent {
+    min-height: 0;
+}
+
 .inner {
     display: flex;
     flex-direction: column;

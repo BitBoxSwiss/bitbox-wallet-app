@@ -139,9 +139,13 @@
 
 .sidebarItem :global(.stacked),
 .sidebarItem .single {
+    align-items: center;
+    display: flex;
+    justify-content: center;
     margin: 0 var(--sidebar-icon-margin) 0 var(--sidebar-margin);
     margin-left: 20px;
     height: var(--sidebar-icon-size);
+    width: var(--sidebar-icon-size);
 }
 
 a.sidebarActive .sidebarLabel,
@@ -173,6 +177,9 @@ a.sidebarActive :global(.stacked) img:last-child,
 }
 
 .single img {
+    width: var(--sidebar-icon-size);
+    height: var(--sidebar-icon-size);
+    object-fit: contain;
     opacity: .6;
     transition: opacity 0.2s ease;
 }

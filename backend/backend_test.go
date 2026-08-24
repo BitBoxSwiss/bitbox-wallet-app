@@ -243,6 +243,16 @@ func TestIsWhitelistedSystemOpenURL(t *testing.T) {
 			allowed: true,
 		},
 		{
+			name:    "allows Spark website",
+			url:     "https://www.spark.money/",
+			allowed: true,
+		},
+		{
+			name:    "allows Breez SDK website",
+			url:     "https://breez.technology/sdk/",
+			allowed: true,
+		},
+		{
 			name:    "allows path below whitelist entry without trailing slash",
 			url:     "https://bitsurance.eu/support/faq",
 			allowed: true,
@@ -341,6 +351,14 @@ func (e environment) DetectDarkTheme() bool {
 func (e environment) Auth() {}
 
 func (e environment) OnAuthSettingChanged(bool) {}
+
+func (e environment) CanEncryptLightningMnemonic() bool { return false }
+
+func (e environment) StoreLightningEncryptionKey(string, string) error { return nil }
+
+func (e environment) LoadLightningEncryptionKey(string) (string, error) { return "", nil }
+
+func (e environment) DeleteLightningEncryptionKey(string) error { return nil }
 
 func (e environment) BluetoothConnect(string) {}
 

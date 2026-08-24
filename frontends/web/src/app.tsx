@@ -17,6 +17,7 @@ import { getAccounts } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
+import { getLightningAccount, subscribeLightningAccount } from './api/lightning';
 import { syncNewTxs } from './api/transactions';
 import { notifyUser } from './api/system';
 import { ConnectedApp } from './connected';
@@ -40,6 +41,7 @@ type TAppFrameProps = {
   activeAccounts: TAccount[];
   devices: TDevices;
   devicesKey: (prefix: string) => string;
+  hasLightningAccount: boolean;
   showBottomNavigation: boolean;
   tabKey: string | undefined;
 };
@@ -49,6 +51,7 @@ const AppFrame = ({
   activeAccounts,
   devices,
   devicesKey,
+  hasLightningAccount,
   showBottomNavigation,
   tabKey,
 }: TAppFrameProps) => {
@@ -101,6 +104,7 @@ const AppFrame = ({
           <BottomNavigation
             devices={devices}
             activeAccounts={activeAccounts}
+            hasLightningAccount={hasLightningAccount}
           />
         )}
         <Alert />
@@ -120,10 +124,12 @@ export const App = () => {
 
   const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
+  const lightningAccount = useSync(getLightningAccount, subscribeLightningAccount);
   const prevDevices = usePrevious(devices);
 
   const deviceIDs = Object.keys(devices);
   const firstDevice = deviceIDs[0];
+  const hasLightningAccount = lightningAccount !== undefined && lightningAccount !== null;
 
   useEffect(() => {
     return syncNewTxs((meta) => {
@@ -146,12 +152,18 @@ export const App = () => {
       return;
     }
     // if no accounts are registered on specified views route to /
-    if (accounts.length === 0 && (
+    const canNavigateWithLightningAccount =
+      currentURL.startsWith('/account-summary')
+      || currentURL === '/settings/more';
+    const requiresRegularAccount =
       currentURL.startsWith('/account-summary')
       || currentURL.startsWith('/add-account')
       || currentURL.startsWith('/settings/manage-accounts')
-      || currentURL.startsWith('/accounts/')
-    )) {
+      || currentURL.startsWith('/accounts/');
+    const shouldRedirectNoRegularAccount =
+      !canNavigateWithLightningAccount
+      || lightningAccount === null;
+    if (accounts.length === 0 && requiresRegularAccount && shouldRedirectNoRegularAccount) {
       navigate('/');
       return;
     }
@@ -180,8 +192,8 @@ export const App = () => {
       navigate('/');
       return;
     }
-    // if on index page and have at least 1 account, route to /account-summary
-    if (isIndex && accounts.length) {
+    // if on index page and have an account or Lightning, route to /account-summary
+    if (isIndex && (accounts.length || hasLightningAccount)) {
       // replace current history entry so that the user cannot go back to "index"
       navigate('/account-summary?with-chart-animation=true', { replace: true });
       return;
@@ -197,7 +209,7 @@ export const App = () => {
       return;
     }
 
-  }, [accounts, deviceIDs, firstDevice, navigate]);
+  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, lightningAccount, navigate]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});
@@ -238,6 +250,7 @@ export const App = () => {
   const showBottomNavigation = shouldShowBottomNavigation({
     activeAccounts,
     devices,
+    hasLightningAccount,
     pathname,
   });
 
@@ -250,6 +263,7 @@ export const App = () => {
           activeAccounts={activeAccounts}
           devices={devices}
           devicesKey={devicesKey}
+          hasLightningAccount={hasLightningAccount}
           showBottomNavigation={showBottomNavigation}
           tabKey={tabKey}
         />

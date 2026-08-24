@@ -293,6 +293,29 @@ type coinFormattedAmount struct {
 	FormattedAmount coinpkg.FormattedAmountWithConversions `json:"formattedAmount"`
 }
 
+func (backend *Backend) formattedCoinBalance(
+	coinCode coinpkg.Code,
+	coinName string,
+	coin coinpkg.Coin,
+	amount *big.Int,
+) coinFormattedAmount {
+	coinAmount := coinpkg.NewAmount(amount)
+	return coinFormattedAmount{
+		CoinCode: coinCode,
+		CoinName: coinName,
+		FormattedAmount: coinpkg.FormattedAmountWithConversions{
+			Amount: coin.FormatAmount(coinAmount, false),
+			Unit:   coin.GetFormatUnit(false),
+			Conversions: coinpkg.Conversions(
+				coinAmount,
+				coin,
+				false,
+				backend.RatesUpdater(),
+			),
+		},
+	}
+}
+
 // getCoinsTotalBalance returns the total balances grouped by coins.
 func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
 	coinFormattedAmounts := []coinFormattedAmount{}
@@ -325,28 +348,24 @@ func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
 		}
 	}
 
+	lightningBalance, err := backend.lightningFormattedBalance()
+	if err != nil {
+		return nil, err
+	}
+
 	for _, coinCode := range sortedCoins {
 		coin, err := backend.Coin(coinCode)
 		if err != nil {
 			return nil, err
 		}
-		coinAmount := coinpkg.NewAmount(totalCoinsBalances[coinCode])
-		coinFormattedAmounts = append(coinFormattedAmounts, coinFormattedAmount{
-			CoinCode: coinCode,
-			CoinName: coin.Name(),
-			FormattedAmount: coinpkg.FormattedAmountWithConversions{
-				Amount: coin.FormatAmount(coinAmount, false),
-				Unit:   coin.GetFormatUnit(false),
-				Conversions: coinpkg.Conversions(
-					coinAmount,
-					coin,
-					false,
-					backend.RatesUpdater(),
-				),
-			},
-		})
+		coinFormattedAmounts = append(coinFormattedAmounts, backend.formattedCoinBalance(
+			coinCode,
+			coin.Name(),
+			coin,
+			totalCoinsBalances[coinCode],
+		))
 	}
-	return coinFormattedAmounts, nil
+	return insertLightningFormattedBalance(coinFormattedAmounts, lightningBalance), nil
 }
 
 // AmountsByCoin maps the total amount of each coin.
@@ -441,6 +460,15 @@ func (backend *Backend) keystoresBalance() (map[string]KeystoreBalance, error) {
 		}
 	}
 	return keystoreBalanceMap, nil
+}
+
+// Converts bitcoin amount to fiat.
+func (backend *Backend) convertBtcAmountToFiat(amount coinpkg.Amount, fiat string) (*big.Rat, error) {
+	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
+	if err != nil {
+		return nil, err
+	}
+	return backend.convertToFiat(btcCoin, amount, fiat)
 }
 
 // AccountsBalanceSummary holds the total balance for each coin and of each keystore.

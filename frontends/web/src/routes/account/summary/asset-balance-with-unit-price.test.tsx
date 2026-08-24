@@ -133,4 +133,17 @@ describe('AssetBalanceWithUnitPrice', () => {
     expect(screen.getByTestId('unit-price-amount')).toHaveTextContent('60000 USD');
     expect(mockUseCoinUnitPrice).toHaveBeenCalledWith('btc', 'BTC');
   });
+
+  it('passes the asset coin code to the unit price hook', () => {
+    renderAssetBalance('USD', 'lightning', 'Lightning', 'BTC');
+
+    expect(mockUseCoinUnitPrice).toHaveBeenCalledWith('lightning', 'BTC');
+    expect(screen.getByAltText('lightning').className).toContain('assetBalanceLogo');
+  });
+
+  it('uses the asset unit price for regular coins', () => {
+    renderAssetBalance('USD', 'eth', 'Ethereum', 'ETH');
+
+    expect(mockUseCoinUnitPrice).toHaveBeenCalledWith('eth', 'ETH');
+  });
 });

@@ -1,0 +1,426 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import * as accountApi from '@/api/account';
+import { convertFromCurrency, convertToCurrency } from '@/api/coins';
+import {
+  getLightningBalance,
+  lightningBalanceLimitErrorCode,
+  postPrepareTopUp,
+  subscribeLightningBalance,
+  type TPrepareTopUpResult,
+} from '@/api/lightning';
+import { connectKeystore } from '@/api/keystores';
+import { useLoad, useSync } from '@/hooks/api';
+import { useMountedRef } from '@/hooks/mount';
+import { usePrevious } from '@/hooks/previous';
+import { getDisplayedCoinUnit, isBitcoinOnly } from '@/routes/account/utils';
+import { txProposalErrorHandling, type TProposalError } from '@/routes/account/send/services';
+import { RatesContext } from '@/contexts/RatesContext';
+import { TopUpConfirm } from './topup-confirm';
+import { TopUpForm } from './topup-form';
+import { TopUpAborted, TopUpNoBitcoinAccounts, TopUpNoFundedBitcoinAccounts, TopUpSuccess } from './topup-result';
+import {
+  formatLightningFundingLimit,
+  formatRemainingLightningFundingLimit,
+} from '../limits';
+
+type TProps = {
+  activeAccounts: accountApi.TAccount[];
+  hasAccounts: boolean;
+};
+
+type TStep = 'form' | 'confirming' | 'success' | 'aborted';
+
+const getTopUpAccounts = async (accounts: accountApi.TAccount[]) => {
+  const accountHasBalance = await Promise.all(accounts.map(async (account) => {
+    try {
+      const balance = await accountApi.getBalance(account.code);
+      return !balance.success || balance.balance.hasAvailable;
+    } catch {
+      return true;
+    }
+  }));
+
+  return accounts.filter((_, index) => accountHasBalance[index]);
+};
+
+export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { btcUnit, defaultCurrency } = useContext(RatesContext);
+  const mounted = useMountedRef();
+  const lastProposal = useRef<Promise<TPrepareTopUpResult> | null>(null);
+  const proposeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const conversionRequest = useRef(0);
+  const prevDefaultCurrency = usePrevious(defaultCurrency);
+  const prevBtcUnit = usePrevious(btcUnit);
+
+  const btcAccounts = useMemo(
+    () => activeAccounts.filter(account => account.active && account.coinCode === 'btc'),
+    [activeAccounts]
+  );
+  const topUpAccounts = useLoad(() => getTopUpAccounts(btcAccounts), [btcAccounts]);
+  const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>('');
+  const sourceAccount = topUpAccounts?.find(account => account.code === sourceAccountCode);
+  const lightningBalance = useSync(getLightningBalance, subscribeLightningBalance);
+  const sourceAmountUnit = sourceAccount
+    ? getDisplayedCoinUnit(sourceAccount.coinCode, sourceAccount.coinUnit, btcUnit)
+    : 'BTC';
+  const [amount, setAmount] = useState('');
+  const [fiatAmount, setFiatAmount] = useState('');
+  const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
+  const [customFee, setCustomFee] = useState('');
+  const [note, setNote] = useState(() => t('lightning.topUp.note'));
+  const [proposal, setProposal] = useState<TPrepareTopUpResult>();
+  const [errorHandling, setErrorHandling] = useState<TProposalError>({});
+  const [isUpdatingProposal, setIsUpdatingProposal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sendError, setSendError] = useState<string>();
+  const [step, setStep] = useState<TStep>('form');
+  const stepRef = useRef<TStep>('form');
+  const isSubmittingRef = useRef(false);
+  const fundingLimitErrorMessage = proposal?.success === false
+    && proposal.errorCode === lightningBalanceLimitErrorCode
+    ? t(`error.${proposal.errorCode}`, {
+      limit: formatLightningFundingLimit(proposal.fundingLimit),
+      remaining: formatRemainingLightningFundingLimit(proposal.fundingLimit),
+    })
+    : undefined;
+
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
+
+  useEffect(() => {
+    if (topUpAccounts === undefined) {
+      return;
+    }
+    if (!topUpAccounts.length) {
+      setSourceAccountCode('');
+      return;
+    }
+    if (!sourceAccountCode || !topUpAccounts.some(account => account.code === sourceAccountCode)) {
+      setSourceAccountCode(
+        topUpAccounts.find(account => account.keystore.connected)?.code
+          || topUpAccounts[0]?.code
+          || ''
+      );
+    }
+  }, [sourceAccountCode, topUpAccounts]);
+
+  const convertToFiat = useCallback(async (value: string) => {
+    const request = ++conversionRequest.current;
+    if (!sourceAccount || !value) {
+      setFiatAmount('');
+      return;
+    }
+    const data = await convertToCurrency({
+      amount: value,
+      coinCode: sourceAccount.coinCode,
+      fiatUnit: defaultCurrency,
+    });
+    if (request !== conversionRequest.current || !mounted.current) {
+      return;
+    }
+    if (data.success) {
+      setFiatAmount(data.fiatAmount);
+    } else {
+      setErrorHandling({ amountError: t('send.error.invalidAmount') });
+    }
+  }, [defaultCurrency, mounted, sourceAccount, t]);
+
+  const convertFromFiat = useCallback(async (value: string) => {
+    const request = ++conversionRequest.current;
+    if (!sourceAccount || !value) {
+      setAmount('');
+      return;
+    }
+    const data = await convertFromCurrency({
+      amount: value,
+      coinCode: sourceAccount.coinCode,
+      fiatUnit: defaultCurrency,
+    });
+    if (request !== conversionRequest.current || !mounted.current) {
+      return;
+    }
+    if (data.success) {
+      setAmount(data.amount);
+    } else {
+      setErrorHandling({ amountError: t('send.error.invalidAmount') });
+    }
+  }, [defaultCurrency, mounted, sourceAccount, t]);
+
+  const getValidProposalInput = useCallback(() => {
+    if (!sourceAccount || feeTarget === undefined || !amount || (feeTarget === 'custom' && !customFee)) {
+      return null;
+    }
+    return {
+      customFee,
+      feeTarget,
+      amount,
+      sourceAccountCode: sourceAccount.code,
+    };
+  }, [amount, customFee, feeTarget, sourceAccount]);
+
+  const validateAndDisplayFee = useCallback(() => {
+    const keepCurrentProposal = stepRef.current === 'confirming';
+    if (!keepCurrentProposal) {
+      lastProposal.current = null;
+      setProposal(undefined);
+    }
+    setSendError(undefined);
+    setErrorHandling({});
+    if (proposeTimeout.current) {
+      clearTimeout(proposeTimeout.current);
+      proposeTimeout.current = null;
+    }
+    const proposalInput = getValidProposalInput();
+    if (!proposalInput) {
+      setIsUpdatingProposal(false);
+      return;
+    }
+    setIsUpdatingProposal(true);
+    proposeTimeout.current = setTimeout(async () => {
+      let proposePromise: Promise<TPrepareTopUpResult> | null = null;
+      try {
+        proposePromise = postPrepareTopUp({
+          amount: proposalInput.amount,
+          customFee: proposalInput.customFee,
+          feeTarget: proposalInput.feeTarget,
+          sourceAccountCode: proposalInput.sourceAccountCode,
+        });
+        lastProposal.current = proposePromise;
+        const result = await proposePromise;
+        if (proposePromise !== lastProposal.current || !mounted.current) {
+          return;
+        }
+        if (!keepCurrentProposal || result.success) {
+          setProposal(result);
+        }
+        setIsUpdatingProposal(false);
+        if (result.success) {
+          setErrorHandling({});
+          return;
+        }
+        if (keepCurrentProposal) {
+          return;
+        }
+        setErrorHandling(
+          result.errorCode === lightningBalanceLimitErrorCode
+            ? {}
+            : txProposalErrorHandling(result.errorCode)
+        );
+      } catch (error) {
+        if (proposePromise === lastProposal.current && mounted.current) {
+          setIsUpdatingProposal(false);
+          setErrorHandling({});
+          setSendError(String(error));
+        }
+      } finally {
+        if (proposePromise === lastProposal.current) {
+          lastProposal.current = null;
+        }
+      }
+    }, 400);
+  }, [getValidProposalInput, mounted]);
+
+  useEffect(() => {
+    validateAndDisplayFee();
+    return () => {
+      if (proposeTimeout.current) {
+        clearTimeout(proposeTimeout.current);
+      }
+    };
+  }, [validateAndDisplayFee]);
+
+  useEffect(() => {
+    const currencyChanged = prevDefaultCurrency !== undefined && prevDefaultCurrency !== defaultCurrency;
+    const btcUnitChanged = prevBtcUnit !== undefined && prevBtcUnit !== btcUnit;
+
+    if (step === 'success' || !sourceAccount || (!currencyChanged && !btcUnitChanged)) {
+      return;
+    }
+    if (btcUnitChanged && isBitcoinOnly(sourceAccount.coinCode) && amount) {
+      const fiatUnit = prevBtcUnit === 'default' ? 'BTC' : 'sat';
+      const request = ++conversionRequest.current;
+      convertFromCurrency({
+        amount,
+        coinCode: sourceAccount.coinCode,
+        fiatUnit
+      }).then((data) => {
+        if (request !== conversionRequest.current || !mounted.current) {
+          return;
+        }
+        if (data.success) {
+          setAmount(data.amount);
+        } else {
+          setErrorHandling({ amountError: t('send.error.invalidAmount') });
+        }
+      }).catch(() => {
+        if (request !== conversionRequest.current || !mounted.current) {
+          return;
+        }
+        setErrorHandling({ amountError: t('send.error.invalidAmount') });
+      });
+      return;
+    }
+    if (currencyChanged) {
+      convertToFiat(amount);
+    }
+  }, [
+    amount,
+    btcUnit,
+    convertToFiat,
+    defaultCurrency,
+    mounted,
+    prevBtcUnit,
+    prevDefaultCurrency,
+    sourceAccount,
+    step,
+    t,
+  ]);
+
+  const handleSourceChange = (code: accountApi.AccountCode) => {
+    conversionRequest.current++;
+    setSourceAccountCode(code);
+    setProposal(undefined);
+    setSendError(undefined);
+  };
+
+  const handleAmountChange = (value: string) => {
+    setAmount(value);
+    convertToFiat(value);
+  };
+
+  const handleFiatChange = (value: string) => {
+    setFiatAmount(value);
+    convertFromFiat(value);
+  };
+
+  const handleFeeTargetChange = (nextFeeTarget: accountApi.FeeTargetCode) => {
+    setFeeTarget(nextFeeTarget);
+    setCustomFee('');
+  };
+
+  const handleReview = async () => {
+    if (isSubmittingRef.current || !sourceAccount || !proposal?.success) {
+      return;
+    }
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+    const connectResult = await connectKeystore(sourceAccount.keystore.rootFingerprint);
+    if (!mounted.current) {
+      isSubmittingRef.current = false;
+      return;
+    }
+    if (!connectResult.success) {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      setSendError(undefined);
+      setStep('confirming');
+      const result = await accountApi.sendTx(sourceAccount.code, note);
+      if (!mounted.current) {
+        return;
+      }
+      if (result.success) {
+        setStep('success');
+        return;
+      }
+
+      if ('aborted' in result) {
+        setStep('aborted');
+        return;
+      }
+      setStep('form');
+      setSendError(result.errorCode ? t(`send.error.${result.errorCode}`) : result.errorMessage || t('genericError'));
+    } catch (error) {
+      if (!mounted.current) {
+        return;
+      }
+      setStep('form');
+      setSendError(String(error));
+    } finally {
+      isSubmittingRef.current = false;
+      if (mounted.current) {
+        setIsSubmitting(false);
+      }
+    }
+  };
+
+  if (step === 'success') {
+    return <TopUpSuccess />;
+  }
+
+  if (step === 'aborted') {
+    return <TopUpAborted onRetry={() => setStep('form')} />;
+  }
+
+  if (step === 'confirming') {
+    return (
+      <TopUpConfirm
+        customFee={customFee}
+        feeTarget={feeTarget}
+        note={note}
+        proposal={proposal?.success ? proposal : undefined}
+        sourceAccount={sourceAccount}
+      />
+    );
+  }
+
+  if (topUpAccounts === undefined) {
+    return null;
+  }
+
+  if (!btcAccounts.length) {
+    return <TopUpNoBitcoinAccounts hasAccounts={hasAccounts} />;
+  }
+
+  if (!topUpAccounts.length) {
+    return <TopUpNoFundedBitcoinAccounts btcAccounts={btcAccounts} />;
+  }
+
+  if (!sourceAccount) {
+    return null;
+  }
+
+  const canReview = !!proposal?.success
+    && !isUpdatingProposal
+    && !isSubmitting;
+
+  return (
+    <TopUpForm
+      amount={amount}
+      balanceLimitError={fundingLimitErrorMessage}
+      btcAccounts={topUpAccounts}
+      canReview={canReview}
+      customFee={customFee}
+      defaultCurrency={defaultCurrency}
+      errorHandling={errorHandling}
+      fiatAmount={fiatAmount}
+      isSubmitting={isSubmitting}
+      isUpdatingProposal={isUpdatingProposal}
+      lightningBalance={lightningBalance}
+      note={note}
+      onAmountChange={handleAmountChange}
+      onBack={() => navigate('/lightning')}
+      onCustomFeeChange={setCustomFee}
+      onFeeTargetChange={handleFeeTargetChange}
+      onFiatChange={handleFiatChange}
+      onNoteChange={setNote}
+      onReview={handleReview}
+      onSourceChange={handleSourceChange}
+      proposal={proposal?.success ? proposal : undefined}
+      sendError={sendError}
+      sourceAccount={sourceAccount}
+      sourceAccountCode={sourceAccountCode}
+      sourceAmountUnit={sourceAmountUnit}
+    />
+  );
+};

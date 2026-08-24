@@ -7,8 +7,9 @@ import { ArrowFloorDownWhite, ArrowFloorUpWhite, Coins, WalletConnectLight } fro
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { AccountCode, TAccount, CoinCode } from '@/api/account';
 import { isEthereumBased } from './utils';
-import { ButtonLink } from '@/components/forms';
 import { connectKeystore } from '@/api/keystores';
+import { AccountActionButtonLink } from './components/account-action-button-link';
+import { AccountActionButtons } from './components/account-action-buttons';
 import style from './account.module.css';
 
 type TProps = {
@@ -43,47 +44,36 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
   const canClickSend = canSend && accountDataLoaded;
 
   return (
-    <div className={`
-      ${style.actionsContainer || ''}
-      ${walletConnectEnabled && style.withWalletConnect || ''}
-    `}>
-      <ButtonLink
-        className={style.button}
+    <AccountActionButtons withWalletConnect={walletConnectEnabled}>
+      <AccountActionButtonLink
         disabled={!canClickSend}
-        primary
         to={sendLink}
         onClick={isEthereumBased(coinCode) ? maybeRouteSend : undefined}
       >
         <ArrowFloorUpWhite width={16} height={16} />
         <span>{t('generic.send')}</span>
-      </ButtonLink>
+      </AccountActionButtonLink>
 
-      <ButtonLink
-        className={style.button}
+      <AccountActionButtonLink
         disabled={!accountDataLoaded}
-        primary
         to={`/account/${code}/receive`}
       >
         <ArrowFloorDownWhite width={16} height={16} />
         <span data-testid="receive-button">{t('generic.receiveWithoutCoinCode')}</span>
-      </ButtonLink>
+      </AccountActionButtonLink>
 
       {(exchangeSupported && !isMobile) && (
-        <ButtonLink
-          className={style.button}
+        <AccountActionButtonLink
           disabled={!accountDataLoaded}
-          primary
           to={`/market/select/${code}`}
         >
           <Coins width={17} height={17} />
           <span>{t('generic.buySell')}</span>
-        </ButtonLink>
+        </AccountActionButtonLink>
       )}
 
       {walletConnectEnabled && (
-        <ButtonLink
-          className={style.button}
-          primary
+        <AccountActionButtonLink
           disabled={!accountDataLoaded}
           to={`/account/${code}/wallet-connect/dashboard`}
         >
@@ -92,8 +82,8 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
           {!isLargeTablet && (
             <span>Wallet Connect</span>
           )}
-        </ButtonLink>
+        </AccountActionButtonLink>
       )}
-    </div>
+    </AccountActionButtons>
   );
 };

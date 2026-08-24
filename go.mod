@@ -5,6 +5,7 @@ go 1.26.0
 require (
 	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260701210453-54ce69d38ae3
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d
+	github.com/breez/breez-sdk-spark-go v0.21.1
 	github.com/btcsuite/btcd v0.25.0
 	github.com/btcsuite/btcd/btcec/v2 v2.3.5
 	github.com/btcsuite/btcd/btcutil v1.1.6
@@ -13,6 +14,7 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1
 	github.com/ethereum/go-ethereum v1.17.4
 	github.com/flynn/noise v1.1.0
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
 	github.com/karalabe/hid v1.0.1-0.20240919124526-821c38d2678e
@@ -20,6 +22,7 @@ require (
 	github.com/sirupsen/logrus v1.9.4
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/stretchr/testify v1.11.1
+	github.com/tyler-smith/go-bip39 v1.1.0
 	go.etcd.io/bbolt v1.4.3
 	golang.org/x/crypto v0.53.0
 	golang.org/x/mobile v0.0.0-20240716161057-1ad2df20a8b6
@@ -46,7 +49,6 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/holiman/uint256 v1.3.2 // indirect
 	github.com/kkdai/bstream v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

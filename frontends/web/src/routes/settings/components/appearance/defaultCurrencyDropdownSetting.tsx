@@ -21,11 +21,10 @@ export const DefaultCurrencyDropdownSetting = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   return (
     <SettingsItem
-      disabled={!isMobile}
       settingName={t('newSettings.appearance.defaultCurrency.title')}
       secondaryText={t('newSettings.appearance.defaultCurrency.description')}
       collapseOnSmall
-      onClick={!isMobileSelectorOpen ? () => setIsMobileSelectorOpen(true) : undefined}
+      onClick={isMobile && !isMobileSelectorOpen ? () => setIsMobileSelectorOpen(true) : undefined}
       extraComponent={
         <Dropdown
           className={settingsDropdownStyles.select}

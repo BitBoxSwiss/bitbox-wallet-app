@@ -30,6 +30,9 @@ type Arguments struct {
 	// accountsConfigFilename stores the filename of the accounts configuration.
 	accountsConfigFilename string
 
+	// lightningConfigFilename stores the filename of the lightning configuration.
+	lightningConfigFilename string
+
 	// Testing stores whether the application is for testing only.
 	testing bool
 
@@ -90,19 +93,24 @@ func NewArguments(
 	if err := utilconfig.EnsurePrivateFileIfExists(accountsConfigFilename); err != nil {
 		log.WithError(err).Warn("Could not restrict accounts config file permissions")
 	}
+	lightningConfigFilename := path.Join(mainDirectoryPath, "lightning.json")
+	if err := utilconfig.EnsurePrivateFileIfExists(lightningConfigFilename); err != nil {
+		log.WithError(err).Warn("Could not restrict lightning config file permissions")
+	}
 	arguments := &Arguments{
 		mainDirectoryPath:     mainDirectoryPath,
 		bitbox02DirectoryPath: bitbox02DirectoryPath,
 
-		cacheDirectoryPath:     cacheDirectoryPath,
-		notesDirectoryPath:     notesDirectoryPath,
-		appConfigFilename:      appConfigFilename,
-		accountsConfigFilename: accountsConfigFilename,
-		testing:                testing,
-		regtest:                regtest,
-		devservers:             devservers,
-		gapLimits:              gapLimits,
-		log:                    log,
+		cacheDirectoryPath:      cacheDirectoryPath,
+		notesDirectoryPath:      notesDirectoryPath,
+		appConfigFilename:       appConfigFilename,
+		accountsConfigFilename:  accountsConfigFilename,
+		lightningConfigFilename: lightningConfigFilename,
+		testing:                 testing,
+		regtest:                 regtest,
+		devservers:              devservers,
+		gapLimits:               gapLimits,
+		log:                     log,
 	}
 
 	log.Infof("Arguments: %+v", arguments)
@@ -123,6 +131,11 @@ func (arguments *Arguments) AppConfigFilename() string {
 // AccountsConfigFilename returns the path to the accounts config file of the backend.
 func (arguments *Arguments) AccountsConfigFilename() string {
 	return arguments.accountsConfigFilename
+}
+
+// LightningConfigFilename returns the path to the lightning config file of the backend.
+func (arguments *Arguments) LightningConfigFilename() string {
+	return arguments.lightningConfigFilename
 }
 
 // BitBox02DirectoryPath returns the path where BitBox data is stored.

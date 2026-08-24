@@ -40,6 +40,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/lightning"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	utilConfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
@@ -107,6 +108,9 @@ var fixedURLWhitelist = []string{
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
 	"https://github.com/bitcoin/bips/",
+	// Lightning
+	"https://www.spark.money/",
+	"https://breez.technology/sdk/",
 	// iOS app settings
 	"app-settings:",
 	// Swapkit
@@ -208,6 +212,15 @@ type Environment interface {
 	// OnAuthSettingChanged is called when the authentication (screen lock) setting is changed.
 	// This is also called when the app launches with the current setting.
 	OnAuthSettingChanged(enabled bool)
+	// CanEncryptLightningMnemonic reports whether Lightning mnemonics should be stored encrypted on
+	// this platform.
+	CanEncryptLightningMnemonic() bool
+	// StoreLightningEncryptionKey persists a backend-generated Lightning seed encryption key.
+	StoreLightningEncryptionKey(accountCode string, encryptionKey string) error
+	// LoadLightningEncryptionKey retrieves the stored Lightning seed encryption key.
+	LoadLightningEncryptionKey(accountCode string) (string, error)
+	// DeleteLightningEncryptionKey removes the persisted Lightning seed encryption key.
+	DeleteLightningEncryptionKey(accountCode string) error
 	// BluetoothConnect tries to connect to the peripheral by the given identifier.
 	// Use `backend.bluetooth.State()` to track failure.
 	BluetoothConnect(identifier string)
@@ -272,6 +285,7 @@ type Backend struct {
 	etherScanRateLimiter *rate.Limiter
 	ratesUpdater         *rates.RateUpdater
 	banners              *banners.Banners
+	lightning            *lightning.Lightning
 	updateChecker        *updateChecker
 	started              bool
 
@@ -293,7 +307,7 @@ type Backend struct {
 // NewBackend creates a new backend with the given arguments.
 func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backend, error) {
 	log := logging.Get().WithGroup("backend")
-	backendConfig, err := config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename())
+	backendConfig, err := config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename(), arguments.LightningConfigFilename())
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -353,6 +367,29 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 	backend.banners = banners.NewBanners(backend.DevServers())
 	backend.banners.Observe(backend.Notify)
+	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
+	if err != nil {
+		return nil, err
+	}
+
+	backend.lightning = lightning.NewLightning(backend.config,
+		backend.arguments.CacheDirectoryPath(),
+		backend.environment,
+		backend.Keystore,
+		backend.GetAccountFromCode,
+		backend.httpClient,
+		backend.ratesUpdater,
+		btcCoin,
+		backend.DevServers())
+
+	backend.lightning.Observe(backend.Notify)
+	backend.lightning.Observe(func(event observable.Event) {
+		if event.Subject != "lightning/account" {
+			return
+		}
+		defer backend.accountsAndKeystoreLock.Lock()()
+		backend.configureHistoryExchangeRates()
+	})
 
 	backend.bluetooth = bluetooth.New(log)
 	backend.bluetooth.Observe(backend.Notify)
@@ -369,6 +406,13 @@ func (backend *Backend) newRatesUpdater() *rates.RateUpdater {
 	updater.Observe(func(event observable.Event) {
 		backend.Notify(event)
 		backend.notifyCoinFiatPrices()
+		if backend.hasLightningAccount() {
+			backend.Notify(observable.Event{
+				Subject: "lightning/list-payments",
+				Action:  action.Reload,
+			})
+			backend.lightning.NotifyBalanceReload()
+		}
 	})
 	return updater
 }
@@ -399,6 +443,9 @@ func (backend *Backend) configureHistoryExchangeRates() {
 	var coins []string
 	for _, acct := range backend.accounts {
 		coins = append(coins, string(acct.Coin().Code()))
+	}
+	if backend.hasLightningAccount() {
+		coins = append(coins, string(coinpkg.CodeBTC))
 	}
 	fiats := backend.config.AppConfig().Backend.FiatList
 	backend.ratesUpdater.ReconfigureHistory(coins, fiats)
@@ -748,6 +795,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.started = true
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
+	go backend.lightning.Connect()
 
 	go backend.ethupdater.PollBalances()
 
@@ -1174,6 +1222,8 @@ func (backend *Backend) Close() error {
 		backend.unobserveKeystore = nil
 	}
 
+	backend.lightning.Disconnect()
+
 	for _, coin := range backend.coins {
 		if err := coin.Close(); err != nil {
 			errors = append(errors, err.Error())
@@ -1193,6 +1243,11 @@ func (backend *Backend) Close() error {
 // Banners returns the banners instance.
 func (backend *Backend) Banners() *banners.Banners {
 	return backend.banners
+}
+
+// Lightning returns the lightning instance.
+func (backend *Backend) Lightning() *lightning.Lightning {
+	return backend.lightning
 }
 
 // HandleURI handles an external URI click for registered protocols, e.g. 'aopp:?...' URIs.  The uri

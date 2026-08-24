@@ -10,6 +10,7 @@ import { EnableCustomFeesToggleSetting } from './components/advanced-settings/en
 import { EnableCoinControlSetting } from './components/advanced-settings/enable-coin-control-setting';
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
+import { LightningSettingsSetting } from './components/advanced-settings/lightning-settings-setting';
 import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-software-keystore';
 import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
@@ -49,7 +50,8 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
                 <MobileHeader withGuide title={t('settings.advancedSettings')} />
               </>
-            } />
+            }
+          />
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs
@@ -65,7 +67,6 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
       </GuidedContent>
       <AdvancedSettingsGuide />
     </GuideWrapper>
-
   );
 };
 
@@ -79,6 +80,7 @@ export const AdvancedSettingsContent = ({
     {
       id: 'advanced-settings',
       items: [
+        { id: 'lightning-settings', content: <LightningSettingsSetting /> },
         { id: 'custom-fees', content: <EnableCustomFeesToggleSetting /> },
         { id: 'coin-control', content: <EnableCoinControlSetting /> },
         ...(isScreenLockSettingVisible() ? [{

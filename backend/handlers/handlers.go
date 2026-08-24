@@ -39,6 +39,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/lightning"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
@@ -86,6 +87,7 @@ type Backend interface {
 	Deregister(deviceID string)
 	RatesUpdater() *rates.RateUpdater
 	CoinFiatPrices(coinpkg.Coin) *coinpkg.FormattedAmountWithConversions
+	BTCSatAmount(source string, amount string) (*coinpkg.FormattedAmountWithConversions, error)
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(*config.ServerInfo) error
 	RegisterTestKeystore(string, software.Edition) error
@@ -94,6 +96,7 @@ type Backend interface {
 	ReconfigureHistoryExchangeRates()
 	GetUpdate() backend.UpdateState
 	Banners() *banners.Banners
+	Lightning() *lightning.Lightning
 	Environment() backend.Environment
 	ClearCache() error
 	ExportLogs() error
@@ -222,6 +225,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystores).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/keystore-name", handlers.getKeystoreName).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/status", handlers.getSwapStatus).Methods("GET")
@@ -241,6 +245,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/coins/{coinCode}/headers/status", handlers.getHeadersStatus).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/btc/parse-external-amount", handlers.getBTCParseExternalAmount).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/btc/sat-amount", handlers.getBTCSatAmount).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownload).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheck).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
@@ -275,6 +280,11 @@ func NewHandlers(
 
 	getAPIRouterNoError(apiRouter)("/online", handlers.getOnline).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/show-backup-banner/{rootFingerprint}", handlers.getKeystoreShowBackupBanner).Methods("GET")
+
+	lightning.NewHandlers(
+		getAPIRouterNoError(apiRouter.PathPrefix("/lightning").Subrouter()),
+		backend.Lightning(),
+	)
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
@@ -769,6 +779,27 @@ func (handlers *Handlers) getKeystoreFeatures(r *http.Request) interface{} {
 	}
 }
 
+func (handlers *Handlers) getKeystoreName(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		KeystoreName string `json:"keystoreName,omitempty"`
+	}
+
+	rootFingerprint := r.URL.Query().Get("rootFingerprint")
+	hexFingerprint, err := hex.DecodeString(rootFingerprint)
+	if err != nil {
+		return response{Success: false}
+	}
+	keystore, err := handlers.backend.Config().AccountsConfig().LookupKeystore(hexFingerprint)
+	if err != nil {
+		return response{Success: false}
+	}
+	return response{
+		Success:      true,
+		KeystoreName: keystore.Name,
+	}
+}
+
 func (handlers *Handlers) getAccounts(*http.Request) interface{} {
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
 
@@ -906,6 +937,8 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 	}
 	btcCoin.(*btc.Coin).SetFormatUnit(unit)
 
+	handlers.backend.Lightning().NotifyBalanceReload()
+
 	return response{Success: true}
 }
 
@@ -915,7 +948,6 @@ func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) interface{} {
 		Success      bool                            `json:"success"`
 		TotalBalance *backend.AccountsBalanceSummary `json:"accountsBalanceSummary"`
 	}
-
 	totalBalance, err := handlers.backend.AccountsBalanceSummary()
 	if err != nil {
 		handlers.log.WithField("handler", "getAccountsBalanceSummary").WithError(err).Error("handler failed")
@@ -1050,6 +1082,29 @@ func (handlers *Handlers) postRegisterTestKeystore(r *http.Request) interface{} 
 func (handlers *Handlers) postDeregisterTestKeystore(*http.Request) interface{} {
 	handlers.backend.DeregisterKeystore()
 	return nil
+}
+
+// getBTCSatAmount takes an amount in sats or the default fiat currency and
+// returns a BTC amount in sats with fiat conversions.
+func (handlers *Handlers) getBTCSatAmount(r *http.Request) interface{} {
+	type response struct {
+		Success      bool                                   `json:"success"`
+		Amount       coinpkg.FormattedAmountWithConversions `json:"amount,omitempty"`
+		ErrorMessage string                                 `json:"errorMessage,omitempty"`
+	}
+
+	amount, err := handlers.backend.BTCSatAmount(
+		r.URL.Query().Get("source"),
+		r.URL.Query().Get("amount"),
+	)
+	if err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+
+	return response{
+		Success: true,
+		Amount:  *amount,
+	}
 }
 
 func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{} {

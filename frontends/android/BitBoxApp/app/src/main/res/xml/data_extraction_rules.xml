@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="cache" />
+        <exclude domain="file" path="lightning.json" />
+        <exclude domain="sharedpref" path="lightning-encryption.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="cache" />
+        <exclude domain="file" path="lightning.json" />
+        <exclude domain="sharedpref" path="lightning-encryption.xml" />
+    </device-transfer>
+</data-extraction-rules>

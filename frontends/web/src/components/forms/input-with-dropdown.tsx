@@ -3,26 +3,28 @@
 import { forwardRef } from 'react';
 import type { TBaseInputProps } from './types';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { Dropdown, TOption } from '@/components/dropdown/dropdown';
+import { Dropdown, TGroupedOption, TOption } from '@/components/dropdown/dropdown';
 import { ChevronDownDark } from '@/components/icon';
 import styles from './input-with-dropdown.module.css';
 
-export type TInputWithDropdownProps<T> = Omit<TBaseInputProps, 'transparent'> & {
-  dropdownOptions?: TOption<T>[];
+export type TInputWithDropdownProps<T, TExtra = object> = Omit<TBaseInputProps, 'transparent'> & {
+  dropdownOptions?: TOption<T>[] | TGroupedOption<T, TExtra>[];
   dropdownValue?: TOption<T> | null;
   onDropdownChange?: (selected: TOption<T>) => void;
   dropdownPlaceholder?: string;
   dropdownTitle?: string;
   isOptionDisabled?: (option: TOption<T>) => boolean;
+  renderGroupHeader?: (group: TGroupedOption<T, TExtra>) => React.ReactNode;
   renderOptions?: (option: TOption<T>, isSelectedValue: boolean) => React.ReactNode;
 };
 
-export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdownProps<any>>(({
+export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdownProps<any, any>>(({
   id,
   label = '',
   error,
   align = 'left',
   className = '',
+  classNameInputField = '',
   type = 'text',
   labelSection,
   dropdownOptions = [],
@@ -32,9 +34,10 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
   dropdownTitle = '',
   isOptionDisabled,
   children,
+  renderGroupHeader,
   renderOptions,
   ...props
-}: TInputWithDropdownProps<any>, ref) => {
+}: TInputWithDropdownProps<any, any>, ref) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   return (
     <div className={`
@@ -42,18 +45,20 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
       ${styles[`align-${align}`] || ''}
       ${className}
       `}>
-      {label ? (
+      {label || labelSection ? (
         <div className={styles.labelContainer}>
-          <label htmlFor={id} className={error ? styles.errorText : ''}>
-            {label}
-            {error ? (
-              <span>
-                :{' '}
-                <span>{error.toString()}</span>
-              </span>
-            ) : null}
-          </label>
-          {labelSection && labelSection}
+          {label ? (
+            <label htmlFor={id} className={error ? styles.errorText : ''}>
+              {label}
+              {error ? (
+                <span>
+                  :{' '}
+                  <span>{error.toString()}</span>
+                </span>
+              ) : null}
+            </label>
+          ) : null}
+          {labelSection ? <div className={styles.labelSection}>{labelSection}</div> : null}
         </div>
       ) : null}
       <div className={styles.inputDropdownWrapper}>
@@ -62,7 +67,7 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
           autoCorrect="off"
           spellCheck={false}
           type={type}
-          className={styles.inputField}
+          className={`${styles.inputField || ''} ${children ? '' : styles.inputFieldWithoutIcon || ''} ${classNameInputField}`}
           id={id}
           ref={ref}
           {...props}
@@ -83,13 +88,14 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
               isClearable={false}
               isOptionDisabled={isOptionDisabled}
               renderTrigger={isMobile ? ({ onClick }) => (
-                <button className={styles.dropdownTrigger} onClick={onClick}>
+                <button type="button" className={styles.dropdownTrigger} onClick={onClick}>
                   <ChevronDownDark />
                 </button>
               ) : undefined}
               isSearchable={false}
               title={dropdownTitle}
               mobileFullScreen
+              renderGroupHeader={renderGroupHeader}
               renderOptions={renderOptions}
             />
           </div>
@@ -98,4 +104,3 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
     </div>
   );
 });
-
