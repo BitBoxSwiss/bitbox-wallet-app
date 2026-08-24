@@ -118,6 +118,9 @@ func NewLightning(config *config.Config,
 // Activate first creates a mnemonic from the keystore entropy, persists it, and connects to the
 // instance.
 func (lightning *Lightning) Activate() error {
+	if !lightning.environment.CanEncryptLightningMnemonic() {
+		return errp.New("Lightning is not available in this environment")
+	}
 	if lightning.Account() != nil {
 		return errp.New("Lightning accounts already configured")
 	}

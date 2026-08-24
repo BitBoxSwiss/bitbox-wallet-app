@@ -76,7 +76,7 @@ func newTestLightningWithConfigFilename(
 	require.NoError(t, err)
 
 	if environment == nil {
-		environment = &testEnvironment{}
+		environment = &testEnvironment{canEncrypt: true}
 	}
 
 	return NewLightning(
@@ -90,6 +90,12 @@ func newTestLightningWithConfigFilename(
 		nil,
 		false,
 	)
+}
+
+func TestActivateUnavailable(t *testing.T) {
+	lightning := newTestLightning(t, &testEnvironment{})
+
+	require.EqualError(t, lightning.Activate(), "Lightning is not available in this environment")
 }
 
 func TestAccount(t *testing.T) {

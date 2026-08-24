@@ -53,6 +53,7 @@ import { Receive as LightningReceive } from './lightning/receive/receive';
 import { LightningTopUp } from './lightning/topup/topup';
 import { LightningClaimTopUp } from './lightning/claim-top-up/claim-top-up';
 import { LightningCloseWithdrawFunds } from './lightning/close-and-withdraw-funds/close-withdraw-funds';
+import { isLightningFeatureAvailable } from '@/utils/env';
 
 type TAppRouterProps = {
   devices: TDevices;
@@ -79,6 +80,7 @@ export const AppRouter = ({
   showBottomNavigation,
 }: TAppRouterProps) => {
   const hasAccounts = accounts.length > 0;
+  const lightningFeatureAvailable = isLightningFeatureAvailable();
   const Homepage = (<DeviceSwitch
     key={devicesKey('device-switch-default')}
     deviceID={null}
@@ -363,23 +365,27 @@ export const AppRouter = ({
           <Route path="pocket-otc" element={<PocketOTC/>} />
           <Route path="swap" element={SwapEl} />
         </Route>
-        <Route path="lightning">
-          <Route index element={<Lightning />} />
-          <Route path="activate" element={<LightningActivate />} />
-          <Route path="disclaimer" element={<LightningDisclaimer />} />
-          <Route path="deactivate" element={<LightningDeactivate />} />
-          <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
-          <Route path="claim-top-up" element={<LightningClaimTopUp activeAccounts={activeAccounts} />} />
-          <Route path="close-withdraw-funds" element={(
-            <LightningCloseWithdrawFunds
-              activeAccounts={activeAccounts}
-              hasAccounts={hasAccounts}
-            />
-          )} />
-          <Route path="send" element={<LightningSend activeAccounts={activeAccounts} />} />
-          <Route path="receive" element={<LightningReceive />} />
-          <Route path="topup" element={<LightningTopUp activeAccounts={activeAccounts} hasAccounts={hasAccounts} />} />
-        </Route>
+        {lightningFeatureAvailable ? (
+          <Route path="lightning">
+            <Route index element={<Lightning />} />
+            <Route path="activate" element={<LightningActivate />} />
+            <Route path="disclaimer" element={<LightningDisclaimer />} />
+            <Route path="deactivate" element={<LightningDeactivate />} />
+            <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
+            <Route path="claim-top-up" element={<LightningClaimTopUp activeAccounts={activeAccounts} />} />
+            <Route path="close-withdraw-funds" element={(
+              <LightningCloseWithdrawFunds
+                activeAccounts={activeAccounts}
+                hasAccounts={hasAccounts}
+              />
+            )} />
+            <Route path="send" element={<LightningSend activeAccounts={activeAccounts} />} />
+            <Route path="receive" element={<LightningReceive />} />
+            <Route path="topup" element={<LightningTopUp activeAccounts={activeAccounts} hasAccounts={hasAccounts} />} />
+          </Route>
+        ) : (
+          <Route path="lightning/*" element={<Navigate replace to="/" />} />
+        )}
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
         <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
         <Route path="accounts/select-receive/bitcoin" element={BitcoinReceiveAccountsSelectorEl} />
@@ -396,7 +402,12 @@ export const AppRouter = ({
           <Route path="device-settings/recovery-words/:deviceID" element={RecoveryWordsEl} />
           <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
           <Route path="advanced-settings" element={AdvancedSettingsEl} />
-          <Route path="lightning-settings" element={<LightningSettings devices={devices} hasAccounts={hasAccounts} />} />
+          <Route
+            path="lightning-settings"
+            element={lightningFeatureAvailable
+              ? <LightningSettings devices={devices} hasAccounts={hasAccounts} />
+              : <Navigate replace to="/settings/advanced-settings" />}
+          />
           <Route path="electrum" element={<ElectrumSettings />} />
           <Route path="manage-accounts" element={
             <ManageAccounts

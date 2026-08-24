@@ -2,7 +2,31 @@
 
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestWebdevLightningEncryptionKeys(t *testing.T) {
+	const (
+		accountCode   = "v0-deadbeef-ln-0"
+		encryptionKey = "test-encryption-key"
+	)
+	configDir := t.TempDir()
+	environment := newWebdevEnvironment(configDir)
+	require.True(t, environment.CanEncryptLightningMnemonic())
+	require.NoError(t, environment.StoreLightningEncryptionKey(accountCode, encryptionKey))
+
+	restartedEnvironment := newWebdevEnvironment(configDir)
+	key, err := restartedEnvironment.LoadLightningEncryptionKey(accountCode)
+	require.NoError(t, err)
+	require.Equal(t, encryptionKey, key)
+
+	require.NoError(t, restartedEnvironment.DeleteLightningEncryptionKey(accountCode))
+	_, err = environment.LoadLightningEncryptionKey(accountCode)
+	require.Error(t, err)
+}
 
 func TestNormalizeAppleSeparator(t *testing.T) {
 	for _, tc := range []struct {
