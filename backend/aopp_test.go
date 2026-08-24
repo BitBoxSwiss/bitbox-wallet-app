@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"sync/atomic"
 	"testing"
 
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -35,7 +36,7 @@ func defaultParams() url.Values {
 	params.Set("msg", dummyMsg)
 	params.Set("format", "any")
 	params.Set("asset", "btc")
-	params.Set("callback", "http://localhost/aopp/")
+	params.Set("callback", "https://localhost/aopp/")
 	return params
 }
 
@@ -164,11 +165,12 @@ func TestAOPPSuccess(t *testing.T) {
 				)
 				w.WriteHeader(http.StatusNoContent)
 			})
-			server := httptest.NewServer(handler)
+			server := httptest.NewTLSServer(handler)
 			defer server.Close()
 
 			b := newBackend(t, testnetDisabled, regtestDisabled)
 			defer b.Close()
+			b.httpClient = server.Client()
 
 			// Add a second account so we can test the choosing-account step. If there is only one
 			// account, the account is used automatically, skipping the step where the user chooses
@@ -263,13 +265,14 @@ func TestAOPPSuccess(t *testing.T) {
 
 	// There is only one account, so the choosing-account step is skipped.
 	t.Run("one-account", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNoContent)
 		}))
 		defer server.Close()
 
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
+		b.httpClient = server.Client()
 		params := defaultParams()
 		params.Set("callback", server.URL)
 		b.HandleURI(uriPrefix + params.Encode())
@@ -280,15 +283,40 @@ func TestAOPPSuccess(t *testing.T) {
 		require.Equal(t, aoppStateSuccess, b.AOPP().State)
 	})
 
-	// Keystore is already registered before the AOPP request.
-	t.Run("user-approve", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	t.Run("https-redirect", func(t *testing.T) {
+		var callbackReceived atomic.Bool
+		server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/redirect" {
+				http.Redirect(w, r, "/callback", http.StatusTemporaryRedirect)
+				return
+			}
+			callbackReceived.Store(true)
 			w.WriteHeader(http.StatusNoContent)
 		}))
 		defer server.Close()
 
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
+		b.httpClient = server.Client()
+		params := defaultParams()
+		params.Set("callback", server.URL+"/redirect")
+		b.HandleURI(uriPrefix + params.Encode())
+		b.AOPPApprove()
+		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper))
+		require.Equal(t, aoppStateSuccess, b.AOPP().State)
+		require.True(t, callbackReceived.Load())
+	})
+
+	// Keystore is already registered before the AOPP request.
+	t.Run("user-approve", func(t *testing.T) {
+		server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNoContent)
+		}))
+		defer server.Close()
+
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		b.httpClient = server.Client()
 		params := defaultParams()
 		params.Set("callback", server.URL)
 		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper))
@@ -366,6 +394,32 @@ func TestAOPPFailures(t *testing.T) {
 		b.HandleURI(uriPrefix + params.Encode())
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPInvalidRequest, b.AOPP().ErrorCode)
+	})
+	t.Run("callback_validation", func(t *testing.T) {
+		tests := []struct {
+			name      string
+			callback  string
+			wantState aoppState
+		}{
+			{name: "https", callback: "https://example.com/aopp", wantState: aoppStateUserApproval},
+			{name: "http", callback: "http://example.com/aopp", wantState: aoppStateError},
+			{name: "malformed", callback: ":not a valid url", wantState: aoppStateError},
+			{name: "relative", callback: "aopp/callback", wantState: aoppStateError},
+			{name: "missing host", callback: "https:aopp", wantState: aoppStateError},
+		}
+		for _, test := range tests {
+			t.Run(test.name, func(t *testing.T) {
+				b := newBackend(t, testnetDisabled, regtestDisabled)
+				defer b.Close()
+				params := defaultParams()
+				params.Set("callback", test.callback)
+				b.HandleURI(uriPrefix + params.Encode())
+				require.Equal(t, test.wantState, b.AOPP().State)
+				if test.wantState == aoppStateError {
+					require.Equal(t, errAOPPInvalidRequest, b.AOPP().ErrorCode)
+				}
+			})
+		}
 	})
 	t.Run("invalid_callback", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
@@ -449,10 +503,11 @@ func TestAOPPFailures(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 		}))
 		defer server.Close()
+		b.httpClient = server.Client()
 
 		params := defaultParams()
 		params.Set("callback", server.URL)
@@ -462,5 +517,31 @@ func TestAOPPFailures(t *testing.T) {
 		b.AOPPChooseAccount("v0-55555555-btc-0")
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPCallback, b.AOPP().ErrorCode)
+	})
+	t.Run("http_redirect", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		var redirectFollowed atomic.Bool
+		redirectTarget := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			redirectFollowed.Store(true)
+			w.WriteHeader(http.StatusNoContent)
+		}))
+		defer redirectTarget.Close()
+		server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, redirectTarget.URL, http.StatusTemporaryRedirect)
+		}))
+		defer server.Close()
+		b.httpClient = server.Client()
+
+		params := defaultParams()
+		params.Set("callback", server.URL)
+		b.HandleURI(uriPrefix + params.Encode())
+		b.AOPPApprove()
+		b.registerKeystore(ks)
+		b.AOPPChooseAccount("v0-55555555-btc-0")
+		require.Equal(t, aoppStateError, b.AOPP().State)
+		require.Equal(t, errAOPPCallback, b.AOPP().ErrorCode)
+		require.False(t, redirectFollowed.Load())
 	})
 }
