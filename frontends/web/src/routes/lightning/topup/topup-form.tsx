@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, CoinCode, ConversionUnit, FeeTargetCode, TAccount, TAmountWithConversions, TBalance, TTxProposalResult } from '@/api/account';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button, NumberInput } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
@@ -15,6 +15,7 @@ import { FeeTargets } from '@/routes/account/send/feetargets';
 import { FiatInput } from '@/routes/account/send/components/inputs/fiat-input';
 import { NoteInput } from '@/routes/account/send/components/inputs/note-input';
 import type { TProposalError } from '@/routes/account/send/services';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import styles from './topup.module.css';
 
 type TReadonlyAccountRowProps = {
@@ -102,7 +103,12 @@ export const TopUpForm = ({
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('lightning.topUp.title')}</h2>}>
+          <Header title={
+            <>
+              <h2 className="hide-on-small">{t('lightning.topUp.title')}</h2>
+              <MobileHeader onClick={onBack} title={t('lightning.topUp.title')} />
+            </>
+          }>
             <HideAmountsButton />
           </Header>
           <Status dismissibleKey="" type="error" hidden={!balanceLimitError}>
@@ -173,9 +179,9 @@ export const TopUpForm = ({
                     onNoteChange={onNoteChange}
                   />
                   <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
-                    <BackButton onClick={onBack}>
+                    <DesktopBackButton onClick={onBack}>
                       {t('button.back')}
-                    </BackButton>
+                    </DesktopBackButton>
                     <Button
                       primary
                       onClick={onReview}

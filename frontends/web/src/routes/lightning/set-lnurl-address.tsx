@@ -11,16 +11,18 @@ import {
   postRegisterLightningAddress,
 } from '@/api/lightning';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button, Input } from '@/components/forms';
 import { Cancel, Checked, Sync, SyncLight } from '@/components/icon';
 import { Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 import { useDarkmode } from '@/hooks/darkmode';
 import { useDebounce } from '@/hooks/debounce';
 import { useMountedRef } from '@/hooks/mount';
 import { SimpleMarkup } from '@/utils/markup';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import styles from './set-lnurl-address.module.css';
 
 const CONTENT_MIN_HEIGHT = '38em';
@@ -221,9 +223,9 @@ export const LightningSetLnurlAddress = () => {
             <p>{t('unknownError', { errorMessage: error })}</p>
           </ViewContent>
           <ViewButtons>
-            <BackButton onClick={() => navigate(-1)}>
+            <DesktopBackButton onClick={() => navigate(-1)}>
               {t('button.back')}
-            </BackButton>
+            </DesktopBackButton>
           </ViewButtons>
         </View>
       );
@@ -265,9 +267,9 @@ export const LightningSetLnurlAddress = () => {
             <Button primary disabled={availability !== 'available' || isSaving} onClick={saveAddress}>
               {t('button.save')}
             </Button>
-            <BackButton disabled={isSaving} onClick={() => navigate(-1)}>
+            <DesktopBackButton disabled={isSaving} onClick={() => navigate(-1)}>
               {t('dialog.cancel')}
-            </BackButton>
+            </DesktopBackButton>
           </ViewButtons>
         </View>
       );
@@ -279,7 +281,7 @@ export const LightningSetLnurlAddress = () => {
             <span className={styles.successAddress}>{address}</span>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => navigate('/settings/lightning-settings')}>
+            <Button primary onClick={() => navigate(-1)}>
               {t('button.done')}
             </Button>
           </ViewButtons>
@@ -288,10 +290,24 @@ export const LightningSetLnurlAddress = () => {
     }
   };
 
+  const headerBackEnabled = step === 'form'
+    && !isSaving
+    && (!!domain || !!error);
+
   return (
     <Main>
-      <Header title={t('lightning.lnurlAddress.title')} />
+      <Header title={
+        <>
+          <h2 className="hide-on-small">{t('lightning.lnurlAddress.title')}</h2>
+          <MobileHeader
+            onClick={() => navigate(-1)}
+            title={t('lightning.lnurlAddress.title')}
+            variant={headerBackEnabled ? 'back' : 'titleOnly'}
+          />
+        </>
+      } />
       {renderStep()}
+      {isSaving && <UseDisableBackButton />}
     </Main>
   );
 };

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Logo } from '@/components/icon/logo';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -19,6 +19,7 @@ import { postActivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { LightningDisclaimerContent } from './disclaimer';
 import { LightningTorProxyWarning } from '@/components/banners/lightning-tor-proxy-warning';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import styles from './activate.module.css';
 
 const CONTENT_MIN_HEIGHT = '38em';
@@ -89,6 +90,26 @@ export const LightningActivate = () => {
     }
   }, [activationStarted, lightningAccount, step]);
 
+  const handleBack = () => {
+    switch (step) {
+    case 'information':
+      setStep('intro');
+      return;
+    case 'disclaimer':
+      setStep('information');
+      return;
+    case 'intro':
+    case 'connect':
+      navigate(-1);
+      return;
+    }
+  };
+
+  const backEnabled = step === 'intro'
+    || step === 'information'
+    || step === 'disclaimer'
+    || step === 'connect';
+
   const renderSteps = () => {
     switch (step) {
     case 'intro':
@@ -105,9 +126,9 @@ export const LightningActivate = () => {
             <Button primary onClick={() => setStep('information')}>
               {t('button.next')}
             </Button>
-            <BackButton onClick={() => navigate(-1)}>
+            <DesktopBackButton onClick={handleBack}>
               {t('button.back')}
-            </BackButton>
+            </DesktopBackButton>
           </ViewButtons>
         </View>
       );
@@ -131,9 +152,9 @@ export const LightningActivate = () => {
             <Button primary disabled={!agree} onClick={() => setStep('disclaimer')}>
               {t('button.next')}
             </Button>
-            <BackButton onClick={() => setStep('intro')}>
+            <DesktopBackButton onClick={handleBack}>
               {t('button.back')}
-            </BackButton>
+            </DesktopBackButton>
           </ViewButtons>
         </View>
       );
@@ -143,9 +164,9 @@ export const LightningActivate = () => {
           <Button primary onClick={() => waitForConnect()}>
             {t('lightning.disclaimer.continue')}
           </Button>
-          <BackButton onClick={() => setStep('information')}>
+          <DesktopBackButton onClick={handleBack}>
             {t('button.back')}
-          </BackButton>
+          </DesktopBackButton>
         </LightningDisclaimerContent>
       );
     case 'connect':
@@ -158,9 +179,9 @@ export const LightningActivate = () => {
             <PointToBitBox02 />
           </ViewContent>
           <ViewButtons>
-            <BackButton onClick={() => navigate(-1)}>
+            <DesktopBackButton onClick={handleBack}>
               {t('button.back')}
-            </BackButton>
+            </DesktopBackButton>
           </ViewButtons>
         </View>
       );
@@ -230,7 +251,16 @@ export const LightningActivate = () => {
           {setupError}
         </Status>
       </ContentWrapper>
-      <Header title={t('lightning.activate.title')} />
+      <Header title={
+        <>
+          <h2 className="hide-on-small">{t('lightning.activate.title')}</h2>
+          <MobileHeader
+            onClick={handleBack}
+            title={t('lightning.activate.title')}
+            variant={backEnabled ? 'back' : 'titleOnly'}
+          />
+        </>
+      } />
       {renderSteps()}
     </Main>
   );

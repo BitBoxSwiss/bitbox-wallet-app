@@ -8,12 +8,14 @@ import { LNURLPayReviewStep } from './lnurl-pay-review-step';
 type TProps = {
   paymentInput: TPaymentInput;
   backToPaymentInput: (nextInputError?: string) => void;
+  onSendingChange: (isSending: boolean) => void;
   onSuccess: () => void;
 };
 
 export const ReviewStep = ({
   paymentInput,
   backToPaymentInput,
+  onSendingChange,
   onSuccess,
 }: TProps) => {
   switch (paymentInput.type) {
@@ -22,6 +24,7 @@ export const ReviewStep = ({
       <BitcoinAddressReviewStep
         bitcoinAddress={paymentInput.bitcoinAddress}
         backToPaymentInput={backToPaymentInput}
+        onSendingChange={onSendingChange}
         onSuccess={onSuccess}
       />
     );
@@ -30,6 +33,7 @@ export const ReviewStep = ({
       <Bolt11ReviewStep
         invoice={paymentInput.invoice}
         backToPaymentInput={backToPaymentInput}
+        onSendingChange={onSendingChange}
         onSuccess={onSuccess}
       />
     );
@@ -38,6 +42,7 @@ export const ReviewStep = ({
       <LNURLPayReviewStep
         lnurlPay={paymentInput.lnurlPay}
         backToPaymentInput={backToPaymentInput}
+        onSendingChange={onSendingChange}
         onSuccess={onSuccess}
       />
     );

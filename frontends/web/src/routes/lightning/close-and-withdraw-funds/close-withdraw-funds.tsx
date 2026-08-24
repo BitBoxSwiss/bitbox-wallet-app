@@ -5,11 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getLightningBalance, postCloseWithdraw, postPrepareCloseWithdraw, type TCloseWithdrawQuote } from '@/api/lightning';
 import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
+import { UseDisableBackButton } from '@/hooks/backbutton';
 import { useMountedRef } from '@/hooks/mount';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { CloseWithdrawConfirm } from './confirm-step';
 import { CloseWithdrawFailure } from './failure-step';
 import { CloseWithdrawSuccess } from './success-step';
@@ -141,6 +143,11 @@ export const LightningCloseWithdrawFunds = ({
     }
   }, [destinationAccountCode, mounted, quote]);
 
+  const handleBack = () => navigate(-1);
+
+  const headerBackEnabled = !btcAccounts.length
+    || (step === 'confirm' && !isClosing);
+
   const renderStep = () => {
     if (!btcAccounts.length) {
       const primaryAction = hasAccounts
@@ -161,9 +168,9 @@ export const LightningCloseWithdrawFunds = ({
             <Button primary onClick={() => navigate(primaryAction.route)}>
               {primaryAction.label}
             </Button>
-            <BackButton onClick={() => navigate('/settings/lightning-settings')}>
+            <DesktopBackButton onClick={handleBack}>
               {t('button.back')}
-            </BackButton>
+            </DesktopBackButton>
           </ViewButtons>
         </View>
       );
@@ -183,7 +190,7 @@ export const LightningCloseWithdrawFunds = ({
           incoming={incoming}
           incomingConfirmed={incomingConfirmed}
           isClosing={isClosing}
-          onCancel={() => navigate(-1)}
+          onCancel={handleBack}
           onClose={closeWithdraw}
           onConfirmChange={() => setConfirmed(current => !current)}
           onIncomingConfirmChange={() => setIncomingConfirmed(current => !current)}
@@ -198,7 +205,7 @@ export const LightningCloseWithdrawFunds = ({
       return (
         <CloseWithdrawFailure
           partial={step === 'partialFailure'}
-          onCancel={() => navigate('/settings/lightning-settings')}
+          onCancel={() => navigate(-1)}
           onTryAgain={() => {
             if (step === 'partialFailure') {
               navigate('/lightning/deactivate/');
@@ -221,8 +228,18 @@ export const LightningCloseWithdrawFunds = ({
 
   return (
     <Main>
-      <Header title={t('lightning.settings.closeAndWithdrawFunds')} />
+      <Header title={
+        <>
+          <h2 className="hide-on-small">{t('lightning.settings.closeAndWithdrawFunds')}</h2>
+          <MobileHeader
+            onClick={handleBack}
+            title={t('lightning.settings.closeAndWithdrawFunds')}
+            variant={headerBackEnabled ? 'back' : 'titleOnly'}
+          />
+        </>
+      } />
       {renderStep()}
+      {isClosing && <UseDisableBackButton />}
     </Main>
   );
 };

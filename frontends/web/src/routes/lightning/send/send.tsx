@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
 import { type TPaymentInput, getParsePaymentInput } from '@/api/lightning';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
+import { UseDisableBackButton } from '@/hooks/backbutton';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { ReviewStep } from './components/review-step';
 import { SelectPaymentInputStep } from './components/select-payment-input-step';
 import { SuccessStep } from './components/success-step';
@@ -24,8 +26,10 @@ export const Send = ({ activeAccounts }: TProps) => {
   const [step, setStep] = useState<TSendStep>('select-payment-input');
   const [paymentInput, setPaymentInput] = useState<TPaymentInput>();
   const [inputError, setInputError] = useState<string>();
+  const [isSending, setIsSending] = useState(false);
 
   const resetToPaymentInputEntry = useCallback((nextInputError?: string) => {
+    setIsSending(false);
     setStep('select-payment-input');
     setPaymentInput(undefined);
     setInputError(nextInputError);
@@ -46,8 +50,17 @@ export const Send = ({ activeAccounts }: TProps) => {
   }, [t]);
 
   const showSuccess = useCallback(() => {
+    setIsSending(false);
     setStep('success');
   }, []);
+
+  const handleBack = () => {
+    if (step === 'review') {
+      resetToPaymentInputEntry();
+      return;
+    }
+    navigate('/lightning');
+  };
 
   useEffect(() => {
     if (step !== 'success') {
@@ -62,7 +75,18 @@ export const Send = ({ activeAccounts }: TProps) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('lightning.send.title')}</h2>} />
+          {isSending && <UseDisableBackButton />}
+          <Header title={
+            <>
+              <h2 className="hide-on-small">{t('lightning.send.title')}</h2>
+              <MobileHeader
+                onClick={handleBack}
+                title={t('lightning.send.title')}
+                variant={step === 'success' || isSending ? 'titleOnly' : 'back'}
+                withGuide
+              />
+            </>
+          } />
           {step === 'select-payment-input' && (
             <SelectPaymentInputStep
               activeAccounts={activeAccounts}
@@ -76,6 +100,7 @@ export const Send = ({ activeAccounts }: TProps) => {
             <ReviewStep
               paymentInput={paymentInput}
               backToPaymentInput={resetToPaymentInputEntry}
+              onSendingChange={setIsSending}
               onSuccess={showSuccess}
             />
           )}

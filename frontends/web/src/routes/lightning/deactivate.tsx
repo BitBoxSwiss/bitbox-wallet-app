@@ -7,11 +7,12 @@ import { Header, Main } from '../../components/layout';
 import { View, ViewButtons, ViewContent } from '../../components/view/view';
 import { MultilineMarkup } from '../../utils/markup';
 import { Button, Checkbox } from '../../components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { postDeactivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { Spinner } from '../../components/spinner/Spinner';
 import { route } from '../../utils/route';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 
 const CONTENT_MIN_HEIGHT = '38em';
 
@@ -57,9 +58,9 @@ export const LightningDeactivate = () => {
             <Button danger disabled={!agree} onClick={() => deactivateWallet()}>
               Shut down lightning wallet
             </Button>
-            <BackButton onClick={() => navigate(-1)}>
+            <DesktopBackButton onClick={() => navigate(-1)}>
               {t('button.back')}
-            </BackButton>
+            </DesktopBackButton>
           </ViewButtons>
         </View>
       );
@@ -86,7 +87,16 @@ export const LightningDeactivate = () => {
       <Status dismissibleKey="" type="warning" hidden={!deactivateError}>
         {deactivateError}
       </Status>
-      <Header title="Shut down lightning wallet" />
+      <Header title={
+        <>
+          <h2 className="hide-on-small">Shut down lightning wallet</h2>
+          <MobileHeader
+            onClick={() => navigate(-1)}
+            title="Shut down lightning wallet"
+            variant={step === 'intro' ? 'back' : 'titleOnly'}
+          />
+        </>
+      } />
       {renderSteps()}
     </Main>
   );

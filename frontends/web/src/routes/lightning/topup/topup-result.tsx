@@ -3,11 +3,12 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { SendAbortedResult } from '@/routes/account/send/components/result';
+import { MobileHeader } from '@/routes/settings/components/mobile-header';
 
 type TTopUpAbortedProps = {
   onRetry: () => void;
@@ -29,7 +30,12 @@ export const TopUpSuccess = () => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('lightning.topUp.title')}</h2>} />
+          <Header title={
+            <>
+              <h2 className="hide-on-small">{t('lightning.topUp.title')}</h2>
+              <MobileHeader title={t('lightning.topUp.title')} variant="titleOnly" />
+            </>
+          } />
           <View textCenter verticallyCentered>
             <ViewContent withIcon="success">
               <p>{t('lightning.topUp.success.message')}</p>
@@ -64,7 +70,15 @@ export const TopUpNoBitcoinAccounts = ({ hasAccounts }: TTopUpNoBitcoinAccountsP
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('lightning.topUp.title')}</h2>} />
+          <Header title={
+            <>
+              <h2 className="hide-on-small">{t('lightning.topUp.title')}</h2>
+              <MobileHeader
+                onClick={() => navigate('/lightning')}
+                title={t('lightning.topUp.title')}
+              />
+            </>
+          } />
           <View textCenter verticallyCentered>
             <ViewContent>
               <p>{t('lightning.topUp.noBitcoinAccounts')}</p>
@@ -73,9 +87,9 @@ export const TopUpNoBitcoinAccounts = ({ hasAccounts }: TTopUpNoBitcoinAccountsP
               <Button primary onClick={() => navigate(primaryAction.route)}>
                 {primaryAction.label}
               </Button>
-              <BackButton onClick={() => navigate('/lightning')}>
+              <DesktopBackButton onClick={() => navigate('/lightning')}>
                 {t('button.back')}
-              </BackButton>
+              </DesktopBackButton>
             </ViewButtons>
           </View>
         </Main>
@@ -95,7 +109,15 @@ export const TopUpNoFundedBitcoinAccounts = ({ btcAccounts }: TTopUpNoFundedBitc
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('lightning.topUp.title')}</h2>} />
+          <Header title={
+            <>
+              <h2 className="hide-on-small">{t('lightning.topUp.title')}</h2>
+              <MobileHeader
+                onClick={() => navigate('/lightning')}
+                title={t('lightning.topUp.title')}
+              />
+            </>
+          } />
           <View textCenter verticallyCentered>
             <ViewContent>
               <p>{t('lightning.topUp.noFundedBitcoinAccounts')}</p>
@@ -104,9 +126,9 @@ export const TopUpNoFundedBitcoinAccounts = ({ btcAccounts }: TTopUpNoFundedBitc
               <Button primary onClick={() => navigate(receiveRoute)}>
                 {t('generic.receive', { context: 'bitcoin' })}
               </Button>
-              <BackButton onClick={() => navigate('/lightning')}>
+              <DesktopBackButton onClick={() => navigate('/lightning')}>
                 {t('button.back')}
-              </BackButton>
+              </DesktopBackButton>
             </ViewButtons>
           </View>
         </Main>

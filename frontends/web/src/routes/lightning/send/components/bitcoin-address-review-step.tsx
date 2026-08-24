@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TPaymentInputType, type TLightningBitcoinPaymentInput } from '@/api/lightning';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { Column, Grid } from '@/components/layout';
 import { Status } from '@/components/status/status';
@@ -16,12 +16,14 @@ import { type TPaymentReviewDetails, usePaymentReview } from '../hooks/use-payme
 type TProps = {
   bitcoinAddress: TLightningBitcoinPaymentInput;
   backToPaymentInput: (nextInputError?: string) => void;
+  onSendingChange: (isSending: boolean) => void;
   onSuccess: () => void;
 };
 
 export const BitcoinAddressReviewStep = ({
   bitcoinAddress,
   backToPaymentInput,
+  onSendingChange,
   onSuccess,
 }: TProps) => {
   const { t } = useTranslation();
@@ -42,6 +44,7 @@ export const BitcoinAddressReviewStep = ({
   } = usePaymentReview({
     paymentDetails,
     backToPaymentInput,
+    onSendingChange,
     onSuccess,
   });
 
@@ -88,9 +91,9 @@ export const BitcoinAddressReviewStep = ({
           disabled={!canSend}>
           {t('generic.send')}
         </Button>
-        <BackButton onClick={() => backToPaymentInput()}>
+        <DesktopBackButton onClick={() => backToPaymentInput()}>
           {t('button.back')}
-        </BackButton>
+        </DesktopBackButton>
       </ViewButtons>
     </View>
   );
