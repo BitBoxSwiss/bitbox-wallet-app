@@ -288,6 +288,110 @@ describe('Amount formatting', () => {
 
   });
 
+  describe('maxDecimals for ETH and ETH tokens', () => {
+
+    it('ETH limits decimals to maxDecimals', () => {
+      const { container } = render(
+        <Amount amount="10.123456789012345678" unit="ETH" maxDecimals={6} />
+      );
+
+      expect(container.textContent).toBe('10.123456');
+    });
+
+    it('SEPETH limits decimals to maxDecimals', () => {
+      const { container } = render(
+        <Amount amount="10.123456789012345678" unit="SEPETH" maxDecimals={4} />
+      );
+
+      expect(container.textContent).toBe('10.1234');
+    });
+
+    it('ETH keeps decimals when they are below maxDecimals', () => {
+      const { container } = render(
+        <Amount amount="10.123" unit="ETH" maxDecimals={6} />
+      );
+
+      expect(container.textContent).toBe('10.123');
+    });
+
+    it('ETH keeps decimals when they are exactly maxDecimals', () => {
+      const { container } = render(
+        <Amount amount="10.123456" unit="ETH" maxDecimals={6} />
+      );
+
+      expect(container.textContent).toBe('10.123456');
+    });
+
+    it('USDC limits decimals to maxDecimals', () => {
+      const { container } = render(
+        <Amount amount="1'234.123456789" unit="USDC" maxDecimals={2} />
+      );
+
+      expect(container.textContent).toBe('1’234.12');
+    });
+
+    it('USDC keeps decimals when they are below maxDecimals', () => {
+      const { container } = render(
+        <Amount amount="1'234.1" unit="USDC" maxDecimals={2} />
+      );
+
+      expect(container.textContent).toBe('1’234.1');
+    });
+
+    it('DAI limits its 18 decimals to maxDecimals', () => {
+      const { container } = render(
+        <Amount
+          amount="1.123456789012345678"
+          unit="DAI"
+          maxDecimals={6}
+        />
+      );
+
+      expect(container.textContent).toBe('1.123456');
+    });
+
+    it('DAI limits long decimal values to maxDecimals', () => {
+      const { container } = render(
+        <Amount
+          amount="123'456.123456789012345678"
+          unit="DAI"
+          maxDecimals={4}
+        />
+      );
+
+      expect(container.textContent).toBe('123’456.1234');
+    });
+
+  });
+
+  describe('maxDecimals does not affect BTC/LTC or fiat amounts', () => {
+
+    it('does not limit BTC decimals', () => {
+      const { container } = render(
+        <Amount amount="0.12345678" unit="BTC" maxDecimals={2} />
+      );
+
+      expect(container.textContent).toBe('0.12345678');
+    });
+
+    it('does not limit LTC decimals', () => {
+      const { container } = render(
+        <Amount amount="0.12345678" unit="LTC" maxDecimals={2} />
+      );
+
+      expect(container.textContent).toBe('0.12345678');
+    });
+
+    it('does not limit fiat decimals', () => {
+      const { container } = render(
+        <Amount amount="1'340.123456" unit="CHF" maxDecimals={2} />
+      );
+
+      expect(container.textContent).toBe('1’340.123456');
+    });
+
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
   });

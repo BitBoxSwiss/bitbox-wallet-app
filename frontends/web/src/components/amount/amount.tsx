@@ -2,6 +2,7 @@
 
 import { useContext } from 'react';
 import type { CoinUnit, ConversionUnit } from '@/api/account';
+import { isSupportedERC20Unit } from '@/api/erc20';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
@@ -108,7 +109,11 @@ const formatEth = (
   if (dot === -1) {
     return formatLocalizedAmount(amount, group, decimal);
   }
-  const truncated = amount.slice(0, dot + maxDecimals + 1);
+  const truncated = (
+    maxDecimals === 0
+      ? amount.slice(0, dot)
+      : amount.slice(0, dot + maxDecimals + 1)
+  );
   return formatLocalizedAmount(truncated, group, decimal);
 };
 
@@ -121,6 +126,26 @@ type TProps = {
   removeTrailingZeros?: boolean;
 };
 
+/**
+ * Renders a localized cryptocurrency or fiat amount.
+ *
+ * Amounts can be hidden according to the application privacy settings,
+ * and cryptocurrency-specific formatting is applied for BTC/LTC and
+ * ETH/ETH-compatible tokens. ETH and ETH-token amounts can optionally
+ * have their decimal portion truncated with `maxDecimals`.
+ *
+ * @param amount - Amount in its string representation.
+ * @param unit - Currency or cryptocurrency unit of the amount.
+ * @param alwaysShowAmounts - Whether to display the amount even when
+ *   amounts are hidden by the application settings.
+ * @param onMobileClick - Callback invoked when the amount is clicked
+ *   on a mobile viewport.
+ * @param maxDecimals - Maximum number of decimal places to display for
+ *   ETH and ETH-compatible tokens. Excess decimal places are truncated,
+ *   not rounded. Has no effect on BTC/LTC or fiat amounts.
+ * @param removeTrailingZeros - Whether to remove trailing zeroes from
+ *   the amount's decimal portion.
+ */
 export const Amount = ({
   amount,
   unit,
@@ -182,6 +207,10 @@ export const FormattedAmount = ({
     return formatSats(displayedAmount);
   case 'ETH':
   case 'SEPETH':
+    return formatEth(displayedAmount, group, decimal, maxDecimals);
+  }
+
+  if (isSupportedERC20Unit(unit)) {
     return formatEth(displayedAmount, group, decimal, maxDecimals);
   }
 
