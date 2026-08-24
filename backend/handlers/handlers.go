@@ -227,6 +227,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore-name", handlers.getKeystoreName).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/account/{code}/parse-ethereum-payment-request", handlers.postParseEthereumPaymentRequest).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/status", handlers.getSwapStatus).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
@@ -906,6 +907,42 @@ func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
 		Code:           code,
 		Name:           name,
 		DisplayAddress: backendutil.FormatAddress(coinpkg.CodeETH, args.Address),
+	}
+}
+
+func (handlers *Handlers) postParseEthereumPaymentRequest(r *http.Request) interface{} {
+	var request struct {
+		URI string `json:"uri"`
+	}
+	type response struct {
+		Success   bool   `json:"success"`
+		Recipient string `json:"recipient,omitempty"`
+		Amount    string `json:"amount,omitempty"`
+		ErrorCode string `json:"errorCode,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false}
+	}
+	account, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
+	if err != nil {
+		return response{Success: false}
+	}
+	accountCoin, ok := account.Coin().(*eth.Coin)
+	if !ok {
+		return response{Success: false}
+	}
+	paymentRequest, err := accountCoin.ParsePaymentRequest(request.URI)
+	if err != nil {
+		if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
+			return response{Success: false, ErrorCode: string(errCode)}
+		}
+		return response{Success: false}
+	}
+	return response{
+		Success:   true,
+		Recipient: paymentRequest.Recipient,
+		Amount:    paymentRequest.Amount,
 	}
 }
 

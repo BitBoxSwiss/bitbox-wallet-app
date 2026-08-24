@@ -17,6 +17,7 @@
 - Mobile: Move settings into bottom navigation
 - Enable Tether USDT for BTC Direct
 - Allow users to upgrade firmware during setup
+- Ethereum: improve QR code scanning and fix ERC20 QR payment requests
 
 ## v4.51.4
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.5

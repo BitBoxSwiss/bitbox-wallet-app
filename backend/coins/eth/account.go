@@ -38,6 +38,7 @@ import (
 )
 
 func isMixedCase(s string) bool {
+	s = strings.TrimPrefix(strings.TrimPrefix(s, "0x"), "0X")
 	return strings.ToLower(s) != s && strings.ToUpper(s) != s
 }
 
@@ -545,6 +546,11 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 			return nil, err
 		}
 		value = parsedAmount.BigInt()
+	}
+	if account.coin.erc20Token != nil {
+		if value.BitLen() > 256 {
+			return nil, errp.WithStack(errors.ErrInvalidAmount)
+		}
 	}
 
 	var message ethereum.CallMsg

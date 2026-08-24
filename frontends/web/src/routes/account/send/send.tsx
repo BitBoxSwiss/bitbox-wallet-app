@@ -353,20 +353,41 @@ export const Send = ({
 
 
   const parseQRResult = async (uri: string) => {
-    let qrAddress;
+    let qrAddress = uri;
     let qrAmount = '';
+    let url: URL | undefined;
     try {
-      const url = new URL(uri);
-      if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:' && url.protocol !== 'ethereum:') {
-        alertUser(t('invalidFormat'));
-        return;
-      }
-      qrAddress = url.pathname;
-      if (isBitcoinBased(account.coinCode)) {
-        qrAmount = url.searchParams.get('amount') || '';
-      }
+      url = new URL(uri);
     } catch {
-      qrAddress = uri;
+      url = undefined;
+    }
+    if (url) {
+      if (url.protocol === 'ethereum:') {
+        let paymentRequest;
+        try {
+          paymentRequest = await accountApi.parseEthereumPaymentRequest(account.code, uri);
+        } catch (error) {
+          alertUser(t('unknownError', { errorMessage: String(error) }));
+          return;
+        }
+        if (!paymentRequest.success) {
+          alertUser(t(paymentRequest.errorCode === 'accountMismatch'
+            ? 'send.error.paymentRequestAccountMismatch'
+            : 'invalidFormat'));
+          return;
+        }
+        qrAddress = paymentRequest.recipient;
+        qrAmount = paymentRequest.amount || '';
+      } else {
+        if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:') {
+          alertUser(t('invalidFormat'));
+          return;
+        }
+        qrAddress = url.pathname;
+        if (isBitcoinBased(account.coinCode)) {
+          qrAmount = url.searchParams.get('amount') || '';
+        }
+      }
     }
     qrAddress = qrAddress.replace(/\s/g, '');
 
@@ -390,8 +411,10 @@ export const Send = ({
     setRecipientDisplayAddress('');
     setSelectedReceiverAccount(null);
     setSendAll(false);
-    setFiatAmount('');
-    convertToFiat(qrAmount);
+    if (qrAmount) {
+      setFiatAmount('');
+    }
+    convertToFiat(qrAmount || amount);
     setUpdateFiat(true);
   };
 
