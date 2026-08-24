@@ -100,12 +100,11 @@ func TestRunWebsocket(t *testing.T) {
 		"before authz": false,
 		"after authz":  false,
 	}
-messagesLoop:
-	for {
+	timeout := time.After(time.Second)
+	for received := 0; received < len(wantMsg); {
 		select {
-		case <-time.After(10 * time.Millisecond):
-			// No more messages.
-			break messagesLoop
+		case <-timeout:
+			t.Fatal("timed out waiting for messages")
 		case msg := <-messages:
 			alreadyReceived, expected := wantMsg[string(msg)]
 			switch {
@@ -115,8 +114,8 @@ messagesLoop:
 				t.Errorf("received duplicated expected message: %q", msg)
 			default:
 				wantMsg[string(msg)] = true
+				received++
 			}
-
 		}
 	}
 	for m, ok := range wantMsg {

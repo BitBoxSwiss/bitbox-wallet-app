@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import '../../../../__mocks__/i18n';
 import { ReactNode } from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import type { CoinCode, CoinUnit, Fiat } from '@/api/account';
+import type { CoinCode, CoinFormattedAmount, CoinUnit, Fiat, TChartData } from '@/api/account';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { RatesContext } from '@/contexts/RatesContext';
-import { useCoinUnitPrice } from '@/hooks/coin-unit-price';
-import { AssetBalanceWithUnitPrice } from './asset-balance-with-unit-price';
+import { TotalBalanceForAllKeystores } from './total-balance-for-all-keystores';
 
 vi.mock('@/hooks/mediaquery', () => ({
   useMediaQuery: vi.fn().mockReturnValue(false),
@@ -26,6 +27,46 @@ vi.mock('@/hooks/coin-unit-price', () => ({
     estimated: false,
   })),
 }));
+
+const chartData = (chartFiat: Fiat): TChartData => ({
+  chartDataMissing: false,
+  chartDataDaily: [],
+  chartDataHourly: [],
+  chartFiat,
+  chartTotal: 1,
+  formattedChartTotal: '1',
+  chartIsUpToDate: true,
+  lastTimestamp: 0,
+});
+
+const btcBalance: CoinFormattedAmount = {
+  coinCode: 'btc',
+  coinName: 'Bitcoin',
+  formattedAmount: {
+    amount: '1.00000000',
+    unit: 'BTC',
+    conversions: {
+      BTC: '1',
+      sat: '100000000',
+      USD: '60000.00',
+    },
+    estimated: false,
+  },
+};
+
+const bitcoinBalance = (
+  coinCode: CoinCode,
+  coinName: string,
+  unit: CoinUnit,
+): CoinFormattedAmount => ({
+  ...btcBalance,
+  coinCode,
+  coinName,
+  formattedAmount: {
+    ...btcBalance.formattedAmount,
+    unit,
+  },
+});
 
 type TProps = {
   children: ReactNode;
@@ -76,74 +117,42 @@ const Wrapper = ({
   </AppContext.Provider>
 );
 
-const renderAssetBalance = (
+const renderTotalAssets = (
   defaultCurrency: Fiat,
-  coinCode: CoinCode,
-  coinName: string,
-  unit: CoinUnit,
-  showUnitPrice?: boolean,
+  balance: CoinFormattedAmount = btcBalance,
 ) => render(
-  <Wrapper defaultCurrency={defaultCurrency}>
-    <AssetBalanceWithUnitPrice
-      amount={{
-        amount: '0.99951787',
-        unit,
-        conversions: {
-          BTC: '0.99951787',
-          sat: '99951787',
-          USD: '59971.07',
-        },
-        estimated: false,
-      }}
-      coinCode={coinCode}
-      coinName={coinName}
-      showUnitPrice={showUnitPrice}
-    />
-  </Wrapper>
+  <MemoryRouter>
+    <Wrapper defaultCurrency={defaultCurrency}>
+      <TotalBalanceForAllKeystores
+        summaryData={chartData(defaultCurrency)}
+        coinsBalances={[balance]}
+      />
+    </Wrapper>
+  </MemoryRouter>
 );
 
-const mockUseCoinUnitPrice = vi.mocked(useCoinUnitPrice);
-
-describe('AssetBalanceWithUnitPrice', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('hides Bitcoin Testnet unit prices when the display currency is BTC', () => {
-    renderAssetBalance('BTC', 'tbtc', 'Bitcoin Testnet', 'TBTC');
+describe('TotalBalanceForAllKeystores', () => {
+  it('hides the BTC unit price when the display currency is BTC', () => {
+    renderTotalAssets('BTC');
 
     expect(screen.queryByTestId('unit-price-amount')).not.toBeInTheDocument();
   });
 
-  it('hides Bitcoin unit prices when the display currency is sat', () => {
-    renderAssetBalance('sat', 'btc', 'Bitcoin', 'BTC');
+  it('hides the BTC unit price when the display currency is sat', () => {
+    renderTotalAssets('sat');
 
     expect(screen.queryByTestId('unit-price-amount')).not.toBeInTheDocument();
   });
 
-  it('hides unit prices when showUnitPrice is false', () => {
-    renderAssetBalance('USD', 'btc', 'Bitcoin', 'BTC', false);
+  it('hides the Bitcoin Testnet unit price when the display currency is BTC', () => {
+    renderTotalAssets('BTC', bitcoinBalance('tbtc', 'Bitcoin Testnet', 'TBTC'));
 
     expect(screen.queryByTestId('unit-price-amount')).not.toBeInTheDocument();
   });
 
-  it('shows Bitcoin unit prices for fiat display currencies', () => {
-    renderAssetBalance('USD', 'btc', 'Bitcoin', 'BTC');
+  it('shows the BTC unit price for fiat display currencies', () => {
+    renderTotalAssets('USD');
 
     expect(screen.getByTestId('unit-price-amount')).toHaveTextContent('60000 USD');
-    expect(mockUseCoinUnitPrice).toHaveBeenCalledWith('btc', 'BTC');
-  });
-
-  it('passes the asset coin code to the unit price hook', () => {
-    renderAssetBalance('USD', 'lightning', 'Lightning', 'BTC');
-
-    expect(mockUseCoinUnitPrice).toHaveBeenCalledWith('lightning', 'BTC');
-    expect(screen.getByAltText('lightning').className).toContain('assetBalanceLogo');
-  });
-
-  it('uses the asset unit price for regular coins', () => {
-    renderAssetBalance('USD', 'eth', 'Ethereum', 'ETH');
-
-    expect(mockUseCoinUnitPrice).toHaveBeenCalledWith('eth', 'ETH');
   });
 });

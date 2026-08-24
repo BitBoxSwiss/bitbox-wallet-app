@@ -15,6 +15,7 @@
 - Floating mobile bottom navigation bar
 - Revamp QR Scanner
 - Mobile: Move settings into bottom navigation
+- Enable Tether USDT for BTC Direct
 
 ## v4.51.4
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.5
