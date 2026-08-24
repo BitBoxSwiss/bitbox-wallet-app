@@ -63,7 +63,6 @@ export const LightningSettings = ({
 
     return (
       <>
-        <SubTitle className={styles.sectionTitle}>{t('lightning.settings.information')}</SubTitle>
         <SettingsItem
           settingName={t('lightning.settings.status')}
           displayedValue={t('lightning.settings.statusConnected')}
@@ -85,11 +84,11 @@ export const LightningSettings = ({
           settingName={t('lightning.disclaimer.title')}
           onClick={() => navigate('/lightning/disclaimer/')}
         />
-        <SubTitle className={styles.sectionTitle}>{t('lightning.settings.expert')}</SubTitle>
         <SettingsItem
-          settingName={<span className={styles.danger}>{t('lightning.settings.shutDownWallet')}</span>}
+          settingName={<span>{t('lightning.settings.disableWallet')}</span>}
           onClick={() => navigate('/lightning/deactivate/')}
         />
+        <SubTitle className={styles.sectionTitle}>{t('lightning.settings.expert')}</SubTitle>
         <SettingsItem
           disabled={!lightningBalance?.hasAvailable}
           settingName={<span className={styles.danger}>{t('lightning.settings.closeAndWithdrawFunds')}</span>}
