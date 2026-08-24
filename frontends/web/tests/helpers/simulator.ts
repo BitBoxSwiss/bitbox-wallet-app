@@ -120,24 +120,36 @@ export function stopSimulator(proc?: ChildProcess): Promise<void> {
  *
  * The flow is:
  * 1. Optionally click "Continue"
- * 2. Click "Create wallet"
- * 3. Type the device name into the focused input
- * 4. Click "Continue"
- * 5. Click all checkboxes
- * 6. Click "Continue"
- * 7. Click "Get started"
+ * 2. Optionally click "Skip" when a firmware upgrade is available
+ * 3. Click "Create wallet"
+ * 4. Type the device name into the focused input
+ * 5. Click "Continue"
+ * 6. Click all checkboxes
+ * 7. Click "Continue"
+ * 8. Click "Get started"
  */
 export async function completeWalletSetupFlow(page: Page, deviceName = 'simulator') {
   const continueButton = page.locator('button', { hasText: 'Continue' }).first();
   const createWalletButton = page.locator('button', { hasText: 'Create wallet' }).first();
+  const skipFirmwareUpgradeButton = page.getByRole('button', { name: 'Skip', exact: true });
 
   await Promise.race([
     continueButton.waitFor({ state: 'visible' }),
     createWalletButton.waitFor({ state: 'visible' }),
+    skipFirmwareUpgradeButton.waitFor({ state: 'visible' }),
   ]);
 
   if (await continueButton.isVisible()) {
     await continueButton.click();
+  }
+
+  await Promise.race([
+    createWalletButton.waitFor({ state: 'visible' }),
+    skipFirmwareUpgradeButton.waitFor({ state: 'visible' }),
+  ]);
+
+  if (await skipFirmwareUpgradeButton.isVisible()) {
+    await skipFirmwareUpgradeButton.click();
   }
 
   await clickButtonWithText(page, 'Create wallet');
