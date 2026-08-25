@@ -210,6 +210,7 @@ describe('routes/market/swap', () => {
       defaultSellAccountCode: swapSellAccount.code,
       defaultBuyAccountCode: swapBuyAccount.code,
     });
+    vi.mocked(swapApi.getSwapQuote).mockReset();
     vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
       success: true,
       quote: {
@@ -450,5 +451,43 @@ describe('routes/market/swap', () => {
 
     expect(swapButton).toBeDisabled();
     expect(screen.queryByText('THORChain + Mayachain')).not.toBeInTheDocument();
+  });
+
+  it('shows account syncing while preparing the swap', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(accountApi.hasSwapPaymentRequest).mockResolvedValue({ success: true });
+    vi.mocked(swapApi.signSwap).mockImplementation(() => new Promise(() => {}));
+
+    render(
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+
+    expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+    const swapButton = await screen.findByRole('button', { name: 'Swap' });
+    await user.click(swapButton);
+
+    expect(await screen.findByRole('button', {
+      name: 'Syncing the account, please wait…',
+    })).toBeDisabled();
   });
 });

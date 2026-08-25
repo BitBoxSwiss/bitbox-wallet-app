@@ -418,7 +418,9 @@ export const Swap = ({
         sellAmount,
       });
       if (!response.success) {
-        alertUser(response.errorMessage || t('genericError'));
+        alertUser(response.errorCode
+          ? t(`send.error.${response.errorCode}`)
+          : response.errorMessage || t('genericError'));
         return;
       }
 
@@ -659,7 +661,7 @@ export const Swap = ({
                       <SpinnerRingAnimated />
                     </span>
                   )}
-                  {isConfirmInFlight ? t('loading') : t('generic.swap')}
+                  {isConfirmInFlight ? t('account.syncing') : t('generic.swap')}
                 </span>
               </Button>
               <DesktopBackButton>
