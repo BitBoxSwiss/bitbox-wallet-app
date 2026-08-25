@@ -306,12 +306,6 @@ export const AppRouter = ({
 
   const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
 
-  const BitcoinReceiveAccountsSelectorEl = (
-    <InjectParams>
-      <ReceiveAccountsSelector activeAccounts={activeAccounts.filter(account => account.coinCode === 'btc')} />
-    </InjectParams>
-  );
-
   const AllAccountsEl = <InjectParams><AllAccounts accounts={activeAccounts} /></InjectParams>;
 
   return (
@@ -388,7 +382,6 @@ export const AppRouter = ({
         )}
         <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
         <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
-        <Route path="accounts/select-receive/bitcoin" element={BitcoinReceiveAccountsSelectorEl} />
         <Route path="accounts/all" element={AllAccountsEl} />
         <Route path="settings">
           <Route index element={MobileSettingsEl} />

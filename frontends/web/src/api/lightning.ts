@@ -81,6 +81,10 @@ export type TPrepareTopUpResult = {
   fundingLimit: TLightningFundingLimit;
   success: false;
 } | {
+  errorCode: TLightningErrorCode.AMOUNT_BELOW_MINIMUM;
+  minAmountSat: number;
+  success: false;
+} | {
   errorCode: TTxProposalErrorCode;
   success: false;
 };

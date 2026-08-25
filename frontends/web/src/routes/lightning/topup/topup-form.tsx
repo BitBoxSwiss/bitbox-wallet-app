@@ -54,6 +54,7 @@ type TProps = {
   isSubmitting: boolean;
   isUpdatingProposal: boolean;
   lightningBalance?: TBalance;
+  minimumAmountError?: string;
   note: string;
   onAmountChange: (value: string) => void;
   onBack: () => void;
@@ -82,6 +83,7 @@ export const TopUpForm = ({
   isSubmitting,
   isUpdatingProposal,
   lightningBalance,
+  minimumAmountError,
   note,
   onAmountChange,
   onBack,
@@ -144,7 +146,7 @@ export const TopUpForm = ({
                     label={sourceAmountUnit}
                     id="topUpAmount"
                     onChange={onAmountChange}
-                    error={errorHandling.amountError}
+                    error={minimumAmountError || errorHandling.amountError}
                     value={amount}
                     placeholder={t('send.amount.placeholder')}
                   />

@@ -12,6 +12,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
+const minimumTopUpAmountSat = 1000
+
 const errLightningBalanceLimitExceeded errp.ErrorCode = "lightningBalanceLimitExceeded"
 
 type prepareTopUpRequest struct {
@@ -41,7 +43,15 @@ func parseTopUpAmount(accountCoin coin.Coin, amount string) (coin.Amount, error)
 	if accountCoin.GetFormatUnit(false) == string(coin.BtcUnitSats) {
 		unit = big.NewInt(1)
 	}
-	return coin.NewSendAmount(amount).Amount(unit, false)
+	return coin.NewSendAmount(amount).Amount(unit, true)
+}
+
+func validateTopUpAmount(amount coin.Amount) error {
+	minimumTopUpAmount := big.NewInt(minimumTopUpAmountSat)
+	if amount.BigInt().Cmp(minimumTopUpAmount) < 0 {
+		return &lightningAmountBelowMinimumError{minAmountSat: minimumTopUpAmountSat}
+	}
+	return nil
 }
 
 // PrepareTopUp validates the Lightning funding limit and creates the Bitcoin transaction proposal
@@ -57,6 +67,9 @@ func (lightning *Lightning) PrepareTopUp(request prepareTopUpRequest) (*topUpPro
 
 	amount, err := parseTopUpAmount(account.Coin(), request.Amount)
 	if err != nil {
+		return nil, err
+	}
+	if err := validateTopUpAmount(amount); err != nil {
 		return nil, err
 	}
 	_, limit, err := lightning.balanceWithFundingLimit()

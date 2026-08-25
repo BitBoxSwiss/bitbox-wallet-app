@@ -12,8 +12,9 @@ import {
   subscribeLightningBalance,
   type TPrepareTopUpResult,
 } from '@/api/lightning';
+import { TLightningErrorCode } from '@/api/lightning-errors';
 import { connectKeystore } from '@/api/keystores';
-import { useLoad, useSync } from '@/hooks/api';
+import { useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
 import { getDisplayedCoinUnit, isBitcoinOnly } from '@/routes/account/utils';
@@ -21,7 +22,7 @@ import { txProposalErrorHandling, type TProposalError } from '@/routes/account/s
 import { RatesContext } from '@/contexts/RatesContext';
 import { TopUpConfirm } from './topup-confirm';
 import { TopUpForm } from './topup-form';
-import { TopUpAborted, TopUpNoBitcoinAccounts, TopUpNoFundedBitcoinAccounts, TopUpSuccess } from './topup-result';
+import { TopUpAborted, TopUpNoBitcoinAccounts, TopUpSuccess } from './topup-result';
 import {
   formatLightningFundingLimit,
   formatRemainingLightningFundingLimit,
@@ -33,19 +34,6 @@ type TProps = {
 };
 
 type TStep = 'form' | 'confirming' | 'success' | 'aborted';
-
-const getTopUpAccounts = async (accounts: accountApi.TAccount[]) => {
-  const accountHasBalance = await Promise.all(accounts.map(async (account) => {
-    try {
-      const balance = await accountApi.getBalance(account.code);
-      return !balance.success || balance.balance.hasAvailable;
-    } catch {
-      return true;
-    }
-  }));
-
-  return accounts.filter((_, index) => accountHasBalance[index]);
-};
 
 export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   const { t } = useTranslation();
@@ -62,9 +50,8 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
     () => activeAccounts.filter(account => account.active && account.coinCode === 'btc'),
     [activeAccounts]
   );
-  const topUpAccounts = useLoad(() => getTopUpAccounts(btcAccounts), [btcAccounts]);
   const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>('');
-  const sourceAccount = topUpAccounts?.find(account => account.code === sourceAccountCode);
+  const sourceAccount = btcAccounts.find(account => account.code === sourceAccountCode);
   const lightningBalance = useSync(getLightningBalance, subscribeLightningBalance);
   const sourceAmountUnit = sourceAccount
     ? getDisplayedCoinUnit(sourceAccount.coinCode, sourceAccount.coinUnit, btcUnit)
@@ -89,27 +76,28 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
       remaining: formatRemainingLightningFundingLimit(proposal.fundingLimit),
     })
     : undefined;
+  const amountValidationError = proposal?.success === false
+    && proposal.errorCode === TLightningErrorCode.AMOUNT_BELOW_MINIMUM
+    ? t('error.lightningAmountBelowMinimum', { minAmountSat: proposal.minAmountSat })
+    : undefined;
 
   useEffect(() => {
     stepRef.current = step;
   }, [step]);
 
   useEffect(() => {
-    if (topUpAccounts === undefined) {
-      return;
-    }
-    if (!topUpAccounts.length) {
+    if (!btcAccounts.length) {
       setSourceAccountCode('');
       return;
     }
-    if (!sourceAccountCode || !topUpAccounts.some(account => account.code === sourceAccountCode)) {
+    if (!sourceAccountCode || !btcAccounts.some(account => account.code === sourceAccountCode)) {
       setSourceAccountCode(
-        topUpAccounts.find(account => account.keystore.connected)?.code
-          || topUpAccounts[0]?.code
+        btcAccounts.find(account => account.keystore.connected)?.code
+          || btcAccounts[0]?.code
           || ''
       );
     }
-  }, [sourceAccountCode, topUpAccounts]);
+  }, [btcAccounts, sourceAccountCode]);
 
   const convertToFiat = useCallback(async (value: string) => {
     const request = ++conversionRequest.current;
@@ -210,6 +198,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
         }
         setErrorHandling(
           result.errorCode === lightningBalanceLimitErrorCode
+            || result.errorCode === TLightningErrorCode.AMOUNT_BELOW_MINIMUM
             ? {}
             : txProposalErrorHandling(result.errorCode)
         );
@@ -374,16 +363,8 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
     );
   }
 
-  if (topUpAccounts === undefined) {
-    return null;
-  }
-
   if (!btcAccounts.length) {
     return <TopUpNoBitcoinAccounts hasAccounts={hasAccounts} />;
-  }
-
-  if (!topUpAccounts.length) {
-    return <TopUpNoFundedBitcoinAccounts btcAccounts={btcAccounts} />;
   }
 
   if (!sourceAccount) {
@@ -398,7 +379,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
     <TopUpForm
       amount={amount}
       balanceLimitError={fundingLimitErrorMessage}
-      btcAccounts={topUpAccounts}
+      btcAccounts={btcAccounts}
       canReview={canReview}
       customFee={customFee}
       defaultCurrency={defaultCurrency}
@@ -407,6 +388,7 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
       isSubmitting={isSubmitting}
       isUpdatingProposal={isUpdatingProposal}
       lightningBalance={lightningBalance}
+      minimumAmountError={amountValidationError}
       note={note}
       onAmountChange={handleAmountChange}
       onBack={() => navigate('/lightning')}

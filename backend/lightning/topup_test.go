@@ -114,6 +114,34 @@ func TestPrepareTopUp(t *testing.T) {
 	require.Equal(t, coin.NewAmountFromInt64(125_000), parsedAmount)
 }
 
+func TestPrepareTopUpRejectsAmountBelowMinimumBeforeCreatingProposal(t *testing.T) {
+	for _, amount := range []string{"0", "0.00000999"} {
+		t.Run(amount, func(t *testing.T) {
+			sdk := &topUpTestSDK{balanceSat: 50_000, incomingSat: 25_000}
+			lightning := makeActiveLightningWithSDK(t, sdk)
+			account := testTopUpAccount(t, lightning, func(*accounts.TxProposalArgs) (
+				coin.Amount, coin.Amount, coin.Amount, error,
+			) {
+				t.Fatal("must not create a below-minimum transaction proposal")
+				return coin.Amount{}, coin.Amount{}, coin.Amount{}, nil
+			})
+
+			proposal, err := lightning.PrepareTopUp(prepareTopUpRequest{
+				SourceAccountCode: testTopUpSourceAccountCode,
+				Amount:            amount,
+				FeeTarget:         "economy",
+			})
+
+			require.Nil(t, proposal)
+			var amountBelowMinimum *lightningAmountBelowMinimumError
+			require.ErrorAs(t, err, &amountBelowMinimum)
+			require.Equal(t, uint64(minimumTopUpAmountSat), amountBelowMinimum.minAmountSat)
+			require.Empty(t, account.TxProposalCalls())
+			require.Zero(t, sdk.receiveCallCount)
+		})
+	}
+}
+
 func TestPrepareTopUpRejectsAmountAboveFundingLimitBeforeCreatingProposal(t *testing.T) {
 	sdk := &topUpTestSDK{balanceSat: 50_000, incomingSat: 25_000}
 	lightning := makeActiveLightningWithSDK(t, sdk)
@@ -136,4 +164,12 @@ func TestPrepareTopUpRejectsAmountAboveFundingLimitBeforeCreatingProposal(t *tes
 	require.Equal(t, fundingLimit{LimitSat: 200_000, MarginSat: 125_000}, limitErr.fundingLimit)
 	require.Empty(t, account.TxProposalCalls())
 	require.Zero(t, sdk.receiveCallCount)
+}
+
+func TestValidateTopUpAmount(t *testing.T) {
+	err := validateTopUpAmount(coin.NewAmountFromInt64(minimumTopUpAmountSat - 1))
+	var amountBelowMinimum *lightningAmountBelowMinimumError
+	require.ErrorAs(t, err, &amountBelowMinimum)
+	require.Equal(t, uint64(minimumTopUpAmountSat), amountBelowMinimum.minAmountSat)
+	require.NoError(t, validateTopUpAmount(coin.NewAmountFromInt64(minimumTopUpAmountSat)))
 }

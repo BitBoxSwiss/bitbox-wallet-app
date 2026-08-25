@@ -1886,7 +1886,6 @@
       },
       "from": "From",
       "noBitcoinAccounts": "No Bitcoin accounts active. Please activate a Bitcoin account.",
-      "noFundedBitcoinAccounts": "No Bitcoin accounts with an available balance. Receive Bitcoin before trying to top up again.",
       "note": "Lightning top-up",
       "success": {
         "message": "Top up created!",
