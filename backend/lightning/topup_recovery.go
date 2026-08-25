@@ -64,8 +64,8 @@ func requiredClaimFeeSat(claimErrorPtr *breez_sdk_spark.DepositClaimError) (uint
 	}
 }
 
-func claimDepositTxID(payment breez_sdk_spark.Payment) string {
-	if payment.Details == nil {
+func claimDepositTxID(payment *breez_sdk_spark.Payment) string {
+	if payment == nil || payment.Details == nil {
 		return ""
 	}
 	if details, ok := (*payment.Details).(breez_sdk_spark.PaymentDetailsDeposit); ok {
