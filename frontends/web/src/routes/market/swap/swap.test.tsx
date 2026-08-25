@@ -48,11 +48,13 @@ vi.mock('./components/swap-result', () => ({
 }));
 vi.mock('./components/input-with-account-selector', () => ({
   InputWithAccountSelector: ({
+    disabled,
     id,
     onChangeValue,
     readOnlyAmount,
     value,
   }: {
+    disabled?: boolean;
     id: string;
     onChangeValue?: (value: string) => void;
     readOnlyAmount?: boolean;
@@ -64,6 +66,7 @@ vi.mock('./components/input-with-account-selector', () => ({
         <input
           id={id}
           aria-label={id}
+          disabled={disabled}
           value={value || ''}
           onChange={event => onChangeValue?.(event.target.value)}
         />
@@ -92,6 +95,7 @@ vi.mock('@/api/swap', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/api/swap')>();
   return {
     ...actual,
+    ensureSwapAccountsReady: vi.fn(),
     getSwapAccounts: vi.fn(),
     getSwapQuote: vi.fn(),
     signSwap: vi.fn(),
@@ -203,6 +207,7 @@ describe('routes/market/swap', () => {
 
     vi.mocked(accountApi.getBalance).mockResolvedValue({ success: false });
     vi.mocked(coinsApi.parseExternalBtcAmount).mockResolvedValue({ success: false, amount: '' });
+    vi.mocked(swapApi.ensureSwapAccountsReady).mockResolvedValue({ success: true });
     vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
       success: true,
       sellAccounts: [swapSellAccount],
@@ -457,7 +462,7 @@ describe('routes/market/swap', () => {
     const user = userEvent.setup();
 
     vi.mocked(accountApi.hasSwapPaymentRequest).mockResolvedValue({ success: true });
-    vi.mocked(swapApi.signSwap).mockImplementation(() => new Promise(() => {}));
+    vi.mocked(swapApi.ensureSwapAccountsReady).mockImplementation(() => new Promise(() => {}));
 
     render(
       <BackButtonProvider>
@@ -489,5 +494,88 @@ describe('routes/market/swap', () => {
     expect(await screen.findByRole('button', {
       name: 'Syncing the account, please wait…',
     })).toBeDisabled();
+    expect(screen.getByLabelText('swapSendAmount')).toBeDisabled();
+    expect(swapApi.signSwap).not.toHaveBeenCalled();
+  });
+
+  it('keeps the form locked after account synchronization', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(accountApi.hasSwapPaymentRequest).mockResolvedValue({ success: true });
+    vi.mocked(swapApi.signSwap).mockImplementation(() => new Promise(() => {}));
+
+    render(
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    const sellAmountInput = await screen.findByLabelText('swapSendAmount');
+    await user.type(sellAmountInput, '1');
+    expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+
+    await user.click(await screen.findByRole('button', { name: 'Swap' }));
+
+    expect(await screen.findByRole('button', { name: 'loading…' })).toBeDisabled();
+    expect(sellAmountInput).toBeDisabled();
+    expect(swapApi.signSwap).toHaveBeenCalledWith({
+      buyAccountCode: 'eth-account',
+      routeId: 'route-1',
+      sellAccountCode: 'btc-account',
+      sellAmount: '1',
+    });
+  });
+
+  it('refreshes an aging quote after account synchronization', async () => {
+    const user = userEvent.setup();
+    const dateNow = vi.spyOn(Date, 'now').mockReturnValue(1_000);
+
+    vi.mocked(accountApi.hasSwapPaymentRequest).mockResolvedValue({ success: true });
+
+    render(
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <MemoryRouter>
+            <Swap accounts={[sellAccount, buyAccount]} />
+          </MemoryRouter>
+        </RatesContext.Provider>
+      </BackButtonProvider>
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+    expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+
+    dateNow.mockReturnValue(47_000);
+    await user.click(await screen.findByRole('button', { name: 'Swap' }));
+
+    await waitFor(() => expect(swapApi.getSwapQuote).toHaveBeenCalledTimes(2));
+    expect(swapApi.signSwap).not.toHaveBeenCalled();
+    dateNow.mockRestore();
   });
 });

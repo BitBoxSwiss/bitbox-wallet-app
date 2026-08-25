@@ -317,32 +317,9 @@ func (backend *Backend) PrepareSwap(
 	buyAccountCode, sellAccountCode accountsTypes.Code,
 	routeID, sellAmount string,
 ) (*SwapPreparation, error) {
-	// Account reinitialization is synchronous and has no context-aware API.
-	if err := backend.activateSwapBuyAccount(buyAccountCode); err != nil { //nolint:contextcheck
-		return nil, err
-	}
-
-	sellAccount, err := backend.GetAccountFromCode(sellAccountCode)
+	sellAccount, buyAccount, err := backend.swapAccountsReady(ctx, buyAccountCode, sellAccountCode)
 	if err != nil {
 		return nil, err
-	}
-	buyAccount, err := backend.GetAccountFromCode(buyAccountCode)
-	if err != nil {
-		return nil, err
-	}
-	if err := validateSwapAccountSupported(sellAccount); err != nil {
-		return nil, err
-	}
-	if err := validateSwapAccountSupported(buyAccount); err != nil {
-		return nil, err
-	}
-
-	syncCtx, cancelSync := context.WithTimeout(ctx, swapAccountSyncTimeout)
-	defer cancelSync()
-	for _, account := range []accounts.Interface{sellAccount, buyAccount} {
-		if err := waitForSwapAccountSync(syncCtx, account); err != nil {
-			return nil, err
-		}
 	}
 
 	// Grab an unused address; since we build the tx ourselves, we don't need an used
@@ -397,6 +374,50 @@ func (backend *Backend) PrepareSwap(
 		SwapID:            swapResponse.SwapID,
 		TxInput:           txInput,
 	}, nil
+}
+
+// EnsureSwapAccountsReady activates the destination account if necessary and waits until both
+// accounts can be used to prepare a swap.
+func (backend *Backend) EnsureSwapAccountsReady(
+	ctx context.Context,
+	buyAccountCode, sellAccountCode accountsTypes.Code,
+) error {
+	_, _, err := backend.swapAccountsReady(ctx, buyAccountCode, sellAccountCode)
+	return err
+}
+
+func (backend *Backend) swapAccountsReady(
+	ctx context.Context,
+	buyAccountCode, sellAccountCode accountsTypes.Code,
+) (accounts.Interface, accounts.Interface, error) {
+	// Account reinitialization is synchronous and has no context-aware API.
+	if err := backend.activateSwapBuyAccount(buyAccountCode); err != nil { //nolint:contextcheck
+		return nil, nil, err
+	}
+
+	sellAccount, err := backend.GetAccountFromCode(sellAccountCode)
+	if err != nil {
+		return nil, nil, err
+	}
+	buyAccount, err := backend.GetAccountFromCode(buyAccountCode)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := validateSwapAccountSupported(sellAccount); err != nil {
+		return nil, nil, err
+	}
+	if err := validateSwapAccountSupported(buyAccount); err != nil {
+		return nil, nil, err
+	}
+
+	syncCtx, cancelSync := context.WithTimeout(ctx, swapAccountSyncTimeout)
+	defer cancelSync()
+	for _, account := range []accounts.Interface{sellAccount, buyAccount} {
+		if err := waitForSwapAccountSync(syncCtx, account); err != nil {
+			return nil, nil, err
+		}
+	}
+	return sellAccount, buyAccount, nil
 }
 
 // waitForSwapAccountSync waits until an account is ready for address derivation and transaction

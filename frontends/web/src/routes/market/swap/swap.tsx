@@ -16,6 +16,7 @@ import {
 } from '@/api/account';
 import { convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
 import {
+  ensureSwapAccountsReady,
   getSwapAccounts,
   getSwapQuote,
   signSwap,
@@ -54,6 +55,8 @@ type Props = {
 };
 
 const QUOTE_DEBOUNCE_MS = 300;
+// SwapKit quotes expire after one minute. Leave enough time to create the swap after readiness.
+const QUOTE_MAX_AGE_MS = 45_000;
 const INSUFFICIENT_FUNDS_ERROR: TSwapQuoteErrorCode = 'insufficientFunds';
 const NO_ROUTES_FOUND_ERROR: TSwapQuoteErrorCode = 'noRoutesFound';
 const UNEXPECTED_ERROR: TSwapQuoteErrorCode = 'unexpectedError';
@@ -126,8 +129,11 @@ export const Swap = ({
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
   const [quoteErrorCode, setQuoteErrorCode] = useState<TSwapQuoteErrorCode | undefined>();
   const [routeError, setRouteError] = useState<string | undefined>();
+  const [quoteRefreshCounter, setQuoteRefreshCounter] = useState(0);
+  const quoteUpdatedAtRef = useRef<number>();
   // Drives the button disabled/loading state for the whole confirm flow.
   const [isConfirmInFlight, setIsConfirmInFlight] = useState(false);
+  const [isWaitingForAccounts, setIsWaitingForAccounts] = useState(false);
   // Prevents double-submit before the button disabled state has re-rendered.
   const confirmInFlightRef = useRef(false);
 
@@ -203,6 +209,7 @@ export const Swap = ({
   }, [buyAccount, sellAccountCode]);
 
   const clearQuoteState = useCallback(() => {
+    quoteUpdatedAtRef.current = undefined;
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
@@ -248,6 +255,7 @@ export const Swap = ({
     const amount = Number(sellAmount);
 
     setRoutes([]);
+    quoteUpdatedAtRef.current = undefined;
     setSelectedRouteId(undefined);
     setExpectedOutput('');
     setExpectedOutputUnit(undefined);
@@ -283,6 +291,7 @@ export const Swap = ({
         const nextRoutes = response.quote?.routes ?? [];
         const validationErrorCode = response.success ? undefined : response.validationErrorCode;
         if (nextRoutes.length > 0) {
+          quoteUpdatedAtRef.current = Date.now();
           setQuoteErrorCode(response.success ? undefined : validationErrorCode ?? response.errorCode);
           setRouteError(undefined);
           setRoutes(nextRoutes);
@@ -353,6 +362,7 @@ export const Swap = ({
     buyAccountCode,
     clearQuoteState,
     resetQuoteStateWithError,
+    quoteRefreshCounter,
     sellAccount?.coinCode,
     sellAccountCode,
     sellAmount,
@@ -410,6 +420,22 @@ export const Swap = ({
 
       setResult(undefined);
       setConfirmDetails(undefined);
+
+      setIsWaitingForAccounts(true);
+      const readiness = await ensureSwapAccountsReady(buyAccountCode, sellAccountCode);
+      setIsWaitingForAccounts(false);
+      if (!readiness.success) {
+        alertUser(readiness.errorCode
+          ? t(`send.error.${readiness.errorCode}`)
+          : readiness.errorMessage || t('genericError'));
+        return;
+      }
+
+      const quoteUpdatedAt = quoteUpdatedAtRef.current;
+      if (!quoteUpdatedAt || Date.now() - quoteUpdatedAt >= QUOTE_MAX_AGE_MS) {
+        setQuoteRefreshCounter(current => current + 1);
+        return;
+      }
 
       const response = await signSwap({
         buyAccountCode,
@@ -472,6 +498,7 @@ export const Swap = ({
     } finally {
       confirmInFlightRef.current = false;
       setIsConfirmInFlight(false);
+      setIsWaitingForAccounts(false);
       setIsConfirming(false);
     }
   };
@@ -589,6 +616,7 @@ export const Swap = ({
               ) : (
                 <InputWithAccountSelector
                   accounts={sellAccounts}
+                  disabled={isConfirmInFlight}
                   id="swapSendAmount"
                   accountCode={sellAccountCode}
                   isAccountDisabled={account => isSameCoinAccount(account, buyAccount)}
@@ -610,7 +638,7 @@ export const Swap = ({
               </Message>
               <div className={style.flipContainer}>
                 <Button
-                  disabled={!canFlip}
+                  disabled={!canFlip || isConfirmInFlight}
                   transparent
                   className={style.flipAccountsButton}
                   onClick={handleFlipAccounts}
@@ -631,6 +659,7 @@ export const Swap = ({
               ) : (
                 <InputWithAccountSelector
                   accounts={buyAccounts}
+                  disabled={isConfirmInFlight}
                   id="swapGetAmount"
                   accountCode={buyAccountCode}
                   isAccountDisabled={account => isSameCoinAccount(account, sellAccount)}
@@ -643,6 +672,7 @@ export const Swap = ({
               )}
               <SwapServiceSelector
                 buyUnit={buyAccount?.coinUnit}
+                disabled={isConfirmInFlight}
                 error={routeError}
                 isLoading={isFetchingRoutes}
                 onChangeRouteId={setSelectedRouteId}
@@ -661,7 +691,9 @@ export const Swap = ({
                       <SpinnerRingAnimated />
                     </span>
                   )}
-                  {isConfirmInFlight ? t('account.syncing') : t('generic.swap')}
+                  {isConfirmInFlight
+                    ? t(isWaitingForAccounts ? 'account.syncing' : 'loading')
+                    : t('generic.swap')}
                 </span>
               </Button>
               <DesktopBackButton>
