@@ -200,28 +200,37 @@ func (s *testSuite) TestAddressToPkScript() {
 		// p2wpkh native segwit
 		{"ltc1qzr0n0a4xs0404fy5l7pl7pj8yj8q34ml27rlcs", "001410df37f6a683eafaa494ff83ff0647248e08d77f"},
 	}
+	allInvalidAddresses := []test{
+		// p2a addresses
+		{"bc1pfeessrawgf", ""},
+		{"tb1pfees9rn5nz", ""},
+	}
 
 	var validAddresses []test
 	var invalidAddresses []test
 	switch s.code {
 	case coin.CodeTBTC:
 		validAddresses = tbtcValidAddresses
-		invalidAddresses = append([]test{}, btcValidAddresses...)
+		invalidAddresses = append([]test{}, allInvalidAddresses...)
+		invalidAddresses = append(invalidAddresses, btcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, ltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tltcValidAddresses[2])
 	case coin.CodeBTC:
 		validAddresses = btcValidAddresses
-		invalidAddresses = append([]test{}, tbtcValidAddresses...)
+		invalidAddresses = append([]test{}, allInvalidAddresses...)
+		invalidAddresses = append(invalidAddresses, tbtcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, ltcValidAddresses...)
 	case coin.CodeTLTC:
 		validAddresses = tltcValidAddresses
-		invalidAddresses = append([]test{}, ltcValidAddresses...)
+		invalidAddresses = append([]test{}, allInvalidAddresses...)
+		invalidAddresses = append(invalidAddresses, ltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, btcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tbtcValidAddresses[2])
 	case coin.CodeLTC:
 		validAddresses = ltcValidAddresses
-		invalidAddresses = append([]test{}, tltcValidAddresses...)
+		invalidAddresses = append([]test{}, allInvalidAddresses...)
+		invalidAddresses = append(invalidAddresses, tltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tbtcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, btcValidAddresses...)
 	default:

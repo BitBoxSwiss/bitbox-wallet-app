@@ -290,7 +290,18 @@ func (coin *Coin) decodeAddress(address string) (addresspkg.Address, error) {
 	if !btcAddress.IsForNet(coin.Net()) {
 		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
-	if _, ok := btcAddress.(*addresspkg.AddressTaproot); ok {
+
+	switch btcAddress.(type) {
+	// All default address types that are commonly in use.
+	case *addresspkg.AddressPubKeyHash,
+		*addresspkg.AddressScriptHash,
+		*addresspkg.AddressWitnessPubKeyHash,
+		*addresspkg.AddressWitnessScriptHash:
+
+		// Let through common types that are supported.
+
+	// Taproot addresses are not activated on other coins.
+	case *addresspkg.AddressTaproot:
 		switch coin.code {
 		case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC:
 			// Taproot activated on Bitcoin.
@@ -298,7 +309,14 @@ func (coin *Coin) decodeAddress(address string) (addresspkg.Address, error) {
 			// Taproot not activated on other coins.
 			return nil, errp.WithStack(errors.ErrInvalidAddress)
 		}
+
+	// A catch-all for any address type (including potential future ones)
+	// that isn't supported. Currently, these are pay to bare public key and
+	// pay to anchor addresses (P2PK, P2A).
+	default:
+		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
+
 	return btcAddress, nil
 }
 
