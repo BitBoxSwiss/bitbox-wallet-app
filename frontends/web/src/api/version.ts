@@ -25,6 +25,10 @@ export const getUpdate = (): Promise<TUpdateState> => {
   return apiGet('update');
 };
 
+export const checkUpdate = (): Promise<TUpdateState> => {
+  return apiGet('update?about=1');
+};
+
 export const subscribeUpdate = (
   cb: TSubscriptionCallback<TUpdateState>
 ) => (

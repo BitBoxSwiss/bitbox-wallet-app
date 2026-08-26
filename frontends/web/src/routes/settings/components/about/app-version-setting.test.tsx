@@ -8,7 +8,7 @@ import type { TUpdateFile, TUpdateState } from '@/api/version';
 import { AppVersion } from './app-version-setting';
 
 const versionApiMocks = vi.hoisted(() => ({
-  getUpdate: vi.fn(),
+  checkUpdate: vi.fn(),
   getVersion: vi.fn(),
   subscribeUpdate: vi.fn(),
 }));
@@ -53,20 +53,21 @@ describe('routes/settings/components/about/app-version-setting', () => {
     vi.clearAllMocks();
     notifyUpdate = undefined;
     versionApiMocks.getVersion.mockResolvedValue('4.51.3');
-    versionApiMocks.getUpdate.mockResolvedValue(noUpdateState);
+    versionApiMocks.checkUpdate.mockResolvedValue(noUpdateState);
     versionApiMocks.subscribeUpdate.mockImplementation((cb: typeof notifyUpdate) => {
       notifyUpdate = cb;
       return () => {};
     });
   });
 
-  it('renders a cached update', async () => {
-    versionApiMocks.getUpdate.mockResolvedValue(updateState);
+  it('checks for and renders an update', async () => {
+    versionApiMocks.checkUpdate.mockResolvedValue(updateState);
 
     render(<AppVersion />);
 
     expect(await screen.findByText('settings.info.out-of-date')).toBeInTheDocument();
     expect(await screen.findByText('4.51.3')).toBeInTheDocument();
+    expect(versionApiMocks.checkUpdate).toHaveBeenCalledOnce();
     expect(versionApiMocks.subscribeUpdate).toHaveBeenCalledOnce();
   });
 
