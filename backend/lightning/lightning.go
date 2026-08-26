@@ -34,8 +34,7 @@ import (
 const (
 	breezApiKeyUrl            = "https://bitboxapp.shiftcrypto.io/lightning/breez-api-key"
 	encryptedMnemonicV1Prefix = "v1:"
-	lnurlDomainDev            = "lnurl.shiftcrypto.dev"
-	lnurlDomainProd           = "bitbox.cash"
+	lnurlDomain               = "bitbox.cash"
 )
 
 // Keep this local to avoid importing backend.Environment and creating a package cycle.
@@ -83,7 +82,6 @@ type Lightning struct {
 	httpClient   *http.Client
 	ratesUpdater *rates.RateUpdater
 	btcCoin      coin.Coin
-	devServers   bool
 
 	// Serializes lazy lightning address registration.
 	lightningAddressLock sync.Mutex
@@ -97,8 +95,7 @@ func NewLightning(config *config.Config,
 	getAccount func(types.Code) (accounts.Interface, error),
 	httpClient *http.Client,
 	ratesUpdater *rates.RateUpdater,
-	btcCoin coin.Coin,
-	devServers bool) *Lightning {
+	btcCoin coin.Coin) *Lightning {
 	return &Lightning{
 		backendConfig:      config,
 		cacheDirectoryPath: cacheDirectoryPath,
@@ -111,7 +108,6 @@ func NewLightning(config *config.Config,
 		httpClient:         httpClient,
 		ratesUpdater:       ratesUpdater,
 		btcCoin:            btcCoin,
-		devServers:         devServers,
 	}
 }
 
@@ -386,7 +382,7 @@ func (lightning *Lightning) connect() error {
 		// Create the default config
 		config := breez_sdk_spark.DefaultConfig(breez_sdk_spark.NetworkMainnet)
 		config.ApiKey = apiKey
-		lnurlDomainConfig := lightning.lnurlDomain()
+		lnurlDomainConfig := lnurlDomain
 		config.LnurlDomain = &lnurlDomainConfig
 		// Do not send unrecognized payment inputs to third-party parsers.
 		config.UseDefaultExternalInputParsers = false
@@ -432,13 +428,6 @@ func (lightning *Lightning) connect() error {
 		}
 	}
 	return nil
-}
-
-func (lightning *Lightning) lnurlDomain() string {
-	if lightning.devServers {
-		return lnurlDomainDev
-	}
-	return lnurlDomainProd
 }
 
 func (lightning *Lightning) sealMnemonic(accountCode string, mnemonic string) (string, error) {
