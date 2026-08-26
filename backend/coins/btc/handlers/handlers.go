@@ -181,21 +181,53 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 	return txInfoJSON
 }
 
-func (handlers *Handlers) getAccountTransactions(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountTransactions(r *http.Request) (interface{}, error) {
 	var result struct {
 		Success      bool          `json:"success"`
 		Transactions []Transaction `json:"list"`
+		Total        int           `json:"total"`
 	}
 	txs, err := handlers.account.Transactions()
 	if err != nil {
 		return result, nil
 	}
-	result.Transactions = []Transaction{}
+
+	visibleTxs := make(accounts.OrderedTransactions, 0, len(txs))
 	for _, txInfo := range txs {
 		if txInfo.IsErc20 && big.NewInt(0).Cmp(txInfo.Amount.BigInt()) == 0 {
 			// skipping 0 amount erc20 txs to mitigate Address Poisoning attack
 			continue
 		}
+		visibleTxs = append(visibleTxs, txInfo)
+	}
+	result.Total = len(visibleTxs)
+
+	query := r.URL.Query()
+	filter, err := accounts.NewTransactionFilter(accounts.TransactionFilterParams{
+		Search:     query.Get("search"),
+		FromDate:   query.Get("fromDate"),
+		ToDate:     query.Get("toDate"),
+		Type:       query.Get("type"),
+		AmountMin:  query.Get("amountMin"),
+		AmountMax:  query.Get("amountMax"),
+		AmountUnit: query.Get("amountUnit"),
+		Fiat:       query.Get("fiat"),
+		SortBy:     query.Get("sortBy"),
+		SortDir:    query.Get("sortDir"),
+	}, time.Local)
+	if err != nil {
+		return nil, err
+	}
+	visibleTxs = filter.Apply(
+		visibleTxs,
+		handlers.account.Coin(),
+		handlers.account.Config().RateUpdater,
+		handlers.account.TxNote,
+		time.Now(),
+	)
+
+	result.Transactions = make([]Transaction, 0, len(visibleTxs))
+	for _, txInfo := range visibleTxs {
 		result.Transactions = append(result.Transactions, handlers.getTxInfoJSON(txInfo, false))
 	}
 	result.Success = true

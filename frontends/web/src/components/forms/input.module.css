@@ -115,10 +115,16 @@
     text-align: right;
 }
 
+.inputField input[type=date],
 .inputField input[type=number],
 .inputField input[type=password],
 .inputField input[type=text] {
     background: transparent;
+}
+
+/* the native calendar icon is dark; invert it on dark backgrounds */
+:global(.dark-mode) .inputField input[type=date]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
 }
 
 /* webkit */

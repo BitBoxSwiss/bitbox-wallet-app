@@ -16,6 +16,7 @@ type TransactionListProps = {
   transactionSuccess: boolean;
   filteredTransactions: TTransactionListItem[];
   debouncedSearchTerm: string;
+  hasActiveFilters: boolean;
   onShowDetail: (internalID: accountApi.TTransaction['internalID']) => void;
 };
 
@@ -23,6 +24,7 @@ export const TransactionList = memo<TransactionListProps>(({
   transactionSuccess,
   filteredTransactions,
   debouncedSearchTerm,
+  hasActiveFilters,
   onShowDetail,
 }) => {
   const { t } = useTranslation();
@@ -51,7 +53,19 @@ export const TransactionList = memo<TransactionListProps>(({
   if (hasSearchTerm) {
     return (
       <p className={style.emptyTransactions}>
-        {t('transaction.no-results', { searchTerm: debouncedSearchTerm })}
+        {hasActiveFilters ? (
+          t('transactions.filters.noResultsWithSearch', { searchTerm: debouncedSearchTerm })
+        ) : (
+          t('transaction.no-results', { searchTerm: debouncedSearchTerm })
+        )}
+      </p>
+    );
+  }
+
+  if (hasActiveFilters) {
+    return (
+      <p className={style.emptyTransactions}>
+        {t('transactions.filters.noResults')}
       </p>
     );
   } else {

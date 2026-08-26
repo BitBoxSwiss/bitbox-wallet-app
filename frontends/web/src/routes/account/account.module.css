@@ -230,6 +230,7 @@
 .searchContainer {
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    visibility: visible;
     width: 100%;
 }
 
@@ -237,6 +238,51 @@
     max-height: 0;
     opacity: 0;
     transform: translateY(-10px);
+    /* remove the collapsed controls from the tab order */
+    visibility: hidden;
+}
+
+/* sits inside the search field, next to the loupe */
+.filterToggle {
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex: none;
+    height: 24px;
+    justify-content: center;
+    margin: auto 0;
+    padding: 0;
+    position: relative;
+    width: 24px;
+}
+
+.filterToggle img {
+    height: 20px;
+    width: 20px;
+}
+
+/* the criteria are out of sight once the sheet or row is closed, so mark
+   the toggle while they still apply */
+.filterToggleActive::after {
+    background-color: var(--color-blue);
+    border-radius: 50%;
+    content: '';
+    height: 6px;
+    position: absolute;
+    right: -1px;
+    top: -1px;
+    width: 6px;
+}
+
+/* the filter fields end in their own bottom margin plus the row's padding;
+   absorb the row padding so the gap above matches the sheet padding below */
+.filterSheetActions {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--space-quarter) * -1);
+    padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 @media (max-width: 768px) {
