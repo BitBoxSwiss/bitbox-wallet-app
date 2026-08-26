@@ -213,7 +213,7 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*paymentInput, e
 
 	switch inputType := input.(type) {
 	case breez_sdk_spark.InputTypeBitcoinAddress:
-		lightning.log.Print("Input is Bitcoin address")
+		lightning.log.Debug("Input is Bitcoin address")
 		return &paymentInput{
 			Type: paymentInputTypeBitcoinAddress,
 			BitcoinAddress: &lightningBitcoinPaymentInput{
@@ -234,7 +234,7 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*paymentInput, e
 		}
 		for _, paymentMethod := range inputType.Field0.PaymentMethods {
 			if bitcoinAddress, ok := paymentMethod.(breez_sdk_spark.InputTypeBitcoinAddress); ok {
-				lightning.log.Print("Input is BIP21 Bitcoin address")
+				lightning.log.Debug("Input is BIP21 Bitcoin address")
 				amountSat := inputType.Field0.AmountSat
 				if amountSat != nil && *amountSat == 0 {
 					amountSat = nil
@@ -254,8 +254,7 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*paymentInput, e
 		return lightning.bolt11PaymentInput(inputType, nil), nil
 
 	case breez_sdk_spark.InputTypeLnurlPay:
-		lightning.log.Printf("Input is LNURL-Pay/Lightning address accepting min/max %d/%d msats",
-			inputType.Field0.MinSendable, inputType.Field0.MaxSendable)
+		lightning.log.Debug("Input is LNURL-Pay request")
 		lnurlPay := toLightningLNURLPay(inputStr, inputType.Field0)
 		return &paymentInput{
 			Type:     paymentInputTypeLNURLPay,
@@ -263,8 +262,7 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*paymentInput, e
 		}, nil
 
 	case breez_sdk_spark.InputTypeLightningAddress:
-		lightning.log.Printf("Input is Lightning address %s accepting min/max %d/%d msats",
-			inputType.Field0.Address, inputType.Field0.PayRequest.MinSendable, inputType.Field0.PayRequest.MaxSendable)
+		lightning.log.Debug("Input is Lightning address")
 		lnurlPay := toLightningLNURLPay(inputStr, inputType.Field0.PayRequest)
 		lnurlPay.Address = &inputType.Field0.Address
 		return &paymentInput{
@@ -273,32 +271,13 @@ func (lightning *Lightning) ParsePaymentInput(inputStr string) (*paymentInput, e
 		}, nil
 
 	case breez_sdk_spark.InputTypeLnurlWithdraw:
-		lightning.log.Printf("Input is LNURL-Withdraw for min/max %d/%d msats",
-			inputType.Field0.MinWithdrawable, inputType.Field0.MaxWithdrawable)
+		lightning.log.Debug("Input is unsupported LNURL-Withdraw request")
 
 	case breez_sdk_spark.InputTypeSparkAddress:
-		lightning.log.Printf("Input is Spark address %s", inputType.Field0.Address)
+		lightning.log.Debug("Input is unsupported Spark address")
 
 	case breez_sdk_spark.InputTypeSparkInvoice:
-		invoice := inputType.Field0
-		lightning.log.Println("Input is Spark invoice:")
-		if invoice.TokenIdentifier != nil {
-			lightning.log.Printf("  Amount: %d base units of token with id %s", invoice.Amount, *invoice.TokenIdentifier)
-		} else {
-			lightning.log.Printf("  Amount: %d sats", invoice.Amount)
-		}
-
-		if invoice.Description != nil {
-			lightning.log.Printf("  Description: %s", *invoice.Description)
-		}
-
-		if invoice.ExpiryTime != nil {
-			lightning.log.Printf("  Expiry time: %d", *invoice.ExpiryTime)
-		}
-
-		if invoice.SenderPublicKey != nil {
-			lightning.log.Printf("  Sender public key: %s", *invoice.SenderPublicKey)
-		}
+		lightning.log.Debug("Input is unsupported Spark invoice")
 
 	default:
 		lightning.log.Errorf("Input type not supported %T", input)
@@ -340,10 +319,8 @@ func (lightning *Lightning) bolt11PaymentInput(
 	inputType breez_sdk_spark.InputTypeBolt11Invoice,
 	fallbackDescription *string,
 ) *paymentInput {
-	amount := "unknown"
 	var amountSat *uint64
 	if inputType.Field0.AmountMsat != nil {
-		amount = strconv.FormatUint(*inputType.Field0.AmountMsat, 10)
 		value := msatToSat(*inputType.Field0.AmountMsat, roundToCeil)
 		amountSat = &value
 	}
@@ -351,7 +328,7 @@ func (lightning *Lightning) bolt11PaymentInput(
 	if description == nil {
 		description = fallbackDescription
 	}
-	lightning.log.Printf("Input is BOLT11 invoice for %s msats", amount)
+	lightning.log.Debug("Input is BOLT11 invoice")
 	return &paymentInput{
 		Type: paymentInputTypeBolt11,
 		Bolt11: &lightningBolt11Invoice{
@@ -733,7 +710,7 @@ func (lightning *Lightning) prepareBolt11Payment(paymentInvoice string, amountSa
 	if err := checkPaymentBalance(fee, availableBalance); err != nil {
 		return fee, err
 	}
-	lightning.log.Printf("Lightning Fee: %v sats", fee.FeeSat)
+	lightning.log.Debug("Prepared Lightning payment")
 	return fee, nil
 }
 
@@ -767,7 +744,7 @@ func (lightning *Lightning) prepareLNURLPay(inputStr string, amountSat *uint64) 
 	if err := checkPaymentBalance(fee, availableBalance); err != nil {
 		return fee, err
 	}
-	lightning.log.Printf("LNURL-Pay Fee: %v sats", fee.FeeSat)
+	lightning.log.Debug("Prepared LNURL-Pay payment")
 	return fee, nil
 }
 
@@ -832,10 +809,7 @@ func (lightning *Lightning) sendBolt11Payment(request sendPaymentRequest) error 
 	if err := lightning.CheckActive(); err != nil {
 		return err
 	}
-	lightning.log.Infof("Sending payment to %+v", request.PaymentInput)
-	if request.AmountSat != nil {
-		lightning.log.Infof("Optional amount: %+v sat", *request.AmountSat)
-	}
+	lightning.log.Info("Sending Lightning payment")
 
 	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareBolt11PaymentRequest(request.PaymentInput, request.AmountSat))
 	if err != nil {
@@ -883,8 +857,7 @@ func (lightning *Lightning) sendLNURLPay(request sendPaymentRequest) error {
 		return errLightningInvalidAmount
 	}
 
-	lightning.log.Infof("Sending LNURL-Pay payment to %+v", request.PaymentInput)
-	lightning.log.Infof("Amount: %+v sat", *request.AmountSat)
+	lightning.log.Info("Sending LNURL-Pay payment")
 
 	payRequest, err := lightning.parseLNURLPayRequest(request.PaymentInput)
 	if err != nil {
@@ -1154,8 +1127,7 @@ func (lightning *Lightning) BoardingAddress() (string, error) {
 	}
 
 	paymentRequest := response.PaymentRequest
-	lightning.log.Printf("Payment Request: %v", paymentRequest)
-	lightning.log.Printf("Fees: %v sats", response.Fee)
+	lightning.log.Debug("Created Bitcoin funding address")
 
 	return paymentRequest, nil
 }
@@ -1181,9 +1153,7 @@ func (lightning *Lightning) ReceivePayment(amountSat uint64, description string)
 		return nil, err
 	}
 
-	paymentRequest := response.PaymentRequest
-	lightning.log.Printf("Payment Request: %v", paymentRequest)
-	lightning.log.Printf("Fees: %v sats", response.Fee)
+	lightning.log.Debug("Created Lightning invoice")
 	return &receivePaymentResponse{Invoice: response.PaymentRequest}, nil
 }
 
@@ -1212,7 +1182,7 @@ func (lightning *Lightning) ListPayments() ([]lightningPayment, error) {
 		return nil, errp.Wrap(err, "breez: list unclaimed deposits")
 	}
 
-	lightning.log.Infof("List payments: %+v", rawPayments)
+	lightning.log.Debug("Listed Lightning payments")
 
 	payments := make([]lightningPayment, 0, len(deposits.Deposits)+len(rawPayments))
 	for _, deposit := range deposits.Deposits {

@@ -23,7 +23,8 @@ func initializeLogging(log *logrus.Entry) {
 		logListener = &sdkLogger{log}
 
 		var loggerImpl breez_sdk_spark.Logger = logListener
-		if err := breez_sdk_spark.InitLogging(nil, &loggerImpl, nil); err != nil {
+		logFilter := "debug"
+		if err := breez_sdk_spark.InitLogging(nil, &loggerImpl, &logFilter); err != nil {
 			log.WithError(err).Error("BreezSDK: Error init logging")
 		}
 	}
