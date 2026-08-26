@@ -344,7 +344,7 @@ func TestAddressAvailability(t *testing.T) {
 	require.Equal(t, &AddressAvailability{
 		GeneratedAddress: GeneratedAddress{
 			Username: "user123",
-			Address:  "user123@" + lnurlDomainProd,
+			Address:  "user123@" + lnurlDomain,
 		},
 		Available: true,
 	}, availability)
@@ -387,7 +387,7 @@ func TestGenerateAddressRetriesUnavailableUsernamesWithoutRegistering(t *testing
 	require.NotNil(t, generatedAddress)
 	require.Len(t, checkedUsernames, 2)
 	require.Equal(t, checkedUsernames[1], generatedAddress.Username)
-	require.Equal(t, generatedAddress.Username+"@"+lnurlDomainProd, generatedAddress.Address)
+	require.Equal(t, generatedAddress.Username+"@"+lnurlDomain, generatedAddress.Address)
 }
 
 func TestRegisterAddress(t *testing.T) {
@@ -433,7 +433,7 @@ func TestRegisterAddressReturnsSuccessWhenTimestampPersistenceFails(t *testing.T
 	cfg, err := config.NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 
-	lightning := NewLightning(cfg, t.TempDir(), nil, nil, nil, &http.Client{}, nil, nil, false)
+	lightning := NewLightning(cfg, t.TempDir(), nil, nil, nil, &http.Client{}, nil, nil)
 	activateLightningAddressTest(t, lightning)
 	now := time.Date(2026, 7, 9, 12, 0, 0, 0, time.UTC)
 	withLightningAddressNow(t, now)

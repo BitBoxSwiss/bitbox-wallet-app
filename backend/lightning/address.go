@@ -55,7 +55,7 @@ func lightningAddressString(info *breez_sdk_spark.LightningAddressInfo) *string 
 }
 
 func (lightning *Lightning) lightningAddressForUsername(username string) string {
-	return username + "@" + lightning.lnurlDomain()
+	return username + "@" + lnurlDomain
 }
 
 func normalizeLightningAddressUsername(username string) (string, error) {
@@ -210,7 +210,7 @@ func (lightning *Lightning) lightningAddress() (*string, error) {
 
 // AddressDomain returns the configured LNURL domain for Lightning addresses.
 func (lightning *Lightning) AddressDomain() string {
-	return lightning.lnurlDomain()
+	return lnurlDomain
 }
 
 // AddressAvailability checks whether a Lightning address username is available.

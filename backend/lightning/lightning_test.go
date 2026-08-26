@@ -88,7 +88,6 @@ func newTestLightningWithConfigFilename(
 		&http.Client{},
 		nil,
 		nil,
-		false,
 	)
 }
 
@@ -159,12 +158,8 @@ func TestReady(t *testing.T) {
 	require.False(t, lightning.Ready())
 }
 
-func TestLnurlDomain(t *testing.T) {
-	require.Equal(t, lnurlDomainProd, newTestLightning(t, nil).lnurlDomain())
-
-	lightning := newTestLightning(t, nil)
-	lightning.devServers = true
-	require.Equal(t, lnurlDomainDev, lightning.lnurlDomain())
+func TestAddressDomain(t *testing.T) {
+	require.Equal(t, "bitbox.cash", newTestLightning(t, nil).AddressDomain())
 }
 
 func TestServiceStatus(t *testing.T) {
