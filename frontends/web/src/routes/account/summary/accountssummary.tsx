@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
-import { TDevices } from '@/api/devices';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import { subscribeLightningBalance } from '@/api/lightning';
 import { unsubscribe } from '@/utils/subscriptions';
@@ -23,7 +22,6 @@ import { AppContext } from '@/contexts/AppContext';
 import { getAccountsByKeystore, getAccountsPerCoin, isBitcoinOnly } from '@/routes/account/utils';
 import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { BackupReminder } from '@/components/banners/backup';
 import { OfflineError } from '@/components/banners/offline-error';
 import { isLightningFeatureAvailable } from '@/utils/env';
@@ -31,7 +29,6 @@ import style from './accountssummary.module.css';
 
 type TProps = {
   accounts: accountApi.TAccount[];
-  devices: TDevices;
 };
 
 export type Balances = {
@@ -40,7 +37,6 @@ export type Balances = {
 
 export const AccountsSummary = ({
   accounts,
-  devices,
 }: TProps) => {
   const { t } = useTranslation();
   const summaryReqTimerID = useRef<number>();
@@ -190,7 +186,6 @@ export const AccountsSummary = ({
         <Main>
           <ContentWrapper>
             <OfflineError error={offlineError} />
-            <GlobalBanners devices={devices} />
             {accountsByKeystore.map(({ keystore }) => (
               <BackupReminder
                 key={keystore.rootFingerprint}
@@ -204,6 +199,7 @@ export const AccountsSummary = ({
           </Header>
           <View>
             <Chart
+              className={chartData ? style.fadeIn : ''}
               hideAmounts={hideAmounts}
               data={chartData}
               noDataPlaceholder={

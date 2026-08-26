@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { useSDCard } from './sdcard';
 import { DeviceInfo } from '@/api/bitbox01';
 import * as bitbox01Apis from '@/api/bitbox01';
@@ -23,6 +23,7 @@ describe('useSDCard', () => {
   describe('using any valid device, should call the appropriate checking method and return proper value', () => {
 
     beforeEach(() => {
+      vi.clearAllMocks();
       useMountedRefSpy.mockReturnValue({ current: true });
     });
 
@@ -59,7 +60,33 @@ describe('useSDCard', () => {
       await waitFor(() => expect(result.current).toBe(true));
     });
 
+    it('ignores a superseded SD card check', async () => {
+      let resolveFirst = (_value: boolean) => {};
+      let resolveSecond = (_value: boolean) => {};
+      checkSDCardSpy
+        .mockImplementationOnce(() => new Promise<boolean>((resolve) => {
+          resolveFirst = resolve;
+        }))
+        .mockImplementationOnce(() => new Promise<boolean>((resolve) => {
+          resolveSecond = resolve;
+        }));
+
+      const { result, rerender } = renderHook(
+        ({ locationKey }) => useSDCard({ '000': 'bitbox02' }, [locationKey]),
+        { initialProps: { locationKey: 'first' } },
+      );
+      await waitFor(() => expect(checkSDCard).toHaveBeenCalledTimes(1));
+
+      rerender({ locationKey: 'second' });
+      await waitFor(() => expect(checkSDCard).toHaveBeenCalledTimes(2));
+
+      await act(async () => resolveSecond(true));
+      await waitFor(() => expect(result.current).toBe(true));
+
+      await act(async () => resolveFirst(false));
+      expect(result.current).toBe(true);
+    });
+
   });
 
 });
-

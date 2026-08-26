@@ -19,9 +19,6 @@ vi.mock('@/api/backend', async (importOriginal) => {
     cancelConnectKeystore: vi.fn().mockResolvedValue(undefined),
   };
 });
-vi.mock('@/components/banners', () => ({
-  GlobalBanners: () => null,
-}));
 vi.mock('@/api/system', () => ({
   open: vi.fn().mockResolvedValue({ success: true }),
 }));
@@ -94,9 +91,9 @@ const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAcco
     return (
       <BackButtonProvider>
         <Routes>
-          <Route path="/account/:code/addresses" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
-          <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
-          <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} accounts={accounts} devices={{}} />} />
+          <Route path="/account/:code/addresses" element={<Addresses code={accountCode} accounts={accounts} />} />
+          <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} accounts={accounts} />} />
+          <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} accounts={accounts} />} />
         </Routes>
       </BackButtonProvider>
     );

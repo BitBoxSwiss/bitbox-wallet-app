@@ -6,10 +6,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
 import { AccountCode, TAccount } from '@/api/account';
-import { TDevices } from '@/api/devices';
 import { Header, Main } from '@/components/layout';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { View, ViewContent } from '@/components/view/view';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { findAccount } from '@/routes/account/utils';
@@ -180,18 +177,14 @@ export const AddressesContent = ({ code, accounts }: TAddressesContentProps) => 
 type TProps = {
   code: AccountCode;
   accounts: TAccount[];
-  devices: TDevices;
 };
 
-export const Addresses = ({ code, accounts, devices }: TProps) => {
+export const Addresses = ({ code, accounts }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
     <Main>
-      <ContentWrapper>
-        <GlobalBanners devices={devices} />
-      </ContentWrapper>
       <Header
         hideSidebarToggler
         title={

@@ -16,8 +16,6 @@ import { Entry } from '@/components/guide/entry';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
 import { TPagePropsWithSettingsTabs } from './types';
-import { GlobalBanners } from '@/components/banners';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { isNotesSettingsVisible } from './settings-availability';
 
 type TProps = {
@@ -30,9 +28,6 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <ContentWrapper>
-            <GlobalBanners devices={devices} />
-          </ContentWrapper>
           <Header
             hideSidebarToggler
             title={

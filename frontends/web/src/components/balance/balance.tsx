@@ -9,10 +9,12 @@ import style from './balance.module.css';
 
 type TProps = {
   balance?: TBalance;
+  className?: string;
 };
 
 export const Balance = ({
   balance,
+  className = '',
 }: TProps) => {
   const { t } = useTranslation();
   if (!balance) {
@@ -22,7 +24,7 @@ export const Balance = ({
   }
 
   return (
-    <header className={style.balanceContainer}>
+    <header className={`${style.balanceContainer || ''} ${className}`}>
       <SubTitle className={style.availableBalanceTitle}>
         {t('accountSummary.availableBalance')}
       </SubTitle>

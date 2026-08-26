@@ -5,8 +5,6 @@ import { View, ViewContent } from '@/components/view/view';
 import { Header, Main } from '@/components/layout';
 import { Tabs, WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { useNavigate } from 'react-router-dom';
@@ -29,9 +27,6 @@ export const MobileSettings = ({ devices, hasAccounts, showBottomNavigation }: T
   useOnlyVisitableOnMobile('/settings/general');
   return (
     <Main>
-      <ContentWrapper>
-        <GlobalBanners devices={devices} />
-      </ContentWrapper>
       <Header
         title={
           <MobileHeader

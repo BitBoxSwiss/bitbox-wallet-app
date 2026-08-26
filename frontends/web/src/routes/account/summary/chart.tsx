@@ -19,6 +19,7 @@ import { LinechartGray } from '@/components/icon';
 import styles from './chart.module.css';
 
 type TProps = {
+  className?: string;
   data?: TChartData;
   noDataPlaceholder?: JSX.Element;
   hideAmounts?: boolean;
@@ -160,6 +161,7 @@ const autoScaleProvider: AutoscaleInfoProvider = (original) => {
 };
 
 export const Chart = ({
+  className = '',
   data = defaultData,
   noDataPlaceholder,
   hideAmounts = false
@@ -631,7 +633,7 @@ export const Chart = ({
   const chartHeight = `${!isMobile ? height : mobileHeight}px`;
 
   return (
-    <section className={styles.chart}>
+    <section className={`${styles.chart || ''} ${className}`}>
       <header>
         <div className={styles.summary}>
           <div className={styles.totalValue}>
