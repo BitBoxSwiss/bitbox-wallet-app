@@ -204,16 +204,12 @@ func (handlers *Handlers) getAccountTransactions(r *http.Request) (interface{}, 
 
 	query := r.URL.Query()
 	filter, err := accounts.NewTransactionFilter(accounts.TransactionFilterParams{
-		Search:     query.Get("search"),
-		FromDate:   query.Get("fromDate"),
-		ToDate:     query.Get("toDate"),
-		Type:       query.Get("type"),
-		AmountMin:  query.Get("amountMin"),
-		AmountMax:  query.Get("amountMax"),
-		AmountUnit: query.Get("amountUnit"),
-		Fiat:       query.Get("fiat"),
-		SortBy:     query.Get("sortBy"),
-		SortDir:    query.Get("sortDir"),
+		Search:   query.Get("search"),
+		FromDate: query.Get("fromDate"),
+		ToDate:   query.Get("toDate"),
+		Type:     query.Get("type"),
+		SortBy:   query.Get("sortBy"),
+		SortDir:  query.Get("sortDir"),
 	}, time.Local)
 	if err != nil {
 		return nil, err
@@ -221,7 +217,6 @@ func (handlers *Handlers) getAccountTransactions(r *http.Request) (interface{}, 
 	visibleTxs = filter.Apply(
 		visibleTxs,
 		handlers.account.Coin(),
-		handlers.account.Config().RateUpdater,
 		handlers.account.TxNote,
 		time.Now(),
 	)

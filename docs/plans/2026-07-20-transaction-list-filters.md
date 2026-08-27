@@ -1,5 +1,8 @@
 # Transaction List Filters Implementation Plan
 
+> Note: the implemented design later removed amount min/max filtering and its currency
+> selector. References to those controls below describe the original implementation plan.
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Add a collapsible filter row (date range, transaction type, amount min/max in coin or fiat) to the account transaction list, toggled by a Filter button next to the existing search button.

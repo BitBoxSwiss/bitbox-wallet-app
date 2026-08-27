@@ -6,17 +6,14 @@ where it diverged from the originally approved one)
 
 ## Goal
 
-Filter the account transaction list by date range, transaction type, and amount, in
-either the account's crypto unit or the user's fiat currency. Must look good on desktop
-and mobile and fit the existing design language.
+Filter the account transaction list by date range and transaction type, and sort it by
+date, crypto amount, or type. Must look good on desktop and mobile and fit the existing
+design language.
 
 ## Decisions
 
 - **Backend search, filtering, and sorting** through query parameters on the account
   transactions endpoint.
-- **Fiat amounts match the value at transaction time** (`amountAtTime`, or
-  `deductedAmountAtTime` for sends and self-transfers), agreeing with what the list rows
-  display.
 - **Filters live inside the search bar.** The transaction-history header has a single
   "Search" toggle; opening it reveals the search input with a funnel icon-button at its
   right edge, which expands the filter row beneath. Search term and filters combine with
@@ -25,7 +22,7 @@ and mobile and fit the existing design language.
   Collapsing only the filter row (via the funnel) clears just the filters.
 - **Native date inputs** (`<input type="date">`), no date-picker dependency.
 - **Type filter is a Select** (All types / Sent / Received / Sent to self).
-- **Amount unit defaults to fiat**, since fiat is how most users think about value.
+- **Sort controls** select date, crypto amount, or type and ascending or descending order.
 
 ## UI
 
@@ -34,16 +31,15 @@ and mobile and fit the existing design language.
 - Search row: the search input with an icon-only funnel button beside it
   (`aria-label`/`aria-expanded`; background + border while active, matching the input
   field styling).
-- Filter row, in order: **Type**, then **From**/**To** dates, then **Min**/**Max** with a
-  **Currency** select (account coin unit, or the user's default fiat).
+- Filter row, in order: **Sort by** with a direction button, **Type**, then **From**/**To**
+  dates.
 - Labels are secondary grey at `--size-small`, below the "Transaction history" subtitle.
 - The browser's `dd.mm.yyyy` format hint is hidden while a date field is empty and
   unfocused, so empty fields show only the calendar icon.
 - Both rows expand with the same collapse animation (max-height + opacity;
   `visibility: hidden` when collapsed so controls leave the tab order).
-- Desktop: all six controls on one line via proportional zero-basis flex
-  (type 3 : dates 6 : amounts 7). Mobile (≤768px): type full width, dates side by side,
-  amounts side by side.
+- Desktop: all controls on one line via proportional zero-basis flex. Mobile (≤768px):
+  sort and type share the first line, with the dates side by side below.
 - Opening the search scrolls it into view on mobile; opening the filter row does not
   scroll again.
 - Zero matches with active filters shows "No transactions match your filters"; a search
@@ -56,17 +52,14 @@ and mobile and fit the existing design language.
 
 - `transaction-filters.tsx` — presentational filter row; receives state + setters as props.
 - `transaction-filters.module.css` — layout, 768px breakpoint.
-- `use-transaction-filters.ts` — filter state (`fromDate`, `toDate`, `type`, `amountMin`,
-  `amountMax`, `amountUnit`, `sortBy`, `sortDir`), plus `clearFilters()`, `isActive`, and
-  the debounced `appliedFilters`. Amount inputs are debounced 200ms; other controls apply
-  immediately. `isActive` is derived from the debounced view so it never disagrees with
-  the backend request.
+- `use-transaction-filters.ts` — filter state (`fromDate`, `toDate`, `type`, `sortBy`,
+  `sortDir`), plus `clearFilters()` and `isActive`.
 - `use-transaction-filters.test.ts`, `transaction-filters.test.tsx` — unit tests.
 
-`account.tsx` sends the debounced search term, `appliedFilters`, and
-`RatesContext.defaultCurrency` to `GET /account/{code}/transactions`. Transaction events
-trigger a refetch with the current query. The endpoint also returns the unfiltered `total`,
-which keeps account-level empty states independent from search and filter results.
+`account.tsx` sends the debounced search term and filter state to
+`GET /account/{code}/transactions`. Transaction events trigger a refetch with the current
+query. The endpoint also returns the unfiltered `total`, which keeps account-level empty
+states independent from search and filter results.
 
 `backend/accounts/transaction_filter.go` validates filter values and owns matching and stable
 sorting. The account handler remains an adapter from query parameters to that backend type.
@@ -79,27 +72,18 @@ sorting. The account handler remains an adapter from query parameters to that ba
 - **Type:** exact match on `tx.type`; "All types" skips the check.
 - **Search:** case-insensitive substring match over transaction notes, addresses, and
   transaction IDs; surrounding whitespace is ignored.
-- **Amount:** absolute values, inclusive bounds, either bound optional.
-  - Coin mode: exact rational comparison in the account's display unit.
-  - Fiat mode: the backend's historical conversion in `defaultCurrency`, agreeing with
-    `amountAtTime`/`deductedAmountAtTime` shown in the row.
-  - Missing conversion while a fiat bound is active → transaction excluded.
-  - min > max applies literally (empty result); no validation UI.
-
 ## i18n
 
 Keys under `transactions.filters` in `en/app.json`, alphabetically sorted
-(`make webfix`): button label, from/to, type options, min/max, currency (`unit` key,
-value "Currency"), no-match empty state.
+(`make webfix`): button label, from/to, type and sort options, direction labels, and the
+no-match empty state.
 
 ## Testing
 
 - Backend unit tests: search across notes/addresses/transaction IDs, parameter validation,
-  date boundaries, null-time pending, each type, exact coin bounds, historical fiat matching,
-  missing-conversion exclusion, combined filters, every sort mode/direction, and stable ties.
-- Hook unit tests: debounce timing, applied filter state, and `isActive` consistency.
-- Component tests: all controls render with labels, coin+fiat options offered, every
-  control propagates its change, unit select has an accessible name.
+  date boundaries, null-time pending, each type, every sort mode/direction, and stable ties.
+- Hook unit tests: filter state, clearing, and `isActive` consistency.
+- Component tests: all controls render with labels and every control propagates its change.
 - `make webtest`, `make weblint`, visual check desktop + mobile + dark mode.
 
 ## Revisions after the initial implementation
@@ -112,12 +96,14 @@ review of the working UI:
    That showed the filter affordance at all times and produced two adjacent "✕ Close"
    buttons when both rows were open. Cost: filtering is less discoverable for users who
    never open search.
-2. **Control order** changed to type-first (was dates-first).
-3. **Amount unit default** changed from the account's coin to the user's fiat.
+2. **Control order** changed to put type before the dates; the sort controls were later
+   added ahead of type.
+3. **Amount bounds removed.** Min, max, and currency controls and their backend query
+   parameters were removed to simplify the filter surface; amount remains available as a
+   sort field.
 4. **One-row desktop layout** — the groups originally used `flex-basis: auto` and wrapped
    onto two lines.
-5. **Label styling** as secondary grey text, and the currency select gained a real
-   visible label (it previously used a spacer label plus `aria-label`).
+5. **Label styling** as secondary grey text.
 6. **No scroll-into-view when opening the filter row** (search still scrolls).
 7. **Shared `Select` focus style** — dropdowns showed the OS accent focus ring, which
    persisted after choosing an option; they now use the same blue focus border as `Input`.

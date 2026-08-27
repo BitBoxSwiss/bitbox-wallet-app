@@ -9,18 +9,7 @@ import (
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
-)
-
-// TransactionFilterAmountUnit selects the unit used for amount bounds.
-type TransactionFilterAmountUnit string
-
-const (
-	// TransactionFilterAmountUnitCoin applies bounds in the account's display coin unit.
-	TransactionFilterAmountUnitCoin TransactionFilterAmountUnit = "coin"
-	// TransactionFilterAmountUnitFiat applies bounds in the selected fiat currency.
-	TransactionFilterAmountUnitFiat TransactionFilterAmountUnit = "fiat"
 )
 
 // TransactionSortBy selects the transaction field used for sorting.
@@ -47,39 +36,30 @@ const (
 
 // TransactionFilterParams contains the serialized transaction-list filters accepted by the API.
 type TransactionFilterParams struct {
-	Search     string
-	FromDate   string
-	ToDate     string
-	Type       string
-	AmountMin  string
-	AmountMax  string
-	AmountUnit string
-	Fiat       string
-	SortBy     string
-	SortDir    string
+	Search   string
+	FromDate string
+	ToDate   string
+	Type     string
+	SortBy   string
+	SortDir  string
 }
 
 // TransactionFilter contains validated transaction-list filtering and sorting options.
 type TransactionFilter struct {
-	search     string
-	from       *time.Time
-	to         *time.Time
-	txType     *TxType
-	amountMin  *big.Rat
-	amountMax  *big.Rat
-	amountUnit TransactionFilterAmountUnit
-	fiat       string
-	sortBy     TransactionSortBy
-	sortDir    TransactionSortDirection
+	search  string
+	from    *time.Time
+	to      *time.Time
+	txType  *TxType
+	sortBy  TransactionSortBy
+	sortDir TransactionSortDirection
 }
 
 // NewTransactionFilter validates serialized transaction-list filter parameters.
 func NewTransactionFilter(params TransactionFilterParams, location *time.Location) (TransactionFilter, error) {
 	filter := TransactionFilter{
-		search:     strings.ToLower(strings.TrimSpace(params.Search)),
-		amountUnit: TransactionFilterAmountUnitFiat,
-		sortBy:     TransactionSortByDate,
-		sortDir:    TransactionSortDirectionDescending,
+		search:  strings.ToLower(strings.TrimSpace(params.Search)),
+		sortBy:  TransactionSortByDate,
+		sortDir: TransactionSortDirectionDescending,
 	}
 
 	if params.FromDate != "" {
@@ -113,28 +93,6 @@ func NewTransactionFilter(params TransactionFilterParams, location *time.Locatio
 		return TransactionFilter{}, errp.Newf("invalid transaction type: %q", params.Type)
 	}
 
-	var err error
-	filter.amountMin, err = parseTransactionAmountBound(params.AmountMin)
-	if err != nil {
-		return TransactionFilter{}, err
-	}
-	filter.amountMax, err = parseTransactionAmountBound(params.AmountMax)
-	if err != nil {
-		return TransactionFilter{}, err
-	}
-
-	if params.AmountUnit != "" {
-		filter.amountUnit = TransactionFilterAmountUnit(params.AmountUnit)
-	}
-	if filter.amountUnit != TransactionFilterAmountUnitCoin && filter.amountUnit != TransactionFilterAmountUnitFiat {
-		return TransactionFilter{}, errp.Newf("invalid transaction amount unit: %q", params.AmountUnit)
-	}
-	filter.fiat = params.Fiat
-	if filter.amountUnit == TransactionFilterAmountUnitFiat &&
-		(filter.amountMin != nil || filter.amountMax != nil) && filter.fiat == "" {
-		return TransactionFilter{}, errp.New("fiat currency is required for transaction amount filtering")
-	}
-
 	if params.SortBy != "" {
 		filter.sortBy = TransactionSortBy(params.SortBy)
 	}
@@ -151,28 +109,16 @@ func NewTransactionFilter(params TransactionFilterParams, location *time.Locatio
 	return filter, nil
 }
 
-func parseTransactionAmountBound(value string) (*big.Rat, error) {
-	if strings.TrimSpace(value) == "" {
-		return nil, nil
-	}
-	bound, ok := new(big.Rat).SetString(value)
-	if !ok || bound.Sign() < 0 {
-		return nil, errp.Newf("invalid transaction amount bound: %q", value)
-	}
-	return bound, nil
-}
-
 // Apply returns a filtered and stably sorted copy of txs.
 func (filter TransactionFilter) Apply(
 	txs OrderedTransactions,
 	accountCoin coin.Coin,
-	rateUpdater *rates.RateUpdater,
 	txNote func(string) string,
 	now time.Time,
 ) OrderedTransactions {
 	result := make(OrderedTransactions, 0, len(txs))
 	for _, tx := range txs {
-		if filter.matches(tx, accountCoin, rateUpdater, txNote, now) {
+		if filter.matches(tx, txNote, now) {
 			result = append(result, tx)
 		}
 	}
@@ -189,8 +135,6 @@ func (filter TransactionFilter) Apply(
 
 func (filter TransactionFilter) matches(
 	tx *TransactionData,
-	accountCoin coin.Coin,
-	rateUpdater *rates.RateUpdater,
 	txNote func(string) string,
 	now time.Time,
 ) bool {
@@ -210,17 +154,7 @@ func (filter TransactionFilter) matches(
 	if filter.txType != nil && tx.Type != *filter.txType {
 		return false
 	}
-	if filter.amountMin == nil && filter.amountMax == nil {
-		return true
-	}
-
-	value := filter.displayAmount(tx, accountCoin, rateUpdater)
-	if value == nil {
-		return false
-	}
-	value.Abs(value)
-	return (filter.amountMin == nil || value.Cmp(filter.amountMin) >= 0) &&
-		(filter.amountMax == nil || value.Cmp(filter.amountMax) <= 0)
+	return true
 }
 
 func (filter TransactionFilter) matchesSearch(tx *TransactionData, txNote func(string) string) bool {
@@ -233,28 +167,6 @@ func (filter TransactionFilter) matchesSearch(tx *TransactionData, txNote func(s
 		}
 	}
 	return txNote != nil && strings.Contains(strings.ToLower(txNote(tx.InternalID)), filter.search)
-}
-
-func (filter TransactionFilter) displayAmount(
-	tx *TransactionData,
-	accountCoin coin.Coin,
-	rateUpdater *rates.RateUpdater,
-) *big.Rat {
-	amount := tx.Amount
-	if tx.Type != TxTypeReceive {
-		amount = tx.DeductedAmount
-	}
-	if filter.amountUnit == TransactionFilterAmountUnitCoin {
-		return formattedCoinAmount(amount, accountCoin)
-	}
-
-	formatted := amount.FormatWithConversionsAtTime(accountCoin, tx.Timestamp, rateUpdater)
-	conversion := strings.ReplaceAll(formatted.Conversions[filter.fiat], "'", "")
-	value, ok := new(big.Rat).SetString(conversion)
-	if !ok {
-		return nil
-	}
-	return value
 }
 
 func (filter TransactionFilter) compare(a, b *TransactionData, accountCoin coin.Coin) int {

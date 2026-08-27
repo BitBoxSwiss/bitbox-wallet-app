@@ -3,22 +3,17 @@
 import { useTranslation } from 'react-i18next';
 import { Input, Select } from '@/components/forms';
 import { ArrowDown } from '@/components/icon';
-import { PillButton, PillButtonGroup } from '@/components/pillbuttongroup/pillbuttongroup';
 import type { TSortByFilter, TTransactionFilters, TTransactionTypeFilter } from './use-transaction-filters';
 import styles from './transaction-filters.module.css';
 
 type TProps = {
   filters: TTransactionFilters;
   onFiltersChange: (filters: TTransactionFilters) => void;
-  coinUnit: string;
-  fiatUnit: string;
 };
 
 export const TransactionFilters = ({
   filters,
   onFiltersChange,
-  coinUnit,
-  fiatUnit,
 }: TProps) => {
   const { t } = useTranslation();
   const update = (patch: Partial<TTransactionFilters>) => {
@@ -90,51 +85,6 @@ export const TransactionFilters = ({
           data-empty={filters.toDate === '' || undefined}
           onChange={e => update({ toDate: e.currentTarget.value })}
         />
-      </div>
-      <div className={styles.amountGroup}>
-        <Input
-          type="number"
-          inputMode="decimal"
-          min="0"
-          step="any"
-          id="tx-filter-amount-min"
-          label={t('transactions.filters.amountMin')}
-          value={filters.amountMin}
-          onChange={e => update({ amountMin: e.currentTarget.value })}
-        />
-        <Input
-          type="number"
-          inputMode="decimal"
-          min="0"
-          step="any"
-          id="tx-filter-amount-max"
-          label={t('transactions.filters.amountMax')}
-          value={filters.amountMax}
-          onChange={e => update({ amountMax: e.currentTarget.value })}
-        />
-        <div
-          className={styles.unitGroup}
-          role="group"
-          aria-labelledby="tx-filter-amount-unit-label"
-        >
-          <span id="tx-filter-amount-unit-label" className={styles.unitLabel}>
-            {t('transactions.filters.unit')}
-          </span>
-          <PillButtonGroup className={styles.unitPills}>
-            <PillButton
-              active={filters.amountUnit === 'coin'}
-              onClick={() => update({ amountUnit: 'coin' })}
-            >
-              {coinUnit}
-            </PillButton>
-            <PillButton
-              active={filters.amountUnit === 'fiat'}
-              onClick={() => update({ amountUnit: 'fiat' })}
-            >
-              {fiatUnit}
-            </PillButton>
-          </PillButtonGroup>
-        </div>
       </div>
     </div>
   );

@@ -255,10 +255,6 @@ export type TTransactionListFilters = {
   fromDate: string;
   toDate: string;
   type: 'all' | TTransactionType;
-  amountMin: string;
-  amountMax: string;
-  amountUnit: 'coin' | 'fiat';
-  fiat: Fiat;
   sortBy: 'date' | 'amount' | 'type';
   sortDir: 'asc' | 'desc';
 };

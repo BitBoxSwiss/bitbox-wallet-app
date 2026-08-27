@@ -8,14 +8,13 @@
 
 .sortGroup,
 .dateGroup,
-.typeGroup,
-.amountGroup {
+.typeGroup {
     display: flex;
     gap: var(--space-quarter);
     min-width: 0;
 }
 
-/* zero flex-basis keeps all four groups on a single line on large screens */
+/* zero flex-basis keeps all three groups on a single line on large screens */
 .sortGroup {
     /* bottom-align the direction button with the labeled select */
     align-items: flex-end;
@@ -30,14 +29,9 @@
     flex: 6 1 0;
 }
 
-.amountGroup {
-    flex: 7 1 0;
-}
-
 .sortGroup > div,
 .dateGroup > div,
-.typeGroup > div,
-.amountGroup > div {
+.typeGroup > div {
     flex: 1 1 0;
     min-width: 0;
 }
@@ -81,54 +75,6 @@
     text-overflow: ellipsis;
 }
 
-/* the unit pills size to their content instead of stretching like inputs */
-.amountGroup > .unitGroup {
-    flex: 0 0 auto;
-}
-
-.unitLabel {
-    color: var(--color-secondary);
-    display: block;
-    font-size: var(--size-small);
-    margin-bottom: var(--space-quarter);
-    text-align: left;
-}
-
-/* a full pill holding both options, with the selected one as a second full
-   pill lying on top of it — the outer pill keeps the top and bottom edges
-   straight, which overlapping two separate pills cannot do without hiding
-   the covered label */
-.filterRow .unitPills {
-    align-items: stretch;
-    background: var(--background-secondary);
-    border: var(--border-width) solid var(--background-quaternary);
-    border-radius: var(--input-height);
-    flex-wrap: nowrap;
-    gap: 0;
-    height: var(--input-height);
-    padding: 3px;
-}
-
-.filterRow .unitPills button {
-    background: transparent;
-    border-color: transparent;
-    border-radius: var(--input-height);
-    font-size: var(--size-small);
-    margin-bottom: 0;
-    padding: 0 var(--space-half);
-}
-
-.filterRow .unitPills button[aria-pressed='true'] {
-    background: var(--color-blue);
-    border-color: var(--color-blue);
-}
-
-/* keep the shared pill focus border for keyboard focus only, so clicking
-   a pill doesn't leave a ring behind */
-.filterRow .unitPills button:focus:not(:focus-visible):not([aria-pressed='true']) {
-    border-color: transparent;
-}
-
 /* hide the browser's dd.mm.yyyy format hint while a date field is empty */
 .dateGroup input[data-empty]:not(:focus)::-webkit-datetime-edit {
     color: transparent;
@@ -142,18 +88,10 @@
     overflow-wrap: anywhere;
 }
 
-/* tablet: two lines — amounts move to their own full-width line so the
-   min/max fields stay usable */
-@media (max-width: 1199px) {
-    .amountGroup {
-        flex: 0 0 100%;
-    }
-}
-
-/* mobile: three lines — sort/direction/type, dates, amounts */
+/* mobile: sort/direction/type on the first line, dates on the second */
 @media (max-width: 768px) {
-    /* sort, direction and type share the first line; dates and amounts
-       each get a full-width row below */
+    /* sort, direction and type share the first line; dates get a full-width
+       row below */
     .filterRow {
         /* match the gap inside the groups so sort+direction and type line
            up exactly with the from/to fields below them */
@@ -165,8 +103,7 @@
         flex: 1 1 0;
     }
 
-    .dateGroup,
-    .amountGroup {
+    .dateGroup {
         flex: 0 0 100%;
     }
 }

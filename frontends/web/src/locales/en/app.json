@@ -2140,8 +2140,6 @@
   "transactions": {
     "errorLoadTransactions": "There was an error loading the transactions",
     "filters": {
-      "amountMax": "Max",
-      "amountMin": "Min",
       "button": "Filter",
       "clearAll": "Clear all",
       "from": "From",
@@ -2159,8 +2157,7 @@
       "typeAll": "All types",
       "typeReceived": "Received",
       "typeSent": "Sent",
-      "typeSentToSelf": "Sent to self",
-      "unit": "Currency"
+      "typeSentToSelf": "Sent to self"
     },
     "placeholder": "No transactions yet."
   },

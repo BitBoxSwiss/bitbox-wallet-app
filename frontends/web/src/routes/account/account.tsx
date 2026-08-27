@@ -76,7 +76,7 @@ const RemountAccount = ({
 }: Props) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { btcUnit, defaultCurrency } = useContext(RatesContext);
+  const { btcUnit } = useContext(RatesContext);
 
   const [balance, setBalance] = useState<accountApi.TBalance>();
   const status: accountApi.TStatus | undefined = useSync(
@@ -93,7 +93,6 @@ const RemountAccount = ({
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const {
     filters,
-    appliedFilters,
     setFilters,
     clearFilters,
     isActive: hasActiveFilters,
@@ -111,10 +110,9 @@ const RemountAccount = ({
   const hasTransactions = transactions?.success && transactions.total > 0;
 
   const transactionListFilters = useMemo<accountApi.TTransactionListFilters>(() => ({
-    ...appliedFilters,
+    ...filters,
     search: debouncedSearchTerm,
-    fiat: defaultCurrency,
-  }), [appliedFilters, debouncedSearchTerm, defaultCurrency]);
+  }), [filters, debouncedSearchTerm]);
 
   const loadTransactions = useCallback(() => {
     const requestID = ++transactionRequestID.current;
@@ -373,14 +371,10 @@ const RemountAccount = ({
                         title={t('transactions.filters.sheetTitle')}
                         fitContent
                         onClose={() => setShowFilters(false)}>
-                        {balance && (
-                          <TransactionFilters
-                            filters={filters}
-                            onFiltersChange={setFilters}
-                            coinUnit={balance.available.unit}
-                            fiatUnit={defaultCurrency}
-                          />
-                        )}
+                        <TransactionFilters
+                          filters={filters}
+                          onFiltersChange={setFilters}
+                        />
                         <div className={style.filterSheetActions}>
                           <Button transparent onClick={clearFilters}>
                             {t('transactions.filters.clearAll')}
@@ -394,14 +388,10 @@ const RemountAccount = ({
                         ${style.searchContainer || ''}
                         ${!showFilters && style.searchHidden || ''}
                       `}>
-                        {balance && (
-                          <TransactionFilters
-                            filters={filters}
-                            onFiltersChange={setFilters}
-                            coinUnit={balance.available.unit}
-                            fiatUnit={defaultCurrency}
-                          />
-                        )}
+                        <TransactionFilters
+                          filters={filters}
+                          onFiltersChange={setFilters}
+                        />
                       </div>
                     )}
                   </>
