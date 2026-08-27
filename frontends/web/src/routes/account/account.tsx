@@ -372,6 +372,7 @@ const RemountAccount = ({
                         fitContent
                         onClose={() => setShowFilters(false)}>
                         <TransactionFilters
+                          coinName={account.coinName}
                           filters={filters}
                           onFiltersChange={setFilters}
                         />
@@ -389,6 +390,7 @@ const RemountAccount = ({
                         ${!showFilters && style.searchHidden || ''}
                       `}>
                         <TransactionFilters
+                          coinName={account.coinName}
                           filters={filters}
                           onFiltersChange={setFilters}
                         />

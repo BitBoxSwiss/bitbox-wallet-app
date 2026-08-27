@@ -22,7 +22,8 @@ design language.
   Collapsing only the filter row (via the funnel) clears just the filters.
 - **Native date inputs** (`<input type="date">`), no date-picker dependency.
 - **Type filter is a Select** (All types / Sent / Received / Sent to self).
-- **Sort controls** select date, crypto amount, or type and ascending or descending order.
+- **Sort controls** select date, account cryptocurrency amount, or type and ascending or
+  descending order. The amount option names the current account's cryptocurrency.
 
 ## UI
 
@@ -75,8 +76,8 @@ sorting. The account handler remains an adapter from query parameters to that ba
 ## i18n
 
 Keys under `transactions.filters` in `en/app.json`, alphabetically sorted
-(`make webfix`): button label, from/to, type and sort options, direction labels, and the
-no-match empty state.
+(`make webfix`): button label, from/to, type and sort options (including the interpolated
+account cryptocurrency name), direction labels, and the no-match empty state.
 
 ## Testing
 

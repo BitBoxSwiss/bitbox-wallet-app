@@ -7,11 +7,13 @@ import type { TSortByFilter, TTransactionFilters, TTransactionTypeFilter } from 
 import styles from './transaction-filters.module.css';
 
 type TProps = {
+  coinName: string;
   filters: TTransactionFilters;
   onFiltersChange: (filters: TTransactionFilters) => void;
 };
 
 export const TransactionFilters = ({
+  coinName,
   filters,
   onFiltersChange,
 }: TProps) => {
@@ -33,7 +35,7 @@ export const TransactionFilters = ({
           label={t('transactions.filters.sortBy')}
           options={[
             { value: 'date', text: t('transactions.filters.sortDate') },
-            { value: 'amount', text: t('transactions.filters.sortAmount') },
+            { value: 'amount', text: t('transactions.filters.sortAmount', { coinName }) },
             { value: 'type', text: t('transactions.filters.sortType') },
           ]}
           value={filters.sortBy}

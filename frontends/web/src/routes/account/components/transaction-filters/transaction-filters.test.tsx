@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import '../../../../../__mocks__/i18n';
+import i18n from '../../../../../__mocks__/i18n';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TransactionFilters } from './transaction-filters';
@@ -8,6 +8,7 @@ import { emptyFilters } from './use-transaction-filters';
 
 describe('TransactionFilters', () => {
   const defaultProps = {
+    coinName: 'Bitcoin',
     filters: emptyFilters,
     onFiltersChange: vi.fn(),
   };
@@ -18,6 +19,12 @@ describe('TransactionFilters', () => {
     expect(screen.getByLabelText('transactions.filters.to')).toBeInTheDocument();
     expect(screen.getByLabelText('transactions.filters.type')).toBeInTheDocument();
     expect(screen.getByLabelText('transactions.filters.sortBy')).toBeInTheDocument();
+  });
+
+  it('names the amount sort option after the account cryptocurrency', () => {
+    i18n.addResource('en', 'translation', 'transactions.filters.sortAmount', 'Amount ({{coinName}})');
+    render(<TransactionFilters {...defaultProps} />);
+    expect(screen.getByRole('option', { name: 'Amount (Bitcoin)' })).toBeInTheDocument();
   });
 
   it('propagates sort field and direction changes', () => {

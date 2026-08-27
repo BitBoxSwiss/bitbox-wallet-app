@@ -2146,7 +2146,7 @@
       "noResults": "No transactions match your filters",
       "noResultsWithSearch": "No transactions match \"{{searchTerm}}\" and your filters",
       "sheetTitle": "Filter & sort",
-      "sortAmount": "Amount (Crypto)",
+      "sortAmount": "Amount ({{coinName}})",
       "sortAscending": "Ascending",
       "sortBy": "Sort by",
       "sortDate": "Date",
