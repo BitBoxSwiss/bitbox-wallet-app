@@ -17,6 +17,13 @@ Key backend packages:
 - `backend/devices/bitbox02/` — BitBox02 USB/Bluetooth device drivers
 - `backend/handlers/handlers.go` — top-level HTTP routing (gorilla/mux)
 
+### Backend and Frontend Responsibilities
+The frontend should ideally concern itself only with presentation and collecting user input. Keep
+business logic in the backend so that it has one authoritative implementation. This includes
+generating UUIDs, parsing amounts, and performing arithmetic on amounts. The frontend may format
+backend-provided values for display, but it should not independently implement domain rules or
+calculations.
+
 ## Build, Test, and Development Commands
 
 ### Requirements
