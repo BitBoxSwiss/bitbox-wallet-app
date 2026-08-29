@@ -18,7 +18,14 @@ import { getBitrefillInfo } from '@/api/market';
 import { getURLOrigin } from '@/utils/url';
 import { ConfirmBitrefill } from './bitrefill-confirm';
 import { AppContext } from '@/contexts/AppContext';
-import { useMarketIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import {
+  getVendorIframeMessageTarget,
+  postMessageToVendorIframe,
+  useMarketIframeActive,
+  useVendorIframeResizeHeight,
+  useVendorTerms,
+  type TVendorIframeMessageTarget,
+} from '@/hooks/vendor-iframe';
 import { useAccountSynced } from '@/hooks/account';
 import style from './iframe.module.css';
 
@@ -60,14 +67,14 @@ export const Bitrefill = ({
 
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
-  const handleConfiguration = useCallback(async (event: MessageEvent) => {
+  const handleConfiguration = useCallback(async (target: TVendorIframeMessageTarget) => {
     if (
       !account
       || !bitrefillInfo?.success
     ) {
       return;
     }
-    event.source?.postMessage({
+    postMessageToVendorIframe(target, {
       event: 'configuration',
       ref: bitrefillInfo.ref,
       utm_source: 'BITBOX',
@@ -80,8 +87,6 @@ export const Bitrefill = ({
       region, // can be an empty string if user didnt select a region in market
       // Option to show payment information in the widget, defaults to 'true'
       showPaymentInfo: 'true'
-    }, {
-      targetOrigin: event.origin
     });
   }, [account, bitrefillInfo, isDarkMode, region]);
 
@@ -157,11 +162,13 @@ export const Bitrefill = ({
   }, [account, code, pendingPayment, t]);
 
   const handleMessage = useCallback(async (event: MessageEvent) => {
+    const target = getVendorIframeMessageTarget(event, iframeRef.current);
     if (
-      !bitrefillInfo?.success
+      !target
+      || !bitrefillInfo?.success
       || (
         !isDevServers // if prod check that event is from same origin as bitrefillInfo.url
-        && ![getURLOrigin(bitrefillInfo.url), 'https://embed.bitrefill.com'].includes(event.origin))
+        && ![getURLOrigin(bitrefillInfo.url), 'https://embed.bitrefill.com'].includes(target.origin))
     ) {
       return;
     }
@@ -170,7 +177,7 @@ export const Bitrefill = ({
 
     switch (data.event) {
     case 'request-configuration': {
-      handleConfiguration(event);
+      handleConfiguration(target);
       break;
     }
     case 'payment_intent': {
@@ -181,7 +188,7 @@ export const Bitrefill = ({
       break;
     }
     }
-  }, [bitrefillInfo, handleConfiguration, handlePaymentRequest, isDevServers]);
+  }, [bitrefillInfo, handleConfiguration, handlePaymentRequest, iframeRef, isDevServers]);
 
   useEffect(() => {
     window.addEventListener('message', handleMessage);
