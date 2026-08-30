@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TPayload } from './utils/transport-common';
+import type { TExternalLinkPrompt } from './i18n/external-link-prompt';
 import 'react';
 
 declare module 'react' {
@@ -20,6 +21,7 @@ export declare global {
     runningOnIOS?: boolean;
     androidKeyboardVisible?: boolean;
     onKeyboardVisibilityChanged?: (visible: boolean) => void;
+    getExternalLinkPrompt?: (url: string) => TExternalLinkPrompt;
     // Called by Android when the back button is pressed.
     onBackButtonPressed?: () => boolean;
     webkit?: {

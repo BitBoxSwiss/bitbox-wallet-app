@@ -25,7 +25,11 @@
 #include <QMenu>
 #include <QSystemTrayIcon>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QGuiApplication>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QStyleHints>
 #include <QtGlobal>
 #include <QtSystemDetection>
@@ -64,6 +68,72 @@ static bool pageLoaded = false;
 static WebClass* webClass;
 static QMutex webClassMutex;
 static QSystemTrayIcon* trayIcon;
+static bool externalLinkPromptActive = false;
+
+struct ExternalLinkPrompt {
+    QString cancelLabel;
+    QString confirmLabel;
+    QString message;
+    QString title;
+};
+
+static ExternalLinkPrompt fallbackExternalLinkPrompt(const QUrl& url) {
+    return {
+        "Cancel",
+        "Proceed",
+        QString("You are about to open URL %1 in your system browser. Proceed?").arg(url.toString()),
+        "Open external link",
+    };
+}
+
+static void showExternalLinkPrompt(const QUrl& url) {
+    if (externalLinkPromptActive || mainPage == nullptr || view == nullptr) {
+        return;
+    }
+    externalLinkPromptActive = true;
+
+    const QByteArray urlArgument = QJsonDocument(QJsonArray{url.toString()}).toJson(QJsonDocument::Compact);
+    const QString script = QString(
+        "(function() {"
+        "if (typeof window.getExternalLinkPrompt !== 'function') { return null; }"
+        "return JSON.stringify(window.getExternalLinkPrompt(%1[0]));"
+        "})()"
+    ).arg(QString::fromUtf8(urlArgument));
+
+    mainPage->runJavaScript(script, [url](const QVariant& result) {
+        if (view == nullptr) {
+            externalLinkPromptActive = false;
+            return;
+        }
+
+        ExternalLinkPrompt prompt = fallbackExternalLinkPrompt(url);
+        const QJsonObject translations = QJsonDocument::fromJson(result.toString().toUtf8()).object();
+        auto translatedValue = [&translations](const QString& key, const QString& fallback) {
+            const QString value = translations.value(key).toString();
+            return value.isEmpty() ? fallback : value;
+        };
+        prompt.cancelLabel = translatedValue("cancelLabel", prompt.cancelLabel);
+        prompt.confirmLabel = translatedValue("confirmLabel", prompt.confirmLabel);
+        prompt.message = translatedValue("message", prompt.message);
+        prompt.title = translatedValue("title", prompt.title);
+
+        QMessageBox messageBox(view);
+        messageBox.setWindowTitle(prompt.title);
+        messageBox.setText(prompt.message);
+        messageBox.setTextFormat(Qt::PlainText);
+        auto* confirmButton = messageBox.addButton(prompt.confirmLabel, QMessageBox::AcceptRole);
+        auto* cancelButton = messageBox.addButton(prompt.cancelLabel, QMessageBox::RejectRole);
+        messageBox.setDefaultButton(cancelButton);
+        messageBox.setEscapeButton(cancelButton);
+        messageBox.exec();
+
+        const bool confirmed = messageBox.clickedButton() == confirmButton;
+        externalLinkPromptActive = false;
+        if (confirmed) {
+            systemOpen(url.toString().toUtf8().constData());
+        }
+    });
+}
 
 namespace {
 
@@ -210,10 +280,14 @@ public:
                     return;
                 }
 
-                // A link with target=_blank was clicked.
-                systemOpen(info.requestUrl().toString().toUtf8().constData());
-                // No need to also load it in our page.
+                // A link with target=_blank was clicked. Block it so it is not also loaded in our
+                // page, then ask for confirmation on the GUI thread before opening it externally.
+                const QUrl url = info.requestUrl();
                 info.block(true);
+                QMetaObject::invokeMethod(
+                    mainPage,
+                    [url]() { showExternalLinkPrompt(url); },
+                    Qt::QueuedConnection);
             }
             return;
         }

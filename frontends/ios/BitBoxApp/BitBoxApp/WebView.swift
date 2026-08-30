@@ -255,7 +255,108 @@ struct WebView: UIViewRepresentable {
     }
     
     class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+        private struct ExternalLinkPrompt: Decodable {
+            let cancelLabel: String
+            let confirmLabel: String
+            let message: String
+            let title: String
+
+            static func fallback(for url: URL) -> ExternalLinkPrompt {
+                ExternalLinkPrompt(
+                    cancelLabel: "Cancel",
+                    confirmLabel: "Proceed",
+                    message: "You are about to open URL \(url.absoluteString) in your system browser. Proceed?",
+                    title: "Open external link"
+                )
+            }
+        }
+
         private weak var webView: WKWebView?
+        private var externalLinkPromptActive = false
+
+        private func externalLinkPromptScript(for url: URL) -> String? {
+            guard let data = try? JSONSerialization.data(withJSONObject: [url.absoluteString]),
+                  let urlArgument = String(data: data, encoding: .utf8) else {
+                return nil
+            }
+            return """
+            (function() {
+              if (typeof window.getExternalLinkPrompt !== 'function') { return null; }
+              return JSON.stringify(window.getExternalLinkPrompt(\(urlArgument)[0]));
+            })()
+            """
+        }
+
+        private func decodeExternalLinkPrompt(_ result: Any?, for url: URL) -> ExternalLinkPrompt {
+            guard let serializedPrompt = result as? String,
+                  let data = serializedPrompt.data(using: .utf8),
+                  let prompt = try? JSONDecoder().decode(ExternalLinkPrompt.self, from: data),
+                  !prompt.cancelLabel.isEmpty,
+                  !prompt.confirmLabel.isEmpty,
+                  !prompt.message.isEmpty,
+                  !prompt.title.isEmpty else {
+                return ExternalLinkPrompt.fallback(for: url)
+            }
+            return prompt
+        }
+
+        private func presentingViewController(for webView: WKWebView) -> UIViewController? {
+            var viewController = webView.window?.rootViewController
+            while let presentedViewController = viewController?.presentedViewController {
+                viewController = presentedViewController
+            }
+            return viewController
+        }
+
+        private func presentExternalLinkPrompt(
+            _ prompt: ExternalLinkPrompt,
+            for url: URL,
+            in webView: WKWebView
+        ) {
+            guard let viewController = presentingViewController(for: webView),
+                  viewController.viewIfLoaded?.window != nil else {
+                externalLinkPromptActive = false
+                return
+            }
+
+            let alert = UIAlertController(title: prompt.title, message: prompt.message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: prompt.cancelLabel, style: .cancel) { [weak self] _ in
+                self?.externalLinkPromptActive = false
+            })
+            alert.addAction(UIAlertAction(title: prompt.confirmLabel, style: .default) { [weak self] _ in
+                self?.externalLinkPromptActive = false
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url)
+                }
+            })
+            viewController.present(alert, animated: true)
+        }
+
+        private func showExternalLinkPrompt(for url: URL, in webView: WKWebView) {
+            guard !externalLinkPromptActive else {
+                return
+            }
+            externalLinkPromptActive = true
+
+            guard let script = externalLinkPromptScript(for: url) else {
+                presentExternalLinkPrompt(ExternalLinkPrompt.fallback(for: url), for: url, in: webView)
+                return
+            }
+            webView.evaluateJavaScript(script) { [weak self, weak webView] result, _ in
+                guard let self = self else {
+                    return
+                }
+                guard let webView = webView else {
+                    self.externalLinkPromptActive = false
+                    return
+                }
+                self.presentExternalLinkPrompt(
+                    self.decodeExternalLinkPrompt(result, for: url),
+                    for: url,
+                    in: webView
+                )
+            }
+        }
 
         func attachBackSwipeGesture(to webView: WKWebView) {
             self.webView = webView
@@ -309,12 +410,12 @@ struct WebView: UIViewRepresentable {
         }
         
         func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-            // Intercept target=_blank link clicks and open them in the system browser.
+            // Intercept target=_blank link clicks and confirm before opening them in the system browser.
             // This opens e.g. the cookie policy and other external links in the Moonpay/Pocket widgets, etc.
             if navigationAction.targetFrame == nil || !navigationAction.targetFrame!.isMainFrame {
                 if let url = navigationAction.request.url {
                     if UIApplication.shared.canOpenURL(url) {
-                        UIApplication.shared.open(url)
+                        showExternalLinkPrompt(for: url, in: webView)
                     }
                 }
             }
