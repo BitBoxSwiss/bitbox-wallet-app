@@ -202,6 +202,17 @@ func TestTxProposal(t *testing.T) {
 	})
 }
 
+func TestIsValidEthAddress(t *testing.T) {
+	for _, address := range []string{
+		"0xa29163852021BF4C139D03Dff59ae763AC73e84e",
+		"0Xa29163852021BF4C139D03Dff59ae763AC73e84e",
+		"a29163852021BF4C139D03Dff59ae763AC73e84e",
+	} {
+		require.True(t, IsValidEthAddress(address), address)
+	}
+	require.False(t, IsValidEthAddress("0xA29163852021BF4C139D03Dff59ae763AC73e84e"))
+}
+
 func TestERC20TxProposalRejectsAmountOverflow(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()

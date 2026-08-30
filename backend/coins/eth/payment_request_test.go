@@ -3,6 +3,7 @@
 package eth
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -71,6 +72,22 @@ func TestParsePaymentRequestUint256Bounds(t *testing.T) {
 	)
 	require.ErrorIs(t, err, errInvalidPaymentRequest)
 	require.Nil(t, request)
+}
+
+func TestParsePaymentRequestAtomicAmount(t *testing.T) {
+	for value, expected := range map[string]string{
+		"0e18446744073709551615": "0",
+		"0.0001e81":              "1" + strings.Repeat("0", 77),
+		"1e77":                   "1" + strings.Repeat("0", 77),
+	} {
+		amount, ok := parsePaymentRequestAtomicAmount(value)
+		require.True(t, ok, value)
+		require.Equal(t, expected, amount.BigInt().String(), value)
+	}
+	for _, value := range []string{"1e78", "1.20e1"} {
+		_, ok := parsePaymentRequestAtomicAmount(value)
+		require.False(t, ok, value)
+	}
 }
 
 func TestParsePaymentRequestERC20Transfer(t *testing.T) {

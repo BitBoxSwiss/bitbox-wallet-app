@@ -2213,7 +2213,7 @@
       "invalidAddress": "invalid address",
       "invalidAmount": "invalid amount",
       "invalidData": "invalid data",
-      "paymentRequestAccountMismatch": "This payment request is for a different asset. Open the matching account and try again.",
+      "paymentRequestAccountMismatch": "This payment request is for a different network or asset. Open the matching account and try again.",
       "syncInProgress": "The account is still syncing. Please wait until syncing is complete and try again."
     },
     "fee": {
