@@ -5,6 +5,7 @@ package eth
 import (
 	"context"
 	"encoding/hex"
+	stderrors "errors"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
@@ -71,6 +73,12 @@ type Account struct {
 
 	closed bool
 
+	// inactive mirrors Config().Config.Inactive for race-free reads from the updater goroutines.
+	// It is written at construction and by the backend when the user toggles the account (under
+	// accountsAndKeystoreLock), and read lock-free by the update path — hence an atomic, since
+	// readers and writers hold different locks (unlike `closed`).
+	inactive atomic.Bool
+
 	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
 	// interval.
 	enqueueUpdateCh chan *Account
@@ -116,6 +124,7 @@ func NewAccount(
 
 		log: log,
 	}
+	account.inactive.Store(config.Config.Inactive)
 
 	return account
 }
@@ -130,6 +139,18 @@ func (account *Account) Info() *accounts.Info {
 func (account *Account) isClosed() bool {
 	defer account.initializedLock.RLock()()
 	return account.closed
+}
+
+// isInactive reports whether the user deactivated this account. Read lock-free by the update path.
+func (account *Account) isInactive() bool {
+	return account.inactive.Load()
+}
+
+// SetInactiveFlag mirrors the persisted Inactive flag into the loaded account. The backend calls it
+// whenever it changes the persisted flag of an already-loaded account; NewAccount initializes it
+// from config.Config.Inactive.
+func (account *Account) SetInactiveFlag(inactive bool) {
+	account.inactive.Store(inactive)
 }
 
 func (account *Account) isInitialized() bool {
@@ -247,17 +268,24 @@ func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
 		}
 		txLog := account.log.WithField("idx", idx)
 		remoteTx, err := account.coin.client.TransactionReceiptWithBlockNumber(context.TODO(), tx.Transaction.Hash())
-		if remoteTx == nil || err != nil {
-			// Transaction not found. This usually happens for pending transactions.
-			// In this case, check if the node actually knows about the transaction, and if not, re-broadcast.
-			// We do this because it seems that sometimes, a transaction that was broadcast without error still ends up lost.
-			_, _, err := account.coin.client.TransactionByHash(context.TODO(), tx.Transaction.Hash())
-			if err != nil {
+		switch {
+		case stderrors.Is(err, ethereum.NotFound):
+			// No receipt yet: this usually happens for pending transactions. Check whether the node
+			// knows about the transaction at all, and if it affirmatively does not, re-broadcast (a
+			// transaction that was broadcast without error can still end up lost).
+			_, _, txErr := account.coin.client.TransactionByHash(context.TODO(), tx.Transaction.Hash())
+			if txErr != nil && !stderrors.Is(txErr, ethereum.NotFound) {
+				// Inconclusive (transport/proxy error): do not rebroadcast a possibly-confirmed tx
+				// just because a lookup failed transiently. Retry next poll.
+				txLog.WithError(txErr).Error("could not fetch transaction")
+				continue
+			}
+			if stderrors.Is(txErr, ethereum.NotFound) {
 				tx.BroadcastAttempts++
-				txLog.WithError(err).Errorf("could not fetch transaction - rebroadcasting, attempt %d", tx.BroadcastAttempts)
+				txLog.Errorf("transaction unknown to node - rebroadcasting, attempt %d", tx.BroadcastAttempts)
 				if err := dbTx.PutOutgoingTransaction(tx); err != nil {
 					txLog.WithError(err).Error("could not update outgoing tx")
-					// Do not abort here, we want to attempt broadcastng the tx in any case.
+					// Do not abort here, we want to attempt broadcasting the tx in any case.
 				}
 				if err := account.coin.client.SendTransaction(context.TODO(), tx.Transaction); err != nil {
 					txLog.WithError(err).Error("failed to broadcast")
@@ -265,6 +293,11 @@ func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
 				}
 				txLog.Info("Broadcasting did not return an error")
 			}
+			continue
+		case err != nil:
+			// Transport/proxy error fetching the receipt: skip this tx this cycle and retry next
+			// poll rather than treating it as "not found" and escalating.
+			txLog.WithError(err).Error("could not fetch receipt")
 			continue
 		}
 		success := remoteTx.Status == types.ReceiptStatusSuccessful
@@ -294,12 +327,19 @@ func (account *Account) confirmedTransactions() ([]*accounts.TransactionData, er
 	var confirmedTransactions []*accounts.TransactionData
 	transactionsSource := account.coin.TransactionsSource()
 	if transactionsSource != nil {
+		// Fetch the full history (startBlock 0) each poll for now; the incremental-sync workstream
+		// replaces this with a persisted cursor.
+		var truncatedBelow *big.Int
 		var err error
-		confirmedTransactions, err = transactionsSource.Transactions(
+		confirmedTransactions, truncatedBelow, err = transactionsSource.Transactions(
+			context.TODO(),
 			account.blockNumber,
-			account.address.Address, account.blockNumber, account.coin.erc20Token)
+			account.address.Address, big.NewInt(0), account.blockNumber, account.coin.erc20Token)
 		if err != nil {
 			return nil, err
+		}
+		if truncatedBelow != nil {
+			account.log.Errorf("transaction history is truncated below block %s", truncatedBelow)
 		}
 	}
 	return confirmedTransactions, nil
@@ -1042,6 +1082,13 @@ func (account *Account) EthSignWalletConnectTx(
 		if err := account.coin.client.SendTransaction(context.TODO(), signedTx); err != nil {
 			return "", "", errp.WithStack(err)
 		}
+		// Mirror SendTx: persist the pending tx so it is tracked like any other outgoing tx (nonce
+		// fallback, rebroadcast if lost) and refresh the account so the new balance/tx shows without
+		// waiting for the 5-minute poll.
+		if err := account.storePendingOutgoingTransaction(signedTx); err != nil {
+			return "", "", err
+		}
+		account.EnqueueUpdate()
 	}
 	rawTx, err := rlp.EncodeToBytes(signedTx)
 	if err != nil {

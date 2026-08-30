@@ -34,11 +34,21 @@ import (
 // Etherscan rate limits to one request per 0.2 seconds.
 var CallsPerSec = 3.8
 
+// requestTimeout bounds a single etherscan HTTP request (measured after a rate-limiter slot is
+// acquired). It is a package var so tests can shorten it; the default is generous for Tor and for
+// large txlist response bodies.
+var requestTimeout = 60 * time.Second
+
 const (
-	maxAddressesForBalances      = 20
-	maxGetRequestTargetLength    = 6000
-	maxTokenTransactionsPerQuery = 10000
+	maxAddressesForBalances   = 20
+	maxGetRequestTargetLength = 6000
 )
+
+// PageSizeThreshold is the number of returned records at or above which a list response is treated
+// as potentially truncated and pagination continues. Soundness requires PageSizeThreshold <= the
+// server's actual cap: a too-high threshold reads a capped page as complete (silent truncation); a
+// too-low threshold only costs extra (deduplicated) pages. It is a var so tests can shrink it.
+var PageSizeThreshold = 10000
 
 // ERC20GasErr is the error message returned from etherscan when there is not enough ETH to pay the transaction fee.
 const ERC20GasErr = "insufficient funds for gas * price + value"
@@ -74,6 +84,12 @@ func (etherScan *EtherScan) callWithMethod(
 	if err := etherScan.limiter.Wait(ctx); err != nil {
 		return errp.WithStack(err)
 	}
+	// Bound each request after acquiring a rate-limiter slot, so time queued behind the limiter
+	// does not eat the request budget. The deadline covers connect, headers, and body read
+	// (io.ReadAll respects the request context), so a single stalled connection can no longer wedge
+	// the caller (and its account lock / bbolt tx) indefinitely.
+	ctx, cancel := context.WithTimeout(ctx, requestTimeout)
+	defer cancel()
 	params.Set("chainId", etherScan.chainId)
 	encodedParams := params.Encode()
 	requestURL := etherScan.url
@@ -253,8 +269,17 @@ func (tx *Transaction) TxID() string {
 
 func (tx *Transaction) internalID() string {
 	id := tx.TxID()
-	if tx.isInternal {
+	switch {
+	case tx.isInternal:
 		id += fmt.Sprintf("-internal-%d", tx.idIndex)
+	case tx.idIndex > 0:
+		// Multiple token-transfer logs can share a tx hash; disambiguate so InternalID stays unique
+		// across all three list endpoints (txlist rows are one-per-hash, so idIndex is 0 for them).
+		// idIndex is positional (arrival order within the fetched page); as with -internal-N, this
+		// assumes Etherscan returns same-hash rows in a stable order. If two same-hash token rows
+		// were ever reordered between fetches, their InternalIDs would swap — a display/notes-order
+		// effect only, and strictly better than the previous behaviour where they collided.
+		id += fmt.Sprintf("-token-%d", tx.idIndex)
 	}
 	return id
 }
@@ -263,7 +288,9 @@ func (tx *Transaction) numConfirmations() int {
 	confs := 0
 	txHeight := tx.jsonTransaction.BlockNumber.BigInt().Uint64()
 	tipHeight := tx.blockTipHeight.Uint64()
-	if tipHeight > 0 {
+	// Clamp: if the reported tip lags below the tx height (a lagging proxy node), render pending
+	// rather than underflowing the uint64 subtraction into a huge confirmation count.
+	if tipHeight > 0 && tipHeight >= txHeight {
 		confs = int(tipHeight - txHeight + 1)
 	}
 	return confs
@@ -339,56 +366,147 @@ func prepareTransactions(
 	return castTransactions, nil
 }
 
-// Transactions queries EtherScan for transactions for the given account, until endBlock.
-// Provide erc20Token to filter for those. If nil, standard etheruem transactions will be fetched.
-func (etherScan *EtherScan) Transactions(
-	blockTipHeight *big.Int,
-	address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
-	[]*accounts.TransactionData, error) {
+// txListParams describes a module=account list query for fetchTxList.
+type txListParams struct {
+	action          string // "txlist" | "txlistinternal" | "tokentx"
+	address         common.Address
+	contractAddress *common.Address // tokentx contract filter; nil = unfiltered
+	startBlock      *big.Int        // inclusive; big.NewInt(0) = full history
+	endBlock        *big.Int        // inclusive
+}
+
+// fetchTxList pages through a module=account list endpoint using an endblock cursor (sort=desc),
+// deduplicating page-boundary overlaps by occurrence counting (see tokenTransactionDedupKey — the
+// key distinguishes distinct rows, and per-page occurrence counting preserves legitimate same-hash
+// duplicates within one page while skipping repeats already emitted on earlier pages).
+//
+// It returns the transactions in server order and, if pagination stalled on a block carrying
+// >= PageSizeThreshold records, truncatedBelow = that block height B: results are complete for
+// heights > B and possibly partial for heights <= B. truncatedBelow == nil means the window
+// [startBlock, endBlock] is complete.
+func (etherScan *EtherScan) fetchTxList(ctx context.Context, p txListParams) (
+	[]*Transaction, *big.Int, error) {
 	params := url.Values{}
 	params.Set("module", "account")
-	if erc20Token != nil {
-		params.Set("action", "tokentx")
-		params.Set("contractaddress", erc20Token.ContractAddress().Hex())
-	} else {
-		params.Set("action", "txlist")
+	params.Set("action", p.action)
+	if p.contractAddress != nil {
+		params.Set("contractaddress", p.contractAddress.Hex())
 	}
-	params.Set("startblock", "0")
+	params.Set("startblock", p.startBlock.Text(10))
 	params.Set("tag", "latest")
 	params.Set("sort", "desc") // desc by block number
+	params.Set("address", p.address.Hex())
 
-	params.Set("endblock", endBlock.Text(10))
-	params.Set("address", address.Hex())
-
-	result := struct {
-		Result []*Transaction
-	}{}
-	if err := etherScan.call(context.TODO(), params, &result); err != nil {
-		return nil, err
-	}
-	isERC20 := erc20Token != nil
-	transactionsNormal, err := prepareTransactions(isERC20, blockTipHeight, false, result.Result, address)
-	if err != nil {
-		return nil, err
-	}
-	var transactionsInternal []*accounts.TransactionData
-	if erc20Token == nil {
-		// Also show internal transactions.
-		params.Set("action", "txlistinternal")
-		resultInternal := struct {
+	endBlockCursor := new(big.Int).Set(p.endBlock)
+	// Etherscan pagination can repeat items at page boundaries (same endblock, desc order). We dedup
+	// by counting occurrences of a stable key across pages and, on each new page, skipping only as
+	// many occurrences as we already emitted. This avoids collapsing multiple identical logs from
+	// the same transaction within a single page, which we cannot distinguish further because
+	// Etherscan does not return a logIndex.
+	seenCounts := map[string]int{}
+	var txs []*Transaction
+	for {
+		params.Set("endblock", endBlockCursor.Text(10))
+		result := struct {
 			Result []*Transaction
 		}{}
-		if err := etherScan.call(context.TODO(), params, &resultInternal); err != nil {
-			return nil, err
+		if err := etherScan.call(ctx, params, &result); err != nil {
+			return nil, nil, err
 		}
-		var err error
-		transactionsInternal, err = prepareTransactions(
-			isERC20, blockTipHeight, true, resultInternal.Result, address)
-		if err != nil {
-			return nil, err
+		if len(result.Result) == 0 {
+			break
 		}
+
+		newCount := 0
+		consumed := map[string]int{}   // per page: previously-emitted occurrences skipped per key
+		pageCounts := map[string]int{} // per page: new occurrences accepted per key
+		for _, transaction := range result.Result {
+			key := tokenTransactionDedupKey(transaction)
+			if seenCounts[key] > consumed[key] {
+				consumed[key]++
+				continue
+			}
+			pageCounts[key]++
+			newCount++
+			txs = append(txs, transaction)
+		}
+		for key, count := range pageCounts {
+			seenCounts[key] += count
+		}
+
+		if len(result.Result) < PageSizeThreshold {
+			break
+		}
+		if newCount == 0 {
+			// A full page yielded no new records: >= PageSizeThreshold rows share endBlockCursor's
+			// block and cannot be paged past. Everything strictly above it was fully paged; the
+			// window at and below it may be incomplete.
+			return txs, new(big.Int).Set(endBlockCursor), nil
+		}
+		lastTx := result.Result[len(result.Result)-1]
+		endBlockCursor = lastTx.jsonTransaction.BlockNumber.BigInt()
 	}
-	return append(transactionsNormal, transactionsInternal...), nil
+	return txs, nil, nil
+}
+
+// maxBoundary returns the higher of two truncation boundaries, treating nil as "no truncation".
+func maxBoundary(a, b *big.Int) *big.Int {
+	switch {
+	case a == nil:
+		return b
+	case b == nil:
+		return a
+	case a.Cmp(b) >= 0:
+		return a
+	default:
+		return b
+	}
+}
+
+// Transactions queries EtherScan for transactions for the given account in [startBlock, endBlock].
+// Provide erc20Token to filter for those. If nil, standard ethereum transactions (txlist plus
+// internal txs) are fetched. The returned truncatedBelow is non-nil if the history is incomplete
+// below that block height (see fetchTxList).
+func (etherScan *EtherScan) Transactions(
+	ctx context.Context,
+	blockTipHeight *big.Int,
+	address common.Address, startBlock, endBlock *big.Int, erc20Token *erc20.Token) (
+	[]*accounts.TransactionData, *big.Int, error) {
+	isERC20 := erc20Token != nil
+
+	p := txListParams{address: address, startBlock: startBlock, endBlock: endBlock}
+	if isERC20 {
+		p.action = "tokentx"
+		contractAddress := erc20Token.ContractAddress()
+		p.contractAddress = &contractAddress
+	} else {
+		p.action = "txlist"
+	}
+	normalTxs, truncatedBelow, err := etherScan.fetchTxList(ctx, p)
+	if err != nil {
+		return nil, nil, err
+	}
+	transactionsNormal, err := prepareTransactions(isERC20, blockTipHeight, false, normalTxs, address)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var transactionsInternal []*accounts.TransactionData
+	if !isERC20 {
+		// Also show internal transactions.
+		pInternal := p
+		pInternal.action = "txlistinternal"
+		internalTxs, internalTruncatedBelow, err := etherScan.fetchTxList(ctx, pInternal)
+		if err != nil {
+			return nil, nil, err
+		}
+		transactionsInternal, err = prepareTransactions(isERC20, blockTipHeight, true, internalTxs, address)
+		if err != nil {
+			return nil, nil, err
+		}
+		truncatedBelow = maxBoundary(truncatedBelow, internalTruncatedBelow)
+	}
+	return append(transactionsNormal, transactionsInternal...), truncatedBelow, nil
 }
 
 func tokenTransactionDedupKey(tx *Transaction) string {
@@ -423,87 +541,51 @@ func tokenTransactionDedupKey(tx *Transaction) string {
 	)
 }
 
-// TokenTransactionsByContract queries EtherScan for all token transfers for the given account,
-// grouped by token contract address. It uses the tokentx endpoint without a contract address
-// filter. If the result size hits the 10k limit, it paginates by setting endBlock to the last
-// returned transaction's block number while de-duplicating overlapping results.
+// TokenTransactionsByContract queries EtherScan for all token transfers for the given account in
+// [startBlock, endBlock], grouped by token contract address. It uses the tokentx endpoint without a
+// contract address filter, paginating and deduplicating via fetchTxList. The returned truncatedBelow
+// is non-nil if the history is incomplete below that block height.
 func (etherScan *EtherScan) TokenTransactionsByContract(
+	ctx context.Context,
 	blockTipHeight *big.Int,
-	address common.Address, endBlock *big.Int) (map[common.Address][]*accounts.TransactionData, error) {
-	params := url.Values{}
-	params.Set("module", "account")
-	params.Set("action", "tokentx")
-	params.Set("startblock", "0")
-	params.Set("tag", "latest")
-	params.Set("sort", "desc") // desc by block number
-	params.Set("address", address.Hex())
+	address common.Address, startBlock, endBlock *big.Int) (
+	map[common.Address][]*accounts.TransactionData, *big.Int, error) {
+	txs, truncatedBelow, err := etherScan.fetchTxList(ctx, txListParams{
+		action:     "tokentx",
+		address:    address,
+		startBlock: startBlock,
+		endBlock:   endBlock,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
 
-	endBlockCursor := new(big.Int).Set(endBlock)
-	// Etherscan pagination can repeat items at page boundaries (same endblock, desc order).
-	// We dedup by counting occurrences of a stable key across pages and, on each new page,
-	// skipping only as many occurrences as we already emitted. This avoids collapsing
-	// multiple identical logs from the same transaction within a single page, which we
-	// cannot distinguish further because Etherscan does not return a logIndex.
-	seenCounts := map[string]int{}
 	grouped := map[common.Address][]*Transaction{}
-	for {
-		params.Set("endblock", endBlockCursor.Text(10))
-		result := struct {
-			Result []*Transaction
-		}{}
-		if err := etherScan.call(context.TODO(), params, &result); err != nil {
-			return nil, err
+	for _, transaction := range txs {
+		if transaction.jsonTransaction.contractAddress == nil {
+			return nil, nil, errp.New("token tx missing contract address")
 		}
-		if len(result.Result) == 0 {
-			break
-		}
-
-		newCount := 0
-		consumed := map[string]int{}   // per page: how many previously-emitted occurrences we've skipped per key
-		pageCounts := map[string]int{} // per page: how many new occurrences we accepted per key
-		for _, transaction := range result.Result {
-			key := tokenTransactionDedupKey(transaction)
-			if seenCounts[key] > consumed[key] {
-				consumed[key]++
-				continue
-			}
-			pageCounts[key]++
-			newCount++
-			if transaction.jsonTransaction.contractAddress == nil {
-				return nil, errp.New("token tx missing contract address")
-			}
-			contractAddress := *transaction.jsonTransaction.contractAddress
-			grouped[contractAddress] = append(grouped[contractAddress], transaction)
-		}
-		for key, count := range pageCounts {
-			seenCounts[key] += count
-		}
-
-		if len(result.Result) < maxTokenTransactionsPerQuery {
-			break
-		}
-		if newCount == 0 {
-			// Avoid an infinite loop if we are not making progress.
-			break
-		}
-		lastTx := result.Result[len(result.Result)-1]
-		endBlockCursor = lastTx.jsonTransaction.BlockNumber.BigInt()
+		contractAddress := *transaction.jsonTransaction.contractAddress
+		grouped[contractAddress] = append(grouped[contractAddress], transaction)
 	}
 
 	byContract := map[common.Address][]*accounts.TransactionData{}
 	for contractAddress, transactions := range grouped {
 		castTransactions, err := prepareTransactions(true, blockTipHeight, false, transactions, address)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		byContract[contractAddress] = castTransactions
 	}
-	return byContract, nil
+	return byContract, truncatedBelow, nil
 }
 
 // ----- RPC node proxy methods follow
 
-func (etherScan *EtherScan) rpcCall(ctx context.Context, params url.Values, result interface{}) error {
+// rpcCallRaw performs a module=proxy JSON-RPC call and returns the raw result message. It surfaces
+// JSON-RPC and transport errors. A `{"result": null}` response yields a nil message with no error,
+// which callers interpret as "not found".
+func (etherScan *EtherScan) rpcCallRaw(ctx context.Context, params url.Values) (*json.RawMessage, error) {
 	params.Set("module", "proxy")
 
 	var wrapped struct {
@@ -519,60 +601,97 @@ func (etherScan *EtherScan) rpcCall(ctx context.Context, params url.Values, resu
 		method = http.MethodPost
 	}
 	if err := etherScan.callWithMethod(ctx, method, params, &wrapped); err != nil {
-		return err
+		return nil, err
 	}
 	if wrapped.Error != nil {
-		return errp.New(wrapped.Error.Message)
+		return nil, errp.New(wrapped.Error.Message)
+	}
+	return wrapped.Result, nil
+}
+
+func (etherScan *EtherScan) rpcCall(ctx context.Context, params url.Values, result interface{}) error {
+	raw, err := etherScan.rpcCallRaw(ctx, params)
+	if err != nil {
+		return err
 	}
 	if result == nil {
 		return nil
 	}
-	if wrapped.Result == nil {
+	if raw == nil {
 		return errp.New("expected result")
 	}
-	if err := json.Unmarshal(*wrapped.Result, result); err != nil {
-		return errp.Newf("unexpected response from EtherScan: %s", string(*wrapped.Result))
+	if err := json.Unmarshal(*raw, result); err != nil {
+		return errp.Newf("unexpected response from EtherScan: %s", string(*raw))
 	}
 	return nil
 }
 
-// TransactionReceiptWithBlockNumber implements rpc.Interface.
+// rpcCallNullable behaves like rpcCall but treats a JSON-RPC null result ({"result": null}) as a
+// meaningful "not found" (found=false, err=nil) rather than an error. Used by the lookups whose
+// null result means the node does not know the transaction, so a transient transport error can be
+// told apart from an authoritative absence.
+func (etherScan *EtherScan) rpcCallNullable(ctx context.Context, params url.Values, result interface{}) (found bool, err error) {
+	raw, err := etherScan.rpcCallRaw(ctx, params)
+	if err != nil {
+		return false, err
+	}
+	if raw == nil {
+		return false, nil
+	}
+	if err := json.Unmarshal(*raw, result); err != nil {
+		return false, errp.Newf("unexpected response from EtherScan: %s", string(*raw))
+	}
+	return true, nil
+}
+
+// TransactionReceiptWithBlockNumber implements rpc.Interface. It returns ethereum.NotFound if the
+// node has no receipt for the hash (e.g. a still-pending or dropped tx).
 func (etherScan *EtherScan) TransactionReceiptWithBlockNumber(
 	ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
 	params := url.Values{}
 	params.Set("action", "eth_getTransactionReceipt")
 	params.Set("txhash", hash.Hex())
 	var result *rpcclient.RPCTransactionReceipt
-	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
+	found, err := etherScan.rpcCallNullable(ctx, params, &result)
+	if err != nil {
 		return nil, err
+	}
+	if !found {
+		return nil, ethereum.NotFound
 	}
 	return result, nil
 }
 
-// TransactionByHash implements rpc.Interface.
+// TransactionByHash implements rpc.Interface. It returns ethereum.NotFound if the node does not
+// know the transaction at all.
 func (etherScan *EtherScan) TransactionByHash(
 	ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
 	params := url.Values{}
 	params.Set("action", "eth_getTransactionByHash")
 	params.Set("txhash", hash.Hex())
 	var result rpcclient.RPCTransaction
-	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
+	found, err := etherScan.rpcCallNullable(ctx, params, &result)
+	if err != nil {
 		return nil, false, err
+	}
+	if !found {
+		return nil, false, ethereum.NotFound
 	}
 	return &result.Transaction, result.BlockNumber == nil, nil
 }
 
 // BlockNumber implements rpc.Interface.
 func (etherScan *EtherScan) BlockNumber(ctx context.Context) (*big.Int, error) {
+	// eth_blockNumber returns just the latest block number (a ~40-byte response), instead of
+	// eth_getBlockByNumber which downloads the full block header (logsBloom, extraData, ...) only
+	// for the number.
 	params := url.Values{}
-	params.Set("action", "eth_getBlockByNumber")
-	params.Set("tag", "latest")
-	params.Set("boolean", "false")
-	var header *types.Header
-	if err := etherScan.rpcCall(ctx, params, &header); err != nil {
+	params.Set("action", "eth_blockNumber")
+	var result hexutil.Big
+	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
 		return nil, err
 	}
-	return header.Number, nil
+	return (*big.Int)(&result), nil
 }
 
 // Balance implements rpc.Interface.
@@ -765,14 +884,29 @@ func (etherScan *EtherScan) SuggestGasTipCap(ctx context.Context) (*big.Int, err
 	return nil, errp.New("not implemented")
 }
 
+// gweiStringToWei converts a decimal gwei string (e.g. "0.663812392471") to wei, flooring any
+// sub-wei remainder. Rejects negative and rational ("2/3") inputs. Note big.Rat.SetString also
+// accepts exponent forms ("6.63e-1"); these convert correctly and are accepted.
+func gweiStringToWei(s string) (*big.Int, error) {
+	if strings.ContainsRune(s, '/') {
+		return nil, errp.Newf("invalid gwei value %q", s)
+	}
+	rat, ok := new(big.Rat).SetString(s)
+	if !ok || rat.Sign() < 0 {
+		return nil, errp.Newf("invalid gwei value %q", s)
+	}
+	// Conversion from Gwei to Wei.
+	rat.Mul(rat, new(big.Rat).SetInt64(1e9))
+	return new(big.Int).Quo(rat.Num(), rat.Denom()), nil // Quo on non-negatives == floor
+}
+
 // FeeTargets returns three priorities with fee targets estimated by Etherscan
 // https://docs.etherscan.io/api-endpoints/gas-tracker#get-gas-oracle
 // FeeTargets implements rpc.Interface.
 // Note: This is not a true RPC but a custom Etherscan API call which implements their own fee estimation.
 func (etherScan *EtherScan) FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarget, error) {
-	// TODO: Use timeout.
 	var result struct {
-		// Values are in Gwei*10
+		// Values are in Gwei, possibly fractional.
 		Result struct {
 			High    string `json:"FastGasPrice"`
 			Normal  string `json:"ProposeGasPrice"`
@@ -786,33 +920,23 @@ func (etherScan *EtherScan) FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarg
 	if err := etherScan.call(ctx, params, &result); err != nil {
 		return nil, err
 	}
-	// Convert string fields to int64
-	high, err := strconv.ParseInt(result.Result.High, 10, 64)
+
+	highFeeCap, err := gweiStringToWei(result.Result.High)
 	if err != nil {
 		return nil, err
 	}
-
-	normal, err := strconv.ParseInt(result.Result.Normal, 10, 64)
+	normalFeeCap, err := gweiStringToWei(result.Result.Normal)
 	if err != nil {
 		return nil, err
 	}
-
-	low, err := strconv.ParseInt(result.Result.Low, 10, 64)
+	lowFeeCap, err := gweiStringToWei(result.Result.Low)
 	if err != nil {
 		return nil, err
 	}
-
-	baseFee, err := strconv.ParseFloat(result.Result.BaseFee, 64)
+	baseFeeWei, err := gweiStringToWei(result.Result.BaseFee)
 	if err != nil {
 		return nil, err
 	}
-	// Conversion from Gwei to Wei.
-	factor := big.NewInt(1e9)
-
-	baseFeeWei := new(big.Int).Mul(big.NewInt(int64(baseFee)), factor)
-	highFeeCap := new(big.Int).Mul(big.NewInt(high), factor)
-	normalFeeCap := new(big.Int).Mul(big.NewInt(normal), factor)
-	lowFeeCap := new(big.Int).Mul(big.NewInt(low), factor)
 
 	if baseFeeWei.Cmp(highFeeCap) >= 0 || baseFeeWei.Cmp(normalFeeCap) >= 0 || baseFeeWei.Cmp(lowFeeCap) >= 0 {
 		return nil, errp.New("baseFeeWei must be smaller than GasFeeCap")

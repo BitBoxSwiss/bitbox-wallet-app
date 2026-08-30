@@ -393,7 +393,7 @@ func TestUpdateOutgoingTransactionsStillChecksPendingTransactions(t *testing.T) 
 		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
 			receiptCalls++
 			require.Equal(t, tx.Hash(), hash)
-			return nil, errp.New("not found")
+			return nil, ethereum.NotFound
 		},
 		TransactionByHashFunc: func(ctx context.Context, hash common.Hash) (*gethtypes.Transaction, bool, error) {
 			transactionByHashCalls++
@@ -410,6 +410,102 @@ func TestUpdateOutgoingTransactionsStillChecksPendingTransactions(t *testing.T) 
 	require.Equal(t, 1, receiptCalls)
 	require.Equal(t, 1, transactionByHashCalls)
 	require.Equal(t, 0, sendCalls)
+}
+
+// TestUpdateOutgoingTransactionsTransientReceiptErrorDoesNotEscalate verifies that a transient
+// transport error on the receipt lookup (as opposed to an authoritative ethereum.NotFound) does
+// not escalate to a by-hash probe or a rebroadcast of a possibly-confirmed transaction.
+func TestUpdateOutgoingTransactionsTransientReceiptErrorDoesNotEscalate(t *testing.T) {
+	account := newAccountWithOptions(t, true, make(chan *Account, 1))
+	defer account.Close()
+	tx := newTestOutgoingTx()
+	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
+		Transaction: tx,
+		Height:      0,
+	})
+
+	var receiptCalls, transactionByHashCalls, sendCalls int
+	account.ETHCoin().TstSetClient(&mocks.InterfaceMock{
+		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+			receiptCalls++
+			return nil, errp.New("proxy 502")
+		},
+		TransactionByHashFunc: func(ctx context.Context, hash common.Hash) (*gethtypes.Transaction, bool, error) {
+			transactionByHashCalls++
+			return tx, true, nil
+		},
+		SendTransactionFunc: func(ctx context.Context, tx *gethtypes.Transaction) error {
+			sendCalls++
+			return nil
+		},
+	})
+
+	account.updateOutgoingTransactions(100)
+	require.Equal(t, 1, receiptCalls)
+	require.Equal(t, 0, transactionByHashCalls)
+	require.Equal(t, 0, sendCalls)
+	require.Equal(t, uint16(0), outgoingTxs(t, account)[0].BroadcastAttempts)
+}
+
+// TestUpdateOutgoingTransactionsRebroadcastsUnknownTx verifies that an authoritative not-found from
+// both the receipt and by-hash lookups (the node does not know the tx) rebroadcasts it.
+func TestUpdateOutgoingTransactionsRebroadcastsUnknownTx(t *testing.T) {
+	account := newAccountWithOptions(t, true, make(chan *Account, 1))
+	defer account.Close()
+	tx := newTestOutgoingTx()
+	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
+		Transaction: tx,
+		Height:      0,
+	})
+
+	var sendCalls int
+	account.ETHCoin().TstSetClient(&mocks.InterfaceMock{
+		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+			return nil, ethereum.NotFound
+		},
+		TransactionByHashFunc: func(ctx context.Context, hash common.Hash) (*gethtypes.Transaction, bool, error) {
+			return nil, false, ethereum.NotFound
+		},
+		SendTransactionFunc: func(ctx context.Context, tx *gethtypes.Transaction) error {
+			sendCalls++
+			return nil
+		},
+	})
+
+	account.updateOutgoingTransactions(100)
+	require.Equal(t, 1, sendCalls)
+	require.Equal(t, uint16(1), outgoingTxs(t, account)[0].BroadcastAttempts)
+}
+
+// TestUpdateOutgoingTransactionsByHashTransientErrorDoesNotRebroadcast verifies that when the
+// receipt is authoritatively not-found but the by-hash probe fails transiently, the tx is not
+// rebroadcast on that inconclusive evidence.
+func TestUpdateOutgoingTransactionsByHashTransientErrorDoesNotRebroadcast(t *testing.T) {
+	account := newAccountWithOptions(t, true, make(chan *Account, 1))
+	defer account.Close()
+	tx := newTestOutgoingTx()
+	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
+		Transaction: tx,
+		Height:      0,
+	})
+
+	var sendCalls int
+	account.ETHCoin().TstSetClient(&mocks.InterfaceMock{
+		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+			return nil, ethereum.NotFound
+		},
+		TransactionByHashFunc: func(ctx context.Context, hash common.Hash) (*gethtypes.Transaction, bool, error) {
+			return nil, false, errp.New("proxy 502")
+		},
+		SendTransactionFunc: func(ctx context.Context, tx *gethtypes.Transaction) error {
+			sendCalls++
+			return nil
+		},
+	})
+
+	account.updateOutgoingTransactions(100)
+	require.Equal(t, 0, sendCalls)
+	require.Equal(t, uint16(0), outgoingTxs(t, account)[0].BroadcastAttempts)
 }
 
 func TestMatchesAddress(t *testing.T) {

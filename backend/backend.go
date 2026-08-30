@@ -360,7 +360,16 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.updateChecker = newUpdateChecker(&backend.socksProxy, backend.userAgent())
 	backend.updateChecker.Observe(backend.Notify)
 	backend.httpClient = hclient
-	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts)
+	listETHAccounts := func() []*eth.Account {
+		var ethAccounts []*eth.Account
+		for _, account := range backend.Accounts() {
+			if ethAccount, ok := account.(*eth.Account); ok {
+				ethAccounts = append(ethAccounts, ethAccount)
+			}
+		}
+		return ethAccounts
+	}
+	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts, listETHAccounts)
 	backend.enqueueETHUpdateForAllAccountsAsync = backend.ethupdater.EnqueueUpdateForAllAccountsAsync
 
 	backend.ratesUpdater = backend.newRatesUpdater()
@@ -935,7 +944,10 @@ func (backend *Backend) DeregisterKeystore() {
 	backend.uninitAccounts(false)
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
 	// keystore. For now we just remove all, then re-add the rest.
-	backend.initPersistedAccounts(accountLoadOptions{})
+	// Load without per-account ETH sync, then enqueue a single batched sync — matching the other
+	// bulk load paths (initAccounts) instead of firing one enqueue per account.
+	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
+	backend.enqueueETHInitialSyncLocked()
 	backend.emitAccountsStatusChanged()
 	backend.connectKeystore.onDisconnect()
 }
