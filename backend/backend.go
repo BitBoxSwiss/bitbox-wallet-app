@@ -256,7 +256,8 @@ type Backend struct {
 
 	connectKeystore connectKeystore
 
-	aopp AOPP
+	aopp              AOPP
+	aoppRequestSerial uint64
 
 	// makeBtcAccount creates a BTC account. In production this is `btc.NewAccount`, but can be
 	// overridden in unit tests for mocking.

@@ -56,8 +56,8 @@ export const Aopp = () => {
   }, [aopp, prevAopp]);
 
   const chooseAccount = (e: React.SyntheticEvent) => {
-    if (accountCode) {
-      aoppAPI.chooseAccount(accountCode);
+    if (accountCode && aopp?.state === 'choosing-account') {
+      aoppAPI.chooseAccount(aopp.requestID, accountCode);
     }
     e.preventDefault();
   };
@@ -82,7 +82,7 @@ export const Aopp = () => {
           </Message>
         </ViewContent>
         <ViewButtons>
-          <Button danger onClick={aoppAPI.cancel}>{t('button.dismiss')}</Button>
+          <Button danger onClick={() => aoppAPI.cancel(aopp.requestID)}>{t('button.dismiss')}</Button>
         </ViewButtons>
       </View>
     );
@@ -117,8 +117,8 @@ export const Aopp = () => {
           }
         </ViewContent>
         <ViewButtons>
-          <Button primary onClick={aoppAPI.approve}>{t('button.continue')}</Button>
-          <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
+          <Button primary onClick={() => aoppAPI.approve(aopp.requestID)}>{t('button.continue')}</Button>
+          <Button secondary onClick={() => aoppAPI.cancel(aopp.requestID)}>{t('dialog.cancel')}</Button>
         </ViewButtons>
       </View>
     );
@@ -153,7 +153,7 @@ export const Aopp = () => {
           </ViewContent>
           <ViewButtons>
             <Button primary type="submit">{t('button.next')}</Button>
-            <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
+            <Button secondary onClick={() => aoppAPI.cancel(aopp.requestID)}>{t('dialog.cancel')}</Button>
           </ViewButtons>
         </View>
       </form>
@@ -173,7 +173,7 @@ export const Aopp = () => {
           <p>{t('account.syncing')}</p>
         </ViewContent>
         <ViewButtons>
-          <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
+          <Button secondary onClick={() => aoppAPI.cancel(aopp.requestID)}>{t('dialog.cancel')}</Button>
         </ViewButtons>
       </View>
     );
@@ -239,7 +239,7 @@ export const Aopp = () => {
           </Field>
         </ViewContent>
         <ViewButtons>
-          <Button primary onClick={aoppAPI.cancel}>{t('button.done')}</Button>
+          <Button primary onClick={() => aoppAPI.cancel(aopp.requestID)}>{t('button.done')}</Button>
           <VerifyAddress
             accountCode={aopp.accountCode}
             displayAddress={aopp.displayAddress}

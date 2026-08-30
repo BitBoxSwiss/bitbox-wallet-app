@@ -197,8 +197,10 @@ func TestAOPPSuccess(t *testing.T) {
 
 			require.Equal(t, AOPP{State: aoppStateInactive}, b.AOPP())
 			b.HandleURI(uriPrefix + params.Encode())
+			requestID := b.AOPP().RequestID
 			require.Equal(t,
 				AOPP{
+					RequestID:    requestID,
 					State:        aoppStateUserApproval,
 					Callback:     callback,
 					Message:      dummyMsg,
@@ -209,9 +211,10 @@ func TestAOPPSuccess(t *testing.T) {
 				b.AOPP(),
 			)
 
-			b.AOPPApprove()
+			b.AOPPApprove(requestID)
 			require.Equal(t,
 				AOPP{
+					RequestID:    requestID,
 					State:        aoppStateAwaitingKeystore,
 					Callback:     callback,
 					Message:      dummyMsg,
@@ -226,7 +229,8 @@ func TestAOPPSuccess(t *testing.T) {
 
 			require.Equal(t,
 				AOPP{
-					State: aoppStateChoosingAccount,
+					RequestID: requestID,
+					State:     aoppStateChoosingAccount,
 					Accounts: []account{
 						{Name: test.accountName, Code: test.accountCode},
 						{Name: "Second account", Code: regularAccountCode(rootFingerprint1, test.coinCode, 1)},
@@ -240,10 +244,11 @@ func TestAOPPSuccess(t *testing.T) {
 				b.AOPP(),
 			)
 
-			b.AOPPChooseAccount(test.accountCode)
+			b.AOPPChooseAccount(requestID, test.accountCode)
 			require.Equal(t,
 				AOPP{
-					State: aoppStateSuccess,
+					RequestID: requestID,
+					State:     aoppStateSuccess,
 					Accounts: []account{
 						{Name: test.accountName, Code: test.accountCode},
 						{Name: "Second account", Code: regularAccountCode(rootFingerprint1, test.coinCode, 1)},
@@ -277,7 +282,7 @@ func TestAOPPSuccess(t *testing.T) {
 		params.Set("callback", server.URL)
 		b.HandleURI(uriPrefix + params.Encode())
 		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
-		b.AOPPApprove()
+		b.AOPPApprove(b.AOPP().RequestID)
 		require.Equal(t, aoppStateAwaitingKeystore, b.AOPP().State)
 		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper))
 		require.Equal(t, aoppStateSuccess, b.AOPP().State)
@@ -322,7 +327,7 @@ func TestAOPPSuccess(t *testing.T) {
 		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper))
 		b.HandleURI(uriPrefix + params.Encode())
 		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
-		b.AOPPApprove()
+		b.AOPPApprove(b.AOPP().RequestID)
 		require.Equal(t, aoppStateSuccess, b.AOPP().State)
 	})
 	// Keystore is already registered before the AOPP request. Edge case: keystore is disconnected
@@ -335,7 +340,7 @@ func TestAOPPSuccess(t *testing.T) {
 		b.HandleURI(uriPrefix + params.Encode())
 		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
 		b.DeregisterKeystore()
-		b.AOPPApprove()
+		b.AOPPApprove(b.AOPP().RequestID)
 		require.Equal(t, aoppStateAwaitingKeystore, b.AOPP().State)
 	})
 	//  Keystore watch-only is enabled, but the keystore is still required to sign, as its accounts are not available
@@ -358,7 +363,7 @@ func TestAOPPSuccess(t *testing.T) {
 
 		b.HandleURI("aopp:?" + params.Encode())
 		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
-		b.AOPPApprove()
+		b.AOPPApprove(b.AOPP().RequestID)
 
 		for _, account := range b.AOPP().Accounts {
 			ac := b.accounts.lookup(account.Code)
@@ -368,6 +373,45 @@ func TestAOPPSuccess(t *testing.T) {
 			require.Equal(t, accountFingerprint, rootFingerprint2)
 		}
 	})
+}
+
+func TestAOPPRejectsStaleActions(t *testing.T) {
+	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
+	rootKey := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+	keystoreHelper := software.NewKeystore(rootKey)
+
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	ks := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper)
+	b.registerKeystore(ks)
+	_, err := b.CreateAndPersistAccountConfig(coinpkg.CodeBTC, "Second account", ks)
+	require.NoError(t, err)
+
+	firstParams := defaultParams()
+	firstParams.Set("msg", "first request")
+	b.HandleURI(uriPrefix + firstParams.Encode())
+	firstRequestID := b.AOPP().RequestID
+
+	secondParams := defaultParams()
+	secondParams.Set("msg", "second request")
+	b.HandleURI(uriPrefix + secondParams.Encode())
+	secondRequestID := b.AOPP().RequestID
+	require.NotEqual(t, firstRequestID, secondRequestID)
+
+	// Actions from the first prompt must not approve or dismiss its replacement.
+	b.AOPPApprove(firstRequestID)
+	b.AOPPCancel(firstRequestID)
+	require.Equal(t, aoppStateUserApproval, b.AOPP().State)
+	require.Equal(t, secondRequestID, b.AOPP().RequestID)
+	require.Equal(t, "second request", b.AOPP().Message)
+
+	// Once the replacement reaches account selection, an old selection must not apply to it.
+	b.AOPPApprove(secondRequestID)
+	require.Equal(t, aoppStateChoosingAccount, b.AOPP().State)
+	b.AOPPChooseAccount(firstRequestID, "v0-55555555-btc-0")
+	require.Equal(t, aoppStateChoosingAccount, b.AOPP().State)
+	require.Empty(t, b.AOPP().AccountCode)
 }
 
 func TestAOPPFailures(t *testing.T) {
@@ -453,7 +497,7 @@ func TestAOPPFailures(t *testing.T) {
 		defer b.Close()
 		params := defaultParams()
 		b.HandleURI(uriPrefix + params.Encode())
-		b.AOPPApprove()
+		b.AOPPApprove(b.AOPP().RequestID)
 		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper)
 		ks2.CanSignMessageFunc = func(coinpkg.Code) bool {
 			return false
@@ -469,7 +513,7 @@ func TestAOPPFailures(t *testing.T) {
 		b.registerKeystore(ks)
 		require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
 		b.HandleURI(uriPrefix + params.Encode())
-		b.AOPPApprove()
+		b.AOPPApprove(b.AOPP().RequestID)
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPNoAccounts, b.AOPP().ErrorCode)
 	})
@@ -479,7 +523,7 @@ func TestAOPPFailures(t *testing.T) {
 		params := defaultParams()
 		params.Set("format", "p2pkh")
 		b.HandleURI(uriPrefix + params.Encode())
-		b.AOPPApprove()
+		b.AOPPApprove(b.AOPP().RequestID)
 		b.registerKeystore(ks)
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPUnsupportedFormat, b.AOPP().ErrorCode)
@@ -489,13 +533,13 @@ func TestAOPPFailures(t *testing.T) {
 		defer b.Close()
 		params := defaultParams()
 		b.HandleURI(uriPrefix + params.Encode())
-		b.AOPPApprove()
+		b.AOPPApprove(b.AOPP().RequestID)
 		ks2 := makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper)
 		ks2.SignBTCMessageFunc = func([]byte, signing.AbsoluteKeypath, signing.ScriptType, coinpkg.Code) ([]byte, error) {
 			return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
 		}
 		b.registerKeystore(ks2)
-		b.AOPPChooseAccount("v0-55555555-btc-0")
+		b.AOPPChooseAccount(b.AOPP().RequestID, "v0-55555555-btc-0")
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPSigningAborted, b.AOPP().ErrorCode)
 	})
@@ -512,9 +556,9 @@ func TestAOPPFailures(t *testing.T) {
 		params := defaultParams()
 		params.Set("callback", server.URL)
 		b.HandleURI(uriPrefix + params.Encode())
-		b.AOPPApprove()
+		b.AOPPApprove(b.AOPP().RequestID)
 		b.registerKeystore(ks)
-		b.AOPPChooseAccount("v0-55555555-btc-0")
+		b.AOPPChooseAccount(b.AOPP().RequestID, "v0-55555555-btc-0")
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPCallback, b.AOPP().ErrorCode)
 	})

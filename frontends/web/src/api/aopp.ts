@@ -15,22 +15,26 @@ type Accounts = NonEmptyArray<TAccount>;
 
 export type Aopp = {
   state: 'error';
+  requestID: number;
   errorCode: 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
   callback: string;
 } | {
   state: 'inactive';
 } | {
   state: 'user-approval' | 'awaiting-keystore' | 'syncing';
+  requestID: number;
   message: string;
   callback: string;
   xpubRequired: boolean;
 } | {
   state: 'choosing-account';
+  requestID: number;
   accounts: Accounts;
   message: string;
   callback: string;
 } | {
   state: 'signing' | 'success';
+  requestID: number;
   address: string;
   displayAddress: string;
   addressID: string;
@@ -39,23 +43,23 @@ export type Aopp = {
   accountCode: AccountCode;
 };
 
-export const cancel = (): Promise<null> => {
-  return apiPost('aopp/cancel');
+export const cancel = (requestID: number): Promise<TActionResponse> => {
+  return apiPost('aopp/cancel', { requestID });
 };
 
-export const approve = (): Promise<null> => {
-  return apiPost('aopp/approve');
+export const approve = (requestID: number): Promise<TActionResponse> => {
+  return apiPost('aopp/approve', { requestID });
 };
 
-type TChooseAccountResponse = {
+type TActionResponse = {
   success: true;
 } | {
   success: false;
   errorMessage: string;
 };
 
-export const chooseAccount = (accountCode: AccountCode): Promise<TChooseAccountResponse> => {
-  return apiPost('aopp/choose-account', { accountCode });
+export const chooseAccount = (requestID: number, accountCode: AccountCode): Promise<TActionResponse> => {
+  return apiPost('aopp/choose-account', { requestID, accountCode });
 };
 
 export const getAOPP = (): Promise<Aopp> => {
