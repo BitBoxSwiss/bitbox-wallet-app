@@ -670,23 +670,30 @@ func (lightning *Lightning) PreparePayment(request preparePaymentRequest) (*paym
 		if err != nil {
 			return fee, err
 		}
-		idempotencyKey := request.IdempotencyKey
-		if idempotencyKey == "" {
-			generatedKey, err := uuid.NewRandom()
-			if err != nil {
-				return nil, errp.Wrap(err, "generate idempotency key")
-			}
-			idempotencyKey = generatedKey.String()
-		}
-		fee.IdempotencyKey = idempotencyKey
-		return fee, nil
+		return paymentFeeWithIdempotencyKey(fee, request.IdempotencyKey)
 	case paymentInputTypeBolt11:
 		return lightning.prepareBolt11Payment(request.PaymentInput, request.AmountSat)
 	case paymentInputTypeLNURLPay:
-		return lightning.prepareLNURLPay(request.PaymentInput, request.AmountSat)
+		fee, err := lightning.prepareLNURLPay(request.PaymentInput, request.AmountSat)
+		if err != nil {
+			return fee, err
+		}
+		return paymentFeeWithIdempotencyKey(fee, request.IdempotencyKey)
 	default:
 		return nil, errp.New("Payment type not supported")
 	}
+}
+
+func paymentFeeWithIdempotencyKey(fee *paymentFee, idempotencyKey string) (*paymentFee, error) {
+	if idempotencyKey == "" {
+		generatedKey, err := uuid.NewRandom()
+		if err != nil {
+			return nil, errp.Wrap(err, "generate idempotency key")
+		}
+		idempotencyKey = generatedKey.String()
+	}
+	fee.IdempotencyKey = idempotencyKey
+	return fee, nil
 }
 
 func (lightning *Lightning) prepareBolt11Payment(paymentInvoice string, amountSat *uint64) (*paymentFee, error) {
@@ -856,6 +863,9 @@ func (lightning *Lightning) sendLNURLPay(request sendPaymentRequest) error {
 	if request.AmountSat == nil || *request.AmountSat == 0 {
 		return errLightningInvalidAmount
 	}
+	if request.IdempotencyKey == "" {
+		return errp.WithMessage(errLightningInvalidPaymentInput, "idempotency key missing")
+	}
 
 	lightning.log.Info("Sending LNURL-Pay payment")
 
@@ -887,6 +897,7 @@ func (lightning *Lightning) sendLNURLPay(request sendPaymentRequest) error {
 
 	_, err = lightning.sdkService.LnurlPay(breez_sdk_spark.LnurlPayRequest{
 		PrepareResponse: prepareResponse,
+		IdempotencyKey:  &request.IdempotencyKey,
 	})
 	if err != nil {
 		lightning.log.WithError(err).Error("Send LNURL-Pay failed")
