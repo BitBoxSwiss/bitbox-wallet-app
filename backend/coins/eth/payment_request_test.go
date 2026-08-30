@@ -84,7 +84,11 @@ func TestParsePaymentRequestAtomicAmount(t *testing.T) {
 		require.True(t, ok, value)
 		require.Equal(t, expected, amount.BigInt().String(), value)
 	}
-	for _, value := range []string{"1e78", "1.20e1"} {
+	for _, value := range []string{
+		"1e78",
+		"1.20e1",
+		strings.Repeat("9", 79),
+	} {
 		_, ok := parsePaymentRequestAtomicAmount(value)
 		require.False(t, ok, value)
 	}
