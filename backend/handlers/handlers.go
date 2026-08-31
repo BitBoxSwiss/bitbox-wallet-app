@@ -1960,21 +1960,33 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 	}
 
 	var request struct {
-		RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
+		RootFingerprint jsonp.HexBytes   `json:"rootFingerprint"`
+		RequiredFeature keystore.Feature `json:"requiredFeature"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return response{Success: false}
 	}
 
-	_, err := handlers.backend.ConnectKeystore([]byte(request.RootFingerprint))
+	connectedKeystore, err := handlers.backend.ConnectKeystore([]byte(request.RootFingerprint))
 	if errp.Cause(err) == errp.ErrUserAbort {
 		return response{
 			Success:   false,
 			ErrorCode: errp.ErrUserAbort.Error(),
 		}
 	}
-	return response{Success: err == nil}
+	if err != nil {
+		return response{Success: false}
+	}
+	if request.RequiredFeature != "" {
+		if err := connectedKeystore.SupportsFeature(request.RequiredFeature); err != nil {
+			if keystoreErr, ok := errp.Cause(err).(keystore.KeystoreError); ok {
+				return response{Success: false, ErrorCode: keystoreErr.Error()}
+			}
+			return response{Success: false}
+		}
+	}
+	return response{Success: true}
 }
 
 func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {

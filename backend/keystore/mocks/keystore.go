@@ -76,11 +76,8 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			SupportsEIP1559Func: func() bool {
 //				panic("mock out the SupportsEIP1559 method")
 //			},
-//			SupportsPaymentRequestsFunc: func() error {
-//				panic("mock out the SupportsPaymentRequests method")
-//			},
-//			SupportsSwapPaymentRequestsFunc: func() error {
-//				panic("mock out the SupportsSwapPaymentRequests method")
+//			SupportsFeatureFunc: func(feature keystore.Feature) error {
+//				panic("mock out the SupportsFeature method")
 //			},
 //			TypeFunc: func() keystore.Type {
 //				panic("mock out the Type method")
@@ -158,11 +155,8 @@ type KeystoreMock struct {
 	// SupportsEIP1559Func mocks the SupportsEIP1559 method.
 	SupportsEIP1559Func func() bool
 
-	// SupportsPaymentRequestsFunc mocks the SupportsPaymentRequests method.
-	SupportsPaymentRequestsFunc func() error
-
-	// SupportsSwapPaymentRequestsFunc mocks the SupportsSwapPaymentRequests method.
-	SupportsSwapPaymentRequestsFunc func() error
+	// SupportsFeatureFunc mocks the SupportsFeature method.
+	SupportsFeatureFunc func(feature keystore.Feature) error
 
 	// TypeFunc mocks the Type method.
 	TypeFunc func() keystore.Type
@@ -283,11 +277,10 @@ type KeystoreMock struct {
 		// SupportsEIP1559 holds details about calls to the SupportsEIP1559 method.
 		SupportsEIP1559 []struct {
 		}
-		// SupportsPaymentRequests holds details about calls to the SupportsPaymentRequests method.
-		SupportsPaymentRequests []struct {
-		}
-		// SupportsSwapPaymentRequests holds details about calls to the SupportsSwapPaymentRequests method.
-		SupportsSwapPaymentRequests []struct {
+		// SupportsFeature holds details about calls to the SupportsFeature method.
+		SupportsFeature []struct {
+			// Feature is the feature argument value.
+			Feature keystore.Feature
 		}
 		// Type holds details about calls to the Type method.
 		Type []struct {
@@ -335,8 +328,7 @@ type KeystoreMock struct {
 	lockSupportsCoin                    sync.RWMutex
 	lockSupportsDeterministicEntropy    sync.RWMutex
 	lockSupportsEIP1559                 sync.RWMutex
-	lockSupportsPaymentRequests         sync.RWMutex
-	lockSupportsSwapPaymentRequests     sync.RWMutex
+	lockSupportsFeature                 sync.RWMutex
 	lockType                            sync.RWMutex
 	lockVerifyAddressBTC                sync.RWMutex
 	lockVerifyAddressETH                sync.RWMutex
@@ -964,57 +956,35 @@ func (mock *KeystoreMock) SupportsEIP1559Calls() []struct {
 	return calls
 }
 
-// SupportsPaymentRequests calls SupportsPaymentRequestsFunc.
-func (mock *KeystoreMock) SupportsPaymentRequests() error {
-	if mock.SupportsPaymentRequestsFunc == nil {
-		panic("KeystoreMock.SupportsPaymentRequestsFunc: method is nil but Keystore.SupportsPaymentRequests was just called")
+// SupportsFeature calls SupportsFeatureFunc.
+func (mock *KeystoreMock) SupportsFeature(feature keystore.Feature) error {
+	if mock.SupportsFeatureFunc == nil {
+		panic("KeystoreMock.SupportsFeatureFunc: method is nil but Keystore.SupportsFeature was just called")
 	}
 	callInfo := struct {
-	}{}
-	mock.lockSupportsPaymentRequests.Lock()
-	mock.calls.SupportsPaymentRequests = append(mock.calls.SupportsPaymentRequests, callInfo)
-	mock.lockSupportsPaymentRequests.Unlock()
-	return mock.SupportsPaymentRequestsFunc()
+		Feature keystore.Feature
+	}{
+		Feature: feature,
+	}
+	mock.lockSupportsFeature.Lock()
+	mock.calls.SupportsFeature = append(mock.calls.SupportsFeature, callInfo)
+	mock.lockSupportsFeature.Unlock()
+	return mock.SupportsFeatureFunc(feature)
 }
 
-// SupportsPaymentRequestsCalls gets all the calls that were made to SupportsPaymentRequests.
+// SupportsFeatureCalls gets all the calls that were made to SupportsFeature.
 // Check the length with:
 //
-//	len(mockedKeystore.SupportsPaymentRequestsCalls())
-func (mock *KeystoreMock) SupportsPaymentRequestsCalls() []struct {
+//	len(mockedKeystore.SupportsFeatureCalls())
+func (mock *KeystoreMock) SupportsFeatureCalls() []struct {
+	Feature keystore.Feature
 } {
 	var calls []struct {
+		Feature keystore.Feature
 	}
-	mock.lockSupportsPaymentRequests.RLock()
-	calls = mock.calls.SupportsPaymentRequests
-	mock.lockSupportsPaymentRequests.RUnlock()
-	return calls
-}
-
-// SupportsSwapPaymentRequests calls SupportsSwapPaymentRequestsFunc.
-func (mock *KeystoreMock) SupportsSwapPaymentRequests() error {
-	if mock.SupportsSwapPaymentRequestsFunc == nil {
-		panic("KeystoreMock.SupportsSwapPaymentRequestsFunc: method is nil but Keystore.SupportsSwapPaymentRequests was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockSupportsSwapPaymentRequests.Lock()
-	mock.calls.SupportsSwapPaymentRequests = append(mock.calls.SupportsSwapPaymentRequests, callInfo)
-	mock.lockSupportsSwapPaymentRequests.Unlock()
-	return mock.SupportsSwapPaymentRequestsFunc()
-}
-
-// SupportsSwapPaymentRequestsCalls gets all the calls that were made to SupportsSwapPaymentRequests.
-// Check the length with:
-//
-//	len(mockedKeystore.SupportsSwapPaymentRequestsCalls())
-func (mock *KeystoreMock) SupportsSwapPaymentRequestsCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockSupportsSwapPaymentRequests.RLock()
-	calls = mock.calls.SupportsSwapPaymentRequests
-	mock.lockSupportsSwapPaymentRequests.RUnlock()
+	mock.lockSupportsFeature.RLock()
+	calls = mock.calls.SupportsFeature
+	mock.lockSupportsFeature.RUnlock()
 	return calls
 }
 

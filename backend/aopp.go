@@ -100,7 +100,8 @@ const (
 type AOPP struct {
 	// State is the current state the request is in. See `aoppState*` for the possible values.
 	State aoppState `json:"state"`
-	// ErrorCode is an "aopp*" error code. Only applies if State == aoppStateError.
+	// ErrorCode describes the AOPP failure. It is usually an "aopp*" error code, but can also be a
+	// shared error code such as "firmwareUpgradeRequired". Only applies if State == aoppStateError.
 	ErrorCode errp.ErrorCode `json:"errorCode"`
 	// Accounts is the list of accounts the user can choose from. Only applies if State == aoppStateChoosingAccount.
 	Accounts []account `json:"accounts"`
@@ -165,6 +166,14 @@ func (backend *Backend) aoppSetError(err errp.ErrorCode) {
 // calling this function.
 func (backend *Backend) aoppKeystoreRegistered() {
 	if backend.aopp.State != aoppStateAwaitingKeystore {
+		return
+	}
+	if err := backend.keystore.SupportsFeature(keystore.FeatureMessageSigning); err != nil {
+		if errp.Cause(err) == keystore.ErrFirmwareUpgradeRequired {
+			backend.aoppSetError(errp.ErrorCode(keystore.ErrFirmwareUpgradeRequired.Error()))
+		} else {
+			backend.aoppSetError(errAOPPUnsupportedKeystore)
+		}
 		return
 	}
 	if !backend.keystore.CanSignMessage(backend.aopp.coinCode) {

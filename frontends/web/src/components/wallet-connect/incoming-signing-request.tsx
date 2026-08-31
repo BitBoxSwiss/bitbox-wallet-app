@@ -15,6 +15,7 @@ import { alertUser } from '@/components/alert/Alert';
 import type { TAccount } from '@/api/account';
 import { connectKeystore } from '@/api/keystores';
 import { TStage, WCIncomingSignRequestDialog } from './incoming-signing-request-dialog';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 
 type TActiveSigningRequest = {
   accountCode: TLaunchSignDialog['accountCode'];
@@ -32,6 +33,7 @@ export const WCSigningRequest = ({ accounts }: TProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<TRequestDialogContent>();
   const [stage, setStage] = useState<TStage>('initial');
+  const [firmwareUpgradeRequired, setFirmwareUpgradeRequired] = useState(false);
   const activeRequestRef = useRef<TActiveSigningRequest>();
   const successTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -128,22 +130,32 @@ export const WCSigningRequest = ({ accounts }: TProps) => {
 
     setStage('initial');
     setDialogOpen(false);
+    if (result.errorCode === 'firmwareUpgradeRequired') {
+      setFirmwareUpgradeRequired(true);
+      return;
+    }
     if (!result.aborted) {
       alertUser(result.errorMessage || t('pairing.error.text'));
     }
   };
 
-  if (!dialogContent || !dialogOpen) {
-    return null;
-  }
-
   return (
-    <WCIncomingSignRequestDialog
-      content={dialogContent}
-      open={dialogOpen}
-      stage={stage}
-      onAccept={handleAcceptBtn}
-      onReject={handleRejectBtn}
-    />
+    <>
+      {firmwareUpgradeRequired && (
+        <FirmwareUpgradeRequiredDialog
+          open
+          onClose={() => setFirmwareUpgradeRequired(false)}
+        />
+      )}
+      {dialogContent && dialogOpen && (
+        <WCIncomingSignRequestDialog
+          content={dialogContent}
+          open={dialogOpen}
+          stage={stage}
+          onAccept={handleAcceptBtn}
+          onReject={handleRejectBtn}
+        />
+      )}
+    </>
   );
 };

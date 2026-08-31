@@ -24,6 +24,9 @@ const connectKeystore = vi.hoisted(() => vi.fn());
 vi.mock('@/utils/walletconnect-eth-sign-handlers', () => handlers);
 vi.mock('@/components/alert/Alert', () => ({ alertUser }));
 vi.mock('@/api/keystores', () => ({ connectKeystore }));
+vi.mock('@/components/dialog/firmware-upgrade-required-dialog', () => ({
+  FirmwareUpgradeRequiredDialog: () => <div>Firmware upgrade required</div>,
+}));
 vi.mock('i18next', () => ({ t: (key: string) => key }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock('@/hooks/darkmode', () => ({ useDarkmode: () => ({ isDarkMode: false }) }));
@@ -182,6 +185,24 @@ describe('WCSigningRequest', () => {
     await act(async () => backButton.handler?.());
 
     expect(screen.getByText('confirmOnDevice')).toBeInTheDocument();
+    expect(request.onReject).not.toHaveBeenCalled();
+  });
+
+  it('prompts for a firmware upgrade after failed signing', async () => {
+    const request = makeRequest({
+      apiCaller: vi.fn().mockResolvedValue({
+        success: false,
+        errorCode: 'firmwareUpgradeRequired',
+      }),
+    });
+    const { emitRequest } = setup([request]);
+    await emitRequest();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'button.continue' }));
+
+    expect(await screen.findByText('Firmware upgrade required')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'button.continue' })).not.toBeInTheDocument();
+    expect(alertUser).not.toHaveBeenCalled();
     expect(request.onReject).not.toHaveBeenCalled();
   });
 });
