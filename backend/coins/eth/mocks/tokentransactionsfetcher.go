@@ -7,10 +7,11 @@ import (
 	"context"
 	"sync"
 
+	"math/big"
+
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	ethcommon "github.com/ethereum/go-ethereum/common"
-	"math/big"
 )
 
 // Ensure, that TokenTransactionsFetcherMock does implement eth.TokenTransactionsFetcher.

@@ -8,11 +8,11 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
+	addresspkg "github.com/btcsuite/btcd/address/v2"
+	"github.com/btcsuite/btcd/chaincfg/v2"
+	"github.com/btcsuite/btcd/chainhash/v2"
+	"github.com/btcsuite/btcd/txscript/v2"
+	"github.com/btcsuite/btcd/wire/v2"
 )
 
 // ParseOutPoint parses <txID>:<index> into an outpoint.
@@ -34,7 +34,7 @@ func ParseOutPoint(outPointBytes []byte) (*wire.OutPoint, error) {
 
 // PkScriptFromAddress decodes an address into the pubKeyScript that can be used in a transaction
 // output.
-func PkScriptFromAddress(address btcutil.Address) ([]byte, error) {
+func PkScriptFromAddress(address addresspkg.Address) ([]byte, error) {
 	pkScript, err := txscript.PayToAddrScript(address)
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -43,7 +43,7 @@ func PkScriptFromAddress(address btcutil.Address) ([]byte, error) {
 }
 
 // AddressFromPkScript decodes a pkScript into an Address instance.
-func AddressFromPkScript(pkScript []byte, net *chaincfg.Params) (btcutil.Address, error) {
+func AddressFromPkScript(pkScript []byte, net *chaincfg.Params) (addresspkg.Address, error) {
 	scriptClass, addresses, _, err := txscript.ExtractPkScriptAddrs(pkScript, net)
 	if err != nil {
 		return nil, errp.WithStack(err)

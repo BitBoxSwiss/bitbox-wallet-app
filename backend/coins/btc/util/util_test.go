@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/ltc"
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/chaincfg"
+	addresspkg "github.com/btcsuite/btcd/address/v2"
+	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,9 +24,9 @@ func TestPkScriptFromAddress(t *testing.T) {
 	hash := mustBytesFromHex("92953b6991297002faa62a1dd24313ff621e10ab")
 	net := &chaincfg.MainNetParams
 
-	var address btcutil.Address
+	var address addresspkg.Address
 
-	address, err := btcutil.NewAddressPubKeyHash(hash, net)
+	address, err := addresspkg.NewAddressPubKeyHash(hash, net)
 	require.NoError(t, err)
 	pkScript, err := PkScriptFromAddress(address)
 	require.NoError(t, err)
@@ -34,7 +34,7 @@ func TestPkScriptFromAddress(t *testing.T) {
 		mustBytesFromHex("76a91492953b6991297002faa62a1dd24313ff621e10ab88ac"),
 		pkScript)
 
-	address, err = btcutil.NewAddressWitnessPubKeyHash(hash, net)
+	address, err = addresspkg.NewAddressWitnessPubKeyHash(hash, net)
 	require.NoError(t, err)
 	pkScript, err = PkScriptFromAddress(address)
 	require.NoError(t, err)
@@ -42,7 +42,7 @@ func TestPkScriptFromAddress(t *testing.T) {
 		mustBytesFromHex("001492953b6991297002faa62a1dd24313ff621e10ab"),
 		pkScript)
 
-	address, err = btcutil.NewAddressScriptHashFromHash(hash, net)
+	address, err = addresspkg.NewAddressScriptHashFromHash(hash, net)
 	require.NoError(t, err)
 	pkScript, err = PkScriptFromAddress(address)
 	require.NoError(t, err)
@@ -51,7 +51,7 @@ func TestPkScriptFromAddress(t *testing.T) {
 		pkScript)
 
 	scriptHash := mustBytesFromHex("4af2e4549a5cbb736e77cef52fe30b9df8121d7356ab2005463ecb089723458d")
-	address, err = btcutil.NewAddressWitnessScriptHash(scriptHash, net)
+	address, err = addresspkg.NewAddressWitnessScriptHash(scriptHash, net)
 	require.NoError(t, err)
 	pkScript, err = PkScriptFromAddress(address)
 	require.NoError(t, err)
@@ -61,7 +61,7 @@ func TestPkScriptFromAddress(t *testing.T) {
 
 	// Taproot: test vector #1 from https://github.com/bitcoin/bips/blob/d7cc20992724ea484087c07d2ed53fb3bc3a108b/bip-0086.mediawiki#test-vectors
 	pubkey := mustBytesFromHex("a60869f0dbcf1dc659c9cecbaf8050135ea9e8cdc487053f1dc6880949dc684c")
-	address, err = btcutil.NewAddressTaproot(pubkey, net)
+	address, err = addresspkg.NewAddressTaproot(pubkey, net)
 	require.NoError(t, err)
 	pkScript, err = PkScriptFromAddress(address)
 	require.NoError(t, err)
@@ -74,9 +74,9 @@ func TestAddressFromPkScript(t *testing.T) {
 	hash := mustBytesFromHex("92953b6991297002faa62a1dd24313ff621e10ab")
 	net := &chaincfg.MainNetParams
 
-	var address btcutil.Address
+	var address addresspkg.Address
 
-	address, err := btcutil.NewAddressPubKeyHash(hash, net)
+	address, err := addresspkg.NewAddressPubKeyHash(hash, net)
 	require.NoError(t, err)
 	pkScript, err := PkScriptFromAddress(address)
 	require.NoError(t, err)
@@ -84,7 +84,7 @@ func TestAddressFromPkScript(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, address.ScriptAddress(), recoveredAddres.ScriptAddress())
 
-	address, err = btcutil.NewAddressWitnessPubKeyHash(hash, net)
+	address, err = addresspkg.NewAddressWitnessPubKeyHash(hash, net)
 	require.NoError(t, err)
 	pkScript, err = PkScriptFromAddress(address)
 	require.NoError(t, err)
@@ -92,7 +92,7 @@ func TestAddressFromPkScript(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, address.ScriptAddress(), recoveredAddres.ScriptAddress())
 
-	address, err = btcutil.NewAddressScriptHashFromHash(hash, net)
+	address, err = addresspkg.NewAddressScriptHashFromHash(hash, net)
 	require.NoError(t, err)
 	pkScript, err = PkScriptFromAddress(address)
 	require.NoError(t, err)
@@ -101,7 +101,7 @@ func TestAddressFromPkScript(t *testing.T) {
 	require.Equal(t, address.ScriptAddress(), recoveredAddres.ScriptAddress())
 
 	scriptHash := mustBytesFromHex("4af2e4549a5cbb736e77cef52fe30b9df8121d7356ab2005463ecb089723458d")
-	address, err = btcutil.NewAddressWitnessScriptHash(scriptHash, net)
+	address, err = addresspkg.NewAddressWitnessScriptHash(scriptHash, net)
 	require.NoError(t, err)
 	pkScript, err = PkScriptFromAddress(address)
 	require.NoError(t, err)
@@ -110,7 +110,7 @@ func TestAddressFromPkScript(t *testing.T) {
 	require.Equal(t, address.ScriptAddress(), recoveredAddres.ScriptAddress())
 
 	pubkey := mustBytesFromHex("a60869f0dbcf1dc659c9cecbaf8050135ea9e8cdc487053f1dc6880949dc684c")
-	address, err = btcutil.NewAddressTaproot(pubkey, net)
+	address, err = addresspkg.NewAddressTaproot(pubkey, net)
 	require.NoError(t, err)
 	pkScript, err = PkScriptFromAddress(address)
 	require.NoError(t, err)

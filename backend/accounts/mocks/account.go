@@ -4,12 +4,13 @@
 package mocks
 
 import (
+	"io"
+	"sync"
+
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
-	"io"
-	"sync"
 )
 
 // Ensure, that InterfaceMock does implement accounts.Interface.

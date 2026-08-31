@@ -2,7 +2,7 @@
 
 package headers
 
-import "github.com/btcsuite/btcd/wire"
+import "github.com/btcsuite/btcd/wire/v2"
 
 type dbMock struct {
 	putHeader      func(height int, header *wire.BlockHeader) error

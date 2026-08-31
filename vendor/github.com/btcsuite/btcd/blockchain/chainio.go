@@ -12,10 +12,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/btcutil/v2"
+	"github.com/btcsuite/btcd/chainhash/v2"
 	"github.com/btcsuite/btcd/database"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcd/wire/v2"
 )
 
 const (
@@ -1079,6 +1079,7 @@ func (b *BlockChain) createChainState() error {
 	node := newBlockNode(header, nil)
 	node.status = statusDataStored | statusValid
 	b.bestChain.SetTip(node)
+	b.bestHeader.SetTip(node)
 
 	// Add the new node to the index which is used for faster lookups.
 	b.index.addNode(node)
@@ -1165,6 +1166,35 @@ func (b *BlockChain) createChainState() error {
 		return dbStoreBlock(dbTx, genesisBlock)
 	})
 	return err
+}
+
+// DBBlockFromBytes deserializes a block fetched from the local database,
+// tolerating trailing bytes rather than rejecting them outright.  Databases
+// written by older btcd versions may have persisted blocks with trailing
+// bytes, and failing here would make such blocks permanently unreadable.
+// Instead, any trailing bytes are logged, ignored, and excluded from the
+// serialization cached in the returned block.
+//
+// This lenient parsing is only appropriate for blocks read back from the
+// node's own database.  Blocks from external sources (p2p, RPC) should be
+// parsed with the strict btcutil.NewBlockFromBytes instead.
+func DBBlockFromBytes(blockBytes []byte, hash chainhash.Hash) (*btcutil.Block,
+	error) {
+
+	blockReader := bytes.NewReader(blockBytes)
+	var msgBlock wire.MsgBlock
+	if err := msgBlock.Deserialize(blockReader); err != nil {
+		return nil, err
+	}
+	if trailing := blockReader.Len(); trailing > 0 {
+		log.Debugf("Block %v has %d trailing bytes in the database; "+
+			"ignoring them", hash, trailing)
+		blockBytes = blockBytes[:len(blockBytes)-trailing]
+	}
+
+	// Cache the exact serialization on the block so downstream consumers
+	// of the raw bytes never observe the trailing bytes.
+	return btcutil.NewBlockFromBlockAndBytes(&msgBlock, blockBytes), nil
 }
 
 // initChainState attempts to load and initialize the chain state from the
@@ -1262,21 +1292,21 @@ func (b *BlockChain) initChainState() error {
 			i++
 		}
 
-		// Set the best chain view to the stored best state.
+		// Set the best chain view and the best header to the stored best state.
 		tip := b.index.LookupNode(&state.hash)
 		if tip == nil {
 			return AssertError(fmt.Sprintf("initChainState: cannot find "+
 				"chain tip %s in block index", state.hash))
 		}
 		b.bestChain.SetTip(tip)
+		b.bestHeader.SetTip(tip)
 
 		// Load the raw block bytes for the best block.
 		blockBytes, err := dbTx.FetchBlock(&state.hash)
 		if err != nil {
 			return err
 		}
-		var block wire.MsgBlock
-		err = block.Deserialize(bytes.NewReader(blockBytes))
+		block, err := DBBlockFromBytes(blockBytes, state.hash)
 		if err != nil {
 			return err
 		}
@@ -1300,10 +1330,17 @@ func (b *BlockChain) initChainState() error {
 			}
 		}
 
-		// Initialize the state related to the best block.
-		blockSize := uint64(len(blockBytes))
-		blockWeight := uint64(GetBlockWeight(btcutil.NewBlock(&block)))
-		numTxns := uint64(len(block.Transactions))
+		// Initialize the state related to the best block.  The block
+		// bytes are re-derived from the block itself so any trailing
+		// bytes ignored during deserialization are excluded from the
+		// recorded size.
+		serializedBlock, err := block.Bytes()
+		if err != nil {
+			return err
+		}
+		blockSize := uint64(len(serializedBlock))
+		blockWeight := uint64(GetBlockWeight(block))
+		numTxns := uint64(len(block.MsgBlock().Transactions))
 		b.stateSnapshot = newBestState(tip, blockSize, blockWeight,
 			numTxns, state.totalTxns, CalcPastMedianTime(tip))
 
@@ -1377,7 +1414,7 @@ func dbFetchBlockByNode(dbTx database.Tx, node *blockNode) (*btcutil.Block, erro
 	}
 
 	// Create the encapsulated block and set the height appropriately.
-	block, err := btcutil.NewBlockFromBytes(blockBytes)
+	block, err := DBBlockFromBytes(blockBytes, node.hash)
 	if err != nil {
 		return nil, err
 	}

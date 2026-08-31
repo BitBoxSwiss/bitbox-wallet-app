@@ -12,8 +12,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/errp"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
-	"github.com/btcsuite/btcd/btcutil/base58"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcd/address/v2/base58"
+	"github.com/btcsuite/btcd/wire/v2"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -258,8 +258,14 @@ func (device *Device) nonAtomicNestedQueryBtcSign(request *messages.BTCRequest) 
 }
 
 func isTaproot(sc *messages.BTCScriptConfigWithKeypath) bool {
-	simpleTypeConfig, ok := sc.ScriptConfig.Config.(*messages.BTCScriptConfig_SimpleType_)
-	return ok && simpleTypeConfig.SimpleType == messages.BTCScriptConfig_P2TR
+	switch config := sc.ScriptConfig.Config.(type) {
+	case *messages.BTCScriptConfig_SimpleType_:
+		return config.SimpleType == messages.BTCScriptConfig_P2TR
+	case *messages.BTCScriptConfig_Policy_:
+		return strings.HasPrefix(config.Policy.GetPolicy(), "tr(")
+	default:
+		return false
+	}
 }
 
 // BTCSignNeedsPrevTxs returns true if the PrevTx field in BTCTxInput needs to be populated before
@@ -353,6 +359,9 @@ func (device *Device) nonAtomicBTCSign(
 	formatUnit messages.BTCSignInitRequest_FormatUnit,
 ) (*BTCSignResult, error) {
 	generatedOutputs := map[int][]byte{}
+	if !device.version.AtLeast(semver.NewSemVer(9, 4, 0)) {
+		return nil, UnsupportedError("9.4.0")
+	}
 	if !device.version.AtLeast(semver.NewSemVer(9, 10, 0)) {
 		for _, sc := range scriptConfigs {
 			if isTaproot(sc) {
@@ -368,8 +377,6 @@ func (device *Device) nonAtomicBTCSign(
 			return nil, UnsupportedError("9.24.0")
 		}
 	}
-
-	supportsAntiklepto := device.version.AtLeast(semver.NewSemVer(9, 4, 0))
 
 	containsSilentPaymentOutputs := false
 	for _, output := range tx.Outputs {
@@ -415,7 +422,7 @@ func (device *Device) nonAtomicBTCSign(
 			inputIsSchnorr := isTaproot(scriptConfigs[input.ScriptConfigIndex])
 
 			// Anti-Klepto protocol not supported yet for Schnorr signatures.
-			performAntiklepto := supportsAntiklepto && isInputsPass2 && !inputIsSchnorr
+			performAntiklepto := isInputsPass2 && !inputIsSchnorr
 
 			var hostNonce []byte
 			if performAntiklepto {
@@ -464,6 +471,11 @@ func (device *Device) nonAtomicBTCSign(
 			if isInputsPass2 {
 				if !next.HasSignature {
 					return nil, errp.New("unexpected response; expected signature")
+				}
+				if !inputIsSchnorr && !performAntiklepto {
+					if err := validateCompactECDSASignature(next.Signature); err != nil {
+						return nil, err
+					}
 				}
 				signatures[inputIndex] = next.Signature
 			}
@@ -555,8 +567,9 @@ func (device *Device) nonAtomicBTCSign(
 	}
 }
 
-// BTCSign signs a bitcoin or bitcoin-like transaction. The previous transactions of the inputs
-// need to be provided if `BTCSignNeedsPrevTxs()` returns true.
+// BTCSign signs a bitcoin or bitcoin-like transaction. Firmware v9.4.0 or newer is required to
+// ensure anti-klepto protection for ECDSA signatures. The previous transactions of the inputs need
+// to be provided if `BTCSignNeedsPrevTxs()` returns true.
 func (device *Device) BTCSign(
 	coin messages.BTCCoin,
 	scriptConfigs []*messages.BTCScriptConfigWithKeypath,
@@ -655,23 +668,16 @@ func (device *Device) nonAtomicBTCSignMessage(
 	if isTaproot(scriptConfig) {
 		return nil, errp.New("taproot not supported")
 	}
-	if !device.version.AtLeast(semver.NewSemVer(9, 2, 0)) {
-		return nil, UnsupportedError("9.2.0")
+	if !device.version.AtLeast(semver.NewSemVer(9, 5, 0)) {
+		return nil, UnsupportedError("9.5.0")
 	}
 
-	supportsAntiklepto := device.version.AtLeast(semver.NewSemVer(9, 5, 0))
-	var hostNonceCommitment *messages.AntiKleptoHostNonceCommitment
-	var hostNonce []byte
-
-	if supportsAntiklepto {
-		var err error
-		hostNonce, err = generateHostNonce()
-		if err != nil {
-			return nil, err
-		}
-		hostNonceCommitment = &messages.AntiKleptoHostNonceCommitment{
-			Commitment: antikleptoHostCommit(hostNonce),
-		}
+	hostNonce, err := generateHostNonce()
+	if err != nil {
+		return nil, err
+	}
+	hostNonceCommitment := &messages.AntiKleptoHostNonceCommitment{
+		Commitment: antikleptoHostCommit(hostNonce),
 	}
 
 	request := &messages.BTCRequest{
@@ -689,42 +695,32 @@ func (device *Device) nonAtomicBTCSignMessage(
 		return nil, err
 	}
 
-	var signature []byte
-	if supportsAntiklepto {
-		signerCommitment, ok := response.Response.(*messages.BTCResponse_AntikleptoSignerCommitment)
-		if !ok {
-			return nil, errp.New("unexpected response")
-		}
-		response, err := device.nonAtomicQueryBTC(&messages.BTCRequest{
-			Request: &messages.BTCRequest_AntikleptoSignature{
-				AntikleptoSignature: &messages.AntiKleptoSignatureRequest{
-					HostNonce: hostNonce,
-				},
+	signerCommitment, ok := response.Response.(*messages.BTCResponse_AntikleptoSignerCommitment)
+	if !ok {
+		return nil, errp.New("unexpected response")
+	}
+	response, err = device.nonAtomicQueryBTC(&messages.BTCRequest{
+		Request: &messages.BTCRequest_AntikleptoSignature{
+			AntikleptoSignature: &messages.AntiKleptoSignatureRequest{
+				HostNonce: hostNonce,
 			},
-		})
-		if err != nil {
-			return nil, err
-		}
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
 
-		signResponse, ok := response.Response.(*messages.BTCResponse_SignMessage)
-		if !ok {
-			return nil, errp.New("unexpected response")
-		}
-		signature = signResponse.SignMessage.Signature
-		err = antikleptoVerify(
-			hostNonce,
-			signerCommitment.AntikleptoSignerCommitment.Commitment,
-			signature[:64],
-		)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		signResponse, ok := response.Response.(*messages.BTCResponse_SignMessage)
-		if !ok {
-			return nil, errp.New("unexpected response")
-		}
-		signature = signResponse.SignMessage.Signature
+	signResponse, ok := response.Response.(*messages.BTCResponse_SignMessage)
+	if !ok {
+		return nil, errp.New("unexpected response")
+	}
+	signature := signResponse.SignMessage.Signature
+	if err := antikleptoVerifyRecoverable(
+		hostNonce,
+		signerCommitment.AntikleptoSignerCommitment.Commitment,
+		signature,
+	); err != nil {
+		return nil, err
 	}
 
 	sig, recID := signature[:64], signature[64]
@@ -738,7 +734,8 @@ func (device *Device) nonAtomicBTCSignMessage(
 	}, nil
 }
 
-// BTCSignMessage signs a Bitcoin message.
+// BTCSignMessage signs a Bitcoin message. Firmware v9.5.0 or newer is required to ensure
+// anti-klepto protection.
 func (device *Device) BTCSignMessage(
 	coin messages.BTCCoin,
 	scriptConfig *messages.BTCScriptConfigWithKeypath,

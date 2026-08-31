@@ -9,7 +9,7 @@ import (
 	"hash"
 
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcd/wire/v2"
 )
 
 func hashDataLenPrefixed(hasher hash.Hash, data []byte) {
