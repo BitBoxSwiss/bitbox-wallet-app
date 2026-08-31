@@ -69,7 +69,6 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() backend.AccountsList
-	EnsureSwapAccountsReady(ctx context.Context, buyAccountCode, sellAccountCode accountsTypes.Code) error
 	PrepareSwap(ctx context.Context, buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
 	SwapAccounts() (backend.SwapAccounts, error)
 	SwapStatus() backend.SwapStatus
@@ -231,7 +230,6 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/account/{code}/parse-ethereum-payment-request", handlers.postParseEthereumPaymentRequest).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/swap/ready", handlers.postSwapReady).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/swap/status", handlers.getSwapStatus).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
@@ -2081,37 +2079,6 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 		SwapID:            swapResult.SwapID,
 		TxInput:           &swapResult.TxInput,
 	}
-}
-
-func (handlers *Handlers) postSwapReady(r *http.Request) interface{} {
-	type result struct {
-		Success      bool   `json:"success"`
-		ErrorCode    string `json:"errorCode,omitempty"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
-	}
-	var request struct {
-		BuyAccountCode  accountsTypes.Code `json:"buyAccountCode"`
-		SellAccountCode accountsTypes.Code `json:"sellAccountCode"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return result{Success: false, ErrorMessage: "Request body is required and must be a valid JSON object."}
-	}
-	if request.BuyAccountCode == "" {
-		return result{Success: false, ErrorMessage: "buyAccountCode is required."}
-	}
-	if request.SellAccountCode == "" {
-		return result{Success: false, ErrorMessage: "sellAccountCode is required."}
-	}
-	if err := handlers.backend.EnsureSwapAccountsReady(
-		r.Context(), request.BuyAccountCode, request.SellAccountCode,
-	); err != nil {
-		response := result{Success: false, ErrorMessage: err.Error()}
-		if errp.Cause(err) == accounts.ErrSyncInProgress {
-			response.ErrorCode = accounts.ErrSyncInProgress.Error()
-		}
-		return response
-	}
-	return result{Success: true}
 }
 
 func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {

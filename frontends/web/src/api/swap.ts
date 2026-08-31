@@ -101,21 +101,6 @@ export const getSwapStatus = (): Promise<TSwapStatusResponse> => {
   return apiGet('swap/status');
 };
 
-export type TSwapReadyResponse = {
-  success: true;
-} | {
-  success: false;
-  errorCode?: 'syncInProgress';
-  errorMessage: string;
-};
-
-export const ensureSwapAccountsReady = (
-  buyAccountCode: AccountCode,
-  sellAccountCode: AccountCode,
-): Promise<TSwapReadyResponse> => {
-  return apiPost('swap/ready', { buyAccountCode, sellAccountCode });
-};
-
 export const signSwap = (
   data: TSwapSignRequest,
 ): Promise<TSwapSignResponse> => {
