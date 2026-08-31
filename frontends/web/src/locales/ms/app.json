@@ -868,11 +868,6 @@
       }
     }
   },
-  "externalLinkPrompt": {
-    "confirm": "Teruskan",
-    "message": "Anda akan membuka URL {{url}} dalam pelayar sistem anda. Teruskan?",
-    "title": "Buka pautan luaran"
-  },
   "fiat": {
     "default": "tetapan standard",
     "setDefault": "Tetapkan {{code}} sebagai tetapan standard",

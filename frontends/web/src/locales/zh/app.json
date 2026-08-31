@@ -246,11 +246,6 @@
     "cancel": "取消",
     "confirm": "确认"
   },
-  "externalLinkPrompt": {
-    "confirm": "继续",
-    "message": "即将在系统浏览器中打开网址 {{url}}。是否继续？",
-    "title": "打开外部链接"
-  },
   "fiat": {
     "default": "默认设置",
     "setDefault": "将 {{code}} 设为默认",

@@ -847,11 +847,6 @@
       }
     }
   },
-  "externalLinkPrompt": {
-    "confirm": "続行",
-    "message": "URL {{url}} をシステムブラウザで開こうとしています。続行しますか？",
-    "title": "外部リンクを開く"
-  },
   "fiat": {
     "default": "デフォルト",
     "setDefault": "{{code}}をデフォルトに設定する",

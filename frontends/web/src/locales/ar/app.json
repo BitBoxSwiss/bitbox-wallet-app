@@ -392,11 +392,6 @@
     "aoppUnsupportedKeystore": "لا يمكن للجهاز المتصل توقيع رسائل لهذه العملة",
     "aoppVersion": "نسخة غير معروفة"
   },
-  "externalLinkPrompt": {
-    "confirm": "متابعة",
-    "message": "أنت على وشك فتح الرابط {{url}} في متصفح النظام. هل تريد المتابعة؟",
-    "title": "فتح رابط خارجي"
-  },
   "fiat": {
     "default": "الخيار الاصلي",
     "setDefault": "تعيين {{code}} كخيار اصلي",

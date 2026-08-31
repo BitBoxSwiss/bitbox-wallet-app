@@ -249,11 +249,6 @@
     "cancel": "रद्द करे",
     "confirm": "पुष्टि करें"
   },
-  "externalLinkPrompt": {
-    "confirm": "आगे बढ़ें",
-    "message": "आप सिस्टम ब्राउज़र में URL {{url}} खोलने वाले हैं। आगे बढ़ें?",
-    "title": "बाहरी लिंक खोलें"
-  },
   "fiat": {
     "default": "डिफ़ॉल्ट",
     "setDefault": "set {{code}} as default",

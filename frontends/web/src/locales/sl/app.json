@@ -837,11 +837,6 @@
       }
     }
   },
-  "externalLinkPrompt": {
-    "confirm": "Nadaljuj",
-    "message": "V sistemskem brskalniku boste odprli URL {{url}}. Želite nadaljevati?",
-    "title": "Odpri zunanjo povezavo"
-  },
   "fiat": {
     "default": "Privzeto",
     "setDefault": "Nastavite {{code}} kot privzeto",

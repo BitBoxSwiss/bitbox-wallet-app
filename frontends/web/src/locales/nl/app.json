@@ -845,11 +845,6 @@
       }
     }
   },
-  "externalLinkPrompt": {
-    "confirm": "Doorgaan",
-    "message": "Je staat op het punt URL {{url}} in je systeembrowser te openen. Doorgaan?",
-    "title": "Externe link openen"
-  },
   "fiat": {
     "default": "Standaard",
     "setDefault": "Stel {{code}} in als standaard",

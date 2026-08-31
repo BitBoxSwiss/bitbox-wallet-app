@@ -22,7 +22,6 @@ import appTranslationsSL from '@/locales/sl/app.json';
 import appTranslationsHE from '@/locales/he/app.json';
 import appTranslationsIT from '@/locales/it/app.json';
 import { languageFromConfig } from './config';
-import { registerExternalLinkPrompt } from './external-link-prompt';
 import { localeMainLanguage } from './utils';
 import { setConfig } from '@/utils/config';
 
@@ -68,8 +67,6 @@ i18n.addResourceBundle('es', 'app', appTranslationsES);
 i18n.addResourceBundle('sl', 'app', appTranslationsSL);
 i18n.addResourceBundle('he', 'app', appTranslationsHE);
 i18n.addResourceBundle('it', 'app', appTranslationsIT);
-
-registerExternalLinkPrompt(i18n);
 
 i18n.on('languageChanged', (lng) => {
   // Set userLanguage in config back to empty if system locale matches

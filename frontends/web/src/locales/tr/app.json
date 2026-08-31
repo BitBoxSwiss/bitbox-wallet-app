@@ -297,11 +297,6 @@
     "cancel": "İptal Et",
     "confirm": "Doğrula"
   },
-  "externalLinkPrompt": {
-    "confirm": "Devam et",
-    "message": "{{url}} URL'sini sistem tarayıcınızda açmak üzeresiniz. Devam edilsin mi?",
-    "title": "Harici bağlantıyı aç"
-  },
   "fiat": {
     "default": "Varsayılan",
     "setDefault": "{{code}} varsayılan olarak ayarla",

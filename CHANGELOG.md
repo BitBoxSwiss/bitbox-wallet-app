@@ -1,7 +1,6 @@
 # Changelog
 
 ## Unreleased
-- Confirm before opening third-party widget links in the system browser
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1

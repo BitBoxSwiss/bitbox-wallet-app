@@ -996,11 +996,6 @@
       }
     }
   },
-  "externalLinkPrompt": {
-    "confirm": "Continuer",
-    "message": "Vous êtes sur le point d’ouvrir l’URL {{url}} dans le navigateur de votre système. Continuer ?",
-    "title": "Ouvrir un lien externe"
-  },
   "fiat": {
     "default": "défaut",
     "setDefault": "Définir {{code}} comme paramètre par défaut",
