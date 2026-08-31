@@ -53,12 +53,14 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
   const bitcoinBased = isBitcoinBased(account.coinCode);
   const contractAddress = account.contractAddress;
   const blockExplorerAddressPrefix = account.blockExplorerAddressPrefix;
-  const contractAddressInfo = account.isToken && contractAddress && blockExplorerAddressPrefix
-    ? {
-      address: contractAddress,
-      url: `${blockExplorerAddressPrefix}${contractAddress}`,
-    }
-    : null;
+  const contractAddressInfo = (
+    account.isToken && contractAddress && blockExplorerAddressPrefix
+      ? {
+        address: contractAddress,
+        url: `${blockExplorerAddressPrefix}${contractAddress}`,
+      }
+      : null
+  );
   return (
     <div className={style.address}>
       <div className={style.qrCode}>

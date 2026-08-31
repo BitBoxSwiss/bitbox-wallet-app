@@ -152,10 +152,12 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     );
   }
 
-  const logo =
+  const logo = (
+
     (status.product === 'bitbox02-plus-multi' || status.product === 'bitbox02-plus-btconly') ?
       (isDarkMode ? <BitBox02NovaInverted /> : <BitBox02Nova />) :
-      (isDarkMode ? <BitBox02Inverted /> : <BitBox02 />);
+      (isDarkMode ? <BitBox02Inverted /> : <BitBox02 />)
+  );
 
   return (
     <View fitContent verticallyCentered width="556px">

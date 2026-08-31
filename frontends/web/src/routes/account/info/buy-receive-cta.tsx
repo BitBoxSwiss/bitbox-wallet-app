@@ -35,10 +35,12 @@ export const BuyReceiveCTA = ({
   const navigate = useNavigate();
   const isBitcoin = isBitcoinCoin(unit);
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const receiveLabel = isMobile ? t('generic.receiveWithoutCoinCode') : t('generic.receive', {
-    context: isBitcoin ? 'bitcoin' : (unit ? '' : 'crypto'),
-    coinCode: unit
-  });
+  const receiveLabel = (
+    isMobile ? t('generic.receiveWithoutCoinCode') : t('generic.receive', {
+      context: isBitcoin ? 'bitcoin' : (unit ? '' : 'crypto'),
+      coinCode: unit
+    })
+  );
 
   const marketPath = code ? `/market/select/${code}?tab=buy` : '/market/select?tab=buy';
   const onWalletConnect = () => code && navigate(`/account/${code}/wallet-connect/dashboard`);

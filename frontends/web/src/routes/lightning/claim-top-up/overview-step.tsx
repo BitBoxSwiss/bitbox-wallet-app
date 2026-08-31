@@ -29,22 +29,24 @@ const FeeAction = ({
   label,
   onClick,
 }: TFeeActionProps) => {
-  const button = danger ? (
-    <Button
-      className={styles.actionButton}
-      danger
-      disabled={disabled}
-      onClick={onClick}>
-      {buttonText}
-    </Button>
-  ) : (
-    <Button
-      className={styles.actionButton}
-      disabled={disabled}
-      onClick={onClick}
-      primary>
-      {buttonText}
-    </Button>
+  const button = (
+    danger ? (
+      <Button
+        className={styles.actionButton}
+        danger
+        disabled={disabled}
+        onClick={onClick}>
+        {buttonText}
+      </Button>
+    ) : (
+      <Button
+        className={styles.actionButton}
+        disabled={disabled}
+        onClick={onClick}
+        primary>
+        {buttonText}
+      </Button>
+    )
   );
 
   return (

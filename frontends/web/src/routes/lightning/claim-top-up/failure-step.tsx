@@ -22,12 +22,16 @@ export const ClaimTopUpFailure = ({
 }: TProps) => {
   const { t } = useTranslation();
   const canTryRefund = action === 'claim' && !!onRefund;
-  const messageKey = action === 'claim'
-    ? 'lightning.claimTopUp.failure.claimFailedMessage'
-    : 'lightning.claimTopUp.failure.refundFailedMessage';
-  const note = canTryRefund
-    ? t('lightning.claimTopUp.failure.claimFailedTryRefund')
-    : errorMessage || t('lightning.claimTopUp.failure.refundFailedTryAgain');
+  const messageKey = (
+    action === 'claim'
+      ? 'lightning.claimTopUp.failure.claimFailedMessage'
+      : 'lightning.claimTopUp.failure.refundFailedMessage'
+  );
+  const note = (
+    canTryRefund
+      ? t('lightning.claimTopUp.failure.claimFailedTryRefund')
+      : errorMessage || t('lightning.claimTopUp.failure.refundFailedTryAgain')
+  );
 
   return (
     <View key="claim-top-up-failure" minHeight={CONTENT_MIN_HEIGHT} textCenter>

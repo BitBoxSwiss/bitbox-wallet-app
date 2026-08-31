@@ -16,8 +16,10 @@ export interface AOPPServer {
  * Returns the spawned child process and its temporary CA certificate.
  */
 export async function startAOPPServer(): Promise<AOPPServer> {
-  const PROJECT_ROOT = process.env.GITHUB_WORKSPACE ||
-    path.resolve(__dirname, '../../../..');
+  const PROJECT_ROOT = (
+    process.env.GITHUB_WORKSPACE ||
+    path.resolve(__dirname, '../../../..')
+  );
 
   const scriptPath = path.resolve(PROJECT_ROOT, 'frontends/web/tests/util/aopp/server.py');
 

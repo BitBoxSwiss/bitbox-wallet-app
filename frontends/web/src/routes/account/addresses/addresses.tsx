@@ -129,9 +129,11 @@ export const AddressesContent = ({ code, accounts }: TAddressesContentProps) => 
     return null;
   }
 
-  const currentExpandedAddressID = view === 'verify'
-    ? (selectedAddress?.addressID || null)
-    : expandedAddressID;
+  const currentExpandedAddressID = (
+    view === 'verify'
+      ? (selectedAddress?.addressID || null)
+      : expandedAddressID
+  );
 
   return (
     <>

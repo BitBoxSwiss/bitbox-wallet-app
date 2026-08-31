@@ -72,10 +72,12 @@ export const usePaymentReview = ({
   onSuccess,
 }: TUsePaymentReviewProps) => {
   const { t } = useTranslation();
-  const fixedAmountSat = paymentDetails.type === TPaymentInputType.BOLT11
+  const fixedAmountSat = (
+    paymentDetails.type === TPaymentInputType.BOLT11
     || paymentDetails.type === TPaymentInputType.BITCOIN_ADDRESS
-    ? paymentDetails.details.amountSat
-    : undefined;
+      ? paymentDetails.details.amountSat
+      : undefined
+  );
   const needsCustomAmount = fixedAmountSat === undefined;
   const mounted = useMountedRef();
   const customAmountRef = useRef<number>();
@@ -85,9 +87,11 @@ export const usePaymentReview = ({
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState<string>();
   const currentAmountSat = needsCustomAmount ? customAmount : fixedAmountSat;
-  const amountError = needsCustomAmount && currentAmountSat !== undefined && !isValidAmount(paymentDetails, currentAmountSat)
-    ? invalidAmountError(paymentDetails, t)
-    : undefined;
+  const amountError = (
+    needsCustomAmount && currentAmountSat !== undefined && !isValidAmount(paymentDetails, currentAmountSat)
+      ? invalidAmountError(paymentDetails, t)
+      : undefined
+  );
 
   const preparePayment = useCallback(async (amountSat?: number, existingIdempotencyKey?: string) => {
     let preparePaymentRequest: TPreparePaymentRequest;
@@ -170,11 +174,13 @@ export const usePaymentReview = ({
     t,
   ]);
 
-  const fees = preparedPayment
+  const fees = (
+    preparedPayment
     && preparedPayment.status !== 'preparing'
     && (!needsCustomAmount || preparedPayment.amountSat === currentAmountSat)
-    ? preparedPayment.fees
-    : undefined;
+      ? preparedPayment.fees
+      : undefined
+  );
 
   const sendPayment = useCallback(async () => {
     if (needsCustomAmount && !isValidAmount(paymentDetails, currentAmountSat)) {
@@ -245,9 +251,11 @@ export const usePaymentReview = ({
       if (error instanceof TSdkError && error.code === TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED) {
         setSendError(errorMessage);
         // Fixed-amount BOLT11 invoices already encode the amount; pass amountSat only when the user entered it.
-        const amountSat = paymentDetails.type === TPaymentInputType.BOLT11 && paymentDetails.details.amountSat !== undefined
-          ? undefined
-          : currentAmountSat;
+        const amountSat = (
+          paymentDetails.type === TPaymentInputType.BOLT11 && paymentDetails.details.amountSat !== undefined
+            ? undefined
+            : currentAmountSat
+        );
         await preparePayment(amountSat, fees.idempotencyKey);
         return;
       }

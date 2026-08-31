@@ -146,9 +146,11 @@ class PasswordSingleInputClass extends Component<TPasswordSingleInputProps, TSta
       seePlaintext,
       capsLock,
     } = this.state;
-    const warning = (capsLock && !seePlaintext) && (
-      <span className={style.capsWarning}
-        title={t('password.warning.caps')}>⇪</span>
+    const warning = (
+      (capsLock && !seePlaintext) && (
+        <span className={style.capsWarning}
+          title={t('password.warning.caps')}>⇪</span>
+      )
     );
     return (
       <Input
@@ -280,9 +282,11 @@ class PasswordRepeatInputClass extends Component<TPasswordRepeatProps, TState> {
       seePlaintext,
       capsLock,
     } = this.state;
-    const warning = (capsLock && !seePlaintext) && (
-      <span className={style.capsWarning}
-        title={t('password.warning.caps')}>⇪</span>
+    const warning = (
+      (capsLock && !seePlaintext) && (
+        <span className={style.capsWarning}
+          title={t('password.warning.caps')}>⇪</span>
+      )
     );
     return (
       <div>

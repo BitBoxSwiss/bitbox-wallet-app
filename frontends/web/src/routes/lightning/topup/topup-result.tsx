@@ -51,15 +51,17 @@ export const TopUpSuccess = () => {
 export const TopUpNoBitcoinAccounts = ({ hasAccounts }: TTopUpNoBitcoinAccountsProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const primaryAction = hasAccounts
-    ? {
-      label: t('manageAccounts.title'),
-      route: '/settings/manage-accounts',
-    }
-    : {
-      label: t('welcome.connect'),
-      route: '/',
-    };
+  const primaryAction = (
+    hasAccounts
+      ? {
+        label: t('manageAccounts.title'),
+        route: '/settings/manage-accounts',
+      }
+      : {
+        label: t('welcome.connect'),
+        route: '/',
+      }
+  );
 
   return (
     <GuideWrapper>

@@ -52,11 +52,13 @@ export const LightningCloseWithdrawFunds = ({
   const quoteRequest = useRef(0);
   const destinationAccount = btcAccounts.find(account => account.code === destinationAccountCode);
   const quoteMatchesDestination = quote?.destinationAccountCode === destinationAccountCode;
-  const canClose = confirmed
+  const canClose = (
+    confirmed
     && (!hasIncoming || incomingConfirmed)
     && !!quote
     && quoteMatchesDestination
-    && !isClosing;
+    && !isClosing
+  );
 
   useEffect(() => {
     if (!btcAccounts.length) {
@@ -145,20 +147,24 @@ export const LightningCloseWithdrawFunds = ({
 
   const handleBack = () => navigate(-1);
 
-  const headerBackEnabled = !btcAccounts.length
-    || (step === 'confirm' && !isClosing);
+  const headerBackEnabled = (
+    !btcAccounts.length
+    || (step === 'confirm' && !isClosing)
+  );
 
   const renderStep = () => {
     if (!btcAccounts.length) {
-      const primaryAction = hasAccounts
-        ? {
-          label: t('manageAccounts.title'),
-          route: '/settings/manage-accounts',
-        }
-        : {
-          label: t('welcome.connect'),
-          route: '/',
-        };
+      const primaryAction = (
+        hasAccounts
+          ? {
+            label: t('manageAccounts.title'),
+            route: '/settings/manage-accounts',
+          }
+          : {
+            label: t('welcome.connect'),
+            route: '/',
+          }
+      );
       return (
         <View textCenter verticallyCentered>
           <ViewContent>

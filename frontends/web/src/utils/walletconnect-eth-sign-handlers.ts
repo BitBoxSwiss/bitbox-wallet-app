@@ -483,9 +483,11 @@ const ethSignOrSendTransactionHandler = async (
     () => ethSignWalletConnectTx(accountCode, isSendAndSign, chainId, data),
     result => isSendAndSign ? result.txHash : result.rawTx,
   );
-  const formattedMethod = isSendAndSign ?
-    t('walletConnect.signingRequest.method.sendTransaction') :
-    t('walletConnect.signingRequest.method.signTransaction');
+  const formattedMethod = (
+    isSendAndSign ?
+      t('walletConnect.signingRequest.method.sendTransaction') :
+      t('walletConnect.signingRequest.method.signTransaction')
+  );
 
   await launchDialog({
     accountCode,

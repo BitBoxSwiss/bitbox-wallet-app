@@ -126,9 +126,11 @@ const BluetoothInner = ({ peripheralContainerClassName }: Props) => {
       <div className={styles.container}>
         {state.peripherals.map(peripheral => {
           const onClick = !hasConnection ? () => connect(peripheral.identifier) : undefined;
-          const connectingIcon = peripheral.connectionState === 'connecting' ? (
-            <SpinnerRingAnimated />
-          ) : undefined;
+          const connectingIcon = (
+            peripheral.connectionState === 'connecting' ? (
+              <SpinnerRingAnimated />
+            ) : undefined
+          );
           return (
             <ActionableItem
               className={peripheralContainerClassName}

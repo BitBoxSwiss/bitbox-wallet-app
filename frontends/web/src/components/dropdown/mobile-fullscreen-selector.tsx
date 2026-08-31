@@ -95,9 +95,11 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
     }
   };
 
-  const displayValue = isMulti
-    ? (value as TOption<T>[]).map(v => v.label).reverse().join(', ')
-    : (value as TOption<T>)?.label || '';
+  const displayValue = (
+    isMulti
+      ? (value as TOption<T>[]).map(v => v.label).reverse().join(', ')
+      : (value as TOption<T>)?.label || ''
+  );
 
   const getFilteredOptions = () => {
     if (!options) {
@@ -161,9 +163,11 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
     ))
   );
 
-  const hasResults = isGrouped
-    ? (filteredOptions as TGroupedOption<T, TExtra, TOptionExt>[]).length > 0
-    : (filteredOptions as (TOption<T> & TOptionExt)[]).length > 0;
+  const hasResults = (
+    isGrouped
+      ? (filteredOptions as TGroupedOption<T, TExtra, TOptionExt>[]).length > 0
+      : (filteredOptions as (TOption<T> & TOptionExt)[]).length > 0
+  );
 
   return (
     <div className={styles.dropdownContainer}>

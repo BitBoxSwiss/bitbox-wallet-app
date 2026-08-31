@@ -136,15 +136,19 @@ const paymentToTransaction = (
   bitcoinDepositStateText: (state: NonNullable<TLightningPayment['bitcoinDeposit']>['state']) => string,
   bitcoinDepositStateShortText: (state: NonNullable<TLightningPayment['bitcoinDeposit']>['state']) => string,
 ): TTransactionListItem => {
-  const status = payment.bitcoinDeposit
-    ? bitcoinDepositTransactionStatus(payment.bitcoinDeposit)
-    : payment.status;
+  const status = (
+    payment.bitcoinDeposit
+      ? bitcoinDepositTransactionStatus(payment.bitcoinDeposit)
+      : payment.status
+  );
   const isComplete = status === 'complete';
-  const statusProgress = payment.bitcoinDeposit?.state === 'confirming'
-    ? 33
-    : payment.bitcoinDeposit?.state === 'claiming'
-      ? 66
-      : undefined;
+  const statusProgress = (
+    payment.bitcoinDeposit?.state === 'confirming'
+      ? 33
+      : payment.bitcoinDeposit?.state === 'claiming'
+        ? 66
+        : undefined
+  );
 
   return {
     addresses: [],
@@ -404,14 +408,16 @@ export const Lightning = () => {
 
   const canSend = balance && balance.hasAvailable;
 
-  const initializingSpinnerText =
+  const initializingSpinnerText = (
+
     syncedAddressesCount !== undefined && syncedAddressesCount > 1
       ? '\n' +
         t('account.syncedAddressesCount', {
           count: syncedAddressesCount.toString(),
           defaultValue: 0
         } as any)
-      : '';
+      : ''
+  );
 
   if (!hasDataLoaded) {
     return (

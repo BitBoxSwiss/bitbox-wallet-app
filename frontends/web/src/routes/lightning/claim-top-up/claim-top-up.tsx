@@ -64,10 +64,12 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
   const canStartRefund = refundFeeRateSatPerVbyte !== undefined;
   const canConfirmRefund = canStartRefund && !!refundDestinationAccountCode;
   const refundUnavailable = !!target && refundFeeRateSatPerVbyte === undefined;
-  const canConfirm = !!target && !isSubmitting && (
-    isClaim
-      ? target.claimFeeSat !== undefined
-      : canConfirmRefund
+  const canConfirm = (
+    !!target && !isSubmitting && (
+      isClaim
+        ? target.claimFeeSat !== undefined
+        : canConfirmRefund
+    )
   );
   const refundDestinationAccount = btcAccounts.find(account => account.code === refundDestinationAccountCode);
   const successTxPrefix = isClaim ? btcAccounts[0]?.blockExplorerTxPrefix : refundDestinationAccount?.blockExplorerTxPrefix;
@@ -158,11 +160,15 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
     navigate(-1);
   };
 
-  const headerBackEnabled = step === 'overview'
-    || (step === 'confirm' && !isSubmitting);
-  const headerTitle = step === 'success'
-    ? t(`lightning.claimTopUp.success.${action}Title`)
-    : t('lightning.claimTopUp.title');
+  const headerBackEnabled = (
+    step === 'overview'
+    || (step === 'confirm' && !isSubmitting)
+  );
+  const headerTitle = (
+    step === 'success'
+      ? t(`lightning.claimTopUp.success.${action}Title`)
+      : t('lightning.claimTopUp.title')
+  );
 
   const renderContent = () => {
     if (deposit === undefined) {

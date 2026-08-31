@@ -33,11 +33,13 @@ export const Status = ({
   const { isDarkMode } = useDarkmode();
 
   // note: dismissibleKey can be falsy i.e. empty string ''
-  const show = hidden
-    ? false
-    : dismissibleKey
-      ? (config ? !config.frontend[dismissibleKey] : true)
-      : true;
+  const show = (
+    hidden
+      ? false
+      : dismissibleKey
+        ? (config ? !config.frontend[dismissibleKey] : true)
+        : true
+  );
 
   const dismiss = async () => {
     if (!dismissibleKey) {
