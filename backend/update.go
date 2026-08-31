@@ -6,6 +6,8 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
@@ -21,10 +23,10 @@ import (
 
 const (
 	updateFileURL       = "https://bitboxapp.shiftcrypto.io/desktop.json"
-	updateCheckInterval = 24 * time.Hour
+	updateCheckInterval = time.Hour
 )
 
-type updateCheckFunc func(context.Context) (*UpdateFile, error)
+type updateCheckFunc func(context.Context, url.Values) (*UpdateFile, error)
 
 type updateChecker struct {
 	observable.Implementation
@@ -33,6 +35,7 @@ type updateChecker struct {
 
 	latest     *UpdateFile
 	revision   uint64
+	checkLock  locker.Locker
 	latestLock locker.Locker
 	cancel     context.CancelFunc
 }
@@ -57,21 +60,26 @@ type UpdateState struct {
 
 func newUpdateChecker(proxy *socksproxy.SocksProxy, userAgent string) *updateChecker {
 	return &updateChecker{
-		check: func(ctx context.Context) (*UpdateFile, error) {
-			return checkForUpdate(ctx, proxy, userAgent)
+		check: func(ctx context.Context, query url.Values) (*UpdateFile, error) {
+			return checkForUpdate(ctx, proxy, userAgent, query)
 		},
 	}
 }
 
 // checkForUpdate checks whether a newer version of this application has been released.
 // It returns the retrieved update file if a newer version has been released and nil otherwise.
-func checkForUpdate(ctx context.Context, proxy *socksproxy.SocksProxy, userAgent string) (*UpdateFile, error) {
+func checkForUpdate(
+	ctx context.Context,
+	proxy *socksproxy.SocksProxy,
+	userAgent string,
+	query url.Values,
+) (*UpdateFile, error) {
 	client, err := proxy.GetHTTPClient()
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
 
-	request, err := newUpdateRequest(ctx, userAgent)
+	request, err := newUpdateRequest(ctx, userAgent, query)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -99,11 +107,12 @@ func checkForUpdate(ctx context.Context, proxy *socksproxy.SocksProxy, userAgent
 	return &updateFile, nil
 }
 
-func newUpdateRequest(ctx context.Context, userAgent string) (*http.Request, error) {
+func newUpdateRequest(ctx context.Context, userAgent string, query url.Values) (*http.Request, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, updateFileURL, nil)
 	if err != nil {
 		return nil, err
 	}
+	request.URL.RawQuery = query.Encode()
 	request.Header.Set("User-Agent", userAgent)
 	return request, nil
 }
@@ -133,8 +142,10 @@ func (checker *updateChecker) stop() {
 
 // run checks immediately and waits for the interval after each attempt before retrying.
 func (checker *updateChecker) run(ctx context.Context, interval time.Duration) {
-	for {
-		checker.checkAndSet(ctx)
+	for count := uint64(0); ; count++ {
+		query := url.Values{}
+		query.Set("c", strconv.FormatUint(count, 10))
+		checker.checkAndSet(ctx, query)
 
 		timer := time.NewTimer(interval)
 		select {
@@ -146,19 +157,24 @@ func (checker *updateChecker) run(ctx context.Context, interval time.Duration) {
 	}
 }
 
-func (checker *updateChecker) checkAndSet(ctx context.Context) {
-	updateFile, err := checker.check(ctx)
+func (checker *updateChecker) checkAndSet(ctx context.Context, query url.Values) UpdateState {
+	defer checker.checkLock.Lock()()
 	if ctx.Err() != nil {
-		return
+		return checker.get()
+	}
+
+	updateFile, err := checker.check(ctx, query)
+	if ctx.Err() != nil {
+		return checker.get()
 	}
 	if err != nil {
 		logging.Get().WithGroup("update").WithError(err).Warn("Check for update failed.")
-		return
+		return checker.get()
 	}
-	checker.set(updateFile)
+	return checker.set(updateFile)
 }
 
-func (checker *updateChecker) set(updateFile *UpdateFile) {
+func (checker *updateChecker) set(updateFile *UpdateFile) UpdateState {
 	unlock := checker.latestLock.Lock()
 	checker.latest = updateFile
 	checker.revision++
@@ -173,6 +189,7 @@ func (checker *updateChecker) set(updateFile *UpdateFile) {
 		Action:  action.Replace,
 		Object:  state,
 	})
+	return state
 }
 
 func (checker *updateChecker) get() UpdateState {
@@ -186,4 +203,11 @@ func (checker *updateChecker) get() UpdateState {
 // GetUpdate returns the result of the latest successful update check.
 func (backend *Backend) GetUpdate() UpdateState {
 	return backend.updateChecker.get()
+}
+
+// CheckUpdate refreshes and returns the update state after an explicit check from the About page.
+func (backend *Backend) CheckUpdate(ctx context.Context) UpdateState {
+	query := url.Values{}
+	query.Set("about", "1")
+	return backend.updateChecker.checkAndSet(ctx, query)
 }

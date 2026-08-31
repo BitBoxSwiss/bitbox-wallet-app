@@ -95,6 +95,7 @@ type Backend interface {
 	SystemOpen(string) error
 	ReconfigureHistoryExchangeRates()
 	GetUpdate() backend.UpdateState
+	CheckUpdate(context.Context) backend.UpdateState
 	Banners() *banners.Banners
 	Lightning() *lightning.Lightning
 	Environment() backend.Environment
@@ -620,7 +621,10 @@ func (handlers *Handlers) postOpen(r *http.Request) interface{} {
 	return response{Success: true}
 }
 
-func (handlers *Handlers) getUpdate(*http.Request) interface{} {
+func (handlers *Handlers) getUpdate(r *http.Request) interface{} {
+	if r.URL.Query().Get("about") == "1" {
+		return handlers.backend.CheckUpdate(r.Context())
+	}
 	return handlers.backend.GetUpdate()
 }
 
