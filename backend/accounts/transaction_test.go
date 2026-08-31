@@ -156,6 +156,35 @@ func TestOrderedTransactions(t *testing.T) {
 	}, timeseries)
 }
 
+func TestLatestConfirmedBalanceExcludesUnconfirmedTransactions(t *testing.T) {
+	timeAt := func(t time.Time) *time.Time { return &t }
+	ordered := NewOrderedTransactions([]*TransactionData{
+		{
+			Timestamp: timeAt(time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)),
+			Height:    10,
+			Type:      TxTypeReceive,
+			Amount:    coin.NewAmountFromInt64(100),
+		},
+		{
+			CreatedTimestamp: timeAt(time.Date(2026, time.January, 2, 0, 0, 0, 0, time.UTC)),
+			Height:           0,
+			Type:             TxTypeReceive,
+			Amount:           coin.NewAmountFromInt64(50),
+		},
+		{
+			CreatedTimestamp: timeAt(time.Date(2026, time.January, 3, 0, 0, 0, 0, time.UTC)),
+			Height:           0,
+			Type:             TxTypeSend,
+			Amount:           coin.NewAmountFromInt64(25),
+		},
+	})
+
+	balance, err := ordered.LatestConfirmedBalance().Int64()
+
+	require.NoError(t, err)
+	require.Equal(t, int64(100), balance)
+}
+
 // TestOrderedTransactionsWithFailedTransactions tests that the cumulative balance takes into
 // account failed transactions.  Ethereum transactions can be mined and fail anyway due to a too low
 // gas limit, in which case the amount is not transferred, but the fees are still paid.

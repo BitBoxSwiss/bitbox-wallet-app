@@ -47,6 +47,7 @@ const getChartData = () => {
   ];
   const performance = {
     moneyWeightedReturn: 0.25,
+    startTimestamp: previousTimestamp,
   };
 
   return {
@@ -58,7 +59,7 @@ const getChartData = () => {
       week: performance,
       month: performance,
       year: performance,
-      all: performance,
+      all: { ...performance, startTimestamp: null },
     },
     chartTotal: 150,
     formattedChartTotal: '150.00',

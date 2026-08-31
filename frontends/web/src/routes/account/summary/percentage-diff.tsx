@@ -18,9 +18,9 @@ import styles from './percentage-diff.module.css';
 import { LocalizationContext } from '@/contexts/localization-context';
 
 type TProps = {
+  ariaLabel?: string;
   badgeVisible?: boolean;
-  hasDifference: boolean;
-  difference?: number;
+  difference?: number | null;
   onClick?: () => void;
   switchedLabel?: string;
   switchedType?: TPortfolioPercentageType;
@@ -28,9 +28,9 @@ type TProps = {
 };
 
 export const PercentageDiff = ({
+  ariaLabel,
   badgeVisible = false,
   difference,
-  hasDifference,
   onClick,
   switchedLabel,
   switchedType,
@@ -39,9 +39,12 @@ export const PercentageDiff = ({
   const { hideAmounts, nativeLocale } = useContext(AppContext);
   const { decimal, group } = useContext(LocalizationContext);
   const { isDarkMode } = useDarkmode();
-  const positive = difference && difference > 0;
-  const style = difference && positive ? 'up' : 'down';
-  const className = hasDifference ? (styles[style] || '') : '';
+  const differenceAvailable = difference !== undefined
+    && difference !== null
+    && Number.isFinite(difference);
+  const positive = differenceAvailable && difference > 0;
+  const negative = differenceAvailable && difference < 0;
+  const className = positive ? styles.up || '' : negative ? styles.down || '' : '';
   const badgeClassName = `${styles.badge || ''} ${badgeVisible ? styles.badgeVisible || '' : ''}`;
   const valueBadgeIconClassName = `${styles.badgeIcon || ''} ${styles.valueBadgeIcon || ''}`;
   const badgeIcon = switchedType === 'moneyWeightedReturn' ? (
@@ -53,27 +56,30 @@ export const PercentageDiff = ({
       ? <ChartValueWhite aria-hidden="true" className={valueBadgeIconClassName} />
       : <ChartValueDark aria-hidden="true" className={valueBadgeIconClassName} />
   );
-  const formattedDifference = difference && localizePercentage(difference, nativeLocale, { decimal, group });
-  const content = hasDifference ? (
+  const formattedDifference = differenceAvailable
+    ? localizePercentage(difference, nativeLocale, { decimal, group })
+    : undefined;
+  const content = differenceAvailable ? (
     <>
-      <span className={styles.arrow}>
-        {positive ? (
-          <ArrowUpGreen />
-        ) : (
-          <ArrowDownRed />
-        )}
-      </span>
+      {positive || negative ? (
+        <span className={styles.arrow}>
+          {positive ? <ArrowUpGreen /> : <ArrowDownRed />}
+        </span>
+      ) : null}
       <span className={styles.diffValue}>
         {hideAmounts ? '***' : formattedDifference}
         <span className={styles.diffUnit}>%</span>
       </span>
     </>
-  ) : null;
+  ) : (
+    <span className={styles.diffValue}>—</span>
+  );
 
   return (
     <span className={styles.container}>
       {onClick ? (
         <button
+          aria-label={ariaLabel}
           className={`${styles.button || ''} ${className}`}
           data-testid="portfolio-percentage-toggle"
           onClick={onClick}
