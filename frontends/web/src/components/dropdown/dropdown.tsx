@@ -207,9 +207,11 @@ export const Dropdown = <T, IsMulti extends boolean = false, TExtra = object, TO
       options={options}
       components={componentOverrides}
       onChange={(selected, actionMeta) => {
-        const handleChange = props.isMulti
-          ? (onChange as (value: TOption<T>[], actionMeta: ActionMeta<TOption<T>>) => void)
-          : (onChange as (value: TOption<T>, actionMeta: ActionMeta<TOption<T>>) => void);
+        const handleChange = (
+          props.isMulti
+            ? (onChange as (value: TOption<T>[], actionMeta: ActionMeta<TOption<T>>) => void)
+            : (onChange as (value: TOption<T>, actionMeta: ActionMeta<TOption<T>>) => void)
+        );
         handleChange(selected as any, actionMeta);
       }}
       {...props}

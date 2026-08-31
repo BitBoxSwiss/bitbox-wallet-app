@@ -31,9 +31,11 @@ export const LightningSettings = () => {
     [isLightningReady, lightningAccount]
   );
   const subscribedLightningBalance = useSubscribe(subscribeLightningBalance);
-  const lightningBalance = lightningAccount && isLightningReady
-    ? subscribedLightningBalance ?? loadedLightningBalance
-    : undefined;
+  const lightningBalance = (
+    lightningAccount && isLightningReady
+      ? subscribedLightningBalance ?? loadedLightningBalance
+      : undefined
+  );
 
   const renderContent = () => {
     if (lightningAccount === undefined) {
@@ -50,11 +52,13 @@ export const LightningSettings = () => {
       );
     }
 
-    const keystoreDisplayName = keystoreNameResponse === undefined
-      ? undefined
-      : keystoreNameResponse.success
-        ? `${keystoreNameResponse.keystoreName} (${lightningAccount.rootFingerprint})`
-        : lightningAccount.rootFingerprint;
+    const keystoreDisplayName = (
+      keystoreNameResponse === undefined
+        ? undefined
+        : keystoreNameResponse.success
+          ? `${keystoreNameResponse.keystoreName} (${lightningAccount.rootFingerprint})`
+          : lightningAccount.rootFingerprint
+    );
 
     return (
       <>

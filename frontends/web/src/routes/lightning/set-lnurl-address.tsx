@@ -290,9 +290,11 @@ export const LightningSetLnurlAddress = () => {
     }
   };
 
-  const headerBackEnabled = step === 'form'
+  const headerBackEnabled = (
+    step === 'form'
     && !isSaving
-    && (!!domain || !!error);
+    && (!!domain || !!error)
+  );
 
   return (
     <Main>

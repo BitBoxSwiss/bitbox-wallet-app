@@ -89,16 +89,18 @@ export function stopSimulator(proc?: ChildProcess): Promise<void> {
     const onExit = () => resolve();
     proc.once('exit', onExit);
     try {
-      const killed = process.platform === 'win32'
-        ? proc.kill('SIGTERM')
-        : (() => {
-          try {
-            process.kill(-proc.pid!, 'SIGTERM');
-            return true;
-          } catch {
-            return proc.kill('SIGTERM');
-          }
-        })();
+      const killed = (
+        process.platform === 'win32'
+          ? proc.kill('SIGTERM')
+          : (() => {
+            try {
+              process.kill(-proc.pid!, 'SIGTERM');
+              return true;
+            } catch {
+              return proc.kill('SIGTERM');
+            }
+          })()
+      );
 
       if (!killed) {
         proc.off('exit', onExit);

@@ -175,10 +175,12 @@ export const ViewHeader = ({
   className = ''
 }: THeaderProps) => {
   const { isDarkMode } = useDarkmode();
-  const headerStyles = small ? `
+  const headerStyles = (
+    small ? `
     ${style.header || ''}
     ${style.smallHeader || ''}
-  ` : style.header;
+  ` : style.header
+  );
   return (
     <header className={`${headerStyles || ''} ${className || ''}`}>
       {withAppLogo && (

@@ -111,13 +111,17 @@ const Status = ({
   const defaultProgress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
   const progress = statusProgress ?? defaultProgress;
   const isFailed = status === 'failed';
-  const isComplete = customStatus
-    ? status === 'complete'
-    : numConfirmations >= numConfirmationsComplete;
-  const showStatus = customStatus
+  const isComplete = (
+    customStatus
+      ? status === 'complete'
+      : numConfirmations >= numConfirmationsComplete
+  );
+  const showStatus = (
+    customStatus
     || isFailed
     || !isComplete
-    || numConfirmations < numConfirmationsComplete;
+    || numConfirmations < numConfirmationsComplete
+  );
   const showProgressRing = !isFailed && (!customStatus || statusProgress !== undefined);
 
   return (
@@ -269,9 +273,11 @@ const Addresses = ({
         </span>
       );
     }
-    const labelKey = status === 'failed'
-      ? 'transaction.tx.send_to_self_failed'
-      : 'transaction.tx.send_to_self';
+    const labelKey = (
+      status === 'failed'
+        ? 'transaction.tx.send_to_self_failed'
+        : 'transaction.tx.send_to_self'
+    );
     return (
       <span className={styles.txNoteWithAddress}>
         <span className={styles.txType}>
@@ -294,12 +300,14 @@ const Addresses = ({
     );
   }
 
-  const label = isMobile
-    ? (type === 'receive' ? t('generic.received') : t('generic.sent'))
-    : (type === 'receive'
-      ? t('transaction.tx.receive', { context: status })
-      : t('transaction.tx.send', { context: status })
-    );
+  const label = (
+    isMobile
+      ? (type === 'receive' ? t('generic.received') : t('generic.sent'))
+      : (type === 'receive'
+        ? t('transaction.tx.receive', { context: status })
+        : t('transaction.tx.send', { context: status })
+      )
+  );
 
   return (
     <span className={styles.txNoteWithAddress}>

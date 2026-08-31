@@ -56,9 +56,11 @@ export function Receive() {
   const lightningAddress = useSync(getLightningAddress, subscribeLightningAddress);
   const fundingLimit = lightningBalance?.fundingLimit;
   const fundingLimitError = getLightningFundingLimitError(fundingLimit, invoiceAmountSat);
-  const satsBalance = lightningBalance?.available.unit === 'sat'
-    ? lightningBalance.available.amount
-    : lightningBalance?.available.unformattedConversions?.sat;
+  const satsBalance = (
+    lightningBalance?.available.unit === 'sat'
+      ? lightningBalance.available.amount
+      : lightningBalance?.available.unformattedConversions?.sat
+  );
   const hasLightningBalance = lightningBalance !== undefined;
   const onReceivePaymentSuccess = useCallback(() => {
     setStep('success');
@@ -68,18 +70,22 @@ export function Receive() {
     receivePaymentResponse,
     step,
   });
-  const createInvoiceLimitWarning = fundingLimitError
-    ? t('lightning.limit.createInvoiceWarning', {
-      excess: formatExcessLightningFundingLimit(fundingLimit, invoiceAmountSat),
-      limit: formatLightningFundingLimit(fundingLimit),
-    })
-    : undefined;
-  const invoiceLimitWarning = fundingLimitError
-    ? t('lightning.limit.invoiceWarning', {
-      excess: formatExcessLightningFundingLimit(fundingLimit, invoiceAmountSat),
-      limit: formatLightningFundingLimit(fundingLimit),
-    })
-    : undefined;
+  const createInvoiceLimitWarning = (
+    fundingLimitError
+      ? t('lightning.limit.createInvoiceWarning', {
+        excess: formatExcessLightningFundingLimit(fundingLimit, invoiceAmountSat),
+        limit: formatLightningFundingLimit(fundingLimit),
+      })
+      : undefined
+  );
+  const invoiceLimitWarning = (
+    fundingLimitError
+      ? t('lightning.limit.invoiceWarning', {
+        excess: formatExcessLightningFundingLimit(fundingLimit, invoiceAmountSat),
+        limit: formatLightningFundingLimit(fundingLimit),
+      })
+      : undefined
+  );
   const canCreateInvoice = (
     invoiceAmountSat !== undefined
     && invoiceAmountSat > 0
@@ -382,9 +388,11 @@ const CopyButton = ({
   const [state, setState] = useState('ready');
   const [buttonText, setButtonText] = useState(children);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const iconProps = iconClassName
-    ? { className: iconClassName, height: 24, width: 24 }
-    : { className: styles.btnIcon };
+  const iconProps = (
+    iconClassName
+      ? { className: iconClassName, height: 24, width: 24 }
+      : { className: styles.btnIcon }
+  );
 
   const copy = () => {
     textareaRef.current?.focus();

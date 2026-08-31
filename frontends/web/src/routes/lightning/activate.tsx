@@ -105,10 +105,12 @@ export const LightningActivate = () => {
     }
   };
 
-  const backEnabled = step === 'intro'
+  const backEnabled = (
+    step === 'intro'
     || step === 'information'
     || step === 'disclaimer'
-    || step === 'connect';
+    || step === 'connect'
+  );
 
   const renderSteps = () => {
     switch (step) {

@@ -35,9 +35,11 @@ export const ScanQR = ({
 }: TProps) => {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const scanRegionCenterY = fullscreen
-    ? FULLSCREEN_SCAN_REGION_CENTER_Y
-    : DEFAULT_SCAN_REGION_CENTER_Y;
+  const scanRegionCenterY = (
+    fullscreen
+      ? FULLSCREEN_SCAN_REGION_CENTER_Y
+      : DEFAULT_SCAN_REGION_CENTER_Y
+  );
   const [open, setOpen] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
   const [processing, setProcessing] = useState(false);

@@ -53,9 +53,11 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>('');
   const sourceAccount = btcAccounts.find(account => account.code === sourceAccountCode);
   const lightningBalance = useSync(getLightningBalance, subscribeLightningBalance);
-  const sourceAmountUnit = sourceAccount
-    ? getDisplayedCoinUnit(sourceAccount.coinCode, sourceAccount.coinUnit, btcUnit)
-    : 'BTC';
+  const sourceAmountUnit = (
+    sourceAccount
+      ? getDisplayedCoinUnit(sourceAccount.coinCode, sourceAccount.coinUnit, btcUnit)
+      : 'BTC'
+  );
   const [amount, setAmount] = useState('');
   const [fiatAmount, setFiatAmount] = useState('');
   const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
@@ -69,17 +71,21 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
   const [step, setStep] = useState<TStep>('form');
   const stepRef = useRef<TStep>('form');
   const isSubmittingRef = useRef(false);
-  const fundingLimitErrorMessage = proposal?.success === false
+  const fundingLimitErrorMessage = (
+    proposal?.success === false
     && proposal.errorCode === lightningBalanceLimitErrorCode
-    ? t(`error.${proposal.errorCode}`, {
-      limit: formatLightningFundingLimit(proposal.fundingLimit),
-      remaining: formatRemainingLightningFundingLimit(proposal.fundingLimit),
-    })
-    : undefined;
-  const amountValidationError = proposal?.success === false
+      ? t(`error.${proposal.errorCode}`, {
+        limit: formatLightningFundingLimit(proposal.fundingLimit),
+        remaining: formatRemainingLightningFundingLimit(proposal.fundingLimit),
+      })
+      : undefined
+  );
+  const amountValidationError = (
+    proposal?.success === false
     && proposal.errorCode === TLightningErrorCode.AMOUNT_BELOW_MINIMUM
-    ? t('error.lightningAmountBelowMinimum', { minAmountSat: proposal.minAmountSat })
-    : undefined;
+      ? t('error.lightningAmountBelowMinimum', { minAmountSat: proposal.minAmountSat })
+      : undefined
+  );
 
   useEffect(() => {
     stepRef.current = step;
@@ -371,9 +377,11 @@ export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
     return null;
   }
 
-  const canReview = !!proposal?.success
+  const canReview = (
+    !!proposal?.success
     && !isUpdatingProposal
-    && !isSubmitting;
+    && !isSubmitting
+  );
 
   return (
     <TopUpForm

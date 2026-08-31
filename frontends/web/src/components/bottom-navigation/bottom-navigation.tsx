@@ -36,9 +36,11 @@ export const BottomNavigation = ({
 
   const onlyHasOneAccount = activeAccounts.length === 1;
   const accountCode = activeAccounts[0]?.code || '';
-  const accountTabURL = onlyHasOneAccount && accountCode
-    ? `/account/${accountCode}`
-    : '/accounts/all';
+  const accountTabURL = (
+    onlyHasOneAccount && accountCode
+      ? `/account/${accountCode}`
+      : '/accounts/all'
+  );
   const onlyHasLightningAccount = hasLightningAccount && activeAccounts.length === 0;
   const showAccounts = !onlyHasLightningAccount;
   const showMarket = !onlyHasLightningAccount;

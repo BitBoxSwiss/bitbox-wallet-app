@@ -79,13 +79,15 @@ export const useSignMessage = ({
 
       setState('signing');
 
-      const response = coinCode && isEthereumBased(coinCode)
-        ? await accountApi.signETHMessageForAddress(accountCode, message)
-        : await accountApi.signBTCMessageForAddress(
-          accountCode,
-          address.addressID,
-          message,
-        );
+      const response = (
+        coinCode && isEthereumBased(coinCode)
+          ? await accountApi.signETHMessageForAddress(accountCode, message)
+          : await accountApi.signBTCMessageForAddress(
+            accountCode,
+            address.addressID,
+            message,
+          )
+      );
 
       if (response.success) {
         setResult({

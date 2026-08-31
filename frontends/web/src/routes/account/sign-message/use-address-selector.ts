@@ -63,13 +63,17 @@ export const useAddressSelector = (code: AccountCode): TAddressSelector => {
     return currentReceiveAddressList?.addresses[activeIndex] || null;
   }, [activeIndex, currentReceiveAddressList, usedAddressID, usedAddressResponse, isUsedAddressRoute]);
 
-  const scriptType = isUsedAddressRoute
-    ? null
-    : currentReceiveAddressList?.scriptType ?? null;
+  const scriptType = (
+    isUsedAddressRoute
+      ? null
+      : currentReceiveAddressList?.scriptType ?? null
+  );
 
-  const dataLoaded = isUsedAddressRoute
-    ? usedAddressResponse !== undefined
-    : receiveAddresses !== undefined;
+  const dataLoaded = (
+    isUsedAddressRoute
+      ? usedAddressResponse !== undefined
+      : receiveAddresses !== undefined
+  );
 
   const usedAddressLoadErrorCode = useMemo((): TUsedAddressLoadErrorCode => {
     if (!isUsedAddressRoute || usedAddressResponse === undefined || usedAddressResponse.success) {
@@ -84,9 +88,11 @@ export const useAddressSelector = (code: AccountCode): TAddressSelector => {
     }
   }, [isUsedAddressRoute, usedAddressResponse]);
 
-  const availableAddressCount = isUsedAddressRoute
-    ? (currentAddress ? 1 : 0)
-    : (currentReceiveAddressList?.addresses.length || 0);
+  const availableAddressCount = (
+    isUsedAddressRoute
+      ? (currentAddress ? 1 : 0)
+      : (currentReceiveAddressList?.addresses.length || 0)
+  );
 
   const addressString = currentAddress?.address ?? '';
   const displayAddressString = currentAddress?.displayAddress ?? '';

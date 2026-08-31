@@ -86,9 +86,11 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
     }
   }, [defaultCurrency, isMounted, selectedAccount, value]);
 
-  const displayedUnit = selectedAccount
-    ? getDisplayedCoinUnit(selectedAccount.coinCode, selectedAccount.coinUnit, btcUnit)
-    : undefined;
+  const displayedUnit = (
+    selectedAccount
+      ? getDisplayedCoinUnit(selectedAccount.coinCode, selectedAccount.coinUnit, btcUnit)
+      : undefined
+  );
 
   return (
     <div className={style.accountWithInputContainer}>

@@ -1,0 +1,13 @@
+{
+  "name": "eslint-plugin-soft-brackets",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./lib/index.js"
+  },
+  "main": "./lib/index.js",
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  }
+}

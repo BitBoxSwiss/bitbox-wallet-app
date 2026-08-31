@@ -31,13 +31,17 @@ export const PaymentDetailsDialog = ({
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
 
-  const typeText = payment.bitcoinDeposit
-    ? t('lightning.bitcoinDeposit.label')
-    : payment.type === 'receive' ? t('generic.received') : t('generic.sent');
+  const typeText = (
+    payment.bitcoinDeposit
+      ? t('lightning.bitcoinDeposit.label')
+      : payment.type === 'receive' ? t('generic.received') : t('generic.sent')
+  );
   const sign = payment.amount.amount === '0' ? '' : getTxSign(payment.type);
-  const statusText = payment.bitcoinDeposit && payment.bitcoinDeposit.state !== 'complete'
-    ? t(`lightning.bitcoinDeposit.state.${payment.bitcoinDeposit.state}`)
-    : t(`transaction.status.${payment.status}`, { context: payment.type });
+  const statusText = (
+    payment.bitcoinDeposit && payment.bitcoinDeposit.state !== 'complete'
+      ? t(`lightning.bitcoinDeposit.state.${payment.bitcoinDeposit.state}`)
+      : t(`transaction.status.${payment.status}`, { context: payment.type })
+  );
   const bitcoinDeposit = payment.bitcoinDeposit;
   const txID = bitcoinDeposit?.txid || payment.txId;
 

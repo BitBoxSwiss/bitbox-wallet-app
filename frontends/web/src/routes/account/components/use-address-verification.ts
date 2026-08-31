@@ -50,10 +50,14 @@ export const useAddressVerification = ({
   // caused by KeystoreConnectPrompt.skipDeviceVerification cancelling the
   // pending connectKeystore call.
   const skipInitiatedRef = useRef(false);
-  const hasSkipDeviceVerificationQuery = isVerifyView
-    && new URLSearchParams(location.search).get(SKIP_DEVICE_VERIFICATION_PARAM) === '1';
-  const hasCopyOnlyQuery = isVerifyView
-    && new URLSearchParams(location.search).get(COPY_ONLY_PARAM) === '1';
+  const hasSkipDeviceVerificationQuery = (
+    isVerifyView
+    && new URLSearchParams(location.search).get(SKIP_DEVICE_VERIFICATION_PARAM) === '1'
+  );
+  const hasCopyOnlyQuery = (
+    isVerifyView
+    && new URLSearchParams(location.search).get(COPY_ONLY_PARAM) === '1'
+  );
 
   useEffect(() => {
     verifyStateRef.current = verifyState;

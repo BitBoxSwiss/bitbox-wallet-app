@@ -29,8 +29,10 @@ export const AssetBalanceWithUnitPrice = ({
 }: TProps) => {
   const { defaultCurrency } = useContext(RatesContext);
   const unitPrice = useCoinUnitPrice(coinCode, amount?.unit ?? coinUnit);
-  const shouldShowUnitPrice = showUnitPrice
-    && (!isBitcoinOnly(coinCode) || (defaultCurrency !== 'BTC' && defaultCurrency !== 'sat'));
+  const shouldShowUnitPrice = (
+    showUnitPrice
+    && (!isBitcoinOnly(coinCode) || (defaultCurrency !== 'BTC' && defaultCurrency !== 'sat'))
+  );
 
   return (
     <div className={style.assetBalanceRow}>

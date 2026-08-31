@@ -71,9 +71,11 @@ export const RestoreFromMnemonic = ({
     bitbox02.restoreFromMnemonic(deviceID)
       .then(result => {
         if (!result.success) {
-          const errorText = result.code === bitbox02.errUserAbort
-            ? t('bitbox02Wizard.restoreFromMnemonic.e104')
-            : t('bitbox02Wizard.restoreFromMnemonic.failed');
+          const errorText = (
+            result.code === bitbox02.errUserAbort
+              ? t('bitbox02Wizard.restoreFromMnemonic.e104')
+              : t('bitbox02Wizard.restoreFromMnemonic.failed')
+          );
           alertUser(errorText, {
             asDialog: false,
             callback: () => onAbort(),
@@ -88,9 +90,11 @@ export const RestoreFromMnemonic = ({
       setStatus('setName');
       const result = await bitbox02.setDeviceName(deviceID, deviceName);
       if (!result.success) {
-        const errorText = result.code === bitbox02.errUserAbort
-          ? t('bitbox02Settings.deviceName.error_104')
-          : result.message;
+        const errorText = (
+          result.code === bitbox02.errUserAbort
+            ? t('bitbox02Settings.deviceName.error_104')
+            : result.message
+        );
         alertUser(errorText || t('genericError'), {
           asDialog: false,
           callback: () => onAbort(),

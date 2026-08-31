@@ -160,18 +160,24 @@ export const App = () => {
       return;
     }
     // if no accounts are registered on specified views route to /
-    const canNavigateWithLightningAccount =
+    const canNavigateWithLightningAccount = (
+
       currentURL.startsWith('/account-summary')
-      || currentURL === '/settings/more';
-    const requiresRegularAccount =
+      || currentURL === '/settings/more'
+    );
+    const requiresRegularAccount = (
+
       currentURL.startsWith('/account-summary')
       || currentURL.startsWith('/add-account')
       || currentURL.startsWith('/settings/manage-accounts')
-      || currentURL.startsWith('/accounts/');
-    const shouldRedirectNoRegularAccount =
+      || currentURL.startsWith('/accounts/')
+    );
+    const shouldRedirectNoRegularAccount = (
+
       !canNavigateWithLightningAccount
       || lightningAccount === null
-      || !lightningFeatureAvailable;
+      || !lightningFeatureAvailable
+    );
     if (accounts.length === 0 && requiresRegularAccount && shouldRedirectNoRegularAccount) {
       navigate('/');
       return;
