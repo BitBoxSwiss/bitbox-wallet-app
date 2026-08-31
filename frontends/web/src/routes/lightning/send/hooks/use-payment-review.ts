@@ -121,6 +121,7 @@ export const usePaymentReview = ({
         type: TPaymentInputType.LNURL_PAY,
         paymentInput: paymentDetails.details.input,
         amountSat,
+        idempotencyKey: existingIdempotencyKey,
       };
       break;
     }
@@ -214,11 +215,15 @@ export const usePaymentReview = ({
             approvedFeeSat: fees.feeSat,
           };
         case TPaymentInputType.LNURL_PAY:
+          if (fees.idempotencyKey === undefined) {
+            throw new TSdkError('idempotency key missing', TLightningErrorCode.INVALID_PAYMENT_INPUT);
+          }
           return {
             type: TPaymentInputType.LNURL_PAY,
             paymentInput: paymentDetails.details.input,
             amountSat: currentAmountSat,
             approvedFeeSat: fees.feeSat,
+            idempotencyKey: fees.idempotencyKey,
           };
         }
       })();
