@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
-import { statusChanged, syncAddressesCount, syncdone, transactionsChanged } from '@/api/accountsync';
-import { getMarketVendors, MarketVendors } from '@/api/market';
+import { statusChanged, syncAddressesCount } from '@/api/accountsync';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
 import { InfoBlue, LoupeBlue } from '@/components/icon';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Message } from '@/components/message/message';
-import { useLoad, useSubscribe, useSync } from '@/hooks/api';
+import { useSubscribe, useSync } from '@/hooks/api';
 import { useBitsurance } from '@/hooks/bitsurance';
 import { useDebounce } from '@/hooks/debounce';
 import { useScrollIntoView } from '@/hooks/scroll-into-view';
@@ -37,6 +36,8 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { OfflineError } from '@/components/banners/offline-error';
 import style from './account.module.css';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import { useAccountData } from './use-account-data';
+import { useMarketVendors } from './use-market-vendors';
 
 type Props = {
   accounts: accountApi.TAccount[];
@@ -71,20 +72,24 @@ const RemountAccount = ({
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { btcUnit } = useContext(RatesContext);
 
-  const [balance, setBalance] = useState<accountApi.TBalance>();
   const status: accountApi.TStatus | undefined = useSync(
     () => accountApi.getStatus(code),
     cb => statusChanged(code, cb),
   );
   const syncedAddressesCount = useSubscribe(syncAddressesCount(code));
-  const [transactions, setTransactions] = useState<accountApi.TTransactions>();
+  const {
+    balance,
+    balanceShouldFade,
+    transactions,
+    transactionsShouldFade,
+  } = useAccountData(code, status, btcUnit);
   const [detailID, setDetailID] = useState<accountApi.TTransaction['internalID'] | null>(null);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const debouncedSearchTerm = useDebounce(searchTerm, 200);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
+  const supportedVendors = useMarketVendors(code);
 
   const account = accounts && accounts.find(acct => acct.code === code);
 
@@ -115,44 +120,11 @@ const RemountAccount = ({
     });
   }, [transactions, debouncedSearchTerm]);
 
-  const onAccountChanged = useCallback((status: accountApi.TStatus | undefined) => {
-    if (status === undefined || status.fatalError) {
-      return;
-    }
-    if (status.synced && status.offlineError === null) {
-      Promise.all([
-        accountApi.getBalance(code).then(
-          balance => {
-            if (balance.success) {
-              setBalance(balance.balance);
-            }
-          }),
-        accountApi.getTransactionList(code).then(setTransactions),
-      ])
-        .catch(console.error);
-    } else {
-      setBalance(undefined);
-      setTransactions(undefined);
-    }
-  }, [code]);
-
   useEffect(() => {
     if (status !== undefined && !status.disabled && !status.synced) {
       accountApi.init(code).catch(console.error);
     }
   }, [code, status]);
-
-  useEffect(() => {
-    return syncdone(code, () => onAccountChanged(status));
-  }, [code, onAccountChanged, status]);
-
-  useEffect(() => {
-    return transactionsChanged(code, setTransactions);
-  }, [code]);
-
-  useEffect(() => {
-    onAccountChanged(status);
-  }, [btcUnit, onAccountChanged, status]);
 
   // <Main> has overflow-y:auto, so window.scrollBy has no effect.
   // Thus, need to use useScrollIntoView.
@@ -256,7 +228,10 @@ const RemountAccount = ({
           <View>
             <ViewHeader>
               <div className={style.balanceHeader}>
-                <Balance balance={balance} className={style.fadeIn} />
+                <Balance
+                  balance={balance}
+                  className={balanceShouldFade ? style.fadeIn : undefined}
+                />
                 {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
               </div>
             </ViewHeader>
@@ -264,7 +239,7 @@ const RemountAccount = ({
               {loadingTransactions ? (
                 <TransactionHistorySkeleton />
               ) : (
-                <div className={style.fadeIn}>
+                <div className={transactionsShouldFade ? style.fadeIn : undefined}>
                   <div className={style.accountHeader}>
                     {isAccountEmpty && (
                       <BuyReceiveCTA
