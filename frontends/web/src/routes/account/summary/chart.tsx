@@ -3,7 +3,7 @@
 import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { AutoscaleInfoProvider, createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
+import { AutoscaleInfoProvider, createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, MouseEventParams, ColorType, Time } from 'lightweight-charts';
 import type { TChartData, ChartData, FormattedLineData } from '@/api/account';
 import { usePrevious } from '@/hooks/previous';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -16,6 +16,7 @@ import { AppContext, TChartDisplay, TPortfolioPercentageType } from '@/contexts/
 import { AmountUnit } from '@/components/amount/amount-with-unit';
 import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import { LinechartGray } from '@/components/icon';
+import { getChartVisibleRange } from './chart-range';
 import styles from './chart.module.css';
 
 type TProps = {
@@ -30,10 +31,10 @@ const defaultData: Readonly<TChartData> = {
   chartDataHourly: [],
   chartFiat: 'USD',
   chartPerformance: {
-    week: { moneyWeightedReturn: null },
-    month: { moneyWeightedReturn: null },
-    year: { moneyWeightedReturn: null },
-    all: { moneyWeightedReturn: null },
+    week: { moneyWeightedReturn: null, startTimestamp: null },
+    month: { moneyWeightedReturn: null, startTimestamp: null },
+    year: { moneyWeightedReturn: null, startTimestamp: null },
+    all: { moneyWeightedReturn: null, startTimestamp: null },
   },
   chartTotal: null,
   formattedChartTotal: null,
@@ -48,59 +49,20 @@ type FormattedData = {
   [key: number]: string;
 };
 
-const getUTCRange = () => {
-  const now = new Date();
-  const utcYear = now.getUTCFullYear();
-  const utcMonth = now.getUTCMonth();
-  const utcDate = now.getUTCDate();
-  const utcHours = now.getUTCHours();
-  const to = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
-  const from = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
-  return {
-    utcYear,
-    utcMonth,
-    utcDate,
-    to,
-    from,
-  };
-};
-
 const updateRange = (
   chart: MutableRefObject<IChartApi | undefined>,
   chartDisplay: TChartDisplay,
+  startTimestamp: number | null,
 ) => {
-  if (chart.current) {
-    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
+  if (!chart.current) {
+    return;
+  }
 
-    switch (chartDisplay) {
-    case 'week': {
-      from.setUTCDate(utcDate - 7);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'month': {
-      from.setUTCMonth(utcMonth - 1);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'year': {
-      from.setUTCFullYear(utcYear - 1);
-      chart.current && chart.current.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'all':
-      chart.current?.timeScale().fitContent();
-      break;
-    }
+  const range = getChartVisibleRange(chartDisplay, startTimestamp);
+  if (range) {
+    chart.current.timeScale().setVisibleRange(range);
+  } else {
+    chart.current.timeScale().fitContent();
   }
 };
 
@@ -200,6 +162,7 @@ export const Chart = ({
   const switchedBadgeClearTimeout = useRef<number>();
 
   const [source, setSource] = useState<'daily' | 'hourly'>(chartDisplay === 'week' ? 'hourly' : 'daily');
+  const rangeStartTimestamp = data.chartPerformance[chartDisplay].startTimestamp;
   const [valueDifference, setValueDifference] = useState<number>();
   const [diffSince, setDiffSince] = useState<string>();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -288,8 +251,8 @@ export const Chart = ({
   };
 
   useEffect(() => {
-    updateRange(chart, chartDisplay);
-  }, [chart, chartDisplay]);
+    updateRange(chart, chartDisplay, rangeStartTimestamp);
+  }, [chartDisplay, rangeStartTimestamp, source]);
 
   const onResize = useCallback(() => {
     const isMobile = window.innerWidth <= 768;
@@ -313,8 +276,8 @@ export const Chart = ({
         visible: hideAmounts ? false : !isMobile,
       },
     });
-    updateRange(chart, chartDisplay);
-  }, [chartDisplay, hideAmounts]);
+    updateRange(chart, chartDisplay, rangeStartTimestamp);
+  }, [chartDisplay, hideAmounts, rangeStartTimestamp]);
 
   useEffect(() => {
     window.addEventListener('resize', onResize);
@@ -550,9 +513,9 @@ export const Chart = ({
         ref.current?.classList.remove(styles.invisible);
       }
       chartInitialized.current = true;
-      updateRange(chart, chartDisplay);
+      updateRange(chart, chartDisplay, rangeStartTimestamp);
     }
-  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, data.chartFiat, hasData, hideAmounts, i18n.language, isMobile, isDarkMode]);
+  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, data.chartFiat, hasData, hideAmounts, i18n.language, isMobile, isDarkMode, rangeStartTimestamp]);
 
   const reinitializeChart = () => {
     removeChart();
@@ -624,41 +587,6 @@ export const Chart = ({
     setAnimationOverlay(false);
   }, [data.chartDataMissing, hasChartAnimationParam]);
 
-  useEffect(() => {
-    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
-
-    switch (chartDisplay) {
-    case 'week': {
-      from.setUTCDate(utcDate - 7);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'month': {
-      from.setUTCMonth(utcMonth - 1);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'year': {
-      from.setUTCFullYear(utcYear - 1);
-      chart.current && chart.current.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'all': {
-      chart.current?.timeScale().fitContent();
-      break;
-    }
-    }
-  }, [source, chartDisplay]);
-
   const {
     lastTimestamp,
     chartDataMissing,
@@ -675,6 +603,17 @@ export const Chart = ({
   const switchedLabel = switchedToType
     ? t(`chart.displayMode.${switchedToType === 'value' ? 'totalValue' : 'performance'}`)
     : undefined;
+  const differenceAvailable = difference !== undefined
+    && difference !== null
+    && Number.isFinite(difference);
+  const currentDisplayModeLabel = t(`chart.displayMode.${portfolioPercentageType === 'value' ? 'totalValue' : 'performance'}`);
+  const nextDisplayModeLabel = t(`chart.displayMode.${portfolioPercentageType === 'value' ? 'performance' : 'totalValue'}`);
+  const percentageToggleLabel = differenceAvailable
+    ? t('chart.displayMode.switchTo', { displayMode: nextDisplayModeLabel })
+    : t('chart.displayMode.unavailableSwitchTo', {
+      displayMode: currentDisplayModeLabel,
+      nextDisplayMode: nextDisplayModeLabel,
+    });
 
   if (!hasData && chartIsUpToDate && valueDifference) {
     setDiffSince('');
@@ -689,10 +628,6 @@ export const Chart = ({
     toolTipTime,
   } = tooltipData;
 
-  const hasDifference = difference !== undefined
-    && difference !== null
-    && difference !== 0
-    && Number.isFinite(difference);
   const disableFilters = !hasData || chartDataMissing;
   const disableWeeklyFilters = !hasHourlyData || chartDataMissing;
   const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile;
@@ -729,9 +664,9 @@ export const Chart = ({
           </div>
           {!showMobileTotalValue ? (
             <PercentageDiff
+              ariaLabel={percentageToggleLabel}
               badgeVisible={isSwitchedBadgeVisible}
-              hasDifference={!!hasDifference}
-              difference={difference ?? undefined}
+              difference={difference}
               onClick={togglePortfolioPercentageType}
               switchedLabel={switchedLabel}
               switchedType={switchedToType}

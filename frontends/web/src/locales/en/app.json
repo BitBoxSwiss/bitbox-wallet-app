@@ -769,7 +769,9 @@
     "dataUpdating": "updating data…",
     "displayMode": {
       "performance": "Performance",
-      "totalValue": "Value over time"
+      "switchTo": "Switch to {{displayMode}}",
+      "totalValue": "Value over time",
+      "unavailableSwitchTo": "{{displayMode}} unavailable. Switch to {{nextDisplayMode}}"
     },
     "filter": {
       "all": "All",

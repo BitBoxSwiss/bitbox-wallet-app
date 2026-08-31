@@ -3,6 +3,7 @@
 package backend
 
 import (
+	"math"
 	"testing"
 	"time"
 
@@ -39,35 +40,6 @@ func TestCalculateMoneyWeightedReturnWithCashFlows(t *testing.T) {
 
 	require.NotNil(t, result)
 	require.InDelta(t, 1.25, *result, 1e-12)
-}
-
-func TestChartBalanceForPerformanceUsesLatestConfirmedBalance(t *testing.T) {
-	timeAt := func(t time.Time) *time.Time { return &t }
-	ordered := accounts.NewOrderedTransactions([]*accounts.TransactionData{
-		{
-			Timestamp: timeAt(time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)),
-			Height:    10,
-			Type:      accounts.TxTypeReceive,
-			Amount:    coin.NewAmountFromInt64(100),
-		},
-		{
-			CreatedTimestamp: timeAt(time.Date(2026, time.January, 2, 0, 0, 0, 0, time.UTC)),
-			Height:           0,
-			Type:             accounts.TxTypeReceive,
-			Amount:           coin.NewAmountFromInt64(50),
-		},
-		{
-			CreatedTimestamp: timeAt(time.Date(2026, time.January, 3, 0, 0, 0, 0, time.UTC)),
-			Height:           0,
-			Type:             accounts.TxTypeSend,
-			Amount:           coin.NewAmountFromInt64(25),
-		},
-	})
-
-	balance, err := chartBalanceForPerformance(ordered).Int64()
-
-	require.NoError(t, err)
-	require.Equal(t, int64(100), balance)
 }
 
 func TestChartDataUsesAvailableBalanceForVisibleTotal(t *testing.T) {
@@ -131,7 +103,7 @@ func TestChartDataUsesAvailableBalanceForVisibleTotal(t *testing.T) {
 	require.InDelta(t, 15.75, *chart.Total, 1e-12)
 }
 
-func TestComputeChartPerformanceDailyRangesUseMidnightBoundary(t *testing.T) {
+func TestComputeChartPerformanceDailyRangesUseCurrentUTCHourBoundary(t *testing.T) {
 	now := time.Date(2026, time.January, 31, 15, 30, 0, 0, time.UTC)
 	chartTotal := 110.0
 	chartDataDaily := []ChartEntry{
@@ -155,10 +127,14 @@ func TestComputeChartPerformanceDailyRangesUseMidnightBoundary(t *testing.T) {
 
 	performance := computeChartPerformance(now, chartDataDaily, nil, nil, &chartTotal)
 
+	require.NotNil(t, performance.Month.StartTimestamp)
+	require.Equal(t, time.Date(2025, time.December, 31, 15, 0, 0, 0, time.UTC).Unix(), *performance.Month.StartTimestamp)
 	require.NotNil(t, performance.Month.MoneyWeightedReturn)
-	require.InDelta(t, 0.1, *performance.Month.MoneyWeightedReturn, 1e-12)
+	require.InDelta(t, -0.45, *performance.Month.MoneyWeightedReturn, 1e-12)
+	require.NotNil(t, performance.Year.StartTimestamp)
+	require.Equal(t, time.Date(2025, time.January, 31, 15, 0, 0, 0, time.UTC).Unix(), *performance.Year.StartTimestamp)
 	require.NotNil(t, performance.Year.MoneyWeightedReturn)
-	require.InDelta(t, 1.2, *performance.Year.MoneyWeightedReturn, 1e-12)
+	require.InDelta(t, 110.0/75.0-1, *performance.Year.MoneyWeightedReturn, 1e-12)
 }
 
 func TestChartPerformanceForRangeUsesFirstPositiveEntry(t *testing.T) {
@@ -169,7 +145,8 @@ func TestChartPerformanceForRangeUsesFirstPositiveEntry(t *testing.T) {
 		{Time: time.Date(2026, time.January, 3, 0, 0, 0, 0, time.UTC).Unix(), Value: 100},
 	}
 
-	performance := chartPerformanceForRange(entries, nil, time.Time{}, now, 110)
+	endingValue := 110.0
+	performance := chartPerformanceForRange(entries, nil, time.Time{}, now, &endingValue)
 
 	require.NotNil(t, performance.MoneyWeightedReturn)
 	require.InDelta(t, 0.1, *performance.MoneyWeightedReturn, 1e-12)
@@ -190,10 +167,74 @@ func TestChartPerformanceForRangeIncludesInitialCashFlowBeforeFirstPositiveEntry
 		},
 	}
 
-	performance := chartPerformanceForRange(entries, cashFlows, time.Time{}, endTime, 110)
+	endingValue := 110.0
+	performance := chartPerformanceForRange(entries, cashFlows, time.Time{}, endTime, &endingValue)
 
 	require.NotNil(t, performance.MoneyWeightedReturn)
 	require.InDelta(t, 0.21, *performance.MoneyWeightedReturn, 1e-12)
+}
+
+func TestChartPerformanceForRangeIncludesCashFlowOnlyInvestmentPeriod(t *testing.T) {
+	startTime := time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)
+	endTime := startTime.Add(24 * time.Hour)
+	entries := []ChartEntry{
+		{Time: startTime.Unix(), Value: 0},
+		{Time: endTime.Unix(), Value: 0},
+	}
+	cashFlows := []chartCashFlow{
+		{
+			Time:           startTime.Add(6 * time.Hour),
+			Value:          100,
+			ValueAvailable: true,
+		},
+		{
+			Time:           startTime.Add(18 * time.Hour),
+			Value:          -110,
+			ValueAvailable: true,
+		},
+	}
+	endingValue := 0.0
+
+	performance := chartPerformanceForRange(entries, cashFlows, time.Time{}, endTime, &endingValue)
+
+	require.NotNil(t, performance.MoneyWeightedReturn)
+	require.InDelta(t, 0.21, *performance.MoneyWeightedReturn, 1e-12)
+}
+
+func TestChartPerformanceForRangeIncludesEarlierClosedInvestmentPeriod(t *testing.T) {
+	startTime := time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)
+	endTime := startTime.Add(4 * 24 * time.Hour)
+	entries := []ChartEntry{
+		{Time: startTime.Unix(), Value: 0},
+		{Time: startTime.Add(24 * time.Hour).Unix(), Value: 0},
+		{Time: startTime.Add(2 * 24 * time.Hour).Unix(), Value: 0},
+		{Time: startTime.Add(3 * 24 * time.Hour).Unix(), Value: 100},
+	}
+	const expectedReturn = 0.1
+	growthFactor := 1 + expectedReturn
+	cashFlows := []chartCashFlow{
+		{
+			Time:           startTime.Add(6 * time.Hour),
+			Value:          100,
+			ValueAvailable: true,
+		},
+		{
+			Time:           startTime.Add(18 * time.Hour),
+			Value:          -100 * math.Pow(growthFactor, 0.125),
+			ValueAvailable: true,
+		},
+		{
+			Time:           startTime.Add(60 * time.Hour),
+			Value:          100,
+			ValueAvailable: true,
+		},
+	}
+	endingValue := 100 * math.Pow(growthFactor, 0.375)
+
+	performance := chartPerformanceForRange(entries, cashFlows, time.Time{}, endTime, &endingValue)
+
+	require.NotNil(t, performance.MoneyWeightedReturn)
+	require.InDelta(t, expectedReturn, *performance.MoneyWeightedReturn, 1e-12)
 }
 
 func TestChartPerformanceForRangeReturnsNilWhenCashFlowValueUnavailable(t *testing.T) {
@@ -209,7 +250,8 @@ func TestChartPerformanceForRangeReturnsNilWhenCashFlowValueUnavailable(t *testi
 		},
 	}
 
-	performance := chartPerformanceForRange(entries, cashFlows, time.Time{}, endTime, 110)
+	endingValue := 110.0
+	performance := chartPerformanceForRange(entries, cashFlows, time.Time{}, endTime, &endingValue)
 
 	require.Nil(t, performance.MoneyWeightedReturn)
 }

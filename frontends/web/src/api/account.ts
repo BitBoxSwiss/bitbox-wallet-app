@@ -181,6 +181,7 @@ type TChartDataResponse = {
 
 export type TChartPerformance = {
   moneyWeightedReturn: number | null;
+  startTimestamp: number | null;
 };
 
 export type TChartPerformanceByDisplay = {
