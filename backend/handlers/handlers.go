@@ -92,6 +92,7 @@ type Backend interface {
 	CheckElectrumServer(*config.ServerInfo) error
 	RegisterTestKeystore(string, software.Edition) error
 	NotifyUser(string)
+	OpenExternalLink(string) error
 	SystemOpen(string) error
 	ReconfigureHistoryExchangeRates()
 	GetUpdate() backend.UpdateState
@@ -213,6 +214,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/number-format", handlers.getNumberFormat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/notify-user", handlers.postNotify).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/open", handlers.postOpen).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/open-external-link", handlers.postOpenExternalLink).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdate).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBanners).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileData).Methods("GET")
@@ -617,6 +619,24 @@ func (handlers *Handlers) postOpen(r *http.Request) interface{} {
 	}
 	if err := handlers.backend.SystemOpen(url); err != nil {
 		handlers.log.WithField("handler", "postOpen").WithError(err).Error("handler failed")
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
+}
+
+func (handlers *Handlers) postOpenExternalLink(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	var url string
+	if err := json.NewDecoder(r.Body).Decode(&url); err != nil {
+		handlers.log.WithField("handler", "postOpenExternalLink").WithError(err).Error("handler failed")
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	if err := handlers.backend.OpenExternalLink(url); err != nil {
+		handlers.log.WithField("handler", "postOpenExternalLink").WithError(err).Error("handler failed")
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{Success: true}
