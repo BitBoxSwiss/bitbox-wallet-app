@@ -64,6 +64,22 @@ export const getAccounts = (): Promise<TAccount[]> => {
   return apiGet('accounts');
 };
 
+type TEthereumPaymentRequest = {
+  success: true;
+  recipient: string;
+  amount?: string;
+} | {
+  success: false;
+  errorCode?: 'accountMismatch';
+};
+
+export const parseEthereumPaymentRequest = (
+  code: AccountCode,
+  uri: string,
+): Promise<TEthereumPaymentRequest> => {
+  return apiPost(`account/${code}/parse-ethereum-payment-request`, { uri });
+};
+
 export type CoinFormattedAmount = {
   coinCode: CoinCode;
   coinName: string;

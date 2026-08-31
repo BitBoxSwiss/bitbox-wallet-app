@@ -15,6 +15,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
@@ -172,7 +173,7 @@ func TestTxProposal(t *testing.T) {
 	})
 	t.Run("valid-address-uppercase", func(t *testing.T) {
 		_, _, _, err := acct.TxProposal(&accounts.TxProposalArgs{
-			RecipientAddress: "0XA29163852021BF4C139D03DFF59AE763AC73E84E",
+			RecipientAddress: "0xA29163852021BF4C139D03DFF59AE763AC73E84E",
 			Amount:           coin.NewSendAmount("0.1"),
 			FeeTargetCode:    accounts.FeeTargetCodeCustom,
 			CustomFee:        "20",
@@ -199,6 +200,23 @@ func TestTxProposal(t *testing.T) {
 		})
 		require.Equal(t, errors.ErrInvalidAddress, errp.Cause(err))
 	})
+}
+
+func TestERC20TxProposalRejectsAmountOverflow(t *testing.T) {
+	acct := newAccount(t)
+	defer acct.Close()
+	acct.coin.erc20Token = erc20.NewToken("0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7", 0)
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil))
+	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
+
+	_, _, _, err := acct.TxProposal(&accounts.TxProposalArgs{
+		RecipientAddress: "0xa29163852021BF4C139D03Dff59ae763AC73e84e",
+		Amount: coin.NewSendAmount(
+			"115792089237316195423570985008687907853269984665640564039457584007913129639936"),
+		FeeTargetCode: accounts.FeeTargetCodeCustom,
+		CustomFee:     "20",
+	})
+	require.Equal(t, errors.ErrInvalidAmount, errp.Cause(err))
 }
 
 func newTestOutgoingTx() *gethtypes.Transaction {
