@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## v4.52.0
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1
 - Add a mobile-only beta Lightning hot wallet, with send, receive, Bitcoin top-up, and on-chain withdrawal flows.
 - Require antiklepto-capable firmware for transaction and message signing
 - Warn about potential security risks when restoring an external wallet

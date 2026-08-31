@@ -28,15 +28,15 @@ var intermediateFirmwareBinaryBTCOnly_9_26_2 []byte
 //go:embed assets/firmware-bitbox02-multi.v9.26.2.signed.bin.gz
 var intermediateFirmwareBinaryMulti_9_26_2 []byte
 
-//go:embed assets/firmware-bitbox02-btconly.v9.26.5.signed.bin.gz
+//go:embed assets/firmware-bitbox02-btconly.v9.27.1.signed.bin.gz
 var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 26, 5)
-var firmwareMonotonicVersionBtcOnly uint32 = 53
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 27, 1)
+var firmwareMonotonicVersionBtcOnly uint32 = 55
 
-//go:embed assets/firmware-bitbox02-multi.v9.26.5.signed.bin.gz
+//go:embed assets/firmware-bitbox02-multi.v9.27.1.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 26, 5)
-var firmwareMonotonicVersionMulti uint32 = 53
+var firmwareVersionMulti = semver.NewSemVer(9, 27, 1)
+var firmwareMonotonicVersionMulti uint32 = 55
 
 // BitBox02 Nova.
 
@@ -46,15 +46,15 @@ var intermediateFirmwareBB02PlusBinaryBTCOnly_9_26_2 []byte
 //go:embed assets/firmware-bitbox02nova-multi.v9.26.2.signed.bin.gz
 var intermediateFirmwareBB02PlusBinaryMulti_9_26_2 []byte
 
-//go:embed assets/firmware-bitbox02nova-btconly.v9.26.5.signed.bin.gz
+//go:embed assets/firmware-bitbox02nova-btconly.v9.27.1.signed.bin.gz
 var firmwareBB02PlusBinaryBTCOnly []byte
-var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 26, 5)
-var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 53
+var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 27, 1)
+var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 55
 
-//go:embed assets/firmware-bitbox02nova-multi.v9.26.5.signed.bin.gz
+//go:embed assets/firmware-bitbox02nova-multi.v9.27.1.signed.bin.gz
 var firmwareBB02PlusBinaryMulti []byte
-var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 26, 5)
-var firmwareBB02PlusMonotonicVersionMulti uint32 = 53
+var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 27, 1)
+var firmwareBB02PlusMonotonicVersionMulti uint32 = 55
 
 type firmwareInfo struct {
 	version                     *semver.SemVer
