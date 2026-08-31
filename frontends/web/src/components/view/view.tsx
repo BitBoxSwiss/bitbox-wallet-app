@@ -21,6 +21,7 @@ type TViewProps = {
   verticallyCentered?: boolean;
   width?: string;
   withBottomBar?: boolean;
+  withMobileSafetyMargin?: boolean;
 };
 
 /**
@@ -35,6 +36,7 @@ type TViewProps = {
  * @param verticallyCentered centers all text content in the view, has no effect in dialog mode
  * @param width can be used to overwrite the default width of the inner area
  * @param withBottomBar enables a footer with some logo and language switch
+ * @param withMobileSafetyMargin adds a small horizontal inset on mobile
  */
 export const View = ({
   dialog = false,
@@ -48,6 +50,7 @@ export const View = ({
   verticallyCentered = false,
   width,
   withBottomBar,
+  withMobileSafetyMargin = false,
 }: TViewProps) => {
   const { isDarkMode } = useDarkmode();
   const containerClasses = `
@@ -55,6 +58,7 @@ export const View = ({
     ${scrollableContent && style.scrollableContent || ''}
     ${verticallyCentered && style.verticallyCentered || ''}
     ${dialog && style.dialog || ''}
+    ${withMobileSafetyMargin && style.withMobileSafetyMargin || ''}
   `;
   let classNames = style.inner;
   if (fitContent || scrollableContent) {

@@ -196,7 +196,8 @@ export const Bip85 = ({
         key="bip85-progress"
         fullscreen
         textCenter
-        verticallyCentered>
+        verticallyCentered
+        withMobileSafetyMargin>
         <UseDisableBackButton />
         <ViewHeader title={t('deviceSettings.expert.bip85.title')} />
         <ViewContent minHeight="280px">

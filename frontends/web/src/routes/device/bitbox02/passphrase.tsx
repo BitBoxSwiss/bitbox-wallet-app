@@ -93,7 +93,8 @@ export const Passphrase = ({ deviceID }: TProps) => {
           fullscreen
           minHeight={CONTENT_MIN_HEIGHT}
           textCenter
-          verticallyCentered>
+          verticallyCentered
+          withMobileSafetyMargin>
           <ViewHeader
             title={t(isEnabled
               ? 'passphrase.progressDisable.title'
