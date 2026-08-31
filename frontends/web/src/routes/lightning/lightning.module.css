@@ -2,6 +2,25 @@
     animation: fade-in 200ms ease-out;
 }
 
+.connectionState {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+    justify-content: center;
+    min-height: 200px;
+    text-align: center;
+}
+
+.connectionState img {
+    height: 36px;
+    width: 36px;
+}
+
+.connectionState p {
+    margin: 0;
+}
+
 @keyframes fade-in {
     from {
         opacity: 0;

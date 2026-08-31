@@ -9,6 +9,7 @@ import {
   getBlockExplorerTxPrefix,
   getLightningBalance,
   getListPayments,
+  postReconnect,
   subscribeLightningBalance,
   subscribeListPayments,
   getSparkStatus,
@@ -18,7 +19,7 @@ import { Balance } from '../../components/balance/balance';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { View, ViewContent, ViewHeader } from '../../components/view/view';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
-import { Spinner } from '../../components/spinner/Spinner';
+import { SpinnerRingAnimated } from '../../components/spinner/SpinnerAnimation';
 import { ActionButtons } from './components/action-buttons';
 import { LightningGuide } from './guide';
 import { LightningTorProxyWarning } from '@/components/banners/lightning-tor-proxy-warning';
@@ -29,7 +30,7 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad, useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { useLightning } from '@/hooks/lightning';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import {
   formatExcessLightningFundingLimit,
   formatLightningFundingLimit,
@@ -290,14 +291,16 @@ const LightningInner = ({
   );
 };
 
-export const Lightning = () => {
+type TLightningReadyProps = {
+  statusBanners: ReactNode;
+};
+
+const LightningReady = ({ statusBanners }: TLightningReadyProps) => {
   const { t } = useTranslation();
   const { btcUnit } = useContext(RatesContext);
   const { isLightningReady, lightningAccount } = useLightning();
   const balance = useSync(getLightningBalance, subscribeLightningBalance);
-  const [syncedAddressesCount] = useState<number>();
   const [payments, setPayments] = useState<TLightningPayment[]>();
-  const [sparkStatus, setSparkStatus] = useState<TSparkStatus>();
   const [error, setError] = useState<string>();
   const mounted = useMountedRef();
   const blockExplorerTxPrefix = useLoad(getBlockExplorerTxPrefix);
@@ -329,6 +332,61 @@ export const Lightning = () => {
     return subscribeListPayments(onStateChange);
   }, [btcUnit, isLightningReady, lightningAccount, onStateChange]);
 
+  const hasDataLoaded = balance !== undefined && payments !== undefined;
+
+  if (error) {
+    return (
+      <GuideWrapper>
+        <GuidedContent>
+          <Main>
+            <ContentWrapper>
+              {statusBanners}
+            </ContentWrapper>
+            <View textCenter verticallyCentered>
+              <ViewHeader title={t('unknownError', { errorMessage: error })} />
+            </View>
+          </Main>
+        </GuidedContent>
+        <LightningGuide />
+      </GuideWrapper>
+    );
+  }
+  const canSend = balance && balance.hasAvailable;
+
+  if (!hasDataLoaded) {
+    return (
+      <LightningPageLayout
+        accountDataLoaded={false}
+        balance={balance}
+        canSend={canSend}
+        statusBanners={statusBanners}
+      >
+        <TransactionHistorySkeleton />
+      </LightningPageLayout>
+    );
+  }
+
+  return (
+    <LightningPageLayout
+      accountDataLoaded
+      balance={balance}
+      canSend={canSend}
+      statusBanners={statusBanners}
+    >
+      <LightningInner
+        explorerURL={blockExplorerTxPrefix}
+        payments={payments}
+      />
+    </LightningPageLayout>
+  );
+};
+
+export const Lightning = () => {
+  const { t } = useTranslation();
+  const { lightningAccount, lightningStatus } = useLightning();
+  const [sparkStatus, setSparkStatus] = useState<TSparkStatus>();
+  const mounted = useMountedRef();
+
   const loadSparkStatus = useCallback(async () => {
     try {
       const status = await getSparkStatus();
@@ -351,8 +409,6 @@ export const Lightning = () => {
     return () => window.clearInterval(interval);
   }, [loadSparkStatus]);
 
-  const hasDataLoaded = balance !== undefined && payments !== undefined;
-
   const statusBanners = (
     <>
       <LightningTorProxyWarning dismissible />
@@ -370,77 +426,51 @@ export const Lightning = () => {
     </>
   );
 
-  if (error) {
+  if (lightningAccount === undefined || lightningStatus === undefined) {
     return (
-      <GuideWrapper>
-        <GuidedContent>
-          <Main>
-            <ContentWrapper>
-              {statusBanners}
-            </ContentWrapper>
-            <View textCenter verticallyCentered>
-              <ViewHeader title={t('unknownError', { errorMessage: error })} />
-            </View>
-          </Main>
-        </GuidedContent>
-        <LightningGuide />
-      </GuideWrapper>
-    );
-  }
-  if (
-    lightningAccount === undefined
-    || isLightningReady === undefined
-    || (lightningAccount && !isLightningReady)
-  ) {
-    return (
-      <LightningPageLayout
-        accountDataLoaded={false}
-        statusBanners={statusBanners}
-      >
-        <Spinner text={t('lightning.initializing')} />
+      <LightningPageLayout accountDataLoaded={false} statusBanners={statusBanners}>
+        <div className={style.connectionState}>
+          <SpinnerRingAnimated />
+          <p>{t('lightning.initializing')}</p>
+        </div>
       </LightningPageLayout>
     );
   }
 
-  const canSend = balance && balance.hasAvailable;
+  if (lightningAccount === null) {
+    return <Navigate replace to="/lightning/activate" />;
+  }
 
-  const initializingSpinnerText =
-    syncedAddressesCount !== undefined && syncedAddressesCount > 1
-      ? '\n' +
-        t('account.syncedAddressesCount', {
-          count: syncedAddressesCount.toString(),
-          defaultValue: 0
-        } as any)
-      : '';
-
-  if (!hasDataLoaded) {
+  if (lightningAccount && lightningStatus.state === 'failed') {
+    const reconnect = async () => {
+      try {
+        await postReconnect();
+      } catch (err) {
+        console.error(err);
+      }
+    };
     return (
-      <LightningPageLayout
-        accountDataLoaded={false}
-        balance={balance}
-        canSend={canSend}
-        statusBanners={statusBanners}
-      >
-        {initializingSpinnerText ? (
-          <Spinner text={initializingSpinnerText} />
-        ) : (
-          <TransactionHistorySkeleton />
-        )}
+      <LightningPageLayout accountDataLoaded={false} statusBanners={statusBanners}>
+        <div className={style.connectionState}>
+          <p>{t('lightning.connection.initializationFailed')}</p>
+          <Button primary onClick={reconnect}>
+            {t('generic.retry')}
+          </Button>
+        </div>
       </LightningPageLayout>
     );
   }
 
-  return (
-    <LightningPageLayout
-      accountDataLoaded
-      balance={balance}
-      canSend={canSend}
-      statusBanners={statusBanners}
-    >
-      <LightningInner
-        explorerURL={blockExplorerTxPrefix}
-        payments={payments}
-      />
-    </LightningPageLayout>
-  );
+  if (lightningAccount && lightningStatus.state !== 'ready') {
+    return (
+      <LightningPageLayout accountDataLoaded={false} statusBanners={statusBanners}>
+        <div className={style.connectionState}>
+          <SpinnerRingAnimated />
+          <p>{t('lightning.initializing')}</p>
+        </div>
+      </LightningPageLayout>
+    );
+  }
+
+  return <LightningReady statusBanners={statusBanners} />;
 };

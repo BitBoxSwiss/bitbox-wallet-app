@@ -31,7 +31,7 @@ func (backend *Backend) allCoinCodes() []string {
 // chartCoinCodes returns the coin codes needed to load chart rate history.
 func (backend *Backend) chartCoinCodes() []string {
 	coinCodes := backend.allCoinCodes()
-	if !backend.hasLightningAccount() || slices.Contains(coinCodes, string(coin.CodeBTC)) {
+	if !backend.lightning.Ready() || slices.Contains(coinCodes, string(coin.CodeBTC)) {
 		return coinCodes
 	}
 	// Lightning transactions require BTC coin code
@@ -71,6 +71,8 @@ type Chart struct {
 	IsUpToDate bool `json:"chartIsUpToDate"`
 	// Latest rate timestamp available among all enabled coins.
 	LastTimestamp int64 `json:"lastTimestamp"`
+	// Coins omitted from the chart and total because their balances are unavailable.
+	UnavailableCoinCodes []coin.Code `json:"unavailableCoinCodes"`
 }
 
 func (backend *Backend) addChartData(
@@ -201,6 +203,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	// Total number of transactions across all active accounts.
 	totalNumberOfTransactions := 0
 	transactionHistoryMissing := false
+	unavailableCoinCodes := []coin.Code{}
 	for _, account := range backend.Accounts() {
 		if account.Config().Config.Inactive {
 			continue
@@ -258,46 +261,52 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	}
 
 	if backend.hasLightningAccount() {
-		var err error
-		lightningBalance, err := backend.lightning.Balance()
-		if err != nil {
-			return nil, err
-		}
-		lightningBalanceAmount, err := backend.convertBtcAmountToFiat(lightningBalance.Available(), fiat)
-		if err != nil {
-			return nil, err
-		}
-		currentTotal.Add(currentTotal, lightningBalanceAmount)
-
-		lightningTxs, err := backend.lightning.Transactions()
-		if err != nil {
-			backend.log.WithError(err).WithField("coin", coinCodeLightning).Info("ChartDataMissing/list-payments")
-			chartDataMissing = true
-			transactionHistoryMissing = true
-			lightningTxs = nil
-		}
-		totalNumberOfTransactions += len(lightningTxs)
-
-		if !chartDataMissing {
-			btcCoin, err := backend.Coin(coin.CodeBTC)
-			if err != nil {
-				return nil, err
+		if !backend.lightning.Ready() {
+			unavailableCoinCodes = append(unavailableCoinCodes, coinCodeLightning)
+		} else {
+			lightningBalance, err := backend.lightning.Balance()
+			if err == nil {
+				var lightningBalanceAmount *big.Rat
+				lightningBalanceAmount, err = backend.convertBtcAmountToFiat(lightningBalance.Available(), fiat)
+				if err == nil {
+					currentTotal.Add(currentTotal, lightningBalanceAmount)
+				}
 			}
-			lightningChartDataMissing, err := backend.addTxsToChart(
-				coin.CodeBTC,
-				coinCodeLightning,
-				fiat,
-				coin.DecimalsExp(btcCoin, false),
-				lightningTxs,
-				until,
-				chartEntriesDaily,
-				chartEntriesHourly,
-			)
 			if err != nil {
-				return nil, err
-			}
-			if lightningChartDataMissing {
-				chartDataMissing = true
+				backend.log.WithError(err).Warn("Could not include Lightning balance in portfolio chart")
+				unavailableCoinCodes = append(unavailableCoinCodes, coinCodeLightning)
+			} else {
+				lightningTxs, err := backend.lightning.Transactions()
+				if err != nil {
+					backend.log.WithError(err).WithField("coin", coinCodeLightning).Info("ChartDataMissing/list-payments")
+					chartDataMissing = true
+					transactionHistoryMissing = true
+					lightningTxs = nil
+				}
+				totalNumberOfTransactions += len(lightningTxs)
+
+				if !chartDataMissing {
+					btcCoin, err := backend.Coin(coin.CodeBTC)
+					if err != nil {
+						return nil, err
+					}
+					lightningChartDataMissing, err := backend.addTxsToChart(
+						coin.CodeBTC,
+						coinCodeLightning,
+						fiat,
+						coin.DecimalsExp(btcCoin, false),
+						lightningTxs,
+						until,
+						chartEntriesDaily,
+						chartEntriesHourly,
+					)
+					if err != nil {
+						return nil, err
+					}
+					if lightningChartDataMissing {
+						chartDataMissing = true
+					}
+				}
 			}
 		}
 	}
@@ -364,13 +373,14 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		formattedChartTotal = coin.FormatAsCurrency(currentTotal, fiat)
 	}
 	return &Chart{
-		DataMissing:    chartDataMissing,
-		DataDaily:      toSortedSlice(chartEntriesDaily, fiat),
-		DataHourly:     toSortedSlice(chartEntriesHourly, fiat),
-		Fiat:           fiat,
-		Total:          chartTotal,
-		FormattedTotal: formattedChartTotal,
-		IsUpToDate:     isUpToDate,
-		LastTimestamp:  lastTimestamp,
+		DataMissing:          chartDataMissing,
+		DataDaily:            toSortedSlice(chartEntriesDaily, fiat),
+		DataHourly:           toSortedSlice(chartEntriesHourly, fiat),
+		Fiat:                 fiat,
+		Total:                chartTotal,
+		FormattedTotal:       formattedChartTotal,
+		IsUpToDate:           isUpToDate,
+		LastTimestamp:        lastTimestamp,
+		UnavailableCoinCodes: unavailableCoinCodes,
 	}, nil
 }

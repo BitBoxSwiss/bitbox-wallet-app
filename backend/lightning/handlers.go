@@ -38,6 +38,8 @@ func NewHandlers(
 	handleNoError("/address/generate", lightning.PostGenerateAddress).Methods("POST")
 	handleNoError("/address/register", lightning.PostRegisterAddress).Methods("POST")
 	handleNoError("/ready", lightning.GetReady).Methods("GET")
+	handleNoError("/reconnect", lightning.PostReconnect).Methods("POST")
+	handleNoError("/status", lightning.GetStatus).Methods("GET")
 	handleNoError("/activate", lightning.PostActivate).Methods("POST")
 	handleNoError("/deactivate", lightning.PostDeactivate).Methods("POST")
 	handleNoError("/balance", lightning.GetBalance).Methods("GET")
@@ -205,6 +207,19 @@ func (lightning *Lightning) PostRegisterAddress(r *http.Request) interface{} {
 // GetReady handles the GET request to retrieve whether the lightning SDK is ready.
 func (lightning *Lightning) GetReady(_ *http.Request) interface{} {
 	return responseDto{Success: true, Data: lightning.Ready()}
+}
+
+// GetStatus handles the GET request to retrieve the Lightning SDK connection status.
+func (lightning *Lightning) GetStatus(_ *http.Request) interface{} {
+	return responseDto{Success: true, Data: lightning.Status()}
+}
+
+// PostReconnect handles a request to retry Lightning SDK connection initialization.
+func (lightning *Lightning) PostReconnect(_ *http.Request) interface{} {
+	if err := lightning.Reconnect(); err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true}
 }
 
 // PostActivate handles the POST request to activate lightning.

@@ -5,12 +5,11 @@ package backend
 import (
 	"testing"
 
-	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/stretchr/testify/require"
 )
 
-func TestChartCoinCodesIncludesBitcoinForLightning(t *testing.T) {
+func TestChartCoinCodesExcludesBitcoinForUnavailableLightning(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
@@ -20,6 +19,5 @@ func TestChartCoinCodesIncludesBitcoinForLightning(t *testing.T) {
 		Code:            "v0-deadbeef-ln-0",
 		Number:          0,
 	}))
-
-	require.Equal(t, []string{string(coinpkg.CodeBTC)}, b.chartCoinCodes())
+	require.Empty(t, b.chartCoinCodes())
 }

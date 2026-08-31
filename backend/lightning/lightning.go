@@ -83,6 +83,10 @@ type Lightning struct {
 	ratesUpdater *rates.RateUpdater
 	btcCoin      coin.Coin
 
+	connectionLock       sync.Mutex
+	connectionStatus     ConnectionStatus
+	connectionStatusLock sync.RWMutex
+
 	// Serializes lazy lightning address registration.
 	lightningAddressLock sync.Mutex
 }
@@ -96,6 +100,10 @@ func NewLightning(config *config.Config,
 	httpClient *http.Client,
 	ratesUpdater *rates.RateUpdater,
 	btcCoin coin.Coin) *Lightning {
+	connectionState := ConnectionInactive
+	if len(config.LightningConfig().Accounts) > 0 {
+		connectionState = ConnectionConnecting
+	}
 	return &Lightning{
 		backendConfig:      config,
 		cacheDirectoryPath: cacheDirectoryPath,
@@ -108,6 +116,9 @@ func NewLightning(config *config.Config,
 		httpClient:         httpClient,
 		ratesUpdater:       ratesUpdater,
 		btcCoin:            btcCoin,
+		connectionStatus: ConnectionStatus{
+			State: connectionState,
+		},
 	}
 }
 
@@ -349,10 +360,28 @@ func accountBreezFolder(accountCode types.Code) string {
 }
 
 // connect initializes the connection configuration and calls connect to create a Breez SDK instance.
-func (lightning *Lightning) connect() error {
-	account := lightning.Account()
+func (lightning *Lightning) connect() (connectErr error) {
+	lightning.connectionLock.Lock()
+	defer lightning.connectionLock.Unlock()
 
-	if account != nil && lightning.sdkService == nil {
+	account := lightning.Account()
+	if account == nil {
+		lightning.setConnectionStatus(ConnectionInactive, "")
+		return nil
+	}
+	if lightning.sdkService != nil {
+		lightning.setConnectionStatus(ConnectionReady, "")
+		return nil
+	}
+
+	lightning.setConnectionStatus(ConnectionConnecting, "")
+	defer func() {
+		if connectErr != nil {
+			lightning.setConnectionStatus(ConnectionFailed, ConnectionErrorInitializationFailed)
+		}
+	}()
+
+	if lightning.sdkService == nil {
 		initializeLogging(lightning.log)
 
 		workingDir := path.Join(lightning.cacheDirectoryPath, accountBreezFolder(account.Code))
@@ -421,6 +450,7 @@ func (lightning *Lightning) connect() error {
 		}
 
 		lightning.sdkService = sdk
+		lightning.setConnectionStatus(ConnectionReady, "")
 		lightning.notifyReady()
 		lightning.NotifyBalanceReload()
 		if _, err := lightning.ensureLightningAddress(); err != nil {
@@ -566,6 +596,11 @@ func (lightning *Lightning) SetAccount(account *config.LightningAccountConfig) e
 		Subject: "lightning/account",
 		Action:  action.Reload,
 	})
+	if account == nil {
+		lightning.setConnectionStatus(ConnectionInactive, "")
+	} else {
+		lightning.setConnectionStatus(ConnectionConnecting, "")
+	}
 	lightning.notifyReady()
 
 	return nil

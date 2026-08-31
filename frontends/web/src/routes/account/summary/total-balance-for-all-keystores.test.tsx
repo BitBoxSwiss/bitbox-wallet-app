@@ -37,6 +37,7 @@ const chartData = (chartFiat: Fiat): TChartData => ({
   formattedChartTotal: '1',
   chartIsUpToDate: true,
   lastTimestamp: 0,
+  unavailableCoinCodes: [],
 });
 
 const btcBalance: CoinFormattedAmount = {

@@ -196,6 +196,13 @@ export type TSparkStatus = {
   status: TServiceStatus;
 };
 
+export type TLightningConnectionState = 'inactive' | 'connecting' | 'ready' | 'failed';
+
+export type TLightningConnectionStatus = {
+  state: TLightningConnectionState;
+  errorCode?: 'initializationFailed';
+};
+
 export enum TPaymentInputType {
   BITCOIN_ADDRESS = 'bitcoinAddress',
   BOLT11 = 'bolt11',
@@ -298,12 +305,20 @@ export const getLightningReady = async (): Promise<boolean> => {
   return getApiResponse<boolean>('lightning/ready', 'Error calling getLightningReady');
 };
 
+export const getLightningStatus = async (): Promise<TLightningConnectionStatus> => {
+  return getApiResponse<TLightningConnectionStatus>('lightning/status', 'Error calling getLightningStatus');
+};
+
 export const postActivate = async (): Promise<void> => {
   return postApiResponse<void, undefined>('lightning/activate', undefined, 'Error calling postActivate');
 };
 
 export const postDeactivate = async (): Promise<void> => {
   return postApiResponse<void, undefined>('lightning/deactivate', undefined, 'Error calling postDeactivate');
+};
+
+export const postReconnect = async (): Promise<void> => {
+  return postApiResponse<void, undefined>('lightning/reconnect', undefined, 'Error calling postReconnect');
 };
 
 export const getLightningBalance = async (): Promise<TLightningBalance> => {
@@ -411,6 +426,12 @@ export const subscribeLightningAddress = (cb: TSubscriptionCallback<string | nul
 
 export const subscribeLightningReady = (cb: TSubscriptionCallback<boolean>): TUnsubscribe => {
   return subscribeEndpoint('lightning/ready', cb);
+};
+
+export const subscribeLightningStatus = (
+  cb: TSubscriptionCallback<TLightningConnectionStatus>,
+): TUnsubscribe => {
+  return subscribeEndpoint('lightning/status', cb);
 };
 
 export const subscribeListPayments = (cb: TSubscriptionCallback<TLightningPayment[]>) => {

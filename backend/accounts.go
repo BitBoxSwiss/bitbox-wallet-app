@@ -317,8 +317,9 @@ func (backend *Backend) formattedCoinBalance(
 }
 
 // getCoinsTotalBalance returns the total balances grouped by coins.
-func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
+func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, []coinpkg.Code, error) {
 	coinFormattedAmounts := []coinFormattedAmount{}
+	unavailableCoinCodes := []coinpkg.Code{}
 	var sortedCoins []coinpkg.Code
 	totalCoinsBalances := make(map[coinpkg.Code]*big.Int)
 
@@ -331,12 +332,12 @@ func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
 		}
 		err := account.Initialize()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		coinCode := account.Coin().Code()
 		b, err := account.Balance()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		amount := b.Available()
 
@@ -348,15 +349,24 @@ func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
 		}
 	}
 
-	lightningBalance, err := backend.lightningFormattedBalance()
-	if err != nil {
-		return nil, err
+	var lightningBalance *coinFormattedAmount
+	if backend.hasLightningAccount() {
+		if !backend.lightning.Ready() {
+			unavailableCoinCodes = append(unavailableCoinCodes, coinCodeLightning)
+		} else {
+			var err error
+			lightningBalance, err = backend.lightningFormattedBalance()
+			if err != nil {
+				backend.log.WithError(err).Warn("Could not include Lightning balance in portfolio summary")
+				unavailableCoinCodes = append(unavailableCoinCodes, coinCodeLightning)
+			}
+		}
 	}
 
 	for _, coinCode := range sortedCoins {
 		coin, err := backend.Coin(coinCode)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		coinFormattedAmounts = append(coinFormattedAmounts, backend.formattedCoinBalance(
 			coinCode,
@@ -365,7 +375,7 @@ func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
 			totalCoinsBalances[coinCode],
 		))
 	}
-	return insertLightningFormattedBalance(coinFormattedAmounts, lightningBalance), nil
+	return insertLightningFormattedBalance(coinFormattedAmounts, lightningBalance), unavailableCoinCodes, nil
 }
 
 // AmountsByCoin maps the total amount of each coin.
@@ -473,8 +483,9 @@ func (backend *Backend) convertBtcAmountToFiat(amount coinpkg.Amount, fiat strin
 
 // AccountsBalanceSummary holds the total balance for each coin and of each keystore.
 type AccountsBalanceSummary struct {
-	KeystoresBalance  map[string]KeystoreBalance `json:"keystoresBalance"`
-	CoinsTotalBalance []coinFormattedAmount      `json:"coinsTotalBalance"`
+	KeystoresBalance     map[string]KeystoreBalance `json:"keystoresBalance"`
+	CoinsTotalBalance    []coinFormattedAmount      `json:"coinsTotalBalance"`
+	UnavailableCoinCodes []coinpkg.Code             `json:"unavailableCoinCodes"`
 }
 
 // AccountsBalanceSummary returns the total balance for each coin and of each keystore.
@@ -483,14 +494,15 @@ func (backend *Backend) AccountsBalanceSummary() (*AccountsBalanceSummary, error
 	if err != nil {
 		return nil, err
 	}
-	coinsTotalBalance, err := backend.coinsTotalBalance()
+	coinsTotalBalance, unavailableCoinCodes, err := backend.coinsTotalBalance()
 	if err != nil {
 		return nil, err
 	}
 
 	return &AccountsBalanceSummary{
-		KeystoresBalance:  keystoresBalance,
-		CoinsTotalBalance: coinsTotalBalance,
+		KeystoresBalance:     keystoresBalance,
+		CoinsTotalBalance:    coinsTotalBalance,
+		UnavailableCoinCodes: unavailableCoinCodes,
 	}, nil
 }
 

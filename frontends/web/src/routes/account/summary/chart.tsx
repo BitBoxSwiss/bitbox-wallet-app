@@ -34,6 +34,7 @@ const defaultData: Readonly<TChartData> = {
   formattedChartTotal: null,
   chartIsUpToDate: false,
   lastTimestamp: 0,
+  unavailableCoinCodes: [],
 };
 
 type FormattedData = {

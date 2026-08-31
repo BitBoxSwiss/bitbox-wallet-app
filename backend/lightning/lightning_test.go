@@ -158,6 +158,29 @@ func TestReady(t *testing.T) {
 	require.False(t, lightning.Ready())
 }
 
+func TestConnectionStatusFailedInitialization(t *testing.T) {
+	lightning := newTestLightning(t, &testEnvironment{
+		canEncrypt: true,
+		loadErr:    errors.New("secure storage unavailable"),
+	})
+	require.Equal(t, ConnectionStatus{State: ConnectionInactive}, lightning.Status())
+
+	require.NoError(t, lightning.SetAccount(&config.LightningAccountConfig{
+		Code: "v0-deadbeef-ln-0",
+		Seed: "v1:encrypted",
+	}))
+	require.Equal(t, ConnectionStatus{State: ConnectionConnecting}, lightning.Status())
+
+	lightning.Connect()
+	require.Equal(t, ConnectionStatus{
+		State:     ConnectionFailed,
+		ErrorCode: ConnectionErrorInitializationFailed,
+	}, lightning.Status())
+
+	require.NoError(t, lightning.SetAccount(nil))
+	require.Equal(t, ConnectionStatus{State: ConnectionInactive}, lightning.Status())
+}
+
 func TestAddressDomain(t *testing.T) {
 	require.Equal(t, "bitbox.cash", newTestLightning(t, nil).AddressDomain())
 }

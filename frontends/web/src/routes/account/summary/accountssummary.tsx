@@ -24,6 +24,7 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { BackupReminder } from '@/components/banners/backup';
 import { OfflineError } from '@/components/banners/offline-error';
+import { Status } from '@/components/status/status';
 import { isLightningFeatureAvailable } from '@/utils/env';
 import style from './accountssummary.module.css';
 
@@ -43,7 +44,7 @@ export const AccountsSummary = ({
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
   const { defaultCurrency } = useContext(RatesContext);
-  const { lightningAccount } = useLightning();
+  const { lightningAccount, lightningStatus } = useLightning();
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
   const hasActiveBitcoinAccount = accounts.some(account => account.active && isBitcoinOnly(account.coinCode));
@@ -64,6 +65,9 @@ export const AccountsSummary = ({
   const coinsTotalBalance = accountsBalanceSummary?.coinsTotalBalance.filter(balance => (
     balance.coinCode !== 'lightning' || isLightningFeatureAvailable()
   ));
+  const lightningUnavailable = chartData?.unavailableCoinCodes.includes('lightning')
+    || accountsBalanceSummary?.unavailableCoinCodes.includes('lightning')
+    || false;
 
   const getChartData = useCallback(async () => {
     // replace previous timer if present
@@ -159,7 +163,7 @@ export const AccountsSummary = ({
     // & whenever any of the dependencies change.
     getChartData();
     getAccountsBalanceSummary();
-  }, [getChartData, getAccountsBalanceSummary, defaultCurrency, lightningAccount]);
+  }, [getChartData, getAccountsBalanceSummary, defaultCurrency, lightningAccount, lightningStatus?.state]);
 
   useEffect(() => {
     return () => {
@@ -186,6 +190,13 @@ export const AccountsSummary = ({
         <Main>
           <ContentWrapper>
             <OfflineError error={offlineError} />
+            <Status
+              dismissibleKey=""
+              hidden={!lightningUnavailable}
+              type="warning"
+            >
+              {t('accountSummary.lightningUnavailable')}
+            </Status>
             {accountsByKeystore.map(({ keystore }) => (
               <BackupReminder
                 key={keystore.rootFingerprint}

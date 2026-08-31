@@ -1501,8 +1501,9 @@ func TestCoinsTotalBalance(t *testing.T) {
 	b.ratesUpdater = rates.MockRateUpdater()
 	defer b.ratesUpdater.Stop()
 
-	coinsTotalBalance, err := b.coinsTotalBalance()
+	coinsTotalBalance, unavailableCoinCodes, err := b.coinsTotalBalance()
 	require.NoError(t, err)
+	require.Empty(t, unavailableCoinCodes)
 	require.Equal(t, coinpkg.CodeBTC, coinsTotalBalance[0].CoinCode)
 	require.Equal(t, "2.00000000", coinsTotalBalance[0].FormattedAmount.Amount)
 	require.Equal(t, coinpkg.CodeLTC, coinsTotalBalance[1].CoinCode)

@@ -50,6 +50,7 @@
   "accountSummary": {
     "availableBalance": "Available balance",
     "balance": "Balance",
+    "lightningUnavailable": "Lightning is unavailable. Portfolio totals currently exclude it.",
     "name": "Account name",
     "noAccount": "There are no accounts to show.",
     "portfolio": "Portfolio",
@@ -1717,6 +1718,9 @@
         "note": "Your coins will appear in your wallet once the transaction is confirmed."
       },
       "viewTransaction": "View transaction"
+    },
+    "connection": {
+      "initializationFailed": "Lightning could not be initialized. Check your connection and try again."
     },
     "deactivate": {
       "intro": {

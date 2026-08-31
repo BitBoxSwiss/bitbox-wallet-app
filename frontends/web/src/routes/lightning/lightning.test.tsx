@@ -21,6 +21,7 @@ type TLightningState = {
     num: number;
     rootFingerprint: string;
   } | null | undefined;
+  lightningStatus: lightningApi.TLightningConnectionStatus | undefined;
 };
 
 const useLightningMock = vi.hoisted(() => vi.fn<() => TLightningState>());
@@ -101,12 +102,14 @@ describe('Lightning funding limit', () => {
     useLightningMock.mockReturnValue({
       isLightningReady: true,
       lightningAccount: { code: 'v0-test-ln-0', num: 0, rootFingerprint: 'f23ab988' },
+      lightningStatus: { state: 'ready' },
     });
     vi.spyOn(devicesApi, 'getDeviceList').mockResolvedValue({});
     vi.spyOn(lightningApi, 'getBlockExplorerTxPrefix').mockResolvedValue('https://example.com/tx/');
     vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(balance);
     vi.spyOn(lightningApi, 'getListPayments').mockResolvedValue([]);
     vi.spyOn(lightningApi, 'getSparkStatus').mockResolvedValue({ status: 'operational' });
+    vi.spyOn(lightningApi, 'postReconnect').mockResolvedValue();
     vi.spyOn(lightningApi, 'subscribeLightningBalance').mockReturnValue(vi.fn());
     vi.spyOn(lightningApi, 'subscribeListPayments').mockReturnValue(vi.fn());
   });
@@ -126,6 +129,7 @@ describe('Lightning funding limit', () => {
     useLightningMock.mockReturnValue({
       isLightningReady: undefined,
       lightningAccount: undefined,
+      lightningStatus: undefined,
     });
     const pendingRequest = new Promise<never>(() => {});
     vi.mocked(lightningApi.getBlockExplorerTxPrefix).mockReturnValue(pendingRequest);
@@ -172,5 +176,19 @@ describe('Lightning funding limit', () => {
 
     expect(screen.getByText('lightning.initializing')).toBeInTheDocument();
     expect(globalBannersElement.parentElement).toBe(container.querySelector('main'));
+  });
+
+  it('shows a retry action when Lightning initialization failed', async () => {
+    useLightningMock.mockReturnValue({
+      isLightningReady: false,
+      lightningAccount: { code: 'v0-test-ln-0', num: 0, rootFingerprint: 'f23ab988' },
+      lightningStatus: { state: 'failed', errorCode: 'initializationFailed' },
+    });
+
+    renderLightning();
+
+    expect(screen.getByText('lightning.connection.initializationFailed')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'generic.retry' }));
+    await waitFor(() => expect(lightningApi.postReconnect).toHaveBeenCalledOnce());
   });
 });

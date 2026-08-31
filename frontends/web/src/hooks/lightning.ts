@@ -4,6 +4,6 @@ import { useContext } from 'react';
 import { LightningContext } from '../contexts/LightningContext';
 
 export const useLightning = () => {
-  const { isLightningReady, lightningAccount } = useContext(LightningContext);
-  return { isLightningReady, lightningAccount };
+  const { isLightningReady, lightningAccount, lightningStatus } = useContext(LightningContext);
+  return { isLightningReady, lightningAccount, lightningStatus };
 };

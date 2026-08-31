@@ -87,6 +87,7 @@ export type TKeystoresBalance = {
 export type TAccountsBalanceSummary = {
   keystoresBalance: TKeystoresBalance;
   coinsTotalBalance: CoinFormattedAmount[];
+  unavailableCoinCodes: CoinCode[];
 };
 
 export type TAccountsBalanceSummaryResponse = {
@@ -188,6 +189,7 @@ export type TChartData = {
   formattedChartTotal: string | null;
   chartIsUpToDate: boolean; // only valid if chartDataMissing is false
   lastTimestamp: number;
+  unavailableCoinCodes: CoinCode[];
 };
 
 export const getChartData = (): Promise<TChartDataResponse> => {
