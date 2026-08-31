@@ -655,6 +655,14 @@ func (lightning *Lightning) parseLNURLPayRequest(inputStr string) (*breez_sdk_sp
 	}
 }
 
+func generateIdempotencyKey() (string, error) {
+	key, err := uuid.NewRandom()
+	if err != nil {
+		return "", errp.Wrap(err, "generate idempotency key")
+	}
+	return key.String(), nil
+}
+
 // PreparePayment computes the fee quote for the provided payment input.
 func (lightning *Lightning) PreparePayment(request preparePaymentRequest) (*paymentFee, error) {
 	switch request.Type {
@@ -672,18 +680,17 @@ func (lightning *Lightning) PreparePayment(request preparePaymentRequest) (*paym
 		}
 		idempotencyKey := request.IdempotencyKey
 		if idempotencyKey == "" {
-			generatedKey, err := uuid.NewRandom()
+			idempotencyKey, err = generateIdempotencyKey()
 			if err != nil {
-				return nil, errp.Wrap(err, "generate idempotency key")
+				return nil, err
 			}
-			idempotencyKey = generatedKey.String()
 		}
 		fee.IdempotencyKey = idempotencyKey
 		return fee, nil
 	case paymentInputTypeBolt11:
 		return lightning.prepareBolt11Payment(request.PaymentInput, request.AmountSat)
 	case paymentInputTypeLNURLPay:
-		return lightning.prepareLNURLPay(request.PaymentInput, request.AmountSat)
+		return lightning.prepareLNURLPay(request.PaymentInput, request.AmountSat, request.IdempotencyKey)
 	default:
 		return nil, errp.New("Payment type not supported")
 	}
@@ -714,14 +721,17 @@ func (lightning *Lightning) prepareBolt11Payment(paymentInvoice string, amountSa
 	return fee, nil
 }
 
-func (lightning *Lightning) prepareLNURLPay(inputStr string, amountSat *uint64) (*paymentFee, error) {
+func (lightning *Lightning) prepareLNURLPay(
+	inputStr string,
+	amountSat *uint64,
+	idempotencyKey string,
+) (*paymentFee, error) {
 	if err := lightning.CheckActive(); err != nil {
 		return nil, err
 	}
 	if amountSat == nil || *amountSat == 0 {
 		return nil, errLightningInvalidAmount
 	}
-
 	payRequest, err := lightning.parseLNURLPayRequest(inputStr)
 	if err != nil {
 		return nil, err
@@ -737,13 +747,21 @@ func (lightning *Lightning) prepareLNURLPay(inputStr string, amountSat *uint64) 
 	}
 
 	fee := preparedLNURLPayFee(prepareResponse)
-	availableBalance, err := lightning.availableBalance()
-	if err != nil {
-		return nil, err
+	// A retry may follow a payment whose response was lost, so only new attempts check the current balance.
+	if idempotencyKey == "" {
+		availableBalance, err := lightning.availableBalance()
+		if err != nil {
+			return nil, err
+		}
+		if err := checkPaymentBalance(fee, availableBalance); err != nil {
+			return fee, err
+		}
+		idempotencyKey, err = generateIdempotencyKey()
+		if err != nil {
+			return nil, err
+		}
 	}
-	if err := checkPaymentBalance(fee, availableBalance); err != nil {
-		return fee, err
-	}
+	fee.IdempotencyKey = idempotencyKey
 	lightning.log.Debug("Prepared LNURL-Pay payment")
 	return fee, nil
 }
@@ -856,6 +874,9 @@ func (lightning *Lightning) sendLNURLPay(request sendPaymentRequest) error {
 	if request.AmountSat == nil || *request.AmountSat == 0 {
 		return errLightningInvalidAmount
 	}
+	if request.IdempotencyKey == "" {
+		return errp.WithMessage(errLightningInvalidPaymentInput, "idempotency key missing")
+	}
 
 	lightning.log.Info("Sending LNURL-Pay payment")
 
@@ -877,16 +898,12 @@ func (lightning *Lightning) sendLNURLPay(request sendPaymentRequest) error {
 	if err := checkApprovedPaymentFee(fee.FeeSat, request.ApprovedFeeSat); err != nil {
 		return err
 	}
-	availableBalance, err := lightning.availableBalance()
-	if err != nil {
-		return err
-	}
-	if err := checkPaymentBalance(fee, availableBalance); err != nil {
-		return err
-	}
 
+	// New attempts were balance-checked during prepare. A retry must reach the SDK even if the
+	// original payment already reduced the balance.
 	_, err = lightning.sdkService.LnurlPay(breez_sdk_spark.LnurlPayRequest{
 		PrepareResponse: prepareResponse,
+		IdempotencyKey:  &request.IdempotencyKey,
 	})
 	if err != nil {
 		lightning.log.WithError(err).Error("Send LNURL-Pay failed")

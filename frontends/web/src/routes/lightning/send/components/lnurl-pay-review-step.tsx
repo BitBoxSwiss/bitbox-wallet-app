@@ -48,47 +48,48 @@ export const LNURLPayReviewStep = ({
     onSuccess,
   });
 
-  if (isSending) {
-    return <SendingSpinner />;
-  }
-
   const prepareError = amountError || (preparedPayment?.status === 'error' ? preparedPayment.error : undefined);
 
   return (
-    <View fitContent minHeight="100%">
-      <ViewContent>
-        <Grid col="1">
-          <Column>
-            <Status dismissibleKey="" type="warning" hidden={!sendError}>
-              {sendError}
-            </Status>
-            <CustomPaymentAmount
-              key={lnurlPay.input}
-              minAmountSat={lnurlPay.minAmountSat}
-              maxAmountSat={lnurlPay.maxAmountSat}
-              onAmountChange={setCustomAmount}
-            />
-            <LNURLPayRecipientDetails lnurlPay={lnurlPay} />
-            <Status dismissibleKey="" type="error" hidden={!prepareError}>
-              {prepareError}
-            </Status>
-            {(preparedPayment?.status === 'preparing' || fees) && (
-              <PaymentFeeDetails fees={fees} totalWithFiat />
-            )}
-          </Column>
-        </Grid>
-      </ViewContent>
-      <ViewButtons>
-        <Button
-          primary
-          onClick={sendPayment}
-          disabled={!canSend}>
-          {t('generic.send')}
-        </Button>
-        <DesktopBackButton onClick={() => backToPaymentInput()}>
-          {t('button.back')}
-        </DesktopBackButton>
-      </ViewButtons>
-    </View>
+    <>
+      {isSending && <SendingSpinner />}
+      <div hidden={isSending}>
+        <View fitContent minHeight="100%">
+          <ViewContent>
+            <Grid col="1">
+              <Column>
+                <Status dismissibleKey="" type="warning" hidden={!sendError}>
+                  {sendError}
+                </Status>
+                <CustomPaymentAmount
+                  key={lnurlPay.input}
+                  minAmountSat={lnurlPay.minAmountSat}
+                  maxAmountSat={lnurlPay.maxAmountSat}
+                  onAmountChange={setCustomAmount}
+                />
+                <LNURLPayRecipientDetails lnurlPay={lnurlPay} />
+                <Status dismissibleKey="" type="error" hidden={!prepareError}>
+                  {prepareError}
+                </Status>
+                {(preparedPayment?.status === 'preparing' || fees) && (
+                  <PaymentFeeDetails fees={fees} totalWithFiat />
+                )}
+              </Column>
+            </Grid>
+          </ViewContent>
+          <ViewButtons>
+            <Button
+              primary
+              onClick={sendPayment}
+              disabled={!canSend}>
+              {t('generic.send')}
+            </Button>
+            <DesktopBackButton onClick={() => backToPaymentInput()}>
+              {t('button.back')}
+            </DesktopBackButton>
+          </ViewButtons>
+        </View>
+      </div>
+    </>
   );
 };

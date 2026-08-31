@@ -47,10 +47,29 @@ vi.mock('./components/select-payment-input-step', () => ({
   }) => <button onClick={() => onSubmit('lnbc1invoice')}>review payment</button>,
 }));
 
-vi.mock('./components/custom-payment-amount', () => ({
-  CustomPaymentAmount: () => null,
-  PaymentBalance: () => null,
-}));
+vi.mock('./components/custom-payment-amount', async () => {
+  const { useEffect, useState } = await import('react');
+  return {
+    CustomPaymentAmount: ({
+      onAmountChange,
+    }: {
+      onAmountChange: (amountSat?: number) => void;
+    }) => {
+      const [amount, setAmount] = useState('');
+      useEffect(() => {
+        onAmountChange(amount ? Number(amount) : undefined);
+      }, [amount, onAmountChange]);
+      return (
+        <input
+          aria-label="custom amount"
+          onChange={event => setAmount(event.target.value)}
+          value={amount}
+        />
+      );
+    },
+    PaymentBalance: () => null,
+  };
+});
 
 vi.mock('./components/payment-input-details', () => ({
   BitcoinAddressRecipientDetails: () => null,
@@ -85,7 +104,7 @@ const pressSystemBack = () => {
   });
 };
 
-describe('Lightning Send back navigation', () => {
+describe('Lightning Send', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(window.matchMedia).mockImplementation(query => ({
@@ -142,5 +161,42 @@ describe('Lightning Send back navigation', () => {
       resolvePayment();
     });
     expect(await screen.findByText('payment sent')).toBeInTheDocument();
+  });
+
+  it('keeps LNURL payment review mounted after a send error', async () => {
+    vi.mocked(lightningApi.getParsePaymentInput).mockResolvedValue({
+      type: TPaymentInputType.LNURL_PAY,
+      lnurlPay: {
+        input: 'alice@example.com',
+        domain: 'example.com',
+        minAmountSat: 1,
+        maxAmountSat: 1_000,
+      },
+    });
+    vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({
+      amountSat: 100,
+      feeSat: 1,
+      idempotencyKey: '00000000-0000-4000-8000-000000000001',
+      totalDebitSat: 101,
+    });
+    let rejectPayment: (reason?: unknown) => void = () => {};
+    vi.mocked(lightningApi.postSendPayment).mockReturnValue(new Promise<void>((_, reject) => {
+      rejectPayment = reject;
+    }));
+    renderSend();
+
+    fireEvent.click(screen.getByRole('button', { name: 'review payment' }));
+    const amountInput = await screen.findByRole('textbox', { name: 'custom amount' });
+    fireEvent.change(amountInput, { target: { value: '100' } });
+    const sendButton = await screen.findByRole('button', { name: 'generic.send' });
+    await waitFor(() => expect(sendButton).toBeEnabled());
+    fireEvent.click(sendButton);
+
+    expect(await screen.findByText('lightning.send.sending.connecting')).toBeInTheDocument();
+    await act(async () => rejectPayment(new Error('response lost')));
+
+    expect(await screen.findByRole('textbox', { name: 'custom amount' })).toHaveValue('100');
+    expect(screen.getByRole('button', { name: 'generic.send' })).toBeEnabled();
+    expect(lightningApi.postPreparePayment).toHaveBeenCalledTimes(1);
   });
 });
