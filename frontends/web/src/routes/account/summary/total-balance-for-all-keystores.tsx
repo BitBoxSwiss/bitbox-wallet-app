@@ -9,11 +9,15 @@ import { BalanceSection } from './balance-section';
 import { AssetBalanceWithUnitPrice } from './asset-balance-with-unit-price';
 import style from './accountssummary.module.css';
 
+type TCoinBalance = accountApi.CoinFormattedOptionalAmount & {
+  coinUnit?: accountApi.CoinUnit;
+};
+
 type TProps = {
   hideHeader?: boolean;
   hideLightningUnitPrice?: boolean;
   summaryData?: accountApi.TChartData;
-  coinsBalances?: accountApi.CoinFormattedAmount[];
+  coinsBalances?: TCoinBalance[];
 };
 
 export const TotalBalanceForAllKeystores = ({
@@ -60,6 +64,7 @@ export const TotalBalanceForAllKeystores = ({
               amount={balance.formattedAmount}
               coinCode={balance.coinCode}
               coinName={balance.coinName}
+              coinUnit={balance.coinUnit}
               showUnitPrice={!isLightning || !hideLightningUnitPrice}
             />
           </div>
