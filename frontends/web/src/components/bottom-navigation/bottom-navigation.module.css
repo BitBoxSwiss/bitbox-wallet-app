@@ -51,6 +51,7 @@
 .link {
     align-items: center;
     color: var(--color-default);
+    container-type: inline-size;
     display: flex;
     font-size: 1rem;
     flex: 1 1 0;
@@ -63,6 +64,10 @@
     text-align: center;
     text-decoration: none;
     white-space: nowrap;
+}
+
+.label {
+    font-size: min(1rem, 14cqi);
 }
 
 .link svg {
