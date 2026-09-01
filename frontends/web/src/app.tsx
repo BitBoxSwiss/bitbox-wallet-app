@@ -164,6 +164,7 @@ export const App = () => {
 
       currentURL.startsWith('/account-summary')
       || currentURL === '/settings/more'
+      || currentURL === '/accounts/all'
     );
     const requiresRegularAccount = (
 
