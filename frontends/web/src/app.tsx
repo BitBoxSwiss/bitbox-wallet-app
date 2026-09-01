@@ -163,7 +163,6 @@ export const App = () => {
     const canNavigateWithLightningAccount = (
 
       currentURL.startsWith('/account-summary')
-      || currentURL === '/settings/more'
       || currentURL === '/accounts/all'
     );
     const requiresRegularAccount = (
