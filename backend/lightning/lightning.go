@@ -127,6 +127,11 @@ func (lightning *Lightning) runtimeDependencies() (*rates.RateUpdater, coin.Coin
 	return lightning.ratesUpdater, lightning.btcCoin
 }
 
+// TstRuntimeDependencies must only be used in tests to inspect the current runtime dependencies.
+func (lightning *Lightning) TstRuntimeDependencies() (*rates.RateUpdater, coin.Coin) {
+	return lightning.runtimeDependencies()
+}
+
 // Activate first creates a mnemonic from the keystore entropy, persists it, and connects to the
 // instance.
 func (lightning *Lightning) Activate() error {

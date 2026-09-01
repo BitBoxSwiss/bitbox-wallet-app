@@ -476,9 +476,12 @@ func TestClearCachePreservesUserData(t *testing.T) {
 	require.NoError(t, b.ClearCache())
 	newBTCCoin, err := b.Coin(coinpkg.CodeBTC)
 	require.NoError(t, err)
+	lightningRatesUpdater, lightningBTCCoin := b.lightning.TstRuntimeDependencies()
 
 	require.NotSame(t, oldRatesUpdater, b.ratesUpdater)
 	require.NotSame(t, oldBTCCoin, newBTCCoin)
+	require.Same(t, b.ratesUpdater, lightningRatesUpdater)
+	require.Same(t, newBTCCoin, lightningBTCCoin)
 	require.NoFileExists(t, cacheFile)
 	require.DirExists(t, filepath.Join(b.arguments.CacheDirectoryPath(), "exchangerates"))
 	require.FileExists(t, lightningFile)
