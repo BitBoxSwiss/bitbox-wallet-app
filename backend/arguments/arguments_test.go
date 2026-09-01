@@ -47,6 +47,22 @@ func TestNewArgumentsDoesNotPanicIfConfigFileRestrictionFails(t *testing.T) {
 	})
 }
 
+func TestNewArgumentsCreatesPrivateLightningDirectory(t *testing.T) {
+	mainDirectoryPath := t.TempDir()
+
+	logging.Set(&logging.Configuration{Output: "STDERR", Level: logrus.DebugLevel})
+	args := NewArguments(mainDirectoryPath, true, false, false, nil)
+
+	lightningDirectoryPath := filepath.Join(mainDirectoryPath, "lightning")
+	require.Equal(t, lightningDirectoryPath, args.LightningDirectoryPath())
+	require.DirExists(t, lightningDirectoryPath)
+	if runtime.GOOS != "windows" {
+		info, err := os.Stat(lightningDirectoryPath)
+		require.NoError(t, err)
+		require.Equal(t, config.PrivateDirMode, info.Mode().Perm())
+	}
+}
+
 func requirePrivateFileMode(t *testing.T, filename string) {
 	t.Helper()
 	info, err := os.Stat(filename)

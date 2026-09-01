@@ -376,16 +376,17 @@ func (lightning *Lightning) toLightningPayment(payment breez_sdk_spark.Payment) 
 		formatted := t.Format(time.RFC3339)
 		formattedTime = &formatted
 	}
+	ratesUpdater, btcCoin := lightning.runtimeDependencies()
 
 	result := lightningPayment{
 		ID:                   payment.Id,
 		Type:                 paymentType,
 		Status:               toLightningPaymentStatus(payment.Status),
 		Time:                 formattedTime,
-		Amount:               amount.FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
-		AmountAtTime:         amount.FormatWithConversionsAtTime(lightning.btcCoin, timestamp, lightning.ratesUpdater),
-		DeductedAmountAtTime: deductedAmount.FormatWithConversionsAtTime(lightning.btcCoin, timestamp, lightning.ratesUpdater),
-		Fee:                  fee.FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
+		Amount:               amount.FormatWithConversions(btcCoin, false, ratesUpdater),
+		AmountAtTime:         amount.FormatWithConversionsAtTime(btcCoin, timestamp, ratesUpdater),
+		DeductedAmountAtTime: deductedAmount.FormatWithConversionsAtTime(btcCoin, timestamp, ratesUpdater),
+		Fee:                  fee.FormatWithConversions(btcCoin, true, ratesUpdater),
 	}
 	// Claimed Bitcoin deposits appear in ListPayments, sometimes without payment details. Mark them
 	// as complete top-ups based on the payment method so the frontend can identify them reliably.
@@ -488,6 +489,7 @@ func bitcoinDepositPaymentID(deposit breez_sdk_spark.DepositInfo) string {
 
 func (lightning *Lightning) toBitcoinDepositPayment(deposit breez_sdk_spark.DepositInfo) lightningPayment {
 	amount := coin.NewAmountFromInt64(int64(deposit.AmountSats))
+	ratesUpdater, btcCoin := lightning.runtimeDependencies()
 	depositInfo := &bitcoinDeposit{
 		TxID:  deposit.Txid,
 		State: bitcoinDepositStateFromSDK(deposit),
@@ -502,10 +504,10 @@ func (lightning *Lightning) toBitcoinDepositPayment(deposit breez_sdk_spark.Depo
 		ID:                   bitcoinDepositPaymentID(deposit),
 		Type:                 accounts.TxTypeReceive,
 		Status:               accounts.TxStatusPending,
-		Amount:               amount.FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
-		AmountAtTime:         amount.FormatWithConversionsAtTime(lightning.btcCoin, nil, lightning.ratesUpdater),
-		DeductedAmountAtTime: coin.NewAmountFromInt64(0).FormatWithConversionsAtTime(lightning.btcCoin, nil, lightning.ratesUpdater),
-		Fee:                  coin.NewAmountFromInt64(0).FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
+		Amount:               amount.FormatWithConversions(btcCoin, false, ratesUpdater),
+		AmountAtTime:         amount.FormatWithConversionsAtTime(btcCoin, nil, ratesUpdater),
+		DeductedAmountAtTime: coin.NewAmountFromInt64(0).FormatWithConversionsAtTime(btcCoin, nil, ratesUpdater),
+		Fee:                  coin.NewAmountFromInt64(0).FormatWithConversions(btcCoin, true, ratesUpdater),
 		BitcoinDeposit:       depositInfo,
 	}
 }
@@ -920,7 +922,8 @@ func (lightning *Lightning) validateBitcoinPaymentAmountAgainstDustLimit(
 	destinationAddress string,
 	amountSat uint64,
 ) error {
-	btcCoin, ok := lightning.btcCoin.(bitcoinAddressToPkScripter)
+	_, lightningCoin := lightning.runtimeDependencies()
+	btcCoin, ok := lightningCoin.(bitcoinAddressToPkScripter)
 	if !ok {
 		return errp.New("Bitcoin coin does not support address-to-script conversion")
 	}
@@ -1023,7 +1026,8 @@ func (lightning *Lightning) onChainDestinationAddress(
 
 func (lightning *Lightning) formatSats(amountSat uint64, isFee bool) coin.FormattedAmountWithConversions {
 	amount := coin.NewAmount(new(big.Int).SetUint64(amountSat))
-	return amount.FormatWithConversions(lightning.btcCoin, isFee, lightning.ratesUpdater)
+	ratesUpdater, btcCoin := lightning.runtimeDependencies()
+	return amount.FormatWithConversions(btcCoin, isFee, ratesUpdater)
 }
 
 func isRefundedDeposit(deposit breez_sdk_spark.DepositInfo) bool {
@@ -1056,10 +1060,11 @@ func (lightning *Lightning) PrepareCloseWithdraw(
 	}
 
 	feeAmount := coin.NewAmountFromInt64(int64(fee.FeeSat))
+	ratesUpdater, btcCoin := lightning.runtimeDependencies()
 	return &closeWithdrawQuote{
-		Balance:    availableBalance.FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
+		Balance:    availableBalance.FormatWithConversions(btcCoin, false, ratesUpdater),
 		BalanceSat: amountSat,
-		Fee:        feeAmount.FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
+		Fee:        feeAmount.FormatWithConversions(btcCoin, true, ratesUpdater),
 		FeeSat:     fee.FeeSat,
 	}, nil
 }

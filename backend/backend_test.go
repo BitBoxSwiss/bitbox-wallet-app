@@ -457,9 +457,15 @@ func TestDevicesRegisteredReturnsSnapshot(t *testing.T) {
 func TestClearCachePreservesUserData(t *testing.T) {
 	b := newBackend(t, false, false)
 	defer b.Close()
+	oldRatesUpdater := b.ratesUpdater
+	oldBTCCoin, err := b.Coin(coinpkg.CodeBTC)
+	require.NoError(t, err)
 
 	cacheFile := filepath.Join(b.arguments.CacheDirectoryPath(), "dummy-cache-file")
 	require.NoError(t, os.WriteFile(cacheFile, []byte("cache"), 0600))
+
+	lightningFile := filepath.Join(b.arguments.LightningDirectoryPath(), "dummy-breez-database")
+	require.NoError(t, os.WriteFile(lightningFile, []byte("lightning"), 0600))
 
 	noteFile := filepath.Join(b.arguments.NotesDirectoryPath(), "dummy-note-file")
 	require.NoError(t, os.WriteFile(noteFile, []byte("note"), 0600))
@@ -468,9 +474,17 @@ func TestClearCachePreservesUserData(t *testing.T) {
 	require.FileExists(t, b.arguments.AccountsConfigFilename())
 
 	require.NoError(t, b.ClearCache())
+	newBTCCoin, err := b.Coin(coinpkg.CodeBTC)
+	require.NoError(t, err)
+	lightningRatesUpdater, lightningBTCCoin := b.lightning.TstRuntimeDependencies()
 
+	require.NotSame(t, oldRatesUpdater, b.ratesUpdater)
+	require.NotSame(t, oldBTCCoin, newBTCCoin)
+	require.Same(t, b.ratesUpdater, lightningRatesUpdater)
+	require.Same(t, newBTCCoin, lightningBTCCoin)
 	require.NoFileExists(t, cacheFile)
 	require.DirExists(t, filepath.Join(b.arguments.CacheDirectoryPath(), "exchangerates"))
+	require.FileExists(t, lightningFile)
 	require.FileExists(t, noteFile)
 	require.FileExists(t, b.arguments.AppConfigFilename())
 	require.FileExists(t, b.arguments.AccountsConfigFilename())

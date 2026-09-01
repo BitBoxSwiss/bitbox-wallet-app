@@ -146,9 +146,10 @@ func (lightning *Lightning) GetAccount(_ *http.Request) interface{} {
 
 // GetBlockExplorerTxPrefix handles the GET request to retrieve the Bitcoin transaction explorer prefix.
 func (lightning *Lightning) GetBlockExplorerTxPrefix(_ *http.Request) interface{} {
+	_, btcCoin := lightning.runtimeDependencies()
 	return responseDto{
 		Success: true,
-		Data:    lightning.btcCoin.BlockExplorerTransactionURLPrefix(),
+		Data:    btcCoin.BlockExplorerTransactionURLPrefix(),
 	}
 }
 
@@ -239,19 +240,19 @@ func (lightning *Lightning) formattedBalance() (*formattedLightningBalance, erro
 		return nil, err
 	}
 
-	btcCoin := lightning.btcCoin
+	ratesUpdater, btcCoin := lightning.runtimeDependencies()
 
 	formattedAvailableAmount := coin.FormattedAmountWithConversions{
 		Amount:                 btcCoin.FormatAmount(balance.Available(), false),
 		Unit:                   btcCoin.GetFormatUnit(false),
-		Conversions:            coin.Conversions(balance.Available(), btcCoin, false, lightning.ratesUpdater),
-		UnformattedConversions: coin.UnformattedConversions(balance.Available(), btcCoin, false, lightning.ratesUpdater),
+		Conversions:            coin.Conversions(balance.Available(), btcCoin, false, ratesUpdater),
+		UnformattedConversions: coin.UnformattedConversions(balance.Available(), btcCoin, false, ratesUpdater),
 	}
 	formattedIncomingAmount := coin.FormattedAmountWithConversions{
 		Amount:                 btcCoin.FormatAmount(balance.Incoming(), false),
 		Unit:                   btcCoin.GetFormatUnit(false),
-		Conversions:            coin.Conversions(balance.Incoming(), btcCoin, false, lightning.ratesUpdater),
-		UnformattedConversions: coin.UnformattedConversions(balance.Incoming(), btcCoin, false, lightning.ratesUpdater),
+		Conversions:            coin.Conversions(balance.Incoming(), btcCoin, false, ratesUpdater),
+		UnformattedConversions: coin.UnformattedConversions(balance.Incoming(), btcCoin, false, ratesUpdater),
 	}
 
 	return &formattedLightningBalance{
