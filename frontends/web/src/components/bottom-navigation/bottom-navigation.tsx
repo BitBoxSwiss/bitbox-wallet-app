@@ -92,7 +92,7 @@ export const BottomNavigation = ({
           to="/account-summary"
         >
           <PortfolioIconSVG />
-          <span ref={setLabelRef('portfolio')}>
+          <span className={styles.label} ref={setLabelRef('portfolio')}>
             {portfolioLabel}
           </span>
         </Link>
@@ -105,7 +105,7 @@ export const BottomNavigation = ({
             to={accountTabURL}
           >
             <AccountIconSVG />
-            <span ref={setLabelRef('accounts')}>
+            <span className={styles.label} ref={setLabelRef('accounts')}>
               {accountLabel}
             </span>
           </Link>
@@ -119,7 +119,7 @@ export const BottomNavigation = ({
             to="/lightning"
           >
             <LightningIconSVG />
-            <span ref={setLabelRef('lightning')}>
+            <span className={styles.label} ref={setLabelRef('lightning')}>
               {lightningLabel}
             </span>
           </Link>
@@ -134,7 +134,7 @@ export const BottomNavigation = ({
           >
             <MarketIconSVG />
             <span className={styles.marketplaceLabel}>
-              <span ref={setLabelRef('market')}>
+              <span className={styles.label} ref={setLabelRef('market')}>
                 {marketLabel}
               </span>
               <NewBadge
@@ -156,7 +156,7 @@ export const BottomNavigation = ({
         >
           <SettingsIcon alt="" height={24} width={24} />
           <span className={styles.settingsLabel}>
-            <span ref={setLabelRef('settings')}>
+            <span className={styles.label} ref={setLabelRef('settings')}>
               {settingsLabel}
             </span>
             {canUpgrade && (
