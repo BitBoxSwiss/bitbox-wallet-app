@@ -293,6 +293,7 @@ struct BitBoxAppApp: App {
 
     private func excludeBackendPathsFromBackup(in appSupportDirectory: URL) {
         excludeFromBackup(appSupportDirectory.appendingPathComponent("lightning.json"))
+        excludeFromBackup(appSupportDirectory.appendingPathComponent("lightning", isDirectory: true))
         excludeFromBackup(appSupportDirectory.appendingPathComponent("cache", isDirectory: true))
     }
 
