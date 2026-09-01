@@ -193,7 +193,8 @@ export const LightningActivate = () => {
           key="step-create"
           fullscreen
           textCenter
-          verticallyCentered>
+          verticallyCentered
+          withMobileSafetyMargin>
           <UseDisableBackButton />
           <ViewHeader title={t('lightning.activate.wait.title')}>
             <p>{t('lightning.activate.wait.confirm')}</p>

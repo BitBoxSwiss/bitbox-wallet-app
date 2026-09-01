@@ -75,6 +75,10 @@
     text-align: left;
 }
 @media (max-width: 768px) {
+    .fullscreen.withMobileSafetyMargin {
+        padding-left: calc(var(--space-quarter) + env(safe-area-inset-left, 0px));
+        padding-right: calc(var(--space-quarter) + env(safe-area-inset-right, 0px));
+    }
     .inner {
         flex-grow: 1;
         display: flex;

@@ -156,7 +156,7 @@ export const SignMessageConfirmView = ({ controller }: TProps) => {
   }
 
   return (
-    <View fullscreen>
+    <View fullscreen withMobileSafetyMargin>
       <UseDisableBackButton />
       <ViewHeader title={<div className={style.confirmViewTitle}>{t('signMessage.signMessage')}</div>} />
       <ViewContent>
