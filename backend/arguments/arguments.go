@@ -18,8 +18,11 @@ type Arguments struct {
 	// bitbox02DirectoryPath stores the location where bitbox02 application data is stored.
 	bitbox02DirectoryPath string
 
-	// cacheDirectoryPath stores the location where application data is stored.
+	// cacheDirectoryPath stores the location where disposable application caches are stored.
 	cacheDirectoryPath string
+
+	// lightningDirectoryPath stores persistent Lightning application data.
+	lightningDirectoryPath string
 
 	// notesDirectoryPath is the location where transaction notes (labels) are stored.
 	notesDirectoryPath string
@@ -79,6 +82,11 @@ func NewArguments(
 		panic("Cannot create the cache directory.")
 	}
 
+	lightningDirectoryPath := path.Join(mainDirectoryPath, "lightning")
+	if err := utilconfig.EnsurePrivateDir(lightningDirectoryPath); err != nil {
+		panic("Cannot create the lightning directory.")
+	}
+
 	notesDirectoryPath := path.Join(mainDirectoryPath, "notes")
 	if err := utilconfig.EnsurePrivateDir(notesDirectoryPath); err != nil {
 		panic("Cannot create the notes directory.")
@@ -102,6 +110,7 @@ func NewArguments(
 		bitbox02DirectoryPath: bitbox02DirectoryPath,
 
 		cacheDirectoryPath:      cacheDirectoryPath,
+		lightningDirectoryPath:  lightningDirectoryPath,
 		notesDirectoryPath:      notesDirectoryPath,
 		appConfigFilename:       appConfigFilename,
 		accountsConfigFilename:  accountsConfigFilename,
@@ -148,6 +157,12 @@ func (arguments *Arguments) BitBox02DirectoryPath() string {
 // The above constructor ensures that the directory with the returned path exists.
 func (arguments *Arguments) CacheDirectoryPath() string {
 	return arguments.cacheDirectoryPath
+}
+
+// LightningDirectoryPath returns the path where persistent Lightning application data is stored.
+// The above constructor ensures that the directory with the returned path exists.
+func (arguments *Arguments) LightningDirectoryPath() string {
+	return arguments.lightningDirectoryPath
 }
 
 // NotesDirectoryPath returns the path to the notes directory of the backend.

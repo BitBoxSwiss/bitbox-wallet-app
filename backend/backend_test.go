@@ -461,6 +461,9 @@ func TestClearCachePreservesUserData(t *testing.T) {
 	cacheFile := filepath.Join(b.arguments.CacheDirectoryPath(), "dummy-cache-file")
 	require.NoError(t, os.WriteFile(cacheFile, []byte("cache"), 0600))
 
+	lightningFile := filepath.Join(b.arguments.LightningDirectoryPath(), "dummy-breez-database")
+	require.NoError(t, os.WriteFile(lightningFile, []byte("lightning"), 0600))
+
 	noteFile := filepath.Join(b.arguments.NotesDirectoryPath(), "dummy-note-file")
 	require.NoError(t, os.WriteFile(noteFile, []byte("note"), 0600))
 
@@ -471,6 +474,7 @@ func TestClearCachePreservesUserData(t *testing.T) {
 
 	require.NoFileExists(t, cacheFile)
 	require.DirExists(t, filepath.Join(b.arguments.CacheDirectoryPath(), "exchangerates"))
+	require.FileExists(t, lightningFile)
 	require.FileExists(t, noteFile)
 	require.FileExists(t, b.arguments.AppConfigFilename())
 	require.FileExists(t, b.arguments.AccountsConfigFilename())

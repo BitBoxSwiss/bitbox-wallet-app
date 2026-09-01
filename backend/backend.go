@@ -373,7 +373,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 
 	backend.lightning = lightning.NewLightning(backend.config,
-		backend.arguments.CacheDirectoryPath(),
+		backend.arguments.LightningDirectoryPath(),
 		backend.environment,
 		backend.Keystore,
 		backend.GetAccountFromCode,

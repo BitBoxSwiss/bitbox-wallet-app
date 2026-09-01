@@ -69,12 +69,12 @@ type breezSDK interface {
 type Lightning struct {
 	observable.Implementation
 
-	backendConfig      *config.Config
-	cacheDirectoryPath string
-	environment        environment
-	getKeystore        func() keystore.Keystore
-	getAccount         func(types.Code) (accounts.Interface, error)
-	synced             bool
+	backendConfig          *config.Config
+	lightningDirectoryPath string
+	environment            environment
+	getKeystore            func() keystore.Keystore
+	getAccount             func(types.Code) (accounts.Interface, error)
+	synced                 bool
 
 	log          *logrus.Entry
 	sdkService   breezSDK
@@ -89,7 +89,7 @@ type Lightning struct {
 
 // NewLightning creates a new instance of the Lightning struct.
 func NewLightning(config *config.Config,
-	cacheDirectoryPath string,
+	lightningDirectoryPath string,
 	environment environment,
 	getKeystore func() keystore.Keystore,
 	getAccount func(types.Code) (accounts.Interface, error),
@@ -97,17 +97,17 @@ func NewLightning(config *config.Config,
 	ratesUpdater *rates.RateUpdater,
 	btcCoin coin.Coin) *Lightning {
 	return &Lightning{
-		backendConfig:      config,
-		cacheDirectoryPath: cacheDirectoryPath,
-		environment:        environment,
-		getKeystore:        getKeystore,
-		getAccount:         getAccount,
-		log:                logging.Get().WithGroup("lightning"),
-		synced:             false,
-		sparkStatus:        breez_sdk_spark.GetSparkStatus,
-		httpClient:         httpClient,
-		ratesUpdater:       ratesUpdater,
-		btcCoin:            btcCoin,
+		backendConfig:          config,
+		lightningDirectoryPath: lightningDirectoryPath,
+		environment:            environment,
+		getKeystore:            getKeystore,
+		getAccount:             getAccount,
+		log:                    logging.Get().WithGroup("lightning"),
+		synced:                 false,
+		sparkStatus:            breez_sdk_spark.GetSparkStatus,
+		httpClient:             httpClient,
+		ratesUpdater:           ratesUpdater,
+		btcCoin:                btcCoin,
 	}
 }
 
@@ -195,7 +195,7 @@ func (lightning *Lightning) Disconnect() {
 	}
 }
 
-// Deactivate changes the config to inactive, disconnects the instance and deletes the cache folder.
+// Deactivate changes the config to inactive, disconnects the instance and deletes its storage folder.
 func (lightning *Lightning) Deactivate() error {
 	account := lightning.Account()
 
@@ -208,7 +208,7 @@ func (lightning *Lightning) Deactivate() error {
 	}
 
 	lightning.Disconnect()
-	workingDir := path.Join(lightning.cacheDirectoryPath, accountBreezFolder(account.Code))
+	workingDir := path.Join(lightning.lightningDirectoryPath, accountBreezFolder(account.Code))
 	if err := os.RemoveAll(workingDir); err != nil {
 		lightning.log.WithError(err).Error("Error deleting working directory")
 	}
@@ -355,7 +355,7 @@ func (lightning *Lightning) connect() error {
 	if account != nil && lightning.sdkService == nil {
 		initializeLogging(lightning.log)
 
-		workingDir := path.Join(lightning.cacheDirectoryPath, accountBreezFolder(account.Code))
+		workingDir := path.Join(lightning.lightningDirectoryPath, accountBreezFolder(account.Code))
 
 		if err := os.MkdirAll(workingDir, 0700); err != nil {
 			lightning.log.WithError(err).Error("Error creating working directory")
