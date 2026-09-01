@@ -457,6 +457,9 @@ func TestDevicesRegisteredReturnsSnapshot(t *testing.T) {
 func TestClearCachePreservesUserData(t *testing.T) {
 	b := newBackend(t, false, false)
 	defer b.Close()
+	oldRatesUpdater := b.ratesUpdater
+	oldBTCCoin, err := b.Coin(coinpkg.CodeBTC)
+	require.NoError(t, err)
 
 	cacheFile := filepath.Join(b.arguments.CacheDirectoryPath(), "dummy-cache-file")
 	require.NoError(t, os.WriteFile(cacheFile, []byte("cache"), 0600))
@@ -471,7 +474,11 @@ func TestClearCachePreservesUserData(t *testing.T) {
 	require.FileExists(t, b.arguments.AccountsConfigFilename())
 
 	require.NoError(t, b.ClearCache())
+	newBTCCoin, err := b.Coin(coinpkg.CodeBTC)
+	require.NoError(t, err)
 
+	require.NotSame(t, oldRatesUpdater, b.ratesUpdater)
+	require.NotSame(t, oldBTCCoin, newBTCCoin)
 	require.NoFileExists(t, cacheFile)
 	require.DirExists(t, filepath.Join(b.arguments.CacheDirectoryPath(), "exchangerates"))
 	require.FileExists(t, lightningFile)

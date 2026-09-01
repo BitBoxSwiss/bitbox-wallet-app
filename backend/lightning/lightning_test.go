@@ -158,6 +158,19 @@ func TestReady(t *testing.T) {
 	require.False(t, lightning.Ready())
 }
 
+func TestSetRuntimeDependencies(t *testing.T) {
+	lightning := makeTestLightning()
+	replacement := makeTestLightning()
+	defer lightning.ratesUpdater.Stop()
+	defer replacement.ratesUpdater.Stop()
+
+	lightning.SetRuntimeDependencies(replacement.ratesUpdater, replacement.btcCoin)
+	ratesUpdater, btcCoin := lightning.runtimeDependencies()
+
+	require.Same(t, replacement.ratesUpdater, ratesUpdater)
+	require.Same(t, replacement.btcCoin, btcCoin)
+}
+
 func TestAddressDomain(t *testing.T) {
 	require.Equal(t, "bitbox.cash", newTestLightning(t, nil).AddressDomain())
 }

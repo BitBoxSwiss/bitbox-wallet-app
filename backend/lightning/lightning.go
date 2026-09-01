@@ -83,6 +83,8 @@ type Lightning struct {
 	ratesUpdater *rates.RateUpdater
 	btcCoin      coin.Coin
 
+	runtimeDependenciesLock sync.RWMutex
+
 	// Serializes lazy lightning address registration.
 	lightningAddressLock sync.Mutex
 }
@@ -109,6 +111,20 @@ func NewLightning(config *config.Config,
 		ratesUpdater:           ratesUpdater,
 		btcCoin:                btcCoin,
 	}
+}
+
+// SetRuntimeDependencies updates dependencies that are recreated when the backend cache is cleared.
+func (lightning *Lightning) SetRuntimeDependencies(ratesUpdater *rates.RateUpdater, btcCoin coin.Coin) {
+	lightning.runtimeDependenciesLock.Lock()
+	defer lightning.runtimeDependenciesLock.Unlock()
+	lightning.ratesUpdater = ratesUpdater
+	lightning.btcCoin = btcCoin
+}
+
+func (lightning *Lightning) runtimeDependencies() (*rates.RateUpdater, coin.Coin) {
+	lightning.runtimeDependenciesLock.RLock()
+	defer lightning.runtimeDependenciesLock.RUnlock()
+	return lightning.ratesUpdater, lightning.btcCoin
 }
 
 // Activate first creates a mnemonic from the keystore entropy, persists it, and connects to the

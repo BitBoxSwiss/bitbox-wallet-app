@@ -1189,6 +1189,13 @@ func (backend *Backend) ClearCache() error {
 
 	backend.ratesUpdater = backend.newRatesUpdater()
 	backend.initAccounts(true)
+	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
+	if err != nil {
+		backend.log.WithError(err).Error("could not recreate Bitcoin coin after clearing cache")
+		errors = append(errors, err.Error())
+	} else {
+		backend.lightning.SetRuntimeDependencies(backend.ratesUpdater, btcCoin)
+	}
 	if backend.started {
 		backend.ratesUpdater.StartCurrentRates()
 	}
