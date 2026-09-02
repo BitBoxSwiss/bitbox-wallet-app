@@ -1058,6 +1058,7 @@
     "retry": "Retry",
     "search": "Search…",
     "searchButton": "Search",
+    "selectAll": "Select all",
     "sell": "Sell {{coinCode}}",
     "sell_bitcoin": "Sell Bitcoin",
     "sell_crypto": "Sell crypto",
@@ -2286,9 +2287,7 @@
           "dateLabel": "Snapshot date",
           "description": "Choose the date and select which accounts to include in the balance snapshot.",
           "generate": "Generate PDF",
-          "noAccounts": "No active accounts available.",
-          "selectAll": "Select all",
-          "title": "Export statement of balance"
+          "noAccounts": "No active accounts available."
         },
         "title": "Export statement of balance"
       }

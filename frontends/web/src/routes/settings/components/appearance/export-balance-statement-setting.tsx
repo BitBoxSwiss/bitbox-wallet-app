@@ -94,7 +94,7 @@ export const ExportBalanceStatementSetting = ({ accounts }: TProps) => {
         medium
         open={open}
         onClose={() => setOpen(false)}
-        title={t('settings.balanceStatement.export.dialog.title')}>
+        title={t('settings.balanceStatement.export.title')}>
         <DialogScrollContent>
           <p className={styles.description}>
             {t('settings.balanceStatement.export.dialog.description')}
@@ -114,7 +114,7 @@ export const ExportBalanceStatementSetting = ({ accounts }: TProps) => {
             <Checkbox
               checked={allSelected}
               id="statement-select-all"
-              label={t('settings.balanceStatement.export.dialog.selectAll')}
+              label={t('generic.selectAll')}
               onChange={onToggleAll}
             />
           </div>
