@@ -36,7 +36,7 @@ import { TransactionHistorySkeleton } from '@/routes/account/transaction-history
 import { RatesContext } from '@/contexts/RatesContext';
 import { OfflineError } from '@/components/banners/offline-error';
 import style from './account.module.css';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 
 type Props = {
   accounts: accountApi.TAccount[];
@@ -68,7 +68,7 @@ const RemountAccount = ({
   code,
 }: Props) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const { btcUnit } = useContext(RatesContext);
 
   const [balance, setBalance] = useState<accountApi.TBalance>();

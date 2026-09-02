@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VersionInfo } from '@/api/bitbox02';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Column, ColumnButtons, Grid, ResponsiveGrid } from '@/components/layout';
 import { Button, Label } from '@/components/forms';
@@ -36,7 +36,7 @@ export const SetupOptions = ({
   versionInfo,
 }: Props) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const [advanced, setAdvanced] = useState(false);
   const [withMnemonic, setWithMnemonic] = useState(false);
   const [with12Words, setWith12Words] = useState(false);

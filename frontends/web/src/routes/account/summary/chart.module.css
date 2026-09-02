@@ -63,7 +63,8 @@
   margin: var(--space-quarter) 0 0 0;
 }
 
-@media (max-width: 768px){
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse){
   .chart {
     margin-bottom: var(--space-half);
   }
@@ -86,7 +87,8 @@
   display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
 
   .chartUnavailableMessage img {
     width: 20px;
@@ -103,7 +105,7 @@
     width: 100%;
     z-index: 99;
   }
-  
+
   .overlayRemove {
     width: 0;
   }

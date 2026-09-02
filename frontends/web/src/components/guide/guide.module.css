@@ -169,7 +169,8 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .guideWrapper {
         position: fixed;
         right: 0;
@@ -179,7 +180,7 @@
 
     .header,
     .content {
-        padding-left: var(--space-half);
-        padding-right: var(--space-half);
+        padding-left: calc(var(--space-half) + env(safe-area-inset-left, 0));
+        padding-right: calc(var(--space-half) + env(safe-area-inset-right, 0));
     }
 }

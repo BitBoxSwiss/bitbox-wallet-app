@@ -82,13 +82,16 @@
     margin-top: var(--space-default);
 }
 
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 601px),
+       (min-width: 769px) and (hover: hover),
+       (min-width: 769px) and (pointer: fine) {
     .backupButtons > *:not(:first-child) {
         margin-right: var(--space-half);
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .backupButtons {
         align-items: stretch;
         flex-direction: column;

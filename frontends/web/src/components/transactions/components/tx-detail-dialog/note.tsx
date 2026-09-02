@@ -3,7 +3,7 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { Input } from '@/components/forms';
 import detailsDialogStyles from './tx-detail-dialog.module.css';
 
@@ -16,7 +16,7 @@ type Props = {
 
 export const Note = ({ accountCode, note, internalID }: Props) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const [newNote, setNewNote] = useState<string>(note);
   const [savedNote, setSavedNote] = useState<string>(note);
 

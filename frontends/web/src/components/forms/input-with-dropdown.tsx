@@ -2,7 +2,7 @@
 
 import { forwardRef } from 'react';
 import type { TBaseInputProps } from './types';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { Dropdown, TGroupedOption, TOption } from '@/components/dropdown/dropdown';
 import { ChevronDownDark } from '@/components/icon';
 import styles from './input-with-dropdown.module.css';
@@ -38,7 +38,7 @@ export const InputWithDropdown = forwardRef<HTMLInputElement, TInputWithDropdown
   renderOptions,
   ...props
 }: TInputWithDropdownProps<any, any>, ref) => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   return (
     <div className={`
       ${styles.input || ''}

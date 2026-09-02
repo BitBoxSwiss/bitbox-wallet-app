@@ -43,7 +43,7 @@ import { Button, SearchInput } from '@/components/forms';
 import { LoupeBlue } from '@/components/icon';
 import { SubTitle } from '@/components/title';
 import { useDebounce } from '@/hooks/debounce';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { useScrollIntoView } from '@/hooks/scroll-into-view';
 import accountStyle from '@/routes/account/account.module.css';
 import style from './lightning.module.css';
@@ -190,7 +190,7 @@ const LightningInner = ({
   payments,
 }: TLightningInnerProps) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const [detailID, setDetailID] = useState<TLightningPayment['id'] | null>(null);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');

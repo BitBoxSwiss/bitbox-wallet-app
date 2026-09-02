@@ -240,14 +240,11 @@ struct WebView: UIViewRepresentable {
             webView.isInspectable = false
         }
         
+        webView.load(URLRequest(url: URL(string: scheme + ":/index.html")!))
         return webView
     }
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
-        guard uiView.url == nil else {
-            return
-        }
-        uiView.load(URLRequest(url: URL(string: scheme + ":/index.html")!))
     }
     
     func makeCoordinator() -> Coordinator {

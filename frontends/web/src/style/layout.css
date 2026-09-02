@@ -16,7 +16,8 @@
 .flex-grow { flex-grow: 1; }
 .flex-none { flex: none !important; }
 .flex > * { min-width: 0; }
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .flex-column-mobile { flex-direction: column; }
 }
 
@@ -60,7 +61,8 @@
     min-height: -webkit-fill-available;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .spaced > *:not(:last-child) {
         margin-right: var(--space-quarter);
     }
@@ -139,7 +141,8 @@ button, textarea {
     padding-top: var(--space-default);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .content {
         padding: 0 var(--space-half);
     }
@@ -182,7 +185,8 @@ button, textarea {
     background-color: var(--background-secondary);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .tabs .tab a {
         font-size: var(--size-smaller);
     }
@@ -363,7 +367,8 @@ button, textarea {
     display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .row:not(:first-child) {
         margin-top: var(--space-quarter);
     }

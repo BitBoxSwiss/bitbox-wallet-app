@@ -16,6 +16,7 @@ import { AppContext, TChartDisplay } from '@/contexts/AppContext';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
 import { triggerHapticFeedback } from '@/utils/transport-mobile';
 import { LinechartGray } from '@/components/icon';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import styles from './chart.module.css';
 
 type TProps = {
@@ -188,7 +189,7 @@ export const Chart = ({
   const [source, setSource] = useState<'daily' | 'hourly'>(chartDisplay === 'week' ? 'hourly' : 'daily');
   const [difference, setDifference] = useState<number>();
   const [diffSince, setDiffSince] = useState<string>();
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const isMobile = useMobileLayout();
   const [tooltipData, setTooltipData] = useState<{
     toolTipVisible: boolean;
     toolTipValue?: string;
@@ -276,8 +277,6 @@ export const Chart = ({
   }, [chart, chartDisplay]);
 
   const onResize = useCallback(() => {
-    const isMobile = window.innerWidth <= 768;
-    setIsMobile(isMobile);
     if (!chart.current || !ref.current) {
       return;
     }
@@ -298,9 +297,10 @@ export const Chart = ({
       },
     });
     updateRange(chart, chartDisplay);
-  }, [chartDisplay, hideAmounts]);
+  }, [chartDisplay, hideAmounts, isMobile]);
 
   useEffect(() => {
+    onResize();
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, [onResize]);

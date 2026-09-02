@@ -3,7 +3,7 @@
 import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/forms';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import style from './note-input.module.css';
 
 type TProps = {
@@ -12,7 +12,7 @@ type TProps = {
 };
 
 export const NoteInput = ({ onNoteChange, note }: TProps) => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const { t } = useTranslation();
   return (
     <Input
