@@ -996,6 +996,11 @@
       }
     }
   },
+  "externalLinkPrompt": {
+    "confirm": "Continua",
+    "message": "Stai per aprire l'URL {{url}} nel browser di sistema. Vuoi continuare?",
+    "title": "Apri link esterno"
+  },
   "fiat": {
     "default": "predefinito",
     "setDefault": "Imposta {{code}} come valuta predefinita",

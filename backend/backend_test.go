@@ -28,6 +28,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -311,7 +312,134 @@ func TestIsWhitelistedSystemOpenURL(t *testing.T) {
 	}
 }
 
-type environment struct{}
+func TestExternalLinkRequested(t *testing.T) {
+	backend := &Backend{log: logrus.New().WithField("test", t.Name())}
+	var events []observable.Event
+	backend.Observe(func(event observable.Event) {
+		events = append(events, event)
+	})
+
+	requestedURL := "https://example.com/not-whitelisted?id=first"
+	backend.ExternalLinkRequested(requestedURL)
+	require.Equal(t, []observable.Event{{
+		Subject: string(eventExternalLinkRequested),
+		Action:  action.Replace,
+		Object: externalLinkRequest{
+			URL: requestedURL,
+		},
+	}}, events)
+
+	backend.ExternalLinkRequested("http://example.com/not-allowed")
+	backend.ExternalLinkRequested("https://user@example.com/not-allowed")
+	backend.ExternalLinkRequested("https://example.com:444/not-allowed")
+	backend.ExternalLinkRequested("app-settings:")
+	require.Len(t, events, 1)
+}
+
+func TestIsSafeExternalLinkURL(t *testing.T) {
+	tests := []struct {
+		name    string
+		url     string
+		allowed bool
+	}{
+		{
+			name:    "allows arbitrary HTTPS host",
+			url:     "https://example.com/path?query=value#fragment",
+			allowed: true,
+		},
+		{
+			name:    "allows uppercase HTTPS scheme",
+			url:     "HTTPS://example.com/path",
+			allowed: true,
+		},
+		{
+			name:    "allows default HTTPS port",
+			url:     "https://example.com:443/path",
+			allowed: true,
+		},
+		{
+			name:    "blocks HTTP",
+			url:     "http://example.com/path",
+			allowed: false,
+		},
+		{
+			name:    "blocks custom scheme",
+			url:     "app-settings:",
+			allowed: false,
+		},
+		{
+			name:    "blocks missing host",
+			url:     "https:///path",
+			allowed: false,
+		},
+		{
+			name:    "blocks credentials",
+			url:     "https://user:password@example.com/path",
+			allowed: false,
+		},
+		{
+			name:    "blocks non-default port",
+			url:     "https://example.com:444/path",
+			allowed: false,
+		},
+		{
+			name:    "blocks invalid port",
+			url:     "https://example.com:invalid/path",
+			allowed: false,
+		},
+		{
+			name:    "blocks empty port",
+			url:     "https://example.com:/path",
+			allowed: false,
+		},
+		{
+			name:    "blocks malformed URL",
+			url:     "://example.com/path",
+			allowed: false,
+		},
+		{
+			name:    "blocks relative URL",
+			url:     "/path",
+			allowed: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.allowed, isSafeExternalLinkURL(tt.url))
+		})
+	}
+}
+
+func TestOpenExternalLink(t *testing.T) {
+	var openedURL string
+	backend := &Backend{
+		environment: environment{systemOpen: func(url string) error {
+			openedURL = url
+			return nil
+		}},
+		log: logrus.New().WithField("test", t.Name()),
+	}
+
+	requestedURL := "HTTPS://example.com:443/path?query=value#fragment"
+	require.NoError(t, backend.OpenExternalLink(requestedURL))
+	require.Equal(t, requestedURL, openedURL)
+
+	for _, invalidURL := range []string{
+		"http://example.com/path",
+		"https://user@example.com/path",
+		"https://example.com:444/path",
+		"https://example.com:/path",
+		"app-settings:",
+	} {
+		require.Error(t, backend.OpenExternalLink(invalidURL))
+		require.Equal(t, requestedURL, openedURL)
+	}
+}
+
+type environment struct {
+	systemOpen func(string) error
+}
 
 func (e environment) NotifyUser(msg string) {
 }
@@ -321,6 +449,9 @@ func (e environment) DeviceInfos() []usb.DeviceInfo {
 }
 
 func (e environment) SystemOpen(url string) error {
+	if e.systemOpen != nil {
+		return e.systemOpen(url)
+	}
 	return nil
 }
 

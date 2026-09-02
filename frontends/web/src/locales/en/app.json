@@ -1014,6 +1014,11 @@
       }
     }
   },
+  "externalLinkPrompt": {
+    "confirm": "Proceed",
+    "message": "You are about to open URL {{url}} in your system browser. Proceed?",
+    "title": "Open external link"
+  },
   "fiat": {
     "default": "default",
     "setDefault": "Set {{code}} as default",

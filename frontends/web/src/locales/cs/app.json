@@ -996,6 +996,11 @@
       }
     }
   },
+  "externalLinkPrompt": {
+    "confirm": "Pokračovat",
+    "message": "Chystáte se otevřít adresu URL {{url}} v systémovém prohlížeči. Pokračovat?",
+    "title": "Otevřít externí odkaz"
+  },
   "fiat": {
     "default": "výchozí",
     "setDefault": "Nastavit {{code}} jako výchozí",

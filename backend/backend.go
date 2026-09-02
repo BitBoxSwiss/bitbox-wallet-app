@@ -124,9 +124,15 @@ var fixedURLWhitelist = []string{
 type event string
 
 const (
+	// eventExternalLinkRequested is emitted when an embedded widget asks to open an external link.
+	eventExternalLinkRequested event = "external-link-requested"
 	// eventNewTxs is emitted when the user should be notified of new transactions.
 	eventNewTxs event = "new-txs"
 )
+
+type externalLinkRequest struct {
+	URL string `json:"url"`
+}
 
 type deviceEvent struct {
 	DeviceID string `json:"deviceID"`
@@ -1091,6 +1097,42 @@ func (backend *Backend) RegisterTestKeystore(pin string, edition software.Editio
 // NotifyUser creates a desktop notification.
 func (backend *Backend) NotifyUser(text string) {
 	backend.environment.NotifyUser(text)
+}
+
+// ExternalLinkRequested notifies the frontend that an embedded widget asked to open a URL.
+func (backend *Backend) ExternalLinkRequested(rawURL string) {
+	if !isSafeExternalLinkURL(rawURL) {
+		backend.log.WithField("url", rawURL).Warn("Blocked external link request")
+		return
+	}
+
+	backend.Notify(observable.Event{
+		Subject: string(eventExternalLinkRequested),
+		Action:  action.Replace,
+		Object: externalLinkRequest{
+			URL: rawURL,
+		},
+	})
+}
+
+func isSafeExternalLinkURL(rawURL string) bool {
+	parsedURL, err := url.Parse(rawURL)
+	if err != nil || !strings.EqualFold(parsedURL.Scheme, "https") ||
+		parsedURL.Hostname() == "" || parsedURL.User != nil ||
+		strings.HasSuffix(parsedURL.Host, ":") {
+		return false
+	}
+	port := parsedURL.Port()
+	return port == "" || port == "443"
+}
+
+// OpenExternalLink opens a URL that was confirmed in the external-link prompt.
+func (backend *Backend) OpenExternalLink(rawURL string) error {
+	backend.log.Infof("OpenExternalLink: attempting to open url: %v", rawURL)
+	if !isSafeExternalLinkURL(rawURL) {
+		return errp.Newf("Blocked external link with url: %s", rawURL)
+	}
+	return backend.environment.SystemOpen(rawURL)
 }
 
 func isWhitelistedSystemOpenURL(rawURL string) bool {
