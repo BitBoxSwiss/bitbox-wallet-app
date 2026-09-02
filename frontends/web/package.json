@@ -21,6 +21,7 @@
     "eslint-plugin-react-refresh": "^0.4.25",
     "eslint-plugin-testing-library": "^7.14.0",
     "jsdom": "^27.3.0",
+    "semver": "^7.7.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.50.0",
     "vite": "^7.2.6",
@@ -57,8 +58,10 @@
     ]
   },
   "scripts": {
+    "check-walletconnect-licenses": "node ./scripts/check-walletconnect-licenses.mjs",
     "dev": "npm run start",
     "start": "vite --cors",
+    "prebuild": "npm run check-walletconnect-licenses",
     "build": "npm run typescript && vite build",
     "lint": "npm run typescript && eslint ./src ./tests",
     "postlint": "node ./scripts/sort-json.mjs ./src/locales --check",
