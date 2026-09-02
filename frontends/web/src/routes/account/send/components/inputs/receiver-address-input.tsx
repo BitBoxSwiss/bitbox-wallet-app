@@ -6,7 +6,7 @@ import * as accountApi from '@/api/account';
 import { getReceiveAddressList } from '@/api/account';
 import { debug } from '@/utils/env';
 import { ReceiverAddressInputField } from './receiver-address-input-field';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { ScanQR } from './scan-qr';
 import { isBitcoinBased } from '@/routes/account/utils';
 import style from './receiver-address-input.module.css';
@@ -31,7 +31,7 @@ export const ReceiverAddressInput = ({
   parseQRResult
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const [activeScanQR, setActiveScanQR] = useState(false);
   const accountCode = account?.code;
 

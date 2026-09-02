@@ -6,7 +6,8 @@
     align-items: center;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .manageBackups {
         margin-top: 0;
         padding: 0 var(--space-quarter);

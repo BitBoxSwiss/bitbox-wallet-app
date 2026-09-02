@@ -4,7 +4,7 @@ import { SetStateAction, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@/components/forms';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { ScanQRButton } from '@/routes/account/send/components/inputs/receiver-address-input-field';
 import { ScanQR } from '@/routes/account/send/components/inputs/scan-qr';
 import styles from './connect-form.module.css';
@@ -23,7 +23,7 @@ export const WCConnectForm = ({
   connectLoading
 }: TWCConnectFormProps) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const [activeScanQR, setActiveScanQR] = useState(isMobile); // default to true on mobile
 
   const toggleScanQR = () => setActiveScanQR(prev => !prev);

@@ -3,11 +3,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useOnlyVisitableOnMobile } from './onlyvisitableonmobile';
-import * as mediaQueryHooks from '@/hooks/mediaquery';
+import * as mobileLayoutHooks from '@/hooks/mobile-layout';
 import * as reactRouterDom from 'react-router-dom';
 
-vi.mock('@/hooks/mediaquery', () => ({
-  useMediaQuery: vi.fn()
+vi.mock('@/hooks/mobile-layout', () => ({
+  useMobileLayout: vi.fn()
 }));
 
 vi.mock('react-router-dom', () => ({
@@ -15,7 +15,7 @@ vi.mock('react-router-dom', () => ({
 }));
 
 describe('useOnlyVisitableOnMobile', () => {
-  const useMediaQuerySpy = vi.spyOn(mediaQueryHooks, 'useMediaQuery');
+  const useMobileLayoutSpy = vi.spyOn(mobileLayoutHooks, 'useMobileLayout');
   const useNavigateSpy = vi.spyOn(reactRouterDom, 'useNavigate');
   const mockNavigate = vi.fn();
 
@@ -25,7 +25,7 @@ describe('useOnlyVisitableOnMobile', () => {
   });
 
   it('should not navigate when on mobile device', () => {
-    useMediaQuerySpy.mockReturnValue(true);
+    useMobileLayoutSpy.mockReturnValue(true);
 
     renderHook(() => useOnlyVisitableOnMobile('/dashboard'));
 
@@ -33,7 +33,7 @@ describe('useOnlyVisitableOnMobile', () => {
   });
 
   it('should navigate to redirect URL when not on mobile device', () => {
-    useMediaQuerySpy.mockReturnValue(false);
+    useMobileLayoutSpy.mockReturnValue(false);
 
     renderHook(() => useOnlyVisitableOnMobile('/dashboard'));
 

@@ -43,7 +43,8 @@
     gap: var(--space-quarter);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .button {
         min-height: var(--button-height);
     }
@@ -82,7 +83,8 @@
     word-break: normal;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .actionsContainer {
         container-type: inline-size;
         max-width: 100%;
@@ -160,7 +162,8 @@
     text-align: center;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .accountInfoLink {
         margin-right: 0;
         padding: 0 var(--space-quarter);
@@ -259,7 +262,8 @@
     transform: translateY(-10px);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
 
     .searchButton {
         font-size: var(--size-small);

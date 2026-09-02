@@ -43,7 +43,8 @@
   text-align: center;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
   .flipAccountsButton {
     min-width: 90px;
     margin-left: -45px;

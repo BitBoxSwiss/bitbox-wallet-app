@@ -33,7 +33,8 @@
     font-size: 1.6rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .headerContainer {
         margin-bottom: var(--space-half);
     }

@@ -13,7 +13,8 @@
     font-size: var(--size-subheader);
     margin-bottom: var(--space-quarter);
 }
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .successText {
         font-size: var(--size-default);
         margin-top: 0;
