@@ -3,9 +3,9 @@
 package backend
 
 import (
+	"cmp"
 	"math/big"
 	"slices"
-	"sort"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -315,7 +315,9 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			}
 			i++
 		}
-		sort.Slice(result, func(i, j int) bool { return result[i].Time < result[j].Time })
+		slices.SortFunc(result, func(a, b ChartEntry) int {
+			return cmp.Compare(a.Time, b.Time)
+		})
 
 		// Manually add the last point with the current total, to make the last point match.
 		// The last point might not match the account total otherwise because:
