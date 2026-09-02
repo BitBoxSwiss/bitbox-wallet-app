@@ -13,7 +13,7 @@ import { connectKeystore, getKeystoreFeatures } from '@/api/keystores';
 import { unsubscribe } from '@/utils/subscriptions';
 import { TUnsubscribe } from '@/utils/transport-common';
 import { useMountedRef } from '@/hooks/mount';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { ContactDark, ContactLight, Logo } from '@/components/icon';
@@ -87,7 +87,7 @@ export const ReceiverAddressWrapper = ({
   const { t } = useTranslation();
   const [showFirmwareUpgradeDialog, setShowFirmwareUpgradeDialog] = useState(false);
   const mounted = useMountedRef();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const [selectedAccount, setSelectedAccount] = useState<TOption<TAccount | null> | null>(null);
   const accountSelectionRequest = useRef(0);
   const [accountSyncStatus, setAccountSyncStatus] = useState<{ [code: string]: accountApi.TStatus }>({});

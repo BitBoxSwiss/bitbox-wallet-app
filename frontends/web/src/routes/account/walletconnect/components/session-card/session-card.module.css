@@ -71,13 +71,14 @@
     padding: calc(var(--space-eight) + var(--space-quarter)) calc(var(--space-default) + var(--space-default));
 }
 
-@media (max-width: 768px) { 
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .container {
         margin-top: var(--space-half);
         padding: calc(var(--space-quarter) * 2);
     }
 
-    .container p { 
+    .container p {
         font-size: var(--size-default);
     }
 

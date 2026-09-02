@@ -17,7 +17,9 @@
   vertical-align: text-bottom;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 601px),
+       (min-width: 769px) and (hover: hover),
+       (min-width: 769px) and (pointer: fine) {
   .cardHeight {
     min-height: 320px;
   }
