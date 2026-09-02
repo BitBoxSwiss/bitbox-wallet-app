@@ -174,7 +174,7 @@ func (backend *Backend) ExportBalanceStatement(
 	if path == "" {
 		return errp.ErrUserAbort
 	}
-	if err := os.WriteFile(path, pdfBytes, 0o644); err != nil {
+	if err := os.WriteFile(path, pdfBytes, 0o600); err != nil {
 		return errp.WithMessage(err, "failed to write the balance statement PDF")
 	}
 	// Open the generated PDF for immediate feedback to the user.
