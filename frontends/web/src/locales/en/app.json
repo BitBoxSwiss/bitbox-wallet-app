@@ -1365,7 +1365,7 @@
     },
     "lightning": {
       "multipleDevices": {
-        "text": "Yes, just plug your BitBox into a different device and activate Lightning on the BitBoxApp. The lighting wallet will be the same one as your previous device if you use the same BitBox.",
+        "text": "Yes, just plug your BitBox into a different device and activate Lightning in the BitBoxApp. The Lightning wallet will be the same one as your previous device if you use the same wallet.",
         "title": "Can I use my Lightning wallet on multiple devices?"
       },
       "multipleWallets": {
@@ -1373,7 +1373,7 @@
         "title": "Can I make multiple Lightning wallets?"
       },
       "privateKey": {
-        "text": "The BitBoxApp Lightning wallet is non-custodial, which means only you have access to the keys. The private keys are stored in the BitBoxApp. This makes your Lightning wallet a “Hot wallet”, since the Lightning keys are on your computer/phone instead of on your BitBox. Therefore, only store a small amount of coins on your Lighting wallet",
+        "text": "The BitBoxApp Lightning wallet is non-custodial, which means only you have access to the keys. The private keys are stored in the BitBoxApp. This makes your Lightning wallet a “Hot wallet”, since the Lightning keys are on your computer/phone instead of on your BitBox. Therefore, only store a small amount of coins on your Lightning wallet",
         "title": "Where are my Lightning private keys stored?"
       },
       "providers": {
