@@ -3,6 +3,7 @@
 package software
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
@@ -17,6 +18,8 @@ import (
 	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/ethereum/go-ethereum/accounts"
+	ethcommon "github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
@@ -126,6 +129,44 @@ func TestSignTransactionBTCOnlyRejectsLitecoin(t *testing.T) {
 	})
 
 	require.EqualError(t, err, "coin not supported: tltc")
+}
+
+func TestSignTransactionBTCOnlyRejectsEthereum(t *testing.T) {
+	keystore := NewKeystoreWithEdition(makeRootXprv(t), EditionBTCOnly)
+	err := keystore.SignTransaction(&eth.TxProposal{})
+	require.EqualError(t, err, "coin not supported: eth")
+}
+
+func TestSignTransactionETHUsesProposalChainID(t *testing.T) {
+	const proposalChainID = uint64(10)
+	keystore := makeKeystore(t)
+	keypath, err := signing.NewAbsoluteKeypath("m/44'/60'/0'/0/0")
+	require.NoError(t, err)
+	recipient := ethcommon.HexToAddress("0x1111111111111111111111111111111111111111")
+	proposal := &eth.TxProposal{
+		ChainID: proposalChainID,
+		Keypath: keypath,
+		Tx: ethtypes.NewTransaction(
+			0,
+			recipient,
+			big.NewInt(1),
+			21_000,
+			big.NewInt(2),
+			nil,
+		),
+	}
+
+	require.NoError(t, keystore.SignTransaction(proposal))
+	require.Equal(t, new(big.Int).SetUint64(proposalChainID), proposal.Tx.ChainId())
+
+	xprv, err := keypath.Derive(keystore.master)
+	require.NoError(t, err)
+	expectedPrivateKey, err := xprv.ECPrivKey()
+	require.NoError(t, err)
+	expectedSender := crypto.PubkeyToAddress(expectedPrivateKey.ToECDSA().PublicKey)
+	actualSender, err := ethtypes.Sender(proposal.Signer(), proposal.Tx)
+	require.NoError(t, err)
+	require.Equal(t, expectedSender, actualSender)
 }
 
 func TestSignETHMessage(t *testing.T) {

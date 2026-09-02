@@ -2169,8 +2169,7 @@
     "connect": {
       "button": "Conectar",
       "dappLabel": "Introduce la dirección URI de la Dapp",
-      "invalidPairingUri": "URI de emparejamiento no válido",
-      "missingNamespace": "La solicitud de conexión de la aplicación no definió el namespace necesario"
+      "invalidPairingUri": "URI de emparejamiento no válido"
     },
     "dashboard": {
       "allSessions": "Todas las sesiones",
@@ -2179,7 +2178,6 @@
       "noConnectedSessions": "Actualmente no hay cuentas conectadas a ninguna dapp.",
       "unspecifiedAccount": "Cuenta no especificada"
     },
-    "invalidPairingChain": "Error al aprobar el emparejamiento. Asegúrate de utilizar una de las cadenas admitidas: {{chains}}",
     "pairingRequest": {
       "approve": "Aprobar conexión",
       "reject": "Rechazar",

@@ -22,7 +22,6 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/btcsuite/btcd/psbt/v2"
 	"github.com/btcsuite/btcd/wire/v2"
-	ethCommon "github.com/ethereum/go-ethereum/common"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/require"
 )
@@ -75,15 +74,6 @@ func TestSigningFirmwareRequirements(t *testing.T) {
 		big.NewInt(1),
 		nil,
 	)
-	walletConnectTransaction := ethTypes.NewTransaction(
-		0,
-		ethCommon.Address{},
-		big.NewInt(0),
-		21_000,
-		big.NewInt(1),
-		nil,
-	)
-
 	tests := []struct {
 		name               string
 		feature            keystorePkg.Feature
@@ -141,20 +131,6 @@ func TestSigningFirmwareRequirements(t *testing.T) {
 			supportedVersion:   semver.NewSemVer(9, 12, 0),
 			sign: func(keystore *keystore) error {
 				_, err := keystore.SignETHTypedMessage(1, nil, nil)
-				return err
-			},
-		},
-		{
-			name:               "WalletConnect ETH transaction",
-			feature:            keystorePkg.FeatureETHTransactionSigning,
-			unsupportedVersion: semver.NewSemVer(9, 4, 0),
-			supportedVersion:   semver.NewSemVer(9, 5, 0),
-			sign: func(keystore *keystore) error {
-				_, err := keystore.SignETHWalletConnectTransaction(
-					1,
-					walletConnectTransaction,
-					nil,
-				)
 				return err
 			},
 		},

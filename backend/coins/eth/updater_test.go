@@ -5,7 +5,6 @@ package eth_test
 import (
 	"context"
 	"math/big"
-	"net/http"
 	"os"
 	"slices"
 	"testing"
@@ -16,6 +15,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	rpcclientmocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
@@ -108,7 +108,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 			DBFolder:    dbFolder,
 		},
 		coin,
-		&http.Client{},
+		func(uint64) rpcclient.Interface { return client },
 		log,
 		make(chan *eth.Account),
 	)

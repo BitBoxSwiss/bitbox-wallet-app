@@ -1901,8 +1901,7 @@
     "connect": {
       "button": "接続する",
       "dappLabel": "dappのURIアドレスを入力してください。",
-      "invalidPairingUri": "無効なペアリングURIです",
-      "missingNamespace": "接続アプリのリクエストに必要なネームスペースが定義されていません。"
+      "invalidPairingUri": "無効なペアリングURIです"
     },
     "dashboard": {
       "allSessions": "全セッション",
@@ -1911,7 +1910,6 @@
       "noConnectedSessions": "現在、どのアカウントもdappsに接続されていません。",
       "unspecifiedAccount": "未指定のアカウント"
     },
-    "invalidPairingChain": "ペアリングの承認にエラーが発生しました。サポートされているチェーンの一つを使用していることを確認してください：{{chains}}",
     "pairingRequest": {
       "approve": "接続を承認する",
       "reject": "拒否する",

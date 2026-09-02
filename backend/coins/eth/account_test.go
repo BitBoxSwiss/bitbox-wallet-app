@@ -4,9 +4,7 @@ package eth
 
 import (
 	"context"
-	"encoding/json"
 	"math/big"
-	"net/http"
 	"os"
 	"strings"
 	"testing"
@@ -15,6 +13,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	ethdb "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
@@ -31,6 +30,7 @@ import (
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,12 +43,34 @@ func TestMain(m *testing.M) {
 
 func newAccountWithOptions(t *testing.T, skipInitialSync bool, enqueueUpdateCh chan *Account) *Account {
 	t.Helper()
+	return newAccountWithChainClientProvider(
+		t,
+		skipInitialSync,
+		enqueueUpdateCh,
+		func(chainID uint64) rpcclient.Interface {
+			t.Fatalf("unexpected request for chain client %d", chainID)
+			return nil
+		},
+	)
+}
+
+func newAccountWithChainClientProvider(
+	t *testing.T,
+	skipInitialSync bool,
+	enqueueUpdateCh chan *Account,
+	chainClientProvider ChainClientProvider,
+) *Account {
+	t.Helper()
 	log := logging.Get().WithGroup("account_test")
 
 	net := &chaincfg.TestNet3Params
 
 	dbFolder := test.TstTempDir("eth-dbfolder")
-	defer func() { _ = os.RemoveAll(dbFolder) }()
+	notesFolder := test.TstTempDir("eth-notesfolder")
+	t.Cleanup(func() {
+		_ = os.RemoveAll(dbFolder)
+		_ = os.RemoveAll(notesFolder)
+	})
 
 	keypath, err := signing.NewAbsoluteKeypath("m/60'/1'/0'/0")
 	require.NoError(t, err)
@@ -85,6 +107,7 @@ func newAccountWithOptions(t *testing.T, skipInitialSync bool, enqueueUpdateCh c
 				SigningConfigurations: signingConfigurations,
 			},
 			DBFolder:        dbFolder,
+			NotesFolder:     notesFolder,
 			SkipInitialSync: skipInitialSync,
 			RateUpdater:     nil,
 			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
@@ -99,7 +122,7 @@ func newAccountWithOptions(t *testing.T, skipInitialSync bool, enqueueUpdateCh c
 			},
 		},
 		coin,
-		&http.Client{},
+		chainClientProvider,
 		log,
 		enqueueUpdateCh,
 	)
@@ -537,7 +560,7 @@ func TestSignMsgUsesAccountChainID(t *testing.T) {
 	require.Equal(t, "0xdeadbeef", signature)
 }
 
-func TestSignTypedMsgForwardsRequestChainAndRawData(t *testing.T) {
+func TestSignTypedMsgForwardsSupportedRequestChainAndRawData(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
 
@@ -558,99 +581,116 @@ func TestSignTypedMsgForwardsRequestChainAndRawData(t *testing.T) {
 	require.Equal(t, firmwareErr, err)
 }
 
-func TestSignTypedMsgRejectsZeroRequestChain(t *testing.T) {
-	acct := newAccount(t)
-	defer acct.Close()
-
-	connected := false
-	acct.Config().ConnectKeystore = func() (keystore.Keystore, error) {
-		connected = true
-		return nil, nil
-	}
-
-	_, err := acct.SignTypedMsg(0, `{}`)
-	require.EqualError(t, err, "WalletConnect chain ID must not be zero")
-	require.False(t, connected)
-}
-
-func validWalletConnectTx(account *Account) WalletConnectArgs {
-	return WalletConnectArgs{
-		From:  strings.ToLower(account.address.Address.Hex()),
-		To:    "0xa29163852021BF4C139D03Dff59ae763AC73e84e",
-		Data:  "0x",
-		Value: "0x0",
-		Nonce: "0x0",
-	}
-}
-
-func TestEthSignWalletConnectTxRejectsMismatchedChainID(t *testing.T) {
-	acct := newAccount(t)
-	defer acct.Close()
-
-	tx := validWalletConnectTx(acct)
-	tx.ChainId = json.RawMessage(`"0xa"`)
-	_, _, err := acct.EthSignWalletConnectTx(false, acct.ETHCoin().ChainID(), tx)
-	require.EqualError(t, err, "transaction chain ID does not match the WalletConnect request chain")
-}
-
-func TestEthSignWalletConnectTxAcceptsOptionalFields(t *testing.T) {
-	for _, test := range []struct {
-		name    string
-		chainID json.RawMessage
-		input   json.RawMessage
-	}{
-		{name: "omitted"},
-		{name: "matching chain ID", chainID: json.RawMessage(`"0xaa36a7"`)},
-		{name: "null input", input: json.RawMessage(`null`)},
-	} {
-		t.Run(test.name, func(t *testing.T) {
+func TestSignTypedMsgRejectsUnsupportedRequestChainBeforeConnectingKeystore(t *testing.T) {
+	for _, chainID := range []uint64{0, 2} {
+		t.Run(new(big.Int).SetUint64(chainID).String(), func(t *testing.T) {
 			acct := newAccount(t)
 			defer acct.Close()
 
-			signingErr := errp.New("reached transaction signer")
+			connected := false
 			acct.Config().ConnectKeystore = func() (keystore.Keystore, error) {
-				return &keystoremock.KeystoreMock{
-					SignETHWalletConnectTransactionFunc: func(
-						chainID uint64,
-						tx *gethtypes.Transaction,
-						keypath signing.AbsoluteKeypath,
-					) ([]byte, error) {
-						require.Equal(t, acct.ETHCoin().ChainID(), chainID)
-						return nil, signingErr
-					},
-				}, nil
+				connected = true
+				return nil, nil
 			}
 
-			tx := validWalletConnectTx(acct)
-			tx.ChainId = test.chainID
-			tx.Input = test.input
-			_, _, err := acct.EthSignWalletConnectTx(false, acct.ETHCoin().ChainID(), tx)
-			require.Equal(t, signingErr, err)
+			_, err := acct.SignTypedMsg(chainID, "{}")
+			require.EqualError(t, err, "unsupported EVM network")
+			require.False(t, connected)
 		})
 	}
 }
 
-func TestEthSignWalletConnectTxRejectsInvalidChainID(t *testing.T) {
-	acct := newAccount(t)
-	defer acct.Close()
-
-	tx := validWalletConnectTx(acct)
-	tx.ChainId = json.RawMessage(`null`)
-	_, _, err := acct.EthSignWalletConnectTx(false, acct.ETHCoin().ChainID(), tx)
-	require.Error(t, err)
+func validTransactionRequest(account *Account) TransactionRequest {
+	nonce := uint64(0)
+	return TransactionRequest{
+		From:             account.address.Address,
+		Recipient:        common.HexToAddress("0xa29163852021BF4C139D03Dff59ae763AC73e84e"),
+		RecipientAddress: "0xa29163852021BF4C139D03Dff59ae763AC73e84e",
+		Data:             []byte{},
+		Value:            big.NewInt(0),
+		Nonce:            &nonce,
+	}
 }
 
-func TestEthSignWalletConnectTxRejectsInputAlias(t *testing.T) {
-	acct := newAccount(t)
-	defer acct.Close()
-
-	tx := validWalletConnectTx(acct)
-	tx.Input = json.RawMessage(`"0x1234"`)
-	_, _, err := acct.EthSignWalletConnectTx(false, acct.ETHCoin().ChainID(), tx)
-	require.EqualError(t, err, "transaction input field is unsupported; use data")
+func signTransaction(
+	account *Account,
+	chainID uint64,
+	broadcast bool,
+	transaction TransactionRequest,
+) (*gethtypes.Transaction, error) {
+	return account.SignTransaction(SignTransactionArgs{
+		ChainID:     chainID,
+		Broadcast:   broadcast,
+		Transaction: transaction,
+	})
 }
 
-func TestEthSignWalletConnectTxRejectsMismatchedSender(t *testing.T) {
+func setTransactionSigningKeystore(t *testing.T, account *Account, expectedChainID uint64) {
+	t.Helper()
+	privateKey, err := crypto.HexToECDSA(strings.Repeat("1", 64))
+	require.NoError(t, err)
+
+	account.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+		return &keystoremock.KeystoreMock{
+			SignTransactionFunc: func(value interface{}) error {
+				proposal, ok := value.(*TxProposal)
+				require.True(t, ok)
+				require.Equal(t, expectedChainID, proposal.ChainID)
+				require.Equal(t, new(big.Int).SetUint64(expectedChainID), proposal.Signer().ChainID())
+
+				signedTx, err := gethtypes.SignTx(proposal.Tx, proposal.Signer(), privateKey)
+				require.NoError(t, err)
+				proposal.Tx = signedTx
+				return nil
+			},
+		}, nil
+	}
+}
+
+func newTransactionRPCClient(
+	nonce uint64,
+	gasLimit uint64,
+	gasPrice *big.Int,
+	sendErr error,
+) *mocks.InterfaceMock {
+	return &mocks.InterfaceMock{
+		PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
+			return nonce, nil
+		},
+		EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
+			return gasLimit, nil
+		},
+		FeeTargetsFunc: func(ctx context.Context) ([]*ethtypes.FeeTarget, error) {
+			return []*ethtypes.FeeTarget{{
+				TargetCode: accounts.FeeTargetCodeNormal,
+				GasFeeCap:  new(big.Int).Set(gasPrice),
+				GasTipCap:  new(big.Int).Set(gasPrice),
+			}}, nil
+		},
+		SuggestGasPriceFunc: func(ctx context.Context) (*big.Int, error) {
+			return new(big.Int).Set(gasPrice), nil
+		},
+		SendTransactionFunc: func(ctx context.Context, tx *gethtypes.Transaction) error {
+			return sendErr
+		},
+	}
+}
+
+type beginFailingDB struct {
+	err        error
+	beginCalls int
+}
+
+func (db *beginFailingDB) Begin() (ethdb.TxInterface, error) {
+	db.beginCalls++
+	return nil, db.err
+}
+
+func (db *beginFailingDB) Close() error {
+	return nil
+}
+
+func TestSignTransactionRejectsMismatchedSenderBeforeSideEffects(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
 
@@ -667,10 +707,260 @@ func TestEthSignWalletConnectTxRejectsMismatchedSender(t *testing.T) {
 		return nil, nil
 	}
 
-	tx := validWalletConnectTx(acct)
-	tx.From = "0x1111111111111111111111111111111111111111"
-	_, _, err := acct.EthSignWalletConnectTx(false, acct.ETHCoin().ChainID(), tx)
+	transaction := validTransactionRequest(acct)
+	transaction.From = common.HexToAddress("0x1111111111111111111111111111111111111111")
+	_, err := signTransaction(acct, acct.ETHCoin().ChainID(), false, transaction)
 	require.EqualError(t, err, "transaction from address does not match account")
 	require.False(t, rpcCalled)
 	require.False(t, connected)
+}
+
+func TestSignTransactionRejectsUnsupportedChainBeforeSideEffects(t *testing.T) {
+	const unsupportedChainID = uint64(2)
+	providerCalled := false
+	acct := newAccountWithChainClientProvider(
+		t,
+		true,
+		make(chan *Account, 1),
+		func(chainID uint64) rpcclient.Interface {
+			providerCalled = true
+			return nil
+		},
+	)
+	defer acct.Close()
+
+	acct.ETHCoin().TstSetClient(&mocks.InterfaceMock{})
+	connected := false
+	acct.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+		connected = true
+		return nil, nil
+	}
+
+	_, err := signTransaction(acct, unsupportedChainID, false, validTransactionRequest(acct))
+	require.EqualError(t, err, "unsupported EVM network")
+	require.False(t, providerCalled)
+	require.False(t, connected)
+}
+
+func TestSignTransactionRejectsUnavailableFeesBeforeConnectingKeystore(t *testing.T) {
+	acct := newAccountWithOptions(t, true, make(chan *Account, 1))
+	defer acct.Close()
+
+	acct.ETHCoin().TstSetClient(&mocks.InterfaceMock{
+		EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
+			return 21000, nil
+		},
+		SuggestGasPriceFunc: func(ctx context.Context) (*big.Int, error) {
+			return nil, errp.New("fees unavailable")
+		},
+	})
+	connected := false
+	acct.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+		connected = true
+		return nil, nil
+	}
+
+	_, err := signTransaction(acct, acct.ETHCoin().ChainID(), false, validTransactionRequest(acct))
+	require.Equal(t, errors.ErrFeesNotAvailable, errp.Cause(err))
+	require.False(t, connected)
+}
+
+func TestSignTransactionUsesOnlyTargetChainClient(t *testing.T) {
+	const (
+		targetChainID = uint64(10)
+		targetNonce   = uint64(7)
+		gasLimit      = uint64(42000)
+	)
+	gasPrice := big.NewInt(4)
+	targetClient := newTransactionRPCClient(targetNonce, gasLimit, gasPrice, nil)
+	providerCalls := 0
+	acct := newAccountWithChainClientProvider(
+		t,
+		true,
+		make(chan *Account, 1),
+		func(chainID uint64) rpcclient.Interface {
+			providerCalls++
+			require.Equal(t, targetChainID, chainID)
+			return targetClient
+		},
+	)
+	defer acct.Close()
+
+	acct.ETHCoin().TstSetClient(&mocks.InterfaceMock{})
+	setTransactionSigningKeystore(t, acct, targetChainID)
+
+	transaction := validTransactionRequest(acct)
+	transaction.Nonce = nil
+	signedTx, err := signTransaction(acct, targetChainID, true, transaction)
+	require.NoError(t, err)
+	require.Equal(t, targetNonce, signedTx.Nonce())
+	require.Equal(t, gasLimit, signedTx.Gas())
+	require.Equal(t, gasPrice, signedTx.GasPrice())
+	require.Equal(t, new(big.Int).SetUint64(targetChainID), signedTx.ChainId())
+	require.Equal(t, 1, providerCalls)
+	require.Len(t, targetClient.PendingNonceAtCalls(), 1)
+	require.Len(t, targetClient.EstimateGasCalls(), 1)
+	require.Len(t, targetClient.FeeTargetsCalls(), 1)
+	require.Empty(t, targetClient.SuggestGasPriceCalls())
+	require.Len(t, targetClient.SendTransactionCalls(), 1)
+	require.Same(t, signedTx, targetClient.SendTransactionCalls()[0].Tx)
+	require.Empty(t, outgoingTxs(t, acct))
+}
+
+func TestSignTransactionCrossChainNonceIgnoresNativePendingTransactions(t *testing.T) {
+	const (
+		targetChainID = uint64(10)
+		targetNonce   = uint64(4)
+	)
+	targetClient := newTransactionRPCClient(targetNonce, 21000, big.NewInt(2), nil)
+	acct := newAccountWithChainClientProvider(
+		t,
+		true,
+		make(chan *Account, 1),
+		func(chainID uint64) rpcclient.Interface {
+			require.Equal(t, targetChainID, chainID)
+			return targetClient
+		},
+	)
+	defer acct.Close()
+
+	nativePendingTx := gethtypes.NewTx(&gethtypes.LegacyTx{
+		Nonce:    99,
+		GasPrice: big.NewInt(1),
+		Gas:      21000,
+	})
+	putOutgoingTx(t, acct, &ethtypes.TransactionWithMetadata{Transaction: nativePendingTx})
+	acct.ETHCoin().TstSetClient(&mocks.InterfaceMock{})
+	setTransactionSigningKeystore(t, acct, targetChainID)
+
+	transaction := validTransactionRequest(acct)
+	transaction.Nonce = nil
+	signedTx, err := signTransaction(acct, targetChainID, false, transaction)
+	require.NoError(t, err)
+	require.Equal(t, targetNonce, signedTx.Nonce())
+	require.Len(t, targetClient.PendingNonceAtCalls(), 1)
+}
+
+func TestNextNonceForNativeChainUsesHigherPendingNonce(t *testing.T) {
+	acct := newAccountWithOptions(t, true, make(chan *Account, 1))
+	defer acct.Close()
+
+	nativePendingTx := gethtypes.NewTx(&gethtypes.LegacyTx{
+		Nonce:    9,
+		GasPrice: big.NewInt(1),
+		Gas:      21000,
+	})
+	putOutgoingTx(t, acct, &ethtypes.TransactionWithMetadata{Transaction: nativePendingTx})
+	nativeClient := newTransactionRPCClient(4, 21000, big.NewInt(2), nil)
+	acct.ETHCoin().TstSetClient(nativeClient)
+
+	nonce, err := acct.nextNonceForChain(acct.ETHCoin().ChainID(), nativeClient)
+	require.NoError(t, err)
+	require.Equal(t, uint64(10), nonce)
+	require.Len(t, nativeClient.PendingNonceAtCalls(), 1)
+}
+
+func TestSignTransactionStoresSuccessfulSameChainBroadcast(t *testing.T) {
+	enqueueUpdateCh := make(chan *Account, 1)
+	acct := newAccountWithOptions(t, true, enqueueUpdateCh)
+	defer acct.Close()
+
+	nativeClient := newTransactionRPCClient(0, 21000, big.NewInt(3), nil)
+	acct.ETHCoin().TstSetClient(nativeClient)
+	setTransactionSigningKeystore(t, acct, acct.ETHCoin().ChainID())
+
+	transaction := validTransactionRequest(acct)
+	nonce := uint64(5)
+	transaction.Nonce = &nonce
+	signedTx, err := signTransaction(acct, acct.ETHCoin().ChainID(), true, transaction)
+	require.NoError(t, err)
+	require.Len(t, nativeClient.SendTransactionCalls(), 1)
+	require.Empty(t, nativeClient.PendingNonceAtCalls())
+	require.Same(t, signedTx, nativeClient.SendTransactionCalls()[0].Tx)
+
+	pendingTransactions := outgoingTxs(t, acct)
+	require.Len(t, pendingTransactions, 1)
+	require.Equal(t, signedTx.Hash(), pendingTransactions[0].Transaction.Hash())
+	require.Equal(t, uint16(1), pendingTransactions[0].BroadcastAttempts)
+	require.Same(t, acct, <-enqueueUpdateCh)
+}
+
+func TestSignTransactionDoesNotStoreFailedBroadcast(t *testing.T) {
+	broadcastErr := errp.New("broadcast failed")
+	enqueueUpdateCh := make(chan *Account, 1)
+	acct := newAccountWithOptions(t, true, enqueueUpdateCh)
+	defer acct.Close()
+
+	nativeClient := newTransactionRPCClient(0, 21000, big.NewInt(3), broadcastErr)
+	acct.ETHCoin().TstSetClient(nativeClient)
+	setTransactionSigningKeystore(t, acct, acct.ETHCoin().ChainID())
+
+	_, err := signTransaction(acct, acct.ETHCoin().ChainID(), true, validTransactionRequest(acct))
+	require.Equal(t, broadcastErr, errp.Cause(err))
+	require.Empty(t, outgoingTxs(t, acct))
+	select {
+	case <-enqueueUpdateCh:
+		t.Fatal("broadcast failure enqueued an account update")
+	default:
+	}
+}
+
+func TestSignTransactionSucceedsWhenPendingStorageFailsAfterBroadcast(t *testing.T) {
+	storageErr := errp.New("pending storage failed")
+	enqueueUpdateCh := make(chan *Account, 1)
+	acct := newAccountWithOptions(t, true, enqueueUpdateCh)
+	originalDB := acct.db
+	defer func() {
+		acct.db = originalDB
+		acct.Close()
+	}()
+
+	nativeClient := newTransactionRPCClient(0, 21000, big.NewInt(3), nil)
+	acct.ETHCoin().TstSetClient(nativeClient)
+	setTransactionSigningKeystore(t, acct, acct.ETHCoin().ChainID())
+	failingDB := &beginFailingDB{err: storageErr}
+	acct.db = failingDB
+
+	signedTx, err := signTransaction(acct, acct.ETHCoin().ChainID(), true, validTransactionRequest(acct))
+	require.NoError(t, err)
+	require.NotNil(t, signedTx)
+	require.Len(t, nativeClient.SendTransactionCalls(), 1)
+	require.Equal(t, 1, failingDB.beginCalls)
+	require.Same(t, acct, <-enqueueUpdateCh)
+}
+
+func TestSendTxSucceedsWhenPendingStorageFailsAfterBroadcast(t *testing.T) {
+	storageErr := errp.New("pending storage failed")
+	enqueueUpdateCh := make(chan *Account, 1)
+	acct := newAccountWithOptions(t, true, enqueueUpdateCh)
+	originalDB := acct.db
+	defer func() {
+		acct.db = originalDB
+		acct.Close()
+	}()
+
+	nativeClient := newTransactionRPCClient(0, 21000, big.NewInt(3), nil)
+	acct.ETHCoin().TstSetClient(nativeClient)
+	setTransactionSigningKeystore(t, acct, acct.ETHCoin().ChainID())
+	to := common.HexToAddress("0xa29163852021BF4C139D03Dff59ae763AC73e84e")
+	acct.activeTxProposal = &TxProposal{
+		ChainID: acct.ETHCoin().ChainID(),
+		Tx: gethtypes.NewTx(&gethtypes.LegacyTx{
+			Nonce:    0,
+			GasPrice: big.NewInt(3),
+			Gas:      21000,
+			To:       &to,
+			Value:    big.NewInt(1),
+		}),
+		Keypath: acct.signingConfiguration.AbsoluteKeypath(),
+	}
+	failingDB := &beginFailingDB{err: storageErr}
+	acct.db = failingDB
+
+	txID, err := acct.SendTx("")
+	require.NoError(t, err)
+	require.Equal(t, acct.activeTxProposal.Tx.Hash().String(), txID)
+	require.Len(t, nativeClient.SendTransactionCalls(), 1)
+	require.Equal(t, 1, failingDB.beginCalls)
+	require.Same(t, acct, <-enqueueUpdateCh)
 }

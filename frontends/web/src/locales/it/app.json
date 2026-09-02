@@ -2169,8 +2169,7 @@
     "connect": {
       "button": "Conneti",
       "dappLabel": "Inserire indirizzo URI della DApp",
-      "invalidPairingUri": "URI di connessione non valido",
-      "missingNamespace": "La richiesta di connessione dell’app non ha definito il namespace necessario"
+      "invalidPairingUri": "URI di connessione non valido"
     },
     "dashboard": {
       "allSessions": "Tutte le sessioni",
@@ -2179,7 +2178,6 @@
       "noConnectedSessions": "Nessun account è connesso a DApp al momento.",
       "unspecifiedAccount": "Account non specificato"
     },
-    "invalidPairingChain": "Errore nell'approvazione della connessione. Assicurati di utilizare una delle chain supportate: {{chains}}",
     "pairingRequest": {
       "approve": "Approva Connessione",
       "reject": "Rifiuta",

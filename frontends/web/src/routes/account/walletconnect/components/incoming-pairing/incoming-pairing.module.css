@@ -4,6 +4,39 @@
     justify-content: space-between;
 }
 
+.chain {
+    align-items: center;
+    display: flex;
+    gap: var(--space-quarter);
+}
+
+.chain img,
+.chain svg {
+    height: 20px;
+    width: 20px;
+}
+
+.chainsContainer {
+    margin-top: 24px;
+}
+
+.chainsLabel {
+    color: var(--color-secondary);
+}
+
+.chainsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-quarter);
+    list-style: none;
+    margin: var(--space-quarter) 0 0;
+    padding: 0;
+}
+
+.closeButtonContainer {
+    justify-content: flex-end;
+}
+
 .container {
     display: flex;
     flex-direction: column;
@@ -15,6 +48,10 @@
 
 .container p.receiveAddress {
     color: var(--color-secondary);
+    margin-top: 24px;
+}
+
+.message {
     margin-top: 24px;
 }
 
