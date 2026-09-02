@@ -7,7 +7,7 @@
 }
 
 input.inputFieldWithoutPaste,
-.inputFieldWithoutPaste input {
+.inputFieldWithIcon.inputFieldWithoutPaste {
   padding-left: 56px;
 }
 
