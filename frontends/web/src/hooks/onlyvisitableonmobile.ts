@@ -2,11 +2,11 @@
 
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 
 export const useOnlyVisitableOnMobile = (redirectUrl: string) => {
   const [, navigate] = useLocation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   useEffect(() => {
     if (!isMobile) {
       navigate(redirectUrl, { replace: true });

@@ -30,7 +30,9 @@
   --scan-qr-content-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-default));
 }
 
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 601px),
+       (min-width: 769px) and (hover: hover),
+       (min-width: 769px) and (pointer: fine) {
   .backdrop:not(.fullscreen) {
     background-color: var(--scan-qr-backdrop-background);
   }

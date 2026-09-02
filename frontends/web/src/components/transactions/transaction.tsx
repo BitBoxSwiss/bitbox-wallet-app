@@ -2,7 +2,7 @@
 
 import { Trans, useTranslation } from 'react-i18next';
 import type { TAmountWithConversions, TTransactionStatus, TTransactionType, TTransaction } from '@/api/account';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { Loupe } from '@/components/icon/icon';
 import { parseTimeLong, parseTimeShort } from '@/utils/date';
 import { ProgressRing } from '@/components/progressRing/progressRing';
@@ -35,7 +35,7 @@ export const Transaction = ({
   time,
   type,
 }: TTransactionProps) => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   return (
     <section className={styles.tx}
@@ -259,7 +259,7 @@ const Addresses = ({
   type,
 }: TAddresses) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   if (type === 'send_to_self') {
     if (isMobile) {

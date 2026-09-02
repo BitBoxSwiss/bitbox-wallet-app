@@ -109,10 +109,10 @@
 
     /* bottom navigation */
     --bottom-navigation-bottom-glass-height: 120px;
-    --bottom-navigation-bottom-offset: calc(var(--space-half) + var(--space-three-quarter));
+    --bottom-navigation-bottom-offset: calc(var(--space-half) + var(--space-three-quarter) + env(safe-area-inset-bottom, 0));
     --bottom-navigation-bar-height: min(7rem, 90px);
     --bottom-navigation-height: calc(var(--bottom-navigation-bar-height) + var(--bottom-navigation-bottom-offset));
-    --bottom-navigation-scroll-space: calc(var(--bottom-navigation-bar-height) + var(--space-default));
+    --bottom-navigation-scroll-space: calc(var(--bottom-navigation-bar-height) + var(--space-default) + env(safe-area-inset-bottom, 0));
 
     /* form elements */
     --border-width: 0.1rem;
@@ -241,7 +241,8 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     :root {
         --size-header: min(2rem, 36px);
         --size-title: min(1.6rem, 36px);

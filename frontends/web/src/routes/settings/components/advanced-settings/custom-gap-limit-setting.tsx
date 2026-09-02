@@ -7,7 +7,7 @@ import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button, Input } from '@/components/forms';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { Message } from '@/components/message/message';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 
 const DEFAULT_GAP_LIMIT_RECEIVE = 20;
 const DEFAULT_GAP_LIMIT_CHANGE = 6;
@@ -17,7 +17,7 @@ export const CustomGapLimitSettings = () => {
   const { t } = useTranslation();
   const { config, setConfig } = useConfig();
   const [showDialog, setShowDialog] = useState(false);
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   const [showRestartMessage, setShowRestartMessage] = useState(false);
   const [gapLimitReceive, setGapLimitReceive] = useState<number | string>(DEFAULT_GAP_LIMIT_RECEIVE);

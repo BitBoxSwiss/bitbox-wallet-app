@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { useLoad } from '@/hooks/api';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { getNativeLocale } from '@/api/nativelocale';
 import { defaultLanguages, TLanguage } from '@/components/language/types';
 import { Dropdown } from '@/components/dropdown/dropdown';
@@ -22,7 +22,7 @@ export const LanguageDropdownSetting = () => {
   const formattedLanguages = defaultLanguages.map(lang => ({ label: lang.display, value: lang.code }));
   const { isDarkMode } = useDarkmode();
   const globe = isDarkMode ? <GlobeLight /> : <GlobeDark />;
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   return (
     <SettingsItem
       onClick={isMobile && !isMobileSelectorOpen ? () => setIsMobileSelectorOpen(true) : undefined}

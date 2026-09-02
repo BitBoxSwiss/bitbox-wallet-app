@@ -71,7 +71,8 @@
     margin-bottom: var(--space-eight);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .buttonsContainer {
         flex-direction: column-reverse;
     }
@@ -83,7 +84,7 @@
     .buttonsContainer button {
         height: calc(var(--space-quarter) + var(--space-default))
     }
-    
+
     .container p.connectionRequest {
         text-align: center;
      }
