@@ -68,6 +68,7 @@ func TestNotifyBalanceReloadLogsReadyFailure(t *testing.T) {
 			return breez_sdk_spark.GetInfoResponse{}, errors.New("get info failed")
 		},
 	}
+	lightning.setSDKStatus(SDKStatusReady)
 
 	var logOutput bytes.Buffer
 	logger := logrus.New()

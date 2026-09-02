@@ -37,6 +37,17 @@ const (
 	lnurlDomain               = "bitbox.cash"
 )
 
+// SDKStatus describes the state of the one SDK initialization attempt.
+type SDKStatus string
+
+// SDKStatus values describe the Lightning SDK initialization lifecycle.
+const (
+	SDKStatusInactive     SDKStatus = "inactive"
+	SDKStatusInitializing SDKStatus = "initializing"
+	SDKStatusReady        SDKStatus = "ready"
+	SDKStatusFailed       SDKStatus = "failed"
+)
+
 // Keep this local to avoid importing backend.Environment and creating a package cycle.
 type environment interface {
 	CanEncryptLightningMnemonic() bool
@@ -76,12 +87,14 @@ type Lightning struct {
 	getAccount             func(types.Code) (accounts.Interface, error)
 	synced                 bool
 
-	log          *logrus.Entry
-	sdkService   breezSDK
-	sparkStatus  func() (breez_sdk_spark.SparkStatus, error)
-	httpClient   *http.Client
-	ratesUpdater *rates.RateUpdater
-	btcCoin      coin.Coin
+	log           *logrus.Entry
+	sdkService    breezSDK
+	sparkStatus   func() (breez_sdk_spark.SparkStatus, error)
+	httpClient    *http.Client
+	ratesUpdater  *rates.RateUpdater
+	btcCoin       coin.Coin
+	sdkStatus     SDKStatus
+	sdkStatusLock sync.RWMutex
 
 	runtimeDependenciesLock sync.RWMutex
 
@@ -98,7 +111,7 @@ func NewLightning(config *config.Config,
 	httpClient *http.Client,
 	ratesUpdater *rates.RateUpdater,
 	btcCoin coin.Coin) *Lightning {
-	return &Lightning{
+	lightning := &Lightning{
 		backendConfig:          config,
 		lightningDirectoryPath: lightningDirectoryPath,
 		environment:            environment,
@@ -110,7 +123,12 @@ func NewLightning(config *config.Config,
 		httpClient:             httpClient,
 		ratesUpdater:           ratesUpdater,
 		btcCoin:                btcCoin,
+		sdkStatus:              SDKStatusInactive,
 	}
+	if lightning.Account() != nil {
+		lightning.sdkStatus = SDKStatusInitializing
+	}
+	return lightning
 }
 
 // SetRuntimeDependencies updates dependencies that are recreated when the backend cache is cleared.
@@ -212,8 +230,8 @@ func (lightning *Lightning) Disconnect() {
 		lightning.sdkService.Destroy()
 		lightning.sdkService = nil
 		lightning.synced = false
-		lightning.notifyReady()
 	}
+	lightning.setSDKStatus(SDKStatusInactive)
 }
 
 // Deactivate changes the config to inactive, disconnects the instance and deletes its storage folder.
@@ -243,24 +261,36 @@ func (lightning *Lightning) Deactivate() error {
 	return nil
 }
 
-// CheckActive returns an error if the lightning service has not been activated.
+// CheckActive returns an error unless the Lightning SDK is ready for requests.
 func (lightning *Lightning) CheckActive() error {
-	if lightning.Account() == nil || lightning.sdkService == nil {
+	if lightning.SDKStatus() != SDKStatusReady {
 		return errp.New("Lightning not initialized")
 	}
 	return nil
 }
 
-// Ready returns true if the lightning account is configured and the SDK is connected.
-func (lightning *Lightning) Ready() bool {
-	return lightning.Account() != nil && lightning.sdkService != nil
+// SDKStatus returns the state of the Lightning SDK initialization attempt.
+func (lightning *Lightning) SDKStatus() SDKStatus {
+	lightning.sdkStatusLock.RLock()
+	defer lightning.sdkStatusLock.RUnlock()
+	if lightning.sdkStatus == "" {
+		return SDKStatusInactive
+	}
+	return lightning.sdkStatus
 }
 
-func (lightning *Lightning) notifyReady() {
+func (lightning *Lightning) setSDKStatus(status SDKStatus) {
+	lightning.sdkStatusLock.Lock()
+	if lightning.sdkStatus == status {
+		lightning.sdkStatusLock.Unlock()
+		return
+	}
+	lightning.sdkStatus = status
+	lightning.sdkStatusLock.Unlock()
 	lightning.Notify(observable.Event{
-		Subject: "lightning/ready",
+		Subject: "lightning/sdk-status",
 		Action:  action.Replace,
-		Object:  lightning.Ready(),
+		Object:  status,
 	})
 }
 
@@ -370,10 +400,16 @@ func accountBreezFolder(accountCode types.Code) string {
 }
 
 // connect initializes the connection configuration and calls connect to create a Breez SDK instance.
-func (lightning *Lightning) connect() error {
+func (lightning *Lightning) connect() (returnErr error) {
 	account := lightning.Account()
 
 	if account != nil && lightning.sdkService == nil {
+		lightning.setSDKStatus(SDKStatusInitializing)
+		defer func() {
+			if returnErr != nil {
+				lightning.setSDKStatus(SDKStatusFailed)
+			}
+		}()
 		initializeLogging(lightning.log)
 
 		workingDir := path.Join(lightning.lightningDirectoryPath, accountBreezFolder(account.Code))
@@ -442,7 +478,7 @@ func (lightning *Lightning) connect() error {
 		}
 
 		lightning.sdkService = sdk
-		lightning.notifyReady()
+		lightning.setSDKStatus(SDKStatusReady)
 		lightning.NotifyBalanceReload()
 		if _, err := lightning.ensureLightningAddress(); err != nil {
 			lightning.log.WithError(err).Warn("BreezSDK: Error ensuring lightning address")
@@ -587,7 +623,14 @@ func (lightning *Lightning) SetAccount(account *config.LightningAccountConfig) e
 		Subject: "lightning/account",
 		Action:  action.Reload,
 	})
-	lightning.notifyReady()
+	switch {
+	case account == nil:
+		lightning.setSDKStatus(SDKStatusInactive)
+	case lightning.sdkService != nil:
+		lightning.setSDKStatus(SDKStatusReady)
+	default:
+		lightning.setSDKStatus(SDKStatusInitializing)
+	}
 
 	return nil
 }
