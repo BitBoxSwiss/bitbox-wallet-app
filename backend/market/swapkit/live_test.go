@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
+	"math/big"
 	"net/http"
 	"os"
 	"strings"
@@ -92,6 +93,15 @@ func TestSwapKitLiveSlip24(t *testing.T) {
 			sellCoin:           newQuoteCoin(coinpkg.Code("eth-erc20-usdc"), "USDC"),
 			buyCoin:            newQuoteCoin(coinpkg.CodeETH, "ETH"),
 			sellAmount:         "1000",
+			sourceAddress:      "0x171A32C3Dcbc92fD74026cBA6e3f9cB2c2bb938e",
+			destinationAddress: "0x171A32C3Dcbc92fD74026cBA6e3f9cB2c2bb938e",
+			slip44:             60,
+		},
+		{
+			name:               "dai-to-eth",
+			sellCoin:           newQuoteCoin(coinpkg.Code("eth-erc20-dai0x6b17"), "DAI"),
+			buyCoin:            newQuoteCoin(coinpkg.CodeETH, "ETH"),
+			sellAmount:         "55",
 			sourceAddress:      "0x171A32C3Dcbc92fD74026cBA6e3f9cB2c2bb938e",
 			destinationAddress: "0x171A32C3Dcbc92fD74026cBA6e3f9cB2c2bb938e",
 			slip44:             60,
@@ -209,8 +219,13 @@ func verifySwapKitSlip24(t *testing.T, slip24 *paymentrequest.Slip24, trustedPub
 	require.NotNil(t, paymentRequest, "payment request")
 	signature := swapKitECDSASignature(t, paymentRequest.Signature)
 	output := slip24.Outputs[0]
+	protoTotalAmount := uint64(0)
+	if !swapKitEVMAsset(testCase.sellCoin) {
+		require.True(t, paymentRequest.TotalAmount.IsUint64(), "BTC-family payment request amount")
+		protoTotalAmount = paymentRequest.TotalAmount.Uint64()
+	}
 	sighash, err := firmware.ComputePaymentRequestSighashBytes(
-		btcPaymentRequest(t, paymentRequest),
+		btcPaymentRequest(t, paymentRequest, protoTotalAmount),
 		testCase.slip44,
 		slip24OutputValueBytes(t, testCase.sellCoin, paymentRequest.TotalAmount),
 		output.Address,
@@ -219,7 +234,11 @@ func verifySwapKitSlip24(t *testing.T, slip24 *paymentrequest.Slip24, trustedPub
 	require.True(t, signature.Verify(sighash, trustedPubKey), "signature did not match trusted key")
 }
 
-func btcPaymentRequest(t *testing.T, paymentRequest *paymentrequest.Request) *messages.BTCPaymentRequestRequest {
+func btcPaymentRequest(
+	t *testing.T,
+	paymentRequest *paymentrequest.Request,
+	totalAmount uint64,
+) *messages.BTCPaymentRequestRequest {
 	t.Helper()
 
 	memos := make([]*messages.BTCPaymentRequestRequest_Memo, 0, len(paymentRequest.Memos))
@@ -252,21 +271,31 @@ func btcPaymentRequest(t *testing.T, paymentRequest *paymentrequest.Request) *me
 		RecipientName: paymentRequest.RecipientName,
 		Memos:         memos,
 		Nonce:         paymentRequest.Nonce,
-		TotalAmount:   paymentRequest.TotalAmount,
+		TotalAmount:   totalAmount,
 		Signature:     paymentRequest.Signature,
 	}
 }
 
-func slip24OutputValueBytes(t *testing.T, sellCoin coinpkg.Coin, amount uint64) []byte {
+func swapKitEVMAsset(sellCoin coinpkg.Coin) bool {
+	return sellCoin.Code() == coinpkg.CodeETH || strings.HasPrefix(string(sellCoin.Code()), "eth-erc20-")
+}
+
+func slip24OutputValueBytes(t *testing.T, sellCoin coinpkg.Coin, amount *big.Int) []byte {
 	t.Helper()
 
-	sellCoinCode := string(sellCoin.Code())
-	if sellCoin.Code() == coinpkg.CodeETH || strings.HasPrefix(sellCoinCode, "eth-erc20-") {
+	require.NotNil(t, amount)
+	require.NotEqual(t, -1, amount.Sign())
+	if swapKitEVMAsset(sellCoin) {
+		require.LessOrEqual(t, amount.BitLen(), 256)
 		result := make([]byte, 32)
-		binary.LittleEndian.PutUint64(result, amount)
+		bigEndian := amount.Bytes()
+		for index := range bigEndian {
+			result[index] = bigEndian[len(bigEndian)-index-1]
+		}
 		return result
 	}
-	return binary.LittleEndian.AppendUint64(nil, amount)
+	require.True(t, amount.IsUint64())
+	return binary.LittleEndian.AppendUint64(nil, amount.Uint64())
 }
 
 func swapKitECDSASignature(t *testing.T, sig []byte) *ecdsa.Signature {

@@ -4,7 +4,6 @@ package backend
 
 import (
 	"context"
-	"math/big"
 	"slices"
 	"sort"
 	"strings"
@@ -540,7 +539,11 @@ func swapSignTxInput(
 	if strings.TrimSpace(output.Address) == "" {
 		return SwapSignTxInput{}, errp.New("Missing target address")
 	}
-	amount := sellCoin.FormatAmount(coinpkg.NewAmount(new(big.Int).SetUint64(output.Amount)), false)
+	outputAmount, err := output.AmountBigInt()
+	if err != nil {
+		return SwapSignTxInput{}, err
+	}
+	amount := sellCoin.FormatAmount(coinpkg.NewAmount(outputAmount), false)
 	return SwapSignTxInput{
 		Address:        output.Address,
 		Amount:         amount,
