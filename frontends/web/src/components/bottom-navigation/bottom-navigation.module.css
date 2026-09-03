@@ -70,7 +70,7 @@
     font-size: min(1rem, 14cqi);
 }
 
-.link svg {
+.menuIcon {
     flex-shrink: 0;
     width: 24px;
     height: 24px;
