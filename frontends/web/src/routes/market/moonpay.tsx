@@ -51,7 +51,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
             <Header title={
               <>
                 <h2 className="hide-on-small">{title}</h2>
-                <MobileHeader withGuide title={title} />
+                <MobileHeader title={title} />
               </>
             } />
           </div>

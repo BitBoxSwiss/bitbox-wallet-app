@@ -356,7 +356,6 @@ export function Receive() {
                 onClick={step === 'invoice' ? cancelInvoice : back}
                 title={t('lightning.receive.title')}
                 variant={step === 'wait' || step === 'success' ? 'titleOnly' : 'back'}
-                withGuide
               />
             </>
           } />
