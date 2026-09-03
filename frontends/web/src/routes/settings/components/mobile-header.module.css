@@ -4,7 +4,6 @@
 
 .container {
     align-items: center;
-    display: none;
 }
 
 .withViewPadding {
@@ -40,7 +39,7 @@
 .headerText {
     font-size: var(--size-default);
     font-weight: 400;
-    margin: 0 auto;
+    margin: 0;
 }
 
 @media (max-width: 768px) {
@@ -62,11 +61,5 @@
         overflow-wrap: anywhere;
         text-align: center;
         white-space: normal;
-    }
-}
-
-@media (max-width: 329px) {
-    .backButton span {
-        display: none;
     }
 }

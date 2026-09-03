@@ -487,7 +487,7 @@ export const Swap = ({
               title={
                 <>
                   <h2 className="hide-on-small">{t('generic.swap')}</h2>
-                  <MobileHeader withGuide title={t('generic.swap')} />
+                  <MobileHeader title={t('generic.swap')} />
                 </>
               }
             />
@@ -523,7 +523,7 @@ export const Swap = ({
               title={
                 <>
                   <h2 className="hide-on-small">{t('generic.swap')}</h2>
-                  <MobileHeader withGuide title={t('generic.swap')} />
+                  <MobileHeader title={t('generic.swap')} />
                 </>
               }
             />
@@ -556,7 +556,7 @@ export const Swap = ({
             title={
               <>
                 <h2 className="hide-on-small">{t('generic.swap')}</h2>
-                <MobileHeader withGuide title={t('generic.swap')} />
+                <MobileHeader title={t('generic.swap')} />
               </>
             }
           />
