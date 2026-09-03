@@ -3,7 +3,9 @@
 package backend
 
 import (
+	"context"
 	"slices"
+	"sync/atomic"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -13,10 +15,87 @@ import (
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/stretchr/testify/require"
 )
+
+func TestWaitForSwapAccountSync(t *testing.T) {
+	t.Run("returns immediately when synced", func(t *testing.T) {
+		account := &accountsMocks.InterfaceMock{
+			ObserveFunc: func(func(observable.Event)) func() { return func() {} },
+			SyncedFunc:  func() bool { return true },
+		}
+
+		require.NoError(t, waitForSwapAccountSync(context.Background(), account))
+	})
+
+	t.Run("does not miss sync during observer registration", func(t *testing.T) {
+		var synced atomic.Bool
+		account := &accountsMocks.InterfaceMock{
+			ObserveFunc: func(func(observable.Event)) func() {
+				synced.Store(true)
+				return func() {}
+			},
+			SyncedFunc: synced.Load,
+		}
+
+		require.NoError(t, waitForSwapAccountSync(context.Background(), account))
+	})
+
+	t.Run("waits for status change", func(t *testing.T) {
+		var synced atomic.Bool
+		observerRegistered := make(chan func(observable.Event), 1)
+		account := &accountsMocks.InterfaceMock{
+			ObserveFunc: func(observer func(observable.Event)) func() {
+				observerRegistered <- observer
+				return func() {}
+			},
+			SyncedFunc:     synced.Load,
+			OfflineFunc:    func() error { return nil },
+			FatalErrorFunc: func() bool { return false },
+		}
+
+		result := make(chan error, 1)
+		go func() {
+			result <- waitForSwapAccountSync(context.Background(), account)
+		}()
+
+		observer := <-observerRegistered
+		synced.Store(true)
+		observer(observable.Event{Subject: string(accountsTypes.EventStatusChanged)})
+		require.NoError(t, <-result)
+	})
+
+	t.Run("stops when canceled", func(t *testing.T) {
+		account := &accountsMocks.InterfaceMock{
+			ObserveFunc:    func(func(observable.Event)) func() { return func() {} },
+			SyncedFunc:     func() bool { return false },
+			OfflineFunc:    func() error { return nil },
+			FatalErrorFunc: func() bool { return false },
+		}
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		require.ErrorIs(t, waitForSwapAccountSync(ctx, account), context.Canceled)
+	})
+
+	t.Run("maps timeout to sync in progress", func(t *testing.T) {
+		account := &accountsMocks.InterfaceMock{
+			ObserveFunc:    func(func(observable.Event)) func() { return func() {} },
+			SyncedFunc:     func() bool { return false },
+			OfflineFunc:    func() error { return nil },
+			FatalErrorFunc: func() bool { return false },
+		}
+		ctx, cancel := context.WithCancelCause(context.Background())
+		cancel(context.DeadlineExceeded)
+
+		err := waitForSwapAccountSync(ctx, account)
+		require.Equal(t, accounts.ErrSyncInProgress, errp.Cause(err))
+	})
+}
 
 func TestSwapBuyAccountsRequireConnectedKeystore(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
