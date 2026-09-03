@@ -41,7 +41,6 @@ import (
 )
 
 func isMixedCase(s string) bool {
-	s = strings.TrimPrefix(strings.TrimPrefix(s, "0x"), "0X")
 	return strings.ToLower(s) != s && strings.ToUpper(s) != s
 }
 
@@ -50,8 +49,9 @@ func IsValidEthAddress(addr string) bool {
 	if !ethcommon.IsHexAddress(addr) {
 		return false
 	}
+	unprefixedAddr := strings.TrimPrefix(strings.TrimPrefix(addr, "0x"), "0X")
 	// Validate checksum if the address is mixed case, see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md
-	if isMixedCase(addr) && addr != ethcommon.HexToAddress(addr).Hex() {
+	if isMixedCase(unprefixedAddr) && "0x"+unprefixedAddr != ethcommon.HexToAddress(addr).Hex() {
 		return false
 	}
 	return true
@@ -550,10 +550,8 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 		}
 		value = parsedAmount.BigInt()
 	}
-	if account.coin.erc20Token != nil {
-		if value.BitLen() > 256 {
-			return nil, errp.WithStack(errors.ErrInvalidAmount)
-		}
+	if account.coin.erc20Token != nil && value.BitLen() > 256 {
+		return nil, errp.WithStack(errors.ErrInvalidAmount)
 	}
 
 	var message ethereum.CallMsg
