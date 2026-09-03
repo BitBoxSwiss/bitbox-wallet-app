@@ -34,23 +34,24 @@ export const MobileHeader = ({
     }
   };
   return (
-    <div className={`
-      ${styles.container || ''}
-      ${variant === 'titleOnly' && styles.titleOnly || ''}
-      ${withGuide && styles.withGuide || ''}
-      ${withViewPadding && styles.withViewPadding || ''}
-    `}>
-      {variant === 'back' && (
-        <>
-          <UseBackButton handler={() => {
-            handleClick();
-            return false;
-          }} />
-          <button onClick={handleClick} className={styles.backButton}>
-            <ChevronLeftDark />
-          </button>
-        </>
-      )}
+    <div className={styles.mobileHeader}>
+      <div className={`
+        ${styles.container || ''}
+        ${withGuide && styles.withGuide || ''}
+        ${withViewPadding && styles.withViewPadding || ''}
+      `}>
+        {variant === 'back' && (
+          <>
+            <UseBackButton handler={() => {
+              handleClick();
+              return false;
+            }} />
+            <button onClick={handleClick} className={styles.backButton}>
+              <ChevronLeftDark />
+            </button>
+          </>
+        )}
+      </div>
       <h1 className={styles.headerText}>
         {title}
       </h1>
