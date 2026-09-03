@@ -154,7 +154,7 @@ export const BottomNavigation = ({
           `}
           to="/settings"
         >
-          <SettingsIcon alt="" height={24} width={24} />
+          <SettingsIcon alt="" height={23} width={23} />
           <span className={styles.settingsLabel}>
             <span className={styles.label} ref={setLabelRef('settings')}>
               {settingsLabel}
