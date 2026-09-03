@@ -11,6 +11,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
@@ -51,6 +52,26 @@ type RatChartEntry struct {
 	RatValue *big.Rat
 }
 
+// ChartTransactionMarkerAmount summarizes one transaction direction in a chart bucket.
+type ChartTransactionMarkerAmount struct {
+	Count     int    `json:"count"`
+	Amount    string `json:"amount"`
+	Estimated bool   `json:"estimated"`
+}
+
+// ChartTransactionMarker summarizes transactions in one chart bucket.
+type ChartTransactionMarker struct {
+	Time    int64                        `json:"time"`
+	Receive ChartTransactionMarkerAmount `json:"receive"`
+	Send    ChartTransactionMarkerAmount `json:"send"`
+}
+
+// ChartTransactionMarkers contains marker buckets for both chart resolutions.
+type ChartTransactionMarkers struct {
+	Daily  []ChartTransactionMarker `json:"daily"`
+	Hourly []ChartTransactionMarker `json:"hourly"`
+}
+
 // Chart has all data needed to show a time-based chart of their assets to the user.
 type Chart struct {
 	// If true, we are missing historical exchange rates or block headers needed to compute the
@@ -71,6 +92,162 @@ type Chart struct {
 	IsUpToDate bool `json:"chartIsUpToDate"`
 	// Latest rate timestamp available among all enabled coins.
 	LastTimestamp int64 `json:"lastTimestamp"`
+	// Transactions aggregated into markers for the daily and hourly charts. Omitted unless
+	// explicitly requested and chart data is available.
+	TransactionMarkers *ChartTransactionMarkers `json:"chartTransactionMarkers,omitempty"`
+}
+
+func includeChartTransaction(tx *accounts.TransactionData) bool {
+	if tx.Timestamp == nil {
+		return false
+	}
+	if tx.Status == accounts.TxStatusFailed {
+		return false
+	}
+	return tx.Type == accounts.TxTypeSend || tx.Type == accounts.TxTypeReceive
+}
+
+type chartTransactionAccount struct {
+	accountCoin coin.Coin
+	rateUpdater *rates.RateUpdater
+	txs         accounts.OrderedTransactions
+}
+
+type chartTransactionMarkerTotal struct {
+	amount        *big.Rat
+	amountMissing bool
+	count         int
+	estimated     bool
+}
+
+type chartTransactionMarkerBucket struct {
+	receive chartTransactionMarkerTotal
+	send    chartTransactionMarkerTotal
+}
+
+func (total *chartTransactionMarkerTotal) add(amount *big.Rat, estimated bool) {
+	total.count++
+	total.estimated = total.estimated || estimated
+	if amount == nil {
+		total.amountMissing = true
+		return
+	}
+	if total.amount == nil {
+		total.amount = new(big.Rat).Set(amount)
+		return
+	}
+	total.amount.Add(total.amount, amount)
+}
+
+func (total *chartTransactionMarkerTotal) formatted(fiat string) ChartTransactionMarkerAmount {
+	formatted := ChartTransactionMarkerAmount{
+		Count:     total.count,
+		Estimated: total.estimated,
+	}
+	if !total.amountMissing && total.amount != nil {
+		formatted.Amount = coin.FormatAsCurrency(total.amount, fiat)
+	}
+	return formatted
+}
+
+func addChartTransactionMarker(
+	buckets map[int64]*chartTransactionMarkerBucket,
+	bucketTime int64,
+	txType accounts.TxType,
+	amount *big.Rat,
+	estimated bool,
+) {
+	bucket := buckets[bucketTime]
+	if bucket == nil {
+		bucket = &chartTransactionMarkerBucket{}
+		buckets[bucketTime] = bucket
+	}
+	if txType == accounts.TxTypeReceive {
+		bucket.receive.add(amount, estimated)
+	} else {
+		bucket.send.add(amount, estimated)
+	}
+}
+
+func formatChartTransactionMarkers(
+	buckets map[int64]*chartTransactionMarkerBucket,
+	fiat string,
+) []ChartTransactionMarker {
+	markers := make([]ChartTransactionMarker, 0, len(buckets))
+	for bucketTime, bucket := range buckets {
+		markers = append(markers, ChartTransactionMarker{
+			Time:    bucketTime,
+			Receive: bucket.receive.formatted(fiat),
+			Send:    bucket.send.formatted(fiat),
+		})
+	}
+	sort.Slice(markers, func(i, j int) bool { return markers[i].Time < markers[j].Time })
+	return markers
+}
+
+func chartTransactionMarkers(
+	chartAccounts []chartTransactionAccount,
+	fiat string,
+	hourlyFrom time.Time,
+	now time.Time,
+) *ChartTransactionMarkers {
+	daily := map[int64]*chartTransactionMarkerBucket{}
+	hourly := map[int64]*chartTransactionMarkerBucket{}
+
+	for _, chartAccount := range chartAccounts {
+		latestHistoryTime := chartAccount.rateUpdater.HistoryLatestTimestamp(
+			string(chartAccount.accountCoin.Code()),
+			fiat,
+		)
+		latestRates := chartAccount.rateUpdater.LatestPrice()
+		for _, tx := range chartAccount.txs {
+			if !includeChartTransaction(tx) {
+				continue
+			}
+
+			amount := tx.Amount
+			if tx.Type == accounts.TxTypeSend {
+				amount = tx.DeductedAmount
+			}
+			historicalRateMissing := latestHistoryTime.IsZero() || latestHistoryTime.Before(*tx.Timestamp)
+			estimated := historicalRateMissing && now.Sub(*tx.Timestamp) < 2*time.Hour
+
+			var rate float64
+			var rateAvailable bool
+			if estimated {
+				if latestRates != nil {
+					rate, rateAvailable = latestRates[chartAccount.accountCoin.Unit(false)][fiat]
+				}
+			} else {
+				rate = chartAccount.rateUpdater.HistoricalPriceAt(
+					string(chartAccount.accountCoin.Code()),
+					fiat,
+					*tx.Timestamp,
+				)
+				rateAvailable = rate != 0
+			}
+
+			var fiatAmount *big.Rat
+			if rateAvailable {
+				fiatAmount = new(big.Rat).Mul(
+					coin.ToUnitRat(amount, chartAccount.accountCoin, false),
+					new(big.Rat).SetFloat64(rate),
+				)
+			}
+
+			dailyTime := tx.Timestamp.Truncate(24 * time.Hour).Unix()
+			addChartTransactionMarker(daily, dailyTime, tx.Type, fiatAmount, estimated)
+			if !tx.Timestamp.Before(hourlyFrom) {
+				hourlyTime := tx.Timestamp.Truncate(time.Hour).Unix()
+				addChartTransactionMarker(hourly, hourlyTime, tx.Type, fiatAmount, estimated)
+			}
+		}
+	}
+
+	return &ChartTransactionMarkers{
+		Daily:  formatChartTransactionMarkers(daily, fiat),
+		Hourly: formatChartTransactionMarkers(hourly, fiat),
+	}
 }
 
 func (backend *Backend) addChartData(
@@ -176,7 +353,7 @@ func (backend *Backend) addTxsToChart(
 }
 
 // ChartData assembles chart data for all active accounts.
-func (backend *Backend) ChartData() (*Chart, error) {
+func (backend *Backend) ChartData(includeTransactionMarkers bool) (*Chart, error) {
 	// If true, we are missing headers or historical conversion rates necessary to compute the chart
 	// data,
 	chartDataMissing := false
@@ -184,8 +361,11 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	// key: unix timestamp.
 	chartEntriesDaily := map[int64]RatChartEntry{}
 	chartEntriesHourly := map[int64]RatChartEntry{}
+	chartAccounts := []chartTransactionAccount{}
 
 	fiat := backend.Config().AppConfig().Backend.MainFiat
+	now := time.Now()
+	hourlyFrom := now.AddDate(0, 0, -7).Truncate(24 * time.Hour)
 
 	// Chart data until this point in time.
 	until := backend.RatesUpdater().HistoryLatestTimestampFiat(backend.chartCoinCodes(), fiat)
@@ -193,7 +373,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		chartDataMissing = true
 		backend.log.Info("ChartDataMissing, until is zero")
 	}
-	isUpToDate := time.Since(until) < 2*time.Hour
+	isUpToDate := now.Sub(until) < 2*time.Hour
 	lastTimestamp := until.UnixMilli()
 
 	currentTotal := new(big.Rat)
@@ -217,6 +397,13 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			return nil, err
 		}
 		totalNumberOfTransactions += len(txs)
+		if includeTransactionMarkers {
+			chartAccounts = append(chartAccounts, chartTransactionAccount{
+				accountCoin: account.Coin(),
+				rateUpdater: account.Config().RateUpdater,
+				txs:         txs,
+			})
+		}
 
 		coinDecimals := coin.DecimalsExp(account.Coin(), false)
 
@@ -277,12 +464,19 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			lightningTxs = nil
 		}
 		totalNumberOfTransactions += len(lightningTxs)
+		btcCoin, err := backend.Coin(coin.CodeBTC)
+		if err != nil {
+			return nil, err
+		}
+		if includeTransactionMarkers {
+			chartAccounts = append(chartAccounts, chartTransactionAccount{
+				accountCoin: btcCoin,
+				rateUpdater: backend.RatesUpdater(),
+				txs:         lightningTxs,
+			})
+		}
 
 		if !chartDataMissing {
-			btcCoin, err := backend.Coin(coin.CodeBTC)
-			if err != nil {
-				return nil, err
-			}
 			lightningChartDataMissing, err := backend.addTxsToChart(
 				coin.CodeBTC,
 				coinCodeLightning,
@@ -325,7 +519,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		if isUpToDate && !currentTotalMissing {
 			total, _ := currentTotal.Float64()
 			result = append(result, ChartEntry{
-				Time:           time.Now().Unix(),
+				Time:           now.Unix(),
 				Value:          total,
 				FormattedValue: coin.FormatAsCurrency(currentTotal, fiat),
 			})
@@ -356,6 +550,11 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		chartDataMissing = false
 	}
 
+	var transactionMarkers *ChartTransactionMarkers
+	if includeTransactionMarkers && !chartDataMissing {
+		transactionMarkers = chartTransactionMarkers(chartAccounts, fiat, hourlyFrom, now)
+	}
+
 	var chartTotal *float64
 	var formattedChartTotal string
 	if !currentTotalMissing {
@@ -364,13 +563,14 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		formattedChartTotal = coin.FormatAsCurrency(currentTotal, fiat)
 	}
 	return &Chart{
-		DataMissing:    chartDataMissing,
-		DataDaily:      toSortedSlice(chartEntriesDaily, fiat),
-		DataHourly:     toSortedSlice(chartEntriesHourly, fiat),
-		Fiat:           fiat,
-		Total:          chartTotal,
-		FormattedTotal: formattedChartTotal,
-		IsUpToDate:     isUpToDate,
-		LastTimestamp:  lastTimestamp,
+		DataMissing:        chartDataMissing,
+		DataDaily:          toSortedSlice(chartEntriesDaily, fiat),
+		DataHourly:         toSortedSlice(chartEntriesHourly, fiat),
+		Fiat:               fiat,
+		Total:              chartTotal,
+		FormattedTotal:     formattedChartTotal,
+		IsUpToDate:         isUpToDate,
+		LastTimestamp:      lastTimestamp,
+		TransactionMarkers: transactionMarkers,
 	}, nil
 }
