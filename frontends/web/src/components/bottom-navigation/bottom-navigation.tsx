@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
 import type { TDevices } from '@/api/devices';
-import { AccountIconSVG, LightningIconSVG, MarketIconSVG, PortfolioIconSVG } from '@/components/bottom-navigation/menu-icons';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
-import { CogBlue, CogDark, CogLight, RedDot } from '@/components/icon';
-import { NewBadge } from '@/components/new-badge/new-badge';
 import { useDarkmode } from '@/hooks/darkmode';
+import { MenuItem } from './menu-item';
 import { useAndroidKeyboardVisible } from './use-android-keyboard-visible';
 import { useSlidingIndicator } from './use-sliding-indicator';
 import { getBottomNavIndex, getBottomNavItems, getBottomNavKey, type TBottomNavItem } from './utils';
@@ -52,25 +50,19 @@ export const BottomNavigation = ({
   const settingsLabel = t('sidebar.settings');
 
   const bottomNavKey = getBottomNavKey(pathname);
-  const portfolioActive = bottomNavKey === 'portfolio';
-  const accountsActive = bottomNavKey === 'accounts';
-  const lightningActive = bottomNavKey === 'lightning';
-  const marketActive = bottomNavKey === 'market';
-  const settingsActive = bottomNavKey === 'settings';
-  const InactiveSettingsIcon = isDarkMode ? CogLight : CogDark;
-  const SettingsIcon = settingsActive ? CogBlue : InactiveSettingsIcon;
+  const menuItems: Record<TBottomNavItem, { label: string; to: string }> = {
+    accounts: { label: accountLabel, to: accountTabURL },
+    lightning: { label: lightningLabel, to: '/lightning' },
+    market: { label: marketLabel, to: '/market/select' },
+    portfolio: { label: portfolioLabel, to: '/account-summary' },
+    settings: { label: settingsLabel, to: '/settings' },
+  };
   const activeIndex = getBottomNavIndex(bottomNavKey, navItems);
   const {
     containerRef,
     indicatorStyle,
     labelRefs,
-  } = useSlidingIndicator(activeIndex, navItems.map(item => ({
-    portfolio: portfolioLabel,
-    accounts: accountLabel,
-    lightning: lightningLabel,
-    market: marketLabel,
-    settings: settingsLabel,
-  }[item])).join(':'));
+  } = useSlidingIndicator(activeIndex, navItems.map(item => menuItems[item].label).join(':'));
   const androidKeyboardVisible = useAndroidKeyboardVisible();
   const setLabelRef = (item: TBottomNavItem) => (element: HTMLSpanElement | null) => {
     labelRefs.current[navItems.indexOf(item)] = element;
@@ -84,90 +76,19 @@ export const BottomNavigation = ({
     <>
       <div aria-hidden="true" className={styles.bottomGlass} />
       <div className={styles.container} ref={containerRef}>
-        <Link
-          className={`
-            ${styles.link || ''}
-            ${portfolioActive && styles.active || ''}
-          `}
-          to="/account-summary"
-        >
-          <PortfolioIconSVG />
-          <span className={styles.label} ref={setLabelRef('portfolio')}>
-            {portfolioLabel}
-          </span>
-        </Link>
-        {showAccounts && (
-          <Link
-            className={`
-              ${styles.link || ''}
-              ${accountsActive ? (styles.active || '') : ''}
-            `}
-            to={accountTabURL}
-          >
-            <AccountIconSVG />
-            <span className={styles.label} ref={setLabelRef('accounts')}>
-              {accountLabel}
-            </span>
-          </Link>
-        )}
-        {hasLightningAccount && (
-          <Link
-            className={`
-              ${styles.link || ''}
-              ${lightningActive && styles.active || ''}
-            `}
-            to="/lightning"
-          >
-            <LightningIconSVG />
-            <span className={styles.label} ref={setLabelRef('lightning')}>
-              {lightningLabel}
-            </span>
-          </Link>
-        )}
-        {showMarket && (
-          <Link
-            className={`
-              ${styles.link || ''}
-              ${marketActive && styles.active || ''}
-            `}
-            to="/market/select"
-          >
-            <MarketIconSVG />
-            <span className={styles.marketplaceLabel}>
-              <span className={styles.label} ref={setLabelRef('market')}>
-                {marketLabel}
-              </span>
-              <NewBadge
-                className={styles.marketplaceNudgeDot}
-                configKey="hasSeenMarketplaceNudge"
-                hideOnPathPrefix="/market/"
-                pathname={pathname}
-                type="dot"
-              />
-            </span>
-          </Link>
-        )}
-        <Link
-          className={`
-            ${styles.link || ''}
-            ${settingsActive ? (styles.active || '') : ''}
-          `}
-          to="/settings"
-        >
-          <SettingsIcon alt="" height={23} width={23} />
-          <span className={styles.settingsLabel}>
-            <span className={styles.label} ref={setLabelRef('settings')}>
-              {settingsLabel}
-            </span>
-            {canUpgrade && (
-              <RedDot
-                className={styles.redDot}
-                width={8}
-                height={8}
-              />
-            )}
-          </span>
-        </Link>
+        {navItems.map(item => (
+          <MenuItem
+            active={bottomNavKey === item}
+            canUpgrade={canUpgrade}
+            isDarkMode={isDarkMode}
+            key={item}
+            label={menuItems[item].label}
+            labelRef={setLabelRef(item)}
+            name={item}
+            pathname={pathname}
+            to={menuItems[item].to}
+          />
+        ))}
         {indicatorStyle && (
           <span
             aria-hidden="true"
