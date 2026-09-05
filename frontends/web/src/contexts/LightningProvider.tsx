@@ -2,7 +2,12 @@
 
 import { ReactNode } from 'react';
 import { LightningContext } from './LightningContext';
-import { getLightningAccount, getLightningReady, subscribeLightningAccount, subscribeLightningReady } from '../api/lightning';
+import {
+  getLightningAccount,
+  getLightningSDKStatus,
+  subscribeLightningAccount,
+  subscribeLightningSDKStatus,
+} from '../api/lightning';
 import { useSync } from '../hooks/api';
 import { isLightningFeatureAvailable } from '@/utils/env';
 
@@ -16,16 +21,23 @@ export const LightningProvider = ({ children }: TProps) => {
     lightningFeatureAvailable ? getLightningAccount : null,
     lightningFeatureAvailable ? subscribeLightningAccount : null,
   );
-  const isLightningReady = useSync(
-    lightningFeatureAvailable ? getLightningReady : null,
-    lightningFeatureAvailable ? subscribeLightningReady : null,
+  const sdkStatus = useSync(
+    lightningFeatureAvailable ? getLightningSDKStatus : null,
+    lightningFeatureAvailable ? subscribeLightningSDKStatus : null,
+  );
+  const lightningSDKStatus = lightningFeatureAvailable ? sdkStatus : 'inactive';
+  const isLightningReady = (
+    lightningSDKStatus === undefined
+      ? undefined
+      : lightningSDKStatus === 'ready'
   );
 
   return (
     <LightningContext.Provider
       value={{
-        isLightningReady: lightningFeatureAvailable ? isLightningReady : false,
+        isLightningReady,
         lightningAccount: lightningFeatureAvailable ? lightningAccount : null,
+        lightningSDKStatus,
       }}>
       {children}
     </LightningContext.Provider>

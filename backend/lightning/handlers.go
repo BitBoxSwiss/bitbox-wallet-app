@@ -37,7 +37,7 @@ func NewHandlers(
 	handleNoError("/address/availability", lightning.GetAddressAvailability).Methods("GET")
 	handleNoError("/address/generate", lightning.PostGenerateAddress).Methods("POST")
 	handleNoError("/address/register", lightning.PostRegisterAddress).Methods("POST")
-	handleNoError("/ready", lightning.GetReady).Methods("GET")
+	handleNoError("/sdk-status", lightning.GetSDKStatus).Methods("GET")
 	handleNoError("/activate", lightning.PostActivate).Methods("POST")
 	handleNoError("/deactivate", lightning.PostDeactivate).Methods("POST")
 	handleNoError("/balance", lightning.GetBalance).Methods("GET")
@@ -203,9 +203,9 @@ func (lightning *Lightning) PostRegisterAddress(r *http.Request) interface{} {
 	return responseDto{Success: true, Data: address}
 }
 
-// GetReady handles the GET request to retrieve whether the lightning SDK is ready.
-func (lightning *Lightning) GetReady(_ *http.Request) interface{} {
-	return responseDto{Success: true, Data: lightning.Ready()}
+// GetSDKStatus handles the GET request to retrieve the Lightning SDK initialization status.
+func (lightning *Lightning) GetSDKStatus(_ *http.Request) interface{} {
+	return responseDto{Success: true, Data: lightning.SDKStatus()}
 }
 
 // PostActivate handles the POST request to activate lightning.

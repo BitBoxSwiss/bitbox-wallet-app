@@ -209,6 +209,7 @@ func TestTransactions(t *testing.T) {
 			}, nil
 		},
 	}
+	lightning.setSDKStatus(SDKStatusReady)
 
 	txs, err := lightning.Transactions()
 	require.NoError(t, err)
@@ -468,6 +469,7 @@ func makeActiveLightningWithSDK(t *testing.T, sdk breezSDK) *Lightning {
 		Code:            "v0-deadbeef-ln-0",
 		Number:          0,
 	}))
+	lightning.setSDKStatus(SDKStatusReady)
 	return lightning
 }
 
@@ -1222,6 +1224,7 @@ func newActivePaymentTestLightningWithConfigFilename(
 		Number:          0,
 	}))
 	lightning.sdkService = sdk
+	lightning.setSDKStatus(SDKStatusReady)
 	lightning.getAccount = func(accountCode accountsTypes.Code) (accounts.Interface, error) {
 		require.Equal(t, testCloseWithdrawDestinationAccountCode, accountCode)
 		return testCloseWithdrawAccount(), nil
@@ -2190,6 +2193,7 @@ func TestReceivePaymentAllowsAmountAboveBalanceLimit(t *testing.T) {
 	require.NoError(t, lightning.SetAccount(&config.LightningAccountConfig{Code: "v0-test-ln-0"}))
 	sdk := &receivePaymentTestSDK{}
 	lightning.sdkService = sdk
+	lightning.setSDKStatus(SDKStatusReady)
 	amountSat := uint64(lightningBalanceLimitSat + 1)
 
 	response, err := lightning.ReceivePayment(amountSat, "Over-limit invoice")

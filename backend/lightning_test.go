@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/stretchr/testify/require"
 )
@@ -35,14 +36,21 @@ func TestFormattedLightningBalance(t *testing.T) {
 	require.Equal(t, "21.00", balance.FormattedAmount.Conversions["USD"])
 }
 
-func TestLightningFormattedBalanceWithoutAccount(t *testing.T) {
+func TestPortfolioDataWithInitializingLightning(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	balance, err := b.lightningFormattedBalance()
+	require.NoError(t, b.lightning.SetAccount(&config.LightningAccountConfig{Code: "v0-test-ln-0"}))
 
+	balances, err := b.coinsTotalBalance()
 	require.NoError(t, err)
-	require.Nil(t, balance)
+	require.Equal(t, []coinFormattedAmount{{
+		CoinCode: coinCodeLightning,
+		CoinName: "Lightning",
+	}}, balances)
+
+	_, err = b.ChartData()
+	require.NoError(t, err)
 }
 
 func TestInsertLightningFormattedBalance(t *testing.T) {

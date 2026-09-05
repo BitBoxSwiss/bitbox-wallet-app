@@ -69,6 +69,7 @@ func activateLightningAddressTest(t *testing.T, lightning *Lightning) {
 		Code:            "v0-deadbeef-ln-0",
 		Number:          0,
 	}))
+	lightning.setSDKStatus(SDKStatusReady)
 }
 
 type testBreezSDK struct {
@@ -521,6 +522,7 @@ func TestRegisterAddressCurrentUsernameIsNoop(t *testing.T) {
 			return breez_sdk_spark.LightningAddressInfo{}, nil
 		},
 	}
+	lightning.setSDKStatus(SDKStatusReady)
 
 	address, err := lightning.RegisterAddress(" Existing ")
 	require.NoError(t, err)
@@ -587,6 +589,7 @@ func TestRegisterAddressCooldown(t *testing.T) {
 			return breez_sdk_spark.LightningAddressInfo{}, nil
 		},
 	}
+	lightning.setSDKStatus(SDKStatusReady)
 
 	address, err := lightning.RegisterAddress("replacement")
 	require.Nil(t, address)
@@ -622,6 +625,7 @@ func TestRegisterAddressAfterCooldown(t *testing.T) {
 			}, nil
 		},
 	}
+	lightning.setSDKStatus(SDKStatusReady)
 
 	address, err := lightning.RegisterAddress("replacement")
 	require.NoError(t, err)
