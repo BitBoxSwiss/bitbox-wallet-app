@@ -13,10 +13,16 @@ type TProps = Omit<
 
 export const AccountActionButtonLink = ({
   className = '',
+  disabled,
+  onClick,
   ...props
 }: TProps) => (
   <ButtonLink
-    className={`${style.button || ''} ${className || ''}`.trim()}
+    className={`
+      ${style.button || ''}
+      ${disabled && style.disabled || ''}
+      ${className || ''}
+    `.trim()}
     primary
     {...props}
   />
