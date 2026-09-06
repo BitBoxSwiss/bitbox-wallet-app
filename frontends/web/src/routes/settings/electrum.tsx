@@ -34,7 +34,7 @@ export const ElectrumSettings = () => {
             title={
               <>
                 <h2 className="hide-on-small">{t('settings.expert.electrum.title')}</h2>
-                <MobileHeader withGuide title={t('settings.expert.electrum.title')} />
+                <MobileHeader title={t('settings.expert.electrum.title')} />
               </>
             } />
           <div className="content padded">

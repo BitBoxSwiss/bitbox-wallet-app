@@ -83,7 +83,6 @@ export const Send = ({ activeAccounts }: TProps) => {
                 onClick={handleBack}
                 title={t('lightning.send.title')}
                 variant={step === 'success' || isSending ? 'titleOnly' : 'back'}
-                withGuide
               />
             </>
           } />

@@ -447,7 +447,7 @@ export const Send = ({
             title={
               <>
                 <h2 className="hide-on-small">{t('send.title', { accountName: account.coinName })}</h2>
-                <MobileHeader withGuide title={t('send.title', { accountName: account.coinName })} />
+                <MobileHeader title={t('send.title', { accountName: account.coinName })} />
               </>
             }
           >

@@ -24,7 +24,7 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
             title={
               <>
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader withGuide title={t('settings.about')} />
+                <MobileHeader title={t('settings.about')} />
               </>
             } />
           <View fullscreen={false}>
