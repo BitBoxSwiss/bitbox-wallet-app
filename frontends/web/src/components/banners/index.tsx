@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useLocation } from 'react-router-dom';
 import type { TDevices } from '@/api/devices';
 import { Testing } from './testing';
 import { Update } from './update';
@@ -16,6 +17,9 @@ type Props = {
 export const GlobalBanners = ({
   devices,
 }: Props) => {
+  const { pathname } = useLocation();
+  const isManagingBackups = pathname.startsWith('/manage-backups/');
+
   return (
     <>
       <Testing />
@@ -26,7 +30,7 @@ export const GlobalBanners = ({
       <Banner msgKey="bitbox02nova" />
       <MobileDataWarning />
       <Offline />
-      <SDCardWarning devices={devices} />
+      {!isManagingBackups && <SDCardWarning devices={devices} />}
     </>
   );
 };
