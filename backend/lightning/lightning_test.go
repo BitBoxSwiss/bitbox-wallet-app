@@ -12,6 +12,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/stretchr/testify/require"
@@ -139,9 +140,10 @@ func TestSetAccount(t *testing.T) {
 	require.Empty(t, lightning.backendConfig.LightningConfig().Accounts)
 }
 
-func TestReady(t *testing.T) {
+func TestSDKStatusAndCheckActive(t *testing.T) {
 	lightning := newTestLightning(t, nil)
-	require.False(t, lightning.Ready())
+	require.Equal(t, SDKStatusInactive, lightning.SDKStatus())
+	require.Error(t, lightning.CheckActive())
 
 	require.NoError(t, lightning.SetAccount(&config.LightningAccountConfig{
 		Seed:            "test mnemonic",
@@ -149,13 +151,57 @@ func TestReady(t *testing.T) {
 		Code:            "v0-deadbeef-ln-0",
 		Number:          0,
 	}))
-	require.False(t, lightning.Ready())
+	require.Equal(t, SDKStatusInitializing, lightning.SDKStatus())
+	require.Error(t, lightning.CheckActive())
 
 	lightning.sdkService = &breez_sdk_spark.BreezSdk{}
-	require.True(t, lightning.Ready())
+	lightning.setSDKStatus(SDKStatusReady)
+	require.Equal(t, SDKStatusReady, lightning.SDKStatus())
+	require.NoError(t, lightning.CheckActive())
+	require.NoError(t, lightning.SetAccount(lightning.Account()))
+	require.Equal(t, SDKStatusReady, lightning.SDKStatus())
 
 	require.NoError(t, lightning.SetAccount(nil))
-	require.False(t, lightning.Ready())
+	require.Equal(t, SDKStatusInactive, lightning.SDKStatus())
+	require.Error(t, lightning.CheckActive())
+}
+
+func TestSDKStatusNotifications(t *testing.T) {
+	lightning := newTestLightning(t, nil)
+	var statuses []SDKStatus
+	lightning.Observe(func(event observable.Event) {
+		if event.Subject == "lightning/sdk-status" {
+			statuses = append(statuses, event.Object.(SDKStatus))
+		}
+	})
+
+	require.NoError(t, lightning.SetAccount(&config.LightningAccountConfig{Code: "v0-test-ln-0"}))
+	lightning.setSDKStatus(SDKStatusReady)
+	lightning.setSDKStatus(SDKStatusReady)
+	lightning.setSDKStatus(SDKStatusFailed)
+	require.NoError(t, lightning.SetAccount(nil))
+
+	require.Equal(t, []SDKStatus{
+		SDKStatusInitializing,
+		SDKStatusReady,
+		SDKStatusFailed,
+		SDKStatusInactive,
+	}, statuses)
+}
+
+func TestBalanceFailureDoesNotChangeSDKStatus(t *testing.T) {
+	lightning := newTestLightning(t, nil)
+	require.NoError(t, lightning.SetAccount(&config.LightningAccountConfig{Code: "v0-test-ln-0"}))
+	lightning.sdkService = &testBreezSDK{
+		getInfo: func(breez_sdk_spark.GetInfoRequest) (breez_sdk_spark.GetInfoResponse, error) {
+			return breez_sdk_spark.GetInfoResponse{}, errors.New("get info failed")
+		},
+	}
+	lightning.setSDKStatus(SDKStatusReady)
+
+	_, err := lightning.Balance()
+	require.Error(t, err)
+	require.Equal(t, SDKStatusReady, lightning.SDKStatus())
 }
 
 func TestAddressDomain(t *testing.T) {

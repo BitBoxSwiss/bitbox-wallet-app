@@ -56,6 +56,18 @@
     min-height: 46px;
 }
 
+.assetBalanceWarning {
+    height: 24px;
+    width: 24px;
+}
+
+.assetBalanceUnavailable {
+    align-items: center;
+    display: flex;
+    gap: var(--space-quarter);
+    margin: auto 0;
+}
+
 .keystoreContainer {
     display: flex;
     flex-direction: column;

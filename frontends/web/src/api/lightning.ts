@@ -31,6 +31,8 @@ export type TLightningAccount = {
   num: number;
 };
 
+export type TLightningSDKStatus = 'inactive' | 'initializing' | 'ready' | 'failed';
+
 export type TLightningBolt11Invoice = {
   invoice: string;
   description?: string;
@@ -296,8 +298,8 @@ export const postRegisterLightningAddress = async (username: string): Promise<st
   );
 };
 
-export const getLightningReady = async (): Promise<boolean> => {
-  return getApiResponse<boolean>('lightning/ready', 'Error calling getLightningReady');
+export const getLightningSDKStatus = async (): Promise<TLightningSDKStatus> => {
+  return getApiResponse<TLightningSDKStatus>('lightning/sdk-status', 'Error calling getLightningSDKStatus');
 };
 
 export const postActivate = async (): Promise<void> => {
@@ -411,8 +413,8 @@ export const subscribeLightningAddress = (cb: TSubscriptionCallback<string | nul
   return subscribeEndpoint('lightning/address', cb);
 };
 
-export const subscribeLightningReady = (cb: TSubscriptionCallback<boolean>): TUnsubscribe => {
-  return subscribeEndpoint('lightning/ready', cb);
+export const subscribeLightningSDKStatus = (cb: TSubscriptionCallback<TLightningSDKStatus>): TUnsubscribe => {
+  return subscribeEndpoint('lightning/sdk-status', cb);
 };
 
 export const subscribeListPayments = (cb: TSubscriptionCallback<TLightningPayment[]>) => {

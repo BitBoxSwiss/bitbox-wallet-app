@@ -21,6 +21,7 @@ type TLightningState = {
     num: number;
     rootFingerprint: string;
   } | null | undefined;
+  lightningSDKStatus: lightningApi.TLightningSDKStatus | undefined;
 };
 
 const useLightningMock = vi.hoisted(() => vi.fn<() => TLightningState>());
@@ -101,6 +102,7 @@ describe('Lightning funding limit', () => {
     useLightningMock.mockReturnValue({
       isLightningReady: true,
       lightningAccount: { code: 'v0-test-ln-0', num: 0, rootFingerprint: 'f23ab988' },
+      lightningSDKStatus: 'ready',
     });
     vi.spyOn(devicesApi, 'getDeviceList').mockResolvedValue({});
     vi.spyOn(lightningApi, 'getBlockExplorerTxPrefix').mockResolvedValue('https://example.com/tx/');
@@ -126,6 +128,7 @@ describe('Lightning funding limit', () => {
     useLightningMock.mockReturnValue({
       isLightningReady: undefined,
       lightningAccount: undefined,
+      lightningSDKStatus: undefined,
     });
     const pendingRequest = new Promise<never>(() => {});
     vi.mocked(lightningApi.getBlockExplorerTxPrefix).mockReturnValue(pendingRequest);
