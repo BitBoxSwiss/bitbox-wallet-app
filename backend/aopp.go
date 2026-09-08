@@ -235,6 +235,13 @@ func (backend *Backend) aoppKeystoreRegistered() {
 	backend.notifyAOPP()
 }
 
+// aoppValidCallbackURL allows HTTP callbacks only when using development servers.
+func (backend *Backend) aoppValidCallbackURL(callbackURL *url.URL) bool {
+	return callbackURL.Host != "" &&
+		(strings.EqualFold(callbackURL.Scheme, "https") ||
+			(backend.DevServers() && strings.EqualFold(callbackURL.Scheme, "http")))
+}
+
 // handleAOPP handles an AOPP (Address Ownership Proof Protocol) request. See https://aopp.group/.
 func (backend *Backend) handleAOPP(uri url.URL) {
 	defer backend.accountsAndKeystoreLock.Lock()()
@@ -263,8 +270,7 @@ func (backend *Backend) handleAOPP(uri url.URL) {
 		backend.aoppSetError(errAOPPInvalidRequest)
 		return
 	}
-	if !strings.EqualFold(callbackURL.Scheme, "https") ||
-		callbackURL.Host == "" {
+	if !backend.aoppValidCallbackURL(callbackURL) {
 		log.Error("Invalid callback")
 		backend.aoppSetError(errAOPPInvalidRequest)
 		return
@@ -481,12 +487,12 @@ loop:
 		backend.aoppSetError(errAOPPUnknown)
 		return
 	}
-	// Only follow redirects while HTTPS is preserved, so signed data is never resent over a
-	// cleartext connection.
+	// Apply the same callback URL policy to redirects, so signed data is never resent over a
+	// cleartext connection unless using development servers.
 	httpClient := *backend.httpClient
 	checkRedirect := httpClient.CheckRedirect
 	httpClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		if !strings.EqualFold(req.URL.Scheme, "https") || req.URL.Host == "" {
+		if !backend.aoppValidCallbackURL(req.URL) {
 			return http.ErrUseLastResponse
 		}
 		if checkRedirect != nil {
