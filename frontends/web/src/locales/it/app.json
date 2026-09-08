@@ -14,6 +14,7 @@
     "maybeProxyError": "Proxy Tor attivato. Assicurati che il tuo proxy Tor funzioni correttamente, oppure disabilita l'impostazione del proxy.",
     "reconnecting": "Connessione persa, provo a riconnettermi…",
     "syncedAddressesCount": "{{count}} indirizzi letti",
+    "syncing": "Sincronizzazione dell'account, attendere…",
     "uncoveredFunds": "L'account <strong>{{name}}</strong> ha fondi sui seguenti tipi di indirizzi non coperti: {{uncovered}}.\nL'account è assicurato, ma solo i fondi ricevuti tramite indirizzi di tipo <strong>Native Segwit</strong> sono coperti. I fondi ricevuti tramite indirizzi di altro tipo, anche se si trovano sullo stesso account, non sono assicurati.\nSposta tutte i tuoi fondi dagli indirizzi non supportati a indirizzi di tipo <strong>Native Segwit</strong>, così che tutti i fondi di questo account siano coperti dall'assicurazione.",
     "uncoveredFundsLink": "Segui questa guida per spostare i tuoi fondi.",
     "warning": "Attenzione!"
@@ -33,9 +34,9 @@
     "exportTransactions": "Esporta cronologia delle transazioni",
     "exportTransactionsDisabled": "Nessuna transazione",
     "extendedPublicKey": "Chiave pubblica estesa",
-    "label": "Informazioni sull'account",
+    "label": "Informazioni account",
     "scriptType": "Tipo di script",
-    "title": "Informazioni sull'account",
+    "title": "Informazioni account",
     "usedAddresses": "Mostra indirizzi usati",
     "verify": "Verifica sul dispositivo",
     "viewAccountDetails": "Visualizza dettagli account",
@@ -52,6 +53,7 @@
     "name": "Nome account",
     "noAccount": "Non ci sono account da mostrare.",
     "portfolio": "Portfolio",
+    "searchPlaceholder": "Cerca transazioni...",
     "title": "Il mio portafoglio",
     "total": "Totale",
     "totalAssets": "Patrimonio totale",
@@ -94,6 +96,7 @@
     "loadFailed": "Impossibile caricare gli indirizzi usati.",
     "loadNotSupported": "Gli indirizzi usati non sono disponibili per questo tipo di account.",
     "loadSyncInProgress": "Gli indirizzi usati sono ancora in fase di sincronizzazione. Riprova tra poco.",
+    "new": "Nuovo indirizzo",
     "notFound": "Indirizzo non trovato.",
     "searchPlaceholder": "Cerca indirizzo",
     "skipDeviceVerification": "Salta la verifica del dispositivo",
@@ -122,7 +125,6 @@
       "message": "Continua su {{host}}",
       "title": "Indirizzo inviato con successo"
     },
-    "syncing": "Sincronizzazione dell'account, attendere prego.",
     "title": "Richiesta di indirizzo",
     "xpubRequested": "Condividere la tua xpub permette a servizi esterni di vedere gli indirizzi del tuo account. I tuoi fondi sono ancora al sicuro e rimangono in tuo controllo."
   },
@@ -308,7 +310,8 @@
     },
     "restoreFromMnemonic": {
       "e104": "Il ripristino tramite parole di recupero è stato cancellato.",
-      "failed": "Ripristino con parole di recupero non riuscito. Riprovare."
+      "failed": "Ripristino con parole di recupero non riuscito. Riprovare.",
+      "securityNotice": "Stai ripristinando un wallet che non è stato creato su un BitBox? Un wallet creato altrove potrebbe non offrire lo stesso livello di sicurezza di uno creato direttamente sul tuo BitBox. Se hai dubbi, ti consigliamo di creare qui un nuovo wallet e trasferirvi i tuoi fondi."
     },
     "stepBackup": {
       "beforeProceed": "Prima di procedere, leggi queste importanti considerazioni sulla sicurezza:",
@@ -409,14 +412,13 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Errore: non è stato possibile ottenere la chiave pubblica dell'account.",
     "noAccount": "Non ci sono account che possono essere assicurati.",
-    "select": "Seleziona un account",
-    "title": "Assicurazione"
+    "select": "Seleziona un account"
   },
   "blink": {
     "button": "Lampeggia"
   },
   "bluetooth": {
-    "connected": "Connesso",
+    "connected": "connesso",
     "connectionFailed": "Connessione fallita",
     "connectionIssues": "Problemi di connessione?",
     "connectionIssuesLink": "Vedi qui",
@@ -451,6 +453,8 @@
     "previous": "Precedente",
     "proceedOnBitBox": "Procedi sul tuo BitBox",
     "restore": "Ripristina",
+    "review": "Rivedi",
+    "save": "Salva",
     "select": "Selezionare",
     "unlock": "Sblocca",
     "update": "Aggiorna",
@@ -871,7 +875,8 @@
       },
       "title": "Firmware",
       "upToDate": "Il tuo dispositivo è aggiornato",
-      "upgradeAvailable": "Nuovo upgrade disponibile",
+      "upgradeAvailable": "Nuovo aggiornamento disponibile",
+      "upgradeAvailableDescription": "È disponibile un aggiornamento del firmware. Aggiorna ora per beneficiare degli ultimi miglioramenti alla sicurezza e delle nuove funzionalità.",
       "version": {
         "label": "Versione"
       }
@@ -916,6 +921,19 @@
     "aoppUnsupportedKeystore": "Il dispositivo collegato non può firmare i messaggi per questo asset.",
     "aoppVersion": "Versione sconosciuta.",
     "keystoreTimeout": "La richiesta al wallet è scaduta. Riprova.",
+    "lightningAddressChangeCooldown": "Attendi prima di modificare nuovamente il tuo indirizzo Lightning.",
+    "lightningAddressInvalidUsername": "Usa solo lettere minuscole e numeri.",
+    "lightningAddressUsernameUnavailable": "Questo nome non è disponibile.",
+    "lightningAmountBelowMinimum": "L’importo deve essere di almeno {{minAmountSat}} sats.",
+    "lightningBalanceLimitExceeded": "L’importo della ricarica supera il limite di {{limit}} del wallet Lightning. L’importo massimo della ricarica deve essere pari o inferiore a {{remaining}}.",
+    "lightningInsufficientFunds": "Fondi insufficienti nel wallet Lightning.",
+    "lightningInvalidAmount": "Importo invalido.",
+    "lightningInvalidPaymentInput": "Fattura o richiesta di pagamento non valida.",
+    "lightningInvoiceAlreadyUsed": "Questa fattura Lightning è già stata utilizzata. Richiedi una nuova fattura.",
+    "lightningPaymentPreparationFailed": "Impossibile preparare il pagamento. Riprova.",
+    "lightningTopUpClaimFailed": "Prova a riscattare nuovamente la ricarica.",
+    "lightningTopUpRefundFailed": "Riprova a rimborsare la ricarica.",
+    "paymentApprovalRequired": "La commissione di pagamento è aumentata. Controlla e approva di nuovo.",
     "wrongKeystore": "Wallet connesso errato. Assicurati di inserire il dispositivo corretto per questo account.",
     "wrongKeystore2": " Se stai utilizzando la passphrase opzionale, assicurati di avere inserito quella corretta per questo account."
   },
@@ -1013,6 +1031,8 @@
     "title": "Impostazioni personalizzate di gap limit"
   },
   "generic": {
+    "beta": "Beta",
+    "bitcoinOnly": "Bitcoin-only",
     "buy": "Acquista {{coinCode}}",
     "buySell": "Marketplace",
     "buy_bitcoin": "Acquista Bitcoin",
@@ -1022,6 +1042,7 @@
     "enable": "Abilita",
     "enabled_false": "Disabilitato",
     "enabled_true": "Abilitato",
+    "insure": "Assicura",
     "max": "Massimo",
     "new": "Nuovo",
     "noOptionOnIos": "Non disponibile su iOS",
@@ -1042,6 +1063,7 @@
     "sell_crypto": "Vendi crypto",
     "send": "Invia",
     "sent": "Inviata",
+    "skip": "Salta",
     "spend_bitcoin": "Spendi bitcoin",
     "spend_crypto": "Spendi crypto",
     "swap": "Swap",
@@ -1333,11 +1355,71 @@
       "appearance": "Guida alle impostaizoni di aspetto",
       "buySell": "Guida al Marketplace",
       "insurance": "Guida all'assicurazione",
+      "lightningReceive": "Guida per ricevere con Lightning",
+      "lightningSend": "Guida per inviare con Lightning",
       "manageAccount": "Guida alla gestione degli account",
       "manageDevice": "Guida alla gestione del dispositivo",
       "receive": "Guida alla ricezione",
       "send": "Guida all'invio",
       "walletConnect": "Guida a WalletConnect"
+    },
+    "lightning": {
+      "multipleDevices": {
+        "text": "Sì, devi solo collegare il tuo BitBox a un altro dispositivo e attivare Lightning dalla BitBoxApp. Il wallet Lightning sarà lo stesso del dispositivo precedente se usi lo stesso wallet.",
+        "title": "Posso usare il mio wallet Lightning su più dispositivi?"
+      },
+      "multipleWallets": {
+        "text": "No, al momento non puoi creare più wallet Lightning con lo stesso BitBox, né usare più Lightning wallet sulla stessa BitBoxApp, anche se hai più BitBox.",
+        "title": "Posso creare più wallet Lightning?"
+      },
+      "privateKey": {
+        "text": "Il wallet Lightning della BitBoxApp è non-custodial, il che significa che solo tu hai accesso alle chiavi. Le chiavi private sono memorizzate nella BitBoxApp. Questo rende il tuo wallet Lightning un “hot wallet”, poiché le chiavi Lightning sono sul tuo computer/telefono anziché sul tuo BitBox. Pertanto, conserva solo una piccola quantità di fondi nel tuo wallet Lightning",
+        "title": "Dove sono memorizzate le mie chiavi private Lightning?"
+      },
+      "providers": {
+        "text": "Sì, il wallet Lightning usa Spark tramite l'SDK Breeze. La BitBoxApp controlla le tue chiavi Lightning, mentre Spark fornisce l'infrastruttura esterna necessaria ad inviare e ricevere pagamenti Lightning. Potrebbero essere applicate commissioni per l'utilizzo del servizio.",
+        "title": "Sono coinvolte terze parti in questa soluzione?"
+      },
+      "receive": {
+        "fee": {
+          "text": "No, il destinatario non paga una commissione per la ricezione di un pagamento Lightning. Il mittente paga le commissioni.",
+          "title": "Pago una commissione quando ricevo?"
+        },
+        "invoiceOrAddress": {
+          "text": "Crea una invoice quando vuoi richiedere un importo specifico. Una invoice è per un singolo pagamento e scade dopo 30 giorni. Condividi invece il tuo indirizzo Lightning quando il mittente deve scegliere l'importo o quando vuoi che lo salvi per pagamenti futuri. Puoi aggiungere una descrizione facoltativa a una invoice per aiutare a identificare il pagamento in seguito.",
+          "title": "Quando dovrei creare una invoice invece di condividere il mio indirizzo?"
+        },
+        "payment": {
+          "text": "Puoi condividere il tuo indirizzo Lightning riutilizzabile o creare una invoice BOLT11 per un pagamento singolo. Condividi il QR code o il testo visualizzato con il mittente. Non è necessario che la BitBoxApp rimanga aperta mentre attendi il pagamento.",
+          "title": "Come posso ricevere un pagamento Lightning?"
+        },
+        "reuseAddress": {
+          "text": "Sì. Diversamente da una invoice, il tuo indirizzo Lightning può essere utilizzato per più pagamenti. Chi invia sceglie l'importo e il wallet richiede automaticamente i dettagli del pagamento. Non è un indirizzo e‑mail, anche se sembra tale.",
+          "title": "Posso riutilizzare il mio indirizzo Lightning?"
+        }
+      },
+      "securedByBitBox": {
+        "text": "No, il BitBox è usato solo per creare e ripristinare il tuo Lightning wallet. Una volta creato, il tuo Lightning wallet è un \"hot wallet\".",
+        "title": "Il mio wallet Lightning è protetto dal mio BitBox?"
+      },
+      "send": {
+        "cancel": {
+          "text": "No. I pagamenti Lightning non possono essere annullati né stornati una volta inviati. Controlla sempre destinatario, importo, descrizione e commissione prima di inviare. Se hai bisogno di un rimborso, chiedi al destinatario di restituire i fondi. Una invoice non pagata scade dopo un certo periodo.",
+          "title": "Posso annullare o stornare un pagamento Lightning?"
+        },
+        "fee": {
+          "text": "La commissione dipende dall'importo del pagamento e dal percorso disponibile al momento, quindi viene calcolata poco prima di inviare. La commissione e l'importo totale che verranno detratti dal tuo saldo saranno mostrati prima di confermare.",
+          "title": "Come viene calcolata la commissione per un pagamento Lightning?"
+        },
+        "invoiceAndAddress": {
+          "text": "Una invoice BOLT11 viene creata per un singolo pagamento. Può già specificare l'importo o chiederti di inserirlo. Le invoice scadono e possono essere pagate solo una volta. Un indirizzo Lightning è invece riutilizzabile e ti permette di scegliere qualsiasi importo, entro i limiti impostati dal destinatario.",
+          "title": "Qual è la differenza tra una invoice e un indirizzo Lightning?"
+        },
+        "payment": {
+          "text": "Scansiona o incolla una invoice BOLT11, una richiesta LNURL-Pay o un indirizzo Lightning. Un indirizzo Lightning assomiglia a un indirizzo email, ma viene usato per i pagamenti.",
+          "title": "Come invio un pagamento Lightning?"
+        }
+      }
     },
     "receive": {
       "address": {
@@ -1532,6 +1614,287 @@
   "invalidFormat": "Formato non valido",
   "language": {
     "title": "Seleziona lingua"
+  },
+  "lightning": {
+    "accountLabel": "Lightning",
+    "activate": {
+      "connect": {
+        "content": "Collega il tuo BitBox per creare un wallet Lightning",
+        "title": "Collega il tuo dispositivo"
+      },
+      "disclaimer": {
+        "checkboxLabel": "Ho letto le informazioni riportate sopra",
+        "content": "Il tuo portafoglio Lightning verrà creato usando una chiave derivata dal tuo BitBox. In questo modo potrai sempre ripristinare il wallet Lightning usando il tuo BitBox o il backup.\n\nTuttavia, a differenza del BitBox, il wallet Lightning è un <strong>hot wallet</strong>. Questo significa che le chiavi del tuo portafoglio Lightning sono memorizzate nella BitBoxApp, non sul BitBox. Non dovresti usare il portafoglio Lightning per importi elevati o per la conservazione a lungo termine.\n\n          Inoltre, la funzionalità Lightning è attualmente in beta, quindi potresti riscontrare bug, problemi di affidabilità o potrebbe smettere di funzionare del tutto.",
+        "title": "Come funziona con la BitBoxApp?"
+      },
+      "intro": {
+        "content": "Lighting è un layer 2 di Bitcoin basato su canali. Permette di inviare e ricevere monete istantaneamente e con commissioni molto basse.",
+        "title": "Che cosa è Lightning?"
+      },
+      "success": {
+        "message": "Operazione riuscita, il tuo wallet Lightning è pronto!"
+      },
+      "title": "Crea wallet Lightning",
+      "wait": {
+        "activating": "Creazione wallet Lightning...",
+        "confirm": "Conferma sul tuo BitBox che vuoi creare un wallet Lightning.",
+        "title": "Crea wallet Lightning"
+      }
+    },
+    "betaWarning": "Lightning è una funzionalità beta pensata per l'anteprima e i test. Usa Lightning solo con una piccola quantità di fondi!",
+    "bitcoinDeposit": {
+      "claim": "Richiedi ricarica o rimborso",
+      "label": "Ricarica Bitcoin",
+      "state": {
+        "claiming": "Riscossione del deposito",
+        "confirming": "In attesa delle conferme",
+        "unclaimed": "Riscossione richiesta"
+      },
+      "stateShort": {
+        "claiming": "Riscattando",
+        "confirming": "Confermando",
+        "unclaimed": "Riscossione richiesta"
+      }
+    },
+    "claimTopUp": {
+      "claimButton": "Riscatta ricarica",
+      "claimFee": "Commissione di riscatto",
+      "claimUnavailable": "Riscatto non disponibile",
+      "confirm": {
+        "amount": "Ricarica non riscattata",
+        "claimButton": "Conferma riscatto",
+        "claimTitle": "Conferma riscossione della ricarica",
+        "fee": "Commissione",
+        "feeRate": "Tasso di commissione",
+        "refundButton": "Conferma rimborso",
+        "refundDestination": "Destinazione rimborso",
+        "refundTitle": "Conferma rimborso ricarica"
+      },
+      "description": "Devi creare una transazione per riscattare l'importo bloccato.",
+      "empty": "Nessuna ricarica da riscattare trovata.",
+      "failure": {
+        "claimFailedMessage": "Il riscatto della ricarica non è riuscito.",
+        "claimFailedTryRefund": "Prova il rimborso su un account Bitcoin.",
+        "refundFailedMessage": "Rimborso della ricarica non riuscito.",
+        "refundFailedTryAgain": "Riprova."
+      },
+      "feeRate": "{{feeRate}} sat/vByte",
+      "refundButton": "Rimborsa ricarica",
+      "refundFee": "Tasso di commissione per il rimborso",
+      "refundUnavailable": "Rimborso non disponibile",
+      "success": {
+        "claimMessage": "Transazione di riscatto effettuata",
+        "claimNote": "La ricarica apparirà nel tuo wallet una volta confermata la transazione.",
+        "claimTitle": "Riscatta ricarica",
+        "refundMessage": "Transazione di rimborso effettuata",
+        "refundNote": "Il rimborso apparirà sul tuo wallet on-chain non appena la transazione verrà confermata.",
+        "refundTitle": "Rimborsa ricarica"
+      },
+      "title": "Riscatta ricarica",
+      "topUp": "Ricarica non riscattata",
+      "viewTransaction": "Visualizza transazione",
+      "warning": "Puoi incassare la ricarica o richiederne il rimborso. Entrambe le opzioni comportano una commissione."
+    },
+    "closeWithdrawFunds": {
+      "accountDestination": "I fondi dell'account verranno inviate a",
+      "confirm": "Conferma la chiusura del wallet Lightning",
+      "description": "Ciò chiuderà il tuo wallet Lightning e invierà tutti i fondi rimanenti al tuo BitBox.",
+      "failure": {
+        "message": "La chiusura del wallet Lightning non è andata a buon fine.",
+        "tryAgain": "Riprova."
+      },
+      "fee": "Commissione",
+      "incomingFunds": "Fondi in arrivo",
+      "incomingWarning": "Non è possibile prelevare i fondi in entrata quando chiudi tuo wallet Lightning. Riprova più tardi per prelevare tutti i fondi.",
+      "incomingWarningConfirm": "Sono consapevole che i fondi in entrata non verranno prelevati.",
+      "lightningBalanceToBeSent": "Saldo Lightning da inviare",
+      "partialFailure": {
+        "action": "Chiudi portafoglio",
+        "message": "I fondi sono stati prelevati, ma non è stato possibile chiudere il wallet Lightning. Chiudilo separatamente."
+      },
+      "success": {
+        "message": "Wallet Lightning chiuso con successo. I fondi verranno inviati al wallet on-chain.",
+        "note": "I tuoi fondi appariranno nel tuo wallet non appena la transazione verrà confermata."
+      },
+      "viewTransaction": "Vedi transazione"
+    },
+    "deactivate": {
+      "intro": {
+        "content": "Disattivare il tuo wallet Lightning ti disconnetterà dal server e non potrai più usarlo per inviare e ricevere.\nI fondi sul tuo wallet Lightning non sono interessati: potrai comunque accedervi abilitando Lightning nelle impostazioni e collegando il BitBox usato per creare quel wallet."
+      },
+      "success": {
+        "message": "Operazione riuscita, il tuo wallet Lightning è ora disabilitato"
+      },
+      "wait": {
+        "title": "Disabilitando wallet Lightning..."
+      }
+    },
+    "disclaimer": {
+      "backups": {
+        "content": "La chiave privata del wallet Lightning è derivata dal BitBox. Questo significa che puoi ripristinare il tuo wallet Lightning usando lo stesso BitBox con cui è stato creato.",
+        "title": "Backup"
+      },
+      "beta": {
+        "content": "L'implementazione Lightning nella BitBoxApp è in beta. Ciò significa che potresti incontrare bug o che potrebbe smettere di funzionare del tutto. Assicurati di comprendere i rischi prima di usarla e non ricaricare il tuo portafoglio Lightning con più fondi di quanti tu sia disposto a perdere.",
+        "title": "Beta"
+      },
+      "continue": "Accetta e continua",
+      "fees": {
+        "receiving": {
+          "content": "Ricevere transazione Lightning è gratuito. Il mittente paga le commissioni.",
+          "title": "Ricezione"
+        },
+        "sending": {
+          "content": "La commissione dipende dall'importo del pagamento e dal percorso disponibile al momento, quindi viene calcolata poco prima di inviare. La commissione e l'importo totale che verranno detratti dal tuo saldo saranno mostrati prima della tua conferma.",
+          "title": "Invio"
+        },
+        "title": "Commissioni"
+      },
+      "securityModel": {
+        "content": "Il portafoglio Lightning è un <strong>hot wallet</strong>. Ciò significa che le chiavi sono memorizzate nell'app e quindi non sono protette dal BitBox. Questo ti permette di usare il tuo portafoglio Lightning senza bisogno di un BitBox. Conserva solo una piccola quantità di fondi nel tuo portafoglio Lightning.",
+        "title": "Modello di sicurezza"
+      },
+      "title": "Avviso per Lightning",
+      "trustModel": {
+        "breezLink": "Scopri Breez SDK",
+        "content": "L'integrazione Lightning nella BitBoxApp utilizza l'infrastruttura Spark e il Breez SDK. Tieni presente che, al momento, l'uscita unilaterale dei tuoi fondi non è possibile, perché il Breez SDK non la supporta. Di conseguenza, l'uscita dei fondi dal tuo portafoglio Lightning dipende dall'infrastruttura Spark: deve essere online e collaborativa.",
+        "sparkLink": "Scopri Spark",
+        "title": "Modello di fiducia"
+      }
+    },
+    "initializing": "Inizializzazione account Lightning...",
+    "limit": {
+      "accountWarning": "Il saldo del wallet supera il limite di {{limit}} di {{excess}}. Ti consigliamo di spostare alcuni fondi sul tuo wallet BitBox per una maggiore sicurezza.",
+      "createInvoiceWarning": "L'importo della invoice supererà il limite {{limit}} di {{excess}}. Puoi comunque creare la invoice.",
+      "invoiceWarning": "L'importo della invoice supererà il limite {{limit}} di {{excess}}. Puoi comunque usare la invoice.",
+      "moveCoins": "Sposta fondi"
+    },
+    "lnurlAddress": {
+      "availability": {
+        "available": "Il nome è disponibile",
+        "checking": "Verificando disponibilità...",
+        "taken": "Nome già in uso"
+      },
+      "choose": "Puoi scegliere il tuo indirizzo qui sotto o generarne uno.",
+      "description": "Un indirizzo LNURL è un indirizzo human-readable che può essere facilmente condiviso per ricevere pagamenti Lightning",
+      "generate": "Genera indirizzo",
+      "label": "Username LNURL",
+      "notice": "Nota: il tuo indirizzo può essere modificato <strong>solo una volta ogni 24 ore.</strong>",
+      "success": {
+        "message": "Il tuo indirizzo LNURL è stato impostato."
+      },
+      "title": "Imposta indirizzo LNURL"
+    },
+    "payments": {
+      "header": {
+        "amount": "Importo",
+        "date": "Data",
+        "description": "Descrizione",
+        "type": "Tipo"
+      },
+      "placeholder": "Ancora nessun pagamento.",
+      "title": "Cronologia pagamenti"
+    },
+    "receive": {
+      "address": {
+        "label": "Indirizzo Lightning",
+        "scanQRCode": "Scansione il QR code per ricevere"
+      },
+      "amountSats": {
+        "label": "Sats",
+        "placeholder": "Inserisci importo"
+      },
+      "description": {
+        "label": "Descrizione",
+        "optional": "Opzionale",
+        "placeholder": "Inserisci descrizione"
+      },
+      "invoice": {
+        "copied": "Invoice copiata!",
+        "create": "Crea invoice",
+        "creating": "Creazione invoice",
+        "edit": "Modifica invoice",
+        "newInvoice": "Nuova invoice",
+        "title": "Scansione il QR code per ricevere"
+      },
+      "openChannelWarning": "Verrà prelevata una commissione di {{feeSat}} sats per aprire un nuovo canale.",
+      "subtitle": "Crea invoice Lightning",
+      "success": {
+        "message": "Pagamento Lightning ricevuto!"
+      },
+      "title": "Ricevi Lightning"
+    },
+    "send": {
+      "confirm": {
+        "amount": "Importo",
+        "note": "Note",
+        "receiver": "Destinatario",
+        "title": "Conferma dettagli transazione"
+      },
+      "enterInvoice": "Inserisci indirizzo o invoice",
+      "invoice": {
+        "label": "Inserisci dettagli pagamento",
+        "placeholder": "Indirizzo o invoice"
+      },
+      "lnurlPay": {
+        "invalidAmount": "Inserisci un importo tra {{minAmount}} e {{maxAmount}} sats."
+      },
+      "onChain": "On-chain",
+      "pasteClipboard": "Incolla dalla clipboard",
+      "qrCode": {
+        "label": "Scansiona indirizzo o invoice"
+      },
+      "scanInstruction": "Inquadra il QR code di una invoice",
+      "sending": {
+        "connecting": "Preparazione pagamento",
+        "message": "Invio pagamento"
+      },
+      "success": {
+        "message": "Transazione confermata e inviata!"
+      },
+      "title": "Invia Lightning"
+    },
+    "settings": {
+      "closeAndWithdrawFunds": "Chiudi e preleva fondi",
+      "disableWallet": "Disabilita il wallet Lightning",
+      "enableWallet": "Abilita il wallet Lightning",
+      "enableWalletDescription": "Lightning abilita pagamenti istantanei e con commissioni basse.",
+      "expert": "Avanzate",
+      "serviceProvider": "Service provider",
+      "setLightningAddress": "Importa indirizzo Lightning",
+      "status": "Stato",
+      "statusConnected": "Connesso",
+      "title": "Impostazioni Lightning",
+      "wallet": "Wallet"
+    },
+    "sparkStatus": {
+      "degraded": "La rete Spark sta registrando prestazioni ridotte. I pagamenti Lightning potrebbero subire ritardi.",
+      "major": "La rete Spark sta subendo un grave disservizio. I pagamenti Lightning potrebbero non essere disponibili.",
+      "partial": "La rete Spark è parzialmente non disponibile. I pagamenti Lightning potrebbero non funzionare.",
+      "unknown": "Lo stato della rete Spark è sconosciuto. I pagamenti Lightning potrebbero non essere disponibili."
+    },
+    "topUp": {
+      "action": "Ricarica",
+      "available": "Disponibile",
+      "confirm": {
+        "amount": "Importo",
+        "continue": "Continua sul tuo BitBox.",
+        "networkFee": "Commissione di rete",
+        "receiver": "Destinatario",
+        "title": "Conferma ed invia transazione",
+        "total": "Totale"
+      },
+      "from": "Da",
+      "noBitcoinAccounts": "Nessun account Bitcoin attivo. Attiva un account Bitcoin.",
+      "note": "Ricarica Lightning",
+      "success": {
+        "message": "Ricarica creata!",
+        "note": "La transazione di ricarica apparirà dopo una conferma e sarà completa dopo tre conferme. Ciò richiede solitamente oltre 30 minuti."
+      },
+      "title": "Ricarica wallet Lightning",
+      "to": "A"
+    },
+    "torProxyWarning": "Lightning non utilizza il proxy Tor. Lightning continuerà a funzionare tramite la tua normale connessione Internet."
   },
   "loading": "caricamento…",
   "logo": {
@@ -1851,6 +2214,7 @@
       "invalidAddress": "indirizzo non valido",
       "invalidAmount": "importo non valido",
       "invalidData": "dati non validi",
+      "paymentRequestAccountMismatch": "Questa richiesta di pagamento è un asset diverso. Apri l'account corrispondente e prova di nuovo.",
       "syncInProgress": "L'account è ancora in fase di sincronizzazione. Attendere che la sincronizzazione sia completata e riprovare."
     },
     "fee": {
@@ -1899,7 +2263,9 @@
     "noFeeTargets": "La stima delle fee al momento non è disponibile. Inserisci una fee a tua discrezione o riprova più tardi.",
     "priority": "Priorità",
     "scanQR": "Leggi il QR code",
+    "scanQRInstruction": "Inquadra il QR code di un indirizzo con la fotocamera",
     "scanQRNoCameraMessage": "Camera non trovata. Assicurati che il tuo dispositivo supporti una camera e che i permessi siano correttamente configurati.",
+    "scanQRToggleFlash": "Attiva/disattiva flash",
     "sendToAccount": {
       "placeholder": "Seleziona account",
       "title": "Invia all'account"
@@ -1941,6 +2307,15 @@
       "title-tltc": "Litecoin Testnet Electrum server"
     },
     "expert": {
+      "clearCache": {
+        "description": "Svuota la cache di BitBoxApp. Questo operazione può aiutare a risolvere problemi nell'app.",
+        "dialog": {
+          "description": "Svuota la cache della BitBoxApp. Se stai riscontrando problemi con la BitBoxApp, questa operazione può aiutare a risolverli.",
+          "note": "I nomi degli account, le note e i wallet non sono interessati.",
+          "primaryCTA": "Svuota Cache"
+        },
+        "title": "Svuota cache"
+      },
       "coinControl": "Abilita \"coin control\"",
       "electrum": {
         "description": "Puoi connetterti al tuo full node Electrum.",
@@ -1988,6 +2363,9 @@
       "title": "Gestisci le note"
     },
     "restart": "Si prega di riavviare la BitBoxApp affinché le modifiche abbiano effetto.",
+    "search": {
+      "noResults": "Nessuna impostazione trovata"
+    },
     "services": {
       "title": "Servizi"
     },
@@ -1997,7 +2375,6 @@
   "setup": "Imposta il dispositivo",
   "sidebar": {
     "device": "Gestisci il dispositivo",
-    "insurance": "Assicurazione",
     "leave": "Esci",
     "settings": "Impostazioni"
   },
@@ -2090,6 +2467,7 @@
     "explorer": "ID della transazione",
     "explorerTitle": "Apri in un esploratore di blocchi esterno",
     "fee": "Commissione",
+    "feeRate": "Tasso di commissione",
     "fiatHistorical": "Storico",
     "gas": "Gas",
     "no-results": "Nessuna transazione trovata corrispondente a \"{{searchTerm}}\"",
@@ -2155,6 +2533,7 @@
     "unlocking": "Sblocco…"
   },
   "upgradeFirmware": {
+    "banner": "Aggiornamento BitBox disponibile. <updateLink>Aggiorna ora</updateLink> per gli ultimi miglioramenti di sicurezza e nuove funzionalità.",
     "button": "Aggiorna il firmware",
     "description": "Vuoi aggiornare il firmware dalla versione {{currentVersion}} alla {{newVersion}}?",
     "label": "Il tuo BitBox richiede un aggiornamento del firmware.",
@@ -2170,7 +2549,8 @@
       "button": "Conneti",
       "dappLabel": "Inserire indirizzo URI della DApp",
       "invalidPairingUri": "URI di connessione non valido",
-      "missingNamespace": "La richiesta di connessione dell’app non ha definito il namespace necessario"
+      "missingNamespace": "La richiesta di connessione dell’app non ha definito il namespace necessario",
+      "scanInstruction": "Inquadra con la fotocamera il QR code di WalletConnect"
     },
     "dashboard": {
       "allSessions": "Tutte le sessioni",

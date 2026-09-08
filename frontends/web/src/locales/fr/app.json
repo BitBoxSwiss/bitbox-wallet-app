@@ -2,7 +2,7 @@
   "account": {
     "account": "Compte",
     "accounts": "Comptes",
-    "backupReminder": "Votre portefeuille <strong>{{name}}</strong> a dépassé {{fiat}}{{threshold}} !\n\nNous vous recommandons de créer une sauvegarde papier pour plus de sécurité. C'est rapide et simple.",
+    "backupReminder": "Votre portefeuille <strong>{{name}}</strong> a dépassé {{fiat}} {{threshold}} !\n\nNous vous recommandons de créer une sauvegarde papier pour plus de sécurité. C'est rapide et simple.",
     "backupReminderLink": "Créer une sauvegarde papier",
     "disconnect": "Connexion perdue. Tentative de reconnexion…",
     "exportTransactions": "Exporter les transactions vers le dossier Téléchargements sous forme de fichier CSV",
@@ -14,9 +14,10 @@
     "maybeProxyError": "Proxy Tor activé. Assurez-vous que votre proxy Tor fonctionne correctement, ou désactivez la configuration du proxy.",
     "reconnecting": "Connexion perdue, tentative de reconnexion…",
     "syncedAddressesCount": "{{count}} adresses scannées",
-    "uncoveredFunds": "Vous avez des fonds sur les types d’adresses non couverts suivants de votre compte <strong>{{name}}</strong> : {{uncovered}}.\nÉtant donné que ce compte est assuré, seuls les fonds reçus via le type d’adresse couvert <strong>Native Segwit</strong> sont pris en charge. Les fonds reçus sur d’autres types d’adresses, même s’ils appartiennent au même compte, ne sont pas assurés.\nVeuillez transférer tous les fonds provenant des types d’adresses non pris en charge vers le type d’adresse couvert <strong>Native Segwit</strong>, afin que l’ensemble des fonds de ce compte soit assuré.",
-    "uncoveredFundsLink": "Suivez ce guide pour savoir comment déplacer vos coins.",
-    "warning": "Avertissement !"
+    "syncing": "Synchronisation du compte, veuillez patienter…",
+    "uncoveredFunds": "Vous avez des fonds sur les types d’adresses non couverts suivants de votre compte <strong>{{name}}</strong> : {{uncovered}}.\nÉtant donné que ce compte est assuré, seuls les fonds reçus via le type d’adresse couvert <strong>SegWit natif</strong> sont pris en charge. Les fonds reçus sur d’autres types d’adresses, même s’ils appartiennent au même compte, ne sont pas assurés.\nVeuillez transférer tous les fonds provenant des types d’adresses non pris en charge vers le type d’adresse couvert <strong>SegWit natif</strong>, afin que l’ensemble des fonds de ce compte soit assuré.",
+    "uncoveredFundsLink": "Suivez ce guide pour savoir comment déplacer vos fonds.",
+    "warning": "Attention !"
   },
   "accountInfo": {
     "accountDetails": "Détails du compte",
@@ -28,7 +29,7 @@
       }
     },
     "contractAddress": "Adresse du contrat",
-    "contractAddressWarning": "N’envoyez pas de coins à l’adresse du contrat, sinon ils seront perdus. L’adresse du contrat est fournie uniquement à titre informatif.",
+    "contractAddressWarning": "N’envoyez pas d’actifs à l’adresse du contrat, sinon ils seront perdus. L’adresse du contrat est fournie uniquement à titre informatif.",
     "descriptorWarning": "Pour garantir une compatibilité fluide avec d’autres portefeuilles, applications ou services, veuillez copier le descripteur en entier. Sélectionner et copier uniquement la xpub peut entraîner l’import du compte avec un type de script incorrect, ce qui peut provoquer des problèmes.",
     "exportTransactions": "Exporter l’historique des transactions",
     "exportTransactionsDisabled": "Aucune transaction",
@@ -42,7 +43,7 @@
     "xpubTypeChangeBtn": {
       "p2pkh": "Afficher la clé publique étendue (xpub) P2PKH héritée",
       "p2tr": "Afficher Taproot",
-      "p2wpkh": "Afficher Native Segwit"
+      "p2wpkh": "Afficher SegWit natif"
     },
     "xpubTypeInfo": "Affichage actuellement de la clé publique étendue {{scriptType}} ({{current}} de {{numberOfXPubs}})"
   },
@@ -52,6 +53,7 @@
     "name": "Nom du compte",
     "noAccount": "Il n'y a pas de compte à montrer.",
     "portfolio": "Portefeuille",
+    "searchPlaceholder": "Rechercher des transactions…",
     "title": "Vue globale de mon portefeuille",
     "total": "Montant total",
     "totalAssets": "Total des actifs",
@@ -66,7 +68,7 @@
     "selectCoin": {
       "nextButton": "Suivant",
       "step": "Sélectionner un actif",
-      "title": "Sélectionnez une crypto-monnaie"
+      "title": "Sélectionnez une cryptomonnaie"
     },
     "success": {
       "addAnotherAccount": "Ajouter un autre compte",
@@ -78,7 +80,7 @@
     "title": "Ajouter un compte"
   },
   "addresses": {
-    "changeCopyBody": "N’utilisez pas une adresse de change pour recevoir des coins. Pour recevoir des coins, cliquez <receiveLink>ici</receiveLink>.",
+    "changeCopyBody": "N’utilisez pas une adresse de change pour recevoir des fonds. Pour recevoir des fonds, cliquez <receiveLink>ici</receiveLink>.",
     "columnAddress": "Adresse",
     "columnLastUsed": "Dernière utilisation",
     "detail": {
@@ -94,6 +96,7 @@
     "loadFailed": "Impossible de charger les adresses utilisées.",
     "loadNotSupported": "Les adresses utilisées ne sont pas disponibles pour ce type de compte.",
     "loadSyncInProgress": "Les adresses utilisées sont encore en cours de synchronisation. Veuillez réessayer dans un instant.",
+    "new": "Nouvelle adresse",
     "notFound": "Adresse introuvable.",
     "searchPlaceholder": "Rechercher une adresse",
     "skipDeviceVerification": "Ignorer la vérification sur l’appareil",
@@ -122,7 +125,6 @@
       "message": "Continuer sur {{host}}",
       "title": "Adresse envoyée avec succès"
     },
-    "syncing": "Synchronisation du compte, veuillez patienter.",
     "title": "Demande d'adresse",
     "xpubRequested": "Partager votre xpub permet à des services externes de voir les adresses de votre compte. Vos fonds restent néanmoins en sécurité et sous votre contrôle."
   },
@@ -170,7 +172,7 @@
     "insertButton": "J'ai inséré la carte microSD",
     "link": "Aller à la gestion des sauvegardes",
     "list": "Vos sauvegardes sur la carte microSD",
-    "noBackups": "Il n'existe aucune sauvegarde sur cette carte micro SD.",
+    "noBackups": "Il n’existe aucune sauvegarde sur cette carte microSD.",
     "restore": {
       "confirmTitle": "Restaurer la sauvegarde",
       "error": {
@@ -192,7 +194,7 @@
     },
     "showMnemonic": {
       "checkboxLabel": "J'ai lu les informations ci-dessus",
-      "description": "24 mots de récupération vont vous être présentés ; ils constituent une sauvegarde de votre portefeuille. Notez-les sur papier.\n\n<strong>Ne les stockez pas sur un support numérique et ne les prenez pas en photo.</strong>\n\n<strong>Ne prononcez pas les mots à haute voix.</strong>\n\n<strong>Cette sauvegarde n'est pas protégée par un mot de passe.</strong>\n\nIl vous sera demandé ensuite de confirmer chacun de ces mots.",
+      "description": "Les mots de récupération vont s’afficher sur l’appareil ; ils constituent une sauvegarde de votre portefeuille. Notez-les sur papier.\n\n<strong>Ne les stockez pas sur un support numérique et ne les prenez pas en photo.</strong>\n\n<strong>Ne prononcez pas les mots à haute voix.</strong>\n\n<strong>Cette sauvegarde n'est pas protégée par un mot de passe.</strong>\n\nIl vous sera ensuite demandé de confirmer chacun de ces mots.",
       "title": "Montrer les mots de récupération",
       "warning": "<strong>Ne partagez jamais vos mots de récupération avec qui que ce soit.</strong> Vos mots de récupération permettent un accès intégral à votre portefeuille. Si on vous demande vos mots de récupération, il s’agit d’une escroquerie, ne les partagez jamais !"
     },
@@ -212,7 +214,7 @@
     "success": "Mise à jour réussie !",
     "success_install": "Installation réussie !",
     "upgradeTitle": "Mise à jour du micrologiciel BitBox",
-    "upgradeTitle_install": "Mettre à jour le micrologiciel du BitBox"
+    "upgradeTitle_install": "Installation du micrologiciel du BitBox"
   },
   "bitbox": {
     "error": {
@@ -275,9 +277,9 @@
       "point1": "Sélectionner une sauvegarde sur la carte microSD",
       "point2": "Définissez un mot de passe pour votre appareil",
       "restoreText": "Ok, restaurons une sauvegarde !",
-      "text1": "Parfait, le mot de passe pour votre BitBox est défini et votre portefeuille est créé. Il est maintenant temps de procéder à votre première sauvegarde. Assurez-vous que la carte micro SD soit bien insérée dans l'appareil et continuez.",
+      "text1": "Parfait, le mot de passe de votre BitBox est maintenant défini et votre portefeuille est créé. Il est temps de créer votre première sauvegarde. Assurez-vous que la carte microSD est bien insérée dans votre BitBox, puis continuez.",
       "text2": "Veuillez suivre les instructions sur l'écran de votre appareil pour créer une sauvegarde.",
-      "text3": "Une fois votre sauvegarde créée, veuillez retirer la carte micro SD et la conserver dans un endroit <strong>sécurisé</strong>. Le contenu de la carte micro SD n'est pas protégé par mot de passe. Ne l'insérez jamais dans un appareil autre que votre BitBox.",
+      "text3": "Une fois votre sauvegarde créée, veuillez retirer la carte microSD et la conserver dans un endroit <strong>sécurisé</strong>. Le contenu de la carte microSD n’est pas protégé par mot de passe. Ne l’insérez jamais dans un autre appareil que votre BitBox.",
       "userConfirmation1": "Je devrais stocker ma sauvegarde dans un endroit sûr.",
       "userConfirmation2": "Ma sauvegarde n'est pas protégée par mot de passe. Quiconque y a accès peut accéder à mon portefeuille.",
       "userConfirmation3": "Si je perds ou endommage mon BitBox, la seule façon de récupérer mes fonds est de restaurer à partir de ma sauvegarde.",
@@ -308,7 +310,8 @@
     },
     "restoreFromMnemonic": {
       "e104": "La restauration à partir des mots de récupération a été annulée.",
-      "failed": "La restauration à partir des mots de récupération a échoué, veuillez réessayer."
+      "failed": "La restauration à partir des mots de récupération a échoué, veuillez réessayer.",
+      "securityNotice": "Vous récupérez un portefeuille qui n’a pas été créé sur un BitBox ? Un portefeuille créé ailleurs peut ne pas offrir le même niveau de sécurité qu’un portefeuille créé sur votre BitBox. En cas de doute, nous vous recommandons de créer ici un nouveau portefeuille puis d’y transférer vos fonds."
     },
     "stepBackup": {
       "beforeProceed": "Avant de continuer, veuillez lire ces importantes mesures de sécurité :",
@@ -350,7 +353,7 @@
       "useControls": "Utilisez les touches de votre BitBox pour définir un mot de passe."
     },
     "stepUninitialized": {
-      "create": "Je veux configurer un nouveau BitBox.",
+      "create": "Je veux créer un nouveau portefeuille sur mon BitBox.",
       "restore": "Je veux restaurer mon portefeuille à partir d'une sauvegarde.",
       "restoreMicroSD": "Restauration à partir d'une carte microSD",
       "restoreMnemonic": "Restaurer à partir des mots de récupération",
@@ -409,8 +412,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Erreur : Il n'a pas été possible d'obtenir la xpub de ce compte.",
     "noAccount": "Aucun compte ne peut être assuré.",
-    "select": "Sélectionner un compte",
-    "title": "Assurance"
+    "select": "Sélectionner un compte"
   },
   "blink": {
     "button": "Clignoter"
@@ -451,6 +453,8 @@
     "previous": "Précédent",
     "proceedOnBitBox": "Procédez sur votre BitBox",
     "restore": "Restaurer",
+    "review": "Vérifier",
+    "save": "Enregistrer",
     "select": "Sélectionner",
     "unlock": "Déverrouiller",
     "update": "Mise à jour",
@@ -871,7 +875,8 @@
       },
       "title": "Micrologiciel",
       "upToDate": "Votre appareil est à jour",
-      "upgradeAvailable": "Nouvelle mise à jour disponible",
+      "upgradeAvailable": "Nouvelle mise à jour BitBox disponible",
+      "upgradeAvailableDescription": "Une mise à jour du micrologiciel est disponible. Mettez-le à jour maintenant pour bénéficier des dernières améliorations de sécurité et fonctionnalités.",
       "version": {
         "label": "Version"
       }
@@ -916,6 +921,19 @@
     "aoppUnsupportedKeystore": "L’appareil connecté ne peut pas signer de messages pour cet actif.",
     "aoppVersion": "Version inconnue.",
     "keystoreTimeout": "La demande de portefeuille a expiré. Veuillez réessayer.",
+    "lightningAddressChangeCooldown": "Veuillez patienter avant de modifier à nouveau votre adresse Lightning.",
+    "lightningAddressInvalidUsername": "Utilisez uniquement des lettres minuscules et des chiffres.",
+    "lightningAddressUsernameUnavailable": "Ce nom n’est pas disponible.",
+    "lightningAmountBelowMinimum": "Le montant doit être d’au moins {{minAmountSat}} sats.",
+    "lightningBalanceLimitExceeded": "Le montant du dépôt dépasse la limite de {{limit}} du portefeuille Lightning. Le montant maximal du dépôt doit être inférieur ou égal à {{remaining}}.",
+    "lightningInsufficientFunds": "Fonds insuffisants dans votre portefeuille Lightning.",
+    "lightningInvalidAmount": "Montant invalide.",
+    "lightningInvalidPaymentInput": "Facture ou demande de paiement invalide.",
+    "lightningInvoiceAlreadyUsed": "Cette facture Lightning a déjà été utilisée. Veuillez demander une nouvelle facture.",
+    "lightningPaymentPreparationFailed": "Impossible de préparer le paiement. Veuillez réessayer.",
+    "lightningTopUpClaimFailed": "Veuillez essayer de réclamer à nouveau le dépôt.",
+    "lightningTopUpRefundFailed": "Veuillez essayer de rembourser à nouveau le dépôt.",
+    "paymentApprovalRequired": "Les frais de paiement ont augmenté. Veuillez les vérifier et confirmer à nouveau.",
     "wrongKeystore": "Portefeuille connecté incorrect. Veuillez vous assurer d'insérer le bon appareil correspondant à ce compte.",
     "wrongKeystore2": " Si vous utilisez la passphrase facultative, assurez-vous bien que vous avez saisi la passphrase correspondant à ce compte."
   },
@@ -1013,6 +1031,8 @@
     "title": "Paramètres de gap limit personnalisés"
   },
   "generic": {
+    "beta": "Bêta",
+    "bitcoinOnly": "Bitcoin uniquement",
     "buy": "Acheter {{coinCode}}",
     "buySell": "Acheter & vendre",
     "buy_bitcoin": "Acheter Bitcoin",
@@ -1022,6 +1042,7 @@
     "enable": "Activer",
     "enabled_false": "Désactivé",
     "enabled_true": "Activé",
+    "insure": "Assurer",
     "max": "Maximum",
     "new": "Nouveau",
     "noOptionOnIos": "Non disponible sur iOS",
@@ -1042,6 +1063,7 @@
     "sell_crypto": "Vendre des cryptos",
     "send": "Envoyer",
     "sent": "Envoyé",
+    "skip": "Ignorer",
     "spend_bitcoin": "Dépenser du bitcoin",
     "spend_crypto": "Dépenser des cryptos",
     "swap": "Échanger",
@@ -1097,7 +1119,7 @@
         "title": "Comment puis-je exporter mon historique de transactions ? (p. ex. pour CoinTracking)"
       },
       "multipleXPubs": {
-        "text": "Chaque xpub est associé au « Type » indiqué : soit « Native Segwit (bech32) », soit « Taproot » (Bitcoin uniquement). Il s’agit des types de script utilisés par {{coinName}}. La BitBoxApp les combine en prenant en charge plusieurs types de script au sein d’un même compte. Étant donné que chaque type de script génère un xpub différent, il existe plusieurs xpub par compte.\n\nSi vous recevez systématiquement des fonds sur l’adresse par défaut (Native Segwit), vous n’avez besoin que de l’xpub « bech32 ». Cependant, si vous recevez également des fonds sur « Taproot », vous devez aussi utiliser la clé publique étendue « Taproot ».",
+        "text": "Chaque xpub est associé au \"Type\" indiqué : soit \"SegWit natif (bech32)\", soit \"Taproot\" (Bitcoin uniquement). Il s’agit des types de script utilisés par {{coinName}}. La BitBoxApp les combine en prenant en charge plusieurs types de script au sein d’un même compte. Étant donné que chaque type de script génère un xpub différent, il existe plusieurs xpub par compte.\n\nSi vous recevez systématiquement des fonds sur l’adresse par défaut (SegWit natif), vous n’avez besoin que de l’xpub \"bech32\". Cependant, si vous recevez également des fonds sur \"Taproot\", vous devez aussi utiliser la clé publique étendue \"Taproot\".",
         "title": "Pourquoi y a-t-il plusieurs xpubs ?"
       },
       "privacy": {
@@ -1130,11 +1152,11 @@
       "title": "Comment le montant total est-il calculé ?"
     },
     "accountSummaryDescription": {
-      "text": "Vous pouvez voir ici la performance de votre portefeuille au fil du temps. Un résumé de vos comptes cryptos individuels est affiché sous le graphique.",
+      "text": "Vous pouvez voir ici la performance de votre portefeuille au fil du temps. Un résumé de vos différents comptes de cryptomonnaies est affiché sous le graphique.",
       "title": "Que me montre cette page ?"
     },
     "accountTransactionAttributesBTC": {
-      "text": "Taille virtuelle : détermine les frais de réseau. Vous avez réussi à économiser sur les frais si elle est inférieure à la taille de la transaction.\nTaille : Taille réelle de la transaction en octets dépendamment de la blockchain concernée.\nPoids : Une nouvelle mesure, introduite avec Segwit, permettant d'évaluer la transaction et la taille du bloc. Chaque octet témoin est séparé et compte pour un, le reste en tant que quatre unités de poids. Au lieu d'un mégaoctet de taille réelle, la limite de taille de bloc est maintenant de quatre millions d'unités de poids.",
+      "text": "Taille virtuelle : détermine les frais de réseau. Vous économisez sur les frais lorsqu’elle est inférieure à la taille réelle de la transaction.\nTaille : taille réelle de la transaction en octets une fois sérialisée selon les règles de la blockchain.\nPoids : mesure introduite avec SegWit pour évaluer la taille des transactions et des blocs. Chaque octet de données de témoin compte pour une unité de poids, tandis que les autres octets comptent pour quatre unités. La limite d’un bloc n’est ainsi plus exprimée comme un mégaoctet de taille réelle, mais comme quatre millions d’unités de poids.",
       "title": "Qu'en est-il des détails spécifiques de la transaction Bitcoin ?"
     },
     "accountTransactionAttributesGeneric": {
@@ -1150,7 +1172,7 @@
       "title": "Pourquoi les nouvelles transactions affichent-elles un signe d’estimation ?"
     },
     "accountTransactionLabel": {
-      "text": "C'est l'adresse vous ayant envoyé les coins ou à laquelle vous les avez envoyés.",
+      "text": "Il s’agit de l’adresse depuis laquelle vous avez reçu les fonds ou vers laquelle vous les avez envoyés.",
       "title": "Quelle adresse est affichée pour chaque transaction ?"
     },
     "accountTransactionTime": {
@@ -1159,7 +1181,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Bitcoin et Litecoin ne peuvent avoir qu’un nombre arbitraire de comptes. Au delà de six comptes, vous ne pouvez en ajouter un supplémentaire que si le compte précédent a déjà été utilisé. \nUn maximum de cinq comptes est possible pour les autres coins (jetons).",
+        "text": "Bitcoin et Litecoin peuvent avoir un nombre arbitraire de comptes. Au-delà de six comptes, vous ne pouvez ajouter un nouveau compte que si le précédent a déjà été utilisé.\nLes autres actifs sont limités à cinq comptes.",
         "title": "Combien de comptes puis-je créer ?"
       },
       "howtoAddTokens": {
@@ -1190,7 +1212,7 @@
         "title": "Que se passe-t-il lorsque j’active ou désactive « Se souvenir du portefeuille » ?"
       },
       "whyIsThisUseful": {
-        "text": "Les comptes sont parfaits pour gérer des fonds destinés à des personnes ou des objectifs différents, car ils sont distincts. Vous pouvez également partager la \"clé publique étendue\" (xpub) d'un compte sans rien dévoiler de vos autres comptes. Cela vous permet de recevoir des fonds de manière répétée sans réutiliser les adresses, par exemple pour recevoir votre salaire ou acheter régulièrement des crypto-monnaies.",
+        "text": "Les comptes sont pratiques pour gérer séparément des fonds destinés à différentes personnes ou à différents usages. Vous pouvez également partager la \"clé publique étendue\" (xpub) d’un compte sans rien révéler de vos autres comptes. Cela vous permet de recevoir des fonds à plusieurs reprises sans réutiliser d’adresses, par exemple pour recevoir votre salaire ou acheter régulièrement des cryptomonnaies.",
         "title": "Pourquoi est-ce utile ?"
       }
     },
@@ -1289,11 +1311,11 @@
         "title": "Comment puis-je renouveler ou résilier l'assurance ?"
       },
       "status": {
-        "text": "Les comptes assurés avec succès sont signalés par un badge vert \"assuré\" dans le coin supérieur droit de chaque page de vos compte Bitcoin. Dans la section \"Assurance\", vous pouvez avoir l'aperçu de tous les comptes Bitcoin assurés et leur statut d'assurance en temps réel.",
+        "text": "Les comptes assurés sont signalés par un badge vert \"assuré\" dans le coin supérieur gauche de chaque page de compte Bitcoin. Dans la section \"Assurance\", vous pouvez consulter l’ensemble des comptes Bitcoin assurés et leur statut actuel. La mise à jour du statut d’assurance peut prendre jusqu’à 48 heures.",
         "title": "Puis-je consulter l'état d'un compte assuré ?"
       },
       "what": {
-        "text": "Chaque contrat d'assurance Bitcoin couvre un compte de portefeuille spécifique. Vous pouvez assurer plusieurs comptes en souscrivant plusieurs polices d'assurance. Les comptes assurés sont limités à l'utilisation d'adresses Bitcoin « Native Segwit ».",
+        "text": "Chaque contrat d’assurance Bitcoin couvre un compte de portefeuille spécifique. Vous pouvez assurer plusieurs comptes en souscrivant plusieurs polices d’assurance. Les comptes assurés sont limités à l’utilisation d’adresses Bitcoin SegWit natif.",
         "title": "Est-ce que l'ensemble du portefeuille BitBox est assuré ?"
       },
       "who": {
@@ -1310,12 +1332,12 @@
         "link": {
           "text": "En savoir plus sur le contrôle d'authenticité"
         },
-        "text": "La BitBoxApp effectue un contrôle d’attestation sur le BitBox afin de confirmer que l’appareil est bien authentique. La vérification est effectuée localement et ne nécessite aucune connexion à un serveur.",
+        "text": "La BitBoxApp effectue une vérification d’attestation du BitBox afin de confirmer que l’appareil est authentique. Cette vérification est réalisée localement et ne se connecte à aucun serveur.",
         "title": "Comment fonctionne le contrôle d'authenticité ?"
       },
       "name": {
         "text": "Ceci est le nom de votre portefeuille et de votre sauvegarde. Ce nom est utilisé pour les sauvegardes futures et permet de faire la distinction entre différents portefeuilles. Il peut être modifié à tout moment mais veuillez noter que les sauvegardes effectuées avant ce changement continueront d' utiliser le nom précédent.",
-        "title": "A quoi sert le nom BitBox ?"
+        "title": "À quoi sert le nom du BitBox ?"
       },
       "secure-chip": {
         "link": {
@@ -1333,11 +1355,71 @@
       "appearance": "Guide de l'apparence",
       "buySell": "Guide d'achat et de vente",
       "insurance": "Guide de l'assurance",
+      "lightningReceive": "Guide : recevoir avec Lightning",
+      "lightningSend": "Guide : envoyer avec Lightning",
       "manageAccount": "Guide de gestion des comptes",
       "manageDevice": "Guide de gestion de l'appareil",
       "receive": "Guide de réception",
       "send": "Guide d'envoi",
       "walletConnect": "Guide WalletConnect"
+    },
+    "lightning": {
+      "multipleDevices": {
+        "text": "Oui. Il suffit de connecter votre BitBox à un autre appareil et d’activer Lightning dans la BitBoxApp. Le portefeuille Lightning sera le même que sur votre appareil précédent si vous utilisez le même portefeuille.",
+        "title": "Puis-je utiliser mon portefeuille Lightning sur plusieurs appareils ?"
+      },
+      "multipleWallets": {
+        "text": "Non. Il n’est actuellement pas possible de créer plusieurs portefeuilles Lightning avec le même BitBox, ni d’utiliser plusieurs portefeuilles Lightning dans la même BitBoxApp, même si vous possédez plusieurs BitBox.",
+        "title": "Puis-je créer plusieurs portefeuilles Lightning ?"
+      },
+      "privateKey": {
+        "text": "Le portefeuille Lightning de la BitBoxApp est non custodial, ce qui signifie que vous seul avez accès aux clés. Les clés privées sont stockées dans la BitBoxApp. Votre portefeuille Lightning est donc un \"hot wallet\", puisque les clés Lightning sont stockées sur votre ordinateur ou votre téléphone et non sur votre BitBox. Ne conservez donc qu’un faible montant de fonds dans votre portefeuille Lightning",
+        "title": "Où sont stockées mes clés privées Lightning ?"
+      },
+      "providers": {
+        "text": "Oui. Le portefeuille Lightning utilise Spark via le Breez SDK. La BitBoxApp contrôle vos clés Lightning, tandis que Spark fournit l’infrastructure externe nécessaire pour envoyer et recevoir des paiements Lightning. Des frais peuvent s’appliquer lors de l’utilisation du service.",
+        "title": "Des tiers externes interviennent-ils dans cette solution ?"
+      },
+      "receive": {
+        "fee": {
+          "text": "Non. Le destinataire ne paie aucuns frais pour recevoir un paiement Lightning. L’expéditeur paie les frais.",
+          "title": "Dois-je payer des frais lorsque je reçois un paiement ?"
+        },
+        "invoiceOrAddress": {
+          "text": "Créez une facture lorsque vous souhaitez demander un montant précis. Une facture ne peut servir qu’à un seul paiement et expire après 30 jours. Partagez plutôt votre adresse Lightning lorsque vous souhaitez laisser l’expéditeur choisir le montant ou lui permettre de l’enregistrer pour de futurs paiements. Vous pouvez ajouter une description facultative à une facture afin d’identifier plus facilement le paiement par la suite.",
+          "title": "Quand dois-je créer une facture plutôt que partager mon adresse ?"
+        },
+        "payment": {
+          "text": "Vous pouvez partager votre adresse Lightning réutilisable ou créer une facture BOLT11 pour un paiement unique. Partagez le QR code ou le texte affiché avec l’expéditeur. La BitBoxApp n’a pas besoin de rester ouverte pendant que vous attendez le paiement.",
+          "title": "Comment recevoir un paiement Lightning ?"
+        },
+        "reuseAddress": {
+          "text": "Oui. Contrairement à une facture, votre adresse Lightning peut être utilisée pour plusieurs paiements. L’expéditeur choisit le montant et son portefeuille récupère automatiquement les informations de paiement. Même si elle y ressemble, il ne s’agit pas d’une adresse e-mail.",
+          "title": "Puis-je réutiliser mon adresse Lightning ?"
+        }
+      },
+      "securedByBitBox": {
+        "text": "Non. Le BitBox sert uniquement à créer et à restaurer votre portefeuille Lightning. Une fois créé, votre portefeuille Lightning est un \"hot wallet\".",
+        "title": "Mon portefeuille Lightning est-il sécurisé par mon BitBox ?"
+      },
+      "send": {
+        "cancel": {
+          "text": "Non. Une fois envoyés, les paiements Lightning ne peuvent être ni annulés ni inversés. Vérifiez toujours le destinataire, le montant, la description et les frais avant l’envoi. Si vous avez besoin d’un remboursement, demandez au destinataire de vous renvoyer les fonds. Une facture non payée finit par expirer.",
+          "title": "Puis-je annuler ou inverser un paiement Lightning ?"
+        },
+        "fee": {
+          "text": "Les frais dépendent du montant du paiement et de la route disponible au moment de l’envoi. Ils sont donc calculés peu avant l’envoi. Les frais ainsi que le montant total qui sera déduit de votre solde sont affichés avant votre confirmation.",
+          "title": "Comment les frais d’un paiement Lightning sont-ils calculés ?"
+        },
+        "invoiceAndAddress": {
+          "text": "Une facture BOLT11 est créée pour un paiement unique. Elle peut déjà indiquer le montant ou vous demander d’en saisir un. Les factures expirent et ne peuvent être payées qu’une seule fois. Une adresse Lightning est réutilisable et vous permet de choisir n’importe quel montant dans les limites définies par le destinataire.",
+          "title": "Quelle est la différence entre une facture et une adresse Lightning ?"
+        },
+        "payment": {
+          "text": "Scannez ou collez une facture BOLT11, une demande LNURL-Pay ou une adresse Lightning. Une adresse Lightning ressemble à une adresse e-mail, mais elle est utilisée pour les paiements.",
+          "title": "Comment envoyer un paiement Lightning ?"
+        }
+      }
     },
     "receive": {
       "address": {
@@ -1349,7 +1431,7 @@
         "title": "Quand les adresses changent-elles ?"
       },
       "addressFormats": {
-        "text": "Par défaut, le type d'adresse est Native Segwit. Ce format est largement adopté par d'autres portefeuilles et plateformes d'échange, et il vous offre les frais les plus avantageux pour les transactions courantes. Vous pouvez aussi choisir Taproot (bitcoin uniquement), qui est le type d'adresse le plus récent, mais qui n'est pas encore largement pris en charge. Enfin, si vous rencontrez des difficultés pour envoyer des fonds vers Native Segwit, vous pouvez essayer Wrapped Segwit, un ancien format parfois compatible avec davantage de portefeuilles et de plateformes.",
+        "text": "Par défaut, le type d’adresse est SegWit natif. Ce type d’adresse est largement pris en charge par les autres portefeuilles et plateformes d’échange et offre les frais les plus avantageux pour les transactions courantes. Vous pouvez également choisir Taproot (Bitcoin uniquement), qui est le type d’adresse le plus récent, mais qui n’est pas encore pris en charge partout.",
         "title": "Quand dois-je utiliser la fonction \"Modifier le type d'adresse\" ?"
       },
       "howVerify": {
@@ -1375,7 +1457,7 @@
     },
     "send": {
       "change": {
-        "text": "La monnaie sera renvoyée vers une adresse Taproot si vous disposez d'au moins un UTXO Taproot. Si vous utilisez le contrôle des coins, la monnaie sera renvoyée vers une adresse Taproot s'il y a au moins un UTXO Taproot parmi les UTXO sélectionnés. Dans tous les autres cas, la monnaie est envoyée vers une adresse Native Segwit.",
+        "text": "La monnaie sera renvoyée vers une adresse Taproot si vous disposez d’au moins un UTXO Taproot. Si vous utilisez Coin Control, la monnaie sera renvoyée vers une adresse Taproot s’il y a au moins un UTXO Taproot parmi les UTXO sélectionnés. Dans tous les autres cas, la monnaie est envoyée vers une adresse SegWit natif.",
         "title": "Comment la sortie de monnaie est-elle déterminée ?"
       },
       "fee": {
@@ -1473,7 +1555,7 @@
         "link": {
           "text": "Centre de sauvegarde"
         },
-        "text": "Vous pouvez accéder à vos comptes via un nouveau BitBox ou depuis notre centre de sauvegarde.",
+        "text": "Vous pouvez récupérer vos comptes sur un nouveau BitBox ou avec notre centre de sauvegarde.",
         "title": "J'ai perdu mon appareil. Que faire ?"
       },
       "useWithoutDevice": {
@@ -1532,6 +1614,287 @@
   "invalidFormat": "Format invalide",
   "language": {
     "title": "Choisir la langue"
+  },
+  "lightning": {
+    "accountLabel": "Lightning",
+    "activate": {
+      "connect": {
+        "content": "Connectez votre BitBox pour créer votre portefeuille Lightning",
+        "title": "Connectez votre BitBox"
+      },
+      "disclaimer": {
+        "checkboxLabel": "J’ai lu les informations ci-dessus",
+        "content": "Votre portefeuille Lightning sera créé à l’aide d’une clé dérivée de votre BitBox. Vous pourrez ainsi toujours restaurer votre portefeuille Lightning avec votre BitBox ou votre sauvegarde.\n\nCependant, contrairement au BitBox, le portefeuille Lightning est un <strong>hot wallet</strong>. Cela signifie que les clés de votre portefeuille Lightning sont stockées dans la BitBoxApp et non sur le BitBox. N’utilisez donc pas le portefeuille Lightning pour conserver un montant important de fonds ou pour du stockage à long terme.\n\nDe plus, la fonctionnalité Lightning est actuellement en bêta. Vous pouvez donc rencontrer des bugs, des problèmes de fiabilité ou elle peut cesser complètement de fonctionner.",
+        "title": "Comment cela fonctionne-t-il avec la BitBoxApp ?"
+      },
+      "intro": {
+        "content": "Lightning est une seconde couche de Bitcoin basée sur des canaux. Elle permet d’envoyer et de recevoir des bitcoins instantanément avec des frais très faibles.",
+        "title": "Qu’est-ce que Lightning ?"
+      },
+      "success": {
+        "message": "Votre portefeuille Lightning est prêt !"
+      },
+      "title": "Créer un portefeuille Lightning",
+      "wait": {
+        "activating": "Activation du portefeuille Lightning…",
+        "confirm": "Confirmez sur votre BitBox que vous souhaitez créer un portefeuille Lightning.",
+        "title": "Créer un portefeuille Lightning"
+      }
+    },
+    "betaWarning": "Lightning est une fonctionnalité bêta destinée à la prévisualisation et aux tests. N’utilisez Lightning qu’avec un faible montant de fonds !",
+    "bitcoinDeposit": {
+      "claim": "Réclamer le dépôt ou le rembourser",
+      "label": "Dépôt Bitcoin",
+      "state": {
+        "claiming": "Réclamation du dépôt",
+        "confirming": "En attente de confirmations",
+        "unclaimed": "Réclamation requise"
+      },
+      "stateShort": {
+        "claiming": "Réclamation",
+        "confirming": "Confirmation",
+        "unclaimed": "Réclamation requise"
+      }
+    },
+    "claimTopUp": {
+      "claimButton": "Réclamer le dépôt",
+      "claimFee": "Frais de réclamation",
+      "claimUnavailable": "Réclamation indisponible",
+      "confirm": {
+        "amount": "Dépôt non réclamé",
+        "claimButton": "Confirmer la réclamation",
+        "claimTitle": "Confirmer la réclamation du dépôt",
+        "fee": "Frais",
+        "feeRate": "Taux de frais",
+        "refundButton": "Confirmer le remboursement",
+        "refundDestination": "Destination du remboursement",
+        "refundTitle": "Confirmer le remboursement du dépôt"
+      },
+      "description": "Vous devrez créer une transaction pour réclamer le montant bloqué.",
+      "empty": "Aucun dépôt non réclamé trouvé.",
+      "failure": {
+        "claimFailedMessage": "La réclamation du dépôt a échoué.",
+        "claimFailedTryRefund": "Essayez plutôt de le rembourser vers un compte Bitcoin.",
+        "refundFailedMessage": "Le remboursement du dépôt a échoué.",
+        "refundFailedTryAgain": "Veuillez réessayer."
+      },
+      "feeRate": "{{feeRate}} sat/vByte",
+      "refundButton": "Rembourser le dépôt",
+      "refundFee": "Taux de frais du remboursement",
+      "refundUnavailable": "Remboursement indisponible",
+      "success": {
+        "claimMessage": "Transaction de réclamation créée",
+        "claimNote": "Les fonds du dépôt apparaîtront dans votre portefeuille une fois la transaction confirmée.",
+        "claimTitle": "Réclamer le dépôt",
+        "refundMessage": "Transaction de remboursement créée",
+        "refundNote": "Le remboursement réapparaîtra dans votre portefeuille on-chain une fois la transaction confirmée.",
+        "refundTitle": "Rembourser le dépôt"
+      },
+      "title": "Réclamer le dépôt",
+      "topUp": "Dépôt non réclamé",
+      "viewTransaction": "Voir la transaction",
+      "warning": "Vous pouvez soit réclamer le dépôt, soit le rembourser. Dans les deux cas, des frais s’appliqueront."
+    },
+    "closeWithdrawFunds": {
+      "accountDestination": "Les fonds seront envoyés vers",
+      "confirm": "Confirmer la fermeture du portefeuille Lightning",
+      "description": "Cette opération fermera votre portefeuille Lightning et enverra tous les fonds restants vers votre BitBox.",
+      "failure": {
+        "message": "La fermeture du portefeuille Lightning a échoué.",
+        "tryAgain": "Veuillez réessayer."
+      },
+      "fee": "Frais",
+      "incomingFunds": "Fonds entrants",
+      "incomingWarning": "Les fonds entrants ne peuvent pas être retirés lors de la fermeture de votre portefeuille Lightning. Veuillez réessayer plus tard afin de retirer tous les fonds.",
+      "incomingWarningConfirm": "Je comprends que les fonds entrants ne seront pas retirés.",
+      "lightningBalanceToBeSent": "Solde Lightning à envoyer",
+      "partialFailure": {
+        "action": "Fermer le portefeuille",
+        "message": "Les fonds ont été retirés, mais le portefeuille Lightning n’a pas pu être fermé. Veuillez le fermer séparément."
+      },
+      "success": {
+        "message": "Portefeuille Lightning fermé avec succès. Les fonds seront envoyés vers le portefeuille on-chain.",
+        "note": "Vos fonds apparaîtront dans votre portefeuille une fois la transaction confirmée."
+      },
+      "viewTransaction": "Voir la transaction"
+    },
+    "deactivate": {
+      "intro": {
+        "content": "La désactivation de votre portefeuille Lightning vous déconnectera du serveur et vous ne pourrez plus utiliser votre portefeuille Lightning pour envoyer et recevoir.\nLes fonds de votre portefeuille Lightning ne sont pas affectés. Vous pourrez de nouveau y accéder en activant Lightning dans les paramètres et en connectant le BitBox utilisé pour créer ce portefeuille."
+      },
+      "success": {
+        "message": "Votre portefeuille Lightning est maintenant désactivé"
+      },
+      "wait": {
+        "title": "Désactivation du portefeuille Lightning…"
+      }
+    },
+    "disclaimer": {
+      "backups": {
+        "content": "La clé privée du portefeuille Lightning est dérivée du BitBox. Vous pouvez donc restaurer votre portefeuille Lightning à l’aide du même BitBox que celui utilisé pour le créer.",
+        "title": "Sauvegardes"
+      },
+      "beta": {
+        "content": "L’implémentation de Lightning dans la BitBoxApp est en bêta. Vous pouvez donc rencontrer des bugs ou elle peut cesser complètement de fonctionner. Veuillez comprendre les risques avant de l’utiliser et ne déposez pas dans votre portefeuille Lightning plus de fonds que vous êtes prêt à perdre.",
+        "title": "Bêta"
+      },
+      "continue": "Accepter et continuer",
+      "fees": {
+        "receiving": {
+          "content": "La réception de transactions Lightning est gratuite. L’expéditeur paie les frais.",
+          "title": "Réception"
+        },
+        "sending": {
+          "content": "Les frais dépendent du montant du paiement et de la route disponible au moment de l’envoi. Ils sont donc calculés peu avant l’envoi. Les frais ainsi que le montant total qui sera déduit de votre solde sont affichés avant votre confirmation.",
+          "title": "Envoi"
+        },
+        "title": "Frais"
+      },
+      "securityModel": {
+        "content": "Le portefeuille Lightning est un <strong>hot wallet</strong>. Cela signifie que les clés sont stockées dans l’application et ne sont donc pas protégées par le BitBox. Vous pouvez ainsi utiliser votre portefeuille Lightning sans avoir besoin du BitBox. Veillez à ne conserver qu’un faible montant de fonds dans votre portefeuille Lightning.",
+        "title": "Modèle de sécurité"
+      },
+      "title": "Avertissement Lightning",
+      "trustModel": {
+        "breezLink": "En savoir plus sur Breez SDK",
+        "content": "L’intégration Lightning de la BitBoxApp utilise l’infrastructure Spark et le Breez SDK. Veuillez noter qu’à l’heure actuelle, une sortie unilatérale de vos fonds n’est pas possible, car le Breez SDK ne la prend pas encore en charge. La sortie de vos fonds depuis votre portefeuille Lightning dépend donc de la disponibilité et de la coopération de l’infrastructure Spark.",
+        "sparkLink": "En savoir plus sur Spark",
+        "title": "Modèle de confiance"
+      }
+    },
+    "initializing": "Initialisation du compte Lightning…",
+    "limit": {
+      "accountWarning": "Le montant du portefeuille dépasse la limite de {{limit}} de {{excess}}. Nous vous recommandons de transférer une partie des fonds vers votre portefeuille BitBox pour une meilleure sécurité.",
+      "createInvoiceWarning": "Le montant de la facture dépassera la limite de {{limit}} de {{excess}}. Vous pouvez tout de même créer la facture.",
+      "invoiceWarning": "Le montant de la facture dépassera la limite de {{limit}} de {{excess}}. Vous pouvez tout de même utiliser la facture.",
+      "moveCoins": "Transférer des fonds"
+    },
+    "lnurlAddress": {
+      "availability": {
+        "available": "Ce nom est disponible",
+        "checking": "Vérification de la disponibilité…",
+        "taken": "Ce nom est déjà utilisé"
+      },
+      "choose": "Vous pouvez choisir votre propre adresse ci-dessous ou en générer une.",
+      "description": "Une adresse LNURL est une adresse lisible et facile à partager pour recevoir des paiements Lightning",
+      "generate": "Générer une adresse",
+      "label": "Identifiant LNURL",
+      "notice": "Veuillez noter que votre adresse ne peut être modifiée qu’<strong>une fois toutes les 24 heures.</strong>",
+      "success": {
+        "message": "Votre adresse LNURL a été définie."
+      },
+      "title": "Définir l’adresse LNURL"
+    },
+    "payments": {
+      "header": {
+        "amount": "Montant",
+        "date": "Date",
+        "description": "Description",
+        "type": "Type"
+      },
+      "placeholder": "Aucun paiement pour le moment.",
+      "title": "Historique des paiements"
+    },
+    "receive": {
+      "address": {
+        "label": "Adresse Lightning",
+        "scanQRCode": "Scanner le QR code pour recevoir"
+      },
+      "amountSats": {
+        "label": "Sats",
+        "placeholder": "Saisir un montant"
+      },
+      "description": {
+        "label": "Description",
+        "optional": "Facultatif",
+        "placeholder": "Saisir une description"
+      },
+      "invoice": {
+        "copied": "Facture copiée !",
+        "create": "Créer une facture",
+        "creating": "Création de la facture",
+        "edit": "Modifier la facture",
+        "newInvoice": "Nouvelle facture",
+        "title": "Scanner le QR code pour recevoir"
+      },
+      "openChannelWarning": "Des frais de {{feeSat}} sats seront déduits pour ouvrir un nouveau canal.",
+      "subtitle": "Créer une facture Lightning",
+      "success": {
+        "message": "Paiement Lightning reçu !"
+      },
+      "title": "Recevoir avec Lightning"
+    },
+    "send": {
+      "confirm": {
+        "amount": "Montant",
+        "note": "Note",
+        "receiver": "Destinataire",
+        "title": "Confirmer les détails de la transaction"
+      },
+      "enterInvoice": "Saisir une adresse ou une facture",
+      "invoice": {
+        "label": "Saisir les informations de paiement",
+        "placeholder": "Adresse ou facture"
+      },
+      "lnurlPay": {
+        "invalidAmount": "Saisissez un montant compris entre {{minAmount}} et {{maxAmount}} sats."
+      },
+      "onChain": "On-chain",
+      "pasteClipboard": "Coller depuis le presse-papiers",
+      "qrCode": {
+        "label": "Scanner une adresse ou une facture"
+      },
+      "scanInstruction": "Pointez votre caméra vers le QR code d’une facture",
+      "sending": {
+        "connecting": "Préparation du paiement",
+        "message": "Envoi du paiement"
+      },
+      "success": {
+        "message": "Transaction confirmée et envoyée !"
+      },
+      "title": "Envoyer avec Lightning"
+    },
+    "settings": {
+      "closeAndWithdrawFunds": "Fermer et retirer les fonds",
+      "disableWallet": "Désactiver le portefeuille Lightning",
+      "enableWallet": "Activer le portefeuille Lightning",
+      "enableWalletDescription": "Lightning permet des paiements instantanés avec de faibles frais.",
+      "expert": "Expert",
+      "serviceProvider": "Fournisseur de service",
+      "setLightningAddress": "Définir l’adresse Lightning",
+      "status": "Statut",
+      "statusConnected": "Connecté",
+      "title": "Paramètres Lightning",
+      "wallet": "Portefeuille"
+    },
+    "sparkStatus": {
+      "degraded": "Les performances du réseau Spark sont dégradées. Les paiements Lightning peuvent être retardés.",
+      "major": "Le réseau Spark subit une panne majeure. Les paiements Lightning peuvent être indisponibles.",
+      "partial": "Le réseau Spark est partiellement indisponible. Les paiements Lightning peuvent être indisponibles.",
+      "unknown": "Le statut du réseau Spark est inconnu. Les paiements Lightning peuvent être indisponibles."
+    },
+    "topUp": {
+      "action": "Déposer",
+      "available": "Disponible",
+      "confirm": {
+        "amount": "Montant",
+        "continue": "Continuez sur votre BitBox.",
+        "networkFee": "Frais de réseau",
+        "receiver": "Destinataire",
+        "title": "Confirmer et envoyer la transaction",
+        "total": "Total"
+      },
+      "from": "Depuis",
+      "noBitcoinAccounts": "Aucun compte Bitcoin actif. Veuillez activer un compte Bitcoin.",
+      "note": "Dépôt Lightning",
+      "success": {
+        "message": "Dépôt créé !",
+        "note": "La transaction de dépôt apparaîtra après une confirmation et sera terminée après trois confirmations. Cela prend généralement 30 minutes ou plus."
+      },
+      "title": "Déposer sur le portefeuille Lightning",
+      "to": "Vers"
+    },
+    "torProxyWarning": "Lightning n’utilise pas le proxy Tor. Lightning continuera à fonctionner via votre connexion Internet habituelle."
   },
   "loading": "chargement en cours…",
   "logo": {
@@ -1662,14 +2025,14 @@
     "disable": "Désactiver la passphrase",
     "disableInfo": {
       "button": "Désactiver",
-      "message": "Une fois la passphrase désactivée, il ne vous sera plus demandé de saisir une passphrase après avoir déverrouillé votre BitBox02. Par conséquent, vous entrerez dans votre portefeuille par défaut.\n\nTous les coins (monnaies) se trouvant sur votre portefeuille avec passphrase seront toujours sur ce portefeuille, mais vous ne pourrez plus y accéder car après avoir déverrouillé votre BitBox, vous ouvrirez votre portefeuille par défaut.\n\nPour accéder de nouveau à vos portefeuilles avec passphrase, il suffit de réactiver la fonction passphrase et de saisir la passphrase correspondante après déverrouillage du BitBox.\n\n<strong>Astuce:</strong> Vous pouvez toujours accéder à votre portefeuille d'origine en laissant la phrase de passe vide."
+      "message": "Une fois la passphrase désactivée, il ne vous sera plus demandé de saisir une passphrase après avoir déverrouillé votre BitBox. Vous accéderez donc à votre portefeuille par défaut.\n\nTous les fonds présents dans votre portefeuille avec passphrase resteront dans ce portefeuille, mais vous ne pourrez plus y accéder car, après avoir déverrouillé votre BitBox, vous ouvrirez votre portefeuille par défaut.\n\nPour accéder de nouveau à vos portefeuilles avec passphrase, réactivez simplement la fonction passphrase et saisissez la passphrase correspondante après avoir déverrouillé le BitBox.\n\n<strong>Astuce :</strong> Vous pouvez toujours accéder à votre portefeuille d’origine en laissant la passphrase vide."
     },
     "enable": "Activer la passphrase",
     "error": {
       "e104": "La modification des paramètres de la passphrase a été interrompue."
     },
     "how": {
-      "button": "A quoi ça ressemble",
+      "button": "Voir à quoi cela ressemble",
       "message": "Une passphrase ne fonctionne pas comme les mots de passe auxquels vous êtes habitué. Si vous vous trompez dans la saisie de votre passphrase, vous ne serez pas averti. En effet, <strong>chaque passphrase crée un portefeuille distinct, mais valide</strong>. Cela signifie que vous pouvez utiliser autant de passphrases que vous le souhaitez afin de créer autant de portefeuilles correspondants. Mais on ne peut accéder à chaque portefeuille qu'en saisissant la passphrase associée.\n\nAu moment où vous branchez votre BitBox, le mot de passe de l'appareil vous sera demandé de manière habituelle. Ensuite, il vous sera demandé d'entrer une passphrase sur l'appareil.\n\nAprès avoir saisi la passphrase, vous verrez s'afficher cette même passphrase que vous avez entrée. Cela vous permet de confirmer que vous l'avez saisie correctement.",
       "title": "Comment ça marche"
     },
@@ -1730,7 +2093,7 @@
     }
   },
   "receive": {
-    "bitsuranceWarning": "Il s'agit d'un compte assuré, ce qui signifie qu'il ne peut recevoir des fonds que sur des adresses Native Segwit. Cela évite que vous receviez accidentellement des fonds sur des adresses Wrapped Segwit ou Taproot, qui ne sont pas assurées.",
+    "bitsuranceWarning": "Il s’agit d’un compte assuré, ce qui signifie qu’il ne peut recevoir des fonds que sur des adresses SegWit natif. Cela évite que vous receviez accidentellement des fonds sur une adresse Taproot, qui n’est pas assurée.",
     "changeScriptType": "Changer de type d'adresse",
     "label": "Votre adresse",
     "onlyThisCoin": {
@@ -1740,7 +2103,7 @@
     "qrCodeCopiedMessage": "Copié !",
     "scriptType": {
       "p2tr": "Taproot (nouveau format d’adresse)",
-      "p2wpkh": "Native Segwit (par défaut)"
+      "p2wpkh": "SegWit natif (par défaut)"
     },
     "selectAccount": "Sélectionner un compte",
     "taprootWarning": "Remarque : Taproot est une nouvelle fonctionnalité de Bitcoin et n'est pas encore largement adoptée. Les fonds reçus sur des adresses Taproot peuvent ne pas être visibles dans certains portefeuilles tiers en lecture seule. De nombreux portefeuilles et plateformes d'échange ne sont pas encore capables d'envoyer des fonds vers des adresses Taproot.",
@@ -1748,7 +2111,7 @@
     "verify": "Vérifier l'adresse de façon sécurisée",
     "verifyBitBox02": "Vérifier l'adresse sur le BitBox",
     "verifyInstruction": "Veuillez vérifier que l'adresse suivante correspond à celle affichée sur votre appareil.",
-    "verifyTestnetWarning": "Il s’agit d’un compte testnet, les coins reçus à cette adresse n’ont aucune valeur"
+    "verifyTestnetWarning": "Il s’agit d’un compte testnet, les bitcoins reçus à cette adresse n’ont aucune valeur"
   },
   "reset": {
     "description": "Toutes les données vont être supprimées de l'appareil. Ceci inclut votre Clé Privée !",
@@ -1784,7 +2147,7 @@
     "description": "Je comprends que :",
     "error": {
       "e102": "Le mot de passe doit comporter au minimum 4 caractères.",
-      "e200": "Vous devez insérer une carte microSD dans votre BitBox afin de créer un portefeuille, une sauvegarde se créée ainsi automatiquement."
+      "e200": "Vous devez insérer une carte microSD dans votre BitBox afin de créer un portefeuille, pour qu’une sauvegarde puisse être créée automatiquement."
     },
     "info": {
       "button": "Définir le mot de passe de récupération maintenant",
@@ -1836,7 +2199,7 @@
     },
     "confirm": {
       "infoMessage": "Vérifiez soigneusement que le montant et l'adresse sont corrects sur le BitBox",
-      "selected-coins": "Coins sélectionnés",
+      "selected-coins": "UTXO sélectionnés",
       "title": "Confirmer et envoyer la transaction",
       "to": "Vers",
       "total": "Montant total"
@@ -1851,6 +2214,7 @@
       "invalidAddress": "adresse invalide",
       "invalidAmount": "montant invalide",
       "invalidData": "données invalides",
+      "paymentRequestAccountMismatch": "Cette demande de paiement concerne un autre actif. Ouvrez le compte correspondant et réessayez.",
       "syncInProgress": "Le compte est encore en cours de synchronisation. Veuillez attendre la fin de la synchronisation et réessayer."
     },
     "fee": {
@@ -1894,19 +2258,21 @@
       "placeholder": "Calcul des frais…"
     },
     "maximum": "Envoyer tout",
-    "maximumSelectedCoins": "Envoyer les coins sélectionnés",
+    "maximumSelectedCoins": "Envoyer les UTXO sélectionnés",
     "newTransaction": "Nouvelle transaction",
     "noFeeTargets": "L'estimation des frais n'est pas disponible actuellement. Veuillez réessayer plus tard ou saisir des frais personnalisés.",
     "priority": "Priorité",
     "scanQR": "Scanner un QR Code",
+    "scanQRInstruction": "Pointez votre caméra vers le QR code d’une adresse",
     "scanQRNoCameraMessage": "Caméra non trouvée. Veuillez vous assurer que votre appareil prend en charge une caméra et que les autorisations sont correctement configurées.",
+    "scanQRToggleFlash": "Activer ou désactiver le flash",
     "sendToAccount": {
       "placeholder": "Sélectionner un compte",
       "title": "Envoyer vers un compte"
     },
     "success": "La transaction a été signée et envoyée.",
     "title": "Envoyer {{accountName}}",
-    "toggleCoinControl": "Sélecteur de coins",
+    "toggleCoinControl": "Coin Control",
     "transactionDetails": "Détails de la transaction"
   },
   "settings": {
@@ -1941,6 +2307,15 @@
       "title-tltc": "Serveurs Litecoin Testnet Electrum"
     },
     "expert": {
+      "clearCache": {
+        "description": "Effacer le cache de la BitBoxApp. Cela peut aider à résoudre certains problèmes dans l’application.",
+        "dialog": {
+          "description": "Effacer le cache de la BitBoxApp. Si vous rencontrez des problèmes avec la BitBoxApp, cela peut aider à les résoudre.",
+          "note": "Les noms de vos comptes, vos notes et vos portefeuilles ne sont pas affectés.",
+          "primaryCTA": "Effacer le cache"
+        },
+        "title": "Effacer le cache"
+      },
       "coinControl": "Activer le contrôle des monnaies",
       "electrum": {
         "description": "Vous pouvez vous connecter à votre propre nœud Electrum.",
@@ -1988,6 +2363,9 @@
       "title": "Gérer les notes"
     },
     "restart": "Veuillez redémarrer la BitBoxApp pour que les changements prennent effet.",
+    "search": {
+      "noResults": "Aucun paramètre trouvé"
+    },
     "services": {
       "title": "Services"
     },
@@ -1997,7 +2375,6 @@
   "setup": "Configuration de l'appareil",
   "sidebar": {
     "device": "Gérer l'appareil",
-    "insurance": "Assurance",
     "leave": "Quitter",
     "settings": "Paramètres"
   },
@@ -2090,6 +2467,7 @@
     "explorer": "Identification de transaction",
     "explorerTitle": "Ouvrir dans un Explorateur de blocs externe",
     "fee": "Frais",
+    "feeRate": "Taux de frais",
     "fiatHistorical": "Historique",
     "gas": "Gaz",
     "no-results": "Aucune transaction correspondant à « {{searchTerm}} » n’a été trouvée",
@@ -2155,6 +2533,7 @@
     "unlocking": "Déverrouillage…"
   },
   "upgradeFirmware": {
+    "banner": "Une mise à jour du BitBox est disponible. <updateLink>Mettez-le à jour maintenant</updateLink> pour bénéficier des dernières améliorations de sécurité et fonctionnalités.",
     "button": "Mettre à jour le micrologiciel",
     "description": "Voulez-vous mettre à jour le micrologiciel de la version {{currentVersion}} vers la version {{newVersion}} ?",
     "label": "Une mise à jour du micrologiciel de votre BitBox est nécessaire.",
@@ -2170,7 +2549,8 @@
       "button": "Connecter",
       "dappLabel": "Saisir l'URI de la dApp",
       "invalidPairingUri": "Uri d'appariement non valide",
-      "missingNamespace": "La demande de connexion de l'application n'a pas défini l'espace de noms nécessaire"
+      "missingNamespace": "La demande de connexion de l'application n'a pas défini l'espace de noms nécessaire",
+      "scanInstruction": "Pointez votre caméra vers le QR code WalletConnect"
     },
     "dashboard": {
       "allSessions": "Toutes les sessions",
@@ -2207,7 +2587,7 @@
   "warning": {
     "coincontrol": "Un ou plusieurs UTXO ont une adresse réutilisée. Soyez conscient que le destinataire verra tous les UTXO associés à ces adresses.",
     "offline": "Vous êtes actuellement hors ligne. Vous ne pourrez pas envoyer de transactions ni voir les derniers taux de change.",
-    "sdcard": "Conservez la carte micro SD séparément du BitBox, à moins que vous ne souhaitiez gérer les sauvegardes.",
+    "sdcard": "Conservez la carte microSD séparément du BitBox, sauf lorsque vous souhaitez gérer vos sauvegardes.",
     "testnet": "Attention : vous utilisez actuellement le portefeuille en mode Testnet. Les transactions et les soldes affichés ici ne sont pas réels et n'apparaîtront pas sur le réseau principal. Le Testnet est destiné uniquement aux tests et au développement."
   },
   "welcome": {

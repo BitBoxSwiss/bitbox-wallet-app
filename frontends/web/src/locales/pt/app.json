@@ -83,7 +83,6 @@
       "message": "Prossiga em {{host}}",
       "title": "Endereço enviado com sucesso"
     },
-    "syncing": "Sincronizando a conta, aguarde.",
     "title": "Solicitação de endereço",
     "xpubRequested": "Compartilhar seu xpub permite que serviços externos vejam os endereços da sua conta. Suas moedas continuam seguras e sob seu controle."
   },
@@ -360,8 +359,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Erro: não foi possível obter o xpub da conta.",
     "noAccount": "Não há contas que possam ser seguradas.",
-    "select": "Selecione a conta",
-    "title": "Seguro"
+    "select": "Selecione a conta"
   },
   "blink": {
     "button": "Piscar"
@@ -1782,7 +1780,6 @@
   "setup": "Configurar dispositivo",
   "sidebar": {
     "device": "Gerenciar dispositivo",
-    "insurance": "Seguro",
     "leave": "Sair",
     "settings": "Configurações"
   },

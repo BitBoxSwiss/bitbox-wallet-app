@@ -14,6 +14,7 @@
     "maybeProxyError": "Tor proxy aktivní. Ujistěte se, že proxy server Tor běží správně, nebo nastavení proxy serveru deaktivujte.",
     "reconnecting": "Ztráta spojení. Pokus o opětovné připojení…",
     "syncedAddressesCount": "Naskenováno {{count}} adres",
+    "syncing": "Synchronizuji účet, počkejte prosím…",
     "uncoveredFunds": "Máte prostředky na následujících nepokrytých typech adresách vašeho <strong>{{name}}</strong> účtu: {{uncovered}}.\nVzhledem k tomu, že účet je pojištěný, vztahuje se pouze na prostředky přijaté prostřednictvím adresy typu <strong>Native  Segwit</strong>. Prostředky na odlišných typech adres, i když jsou na stejném účtu, pojištěny nejsou.\nPřesuňte prosím všechny své mince z nepodporovaných typů adres na adresy typu <strong>Native Segwit</strong>, aby byly všechny vaše prostředky na tomto účtu pojištěny.",
     "uncoveredFundsLink": "Postupujte podle tohoto průvodce, jak přesunout své prostředky.",
     "warning": "Varování!"
@@ -52,6 +53,7 @@
     "name": "Název účtu",
     "noAccount": "Žádné účty k zobrazení.",
     "portfolio": "Portfolio",
+    "searchPlaceholder": "Hledat transakce…",
     "title": "Moje portfolio",
     "total": "Celkem",
     "totalAssets": "Celková aktiva",
@@ -94,6 +96,7 @@
     "loadFailed": "Použité adresy se nepodařilo načíst.",
     "loadNotSupported": "Použité adresy nejsou pro tento typ účtu dostupné.",
     "loadSyncInProgress": "Použité adresy se stále synchronizují. Zkuste to prosím za chvíli znovu.",
+    "new": "Nová adresa",
     "notFound": "Adresa nebyla nalezena.",
     "searchPlaceholder": "Hledat adresu",
     "skipDeviceVerification": "Přeskočit ověření zařízení",
@@ -122,7 +125,6 @@
       "message": "Pokračovat na {{host}}",
       "title": "Adresa byla úspěšně odeslána"
     },
-    "syncing": "Synchronizace účtu, vyčkejte prosím.",
     "title": "Požadavek na adresu",
     "xpubRequested": "Sdílení vašeho xpub umožňuje externím službám vidět adresy vašeho účtu. Vaše mince jsou stále v bezpečí a zůstávají pod vaší kontrolou."
   },
@@ -308,7 +310,8 @@
     },
     "restoreFromMnemonic": {
       "e104": "Obnovení ze slov pro obnovení bylo zrušeno.",
-      "failed": "Obnovení ze slov pro obnovení se nezdařilo, zkuste to prosím znovu."
+      "failed": "Obnovení ze slov pro obnovení se nezdařilo, zkuste to prosím znovu.",
+      "securityNotice": "Obnovujete peněženku, která nebyla vytvořena na BitBoxu? Peněženka vytvořená jinde nemusí být stejně bezpečná jako peněženka vytvořená na vašem BitBoxu. Pokud si nejste jistí, doporučujeme zde vytvořit novou peněženku a převést do ní své prostředky."
     },
     "stepBackup": {
       "beforeProceed": "Než budete pokračovat, přečtěte si tato důležitá bezpečnostní opatření:",
@@ -409,8 +412,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Chyba: Nepodařilo se získat xpub z účtu.",
     "noAccount": "Neexistují žádné účty, které lze pojistit.",
-    "select": "Vybrat účet",
-    "title": "Pojištění"
+    "select": "Vybrat účet"
   },
   "blink": {
     "button": "Blik"
@@ -451,6 +453,8 @@
     "previous": "Předchozí",
     "proceedOnBitBox": "Pokračujte na svém BitBoxu",
     "restore": "Obnovit",
+    "review": "Zkontrolovat",
+    "save": "Uložit",
     "select": "Vybrat",
     "unlock": "Odemknout",
     "update": "Aktualizovat",
@@ -871,7 +875,8 @@
       },
       "title": "Firmware",
       "upToDate": "Vaše zařízení je aktuální",
-      "upgradeAvailable": "K dispozici je nová aktualizace",
+      "upgradeAvailable": "Nová aktualizace BitBoxu k dispozici",
+      "upgradeAvailableDescription": "Je k dispozici aktualizace firmwaru. Aktualizujte jej nyní a získejte nejnovější bezpečnostní vylepšení a funkce.",
       "version": {
         "label": "Verze"
       }
@@ -916,6 +921,19 @@
     "aoppUnsupportedKeystore": "Připojené zařízení nemůže podepisovat zprávy pro toto aktivum.",
     "aoppVersion": "Neznámá verze.",
     "keystoreTimeout": "Platnost požadavku vypršela. Prosím zkuste to znovu.",
+    "lightningAddressChangeCooldown": "Před další změnou Lightning adresy prosím počkejte.",
+    "lightningAddressInvalidUsername": "Používejte pouze malá písmena a číslice.",
+    "lightningAddressUsernameUnavailable": "Toto jméno není dostupné.",
+    "lightningAmountBelowMinimum": "Částka musí být alespoň {{minAmountSat}} satů.",
+    "lightningBalanceLimitExceeded": "Částka dobití překračuje limit Lightning peněženky {{limit}}. Dobít můžete maximálně {{remaining}}.",
+    "lightningInsufficientFunds": "Nedostatek prostředků ve vaší Lightning peněžence.",
+    "lightningInvalidAmount": "Neplatná částka.",
+    "lightningInvalidPaymentInput": "Neplatná faktura nebo žádost o platbu.",
+    "lightningInvoiceAlreadyUsed": "Tato Lightning faktura již byla použita. Vyžádejte si prosím novou fakturu.",
+    "lightningPaymentPreparationFailed": "Platbu se nepodařilo připravit. Zkuste to prosím znovu.",
+    "lightningTopUpClaimFailed": "Zkuste prosím znovu dokončit dobití.",
+    "lightningTopUpRefundFailed": "Zkuste prosím znovu požádat o vrácení prostředků z dobití.",
+    "paymentApprovalRequired": "Poplatek za platbu se zvýšil. Zkontrolujte prosím platbu a znovu ji potvrďte.",
     "wrongKeystore": "Byla připojena špatná peněženka. Ujistěte se, že jste vložili správné zařízení odpovídající tomuto účtu.",
     "wrongKeystore2": " Pokud používáte přístupovou frázi, zkontrolujte, zda jste zadali správnou přístupovou frázi pro tento účet."
   },
@@ -1013,6 +1031,8 @@
     "title": "Vlastní nastavení gap limit"
   },
   "generic": {
+    "beta": "Beta",
+    "bitcoinOnly": "Bitcoin-only",
     "buy": "Koupit {{coinCode}}",
     "buySell": "Marketplace",
     "buy_bitcoin": "Koupit Bitcoin",
@@ -1022,6 +1042,7 @@
     "enable": "Povolit",
     "enabled_false": "Vypnuto",
     "enabled_true": "Zapnuto",
+    "insure": "Pojistit",
     "max": "Max",
     "new": "Nové",
     "noOptionOnIos": "Není k dispozici pro iOS",
@@ -1042,6 +1063,7 @@
     "sell_crypto": "Prodat kryptoměny",
     "send": "Odeslat",
     "sent": "Odesláno",
+    "skip": "Přeskočit",
     "spend_bitcoin": "Utratit bitcoiny",
     "spend_crypto": "Utratit kryptoměny",
     "swap": "Směnit",
@@ -1333,11 +1355,71 @@
       "appearance": "Průvodce vzhledu",
       "buySell": "Marketplace průvodce",
       "insurance": "Průvodce pojištěním",
+      "lightningReceive": "Průvodce přijímáním plateb přes Lightning",
+      "lightningSend": "Průvodce odesíláním plateb přes Lightning",
       "manageAccount": "Průvodce správou účtů",
       "manageDevice": "Průvodce pro správu zařízení",
       "receive": "Průvodce pro příjem",
       "send": "Průvodce pro odesílání",
       "walletConnect": "Průvodce WalletConnect"
+    },
+    "lightning": {
+      "multipleDevices": {
+        "text": "Ano, stačí připojit BitBox k jinému zařízení a aktivovat Lightning v aplikaci BitBoxApp. Pokud použijete stejnou peněženku, půjde o stejnou Lightning peněženku jako na předchozím zařízení.",
+        "title": "Mohu svou Lightning peněženku používat na více zařízeních?"
+      },
+      "multipleWallets": {
+        "text": "Ne, v současné době nemůžete pomocí stejného BitBoxu vytvořit více Lightning peněženek ani používat více Lightning peněženek v jedné aplikaci BitBoxApp, a to ani v případě, že máte více BitBoxů.",
+        "title": "Mohu si vytvořit více Lightning peněženek?"
+      },
+      "privateKey": {
+        "text": "Lightning peněženka v aplikaci BitBoxApp je non-custodial, což znamená, že přístup ke klíčům máte pouze vy. Soukromé klíče jsou uloženy v aplikaci BitBoxApp. Vaše Lightning peněženka je proto „hot wallet“, jelikož jsou Lightning klíče uloženy ve vašem počítači nebo telefonu, nikoli v BitBoxu. V Lightning peněžence proto uchovávejte pouze malé množství bitcoinů.",
+        "title": "Kde jsou uloženy soukromé klíče k mé Lightning peněžence?"
+      },
+      "providers": {
+        "text": "Ano, Lightning peněženka využívá Spark prostřednictvím Breez SDK. Aplikace BitBoxApp spravuje vaše Lightning klíče, zatímco Spark poskytuje externí infrastrukturu potřebnou k odesílání a přijímání Lightning plateb. Za používání služby mohou být účtovány poplatky.",
+        "title": "Využívá toto řešení služby třetích stran?"
+      },
+      "receive": {
+        "fee": {
+          "text": "Ne, příjemce za přijetí Lightning platby neplatí žádný poplatek. Poplatky hradí odesílatel.",
+          "title": "Platím při přijímání platby nějaký poplatek?"
+        },
+        "invoiceOrAddress": {
+          "text": "Pokud chcete požádat o konkrétní částku, vytvořte Lightning fakturu. Faktura je určena pro jednu platbu a její platnost vyprší za 30 dnů. Pokud má částku zvolit odesílatel nebo chcete, aby si vaši Lightning adresu uložil pro budoucí platby, sdílejte místo toho tuto adresu. K faktuře můžete přidat volitelný popis, který vám později pomůže platbu identifikovat.",
+          "title": "Kdy mám místo sdílení své adresy vytvořit fakturu?"
+        },
+        "payment": {
+          "text": "Můžete sdílet svou Lightning adresu, kterou lze používat opakovaně, nebo vytvořit fakturu BOLT11 pro jednu platbu. Odesílateli pošlete QR kód nebo zobrazený text. Během čekání na platbu nemusí být BitBoxApp spuštěná.",
+          "title": "Jak mohu přijmout platbu přes Lightning?"
+        },
+        "reuseAddress": {
+          "text": "Ano. Na rozdíl od faktury lze vaši Lightning adresu použít k přijímání více plateb. Odesílatel zvolí částku a jeho peněženka si automaticky vyžádá platební údaje. Nejedná se o e-mailovou adresu, i když tak vypadá.",
+          "title": "Mohu svou Lightning adresu používat opakovaně?"
+        }
+      },
+      "securedByBitBox": {
+        "text": "Ne, BitBox slouží pouze k vytvoření a obnovení vaší Lightning peněženky. Po vytvoření je vaše Lightning peněženka „hot wallet“.",
+        "title": "Je moje Lightning peněženka zabezpečena BitBoxem?"
+      },
+      "send": {
+        "cancel": {
+          "text": "Ne. Platby přes Lightning nelze po odeslání zrušit ani vrátit. Před odesláním vždy zkontrolujte příjemce, částku, popis a poplatek. Pokud potřebujete peníze vrátit, požádejte příjemce, aby vám je poslal zpět. Nezaplacená faktura po určité době vyprší.",
+          "title": "Mohu zrušit nebo vrátit platbu přes Lightning?"
+        },
+        "fee": {
+          "text": "Poplatek závisí na výši platby a aktuálně dostupné trase, proto se vypočítá krátce před odesláním. Před potvrzením se zobrazí poplatek i celková částka, která bude odečtena z vašeho zůstatku.",
+          "title": "Jak se vypočítává poplatek za platbu přes Lightning?"
+        },
+        "invoiceAndAddress": {
+          "text": "Faktura BOLT11 se vytváří pro jednu konkrétní platbu. Částka v ní může být předem uvedena, případně budete vyzváni k jejímu zadání. Platnost faktur po určité době vyprší a každou lze zaplatit pouze jednou. Lightning adresu lze používat opakovaně a umožňuje zvolit libovolnou částku v rámci limitů stanovených příjemcem.",
+          "title": "Jaký je rozdíl mezi fakturou a Lightning adresou?"
+        },
+        "payment": {
+          "text": "Naskenujte nebo vložte fakturu BOLT11, požadavek LNURL-Pay nebo Lightning adresu. Lightning adresa vypadá jako e-mailová adresa, ale slouží k platbám.",
+          "title": "Jak mohu odeslat platbu přes Lightning?"
+        }
+      }
     },
     "receive": {
       "address": {
@@ -1532,6 +1614,287 @@
   "invalidFormat": "Nesprávný formát",
   "language": {
     "title": "Zvolte jazyk"
+  },
+  "lightning": {
+    "accountLabel": "Lightning",
+    "activate": {
+      "connect": {
+        "content": "Připojte BitBox a vytvořte si Lightning peněženku",
+        "title": "Připojte své zařízení"
+      },
+      "disclaimer": {
+        "checkboxLabel": "Přečetl(a) jsem si výše uvedené informace",
+        "content": "Vaše Lightning peněženka bude vytvořena pomocí klíče odvozeného z vašeho BitBoxu. Díky tomu ji můžete kdykoli obnovit pomocí BitBoxu nebo zálohy.\n\nNa rozdíl od BitBoxu je však Lightning peněženka <strong>hot wallet</strong>. To znamená, že klíče k Lightning peněžence jsou uloženy v BitBoxApp, nikoli v BitBoxu. Lightning peněženku byste neměli používat k uchovávání větších částek ani k dlouhodobému ukládání prostředků.\n\nLightning je navíc momentálně ve fázi beta, takže se můžete setkat s chybami či problémy se spolehlivostí nebo může zcela přestat fungovat.",
+        "title": "Jak to funguje s BitBoxApp?"
+      },
+      "intro": {
+        "content": "Lightning je druhá vrstva Bitcoinu založená na platebních kanálech. Umožňuje okamžitě odesílat a přijímat bitcoiny za velmi nízké poplatky.",
+        "title": "Co je Lightning?"
+      },
+      "success": {
+        "message": "Hotovo, vaše Lightning peněženka je připravena!"
+      },
+      "title": "Vytvořit Lightning peněženku",
+      "wait": {
+        "activating": "Aktivace Lightning peněženky…",
+        "confirm": "Potvrďte na BitBoxu, že chcete vytvořit Lightning peněženku.",
+        "title": "Vytvořit Lightning peněženku"
+      }
+    },
+    "betaWarning": "Lightning je funkce ve fázi beta určená k vyzkoušení a testování. Používejte ji pouze s menším množstvím prostředků!",
+    "bitcoinDeposit": {
+      "claim": "Nárokovat dobití nebo vrácení peněz",
+      "label": "Dobití bitcoinem",
+      "state": {
+        "claiming": "Nárokování vkladu",
+        "confirming": "Čeká se na potvrzení",
+        "unclaimed": "Nutno nárokovat"
+      },
+      "stateShort": {
+        "claiming": "Nárokování",
+        "confirming": "Potvrzuje se",
+        "unclaimed": "Nutno nárokovat"
+      }
+    },
+    "claimTopUp": {
+      "claimButton": "Nárokovat dobití",
+      "claimFee": "Poplatek za nárokování",
+      "claimUnavailable": "Nelze nárokovat",
+      "confirm": {
+        "amount": "Nenárokované dobití",
+        "claimButton": "Potvrdit nárokování",
+        "claimTitle": "Potvrdit nárokování dobití",
+        "fee": "Poplatek",
+        "feeRate": "Výše poplatku",
+        "refundButton": "Potvrdit vrácení peněz",
+        "refundDestination": "Cíl vrácení peněz",
+        "refundTitle": "Potvrdit vrácení peněz za dobití"
+      },
+      "description": "Pro nárokování uvízlé částky bude nutné vytvořit transakci.",
+      "empty": "Nebylo nalezeno žádné nenárokované dobití.",
+      "failure": {
+        "claimFailedMessage": "Nárokování dobití se nezdařilo.",
+        "claimFailedTryRefund": "Zkuste místo toho nechat peníze vrátit na bitcoinový účet.",
+        "refundFailedMessage": "Vrácení peněz za dobití se nezdařilo.",
+        "refundFailedTryAgain": "Zkuste to prosím znovu."
+      },
+      "feeRate": "{{feeRate}} sat/vByte",
+      "refundButton": "Vrátit peníze za dobití",
+      "refundFee": "Sazba poplatku za vrácení peněz",
+      "refundUnavailable": "Vrácení peněz není k dispozici",
+      "success": {
+        "claimMessage": "Transakce pro nárokování vytvořena",
+        "claimNote": "Dobité prostředky se ve vaší peněžence objeví po potvrzení transakce.",
+        "claimTitle": "Nárokovat dobití",
+        "refundMessage": "Transakce pro vrácení peněz vytvořena",
+        "refundNote": "Vrácené prostředky se ve vaší on-chain peněžence objeví po potvrzení transakce.",
+        "refundTitle": "Vrátit peníze za dobití"
+      },
+      "title": "Nárokovat dobití",
+      "topUp": "Nenárokované dobití",
+      "viewTransaction": "Zobrazit transakci",
+      "warning": "Dobití můžete buď nárokovat, nebo si nechat vrátit peníze. Obě možnosti jsou zpoplatněny."
+    },
+    "closeWithdrawFunds": {
+      "accountDestination": "Prostředky z účtu budou odeslány na",
+      "confirm": "Potvrdit uzavření Lightning peněženky",
+      "description": "Tímto uzavřete svou Lightning peněženku a všechny zbývající prostředky budou odeslány do vašeho BitBoxu.",
+      "failure": {
+        "message": "Lightning peněženku se nepodařilo uzavřít.",
+        "tryAgain": "Zkuste to prosím znovu."
+      },
+      "fee": "Poplatek",
+      "incomingFunds": "Příchozí prostředky",
+      "incomingWarning": "Příchozí prostředky nelze při uzavírání Lightning peněženky vybrat. Pro výběr všech prostředků to prosím zkuste znovu později.",
+      "incomingWarningConfirm": "Rozumím, že příchozí prostředky nebudou vybrány.",
+      "lightningBalanceToBeSent": "Lightning zůstatek k odeslání",
+      "partialFailure": {
+        "action": "Vypnout peněženku",
+        "message": "Prostředky byly vybrány, ale Lightning peněženku se nepodařilo uzavřít. Vypněte ji, prosím, samostatně."
+      },
+      "success": {
+        "message": "Lightning peněženka byla úspěšně vypnuta. Prostředky budou odeslány do on-chain peněženky.",
+        "note": "Vaše prostředky se ve vaší peněžence objeví po potvrzení transakce."
+      },
+      "viewTransaction": "Zobrazit transakci"
+    },
+    "deactivate": {
+      "intro": {
+        "content": "Vypnutím Lightning peněženky se odpojíte od serveru a nebudete ji už moci používat k odesílání ani přijímání plateb.\nProstředky v Lightning peněžence tím nejsou dotčeny – znovu se k nim dostanete zapnutím Lightning v nastavení a připojením BitBoxu, se kterým byla peněženka vytvořena."
+      },
+      "success": {
+        "message": "Hotovo, vaše Lightning peněženka je nyní vypnutá"
+      },
+      "wait": {
+        "title": "Vypínání Lightning peněženky…"
+      }
+    },
+    "disclaimer": {
+      "backups": {
+        "content": "Privátní klíč Lightning peněženky je odvozen z BitBoxu. To znamená, že Lightning peněženku můžete obnovit pomocí stejného BitBoxu, kterým byla vytvořena.",
+        "title": "Zálohy"
+      },
+      "beta": {
+        "content": "Implementace Lightning v BitBoxApp je ve fázi beta. To znamená, že můžete narazit na chyby nebo může přestat fungovat úplně. Před použitím se prosím seznamte s riziky a nedobíjejte do Lightning peněženky více prostředků, než jste ochotni ztratit.",
+        "title": "Beta"
+      },
+      "continue": "Souhlasím a pokračovat",
+      "fees": {
+        "receiving": {
+          "content": "Přijímání Lightning transakcí je zdarma. Poplatky hradí odesílatel.",
+          "title": "Přijímání"
+        },
+        "sending": {
+          "content": "Poplatek závisí na výši platby a na trase, která je v danou chvíli dostupná, proto se vypočítá těsně před odesláním. Poplatek i celková částka, která bude odečtena z vašeho zůstatku, se zobrazí před potvrzením.",
+          "title": "Odesílání"
+        },
+        "title": "Poplatky"
+      },
+      "securityModel": {
+        "content": "Lightning peněženka je <strong>hot wallet</strong>. To znamená, že klíče jsou uloženy v aplikaci, a nejsou tedy chráněny BitBoxem. Díky tomu můžete Lightning peněženku používat i bez BitBoxu. Dbejte na to, abyste v Lightning peněžence měli jen malé množství prostředků.",
+        "title": "Model zabezpečení"
+      },
+      "title": "Upozornění k Lightning",
+      "trustModel": {
+        "breezLink": "Více o Breez SDK",
+        "content": "Integrace Lightning v BitBoxApp využívá infrastrukturu Spark a Breez SDK. Upozorňujeme, že jednostranný výběr prostředků (unilateral exit) v tuto chvíli není možný, protože jej Breez SDK zatím nepodporuje. Výběr prostředků z Lightning peněženky proto závisí na tom, zda je infrastruktura Spark online a spolupracuje.",
+        "sparkLink": "Více o Spark",
+        "title": "Model důvěry"
+      }
+    },
+    "initializing": "Inicializace Lightning účtu…",
+    "limit": {
+      "accountWarning": "Zůstatek peněženky překračuje limit {{limit}} o {{excess}}. Pro vyšší bezpečnost doporučujeme přesunout část prostředků do vaší BitBox peněženky.",
+      "createInvoiceWarning": "Částka faktury překročí limit {{limit}} o {{excess}}. Fakturu můžete přesto vytvořit.",
+      "invoiceWarning": "Částka faktury překročí limit {{limit}} o {{excess}}. Fakturu můžete přesto použít.",
+      "moveCoins": "Přesunout prostředky"
+    },
+    "lnurlAddress": {
+      "availability": {
+        "available": "Toto jméno je k dispozici",
+        "checking": "Ověřování dostupnosti…",
+        "taken": "Toto jméno je již obsazené"
+      },
+      "choose": "Níže si můžete zvolit vlastní adresu nebo si ji nechat vygenerovat.",
+      "description": "LNURL adresa je snadno čitelná adresa, kterou můžete jednoduše sdílet pro přijímání Lightning plateb",
+      "generate": "Vygenerovat adresu",
+      "label": "LNURL uživatelské jméno",
+      "notice": "Upozorňujeme, že adresu lze změnit pouze <strong>jednou za 24 hodin.</strong>",
+      "success": {
+        "message": "Vaše LNURL adresa byla nastavena."
+      },
+      "title": "Nastavit LNURL adresu"
+    },
+    "payments": {
+      "header": {
+        "amount": "Částka",
+        "date": "Datum",
+        "description": "Popis",
+        "type": "Typ"
+      },
+      "placeholder": "Zatím žádné platby.",
+      "title": "Historie plateb"
+    },
+    "receive": {
+      "address": {
+        "label": "Lightning adresa",
+        "scanQRCode": "Pro přijetí platby naskenujte QR kód"
+      },
+      "amountSats": {
+        "label": "Sats",
+        "placeholder": "Zadejte částku"
+      },
+      "description": {
+        "label": "Popis",
+        "optional": "Nepovinné",
+        "placeholder": "Zadejte popis"
+      },
+      "invoice": {
+        "copied": "Faktura zkopírována!",
+        "create": "Vytvořit fakturu",
+        "creating": "Vytváření faktury",
+        "edit": "Upravit fakturu",
+        "newInvoice": "Nová faktura",
+        "title": "Pro přijetí platby naskenujte QR kód"
+      },
+      "openChannelWarning": "Za otevření nového kanálu bude odečten poplatek {{feeSat}} sats.",
+      "subtitle": "Vytvořit Lightning fakturu",
+      "success": {
+        "message": "Lightning platba přijata!"
+      },
+      "title": "Přijmout přes Lightning"
+    },
+    "send": {
+      "confirm": {
+        "amount": "Částka",
+        "note": "Poznámka",
+        "receiver": "Příjemce",
+        "title": "Potvrďte údaje transakce"
+      },
+      "enterInvoice": "Zadejte adresu nebo fakturu",
+      "invoice": {
+        "label": "Zadejte platební údaje",
+        "placeholder": "Adresa nebo faktura"
+      },
+      "lnurlPay": {
+        "invalidAmount": "Zadejte částku mezi {{minAmount}} a {{maxAmount}} sats."
+      },
+      "onChain": "On-chain",
+      "pasteClipboard": "Vložit ze schránky",
+      "qrCode": {
+        "label": "Naskenovat adresu nebo fakturu"
+      },
+      "scanInstruction": "Namiřte kameru na QR kód faktury",
+      "sending": {
+        "connecting": "Příprava platby",
+        "message": "Odesílání platby"
+      },
+      "success": {
+        "message": "Transakce potvrzena a odeslána!"
+      },
+      "title": "Odeslat přes Lightning"
+    },
+    "settings": {
+      "closeAndWithdrawFunds": "Zavřít a vybrat prostředky",
+      "disableWallet": "Vypnout Lightning peněženku",
+      "enableWallet": "Zapnout Lightning peněženku",
+      "enableWalletDescription": "Lightning umožňuje okamžité platby s nízkými poplatky.",
+      "expert": "Pokročilý",
+      "serviceProvider": "Poskytovatel služby",
+      "setLightningAddress": "Nastavit Lightning adresu",
+      "status": "Stav",
+      "statusConnected": "Připojeno",
+      "title": "Nastavení Lightning",
+      "wallet": "Peněženka"
+    },
+    "sparkStatus": {
+      "degraded": "Síť Spark má aktuálně snížený výkon. Lightning platby mohou být zpožděné.",
+      "major": "Síť Spark má rozsáhlý výpadek. Lightning platby mohou být nedostupné.",
+      "partial": "Síť Spark je částečně nedostupná. Lightning platby nemusí fungovat.",
+      "unknown": "Stav sítě Spark není znám. Lightning platby mohou být nedostupné."
+    },
+    "topUp": {
+      "action": "Dobít",
+      "available": "Dostupné",
+      "confirm": {
+        "amount": "Částka",
+        "continue": "Pokračujte na svém BitBoxu.",
+        "networkFee": "Síťový poplatek",
+        "receiver": "Příjemce",
+        "title": "Potvrďte a odešlete transakci",
+        "total": "Celkem"
+      },
+      "from": "Od",
+      "noBitcoinAccounts": "Není aktivní žádný bitcoinový účet. Aktivujte prosím bitcoinový účet.",
+      "note": "Dobití Lightning",
+      "success": {
+        "message": "Dobití vytvořeno!",
+        "note": "Transakce dobití se zobrazí po jednom potvrzení a dokončí se po třech potvrzeních. Obvykle to trvá 30 a více minut."
+      },
+      "title": "Dobít Lightning peněženku",
+      "to": "Na"
+    },
+    "torProxyWarning": "Lightning nepoužívá Tor proxy. Lightning bude nadále fungovat přes vaše běžné internetové připojení."
   },
   "loading": "načítání…",
   "logo": {
@@ -1851,6 +2214,7 @@
       "invalidAddress": "neplatná adresa",
       "invalidAmount": "neplatná částka",
       "invalidData": "neplatná data",
+      "paymentRequestAccountMismatch": "Tento platební požadavek je pro jiné aktivum. Otevřete odpovídající účet a zkuste to znovu.",
       "syncInProgress": "Účet se stále synchronizuje. Počkejte prosím, dokud synchronizace nedokončí, a zkuste to znovu."
     },
     "fee": {
@@ -1899,7 +2263,9 @@
     "noFeeTargets": "Odhady výše poplatků nejsou v současné době k dispozici. Zkuste to prosím později nebo zadejte vlastní poplatek.",
     "priority": "Priorita",
     "scanQR": "Naskenujte QR kód",
+    "scanQRInstruction": "Namiřte kameru na QR kód adresy",
     "scanQRNoCameraMessage": "Kamera nenalezena. Ujistěte se, že vaše zařízení podporuje kameru a že jsou správně nastavena oprávnění.",
+    "scanQRToggleFlash": "Zapnout/vypnout svítilnu",
     "sendToAccount": {
       "placeholder": "Vyberte účet",
       "title": "Odeslat na účet"
@@ -1941,6 +2307,15 @@
       "title-tltc": "Litecoin Testnet Electrum servery"
     },
     "expert": {
+      "clearCache": {
+        "description": "Vymazat mezipaměť (cache) BitBoxApp. Může to pomoci vyřešit problémy v aplikaci.",
+        "dialog": {
+          "description": "Vymazat mezipaměť (cache) BitBoxApp. Pokud máte s BitBoxApp problémy, může to pomoci je vyřešit.",
+          "note": "Názvy účtů, poznámky ani peněženky tím nebudou dotčeny.",
+          "primaryCTA": "Vymazat mezipaměť (cache)"
+        },
+        "title": "Vymazat mezipaměť (cache)"
+      },
       "coinControl": "Aktivovat coin control",
       "electrum": {
         "description": "Můžete se připojit ke svému vlastnímu Electrum uzlu (full node).",
@@ -1988,6 +2363,9 @@
       "title": "Správa poznámek"
     },
     "restart": "Restartujte BitBoxApp, aby se změny projevily.",
+    "search": {
+      "noResults": "Nebyla nalezena žádná nastavení"
+    },
     "services": {
       "title": "Služby"
     },
@@ -1997,7 +2375,6 @@
   "setup": "Nastavení zařízení",
   "sidebar": {
     "device": "Spravovat zařízení",
-    "insurance": "Pojištění",
     "leave": "Odejít",
     "settings": "Nastavení"
   },
@@ -2090,6 +2467,7 @@
     "explorer": "ID transakce",
     "explorerTitle": "Otevřít v externím block exploreru",
     "fee": "Poplatek",
+    "feeRate": "Výše poplatku",
     "fiatHistorical": "Historický",
     "gas": "Gas",
     "no-results": "Nebyly nalezeny žádné transakce odpovídající výrazu „{{searchTerm}}“",
@@ -2155,6 +2533,7 @@
     "unlocking": "Odemykání…"
   },
   "upgradeFirmware": {
+    "banner": "Aktualizace BitBoxu dostupná. <updateLink>Aktualizujte nyní</updateLink> a získejte nejnovější bezpečnostní vylepšení a funkce.",
     "button": "Aktualizovat firmware",
     "description": "Chcete aktualizovat firmware z {{currentVersion}} verze na {{newVersion}}?",
     "label": "Váš BitBox vyžaduje upgrade firmwaru.",
@@ -2170,7 +2549,8 @@
       "button": "Připojit",
       "dappLabel": "Zadejte URI adresu dapp",
       "invalidPairingUri": "Neplatné párování uri",
-      "missingNamespace": "Požadavek na připojení aplikace neobsahoval definici potřebného namespace"
+      "missingNamespace": "Požadavek na připojení aplikace neobsahoval definici potřebného namespace",
+      "scanInstruction": "Namířte kameru na WalletConnect QR kód"
     },
     "dashboard": {
       "allSessions": "Všechny relace",
