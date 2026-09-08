@@ -88,6 +88,7 @@ export const ReceiverAddressInput = ({
             Send to self
           </span>
         ) : undefined}
+        name="onchain-destination"
         onInputChange={onInputChange}
         onAccountChange={onAccountChange}
         onScanQR={toggleScanQR}

@@ -13,21 +13,6 @@ type TIconButtonProps = {
   onClick: () => void;
 };
 
-type TProps = {
-  accounts?: TAccount[];
-  autoFocus?: boolean;
-  error?: string | object;
-  groupAccountsByKeystore?: boolean;
-  inputLabel: string;
-  inputPlaceholder: string;
-  labelSection?: JSX.Element;
-  onAccountChange?: (account: TAccount | null) => void;
-  onInputChange: (value: string) => void;
-  onScanQR: () => void;
-  recipientAddress: string;
-  requireSendToSelfSupport?: boolean;
-};
-
 export const ScanQRButton = ({ onClick }: TIconButtonProps) => {
   const { isDarkMode } = useContext(DarkModeContext);
   return (
@@ -46,6 +31,22 @@ const PasteButton = ({ onClick }: TIconButtonProps) => {
   );
 };
 
+type TProps = {
+  accounts?: TAccount[];
+  autoFocus?: boolean;
+  error?: string | object;
+  groupAccountsByKeystore?: boolean;
+  inputLabel: string;
+  inputPlaceholder: string;
+  labelSection?: JSX.Element;
+  name: string;
+  onAccountChange?: (account: TAccount | null) => void;
+  onInputChange: (value: string) => void;
+  onScanQR: () => void;
+  recipientAddress: string;
+  requireSendToSelfSupport?: boolean;
+};
+
 export const ReceiverAddressInputField = ({
   accounts = [],
   autoFocus,
@@ -54,6 +55,7 @@ export const ReceiverAddressInputField = ({
   inputLabel,
   inputPlaceholder,
   labelSection,
+  name,
   onAccountChange,
   onInputChange,
   onScanQR,
@@ -93,6 +95,7 @@ export const ReceiverAddressInputField = ({
         groupAccountsByKeystore={groupAccountsByKeystore}
         inputLabel={inputLabel}
         inputPlaceholder={inputPlaceholder}
+        name={name}
         onInputChange={onInputChange}
         onAccountChange={onAccountChange}
         recipientAddress={recipientAddress}
@@ -110,6 +113,7 @@ export const ReceiverAddressInputField = ({
       label={inputLabel}
       placeholder={inputPlaceholder}
       error={error}
+      name={name}
       onInput={e => onInputChange(e.currentTarget.value)}
       value={recipientAddress}
       className={styles.inputWithIcon}

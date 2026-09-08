@@ -28,21 +28,6 @@ type Props = {
   isSelectedValue: boolean;
 };
 
-type TReceiverAddressWrapperProps = {
-  accounts?: TAccount[];
-  autoFocus?: boolean;
-  classNameInputField?: string;
-  error?: string | object;
-  groupAccountsByKeystore?: boolean;
-  inputLabel?: string;
-  inputPlaceholder?: string;
-  onInputChange: (value: string) => void;
-  onAccountChange?: (account: TAccount | null) => void;
-  recipientAddress: string;
-  requireSendToSelfSupport?: boolean;
-  children?: React.ReactNode;
-};
-
 const AccountOption = ({ option, isSelectedValue }: Props) => {
   if (!option.value) {
     return <span>{option.label}</span>;
@@ -59,6 +44,21 @@ const AccountOption = ({ option, isSelectedValue }: Props) => {
   );
 };
 
+type TReceiverAddressWrapperProps = {
+  accounts?: TAccount[];
+  autoFocus?: boolean;
+  classNameInputField?: string;
+  error?: string | object;
+  groupAccountsByKeystore?: boolean;
+  inputLabel?: string;
+  inputPlaceholder?: string;
+  name?: string;
+  onInputChange: (value: string) => void;
+  onAccountChange?: (account: TAccount | null) => void;
+  recipientAddress: string;
+  requireSendToSelfSupport?: boolean;
+  children?: React.ReactNode;
+};
 
 export const ReceiverAddressWrapper = ({
   accounts,
@@ -73,6 +73,7 @@ export const ReceiverAddressWrapper = ({
   recipientAddress,
   requireSendToSelfSupport = true,
   children,
+  ...props
 }: TReceiverAddressWrapperProps) => {
   const { t } = useTranslation();
   const [showFirmwareUpgradeDialog, setShowFirmwareUpgradeDialog] = useState(false);
@@ -209,6 +210,7 @@ export const ReceiverAddressWrapper = ({
             {t('generic.reset')}
           </span>
         ) : undefined}
+        {...props}
       >
         {children}
       </InputWithDropdown>

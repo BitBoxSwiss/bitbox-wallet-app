@@ -224,6 +224,7 @@ export const SelectPaymentInputStep = ({
               groupAccountsByKeystore
               inputLabel={t('lightning.send.invoice.label')}
               inputPlaceholder={t('lightning.send.invoice.placeholder')}
+              name="lightning-destination"
               onInputChange={setManualValue}
               onScanQR={showScanner}
               recipientAddress={manualValue}
