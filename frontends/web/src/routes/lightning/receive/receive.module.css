@@ -73,6 +73,7 @@
 
 .invoiceQRCode {
     margin-bottom: var(--space-half);
+    max-width: 100%;
 }
 
 .invoiceAmount {
