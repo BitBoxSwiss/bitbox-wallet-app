@@ -1240,12 +1240,11 @@ func (backend *Backend) initPersistedAccounts(options accountLoadOptions) {
 
 	persistedAccounts := backend.config.AccountsConfig()
 
-	// In this loop, we add all accounts that match the filter, except for the ones whose signing
-	// configuration is not supported by the connected keystore. The latter can happen for example
-	// if a user connects a BitBox02 Multi edition first, which persists some altcoin accounts, and
-	// then connects a BitBox02 BTC-only with the same seed. In that case, the unsupported accounts
-	// will not be loaded, unless their keystore has watch-only enabled.
-outer:
+	// In this loop, we add all accounts that match the filter, except for the ones for which the
+	// connected keystore supports no signing configuration. The latter can happen for example if a
+	// user connects a BitBox02 Multi edition first, which persists some altcoin accounts, and then
+	// connects a BitBox02 BTC-only with the same seed. In that case, the unsupported accounts will
+	// not be loaded, unless their keystore has watch-only enabled.
 	for _, account := range backend.filterAccounts(&persistedAccounts, keystoreConnectedOrWatch) {
 		coin, err := backend.Coin(account.CoinCode)
 		if err != nil {
@@ -1266,10 +1265,15 @@ outer:
 			if !isWatch {
 				switch coin.(type) {
 				case *btc.Coin:
+					supported := false
 					for _, cfg := range account.SigningConfigurations {
-						if !backend.keystore.SupportsAccount(coin, cfg.ScriptType()) {
-							continue outer
+						if backend.keystore.SupportsAccount(coin, cfg.ScriptType()) {
+							supported = true
+							break
 						}
+					}
+					if !supported {
+						continue
 					}
 				default:
 					if !backend.keystore.SupportsAccount(coin, nil) {
