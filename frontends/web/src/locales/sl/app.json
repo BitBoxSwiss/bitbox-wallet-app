@@ -83,7 +83,6 @@
       "message": "Nadaljujte na {{host}}",
       "title": "Naslov uspešno poslan"
     },
-    "syncing": "Počakajte trenutek, poteka sinhronizacija računa.",
     "title": "Zahteva za naslov",
     "xpubRequested": "Če delite svoj xpub, lahko zunanja storitev vidi naslove in vrednsoti na vaših računih (naslovih). Vaši kovanci so kljub temu na varnem in pod vašim nadzorom."
   },
@@ -360,8 +359,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Napaka: xpub-a ni bilo mogoče pridobiti iz računa.",
     "noAccount": "Ni računov, ki bi jih bilo mogoče zavarovati.",
-    "select": "Izberite račun",
-    "title": "Zavarovanje"
+    "select": "Izberite račun"
   },
   "blink": {
     "button": "Sproži utripanje na napravi"
@@ -1763,7 +1761,6 @@
   "setup": "Nastavitev naprave",
   "sidebar": {
     "device": "Upravljanje naprave",
-    "insurance": "Zavarovanje",
     "leave": "Zapusti",
     "settings": "Nastavitve"
   },

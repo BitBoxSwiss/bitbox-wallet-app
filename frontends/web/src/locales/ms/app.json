@@ -83,7 +83,6 @@
       "message": "Teruskan {{host}}",
       "title": "Alamat berjaya dihantar"
     },
-    "syncing": "Menyelaraskan akaun, sila tunggu.",
     "title": "Permintaan alamat",
     "xpubRequested": "Berkongsi xpub anda membolehkan perkhidmatan luaran melihat alamat akaun anda. Syiling anda masih selamat dan kekal dalam kawalan anda."
   },
@@ -367,8 +366,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Ralat: Tidak dapat mendapatkan xpub daripada akaun.",
     "noAccount": "Tiada akaun yang boleh diinsuranskan.",
-    "select": "Pilih akaun",
-    "title": "Insurans"
+    "select": "Pilih akaun"
   },
   "blink": {
     "button": "Berkedip"
@@ -1823,7 +1821,6 @@
   "setup": "Menetapkan peranti",
   "sidebar": {
     "device": "Urus peranti",
-    "insurance": "Insurans",
     "leave": "Tinggalkan",
     "settings": "Tetapan"
   },

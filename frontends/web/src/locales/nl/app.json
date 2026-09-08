@@ -83,7 +83,6 @@
       "message": "Ga door op {{host}}",
       "title": "Adres verzonden"
     },
-    "syncing": "Account aan het synchroniseren, even geduld",
     "title": "Adresaanvraag",
     "xpubRequested": "Door het delen van je xpub kunnen externe diensten je accountadressen zien. Je balans blijft veilig en in jouw beheer."
   },
@@ -359,8 +358,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Foutmelding: De xpub voor dit account kon niet gevonden worden.",
     "noAccount": "Er zijn geen accounts die verzekerd kunnen worden.",
-    "select": "Selecteer account",
-    "title": "Verzekering"
+    "select": "Selecteer account"
   },
   "blink": {
     "button": "Knipperen"
@@ -1776,7 +1774,6 @@
   "setup": "Apparaat instellen",
   "sidebar": {
     "device": "Apparaat beheren",
-    "insurance": "Verzekeringen",
     "leave": "Verlaten",
     "settings": "Instellingen"
   },

@@ -14,6 +14,7 @@
     "maybeProxyError": "Tor Proxy activado. Asegúrate de que tu Tor proxy está funcionando correctamente, o desactiva la configuración del proxy.",
     "reconnecting": "Conexión perdida, reconectando…",
     "syncedAddressesCount": "Se han escaneado {{count}} direcciones",
+    "syncing": "Sincronizando la cuenta, por favor espera…",
     "uncoveredFunds": "Tienes monedas en los siguientes tipos de dirección no cubiertos de su <strong>{{name}}</strong> cuenta: {{uncovered}}. \nDado que la cuenta está asegurada, sólo las monedas recibidas a través de las direcciones de tipo <strong> Segwit nativo</strong> están cubiertas. Las monedas con tipos de direcciones diferentes, aunque pertenezcan a la misma cuenta, no están aseguradas. \nPor favor, mueve todas tus monedas de los tipos de dirección no soportados al tipo de dirección <strong> Segwit nativo</strong>, para que todas tus monedas en esta cuenta estén aseguradas.",
     "uncoveredFundsLink": "Sigue esta guía sobre cómo mover tus monedas.",
     "warning": "¡Atención!"
@@ -52,6 +53,7 @@
     "name": "Nombre de cuenta",
     "noAccount": "No hay cuentas para mostrar.",
     "portfolio": "Portfolio",
+    "searchPlaceholder": "Buscar transacciones...",
     "title": "Mi portfolio",
     "total": "Total",
     "totalAssets": "Activos totales",
@@ -94,6 +96,7 @@
     "loadFailed": "No se pudieron cargar las direcciones usadas.",
     "loadNotSupported": "Las direcciones usadas no están disponibles para este tipo de cuenta.",
     "loadSyncInProgress": "Las direcciones usadas aún se están sincronizando. Intenta de nuevo en breve.",
+    "new": "Nueva dirección",
     "notFound": "Dirección no encontrada.",
     "searchPlaceholder": "Buscar dirección",
     "skipDeviceVerification": "Omitir verificación del dispositivo",
@@ -122,7 +125,6 @@
       "message": "Proceder con {{host}}",
       "title": "Dirección enviada con éxito"
     },
-    "syncing": "Sincronizando la cuenta, por favor espera un poco.",
     "title": "Solicitud de dirección",
     "xpubRequested": "Al compartir tu xpub, los servicios externos pueden ver las direcciones de tu cuenta. Tus monedas siguen estando seguras y bajo tu control."
   },
@@ -308,7 +310,8 @@
     },
     "restoreFromMnemonic": {
       "e104": "Se canceló la restauración desde las palabras de recuperación.",
-      "failed": "El restablecimiento desde tu clave de recuperación ha fallado, por favor vuelve a intentarlo."
+      "failed": "El restablecimiento desde tu clave de recuperación ha fallado, por favor vuelve a intentarlo.",
+      "securityNotice": "¿Estás recuperando una billetera que no fue creada en una BitBox? Una billetera creada en otro lugar puede no tener la misma seguridad que una creada en tu BitBox. Si no estás seguro, te recomendamos configurar una nueva billetera aquí y mover tus fondos a ella."
     },
     "stepBackup": {
       "beforeProceed": "Antes de continuar, por favor lee estas importantes consideraciones de seguridad:",
@@ -409,8 +412,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Error: No se ha podido obtener el xpub de la cuenta.",
     "noAccount": "No hay cuentas que puedan asegurarse.",
-    "select": "Seleccionar cuenta",
-    "title": "Seguro"
+    "select": "Seleccionar cuenta"
   },
   "blink": {
     "button": "Parpadeo"
@@ -451,6 +453,8 @@
     "previous": "Anterior",
     "proceedOnBitBox": "Seguir en la BitBox",
     "restore": "Restaurar",
+    "review": "Revisar",
+    "save": "Guardar",
     "select": "Selecciona",
     "unlock": "Desbloquea tu billetera",
     "update": "Actualizar",
@@ -871,7 +875,8 @@
       },
       "title": "Firmware",
       "upToDate": "Tu dispositivo está actualizado",
-      "upgradeAvailable": "Nueva actualización disponible",
+      "upgradeAvailable": "Nueva actualización de BitBox disponible",
+      "upgradeAvailableDescription": "Hay una actualización de firmware disponible. Actualiza ahora para obtener las últimas mejoras de seguridad y funciones.",
       "version": {
         "label": "Versión"
       }
@@ -916,6 +921,19 @@
     "aoppUnsupportedKeystore": "El dispositivo conectado no puede firmar mensajes para este activo.",
     "aoppVersion": "Versión desconocida.",
     "keystoreTimeout": "La solicitud de su billetera ha caducado. Por favor, inténtelo de nuevo.",
+    "lightningAddressChangeCooldown": "Espera antes de volver a cambiar tu dirección de Lightning.",
+    "lightningAddressInvalidUsername": "Utiliza solo letras minúsculas y números.",
+    "lightningAddressUsernameUnavailable": "Este nombre de usuario no está disponible.",
+    "lightningAmountBelowMinimum": "La cantidad debe ser de al menos {{minAmountSat}} sats.",
+    "lightningBalanceLimitExceeded": "El importe de la recarga supera el límite de {{limit}} en la billetera de Lightning. El importe máximo de recarga debe ser de {{remaining}} o menos.",
+    "lightningInsufficientFunds": "Fondos insuficientes en tu billetera de Lightning.",
+    "lightningInvalidAmount": "Importe no válido.",
+    "lightningInvalidPaymentInput": "Factura o solicitud de pago no válida.",
+    "lightningInvoiceAlreadyUsed": "Esta factura de Lightning ya se ha utilizado. Solicita una nueva factura.",
+    "lightningPaymentPreparationFailed": "No se pudo preparar el pago. Por favor, inténtalo de nuevo.",
+    "lightningTopUpClaimFailed": "Por favor, intenta reclamar la recarga de nuevo.",
+    "lightningTopUpRefundFailed": "Por favor, intenta reembolsar la recarga de nuevo.",
+    "paymentApprovalRequired": "La comisión de pago ha aumentado. Por favor, revisa y aprueba de nuevo.",
     "wrongKeystore": "Se ha conectado una billetera incorrecta. Por favor, asegúrese de insertar el dispositivo correcto que coincida con esta cuenta.",
     "wrongKeystore2": " Si utilizas la passphrase opcional, asegúrate de haber introducido la fpassphrase correcta para la cuenta."
   },
@@ -1013,8 +1031,10 @@
     "title": "Configuración de gap limit personalizado"
   },
   "generic": {
+    "beta": "Beta",
+    "bitcoinOnly": "Bitcoin-only",
     "buy": "Comprar {{coinCode}}",
-    "buySell": "Markeplace",
+    "buySell": "Marketplace",
     "buy_bitcoin": "Comprar Bitcoin",
     "buy_crypto": "Comprar criptomonedas",
     "calculating": "Calculando…",
@@ -1022,6 +1042,7 @@
     "enable": "Habilitar",
     "enabled_false": "Desactivado",
     "enabled_true": "Activado",
+    "insure": "Asegurar",
     "max": "Máx.",
     "new": "Nuevo",
     "noOptionOnIos": "No disponible en iOS",
@@ -1042,6 +1063,7 @@
     "sell_crypto": "Vender criptomonedas",
     "send": "Enviar",
     "sent": "Enviado",
+    "skip": "Omitir",
     "spend_bitcoin": "Gastar bitcoin",
     "spend_crypto": "Gastar criptomonedas",
     "swap": "Intercambiar",
@@ -1333,11 +1355,71 @@
       "appearance": "Guía de apariencia",
       "buySell": "Guía del Marketplace",
       "insurance": "Guía de seguros",
+      "lightningReceive": "Guía para recibir por Lightning",
+      "lightningSend": "Guía para enviar por Lightning",
       "manageAccount": "Guía de manejo de cuentas",
       "manageDevice": "Guía de administración de dispositivos",
       "receive": "Guía de recibo",
       "send": "Guía de envío",
       "walletConnect": "Guía de WalletConnect"
+    },
+    "lightning": {
+      "multipleDevices": {
+        "text": "Sí, simplemente conecta tu BitBox a otro dispositivo y activa Lightning en la BitBoxApp. La billetera de Lightning será la misma que la de tu dispositivo anterior si utilizas la misma BitBox.",
+        "title": "¿Puedo usar mi billetera de Lightning en varios dispositivos?"
+      },
+      "multipleWallets": {
+        "text": "No, actualmente no puedes crear varias billeteras de Lightning con la misma BitBox, ni utilizar varias billeteras de Lightning en la misma BitBoxApp, incluso si tienes varios dispositivos BitBox.",
+        "title": "¿Puedo crear varias billeteras de Lightning?"
+      },
+      "privateKey": {
+        "text": "La billetera de Lightning de la BitBoxApp es de autocustodia, lo que significa que solo tú tienes acceso a las claves. Las claves privadas se almacenan en la BitBoxApp. Esto convierte a tu billetera de Lightning en una billetera caliente, ya que las claves de Lightning están en tu ordenador o teléfono en lugar de en tu BitBox. Por lo tanto, guarda solo una pequeña cantidad de monedas en tu billetera de Lightning",
+        "title": "¿Dónde se almacenan mis claves privadas de Lightning?"
+      },
+      "providers": {
+        "text": "Sí, la billetera de Lightning utiliza Spark a través del SDK de Breez. La BitBoxApp controla tus claves de Lightning, mientras que Spark proporciona la infraestructura externa necesaria para enviar y recibir pagos de Lightning. Pueden aplicarse comisiones al utilizar el servicio.",
+        "title": "¿Hay partes externas involucradas en esta solución?"
+      },
+      "receive": {
+        "fee": {
+          "text": "No, el destinatario no paga una comisión por recibir un pago de Lightning. El remitente paga las comisiones.",
+          "title": "¿Pago una comisión al recibir?"
+        },
+        "invoiceOrAddress": {
+          "text": "Crea una factura cuando quieras solicitar un importe específico. Una factura es para un solo pago y caduca a los 30 días. Comparte tu dirección de Lightning en su lugar cuando el remitente deba elegir el importe, o cuando quieras que la guarde para futuros pagos. Puedes añadir una descripción opcional a una factura para ayudar a identificar el pago más adelante.",
+          "title": "¿Cuándo debo crear una factura en lugar de compartir mi dirección?"
+        },
+        "payment": {
+          "text": "Puedes compartir tu dirección de Lightning reutilizable o crear una factura BOLT11 para un solo pago. Comparte el código QR o el texto mostrado con el remitente. No es necesario que la BitBoxApp permanezca abierta mientras esperas el pago.",
+          "title": "¿Cómo puedo recibir un pago de Lightning?"
+        },
+        "reuseAddress": {
+          "text": "Sí. A diferencia de una factura, tu dirección de Lightning se puede utilizar para varios pagos. El remitente elige el importe, y su billetera solicita los detalles del pago automáticamente. No es una dirección de correo electrónico, aunque lo parezca.",
+          "title": "¿Puedo reutilizar mi dirección de Lightning?"
+        }
+      },
+      "securedByBitBox": {
+        "text": "No, la BitBox solo se utiliza para crear y restaurar tu billetera de Lightning. Una vez creada tu billetera de Lightning, se considera una billetera caliente.",
+        "title": "¿Mi billetera de Lightning está protegida por mi BitBox?"
+      },
+      "send": {
+        "cancel": {
+          "text": "No. Los pagos de Lightning no se pueden cancelar ni revertir una vez enviados. Comprueba siempre el destinatario, el importe, la descripción y la comisión antes de enviar. Si necesitas un reembolso, pide al destinatario que te devuelva los fondos. Una factura no pagada acaba caducando.",
+          "title": "¿Puedo cancelar o revertir un pago de Lightning?"
+        },
+        "fee": {
+          "text": "La comisión depende del importe del pago y de la ruta disponible en ese momento, por lo que se calcula poco antes de enviar. La comisión y el importe total que se deducirá de tu saldo se muestran antes de confirmar.",
+          "title": "¿Cómo se calcula la comisión de los pagos de Lightning?"
+        },
+        "invoiceAndAddress": {
+          "text": "Una factura BOLT11 se crea para un solo pago. Puede especificar el importe previamente o requerir que se introduzca uno. Las facturas caducan y solo se pueden pagar una vez. Una dirección de Lightning es reutilizable y permite elegir cualquier importe dentro de los límites establecidos por el destinatario.",
+          "title": "¿Cuál es la diferencia entre una factura y una dirección de Lightning?"
+        },
+        "payment": {
+          "text": "Escanea o pega una factura BOLT11, una solicitud LNURL-Pay o una dirección de Lightning. Una dirección de Lightning parece una dirección de correo electrónico, pero se utiliza para pagos.",
+          "title": "¿Cómo envío un pago de Lightning?"
+        }
+      }
     },
     "receive": {
       "address": {
@@ -1532,6 +1614,287 @@
   "invalidFormat": "Formato inválido",
   "language": {
     "title": "Selecciona el idioma"
+  },
+  "lightning": {
+    "accountLabel": "Lightning",
+    "activate": {
+      "connect": {
+        "content": "Conecta tu BitBox para crear la billetera de Lightning",
+        "title": "Conecta tu dispositivo"
+      },
+      "disclaimer": {
+        "checkboxLabel": "He leído la información anterior",
+        "content": "La billetera Lightning se creará usando una clave derivada de tu BitBox. De ese modo siempre podrás restaurar tu billetera de Lightning usando tu BitBox o tu copia de seguridad.\n\nSin embargo, a diferencia de la BitBox, la billetera de Lightning es una <strong>billetera caliente</strong>. Esto significa que las claves de tu billetera Lightning se almacenan en la BitBoxApp, no en la BitBox. No deberías usar la billetera de Lightning para grandes cantidades de fondos ni para almacenamiento a largo plazo.\n\n          Además, la función de Lightning se encuentra actualmente en fase beta, lo que significa que se pueden encontrar errores, problemas de fiabilidad o que podría dejar de funcionar por completo.",
+        "title": "¿Cómo funciona con la BitBoxApp?"
+      },
+      "intro": {
+        "content": "Lightning es una segunda capa de Bitcoin basada en canales. Permite gastar y recibir monedas al instante y con una comisión muy baja.",
+        "title": "¿Qué es Lightning?"
+      },
+      "success": {
+        "message": "¡Éxito! Tu billetera de Lightning está lista."
+      },
+      "title": "Crear billetera de Lightning",
+      "wait": {
+        "activating": "Habilitando la billetera de Lightning...",
+        "confirm": "Confirma en tu BitBox que quieres crear una billetera de Lightning.",
+        "title": "Crear billetera de Lightning"
+      }
+    },
+    "betaWarning": "Lightning es una función beta destinada a vista previa y pruebas. ¡Utiliza Lightning solo con una pequeña cantidad de fondos!",
+    "bitcoinDeposit": {
+      "claim": "Reclamar recarga o reembolso",
+      "label": "Recarga de Bitcoin",
+      "state": {
+        "claiming": "Reclamar depósito",
+        "confirming": "Esperando confirmaciones",
+        "unclaimed": "Reclamación requerida"
+      },
+      "stateShort": {
+        "claiming": "Reclamando",
+        "confirming": "Confirmando",
+        "unclaimed": "Reclamación requerida"
+      }
+    },
+    "claimTopUp": {
+      "claimButton": "Reclamar recarga",
+      "claimFee": "Comisión de reclamación",
+      "claimUnavailable": "Reclamación no disponible",
+      "confirm": {
+        "amount": "Recarga sin reclamar",
+        "claimButton": "Confirmar reclamación",
+        "claimTitle": "Confirmar reclamación de recarga",
+        "fee": "Comisión",
+        "feeRate": "Tasa de comisión",
+        "refundButton": "Confirmar reembolso",
+        "refundDestination": "Destino del reembolso",
+        "refundTitle": "Confirmar reembolso de recarga"
+      },
+      "description": "Necesitarás crear una transacción para reclamar los fondos atascados.",
+      "empty": "No se encontró ninguna recarga sin reclamar.",
+      "failure": {
+        "claimFailedMessage": "Reclamación de recarga fallida.",
+        "claimFailedTryRefund": "Prueba a reembolsarlo a una cuenta de Bitcoin en su lugar.",
+        "refundFailedMessage": "Reembolso de recarga fallido.",
+        "refundFailedTryAgain": "Inténtalo de nuevo."
+      },
+      "feeRate": "{{feeRate}} sat/vByte",
+      "refundButton": "Reembolsar recarga",
+      "refundFee": "Tasa de comisión de reembolso",
+      "refundUnavailable": "Reembolso no disponible",
+      "success": {
+        "claimMessage": "Transacción de reclamación realizada",
+        "claimNote": "Las monedas de la recarga aparecerán en tu billetera una vez que se confirme la transacción.",
+        "claimTitle": "Reclamar recarga",
+        "refundMessage": "Transacción de reembolso realizada",
+        "refundNote": "El reembolso aparecerá de nuevo en tu billetera on-chain una vez que se confirme la transacción.",
+        "refundTitle": "Reembolsar recarga"
+      },
+      "title": "Reclamar recarga",
+      "topUp": "Recarga sin reclamar",
+      "viewTransaction": "Ver transacción",
+      "warning": "Puedes reclamar la recarga o solicitar un reembolso. Ambas opciones tendrán una comisión."
+    },
+    "closeWithdrawFunds": {
+      "accountDestination": "Las monedas de la cuenta se enviarán a",
+      "confirm": "Confirmar cierre de la billetera de Lightning",
+      "description": "Esto cerrará tu billetera de Lightning y enviará todas las monedas restantes a tu BitBox.",
+      "failure": {
+        "message": "Error al cerrar la billetera de Lightning.",
+        "tryAgain": "Inténtalo de nuevo."
+      },
+      "fee": "Comisión",
+      "incomingFunds": "Fondos entrantes",
+      "incomingWarning": "No se pueden retirar los fondos entrantes al cerrar la billetera de Lightning. Vuelve a intentarlo más tarde para retirar todos los fondos.",
+      "incomingWarningConfirm": "Entiendo que los fondos entrantes no serán retirados.",
+      "lightningBalanceToBeSent": "Saldo de Lightning por enviar",
+      "partialFailure": {
+        "action": "Apagar billetera",
+        "message": "Se retiraron fondos, pero no se pudo cerrar la billetera de Lightning. Ciérrala por separado."
+      },
+      "success": {
+        "message": "Billetera de Lightning cerrada con éxito. Las monedas se enviarán a la billetera on-chain.",
+        "note": "Tus monedas aparecerán en tu billetera una vez que la transacción se confirme."
+      },
+      "viewTransaction": "Ver transacción"
+    },
+    "deactivate": {
+      "intro": {
+        "content": "Apagar tu billetera de Lightning te desconectará del servidor y ya no podrás usarla para enviar ni recibir. \nLos fondos en tu billetera de Lightning no se verán afectados; podrás acceder a ellos de nuevo activando Lightning en los ajustes y conectando la BitBox que se usó para crear esa billetera."
+      },
+      "success": {
+        "message": "Éxito, tu billetera de Lightning ahora está desactivada"
+      },
+      "wait": {
+        "title": "Desactivando la billetera de Lightning..."
+      }
+    },
+    "disclaimer": {
+      "backups": {
+        "content": "La clave privada de la billetera de Lightning se deriva de la BitBox. Esto significa que puedes restaurar tu billetera de Lightning con la misma BitBox con la que se creó.",
+        "title": "Copias de seguridad"
+      },
+      "beta": {
+        "content": "La implementación de Lightning en la BitBoxApp está en fase beta. Esto significa que puedes encontrar errores o que deje de funcionar por completo. Entiende los riesgos antes de usarla y no recargues tu billetera de Lightning con más monedas de las que puedas permitirte perder.",
+        "title": "Beta"
+      },
+      "continue": "Aceptar y continuar",
+      "fees": {
+        "receiving": {
+          "content": "Recibir transacciones en Lightning es gratis. El remitente paga las comisiones.",
+          "title": "Recibir"
+        },
+        "sending": {
+          "content": "La comisión depende del importe del pago y de la ruta disponible en ese momento, por lo que se calcula poco antes de enviar. La comisión y el importe total que se deducirá de tu saldo se muestran antes de confirmar.",
+          "title": "Enviar"
+        },
+        "title": "Comisiones"
+      },
+      "securityModel": {
+        "content": "La billetera de Lightning es una <strong>billetera caliente</strong>. Esto significa que las claves se almacenan en la aplicación y, por lo tanto, no están protegidas por la BitBox. Esto te permite usar tu billetera de Lightning sin necesidad de una BitBox. Asegúrate de mantener solo una pequeña cantidad de fondos en tu billetera de Lightning.",
+        "title": "Modelo de seguridad"
+      },
+      "title": "Aviso sobre Lightning",
+      "trustModel": {
+        "breezLink": "Aprende sobre el SDK de Breez",
+        "content": "La integración de Lightning en la BitBoxApp utiliza la infraestructura de Spark y el SDK de Breez. Ten en cuenta que, en este momento, no es posible la salida unilateral de tus monedas, ya que el SDK de Breez no lo permite actualmente. Por lo tanto, retirar las monedas de tu billetera de Lightning depende de que la infraestructura de Spark esté en línea y coopere.",
+        "sparkLink": "Más información sobre Spark",
+        "title": "Modelo de confianza"
+      }
+    },
+    "initializing": "Inicializando cuenta de Lightning...",
+    "limit": {
+      "accountWarning": "El saldo de la billetera supera el límite de {{limit}} en {{excess}}. Recomendamos mover algunas monedas a tu billetera BitBox para mayor seguridad.",
+      "createInvoiceWarning": "El importe de la factura excederá el límite de {{limit}} en {{excess}}. Aún puedes crear la factura.",
+      "invoiceWarning": "El importe de la factura excederá el límite de {{limit}} en {{excess}}. Puedes seguir usando la factura.",
+      "moveCoins": "Mover monedas"
+    },
+    "lnurlAddress": {
+      "availability": {
+        "available": "Este nombre está disponible",
+        "checking": "Comprobando disponibilidad...",
+        "taken": "Este nombre ya está en uso"
+      },
+      "choose": "Puedes elegir tu propia dirección a continuación o generar una.",
+      "description": "Una dirección LNURL es una dirección legible por humanos que puedes compartir fácilmente para recibir pagos en Lightning",
+      "generate": "Generar dirección",
+      "label": "Nombre de usuario LNURL",
+      "notice": "Ten en cuenta que tu dirección solo se puede cambiar <strong>una vez cada 24 horas.</strong>",
+      "success": {
+        "message": "Tu dirección LNURL ha sido establecida."
+      },
+      "title": "Establecer dirección LNURL"
+    },
+    "payments": {
+      "header": {
+        "amount": "Cantidad",
+        "date": "Fecha",
+        "description": "Descripción",
+        "type": "Tipo"
+      },
+      "placeholder": "Aún no hay pagos.",
+      "title": "Historial de pagos"
+    },
+    "receive": {
+      "address": {
+        "label": "Dirección de Lightning",
+        "scanQRCode": "Escanea el código QR para recibir"
+      },
+      "amountSats": {
+        "label": "Sats",
+        "placeholder": "Introduce la cantidad"
+      },
+      "description": {
+        "label": "Descripción",
+        "optional": "Opcional",
+        "placeholder": "Introduce una descripción"
+      },
+      "invoice": {
+        "copied": "¡Factura copiada!",
+        "create": "Crear factura",
+        "creating": "Creando factura",
+        "edit": "Editar factura",
+        "newInvoice": "Nueva factura",
+        "title": "Escanea el código QR para recibir"
+      },
+      "openChannelWarning": "Se deducirán {{feeSat}} sats como tarifa para abrir un nuevo canal.",
+      "subtitle": "Crear factura Lightning",
+      "success": {
+        "message": "¡Pago de Lightning recibido!"
+      },
+      "title": "Recibir por Lightning"
+    },
+    "send": {
+      "confirm": {
+        "amount": "Cantidad",
+        "note": "Nota",
+        "receiver": "Destinatario",
+        "title": "Confirmar detalles de la transacción"
+      },
+      "enterInvoice": "Introducir dirección o factura",
+      "invoice": {
+        "label": "Introducir detalles de pago",
+        "placeholder": "Dirección o factura"
+      },
+      "lnurlPay": {
+        "invalidAmount": "Introduce una cantidad entre {{minAmount}} y {{maxAmount}} sats."
+      },
+      "onChain": "On-chain",
+      "pasteClipboard": "Pegar del portapapeles",
+      "qrCode": {
+        "label": "Escanear dirección o factura"
+      },
+      "scanInstruction": "Apunta la cámara al código QR de la factura",
+      "sending": {
+        "connecting": "Preparando pago",
+        "message": "Enviando pago"
+      },
+      "success": {
+        "message": "¡Transacción confirmada y enviada!"
+      },
+      "title": "Enviar por Lightning"
+    },
+    "settings": {
+      "closeAndWithdrawFunds": "Cerrar y retirar fondos",
+      "disableWallet": "Desactivar billetera de Lightning",
+      "enableWallet": "Activar billetera de Lightning",
+      "enableWalletDescription": "Lightning permite pagos instantáneos y de bajas comisiones.",
+      "expert": "Experto",
+      "serviceProvider": "Proveedor de servicios",
+      "setLightningAddress": "Establecer dirección de Lightning",
+      "status": "Estado",
+      "statusConnected": "Conectado",
+      "title": "Ajustes de Lightning",
+      "wallet": "Billetera"
+    },
+    "sparkStatus": {
+      "degraded": "La red Spark está experimentando un rendimiento degradado. Los pagos por Lightning pueden retrasarse.",
+      "major": "La red Spark está experimentando una interrupción importante. Los pago por Lightning pueden no estar disponibles.",
+      "partial": "La red Spark está parcialmente fuera de servicio. Los pagos por Lightning pueden no estar disponibles.",
+      "unknown": "El estado de la red Spark es desconocido. Los pagos por Lightning pueden no estar disponibles."
+    },
+    "topUp": {
+      "action": "Recargar",
+      "available": "Disponible",
+      "confirm": {
+        "amount": "Cantidad",
+        "continue": "Continúa en tu BitBox.",
+        "networkFee": "Comisión de red",
+        "receiver": "Destinatario",
+        "title": "Confirmar y enviar transacción",
+        "total": "Total"
+      },
+      "from": "De",
+      "noBitcoinAccounts": "No hay cuentas de Bitcoin activas. Activa una cuenta de Bitcoin.",
+      "note": "Recarga de Lightning",
+      "success": {
+        "message": "¡Recarga creada!",
+        "note": "La transacción de recarga aparecerá tras una confirmación y se completará tras tres confirmaciones. Esto suele tardar más de 30 minutos."
+      },
+      "title": "Recargar billetera de Lightning",
+      "to": "A"
+    },
+    "torProxyWarning": "Lightning no utiliza el proxy Tor. Lightning seguirá funcionando a través de tu conexión a Internet habitual."
   },
   "loading": "cargando…",
   "logo": {
@@ -1851,6 +2214,7 @@
       "invalidAddress": "dirección inválida",
       "invalidAmount": "Cantidad inválida",
       "invalidData": "Datos inválidos",
+      "paymentRequestAccountMismatch": "Esta solicitud de pago corresponde a un activo diferente. Abre la cuenta correspondiente e inténtalo de nuevo.",
       "syncInProgress": "La cuenta aún se está sincronizando. Espera a que la sincronización se complete e inténtalo de nuevo."
     },
     "fee": {
@@ -1899,7 +2263,9 @@
     "noFeeTargets": "Las estimaciones de tarifas no están disponibles actualmente. Vuelva a intentarlo más tarde o introduce una tarifa personalizada.",
     "priority": "Prioridad",
     "scanQR": "Escanear código QR",
+    "scanQRInstruction": "Apunta la cámara a un código QR de dirección",
     "scanQRNoCameraMessage": "Cámara no encontrada. Por favor asegúrese de que su dispositivo cuente con una cámara y de que los permisos estén correctamente configurados.",
+    "scanQRToggleFlash": "Activar/Desactivar linterna",
     "sendToAccount": {
       "placeholder": "Seleccionar cuenta",
       "title": "Enviar a cuenta"
@@ -1941,6 +2307,15 @@
       "title-tltc": "Servidores Electrum de Litecoin Testnet"
     },
     "expert": {
+      "clearCache": {
+        "description": "Borrar la caché de la BitBoxApp. Esto puede ayudar a solucionar problemas en la aplicación.",
+        "dialog": {
+          "description": "Borrar la caché de la BitBoxApp. Si estás experimentando problemas con la BitBoxApp, esto puede ayudar a resolverlos.",
+          "note": "Los nombres de tus cuentas, las notas y las billeteras no se verán afectados.",
+          "primaryCTA": "Borrar caché"
+        },
+        "title": "Borrar caché"
+      },
       "coinControl": "Activar control de monedas",
       "electrum": {
         "description": "Puedes conectarte a tu propio nodo Electrum completo.",
@@ -1988,6 +2363,9 @@
       "title": "Administrar notas"
     },
     "restart": "Por favor, reinicia la BitBoxApp para que los cambios tengan efecto.",
+    "search": {
+      "noResults": "No se encontraron ajustes"
+    },
     "services": {
       "title": "Servicios"
     },
@@ -1997,7 +2375,6 @@
   "setup": "Configurar dispositivo",
   "sidebar": {
     "device": "Administrar dispositivo",
-    "insurance": "Seguro",
     "leave": "Salir",
     "settings": "Configuración"
   },
@@ -2090,6 +2467,7 @@
     "explorer": "ID de transacción",
     "explorerTitle": "Abrir en explorador de bloques",
     "fee": "Tarifa de red",
+    "feeRate": "Tasa de comisión",
     "fiatHistorical": "Historial",
     "gas": "Gas",
     "no-results": "No se encontraron transacciones que coincidan con \"{{searchTerm}}\"",
@@ -2155,6 +2533,7 @@
     "unlocking": "Desbloqueando…"
   },
   "upgradeFirmware": {
+    "banner": "Actualización de BitBox disponible. <updateLink>Actualizar ahora</updateLink> para obtener las últimas mejoras de seguridad y funciones.",
     "button": "Actualización de firmware",
     "description": "¿Quieres actualizar el Firmware de la versión {{currentVersion}} a {{newVersion}}?",
     "label": "Se requiere una actualización de firmware para tu BitBox.",
@@ -2170,7 +2549,8 @@
       "button": "Conectar",
       "dappLabel": "Introduce la dirección URI de la Dapp",
       "invalidPairingUri": "URI de emparejamiento no válido",
-      "missingNamespace": "La solicitud de conexión de la aplicación no definió el namespace necesario"
+      "missingNamespace": "La solicitud de conexión de la aplicación no definió el namespace necesario",
+      "scanInstruction": "Apunta la cámara al código QR de WalletConnect"
     },
     "dashboard": {
       "allSessions": "Todas las sesiones",
