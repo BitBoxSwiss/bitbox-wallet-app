@@ -231,7 +231,8 @@ func TestServiceStatus(t *testing.T) {
 
 func TestSparkStatus(t *testing.T) {
 	lightning := &Lightning{
-		sparkStatus: func() (breez_sdk_spark.SparkStatus, error) {
+		sparkStatus: func(request breez_sdk_spark.GetSparkStatusRequest) (breez_sdk_spark.SparkStatus, error) {
+			require.Equal(t, breez_sdk_spark.GetSparkStatusRequest{}, request)
 			return breez_sdk_spark.SparkStatus{
 				Status: breez_sdk_spark.ServiceStatusPartial,
 			}, nil
@@ -248,7 +249,7 @@ func TestSparkStatus(t *testing.T) {
 func TestSparkStatus_Error(t *testing.T) {
 	sdkErr := errors.New("boom")
 	lightning := &Lightning{
-		sparkStatus: func() (breez_sdk_spark.SparkStatus, error) {
+		sparkStatus: func(breez_sdk_spark.GetSparkStatusRequest) (breez_sdk_spark.SparkStatus, error) {
 			return breez_sdk_spark.SparkStatus{}, sdkErr
 		},
 	}

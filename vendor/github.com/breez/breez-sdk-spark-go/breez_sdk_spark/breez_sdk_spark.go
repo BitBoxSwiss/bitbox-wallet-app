@@ -506,7 +506,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_func_get_spark_status()
 		})
-		if checksum != 62888 {
+		if checksum != 51200 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_func_get_spark_status: UniFFI API checksum mismatch")
 		}
@@ -533,7 +533,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_func_new_rest_chain_service()
 		})
-		if checksum != 23177 {
+		if checksum != 53269 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_func_new_rest_chain_service: UniFFI API checksum mismatch")
 		}
@@ -594,9 +594,18 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_method_bitcoinchainservice_tip_height()
+		})
+		if checksum != 5182 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_bitcoinchainservice_tip_height: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_bitcoinchainservice_get_transaction_hex()
 		})
-		if checksum != 16866 {
+		if checksum != 35307 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_bitcoinchainservice_get_transaction_hex: UniFFI API checksum mismatch")
 		}
@@ -605,7 +614,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_bitcoinchainservice_get_outspend()
 		})
-		if checksum != 42521 {
+		if checksum != 49726 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_bitcoinchainservice_get_outspend: UniFFI API checksum mismatch")
 		}
@@ -614,7 +623,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_bitcoinchainservice_broadcast_transaction()
 		})
-		if checksum != 13500 {
+		if checksum != 54160 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_bitcoinchainservice_broadcast_transaction: UniFFI API checksum mismatch")
 		}
@@ -623,7 +632,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_bitcoinchainservice_recommended_fees()
 		})
-		if checksum != 50885 {
+		if checksum != 31747 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_bitcoinchainservice_recommended_fees: UniFFI API checksum mismatch")
 		}
@@ -770,6 +779,15 @@ func uniffiCheckChecksums() {
 		if checksum != 63178 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_breezsdk_export_unilateral_exit_state: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_method_breezsdk_fetch_claim_deposit_quote()
+		})
+		if checksum != 30349 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_breezsdk_fetch_claim_deposit_quote: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -2063,7 +2081,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_constructor_passkeyclient_new()
 		})
-		if checksum != 51278 {
+		if checksum != 2983 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_constructor_passkeyclient_new: UniFFI API checksum mismatch")
 		}
@@ -2439,6 +2457,10 @@ type BitcoinChainService interface {
 	// swept refund can still be distinguished from one never broadcast.
 	GetAddressTxos(address string) ([]Utxo, error)
 	GetTransactionStatus(txid string) (TxStatus, error)
+	// Height of the chain tip. Paired with a transaction's
+	// [`TxStatus::block_height`] it gives that transaction's confirmation count,
+	// which no single call reports.
+	TipHeight() (uint32, error)
 	GetTransactionHex(txid string) (string, error)
 	GetOutspend(txid string, vout uint32) (Outspend, error)
 	BroadcastTransaction(tx string) error
@@ -2547,6 +2569,42 @@ func (_self *BitcoinChainServiceImpl) GetTransactionStatus(txid string) (TxStatu
 		// freeFn
 		func(handle C.uint64_t) {
 			C.ffi_breez_sdk_spark_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Height of the chain tip. Paired with a transaction's
+// [`TxStatus::block_height`] it gives that transaction's confirmation count,
+// which no single call reports.
+func (_self *BitcoinChainServiceImpl) TipHeight() (uint32, error) {
+	_pointer := _self.ffiObject.incrementPointer("BitcoinChainService")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[ChainServiceError](
+		FfiConverterChainServiceErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) C.uint32_t {
+			res := C.ffi_breez_sdk_spark_rust_future_complete_u32(handle, status)
+			return res
+		},
+		// liftFn
+		func(ffi C.uint32_t) uint32 {
+			return FfiConverterUint32INSTANCE.Lift(ffi)
+		},
+		C.uniffi_breez_sdk_spark_fn_method_bitcoinchainservice_tip_height(
+			_pointer),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_poll_u32(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_free_u32(handle)
 		},
 	)
 
@@ -2984,7 +3042,66 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod2(uni
 }
 
 //export breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod3
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod3(uniffiHandle C.uint64_t, txid C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod3(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteU32, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+	handle := uint64(uniffiHandle)
+	uniffiObj, ok := FfiConverterBitcoinChainServiceINSTANCE.handleMap.tryGet(handle)
+	if !ok {
+		panic(fmt.Errorf("no callback in handle map: %d", handle))
+	}
+
+	result := make(chan C.UniffiForeignFutureStructU32, 1)
+	cancel := make(chan struct{}, 1)
+	guardHandle := cgo.NewHandle(cancel)
+	*uniffiOutReturn = C.UniffiForeignFuture{
+		handle: C.uint64_t(guardHandle),
+		free:   C.UniffiForeignFutureFree(C.breez_sdk_spark_uniffiFreeGorutine),
+	}
+
+	// Wait for compleation or cancel
+	go func() {
+		select {
+		case <-cancel:
+		case res := <-result:
+			C.call_UniffiForeignFutureCompleteU32(uniffiFutureCallback, uniffiCallbackData, res)
+		}
+	}()
+
+	// Eval callback asynchroniously
+	go func() {
+		asyncResult := &C.UniffiForeignFutureStructU32{}
+		uniffiOutReturn := &asyncResult.returnValue
+		callStatus := &asyncResult.callStatus
+		defer func() {
+			result <- *asyncResult
+		}()
+
+		res, err :=
+			uniffiObj.TipHeight()
+
+		if err != nil {
+			var actualError *ChainServiceError
+			if errors.As(err, &actualError) {
+				if actualError != nil {
+					*callStatus = C.RustCallStatus{
+						code:     C.int8_t(uniffiCallbackResultError),
+						errorBuf: FfiConverterChainServiceErrorINSTANCE.Lower(actualError),
+					}
+					return
+				}
+			} else {
+				*callStatus = C.RustCallStatus{
+					code: C.int8_t(uniffiCallbackUnexpectedResultError),
+				}
+				return
+			}
+		}
+
+		*uniffiOutReturn = FfiConverterUint32INSTANCE.Lower(res)
+	}()
+}
+
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod4
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod4(uniffiHandle C.uint64_t, txid C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterBitcoinChainServiceINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -3046,8 +3163,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod3(uni
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod4
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod4(uniffiHandle C.uint64_t, txid C.RustBuffer, vout C.uint32_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod5
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod5(uniffiHandle C.uint64_t, txid C.RustBuffer, vout C.uint32_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterBitcoinChainServiceINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -3110,8 +3227,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod4(uni
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod5
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod5(uniffiHandle C.uint64_t, tx C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod6
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod6(uniffiHandle C.uint64_t, tx C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterBitcoinChainServiceINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -3171,8 +3288,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod5(uni
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod6
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod6(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod7
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod7(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterBitcoinChainServiceINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -3234,10 +3351,11 @@ var UniffiVTableCallbackInterfaceBitcoinChainServiceINSTANCE = C.UniffiVTableCal
 	getAddressUtxos:      (C.UniffiCallbackInterfaceBitcoinChainServiceMethod0)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod0),
 	getAddressTxos:       (C.UniffiCallbackInterfaceBitcoinChainServiceMethod1)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod1),
 	getTransactionStatus: (C.UniffiCallbackInterfaceBitcoinChainServiceMethod2)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod2),
-	getTransactionHex:    (C.UniffiCallbackInterfaceBitcoinChainServiceMethod3)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod3),
-	getOutspend:          (C.UniffiCallbackInterfaceBitcoinChainServiceMethod4)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod4),
-	broadcastTransaction: (C.UniffiCallbackInterfaceBitcoinChainServiceMethod5)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod5),
-	recommendedFees:      (C.UniffiCallbackInterfaceBitcoinChainServiceMethod6)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod6),
+	tipHeight:            (C.UniffiCallbackInterfaceBitcoinChainServiceMethod3)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod3),
+	getTransactionHex:    (C.UniffiCallbackInterfaceBitcoinChainServiceMethod4)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod4),
+	getOutspend:          (C.UniffiCallbackInterfaceBitcoinChainServiceMethod5)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod5),
+	broadcastTransaction: (C.UniffiCallbackInterfaceBitcoinChainServiceMethod6)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod6),
+	recommendedFees:      (C.UniffiCallbackInterfaceBitcoinChainServiceMethod7)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceMethod7),
 
 	uniffiFree: (C.UniffiCallbackInterfaceFree)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceBitcoinChainServiceFree),
 }
@@ -3354,6 +3472,13 @@ type BreezSdkInterface interface {
 	// The state goes stale as the wallet is used: export again whenever a
 	// `UnilateralExitStateChanged` event arrives.
 	ExportUnilateralExitState() (ExportUnilateralExitStateResponse, error)
+	// Quotes both ways of claiming a deposit, so the caller can offer a choice
+	// between claiming ahead of maturity for a spread and waiting for the cheaper
+	// claim at maturity.
+	//
+	// The early quote is requested from the provider on each call rather than read
+	// from cache, so call this when a user is deciding, not on a timer.
+	FetchClaimDepositQuote(request FetchClaimDepositQuoteRequest) (FetchClaimDepositQuoteResponse, error)
 	FetchConversionLimits(request FetchConversionLimitsRequest) (FetchConversionLimitsResponse, error)
 	// Returns the available cross-chain routes.
 	//
@@ -4223,6 +4348,47 @@ func (_self *BreezSdk) ExportUnilateralExitState() (ExportUnilateralExitStateRes
 		},
 		C.uniffi_breez_sdk_spark_fn_method_breezsdk_export_unilateral_exit_state(
 			_pointer),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Quotes both ways of claiming a deposit, so the caller can offer a choice
+// between claiming ahead of maturity for a spread and waiting for the cheaper
+// claim at maturity.
+//
+// The early quote is requested from the provider on each call rather than read
+// from cache, so call this when a user is deciding, not on a timer.
+func (_self *BreezSdk) FetchClaimDepositQuote(request FetchClaimDepositQuoteRequest) (FetchClaimDepositQuoteResponse, error) {
+	_pointer := _self.ffiObject.incrementPointer("*BreezSdk")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[SdkError](
+		FfiConverterSdkErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_breez_sdk_spark_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) FetchClaimDepositQuoteResponse {
+			return FfiConverterFetchClaimDepositQuoteResponseINSTANCE.Lift(ffi)
+		},
+		C.uniffi_breez_sdk_spark_fn_method_breezsdk_fetch_claim_deposit_quote(
+			_pointer, FfiConverterFetchClaimDepositQuoteRequestINSTANCE.Lower(request)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
 			C.ffi_breez_sdk_spark_rust_future_poll_rust_buffer(handle, continuation, data)
@@ -9722,10 +9888,20 @@ type PasskeyClient struct {
 }
 
 // Construct with the default Nostr-backed label store.
-func NewPasskeyClient(prfProvider PrfProvider, breezApiKey *string, config *PasskeyConfig) *PasskeyClient {
-	return FfiConverterPasskeyClientINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+//
+// Fails when `config` carries a proxy the relay transport cannot
+// honour, rather than letting a wallet be created whose label can
+// never be published.
+func NewPasskeyClient(prfProvider PrfProvider, breezApiKey *string, config *PasskeyConfig) (*PasskeyClient, error) {
+	_uniffiRV, _uniffiErr := rustCallWithError[PasskeyError](FfiConverterPasskeyError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
 		return C.uniffi_breez_sdk_spark_fn_constructor_passkeyclient_new(FfiConverterPrfProviderINSTANCE.Lower(prfProvider), FfiConverterOptionalStringINSTANCE.Lower(breezApiKey), FfiConverterOptionalPasskeyConfigINSTANCE.Lower(config), _uniffiStatus)
-	}))
+	})
+	if _uniffiErr != nil {
+		var _uniffiDefaultValue *PasskeyClient
+		return _uniffiDefaultValue, _uniffiErr
+	} else {
+		return FfiConverterPasskeyClientINSTANCE.Lift(_uniffiRV), nil
+	}
 }
 
 // One-shot capability + configuration probe. Collapses
@@ -17463,22 +17639,85 @@ func (_ FfiDestroyerCheckMessageResponse) Destroy(value CheckMessageResponse) {
 	value.Destroy()
 }
 
+// What one way of claiming a deposit costs.
+type ClaimDepositQuote struct {
+	// The depth this becomes claimable at, as a total confirmation count on the
+	// deposit tx and not a number still to wait. A deposit already at or past
+	// this depth can be claimed.
+	ConfirmationsRequired uint32
+	// What reaches the balance.
+	CreditAmountSats uint64
+	// The deposit value less the credit.
+	FeeSats uint64
+	// `fee_sats` as a fee rate over the claim transaction, so it is comparable
+	// with a max fee expressed as a rate.
+	FeeRateSatPerVbyte uint64
+	// The provider would not quote this yet, so the fee is derived from current
+	// on-chain fees and the real one may differ.
+	IsEstimate bool
+}
+
+func (r *ClaimDepositQuote) Destroy() {
+	FfiDestroyerUint32{}.Destroy(r.ConfirmationsRequired)
+	FfiDestroyerUint64{}.Destroy(r.CreditAmountSats)
+	FfiDestroyerUint64{}.Destroy(r.FeeSats)
+	FfiDestroyerUint64{}.Destroy(r.FeeRateSatPerVbyte)
+	FfiDestroyerBool{}.Destroy(r.IsEstimate)
+}
+
+type FfiConverterClaimDepositQuote struct{}
+
+var FfiConverterClaimDepositQuoteINSTANCE = FfiConverterClaimDepositQuote{}
+
+func (c FfiConverterClaimDepositQuote) Lift(rb RustBufferI) ClaimDepositQuote {
+	return LiftFromRustBuffer[ClaimDepositQuote](c, rb)
+}
+
+func (c FfiConverterClaimDepositQuote) Read(reader io.Reader) ClaimDepositQuote {
+	return ClaimDepositQuote{
+		FfiConverterUint32INSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterBoolINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterClaimDepositQuote) Lower(value ClaimDepositQuote) C.RustBuffer {
+	return LowerIntoRustBuffer[ClaimDepositQuote](c, value)
+}
+
+func (c FfiConverterClaimDepositQuote) LowerExternal(value ClaimDepositQuote) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[ClaimDepositQuote](c, value))
+}
+
+func (c FfiConverterClaimDepositQuote) Write(writer io.Writer, value ClaimDepositQuote) {
+	FfiConverterUint32INSTANCE.Write(writer, value.ConfirmationsRequired)
+	FfiConverterUint64INSTANCE.Write(writer, value.CreditAmountSats)
+	FfiConverterUint64INSTANCE.Write(writer, value.FeeSats)
+	FfiConverterUint64INSTANCE.Write(writer, value.FeeRateSatPerVbyte)
+	FfiConverterBoolINSTANCE.Write(writer, value.IsEstimate)
+}
+
+type FfiDestroyerClaimDepositQuote struct{}
+
+func (_ FfiDestroyerClaimDepositQuote) Destroy(value ClaimDepositQuote) {
+	value.Destroy()
+}
+
 type ClaimDepositRequest struct {
-	Txid   string
-	Vout   uint32
+	Txid string
+	Vout uint32
+	// Caps what the claim may cost. A deposit that has not matured is claimed
+	// instantly when the provider's spread fits within this, so the same ceiling
+	// governs both. Falls back to the configured max deposit claim fee.
 	MaxFee *MaxFee
-	// Set to request an instant (0-conf) claim instead of waiting for the
-	// deposit to mature, bounding the SSP spread at this many basis points of
-	// the deposit value (100 bps = 1%). When set, the call takes the instant
-	// path and `max_fee` is ignored.
-	MaxInstantFeeBps *uint32
 }
 
 func (r *ClaimDepositRequest) Destroy() {
 	FfiDestroyerString{}.Destroy(r.Txid)
 	FfiDestroyerUint32{}.Destroy(r.Vout)
 	FfiDestroyerOptionalMaxFee{}.Destroy(r.MaxFee)
-	FfiDestroyerOptionalUint32{}.Destroy(r.MaxInstantFeeBps)
 }
 
 type FfiConverterClaimDepositRequest struct{}
@@ -17494,7 +17733,6 @@ func (c FfiConverterClaimDepositRequest) Read(reader io.Reader) ClaimDepositRequ
 		FfiConverterStringINSTANCE.Read(reader),
 		FfiConverterUint32INSTANCE.Read(reader),
 		FfiConverterOptionalMaxFeeINSTANCE.Read(reader),
-		FfiConverterOptionalUint32INSTANCE.Read(reader),
 	}
 }
 
@@ -17510,7 +17748,6 @@ func (c FfiConverterClaimDepositRequest) Write(writer io.Writer, value ClaimDepo
 	FfiConverterStringINSTANCE.Write(writer, value.Txid)
 	FfiConverterUint32INSTANCE.Write(writer, value.Vout)
 	FfiConverterOptionalMaxFeeINSTANCE.Write(writer, value.MaxFee)
-	FfiConverterOptionalUint32INSTANCE.Write(writer, value.MaxInstantFeeBps)
 }
 
 type FfiDestroyerClaimDepositRequest struct{}
@@ -17520,9 +17757,12 @@ func (_ FfiDestroyerClaimDepositRequest) Destroy(value ClaimDepositRequest) {
 }
 
 type ClaimDepositResponse struct {
-	// The settled claim payment. Present for a standard claim, which completes
-	// synchronously. Absent for an instant claim, whose transfer settles
-	// asynchronously: watch for the payment via events or `list_payments`.
+	// The settled claim payment, present when the deposit was claimed at maturity,
+	// which completes synchronously. Absent when it was claimed before maturity,
+	// whose transfer settles asynchronously: watch for the payment via events or
+	// `list_payments`. Which of the two happens follows from the deposit's maturity
+	// and the fee ceiling, not from anything the caller asks for, so treat the
+	// payment as optional on every claim.
 	Payment *Payment
 }
 
@@ -17693,15 +17933,14 @@ func (_ FfiDestroyerClaimTransferRequest) Destroy(value ClaimTransferRequest) {
 }
 
 type Config struct {
-	ApiKey             *string
-	Network            Network
-	SyncIntervalSecs   uint32
+	ApiKey           *string
+	Network          Network
+	SyncIntervalSecs uint32
+	// The maximum fee that can be paid to claim an on-chain deposit. It also caps
+	// the provider's spread for crediting a deposit before it matures, so raising
+	// it is what allows deposits to be claimed early. Unset disables claiming
+	// rather than allowing any fee.
 	MaxDepositClaimFee *MaxFee
-	// Maximum instant (0-conf) static deposit claim fee, as basis points of the
-	// deposit value (100 bps = 1%), capping the SSP spread for the instant
-	// credit. Opt-in: while unset, no 0-conf claim is attempted. Small deposits,
-	// whose spread is proportionally larger, fall through to the normal claim.
-	MaxInstantDepositClaimFeeBps *uint32
 	// The domain used for receiving through lnurl-pay and lightning address.
 	LnurlDomain *string
 	// When this is set to `true` we will prefer to use spark payments over
@@ -17796,6 +18035,15 @@ type Config struct {
 	// must be `None`, and `optimization_config.auto_enabled` must be `false`.
 	// `default_server_config` already sets these compatible values.
 	BackgroundTasksEnabled bool
+	// Routes the connections the SDK opens through a SOCKS5 proxy.
+	//
+	// Covers HTTP and gRPC alike, and resolves hostnames at the proxy so no
+	// DNS query leaks the destination. `None` (default) connects directly.
+	//
+	// When an [`SdkContext`](crate::SdkContext) is supplied to the builder,
+	// its proxy must match this one: the context owns the shared clients, so
+	// a disagreement would mean part of the traffic bypassed the proxy.
+	Proxy *ProxyConfig
 	// Configuration for cross-chain sends via Orchestra and Boltz.
 	//
 	// `Some(_)` enables cross-chain sends (sats to USDT on external chains).
@@ -17811,7 +18059,6 @@ func (r *Config) Destroy() {
 	FfiDestroyerNetwork{}.Destroy(r.Network)
 	FfiDestroyerUint32{}.Destroy(r.SyncIntervalSecs)
 	FfiDestroyerOptionalMaxFee{}.Destroy(r.MaxDepositClaimFee)
-	FfiDestroyerOptionalUint32{}.Destroy(r.MaxInstantDepositClaimFeeBps)
 	FfiDestroyerOptionalString{}.Destroy(r.LnurlDomain)
 	FfiDestroyerBool{}.Destroy(r.PreferSparkOverLightning)
 	FfiDestroyerBool{}.Destroy(r.ExitChainAutoFetchEnabled)
@@ -17825,6 +18072,7 @@ func (r *Config) Destroy() {
 	FfiDestroyerUint32{}.Destroy(r.MaxConcurrentClaims)
 	FfiDestroyerOptionalSparkConfig{}.Destroy(r.SparkConfig)
 	FfiDestroyerBool{}.Destroy(r.BackgroundTasksEnabled)
+	FfiDestroyerOptionalProxyConfig{}.Destroy(r.Proxy)
 	FfiDestroyerOptionalCrossChainConfig{}.Destroy(r.CrossChainConfig)
 }
 
@@ -17842,7 +18090,6 @@ func (c FfiConverterConfig) Read(reader io.Reader) Config {
 		FfiConverterNetworkINSTANCE.Read(reader),
 		FfiConverterUint32INSTANCE.Read(reader),
 		FfiConverterOptionalMaxFeeINSTANCE.Read(reader),
-		FfiConverterOptionalUint32INSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterBoolINSTANCE.Read(reader),
 		FfiConverterBoolINSTANCE.Read(reader),
@@ -17856,6 +18103,7 @@ func (c FfiConverterConfig) Read(reader io.Reader) Config {
 		FfiConverterUint32INSTANCE.Read(reader),
 		FfiConverterOptionalSparkConfigINSTANCE.Read(reader),
 		FfiConverterBoolINSTANCE.Read(reader),
+		FfiConverterOptionalProxyConfigINSTANCE.Read(reader),
 		FfiConverterOptionalCrossChainConfigINSTANCE.Read(reader),
 	}
 }
@@ -17873,7 +18121,6 @@ func (c FfiConverterConfig) Write(writer io.Writer, value Config) {
 	FfiConverterNetworkINSTANCE.Write(writer, value.Network)
 	FfiConverterUint32INSTANCE.Write(writer, value.SyncIntervalSecs)
 	FfiConverterOptionalMaxFeeINSTANCE.Write(writer, value.MaxDepositClaimFee)
-	FfiConverterOptionalUint32INSTANCE.Write(writer, value.MaxInstantDepositClaimFeeBps)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.LnurlDomain)
 	FfiConverterBoolINSTANCE.Write(writer, value.PreferSparkOverLightning)
 	FfiConverterBoolINSTANCE.Write(writer, value.ExitChainAutoFetchEnabled)
@@ -17887,6 +18134,7 @@ func (c FfiConverterConfig) Write(writer io.Writer, value Config) {
 	FfiConverterUint32INSTANCE.Write(writer, value.MaxConcurrentClaims)
 	FfiConverterOptionalSparkConfigINSTANCE.Write(writer, value.SparkConfig)
 	FfiConverterBoolINSTANCE.Write(writer, value.BackgroundTasksEnabled)
+	FfiConverterOptionalProxyConfigINSTANCE.Write(writer, value.Proxy)
 	FfiConverterOptionalCrossChainConfigINSTANCE.Write(writer, value.CrossChainConfig)
 }
 
@@ -19036,6 +19284,9 @@ type DepositInfo struct {
 	RefundTx *string
 	// Transaction id of the refund, once one has been created.
 	RefundTxId *string
+	// How far the refund has got towards the network. Unset when no refund has
+	// been created, and on refunds created before this field existed.
+	RefundState *RefundState
 	// Why the last claim attempt failed. Unset while none has failed.
 	ClaimError *DepositClaimError
 	// Unset when no instant claim has been attempted.
@@ -19049,6 +19300,7 @@ func (r *DepositInfo) Destroy() {
 	FfiDestroyerBool{}.Destroy(r.IsMature)
 	FfiDestroyerOptionalString{}.Destroy(r.RefundTx)
 	FfiDestroyerOptionalString{}.Destroy(r.RefundTxId)
+	FfiDestroyerOptionalRefundState{}.Destroy(r.RefundState)
 	FfiDestroyerOptionalDepositClaimError{}.Destroy(r.ClaimError)
 	FfiDestroyerOptionalInstantClaimStatus{}.Destroy(r.InstantClaimStatus)
 }
@@ -19069,6 +19321,7 @@ func (c FfiConverterDepositInfo) Read(reader io.Reader) DepositInfo {
 		FfiConverterBoolINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalRefundStateINSTANCE.Read(reader),
 		FfiConverterOptionalDepositClaimErrorINSTANCE.Read(reader),
 		FfiConverterOptionalInstantClaimStatusINSTANCE.Read(reader),
 	}
@@ -19089,6 +19342,7 @@ func (c FfiConverterDepositInfo) Write(writer io.Writer, value DepositInfo) {
 	FfiConverterBoolINSTANCE.Write(writer, value.IsMature)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.RefundTx)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.RefundTxId)
+	FfiConverterOptionalRefundStateINSTANCE.Write(writer, value.RefundState)
 	FfiConverterOptionalDepositClaimErrorINSTANCE.Write(writer, value.ClaimError)
 	FfiConverterOptionalInstantClaimStatusINSTANCE.Write(writer, value.InstantClaimStatus)
 }
@@ -20828,6 +21082,117 @@ func (_ FfiDestroyerExternalTreeNodeId) Destroy(value ExternalTreeNodeId) {
 	value.Destroy()
 }
 
+type FetchClaimDepositQuoteRequest struct {
+	Txid string
+	Vout uint32
+}
+
+func (r *FetchClaimDepositQuoteRequest) Destroy() {
+	FfiDestroyerString{}.Destroy(r.Txid)
+	FfiDestroyerUint32{}.Destroy(r.Vout)
+}
+
+type FfiConverterFetchClaimDepositQuoteRequest struct{}
+
+var FfiConverterFetchClaimDepositQuoteRequestINSTANCE = FfiConverterFetchClaimDepositQuoteRequest{}
+
+func (c FfiConverterFetchClaimDepositQuoteRequest) Lift(rb RustBufferI) FetchClaimDepositQuoteRequest {
+	return LiftFromRustBuffer[FetchClaimDepositQuoteRequest](c, rb)
+}
+
+func (c FfiConverterFetchClaimDepositQuoteRequest) Read(reader io.Reader) FetchClaimDepositQuoteRequest {
+	return FetchClaimDepositQuoteRequest{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterUint32INSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterFetchClaimDepositQuoteRequest) Lower(value FetchClaimDepositQuoteRequest) C.RustBuffer {
+	return LowerIntoRustBuffer[FetchClaimDepositQuoteRequest](c, value)
+}
+
+func (c FfiConverterFetchClaimDepositQuoteRequest) LowerExternal(value FetchClaimDepositQuoteRequest) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[FetchClaimDepositQuoteRequest](c, value))
+}
+
+func (c FfiConverterFetchClaimDepositQuoteRequest) Write(writer io.Writer, value FetchClaimDepositQuoteRequest) {
+	FfiConverterStringINSTANCE.Write(writer, value.Txid)
+	FfiConverterUint32INSTANCE.Write(writer, value.Vout)
+}
+
+type FfiDestroyerFetchClaimDepositQuoteRequest struct{}
+
+func (_ FfiDestroyerFetchClaimDepositQuoteRequest) Destroy(value FetchClaimDepositQuoteRequest) {
+	value.Destroy()
+}
+
+type FetchClaimDepositQuoteResponse struct {
+	AmountSats uint64
+	// Confirmations the deposit has now, 0 while unconfirmed.
+	Confirmations uint32
+	// Claiming ahead of maturity, for a spread. Absent when the provider offers
+	// no such option for this deposit, and when claiming early would not actually
+	// be earlier: a deposit that has already matured, or a plan crediting no
+	// sooner than maturity would, is only ever the more expensive way to wait.
+	//
+	// Also absent when the provider could not be reached for a quote, which is not
+	// distinguished here from having nothing to offer: both mean there is no early
+	// claim to show right now, and the one worth retrying is the transient one.
+	//
+	// Priced regardless of the configured maximum claim fee, which is usually far
+	// below a spread. It is quoted so it can be offered, so claiming it needs a max
+	// fee of at least its `fee_sats`. Below that the claim fails with
+	// `MaxDepositClaimFeeExceeded` and the deposit waits for maturity.
+	Instant *ClaimDepositQuote
+	// Claiming once the deposit matures.
+	Mature ClaimDepositQuote
+}
+
+func (r *FetchClaimDepositQuoteResponse) Destroy() {
+	FfiDestroyerUint64{}.Destroy(r.AmountSats)
+	FfiDestroyerUint32{}.Destroy(r.Confirmations)
+	FfiDestroyerOptionalClaimDepositQuote{}.Destroy(r.Instant)
+	FfiDestroyerClaimDepositQuote{}.Destroy(r.Mature)
+}
+
+type FfiConverterFetchClaimDepositQuoteResponse struct{}
+
+var FfiConverterFetchClaimDepositQuoteResponseINSTANCE = FfiConverterFetchClaimDepositQuoteResponse{}
+
+func (c FfiConverterFetchClaimDepositQuoteResponse) Lift(rb RustBufferI) FetchClaimDepositQuoteResponse {
+	return LiftFromRustBuffer[FetchClaimDepositQuoteResponse](c, rb)
+}
+
+func (c FfiConverterFetchClaimDepositQuoteResponse) Read(reader io.Reader) FetchClaimDepositQuoteResponse {
+	return FetchClaimDepositQuoteResponse{
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterUint32INSTANCE.Read(reader),
+		FfiConverterOptionalClaimDepositQuoteINSTANCE.Read(reader),
+		FfiConverterClaimDepositQuoteINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterFetchClaimDepositQuoteResponse) Lower(value FetchClaimDepositQuoteResponse) C.RustBuffer {
+	return LowerIntoRustBuffer[FetchClaimDepositQuoteResponse](c, value)
+}
+
+func (c FfiConverterFetchClaimDepositQuoteResponse) LowerExternal(value FetchClaimDepositQuoteResponse) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[FetchClaimDepositQuoteResponse](c, value))
+}
+
+func (c FfiConverterFetchClaimDepositQuoteResponse) Write(writer io.Writer, value FetchClaimDepositQuoteResponse) {
+	FfiConverterUint64INSTANCE.Write(writer, value.AmountSats)
+	FfiConverterUint32INSTANCE.Write(writer, value.Confirmations)
+	FfiConverterOptionalClaimDepositQuoteINSTANCE.Write(writer, value.Instant)
+	FfiConverterClaimDepositQuoteINSTANCE.Write(writer, value.Mature)
+}
+
+type FfiDestroyerFetchClaimDepositQuoteResponse struct{}
+
+func (_ FfiDestroyerFetchClaimDepositQuoteResponse) Destroy(value FetchClaimDepositQuoteResponse) {
+	value.Destroy()
+}
+
 type FetchConversionLimitsRequest struct {
 	// The type of conversion, either from or to Bitcoin.
 	ConversionType ConversionType
@@ -21227,6 +21592,50 @@ func (c FfiConverterGetPaymentResponse) Write(writer io.Writer, value GetPayment
 type FfiDestroyerGetPaymentResponse struct{}
 
 func (_ FfiDestroyerGetPaymentResponse) Destroy(value GetPaymentResponse) {
+	value.Destroy()
+}
+
+// Options for [`get_spark_status`].
+type GetSparkStatusRequest struct {
+	// Routes the status request through a SOCKS5 proxy. Pass the same value as
+	// [`Config::proxy`]: this call runs without an SDK instance, so it cannot
+	// pick the setting up on its own.
+	Proxy *ProxyConfig
+}
+
+func (r *GetSparkStatusRequest) Destroy() {
+	FfiDestroyerOptionalProxyConfig{}.Destroy(r.Proxy)
+}
+
+type FfiConverterGetSparkStatusRequest struct{}
+
+var FfiConverterGetSparkStatusRequestINSTANCE = FfiConverterGetSparkStatusRequest{}
+
+func (c FfiConverterGetSparkStatusRequest) Lift(rb RustBufferI) GetSparkStatusRequest {
+	return LiftFromRustBuffer[GetSparkStatusRequest](c, rb)
+}
+
+func (c FfiConverterGetSparkStatusRequest) Read(reader io.Reader) GetSparkStatusRequest {
+	return GetSparkStatusRequest{
+		FfiConverterOptionalProxyConfigINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterGetSparkStatusRequest) Lower(value GetSparkStatusRequest) C.RustBuffer {
+	return LowerIntoRustBuffer[GetSparkStatusRequest](c, value)
+}
+
+func (c FfiConverterGetSparkStatusRequest) LowerExternal(value GetSparkStatusRequest) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[GetSparkStatusRequest](c, value))
+}
+
+func (c FfiConverterGetSparkStatusRequest) Write(writer io.Writer, value GetSparkStatusRequest) {
+	FfiConverterOptionalProxyConfigINSTANCE.Write(writer, value.Proxy)
+}
+
+type FfiDestroyerGetSparkStatusRequest struct{}
+
+func (_ FfiDestroyerGetSparkStatusRequest) Destroy(value GetSparkStatusRequest) {
 	value.Destroy()
 }
 
@@ -22116,7 +22525,7 @@ func (_ FfiDestroyerListUnclaimedDepositsResponse) Destroy(value ListUnclaimedDe
 	value.Destroy()
 }
 
-// Wrapped in a [`InputType::LnurlAuth`], this is the result of [`parse`](breez_sdk_common::input::parse) when given a LNURL-auth endpoint.
+// Wrapped in a [`InputType::LnurlAuth`], this is the result of parsing a LNURL-auth endpoint.
 //
 // It represents the endpoint's parameters for the LNURL workflow.
 //
@@ -22710,6 +23119,11 @@ type LnurlWithdrawRequestDetails struct {
 	MinWithdrawable uint64
 	// The maximum amount, in millisats, that this LNURL-withdraw endpoint accepts
 	MaxWithdrawable uint64
+	// The URL of the LNURL-withdraw endpoint these details were fetched from.
+	// Set when the details come from parsing an input; determines how far the
+	// withdraw flow trusts the endpoint-chosen `callback`. Absent or empty
+	// means no exemption: the callback is held to the public-host rules.
+	Url string
 }
 
 func (r *LnurlWithdrawRequestDetails) Destroy() {
@@ -22718,6 +23132,7 @@ func (r *LnurlWithdrawRequestDetails) Destroy() {
 	FfiDestroyerString{}.Destroy(r.DefaultDescription)
 	FfiDestroyerUint64{}.Destroy(r.MinWithdrawable)
 	FfiDestroyerUint64{}.Destroy(r.MaxWithdrawable)
+	FfiDestroyerString{}.Destroy(r.Url)
 }
 
 type FfiConverterLnurlWithdrawRequestDetails struct{}
@@ -22735,6 +23150,7 @@ func (c FfiConverterLnurlWithdrawRequestDetails) Read(reader io.Reader) LnurlWit
 		FfiConverterStringINSTANCE.Read(reader),
 		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterStringINSTANCE.Read(reader),
 	}
 }
 
@@ -22752,6 +23168,7 @@ func (c FfiConverterLnurlWithdrawRequestDetails) Write(writer io.Writer, value L
 	FfiConverterStringINSTANCE.Write(writer, value.DefaultDescription)
 	FfiConverterUint64INSTANCE.Write(writer, value.MinWithdrawable)
 	FfiConverterUint64INSTANCE.Write(writer, value.MaxWithdrawable)
+	FfiConverterStringINSTANCE.Write(writer, value.Url)
 }
 
 type FfiDestroyerLnurlWithdrawRequestDetails struct{}
@@ -23077,8 +23494,9 @@ type MysqlStorageConfig struct {
 	// `None` means connections are not recycled based on idle time.
 	RecycleTimeoutSecs *uint64
 	// Custom CA certificate(s) in PEM format for server verification.
-	// Only used when the connection string requests TLS
-	// (`ssl-mode=verify_ca` or `ssl-mode=verify_identity`).
+	// If unset, Mozilla's root certificate store is used. Applies to every
+	// verifying `ssl-mode` (`preferred`, `required`, `verify_ca`,
+	// `verify_identity`).
 	RootCaPem *string
 	// Whether the SDK should run schema migrations on startup.
 	//
@@ -23142,6 +23560,50 @@ func (c FfiConverterMysqlStorageConfig) Write(writer io.Writer, value MysqlStora
 type FfiDestroyerMysqlStorageConfig struct{}
 
 func (_ FfiDestroyerMysqlStorageConfig) Destroy(value MysqlStorageConfig) {
+	value.Destroy()
+}
+
+// Options for [`new_rest_chain_service`].
+type NewRestChainServiceRequest struct {
+	// Routes the chain service through a SOCKS5 proxy. Pass the same value as
+	// [`Config::proxy`](crate::Config::proxy): this service is built outside
+	// the SDK, so it cannot pick the setting up on its own.
+	Proxy *ProxyConfig
+}
+
+func (r *NewRestChainServiceRequest) Destroy() {
+	FfiDestroyerOptionalProxyConfig{}.Destroy(r.Proxy)
+}
+
+type FfiConverterNewRestChainServiceRequest struct{}
+
+var FfiConverterNewRestChainServiceRequestINSTANCE = FfiConverterNewRestChainServiceRequest{}
+
+func (c FfiConverterNewRestChainServiceRequest) Lift(rb RustBufferI) NewRestChainServiceRequest {
+	return LiftFromRustBuffer[NewRestChainServiceRequest](c, rb)
+}
+
+func (c FfiConverterNewRestChainServiceRequest) Read(reader io.Reader) NewRestChainServiceRequest {
+	return NewRestChainServiceRequest{
+		FfiConverterOptionalProxyConfigINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterNewRestChainServiceRequest) Lower(value NewRestChainServiceRequest) C.RustBuffer {
+	return LowerIntoRustBuffer[NewRestChainServiceRequest](c, value)
+}
+
+func (c FfiConverterNewRestChainServiceRequest) LowerExternal(value NewRestChainServiceRequest) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[NewRestChainServiceRequest](c, value))
+}
+
+func (c FfiConverterNewRestChainServiceRequest) Write(writer io.Writer, value NewRestChainServiceRequest) {
+	FfiConverterOptionalProxyConfigINSTANCE.Write(writer, value.Proxy)
+}
+
+type FfiDestroyerNewRestChainServiceRequest struct{}
+
+func (_ FfiDestroyerNewRestChainServiceRequest) Destroy(value NewRestChainServiceRequest) {
 	value.Destroy()
 }
 
@@ -23283,11 +23745,21 @@ type PasskeyConfig struct {
 	// on the zero-config path. Ignored when you inject your own
 	// provider.
 	ProviderOptions *PasskeyProviderOptions
+	// Routes the Nostr relay connections that store wallet labels through a
+	// SOCKS5 proxy. Pass the same value as [`Config::proxy`](crate::Config::proxy):
+	// the passkey client is built before the SDK, so it cannot pick the setting
+	// up on its own.
+	//
+	// Relay connections do not support proxy authentication, so a proxy
+	// carrying a username and password is rejected when the client is
+	// built.
+	Proxy *ProxyConfig
 }
 
 func (r *PasskeyConfig) Destroy() {
 	FfiDestroyerOptionalString{}.Destroy(r.DefaultLabel)
 	FfiDestroyerOptionalPasskeyProviderOptions{}.Destroy(r.ProviderOptions)
+	FfiDestroyerOptionalProxyConfig{}.Destroy(r.Proxy)
 }
 
 type FfiConverterPasskeyConfig struct{}
@@ -23302,6 +23774,7 @@ func (c FfiConverterPasskeyConfig) Read(reader io.Reader) PasskeyConfig {
 	return PasskeyConfig{
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalPasskeyProviderOptionsINSTANCE.Read(reader),
+		FfiConverterOptionalProxyConfigINSTANCE.Read(reader),
 	}
 }
 
@@ -23316,6 +23789,7 @@ func (c FfiConverterPasskeyConfig) LowerExternal(value PasskeyConfig) ExternalCR
 func (c FfiConverterPasskeyConfig) Write(writer io.Writer, value PasskeyConfig) {
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.DefaultLabel)
 	FfiConverterOptionalPasskeyProviderOptionsINSTANCE.Write(writer, value.ProviderOptions)
+	FfiConverterOptionalProxyConfigINSTANCE.Write(writer, value.Proxy)
 }
 
 type FfiDestroyerPasskeyConfig struct{}
@@ -23762,8 +24236,8 @@ type PostgresStorageConfig struct {
 	// Default: FIFO.
 	QueueMode PoolQueueMode
 	// Custom CA certificate(s) in PEM format for server verification.
-	// If `None`, uses Mozilla's root certificate store (via webpki-roots).
-	// Only used with `sslmode=verify-ca` or `sslmode=verify-full`.
+	// If unset, Mozilla's root certificate store is used. Applies to every
+	// verifying `sslmode` (`prefer`, `require`, `verify-ca`, `verify-full`).
 	RootCaPem *string
 	// Whether the SDK should run schema migrations on startup.
 	//
@@ -24541,6 +25015,72 @@ func (c FfiConverterProvisionalPayment) Write(writer io.Writer, value Provisiona
 type FfiDestroyerProvisionalPayment struct{}
 
 func (_ FfiDestroyerProvisionalPayment) Destroy(value ProvisionalPayment) {
+	value.Destroy()
+}
+
+// A SOCKS5 proxy carrying the connections the SDK opens.
+//
+// Hostnames are resolved by the proxy rather than locally, so a DNS query
+// never discloses which host is being reached. A connection that cannot be
+// established through the proxy fails: the SDK never falls back to a direct
+// one.
+//
+// Not supported on WASM, where the browser owns connection setup and exposes
+// no proxy control. In Node, route the SDK by installing a proxy dispatcher
+// on the global `fetch` instead.
+type ProxyConfig struct {
+	// Proxy host. An IP address, or a name resolvable locally: reaching the
+	// proxy is the one lookup that cannot itself go through the proxy.
+	Host string
+	Port uint16
+	// Username for SOCKS5 username/password authentication. Authentication is
+	// only offered when both this and `password` are set.
+	Username *string
+	Password *string
+}
+
+func (r *ProxyConfig) Destroy() {
+	FfiDestroyerString{}.Destroy(r.Host)
+	FfiDestroyerUint16{}.Destroy(r.Port)
+	FfiDestroyerOptionalString{}.Destroy(r.Username)
+	FfiDestroyerOptionalString{}.Destroy(r.Password)
+}
+
+type FfiConverterProxyConfig struct{}
+
+var FfiConverterProxyConfigINSTANCE = FfiConverterProxyConfig{}
+
+func (c FfiConverterProxyConfig) Lift(rb RustBufferI) ProxyConfig {
+	return LiftFromRustBuffer[ProxyConfig](c, rb)
+}
+
+func (c FfiConverterProxyConfig) Read(reader io.Reader) ProxyConfig {
+	return ProxyConfig{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterUint16INSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterProxyConfig) Lower(value ProxyConfig) C.RustBuffer {
+	return LowerIntoRustBuffer[ProxyConfig](c, value)
+}
+
+func (c FfiConverterProxyConfig) LowerExternal(value ProxyConfig) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[ProxyConfig](c, value))
+}
+
+func (c FfiConverterProxyConfig) Write(writer io.Writer, value ProxyConfig) {
+	FfiConverterStringINSTANCE.Write(writer, value.Host)
+	FfiConverterUint16INSTANCE.Write(writer, value.Port)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.Username)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.Password)
+}
+
+type FfiDestroyerProxyConfig struct{}
+
+func (_ FfiDestroyerProxyConfig) Destroy(value ProxyConfig) {
 	value.Destroy()
 }
 
@@ -25586,6 +26126,10 @@ type SdkContextConfig struct {
 	// deployments); `Some(n)` opens `n` channels per operator and balances
 	// requests across them.
 	ConnectionsPerOperator *uint32
+	// Routes the connections opened by this context's shared clients through
+	// a SOCKS5 proxy. Must match the `proxy` on the `Config` of every SDK
+	// built from this context.
+	Proxy *ProxyConfig
 	// Shared storage backend for SDKs built from this context. When set,
 	// every SDK built from the context reuses it (and its database
 	// connection pool). Construct via
@@ -25600,6 +26144,7 @@ func (r *SdkContextConfig) Destroy() {
 	FfiDestroyerNetwork{}.Destroy(r.Network)
 	FfiDestroyerOptionalString{}.Destroy(r.ApiKey)
 	FfiDestroyerOptionalUint32{}.Destroy(r.ConnectionsPerOperator)
+	FfiDestroyerOptionalProxyConfig{}.Destroy(r.Proxy)
 	FfiDestroyerOptionalStorageBackend{}.Destroy(r.Storage)
 }
 
@@ -25616,6 +26161,7 @@ func (c FfiConverterSdkContextConfig) Read(reader io.Reader) SdkContextConfig {
 		FfiConverterNetworkINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalUint32INSTANCE.Read(reader),
+		FfiConverterOptionalProxyConfigINSTANCE.Read(reader),
 		FfiConverterOptionalStorageBackendINSTANCE.Read(reader),
 	}
 }
@@ -25632,6 +26178,7 @@ func (c FfiConverterSdkContextConfig) Write(writer io.Writer, value SdkContextCo
 	FfiConverterNetworkINSTANCE.Write(writer, value.Network)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.ApiKey)
 	FfiConverterOptionalUint32INSTANCE.Write(writer, value.ConnectionsPerOperator)
+	FfiConverterOptionalProxyConfigINSTANCE.Write(writer, value.Proxy)
 	FfiConverterOptionalStorageBackendINSTANCE.Write(writer, value.Storage)
 }
 
@@ -27683,6 +28230,10 @@ type TurnkeyConfig struct {
 	// to the account's actual limit if a different one is provisioned. Must be
 	// greater than 0 when set: 0 is rejected at connect.
 	MaxRps *uint32
+	// Routes Turnkey requests through a SOCKS5 proxy. Pass the same value as
+	// [`Config::proxy`](crate::Config::proxy): the signer is built before the
+	// SDK, so it cannot pick the setting up on its own.
+	Proxy *ProxyConfig
 }
 
 func (r *TurnkeyConfig) Destroy() {
@@ -27696,6 +28247,7 @@ func (r *TurnkeyConfig) Destroy() {
 	FfiDestroyerOptionalString{}.Destroy(r.IdentityPublicKey)
 	FfiDestroyerOptionalTurnkeyRetryConfig{}.Destroy(r.Retry)
 	FfiDestroyerOptionalUint32{}.Destroy(r.MaxRps)
+	FfiDestroyerOptionalProxyConfig{}.Destroy(r.Proxy)
 }
 
 type FfiConverterTurnkeyConfig struct{}
@@ -27718,6 +28270,7 @@ func (c FfiConverterTurnkeyConfig) Read(reader io.Reader) TurnkeyConfig {
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalTurnkeyRetryConfigINSTANCE.Read(reader),
 		FfiConverterOptionalUint32INSTANCE.Read(reader),
+		FfiConverterOptionalProxyConfigINSTANCE.Read(reader),
 	}
 }
 
@@ -27740,6 +28293,7 @@ func (c FfiConverterTurnkeyConfig) Write(writer io.Writer, value TurnkeyConfig) 
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.IdentityPublicKey)
 	FfiConverterOptionalTurnkeyRetryConfigINSTANCE.Write(writer, value.Retry)
 	FfiConverterOptionalUint32INSTANCE.Write(writer, value.MaxRps)
+	FfiConverterOptionalProxyConfigINSTANCE.Write(writer, value.Proxy)
 }
 
 type FfiDestroyerTurnkeyConfig struct{}
@@ -31626,110 +32180,23 @@ func (_ FfiDestroyerInputType) Destroy(value InputType) {
 	value.Destroy()
 }
 
-// Why an instant (0-conf) claim was declined.
-type InstantClaimDeclineReason interface {
-	Destroy()
-}
-
-// The SSP offered no 0-conf fulfillment plan for the deposit.
-type InstantClaimDeclineReasonNoPlan struct {
-}
-
-func (e InstantClaimDeclineReasonNoPlan) Destroy() {
-}
-
-// The SSP spread exceeded the ceiling (`max_bps`). The instant claim can be
-// retried with a higher ceiling. `quoted_bps` / `quoted_sats` are the spread
-// the SSP quoted at the time.
-type InstantClaimDeclineReasonFeeExceeded struct {
-	MaxBps     uint32
-	QuotedBps  uint32
-	QuotedSats uint64
-}
-
-func (e InstantClaimDeclineReasonFeeExceeded) Destroy() {
-	FfiDestroyerUint32{}.Destroy(e.MaxBps)
-	FfiDestroyerUint32{}.Destroy(e.QuotedBps)
-	FfiDestroyerUint64{}.Destroy(e.QuotedSats)
-}
-
-// The claim submission failed with an unknown outcome.
-type InstantClaimDeclineReasonSubmissionFailed struct {
-}
-
-func (e InstantClaimDeclineReasonSubmissionFailed) Destroy() {
-}
-
-type FfiConverterInstantClaimDeclineReason struct{}
-
-var FfiConverterInstantClaimDeclineReasonINSTANCE = FfiConverterInstantClaimDeclineReason{}
-
-func (c FfiConverterInstantClaimDeclineReason) Lift(rb RustBufferI) InstantClaimDeclineReason {
-	return LiftFromRustBuffer[InstantClaimDeclineReason](c, rb)
-}
-
-func (c FfiConverterInstantClaimDeclineReason) Lower(value InstantClaimDeclineReason) C.RustBuffer {
-	return LowerIntoRustBuffer[InstantClaimDeclineReason](c, value)
-}
-
-func (c FfiConverterInstantClaimDeclineReason) LowerExternal(value InstantClaimDeclineReason) ExternalCRustBuffer {
-	return RustBufferFromC(LowerIntoRustBuffer[InstantClaimDeclineReason](c, value))
-}
-func (FfiConverterInstantClaimDeclineReason) Read(reader io.Reader) InstantClaimDeclineReason {
-	id := readInt32(reader)
-	switch id {
-	case 1:
-		return InstantClaimDeclineReasonNoPlan{}
-	case 2:
-		return InstantClaimDeclineReasonFeeExceeded{
-			FfiConverterUint32INSTANCE.Read(reader),
-			FfiConverterUint32INSTANCE.Read(reader),
-			FfiConverterUint64INSTANCE.Read(reader),
-		}
-	case 3:
-		return InstantClaimDeclineReasonSubmissionFailed{}
-	default:
-		panic(fmt.Sprintf("invalid enum value %v in FfiConverterInstantClaimDeclineReason.Read()", id))
-	}
-}
-
-func (FfiConverterInstantClaimDeclineReason) Write(writer io.Writer, value InstantClaimDeclineReason) {
-	switch variant_value := value.(type) {
-	case InstantClaimDeclineReasonNoPlan:
-		writeInt32(writer, 1)
-	case InstantClaimDeclineReasonFeeExceeded:
-		writeInt32(writer, 2)
-		FfiConverterUint32INSTANCE.Write(writer, variant_value.MaxBps)
-		FfiConverterUint32INSTANCE.Write(writer, variant_value.QuotedBps)
-		FfiConverterUint64INSTANCE.Write(writer, variant_value.QuotedSats)
-	case InstantClaimDeclineReasonSubmissionFailed:
-		writeInt32(writer, 3)
-	default:
-		_ = variant_value
-		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterInstantClaimDeclineReason.Write", value))
-	}
-}
-
-type FfiDestroyerInstantClaimDeclineReason struct{}
-
-func (_ FfiDestroyerInstantClaimDeclineReason) Destroy(value InstantClaimDeclineReason) {
-	value.Destroy()
-}
-
-// State of an instant (0-conf) claim attempt on a deposit.
+// State of an instant claim attempt on a deposit.
 type InstantClaimStatus interface {
 	Destroy()
 }
 
-// The instant claim was declined. The deposit falls through to the normal
-// claim once it matures; the background sync may re-attempt an instant claim
-// only when the reason permits (see [`InstantClaimDeclineReason`]).
+// The early claim was declined and the deposit falls through to the claim at
+// maturity. `max_fee_sats` is the ceiling that declined it, unset when the
+// decline was for a reason no ceiling will fix. `confirmations` is the depth
+// it was declined at.
 type InstantClaimStatusDeclined struct {
-	Reason InstantClaimDeclineReason
+	MaxFeeSats    *uint64
+	Confirmations uint32
 }
 
 func (e InstantClaimStatusDeclined) Destroy() {
-	FfiDestroyerInstantClaimDeclineReason{}.Destroy(e.Reason)
+	FfiDestroyerOptionalUint64{}.Destroy(e.MaxFeeSats)
+	FfiDestroyerUint32{}.Destroy(e.Confirmations)
 }
 
 // An instant claim was submitted and is settling. The deposit must not be
@@ -31763,7 +32230,8 @@ func (FfiConverterInstantClaimStatus) Read(reader io.Reader) InstantClaimStatus 
 	switch id {
 	case 1:
 		return InstantClaimStatusDeclined{
-			FfiConverterInstantClaimDeclineReasonINSTANCE.Read(reader),
+			FfiConverterOptionalUint64INSTANCE.Read(reader),
+			FfiConverterUint32INSTANCE.Read(reader),
 		}
 	case 2:
 		return InstantClaimStatusSubmitted{
@@ -31778,7 +32246,8 @@ func (FfiConverterInstantClaimStatus) Write(writer io.Writer, value InstantClaim
 	switch variant_value := value.(type) {
 	case InstantClaimStatusDeclined:
 		writeInt32(writer, 1)
-		FfiConverterInstantClaimDeclineReasonINSTANCE.Write(writer, variant_value.Reason)
+		FfiConverterOptionalUint64INSTANCE.Write(writer, variant_value.MaxFeeSats)
+		FfiConverterUint32INSTANCE.Write(writer, variant_value.Confirmations)
 	case InstantClaimStatusSubmitted:
 		writeInt32(writer, 2)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.ClaimId)
@@ -32416,6 +32885,7 @@ var ErrPasskeyErrorInvalidPrfOutput = fmt.Errorf("PasskeyErrorInvalidPrfOutput")
 var ErrPasskeyErrorMnemonicError = fmt.Errorf("PasskeyErrorMnemonicError")
 var ErrPasskeyErrorInvalidSalt = fmt.Errorf("PasskeyErrorInvalidSalt")
 var ErrPasskeyErrorCreatedButNotDerived = fmt.Errorf("PasskeyErrorCreatedButNotDerived")
+var ErrPasskeyErrorInvalidConfig = fmt.Errorf("PasskeyErrorInvalidConfig")
 var ErrPasskeyErrorGeneric = fmt.Errorf("PasskeyErrorGeneric")
 
 // Variant structs
@@ -32700,6 +33170,40 @@ func (self PasskeyErrorCreatedButNotDerived) Is(target error) bool {
 	return target == ErrPasskeyErrorCreatedButNotDerived
 }
 
+// The client was configured in a way it cannot honour, so no
+// operation would succeed. Not retryable until the integrator
+// changes the configuration.
+type PasskeyErrorInvalidConfig struct {
+	Field0 string
+}
+
+// The client was configured in a way it cannot honour, so no
+// operation would succeed. Not retryable until the integrator
+// changes the configuration.
+func NewPasskeyErrorInvalidConfig(
+	var0 string,
+) *PasskeyError {
+	return &PasskeyError{err: &PasskeyErrorInvalidConfig{
+		Field0: var0}}
+}
+
+func (e PasskeyErrorInvalidConfig) destroy() {
+	FfiDestroyerString{}.Destroy(e.Field0)
+}
+
+func (err PasskeyErrorInvalidConfig) Error() string {
+	return fmt.Sprint("InvalidConfig",
+		": ",
+
+		"Field0=",
+		err.Field0,
+	)
+}
+
+func (self PasskeyErrorInvalidConfig) Is(target error) bool {
+	return target == ErrPasskeyErrorInvalidConfig
+}
+
 type PasskeyErrorGeneric struct {
 	Field0 string
 }
@@ -32786,6 +33290,10 @@ func (c FfiConverterPasskeyError) Read(reader io.Reader) *PasskeyError {
 			Source:       FfiConverterPrfProviderErrorINSTANCE.Read(reader),
 		}}
 	case 10:
+		return &PasskeyError{&PasskeyErrorInvalidConfig{
+			Field0: FfiConverterStringINSTANCE.Read(reader),
+		}}
+	case 11:
 		return &PasskeyError{&PasskeyErrorGeneric{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
@@ -32824,8 +33332,11 @@ func (c FfiConverterPasskeyError) Write(writer io.Writer, value *PasskeyError) {
 		writeInt32(writer, 9)
 		FfiConverterBytesINSTANCE.Write(writer, variantValue.CredentialId)
 		FfiConverterPrfProviderErrorINSTANCE.Write(writer, variantValue.Source)
-	case *PasskeyErrorGeneric:
+	case *PasskeyErrorInvalidConfig:
 		writeInt32(writer, 10)
+		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
+	case *PasskeyErrorGeneric:
+		writeInt32(writer, 11)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
 	default:
 		_ = variantValue
@@ -32854,6 +33365,8 @@ func (_ FfiDestroyerPasskeyError) Destroy(value *PasskeyError) {
 	case PasskeyErrorInvalidSalt:
 		variantValue.destroy()
 	case PasskeyErrorCreatedButNotDerived:
+		variantValue.destroy()
+	case PasskeyErrorInvalidConfig:
 		variantValue.destroy()
 	case PasskeyErrorGeneric:
 		variantValue.destroy()
@@ -34291,6 +34804,79 @@ func (_ FfiDestroyerReceivePaymentMethod) Destroy(value ReceivePaymentMethod) {
 	value.Destroy()
 }
 
+// State of the deposit refund broadcast.
+type RefundState interface {
+	Destroy()
+}
+
+// The refund is signed and stored but has not been seen on the network.
+// `last_error` carries the reason the most recent broadcast was refused,
+// unset while none has been refused. A refund whose fee is under the
+// network's current minimum stays here until it is re-created at a higher
+// fee.
+type RefundStateBroadcastPending struct {
+	LastError *string
+}
+
+func (e RefundStateBroadcastPending) Destroy() {
+	FfiDestroyerOptionalString{}.Destroy(e.LastError)
+}
+
+// The refund has been accepted by the network and is waiting to confirm.
+type RefundStateBroadcast struct {
+}
+
+func (e RefundStateBroadcast) Destroy() {
+}
+
+type FfiConverterRefundState struct{}
+
+var FfiConverterRefundStateINSTANCE = FfiConverterRefundState{}
+
+func (c FfiConverterRefundState) Lift(rb RustBufferI) RefundState {
+	return LiftFromRustBuffer[RefundState](c, rb)
+}
+
+func (c FfiConverterRefundState) Lower(value RefundState) C.RustBuffer {
+	return LowerIntoRustBuffer[RefundState](c, value)
+}
+
+func (c FfiConverterRefundState) LowerExternal(value RefundState) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[RefundState](c, value))
+}
+func (FfiConverterRefundState) Read(reader io.Reader) RefundState {
+	id := readInt32(reader)
+	switch id {
+	case 1:
+		return RefundStateBroadcastPending{
+			FfiConverterOptionalStringINSTANCE.Read(reader),
+		}
+	case 2:
+		return RefundStateBroadcast{}
+	default:
+		panic(fmt.Sprintf("invalid enum value %v in FfiConverterRefundState.Read()", id))
+	}
+}
+
+func (FfiConverterRefundState) Write(writer io.Writer, value RefundState) {
+	switch variant_value := value.(type) {
+	case RefundStateBroadcastPending:
+		writeInt32(writer, 1)
+		FfiConverterOptionalStringINSTANCE.Write(writer, variant_value.LastError)
+	case RefundStateBroadcast:
+		writeInt32(writer, 2)
+	default:
+		_ = variant_value
+		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterRefundState.Write", value))
+	}
+}
+
+type FfiDestroyerRefundState struct{}
+
+func (_ FfiDestroyerRefundState) Destroy(value RefundState) {
+	value.Destroy()
+}
+
 // Error type for the `BreezSdk`
 type SdkError struct {
 	err error
@@ -34324,6 +34910,8 @@ var ErrSdkErrorStorageError = fmt.Errorf("SdkErrorStorageError")
 var ErrSdkErrorChainServiceError = fmt.Errorf("SdkErrorChainServiceError")
 var ErrSdkErrorMaxDepositClaimFeeExceeded = fmt.Errorf("SdkErrorMaxDepositClaimFeeExceeded")
 var ErrSdkErrorMissingUtxo = fmt.Errorf("SdkErrorMissingUtxo")
+var ErrSdkErrorDepositClaimInProgress = fmt.Errorf("SdkErrorDepositClaimInProgress")
+var ErrSdkErrorRefundReplacementFeeTooLow = fmt.Errorf("SdkErrorRefundReplacementFeeTooLow")
 var ErrSdkErrorLnurlError = fmt.Errorf("SdkErrorLnurlError")
 var ErrSdkErrorSigner = fmt.Errorf("SdkErrorSigner")
 var ErrSdkErrorOptimizationAlreadyRunning = fmt.Errorf("SdkErrorOptimizationAlreadyRunning")
@@ -34626,6 +35214,82 @@ func (self SdkErrorMissingUtxo) Is(target error) bool {
 	return target == ErrSdkErrorMissingUtxo
 }
 
+// Another claim on this deposit is already running.
+type SdkErrorDepositClaimInProgress struct {
+	Tx   string
+	Vout uint32
+}
+
+// Another claim on this deposit is already running.
+func NewSdkErrorDepositClaimInProgress(
+	tx string,
+	vout uint32,
+) *SdkError {
+	return &SdkError{err: &SdkErrorDepositClaimInProgress{
+		Tx:   tx,
+		Vout: vout}}
+}
+
+func (e SdkErrorDepositClaimInProgress) destroy() {
+	FfiDestroyerString{}.Destroy(e.Tx)
+	FfiDestroyerUint32{}.Destroy(e.Vout)
+}
+
+func (err SdkErrorDepositClaimInProgress) Error() string {
+	return fmt.Sprint("DepositClaimInProgress",
+		": ",
+
+		"Tx=",
+		err.Tx,
+		", ",
+		"Vout=",
+		err.Vout,
+	)
+}
+
+func (self SdkErrorDepositClaimInProgress) Is(target error) bool {
+	return target == ErrSdkErrorDepositClaimInProgress
+}
+
+// A refund for this deposit is already on the network, and the requested
+// replacement does not pay enough to displace it.
+type SdkErrorRefundReplacementFeeTooLow struct {
+	PendingFeeSats  uint64
+	RequiredFeeSats uint64
+}
+
+// A refund for this deposit is already on the network, and the requested
+// replacement does not pay enough to displace it.
+func NewSdkErrorRefundReplacementFeeTooLow(
+	pendingFeeSats uint64,
+	requiredFeeSats uint64,
+) *SdkError {
+	return &SdkError{err: &SdkErrorRefundReplacementFeeTooLow{
+		PendingFeeSats:  pendingFeeSats,
+		RequiredFeeSats: requiredFeeSats}}
+}
+
+func (e SdkErrorRefundReplacementFeeTooLow) destroy() {
+	FfiDestroyerUint64{}.Destroy(e.PendingFeeSats)
+	FfiDestroyerUint64{}.Destroy(e.RequiredFeeSats)
+}
+
+func (err SdkErrorRefundReplacementFeeTooLow) Error() string {
+	return fmt.Sprint("RefundReplacementFeeTooLow",
+		": ",
+
+		"PendingFeeSats=",
+		err.PendingFeeSats,
+		", ",
+		"RequiredFeeSats=",
+		err.RequiredFeeSats,
+	)
+}
+
+func (self SdkErrorRefundReplacementFeeTooLow) Is(target error) bool {
+	return target == ErrSdkErrorRefundReplacementFeeTooLow
+}
+
 type SdkErrorLnurlError struct {
 	Field0 string
 }
@@ -34885,27 +35549,37 @@ func (c FfiConverterSdkError) Read(reader io.Reader) *SdkError {
 			Vout: FfiConverterUint32INSTANCE.Read(reader),
 		}}
 	case 10:
+		return &SdkError{&SdkErrorDepositClaimInProgress{
+			Tx:   FfiConverterStringINSTANCE.Read(reader),
+			Vout: FfiConverterUint32INSTANCE.Read(reader),
+		}}
+	case 11:
+		return &SdkError{&SdkErrorRefundReplacementFeeTooLow{
+			PendingFeeSats:  FfiConverterUint64INSTANCE.Read(reader),
+			RequiredFeeSats: FfiConverterUint64INSTANCE.Read(reader),
+		}}
+	case 12:
 		return &SdkError{&SdkErrorLnurlError{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
-	case 11:
+	case 13:
 		return &SdkError{&SdkErrorSigner{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
-	case 12:
-		return &SdkError{&SdkErrorOptimizationAlreadyRunning{}}
-	case 13:
-		return &SdkError{&SdkErrorOptimizationCancelled{}}
 	case 14:
+		return &SdkError{&SdkErrorOptimizationAlreadyRunning{}}
+	case 15:
+		return &SdkError{&SdkErrorOptimizationCancelled{}}
+	case 16:
 		return &SdkError{&SdkErrorInsufficientCpfpFunds{
 			RequiredSat: FfiConverterUint64INSTANCE.Read(reader),
 		}}
-	case 15:
+	case 17:
 		return &SdkError{&SdkErrorFundingUtxoConflict{
 			Txid: FfiConverterStringINSTANCE.Read(reader),
 			Vout: FfiConverterUint32INSTANCE.Read(reader),
 		}}
-	case 16:
+	case 18:
 		return &SdkError{&SdkErrorGeneric{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
@@ -34948,25 +35622,33 @@ func (c FfiConverterSdkError) Write(writer io.Writer, value *SdkError) {
 		writeInt32(writer, 9)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Tx)
 		FfiConverterUint32INSTANCE.Write(writer, variantValue.Vout)
-	case *SdkErrorLnurlError:
+	case *SdkErrorDepositClaimInProgress:
 		writeInt32(writer, 10)
+		FfiConverterStringINSTANCE.Write(writer, variantValue.Tx)
+		FfiConverterUint32INSTANCE.Write(writer, variantValue.Vout)
+	case *SdkErrorRefundReplacementFeeTooLow:
+		writeInt32(writer, 11)
+		FfiConverterUint64INSTANCE.Write(writer, variantValue.PendingFeeSats)
+		FfiConverterUint64INSTANCE.Write(writer, variantValue.RequiredFeeSats)
+	case *SdkErrorLnurlError:
+		writeInt32(writer, 12)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
 	case *SdkErrorSigner:
-		writeInt32(writer, 11)
+		writeInt32(writer, 13)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
 	case *SdkErrorOptimizationAlreadyRunning:
-		writeInt32(writer, 12)
-	case *SdkErrorOptimizationCancelled:
-		writeInt32(writer, 13)
-	case *SdkErrorInsufficientCpfpFunds:
 		writeInt32(writer, 14)
+	case *SdkErrorOptimizationCancelled:
+		writeInt32(writer, 15)
+	case *SdkErrorInsufficientCpfpFunds:
+		writeInt32(writer, 16)
 		FfiConverterUint64INSTANCE.Write(writer, variantValue.RequiredSat)
 	case *SdkErrorFundingUtxoConflict:
-		writeInt32(writer, 15)
+		writeInt32(writer, 17)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Txid)
 		FfiConverterUint32INSTANCE.Write(writer, variantValue.Vout)
 	case *SdkErrorGeneric:
-		writeInt32(writer, 16)
+		writeInt32(writer, 18)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
 	default:
 		_ = variantValue
@@ -34995,6 +35677,10 @@ func (_ FfiDestroyerSdkError) Destroy(value *SdkError) {
 	case SdkErrorMaxDepositClaimFeeExceeded:
 		variantValue.destroy()
 	case SdkErrorMissingUtxo:
+		variantValue.destroy()
+	case SdkErrorDepositClaimInProgress:
+		variantValue.destroy()
+	case SdkErrorRefundReplacementFeeTooLow:
 		variantValue.destroy()
 	case SdkErrorLnurlError:
 		variantValue.destroy()
@@ -37892,11 +38578,13 @@ func (e UpdateDepositPayloadClaimError) Destroy() {
 type UpdateDepositPayloadRefund struct {
 	RefundTxid string
 	RefundTx   string
+	State      RefundState
 }
 
 func (e UpdateDepositPayloadRefund) Destroy() {
 	FfiDestroyerString{}.Destroy(e.RefundTxid)
 	FfiDestroyerString{}.Destroy(e.RefundTx)
+	FfiDestroyerRefundState{}.Destroy(e.State)
 }
 
 type UpdateDepositPayloadInstantClaim struct {
@@ -37905,6 +38593,20 @@ type UpdateDepositPayloadInstantClaim struct {
 
 func (e UpdateDepositPayloadInstantClaim) Destroy() {
 	FfiDestroyerInstantClaimStatus{}.Destroy(e.Status)
+}
+
+// Moves an existing refund between states without touching the refund
+// itself or the last claim error. Applies only while `refund_txid` is still
+// the stored refund, so a state decided against one refund cannot land on a
+// newer one.
+type UpdateDepositPayloadRefundBroadcastState struct {
+	RefundTxid string
+	State      RefundState
+}
+
+func (e UpdateDepositPayloadRefundBroadcastState) Destroy() {
+	FfiDestroyerString{}.Destroy(e.RefundTxid)
+	FfiDestroyerRefundState{}.Destroy(e.State)
 }
 
 type FfiConverterUpdateDepositPayload struct{}
@@ -37933,10 +38635,16 @@ func (FfiConverterUpdateDepositPayload) Read(reader io.Reader) UpdateDepositPayl
 		return UpdateDepositPayloadRefund{
 			FfiConverterStringINSTANCE.Read(reader),
 			FfiConverterStringINSTANCE.Read(reader),
+			FfiConverterRefundStateINSTANCE.Read(reader),
 		}
 	case 3:
 		return UpdateDepositPayloadInstantClaim{
 			FfiConverterInstantClaimStatusINSTANCE.Read(reader),
+		}
+	case 4:
+		return UpdateDepositPayloadRefundBroadcastState{
+			FfiConverterStringINSTANCE.Read(reader),
+			FfiConverterRefundStateINSTANCE.Read(reader),
 		}
 	default:
 		panic(fmt.Sprintf("invalid enum value %v in FfiConverterUpdateDepositPayload.Read()", id))
@@ -37952,9 +38660,14 @@ func (FfiConverterUpdateDepositPayload) Write(writer io.Writer, value UpdateDepo
 		writeInt32(writer, 2)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.RefundTxid)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.RefundTx)
+		FfiConverterRefundStateINSTANCE.Write(writer, variant_value.State)
 	case UpdateDepositPayloadInstantClaim:
 		writeInt32(writer, 3)
 		FfiConverterInstantClaimStatusINSTANCE.Write(writer, variant_value.Status)
+	case UpdateDepositPayloadRefundBroadcastState:
+		writeInt32(writer, 4)
+		FfiConverterStringINSTANCE.Write(writer, variant_value.RefundTxid)
+		FfiConverterRefundStateINSTANCE.Write(writer, variant_value.State)
 	default:
 		_ = variant_value
 		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterUpdateDepositPayload.Write", value))
@@ -38474,6 +39187,47 @@ type FfiDestroyerOptionalStorageBackend struct{}
 func (_ FfiDestroyerOptionalStorageBackend) Destroy(value **StorageBackend) {
 	if value != nil {
 		FfiDestroyerStorageBackend{}.Destroy(*value)
+	}
+}
+
+type FfiConverterOptionalClaimDepositQuote struct{}
+
+var FfiConverterOptionalClaimDepositQuoteINSTANCE = FfiConverterOptionalClaimDepositQuote{}
+
+func (c FfiConverterOptionalClaimDepositQuote) Lift(rb RustBufferI) *ClaimDepositQuote {
+	return LiftFromRustBuffer[*ClaimDepositQuote](c, rb)
+}
+
+func (_ FfiConverterOptionalClaimDepositQuote) Read(reader io.Reader) *ClaimDepositQuote {
+	if readInt8(reader) == 0 {
+		return nil
+	}
+	temp := FfiConverterClaimDepositQuoteINSTANCE.Read(reader)
+	return &temp
+}
+
+func (c FfiConverterOptionalClaimDepositQuote) Lower(value *ClaimDepositQuote) C.RustBuffer {
+	return LowerIntoRustBuffer[*ClaimDepositQuote](c, value)
+}
+
+func (c FfiConverterOptionalClaimDepositQuote) LowerExternal(value *ClaimDepositQuote) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[*ClaimDepositQuote](c, value))
+}
+
+func (_ FfiConverterOptionalClaimDepositQuote) Write(writer io.Writer, value *ClaimDepositQuote) {
+	if value == nil {
+		writeInt8(writer, 0)
+	} else {
+		writeInt8(writer, 1)
+		FfiConverterClaimDepositQuoteINSTANCE.Write(writer, *value)
+	}
+}
+
+type FfiDestroyerOptionalClaimDepositQuote struct{}
+
+func (_ FfiDestroyerOptionalClaimDepositQuote) Destroy(value *ClaimDepositQuote) {
+	if value != nil {
+		FfiDestroyerClaimDepositQuote{}.Destroy(*value)
 	}
 }
 
@@ -39089,6 +39843,47 @@ type FfiDestroyerOptionalPayment struct{}
 func (_ FfiDestroyerOptionalPayment) Destroy(value *Payment) {
 	if value != nil {
 		FfiDestroyerPayment{}.Destroy(*value)
+	}
+}
+
+type FfiConverterOptionalProxyConfig struct{}
+
+var FfiConverterOptionalProxyConfigINSTANCE = FfiConverterOptionalProxyConfig{}
+
+func (c FfiConverterOptionalProxyConfig) Lift(rb RustBufferI) *ProxyConfig {
+	return LiftFromRustBuffer[*ProxyConfig](c, rb)
+}
+
+func (_ FfiConverterOptionalProxyConfig) Read(reader io.Reader) *ProxyConfig {
+	if readInt8(reader) == 0 {
+		return nil
+	}
+	temp := FfiConverterProxyConfigINSTANCE.Read(reader)
+	return &temp
+}
+
+func (c FfiConverterOptionalProxyConfig) Lower(value *ProxyConfig) C.RustBuffer {
+	return LowerIntoRustBuffer[*ProxyConfig](c, value)
+}
+
+func (c FfiConverterOptionalProxyConfig) LowerExternal(value *ProxyConfig) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[*ProxyConfig](c, value))
+}
+
+func (_ FfiConverterOptionalProxyConfig) Write(writer io.Writer, value *ProxyConfig) {
+	if value == nil {
+		writeInt8(writer, 0)
+	} else {
+		writeInt8(writer, 1)
+		FfiConverterProxyConfigINSTANCE.Write(writer, *value)
+	}
+}
+
+type FfiDestroyerOptionalProxyConfig struct{}
+
+func (_ FfiDestroyerOptionalProxyConfig) Destroy(value *ProxyConfig) {
+	if value != nil {
+		FfiDestroyerProxyConfig{}.Destroy(*value)
 	}
 }
 
@@ -40032,6 +40827,47 @@ type FfiDestroyerOptionalPaymentDetails struct{}
 func (_ FfiDestroyerOptionalPaymentDetails) Destroy(value *PaymentDetails) {
 	if value != nil {
 		FfiDestroyerPaymentDetails{}.Destroy(*value)
+	}
+}
+
+type FfiConverterOptionalRefundState struct{}
+
+var FfiConverterOptionalRefundStateINSTANCE = FfiConverterOptionalRefundState{}
+
+func (c FfiConverterOptionalRefundState) Lift(rb RustBufferI) *RefundState {
+	return LiftFromRustBuffer[*RefundState](c, rb)
+}
+
+func (_ FfiConverterOptionalRefundState) Read(reader io.Reader) *RefundState {
+	if readInt8(reader) == 0 {
+		return nil
+	}
+	temp := FfiConverterRefundStateINSTANCE.Read(reader)
+	return &temp
+}
+
+func (c FfiConverterOptionalRefundState) Lower(value *RefundState) C.RustBuffer {
+	return LowerIntoRustBuffer[*RefundState](c, value)
+}
+
+func (c FfiConverterOptionalRefundState) LowerExternal(value *RefundState) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[*RefundState](c, value))
+}
+
+func (_ FfiConverterOptionalRefundState) Write(writer io.Writer, value *RefundState) {
+	if value == nil {
+		writeInt8(writer, 0)
+	} else {
+		writeInt8(writer, 1)
+		FfiConverterRefundStateINSTANCE.Write(writer, *value)
+	}
+}
+
+type FfiDestroyerOptionalRefundState struct{}
+
+func (_ FfiDestroyerOptionalRefundState) Destroy(value *RefundState) {
+	if value != nil {
+		FfiDestroyerRefundState{}.Destroy(*value)
 	}
 }
 
@@ -43940,7 +44776,7 @@ func DefaultStorage(storageDir string) *StorageBackend {
 //
 // This function queries the Spark status API and returns the worst status
 // across the Spark Operators and SSP services.
-func GetSparkStatus() (SparkStatus, error) {
+func GetSparkStatus(request GetSparkStatusRequest) (SparkStatus, error) {
 	res, err := uniffiRustCallAsync[SdkError](
 		FfiConverterSdkErrorINSTANCE,
 		// completeFn
@@ -43954,7 +44790,7 @@ func GetSparkStatus() (SparkStatus, error) {
 		func(ffi RustBufferI) SparkStatus {
 			return FfiConverterSparkStatusINSTANCE.Lift(ffi)
 		},
-		C.uniffi_breez_sdk_spark_fn_func_get_spark_status(),
+		C.uniffi_breez_sdk_spark_fn_func_get_spark_status(FfiConverterGetSparkStatusRequestINSTANCE.Lower(request)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
 			C.ffi_breez_sdk_spark_rust_future_poll_rust_buffer(handle, continuation, data)
@@ -44002,10 +44838,11 @@ func MysqlStorage(config MysqlStorageConfig) (*StorageBackend, error) {
 // SDK instances. All SDKs sharing the service must use the same `network`.
 //
 // For one-off, non-shared use, prefer
-// [`SdkBuilder::with_rest_chain_service`](crate::SdkBuilder::with_rest_chain_service).
-func NewRestChainService(url string, network Network, apiType ChainApiType, credentials *Credentials) BitcoinChainService {
-	res, _ := uniffiRustCallAsync[error](
-		nil,
+// [`SdkBuilder::with_rest_chain_service`](crate::SdkBuilder::with_rest_chain_service),
+// which builds on the SDK's own client and inherits its proxy automatically.
+func NewRestChainService(url string, network Network, apiType ChainApiType, credentials *Credentials, request NewRestChainServiceRequest) (BitcoinChainService, error) {
+	res, err := uniffiRustCallAsync[SdkError](
+		FfiConverterSdkErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) unsafe.Pointer {
 			res := C.ffi_breez_sdk_spark_rust_future_complete_pointer(handle, status)
@@ -44015,7 +44852,7 @@ func NewRestChainService(url string, network Network, apiType ChainApiType, cred
 		func(ffi unsafe.Pointer) BitcoinChainService {
 			return FfiConverterBitcoinChainServiceINSTANCE.Lift(ffi)
 		},
-		C.uniffi_breez_sdk_spark_fn_func_new_rest_chain_service(FfiConverterStringINSTANCE.Lower(url), FfiConverterNetworkINSTANCE.Lower(network), FfiConverterChainApiTypeINSTANCE.Lower(apiType), FfiConverterOptionalCredentialsINSTANCE.Lower(credentials)),
+		C.uniffi_breez_sdk_spark_fn_func_new_rest_chain_service(FfiConverterStringINSTANCE.Lower(url), FfiConverterNetworkINSTANCE.Lower(network), FfiConverterChainApiTypeINSTANCE.Lower(apiType), FfiConverterOptionalCredentialsINSTANCE.Lower(credentials), FfiConverterNewRestChainServiceRequestINSTANCE.Lower(request)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
 			C.ffi_breez_sdk_spark_rust_future_poll_pointer(handle, continuation, data)
@@ -44026,7 +44863,11 @@ func NewRestChainService(url string, network Network, apiType ChainApiType, cred
 		},
 	)
 
-	return res
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
 }
 
 // Constructs an [`SdkContext`] from a `SdkContextConfig`.

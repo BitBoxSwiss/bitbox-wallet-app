@@ -89,7 +89,7 @@ type Lightning struct {
 
 	log           *logrus.Entry
 	sdkService    breezSDK
-	sparkStatus   func() (breez_sdk_spark.SparkStatus, error)
+	sparkStatus   func(breez_sdk_spark.GetSparkStatusRequest) (breez_sdk_spark.SparkStatus, error)
 	httpClient    *http.Client
 	ratesUpdater  *rates.RateUpdater
 	btcCoin       coin.Coin
@@ -386,7 +386,7 @@ func (lightning *Lightning) SparkStatus() (*SparkStatus, error) {
 	if getSparkStatus == nil {
 		getSparkStatus = breez_sdk_spark.GetSparkStatus
 	}
-	status, err := getSparkStatus()
+	status, err := getSparkStatus(breez_sdk_spark.GetSparkStatusRequest{})
 	if err != nil {
 		return nil, errp.Wrap(err, "breez: get spark status")
 	}
