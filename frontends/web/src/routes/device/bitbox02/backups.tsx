@@ -14,7 +14,7 @@ import { Check } from './checkbackup';
 import { Create } from './createbackup';
 import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
 import { alertUser } from '@/components/alert/Alert';
-import backupStyle from '@/routes/device/components/backups.module.css';
+import backupStyle from '../components/backups.module.css';
 
 type TProps = {
   deviceID: string;
@@ -96,69 +96,67 @@ export const BackupsV2 = ({
   }
 
   return (
-    <div>
-      <div className={backupStyle.stepContext}>
+    <>
+      {
+        errorText && (
+          <Toast theme="warning">
+            {errorText}
+          </Toast>
+        )
+      }
+      {showRadio && hasMoreThanOneBackups ? <p className="m-none m-bottom-large">{t('backup.restore.subtitle')}</p> : null}
+      <div className={backupStyle.backupsList}>
         {
-          errorText && (
-            <Toast theme="warning">
-              {errorText}
-            </Toast>
+          backups.backups.length ? (
+            <div className={`${backupStyle.listContainerWrapper || ''} ${isScrollable ? backupStyle.showFade || '' : ''}`}>
+              <div ref={scrollableContainerRef} className={backupStyle.listContainer}>
+                {
+                  backups.backups.map(backup => (
+                    <div key={backup.id} className={backupStyle.item}>
+                      <BackupsListItem
+                        disabled={restoring}
+                        backup={backup}
+                        selectedBackup={selectedBackup}
+                        handleChange={(b => setSelectedBackup(b))}
+                        onFocus={() => undefined}
+                        radio={showRadio} />
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+          ) : (
+            <p className="text-center">{t('backup.noBackups')}</p>
           )
         }
-        {showRadio && hasMoreThanOneBackups ? <p className="m-none m-bottom-large">{t('backup.restore.subtitle')}</p> : null}
-        <div className={backupStyle.backupsList}>
-          {
-            backups.backups.length ? (
-              <div className={`${backupStyle.listContainerWrapper || ''} ${isScrollable ? backupStyle.showFade || '' : ''}`}>
-                <div ref={scrollableContainerRef} className={backupStyle.listContainer}>
-                  {
-                    backups.backups.map(backup => (
-                      <div key={backup.id} className={backupStyle.item}>
-                        <BackupsListItem
-                          disabled={restoring}
-                          backup={backup}
-                          selectedBackup={selectedBackup}
-                          handleChange={(b => setSelectedBackup(b))}
-                          onFocus={() => undefined}
-                          radio={showRadio} />
-                      </div>
-                    ))
-                  }
-                </div>
-              </div>
-            ) : (
-              <p className="text-center">{t('backup.noBackups')}</p>
-            )
-          }
-        </div>
-        <div className={backupStyle.backupButtons}>
-          {
-            showRestore && (
-              <Button
-                primary={true}
-                disabled={!selectedBackup || restoring}
-                onClick={restore}>
-                {t('button.restore')}
-              </Button>
-            )
-          }
-          {
-            showCreate && (
-              <Create deviceID={deviceID} />
-            )
-          }
-          {
-            showCreate && (
-              <Check
-                deviceID={deviceID}
-                backups={backups.backups ? backups.backups : []}
-                disabled={backups.backups.length === 0}
-              />
-            )
-          }
-          {children}
-        </div>
       </div>
-    </div>
+      <div className={backupStyle.backupButtons}>
+        {
+          showRestore && (
+            <Button
+              primary={true}
+              disabled={!selectedBackup || restoring}
+              onClick={restore}>
+              {t('button.restore')}
+            </Button>
+          )
+        }
+        {
+          showCreate && (
+            <Create deviceID={deviceID} />
+          )
+        }
+        {
+          showCreate && (
+            <Check
+              deviceID={deviceID}
+              backups={backups.backups ? backups.backups : []}
+              disabled={backups.backups.length === 0}
+            />
+          )
+        }
+        {children}
+      </div>
+    </>
   );
 };
