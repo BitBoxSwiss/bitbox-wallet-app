@@ -1836,7 +1836,7 @@
       "enterInvoice": "Enter address or invoice",
       "invoice": {
         "label": "Enter payment details",
-        "placeholder": "Address or invoice"
+        "placeholder": "Payment info"
       },
       "lnurlPay": {
         "invalidAmount": "Enter an amount between {{minAmount}} and {{maxAmount}} sats."
