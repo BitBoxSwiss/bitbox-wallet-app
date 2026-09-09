@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getLightningBalance, postCloseWithdraw, postPrepareCloseWithdraw, type TCloseWithdrawQuote } from '@/api/lightning';
+import { TLightningErrorCode, TSdkError } from '@/api/lightning-errors';
 import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
@@ -50,6 +51,7 @@ export const LightningCloseWithdrawFunds = ({
   const mounted = useMountedRef();
   const isClosingRef = useRef(false);
   const quoteRequest = useRef(0);
+  const closeIdempotencyKey = useRef<string>();
   const destinationAccount = btcAccounts.find(account => account.code === destinationAccountCode);
   const quoteMatchesDestination = quote?.destinationAccountCode === destinationAccountCode;
   const canClose = (
@@ -62,10 +64,12 @@ export const LightningCloseWithdrawFunds = ({
 
   useEffect(() => {
     if (!btcAccounts.length) {
+      closeIdempotencyKey.current = undefined;
       setDestinationAccountCode('');
       return;
     }
     if (!destinationAccountCode || !btcAccounts.some(account => account.code === destinationAccountCode)) {
+      closeIdempotencyKey.current = undefined;
       setDestinationAccountCode(btcAccounts[0]?.code || '');
     }
   }, [btcAccounts, destinationAccountCode]);
@@ -89,11 +93,12 @@ export const LightningCloseWithdrawFunds = ({
       if (!quoteDestinationAccountCode) {
         return;
       }
-      const preparedQuote = await postPrepareCloseWithdraw(quoteDestinationAccountCode);
+      const preparedQuote = await postPrepareCloseWithdraw(quoteDestinationAccountCode, closeIdempotencyKey.current);
       if (!mounted.current || currentRequest !== quoteRequest.current) {
         return;
       }
       setBalance(preparedQuote.balance);
+      closeIdempotencyKey.current = preparedQuote.idempotencyKey;
       setQuote({
         ...preparedQuote,
         destinationAccountCode: quoteDestinationAccountCode,
@@ -107,12 +112,12 @@ export const LightningCloseWithdrawFunds = ({
   }, [destinationAccountCode, mounted]);
 
   useEffect(() => {
-    if (step !== 'confirm' || isClosing || !destinationAccountCode) {
+    if (step !== 'confirm' || isClosing || !destinationAccountCode || quoteMatchesDestination) {
       quoteRequest.current += 1;
       return;
     }
     loadQuote();
-  }, [destinationAccountCode, isClosing, loadQuote, step]);
+  }, [destinationAccountCode, isClosing, loadQuote, quoteMatchesDestination, step]);
 
   const closeWithdraw = useCallback(async () => {
     if (
@@ -126,7 +131,7 @@ export const LightningCloseWithdrawFunds = ({
     quoteRequest.current += 1;
     setIsClosing(true);
     try {
-      const result = await postCloseWithdraw(destinationAccountCode, quote.balanceSat, quote.feeSat);
+      const result = await postCloseWithdraw(destinationAccountCode, quote.balanceSat, quote.feeSat, quote.idempotencyKey);
       if (!mounted.current) {
         return;
       }
@@ -135,6 +140,14 @@ export const LightningCloseWithdrawFunds = ({
     } catch (error) {
       console.error('Failed to close Lightning wallet and withdraw funds', error);
       if (mounted.current) {
+        if (error instanceof TSdkError) {
+          if (error.code === TLightningErrorCode.WITHDRAWAL_FAILED) {
+            closeIdempotencyKey.current = undefined;
+            setQuote(undefined);
+          } else if (error.code === TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED) {
+            setQuote(undefined);
+          }
+        }
         setStep('failure');
       }
     } finally {
@@ -202,6 +215,7 @@ export const LightningCloseWithdrawFunds = ({
           onIncomingConfirmChange={() => setIncomingConfirmed(current => !current)}
           onDestinationAccountChange={(code) => {
             setConfirmed(false);
+            closeIdempotencyKey.current = undefined;
             setDestinationAccountCode(code);
           }}
         />

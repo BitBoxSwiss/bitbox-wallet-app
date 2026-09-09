@@ -4,6 +4,7 @@ package lightning
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 	"os"
 	"testing"
@@ -28,6 +29,7 @@ import (
 )
 
 const testCloseWithdrawDestinationAccountCode accountsTypes.Code = "btc-0"
+const testCloseWithdrawIdempotencyKey = "00000000-0000-4000-8000-000000000001"
 
 const (
 	testP2PKHAddress  = "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
@@ -1125,6 +1127,7 @@ type testPaymentSDK struct {
 	breezSDK
 
 	balanceSats           uint64
+	getPayment            func(breez_sdk_spark.GetPaymentRequest) (breez_sdk_spark.GetPaymentResponse, error)
 	parseInput            func(string) (breez_sdk_spark.InputType, error)
 	prepareSend           func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error)
 	prepareLNURLPay       func(breez_sdk_spark.PrepareLnurlPayRequest) (breez_sdk_spark.PrepareLnurlPayResponse, error)
@@ -1140,6 +1143,13 @@ type testPaymentSDK struct {
 
 func (sdk *testPaymentSDK) GetInfo(breez_sdk_spark.GetInfoRequest) (breez_sdk_spark.GetInfoResponse, error) {
 	return breez_sdk_spark.GetInfoResponse{BalanceSats: sdk.balanceSats}, nil
+}
+
+func (sdk *testPaymentSDK) GetPayment(request breez_sdk_spark.GetPaymentRequest) (breez_sdk_spark.GetPaymentResponse, error) {
+	if sdk.getPayment != nil {
+		return sdk.getPayment(request)
+	}
+	return breez_sdk_spark.GetPaymentResponse{}, breez_sdk_spark.NewSdkErrorStorageError("Underlying implementation error: Query returned no rows")
 }
 
 func (sdk *testPaymentSDK) Parse(input string) (breez_sdk_spark.InputType, error) {
@@ -1869,43 +1879,73 @@ func TestPrepareCloseWithdraw(t *testing.T) {
 	}
 	lightning := newActivePaymentTestLightning(t, sdk)
 
-	quote, err := lightning.PrepareCloseWithdraw(testCloseWithdrawDestinationAccountCode)
+	quote, err := lightning.PrepareCloseWithdraw(testCloseWithdrawDestinationAccountCode, "")
 
 	require.NoError(t, err)
 	require.Equal(t, uint64(1_000), quote.FeeSat)
 	require.Equal(t, uint64(10_000), quote.BalanceSat)
 	require.Equal(t, "0.00010000", quote.Balance.Amount)
 	require.Equal(t, "0.00001000", quote.Fee.Amount)
+	_, err = uuid.Parse(quote.IdempotencyKey)
+	require.NoError(t, err)
 	require.NotNil(t, lightning.Account())
+	retryQuote, err := lightning.PrepareCloseWithdraw(testCloseWithdrawDestinationAccountCode, quote.IdempotencyKey)
+	require.NoError(t, err)
+	require.Equal(t, quote.IdempotencyKey, retryQuote.IdempotencyKey)
 }
 
 func TestCloseWithdraw(t *testing.T) {
 	t.Parallel()
 
-	sdk := &testPaymentSDK{balanceSats: 10_000}
-	sdk.prepareSend = func(request breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
-		return testBitcoinPrepareResponse(1_000), nil
-	}
-	sdk.send = func(request breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
-		require.NotNil(t, request.Options)
-		options, ok := (*request.Options).(breez_sdk_spark.SendPaymentOptionsBitcoinAddress)
-		require.True(t, ok)
-		require.Equal(t, breez_sdk_spark.OnchainConfirmationSpeedFast, options.ConfirmationSpeed)
-		details := breez_sdk_spark.PaymentDetails(breez_sdk_spark.PaymentDetailsWithdraw{TxId: "tx-id"})
-		return breez_sdk_spark.SendPaymentResponse{
-			Payment: breez_sdk_spark.Payment{Details: &details},
-		}, nil
-	}
-	lightning := newActivePaymentTestLightning(t, sdk)
+	for _, testCase := range []struct {
+		name      string
+		lookupErr error
+	}{
+		{
+			name:      "sqlite missing payment",
+			lookupErr: breez_sdk_spark.NewSdkErrorStorageError("Underlying implementation error: Query returned no rows"),
+		},
+		{
+			name:      "explicit not found",
+			lookupErr: breez_sdk_spark.NewSdkErrorInvalidInput("Not found"),
+		},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			sdk := &testPaymentSDK{balanceSats: 10_000}
+			sdk.getPayment = func(request breez_sdk_spark.GetPaymentRequest) (breez_sdk_spark.GetPaymentResponse, error) {
+				require.Equal(t, testCloseWithdrawIdempotencyKey, request.PaymentId)
+				return breez_sdk_spark.GetPaymentResponse{}, testCase.lookupErr
+			}
+			sdk.prepareSend = func(request breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+				return testBitcoinPrepareResponse(1_000), nil
+			}
+			sendCalls := 0
+			sdk.send = func(request breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+				sendCalls++
+				require.Equal(t, testCloseWithdrawIdempotencyKey, *request.IdempotencyKey)
+				require.NotNil(t, request.Options)
+				options, ok := (*request.Options).(breez_sdk_spark.SendPaymentOptionsBitcoinAddress)
+				require.True(t, ok)
+				require.Equal(t, breez_sdk_spark.OnchainConfirmationSpeedFast, options.ConfirmationSpeed)
+				details := breez_sdk_spark.PaymentDetails(breez_sdk_spark.PaymentDetailsWithdraw{TxId: "tx-id"})
+				return breez_sdk_spark.SendPaymentResponse{
+					Payment: breez_sdk_spark.Payment{Status: breez_sdk_spark.PaymentStatusCompleted, Details: &details},
+				}, nil
+			}
+			lightning := newActivePaymentTestLightning(t, sdk)
 
-	result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000)
+			result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, testCloseWithdrawIdempotencyKey)
 
-	require.NoError(t, err)
-	require.Equal(t, "tx-id", result.TxID)
-	require.True(t, result.WalletClosed)
-	require.Nil(t, lightning.Account())
-	require.True(t, sdk.disconnectCalled)
-	require.True(t, sdk.destroyCalled)
+			require.NoError(t, err)
+			require.Equal(t, 1, sendCalls)
+			require.Equal(t, "tx-id", result.TxID)
+			require.True(t, result.WalletClosed)
+			require.Nil(t, lightning.Account())
+			require.True(t, sdk.disconnectCalled)
+			require.True(t, sdk.destroyCalled)
+		})
+	}
 }
 
 func TestCloseWithdrawRejectsBelowMinimumAfterFees(t *testing.T) {
@@ -1931,6 +1971,7 @@ func TestCloseWithdrawRejectsBelowMinimumAfterFees(t *testing.T) {
 		testCloseWithdrawDestinationAccountCode,
 		amountSat,
 		feeSat,
+		testCloseWithdrawIdempotencyKey,
 	)
 
 	require.Nil(t, result)
@@ -1949,7 +1990,7 @@ func TestCloseWithdrawReturnsResultWhenSetAccountFails(t *testing.T) {
 	sdk.send = func(request breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
 		details := breez_sdk_spark.PaymentDetails(breez_sdk_spark.PaymentDetailsWithdraw{TxId: "tx-id"})
 		return breez_sdk_spark.SendPaymentResponse{
-			Payment: breez_sdk_spark.Payment{Details: &details},
+			Payment: breez_sdk_spark.Payment{Status: breez_sdk_spark.PaymentStatusCompleted, Details: &details},
 		}, nil
 	}
 	lightningConfigFilename := test.TstTempFile("lightningConfig")
@@ -1960,7 +2001,7 @@ func TestCloseWithdrawReturnsResultWhenSetAccountFails(t *testing.T) {
 		require.NoError(t, os.Remove(lightningConfigFilename))
 	})
 
-	result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000)
+	result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, testCloseWithdrawIdempotencyKey)
 
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -1978,7 +2019,7 @@ func TestCloseWithdrawRejectsChangedBalance(t *testing.T) {
 	}
 	lightning := newActivePaymentTestLightning(t, sdk)
 
-	result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000)
+	result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, testCloseWithdrawIdempotencyKey)
 
 	require.Nil(t, result)
 	require.Equal(t, errPaymentApprovalRequired, errp.Cause(err))
@@ -1997,7 +2038,7 @@ func TestCloseWithdrawRejectsIncreasedFee(t *testing.T) {
 	}
 	lightning := newActivePaymentTestLightning(t, sdk)
 
-	result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000)
+	result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, testCloseWithdrawIdempotencyKey)
 
 	require.Nil(t, result)
 	require.Error(t, err)
@@ -2020,13 +2061,216 @@ func TestCloseWithdrawKeepsWalletActiveWhenSendFails(t *testing.T) {
 	}
 	lightning := newActivePaymentTestLightning(t, sdk)
 
-	result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000)
+	result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, testCloseWithdrawIdempotencyKey)
 
 	require.Nil(t, result)
 	require.ErrorIs(t, err, sendErr)
 	require.NotNil(t, lightning.Account())
 	require.False(t, sdk.disconnectCalled)
 	require.False(t, sdk.destroyCalled)
+}
+
+func TestCloseWithdrawClosesOnSuccessfulSDKResponse(t *testing.T) {
+	t.Parallel()
+	for _, status := range []breez_sdk_spark.PaymentStatus{
+		breez_sdk_spark.PaymentStatusPending,
+		breez_sdk_spark.PaymentStatusCompleted,
+		breez_sdk_spark.PaymentStatusFailed,
+		0,
+	} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			t.Parallel()
+			details := breez_sdk_spark.PaymentDetails(breez_sdk_spark.PaymentDetailsWithdraw{TxId: "tx-id"})
+			sdk := &testPaymentSDK{
+				balanceSats: 10_000,
+				prepareSend: func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+					return testBitcoinPrepareResponse(1_000), nil
+				},
+				send: func(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+					return breez_sdk_spark.SendPaymentResponse{
+						Payment: breez_sdk_spark.Payment{Status: status, Details: &details},
+					}, nil
+				},
+			}
+			lightning := newActivePaymentTestLightning(t, sdk)
+			result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, testCloseWithdrawIdempotencyKey)
+			if status == breez_sdk_spark.PaymentStatusPending || status == breez_sdk_spark.PaymentStatusCompleted {
+				require.NoError(t, err)
+				require.True(t, result.WalletClosed)
+				require.Equal(t, "tx-id", result.TxID)
+				require.Nil(t, lightning.Account())
+				require.True(t, sdk.disconnectCalled)
+				require.True(t, sdk.destroyCalled)
+			} else {
+				require.Error(t, err)
+				if status == breez_sdk_spark.PaymentStatusFailed {
+					require.ErrorIs(t, err, errLightningWithdrawalFailed)
+				} else {
+					require.NotErrorIs(t, err, errLightningWithdrawalFailed)
+				}
+				require.Nil(t, result)
+				require.NotNil(t, lightning.Account())
+				require.False(t, sdk.disconnectCalled)
+				require.False(t, sdk.destroyCalled)
+			}
+		})
+	}
+}
+
+func TestCloseWithdrawRetriesFailedPaymentWithNewKey(t *testing.T) {
+	t.Parallel()
+
+	prepareCalls, sendCalls := 0, 0
+	var retryKey string
+	sdk := &testPaymentSDK{
+		balanceSats: 10_000,
+		getPayment: func(request breez_sdk_spark.GetPaymentRequest) (breez_sdk_spark.GetPaymentResponse, error) {
+			if request.PaymentId == testCloseWithdrawIdempotencyKey {
+				return breez_sdk_spark.GetPaymentResponse{
+					Payment: breez_sdk_spark.Payment{Status: breez_sdk_spark.PaymentStatusFailed},
+				}, nil
+			}
+			require.Equal(t, retryKey, request.PaymentId)
+			return breez_sdk_spark.GetPaymentResponse{}, breez_sdk_spark.NewSdkErrorStorageError("Underlying implementation error: Query returned no rows")
+		},
+		prepareSend: func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+			prepareCalls++
+			return testBitcoinPrepareResponse(1_000), nil
+		},
+		send: func(request breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+			sendCalls++
+			require.Equal(t, retryKey, *request.IdempotencyKey)
+			details := breez_sdk_spark.PaymentDetails(breez_sdk_spark.PaymentDetailsWithdraw{TxId: "retry-tx-id"})
+			return breez_sdk_spark.SendPaymentResponse{
+				Payment: breez_sdk_spark.Payment{Status: breez_sdk_spark.PaymentStatusPending, Details: &details},
+			}, nil
+		},
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, testCloseWithdrawIdempotencyKey)
+	require.ErrorIs(t, err, errLightningWithdrawalFailed)
+	require.Nil(t, result)
+	require.NotNil(t, lightning.Account())
+	require.False(t, sdk.disconnectCalled)
+	require.False(t, sdk.destroyCalled)
+	require.Zero(t, prepareCalls)
+	require.Zero(t, sendCalls)
+
+	quote, err := lightning.PrepareCloseWithdraw(testCloseWithdrawDestinationAccountCode, "")
+	require.NoError(t, err)
+	retryKey = quote.IdempotencyKey
+	require.NotEqual(t, testCloseWithdrawIdempotencyKey, retryKey)
+	_, err = uuid.Parse(retryKey)
+	require.NoError(t, err)
+
+	result, err = lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, quote.BalanceSat, quote.FeeSat, retryKey)
+	require.NoError(t, err)
+	require.True(t, result.WalletClosed)
+	require.Equal(t, "retry-tx-id", result.TxID)
+	require.Equal(t, 1, sendCalls)
+}
+
+func TestCloseWithdrawReconcilesRetryAfterBalanceSpent(t *testing.T) {
+	t.Parallel()
+	for _, status := range []breez_sdk_spark.PaymentStatus{breez_sdk_spark.PaymentStatusPending, breez_sdk_spark.PaymentStatusCompleted} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			t.Parallel()
+			var sent bool
+			details := breez_sdk_spark.PaymentDetails(breez_sdk_spark.PaymentDetailsWithdraw{TxId: "tx-id"})
+			payment := breez_sdk_spark.Payment{Status: status, Details: &details}
+			sdk := &testPaymentSDK{balanceSats: 10_000}
+			sdk.getPayment = func(request breez_sdk_spark.GetPaymentRequest) (breez_sdk_spark.GetPaymentResponse, error) {
+				require.Equal(t, testCloseWithdrawIdempotencyKey, request.PaymentId)
+				if !sent {
+					return breez_sdk_spark.GetPaymentResponse{}, breez_sdk_spark.NewSdkErrorStorageError("Underlying implementation error: Query returned no rows")
+				}
+				return breez_sdk_spark.GetPaymentResponse{Payment: payment}, nil
+			}
+			sdk.prepareSend = func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+				require.False(t, sent, "retry must not prepare another withdrawal")
+				return testBitcoinPrepareResponse(1_000), nil
+			}
+			sdk.send = func(request breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+				require.False(t, sent, "retry must not send another withdrawal")
+				require.Equal(t, testCloseWithdrawIdempotencyKey, *request.IdempotencyKey)
+				sent = true
+				sdk.balanceSats = 0
+				return breez_sdk_spark.SendPaymentResponse{}, errors.New("response lost")
+			}
+			lightning := newActivePaymentTestLightning(t, sdk)
+			_, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, testCloseWithdrawIdempotencyKey)
+			require.Error(t, err)
+			result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, testCloseWithdrawIdempotencyKey)
+			require.NoError(t, err)
+			require.True(t, result.WalletClosed)
+			require.Equal(t, "tx-id", result.TxID)
+			require.True(t, sdk.destroyCalled)
+		})
+	}
+}
+
+func TestCloseWithdrawKeepsWalletActiveWithoutTransactionID(t *testing.T) {
+	t.Parallel()
+	emptyDetails := breez_sdk_spark.PaymentDetails(breez_sdk_spark.PaymentDetailsWithdraw{})
+	for _, details := range []*breez_sdk_spark.PaymentDetails{nil, &emptyDetails} {
+		sdk := &testPaymentSDK{
+			getPayment: func(breez_sdk_spark.GetPaymentRequest) (breez_sdk_spark.GetPaymentResponse, error) {
+				return breez_sdk_spark.GetPaymentResponse{
+					Payment: breez_sdk_spark.Payment{Status: breez_sdk_spark.PaymentStatusPending, Details: details},
+				}, nil
+			},
+		}
+		lightning := newActivePaymentTestLightning(t, sdk)
+		result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, testCloseWithdrawIdempotencyKey)
+		require.Error(t, err)
+		require.Nil(t, result)
+		require.NotNil(t, lightning.Account())
+		require.False(t, sdk.disconnectCalled)
+		require.False(t, sdk.destroyCalled)
+	}
+}
+
+func TestCloseWithdrawRejectsLookupErrors(t *testing.T) {
+	t.Parallel()
+	for _, lookupErr := range []error{
+		breez_sdk_spark.NewSdkErrorStorageError("unavailable"),
+		breez_sdk_spark.NewSdkErrorInvalidInput("unexpected error"),
+		breez_sdk_spark.NewSdkErrorInvalidInput("Underlying implementation error: Query returned no rows"),
+		errors.New("Underlying implementation error: Query returned no rows"),
+	} {
+		sdk := &testPaymentSDK{
+			balanceSats: 10_000,
+			getPayment: func(breez_sdk_spark.GetPaymentRequest) (breez_sdk_spark.GetPaymentResponse, error) {
+				return breez_sdk_spark.GetPaymentResponse{}, lookupErr
+			},
+			prepareSend: func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+				t.Fatal("lookup errors must not prepare another withdrawal")
+				return breez_sdk_spark.PrepareSendPaymentResponse{}, nil
+			},
+			send: func(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+				t.Fatal("lookup errors must not send another withdrawal")
+				return breez_sdk_spark.SendPaymentResponse{}, nil
+			},
+		}
+		lightning := newActivePaymentTestLightning(t, sdk)
+		result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, testCloseWithdrawIdempotencyKey)
+		require.ErrorIs(t, err, lookupErr)
+		require.Nil(t, result)
+		require.NotNil(t, lightning.Account())
+		require.False(t, sdk.disconnectCalled)
+		require.False(t, sdk.destroyCalled)
+	}
+}
+
+func TestCloseWithdrawRequiresIdempotencyKey(t *testing.T) {
+	t.Parallel()
+	lightning := newActivePaymentTestLightning(t, &testPaymentSDK{})
+	for _, key := range []string{"", "invalid"} {
+		result, err := lightning.CloseWithdraw(testCloseWithdrawDestinationAccountCode, 10_000, 1_000, key)
+		require.ErrorIs(t, err, errLightningInvalidPaymentInput)
+		require.Nil(t, result)
+	}
 }
 
 func TestValidateApprovedLightningFee(t *testing.T) {

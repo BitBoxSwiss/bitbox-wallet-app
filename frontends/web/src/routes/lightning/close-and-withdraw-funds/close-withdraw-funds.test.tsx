@@ -7,10 +7,17 @@ import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TAccount, TAmountWithConversions } from '@/api/account';
 import * as lightningApi from '@/api/lightning';
+import { TLightningErrorCode, TSdkError } from '@/api/lightning-errors';
+import { open } from '@/api/system';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { LightningCloseWithdrawFunds } from './close-withdraw-funds';
 
 vi.mock('@/i18n/i18n');
+
+vi.mock('@/api/system', async (importOriginal) => ({
+  ...await importOriginal<typeof import('@/api/system')>(),
+  open: vi.fn(),
+}));
 
 vi.mock('@/components/layout', () => ({
   Header: ({ title }: { title: ReactNode }) => <header>{title}</header>,
@@ -24,7 +31,16 @@ vi.mock('@/components/amount/amount-with-unit', () => ({
 }));
 
 vi.mock('@/components/groupedaccountselector/groupedaccountselector', () => ({
-  GroupedAccountSelector: () => <div />,
+  GroupedAccountSelector: ({ accounts, disabled, onChange, selected }: {
+    accounts: TAccount[];
+    disabled: boolean;
+    onChange: (code: string) => void;
+    selected: string;
+  }) => (
+    <select aria-label="destination" disabled={disabled} onChange={event => onChange(event.target.value)} value={selected}>
+      {accounts.map(account => <option key={account.code} value={account.code}>{account.code}</option>)}
+    </select>
+  ),
 }));
 
 vi.mock('@/api/lightning', async (importOriginal) => {
@@ -46,10 +62,12 @@ const amount = (value: string): TAmountWithConversions => ({
 
 const bitcoinAccount = {
   active: true,
-  blockExplorerTxPrefix: '',
+  blockExplorerTxPrefix: 'https://example.com/tx/',
   code: 'btc-0',
   coinCode: 'btc',
 } as TAccount;
+
+const idempotencyKey = '00000000-0000-4000-8000-000000000001';
 
 const setMobileViewport = () => {
   vi.mocked(window.matchMedia).mockImplementation(query => ({
@@ -69,9 +87,11 @@ const SettingsPage = () => {
   return <button onClick={() => navigate(-1)}>settings back</button>;
 };
 
-describe('Lightning Close & Withdraw back navigation', () => {
+describe('Lightning Close & Withdraw', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(lightningApi.postCloseWithdraw).mockReset();
+    vi.mocked(open).mockResolvedValue({ success: true });
     setMobileViewport();
     vi.mocked(lightningApi.getLightningBalance).mockResolvedValue({
       available: amount('10000'),
@@ -84,6 +104,7 @@ describe('Lightning Close & Withdraw back navigation', () => {
       incoming: amount('0'),
     });
     vi.mocked(lightningApi.postPrepareCloseWithdraw).mockResolvedValue({
+      idempotencyKey,
       balance: amount('10000'),
       balanceSat: 10000,
       fee: amount('100'),
@@ -92,7 +113,7 @@ describe('Lightning Close & Withdraw back navigation', () => {
   });
 
   it('blocks Android back while closing', async () => {
-    let resolveClose: (result: { txId: string; walletClosed: boolean }) => void = () => {};
+    let resolveClose: (result: lightningApi.TCloseWithdrawResult) => void = () => {};
     vi.mocked(lightningApi.postCloseWithdraw).mockReturnValue(new Promise(resolve => {
       resolveClose = resolve;
     }));
@@ -123,6 +144,146 @@ describe('Lightning Close & Withdraw back navigation', () => {
       resolveClose({ txId: 'close-txid', walletClosed: true });
     });
     expect(await screen.findByText('lightning.closeWithdrawFunds.success.message')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('lightning.closeWithdrawFunds.viewTransaction'));
+    expect(open).toHaveBeenCalledWith('https://example.com/tx/close-txid');
+  });
+
+  it.each([
+    { scenario: 'a lost response', error: new Error('response lost') },
+    { scenario: 'an unclassified SDK error', error: new TSdkError('Bitcoin withdrawal failed') },
+  ])('reuses the approved withdrawal after $scenario', async ({ error }) => {
+    const close = vi.mocked(lightningApi.postCloseWithdraw);
+    close.mockRejectedValueOnce(error);
+    close.mockResolvedValue({ walletClosed: true, txId: 'close-txid' });
+    render(
+      <MemoryRouter>
+        <BackButtonProvider>
+          <LightningCloseWithdrawFunds activeAccounts={[bitcoinAccount]} hasAccounts />
+        </BackButtonProvider>
+      </MemoryRouter>
+    );
+    fireEvent.click(await screen.findByLabelText('lightning.closeWithdrawFunds.confirm'));
+    const closeButton = screen.getByRole('button', { name: 'lightning.settings.closeAndWithdrawFunds' });
+    await waitFor(() => expect(closeButton).toBeEnabled());
+    fireEvent.click(closeButton);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'lightning.closeWithdrawFunds.failure.tryAgain' }));
+    fireEvent.click(await screen.findByLabelText('lightning.closeWithdrawFunds.confirm'));
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.settings.closeAndWithdrawFunds' }));
+
+    expect(await screen.findByText('lightning.closeWithdrawFunds.success.message')).toBeInTheDocument();
+    expect(close).toHaveBeenCalledTimes(2);
+    expect(close).toHaveBeenNthCalledWith(1, 'btc-0', 10000, 100, idempotencyKey);
+    expect(close).toHaveBeenNthCalledWith(2, 'btc-0', 10000, 100, idempotencyKey);
+    expect(lightningApi.postPrepareCloseWithdraw).toHaveBeenCalledOnce();
+  });
+
+  it('prepares a new withdrawal after a terminal payment failure', async () => {
+    const newKey = '00000000-0000-4000-8000-000000000002';
+    const close = vi.mocked(lightningApi.postCloseWithdraw);
+    close
+      .mockRejectedValueOnce(new TSdkError('Bitcoin withdrawal failed', TLightningErrorCode.WITHDRAWAL_FAILED))
+      .mockResolvedValue({ walletClosed: true, txId: 'retry-txid' });
+    render(
+      <MemoryRouter>
+        <BackButtonProvider>
+          <LightningCloseWithdrawFunds activeAccounts={[bitcoinAccount]} hasAccounts />
+        </BackButtonProvider>
+      </MemoryRouter>
+    );
+    fireEvent.click(await screen.findByLabelText('lightning.closeWithdrawFunds.confirm'));
+    const closeButton = screen.getByRole('button', { name: 'lightning.settings.closeAndWithdrawFunds' });
+    await waitFor(() => expect(closeButton).toBeEnabled());
+    fireEvent.click(closeButton);
+
+    const retry = await screen.findByRole('button', { name: 'lightning.closeWithdrawFunds.failure.tryAgain' });
+    vi.mocked(lightningApi.postPrepareCloseWithdraw).mockResolvedValue({
+      idempotencyKey: newKey,
+      balance: amount('10000'),
+      balanceSat: 10000,
+      fee: amount('200'),
+      feeSat: 200,
+    });
+    fireEvent.click(retry);
+    await waitFor(() => expect(lightningApi.postPrepareCloseWithdraw).toHaveBeenCalledTimes(2));
+    expect(lightningApi.postPrepareCloseWithdraw).toHaveBeenLastCalledWith('btc-0', undefined);
+    const confirmation = screen.getByLabelText('lightning.closeWithdrawFunds.confirm');
+    expect(confirmation).not.toBeChecked();
+    const retryCloseButton = screen.getByRole('button', { name: 'lightning.settings.closeAndWithdrawFunds' });
+    expect(retryCloseButton).toBeDisabled();
+    expect(close).toHaveBeenCalledOnce();
+
+    fireEvent.click(confirmation);
+    await waitFor(() => expect(retryCloseButton).toBeEnabled());
+    fireEvent.click(retryCloseButton);
+    expect(await screen.findByText('lightning.closeWithdrawFunds.success.message')).toBeInTheDocument();
+    expect(close).toHaveBeenCalledTimes(2);
+    expect(close).toHaveBeenNthCalledWith(1, 'btc-0', 10000, 100, idempotencyKey);
+    expect(close).toHaveBeenNthCalledWith(2, 'btc-0', 10000, 200, newKey);
+  });
+
+  it('keeps the key when a changed fee requires a new approval', async () => {
+    vi.mocked(lightningApi.postCloseWithdraw)
+      .mockRejectedValueOnce(new TSdkError('fee changed', TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED))
+      .mockResolvedValue({ walletClosed: true, txId: 'close-txid' });
+    render(
+      <MemoryRouter>
+        <BackButtonProvider>
+          <LightningCloseWithdrawFunds activeAccounts={[bitcoinAccount]} hasAccounts />
+        </BackButtonProvider>
+      </MemoryRouter>
+    );
+    fireEvent.click(await screen.findByLabelText('lightning.closeWithdrawFunds.confirm'));
+    const closeButton = screen.getByRole('button', { name: 'lightning.settings.closeAndWithdrawFunds' });
+    await waitFor(() => expect(closeButton).toBeEnabled());
+    fireEvent.click(closeButton);
+    const retry = await screen.findByRole('button', { name: 'lightning.closeWithdrawFunds.failure.tryAgain' });
+    vi.mocked(lightningApi.postPrepareCloseWithdraw).mockResolvedValue({
+      idempotencyKey,
+      balance: amount('10000'),
+      balanceSat: 10000,
+      fee: amount('200'),
+      feeSat: 200,
+    });
+    fireEvent.click(retry);
+    const retryCloseButton = await screen.findByRole('button', { name: 'lightning.settings.closeAndWithdrawFunds' });
+    expect(retryCloseButton).toBeDisabled();
+    fireEvent.click(screen.getByLabelText('lightning.closeWithdrawFunds.confirm'));
+    await waitFor(() => expect(retryCloseButton).toBeEnabled());
+    fireEvent.click(retryCloseButton);
+    expect(await screen.findByText('lightning.closeWithdrawFunds.success.message')).toBeInTheDocument();
+    expect(lightningApi.postPrepareCloseWithdraw).toHaveBeenLastCalledWith('btc-0', idempotencyKey);
+    expect(lightningApi.postCloseWithdraw).toHaveBeenLastCalledWith('btc-0', 10000, 200, idempotencyKey);
+  });
+
+  it('uses a new key when the destination changes', async () => {
+    const newKey = '00000000-0000-4000-8000-000000000002';
+    vi.mocked(lightningApi.postCloseWithdraw).mockResolvedValue({ walletClosed: true, txId: 'close-txid' });
+    render(
+      <MemoryRouter>
+        <BackButtonProvider>
+          <LightningCloseWithdrawFunds activeAccounts={[bitcoinAccount, { ...bitcoinAccount, code: 'btc-1' }]} hasAccounts />
+        </BackButtonProvider>
+      </MemoryRouter>
+    );
+    fireEvent.click(await screen.findByLabelText('lightning.closeWithdrawFunds.confirm'));
+    const closeButton = screen.getByRole('button', { name: 'lightning.settings.closeAndWithdrawFunds' });
+    await waitFor(() => expect(closeButton).toBeEnabled());
+    vi.mocked(lightningApi.postPrepareCloseWithdraw).mockResolvedValue({
+      idempotencyKey: newKey,
+      balance: amount('10000'),
+      balanceSat: 10000,
+      fee: amount('100'),
+      feeSat: 100,
+    });
+    fireEvent.change(screen.getByRole('combobox', { name: 'destination' }), { target: { value: 'btc-1' } });
+    expect(closeButton).toBeDisabled();
+    fireEvent.click(screen.getByLabelText('lightning.closeWithdrawFunds.confirm'));
+    await waitFor(() => expect(closeButton).toBeEnabled());
+    fireEvent.click(closeButton);
+    expect(await screen.findByText('lightning.closeWithdrawFunds.success.message')).toBeInTheDocument();
+    expect(lightningApi.postPrepareCloseWithdraw).toHaveBeenLastCalledWith('btc-1', undefined);
+    expect(lightningApi.postCloseWithdraw).toHaveBeenCalledWith('btc-1', 10000, 100, newKey);
   });
 
   it('pops the fallback route instead of adding Lightning Settings to history', async () => {

@@ -344,6 +344,7 @@ func (lightning *Lightning) PostRefundTopUp(r *http.Request) interface{} {
 func (lightning *Lightning) PostPrepareCloseWithdraw(r *http.Request) interface{} {
 	var jsonBody struct {
 		DestinationAccountCode types.Code `json:"destinationAccountCode"`
+		IdempotencyKey         string     `json:"idempotencyKey"`
 	}
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
@@ -351,7 +352,7 @@ func (lightning *Lightning) PostPrepareCloseWithdraw(r *http.Request) interface{
 		return errorResponse(err)
 	}
 
-	quote, err := lightning.PrepareCloseWithdraw(jsonBody.DestinationAccountCode)
+	quote, err := lightning.PrepareCloseWithdraw(jsonBody.DestinationAccountCode, jsonBody.IdempotencyKey)
 	if err != nil {
 		return errorResponse(err)
 	}
@@ -364,6 +365,7 @@ func (lightning *Lightning) PostCloseWithdraw(r *http.Request) interface{} {
 		DestinationAccountCode types.Code `json:"destinationAccountCode"`
 		ApprovedBalanceSat     uint64     `json:"approvedBalanceSat"`
 		ApprovedFeeSat         uint64     `json:"approvedFeeSat"`
+		IdempotencyKey         string     `json:"idempotencyKey"`
 	}
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
@@ -375,6 +377,7 @@ func (lightning *Lightning) PostCloseWithdraw(r *http.Request) interface{} {
 		jsonBody.DestinationAccountCode,
 		jsonBody.ApprovedBalanceSat,
 		jsonBody.ApprovedFeeSat,
+		jsonBody.IdempotencyKey,
 	)
 	if err != nil {
 		return errorResponse(err)
