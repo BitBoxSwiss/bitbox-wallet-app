@@ -1894,6 +1894,68 @@ func TestPrepareCloseWithdraw(t *testing.T) {
 	require.Equal(t, quote.IdempotencyKey, retryQuote.IdempotencyKey)
 }
 
+func TestPrepareCloseWithdrawValidatesOutputAfterFastFee(t *testing.T) {
+	t.Parallel()
+
+	for _, testCase := range []struct {
+		balanceSat uint64
+		fastFeeSat uint64
+	}{
+		{balanceSat: 500, fastFeeSat: 200},
+		{balanceSat: 529, fastFeeSat: 200},
+		{balanceSat: 530, fastFeeSat: 200},
+		{balanceSat: 500, fastFeeSat: 600},
+	} {
+		t.Run(fmt.Sprintf("balance=%d fee=%d", testCase.balanceSat, testCase.fastFeeSat), func(t *testing.T) {
+			t.Parallel()
+			sdk := &testPaymentSDK{balanceSats: testCase.balanceSat}
+			sdk.prepareSend = func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+				response := testBitcoinPrepareResponse(testCase.fastFeeSat)
+				response.Amount = new(big.Int).SetUint64(testCase.balanceSat)
+				method := response.PaymentMethod.(breez_sdk_spark.SendPaymentMethodBitcoinAddress)
+				method.FeeQuote.SpeedSlow = breez_sdk_spark.SendOnchainSpeedFeeQuote{UserFeeSat: 99, L1BroadcastFeeSat: 1}
+				response.PaymentMethod = method
+				return response, nil
+			}
+			lightning := newActivePaymentTestLightning(t, sdk)
+
+			quote, err := lightning.PrepareCloseWithdraw(testCloseWithdrawDestinationAccountCode, "")
+			minimumBalanceSat := testCase.fastFeeSat + 330
+			if testCase.balanceSat < minimumBalanceSat {
+				require.Nil(t, quote)
+				var amountBelowMinimum *lightningAmountBelowMinimumError
+				require.ErrorAs(t, err, &amountBelowMinimum)
+				require.Equal(t, minimumBalanceSat, amountBelowMinimum.minAmountSat)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, testCase.fastFeeSat, quote.FeeSat)
+			}
+			require.NotNil(t, lightning.Account())
+			require.False(t, sdk.destroyCalled)
+		})
+	}
+}
+
+func TestPrepareCloseWithdrawPreservesSDKValidationReason(t *testing.T) {
+	t.Parallel()
+
+	const reason = "Amount is below the minimum of 330 sats required for this address after lowest fees of 100 sats"
+	sdk := &testPaymentSDK{
+		balanceSats: 400,
+		prepareSend: func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+			return breez_sdk_spark.PrepareSendPaymentResponse{}, breez_sdk_spark.NewSdkErrorInvalidInput(reason)
+		},
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	quote, err := lightning.PrepareCloseWithdraw(testCloseWithdrawDestinationAccountCode, "")
+	require.Nil(t, quote)
+	require.EqualError(t, err, reason)
+	require.Equal(t, reason, errorResponse(err).ErrorMessage)
+	require.NotNil(t, lightning.Account())
+	require.False(t, sdk.destroyCalled)
+}
+
 func TestCloseWithdraw(t *testing.T) {
 	t.Parallel()
 

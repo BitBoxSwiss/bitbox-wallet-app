@@ -371,7 +371,7 @@ describe('Lightning Close & Withdraw', () => {
     expect(screen.queryByText('lightning.topUp.noBitcoinAccounts')).not.toBeInTheDocument();
   });
 
-  it('keeps failure Cancel in the body and pops back to Lightning Settings', async () => {
+  it('can go back after a preparation error and pop back to Lightning Settings', async () => {
     vi.mocked(lightningApi.postPrepareCloseWithdraw).mockRejectedValue(new Error('prepare failed'));
 
     render(
@@ -396,7 +396,10 @@ describe('Lightning Close & Withdraw', () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(await screen.findByRole('button', { name: 'dialog.cancel' }));
+    expect(await screen.findByText('Error: prepare failed')).toBeInTheDocument();
+    act(() => {
+      expect(window.onBackButtonPressed?.()).toBe(false);
+    });
     fireEvent.click(await screen.findByRole('button', { name: 'settings back' }));
 
     expect(await screen.findByText('advanced settings')).toBeInTheDocument();
