@@ -60,6 +60,7 @@ type breezSDK interface {
 	Disconnect() error
 	Destroy()
 	GetInfo(breez_sdk_spark.GetInfoRequest) (breez_sdk_spark.GetInfoResponse, error)
+	GetPayment(breez_sdk_spark.GetPaymentRequest) (breez_sdk_spark.GetPaymentResponse, error)
 	GetLightningAddress() (*breez_sdk_spark.LightningAddressInfo, error)
 	CheckLightningAddressAvailable(breez_sdk_spark.CheckLightningAddressRequest) (bool, error)
 	RegisterLightningAddress(breez_sdk_spark.RegisterLightningAddressRequest) (breez_sdk_spark.LightningAddressInfo, error)
