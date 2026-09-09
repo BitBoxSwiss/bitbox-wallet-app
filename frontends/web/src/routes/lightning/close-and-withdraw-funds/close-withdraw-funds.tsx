@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { connectAnyKeystore } from '@/api/keystores';
 import { getLightningBalance, postCloseWithdraw, postPrepareCloseWithdraw, type TCloseWithdrawQuote } from '@/api/lightning';
-import { TLightningErrorCode, TSdkError } from '@/api/lightning-errors';
+import { TLightningErrorCode, TSdkError, toLightningErrorMessage } from '@/api/lightning-errors';
 import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
@@ -47,6 +47,7 @@ export const LightningCloseWithdrawFunds = ({
   const [incoming, setIncoming] = useState<TAmountWithConversions>();
   const [incomingConfirmed, setIncomingConfirmed] = useState(false);
   const [quote, setQuote] = useState<TPreparedQuote>();
+  const [prepareError, setPrepareError] = useState<string>();
   const [isClosing, setIsClosing] = useState(false);
   const [txID, setTxID] = useState<string>();
   const mounted = useMountedRef();
@@ -60,6 +61,7 @@ export const LightningCloseWithdrawFunds = ({
     && (!hasIncoming || incomingConfirmed)
     && !!quote
     && quoteMatchesDestination
+    && !prepareError
     && !isClosing
   );
 
@@ -79,6 +81,8 @@ export const LightningCloseWithdrawFunds = ({
     const currentRequest = ++quoteRequest.current;
     const quoteDestinationAccountCode = destinationAccountCode;
     setQuote(undefined);
+    setPrepareError(undefined);
+    setConfirmed(false);
 
     try {
       const lightningBalance = await getLightningBalance();
@@ -89,6 +93,7 @@ export const LightningCloseWithdrawFunds = ({
       setHasIncoming(lightningBalance.hasIncoming);
       setIncoming(lightningBalance.incoming);
       if (!lightningBalance.hasAvailable) {
+        setPrepareError(t('error.lightningInsufficientFunds'));
         return;
       }
       if (!quoteDestinationAccountCode) {
@@ -107,10 +112,10 @@ export const LightningCloseWithdrawFunds = ({
     } catch (error) {
       console.error('Failed to prepare Lightning wallet withdrawal', error);
       if (mounted.current && currentRequest === quoteRequest.current) {
-        setStep('failure');
+        setPrepareError(toLightningErrorMessage(t, error));
       }
     }
-  }, [destinationAccountCode, mounted]);
+  }, [destinationAccountCode, mounted, t]);
 
   useEffect(() => {
     if (step !== 'confirm' || isClosing || !destinationAccountCode || quoteMatchesDestination) {
@@ -206,6 +211,7 @@ export const LightningCloseWithdrawFunds = ({
           incoming={incoming}
           incomingConfirmed={incomingConfirmed}
           isClosing={isClosing}
+          prepareError={prepareError}
           onCancel={handleBack}
           onClose={closeWithdraw}
           onConfirmChange={() => setConfirmed(current => !current)}

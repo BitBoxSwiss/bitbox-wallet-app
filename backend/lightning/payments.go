@@ -1053,12 +1053,29 @@ func (lightning *Lightning) PrepareCloseWithdraw(
 		return nil, err
 	}
 	amountSat := availableBalance.BigInt().Uint64()
-	_, fee, err := lightning.prepareBitcoinPayment(
+	prepareResponse, fee, err := lightning.prepareBitcoinPayment(
 		destinationAddress,
 		amountSat,
 		breez_sdk_spark.FeePolicyFeesIncluded,
 	)
 	if err != nil {
+		// Preserve the SDK's preparation reason without its binding error wrapper.
+		var invalidInput *breez_sdk_spark.SdkErrorInvalidInput
+		if errors.As(err, &invalidInput) {
+			return nil, errp.New(invalidInput.Field0)
+		}
+		return nil, err
+	}
+	// The SDK checks the cheapest fee during preparation, but closing uses the fast fee.
+	if err := lightning.validateBitcoinPaymentAmountAgainstDustLimit(
+		destinationAddress,
+		bitcoinPaymentOutputAmountSat(fee, prepareResponse.FeePolicy),
+	); err != nil {
+		var amountBelowMinimum *lightningAmountBelowMinimumError
+		if errors.As(err, &amountBelowMinimum) {
+			// The user approves the full balance, so include fees in its required minimum.
+			return nil, &lightningAmountBelowMinimumError{minAmountSat: amountBelowMinimum.minAmountSat + fee.FeeSat}
+		}
 		return nil, err
 	}
 
