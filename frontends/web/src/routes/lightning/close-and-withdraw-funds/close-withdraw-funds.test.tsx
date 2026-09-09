@@ -6,6 +6,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TAccount, TAmountWithConversions } from '@/api/account';
+import * as keystoresApi from '@/api/keystores';
 import * as lightningApi from '@/api/lightning';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { LightningCloseWithdrawFunds } from './close-withdraw-funds';
@@ -69,8 +70,9 @@ const SettingsPage = () => {
   return <button onClick={() => navigate(-1)}>settings back</button>;
 };
 
-describe('Lightning Close & Withdraw back navigation', () => {
+describe('Lightning Close & Withdraw', () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     vi.clearAllMocks();
     setMobileViewport();
     vi.mocked(lightningApi.getLightningBalance).mockResolvedValue({
@@ -89,6 +91,56 @@ describe('Lightning Close & Withdraw back navigation', () => {
       fee: amount('100'),
       feeSat: 100,
     });
+  });
+
+  it('prompts to connect a BitBox without leaving close and withdraw when there are no accounts', async () => {
+    const connectAnyKeystore = vi.spyOn(keystoresApi, 'connectAnyKeystore').mockResolvedValue({
+      success: false,
+      errorCode: 'userAbort',
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/lightning/close-withdraw-funds']}>
+        <BackButtonProvider>
+          <Routes>
+            <Route path="/" element={<span>portfolio</span>} />
+            <Route
+              path="/lightning/close-withdraw-funds"
+              element={<LightningCloseWithdrawFunds activeAccounts={[]} hasAccounts={false} />}
+            />
+          </Routes>
+        </BackButtonProvider>
+      </MemoryRouter>
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: /connect/i }));
+
+    await waitFor(() => expect(connectAnyKeystore).toHaveBeenCalledOnce());
+    expect(screen.getByText('lightning.topUp.noBitcoinAccounts')).toBeInTheDocument();
+    expect(screen.queryByText('portfolio')).not.toBeInTheDocument();
+  });
+
+  it('opens Manage accounts when accounts exist but no Bitcoin account is active', async () => {
+    const connectAnyKeystore = vi.spyOn(keystoresApi, 'connectAnyKeystore');
+
+    render(
+      <MemoryRouter initialEntries={['/lightning/close-withdraw-funds']}>
+        <BackButtonProvider>
+          <Routes>
+            <Route
+              path="/lightning/close-withdraw-funds"
+              element={<LightningCloseWithdrawFunds activeAccounts={[]} hasAccounts />}
+            />
+            <Route path="/settings/manage-accounts" element={<span>manage accounts page</span>} />
+          </Routes>
+        </BackButtonProvider>
+      </MemoryRouter>
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: /manage/i }));
+
+    expect(await screen.findByText('manage accounts page')).toBeInTheDocument();
+    expect(connectAnyKeystore).not.toHaveBeenCalled();
   });
 
   it('blocks Android back while closing', async () => {

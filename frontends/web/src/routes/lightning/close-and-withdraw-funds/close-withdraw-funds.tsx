@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { connectAnyKeystore } from '@/api/keystores';
 import { getLightningBalance, postCloseWithdraw, postPrepareCloseWithdraw, type TCloseWithdrawQuote } from '@/api/lightning';
 import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
@@ -146,6 +147,13 @@ export const LightningCloseWithdrawFunds = ({
   }, [destinationAccountCode, mounted, quote]);
 
   const handleBack = () => navigate(-1);
+  const handleNoBitcoinAccountAction = async () => {
+    if (hasAccounts) {
+      navigate('/settings/manage-accounts');
+      return;
+    }
+    await connectAnyKeystore();
+  };
 
   const headerBackEnabled = (
     !btcAccounts.length
@@ -154,25 +162,14 @@ export const LightningCloseWithdrawFunds = ({
 
   const renderStep = () => {
     if (!btcAccounts.length) {
-      const primaryAction = (
-        hasAccounts
-          ? {
-            label: t('manageAccounts.title'),
-            route: '/settings/manage-accounts',
-          }
-          : {
-            label: t('welcome.connect'),
-            route: '/',
-          }
-      );
       return (
         <View textCenter verticallyCentered>
           <ViewContent>
             <p>{t('lightning.topUp.noBitcoinAccounts')}</p>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => navigate(primaryAction.route)}>
-              {primaryAction.label}
+            <Button primary onClick={handleNoBitcoinAccountAction}>
+              {hasAccounts ? t('manageAccounts.title') : t('welcome.connect')}
             </Button>
             <DesktopBackButton onClick={handleBack}>
               {t('button.back')}
