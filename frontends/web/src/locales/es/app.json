@@ -1864,7 +1864,7 @@
       "setLightningAddress": "Establecer dirección de Lightning",
       "status": "Estado",
       "statusConnected": "Conectado",
-      "title": "Ajustes de Lightning",
+      "title": "Configuración de Lightning",
       "wallet": "Billetera"
     },
     "sparkStatus": {
