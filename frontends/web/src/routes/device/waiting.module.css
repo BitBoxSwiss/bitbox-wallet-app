@@ -9,9 +9,23 @@
 }
 
 .waitingText {
-  margin-top: 0;
-  margin-bottom: var(--space-half);
   font-size: var(--size-subheader);
   font-weight: 400;
+  text-align: center;
+  margin: 0 auto var(--space-default) auto;
+  max-width: 260px;
+}
+@media (min-width: 769px) {
+  .waitingText {
+    max-width: 300px;
+  }
+}
+
+.footer {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 6rem;
   text-align: center;
 }

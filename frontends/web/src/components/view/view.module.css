@@ -75,6 +75,7 @@
     text-align: left;
 }
 @media (max-width: 768px) {
+    .fill.withMobileSafetyMargin,
     .fullscreen.withMobileSafetyMargin {
         padding-left: calc(var(--space-quarter) + env(safe-area-inset-left, 0px));
         padding-right: calc(var(--space-quarter) + env(safe-area-inset-right, 0px));
