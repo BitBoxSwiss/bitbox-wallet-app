@@ -27,4 +27,6 @@ export const runningOnMobile = () => {
   return runningInAndroid() || runningInIOS();
 };
 
-export const isLightningFeatureAvailable = () => debug || runningOnMobile();
+export const isLightningFeatureAvailable = (isTesting: boolean | undefined) => (
+  isTesting === false && (debug || runningOnMobile())
+);

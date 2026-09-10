@@ -53,6 +53,17 @@ func TestPortfolioDataWithInitializingLightning(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestPortfolioDataOmitsLightningOnTestnet(t *testing.T) {
+	b := newBackend(t, testnetEnabled, regtestDisabled)
+	defer b.Close()
+
+	require.NoError(t, b.lightning.SetAccount(&config.LightningAccountConfig{Code: "v0-test-ln-0"}))
+
+	balances, err := b.coinsTotalBalance()
+	require.NoError(t, err)
+	require.Empty(t, balances)
+}
+
 func TestInsertLightningFormattedBalance(t *testing.T) {
 	lightningBalance := coinFormattedAmount{CoinCode: coinCodeLightning}
 

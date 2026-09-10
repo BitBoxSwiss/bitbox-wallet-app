@@ -13,7 +13,7 @@ type AppContextProps = {
   guideShown: boolean;
   guideExists: boolean;
   hideAmounts: boolean;
-  isTesting: boolean;
+  isTesting: boolean | undefined;
   isDevServers: boolean;
   vendorIframeActive: boolean;
   isOnline?: boolean;

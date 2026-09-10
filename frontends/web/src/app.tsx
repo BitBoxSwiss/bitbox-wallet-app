@@ -17,7 +17,6 @@ import { getAccounts } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
-import { getLightningAccount, subscribeLightningAccount } from './api/lightning';
 import { syncNewTxs } from './api/transactions';
 import { notifyUser } from './api/system';
 import { ConnectedApp } from './connected';
@@ -35,7 +34,7 @@ import { Providers } from './contexts/providers';
 import { AppContext } from './contexts/AppContext';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
 import { getBottomNavKey, shouldShowBottomNavigation } from './components/bottom-navigation/utils';
-import { isLightningFeatureAvailable } from './utils/env';
+import { useLightning } from './hooks/lightning';
 import styles from './app.module.css';
 
 type TAppFrameProps = {
@@ -118,7 +117,7 @@ const AppFrame = ({
   );
 };
 
-export const App = () => {
+const AppContent = () => {
   usePlatformClass();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -128,17 +127,13 @@ export const App = () => {
 
   const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
-  const lightningFeatureAvailable = isLightningFeatureAvailable();
-  const lightningAccount = useSync(
-    lightningFeatureAvailable ? getLightningAccount : null,
-    lightningFeatureAvailable ? subscribeLightningAccount : null,
-  );
+  const { isLightningAvailable, lightningAccount } = useLightning();
   const prevDevices = usePrevious(devices);
 
   const deviceIDs = Object.keys(devices);
   const firstDevice = deviceIDs[0];
   const productName = firstDevice !== undefined && devices[firstDevice];
-  const hasLightningAccount = lightningFeatureAvailable && lightningAccount !== undefined && lightningAccount !== null;
+  const hasLightningAccount = isLightningAvailable && lightningAccount !== undefined && lightningAccount !== null;
 
   useEffect(() => {
     return syncNewTxs((meta) => {
@@ -174,7 +169,7 @@ export const App = () => {
     const shouldRedirectNoRegularAccount = (
       !canNavigateWithLightningAccount
       || lightningAccount === null
-      || !lightningFeatureAvailable
+      || !isLightningAvailable
     );
     if (accounts.length === 0 && requiresRegularAccount && shouldRedirectNoRegularAccount) {
       navigate('/');
@@ -225,7 +220,7 @@ export const App = () => {
       return;
     }
 
-  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, lightningAccount, lightningFeatureAvailable, navigate, productName]);
+  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, isLightningAvailable, lightningAccount, navigate, productName]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});
@@ -272,18 +267,22 @@ export const App = () => {
 
 
   return (
-    <ConnectedApp>
-      <Providers>
-        <AppFrame
-          accounts={accounts}
-          activeAccounts={activeAccounts}
-          devices={devices}
-          devicesKey={devicesKey}
-          hasLightningAccount={hasLightningAccount}
-          showBottomNavigation={showBottomNavigation}
-          tabKey={tabKey}
-        />
-      </Providers>
-    </ConnectedApp>
+    <AppFrame
+      accounts={accounts}
+      activeAccounts={activeAccounts}
+      devices={devices}
+      devicesKey={devicesKey}
+      hasLightningAccount={hasLightningAccount}
+      showBottomNavigation={showBottomNavigation}
+      tabKey={tabKey}
+    />
   );
 };
+
+export const App = () => (
+  <ConnectedApp>
+    <Providers>
+      <AppContent />
+    </Providers>
+  </ConnectedApp>
+);

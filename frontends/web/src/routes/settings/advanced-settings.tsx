@@ -22,7 +22,7 @@ import { Entry } from '@/components/guide/entry';
 import { EnableAuthSetting } from './components/advanced-settings/enable-auth-setting';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { AppContext } from '@/contexts/AppContext';
-import { isLightningFeatureAvailable } from '@/utils/env';
+import { useLightning } from '@/hooks/lightning';
 import {
   isExportLogsSettingVisible,
   isScreenLockSettingVisible,
@@ -70,13 +70,14 @@ export const AdvancedSettingsContent = ({
   devices,
 }: TProps) => {
   const { isTesting } = useContext(AppContext);
+  const { isLightningAvailable } = useLightning();
 
   const deviceIDs = Object.keys(devices);
   const sections: TSettingsContentSection[] = [
     {
       id: 'advanced-settings',
       items: [
-        ...(isLightningFeatureAvailable() ? [{
+        ...(isLightningAvailable ? [{
           id: 'lightning-settings',
           content: <LightningSettingsSetting />,
         }] : []),
@@ -89,7 +90,7 @@ export const AdvancedSettingsContent = ({
         { id: 'tor-proxy', content: <EnableTorProxySetting /> },
         { id: 'testnet-mode', content: <RestartInTestnetSetting /> },
         { id: 'gap-limit', content: <CustomGapLimitSettings /> },
-        ...(isTestWalletSettingVisible({ deviceIDs, isTesting }) ? [{
+        ...(isTestWalletSettingVisible({ deviceIDs, isTesting: isTesting === true }) ? [{
           id: 'test-wallet',
           content: <UnlockSoftwareKeystore />,
         }] : []),

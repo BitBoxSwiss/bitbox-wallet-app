@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode } from 'react';
+import { ReactNode, useContext } from 'react';
 import { LightningContext } from './LightningContext';
+import { AppContext } from './AppContext';
 import {
   getLightningAccount,
   getLightningSDKStatus,
@@ -16,16 +17,17 @@ type TProps = {
 };
 
 export const LightningProvider = ({ children }: TProps) => {
-  const lightningFeatureAvailable = isLightningFeatureAvailable();
+  const { isTesting } = useContext(AppContext);
+  const isLightningAvailable = isLightningFeatureAvailable(isTesting);
   const lightningAccount = useSync(
-    lightningFeatureAvailable ? getLightningAccount : null,
-    lightningFeatureAvailable ? subscribeLightningAccount : null,
+    isLightningAvailable ? getLightningAccount : null,
+    isLightningAvailable ? subscribeLightningAccount : null,
   );
   const sdkStatus = useSync(
-    lightningFeatureAvailable ? getLightningSDKStatus : null,
-    lightningFeatureAvailable ? subscribeLightningSDKStatus : null,
+    isLightningAvailable ? getLightningSDKStatus : null,
+    isLightningAvailable ? subscribeLightningSDKStatus : null,
   );
-  const lightningSDKStatus = lightningFeatureAvailable ? sdkStatus : 'inactive';
+  const lightningSDKStatus = isLightningAvailable ? sdkStatus : 'inactive';
   const isLightningReady = (
     lightningSDKStatus === undefined
       ? undefined
@@ -35,8 +37,9 @@ export const LightningProvider = ({ children }: TProps) => {
   return (
     <LightningContext.Provider
       value={{
+        isLightningAvailable,
         isLightningReady,
-        lightningAccount: lightningFeatureAvailable ? lightningAccount : null,
+        lightningAccount: isLightningAvailable ? lightningAccount : null,
         lightningSDKStatus,
       }}>
       {children}

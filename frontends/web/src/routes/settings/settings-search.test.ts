@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TFunction } from 'i18next';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   filterSettingsSearchItems,
   getSettingsSearchItems,
 } from './settings-search';
 
-const isLightningFeatureAvailableMock = vi.hoisted(() => vi.fn(() => true));
-
 vi.mock('@/utils/env', () => ({
   debug: false,
-  isLightningFeatureAvailable: isLightningFeatureAvailableMock,
   runningInAndroid: () => false,
   runningInIOS: () => false,
 }));
@@ -28,20 +25,18 @@ const t = ((key: string) => translations[key] || key) as TFunction;
 const getItems = (
   hasSoftwareKeystore: boolean,
   isLightningEnabled: boolean | undefined,
+  isLightningAvailable = true,
 ) => getSettingsSearchItems({
   devices: {},
   hasAccounts: true,
   hasSoftwareKeystore,
+  isLightningAvailable,
   isLightningEnabled,
   isTesting: true,
   t,
 });
 
 describe('settings search', () => {
-  beforeEach(() => {
-    isLightningFeatureAvailableMock.mockReturnValue(true);
-  });
-
   it('uses the connect title for the test wallet setting when no software wallet exists', () => {
     const results = filterSettingsSearchItems(getItems(false, true), 'test wallet');
 
@@ -90,9 +85,7 @@ describe('settings search', () => {
   });
 
   it('hides the lightning setting when the lightning feature is unavailable', () => {
-    isLightningFeatureAvailableMock.mockReturnValue(false);
-
-    const results = filterSettingsSearchItems(getItems(false, true), 'lightning');
+    const results = filterSettingsSearchItems(getItems(false, true, false), 'lightning');
 
     expect(results).toEqual([]);
   });

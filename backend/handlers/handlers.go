@@ -283,10 +283,12 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/online", handlers.getOnline).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore/show-backup-banner/{rootFingerprint}", handlers.getKeystoreShowBackupBanner).Methods("GET")
 
-	lightning.NewHandlers(
-		getAPIRouterNoError(apiRouter.PathPrefix("/lightning").Subrouter()),
-		backend.Lightning(),
-	)
+	if !backend.Testing() {
+		lightning.NewHandlers(
+			getAPIRouterNoError(apiRouter.PathPrefix("/lightning").Subrouter()),
+			backend.Lightning(),
+		)
+	}
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
