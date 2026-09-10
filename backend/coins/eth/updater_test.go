@@ -17,7 +17,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/mocks"
 	rpcclientmocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -99,13 +98,10 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 	coin := eth.NewCoin(client, coin.CodeSEPETH, "Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig, "", nil, erc20Token)
 	acct := eth.NewAccount(
 		&accounts.AccountConfig{
-			Config: &config.Account{
-				Code:                  "accountcode",
-				Name:                  "accountname",
-				SigningConfigurations: signingConfigurations,
-			},
-			GetNotifier: func(signing.Configurations) accounts.Notifier { return noopNotifier{} },
-			DBFolder:    dbFolder,
+			Code:                  "accountcode",
+			SigningConfigurations: signingConfigurations,
+			GetNotifier:           func(signing.Configurations) accounts.Notifier { return noopNotifier{} },
+			DBFolder:              dbFolder,
 		},
 		coin,
 		&http.Client{},

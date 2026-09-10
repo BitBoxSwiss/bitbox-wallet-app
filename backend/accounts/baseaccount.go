@@ -15,7 +15,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
@@ -32,9 +31,10 @@ const (
 
 // AccountConfig holds account configuration.
 type AccountConfig struct {
-	// Pointer to persisted config. Do not modify this directly. Use
-	// `backend.config.ModifyAccountsConfig()` instead.
-	Config   *config.Account
+	// Code and SigningConfigurations are immutable construction data.
+	Code                  types.Code
+	SigningConfigurations signing.Configurations
+
 	DBFolder string
 	// SkipInitialSync suppresses the ETH init-time per-account update when a batch sync will
 	// refresh the account right after loading.
@@ -47,6 +47,8 @@ type AccountConfig struct {
 	GetMainCurrency func() string
 	GetNotifier     func(signing.Configurations) Notifier
 	GetSaveFilename func(suggestedFilename string) string
+	// IsInsured resolves mutable insurance metadata from persisted account data.
+	IsInsured func() bool
 	// Opens a file in a default application. The filename is not checked.
 	UnsafeSystemOpen func(filename string) error
 }
@@ -97,6 +99,11 @@ func NewBaseAccount(config *AccountConfig, coin coin.Coin, log *logrus.Entry) *B
 // Config implements Interface.
 func (account *BaseAccount) Config() *AccountConfig {
 	return account.config
+}
+
+// IsInsured returns the current persisted insurance state.
+func (account *BaseAccount) IsInsured() bool {
+	return account.config.IsInsured != nil && account.config.IsInsured()
 }
 
 // Coin implements accounts.Interface.
@@ -176,10 +183,11 @@ func (account *BaseAccount) Notes() *notes.Notes {
 // Migrate legacy notes (notes stored in files based on obsolete account identifiers). Account
 // identifiers changed from v4.27.0 to v4.28.0.
 func (account *BaseAccount) migrateLegacyNotes() error {
-	if len(account.Config().Config.SigningConfigurations) == 0 {
+	signingConfigurations := account.Config().SigningConfigurations
+	if len(signingConfigurations) == 0 {
 		return nil
 	}
-	accountNumber, err := account.Config().Config.SigningConfigurations[0].AccountNumber()
+	accountNumber, err := signingConfigurations[0].AccountNumber()
 	if err != nil {
 		return nil
 	}
@@ -188,13 +196,13 @@ func (account *BaseAccount) migrateLegacyNotes() error {
 		return nil
 	}
 
-	legacyConfigurations := signing.ConvertToLegacyConfigurations(account.Config().Config.SigningConfigurations)
+	legacyConfigurations := signing.ConvertToLegacyConfigurations(signingConfigurations)
 	var legacyAccountIdentifiers []string
 	switch account.coin.Code() {
 	case coin.CodeBTC, coin.CodeTBTC, coin.CodeLTC, coin.CodeTLTC:
 		legacyAccountIdentifiers = []string{fmt.Sprintf("account-%s-%s", legacyConfigurations.Hash(), account.coin.Code())}
 		// Also consider split accounts:
-		for _, cfg := range account.Config().Config.SigningConfigurations {
+		for _, cfg := range signingConfigurations {
 			legacyConfigurations := signing.ConvertToLegacyConfigurations(signing.Configurations{cfg})
 			legacyAccountIdentifier := fmt.Sprintf("account-%s-%s-%s", legacyConfigurations.Hash(), account.coin.Code(), cfg.ScriptType())
 			legacyAccountIdentifiers = append(

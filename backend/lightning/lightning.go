@@ -21,6 +21,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
@@ -69,12 +70,13 @@ type breezSDK interface {
 type Lightning struct {
 	observable.Implementation
 
-	backendConfig      *config.Config
-	cacheDirectoryPath string
-	environment        environment
-	getKeystore        func() keystore.Keystore
-	getAccount         func(types.Code) (accounts.Interface, error)
-	synced             bool
+	backendConfig        *config.Config
+	cacheDirectoryPath   string
+	environment          environment
+	getKeystore          func() keystore.Keystore
+	getAccount           func(types.Code) (accounts.Interface, error)
+	getReceiveScriptType func(types.Code) (*signing.ScriptType, error)
+	synced               bool
 
 	log          *logrus.Entry
 	sdkService   breezSDK
@@ -93,21 +95,23 @@ func NewLightning(config *config.Config,
 	environment environment,
 	getKeystore func() keystore.Keystore,
 	getAccount func(types.Code) (accounts.Interface, error),
+	getReceiveScriptType func(types.Code) (*signing.ScriptType, error),
 	httpClient *http.Client,
 	ratesUpdater *rates.RateUpdater,
 	btcCoin coin.Coin) *Lightning {
 	return &Lightning{
-		backendConfig:      config,
-		cacheDirectoryPath: cacheDirectoryPath,
-		environment:        environment,
-		getKeystore:        getKeystore,
-		getAccount:         getAccount,
-		log:                logging.Get().WithGroup("lightning"),
-		synced:             false,
-		sparkStatus:        breez_sdk_spark.GetSparkStatus,
-		httpClient:         httpClient,
-		ratesUpdater:       ratesUpdater,
-		btcCoin:            btcCoin,
+		backendConfig:        config,
+		cacheDirectoryPath:   cacheDirectoryPath,
+		environment:          environment,
+		getKeystore:          getKeystore,
+		getAccount:           getAccount,
+		getReceiveScriptType: getReceiveScriptType,
+		log:                  logging.Get().WithGroup("lightning"),
+		synced:               false,
+		sparkStatus:          breez_sdk_spark.GetSparkStatus,
+		httpClient:           httpClient,
+		ratesUpdater:         ratesUpdater,
+		btcCoin:              btcCoin,
 	}
 }
 

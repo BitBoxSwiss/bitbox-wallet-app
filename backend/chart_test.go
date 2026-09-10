@@ -21,5 +21,5 @@ func TestChartCoinCodesIncludesBitcoinForLightning(t *testing.T) {
 		Number:          0,
 	}))
 
-	require.Equal(t, []string{string(coinpkg.CodeBTC)}, b.chartCoinCodes())
+	require.Equal(t, []string{string(coinpkg.CodeBTC)}, b.chartCoinCodes(b.Accounts()))
 }

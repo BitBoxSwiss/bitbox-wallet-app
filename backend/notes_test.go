@@ -72,15 +72,15 @@ func (s *notesTestSuite) SetupTest() {
 
 	s.backend.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 		accountMock := MockBtcAccount(s.T(), config, coin, gapLimits, log)
-		accountMock.NotesFunc = notesFunc(config.Config.Code)
-		accountMock.TransactionsFunc = transactionsFunc(config.Config.Code)
+		accountMock.NotesFunc = notesFunc(config.Code)
+		accountMock.TransactionsFunc = transactionsFunc(config.Code)
 
 		return accountMock
 	}
 	s.backend.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
 		accountMock := MockEthAccount(config, coin, httpClient, log)
-		accountMock.NotesFunc = notesFunc(config.Config.Code)
-		accountMock.TransactionsFunc = transactionsFunc(config.Config.Code)
+		accountMock.NotesFunc = notesFunc(config.Code)
+		accountMock.TransactionsFunc = transactionsFunc(config.Code)
 		return accountMock
 	}
 
@@ -118,11 +118,11 @@ func (s *notesTestSuite) TestExport() {
 	s.Require().NoError(s.backend.RenameAccount("v0-55555555-btc-0", "My BTC"))
 	s.Require().NoError(s.backend.RenameAccount("v0-55555555-eth-0", "My ETH"))
 
-	_, err := btcAcct.Notes().SetTxNote("btc-tx-id", "test btc note")
+	_, err := btcAcct.Account.Notes().SetTxNote("btc-tx-id", "test btc note")
 	s.Require().NoError(err)
-	_, err = ethAcct.Notes().SetTxNote("eth-tx-id", "test eth note")
+	_, err = ethAcct.Account.Notes().SetTxNote("eth-tx-id", "test eth note")
 	s.Require().NoError(err)
-	_, err = erc20Acct.Notes().SetTxNote("erc20-tx-id", "test erc20 note")
+	_, err = erc20Acct.Account.Notes().SetTxNote("erc20-tx-id", "test erc20 note")
 	s.Require().NoError(err)
 
 	var export bytes.Buffer
@@ -145,9 +145,6 @@ func (s *notesTestSuite) TestNotesImport() {
 	btcAcct := s.backend.Accounts().lookup("v0-55555555-btc-0")
 	s.Require().NotNil(btcAcct)
 
-	ltcAcct := s.backend.Accounts().lookup("v0-55555555-ltc-0")
-	s.Require().NotNil(btcAcct)
-
 	ethAcct := s.backend.Accounts().lookup("v0-55555555-eth-0")
 	s.Require().NotNil(ethAcct)
 
@@ -155,7 +152,7 @@ func (s *notesTestSuite) TestNotesImport() {
 	s.Require().NotNil(erc20Acct)
 
 	// Sanity check that there are no notes.
-	s.Require().Empty(btcAcct.Notes().TxNote("btc-tx-id"))
+	s.Require().Empty(btcAcct.Account.Notes().TxNote("btc-tx-id"))
 
 	export := `{"type":"xpub","ref":"xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn","label":"My BTC","bitboxapp":{"coinCode":"btc","code":"v0-55555555-btc-0"}}
 {"type":"xpub","ref":"xpub6CC9Tsi4eJvmRsGuXwKBfHDWUWN66voNeZFmXRJhYZS6yYgXKZmtz5qnxK9WL2FZP8uF3abyFZ29d7RfMks4FjCCu4LMh3edyeCoyEFuZLZ","label":"My BTC","bitboxapp":{"coinCode":"btc","code":"v0-55555555-btc-0"}}
@@ -180,19 +177,16 @@ func (s *notesTestSuite) TestNotesImport() {
 		},
 		result)
 
-	s.Require().Equal("test btc note", btcAcct.Notes().TxNote("btc-tx-id"))
-	s.Require().Equal("test eth note", ethAcct.Notes().TxNote("eth-tx-id"))
-	s.Require().Equal("test erc20 note", erc20Acct.Notes().TxNote("erc20-tx-id"))
-	s.Require().Equal("My BTC", btcAcct.Config().Config.Name)
-	s.Require().Equal("Litecoin", ltcAcct.Config().Config.Name)
-	s.Require().Equal("My ETH", ethAcct.Config().Config.Name)
+	s.Require().Equal("test btc note", btcAcct.Account.Notes().TxNote("btc-tx-id"))
+	s.Require().Equal("test eth note", ethAcct.Account.Notes().TxNote("eth-tx-id"))
+	s.Require().Equal("test erc20 note", erc20Acct.Account.Notes().TxNote("erc20-tx-id"))
+	s.Require().Equal("My BTC", s.backend.Accounts().lookup("v0-55555555-btc-0").Record.Name)
+	s.Require().Equal("Litecoin", s.backend.Accounts().lookup("v0-55555555-ltc-0").Record.Name)
+	s.Require().Equal("My ETH", s.backend.Accounts().lookup("v0-55555555-eth-0").Record.Name)
 }
 
 func (s *notesTestSuite) TestNotesImportWithoutBitBoxAppData() {
 	btcAcct := s.backend.Accounts().lookup("v0-55555555-btc-0")
-	s.Require().NotNil(btcAcct)
-
-	ltcAcct := s.backend.Accounts().lookup("v0-55555555-ltc-0")
 	s.Require().NotNil(btcAcct)
 
 	ethAcct := s.backend.Accounts().lookup("v0-55555555-eth-0")
@@ -202,7 +196,7 @@ func (s *notesTestSuite) TestNotesImportWithoutBitBoxAppData() {
 	s.Require().NotNil(erc20Acct)
 
 	// Sanity check that there are no notes.
-	s.Require().Empty(btcAcct.Notes().TxNote("btc-tx-id"))
+	s.Require().Empty(btcAcct.Account.Notes().TxNote("btc-tx-id"))
 
 	veryLong := strings.Repeat("a", 2000)
 	export := fmt.Sprintf(
@@ -228,13 +222,13 @@ func (s *notesTestSuite) TestNotesImportWithoutBitBoxAppData() {
 		},
 		result)
 
-	s.Require().Equal("test btc note", btcAcct.Notes().TxNote("btc-tx-id"))
-	s.Require().Equal("test eth note", ethAcct.Notes().TxNote("eth-tx-id"))
+	s.Require().Equal("test btc note", btcAcct.Account.Notes().TxNote("btc-tx-id"))
+	s.Require().Equal("test eth note", ethAcct.Account.Notes().TxNote("eth-tx-id"))
 	// Truncated to 1024 chars.
-	s.Require().Equal(veryLong[:1024], erc20Acct.Notes().TxNote("erc20-tx-id"))
-	s.Require().Equal("My BTC", btcAcct.Config().Config.Name)
-	s.Require().Equal("Litecoin", ltcAcct.Config().Config.Name)
-	s.Require().Equal("My ETH", ethAcct.Config().Config.Name)
+	s.Require().Equal(veryLong[:1024], erc20Acct.Account.Notes().TxNote("erc20-tx-id"))
+	s.Require().Equal("My BTC", s.backend.Accounts().lookup("v0-55555555-btc-0").Record.Name)
+	s.Require().Equal("Litecoin", s.backend.Accounts().lookup("v0-55555555-ltc-0").Record.Name)
+	s.Require().Equal("My ETH", s.backend.Accounts().lookup("v0-55555555-eth-0").Record.Name)
 }
 
 func (s *notesTestSuite) TestNotesInvalidLine() {
@@ -255,5 +249,5 @@ INVALID LINE
 	// Check that a note before the invalid line was not imported.
 	btcAcct := s.backend.Accounts().lookup("v0-55555555-btc-0")
 	s.Require().NotNil(btcAcct)
-	s.Require().Equal("", btcAcct.Notes().TxNote("btc-tx-id"))
+	s.Require().Equal("", btcAcct.Account.Notes().TxNote("btc-tx-id"))
 }
