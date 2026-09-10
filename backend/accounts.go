@@ -529,7 +529,7 @@ func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([
 
 	// if any account insurance status changed, persist the change and reinitialize the accounts.
 	statusChange := false
-	err = backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err = backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		for _, bitsuranceAccount := range bitsuranceAccounts {
 			bitsuranceStatus := string(bitsuranceAccount.Status)
 			accountConfig := accountsConfig.Lookup(bitsuranceAccount.AccountCode)
@@ -657,7 +657,11 @@ func (backend *Backend) createAndPersistAccountConfig(
 // CanAddAccount returns true if it is possible to add an account for the given coin and keystore,
 // along with a suggested name for the account.
 func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.Keystore) (string, bool) {
-	conf := backend.config.AccountsConfig()
+	conf, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records")
+		return "", false
+	}
 	// If there is an unused hidden account, that one would be activated when adding a new
 	// account. See `CreateAndPersistAccountConfig` for details.
 	hiddenAccount, err := findHiddenAccount(coinCode, keystore, &conf)
@@ -692,7 +696,7 @@ func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.K
 func (backend *Backend) CreateAndPersistAccountConfig(
 	coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accountsTypes.Code, error) {
 	var accountCode accountsTypes.Code
-	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		hiddenAccount, err := findHiddenAccount(coinCode, keystore, accountsConfig)
 		if err != nil {
 			return err
@@ -722,7 +726,7 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 
 // SetAccountActive activates/deactivates an account.
 func (backend *Backend) SetAccountActive(accountCode accountsTypes.Code, active bool) error {
-	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(accountCode)
 		if acct == nil {
 			return errp.Newf("Could not find account %s", accountCode)
@@ -740,7 +744,7 @@ func (backend *Backend) SetAccountActive(accountCode accountsTypes.Code, active 
 // SetTokenActive activates/deactivates an token on an account. `tokenCode` must be an ERC20 token
 // code, e.g. "eth-erc20-usdt", "eth-erc20-bat", etc.
 func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error {
-	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(accountCode)
 		if acct == nil {
 			return errp.Newf("Could not find account %s", accountCode)
@@ -762,7 +766,7 @@ func (backend *Backend) SetAccountReceiveScriptType(
 	accountCode accountsTypes.Code,
 	scriptType signing.ScriptType,
 ) error {
-	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(accountCode)
 		if acct == nil {
 			return errp.Newf("Could not find account %s", accountCode)
@@ -788,7 +792,7 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	if name == "" {
 		return errp.New("Name cannot be empty")
 	}
-	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(accountCode)
 		if acct == nil {
 			return errp.Newf("Could not find account %s", accountCode)
@@ -808,7 +812,7 @@ func (backend *Backend) updateKeystoreName(rootFingerprint []byte, name string) 
 	if name == "" {
 		return errp.New("Name cannot be empty")
 	}
-	if err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	if err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		accountsConfig.GetOrAddKeystore(rootFingerprint).Name = name
 		return nil
 	}); err != nil {
@@ -856,9 +860,12 @@ func (backend *Backend) ConnectKeystore(rootFingerprint []byte) (keystore.Keysto
 		ErrorMessage string `json:"errorMessage"`
 	}
 	var keystoreName string
-	persistedKeystore, err := backend.config.AccountsConfig().LookupKeystore(rootFingerprint)
+	accountsConfig, err := backend.accountsDB.Snapshot()
 	if err == nil {
-		keystoreName = persistedKeystore.Name
+		persistedKeystore, lookupErr := accountsConfig.LookupKeystore(rootFingerprint)
+		if lookupErr == nil {
+			keystoreName = persistedKeystore.Name
+		}
 	}
 	var ks keystore.Keystore
 	timeout := 20 * time.Minute
@@ -1528,7 +1535,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 			continue
 		}
 		var newAccountCode *accountsTypes.Code
-		err = backend.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+		err = backend.accountsDB.Update(func(cfg *config.AccountsConfig) error {
 			newAccountCode = do(cfg, coinCode)
 			return nil
 		})
@@ -1574,7 +1581,7 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 	}
 	log.Info("marking account as used")
 	var emitUpdate bool
-	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(account.Config().Config.Code)
 		if acct == nil {
 			return errp.Newf("could not find account")

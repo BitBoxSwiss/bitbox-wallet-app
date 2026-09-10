@@ -131,8 +131,9 @@ func (backend *Backend) SwapStatus() SwapStatus {
 	}
 }
 
-func (backend *Backend) connectedKeystoreConfig() (*config.Keystore, error) {
-	persistedAccounts := backend.config.AccountsConfig()
+func (backend *Backend) connectedKeystoreConfig(
+	persistedAccounts config.AccountsConfig,
+) (*config.Keystore, error) {
 	connectedKeystore := backend.Keystore()
 	if connectedKeystore == nil {
 		return nil, nil
@@ -152,7 +153,11 @@ func (backend *Backend) connectedKeystoreConfig() (*config.Keystore, error) {
 // The buy side includes inactive accounts/tokens so they can be activated on demand,
 // while the sell side includes only currently active accounts/tokens.
 func (backend *Backend) swapAccounts() ([]SwapAccount, []SwapAccount, error) {
-	connectedKeystore, err := backend.connectedKeystoreConfig()
+	persistedAccounts, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return nil, nil, err
+	}
+	connectedKeystore, err := backend.connectedKeystoreConfig(persistedAccounts)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -162,7 +167,6 @@ func (backend *Backend) swapAccounts() ([]SwapAccount, []SwapAccount, error) {
 
 	sellAccounts := []SwapAccount{}
 	buyAccounts := []SwapAccount{}
-	persistedAccounts := backend.config.AccountsConfig()
 	for _, persistedAccount := range persistedAccounts.Accounts {
 		if persistedAccount.HiddenBecauseUnused {
 			continue
@@ -409,7 +413,11 @@ func (backend *Backend) activateSwapBuyAccount(buyAccountCode accountsTypes.Code
 			continue
 		}
 		if account.ParentAccountCode != nil {
-			if parentAccount := backend.config.AccountsConfig().Lookup(*account.ParentAccountCode); parentAccount != nil && parentAccount.Inactive {
+			accountsConfig, err := backend.accountsDB.Snapshot()
+			if err != nil {
+				return err
+			}
+			if parentAccount := accountsConfig.Lookup(*account.ParentAccountCode); parentAccount != nil && parentAccount.Inactive {
 				if err := backend.SetAccountActive(*account.ParentAccountCode, true); err != nil {
 					return err
 				}

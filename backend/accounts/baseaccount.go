@@ -33,7 +33,7 @@ const (
 // AccountConfig holds account configuration.
 type AccountConfig struct {
 	// Pointer to persisted config. Do not modify this directly. Use
-	// `backend.config.ModifyAccountsConfig()` instead.
+	// `backend.accountsDB.Update()` instead.
 	Config   *config.Account
 	DBFolder string
 	// SkipInitialSync suppresses the ETH init-time per-account update when a batch sync will
