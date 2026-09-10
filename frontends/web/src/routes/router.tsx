@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactChild } from 'react';
-import { Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { TAccount } from '@/api/account';
 import { TDevices } from '@/api/devices';
 import { AddAccount } from './account/add/add-account';
@@ -54,6 +54,8 @@ import { LightningTopUp } from './lightning/topup/topup';
 import { LightningClaimTopUp } from './lightning/claim-top-up/claim-top-up';
 import { LightningCloseWithdrawFunds } from './lightning/close-and-withdraw-funds/close-withdraw-funds';
 import { isLightningFeatureAvailable } from '@/utils/env';
+import { isLightningRoute } from '@/utils/route';
+import { LightningTestnetGuard } from './lightning/testnet-warning';
 
 type TAppRouterProps = {
   devices: TDevices;
@@ -81,6 +83,7 @@ export const AppRouter = ({
 }: TAppRouterProps) => {
   const hasAccounts = accounts.length > 0;
   const lightningFeatureAvailable = isLightningFeatureAvailable();
+  const { pathname } = useLocation();
   const Homepage = (<DeviceSwitch
     key={devicesKey('device-switch-default')}
     deviceID={null}
@@ -304,7 +307,7 @@ export const AppRouter = ({
 
   const AllAccountsEl = <InjectParams><AllAccounts accounts={activeAccounts} /></InjectParams>;
 
-  return (
+  const routes = (
     <Routes>
       <Route path="/">
         <Route index element={Homepage} />
@@ -408,5 +411,11 @@ export const AppRouter = ({
         </Route>
       </Route>
     </Routes>
+  );
+
+  return (
+    <LightningTestnetGuard active={lightningFeatureAvailable && isLightningRoute(pathname)}>
+      {routes}
+    </LightningTestnetGuard>
   );
 };
