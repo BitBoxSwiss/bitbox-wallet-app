@@ -146,8 +146,10 @@ func (coin *Coin) unitFactor(isFee bool) *big.Int {
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
 	factor := coin.unitFactor(isFee)
-	s := new(big.Rat).SetFrac(amount.BigInt(), factor).FloatString(18)
-	s = strings.TrimRight(strings.TrimRight(s, "0"), ".")
+	s := new(big.Rat).SetFrac(amount.BigInt(), factor).FloatString(int(coin.Decimals(isFee)))
+	if strings.ContainsRune(s, '.') {
+		s = strings.TrimRight(strings.TrimRight(s, "0"), ".")
+	}
 	// For USDC/USDT, display 2 decimals when there's only 1
 	if coin.unit == "USDC" || coin.unit == "USDT" {
 		parts := strings.Split(s, ".")
