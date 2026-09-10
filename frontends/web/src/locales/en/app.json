@@ -2264,6 +2264,8 @@
     "scanQR": "Scan QR code",
     "scanQRInstruction": "Point your camera at an address QR code",
     "scanQRNoCameraMessage": "Camera not found. Please ensure that your device supports a camera and permissions are correctly set.",
+    "scanQRSelectCamera": "Select camera",
+    "scanQRSwitchCamera": "Switch between front and back camera",
     "scanQRToggleFlash": "Toggle flashlight",
     "sendToAccount": {
       "placeholder": "Select account",
