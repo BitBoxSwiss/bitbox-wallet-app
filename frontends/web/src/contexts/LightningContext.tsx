@@ -4,6 +4,7 @@ import { createContext } from 'react';
 import { TLightningAccount, TLightningSDKStatus } from '@/api/lightning';
 
 type Props = {
+  isLightningAvailable: boolean;
   isLightningReady: boolean | undefined;
   lightningAccount: TLightningAccount | null | undefined;
   lightningSDKStatus: TLightningSDKStatus | undefined;

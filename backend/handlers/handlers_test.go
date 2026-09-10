@@ -90,6 +90,46 @@ func TestGetNativeLocale(t *testing.T) {
 	}
 }
 
+func TestLightningRoutesAvailableOnlyOnMainnet(t *testing.T) {
+	tests := []struct {
+		name               string
+		testing            bool
+		expectedStatusCode int
+	}{
+		{
+			name:               "mainnet",
+			expectedStatusCode: http.StatusOK,
+		},
+		{
+			name:               "testnet",
+			testing:            true,
+			expectedStatusCode: http.StatusNotFound,
+		},
+	}
+
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			args := arguments.NewArguments(
+				test.TstTempDir("lightning-routes"),
+				testCase.testing,
+				false,
+				true,
+				nil,
+			)
+			back, err := backend.NewBackend(args, &backendEnv{})
+			require.NoError(t, err)
+			defer back.Close()
+
+			h := handlers.NewHandlers(back, handlers.NewConnectionData(0, ""))
+			request := httptest.NewRequest(http.MethodGet, "/api/lightning/account", nil)
+			recorder := httptest.NewRecorder()
+			h.Router.ServeHTTP(recorder, request)
+
+			require.Equal(t, testCase.expectedStatusCode, recorder.Code)
+		})
+	}
+}
+
 func TestConnectKeystoreRequiredFeature(t *testing.T) {
 	args := arguments.NewArguments(
 		test.TstTempDir("connect-keystore-feature"),

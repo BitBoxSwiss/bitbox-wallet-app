@@ -53,7 +53,7 @@ import { Receive as LightningReceive } from './lightning/receive/receive';
 import { LightningTopUp } from './lightning/topup/topup';
 import { LightningClaimTopUp } from './lightning/claim-top-up/claim-top-up';
 import { LightningCloseWithdrawFunds } from './lightning/close-and-withdraw-funds/close-withdraw-funds';
-import { isLightningFeatureAvailable } from '@/utils/env';
+import { useLightning } from '@/hooks/lightning';
 
 type TAppRouterProps = {
   devices: TDevices;
@@ -79,8 +79,8 @@ export const AppRouter = ({
   activeAccounts,
   showBottomNavigation,
 }: TAppRouterProps) => {
+  const { isLightningAvailable } = useLightning();
   const hasAccounts = accounts.length > 0;
-  const lightningFeatureAvailable = isLightningFeatureAvailable();
   const Homepage = (<DeviceSwitch
     key={devicesKey('device-switch-default')}
     deviceID={null}
@@ -355,7 +355,7 @@ export const AppRouter = ({
           <Route path="pocket-otc" element={<PocketOTC/>} />
           <Route path="swap" element={SwapEl} />
         </Route>
-        {lightningFeatureAvailable ? (
+        {isLightningAvailable ? (
           <Route path="lightning">
             <Route index element={<Lightning />} />
             <Route path="activate" element={<LightningActivate />} />
@@ -393,7 +393,7 @@ export const AppRouter = ({
           <Route path="advanced-settings" element={AdvancedSettingsEl} />
           <Route
             path="lightning-settings"
-            element={lightningFeatureAvailable
+            element={isLightningAvailable
               ? <LightningSettings />
               : <Navigate replace to="/settings/advanced-settings" />}
           />

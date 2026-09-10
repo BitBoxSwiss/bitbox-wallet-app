@@ -24,7 +24,6 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { BackupReminder } from '@/components/banners/backup';
 import { OfflineError } from '@/components/banners/offline-error';
-import { isLightningFeatureAvailable } from '@/utils/env';
 import style from './accountssummary.module.css';
 
 type TProps = {
@@ -43,7 +42,7 @@ export const AccountsSummary = ({
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
   const { defaultCurrency } = useContext(RatesContext);
-  const { lightningAccount, lightningSDKStatus } = useLightning();
+  const { isLightningAvailable, lightningAccount, lightningSDKStatus } = useLightning();
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
   const hasActiveBitcoinAccount = accounts.some(account => account.active && isBitcoinOnly(account.coinCode));
@@ -71,7 +70,7 @@ export const AccountsSummary = ({
       coinUnit: account.coinUnit,
     }] : [];
   });
-  if (lightningAccount && isLightningFeatureAvailable()) {
+  if (lightningAccount && isLightningAvailable) {
     const bitcoinIndex = coinBalancePlaceholders.findIndex(balance => balance.coinCode === 'btc');
     coinBalancePlaceholders.splice(bitcoinIndex + 1, 0, {
       coinCode: 'lightning',
@@ -82,7 +81,7 @@ export const AccountsSummary = ({
   const coinsTotalBalance = (
     accountsBalanceSummary
       ? accountsBalanceSummary.coinsTotalBalance.filter(balance => (
-        balance.coinCode !== 'lightning' || isLightningFeatureAvailable()
+        balance.coinCode !== 'lightning' || isLightningAvailable
       ))
       : coinBalancePlaceholders.length > 0 ? coinBalancePlaceholders : undefined
   );

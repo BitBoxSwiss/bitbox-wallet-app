@@ -794,7 +794,9 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.started = true
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
-	go backend.lightning.Connect()
+	if !backend.Testing() {
+		go backend.lightning.Connect()
+	}
 
 	go backend.ethupdater.PollBalances()
 

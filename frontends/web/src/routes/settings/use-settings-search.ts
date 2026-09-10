@@ -29,7 +29,7 @@ export const useSettingsSearch = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const searchTerm = searchParams.get(SETTINGS_SEARCH_QUERY_PARAM) || '';
   const keystores = useKeystores();
-  const { lightningAccount } = useLightning();
+  const { isLightningAvailable, lightningAccount } = useLightning();
   const hasSoftwareKeystore = keystores?.some(({ type }) => type === 'software') ?? false;
   const deviceId = Object.keys(devices)[0];
   const device = deviceId ? devices[deviceId] : undefined;
@@ -43,13 +43,14 @@ export const useSettingsSearch = ({
     deviceInfo,
     devices,
     hasAccounts,
+    isLightningAvailable,
     isLightningEnabled: lightningAccount === undefined
       ? undefined
       : lightningAccount !== null,
     hasSoftwareKeystore,
-    isTesting,
+    isTesting: isTesting === true,
     t,
-  }), [deviceInfo, devices, hasAccounts, hasSoftwareKeystore, isTesting, lightningAccount, t]);
+  }), [deviceInfo, devices, hasAccounts, hasSoftwareKeystore, isLightningAvailable, isTesting, lightningAccount, t]);
   const searchResults = useMemo(
     () => filterSettingsSearchItems(searchItems, searchTerm),
     [searchItems, searchTerm],
