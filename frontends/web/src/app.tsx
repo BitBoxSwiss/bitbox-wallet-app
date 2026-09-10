@@ -24,6 +24,7 @@ import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
 import { Aopp } from './components/aopp/aopp';
 import { Confirm } from './components/confirm/Confirm';
+import { ExternalLinkPrompt } from './components/external-link-prompt/external-link-prompt';
 import { KeystoreConnectPrompt } from './components/keystoreconnectprompt';
 import { Sidebar } from './components/sidebar/sidebar';
 import { RouterWatcher } from './utils/route';
@@ -113,6 +114,7 @@ const AppFrame = ({
         )}
         <Alert />
         <Confirm />
+        <ExternalLinkPrompt />
       </div>
     </>
   );

@@ -91,6 +91,11 @@ func handleURI(uri *C.cchar_t) {
 	bridgecommon.HandleURI(C.GoString(uri))
 }
 
+//export externalLinkRequested
+func externalLinkRequested(url *C.cchar_t) {
+	bridgecommon.ExternalLinkRequested(C.GoString(url))
+}
+
 func matchDarkTheme(themeName string) bool {
 	return strings.Contains(strings.ToLower(themeName), "dark")
 }

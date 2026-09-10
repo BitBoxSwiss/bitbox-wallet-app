@@ -309,12 +309,13 @@ struct WebView: UIViewRepresentable {
         }
         
         func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-            // Intercept target=_blank link clicks and open them in the system browser.
+            // Intercept target=_blank link clicks and ask the frontend to confirm before opening
+            // them in the system browser.
             // This opens e.g. the cookie policy and other external links in the Moonpay/Pocket widgets, etc.
             if navigationAction.targetFrame == nil || !navigationAction.targetFrame!.isMainFrame {
                 if let url = navigationAction.request.url {
                     if UIApplication.shared.canOpenURL(url) {
-                        UIApplication.shared.open(url)
+                        MobileserverExternalLinkRequested(url.absoluteString)
                     }
                 }
             }

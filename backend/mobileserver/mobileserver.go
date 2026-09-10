@@ -130,6 +130,11 @@ func HandleURI(uri string) {
 	bridgecommon.HandleURI(uri)
 }
 
+// ExternalLinkRequested reports that an embedded widget asked to open an external URL.
+func ExternalLinkRequested(url string) {
+	bridgecommon.ExternalLinkRequested(url)
+}
+
 // UsingMobileDataChanged exposes `bridgecommon.UsingMobileDataChanged` to Java/Kotlin.
 func UsingMobileDataChanged() {
 	bridgecommon.UsingMobileDataChanged()
