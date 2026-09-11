@@ -62,6 +62,8 @@ type Chart struct {
 	DataHourly []ChartEntry `json:"chartDataHourly"`
 	// Fiat currency of the value in the chart and in the total.
 	Fiat string `json:"chartFiat"`
+	// Performance metrics for each chart range.
+	Performance ChartPerformanceByDisplay `json:"chartPerformance"`
 	// Current total value of all assets in the fiat currency. Nil if missing (this is independent
 	// of `DataMissing`).
 	Total *float64 `json:"chartTotal"`
@@ -186,6 +188,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	chartEntriesHourly := map[int64]RatChartEntry{}
 
 	fiat := backend.Config().AppConfig().Backend.MainFiat
+	now := time.Now()
 
 	// Chart data until this point in time.
 	until := backend.RatesUpdater().HistoryLatestTimestampFiat(backend.chartCoinCodes(), fiat)
@@ -197,7 +200,9 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	lastTimestamp := until.UnixMilli()
 
 	currentTotal := new(big.Rat)
+	performanceTotal := new(big.Rat)
 	currentTotalMissing := false
+	chartCashFlows := []chartCashFlow{}
 	// Total number of transactions across all active accounts.
 	totalNumberOfTransactions := 0
 	transactionHistoryMissing := false
@@ -217,6 +222,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			return nil, err
 		}
 		totalNumberOfTransactions += len(txs)
+		chartCashFlows = backend.appendChartCashFlows(account.Coin(), fiat, txs, chartCashFlows)
 
 		coinDecimals := coin.DecimalsExp(account.Coin(), false)
 
@@ -224,13 +230,20 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		// behind by many minutes), which results in different total balances in the chart and the
 		// summary table.
 		//
-		// As a workaround, we calls accountFiatBalance, which computes the total based on the latest rates.
+		// As a workaround, we call accountFiatBalance, which computes the total based on the latest rates.
 		fiatValue, err := backend.accountFiatBalance(account, fiat)
 		if err != nil {
 			currentTotalMissing = true
 			return nil, err
 		}
 		currentTotal.Add(currentTotal, fiatValue)
+
+		performanceFiatValue, err := backend.convertToFiat(account.Coin(), txs.LatestConfirmedBalance(), fiat)
+		if err != nil {
+			currentTotalMissing = true
+			return nil, err
+		}
+		performanceTotal.Add(performanceTotal, performanceFiatValue)
 
 		// Below here, only chart data is being computed.
 		if chartDataMissing {
@@ -258,12 +271,15 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	}
 
 	if backend.hasLightningAccount() {
-		var err error
+		btcCoin, err := backend.Coin(coin.CodeBTC)
+		if err != nil {
+			return nil, err
+		}
 		lightningBalance, err := backend.lightning.Balance()
 		if err != nil {
 			return nil, err
 		}
-		lightningBalanceAmount, err := backend.convertBtcAmountToFiat(lightningBalance.Available(), fiat)
+		lightningBalanceAmount, err := backend.convertToFiat(btcCoin, lightningBalance.Available(), fiat)
 		if err != nil {
 			return nil, err
 		}
@@ -277,12 +293,20 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			lightningTxs = nil
 		}
 		totalNumberOfTransactions += len(lightningTxs)
+		chartCashFlows = backend.appendChartCashFlows(btcCoin, fiat, lightningTxs, chartCashFlows)
+
+		performanceFiatValue, err := backend.convertToFiat(
+			btcCoin,
+			lightningTxs.LatestConfirmedBalance(),
+			fiat,
+		)
+		if err != nil {
+			currentTotalMissing = true
+			return nil, err
+		}
+		performanceTotal.Add(performanceTotal, performanceFiatValue)
 
 		if !chartDataMissing {
-			btcCoin, err := backend.Coin(coin.CodeBTC)
-			if err != nil {
-				return nil, err
-			}
 			lightningChartDataMissing, err := backend.addTxsToChart(
 				coin.CodeBTC,
 				coinCodeLightning,
@@ -321,16 +345,20 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		// The last point might not match the account total otherwise because:
 		// 1) unconfirmed tx are not in the timeseries
 		// 2) coingecko might not have rates yet up until after all transactions, so they'd also be
-		// missing form the timeseries (`until` is up to 2h in the past).
+		// missing from the timeseries (`until` is up to 2h in the past).
 		if isUpToDate && !currentTotalMissing {
 			total, _ := currentTotal.Float64()
 			result = append(result, ChartEntry{
-				Time:           time.Now().Unix(),
+				Time:           now.Unix(),
 				Value:          total,
 				FormattedValue: coin.FormatAsCurrency(currentTotal, fiat),
 			})
 		}
-		// Truncate leading zeroes, if there are any keep the first one to start the chart with 0
+		return result
+	}
+
+	trimLeadingZeroes := func(result []ChartEntry, hasHistoricalEntries bool) []ChartEntry {
+		// Truncate leading zeroes, if there are any keep the first one to start the chart with 0.
 		for i, e := range result {
 			if e.Value > 0 {
 				if i == 0 {
@@ -342,7 +370,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		// Everything was zeroes.
 		// Keep historical zero-only series so wallets with transactions
 		// still render a chart instead of looking empty.
-		if len(s) > 0 {
+		if hasHistoricalEntries {
 			return result
 		}
 		return []ChartEntry{}
@@ -357,17 +385,41 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	}
 
 	var chartTotal *float64
+	var chartPerformanceTotal *float64
 	var formattedChartTotal string
 	if !currentTotalMissing {
 		tot, _ := currentTotal.Float64()
 		chartTotal = &tot
 		formattedChartTotal = coin.FormatAsCurrency(currentTotal, fiat)
+		performanceTot, _ := performanceTotal.Float64()
+		chartPerformanceTotal = &performanceTot
 	}
+
+	chartDataDailyForPerformance := toSortedSlice(chartEntriesDaily, fiat)
+	chartDataHourlyForPerformance := toSortedSlice(chartEntriesHourly, fiat)
+	chartDataDaily := trimLeadingZeroes(chartDataDailyForPerformance, len(chartEntriesDaily) > 0)
+	chartDataHourly := trimLeadingZeroes(chartDataHourlyForPerformance, len(chartEntriesHourly) > 0)
+	sort.Slice(chartCashFlows, func(i, j int) bool {
+		return chartCashFlows[i].Time.Before(chartCashFlows[j].Time)
+	})
+
+	chartPerformance := ChartPerformanceByDisplay{}
+	if !chartDataMissing {
+		chartPerformance = computeChartPerformance(
+			now,
+			chartDataDailyForPerformance,
+			chartDataHourlyForPerformance,
+			chartCashFlows,
+			chartPerformanceTotal,
+		)
+	}
+
 	return &Chart{
 		DataMissing:    chartDataMissing,
-		DataDaily:      toSortedSlice(chartEntriesDaily, fiat),
-		DataHourly:     toSortedSlice(chartEntriesHourly, fiat),
+		DataDaily:      chartDataDaily,
+		DataHourly:     chartDataHourly,
 		Fiat:           fiat,
+		Performance:    chartPerformance,
 		Total:          chartTotal,
 		FormattedTotal: formattedChartTotal,
 		IsUpToDate:     isUpToDate,
