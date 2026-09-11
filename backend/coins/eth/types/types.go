@@ -105,16 +105,12 @@ func (txh *TransactionWithMetadata) UnmarshalJSON(input []byte) error {
 // TransactionData returns the tx data to be shown to the user.
 func (txh *TransactionWithMetadata) TransactionData(
 	tipHeight uint64, erc20Token *erc20.Token, accountAddress string) *accounts.TransactionData {
-	data := txh.Transaction.Data()
-	if erc20Token == nil && len(data) > 0 {
-		panic("invalid config")
-	}
-
 	amount := coin.NewAmount(txh.Transaction.Value())
 	address := txh.Transaction.To().Hex()
 
 	if erc20Token != nil {
 		// ERC20 transfer.
+		data := txh.Transaction.Data()
 
 		// An ERC20-Token transfer looks like this:
 		// - Data is <0xa9059cbb><32 bytes address><32 bytes big endian amount>
@@ -125,7 +121,6 @@ func (txh *TransactionWithMetadata) TransactionData(
 			txh.Transaction.Value().Cmp(big.NewInt(0)) != 0 {
 			panic("invalid erc20 tx")
 		}
-		data := txh.Transaction.Data()
 		amount = coin.NewAmount(new(big.Int).SetBytes(data[len(data)-32:]))
 		address = common.BytesToAddress(data[4+32-common.AddressLength : 4+32]).Hex()
 	}
