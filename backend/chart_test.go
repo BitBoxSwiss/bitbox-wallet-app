@@ -32,11 +32,53 @@ func TestChartCoinCodesIncludesBitcoinForLightning(t *testing.T) {
 func TestCalculateMoneyWeightedReturnNoCashFlows(t *testing.T) {
 	startTime := time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)
 	endTime := startTime.Add(24 * time.Hour)
+	// One of the bracket search's doubled step sizes, to exercise roots found
+	// exactly at a sampled point.
+	const exactSearchLogReturn = 0.16
 
-	result := calculateMoneyWeightedReturn(100, 110, startTime, endTime, nil)
+	for _, test := range []struct {
+		name        string
+		endingValue float64
+		expected    float64
+	}{
+		{name: "zero return", endingValue: 100, expected: 0},
+		{name: "positive return", endingValue: 110, expected: 0.1},
+		{name: "negative return", endingValue: 75, expected: -0.25},
+		{
+			name:        "exact positive search point",
+			endingValue: 100 * math.Exp(exactSearchLogReturn),
+			expected:    math.Expm1(exactSearchLogReturn),
+		},
+		{
+			name:        "exact negative search point",
+			endingValue: 100 * math.Exp(-exactSearchLogReturn),
+			expected:    math.Expm1(-exactSearchLogReturn),
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			result := calculateMoneyWeightedReturn(100, test.endingValue, startTime, endTime, nil)
+
+			require.NotNil(t, result)
+			require.InDelta(t, test.expected, *result, 1e-12)
+		})
+	}
+}
+
+func TestSolveChartMoneyWeightedReturnExpandsSearchInBothDirections(t *testing.T) {
+	// In terms of y = exp(logReturn/3), this equation has roots at 0.9, 1.5,
+	// and 2. The negative-return root at y=0.9 is bracketed before either
+	// positive-return root when the search expands in both directions.
+	result := solveChartMoneyWeightedReturn(
+		1,
+		2.7,
+		[]chartWeightedCashFlow{
+			{Value: -4.4, RemainingWeight: 2.0 / 3.0},
+			{Value: 6.15, RemainingWeight: 1.0 / 3.0},
+		},
+	)
 
 	require.NotNil(t, result)
-	require.InDelta(t, 0.1, *result, 1e-12)
+	require.InDelta(t, -0.271, *result, 1e-12)
 }
 
 func TestCalculateMoneyWeightedReturnWithCashFlows(t *testing.T) {

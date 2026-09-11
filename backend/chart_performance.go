@@ -39,6 +39,16 @@ type chartWeightedCashFlow struct {
 	RemainingWeight float64
 }
 
+type chartLogReturnPoint struct {
+	logReturn float64
+	residual  float64
+}
+
+type chartLogReturnBracket struct {
+	lower chartLogReturnPoint
+	upper chartLogReturnPoint
+}
+
 func utcRoundedHour(now time.Time) time.Time {
 	return now.UTC().Truncate(time.Hour)
 }
@@ -87,16 +97,16 @@ func findPerformanceStartEntry(entries []ChartEntry, from time.Time, cashFlows [
 	return nil
 }
 
-func chartMoneyWeightedReturnValue(
+func chartMoneyWeightedReturnResidual(
 	logReturn float64,
 	beginningValue, endingValue float64,
 	cashFlows []chartWeightedCashFlow,
 ) float64 {
-	result := beginningValue*math.Exp(logReturn) - endingValue
+	residual := beginningValue*math.Exp(logReturn) - endingValue
 	for _, cashFlow := range cashFlows {
-		result += cashFlow.Value * math.Exp(cashFlow.RemainingWeight*logReturn)
+		residual += cashFlow.Value * math.Exp(cashFlow.RemainingWeight*logReturn)
 	}
-	return result
+	return residual
 }
 
 func chartMoneyWeightedReturnScale(
@@ -114,121 +124,141 @@ func chartHasSignChange(a, b float64) bool {
 	return (a < 0 && b > 0) || (a > 0 && b < 0)
 }
 
-// Solve EV = BV*(1+r) + sum(CF_i*(1+r)^remaining_i) in log-return space.
+func chartIsFinite(value float64) bool {
+	return !math.IsNaN(value) && !math.IsInf(value, 0)
+}
+
+func orderedChartLogReturnBracket(
+	first, second chartLogReturnPoint,
+) chartLogReturnBracket {
+	if first.logReturn > second.logReturn {
+		first, second = second, first
+	}
+	return chartLogReturnBracket{lower: first, upper: second}
+}
+
+// findChartMoneyWeightedReturnBracket searches for an exact root or two points
+// whose residuals have opposite signs. The search expands from zero in both
+// directions because the return may be positive or negative.
+func findChartMoneyWeightedReturnBracket(
+	residualAt func(logReturn float64) float64,
+	residualAtZero float64,
+) (chartLogReturnBracket, bool) {
+	const (
+		initialLogReturnStep = 0.01
+		maxAbsLogReturn      = 50.0
+	)
+
+	// Check positive first at each distance so equations with multiple roots have
+	// a deterministic preference when both directions find a bracket together.
+	directions := [...]float64{1, -1}
+	zeroPoint := chartLogReturnPoint{residual: residualAtZero}
+	previousPoints := [...]chartLogReturnPoint{
+		zeroPoint,
+		zeroPoint,
+	}
+
+	for step := initialLogReturnStep; ; step *= 2 {
+		currentStep := math.Min(step, maxAbsLogReturn)
+		for directionIndex, direction := range directions {
+			currentPoint := chartLogReturnPoint{
+				logReturn: direction * currentStep,
+			}
+			currentPoint.residual = residualAt(currentPoint.logReturn)
+			if !chartIsFinite(currentPoint.residual) {
+				return chartLogReturnBracket{}, false
+			}
+
+			if currentPoint.residual == 0 {
+				return orderedChartLogReturnBracket(currentPoint, currentPoint), true
+			}
+
+			previousPoint := previousPoints[directionIndex]
+			if chartHasSignChange(previousPoint.residual, currentPoint.residual) {
+				return orderedChartLogReturnBracket(previousPoint, currentPoint), true
+			}
+
+			previousPoints[directionIndex] = currentPoint
+		}
+
+		if currentStep == maxAbsLogReturn {
+			return chartLogReturnBracket{}, false
+		}
+	}
+}
+
+// bisectChartMoneyWeightedReturn returns an exactly sampled root from a
+// degenerate bracket, or narrows a sign-changing bracket to a root.
+func bisectChartMoneyWeightedReturn(
+	residualAt func(logReturn float64) float64,
+	bracket chartLogReturnBracket,
+) (float64, bool) {
+	const maxIterations = 200
+
+	lower := bracket.lower
+	upper := bracket.upper
+	if lower.logReturn == upper.logReturn {
+		return lower.logReturn, true
+	}
+
+	for i := 0; i < maxIterations; i++ {
+		midpoint := chartLogReturnPoint{
+			logReturn: (lower.logReturn + upper.logReturn) / 2,
+		}
+		midpoint.residual = residualAt(midpoint.logReturn)
+		if !chartIsFinite(midpoint.residual) {
+			return 0, false
+		}
+		if midpoint.residual == 0 {
+			return midpoint.logReturn, true
+		}
+
+		if chartHasSignChange(lower.residual, midpoint.residual) {
+			upper = midpoint
+		} else {
+			lower = midpoint
+		}
+	}
+
+	return (lower.logReturn + upper.logReturn) / 2, true
+}
+
+// solveChartMoneyWeightedReturn solves
+//
+//	EV = BV*(1+r) + sum(CF_i*(1+r)^remaining_i)
+//
+// by substituting exp(x) for 1+r. This maps every valid return (r > -1) to a
+// real log-return x. The solver first brackets a root by searching
+// outwards from zero, then converges on it using bisection. It returns nil when
+// no finite solution can be bracketed within the search range.
 func solveChartMoneyWeightedReturn(
 	beginningValue, endingValue float64,
 	cashFlows []chartWeightedCashFlow,
 ) *float64 {
-	const (
-		initialLogReturnStep = 0.01
-		maxAbsLogReturn      = 50.0
-		maxIterations        = 200
-	)
-
 	scale := chartMoneyWeightedReturnScale(beginningValue, endingValue, cashFlows)
 	tolerance := math.Max(scale*1e-12, 1e-12)
+	residualAt := func(logReturn float64) float64 {
+		return chartMoneyWeightedReturnResidual(logReturn, beginningValue, endingValue, cashFlows)
+	}
 
-	valueAtZero := chartMoneyWeightedReturnValue(0, beginningValue, endingValue, cashFlows)
-	if math.Abs(valueAtZero) <= tolerance {
+	residualAtZero := residualAt(0)
+	if math.Abs(residualAtZero) <= tolerance {
 		result := 0.0
 		return &result
 	}
 
-	var lowerLogReturn, upperLogReturn float64
-	var lowerValue float64
-	foundBracket := false
-
-	previousPositiveLogReturn := 0.0
-	previousPositiveValue := valueAtZero
-	previousNegativeLogReturn := 0.0
-	previousNegativeValue := valueAtZero
-	for step := initialLogReturnStep; ; step *= 2 {
-		currentStep := math.Min(step, maxAbsLogReturn)
-		positiveLogReturn := currentStep
-		positiveValue := chartMoneyWeightedReturnValue(
-			positiveLogReturn,
-			beginningValue,
-			endingValue,
-			cashFlows,
-		)
-		if math.IsNaN(positiveValue) || math.IsInf(positiveValue, 0) {
-			return nil
-		}
-		if positiveValue == 0 {
-			result := math.Expm1(positiveLogReturn)
-			return &result
-		}
-		if chartHasSignChange(previousPositiveValue, positiveValue) {
-			lowerLogReturn = previousPositiveLogReturn
-			upperLogReturn = positiveLogReturn
-			lowerValue = previousPositiveValue
-			foundBracket = true
-			break
-		}
-		previousPositiveLogReturn = positiveLogReturn
-		previousPositiveValue = positiveValue
-
-		negativeLogReturn := -currentStep
-		negativeValue := chartMoneyWeightedReturnValue(
-			negativeLogReturn,
-			beginningValue,
-			endingValue,
-			cashFlows,
-		)
-		if math.IsNaN(negativeValue) || math.IsInf(negativeValue, 0) {
-			return nil
-		}
-		if negativeValue == 0 {
-			result := math.Expm1(negativeLogReturn)
-			return &result
-		}
-		if chartHasSignChange(negativeValue, previousNegativeValue) {
-			lowerLogReturn = negativeLogReturn
-			upperLogReturn = previousNegativeLogReturn
-			lowerValue = negativeValue
-			foundBracket = true
-			break
-		}
-		previousNegativeLogReturn = negativeLogReturn
-		previousNegativeValue = negativeValue
-
-		if currentStep == maxAbsLogReturn {
-			break
-		}
-	}
-
-	if !foundBracket {
+	bracket, ok := findChartMoneyWeightedReturnBracket(residualAt, residualAtZero)
+	if !ok {
 		return nil
 	}
 
-	for i := 0; i < maxIterations; i++ {
-		midLogReturn := (lowerLogReturn + upperLogReturn) / 2
-		midValue := chartMoneyWeightedReturnValue(
-			midLogReturn,
-			beginningValue,
-			endingValue,
-			cashFlows,
-		)
-		if math.IsNaN(midValue) || math.IsInf(midValue, 0) {
-			return nil
-		}
-		if midValue == 0 {
-			result := math.Expm1(midLogReturn)
-			if math.IsNaN(result) || math.IsInf(result, 0) {
-				return nil
-			}
-			return &result
-		}
-		if chartHasSignChange(lowerValue, midValue) {
-			upperLogReturn = midLogReturn
-		} else {
-			lowerLogReturn = midLogReturn
-			lowerValue = midValue
-		}
+	logReturn, ok := bisectChartMoneyWeightedReturn(residualAt, bracket)
+	if !ok {
+		return nil
 	}
 
-	result := math.Expm1((lowerLogReturn + upperLogReturn) / 2)
-	if math.IsNaN(result) || math.IsInf(result, 0) {
+	result := math.Expm1(logReturn)
+	if !chartIsFinite(result) {
 		return nil
 	}
 	return &result
