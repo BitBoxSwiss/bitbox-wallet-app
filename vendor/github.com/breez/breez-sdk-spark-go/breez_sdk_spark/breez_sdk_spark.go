@@ -720,6 +720,15 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_method_breezsdk_check_unilateral_exit()
+		})
+		if checksum != 27303 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_breezsdk_check_unilateral_exit: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_breezsdk_claim_deposit()
 		})
 		if checksum != 43529 {
@@ -1136,7 +1145,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_breezsdk_unilateral_exit()
 		})
-		if checksum != 23033 {
+		if checksum != 58676 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_breezsdk_unilateral_exit: UniFFI API checksum mismatch")
 		}
@@ -3429,6 +3438,13 @@ type BreezSdkInterface interface {
 	// is SHA256 hashed before verification. The signature can be hex encoded
 	// in either DER or compact format.
 	CheckMessage(request CheckMessageRequest) (CheckMessageResponse, error)
+	// Reads an exit you kept back against the chain: which of its transactions
+	// are now in a block, and whether it can still be finished as it stands.
+	//
+	// Needs neither the wallet's leaves nor a signer, so an exit can be followed
+	// from the response alone. Store the response in place of the one you passed
+	// in, and broadcast what its statuses leave to send.
+	CheckUnilateralExit(request CheckUnilateralExitRequest) (CheckUnilateralExitResponse, error)
 	ClaimDeposit(request ClaimDepositRequest) (ClaimDepositResponse, error)
 	ClaimHtlcPayment(request ClaimHtlcPaymentRequest) (ClaimHtlcPaymentResponse, error)
 	// Claim a lightning address username handed over by its current owner,
@@ -3702,11 +3718,10 @@ type BreezSdkInterface interface {
 	// topological broadcast order without broadcasting. Broadcast it over time,
 	// respecting each transaction's `depends_on` and `csv_timelock_blocks`.
 	//
-	// It resolves on-chain state first (see [`resolve_exit_observations`]): an
-	// already-confirmed fan-out or CPFP node is not rebuilt, and a leaf refund
-	// already on-chain (recognized by the leaf's refund address, so any refund
-	// variant counts) is swept directly. Re-running after partial progress
-	// therefore resumes rather than restarts.
+	// It reads on-chain state first: an already-confirmed fan-out or CPFP node
+	// is not rebuilt, and a leaf refund already on-chain (recognized by the
+	// leaf's refund address, so any refund variant counts) is swept directly.
+	// Re-running after partial progress therefore resumes rather than restarts.
 	UnilateralExit(request UnilateralExitRequest, signer CpfpSigner) (UnilateralExitResponse, error)
 	// Unregisters a previously registered webhook.
 	//
@@ -4079,6 +4094,47 @@ func (_self *BreezSdk) CheckMessage(request CheckMessageRequest) (CheckMessageRe
 		},
 		C.uniffi_breez_sdk_spark_fn_method_breezsdk_check_message(
 			_pointer, FfiConverterCheckMessageRequestINSTANCE.Lower(request)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Reads an exit you kept back against the chain: which of its transactions
+// are now in a block, and whether it can still be finished as it stands.
+//
+// Needs neither the wallet's leaves nor a signer, so an exit can be followed
+// from the response alone. Store the response in place of the one you passed
+// in, and broadcast what its statuses leave to send.
+func (_self *BreezSdk) CheckUnilateralExit(request CheckUnilateralExitRequest) (CheckUnilateralExitResponse, error) {
+	_pointer := _self.ffiObject.incrementPointer("*BreezSdk")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[SdkError](
+		FfiConverterSdkErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_breez_sdk_spark_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) CheckUnilateralExitResponse {
+			return FfiConverterCheckUnilateralExitResponseINSTANCE.Lift(ffi)
+		},
+		C.uniffi_breez_sdk_spark_fn_method_breezsdk_check_unilateral_exit(
+			_pointer, FfiConverterCheckUnilateralExitRequestINSTANCE.Lower(request)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
 			C.ffi_breez_sdk_spark_rust_future_poll_rust_buffer(handle, continuation, data)
@@ -5889,11 +5945,10 @@ func (_self *BreezSdk) SyncWallet(request SyncWalletRequest) (SyncWalletResponse
 // topological broadcast order without broadcasting. Broadcast it over time,
 // respecting each transaction's `depends_on` and `csv_timelock_blocks`.
 //
-// It resolves on-chain state first (see [`resolve_exit_observations`]): an
-// already-confirmed fan-out or CPFP node is not rebuilt, and a leaf refund
-// already on-chain (recognized by the leaf's refund address, so any refund
-// variant counts) is swept directly. Re-running after partial progress
-// therefore resumes rather than restarts.
+// It reads on-chain state first: an already-confirmed fan-out or CPFP node
+// is not rebuilt, and a leaf refund already on-chain (recognized by the
+// leaf's refund address, so any refund variant counts) is swept directly.
+// Re-running after partial progress therefore resumes rather than restarts.
 func (_self *BreezSdk) UnilateralExit(request UnilateralExitRequest, signer CpfpSigner) (UnilateralExitResponse, error) {
 	_pointer := _self.ffiObject.incrementPointer("*BreezSdk")
 	defer _self.ffiObject.decrementPointer()
@@ -17639,6 +17694,96 @@ func (_ FfiDestroyerCheckMessageResponse) Destroy(value CheckMessageResponse) {
 	value.Destroy()
 }
 
+// Request for `check_unilateral_exit`: the exit you kept from a previous
+// `unilateral_exit`, as you last stored it.
+type CheckUnilateralExitRequest struct {
+	Exit UnilateralExitResponse
+}
+
+func (r *CheckUnilateralExitRequest) Destroy() {
+	FfiDestroyerUnilateralExitResponse{}.Destroy(r.Exit)
+}
+
+type FfiConverterCheckUnilateralExitRequest struct{}
+
+var FfiConverterCheckUnilateralExitRequestINSTANCE = FfiConverterCheckUnilateralExitRequest{}
+
+func (c FfiConverterCheckUnilateralExitRequest) Lift(rb RustBufferI) CheckUnilateralExitRequest {
+	return LiftFromRustBuffer[CheckUnilateralExitRequest](c, rb)
+}
+
+func (c FfiConverterCheckUnilateralExitRequest) Read(reader io.Reader) CheckUnilateralExitRequest {
+	return CheckUnilateralExitRequest{
+		FfiConverterUnilateralExitResponseINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterCheckUnilateralExitRequest) Lower(value CheckUnilateralExitRequest) C.RustBuffer {
+	return LowerIntoRustBuffer[CheckUnilateralExitRequest](c, value)
+}
+
+func (c FfiConverterCheckUnilateralExitRequest) LowerExternal(value CheckUnilateralExitRequest) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[CheckUnilateralExitRequest](c, value))
+}
+
+func (c FfiConverterCheckUnilateralExitRequest) Write(writer io.Writer, value CheckUnilateralExitRequest) {
+	FfiConverterUnilateralExitResponseINSTANCE.Write(writer, value.Exit)
+}
+
+type FfiDestroyerCheckUnilateralExitRequest struct{}
+
+func (_ FfiDestroyerCheckUnilateralExitRequest) Destroy(value CheckUnilateralExitRequest) {
+	value.Destroy()
+}
+
+// Result of `check_unilateral_exit`: the same exit, read back against the
+// chain.
+type CheckUnilateralExitResponse struct {
+	// The exit with each transaction's status brought up to date. Store it in
+	// place of the copy you passed in.
+	Exit    UnilateralExitResponse
+	Verdict UnilateralExitVerdict
+}
+
+func (r *CheckUnilateralExitResponse) Destroy() {
+	FfiDestroyerUnilateralExitResponse{}.Destroy(r.Exit)
+	FfiDestroyerUnilateralExitVerdict{}.Destroy(r.Verdict)
+}
+
+type FfiConverterCheckUnilateralExitResponse struct{}
+
+var FfiConverterCheckUnilateralExitResponseINSTANCE = FfiConverterCheckUnilateralExitResponse{}
+
+func (c FfiConverterCheckUnilateralExitResponse) Lift(rb RustBufferI) CheckUnilateralExitResponse {
+	return LiftFromRustBuffer[CheckUnilateralExitResponse](c, rb)
+}
+
+func (c FfiConverterCheckUnilateralExitResponse) Read(reader io.Reader) CheckUnilateralExitResponse {
+	return CheckUnilateralExitResponse{
+		FfiConverterUnilateralExitResponseINSTANCE.Read(reader),
+		FfiConverterUnilateralExitVerdictINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterCheckUnilateralExitResponse) Lower(value CheckUnilateralExitResponse) C.RustBuffer {
+	return LowerIntoRustBuffer[CheckUnilateralExitResponse](c, value)
+}
+
+func (c FfiConverterCheckUnilateralExitResponse) LowerExternal(value CheckUnilateralExitResponse) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[CheckUnilateralExitResponse](c, value))
+}
+
+func (c FfiConverterCheckUnilateralExitResponse) Write(writer io.Writer, value CheckUnilateralExitResponse) {
+	FfiConverterUnilateralExitResponseINSTANCE.Write(writer, value.Exit)
+	FfiConverterUnilateralExitVerdictINSTANCE.Write(writer, value.Verdict)
+}
+
+type FfiDestroyerCheckUnilateralExitResponse struct{}
+
+func (_ FfiDestroyerCheckUnilateralExitResponse) Destroy(value CheckUnilateralExitResponse) {
+	value.Destroy()
+}
+
 // What one way of claiming a deposit costs.
 type ClaimDepositQuote struct {
 	// The depth this becomes claimable at, as a total confirmation count on the
@@ -18141,6 +18286,57 @@ func (c FfiConverterConfig) Write(writer io.Writer, value Config) {
 type FfiDestroyerConfig struct{}
 
 func (_ FfiDestroyerConfig) Destroy(value Config) {
+	value.Destroy()
+}
+
+// A node of the exit tree that is already on-chain.
+type ConfirmedExitNode struct {
+	NodeId      string
+	ConfirmedBy ExitNodeConfirmation
+	// The block it is in, where that is known. Unset for a node put in a block
+	// by a descendant's confirmation rather than read directly.
+	BlockHeight *uint32
+}
+
+func (r *ConfirmedExitNode) Destroy() {
+	FfiDestroyerString{}.Destroy(r.NodeId)
+	FfiDestroyerExitNodeConfirmation{}.Destroy(r.ConfirmedBy)
+	FfiDestroyerOptionalUint32{}.Destroy(r.BlockHeight)
+}
+
+type FfiConverterConfirmedExitNode struct{}
+
+var FfiConverterConfirmedExitNodeINSTANCE = FfiConverterConfirmedExitNode{}
+
+func (c FfiConverterConfirmedExitNode) Lift(rb RustBufferI) ConfirmedExitNode {
+	return LiftFromRustBuffer[ConfirmedExitNode](c, rb)
+}
+
+func (c FfiConverterConfirmedExitNode) Read(reader io.Reader) ConfirmedExitNode {
+	return ConfirmedExitNode{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterExitNodeConfirmationINSTANCE.Read(reader),
+		FfiConverterOptionalUint32INSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterConfirmedExitNode) Lower(value ConfirmedExitNode) C.RustBuffer {
+	return LowerIntoRustBuffer[ConfirmedExitNode](c, value)
+}
+
+func (c FfiConverterConfirmedExitNode) LowerExternal(value ConfirmedExitNode) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[ConfirmedExitNode](c, value))
+}
+
+func (c FfiConverterConfirmedExitNode) Write(writer io.Writer, value ConfirmedExitNode) {
+	FfiConverterStringINSTANCE.Write(writer, value.NodeId)
+	FfiConverterExitNodeConfirmationINSTANCE.Write(writer, value.ConfirmedBy)
+	FfiConverterOptionalUint32INSTANCE.Write(writer, value.BlockHeight)
+}
+
+type FfiDestroyerConfirmedExitNode struct{}
+
+func (_ FfiDestroyerConfirmedExitNode) Destroy(value ConfirmedExitNode) {
 	value.Destroy()
 }
 
@@ -19062,14 +19258,14 @@ func (_ FfiDestroyerCrossChainAddressDetails) Destroy(value CrossChainAddressDet
 type CrossChainConfig struct {
 	// Default maximum slippage in basis points used when
 	// [`PaymentRequest::CrossChain::max_slippage_bps`] is not set on the
-	// prepare request. Must be in `10..=500`. Falls back to 100 bps (1%)
-	// when this field is `None`.
+	// prepare request. Must be in 10 to 500. Falls back to 100 bps (1%)
+	// when this field is unset.
 	DefaultSlippageBps *uint32
 	// Default target-overpay pad in basis points applied to the user's
 	// destination amount on `FeesExcluded` conversion sends. Bumps the
 	// target upward before quoting so the recipient lands at or above the
-	// requested amount despite provider slippage. Must be in `0..=500`.
-	// Falls back to 15 bps when `None`.
+	// requested amount despite provider slippage. Must be in 0 to 500.
+	// Falls back to 15 bps when unset.
 	DefaultTargetOverpayBps *uint32
 }
 
@@ -19112,18 +19308,106 @@ func (_ FfiDestroyerCrossChainConfig) Destroy(value CrossChainConfig) {
 	value.Destroy()
 }
 
+// Information about the cross-chain receive quote.
+type CrossChainReceiveInfo struct {
+	// Bare external deposit address the sender pays to.
+	DepositAddress string
+	// Amount the sender must deposit, in source-asset base units
+	// (`route.decimals`). On `FeesExcluded` this may differ from the
+	// request's `amount` because the SDK inflates the deposit to absorb
+	// provider fees. Render this value to the sender.
+	DepositAmount u128
+	// Amount the receiver will see, net of provider fees, in
+	// destination-asset base units. Sats when receiving BTC into Spark,
+	// or token base units when receiving a Spark token (e.g. USDB). The
+	// final delivered amount may move within the slippage tolerance.
+	ExpectedReceivedAmount u128
+	// Symbol of the Spark-side asset `expected_received_amount` is
+	// denominated in, as the provider reports it: `"BTC"` for sats, or the
+	// token symbol (e.g. `"USDB"`).
+	DestinationAsset string
+	// Spark token identifier when the destination is a token. Absent when
+	// the destination is BTC and the receiver will see sats.
+	TokenIdentifier *string
+	// Provider-quoted total fee for this receive, in `service_fee_asset`
+	// units.
+	ServiceFeeAmount u128
+	// Ticker for `service_fee_amount`. Absent when the fee is denominated
+	// in sats.
+	ServiceFeeAsset *string
+	// Quote expiry as a unix timestamp in seconds.
+	ExpiresAt uint64
+}
+
+func (r *CrossChainReceiveInfo) Destroy() {
+	FfiDestroyerString{}.Destroy(r.DepositAddress)
+	FfiDestroyerTypeu128{}.Destroy(r.DepositAmount)
+	FfiDestroyerTypeu128{}.Destroy(r.ExpectedReceivedAmount)
+	FfiDestroyerString{}.Destroy(r.DestinationAsset)
+	FfiDestroyerOptionalString{}.Destroy(r.TokenIdentifier)
+	FfiDestroyerTypeu128{}.Destroy(r.ServiceFeeAmount)
+	FfiDestroyerOptionalString{}.Destroy(r.ServiceFeeAsset)
+	FfiDestroyerUint64{}.Destroy(r.ExpiresAt)
+}
+
+type FfiConverterCrossChainReceiveInfo struct{}
+
+var FfiConverterCrossChainReceiveInfoINSTANCE = FfiConverterCrossChainReceiveInfo{}
+
+func (c FfiConverterCrossChainReceiveInfo) Lift(rb RustBufferI) CrossChainReceiveInfo {
+	return LiftFromRustBuffer[CrossChainReceiveInfo](c, rb)
+}
+
+func (c FfiConverterCrossChainReceiveInfo) Read(reader io.Reader) CrossChainReceiveInfo {
+	return CrossChainReceiveInfo{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterTypeu128INSTANCE.Read(reader),
+		FfiConverterTypeu128INSTANCE.Read(reader),
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterTypeu128INSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterCrossChainReceiveInfo) Lower(value CrossChainReceiveInfo) C.RustBuffer {
+	return LowerIntoRustBuffer[CrossChainReceiveInfo](c, value)
+}
+
+func (c FfiConverterCrossChainReceiveInfo) LowerExternal(value CrossChainReceiveInfo) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[CrossChainReceiveInfo](c, value))
+}
+
+func (c FfiConverterCrossChainReceiveInfo) Write(writer io.Writer, value CrossChainReceiveInfo) {
+	FfiConverterStringINSTANCE.Write(writer, value.DepositAddress)
+	FfiConverterTypeu128INSTANCE.Write(writer, value.DepositAmount)
+	FfiConverterTypeu128INSTANCE.Write(writer, value.ExpectedReceivedAmount)
+	FfiConverterStringINSTANCE.Write(writer, value.DestinationAsset)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.TokenIdentifier)
+	FfiConverterTypeu128INSTANCE.Write(writer, value.ServiceFeeAmount)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.ServiceFeeAsset)
+	FfiConverterUint64INSTANCE.Write(writer, value.ExpiresAt)
+}
+
+type FfiDestroyerCrossChainReceiveInfo struct{}
+
+func (_ FfiDestroyerCrossChainReceiveInfo) Destroy(value CrossChainReceiveInfo) {
+	value.Destroy()
+}
+
 // A single route available for cross-chain transfers, tagged with the provider
 // that offers it. Returned by `get_cross_chain_routes()`.
 type CrossChainRoutePair struct {
 	// Which provider offers this route.
 	Provider CrossChainProvider
-	// Destination blockchain (e.g. `"base"`, `"solana"`, `"tron"`).
+	// External blockchain (e.g. `"base"`, `"solana"`, `"tron"`).
 	Chain string
-	// Stable chain identifier (e.g. EVM `chainId` as a decimal string).
+	// External chain identifier (e.g. EVM `chainId` as a decimal string).
 	// `None` for non-EVM chains that don't expose one, or when the
 	// provider doesn't surface it.
 	ChainId *string
-	// Destination asset symbol (e.g. `"USDC"`, `"USDT"`).
+	// External asset symbol (e.g. `"USDC"`, `"USDT"`).
 	Asset string
 	// Token contract / mint address on the destination chain.
 	ContractAddress *string
@@ -19131,19 +19415,11 @@ type CrossChainRoutePair struct {
 	Decimals uint8
 	// Whether the route supports exact-out mode.
 	ExactOutEligible bool
-	// The source assets this route accepts on the Spark side.
-	//
-	// Boltz routes accept `[SourceAsset::Bitcoin]`. Orchestra routes accept
-	// one or more of `Bitcoin` / `Token(...)` (a given destination endpoint
-	// may be fronted by multiple source variants on Orchestra).
-	SupportedSources []SourceAsset
-	// The chains this route can be paid over, orthogonal to
-	// `supported_sources` (the asset moved).
-	//
-	// This is the actual funding rail, which differs by provider: Boltz routes
-	// are always paid over Lightning. Orchestra send routes report Spark, and
-	// Orchestra payment-link routes report Lightning.
-	SupportedSourceChains []SourceChain
+	// Spark-side assets this route accepts.
+	AcceptedAssets []SparkAsset
+	// Rails this route can be delivered over, orthogonal to
+	// `accepted_assets` (the asset moved vs the rail moved on).
+	DeliveryMethods []DeliveryMethod
 }
 
 func (r *CrossChainRoutePair) Destroy() {
@@ -19154,8 +19430,8 @@ func (r *CrossChainRoutePair) Destroy() {
 	FfiDestroyerOptionalString{}.Destroy(r.ContractAddress)
 	FfiDestroyerUint8{}.Destroy(r.Decimals)
 	FfiDestroyerBool{}.Destroy(r.ExactOutEligible)
-	FfiDestroyerSequenceSourceAsset{}.Destroy(r.SupportedSources)
-	FfiDestroyerSequenceSourceChain{}.Destroy(r.SupportedSourceChains)
+	FfiDestroyerSequenceSparkAsset{}.Destroy(r.AcceptedAssets)
+	FfiDestroyerSequenceDeliveryMethod{}.Destroy(r.DeliveryMethods)
 }
 
 type FfiConverterCrossChainRoutePair struct{}
@@ -19175,8 +19451,8 @@ func (c FfiConverterCrossChainRoutePair) Read(reader io.Reader) CrossChainRouteP
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterUint8INSTANCE.Read(reader),
 		FfiConverterBoolINSTANCE.Read(reader),
-		FfiConverterSequenceSourceAssetINSTANCE.Read(reader),
-		FfiConverterSequenceSourceChainINSTANCE.Read(reader),
+		FfiConverterSequenceSparkAssetINSTANCE.Read(reader),
+		FfiConverterSequenceDeliveryMethodINSTANCE.Read(reader),
 	}
 }
 
@@ -19196,8 +19472,8 @@ func (c FfiConverterCrossChainRoutePair) Write(writer io.Writer, value CrossChai
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.ContractAddress)
 	FfiConverterUint8INSTANCE.Write(writer, value.Decimals)
 	FfiConverterBoolINSTANCE.Write(writer, value.ExactOutEligible)
-	FfiConverterSequenceSourceAssetINSTANCE.Write(writer, value.SupportedSources)
-	FfiConverterSequenceSourceChainINSTANCE.Write(writer, value.SupportedSourceChains)
+	FfiConverterSequenceSparkAssetINSTANCE.Write(writer, value.AcceptedAssets)
+	FfiConverterSequenceDeliveryMethodINSTANCE.Write(writer, value.DeliveryMethods)
 }
 
 type FfiDestroyerCrossChainRoutePair struct{}
@@ -19501,6 +19777,120 @@ func (c FfiConverterEcdsaSignatureBytes) Write(writer io.Writer, value EcdsaSign
 type FfiDestroyerEcdsaSignatureBytes struct{}
 
 func (_ FfiDestroyerEcdsaSignatureBytes) Destroy(value EcdsaSignatureBytes) {
+	value.Destroy()
+}
+
+// What the chain has already done to an exit's leaves, as
+// `prepare_unilateral_exit` found it. Pass it back to `unilateral_exit`, which
+// builds only the steps it does not cover.
+type ExitChainState struct {
+	// Nodes whose transaction is on-chain.
+	ConfirmedNodes []ConfirmedExitNode
+	// Leaves whose refund reached the chain.
+	Refunds []ExitRefund
+	// Leaves whose lineage was taken on-chain by a transaction the exit cannot
+	// continue from. Nothing further can be driven for them.
+	StoppedLeafIds []string
+	// Nodes a chain lookup could not read, so their state is unknown rather
+	// than absent. Transactions depending on them come back
+	// `ExitTransactionStatus::Unverified`.
+	UnverifiedNodeIds []string
+	// Nodes taken to be on-chain on the operators' word, the chain itself being
+	// unreadable. Their spend is invisible, so anything built over them risks
+	// double-spending an output that is already gone.
+	UnverifiableConfirmedNodeIds []string
+}
+
+func (r *ExitChainState) Destroy() {
+	FfiDestroyerSequenceConfirmedExitNode{}.Destroy(r.ConfirmedNodes)
+	FfiDestroyerSequenceExitRefund{}.Destroy(r.Refunds)
+	FfiDestroyerSequenceString{}.Destroy(r.StoppedLeafIds)
+	FfiDestroyerSequenceString{}.Destroy(r.UnverifiedNodeIds)
+	FfiDestroyerSequenceString{}.Destroy(r.UnverifiableConfirmedNodeIds)
+}
+
+type FfiConverterExitChainState struct{}
+
+var FfiConverterExitChainStateINSTANCE = FfiConverterExitChainState{}
+
+func (c FfiConverterExitChainState) Lift(rb RustBufferI) ExitChainState {
+	return LiftFromRustBuffer[ExitChainState](c, rb)
+}
+
+func (c FfiConverterExitChainState) Read(reader io.Reader) ExitChainState {
+	return ExitChainState{
+		FfiConverterSequenceConfirmedExitNodeINSTANCE.Read(reader),
+		FfiConverterSequenceExitRefundINSTANCE.Read(reader),
+		FfiConverterSequenceStringINSTANCE.Read(reader),
+		FfiConverterSequenceStringINSTANCE.Read(reader),
+		FfiConverterSequenceStringINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterExitChainState) Lower(value ExitChainState) C.RustBuffer {
+	return LowerIntoRustBuffer[ExitChainState](c, value)
+}
+
+func (c FfiConverterExitChainState) LowerExternal(value ExitChainState) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[ExitChainState](c, value))
+}
+
+func (c FfiConverterExitChainState) Write(writer io.Writer, value ExitChainState) {
+	FfiConverterSequenceConfirmedExitNodeINSTANCE.Write(writer, value.ConfirmedNodes)
+	FfiConverterSequenceExitRefundINSTANCE.Write(writer, value.Refunds)
+	FfiConverterSequenceStringINSTANCE.Write(writer, value.StoppedLeafIds)
+	FfiConverterSequenceStringINSTANCE.Write(writer, value.UnverifiedNodeIds)
+	FfiConverterSequenceStringINSTANCE.Write(writer, value.UnverifiableConfirmedNodeIds)
+}
+
+type FfiDestroyerExitChainState struct{}
+
+func (_ FfiDestroyerExitChainState) Destroy(value ExitChainState) {
+	value.Destroy()
+}
+
+// A leaf's refund as the chain shows it.
+type ExitRefund struct {
+	LeafId string
+	State  ExitRefundState
+}
+
+func (r *ExitRefund) Destroy() {
+	FfiDestroyerString{}.Destroy(r.LeafId)
+	FfiDestroyerExitRefundState{}.Destroy(r.State)
+}
+
+type FfiConverterExitRefund struct{}
+
+var FfiConverterExitRefundINSTANCE = FfiConverterExitRefund{}
+
+func (c FfiConverterExitRefund) Lift(rb RustBufferI) ExitRefund {
+	return LiftFromRustBuffer[ExitRefund](c, rb)
+}
+
+func (c FfiConverterExitRefund) Read(reader io.Reader) ExitRefund {
+	return ExitRefund{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterExitRefundStateINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterExitRefund) Lower(value ExitRefund) C.RustBuffer {
+	return LowerIntoRustBuffer[ExitRefund](c, value)
+}
+
+func (c FfiConverterExitRefund) LowerExternal(value ExitRefund) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[ExitRefund](c, value))
+}
+
+func (c FfiConverterExitRefund) Write(writer io.Writer, value ExitRefund) {
+	FfiConverterStringINSTANCE.Write(writer, value.LeafId)
+	FfiConverterExitRefundStateINSTANCE.Write(writer, value.State)
+}
+
+type FfiDestroyerExitRefund struct{}
+
+func (_ FfiDestroyerExitRefund) Destroy(value ExitRefund) {
 	value.Destroy()
 }
 
@@ -24895,12 +25285,26 @@ type PrepareUnilateralExitResponse struct {
 	// branches), in satoshis. Exact for the given funding kind; nodes the
 	// operators report on-chain are assumed already paid, so a partially-exited
 	// tree quotes a lower fee than a fresh one.
+	//
+	// The sum of the three components below, which say who pays what:
+	// `cpfp_fee_sat + fanout_fee_sat + sweep_fee_sat`. The first two come from
+	// your funding UTXO, the third off the value being recovered.
 	TotalFeeSat uint64
-	// The part of `total_fee_sat` paid for the fan-out transaction. Funding one
-	// UTXO per branch (`per_branch_funding`) avoids it. Zero for a single
-	// branch (no fan-out).
+	// The part of `total_fee_sat` the CPFP children pay, funded by your UTXOs.
+	// It does not reduce what the exit recovers.
+	CpfpFeeSat uint64
+	// The part of `total_fee_sat` paid for the fan-out transaction, funded by
+	// your UTXO. Funding one UTXO per branch (`per_branch_funding`) avoids it.
+	// Zero for a single branch (no fan-out).
 	FanoutFeeSat uint64
+	// The part of `total_fee_sat` the final sweep pays. The sweep takes its fee
+	// from the value it moves, so this is the one component subtracted from
+	// what reaches `destination`.
+	SweepFeeSat uint64
 	// Fund a single UTXO of at least this many satoshis to exit with a fan-out.
+	// Above `cpfp_fee_sat + fanout_fee_sat` by design: it carries the sweep fee
+	// and a per-branch dust allowance as headroom, both of which come back to
+	// you in the sweep.
 	SingleUtxoFundingSat uint64
 	// To skip the fan-out, fund one UTXO per branch of at least the given
 	// amount (one entry per selected leaf).
@@ -24908,17 +25312,24 @@ type PrepareUnilateralExitResponse struct {
 	// The fee rate this quote was computed at, in sat/vByte.
 	FeeRateSatPerVbyte uint64
 	Destination        string
+	// What the chain has already done to these leaves, read while preparing.
+	// Pass it back to `unilateral_exit`, which builds only the steps it does
+	// not already cover.
+	ExitChainState ExitChainState
 }
 
 func (r *PrepareUnilateralExitResponse) Destroy() {
 	FfiDestroyerSequenceUnilateralExitLeaf{}.Destroy(r.Leaves)
 	FfiDestroyerUint64{}.Destroy(r.RecoverableValueSat)
 	FfiDestroyerUint64{}.Destroy(r.TotalFeeSat)
+	FfiDestroyerUint64{}.Destroy(r.CpfpFeeSat)
 	FfiDestroyerUint64{}.Destroy(r.FanoutFeeSat)
+	FfiDestroyerUint64{}.Destroy(r.SweepFeeSat)
 	FfiDestroyerUint64{}.Destroy(r.SingleUtxoFundingSat)
 	FfiDestroyerSequencePerBranchFunding{}.Destroy(r.PerBranchFunding)
 	FfiDestroyerUint64{}.Destroy(r.FeeRateSatPerVbyte)
 	FfiDestroyerString{}.Destroy(r.Destination)
+	FfiDestroyerExitChainState{}.Destroy(r.ExitChainState)
 }
 
 type FfiConverterPrepareUnilateralExitResponse struct{}
@@ -24936,9 +25347,12 @@ func (c FfiConverterPrepareUnilateralExitResponse) Read(reader io.Reader) Prepar
 		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterSequencePerBranchFundingINSTANCE.Read(reader),
 		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterExitChainStateINSTANCE.Read(reader),
 	}
 }
 
@@ -24954,11 +25368,14 @@ func (c FfiConverterPrepareUnilateralExitResponse) Write(writer io.Writer, value
 	FfiConverterSequenceUnilateralExitLeafINSTANCE.Write(writer, value.Leaves)
 	FfiConverterUint64INSTANCE.Write(writer, value.RecoverableValueSat)
 	FfiConverterUint64INSTANCE.Write(writer, value.TotalFeeSat)
+	FfiConverterUint64INSTANCE.Write(writer, value.CpfpFeeSat)
 	FfiConverterUint64INSTANCE.Write(writer, value.FanoutFeeSat)
+	FfiConverterUint64INSTANCE.Write(writer, value.SweepFeeSat)
 	FfiConverterUint64INSTANCE.Write(writer, value.SingleUtxoFundingSat)
 	FfiConverterSequencePerBranchFundingINSTANCE.Write(writer, value.PerBranchFunding)
 	FfiConverterUint64INSTANCE.Write(writer, value.FeeRateSatPerVbyte)
 	FfiConverterStringINSTANCE.Write(writer, value.Destination)
+	FfiConverterExitChainStateINSTANCE.Write(writer, value.ExitChainState)
 }
 
 type FfiDestroyerPrepareUnilateralExitResponse struct{}
@@ -25295,11 +25712,14 @@ type ReceivePaymentResponse struct {
 	// Fee to pay to receive the payment
 	// Denominated in sats or token base units
 	Fee u128
+	// Optional information populated only for cross-chain receives.
+	CrossChainInfo *CrossChainReceiveInfo
 }
 
 func (r *ReceivePaymentResponse) Destroy() {
 	FfiDestroyerString{}.Destroy(r.PaymentRequest)
 	FfiDestroyerTypeu128{}.Destroy(r.Fee)
+	FfiDestroyerOptionalCrossChainReceiveInfo{}.Destroy(r.CrossChainInfo)
 }
 
 type FfiConverterReceivePaymentResponse struct{}
@@ -25314,6 +25734,7 @@ func (c FfiConverterReceivePaymentResponse) Read(reader io.Reader) ReceivePaymen
 	return ReceivePaymentResponse{
 		FfiConverterStringINSTANCE.Read(reader),
 		FfiConverterTypeu128INSTANCE.Read(reader),
+		FfiConverterOptionalCrossChainReceiveInfoINSTANCE.Read(reader),
 	}
 }
 
@@ -25328,6 +25749,7 @@ func (c FfiConverterReceivePaymentResponse) LowerExternal(value ReceivePaymentRe
 func (c FfiConverterReceivePaymentResponse) Write(writer io.Writer, value ReceivePaymentResponse) {
 	FfiConverterStringINSTANCE.Write(writer, value.PaymentRequest)
 	FfiConverterTypeu128INSTANCE.Write(writer, value.Fee)
+	FfiConverterOptionalCrossChainReceiveInfoINSTANCE.Write(writer, value.CrossChainInfo)
 }
 
 type FfiDestroyerReceivePaymentResponse struct{}
@@ -26312,11 +26734,20 @@ func (_ FfiDestroyerSendBatchResponse) Destroy(value SendBatchResponse) {
 }
 
 type SendOnchainFeeQuote struct {
-	Id          string
+	// Identifies the quote to the provider when the payment is sent. Empty on
+	// an estimate, which no provider has issued.
+	Id string
+	// When the quote stops being honoured, as a Unix timestamp in seconds.
+	// Zero on an estimate.
 	ExpiresAt   uint64
 	SpeedFast   SendOnchainSpeedFeeQuote
 	SpeedMedium SendOnchainSpeedFeeQuote
 	SpeedSlow   SendOnchainSpeedFeeQuote
+	// Set when the wallet holds no bitcoin and a token conversion will fund the
+	// send, because the provider will not quote without funds to price against.
+	// The estimate is an upper bound: the payment quotes for real once the
+	// conversion lands, and fails rather than spending more than this.
+	IsEstimate bool
 }
 
 func (r *SendOnchainFeeQuote) Destroy() {
@@ -26325,6 +26756,7 @@ func (r *SendOnchainFeeQuote) Destroy() {
 	FfiDestroyerSendOnchainSpeedFeeQuote{}.Destroy(r.SpeedFast)
 	FfiDestroyerSendOnchainSpeedFeeQuote{}.Destroy(r.SpeedMedium)
 	FfiDestroyerSendOnchainSpeedFeeQuote{}.Destroy(r.SpeedSlow)
+	FfiDestroyerBool{}.Destroy(r.IsEstimate)
 }
 
 type FfiConverterSendOnchainFeeQuote struct{}
@@ -26342,6 +26774,7 @@ func (c FfiConverterSendOnchainFeeQuote) Read(reader io.Reader) SendOnchainFeeQu
 		FfiConverterSendOnchainSpeedFeeQuoteINSTANCE.Read(reader),
 		FfiConverterSendOnchainSpeedFeeQuoteINSTANCE.Read(reader),
 		FfiConverterSendOnchainSpeedFeeQuoteINSTANCE.Read(reader),
+		FfiConverterBoolINSTANCE.Read(reader),
 	}
 }
 
@@ -26359,6 +26792,7 @@ func (c FfiConverterSendOnchainFeeQuote) Write(writer io.Writer, value SendOncha
 	FfiConverterSendOnchainSpeedFeeQuoteINSTANCE.Write(writer, value.SpeedFast)
 	FfiConverterSendOnchainSpeedFeeQuoteINSTANCE.Write(writer, value.SpeedMedium)
 	FfiConverterSendOnchainSpeedFeeQuoteINSTANCE.Write(writer, value.SpeedSlow)
+	FfiConverterBoolINSTANCE.Write(writer, value.IsEstimate)
 }
 
 type FfiDestroyerSendOnchainFeeQuote struct{}
@@ -27531,9 +27965,8 @@ func (_ FfiDestroyerSparkStatus) Destroy(value SparkStatus) {
 // Configuration for automatic conversion of Bitcoin to stable tokens.
 //
 // When configured, the SDK automatically monitors the Bitcoin balance after each
-// wallet sync. When the balance exceeds the configured threshold plus the reserved
-// amount, the SDK automatically converts the excess balance (above the reserve)
-// to the active stable token.
+// wallet sync. Once the balance reaches the configured threshold, the SDK converts
+// the whole Bitcoin balance to the active stable token.
 //
 // When the balance is held in a stable token, Bitcoin payments can still be sent.
 // The SDK automatically detects when there's not enough Bitcoin balance to cover a
@@ -28605,18 +29038,43 @@ type UnilateralExitResponse struct {
 	// The actual total on-chain fee the returned transactions pay at the
 	// requested rate, in satoshis. A resumed or partially-confirmed exit pays
 	// less because already-confirmed steps are not rebuilt.
+	//
+	// The sum of the three components below, which say who pays what:
+	// `cpfp_fee_sat + fanout_fee_sat + sweep_fee_sat`. The first two come from
+	// your funding UTXOs, the third off the value being recovered.
 	TotalFeeSat uint64
+	// The part of `total_fee_sat` the CPFP children pay, funded by your UTXOs.
+	// It does not reduce what the exit recovers.
+	CpfpFeeSat uint64
+	// The part of `total_fee_sat` the fan-out pays, funded by your UTXO. Zero
+	// when this exit needed no fan-out, and when an earlier attempt's fan-out
+	// had already confirmed.
+	FanoutFeeSat uint64
+	// The part of `total_fee_sat` the sweep pays, taken from the value it
+	// moves, so this is the one component subtracted from what reaches the
+	// destination. Zero while no refund is on-chain yet and the set carries no
+	// sweep.
+	SweepFeeSat uint64
 	Leaves      []UnilateralExitLeaf
 	// The full signed transaction set, in valid topological (broadcast) order
 	// with shared ancestors appearing once and the sweep last.
 	Transactions []UnilateralExitTransaction
+	// The funding UTXOs this exit was built from, as you supplied them. Hand
+	// them back when you build the exit again and they are followed to whatever
+	// they have since become, so an outpoint an earlier attempt already spent
+	// still funds the rest.
+	FundingInputs []CpfpInput
 }
 
 func (r *UnilateralExitResponse) Destroy() {
 	FfiDestroyerUint64{}.Destroy(r.RecoverableValueSat)
 	FfiDestroyerUint64{}.Destroy(r.TotalFeeSat)
+	FfiDestroyerUint64{}.Destroy(r.CpfpFeeSat)
+	FfiDestroyerUint64{}.Destroy(r.FanoutFeeSat)
+	FfiDestroyerUint64{}.Destroy(r.SweepFeeSat)
 	FfiDestroyerSequenceUnilateralExitLeaf{}.Destroy(r.Leaves)
 	FfiDestroyerSequenceUnilateralExitTransaction{}.Destroy(r.Transactions)
+	FfiDestroyerSequenceCpfpInput{}.Destroy(r.FundingInputs)
 }
 
 type FfiConverterUnilateralExitResponse struct{}
@@ -28631,8 +29089,12 @@ func (c FfiConverterUnilateralExitResponse) Read(reader io.Reader) UnilateralExi
 	return UnilateralExitResponse{
 		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterSequenceUnilateralExitLeafINSTANCE.Read(reader),
 		FfiConverterSequenceUnilateralExitTransactionINSTANCE.Read(reader),
+		FfiConverterSequenceCpfpInputINSTANCE.Read(reader),
 	}
 }
 
@@ -28647,8 +29109,12 @@ func (c FfiConverterUnilateralExitResponse) LowerExternal(value UnilateralExitRe
 func (c FfiConverterUnilateralExitResponse) Write(writer io.Writer, value UnilateralExitResponse) {
 	FfiConverterUint64INSTANCE.Write(writer, value.RecoverableValueSat)
 	FfiConverterUint64INSTANCE.Write(writer, value.TotalFeeSat)
+	FfiConverterUint64INSTANCE.Write(writer, value.CpfpFeeSat)
+	FfiConverterUint64INSTANCE.Write(writer, value.FanoutFeeSat)
+	FfiConverterUint64INSTANCE.Write(writer, value.SweepFeeSat)
 	FfiConverterSequenceUnilateralExitLeafINSTANCE.Write(writer, value.Leaves)
 	FfiConverterSequenceUnilateralExitTransactionINSTANCE.Write(writer, value.Transactions)
+	FfiConverterSequenceCpfpInputINSTANCE.Write(writer, value.FundingInputs)
 }
 
 type FfiDestroyerUnilateralExitResponse struct{}
@@ -28676,7 +29142,10 @@ type UnilateralExitTransaction struct {
 	// Txids of other entries in this list that must be confirmed before this
 	// one can be broadcast.
 	DependsOn []string
-	Status    ConfirmationStatus
+	// Whether this transaction is on-chain, can go out now, or is waiting on
+	// something. Resolved against the chain tip, so it accounts for
+	// `csv_timelock_blocks` as well as `depends_on`.
+	Status ExitTransactionStatus
 }
 
 func (r *UnilateralExitTransaction) Destroy() {
@@ -28687,7 +29156,7 @@ func (r *UnilateralExitTransaction) Destroy() {
 	FfiDestroyerOptionalString{}.Destroy(r.CpfpTxHex)
 	FfiDestroyerOptionalUint32{}.Destroy(r.CsvTimelockBlocks)
 	FfiDestroyerSequenceString{}.Destroy(r.DependsOn)
-	FfiDestroyerConfirmationStatus{}.Destroy(r.Status)
+	FfiDestroyerExitTransactionStatus{}.Destroy(r.Status)
 }
 
 type FfiConverterUnilateralExitTransaction struct{}
@@ -28707,7 +29176,7 @@ func (c FfiConverterUnilateralExitTransaction) Read(reader io.Reader) Unilateral
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalUint32INSTANCE.Read(reader),
 		FfiConverterSequenceStringINSTANCE.Read(reader),
-		FfiConverterConfirmationStatusINSTANCE.Read(reader),
+		FfiConverterExitTransactionStatusINSTANCE.Read(reader),
 	}
 }
 
@@ -28727,7 +29196,7 @@ func (c FfiConverterUnilateralExitTransaction) Write(writer io.Writer, value Uni
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.CpfpTxHex)
 	FfiConverterOptionalUint32INSTANCE.Write(writer, value.CsvTimelockBlocks)
 	FfiConverterSequenceStringINSTANCE.Write(writer, value.DependsOn)
-	FfiConverterConfirmationStatusINSTANCE.Write(writer, value.Status)
+	FfiConverterExitTransactionStatusINSTANCE.Write(writer, value.Status)
 }
 
 type FfiDestroyerUnilateralExitTransaction struct{}
@@ -30101,48 +30570,6 @@ func (_ FfiDestroyerChainServiceError) Destroy(value *ChainServiceError) {
 	}
 }
 
-// Whether a transaction in the exit path is already on-chain.
-type ConfirmationStatus uint
-
-const (
-	// This transaction is confirmed in a block. It needs no action.
-	ConfirmationStatusConfirmed ConfirmationStatus = 1
-	// This transaction is not yet confirmed. Mempool state is not consulted.
-	ConfirmationStatusUnconfirmed ConfirmationStatus = 2
-	// The on-chain status could not be determined (the chain service errored).
-	// Broadcasting may fail if a conflicting transaction already landed.
-	ConfirmationStatusUnverified ConfirmationStatus = 3
-)
-
-type FfiConverterConfirmationStatus struct{}
-
-var FfiConverterConfirmationStatusINSTANCE = FfiConverterConfirmationStatus{}
-
-func (c FfiConverterConfirmationStatus) Lift(rb RustBufferI) ConfirmationStatus {
-	return LiftFromRustBuffer[ConfirmationStatus](c, rb)
-}
-
-func (c FfiConverterConfirmationStatus) Lower(value ConfirmationStatus) C.RustBuffer {
-	return LowerIntoRustBuffer[ConfirmationStatus](c, value)
-}
-
-func (c FfiConverterConfirmationStatus) LowerExternal(value ConfirmationStatus) ExternalCRustBuffer {
-	return RustBufferFromC(LowerIntoRustBuffer[ConfirmationStatus](c, value))
-}
-func (FfiConverterConfirmationStatus) Read(reader io.Reader) ConfirmationStatus {
-	id := readInt32(reader)
-	return ConfirmationStatus(id)
-}
-
-func (FfiConverterConfirmationStatus) Write(writer io.Writer, value ConfirmationStatus) {
-	writeInt32(writer, int32(value))
-}
-
-type FfiDestroyerConfirmationStatus struct{}
-
-func (_ FfiDestroyerConfirmationStatus) Destroy(value ConfirmationStatus) {
-}
-
 // The chain or network that a [`ConversionSide`] lives on.
 type ConversionChain interface {
 	Destroy()
@@ -30275,8 +30702,9 @@ func (_ FfiDestroyerConversionFilter) Destroy(value ConversionFilter) {
 //
 // The variant identifies which provider handled the conversion:
 // - [`ConversionInfo::Amm`] for Spark token swaps via Flashnet AMM pools.
-// - [`ConversionInfo::Orchestra`] for cross-chain sends via Flashnet
-// Orchestra (Spark → external chain).
+// - [`ConversionInfo::Orchestra`] for cross-chain transfers via Flashnet
+// Orchestra, in either direction (Spark → external chain, or external
+// chain → Spark).
 // - [`ConversionInfo::Boltz`] for sats → stable-coin reverse swaps via Boltz.
 type ConversionInfo interface {
 	Destroy()
@@ -30303,7 +30731,13 @@ func (e ConversionInfoAmm) Destroy() {
 	FfiDestroyerOptionalSwapDegradation{}.Destroy(e.Degradation)
 }
 
-// Orchestra cross-chain conversion via the Flashnet orchestration API.
+// Orchestra cross-chain conversion via the Flashnet orchestration API,
+// in either direction.
+//
+// `chain`, `asset`, `asset_decimals` and `asset_contract` always describe
+// the external (non-Spark) side: the destination on a send, the source on
+// a receive. Amounts follow the direction of the transfer, so read each
+// amount field's own denomination.
 type ConversionInfoOrchestra struct {
 	OrderId          string
 	QuoteId          string
@@ -30315,6 +30749,7 @@ type ConversionInfoOrchestra struct {
 	AssetAmountIn    *u128
 	EstimatedOut     u128
 	DeliveredAmount  *u128
+	ExternalTxHash   *string
 	Status           ConversionStatus
 	FeeAmount        *u128
 	ServiceFeeAmount *u128
@@ -30334,6 +30769,7 @@ func (e ConversionInfoOrchestra) Destroy() {
 	FfiDestroyerOptionalTypeu128{}.Destroy(e.AssetAmountIn)
 	FfiDestroyerTypeu128{}.Destroy(e.EstimatedOut)
 	FfiDestroyerOptionalTypeu128{}.Destroy(e.DeliveredAmount)
+	FfiDestroyerOptionalString{}.Destroy(e.ExternalTxHash)
 	FfiDestroyerConversionStatus{}.Destroy(e.Status)
 	FfiDestroyerOptionalTypeu128{}.Destroy(e.FeeAmount)
 	FfiDestroyerOptionalTypeu128{}.Destroy(e.ServiceFeeAmount)
@@ -30430,6 +30866,7 @@ func (FfiConverterConversionInfo) Read(reader io.Reader) ConversionInfo {
 			FfiConverterOptionalTypeu128INSTANCE.Read(reader),
 			FfiConverterTypeu128INSTANCE.Read(reader),
 			FfiConverterOptionalTypeu128INSTANCE.Read(reader),
+			FfiConverterOptionalStringINSTANCE.Read(reader),
 			FfiConverterConversionStatusINSTANCE.Read(reader),
 			FfiConverterOptionalTypeu128INSTANCE.Read(reader),
 			FfiConverterOptionalTypeu128INSTANCE.Read(reader),
@@ -30487,6 +30924,7 @@ func (FfiConverterConversionInfo) Write(writer io.Writer, value ConversionInfo) 
 		FfiConverterOptionalTypeu128INSTANCE.Write(writer, variant_value.AssetAmountIn)
 		FfiConverterTypeu128INSTANCE.Write(writer, variant_value.EstimatedOut)
 		FfiConverterOptionalTypeu128INSTANCE.Write(writer, variant_value.DeliveredAmount)
+		FfiConverterOptionalStringINSTANCE.Write(writer, variant_value.ExternalTxHash)
 		FfiConverterConversionStatusINSTANCE.Write(writer, variant_value.Status)
 		FfiConverterOptionalTypeu128INSTANCE.Write(writer, variant_value.FeeAmount)
 		FfiConverterOptionalTypeu128INSTANCE.Write(writer, variant_value.ServiceFeeAmount)
@@ -31026,16 +31464,24 @@ type FfiDestroyerCrossChainAddressFamily struct{}
 func (_ FfiDestroyerCrossChainAddressFamily) Destroy(value CrossChainAddressFamily) {
 }
 
-// How the caller wants fees handled against the request `amount`.
-//
-// - `FeesExcluded`: `amount` is the provider invoice/deposit target; the
-// wallet pays `amount + source_transfer_fee_sats` in total.
-// - `FeesIncluded`: `amount` is the wallet's total sats budget; the provider
-// leg is sized so `amount_in + source_transfer_fee_sats <= amount`.
+// Which side of the transfer the request `amount` sizes: what leaves the
+// payer, or what reaches the receiver.
 type CrossChainFeeMode uint
 
 const (
+	// `amount` sizes the receiving end, and fees are paid on top.
+	//
+	// Sending: `amount` is the provider invoice/deposit target, and the
+	// wallet pays `amount + source_transfer_fee_sats` in total.
+	// Receiving: `amount` is what the wallet ends up with, and the deposit
+	// the sender is asked for is sized above it to cover fees.
 	CrossChainFeeModeFeesExcluded CrossChainFeeMode = 1
+	// `amount` sizes the paying end, and fees come out of it.
+	//
+	// Sending: `amount` is the wallet's total sats budget, and the provider
+	// leg is sized so `amount_in + source_transfer_fee_sats <= amount`.
+	// Receiving: `amount` is the deposit the sender makes, and the wallet
+	// ends up with that minus fees.
 	CrossChainFeeModeFeesIncluded CrossChainFeeMode = 2
 )
 
@@ -31072,7 +31518,8 @@ type CrossChainProvider uint
 
 const (
 	CrossChainProviderOrchestra CrossChainProvider = 1
-	CrossChainProviderBoltz     CrossChainProvider = 2
+	// Not operational: no routes are currently offered under this provider.
+	CrossChainProviderBoltz CrossChainProvider = 2
 )
 
 type FfiConverterCrossChainProvider struct{}
@@ -31290,6 +31737,47 @@ type FfiDestroyerCrossChainRouteFilter struct{}
 
 func (_ FfiDestroyerCrossChainRouteFilter) Destroy(value CrossChainRouteFilter) {
 	value.Destroy()
+}
+
+// The rail a cross-chain payment is delivered over.
+type DeliveryMethod uint
+
+const (
+	// Delivered over the Spark network.
+	DeliveryMethodSpark DeliveryMethod = 1
+	// Delivered over Lightning.
+	DeliveryMethodLightning DeliveryMethod = 2
+	// Delivered on-chain over Bitcoin.
+	DeliveryMethodBitcoin DeliveryMethod = 3
+)
+
+type FfiConverterDeliveryMethod struct{}
+
+var FfiConverterDeliveryMethodINSTANCE = FfiConverterDeliveryMethod{}
+
+func (c FfiConverterDeliveryMethod) Lift(rb RustBufferI) DeliveryMethod {
+	return LiftFromRustBuffer[DeliveryMethod](c, rb)
+}
+
+func (c FfiConverterDeliveryMethod) Lower(value DeliveryMethod) C.RustBuffer {
+	return LowerIntoRustBuffer[DeliveryMethod](c, value)
+}
+
+func (c FfiConverterDeliveryMethod) LowerExternal(value DeliveryMethod) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[DeliveryMethod](c, value))
+}
+func (FfiConverterDeliveryMethod) Read(reader io.Reader) DeliveryMethod {
+	id := readInt32(reader)
+	return DeliveryMethod(id)
+}
+
+func (FfiConverterDeliveryMethod) Write(writer io.Writer, value DeliveryMethod) {
+	writeInt32(writer, int32(value))
+}
+
+type FfiDestroyerDeliveryMethod struct{}
+
+func (_ FfiDestroyerDeliveryMethod) Destroy(value DeliveryMethod) {
 }
 
 type DepositClaimError interface {
@@ -31622,6 +32110,248 @@ func (FfiConverterExitLeafSelection) Write(writer io.Writer, value ExitLeafSelec
 type FfiDestroyerExitLeafSelection struct{}
 
 func (_ FfiDestroyerExitLeafSelection) Destroy(value ExitLeafSelection) {
+	value.Destroy()
+}
+
+// Which of a node's two pre-signed spends took it on-chain.
+type ExitNodeConfirmation uint
+
+const (
+	// The CPFP transaction, whose fee a child paid.
+	ExitNodeConfirmationCpfp ExitNodeConfirmation = 1
+	// The direct transaction, which pays its own fee. A leaf that went out this
+	// way is refunded by its direct refund transaction.
+	ExitNodeConfirmationDirect ExitNodeConfirmation = 2
+)
+
+type FfiConverterExitNodeConfirmation struct{}
+
+var FfiConverterExitNodeConfirmationINSTANCE = FfiConverterExitNodeConfirmation{}
+
+func (c FfiConverterExitNodeConfirmation) Lift(rb RustBufferI) ExitNodeConfirmation {
+	return LiftFromRustBuffer[ExitNodeConfirmation](c, rb)
+}
+
+func (c FfiConverterExitNodeConfirmation) Lower(value ExitNodeConfirmation) C.RustBuffer {
+	return LowerIntoRustBuffer[ExitNodeConfirmation](c, value)
+}
+
+func (c FfiConverterExitNodeConfirmation) LowerExternal(value ExitNodeConfirmation) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[ExitNodeConfirmation](c, value))
+}
+func (FfiConverterExitNodeConfirmation) Read(reader io.Reader) ExitNodeConfirmation {
+	id := readInt32(reader)
+	return ExitNodeConfirmation(id)
+}
+
+func (FfiConverterExitNodeConfirmation) Write(writer io.Writer, value ExitNodeConfirmation) {
+	writeInt32(writer, int32(value))
+}
+
+type FfiDestroyerExitNodeConfirmation struct{}
+
+func (_ FfiDestroyerExitNodeConfirmation) Destroy(value ExitNodeConfirmation) {
+}
+
+type ExitRefundState interface {
+	Destroy()
+}
+
+// On-chain with its output still there, which is what the sweep pulls from.
+// A sweep sitting unconfirmed in the mempool leaves the refund here, so
+// that sweep is rebuilt rather than dropped.
+type ExitRefundStateOnChain struct {
+	TxHex       string
+	Vout        uint32
+	ValueSat    uint64
+	BlockHeight *uint32
+}
+
+func (e ExitRefundStateOnChain) Destroy() {
+	FfiDestroyerString{}.Destroy(e.TxHex)
+	FfiDestroyerUint32{}.Destroy(e.Vout)
+	FfiDestroyerUint64{}.Destroy(e.ValueSat)
+	FfiDestroyerOptionalUint32{}.Destroy(e.BlockHeight)
+}
+
+// Spent by a confirmed transaction: the sweep landed.
+type ExitRefundStateSwept struct {
+}
+
+func (e ExitRefundStateSwept) Destroy() {
+}
+
+type FfiConverterExitRefundState struct{}
+
+var FfiConverterExitRefundStateINSTANCE = FfiConverterExitRefundState{}
+
+func (c FfiConverterExitRefundState) Lift(rb RustBufferI) ExitRefundState {
+	return LiftFromRustBuffer[ExitRefundState](c, rb)
+}
+
+func (c FfiConverterExitRefundState) Lower(value ExitRefundState) C.RustBuffer {
+	return LowerIntoRustBuffer[ExitRefundState](c, value)
+}
+
+func (c FfiConverterExitRefundState) LowerExternal(value ExitRefundState) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[ExitRefundState](c, value))
+}
+func (FfiConverterExitRefundState) Read(reader io.Reader) ExitRefundState {
+	id := readInt32(reader)
+	switch id {
+	case 1:
+		return ExitRefundStateOnChain{
+			FfiConverterStringINSTANCE.Read(reader),
+			FfiConverterUint32INSTANCE.Read(reader),
+			FfiConverterUint64INSTANCE.Read(reader),
+			FfiConverterOptionalUint32INSTANCE.Read(reader),
+		}
+	case 2:
+		return ExitRefundStateSwept{}
+	default:
+		panic(fmt.Sprintf("invalid enum value %v in FfiConverterExitRefundState.Read()", id))
+	}
+}
+
+func (FfiConverterExitRefundState) Write(writer io.Writer, value ExitRefundState) {
+	switch variant_value := value.(type) {
+	case ExitRefundStateOnChain:
+		writeInt32(writer, 1)
+		FfiConverterStringINSTANCE.Write(writer, variant_value.TxHex)
+		FfiConverterUint32INSTANCE.Write(writer, variant_value.Vout)
+		FfiConverterUint64INSTANCE.Write(writer, variant_value.ValueSat)
+		FfiConverterOptionalUint32INSTANCE.Write(writer, variant_value.BlockHeight)
+	case ExitRefundStateSwept:
+		writeInt32(writer, 2)
+	default:
+		_ = variant_value
+		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterExitRefundState.Write", value))
+	}
+}
+
+type FfiDestroyerExitRefundState struct{}
+
+func (_ FfiDestroyerExitRefundState) Destroy(value ExitRefundState) {
+	value.Destroy()
+}
+
+// Where a transaction in the exit path stands: on-chain, ready to send, or
+// waiting for something.
+type ExitTransactionStatus interface {
+	Destroy()
+}
+
+// Confirmed in a block, at `block_height` where the chain service reported
+// one. It needs no action.
+//
+// A relative `csv_timelock_blocks` counts from the height of the
+// transaction it spends, so this is what tells you when a child of this one
+// can go out, without fetching it again.
+type ExitTransactionStatusConfirmed struct {
+	BlockHeight *uint32
+}
+
+func (e ExitTransactionStatusConfirmed) Destroy() {
+	FfiDestroyerOptionalUint32{}.Destroy(e.BlockHeight)
+}
+
+// Not on-chain, and nothing is holding it back. Broadcast it, with its
+// `cpfp_tx_hex` where it has one.
+type ExitTransactionStatusReady struct {
+}
+
+func (e ExitTransactionStatusReady) Destroy() {
+}
+
+// A transaction in `depends_on` has yet to confirm. A relative timelock
+// only starts counting once it does.
+type ExitTransactionStatusWaitingForDependencies struct {
+}
+
+func (e ExitTransactionStatusWaitingForDependencies) Destroy() {
+}
+
+// Every input is confirmed, but a relative timelock has yet to mature.
+// `spendable_at_height` is the first block that can include this
+// transaction, and is unset when the height it counts from could not be
+// read from the chain.
+type ExitTransactionStatusWaitingForTimelock struct {
+	SpendableAtHeight *uint32
+}
+
+func (e ExitTransactionStatusWaitingForTimelock) Destroy() {
+	FfiDestroyerOptionalUint32{}.Destroy(e.SpendableAtHeight)
+}
+
+// The on-chain status could not be determined (the chain service errored),
+// which also leaves what it is waiting for unknown. Broadcasting may fail
+// if a conflicting transaction already landed.
+type ExitTransactionStatusUnverified struct {
+}
+
+func (e ExitTransactionStatusUnverified) Destroy() {
+}
+
+type FfiConverterExitTransactionStatus struct{}
+
+var FfiConverterExitTransactionStatusINSTANCE = FfiConverterExitTransactionStatus{}
+
+func (c FfiConverterExitTransactionStatus) Lift(rb RustBufferI) ExitTransactionStatus {
+	return LiftFromRustBuffer[ExitTransactionStatus](c, rb)
+}
+
+func (c FfiConverterExitTransactionStatus) Lower(value ExitTransactionStatus) C.RustBuffer {
+	return LowerIntoRustBuffer[ExitTransactionStatus](c, value)
+}
+
+func (c FfiConverterExitTransactionStatus) LowerExternal(value ExitTransactionStatus) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[ExitTransactionStatus](c, value))
+}
+func (FfiConverterExitTransactionStatus) Read(reader io.Reader) ExitTransactionStatus {
+	id := readInt32(reader)
+	switch id {
+	case 1:
+		return ExitTransactionStatusConfirmed{
+			FfiConverterOptionalUint32INSTANCE.Read(reader),
+		}
+	case 2:
+		return ExitTransactionStatusReady{}
+	case 3:
+		return ExitTransactionStatusWaitingForDependencies{}
+	case 4:
+		return ExitTransactionStatusWaitingForTimelock{
+			FfiConverterOptionalUint32INSTANCE.Read(reader),
+		}
+	case 5:
+		return ExitTransactionStatusUnverified{}
+	default:
+		panic(fmt.Sprintf("invalid enum value %v in FfiConverterExitTransactionStatus.Read()", id))
+	}
+}
+
+func (FfiConverterExitTransactionStatus) Write(writer io.Writer, value ExitTransactionStatus) {
+	switch variant_value := value.(type) {
+	case ExitTransactionStatusConfirmed:
+		writeInt32(writer, 1)
+		FfiConverterOptionalUint32INSTANCE.Write(writer, variant_value.BlockHeight)
+	case ExitTransactionStatusReady:
+		writeInt32(writer, 2)
+	case ExitTransactionStatusWaitingForDependencies:
+		writeInt32(writer, 3)
+	case ExitTransactionStatusWaitingForTimelock:
+		writeInt32(writer, 4)
+		FfiConverterOptionalUint32INSTANCE.Write(writer, variant_value.SpendableAtHeight)
+	case ExitTransactionStatusUnverified:
+		writeInt32(writer, 5)
+	default:
+		_ = variant_value
+		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterExitTransactionStatus.Write", value))
+	}
+}
+
+type FfiDestroyerExitTransactionStatus struct{}
+
+func (_ FfiDestroyerExitTransactionStatus) Destroy(value ExitTransactionStatus) {
 	value.Destroy()
 }
 
@@ -34726,6 +35456,24 @@ func (e ReceivePaymentMethodBolt11Invoice) Destroy() {
 	FfiDestroyerOptionalString{}.Destroy(e.ReceiverIdentityPublicKey)
 }
 
+type ReceivePaymentMethodCrossChain struct {
+	Route            CrossChainRoutePair
+	Amount           u128
+	Destination      *SparkAsset
+	FeeMode          *CrossChainFeeMode
+	MaxSlippageBps   *uint32
+	TargetOverpayBps *uint32
+}
+
+func (e ReceivePaymentMethodCrossChain) Destroy() {
+	FfiDestroyerCrossChainRoutePair{}.Destroy(e.Route)
+	FfiDestroyerTypeu128{}.Destroy(e.Amount)
+	FfiDestroyerOptionalSparkAsset{}.Destroy(e.Destination)
+	FfiDestroyerOptionalCrossChainFeeMode{}.Destroy(e.FeeMode)
+	FfiDestroyerOptionalUint32{}.Destroy(e.MaxSlippageBps)
+	FfiDestroyerOptionalUint32{}.Destroy(e.TargetOverpayBps)
+}
+
 type FfiConverterReceivePaymentMethod struct{}
 
 var FfiConverterReceivePaymentMethodINSTANCE = FfiConverterReceivePaymentMethod{}
@@ -34766,6 +35514,15 @@ func (FfiConverterReceivePaymentMethod) Read(reader io.Reader) ReceivePaymentMet
 			FfiConverterOptionalStringINSTANCE.Read(reader),
 			FfiConverterOptionalStringINSTANCE.Read(reader),
 		}
+	case 5:
+		return ReceivePaymentMethodCrossChain{
+			FfiConverterCrossChainRoutePairINSTANCE.Read(reader),
+			FfiConverterTypeu128INSTANCE.Read(reader),
+			FfiConverterOptionalSparkAssetINSTANCE.Read(reader),
+			FfiConverterOptionalCrossChainFeeModeINSTANCE.Read(reader),
+			FfiConverterOptionalUint32INSTANCE.Read(reader),
+			FfiConverterOptionalUint32INSTANCE.Read(reader),
+		}
 	default:
 		panic(fmt.Sprintf("invalid enum value %v in FfiConverterReceivePaymentMethod.Read()", id))
 	}
@@ -34792,6 +35549,14 @@ func (FfiConverterReceivePaymentMethod) Write(writer io.Writer, value ReceivePay
 		FfiConverterOptionalUint32INSTANCE.Write(writer, variant_value.ExpirySecs)
 		FfiConverterOptionalStringINSTANCE.Write(writer, variant_value.PaymentHash)
 		FfiConverterOptionalStringINSTANCE.Write(writer, variant_value.ReceiverIdentityPublicKey)
+	case ReceivePaymentMethodCrossChain:
+		writeInt32(writer, 5)
+		FfiConverterCrossChainRoutePairINSTANCE.Write(writer, variant_value.Route)
+		FfiConverterTypeu128INSTANCE.Write(writer, variant_value.Amount)
+		FfiConverterOptionalSparkAssetINSTANCE.Write(writer, variant_value.Destination)
+		FfiConverterOptionalCrossChainFeeModeINSTANCE.Write(writer, variant_value.FeeMode)
+		FfiConverterOptionalUint32INSTANCE.Write(writer, variant_value.MaxSlippageBps)
+		FfiConverterOptionalUint32INSTANCE.Write(writer, variant_value.TargetOverpayBps)
 	default:
 		_ = variant_value
 		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterReceivePaymentMethod.Write", value))
@@ -34917,7 +35682,6 @@ var ErrSdkErrorSigner = fmt.Errorf("SdkErrorSigner")
 var ErrSdkErrorOptimizationAlreadyRunning = fmt.Errorf("SdkErrorOptimizationAlreadyRunning")
 var ErrSdkErrorOptimizationCancelled = fmt.Errorf("SdkErrorOptimizationCancelled")
 var ErrSdkErrorInsufficientCpfpFunds = fmt.Errorf("SdkErrorInsufficientCpfpFunds")
-var ErrSdkErrorFundingUtxoConflict = fmt.Errorf("SdkErrorFundingUtxoConflict")
 var ErrSdkErrorGeneric = fmt.Errorf("SdkErrorGeneric")
 
 // Variant structs
@@ -35420,45 +36184,6 @@ func (self SdkErrorInsufficientCpfpFunds) Is(target error) bool {
 	return target == ErrSdkErrorInsufficientCpfpFunds
 }
 
-// A provided funding UTXO was already spent on-chain by a transaction that
-// is not the expected fan-out, so it cannot fund this exit.
-type SdkErrorFundingUtxoConflict struct {
-	Txid string
-	Vout uint32
-}
-
-// A provided funding UTXO was already spent on-chain by a transaction that
-// is not the expected fan-out, so it cannot fund this exit.
-func NewSdkErrorFundingUtxoConflict(
-	txid string,
-	vout uint32,
-) *SdkError {
-	return &SdkError{err: &SdkErrorFundingUtxoConflict{
-		Txid: txid,
-		Vout: vout}}
-}
-
-func (e SdkErrorFundingUtxoConflict) destroy() {
-	FfiDestroyerString{}.Destroy(e.Txid)
-	FfiDestroyerUint32{}.Destroy(e.Vout)
-}
-
-func (err SdkErrorFundingUtxoConflict) Error() string {
-	return fmt.Sprint("FundingUtxoConflict",
-		": ",
-
-		"Txid=",
-		err.Txid,
-		", ",
-		"Vout=",
-		err.Vout,
-	)
-}
-
-func (self SdkErrorFundingUtxoConflict) Is(target error) bool {
-	return target == ErrSdkErrorFundingUtxoConflict
-}
-
 type SdkErrorGeneric struct {
 	Field0 string
 }
@@ -35575,11 +36300,6 @@ func (c FfiConverterSdkError) Read(reader io.Reader) *SdkError {
 			RequiredSat: FfiConverterUint64INSTANCE.Read(reader),
 		}}
 	case 17:
-		return &SdkError{&SdkErrorFundingUtxoConflict{
-			Txid: FfiConverterStringINSTANCE.Read(reader),
-			Vout: FfiConverterUint32INSTANCE.Read(reader),
-		}}
-	case 18:
 		return &SdkError{&SdkErrorGeneric{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
@@ -35643,12 +36363,8 @@ func (c FfiConverterSdkError) Write(writer io.Writer, value *SdkError) {
 	case *SdkErrorInsufficientCpfpFunds:
 		writeInt32(writer, 16)
 		FfiConverterUint64INSTANCE.Write(writer, variantValue.RequiredSat)
-	case *SdkErrorFundingUtxoConflict:
-		writeInt32(writer, 17)
-		FfiConverterStringINSTANCE.Write(writer, variantValue.Txid)
-		FfiConverterUint32INSTANCE.Write(writer, variantValue.Vout)
 	case *SdkErrorGeneric:
-		writeInt32(writer, 18)
+		writeInt32(writer, 17)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
 	default:
 		_ = variantValue
@@ -35691,8 +36407,6 @@ func (_ FfiDestroyerSdkError) Destroy(value *SdkError) {
 	case SdkErrorOptimizationCancelled:
 		variantValue.destroy()
 	case SdkErrorInsufficientCpfpFunds:
-		variantValue.destroy()
-	case SdkErrorFundingUtxoConflict:
 		variantValue.destroy()
 	case SdkErrorGeneric:
 		variantValue.destroy()
@@ -37268,115 +37982,73 @@ func (_ FfiDestroyerSignerError) Destroy(value *SignerError) {
 	}
 }
 
-// The source asset a cross-chain route accepts as input on the Spark side.
-type SourceAsset interface {
+// The asset a cross-chain route accepts on the Spark side.
+type SparkAsset interface {
 	Destroy()
 }
 
 // Native BTC (sats).
-type SourceAssetBitcoin struct {
+type SparkAssetBitcoin struct {
 }
 
-func (e SourceAssetBitcoin) Destroy() {
+func (e SparkAssetBitcoin) Destroy() {
 }
 
 // A Spark token, identified by its bech32m `token_identifier` (e.g. `btkn1...`).
-type SourceAssetToken struct {
+type SparkAssetToken struct {
 	TokenIdentifier string
 }
 
-func (e SourceAssetToken) Destroy() {
+func (e SparkAssetToken) Destroy() {
 	FfiDestroyerString{}.Destroy(e.TokenIdentifier)
 }
 
-type FfiConverterSourceAsset struct{}
+type FfiConverterSparkAsset struct{}
 
-var FfiConverterSourceAssetINSTANCE = FfiConverterSourceAsset{}
+var FfiConverterSparkAssetINSTANCE = FfiConverterSparkAsset{}
 
-func (c FfiConverterSourceAsset) Lift(rb RustBufferI) SourceAsset {
-	return LiftFromRustBuffer[SourceAsset](c, rb)
+func (c FfiConverterSparkAsset) Lift(rb RustBufferI) SparkAsset {
+	return LiftFromRustBuffer[SparkAsset](c, rb)
 }
 
-func (c FfiConverterSourceAsset) Lower(value SourceAsset) C.RustBuffer {
-	return LowerIntoRustBuffer[SourceAsset](c, value)
+func (c FfiConverterSparkAsset) Lower(value SparkAsset) C.RustBuffer {
+	return LowerIntoRustBuffer[SparkAsset](c, value)
 }
 
-func (c FfiConverterSourceAsset) LowerExternal(value SourceAsset) ExternalCRustBuffer {
-	return RustBufferFromC(LowerIntoRustBuffer[SourceAsset](c, value))
+func (c FfiConverterSparkAsset) LowerExternal(value SparkAsset) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[SparkAsset](c, value))
 }
-func (FfiConverterSourceAsset) Read(reader io.Reader) SourceAsset {
+func (FfiConverterSparkAsset) Read(reader io.Reader) SparkAsset {
 	id := readInt32(reader)
 	switch id {
 	case 1:
-		return SourceAssetBitcoin{}
+		return SparkAssetBitcoin{}
 	case 2:
-		return SourceAssetToken{
+		return SparkAssetToken{
 			FfiConverterStringINSTANCE.Read(reader),
 		}
 	default:
-		panic(fmt.Sprintf("invalid enum value %v in FfiConverterSourceAsset.Read()", id))
+		panic(fmt.Sprintf("invalid enum value %v in FfiConverterSparkAsset.Read()", id))
 	}
 }
 
-func (FfiConverterSourceAsset) Write(writer io.Writer, value SourceAsset) {
+func (FfiConverterSparkAsset) Write(writer io.Writer, value SparkAsset) {
 	switch variant_value := value.(type) {
-	case SourceAssetBitcoin:
+	case SparkAssetBitcoin:
 		writeInt32(writer, 1)
-	case SourceAssetToken:
+	case SparkAssetToken:
 		writeInt32(writer, 2)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.TokenIdentifier)
 	default:
 		_ = variant_value
-		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterSourceAsset.Write", value))
+		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterSparkAsset.Write", value))
 	}
 }
 
-type FfiDestroyerSourceAsset struct{}
+type FfiDestroyerSparkAsset struct{}
 
-func (_ FfiDestroyerSourceAsset) Destroy(value SourceAsset) {
+func (_ FfiDestroyerSparkAsset) Destroy(value SparkAsset) {
 	value.Destroy()
-}
-
-// The chain a cross-chain route is funded from, orthogonal to the
-// [`SourceAsset`] that moves.
-type SourceChain uint
-
-const (
-	// Paid over Spark, using a Bitcoin or token source asset.
-	SourceChainSpark SourceChain = 1
-	// Paid over Lightning, using a Bitcoin source asset.
-	SourceChainLightning SourceChain = 2
-	// Paid on-chain to Bitcoin (L1), using a Bitcoin source asset.
-	SourceChainBitcoin SourceChain = 3
-)
-
-type FfiConverterSourceChain struct{}
-
-var FfiConverterSourceChainINSTANCE = FfiConverterSourceChain{}
-
-func (c FfiConverterSourceChain) Lift(rb RustBufferI) SourceChain {
-	return LiftFromRustBuffer[SourceChain](c, rb)
-}
-
-func (c FfiConverterSourceChain) Lower(value SourceChain) C.RustBuffer {
-	return LowerIntoRustBuffer[SourceChain](c, value)
-}
-
-func (c FfiConverterSourceChain) LowerExternal(value SourceChain) ExternalCRustBuffer {
-	return RustBufferFromC(LowerIntoRustBuffer[SourceChain](c, value))
-}
-func (FfiConverterSourceChain) Read(reader io.Reader) SourceChain {
-	id := readInt32(reader)
-	return SourceChain(id)
-}
-
-func (FfiConverterSourceChain) Write(writer io.Writer, value SourceChain) {
-	writeInt32(writer, int32(value))
-}
-
-type FfiDestroyerSourceChain struct{}
-
-func (_ FfiDestroyerSourceChain) Destroy(value SourceChain) {
 }
 
 type SparkHtlcStatus uint
@@ -38362,6 +39034,46 @@ func (_ FfiDestroyerTransferTarget) Destroy(value TransferTarget) {
 	value.Destroy()
 }
 
+// Why an exit has to be built again.
+type UnilateralExitRedoReason uint
+
+const (
+	// The chain no longer matches the exit: something that is not one of its
+	// own transactions took an outpoint it still needs. A different refund, a
+	// fee bump from elsewhere, or funding spent on something else all land
+	// here.
+	UnilateralExitRedoReasonOnChainStateDiverged UnilateralExitRedoReason = 1
+)
+
+type FfiConverterUnilateralExitRedoReason struct{}
+
+var FfiConverterUnilateralExitRedoReasonINSTANCE = FfiConverterUnilateralExitRedoReason{}
+
+func (c FfiConverterUnilateralExitRedoReason) Lift(rb RustBufferI) UnilateralExitRedoReason {
+	return LiftFromRustBuffer[UnilateralExitRedoReason](c, rb)
+}
+
+func (c FfiConverterUnilateralExitRedoReason) Lower(value UnilateralExitRedoReason) C.RustBuffer {
+	return LowerIntoRustBuffer[UnilateralExitRedoReason](c, value)
+}
+
+func (c FfiConverterUnilateralExitRedoReason) LowerExternal(value UnilateralExitRedoReason) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[UnilateralExitRedoReason](c, value))
+}
+func (FfiConverterUnilateralExitRedoReason) Read(reader io.Reader) UnilateralExitRedoReason {
+	id := readInt32(reader)
+	return UnilateralExitRedoReason(id)
+}
+
+func (FfiConverterUnilateralExitRedoReason) Write(writer io.Writer, value UnilateralExitRedoReason) {
+	writeInt32(writer, int32(value))
+}
+
+type FfiDestroyerUnilateralExitRedoReason struct{}
+
+func (_ FfiDestroyerUnilateralExitRedoReason) Destroy(value UnilateralExitRedoReason) {
+}
+
 // The role of a transaction in the exit path.
 type UnilateralExitTxKind uint
 
@@ -38404,6 +39116,88 @@ func (FfiConverterUnilateralExitTxKind) Write(writer io.Writer, value Unilateral
 type FfiDestroyerUnilateralExitTxKind struct{}
 
 func (_ FfiDestroyerUnilateralExitTxKind) Destroy(value UnilateralExitTxKind) {
+}
+
+// What to do with an exit that has been read back against the chain.
+type UnilateralExitVerdict interface {
+	Destroy()
+}
+
+// The exit still holds. Broadcast the transactions whose dependencies are
+// confirmed and whose timelocks have matured.
+type UnilateralExitVerdictValid struct {
+}
+
+func (e UnilateralExitVerdictValid) Destroy() {
+}
+
+// Every transaction is confirmed, the sweep included. The funds have
+// arrived and there is nothing left to send.
+type UnilateralExitVerdictDone struct {
+}
+
+func (e UnilateralExitVerdictDone) Destroy() {
+}
+
+// The exit cannot be finished as it stands. Quote and build it again.
+type UnilateralExitVerdictRedo struct {
+	Reason UnilateralExitRedoReason
+}
+
+func (e UnilateralExitVerdictRedo) Destroy() {
+	FfiDestroyerUnilateralExitRedoReason{}.Destroy(e.Reason)
+}
+
+type FfiConverterUnilateralExitVerdict struct{}
+
+var FfiConverterUnilateralExitVerdictINSTANCE = FfiConverterUnilateralExitVerdict{}
+
+func (c FfiConverterUnilateralExitVerdict) Lift(rb RustBufferI) UnilateralExitVerdict {
+	return LiftFromRustBuffer[UnilateralExitVerdict](c, rb)
+}
+
+func (c FfiConverterUnilateralExitVerdict) Lower(value UnilateralExitVerdict) C.RustBuffer {
+	return LowerIntoRustBuffer[UnilateralExitVerdict](c, value)
+}
+
+func (c FfiConverterUnilateralExitVerdict) LowerExternal(value UnilateralExitVerdict) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[UnilateralExitVerdict](c, value))
+}
+func (FfiConverterUnilateralExitVerdict) Read(reader io.Reader) UnilateralExitVerdict {
+	id := readInt32(reader)
+	switch id {
+	case 1:
+		return UnilateralExitVerdictValid{}
+	case 2:
+		return UnilateralExitVerdictDone{}
+	case 3:
+		return UnilateralExitVerdictRedo{
+			FfiConverterUnilateralExitRedoReasonINSTANCE.Read(reader),
+		}
+	default:
+		panic(fmt.Sprintf("invalid enum value %v in FfiConverterUnilateralExitVerdict.Read()", id))
+	}
+}
+
+func (FfiConverterUnilateralExitVerdict) Write(writer io.Writer, value UnilateralExitVerdict) {
+	switch variant_value := value.(type) {
+	case UnilateralExitVerdictValid:
+		writeInt32(writer, 1)
+	case UnilateralExitVerdictDone:
+		writeInt32(writer, 2)
+	case UnilateralExitVerdictRedo:
+		writeInt32(writer, 3)
+		FfiConverterUnilateralExitRedoReasonINSTANCE.Write(writer, variant_value.Reason)
+	default:
+		_ = variant_value
+		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterUnilateralExitVerdict.Write", value))
+	}
+}
+
+type FfiDestroyerUnilateralExitVerdict struct{}
+
+func (_ FfiDestroyerUnilateralExitVerdict) Destroy(value UnilateralExitVerdict) {
+	value.Destroy()
 }
 
 type UnsignedTransferPackage interface {
@@ -39433,6 +40227,47 @@ type FfiDestroyerOptionalCrossChainConfig struct{}
 func (_ FfiDestroyerOptionalCrossChainConfig) Destroy(value *CrossChainConfig) {
 	if value != nil {
 		FfiDestroyerCrossChainConfig{}.Destroy(*value)
+	}
+}
+
+type FfiConverterOptionalCrossChainReceiveInfo struct{}
+
+var FfiConverterOptionalCrossChainReceiveInfoINSTANCE = FfiConverterOptionalCrossChainReceiveInfo{}
+
+func (c FfiConverterOptionalCrossChainReceiveInfo) Lift(rb RustBufferI) *CrossChainReceiveInfo {
+	return LiftFromRustBuffer[*CrossChainReceiveInfo](c, rb)
+}
+
+func (_ FfiConverterOptionalCrossChainReceiveInfo) Read(reader io.Reader) *CrossChainReceiveInfo {
+	if readInt8(reader) == 0 {
+		return nil
+	}
+	temp := FfiConverterCrossChainReceiveInfoINSTANCE.Read(reader)
+	return &temp
+}
+
+func (c FfiConverterOptionalCrossChainReceiveInfo) Lower(value *CrossChainReceiveInfo) C.RustBuffer {
+	return LowerIntoRustBuffer[*CrossChainReceiveInfo](c, value)
+}
+
+func (c FfiConverterOptionalCrossChainReceiveInfo) LowerExternal(value *CrossChainReceiveInfo) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[*CrossChainReceiveInfo](c, value))
+}
+
+func (_ FfiConverterOptionalCrossChainReceiveInfo) Write(writer io.Writer, value *CrossChainReceiveInfo) {
+	if value == nil {
+		writeInt8(writer, 0)
+	} else {
+		writeInt8(writer, 1)
+		FfiConverterCrossChainReceiveInfoINSTANCE.Write(writer, *value)
+	}
+}
+
+type FfiDestroyerOptionalCrossChainReceiveInfo struct{}
+
+func (_ FfiDestroyerOptionalCrossChainReceiveInfo) Destroy(value *CrossChainReceiveInfo) {
+	if value != nil {
+		FfiDestroyerCrossChainReceiveInfo{}.Destroy(*value)
 	}
 }
 
@@ -40584,6 +41419,47 @@ func (_ FfiDestroyerOptionalConversionStatus) Destroy(value *ConversionStatus) {
 	}
 }
 
+type FfiConverterOptionalCrossChainFeeMode struct{}
+
+var FfiConverterOptionalCrossChainFeeModeINSTANCE = FfiConverterOptionalCrossChainFeeMode{}
+
+func (c FfiConverterOptionalCrossChainFeeMode) Lift(rb RustBufferI) *CrossChainFeeMode {
+	return LiftFromRustBuffer[*CrossChainFeeMode](c, rb)
+}
+
+func (_ FfiConverterOptionalCrossChainFeeMode) Read(reader io.Reader) *CrossChainFeeMode {
+	if readInt8(reader) == 0 {
+		return nil
+	}
+	temp := FfiConverterCrossChainFeeModeINSTANCE.Read(reader)
+	return &temp
+}
+
+func (c FfiConverterOptionalCrossChainFeeMode) Lower(value *CrossChainFeeMode) C.RustBuffer {
+	return LowerIntoRustBuffer[*CrossChainFeeMode](c, value)
+}
+
+func (c FfiConverterOptionalCrossChainFeeMode) LowerExternal(value *CrossChainFeeMode) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[*CrossChainFeeMode](c, value))
+}
+
+func (_ FfiConverterOptionalCrossChainFeeMode) Write(writer io.Writer, value *CrossChainFeeMode) {
+	if value == nil {
+		writeInt8(writer, 0)
+	} else {
+		writeInt8(writer, 1)
+		FfiConverterCrossChainFeeModeINSTANCE.Write(writer, *value)
+	}
+}
+
+type FfiDestroyerOptionalCrossChainFeeMode struct{}
+
+func (_ FfiDestroyerOptionalCrossChainFeeMode) Destroy(value *CrossChainFeeMode) {
+	if value != nil {
+		FfiDestroyerCrossChainFeeMode{}.Destroy(*value)
+	}
+}
+
 type FfiConverterOptionalDepositClaimError struct{}
 
 var FfiConverterOptionalDepositClaimErrorINSTANCE = FfiConverterOptionalDepositClaimError{}
@@ -40909,6 +41785,47 @@ type FfiDestroyerOptionalSendPaymentOptions struct{}
 func (_ FfiDestroyerOptionalSendPaymentOptions) Destroy(value *SendPaymentOptions) {
 	if value != nil {
 		FfiDestroyerSendPaymentOptions{}.Destroy(*value)
+	}
+}
+
+type FfiConverterOptionalSparkAsset struct{}
+
+var FfiConverterOptionalSparkAssetINSTANCE = FfiConverterOptionalSparkAsset{}
+
+func (c FfiConverterOptionalSparkAsset) Lift(rb RustBufferI) *SparkAsset {
+	return LiftFromRustBuffer[*SparkAsset](c, rb)
+}
+
+func (_ FfiConverterOptionalSparkAsset) Read(reader io.Reader) *SparkAsset {
+	if readInt8(reader) == 0 {
+		return nil
+	}
+	temp := FfiConverterSparkAssetINSTANCE.Read(reader)
+	return &temp
+}
+
+func (c FfiConverterOptionalSparkAsset) Lower(value *SparkAsset) C.RustBuffer {
+	return LowerIntoRustBuffer[*SparkAsset](c, value)
+}
+
+func (c FfiConverterOptionalSparkAsset) LowerExternal(value *SparkAsset) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[*SparkAsset](c, value))
+}
+
+func (_ FfiConverterOptionalSparkAsset) Write(writer io.Writer, value *SparkAsset) {
+	if value == nil {
+		writeInt8(writer, 0)
+	} else {
+		writeInt8(writer, 1)
+		FfiConverterSparkAssetINSTANCE.Write(writer, *value)
+	}
+}
+
+type FfiDestroyerOptionalSparkAsset struct{}
+
+func (_ FfiDestroyerOptionalSparkAsset) Destroy(value *SparkAsset) {
+	if value != nil {
+		FfiDestroyerSparkAsset{}.Destroy(*value)
 	}
 }
 
@@ -41991,6 +42908,53 @@ func (FfiDestroyerSequenceBolt12OfferBlindedPath) Destroy(sequence []Bolt12Offer
 	}
 }
 
+type FfiConverterSequenceConfirmedExitNode struct{}
+
+var FfiConverterSequenceConfirmedExitNodeINSTANCE = FfiConverterSequenceConfirmedExitNode{}
+
+func (c FfiConverterSequenceConfirmedExitNode) Lift(rb RustBufferI) []ConfirmedExitNode {
+	return LiftFromRustBuffer[[]ConfirmedExitNode](c, rb)
+}
+
+func (c FfiConverterSequenceConfirmedExitNode) Read(reader io.Reader) []ConfirmedExitNode {
+	length := readInt32(reader)
+	if length == 0 {
+		return nil
+	}
+	result := make([]ConfirmedExitNode, 0, length)
+	for i := int32(0); i < length; i++ {
+		result = append(result, FfiConverterConfirmedExitNodeINSTANCE.Read(reader))
+	}
+	return result
+}
+
+func (c FfiConverterSequenceConfirmedExitNode) Lower(value []ConfirmedExitNode) C.RustBuffer {
+	return LowerIntoRustBuffer[[]ConfirmedExitNode](c, value)
+}
+
+func (c FfiConverterSequenceConfirmedExitNode) LowerExternal(value []ConfirmedExitNode) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[[]ConfirmedExitNode](c, value))
+}
+
+func (c FfiConverterSequenceConfirmedExitNode) Write(writer io.Writer, value []ConfirmedExitNode) {
+	if len(value) > math.MaxInt32 {
+		panic("[]ConfirmedExitNode is too large to fit into Int32")
+	}
+
+	writeInt32(writer, int32(len(value)))
+	for _, item := range value {
+		FfiConverterConfirmedExitNodeINSTANCE.Write(writer, item)
+	}
+}
+
+type FfiDestroyerSequenceConfirmedExitNode struct{}
+
+func (FfiDestroyerSequenceConfirmedExitNode) Destroy(sequence []ConfirmedExitNode) {
+	for _, value := range sequence {
+		FfiDestroyerConfirmedExitNode{}.Destroy(value)
+	}
+}
+
 type FfiConverterSequenceContact struct{}
 
 var FfiConverterSequenceContactINSTANCE = FfiConverterSequenceContact{}
@@ -42176,6 +43140,53 @@ type FfiDestroyerSequenceDepositInfo struct{}
 func (FfiDestroyerSequenceDepositInfo) Destroy(sequence []DepositInfo) {
 	for _, value := range sequence {
 		FfiDestroyerDepositInfo{}.Destroy(value)
+	}
+}
+
+type FfiConverterSequenceExitRefund struct{}
+
+var FfiConverterSequenceExitRefundINSTANCE = FfiConverterSequenceExitRefund{}
+
+func (c FfiConverterSequenceExitRefund) Lift(rb RustBufferI) []ExitRefund {
+	return LiftFromRustBuffer[[]ExitRefund](c, rb)
+}
+
+func (c FfiConverterSequenceExitRefund) Read(reader io.Reader) []ExitRefund {
+	length := readInt32(reader)
+	if length == 0 {
+		return nil
+	}
+	result := make([]ExitRefund, 0, length)
+	for i := int32(0); i < length; i++ {
+		result = append(result, FfiConverterExitRefundINSTANCE.Read(reader))
+	}
+	return result
+}
+
+func (c FfiConverterSequenceExitRefund) Lower(value []ExitRefund) C.RustBuffer {
+	return LowerIntoRustBuffer[[]ExitRefund](c, value)
+}
+
+func (c FfiConverterSequenceExitRefund) LowerExternal(value []ExitRefund) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[[]ExitRefund](c, value))
+}
+
+func (c FfiConverterSequenceExitRefund) Write(writer io.Writer, value []ExitRefund) {
+	if len(value) > math.MaxInt32 {
+		panic("[]ExitRefund is too large to fit into Int32")
+	}
+
+	writeInt32(writer, int32(len(value)))
+	for _, item := range value {
+		FfiConverterExitRefundINSTANCE.Write(writer, item)
+	}
+}
+
+type FfiDestroyerSequenceExitRefund struct{}
+
+func (FfiDestroyerSequenceExitRefund) Destroy(sequence []ExitRefund) {
+	for _, value := range sequence {
+		FfiDestroyerExitRefund{}.Destroy(value)
 	}
 }
 
@@ -43730,6 +44741,53 @@ func (FfiDestroyerSequenceCpfpInput) Destroy(sequence []CpfpInput) {
 	}
 }
 
+type FfiConverterSequenceDeliveryMethod struct{}
+
+var FfiConverterSequenceDeliveryMethodINSTANCE = FfiConverterSequenceDeliveryMethod{}
+
+func (c FfiConverterSequenceDeliveryMethod) Lift(rb RustBufferI) []DeliveryMethod {
+	return LiftFromRustBuffer[[]DeliveryMethod](c, rb)
+}
+
+func (c FfiConverterSequenceDeliveryMethod) Read(reader io.Reader) []DeliveryMethod {
+	length := readInt32(reader)
+	if length == 0 {
+		return nil
+	}
+	result := make([]DeliveryMethod, 0, length)
+	for i := int32(0); i < length; i++ {
+		result = append(result, FfiConverterDeliveryMethodINSTANCE.Read(reader))
+	}
+	return result
+}
+
+func (c FfiConverterSequenceDeliveryMethod) Lower(value []DeliveryMethod) C.RustBuffer {
+	return LowerIntoRustBuffer[[]DeliveryMethod](c, value)
+}
+
+func (c FfiConverterSequenceDeliveryMethod) LowerExternal(value []DeliveryMethod) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[[]DeliveryMethod](c, value))
+}
+
+func (c FfiConverterSequenceDeliveryMethod) Write(writer io.Writer, value []DeliveryMethod) {
+	if len(value) > math.MaxInt32 {
+		panic("[]DeliveryMethod is too large to fit into Int32")
+	}
+
+	writeInt32(writer, int32(len(value)))
+	for _, item := range value {
+		FfiConverterDeliveryMethodINSTANCE.Write(writer, item)
+	}
+}
+
+type FfiDestroyerSequenceDeliveryMethod struct{}
+
+func (FfiDestroyerSequenceDeliveryMethod) Destroy(sequence []DeliveryMethod) {
+	for _, value := range sequence {
+		FfiDestroyerDeliveryMethod{}.Destroy(value)
+	}
+}
+
 type FfiConverterSequenceInputType struct{}
 
 var FfiConverterSequenceInputTypeINSTANCE = FfiConverterSequenceInputType{}
@@ -43918,97 +44976,50 @@ func (FfiDestroyerSequencePaymentType) Destroy(sequence []PaymentType) {
 	}
 }
 
-type FfiConverterSequenceSourceAsset struct{}
+type FfiConverterSequenceSparkAsset struct{}
 
-var FfiConverterSequenceSourceAssetINSTANCE = FfiConverterSequenceSourceAsset{}
+var FfiConverterSequenceSparkAssetINSTANCE = FfiConverterSequenceSparkAsset{}
 
-func (c FfiConverterSequenceSourceAsset) Lift(rb RustBufferI) []SourceAsset {
-	return LiftFromRustBuffer[[]SourceAsset](c, rb)
+func (c FfiConverterSequenceSparkAsset) Lift(rb RustBufferI) []SparkAsset {
+	return LiftFromRustBuffer[[]SparkAsset](c, rb)
 }
 
-func (c FfiConverterSequenceSourceAsset) Read(reader io.Reader) []SourceAsset {
+func (c FfiConverterSequenceSparkAsset) Read(reader io.Reader) []SparkAsset {
 	length := readInt32(reader)
 	if length == 0 {
 		return nil
 	}
-	result := make([]SourceAsset, 0, length)
+	result := make([]SparkAsset, 0, length)
 	for i := int32(0); i < length; i++ {
-		result = append(result, FfiConverterSourceAssetINSTANCE.Read(reader))
+		result = append(result, FfiConverterSparkAssetINSTANCE.Read(reader))
 	}
 	return result
 }
 
-func (c FfiConverterSequenceSourceAsset) Lower(value []SourceAsset) C.RustBuffer {
-	return LowerIntoRustBuffer[[]SourceAsset](c, value)
+func (c FfiConverterSequenceSparkAsset) Lower(value []SparkAsset) C.RustBuffer {
+	return LowerIntoRustBuffer[[]SparkAsset](c, value)
 }
 
-func (c FfiConverterSequenceSourceAsset) LowerExternal(value []SourceAsset) ExternalCRustBuffer {
-	return RustBufferFromC(LowerIntoRustBuffer[[]SourceAsset](c, value))
+func (c FfiConverterSequenceSparkAsset) LowerExternal(value []SparkAsset) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[[]SparkAsset](c, value))
 }
 
-func (c FfiConverterSequenceSourceAsset) Write(writer io.Writer, value []SourceAsset) {
+func (c FfiConverterSequenceSparkAsset) Write(writer io.Writer, value []SparkAsset) {
 	if len(value) > math.MaxInt32 {
-		panic("[]SourceAsset is too large to fit into Int32")
+		panic("[]SparkAsset is too large to fit into Int32")
 	}
 
 	writeInt32(writer, int32(len(value)))
 	for _, item := range value {
-		FfiConverterSourceAssetINSTANCE.Write(writer, item)
+		FfiConverterSparkAssetINSTANCE.Write(writer, item)
 	}
 }
 
-type FfiDestroyerSequenceSourceAsset struct{}
+type FfiDestroyerSequenceSparkAsset struct{}
 
-func (FfiDestroyerSequenceSourceAsset) Destroy(sequence []SourceAsset) {
+func (FfiDestroyerSequenceSparkAsset) Destroy(sequence []SparkAsset) {
 	for _, value := range sequence {
-		FfiDestroyerSourceAsset{}.Destroy(value)
-	}
-}
-
-type FfiConverterSequenceSourceChain struct{}
-
-var FfiConverterSequenceSourceChainINSTANCE = FfiConverterSequenceSourceChain{}
-
-func (c FfiConverterSequenceSourceChain) Lift(rb RustBufferI) []SourceChain {
-	return LiftFromRustBuffer[[]SourceChain](c, rb)
-}
-
-func (c FfiConverterSequenceSourceChain) Read(reader io.Reader) []SourceChain {
-	length := readInt32(reader)
-	if length == 0 {
-		return nil
-	}
-	result := make([]SourceChain, 0, length)
-	for i := int32(0); i < length; i++ {
-		result = append(result, FfiConverterSourceChainINSTANCE.Read(reader))
-	}
-	return result
-}
-
-func (c FfiConverterSequenceSourceChain) Lower(value []SourceChain) C.RustBuffer {
-	return LowerIntoRustBuffer[[]SourceChain](c, value)
-}
-
-func (c FfiConverterSequenceSourceChain) LowerExternal(value []SourceChain) ExternalCRustBuffer {
-	return RustBufferFromC(LowerIntoRustBuffer[[]SourceChain](c, value))
-}
-
-func (c FfiConverterSequenceSourceChain) Write(writer io.Writer, value []SourceChain) {
-	if len(value) > math.MaxInt32 {
-		panic("[]SourceChain is too large to fit into Int32")
-	}
-
-	writeInt32(writer, int32(len(value)))
-	for _, item := range value {
-		FfiConverterSourceChainINSTANCE.Write(writer, item)
-	}
-}
-
-type FfiDestroyerSequenceSourceChain struct{}
-
-func (FfiDestroyerSequenceSourceChain) Destroy(sequence []SourceChain) {
-	for _, value := range sequence {
-		FfiDestroyerSourceChain{}.Destroy(value)
+		FfiDestroyerSparkAsset{}.Destroy(value)
 	}
 }
 
