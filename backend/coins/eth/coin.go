@@ -77,6 +77,11 @@ func NewCoin(
 	}
 }
 
+// Client returns the RPC client for this coin's chain.
+func (coin *Coin) Client() rpcclient.Interface {
+	return coin.client
+}
+
 // TstSetClient must only be used in unit tests to mock the RPC client.
 func (coin *Coin) TstSetClient(client rpcclient.Interface) {
 	coin.client = client

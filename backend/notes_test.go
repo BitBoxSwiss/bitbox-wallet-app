@@ -5,7 +5,6 @@ package backend
 import (
 	"bytes"
 	"fmt"
-	"net/http"
 	"strings"
 	"testing"
 
@@ -77,8 +76,8 @@ func (s *notesTestSuite) SetupTest() {
 
 		return accountMock
 	}
-	s.backend.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-		accountMock := MockEthAccount(config, coin, httpClient, log)
+	s.backend.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
+		accountMock := MockEthAccount(config, coin, log)
 		accountMock.NotesFunc = notesFunc(config.Config.Code)
 		accountMock.TransactionsFunc = transactionsFunc(config.Config.Code)
 		return accountMock

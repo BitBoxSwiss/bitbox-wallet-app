@@ -1028,7 +1028,7 @@ func (backend *Backend) createAndAddAccount(
 		)
 		backend.addAccount(account)
 	case *eth.Coin:
-		account = backend.makeEthAccount(accountConfig, specificCoin, backend.httpClient, backend.log)
+		account = backend.makeEthAccount(accountConfig, specificCoin, backend.log)
 		backend.addAccount(account)
 
 		// Load ERC20 tokens enabled with this Ethereum account.
