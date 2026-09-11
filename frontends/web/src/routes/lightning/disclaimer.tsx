@@ -22,7 +22,7 @@ export const LightningDisclaimerContent = ({ children, title }: TProps) => {
   return (
     <View scrollableContent>
       <ViewContent fullWidth>
-        <div className={termsStyles.disclaimerContainer}>
+        <div className={termsStyles.disclaimerContainerLightning}>
           <div className={termsStyles.disclaimer}>
             {title && <h2 className={termsStyles.title}>{title}</h2>}
             <h2 className={termsStyles.title}>

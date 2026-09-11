@@ -4,6 +4,7 @@ import type { KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import * as accountApi from '@/api/account';
+import type { TLightningSDKStatus } from '@/api/lightning';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { BalanceSection } from './balance-section';
 import { AssetBalanceWithUnitPrice } from './asset-balance-with-unit-price';
@@ -16,6 +17,7 @@ type TCoinBalance = accountApi.CoinFormattedOptionalAmount & {
 type TProps = {
   hideHeader?: boolean;
   hideLightningUnitPrice?: boolean;
+  lightningSDKStatus?: TLightningSDKStatus;
   summaryData?: accountApi.TChartData;
   coinsBalances?: TCoinBalance[];
 };
@@ -23,6 +25,7 @@ type TProps = {
 export const TotalBalanceForAllKeystores = ({
   hideHeader,
   hideLightningUnitPrice,
+  lightningSDKStatus,
   summaryData,
   coinsBalances,
 }: TProps) => {
@@ -66,6 +69,9 @@ export const TotalBalanceForAllKeystores = ({
               coinName={balance.coinName}
               coinUnit={balance.coinUnit}
               showUnitPrice={!isLightning || !hideLightningUnitPrice}
+              unavailableLabel={isLightning && lightningSDKStatus === 'failed'
+                ? t('lightning.initializationFailed')
+                : undefined}
             />
           </div>
         );

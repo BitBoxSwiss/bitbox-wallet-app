@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext, useEffect } from 'react';
-import { NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
+import { matchRoutes, NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
 import { AppContext } from '@/contexts/AppContext';
 
 let navigate: NavigateFunction | undefined;
+
+export const isLightningRoute = (pathname: string) => matchRoutes([
+  { path: '/lightning/*' },
+], pathname) !== null;
 
 /**
  * @deprecated preact-router like. Use `useNavigate` hook if possible

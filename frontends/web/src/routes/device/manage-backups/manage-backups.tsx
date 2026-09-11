@@ -35,7 +35,7 @@ export const ManageBackups = ({
             title={
               <>
                 <h2 className="hide-on-small">{t('backup.title')}</h2>
-                <MobileHeader withGuide title={t('backup.title')} />
+                <MobileHeader title={t('backup.title')} />
               </>
             }
           />

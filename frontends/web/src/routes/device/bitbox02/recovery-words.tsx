@@ -45,7 +45,8 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
           key="progress"
           fullscreen
           minHeight={CONTENT_MIN_HEIGHT}
-          verticallyCentered>
+          verticallyCentered
+          withMobileSafetyMargin>
           <ViewHeader small title={t('backup.showMnemonic.title')} />
           <ViewContent>
             <Message type="warning">

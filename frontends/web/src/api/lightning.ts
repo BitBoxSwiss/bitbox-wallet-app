@@ -31,6 +31,8 @@ export type TLightningAccount = {
   num: number;
 };
 
+export type TLightningSDKStatus = 'inactive' | 'initializing' | 'ready' | 'failed';
+
 export type TLightningBolt11Invoice = {
   invoice: string;
   description?: string;
@@ -124,6 +126,7 @@ export type TReceivePaymentResponse = {
 };
 
 export type TCloseWithdrawQuote = {
+  idempotencyKey: string;
   balance: TAmountWithConversions;
   balanceSat: number;
   fee: TAmountWithConversions;
@@ -296,8 +299,8 @@ export const postRegisterLightningAddress = async (username: string): Promise<st
   );
 };
 
-export const getLightningReady = async (): Promise<boolean> => {
-  return getApiResponse<boolean>('lightning/ready', 'Error calling getLightningReady');
+export const getLightningSDKStatus = async (): Promise<TLightningSDKStatus> => {
+  return getApiResponse<TLightningSDKStatus>('lightning/sdk-status', 'Error calling getLightningSDKStatus');
 };
 
 export const postActivate = async (): Promise<void> => {
@@ -336,10 +339,10 @@ export const getParsePaymentInput = async (params: TParsePaymentInputRequest): P
   return getApiResponse<TPaymentInput>(`lightning/parse-payment-input?${queryString(params)}`, 'Error calling getParsePaymentInput');
 };
 
-export const postPrepareCloseWithdraw = async (destinationAccountCode: AccountCode): Promise<TCloseWithdrawQuote> => {
-  return postApiResponse<TCloseWithdrawQuote, { destinationAccountCode: AccountCode }>(
+export const postPrepareCloseWithdraw = async (destinationAccountCode: AccountCode, idempotencyKey?: string): Promise<TCloseWithdrawQuote> => {
+  return postApiResponse<TCloseWithdrawQuote, { destinationAccountCode: AccountCode; idempotencyKey?: string }>(
     'lightning/close-withdraw-funds/prepare',
-    { destinationAccountCode },
+    { destinationAccountCode, idempotencyKey },
     'Error calling postPrepareCloseWithdraw'
   );
 };
@@ -348,14 +351,16 @@ export const postCloseWithdraw = async (
   destinationAccountCode: AccountCode,
   approvedBalanceSat: number,
   approvedFeeSat: number,
+  idempotencyKey: string,
 ): Promise<TCloseWithdrawResult> => {
   return postApiResponse<TCloseWithdrawResult, {
     destinationAccountCode: AccountCode;
     approvedBalanceSat: number;
     approvedFeeSat: number;
+    idempotencyKey: string;
   }>(
     'lightning/close-withdraw-funds',
-    { destinationAccountCode, approvedBalanceSat, approvedFeeSat },
+    { destinationAccountCode, approvedBalanceSat, approvedFeeSat, idempotencyKey },
     'Error calling postCloseWithdraw'
   );
 };
@@ -411,8 +416,8 @@ export const subscribeLightningAddress = (cb: TSubscriptionCallback<string | nul
   return subscribeEndpoint('lightning/address', cb);
 };
 
-export const subscribeLightningReady = (cb: TSubscriptionCallback<boolean>): TUnsubscribe => {
-  return subscribeEndpoint('lightning/ready', cb);
+export const subscribeLightningSDKStatus = (cb: TSubscriptionCallback<TLightningSDKStatus>): TUnsubscribe => {
+  return subscribeEndpoint('lightning/sdk-status', cb);
 };
 
 export const subscribeListPayments = (cb: TSubscriptionCallback<TLightningPayment[]>) => {

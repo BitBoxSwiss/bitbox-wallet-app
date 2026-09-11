@@ -108,6 +108,16 @@ import advancedSettingsIconSVG from './assets/icons/advanced-settings-icon.svg';
 import advancedSettingsIconDarkSVG from './assets/icons/advanced-settings-icon-dark.svg';
 import accountsIconLightSVG from './assets/icons/accounts-icon-light.svg';
 import accountsIconDarkSVG from './assets/icons/accounts-icon-dark.svg';
+import accountsIconBlueSVG from './assets/icons/accounts-icon-blue.svg';
+import lightningIconBlueSVG from './assets/icons/lightning-icon-blue.svg';
+import lightningIconDarkSVG from './assets/icons/lightning-icon-dark.svg';
+import lightningIconLightSVG from './assets/icons/lightning-icon-light.svg';
+import marketplaceIconBlueSVG from './assets/icons/marketplace-icon-blue.svg';
+import marketplaceIconDarkSVG from './assets/icons/marketplace-icon-dark.svg';
+import marketplaceIconLightSVG from './assets/icons/marketplace-icon-light.svg';
+import portfolioIconBlueSVG from './assets/icons/portfolio-icon-blue.svg';
+import portfolioIconDarkSVG from './assets/icons/portfolio-dark.svg';
+import portfolioIconLightSVG from './assets/icons/portfolio-icon-light.svg';
 
 
 type SVGProps = JSX.IntrinsicElements['svg'];
@@ -236,8 +246,18 @@ export const AdvancedSettingsIcon = (props: ImgProps) => (<img src={advancedSett
 export const AdvancedSettingsIconDark = (props: ImgProps) => (<img src={advancedSettingsIconDarkSVG} draggable={false} {...props} />);
 export const AccountsIconLight = (props: ImgProps) => (<img src={accountsIconLightSVG} draggable={false} {...props} />);
 export const AccountsIconDark = (props: ImgProps) => (<img src={accountsIconDarkSVG} draggable={false} {...props} />);
+export const AccountsIconBlue = (props: ImgProps) => (<img src={accountsIconBlueSVG} draggable={false} {...props} />);
 export const CogLight = (props: ImgProps) => (<img src={cogLightSVG} draggable={false} {...props} />);
 export const CogDark = (props: ImgProps) => (<img src={cogDarkSVG} draggable={false} {...props} />);
+export const LightningIconBlue = (props: ImgProps) => (<img src={lightningIconBlueSVG} draggable={false} {...props} />);
+export const LightningIconDark = (props: ImgProps) => (<img src={lightningIconDarkSVG} draggable={false} {...props} />);
+export const LightningIconLight = (props: ImgProps) => (<img src={lightningIconLightSVG} draggable={false} {...props} />);
+export const MarketplaceIconBlue = (props: ImgProps) => (<img src={marketplaceIconBlueSVG} draggable={false} {...props} />);
+export const MarketplaceIconDark = (props: ImgProps) => (<img src={marketplaceIconDarkSVG} draggable={false} {...props} />);
+export const MarketplaceIconLight = (props: ImgProps) => (<img src={marketplaceIconLightSVG} draggable={false} {...props} />);
+export const PortfolioIconBlue = (props: ImgProps) => (<img src={portfolioIconBlueSVG} draggable={false} {...props} />);
+export const PortfolioIconDark = (props: ImgProps) => (<img src={portfolioIconDarkSVG} draggable={false} {...props} />);
+export const PortfolioIconLight = (props: ImgProps) => (<img src={portfolioIconLightSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
  */

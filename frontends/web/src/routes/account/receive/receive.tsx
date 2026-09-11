@@ -255,7 +255,7 @@ export const Receive = ({
             title={
               <>
                 <h2 className="hide-on-small">{t('receive.title', { accountName: account?.coinName })}</h2>
-                <MobileHeader withGuide title={t('receive.title', { accountName: account?.coinName })} />
+                <MobileHeader title={t('receive.title', { accountName: account?.coinName })} />
               </>
             } />
           <div className="content narrow isVerticallyCentered">

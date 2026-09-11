@@ -175,7 +175,8 @@ func (backend *Backend) addTxsToChart(
 	return false, nil
 }
 
-// ChartData assembles chart data for all active accounts.
+// ChartData assembles chart data for all active accounts. Lightning is included on a best-effort
+// basis so that an unavailable Lightning SDK cannot prevent the on-chain chart from loading.
 func (backend *Backend) ChartData() (*Chart, error) {
 	// If true, we are missing headers or historical conversion rates necessary to compute the chart
 	// data,
@@ -258,46 +259,46 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	}
 
 	if backend.hasLightningAccount() {
-		var err error
 		lightningBalance, err := backend.lightning.Balance()
 		if err != nil {
-			return nil, err
-		}
-		lightningBalanceAmount, err := backend.convertBtcAmountToFiat(lightningBalance.Available(), fiat)
-		if err != nil {
-			return nil, err
-		}
-		currentTotal.Add(currentTotal, lightningBalanceAmount)
-
-		lightningTxs, err := backend.lightning.Transactions()
-		if err != nil {
-			backend.log.WithError(err).WithField("coin", coinCodeLightning).Info("ChartDataMissing/list-payments")
-			chartDataMissing = true
-			transactionHistoryMissing = true
-			lightningTxs = nil
-		}
-		totalNumberOfTransactions += len(lightningTxs)
-
-		if !chartDataMissing {
-			btcCoin, err := backend.Coin(coin.CodeBTC)
+			backend.log.WithError(err).Error("Failed to load Lightning balance for chart")
+		} else {
+			lightningBalanceAmount, err := backend.convertBtcAmountToFiat(lightningBalance.Available(), fiat)
 			if err != nil {
 				return nil, err
 			}
-			lightningChartDataMissing, err := backend.addTxsToChart(
-				coin.CodeBTC,
-				coinCodeLightning,
-				fiat,
-				coin.DecimalsExp(btcCoin, false),
-				lightningTxs,
-				until,
-				chartEntriesDaily,
-				chartEntriesHourly,
-			)
+			currentTotal.Add(currentTotal, lightningBalanceAmount)
+
+			lightningTxs, err := backend.lightning.Transactions()
 			if err != nil {
-				return nil, err
-			}
-			if lightningChartDataMissing {
+				backend.log.WithError(err).WithField("coin", coinCodeLightning).Info("ChartDataMissing/list-payments")
 				chartDataMissing = true
+				transactionHistoryMissing = true
+				lightningTxs = nil
+			}
+			totalNumberOfTransactions += len(lightningTxs)
+
+			if !chartDataMissing {
+				btcCoin, err := backend.Coin(coin.CodeBTC)
+				if err != nil {
+					return nil, err
+				}
+				lightningChartDataMissing, err := backend.addTxsToChart(
+					coin.CodeBTC,
+					coinCodeLightning,
+					fiat,
+					coin.DecimalsExp(btcCoin, false),
+					lightningTxs,
+					until,
+					chartEntriesDaily,
+					chartEntriesHourly,
+				)
+				if err != nil {
+					return nil, err
+				}
+				if lightningChartDataMissing {
+					chartDataMissing = true
+				}
 			}
 		}
 	}

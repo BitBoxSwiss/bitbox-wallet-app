@@ -19,6 +19,8 @@ vi.mock('@/utils/env', () => ({
 const translations: Record<string, string> = {
   'lightning.settings.enableWallet': 'Enable lightning wallet',
   'lightning.settings.title': 'Lightning settings',
+  'testnet.activate.title': 'Activate testnet',
+  'testnet.deactivate.title': 'Deactivate testnet',
   'testWallet.connect.title': 'Test wallet',
   'testWallet.disconnect.title': 'Disconnect test wallet',
 };
@@ -40,6 +42,27 @@ const getItems = (
 describe('settings search', () => {
   beforeEach(() => {
     isLightningFeatureAvailableMock.mockReturnValue(true);
+  });
+
+  it.each([
+    { isTesting: undefined, title: undefined },
+    { isTesting: false, title: 'Activate testnet' },
+    { isTesting: true, title: 'Deactivate testnet' },
+  ])('shows the correct testnet setting for isTesting=$isTesting', ({ isTesting, title }) => {
+    const items = getSettingsSearchItems({
+      devices: {},
+      hasAccounts: true,
+      hasSoftwareKeystore: false,
+      isLightningEnabled: true,
+      isTesting,
+      t,
+    });
+
+    expect(items.find(item => item.id === 'testnet-mode')).toEqual(title === undefined ? undefined : {
+      id: 'testnet-mode',
+      page: 'advanced',
+      title,
+    });
   });
 
   it('uses the connect title for the test wallet setting when no software wallet exists', () => {

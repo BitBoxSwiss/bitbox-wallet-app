@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import * as accountApi from '@/api/account';
 import { getBalance } from '@/api/account';
+import { getLightningBalance } from '@/api/lightning';
 import { Logo } from '@/components/icon/logo';
 import { View, ViewContent } from '@/components/view/view';
 import { getAccountsByKeystore } from '@/routes/account/utils';
@@ -16,6 +17,7 @@ import { AllAccountsGuide } from '@/routes/accounts/all-accounts-guide';
 import { useMountedRef } from '@/hooks/mount';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
+import { useLightning } from '@/hooks/lightning';
 import styles from './all-accounts.module.css';
 
 type AllAccountsProps = {
@@ -83,11 +85,48 @@ const AccountItem = ({ account }: TAccountItemProp) => {
   );
 };
 
+const LightningItem = () => {
+  const { t } = useTranslation();
+  const { isLightningReady } = useLightning();
+  const [balance, setBalance] = useState<accountApi.TAmountWithConversions>();
+  const mounted = useMountedRef();
+
+  useEffect(() => {
+    if (!isLightningReady) {
+      return;
+    }
+
+    const fetchBalance = async () => {
+      try {
+        const response = await getLightningBalance();
+        if (!mounted.current) {
+          return;
+        }
+        setBalance(response.available);
+      } catch (error) {
+        console.error('Failed to fetch lightning balance', error);
+      }
+    };
+
+    fetchBalance();
+  }, [isLightningReady, mounted]);
+
+  return (
+    <AccountRow
+      balance={balance}
+      coinCode="lightning"
+      name={t('lightning.accountLabel')}
+      to="/lightning"
+    />
+  );
+};
+
 /**
  * This component will only be shown on mobile.
  **/
 export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
   const { t } = useTranslation();
+  const { lightningAccount } = useLightning();
   const accountsByKeystore = getAccountsByKeystore(accounts);
   useOnlyVisitableOnMobile('/account-summary');
 
@@ -99,6 +138,11 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
       <View width="768px" fullscreen={false}>
         <ViewContent>
           <div className={styles.container} data-testid="all-accounts-keystores">
+            {lightningAccount && (
+              <div className={styles.accountsList}>
+                <LightningItem />
+              </div>
+            )}
             {accountsByKeystore.map(keystore => (
               <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
                 <ConnectedKeystore

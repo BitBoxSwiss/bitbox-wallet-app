@@ -6,7 +6,7 @@ import { debug, isLightningFeatureAvailable, runningInAndroid, runningInIOS } fr
 
 type TTestWalletVisibilityArgs = {
   deviceIDs: string[];
-  isTesting: boolean;
+  isTesting: boolean | undefined;
 };
 
 type TDeviceInfoWithBluetooth = DeviceInfo & {
@@ -36,4 +36,4 @@ export const isExportLogsSettingVisible = () => !debug;
 export const isTestWalletSettingVisible = ({
   deviceIDs,
   isTesting,
-}: TTestWalletVisibilityArgs) => isTesting && deviceIDs.length === 0;
+}: TTestWalletVisibilityArgs) => isTesting === true && deviceIDs.length === 0;

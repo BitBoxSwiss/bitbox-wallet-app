@@ -12,6 +12,8 @@ let servewallet: ServeWallet | undefined;
 const cacheDir = path.join(process.cwd(), '../../appfolder.dev/cache');
 const sentinelPath = path.join(cacheDir, 'playwright-clear-cache-sentinel.txt');
 const exchangeRatesCacheDir = path.join(cacheDir, 'exchangerates');
+const lightningDir = path.join(process.cwd(), '../../appfolder.dev/lightning');
+const lightningSentinelPath = path.join(lightningDir, 'playwright-lightning-sentinel.txt');
 
 const removeCacheDir = () => {
   fs.rmSync(cacheDir, { recursive: true, force: true });
@@ -33,10 +35,14 @@ test('Clear cache removes cached files and recreates cache-backed state', async 
     await expect(page.locator('body')).toContainText('Please connect your BitBox and tap the side to continue.');
   });
 
-  await test.step('Create a cache sentinel file', async () => {
+  await test.step('Create cache and Lightning sentinel files', async () => {
     fs.mkdirSync(cacheDir, { recursive: true });
     fs.writeFileSync(sentinelPath, `clear-cache-e2e-${Date.now()}`);
     expect(fs.existsSync(sentinelPath)).toBe(true);
+
+    fs.mkdirSync(lightningDir, { recursive: true });
+    fs.writeFileSync(lightningSentinelPath, `lightning-data-${Date.now()}`);
+    expect(fs.existsSync(lightningSentinelPath)).toBe(true);
   });
 
   await test.step('Clear cache from advanced settings', async () => {
@@ -61,6 +67,7 @@ test('Clear cache removes cached files and recreates cache-backed state', async 
   await test.step('Verify backend cache was cleared and reinitialized', async () => {
     await expect.poll(() => fs.existsSync(sentinelPath)).toBe(false);
     expect(fs.existsSync(exchangeRatesCacheDir)).toBe(true);
+    expect(fs.existsSync(lightningSentinelPath)).toBe(true);
     await expect(page.getByRole('heading', { name: 'Clear cache' })).toBeHidden();
   });
 });
@@ -75,6 +82,7 @@ test.afterEach(async () => {
   await servewallet?.stop();
   servewallet = undefined;
   fs.rmSync(sentinelPath, { force: true });
+  fs.rmSync(lightningSentinelPath, { force: true });
   deleteAccountsFile();
   deleteConfigFile();
 });

@@ -63,7 +63,7 @@ export const Pairing = ({
           </p>
         )}
       </ViewHeader>
-      <ViewContent fullWidth>
+      <ViewContent>
         { (attestation === false && !pairingFailed) && (
           <Message type="warning" className="m-bottom-half">
             {t('bitbox02Wizard.attestationFailed')}

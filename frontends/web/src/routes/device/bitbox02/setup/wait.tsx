@@ -17,7 +17,8 @@ export const Wait = ({ title, text }: Props) => {
       fullscreen
       width="720px"
       verticallyCentered
-      textCenter>
+      textCenter
+      withMobileSafetyMargin>
       <UseDisableBackButton />
       <ViewHeader title={title}>
         <p>{text ? text : t('bitbox02Interact.followInstructions')}</p>

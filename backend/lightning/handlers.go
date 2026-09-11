@@ -37,7 +37,7 @@ func NewHandlers(
 	handleNoError("/address/availability", lightning.GetAddressAvailability).Methods("GET")
 	handleNoError("/address/generate", lightning.PostGenerateAddress).Methods("POST")
 	handleNoError("/address/register", lightning.PostRegisterAddress).Methods("POST")
-	handleNoError("/ready", lightning.GetReady).Methods("GET")
+	handleNoError("/sdk-status", lightning.GetSDKStatus).Methods("GET")
 	handleNoError("/activate", lightning.PostActivate).Methods("POST")
 	handleNoError("/deactivate", lightning.PostDeactivate).Methods("POST")
 	handleNoError("/balance", lightning.GetBalance).Methods("GET")
@@ -146,9 +146,10 @@ func (lightning *Lightning) GetAccount(_ *http.Request) interface{} {
 
 // GetBlockExplorerTxPrefix handles the GET request to retrieve the Bitcoin transaction explorer prefix.
 func (lightning *Lightning) GetBlockExplorerTxPrefix(_ *http.Request) interface{} {
+	_, btcCoin := lightning.runtimeDependencies()
 	return responseDto{
 		Success: true,
-		Data:    lightning.btcCoin.BlockExplorerTransactionURLPrefix(),
+		Data:    btcCoin.BlockExplorerTransactionURLPrefix(),
 	}
 }
 
@@ -202,9 +203,9 @@ func (lightning *Lightning) PostRegisterAddress(r *http.Request) interface{} {
 	return responseDto{Success: true, Data: address}
 }
 
-// GetReady handles the GET request to retrieve whether the lightning SDK is ready.
-func (lightning *Lightning) GetReady(_ *http.Request) interface{} {
-	return responseDto{Success: true, Data: lightning.Ready()}
+// GetSDKStatus handles the GET request to retrieve the Lightning SDK initialization status.
+func (lightning *Lightning) GetSDKStatus(_ *http.Request) interface{} {
+	return responseDto{Success: true, Data: lightning.SDKStatus()}
 }
 
 // PostActivate handles the POST request to activate lightning.
@@ -239,19 +240,19 @@ func (lightning *Lightning) formattedBalance() (*formattedLightningBalance, erro
 		return nil, err
 	}
 
-	btcCoin := lightning.btcCoin
+	ratesUpdater, btcCoin := lightning.runtimeDependencies()
 
 	formattedAvailableAmount := coin.FormattedAmountWithConversions{
 		Amount:                 btcCoin.FormatAmount(balance.Available(), false),
 		Unit:                   btcCoin.GetFormatUnit(false),
-		Conversions:            coin.Conversions(balance.Available(), btcCoin, false, lightning.ratesUpdater),
-		UnformattedConversions: coin.UnformattedConversions(balance.Available(), btcCoin, false, lightning.ratesUpdater),
+		Conversions:            coin.Conversions(balance.Available(), btcCoin, false, ratesUpdater),
+		UnformattedConversions: coin.UnformattedConversions(balance.Available(), btcCoin, false, ratesUpdater),
 	}
 	formattedIncomingAmount := coin.FormattedAmountWithConversions{
 		Amount:                 btcCoin.FormatAmount(balance.Incoming(), false),
 		Unit:                   btcCoin.GetFormatUnit(false),
-		Conversions:            coin.Conversions(balance.Incoming(), btcCoin, false, lightning.ratesUpdater),
-		UnformattedConversions: coin.UnformattedConversions(balance.Incoming(), btcCoin, false, lightning.ratesUpdater),
+		Conversions:            coin.Conversions(balance.Incoming(), btcCoin, false, ratesUpdater),
+		UnformattedConversions: coin.UnformattedConversions(balance.Incoming(), btcCoin, false, ratesUpdater),
 	}
 
 	return &formattedLightningBalance{
@@ -343,6 +344,7 @@ func (lightning *Lightning) PostRefundTopUp(r *http.Request) interface{} {
 func (lightning *Lightning) PostPrepareCloseWithdraw(r *http.Request) interface{} {
 	var jsonBody struct {
 		DestinationAccountCode types.Code `json:"destinationAccountCode"`
+		IdempotencyKey         string     `json:"idempotencyKey"`
 	}
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
@@ -350,7 +352,7 @@ func (lightning *Lightning) PostPrepareCloseWithdraw(r *http.Request) interface{
 		return errorResponse(err)
 	}
 
-	quote, err := lightning.PrepareCloseWithdraw(jsonBody.DestinationAccountCode)
+	quote, err := lightning.PrepareCloseWithdraw(jsonBody.DestinationAccountCode, jsonBody.IdempotencyKey)
 	if err != nil {
 		return errorResponse(err)
 	}
@@ -363,6 +365,7 @@ func (lightning *Lightning) PostCloseWithdraw(r *http.Request) interface{} {
 		DestinationAccountCode types.Code `json:"destinationAccountCode"`
 		ApprovedBalanceSat     uint64     `json:"approvedBalanceSat"`
 		ApprovedFeeSat         uint64     `json:"approvedFeeSat"`
+		IdempotencyKey         string     `json:"idempotencyKey"`
 	}
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
@@ -374,6 +377,7 @@ func (lightning *Lightning) PostCloseWithdraw(r *http.Request) interface{} {
 		jsonBody.DestinationAccountCode,
 		jsonBody.ApprovedBalanceSat,
 		jsonBody.ApprovedFeeSat,
+		jsonBody.IdempotencyKey,
 	)
 	if err != nil {
 		return errorResponse(err)

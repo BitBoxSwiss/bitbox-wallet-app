@@ -33,7 +33,7 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
             title={
               <>
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader withGuide title={t('settings.general')} />
+                <MobileHeader title={t('settings.general')} />
               </>
             } />
           <View fullscreen={false}>

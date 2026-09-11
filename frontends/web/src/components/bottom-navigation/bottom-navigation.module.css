@@ -51,6 +51,7 @@
 .link {
     align-items: center;
     color: var(--color-default);
+    container-type: inline-size;
     display: flex;
     font-size: 1rem;
     flex: 1 1 0;
@@ -65,7 +66,11 @@
     white-space: nowrap;
 }
 
-.link svg {
+.label {
+    font-size: min(1rem, 14cqi);
+}
+
+.menuIcon {
     flex-shrink: 0;
     width: 24px;
     height: 24px;
