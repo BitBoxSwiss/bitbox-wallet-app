@@ -110,7 +110,6 @@ export const Swap = ({
   // Receive
   const [buyAccountCode, setBuyAccountCode] = useState<AccountCode | undefined>();
   const [expectedOutput, setExpectedOutput] = useState<string>('');
-  const [expectedOutputUnit, setExpectedOutputUnit] = useState<CoinUnit | undefined>();
 
   // Shows the fullscreen device-confirmation step after the tx proposal is ready.
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
@@ -121,6 +120,7 @@ export const Swap = ({
   }>();
   const [result, setResult] = useState<TSendTx | undefined>();
   const [canFlip, setCanFlip] = useState<boolean>(false);
+
   const [routes, setRoutes] = useState<TSwapQuoteRoute[]>([]);
   const [selectedRouteId, setSelectedRouteId] = useState<string | undefined>();
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
@@ -206,7 +206,6 @@ export const Swap = ({
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
-    setExpectedOutputUnit(undefined);
     setQuoteErrorCode(undefined);
     setRouteError(undefined);
   }, []);
@@ -250,7 +249,6 @@ export const Swap = ({
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
-    setExpectedOutputUnit(undefined);
 
     if (
       !sellCoinCode
@@ -365,7 +363,6 @@ export const Swap = ({
     const updateExpectedOutput = async () => {
       if (!selectedRoute || !buyAccount) {
         setExpectedOutput('');
-        setExpectedOutputUnit(undefined);
         return;
       }
 
@@ -379,13 +376,11 @@ export const Swap = ({
         return;
       }
       setExpectedOutput(displayAmount.amount);
-      setExpectedOutputUnit(displayAmount.unit);
     };
 
     updateExpectedOutput().catch(() => {
       if (!canceled) {
         setExpectedOutput(selectedRoute?.expectedBuyAmount || '');
-        setExpectedOutputUnit(buyAccount?.coinUnit);
       }
     });
 
@@ -418,7 +413,9 @@ export const Swap = ({
         sellAmount,
       });
       if (!response.success) {
-        alertUser(response.errorMessage || t('genericError'));
+        alertUser(response.errorCode
+          ? t(`send.error.${response.errorCode}`)
+          : response.errorMessage || t('genericError'));
         return;
       }
 
@@ -431,6 +428,13 @@ export const Swap = ({
         }
         return;
       }
+
+      const refreshedExpectedOutput = await getSwapDisplayAmount(
+        response.expectedBuyAmount,
+        buyAccount.coinCode,
+        buyAccount.coinUnit,
+        btcUnit,
+      );
 
       let expectedOutputConversions: TAmountWithConversions['conversions'];
       const fiatConversions = await Promise.all(
@@ -451,9 +455,9 @@ export const Swap = ({
 
       setConfirmDetails({
         expectedOutput: {
-          amount: expectedOutput,
+          amount: refreshedExpectedOutput.amount,
           conversions: expectedOutputConversions,
-          unit: expectedOutputUnit || buyAccount.coinUnit,
+          unit: refreshedExpectedOutput.unit,
           estimated: false,
         },
         feeAmount: proposal.fee,
@@ -587,6 +591,7 @@ export const Swap = ({
               ) : (
                 <InputWithAccountSelector
                   accounts={sellAccounts}
+                  disabled={isConfirmInFlight}
                   id="swapSendAmount"
                   accountCode={sellAccountCode}
                   isAccountDisabled={account => isSameCoinAccount(account, buyAccount)}
@@ -608,7 +613,7 @@ export const Swap = ({
               </Message>
               <div className={style.flipContainer}>
                 <Button
-                  disabled={!canFlip}
+                  disabled={!canFlip || isConfirmInFlight}
                   transparent
                   className={style.flipAccountsButton}
                   onClick={handleFlipAccounts}
@@ -629,6 +634,7 @@ export const Swap = ({
               ) : (
                 <InputWithAccountSelector
                   accounts={buyAccounts}
+                  disabled={isConfirmInFlight}
                   id="swapGetAmount"
                   accountCode={buyAccountCode}
                   isAccountDisabled={account => isSameCoinAccount(account, sellAccount)}
@@ -641,6 +647,7 @@ export const Swap = ({
               )}
               <SwapServiceSelector
                 buyUnit={buyAccount?.coinUnit}
+                disabled={isConfirmInFlight}
                 error={routeError}
                 isLoading={isFetchingRoutes}
                 onChangeRouteId={setSelectedRouteId}
@@ -659,7 +666,7 @@ export const Swap = ({
                       <SpinnerRingAnimated />
                     </span>
                   )}
-                  {isConfirmInFlight ? t('loading') : t('generic.swap')}
+                  {isConfirmInFlight ? t('account.syncing') : t('generic.swap')}
                 </span>
               </Button>
               <DesktopBackButton>

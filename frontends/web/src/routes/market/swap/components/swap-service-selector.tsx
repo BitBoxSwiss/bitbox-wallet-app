@@ -122,6 +122,7 @@ const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
 
 type Props = {
   buyUnit: CoinUnit | undefined;
+  disabled?: boolean;
   error?: string;
   isLoading: boolean;
   onChangeRouteId: (routeId: string) => void;
@@ -131,6 +132,7 @@ type Props = {
 
 export const SwapServiceSelector = ({
   buyUnit,
+  disabled = false,
   error,
   isLoading,
   onChangeRouteId,
@@ -203,7 +205,7 @@ export const SwapServiceSelector = ({
           SingleValue: CustomSingleValue,
         }}
         placeholder={placeholderText}
-        isDisabled={!options.length || isLoading}
+        isDisabled={disabled || !options.length || isLoading}
         isSearchable={false}
         options={options}
         value={selectedOption}

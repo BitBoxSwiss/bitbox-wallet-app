@@ -8,6 +8,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -18,7 +19,10 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 )
+
+const swapAccountSyncTimeout = 2 * time.Minute
 
 // SwapAccount contains the backend-native data needed to serialize swap accounts.
 type SwapAccount struct {
@@ -309,10 +313,12 @@ func (backend *Backend) accountHasNonZeroBalance(accountCode accountsTypes.Code)
 // PrepareSwap prepares a real SwapKit swap and returns a tx input that can be proposed and sent
 // through the existing account tx flow.
 func (backend *Backend) PrepareSwap(
+	ctx context.Context,
 	buyAccountCode, sellAccountCode accountsTypes.Code,
 	routeID, sellAmount string,
 ) (*SwapPreparation, error) {
-	if err := backend.activateSwapBuyAccount(buyAccountCode); err != nil {
+	// Account reinitialization is synchronous and has no context-aware API.
+	if err := backend.activateSwapBuyAccount(buyAccountCode); err != nil { //nolint:contextcheck
 		return nil, err
 	}
 
@@ -329,6 +335,14 @@ func (backend *Backend) PrepareSwap(
 	}
 	if err := validateSwapAccountSupported(buyAccount); err != nil {
 		return nil, err
+	}
+
+	syncCtx, cancelSync := context.WithTimeout(ctx, swapAccountSyncTimeout)
+	defer cancelSync()
+	for _, account := range []accounts.Interface{sellAccount, buyAccount} {
+		if err := waitForSwapAccountSync(syncCtx, account); err != nil {
+			return nil, err
+		}
 	}
 
 	// Grab an unused address; since we build the tx ourselves, we don't need an used
@@ -349,7 +363,7 @@ func (backend *Backend) PrepareSwap(
 	}
 
 	swapResponse, swapError := swapkit.NewSwap(
-		context.Background(),
+		ctx,
 		backend.httpClient,
 		string(sellAccount.Coin().Code()),
 		string(buyAccount.Coin().Code()),
@@ -383,6 +397,46 @@ func (backend *Backend) PrepareSwap(
 		SwapID:            swapResponse.SwapID,
 		TxInput:           txInput,
 	}, nil
+}
+
+// waitForSwapAccountSync waits until an account is ready for address derivation and transaction
+// preparation. Activating a swap destination currently reinitializes all accounts, so both the
+// source and destination can briefly be unsynced after activateSwapBuyAccount returns.
+func waitForSwapAccountSync(ctx context.Context, account accounts.Interface) error {
+	statusChanged := make(chan struct{}, 1)
+	unobserve := account.Observe(func(event observable.Event) {
+		if event.Subject != string(accountsTypes.EventStatusChanged) {
+			return
+		}
+		select {
+		case statusChanged <- struct{}{}:
+		default:
+		}
+	})
+	defer unobserve()
+
+	for {
+		// Check after subscribing so a sync completion cannot be missed between the initial state
+		// check and observer registration.
+		if account.Synced() {
+			return nil
+		}
+		if err := account.Offline(); err != nil {
+			return errp.Wrap(err, "account synchronization failed")
+		}
+		if account.FatalError() {
+			return errp.New("account synchronization failed")
+		}
+
+		select {
+		case <-ctx.Done():
+			if context.Cause(ctx) == context.DeadlineExceeded {
+				return errp.WithMessage(accounts.ErrSyncInProgress, "timed out waiting for account synchronization")
+			}
+			return context.Cause(ctx)
+		case <-statusChanged:
+		}
+	}
 }
 
 func validateSwapAccountSupported(account accounts.Interface) error {
