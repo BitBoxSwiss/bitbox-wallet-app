@@ -53,6 +53,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
@@ -116,6 +117,7 @@ type Backend interface {
 	AOPPApprove()
 	AOPPChooseAccount(code accountsTypes.Code)
 	GetAccountFromCode(code accountsTypes.Code) (accounts.Interface, error)
+	SignWalletConnectTransaction(accountsTypes.Code, eth.SignTransactionArgs) (*gethtypes.Transaction, error)
 	HTTPClient() *http.Client
 	LookupInsuredAccounts(accountCode accountsTypes.Code) ([]bitsurance.AccountDetails, error)
 	Authenticate(force bool)
@@ -299,7 +301,7 @@ func NewHandlers(
 		if _, ok := accountHandlersMap[accountCode]; !ok {
 			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(getAPIRouter(
 				apiRouter.PathPrefix(fmt.Sprintf("/account/%s", accountCode)).Subrouter(),
-			), log)
+			), log, backend.SignWalletConnectTransaction)
 		}
 		accHandlers := accountHandlersMap[accountCode]
 		log.WithField("account-handlers", accHandlers).Debug("Account handlers")
