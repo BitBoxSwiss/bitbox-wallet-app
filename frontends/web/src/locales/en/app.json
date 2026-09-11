@@ -1875,6 +1875,11 @@
       "partial": "The Spark network is partially unavailable. Lightning payments may be unavailable.",
       "unknown": "The Spark network status is unknown. Lightning payments may be unavailable."
     },
+    "testnetWarning": {
+      "checkboxLabel": "I have read the information above",
+      "message": "Lightning coins have real value, even when using the app in testnet mode. Proceed?",
+      "title": "Warning"
+    },
     "topUp": {
       "action": "Top up",
       "available": "Available",
