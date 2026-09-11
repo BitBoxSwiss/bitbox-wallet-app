@@ -5,7 +5,6 @@ package backend
 import (
 	"context"
 	"math/big"
-	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
@@ -171,7 +170,7 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 	}
 }
 
-func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) *accountsMocks.InterfaceMock {
+func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) *accountsMocks.InterfaceMock {
 	return &accountsMocks.InterfaceMock{
 		ObserveFunc: func(func(observable.Event)) func() {
 			return func() {}
@@ -399,8 +398,8 @@ func newBackendWithDevServers(t *testing.T, testing, regtest, devServers bool) *
 	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 		return MockBtcAccount(t, config, coin, gapLimits, log)
 	}
-	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-		return MockEthAccount(config, coin, httpClient, log)
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
+		return MockEthAccount(config, coin, log)
 	}
 
 	// avoid hitting real API for BTC coins.
