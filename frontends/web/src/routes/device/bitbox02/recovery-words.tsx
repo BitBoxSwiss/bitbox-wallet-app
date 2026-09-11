@@ -12,7 +12,7 @@ import { Button, Checkbox } from '@/components/forms';
 import { PointToBitBox02 } from '@/components/icon';
 import { Message } from '@/components/message/message';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 
 const CONTENT_MIN_HEIGHT = 'min(56rem, 100vh)';
 
@@ -28,7 +28,7 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
 
   const [status, setStatus] = useState<TStatus>('info');
   const [agree, setAgree] = useState<boolean>(false);
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   const confirmShowWords = async () => {
     setStatus('progress');

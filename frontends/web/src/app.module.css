@@ -17,14 +17,16 @@
     min-height: 0;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 900px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .appContent {
         position: absolute;
         width: 100%;
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .appContent {
         /* mobile viewport bug fix */
         max-height: -webkit-fill-available;

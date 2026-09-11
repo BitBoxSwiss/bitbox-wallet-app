@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import type { TConfigBackendProxy } from '@/api/config';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Toggle } from '@/components/toggle/toggle';
 import { Button, Input } from '@/components/forms';
@@ -25,7 +25,7 @@ export const TorProxyDialog = ({ open, onCloseDialog, handleShowRestartMessage }
   const proxyConfig = config?.backend.proxy;
   const [proxyAddress, setProxyAddress] = useState<string>();
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   useEffect(() => {
     if (proxyConfig) {

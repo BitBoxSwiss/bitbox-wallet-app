@@ -203,7 +203,7 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
     }
 }
 
-class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersProtocol {
+class GoAPI: NSObject, ObservableObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersProtocol {
     var handlers: MessageHandlersProtocol?
 
     func pushNotify(_ msg: String?) {
@@ -222,12 +222,12 @@ class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersPro
 @main
 struct BitBoxAppApp: App {
     @StateObject private var bluetoothManager = BluetoothManager()
+    @StateObject private var goAPI = GoAPI()
     private let widgetSync = WidgetAppGroupSync()
 
     var body: some Scene {
         WindowGroup {
             GridLayout(alignment: .leading) {
-                let goAPI = GoAPI()
                 ZStack(alignment: .top) {
                 WebView(setHandlers: goAPI)
                     .edgesIgnoringSafeArea(.all)

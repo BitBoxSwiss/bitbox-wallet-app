@@ -39,7 +39,8 @@
     color: var(--color-alt);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .toast {
         position: initial;
         transition: none;

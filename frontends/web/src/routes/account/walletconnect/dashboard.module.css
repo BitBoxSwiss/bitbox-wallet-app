@@ -13,7 +13,7 @@
     margin: 0;
 }
 
-.headerContainer p.receiveAddress { 
+.headerContainer p.receiveAddress {
     color: var(--color-secondary);
     margin-top: var(--space-quarter);
     font-size: 1.6rem;
@@ -47,7 +47,8 @@
 }
 
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .buttonNewConnection {
         height: var(--space-default);
         padding: 0 16px;
@@ -56,11 +57,11 @@
     .headerContainer p {
         font-size: 1.6rem;
     }
-    
+
     .headerContainer p.receiveAddress,
     .noConnectedSessions,
     .allSessionsHeading
-    { 
+    {
         font-size: var(--size-default);
     }
 

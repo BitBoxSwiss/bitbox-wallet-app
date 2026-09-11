@@ -9,7 +9,8 @@
     width: 100% !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .swissOpenSource {
         max-width: 180px !important;
     }

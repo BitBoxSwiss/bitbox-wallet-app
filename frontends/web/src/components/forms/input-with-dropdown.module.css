@@ -177,7 +177,8 @@ input.inputFieldWithoutIcon {
     will-change: border-color;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .inputDropdownWrapper {
         grid-template-columns: minmax(0, 1fr) var(--input-height);
     }

@@ -4,7 +4,8 @@
   margin-bottom: var(--space-half);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
   .tx {
     margin-bottom: var(--space-quarter);
   }
@@ -19,7 +20,8 @@
   transition: background-color 120ms ease;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
   .txContent {
     padding: 10px 0 8px 0;
   }
@@ -35,7 +37,8 @@
 .txIcon img {
   width: 32px;
 }
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
 
   .txContent:active {
     background-color: var(--background-tap-active);
@@ -74,7 +77,8 @@
   text-align: right;
   white-space: nowrap;
 }
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
   .txAmountsColumn {
     padding-right: var(--space-half);
   }
@@ -231,7 +235,8 @@
   margin: 0 var(--space-quarter) 0 0;
   padding: 0;
 }
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
   .txShowDetailBtn {
     display: none;
   }

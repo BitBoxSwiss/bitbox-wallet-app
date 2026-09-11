@@ -14,7 +14,8 @@
     text-align: center;
 }
 
-@media (max-width: 768px) { 
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .container p.successText {
         margin-bottom: var(--space-large);
         margin-top: calc(var(--space-quarter) + var(--space-default));

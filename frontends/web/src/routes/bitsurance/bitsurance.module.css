@@ -31,7 +31,7 @@
 .ctaButton:focus img,
 .ctaButton:hover img {
   /* Applying "primary" (blue) color to the originally dark img SVG when button is hovered */
-  filter: invert(53%) sepia(20%) saturate(1200%) hue-rotate(180deg) brightness(95%) contrast(90%); 
+  filter: invert(53%) sepia(20%) saturate(1200%) hue-rotate(180deg) brightness(95%) contrast(90%);
 }
 
 .errorMessage {
@@ -61,7 +61,8 @@ ul.clean {
   padding-left: 0px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
   .cardBody {
     font-size: var(--size-default);
   }

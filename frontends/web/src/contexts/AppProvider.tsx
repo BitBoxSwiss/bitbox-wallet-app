@@ -11,7 +11,7 @@ import { getOnline, subscribeOnline } from '@/api/online';
 import { i18nextFormat } from '@/i18n/utils';
 import type { TChartDisplay, TSessionConfig } from './AppContext';
 import { useOrientation } from '@/hooks/orientation';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { useSync } from '@/hooks/api';
 
 type TProps = {
@@ -34,7 +34,7 @@ export const AppProvider = ({ children }: TProps) => {
   const [tmpConfig, setTmpConfig] = useState<TSessionConfig>({});
 
   const orientation = useOrientation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   const toggleGuide = () => {
     setConfig({ frontend: { guideShown: !guideShown } });

@@ -11,10 +11,10 @@
   gap: var(--space-eight);
   height: var(--bottom-navigation-bar-height);
   justify-content: space-between;
-  left: var(--space-half);
+  left: calc(var(--space-half) + env(safe-area-inset-left, 0));
   padding: var(--space-three-quarter) var(--space-half);
   position: fixed;
-  right: var(--space-half);
+  right: calc(var(--space-half) + env(safe-area-inset-right, 0));
   z-index: 3;
   margin-left: auto;
   margin-right: auto;
@@ -112,7 +112,8 @@
     top: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .container {
         display: flex;
     }

@@ -25,7 +25,7 @@ import {
   USBDark,
   LoupeBlue,
 } from '@/components/icon';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import styles from './tabs.module.css';
 
 type TWithSettingsTabsProps = {
@@ -58,7 +58,7 @@ export const WithSettingsTabs = ({
   renderDefaultTabs = true,
 }: TWithSettingsTabsProps) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const [showSearchBar, setShowSearchBar] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -146,7 +146,7 @@ export const Tab = ({
   icon,
 }: TTab) => {
   const navigate = useNavigate();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   const upgradeDot = (
     canUpgrade ? (

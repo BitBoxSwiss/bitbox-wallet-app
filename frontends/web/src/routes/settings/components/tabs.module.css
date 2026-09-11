@@ -57,7 +57,8 @@
     color: var(--color-lightblue);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .container,
     .container a,
     .container a.active {
@@ -81,7 +82,8 @@
     height: 18px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .canUpgradeDot {
         margin-right: 5px;
     }

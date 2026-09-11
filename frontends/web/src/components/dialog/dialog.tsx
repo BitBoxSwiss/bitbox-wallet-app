@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import { UseBackButton } from '@/hooks/backbutton';
 import { useEsc, useFocusTrap } from '@/hooks/keyboard';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { MobileDialog } from './mobile-dialog';
 import style from './dialog.module.css';
 
@@ -94,7 +94,7 @@ export const Dialog = ({
   const contentContainerRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   useFocusTrap(modalRef, status === 'open');
 

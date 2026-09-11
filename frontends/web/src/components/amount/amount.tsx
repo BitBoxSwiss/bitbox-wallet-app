@@ -5,7 +5,7 @@ import type { CoinUnit, ConversionUnit } from '@/api/account';
 import { isSupportedERC20Unit } from '@/api/erc20';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import style from './amount.module.css';
 
 const stripTrailingZeros = (value: string): string => {
@@ -154,7 +154,7 @@ export const Amount = ({
   maxDecimals,
   removeTrailingZeros,
 }: TProps) => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   const handleClick = () => {
     if (isMobile && onMobileClick) {

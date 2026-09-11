@@ -11,7 +11,7 @@ import { SimpleMarkup } from '@/utils/markup';
 import { A } from '@/components/anchor/anchor';
 import { Column, ResponsiveGrid } from '@/components/layout';
 import { useDarkmode } from '@/hooks/darkmode';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
@@ -30,7 +30,7 @@ export const Bip85 = ({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const [status, setStatus] = useState<Status>('info-what');
   const [disclaimer, setDisclaimer] = useState(false);
   const handleClose = () => navigate(-1);

@@ -23,7 +23,8 @@
     margin-left: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
     .buttons {
         gap: var(--space-quarter);
         width: 100%;
