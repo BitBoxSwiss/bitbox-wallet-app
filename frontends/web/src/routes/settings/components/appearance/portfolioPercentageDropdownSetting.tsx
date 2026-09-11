@@ -33,8 +33,10 @@ export const PortfolioPercentageDropdownSetting = () => {
     value: option.value,
     label: t(`newSettings.appearance.portfolioPerformance.options.${option.labelKey}`),
   }));
-  const selectedOption = translatedOptions.find(option => option.value === portfolioPercentageType)
-    || translatedOptions[0];
+  const selectedOption = (
+    translatedOptions.find(option => option.value === portfolioPercentageType)
+    || translatedOptions[0]
+  );
 
   return (
     <SettingsItem

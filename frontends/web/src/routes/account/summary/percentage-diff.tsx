@@ -39,40 +39,48 @@ export const PercentageDiff = ({
   const { hideAmounts, nativeLocale } = useContext(AppContext);
   const { decimal, group } = useContext(LocalizationContext);
   const { isDarkMode } = useDarkmode();
-  const differenceAvailable = difference !== undefined
+  const differenceAvailable = (
+    difference !== undefined
     && difference !== null
-    && Number.isFinite(difference);
+    && Number.isFinite(difference)
+  );
   const positive = differenceAvailable && difference > 0;
   const negative = differenceAvailable && difference < 0;
   const className = positive ? styles.up || '' : negative ? styles.down || '' : '';
   const badgeClassName = `${styles.badge || ''} ${badgeVisible ? styles.badgeVisible || '' : ''}`;
   const valueBadgeIconClassName = `${styles.badgeIcon || ''} ${styles.valueBadgeIcon || ''}`;
-  const badgeIcon = switchedType === 'moneyWeightedReturn' ? (
-    isDarkMode
-      ? <ChartPerformanceWhite aria-hidden="true" className={styles.badgeIcon} />
-      : <ChartPerformanceDark aria-hidden="true" className={styles.badgeIcon} />
-  ) : (
-    isDarkMode
-      ? <ChartValueWhite aria-hidden="true" className={valueBadgeIconClassName} />
-      : <ChartValueDark aria-hidden="true" className={valueBadgeIconClassName} />
+  const badgeIcon = (
+    switchedType === 'moneyWeightedReturn' ? (
+      isDarkMode
+        ? <ChartPerformanceWhite aria-hidden="true" className={styles.badgeIcon} />
+        : <ChartPerformanceDark aria-hidden="true" className={styles.badgeIcon} />
+    ) : (
+      isDarkMode
+        ? <ChartValueWhite aria-hidden="true" className={valueBadgeIconClassName} />
+        : <ChartValueDark aria-hidden="true" className={valueBadgeIconClassName} />
+    )
   );
-  const formattedDifference = differenceAvailable
-    ? localizePercentage(difference, nativeLocale, { decimal, group })
-    : undefined;
-  const content = differenceAvailable ? (
-    <>
-      {positive || negative ? (
-        <span className={styles.arrow}>
-          {positive ? <ArrowUpGreen /> : <ArrowDownRed />}
+  const formattedDifference = (
+    differenceAvailable
+      ? localizePercentage(difference, nativeLocale, { decimal, group })
+      : undefined
+  );
+  const content = (
+    differenceAvailable ? (
+      <>
+        {positive || negative ? (
+          <span className={styles.arrow}>
+            {positive ? <ArrowUpGreen /> : <ArrowDownRed />}
+          </span>
+        ) : null}
+        <span className={styles.diffValue}>
+          {hideAmounts ? '***' : formattedDifference}
+          <span className={styles.diffUnit}>%</span>
         </span>
-      ) : null}
-      <span className={styles.diffValue}>
-        {hideAmounts ? '***' : formattedDifference}
-        <span className={styles.diffUnit}>%</span>
-      </span>
-    </>
-  ) : (
-    <span className={styles.diffValue}>—</span>
+      </>
+    ) : (
+      <span className={styles.diffValue}>—</span>
+    )
   );
 
   return (

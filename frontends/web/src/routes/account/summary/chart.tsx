@@ -525,9 +525,11 @@ export const Chart = ({
   };
 
   const togglePortfolioPercentageType = () => {
-    const nextType = portfolioPercentageType === 'moneyWeightedReturn'
-      ? 'value'
-      : 'moneyWeightedReturn';
+    const nextType = (
+      portfolioPercentageType === 'moneyWeightedReturn'
+        ? 'value'
+        : 'moneyWeightedReturn'
+    );
 
     updatePortfolioPercentageType(nextType);
     setSwitchedToType(nextType);
@@ -599,23 +601,31 @@ export const Chart = ({
   } = data;
 
   const moneyWeightedReturn = data.chartPerformance[chartDisplay].moneyWeightedReturn;
-  const difference = portfolioPercentageType === 'moneyWeightedReturn'
-    ? moneyWeightedReturn
-    : valueDifference;
-  const switchedLabel = switchedToType
-    ? t(`chart.displayMode.${switchedToType === 'value' ? 'totalValue' : 'performance'}`)
-    : undefined;
-  const differenceAvailable = difference !== undefined
+  const difference = (
+    portfolioPercentageType === 'moneyWeightedReturn'
+      ? moneyWeightedReturn
+      : valueDifference
+  );
+  const switchedLabel = (
+    switchedToType
+      ? t(`chart.displayMode.${switchedToType === 'value' ? 'totalValue' : 'performance'}`)
+      : undefined
+  );
+  const differenceAvailable = (
+    difference !== undefined
     && difference !== null
-    && Number.isFinite(difference);
+    && Number.isFinite(difference)
+  );
   const currentDisplayModeLabel = t(`chart.displayMode.${portfolioPercentageType === 'value' ? 'totalValue' : 'performance'}`);
   const nextDisplayModeLabel = t(`chart.displayMode.${portfolioPercentageType === 'value' ? 'performance' : 'totalValue'}`);
-  const percentageToggleLabel = differenceAvailable
-    ? t('chart.displayMode.switchTo', { displayMode: nextDisplayModeLabel })
-    : t('chart.displayMode.unavailableSwitchTo', {
-      displayMode: currentDisplayModeLabel,
-      nextDisplayMode: nextDisplayModeLabel,
-    });
+  const percentageToggleLabel = (
+    differenceAvailable
+      ? t('chart.displayMode.switchTo', { displayMode: nextDisplayModeLabel })
+      : t('chart.displayMode.unavailableSwitchTo', {
+        displayMode: currentDisplayModeLabel,
+        nextDisplayMode: nextDisplayModeLabel,
+      })
+  );
 
   if (!hasData && chartIsUpToDate && valueDifference) {
     setDiffSince('');
