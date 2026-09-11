@@ -27,13 +27,16 @@ func TestParseWalletConnectTransactionRequest(t *testing.T) {
 	for _, test := range []struct {
 		name    string
 		chainID json.RawMessage
+		input   json.RawMessage
 	}{
 		{name: "chain ID omitted"},
 		{name: "chain ID matches request", chainID: json.RawMessage(`"0xa"`)},
+		{name: "null input", input: json.RawMessage(`null`)},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			request := validWalletConnectTransactionRequest()
 			request.ChainID = test.chainID
+			request.Input = test.input
 
 			transaction, err := parseWalletConnectTransactionRequest(10, request)
 

@@ -4,20 +4,15 @@ package eth
 
 const sepoliaChainID uint64 = 11155111
 
-// EVMChainCapabilities describes the transaction capabilities of a supported EVM chain.
-type EVMChainCapabilities struct {
-	SupportsType2Transactions bool
-}
-
-var evmChainCapabilities = map[uint64]EVMChainCapabilities{
-	1:        {SupportsType2Transactions: true},
-	10:       {SupportsType2Transactions: true},
-	56:       {SupportsType2Transactions: true},
-	100:      {SupportsType2Transactions: true},
-	137:      {SupportsType2Transactions: true},
-	146:      {SupportsType2Transactions: true},
-	999:      {SupportsType2Transactions: true},
-	8453:     {SupportsType2Transactions: true},
-	42161:    {SupportsType2Transactions: true},
-	11155111: {SupportsType2Transactions: true},
+var supportedEVMChains = []uint64{
+	1,        // Ethereum
+	10,       // Optimism
+	56,       // BNB Smart Chain
+	100,      // Gnosis
+	137,      // Polygon
+	146,      // Sonic
+	999,      // HyperEVM
+	8453,     // Base
+	42161,    // Arbitrum One
+	11155111, // Sepolia
 }

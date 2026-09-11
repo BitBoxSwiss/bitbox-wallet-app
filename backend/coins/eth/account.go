@@ -9,6 +9,7 @@ import (
 	"math/big"
 	"os"
 	"path"
+	"slices"
 	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -907,7 +908,7 @@ func (account *Account) SignTypedMsg(
 	chainID uint64,
 	data string,
 ) (string, error) {
-	if _, supported := evmChainCapabilities[chainID]; !supported {
+	if !slices.Contains(supportedEVMChains, chainID) {
 		return "", errp.New("unsupported EVM network")
 	}
 	keystore, err := account.Config().ConnectKeystore()
@@ -998,7 +999,7 @@ func (account *Account) SignTransaction(args SignTransactionArgs) (*types.Transa
 		return nil, errp.New("transaction from address does not match account")
 	}
 
-	if _, supported := evmChainCapabilities[args.ChainID]; !supported {
+	if !slices.Contains(supportedEVMChains, args.ChainID) {
 		return nil, errp.New("unsupported EVM network")
 	}
 

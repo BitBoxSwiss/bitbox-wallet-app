@@ -32,7 +32,7 @@ func parseWalletConnectTransactionRequest(
 	requestChainID uint64,
 	request walletConnectTransactionRequest,
 ) (eth.TransactionRequest, error) {
-	if request.Input != nil {
+	if request.Input != nil && string(request.Input) != "null" {
 		return eth.TransactionRequest{}, errp.New("transaction input field is unsupported; use data")
 	}
 	if request.ChainID != nil {
