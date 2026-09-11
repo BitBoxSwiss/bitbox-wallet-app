@@ -78,9 +78,7 @@ export const PercentageDiff = ({
           <span className={styles.diffUnit}>%</span>
         </span>
       </>
-    ) : (
-      <span className={styles.diffValue}>—</span>
-    )
+    ) : null
   );
 
   return (

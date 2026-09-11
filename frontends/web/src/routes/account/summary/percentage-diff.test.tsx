@@ -38,9 +38,12 @@ describe('PercentageDiff', () => {
     expect(onClick).toHaveBeenCalledOnce();
   });
 
-  it('renders an accessible placeholder when performance is unavailable', () => {
-    renderPercentageDiff(null);
+  it('renders no placeholder when performance is unavailable and keeps the toggle usable', () => {
+    const onClick = renderPercentageDiff(null);
 
-    expect(screen.getByRole('button', { name: 'Switch percentage display' })).toHaveTextContent('—');
+    const toggle = screen.getByRole('button', { name: 'Switch percentage display' });
+    expect(toggle).toBeEmptyDOMElement();
+    fireEvent.click(toggle);
+    expect(onClick).toHaveBeenCalledOnce();
   });
 });
