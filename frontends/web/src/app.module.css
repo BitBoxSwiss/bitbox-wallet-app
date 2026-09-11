@@ -40,8 +40,11 @@
        max-height: 100dvh;
     }
 
-    .appContent.hasBottomNavigation main {
-        padding-bottom: var(--bottom-navigation-scroll-space);
+    .appContent.hasBottomNavigation main::after {
+        /* WebKit can omit flex container padding from scrollable overflow.
+           https://bugs.webkit.org/show_bug.cgi?id=316902 */
+        content: '';
+        flex: 0 0 var(--bottom-navigation-scroll-space);
     }
 
     .tabTransition {
