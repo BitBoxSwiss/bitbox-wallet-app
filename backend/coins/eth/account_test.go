@@ -852,7 +852,7 @@ func TestSignTransactionCrossChainNonceIgnoresNativePendingTransactions(t *testi
 	require.Len(t, targetClient.PendingNonceAtCalls(), 1)
 }
 
-func TestNextNonceForNativeChainUsesHigherPendingNonce(t *testing.T) {
+func TestSignTransactionNativeNonceUsesHigherPendingNonce(t *testing.T) {
 	acct := newAccountWithOptions(t, true, make(chan *Account, 1))
 	defer acct.Close()
 
@@ -865,10 +865,14 @@ func TestNextNonceForNativeChainUsesHigherPendingNonce(t *testing.T) {
 	nativeClient := newTransactionRPCClient(4, 21000, big.NewInt(2), nil)
 	acct.ETHCoin().TstSetClient(nativeClient)
 
-	nonce, err := acct.nextNonceForChain(acct.ETHCoin().ChainID(), nativeClient)
+	setTransactionSigningKeystore(t, acct, acct.ETHCoin().ChainID())
+	transaction := validTransactionRequest(acct)
+	transaction.Nonce = nil
+	signedTx, err := signTransaction(acct, acct.ETHCoin().ChainID(), false, transaction)
 	require.NoError(t, err)
-	require.Equal(t, uint64(10), nonce)
+	require.Equal(t, uint64(10), signedTx.Nonce())
 	require.Len(t, nativeClient.PendingNonceAtCalls(), 1)
+	require.Nil(t, transaction.Nonce)
 }
 
 func TestSignTransactionStoresSuccessfulSameChainBroadcast(t *testing.T) {
@@ -885,6 +889,7 @@ func TestSignTransactionStoresSuccessfulSameChainBroadcast(t *testing.T) {
 	transaction.Nonce = &nonce
 	signedTx, err := signTransaction(acct, acct.ETHCoin().ChainID(), true, transaction)
 	require.NoError(t, err)
+	require.Equal(t, nonce, signedTx.Nonce())
 	require.Len(t, nativeClient.SendTransactionCalls(), 1)
 	require.Empty(t, nativeClient.PendingNonceAtCalls())
 	require.Same(t, signedTx, nativeClient.SendTransactionCalls()[0].Tx)

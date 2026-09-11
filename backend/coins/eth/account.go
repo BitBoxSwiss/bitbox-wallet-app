@@ -335,21 +335,12 @@ func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData)
 	return transactions, nil
 }
 
-func (account *Account) nextNonceForChain(
-	chainID uint64,
-	client rpcclient.Interface,
-) (uint64, error) {
-	// A transaction nonce belongs to one address on one chain. Always query the selected chain.
-	nodeNonce, err := client.PendingNonceAt(context.TODO(), account.address.Address)
+func (account *Account) nextNonce() (uint64, error) {
+	nodeNonce, err := account.coin.client.PendingNonceAt(context.TODO(), account.address.Address)
 	if err != nil {
 		return 0, err
 	}
-	if chainID != account.coin.ChainID() {
-		return nodeNonce, nil
-	}
-
-	// Pending storage is native-chain-only. Use it to protect native transactions from a stale node
-	// nonce, but never mix it into another chain's nonce sequence.
+	// Protect native transactions from a stale node nonce using locally stored transactions.
 	outgoingTransactions, err := account.outgoingTransactions(nil)
 	if err != nil {
 		return 0, errp.WithStack(err)
@@ -640,7 +631,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 
 	var tx *types.Transaction
 
-	nextNonce, err := account.nextNonceForChain(account.coin.ChainID(), account.coin.client)
+	nextNonce, err := account.nextNonce()
 	if err != nil {
 		return nil, err
 	}
@@ -702,19 +693,8 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 	return nil
 }
 
-func (account *Account) broadcastTransaction(
-	chainID uint64,
-	client rpcclient.Interface,
-	transaction *types.Transaction,
-) error {
-	// By experience, a successful Etherscan response does not always mean that the transaction
-	// remains available to the network. Native-chain pending storage enables later rebroadcasts.
-	if err := client.SendTransaction(context.TODO(), transaction); err != nil {
-		return errp.WithStack(err)
-	}
-	if chainID != account.coin.ChainID() {
-		return nil
-	}
+// trackOutgoingTransaction keeps a native-chain broadcast available for nonce selection and rebroadcast.
+func (account *Account) trackOutgoingTransaction(transaction *types.Transaction) {
 	if err := account.storePendingOutgoingTransaction(transaction); err != nil {
 		// Broadcasting is an external side effect. Report success after the network accepted the
 		// transaction, even if local pending tracking is unavailable.
@@ -723,7 +703,6 @@ func (account *Account) broadcastTransaction(
 			Error("Failed to store pending outgoing transaction")
 	}
 	account.EnqueueUpdate()
-	return nil
 }
 
 // SendTx implements accounts.Interface.
@@ -744,9 +723,10 @@ func (account *Account) SendTx(txNote string) (string, error) {
 	if err := keystore.SignTransaction(txProposal); err != nil {
 		return "", err
 	}
-	if err := account.broadcastTransaction(account.coin.ChainID(), account.coin.client, txProposal.Tx); err != nil {
-		return "", err
+	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.Tx); err != nil {
+		return "", errp.WithStack(err)
 	}
+	account.trackOutgoingTransaction(txProposal.Tx)
 
 	if err := account.SetTxNote(txProposal.Tx.Hash().Hex(), txNote); err != nil {
 		// Not critical.
@@ -755,39 +735,10 @@ func (account *Account) SendTx(txNote string) (string, error) {
 	return txProposal.Tx.Hash().String(), nil
 }
 
-// feeTargetsForChain returns three priorities with fee targets estimated by Etherscan
-// https://docs.etherscan.io/api-endpoints/gas-tracker#get-gas-oracle
-// If the service should not be reachable, we fallback to only one priority, estimated by
-// the ETH RPC eth_gasPrice endpoint.
-func (account *Account) feeTargetsForChain(
-	chainID uint64,
-	client rpcclient.Interface,
-) []*ethtypes.FeeTarget {
-	if chainID != sepoliaChainID {
-		etherscanFeeTargets, err := client.FeeTargets(context.TODO())
-		if err == nil {
-			return etherscanFeeTargets
-		}
-		account.log.WithError(err).Error("Could not get fee targets from eth gas station, falling back to RPC eth_gasPrice")
-	}
-	suggestedGasPrice, err := client.SuggestGasPrice(context.TODO())
-	if err != nil {
-		account.log.WithError(err).Error("Fallback to RPC eth_gasPrice failed")
-		return nil
-	}
-	return []*ethtypes.FeeTarget{
-		{
-			TargetCode: accounts.FeeTargetCodeNormal,
-			GasFeeCap:  suggestedGasPrice,
-			GasTipCap:  suggestedGasPrice,
-		},
-	}
-}
-
 // FeeTargets implements accounts.Interface.
 func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
 	feeTargets := []accounts.FeeTarget{}
-	for _, t := range account.feeTargetsForChain(account.coin.ChainID(), account.coin.client) {
+	for _, t := range feeTargetsForChain(account.coin.ChainID(), account.coin.client, account.log) {
 		feeTargets = append(feeTargets, t)
 	}
 	return feeTargets, accounts.DefaultFeeTarget
@@ -809,7 +760,7 @@ func (account *Account) gasFees(args *accounts.TxProposalArgs) (*big.Int, *big.I
 		}
 		return gasPrice, gasPrice, nil
 	}
-	for _, t := range account.feeTargetsForChain(account.coin.ChainID(), account.coin.client) {
+	for _, t := range feeTargetsForChain(account.coin.ChainID(), account.coin.client, account.log) {
 		if t.TargetCode == args.FeeTargetCode {
 			if t.GasTipCap.Cmp(big.NewInt(0)) <= 0 || t.GasFeeCap.Cmp(big.NewInt(0)) <= 0 {
 				return nil, nil, errors.ErrFeeTooLow
@@ -954,16 +905,6 @@ func (account *Account) SignETHMessage(message string) (string, string, error) {
 	return account.address.Address.Hex(), "0x" + hex.EncodeToString(signature), nil
 }
 
-// TransactionRequest contains the parsed values needed to construct an EVM transaction.
-type TransactionRequest struct {
-	From             ethcommon.Address
-	Recipient        ethcommon.Address
-	RecipientAddress string
-	Data             []byte
-	Value            *big.Int
-	Nonce            *uint64
-}
-
 // SignTransactionArgs contains a transaction request and its target EVM chain.
 type SignTransactionArgs struct {
 	ChainID     uint64
@@ -987,8 +928,6 @@ func (account *Account) chainClient(chainID uint64) (rpcclient.Interface, error)
 
 // SignTransaction validates, signs, and optionally broadcasts an EVM transaction request.
 func (account *Account) SignTransaction(args SignTransactionArgs) (*types.Transaction, error) {
-	var nonce uint64
-	var gasPrice *big.Int
 	proposedTx := args.Transaction
 
 	accountAddress, err := account.Address()
@@ -1008,53 +947,18 @@ func (account *Account) SignTransaction(args SignTransactionArgs) (*types.Transa
 		return nil, err
 	}
 
-	if proposedTx.Nonce != nil {
-		nonce = *proposedTx.Nonce
-	} else {
-		if nonce, err = account.nextNonceForChain(args.ChainID, client); err != nil {
+	if proposedTx.Nonce == nil && args.ChainID == account.coin.ChainID() {
+		nonce, err := account.nextNonce()
+		if err != nil {
 			return nil, err
 		}
+		proposedTx.Nonce = &nonce
 	}
 
-	value := new(big.Int)
-	if proposedTx.Value != nil {
-		value.Set(proposedTx.Value)
-	}
-
-	message := ethereum.CallMsg{
-		From:     account.address.Address,
-		To:       &proposedTx.Recipient,
-		Gas:      0,
-		GasPrice: big.NewInt(0),
-		Value:    value,
-		Data:     proposedTx.Data,
-	}
-
-	gasLimit, err := client.EstimateGas(context.TODO(), message)
+	tx, err := newTransaction(args.ChainID, client, proposedTx, account.log)
 	if err != nil {
-		if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
-			return nil, errp.WithStack(errors.ErrInsufficientFunds)
-		}
-		account.log.WithError(err).Error("Could not estimate the gas limit.")
-		return nil, errp.WithStack(errors.TxValidationError(err.Error()))
+		return nil, err
 	}
-
-	for _, t := range account.feeTargetsForChain(args.ChainID, client) {
-		// TODO Let user choose gas price/priority
-		if t.TargetCode == accounts.FeeTargetCodeNormal {
-			if t.GasFeeCap == nil || t.GasFeeCap.Sign() <= 0 {
-				return nil, errors.ErrFeeTooLow
-			}
-			gasPrice = t.GasFeeCap
-		}
-	}
-	if gasPrice == nil {
-		return nil, errp.WithStack(errors.ErrFeesNotAvailable)
-	}
-
-	tx := types.NewTransaction(nonce,
-		*message.To,
-		message.Value, gasLimit, gasPrice, message.Data)
 	txProposal := &TxProposal{
 		ChainID:          args.ChainID,
 		Tx:               tx,
@@ -1070,8 +974,11 @@ func (account *Account) SignTransaction(args SignTransactionArgs) (*types.Transa
 		return nil, err
 	}
 	if args.Broadcast {
-		if err := account.broadcastTransaction(args.ChainID, client, txProposal.Tx); err != nil {
-			return nil, err
+		if err := client.SendTransaction(context.TODO(), txProposal.Tx); err != nil {
+			return nil, errp.WithStack(err)
+		}
+		if args.ChainID == account.coin.ChainID() {
+			account.trackOutgoingTransaction(txProposal.Tx)
 		}
 	}
 	return txProposal.Tx, nil
