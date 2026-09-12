@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CoreTypes, SignClientTypes } from '@walletconnect/types';
-import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils';
+import { getSdkError } from '@walletconnect/utils';
 import { WCWeb3WalletContext } from '@/contexts/WCWeb3WalletContext';
 import { Button } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
+import { Message } from '@/components/message/message';
 import { SUPPORTED_CHAINS } from '@/utils/walletconnect';
+import { prepareSessionProposal } from '@/utils/walletconnect-session-proposal';
 import styles from './incoming-pairing.module.css';
 
 type TIncomingPairingProps = {
@@ -33,6 +35,30 @@ const PairingContainer = ({ pairingMetadata }: {pairingMetadata: TIncomingPairin
   );
 };
 
+type TPairingChainsProps = {
+  chains: string[];
+};
+
+const PairingChains = ({ chains }: TPairingChainsProps) => {
+  const { t } = useTranslation();
+  return (
+    <div className={styles.chainsContainer}>
+      <p className={styles.chainsLabel}>{t('walletConnect.pairingRequest.chains')}</p>
+      <ul className={styles.chainsList}>
+        {chains.map(chain => {
+          const chainDetail = SUPPORTED_CHAINS[chain];
+          return chainDetail && (
+            <li className={styles.chain} key={chain}>
+              <img alt="" src={chainDetail.icon} />
+              <span>{t(chainDetail.nameKey)}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+};
+
 export const WCIncomingPairing = ({
   currentProposal,
   pairingMetadata,
@@ -43,70 +69,52 @@ export const WCIncomingPairing = ({
   const [pairingLoading, setPairingLoading] = useState(false);
   const { web3wallet } = useContext(WCWeb3WalletContext);
   const { t } = useTranslation();
-  const handleApprovePairing = async () => {
+  const sessionProposal = useMemo(
+    () => prepareSessionProposal(currentProposal.params, receiveAddress),
+    [currentProposal.params, receiveAddress],
+  );
+
+  useEffect(() => {
+    if (sessionProposal.status === 'unsupported' && sessionProposal.error) {
+      console.error('Wallet connect session proposal is not supported', sessionProposal.error);
+    }
+  }, [sessionProposal]);
+
+  const handleRejectPairing = async () => {
     setPairingLoading(true);
     try {
-      const { id, params } = currentProposal;
-      const { requiredNamespaces, optionalNamespaces } = params;
-      const eipList = Object.keys(requiredNamespaces).length !== 0 ? Object.values(requiredNamespaces) : Object.values(optionalNamespaces);
-      if (!eipList) {
-        alertUser(`${t('walletConnect.connect.missingNamespace')}`);
-        await handleRejectPairing();
-        setPairingLoading(false);
-        return;
-      }
-      const accounts = eipList.flatMap(eip => eip.chains?.map(chain => `${chain}:${receiveAddress}`) || []);
-      // For supported chains, use an intersection of supported chains and required chains, default to mainnet if no chains present
-      const chains: string[] = eipList.flatMap(proposal =>
-        proposal.chains ? proposal.chains.filter(chain => Object.keys(SUPPORTED_CHAINS).includes(chain)) : ['eip155:1']
-      );
-
-      // buildApprovedNamespaces is a
-      // utility function by @walletconnect
-      const namespaces = buildApprovedNamespaces({
-        proposal: params,
-        supportedNamespaces: {
-          eip155: {
-            chains,
-            methods: ['eth_sendTransaction', 'eth_signTransaction', 'eth_sign', 'personal_sign', 'eth_signTypedData', 'eth_signTypedData_v4'],
-            events: ['accountsChanged', 'chainChanged'],
-            accounts
-          },
-        },
+      await web3wallet?.rejectSession({
+        id: currentProposal.id,
+        reason: getSdkError('USER_REJECTED')
       });
-
-      await web3wallet?.approveSession({
-        id,
-        namespaces
-      });
-
-      onApprove();
-    } catch (e: any) {
-      console.error('Wallet connect approve pairing error', e);
-
-      if (e.message.includes('Non conforming namespaces')) {
-        alertUser(t('walletConnect.invalidPairingChain',
-          {
-            chains: '\n•Ethereum'
-          }));
-      } else {
-        //unexpected error, display native error message
-        alertUser(e.message);
-      }
-      await handleRejectPairing();
+    } catch (error) {
+      console.error('Wallet connect reject pairing error', error);
+      alertUser(t('walletConnect.pairingRequest.rejectionFailed'));
     } finally {
+      onReject();
       setPairingLoading(false);
     }
   };
 
-  const handleRejectPairing = async () => {
+  const handleApprovePairing = async () => {
+    if (sessionProposal.status !== 'ready') {
+      return;
+    }
     setPairingLoading(true);
-    await web3wallet?.rejectSession({
-      id: currentProposal.id,
-      reason: getSdkError('USER_REJECTED_METHODS')
-    });
-    onReject();
-    setPairingLoading(false);
+    try {
+      await web3wallet?.approveSession({
+        id: currentProposal.id,
+        namespaces: sessionProposal.namespaces
+      });
+
+      onApprove();
+    } catch (error) {
+      console.error('Wallet connect approve pairing error', error);
+      alertUser(error instanceof Error ? error.message : t('pairing.error.text'));
+      await handleRejectPairing();
+    } finally {
+      setPairingLoading(false);
+    }
   };
 
   return (
@@ -114,9 +122,33 @@ export const WCIncomingPairing = ({
       <p className={styles.connectionRequest}>{t('walletConnect.pairingRequest.title')}:</p>
       <PairingContainer pairingMetadata={pairingMetadata} />
       <p className={styles.receiveAddress}>{t('accountInfo.address')}: {receiveAddress}</p>
-      <div className={styles.buttonsContainer}>
-        <Button disabled={pairingLoading} secondary onClick={handleRejectPairing}>{t('walletConnect.pairingRequest.reject')}</Button>
-        <Button disabled={pairingLoading} primary onClick={handleApprovePairing}>{t('walletConnect.pairingRequest.approve')}</Button>
+      {sessionProposal.status === 'ready' && (
+        <>
+          <PairingChains chains={sessionProposal.chains} />
+          {sessionProposal.readOnly && (
+            <Message className={styles.message} type="info">
+              {t('walletConnect.pairingRequest.readOnly')}
+            </Message>
+          )}
+        </>
+      )}
+      {sessionProposal.status === 'unsupported' && (
+        <Message className={styles.message} type="error">
+          {t('walletConnect.pairingRequest.unsupported')}
+        </Message>
+      )}
+      <div className={[
+        styles.buttonsContainer,
+        sessionProposal.status === 'unsupported' ? styles.closeButtonContainer : '',
+      ].join(' ')}>
+        {sessionProposal.status === 'ready' ? (
+          <>
+            <Button disabled={pairingLoading} secondary onClick={handleRejectPairing}>{t('walletConnect.pairingRequest.reject')}</Button>
+            <Button disabled={pairingLoading} primary onClick={handleApprovePairing}>{t('walletConnect.pairingRequest.approve')}</Button>
+          </>
+        ) : (
+          <Button disabled={pairingLoading} primary onClick={handleRejectPairing}>{t('generic.close')}</Button>
+        )}
       </div>
     </div>
   );
