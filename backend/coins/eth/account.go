@@ -437,7 +437,7 @@ func pendingTxsAmount(outgoingTransactionsData []*accounts.TransactionData, isEr
 			if tx.Type == accounts.TxTypeSend {
 				pendingTxAmount = pendingTxAmount.Add(pendingTxAmount, tx.Amount.BigInt())
 			}
-			if !isErc20 {
+			if !isErc20 && tx.Fee != nil {
 				// tx Fee is considered only for ETH transactions. For ERC20 tokens it should
 				// be subtracted to the balance of the related ETH account. This is not done at
 				// the moment, could be possibly fixed in the future migrating to BlockBook.

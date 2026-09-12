@@ -446,6 +446,26 @@ func TestUpdateOutgoingTransactionsStillChecksPendingTransactions(t *testing.T) 
 	require.Equal(t, 0, sendCalls)
 }
 
+func TestPendingTxsAmountWithInternalTransfer(t *testing.T) {
+	fee := coin.NewAmountFromInt64(2)
+	transactions := []*accounts.TransactionData{
+		{
+			Type:   accounts.TxTypeSend,
+			Status: accounts.TxStatusPending,
+			Amount: coin.NewAmountFromInt64(10),
+			Fee:    &fee,
+		},
+		{
+			// Internal ETH transfers have no separate fee.
+			Type:   accounts.TxTypeReceive,
+			Status: accounts.TxStatusPending,
+			Amount: coin.NewAmountFromInt64(20),
+		},
+	}
+
+	require.Equal(t, big.NewInt(12), pendingTxsAmount(transactions, false))
+}
+
 func TestMatchesAddress(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
