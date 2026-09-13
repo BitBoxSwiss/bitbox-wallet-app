@@ -18,7 +18,7 @@ import (
 //go:generate moq -pkg mocks -out mocks/rpcclient.go . Interface
 type Interface interface {
 	TransactionReceiptWithBlockNumber(
-		ctx context.Context, hash common.Hash) (*RPCTransactionReceipt, error)
+		ctx context.Context, hash common.Hash) (*types.Receipt, error)
 	// BlockNumber returns the current latest block number.
 	BlockNumber(ctx context.Context) (*big.Int, error)
 	TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, isPending bool, err error)
@@ -30,6 +30,7 @@ type Interface interface {
 	SendTransaction(ctx context.Context, tx *types.Transaction) error
 	// PendingNonceAt retrieves the current pending nonce associated with an account.
 	PendingNonceAt(ctx context.Context, account common.Address) (uint64, error)
+	NonceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (uint64, error)
 	// EstimateGas tries to estimate the gas needed to execute a specific
 	// transaction based on the current pending state of the backend blockchain.
 	// There is no guarantee that this is the true gas limit requirement as other
@@ -41,12 +42,6 @@ type Interface interface {
 	SuggestGasPrice(ctx context.Context) (*big.Int, error)
 	// FeeTargets returns EIP-1559 compatible priorities (maxFeePerGas + baseFee)
 	FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarget, error)
-}
-
-// RPCTransactionReceipt is a receipt extended with the block number.
-type RPCTransactionReceipt struct {
-	types.Receipt
-	BlockNumber uint64
 }
 
 // RPCTransaction is a transaction extended with additional fields populated by the
