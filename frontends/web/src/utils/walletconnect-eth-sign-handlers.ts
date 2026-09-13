@@ -65,7 +65,7 @@ export type TSignDialogResult = {
 } | {
   success: false;
   aborted?: boolean;
-  errorCode?: 'firmwareUpgradeRequired';
+  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds';
   errorMessage?: string;
 };
 
@@ -90,7 +90,7 @@ type TAccountDetails = {
 type TFailedSigningApiResult = {
   success: false;
   aborted?: boolean;
-  errorCode?: 'firmwareUpgradeRequired';
+  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds';
   errorMessage?: string;
 };
 

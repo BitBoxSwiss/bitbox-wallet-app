@@ -3,12 +3,11 @@
 package eth
 
 import (
+	"cmp"
 	"context"
 	"encoding/hex"
 	"fmt"
 	"math/big"
-	"os"
-	"path"
 	"slices"
 	"strings"
 
@@ -16,7 +15,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
@@ -57,10 +55,8 @@ func IsValidEthAddress(addr string) bool {
 type Account struct {
 	*accounts.BaseAccount
 
-	coin *Coin
-	// folder for this specific account. It is a subfolder of dbFolder. Full path.
-	dbSubfolder          string
-	db                   db.Interface
+	coin                 *Coin
+	outgoing             *OutgoingTransactions
 	signingConfiguration *signing.Configuration
 	notifier             accounts.Notifier
 	chainClientProvider  ChainClientProvider
@@ -73,18 +69,18 @@ type Account struct {
 
 	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
 	// interval.
-	enqueueUpdateCh chan *Account
+	enqueueUpdateCh chan struct{}
 
 	address Address
 
-	// updateLock covers balance, blockNumber, nextNonce, transactions and activeTxProposal.
+	// updateLock covers balance, blockNumber, transactions and activeTxProposal.
 	updateLock   locker.Locker
 	balance      coin.Amount
 	blockNumber  *big.Int
 	transactions []*accounts.TransactionData
 
 	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
-	activeTxProposal *TxProposal
+	activeTxProposal *pendingTxProposal
 
 	log *logrus.Entry
 
@@ -97,8 +93,9 @@ func NewAccount(
 	config *accounts.AccountConfig,
 	accountCoin *Coin,
 	chainClientProvider ChainClientProvider,
+	outgoing *OutgoingTransactions,
 	log *logrus.Entry,
-	enqueueUpdateCh chan *Account,
+	enqueueUpdateCh chan struct{},
 ) *Account {
 	log = log.WithField("group", "eth").
 		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Config.Code})
@@ -107,7 +104,7 @@ func NewAccount(
 	account := &Account{
 		BaseAccount:          accounts.NewBaseAccount(config, accountCoin, log),
 		coin:                 accountCoin,
-		dbSubfolder:          "", // set in Initialize()
+		outgoing:             outgoing,
 		signingConfiguration: nil,
 		chainClientProvider:  chainClientProvider,
 		balance:              coin.NewAmountFromInt64(0),
@@ -166,19 +163,6 @@ func (account *Account) Initialize() error {
 	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
 	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Config.Code)
-	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
-	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
-		return errp.WithStack(err)
-	}
-
-	dbName := fmt.Sprintf("%s.db", accountIdentifier)
-	account.log.Debugf("Opening the database '%s' to persist the transactions.", dbName)
-	db, err := db.NewDB(path.Join(account.Config().DBFolder, dbName))
-	if err != nil {
-		return err
-	}
-	account.db = db
-	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
 
 	account.address = Address{
 		Address:         crypto.PubkeyToAddress(*account.signingConfiguration.PublicKey().ToECDSA()),
@@ -196,7 +180,7 @@ func (account *Account) Initialize() error {
 	}
 	account.initDone = account.Synchronizer.IncRequestsCounter()
 	if !account.Config().SkipInitialSync {
-		go account.EnqueueUpdate()
+		account.EnqueueUpdate()
 	}
 
 	return account.BaseAccount.Initialize(accountIdentifier)
@@ -220,74 +204,17 @@ func outgoingTransactionIsFinal(tx *ethtypes.TransactionWithMetadata, tipHeight 
 	return tx.LastReceiptCheckHeight-tx.Height+1 >= ethtypes.NumConfirmationsComplete
 }
 
-// updateOutgoingTransactions updates the height of the stored outgoing transactions.
-// We update heights for tx with up to 12 confirmations, so re-orgs are taken into account.
-// tipHeight is the current blockchain height.
-func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
-	defer account.Synchronizer.IncRequestsCounter()()
-
-	dbTx, err := account.db.Begin()
+func (account *Account) updateOutgoingTransactions(tipHeight uint64) error {
+	sender, unlock, err := account.outgoing.lock(account.coin.ChainID(), account.address.Address)
 	if err != nil {
-		account.log.WithError(err).Error("could not open db")
-		return
+		return err
 	}
-	defer dbTx.Rollback()
-
-	// Get our stored outgoing transactions.
-	outgoingTransactions, err := dbTx.OutgoingTransactions()
-	if err != nil {
-		account.log.WithError(err).Error("could not get outgoing transactions")
-		return
+	defer unlock()
+	if err := sender.reconcile(account.coin.client, tipHeight); err != nil {
+		return err
 	}
-
-	// Update the stored txs' metadata if up to 12 confirmations.
-	for idx, tx := range outgoingTransactions {
-		if outgoingTransactionIsFinal(tx, tipHeight) {
-			continue
-		}
-		txLog := account.log.WithField("idx", idx)
-		remoteTx, err := account.coin.client.TransactionReceiptWithBlockNumber(context.TODO(), tx.Transaction.Hash())
-		if remoteTx == nil || err != nil {
-			// Transaction not found. This usually happens for pending transactions.
-			// In this case, check if the node actually knows about the transaction, and if not, re-broadcast.
-			// We do this because it seems that sometimes, a transaction that was broadcast without error still ends up lost.
-			_, _, err := account.coin.client.TransactionByHash(context.TODO(), tx.Transaction.Hash())
-			if err != nil {
-				tx.BroadcastAttempts++
-				txLog.WithError(err).Errorf("could not fetch transaction - rebroadcasting, attempt %d", tx.BroadcastAttempts)
-				if err := dbTx.PutOutgoingTransaction(tx); err != nil {
-					txLog.WithError(err).Error("could not update outgoing tx")
-					// Do not abort here, we want to attempt broadcastng the tx in any case.
-				}
-				if err := account.coin.client.SendTransaction(context.TODO(), tx.Transaction); err != nil {
-					txLog.WithError(err).Error("failed to broadcast")
-					continue
-				}
-				txLog.Info("Broadcasting did not return an error")
-			}
-			continue
-		}
-		success := remoteTx.Status == types.ReceiptStatusSuccessful
-		if tx.Height == 0 ||
-			tx.Height != remoteTx.BlockNumber ||
-			tx.GasUsed != remoteTx.GasUsed ||
-			(tipHeight-remoteTx.BlockNumber) < ethtypes.NumConfirmationsComplete ||
-			tx.Success != success ||
-			tx.LastReceiptCheckHeight != tipHeight {
-			tx.Height = remoteTx.BlockNumber
-			tx.GasUsed = remoteTx.GasUsed
-			tx.Success = success
-			tx.LastReceiptCheckHeight = tipHeight
-			if err := dbTx.PutOutgoingTransaction(tx); err != nil {
-				txLog.WithError(err).Error("could not update outgoing tx")
-				continue
-			}
-		}
-	}
-	if err := dbTx.Commit(); err != nil {
-		account.log.WithError(err).Error("could not commit db tx")
-		return
-	}
+	sender.rebroadcast(account.coin.client, account.log)
+	return nil
 }
 
 func (account *Account) confirmedTransactions() ([]*accounts.TransactionData, error) {
@@ -305,54 +232,51 @@ func (account *Account) confirmedTransactions() ([]*accounts.TransactionData, er
 	return confirmedTransactions, nil
 }
 
-// outgoingTransactions gets all locally stored outgoing transactions. It filters out the ones also
-// present from the transactions source.
 func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData) (
-	[]*ethtypes.TransactionWithMetadata, error) {
-	dbTx, err := account.db.Begin()
+	[]*accounts.TransactionData, *big.Int, error) {
+	sender, unlock, err := account.outgoing.lock(account.coin.ChainID(), account.address.Address)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	defer dbTx.Rollback()
-	outgoingTransactions, err := dbTx.OutgoingTransactions()
-	if err != nil {
-		return nil, err
-	}
-
-	allTxHashes := map[string]struct{}{}
+	defer unlock()
+	confirmed := make(map[string]*accounts.TransactionData, len(allTxs))
 	for _, tx := range allTxs {
-		allTxHashes[tx.TxID] = struct{}{}
+		confirmed[tx.TxID] = tx
 	}
-
-	transactions := []*ethtypes.TransactionWithMetadata{}
-	for _, tx := range outgoingTransactions {
-		// Skip txs already present from transactions source.
-		if _, ok := allTxHashes[tx.TxID()]; ok {
+	var transactions []*accounts.TransactionData
+	reserved := sender.pendingAmounts(account.coin.erc20Token, confirmed)
+	var prune []ethcommon.Hash
+	for hash, record := range sender.records {
+		isToken := account.coin.erc20Token != nil
+		data := record.TransactionData(account.blockNumber.Uint64(), account.coin.erc20Token, account.address.Hex())
+		if data == nil {
 			continue
 		}
-		transactions = append(transactions, tx)
+		if history := confirmed[record.TxID()]; history != nil {
+			_, _, isTransfer := record.TokenTransfer()
+			if history.NumConfirmations >= ethtypes.NumConfirmationsComplete && (isToken || !isTransfer) {
+				prune = append(prune, hash)
+			}
+			continue
+		}
+		if record.NonceConsumed && record.Height == 0 {
+			continue
+		}
+		transactions = append(transactions, data)
 	}
-	return transactions, nil
-}
-
-func (account *Account) nextNonce() (uint64, error) {
-	nodeNonce, err := account.coin.client.PendingNonceAt(context.TODO(), account.address.Address)
-	if err != nil {
-		return 0, err
-	}
-	// Protect native transactions from a stale node nonce using locally stored transactions.
-	outgoingTransactions, err := account.outgoingTransactions(nil)
-	if err != nil {
-		return 0, errp.WithStack(err)
-	}
-
-	if len(outgoingTransactions) > 0 {
-		localNonce := outgoingTransactions[0].Transaction.Nonce() + 1
-		if localNonce > nodeNonce {
-			return localNonce, nil
+	if len(prune) > 0 {
+		if err := sender.save(nil, prune); err != nil {
+			return nil, nil, err
 		}
 	}
-	return nodeNonce, nil
+	pending := new(big.Int)
+	for _, amount := range reserved {
+		pending.Add(pending, amount)
+	}
+	slices.SortFunc(transactions, func(a, b *accounts.TransactionData) int {
+		return cmp.Compare(*b.Nonce, *a.Nonce)
+	})
+	return transactions, pending, nil
 }
 
 // Update performs an Update of the account's transactions,
@@ -369,8 +293,6 @@ func (account *Account) Update(
 
 	account.blockNumber = blockNumber
 
-	go account.updateOutgoingTransactions(account.blockNumber.Uint64())
-
 	// Get confirmed transactions.
 	var confirmedTransactions []*accounts.TransactionData
 	if prefetchedConfirmedTransactions == nil {
@@ -385,19 +307,11 @@ func (account *Account) Update(
 
 	// Get our stored outgoing transactions. Filter out all transactions from the transactions
 	// source, which should contain all confirmed tx.
-	outgoingTransactions, err := account.outgoingTransactions(confirmedTransactions)
+	outgoingTransactionsData, pendingAmount, err := account.outgoingTransactions(confirmedTransactions)
 	if err != nil {
 		return err
 	}
 
-	outgoingTransactionsData := make([]*accounts.TransactionData, len(outgoingTransactions))
-	for i, tx := range outgoingTransactions {
-		outgoingTransactionsData[i] = tx.TransactionData(
-			account.blockNumber.Uint64(),
-			account.coin.erc20Token,
-			account.address.Address.Hex(),
-		)
-	}
 	outgoingTransactionsData = append(outgoingTransactionsData, confirmedTransactions...)
 	account.transactions = outgoingTransactionsData
 	for _, transaction := range account.transactions {
@@ -406,8 +320,7 @@ func (account *Account) Update(
 		}
 	}
 
-	pendingAmount := pendingTxsAmount(outgoingTransactionsData, account.coin.erc20Token != nil)
-	account.balance = coin.NewAmount(balance.Sub(balance, pendingAmount))
+	account.balance = coin.NewAmount(new(big.Int).Sub(balance, pendingAmount))
 
 	if account.initDone != nil {
 		account.initDone()
@@ -415,27 +328,6 @@ func (account *Account) Update(
 	}
 
 	return nil
-}
-
-// pendingTxsAmount returns the total amount of pending transactions. Fees are not included for erc20 txs.
-func pendingTxsAmount(outgoingTransactionsData []*accounts.TransactionData, isErc20 bool) *big.Int {
-	pendingTxAmount := big.NewInt(0)
-	for _, tx := range outgoingTransactionsData {
-		if tx.Status == accounts.TxStatusPending {
-			// Skip sendSelf txs
-			if tx.Type == accounts.TxTypeSend {
-				pendingTxAmount = pendingTxAmount.Add(pendingTxAmount, tx.Amount.BigInt())
-			}
-			if !isErc20 {
-				// tx Fee is considered only for ETH transactions. For ERC20 tokens it should
-				// be subtracted to the balance of the related ETH account. This is not done at
-				// the moment, could be possibly fixed in the future migrating to BlockBook.
-				pendingTxAmount = pendingTxAmount.Add(pendingTxAmount, tx.Fee.BigInt())
-			}
-		}
-	}
-
-	return pendingTxAmount
 }
 
 // FatalError implements accounts.Interface.
@@ -448,12 +340,7 @@ func (account *Account) Close() {
 	defer account.initializedLock.Lock()()
 	account.BaseAccount.Close()
 	account.log.Info("Closed account")
-	if account.db != nil {
-		if err := account.db.Close(); err != nil {
-			account.log.WithError(err).Error("couldn't close db")
-		}
-		account.log.Info("Closed DB")
-	}
+
 	account.closed = true
 	account.Notify(observable.Event{
 		Subject: string(accountsTypes.EventStatusChanged),
@@ -489,14 +376,19 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 	return accounts.NewBalance(account.balance, coin.NewAmountFromInt64(0)), nil
 }
 
-// TxProposal holds all information needed to create and sign a transaction.
+type pendingTxProposal struct {
+	txData types.TxData
+	fee    *big.Int
+	// For ERC20 transfers, value is the token amount encoded in the transaction data.
+	value            *big.Int
+	recipientAddress string
+	paymentRequest   *paymentrequest.Request
+}
+
+// TxProposal holds all information needed to sign a transaction.
 type TxProposal struct {
 	ChainID uint64
 	Tx      *types.Transaction
-	Fee     *big.Int
-	// Value can be the same as Tx.Value(), but in case of e.g. ERC20, tx.Value() is zero, while the
-	// Token value is encoded in the contract input data.
-	Value *big.Int
 	// KeyPath is the location of this account's address/pubkey/privkey.
 	Keypath signing.AbsoluteKeypath
 	// Address of the ETH recipient (or ERC-20 address in case of an ERC-20 transaction).  This is
@@ -511,7 +403,7 @@ func (txProposal *TxProposal) Signer() types.Signer {
 	return types.LatestSignerForChainID(new(big.Int).SetUint64(txProposal.ChainID))
 }
 
-func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error) {
+func (account *Account) newTx(args *accounts.TxProposalArgs) (*pendingTxProposal, error) {
 	if !IsValidEthAddress(args.RecipientAddress) {
 		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
@@ -629,17 +521,12 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 		return nil, err
 	}
 
-	var tx *types.Transaction
+	var txData types.TxData
 
-	nextNonce, err := account.nextNonce()
-	if err != nil {
-		return nil, err
-	}
-
+	// The final nonce is assigned under the sender lock before signing.
 	if keystore.SupportsEIP1559() {
-		txData := &types.DynamicFeeTx{
+		txData = &types.DynamicFeeTx{
 			ChainID:   new(big.Int).SetUint64(account.coin.ChainID()),
-			Nonce:     nextNonce,
 			GasTipCap: suggestedGasTipCap,
 			GasFeeCap: suggestedGasFeeCap,
 			Gas:       gasLimit,
@@ -647,59 +534,31 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 			Value:     message.Value,
 			Data:      message.Data,
 		}
-		tx = types.NewTx(txData)
 	} else {
-		tx = types.NewTransaction(
-			nextNonce,
-			*message.To,
-			message.Value,
-			gasLimit,
+		txData = &types.LegacyTx{
+			To:    message.To,
+			Value: message.Value,
+			Gas:   gasLimit,
 			// use the maxFeePerGas (aka gasFeeCap) as gasPrice for legacy transactions
 			// the estimated maxFeePerGas is base fee + priority fee, and so is the appropriate
 			// legacy gasPrice setting for current network conditions
-			suggestedGasFeeCap,
-			message.Data)
+			GasPrice: suggestedGasFeeCap,
+			Data:     message.Data,
+		}
 	}
 
-	return &TxProposal{
-		ChainID:          account.coin.ChainID(),
-		Tx:               tx,
-		Fee:              fee,
-		Value:            value,
-		Keypath:          account.signingConfiguration.AbsoluteKeypath(),
-		RecipientAddress: args.RecipientAddress,
-		PaymentRequest:   args.PaymentRequest,
+	return &pendingTxProposal{
+		txData:           txData,
+		fee:              fee,
+		value:            value,
+		recipientAddress: args.RecipientAddress,
+		paymentRequest:   args.PaymentRequest,
 	}, nil
 }
 
-// storePendingOutgoingTransaction puts an outgoing tx into the db with height 0 (pending).
-func (account *Account) storePendingOutgoingTransaction(transaction *types.Transaction) error {
-	dbTx, err := account.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer dbTx.Rollback()
-	if err := dbTx.PutOutgoingTransaction(
-		&ethtypes.TransactionWithMetadata{
-			Transaction:       transaction,
-			BroadcastAttempts: 1,
-		}); err != nil {
-		return err
-	}
-	if err := dbTx.Commit(); err != nil {
-		return err
-	}
-	account.log.Infof("stored pending outgoing tx with nonce: %d", transaction.Nonce())
-	return nil
-}
-
-// trackOutgoingTransaction keeps a native-chain broadcast available for nonce selection and rebroadcast.
-func (account *Account) trackOutgoingTransaction(transaction *types.Transaction) {
-	if err := account.storePendingOutgoingTransaction(transaction); err != nil {
-		// Broadcasting is an external side effect. Report success after the network accepted the
-		// transaction, even if local pending tracking is unavailable.
-		account.log.WithError(err).
-			WithField("txHash", transaction.Hash().Hex()).
+func (account *Account) trackOutgoingTransaction(sender *outgoingSender, transaction *types.Transaction) {
+	if err := sender.store(transaction); err != nil {
+		account.log.WithError(err).WithField("txHash", transaction.Hash().Hex()).
 			Error("Failed to store pending outgoing transaction")
 	}
 	account.EnqueueUpdate()
@@ -708,9 +567,9 @@ func (account *Account) trackOutgoingTransaction(transaction *types.Transaction)
 // SendTx implements accounts.Interface.
 func (account *Account) SendTx(txNote string) (string, error) {
 	unlock := account.updateLock.RLock()
-	txProposal := account.activeTxProposal
+	pending := account.activeTxProposal
 	unlock()
-	if txProposal == nil {
+	if pending == nil {
 		return "", errp.New("No active tx proposal")
 	}
 
@@ -719,14 +578,51 @@ func (account *Account) SendTx(txNote string) (string, error) {
 		return "", err
 	}
 
+	defer account.updateLock.Lock()()
+	if account.activeTxProposal != pending {
+		return "", errp.New("No active tx proposal")
+	}
+
+	sender, release, err := account.outgoing.lock(account.coin.ChainID(), account.address.Address)
+	if err != nil {
+		return "", err
+	}
+	defer release()
+	if err := sender.refresh(account.coin.client); err != nil {
+		return "", err
+	}
+	nonce, err := sender.nextNonce(account.coin.client)
+	if err != nil {
+		return "", err
+	}
+	switch txData := pending.txData.(type) {
+	case *types.LegacyTx:
+		txData.Nonce = nonce
+	case *types.DynamicFeeTx:
+		txData.Nonce = nonce
+	default:
+		return "", errp.New("unsupported transaction type")
+	}
+	txProposal := &TxProposal{
+		ChainID:          account.coin.ChainID(),
+		Tx:               types.NewTx(pending.txData),
+		Keypath:          account.signingConfiguration.AbsoluteKeypath(),
+		RecipientAddress: pending.recipientAddress,
+		PaymentRequest:   pending.paymentRequest,
+	}
+	if err := sender.checkFunds(account.coin.client, txProposal.Tx); err != nil {
+		return "", err
+	}
 	account.log.Info("Signing and sending transaction")
 	if err := keystore.SignTransaction(txProposal); err != nil {
 		return "", err
 	}
+	// A submitted proposal must not become a second payment on retry.
+	account.activeTxProposal = nil
 	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.Tx); err != nil {
 		return "", errp.WithStack(err)
 	}
-	account.trackOutgoingTransaction(txProposal.Tx)
+	account.trackOutgoingTransaction(sender, txProposal.Tx)
 
 	if err := account.SetTxNote(txProposal.Tx.Hash().Hex(), txNote); err != nil {
 		// Not critical.
@@ -784,11 +680,11 @@ func (account *Account) TxProposal(
 
 	var total *big.Int
 	if account.coin.erc20Token != nil {
-		total = txProposal.Value
+		total = txProposal.value
 	} else {
-		total = new(big.Int).Add(txProposal.Value, txProposal.Fee)
+		total = new(big.Int).Add(txProposal.value, txProposal.fee)
 	}
-	return coin.NewAmount(txProposal.Value), coin.NewAmount(txProposal.Fee), coin.NewAmount(total), nil
+	return coin.NewAmount(txProposal.value), coin.NewAmount(txProposal.fee), coin.NewAmount(total), nil
 }
 
 // GetUnusedReceiveAddresses implements accounts.Interface.
@@ -947,28 +843,51 @@ func (account *Account) SignTransaction(args SignTransactionArgs) (*types.Transa
 		return nil, err
 	}
 
-	if proposedTx.Nonce == nil && args.ChainID == account.coin.ChainID() {
-		nonce, err := account.nextNonce()
-		if err != nil {
-			return nil, err
-		}
-		proposedTx.Nonce = &nonce
-	}
-
-	tx, err := newTransaction(args.ChainID, client, proposedTx, account.log)
+	txData, err := prepareTransaction(args.ChainID, client, proposedTx, account.log)
 	if err != nil {
 		return nil, err
-	}
-	txProposal := &TxProposal{
-		ChainID:          args.ChainID,
-		Tx:               tx,
-		Keypath:          account.signingConfiguration.AbsoluteKeypath(),
-		RecipientAddress: proposedTx.RecipientAddress,
 	}
 
 	keystore, err := account.Config().ConnectKeystore()
 	if err != nil {
 		return nil, err
+	}
+	var sender *outgoingSender
+	if args.ChainID == account.coin.ChainID() {
+		var unlock func()
+		sender, unlock, err = account.outgoing.lock(args.ChainID, account.address.Address)
+		if err != nil {
+			return nil, err
+		}
+		defer unlock()
+		if args.Broadcast || proposedTx.Nonce == nil {
+			if err := sender.refresh(client); err != nil {
+				return nil, err
+			}
+		}
+	}
+	if proposedTx.Nonce != nil {
+		txData.Nonce = *proposedTx.Nonce
+	} else {
+		if sender != nil {
+			txData.Nonce, err = sender.nextNonce(client)
+		} else {
+			txData.Nonce, err = client.PendingNonceAt(context.TODO(), proposedTx.From)
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	txProposal := &TxProposal{
+		ChainID:          args.ChainID,
+		Tx:               types.NewTx(txData),
+		Keypath:          account.signingConfiguration.AbsoluteKeypath(),
+		RecipientAddress: proposedTx.RecipientAddress,
+	}
+	if args.Broadcast && sender != nil {
+		if err := sender.checkFunds(client, txProposal.Tx); err != nil {
+			return nil, err
+		}
 	}
 	if err := keystore.SignTransaction(txProposal); err != nil {
 		return nil, err
@@ -978,7 +897,7 @@ func (account *Account) SignTransaction(args SignTransactionArgs) (*types.Transa
 			return nil, errp.WithStack(err)
 		}
 		if args.ChainID == account.coin.ChainID() {
-			account.trackOutgoingTransaction(txProposal.Tx)
+			account.trackOutgoingTransaction(sender, txProposal.Tx)
 		}
 	}
 	return txProposal.Tx, nil
@@ -1014,7 +933,10 @@ func (account *Account) MatchesAddress(address string) (bool, error) {
 
 // EnqueueUpdate enqueues an update for the account.
 func (account *Account) EnqueueUpdate() {
-	account.enqueueUpdateCh <- account
+	select {
+	case account.enqueueUpdateCh <- struct{}{}:
+	default:
+	}
 }
 
 // ETHCoin returns the eth.Coin of the account.

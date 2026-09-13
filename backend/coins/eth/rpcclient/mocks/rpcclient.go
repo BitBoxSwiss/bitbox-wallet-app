@@ -5,15 +5,14 @@ package mocks
 
 import (
 	"context"
-	"math/big"
-	"sync"
-
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"math/big"
+	"sync"
 )
 
 // Ensure, that InterfaceMock does implement rpcclient.Interface.
@@ -41,6 +40,9 @@ var _ rpcclient.Interface = &InterfaceMock{}
 //			FeeTargetsFunc: func(ctx context.Context) ([]*ethtypes.FeeTarget, error) {
 //				panic("mock out the FeeTargets method")
 //			},
+//			NonceAtFunc: func(ctx context.Context, account common.Address, blockNumber *big.Int) (uint64, error) {
+//				panic("mock out the NonceAt method")
+//			},
 //			PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
 //				panic("mock out the PendingNonceAt method")
 //			},
@@ -53,7 +55,7 @@ var _ rpcclient.Interface = &InterfaceMock{}
 //			TransactionByHashFunc: func(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
 //				panic("mock out the TransactionByHash method")
 //			},
-//			TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+//			TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*types.Receipt, error) {
 //				panic("mock out the TransactionReceiptWithBlockNumber method")
 //			},
 //		}
@@ -78,6 +80,9 @@ type InterfaceMock struct {
 	// FeeTargetsFunc mocks the FeeTargets method.
 	FeeTargetsFunc func(ctx context.Context) ([]*ethtypes.FeeTarget, error)
 
+	// NonceAtFunc mocks the NonceAt method.
+	NonceAtFunc func(ctx context.Context, account common.Address, blockNumber *big.Int) (uint64, error)
+
 	// PendingNonceAtFunc mocks the PendingNonceAt method.
 	PendingNonceAtFunc func(ctx context.Context, account common.Address) (uint64, error)
 
@@ -91,7 +96,7 @@ type InterfaceMock struct {
 	TransactionByHashFunc func(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error)
 
 	// TransactionReceiptWithBlockNumberFunc mocks the TransactionReceiptWithBlockNumber method.
-	TransactionReceiptWithBlockNumberFunc func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error)
+	TransactionReceiptWithBlockNumberFunc func(ctx context.Context, hash common.Hash) (*types.Receipt, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -125,6 +130,15 @@ type InterfaceMock struct {
 		FeeTargets []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
+		}
+		// NonceAt holds details about calls to the NonceAt method.
+		NonceAt []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Account is the account argument value.
+			Account common.Address
+			// BlockNumber is the blockNumber argument value.
+			BlockNumber *big.Int
 		}
 		// PendingNonceAt holds details about calls to the PendingNonceAt method.
 		PendingNonceAt []struct {
@@ -165,6 +179,7 @@ type InterfaceMock struct {
 	lockERC20Balance                      sync.RWMutex
 	lockEstimateGas                       sync.RWMutex
 	lockFeeTargets                        sync.RWMutex
+	lockNonceAt                           sync.RWMutex
 	lockPendingNonceAt                    sync.RWMutex
 	lockSendTransaction                   sync.RWMutex
 	lockSuggestGasPrice                   sync.RWMutex
@@ -344,6 +359,46 @@ func (mock *InterfaceMock) FeeTargetsCalls() []struct {
 	return calls
 }
 
+// NonceAt calls NonceAtFunc.
+func (mock *InterfaceMock) NonceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (uint64, error) {
+	if mock.NonceAtFunc == nil {
+		panic("InterfaceMock.NonceAtFunc: method is nil but Interface.NonceAt was just called")
+	}
+	callInfo := struct {
+		Ctx         context.Context
+		Account     common.Address
+		BlockNumber *big.Int
+	}{
+		Ctx:         ctx,
+		Account:     account,
+		BlockNumber: blockNumber,
+	}
+	mock.lockNonceAt.Lock()
+	mock.calls.NonceAt = append(mock.calls.NonceAt, callInfo)
+	mock.lockNonceAt.Unlock()
+	return mock.NonceAtFunc(ctx, account, blockNumber)
+}
+
+// NonceAtCalls gets all the calls that were made to NonceAt.
+// Check the length with:
+//
+//	len(mockedInterface.NonceAtCalls())
+func (mock *InterfaceMock) NonceAtCalls() []struct {
+	Ctx         context.Context
+	Account     common.Address
+	BlockNumber *big.Int
+} {
+	var calls []struct {
+		Ctx         context.Context
+		Account     common.Address
+		BlockNumber *big.Int
+	}
+	mock.lockNonceAt.RLock()
+	calls = mock.calls.NonceAt
+	mock.lockNonceAt.RUnlock()
+	return calls
+}
+
 // PendingNonceAt calls PendingNonceAtFunc.
 func (mock *InterfaceMock) PendingNonceAt(ctx context.Context, account common.Address) (uint64, error) {
 	if mock.PendingNonceAtFunc == nil {
@@ -485,7 +540,7 @@ func (mock *InterfaceMock) TransactionByHashCalls() []struct {
 }
 
 // TransactionReceiptWithBlockNumber calls TransactionReceiptWithBlockNumberFunc.
-func (mock *InterfaceMock) TransactionReceiptWithBlockNumber(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+func (mock *InterfaceMock) TransactionReceiptWithBlockNumber(ctx context.Context, hash common.Hash) (*types.Receipt, error) {
 	if mock.TransactionReceiptWithBlockNumberFunc == nil {
 		panic("InterfaceMock.TransactionReceiptWithBlockNumberFunc: method is nil but Interface.TransactionReceiptWithBlockNumber was just called")
 	}

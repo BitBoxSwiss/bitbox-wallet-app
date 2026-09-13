@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 
 	ethereum "github.com/ethereum/go-ethereum"
@@ -73,6 +74,50 @@ func formValues(t *testing.T, req *http.Request) url.Values {
 		t.Fatalf("unexpected method: %s", req.Method)
 		return nil
 	}
+}
+
+func TestReconciliationRPCResponses(t *testing.T) {
+	for _, body := range []string{
+		`{"jsonrpc":"2.0","id":1,"result":null}`,
+		`{"jsonrpc":"2.0","id":1}`,
+		`{"jsonrpc":"2.0","id":1,"error":{"message":"unavailable"}}`,
+	} {
+		t.Run(body, func(t *testing.T) {
+			client := newTestEtherScan(func(*http.Request) *http.Response { return jsonRPCResponse(t, body) })
+			receipt, receiptErr := client.TransactionReceiptWithBlockNumber(context.Background(), common.Hash{})
+			tx, _, txErr := client.TransactionByHash(context.Background(), common.Hash{})
+			require.Nil(t, receipt)
+			require.Nil(t, tx)
+			if strings.Contains(body, `"result":null`) {
+				require.NoError(t, receiptErr)
+				require.ErrorIs(t, txErr, ethereum.NotFound)
+			} else {
+				require.Error(t, receiptErr)
+				require.Error(t, txErr)
+				require.NotErrorIs(t, txErr, ethereum.NotFound)
+			}
+		})
+	}
+	client := newTestEtherScan(func(req *http.Request) *http.Response {
+		require.Equal(t, "eth_getTransactionCount", req.URL.Query().Get("action"))
+		require.Equal(t, "0x64", req.URL.Query().Get("tag"))
+		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x9"}`)
+	})
+	nonce, err := client.NonceAt(context.Background(), common.Address{}, big.NewInt(100))
+	require.NoError(t, err)
+	require.Equal(t, uint64(9), nonce)
+	receiptJSON, err := json.Marshal(&types.Receipt{
+		BlockNumber: big.NewInt(100), Status: types.ReceiptStatusSuccessful,
+		GasUsed: 21000, Logs: []*types.Log{},
+	})
+	require.NoError(t, err)
+	client = newTestEtherScan(func(*http.Request) *http.Response {
+		return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"result":%s}`, receiptJSON))
+	})
+	receipt, err := client.TransactionReceiptWithBlockNumber(context.Background(), common.Hash{})
+	require.NoError(t, err)
+	require.Equal(t, big.NewInt(100), receipt.BlockNumber)
+	require.Equal(t, uint64(21000), receipt.GasUsed)
 }
 
 func TestRPCProxyUsesGETForSmallEstimateGasRequest(t *testing.T) {

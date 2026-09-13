@@ -1397,7 +1397,7 @@ func (backend *Backend) initAccounts(force bool) {
 func (backend *Backend) enqueueETHInitialSyncLocked() {
 	for _, account := range backend.accounts {
 		if _, ok := account.Coin().(*eth.Coin); ok {
-			backend.enqueueETHUpdateForAllAccountsAsync()
+			backend.enqueueETHUpdateForAllAccounts()
 			return
 		}
 	}

@@ -29,24 +29,15 @@ type TransactionRequest struct {
 	Nonce            *uint64
 }
 
-// newTransaction fills a missing nonce and estimates gas and fees using the target-chain client.
-func newTransaction(
+// prepareTransaction estimates gas and fees using the target-chain client.
+// The nonce is assigned before constructing the transaction for signing.
+func prepareTransaction(
 	chainID uint64,
 	client rpcclient.Interface,
 	proposedTx TransactionRequest,
 	log *logrus.Entry,
-) (*types.Transaction, error) {
-	var nonce uint64
+) (*types.LegacyTx, error) {
 	var gasPrice *big.Int
-
-	if proposedTx.Nonce != nil {
-		nonce = *proposedTx.Nonce
-	} else {
-		var err error
-		if nonce, err = client.PendingNonceAt(context.TODO(), proposedTx.From); err != nil {
-			return nil, err
-		}
-	}
 
 	value := new(big.Int)
 	if proposedTx.Value != nil {
@@ -84,9 +75,9 @@ func newTransaction(
 		return nil, errp.WithStack(errors.ErrFeesNotAvailable)
 	}
 
-	return types.NewTransaction(nonce,
-		*message.To,
-		message.Value, gasLimit, gasPrice, message.Data), nil
+	return &types.LegacyTx{
+		To: message.To, Value: message.Value, Gas: gasLimit, GasPrice: gasPrice, Data: message.Data,
+	}, nil
 }
 
 // feeTargetsForChain returns three priorities with fee targets estimated by Etherscan

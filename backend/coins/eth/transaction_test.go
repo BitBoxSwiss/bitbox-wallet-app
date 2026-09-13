@@ -6,12 +6,12 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewTransactionNonce(t *testing.T) {
+func TestSignTransactionNonce(t *testing.T) {
 	zero, supplied := uint64(0), uint64(7)
 	for _, test := range []struct {
 		name     string
@@ -24,15 +24,20 @@ func TestNewTransactionNonce(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			client := newTransactionRPCClient(4, 42000, big.NewInt(3), nil)
+			account := newAccountWithChainClientProvider(t, true, make(chan struct{}, 1), func(uint64) rpcclient.Interface {
+				return client
+			})
+			defer account.Close()
+			setTransactionSigningKeystore(t, account, 10)
 			request := TransactionRequest{
-				From:      common.HexToAddress("0x1111111111111111111111111111111111111111"),
+				From:      account.address.Address,
 				Recipient: common.HexToAddress("0x2222222222222222222222222222222222222222"),
 				Value:     big.NewInt(42),
 				Data:      []byte{0xde, 0xad, 0xbe, 0xef},
 				Nonce:     test.nonce,
 			}
 
-			tx, err := newTransaction(10, client, request, logging.Get().WithGroup("transaction_test"))
+			tx, err := signTransaction(account, 10, false, request)
 			require.NoError(t, err)
 			require.Equal(t, test.expected, tx.Nonce())
 			require.Equal(t, request.Recipient, *tx.To())
