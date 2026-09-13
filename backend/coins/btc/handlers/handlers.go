@@ -524,7 +524,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 			result.ErrorCode = errCode.Error()
 		} else if isFirmwareUpgradeRequired(err) {
 			result.ErrorCode = keystore.ErrFirmwareUpgradeRequired.Error()
-		} else if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
+		} else if cause == errors.ErrERC20InsufficientGasFunds || strings.Contains(err.Error(), etherscan.ERC20GasErr) {
 			result.ErrorCode = errors.ErrERC20InsufficientGasFunds.Error()
 		}
 
@@ -823,6 +823,9 @@ func newSigningErrorResponse(err error) signingResponse {
 			Success:   false,
 			ErrorCode: keystore.ErrFirmwareUpgradeRequired.Error(),
 		}
+	}
+	if errp.Cause(err) == errors.ErrInsufficientFunds {
+		return signingResponse{Success: false, ErrorCode: errors.ErrInsufficientFunds.Error()}
 	}
 	return signingResponse{Success: false, ErrorMessage: err.Error()}
 }

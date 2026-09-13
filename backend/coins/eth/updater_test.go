@@ -56,7 +56,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 
 	log := logging.Get().WithGroup("updater_test")
 	dbFolder := test.TstTempDir("eth-dbfolder")
-	defer func() { _ = os.RemoveAll(dbFolder) }()
+	t.Cleanup(func() { _ = os.RemoveAll(dbFolder) })
 
 	net := &chaincfg.TestNet3Params
 
@@ -86,7 +86,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
 			return big.NewInt(100), nil
 		},
-		ERC20BalanceFunc: func(address common.Address, token *erc20.Token) (*big.Int, error) {
+		ERC20BalanceFunc: func(address common.Address, token *erc20.Token, blockNumber *big.Int) (*big.Int, error) {
 			if erc20error {
 				return nil, errp.New("failed to fetch ERC20 balance")
 			}
@@ -95,6 +95,9 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 	}
 
 	coin := eth.NewCoin(client, coin.CodeSEPETH, "Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig, "", nil, erc20Token)
+	outgoing, err := eth.NewOutgoingTransactions(dbFolder)
+	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, outgoing.Close()) })
 	acct := eth.NewAccount(
 		&accounts.AccountConfig{
 			Code:                  "accountcode",
@@ -103,12 +106,13 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 			DBFolder:              dbFolder,
 		},
 		coin,
+		outgoing,
 		log,
-		make(chan *eth.Account),
+		make(chan struct{}),
 	)
 
 	require.NoError(t, acct.Initialize())
-	require.NoError(t, acct.Update(big.NewInt(0), big.NewInt(100), nil))
+	require.NoError(t, acct.Update(big.NewInt(0), big.NewInt(100), nil, nil))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 	return acct
 }
@@ -158,7 +162,7 @@ func TestUpdateBalances(t *testing.T) {
 
 	updatedBalances := []common.Address{}
 	balanceFetcher := mocks.BalanceAndBlockNumberFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			updatedBalances = addresses
 			// We mock the balanceFetcher to always return a balance of 1000.
 			balances := make(map[common.Address]*big.Int)
@@ -172,7 +176,7 @@ func TestUpdateBalances(t *testing.T) {
 		},
 	}
 
-	updater := eth.NewUpdater(nil, nil, nil, nil)
+	updater := eth.NewUpdater(nil, nil)
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			for _, acct := range tc.accounts {
@@ -211,7 +215,7 @@ func TestUpdateBalances(t *testing.T) {
 
 func TestUpdateBalancesWithError(t *testing.T) {
 	balanceFetcher := &mocks.BalanceAndBlockNumberFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			// We mock the balanceFetcher to always return an error.
 			// This simulates a failure in fetching balances which should set the account to offline.
 			return nil, errp.New("balance fetch error")
@@ -221,7 +225,7 @@ func TestUpdateBalancesWithError(t *testing.T) {
 		},
 	}
 
-	updater := eth.NewUpdater(nil, nil, nil, nil)
+	updater := eth.NewUpdater(nil, nil)
 	account := newAccount(t, nil, false)
 	defer account.Close()
 
@@ -275,7 +279,7 @@ func TestUpdateBalancesPrefetchTokenTransactions(t *testing.T) {
 	blockNumber := big.NewInt(100)
 	tokenTxCalls := 0
 	fetcher := &mocks.TokenTransactionsFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			require.Len(t, addresses, 0)
 			return map[common.Address]*big.Int{}, nil
 		},
@@ -298,7 +302,7 @@ func TestUpdateBalancesPrefetchTokenTransactions(t *testing.T) {
 		},
 	}
 
-	updater := eth.NewUpdater(nil, nil, nil, nil)
+	updater := eth.NewUpdater(nil, nil)
 	updater.UpdateBalancesAndBlockNumber([]*eth.Account{accountA, accountB}, fetcher)
 
 	require.Equal(t, 1, tokenTxCalls)
@@ -310,7 +314,7 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 	tokenTxCalls := 0
 	var tokenTxResult map[common.Address][]*accounts.TransactionData
 	fetcher := &mocks.TokenTransactionsFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			require.Len(t, addresses, 0)
 			return map[common.Address]*big.Int{}, nil
 		},
@@ -338,7 +342,7 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 		tokenTxCalls = 0
 		tokenTxResult = map[common.Address][]*accounts.TransactionData{}
 
-		updater := eth.NewUpdater(nil, nil, nil, nil)
+		updater := eth.NewUpdater(nil, nil)
 		updater.UpdateBalancesAndBlockNumber([]*eth.Account{account}, fetcher)
 
 		// With a single token account, updater should skip prefetch entirely.
@@ -371,7 +375,7 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 			tokenA.ContractAddress(): {makeConfirmedTx("tx-a")},
 		}
 
-		updater := eth.NewUpdater(nil, nil, nil, nil)
+		updater := eth.NewUpdater(nil, nil)
 		updater.UpdateBalancesAndBlockNumber([]*eth.Account{accountA, accountB}, fetcher)
 
 		require.Equal(t, 1, tokenTxCalls)

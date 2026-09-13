@@ -143,16 +143,19 @@ describe('WCSigningRequest', () => {
     expect(screen.queryByText('confirmOnDevice')).not.toBeInTheDocument();
   });
 
-  it('closes and alerts after failed signing', async () => {
+  it.each([
+    [{ success: false, errorMessage: 'Backend failed' }, 'Backend failed'],
+    [{ success: false, errorCode: 'insufficientFunds' }, 'send.error.insufficientFunds'],
+  ])('closes and alerts after failed signing: %j', async (result, message) => {
     const request = makeRequest({
-      apiCaller: vi.fn().mockResolvedValue({ success: false, errorMessage: 'Backend failed' }),
+      apiCaller: vi.fn().mockResolvedValue(result),
     });
     const { emitRequest } = setup([request]);
     await emitRequest();
 
     fireEvent.click(await screen.findByRole('button', { name: 'button.continue' }));
 
-    await waitFor(() => expect(alertUser).toHaveBeenCalledWith('Backend failed'));
+    await waitFor(() => expect(alertUser).toHaveBeenCalledWith(message));
     expect(screen.queryByRole('button', { name: 'button.continue' })).not.toBeInTheDocument();
   });
 
