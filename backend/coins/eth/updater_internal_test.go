@@ -48,8 +48,9 @@ func TestActiveAccountBalanceUpdates(t *testing.T) {
 		var remoteBalance atomic.Int64
 		requests := make(chan string, 10)
 		client := &http.Client{Transport: chainClientRoundTripFunc(func(request *http.Request) (*http.Response, error) {
-			action := request.URL.Query().Get("action")
-			requests <- action
+			query := request.URL.Query()
+			action := query.Get("action")
+			requests <- action + " " + query.Get("tag")
 			var body string
 			switch action {
 			case "balancemulti":
@@ -61,7 +62,7 @@ func TestActiveAccountBalanceUpdates(t *testing.T) {
 			}
 			return &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(body))}, nil
 		})}
-		updater := NewUpdater(make(chan *Account), client, rate.NewLimiter(rate.Inf, 1), func() error { return nil })
+		updater := NewUpdater(nil, client, rate.NewLimiter(rate.Inf, 1), func() error { return nil })
 		defer updater.Close()
 		updater.SetAccountActivity(account, true)
 		go updater.PollBalances()
@@ -70,15 +71,16 @@ func TestActiveAccountBalanceUpdates(t *testing.T) {
 		time.Sleep(time.Minute)
 		synctest.Wait()
 		require.Len(t, requests, 1)
-		require.Equal(t, "balancemulti", <-requests)
+		require.Equal(t, "balancemulti latest", <-requests)
 
 		remoteBalance.Store(1000)
 		updater.SetAccountActivity(account, true)
 		time.Sleep(time.Minute)
 		synctest.Wait()
-		require.Len(t, requests, 2)
-		require.Equal(t, "balancemulti", <-requests)
-		require.Equal(t, "eth_getBlockByNumber", <-requests)
+		require.Len(t, requests, 3)
+		require.Equal(t, "balancemulti latest", <-requests)
+		require.Equal(t, "eth_getBlockByNumber latest", <-requests)
+		require.Equal(t, "balancemulti 0x65", <-requests)
 		require.Equal(t, big.NewInt(1000), account.remoteBalance())
 
 		time.Sleep(29 * time.Second)
@@ -87,14 +89,14 @@ func TestActiveAccountBalanceUpdates(t *testing.T) {
 		time.Sleep(time.Second)
 		synctest.Wait()
 		require.Len(t, requests, 2)
-		require.Equal(t, "balancemulti", <-requests)
-		require.Equal(t, "eth_getBlockByNumber", <-requests)
+		require.Equal(t, "eth_getBlockByNumber latest", <-requests)
+		require.Equal(t, "balancemulti 0x65", <-requests)
 
 		updater.SetAccountActivity(account, true)
 		time.Sleep(30 * time.Second)
 		synctest.Wait()
 		require.Len(t, requests, 1)
-		require.Equal(t, "balancemulti", <-requests)
+		require.Equal(t, "balancemulti latest", <-requests)
 	})
 }
 

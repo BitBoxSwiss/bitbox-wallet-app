@@ -431,7 +431,7 @@ func newBackendWithDevServers(t *testing.T, testing, regtest, devServers bool) *
 			BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
 				return big.NewInt(100), nil
 			},
-			BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
+			BalanceFunc: func(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error) {
 				return big.NewInt(1e18), nil
 			},
 			PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
