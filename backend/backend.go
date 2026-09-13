@@ -265,10 +265,10 @@ type Backend struct {
 	// overridden in unit tests for mocking.
 	makeEthAccount         func(*accounts.AccountConfig, *eth.Coin, *logrus.Entry) accounts.Interface
 	ethChainClientProvider eth.ChainClientProvider
-	// enqueueETHUpdateForAllAccountsAsync asks the ETH updater to refresh all ETH accounts without
-	// blocking the caller. In production this is `ethupdater.EnqueueUpdateForAllAccountsAsync`, but
+	// enqueueETHUpdateForAllAccounts asks the ETH updater to refresh all ETH accounts without
+	// blocking the caller. In production this is `ethupdater.EnqueueUpdateForAllAccounts`, but
 	// can be overridden in unit tests.
-	enqueueETHUpdateForAllAccountsAsync func()
+	enqueueETHUpdateForAllAccounts func()
 
 	onAccountInit   func(accounts.Interface)
 	onAccountUninit func(accounts.Interface)
@@ -302,7 +302,8 @@ type Backend struct {
 	isOnline atomic.Bool
 
 	// ethupdater takes care of updating ETH accounts.
-	ethupdater *eth.Updater
+	ethupdater  *eth.Updater
+	ethOutgoing *eth.OutgoingTransactions
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -325,10 +326,11 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		return nil, err
 	}
 
-	accountUpdate := make(chan *eth.Account)
+	accountUpdate := make(chan struct{}, 1)
 	etherScanRateLimiter := rate.NewLimiter(rate.Limit(etherscan.CallsPerSec), 1)
 
-	backend := &Backend{
+	var backend *Backend
+	backend = &Backend{
 		arguments:   arguments,
 		environment: environment,
 		config:      backendConfig,
@@ -342,7 +344,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
 		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
-			return eth.NewAccount(config, coin, log, accountUpdate)
+			return eth.NewAccount(config, coin, backend.ethOutgoing, log, accountUpdate)
 		},
 		ethChainClientProvider: eth.NewEtherscanChainClientProvider(hclient, etherScanRateLimiter),
 
@@ -363,8 +365,8 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.updateChecker = newUpdateChecker(&backend.socksProxy, backend.userAgent())
 	backend.updateChecker.Observe(backend.Notify)
 	backend.httpClient = hclient
-	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts)
-	backend.enqueueETHUpdateForAllAccountsAsync = backend.ethupdater.EnqueueUpdateForAllAccountsAsync
+	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.updateETHAccounts)
+	backend.enqueueETHUpdateForAllAccounts = backend.ethupdater.EnqueueUpdateForAllAccounts
 
 	backend.ratesUpdater = backend.newRatesUpdater()
 
@@ -395,6 +397,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 	backend.bluetooth = bluetooth.New(log)
 	backend.bluetooth.Observe(backend.Notify)
+	backend.ethOutgoing, err = eth.NewOutgoingTransactions(arguments.CacheDirectoryPath())
+	if err != nil {
+		return nil, err
+	}
 
 	return backend, nil
 }
@@ -1180,6 +1186,11 @@ func (backend *Backend) ClearCache() error {
 		errors = append(errors, err.Error())
 	}
 
+	if backend.ethOutgoing != nil {
+		if err := backend.ethOutgoing.Close(); err != nil {
+			errors = append(errors, err.Error())
+		}
+	}
 	cacheDir := backend.arguments.CacheDirectoryPath()
 	if err := os.RemoveAll(cacheDir); err != nil {
 		backend.log.WithError(err).Error("could not remove cache directory")
@@ -1190,6 +1201,11 @@ func (backend *Backend) ClearCache() error {
 		errors = append(errors, err.Error())
 	}
 
+	outgoing, err := eth.NewOutgoingTransactions(cacheDir)
+	if err != nil {
+		return err
+	}
+	backend.ethOutgoing = outgoing
 	backend.ratesUpdater = backend.newRatesUpdater()
 	backend.initAccounts(true)
 	if backend.started {
@@ -1214,9 +1230,15 @@ func (backend *Backend) Close() error {
 		backend.usbManager.Close()
 	}
 
+	backend.ethupdater.Close()
+	outgoingErr := backend.ethOutgoing.Close()
+
 	defer backend.accountsAndKeystoreLock.Lock()()
 
 	errors := []string{}
+	if outgoingErr != nil {
+		errors = append(errors, outgoingErr.Error())
+	}
 
 	backend.uninitAccounts(true)
 	if backend.unobserveKeystore != nil {
@@ -1238,7 +1260,6 @@ func (backend *Backend) Close() error {
 		return errp.New(strings.Join(errors, "; "))
 	}
 
-	backend.ethupdater.Close()
 	return nil
 }
 

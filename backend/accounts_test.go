@@ -782,7 +782,7 @@ func TestETHInitialSyncMode(t *testing.T) {
 	t.Run("reinit-batch-load", func(t *testing.T) {
 		captured = map[accountsTypes.Code]bool{}
 		enqueueAllAccountsRefreshes := 0
-		b.enqueueETHUpdateForAllAccountsAsync = func() {
+		b.enqueueETHUpdateForAllAccounts = func() {
 			enqueueAllAccountsRefreshes++
 		}
 

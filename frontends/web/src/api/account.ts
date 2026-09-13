@@ -486,7 +486,7 @@ export type TSignMessage = {
   success: false;
   aborted?: boolean;
   errorMessage?: string;
-  errorCode?: 'firmwareUpgradeRequired';
+  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds';
 } | {
   success: true;
   signature: string;
@@ -496,7 +496,7 @@ export type TSignWalletConnectTx = {
   success: false;
   aborted?: boolean;
   errorMessage?: string;
-  errorCode?: 'firmwareUpgradeRequired';
+  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds';
 } | {
   success: true;
   txHash: string;

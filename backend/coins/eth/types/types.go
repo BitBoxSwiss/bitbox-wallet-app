@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
@@ -32,8 +33,7 @@ type TransactionWithMetadata struct {
 	Success bool
 	// Tip height at which the receipt was last checked successfully.
 	LastReceiptCheckHeight uint64
-	// Number of broadcast attempts.
-	BroadcastAttempts uint16
+	NonceConsumed          bool
 }
 
 // FeeTarget contains the gas price for a specific fee target.
@@ -73,7 +73,7 @@ func (txh *TransactionWithMetadata) MarshalJSON() ([]byte, error) {
 		"gasUsed":                hexutil.Uint64(txh.GasUsed),
 		"success":                txh.Success,
 		"lastReceiptCheckHeight": txh.LastReceiptCheckHeight,
-		"broadcastAttempts":      txh.BroadcastAttempts,
+		"nonceConsumed":          txh.NonceConsumed,
 	})
 }
 
@@ -85,7 +85,7 @@ func (txh *TransactionWithMetadata) UnmarshalJSON(input []byte) error {
 		GasUsed                hexutil.Uint64 `json:"gasUsed"`
 		Success                bool           `json:"success"`
 		LastReceiptCheckHeight uint64         `json:"lastReceiptCheckHeight"`
-		BroadcastAttempts      uint16         `json:"broadcastAttempts"`
+		NonceConsumed          bool           `json:"nonceConsumed"`
 	}{}
 	if err := json.Unmarshal(input, &m); err != nil {
 		return err
@@ -98,31 +98,37 @@ func (txh *TransactionWithMetadata) UnmarshalJSON(input []byte) error {
 	txh.GasUsed = uint64(m.GasUsed)
 	txh.Success = m.Success
 	txh.LastReceiptCheckHeight = m.LastReceiptCheckHeight
-	txh.BroadcastAttempts = m.BroadcastAttempts
+	txh.NonceConsumed = m.NonceConsumed
 	return nil
+}
+
+// TokenTransfer recognizes a standard ERC20 transfer and decodes its recipient and amount.
+func (txh *TransactionWithMetadata) TokenTransfer() (common.Address, *big.Int, bool) {
+	data := txh.Transaction.Data()
+	if txh.Transaction.To() == nil || len(data) != 68 ||
+		!bytes.Equal(data[:4], []byte{0xa9, 0x05, 0x9c, 0xbb}) ||
+		!bytes.Equal(data[4:16], make([]byte, 12)) || txh.Transaction.Value().Sign() != 0 {
+		return common.Address{}, nil, false
+	}
+	return common.BytesToAddress(data[16:36]), new(big.Int).SetBytes(data[36:]), true
 }
 
 // TransactionData returns the tx data to be shown to the user.
 func (txh *TransactionWithMetadata) TransactionData(
 	tipHeight uint64, erc20Token *erc20.Token, accountAddress string) *accounts.TransactionData {
 	amount := coin.NewAmount(txh.Transaction.Value())
-	address := txh.Transaction.To().Hex()
+	address := crypto.CreateAddress(common.HexToAddress(accountAddress), txh.Transaction.Nonce()).Hex()
+	if txh.Transaction.To() != nil {
+		address = txh.Transaction.To().Hex()
+	}
 
 	if erc20Token != nil {
-		// ERC20 transfer.
-		data := txh.Transaction.Data()
-
-		// An ERC20-Token transfer looks like this:
-		// - Data is <0xa9059cbb><32 bytes address><32 bytes big endian amount>
-		// - Tx value is 0 (contract invocation).
-		if *txh.Transaction.To() != erc20Token.ContractAddress() ||
-			len(data) != 68 ||
-			!bytes.Equal(data[:4], []byte{0xa9, 0x05, 0x9c, 0xbb}) ||
-			txh.Transaction.Value().Cmp(big.NewInt(0)) != 0 {
-			panic("invalid erc20 tx")
+		recipient, value, ok := txh.TokenTransfer()
+		if !ok || *txh.Transaction.To() != erc20Token.ContractAddress() {
+			return nil
 		}
-		amount = coin.NewAmount(new(big.Int).SetBytes(data[len(data)-32:]))
-		address = common.BytesToAddress(data[4+32-common.AddressLength : 4+32]).Hex()
+		amount = coin.NewAmount(value)
+		address = recipient.Hex()
 	}
 
 	numConfirmations := txh.numConfirmations(tipHeight)
@@ -178,7 +184,7 @@ func (txh *TransactionWithMetadata) gas() uint64 {
 
 func (txh *TransactionWithMetadata) numConfirmations(tipHeight uint64) int {
 	confs := 0
-	if txh.Height > 0 {
+	if txh.Height > 0 && tipHeight >= txh.Height {
 		confs = int(tipHeight - txh.Height + 1)
 	}
 	return confs

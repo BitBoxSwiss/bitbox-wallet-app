@@ -797,6 +797,9 @@ func newSigningErrorResponse(err error) signingResponse {
 			ErrorCode: keystore.ErrFirmwareUpgradeRequired.Error(),
 		}
 	}
+	if errp.Cause(err) == errors.ErrInsufficientFunds {
+		return signingResponse{Success: false, ErrorCode: errors.ErrInsufficientFunds.Error()}
+	}
 	return signingResponse{Success: false, ErrorMessage: err.Error()}
 }
 

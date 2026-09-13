@@ -71,20 +71,51 @@ func SignTransaction(
 		return nil, errp.New("EVM chain client is unavailable")
 	}
 
-	tx, err := newTransaction(args.ChainID, client, proposedTx, pending, log)
+	txData, err := prepareTransaction(args.ChainID, client, proposedTx, log)
 	if err != nil {
 		return nil, err
-	}
-	txProposal := &TxProposal{
-		ChainID:          args.ChainID,
-		Tx:               tx,
-		Keypath:          signingConfiguration.AbsoluteKeypath(),
-		RecipientAddress: proposedTx.RecipientAddress,
 	}
 
 	keystore, err := connectKeystore()
 	if err != nil {
 		return nil, err
+	}
+	var sender *outgoingSender
+	if pending != nil {
+		var unlock func()
+		sender, unlock, err = pending.outgoing.lock(args.ChainID, expectedSender)
+		if err != nil {
+			return nil, err
+		}
+		defer unlock()
+		if args.Broadcast || proposedTx.Nonce == nil {
+			if err := sender.refresh(client); err != nil {
+				return nil, err
+			}
+		}
+	}
+	if proposedTx.Nonce != nil {
+		txData.Nonce = *proposedTx.Nonce
+	} else {
+		if sender != nil {
+			txData.Nonce, err = sender.nextNonce(client)
+		} else {
+			txData.Nonce, err = client.PendingNonceAt(context.TODO(), proposedTx.From)
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	txProposal := &TxProposal{
+		ChainID:          args.ChainID,
+		Tx:               types.NewTx(txData),
+		Keypath:          signingConfiguration.AbsoluteKeypath(),
+		RecipientAddress: proposedTx.RecipientAddress,
+	}
+	if args.Broadcast && sender != nil {
+		if err := sender.checkFunds(client, txProposal.Tx); err != nil {
+			return nil, err
+		}
 	}
 	if err := keystore.SignTransaction(txProposal); err != nil {
 		return nil, err
@@ -94,7 +125,7 @@ func SignTransaction(
 			return nil, errp.WithStack(err)
 		}
 		if pending != nil {
-			pending.track(txProposal.Tx)
+			pending.track(sender, txProposal.Tx)
 		}
 	}
 	return txProposal.Tx, nil
@@ -124,25 +155,15 @@ func SignTypedMsg(
 	return "0x" + hex.EncodeToString(signature), nil
 }
 
-// newTransaction fills a missing nonce and estimates gas and fees using the target-chain client.
-func newTransaction(
+// prepareTransaction estimates gas and fees using the target-chain client.
+// The nonce is assigned before constructing the transaction for signing.
+func prepareTransaction(
 	chainID uint64,
 	client rpcclient.Interface,
 	proposedTx TransactionRequest,
-	pending *PendingTransactions,
 	log *logrus.Entry,
-) (*types.Transaction, error) {
-	var nonce uint64
+) (*types.LegacyTx, error) {
 	var gasPrice *big.Int
-
-	if proposedTx.Nonce != nil {
-		nonce = *proposedTx.Nonce
-	} else {
-		var err error
-		if nonce, err = nextNonce(client, proposedTx.From, pending); err != nil {
-			return nil, err
-		}
-	}
 
 	value := new(big.Int)
 	if proposedTx.Value != nil {
@@ -180,9 +201,9 @@ func newTransaction(
 		return nil, errp.WithStack(errors.ErrFeesNotAvailable)
 	}
 
-	return types.NewTransaction(nonce,
-		*message.To,
-		message.Value, gasLimit, gasPrice, message.Data), nil
+	return &types.LegacyTx{
+		To: message.To, Value: message.Value, Gas: gasLimit, GasPrice: gasPrice, Data: message.Data,
+	}, nil
 }
 
 // feeTargetsForChain returns three priorities with fee targets estimated by Etherscan

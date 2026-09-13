@@ -57,7 +57,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 
 	log := logging.Get().WithGroup("updater_test")
 	dbFolder := test.TstTempDir("eth-dbfolder")
-	defer func() { _ = os.RemoveAll(dbFolder) }()
+	t.Cleanup(func() { _ = os.RemoveAll(dbFolder) })
 
 	net := &chaincfg.TestNet3Params
 
@@ -96,6 +96,9 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 	}
 
 	coin := eth.NewCoin(client, coin.CodeSEPETH, "Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig, "", nil, erc20Token)
+	outgoing, err := eth.NewOutgoingTransactions(dbFolder)
+	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, outgoing.Close()) })
 	acct := eth.NewAccount(
 		&accounts.AccountConfig{
 			Config: &config.Account{
@@ -107,8 +110,9 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 			DBFolder:    dbFolder,
 		},
 		coin,
+		outgoing,
 		log,
-		make(chan *eth.Account),
+		make(chan struct{}),
 	)
 
 	require.NoError(t, acct.Initialize())
@@ -176,7 +180,7 @@ func TestUpdateBalances(t *testing.T) {
 		},
 	}
 
-	updater := eth.NewUpdater(nil, nil, nil, nil)
+	updater := eth.NewUpdater(nil, nil)
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			for _, acct := range tc.accounts {
@@ -225,7 +229,7 @@ func TestUpdateBalancesWithError(t *testing.T) {
 		},
 	}
 
-	updater := eth.NewUpdater(nil, nil, nil, nil)
+	updater := eth.NewUpdater(nil, nil)
 	account := newAccount(t, nil, false)
 	defer account.Close()
 
@@ -302,7 +306,7 @@ func TestUpdateBalancesPrefetchTokenTransactions(t *testing.T) {
 		},
 	}
 
-	updater := eth.NewUpdater(nil, nil, nil, nil)
+	updater := eth.NewUpdater(nil, nil)
 	updater.UpdateBalancesAndBlockNumber([]*eth.Account{accountA, accountB}, fetcher)
 
 	require.Equal(t, 1, tokenTxCalls)
@@ -342,7 +346,7 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 		tokenTxCalls = 0
 		tokenTxResult = map[common.Address][]*accounts.TransactionData{}
 
-		updater := eth.NewUpdater(nil, nil, nil, nil)
+		updater := eth.NewUpdater(nil, nil)
 		updater.UpdateBalancesAndBlockNumber([]*eth.Account{account}, fetcher)
 
 		// With a single token account, updater should skip prefetch entirely.
@@ -375,7 +379,7 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 			tokenA.ContractAddress(): {makeConfirmedTx("tx-a")},
 		}
 
-		updater := eth.NewUpdater(nil, nil, nil, nil)
+		updater := eth.NewUpdater(nil, nil)
 		updater.UpdateBalancesAndBlockNumber([]*eth.Account{accountA, accountB}, fetcher)
 
 		require.Equal(t, 1, tokenTxCalls)
