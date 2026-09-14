@@ -281,6 +281,7 @@ export const AppRouter = ({
 
   const GeneralEl = (<InjectParams>
     <General
+      accounts={activeAccounts}
       devices={devices}
       hasAccounts={hasAccounts}
     />

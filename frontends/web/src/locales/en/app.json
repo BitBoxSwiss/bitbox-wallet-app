@@ -1058,6 +1058,7 @@
     "retry": "Retry",
     "search": "Search…",
     "searchButton": "Search",
+    "selectAll": "Select all",
     "sell": "Sell {{coinCode}}",
     "sell_bitcoin": "Sell Bitcoin",
     "sell_crypto": "Sell crypto",
@@ -2278,6 +2279,19 @@
     "about": "About",
     "advancedSettings": "Advanced settings",
     "appearance": "Appearance",
+    "balanceStatement": {
+      "export": {
+        "description": "Export a PDF statement of your holdings at a selected snapshot date.",
+        "dialog": {
+          "accountsLabel": "Accounts to include",
+          "dateLabel": "Snapshot date",
+          "description": "Choose the date and select which accounts to include in the balance snapshot.",
+          "generate": "Generate PDF",
+          "noAccounts": "No active accounts available."
+        },
+        "title": "Export statement of balance"
+      }
+    },
     "electrum": {
       "add": "Add a server",
       "add-server": "Add",
@@ -2361,6 +2375,7 @@
       },
       "title": "Manage notes"
     },
+    "other": "Other",
     "restart": "Please re-start the BitBoxApp for the changes to take effect.",
     "search": {
       "noResults": "No settings found"
