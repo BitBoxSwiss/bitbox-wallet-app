@@ -18,7 +18,6 @@ import { unsubscribe } from '../../utils/subscriptions';
 import { postActivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { LightningDisclaimerContent } from './disclaimer';
-import { LightningTorProxyWarning } from '@/components/banners/lightning-tor-proxy-warning';
 import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import styles from './activate.module.css';
 
@@ -249,7 +248,6 @@ export const LightningActivate = () => {
   return (
     <Main>
       <ContentWrapper>
-        <LightningTorProxyWarning />
         <Status dismissibleKey="" type="warning" hidden={!setupError}>
           {setupError}
         </Status>

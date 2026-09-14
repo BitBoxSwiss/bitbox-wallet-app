@@ -13,6 +13,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/stretchr/testify/require"
@@ -87,6 +88,7 @@ func newTestLightningWithConfigFilename(
 		func() keystore.Keystore { return nil },
 		nil,
 		&http.Client{},
+		socksproxy.NewSocksProxy(false, ""),
 		nil,
 		nil,
 	)
