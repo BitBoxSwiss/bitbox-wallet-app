@@ -9,7 +9,6 @@ import styles from './mobile-header.module.css';
 type TProps = {
   title?: string;
   variant?: 'back' | 'titleOnly';
-  withGuide?: boolean;
   withViewPadding?: boolean;
   onClick?: () => void;
 };
@@ -17,7 +16,6 @@ type TProps = {
 export const MobileHeader = ({
   title = '',
   variant = 'back',
-  withGuide = false,
   withViewPadding = false,
   onClick,
 }: TProps) => {
@@ -34,23 +32,23 @@ export const MobileHeader = ({
     }
   };
   return (
-    <div className={`
-      ${styles.container || ''}
-      ${variant === 'titleOnly' && styles.titleOnly || ''}
-      ${withGuide && styles.withGuide || ''}
-      ${withViewPadding && styles.withViewPadding || ''}
-    `}>
-      {variant === 'back' && (
-        <>
-          <UseBackButton handler={() => {
-            handleClick();
-            return false;
-          }} />
-          <button onClick={handleClick} className={styles.backButton}>
-            <ChevronLeftDark />
-          </button>
-        </>
-      )}
+    <div className={styles.mobileHeader}>
+      <div className={`
+        ${styles.container || ''}
+        ${withViewPadding && styles.withViewPadding || ''}
+      `}>
+        {variant === 'back' && (
+          <>
+            <UseBackButton handler={() => {
+              handleClick();
+              return false;
+            }} />
+            <button onClick={handleClick} className={styles.backButton}>
+              <ChevronLeftDark />
+            </button>
+          </>
+        )}
+      </div>
       <h1 className={styles.headerText}>
         {title}
       </h1>

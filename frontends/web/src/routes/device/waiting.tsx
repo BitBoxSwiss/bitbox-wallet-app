@@ -10,21 +10,26 @@ import { useSync } from '@/hooks/api';
 import { useKeystores } from '@/hooks/backend';
 import { useDarkmode } from '@/hooks/darkmode';
 import { useDefault } from '@/hooks/default';
+import { useMediaQuery } from '@/hooks/mediaquery';
 import { Bluetooth } from '@/components/bluetooth/bluetooth';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { Spinner } from '@/components/spinner/Spinner';
-import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
+import { SwissMadeOpenSource, SwissMadeOpenSourceDark } from '@/components/icon/logo';
 import { Footer, GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { OutlinedSettingsButton } from '@/components/settingsButton/outlined-settings-button';
 import { runningInIOS } from '@/utils/env';
+import BitBoxLogo from '@/assets/bitbox-logo.png';
+import BitBoxLogoInverted from '@/assets/bitbox-logo-inverted.png';
 import style from './waiting.module.css';
 
 export const Waiting = () => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const navigate = useNavigate();
+
   const keystores = useKeystores();
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
 
@@ -49,13 +54,19 @@ export const Waiting = () => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('welcome.title')}</h2>}>
-            <OutlinedSettingsButton />
+          <Header>
+            {isMobile && (
+              <OutlinedSettingsButton />
+            )}
           </Header>
-          <View verticallyCentered width="550px" fitContent>
+          <View
+            fitContent
+            verticallyCentered
+            width="550px"
+            withMobileSafetyMargin>
             <ViewContent textAlign="center">
               <div>
-                {isDarkMode ? (<AppLogoInverted />) : (<AppLogo />)}
+                <h2>{t('welcome.title')}</h2>
                 <p className={style.waitingText}>
                   {runningInIOS() ? t('welcome.messageIOS') : t('welcome.message')}
                 </p>
@@ -64,9 +75,15 @@ export const Waiting = () => {
             </ViewContent>
           </View>
         </Main>
-        <Footer>
-          {isDarkMode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
-        </Footer>
+        {isMobile ? (
+          <div className={style.footer}>
+            <img src={isDarkMode ? BitBoxLogoInverted : BitBoxLogo} style={{ maxWidth: '24px' }} />
+          </div>
+        ) : (
+          <Footer>
+            {isDarkMode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
+          </Footer>
+        )}
       </GuidedContent>
       <Guide>
         <Entry entry={{

@@ -3,13 +3,14 @@
 import '../../../../__mocks__/i18n';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as accountApi from '@/api/account';
 import * as coinsApi from '@/api/coins';
 import * as keystoresApi from '@/api/keystores';
 import * as lightningApi from '@/api/lightning';
 import { TLightningErrorCode } from '@/api/lightning-errors';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
 import { LightningTopUp } from './topup';
 
@@ -89,20 +90,28 @@ const lightningBalance = (marginSat = 150000): lightningApi.TLightningBalance =>
   incoming: amount('0'),
 });
 
-const renderTopUp = (activeAccounts = [account]) => render(
-  <MemoryRouter>
-    <RatesContext.Provider value={{
-      defaultCurrency: 'USD',
-      activeCurrencies: ['USD'],
-      btcUnit: 'sat',
-      rotateDefaultCurrency: vi.fn(),
-      rotateBtcUnit: vi.fn(),
-      addToActiveCurrencies: vi.fn(),
-      updateDefaultCurrency: vi.fn(),
-      removeFromActiveCurrencies: vi.fn(),
-    }}>
-      <LightningTopUp activeAccounts={activeAccounts} hasAccounts />
-    </RatesContext.Provider>
+const CurrentPath = () => {
+  const { pathname } = useLocation();
+  return <span data-testid="current-path">{pathname}</span>;
+};
+
+const renderTopUp = (activeAccounts = [account], hasAccounts = true) => render(
+  <MemoryRouter initialEntries={['/lightning/topup']}>
+    <BackButtonProvider>
+      <RatesContext.Provider value={{
+        defaultCurrency: 'USD',
+        activeCurrencies: ['USD'],
+        btcUnit: 'sat',
+        rotateDefaultCurrency: vi.fn(),
+        rotateBtcUnit: vi.fn(),
+        addToActiveCurrencies: vi.fn(),
+        updateDefaultCurrency: vi.fn(),
+        removeFromActiveCurrencies: vi.fn(),
+      }}>
+        <LightningTopUp activeAccounts={activeAccounts} hasAccounts={hasAccounts} />
+        <CurrentPath />
+      </RatesContext.Provider>
+    </BackButtonProvider>
   </MemoryRouter>
 );
 
@@ -110,6 +119,31 @@ describe('LightningTopUp', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.spyOn(lightningApi, 'subscribeLightningBalance').mockReturnValue(vi.fn());
+  });
+
+  it('prompts to connect a BitBox without leaving Top up when there are no accounts', async () => {
+    vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(lightningBalance());
+    const connectAnyKeystore = vi.spyOn(keystoresApi, 'connectAnyKeystore').mockResolvedValue({
+      success: false,
+      errorCode: 'userAbort',
+    });
+
+    renderTopUp([], false);
+    fireEvent.click(await screen.findByRole('button', { name: /connect/i }));
+
+    await waitFor(() => expect(connectAnyKeystore).toHaveBeenCalledOnce());
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/lightning/topup');
+  });
+
+  it('opens Manage accounts when accounts exist but no Bitcoin account is active', async () => {
+    vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(lightningBalance());
+    const connectAnyKeystore = vi.spyOn(keystoresApi, 'connectAnyKeystore');
+
+    renderTopUp([], true);
+    fireEvent.click(await screen.findByRole('button', { name: /manage/i }));
+
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/settings/manage-accounts');
+    expect(connectAnyKeystore).not.toHaveBeenCalled();
   });
 
   it('shows every Bitcoin account without loading its balance', async () => {

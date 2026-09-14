@@ -78,7 +78,7 @@ export const ConfirmSend = ({
   }
 
   return (
-    <View fullscreen width="840px">
+    <View fullscreen width="840px" withMobileSafetyMargin>
       <UseDisableBackButton />
       <ViewHeader title={<div className={style.title}>{t('send.confirm.title')}</div>} />
       <ViewContent>

@@ -2,6 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { connectAnyKeystore } from '@/api/keystores';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
@@ -51,17 +52,15 @@ export const TopUpSuccess = () => {
 export const TopUpNoBitcoinAccounts = ({ hasAccounts }: TTopUpNoBitcoinAccountsProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const primaryAction = (
-    hasAccounts
-      ? {
-        label: t('manageAccounts.title'),
-        route: '/settings/manage-accounts',
-      }
-      : {
-        label: t('welcome.connect'),
-        route: '/',
-      }
-  );
+
+  const handlePrimaryAction = async () => {
+    // This happens only when accounts exist, but none are Bitcoin accounts.
+    if (hasAccounts) {
+      navigate('/settings/manage-accounts');
+      return;
+    }
+    await connectAnyKeystore();
+  };
 
   return (
     <GuideWrapper>
@@ -81,8 +80,8 @@ export const TopUpNoBitcoinAccounts = ({ hasAccounts }: TTopUpNoBitcoinAccountsP
               <p>{t('lightning.topUp.noBitcoinAccounts')}</p>
             </ViewContent>
             <ViewButtons>
-              <Button primary onClick={() => navigate(primaryAction.route)}>
-                {primaryAction.label}
+              <Button primary onClick={handlePrimaryAction}>
+                {hasAccounts ? t('manageAccounts.title') : t('welcome.connect')}
               </Button>
               <DesktopBackButton onClick={() => navigate('/lightning')}>
                 {t('button.back')}

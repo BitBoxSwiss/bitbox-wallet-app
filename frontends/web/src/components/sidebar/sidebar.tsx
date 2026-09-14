@@ -85,6 +85,7 @@ const Sidebar = ({
   const hasPortfolio = accounts.length > 0 || !!lightningAccount;
 
   const deviceIDs: string[] = Object.keys(devices);
+  const isBitboxBootloader = Object.values(devices).includes('bitbox02-bootloader');
 
   useEffect(() => {
     const checkUpgradableDevices = async () => {
@@ -116,13 +117,19 @@ const Sidebar = ({
   const accountsByKeystore = getAccountsByKeystore(accounts);
   const inMarketSection = pathname.startsWith('/market');
 
+  const homePath = (
+    isBitboxBootloader && deviceIDs.length > 0
+      ? `/settings/device-settings/${deviceIDs[0] || ''}`
+      : hasPortfolio ? '/account-summary' : '/'
+  );
+
   return (
     <div className={style.sidebarContainer}>
       <div key="overlay" className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
       <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')}>
         <div key="app-logo" className={style.sidebarLogoContainer}>
           <Link
-            to={hasPortfolio ? '/account-summary' : '/'}
+            to={homePath}
             onClick={handleSidebarItemClick}>
             <AppLogoInverted className={style.sidebarLogo} />
           </Link>

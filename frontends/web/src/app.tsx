@@ -137,6 +137,7 @@ export const App = () => {
 
   const deviceIDs = Object.keys(devices);
   const firstDevice = deviceIDs[0];
+  const productName = firstDevice !== undefined && devices[firstDevice];
   const hasLightningAccount = lightningFeatureAvailable && lightningAccount !== undefined && lightningAccount !== null;
 
   useEffect(() => {
@@ -161,19 +162,16 @@ export const App = () => {
     }
     // if no accounts are registered on specified views route to /
     const canNavigateWithLightningAccount = (
-
       currentURL.startsWith('/account-summary')
-      || currentURL === '/settings/more'
+      || currentURL === '/accounts/all'
     );
     const requiresRegularAccount = (
-
       currentURL.startsWith('/account-summary')
       || currentURL.startsWith('/add-account')
       || currentURL.startsWith('/settings/manage-accounts')
       || currentURL.startsWith('/accounts/')
     );
     const shouldRedirectNoRegularAccount = (
-
       !canNavigateWithLightningAccount
       || lightningAccount === null
       || !lightningFeatureAvailable
@@ -193,11 +191,14 @@ export const App = () => {
       navigate('/');
       return;
     }
-    // if device is connected route to device settings
+    // if device is connected or in boothloader mode route to device settings
     if (
       deviceIDs.length === 1
       && firstDevice
-      && currentURL === '/settings/no-device-connected'
+      && (
+        currentURL === '/settings/no-device-connected'
+        || (isIndex && productName === 'bitbox02-bootloader')
+      )
     ) {
       navigate(`/settings/device-settings/${firstDevice}`);
       return;
@@ -224,7 +225,7 @@ export const App = () => {
       return;
     }
 
-  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, lightningAccount, lightningFeatureAvailable, navigate]);
+  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, lightningAccount, lightningFeatureAvailable, navigate, productName]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});

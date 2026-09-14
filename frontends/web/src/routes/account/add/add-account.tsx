@@ -246,7 +246,7 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
             title={
               <>
                 <h2 className="hide-on-small">{t('manageAccounts.title')}</h2>
-                <MobileHeader onClick={back} withGuide title={t('manageAccounts.title')} />
+                <MobileHeader onClick={back} title={t('manageAccounts.title')} />
               </>
             } />
           <View

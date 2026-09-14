@@ -198,7 +198,7 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
             title={
               <>
                 <h2 className="hide-on-small">{t('settings.title')}</h2>
-                <MobileHeader withGuide title={t('manageAccounts.title')} />
+                <MobileHeader title={t('manageAccounts.title')} />
               </>
             } />
           <View fullscreen={false}>

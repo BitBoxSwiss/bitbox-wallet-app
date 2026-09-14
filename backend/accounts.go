@@ -288,9 +288,9 @@ func (backend *Backend) convertToFiat(coin coinpkg.Coin, amount coinpkg.Amount, 
 }
 
 type coinFormattedAmount struct {
-	CoinCode        coinpkg.Code                           `json:"coinCode"`
-	CoinName        string                                 `json:"coinName"`
-	FormattedAmount coinpkg.FormattedAmountWithConversions `json:"formattedAmount"`
+	CoinCode        coinpkg.Code                            `json:"coinCode"`
+	CoinName        string                                  `json:"coinName"`
+	FormattedAmount *coinpkg.FormattedAmountWithConversions `json:"formattedAmount,omitempty"`
 }
 
 func (backend *Backend) formattedCoinBalance(
@@ -303,7 +303,7 @@ func (backend *Backend) formattedCoinBalance(
 	return coinFormattedAmount{
 		CoinCode: coinCode,
 		CoinName: coinName,
-		FormattedAmount: coinpkg.FormattedAmountWithConversions{
+		FormattedAmount: &coinpkg.FormattedAmountWithConversions{
 			Amount: coin.FormatAmount(coinAmount, false),
 			Unit:   coin.GetFormatUnit(false),
 			Conversions: coinpkg.Conversions(
@@ -316,7 +316,9 @@ func (backend *Backend) formattedCoinBalance(
 	}
 }
 
-// getCoinsTotalBalance returns the total balances grouped by coins.
+// coinsTotalBalance returns the total balances grouped by coins. Lightning is included on a
+// best-effort basis so that an unavailable Lightning SDK cannot prevent on-chain balances from
+// loading.
 func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
 	coinFormattedAmounts := []coinFormattedAmount{}
 	var sortedCoins []coinpkg.Code
@@ -348,9 +350,18 @@ func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
 		}
 	}
 
-	lightningBalance, err := backend.lightningFormattedBalance()
-	if err != nil {
-		return nil, err
+	var lightningBalance *coinFormattedAmount
+	if backend.hasLightningAccount() {
+		lightningBalance = &coinFormattedAmount{
+			CoinCode: coinCodeLightning,
+			CoinName: "Lightning",
+		}
+		formattedLightningBalance, err := backend.lightningFormattedBalance()
+		if err != nil {
+			backend.log.WithError(err).Error("Failed to load Lightning balance for account summary")
+		} else {
+			lightningBalance = formattedLightningBalance
+		}
 	}
 
 	for _, coinCode := range sortedCoins {

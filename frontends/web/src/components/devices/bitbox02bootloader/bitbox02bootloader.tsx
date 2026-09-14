@@ -7,6 +7,7 @@ import { useDarkmode } from '@/hooks/darkmode';
 import { useSync, useLoad } from '@/hooks/api';
 import { Button } from '@/components/forms';
 import { View, ViewContent } from '@/components/view/view';
+import { Footer, Main } from '@/components/layout';
 import { BitBox02, BitBox02Inverted, BitBox02Nova, BitBox02NovaInverted } from '@/components/icon/logo';
 import { Message } from '@/components/message/message';
 import { SubTitle } from '@/components/title';
@@ -160,21 +161,24 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
   );
 
   return (
-    <View fitContent verticallyCentered width="556px">
-      <ViewContent>
-        {logo}
-        {status.errMsg && (
-          <Message type="warning">
-            {status.errMsg}
-          </Message>
-        )}
-        {requestError && (
-          <Message type="warning">
-            {requestError}
-          </Message>
-        )}
-        {contents}
-      </ViewContent>
-    </View>
+    <Main>
+      <View fitContent verticallyCentered width="556px">
+        <ViewContent>
+          {logo}
+          {status.errMsg && (
+            <Message type="warning">
+              {status.errMsg}
+            </Message>
+          )}
+          {requestError && (
+            <Message type="warning">
+              {requestError}
+            </Message>
+          )}
+          {contents}
+        </ViewContent>
+        <Footer textCenter />
+      </View>
+    </Main>
   );
 };

@@ -26,7 +26,7 @@ type TGetSettingsSearchItemsArgs = {
   hasAccounts: boolean;
   isLightningEnabled: boolean | undefined;
   hasSoftwareKeystore: boolean;
-  isTesting: boolean;
+  isTesting: boolean | undefined;
   t: TFunction;
 };
 
@@ -90,6 +90,7 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
   },
   {
     id: 'testnet-mode',
+    isAvailable: ({ isTesting }) => isTesting !== undefined,
     getTitle: ({ isTesting, t }) => isTesting ? t('testnet.deactivate.title') : t('testnet.activate.title'),
     page: 'advanced',
   },

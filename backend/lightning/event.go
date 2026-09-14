@@ -17,7 +17,7 @@ func (lightning *Lightning) notifyListPaymentsReload() {
 
 // NotifyBalanceReload computes the current lightning balance and notifies observers.
 func (lightning *Lightning) NotifyBalanceReload() {
-	if !lightning.Ready() {
+	if lightning.CheckActive() != nil {
 		return
 	}
 

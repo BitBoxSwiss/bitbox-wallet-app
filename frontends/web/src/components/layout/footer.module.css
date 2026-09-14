@@ -1,8 +1,16 @@
 .footer {
-    max-width: var(--content-width);
-    width: 100%;
-    padding: 0 var(--space-default);
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
     margin: var(--space-default) auto;
+    max-width: var(--content-width);
+    padding: 0 var(--space-default);
+    width: 100%;
+}
+
+.textCenter {
+    justify-content: center;
 }
 
 .footer p {

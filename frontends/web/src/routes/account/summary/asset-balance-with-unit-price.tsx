@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CoinCode, CoinUnit, TAmountWithConversions } from '@/api/account';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { StatusWarning } from '@/components/icon';
 import { Logo } from '@/components/icon/logo';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -16,6 +18,7 @@ type TProps = {
   coinName: ReactNode;
   coinUnit?: CoinUnit;
   dataTestId?: string;
+  unavailableLabel?: string;
   showUnitPrice?: boolean;
 };
 
@@ -25,8 +28,10 @@ export const AssetBalanceWithUnitPrice = ({
   coinName,
   coinUnit,
   dataTestId,
+  unavailableLabel,
   showUnitPrice = true,
 }: TProps) => {
+  const { t } = useTranslation();
   const { defaultCurrency } = useContext(RatesContext);
   const unitPrice = useCoinUnitPrice(coinCode, amount?.unit ?? coinUnit);
   const shouldShowUnitPrice = (
@@ -64,19 +69,32 @@ export const AssetBalanceWithUnitPrice = ({
             )}
           </div>
           <div className={style.assetBalanceAmounts}>
-            {amount ? (
-              <span className={style.assetBalanceAmountFixed}>
-                <AmountWithUnit maxDecimals={9} amount={amount} />
-              </span>
+            {unavailableLabel ? (
+              <div className={style.assetBalanceUnavailable}>
+                <span>{t('generic.unavailable')}</span>
+                <StatusWarning
+                  alt={unavailableLabel}
+                  className={style.assetBalanceWarning}
+                  title={unavailableLabel}
+                />
+              </div>
             ) : (
-              <Skeleton minWidth="60px" />
-            )}
-            {amount ? (
-              <span className={style.assetBalanceAmountFixed} data-testid="fiat-balance">
-                <AmountWithUnit amount={amount} convertToFiat />
-              </span>
-            ) : (
-              <Skeleton minWidth="60px" />
+              <>
+                {amount ? (
+                  <span className={style.assetBalanceAmountFixed}>
+                    <AmountWithUnit maxDecimals={9} amount={amount} />
+                  </span>
+                ) : (
+                  <Skeleton minWidth="60px" />
+                )}
+                {amount ? (
+                  <span className={style.assetBalanceAmountFixed} data-testid="fiat-balance">
+                    <AmountWithUnit amount={amount} convertToFiat />
+                  </span>
+                ) : (
+                  <Skeleton minWidth="60px" />
+                )}
+              </>
             )}
           </div>
         </div>

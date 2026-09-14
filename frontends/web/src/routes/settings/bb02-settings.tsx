@@ -61,7 +61,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
             title={
               <>
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader withGuide title={t('sidebar.device')} />
+                <MobileHeader title={t('sidebar.device')} />
               </>
             }/>
           <View fullscreen={false}>

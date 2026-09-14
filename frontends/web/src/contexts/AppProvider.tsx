@@ -21,7 +21,7 @@ type TProps = {
 export const AppProvider = ({ children }: TProps) => {
   const { config, setConfig } = useConfig();
   const nativeLocale = i18nextFormat(useDefault(useLoad(getNativeLocale), 'de-CH'));
-  const isTesting = useDefault(useLoad(getTesting), false);
+  const isTesting = useLoad(getTesting);
   const isOnline = useSync(getOnline, subscribeOnline);
   const isDevServers = useDefault(useLoad(getDevServers), false);
   const [guideShown, setGuideShown] = useState(false);

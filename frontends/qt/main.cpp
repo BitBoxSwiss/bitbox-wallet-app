@@ -318,7 +318,9 @@ int main(int argc, char *argv[])
     a.setApplicationName(APPNAME);
     a.setOrganizationDomain("shiftcrypto.ch");
     a.setOrganizationName("Shift Crypto");
+#if !defined(Q_OS_MACOS)
     a.setWindowIcon(QIcon(QCoreApplication::applicationDirPath() + "/bitbox.png"));
+#endif
 
     if(a.isSecondary()) {
         // The application is already running. If there is exactly one positional argument, we send

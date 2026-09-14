@@ -43,7 +43,7 @@ export const AccountsSummary = ({
   const mounted = useMountedRef();
   const { hideAmounts } = useContext(AppContext);
   const { defaultCurrency } = useContext(RatesContext);
-  const { lightningAccount } = useLightning();
+  const { lightningAccount, lightningSDKStatus } = useLightning();
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
   const hasActiveBitcoinAccount = accounts.some(account => account.active && isBitcoinOnly(account.coinCode));
@@ -234,6 +234,7 @@ export const AccountsSummary = ({
                 <TotalBalanceForAllKeystores
                   hideHeader={hasOnlyLightningAccount}
                   hideLightningUnitPrice={hasActiveBitcoinAccount}
+                  lightningSDKStatus={lightningSDKStatus}
                   summaryData={chartData}
                   coinsBalances={coinsTotalBalance}
                 />

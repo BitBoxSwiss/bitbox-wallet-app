@@ -13,9 +13,6 @@ func (backend *Backend) hasLightningAccount() bool {
 }
 
 func (backend *Backend) lightningFormattedBalance() (*coinFormattedAmount, error) {
-	if backend.lightning.Account() == nil {
-		return nil, nil
-	}
 	lightningBalance, err := backend.lightning.Balance()
 	if err != nil {
 		return nil, err

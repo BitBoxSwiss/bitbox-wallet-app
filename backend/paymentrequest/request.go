@@ -2,7 +2,11 @@
 
 package paymentrequest
 
-import "github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+import (
+	"math/big"
+
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+)
 
 // TextMemo represents a slip-0024 text memo.
 type TextMemo struct {
@@ -41,6 +45,6 @@ type Request struct {
 	RecipientName string
 	Memos         []Memo
 	Nonce         []byte
-	TotalAmount   uint64
+	TotalAmount   *big.Int
 	Signature     []byte
 }

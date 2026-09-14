@@ -23,6 +23,7 @@ type TProps = {
   incoming?: TAmountWithConversions;
   incomingConfirmed: boolean;
   isClosing: boolean;
+  prepareError?: string;
   onCancel: () => void;
   onClose: () => void;
   onConfirmChange: () => void;
@@ -61,6 +62,7 @@ export const CloseWithdrawConfirm = ({
   incoming,
   incomingConfirmed,
   isClosing,
+  prepareError,
   onCancel,
   onClose,
   onConfirmChange,
@@ -93,7 +95,7 @@ export const CloseWithdrawConfirm = ({
 
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>{t('lightning.closeWithdrawFunds.fee')}</h2>
-            <AmountRow amount={fee} />
+            {prepareError ? <Message type="error">{prepareError}</Message> : <AmountRow amount={fee} />}
           </section>
 
           {hasIncoming && (
@@ -124,7 +126,7 @@ export const CloseWithdrawConfirm = ({
             className={styles.confirm}
             id="confirmCloseWithdrawFunds"
             checked={confirmed}
-            disabled={isClosing}
+            disabled={isClosing || !!prepareError}
             onChange={onConfirmChange}
           >
             {t('lightning.closeWithdrawFunds.confirm')}

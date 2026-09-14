@@ -97,12 +97,21 @@
 
 @media (max-width: 768px) {
     .header {
+        column-gap: var(--space-half);
+        display: grid;
+        grid-template-columns: minmax(6.5rem, 1fr) minmax(0, max-content) minmax(6.5rem, 1fr);
         padding: var(--space-half);
         padding-bottom: 0;
     }
 
     .title {
+        display: contents;
         padding-right: 0;
+    }
+
+    .children {
+        grid-column: 3;
+        justify-self: end;
     }
 
     .sidebarToggler.hideSidebarToggler {

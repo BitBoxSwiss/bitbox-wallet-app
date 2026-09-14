@@ -44,7 +44,7 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
             title={
               <>
                 <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader withGuide title={t('settings.advancedSettings')} />
+                <MobileHeader title={t('settings.advancedSettings')} />
               </>
             }
           />

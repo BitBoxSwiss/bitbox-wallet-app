@@ -98,7 +98,6 @@ export const ConnectScreenWalletConnect = ({
               status === 'connect' ? (
                 <MobileHeader
                   variant={loading ? 'titleOnly' : 'back'}
-                  withGuide
                   title={t('walletConnect.walletConnect')} />
               ) : undefined
             } />

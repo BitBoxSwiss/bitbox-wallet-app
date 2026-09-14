@@ -29,6 +29,7 @@ const (
 	errLightningInvalidPaymentInput errp.ErrorCode = "lightningInvalidPaymentInput"
 	errLightningInsufficientFunds   errp.ErrorCode = "lightningInsufficientFunds"
 	errLightningInvoiceAlreadyUsed  errp.ErrorCode = "lightningInvoiceAlreadyUsed"
+	errLightningWithdrawalFailed    errp.ErrorCode = "lightningWithdrawalFailed"
 )
 
 type lightningAmountBelowMinimumError struct {
@@ -130,10 +131,11 @@ type paymentFee struct {
 }
 
 type closeWithdrawQuote struct {
-	Balance    coin.FormattedAmountWithConversions `json:"balance"`
-	BalanceSat uint64                              `json:"balanceSat"`
-	Fee        coin.FormattedAmountWithConversions `json:"fee"`
-	FeeSat     uint64                              `json:"feeSat"`
+	IdempotencyKey string                              `json:"idempotencyKey"`
+	Balance        coin.FormattedAmountWithConversions `json:"balance"`
+	BalanceSat     uint64                              `json:"balanceSat"`
+	Fee            coin.FormattedAmountWithConversions `json:"fee"`
+	FeeSat         uint64                              `json:"feeSat"`
 }
 
 type closeWithdrawResult struct {
@@ -376,16 +378,17 @@ func (lightning *Lightning) toLightningPayment(payment breez_sdk_spark.Payment) 
 		formatted := t.Format(time.RFC3339)
 		formattedTime = &formatted
 	}
+	ratesUpdater, btcCoin := lightning.runtimeDependencies()
 
 	result := lightningPayment{
 		ID:                   payment.Id,
 		Type:                 paymentType,
 		Status:               toLightningPaymentStatus(payment.Status),
 		Time:                 formattedTime,
-		Amount:               amount.FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
-		AmountAtTime:         amount.FormatWithConversionsAtTime(lightning.btcCoin, timestamp, lightning.ratesUpdater),
-		DeductedAmountAtTime: deductedAmount.FormatWithConversionsAtTime(lightning.btcCoin, timestamp, lightning.ratesUpdater),
-		Fee:                  fee.FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
+		Amount:               amount.FormatWithConversions(btcCoin, false, ratesUpdater),
+		AmountAtTime:         amount.FormatWithConversionsAtTime(btcCoin, timestamp, ratesUpdater),
+		DeductedAmountAtTime: deductedAmount.FormatWithConversionsAtTime(btcCoin, timestamp, ratesUpdater),
+		Fee:                  fee.FormatWithConversions(btcCoin, true, ratesUpdater),
 	}
 	// Claimed Bitcoin deposits appear in ListPayments, sometimes without payment details. Mark them
 	// as complete top-ups based on the payment method so the frontend can identify them reliably.
@@ -488,6 +491,7 @@ func bitcoinDepositPaymentID(deposit breez_sdk_spark.DepositInfo) string {
 
 func (lightning *Lightning) toBitcoinDepositPayment(deposit breez_sdk_spark.DepositInfo) lightningPayment {
 	amount := coin.NewAmountFromInt64(int64(deposit.AmountSats))
+	ratesUpdater, btcCoin := lightning.runtimeDependencies()
 	depositInfo := &bitcoinDeposit{
 		TxID:  deposit.Txid,
 		State: bitcoinDepositStateFromSDK(deposit),
@@ -502,10 +506,10 @@ func (lightning *Lightning) toBitcoinDepositPayment(deposit breez_sdk_spark.Depo
 		ID:                   bitcoinDepositPaymentID(deposit),
 		Type:                 accounts.TxTypeReceive,
 		Status:               accounts.TxStatusPending,
-		Amount:               amount.FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
-		AmountAtTime:         amount.FormatWithConversionsAtTime(lightning.btcCoin, nil, lightning.ratesUpdater),
-		DeductedAmountAtTime: coin.NewAmountFromInt64(0).FormatWithConversionsAtTime(lightning.btcCoin, nil, lightning.ratesUpdater),
-		Fee:                  coin.NewAmountFromInt64(0).FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
+		Amount:               amount.FormatWithConversions(btcCoin, false, ratesUpdater),
+		AmountAtTime:         amount.FormatWithConversionsAtTime(btcCoin, nil, ratesUpdater),
+		DeductedAmountAtTime: coin.NewAmountFromInt64(0).FormatWithConversionsAtTime(btcCoin, nil, ratesUpdater),
+		Fee:                  coin.NewAmountFromInt64(0).FormatWithConversions(btcCoin, true, ratesUpdater),
 		BitcoinDeposit:       depositInfo,
 	}
 }
@@ -920,7 +924,8 @@ func (lightning *Lightning) validateBitcoinPaymentAmountAgainstDustLimit(
 	destinationAddress string,
 	amountSat uint64,
 ) error {
-	btcCoin, ok := lightning.btcCoin.(bitcoinAddressToPkScripter)
+	_, lightningCoin := lightning.runtimeDependencies()
+	btcCoin, ok := lightningCoin.(bitcoinAddressToPkScripter)
 	if !ok {
 		return errp.New("Bitcoin coin does not support address-to-script conversion")
 	}
@@ -1023,7 +1028,8 @@ func (lightning *Lightning) onChainDestinationAddress(
 
 func (lightning *Lightning) formatSats(amountSat uint64, isFee bool) coin.FormattedAmountWithConversions {
 	amount := coin.NewAmount(new(big.Int).SetUint64(amountSat))
-	return amount.FormatWithConversions(lightning.btcCoin, isFee, lightning.ratesUpdater)
+	ratesUpdater, btcCoin := lightning.runtimeDependencies()
+	return amount.FormatWithConversions(btcCoin, isFee, ratesUpdater)
 }
 
 func isRefundedDeposit(deposit breez_sdk_spark.DepositInfo) bool {
@@ -1033,6 +1039,7 @@ func isRefundedDeposit(deposit breez_sdk_spark.DepositInfo) bool {
 // PrepareCloseWithdraw prepares an on-chain payment that spends the full Lightning balance.
 func (lightning *Lightning) PrepareCloseWithdraw(
 	destinationAccountCode accountsTypes.Code,
+	idempotencyKey string,
 ) (*closeWithdrawQuote, error) {
 	availableBalance, err := lightning.availableBalance()
 	if err != nil {
@@ -1046,21 +1053,46 @@ func (lightning *Lightning) PrepareCloseWithdraw(
 		return nil, err
 	}
 	amountSat := availableBalance.BigInt().Uint64()
-	_, fee, err := lightning.prepareBitcoinPayment(
+	prepareResponse, fee, err := lightning.prepareBitcoinPayment(
 		destinationAddress,
 		amountSat,
 		breez_sdk_spark.FeePolicyFeesIncluded,
 	)
 	if err != nil {
+		// Preserve the SDK's preparation reason without its binding error wrapper.
+		var invalidInput *breez_sdk_spark.SdkErrorInvalidInput
+		if errors.As(err, &invalidInput) {
+			return nil, errp.New(invalidInput.Field0)
+		}
+		return nil, err
+	}
+	// The SDK checks the cheapest fee during preparation, but closing uses the fast fee.
+	if err := lightning.validateBitcoinPaymentAmountAgainstDustLimit(
+		destinationAddress,
+		bitcoinPaymentOutputAmountSat(fee, prepareResponse.FeePolicy),
+	); err != nil {
+		var amountBelowMinimum *lightningAmountBelowMinimumError
+		if errors.As(err, &amountBelowMinimum) {
+			// The user approves the full balance, so include fees in its required minimum.
+			return nil, &lightningAmountBelowMinimumError{minAmountSat: amountBelowMinimum.minAmountSat + fee.FeeSat}
+		}
 		return nil, err
 	}
 
 	feeAmount := coin.NewAmountFromInt64(int64(fee.FeeSat))
+	if idempotencyKey == "" {
+		idempotencyKey, err = generateIdempotencyKey()
+		if err != nil {
+			return nil, err
+		}
+	}
+	ratesUpdater, btcCoin := lightning.runtimeDependencies()
 	return &closeWithdrawQuote{
-		Balance:    availableBalance.FormatWithConversions(lightning.btcCoin, false, lightning.ratesUpdater),
-		BalanceSat: amountSat,
-		Fee:        feeAmount.FormatWithConversions(lightning.btcCoin, true, lightning.ratesUpdater),
-		FeeSat:     fee.FeeSat,
+		IdempotencyKey: idempotencyKey,
+		Balance:        availableBalance.FormatWithConversions(btcCoin, false, ratesUpdater),
+		BalanceSat:     amountSat,
+		Fee:            feeAmount.FormatWithConversions(btcCoin, true, ratesUpdater),
+		FeeSat:         fee.FeeSat,
 	}, nil
 }
 
@@ -1069,7 +1101,32 @@ func (lightning *Lightning) CloseWithdraw(
 	destinationAccountCode accountsTypes.Code,
 	approvedBalanceSat uint64,
 	approvedFeeSat uint64,
+	idempotencyKey string,
 ) (*closeWithdrawResult, error) {
+	if err := lightning.CheckActive(); err != nil {
+		return nil, err
+	}
+	if _, err := uuid.Parse(idempotencyKey); err != nil {
+		return nil, errp.WithMessage(errLightningInvalidPaymentInput, "invalid idempotency key")
+	}
+	// A previous send may have spent the balance already. Reconcile its result before
+	// checking the balance or preparing a new withdrawal with spendable leaves.
+	payment, err := lightning.sdkService.GetPayment(breez_sdk_spark.GetPaymentRequest{
+		PaymentId: idempotencyKey,
+	})
+	if err == nil {
+		return lightning.closeWithdrawPaymentResult(payment.Payment)
+	}
+	// SQLite reports a missing payment as a StorageError with "Query returned no rows";
+	// an explicit SDK NotFound maps to InvalidInput("Not found"). Only accept these
+	// exact errors so a failed lookup cannot trigger another withdrawal.
+	var invalidInput *breez_sdk_spark.SdkErrorInvalidInput
+	var storageError *breez_sdk_spark.SdkErrorStorageError
+	notFound := errors.As(err, &invalidInput) && invalidInput.Field0 == "Not found" ||
+		errors.As(err, &storageError) && storageError.Field0 == "Underlying implementation error: Query returned no rows"
+	if !notFound {
+		return nil, lightningPaymentError(err)
+	}
 	availableBalance, err := lightning.availableBalance()
 	if err != nil {
 		return nil, err
@@ -1109,18 +1166,34 @@ func (lightning *Lightning) CloseWithdraw(
 	response, err := lightning.sdkService.SendPayment(breez_sdk_spark.SendPaymentRequest{
 		PrepareResponse: prepareResponse,
 		Options:         &options,
+		IdempotencyKey:  &idempotencyKey,
 	})
 	if err != nil {
 		lightning.log.WithError(err).Error("Send Bitcoin payment failed")
 		return nil, lightningPaymentError(err)
 	}
 
-	result := &closeWithdrawResult{}
-	if response.Payment.Details != nil {
-		if details, ok := (*response.Payment.Details).(breez_sdk_spark.PaymentDetailsWithdraw); ok {
-			result.TxID = details.TxId
-		}
+	return lightning.closeWithdrawPaymentResult(response.Payment)
+}
+
+func (lightning *Lightning) closeWithdrawPaymentResult(payment breez_sdk_spark.Payment) (*closeWithdrawResult, error) {
+	switch payment.Status {
+	case breez_sdk_spark.PaymentStatusFailed:
+		// A terminal failure allows a newly approved withdrawal with a fresh key.
+		return nil, errLightningWithdrawalFailed
+	case breez_sdk_spark.PaymentStatusPending, breez_sdk_spark.PaymentStatusCompleted:
+		// Close optimistically with a txid, without waiting for broadcast or confirmation.
+	default:
+		return nil, errp.Newf("unexpected Bitcoin withdrawal status: %d", payment.Status)
 	}
+	if payment.Details == nil {
+		return nil, errp.New("Bitcoin withdrawal details missing")
+	}
+	details, ok := (*payment.Details).(breez_sdk_spark.PaymentDetailsWithdraw)
+	if !ok || details.TxId == "" {
+		return nil, errp.New("Bitcoin withdrawal details missing")
+	}
+	result := &closeWithdrawResult{TxID: details.TxId}
 	if err := lightning.Deactivate(); err != nil {
 		lightning.log.WithError(err).Error("Bitcoin withdrawal succeeded but Lightning wallet deactivation failed")
 		return result, nil

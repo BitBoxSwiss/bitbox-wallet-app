@@ -39,7 +39,7 @@ const chartData = (chartFiat: Fiat): TChartData => ({
   lastTimestamp: 0,
 });
 
-const btcBalance: CoinFormattedAmount = {
+const btcBalance = {
   coinCode: 'btc',
   coinName: 'Bitcoin',
   formattedAmount: {
@@ -52,7 +52,7 @@ const btcBalance: CoinFormattedAmount = {
     },
     estimated: false,
   },
-};
+} satisfies CoinFormattedAmount;
 
 const bitcoinBalance = (
   coinCode: CoinCode,

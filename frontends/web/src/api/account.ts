@@ -340,7 +340,8 @@ export type Slip24 = {
     };
   }>;
   outputs: Array<{
-    amount: number;
+    // Pocket's request-address library uses numbers; backend amounts use strings.
+    amount: number | string;
     address: string;
   }>;
   signature: string;

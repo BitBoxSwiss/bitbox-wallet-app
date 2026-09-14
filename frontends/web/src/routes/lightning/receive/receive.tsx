@@ -169,7 +169,10 @@ export function Receive() {
             <div className={styles.addressContent}>
               <p className={styles.qrInstruction}>{t('lightning.receive.address.scanQRCode')}</p>
               <div className={styles.addressQRCode}>
-                <QRCode data={lightningAddress || undefined} size={168} tapToCopy={false} />
+                <QRCode
+                  data={lightningAddress || undefined}
+                  size={216}
+                  tapToCopy={false} />
               </div>
               {lightningAddress && (
                 <>
@@ -266,7 +269,10 @@ export function Receive() {
             <div className={styles.invoiceContent}>
               <p className={styles.qrInstruction}>{t('lightning.receive.invoice.title')}</p>
               <div className={styles.invoiceQRCode}>
-                <QRCode data={receivePaymentResponse?.invoice} size={216} tapToCopy={false} />
+                <QRCode
+                  data={receivePaymentResponse?.invoice}
+                  size={256}
+                  tapToCopy={false} />
               </div>
               <p className={styles.invoiceAmount}>
                 <span>{inputSatsText} sats</span>
@@ -356,7 +362,6 @@ export function Receive() {
                 onClick={step === 'invoice' ? cancelInvoice : back}
                 title={t('lightning.receive.title')}
                 variant={step === 'wait' || step === 'success' ? 'titleOnly' : 'back'}
-                withGuide
               />
             </>
           } />

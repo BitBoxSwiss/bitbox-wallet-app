@@ -1,4 +1,5 @@
-.disclaimerContainer {
+.disclaimerContainer,
+.disclaimerContainerLightning {
   --size-default: min(1.4rem, 24px);
   align-items: center;
   display: flex;
@@ -49,5 +50,13 @@
 @media (max-width: 768px) {
   .disclaimerContainer {
     padding-bottom: var(--space-large);
+  }
+
+  .disclaimerContainerLightning {
+    padding-bottom: 0;
+  }
+
+  .disclaimerContainerLightning .disclaimer {
+    margin-bottom: 0;
   }
 }

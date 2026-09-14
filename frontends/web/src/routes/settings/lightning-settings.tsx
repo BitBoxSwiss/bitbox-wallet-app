@@ -6,7 +6,6 @@ import { getLightningBalance, subscribeLightningBalance } from '@/api/lightning'
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { Checked } from '@/components/icon';
-import { SubTitle } from '@/components/title';
 import { getKeystoreName } from '@/api/keystores';
 import { useLoad, useSubscribe } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
@@ -87,7 +86,6 @@ export const LightningSettings = () => {
           settingName={<span>{t('lightning.settings.disableWallet')}</span>}
           onClick={() => navigate('/lightning/deactivate/')}
         />
-        <SubTitle className={styles.sectionTitle}>{t('lightning.settings.expert')}</SubTitle>
         <SettingsItem
           disabled={!lightningBalance?.hasAvailable}
           settingName={<span className={styles.danger}>{t('lightning.settings.closeAndWithdrawFunds')}</span>}

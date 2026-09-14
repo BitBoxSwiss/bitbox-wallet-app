@@ -32,7 +32,7 @@ export const ConfirmSwap = ({
   }
 
   return (
-    <View fullscreen width="540px" verticallyCentered>
+    <View fullscreen width="540px" verticallyCentered withMobileSafetyMargin>
       <UseDisableBackButton />
       <ViewHeader title={
         t('swap.confirmOnBitBox')
