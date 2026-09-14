@@ -86,6 +86,7 @@ func newTestLightningWithConfigFilename(
 		environment,
 		func() keystore.Keystore { return nil },
 		nil,
+		nil,
 		&http.Client{},
 		nil,
 		nil,
