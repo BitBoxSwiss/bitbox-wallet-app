@@ -2,7 +2,7 @@
 
 import '../../../__mocks__/i18n';
 import { describe, expect, it, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Entry, TEntryProp } from './entry';
 vi.mock('@/i18n/i18n');
@@ -72,6 +72,42 @@ describe('components/guide/entry', () => {
       expect(container).toHaveTextContent('some url');
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute('title', 'http://someurl.com');
+    });
+
+    it('opened & renders children', () => {
+      const EntryProps: TEntryProp = {
+        title: 'A title',
+        text: 'Some text',
+      };
+      const { container } = render(
+        <Entry key={'key'} entry={EntryProps} shown>
+          <ul>
+            <li>First item</li>
+            <li>Second item</li>
+          </ul>
+        </Entry>
+      );
+
+      expect(container.querySelectorAll('li')).toHaveLength(2);
+      expect(screen.getByText('First item')).toBeInTheDocument();
+      expect(screen.getByText('Second item')).toBeInTheDocument();
+    });
+
+    it('collapsed & does not render children', () => {
+      const EntryProps: TEntryProp = {
+        title: 'A title',
+        text: 'Some text',
+      };
+      const { container } = render(
+        <Entry key={'key'} entry={EntryProps}>
+          <ul>
+            <li>First item</li>
+          </ul>
+        </Entry>
+      );
+
+      expect(container.querySelectorAll('li')).toHaveLength(0);
+      expect(container).not.toHaveTextContent('First item');
     });
   });
 });

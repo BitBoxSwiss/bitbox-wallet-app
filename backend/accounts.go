@@ -473,15 +473,6 @@ func (backend *Backend) keystoresBalance() (map[string]KeystoreBalance, error) {
 	return keystoreBalanceMap, nil
 }
 
-// Converts bitcoin amount to fiat.
-func (backend *Backend) convertBtcAmountToFiat(amount coinpkg.Amount, fiat string) (*big.Rat, error) {
-	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
-	if err != nil {
-		return nil, err
-	}
-	return backend.convertToFiat(btcCoin, amount, fiat)
-}
-
 // AccountsBalanceSummary holds the total balance for each coin and of each keystore.
 type AccountsBalanceSummary struct {
 	KeystoresBalance  map[string]KeystoreBalance `json:"keystoresBalance"`
