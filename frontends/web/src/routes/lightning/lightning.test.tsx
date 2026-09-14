@@ -36,10 +36,6 @@ vi.mock('@/components/balance/balance', () => ({
   Balance: () => <div>Balance</div>,
 }));
 
-vi.mock('@/components/banners/lightning-tor-proxy-warning', () => ({
-  LightningTorProxyWarning: () => null,
-}));
-
 vi.mock('@/components/hideamountsbutton/hideamountsbutton', () => ({
   HideAmountsButton: () => null,
 }));

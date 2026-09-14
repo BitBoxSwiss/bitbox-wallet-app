@@ -2,6 +2,7 @@
 
 ## Unreleased
 Rename "Factory Reset" to "Delete wallet from BitBox" (settings)
+- Lightning: use the configured Tor proxy
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1

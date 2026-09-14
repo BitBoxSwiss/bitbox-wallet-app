@@ -10,8 +10,6 @@ import { Button, Input } from '@/components/forms';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { socksProxyCheck } from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
-import { useLightning } from '@/hooks/lightning';
-import { LightningTorProxyWarning } from '@/components/banners/lightning-tor-proxy-warning';
 
 type TProps = {
   open: boolean;
@@ -21,7 +19,6 @@ type TProps = {
 
 export const TorProxyDialog = ({ open, onCloseDialog, handleShowRestartMessage }: TProps) => {
   const { config, setConfig } = useConfig();
-  const { lightningAccount } = useLightning();
   const proxyConfig = config?.backend.proxy;
   const [proxyAddress, setProxyAddress] = useState<string>();
   const { t } = useTranslation();
@@ -85,7 +82,6 @@ export const TorProxyDialog = ({ open, onCloseDialog, handleShowRestartMessage }
           checked={proxyConfig.useProxy}
           onChange={handleToggleProxy} />
       </div>
-      <LightningTorProxyWarning className="m-top-half" hidden={!lightningAccount} />
       <div className="m-top-half">
         <Input
           name="proxyAddress"
