@@ -25,10 +25,10 @@ func TestTransactionWithHeightJSON(t *testing.T) {
 			big.NewInt(123456543),
 			[]byte("contract data"),
 		),
-		Height:            352,
-		GasUsed:           21000,
-		Success:           true,
-		BroadcastAttempts: 10,
+		Height:        352,
+		GasUsed:       21000,
+		Success:       true,
+		NonceConsumed: true,
 	}
 	tx2 := new(ethtypes.TransactionWithMetadata)
 	require.NoError(t, json.Unmarshal(jsonp.MustMarshal(tx), tx2))
@@ -36,7 +36,31 @@ func TestTransactionWithHeightJSON(t *testing.T) {
 	require.Equal(t, tx.GasUsed, tx2.GasUsed)
 	require.Equal(t, tx.Success, tx2.Success)
 	require.Equal(t, tx.Transaction.Hash(), tx2.Transaction.Hash())
-	require.Equal(t, tx.BroadcastAttempts, tx2.BroadcastAttempts)
+	require.True(t, tx2.NonceConsumed)
+}
+
+func TestTransactionDataContractCall(t *testing.T) {
+	contract := common.HexToAddress("0x1111111111111111111111111111111111111111")
+	for _, value := range []int64{0, 123456} {
+		t.Run(big.NewInt(value).String(), func(t *testing.T) {
+			tx := &ethtypes.TransactionWithMetadata{
+				Transaction: types.NewTransaction(
+					7, contract, big.NewInt(value), 50000, big.NewInt(3), []byte{0xde, 0xad, 0xbe, 0xef}),
+			}
+
+			data := tx.TransactionData(100, nil, "0x2222222222222222222222222222222222222222")
+
+			require.Equal(t, accounts.TxStatusPending, data.Status)
+			require.Equal(t, accounts.TxTypeSend, data.Type)
+			require.Equal(t, big.NewInt(value), data.Amount.BigInt())
+			require.Equal(t, big.NewInt(150000), data.Fee.BigInt())
+			require.Len(t, data.Addresses, 1)
+			require.Equal(t, contract.Hex(), data.Addresses[0].Address)
+			require.Equal(t, big.NewInt(value), data.Addresses[0].Amount.BigInt())
+			require.NotNil(t, data.Nonce)
+			require.Equal(t, uint64(7), *data.Nonce)
+		})
+	}
 }
 
 func TestFeeTarget(t *testing.T) {
