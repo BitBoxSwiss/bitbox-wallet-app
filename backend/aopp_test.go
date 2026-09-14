@@ -273,7 +273,7 @@ func TestAOPPSuccess(t *testing.T) {
 		}))
 		defer server.Close()
 
-		b := newBackend(t, testnetDisabled, regtestDisabled)
+		b := newBackendWithDevServers(t, testnetDisabled, regtestDisabled, false)
 		defer b.Close()
 		b.httpClient = server.Client()
 		params := defaultParams()
@@ -285,6 +285,43 @@ func TestAOPPSuccess(t *testing.T) {
 		b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper))
 		require.Equal(t, aoppStateSuccess, b.AOPP().State)
 	})
+
+	for _, redirect := range []bool{false, true} {
+		t.Run(fmt.Sprintf("http-devservers/redirect=%v", redirect), func(t *testing.T) {
+			var callbackReceived atomic.Bool
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path == "/redirect" {
+					http.Redirect(w, r, "/callback", http.StatusTemporaryRedirect)
+					return
+				}
+				require.Equal(t, http.MethodPost, r.Method)
+				body, err := io.ReadAll(r.Body)
+				require.NoError(t, err)
+				require.JSONEq(t,
+					`{"version":0,"address":"bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3","signature":"c2lnbmF0dXJl"}`,
+					string(body))
+				callbackReceived.Store(true)
+				w.WriteHeader(http.StatusNoContent)
+			}))
+			defer server.Close()
+
+			b := newBackendWithDevServers(t, testnetDisabled, regtestDisabled, true)
+			defer b.Close()
+			b.httpClient = server.Client()
+			params := defaultParams()
+			callback := server.URL + "/callback"
+			if redirect {
+				callback = server.URL + "/redirect"
+			}
+			params.Set("callback", callback)
+			b.HandleURI(uriPrefix + params.Encode())
+			require.Equal(t, aoppStateUserApproval, b.AOPP().State)
+			b.AOPPApprove()
+			b.registerKeystore(makeKeystore(t, scriptTypeRef(signing.ScriptTypeP2WPKH), keystoreHelper))
+			require.Equal(t, aoppStateSuccess, b.AOPP().State)
+			require.True(t, callbackReceived.Load())
+		})
+	}
 
 	t.Run("https-redirect", func(t *testing.T) {
 		var callbackReceived atomic.Bool
@@ -400,28 +437,47 @@ func TestAOPPFailures(t *testing.T) {
 	})
 	t.Run("callback_validation", func(t *testing.T) {
 		tests := []struct {
-			name      string
-			callback  string
-			wantState aoppState
+			name         string
+			callback     string
+			wantState    aoppState
+			wantDevState aoppState
 		}{
-			{name: "https", callback: "https://example.com/aopp", wantState: aoppStateUserApproval},
-			{name: "http", callback: "http://example.com/aopp", wantState: aoppStateError},
-			{name: "malformed", callback: ":not a valid url", wantState: aoppStateError},
-			{name: "relative", callback: "aopp/callback", wantState: aoppStateError},
-			{name: "missing host", callback: "https:aopp", wantState: aoppStateError},
+			{name: "https", callback: "https://example.com/aopp", wantState: aoppStateUserApproval, wantDevState: aoppStateUserApproval},
+			{name: "uppercase https", callback: "HTTPS://example.com/aopp", wantState: aoppStateUserApproval, wantDevState: aoppStateUserApproval},
+			{name: "http", callback: "http://example.com/aopp", wantState: aoppStateError, wantDevState: aoppStateUserApproval},
+			{name: "localhost", callback: "http://localhost:8888/cb?id=c249f-45ef5-fea10-27579", wantState: aoppStateError, wantDevState: aoppStateUserApproval},
+			{name: "uppercase http", callback: "HTTP://localhost:8888/cb", wantState: aoppStateError, wantDevState: aoppStateUserApproval},
+			{name: "ipv4", callback: "http://127.0.0.1:8888/cb", wantState: aoppStateError, wantDevState: aoppStateUserApproval},
+			{name: "ipv6", callback: "http://[::1]:8888/cb", wantState: aoppStateError, wantDevState: aoppStateUserApproval},
+			{name: "ftp", callback: "ftp://localhost/aopp", wantState: aoppStateError, wantDevState: aoppStateError},
+			{name: "malformed", callback: ":not a valid url", wantState: aoppStateError, wantDevState: aoppStateError},
+			{name: "relative", callback: "aopp/callback", wantState: aoppStateError, wantDevState: aoppStateError},
+			{name: "missing scheme", callback: "//localhost/aopp", wantState: aoppStateError, wantDevState: aoppStateError},
+			{name: "missing https host", callback: "https:aopp", wantState: aoppStateError, wantDevState: aoppStateError},
+			{name: "missing http host", callback: "http:aopp", wantState: aoppStateError, wantDevState: aoppStateError},
 		}
-		for _, test := range tests {
-			t.Run(test.name, func(t *testing.T) {
-				b := newBackend(t, testnetDisabled, regtestDisabled)
-				defer b.Close()
-				params := defaultParams()
-				params.Set("callback", test.callback)
-				b.HandleURI(uriPrefix + params.Encode())
-				require.Equal(t, test.wantState, b.AOPP().State)
-				if test.wantState == aoppStateError {
-					require.Equal(t, errAOPPInvalidRequest, b.AOPP().ErrorCode)
+		for _, devServers := range []bool{false, true} {
+			for _, testnet := range []bool{testnetDisabled, testnetEnabled} {
+				for _, test := range tests {
+					t.Run(fmt.Sprintf("devservers=%v/testnet=%v/%s", devServers, testnet, test.name), func(t *testing.T) {
+						b := newBackendWithDevServers(t, testnet, regtestDisabled, devServers)
+						defer b.Close()
+						params := defaultParams()
+						params.Set("callback", test.callback)
+						b.HandleURI(uriPrefix + params.Encode())
+						wantState := test.wantState
+						if devServers {
+							wantState = test.wantDevState
+						}
+						require.Equal(t, wantState, b.AOPP().State)
+						if wantState == aoppStateError {
+							require.Equal(t, errAOPPInvalidRequest, b.AOPP().ErrorCode)
+						} else {
+							require.Equal(t, test.callback, b.AOPP().Callback)
+						}
+					})
 				}
-			})
+			}
 		}
 	})
 	t.Run("invalid_callback", func(t *testing.T) {
@@ -541,30 +597,38 @@ func TestAOPPFailures(t *testing.T) {
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPCallback, b.AOPP().ErrorCode)
 	})
-	t.Run("http_redirect", func(t *testing.T) {
-		b := newBackend(t, testnetDisabled, regtestDisabled)
-		defer b.Close()
+	for _, devServers := range []bool{false, true} {
+		for _, status := range []int{http.StatusTemporaryRedirect, http.StatusPermanentRedirect} {
+			t.Run(fmt.Sprintf("http_redirect/devservers=%v/status=%d", devServers, status), func(t *testing.T) {
+				b := newBackendWithDevServers(t, testnetDisabled, regtestDisabled, devServers)
+				defer b.Close()
 
-		var redirectFollowed atomic.Bool
-		redirectTarget := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			redirectFollowed.Store(true)
-			w.WriteHeader(http.StatusNoContent)
-		}))
-		defer redirectTarget.Close()
-		server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, redirectTarget.URL, http.StatusTemporaryRedirect)
-		}))
-		defer server.Close()
-		b.httpClient = server.Client()
+				var redirectFollowed atomic.Bool
+				redirectTarget := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					redirectFollowed.Store(true)
+					w.WriteHeader(http.StatusNoContent)
+				}))
+				defer redirectTarget.Close()
+				server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					http.Redirect(w, r, redirectTarget.URL, status)
+				}))
+				defer server.Close()
+				b.httpClient = server.Client()
 
-		params := defaultParams()
-		params.Set("callback", server.URL)
-		b.HandleURI(uriPrefix + params.Encode())
-		b.AOPPApprove()
-		b.registerKeystore(ks)
-		b.AOPPChooseAccount("v0-55555555-btc-0")
-		require.Equal(t, aoppStateError, b.AOPP().State)
-		require.Equal(t, errAOPPCallback, b.AOPP().ErrorCode)
-		require.False(t, redirectFollowed.Load())
-	})
+				params := defaultParams()
+				params.Set("callback", server.URL)
+				b.HandleURI(uriPrefix + params.Encode())
+				b.AOPPApprove()
+				b.registerKeystore(ks)
+				b.AOPPChooseAccount("v0-55555555-btc-0")
+				if devServers {
+					require.Equal(t, aoppStateSuccess, b.AOPP().State)
+				} else {
+					require.Equal(t, aoppStateError, b.AOPP().State)
+					require.Equal(t, errAOPPCallback, b.AOPP().ErrorCode)
+				}
+				require.Equal(t, devServers, redirectFollowed.Load())
+			})
+		}
+	}
 }

@@ -378,11 +378,16 @@ func (m *mockTransactionsSource) Transactions(
 
 func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	t.Helper()
+	return newBackendWithDevServers(t, testing, regtest, true)
+}
+
+func newBackendWithDevServers(t *testing.T, testing, regtest, devServers bool) *Backend {
+	t.Helper()
 	b, err := NewBackend(
 		arguments.NewArguments(
 			test.TstTempDir("appfolder"),
 			testing, regtest,
-			true,
+			devServers,
 			&types.GapLimits{Receive: 20, Change: 6}),
 		environment{},
 	)
