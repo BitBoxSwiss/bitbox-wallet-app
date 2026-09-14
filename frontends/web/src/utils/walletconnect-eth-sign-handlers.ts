@@ -3,7 +3,12 @@
 import { t } from 'i18next';
 import { SessionTypes } from '@walletconnect/types';
 import { getSdkError } from '@walletconnect/utils';
-import { EIP155_SIGNING_METHODS, SUPPORTED_CHAINS, decodeEthMessage } from './walletconnect';
+import {
+  EIP155_SIGNING_METHODS,
+  EIP155_SUPPORTED_METHODS,
+  SUPPORTED_CHAINS,
+  decodeEthMessage,
+} from './walletconnect';
 import type { AccountCode } from '@/api/account';
 import {
   ethSignMessage,
@@ -228,7 +233,7 @@ export const handleWcEthSignRequest = async (args: TEthSignHandlerParams) => {
   const { currentSession, id, params, respond } = args;
   try {
     const { method } = params.request;
-    if (!Object.values(EIP155_SIGNING_METHODS).includes(method)) {
+    if (!EIP155_SUPPORTED_METHODS.includes(method)) {
       await respond(jsonRpcError(id, getSdkError('UNSUPPORTED_METHODS')));
       return;
     }
