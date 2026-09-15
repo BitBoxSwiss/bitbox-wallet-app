@@ -2,7 +2,12 @@
 
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { getLightningBalance, subscribeLightningBalance } from '@/api/lightning';
+import {
+  getLightningAddress,
+  getLightningBalance,
+  subscribeLightningAddress,
+  subscribeLightningBalance,
+} from '@/api/lightning';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { Checked } from '@/components/icon';
@@ -29,10 +34,22 @@ export const LightningSettings = () => {
     lightningAccount && isLightningReady ? getLightningBalance : null,
     [isLightningReady, lightningAccount]
   );
+  const loadedLightningAddress = useLoad(
+    lightningAccount && isLightningReady ? getLightningAddress : null,
+    [isLightningReady, lightningAccount]
+  );
   const subscribedLightningBalance = useSubscribe(subscribeLightningBalance);
+  const subscribedLightningAddress = useSubscribe(subscribeLightningAddress);
   const lightningBalance = (
     lightningAccount && isLightningReady
       ? subscribedLightningBalance ?? loadedLightningBalance
+      : undefined
+  );
+  const lightningAddress = (
+    lightningAccount && isLightningReady
+      ? subscribedLightningAddress !== undefined
+        ? subscribedLightningAddress
+        : loadedLightningAddress
       : undefined
   );
 
@@ -76,6 +93,7 @@ export const LightningSettings = () => {
         />
         <SettingsItem
           settingName={t('lightning.settings.setLightningAddress')}
+          displayedValue={lightningAddress}
           onClick={() => navigate('/lightning/set-lnurl-address/')}
         />
         <SettingsItem
