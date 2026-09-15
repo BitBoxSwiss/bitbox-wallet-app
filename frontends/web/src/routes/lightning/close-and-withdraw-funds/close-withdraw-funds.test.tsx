@@ -108,9 +108,9 @@ describe('Lightning Close & Withdraw', () => {
     vi.mocked(lightningApi.postPrepareCloseWithdraw).mockResolvedValue({
       idempotencyKey,
       balance: amount('10000'),
-      balanceSat: 10000,
+      balanceSat: '10000',
       fee: amount('100'),
-      feeSat: 100,
+      feeSat: '100',
     });
   });
 
@@ -252,9 +252,9 @@ describe('Lightning Close & Withdraw', () => {
     vi.mocked(lightningApi.postPrepareCloseWithdraw).mockResolvedValue({
       idempotencyKey: newKey,
       balance: amount('10000'),
-      balanceSat: 10000,
+      balanceSat: '10000',
       fee: amount('200'),
-      feeSat: 200,
+      feeSat: '200',
     });
     fireEvent.click(retry);
     await waitFor(() => expect(lightningApi.postPrepareCloseWithdraw).toHaveBeenCalledTimes(2));
@@ -293,9 +293,9 @@ describe('Lightning Close & Withdraw', () => {
     vi.mocked(lightningApi.postPrepareCloseWithdraw).mockResolvedValue({
       idempotencyKey,
       balance: amount('10000'),
-      balanceSat: 10000,
+      balanceSat: '10000',
       fee: amount('200'),
-      feeSat: 200,
+      feeSat: '200',
     });
     fireEvent.click(retry);
     const retryCloseButton = await screen.findByRole('button', { name: 'lightning.settings.closeAndWithdrawFunds' });
@@ -324,9 +324,9 @@ describe('Lightning Close & Withdraw', () => {
     vi.mocked(lightningApi.postPrepareCloseWithdraw).mockResolvedValue({
       idempotencyKey: newKey,
       balance: amount('10000'),
-      balanceSat: 10000,
+      balanceSat: '10000',
       fee: amount('100'),
-      feeSat: 100,
+      feeSat: '100',
     });
     fireEvent.change(screen.getByRole('combobox', { name: 'destination' }), { target: { value: 'btc-1' } });
     expect(closeButton).toBeDisabled();

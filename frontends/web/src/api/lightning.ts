@@ -36,7 +36,7 @@ export type TLightningSDKStatus = 'inactive' | 'initializing' | 'ready' | 'faile
 export type TLightningBolt11Invoice = {
   invoice: string;
   description?: string;
-  amountSat?: number;
+  amountSat?: string;
 };
 
 export type TLightningLNURLPay = {
@@ -50,7 +50,7 @@ export type TLightningLNURLPay = {
 
 export type TLightningBitcoinPaymentInput = {
   address: string;
-  amountSat?: number;
+  amountSat?: string;
   description?: string;
 };
 
@@ -97,7 +97,7 @@ export type TBitcoinDeposit = {
   txid: string;
   state: TBitcoinDepositState;
   claimFee?: TAmountWithConversions;
-  claimFeeSat?: number;
+  claimFeeSat?: string;
   refundFeeRateSatPerVbyte?: number;
 };
 
@@ -117,7 +117,7 @@ export type TLightningPayment = {
 };
 
 export type TReceivePaymentRequest = {
-  amountSat: number;
+  amountSat: string;
   description: string;
 };
 
@@ -128,14 +128,9 @@ export type TReceivePaymentResponse = {
 export type TCloseWithdrawQuote = {
   idempotencyKey: string;
   balance: TAmountWithConversions;
-  balanceSat: number;
+  balanceSat: string;
   fee: TAmountWithConversions;
-  feeSat: number;
-};
-
-export type TCloseWithdrawResult = {
-  txId?: string;
-  walletClosed: boolean;
+  feeSat: string;
 };
 
 export type TTopUpRecoveryResult = {
@@ -156,43 +151,43 @@ export type TGeneratedLightningAddress = {
 export type TSendPaymentRequest = {
   type: TPaymentInputType.BITCOIN_ADDRESS;
   paymentInput: string;
-  amountSat: number;
-  approvedFeeSat: number;
+  amountSat: string;
+  approvedFeeSat: string;
   idempotencyKey: string;
 } | {
   type: TPaymentInputType.BOLT11;
   paymentInput: string;
-  amountSat?: number;
-  approvedFeeSat: number;
+  amountSat?: string;
+  approvedFeeSat: string;
 } | {
   type: TPaymentInputType.LNURL_PAY;
   paymentInput: string;
-  amountSat: number;
-  approvedFeeSat: number;
+  amountSat: string;
+  approvedFeeSat: string;
   idempotencyKey: string;
 };
 
 export type TPreparePaymentRequest = {
   type: TPaymentInputType.BITCOIN_ADDRESS;
   paymentInput: string;
-  amountSat: number;
+  amountSat: string;
   idempotencyKey?: string;
 } | {
   type: TPaymentInputType.BOLT11;
   paymentInput: string;
-  amountSat?: number;
+  amountSat?: string;
 } | {
   type: TPaymentInputType.LNURL_PAY;
   paymentInput: string;
-  amountSat: number;
+  amountSat: string;
   idempotencyKey?: string;
 };
 
 export type TPreparePaymentResponse = {
-  amountSat: number;
-  feeSat: number;
+  amountSat: string;
+  feeSat: string;
   idempotencyKey?: string;
-  totalDebitSat: number;
+  totalDebitSat: string;
 };
 
 export type TServiceStatus = 'operational' | 'degraded' | 'partial' | 'major' | 'unknown';
@@ -347,16 +342,21 @@ export const postPrepareCloseWithdraw = async (destinationAccountCode: AccountCo
   );
 };
 
+export type TCloseWithdrawResult = {
+  txId?: string;
+  walletClosed: boolean;
+};
+
 export const postCloseWithdraw = async (
   destinationAccountCode: AccountCode,
-  approvedBalanceSat: number,
-  approvedFeeSat: number,
+  approvedBalanceSat: string,
+  approvedFeeSat: string,
   idempotencyKey: string,
 ): Promise<TCloseWithdrawResult> => {
   return postApiResponse<TCloseWithdrawResult, {
     destinationAccountCode: AccountCode;
-    approvedBalanceSat: number;
-    approvedFeeSat: number;
+    approvedBalanceSat: string;
+    approvedFeeSat: string;
     idempotencyKey: string;
   }>(
     'lightning/close-withdraw-funds',
@@ -367,9 +367,9 @@ export const postCloseWithdraw = async (
 
 export const postClaimTopUp = async (
   paymentId: string,
-  approvedFeeSat: number,
+  approvedFeeSat: string,
 ): Promise<TTopUpRecoveryResult> => {
-  return postApiResponse<TTopUpRecoveryResult, { paymentId: string; approvedFeeSat: number }>(
+  return postApiResponse<TTopUpRecoveryResult, { paymentId: string; approvedFeeSat: string }>(
     'lightning/claim-top-up',
     { paymentId, approvedFeeSat },
     { code: TLightningErrorCode.TOP_UP_CLAIM_FAILED }

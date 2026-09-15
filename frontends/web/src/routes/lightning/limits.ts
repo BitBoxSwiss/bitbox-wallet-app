@@ -5,7 +5,7 @@ import {
   type TLightningFundingLimit,
 } from '@/api/lightning';
 
-const formatSats = (amountSat: number): string => `${amountSat} sat`;
+const formatSats = (amountSat: number | string): string => `${amountSat} sat`;
 
 export const formatLightningFundingLimit = (limit?: TLightningFundingLimit): string => {
   return limit ? formatSats(limit.limitSat) : '';
@@ -17,9 +17,11 @@ export const formatRemainingLightningFundingLimit = (limit?: TLightningFundingLi
 
 export const formatExcessLightningFundingLimit = (
   limit?: TLightningFundingLimit,
-  requestedAmountSat = 0,
+  requestedAmountSat?: string,
 ): string => {
-  return limit ? formatSats(Math.max(requestedAmountSat - limit.marginSat, 0)) : '';
+  // TODO: move to backend or use bigint
+  const requestedAmountSatNumber = requestedAmountSat !== undefined ? Number(requestedAmountSat) : 0;
+  return limit ? formatSats(Math.max(requestedAmountSatNumber - limit.marginSat, 0)) : '';
 };
 
 export const hasReachedLightningFundingLimit = (limit?: TLightningFundingLimit): boolean => {
@@ -32,12 +34,13 @@ export const hasExceededLightningFundingLimit = (limit?: TLightningFundingLimit)
 
 export const getLightningFundingLimitError = (
   limit?: TLightningFundingLimit,
-  requestedAmountSat?: number | null,
+  requestedAmountSat?: string | null,
 ): typeof lightningBalanceLimitErrorCode | undefined => {
   return limit !== undefined
     && requestedAmountSat !== undefined
     && requestedAmountSat !== null
-    && requestedAmountSat > limit.marginSat
+    // TODO: should be in backend or use bigint
+    && Number(requestedAmountSat) > limit.marginSat
     ? lightningBalanceLimitErrorCode
     : undefined;
 };
