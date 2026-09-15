@@ -863,8 +863,8 @@
         }
       },
       "factoryReset": {
-        "description": "Reset your device to factory settings. This deletes the wallet from your BitBox!",
-        "title": "Factory reset"
+        "description": "Deletes the wallet and its data from the BitBox",
+        "title": "Delete wallet from BitBox"
       },
       "goToStartupSettings": {
         "description": "Enter the bootloader of the BitBox. You can enable the firmware hash from here."
