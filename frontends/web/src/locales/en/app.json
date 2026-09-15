@@ -1886,7 +1886,7 @@
       "enableWalletDescription": "Lightning enables instant and low fee payments.",
       "expert": "Expert",
       "serviceProvider": "Service provider",
-      "setLightningAddress": "Set Lightning address",
+      "setLightningAddress": "Lightning address",
       "status": "Status",
       "statusConnected": "Connected",
       "title": "Lightning settings",
