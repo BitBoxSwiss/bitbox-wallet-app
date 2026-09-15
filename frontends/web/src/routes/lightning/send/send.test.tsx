@@ -53,11 +53,11 @@ vi.mock('./components/custom-payment-amount', async () => {
     CustomPaymentAmount: ({
       onAmountChange,
     }: {
-      onAmountChange: (amountSat?: number) => void;
+      onAmountChange: (amountSat?: string) => void;
     }) => {
       const [amount, setAmount] = useState('');
       useEffect(() => {
-        onAmountChange(amount ? Number(amount) : undefined);
+        onAmountChange(amount);
       }, [amount, onAmountChange]);
       return (
         <input
@@ -120,12 +120,12 @@ describe('Lightning Send', () => {
     vi.mocked(lightningApi.getParsePaymentInput).mockResolvedValue({
       type: TPaymentInputType.BOLT11,
       invoice: {
-        amountSat: 100,
+        amountSat: '100',
         invoice: 'lnbc1invoice',
       },
     });
     vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({
-      amountSat: 100,
+      amountSat: '100',
       feeSat: 1,
       totalDebitSat: 101,
     });
@@ -174,7 +174,7 @@ describe('Lightning Send', () => {
       },
     });
     vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({
-      amountSat: 100,
+      amountSat: '100',
       feeSat: 1,
       idempotencyKey: '00000000-0000-4000-8000-000000000001',
       totalDebitSat: 101,

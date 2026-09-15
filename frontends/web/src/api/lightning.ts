@@ -36,7 +36,7 @@ export type TLightningSDKStatus = 'inactive' | 'initializing' | 'ready' | 'faile
 export type TLightningBolt11Invoice = {
   invoice: string;
   description?: string;
-  amountSat?: number;
+  amountSat?: string;
 };
 
 export type TLightningLNURLPay = {
@@ -50,7 +50,7 @@ export type TLightningLNURLPay = {
 
 export type TLightningBitcoinPaymentInput = {
   address: string;
-  amountSat?: number;
+  amountSat?: string;
   description?: string;
 };
 
@@ -117,7 +117,7 @@ export type TLightningPayment = {
 };
 
 export type TReceivePaymentRequest = {
-  amountSat: number;
+  amountSat: string;
   description: string;
 };
 
@@ -156,18 +156,18 @@ export type TGeneratedLightningAddress = {
 export type TSendPaymentRequest = {
   type: TPaymentInputType.BITCOIN_ADDRESS;
   paymentInput: string;
-  amountSat: number;
+  amountSat: string;
   approvedFeeSat: number;
   idempotencyKey: string;
 } | {
   type: TPaymentInputType.BOLT11;
   paymentInput: string;
-  amountSat?: number;
+  amountSat?: string;
   approvedFeeSat: number;
 } | {
   type: TPaymentInputType.LNURL_PAY;
   paymentInput: string;
-  amountSat: number;
+  amountSat: string;
   approvedFeeSat: number;
   idempotencyKey: string;
 };
@@ -175,21 +175,21 @@ export type TSendPaymentRequest = {
 export type TPreparePaymentRequest = {
   type: TPaymentInputType.BITCOIN_ADDRESS;
   paymentInput: string;
-  amountSat: number;
+  amountSat: string;
   idempotencyKey?: string;
 } | {
   type: TPaymentInputType.BOLT11;
   paymentInput: string;
-  amountSat?: number;
+  amountSat?: string;
 } | {
   type: TPaymentInputType.LNURL_PAY;
   paymentInput: string;
-  amountSat: number;
+  amountSat: string;
   idempotencyKey?: string;
 };
 
 export type TPreparePaymentResponse = {
-  amountSat: number;
+  amountSat: string;
   feeSat: number;
   idempotencyKey?: string;
   totalDebitSat: number;

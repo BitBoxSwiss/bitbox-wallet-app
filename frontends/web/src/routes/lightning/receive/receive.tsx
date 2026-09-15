@@ -47,7 +47,7 @@ export function Receive() {
     inputFiatText,
     inputSatsText,
     resetAmountInput,
-  } = useSatFiatAmount({ defaultCurrency });
+  } = useSatFiatAmount();
   const [description, setDescription] = useState<string>('');
   const [receivePaymentResponse, setReceivePaymentResponse] = useState<TReceivePaymentResponse>();
   const [receiveError, setReceiveError] = useState<string>();
@@ -88,7 +88,8 @@ export function Receive() {
   );
   const canCreateInvoice = (
     invoiceAmountSat !== undefined
-    && invoiceAmountSat > 0
+    // TODO: backend or bigint
+    && Number(invoiceAmountSat) > 0
   );
 
   const newInvoice = useCallback(() => {
@@ -137,7 +138,8 @@ export function Receive() {
 
   const receivePayment = useCallback(async () => {
     setReceiveError(undefined);
-    if (invoiceAmountSat === undefined || invoiceAmountSat <= 0) {
+    // TODO: backend or bigint
+    if (invoiceAmountSat === undefined || Number(invoiceAmountSat) <= 0) {
       setReceiveError(t('send.error.invalidAmount'));
       return;
     }

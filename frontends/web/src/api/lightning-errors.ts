@@ -40,7 +40,7 @@ export type TLightningErrorDataByCode = {
     minAmountSat: number;
   };
   [TLightningErrorCode.INSUFFICIENT_FUNDS]: {
-    amountSat: number;
+    amountSat: string;
     feeSat: number;
     totalDebitSat: number;
   };
