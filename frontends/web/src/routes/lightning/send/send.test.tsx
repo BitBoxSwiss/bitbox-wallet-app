@@ -126,8 +126,8 @@ describe('Lightning Send', () => {
     });
     vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({
       amountSat: '100',
-      feeSat: 1,
-      totalDebitSat: 101,
+      feeSat: '1',
+      totalDebitSat: '101',
     });
   });
 
@@ -175,9 +175,9 @@ describe('Lightning Send', () => {
     });
     vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({
       amountSat: '100',
-      feeSat: 1,
+      feeSat: '1',
       idempotencyKey: '00000000-0000-4000-8000-000000000001',
-      totalDebitSat: 101,
+      totalDebitSat: '101',
     });
     let rejectPayment: (reason?: unknown) => void = () => {};
     vi.mocked(lightningApi.postSendPayment).mockReturnValue(new Promise<void>((_, reject) => {

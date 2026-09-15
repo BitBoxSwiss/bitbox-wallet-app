@@ -36,9 +36,9 @@ const idempotencyKey = '00000000-0000-4000-8000-000000000001';
 
 const preparedPayment = (idempotencyKey: string) => ({
   amountSat: '100',
-  feeSat: 2,
+  feeSat: '2',
   idempotencyKey,
-  totalDebitSat: 102,
+  totalDebitSat: '102',
 });
 
 const sendRequest = {
