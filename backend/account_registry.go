@@ -50,7 +50,7 @@ func (registry *accountRegistry) lookup(code accountsTypes.Code) accounts.Interf
 // add registers and initializes an account unless its code is already present. Initialization
 // failures leave the account registered.
 func (registry *accountRegistry) add(account accounts.Interface) (bool, error) {
-	code := account.Config().Config.Code
+	code := account.Config().Code
 	if registry.lookup(code) != nil {
 		return false, nil
 	}
@@ -78,7 +78,7 @@ func (registry *accountRegistry) add(account accounts.Interface) (bool, error) {
 
 func (registry *accountRegistry) remove(code accountsTypes.Code) bool {
 	for index, account := range registry.accounts {
-		if account.Config().Config.Code != code {
+		if account.Config().Code != code {
 			continue
 		}
 
@@ -89,13 +89,20 @@ func (registry *accountRegistry) remove(code accountsTypes.Code) bool {
 	return false
 }
 
+func (registry *accountRegistry) removeAll() {
+	for _, account := range registry.accounts {
+		registry.closeAccount(account)
+	}
+	registry.accounts = AccountsList{}
+}
+
 func (registry *accountRegistry) closeAccount(account accounts.Interface) {
 	if registry.lifecycle.onUninitialized != nil {
 		registry.lifecycle.onUninitialized(account)
 	}
 	account.Close()
 
-	code := account.Config().Config.Code
+	code := account.Config().Code
 	if unobserve := registry.unobserves[code]; unobserve != nil {
 		// Close may emit a final status event.
 		unobserve()

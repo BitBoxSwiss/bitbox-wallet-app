@@ -26,7 +26,7 @@ func TestChartCoinCodesIncludesBitcoinForLightning(t *testing.T) {
 		Number:          0,
 	}))
 
-	require.Equal(t, []string{string(coin.CodeBTC)}, b.chartCoinCodes())
+	require.Equal(t, []string{string(coin.CodeBTC)}, b.chartCoinCodes(b.Accounts()))
 }
 
 func TestCalculateMoneyWeightedReturnNoCashFlows(t *testing.T) {
@@ -158,11 +158,16 @@ func TestChartDataUsesAvailableBalanceForVisibleTotal(t *testing.T) {
 	})
 
 	accountConfig := &accounts.AccountConfig{
-		Config: &configpkg.Account{
+		Code: "chart-test-btc",
+	}
+	require.NoError(t, backend.accountsDB.Update(func(cfg *configpkg.AccountsConfig) error {
+		cfg.Accounts = append(cfg.Accounts, &configpkg.Account{
+			Code:                accountConfig.Code,
 			CoinCode:            coin.CodeBTC,
 			HiddenBecauseUnused: true,
-		},
-	}
+		})
+		return nil
+	}))
 	account := &accountsMocks.InterfaceMock{
 		BalanceFunc: func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coin.NewAmountFromInt64(75000000), coin.NewAmountFromInt64(0)), nil
