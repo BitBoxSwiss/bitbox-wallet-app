@@ -97,12 +97,15 @@ export type TPrepareTopUpRequest = {
   customFee: string;
   feeTarget: TFeeTargetCode;
   sourceAccountCode: TAccountCode;
+  sendAll?: boolean;
+  selectedUTXOs?: string[];
 };
 
 export type TPrepareTopUpResult = {
   amount: TAmountWithConversions;
   estimatedClaimFee: TAmountWithConversions | null;
   fee: TAmountWithConversions;
+  highFeePercentage?: string;
   recipientDisplayAddress: string;
   success: true;
   total: TAmountWithConversions;

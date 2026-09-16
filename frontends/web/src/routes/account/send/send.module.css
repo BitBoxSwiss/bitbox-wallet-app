@@ -35,3 +35,10 @@
 .sendForm {
     --grid-min-height: 100px;
 }
+.recipientLogo {
+    align-self: center;
+    flex-shrink: 0;
+    height: 20px;
+    order: -1;
+    width: 20px;
+}
