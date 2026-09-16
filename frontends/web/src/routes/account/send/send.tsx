@@ -118,6 +118,8 @@ export const Send = ({
 
   const handleRetry = () => {
     setSendResult(undefined);
+    setValid(false);
+    validateAndDisplayFee(false);
   };
 
   const handleSend = useCallback(async () => {

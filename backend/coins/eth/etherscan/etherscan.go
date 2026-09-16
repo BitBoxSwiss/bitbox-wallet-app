@@ -512,7 +512,7 @@ func (etherScan *EtherScan) rpcCall(ctx context.Context, params url.Values, resu
 		Error   *struct {
 			Message string `json:"message"`
 		} `json:"error"`
-		Result *json.RawMessage `json:"result"`
+		Result json.RawMessage `json:"result"`
 	}
 	method := http.MethodGet
 	if etherScan.shouldPostRPC(params) {
@@ -530,19 +530,19 @@ func (etherScan *EtherScan) rpcCall(ctx context.Context, params url.Values, resu
 	if wrapped.Result == nil {
 		return errp.New("expected result")
 	}
-	if err := json.Unmarshal(*wrapped.Result, result); err != nil {
-		return errp.Newf("unexpected response from EtherScan: %s", string(*wrapped.Result))
+	if err := json.Unmarshal(wrapped.Result, result); err != nil {
+		return errp.Newf("unexpected response from EtherScan: %s", string(wrapped.Result))
 	}
 	return nil
 }
 
 // TransactionReceiptWithBlockNumber implements rpc.Interface.
 func (etherScan *EtherScan) TransactionReceiptWithBlockNumber(
-	ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+	ctx context.Context, hash common.Hash) (*types.Receipt, error) {
 	params := url.Values{}
 	params.Set("action", "eth_getTransactionReceipt")
 	params.Set("txhash", hash.Hex())
-	var result *rpcclient.RPCTransactionReceipt
+	var result *types.Receipt
 	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
 		return nil, err
 	}
@@ -555,9 +555,12 @@ func (etherScan *EtherScan) TransactionByHash(
 	params := url.Values{}
 	params.Set("action", "eth_getTransactionByHash")
 	params.Set("txhash", hash.Hex())
-	var result rpcclient.RPCTransaction
+	var result *rpcclient.RPCTransaction
 	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
 		return nil, false, err
+	}
+	if result == nil {
+		return nil, false, ethereum.NotFound
 	}
 	return &result.Transaction, result.BlockNumber == nil, nil
 }
@@ -571,6 +574,9 @@ func (etherScan *EtherScan) BlockNumber(ctx context.Context) (*big.Int, error) {
 	var header *types.Header
 	if err := etherScan.rpcCall(ctx, params, &header); err != nil {
 		return nil, err
+	}
+	if header == nil || header.Number == nil {
+		return nil, errp.New("expected block header")
 	}
 	return header.Number, nil
 }
@@ -725,10 +731,19 @@ func (etherScan *EtherScan) EstimateGas(ctx context.Context, msg ethereum.CallMs
 
 // PendingNonceAt implements rpc.Interface.
 func (etherScan *EtherScan) PendingNonceAt(ctx context.Context, account common.Address) (uint64, error) {
+	return etherScan.nonceAt(ctx, account, "pending")
+}
+
+// NonceAt returns the confirmed account nonce at the given block.
+func (etherScan *EtherScan) NonceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (uint64, error) {
+	return etherScan.nonceAt(ctx, account, hexutil.EncodeBig(blockNumber))
+}
+
+func (etherScan *EtherScan) nonceAt(ctx context.Context, account common.Address, tag string) (uint64, error) {
 	params := url.Values{}
 	params.Set("action", "eth_getTransactionCount")
 	params.Set("address", account.Hex())
-	params.Set("tag", "pending")
+	params.Set("tag", tag)
 	var result hexutil.Uint64
 	if err := etherScan.rpcCall(ctx, params, &result); err != nil {
 		return 0, err

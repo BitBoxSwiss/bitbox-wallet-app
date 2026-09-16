@@ -2549,7 +2549,6 @@
       "button": "Connecter",
       "dappLabel": "Saisir l'URI de la dApp",
       "invalidPairingUri": "Uri d'appariement non valide",
-      "missingNamespace": "La demande de connexion de l'application n'a pas défini l'espace de noms nécessaire",
       "scanInstruction": "Pointez votre caméra vers le QR code WalletConnect"
     },
     "dashboard": {
@@ -2559,7 +2558,6 @@
       "noConnectedSessions": "Aucun compte n'est actuellement connecté à une dApp.",
       "unspecifiedAccount": "Compte non spécifié"
     },
-    "invalidPairingChain": "Erreur dans l'approbation de l'appariement. Veillez à utiliser l'une des chaînes prises en charge : {{chains}}",
     "pairingRequest": {
       "approve": "Approuver la connexion",
       "reject": "Rejeter",

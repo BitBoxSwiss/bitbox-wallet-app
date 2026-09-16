@@ -313,7 +313,7 @@ func (keystore *Keystore) signETHTransaction(tx *eth.TxProposal) error {
 	if err != nil {
 		return errp.Newf("failed to get private key: %v", err)
 	}
-	tx.Tx, err = ethTypes.SignTx(tx.Tx, tx.Signer, privKey.ToECDSA())
+	tx.Tx, err = ethTypes.SignTx(tx.Tx, tx.Signer(), privKey.ToECDSA())
 	return err
 }
 
@@ -330,7 +330,7 @@ func (keystore *Keystore) SignTransaction(
 		return keystore.signBTCTransaction(specificProposedTx)
 	case *eth.TxProposal:
 		if keystore.edition == EditionBTCOnly {
-			return errp.Newf("coin not supported: %s", specificProposedTx.Coin.Code())
+			return errp.New("coin not supported: eth")
 		}
 		return keystore.signETHTransaction(specificProposedTx)
 	default:
@@ -405,12 +405,7 @@ func (keystore *Keystore) SignETHMessage(chainID uint64, message []byte, keypath
 }
 
 // SignETHTypedMessage implements keystore.Keystore.
-func (keystore *Keystore) SignETHTypedMessage(chainId uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	return nil, errp.New("unsupported")
-}
-
-// SignETHWalletConnectTransaction implements keystore.Keystore.
-func (keystore *Keystore) SignETHWalletConnectTransaction(chainID uint64, tx *ethTypes.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error) {
+func (keystore *Keystore) SignETHTypedMessage(chainID uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	return nil, errp.New("unsupported")
 }
 
