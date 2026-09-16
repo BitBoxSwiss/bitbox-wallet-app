@@ -9,7 +9,6 @@ import { useConfig } from '@/contexts/ConfigProvider';
 import { getMoonpayBuyInfo } from '@/api/market';
 import { MarketGuide } from './guide';
 import { Header } from '@/components/layout';
-import { MobileHeader } from '../settings/components/mobile-header';
 import { Message } from '@/components/message/message';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
@@ -48,12 +47,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
       <div className="container">
         <div className="innerContainer">
           <div className={style.header}>
-            <Header title={
-              <>
-                <h2 className="hide-on-small">{title}</h2>
-                <MobileHeader title={title} />
-              </>
-            } />
+            <Header variant="navigation" mobileBackButton title={title} />
           </div>
           <div ref={containerRef} className={style.container}>
             { !agreedTerms ? (

@@ -22,7 +22,6 @@ import { useDarkmode } from '@/hooks/darkmode';
 import { useDebounce } from '@/hooks/debounce';
 import { useMountedRef } from '@/hooks/mount';
 import { SimpleMarkup } from '@/utils/markup';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import styles from './set-lnurl-address.module.css';
 
 const CONTENT_MIN_HEIGHT = '38em';
@@ -298,16 +297,12 @@ export const LightningSetLnurlAddress = () => {
 
   return (
     <Main>
-      <Header title={
-        <>
-          <h2 className="hide-on-small">{t('lightning.lnurlAddress.title')}</h2>
-          <MobileHeader
-            onClick={() => navigate(-1)}
-            title={t('lightning.lnurlAddress.title')}
-            variant={headerBackEnabled ? 'back' : 'titleOnly'}
-          />
-        </>
-      } />
+      <Header
+        variant="navigation"
+        mobileBackButton={headerBackEnabled}
+        onBack={() => navigate(-1)}
+        title={t('lightning.lnurlAddress.title')}
+      />
       {renderStep()}
       {isSaving && <UseDisableBackButton />}
     </Main>

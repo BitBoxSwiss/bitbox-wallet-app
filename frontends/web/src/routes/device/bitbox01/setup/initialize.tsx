@@ -151,7 +151,7 @@ class Initialize extends Component<Props, State> {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <Header title={<h2>{t('welcome.title')}</h2>}>
+          <Header title={t('welcome.title')}>
             <LanguageSwitch />
           </Header>
           <div className="innerContainer">

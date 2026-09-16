@@ -217,7 +217,7 @@ export const AccountsSummary = ({
               />
             ))}
           </ContentWrapper>
-          <Header title={<h2>{t('accountSummary.title')}</h2>}>
+          <Header title={t('accountSummary.title')}>
             <HideAmountsButton />
           </Header>
           <View>

@@ -205,7 +205,7 @@ export const Market = ({
       )}
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('generic.buySell')}</h2>} />
+          <Header title={t('generic.buySell')} />
           <MarketTab
             accounts={accounts}
             activeTab={activeTab}

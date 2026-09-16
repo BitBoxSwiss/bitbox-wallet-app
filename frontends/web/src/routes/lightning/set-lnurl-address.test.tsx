@@ -11,10 +11,13 @@ import { LightningSetLnurlAddress } from './set-lnurl-address';
 
 vi.mock('@/i18n/i18n');
 
-vi.mock('@/components/layout', () => ({
-  Header: ({ title }: { title: ReactNode }) => <header>{title}</header>,
-  Main: ({ children }: { children: ReactNode }) => <main>{children}</main>,
-}));
+vi.mock('@/components/layout', async () => {
+  const { Header } = await import('@/components/layout/header');
+  return {
+    Header,
+    Main: ({ children }: { children: ReactNode }) => <main>{children}</main>,
+  };
+});
 
 vi.mock('@/hooks/debounce', () => ({
   useDebounce<T>(value: T) {
@@ -86,6 +89,7 @@ describe('Set Lightning address back navigation', () => {
     );
 
     const addressInput = await screen.findByLabelText('lightning.lnurlAddress.label');
+    expect(screen.getByRole('button', { name: 'button.back' })).toBeInTheDocument();
     fireEvent.input(addressInput, { target: { value: 'new' } });
     expect(await screen.findByText('lightning.lnurlAddress.availability.available')).toBeInTheDocument();
 
@@ -93,7 +97,7 @@ describe('Set Lightning address back navigation', () => {
     fireEvent.click(saveButton);
     await waitFor(() => expect(lightningApi.postRegisterLightningAddress).toHaveBeenCalledWith('new'));
 
-    expect(document.querySelector('header button')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'button.back' })).not.toBeInTheDocument();
     act(() => {
       expect(window.onBackButtonPressed?.()).toBe(false);
     });

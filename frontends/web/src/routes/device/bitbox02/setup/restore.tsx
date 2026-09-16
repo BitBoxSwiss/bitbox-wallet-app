@@ -5,7 +5,7 @@ import { BackupsV2 } from '@/routes/device/bitbox02/backups';
 import { Backup } from '@/api/backup';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
+import { Header } from '@/components/layout';
 
 type Props = {
   deviceID: string;
@@ -28,9 +28,10 @@ export const RestoreFromSDCardBackup = ({
       verticallyCentered
       withBottomBar
       width="700px">
-      <MobileHeader
-        onClick={onBack}
-        withViewPadding
+      <Header
+        mobileBackButton
+        variant="fullscreen"
+        onBack={onBack}
         title={t('bitbox02Wizard.stepUninitialized.title')}
       />
       <ViewHeader

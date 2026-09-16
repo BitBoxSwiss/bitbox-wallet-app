@@ -17,7 +17,6 @@ import { Spinner } from '@/components/spinner/Spinner';
 import { useLoad } from '@/hooks/api';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { useMountedRef } from '@/hooks/mount';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { ClaimTopUpConfirm } from './confirm-step';
 import { ClaimTopUpFailure } from './failure-step';
 import { ClaimTopUpOverview } from './overview-step';
@@ -230,16 +229,10 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
   return (
     <Main>
       <Header
-        title={
-          <>
-            <h2 className="hide-on-small">{headerTitle}</h2>
-            <MobileHeader
-              onClick={handleBack}
-              title={headerTitle}
-              variant={headerBackEnabled ? 'back' : 'titleOnly'}
-            />
-          </>
-        }
+        variant="navigation"
+        mobileBackButton={headerBackEnabled}
+        onBack={handleBack}
+        title={headerTitle}
       />
       {renderContent()}
       {isSubmitting && <UseDisableBackButton />}

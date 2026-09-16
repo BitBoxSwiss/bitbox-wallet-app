@@ -7,7 +7,6 @@ import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
 import { Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { SimpleMarkup } from '@/utils/markup';
 import termsStyles from '@/components/terms/terms.module.css';
 
@@ -81,12 +80,7 @@ export const LightningDisclaimer = () => {
 
   return (
     <Main>
-      <Header title={
-        <>
-          <h2 className="hide-on-small">{t('lightning.disclaimer.title')}</h2>
-          <MobileHeader title={t('lightning.disclaimer.title')} />
-        </>
-      } />
+      <Header variant="navigation" mobileBackButton title={t('lightning.disclaimer.title')} />
       <LightningDisclaimerContent>
         <Button primary onClick={() => navigate(-1)}>
           {t('button.done')}

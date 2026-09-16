@@ -104,7 +104,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
       )}
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('generic.buySell')}</h2>} />
+          <Header title={t('generic.buySell')} />
           <MarketTab
             accounts={accounts}
             activeTab="insure"

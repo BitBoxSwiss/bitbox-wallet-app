@@ -5,7 +5,6 @@ import type { TPagePropsWithSettingsTabs } from '../settings/types';
 import { Bluetooth } from '@/components/bluetooth/bluetooth';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { ViewContent, View } from '@/components/view/view';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { WithSettingsTabs } from '@/routes/settings/components/tabs';
 import { ManageDeviceGuide } from './bitbox02/settings-guide';
 import styles from './no-device-connected.module.css';
@@ -21,13 +20,12 @@ export const NoDeviceConnected = ({
       <GuidedContent>
         <Main>
           <Header
+            variant="navigation"
+            desktopTitle={t('sidebar.settings')}
             hideSidebarToggler
-            title={
-              <>
-                <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader title={t('sidebar.device')} />
-              </>
-            }/>
+            mobileBackButton
+            title={t('sidebar.device')}
+          />
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs

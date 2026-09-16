@@ -9,7 +9,6 @@ import { TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactio
 import { findAccount, isBitcoinBased, isMessageSigningSupported } from '@/routes/account/utils';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { QRCodeLight, QRCodeDark, OutlinedUploadDark, OutlinedUploadLight, OutlinedUnorderedListDark, OutlinedUnorderedListLight, OutlinedFileProtectDark, OutlinedFileProtectLight } from '@/components/icon';
@@ -88,12 +87,13 @@ export const Info = ({
 
   return (
     <Main>
-      <Header hideSidebarToggler title={
-        <>
-          <h2 className="hide-on-small">{t('accountInfo.title')}</h2>
-          <MobileHeader onClick={() => navigate(-1)} title={t('accountInfo.title')} />
-        </>
-      } />
+      <Header
+        variant="navigation"
+        hideSidebarToggler
+        mobileBackButton
+        onBack={() => navigate(-1)}
+        title={t('accountInfo.title')}
+      />
       <View fullscreen={false}>
         <ViewContent>
           <div className={style.menuList}>

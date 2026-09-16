@@ -19,7 +19,6 @@ import { postActivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { LightningDisclaimerContent } from './disclaimer';
 import { LightningTorProxyWarning } from '@/components/banners/lightning-tor-proxy-warning';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import styles from './activate.module.css';
 
 const CONTENT_MIN_HEIGHT = '38em';
@@ -254,16 +253,12 @@ export const LightningActivate = () => {
           {setupError}
         </Status>
       </ContentWrapper>
-      <Header title={
-        <>
-          <h2 className="hide-on-small">{t('lightning.activate.title')}</h2>
-          <MobileHeader
-            onClick={handleBack}
-            title={t('lightning.activate.title')}
-            variant={backEnabled ? 'back' : 'titleOnly'}
-          />
-        </>
-      } />
+      <Header
+        variant="navigation"
+        mobileBackButton={backEnabled}
+        onBack={handleBack}
+        title={t('lightning.activate.title')}
+      />
       {renderSteps()}
     </Main>
   );

@@ -7,7 +7,6 @@ import type { TAccount } from '@/api/account';
 import { type TPaymentInput, getParsePaymentInput } from '@/api/lightning';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { ReviewStep } from './components/review-step';
 import { SelectPaymentInputStep } from './components/select-payment-input-step';
 import { SuccessStep } from './components/success-step';
@@ -76,16 +75,12 @@ export const Send = ({ activeAccounts }: TProps) => {
       <GuidedContent>
         <Main>
           {isSending && <UseDisableBackButton />}
-          <Header title={
-            <>
-              <h2 className="hide-on-small">{t('lightning.send.title')}</h2>
-              <MobileHeader
-                onClick={handleBack}
-                title={t('lightning.send.title')}
-                variant={step === 'success' || isSending ? 'titleOnly' : 'back'}
-              />
-            </>
-          } />
+          <Header
+            variant="navigation"
+            mobileBackButton={step !== 'success' && !isSending}
+            onBack={handleBack}
+            title={t('lightning.send.title')}
+          />
           {step === 'select-payment-input' && (
             <SelectPaymentInputStep
               activeAccounts={activeAccounts}

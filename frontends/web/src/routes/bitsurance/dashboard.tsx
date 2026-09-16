@@ -112,7 +112,7 @@ export const BitsuranceDashboard = ({ accounts, code }: TProps) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('generic.buySell')}</h2>}>
+          <Header title={t('generic.buySell')}>
             <HideAmountsButton />
           </Header>
           <MarketTab

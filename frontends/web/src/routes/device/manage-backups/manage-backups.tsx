@@ -7,7 +7,6 @@ import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { Backups } from '@/routes/device/bitbox01/backups';
 import { BackupsV2 } from '@/routes/device/bitbox02/backups';
 import { SDCardCheck } from '@/routes/device/bitbox02/sdcardcheck';
@@ -32,12 +31,9 @@ export const ManageBackups = ({
       <GuidedContent>
         <Main>
           <Header
-            title={
-              <>
-                <h2 className="hide-on-small">{t('backup.title')}</h2>
-                <MobileHeader title={t('backup.title')} />
-              </>
-            }
+            variant="navigation"
+            mobileBackButton
+            title={t('backup.title')}
           />
           <div className="content padded">
             <BackupsList

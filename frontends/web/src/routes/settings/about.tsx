@@ -5,7 +5,6 @@ import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
 import { AppVersion } from './components/about/app-version-setting';
-import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { TPagePropsWithSettingsTabs } from './types';
@@ -20,13 +19,12 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
       <GuidedContent>
         <Main>
           <Header
+            variant="navigation"
+            desktopTitle={t('sidebar.settings')}
             hideSidebarToggler
-            title={
-              <>
-                <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader title={t('settings.about')} />
-              </>
-            } />
+            mobileBackButton
+            title={t('settings.about')}
+          />
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>

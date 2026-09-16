@@ -6,7 +6,14 @@
 }
 
 .container {
+    flex: none;
     width: 100%;
+}
+
+.mobileNavigation,
+.fullscreen,
+.mobileTitle {
+    display: none;
 }
 
 .guideClose {
@@ -78,21 +85,47 @@
 }
 
 .title {
-    white-space: nowrap;
     flex-grow: 1;
     margin-bottom: var(--space-quarter);
     padding-right: var(--space-half);
+    white-space: nowrap;
 }
 
-.title > * {
-    margin: 0;
+.desktopTitle {
+    align-items: center;
+    display: inline-flex;
     font-size: var(--size-header);
     font-weight: 400;
     line-height: 1;
-    display: inline-flex;
-    align-items: center;
+    margin: 0;
     user-select: none;
     -webkit-user-select: none;
+}
+
+.backButton {
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    color: var(--color-default);
+    display: flex;
+    font-size: var(--size-default);
+    height: auto;
+    min-width: 0;
+    padding: var(--space-quarter);
+    padding-left: 0;
+    text-decoration: none;
+}
+
+.backButton img {
+    height: var(--size-subheader);
+}
+
+.backButton:focus {
+    outline: none;
+}
+
+.backButton:hover {
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {
@@ -104,9 +137,49 @@
         padding-bottom: 0;
     }
 
+    .desktopTitle {
+        display: none;
+    }
+
+    .page .desktopTitle {
+        display: inline-flex;
+    }
+
     .title {
         display: contents;
-        padding-right: 0;
+    }
+
+    .mobileNavigation {
+        align-items: center;
+        display: flex;
+        grid-column: 1;
+        justify-self: start;
+    }
+
+    .fullscreen {
+        display: block;
+    }
+
+    .mobileTitle {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        font-size: var(--size-default);
+        font-weight: 400;
+        grid-column: 2;
+        justify-content: center;
+        justify-self: center;
+        line-height: 1.2;
+        margin: 0;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        text-align: center;
+        white-space: normal;
+    }
+
+    .mobileTitle > * {
+        min-width: 0;
+        max-width: 100%;
     }
 
     .children {

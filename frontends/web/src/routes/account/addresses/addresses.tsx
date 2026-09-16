@@ -8,7 +8,6 @@ import * as accountApi from '@/api/account';
 import { AccountCode, TAccount } from '@/api/account';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { findAccount } from '@/routes/account/utils';
 import { useAddressVerification } from '../components/use-address-verification';
 import { AddressList } from './address-list';
@@ -188,13 +187,11 @@ export const Addresses = ({ code, accounts }: TProps) => {
   return (
     <Main>
       <Header
+        variant="navigation"
         hideSidebarToggler
-        title={
-          <>
-            <h2 className="hide-on-small">{t('addresses.title')}</h2>
-            <MobileHeader onClick={() => navigate(-1)} title={t('addresses.title')} />
-          </>
-        }
+        mobileBackButton
+        onBack={() => navigate(-1)}
+        title={t('addresses.title')}
       />
       <View fullscreen={false}>
         <ViewContent>

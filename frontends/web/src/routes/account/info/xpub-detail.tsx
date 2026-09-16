@@ -10,7 +10,6 @@ import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { BitcoinBasedAccountInfoGuide } from './guide';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
 import style from './info.module.css';
@@ -81,12 +80,13 @@ export const XPubDetail = ({
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header hideSidebarToggler title={
-            <>
-              <h2 className="hide-on-small">{t('accountInfo.accountDetails')}</h2>
-              <MobileHeader onClick={() => navigate(-1)} title={t('accountInfo.accountDetails')} />
-            </>
-          } />
+          <Header
+            variant="navigation"
+            hideSidebarToggler
+            mobileBackButton
+            onBack={() => navigate(-1)}
+            title={t('accountInfo.accountDetails')}
+          />
           <View fullscreen={false}>
             <ViewContent>
               <div className={style.detailCard}>

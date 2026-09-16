@@ -13,7 +13,7 @@ import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/vi
 import { PointToBitBox02 } from '@/components/icon';
 import { Message } from '@/components/message/message';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
+import { Header } from '@/components/layout';
 import { useMediaQuery } from '@/hooks/mediaquery';
 
 // The enable wizard has five steps that can be navigated by clicking
@@ -194,10 +194,11 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
       onClose={isMobile ? undefined : handleAbort}
       verticallyCentered
     >
-      <MobileHeader
-        onClick={handleBack}
+      <Header
+        mobileBackButton
+        variant="fullscreen"
+        onBack={handleBack}
         title={t('deviceSettings.expert.passphrase.title')}
-        withViewPadding
       />
       <ViewHeader title={step.titleKey} />
       {infoStep < FINAL_INFO_STEP && (
@@ -246,10 +247,12 @@ const DisableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
       minHeight={CONTENT_MIN_HEIGHT}
       onClose={isMobile ? undefined : handleAbort}
       verticallyCentered>
-      <MobileHeader
-        onClick={handleAbort}
+      <Header
+        mobileBackButton
+        variant="fullscreen"
+        onBack={handleAbort}
         title={t('deviceSettings.expert.passphrase.title')}
-        withViewPadding />
+      />
       <ViewHeader title={t('passphrase.disable')} />
       <ViewContent>
         <MultilineMarkup tagName="p" markup={t('passphrase.disableInfo.message')} />

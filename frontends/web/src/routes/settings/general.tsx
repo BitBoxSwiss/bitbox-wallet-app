@@ -11,7 +11,6 @@ import { LanguageDropdownSetting } from './components/appearance/languageDropdow
 import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeCurrenciesDropdownSetting';
 import { PortfolioPercentageDropdownSetting } from './components/appearance/portfolioPercentageDropdownSetting';
 import { WithSettingsTabs } from './components/tabs';
-import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
@@ -31,13 +30,12 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
       <GuidedContent>
         <Main>
           <Header
+            variant="navigation"
+            desktopTitle={t('sidebar.settings')}
             hideSidebarToggler
-            title={
-              <>
-                <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader title={t('settings.general')} />
-              </>
-            } />
+            mobileBackButton
+            title={t('settings.general')}
+          />
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu devices={devices}>

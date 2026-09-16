@@ -12,14 +12,17 @@ import { Send } from './send';
 
 vi.mock('@/i18n/i18n');
 
-vi.mock('@/components/layout', () => ({
-  Column: ({ children }: { children: ReactNode }) => <>{children}</>,
-  Grid: ({ children }: { children: ReactNode }) => <>{children}</>,
-  GuideWrapper: ({ children }: { children: ReactNode }) => <>{children}</>,
-  GuidedContent: ({ children }: { children: ReactNode }) => <>{children}</>,
-  Header: ({ title }: { title: ReactNode }) => <header>{title}</header>,
-  Main: ({ children }: { children: ReactNode }) => <main>{children}</main>,
-}));
+vi.mock('@/components/layout', async () => {
+  const { Header } = await import('@/components/layout/header');
+  return {
+    Column: ({ children }: { children: ReactNode }) => <>{children}</>,
+    Grid: ({ children }: { children: ReactNode }) => <>{children}</>,
+    GuideWrapper: ({ children }: { children: ReactNode }) => <>{children}</>,
+    GuidedContent: ({ children }: { children: ReactNode }) => <>{children}</>,
+    Header,
+    Main: ({ children }: { children: ReactNode }) => <main>{children}</main>,
+  };
+});
 
 vi.mock('@/components/status/status', () => ({
   Status: ({ children, hidden }: { children: ReactNode; hidden?: boolean }) => hidden ? null : <>{children}</>,
@@ -140,6 +143,7 @@ describe('Lightning Send', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'review payment' }));
     await waitFor(() => expect(screen.getByRole('button', { name: 'generic.send' })).toBeEnabled());
+    expect(screen.getByRole('button', { name: 'button.back' })).toBeInTheDocument();
 
     pressSystemBack();
     expect(screen.getByRole('button', { name: 'review payment' })).toBeInTheDocument();
@@ -151,7 +155,7 @@ describe('Lightning Send', () => {
     fireEvent.click(sendButton);
 
     expect(await screen.findByText('lightning.send.sending.connecting')).toBeInTheDocument();
-    await waitFor(() => expect(document.querySelector('header button')).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'button.back' })).not.toBeInTheDocument());
     pressSystemBack();
 
     expect(screen.getByText('lightning.send.sending.connecting')).toBeInTheDocument();

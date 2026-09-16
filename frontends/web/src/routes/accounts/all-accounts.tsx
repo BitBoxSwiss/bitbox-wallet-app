@@ -132,7 +132,7 @@ export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
 
   return (
     <Main>
-      <Header title={<h2>{t('account.accounts')}</h2>}>
+      <Header title={t('account.accounts')}>
         <HideAmountsButton />
       </Header>
       <View width="768px" fullscreen={false}>

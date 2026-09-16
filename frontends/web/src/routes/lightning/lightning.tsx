@@ -94,11 +94,7 @@ const LightningPageLayout = ({
             {statusBanners}
           </ContentWrapper>
           <Header
-            title={
-              <h2>
-                <span>{t('lightning.accountLabel')}</span>
-              </h2>
-            }
+            title={<span>{t('lightning.accountLabel')}</span>}
           >
             <HideAmountsButton />
           </Header>

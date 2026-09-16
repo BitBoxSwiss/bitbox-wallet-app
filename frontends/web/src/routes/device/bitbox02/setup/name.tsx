@@ -9,7 +9,7 @@ import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { checkSDCard } from '@/api/bitbox02';
 import { useValidateDeviceName } from '@/hooks/devicename';
 import { TDeviceNameError } from '@/utils/types';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
+import { Header } from '@/components/layout';
 import style from './name.module.css';
 
 type TProps = {
@@ -42,9 +42,10 @@ export const SetDeviceName = ({
         withBottomBar
         verticallyCentered
         width="600px">
-        <MobileHeader
-          onClick={onBack}
-          withViewPadding
+        <Header
+          mobileBackButton
+          variant="fullscreen"
+          onBack={onBack}
           title={t('bitbox02Wizard.stepUninitialized.title')}
         />
         <ViewHeader

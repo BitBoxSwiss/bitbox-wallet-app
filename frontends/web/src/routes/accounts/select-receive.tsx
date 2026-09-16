@@ -29,7 +29,7 @@ export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSele
 
   return (
     <>
-      <Header title={<h2>{title}</h2>} />
+      <Header title={title} />
       <View width="550px" verticallyCentered fullscreen={false}>
         <ViewContent>
           {activeAccounts && activeAccounts.length > 0 && (

@@ -16,7 +16,6 @@ import { Button } from '@/components/forms';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, GuideWrapper, GuidedContent, Header, Main, ResponsiveGrid } from '@/components/layout';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { FeeTargets } from './feetargets';
 import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
 import { ConfirmSend } from './components/confirm/confirm';
@@ -444,12 +443,9 @@ export const Send = ({
       <GuidedContent>
         <Main>
           <Header
-            title={
-              <>
-                <h2 className="hide-on-small">{t('send.title', { accountName: account.coinName })}</h2>
-                <MobileHeader title={t('send.title', { accountName: account.coinName })} />
-              </>
-            }
+            variant="navigation"
+            mobileBackButton
+            title={t('send.title', { accountName: account.coinName })}
           >
             <HideAmountsButton />
           </Header>

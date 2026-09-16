@@ -82,7 +82,7 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
             </Status>
           </ContentWrapper>
           <Header
-            title={<h2>{t('walletConnect.walletConnect')}</h2>}
+            title={t('walletConnect.walletConnect')}
           />
           <View>
             <ViewContent>

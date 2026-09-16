@@ -15,7 +15,6 @@ import { getKeystoreName } from '@/api/keystores';
 import { useLoad, useSubscribe } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
 import { SettingsItem } from './components/settingsItem/settingsItem';
-import { MobileHeader } from './components/mobile-header';
 import styles from './lightning-settings.module.css';
 
 const serviceProvider = 'Spark';
@@ -116,13 +115,10 @@ export const LightningSettings = () => {
   return (
     <Main>
       <Header
+        variant="navigation"
         hideSidebarToggler
-        title={
-          <>
-            <h2 className="hide-on-small">{t('lightning.settings.title')}</h2>
-            <MobileHeader title={t('lightning.settings.title')} />
-          </>
-        }
+        mobileBackButton
+        title={t('lightning.settings.title')}
       />
       <View fullscreen={false}>
         <ViewContent>

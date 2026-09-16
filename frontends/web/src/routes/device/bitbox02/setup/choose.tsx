@@ -5,12 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { VersionInfo } from '@/api/bitbox02';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
-import { Column, ColumnButtons, Grid, ResponsiveGrid } from '@/components/layout';
+import { Column, ColumnButtons, Grid, Header, ResponsiveGrid } from '@/components/layout';
 import { Button, Label } from '@/components/forms';
 import { Toggle } from '@/components/toggle/toggle';
 import { InfoBlue } from '@/components/icon';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { FirmwareSetting } from '@/routes/settings/components/device-settings/firmware-setting';
 import style from './choose.module.css';
 
@@ -89,10 +88,11 @@ export const SetupOptions = ({
         verticallyCentered
         withBottomBar
         width="1100px">
-        <MobileHeader
-          onClick={handleAdvancedBack}
+        <Header
+          mobileBackButton
+          variant="fullscreen"
+          onBack={handleAdvancedBack}
           title={t('bitbox02Wizard.stepUninitialized.title')}
-          withViewPadding
         />
         <ViewHeader small title={t('seed.create')} />
         <ViewContent>

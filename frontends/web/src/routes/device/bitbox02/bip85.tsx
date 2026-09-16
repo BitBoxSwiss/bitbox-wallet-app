@@ -9,12 +9,11 @@ import { PointToBitBox02 } from '@/components/icon';
 import { invokeBIP85 } from '@/api/bitbox02';
 import { SimpleMarkup } from '@/utils/markup';
 import { A } from '@/components/anchor/anchor';
-import { Column, ResponsiveGrid } from '@/components/layout';
+import { Column, Header, ResponsiveGrid } from '@/components/layout';
 import { useDarkmode } from '@/hooks/darkmode';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import bip85Graphic from './assets/bip85-graphic.svg';
 import bip85GraphicLight from './assets/bip85-graphic-light.svg';
 
@@ -43,9 +42,10 @@ export const Bip85 = ({
         fullscreen
         onClose={isMobile ? undefined : handleClose}
         verticallyCentered>
-        <MobileHeader
+        <Header
+          mobileBackButton
+          variant="fullscreen"
           title={t('deviceSettings.expert.bip85.title')}
-          withViewPadding
         />
         <ViewHeader small title={t('deviceSettings.expert.bip85.what.title')} />
         <ViewContent minHeight="280px">
@@ -90,10 +90,11 @@ export const Bip85 = ({
         fullscreen
         onClose={isMobile ? undefined : handleClose}
         verticallyCentered>
-        <MobileHeader
-          onClick={() => setStatus('info-what')}
+        <Header
+          mobileBackButton
+          variant="fullscreen"
+          onBack={() => setStatus('info-what')}
           title={t('deviceSettings.expert.bip85.title')}
-          withViewPadding
         />
         <ViewHeader title={t('deviceSettings.expert.bip85.how.title')} />
         <ViewContent minHeight="280px">
@@ -121,10 +122,11 @@ export const Bip85 = ({
         fullscreen
         onClose={isMobile ? undefined : handleClose}
         verticallyCentered>
-        <MobileHeader
-          onClick={() => setStatus('info-how')}
+        <Header
+          mobileBackButton
+          variant="fullscreen"
+          onBack={() => setStatus('info-how')}
           title={t('deviceSettings.expert.bip85.title')}
-          withViewPadding
         />
         <ViewHeader title={t('deviceSettings.expert.bip85.recover.title')} />
         <ViewContent minHeight="280px">
@@ -155,10 +157,11 @@ export const Bip85 = ({
         fullscreen
         onClose={isMobile ? undefined : handleClose}
         verticallyCentered>
-        <MobileHeader
-          onClick={() => setStatus('info-recover')}
+        <Header
+          mobileBackButton
+          variant="fullscreen"
+          onBack={() => setStatus('info-recover')}
           title={t('deviceSettings.expert.bip85.title')}
-          withViewPadding
         />
         <ViewHeader title={t('deviceSettings.expert.bip85.security.title')} />
         <ViewContent minHeight="280px">

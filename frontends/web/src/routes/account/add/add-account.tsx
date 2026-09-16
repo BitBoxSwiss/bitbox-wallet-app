@@ -17,7 +17,6 @@ import { SubTitle } from '@/components/title';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { UseBackButton } from '@/hooks/backbutton';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { AddAccountGuide } from './add-account-guide';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import styles from './add-account.module.css';
@@ -243,12 +242,11 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
       <GuidedContent>
         <Main>
           <Header
-            title={
-              <>
-                <h2 className="hide-on-small">{t('manageAccounts.title')}</h2>
-                <MobileHeader onClick={back} title={t('manageAccounts.title')} />
-              </>
-            } />
+            variant="navigation"
+            mobileBackButton
+            onBack={back}
+            title={t('manageAccounts.title')}
+          />
           <View
             fitContent
             textCenter
