@@ -171,8 +171,16 @@ func NewHandlers(
 ) *Handlers {
 	log := logging.Get().WithGroup("handlers")
 	router := mux.NewRouter()
+	handlersMapLock := locker.Locker{}
+	requestRouter := mux.NewRouter()
+	requestRouter.MatcherFunc(func(r *http.Request, match *mux.RouteMatch) bool {
+		// Route registration and matching share this lock. Release it before executing
+		// the handler, which may register accounts or devices and need the write lock.
+		defer handlersMapLock.RLock()()
+		return router.Match(r, match)
+	})
 	handlers := &Handlers{
-		Router:        router,
+		Router:        requestRouter,
 		backend:       backend,
 		apiData:       connData,
 		backendEvents: make(chan interface{}, 1000),
@@ -292,8 +300,6 @@ func NewHandlers(
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegistered).Methods("GET")
-
-	handlersMapLock := locker.Locker{}
 
 	accountHandlersMap := map[accountsTypes.Code]*accountHandlers.Handlers{}
 	getAccountHandlers := func(accountCode accountsTypes.Code) *accountHandlers.Handlers {
