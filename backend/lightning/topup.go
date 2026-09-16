@@ -6,10 +6,13 @@ import (
 	"math/big"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	btcutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/btcsuite/btcd/wire/v2"
 )
 
 const minimumTopUpAmountSat = 1000
@@ -21,6 +24,9 @@ type prepareTopUpRequest struct {
 	Amount            string             `json:"amount"`
 	FeeTarget         string             `json:"feeTarget"`
 	CustomFee         string             `json:"customFee"`
+	SendAll           string             `json:"sendAll"`
+	SelectedUTXOs     []string           `json:"selectedUTXOs"`
+	ExpectedAddress   string             `json:"expectedAddress"`
 }
 
 type topUpProposal struct {
@@ -65,19 +71,47 @@ func (lightning *Lightning) PrepareTopUp(request prepareTopUpRequest) (*topUpPro
 		return nil, errp.Newf("account %q is not a Bitcoin mainnet account", request.SourceAccountCode)
 	}
 
-	amount, err := parseTopUpAmount(account.Coin(), request.Amount)
-	if err != nil {
-		return nil, err
+	if request.SendAll != "" && request.SendAll != "yes" && request.SendAll != "no" {
+		return nil, accountErrors.ErrInvalidAmount
 	}
-	if err := validateTopUpAmount(amount); err != nil {
-		return nil, err
+	sendAmount := coin.NewSendAmount(request.Amount)
+	var amount coin.Amount
+	if request.SendAll == "yes" {
+		sendAmount = coin.NewSendAmountAll()
+	} else {
+		amount, err = parseTopUpAmount(account.Coin(), request.Amount)
+		if err != nil {
+			return nil, err
+		}
+		if err := validateTopUpAmount(amount); err != nil {
+			return nil, err
+		}
 	}
 	_, limit, err := lightning.balanceWithFundingLimit()
 	if err != nil {
 		return nil, err
 	}
-	if amount.BigInt().Cmp(big.NewInt(limit.MarginSat)) > 0 {
-		return nil, &topUpFundingLimitError{fundingLimit: limit}
+	validateOutputAmount := func(amount coin.Amount) error {
+		if err := validateTopUpAmount(amount); err != nil {
+			return err
+		}
+		if amount.BigInt().Cmp(big.NewInt(limit.MarginSat)) > 0 {
+			return &topUpFundingLimitError{fundingLimit: limit}
+		}
+		return nil
+	}
+	if !sendAmount.SendAll() {
+		if err := validateOutputAmount(amount); err != nil {
+			return nil, err
+		}
+	}
+	selectedUTXOs := make(map[wire.OutPoint]struct{}, len(request.SelectedUTXOs))
+	for _, value := range request.SelectedUTXOs {
+		outPoint, err := btcutil.ParseOutPoint([]byte(value))
+		if err != nil {
+			return nil, err
+		}
+		selectedUTXOs[*outPoint] = struct{}{}
 	}
 
 	feeTarget, err := accounts.NewFeeTargetCode(request.FeeTarget)
@@ -92,12 +126,17 @@ func (lightning *Lightning) PrepareTopUp(request prepareTopUpRequest) (*topUpPro
 	if err != nil {
 		return nil, err
 	}
+	if request.ExpectedAddress != "" && request.ExpectedAddress != boardingAddress {
+		return nil, accountErrors.ErrInvalidAddress
+	}
 
 	outputAmount, fee, total, err := account.TxProposal(&accounts.TxProposalArgs{
-		RecipientAddress: boardingAddress,
-		Amount:           coin.NewSendAmount(request.Amount),
-		FeeTargetCode:    feeTarget,
-		CustomFee:        customFee,
+		RecipientAddress:     boardingAddress,
+		Amount:               sendAmount,
+		FeeTargetCode:        feeTarget,
+		CustomFee:            customFee,
+		SelectedUTXOs:        selectedUTXOs,
+		ValidateOutputAmount: validateOutputAmount,
 	})
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to create Lightning top-up transaction proposal")

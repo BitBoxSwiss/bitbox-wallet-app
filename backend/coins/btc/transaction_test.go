@@ -388,3 +388,38 @@ func TestTxProposal(t *testing.T) {
 		})
 	}
 }
+
+func TestTxProposalValidatesOutputBeforeStoring(t *testing.T) {
+	account := testAccount(t, nil)
+	for _, reject := range []bool{false, true} {
+		called := false
+		_, _, _, err := account.TxProposal(&accounts.TxProposalArgs{
+			RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
+			Amount:           coin.NewSendAmountAll(),
+			FeeTargetCode:    accounts.FeeTargetCodeCustom,
+			CustomFee:        "10",
+			SelectedUTXOs: map[wire.OutPoint]struct{}{
+				*wire.NewOutPoint(&chainhash.Hash{}, 1): {},
+			},
+			ValidateOutputAmount: func(amount coin.Amount) error {
+				called = true
+				// The selected coin contains 1,000,000 sats; validation sees the amount after fees.
+				require.Equal(t, coin.NewAmountFromInt64(998870), amount)
+				if reject {
+					return errors.ErrInvalidAmount
+				}
+				return nil
+			},
+		})
+		require.True(t, called)
+		if reject {
+			require.ErrorIs(t, err, errors.ErrInvalidAmount)
+			require.Nil(t, account.activeTxProposal)
+			_, err := account.SendTx("")
+			require.EqualError(t, err, "No active tx proposal")
+		} else {
+			require.NoError(t, err)
+			require.NotNil(t, account.activeTxProposal)
+		}
+	}
+}
