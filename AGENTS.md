@@ -166,6 +166,12 @@ component state — no form library is used.
 
 ## Coding Style & Naming Conventions
 
+### Code Comments
+
+- Describe the current behavior, constraints, and rationale. Do not narrate refactors or compare
+  with removed implementations, such as "matching the previous backend behavior". Put change
+  history in commit messages or PR descriptions.
+
 ### Go
 - Must pass `gofmt` and `goimports`. Linting via `golangci-lint run` (config in `.golangci.yml`).
 - Create files containing sensitive data with owner-only (`0600`) permissions, and tighten the
