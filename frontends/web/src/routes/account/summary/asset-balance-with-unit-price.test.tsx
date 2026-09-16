@@ -123,8 +123,14 @@ describe('AssetBalanceWithUnitPrice', () => {
     expect(screen.queryByTestId('unit-price-amount')).not.toBeInTheDocument();
   });
 
-  it('hides unit prices when showUnitPrice is false', () => {
-    renderAssetBalance('USD', 'btc', 'Bitcoin', 'BTC', false);
+  it.each(['BTC', 'sat'] as const)('hides Lightning unit prices when the display currency is %s', currency => {
+    renderAssetBalance(currency, 'lightning', 'Lightning', 'BTC');
+
+    expect(screen.queryByTestId('unit-price-amount')).not.toBeInTheDocument();
+  });
+
+  it.each(['btc', 'lightning'] as const)('hides %s unit prices when showUnitPrice is false', coinCode => {
+    renderAssetBalance('USD', coinCode, coinCode, 'BTC', false);
 
     expect(screen.queryByTestId('unit-price-amount')).not.toBeInTheDocument();
   });
@@ -136,9 +142,10 @@ describe('AssetBalanceWithUnitPrice', () => {
     expect(mockUseCoinUnitPrice).toHaveBeenCalledWith('btc', 'BTC');
   });
 
-  it('passes the asset coin code to the unit price hook', () => {
+  it('shows Lightning unit prices for fiat display currencies', () => {
     renderAssetBalance('USD', 'lightning', 'Lightning', 'BTC');
 
+    expect(screen.getByTestId('unit-price-amount')).toHaveTextContent('60000 USD');
     expect(mockUseCoinUnitPrice).toHaveBeenCalledWith('lightning', 'BTC');
     expect(screen.getByAltText('lightning').className).toContain('assetBalanceLogo');
   });
