@@ -36,7 +36,7 @@ export const AssetBalanceWithUnitPrice = ({
   const unitPrice = useCoinUnitPrice(coinCode, amount?.unit ?? coinUnit);
   const shouldShowUnitPrice = (
     showUnitPrice
-    && (!isBitcoinOnly(coinCode) || (defaultCurrency !== 'BTC' && defaultCurrency !== 'sat'))
+    && (!(isBitcoinOnly(coinCode) || coinCode === 'lightning') || (defaultCurrency !== 'BTC' && defaultCurrency !== 'sat'))
   );
 
   return (
