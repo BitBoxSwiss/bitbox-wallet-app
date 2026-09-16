@@ -2,7 +2,7 @@
 
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { i18n as interfacei18n } from 'i18next';
-import { txProposalErrorHandling } from './services';
+import { queueTxProposal, txProposalErrorHandling } from './services';
 import { alertUser } from '@/components/alert/Alert';
 
 vi.mock('i18next', async () => {
@@ -24,6 +24,30 @@ vi.mock('@/components/alert/Alert', () => ({
 }));
 
 describe('send services', () => {
+  describe('queueTxProposal', () => {
+    // A slow preparation must finish before another caller replaces the same account's proposal.
+    it.each(['resolve', 'reject'])('preserves request order when the previous request %ss', async outcome => {
+      let finish!: () => void;
+      const pending = new Promise<string>((resolve, reject) => {
+        finish = () => outcome === 'resolve' ? resolve('first') : reject(new Error('Failed'));
+      });
+      const first = queueTxProposal('btc', () => pending);
+      const firstResult = (
+        outcome === 'resolve'
+          ? expect(first).resolves.toBe('first')
+          : expect(first).rejects.toThrow('Failed')
+      );
+      const propose = vi.fn(() => 'next');
+      const next = queueTxProposal('btc', propose);
+
+      await expect(queueTxProposal('other-account', () => 'other')).resolves.toBe('other');
+      expect(propose).not.toHaveBeenCalled();
+      finish();
+      await firstResult;
+      await expect(next).resolves.toBe('next');
+    });
+  });
+
   describe('txProposalErrorHandling', () => {
     beforeEach(() => vi.clearAllMocks());
 

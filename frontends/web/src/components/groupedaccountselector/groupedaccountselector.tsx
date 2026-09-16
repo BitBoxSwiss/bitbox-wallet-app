@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, CoinCode, CoinUnit, TAccountBase, TAmountWithConversions } from '@/api/account';
 import { syncdone } from '@/api/accountsync';
@@ -34,6 +34,7 @@ type TOptionAccountSelector = {
   coinCode?: CoinCode;
   coinUnit?: CoinUnit;
   balance?: TAmountWithConversions;
+  hasAvailable?: boolean;
   insured?: boolean;
 };
 
@@ -113,6 +114,8 @@ type TAccountSelector<T extends TAccountBase> = {
   selected?: string;
   onChange: (value: string) => void;
   onProceed?: () => void;
+  onSingleAccount?: (code: AccountCode) => void;
+  requireAvailableBalance?: boolean;
   accounts: T[];
   lightningAccount?: TLightningAccount | null;
   stackedLayout?: boolean;
@@ -126,14 +129,23 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
   selected,
   onChange,
   onProceed,
+  onSingleAccount,
+  requireAvailableBalance = false,
   accounts,
   lightningAccount,
   stackedLayout,
   className = '',
 }: TAccountSelector<T>) => {
   const { t } = useTranslation();
-  const [options, setOptions] = useState<TGroupedOption[]>();
+  const [accountOptions, setOptions] = useState<TGroupedOption[]>();
   const [isOpen, setIsOpen] = useState(false);
+  const options = useMemo(() => requireAvailableBalance ? accountOptions?.map(group => ({
+    ...group,
+    options: group.options.map(option => ({
+      ...option,
+      disabled: option.disabled || option.hasAvailable !== true,
+    })),
+  })) : accountOptions, [accountOptions, requireAvailableBalance]);
 
   useEffect(() => {
     let cancelled = false;
@@ -182,6 +194,19 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
       unsubscribe(subscriptions);
     };
   }, [accounts, isAccountDisabled, lightningAccount, t]);
+
+  useEffect(() => {
+    const flatOptions = options?.flatMap(group => group.options);
+    const singleAccount = flatOptions?.length === 1 ? flatOptions[0] : undefined;
+    const accountCodes = accounts.map(account => account.code);
+    if (lightningAccount) {
+      accountCodes.push(lightningAccount.code);
+    }
+    if (!disabled && singleAccount && !singleAccount.disabled
+      && accountCodes.length === 1 && accountCodes[0] === singleAccount.value) {
+      onSingleAccount?.(singleAccount.value);
+    }
+  }, [accounts, disabled, lightningAccount, onSingleAccount, options]);
 
   if (!options) {
     return null;

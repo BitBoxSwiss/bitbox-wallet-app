@@ -34,17 +34,22 @@ const appendBalance = async (option: TOption) => {
   if (option.coinCode === 'lightning') {
     try {
       const balance = await getLightningBalance();
-      return { ...option, balance: balance.available };
+      return { ...option, balance: balance.available, hasAvailable: balance.hasAvailable };
     } catch {
       // The account can be selected while the Lightning SDK is initializing.
       return { ...option };
     }
   }
-  const balance = await getBalance(option.value);
-  if (!balance.success) {
+  try {
+    const balance = await getBalance(option.value);
+    if (!balance.success) {
+      return { ...option };
+    }
+    return { ...option, balance: balance.balance.available, hasAvailable: balance.balance.hasAvailable };
+  } catch {
+    // A failed lookup must not prevent other accounts from loading their balances.
     return { ... option };
   }
-  return { ...option, balance: balance.balance.available };
 };
 
 export const getBalancesForGroupedAccountSelector = async (originalGroupedOptions: TGroupedOption[]) => {

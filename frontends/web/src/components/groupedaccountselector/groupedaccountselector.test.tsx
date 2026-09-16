@@ -2,7 +2,7 @@
 
 import '../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import type { TAccountBase } from '@/api/account';
 import { GroupedAccountSelector } from './groupedaccountselector';
 
@@ -98,5 +98,21 @@ describe('components/groupedaccountselector', () => {
     );
 
     expect(await screen.findByRole('button')).toBeDisabled();
+  });
+
+  // Changing the source list must not auto-select an option retained from the previous list.
+  it('auto-selects only the current single account after switching accounts', async () => {
+    const onSingleAccount = vi.fn();
+    const { rerender } = render(
+      <GroupedAccountSelector accounts={[account]} onChange={vi.fn()} onSingleAccount={onSingleAccount} />
+    );
+    await waitFor(() => expect(onSingleAccount).toHaveBeenCalledWith(account.code));
+    const onReplacementAccount = vi.fn();
+    const replacement = { ...account, code: 'btc-1' };
+    rerender(
+      <GroupedAccountSelector accounts={[replacement]} onChange={vi.fn()} onSingleAccount={onReplacementAccount} />
+    );
+    await waitFor(() => expect(onReplacementAccount).toHaveBeenCalledWith(replacement.code));
+    expect(onReplacementAccount).not.toHaveBeenCalledWith(account.code);
   });
 });

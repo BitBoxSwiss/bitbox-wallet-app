@@ -13,6 +13,7 @@ type TProps = {
   children?: ReactNode;
   code: AccountCode;
   onContinue: () => void;
+  onDone?: () => void;
   onRetry: () => void;
   result: TSendTx | undefined;
 };
@@ -58,10 +59,12 @@ export const SendResult = ({
   code,
   result,
   onContinue,
+  onDone,
   onRetry,
 }: TProps) => {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
+  const handleDone = onDone ?? (() => navigate(`/account/${code}`));
 
   if (!result) {
     return null;
@@ -71,7 +74,7 @@ export const SendResult = ({
     if ('aborted' in result) {
       return (
         <SendAbortedResult
-          onDone={() => navigate(`/account/${code}`)}
+          onDone={handleDone}
           onRetry={onRetry}
         />
       );
@@ -88,7 +91,7 @@ export const SendResult = ({
             </p>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => navigate(`/account/${code}`)}>
+            <Button primary onClick={handleDone}>
               {t('button.done')}
             </Button>
             {result.errorCode === 'erc20InsufficientGasFunds' && (
@@ -115,7 +118,7 @@ export const SendResult = ({
             />
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => navigate(`/account/${code}`)}>
+            <Button primary onClick={handleDone}>
               {t('button.done')}
             </Button>
             <Button secondary onClick={() => onRetry()}>
@@ -137,7 +140,7 @@ export const SendResult = ({
         {children}
       </ViewContent>
       <ViewButtons>
-        <Button primary onClick={() => navigate(`/account/${code}`)}>
+        <Button primary onClick={handleDone}>
           {t('button.done')}
         </Button>
         <Button secondary onClick={() => onContinue()}>

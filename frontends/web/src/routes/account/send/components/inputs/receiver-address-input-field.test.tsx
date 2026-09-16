@@ -49,18 +49,30 @@ const readClipboard = vi.fn<() => Promise<string>>();
 const onAccountChange = vi.fn();
 const onScanQR = vi.fn<(onReset?: () => void) => void>();
 
-const TestInput = () => {
+const TestInput = ({ withLightning = false }: { withLightning?: boolean }) => {
   const [address, setAddress] = useState('');
+  const [lightningSelected, setLightningSelected] = useState(false);
   return (
     <ReceiverAddressInputField
       accounts={accounts}
       inputLabel="Recipient address"
       inputPlaceholder="Address"
       onAccountChange={onAccountChange}
-      onInputChange={setAddress}
+      onInputChange={value => {
+        setLightningSelected(false);
+        setAddress(value);
+      }}
       onScanQR={onScanQR}
       recipientAddress={address}
       requireSendToSelfSupport={false}
+      lightningOption={withLightning ? {
+        ready: true,
+        selected: lightningSelected,
+        onSelect: () => {
+          setLightningSelected(true);
+          setAddress('boarding-address');
+        },
+      } : undefined}
     />
   );
 };
@@ -155,9 +167,9 @@ describe('ReceiverAddressInputField', () => {
     expect(onAccountChange).toHaveBeenLastCalledWith(account);
   });
 
-  // Late lookups must not restore a selection after a scan result, paste, or explicit reset.
-  it.each(['scan', 'paste', 'reset'] as const)('ignores a pending account address after %s', async (action) => {
-    render(<TestInput />);
+  // Late lookups must not restore an account after a scan, paste, reset, or Lightning selection.
+  it.each(['scan', 'paste', 'reset', 'lightning'] as const)('ignores a pending account address after %s', async (action) => {
+    render(<TestInput withLightning={action === 'lightning'} />);
     if (action === 'reset') {
       await selectAccount();
       await waitFor(() => expect(screen.getByRole('textbox')).toHaveValue('account-address'));
@@ -172,6 +184,9 @@ describe('ReceiverAddressInputField', () => {
 
     if (action === 'reset') {
       fireEvent.click(screen.getByRole('button', { name: 'generic.reset' }));
+    } else if (action === 'lightning') {
+      fireEvent.keyDown(screen.getByRole('combobox'), { key: 'ArrowDown' });
+      fireEvent.click(await screen.findByRole('option', { name: /lightning.accountLabel/ }));
     } else {
       await act(async () => fireEvent.click(getActionButton(action)));
       if (action === 'scan') {
@@ -180,6 +195,11 @@ describe('ReceiverAddressInputField', () => {
     }
     await act(async () => resolveAddresses(receiveAddresses));
 
+    if (action === 'lightning') {
+      expect(screen.getByRole('textbox')).toHaveValue('boarding-address');
+      expect(screen.getByRole('textbox')).toHaveAttribute('readonly');
+      fireEvent.click(screen.getByRole('button', { name: 'generic.reset' }));
+    }
     expect(screen.getByRole('textbox')).toHaveValue(action === 'paste' ? 'pasted-address' : '');
     expectReset();
   });
