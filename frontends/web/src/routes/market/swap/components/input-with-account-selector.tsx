@@ -15,6 +15,7 @@ import style from './input-with-account-selector.module.css';
 type Props<T extends TAccountBase> = {
   accountCode: AccountCode;
   accounts: T[];
+  disabled?: boolean;
   id: string;
   isAccountDisabled?: (account: T) => boolean;
   onChangeAccountCode: (accountCode: AccountCode) => void;
@@ -28,6 +29,7 @@ type Props<T extends TAccountBase> = {
 export const InputWithAccountSelector = <T extends TAccountBase, >({
   accountCode,
   accounts,
+  disabled = false,
   id,
   isAccountDisabled,
   onChangeAccountCode,
@@ -98,6 +100,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
         {hasAccounts && (
           <GroupedAccountSelector
             accounts={accounts}
+            disabled={disabled}
             selected={accountCode}
             onChange={(accountCode => {
               const account = findAccount(accounts, accountCode);
@@ -115,7 +118,7 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
           <NumberInput
             transparent
             align="right"
-            disabled={!selectedAccount || readOnlyAmount}
+            disabled={disabled || !selectedAccount || readOnlyAmount}
             id={id}
             className={style.inputComponent}
             classNameInputField={style.inputField}

@@ -69,7 +69,7 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() backend.AccountsList
-	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
+	PrepareSwap(ctx context.Context, buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
 	SwapAccounts() (backend.SwapAccounts, error)
 	SwapStatus() backend.SwapStatus
 	AccountsByKeystore() (backend.KeystoresAccountsListMap, error)
@@ -2029,6 +2029,7 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 	type result struct {
 		Success           bool                     `json:"success"`
+		ErrorCode         string                   `json:"errorCode,omitempty"`
 		ErrorMessage      string                   `json:"errorMessage,omitempty"`
 		ExpectedBuyAmount string                   `json:"expectedBuyAmount,omitempty"`
 		SwapID            string                   `json:"swapId,omitempty"`
@@ -2058,13 +2059,18 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 		return result{Success: false, ErrorMessage: "sellAmount is required."}
 	}
 	swapResult, err := handlers.backend.PrepareSwap(
+		r.Context(),
 		request.BuyAccountCode,
 		request.SellAccountCode,
 		request.RouteID,
 		request.SellAmount,
 	)
 	if err != nil {
-		return result{Success: false, ErrorMessage: err.Error()}
+		response := result{Success: false, ErrorMessage: err.Error()}
+		if errp.Cause(err) == accounts.ErrSyncInProgress {
+			response.ErrorCode = accounts.ErrSyncInProgress.Error()
+		}
+		return response
 	}
 
 	return result{

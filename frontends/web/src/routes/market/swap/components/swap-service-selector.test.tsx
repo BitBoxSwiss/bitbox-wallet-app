@@ -91,6 +91,25 @@ describe('routes/market/swap/components/swap-service-selector', () => {
     expect(await screen.findByRole('option', { name: /THORChain/ })).toBeInTheDocument();
   });
 
+  it('disables route selection while preparing a swap', () => {
+    render(
+      <SwapServiceSelector
+        buyUnit="ETH"
+        disabled
+        isLoading={false}
+        onChangeRouteId={vi.fn()}
+        routes={[{
+          expectedBuyAmount: '1.23',
+          providers: ['THORCHAIN'],
+          routeId: 'route-1',
+        }]}
+        selectedRouteId="route-1"
+      />,
+    );
+
+    expect(screen.getByRole('combobox')).toBeDisabled();
+  });
+
   it('emits route id when selecting another grouped route', async () => {
     const user = userEvent.setup();
     const onChangeRouteId = vi.fn();
