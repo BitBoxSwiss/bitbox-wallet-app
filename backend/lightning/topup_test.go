@@ -3,10 +3,13 @@
 package lightning
 
 import (
+	"encoding/json"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	btccoin "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
@@ -89,6 +92,7 @@ func TestParseTopUpAmountUsesAccountDisplayUnit(t *testing.T) {
 	require.Equal(t, coin.NewAmountFromInt64(125_000), amount)
 }
 
+// An omitted sendAll flag preserves the requested fixed amount.
 func TestPrepareTopUp(t *testing.T) {
 	sdk := &topUpTestSDK{
 		balanceSat:      50_000,
@@ -119,11 +123,43 @@ func TestPrepareTopUp(t *testing.T) {
 	require.Equal(t, 1, sdk.receiveCallCount)
 	require.Len(t, account.TxProposalCalls(), 1)
 	args := account.TxProposalCalls()[0].TxProposalArgs
+	require.False(t, args.Amount.SendAll())
 	require.Equal(t, "bc1qboarding", args.RecipientAddress)
 	require.Equal(t, accounts.FeeTargetCodeEconomy, args.FeeTargetCode)
 	parsedAmount, err := args.Amount.Amount(coin.DecimalsExp(account.Coin(), false), false)
 	require.NoError(t, err)
 	require.Equal(t, coin.NewAmountFromInt64(125_000), parsedAmount)
+}
+
+// The top-up API accepts boolean flags, defaults omission to false, and rejects string flags.
+func TestPrepareTopUpRequestSendAll(t *testing.T) {
+	for _, test := range []struct {
+		name    string
+		body    string
+		sendAll bool
+		invalid bool
+	}{
+		{name: "omitted", body: `{}`},
+		{name: "false", body: `{"sendAll":false}`},
+		{name: "true", body: `{"sendAll":true}`, sendAll: true},
+		{name: "empty string", body: `{"sendAll":""}`, invalid: true},
+		{name: "yes string", body: `{"sendAll":"yes"}`, invalid: true},
+		{name: "no string", body: `{"sendAll":"no"}`, invalid: true},
+		{name: "other string", body: `{"sendAll":"invalid"}`, invalid: true},
+		{name: "number", body: `{"sendAll":1}`, invalid: true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			var request prepareTopUpRequest
+			err := json.Unmarshal([]byte(test.body), &request)
+			if test.invalid {
+				var typeError *json.UnmarshalTypeError
+				require.ErrorAs(t, err, &typeError)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.sendAll, request.SendAll)
+		})
+	}
 }
 
 func TestPrepareTopUpClaimFee(t *testing.T) {
@@ -231,4 +267,80 @@ func TestValidateTopUpAmount(t *testing.T) {
 	require.ErrorAs(t, err, &amountBelowMinimum)
 	require.Equal(t, uint64(minimumTopUpAmountSat), amountBelowMinimum.minAmountSat)
 	require.NoError(t, validateTopUpAmount(coin.NewAmountFromInt64(minimumTopUpAmountSat)))
+}
+
+// Send-all forwards coin selection and validates the final output against both funding bounds.
+func TestPrepareTopUpSendAll(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		amount int64
+		err    string
+	}{
+		{name: "below minimum after fees", amount: 999, err: "minimum"},
+		{name: "minimum after fees", amount: 1000},
+		{name: "funding margin after fees", amount: 125_000},
+		{name: "above funding margin", amount: 125_001, err: "limit"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			sdk := &topUpTestSDK{balanceSat: 50_000, incomingSat: 25_000}
+			lightning := makeActiveLightningWithSDK(t, sdk)
+			outpoint := strings.Repeat("0", 64) + ":1"
+			account := testTopUpAccount(t, lightning, func(args *accounts.TxProposalArgs) (
+				coin.Amount, coin.Amount, coin.Amount, error,
+			) {
+				require.True(t, args.Amount.SendAll())
+				require.Equal(t, accounts.FeeTargetCodeCustom, args.FeeTargetCode)
+				require.Equal(t, "2", args.CustomFee)
+				require.Len(t, args.SelectedUTXOs, 1)
+				for selected := range args.SelectedUTXOs {
+					require.Equal(t, outpoint, selected.String())
+				}
+				amount := coin.NewAmountFromInt64(test.amount)
+				require.NotNil(t, args.ValidateOutputAmount)
+				if err := args.ValidateOutputAmount(amount); err != nil {
+					return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
+				}
+				return amount, coin.NewAmountFromInt64(100), coin.NewAmountFromInt64(test.amount + 100), nil
+			})
+			proposal, err := lightning.PrepareTopUp(prepareTopUpRequest{
+				SourceAccountCode: testTopUpSourceAccountCode,
+				Amount:            "ignored for send-all",
+				SendAll:           true,
+				SelectedUTXOs:     []string{outpoint},
+				FeeTarget:         "custom",
+				CustomFee:         "2",
+				ExpectedAddress:   "bc1qboarding",
+			})
+			require.Len(t, account.TxProposalCalls(), 1)
+			switch test.err {
+			case "minimum":
+				var minimumErr *lightningAmountBelowMinimumError
+				require.ErrorAs(t, err, &minimumErr)
+				require.Nil(t, proposal)
+			case "limit":
+				var limitErr *topUpFundingLimitError
+				require.ErrorAs(t, err, &limitErr)
+				require.Equal(t, int64(125_000), limitErr.fundingLimit.MarginSat)
+				require.Nil(t, proposal)
+			default:
+				require.NoError(t, err)
+				require.NotNil(t, proposal)
+			}
+		})
+	}
+}
+
+// A changed Lightning wallet must not silently replace the address selected in the send form.
+func TestPrepareTopUpRejectsChangedDestination(t *testing.T) {
+	lightning := makeActiveLightningWithSDK(t, &topUpTestSDK{})
+	account := testTopUpAccount(t, lightning, nil)
+	proposal, err := lightning.PrepareTopUp(prepareTopUpRequest{
+		SourceAccountCode: testTopUpSourceAccountCode,
+		SendAll:           true,
+		FeeTarget:         "economy",
+		ExpectedAddress:   "bc1qother",
+	})
+	require.ErrorIs(t, err, accountErrors.ErrInvalidAddress)
+	require.Nil(t, proposal)
+	require.Empty(t, account.TxProposalCalls())
 }

@@ -16,6 +16,7 @@ import { FeeTargets } from '@/routes/account/send/feetargets';
 import { FiatInput } from '@/routes/account/send/components/inputs/fiat-input';
 import { NoteInput } from '@/routes/account/send/components/inputs/note-input';
 import type { TProposalError } from '@/routes/account/send/services';
+import { TopUpClaimFee } from './topup-claim-fee';
 import styles from './topup.module.css';
 
 type TReadonlyAccountRowProps = {
@@ -176,20 +177,7 @@ export const TopUpForm = ({
                 )}
                 {proposal?.success && (
                   <Column>
-                    <p className={styles.claimFee}>
-                      <span>{t('lightning.topUp.estimatedClaimFee')}</span>:
-                      {' '}
-                      {proposal.estimatedClaimFee ? (
-                        <>
-                          <AmountWithUnit amount={proposal.estimatedClaimFee} alwaysShowAmounts wrap />
-                          {' ('}
-                          <AmountWithUnit amount={proposal.estimatedClaimFee} convertToFiat alwaysShowAmounts wrap />
-                          {')'}
-                        </>
-                      ) : t('generic.unavailable')}
-                      <br />
-                      <span>{t('lightning.topUp.claimFeeInfo')}</span>
-                    </p>
+                    <TopUpClaimFee amount={proposal.estimatedClaimFee} />
                   </Column>
                 )}
                 <Column>
