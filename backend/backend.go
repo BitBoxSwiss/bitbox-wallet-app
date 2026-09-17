@@ -391,6 +391,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		backend.Keystore,
 		backend.GetAccountFromCode,
 		backend.httpClient,
+		backend.socksProxy,
 		backend.ratesUpdater,
 		btcCoin)
 

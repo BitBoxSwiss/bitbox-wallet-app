@@ -16,6 +16,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/stretchr/testify/require"
 )
@@ -434,7 +435,7 @@ func TestRegisterAddressReturnsSuccessWhenTimestampPersistenceFails(t *testing.T
 	cfg, err := config.NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
 
-	lightning := NewLightning(cfg, t.TempDir(), nil, nil, nil, &http.Client{}, nil, nil)
+	lightning := NewLightning(cfg, t.TempDir(), nil, nil, nil, &http.Client{}, socksproxy.NewSocksProxy(false, ""), nil, nil)
 	activateLightningAddressTest(t, lightning)
 	now := time.Date(2026, 7, 9, 12, 0, 0, 0, time.UTC)
 	withLightningAddressNow(t, now)

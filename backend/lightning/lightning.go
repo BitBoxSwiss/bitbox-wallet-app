@@ -26,6 +26,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/sirupsen/logrus"
 	"github.com/tyler-smith/go-bip39"
@@ -92,6 +93,7 @@ type Lightning struct {
 	sdkService    breezSDK
 	sparkStatus   func(breez_sdk_spark.GetSparkStatusRequest) (breez_sdk_spark.SparkStatus, error)
 	httpClient    *http.Client
+	socksProxy    socksproxy.SocksProxy
 	ratesUpdater  *rates.RateUpdater
 	btcCoin       coin.Coin
 	sdkStatus     SDKStatus
@@ -110,6 +112,7 @@ func NewLightning(config *config.Config,
 	getKeystore func() keystore.Keystore,
 	getAccount func(types.Code) (accounts.Interface, error),
 	httpClient *http.Client,
+	socksProxy socksproxy.SocksProxy,
 	ratesUpdater *rates.RateUpdater,
 	btcCoin coin.Coin) *Lightning {
 	lightning := &Lightning{
@@ -122,6 +125,7 @@ func NewLightning(config *config.Config,
 		synced:                 false,
 		sparkStatus:            breez_sdk_spark.GetSparkStatus,
 		httpClient:             httpClient,
+		socksProxy:             socksProxy,
 		ratesUpdater:           ratesUpdater,
 		btcCoin:                btcCoin,
 		sdkStatus:              SDKStatusInactive,
@@ -383,11 +387,15 @@ func serviceStatus(status breez_sdk_spark.ServiceStatus) string {
 // It returns an error if the Breez SDK status request fails. Tests can override the status request
 // through the Lightning.sparkStatus field.
 func (lightning *Lightning) SparkStatus() (*SparkStatus, error) {
+	proxyConfig, err := lightning.proxyConfig()
+	if err != nil {
+		return nil, err
+	}
 	getSparkStatus := lightning.sparkStatus
 	if getSparkStatus == nil {
 		getSparkStatus = breez_sdk_spark.GetSparkStatus
 	}
-	status, err := getSparkStatus(breez_sdk_spark.GetSparkStatusRequest{})
+	status, err := getSparkStatus(breez_sdk_spark.GetSparkStatusRequest{Proxy: proxyConfig})
 	if err != nil {
 		return nil, errp.Wrap(err, "breez: get spark status")
 	}
@@ -411,6 +419,10 @@ func (lightning *Lightning) connect() (returnErr error) {
 				lightning.setSDKStatus(SDKStatusFailed)
 			}
 		}()
+		proxyConfig, err := lightning.proxyConfig()
+		if err != nil {
+			return err
+		}
 		initializeLogging(lightning.log)
 
 		workingDir := path.Join(lightning.lightningDirectoryPath, accountBreezFolder(account.Code))
@@ -440,6 +452,7 @@ func (lightning *Lightning) connect() (returnErr error) {
 		// Create the default config
 		config := breez_sdk_spark.DefaultConfig(breez_sdk_spark.NetworkMainnet)
 		config.ApiKey = apiKey
+		config.Proxy = proxyConfig
 		lnurlDomainConfig := lnurlDomain
 		config.LnurlDomain = &lnurlDomainConfig
 		// Do not send unrecognized payment inputs to third-party parsers.
