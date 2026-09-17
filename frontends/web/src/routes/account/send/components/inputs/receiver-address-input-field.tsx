@@ -62,13 +62,14 @@ export const ReceiverAddressInputField = ({
 }: TProps) => {
   const showPasteButton = canReadClipboard();
 
-  const handlePaste = async () => {
+  const handlePaste = async (onReset?: () => void) => {
     if (!navigator.clipboard?.readText) {
       return;
     }
     try {
       const value = (await navigator.clipboard.readText()).trim();
       if (value) {
+        onReset?.();
         onInputChange(value);
       }
     } catch (error) {
@@ -76,10 +77,13 @@ export const ReceiverAddressInputField = ({
     }
   };
 
-  const inputActions = (
+  const renderInputActions = (onReset?: () => void) => (
     <>
-      <ScanQRButton onClick={onScanQR} />
-      {showPasteButton && <PasteButton onClick={handlePaste} />}
+      <ScanQRButton onClick={() => {
+        onReset?.();
+        onScanQR();
+      }} />
+      {showPasteButton && <PasteButton onClick={() => handlePaste(onReset)} />}
     </>
   );
 
@@ -98,7 +102,7 @@ export const ReceiverAddressInputField = ({
         recipientAddress={recipientAddress}
         requireSendToSelfSupport={requireSendToSelfSupport}
       >
-        {inputActions}
+        {renderInputActions}
       </ReceiverAddressWrapper>
     );
   }
@@ -116,7 +120,7 @@ export const ReceiverAddressInputField = ({
       classNameInputField={`${styles.inputFieldWithIcon || ''} ${!showPasteButton ? styles.inputFieldWithoutPaste || '' : ''}`}
       labelSection={labelSection}
     >
-      {inputActions}
+      {renderInputActions()}
     </Input>
   );
 };
