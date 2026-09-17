@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '@/components/layout';
-import { MobileHeader } from '../settings/components/mobile-header';
 import { Spinner } from '@/components/spinner/Spinner';
 import { MarketGuide } from './guide';
 import { AccountCode, TAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
@@ -202,12 +201,7 @@ export const Bitrefill = ({
       <div className="container">
         <div className="innerContainer">
           <div className={style.header}>
-            <Header title={
-              <>
-                <h2 className="hide-on-small">{title}</h2>
-                <MobileHeader title={title} />
-              </>
-            } />
+            <Header variant="navigation" mobileBackButton title={title} />
           </div>
           <div ref={containerRef} className={style.container}>
             { !agreedTerms ? (

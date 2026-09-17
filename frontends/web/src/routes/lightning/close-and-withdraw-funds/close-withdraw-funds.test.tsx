@@ -20,10 +20,13 @@ vi.mock('@/api/system', async (importOriginal) => ({
   open: vi.fn(),
 }));
 
-vi.mock('@/components/layout', () => ({
-  Header: ({ title }: { title: ReactNode }) => <header>{title}</header>,
-  Main: ({ children }: { children: ReactNode }) => <main>{children}</main>,
-}));
+vi.mock('@/components/layout', async () => {
+  const { Header } = await import('@/components/layout/header');
+  return {
+    Header,
+    Main: ({ children }: { children: ReactNode }) => <main>{children}</main>,
+  };
+});
 
 vi.mock('@/components/amount/amount-with-unit', () => ({
   AmountWithUnit: ({ amount: displayedAmount }: { amount?: TAmountWithConversions }) => (
@@ -179,13 +182,14 @@ describe('Lightning Close & Withdraw', () => {
     );
 
     const confirmation = await screen.findByLabelText('lightning.closeWithdrawFunds.confirm');
+    expect(screen.getByRole('button', { name: 'button.back' })).toBeInTheDocument();
     fireEvent.click(confirmation);
     const closeButton = screen.getByRole('button', { name: 'lightning.settings.closeAndWithdrawFunds' });
     await waitFor(() => expect(closeButton).toBeEnabled());
     fireEvent.click(closeButton);
     await waitFor(() => expect(lightningApi.postCloseWithdraw).toHaveBeenCalledOnce());
 
-    expect(document.querySelector('header button')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'button.back' })).not.toBeInTheDocument();
     act(() => {
       expect(window.onBackButtonPressed?.()).toBe(false);
     });

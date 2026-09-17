@@ -25,7 +25,6 @@ import { FactoryResetSetting } from './components/device-settings/factory-reset-
 import { RootFingerprintSetting } from './components/device-settings/root-fingerprint-setting';
 import { Bip85Setting } from './components/device-settings/bip85-setting';
 import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
-import { MobileHeader } from './components/mobile-header';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
 import {
@@ -57,13 +56,12 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
       <GuidedContent>
         <Main>
           <Header
+            variant="navigation"
+            desktopTitle={t('sidebar.settings')}
             hideSidebarToggler
-            title={
-              <>
-                <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader title={t('sidebar.device')} />
-              </>
-            }/>
+            mobileBackButton
+            title={t('sidebar.device')}
+          />
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs

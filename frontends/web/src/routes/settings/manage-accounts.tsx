@@ -18,7 +18,6 @@ import { Message } from '@/components/message/message';
 import { WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
 import { View, ViewContent } from '@/components/view/view';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { AccountGuide } from './manage-account-guide';
 import { WatchonlySetting } from './components/manage-accounts/watchonlySetting';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
@@ -194,13 +193,12 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
       <GuidedContent>
         <Main>
           <Header
+            variant="navigation"
+            desktopTitle={t('settings.title')}
             hideSidebarToggler
-            title={
-              <>
-                <h2 className="hide-on-small">{t('settings.title')}</h2>
-                <MobileHeader title={t('manageAccounts.title')} />
-              </>
-            } />
+            mobileBackButton
+            title={t('manageAccounts.title')}
+          />
           <View fullscreen={false}>
             <ViewContent>
               <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>

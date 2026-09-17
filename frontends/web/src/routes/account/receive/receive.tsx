@@ -19,7 +19,6 @@ import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { QRCode } from '@/components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
 import { connectKeystore } from '@/api/keystores';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import style from './receive.module.css';
 
 type TProps = {
@@ -252,12 +251,10 @@ export const Receive = ({
       <GuidedContent>
         <Main>
           <Header
-            title={
-              <>
-                <h2 className="hide-on-small">{t('receive.title', { accountName: account?.coinName })}</h2>
-                <MobileHeader title={t('receive.title', { accountName: account?.coinName })} />
-              </>
-            } />
+            variant="navigation"
+            mobileBackButton
+            title={t('receive.title', { accountName: account?.coinName })}
+          />
           <div className="content narrow isVerticallyCentered">
             <div className="box large text-center">
               { currentAddresses && (

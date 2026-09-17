@@ -32,7 +32,6 @@ import {
   getLightningFundingLimitError,
 } from '../limits';
 import { LightningReceiveGuide } from '../guide';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import styles from './receive.module.css';
 
 export function Receive() {
@@ -355,16 +354,12 @@ export function Receive() {
           <Status dismissibleKey="" type="warning" hidden={!receiveError}>
             {receiveError}
           </Status>
-          <Header title={
-            <>
-              <h2 className="hide-on-small">{t('lightning.receive.title')}</h2>
-              <MobileHeader
-                onClick={step === 'invoice' ? cancelInvoice : back}
-                title={t('lightning.receive.title')}
-                variant={step === 'wait' || step === 'success' ? 'titleOnly' : 'back'}
-              />
-            </>
-          } />
+          <Header
+            variant="navigation"
+            mobileBackButton={step !== 'wait' && step !== 'success'}
+            onBack={step === 'invoice' ? cancelInvoice : back}
+            title={t('lightning.receive.title')}
+          />
           {renderSteps()}
         </Main>
       </GuidedContent>

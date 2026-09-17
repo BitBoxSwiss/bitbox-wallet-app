@@ -15,7 +15,6 @@ import { FeeTargets } from '@/routes/account/send/feetargets';
 import { FiatInput } from '@/routes/account/send/components/inputs/fiat-input';
 import { NoteInput } from '@/routes/account/send/components/inputs/note-input';
 import type { TProposalError } from '@/routes/account/send/services';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import styles from './topup.module.css';
 
 type TReadonlyAccountRowProps = {
@@ -105,12 +104,12 @@ export const TopUpForm = ({
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={
-            <>
-              <h2 className="hide-on-small">{t('lightning.topUp.title')}</h2>
-              <MobileHeader onClick={onBack} title={t('lightning.topUp.title')} />
-            </>
-          }>
+          <Header
+            variant="navigation"
+            mobileBackButton
+            onBack={onBack}
+            title={t('lightning.topUp.title')}
+          >
             <HideAmountsButton />
           </Header>
           <Status dismissibleKey="" type="error" hidden={!balanceLimitError}>

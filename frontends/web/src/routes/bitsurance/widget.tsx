@@ -137,7 +137,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('generic.buySell')}</h2>} />
+          <Header title={t('generic.buySell')} />
           <div ref={containerRef} className={style.container}>
             { !agreedTerms ? (
               <BitsuranceTerms

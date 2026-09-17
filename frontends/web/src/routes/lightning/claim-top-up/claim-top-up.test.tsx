@@ -12,10 +12,13 @@ import { TLightningErrorCode, TSdkError } from '@/api/lightning-errors';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { LightningClaimTopUp } from './claim-top-up';
 
-vi.mock('@/components/layout', () => ({
-  Header: ({ title }: { title: ReactNode }) => <div>{title}</div>,
-  Main: ({ children }: { children: ReactNode }) => <main>{children}</main>,
-}));
+vi.mock('@/components/layout', async () => {
+  const { Header } = await import('@/components/layout/header');
+  return {
+    Header,
+    Main: ({ children }: { children: ReactNode }) => <main>{children}</main>,
+  };
+});
 
 vi.mock('@/components/amount/amount-with-unit', () => ({
   AmountWithUnit: ({ amount: displayedAmount }: { amount?: TAmountWithConversions }) => (
@@ -222,6 +225,7 @@ describe('routes/lightning/claim-top-up', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.claimButton' }));
     expect(screen.getByText('lightning.claimTopUp.confirm.claimTitle')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'button.back' })).toBeInTheDocument();
     act(() => {
       expect(window.onBackButtonPressed?.()).toBe(false);
     });
@@ -232,6 +236,7 @@ describe('routes/lightning/claim-top-up', () => {
     fireEvent.click(confirmButton);
     await waitFor(() => expect(lightningApi.postClaimTopUp).toHaveBeenCalledOnce());
 
+    expect(screen.queryByRole('button', { name: 'button.back' })).not.toBeInTheDocument();
     act(() => {
       expect(window.onBackButtonPressed?.()).toBe(false);
     });

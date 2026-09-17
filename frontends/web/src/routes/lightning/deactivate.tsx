@@ -12,7 +12,6 @@ import { postDeactivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { Spinner } from '../../components/spinner/Spinner';
 import { route } from '../../utils/route';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 
 const CONTENT_MIN_HEIGHT = '38em';
 
@@ -87,16 +86,12 @@ export const LightningDeactivate = () => {
       <Status dismissibleKey="" type="warning" hidden={!deactivateError}>
         {deactivateError}
       </Status>
-      <Header title={
-        <>
-          <h2 className="hide-on-small">Shut down lightning wallet</h2>
-          <MobileHeader
-            onClick={() => navigate(-1)}
-            title="Shut down lightning wallet"
-            variant={step === 'intro' ? 'back' : 'titleOnly'}
-          />
-        </>
-      } />
+      <Header
+        variant="navigation"
+        mobileBackButton={step === 'intro'}
+        onBack={() => navigate(-1)}
+        title="Shut down lightning wallet"
+      />
       {renderSteps()}
     </Main>
   );

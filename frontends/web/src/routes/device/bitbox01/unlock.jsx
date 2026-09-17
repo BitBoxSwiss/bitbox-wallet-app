@@ -108,7 +108,7 @@ class Unlock extends Component {
       <div className="contentWithGuide">
         <div className="container">
           <div className="innerContainer scrollableContainer">
-            <Header title={<h2>{t('welcome.title')}</h2>} />
+            <Header title={t('welcome.title')} />
             <div className="content narrow padded isVerticallyCentered">
               {darkmode ? <AppLogoInverted /> : <AppLogo />}
               <div className="box large">

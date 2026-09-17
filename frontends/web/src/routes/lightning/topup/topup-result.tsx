@@ -8,7 +8,6 @@ import { Button } from '@/components/forms';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { SendAbortedResult } from '@/routes/account/send/components/result';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 
 type TTopUpAbortedProps = {
   onRetry: () => void;
@@ -26,12 +25,7 @@ export const TopUpSuccess = () => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={
-            <>
-              <h2 className="hide-on-small">{t('lightning.topUp.title')}</h2>
-              <MobileHeader title={t('lightning.topUp.title')} variant="titleOnly" />
-            </>
-          } />
+          <Header variant="navigation" title={t('lightning.topUp.title')} />
           <View textCenter verticallyCentered>
             <ViewContent withIcon="success">
               <p>{t('lightning.topUp.success.message')}</p>
@@ -66,15 +60,12 @@ export const TopUpNoBitcoinAccounts = ({ hasAccounts }: TTopUpNoBitcoinAccountsP
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={
-            <>
-              <h2 className="hide-on-small">{t('lightning.topUp.title')}</h2>
-              <MobileHeader
-                onClick={() => navigate('/lightning')}
-                title={t('lightning.topUp.title')}
-              />
-            </>
-          } />
+          <Header
+            variant="navigation"
+            mobileBackButton
+            onBack={() => navigate('/lightning')}
+            title={t('lightning.topUp.title')}
+          />
           <View textCenter verticallyCentered>
             <ViewContent>
               <p>{t('lightning.topUp.noBitcoinAccounts')}</p>

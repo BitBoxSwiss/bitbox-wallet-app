@@ -10,7 +10,6 @@ import { confirmation } from '@/components/confirm/Confirm';
 import { verifyAddress, getPocketURL, TMarketAction } from '@/api/market';
 import { AccountCode, getInfo, getTransactionList, signBTCMessageUnusedAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { Header } from '@/components/layout';
-import { MobileHeader } from '../settings/components/mobile-header';
 import { Spinner } from '@/components/spinner/Spinner';
 import { PointToBitBox02 } from '@/components/icon';
 import { PocketTerms } from '@/components/terms/pocket-terms';
@@ -284,12 +283,7 @@ export const Pocket = ({
     <div className="contentWithGuide">
       <div className="container">
         <div className={style.header}>
-          <Header title={
-            <>
-              <h2 className="hide-on-small">{title}</h2>
-              <MobileHeader title={title} />
-            </>
-          } />
+          <Header variant="navigation" mobileBackButton title={title} />
         </div>
         <div ref={containerRef} className={style.container}>
           { !agreedTerms ? (

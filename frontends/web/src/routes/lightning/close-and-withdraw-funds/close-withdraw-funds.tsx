@@ -13,7 +13,6 @@ import { Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { useMountedRef } from '@/hooks/mount';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { CloseWithdrawConfirm } from './confirm-step';
 import { CloseWithdrawFailure } from './failure-step';
 import { CloseWithdrawSuccess } from './success-step';
@@ -251,16 +250,12 @@ export const LightningCloseWithdrawFunds = ({
 
   return (
     <Main>
-      <Header title={
-        <>
-          <h2 className="hide-on-small">{t('lightning.settings.closeAndWithdrawFunds')}</h2>
-          <MobileHeader
-            onClick={handleBack}
-            title={t('lightning.settings.closeAndWithdrawFunds')}
-            variant={headerBackEnabled ? 'back' : 'titleOnly'}
-          />
-        </>
-      } />
+      <Header
+        variant="navigation"
+        mobileBackButton={headerBackEnabled}
+        onBack={handleBack}
+        title={t('lightning.settings.closeAndWithdrawFunds')}
+      />
       {renderStep()}
       {isClosing && <UseDisableBackButton />}
     </Main>

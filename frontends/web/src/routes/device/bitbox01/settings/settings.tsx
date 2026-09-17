@@ -67,7 +67,7 @@ export const Settings = ({ deviceID }: Props) => {
           <ContentWrapper>
             <Banner msgKey="bitbox01" />
           </ContentWrapper>
-          <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} />
+          <Header title={name === null ? '' : name || 'BitBox'} />
           <div className="content padded">
             <div className="columnsContainer">
               <div className="columns">

@@ -6,7 +6,6 @@ import { Header, Main } from '@/components/layout';
 import { Tabs, WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './types';
 import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { useNavigate } from 'react-router-dom';
 
 type TProps = TPagePropsWithSettingsTabs & {
@@ -28,13 +27,12 @@ export const MobileSettings = ({ devices, hasAccounts, showBottomNavigation }: T
   return (
     <Main>
       <Header
-        title={
-          <MobileHeader
-            onClick={showBottomNavigation ? undefined : () => navigate('/')}
-            title={t('settings.title')}
-            variant={showBottomNavigation ? 'titleOnly' : 'back'}
-          />
-        } />
+        variant="navigation"
+        desktopTitle={null}
+        mobileBackButton={!showBottomNavigation}
+        onBack={showBottomNavigation ? undefined : () => navigate('/')}
+        title={t('settings.title')}
+      />
       <View fullscreen={false}>
         <ViewContent>
           <WithSettingsTabs devices={devices} hasAccounts={hasAccounts} renderDefaultTabs={false}>

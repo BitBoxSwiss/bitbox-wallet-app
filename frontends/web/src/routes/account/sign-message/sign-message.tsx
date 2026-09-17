@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import type { AccountCode, TAccount } from '@/api/account';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { PillButton, PillButtonGroup } from '@/components/pillbuttongroup/pillbuttongroup';
 import {
   SignMessageContent,
@@ -50,13 +49,11 @@ export const SignMessage = ({
         />
       )}
       <Header
+        variant="navigation"
         hideSidebarToggler
-        title={
-          <>
-            <h2 className="hide-on-small">{t('signMessage.signMessage')}</h2>
-            <MobileHeader onClick={() => navigate(-1)} title={t('signMessage.signMessage')} />
-          </>
-        }
+        mobileBackButton
+        onBack={() => navigate(-1)}
+        title={t('signMessage.signMessage')}
       />
       <View fullscreen={false}>
         <ViewContent>

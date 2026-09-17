@@ -11,7 +11,6 @@ import { TConnectStatus } from './types';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { alertUser } from '@/components/alert/Alert';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { WCHeader } from './components/header/header';
 import { WCConnectForm } from './components/connect-form/connect-form';
 import { WCIncomingPairing } from './components/incoming-pairing/incoming-pairing';
@@ -94,13 +93,11 @@ export const ConnectScreenWalletConnect = ({
       <GuidedContent>
         <Main>
           <Header
-            title={
-              status === 'connect' ? (
-                <MobileHeader
-                  variant={loading ? 'titleOnly' : 'back'}
-                  title={t('walletConnect.walletConnect')} />
-              ) : undefined
-            } />
+            variant="navigation"
+            desktopTitle={null}
+            mobileBackButton={status === 'connect' && !loading}
+            title={status === 'connect' ? t('walletConnect.walletConnect') : undefined}
+          />
           <View
             fitContent
             verticallyCentered

@@ -10,7 +10,6 @@ import { Entry } from '@/components/guide/entry';
 import { Button } from '@/components/forms';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
-import { MobileHeader } from './components/mobile-header';
 
 export const ElectrumSettings = () => {
   const { t } = useTranslation();
@@ -31,12 +30,10 @@ export const ElectrumSettings = () => {
       <GuidedContent>
         <Main>
           <Header
-            title={
-              <>
-                <h2 className="hide-on-small">{t('settings.expert.electrum.title')}</h2>
-                <MobileHeader title={t('settings.expert.electrum.title')} />
-              </>
-            } />
+            variant="navigation"
+            mobileBackButton
+            title={t('settings.expert.electrum.title')}
+          />
           <div className="content padded">
             <div className="flex flex-row flex-between flex-items-center tabs">
               <div className={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>

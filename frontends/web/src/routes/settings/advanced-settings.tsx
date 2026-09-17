@@ -16,7 +16,6 @@ import { RestartInTestnetSetting } from './components/advanced-settings/restart-
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
 import { ClearCacheSetting } from './components/advanced-settings/clear-cache-setting';
 import { CustomGapLimitSettings } from './components/advanced-settings/custom-gap-limit-setting';
-import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { EnableAuthSetting } from './components/advanced-settings/enable-auth-setting';
@@ -40,13 +39,11 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
       <GuidedContent>
         <Main>
           <Header
+            variant="navigation"
+            desktopTitle={t('sidebar.settings')}
             hideSidebarToggler
-            title={
-              <>
-                <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader title={t('settings.advancedSettings')} />
-              </>
-            }
+            mobileBackButton
+            title={t('settings.advancedSettings')}
           />
           <View fullscreen={false}>
             <ViewContent>

@@ -220,7 +220,7 @@ class SeedCreateNew extends Component {
       <div className="contentWithGuide">
         <div className="container">
           <div className="innerContainer scrollableContainer">
-            <Header title={<h2>{t('welcome.title')}</h2>}>
+            <Header title={t('welcome.title')}>
               <LanguageSwitch />
             </Header>
             <div className="content padded narrow isVerticallyCentered">

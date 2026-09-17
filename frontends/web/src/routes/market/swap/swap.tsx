@@ -25,7 +25,6 @@ import {
   type TSwapQuoteRoute,
 } from '@/api/swap';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
@@ -483,13 +482,10 @@ export const Swap = ({
         <GuidedContent>
           <Main>
             <Header
+              variant="navigation"
               hideSidebarToggler
-              title={
-                <>
-                  <h2 className="hide-on-small">{t('generic.swap')}</h2>
-                  <MobileHeader title={t('generic.swap')} />
-                </>
-              }
+              mobileBackButton
+              title={t('generic.swap')}
             />
             <View
               fullscreen={false}
@@ -519,13 +515,10 @@ export const Swap = ({
         <GuidedContent>
           <Main>
             <Header
+              variant="navigation"
               hideSidebarToggler
-              title={
-                <>
-                  <h2 className="hide-on-small">{t('generic.swap')}</h2>
-                  <MobileHeader title={t('generic.swap')} />
-                </>
-              }
+              mobileBackButton
+              title={t('generic.swap')}
             />
             <SwapkitTerms
               onAgreedTerms={() => setAgreedTerms(true)}
@@ -552,13 +545,10 @@ export const Swap = ({
       <GuidedContent>
         <Main>
           <Header
+            variant="navigation"
             hideSidebarToggler
-            title={
-              <>
-                <h2 className="hide-on-small">{t('generic.swap')}</h2>
-                <MobileHeader title={t('generic.swap')} />
-              </>
-            }
+            mobileBackButton
+            title={t('generic.swap')}
           />
           <View
             fullscreen={false}

@@ -21,7 +21,7 @@ const LightningTestnetWarning = ({ onAccept, onCancel }: TWarningProps) => {
 
   return (
     <Main>
-      <Header title={<h2>{t('lightning.accountLabel')}</h2>} />
+      <Header title={t('lightning.accountLabel')} />
       <Dialog open title={t('lightning.accountLabel')} onClose={onCancel}>
         <DialogScrollContent>
           <Message type="warning">
