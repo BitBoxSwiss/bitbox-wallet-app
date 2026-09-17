@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/skeleton/skeleton';
 import { useMountedRef } from '@/hooks/mount';
 import styles from '../send.module.css';
 
-const useInvoiceAmount = (amountSat?: number) => {
+const useInvoiceAmount = (amountSat?: string) => {
   const [invoiceAmount, setInvoiceAmount] = useState<TAmountWithConversions>();
   const mounted = useMountedRef();
 
@@ -57,12 +57,12 @@ const AmountValue = ({ amount, showFiat = false }: TAmountValueProps) => {
   );
 };
 
-const satsAmount = (amountSat?: number): TAmountWithConversions | undefined => {
-  if (amountSat === undefined) {
+const satsAmount = (amount?: string): TAmountWithConversions | undefined => {
+  if (amount === undefined) {
     return undefined;
   }
   return {
-    amount: amountSat.toString(),
+    amount,
     unit: 'sat',
     estimated: false,
   };
@@ -74,7 +74,7 @@ type TPaymentFeeDetailsProps = {
 };
 
 type TPaymentAmountDetailsProps = {
-  amountSat?: number;
+  amountSat?: string;
 };
 
 type TPaymentNoteDetailsProps = {
