@@ -145,7 +145,7 @@ export const LightningActivate = () => {
               id="confirm"
               onChange={() => setAgree(!agree)}
               checked={agree}>
-              {t('lightning.activate.disclaimer.checkboxLabel')}
+              {t('generic.iHaveReadTheInformation')}
             </Checkbox>
           </ViewContent>
           <ViewButtons>

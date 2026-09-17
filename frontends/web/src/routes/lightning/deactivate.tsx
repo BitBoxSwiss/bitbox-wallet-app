@@ -50,7 +50,7 @@ export const LightningDeactivate = () => {
               id="confirm"
               onChange={() => setAgree(!agree)}
               checked={agree}>
-              I have read the information above
+              {t('generic.iHaveReadTheInformation')}
             </Checkbox>
           </ViewContent>
           <ViewButtons>
