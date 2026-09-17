@@ -55,7 +55,7 @@ export const LightningDeactivate = () => {
           </ViewContent>
           <ViewButtons>
             <Button danger disabled={!agree} onClick={() => deactivateWallet()}>
-              Shut down lightning wallet
+              {t('lightning.settings.disableWallet')}
             </Button>
             <DesktopBackButton onClick={() => navigate(-1)}>
               {t('button.back')}
@@ -90,7 +90,7 @@ export const LightningDeactivate = () => {
         variant="navigation"
         mobileBackButton={step === 'intro'}
         onBack={() => navigate(-1)}
-        title="Shut down lightning wallet"
+        title={t('lightning.settings.disableWallet')}
       />
       {renderSteps()}
     </Main>
