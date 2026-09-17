@@ -70,6 +70,9 @@ export type TPrepareTopUpRequest = {
   customFee: string;
   feeTarget: FeeTargetCode;
   sourceAccountCode: AccountCode;
+  sendAll?: 'yes' | 'no';
+  selectedUTXOs?: string[];
+  expectedAddress?: string;
 };
 
 export type TPrepareTopUpResult = {
@@ -321,6 +324,10 @@ export const postPrepareTopUp = async (request: TPrepareTopUpRequest): Promise<T
     request,
     'Error calling postPrepareTopUp'
   );
+};
+
+export const getBoardingAddress = async (): Promise<string> => {
+  return getApiResponse<string>('lightning/boarding-address', 'Error calling getBoardingAddress');
 };
 
 export const getBlockExplorerTxPrefix = async (): Promise<string> => {
