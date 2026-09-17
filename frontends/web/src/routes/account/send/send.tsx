@@ -367,7 +367,7 @@ export const Send = ({
   };
 
 
-  const parseQRResult = async (uri: string) => {
+  const parseQRResult = async (uri: string, onReset?: () => void) => {
     let qrAddress = uri;
     let qrAmount = '';
     let url: URL | undefined;
@@ -412,6 +412,7 @@ export const Send = ({
         if (result.success) {
           setAmount(result.amount);
         } else {
+          onReset?.();
           setRecipientInput(qrAddress);
           setSendAll(false);
           setFiatAmount('');
@@ -422,6 +423,7 @@ export const Send = ({
         setAmount(qrAmount);
       }
     }
+    onReset?.();
     setRecipientInput(qrAddress);
     setRecipientDisplayAddress('');
     setSelectedReceiverAccount(null);
