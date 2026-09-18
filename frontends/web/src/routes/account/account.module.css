@@ -38,6 +38,7 @@
 .button {
     height: 37px;
     min-height: auto;
+    transition: background-color .2s ease-out, color .2s ease-out, opacity .2s ease-out;
     display: flex;
     align-items: center;
     gap: var(--space-quarter);
@@ -116,6 +117,7 @@
 .disabled {
     cursor: default;
     opacity: 0.4;
+    pointer-events: none;
 }
 
 .accountInfoLink {

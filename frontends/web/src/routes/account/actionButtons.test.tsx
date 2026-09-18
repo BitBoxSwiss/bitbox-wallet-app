@@ -100,4 +100,48 @@ describe('routes/account/actionButtons', () => {
     });
     expect(screen.getByText('/account/btc-account/send')).toBeInTheDocument();
   });
+
+  it('keeps action links mounted while account data loads', () => {
+    const { rerender } = render(
+      <MemoryRouter initialEntries={['/account/btc-account']}>
+        <ActionButtons
+          account={account}
+          accountDataLoaded={false}
+          canSend
+          code={account.code}
+          coinCode={account.coinCode}
+        />
+        <Location />
+      </MemoryRouter>
+    );
+
+    const send = screen.getByRole('link', { name: 'generic.send' });
+    const receive = screen.getByRole('link', { name: 'generic.receiveWithoutCoinCode' });
+    const marketplace = screen.getByRole('link', { name: 'generic.buySell' });
+    expect(send).toHaveAttribute('aria-disabled', 'true');
+    expect(receive).toHaveAttribute('aria-disabled', 'true');
+    expect(marketplace).toHaveAttribute('aria-disabled', 'true');
+
+    fireEvent.click(send);
+    expect(screen.getByText('/account/btc-account')).toBeInTheDocument();
+    expect(connectKeystore).not.toHaveBeenCalled();
+
+    rerender(
+      <MemoryRouter initialEntries={['/account/btc-account']}>
+        <ActionButtons
+          account={account}
+          accountDataLoaded
+          canSend
+          code={account.code}
+          coinCode={account.coinCode}
+          exchangeSupported
+        />
+        <Location />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole('link', { name: 'generic.send' })).toBe(send);
+    expect(screen.getByRole('link', { name: 'generic.receiveWithoutCoinCode' })).toBe(receive);
+    expect(screen.getByRole('link', { name: 'generic.buySell' })).toBe(marketplace);
+  });
 });
