@@ -3,6 +3,7 @@
 package handlers
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
+	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -28,14 +30,16 @@ import (
 	"github.com/btcsuite/btcd/btcutil/v2"
 	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/btcsuite/btcd/wire/v2"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
 
 // Handlers provides a web api to the account.
 type Handlers struct {
-	account accounts.Interface
-	log     *logrus.Entry
+	account                      accounts.Interface
+	log                          *logrus.Entry
+	signWalletConnectTransaction func(accountsTypes.Code, eth.SignTransactionArgs) (*types.Transaction, error)
 }
 
 func formatAddressForDisplay(account accounts.Interface, address string) string {
@@ -48,8 +52,11 @@ func isFirmwareUpgradeRequired(err error) bool {
 
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
-	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route, log *logrus.Entry) *Handlers {
-	handlers := &Handlers{log: log}
+	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route,
+	log *logrus.Entry,
+	signWalletConnectTransaction func(accountsTypes.Code, eth.SignTransactionArgs) (*types.Transaction, error),
+) *Handlers {
+	handlers := &Handlers{log: log, signWalletConnectTransaction: signWalletConnectTransaction}
 
 	handleFunc("/init", handlers.postInit).Methods("POST")
 	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
@@ -831,7 +838,8 @@ func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, err
 	if !ok {
 		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
 	}
-	signature, err := ethAccount.SignTypedMsg(*args.ChainId, args.Data)
+	signature, err := eth.SignTypedMsg(*args.ChainId, args.Data,
+		ethAccount.Info().SigningConfigurations[0], ethAccount.Config().ConnectKeystore)
 	if err != nil {
 		result := newSigningErrorResponse(err)
 		if !result.Aborted {
@@ -845,14 +853,12 @@ func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, err
 	}, nil
 }
 
-// For handling dapp transaction requests through Wallet Connect which can either request tx sign or tx send
-// The `json:"send"` bool specifies whether a tx should be only signed (return signature) or signed and broadcast (return tx hash)
-// ChainId is needed to allow signing all supported EVM networks via the BBApp.
+// postEthSignWalletConnectTx adapts the existing WalletConnect route to generic EVM signing.
 func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface{}, error) {
 	var args struct {
-		Send    bool                  `json:"send"`
-		ChainId *uint64               `json:"chainId"`
-		Tx      eth.WalletConnectArgs `json:"tx"`
+		Send    bool                            `json:"send"`
+		ChainID *uint64                         `json:"chainId"`
+		Tx      walletConnectTransactionRequest `json:"tx"`
 	}
 	type response struct {
 		Success bool   `json:"success"`
@@ -862,14 +868,18 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
 		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	if args.ChainId == nil {
+	if args.ChainID == nil {
 		return signingResponse{Success: false, ErrorMessage: "chainId is required"}, nil
 	}
-	ethAccount, ok := handlers.account.(*eth.Account)
-	if !ok {
-		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
+	transaction, err := parseWalletConnectTransactionRequest(*args.ChainID, args.Tx)
+	if err != nil {
+		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	txHash, rawTx, err := ethAccount.EthSignWalletConnectTx(args.Send, *args.ChainId, args.Tx)
+	signedTx, err := handlers.signWalletConnectTransaction(handlers.account.Config().Config.Code, eth.SignTransactionArgs{
+		ChainID:     *args.ChainID,
+		Broadcast:   args.Send,
+		Transaction: transaction,
+	})
 	if err != nil {
 		result := newSigningErrorResponse(err)
 		if !result.Aborted {
@@ -877,10 +887,15 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 		}
 		return result, nil
 	}
+	rawTx, err := signedTx.MarshalBinary()
+	if err != nil {
+		handlers.log.WithError(err).Error("Failed to serialize signed transaction")
+		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
 	return response{
 		Success: true,
-		RawTx:   rawTx,
-		TxHash:  txHash,
+		RawTx:   "0x" + hex.EncodeToString(rawTx),
+		TxHash:  signedTx.Hash().Hex(),
 	}, nil
 }
 

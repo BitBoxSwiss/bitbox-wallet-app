@@ -263,7 +263,8 @@ type Backend struct {
 	makeBtcAccount func(*accounts.AccountConfig, *btc.Coin, *types.GapLimits, func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), *logrus.Entry) accounts.Interface
 	// makeEthAccount creates an ETH account. In production this is `eth.NewAccount`, but can be
 	// overridden in unit tests for mocking.
-	makeEthAccount func(*accounts.AccountConfig, *eth.Coin, *http.Client, *logrus.Entry) accounts.Interface
+	makeEthAccount         func(*accounts.AccountConfig, *eth.Coin, *logrus.Entry) accounts.Interface
+	ethChainClientProvider eth.ChainClientProvider
 	// enqueueETHUpdateForAllAccountsAsync asks the ETH updater to refresh all ETH accounts without
 	// blocking the caller. In production this is `ethupdater.EnqueueUpdateForAllAccountsAsync`, but
 	// can be overridden in unit tests.
@@ -325,6 +326,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 
 	accountUpdate := make(chan *eth.Account)
+	etherScanRateLimiter := rate.NewLimiter(rate.Limit(etherscan.CallsPerSec), 1)
 
 	backend := &Backend{
 		arguments:   arguments,
@@ -339,14 +341,15 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
-		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-			return eth.NewAccount(config, coin, httpClient, log, accountUpdate)
+		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
+			return eth.NewAccount(config, coin, log, accountUpdate)
 		},
+		ethChainClientProvider: eth.NewEtherscanChainClientProvider(hclient, etherScanRateLimiter),
 
 		log: log,
 
 		testing:              backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
-		etherScanRateLimiter: rate.NewLimiter(rate.Limit(etherscan.CallsPerSec), 1),
+		etherScanRateLimiter: etherScanRateLimiter,
 	}
 	backend.accounts = newAccountRegistry(accountRegistryLifecycle{
 		onInitialized: func(account accounts.Interface) {
