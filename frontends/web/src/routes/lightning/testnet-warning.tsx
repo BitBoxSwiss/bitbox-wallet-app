@@ -33,7 +33,7 @@ const LightningTestnetWarning = ({ onAccept, onCancel }: TWarningProps) => {
               id="lightning-testnet-warning-understood"
               checked={understood}
               onChange={event => setUnderstood(event.target.checked)}
-              label={t('lightning.testnetWarning.checkboxLabel')}
+              label={t('generic.iHaveReadTheInformation')}
             />
           </div>
         </DialogScrollContent>

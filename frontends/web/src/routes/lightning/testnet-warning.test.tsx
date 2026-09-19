@@ -75,7 +75,7 @@ const renderApp = (path = '/lightning', previousPath?: string) => render(
 
 const warning = () => screen.findByText(translations.lightning.testnetWarning.title);
 const acknowledge = async () => {
-  await userEvent.click(await screen.findByRole('checkbox', { name: translations.lightning.testnetWarning.checkboxLabel }));
+  await userEvent.click(await screen.findByRole('checkbox', { name: translations.generic.iHaveReadTheInformation }));
   await userEvent.click(screen.getByRole('button', { name: translations.button.done }));
 };
 
@@ -144,7 +144,7 @@ describe('Lightning in testnet mode', () => {
 
   it('requires the checkbox before allowing Done', async () => {
     renderApp();
-    const checkbox = await screen.findByRole('checkbox', { name: translations.lightning.testnetWarning.checkboxLabel });
+    const checkbox = await screen.findByRole('checkbox', { name: translations.generic.iHaveReadTheInformation });
     const done = screen.getByRole('button', { name: translations.button.done });
 
     expect(checkbox).not.toBeChecked();
@@ -161,7 +161,7 @@ describe('Lightning in testnet mode', () => {
   it('returns to the previous page on X without accepting the warning', async () => {
     const previousPath = '/settings/advanced-settings?search=lightning';
     renderApp('/lightning', previousPath);
-    await userEvent.click(await screen.findByRole('checkbox', { name: translations.lightning.testnetWarning.checkboxLabel }));
+    await userEvent.click(await screen.findByRole('checkbox', { name: translations.generic.iHaveReadTheInformation }));
     await userEvent.click(screen.getByTestId('close-button'));
 
     expect(await screen.findByText('Advanced settings')).toBeInTheDocument();

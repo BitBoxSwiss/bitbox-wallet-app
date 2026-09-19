@@ -193,7 +193,6 @@
       "understand": "I understand that an incorrect recovery password will create a different wallet"
     },
     "showMnemonic": {
-      "checkboxLabel": "I have read the information above",
       "description": "The device will display the recovery words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
       "title": "Show recovery words",
       "warning": "<strong>Never share your recovery words with anyone.</strong> Your recovery words give full access to your wallet. If someone is asking you for your recovery words, it's a scammer, do not share them!"
@@ -1048,6 +1047,7 @@
     "enable": "Enable",
     "enabled_false": "Disabled",
     "enabled_true": "Enabled",
+    "iHaveReadTheInformation": "I have read the information above",
     "insure": "Insure",
     "max": "Max",
     "new": "New",
@@ -1647,7 +1647,6 @@
         "title": "Connect your device"
       },
       "disclaimer": {
-        "checkboxLabel": "I have read the information above",
         "content": "Your Lightning wallet will be made using a key derived from your BitBox. That way you can always restore your Lightning wallet using your BitBox or backup.\n\nHowever, unlike the BitBox, the Lightning wallet is a <strong>hot wallet</strong>. This means the keys for your Lightning wallet are stored on the BitBoxApp, not on the BitBox. You should not use the Lightning wallet for a large amount of funds or long term storage.\n\n          In addition, the Lightning feature is currently in beta, meaning you may encounter bugs, reliability issues or it may stop working entirely.",
         "title": "How does it work with the BitBoxApp?"
       },
@@ -1899,7 +1898,6 @@
       "unknown": "The Spark network status is unknown. Lightning payments may be unavailable."
     },
     "testnetWarning": {
-      "checkboxLabel": "I have read the information above",
       "message": "Lightning coins have real value, even when using the app in testnet mode. Proceed?",
       "title": "Warning"
     },

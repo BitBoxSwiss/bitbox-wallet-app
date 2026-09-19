@@ -92,7 +92,7 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
           <Checkbox
             checked={agree}
             id="confirmationCheckbox"
-            label={t('backup.showMnemonic.checkboxLabel')}
+            label={t('generic.iHaveReadTheInformation')}
             onChange={e => setAgree(e.target.checked)} />
         </p>
       </ViewContent>
