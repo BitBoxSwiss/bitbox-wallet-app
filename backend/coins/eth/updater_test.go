@@ -5,7 +5,6 @@ package eth_test
 import (
 	"context"
 	"math/big"
-	"net/http"
 	"os"
 	"slices"
 	"testing"
@@ -108,7 +107,6 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 			DBFolder:    dbFolder,
 		},
 		coin,
-		&http.Client{},
 		log,
 		make(chan *eth.Account),
 	)

@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
-	"net/http"
 	"testing"
 	"time"
 
@@ -781,9 +780,9 @@ func TestETHInitialSyncMode(t *testing.T) {
 	}
 
 	captured := map[accountsTypes.Code]bool{}
-	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
 		captured[config.Config.Code] = config.SkipInitialSync
-		return MockEthAccount(config, coin, httpClient, log)
+		return MockEthAccount(config, coin, log)
 	}
 
 	t.Run("startup-watchonly-load", func(t *testing.T) {
@@ -1417,8 +1416,8 @@ func TestKeystoresBalance(t *testing.T) {
 		return accountMock
 	}
 
-	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-		accountMock := MockEthAccount(config, coin, httpClient, log)
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
+		accountMock := MockEthAccount(config, coin, log)
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coinpkg.NewAmountFromInt64(1e18), coinpkg.NewAmountFromInt64(0)), nil
 		}
@@ -1487,8 +1486,8 @@ func TestCoinsTotalBalance(t *testing.T) {
 		return accountMock
 	}
 
-	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-		accountMock := MockEthAccount(config, coin, httpClient, log)
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
+		accountMock := MockEthAccount(config, coin, log)
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coinpkg.NewAmountFromInt64(2e18), coinpkg.NewAmountFromInt64(0)), nil
 		}
@@ -1548,8 +1547,8 @@ func TestAccountsFiatAndCoinBalance(t *testing.T) {
 		return accountMock
 	}
 
-	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-		accountMock := MockEthAccount(config, coin, httpClient, log)
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
+		accountMock := MockEthAccount(config, coin, log)
 		accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coinpkg.NewAmountFromInt64(1e18), coinpkg.NewAmountFromInt64(0)), nil
 		}
@@ -1612,8 +1611,8 @@ func TestCheckAccountUsed(t *testing.T) {
 		return accountMock
 	}
 
-	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-		accountMock := MockEthAccount(config, coin, httpClient, log)
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
+		accountMock := MockEthAccount(config, coin, log)
 		accountMock.TransactionsFunc = txFunc
 		accountMocks[config.Config.Code] = accountMock
 		return accountMock
