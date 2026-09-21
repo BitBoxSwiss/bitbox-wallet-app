@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Message } from '@/components/message/message';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { getInfo, signBTCMessageUnusedAddress, type ScriptType } from '@/api/account';
@@ -28,11 +30,12 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   const { config } = useConfig();
 
   const iframeURL = useLoad(getBitsuranceURL);
-  const accountInfo = useLoad(getInfo(code));
+  const accountInfoResponse = useLoad(getInfo(code));
+  const accountInfo = accountInfoResponse?.success ? accountInfoResponse.info : undefined;
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitsuranceDisclaimer ?? false);
-  useVendorIframeActive(agreedTerms && !!iframeURL);
+  useVendorIframeActive(agreedTerms && !!iframeURL && accountInfoResponse?.success !== false);
   const signingRef = useRef(false);
   useEffect(() => {
     window.addEventListener('message', onMessage);
@@ -139,7 +142,12 @@ export const BitsuranceWidget = ({ code }: TProps) => {
         <Main>
           <Header title={t('generic.buySell')} />
           <div ref={containerRef} className={style.container}>
-            { !agreedTerms ? (
+            { accountInfoResponse && !accountInfoResponse.success ? (
+              <div className="content">
+                <Message type="error">{accountInfoResponse.errorMessage || t('genericError')}</Message>
+                <BackButton enableEsc>{t('button.back')}</BackButton>
+              </div>
+            ) : !agreedTerms ? (
               <BitsuranceTerms
                 onAgreedTerms={() => setAgreedTerms(true)}
               />

@@ -174,8 +174,10 @@ export type TSigningConfigurationList = null | {
   signingConfigurations: TSigningConfiguration[];
 };
 
+type TAccountError = { success: false; errorMessage: string };
+
 export const getInfo = (code: AccountCode) => {
-  return (): Promise<TSigningConfigurationList> => {
+  return (): Promise<{ success: true; info: TSigningConfigurationList } | TAccountError> => {
     return apiGet(`account/${code}/info`);
   };
 };

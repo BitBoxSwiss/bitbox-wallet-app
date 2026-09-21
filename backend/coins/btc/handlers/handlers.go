@@ -58,12 +58,18 @@ func NewHandlers(
 ) *Handlers {
 	handlers := &Handlers{log: log, signWalletConnectTransaction: signWalletConnectTransaction}
 
+	withError := func(handler func(*http.Request) interface{}) func(*http.Request) (interface{}, error) {
+		return func(request *http.Request) (interface{}, error) {
+			return handler(request), nil
+		}
+	}
+
 	handleFunc("/init", handlers.postInit).Methods("POST")
 	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
 	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
 	handleFunc("/transaction", handlers.ensureAccountInitialized(handlers.getAccountTransaction)).Methods("GET")
 	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
-	handleFunc("/info", handlers.ensureAccountInitialized(handlers.getAccountInfo)).Methods("GET")
+	handleFunc("/info", handlers.ensureAccountInitialized(withError(handlers.getAccountInfo))).Methods("GET")
 	handleFunc("/utxos", handlers.ensureAccountInitialized(handlers.getUTXOs)).Methods("GET")
 	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
@@ -286,7 +292,7 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 	return result{Success: true}, nil
 }
 
-func (handlers *Handlers) getAccountInfo(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountInfo(*http.Request) interface{} {
 	type bitcoinSimpleInfo struct {
 		KeyInfo    signing.KeyInfo    `json:"keyInfo"`
 		ScriptType signing.ScriptType `json:"scriptType"`
@@ -299,10 +305,15 @@ func (handlers *Handlers) getAccountInfo(*http.Request) (interface{}, error) {
 	type accountInfo struct {
 		SigningConfigurations []signingConfigurationInfo `json:"signingConfigurations"`
 	}
+	type response struct {
+		Success      bool         `json:"success"`
+		Info         *accountInfo `json:"info"`
+		ErrorMessage string       `json:"errorMessage,omitempty"`
+	}
 
 	info := handlers.account.Info()
 	if info == nil {
-		return nil, nil
+		return response{Success: true}
 	}
 
 	var btcNet *chaincfg.Params
@@ -317,11 +328,11 @@ func (handlers *Handlers) getAccountInfo(*http.Request) (interface{}, error) {
 		signingConfig := signingConfigurationInfo{}
 		if cfg.BitcoinSimple != nil {
 			if btcNet == nil {
-				return nil, errp.New("bitcoin network unavailable for bitcoin signing config")
+				return response{Success: false, ErrorMessage: "bitcoin network unavailable for bitcoin signing config"}
 			}
 			descriptor, err := cfg.BitcoinSimple.Descriptor(btcNet)
 			if err != nil {
-				return nil, err
+				return response{Success: false, ErrorMessage: err.Error()}
 			}
 			signingConfig.BitcoinSimple = &bitcoinSimpleInfo{
 				KeyInfo:    cfg.BitcoinSimple.KeyInfo,
@@ -334,7 +345,7 @@ func (handlers *Handlers) getAccountInfo(*http.Request) (interface{}, error) {
 		}
 		result.SigningConfigurations = append(result.SigningConfigurations, signingConfig)
 	}
-	return result, nil
+	return response{Success: true, Info: &result}
 }
 
 func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
