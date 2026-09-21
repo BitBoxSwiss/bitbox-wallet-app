@@ -53,6 +53,7 @@ describe('receive address verification', () => {
     vi.clearAllMocks();
     vi.mocked(connectKeystore).mockResolvedValue({ success: true });
     vi.mocked(accountApi.hasSecureOutput).mockReturnValue(async () => ({
+      success: true,
       hasSecureOutput: true,
       optional: false,
     }));
@@ -104,6 +105,20 @@ describe('receive address verification', () => {
     await waitFor(() => expect(alertUser).toHaveBeenCalledWith('verification failed'));
     expect(screen.queryByText('firmware upgrade required')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'receive.verifyBitBox02' })).toBeEnabled();
+  });
+
+  it('does not reveal an address when checking secure output fails', async () => {
+    vi.mocked(accountApi.hasSecureOutput).mockReturnValue(async () => ({
+      success: false, errorMessage: 'device unavailable',
+    }));
+    renderReceive();
+
+    await screen.findByDisplayValue('bc1ptest...');
+    fireEvent.click(screen.getByRole('button', { name: 'receive.verifyBitBox02' }));
+
+    await waitFor(() => expect(alertUser).toHaveBeenCalledWith('device unavailable'));
+    expect(accountApi.verifyAddress).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('receive-address')).not.toBeInTheDocument();
   });
 
   it('shows a receive-address loading failure', async () => {

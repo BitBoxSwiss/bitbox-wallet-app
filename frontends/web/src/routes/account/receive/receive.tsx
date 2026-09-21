@@ -207,6 +207,10 @@ export const Receive = ({
     }
 
     const hasSecureOutput = await accountApi.hasSecureOutput(code)();
+    if (!hasSecureOutput.success) {
+      alertUser(hasSecureOutput.errorMessage || t('genericError'));
+      return;
+    }
     if (!hasSecureOutput.hasSecureOutput) {
       setVerifying('insecure');
       // For the software keystore, the dialog is dismissed manually.
