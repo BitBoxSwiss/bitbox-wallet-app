@@ -121,11 +121,10 @@ export const TopUpForm = ({
           <View fitContent minHeight="100%" verticallyCentered>
             <ViewContent>
               <Grid col="1" className={styles.form}>
-                <Column>
+                <Column className={styles.sourceAccount}>
                   <label className={styles.fieldLabel}>{t('lightning.topUp.from')}</label>
                   <GroupedAccountSelector
                     accounts={btcAccounts}
-                    className={styles.accountSelector}
                     onChange={onSourceChange}
                     selected={sourceAccountCode}
                   />
