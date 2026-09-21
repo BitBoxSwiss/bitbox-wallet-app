@@ -206,6 +206,7 @@ describe('routes/account/addresses', () => {
   it('shows insecure verify warning and skip path without calling verify API', async () => {
     const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockResolvedValue({ success: true });
     vi.spyOn(accountApi, 'hasSecureOutput').mockReturnValue(async () => ({
+      success: true,
       hasSecureOutput: false,
       optional: false,
     }));
@@ -264,6 +265,7 @@ describe('routes/account/addresses', () => {
   it('opens verify flow when clicking copy address action from the list', async () => {
     const connectSpy = vi.spyOn(keystoresApi, 'connectKeystore').mockResolvedValue({ success: true });
     vi.spyOn(accountApi, 'hasSecureOutput').mockReturnValue(async () => ({
+      success: true,
       hasSecureOutput: false,
       optional: false,
     }));
@@ -282,6 +284,7 @@ describe('routes/account/addresses', () => {
   it('verifies securely when secure output exists', async () => {
     const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockResolvedValue({ success: true });
     vi.spyOn(accountApi, 'hasSecureOutput').mockReturnValue(async () => ({
+      success: true,
       hasSecureOutput: true,
       optional: false,
     }));
@@ -298,6 +301,7 @@ describe('routes/account/addresses', () => {
   it('shows receive-style verify dialog while secure verification is in progress', async () => {
     const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockImplementation(() => new Promise(() => {}));
     vi.spyOn(accountApi, 'hasSecureOutput').mockReturnValue(async () => ({
+      success: true,
       hasSecureOutput: true,
       optional: false,
     }));
@@ -315,6 +319,7 @@ describe('routes/account/addresses', () => {
     const verifyAddressDeferred = createDeferred<Awaited<ReturnType<typeof accountApi.verifyAddress>>>();
     const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockReturnValue(verifyAddressDeferred.promise);
     vi.spyOn(accountApi, 'hasSecureOutput').mockReturnValue(async () => ({
+      success: true,
       hasSecureOutput: true,
       optional: false,
     }));

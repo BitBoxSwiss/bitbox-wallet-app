@@ -82,7 +82,7 @@ func NewHandlers(
 	handleFunc("/btc-sign-message-unused-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageUnusedAddress)).Methods("POST")
 	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageForAddress)).Methods("POST")
 	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignETHMessageForAddress)).Methods("POST")
-	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
+	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(withError(handlers.getHasSecureOutput))).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
 	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
@@ -802,20 +802,23 @@ func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interfac
 	return result{Success: true}, nil
 }
 
-func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getHasSecureOutput(r *http.Request) interface{} {
 	type response struct {
-		HasSecureOutput bool `json:"hasSecureOutput"`
-		Optional        bool `json:"optional"`
+		Success         bool   `json:"success"`
+		HasSecureOutput bool   `json:"hasSecureOutput"`
+		Optional        bool   `json:"optional"`
+		ErrorMessage    string `json:"errorMessage,omitempty"`
 	}
 
 	hasSecureOutput, optional, err := handlers.account.CanVerifyAddresses()
 	if err != nil {
-		return nil, err
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{
+		Success:         true,
 		HasSecureOutput: hasSecureOutput,
 		Optional:        optional,
-	}, nil
+	}
 }
 
 func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
