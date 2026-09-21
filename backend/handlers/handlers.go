@@ -130,6 +130,7 @@ type Backend interface {
 	Bluetooth() *bluetooth.Bluetooth
 	IsOnline() bool
 	ConnectKeystore([]byte) (keystore.Keystore, error)
+	CheckKeystoreFeature(keystore.Keystore, keystore.Feature, accountsTypes.Code) error
 }
 
 // Handlers provides a web api to the backend.
@@ -307,7 +308,7 @@ func NewHandlers(
 	getAccountHandlers := func(accountCode accountsTypes.Code) *accountHandlers.Handlers {
 		defer handlersMapLock.Lock()()
 		if _, ok := accountHandlersMap[accountCode]; !ok {
-			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(getAPIRouter(
+			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(getAPIRouterNoError(
 				apiRouter.PathPrefix(fmt.Sprintf("/account/%s", accountCode)).Subrouter(),
 			), log, backend.SignWalletConnectTransaction)
 		}
@@ -2001,8 +2002,9 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 	}
 
 	var request struct {
-		RootFingerprint jsonp.HexBytes   `json:"rootFingerprint"`
-		RequiredFeature keystore.Feature `json:"requiredFeature"`
+		RootFingerprint jsonp.HexBytes     `json:"rootFingerprint"`
+		RequiredFeature keystore.Feature   `json:"requiredFeature"`
+		AccountCode     accountsTypes.Code `json:"accountCode"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -2020,7 +2022,7 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 		return response{Success: false}
 	}
 	if request.RequiredFeature != "" {
-		if err := connectedKeystore.SupportsFeature(request.RequiredFeature); err != nil {
+		if err := handlers.backend.CheckKeystoreFeature(connectedKeystore, request.RequiredFeature, request.AccountCode); err != nil {
 			if keystoreErr, ok := errp.Cause(err).(keystore.KeystoreError); ok {
 				return response{Success: false, ErrorCode: keystoreErr.Error()}
 			}

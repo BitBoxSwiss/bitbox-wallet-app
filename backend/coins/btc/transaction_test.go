@@ -17,6 +17,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	keystoremocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
@@ -73,6 +75,101 @@ func testAccount(t *testing.T, config *config.Account) *Account {
 		},
 	}
 	return account
+}
+
+func TestCheckTaprootSendSupport(t *testing.T) {
+	utxoError := errp.New("could not load UTXOs")
+	testCases := []struct {
+		name           string
+		taprootUTXO    bool
+		taprootSupport bool
+		utxoError      error
+		wantError      error
+	}{
+		{name: "saved Taproot config with SegWit funds needs no upgrade"},
+		{name: "Taproot funds require upgrade", taprootUTXO: true, wantError: keystore.ErrFirmwareUpgradeRequired},
+		{name: "supported Taproot funds", taprootUTXO: true, taprootSupport: true},
+		{name: "failed UTXO lookup", utxoError: utxoError, wantError: utxoError},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			base := mockAccount(t, nil).Config()
+			signingConfigs := append(signing.Configurations{base.SigningConfigurations[0]},
+				signing.NewBitcoinConfiguration(
+					signing.ScriptTypeP2TR,
+					[]byte{1, 2, 3, 4},
+					mustKeypath(t, "m/86'/1'/0'"),
+					base.SigningConfigurations[0].ExtendedPublicKey(),
+				))
+			account := testAccount(t, &config.Account{Code: "accountcode", SigningConfigurations: signingConfigs})
+			segwitAddresses, err := account.subaccounts[0].receiveAddresses.GetUnused()
+			require.NoError(t, err)
+			taprootAddresses, err := account.subaccounts[1].receiveAddresses.GetUnused()
+			require.NoError(t, err)
+			account.transactions = &mocks.InterfaceMock{
+				SpendableOutputsFunc: func() (map[wire.OutPoint]*transactions.SpendableOutput, error) {
+					outputs := map[wire.OutPoint]*transactions.SpendableOutput{
+						{Index: 0}: {TxOut: wire.NewTxOut(100000000, segwitAddresses[0].PubkeyScript())},
+					}
+					if tc.taprootUTXO {
+						outputs[wire.OutPoint{Index: 1}] = &transactions.SpendableOutput{
+							TxOut: wire.NewTxOut(1000, taprootAddresses[0].PubkeyScript()),
+						}
+					}
+					return outputs, tc.utxoError
+				},
+			}
+			ks := &keystoremocks.KeystoreMock{
+				SupportsAccountFunc: func(c coin.Coin, meta interface{}) bool {
+					require.Same(t, account.Coin(), c)
+					require.Equal(t, signing.ScriptTypeP2TR, meta)
+					return tc.taprootSupport
+				},
+			}
+			require.ErrorIs(t, account.CheckTaprootSendSupport(ks), tc.wantError)
+			if tc.taprootUTXO && !tc.taprootSupport {
+				account.Config().ConnectKeystore = func() (keystore.Keystore, error) { return ks, nil }
+				account.getAddressFromSameKeystore = func(_ coin.Code, id addresses.AddressID) (*addresses.AccountAddress, error) {
+					return account.AddressByID(id), nil
+				}
+				utxos, proposal, err := account.newTx(&accounts.TxProposalArgs{
+					RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
+					Amount:           coin.NewSendAmount("0.5"),
+					FeeTargetCode:    accounts.FeeTargetCodeCustom,
+					CustomFee:        "10",
+				})
+				require.NoError(t, err)
+				// Only the SegWit input is selected, but the account still requires Taproot
+				// support for its change output. Recheck before contacting the signer.
+				require.Len(t, utxos, 2)
+				require.Len(t, proposal.Psbt.UnsignedTx.TxIn, 1)
+				require.Equal(t, uint32(0), proposal.Psbt.UnsignedTx.TxIn[0].PreviousOutPoint.Index)
+				_, err = account.signTransaction(proposal, nil)
+				require.ErrorIs(t, err, keystore.ErrFirmwareUpgradeRequired)
+			}
+		})
+	}
+
+	t.Run("unknown Taproot output", func(t *testing.T) {
+		account := testAccount(t, nil)
+		account.transactions = &mocks.InterfaceMock{
+			SpendableOutputsFunc: func() (map[wire.OutPoint]*transactions.SpendableOutput, error) {
+				pkScript := append([]byte{0x51, 0x20}, make([]byte, 32)...)
+				return map[wire.OutPoint]*transactions.SpendableOutput{
+					{Index: 0}: {TxOut: wire.NewTxOut(1000, pkScript)},
+				}, nil
+			},
+		}
+		ks := &keystoremocks.KeystoreMock{
+			SupportsAccountFunc: func(coin.Coin, interface{}) bool { return false },
+		}
+		require.EqualError(t, account.CheckTaprootSendSupport(ks), "spendable output address not found in account")
+	})
+
+	t.Run("wait for sync", func(t *testing.T) {
+		account := mockAccount(t, nil)
+		require.ErrorIs(t, account.CheckTaprootSendSupport(&keystoremocks.KeystoreMock{}), accounts.ErrSyncInProgress)
+	})
 }
 
 func TestGetFeePerKb(t *testing.T) {

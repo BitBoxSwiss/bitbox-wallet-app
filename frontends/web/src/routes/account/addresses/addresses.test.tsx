@@ -176,7 +176,7 @@ describe('routes/account/addresses', () => {
 
   it('shows a warning and receive-page link before copying a change address', async () => {
     const connectSpy = vi.spyOn(keystoresApi, 'connectKeystore').mockResolvedValue({ success: true });
-    const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockResolvedValue(true);
+    const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockResolvedValue({ success: true });
     const user = userEvent.setup();
 
     renderWithRoute('/account/btc-account/addresses');
@@ -204,8 +204,9 @@ describe('routes/account/addresses', () => {
   });
 
   it('shows insecure verify warning and skip path without calling verify API', async () => {
-    const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockResolvedValue(true);
+    const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockResolvedValue({ success: true });
     vi.spyOn(accountApi, 'hasSecureOutput').mockReturnValue(async () => ({
+      success: true,
       hasSecureOutput: false,
       optional: false,
     }));
@@ -264,6 +265,7 @@ describe('routes/account/addresses', () => {
   it('opens verify flow when clicking copy address action from the list', async () => {
     const connectSpy = vi.spyOn(keystoresApi, 'connectKeystore').mockResolvedValue({ success: true });
     vi.spyOn(accountApi, 'hasSecureOutput').mockReturnValue(async () => ({
+      success: true,
       hasSecureOutput: false,
       optional: false,
     }));
@@ -280,8 +282,9 @@ describe('routes/account/addresses', () => {
   });
 
   it('verifies securely when secure output exists', async () => {
-    const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockResolvedValue(true);
+    const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockResolvedValue({ success: true });
     vi.spyOn(accountApi, 'hasSecureOutput').mockReturnValue(async () => ({
+      success: true,
       hasSecureOutput: true,
       optional: false,
     }));
@@ -298,6 +301,7 @@ describe('routes/account/addresses', () => {
   it('shows receive-style verify dialog while secure verification is in progress', async () => {
     const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockImplementation(() => new Promise(() => {}));
     vi.spyOn(accountApi, 'hasSecureOutput').mockReturnValue(async () => ({
+      success: true,
       hasSecureOutput: true,
       optional: false,
     }));
@@ -312,9 +316,10 @@ describe('routes/account/addresses', () => {
   });
 
   it('closes the verify dialog after confirmation when the account updates during verification', async () => {
-    const verifyAddressDeferred = createDeferred<boolean>();
+    const verifyAddressDeferred = createDeferred<Awaited<ReturnType<typeof accountApi.verifyAddress>>>();
     const verifyAddressSpy = vi.spyOn(accountApi, 'verifyAddress').mockReturnValue(verifyAddressDeferred.promise);
     vi.spyOn(accountApi, 'hasSecureOutput').mockReturnValue(async () => ({
+      success: true,
       hasSecureOutput: true,
       optional: false,
     }));
@@ -344,7 +349,7 @@ describe('routes/account/addresses', () => {
           connected: true,
         },
       }]);
-      verifyAddressDeferred.resolve(true);
+      verifyAddressDeferred.resolve({ success: true });
     });
 
     await waitFor(() => {

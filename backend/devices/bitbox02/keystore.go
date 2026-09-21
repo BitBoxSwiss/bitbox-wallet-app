@@ -37,6 +37,7 @@ type keystore struct {
 var (
 	minBTCTransactionAntiKleptoVersion = semver.NewSemVer(9, 4, 0)
 	minAntiKleptoVersion               = semver.NewSemVer(9, 5, 0)
+	minTaprootVersion                  = semver.NewSemVer(9, 10, 0)
 	minETHTypedMessageVersion          = semver.NewSemVer(9, 12, 0)
 	minPaymentRequestVersion           = semver.NewSemVer(9, 20, 0)
 	minSwapPaymentRequestVersion       = semver.NewSemVer(9, 26, 0)
@@ -149,7 +150,7 @@ func (keystore *keystore) SupportsAccount(coin coinpkg.Coin, meta interface{}) b
 			// Taproot available since v9.10.0.
 			switch coin.Code() {
 			case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC:
-				return keystore.device.Version().AtLeast(semver.NewSemVer(9, 10, 0))
+				return keystore.device.Version().AtLeast(minTaprootVersion)
 			default:
 				return false
 			}
@@ -183,6 +184,11 @@ func (keystore *keystore) VerifyAddressBTC(
 	}
 	if !canVerifyAddress {
 		panic("CanVerifyAddress must be true")
+	}
+	if accountConfiguration.ScriptType() == signing.ScriptTypeP2TR {
+		if err := keystore.requireFirmwareVersion(minTaprootVersion); err != nil {
+			return err
+		}
 	}
 	msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
 	if !ok {

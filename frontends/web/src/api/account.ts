@@ -182,7 +182,7 @@ export const getInfo = (code: AccountCode) => {
   };
 };
 
-export const init = (code: AccountCode): Promise<null> => {
+export const init = (code: AccountCode): Promise<SuccessResponse | TAccountError> => {
   return apiPost(`account/${code}/init`);
 };
 
@@ -292,7 +292,7 @@ type TNoteTx = {
 export const postNotesTx = (code: AccountCode, {
   internalTxID,
   note,
-}: TNoteTx): Promise<null> => {
+}: TNoteTx): Promise<SuccessResponse | TAccountError> => {
   return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
 };
 
@@ -300,7 +300,9 @@ export const getTransactionList = (code: AccountCode): Promise<TTransactions> =>
   return apiGet(`account/${code}/transactions`);
 };
 
-export const getTransaction = (code: AccountCode, id: TTransaction['internalID']): Promise<TTransaction | null> => {
+export const getTransaction = (code: AccountCode, id: TTransaction['internalID']): Promise<
+  { success: true; transaction: TTransaction | null } | TAccountError
+> => {
   return apiGet(`account/${code}/transaction?id=${id}`);
 };
 
@@ -363,7 +365,7 @@ export type Slip24 = {
 };
 
 export const getReceiveAddressList = (code: AccountCode) => {
-  return (): Promise<NonEmptyArray<TReceiveAddressList> | null> => {
+  return (): Promise<{ success: true; addresses: NonEmptyArray<TReceiveAddressList> } | TAccountError> => {
     return apiGet(`account/${code}/receive-addresses`);
   };
 };
@@ -400,6 +402,7 @@ export type TTxProposalResult = {
   total: TAmountWithConversions;
 } | {
   errorCode?: TTxProposalErrorCode;
+  errorMessage?: string;
   success: false;
 };
 
@@ -452,7 +455,9 @@ export const getFeeTargetList = (code: AccountCode): Promise<TFeeTargetList> => 
   return apiGet(`account/${code}/fee-targets`);
 };
 
-export const verifyAddress = (code: AccountCode, addressID: string): Promise<boolean> => {
+export const verifyAddress = (code: AccountCode, addressID: string): Promise<
+  { success: true } | { success: false; errorCode?: 'firmwareUpgradeRequired'; errorMessage?: string }
+> => {
   return apiPost(`account/${code}/verify-address`, addressID);
 };
 
@@ -469,14 +474,15 @@ export type TUTXO = {
   headerTimestamp: string | null;
 };
 
-export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {
+export const getUTXOs = (code: AccountCode): Promise<{ success: true; utxos: TUTXO[] } | TAccountError> => {
   return apiGet(`account/${code}/utxos`);
 };
 
 type TSecureOutput = {
+  success: true;
   hasSecureOutput: boolean;
   optional: boolean;
-};
+} | TAccountError;
 
 export const hasSecureOutput = (code: AccountCode) => {
   return (): Promise<TSecureOutput> => {

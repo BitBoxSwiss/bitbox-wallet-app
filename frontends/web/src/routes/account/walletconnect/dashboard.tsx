@@ -3,6 +3,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Message } from '@/components/message/message';
 import { useLoad } from '@/hooks/api';
 import { SessionTypes } from '@walletconnect/types';
 import { getSdkError } from '@walletconnect/utils';
@@ -29,7 +30,8 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
   const { t } = useTranslation();
   const { web3wallet, isWalletInitialized, initializeWeb3Wallet } = useContext(WCWeb3WalletContext);
   const [sessions, setSessions] = useState<SessionTypes.Struct[]>();
-  const receiveAddresses = useLoad(getReceiveAddressList(code));
+  const receiveAddressResponse = useLoad(getReceiveAddressList(code));
+  const receiveAddresses = receiveAddressResponse?.success ? receiveAddressResponse.addresses : undefined;
 
   const updateSessions = useCallback(() => {
     const activeSessions = Object.values(web3wallet?.getActiveSessions() || []);
@@ -60,6 +62,10 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
     });
     updateSessions();
   };
+
+  if (receiveAddressResponse && !receiveAddressResponse.success) {
+    return <Message type="error">{receiveAddressResponse.errorMessage || t('genericError')}</Message>;
+  }
 
   if (!receiveAddresses || !isWalletInitialized) {
     return null;

@@ -130,7 +130,7 @@ func TestWalletConnectSigningHandlersRequireChainID(t *testing.T) {
 	for _, test := range []struct {
 		name    string
 		body    string
-		handler func(*Handlers, *http.Request) (interface{}, error)
+		handler func(*Handlers, *http.Request) interface{}
 	}{
 		{
 			name:    "typed message omitted",
@@ -155,9 +155,8 @@ func TestWalletConnectSigningHandlersRequireChainID(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(test.body))
-			response, err := test.handler(&Handlers{}, request)
+			response := test.handler(&Handlers{}, request)
 
-			require.NoError(t, err)
 			require.Equal(t, signingResponse{
 				Success:      false,
 				ErrorMessage: "chainId is required",

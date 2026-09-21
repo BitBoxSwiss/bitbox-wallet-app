@@ -128,7 +128,11 @@ export const AccountsSummary = ({
     }
     setOfflineError(status.offlineError);
     if (!status.synced) {
-      return accountApi.init(code);
+      const result = await accountApi.init(code);
+      if (!result.success) {
+        console.error(result.errorMessage);
+      }
+      return;
     }
     const balance = await accountApi.getBalance(code);
     if (!mounted.current) {

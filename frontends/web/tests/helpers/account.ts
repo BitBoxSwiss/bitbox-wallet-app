@@ -7,7 +7,7 @@ type TStatusResponse = {
 };
 
 type TTransactionsResponse = { success: false } | { success: true; list: unknown[] };
-type TReceiveAddressResponse = Array<{
+type TReceiveAddressList = Array<{
   scriptType: string | null;
   addresses: Array<{
     addressID: string;
@@ -16,9 +16,11 @@ type TReceiveAddressResponse = Array<{
   }>;
 }>;
 
+type TReceiveAddressResponse = { success: true; addresses: TReceiveAddressList } | { success: false; errorMessage: string };
+
 const receiveAddressScriptTypePreference = ['p2wpkh', 'p2tr', 'p2wpkh-p2sh'];
 
-export type TReceiveAddress = TReceiveAddressResponse[number]['addresses'][number];
+export type TReceiveAddress = TReceiveAddressList[number]['addresses'][number];
 
 export const getAccountCodeFromUrl = (url: string): string => {
   const match = url.match(/#\/account\/([^/]+)/);
@@ -41,17 +43,20 @@ export async function getReceiveAddressData(
   if (!response.ok()) {
     throw new Error(`Failed to fetch receive addresses for ${accountCode}: ${response.status()}`);
   }
-  const body = (await response.json()) as TReceiveAddressResponse | null;
-  if (!body || !Array.isArray(body)) {
+  const body = (await response.json()) as TReceiveAddressResponse;
+  if (!body.success) {
+    throw new Error(`Failed to fetch receive addresses for ${accountCode}: ${body.errorMessage}`);
+  }
+  if (!Array.isArray(body.addresses)) {
     throw new Error(`Unexpected receive addresses response for ${accountCode}`);
   }
   for (const scriptType of receiveAddressScriptTypePreference) {
-    const receiveAddress = body.find((item) => item.scriptType === scriptType)?.addresses?.[0];
+    const receiveAddress = body.addresses.find((item) => item.scriptType === scriptType)?.addresses?.[0];
     if (receiveAddress) {
       return receiveAddress;
     }
   }
-  const fallback = body.find((item) => item.addresses?.[0]?.address)?.addresses[0];
+  const fallback = body.addresses.find((item) => item.addresses?.[0]?.address)?.addresses[0];
   if (!fallback) {
     throw new Error(`No receive address available for ${accountCode}`);
   }

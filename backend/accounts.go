@@ -715,6 +715,28 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 	}
 }
 
+// CheckKeystoreFeature checks a feature's requirements, including account-specific requirements
+// when an account code is provided.
+func (backend *Backend) CheckKeystoreFeature(
+	ks keystore.Keystore, feature keystore.Feature, accountCode accountsTypes.Code,
+) error {
+	if err := ks.SupportsFeature(feature); err != nil {
+		return err
+	}
+	if feature != keystore.FeatureBTCTransactionSigning || accountCode == "" {
+		return nil
+	}
+	account, err := backend.GetAccountFromCode(accountCode)
+	if err != nil {
+		return err
+	}
+	btcAccount, ok := account.(*btc.Account)
+	if !ok {
+		return keystore.ErrUnsupportedFeature
+	}
+	return btcAccount.CheckTaprootSendSupport(ks)
+}
+
 // ConnectKeystore ensures that the keystore with the given root fingerprint is connected,
 // prompts the user if necessary, and returns the keystore instance.
 func (backend *Backend) ConnectKeystore(rootFingerprint []byte) (keystore.Keystore, error) {
@@ -1118,12 +1140,11 @@ func (backend *Backend) initPersistedAccounts(options accountLoadOptions) {
 
 	persistedAccounts := backend.config.AccountsConfig()
 
-	// In this loop, we add all accounts that match the filter, except for the ones whose signing
-	// configuration is not supported by the connected keystore. The latter can happen for example
-	// if a user connects a BitBox02 Multi edition first, which persists some altcoin accounts, and
-	// then connects a BitBox02 BTC-only with the same seed. In that case, the unsupported accounts
-	// will not be loaded, unless their keystore has watch-only enabled.
-outer:
+	// In this loop, we add all accounts that match the filter, except for the ones for which the
+	// connected keystore supports no signing configuration. The latter can happen for example if a
+	// user connects a BitBox02 Multi edition first, which persists some altcoin accounts, and then
+	// connects a BitBox02 BTC-only with the same seed. In that case, the unsupported accounts will
+	// not be loaded, unless their keystore has watch-only enabled.
 	for _, account := range backend.filterAccounts(&persistedAccounts, keystoreConnectedOrWatch) {
 		coin, err := backend.Coin(account.CoinCode)
 		if err != nil {
@@ -1144,10 +1165,15 @@ outer:
 			if !isWatch {
 				switch coin.(type) {
 				case *btc.Coin:
+					supported := false
 					for _, cfg := range account.SigningConfigurations {
-						if !backend.keystore.SupportsAccount(coin, cfg.ScriptType()) {
-							continue outer
+						if backend.keystore.SupportsAccount(coin, cfg.ScriptType()) {
+							supported = true
+							break
 						}
+					}
+					if !supported {
+						continue
 					}
 				default:
 					if !backend.keystore.SupportsAccount(coin, nil) {

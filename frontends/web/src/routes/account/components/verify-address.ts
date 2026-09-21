@@ -44,6 +44,9 @@ export const verifyAddressWithDevice = async ({
 
   try {
     const secureOutput = await hasSecureOutput(code)();
+    if (!secureOutput.success) {
+      return 'connectFailed';
+    }
     if (!secureOutput.hasSecureOutput) {
       return 'skipDeviceVerification';
     }
@@ -53,8 +56,8 @@ export const verifyAddressWithDevice = async ({
 
   try {
     onSecureVerificationStart?.();
-    await verifyAddress(code, addressID);
-    return 'verified';
+    const result = await verifyAddress(code, addressID);
+    return result.success ? 'verified' : 'verifyFailed';
   } catch {
     return 'verifyFailed';
   }

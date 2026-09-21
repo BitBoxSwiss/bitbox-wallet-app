@@ -2,6 +2,7 @@
 
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 import { apiGet, apiPost } from '@/utils/request';
+import type { AccountCode } from './account';
 
 export type { TUnsubscribe };
 
@@ -61,8 +62,9 @@ export type TKeystoreFeature =
 export const connectKeystore = (
   rootFingerprint: string,
   requiredFeature?: TKeystoreFeature,
+  accountCode?: AccountCode,
 ): Promise<TConnectKeystoreResponse> => {
-  return apiPost('connect-keystore', { rootFingerprint, requiredFeature });
+  return apiPost('connect-keystore', { rootFingerprint, requiredFeature, accountCode });
 };
 
 export const connectAnyKeystore = (

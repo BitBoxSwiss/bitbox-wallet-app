@@ -52,24 +52,18 @@ func isFirmwareUpgradeRequired(err error) bool {
 
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
-	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route,
+	handleFunc func(string, func(*http.Request) interface{}) *mux.Route,
 	log *logrus.Entry,
 	signWalletConnectTransaction func(accountsTypes.Code, eth.SignTransactionArgs) (*types.Transaction, error),
 ) *Handlers {
 	handlers := &Handlers{log: log, signWalletConnectTransaction: signWalletConnectTransaction}
-
-	withError := func(handler func(*http.Request) interface{}) func(*http.Request) (interface{}, error) {
-		return func(request *http.Request) (interface{}, error) {
-			return handler(request), nil
-		}
-	}
 
 	handleFunc("/init", handlers.postInit).Methods("POST")
 	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
 	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
 	handleFunc("/transaction", handlers.ensureAccountInitialized(handlers.getAccountTransaction)).Methods("GET")
 	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
-	handleFunc("/info", handlers.ensureAccountInitialized(withError(handlers.getAccountInfo))).Methods("GET")
+	handleFunc("/info", handlers.ensureAccountInitialized(handlers.getAccountInfo)).Methods("GET")
 	handleFunc("/utxos", handlers.ensureAccountInitialized(handlers.getUTXOs)).Methods("GET")
 	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
@@ -128,10 +122,13 @@ type Transaction struct {
 	Nonce *uint64 `json:"nonce"`
 }
 
-func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
-	return func(request *http.Request) (interface{}, error) {
+func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) interface{}) func(*http.Request) interface{} {
+	return func(request *http.Request) interface{} {
 		if handlers.account == nil {
-			return nil, errp.New("Account was uninitialized. Cannot handle request.")
+			return struct {
+				Success      bool   `json:"success"`
+				ErrorMessage string `json:"errorMessage"`
+			}{Success: false, ErrorMessage: "Account was uninitialized. Cannot handle request."}
 		}
 		return h(request)
 	}
@@ -196,14 +193,14 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 	return txInfoJSON
 }
 
-func (handlers *Handlers) getAccountTransactions(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountTransactions(*http.Request) interface{} {
 	var result struct {
 		Success      bool          `json:"success"`
 		Transactions []Transaction `json:"list"`
 	}
 	txs, err := handlers.account.Transactions()
 	if err != nil {
-		return result, nil
+		return result
 	}
 	result.Transactions = []Transaction{}
 	for _, txInfo := range txs {
@@ -214,26 +211,32 @@ func (handlers *Handlers) getAccountTransactions(*http.Request) (interface{}, er
 		result.Transactions = append(result.Transactions, handlers.getTxInfoJSON(txInfo, false))
 	}
 	result.Success = true
-	return result, nil
+	return result
 }
 
-func (handlers *Handlers) getAccountTransaction(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountTransaction(r *http.Request) interface{} {
+	type result struct {
+		Success      bool         `json:"success"`
+		Transaction  *Transaction `json:"transaction"`
+		ErrorMessage string       `json:"errorMessage,omitempty"`
+	}
 	internalID := r.URL.Query().Get("id")
 	txs, err := handlers.account.Transactions()
 	if err != nil {
-		return nil, err
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	for _, txInfo := range txs {
 		if txInfo.InternalID != internalID {
 			continue
 		}
 
-		return handlers.getTxInfoJSON(txInfo, true), nil
+		transaction := handlers.getTxInfoJSON(txInfo, true)
+		return result{Success: true, Transaction: &transaction}
 	}
-	return nil, nil
+	return result{Success: true}
 }
 
-func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, error) {
+func (handlers *Handlers) postExportTransactions(*http.Request) interface{} {
 	type result struct {
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage"`
@@ -246,19 +249,19 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 	exportsDir, err := config.ExportsDir()
 	if err != nil {
 		handlers.log.WithError(err).Error("error exporting account")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	suggestedPath := filepath.Join(exportsDir, name)
 	path := handlers.account.Config().GetSaveFilename(suggestedPath)
 	if path == "" {
-		return nil, nil
+		return nil
 	}
 	handlers.log.Infof("Export transactions to %s.", path)
 
 	transactions, err := handlers.account.Transactions()
 	if err != nil {
 		handlers.log.WithError(err).Error("error getting the transactions")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 
 	file, err := os.OpenFile(
@@ -268,32 +271,32 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 	)
 	if err != nil {
 		handlers.log.WithError(err).Error("error creating file")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := config.EnsurePrivateFile(path); err != nil {
 		_ = file.Close()
 		handlers.log.WithError(err).Error("error restricting file permissions")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := file.Truncate(0); err != nil {
 		_ = file.Close()
 		handlers.log.WithError(err).Error("error truncating file")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.account.ExportCSV(file, transactions); err != nil {
 		_ = file.Close()
 		handlers.log.WithError(err).Error("error writing file")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := file.Close(); err != nil {
 		handlers.log.WithError(err).Error("error closing file")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.account.Config().UnsafeSystemOpen(path); err != nil {
 		handlers.log.WithError(err).Error("error opening file")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
-	return result{Success: true}, nil
+	return result{Success: true}
 }
 
 func (handlers *Handlers) getAccountInfo(*http.Request) interface{} {
@@ -352,7 +355,7 @@ func (handlers *Handlers) getAccountInfo(*http.Request) interface{} {
 	return response{Success: true, Info: &result}
 }
 
-func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getUTXOs(*http.Request) interface{} {
 	accountConfig := handlers.account.Config()
 	type utxoResponse struct {
 		OutPoint        string                              `json:"outPoint"`
@@ -366,21 +369,26 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 		IsChange        bool                                `json:"isChange"`
 		HeaderTimestamp *string                             `json:"headerTimestamp"`
 	}
+	type response struct {
+		Success      bool           `json:"success"`
+		UTXOs        []utxoResponse `json:"utxos"`
+		ErrorMessage string         `json:"errorMessage,omitempty"`
+	}
 	result := []utxoResponse{}
 
 	t, ok := handlers.account.(*btc.Account)
 
 	if !ok {
-		return result, errp.New("Interface must be of type btc.Account")
+		return response{Success: false, ErrorMessage: "Interface must be of type btc.Account"}
 	}
 
 	spendableOutputs, err := t.SpendableOutputs()
 	if err != nil {
-		return nil, err
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	reusedAddresses, err := t.ReusedAddressesForOutputs(spendableOutputs)
 	if err != nil {
-		return nil, err
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
 	for _, output := range spendableOutputs {
@@ -407,10 +415,10 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 			})
 	}
 
-	return result, nil
+	return response{Success: true, UTXOs: result}
 }
 
-func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountBalance(*http.Request) interface{} {
 	accountConfig := handlers.account.Config()
 	type balance struct {
 		HasAvailable bool                                `json:"hasAvailable"`
@@ -425,7 +433,7 @@ func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) 
 	}
 	accountBalance, err := handlers.account.Balance()
 	if err != nil {
-		return result{Success: false}, nil
+		return result{Success: false}
 	}
 	return result{
 		Success: true,
@@ -435,7 +443,7 @@ func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) 
 			HasIncoming:  accountBalance.Incoming().BigInt().Sign() > 0,
 			Incoming:     accountBalance.Incoming().FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
 		},
-	}, nil
+	}
 }
 
 type sendTxInput struct {
@@ -493,7 +501,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	return nil
 }
 
-func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAccountSendTx(r *http.Request) interface{} {
 	type response struct {
 		Success      bool   `json:"success"`
 		Aborted      bool   `json:"aborted,omitempty"`
@@ -511,7 +519,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	}
 	txID, err := handlers.account.SendTx(txNote)
 	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
-		return response{Success: false, Aborted: true}, nil
+		return response{Success: false, Aborted: true}
 	}
 	if err != nil {
 		handlers.log.WithError(err).Error("Failed to send transaction")
@@ -528,28 +536,29 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 			result.ErrorCode = errors.ErrERC20InsufficientGasFunds.Error()
 		}
 
-		return result, nil
+		return result
 	}
-	return response{Success: true, TxID: txID}, nil
+	return response{Success: true, TxID: txID}
 }
 
 type txProposalResponse struct {
 	Success                 bool                                 `json:"success"`
 	ErrorCode               string                               `json:"errorCode,omitempty"`
+	ErrorMessage            string                               `json:"errorMessage,omitempty"`
 	Amount                  *coin.FormattedAmountWithConversions `json:"amount,omitempty"`
 	Fee                     *coin.FormattedAmountWithConversions `json:"fee,omitempty"`
 	Total                   *coin.FormattedAmountWithConversions `json:"total,omitempty"`
 	RecipientDisplayAddress string                               `json:"recipientDisplayAddress,omitempty"`
 }
 
-func txProposalError(err error) (interface{}, error) {
+func txProposalError(err error) txProposalResponse {
 	if validationErr, ok := errp.Cause(err).(errors.TxValidationError); ok {
-		return txProposalResponse{Success: false, ErrorCode: validationErr.Error()}, nil
+		return txProposalResponse{Success: false, ErrorCode: validationErr.Error()}
 	}
-	return nil, errp.WithMessage(err, "Failed to create transaction proposal")
+	return txProposalResponse{Success: false, ErrorMessage: errp.WithMessage(err, "Failed to create transaction proposal").Error()}
 }
 
-func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAccountTxProposal(r *http.Request) interface{} {
 	accountConfig := handlers.account.Config()
 	var input sendTxInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -568,10 +577,10 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 		Fee:                     &feeResponse,
 		Total:                   &totalResponse,
 		RecipientDisplayAddress: formatAddressForDisplay(handlers.account, input.RecipientAddress),
-	}, nil
+	}
 }
 
-func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountFeeTargets(*http.Request) interface{} {
 	type jsonFeeTarget struct {
 		Code        accounts.FeeTargetCode `json:"code"`
 		FeeRateInfo string                 `json:"feeRateInfo"`
@@ -592,14 +601,21 @@ func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, erro
 	return response{
 		FeeTargets:       result,
 		DefaultFeeTarget: defaultFeeTarget,
-	}, nil
+	}
 }
 
-func (handlers *Handlers) postInit(*http.Request) (interface{}, error) {
-	if handlers.account == nil {
-		return nil, errp.New("/init called even though account was not added yet")
+func (handlers *Handlers) postInit(*http.Request) interface{} {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
 	}
-	return nil, handlers.account.Initialize()
+	if handlers.account == nil {
+		return result{Success: false, ErrorMessage: "/init called even though account was not added yet"}
+	}
+	if err := handlers.account.Initialize(); err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
+	return result{Success: true}
 }
 
 type statusResponse struct {
@@ -614,9 +630,9 @@ type statusResponse struct {
 	FatalError bool `json:"fatalError"`
 }
 
-func (handlers *Handlers) getAccountStatus(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountStatus(*http.Request) interface{} {
 	if handlers.account == nil {
-		return statusResponse{Disabled: true}, nil
+		return statusResponse{Disabled: true}
 	}
 	offlineErr := handlers.account.Offline()
 	var offlineError *string
@@ -628,10 +644,10 @@ func (handlers *Handlers) getAccountStatus(*http.Request) (interface{}, error) {
 		Synced:       handlers.account.Synced(),
 		OfflineError: offlineError,
 		FatalError:   handlers.account.FatalError(),
-	}, nil
+	}
 }
 
-func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getReceiveAddresses(*http.Request) interface{} {
 
 	type jsonAddress struct {
 		Address        string `json:"address"`
@@ -642,10 +658,15 @@ func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error
 		ScriptType *signing.ScriptType `json:"scriptType"`
 		Addresses  []jsonAddress       `json:"addresses"`
 	}
+	type response struct {
+		Success      bool              `json:"success"`
+		Addresses    []jsonAddressList `json:"addresses"`
+		ErrorMessage string            `json:"errorMessage,omitempty"`
+	}
 	addressList := []jsonAddressList{}
 	unusedAddressList, err := handlers.account.GetUnusedReceiveAddresses()
 	if err != nil {
-		return nil, err
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	for _, addresses := range unusedAddressList {
 		addrs := []jsonAddress{}
@@ -661,7 +682,7 @@ func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error
 			Addresses:  addrs,
 		})
 	}
-	return addressList, nil
+	return response{Success: true, Addresses: addressList}
 }
 
 type usedAddressesProvider interface {
@@ -669,7 +690,7 @@ type usedAddressesProvider interface {
 	GetUsedAddresses() ([]btc.UsedAddress, error)
 }
 
-func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getUsedAddresses(*http.Request) interface{} {
 	type jsonUsedAddress struct {
 		Address        string              `json:"address"`
 		DisplayAddress string              `json:"displayAddress"`
@@ -686,13 +707,13 @@ func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
 
 	btcAccount, ok := handlers.account.(usedAddressesProvider)
 	if !ok {
-		return response{Success: false, ErrorCode: "notSupported"}, nil
+		return response{Success: false, ErrorCode: "notSupported"}
 	}
 
 	usedAddresses, err := btcAccount.GetUsedAddresses()
 	if err != nil {
 		if errp.Cause(err) == accounts.ErrSyncInProgress {
-			return response{Success: false, ErrorCode: accounts.ErrSyncInProgress.Error()}, nil
+			return response{Success: false, ErrorCode: accounts.ErrSyncInProgress.Error()}
 		}
 		if handlers.log != nil {
 			handlers.log.WithField("code", handlers.account.Config().Code).WithError(err).Error(
@@ -700,7 +721,7 @@ func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
 			)
 		}
 		// Return success: false instead of error to avoid breaking the frontend.
-		return response{Success: false, ErrorCode: "loadFailed"}, nil
+		return response{Success: false, ErrorCode: "loadFailed"}
 	}
 
 	result := make([]jsonUsedAddress, len(usedAddresses))
@@ -720,18 +741,30 @@ func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
 		}
 	}
 
-	return response{Success: true, Addresses: result}, nil
+	return response{Success: true, Addresses: result}
 }
 
-func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postVerifyAddress(r *http.Request) interface{} {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
 	var addressID string
 	if err := json.NewDecoder(r.Body).Decode(&addressID); err != nil {
-		return nil, errp.WithStack(err)
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
-	return handlers.account.VerifyAddress(addressID)
+	_, err := handlers.account.VerifyAddress(addressID)
+	if isFirmwareUpgradeRequired(err) {
+		return result{Success: false, ErrorCode: keystore.ErrFirmwareUpgradeRequired.Error()}
+	}
+	if err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
+	return result{Success: true}
 }
 
-func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) interface{} {
 	type result struct {
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage"`
@@ -740,58 +773,68 @@ func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interfac
 		SigningConfigIndex int `json:"signingConfigIndex"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	btcAccount, ok := handlers.account.(*btc.Account)
 	if !ok {
 		return result{
 			Success:      false,
 			ErrorMessage: "An account must be BTC based to support xpub verification.",
-		}, nil
+		}
 	}
 	canVerify, err := btcAccount.VerifyExtendedPublicKey(input.SigningConfigIndex)
 	// User canceled keystore connect prompt - no special action or message needed in the frontend.
 	if errp.Cause(err) == errp.ErrUserAbort {
-		return result{Success: true}, nil
+		return result{Success: true}
 	}
 	if err != nil {
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if !canVerify {
 		return result{
 			Success:      false,
 			ErrorMessage: "This device/keystore does not support verifying xpubs.",
-		}, nil
+		}
 	}
-	return result{Success: true}, nil
+	return result{Success: true}
 }
 
-func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getHasSecureOutput(r *http.Request) interface{} {
 	type response struct {
-		HasSecureOutput bool `json:"hasSecureOutput"`
-		Optional        bool `json:"optional"`
+		Success         bool   `json:"success"`
+		HasSecureOutput bool   `json:"hasSecureOutput"`
+		Optional        bool   `json:"optional"`
+		ErrorMessage    string `json:"errorMessage,omitempty"`
 	}
 
 	hasSecureOutput, optional, err := handlers.account.CanVerifyAddresses()
 	if err != nil {
-		return nil, err
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{
+		Success:         true,
 		HasSecureOutput: hasSecureOutput,
 		Optional:        optional,
-	}, nil
+	}
 }
 
-func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postSetTxNote(r *http.Request) interface{} {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
 	var args struct {
 		InternalTxID string `json:"internalTxID"`
 		Note         string `json:"note"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
-		return nil, errp.WithStack(err)
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 
-	return nil, handlers.account.SetTxNote(args.InternalTxID, args.Note)
+	if err := handlers.account.SetTxNote(args.InternalTxID, args.Note); err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
+	return result{Success: true}
 }
 
 type signingResponse struct {
@@ -815,14 +858,14 @@ func newSigningErrorResponse(err error) signingResponse {
 	return signingResponse{Success: false, ErrorMessage: err.Error()}
 }
 
-func (handlers *Handlers) postEthSignMsg(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postEthSignMsg(r *http.Request) interface{} {
 	var signInput string
 	if err := json.NewDecoder(r.Body).Decode(&signInput); err != nil {
-		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signingResponse{Success: false, ErrorMessage: err.Error()}
 	}
 	ethAccount, ok := handlers.account.(*eth.Account)
 	if !ok {
-		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
+		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}
 	}
 	signature, err := ethAccount.SignMsg(signInput)
 	if err != nil {
@@ -830,28 +873,28 @@ func (handlers *Handlers) postEthSignMsg(r *http.Request) (interface{}, error) {
 		if !result.Aborted {
 			handlers.log.WithError(err).Error("Failed to sign message")
 		}
-		return result, nil
+		return result
 	}
 	return signingResponse{
 		Success:   true,
 		Signature: signature,
-	}, nil
+	}
 }
 
-func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) interface{} {
 	var args struct {
 		ChainId *uint64 `json:"chainId"`
 		Data    string  `json:"data"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
-		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signingResponse{Success: false, ErrorMessage: err.Error()}
 	}
 	if args.ChainId == nil {
-		return signingResponse{Success: false, ErrorMessage: "chainId is required"}, nil
+		return signingResponse{Success: false, ErrorMessage: "chainId is required"}
 	}
 	ethAccount, ok := handlers.account.(*eth.Account)
 	if !ok {
-		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
+		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}
 	}
 	signature, err := eth.SignTypedMsg(*args.ChainId, args.Data,
 		ethAccount.Info().SigningConfigurations[0], ethAccount.Config().ConnectKeystore)
@@ -860,16 +903,16 @@ func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, err
 		if !result.Aborted {
 			handlers.log.WithError(err).Error("Failed to sign typed data")
 		}
-		return result, nil
+		return result
 	}
 	return signingResponse{
 		Success:   true,
 		Signature: signature,
-	}, nil
+	}
 }
 
 // postEthSignWalletConnectTx adapts the existing WalletConnect route to generic EVM signing.
-func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) interface{} {
 	var args struct {
 		Send    bool                            `json:"send"`
 		ChainID *uint64                         `json:"chainId"`
@@ -881,14 +924,14 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 		TxHash  string `json:"txHash"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
-		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signingResponse{Success: false, ErrorMessage: err.Error()}
 	}
 	if args.ChainID == nil {
-		return signingResponse{Success: false, ErrorMessage: "chainId is required"}, nil
+		return signingResponse{Success: false, ErrorMessage: "chainId is required"}
 	}
 	transaction, err := parseWalletConnectTransactionRequest(*args.ChainID, args.Tx)
 	if err != nil {
-		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signingResponse{Success: false, ErrorMessage: err.Error()}
 	}
 	signedTx, err := handlers.signWalletConnectTransaction(handlers.account.Config().Code, eth.SignTransactionArgs{
 		ChainID:     *args.ChainID,
@@ -900,18 +943,18 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 		if !result.Aborted {
 			handlers.log.WithError(err).Error("Failed to send transaction")
 		}
-		return result, nil
+		return result
 	}
 	rawTx, err := signedTx.MarshalBinary()
 	if err != nil {
 		handlers.log.WithError(err).Error("Failed to serialize signed transaction")
-		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signingResponse{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{
 		Success: true,
 		RawTx:   "0x" + hex.EncodeToString(rawTx),
 		TxHash:  signedTx.Hash().Hex(),
-	}, nil
+	}
 }
 
 type signMessageForAddressResponse struct {
@@ -941,13 +984,13 @@ func (handlers *Handlers) signMessageForAddressErrorResponse(err error) signMess
 	return signMessageForAddressResponse{Success: false, ErrorMessage: "An unexpected error occurred."}
 }
 
-func (handlers *Handlers) postSignBTCMessageUnusedAddress(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postSignBTCMessageUnusedAddress(r *http.Request) interface{} {
 	var request struct {
 		Msg    string             `json:"msg"`
 		Format signing.ScriptType `json:"format"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}
 	}
 
 	btcAccount, ok := handlers.account.(*btc.Account)
@@ -955,28 +998,28 @@ func (handlers *Handlers) postSignBTCMessageUnusedAddress(r *http.Request) (inte
 		return signMessageForAddressResponse{
 			Success:      false,
 			ErrorMessage: "Must be a BTC based account",
-		}, nil
+		}
 	}
 
 	address, signature, err := btc.SignBTCMessageUnusedAddress(btcAccount, request.Msg, request.Format)
 	if err != nil {
-		return handlers.signMessageForAddressErrorResponse(err), nil
+		return handlers.signMessageForAddressErrorResponse(err)
 	}
 	return signMessageForAddressResponse{
 		Success:        true,
 		Address:        address,
 		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
 		Signature:      signature,
-	}, nil
+	}
 }
 
-func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) interface{} {
 	var request struct {
 		AddressID string `json:"addressID"`
 		Msg       string `json:"msg"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}
 	}
 
 	btcAccount, ok := handlers.account.(*btc.Account)
@@ -984,27 +1027,27 @@ func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) (interfa
 		return signMessageForAddressResponse{
 			Success:      false,
 			ErrorMessage: "Must be a BTC based account",
-		}, nil
+		}
 	}
 
 	address, signature, err := btcAccount.SignBTCMessageForAddress(request.AddressID, request.Msg)
 	if err != nil {
-		return handlers.signMessageForAddressErrorResponse(err), nil
+		return handlers.signMessageForAddressErrorResponse(err)
 	}
 	return signMessageForAddressResponse{
 		Success:        true,
 		Address:        address,
 		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
 		Signature:      signature,
-	}, nil
+	}
 }
 
-func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) interface{} {
 	var request struct {
 		Msg string `json:"msg"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}
 	}
 
 	ethAccount, ok := handlers.account.(*eth.Account)
@@ -1012,17 +1055,17 @@ func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) (interfa
 		return signMessageForAddressResponse{
 			Success:      false,
 			ErrorMessage: "Must be an ETH based account",
-		}, nil
+		}
 	}
 
 	address, signature, err := ethAccount.SignETHMessage(request.Msg)
 	if err != nil {
-		return handlers.signMessageForAddressErrorResponse(err), nil
+		return handlers.signMessageForAddressErrorResponse(err)
 	}
 	return signMessageForAddressResponse{
 		Success:        true,
 		Address:        address,
 		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
 		Signature:      signature,
-	}, nil
+	}
 }

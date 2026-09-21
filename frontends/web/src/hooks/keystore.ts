@@ -22,11 +22,8 @@ export const useFeatureConnect = () => {
     return result.success;
   }, [t]);
 
-  const connect = useCallback(async (
-    rootFingerprint: string,
-    requiredFeature?: TKeystoreFeature,
-  ) => {
-    return handleResult(await connectKeystore(rootFingerprint, requiredFeature));
+  const connect = useCallback(async (...args: Parameters<typeof connectKeystore>) => {
+    return handleResult(await connectKeystore(...args));
   }, [handleResult]);
 
   const connectAny = useCallback(async (requiredFeature?: TKeystoreFeature) => {

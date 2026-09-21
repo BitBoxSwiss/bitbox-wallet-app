@@ -74,10 +74,7 @@ describe('routes/account/actionButtons', () => {
     fireEvent.click(screen.getByRole('link', { name: 'generic.send' }));
 
     await waitFor(() => {
-      expect(connectKeystore).toHaveBeenCalledWith(
-        account.keystore.rootFingerprint,
-        'btcTransactionSigning',
-      );
+      expect(connectKeystore).toHaveBeenCalledWith(account.keystore.rootFingerprint, 'btcTransactionSigning', account.code);
     });
     expect(await screen.findByText('firmware upgrade required')).toBeInTheDocument();
     expect(screen.getByText('/account/btc-account')).toBeInTheDocument();
@@ -93,11 +90,19 @@ describe('routes/account/actionButtons', () => {
     fireEvent.click(screen.getByRole('link', { name: 'generic.send' }));
 
     await waitFor(() => {
-      expect(connectKeystore).toHaveBeenCalledWith(
-        account.keystore.rootFingerprint,
-        requiredFeature,
-      );
+      expect(connectKeystore).toHaveBeenCalledWith(account.keystore.rootFingerprint, requiredFeature, account.code);
     });
     expect(screen.getByText('/account/btc-account/send')).toBeInTheDocument();
+  });
+
+  it('stays on the account screen when connecting is cancelled', async () => {
+    vi.mocked(connectKeystore).mockResolvedValue({ success: false, errorCode: 'userAbort' });
+    renderActionButtons();
+
+    fireEvent.click(screen.getByRole('link', { name: 'generic.send' }));
+
+    await waitFor(() => expect(connectKeystore).toHaveBeenCalledWith(account.keystore.rootFingerprint, 'btcTransactionSigning', account.code));
+    expect(screen.getByText('/account/btc-account')).toBeInTheDocument();
+    expect(screen.queryByText('firmware upgrade required')).not.toBeInTheDocument();
   });
 });

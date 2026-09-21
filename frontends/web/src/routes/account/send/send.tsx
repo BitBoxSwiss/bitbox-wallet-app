@@ -213,7 +213,7 @@ export const Send = ({
         convertToFiat(result.amount.amount);
       }
     } else {
-      const errorHandling = txProposalErrorHandling(result.errorCode);
+      const errorHandling = txProposalErrorHandling(result.errorCode || result.errorMessage);
       setErrorHandling(errorHandling);
       setIsUpdatingProposal(false);
 

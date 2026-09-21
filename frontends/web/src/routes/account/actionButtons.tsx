@@ -45,7 +45,7 @@ export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, acco
         ? 'ethTransactionSigning'
         : 'btcTransactionSigning'
     );
-    if (await connect(account.keystore.rootFingerprint, requiredFeature)) {
+    if (await connect(account.keystore.rootFingerprint, requiredFeature, code)) {
       // Proceed to the send screen if the keystore was connected.
       navigate(sendLink);
     }
