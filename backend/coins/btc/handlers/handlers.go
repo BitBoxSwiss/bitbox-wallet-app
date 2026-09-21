@@ -72,7 +72,7 @@ func NewHandlers(
 	handleFunc("/info", handlers.ensureAccountInitialized(withError(handlers.getAccountInfo))).Methods("GET")
 	handleFunc("/utxos", handlers.ensureAccountInitialized(withError(handlers.getUTXOs))).Methods("GET")
 	handleFunc("/balance", handlers.ensureAccountInitialized(withError(handlers.getAccountBalance))).Methods("GET")
-	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
+	handleFunc("/sendtx", handlers.ensureAccountInitialized(withError(handlers.postAccountSendTx))).Methods("POST")
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(withError(handlers.postAccountTxProposal))).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(withError(handlers.getReceiveAddresses))).Methods("GET")
@@ -504,7 +504,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	return nil
 }
 
-func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAccountSendTx(r *http.Request) interface{} {
 	type response struct {
 		Success      bool   `json:"success"`
 		Aborted      bool   `json:"aborted,omitempty"`
@@ -522,7 +522,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	}
 	txID, err := handlers.account.SendTx(txNote)
 	if errp.Cause(err) == keystore.ErrSigningAborted || errp.Cause(err) == errp.ErrUserAbort {
-		return response{Success: false, Aborted: true}, nil
+		return response{Success: false, Aborted: true}
 	}
 	if err != nil {
 		handlers.log.WithError(err).Error("Failed to send transaction")
@@ -539,9 +539,9 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 			result.ErrorCode = errors.ErrERC20InsufficientGasFunds.Error()
 		}
 
-		return result, nil
+		return result
 	}
-	return response{Success: true, TxID: txID}, nil
+	return response{Success: true, TxID: txID}
 }
 
 type txProposalResponse struct {
