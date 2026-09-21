@@ -140,25 +140,6 @@ func (s *testSuite) TestFormatAmount() {
 	}
 }
 
-func (s *testSuite) TestSetAmount() {
-	ratAmount1, _ := new(big.Rat).SetString("123.123456789012345678")
-	ratAmount2, _ := new(big.Rat).SetString("0")
-	ratAmount3, _ := new(big.Rat).SetString("123")
-
-	for _, isFee := range []bool{false, true} {
-		s.Require().Equal("123123456789012345678",
-			s.coin.SetAmount(ratAmount1, isFee).BigInt().String())
-		s.Require().Equal("0",
-			s.coin.SetAmount(ratAmount2, isFee).BigInt().String())
-		s.Require().Equal("123000000000000000000",
-			s.coin.SetAmount(ratAmount3, isFee).BigInt().String())
-	}
-	s.Require().Equal("123123456789012345678",
-		s.ERC20Coin.SetAmount(ratAmount1, true).BigInt().String())
-	s.Require().Equal("123123456789012",
-		s.ERC20Coin.SetAmount(ratAmount1, false).BigInt().String())
-}
-
 func (s *testSuite) TestParseAmount() {
 	ethAmount := "1.123456789012345678"
 	intWeiAmount := int64(1123456789012345678)

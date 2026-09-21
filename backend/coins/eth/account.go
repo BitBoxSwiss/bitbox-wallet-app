@@ -544,7 +544,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 	} else {
 		allowZero := true
 
-		parsedAmount, err := args.Amount.Amount(account.coin.unitFactor(false), allowZero)
+		parsedAmount, err := args.Amount.Amount(coin.DecimalsExp(account.coin, false), allowZero)
 		if err != nil {
 			return nil, err
 		}

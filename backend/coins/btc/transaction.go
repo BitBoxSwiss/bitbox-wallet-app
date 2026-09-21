@@ -18,9 +18,6 @@ import (
 	"github.com/btcsuite/btcd/wire/v2"
 )
 
-// unitSatoshi is 1 BTC (default unit) in Satoshi.
-const unitSatoshi = 1e8
-
 // getFeePerKb returns the fee rate to be used in a new transaction. It is deduced from the supplied
 // fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is
 // `FeeTargetCodeCustom`.
@@ -181,11 +178,11 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	} else {
 		allowZero := false
 
-		unit := int64(unitSatoshi)
+		unit := coin.DecimalsExp(account.coin, false)
 		if account.coin.formatUnit == coin.BtcUnitSats {
-			unit = 1
+			unit = big.NewInt(1)
 		}
-		parsedAmount, err := args.Amount.Amount(big.NewInt(unit), allowZero)
+		parsedAmount, err := args.Amount.Amount(unit, allowZero)
 		if err != nil {
 			return nil, nil, err
 		}

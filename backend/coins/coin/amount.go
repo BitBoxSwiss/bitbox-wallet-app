@@ -35,8 +35,16 @@ func NewAmountFromInt64(amount int64) Amount {
 	return Amount{n: big.NewInt(amount)}
 }
 
+// NewAmountFromRat scales an amount by the number of smallest units per input unit,
+// rounding to the nearest integer with ties away from zero. Neither argument is modified.
+func NewAmountFromRat(amount *big.Rat, unit *big.Int) Amount {
+	scaled := new(big.Rat).Mul(amount, new(big.Rat).SetInt(unit))
+	rounded, _ := new(big.Int).SetString(scaled.FloatString(0), 10)
+	return NewAmount(rounded)
+}
+
 // NewAmountFromString parses a user given coin amount, converting it from the default coin unit to
-// the smallest unit.
+// the smallest unit. Fractional smallest units are rejected.
 func NewAmountFromString(s string, unit *big.Int) (Amount, error) {
 	// big.Rat parsing accepts rationals like "2/3". Exclude those, we only want decimals.
 	if strings.ContainsRune(s, '/') {

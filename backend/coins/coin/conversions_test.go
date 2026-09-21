@@ -13,16 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSat2Btc(t *testing.T) {
-	require.Equal(t, "1.23456789", coin.Sat2Btc(big.NewRat(123456789, 1)).FloatString(8))
-	require.Equal(t, "0.00012345", coin.Sat2Btc(big.NewRat(12345, 1)).FloatString(8))
-}
-
-func TestBtc2Sat(t *testing.T) {
-	require.Equal(t, "123456789", coin.Btc2Sat(new(big.Rat).SetFloat64(1.23456789)).FloatString(0))
-	require.Equal(t, "12345", coin.Btc2Sat(new(big.Rat).SetFloat64(0.00012345)).FloatString(0))
-}
-
 func TestToUnitRat(t *testing.T) {
 	testCoin := coinMock.CoinMock{
 		DecimalsFunc: func(isFee bool) uint {
@@ -62,10 +52,6 @@ func mockCoin(t *testing.T) coinMock.CoinMock {
 			return 8
 		},
 
-		ToUnitFunc: func(amount coin.Amount, isFee bool) float64 {
-			result, _ := new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(1e8)).Float64()
-			return result
-		},
 		CodeFunc: func() coin.Code {
 			return coin.CodeBTC
 		},

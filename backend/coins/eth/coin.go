@@ -136,17 +136,9 @@ func (coin *Coin) Decimals(isFee bool) uint {
 	return 18
 }
 
-// unitFactor returns 10^coin.Decimals().
-func (coin *Coin) unitFactor(isFee bool) *big.Int {
-	return new(big.Int).Exp(
-		big.NewInt(10),
-		new(big.Int).SetUint64(uint64(coin.Decimals(isFee))), nil)
-}
-
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
-	factor := coin.unitFactor(isFee)
-	s := new(big.Rat).SetFrac(amount.BigInt(), factor).FloatString(int(coin.Decimals(isFee)))
+	s := coinpkg.ToUnitRat(amount, coin, isFee).FloatString(int(coin.Decimals(isFee)))
 	if strings.ContainsRune(s, '.') {
 		s = strings.TrimRight(strings.TrimRight(s, "0"), ".")
 	}
@@ -160,20 +152,6 @@ func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
 	return s
 }
 
-// ToUnit implements coin.Coin.
-func (coin *Coin) ToUnit(amount coinpkg.Amount, isFee bool) float64 {
-	result, _ := coinpkg.ToUnitRat(amount, coin, isFee).Float64()
-	return result
-}
-
-// SetAmount implements coin.Coin.
-func (coin *Coin) SetAmount(amount *big.Rat, isFee bool) coinpkg.Amount {
-	factor := coin.unitFactor(isFee)
-	weiAmount := new(big.Rat).Mul(amount, new(big.Rat).SetInt(factor))
-	intWeiAmount, _ := new(big.Int).SetString(weiAmount.FloatString(0), 0)
-	return coinpkg.NewAmount(intWeiAmount)
-}
-
 // ParseAmount implements coinpkg.Coin.
 func (coin *Coin) ParseAmount(amount string) (coinpkg.Amount, error) {
 	amountRat, valid := new(big.Rat).SetString(amount)
@@ -181,7 +159,7 @@ func (coin *Coin) ParseAmount(amount string) (coinpkg.Amount, error) {
 		return coinpkg.Amount{}, errp.New("Invalid amount")
 	}
 
-	return coin.SetAmount(amountRat, false), nil
+	return coinpkg.NewAmountFromRat(amountRat, coinpkg.DecimalsExp(coin, false)), nil
 }
 
 // BlockExplorerURLPrefix returns the shared base URL prefix of the block explorer.

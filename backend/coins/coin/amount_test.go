@@ -14,6 +14,50 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestNewAmountFromRat(t *testing.T) {
+	for _, tc := range []struct {
+		input    string
+		decimals uint
+		want     string
+	}{
+		{"0", 8, "0"},
+		{"0.00000001", 8, "1"},
+		{"1.23456789", 8, "123456789"},
+		{"0.49", 0, "0"},
+		{"0.5", 0, "1"},
+		{"0.51", 0, "1"},
+		{"-0.49", 0, "0"},
+		{"-0.5", 0, "-1"},
+		{"-0.51", 0, "-1"},
+		{"0.000000005", 8, "1"},
+		{"-0.000000005", 8, "-1"},
+		{"90071992.54740993", 8, "9007199254740993"},
+		{"3022314549036572.93676544", 8, "302231454903657293676544"},
+		{"1/2", 8, "50000000"},
+		{"1e-18", 18, "1"},
+		{"0.0000000000000000000000000000001", 31, "1"},
+	} {
+		t.Run(fmt.Sprintf("%s/%d", tc.input, tc.decimals), func(t *testing.T) {
+			unit := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(tc.decimals)), nil)
+			value, ok := new(big.Rat).SetString(tc.input)
+			require.True(t, ok)
+			amount := coin.NewAmountFromRat(value, unit)
+			require.Equal(t, tc.want, amount.BigInt().String())
+		})
+	}
+}
+
+func TestNewAmountFromRatDoesNotModifyInputs(t *testing.T) {
+	value, unit := big.NewRat(1, 2), big.NewInt(100000000)
+	amount := coin.NewAmountFromRat(value, unit)
+	require.Equal(t, "50000000", amount.BigInt().String())
+	require.Equal(t, big.NewRat(1, 2), value)
+	require.Equal(t, big.NewInt(100000000), unit)
+	value.SetInt64(0)
+	unit.SetInt64(0)
+	require.Equal(t, "50000000", amount.BigInt().String())
+}
+
 func TestNewAmountFromString(t *testing.T) {
 	for decimals := 0; decimals <= 20; decimals++ {
 		unit := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(decimals)), nil)
@@ -79,6 +123,8 @@ func TestSendAmount(t *testing.T) {
 
 	for _, allowZero := range []bool{false, true} {
 		_, err := coin.NewSendAmount("-1").Amount(big.NewInt(1), allowZero)
+		require.Error(t, err)
+		_, err = coin.NewSendAmount("0.5").Amount(big.NewInt(1), allowZero)
 		require.Error(t, err)
 	}
 

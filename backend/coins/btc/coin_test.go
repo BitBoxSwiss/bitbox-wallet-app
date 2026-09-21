@@ -4,7 +4,6 @@ package btc
 
 import (
 	"encoding/hex"
-	"math/big"
 	"os"
 	"path"
 	"testing"
@@ -113,29 +112,13 @@ func (s *testSuite) TestFormatAmount() {
 	}
 }
 
-func (s *testSuite) TestToUnit() {
-	for _, isFee := range []bool{false, true} {
-		s.Require().Equal(float64(12.34568910), s.coin.ToUnit(
-			coin.NewAmountFromInt64(1234568910), isFee))
-		s.Require().Equal(float64(0), s.coin.ToUnit(
-			coin.NewAmountFromInt64(0), isFee))
-		s.Require().Equal(float64(0.00000001), s.coin.ToUnit(
-			coin.NewAmountFromInt64(1), isFee))
-	}
-}
-
-func (s *testSuite) TestSetAmount() {
-	ratAmount1, _ := new(big.Rat).SetString("123.12345678")
-	ratAmount2, _ := new(big.Rat).SetString("0")
-	ratAmount3, _ := new(big.Rat).SetString("123")
-
-	for _, isFee := range []bool{false, true} {
-		s.Require().Equal("12312345678",
-			s.coin.SetAmount(ratAmount1, isFee).BigInt().String())
-		s.Require().Equal("0",
-			s.coin.SetAmount(ratAmount2, isFee).BigInt().String())
-		s.Require().Equal("12300000000",
-			s.coin.SetAmount(ratAmount3, isFee).BigInt().String())
+func (s *testSuite) TestToUnitRat() {
+	for _, unit := range []coin.BtcUnit{coin.BtcUnitDefault, coin.BtcUnitSats} {
+		s.coin.SetFormatUnit(unit)
+		for _, isFee := range []bool{false, true} {
+			s.Require().Equal("12.34568910", coin.ToUnitRat(
+				coin.NewAmountFromInt64(1234568910), s.coin, isFee).FloatString(8))
+		}
 	}
 }
 

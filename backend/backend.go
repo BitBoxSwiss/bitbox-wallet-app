@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"maps"
-	"math/big"
 	"net/http"
 	"net/url"
 	"os"
@@ -1079,7 +1078,7 @@ func (backend *Backend) RatesUpdater() *rates.RateUpdater {
 // The successful response matches the frontend TAmountWithConversions shape.
 func (backend *Backend) CoinFiatPrices(coin coinpkg.Coin) *coinpkg.FormattedAmountWithConversions {
 	const isFee = false
-	coinAmount := coin.SetAmount(big.NewRat(1, 1), isFee)
+	coinAmount := coinpkg.NewAmount(coinpkg.DecimalsExp(coin, isFee))
 	return &coinpkg.FormattedAmountWithConversions{
 		Amount: "1",
 		Unit:   coin.Unit(isFee),

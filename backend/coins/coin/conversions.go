@@ -10,20 +10,8 @@ import (
 	ratesPkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 )
 
-// btc2SatUnit is the sat equivalent of 1 BTC.
-const btc2SatUnit = 1e8
-
-// Sat2Btc converts a big.Rat amount of Sat in an equivalent amount of BTC.
-func Sat2Btc(amount *big.Rat) *big.Rat {
-	return new(big.Rat).Quo(amount, big.NewRat(btc2SatUnit, 1))
-}
-
-// Btc2Sat converts a big.Rat amount of BTC in an equivalent amount of Sat.
-func Btc2Sat(amount *big.Rat) *big.Rat {
-	return new(big.Rat).Mul(amount, big.NewRat(btc2SatUnit, 1))
-}
-
-// ToUnitRat converts an amount in the coin's smallest unit to the currently selected display unit.
+// ToUnitRat converts an amount in the coin's smallest unit to its canonical unit,
+// independent of the selected display unit.
 func ToUnitRat(amount Amount, coin Coin, isFee bool) *big.Rat {
 	return new(big.Rat).SetFrac(amount.BigInt(), DecimalsExp(coin, isFee))
 }

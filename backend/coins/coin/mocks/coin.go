@@ -4,7 +4,6 @@
 package mocks
 
 import (
-	"math/big"
 	"sync"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -51,14 +50,8 @@ var _ coin.Coin = &CoinMock{}
 //			ParseAmountFunc: func(amount string) (coin.Amount, error) {
 //				panic("mock out the ParseAmount method")
 //			},
-//			SetAmountFunc: func(amount *big.Rat, isFee bool) coin.Amount {
-//				panic("mock out the SetAmount method")
-//			},
 //			SmallestUnitFunc: func() string {
 //				panic("mock out the SmallestUnit method")
-//			},
-//			ToUnitFunc: func(amount coin.Amount, isFee bool) float64 {
-//				panic("mock out the ToUnit method")
 //			},
 //			UnitFunc: func(isFee bool) string {
 //				panic("mock out the Unit method")
@@ -100,14 +93,8 @@ type CoinMock struct {
 	// ParseAmountFunc mocks the ParseAmount method.
 	ParseAmountFunc func(amount string) (coin.Amount, error)
 
-	// SetAmountFunc mocks the SetAmount method.
-	SetAmountFunc func(amount *big.Rat, isFee bool) coin.Amount
-
 	// SmallestUnitFunc mocks the SmallestUnit method.
 	SmallestUnitFunc func() string
-
-	// ToUnitFunc mocks the ToUnit method.
-	ToUnitFunc func(amount coin.Amount, isFee bool) float64
 
 	// UnitFunc mocks the Unit method.
 	UnitFunc func(isFee bool) string
@@ -156,22 +143,8 @@ type CoinMock struct {
 			// Amount is the amount argument value.
 			Amount string
 		}
-		// SetAmount holds details about calls to the SetAmount method.
-		SetAmount []struct {
-			// Amount is the amount argument value.
-			Amount *big.Rat
-			// IsFee is the isFee argument value.
-			IsFee bool
-		}
 		// SmallestUnit holds details about calls to the SmallestUnit method.
 		SmallestUnit []struct {
-		}
-		// ToUnit holds details about calls to the ToUnit method.
-		ToUnit []struct {
-			// Amount is the amount argument value.
-			Amount coin.Amount
-			// IsFee is the isFee argument value.
-			IsFee bool
 		}
 		// Unit holds details about calls to the Unit method.
 		Unit []struct {
@@ -189,9 +162,7 @@ type CoinMock struct {
 	lockName                              sync.RWMutex
 	lockObserve                           sync.RWMutex
 	lockParseAmount                       sync.RWMutex
-	lockSetAmount                         sync.RWMutex
 	lockSmallestUnit                      sync.RWMutex
-	lockToUnit                            sync.RWMutex
 	lockUnit                              sync.RWMutex
 }
 
@@ -494,42 +465,6 @@ func (mock *CoinMock) ParseAmountCalls() []struct {
 	return calls
 }
 
-// SetAmount calls SetAmountFunc.
-func (mock *CoinMock) SetAmount(amount *big.Rat, isFee bool) coin.Amount {
-	if mock.SetAmountFunc == nil {
-		panic("CoinMock.SetAmountFunc: method is nil but Coin.SetAmount was just called")
-	}
-	callInfo := struct {
-		Amount *big.Rat
-		IsFee  bool
-	}{
-		Amount: amount,
-		IsFee:  isFee,
-	}
-	mock.lockSetAmount.Lock()
-	mock.calls.SetAmount = append(mock.calls.SetAmount, callInfo)
-	mock.lockSetAmount.Unlock()
-	return mock.SetAmountFunc(amount, isFee)
-}
-
-// SetAmountCalls gets all the calls that were made to SetAmount.
-// Check the length with:
-//
-//	len(mockedCoin.SetAmountCalls())
-func (mock *CoinMock) SetAmountCalls() []struct {
-	Amount *big.Rat
-	IsFee  bool
-} {
-	var calls []struct {
-		Amount *big.Rat
-		IsFee  bool
-	}
-	mock.lockSetAmount.RLock()
-	calls = mock.calls.SetAmount
-	mock.lockSetAmount.RUnlock()
-	return calls
-}
-
 // SmallestUnit calls SmallestUnitFunc.
 func (mock *CoinMock) SmallestUnit() string {
 	if mock.SmallestUnitFunc == nil {
@@ -554,42 +489,6 @@ func (mock *CoinMock) SmallestUnitCalls() []struct {
 	mock.lockSmallestUnit.RLock()
 	calls = mock.calls.SmallestUnit
 	mock.lockSmallestUnit.RUnlock()
-	return calls
-}
-
-// ToUnit calls ToUnitFunc.
-func (mock *CoinMock) ToUnit(amount coin.Amount, isFee bool) float64 {
-	if mock.ToUnitFunc == nil {
-		panic("CoinMock.ToUnitFunc: method is nil but Coin.ToUnit was just called")
-	}
-	callInfo := struct {
-		Amount coin.Amount
-		IsFee  bool
-	}{
-		Amount: amount,
-		IsFee:  isFee,
-	}
-	mock.lockToUnit.Lock()
-	mock.calls.ToUnit = append(mock.calls.ToUnit, callInfo)
-	mock.lockToUnit.Unlock()
-	return mock.ToUnitFunc(amount, isFee)
-}
-
-// ToUnitCalls gets all the calls that were made to ToUnit.
-// Check the length with:
-//
-//	len(mockedCoin.ToUnitCalls())
-func (mock *CoinMock) ToUnitCalls() []struct {
-	Amount coin.Amount
-	IsFee  bool
-} {
-	var calls []struct {
-		Amount coin.Amount
-		IsFee  bool
-	}
-	mock.lockToUnit.RLock()
-	calls = mock.calls.ToUnit
-	mock.lockToUnit.RUnlock()
 	return calls
 }
 

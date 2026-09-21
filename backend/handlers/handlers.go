@@ -1178,7 +1178,7 @@ func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{}
 		}
 	}
 
-	coinAmount := btcCoin.SetAmount(amountRat, false)
+	coinAmount := coinpkg.NewAmountFromRat(amountRat, coinpkg.DecimalsExp(btcCoin, false))
 	return response{
 		Success: true,
 		Amount:  btcCoin.FormatAmount(coinAmount, false),
@@ -1260,7 +1260,7 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 	result := coinpkg.NewAmountFromInt64(0)
 	if rate != 0.0 {
 		amountRat := new(big.Rat).Quo(fiatRat, new(big.Rat).SetFloat64(rate))
-		result = currentCoin.SetAmount(amountRat, false)
+		result = coinpkg.NewAmountFromRat(amountRat, coinpkg.DecimalsExp(currentCoin, false))
 	}
 	return response{
 		Success: true,

@@ -29,7 +29,7 @@ type Coin interface {
 	// The fee unit is usually the same as the main unit, but can differ.
 	Unit(isFee bool) string
 
-	// GetFormatUnit sets the unit used to format the amount, e.g. "BTC" or "sat".
+	// GetFormatUnit returns the unit used to format the amount, e.g. "BTC" or "sat".
 	GetFormatUnit(isFee bool) string
 
 	// Number of decimal places in the standard unit, e.g. 8 for Bitcoin. Must be in the range
@@ -38,13 +38,6 @@ type Coin interface {
 
 	// FormatAmount formats the given amount as a number.
 	FormatAmount(amount Amount, isFee bool) string
-
-	// ToUnit returns the given amount in the unit as returned above.
-	ToUnit(amount Amount, isFee bool) float64
-
-	// SetAmount return an Amount object representing the *big.Rat given amount
-	// e.g. BTC 1/2 => 50000000
-	SetAmount(amount *big.Rat, isFee bool) Amount
 
 	// ParseAmount parse a String representing a given amount, considering the formatting unit.
 	// e.g. if the formatUnit is set as "sat", the amount will be considered as being sats
@@ -70,8 +63,8 @@ type Coin interface {
 	Close() error
 }
 
-// DecimalsExp returns the conversion exponential from the smallest unit to the selected unit
-// (BTC, LTC; ETH, etc.). e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc.
+// DecimalsExp returns the number of smallest units per canonical coin unit,
+// independent of the selected display unit: 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc.
 func DecimalsExp(coin Coin, isFee bool) *big.Int {
 	return new(big.Int).Exp(
 		big.NewInt(10),

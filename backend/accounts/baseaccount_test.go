@@ -332,10 +332,6 @@ func TestBaseAccount(t *testing.T) {
 			UnitFunc: func(isFee bool) string {
 				return "BTC"
 			},
-			ToUnitFunc: func(amount coin.Amount, isFee bool) float64 {
-				amountInt64, _ := amount.Int64()
-				return float64(amountInt64) / 1e8
-			},
 			FormatAmountFunc: func(amount coin.Amount, isFee bool) string {
 				return amount.BigInt().String()
 			},

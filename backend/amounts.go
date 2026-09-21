@@ -41,7 +41,7 @@ func (backend *Backend) BTCSatAmount(source string, amount string) (*coinpkg.For
 			return nil, errp.New("exchange rate not available")
 		}
 		btcAmount := new(big.Rat).Quo(fiatRat, new(big.Rat).SetFloat64(rate))
-		coinAmount = btcCoin.SetAmount(btcAmount, isFee)
+		coinAmount = coinpkg.NewAmountFromRat(btcAmount, coinpkg.DecimalsExp(btcCoin, isFee))
 	default:
 		return nil, errp.New("invalid source")
 	}

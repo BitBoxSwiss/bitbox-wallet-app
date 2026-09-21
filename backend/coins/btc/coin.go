@@ -217,20 +217,7 @@ func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
 	if coin.formatUnit == coinpkg.BtcUnitSats {
 		return amount.BigInt().String()
 	}
-	return new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8)
-}
-
-// ToUnit implements coinpkg.Coin.
-func (coin *Coin) ToUnit(amount coinpkg.Amount, isFee bool) float64 {
-	result, _ := coinpkg.ToUnitRat(amount, coin, isFee).Float64()
-	return result
-}
-
-// SetAmount implements coinpkg.Coin.
-func (coin *Coin) SetAmount(amount *big.Rat, isFee bool) coinpkg.Amount {
-	satsAmount := coinpkg.Btc2Sat(amount)
-	intSatsAmount, _ := new(big.Int).SetString(satsAmount.FloatString(0), 0)
-	return coinpkg.NewAmount(intSatsAmount)
+	return coinpkg.ToUnitRat(amount, coin, isFee).FloatString(int(coin.Decimals(isFee)))
 }
 
 // ParseAmount implements coinpkg.Coin.
@@ -240,10 +227,11 @@ func (coin *Coin) ParseAmount(amount string) (coinpkg.Amount, error) {
 		return coinpkg.Amount{}, errp.New("Invalid amount")
 	}
 
+	unit := coinpkg.DecimalsExp(coin, false)
 	if coin.formatUnit == coinpkg.BtcUnitSats {
-		amountRat = coinpkg.Sat2Btc(amountRat)
+		unit = big.NewInt(1)
 	}
-	return coin.SetAmount(amountRat, false), nil
+	return coinpkg.NewAmountFromRat(amountRat, unit), nil
 }
 
 // Blockchain connects to a blockchain backend.
