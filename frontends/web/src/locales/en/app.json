@@ -1676,7 +1676,7 @@
         "title": "Create Lightning wallet"
       }
     },
-    "betaWarning": "Lightning is a beta feature intended for preview and testing. Only use Lightning with a small amount of funds!",
+    "betaWarning": "Lightning is in beta. Only use with a small amount of funds.",
     "bitcoinDeposit": {
       "claim": "Claim top-up or refund",
       "label": "Bitcoin top-up",
