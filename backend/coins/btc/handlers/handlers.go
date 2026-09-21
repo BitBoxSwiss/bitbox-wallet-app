@@ -73,7 +73,7 @@ func NewHandlers(
 	handleFunc("/utxos", handlers.ensureAccountInitialized(withError(handlers.getUTXOs))).Methods("GET")
 	handleFunc("/balance", handlers.ensureAccountInitialized(withError(handlers.getAccountBalance))).Methods("GET")
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(withError(handlers.postAccountSendTx))).Methods("POST")
-	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
+	handleFunc("/fee-targets", handlers.ensureAccountInitialized(withError(handlers.getAccountFeeTargets))).Methods("GET")
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(withError(handlers.postAccountTxProposal))).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(withError(handlers.getReceiveAddresses))).Methods("GET")
 	handleFunc("/used-addresses", handlers.ensureAccountInitialized(handlers.getUsedAddresses)).Methods("GET")
@@ -583,7 +583,7 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountFeeTargets(*http.Request) interface{} {
 	type jsonFeeTarget struct {
 		Code        accounts.FeeTargetCode `json:"code"`
 		FeeRateInfo string                 `json:"feeRateInfo"`
@@ -604,7 +604,7 @@ func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, erro
 	return response{
 		FeeTargets:       result,
 		DefaultFeeTarget: defaultFeeTarget,
-	}, nil
+	}
 }
 
 func (handlers *Handlers) postInit(*http.Request) interface{} {
