@@ -11,6 +11,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { getScriptName, isEthereumBased } from '@/routes/account/utils';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { Button, Radio } from '@/components/forms';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Message } from '@/components/message/message';
@@ -131,6 +132,7 @@ export const Receive = ({
 }: TProps) => {
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState<false | 'secure' | 'insecure'>(false);
+  const [firmwareUpgradeRequired, setFirmwareUpgradeRequired] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
   // index into `availableScriptTypes`, or 0 if none are available.
   const [addressType, setAddressType] = useState<number>(0);
@@ -212,7 +214,14 @@ export const Receive = ({
     try {
       const addressesAtIndex = receiveAddresses[addressesIndex] as accountApi.TReceiveAddressList;
       const address = addressesAtIndex.addresses[activeIndex] as accountApi.TReceiveAddress;
-      await accountApi.verifyAddress(code, address.addressID);
+      const result = await accountApi.verifyAddress(code, address.addressID);
+      if (!result.success) {
+        if (result.errorCode === 'firmwareUpgradeRequired') {
+          setFirmwareUpgradeRequired(true);
+        } else {
+          alertUser(result.errorMessage || t('genericError'));
+        }
+      }
     } finally {
       setVerifying(false);
     }
@@ -319,7 +328,7 @@ export const Receive = ({
                       primary>
                       {t('receive.verifyBitBox02')}
                     </Button>
-                    <DesktopBackButton enableEsc={!addressTypeDialog && !verifying}>
+                    <DesktopBackButton enableEsc={!addressTypeDialog && !verifying && !firmwareUpgradeRequired}>
                       {t('button.back')}
                     </DesktopBackButton>
                   </div>
@@ -385,6 +394,12 @@ export const Receive = ({
         hasMultipleAddresses={currentAddresses ? currentAddresses.length > 1 : false}
         hasDifferentFormats={receiveAddresses ? receiveAddresses.length > 1 : false}
       />
+      {firmwareUpgradeRequired && (
+        <FirmwareUpgradeRequiredDialog
+          open
+          onClose={() => setFirmwareUpgradeRequired(false)}
+        />
+      )}
     </GuideWrapper>
   );
 };
