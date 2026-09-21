@@ -78,7 +78,7 @@ func NewHandlers(
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(withError(handlers.getReceiveAddresses))).Methods("GET")
 	handleFunc("/used-addresses", handlers.ensureAccountInitialized(withError(handlers.getUsedAddresses))).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(withError(handlers.postVerifyAddress))).Methods("POST")
-	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
+	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(withError(handlers.postVerifyExtendedPublicKey))).Methods("POST")
 	handleFunc("/btc-sign-message-unused-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageUnusedAddress)).Methods("POST")
 	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageForAddress)).Methods("POST")
 	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignETHMessageForAddress)).Methods("POST")
@@ -767,7 +767,7 @@ func (handlers *Handlers) postVerifyAddress(r *http.Request) interface{} {
 	return result{Success: true}
 }
 
-func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) interface{} {
 	type result struct {
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage"`
@@ -776,30 +776,30 @@ func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interfac
 		SigningConfigIndex int `json:"signingConfigIndex"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	btcAccount, ok := handlers.account.(*btc.Account)
 	if !ok {
 		return result{
 			Success:      false,
 			ErrorMessage: "An account must be BTC based to support xpub verification.",
-		}, nil
+		}
 	}
 	canVerify, err := btcAccount.VerifyExtendedPublicKey(input.SigningConfigIndex)
 	// User canceled keystore connect prompt - no special action or message needed in the frontend.
 	if errp.Cause(err) == errp.ErrUserAbort {
-		return result{Success: true}, nil
+		return result{Success: true}
 	}
 	if err != nil {
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if !canVerify {
 		return result{
 			Success:      false,
 			ErrorMessage: "This device/keystore does not support verifying xpubs.",
-		}, nil
+		}
 	}
-	return result{Success: true}, nil
+	return result{Success: true}
 }
 
 func (handlers *Handlers) getHasSecureOutput(r *http.Request) interface{} {
