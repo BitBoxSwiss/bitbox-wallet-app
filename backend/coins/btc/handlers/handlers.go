@@ -83,7 +83,7 @@ func NewHandlers(
 	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageForAddress)).Methods("POST")
 	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignETHMessageForAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(withError(handlers.getHasSecureOutput))).Methods("GET")
-	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
+	handleFunc("/notes/tx", handlers.ensureAccountInitialized(withError(handlers.postSetTxNote))).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
 	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
 	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(handlers.postEthSignWalletConnectTx)).Methods("POST")
@@ -821,16 +821,23 @@ func (handlers *Handlers) getHasSecureOutput(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postSetTxNote(r *http.Request) interface{} {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
 	var args struct {
 		InternalTxID string `json:"internalTxID"`
 		Note         string `json:"note"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
-		return nil, errp.WithStack(err)
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 
-	return nil, handlers.account.SetTxNote(args.InternalTxID, args.Note)
+	if err := handlers.account.SetTxNote(args.InternalTxID, args.Note); err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
+	return result{Success: true}
 }
 
 type signingResponse struct {

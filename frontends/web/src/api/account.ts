@@ -292,7 +292,7 @@ type TNoteTx = {
 export const postNotesTx = (code: AccountCode, {
   internalTxID,
   note,
-}: TNoteTx): Promise<null> => {
+}: TNoteTx): Promise<SuccessResponse | TAccountError> => {
   return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
 };
 
