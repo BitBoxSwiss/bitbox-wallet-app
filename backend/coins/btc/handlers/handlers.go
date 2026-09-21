@@ -74,7 +74,7 @@ func NewHandlers(
 	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
-	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.postAccountTxProposal)).Methods("POST")
+	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(withError(handlers.postAccountTxProposal))).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
 	handleFunc("/used-addresses", handlers.ensureAccountInitialized(handlers.getUsedAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
@@ -547,20 +547,21 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 type txProposalResponse struct {
 	Success                 bool                                 `json:"success"`
 	ErrorCode               string                               `json:"errorCode,omitempty"`
+	ErrorMessage            string                               `json:"errorMessage,omitempty"`
 	Amount                  *coin.FormattedAmountWithConversions `json:"amount,omitempty"`
 	Fee                     *coin.FormattedAmountWithConversions `json:"fee,omitempty"`
 	Total                   *coin.FormattedAmountWithConversions `json:"total,omitempty"`
 	RecipientDisplayAddress string                               `json:"recipientDisplayAddress,omitempty"`
 }
 
-func txProposalError(err error) (interface{}, error) {
+func txProposalError(err error) txProposalResponse {
 	if validationErr, ok := errp.Cause(err).(errors.TxValidationError); ok {
-		return txProposalResponse{Success: false, ErrorCode: validationErr.Error()}, nil
+		return txProposalResponse{Success: false, ErrorCode: validationErr.Error()}
 	}
-	return nil, errp.WithMessage(err, "Failed to create transaction proposal")
+	return txProposalResponse{Success: false, ErrorMessage: errp.WithMessage(err, "Failed to create transaction proposal").Error()}
 }
 
-func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAccountTxProposal(r *http.Request) interface{} {
 	accountConfig := handlers.account.Config()
 	var input sendTxInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -579,7 +580,7 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 		Fee:                     &feeResponse,
 		Total:                   &totalResponse,
 		RecipientDisplayAddress: formatAddressForDisplay(handlers.account, input.RecipientAddress),
-	}, nil
+	}
 }
 
 func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, error) {
