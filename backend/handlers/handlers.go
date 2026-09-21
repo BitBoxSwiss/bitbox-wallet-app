@@ -308,7 +308,7 @@ func NewHandlers(
 	getAccountHandlers := func(accountCode accountsTypes.Code) *accountHandlers.Handlers {
 		defer handlersMapLock.Lock()()
 		if _, ok := accountHandlersMap[accountCode]; !ok {
-			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(getAPIRouter(
+			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(getAPIRouterNoError(
 				apiRouter.PathPrefix(fmt.Sprintf("/account/%s", accountCode)).Subrouter(),
 			), log, backend.SignWalletConnectTransaction)
 		}
