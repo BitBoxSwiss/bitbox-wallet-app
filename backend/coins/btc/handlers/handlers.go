@@ -77,7 +77,7 @@ func NewHandlers(
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(withError(handlers.postAccountTxProposal))).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(withError(handlers.getReceiveAddresses))).Methods("GET")
 	handleFunc("/used-addresses", handlers.ensureAccountInitialized(withError(handlers.getUsedAddresses))).Methods("GET")
-	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
+	handleFunc("/verify-address", handlers.ensureAccountInitialized(withError(handlers.postVerifyAddress))).Methods("POST")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/btc-sign-message-unused-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageUnusedAddress)).Methods("POST")
 	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageForAddress)).Methods("POST")
@@ -747,7 +747,7 @@ func (handlers *Handlers) getUsedAddresses(*http.Request) interface{} {
 	return response{Success: true, Addresses: result}
 }
 
-func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postVerifyAddress(r *http.Request) interface{} {
 	type result struct {
 		Success      bool   `json:"success"`
 		ErrorCode    string `json:"errorCode,omitempty"`
@@ -755,16 +755,16 @@ func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error
 	}
 	var addressID string
 	if err := json.NewDecoder(r.Body).Decode(&addressID); err != nil {
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	_, err := handlers.account.VerifyAddress(addressID)
 	if isFirmwareUpgradeRequired(err) {
-		return result{Success: false, ErrorCode: keystore.ErrFirmwareUpgradeRequired.Error()}, nil
+		return result{Success: false, ErrorCode: keystore.ErrFirmwareUpgradeRequired.Error()}
 	}
 	if err != nil {
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
-	return result{Success: true}, nil
+	return result{Success: true}
 }
 
 func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interface{}, error) {
