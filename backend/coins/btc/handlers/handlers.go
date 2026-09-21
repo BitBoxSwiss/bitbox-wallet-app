@@ -52,41 +52,35 @@ func isFirmwareUpgradeRequired(err error) bool {
 
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
-	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route,
+	handleFunc func(string, func(*http.Request) interface{}) *mux.Route,
 	log *logrus.Entry,
 	signWalletConnectTransaction func(accountsTypes.Code, eth.SignTransactionArgs) (*types.Transaction, error),
 ) *Handlers {
 	handlers := &Handlers{log: log, signWalletConnectTransaction: signWalletConnectTransaction}
 
-	withError := func(handler func(*http.Request) interface{}) func(*http.Request) (interface{}, error) {
-		return func(request *http.Request) (interface{}, error) {
-			return handler(request), nil
-		}
-	}
-
-	handleFunc("/init", withError(handlers.postInit)).Methods("POST")
-	handleFunc("/status", withError(handlers.getAccountStatus)).Methods("GET")
-	handleFunc("/transactions", handlers.ensureAccountInitialized(withError(handlers.getAccountTransactions))).Methods("GET")
-	handleFunc("/transaction", handlers.ensureAccountInitialized(withError(handlers.getAccountTransaction))).Methods("GET")
-	handleFunc("/export", handlers.ensureAccountInitialized(withError(handlers.postExportTransactions))).Methods("POST")
-	handleFunc("/info", handlers.ensureAccountInitialized(withError(handlers.getAccountInfo))).Methods("GET")
-	handleFunc("/utxos", handlers.ensureAccountInitialized(withError(handlers.getUTXOs))).Methods("GET")
-	handleFunc("/balance", handlers.ensureAccountInitialized(withError(handlers.getAccountBalance))).Methods("GET")
-	handleFunc("/sendtx", handlers.ensureAccountInitialized(withError(handlers.postAccountSendTx))).Methods("POST")
-	handleFunc("/fee-targets", handlers.ensureAccountInitialized(withError(handlers.getAccountFeeTargets))).Methods("GET")
-	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(withError(handlers.postAccountTxProposal))).Methods("POST")
-	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(withError(handlers.getReceiveAddresses))).Methods("GET")
-	handleFunc("/used-addresses", handlers.ensureAccountInitialized(withError(handlers.getUsedAddresses))).Methods("GET")
-	handleFunc("/verify-address", handlers.ensureAccountInitialized(withError(handlers.postVerifyAddress))).Methods("POST")
-	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(withError(handlers.postVerifyExtendedPublicKey))).Methods("POST")
-	handleFunc("/btc-sign-message-unused-address", handlers.ensureAccountInitialized(withError(handlers.postSignBTCMessageUnusedAddress))).Methods("POST")
-	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(withError(handlers.postSignBTCMessageForAddress))).Methods("POST")
-	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(withError(handlers.postSignETHMessageForAddress))).Methods("POST")
-	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(withError(handlers.getHasSecureOutput))).Methods("GET")
-	handleFunc("/notes/tx", handlers.ensureAccountInitialized(withError(handlers.postSetTxNote))).Methods("POST")
-	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(withError(handlers.postEthSignMsg))).Methods("POST")
-	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(withError(handlers.postEthSignTypedMsg))).Methods("POST")
-	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(withError(handlers.postEthSignWalletConnectTx))).Methods("POST")
+	handleFunc("/init", handlers.postInit).Methods("POST")
+	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
+	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
+	handleFunc("/transaction", handlers.ensureAccountInitialized(handlers.getAccountTransaction)).Methods("GET")
+	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
+	handleFunc("/info", handlers.ensureAccountInitialized(handlers.getAccountInfo)).Methods("GET")
+	handleFunc("/utxos", handlers.ensureAccountInitialized(handlers.getUTXOs)).Methods("GET")
+	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
+	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
+	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
+	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.postAccountTxProposal)).Methods("POST")
+	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
+	handleFunc("/used-addresses", handlers.ensureAccountInitialized(handlers.getUsedAddresses)).Methods("GET")
+	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
+	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
+	handleFunc("/btc-sign-message-unused-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageUnusedAddress)).Methods("POST")
+	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageForAddress)).Methods("POST")
+	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignETHMessageForAddress)).Methods("POST")
+	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
+	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
+	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
+	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
+	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(handlers.postEthSignWalletConnectTx)).Methods("POST")
 	return handlers
 }
 
@@ -128,10 +122,13 @@ type Transaction struct {
 	Nonce *uint64 `json:"nonce"`
 }
 
-func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
-	return func(request *http.Request) (interface{}, error) {
+func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) interface{}) func(*http.Request) interface{} {
+	return func(request *http.Request) interface{} {
 		if handlers.account == nil {
-			return nil, errp.New("Account was uninitialized. Cannot handle request.")
+			return struct {
+				Success      bool   `json:"success"`
+				ErrorMessage string `json:"errorMessage"`
+			}{Success: false, ErrorMessage: "Account was uninitialized. Cannot handle request."}
 		}
 		return h(request)
 	}
