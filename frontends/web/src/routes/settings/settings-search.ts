@@ -105,6 +105,11 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
     page: 'advanced',
   },
   {
+    id: 'clear-cache',
+    getTitle: ({ t }) => t('settings.expert.clearCache.title'),
+    page: 'advanced',
+  },
+  {
     id: 'lightning-settings',
     isAvailable: ({ isLightningEnabled }) => isLightningSettingVisible(isLightningEnabled),
     getTitle: ({ isLightningEnabled, t }) => t(isLightningEnabled
