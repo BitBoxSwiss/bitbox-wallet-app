@@ -65,7 +65,7 @@ func NewHandlers(
 	}
 
 	handleFunc("/init", withError(handlers.postInit)).Methods("POST")
-	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
+	handleFunc("/status", withError(handlers.getAccountStatus)).Methods("GET")
 	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
 	handleFunc("/transaction", handlers.ensureAccountInitialized(withError(handlers.getAccountTransaction))).Methods("GET")
 	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
@@ -633,9 +633,9 @@ type statusResponse struct {
 	FatalError bool `json:"fatalError"`
 }
 
-func (handlers *Handlers) getAccountStatus(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountStatus(*http.Request) interface{} {
 	if handlers.account == nil {
-		return statusResponse{Disabled: true}, nil
+		return statusResponse{Disabled: true}
 	}
 	offlineErr := handlers.account.Offline()
 	var offlineError *string
@@ -647,7 +647,7 @@ func (handlers *Handlers) getAccountStatus(*http.Request) (interface{}, error) {
 		Synced:       handlers.account.Synced(),
 		OfflineError: offlineError,
 		FatalError:   handlers.account.FatalError(),
-	}, nil
+	}
 }
 
 func (handlers *Handlers) getReceiveAddresses(*http.Request) interface{} {
