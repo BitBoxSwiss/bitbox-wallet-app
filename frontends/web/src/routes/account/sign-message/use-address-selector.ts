@@ -31,10 +31,11 @@ export const useAddressSelector = (code: AccountCode): TAddressSelector => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [usedAddressReloadVersion, setUsedAddressReloadVersion] = useState(0);
 
-  const receiveAddresses = useLoad(
+  const receiveAddressResponse = useLoad(
     isUsedAddressRoute ? null : accountApi.getReceiveAddressList(code),
-    [code, isUsedAddressRoute],
+    [code, isUsedAddressRoute, usedAddressReloadVersion],
   );
+  const receiveAddresses = receiveAddressResponse?.success ? receiveAddressResponse.addresses : undefined;
   const usedAddressResponse = useLoad(
     isUsedAddressRoute ? () => accountApi.getUsedAddresses(code) : null,
     [code, usedAddressReloadVersion, isUsedAddressRoute],
@@ -72,10 +73,13 @@ export const useAddressSelector = (code: AccountCode): TAddressSelector => {
   const dataLoaded = (
     isUsedAddressRoute
       ? usedAddressResponse !== undefined
-      : receiveAddresses !== undefined
+      : receiveAddressResponse !== undefined
   );
 
   const usedAddressLoadErrorCode = useMemo((): TUsedAddressLoadErrorCode => {
+    if (!isUsedAddressRoute && receiveAddressResponse && !receiveAddressResponse.success) {
+      return 'loadFailed';
+    }
     if (!isUsedAddressRoute || usedAddressResponse === undefined || usedAddressResponse.success) {
       return null;
     }
@@ -86,7 +90,7 @@ export const useAddressSelector = (code: AccountCode): TAddressSelector => {
     default:
       return 'loadFailed';
     }
-  }, [isUsedAddressRoute, usedAddressResponse]);
+  }, [isUsedAddressRoute, usedAddressResponse, receiveAddressResponse]);
 
   const availableAddressCount = (
     isUsedAddressRoute

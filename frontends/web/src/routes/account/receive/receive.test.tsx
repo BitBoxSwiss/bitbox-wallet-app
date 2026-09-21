@@ -76,16 +76,19 @@ describe('receive address verification', () => {
       hasSecureOutput: true,
       optional: false,
     }));
-    vi.mocked(accountApi.getReceiveAddressList).mockReturnValue(async () => [
-      {
-        scriptType: 'p2wpkh',
-        addresses: [{ addressID: 'segwit-address', address: 'bc1qtest', displayAddress: 'bc1qtest' }],
-      },
-      {
-        scriptType: 'p2tr',
-        addresses: [{ addressID: 'taproot-address', address: 'bc1ptest', displayAddress: 'bc1ptest' }],
-      },
-    ]);
+    vi.mocked(accountApi.getReceiveAddressList).mockReturnValue(async () => ({
+      success: true,
+      addresses: [
+        {
+          scriptType: 'p2wpkh',
+          addresses: [{ addressID: 'segwit-address', address: 'bc1qtest', displayAddress: 'bc1qtest' }],
+        },
+        {
+          scriptType: 'p2tr',
+          addresses: [{ addressID: 'taproot-address', address: 'bc1ptest', displayAddress: 'bc1ptest' }],
+        },
+      ],
+    }));
   });
 
   it('prompts for an upgrade and allows retrying', async () => {
@@ -121,5 +124,19 @@ describe('receive address verification', () => {
     await waitFor(() => expect(alertUser).toHaveBeenCalledWith('verification failed'));
     expect(screen.queryByText('firmware upgrade required')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'receive.verifyBitBox02' })).toBeEnabled();
+  });
+
+  // A failed request must keep navigation available without showing an empty address card.
+  it('shows a receive-address loading failure with back navigation', async () => {
+    vi.mocked(accountApi.getReceiveAddressList).mockReturnValue(async () => ({
+      success: false, errorMessage: 'addresses unavailable',
+    }));
+    const { container } = renderReceive();
+
+    expect(await screen.findByText('addresses unavailable')).toBeInTheDocument();
+    expect(screen.getByText('button.back')).toBeVisible();
+    expect(screen.getAllByRole('heading', { name: 'receive.title' })).not.toHaveLength(0);
+    expect(container.querySelector('.box')).not.toBeVisible();
+    expect(screen.queryByRole('button', { name: 'receive.verifyBitBox02' })).not.toBeInTheDocument();
   });
 });
