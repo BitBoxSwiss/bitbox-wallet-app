@@ -84,7 +84,7 @@ func NewHandlers(
 	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(withError(handlers.postSignETHMessageForAddress))).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(withError(handlers.getHasSecureOutput))).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(withError(handlers.postSetTxNote))).Methods("POST")
-	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
+	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(withError(handlers.postEthSignMsg))).Methods("POST")
 	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
 	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(handlers.postEthSignWalletConnectTx)).Methods("POST")
 	return handlers
@@ -861,14 +861,14 @@ func newSigningErrorResponse(err error) signingResponse {
 	return signingResponse{Success: false, ErrorMessage: err.Error()}
 }
 
-func (handlers *Handlers) postEthSignMsg(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postEthSignMsg(r *http.Request) interface{} {
 	var signInput string
 	if err := json.NewDecoder(r.Body).Decode(&signInput); err != nil {
-		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signingResponse{Success: false, ErrorMessage: err.Error()}
 	}
 	ethAccount, ok := handlers.account.(*eth.Account)
 	if !ok {
-		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
+		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}
 	}
 	signature, err := ethAccount.SignMsg(signInput)
 	if err != nil {
@@ -876,12 +876,12 @@ func (handlers *Handlers) postEthSignMsg(r *http.Request) (interface{}, error) {
 		if !result.Aborted {
 			handlers.log.WithError(err).Error("Failed to sign message")
 		}
-		return result, nil
+		return result
 	}
 	return signingResponse{
 		Success:   true,
 		Signature: signature,
-	}, nil
+	}
 }
 
 func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, error) {
