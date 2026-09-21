@@ -7,14 +7,15 @@ import { SpinnerRingAnimated } from './SpinnerAnimation';
 import style from './Spinner.module.css';
 
 type TProps = {
+  className?: string;
   text?: string;
 };
 
-export const Spinner = ({ text }: TProps) => {
+export const Spinner = ({ className = '', text }: TProps) => {
   const { toggleSidebar } = useContext(AppContext);
 
   return (
-    <div className={style.spinnerContainer}>
+    <div className={`${style.spinnerContainer || ''} ${className}`}>
       <div className={`${style.togglersContainer || ''} hide-on-small`}>
         <div className={style.togglerContainer}>
           <div className={style.toggler} onClick={toggleSidebar}>
