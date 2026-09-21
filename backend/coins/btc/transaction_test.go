@@ -17,6 +17,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	keystoremocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
@@ -73,6 +75,62 @@ func testAccount(t *testing.T, config *config.Account) *Account {
 		},
 	}
 	return account
+}
+
+func TestCheckTaprootSendSupport(t *testing.T) {
+	testCases := []struct {
+		name           string
+		taprootConfig  bool
+		taprootSupport bool
+		wantError      error
+	}{
+		{name: "SegWit config needs no upgrade"},
+		{name: "SegWit config with Taproot support", taprootSupport: true},
+		{name: "Taproot config requires upgrade", taprootConfig: true, wantError: keystore.ErrFirmwareUpgradeRequired},
+		{name: "supported Taproot config", taprootConfig: true, taprootSupport: true},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			account := mockAccount(t, nil)
+			accountConfig := account.Config().Config
+			if tc.taprootConfig {
+				accountConfig.SigningConfigurations = append(accountConfig.SigningConfigurations,
+					signing.NewBitcoinConfiguration(
+						signing.ScriptTypeP2TR,
+						[]byte{1, 2, 3, 4},
+						mustKeypath(t, "m/86'/1'/0'"),
+						accountConfig.SigningConfigurations[0].ExtendedPublicKey(),
+					))
+			}
+			ks := &keystoremocks.KeystoreMock{
+				SupportsAccountFunc: func(c coin.Coin, meta interface{}) bool {
+					require.Same(t, account.Coin(), c)
+					require.Equal(t, signing.ScriptTypeP2TR, meta)
+					return tc.taprootSupport
+				},
+			}
+			// The configuration check does not require syncing or loading UTXOs.
+			require.False(t, account.Synced())
+			require.ErrorIs(t, account.CheckTaprootSendSupport(ks), tc.wantError)
+			if tc.wantError != nil {
+				account = testAccount(t, accountConfig)
+				account.Config().ConnectKeystore = func() (keystore.Keystore, error) { return ks, nil }
+				account.getAddressFromSameKeystore = func(_ coin.Code, id addresses.AddressID) (*addresses.AccountAddress, error) {
+					return account.AddressByID(id), nil
+				}
+				_, _, _, err := account.TxProposal(&accounts.TxProposalArgs{
+					RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
+					Amount:           coin.NewSendAmount("0.5"),
+					FeeTargetCode:    accounts.FeeTargetCodeCustom,
+					CustomFee:        "10",
+				})
+				require.NoError(t, err)
+				// Recheck before contacting the signer even when only SegWit funds are spent.
+				_, err = account.SendTx("")
+				require.ErrorIs(t, err, keystore.ErrFirmwareUpgradeRequired)
+			}
+		})
+	}
 }
 
 func TestGetFeePerKb(t *testing.T) {

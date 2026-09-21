@@ -12,6 +12,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil/v2"
@@ -20,6 +21,15 @@ import (
 
 // unitSatoshi is 1 BTC (default unit) in Satoshi.
 const unitSatoshi = 1e8
+
+// CheckTaprootSendSupport checks whether the keystore supports the account's Taproot configuration.
+func (account *Account) CheckTaprootSendSupport(ks keystore.Keystore) error {
+	if account.Config().Config.SigningConfigurations.FindScriptType(signing.ScriptTypeP2TR) != -1 &&
+		!ks.SupportsAccount(account.Coin(), signing.ScriptTypeP2TR) {
+		return keystore.ErrFirmwareUpgradeRequired
+	}
+	return nil
+}
 
 // getFeePerKb returns the fee rate to be used in a new transaction. It is deduced from the supplied
 // fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is

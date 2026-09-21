@@ -715,6 +715,28 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 	}
 }
 
+// CheckKeystoreFeature checks a feature's requirements, including account-specific requirements
+// when an account code is provided.
+func (backend *Backend) CheckKeystoreFeature(
+	ks keystore.Keystore, feature keystore.Feature, accountCode accountsTypes.Code,
+) error {
+	if err := ks.SupportsFeature(feature); err != nil {
+		return err
+	}
+	if feature != keystore.FeatureBTCTransactionSigning || accountCode == "" {
+		return nil
+	}
+	account, err := backend.GetAccountFromCode(accountCode)
+	if err != nil {
+		return err
+	}
+	btcAccount, ok := account.(*btc.Account)
+	if !ok {
+		return keystore.ErrUnsupportedFeature
+	}
+	return btcAccount.CheckTaprootSendSupport(ks)
+}
+
 // ConnectKeystore ensures that the keystore with the given root fingerprint is connected,
 // prompts the user if necessary, and returns the keystore instance.
 func (backend *Backend) ConnectKeystore(rootFingerprint []byte) (keystore.Keystore, error) {
