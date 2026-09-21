@@ -71,7 +71,7 @@ func NewHandlers(
 	handleFunc("/export", handlers.ensureAccountInitialized(withError(handlers.postExportTransactions))).Methods("POST")
 	handleFunc("/info", handlers.ensureAccountInitialized(withError(handlers.getAccountInfo))).Methods("GET")
 	handleFunc("/utxos", handlers.ensureAccountInitialized(withError(handlers.getUTXOs))).Methods("GET")
-	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
+	handleFunc("/balance", handlers.ensureAccountInitialized(withError(handlers.getAccountBalance))).Methods("GET")
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(withError(handlers.postAccountTxProposal))).Methods("POST")
@@ -421,7 +421,7 @@ func (handlers *Handlers) getUTXOs(*http.Request) interface{} {
 	return response{Success: true, UTXOs: result}
 }
 
-func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountBalance(*http.Request) interface{} {
 	accountConfig := handlers.account.Config()
 	type balance struct {
 		HasAvailable bool                                `json:"hasAvailable"`
@@ -436,7 +436,7 @@ func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) 
 	}
 	accountBalance, err := handlers.account.Balance()
 	if err != nil {
-		return result{Success: false}, nil
+		return result{Success: false}
 	}
 	return result{
 		Success: true,
@@ -446,7 +446,7 @@ func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) 
 			HasIncoming:  accountBalance.Incoming().BigInt().Sign() > 0,
 			Incoming:     accountBalance.Incoming().FormatWithConversions(handlers.account.Coin(), false, accountConfig.RateUpdater),
 		},
-	}, nil
+	}
 }
 
 type sendTxInput struct {
