@@ -39,11 +39,7 @@ func (err *topUpFundingLimitError) Error() string {
 }
 
 func parseTopUpAmount(accountCoin coin.Coin, amount string) (coin.Amount, error) {
-	unit := coin.DecimalsExp(accountCoin, false)
-	if accountCoin.GetFormatUnit(false) == string(coin.BtcUnitSats) {
-		unit = big.NewInt(1)
-	}
-	return coin.NewSendAmount(amount).Amount(unit, true)
+	return coin.NewSendAmount(amount).Amount(accountCoin.FormatUnitFactor(false), true)
 }
 
 func validateTopUpAmount(amount coin.Amount) error {

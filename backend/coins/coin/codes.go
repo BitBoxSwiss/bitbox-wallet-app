@@ -40,17 +40,6 @@ func BIP44CoinType(code Code) (uint32, bool) {
 	return coinType, ok
 }
 
-// BtcUnit defines how BTC values are formatted.
-type BtcUnit string
-
-const (
-	// BtcUnitDefault formats the value in the default unit, e.g. "BTC" for Bitcoin, "TBTC" for
-	// Bitcoin testnet.
-	BtcUnitDefault BtcUnit = "default"
-	// BtcUnitSats formats the value as satoshis. Applies to both Bitcoin mainnet and testnet.
-	BtcUnitSats BtcUnit = "sat"
-)
-
 // TestnetCoins is the subset of all coins which are available in testnet mode.
 var TestnetCoins = map[Code]struct{}{
 	CodeTBTC:   {},

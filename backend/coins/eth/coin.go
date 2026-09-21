@@ -10,7 +10,6 @@ import (
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/ethereum/go-ethereum/common"
@@ -152,14 +151,9 @@ func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
 	return s
 }
 
-// ParseAmount implements coinpkg.Coin.
-func (coin *Coin) ParseAmount(amount string) (coinpkg.Amount, error) {
-	amountRat, valid := new(big.Rat).SetString(amount)
-	if !valid {
-		return coinpkg.Amount{}, errp.New("Invalid amount")
-	}
-
-	return coinpkg.NewAmountFromRat(amountRat, coinpkg.DecimalsExp(coin, false)), nil
+// FormatUnitFactor implements coinpkg.Coin.
+func (coin *Coin) FormatUnitFactor(isFee bool) *big.Int {
+	return coinpkg.DecimalsExp(coin, isFee)
 }
 
 // BlockExplorerURLPrefix returns the shared base URL prefix of the block explorer.

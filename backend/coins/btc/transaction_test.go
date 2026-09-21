@@ -283,6 +283,30 @@ func TestPickChangeAddressFails(t *testing.T) {
 	require.ErrorContains(t, err, "Account has no subaccounts")
 }
 
+func TestTxProposalRejectsInvalidDenominatedAmounts(t *testing.T) {
+	for _, tc := range []struct {
+		unit   coin.BtcUnit
+		inputs []string
+	}{
+		{coin.BtcUnitDefault, []string{"0.000000005", "1/2", "-1", "0", "invalid"}},
+		{coin.BtcUnitSats, []string{"0.5", "50000000/1", "-1", "0", "invalid"}},
+	} {
+		for _, input := range tc.inputs {
+			t.Run(string(tc.unit)+"/"+input, func(t *testing.T) {
+				account := testAccount(t, nil)
+				account.coin.SetFormatUnit(tc.unit)
+				_, _, _, err := account.TxProposal(&accounts.TxProposalArgs{
+					RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
+					Amount:           coin.NewSendAmount(input),
+					FeeTargetCode:    accounts.FeeTargetCodeCustom,
+					CustomFee:        "100",
+				})
+				require.ErrorIs(t, err, errors.ErrInvalidAmount)
+			})
+		}
+	}
+}
+
 func TestTxProposal(t *testing.T) {
 	testCases := []struct {
 		name       string

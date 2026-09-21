@@ -4,6 +4,7 @@
 package mocks
 
 import (
+	"math/big"
 	"sync"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -35,6 +36,9 @@ var _ coin.Coin = &CoinMock{}
 //			FormatAmountFunc: func(amount coin.Amount, isFee bool) string {
 //				panic("mock out the FormatAmount method")
 //			},
+//			FormatUnitFactorFunc: func(isFee bool) *big.Int {
+//				panic("mock out the FormatUnitFactor method")
+//			},
 //			GetFormatUnitFunc: func(isFee bool) string {
 //				panic("mock out the GetFormatUnit method")
 //			},
@@ -46,9 +50,6 @@ var _ coin.Coin = &CoinMock{}
 //			},
 //			ObserveFunc: func(fn func(observable.Event)) func() {
 //				panic("mock out the Observe method")
-//			},
-//			ParseAmountFunc: func(amount string) (coin.Amount, error) {
-//				panic("mock out the ParseAmount method")
 //			},
 //			SmallestUnitFunc: func() string {
 //				panic("mock out the SmallestUnit method")
@@ -78,6 +79,9 @@ type CoinMock struct {
 	// FormatAmountFunc mocks the FormatAmount method.
 	FormatAmountFunc func(amount coin.Amount, isFee bool) string
 
+	// FormatUnitFactorFunc mocks the FormatUnitFactor method.
+	FormatUnitFactorFunc func(isFee bool) *big.Int
+
 	// GetFormatUnitFunc mocks the GetFormatUnit method.
 	GetFormatUnitFunc func(isFee bool) string
 
@@ -89,9 +93,6 @@ type CoinMock struct {
 
 	// ObserveFunc mocks the Observe method.
 	ObserveFunc func(fn func(observable.Event)) func()
-
-	// ParseAmountFunc mocks the ParseAmount method.
-	ParseAmountFunc func(amount string) (coin.Amount, error)
 
 	// SmallestUnitFunc mocks the SmallestUnit method.
 	SmallestUnitFunc func() string
@@ -122,6 +123,11 @@ type CoinMock struct {
 			// IsFee is the isFee argument value.
 			IsFee bool
 		}
+		// FormatUnitFactor holds details about calls to the FormatUnitFactor method.
+		FormatUnitFactor []struct {
+			// IsFee is the isFee argument value.
+			IsFee bool
+		}
 		// GetFormatUnit holds details about calls to the GetFormatUnit method.
 		GetFormatUnit []struct {
 			// IsFee is the isFee argument value.
@@ -138,11 +144,6 @@ type CoinMock struct {
 			// Fn is the fn argument value.
 			Fn func(observable.Event)
 		}
-		// ParseAmount holds details about calls to the ParseAmount method.
-		ParseAmount []struct {
-			// Amount is the amount argument value.
-			Amount string
-		}
 		// SmallestUnit holds details about calls to the SmallestUnit method.
 		SmallestUnit []struct {
 		}
@@ -157,11 +158,11 @@ type CoinMock struct {
 	lockCode                              sync.RWMutex
 	lockDecimals                          sync.RWMutex
 	lockFormatAmount                      sync.RWMutex
+	lockFormatUnitFactor                  sync.RWMutex
 	lockGetFormatUnit                     sync.RWMutex
 	lockInitialize                        sync.RWMutex
 	lockName                              sync.RWMutex
 	lockObserve                           sync.RWMutex
-	lockParseAmount                       sync.RWMutex
 	lockSmallestUnit                      sync.RWMutex
 	lockUnit                              sync.RWMutex
 }
@@ -315,6 +316,38 @@ func (mock *CoinMock) FormatAmountCalls() []struct {
 	return calls
 }
 
+// FormatUnitFactor calls FormatUnitFactorFunc.
+func (mock *CoinMock) FormatUnitFactor(isFee bool) *big.Int {
+	if mock.FormatUnitFactorFunc == nil {
+		panic("CoinMock.FormatUnitFactorFunc: method is nil but Coin.FormatUnitFactor was just called")
+	}
+	callInfo := struct {
+		IsFee bool
+	}{
+		IsFee: isFee,
+	}
+	mock.lockFormatUnitFactor.Lock()
+	mock.calls.FormatUnitFactor = append(mock.calls.FormatUnitFactor, callInfo)
+	mock.lockFormatUnitFactor.Unlock()
+	return mock.FormatUnitFactorFunc(isFee)
+}
+
+// FormatUnitFactorCalls gets all the calls that were made to FormatUnitFactor.
+// Check the length with:
+//
+//	len(mockedCoin.FormatUnitFactorCalls())
+func (mock *CoinMock) FormatUnitFactorCalls() []struct {
+	IsFee bool
+} {
+	var calls []struct {
+		IsFee bool
+	}
+	mock.lockFormatUnitFactor.RLock()
+	calls = mock.calls.FormatUnitFactor
+	mock.lockFormatUnitFactor.RUnlock()
+	return calls
+}
+
 // GetFormatUnit calls GetFormatUnitFunc.
 func (mock *CoinMock) GetFormatUnit(isFee bool) string {
 	if mock.GetFormatUnitFunc == nil {
@@ -430,38 +463,6 @@ func (mock *CoinMock) ObserveCalls() []struct {
 	mock.lockObserve.RLock()
 	calls = mock.calls.Observe
 	mock.lockObserve.RUnlock()
-	return calls
-}
-
-// ParseAmount calls ParseAmountFunc.
-func (mock *CoinMock) ParseAmount(amount string) (coin.Amount, error) {
-	if mock.ParseAmountFunc == nil {
-		panic("CoinMock.ParseAmountFunc: method is nil but Coin.ParseAmount was just called")
-	}
-	callInfo := struct {
-		Amount string
-	}{
-		Amount: amount,
-	}
-	mock.lockParseAmount.Lock()
-	mock.calls.ParseAmount = append(mock.calls.ParseAmount, callInfo)
-	mock.lockParseAmount.Unlock()
-	return mock.ParseAmountFunc(amount)
-}
-
-// ParseAmountCalls gets all the calls that were made to ParseAmount.
-// Check the length with:
-//
-//	len(mockedCoin.ParseAmountCalls())
-func (mock *CoinMock) ParseAmountCalls() []struct {
-	Amount string
-} {
-	var calls []struct {
-		Amount string
-	}
-	mock.lockParseAmount.RLock()
-	calls = mock.calls.ParseAmount
-	mock.lockParseAmount.RUnlock()
 	return calls
 }
 

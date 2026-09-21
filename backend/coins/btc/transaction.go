@@ -3,7 +3,6 @@
 package btc
 
 import (
-	"math/big"
 	"strconv"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -178,11 +177,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	} else {
 		allowZero := false
 
-		unit := coin.DecimalsExp(account.coin, false)
-		if account.coin.formatUnit == coin.BtcUnitSats {
-			unit = big.NewInt(1)
-		}
-		parsedAmount, err := args.Amount.Amount(unit, allowZero)
+		parsedAmount, err := args.Amount.Amount(account.coin.formatUnit.SatoshisPerUnit(), allowZero)
 		if err != nil {
 			return nil, nil, err
 		}

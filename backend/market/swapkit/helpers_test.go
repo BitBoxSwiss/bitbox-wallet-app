@@ -68,7 +68,7 @@ func TestValidateSwapSellAmount(t *testing.T) {
 }
 
 func TestFormatAmount(t *testing.T) {
-	t.Run("btc default mode keeps btc units", func(t *testing.T) {
+	t.Run("btc amounts are independent of display units", func(t *testing.T) {
 		btcCoin := btc.NewCoin(
 			coinpkg.CodeBTC,
 			"Bitcoin",
@@ -82,28 +82,23 @@ func TestFormatAmount(t *testing.T) {
 			socksproxy.NewSocksProxy(false, ""),
 		)
 
-		formattedAmount, err := FormatAmount(btcCoin, "1.23456789")
-		require.NoError(t, err)
-		require.Equal(t, "1.23456789", formattedAmount)
-	})
-
-	t.Run("btc sat mode is normalized to btc units", func(t *testing.T) {
-		btcCoin := btc.NewCoin(
-			coinpkg.CodeBTC,
-			"Bitcoin",
-			"BTC",
-			coinpkg.BtcUnitSats,
-			&chaincfg.MainNetParams,
-			t.TempDir(),
-			nil,
-			"",
-			"",
-			socksproxy.NewSocksProxy(false, ""),
-		)
-
-		formattedAmount, err := FormatAmount(btcCoin, "123456789")
-		require.NoError(t, err)
-		require.Equal(t, "1.23456789", formattedAmount)
+		for _, tc := range []struct {
+			sats int64
+			want string
+		}{
+			{0, "0"},
+			{1, "0.00000001"},
+			{100000000, "1"},
+			{110000000, "1.1"},
+			{123456789, "1.23456789"},
+			{9007199254740993, "90071992.54740993"},
+		} {
+			amount := coinpkg.NewAmountFromInt64(tc.sats)
+			for _, unit := range []coinpkg.BtcUnit{coinpkg.BtcUnitDefault, coinpkg.BtcUnitSats} {
+				btcCoin.SetFormatUnit(unit)
+				require.Equal(t, tc.want, FormatAmount(btcCoin, amount))
+			}
+		}
 	})
 
 	t.Run("erc20 amounts are normalized without display formatting", func(t *testing.T) {
@@ -119,8 +114,7 @@ func TestFormatAmount(t *testing.T) {
 			erc20.NewToken("0xdac17f958d2ee523a2206206994597c13d831ec7", 6),
 		)
 
-		formattedAmount, err := FormatAmount(usdtCoin, "1.10")
-		require.NoError(t, err)
+		formattedAmount := FormatAmount(usdtCoin, coinpkg.NewAmountFromInt64(1100000))
 		require.Equal(t, "1.1", formattedAmount)
 	})
 }

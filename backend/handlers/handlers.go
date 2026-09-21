@@ -2086,7 +2086,7 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 		if err != nil {
 			return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 		}
-		parsedAmount, err := account.Coin().ParseAmount(request.SellAmount)
+		parsedAmount, err := coinpkg.ParseAmount(request.SellAmount, account.Coin().FormatUnitFactor(false))
 		if err != nil {
 			return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 		}
@@ -2100,10 +2100,7 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 				return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
 			}
 		}
-		sellAmount, err = swapkit.FormatAmount(account.Coin(), request.SellAmount)
-		if err != nil {
-			return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
-		}
+		sellAmount = swapkit.FormatAmount(account.Coin(), parsedAmount)
 	}
 	quoteResponse, quoteError := swapkit.NewQuoteFromCoinCode(
 		context.Background(),

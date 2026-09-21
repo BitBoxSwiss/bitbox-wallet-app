@@ -11,15 +11,14 @@ import (
 
 // ParseExternalBTCAmount formats a BTC-denominated amount in the selected display unit.
 func (backend *Backend) ParseExternalBTCAmount(amount string) (string, error) {
-	amountRat, valid := new(big.Rat).SetString(amount)
-	if !valid {
+	coinAmount, err := coinpkg.BtcUnitDefault.ParseAmount(amount)
+	if err != nil {
 		return "", errp.New("invalid amount")
 	}
 	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
 	if err != nil {
 		return "", err
 	}
-	coinAmount := coinpkg.NewAmountFromRat(amountRat, coinpkg.DecimalsExp(btcCoin, false))
 	return btcCoin.FormatAmount(coinAmount, false), nil
 }
 
@@ -29,7 +28,7 @@ func (backend *Backend) ConvertToCurrency(coinCode coinpkg.Code, currency, amoun
 	if err != nil {
 		return "", err
 	}
-	coinAmount, err := currentCoin.ParseAmount(amount)
+	coinAmount, err := coinpkg.ParseAmount(amount, currentCoin.FormatUnitFactor(false))
 	if err != nil {
 		return "", err
 	}

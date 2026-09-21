@@ -346,10 +346,11 @@ func (backend *Backend) PrepareSwap(
 		return nil, err
 	}
 
-	swapSellAmount, err := swapkit.FormatAmount(sellAccount.Coin(), sellAmount)
+	parsedAmount, err := coinpkg.ParseAmount(sellAmount, sellAccount.Coin().FormatUnitFactor(false))
 	if err != nil {
 		return nil, err
 	}
+	swapSellAmount := swapkit.FormatAmount(sellAccount.Coin(), parsedAmount)
 
 	swapResponse, swapError := swapkit.NewSwap(
 		context.Background(),

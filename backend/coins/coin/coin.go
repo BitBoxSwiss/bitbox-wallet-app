@@ -39,9 +39,9 @@ type Coin interface {
 	// FormatAmount formats the given amount as a number.
 	FormatAmount(amount Amount, isFee bool) string
 
-	// ParseAmount parse a String representing a given amount, considering the formatting unit.
-	// e.g. if the formatUnit is set as "sat", the amount will be considered as being sats
-	ParseAmount(amount string) (Amount, error)
+	// FormatUnitFactor returns the number of smallest units per selected display unit.
+	// Unlike DecimalsExp, it accounts for Bitcoin being displayed in satoshis.
+	FormatUnitFactor(isFee bool) *big.Int
 
 	// // Server returns the host and port of the full node used for blockchain synchronization.
 	// Server() string

@@ -140,21 +140,14 @@ func (s *testSuite) TestFormatAmount() {
 	}
 }
 
-func (s *testSuite) TestParseAmount() {
-	ethAmount := "1.123456789012345678"
-	intWeiAmount := int64(1123456789012345678)
-
-	coinAmount, err := s.coin.ParseAmount(ethAmount)
-	s.Require().NoError(err)
-	intAmount, err := coinAmount.Int64()
-	s.Require().NoError(err)
-	s.Require().Equal(intWeiAmount, intAmount)
-
-	coinAmount, err = s.coin.ParseAmount(ethAmount)
-	s.Require().NoError(err)
-	intAmount, err = coinAmount.Int64()
-	s.Require().NoError(err)
-	s.Require().Equal(intWeiAmount, intAmount)
+func (s *testSuite) TestFormatUnitFactor() {
+	for _, isFee := range []bool{false, true} {
+		s.Require().Equal("1000000000000000000", s.coin.FormatUnitFactor(isFee).String())
+	}
+	s.Require().Equal("1000000000000", s.ERC20Coin.FormatUnitFactor(false).String())
+	s.Require().Equal("1000000000000000000", s.ERC20Coin.FormatUnitFactor(true).String())
+	s.Require().Equal("1000000", s.USDTCoin.FormatUnitFactor(false).String())
+	s.Require().Equal("1000000000000000000", s.USDTCoin.FormatUnitFactor(true).String())
 }
 
 func (s *testSuite) TestGetFormatUnit() {

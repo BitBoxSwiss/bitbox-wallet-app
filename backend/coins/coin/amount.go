@@ -43,6 +43,17 @@ func NewAmountFromRat(amount *big.Rat, unit *big.Int) Amount {
 	return NewAmount(rounded)
 }
 
+// ParseAmount parses an amount using the number of smallest units per input unit, rounding to
+// the nearest smallest unit with ties away from zero. For transaction inputs, use SendAmount.Amount
+// to reject fractional smallest units instead.
+func ParseAmount(amount string, unit *big.Int) (Amount, error) {
+	amountRat, valid := new(big.Rat).SetString(amount)
+	if !valid {
+		return Amount{}, errp.New("Invalid amount")
+	}
+	return NewAmountFromRat(amountRat, unit), nil
+}
+
 // NewAmountFromString parses a user given coin amount, converting it from the default coin unit to
 // the smallest unit. Fractional smallest units are rejected.
 func NewAmountFromString(s string, unit *big.Int) (Amount, error) {

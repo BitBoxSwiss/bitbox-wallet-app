@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	btccoin "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
@@ -82,6 +83,26 @@ func TestParseTopUpAmountUsesAccountDisplayUnit(t *testing.T) {
 	amount, err = parseTopUpAmount(accountCoin, "125000")
 	require.NoError(t, err)
 	require.Equal(t, coin.NewAmountFromInt64(125_000), amount)
+}
+
+func TestParseTopUpAmountRejectsFractionalSatoshis(t *testing.T) {
+	accountCoin := makeTestLightning().btcCoin.(*btccoin.Coin)
+	for _, tc := range []struct {
+		unit  coin.BtcUnit
+		input string
+	}{
+		{coin.BtcUnitDefault, "0.001250005"},
+		{coin.BtcUnitSats, "125000.5"},
+	} {
+		t.Run(string(tc.unit), func(t *testing.T) {
+			accountCoin.SetFormatUnit(tc.unit)
+			_, err := parseTopUpAmount(accountCoin, tc.input)
+			require.ErrorIs(t, err, accountErrors.ErrInvalidAmount)
+			amount, err := parseTopUpAmount(accountCoin, "0")
+			require.NoError(t, err)
+			require.Equal(t, coin.NewAmountFromInt64(0), amount)
+		})
+	}
 }
 
 func TestPrepareTopUp(t *testing.T) {

@@ -45,21 +45,17 @@ func assetFromCoinCode(coinCode string) (string, bool) {
 	return asset, ok
 }
 
-// FormatAmount converts a user-entered amount from the coin's display unit into the decimal string
-// expected by SwapKit.
-func FormatAmount(coin coinpkg.Coin, amount string) (string, error) {
-	parsedAmount, err := coin.ParseAmount(amount)
-	if err != nil {
-		return "", err
-	}
+// FormatAmount formats an amount in the canonical coin unit expected by SwapKit,
+// independent of the selected display unit.
+func FormatAmount(coin coinpkg.Coin, amount coinpkg.Amount) string {
 	decimals := int(coin.Decimals(false))
-	rat := coinpkg.ToUnitRat(parsedAmount, coin, false)
+	rat := coinpkg.ToUnitRat(amount, coin, false)
 	formattedAmount := rat.FloatString(decimals)
 	formattedAmount = strings.TrimRight(strings.TrimRight(formattedAmount, "0"), ".")
 	if formattedAmount == "" {
-		return "0", nil
+		return "0"
 	}
-	return formattedAmount, nil
+	return formattedAmount
 }
 
 // ValidateSwapSellAmount checks that sell amount fits into available balance.

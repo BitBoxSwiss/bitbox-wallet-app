@@ -213,25 +213,13 @@ func (coin *Coin) Decimals(isFee bool) uint {
 }
 
 // FormatAmount implements coinpkg.Coin.
-func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
-	if coin.formatUnit == coinpkg.BtcUnitSats {
-		return amount.BigInt().String()
-	}
-	return coinpkg.ToUnitRat(amount, coin, isFee).FloatString(int(coin.Decimals(isFee)))
+func (coin *Coin) FormatAmount(amount coinpkg.Amount, _ bool) string {
+	return coin.formatUnit.FormatAmount(amount)
 }
 
-// ParseAmount implements coinpkg.Coin.
-func (coin *Coin) ParseAmount(amount string) (coinpkg.Amount, error) {
-	amountRat, valid := new(big.Rat).SetString(amount)
-	if !valid {
-		return coinpkg.Amount{}, errp.New("Invalid amount")
-	}
-
-	unit := coinpkg.DecimalsExp(coin, false)
-	if coin.formatUnit == coinpkg.BtcUnitSats {
-		unit = big.NewInt(1)
-	}
-	return coinpkg.NewAmountFromRat(amountRat, unit), nil
+// FormatUnitFactor implements coinpkg.Coin.
+func (coin *Coin) FormatUnitFactor(_ bool) *big.Int {
+	return coin.formatUnit.SatoshisPerUnit()
 }
 
 // Blockchain connects to a blockchain backend.

@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewAmountFromRat(t *testing.T) {
+func TestParseAmount(t *testing.T) {
 	for _, tc := range []struct {
 		input    string
 		decimals uint
@@ -39,11 +39,14 @@ func TestNewAmountFromRat(t *testing.T) {
 	} {
 		t.Run(fmt.Sprintf("%s/%d", tc.input, tc.decimals), func(t *testing.T) {
 			unit := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(tc.decimals)), nil)
-			value, ok := new(big.Rat).SetString(tc.input)
-			require.True(t, ok)
-			amount := coin.NewAmountFromRat(value, unit)
+			amount, err := coin.ParseAmount(tc.input, unit)
+			require.NoError(t, err)
 			require.Equal(t, tc.want, amount.BigInt().String())
 		})
+	}
+	for _, input := range []string{"", "invalid"} {
+		_, err := coin.ParseAmount(input, big.NewInt(1))
+		require.EqualError(t, err, "Invalid amount")
 	}
 }
 

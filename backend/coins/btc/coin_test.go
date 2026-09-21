@@ -101,45 +101,22 @@ func (s *testSuite) TestCoin() {
 	s.Require().Equal(addressExplorer, s.coin.BlockExplorerAddressURLPrefix())
 }
 
-func (s *testSuite) TestFormatAmount() {
-	for _, isFee := range []bool{false, true} {
-		s.Require().Equal("12.34568910", s.coin.FormatAmount(
-			coin.NewAmountFromInt64(1234568910), isFee))
-		s.Require().Equal("0.00000000", s.coin.FormatAmount(
-			coin.NewAmountFromInt64(0), isFee))
-		s.Require().Equal("0.00000001", s.coin.FormatAmount(
-			coin.NewAmountFromInt64(1), isFee))
-	}
-}
-
-func (s *testSuite) TestToUnitRat() {
-	for _, unit := range []coin.BtcUnit{coin.BtcUnitDefault, coin.BtcUnitSats} {
-		s.coin.SetFormatUnit(unit)
+func (s *testSuite) TestDisplayUnit() {
+	for _, tc := range []struct {
+		unit          coin.BtcUnit
+		amount, scale string
+	}{
+		{coin.BtcUnitDefault, "12.34568910", "100000000"},
+		{coin.BtcUnitSats, "1234568910", "1"},
+	} {
+		s.coin.SetFormatUnit(tc.unit)
+		amount := coin.NewAmountFromInt64(1234568910)
 		for _, isFee := range []bool{false, true} {
-			s.Require().Equal("12.34568910", coin.ToUnitRat(
-				coin.NewAmountFromInt64(1234568910), s.coin, isFee).FloatString(8))
+			s.Require().Equal(tc.amount, s.coin.FormatAmount(amount, isFee))
+			s.Require().Equal(tc.scale, s.coin.FormatUnitFactor(isFee).String())
+			s.Require().Equal("12.34568910", coin.ToUnitRat(amount, s.coin, isFee).FloatString(8))
 		}
 	}
-}
-
-func (s *testSuite) TestParseAmount() {
-	btcAmount := "123.12345678"
-	satAmount := "12312345678"
-	intSatAmount := int64(12312345678)
-
-	s.coin.SetFormatUnit("BTC")
-	coinAmount, err := s.coin.ParseAmount(btcAmount)
-	s.Require().NoError(err)
-	intAmount, err := coinAmount.Int64()
-	s.Require().NoError(err)
-	s.Require().Equal(intSatAmount, intAmount)
-
-	s.coin.SetFormatUnit("sat")
-	coinAmount, err = s.coin.ParseAmount(satAmount)
-	s.Require().NoError(err)
-	intAmount, err = coinAmount.Int64()
-	s.Require().NoError(err)
-	s.Require().Equal(intSatAmount, intAmount)
 }
 
 func (s *testSuite) TestAddressToPkScript() {
