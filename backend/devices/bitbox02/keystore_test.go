@@ -10,6 +10,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	keystorePkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -44,6 +45,48 @@ func newKeystoreWithVersion(version *semver.SemVer) *keystore {
 		nil,
 		errorCommunication{},
 	).keystore
+}
+
+func TestVerifyAddressBTCFirmwareRequirements(t *testing.T) {
+	masterKey, err := hdkeychain.NewMaster(bytes.Repeat([]byte{0x01}, 32), &chaincfg.MainNetParams)
+	require.NoError(t, err)
+	xpub, err := masterKey.Neuter()
+	require.NoError(t, err)
+	btcCoin := btc.NewCoin(
+		coinpkg.CodeBTC,
+		"Bitcoin",
+		"BTC",
+		coinpkg.BtcUnitDefault,
+		&chaincfg.MainNetParams,
+		"",
+		nil,
+		"",
+		"",
+		socksproxy.NewSocksProxy(false, ""),
+	)
+	for _, scriptType := range []signing.ScriptType{
+		signing.ScriptTypeP2WPKHP2SH,
+		signing.ScriptTypeP2WPKH,
+		signing.ScriptTypeP2TR,
+	} {
+		for _, version := range []*semver.SemVer{
+			semver.NewSemVer(9, 9, 0),
+			semver.NewSemVer(9, 10, 0),
+		} {
+			t.Run(string(scriptType)+"/"+version.String(), func(t *testing.T) {
+				configuration := signing.NewBitcoinConfiguration(
+					scriptType, nil, signing.NewAbsoluteKeypathFromUint32(), xpub,
+				)
+				err := newKeystoreWithVersion(version).VerifyAddressBTC(configuration, types.Derivation{}, btcCoin)
+				if scriptType == signing.ScriptTypeP2TR && version.String() == "9.9.0" {
+					require.ErrorIs(t, err, keystorePkg.ErrFirmwareUpgradeRequired)
+				} else {
+					// Supported addresses reach the device API, which requires a handshake.
+					require.EqualError(t, err, "handshake must come first")
+				}
+			})
+		}
+	}
 }
 
 func TestSigningFirmwareRequirements(t *testing.T) {

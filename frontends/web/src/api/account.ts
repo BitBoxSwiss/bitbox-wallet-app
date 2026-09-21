@@ -452,7 +452,9 @@ export const getFeeTargetList = (code: AccountCode): Promise<TFeeTargetList> => 
   return apiGet(`account/${code}/fee-targets`);
 };
 
-export const verifyAddress = (code: AccountCode, addressID: string): Promise<boolean> => {
+export const verifyAddress = (code: AccountCode, addressID: string): Promise<
+  { success: true } | { success: false; errorCode?: 'firmwareUpgradeRequired'; errorMessage?: string }
+> => {
   return apiPost(`account/${code}/verify-address`, addressID);
 };
 

@@ -952,6 +952,20 @@ func TestTaprootUpgrade(t *testing.T) {
 	require.Equal(t,
 		btcAccount.Record.SigningConfigurations,
 		accountsConfig.Lookup("v0-55555555-btc-0").SigningConfigurations)
+
+	// Reconnecting a keystore without Taproot support must keep the unified Bitcoin account
+	// visible. All signing configurations remain loaded so Taproot balances and history are not
+	// silently omitted.
+	b.DeregisterKeystore()
+	b.registerKeystore(bitbox02NoTaproot)
+	checkShownAccountsLen(t, b, 3, 3)
+	btcAccount = b.Accounts().lookup("v0-55555555-btc-0")
+	require.NotNil(t, btcAccount)
+	require.Len(t, btcAccount.Account.Config().SigningConfigurations, 3)
+	accountsConfig = accountsSnapshot(t, b)
+	require.Equal(t,
+		btcAccount.Account.Config().SigningConfigurations,
+		accountsConfig.Lookup("v0-55555555-btc-0").SigningConfigurations)
 }
 
 func TestRenameAccount(t *testing.T) {
