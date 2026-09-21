@@ -67,7 +67,7 @@ func NewHandlers(
 	handleFunc("/init", withError(handlers.postInit)).Methods("POST")
 	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
 	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
-	handleFunc("/transaction", handlers.ensureAccountInitialized(handlers.getAccountTransaction)).Methods("GET")
+	handleFunc("/transaction", handlers.ensureAccountInitialized(withError(handlers.getAccountTransaction))).Methods("GET")
 	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
 	handleFunc("/info", handlers.ensureAccountInitialized(withError(handlers.getAccountInfo))).Methods("GET")
 	handleFunc("/utxos", handlers.ensureAccountInitialized(handlers.getUTXOs)).Methods("GET")
@@ -217,20 +217,26 @@ func (handlers *Handlers) getAccountTransactions(*http.Request) (interface{}, er
 	return result, nil
 }
 
-func (handlers *Handlers) getAccountTransaction(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountTransaction(r *http.Request) interface{} {
+	type result struct {
+		Success      bool         `json:"success"`
+		Transaction  *Transaction `json:"transaction"`
+		ErrorMessage string       `json:"errorMessage,omitempty"`
+	}
 	internalID := r.URL.Query().Get("id")
 	txs, err := handlers.account.Transactions()
 	if err != nil {
-		return nil, err
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	for _, txInfo := range txs {
 		if txInfo.InternalID != internalID {
 			continue
 		}
 
-		return handlers.getTxInfoJSON(txInfo, true), nil
+		transaction := handlers.getTxInfoJSON(txInfo, true)
+		return result{Success: true, Transaction: &transaction}
 	}
-	return nil, nil
+	return result{Success: true}
 }
 
 func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, error) {
