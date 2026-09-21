@@ -66,7 +66,7 @@ func NewHandlers(
 
 	handleFunc("/init", withError(handlers.postInit)).Methods("POST")
 	handleFunc("/status", withError(handlers.getAccountStatus)).Methods("GET")
-	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
+	handleFunc("/transactions", handlers.ensureAccountInitialized(withError(handlers.getAccountTransactions))).Methods("GET")
 	handleFunc("/transaction", handlers.ensureAccountInitialized(withError(handlers.getAccountTransaction))).Methods("GET")
 	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
 	handleFunc("/info", handlers.ensureAccountInitialized(withError(handlers.getAccountInfo))).Methods("GET")
@@ -196,14 +196,14 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 	return txInfoJSON
 }
 
-func (handlers *Handlers) getAccountTransactions(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountTransactions(*http.Request) interface{} {
 	var result struct {
 		Success      bool          `json:"success"`
 		Transactions []Transaction `json:"list"`
 	}
 	txs, err := handlers.account.Transactions()
 	if err != nil {
-		return result, nil
+		return result
 	}
 	result.Transactions = []Transaction{}
 	for _, txInfo := range txs {
@@ -214,7 +214,7 @@ func (handlers *Handlers) getAccountTransactions(*http.Request) (interface{}, er
 		result.Transactions = append(result.Transactions, handlers.getTxInfoJSON(txInfo, false))
 	}
 	result.Success = true
-	return result, nil
+	return result
 }
 
 func (handlers *Handlers) getAccountTransaction(r *http.Request) interface{} {
