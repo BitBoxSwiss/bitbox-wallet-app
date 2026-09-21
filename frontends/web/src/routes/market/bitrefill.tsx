@@ -17,14 +17,14 @@ import { getBitrefillInfo } from '@/api/market';
 import { getURLOrigin } from '@/utils/url';
 import { ConfirmBitrefill } from './bitrefill-confirm';
 import { AppContext } from '@/contexts/AppContext';
+import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
+import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
+import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import {
   getVendorIframeMessageTarget,
   postMessageToVendorIframe,
-  useMarketIframeActive,
-  useVendorIframeResizeHeight,
-  useVendorTerms,
   type TVendorIframeMessageTarget,
-} from '@/hooks/vendor-iframe';
+} from '@/hooks/vendor-iframe-message';
 import { useAccountSynced } from '@/hooks/account';
 import style from './iframe.module.css';
 
