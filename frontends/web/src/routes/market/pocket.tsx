@@ -22,7 +22,7 @@ import { parseExternalBtcAmount } from '@/api/coins';
 import { useMarketIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
 import { useAccountSynced } from '@/hooks/account';
 import { Message } from '@/components/message/message';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import style from './iframe.module.css';
 
 type TProps = {
@@ -291,9 +291,7 @@ export const Pocket = ({
           { accountInfoResponse && !accountInfoResponse.success ? (
             <div className="content">
               <Message type="error">{accountInfoResponse.errorMessage || t('genericError')}</Message>
-              <span className="hide-on-small">
-                <BackButton enableEsc>{t('button.back')}</BackButton>
-              </span>
+              <DesktopBackButton enableEsc>{t('button.back')}</DesktopBackButton>
             </div>
           ) : !agreedTerms ? (
             <PocketTerms

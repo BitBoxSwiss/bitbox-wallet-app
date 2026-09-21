@@ -11,7 +11,7 @@ import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { isBitcoinBased } from '@/routes/account/utils';
 import { BitcoinBasedAccountInfoGuide } from './guide';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
 import style from './info.module.css';
 
@@ -89,9 +89,7 @@ export const XPubDetail = ({
               {infoResponse && !infoResponse.success && (
                 <>
                   <Message type="error">{infoResponse.errorMessage || t('genericError')}</Message>
-                  <span className="hide-on-small">
-                    <BackButton enableEsc>{t('button.back')}</BackButton>
-                  </span>
+                  <DesktopBackButton enableEsc>{t('button.back')}</DesktopBackButton>
                 </>
               )}
               {config && (
@@ -117,11 +115,9 @@ export const XPubDetail = ({
                     code={code}
                     info={config}
                     signingConfigIndex={safeViewXPub}>
-                    <span className="hide-on-small">
-                      <BackButton enableEsc>
-                        {t('button.back')}
-                      </BackButton>
-                    </span>
+                    <DesktopBackButton enableEsc>
+                      {t('button.back')}
+                    </DesktopBackButton>
                   </SigningConfiguration>
                 </div>
               )}
