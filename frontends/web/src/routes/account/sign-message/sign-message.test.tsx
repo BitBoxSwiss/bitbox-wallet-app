@@ -97,7 +97,7 @@ describe('routes/account/sign-message', () => {
         }],
       },
     ];
-    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => receiveAddresses);
+    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => ({ success: true, addresses: receiveAddresses }));
     const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress').mockResolvedValue({
       success: true,
       address: 'bc1qnativeexample',
@@ -147,23 +147,26 @@ describe('routes/account/sign-message', () => {
 
   it('does not pre-connect keystore when rendering or changing receive address', async () => {
     const connectSpy = vi.spyOn(keystoresApi, 'connectKeystore');
-    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
-      {
-        scriptType: 'p2wpkh',
-        addresses: [
-          {
-            address: 'bc1qnativeexample0',
-            displayAddress: groupAddress('bc1qnativeexample0'),
-            addressID: 'native-address-id-0',
-          },
-          {
-            address: 'bc1qnativeexample1',
-            displayAddress: groupAddress('bc1qnativeexample1'),
-            addressID: 'native-address-id-1',
-          },
-        ],
-      },
-    ]);
+    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => ({
+      success: true,
+      addresses: [
+        {
+          scriptType: 'p2wpkh',
+          addresses: [
+            {
+              address: 'bc1qnativeexample0',
+              displayAddress: groupAddress('bc1qnativeexample0'),
+              addressID: 'native-address-id-0',
+            },
+            {
+              address: 'bc1qnativeexample1',
+              displayAddress: groupAddress('bc1qnativeexample1'),
+              addressID: 'native-address-id-1',
+            },
+          ],
+        },
+      ],
+    }));
 
     const user = userEvent.setup();
     render(
@@ -190,16 +193,19 @@ describe('routes/account/sign-message', () => {
   });
 
   it('returns to input state when signing is aborted on device', async () => {
-    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
-      {
-        scriptType: 'p2wpkh',
-        addresses: [{
-          address: 'bc1qnativeexample',
-          displayAddress: groupAddress('bc1qnativeexample'),
-          addressID: 'native-address-id',
-        }],
-      },
-    ]);
+    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => ({
+      success: true,
+      addresses: [
+        {
+          scriptType: 'p2wpkh',
+          addresses: [{
+            address: 'bc1qnativeexample',
+            displayAddress: groupAddress('bc1qnativeexample'),
+            addressID: 'native-address-id',
+          }],
+        },
+      ],
+    }));
     const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress').mockResolvedValue({
       success: false,
       errorCode: 'userAbort',
@@ -326,16 +332,19 @@ describe('routes/account/sign-message', () => {
   });
 
   it('signs an ETH message using signETHMessageForAddress', async () => {
-    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
-      {
-        scriptType: null,
-        addresses: [{
-          address: '0xAbC123def456',
-          displayAddress: groupAddress('0xAbC123def456'),
-          addressID: 'eth-address-id',
-        }],
-      },
-    ]);
+    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => ({
+      success: true,
+      addresses: [
+        {
+          scriptType: null,
+          addresses: [{
+            address: '0xAbC123def456',
+            displayAddress: groupAddress('0xAbC123def456'),
+            addressID: 'eth-address-id',
+          }],
+        },
+      ],
+    }));
     const btcSignSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress');
     const ethSignSpy = vi.spyOn(accountApi, 'signETHMessageForAddress').mockResolvedValue({
       success: true,
@@ -385,16 +394,19 @@ describe('routes/account/sign-message', () => {
       errorCode: 'userAbort',
     });
     const signMessageSpy = vi.spyOn(accountApi, 'signBTCMessageForAddress');
-    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => [
-      {
-        scriptType: 'p2wpkh',
-        addresses: [{
-          address: 'bc1qnativeexample',
-          displayAddress: groupAddress('bc1qnativeexample'),
-          addressID: 'native-address-id',
-        }],
-      },
-    ]);
+    vi.spyOn(accountApi, 'getReceiveAddressList').mockReturnValue(async () => ({
+      success: true,
+      addresses: [
+        {
+          scriptType: 'p2wpkh',
+          addresses: [{
+            address: 'bc1qnativeexample',
+            displayAddress: groupAddress('bc1qnativeexample'),
+            addressID: 'native-address-id',
+          }],
+        },
+      ],
+    }));
 
     const user = userEvent.setup();
     render(

@@ -365,7 +365,7 @@ export type Slip24 = {
 };
 
 export const getReceiveAddressList = (code: AccountCode) => {
-  return (): Promise<NonEmptyArray<TReceiveAddressList> | null> => {
+  return (): Promise<{ success: true; addresses: NonEmptyArray<TReceiveAddressList> } | TAccountError> => {
     return apiGet(`account/${code}/receive-addresses`);
   };
 };

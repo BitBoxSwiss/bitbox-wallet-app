@@ -75,7 +75,7 @@ func NewHandlers(
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(withError(handlers.postAccountTxProposal))).Methods("POST")
-	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
+	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(withError(handlers.getReceiveAddresses))).Methods("GET")
 	handleFunc("/used-addresses", handlers.ensureAccountInitialized(handlers.getUsedAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
@@ -650,7 +650,7 @@ func (handlers *Handlers) getAccountStatus(*http.Request) (interface{}, error) {
 	}, nil
 }
 
-func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getReceiveAddresses(*http.Request) interface{} {
 
 	type jsonAddress struct {
 		Address        string `json:"address"`
@@ -661,10 +661,15 @@ func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error
 		ScriptType *signing.ScriptType `json:"scriptType"`
 		Addresses  []jsonAddress       `json:"addresses"`
 	}
+	type response struct {
+		Success      bool              `json:"success"`
+		Addresses    []jsonAddressList `json:"addresses"`
+		ErrorMessage string            `json:"errorMessage,omitempty"`
+	}
 	addressList := []jsonAddressList{}
 	unusedAddressList, err := handlers.account.GetUnusedReceiveAddresses()
 	if err != nil {
-		return nil, err
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	for _, addresses := range unusedAddressList {
 		addrs := []jsonAddress{}
@@ -680,7 +685,7 @@ func (handlers *Handlers) getReceiveAddresses(*http.Request) (interface{}, error
 			Addresses:  addrs,
 		})
 	}
-	return addressList, nil
+	return response{Success: true, Addresses: addressList}
 }
 
 type usedAddressesProvider interface {
