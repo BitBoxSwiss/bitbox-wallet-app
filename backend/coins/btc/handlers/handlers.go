@@ -64,7 +64,7 @@ func NewHandlers(
 		}
 	}
 
-	handleFunc("/init", handlers.postInit).Methods("POST")
+	handleFunc("/init", withError(handlers.postInit)).Methods("POST")
 	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
 	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
 	handleFunc("/transaction", handlers.ensureAccountInitialized(handlers.getAccountTransaction)).Methods("GET")
@@ -595,11 +595,18 @@ func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, erro
 	}, nil
 }
 
-func (handlers *Handlers) postInit(*http.Request) (interface{}, error) {
-	if handlers.account == nil {
-		return nil, errp.New("/init called even though account was not added yet")
+func (handlers *Handlers) postInit(*http.Request) interface{} {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
 	}
-	return nil, handlers.account.Initialize()
+	if handlers.account == nil {
+		return result{Success: false, ErrorMessage: "/init called even though account was not added yet"}
+	}
+	if err := handlers.account.Initialize(); err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
+	return result{Success: true}
 }
 
 type statusResponse struct {

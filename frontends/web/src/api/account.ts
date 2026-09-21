@@ -182,7 +182,7 @@ export const getInfo = (code: AccountCode) => {
   };
 };
 
-export const init = (code: AccountCode): Promise<null> => {
+export const init = (code: AccountCode): Promise<SuccessResponse | TAccountError> => {
   return apiPost(`account/${code}/init`);
 };
 
