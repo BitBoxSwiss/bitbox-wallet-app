@@ -85,7 +85,7 @@ func NewHandlers(
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(withError(handlers.getHasSecureOutput))).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(withError(handlers.postSetTxNote))).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(withError(handlers.postEthSignMsg))).Methods("POST")
-	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
+	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(withError(handlers.postEthSignTypedMsg))).Methods("POST")
 	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(handlers.postEthSignWalletConnectTx)).Methods("POST")
 	return handlers
 }
@@ -884,20 +884,20 @@ func (handlers *Handlers) postEthSignMsg(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) interface{} {
 	var args struct {
 		ChainId *uint64 `json:"chainId"`
 		Data    string  `json:"data"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
-		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signingResponse{Success: false, ErrorMessage: err.Error()}
 	}
 	if args.ChainId == nil {
-		return signingResponse{Success: false, ErrorMessage: "chainId is required"}, nil
+		return signingResponse{Success: false, ErrorMessage: "chainId is required"}
 	}
 	ethAccount, ok := handlers.account.(*eth.Account)
 	if !ok {
-		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
+		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}
 	}
 	signature, err := eth.SignTypedMsg(*args.ChainId, args.Data,
 		ethAccount.Info().SigningConfigurations[0], ethAccount.Config().ConnectKeystore)
@@ -906,12 +906,12 @@ func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, err
 		if !result.Aborted {
 			handlers.log.WithError(err).Error("Failed to sign typed data")
 		}
-		return result, nil
+		return result
 	}
 	return signingResponse{
 		Success:   true,
 		Signature: signature,
-	}, nil
+	}
 }
 
 // postEthSignWalletConnectTx adapts the existing WalletConnect route to generic EVM signing.

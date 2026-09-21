@@ -133,14 +133,18 @@ func TestWalletConnectSigningHandlersRequireChainID(t *testing.T) {
 		handler func(*Handlers, *http.Request) (interface{}, error)
 	}{
 		{
-			name:    "typed message omitted",
-			body:    `{"data":"{}"}`,
-			handler: (*Handlers).postEthSignTypedMsg,
+			name: "typed message omitted",
+			body: `{"data":"{}"}`,
+			handler: func(handlers *Handlers, request *http.Request) (interface{}, error) {
+				return handlers.postEthSignTypedMsg(request), nil
+			},
 		},
 		{
-			name:    "typed message null",
-			body:    `{"chainId":null,"data":"{}"}`,
-			handler: (*Handlers).postEthSignTypedMsg,
+			name: "typed message null",
+			body: `{"chainId":null,"data":"{}"}`,
+			handler: func(handlers *Handlers, request *http.Request) (interface{}, error) {
+				return handlers.postEthSignTypedMsg(request), nil
+			},
 		},
 		{
 			name:    "transaction omitted",
