@@ -70,7 +70,7 @@ func NewHandlers(
 	handleFunc("/transaction", handlers.ensureAccountInitialized(withError(handlers.getAccountTransaction))).Methods("GET")
 	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
 	handleFunc("/info", handlers.ensureAccountInitialized(withError(handlers.getAccountInfo))).Methods("GET")
-	handleFunc("/utxos", handlers.ensureAccountInitialized(handlers.getUTXOs)).Methods("GET")
+	handleFunc("/utxos", handlers.ensureAccountInitialized(withError(handlers.getUTXOs))).Methods("GET")
 	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
@@ -358,7 +358,7 @@ func (handlers *Handlers) getAccountInfo(*http.Request) interface{} {
 	return response{Success: true, Info: &result}
 }
 
-func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getUTXOs(*http.Request) interface{} {
 	accountConfig := handlers.account.Config()
 	type utxoResponse struct {
 		OutPoint        string                              `json:"outPoint"`
@@ -372,21 +372,26 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 		IsChange        bool                                `json:"isChange"`
 		HeaderTimestamp *string                             `json:"headerTimestamp"`
 	}
+	type response struct {
+		Success      bool           `json:"success"`
+		UTXOs        []utxoResponse `json:"utxos"`
+		ErrorMessage string         `json:"errorMessage,omitempty"`
+	}
 	result := []utxoResponse{}
 
 	t, ok := handlers.account.(*btc.Account)
 
 	if !ok {
-		return result, errp.New("Interface must be of type btc.Account")
+		return response{Success: false, ErrorMessage: "Interface must be of type btc.Account"}
 	}
 
 	spendableOutputs, err := t.SpendableOutputs()
 	if err != nil {
-		return nil, err
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	reusedAddresses, err := t.ReusedAddressesForOutputs(spendableOutputs)
 	if err != nil {
-		return nil, err
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
 	for _, output := range spendableOutputs {
@@ -413,7 +418,7 @@ func (handlers *Handlers) getUTXOs(*http.Request) (interface{}, error) {
 			})
 	}
 
-	return result, nil
+	return response{Success: true, UTXOs: result}
 }
 
 func (handlers *Handlers) getAccountBalance(*http.Request) (interface{}, error) {
