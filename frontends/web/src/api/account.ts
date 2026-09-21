@@ -473,7 +473,7 @@ export type TUTXO = {
   headerTimestamp: string | null;
 };
 
-export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {
+export const getUTXOs = (code: AccountCode): Promise<{ success: true; utxos: TUTXO[] } | TAccountError> => {
   return apiGet(`account/${code}/utxos`);
 };
 
