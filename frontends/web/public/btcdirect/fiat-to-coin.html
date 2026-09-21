@@ -25,7 +25,13 @@
       };
     }
 
+    let appOrigin;
+
     const onMessage = (event) => {
+      // Authenticate the embedding app without excluding older native/opaque origins.
+      if (event.source !== window.parent || (appOrigin !== undefined && event.origin !== appOrigin)) {
+        return;
+      }
       switch (event.data?.action) {
       case 'configuration':
         const {
@@ -50,6 +56,7 @@
           `);
           return;
         }
+        appOrigin = event.origin;
         const currency = baseCurrency.toUpperCase();
 
         // add the btcdirect CSS

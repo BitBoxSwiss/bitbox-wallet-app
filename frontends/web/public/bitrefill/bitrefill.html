@@ -27,10 +27,24 @@
       };
     }
 
+    const bitrefillOrigin = 'https://embed.bitrefill.com';
+    let bitrefillIframe;
+    let appOrigin;
+
     const onMessage = (event) => {
-      const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+      let data;
+      try {
+        data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+      } catch {
+        return;
+      }
       switch (data?.event) {
         case 'configuration': {
+          // Older desktop/mobile apps can have native or opaque origins. Authenticate
+          // the parent window first, then retain its origin for subsequent messages.
+          if (event.source !== window.parent || (appOrigin !== undefined && event.origin !== appOrigin)) {
+            return;
+          }
           const {
             ref,
             utm_source,
@@ -58,7 +72,8 @@
             return;
           }
 
-          const bitrefillUrl = new URL('https://embed.bitrefill.com/');
+          appOrigin = event.origin;
+          const bitrefillUrl = new URL(bitrefillOrigin);
 
           if (region) {
             bitrefillUrl.pathname = region;
@@ -81,13 +96,21 @@
           iframe.width="100%"
           iframe.height="100%"
           iframe.sandbox = "allow-same-origin allow-popups allow-scripts allow-forms";
+          if (bitrefillIframe) {
+            bitrefillIframe.remove();
+          }
+          bitrefillIframe = iframe;
           document.getElementById('bitrefill-widget-container').appendChild(iframe);
 
           break;
         }
         case 'payment_intent': {
+          if (!bitrefillIframe || event.source !== bitrefillIframe.contentWindow || event.origin !== bitrefillOrigin) {
+            return;
+          }
           // Forward payment intent to the app
-          window.parent.postMessage(data, '*');
+          // Native/opaque parent origins cannot reliably be used as targetOrigin.
+          window.parent.postMessage(data, /^https?:\/\//.test(appOrigin) ? appOrigin : '*');
           break;
         }
         default: {

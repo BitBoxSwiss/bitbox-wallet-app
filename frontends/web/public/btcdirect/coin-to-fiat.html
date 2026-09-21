@@ -26,9 +26,13 @@
     }
 
     let orderId = '';
+    let appOrigin;
 
     const onMessage = (event) => {
-
+      // Authenticate the embedding app without excluding older native/opaque origins.
+      if (event.source !== window.parent || (appOrigin !== undefined && event.origin !== appOrigin)) {
+        return;
+      }
       switch (event.data?.action) {
       case 'configuration':
         const {
@@ -50,6 +54,7 @@
           `);
           return;
         }
+        appOrigin = event.origin;
         const currency = baseCurrency.toUpperCase();
 
         // add the btcdirect CSS
@@ -121,17 +126,21 @@
 
     window.addEventListener('message', onMessage);
     window.addEventListener('btcdirect-embeddable-coin-to-fiat-order-requested', (e) => {
+      if (appOrigin === undefined) {
+        return;
+      }
 
       // keep the BTC Direct order-id to pass it later to transaction-id-confirmation
       orderId = e.detail?.orderId;
 
+      // Native/opaque parent origins cannot reliably be used as targetOrigin.
       window.parent.postMessage({
         action: 'request-payment',
         amount: String(e.detail?.amount),
         currency: e.detail?.currency,
         orderId: e.detail?.orderId,
         walletAddress: e.detail?.walletAddress,
-      }, '*');
+      }, /^https?:\/\//.test(appOrigin) ? appOrigin : '*');
 
     });
 
