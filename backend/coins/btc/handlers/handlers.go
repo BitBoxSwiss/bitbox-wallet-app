@@ -86,7 +86,7 @@ func NewHandlers(
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(withError(handlers.postSetTxNote))).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(withError(handlers.postEthSignMsg))).Methods("POST")
 	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(withError(handlers.postEthSignTypedMsg))).Methods("POST")
-	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(handlers.postEthSignWalletConnectTx)).Methods("POST")
+	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(withError(handlers.postEthSignWalletConnectTx))).Methods("POST")
 	return handlers
 }
 
@@ -915,7 +915,7 @@ func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) interface{} {
 }
 
 // postEthSignWalletConnectTx adapts the existing WalletConnect route to generic EVM signing.
-func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) interface{} {
 	var args struct {
 		Send    bool                            `json:"send"`
 		ChainID *uint64                         `json:"chainId"`
@@ -927,14 +927,14 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 		TxHash  string `json:"txHash"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
-		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signingResponse{Success: false, ErrorMessage: err.Error()}
 	}
 	if args.ChainID == nil {
-		return signingResponse{Success: false, ErrorMessage: "chainId is required"}, nil
+		return signingResponse{Success: false, ErrorMessage: "chainId is required"}
 	}
 	transaction, err := parseWalletConnectTransactionRequest(*args.ChainID, args.Tx)
 	if err != nil {
-		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signingResponse{Success: false, ErrorMessage: err.Error()}
 	}
 	signedTx, err := handlers.signWalletConnectTransaction(handlers.account.Config().Code, eth.SignTransactionArgs{
 		ChainID:     *args.ChainID,
@@ -946,18 +946,18 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 		if !result.Aborted {
 			handlers.log.WithError(err).Error("Failed to send transaction")
 		}
-		return result, nil
+		return result
 	}
 	rawTx, err := signedTx.MarshalBinary()
 	if err != nil {
 		handlers.log.WithError(err).Error("Failed to serialize signed transaction")
-		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signingResponse{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{
 		Success: true,
 		RawTx:   "0x" + hex.EncodeToString(rawTx),
 		TxHash:  signedTx.Hash().Hex(),
-	}, nil
+	}
 }
 
 type signMessageForAddressResponse struct {
