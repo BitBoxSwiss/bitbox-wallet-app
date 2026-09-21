@@ -35,9 +35,8 @@ type Coin struct {
 	code        coinpkg.Code
 	name        string
 	// unit is the main unit of the coin, e.g. 'BTC'
-	unit string
-	// formatUnit keeps track of the unit used, e.g. 'BTC' or 'sat' depening on if sat mode is enabled
-	formatUnit                 coinpkg.BtcUnit
+	unit                       string
+	getFormatUnit              func() coinpkg.BtcUnit
 	net                        *chaincfg.Params
 	dbFolder                   string
 	makeBlockchain             func() blockchain.Interface
@@ -52,12 +51,13 @@ type Coin struct {
 	log *logrus.Entry
 }
 
-// NewCoin creates a new coin with the given parameters.
+// NewCoin creates a new coin with the given parameters. getFormatUnit reads the display
+// preference; nil uses the default denomination.
 func NewCoin(
 	code coinpkg.Code,
 	name string,
 	unit string,
-	formatUnit coinpkg.BtcUnit,
+	getFormatUnit func() coinpkg.BtcUnit,
 	net *chaincfg.Params,
 	dbFolder string,
 	servers []*config.ServerInfo,
@@ -65,12 +65,15 @@ func NewCoin(
 	blockExplorerAddressPrefix string,
 	socksProxy socksproxy.SocksProxy,
 ) *Coin {
+	if getFormatUnit == nil {
+		getFormatUnit = func() coinpkg.BtcUnit { return coinpkg.BtcUnitDefault }
+	}
 	log := logging.Get().WithGroup("coin").WithField("code", code)
 	coin := &Coin{
 		code:                       code,
 		name:                       name,
 		unit:                       unit,
-		formatUnit:                 formatUnit,
+		getFormatUnit:              getFormatUnit,
 		net:                        net,
 		dbFolder:                   dbFolder,
 		blockExplorerTxPrefix:      blockExplorerTxPrefix,
@@ -188,14 +191,9 @@ func (coin *Coin) Unit(bool) string {
 	return coin.unit
 }
 
-// SetFormatUnit implements coin.Coin.
-func (coin *Coin) SetFormatUnit(unit coinpkg.BtcUnit) {
-	coin.formatUnit = unit
-}
-
 // GetFormatUnit implements coin.Coin.
 func (coin *Coin) GetFormatUnit(bool) string {
-	if coin.formatUnit == coinpkg.BtcUnitSats {
+	if coin.getFormatUnit() == coinpkg.BtcUnitSats {
 		switch coin.code {
 		case coinpkg.CodeBTC:
 			return "sat"
@@ -214,12 +212,12 @@ func (coin *Coin) Decimals(isFee bool) uint {
 
 // FormatAmount implements coinpkg.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount, _ bool) string {
-	return coin.formatUnit.FormatAmount(amount)
+	return coin.getFormatUnit().FormatAmount(amount)
 }
 
 // FormatUnitFactor implements coinpkg.Coin.
 func (coin *Coin) FormatUnitFactor(_ bool) *big.Int {
-	return coin.formatUnit.SatoshisPerUnit()
+	return coin.getFormatUnit().SatoshisPerUnit()
 }
 
 // Blockchain connects to a blockchain backend.

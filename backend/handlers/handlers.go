@@ -66,6 +66,7 @@ type Backend interface {
 	DevServers() bool
 	DefaultAppConfig() config.AppConfig
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
+	SetAppConfig(config.AppConfig) error
 	Testing() bool
 	Accounts() backend.AccountsList
 	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
@@ -256,7 +257,6 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiat).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/{coinCode}/fiat-prices", handlers.getCoinFiatPrices).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/{coinCode}/headers/status", handlers.getHeadersStatus).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/coins/btc/parse-external-amount", handlers.getBTCParseExternalAmount).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/coins/btc/sat-amount", handlers.getBTCSatAmount).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownload).Methods("POST")
@@ -579,7 +579,7 @@ func (handlers *Handlers) postAppConfig(r *http.Request) interface{} {
 		handlers.log.WithField("handler", "postAppConfig").WithError(err).Error("handler failed")
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	if err := handlers.backend.Config().SetAppConfig(appConfig); err != nil {
+	if err := handlers.backend.SetAppConfig(appConfig); err != nil {
 		handlers.log.WithField("handler", "postAppConfig").WithError(err).Error("handler failed")
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
@@ -957,39 +957,6 @@ func (handlers *Handlers) postParseEthereumPaymentRequest(r *http.Request) inter
 		Recipient: paymentRequest.Recipient,
 		Amount:    paymentRequest.Amount,
 	}
-}
-
-func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
-	type response struct {
-		Success bool `json:"success"`
-	}
-
-	var request struct {
-		Unit coinpkg.BtcUnit `json:"unit"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return response{Success: false}
-	}
-
-	unit := request.Unit
-
-	// update BTC format unit for Coins
-	btcCoin, err := handlers.backend.Coin(coinpkg.CodeBTC)
-	if err != nil {
-		return response{Success: false}
-	}
-	btcCoin.(*btc.Coin).SetFormatUnit(unit)
-
-	btcCoin, err = handlers.backend.Coin(coinpkg.CodeTBTC)
-	if err != nil {
-		return response{Success: false}
-	}
-	btcCoin.(*btc.Coin).SetFormatUnit(unit)
-
-	handlers.backend.Lightning().NotifyBalanceReload()
-
-	return response{Success: true}
 }
 
 // getAccountsBalanceSummary returns the total balance summary of all coins and accounts.

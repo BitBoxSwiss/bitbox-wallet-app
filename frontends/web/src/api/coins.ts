@@ -4,7 +4,7 @@ import type { CoinCode, Fiat, TAmountWithConversions } from './account';
 import type { NativeCoinUnit } from './account';
 import type { TUnsubscribe } from '@/utils/transport-common';
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
-import { apiPost, apiGet } from '@/utils/request';
+import { apiGet } from '@/utils/request';
 
 export type BtcUnit = 'default' | 'sat';
 
@@ -28,14 +28,6 @@ export const subscribeCoinHeaders = (coinCode: CoinCode) => (
     subscribeEndpoint(`coins/${coinCode}/headers/status`, cb)
   )
 );
-
-type TSetBtcUnitResponse = {
-  success: boolean;
-};
-
-export const setBtcUnit = (unit: BtcUnit): Promise<TSetBtcUnitResponse> => {
-  return apiPost('coins/btc/set-unit', { unit });
-};
 
 export type TAmount = {
   success: boolean;

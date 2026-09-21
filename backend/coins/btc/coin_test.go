@@ -38,14 +38,16 @@ type testSuite struct {
 	unit string
 	net  *chaincfg.Params
 
-	dbFolder string
-	coin     *Coin
+	dbFolder   string
+	coin       *Coin
+	formatUnit coin.BtcUnit
 }
 
 func (s *testSuite) SetupTest() {
 	s.dbFolder = test.TstTempDir("btc-dbfolder")
+	s.formatUnit = coin.BtcUnitDefault
 
-	s.coin = NewCoin(s.code, "Some coin", s.unit, coin.BtcUnitDefault, s.net, s.dbFolder, nil,
+	s.coin = NewCoin(s.code, "Some coin", s.unit, func() coin.BtcUnit { return s.formatUnit }, s.net, s.dbFolder, nil,
 		explorer, addressExplorer, socksproxy.NewSocksProxy(false, ""))
 	blockchainMock := &blockchainMock.BlockchainMock{}
 	blockchainMock.MockHeadersSubscribe = func(
@@ -69,7 +71,7 @@ func TestSuite(t *testing.T) {
 
 func (s *testSuite) TestInitializeRetriesAfterError() {
 	dbFolder := path.Join(s.dbFolder, "missing")
-	btcCoin := NewCoin(s.code, "Some coin", s.unit, coin.BtcUnitDefault, s.net, dbFolder, nil,
+	btcCoin := NewCoin(s.code, "Some coin", s.unit, nil, s.net, dbFolder, nil,
 		explorer, addressExplorer, socksproxy.NewSocksProxy(false, ""))
 	closeCount := 0
 	btcCoin.TstSetMakeBlockchain(func() blockchain.Interface {
@@ -109,7 +111,7 @@ func (s *testSuite) TestDisplayUnit() {
 		{coin.BtcUnitDefault, "12.34568910", "100000000"},
 		{coin.BtcUnitSats, "1234568910", "1"},
 	} {
-		s.coin.SetFormatUnit(tc.unit)
+		s.formatUnit = tc.unit
 		amount := coin.NewAmountFromInt64(1234568910)
 		for _, isFee := range []bool{false, true} {
 			s.Require().Equal(tc.amount, s.coin.FormatAmount(amount, isFee))

@@ -54,7 +54,7 @@ func TestSigningFirmwareRequirements(t *testing.T) {
 		coinpkg.CodeBTC,
 		"Bitcoin",
 		"BTC",
-		coinpkg.BtcUnitDefault,
+		nil,
 		&chaincfg.MainNetParams,
 		"",
 		nil,

@@ -522,6 +522,18 @@ func (backend *Backend) Config() *config.Config {
 	return backend.config
 }
 
+// SetAppConfig persists the app config and refreshes balances when the display unit changes.
+func (backend *Backend) SetAppConfig(appConfig config.AppConfig) error {
+	previousUnit := backend.config.AppConfig().Backend.BtcUnit
+	if err := backend.config.SetAppConfig(appConfig); err != nil {
+		return err
+	}
+	if previousUnit != appConfig.Backend.BtcUnit {
+		backend.lightning.NotifyBalanceReload()
+	}
+	return nil
+}
+
 // Authenticate executes a system authentication if
 // the authentication config flag is enabled or if the
 // `force` input flag is enabled (as a consequence of an
@@ -660,11 +672,11 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	dbFolder := backend.arguments.CacheDirectoryPath()
 
 	erc20Token := erc20TokenByCode(code)
-	btcFormatUnit := backend.config.AppConfig().Backend.BtcUnit
+	btcFormatUnit := func() coinpkg.BtcUnit { return backend.config.AppConfig().Backend.BtcUnit }
 	switch {
 	case code == coinpkg.CodeRBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", coinpkg.BtcUnitDefault, &chaincfg.RegressionNetParams, dbFolder, servers, "", "", backend.socksProxy)
+		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", nil, &chaincfg.RegressionNetParams, dbFolder, servers, "", "", backend.socksProxy)
 	case code == coinpkg.CodeTBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", btcFormatUnit, &chaincfg.TestNet3Params, dbFolder, servers,
@@ -675,11 +687,11 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 			"https://mempool.space/tx/", "https://mempool.space/address/", backend.socksProxy)
 	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", coinpkg.BtcUnitDefault, &ltc.TestNet4Params, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", nil, &ltc.TestNet4Params, dbFolder, servers,
 			"https://sochain.com/tx/LTCTEST/", "https://sochain.com/address/LTCTEST/", backend.socksProxy)
 	case code == coinpkg.CodeLTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", nil, &ltc.MainNetParams, dbFolder, servers,
 			"https://blockchair.com/litecoin/transaction/", "https://blockchair.com/litecoin/address/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
 		etherScan := etherscan.NewEtherScan("1", backend.httpClient, backend.etherScanRateLimiter)

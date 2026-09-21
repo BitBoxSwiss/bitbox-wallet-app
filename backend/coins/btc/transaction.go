@@ -177,7 +177,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	} else {
 		allowZero := false
 
-		parsedAmount, err := args.Amount.Amount(account.coin.formatUnit.SatoshisPerUnit(), allowZero)
+		parsedAmount, err := args.Amount.Amount(account.coin.FormatUnitFactor(false), allowZero)
 		if err != nil {
 			return nil, nil, err
 		}

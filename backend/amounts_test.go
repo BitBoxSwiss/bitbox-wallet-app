@@ -5,17 +5,42 @@ package backend
 import (
 	"testing"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/stretchr/testify/require"
 )
 
 func setBtcUnit(t *testing.T, b *Backend, unit coinpkg.BtcUnit) {
 	t.Helper()
-	for _, code := range []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeTBTC} {
-		btcCoin, err := b.Coin(code)
+	appConfig := b.Config().AppConfig()
+	appConfig.Backend.BtcUnit = unit
+	require.NoError(t, b.SetAppConfig(appConfig))
+}
+
+func TestBtcUnitPreference(t *testing.T) {
+	b := newBackend(t, true, false)
+	defer b.Close()
+	btcCoin, err := b.Coin(coinpkg.CodeBTC)
+	require.NoError(t, err)
+	tbtcCoin, err := b.Coin(coinpkg.CodeTBTC)
+	require.NoError(t, err)
+	amount := coinpkg.NewAmountFromInt64(1)
+
+	for _, tc := range []struct {
+		unit                        coinpkg.BtcUnit
+		amount, btcLabel, tbtcLabel string
+	}{
+		{coinpkg.BtcUnitSats, "1", "sat", "tsat"},
+		{coinpkg.BtcUnitDefault, "0.00000001", "BTC", "TBTC"},
+	} {
+		setBtcUnit(t, b, tc.unit)
+		require.Equal(t, tc.amount, btcCoin.FormatAmount(amount, false))
+		require.Equal(t, tc.amount, tbtcCoin.FormatAmount(amount, false))
+		require.Equal(t, tc.btcLabel, btcCoin.GetFormatUnit(false))
+		require.Equal(t, tc.tbtcLabel, tbtcCoin.GetFormatUnit(false))
+		persisted, err := config.NewConfig(b.arguments.AppConfigFilename(), b.arguments.AccountsConfigFilename(), b.arguments.LightningConfigFilename())
 		require.NoError(t, err)
-		btcCoin.(*btc.Coin).SetFormatUnit(unit)
+		require.Equal(t, tc.unit, persisted.AppConfig().Backend.BtcUnit)
 	}
 }
 

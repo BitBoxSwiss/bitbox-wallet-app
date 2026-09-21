@@ -344,8 +344,11 @@ func (config *Config) AppConfig() AppConfig {
 // SetAppConfig sets and persists the app config.
 func (config *Config) SetAppConfig(appConfig AppConfig) error {
 	defer config.appConfigLock.Lock()()
+	if err := config.save(config.appConfigFilename, appConfig); err != nil {
+		return err
+	}
 	config.appConfig = appConfig
-	return config.save(config.appConfigFilename, config.appConfig)
+	return nil
 }
 
 // ModifyAppConfig calls f with the current config, allowing f to make any changes, and

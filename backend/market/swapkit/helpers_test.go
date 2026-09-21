@@ -69,11 +69,12 @@ func TestValidateSwapSellAmount(t *testing.T) {
 
 func TestFormatAmount(t *testing.T) {
 	t.Run("btc amounts are independent of display units", func(t *testing.T) {
+		displayUnit := coinpkg.BtcUnitDefault
 		btcCoin := btc.NewCoin(
 			coinpkg.CodeBTC,
 			"Bitcoin",
 			"BTC",
-			coinpkg.BtcUnitDefault,
+			func() coinpkg.BtcUnit { return displayUnit },
 			&chaincfg.MainNetParams,
 			t.TempDir(),
 			nil,
@@ -95,7 +96,7 @@ func TestFormatAmount(t *testing.T) {
 		} {
 			amount := coinpkg.NewAmountFromInt64(tc.sats)
 			for _, unit := range []coinpkg.BtcUnit{coinpkg.BtcUnitDefault, coinpkg.BtcUnitSats} {
-				btcCoin.SetFormatUnit(unit)
+				displayUnit = unit
 				require.Equal(t, tc.want, FormatAmount(btcCoin, amount))
 			}
 		}

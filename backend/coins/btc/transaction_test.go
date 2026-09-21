@@ -294,7 +294,7 @@ func TestTxProposalRejectsInvalidDenominatedAmounts(t *testing.T) {
 		for _, input := range tc.inputs {
 			t.Run(string(tc.unit)+"/"+input, func(t *testing.T) {
 				account := testAccount(t, nil)
-				account.coin.SetFormatUnit(tc.unit)
+				account.coin.getFormatUnit = func() coin.BtcUnit { return tc.unit }
 				_, _, _, err := account.TxProposal(&accounts.TxProposalArgs{
 					RecipientAddress: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",
 					Amount:           coin.NewSendAmount(input),
@@ -397,7 +397,7 @@ func TestTxProposal(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			account := testAccount(t, nil)
 			if tc.satoshi {
-				account.coin.SetFormatUnit(coin.BtcUnitSats)
+				account.coin.getFormatUnit = func() coin.BtcUnit { return coin.BtcUnitSats }
 			}
 			amount, fee, total, err := account.TxProposal(tc.args)
 			if tc.wantErr == nil {

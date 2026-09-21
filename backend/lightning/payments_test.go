@@ -80,12 +80,16 @@ func testCloseWithdrawAccount() accounts.Interface {
 }
 
 func makeTestLightning() *Lightning {
+	return makeTestLightningWithUnit(nil)
+}
+
+func makeTestLightningWithUnit(getFormatUnit func() coin.BtcUnit) *Lightning {
 	return &Lightning{
 		btcCoin: btccoin.NewCoin(
 			coin.CodeBTC,
 			"Bitcoin",
 			"BTC",
-			coin.BtcUnitDefault,
+			getFormatUnit,
 			&chaincfg.MainNetParams,
 			".",
 			[]*config.ServerInfo{},

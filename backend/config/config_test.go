@@ -90,6 +90,18 @@ func TestSetAppConfig(t *testing.T) {
 	require.Equal(t, map[string]interface{}{"foo": "bar"}, cfg2.AppConfig().Frontend)
 }
 
+func TestSetAppConfigKeepsCurrentValuesOnSaveFailure(t *testing.T) {
+	cfg := &Config{
+		appConfigFilename: t.TempDir(), // A directory cannot be overwritten by a config file.
+		appConfig:         NewDefaultAppConfig(),
+	}
+	previous := cfg.AppConfig()
+	next := previous
+	next.Backend.BtcUnit = coin.BtcUnitSats
+	require.Error(t, cfg.SetAppConfig(next))
+	require.Equal(t, previous, cfg.AppConfig())
+}
+
 func TestModifyAccountsConfig(t *testing.T) {
 	appConfigFilename := test.TstTempFile("appConfig")
 	accountsConfigFilename := test.TstTempFile("accountsConfig")

@@ -1,32 +1,37 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useContext, useState } from 'react';
 import { getConfig } from '@/api/config';
 import { setConfig as setConfigAPI } from '@/utils/config';
 import type { TConfig } from '@/api/config';
 import type { TConfigUpdate } from '@/utils/config';
 import { ConfigContext, TConfigContext } from './ConfigContext';
+import { useLoad } from '@/hooks/api';
+import { useMountedRef } from '@/hooks/mount';
 
 type TProps = {
   children: ReactNode;
 };
 
 export const ConfigProvider = ({ children }: TProps) => {
-  const [config, setConfigState] = useState<TConfig | undefined>(undefined);
-
-  useEffect(() => {
-    getConfig().then(setConfigState).catch(console.error);
-  }, []);
+  const [savedConfig, setSavedConfig] = useState<TConfig | undefined>(undefined);
+  const mounted = useMountedRef();
+  const loadedConfig = useLoad(() => getConfig().catch(error => {
+    console.error(error);
+    return undefined;
+  }));
 
   const setConfig = useCallback((object: TConfigUpdate) => {
     return setConfigAPI(object).then(nextConfig => {
-      setConfigState(nextConfig);
+      if (mounted.current) {
+        setSavedConfig(nextConfig);
+      }
       return nextConfig;
     });
-  }, []);
+  }, [mounted]);
 
   const value: TConfigContext = {
-    config,
+    config: savedConfig ?? loadedConfig,
     setConfig
   };
 

@@ -9,7 +9,6 @@ import (
 	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
-	btccoin "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
@@ -73,20 +72,20 @@ func testTopUpAccount(
 }
 
 func TestParseTopUpAmountUsesAccountDisplayUnit(t *testing.T) {
-	accountCoin := makeTestLightning().btcCoin.(*btccoin.Coin)
+	unit := coin.BtcUnitDefault
+	accountCoin := makeTestLightningWithUnit(func() coin.BtcUnit { return unit }).btcCoin
 
 	amount, err := parseTopUpAmount(accountCoin, "0.00125000")
 	require.NoError(t, err)
 	require.Equal(t, coin.NewAmountFromInt64(125_000), amount)
 
-	accountCoin.SetFormatUnit(coin.BtcUnitSats)
+	unit = coin.BtcUnitSats
 	amount, err = parseTopUpAmount(accountCoin, "125000")
 	require.NoError(t, err)
 	require.Equal(t, coin.NewAmountFromInt64(125_000), amount)
 }
 
 func TestParseTopUpAmountRejectsFractionalSatoshis(t *testing.T) {
-	accountCoin := makeTestLightning().btcCoin.(*btccoin.Coin)
 	for _, tc := range []struct {
 		unit  coin.BtcUnit
 		input string
@@ -95,7 +94,7 @@ func TestParseTopUpAmountRejectsFractionalSatoshis(t *testing.T) {
 		{coin.BtcUnitSats, "125000.5"},
 	} {
 		t.Run(string(tc.unit), func(t *testing.T) {
-			accountCoin.SetFormatUnit(tc.unit)
+			accountCoin := makeTestLightningWithUnit(func() coin.BtcUnit { return tc.unit }).btcCoin
 			_, err := parseTopUpAmount(accountCoin, tc.input)
 			require.ErrorIs(t, err, accountErrors.ErrInvalidAmount)
 			amount, err := parseTopUpAmount(accountCoin, "0")

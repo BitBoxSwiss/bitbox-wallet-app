@@ -15,34 +15,25 @@ export type TConfigUpdate = {
   frontend?: TConfigFrontendUpdate;
 };
 
-let pendingConfig: TConfigUpdate = {};
+let configUpdateQueue: Promise<void> = Promise.resolve();
 
 /**
- * Merge partial config with current, POST full TConfig to backend, return merged config.
+ * Serialize updates, merge with current config, POST full TConfig, and return saved config.
  * Does not refetch from the backend after POST.
  */
 export const setConfig = (object: TConfigUpdate): Promise<TConfig> => {
-  return apiGetConfig()
-    .then((currentConfig) => {
-      const nextConfig: TConfig = {
-        backend: Object.assign(
-          {},
-          currentConfig.backend,
-          pendingConfig.backend,
-          object.backend,
-        ) as TConfig['backend'],
-        frontend: Object.assign(
-          {},
-          currentConfig.frontend,
-          pendingConfig.frontend,
-          object.frontend,
-        ),
-      };
-      pendingConfig = nextConfig;
-      return apiSetConfig(nextConfig)
-        .then(() => {
-          pendingConfig = {};
-          return nextConfig;
-        });
-    });
+  const update = configUpdateQueue.then(async () => {
+    const currentConfig = await apiGetConfig();
+    const nextConfig: TConfig = {
+      backend: { ...currentConfig.backend, ...object.backend } as TConfig['backend'],
+      frontend: { ...currentConfig.frontend, ...object.frontend },
+    };
+    const response = await apiSetConfig(nextConfig);
+    if (!response.success) {
+      throw new Error(response.errorMessage || 'Failed to save configuration');
+    }
+    return nextConfig;
+  });
+  configUpdateQueue = update.then(() => {}, () => {});
+  return update;
 };

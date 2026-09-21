@@ -169,7 +169,7 @@ func (account *Account) signTransaction(
 		AccountSigningConfigurations: signingConfigs,
 		GetKeystoreAddress:           account.getAddressFromSameKeystore,
 		GetPrevTx:                    getPrevTx,
-		FormatUnit:                   account.coin.formatUnit,
+		FormatUnit:                   account.coin.getFormatUnit(),
 	}
 	if err := proposedTransaction.Update(); err != nil {
 		return nil, err

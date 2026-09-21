@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { RatesContext } from './RatesContext';
 import { Fiat } from '@/api/account';
-import { BtcUnit, setBtcUnit as setBackendBtcUnit } from '@/api/coins';
+import type { BtcUnit } from '@/api/coins';
 import { reconfigureHistoryRates } from '@/api/rates';
 import { useConfig } from './ConfigProvider';
 import { equal } from '@/utils/equal';
@@ -16,7 +16,7 @@ export const RatesProvider = ({ children }: TProps) => {
   const { config, setConfig } = useConfig();
   const [defaultCurrency, setDefaultCurrency] = useState<Fiat>('USD');
   const [activeCurrencies, setActiveCurrencies] = useState<Fiat[]>(['USD', 'EUR', 'CHF']);
-  const [btcUnit, setBtcUnit] = useState<BtcUnit>('default');
+  const btcUnit = config?.backend.btcUnit ?? 'default';
 
   useEffect(() => {
     if (config === undefined) {
@@ -24,7 +24,6 @@ export const RatesProvider = ({ children }: TProps) => {
     }
     setDefaultCurrency(config.backend.mainFiat);
     setActiveCurrencies(config.backend.fiatList);
-    setBtcUnit(config.backend.btcUnit);
   }, [config]);
 
   const rotateDefaultCurrency = async () => {
@@ -44,13 +43,11 @@ export const RatesProvider = ({ children }: TProps) => {
   };
 
   const rotateBtcUnit = async () => {
-    const unit: BtcUnit = btcUnit === 'default' ? 'sat' : 'default';
-    await setConfig({ backend: { btcUnit: unit } });
-    setBtcUnit(unit);
-    const response = await setBackendBtcUnit(unit);
-    if (!response.success) {
-      console.log('setBackendBtcUnit failed.');
+    if (config === undefined) {
+      return;
     }
+    const unit: BtcUnit = btcUnit === 'default' ? 'sat' : 'default';
+    await setConfig({ backend: { btcUnit: unit } }).catch(console.error);
   };
 
   // this is a method to select / add a currency
