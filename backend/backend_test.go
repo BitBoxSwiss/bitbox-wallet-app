@@ -140,7 +140,7 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 		},
 		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			result := []accounts.AddressList{}
-			for _, signingConfig := range config.Config.SigningConfigurations {
+			for _, signingConfig := range config.SigningConfigurations {
 				scriptType := signingConfig.ScriptType()
 				if scriptType == signing.ScriptTypeP2WPKHP2SH {
 					// We don't support wrapped segwit in receive flows anymore.
@@ -194,7 +194,7 @@ func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.
 					Addresses: []accounts.Address{
 						eth.Address{
 							Address: crypto.PubkeyToAddress(
-								*config.Config.SigningConfigurations[0].PublicKey().ToECDSA()),
+								*config.SigningConfigurations[0].PublicKey().ToECDSA()),
 						},
 					},
 				},

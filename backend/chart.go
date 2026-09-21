@@ -16,10 +16,13 @@ import (
 
 func (backend *Backend) allCoinCodes() []string {
 	allCoinCodes := []string{}
-	for _, account := range backend.Accounts() {
-		if account.Config().Config.Inactive {
+	accountViews := backend.Accounts()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		if accountView.Record.Inactive {
 			continue
 		}
+		account := accountView.Account
 		if account.FatalError() {
 			continue
 		}
@@ -207,10 +210,13 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	// Total number of transactions across all active accounts.
 	totalNumberOfTransactions := 0
 	transactionHistoryMissing := false
-	for _, account := range backend.Accounts() {
-		if account.Config().Config.Inactive {
+	accountViews := backend.Accounts()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		if accountView.Record.Inactive {
 			continue
 		}
+		account := accountView.Account
 		if account.FatalError() {
 			continue
 		}

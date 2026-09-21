@@ -10,7 +10,6 @@ import (
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	btccoin "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/stretchr/testify/require"
 )
@@ -58,7 +57,6 @@ func testTopUpAccount(
 		},
 		ConfigFunc: func() *accounts.AccountConfig {
 			return &accounts.AccountConfig{
-				Config:      &config.Account{CoinCode: coin.CodeBTC},
 				RateUpdater: lightning.ratesUpdater,
 			}
 		},

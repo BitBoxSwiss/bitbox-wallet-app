@@ -232,7 +232,11 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage"`
 	}
-	name := fmt.Sprintf("%s-%s-export.csv", time.Now().Format("2006-01-02-at-15-04-05"), handlers.account.Config().Config.Code)
+	name := fmt.Sprintf(
+		"%s-%s-export.csv",
+		time.Now().Format("2006-01-02-at-15-04-05"),
+		handlers.account.Config().Code,
+	)
 	exportsDir, err := config.ExportsDir()
 	if err != nil {
 		handlers.log.WithError(err).Error("error exporting account")
@@ -680,7 +684,7 @@ func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
 			return response{Success: false, ErrorCode: accounts.ErrSyncInProgress.Error()}, nil
 		}
 		if handlers.log != nil {
-			handlers.log.WithField("code", handlers.account.Config().Config.Code).WithError(err).Error(
+			handlers.log.WithField("code", handlers.account.Config().Code).WithError(err).Error(
 				"failed to load used addresses",
 			)
 		}
@@ -875,7 +879,7 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 	if err != nil {
 		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	signedTx, err := handlers.signWalletConnectTransaction(handlers.account.Config().Config.Code, eth.SignTransactionArgs{
+	signedTx, err := handlers.signWalletConnectTransaction(handlers.account.Config().Code, eth.SignTransactionArgs{
 		ChainID:     *args.ChainID,
 		Broadcast:   args.Send,
 		Transaction: transaction,
@@ -919,7 +923,10 @@ func (handlers *Handlers) signMessageForAddressErrorResponse(err error) signMess
 			ErrorCode: keystore.ErrFirmwareUpgradeRequired.Error(),
 		}
 	}
-	handlers.log.WithField("code", handlers.account.Config().Config.Code).WithError(err).Error("unexpected error signing message")
+	handlers.log.
+		WithField("code", handlers.account.Config().Code).
+		WithError(err).
+		Error("unexpected error signing message")
 	return signMessageForAddressResponse{Success: false, ErrorMessage: "An unexpected error occurred."}
 }
 
