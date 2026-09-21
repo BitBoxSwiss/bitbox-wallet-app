@@ -22,6 +22,7 @@ import { parseExternalBtcAmount } from '@/api/coins';
 import { useMarketIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
 import { useAccountSynced } from '@/hooks/account';
 import { Message } from '@/components/message/message';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import style from './iframe.module.css';
 
 type TProps = {
@@ -40,14 +41,15 @@ export const Pocket = ({
   const [blocking, setBlocking] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
-  const accountInfo = useLoad(getInfo(code));
+  const accountInfoResponse = useLoad(getInfo(code));
+  const accountInfo = accountInfoResponse?.success ? accountInfoResponse.info : undefined;
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipPocketDisclaimer ?? false);
   const signingRef = useRef(false);
 
   const pocketInfo = useAccountSynced(code, useCallback(() => getPocketURL(action), [action]));
-  useMarketIframeActive(!!config && agreedTerms && pocketInfo?.success === true);
+  useMarketIframeActive(!!config && agreedTerms && pocketInfo?.success === true && accountInfoResponse?.success !== false);
 
   useEffect(() => {
     window.addEventListener('message', onMessage);
@@ -286,7 +288,12 @@ export const Pocket = ({
           <Header variant="navigation" mobileBackButton title={title} />
         </div>
         <div ref={containerRef} className={style.container}>
-          { !agreedTerms ? (
+          { accountInfoResponse && !accountInfoResponse.success ? (
+            <div className="content">
+              <Message type="error">{accountInfoResponse.errorMessage || t('genericError')}</Message>
+              <DesktopBackButton enableEsc>{t('button.back')}</DesktopBackButton>
+            </div>
+          ) : !agreedTerms ? (
             <PocketTerms
               onAgreedTerms={() => setAgreedTerms(true)}
             />
