@@ -68,7 +68,7 @@ func NewHandlers(
 	handleFunc("/status", withError(handlers.getAccountStatus)).Methods("GET")
 	handleFunc("/transactions", handlers.ensureAccountInitialized(withError(handlers.getAccountTransactions))).Methods("GET")
 	handleFunc("/transaction", handlers.ensureAccountInitialized(withError(handlers.getAccountTransaction))).Methods("GET")
-	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
+	handleFunc("/export", handlers.ensureAccountInitialized(withError(handlers.postExportTransactions))).Methods("POST")
 	handleFunc("/info", handlers.ensureAccountInitialized(withError(handlers.getAccountInfo))).Methods("GET")
 	handleFunc("/utxos", handlers.ensureAccountInitialized(withError(handlers.getUTXOs))).Methods("GET")
 	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
@@ -239,7 +239,7 @@ func (handlers *Handlers) getAccountTransaction(r *http.Request) interface{} {
 	return result{Success: true}
 }
 
-func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, error) {
+func (handlers *Handlers) postExportTransactions(*http.Request) interface{} {
 	type result struct {
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage"`
@@ -252,19 +252,19 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 	exportsDir, err := config.ExportsDir()
 	if err != nil {
 		handlers.log.WithError(err).Error("error exporting account")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	suggestedPath := filepath.Join(exportsDir, name)
 	path := handlers.account.Config().GetSaveFilename(suggestedPath)
 	if path == "" {
-		return nil, nil
+		return nil
 	}
 	handlers.log.Infof("Export transactions to %s.", path)
 
 	transactions, err := handlers.account.Transactions()
 	if err != nil {
 		handlers.log.WithError(err).Error("error getting the transactions")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 
 	file, err := os.OpenFile(
@@ -274,32 +274,32 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 	)
 	if err != nil {
 		handlers.log.WithError(err).Error("error creating file")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := config.EnsurePrivateFile(path); err != nil {
 		_ = file.Close()
 		handlers.log.WithError(err).Error("error restricting file permissions")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := file.Truncate(0); err != nil {
 		_ = file.Close()
 		handlers.log.WithError(err).Error("error truncating file")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.account.ExportCSV(file, transactions); err != nil {
 		_ = file.Close()
 		handlers.log.WithError(err).Error("error writing file")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := file.Close(); err != nil {
 		handlers.log.WithError(err).Error("error closing file")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.account.Config().UnsafeSystemOpen(path); err != nil {
 		handlers.log.WithError(err).Error("error opening file")
-		return result{Success: false, ErrorMessage: err.Error()}, nil
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
-	return result{Success: true}, nil
+	return result{Success: true}
 }
 
 func (handlers *Handlers) getAccountInfo(*http.Request) interface{} {
