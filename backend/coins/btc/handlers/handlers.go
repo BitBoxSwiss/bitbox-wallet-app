@@ -76,7 +76,7 @@ func NewHandlers(
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(withError(handlers.getAccountFeeTargets))).Methods("GET")
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(withError(handlers.postAccountTxProposal))).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(withError(handlers.getReceiveAddresses))).Methods("GET")
-	handleFunc("/used-addresses", handlers.ensureAccountInitialized(handlers.getUsedAddresses)).Methods("GET")
+	handleFunc("/used-addresses", handlers.ensureAccountInitialized(withError(handlers.getUsedAddresses))).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/btc-sign-message-unused-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageUnusedAddress)).Methods("POST")
@@ -693,7 +693,7 @@ type usedAddressesProvider interface {
 	GetUsedAddresses() ([]btc.UsedAddress, error)
 }
 
-func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getUsedAddresses(*http.Request) interface{} {
 	type jsonUsedAddress struct {
 		Address        string              `json:"address"`
 		DisplayAddress string              `json:"displayAddress"`
@@ -710,13 +710,13 @@ func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
 
 	btcAccount, ok := handlers.account.(usedAddressesProvider)
 	if !ok {
-		return response{Success: false, ErrorCode: "notSupported"}, nil
+		return response{Success: false, ErrorCode: "notSupported"}
 	}
 
 	usedAddresses, err := btcAccount.GetUsedAddresses()
 	if err != nil {
 		if errp.Cause(err) == accounts.ErrSyncInProgress {
-			return response{Success: false, ErrorCode: accounts.ErrSyncInProgress.Error()}, nil
+			return response{Success: false, ErrorCode: accounts.ErrSyncInProgress.Error()}
 		}
 		if handlers.log != nil {
 			handlers.log.WithField("code", handlers.account.Config().Code).WithError(err).Error(
@@ -724,7 +724,7 @@ func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
 			)
 		}
 		// Return success: false instead of error to avoid breaking the frontend.
-		return response{Success: false, ErrorCode: "loadFailed"}, nil
+		return response{Success: false, ErrorCode: "loadFailed"}
 	}
 
 	result := make([]jsonUsedAddress, len(usedAddresses))
@@ -744,7 +744,7 @@ func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
 		}
 	}
 
-	return response{Success: true, Addresses: result}, nil
+	return response{Success: true, Addresses: result}
 }
 
 func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error) {
