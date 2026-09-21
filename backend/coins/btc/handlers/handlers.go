@@ -81,7 +81,7 @@ func NewHandlers(
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(withError(handlers.postVerifyExtendedPublicKey))).Methods("POST")
 	handleFunc("/btc-sign-message-unused-address", handlers.ensureAccountInitialized(withError(handlers.postSignBTCMessageUnusedAddress))).Methods("POST")
 	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(withError(handlers.postSignBTCMessageForAddress))).Methods("POST")
-	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignETHMessageForAddress)).Methods("POST")
+	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(withError(handlers.postSignETHMessageForAddress))).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(withError(handlers.getHasSecureOutput))).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(withError(handlers.postSetTxNote))).Methods("POST")
 	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
@@ -1045,12 +1045,12 @@ func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) interfac
 	}
 }
 
-func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) interface{} {
 	var request struct {
 		Msg string `json:"msg"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}
 	}
 
 	ethAccount, ok := handlers.account.(*eth.Account)
@@ -1058,17 +1058,17 @@ func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) (interfa
 		return signMessageForAddressResponse{
 			Success:      false,
 			ErrorMessage: "Must be an ETH based account",
-		}, nil
+		}
 	}
 
 	address, signature, err := ethAccount.SignETHMessage(request.Msg)
 	if err != nil {
-		return handlers.signMessageForAddressErrorResponse(err), nil
+		return handlers.signMessageForAddressErrorResponse(err)
 	}
 	return signMessageForAddressResponse{
 		Success:        true,
 		Address:        address,
 		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
 		Signature:      signature,
-	}, nil
+	}
 }
