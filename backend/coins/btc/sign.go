@@ -178,6 +178,9 @@ func (account *Account) signTransaction(
 	if err != nil {
 		return nil, err
 	}
+	if err := account.CheckTaprootSendSupport(keystore); err != nil {
+		return nil, err
+	}
 	if err := keystore.SignTransaction(proposedTransaction); err != nil {
 		return nil, err
 	}

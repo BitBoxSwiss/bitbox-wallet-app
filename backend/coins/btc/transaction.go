@@ -12,6 +12,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/btcsuite/btcd/btcutil/v2"
@@ -20,6 +21,32 @@ import (
 
 // unitSatoshi is 1 BTC (default unit) in Satoshi.
 const unitSatoshi = 1e8
+
+// CheckTaprootSendSupport checks whether the keystore supports spending the account's Taproot funds.
+func (account *Account) CheckTaprootSendSupport(ks keystore.Keystore) error {
+	if !account.Synced() {
+		return accounts.ErrSyncInProgress
+	}
+	if ks.SupportsAccount(account.Coin(), signing.ScriptTypeP2TR) {
+		return nil
+	}
+	utxos, err := account.transactions.SpendableOutputs()
+	if err != nil {
+		return err
+	}
+	// Any Taproot UTXO can cause Taproot change, even when coin selection spends only SegWit
+	// inputs. A saved Taproot configuration without any unspent outputs needs no upgrade.
+	for _, utxo := range utxos {
+		address := account.AddressByID(addresses.NewAddressID(utxo.TxOut.PkScript))
+		if address == nil {
+			return errp.New("spendable output address not found in account")
+		}
+		if address.AccountConfiguration.ScriptType() == signing.ScriptTypeP2TR {
+			return keystore.ErrFirmwareUpgradeRequired
+		}
+	}
+	return nil
+}
 
 // getFeePerKb returns the fee rate to be used in a new transaction. It is deduced from the supplied
 // fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is
