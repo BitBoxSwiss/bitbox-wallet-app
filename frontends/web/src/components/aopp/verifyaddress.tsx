@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountAPI from '@/api/account';
 import { Button } from '@/components/forms';
+import { alertUser } from '@/components/alert/Alert';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { PointToBitBox02 } from '../icon';
 
@@ -19,7 +20,10 @@ export const VerifyAddress = ({ accountCode, displayAddress, addressID }: TProps
   const verifyAddress = async () => {
     setVerifying(true);
     try {
-      await accountAPI.verifyAddress(accountCode, addressID);
+      const result = await accountAPI.verifyAddress(accountCode, addressID);
+      if (!result.success) {
+        alertUser(result.errorMessage || t('genericError'));
+      }
     } finally {
       setVerifying(false);
     }

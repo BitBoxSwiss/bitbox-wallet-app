@@ -724,11 +724,23 @@ func (handlers *Handlers) getUsedAddresses(*http.Request) (interface{}, error) {
 }
 
 func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error) {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
 	var addressID string
 	if err := json.NewDecoder(r.Body).Decode(&addressID); err != nil {
-		return nil, errp.WithStack(err)
+		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	return handlers.account.VerifyAddress(addressID)
+	_, err := handlers.account.VerifyAddress(addressID)
+	if isFirmwareUpgradeRequired(err) {
+		return result{Success: false, ErrorCode: keystore.ErrFirmwareUpgradeRequired.Error()}, nil
+	}
+	if err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	return result{Success: true}, nil
 }
 
 func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interface{}, error) {

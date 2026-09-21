@@ -24,7 +24,7 @@ const unitSatoshi = 1e8
 
 // CheckTaprootSendSupport checks whether the keystore supports the account's Taproot configuration.
 func (account *Account) CheckTaprootSendSupport(ks keystore.Keystore) error {
-	if account.Config().Config.SigningConfigurations.FindScriptType(signing.ScriptTypeP2TR) != -1 &&
+	if account.Config().SigningConfigurations.FindScriptType(signing.ScriptTypeP2TR) != -1 &&
 		!ks.SupportsAccount(account.Coin(), signing.ScriptTypeP2TR) {
 		return keystore.ErrFirmwareUpgradeRequired
 	}

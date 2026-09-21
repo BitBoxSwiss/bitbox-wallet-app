@@ -92,7 +92,7 @@ func TestCheckTaprootSendSupport(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			account := mockAccount(t, nil)
-			accountConfig := account.Config().Config
+			accountConfig := account.Config()
 			if tc.taprootConfig {
 				accountConfig.SigningConfigurations = append(accountConfig.SigningConfigurations,
 					signing.NewBitcoinConfiguration(
@@ -113,7 +113,10 @@ func TestCheckTaprootSendSupport(t *testing.T) {
 			require.False(t, account.Synced())
 			require.ErrorIs(t, account.CheckTaprootSendSupport(ks), tc.wantError)
 			if tc.wantError != nil {
-				account = testAccount(t, accountConfig)
+				account = testAccount(t, &config.Account{
+					Code:                  accountConfig.Code,
+					SigningConfigurations: accountConfig.SigningConfigurations,
+				})
 				account.Config().ConnectKeystore = func() (keystore.Keystore, error) { return ks, nil }
 				account.getAddressFromSameKeystore = func(_ coin.Code, id addresses.AddressID) (*addresses.AccountAddress, error) {
 					return account.AddressByID(id), nil

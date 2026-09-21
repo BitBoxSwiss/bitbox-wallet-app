@@ -961,10 +961,10 @@ func TestTaprootUpgrade(t *testing.T) {
 	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount = b.Accounts().lookup("v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
-	require.Len(t, btcAccount.Config().Config.SigningConfigurations, 3)
+	require.Len(t, btcAccount.Account.Config().SigningConfigurations, 3)
 	accountsConfig = accountsSnapshot(t, b)
 	require.Equal(t,
-		btcAccount.Config().Config.SigningConfigurations,
+		btcAccount.Account.Config().SigningConfigurations,
 		accountsConfig.Lookup("v0-55555555-btc-0").SigningConfigurations)
 }
 
