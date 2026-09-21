@@ -10,12 +10,98 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func setBtcUnit(t *testing.T, b *Backend, unit coinpkg.BtcUnit) {
+	t.Helper()
+	for _, code := range []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeTBTC} {
+		btcCoin, err := b.Coin(code)
+		require.NoError(t, err)
+		btcCoin.(*btc.Coin).SetFormatUnit(unit)
+	}
+}
+
+func TestParseExternalBTCAmount(t *testing.T) {
+	b := newBackend(t, true, false)
+	defer b.Close()
+	for _, tc := range []struct {
+		unit coinpkg.BtcUnit
+		want string
+	}{
+		{coinpkg.BtcUnitDefault, "0.00000002"},
+		{coinpkg.BtcUnitSats, "2"},
+	} {
+		setBtcUnit(t, b, tc.unit)
+		amount, err := b.ParseExternalBTCAmount("0.000000015")
+		require.NoError(t, err)
+		require.Equal(t, tc.want, amount)
+	}
+	_, err := b.ParseExternalBTCAmount("invalid")
+	require.EqualError(t, err, "invalid amount")
+}
+
+func TestCurrencyConversions(t *testing.T) {
+	b := newBackend(t, true, false)
+	defer b.Close()
+	for _, unit := range []string{"BTC", "TBTC", "RBTC"} {
+		b.ratesUpdater.LatestPrice()[unit] = map[string]float64{"USD": 25000, "BTC": 1, "sat": 1e8, "zero": 0}
+	}
+	for _, unit := range []string{"LTC", "TLTC"} {
+		b.ratesUpdater.LatestPrice()[unit] = map[string]float64{"USD": 250}
+	}
+	for _, unit := range []string{"ETH", "SEPETH"} {
+		b.ratesUpdater.LatestPrice()[unit] = map[string]float64{"USD": 2000}
+	}
+	b.ratesUpdater.LatestPrice()["USDC"] = map[string]float64{"USD": 1}
+
+	for _, unit := range []coinpkg.BtcUnit{coinpkg.BtcUnitDefault, coinpkg.BtcUnitSats} {
+		setBtcUnit(t, b, unit)
+		btcAmount, btcZero, btcNegative, btcOneSat := "0.00100000", "0.00000000", "-0.00100000", "0.00000001"
+		if unit == coinpkg.BtcUnitSats {
+			btcAmount, btcZero, btcNegative, btcOneSat = "100000", "0", "-100000", "1"
+		}
+		for _, tc := range []struct {
+			coinCode                coinpkg.Code
+			currency, amount, value string
+		}{
+			{coinpkg.CodeBTC, "USD", btcAmount, "25.00"},
+			{coinpkg.CodeTBTC, "USD", btcAmount, "25.00"},
+			{coinpkg.CodeRBTC, "USD", "0.00100000", "25.00"},
+			{coinpkg.CodeLTC, "USD", "0.00100000", "0.25"},
+			{coinpkg.CodeTLTC, "USD", "0.00100000", "0.25"},
+			{coinpkg.CodeETH, "USD", "0.001", "2.00"},
+			{coinpkg.CodeSEPETH, "USD", "0.001", "2.00"},
+			{"eth-erc20-usdc", "USD", "1.10", "1.10"},
+			{coinpkg.CodeBTC, "USD", btcZero, "0.00"},
+			{coinpkg.CodeBTC, "USD", btcNegative, "-25.00"},
+			{coinpkg.CodeBTC, "BTC", btcAmount, "0.00100000"},
+			{coinpkg.CodeBTC, "sat", btcAmount, "100000"},
+		} {
+			t.Run(string(unit)+"/"+string(tc.coinCode)+"/"+tc.currency+"/"+tc.amount, func(t *testing.T) {
+				amount, err := b.ConvertFromCurrency(tc.coinCode, tc.currency, tc.value)
+				require.NoError(t, err)
+				require.Equal(t, tc.amount, amount)
+				value, err := b.ConvertToCurrency(tc.coinCode, tc.currency, tc.amount)
+				require.NoError(t, err)
+				require.Equal(t, tc.value, value)
+			})
+		}
+		for _, currency := range []string{"missing", "zero"} {
+			amount, err := b.ConvertFromCurrency(coinpkg.CodeBTC, currency, "1")
+			require.NoError(t, err)
+			require.Equal(t, btcZero, amount)
+			value, err := b.ConvertToCurrency(coinpkg.CodeBTC, currency, "1")
+			require.NoError(t, err)
+			require.Equal(t, "0.00", value)
+		}
+		amount, err := b.ConvertFromCurrency(coinpkg.CodeBTC, "USD", "0.000125")
+		require.NoError(t, err)
+		require.Equal(t, btcOneSat, amount)
+	}
+}
+
 func TestBTCSatAmount(t *testing.T) {
 	b := newBackend(t, true, false)
 	defer b.Close()
 
-	btcCoin, err := b.Coin(coinpkg.CodeBTC)
-	require.NoError(t, err)
 	b.ratesUpdater.LatestPrice()["BTC"] = map[string]float64{
 		"BTC": 1,
 		"sat": 100000000,
@@ -23,7 +109,7 @@ func TestBTCSatAmount(t *testing.T) {
 	}
 
 	for _, unit := range []coinpkg.BtcUnit{coinpkg.BtcUnitDefault, coinpkg.BtcUnitSats} {
-		btcCoin.(*btc.Coin).SetFormatUnit(unit)
+		setBtcUnit(t, b, unit)
 
 		for _, tt := range []struct {
 			name        string

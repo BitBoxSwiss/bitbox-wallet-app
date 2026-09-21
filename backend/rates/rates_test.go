@@ -27,7 +27,9 @@ func TestUpdateLastNormalizesBitcoinUnitRates(t *testing.T) {
 			"wrapped-bitcoin": {
 				"usd": 123.40,
 				"btc": 0.998
-			}
+			},
+			"litecoin": {"usd": 60.0},
+			"ethereum": {"usd": 2000.0}
 		}`)
 	}))
 	defer ts.Close()
@@ -50,6 +52,10 @@ func TestUpdateLastNormalizesBitcoinUnitRates(t *testing.T) {
 	assert.Equal(t, 1.0, last[SAT.String()][SAT.String()])
 	assert.Equal(t, 1.0, last["TBTC"][BTC.String()])
 	assert.Equal(t, 1.0, last["RBTC"][BTC.String()])
+	for alias, unit := range map[string]string{"TBTC": "BTC", "RBTC": "BTC", "TLTC": "LTC", "SEPETH": "ETH"} {
+		require.NotEmpty(t, last[unit])
+		assert.Equal(t, last[unit], last[alias])
+	}
 
 	assert.InDelta(t, 0.998, last["WBTC"][BTC.String()], 1e-12)
 }

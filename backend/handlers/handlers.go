@@ -42,7 +42,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/lightning"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	backendutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
@@ -85,8 +84,10 @@ type Backend interface {
 	DeregisterKeystore()
 	Register(device device.Interface) error
 	Deregister(deviceID string)
-	RatesUpdater() *rates.RateUpdater
 	CoinFiatPrices(coinpkg.Coin) *coinpkg.FormattedAmountWithConversions
+	ParseExternalBTCAmount(amount string) (string, error)
+	ConvertFromCurrency(coinCode coinpkg.Code, currency, amount string) (string, error)
+	ConvertToCurrency(coinCode coinpkg.Code, currency, amount string) (string, error)
 	BTCSatAmount(source string, amount string) (*coinpkg.FormattedAmountWithConversions, error)
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(*config.ServerInfo) error
@@ -1162,26 +1163,13 @@ func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{}
 		Amount  string `json:"amount"`
 	}
 
-	amount := r.URL.Query().Get("amount")
-	amountRat, valid := new(big.Rat).SetString(amount)
-	if !valid {
-		return response{
-			Success: false,
-		}
-	}
-
-	btcCoin, err := handlers.backend.Coin(coinpkg.CodeBTC)
+	amount, err := handlers.backend.ParseExternalBTCAmount(r.URL.Query().Get("amount"))
 	if err != nil {
-		handlers.log.WithError(err).Error("Could not get coin " + coinpkg.CodeBTC)
-		return response{
-			Success: false,
-		}
+		handlers.log.WithError(err).Error("Could not parse external BTC amount")
 	}
-
-	coinAmount := coinpkg.NewAmountFromRat(amountRat, coinpkg.DecimalsExp(btcCoin, false))
 	return response{
-		Success: true,
-		Amount:  btcCoin.FormatAmount(coinAmount, false),
+		Success: err == nil,
+		Amount:  amount,
 	}
 }
 
@@ -1191,31 +1179,17 @@ func (handlers *Handlers) getConvertToPlainFiat(r *http.Request) interface{} {
 		FiatAmount string `json:"fiatAmount,omitempty"`
 	}
 
-	coinCode := r.URL.Query().Get("from")
-	currency := r.URL.Query().Get("to")
-	amount := r.URL.Query().Get("amount")
-	currentCoin, err := handlers.backend.Coin(coinpkg.Code(coinCode))
+	amount, err := handlers.backend.ConvertToCurrency(
+		coinpkg.Code(r.URL.Query().Get("from")),
+		r.URL.Query().Get("to"),
+		r.URL.Query().Get("amount"),
+	)
 	if err != nil {
-		handlers.log.WithError(err).Error("Could not get coin " + coinCode)
-		return response{Success: false}
+		handlers.log.WithError(err).Error("Could not convert amount to currency")
 	}
-
-	coinAmount, err := currentCoin.ParseAmount(amount)
-	if err != nil {
-		handlers.log.WithError(err).Error("Error parsing amount " + amount)
-		return response{Success: false}
-	}
-
-	coinUnitAmount := coinpkg.ToUnitRat(coinAmount, currentCoin, false)
-
-	coinUnit := currentCoin.Unit(false)
-	rate := handlers.backend.RatesUpdater().LatestPrice()[coinUnit][currency]
-
-	convertedAmount := new(big.Rat).Mul(coinUnitAmount, new(big.Rat).SetFloat64(rate))
-
 	return response{
-		Success:    true,
-		FiatAmount: coinpkg.FormatAsPlainCurrency(convertedAmount, currency),
+		Success:    err == nil,
+		FiatAmount: amount,
 	}
 }
 
@@ -1234,37 +1208,17 @@ func (handlers *Handlers) getConvertFromFiat(r *http.Request) interface{} {
 		Amount  string `json:"amount,omitempty"`
 	}
 
-	isFee := false
-	from := r.URL.Query().Get("from")
-	to := r.URL.Query().Get("to")
-	currentCoin, err := handlers.backend.Coin(coinpkg.Code(to))
+	amount, err := handlers.backend.ConvertFromCurrency(
+		coinpkg.Code(r.URL.Query().Get("to")),
+		r.URL.Query().Get("from"),
+		r.URL.Query().Get("amount"),
+	)
 	if err != nil {
-		return response{Success: false, ErrMsg: "internal error"}
-	}
-
-	fiatStr := r.URL.Query().Get("amount")
-	fiatRat, valid := new(big.Rat).SetString(fiatStr)
-	if !valid {
-		return response{Success: false, ErrMsg: "invalid amount"}
-	}
-
-	unit := currentCoin.Unit(isFee)
-	switch unit { // HACK: fake rates for testnet coins
-	case "TBTC", "TLTC":
-		unit = unit[1:]
-	case "SEPETH":
-		unit = unit[3:]
-	}
-
-	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][from]
-	result := coinpkg.NewAmountFromInt64(0)
-	if rate != 0.0 {
-		amountRat := new(big.Rat).Quo(fiatRat, new(big.Rat).SetFloat64(rate))
-		result = coinpkg.NewAmountFromRat(amountRat, coinpkg.DecimalsExp(currentCoin, false))
+		return response{Success: false, ErrMsg: err.Error()}
 	}
 	return response{
 		Success: true,
-		Amount:  currentCoin.FormatAmount(result, false),
+		Amount:  amount,
 	}
 }
 
