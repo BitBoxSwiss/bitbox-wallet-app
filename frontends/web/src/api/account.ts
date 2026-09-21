@@ -510,9 +510,10 @@ export const getUTXOs = (code: AccountCode): Promise<TUTXOsResponse> => {
 };
 
 type TSecureOutput = {
+  success: true;
   hasSecureOutput: boolean;
   optional: boolean;
-};
+} | TAccountError;
 
 export const hasSecureOutput = (code: AccountCode) => {
   return (): Promise<TSecureOutput> => {
