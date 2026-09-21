@@ -2,6 +2,7 @@
 
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Message } from '@/components/message/message';
 import { SignClientTypes } from '@walletconnect/types';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
@@ -31,7 +32,8 @@ export const ConnectScreenWalletConnect = ({
   const { web3wallet, isWalletInitialized, pair } = useContext(WCWeb3WalletContext);
   const [currentProposal, setCurrentProposal] = useState<SignClientTypes.EventArguments['session_proposal']>();
   const { t } = useTranslation();
-  const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
+  const receiveAddressResponse = useLoad(accountApi.getReceiveAddressList(code));
+  const receiveAddresses = receiveAddressResponse?.success ? receiveAddressResponse.addresses : undefined;
   const onSessionProposal = useCallback(
     (proposal: SignClientTypes.EventArguments['session_proposal']) => {
       setUri('');
@@ -80,6 +82,10 @@ export const ConnectScreenWalletConnect = ({
       setLoading(false);
     }
   };
+
+  if (receiveAddressResponse && !receiveAddressResponse.success) {
+    return <Message type="error">{receiveAddressResponse.errorMessage || t('genericError')}</Message>;
+  }
 
   if (!receiveAddresses || !isWalletInitialized) {
     return null;
