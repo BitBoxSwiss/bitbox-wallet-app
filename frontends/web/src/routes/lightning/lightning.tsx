@@ -422,7 +422,7 @@ export const Lightning = () => {
         accountDataLoaded={false}
         statusBanners={statusBanners}
       >
-        <Spinner text={t('lightning.initializing')} />
+        <Spinner className={style.initializingSpinner} text={t('lightning.initializing')} />
       </LightningPageLayout>
     );
   }
@@ -458,7 +458,7 @@ export const Lightning = () => {
         statusBanners={statusBanners}
       >
         {initializingSpinnerText ? (
-          <Spinner text={initializingSpinnerText} />
+          <Spinner className={style.initializingSpinner} text={initializingSpinnerText} />
         ) : (
           <TransactionHistorySkeleton />
         )}
