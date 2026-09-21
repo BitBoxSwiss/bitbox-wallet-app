@@ -80,7 +80,7 @@ func NewHandlers(
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(withError(handlers.postVerifyAddress))).Methods("POST")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(withError(handlers.postVerifyExtendedPublicKey))).Methods("POST")
 	handleFunc("/btc-sign-message-unused-address", handlers.ensureAccountInitialized(withError(handlers.postSignBTCMessageUnusedAddress))).Methods("POST")
-	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignBTCMessageForAddress)).Methods("POST")
+	handleFunc("/btc-sign-message-for-address", handlers.ensureAccountInitialized(withError(handlers.postSignBTCMessageForAddress))).Methods("POST")
 	handleFunc("/eth-sign-message-for-address", handlers.ensureAccountInitialized(handlers.postSignETHMessageForAddress)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(withError(handlers.getHasSecureOutput))).Methods("GET")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(withError(handlers.postSetTxNote))).Methods("POST")
@@ -1016,13 +1016,13 @@ func (handlers *Handlers) postSignBTCMessageUnusedAddress(r *http.Request) inter
 	}
 }
 
-func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) interface{} {
 	var request struct {
 		AddressID string `json:"addressID"`
 		Msg       string `json:"msg"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}, nil
+		return signMessageForAddressResponse{Success: false, ErrorMessage: err.Error()}
 	}
 
 	btcAccount, ok := handlers.account.(*btc.Account)
@@ -1030,19 +1030,19 @@ func (handlers *Handlers) postSignBTCMessageForAddress(r *http.Request) (interfa
 		return signMessageForAddressResponse{
 			Success:      false,
 			ErrorMessage: "Must be a BTC based account",
-		}, nil
+		}
 	}
 
 	address, signature, err := btcAccount.SignBTCMessageForAddress(request.AddressID, request.Msg)
 	if err != nil {
-		return handlers.signMessageForAddressErrorResponse(err), nil
+		return handlers.signMessageForAddressErrorResponse(err)
 	}
 	return signMessageForAddressResponse{
 		Success:        true,
 		Address:        address,
 		DisplayAddress: backendutil.FormatAddress(handlers.account.Coin().Code(), address),
 		Signature:      signature,
-	}, nil
+	}
 }
 
 func (handlers *Handlers) postSignETHMessageForAddress(r *http.Request) (interface{}, error) {
