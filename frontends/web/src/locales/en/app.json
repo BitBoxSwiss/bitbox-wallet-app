@@ -2478,6 +2478,11 @@
     },
     "prompt": {
       "button": "Unlock",
+      "info": [
+        "The test wallet uses a software keystore in the app.",
+        "Different passwords unlock different wallets. It is the same as using a passphrase.",
+        "You can unlock with no password to enter the default test wallet."
+      ],
       "passwordLabel": "Test Password",
       "title": "Unlock test wallet"
     }
