@@ -147,6 +147,8 @@ class CustomSchemeHandler: NSObject, WKURLSchemeHandler {
 
 struct WebView: UIViewRepresentable {
     let setHandlers: SetMessageHandlersProtocol
+    // Match Android's 62.5% rem base, scaled with the system text size.
+    @ScaledMetric(relativeTo: .body) private var baseFontSizePercentage = 62.5
     
     func makeUIView(context: Context) -> some WKWebView {
         let contentController = WKUserContentController()
@@ -244,6 +246,7 @@ struct WebView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
+        context.coordinator.updateFontSize(uiView, baseFontSizePercentage: baseFontSizePercentage)
         guard uiView.url == nil else {
             return
         }
@@ -256,6 +259,29 @@ struct WebView: UIViewRepresentable {
     
     class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         private weak var webView: WKWebView?
+        private var fontSizeScript: String?
+
+        func updateFontSize(_ webView: WKWebView, baseFontSizePercentage: Double) {
+            let source = """
+            document.documentElement.style.webkitTextSizeAdjust = '100%';
+            document.documentElement.style.fontSize = '\(baseFontSizePercentage)%';
+            """
+            guard fontSizeScript != source else {
+                return
+            }
+
+            // Replace the font script for future loads, preserving the native bridge script.
+            let contentController = webView.configuration.userContentController
+            let otherScripts = contentController.userScripts.filter { $0.source != fontSizeScript }
+            contentController.removeAllUserScripts()
+            otherScripts.forEach { contentController.addUserScript($0) }
+            contentController.addUserScript(WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+            fontSizeScript = source
+
+            if webView.url != nil {
+                webView.evaluateJavaScript(source, completionHandler: nil)
+            }
+        }
 
         func attachBackSwipeGesture(to webView: WKWebView) {
             self.webView = webView
