@@ -160,14 +160,20 @@ export const Bitrefill = ({
   }, [account, code, pendingPayment, t]);
 
   const handleMessage = useCallback(async (event: MessageEvent) => {
+    if (!bitrefillInfo?.success) {
+      return;
+    }
+
     const target = getVendorIframeMessageTarget(event, iframeRef.current);
-    if (
-      !target
-      || !bitrefillInfo?.success
-      || (
-        !isDevServers // if prod check that event is from same origin as bitrefillInfo.url
-        && ![getURLOrigin(bitrefillInfo.url), 'https://embed.bitrefill.com'].includes(target.origin))
-    ) {
+    const fromWrapper = target && (isDevServers || target.origin === getURLOrigin(bitrefillInfo.url));
+    // Bitrefill sends payments to window.top, bypassing the wrapper. Bind those
+    // messages to its current inner iframe as well as the Bitrefill origin.
+    const wrapper = iframeRef.current?.contentWindow;
+    const fromBitrefill = (
+      event.origin === getURLOrigin(bitrefillInfo.widgetUrl)
+      && wrapper && wrapper.length > 0 && event.source === wrapper[0]
+    );
+    if (!fromWrapper && !fromBitrefill) {
       return;
     }
 
@@ -175,7 +181,9 @@ export const Bitrefill = ({
 
     switch (data.event) {
     case 'request-configuration': {
-      handleConfiguration(target);
+      if (fromWrapper) {
+        handleConfiguration(target);
+      }
       break;
     }
     case 'payment_intent': {

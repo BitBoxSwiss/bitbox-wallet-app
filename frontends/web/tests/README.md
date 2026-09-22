@@ -66,8 +66,14 @@ from before commit `c1780d48f`, with HTTPS, HTTP, and opaque-origin parents. The
 opaque parent exercises replies to an origin serialized as `null`; native custom
 schemes retain wildcard replies for compatibility. Vendor pages and SDK downloads
 are stubbed, so these tests need no backend, simulator, credentials, or vendor network
-access. They cover normal configuration/payment flows and forged messages from
+access. They cover configuration, relayed payments, and forged messages from
 popups, unrelated windows, and a navigated inner iframe.
+
+Bitrefill currently sends payments directly to `window.top`, bypassing its wrapper.
+`src/routes/market/bitrefill.test.tsx` tests the app component's handling of that
+inner-frame sender through transaction proposal and signing, alongside the legacy
+wrapper relay. It also checks rejection of wrong origins, unrelated windows, and
+replaced inner frames in both development and production configurations.
 
 `vendor-iframe-message.test.ts` loads the actual app reply helper into a browser and
 checks delayed replies after cross-origin navigation and iframe replacement.

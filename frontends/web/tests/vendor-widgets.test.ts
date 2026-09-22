@@ -101,7 +101,7 @@ const paymentMessages = (page: Page) => page.evaluate(() =>
   (window as TTestWindow).received.filter(({ data }) => data?.event === 'payment_intent').map(({ data }) => data));
 
 for (const parent of ['https', 'http', 'opaque'] as const) {
-  test(`Bitrefill preserves the old ${parent} app handshake and payment format`, async ({ page }) => {
+  test(`Bitrefill preserves the old ${parent} app handshake and relayed payment format`, async ({ page }) => {
     const wrapper = await openWidget(page, 'bitrefill/bitrefill.html', parent);
     const inner = wrapper.childFrames()[0]!;
     await inner.evaluate(data => window.parent.postMessage(JSON.stringify(data), '*'), payment);
