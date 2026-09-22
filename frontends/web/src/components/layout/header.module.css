@@ -44,11 +44,6 @@
     margin-left: var(--space-eight);
 }
 
-.guideDisabled:disabled {
-    opacity: 0;
-    pointer-events: none;
-}
-
 .header {
     padding: 0 var(--space-default);
     max-width: var(--content-width);
@@ -185,6 +180,7 @@
     .children {
         grid-column: 3;
         justify-self: end;
+        margin-bottom: 0;
     }
 
     .sidebarToggler.hideSidebarToggler {

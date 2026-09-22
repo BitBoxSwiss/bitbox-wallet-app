@@ -32,10 +32,6 @@
     padding: var(--space-quarter) var(--space-half);
 }
 
-.accountSelector {
-    margin-bottom: var(--space-half);
-}
-
 .form {
     max-width: 520px;
     margin: 0 auto;
@@ -46,4 +42,10 @@
     color: var(--color-secondary);
     display: block;
     margin-bottom: var(--space-quarter);
+}
+
+@media (max-width: 768px) {
+    .sourceAccount {
+        margin-bottom: var(--space-half);
+    }
 }

@@ -129,21 +129,18 @@ export const Header = ({
         {variant !== 'fullscreen' && (
           <div className={style.children}>
             {children}
-            {/* Keep the button's space to prevent flicker when the guide appears/disappears. */}
-            <Button
-              transparent
-              disabled={!guideExists}
-              onClick={toggle}
-              className={`
-                ${style.guideClose || ''}
-                ${!guideExists && style.guideDisabled || ''}
-              `}
-            >
-              <GuideActive />
-              <span className={`hide-on-small ${style.guideCloseText || ''}`}>
-                {t('guide.toggle.open')}
-              </span>
-            </Button>
+            {guideExists && (
+              <Button
+                transparent
+                onClick={toggle}
+                className={style.guideClose}
+              >
+                <GuideActive />
+                <span className={`hide-on-small ${style.guideCloseText || ''}`}>
+                  {t('guide.toggle.open')}
+                </span>
+              </Button>
+            )}
           </div>
         )}
       </div>
