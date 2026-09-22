@@ -524,7 +524,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 			result.ErrorCode = errCode.Error()
 		} else if isFirmwareUpgradeRequired(err) {
 			result.ErrorCode = keystore.ErrFirmwareUpgradeRequired.Error()
-		} else if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
+		} else if cause == errors.ErrERC20InsufficientGasFunds || strings.Contains(err.Error(), etherscan.ERC20GasErr) {
 			result.ErrorCode = errors.ErrERC20InsufficientGasFunds.Error()
 		}
 

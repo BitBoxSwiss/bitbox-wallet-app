@@ -5,14 +5,15 @@ package mocks
 
 import (
 	"context"
+	"math/big"
+	"sync"
+
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"math/big"
-	"sync"
 )
 
 // Ensure, that InterfaceMock does implement rpcclient.Interface.
@@ -31,7 +32,7 @@ var _ rpcclient.Interface = &InterfaceMock{}
 //			BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
 //				panic("mock out the BlockNumber method")
 //			},
-//			ERC20BalanceFunc: func(account common.Address, erc20Token *erc20.Token) (*big.Int, error) {
+//			ERC20BalanceFunc: func(account common.Address, erc20Token *erc20.Token, blockNumber *big.Int) (*big.Int, error) {
 //				panic("mock out the ERC20Balance method")
 //			},
 //			EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
@@ -72,7 +73,7 @@ type InterfaceMock struct {
 	BlockNumberFunc func(ctx context.Context) (*big.Int, error)
 
 	// ERC20BalanceFunc mocks the ERC20Balance method.
-	ERC20BalanceFunc func(account common.Address, erc20Token *erc20.Token) (*big.Int, error)
+	ERC20BalanceFunc func(account common.Address, erc20Token *erc20.Token, blockNumber *big.Int) (*big.Int, error)
 
 	// EstimateGasFunc mocks the EstimateGas method.
 	EstimateGasFunc func(ctx context.Context, call ethereum.CallMsg) (uint64, error)
@@ -118,6 +119,8 @@ type InterfaceMock struct {
 			Account common.Address
 			// Erc20Token is the erc20Token argument value.
 			Erc20Token *erc20.Token
+			// BlockNumber is the blockNumber argument value.
+			BlockNumber *big.Int
 		}
 		// EstimateGas holds details about calls to the EstimateGas method.
 		EstimateGas []struct {
@@ -256,21 +259,23 @@ func (mock *InterfaceMock) BlockNumberCalls() []struct {
 }
 
 // ERC20Balance calls ERC20BalanceFunc.
-func (mock *InterfaceMock) ERC20Balance(account common.Address, erc20Token *erc20.Token) (*big.Int, error) {
+func (mock *InterfaceMock) ERC20Balance(account common.Address, erc20Token *erc20.Token, blockNumber *big.Int) (*big.Int, error) {
 	if mock.ERC20BalanceFunc == nil {
 		panic("InterfaceMock.ERC20BalanceFunc: method is nil but Interface.ERC20Balance was just called")
 	}
 	callInfo := struct {
-		Account    common.Address
-		Erc20Token *erc20.Token
+		Account     common.Address
+		Erc20Token  *erc20.Token
+		BlockNumber *big.Int
 	}{
-		Account:    account,
-		Erc20Token: erc20Token,
+		Account:     account,
+		Erc20Token:  erc20Token,
+		BlockNumber: blockNumber,
 	}
 	mock.lockERC20Balance.Lock()
 	mock.calls.ERC20Balance = append(mock.calls.ERC20Balance, callInfo)
 	mock.lockERC20Balance.Unlock()
-	return mock.ERC20BalanceFunc(account, erc20Token)
+	return mock.ERC20BalanceFunc(account, erc20Token, blockNumber)
 }
 
 // ERC20BalanceCalls gets all the calls that were made to ERC20Balance.
@@ -278,12 +283,14 @@ func (mock *InterfaceMock) ERC20Balance(account common.Address, erc20Token *erc2
 //
 //	len(mockedInterface.ERC20BalanceCalls())
 func (mock *InterfaceMock) ERC20BalanceCalls() []struct {
-	Account    common.Address
-	Erc20Token *erc20.Token
+	Account     common.Address
+	Erc20Token  *erc20.Token
+	BlockNumber *big.Int
 } {
 	var calls []struct {
-		Account    common.Address
-		Erc20Token *erc20.Token
+		Account     common.Address
+		Erc20Token  *erc20.Token
+		BlockNumber *big.Int
 	}
 	mock.lockERC20Balance.RLock()
 	calls = mock.calls.ERC20Balance

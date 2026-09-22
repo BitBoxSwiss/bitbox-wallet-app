@@ -86,7 +86,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
 			return big.NewInt(100), nil
 		},
-		ERC20BalanceFunc: func(address common.Address, token *erc20.Token) (*big.Int, error) {
+		ERC20BalanceFunc: func(address common.Address, token *erc20.Token, blockNumber *big.Int) (*big.Int, error) {
 			if erc20error {
 				return nil, errp.New("failed to fetch ERC20 balance")
 			}
@@ -112,7 +112,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 	)
 
 	require.NoError(t, acct.Initialize())
-	require.NoError(t, acct.Update(big.NewInt(0), big.NewInt(100), nil))
+	require.NoError(t, acct.Update(big.NewInt(0), big.NewInt(100), nil, nil))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 	return acct
 }
@@ -162,7 +162,7 @@ func TestUpdateBalances(t *testing.T) {
 
 	updatedBalances := []common.Address{}
 	balanceFetcher := mocks.BalanceAndBlockNumberFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			updatedBalances = addresses
 			// We mock the balanceFetcher to always return a balance of 1000.
 			balances := make(map[common.Address]*big.Int)
@@ -215,7 +215,7 @@ func TestUpdateBalances(t *testing.T) {
 
 func TestUpdateBalancesWithError(t *testing.T) {
 	balanceFetcher := &mocks.BalanceAndBlockNumberFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			// We mock the balanceFetcher to always return an error.
 			// This simulates a failure in fetching balances which should set the account to offline.
 			return nil, errp.New("balance fetch error")
@@ -279,7 +279,7 @@ func TestUpdateBalancesPrefetchTokenTransactions(t *testing.T) {
 	blockNumber := big.NewInt(100)
 	tokenTxCalls := 0
 	fetcher := &mocks.TokenTransactionsFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			require.Len(t, addresses, 0)
 			return map[common.Address]*big.Int{}, nil
 		},
@@ -314,7 +314,7 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 	tokenTxCalls := 0
 	var tokenTxResult map[common.Address][]*accounts.TransactionData
 	fetcher := &mocks.TokenTransactionsFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			require.Len(t, addresses, 0)
 			return map[common.Address]*big.Int{}, nil
 		},

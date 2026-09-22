@@ -24,8 +24,8 @@ type Interface interface {
 	TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, isPending bool, err error)
 	// Balance returns the current confirmed balance of the address.
 	Balance(ctx context.Context, account common.Address) (*big.Int, error)
-	// ERC20Balance returns the current confirmed token balance of the given token for the adddress.
-	ERC20Balance(account common.Address, erc20Token *erc20.Token) (*big.Int, error)
+	// ERC20Balance returns the token balance at blockNumber, or latest when nil.
+	ERC20Balance(account common.Address, erc20Token *erc20.Token, blockNumber *big.Int) (*big.Int, error)
 	// SendTransaction injects the transaction into the pending pool for execution.
 	SendTransaction(ctx context.Context, tx *types.Transaction) error
 	// PendingNonceAt retrieves the current pending nonce associated with an account.

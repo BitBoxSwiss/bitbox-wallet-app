@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/ethereum/go-ethereum/common"
@@ -24,8 +25,8 @@ var pollInterval = 5 * time.Minute
 //
 //go:generate moq -pkg mocks -out mocks/balanceandblocknumberfetcher.go . BalanceAndBlockNumberFetcher
 type BalanceAndBlockNumberFetcher interface {
-	// Balances returns the balances for a list of addresses.
-	Balances(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error)
+	// Balances returns balances at the specified block for a list of addresses.
+	Balances(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error)
 	// BlockNumber returns the current latest block number.
 	BlockNumber(ctx context.Context) (*big.Int, error)
 }
@@ -154,27 +155,27 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 		}
 	}
 
-	updateNonERC20 := true
-	balances, err := etherScanClient.Balances(context.TODO(), ethNonErc20Addresses)
-	if err != nil {
-		u.log.WithError(err).Error("Could not get balances for ETH accounts")
-		updateNonERC20 = false
-	}
-
 	blockNumber, err := etherScanClient.BlockNumber(context.TODO())
 	if err != nil {
 		u.log.WithError(err).Error("Could not get block number")
 		return
 	}
+	updateNonERC20 := true
+	balances, err := etherScanClient.Balances(context.TODO(), ethNonErc20Addresses, blockNumber)
+	if err != nil {
+		u.log.WithError(err).Error("Could not get balances for ETH accounts")
+		updateNonERC20 = false
+	}
 
 	reconciled := make(map[senderKey]error)
+	outgoingRecords := make(map[senderKey][]*ethtypes.TransactionWithMetadata)
 	for _, account := range ethAccounts {
 		if account.isClosed() || !account.isInitialized() {
 			continue
 		}
 		key := senderKey{account.coin.ChainID(), account.address.Address}
 		if _, exists := reconciled[key]; !exists {
-			reconciled[key] = account.updateOutgoingTransactions(blockNumber.Uint64())
+			outgoingRecords[key], reconciled[key] = account.updateOutgoingTransactions(blockNumber.Uint64())
 		}
 	}
 
@@ -192,7 +193,8 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 			u.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Code)
 			account.SetOffline(err)
 		}
-		if err := reconciled[senderKey{account.coin.ChainID(), account.address.Address}]; err != nil {
+		key := senderKey{account.coin.ChainID(), account.address.Address}
+		if err := reconciled[key]; err != nil {
 			account.SetOffline(err)
 			continue
 		}
@@ -201,7 +203,7 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 		switch {
 		case IsERC20(account):
 			var err error
-			balance, err = account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token)
+			balance, err = account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token, blockNumber)
 			if err != nil {
 				u.log.WithError(err).Errorf("Could not get ERC20 balance for address %s", address.Address.Hex())
 				account.SetOffline(err)
@@ -233,7 +235,7 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 			}
 			confirmedTransactions = prefetched
 		}
-		if err := account.Update(balance, blockNumber, confirmedTransactions); err != nil {
+		if err := account.Update(balance, blockNumber, confirmedTransactions, outgoingRecords[key]); err != nil {
 			u.log.WithError(err).Errorf("Could not update balance for address %s", address.Address.Hex())
 			account.SetOffline(err)
 		} else {

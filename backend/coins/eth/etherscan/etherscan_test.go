@@ -14,6 +14,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -286,4 +287,42 @@ func TestTokenTransactionsByContractPaginationDedup(t *testing.T) {
 		}
 	}
 	require.Equal(t, 2, dupCount)
+}
+
+func TestBalancesAtBlock(t *testing.T) {
+	address := common.Address{19: 2}
+	client := newTestEtherScan(func(req *http.Request) *http.Response {
+		params := req.URL.Query()
+		require.Equal(t, "balancemulti", params.Get("action"))
+		require.Equal(t, "0x64", params.Get("tag"))
+		require.Equal(t, address.Hex(), params.Get("address"))
+		return jsonRPCResponse(t, `{"status":"1","result":[{"account":"`+address.Hex()+`","balance":"20000"}]}`)
+	})
+	balances, err := client.Balances(context.Background(), []common.Address{address}, big.NewInt(100))
+	require.NoError(t, err)
+	require.Equal(t, big.NewInt(20000), balances[address])
+
+	token := erc20.NewToken("0x0000000000000000000000000000000000000001", 6)
+	for _, block := range []*big.Int{nil, big.NewInt(100)} {
+		client := newTestEtherScan(func(req *http.Request) *http.Response {
+			params := req.URL.Query()
+			require.Equal(t, "eth_call", params.Get("action"))
+			require.Equal(t, token.ContractAddress().Hex(), params.Get("to"))
+			require.Equal(t, "0x70a082310000000000000000000000000000000000000000000000000000000000000002", params.Get("data"))
+			if block == nil {
+				require.Equal(t, "latest", params.Get("tag"))
+			} else {
+				require.Equal(t, "0x64", params.Get("tag"))
+			}
+			return jsonRPCResponse(t, `{"jsonrpc":"2.0","result":"0x0000000000000000000000000000000000000000000000000000000000004e20"}`)
+		})
+		balance, err := client.ERC20Balance(address, token, block)
+		require.NoError(t, err)
+		require.Equal(t, big.NewInt(20000), balance)
+	}
+	client = newTestEtherScan(func(*http.Request) *http.Response {
+		return jsonRPCResponse(t, `{"jsonrpc":"2.0","result":"0x"}`)
+	})
+	_, err = client.ERC20Balance(address, token, big.NewInt(100))
+	require.Error(t, err)
 }

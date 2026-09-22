@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"maps"
 	"math/big"
 	"slices"
 	"strings"
@@ -200,17 +201,18 @@ func outgoingTransactionIsFinal(tx *ethtypes.TransactionWithMetadata, tipHeight 
 	return tx.LastReceiptCheckHeight-tx.Height+1 >= ethtypes.NumConfirmationsComplete
 }
 
-func (account *Account) updateOutgoingTransactions(tipHeight uint64) error {
+func (account *Account) updateOutgoingTransactions(tipHeight uint64) ([]*ethtypes.TransactionWithMetadata, error) {
 	sender, unlock, err := account.outgoing.lock(account.coin.ChainID(), account.address.Address)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer unlock()
 	if err := sender.reconcile(account.coin.client, tipHeight); err != nil {
-		return err
+		return nil, err
 	}
 	sender.rebroadcast(account.coin.client, account.log)
-	return nil
+	// Reconciliation replaces metadata, so these records remain a snapshot after unlocking.
+	return slices.Collect(maps.Values(sender.records)), nil
 }
 
 func (account *Account) confirmedTransactions() ([]*accounts.TransactionData, error) {
@@ -228,7 +230,7 @@ func (account *Account) confirmedTransactions() ([]*accounts.TransactionData, er
 	return confirmedTransactions, nil
 }
 
-func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData) (
+func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData, records []*ethtypes.TransactionWithMetadata) (
 	[]*accounts.TransactionData, *big.Int, error) {
 	sender, unlock, err := account.outgoing.lock(account.coin.ChainID(), account.address.Address)
 	if err != nil {
@@ -240,9 +242,10 @@ func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData)
 		confirmed[tx.TxID] = tx
 	}
 	var transactions []*accounts.TransactionData
-	reserved := sender.pendingAmounts(account.coin.erc20Token, confirmed)
+	reserved := pendingAmounts(slices.Values(records), account.address.Address, account.coin.erc20Token, confirmed)
 	var prune []ethcommon.Hash
-	for hash, record := range sender.records {
+	for _, record := range records {
+		hash := record.Transaction.Hash()
 		isToken := account.coin.erc20Token != nil
 		data := record.TransactionData(account.blockNumber.Uint64(), account.coin.erc20Token, account.address.Hex())
 		if data == nil {
@@ -285,12 +288,13 @@ func (account *Account) PendingTransactions() *PendingTransactions {
 
 // Update performs an Update of the account's transactions,
 // as well as its balance and the chain's latest blockNumber,
-// both of which must be provided as an argument. If prefetchedConfirmedTransactions is not nil,
+// with outgoing records reconciled at that block. If prefetchedConfirmedTransactions is not nil,
 // confirmed transactions are taken from it instead of querying the transactions source.
 func (account *Account) Update(
 	balance *big.Int,
 	blockNumber *big.Int,
 	prefetchedConfirmedTransactions []*accounts.TransactionData,
+	outgoingRecords []*ethtypes.TransactionWithMetadata,
 ) error {
 	defer account.updateLock.Lock()()
 	defer account.Synchronizer.IncRequestsCounter()()
@@ -311,7 +315,7 @@ func (account *Account) Update(
 
 	// Get our stored outgoing transactions. Filter out all transactions from the transactions
 	// source, which should contain all confirmed tx.
-	outgoingTransactionsData, pendingAmount, err := account.outgoingTransactions(confirmedTransactions)
+	outgoingTransactionsData, pendingAmount, err := account.outgoingTransactions(confirmedTransactions, outgoingRecords)
 	if err != nil {
 		return err
 	}
@@ -381,8 +385,9 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 }
 
 type pendingTxProposal struct {
-	txData types.TxData
-	fee    *big.Int
+	txData   types.TxData
+	signedTx *types.Transaction
+	fee      *big.Int
 	// For ERC20 transfers, value is the token amount encoded in the transaction data.
 	value            *big.Int
 	recipientAddress string
@@ -584,47 +589,55 @@ func (account *Account) SendTx(txNote string) (string, error) {
 		return "", err
 	}
 	defer release()
-	if err := sender.refresh(account.coin.client); err != nil {
-		return "", err
+	if pending.signedTx == nil {
+		if err := sender.refresh(account.coin.client); err != nil {
+			return "", err
+		}
+		nonce, err := sender.nextNonce(account.coin.client)
+		if err != nil {
+			return "", err
+		}
+		switch txData := pending.txData.(type) {
+		case *types.LegacyTx:
+			txData.Nonce = nonce
+		case *types.DynamicFeeTx:
+			txData.Nonce = nonce
+		default:
+			return "", errp.New("unsupported transaction type")
+		}
+		txProposal := &TxProposal{
+			ChainID:          account.coin.ChainID(),
+			Tx:               types.NewTx(pending.txData),
+			Keypath:          account.signingConfiguration.AbsoluteKeypath(),
+			RecipientAddress: pending.recipientAddress,
+			PaymentRequest:   pending.paymentRequest,
+		}
+		if err := sender.checkFunds(account.coin.client, txProposal.Tx, account.coin.erc20Token); err != nil {
+			return "", err
+		}
+		account.log.Info("Signing and sending transaction")
+		if err := keystore.SignTransaction(txProposal); err != nil {
+			return "", err
+		}
+		// A timeout can leave the transaction accepted; retries must use these exact bytes.
+		pending.signedTx = txProposal.Tx
 	}
-	nonce, err := sender.nextNonce(account.coin.client)
-	if err != nil {
-		return "", err
-	}
-	switch txData := pending.txData.(type) {
-	case *types.LegacyTx:
-		txData.Nonce = nonce
-	case *types.DynamicFeeTx:
-		txData.Nonce = nonce
-	default:
-		return "", errp.New("unsupported transaction type")
-	}
-	txProposal := &TxProposal{
-		ChainID:          account.coin.ChainID(),
-		Tx:               types.NewTx(pending.txData),
-		Keypath:          account.signingConfiguration.AbsoluteKeypath(),
-		RecipientAddress: pending.recipientAddress,
-		PaymentRequest:   pending.paymentRequest,
-	}
-	if err := sender.checkFunds(account.coin.client, txProposal.Tx, account.coin.erc20Token); err != nil {
-		return "", err
-	}
-	account.log.Info("Signing and sending transaction")
-	if err := keystore.SignTransaction(txProposal); err != nil {
-		return "", err
-	}
-	// A submitted proposal must not become a second payment on retry.
-	account.activeTxProposal = nil
-	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.Tx); err != nil {
-		return "", errp.WithStack(err)
-	}
-	account.PendingTransactions().track(sender, txProposal.Tx)
 
-	if err := account.SetTxNote(txProposal.Tx.Hash().Hex(), txNote); err != nil {
+	transaction := pending.signedTx
+	if err := account.coin.client.SendTransaction(context.TODO(), transaction); err != nil {
+		known, _, lookupErr := account.coin.client.TransactionByHash(context.TODO(), transaction.Hash())
+		if lookupErr != nil || known == nil {
+			return "", errp.WithStack(err)
+		}
+	}
+	account.activeTxProposal = nil
+	account.PendingTransactions().track(sender, transaction)
+
+	if err := account.SetTxNote(transaction.Hash().Hex(), txNote); err != nil {
 		// Not critical.
 		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
 	}
-	return txProposal.Tx.Hash().String(), nil
+	return transaction.Hash().String(), nil
 }
 
 // FeeTargets implements accounts.Interface.

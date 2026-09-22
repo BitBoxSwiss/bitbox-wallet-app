@@ -5,6 +5,8 @@ package eth
 import (
 	"context"
 	"errors"
+	"iter"
+	"maps"
 	"math"
 	"math/big"
 	"path/filepath"
@@ -38,9 +40,10 @@ type OutgoingTransactions struct {
 
 type outgoingSender struct {
 	sync.Mutex
-	key     senderKey
-	db      db.Interface
-	records map[common.Hash]*ethtypes.TransactionWithMetadata
+	key            senderKey
+	db             db.Interface
+	records        map[common.Hash]*ethtypes.TransactionWithMetadata
+	confirmedNonce uint64
 }
 
 // NewOutgoingTransactions opens the shared Ethereum cache.
@@ -119,6 +122,7 @@ func (sender *outgoingSender) nextNonce(client rpcclient.Interface) (uint64, err
 	if err != nil {
 		return 0, err
 	}
+	nonce = max(nonce, sender.confirmedNonce)
 	for _, record := range sender.records {
 		if record.Height == 0 && !record.NonceConsumed && record.Transaction.Nonce() >= nonce {
 			if record.Transaction.Nonce() == math.MaxUint64 {
@@ -130,13 +134,13 @@ func (sender *outgoingSender) nextNonce(client rpcclient.Interface) (uint64, err
 	return nonce, nil
 }
 
-func (sender *outgoingSender) pendingAmounts(token *erc20.Token, confirmed map[string]*accounts.TransactionData) map[uint64]*big.Int {
+func pendingAmounts(records iter.Seq[*ethtypes.TransactionWithMetadata], address common.Address, token *erc20.Token, confirmed map[string]*accounts.TransactionData) map[uint64]*big.Int {
 	reserved := make(map[uint64]*big.Int)
-	for _, record := range sender.records {
+	for record := range records {
 		if record.Height != 0 || record.NonceConsumed || confirmed[record.TxID()] != nil {
 			continue
 		}
-		data := record.TransactionData(0, token, sender.key.address.Hex())
+		data := record.TransactionData(0, token, address.Hex())
 		if data == nil {
 			continue
 		}
@@ -167,23 +171,26 @@ func (sender *outgoingSender) checkFunds(client rpcclient.Interface, tx *types.T
 		}
 		required[token] = amount
 	}
-	for token, amount := range required {
+	for asset, amount := range required {
 		var balance *big.Int
 		var err error
-		if token == nil {
+		if asset == nil {
 			balance, err = client.Balance(context.TODO(), sender.key.address)
 		} else {
-			balance, err = client.ERC20Balance(sender.key.address, token)
+			balance, err = client.ERC20Balance(sender.key.address, asset, nil)
 		}
 		if err != nil {
 			return err
 		}
-		for nonce, pending := range sender.pendingAmounts(token, nil) {
+		for nonce, pending := range pendingAmounts(maps.Values(sender.records), sender.key.address, asset, nil) {
 			if nonce != tx.Nonce() {
 				amount.Add(amount, pending)
 			}
 		}
 		if amount.Cmp(balance) > 0 {
+			if token != nil && asset == nil {
+				return accountErrors.ErrERC20InsufficientGasFunds
+			}
 			return accountErrors.ErrInsufficientFunds
 		}
 	}
@@ -294,7 +301,11 @@ func (sender *outgoingSender) reconcile(client rpcclient.Interface, height uint6
 		}
 	}
 
-	return sender.save(updated, deleted)
+	if err := sender.save(updated, deleted); err != nil {
+		return err
+	}
+	sender.confirmedNonce = nonce
+	return nil
 }
 
 func (sender *outgoingSender) rebroadcast(client rpcclient.Interface, log *logrus.Entry) {

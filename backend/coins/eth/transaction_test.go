@@ -83,7 +83,7 @@ func TestSignTransactionDoesNotInferERC20FromCalldata(t *testing.T) {
 	copy(request.Data, []byte{0xa9, 0x05, 0x9c, 0xbb})
 	request.Data[35] = 2
 	big.NewInt(1000).FillBytes(request.Data[36:])
-	client.ERC20BalanceFunc = func(common.Address, *erc20.Token) (*big.Int, error) {
+	client.ERC20BalanceFunc = func(common.Address, *erc20.Token, *big.Int) (*big.Int, error) {
 		return big.NewInt(1), nil
 	}
 	tx, err := signTransaction(account, account.coin.ChainID(), true, request)
@@ -188,7 +188,7 @@ func newTransactionRPCClient(
 ) *mocks.InterfaceMock {
 	return &mocks.InterfaceMock{
 		BalanceFunc:                           func(context.Context, common.Address) (*big.Int, error) { return big.NewInt(1e18), nil },
-		ERC20BalanceFunc:                      func(common.Address, *erc20.Token) (*big.Int, error) { return big.NewInt(1e18), nil },
+		ERC20BalanceFunc:                      func(common.Address, *erc20.Token, *big.Int) (*big.Int, error) { return big.NewInt(1e18), nil },
 		BlockNumberFunc:                       func(context.Context) (*big.Int, error) { return big.NewInt(100), nil },
 		NonceAtFunc:                           func(context.Context, common.Address, *big.Int) (uint64, error) { return 0, nil },
 		TransactionReceiptWithBlockNumberFunc: func(context.Context, common.Hash) (*gethtypes.Receipt, error) { return nil, nil },

@@ -11,6 +11,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountmocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/ethereum/go-ethereum/common"
@@ -95,7 +96,7 @@ func TestSendTxRechecksFunds(t *testing.T) {
 			client := newTransactionRPCClient(0, 21000, big.NewInt(2), nil)
 			balance := big.NewInt(30000)
 			client.BalanceFunc = func(context.Context, common.Address) (*big.Int, error) { return balance, nil }
-			client.ERC20BalanceFunc = func(common.Address, *erc20.Token) (*big.Int, error) { return big.NewInt(100), nil }
+			client.ERC20BalanceFunc = func(common.Address, *erc20.Token, *big.Int) (*big.Int, error) { return big.NewInt(100), nil }
 			txData := newTestOutgoingTxData()
 			if name == "ERC20" {
 				account = token
@@ -141,11 +142,11 @@ func TestPendingSelfTransfers(t *testing.T) {
 	} {
 		putOutgoingTx(t, native, &ethtypes.TransactionWithMetadata{Transaction: tx})
 	}
-	transactions, pending, err := native.outgoingTransactions(nil)
+	transactions, pending, err := native.outgoingTransactions(nil, outgoingTxs(t, native))
 	require.NoError(t, err)
 	require.Len(t, transactions, 2)
 	require.Equal(t, big.NewInt(168000), pending)
-	transactions, pending, err = token.outgoingTransactions(nil)
+	transactions, pending, err = token.outgoingTransactions(nil, outgoingTxs(t, token))
 	require.NoError(t, err)
 	require.Len(t, transactions, 1)
 	require.Equal(t, accounts.TxTypeSendSelf, transactions[0].Type)
@@ -173,8 +174,8 @@ func TestSharedReplacementsAndReorg(t *testing.T) {
 	}
 	checkBalances := func(height int64, nativePending, tokenPending int64) {
 		t.Helper()
-		require.NoError(t, native.Update(big.NewInt(1000000), big.NewInt(height), []*accounts.TransactionData{}))
-		require.NoError(t, token.Update(big.NewInt(1000), big.NewInt(height), []*accounts.TransactionData{}))
+		require.NoError(t, native.Update(big.NewInt(1000000), big.NewInt(height), []*accounts.TransactionData{}, outgoingTxs(t, native)))
+		require.NoError(t, token.Update(big.NewInt(1000), big.NewInt(height), []*accounts.TransactionData{}, outgoingTxs(t, token)))
 		require.Equal(t, big.NewInt(1000000-nativePending), native.balance.BigInt())
 		require.Equal(t, big.NewInt(1000-tokenPending), token.balance.BigInt())
 	}
@@ -202,7 +203,7 @@ func TestSharedReplacementsAndReorg(t *testing.T) {
 		}
 		return nil, nil
 	}
-	require.NoError(t, native.updateOutgoingTransactions(101))
+	reconcileOutgoing(t, native, 101)
 	checkBalances(101, 0, 0)
 	require.Len(t, token.transactions, 1)
 	require.Equal(t, accounts.TxStatusFailed, token.transactions[0].Status)
@@ -212,20 +213,21 @@ func TestSharedReplacementsAndReorg(t *testing.T) {
 	foreignNonce := uint64(7)
 	require.NoError(t, token.Update(big.NewInt(1000), big.NewInt(101), []*accounts.TransactionData{{
 		TxID: "foreign-sender", Type: accounts.TxTypeSend, Nonce: &foreignNonce, NumConfirmations: 50,
-	}}))
+	}}, outgoingTxs(t, token)))
 	require.Len(t, outgoingTxs(t, native), 4)
 
 	mined, confirmedNonce = false, 0
-	require.NoError(t, native.updateOutgoingTransactions(102))
+	reconcileOutgoing(t, native, 102)
 	checkBalances(102, 171150, 150)
 	require.Len(t, token.transactions, 2)
 	mined, confirmedNonce = true, 9
-	require.NoError(t, native.updateOutgoingTransactions(103))
+	reconcileOutgoing(t, native, 103)
 	checkBalances(103, 0, 0)
 	client.NonceAtFunc = func(context.Context, common.Address, *big.Int) (uint64, error) {
 		return 0, errp.New("offline")
 	}
-	require.Error(t, native.updateOutgoingTransactions(104))
+	_, reconcileErr := native.updateOutgoingTransactions(104)
+	require.Error(t, reconcileErr)
 	checkBalances(104, 0, 0)
 	_, err := native.nextNonce()
 	require.Error(t, err)
@@ -236,13 +238,13 @@ func TestSharedReplacementsAndReorg(t *testing.T) {
 	require.Equal(t, uint64(9), nonce)
 	mined, confirmedNonce = true, 9
 	minedHeight = 110
-	require.NoError(t, native.updateOutgoingTransactions(114))
+	reconcileOutgoing(t, native, 114)
 	require.Len(t, outgoingTxs(t, native), 4)
-	require.NoError(t, native.updateOutgoingTransactions(121))
+	reconcileOutgoing(t, native, 121)
 	require.Len(t, outgoingTxs(t, native), 2)
 	confirmed := (&ethtypes.TransactionWithMetadata{Transaction: b, Height: minedHeight}).TransactionData(
 		121, token.coin.erc20Token, token.address.Hex())
-	require.NoError(t, token.Update(big.NewInt(1000), big.NewInt(121), []*accounts.TransactionData{confirmed}))
+	require.NoError(t, token.Update(big.NewInt(1000), big.NewInt(121), []*accounts.TransactionData{confirmed}, outgoingTxs(t, token)))
 	require.Len(t, token.transactions, 1)
 	require.Len(t, outgoingTxs(t, native), 1)
 
@@ -320,11 +322,11 @@ func TestExternalReplacementAndReorg(t *testing.T) {
 	} {
 		consumedAt = step.consumedAt
 		native.blockNumber = new(big.Int).SetUint64(step.height)
-		require.NoError(t, native.updateOutgoingTransactions(step.height))
+		reconcileOutgoing(t, native, step.height)
 		records := outgoingTxs(t, native)
 		require.Len(t, records, 1)
 		require.Equal(t, step.consumed, records[0].NonceConsumed)
-		_, pending, err := native.outgoingTransactions(nil)
+		_, pending, err := native.outgoingTransactions(nil, outgoingTxs(t, native))
 		require.NoError(t, err)
 		if step.consumed {
 			require.Zero(t, pending.Sign())
@@ -333,13 +335,13 @@ func TestExternalReplacementAndReorg(t *testing.T) {
 		}
 	}
 	historyUnavailable = true
-	require.NoError(t, native.updateOutgoingTransactions(113))
+	reconcileOutgoing(t, native, 113)
 	require.Len(t, outgoingTxs(t, native), 1)
 	historyUnavailable = false
-	require.NoError(t, native.updateOutgoingTransactions(113))
+	reconcileOutgoing(t, native, 113)
 	require.Empty(t, outgoingTxs(t, native))
 	receiptCalls := len(client.TransactionReceiptWithBlockNumberCalls())
-	require.NoError(t, native.updateOutgoingTransactions(114))
+	reconcileOutgoing(t, native, 114)
 	require.Len(t, client.TransactionReceiptWithBlockNumberCalls(), receiptCalls)
 	require.Empty(t, client.SendTransactionCalls())
 }
@@ -377,7 +379,102 @@ func TestConsumedNonceReceiptErrorDoesNotBlockSend(t *testing.T) {
 				}
 			}
 			// Receipt failures must still surface for transactions whose nonces remain outstanding.
-			require.ErrorIs(t, native.updateOutgoingTransactions(101), receiptErr)
+			_, err = native.updateOutgoingTransactions(101)
+			require.ErrorIs(t, err, receiptErr)
 		})
+	}
+}
+
+func TestReconciledNonceSelection(t *testing.T) {
+	native, _ := sharedAccounts(t)
+	client := newTransactionRPCClient(7, 21000, big.NewInt(1), nil)
+	native.coin.client = client
+	old := newTestOutgoingTxData()
+	old.Nonce = 7
+	putOutgoingTx(t, native, &ethtypes.TransactionWithMetadata{Transaction: types.NewTx(old)})
+	client.TransactionReceiptWithBlockNumberFunc = func(context.Context, common.Hash) (*types.Receipt, error) {
+		return &types.Receipt{BlockNumber: big.NewInt(99), GasUsed: 21000, Status: types.ReceiptStatusSuccessful}, nil
+	}
+	// The confirmed nonce must override stale pending state, and can decrease after a reorg.
+	for _, confirmed := range []uint64{10, 8} {
+		client.NonceAtFunc = func(context.Context, common.Address, *big.Int) (uint64, error) { return confirmed, nil }
+		nonce, err := native.nextNonce()
+		require.NoError(t, err)
+		require.Equal(t, confirmed, nonce)
+	}
+	setTransactionSigningKeystore(t, native, native.coin.ChainID())
+	native.activeTxProposal = &pendingTxProposal{txData: newTestOutgoingTxData()}
+	_, err := native.SendTx("")
+	require.NoError(t, err)
+	require.Equal(t, uint64(8), client.SendTransactionCalls()[0].Tx.Nonce())
+}
+
+func TestTokenSendWithoutETH(t *testing.T) {
+	_, token := sharedAccounts(t)
+	client := newTransactionRPCClient(0, 21000, big.NewInt(1), nil)
+	token.coin.client = client
+	client.BalanceFunc = func(context.Context, common.Address) (*big.Int, error) { return big.NewInt(0), nil }
+	contract := token.coin.erc20Token.ContractAddress()
+	parsed, err := erc20.IERC20MetaData.GetAbi()
+	require.NoError(t, err)
+	data, err := parsed.Pack("transfer", common.Address{2}, big.NewInt(100))
+	require.NoError(t, err)
+	token.activeTxProposal = &pendingTxProposal{txData: &types.LegacyTx{To: &contract, Gas: 21000, GasPrice: big.NewInt(1), Data: data}}
+	_, err = token.SendTx("")
+	require.ErrorIs(t, err, errors.ErrERC20InsufficientGasFunds)
+	require.Empty(t, client.SendTransactionCalls())
+}
+
+type updaterBalanceFetcher struct {
+	rpcclient.Interface
+	balances func(context.Context, []common.Address, *big.Int) (map[common.Address]*big.Int, error)
+}
+
+func (fetcher updaterBalanceFetcher) Balances(ctx context.Context, addresses []common.Address, block *big.Int) (map[common.Address]*big.Int, error) {
+	return fetcher.balances(ctx, addresses, block)
+}
+
+func TestUpdateBalanceAtConfirmation(t *testing.T) {
+	native, token := sharedAccounts(t)
+	client := newTransactionRPCClient(1, 21000, big.NewInt(1), nil)
+	native.coin.client, token.coin.client = client, client
+	notifier := &accountmocks.Notifier{}
+	notifier.On("Put", mock.Anything).Return(nil)
+	native.notifier, token.notifier = notifier, notifier
+	tx := newTestOutgoingTxData()
+	tx.Value = big.NewInt(59000) // 80000 debit including gas.
+	putOutgoingTx(t, native, &ethtypes.TransactionWithMetadata{Transaction: types.NewTx(tx)})
+	tip := int64(99)
+	client.BlockNumberFunc = func(context.Context) (*big.Int, error) { return big.NewInt(tip), nil }
+	client.NonceAtFunc = func(_ context.Context, _ common.Address, block *big.Int) (uint64, error) {
+		if block.Int64() >= 100 {
+			return 1, nil
+		}
+		return 0, nil
+	}
+	client.TransactionReceiptWithBlockNumberFunc = func(context.Context, common.Hash) (*types.Receipt, error) {
+		return &types.Receipt{BlockNumber: big.NewInt(100), GasUsed: 21000, Status: types.ReceiptStatusSuccessful}, nil
+	}
+	fetcher := updaterBalanceFetcher{Interface: client, balances: func(_ context.Context, _ []common.Address, block *big.Int) (map[common.Address]*big.Int, error) {
+		tip = 100 // The debit confirms between the tip and balance requests.
+		balance := int64(100000)
+		if block.Int64() >= 100 {
+			balance = 20000
+		}
+		return map[common.Address]*big.Int{native.address.Address: big.NewInt(balance)}, nil
+	}}
+	client.ERC20BalanceFunc = func(common.Address, *erc20.Token, *big.Int) (*big.Int, error) {
+		// A send-time refresh advances the shared state after the updater took its snapshot.
+		reconcileOutgoing(t, native, 100)
+		return big.NewInt(1000), nil
+	}
+	updater := NewUpdater(nil, nil)
+	defer updater.Close()
+	for range 2 {
+		updater.UpdateBalancesAndBlockNumber([]*Account{token, native}, fetcher)
+		require.NoError(t, native.Offline())
+		balance, err := native.Balance()
+		require.NoError(t, err)
+		require.Equal(t, big.NewInt(20000), balance.Available().BigInt())
 	}
 }

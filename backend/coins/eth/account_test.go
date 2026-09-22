@@ -133,7 +133,7 @@ func TestInitializeEnqueueUpdate(t *testing.T) {
 func TestTxProposal(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil))
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil, outgoingTxs(t, acct)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	t.Run("valid", func(t *testing.T) {
@@ -203,7 +203,7 @@ func TestERC20TxProposalRejectsAmountOverflow(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
 	acct.coin.erc20Token = erc20.NewToken("0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7", 0)
-	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil))
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil, outgoingTxs(t, acct)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	_, _, _, err := acct.TxProposal(&accounts.TxProposalArgs{
@@ -262,6 +262,12 @@ func outgoingTxs(t *testing.T, account *Account) []*ethtypes.TransactionWithMeta
 		records = append(records, &snapshot)
 	}
 	return records
+}
+
+func reconcileOutgoing(t *testing.T, account *Account, height uint64) {
+	t.Helper()
+	_, err := account.updateOutgoingTransactions(height)
+	require.NoError(t, err)
 }
 
 func TestOutgoingTransactionIsFinal(t *testing.T) {
@@ -344,7 +350,7 @@ func TestUpdateOutgoingTransactionsSkipsFinalTransactions(t *testing.T) {
 		},
 	})
 
-	require.NoError(t, account.updateOutgoingTransactions(100))
+	reconcileOutgoing(t, account, 100)
 	require.Equal(t, 0, receiptCalls)
 }
 
@@ -374,7 +380,7 @@ func TestUpdateOutgoingTransactionsPollsFinalTransactionUntilFinalityChecked(t *
 		},
 	})
 
-	require.NoError(t, account.updateOutgoingTransactions(100))
+	reconcileOutgoing(t, account, 100)
 	require.Equal(t, 1, receiptCalls)
 	txs := outgoingTxs(t, account)
 	require.Len(t, txs, 1)
@@ -406,7 +412,7 @@ func TestUpdateOutgoingTransactionsPollsRecentConfirmedTransactions(t *testing.T
 		},
 	})
 
-	require.NoError(t, account.updateOutgoingTransactions(100))
+	reconcileOutgoing(t, account, 100)
 	require.Equal(t, 1, receiptCalls)
 	txs := outgoingTxs(t, account)
 	require.Len(t, txs, 1)
@@ -444,7 +450,7 @@ func TestUpdateOutgoingTransactionsStillChecksPendingTransactions(t *testing.T) 
 		},
 	})
 
-	require.NoError(t, account.updateOutgoingTransactions(100))
+	reconcileOutgoing(t, account, 100)
 	require.Equal(t, 1, receiptCalls)
 	require.Equal(t, 1, transactionByHashCalls)
 	require.Equal(t, 0, sendCalls)
@@ -453,7 +459,7 @@ func TestUpdateOutgoingTransactionsStillChecksPendingTransactions(t *testing.T) 
 func TestMatchesAddress(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil))
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil, outgoingTxs(t, acct)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	// Test invalid Ethereum address
@@ -491,7 +497,7 @@ func TestMatchesAddress(t *testing.T) {
 func TestSignETHMessage(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil))
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil, outgoingTxs(t, acct)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	t.Run("empty message", func(t *testing.T) {
@@ -593,7 +599,7 @@ func TestSendTxFinalNonceAndRetry(t *testing.T) {
 			defer account.Close()
 			client := newTransactionRPCClient(7, 21000, big.NewInt(1), context.DeadlineExceeded)
 			account.coin.client = client
-			require.NoError(t, account.Update(big.NewInt(1000000), big.NewInt(100), nil))
+			require.NoError(t, account.Update(big.NewInt(1000000), big.NewInt(100), nil, outgoingTxs(t, account)))
 			require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
 			account.Config().ConnectKeystore = func() (keystore.Keystore, error) {
 				return &keystoremock.KeystoreMock{
@@ -615,7 +621,7 @@ func TestSendTxFinalNonceAndRetry(t *testing.T) {
 
 			setTransactionSigningKeystore(t, account, account.coin.ChainID())
 			// Only the nonce may change after the user reviewed the send-all proposal.
-			require.NoError(t, account.Update(big.NewInt(2000000), big.NewInt(101), nil))
+			require.NoError(t, account.Update(big.NewInt(2000000), big.NewInt(101), nil, outgoingTxs(t, account)))
 			client.SuggestGasPriceFunc = func(context.Context) (*big.Int, error) { return big.NewInt(5), nil }
 			client.PendingNonceAtFunc = func(context.Context, common.Address) (uint64, error) { return 9, nil }
 			_, err = account.SendTx("")
@@ -629,9 +635,32 @@ func TestSendTxFinalNonceAndRetry(t *testing.T) {
 			require.Equal(t, fee.BigInt(), new(big.Int).Sub(signed.Cost(), signed.Value()))
 			require.Len(t, client.EstimateGasCalls(), 1)
 			require.Len(t, client.SuggestGasPriceCalls(), 1)
+			// Acceptance may advance the nonce and spend the balance before the response arrives.
+			client.PendingNonceAtFunc = func(context.Context, common.Address) (uint64, error) { return 10, nil }
+			client.BalanceFunc = func(context.Context, common.Address) (*big.Int, error) { return big.NewInt(0), nil }
+			account.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+				return &keystoremock.KeystoreMock{SignTransactionFunc: func(interface{}) error {
+					t.Fatal("a broadcast retry must not sign a new transaction")
+					return nil
+				}}, nil
+			}
+			// A still-ambiguous retry rebroadcasts the same bytes.
+			_, err = account.SendTx("")
+			require.ErrorIs(t, err, context.DeadlineExceeded)
+			require.Equal(t, signed.Hash(), client.SendTransactionCalls()[1].Tx.Hash())
+			// Resolve a subsequent broadcast error using the original transaction hash.
+			client.TransactionByHashFunc = func(_ context.Context, hash common.Hash) (*gethtypes.Transaction, bool, error) {
+				require.Equal(t, signed.Hash(), hash)
+				return signed, false, nil
+			}
+			txID, err := account.SendTx("")
+			require.NoError(t, err)
+			require.Equal(t, signed.Hash().Hex(), txID)
+			require.Len(t, outgoingTxs(t, account), 1)
+			require.Equal(t, signed.Hash(), client.SendTransactionCalls()[2].Tx.Hash())
 			_, err = account.SendTx("")
 			require.EqualError(t, err, "No active tx proposal")
-			require.Len(t, client.SendTransactionCalls(), 1)
+			require.Len(t, client.SendTransactionCalls(), 3)
 		})
 	}
 }
