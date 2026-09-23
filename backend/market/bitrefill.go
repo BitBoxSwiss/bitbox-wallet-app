@@ -22,7 +22,8 @@ const (
 	bitrefillWidgetURL = "https://embed.bitrefill.com/"
 )
 
-type bitrefillInfo struct {
+// BitrefillInfoResult contains the widget configuration for a payment account.
+type BitrefillInfoResult struct {
 	Url       string
 	WidgetURL string
 	Ref       string
@@ -93,17 +94,17 @@ func BitrefillDeals() *DealsList {
 
 // BitrefillInfo returns the information needed to interact with Bitrefill,
 // including the wrapper and widget URLs, referral code and an unused address for refunds.
-func BitrefillInfo(action Action, acct accounts.Interface, devServers bool) (bitrefillInfo, error) {
+func BitrefillInfo(acct accounts.Interface, devServers bool) (BitrefillInfoResult, error) {
 	url := bitrefillProdUrl
 	if devServers {
 		url = bitrefillDevUrl
 	}
 	addrList, err := acct.GetUnusedReceiveAddresses()
 	if err != nil {
-		return bitrefillInfo{}, err
+		return BitrefillInfoResult{}, err
 	}
 	addr := addrList[0].Addresses[0].EncodeForHumans()
-	res := bitrefillInfo{
+	res := BitrefillInfoResult{
 		Url:       url,
 		WidgetURL: bitrefillWidgetURL,
 		Ref:       bitrefillRef,
@@ -111,4 +112,29 @@ func BitrefillInfo(action Action, acct accounts.Interface, devServers bool) (bit
 	}
 
 	return res, nil
+}
+
+// BitrefillLightningInfo returns the wrapper configuration for Lightning without
+// an on-chain refund address.
+func BitrefillLightningInfo(devServers bool) BitrefillInfoResult {
+	url := bitrefillProdUrl
+	if devServers {
+		url = bitrefillDevUrl
+	}
+	return BitrefillInfoResult{
+		Url:       url,
+		WidgetURL: bitrefillWidgetURL,
+		Ref:       bitrefillRef,
+	}
+}
+
+// LightningDeals returns the spend offers available to the Lightning wallet.
+func LightningDeals(region string, action Action) ([]*DealsList, error) {
+	if action != SpendAction {
+		return nil, ErrCoinNotSupported
+	}
+	if !IsRegionSupportedBitrefill(region) {
+		return nil, ErrRegionNotSupported
+	}
+	return []*DealsList{BitrefillDeals()}, nil
 }
