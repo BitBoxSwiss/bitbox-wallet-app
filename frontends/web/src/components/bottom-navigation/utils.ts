@@ -24,13 +24,11 @@ export type TBottomNavKey = TBottomNavItem | 'other';
 type TGetBottomNavItemsArgs = {
   hasLightningAccount: boolean;
   showAccounts: boolean;
-  showMarket: boolean;
 };
 
 export const getBottomNavItems = ({
   hasLightningAccount,
   showAccounts,
-  showMarket,
 }: TGetBottomNavItemsArgs): TBottomNavItem[] => {
   const items: TBottomNavItem[] = ['portfolio'];
   if (showAccounts) {
@@ -39,10 +37,7 @@ export const getBottomNavItems = ({
   if (hasLightningAccount) {
     items.push('lightning');
   }
-  if (showMarket) {
-    items.push('market');
-  }
-  items.push('settings');
+  items.push('market', 'settings');
   return items;
 };
 

@@ -179,7 +179,7 @@ const Sidebar = ({
         </div>
 
         <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
-        { accounts.length ? (
+        { hasPortfolio ? (
           <>
             <div key="market" className={style.sidebarItem}>
               <NavLink

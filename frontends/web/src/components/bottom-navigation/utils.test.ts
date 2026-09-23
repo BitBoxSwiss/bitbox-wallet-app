@@ -51,7 +51,6 @@ describe('getBottomNavIndex', () => {
     const items = getBottomNavItems({
       hasLightningAccount: true,
       showAccounts: true,
-      showMarket: true,
     });
 
     expect(getBottomNavIndex('portfolio', items)).toBe(0);
@@ -61,35 +60,22 @@ describe('getBottomNavIndex', () => {
     expect(getBottomNavIndex('settings', items)).toBe(4);
   });
 
-  it('skips the market index when the market tab is hidden', () => {
-    const items = getBottomNavItems({
-      hasLightningAccount: true,
-      showAccounts: true,
-      showMarket: false,
-    });
-
-    expect(getBottomNavIndex('lightning', items)).toBe(2);
-    expect(getBottomNavIndex('market', items)).toBeUndefined();
-    expect(getBottomNavIndex('settings', items)).toBe(3);
-  });
-
-  it('skips the accounts index when only the Lightning shortcut is visible', () => {
+  it('keeps the market visible when only a Lightning account exists', () => {
     const items = getBottomNavItems({
       hasLightningAccount: true,
       showAccounts: false,
-      showMarket: false,
     });
 
     expect(getBottomNavIndex('accounts', items)).toBeUndefined();
     expect(getBottomNavIndex('lightning', items)).toBe(1);
-    expect(getBottomNavIndex('settings', items)).toBe(2);
+    expect(getBottomNavIndex('market', items)).toBe(2);
+    expect(getBottomNavIndex('settings', items)).toBe(3);
   });
 
   it('keeps the accounts index visible when no wallets are active', () => {
     const items = getBottomNavItems({
       hasLightningAccount: false,
       showAccounts: true,
-      showMarket: true,
     });
 
     expect(getBottomNavIndex('accounts', items)).toBe(1);
