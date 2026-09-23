@@ -49,8 +49,10 @@ func TestPortfolioDataWithInitializingLightning(t *testing.T) {
 		CoinName: "Lightning",
 	}}, balances)
 
-	_, err = b.ChartData()
+	chart, err := b.ChartData()
 	require.NoError(t, err)
+	require.Nil(t, chart.Total)
+	require.Empty(t, chart.FormattedTotal)
 }
 
 func TestInsertLightningFormattedBalance(t *testing.T) {

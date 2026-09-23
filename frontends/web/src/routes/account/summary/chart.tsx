@@ -663,7 +663,7 @@ export const Chart = ({
       <header>
         <div className={styles.summary}>
           <div className={styles.totalValue}>
-            {formattedChartTotal !== null ? (
+            {chartTotal !== null && formattedChartTotal !== null ? (
               // remove trailing zeroes for BTC fiat total
               <Amount
                 amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue}

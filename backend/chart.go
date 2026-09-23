@@ -205,7 +205,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 
 	currentTotal := new(big.Rat)
 	performanceTotal := new(big.Rat)
-	currentTotalMissing := false
+	currentTotalMissing := backend.hasLightningAccount()
 	chartCashFlows := []chartCashFlow{}
 	// Total number of transactions across all active accounts.
 	totalNumberOfTransactions := 0
@@ -244,6 +244,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			return nil, err
 		}
 		currentTotal.Add(currentTotal, fiatValue)
+		currentTotalMissing = false
 
 		performanceFiatValue, err := backend.convertToFiat(account.Coin(), txs.LatestConfirmedBalance(), fiat)
 		if err != nil {
@@ -291,6 +292,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 				return nil, err
 			}
 			currentTotal.Add(currentTotal, lightningBalanceAmount)
+			currentTotalMissing = false
 
 			lightningTxs, err := backend.lightning.Transactions()
 			if err != nil {
