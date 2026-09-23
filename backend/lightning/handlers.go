@@ -132,6 +132,7 @@ func (lightning *Lightning) GetAccount(_ *http.Request) interface{} {
 	type response struct {
 		RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
 		Code            types.Code     `json:"code"`
+		CoinCode        coin.Code      `json:"coinCode"`
 		Number          uint16         `json:"num"`
 	}
 	if account == nil {
@@ -140,6 +141,7 @@ func (lightning *Lightning) GetAccount(_ *http.Request) interface{} {
 	return &response{
 		RootFingerprint: account.RootFingerprint,
 		Code:            account.Code,
+		CoinCode:        "lightning",
 		Number:          account.Number,
 	}
 }
