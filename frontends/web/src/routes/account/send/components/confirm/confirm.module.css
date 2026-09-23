@@ -8,6 +8,25 @@
   margin-bottom: var(--space-three-quarter);
 }
 
+.amountRow {
+  align-items: baseline;
+  column-gap: var(--space-half);
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  overflow-wrap: anywhere;
+}
+
+.amountRow > * {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.amountRow .fiatValue {
+  margin-left: auto;
+  text-align: right;
+}
+
 .bitBoxContainer {
   margin-bottom: var(--space-half);
 }
