@@ -8,12 +8,14 @@ type TFiatValueProps = {
   amount: TAmountWithConversions | undefined;
   className?: string;
   enableRotateUnit?: boolean;
+  wrap?: boolean;
 };
 
 export const FiatValue = ({
   amount,
   className,
   enableRotateUnit = false,
+  wrap = false,
 }: TFiatValueProps) => {
 
   const classNames = `${style.fiatValue || ''} ${className && className || ''}`;
@@ -24,6 +26,7 @@ export const FiatValue = ({
         alwaysShowAmounts
         convertToFiat
         amount={amount}
+        wrap={wrap}
         enableRotateUnit={enableRotateUnit} />
     </span>
   );
