@@ -3,7 +3,7 @@
 import type { TMarketAction, TVendorName } from '@/api/market';
 import type { CoinCode, TAccount } from '@/api/account';
 import type { TKeystoreFeature } from '@/api/keystores';
-import { isEthereumBased } from '@/routes/account/utils';
+import { isEthereumBased } from '@/utils/coin';
 
 export const getFallbackMarketAccountCode = (accounts: TAccount[]) => {
   return accounts.find(account => account.keystore.connected)?.code

@@ -17,7 +17,7 @@ import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, GuideWrapper, GuidedContent, Header, Main, ResponsiveGrid } from '@/components/layout';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { FeeTargets } from './feetargets';
-import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinBased, isBitcoinOnly } from '@/utils/coin';
 import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
 import { SendResult } from './components/result';

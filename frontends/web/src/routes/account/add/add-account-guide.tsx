@@ -5,7 +5,7 @@ import { i18n } from '@/i18n/i18n';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
 import { TAccount } from '@/api/account';
-import { isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/utils/coin';
 
 type TAddAccountGuide = {
   accounts: TAccount[];

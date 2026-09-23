@@ -9,6 +9,7 @@ import * as marketAPI from '@/api/market';
 import { getSwapStatus } from '@/api/swap';
 import { AccountCode, TAccount } from '@/api/account';
 import { View, ViewContent } from '@/components/view/view';
+import { isBitcoinOnly } from '@/utils/coin';
 import { useLoad } from '@/hooks/api';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
@@ -26,7 +27,6 @@ import { GroupedAccountSelector } from '@/components/groupedaccountselector/grou
 import { open } from '@/api/system';
 import { useMarketContext } from './market-context';
 import { MarketGuide } from './guide';
-import { isBitcoinOnly } from '../account/utils';
 import { useFeatureConnect } from '@/hooks/keystore';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import type { TKeystoreFeature } from '@/api/keystores';

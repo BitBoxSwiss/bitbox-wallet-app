@@ -793,6 +793,26 @@ func (backend *Backend) ManualReconnect(reconnectETH bool) {
 	}
 }
 
+// SetAccountActivity marks an account as foreground-active for short-lived background refreshes.
+func (backend *Backend) SetAccountActivity(accountCode accountsTypes.Code, active bool) error {
+	if accountView := backend.Accounts().lookup(accountCode); accountView != nil {
+		ethAccount, ok := accountView.Account.(*eth.Account)
+		if !ok {
+			backend.log.
+				WithField("code", accountCode).
+				WithField("coinCode", accountView.Record.CoinCode).
+				Warn("account activity request ignored for non-ETH account")
+			return nil
+		}
+		backend.ethupdater.SetAccountActivity(ethAccount, active)
+		return nil
+	}
+	if !active {
+		return nil
+	}
+	return errp.Newf("unknown account code %q", accountCode)
+}
+
 // Testing returns whether this backend is for testing only.
 func (backend *Backend) Testing() bool {
 	return backend.testing
