@@ -8,10 +8,11 @@ import { TPaymentInputType, type TLightningBitcoinPaymentInput, type TLightningB
 import { useDebounce } from '@/hooks/debounce';
 import { useMountedRef } from '@/hooks/mount';
 
-type TPreparedPayment =
+type TPreparedPayment = { sendAll: boolean } & (
   | { status: 'preparing'; amountSat?: number }
   | { status: 'ready'; amountSat?: number; fees: TPreparePaymentResponse }
-  | { status: 'error'; amountSat?: number; error: string; fees?: TPreparePaymentResponse };
+  | { status: 'error'; amountSat?: number; error: string; fees?: TPreparePaymentResponse }
+);
 
 const isPositiveInteger = (amount?: number): amount is number => (
   typeof amount === 'number' && Number.isFinite(amount) && Number.isInteger(amount) && amount > 0
@@ -80,24 +81,26 @@ export const usePaymentReview = ({
   );
   const needsCustomAmount = fixedAmountSat === undefined;
   const mounted = useMountedRef();
-  const customAmountRef = useRef<number>();
+  const prepareRequestId = useRef(0);
+  const [sendAll, setSendAll] = useState(false);
   const [customAmount, setCustomAmount] = useState<number>();
   const debouncedCustomAmount = useDebounce(customAmount, 300);
   const [preparedPayment, setPreparedPayment] = useState<TPreparedPayment>();
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState<string>();
-  const currentAmountSat = needsCustomAmount ? customAmount : fixedAmountSat;
+  const currentAmountSat = needsCustomAmount ? (sendAll ? undefined : customAmount) : fixedAmountSat;
+  const debouncedAmountSat = sendAll ? undefined : debouncedCustomAmount;
   const amountError = (
-    needsCustomAmount && currentAmountSat !== undefined && !isValidAmount(paymentDetails, currentAmountSat)
+    needsCustomAmount && !sendAll && currentAmountSat !== undefined && !isValidAmount(paymentDetails, currentAmountSat)
       ? invalidAmountError(paymentDetails, t)
       : undefined
   );
 
-  const preparePayment = useCallback(async (amountSat?: number, existingIdempotencyKey?: string) => {
+  const preparePayment = useCallback(async (amountSat?: number, existingIdempotencyKey?: string, useAll = false) => {
     let preparePaymentRequest: TPreparePaymentRequest;
     switch (paymentDetails.type) {
     case TPaymentInputType.BITCOIN_ADDRESS:
-      if (!isValidAmount(paymentDetails, amountSat)) {
+      if (!useAll && !isValidAmount(paymentDetails, amountSat)) {
         return;
       }
       preparePaymentRequest = {
@@ -108,7 +111,7 @@ export const usePaymentReview = ({
       };
       break;
     case TPaymentInputType.BOLT11:
-      if (needsCustomAmount && !isValidAmount(paymentDetails, amountSat)) {
+      if (!useAll && needsCustomAmount && !isValidAmount(paymentDetails, amountSat)) {
         return;
       }
       preparePaymentRequest = {
@@ -118,7 +121,7 @@ export const usePaymentReview = ({
       };
       break;
     case TPaymentInputType.LNURL_PAY:
-      if (!isValidAmount(paymentDetails, amountSat)) {
+      if (!useAll && !isValidAmount(paymentDetails, amountSat)) {
         return;
       }
       preparePaymentRequest = {
@@ -130,25 +133,31 @@ export const usePaymentReview = ({
       break;
     }
 
+    if (useAll) {
+      preparePaymentRequest.sendAll = true;
+    }
+    const requestId = ++prepareRequestId.current;
     setPreparedPayment({
       status: 'preparing',
+      sendAll: useAll,
       amountSat,
     });
 
     try {
       const fees = await postPreparePayment(preparePaymentRequest);
 
-      if (!mounted.current || (needsCustomAmount && customAmountRef.current !== amountSat)) {
+      if (!mounted.current || requestId !== prepareRequestId.current) {
         return;
       }
 
       setPreparedPayment({
         status: 'ready',
+        sendAll: useAll,
         amountSat,
         fees,
       });
     } catch (error) {
-      if (!mounted.current || (needsCustomAmount && customAmountRef.current !== amountSat)) {
+      if (!mounted.current || requestId !== prepareRequestId.current) {
         return;
       }
 
@@ -160,6 +169,7 @@ export const usePaymentReview = ({
 
       setPreparedPayment({
         status: 'error',
+        sendAll: useAll,
         amountSat,
         error: toLightningErrorMessage(t, error),
         fees: insufficientFundsFees(error),
@@ -177,18 +187,15 @@ export const usePaymentReview = ({
   const fees = (
     preparedPayment
     && preparedPayment.status !== 'preparing'
-    && (!needsCustomAmount || preparedPayment.amountSat === currentAmountSat)
+    && preparedPayment.sendAll === sendAll
+    && (sendAll || !needsCustomAmount || preparedPayment.amountSat === currentAmountSat)
       ? preparedPayment.fees
       : undefined
   );
 
   const sendPayment = useCallback(async () => {
-    if (needsCustomAmount && !isValidAmount(paymentDetails, currentAmountSat)) {
+    if (!sendAll && needsCustomAmount && !isValidAmount(paymentDetails, currentAmountSat)) {
       setSendError(invalidAmountError(paymentDetails, t));
-      return;
-    }
-
-    if (currentAmountSat === undefined) {
       return;
     }
 
@@ -196,6 +203,10 @@ export const usePaymentReview = ({
       return;
     }
 
+    const amountSat = sendAll ? fees.totalDebitSat : currentAmountSat;
+    if (amountSat === undefined) {
+      return;
+    }
     setIsSending(true);
     setSendError(undefined);
 
@@ -209,7 +220,7 @@ export const usePaymentReview = ({
           return {
             type: TPaymentInputType.BITCOIN_ADDRESS,
             paymentInput: paymentDetails.details.address,
-            amountSat: currentAmountSat,
+            amountSat,
             approvedFeeSat: fees.feeSat,
             idempotencyKey: fees.idempotencyKey,
           };
@@ -217,7 +228,7 @@ export const usePaymentReview = ({
           return {
             type: TPaymentInputType.BOLT11,
             paymentInput: paymentDetails.details.invoice,
-            amountSat: paymentDetails.details.amountSat === undefined ? currentAmountSat : undefined,
+            amountSat: paymentDetails.details.amountSat === undefined ? amountSat : undefined,
             approvedFeeSat: fees.feeSat,
           };
         case TPaymentInputType.LNURL_PAY:
@@ -227,12 +238,15 @@ export const usePaymentReview = ({
           return {
             type: TPaymentInputType.LNURL_PAY,
             paymentInput: paymentDetails.details.input,
-            amountSat: currentAmountSat,
+            amountSat,
             approvedFeeSat: fees.feeSat,
             idempotencyKey: fees.idempotencyKey,
           };
         }
       })();
+      if (sendAll) {
+        sendPaymentRequest.sendAll = true;
+      }
       await postSendPayment(sendPaymentRequest);
       onSuccess();
     } catch (error) {
@@ -250,13 +264,13 @@ export const usePaymentReview = ({
       // It is possible that the fee retrieved during the prepare phase is no longer valid and that we need to re-prepare.
       if (error instanceof TSdkError && error.code === TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED) {
         setSendError(errorMessage);
-        // Fixed-amount BOLT11 invoices already encode the amount; pass amountSat only when the user entered it.
+        // Fixed-amount BOLT11 invoices already encode the amount.
         const amountSat = (
           paymentDetails.type === TPaymentInputType.BOLT11 && paymentDetails.details.amountSat !== undefined
             ? undefined
-            : currentAmountSat
+            : sendAll ? fees.totalDebitSat : currentAmountSat
         );
-        await preparePayment(amountSat, fees.idempotencyKey);
+        await preparePayment(amountSat, fees.idempotencyKey, sendAll);
         return;
       }
 
@@ -272,6 +286,7 @@ export const usePaymentReview = ({
     paymentDetails,
     preparedPayment?.status,
     preparePayment,
+    sendAll,
     t,
   ]);
 
@@ -280,7 +295,9 @@ export const usePaymentReview = ({
   }, [isSending, onSendingChange]);
 
   useEffect(() => {
+    prepareRequestId.current += 1;
     setCustomAmount(undefined);
+    setSendAll(false);
     setPreparedPayment(undefined);
     setIsSending(false);
     setSendError(undefined);
@@ -297,18 +314,18 @@ export const usePaymentReview = ({
       return;
     }
 
-    customAmountRef.current = customAmount;
+    prepareRequestId.current += 1;
     setSendError(undefined);
     setPreparedPayment(undefined);
-  }, [customAmount, needsCustomAmount, paymentDetails.type]);
+  }, [currentAmountSat, needsCustomAmount, paymentDetails.type, sendAll]);
 
   useEffect(() => {
-    if (!needsCustomAmount || debouncedCustomAmount !== customAmount || customAmount === undefined) {
+    if (!needsCustomAmount || (!sendAll && (debouncedAmountSat !== currentAmountSat || currentAmountSat === undefined))) {
       return;
     }
 
-    preparePayment(customAmount);
-  }, [customAmount, debouncedCustomAmount, needsCustomAmount, preparePayment]);
+    preparePayment(currentAmountSat, undefined, sendAll);
+  }, [currentAmountSat, debouncedAmountSat, needsCustomAmount, preparePayment, sendAll]);
 
   return {
     canSend: preparedPayment?.status === 'ready' && !!fees,
@@ -319,6 +336,8 @@ export const usePaymentReview = ({
     preparedPayment,
     sendError,
     sendPayment,
+    sendAll,
+    setSendAll,
     setCustomAmount,
   };
 };

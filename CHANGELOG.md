@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Lightning: add "Send all" for Bitcoin addresses, Lightning addresses, and amountless invoices
 - Rename "Factory Reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings
