@@ -104,6 +104,7 @@ export const ConfirmSend = ({
             <span className={style.valueOriginalLarge}>
               <AmountWithUnit
                 amount={proposedAmount}
+                alwaysShowAmounts
                 enableRotateUnit
                 unitClassName={style.unit}
               />
