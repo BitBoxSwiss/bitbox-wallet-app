@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AccountCode, CoinCode, CoinUnit, TAccountBase, TAmountWithConversions } from '@/api/account';
 import { syncdone } from '@/api/accountsync';
+import { TLightningAccount, subscribeLightningBalance } from '@/api/lightning';
 import { Button } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
 import { USBSuccess, ChevronDownDark } from '@/components/icon';
@@ -112,6 +113,7 @@ type TAccountSelector<T extends TAccountBase> = {
   onChange: (value: string) => void;
   onProceed?: () => void;
   accounts: T[];
+  lightningAccount?: TLightningAccount | null;
   stackedLayout?: boolean;
   className?: string;
 };
@@ -124,6 +126,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
   onChange,
   onProceed,
   accounts,
+  lightningAccount,
   stackedLayout,
   className = '',
 }: TAccountSelector<T>) => {
@@ -137,6 +140,20 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
     //setting options without balance
     const accountsByKeystore = getAccountsByKeystore(accounts);
     const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore, isAccountDisabled);
+    if (lightningAccount) {
+      groupedOpts.push({
+        label: t('lightning.accountLabel'),
+        connected: false,
+        options: [{
+          label: t('lightning.accountLabel'),
+          value: lightningAccount.code,
+          coinCode: 'lightning',
+          coinUnit: 'BTC',
+          active: true,
+          disabled: false,
+        }],
+      });
+    }
     setOptions(groupedOpts);
     //asynchronously fetching each account's balance
     const loadBalances = async () => {
@@ -155,12 +172,15 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
     const subscriptions = accounts
       .filter(account => account.active)
       .map(account => syncdone(account.code, loadBalances));
+    if (lightningAccount) {
+      subscriptions.push(subscribeLightningBalance(loadBalances));
+    }
     loadBalances();
     return () => {
       cancelled = true;
       unsubscribe(subscriptions);
     };
-  }, [accounts, isAccountDisabled]);
+  }, [accounts, isAccountDisabled, lightningAccount, t]);
 
   if (!options) {
     return null;

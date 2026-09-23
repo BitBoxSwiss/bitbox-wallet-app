@@ -103,7 +103,7 @@ export type TBitrefillInfoResponse = {
   url: string;
   widgetUrl: string;
   ref: string;
-  address?: string;
+  address: string | null;
 } | {
   success: false;
   errorMessage: string;

@@ -41,12 +41,11 @@ export const BottomNavigation = ({
   );
   const onlyHasLightningAccount = hasLightningAccount && activeAccounts.length === 0;
   const showAccounts = !onlyHasLightningAccount;
-  const showMarket = !onlyHasLightningAccount;
   const accountLabel = onlyHasOneAccount ? t('account.account') : t('account.accounts');
   const portfolioLabel = t('accountSummary.portfolio');
   const lightningLabel = 'Lightning';
   const marketLabel = t('generic.buySell');
-  const navItems = getBottomNavItems({ hasLightningAccount, showAccounts, showMarket });
+  const navItems = getBottomNavItems({ hasLightningAccount, showAccounts, showMarket: true });
   const settingsLabel = t('sidebar.settings');
 
   const bottomNavKey = getBottomNavKey(pathname);
