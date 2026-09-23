@@ -58,6 +58,34 @@ There are a few things that should be kept in mind when writing tests, due to th
 
 [watch-only-test.ts](./watch-only.test.ts) contains example of both pre and post test hooks for most of this cases.
 
+### Vendor widget messaging
+
+`vendor-widgets.test.ts` serves the local Bitrefill and BTC Direct HTML wrappers at
+their production URLs using Playwright routing. It uses the app message protocol
+from before commit `c1780d48f`, with HTTPS, HTTP, and opaque-origin parents. The
+opaque parent exercises replies to an origin serialized as `null`; native custom
+schemes retain wildcard replies for compatibility. Vendor pages and SDK downloads
+are stubbed, so these tests need no backend, simulator, credentials, or vendor network
+access. They cover configuration, relayed payments, and forged messages from
+popups, unrelated windows, and a navigated inner iframe.
+
+Bitrefill currently sends payments directly to `window.top`, bypassing its wrapper.
+`src/routes/market/bitrefill.test.tsx` tests the app component's handling of that
+inner-frame sender through transaction proposal and signing, alongside the legacy
+wrapper relay. It also checks rejection of wrong origins, unrelated windows, and
+replaced inner frames in both development and production configurations.
+
+`vendor-iframe-message.test.ts` loads the actual app reply helper into a browser and
+checks delayed replies after cross-origin navigation and iframe replacement.
+
+Run both with `npx playwright test tests/vendor-widgets.test.ts tests/vendor-iframe-message.test.ts`.
+The usual Playwright webserver setup still applies. These tests do not replace
+checkout/signing smoke tests in the native app shells.
+
+The local HTML files must also be deployed to the corresponding hosted `/widgets/*/v1/`
+URLs for released apps to receive the wrapper fixes. Keep the existing
+`request-configuration` handshake and payloads when updating those shared URLs.
+
 ## Debugging tests
 
 When a test fails, Playwright will output elements useful for debugging; these are either in [test-results](./test-results), if running locally, or uploaded as artifact if running in CI. 

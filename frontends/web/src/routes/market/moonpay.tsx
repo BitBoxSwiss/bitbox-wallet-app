@@ -13,7 +13,9 @@ import { Message } from '@/components/message/message';
 import { Spinner } from '@/components/spinner/Spinner';
 import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
 import { MoonpayTerms } from '@/components/terms/moonpay-terms';
-import { useMarketIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
+import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
+import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import style from './iframe.module.css';
 
 type TProps = {

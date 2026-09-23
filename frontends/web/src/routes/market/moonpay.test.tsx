@@ -17,14 +17,18 @@ vi.mock('@/hooks/backbutton', () => ({
 vi.mock('@/hooks/darkmode', () => ({
   useDarkmode: () => ({ isDarkMode: false, toggleDarkmode: vi.fn() }),
 }));
-vi.mock('@/hooks/vendor-iframe', () => ({
+vi.mock('@/hooks/vendor-iframe-active', () => ({
   useMarketIframeActive: vi.fn(),
+}));
+vi.mock('@/hooks/vendor-iframe-resize-height', () => ({
   useVendorIframeResizeHeight: () => ({
     containerRef: { current: null },
     height: 480,
     iframeLoaded: false,
     onIframeLoad: vi.fn(),
   }),
+}));
+vi.mock('@/hooks/vendor-iframe-terms', () => ({
   useVendorTerms: () => ({
     agreedTerms: true,
     setAgreedTerms: vi.fn(),

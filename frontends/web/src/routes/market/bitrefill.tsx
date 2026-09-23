@@ -17,7 +17,14 @@ import { getBitrefillInfo } from '@/api/market';
 import { getURLOrigin } from '@/utils/url';
 import { ConfirmBitrefill } from './bitrefill-confirm';
 import { AppContext } from '@/contexts/AppContext';
-import { useMarketIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
+import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
+import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
+import {
+  getVendorIframeMessageTarget,
+  postMessageToVendorIframe,
+  type TVendorIframeMessageTarget,
+} from '@/hooks/vendor-iframe-message';
 import { useAccountSynced } from '@/hooks/account';
 import style from './iframe.module.css';
 
@@ -58,14 +65,14 @@ export const Bitrefill = ({
   const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
-  const handleConfiguration = useCallback(async (event: MessageEvent) => {
+  const handleConfiguration = useCallback(async (target: TVendorIframeMessageTarget) => {
     if (
       !account
       || !bitrefillInfo?.success
     ) {
       return;
     }
-    event.source?.postMessage({
+    postMessageToVendorIframe(target, {
       event: 'configuration',
       ref: bitrefillInfo.ref,
       utm_source: 'BITBOX',
@@ -78,8 +85,6 @@ export const Bitrefill = ({
       region, // can be an empty string if user didnt select a region in market
       // Option to show payment information in the widget, defaults to 'true'
       showPaymentInfo: 'true'
-    }, {
-      targetOrigin: event.origin
     });
   }, [account, bitrefillInfo, isDarkMode, region]);
 
@@ -155,12 +160,20 @@ export const Bitrefill = ({
   }, [account, code, pendingPayment, t]);
 
   const handleMessage = useCallback(async (event: MessageEvent) => {
-    if (
-      !bitrefillInfo?.success
-      || (
-        !isDevServers // if prod check that event is from same origin as bitrefillInfo.url
-        && ![getURLOrigin(bitrefillInfo.url), 'https://embed.bitrefill.com'].includes(event.origin))
-    ) {
+    if (!bitrefillInfo?.success) {
+      return;
+    }
+
+    const target = getVendorIframeMessageTarget(event, iframeRef.current);
+    const fromWrapper = target && (isDevServers || target.origin === getURLOrigin(bitrefillInfo.url));
+    // Bitrefill sends payments to window.top, bypassing the wrapper. Bind those
+    // messages to its current inner iframe as well as the Bitrefill origin.
+    const wrapper = iframeRef.current?.contentWindow;
+    const fromBitrefill = (
+      event.origin === getURLOrigin(bitrefillInfo.widgetUrl)
+      && wrapper && wrapper.length > 0 && event.source === wrapper[0]
+    );
+    if (!fromWrapper && !fromBitrefill) {
       return;
     }
 
@@ -168,7 +181,9 @@ export const Bitrefill = ({
 
     switch (data.event) {
     case 'request-configuration': {
-      handleConfiguration(event);
+      if (fromWrapper) {
+        handleConfiguration(target);
+      }
       break;
     }
     case 'payment_intent': {
@@ -179,7 +194,7 @@ export const Bitrefill = ({
       break;
     }
     }
-  }, [bitrefillInfo, handleConfiguration, handlePaymentRequest, isDevServers]);
+  }, [bitrefillInfo, handleConfiguration, handlePaymentRequest, iframeRef, isDevServers]);
 
   useEffect(() => {
     window.addEventListener('message', handleMessage);
