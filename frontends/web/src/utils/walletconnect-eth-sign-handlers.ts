@@ -62,12 +62,7 @@ export type TRequestDialogContent = {
 
 export type TSignDialogResult = {
   success: true;
-} | {
-  success: false;
-  aborted?: boolean;
-  errorCode?: 'firmwareUpgradeRequired';
-  errorMessage?: string;
-};
+} | TFailedSigningApiResult;
 
 export type TLaunchSignDialog = {
   accountCode: AccountCode;
@@ -90,7 +85,7 @@ type TAccountDetails = {
 type TFailedSigningApiResult = {
   success: false;
   aborted?: boolean;
-  errorCode?: 'firmwareUpgradeRequired';
+  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds';
   errorMessage?: string;
 };
 
@@ -190,11 +185,11 @@ const getAccountDetails = async (address: string): Promise<TAccountDetails | und
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : t('pairing.error.text');
 
-const runSigningApi = async <T extends { success: true }>(
+const runSigningApi = async <T extends TSignDialogResult>(
   id: number,
   respond: TRespondSessionRequest,
-  apiCall: () => Promise<T | TFailedSigningApiResult>,
-  getResult: (result: T) => unknown,
+  apiCall: () => Promise<T>,
+  getResult: (result: Extract<T, { success: true }>) => unknown,
 ): Promise<TSignDialogResult> => {
   try {
     const result = await apiCall();
@@ -206,7 +201,7 @@ const runSigningApi = async <T extends { success: true }>(
       return result;
     }
 
-    await respond(jsonRpcResult(id, getResult(result as T)));
+    await respond(jsonRpcResult(id, getResult(result as Extract<T, { success: true }>)));
     return { success: true };
   } catch (error) {
     console.error('WalletConnect signing request failed', error);

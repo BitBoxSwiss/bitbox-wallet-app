@@ -49,9 +49,13 @@ func TestSignWalletConnectTransactionChainDependencies(t *testing.T) {
 			cfg := signing.NewEthereumConfiguration([]byte{1, 2, 3, 4}, mustKeypath("m/44'/60'/0'/0/0"), xpub)
 			newClient := func() *mocks.InterfaceMock {
 				return &mocks.InterfaceMock{
-					PendingNonceAtFunc:  func(context.Context, common.Address) (uint64, error) { return 4, nil },
-					EstimateGasFunc:     func(context.Context, ethereum.CallMsg) (uint64, error) { return 21000, nil },
-					SuggestGasPriceFunc: func(context.Context) (*big.Int, error) { return big.NewInt(3), nil },
+					BlockNumberFunc:                       func(context.Context) (*big.Int, error) { return big.NewInt(100), nil },
+					NonceAtFunc:                           func(context.Context, common.Address, *big.Int) (uint64, error) { return 0, nil },
+					TransactionReceiptWithBlockNumberFunc: func(context.Context, common.Hash) (*types.Receipt, error) { return nil, nil },
+					BalanceFunc:                           func(context.Context, common.Address) (*big.Int, error) { return big.NewInt(1000000), nil },
+					PendingNonceAtFunc:                    func(context.Context, common.Address) (uint64, error) { return 4, nil },
+					EstimateGasFunc:                       func(context.Context, ethereum.CallMsg) (uint64, error) { return 21000, nil },
+					SuggestGasPriceFunc:                   func(context.Context) (*big.Int, error) { return big.NewInt(3), nil },
 					FeeTargetsFunc: func(context.Context) ([]*ethtypes.FeeTarget, error) {
 						return []*ethtypes.FeeTarget{{TargetCode: accounts.FeeTargetCodeNormal, GasFeeCap: big.NewInt(3)}}, nil
 					},
@@ -59,7 +63,10 @@ func TestSignWalletConnectTransactionChainDependencies(t *testing.T) {
 				}
 			}
 			nativeCoin := eth.NewCoin(newClient(), coinpkg.CodeSEPETH, "Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig, "", nil, nil)
-			updates := make(chan *eth.Account, 2)
+			outgoing, err := eth.NewOutgoingTransactions(t.TempDir())
+			require.NoError(t, err)
+			t.Cleanup(func() { require.NoError(t, outgoing.Close()) })
+			updates := make(chan struct{}, 2)
 			account := eth.NewAccount(&accounts.AccountConfig{
 				Code:                  "account",
 				SigningConfigurations: signing.Configurations{cfg},
@@ -74,7 +81,7 @@ func TestSignWalletConnectTransactionChainDependencies(t *testing.T) {
 						return err
 					}}, nil
 				},
-			}, nativeCoin, log, updates)
+			}, nativeCoin, outgoing, log, updates)
 			require.NoError(t, account.Initialize())
 			defer account.Close()
 			b := newBackend(t, true, false)

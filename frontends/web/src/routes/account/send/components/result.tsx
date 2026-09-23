@@ -108,7 +108,7 @@ export const SendResult = ({
             <CopyableInput
               alignLeft
               flexibleHeight
-              value={errorMessage || t('genericError')}
+              value={result.errorCode === 'insufficientFunds' ? t('send.error.insufficientFunds') : errorMessage || t('genericError')}
             />
           </ViewContent>
           <ViewButtons>

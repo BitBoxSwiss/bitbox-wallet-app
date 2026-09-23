@@ -11,8 +11,10 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -73,6 +75,50 @@ func formValues(t *testing.T, req *http.Request) url.Values {
 		t.Fatalf("unexpected method: %s", req.Method)
 		return nil
 	}
+}
+
+func TestReconciliationRPCResponses(t *testing.T) {
+	for _, body := range []string{
+		`{"jsonrpc":"2.0","id":1,"result":null}`,
+		`{"jsonrpc":"2.0","id":1}`,
+		`{"jsonrpc":"2.0","id":1,"error":{"message":"unavailable"}}`,
+	} {
+		t.Run(body, func(t *testing.T) {
+			client := newTestEtherScan(func(*http.Request) *http.Response { return jsonRPCResponse(t, body) })
+			receipt, receiptErr := client.TransactionReceiptWithBlockNumber(context.Background(), common.Hash{})
+			tx, _, txErr := client.TransactionByHash(context.Background(), common.Hash{})
+			require.Nil(t, receipt)
+			require.Nil(t, tx)
+			if strings.Contains(body, `"result":null`) {
+				require.NoError(t, receiptErr)
+				require.ErrorIs(t, txErr, ethereum.NotFound)
+			} else {
+				require.Error(t, receiptErr)
+				require.Error(t, txErr)
+				require.NotErrorIs(t, txErr, ethereum.NotFound)
+			}
+		})
+	}
+	client := newTestEtherScan(func(req *http.Request) *http.Response {
+		require.Equal(t, "eth_getTransactionCount", req.URL.Query().Get("action"))
+		require.Equal(t, "0x64", req.URL.Query().Get("tag"))
+		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x9"}`)
+	})
+	nonce, err := client.NonceAt(context.Background(), common.Address{}, big.NewInt(100))
+	require.NoError(t, err)
+	require.Equal(t, uint64(9), nonce)
+	receiptJSON, err := json.Marshal(&types.Receipt{
+		BlockNumber: big.NewInt(100), Status: types.ReceiptStatusSuccessful,
+		GasUsed: 21000, Logs: []*types.Log{},
+	})
+	require.NoError(t, err)
+	client = newTestEtherScan(func(*http.Request) *http.Response {
+		return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"result":%s}`, receiptJSON))
+	})
+	receipt, err := client.TransactionReceiptWithBlockNumber(context.Background(), common.Hash{})
+	require.NoError(t, err)
+	require.Equal(t, big.NewInt(100), receipt.BlockNumber)
+	require.Equal(t, uint64(21000), receipt.GasUsed)
 }
 
 func TestRPCProxyUsesGETForSmallEstimateGasRequest(t *testing.T) {
@@ -241,4 +287,42 @@ func TestTokenTransactionsByContractPaginationDedup(t *testing.T) {
 		}
 	}
 	require.Equal(t, 2, dupCount)
+}
+
+func TestBalancesAtBlock(t *testing.T) {
+	address := common.Address{19: 2}
+	client := newTestEtherScan(func(req *http.Request) *http.Response {
+		params := req.URL.Query()
+		require.Equal(t, "balancemulti", params.Get("action"))
+		require.Equal(t, "0x64", params.Get("tag"))
+		require.Equal(t, address.Hex(), params.Get("address"))
+		return jsonRPCResponse(t, `{"status":"1","result":[{"account":"`+address.Hex()+`","balance":"20000"}]}`)
+	})
+	balances, err := client.Balances(context.Background(), []common.Address{address}, big.NewInt(100))
+	require.NoError(t, err)
+	require.Equal(t, big.NewInt(20000), balances[address])
+
+	token := erc20.NewToken("0x0000000000000000000000000000000000000001", 6)
+	for _, block := range []*big.Int{nil, big.NewInt(100)} {
+		client := newTestEtherScan(func(req *http.Request) *http.Response {
+			params := req.URL.Query()
+			require.Equal(t, "eth_call", params.Get("action"))
+			require.Equal(t, token.ContractAddress().Hex(), params.Get("to"))
+			require.Equal(t, "0x70a082310000000000000000000000000000000000000000000000000000000000000002", params.Get("data"))
+			if block == nil {
+				require.Equal(t, "latest", params.Get("tag"))
+			} else {
+				require.Equal(t, "0x64", params.Get("tag"))
+			}
+			return jsonRPCResponse(t, `{"jsonrpc":"2.0","result":"0x0000000000000000000000000000000000000000000000000000000000004e20"}`)
+		})
+		balance, err := client.ERC20Balance(address, token, block)
+		require.NoError(t, err)
+		require.Equal(t, big.NewInt(20000), balance)
+	}
+	client = newTestEtherScan(func(*http.Request) *http.Response {
+		return jsonRPCResponse(t, `{"jsonrpc":"2.0","result":"0x"}`)
+	})
+	_, err = client.ERC20Balance(address, token, big.NewInt(100))
+	require.Error(t, err)
 }

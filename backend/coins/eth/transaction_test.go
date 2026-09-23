@@ -11,6 +11,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	ethdb "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/db"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -21,12 +22,11 @@ import (
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewTransactionNonce(t *testing.T) {
+func TestSignTransactionNonce(t *testing.T) {
 	zero, supplied := uint64(0), uint64(7)
 	for _, test := range []struct {
 		name     string
@@ -39,15 +39,19 @@ func TestNewTransactionNonce(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			client := newTransactionRPCClient(4, 42000, big.NewInt(3), nil)
+			account := newAccountWithOptions(t, true, make(chan struct{}, 1))
+			defer account.Close()
+			setTransactionSigningKeystore(t, account, 10)
 			request := TransactionRequest{
-				From:      common.HexToAddress("0x1111111111111111111111111111111111111111"),
+				From:      account.address.Address,
 				Recipient: common.HexToAddress("0x2222222222222222222222222222222222222222"),
 				Value:     big.NewInt(42),
 				Data:      []byte{0xde, 0xad, 0xbe, 0xef},
 				Nonce:     test.nonce,
 			}
 
-			tx, err := newTransaction(10, client, request, nil, logging.Get().WithGroup("transaction_test"))
+			tx, err := SignTransaction(SignTransactionArgs{ChainID: 10, Transaction: request},
+				client, account.signingConfiguration, account.Config().ConnectKeystore, nil, account.log)
 			require.NoError(t, err)
 			require.Equal(t, test.expected, tx.Nonce())
 			require.Equal(t, request.Recipient, *tx.To())
@@ -65,6 +69,28 @@ func TestNewTransactionNonce(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSignTransactionDoesNotInferERC20FromCalldata(t *testing.T) {
+	account := newAccountWithOptions(t, true, make(chan struct{}, 1))
+	defer account.Close()
+	client := newTransactionRPCClient(0, 50000, big.NewInt(2), nil)
+	account.coin.client = client
+	setTransactionSigningKeystore(t, account, account.coin.ChainID())
+	request := validTransactionRequest(account)
+	// NFT contracts can also expose transfer(address,uint256), where the integer is a token ID.
+	request.Data = make([]byte, 68)
+	copy(request.Data, []byte{0xa9, 0x05, 0x9c, 0xbb})
+	request.Data[35] = 2
+	big.NewInt(1000).FillBytes(request.Data[36:])
+	client.ERC20BalanceFunc = func(common.Address, *erc20.Token, *big.Int) (*big.Int, error) {
+		return big.NewInt(1), nil
+	}
+	tx, err := signTransaction(account, account.coin.ChainID(), true, request)
+	require.NoError(t, err)
+	require.Equal(t, request.Data, tx.Data())
+	require.Len(t, client.SendTransactionCalls(), 1)
+	require.Empty(t, client.ERC20BalanceCalls())
 }
 
 func TestSignTypedMsgForwardsSupportedRequestChainAndRawData(t *testing.T) {
@@ -161,6 +187,12 @@ func newTransactionRPCClient(
 	sendErr error,
 ) *mocks.InterfaceMock {
 	return &mocks.InterfaceMock{
+		BalanceFunc:                           func(context.Context, common.Address) (*big.Int, error) { return big.NewInt(1e18), nil },
+		ERC20BalanceFunc:                      func(common.Address, *erc20.Token, *big.Int) (*big.Int, error) { return big.NewInt(1e18), nil },
+		BlockNumberFunc:                       func(context.Context) (*big.Int, error) { return big.NewInt(100), nil },
+		NonceAtFunc:                           func(context.Context, common.Address, *big.Int) (uint64, error) { return 0, nil },
+		TransactionReceiptWithBlockNumberFunc: func(context.Context, common.Hash) (*gethtypes.Receipt, error) { return nil, nil },
+		TransactionByHashFunc:                 func(context.Context, common.Hash) (*gethtypes.Transaction, bool, error) { return nil, true, nil },
 		PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
 			return nonce, nil
 		},
@@ -184,17 +216,17 @@ func newTransactionRPCClient(
 }
 
 type beginFailingDB struct {
+	ethdb.Interface
 	err        error
 	beginCalls int
 }
 
-func (db *beginFailingDB) Begin() (ethdb.TxInterface, error) {
+func (db *beginFailingDB) BeginForSender(chainID uint64, sender common.Address) (ethdb.TxInterface, error) {
 	db.beginCalls++
-	return nil, db.err
-}
-
-func (db *beginFailingDB) Close() error {
-	return nil
+	if db.err != nil {
+		return nil, db.err
+	}
+	return db.Interface.BeginForSender(chainID, sender)
 }
 
 func TestSignTransactionRejectsMismatchedSenderBeforeSideEffects(t *testing.T) {
@@ -224,7 +256,7 @@ func TestSignTransactionRejectsMismatchedSenderBeforeSideEffects(t *testing.T) {
 
 func TestSignTransactionRejectsUnsupportedChainBeforeSideEffects(t *testing.T) {
 	const unsupportedChainID = uint64(2)
-	acct := newAccountWithOptions(t, true, make(chan *Account, 1))
+	acct := newAccountWithOptions(t, true, make(chan struct{}, 1))
 	defer acct.Close()
 
 	acct.ETHCoin().TstSetClient(&mocks.InterfaceMock{})
@@ -240,7 +272,7 @@ func TestSignTransactionRejectsUnsupportedChainBeforeSideEffects(t *testing.T) {
 }
 
 func TestSignTransactionRejectsUnavailableFeesBeforeConnectingKeystore(t *testing.T) {
-	acct := newAccountWithOptions(t, true, make(chan *Account, 1))
+	acct := newAccountWithOptions(t, true, make(chan struct{}, 1))
 	defer acct.Close()
 
 	acct.ETHCoin().TstSetClient(&mocks.InterfaceMock{
@@ -270,7 +302,7 @@ func TestSignTransactionUsesOnlyTargetChainClient(t *testing.T) {
 	)
 	gasPrice := big.NewInt(4)
 	targetClient := newTransactionRPCClient(targetNonce, gasLimit, gasPrice, nil)
-	acct := newAccountWithOptions(t, true, make(chan *Account, 1))
+	acct := newAccountWithOptions(t, true, make(chan struct{}, 1))
 	defer acct.Close()
 
 	acct.ETHCoin().TstSetClient(&mocks.InterfaceMock{})
@@ -296,7 +328,7 @@ func TestSignTransactionUsesOnlyTargetChainClient(t *testing.T) {
 }
 
 func TestSignTransactionNativeNonceUsesHigherPendingNonce(t *testing.T) {
-	acct := newAccountWithOptions(t, true, make(chan *Account, 1))
+	acct := newAccountWithOptions(t, true, make(chan struct{}, 1))
 	defer acct.Close()
 
 	nativePendingTx := gethtypes.NewTx(&gethtypes.LegacyTx{
@@ -319,7 +351,7 @@ func TestSignTransactionNativeNonceUsesHigherPendingNonce(t *testing.T) {
 }
 
 func TestSignTransactionStoresSuccessfulSameChainBroadcast(t *testing.T) {
-	enqueueUpdateCh := make(chan *Account, 1)
+	enqueueUpdateCh := make(chan struct{}, 1)
 	acct := newAccountWithOptions(t, true, enqueueUpdateCh)
 	defer acct.Close()
 
@@ -340,13 +372,12 @@ func TestSignTransactionStoresSuccessfulSameChainBroadcast(t *testing.T) {
 	pendingTransactions := outgoingTxs(t, acct)
 	require.Len(t, pendingTransactions, 1)
 	require.Equal(t, signedTx.Hash(), pendingTransactions[0].Transaction.Hash())
-	require.Equal(t, uint16(1), pendingTransactions[0].BroadcastAttempts)
-	require.Same(t, acct, <-enqueueUpdateCh)
+	<-enqueueUpdateCh
 }
 
 func TestSignTransactionDoesNotStoreFailedBroadcast(t *testing.T) {
 	broadcastErr := errp.New("broadcast failed")
-	enqueueUpdateCh := make(chan *Account, 1)
+	enqueueUpdateCh := make(chan struct{}, 1)
 	acct := newAccountWithOptions(t, true, enqueueUpdateCh)
 	defer acct.Close()
 
@@ -365,31 +396,31 @@ func TestSignTransactionDoesNotStoreFailedBroadcast(t *testing.T) {
 }
 
 func TestSignTransactionSucceedsWhenPendingStorageFailsAfterBroadcast(t *testing.T) {
-	storageErr := errp.New("pending storage failed")
-	enqueueUpdateCh := make(chan *Account, 1)
+	enqueueUpdateCh := make(chan struct{}, 1)
 	acct := newAccountWithOptions(t, true, enqueueUpdateCh)
-	originalDB := acct.db
-	defer func() {
-		acct.db = originalDB
-		acct.Close()
-	}()
+	defer acct.Close()
 
 	nativeClient := newTransactionRPCClient(0, 21000, big.NewInt(3), nil)
 	acct.ETHCoin().TstSetClient(nativeClient)
 	setTransactionSigningKeystore(t, acct, acct.ETHCoin().ChainID())
-	failingDB := &beginFailingDB{err: storageErr}
-	acct.db = failingDB
+	failingDB := &beginFailingDB{Interface: acct.outgoing.db}
+	acct.outgoing.db = failingDB
+	nativeClient.SendTransactionFunc = func(context.Context, *gethtypes.Transaction) error {
+		failingDB.err = errp.New("pending storage failed")
+		return nil
+	}
 
 	signedTx, err := signTransaction(acct, acct.ETHCoin().ChainID(), true, validTransactionRequest(acct))
 	require.NoError(t, err)
 	require.NotNil(t, signedTx)
+	require.Equal(t, 2, failingDB.beginCalls) // Load records, then attempt to store the broadcast.
 	require.Len(t, nativeClient.SendTransactionCalls(), 1)
-	require.Equal(t, 1, failingDB.beginCalls)
-	require.Same(t, acct, <-enqueueUpdateCh)
+	require.Len(t, outgoingTxs(t, acct), 1)
+	require.Len(t, enqueueUpdateCh, 1)
 }
 
 func TestSignTransactionRejectsMismatchedPendingScope(t *testing.T) {
-	acct := newAccountWithOptions(t, true, make(chan *Account, 1))
+	acct := newAccountWithOptions(t, true, make(chan struct{}, 1))
 	defer acct.Close()
 	for _, field := range []string{"chain", "sender"} {
 		t.Run(field, func(t *testing.T) {
