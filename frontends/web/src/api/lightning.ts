@@ -28,6 +28,7 @@ export type TLightningResponse<T> =
 export type TLightningAccount = {
   rootFingerprint: string;
   code: AccountCode;
+  coinCode: 'lightning';
   num: number;
 };
 

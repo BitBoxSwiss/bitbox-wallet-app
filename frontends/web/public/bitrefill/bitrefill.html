@@ -57,16 +57,18 @@
             showPaymentInfo,
           } = data || {};
 
+          // Refund addresses are enforced for all payment methods other than Lightning.
+          const missingRefundAddress = paymentMethods !== 'lightning' && !refundAddress;
           if ( // ensure critical parameters are available
             !ref
             || !utm_source
-            || !refundAddress
+            || missingRefundAddress
             || !paymentMethods
           ) {
             showError(`Unexpected error:
               ${!ref ? 'Referral code missing' : ''}
               ${!utm_source ? 'UTM source missing' : ''}
-              ${!refundAddress ? 'Refund address missing' : ''}
+              ${missingRefundAddress ? 'Refund address missing' : ''}
               ${!paymentMethods ? 'Payment method missing' : ''}
             `);
             return;
@@ -85,7 +87,7 @@
             theme: theme,
             hl: hl,
             paymentMethods: paymentMethods,
-            refundAddress: refundAddress,
+            ...(refundAddress ? { refundAddress: refundAddress } : {}),
             paymentPending: paymentPending,
             showPaymentInfo: showPaymentInfo
           }).toString();

@@ -49,10 +49,11 @@ const LightningTestnetWarning = ({ onAccept, onCancel }: TWarningProps) => {
 
 type TProps = {
   active: boolean;
+  onCancel?: () => void;
   children: ReactNode;
 };
 
-export const LightningTestnetGuard = ({ active, children }: TProps) => {
+export const LightningTestnetGuard = ({ active, onCancel, children }: TProps) => {
   const { isTesting, sessionConfig, updateSessionConfig } = useContext(AppContext);
   const [, navigate] = useLocation();
 
@@ -77,7 +78,7 @@ export const LightningTestnetGuard = ({ active, children }: TProps) => {
   return (
     <LightningTestnetWarning
       onAccept={() => updateSessionConfig({ lightningTestnetWarningAccepted: true })}
-      onCancel={cancel}
+      onCancel={onCancel ?? cancel}
     />
   );
 };

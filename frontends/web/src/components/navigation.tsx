@@ -1,18 +1,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, useRoute } from 'wouter';
 import { useAppState } from '@/contexts/app-state-context';
 import { usePrevious } from '@/hooks/previous';
+import { isLightningFeatureAvailable } from '@/utils/env';
 
 export const AppNavigation = () => {
   const [, navigate] = useLocation();
+  const [isMarketSelect] = useRoute('/market/select/:account?');
+  const [, bitrefillParams] = useRoute('/market/bitrefill/spend/:account/:region?');
+  const bitrefillAccount = bitrefillParams?.account;
 
   const {
     accounts,
     deviceIDs,
     devices,
     hasLightningAccount,
+    lightningAccount,
   } = useAppState();
 
   const prevDevices = usePrevious(devices);
@@ -83,10 +88,22 @@ export const AppNavigation = () => {
       navigate('/account-summary?with-chart-animation=true', { replace: true });
       return;
     }
-    // if on the /market/ view and there are no accounts view route to /
-    if (accounts.length === 0 && currentURL.startsWith('/market/')) {
-      navigate('/');
-      return;
+    // Wait for the Lightning account before allowing marketplace routes without regular accounts.
+    if (
+      accounts.length === 0
+      && currentURL.startsWith('/market/')
+      && (lightningAccount !== undefined || !isLightningFeatureAvailable())
+    ) {
+      const canUseLightning = (
+        hasLightningAccount && (
+          isMarketSelect
+          || bitrefillAccount === lightningAccount?.code
+        )
+      );
+      if (!canUseLightning) {
+        navigate('/');
+        return;
+      }
     }
     // if in no-accounts settings and has account go to manage-accounts
     if (accounts.length && currentURL === '/settings/no-accounts') {
@@ -94,7 +111,7 @@ export const AppNavigation = () => {
       return;
     }
 
-  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, navigate, productName]);
+  }, [accounts, bitrefillAccount, deviceIDs, firstDevice, hasLightningAccount, isMarketSelect, lightningAccount, navigate, productName]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});

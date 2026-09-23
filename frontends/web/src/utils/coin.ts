@@ -8,6 +8,7 @@ export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
   case 'btc':
   case 'tbtc':
   case 'rbtc':
+  case 'lightning':
     return true;
   default:
     return false;
