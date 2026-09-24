@@ -56,6 +56,7 @@ func NewHandlers(
 	handleNoError("/address/generate", lightning.PostGenerateAddress).Methods("POST")
 	handleNoError("/address/register", lightning.PostRegisterAddress).Methods("POST")
 	handleNoError("/sdk-status", lightning.GetSDKStatus).Methods("GET")
+	handleNoError("/logging-restart-required", lightning.GetLoggingRestartRequired).Methods("GET")
 	handleNoError("/activate", lightning.PostActivate).Methods("POST")
 	handleNoError("/deactivate", lightning.PostDeactivate).Methods("POST")
 	handleNoError("/balance", lightning.GetBalance).Methods("GET")
@@ -282,6 +283,11 @@ func (lightning *Lightning) PostRegisterAddress(r *http.Request) interface{} {
 // GetSDKStatus handles the GET request to retrieve the Lightning SDK initialization status.
 func (lightning *Lightning) GetSDKStatus(_ *http.Request) interface{} {
 	return responseDto{Success: true, Data: lightning.SDKStatus()}
+}
+
+// GetLoggingRestartRequired returns whether the logging preference needs a process restart.
+func (lightning *Lightning) GetLoggingRestartRequired(_ *http.Request) interface{} {
+	return lightning.LoggingRestartRequired()
 }
 
 // PostActivate handles the POST request to activate lightning.

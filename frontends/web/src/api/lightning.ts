@@ -353,6 +353,10 @@ export const getLightningSDKStatus = async (): Promise<TLightningSDKStatus> => {
   return getApiResponse<TLightningSDKStatus>('lightning/sdk-status', 'Error calling getLightningSDKStatus');
 };
 
+export const getLightningLoggingRestartRequired = (): Promise<boolean> => {
+  return apiGet('lightning/logging-restart-required');
+};
+
 export const postActivate = async (): Promise<void> => {
   return postApiResponse<void, undefined>('lightning/activate', undefined, 'Error calling postActivate');
 };
