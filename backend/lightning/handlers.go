@@ -49,10 +49,20 @@ func NewHandlers(
 	handleNoError("/claim-top-up", lightning.PostClaimTopUp).Methods("POST")
 	handleNoError("/refund-top-up", lightning.PostRefundTopUp).Methods("POST")
 	handleNoError("/top-up/prepare", lightning.PostPrepareTopUp).Methods("POST")
+	handleNoError("/boarding-address", lightning.GetBoardingAddress).Methods("GET")
 	handleNoError("/close-withdraw-funds/prepare", lightning.PostPrepareCloseWithdraw).Methods("POST")
 	handleNoError("/close-withdraw-funds", lightning.PostCloseWithdraw).Methods("POST")
 	handleNoError("/receive-payment", lightning.GetReceivePayment).Methods("GET")
 	handleNoError("/send-payment", lightning.PostSendPayment).Methods("POST")
+}
+
+// GetBoardingAddress returns the Bitcoin address used to fund the current Lightning wallet.
+func (lightning *Lightning) GetBoardingAddress(_ *http.Request) interface{} {
+	address, err := lightning.BoardingAddress()
+	if err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true, Data: address}
 }
 
 // PostPrepareTopUp handles the POST request to validate and prepare a Lightning top-up.
