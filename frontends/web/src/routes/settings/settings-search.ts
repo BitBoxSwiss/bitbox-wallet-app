@@ -154,6 +154,13 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
     page: 'lightning',
   },
   {
+    id: 'lightning-debug-logs',
+    isAvailable: ({ isLightningEnabled }) => isLightningEnabled === true && isLightningSettingVisible(isLightningEnabled),
+    getTitle: ({ t }) => t('lightning.settings.enableDebugLogs'),
+    getDescription: () => '',
+    page: 'lightning',
+  },
+  {
     id: 'export-logs',
     isAvailable: isExportLogsSettingVisible,
     getTitle: ({ t }) => t('settings.expert.exportLogs.title'),

@@ -17,13 +17,16 @@ func (logger *sdkLogger) Log(l breez_sdk_spark.LogEntry) {
 
 var logListener *sdkLogger
 
-// initializeLogging manages the Breez SDK logging handling by only calling SetLogStream once.
-func initializeLogging(log *logrus.Entry) {
+// initializeLogging sets the process-wide SDK log filter once. Changes require an app restart.
+func initializeLogging(log *logrus.Entry, debugLogs bool) {
 	if logListener == nil {
 		logListener = &sdkLogger{log}
 
+		logFilter := "warn"
+		if debugLogs {
+			logFilter = "debug"
+		}
 		var loggerImpl breez_sdk_spark.Logger = logListener
-		logFilter := "debug"
 		if err := breez_sdk_spark.InitLogging(nil, &loggerImpl, &logFilter); err != nil {
 			log.WithError(err).Error("BreezSDK: Error init logging")
 		}

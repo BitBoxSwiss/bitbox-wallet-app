@@ -13,9 +13,13 @@ type TProps = {
 
 export const ConfigProvider = ({ children }: TProps) => {
   const [config, setConfigState] = useState<TConfig | undefined>(undefined);
+  const [initialLightningDebugLogs, setInitialLightningDebugLogs] = useState<boolean>();
 
   useEffect(() => {
-    getConfig().then(setConfigState).catch(console.error);
+    getConfig().then(initialConfig => {
+      setInitialLightningDebugLogs(initialConfig.backend.lightningDebugLogs);
+      setConfigState(initialConfig);
+    }).catch(console.error);
   }, []);
 
   const setConfig = useCallback((object: TConfigUpdate) => {
@@ -27,6 +31,7 @@ export const ConfigProvider = ({ children }: TProps) => {
 
   const value: TConfigContext = {
     config,
+    initialLightningDebugLogs,
     setConfig
   };
 

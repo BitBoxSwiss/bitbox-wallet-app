@@ -16,6 +16,7 @@ import { useLoad, useSubscribe } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SettingsItem } from './components/settingsItem/settingsItem';
+import { LightningLogLevelSetting } from './components/lightning-log-level-setting';
 import styles from './lightning-settings.module.css';
 
 const serviceProvider = 'Spark';
@@ -131,6 +132,10 @@ export const LightningSettings = () => {
           />,
         },
         {
+          id: 'lightning-debug-logs',
+          content: <LightningLogLevelSetting />,
+        },
+        {
           id: 'lightning-close-withdraw-funds',
           content: <SettingsItem
             disabled={!lightningBalance?.hasAvailable}
@@ -155,6 +160,7 @@ export const LightningSettings = () => {
       <View fullscreen={false}>
         <ViewContent>
           {renderContent()}
+          {!lightningAccount && <LightningLogLevelSetting />}
         </ViewContent>
       </View>
     </Main>

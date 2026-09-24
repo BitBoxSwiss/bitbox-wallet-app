@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"path/filepath"
 	"runtime"
 	"testing"
 
@@ -88,6 +89,30 @@ func TestSetAppConfig(t *testing.T) {
 	require.Equal(t, cfg, cfg2)
 	require.Equal(t, coin.BtcUnitSats, cfg2.AppConfig().Backend.BtcUnit)
 	require.Equal(t, map[string]interface{}{"foo": "bar"}, cfg2.AppConfig().Frontend)
+}
+
+// Debug logging defaults to disabled; enabling and disabling it survive reloading.
+func TestLightningDebugLogs(t *testing.T) {
+	require.False(t, NewDefaultAppConfig().Backend.LightningDebugLogs)
+	dir := t.TempDir()
+	appFile := filepath.Join(dir, "app.json")
+	accountsFile := filepath.Join(dir, "accounts.json")
+	lightningFile := filepath.Join(dir, "lightning.json")
+	require.NoError(t, os.WriteFile(appFile, []byte(`{"backend":{}}`), 0600))
+	cfg, err := NewConfig(appFile, accountsFile, lightningFile)
+	require.NoError(t, err)
+	require.False(t, cfg.AppConfig().Backend.LightningDebugLogs)
+
+	for _, enabled := range []bool{true, false} {
+		appCfg := cfg.AppConfig()
+		appCfg.Backend.LightningDebugLogs = enabled
+		require.NoError(t, cfg.SetAppConfig(appCfg))
+		require.Equal(t, enabled, cfg.AppConfig().Backend.LightningDebugLogs)
+
+		cfg, err = NewConfig(appFile, accountsFile, lightningFile)
+		require.NoError(t, err)
+		require.Equal(t, enabled, cfg.AppConfig().Backend.LightningDebugLogs)
+	}
 }
 
 func TestModifyAccountsConfig(t *testing.T) {
