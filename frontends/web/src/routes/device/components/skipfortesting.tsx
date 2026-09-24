@@ -6,7 +6,8 @@ import { AppContext } from '@/contexts/AppContext';
 import { registerTest, type TTestKeystoreEdition } from '@/api/keystores';
 import { Button, Checkbox } from '@/components/forms';
 import { PasswordSingleInput } from '@/components/password';
-import { Dialog, DialogButtons } from '@/components/dialog/dialog';
+import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
+import style from './skipfortesting.module.css';
 
 type TProps = {
   children?: ReactNode;
@@ -44,20 +45,28 @@ export const SkipForTesting = ({
         {children ? children : t('testWallet.prompt.title')}
       </Button>
       <Dialog
+        medium
         open={dialog}
         title={t('testWallet.prompt.title')}
         onClose={() => setDialog(false)}>
         <form onSubmit={registerTestingDevice}>
-          <PasswordSingleInput
-            autoFocus
-            label={t('testWallet.prompt.passwordLabel')}
-            onValidPassword={(pw) => setTestPIN(pw ? pw : '')}/>
-          <Checkbox
-            id="test-wallet-btc-only"
-            checked={btcOnly}
-            onChange={e => setBTCOnly((e.target as HTMLInputElement).checked)}
-            label={t('generic.bitcoinOnly')}
-          />
+          <DialogScrollContent>
+            <ul className={style.checklist}>
+              <li>{t('testWallet.prompt.info.0')}</li>
+              <li>{t('testWallet.prompt.info.1')}</li>
+              <li>{t('testWallet.prompt.info.2')}</li>
+            </ul>
+            <PasswordSingleInput
+              autoFocus
+              label={t('testWallet.prompt.passwordLabel')}
+              onValidPassword={(pw) => setTestPIN(pw ? pw : '')}/>
+            <Checkbox
+              id="test-wallet-btc-only"
+              checked={btcOnly}
+              onChange={e => setBTCOnly((e.target as HTMLInputElement).checked)}
+              label={t('generic.bitcoinOnly')}
+            />
+          </DialogScrollContent>
           <DialogButtons>
             <Button primary type="submit">
               {t('testWallet.prompt.button')}

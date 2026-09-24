@@ -114,6 +114,11 @@
     word-break: break-word;
 }
 
+/* dialogs with a form container should just pass all flexbox styles to the children */
+.contentContainer > form {
+    display: contents;
+}
+
 .contentContainer.slim {
     padding: 0;
 }
