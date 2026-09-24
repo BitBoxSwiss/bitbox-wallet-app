@@ -15,6 +15,7 @@ import { getKeystoreName } from '@/api/keystores';
 import { useLoad, useSubscribe } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
 import { SettingsItem } from './components/settingsItem/settingsItem';
+import { LightningLogLevelSetting } from './components/lightning-log-level-setting';
 import styles from './lightning-settings.module.css';
 
 const serviceProvider = 'Spark';
@@ -103,6 +104,7 @@ export const LightningSettings = () => {
           settingName={<span>{t('lightning.settings.disableWallet')}</span>}
           onClick={() => navigate('/lightning/deactivate/')}
         />
+        <LightningLogLevelSetting />
         <SettingsItem
           disabled={!lightningBalance?.hasAvailable}
           settingName={<span className={styles.danger}>{t('lightning.settings.closeAndWithdrawFunds')}</span>}
@@ -123,6 +125,7 @@ export const LightningSettings = () => {
       <View fullscreen={false}>
         <ViewContent>
           {renderContent()}
+          {!lightningAccount && <LightningLogLevelSetting />}
         </ViewContent>
       </View>
     </Main>

@@ -1896,6 +1896,15 @@
       "enableWallet": "Enable Lightning wallet",
       "enableWalletDescription": "Lightning enables instant and low fee payments.",
       "expert": "Expert",
+      "logLevel": {
+        "options": {
+          "debug": "Debug",
+          "error": "Log errors",
+          "trace": "Trace",
+          "warn": "Log warnings"
+        },
+        "title": "Log level"
+      },
       "serviceProvider": "Service provider",
       "setLightningAddress": "Lightning address",
       "status": "Status",
