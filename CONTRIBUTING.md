@@ -1,32 +1,18 @@
 # Contribution guide
 
-The codebase is maintained using the "contributor workflow" where anyone can
-contribute patch proposals using
-[pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests).
+For security reasons, we do not accept pull requests from external contributors.
 
-To contribute a patch, the workflow is as follows:
+To report a bug, suggest an improvement, or propose a change, please open an issue instead of a
+pull request.
 
-1. Fork the repository.
-2. Create a topic branch.
-3. Commit patches to the branch.
-4. Push changes to the fork.
-5. Create a pull request to merge the branch of the fork into this repository.
-6. If you had someone specifically in mind, ask them to review the pull request.
-Otherwise, just wait for a code review: most members with merge permissions
-receive notifications for newly created pull requests.
-7. Address review comments, if any.
-8. Merge and submit the pull request. If you don't have merge permissions,
-a reviewer will do it for you.
+We reserve the right to close pull requests from external contributors without discussion.
 
-> **NOTE:** Before starting any coding work, please make sure to discuss the
-> issue first to agree on the optimal way of solving a particular problem.
-> If no issue exists, create one unless the change is trivial, such as
-> correcting typos and code formatting.
->
-> If you don't know where to start, look for issues labeled
-> with [good-first-issue](https://github.com/BitBoxSwiss/bitbox-wallet-app/issues?q=is%3Aissue+is%3Aopen+label%3Agood-first-issue).
+Please report security vulnerabilities through our
+[bug bounty program](https://bitbox.swiss/bug-bounty-program) instead of opening a public issue.
 
-## Git commits
+## Maintainer guidelines
+
+### Git commits
 
 In general,
 [commits should be atomic](https://en.wikipedia.org/wiki/Atomic_commit#Atomic_commit_convention)
@@ -94,7 +80,7 @@ See `git log` for more examples.
 For details on working with git, please refer to the
 [git manual](https://git-scm.com/doc).
 
-## Pull requests
+### Pull requests
 
 A pull request contains one or more related git commits. Please, do not bundle
 independent and unrelated commits into a single pull request.
