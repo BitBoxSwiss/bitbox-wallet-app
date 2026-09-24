@@ -40,6 +40,8 @@ export const BitcoinAddressReviewStep = ({
     preparedPayment,
     sendError,
     sendPayment,
+    sendAll,
+    setSendAll,
     setCustomAmount,
   } = usePaymentReview({
     paymentDetails,
@@ -65,6 +67,9 @@ export const BitcoinAddressReviewStep = ({
             {needsCustomAmount ? (
               <CustomPaymentAmount
                 key={bitcoinAddress.address}
+                sendAll={sendAll}
+                sendAllAmountSat={fees?.amountSat}
+                onSendAllChange={setSendAll}
                 onAmountChange={setCustomAmount}>
                 <BitcoinAddressRecipientDetails bitcoinAddress={bitcoinAddress} />
               </CustomPaymentAmount>

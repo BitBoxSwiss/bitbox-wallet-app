@@ -2,11 +2,12 @@
 
 import { type ReactNode, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getBtcSatAmount } from '@/api/coins';
 import { getLightningBalance, subscribeLightningBalance } from '@/api/lightning';
 import { Balance } from '@/components/balance/balance';
-import { NumberInput } from '@/components/forms';
+import { Checkbox, NumberInput } from '@/components/forms';
 import { RatesContext } from '@/contexts/RatesContext';
-import { useSync } from '@/hooks/api';
+import { useLoad, useSync } from '@/hooks/api';
 import { useSatFiatAmount } from '../../hooks/use-sat-fiat-amount';
 import styles from '../send.module.css';
 
@@ -15,6 +16,9 @@ type TProps = {
   maxAmountSat?: number;
   minAmountSat?: number;
   onAmountChange: (amountSat?: number) => void;
+  sendAll: boolean;
+  sendAllAmountSat?: number;
+  onSendAllChange: (sendAll: boolean) => void;
 };
 
 export const PaymentBalance = () => {
@@ -32,6 +36,9 @@ export const CustomPaymentAmount = ({
   maxAmountSat,
   minAmountSat = 0,
   onAmountChange,
+  sendAll,
+  sendAllAmountSat,
+  onSendAllChange,
 }: TProps) => {
   const { t } = useTranslation();
   const { defaultCurrency } = useContext(RatesContext);
@@ -43,9 +50,18 @@ export const CustomPaymentAmount = ({
     inputSatsText,
   } = useSatFiatAmount({ defaultCurrency });
 
+  const sendAllAmount = useLoad(
+    sendAll && sendAllAmountSat !== undefined
+      ? () => getBtcSatAmount({ source: 'sat', amount: sendAllAmountSat.toString() }).catch(() => undefined)
+      : null,
+    [sendAll, sendAllAmountSat],
+  );
+
   useEffect(() => {
-    onAmountChange(amountSat);
-  }, [amountSat, onAmountChange]);
+    if (!sendAll) {
+      onAmountChange(amountSat);
+    }
+  }, [amountSat, onAmountChange, sendAll]);
 
   return (
     <>
@@ -60,9 +76,18 @@ export const CustomPaymentAmount = ({
         id="amountSatsInput"
         onChange={(satsText) => {
           onAmountChange(undefined);
-          void handleSatsAmountChange(satsText);
+          handleSatsAmountChange(satsText);
         }}
-        value={inputSatsText}
+        disabled={sendAll}
+        value={sendAll ? sendAllAmountSat?.toString() ?? '' : inputSatsText}
+        labelSection={
+          <Checkbox
+            label={t('send.maximum')}
+            id="sendAll"
+            checked={sendAll}
+            onChange={event => onSendAllChange(event.target.checked)}
+          />
+        }
         autoFocus
       />
       <NumberInput
@@ -73,9 +98,12 @@ export const CustomPaymentAmount = ({
         id="amountFiatInput"
         onChange={(fiatText) => {
           onAmountChange(undefined);
-          void handleFiatAmountChange(fiatText);
+          handleFiatAmountChange(fiatText);
         }}
-        value={inputFiatText}
+        disabled={sendAll}
+        value={sendAll
+          ? (sendAllAmount?.success ? sendAllAmount.amount.unformattedConversions?.[defaultCurrency] ?? '' : '')
+          : inputFiatText}
       />
     </>
   );
