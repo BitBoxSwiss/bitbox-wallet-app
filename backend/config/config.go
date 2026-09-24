@@ -92,6 +92,10 @@ type Backend struct {
 	// BtcUnit is the unit used to represent Bitcoin amounts. See `coin.BtcUnit` for details.
 	BtcUnit coin.BtcUnit `json:"btcUnit"`
 
+	// BreezSDKLogLevel is the SDK log filter, applied when SDK logging is initialized.
+	// Changing it requires restarting the app.
+	BreezSDKLogLevel string `json:"breezSDKLogLevel"`
+
 	// StartInTestnet represents whether the app should launch in testnet on the next start.
 	// It resets to `false` after the app starts.
 	StartInTestnet bool `json:"startInTestnet"`
@@ -230,6 +234,8 @@ func NewDefaultAppConfig() AppConfig {
 			FiatList: []string{rates.USD.String(), rates.EUR.String(), rates.CHF.String()},
 			MainFiat: rates.USD.String(),
 			BtcUnit:  coin.BtcUnitDefault,
+
+			BreezSDKLogLevel: "warn",
 		},
 		Frontend: make(map[string]interface{}),
 	}
@@ -344,6 +350,13 @@ func (config *Config) AppConfig() AppConfig {
 // SetAppConfig sets and persists the app config.
 func (config *Config) SetAppConfig(appConfig AppConfig) error {
 	defer config.appConfigLock.Lock()()
+	// Only allow the supported levels, including when loading an existing config.
+	// Invalid or missing filters must not enable verbose SDK logging.
+	switch appConfig.Backend.BreezSDKLogLevel {
+	case "error", "warn", "debug", "trace":
+	default:
+		appConfig.Backend.BreezSDKLogLevel = "warn"
+	}
 	config.appConfig = appConfig
 	return config.save(config.appConfigFilename, config.appConfig)
 }

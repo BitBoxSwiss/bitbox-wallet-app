@@ -427,7 +427,7 @@ func (lightning *Lightning) connect() (returnErr error) {
 		if err != nil {
 			return err
 		}
-		initializeLogging(lightning.log)
+		initializeLogging(lightning.log, lightning.backendConfig.AppConfig().Backend.BreezSDKLogLevel)
 
 		workingDir := path.Join(lightning.lightningDirectoryPath, accountBreezFolder(account.Code))
 
@@ -484,7 +484,7 @@ func (lightning *Lightning) connect() (returnErr error) {
 		}
 
 		sdk.AddEventListener(lightning)
-		initializeLogging(lightning.log)
+		initializeLogging(lightning.log, lightning.backendConfig.AppConfig().Backend.BreezSDKLogLevel)
 		_, err = sdk.SyncWallet(breez_sdk_spark.SyncWalletRequest{})
 		if err != nil {
 			lightning.log.WithError(err).Error("BreezSDK: Error connecting SDK")

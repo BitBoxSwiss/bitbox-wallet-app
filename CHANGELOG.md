@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Lightning: default Breez SDK logs to warnings and add a log level selector in settings
 - Rename "Factory Reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings
