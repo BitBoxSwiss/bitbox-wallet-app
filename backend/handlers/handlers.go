@@ -73,6 +73,8 @@ type Backend interface {
 	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
 	SwapAccounts() (backend.SwapAccounts, error)
 	SwapStatus() backend.SwapStatus
+	MarketDeals(accountsTypes.Code, string, market.Action) ([]*market.DealsList, error)
+	MarketBitrefillInfo(accountsTypes.Code) (market.BitrefillInfoResult, error)
 	AccountsByKeystore() (backend.KeystoresAccountViewsMap, error)
 	AccountsFiatAndCoinBalance(backend.AccountViews, string) (*big.Rat, map[coinpkg.Code]*big.Int, error)
 	Keystore() keystore.Keystore
@@ -1555,18 +1557,6 @@ func (handlers *Handlers) getMarketDeals(r *http.Request) interface{} {
 		Success      bool   `json:"success"`
 	}
 
-	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
-	if err != nil {
-		handlers.log.Error(err)
-		return errorResult{Success: false, ErrorMessage: err.Error()}
-	}
-
-	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
-	if !accountValid {
-		handlers.log.Error("Account not valid")
-		return errorResult{Success: false, ErrorMessage: "Account not valid"}
-	}
-
 	action, err := market.ParseAction(mux.Vars(r)["action"])
 	if err != nil {
 		handlers.log.Error(err)
@@ -1574,9 +1564,14 @@ func (handlers *Handlers) getMarketDeals(r *http.Request) interface{} {
 	}
 
 	regionCode := r.URL.Query().Get("region")
-	marketDealsLists, err := market.GetDeals(acct, regionCode, action, handlers.backend.HTTPClient())
+	code := accountsTypes.Code(mux.Vars(r)["code"])
+	marketDealsLists, err := handlers.backend.MarketDeals(code, regionCode, action)
 	if err != nil {
-		return errorResult{Success: false, ErrorCode: err.Error()}
+		if code, ok := err.(market.Error); ok {
+			return errorResult{Success: false, ErrorCode: string(code)}
+		}
+		handlers.log.Error(err)
+		return errorResult{Success: false, ErrorMessage: err.Error()}
 	}
 
 	return marketDealsList{
@@ -1756,14 +1751,7 @@ func (handlers *Handlers) getMarketBitrefillInfo(r *http.Request) interface{} {
 	}
 
 	code := accountsTypes.Code(mux.Vars(r)["code"])
-	acct, err := handlers.backend.GetAccountFromCode(code)
-	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
-	if err != nil || !accountValid {
-		return result{Success: false, ErrorMessage: "Account is not valid."}
-	}
-
-	action := market.Action(mux.Vars(r)["action"])
-	bitrefillInfo, err := market.BitrefillInfo(action, acct, handlers.backend.DevServers())
+	bitrefillInfo, err := handlers.backend.MarketBitrefillInfo(code)
 	if err != nil {
 		return result{Success: false, ErrorMessage: err.Error()}
 	}

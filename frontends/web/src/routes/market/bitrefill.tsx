@@ -26,6 +26,9 @@ import {
   type TVendorIframeMessageTarget,
 } from '@/hooks/vendor-iframe-message';
 import { useAccountSynced } from '@/hooks/account';
+import { useLightning } from '@/hooks/lightning';
+import { Send as LightningSend } from '@/routes/lightning/send/send';
+import { LightningTestnetGuard } from '@/routes/lightning/testnet-warning';
 import style from './iframe.module.css';
 
 // Map coins supported by Bitrefill
@@ -36,6 +39,7 @@ const coinMapping: Readonly<Record<string, string>> = {
   eth: 'ethereum',
   usdt: 'usdt_erc20',
   usdc: 'usdc_erc20',
+  lightning: 'lightning',
 };
 
 type TProps = {
@@ -53,21 +57,34 @@ export const Bitrefill = ({
   const { config } = useConfig();
   const { isDarkMode } = useDarkmode();
   const { isDevServers } = useContext(AppContext);
+  const { lightningAccount } = useLightning();
   const account = findAccount(accounts, code);
+  const isLightningAccount = lightningAccount?.code === code;
+  const coinCode = isLightningAccount ? 'lightning' : account?.coinCode;
+  const paymentMethod = coinCode && coinMapping[coinCode];
 
   const fetchBitrefillInfo = useCallback(() => getBitrefillInfo('spend', code), [code]);
   const bitrefillInfo = useAccountSynced(code, fetchBitrefillInfo);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitrefillWidgetDisclaimer ?? false);
-  useMarketIframeActive(!!account && !!config && agreedTerms && bitrefillInfo?.success === true);
 
   const [pendingPayment, setPendingPayment] = useState<boolean>(false);
+  const [lightningPaymentInput, setLightningPaymentInput] = useState<string>();
   const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);
   const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  useMarketIframeActive(!lightningPaymentInput && !!paymentMethod && !!config && agreedTerms && bitrefillInfo?.success === true);
+
+  const closeLightningPayment = useCallback((error?: string) => {
+    setLightningPaymentInput(undefined);
+    setPendingPayment(false);
+    if (error) {
+      alertUser(error);
+    }
+  }, []);
 
   const handleConfiguration = useCallback(async (target: TVendorIframeMessageTarget) => {
     if (
-      !account
+      !paymentMethod
       || !bitrefillInfo?.success
     ) {
       return;
@@ -78,7 +95,7 @@ export const Bitrefill = ({
       utm_source: 'BITBOX',
       theme: isDarkMode ? 'dark' : 'light',
       hl: i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en',
-      paymentMethods: account.coinCode ? coinMapping[account.coinCode] : 'bitcoin',
+      paymentMethods: paymentMethod,
       refundAddress: bitrefillInfo.address,
       // Option to keep pending payment information longer in session, defaults to 'false'
       paymentPending: 'true',
@@ -86,10 +103,10 @@ export const Bitrefill = ({
       // Option to show payment information in the widget, defaults to 'true'
       showPaymentInfo: 'true'
     });
-  }, [account, bitrefillInfo, isDarkMode, region]);
+  }, [paymentMethod, bitrefillInfo, isDarkMode, region]);
 
   const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
-    if (!account || pendingPayment) {
+    if (!paymentMethod || pendingPayment) {
       return;
     }
     setPendingPayment(true);
@@ -99,20 +116,31 @@ export const Bitrefill = ({
     // User clicked "Pay" in checkout
     const {
       invoiceId,
-      paymentMethod,
+      paymentMethod: requestedPaymentMethod,
       paymentAmount,
       paymentAddress,
     } = data;
 
-    const parsedAmount = await parseExternalBtcAmount(paymentAmount.toString());
-    if (!parsedAmount.success) {
-      alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
+    // Ensure expected payment method matches the selected wallet.
+    if (paymentMethod !== requestedPaymentMethod) {
+      alertUser(t('unknownError', { errorMessage: 'Payment method mismatch' }));
       setPendingPayment(false);
       return;
     }
-    // Ensure expected payment method matches account
-    if (coinMapping[account.coinCode] !== paymentMethod) {
-      alertUser(t('unknownError', { errorMessage: 'Payment method mismatch' }));
+    if (isLightningAccount) {
+      const invoice = paymentAddress || data.paymentUri;
+      if (typeof invoice !== 'string' || !invoice.trim()) {
+        alertUser(t('error.lightningInvalidPaymentInput'));
+        setPendingPayment(false);
+        return;
+      }
+      setLightningPaymentInput(invoice);
+      return;
+    }
+
+    const parsedAmount = await parseExternalBtcAmount(paymentAmount.toString());
+    if (!parsedAmount.success) {
+      alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
       setPendingPayment(false);
       return;
     }
@@ -157,7 +185,7 @@ export const Bitrefill = ({
       }
     }
     setPendingPayment(false);
-  }, [account, code, pendingPayment, t]);
+  }, [paymentMethod, isLightningAccount, code, pendingPayment, t]);
 
   const handleMessage = useCallback(async (event: MessageEvent) => {
     if (!bitrefillInfo?.success) {
@@ -203,7 +231,7 @@ export const Bitrefill = ({
     };
   }, [handleMessage]);
 
-  if (!account || !config) {
+  if (!coinCode || !config) {
     return null;
   }
 
@@ -212,53 +240,65 @@ export const Bitrefill = ({
   const title = t('generic.spend', { context: translationContext });
 
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer">
-          <div className={style.header}>
-            <Header variant="navigation" mobileBackButton title={title} />
-          </div>
-          <div ref={containerRef} className={style.container}>
-            { !agreedTerms ? (
-              <BitrefillTerms
-                account={account}
-                onAgreedTerms={() => setAgreedTerms(true)}
-              />
-            ) : (
-              <div style={{ height }}>
-                {!iframeLoaded && (
-                  <Spinner text={t('loading')} />
-                )}
-                { bitrefillInfo?.success && (
-                  <iframe
-                    ref={iframeRef}
-                    title="Bitrefill"
-                    width="100%"
-                    height={height}
-                    frameBorder="0"
-                    className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
-                    sandbox="allow-same-origin allow-popups allow-scripts allow-forms"
-                    src={bitrefillInfo.url}
-                    onLoad={() => {
-                      onIframeLoad();
-                    }}
-                  />
-                )}
-                {verifyPaymentRequest && verifyPaymentRequest.success && (
-                  <ConfirmBitrefill
-                    isConfirming={verifyPaymentRequest.success}
-                    proposedFee={verifyPaymentRequest.fee}
-                    proposedAmount={verifyPaymentRequest.amount}
-                    recipientAddress={verifyPaymentRequest.address}
-                    proposedTotal={verifyPaymentRequest.total}
-                  />
-                )}
-              </div>
-            )}
+    <>
+      {/* Keep the checkout iframe mounted so its order and confirmation survive payment. */}
+      <div className="contentWithGuide" style={{ display: lightningPaymentInput ? 'none' : undefined }}>
+        <div className="container">
+          <div className="innerContainer">
+            <div className={style.header}>
+              {!lightningPaymentInput && <Header variant="navigation" mobileBackButton title={title} />}
+            </div>
+            <div ref={containerRef} className={style.container}>
+              { !agreedTerms ? (
+                <BitrefillTerms
+                  coinCode={coinCode}
+                  onAgreedTerms={() => setAgreedTerms(true)}
+                />
+              ) : (
+                <div style={{ height }}>
+                  {!iframeLoaded && (
+                    <Spinner text={t('loading')} />
+                  )}
+                  { bitrefillInfo?.success && (
+                    <iframe
+                      ref={iframeRef}
+                      title="Bitrefill"
+                      width="100%"
+                      height={height}
+                      frameBorder="0"
+                      className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
+                      sandbox="allow-same-origin allow-popups allow-scripts allow-forms"
+                      src={bitrefillInfo.url}
+                      onLoad={() => {
+                        onIframeLoad();
+                      }}
+                    />
+                  )}
+                  {verifyPaymentRequest && verifyPaymentRequest.success && (
+                    <ConfirmBitrefill
+                      isConfirming={verifyPaymentRequest.success}
+                      proposedFee={verifyPaymentRequest.fee}
+                      proposedAmount={verifyPaymentRequest.amount}
+                      recipientAddress={verifyPaymentRequest.address}
+                      proposedTotal={verifyPaymentRequest.total}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+        {!lightningPaymentInput && <MarketGuide vendor="bitrefill" translationContext={translationContext} />}
       </div>
-      <MarketGuide vendor="bitrefill" translationContext={translationContext} />
-    </div>
+      {lightningPaymentInput && (
+        <LightningTestnetGuard active>
+          <LightningSend
+            activeAccounts={accounts}
+            initialPaymentInput={lightningPaymentInput}
+            onClose={closeLightningPayment}
+          />
+        </LightningTestnetGuard>
+      )}
+    </>
   );
 };

@@ -2,7 +2,7 @@
 import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { i18n } from '@/i18n/i18n';
-import { TAccount } from '@/api/account';
+import { CoinCode } from '@/api/account';
 import { isBitcoinOnly } from '@/routes/account/utils';
 import { getBitrefillHelpLink, getBitrefillLimitsLink } from '@/routes/market/bitrefill-guide';
 import { Button, Checkbox } from '@/components/forms';
@@ -11,7 +11,7 @@ import { A } from '../anchor/anchor';
 import style from './terms.module.css';
 
 type TProps = {
-  account: TAccount;
+  coinCode: CoinCode;
   onAgreedTerms: () => void;
 };
 
@@ -32,14 +32,14 @@ export const getBitrefillPrivacyLink = () => {
   return 'https://www.bitrefill.com/privacy/?hl=' + hl;
 };
 
-export const BitrefillTerms = ({ account, onAgreedTerms }: TProps) => {
+export const BitrefillTerms = ({ coinCode, onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
   const { setConfig } = useConfig();
   const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
     setConfig({ frontend: { skipBitrefillWidgetDisclaimer: e.target.checked } });
   };
 
-  const isBitcoin = isBitcoinOnly(account.coinCode);
+  const isBitcoin = coinCode === 'lightning' || isBitcoinOnly(coinCode);
   return (
     <div className={style.disclaimerContainer}>
       <div className={style.disclaimer}>
