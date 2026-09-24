@@ -104,7 +104,7 @@ type Backend interface {
 	ExportLogs() error
 	ExportNotes() error
 	ImportNotes(jsonLines []byte) (*backend.ImportNotesResult, error)
-	ChartData() (*backend.Chart, error)
+	ChartData(bool) (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
 	CanAddAccount(coinpkg.Code, keystore.Keystore) (string, bool)
 	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accountsTypes.Code, error)
@@ -1463,13 +1463,14 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 	})
 }
 
-func (handlers *Handlers) getChartData(*http.Request) interface{} {
+func (handlers *Handlers) getChartData(r *http.Request) interface{} {
 	type Result struct {
 		Data    *backend.Chart `json:"data,omitempty"`
 		Success bool           `json:"success"`
 	}
 
-	data, err := handlers.backend.ChartData()
+	includeTransactionMarkers := r.URL.Query().Get("includeTransactionMarkers") == "true"
+	data, err := handlers.backend.ChartData(includeTransactionMarkers)
 	if err != nil {
 		return Result{Success: false}
 	}

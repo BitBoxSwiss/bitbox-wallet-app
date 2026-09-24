@@ -136,6 +136,28 @@ describe('hooks for api calls', () => {
 
 
   describe('useSync', () => {
+    it('preserves a status update that arrives before the initial request resolves', async () => {
+      const initialStatus = deferred<string>();
+      let updateStatus: TSubscriptionCallback<string> = () => {};
+      const subscribeStatus = (callback: TSubscriptionCallback<string>) => {
+        updateStatus = callback;
+        return () => {};
+      };
+      const { result } = renderHook(() => useSync(() => initialStatus.promise, subscribeStatus));
+
+      act(() => updateStatus('unpaired'));
+      expect(result.current).toBe('unpaired');
+
+      await act(async () => {
+        initialStatus.resolve('connected');
+        await initialStatus.promise;
+      });
+      expect(result.current).toBe('unpaired');
+
+      act(() => updateStatus('uninitialized'));
+      expect(result.current).toBe('uninitialized');
+    });
+
     it('returns undefined when apiCall and subscription are null', () => {
       const { result } = renderHook(() => useSync<string>(null, null));
 
@@ -185,13 +207,14 @@ describe('hooks for api calls', () => {
       await waitFor(() => expect(result.current).toBe(subscriptionValue));
     });
 
-    it('keeps the response with the highest revision', async () => {
+    it.each([1, 3])('keeps the response with the highest revision (API revision %i)', async (apiRevision) => {
       type TRevisionedValue = {
         revision: number;
         value: string;
       };
-      const apiValue: TRevisionedValue = { revision: 1, value: 'apiValue' };
+      const apiValue: TRevisionedValue = { revision: apiRevision, value: 'apiValue' };
       const subscriptionValue: TRevisionedValue = { revision: 2, value: 'subscriptionValue' };
+      const latestValue = apiRevision > subscriptionValue.revision ? apiValue : subscriptionValue;
       let resolveApiCall: (value: TRevisionedValue) => void = () => {};
       let subscriptionCallback: TSubscriptionCallback<TRevisionedValue> | undefined;
       const apiPromise = new Promise<TRevisionedValue>((resolve) => {
@@ -216,10 +239,10 @@ describe('hooks for api calls', () => {
         resolveApiCall(apiValue);
         await apiPromise;
       });
-      expect(result.current).toBe(subscriptionValue);
+      expect(result.current).toBe(latestValue);
 
       act(() => subscriptionCallback?.(apiValue));
-      expect(result.current).toBe(subscriptionValue);
+      expect(result.current).toBe(latestValue);
     });
   });
 });

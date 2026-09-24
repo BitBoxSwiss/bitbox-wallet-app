@@ -31,7 +31,7 @@ export declare global {
           postMessage: (msg: any) => void;
         };
         hapticFeedback: {
-          postMessage: (msg: any) => void;
+          postMessage: (msg: { style?: 'medium' | 'heavy' }) => void;
         };
       };
     };
