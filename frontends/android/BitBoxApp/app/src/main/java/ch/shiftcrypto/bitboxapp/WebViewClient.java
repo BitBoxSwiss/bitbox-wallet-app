@@ -1,6 +1,5 @@
 package ch.shiftcrypto.bitboxapp;
 
-import android.app.Application;
 import android.content.res.AssetManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -13,12 +12,10 @@ import java.io.InputStream;
 public class WebViewClient extends android.webkit.WebViewClient {
     private final String baseUrl;
     private final AssetManager assets;
-    private final Application appContext;
     private final int initialZoom;
 
-    public WebViewClient(String baseUrl, AssetManager assets, Application appContext, int initialZoom) {
+    public WebViewClient(String baseUrl, AssetManager assets, int initialZoom) {
         this.assets = assets;
-        this.appContext = appContext;
         this.baseUrl = baseUrl;
         this.initialZoom = initialZoom;
     }
@@ -91,16 +88,6 @@ public class WebViewClient extends android.webkit.WebViewClient {
         // Block navigating to any external site inside the app.
         // This is only called if the whole page is about to change. Changes inside an iframe proceed normally.
         String url = request.getUrl().toString();
-
-        try {
-            String host = request.getUrl().getHost();
-            if (Util.isAllowedExternalHost(host)) {
-                Util.systemOpenExternal(appContext, url);
-                return true;
-            }
-        } catch (Exception e) {
-            Util.log(e.getMessage());
-        }
         Util.log("Blocked: " + url);
         return true;
     }

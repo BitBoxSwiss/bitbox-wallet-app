@@ -210,9 +210,9 @@ public:
                     return;
                 }
 
-                // A link with target=_blank was clicked.
-                systemOpen(info.requestUrl().toString().toUtf8().constData());
-                // No need to also load it in our page.
+                // A link with target=_blank was clicked. Block it so it is not also loaded in our
+                // page, then ask the frontend to confirm before opening it externally.
+                externalLinkRequested(info.requestUrl().toString().toUtf8().constData());
                 info.block(true);
             }
             return;

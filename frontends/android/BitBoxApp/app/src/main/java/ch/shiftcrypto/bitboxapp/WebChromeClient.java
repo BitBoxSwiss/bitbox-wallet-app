@@ -16,6 +16,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
+import mobileserver.Mobileserver;
+
 public class WebChromeClient extends android.webkit.WebChromeClient {
 
     private final android.content.Context context;
@@ -109,22 +111,13 @@ public class WebChromeClient extends android.webkit.WebChromeClient {
 
     @Override
     public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
-        // Handle window.open()/target=_blank by opening allowed domains externally.
+        // Handle window.open()/target=_blank by asking the frontend to confirm external links.
         WebView tempView = new WebView(view.getContext());
         tempView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
                 String url = request.getUrl().toString();
-                String host = request.getUrl().getHost();
-                try {
-                    if (Util.isAllowedExternalHost(host)) {
-                        Util.systemOpenExternal((android.app.Application) context, url);
-                        return true;
-                    }
-                } catch (Exception e) {
-                    Util.log(e.getMessage());
-                }
-                Util.log("Blocked: " + url);
+                Mobileserver.externalLinkRequested(url);
                 return true;
             }
         });
