@@ -132,7 +132,8 @@ skeleton or nothing while the value is `undefined`.
 
 **Important:**
 - Check `src/hooks/` before writing new logic — reuse existing hooks.
-- Extract reusable hooks instead of writing long `useEffect` chains, and write tests for them.
+- Extract reusable hooks instead of writing long `useEffect` chains. Follow the frontend testing
+  guidance below.
 
 ### State Management
 React Context API — contexts live in `src/contexts/`. Each context has a definition file and a
@@ -179,7 +180,7 @@ component state — no form library is used.
 
 ### TypeScript / React
 - ESLint config in `eslint.config.js`.
-- Components are PascalCased, co-located with styles and tests.
+- Components are PascalCased, co-located with styles and any relevant tests.
 - Types prefixed with `T` (`TProps`, `TBalance`, `TAccount`).
 - Named exports only — no default exports.
 - Path alias: `@/` maps to `src/` (e.g., `import { getBalance } from '@/api/account'`).
@@ -194,17 +195,31 @@ component state — no form library is used.
 
 ## Testing Guidelines
 Place Go tests in `_test.go` files and run `go test -mod=vendor ./...` (optionally via
-`scripts/coverage.sh` to emit `coverage.cov`). Frontend unit specs live beside components as
+`scripts/coverage.sh` to emit `coverage.cov`). Frontend unit specs live beside the code they test as
 `*.test.ts(x)`; invoke `make webtest` for the suite. Use `make webe2etest` for Playwright smoke
 flows and document new scenarios in `frontends/web/tests/README.md` if they require fixtures.
 - If you change an interface that has a `//go:generate` directive in its docstring, run the
   corresponding `go generate` command for that file before finishing the change. For example, if
   you change the `Keystore` interface, regenerate the keystore mocks.
 
+### Frontend Testing Scope
+
+- Add or update tests for meaningful behavior changes and regressions.
+- Prefer function and hook tests. Add a component test when it catches a specific user-facing bug those tests would miss.
+- Cover utility edge cases and hook state, async behavior, dependency changes, and cleanup.
+- Examples include signing with the wrong selected address, prompting for a device on mount,
+  losing input after an error, or broken keyboard/focus handling.
+- Skip tests that only confirm routine rendering or styling.
+- Use the smallest useful test scope. Avoid duplicate coverage unless it catches a distinct risk. 
+- Use Playwright for real-browser behavior or complete flows.
+- Do not restructure code just to avoid component tests. Maintain useful existing tests.
+
 ### Frontend Test Patterns
-See `src/components/forms/button.test.tsx` for component test examples and `src/hooks/api.test.ts`
-for hook test examples. Key patterns: use `render` + `screen` queries, wrap in `MemoryRouter` for
-routing components, use `renderHook` for hooks, and mock API calls with `vi.fn()`.
+
+Use direct calls for utilities and `renderHook` for hooks. For component tests, keep relevant hooks
+real, mock API/device boundaries, and use `screen` role/label queries with `userEvent`.
+Assert public behavior. Add `MemoryRouter` only when needed. See
+`src/components/forms/input-number-utils.test.ts` and `src/hooks/api.test.ts` for examples.
 
 ## Review Guidelines
 - when reviewing a removed function call, check that the removed behavior was not required and was not dropped by accident during a refactor.
