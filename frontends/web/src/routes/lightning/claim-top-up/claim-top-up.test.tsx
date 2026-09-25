@@ -57,7 +57,7 @@ const amount = (value: string): TAmountWithConversions => ({
 });
 
 const deposit = (
-  claimFeeSat: number,
+  claimFeeSat: string,
   refundFeeRateSatPerVbyte?: number,
 ): TLightningPayment => ({
   id: paymentID,
@@ -84,8 +84,8 @@ describe('routes/lightning/claim-top-up', () => {
 
   it('reloads and requires approval of an increased claim fee', async () => {
     vi.mocked(lightningApi.getListPayments)
-      .mockResolvedValueOnce([deposit(100)])
-      .mockResolvedValueOnce([deposit(200)]);
+      .mockResolvedValueOnce([deposit('100')])
+      .mockResolvedValueOnce([deposit('200')]);
     vi.mocked(lightningApi.postClaimTopUp)
       .mockRejectedValueOnce(new TSdkError(
         TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED,
@@ -115,7 +115,7 @@ describe('routes/lightning/claim-top-up', () => {
   });
 
   it('opens the refund confirmation without a destination account', async () => {
-    vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit(100, 2)]);
+    vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit('100', 2)]);
 
     render(
       <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
@@ -139,7 +139,7 @@ describe('routes/lightning/claim-top-up', () => {
   });
 
   it('clears the claim error before opening the refund confirmation', async () => {
-    vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit(100, 2)]);
+    vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit('100', 2)]);
     vi.mocked(lightningApi.postClaimTopUp).mockRejectedValue(new TSdkError(
       TLightningErrorCode.TOP_UP_CLAIM_FAILED,
       TLightningErrorCode.TOP_UP_CLAIM_FAILED,
@@ -165,8 +165,8 @@ describe('routes/lightning/claim-top-up', () => {
 
   it('reloads and requires approval of an increased refund fee rate', async () => {
     vi.mocked(lightningApi.getListPayments)
-      .mockResolvedValueOnce([deposit(100, 2)])
-      .mockResolvedValueOnce([deposit(100, 3)]);
+      .mockResolvedValueOnce([deposit('100', 2)])
+      .mockResolvedValueOnce([deposit('100', 3)]);
     vi.mocked(lightningApi.postRefundTopUp)
       .mockRejectedValueOnce(new TSdkError(
         TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED,
@@ -209,7 +209,7 @@ describe('routes/lightning/claim-top-up', () => {
       removeEventListener: vi.fn(),
       dispatchEvent: vi.fn(),
     }));
-    vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit(100)]);
+    vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit('100')]);
     let resolveClaim: (result: { txId: string }) => void = () => {};
     vi.mocked(lightningApi.postClaimTopUp).mockReturnValue(new Promise(resolve => {
       resolveClaim = resolve;
