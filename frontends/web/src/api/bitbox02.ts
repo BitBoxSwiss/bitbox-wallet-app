@@ -144,6 +144,35 @@ export const getStatus = (deviceID: string): Promise<TStatus> => {
   return apiGet(`devices/bitbox02/${deviceID}/status`);
 };
 
+export type TPassphraseState = {
+  id: string;
+  phase: '' | 'device' | 'host-consent' | 'host' | 'confirm' | 'waiting';
+  revision: number;
+};
+
+export const getPassphraseState = (deviceID: string): Promise<TPassphraseState> => {
+  return apiGet(`devices/bitbox02/${deviceID}/passphrase`);
+};
+
+export const passphraseChanged = (
+  deviceID: string,
+  cb: TSubscriptionCallback<TPassphraseState>,
+): TUnsubscribe => {
+  return subscribeEndpoint(`devices/bitbox02/${deviceID}/passphrase`, cb);
+};
+
+export const requestHostPassphrase = (deviceID: string, id: string): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/passphrase/request`, { id });
+};
+
+export const submitHostPassphrase = (
+  deviceID: string,
+  id: string,
+  passphrase: string | null,
+): Promise<SuccessResponse | { success: false; errorCode?: 'tooLong' | 'invalidChars' }> => {
+  return apiPost(`devices/bitbox02/${deviceID}/passphrase/submit`, { id, passphrase });
+};
+
 type TChannelHash = {
   hash: string;
   deviceVerified: boolean;

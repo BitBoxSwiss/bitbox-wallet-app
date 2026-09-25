@@ -6,9 +6,9 @@ package firmware
 type Status string
 
 const (
-	// StatusConnected ist the first status, right after the device is connected. We automatically
-	// move to StatusUnpaired (directly if the device is uninitialized, or after unlocking the
-	// device if it is initialized).
+	// StatusConnected is the first status, right after the device is connected. We automatically
+	// move to StatusUnpaired (directly on firmware >=9.28.0, or after unlocking on older firmware).
+	// After pairing, firmware >=9.28.0 returns to StatusConnected while the device is being unlocked.
 	StatusConnected Status = "connected"
 
 	// StatusUnpaired means the pairing has not been confirmed yet. After the pairing screen has

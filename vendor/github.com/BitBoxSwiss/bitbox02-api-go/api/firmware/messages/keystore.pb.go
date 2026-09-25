@@ -27,6 +27,238 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type UnlockResponse_State int32
+
+const (
+	UnlockResponse_PASSPHRASE_PENDING UnlockResponse_State = 0
+	UnlockResponse_HOST_ENTRY_READY   UnlockResponse_State = 1
+	// Passphrase entry on the device finished; confirmation may still be pending.
+	// Withdraw host entry and send UnlockContinue to await completion.
+	UnlockResponse_PASSPHRASE_ENTERED UnlockResponse_State = 2
+	UnlockResponse_DONE               UnlockResponse_State = 3
+)
+
+// Enum value maps for UnlockResponse_State.
+var (
+	UnlockResponse_State_name = map[int32]string{
+		0: "PASSPHRASE_PENDING",
+		1: "HOST_ENTRY_READY",
+		2: "PASSPHRASE_ENTERED",
+		3: "DONE",
+	}
+	UnlockResponse_State_value = map[string]int32{
+		"PASSPHRASE_PENDING": 0,
+		"HOST_ENTRY_READY":   1,
+		"PASSPHRASE_ENTERED": 2,
+		"DONE":               3,
+	}
+)
+
+func (x UnlockResponse_State) Enum() *UnlockResponse_State {
+	p := new(UnlockResponse_State)
+	*p = x
+	return p
+}
+
+func (x UnlockResponse_State) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (UnlockResponse_State) Descriptor() protoreflect.EnumDescriptor {
+	return file_keystore_proto_enumTypes[0].Descriptor()
+}
+
+func (UnlockResponse_State) Type() protoreflect.EnumType {
+	return &file_keystore_proto_enumTypes[0]
+}
+
+func (x UnlockResponse_State) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use UnlockResponse_State.Descriptor instead.
+func (UnlockResponse_State) EnumDescriptor() ([]byte, []int) {
+	return file_keystore_proto_rawDescGZIP(), []int{3, 0}
+}
+
+// Unlock inside the paired Noise channel (since v9.28.0). Uninitialized and already unlocked
+// devices return DONE immediately and are left unchanged. Continuations are only valid within
+// this workflow.
+// If the passphrase feature is enabled, device entry returns PASSPHRASE_PENDING. The host
+// polls with UnlockContinueRequest until entry completes or it requests host entry.
+type UnlockRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnlockRequest) Reset() {
+	*x = UnlockRequest{}
+	mi := &file_keystore_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnlockRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnlockRequest) ProtoMessage() {}
+
+func (x *UnlockRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_keystore_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnlockRequest.ProtoReflect.Descriptor instead.
+func (*UnlockRequest) Descriptor() ([]byte, []int) {
+	return file_keystore_proto_rawDescGZIP(), []int{0}
+}
+
+type UnlockContinueRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// False polls device entry; true interrupts it to ask for host-entry consent.
+	// After PASSPHRASE_ENTERED, continue to await confirmation and unlock;
+	// host entry is ignored.
+	RequestHostEntry bool `protobuf:"varint,1,opt,name=request_host_entry,json=requestHostEntry,proto3" json:"request_host_entry,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *UnlockContinueRequest) Reset() {
+	*x = UnlockContinueRequest{}
+	mi := &file_keystore_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnlockContinueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnlockContinueRequest) ProtoMessage() {}
+
+func (x *UnlockContinueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_keystore_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnlockContinueRequest.ProtoReflect.Descriptor instead.
+func (*UnlockContinueRequest) Descriptor() ([]byte, []int) {
+	return file_keystore_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *UnlockContinueRequest) GetRequestHostEntry() bool {
+	if x != nil {
+		return x.RequestHostEntry
+	}
+	return false
+}
+
+type UnlockHostInfoRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Only sent after HOST_ENTRY_READY. Absent cancels host input and restarts device entry;
+	// the empty string submits the empty passphrase. The device confirms the actual value.
+	Passphrase    *string `protobuf:"bytes,1,opt,name=passphrase,proto3,oneof" json:"passphrase,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnlockHostInfoRequest) Reset() {
+	*x = UnlockHostInfoRequest{}
+	mi := &file_keystore_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnlockHostInfoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnlockHostInfoRequest) ProtoMessage() {}
+
+func (x *UnlockHostInfoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_keystore_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnlockHostInfoRequest.ProtoReflect.Descriptor instead.
+func (*UnlockHostInfoRequest) Descriptor() ([]byte, []int) {
+	return file_keystore_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UnlockHostInfoRequest) GetPassphrase() string {
+	if x != nil && x.Passphrase != nil {
+		return *x.Passphrase
+	}
+	return ""
+}
+
+type UnlockResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	State         UnlockResponse_State   `protobuf:"varint,1,opt,name=state,proto3,enum=shiftcrypto.bitbox02.UnlockResponse_State" json:"state,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnlockResponse) Reset() {
+	*x = UnlockResponse{}
+	mi := &file_keystore_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnlockResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnlockResponse) ProtoMessage() {}
+
+func (x *UnlockResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_keystore_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnlockResponse.ProtoReflect.Descriptor instead.
+func (*UnlockResponse) Descriptor() ([]byte, []int) {
+	return file_keystore_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UnlockResponse) GetState() UnlockResponse_State {
+	if x != nil {
+		return x.State
+	}
+	return UnlockResponse_PASSPHRASE_PENDING
+}
+
 type ElectrumEncryptionKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Keypath       []uint32               `protobuf:"varint,1,rep,packed,name=keypath,proto3" json:"keypath,omitempty"`
@@ -36,7 +268,7 @@ type ElectrumEncryptionKeyRequest struct {
 
 func (x *ElectrumEncryptionKeyRequest) Reset() {
 	*x = ElectrumEncryptionKeyRequest{}
-	mi := &file_keystore_proto_msgTypes[0]
+	mi := &file_keystore_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -48,7 +280,7 @@ func (x *ElectrumEncryptionKeyRequest) String() string {
 func (*ElectrumEncryptionKeyRequest) ProtoMessage() {}
 
 func (x *ElectrumEncryptionKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_keystore_proto_msgTypes[0]
+	mi := &file_keystore_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -61,7 +293,7 @@ func (x *ElectrumEncryptionKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ElectrumEncryptionKeyRequest.ProtoReflect.Descriptor instead.
 func (*ElectrumEncryptionKeyRequest) Descriptor() ([]byte, []int) {
-	return file_keystore_proto_rawDescGZIP(), []int{0}
+	return file_keystore_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ElectrumEncryptionKeyRequest) GetKeypath() []uint32 {
@@ -80,7 +312,7 @@ type ElectrumEncryptionKeyResponse struct {
 
 func (x *ElectrumEncryptionKeyResponse) Reset() {
 	*x = ElectrumEncryptionKeyResponse{}
-	mi := &file_keystore_proto_msgTypes[1]
+	mi := &file_keystore_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -92,7 +324,7 @@ func (x *ElectrumEncryptionKeyResponse) String() string {
 func (*ElectrumEncryptionKeyResponse) ProtoMessage() {}
 
 func (x *ElectrumEncryptionKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_keystore_proto_msgTypes[1]
+	mi := &file_keystore_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -105,7 +337,7 @@ func (x *ElectrumEncryptionKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ElectrumEncryptionKeyResponse.ProtoReflect.Descriptor instead.
 func (*ElectrumEncryptionKeyResponse) Descriptor() ([]byte, []int) {
-	return file_keystore_proto_rawDescGZIP(), []int{1}
+	return file_keystore_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ElectrumEncryptionKeyResponse) GetKey() string {
@@ -128,7 +360,7 @@ type BIP85Request struct {
 
 func (x *BIP85Request) Reset() {
 	*x = BIP85Request{}
-	mi := &file_keystore_proto_msgTypes[2]
+	mi := &file_keystore_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -140,7 +372,7 @@ func (x *BIP85Request) String() string {
 func (*BIP85Request) ProtoMessage() {}
 
 func (x *BIP85Request) ProtoReflect() protoreflect.Message {
-	mi := &file_keystore_proto_msgTypes[2]
+	mi := &file_keystore_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -153,7 +385,7 @@ func (x *BIP85Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BIP85Request.ProtoReflect.Descriptor instead.
 func (*BIP85Request) Descriptor() ([]byte, []int) {
-	return file_keystore_proto_rawDescGZIP(), []int{2}
+	return file_keystore_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *BIP85Request) GetApp() isBIP85Request_App {
@@ -210,7 +442,7 @@ type BIP85Response struct {
 
 func (x *BIP85Response) Reset() {
 	*x = BIP85Response{}
-	mi := &file_keystore_proto_msgTypes[3]
+	mi := &file_keystore_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -222,7 +454,7 @@ func (x *BIP85Response) String() string {
 func (*BIP85Response) ProtoMessage() {}
 
 func (x *BIP85Response) ProtoReflect() protoreflect.Message {
-	mi := &file_keystore_proto_msgTypes[3]
+	mi := &file_keystore_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -235,7 +467,7 @@ func (x *BIP85Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BIP85Response.ProtoReflect.Descriptor instead.
 func (*BIP85Response) Descriptor() ([]byte, []int) {
-	return file_keystore_proto_rawDescGZIP(), []int{3}
+	return file_keystore_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *BIP85Response) GetApp() isBIP85Response_App {
@@ -288,7 +520,7 @@ type BIP85Request_AppLn struct {
 
 func (x *BIP85Request_AppLn) Reset() {
 	*x = BIP85Request_AppLn{}
-	mi := &file_keystore_proto_msgTypes[4]
+	mi := &file_keystore_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -300,7 +532,7 @@ func (x *BIP85Request_AppLn) String() string {
 func (*BIP85Request_AppLn) ProtoMessage() {}
 
 func (x *BIP85Request_AppLn) ProtoReflect() protoreflect.Message {
-	mi := &file_keystore_proto_msgTypes[4]
+	mi := &file_keystore_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -313,7 +545,7 @@ func (x *BIP85Request_AppLn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BIP85Request_AppLn.ProtoReflect.Descriptor instead.
 func (*BIP85Request_AppLn) Descriptor() ([]byte, []int) {
-	return file_keystore_proto_rawDescGZIP(), []int{2, 0}
+	return file_keystore_proto_rawDescGZIP(), []int{6, 0}
 }
 
 func (x *BIP85Request_AppLn) GetAccountNumber() uint32 {
@@ -327,7 +559,22 @@ var File_keystore_proto protoreflect.FileDescriptor
 
 const file_keystore_proto_rawDesc = "" +
 	"\n" +
-	"\x0ekeystore.proto\x12\x14shiftcrypto.bitbox02\x1a\x1bgoogle/protobuf/empty.proto\"8\n" +
+	"\x0ekeystore.proto\x12\x14shiftcrypto.bitbox02\x1a\x1bgoogle/protobuf/empty.proto\"\x0f\n" +
+	"\rUnlockRequest\"E\n" +
+	"\x15UnlockContinueRequest\x12,\n" +
+	"\x12request_host_entry\x18\x01 \x01(\bR\x10requestHostEntry\"K\n" +
+	"\x15UnlockHostInfoRequest\x12#\n" +
+	"\n" +
+	"passphrase\x18\x01 \x01(\tH\x00R\n" +
+	"passphrase\x88\x01\x01B\r\n" +
+	"\v_passphrase\"\xab\x01\n" +
+	"\x0eUnlockResponse\x12@\n" +
+	"\x05state\x18\x01 \x01(\x0e2*.shiftcrypto.bitbox02.UnlockResponse.StateR\x05state\"W\n" +
+	"\x05State\x12\x16\n" +
+	"\x12PASSPHRASE_PENDING\x10\x00\x12\x14\n" +
+	"\x10HOST_ENTRY_READY\x10\x01\x12\x16\n" +
+	"\x12PASSPHRASE_ENTERED\x10\x02\x12\b\n" +
+	"\x04DONE\x10\x03\"8\n" +
 	"\x1cElectrumEncryptionKeyRequest\x12\x18\n" +
 	"\akeypath\x18\x01 \x03(\rR\akeypath\"1\n" +
 	"\x1dElectrumEncryptionKeyResponse\x12\x10\n" +
@@ -355,24 +602,31 @@ func file_keystore_proto_rawDescGZIP() []byte {
 	return file_keystore_proto_rawDescData
 }
 
-var file_keystore_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_keystore_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_keystore_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_keystore_proto_goTypes = []any{
-	(*ElectrumEncryptionKeyRequest)(nil),  // 0: shiftcrypto.bitbox02.ElectrumEncryptionKeyRequest
-	(*ElectrumEncryptionKeyResponse)(nil), // 1: shiftcrypto.bitbox02.ElectrumEncryptionKeyResponse
-	(*BIP85Request)(nil),                  // 2: shiftcrypto.bitbox02.BIP85Request
-	(*BIP85Response)(nil),                 // 3: shiftcrypto.bitbox02.BIP85Response
-	(*BIP85Request_AppLn)(nil),            // 4: shiftcrypto.bitbox02.BIP85Request.AppLn
-	(*emptypb.Empty)(nil),                 // 5: google.protobuf.Empty
+	(UnlockResponse_State)(0),             // 0: shiftcrypto.bitbox02.UnlockResponse.State
+	(*UnlockRequest)(nil),                 // 1: shiftcrypto.bitbox02.UnlockRequest
+	(*UnlockContinueRequest)(nil),         // 2: shiftcrypto.bitbox02.UnlockContinueRequest
+	(*UnlockHostInfoRequest)(nil),         // 3: shiftcrypto.bitbox02.UnlockHostInfoRequest
+	(*UnlockResponse)(nil),                // 4: shiftcrypto.bitbox02.UnlockResponse
+	(*ElectrumEncryptionKeyRequest)(nil),  // 5: shiftcrypto.bitbox02.ElectrumEncryptionKeyRequest
+	(*ElectrumEncryptionKeyResponse)(nil), // 6: shiftcrypto.bitbox02.ElectrumEncryptionKeyResponse
+	(*BIP85Request)(nil),                  // 7: shiftcrypto.bitbox02.BIP85Request
+	(*BIP85Response)(nil),                 // 8: shiftcrypto.bitbox02.BIP85Response
+	(*BIP85Request_AppLn)(nil),            // 9: shiftcrypto.bitbox02.BIP85Request.AppLn
+	(*emptypb.Empty)(nil),                 // 10: google.protobuf.Empty
 }
 var file_keystore_proto_depIdxs = []int32{
-	5, // 0: shiftcrypto.bitbox02.BIP85Request.bip39:type_name -> google.protobuf.Empty
-	4, // 1: shiftcrypto.bitbox02.BIP85Request.ln:type_name -> shiftcrypto.bitbox02.BIP85Request.AppLn
-	5, // 2: shiftcrypto.bitbox02.BIP85Response.bip39:type_name -> google.protobuf.Empty
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0,  // 0: shiftcrypto.bitbox02.UnlockResponse.state:type_name -> shiftcrypto.bitbox02.UnlockResponse.State
+	10, // 1: shiftcrypto.bitbox02.BIP85Request.bip39:type_name -> google.protobuf.Empty
+	9,  // 2: shiftcrypto.bitbox02.BIP85Request.ln:type_name -> shiftcrypto.bitbox02.BIP85Request.AppLn
+	10, // 3: shiftcrypto.bitbox02.BIP85Response.bip39:type_name -> google.protobuf.Empty
+	4,  // [4:4] is the sub-list for method output_type
+	4,  // [4:4] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_keystore_proto_init() }
@@ -380,11 +634,12 @@ func file_keystore_proto_init() {
 	if File_keystore_proto != nil {
 		return
 	}
-	file_keystore_proto_msgTypes[2].OneofWrappers = []any{
+	file_keystore_proto_msgTypes[2].OneofWrappers = []any{}
+	file_keystore_proto_msgTypes[6].OneofWrappers = []any{
 		(*BIP85Request_Bip39)(nil),
 		(*BIP85Request_Ln)(nil),
 	}
-	file_keystore_proto_msgTypes[3].OneofWrappers = []any{
+	file_keystore_proto_msgTypes[7].OneofWrappers = []any{
 		(*BIP85Response_Bip39)(nil),
 		(*BIP85Response_Ln)(nil),
 	}
@@ -393,13 +648,14 @@ func file_keystore_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_keystore_proto_rawDesc), len(file_keystore_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   5,
+			NumEnums:      1,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_keystore_proto_goTypes,
 		DependencyIndexes: file_keystore_proto_depIdxs,
+		EnumInfos:         file_keystore_proto_enumTypes,
 		MessageInfos:      file_keystore_proto_msgTypes,
 	}.Build()
 	File_keystore_proto = out.File

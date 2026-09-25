@@ -102,3 +102,38 @@ Note: video.webm can be hard to utilize as it maintains the speed of execution o
 Much more useful is `trace.zip`, that can be inspected with `npx playwright show-trace trace.zip`; this will open a window that can be used to navigate through all the steps of the test, with a corresponding screenshot of the webpage at each step.
 
 Other options, when running locally, are to use the `--ui` or the `--debug` flags, as explained in the [official documentation](https://playwright.dev/docs/running-tests#debugging-tests).
+
+## Host passphrase simulator checks
+
+Use firmware 9.28.0 or newer with the host-passphrase unlock workflow and a seeded simulator
+with the optional BIP39 passphrase enabled. Keep its flash in a dedicated temporary directory
+using `FAKE_MEMORY_FILEPATH`. The graphical BitBox02 simulator is needed to control consent,
+entry and confirmation separately; the headless simulator accepts input immediately.
+
+With `servewallet -simulator` and the web frontend running, check:
+
+- After the device password, the Unlock screen shows "Enter BitBox passphrase" and
+  "Enter passphrase in app". Clicking the link hides it and requests consent on the device.
+  The app overlays "Enter passphrase", "Confirm on the BitBox to enter the passphrase on the
+  host" and a BitBox02 image. The input dialog opens only after consent. Both dialogs are
+  centered over the existing unlock screen, without a sidebar offset.
+- Rejecting consent, closing the dialog, or rejecting the passphrase confirmation resumes
+  device entry and offers the link again. Requests using a previous prompt ID are rejected.
+- Completing device entry hides the link before the passphrase confirmation screens.
+  Both device entry and app submission show a "Confirm passphrase on BitBox" overlay with
+  the BitBox02 image. Check this also when device entry finishes as the app link is clicked.
+- Submitting a passphrase preserves spaces. Confirming it on the device unlocks the expected
+  wallet. An empty string submits the empty passphrase; closing the dialog cancels instead.
+- Inputs longer than 149 bytes or containing characters outside the device keyboard's character
+  set are rejected in the app. Check 150 characters, an 8 KiB paste, Unicode, control characters,
+  tilde and backtick. The dialog must retain the input and allow correction or cancellation;
+  the device must keep waiting for host input. A 149-character valid passphrase is accepted.
+- Disconnect while the dialog is open, then reconnect. The dialog disappears and the new
+  connection starts a fresh unlock. Restarting the app while the device waits for host input
+  also recovers through the session reset.
+- Firmware older than 9.28.0, or a device without the optional passphrase enabled, uses the
+  existing unlock screen without the link.
+
+The simulator has no attestation certificate. Keep its real attestation failure response
+and verify that the warning remains visible while the passphrase link and dialog work.
+All endpoints must use the real backend and simulator.
