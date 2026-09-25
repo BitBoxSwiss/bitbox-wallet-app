@@ -6,6 +6,7 @@ package bitbox02
 
 import (
 	"slices"
+	"sync"
 
 	deviceevent "github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -37,6 +38,11 @@ type Device struct {
 	log         *logrus.Entry
 	keystore    *keystore
 
+	passphraseMu     sync.Mutex
+	passphrase       PassphraseState
+	requestHostEntry func()
+	hostPassphrase   chan *string
+
 	observable.Implementation
 }
 
@@ -63,48 +69,45 @@ func NewDevice(
 
 	log.Info("Plugged in device")
 	device := &Device{
-		Device: *firmware.NewDevice(
-			version,
-			&product,
-			config,
-			communication,
-			logger{log},
-			opts...,
-		),
 		deviceID:    deviceID,
 		productName: productName,
 		log:         log,
 	}
+	opts = append(opts, firmware.WithPassphraseConfig(firmware.PassphraseConfig{
+		OnHostPassphraseAvailable: device.hostPassphraseAvailable,
+		EnterMnemonicPassphrase:   device.enterMnemonicPassphrase,
+	}))
+	device.Device = *firmware.NewDevice(version, &product, config, communication, logger{log}, opts...)
 	device.keystore = &keystore{
 		device: device,
 		log:    device.log,
 	}
 	device.Device.SetOnEvent(func(ev firmware.Event, meta interface{}) {
 		switch ev {
+		case firmware.EventPassphraseEntered:
+			device.passphraseEntered()
 		case firmware.EventStatusChanged:
+			status := device.Device.Status()
+			if status != firmware.StatusConnected {
+				device.clearPassphrase()
+			}
 			device.Notify(observable.Event{
 				Subject: "status",
 				Action:  action.Replace,
-				Object:  device.Device.Status(),
+				Object:  status,
 			})
-		default:
-			device.Notify(observable.Event{
-				Subject: string(ev),
-				Action:  action.Replace,
-			})
-		}
-
-		switch ev {
-		case firmware.EventStatusChanged:
-			switch device.Device.Status() {
-			case firmware.StatusInitialized:
+			if status == firmware.StatusInitialized {
 				device.keystore.clearRootFingerprintCache()
 				device.Notify(observable.Event{
 					Subject: string(deviceevent.EventKeystoreAvailable),
 					Action:  action.Replace,
 				})
-
 			}
+		default:
+			device.Notify(observable.Event{
+				Subject: string(ev),
+				Action:  action.Replace,
+			})
 		}
 	})
 	return device
@@ -120,8 +123,15 @@ func (device *Device) init() {
 	go func() {
 		if err := device.Device.Init(); err != nil {
 			device.log.Error("unknown IO error (most likely the device was unplugged)", err)
+			device.Close()
 		}
 	}()
+}
+
+// Close also releases a pending host passphrase dialog.
+func (device *Device) Close() {
+	device.Device.Close()
+	device.clearPassphrase()
 }
 
 // ProductName implements device.Device.

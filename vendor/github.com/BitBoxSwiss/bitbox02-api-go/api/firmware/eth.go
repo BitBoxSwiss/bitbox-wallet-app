@@ -620,15 +620,25 @@ func parseTypedMessage(jsonMsg []byte) (*ethTypedMessage, []*messages.ETHSignTyp
 
 // Golang's stdlib doesn't support serializing signed integers in big endian (two's complement).
 // -x = ~x+1.
+// Return the shortest encoding that includes a sign bit, including one byte for zero.
 func bigendianInt(integer *big.Int) []byte {
 	if integer.Sign() >= 0 {
-		return integer.Bytes()
+		bytes := integer.Bytes()
+		if len(bytes) == 0 || bytes[0]&0x80 != 0 {
+			return append([]byte{0}, bytes...)
+		}
+		return bytes
 	}
 	bytes := append([]byte{0}, integer.Bytes()...)
 	for i, v := range bytes {
 		bytes[i] = ^v
 	}
-	return new(big.Int).Add(new(big.Int).SetBytes(bytes), big.NewInt(1)).Bytes()
+	bytes = new(big.Int).Add(new(big.Int).SetBytes(bytes), big.NewInt(1)).Bytes()
+	// Drop redundant sign extension, e.g. ff80 -> 80 for -128.
+	if len(bytes) > 1 && bytes[0] == 0xff && bytes[1]&0x80 != 0 {
+		bytes = bytes[1:]
+	}
+	return bytes
 }
 
 // encodeValue encodes a json decoded typed data value to send to the BitBox02 as part of the

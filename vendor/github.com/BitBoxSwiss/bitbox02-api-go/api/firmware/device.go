@@ -4,6 +4,7 @@
 package firmware
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -60,6 +61,10 @@ const (
 // Device provides the API to communicate with the BitBox02.
 type Device struct {
 	communication Communication
+	// This context represents the device lifetime, so Close can cancel a pending host-input dialog.
+	ctx       context.Context //nolint:containedctx
+	cancel    context.CancelFunc
+	closeOnce sync.Once
 	// firmware version.
 	version *semver.SemVer
 	product *common.Product
@@ -149,8 +154,11 @@ func NewDevice(
 	for _, opt := range opts {
 		opt(options)
 	}
+	ctx, cancel := context.WithCancel(context.Background())
 	return &Device{
 		communication: communication,
+		ctx:           ctx,
+		cancel:        cancel,
 		version:       version,
 		product:       product,
 		config:        config,
@@ -276,6 +284,10 @@ func (device *Device) Init() error {
 		return nil
 	}
 
+	if err := device.resetSession(); err != nil {
+		return err
+	}
+
 	attestation, err := device.performAttestation()
 	if err != nil {
 		return err
@@ -286,7 +298,7 @@ func (device *Device) Init() error {
 
 	// Before 2.0.0, unlock was invoked automatically by the device before USB communication
 	// started.
-	if device.version.AtLeast(semver.NewSemVer(2, 0, 0)) {
+	if device.version.AtLeast(semver.NewSemVer(2, 0, 0)) && !device.supportsPairedUnlock() {
 		_, err := device.rawQuery([]byte(opUnlock))
 		if err != nil {
 			// Most likely the device has been unplugged.
@@ -303,19 +315,27 @@ func (device *Device) Init() error {
 }
 
 func (device *Device) changeStatus(status Status) {
+	device.mu.Lock()
 	device.status = status
+	device.mu.Unlock()
 	device.fireEvent(EventStatusChanged)
 }
 
 // Status returns the device state. See the Status* constants.
 func (device *Device) Status() Status {
+	device.mu.RLock()
+	defer device.mu.RUnlock()
 	device.log.Debug(fmt.Sprintf("Device status: %v", device.status))
 	return device.status
 }
 
 // Close implements device.Device.
 func (device *Device) Close() {
-	device.communication.Close()
+	// Disconnect handling and an interrupted unlock can both close the same device.
+	device.closeOnce.Do(func() {
+		device.cancel()
+		device.communication.Close()
+	})
 }
 
 // RootFingerprint returns the keystore's root fingerprint, which is the first 32 bits of the

@@ -1,13 +1,14 @@
 # Changelog
 
 ## Unreleased
-- Rename "Factory Reset" to "Delete wallet from BitBox" (settings)
+- Rename "Factory reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings
 - Add transaction indicators to the portfolio chart
 - Ethereum: allow sending ETH and tokens from the same account while earlier transactions are pending
 - Ethereum: automatically remove replaced transactions from history
 - Update password input animations
+- BitBox02: allow entering the optional passphrase in the app (firmware v9.28.0 or later)
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1
