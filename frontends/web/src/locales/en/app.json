@@ -307,6 +307,17 @@
       "title": "Verify pairing code",
       "unpaired": "An unpaired BitBox has been detected. Please verify the pairing code matches what is shown on your BitBox."
     },
+    "passphrase": {
+      "confirmHostEntry": "Confirm on the BitBox to enter the passphrase on the host",
+      "confirmTitle": "Confirm passphrase on BitBox",
+      "dialogTitle": "Enter passphrase",
+      "enter": "Enter BitBox passphrase",
+      "enterInApp": "Enter passphrase in app",
+      "error": {
+        "invalidChars": "The passphrase contains characters that cannot be entered on the BitBox.",
+        "tooLong": "The passphrase must be at most 149 characters long."
+      }
+    },
     "restoreFromMnemonic": {
       "e104": "Restoring from recovery words was canceled.",
       "failed": "Restoring from recovery words failed, please try again.",

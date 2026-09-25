@@ -17,6 +17,9 @@ const (
 
 	// ErrUserAbort is returned when the user aborts an action on the device.
 	ErrUserAbort = 104
+
+	// ErrDisabled is returned when a function is disabled in the device firmware.
+	ErrDisabled = 106
 )
 
 // Error wraps an error from bitbox02.

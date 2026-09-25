@@ -135,10 +135,13 @@ func (device *Device) ChannelHash() (string, bool) {
 // ChannelHashVerify verifies the ChannelHash.
 func (device *Device) ChannelHashVerify(ok bool) {
 	device.log.Info(fmt.Sprintf("channelHashVerify: %v", ok))
-	if ok && !device.channelHashDeviceVerified {
+	device.mu.Lock()
+	if device.channelHashAppVerified || (ok && !device.channelHashDeviceVerified) {
+		device.mu.Unlock()
 		return
 	}
 	device.channelHashAppVerified = ok
+	device.mu.Unlock()
 	if ok {
 		// No critical error, we will just need to re-confirm the pairing next time.
 		_ = device.config.AddDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
@@ -154,6 +157,15 @@ func (device *Device) ChannelHashVerify(ok bool) {
 		if requireUpgrade {
 			device.changeStatus(StatusRequireFirmwareUpgrade)
 			return
+		}
+
+		if device.supportsPairedUnlock() {
+			device.changeStatus(StatusConnected)
+			if err := device.unlock(); err != nil {
+				device.log.Error("could not unlock device", err)
+				device.Close()
+				return
+			}
 		}
 
 		info, err := device.DeviceInfo()
