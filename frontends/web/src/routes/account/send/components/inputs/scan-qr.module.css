@@ -51,6 +51,50 @@
   height: 100%;
   object-fit: cover;
 }
+.videoFocusable {
+  cursor: crosshair;
+  touch-action: manipulation;
+}
+
+.focusIndicator {
+  position: absolute;
+  z-index: 1;
+  width: 64px;
+  height: 64px;
+  border: 2px solid var(--scan-qr-foreground);
+  border-radius: 50%;
+  animation: focusCamera 700ms ease-out forwards;
+  pointer-events: none;
+}
+.focusIndicator::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--scan-qr-foreground);
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
+@keyframes focusCamera {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
+  }
+  20% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
 
 .spinnerContainer {
   position: absolute;
@@ -165,6 +209,34 @@
   z-index: 2;
   display: flex;
   gap: var(--space-quarter);
+}
+
+.cameraSelect {
+  width: min(48vw, 220px);
+  height: 44px;
+  overflow: hidden;
+  padding: 0 32px 0 14px;
+  border: none;
+  border-radius: 22px;
+  appearance: none;
+  background-color: var(--scan-qr-control-background);
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 11 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.75 0.75L5.5 5.25L10.25 0.75' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: calc(100% - 12px) center;
+  background-repeat: no-repeat;
+  color: var(--scan-qr-foreground);
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: var(--size-default);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cameraSelect:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.cameraSelect option {
+  background-color: var(--scan-qr-background);
+  color: var(--scan-qr-foreground);
 }
 
 .controls button {
