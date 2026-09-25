@@ -138,7 +138,11 @@ const RemountAccount = ({
 
   useEffect(() => {
     if (status !== undefined && !status.disabled && !status.synced) {
-      accountApi.init(code).catch(console.error);
+      accountApi.init(code).then(result => {
+        if (!result.success) {
+          console.error(result.errorMessage);
+        }
+      }).catch(console.error);
     }
   }, [code, status]);
 

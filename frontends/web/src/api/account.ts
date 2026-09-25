@@ -182,7 +182,7 @@ export const getInfo = (code: AccountCode) => {
   };
 };
 
-export const init = (code: AccountCode): Promise<null> => {
+export const init = (code: AccountCode): Promise<SuccessResponse | TAccountError> => {
   return apiPost(`account/${code}/init`);
 };
 
@@ -300,7 +300,9 @@ export const getTransactionList = (code: AccountCode): Promise<TTransactions> =>
   return apiGet(`account/${code}/transactions`);
 };
 
-export const getTransaction = (code: AccountCode, id: TTransaction['internalID']): Promise<TTransaction | null> => {
+export const getTransaction = (code: AccountCode, id: TTransaction['internalID']): Promise<
+  { success: true; transaction: TTransaction | null } | TAccountError
+> => {
   return apiGet(`account/${code}/transaction?id=${id}`);
 };
 
