@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
+	"slices"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -123,11 +124,8 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 	return availableCoins
 }
 
-// AccountsByKeystore returns a map of the current accounts of the backend, grouped
-// by keystore.
-func (backend *Backend) AccountsByKeystore() (KeystoresAccountViewsMap, error) {
+func groupAccountViewsByKeystore(accountViews AccountViews) (KeystoresAccountViewsMap, error) {
 	accountsByKeystore := KeystoresAccountViewsMap{}
-	accountViews := backend.Accounts()
 	for index := range accountViews {
 		accountView := &accountViews[index]
 		rootFingerprint, err := accountView.Record.SigningConfigurations.RootFingerprint()
@@ -138,6 +136,12 @@ func (backend *Backend) AccountsByKeystore() (KeystoresAccountViewsMap, error) {
 		accountsByKeystore[hexFingerprint] = append(accountsByKeystore[hexFingerprint], *accountView)
 	}
 	return accountsByKeystore, nil
+}
+
+// AccountsByKeystore returns a map of the current accounts of the backend, grouped
+// by keystore.
+func (backend *Backend) AccountsByKeystore() (KeystoresAccountViewsMap, error) {
+	return groupAccountViewsByKeystore(backend.Accounts())
 }
 
 // accountFiatBalance returns an account's balance, converted in fiat currency.
@@ -196,12 +200,11 @@ func (backend *Backend) formattedCoinBalance(
 // coinsTotalBalance returns the total balances grouped by coins. Lightning is included on a
 // best-effort basis so that an unavailable Lightning SDK cannot prevent on-chain balances from
 // loading.
-func (backend *Backend) coinsTotalBalance() ([]coinFormattedAmount, error) {
+func (backend *Backend) coinsTotalBalance(accountViews AccountViews) ([]coinFormattedAmount, error) {
 	coinFormattedAmounts := []coinFormattedAmount{}
 	var sortedCoins []coinpkg.Code
 	totalCoinsBalances := make(map[coinpkg.Code]*big.Int)
 
-	accountViews := backend.Accounts()
 	for index := range accountViews {
 		accountView := &accountViews[index]
 		if accountView.Record.Inactive || accountView.Record.HiddenBecauseUnused {
@@ -314,11 +317,13 @@ func (backend *Backend) AccountsFiatAndCoinBalance(accounts AccountViews, fiatUn
 }
 
 // keystoresBalance returns a map of accounts' total balances across coins, grouped by keystore.
-func (backend *Backend) keystoresBalance() (map[string]KeystoreBalance, error) {
+func (backend *Backend) keystoresBalance(
+	accountViews AccountViews,
+) (map[string]KeystoreBalance, error) {
 	keystoreBalanceMap := make(map[string]KeystoreBalance)
 	fiatUnit := backend.Config().AppConfig().Backend.MainFiat
 
-	accountsByKeystore, err := backend.AccountsByKeystore()
+	accountsByKeystore, err := groupAccountViewsByKeystore(accountViews)
 	if err != nil {
 		return nil, err
 	}
@@ -363,11 +368,12 @@ type AccountsBalanceSummary struct {
 
 // AccountsBalanceSummary returns the total balance for each coin and of each keystore.
 func (backend *Backend) AccountsBalanceSummary() (*AccountsBalanceSummary, error) {
-	keystoresBalance, err := backend.keystoresBalance()
+	accountViews := backend.Accounts()
+	keystoresBalance, err := backend.keystoresBalance(accountViews)
 	if err != nil {
 		return nil, err
 	}
-	coinsTotalBalance, err := backend.coinsTotalBalance()
+	coinsTotalBalance, err := backend.coinsTotalBalance(accountViews)
 	if err != nil {
 		return nil, err
 	}
@@ -476,28 +482,29 @@ func configuredAccountName(coin coinpkg.Coin, accountConfig *config.Account) (st
 	return defaultAccountName(coin, accountNumber), nil
 }
 
-// createAndPersistAccountConfig adds an account for the given coin and account number. The account
-// numbers start at 0 (first account). The added account will be a unified account supporting all
-// types that the keystore supports. The keypaths will be standard BIP44 keypaths for the respective
-// account types. `name` is the name of the new account and will be shown to the user.
-// If empty, a default name will be used.
+// buildAccountConfig prepares an account for the given coin and account number. The account numbers
+// start at 0 (first account). The account will be a unified account supporting all types that the
+// keystore supports. The keypaths will be standard BIP44 keypaths for the respective account types.
+// `name` is the name of the new account and will be shown to the user. If empty, a default name will
+// be used.
 //
-// The account code of the newly created account is returned.
-func (backend *Backend) createAndPersistAccountConfig(
+// Hardware access happens here, before the returned account is passed to accountsDB.Update.
+// The account is nil when the keystore does not support its construction.
+func (backend *Backend) buildAccountConfig(
 	coinCode coinpkg.Code,
 	accountNumber uint16,
 	hiddenBecauseUnused bool,
 	name string,
 	keystore keystore.Keystore,
 	activeTokens []string,
-	accountsConfig *config.AccountsConfig) (accountsTypes.Code, error) {
+) (accountsTypes.Code, *config.Account, error) {
 	rootFingerprint, err := keystore.RootFingerprint()
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	accountCoin, err := backend.Coin(coinCode)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	if name == "" {
 		name = defaultAccountName(accountCoin, accountNumber)
@@ -511,29 +518,37 @@ func (backend *Backend) createAndPersistAccountConfig(
 		WithField("accountCode", accountCode).
 		WithField("coinCode", coinCode).
 		WithField("accountNumber", accountNumber)
-	log.Info("Persisting new account config")
+	log.Info("Preparing new account config")
 
 	derivationSpec, err := newAccountDerivationSpec(coinCode, accountNumber)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	switch derivationSpec.kind {
 	case accountDerivationKindBTC:
-		return accountCode, backend.persistBTCAccountConfig(keystore, accountCoin,
+		accountConfig, err := backend.buildBTCAccountConfig(
+			keystore,
+			rootFingerprint,
+			accountCoin,
 			accountCode,
 			hiddenBecauseUnused,
 			name,
 			derivationSpec.btcConfigs,
-			accountsConfig,
 		)
+		return accountCode, accountConfig, err
 	case accountDerivationKindETH:
-		return accountCode, backend.persistETHAccountConfig(
-			keystore, accountCoin, accountCode, hiddenBecauseUnused,
+		accountConfig, err := backend.buildETHAccountConfig(
+			keystore,
+			rootFingerprint,
+			accountCoin,
+			accountCode,
+			hiddenBecauseUnused,
 			derivationSpec.ethKeypath,
 			name,
 			activeTokens,
-			accountsConfig)
+		)
+		return accountCode, accountConfig, err
 	default:
 		panic("unhandled account derivation kind")
 	}
@@ -580,32 +595,59 @@ func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.K
 // `name` is the account name, shown to the user. If empty, a default name will be set.
 func (backend *Backend) CreateAndPersistAccountConfig(
 	coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accountsTypes.Code, error) {
-	var accountCode accountsTypes.Code
-	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
-		hiddenAccount, err := findHiddenAccount(coinCode, keystore, accountsConfig)
-		if err != nil {
-			return err
-		}
-		if hiddenAccount != nil {
-			hiddenAccount.HiddenBecauseUnused = false
-			hiddenAccount.Name = name
+	defer backend.accountsAndKeystoreLock.Lock()()
 
-			accountCode = hiddenAccount.Code
-			return nil
-		}
-		// Otherwise we create a new account.
-		nextAccountNumber, err := nextAccountNumber(coinCode, keystore, accountsConfig)
-		if err != nil {
-			return err
-		}
-		accountCode, err = backend.createAndPersistAccountConfig(
-			coinCode, nextAccountNumber, false, name, keystore, nil, accountsConfig)
-		return err
-	})
+	accountsConfig, err := backend.accountsDB.Snapshot()
 	if err != nil {
 		return "", err
 	}
-	backend.ReinitializeAccounts()
+	hiddenAccount, err := findHiddenAccount(coinCode, keystore, &accountsConfig)
+	if err != nil {
+		return "", err
+	}
+
+	var accountCode accountsTypes.Code
+	if hiddenAccount != nil {
+		accountCode = hiddenAccount.Code
+		if err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
+			account := accountsConfig.Lookup(accountCode)
+			if account == nil {
+				return errp.Newf("Could not find account %s", accountCode)
+			}
+			account.HiddenBecauseUnused = false
+			account.Name = name
+			return nil
+		}); err != nil {
+			return "", err
+		}
+	} else {
+		nextNumber, err := nextAccountNumber(coinCode, keystore, &accountsConfig)
+		if err != nil {
+			return "", err
+		}
+		var account *config.Account
+		accountCode, account, err = backend.buildAccountConfig(
+			coinCode,
+			nextNumber,
+			false,
+			name,
+			keystore,
+			nil,
+		)
+		if err != nil {
+			return "", err
+		}
+		if account != nil {
+			if err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
+				return backend.persistAccount(*account, accountsConfig)
+			}); err != nil {
+				return "", err
+			}
+		}
+	}
+	if err := backend.reconcileAccountWriteLocked(accountCode); err != nil {
+		return "", err
+	}
 	return accountCode, nil
 }
 
@@ -629,6 +671,8 @@ func (backend *Backend) SetAccountActive(accountCode accountsTypes.Code, active 
 // SetTokenActive activates/deactivates an token on an account. `tokenCode` must be an ERC20 token
 // code, e.g. "eth-erc20-usdt", "eth-erc20-bat", etc.
 func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error {
+	defer backend.accountsAndKeystoreLock.Lock()()
+
 	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(accountCode)
 		if acct == nil {
@@ -642,7 +686,24 @@ func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode
 	if err != nil {
 		return err
 	}
-	backend.ReinitializeAccounts()
+	return backend.reconcileAccountWriteLocked(accountCode)
+}
+
+// reconcileAccountWriteLocked updates runtime membership and dependent services after a persisted
+// account-family write. Callers hold accountsAndKeystoreLock across both persistence and
+// reconciliation so joined views cannot combine new desired membership with stale runtime state.
+func (backend *Backend) reconcileAccountWriteLocked(accountCode accountsTypes.Code) error {
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return err
+	}
+	membershipChanged, _ := backend.reconcileAccountFamilyLocked(
+		accountsConfig,
+		accountCode,
+		accountLoadOptions{},
+	)
+	// Newly initialized ETH accounts enqueue their own initial update.
+	backend.applyAccountReconcileEffectsLocked(membershipChanged, false)
 	return nil
 }
 
@@ -707,12 +768,14 @@ func (backend *Backend) updateKeystoreName(rootFingerprint []byte, name string) 
 	return nil
 }
 
-// addAccount adds the given account to the backend.
+// addAccount adds the given account to the backend and reports whether registry membership changed.
 // The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) addAccount(account accounts.Interface) {
-	if _, err := backend.accounts.add(account); err != nil {
+func (backend *Backend) addAccount(account accounts.Interface) bool {
+	added, err := backend.accounts.add(account)
+	if err != nil {
 		backend.log.WithError(err).Error("error initializing account")
 	}
+	return added
 }
 
 // CheckKeystoreFeature checks a feature's requirements, including account-specific requirements
@@ -865,10 +928,10 @@ func (backend *Backend) createAndAddAccount(
 	coin coinpkg.Coin,
 	persistedConfig *config.Account,
 	options accountLoadOptions,
-) {
+) bool {
 	if backend.accounts.lookup(persistedConfig.Code) != nil {
 		// Do not create/load account if it is already loaded.
-		return
+		return false
 	}
 	accountCode := persistedConfig.Code
 	signingConfigurations := persistedConfig.SigningConfigurations
@@ -946,10 +1009,10 @@ func (backend *Backend) createAndAddAccount(
 			getAddressByIDCallback,
 			backend.log,
 		)
-		backend.addAccount(account)
+		return backend.addAccount(account)
 	case *eth.Coin:
 		account = backend.makeEthAccount(accountConfig, specificCoin, backend.log)
-		backend.addAccount(account)
+		membershipChanged := backend.addAccount(account)
 
 		// Load ERC20 tokens enabled with this Ethereum account.
 		for _, erc20TokenCode := range persistedConfig.ActiveTokens {
@@ -967,8 +1030,11 @@ func (backend *Backend) createAndAddAccount(
 				SigningConfigurations: persistedConfig.SigningConfigurations,
 			}
 
-			backend.createAndAddAccount(token, erc20Config, options)
+			if backend.createAndAddAccount(token, erc20Config, options) {
+				membershipChanged = true
+			}
 		}
+		return membershipChanged
 	default:
 		panic("unknown coin type")
 	}
@@ -1032,6 +1098,151 @@ func (backend *Backend) accountLoadableLocked(
 	return accountCoin, true
 }
 
+// isTokenAccountOf reports whether account is an ERC20 token derived from parentCode.
+func isTokenAccountOf(account accounts.Interface, parentCode accountsTypes.Code) bool {
+	return eth.IsERC20(account) &&
+		account.Config().Code == Erc20AccountCode(parentCode, string(account.Coin().Code()))
+}
+
+func (backend *Backend) removeAccountFamilyLocked(
+	accountCode accountsTypes.Code,
+) (membershipChanged bool, ethMembershipChanged bool) {
+	for _, account := range backend.accounts.all() {
+		if account.Config().Code != accountCode && !isTokenAccountOf(account, accountCode) {
+			continue
+		}
+		if backend.accounts.remove(account.Config().Code) {
+			membershipChanged = true
+			if _, isETH := account.Coin().(*eth.Coin); isETH {
+				ethMembershipChanged = true
+			}
+		}
+	}
+	return membershipChanged, ethMembershipChanged
+}
+
+// reconcileAccountFamilyLocked reconciles one persisted account and its derived token accounts.
+// accountsAndKeystoreLock must be held.
+func (backend *Backend) reconcileAccountFamilyLocked(
+	accountsConfig config.AccountsConfig,
+	accountCode accountsTypes.Code,
+	options accountLoadOptions,
+) (membershipChanged bool, ethMembershipChanged bool) {
+	record := accountsConfig.Lookup(accountCode)
+	if record == nil {
+		return false, false
+	}
+
+	accountCoin, loadable := backend.accountLoadableLocked(accountsConfig, record)
+	if !loadable {
+		return backend.removeAccountFamilyLocked(accountCode)
+	}
+
+	loadedAccount := backend.accounts.lookup(accountCode)
+	if loadedAccount == nil {
+		added := backend.createAndAddAccount(
+			accountCoin,
+			record,
+			options,
+		)
+		_, isETH := accountCoin.(*eth.Coin)
+		return added, added && isETH
+	}
+
+	if _, isETH := accountCoin.(*eth.Coin); !isETH {
+		return false, false
+	}
+
+	for _, account := range backend.accounts.all() {
+		if !isTokenAccountOf(account, accountCode) {
+			continue
+		}
+		if slices.Contains(record.ActiveTokens, string(account.Coin().Code())) {
+			continue
+		}
+		if backend.accounts.remove(account.Config().Code) {
+			membershipChanged = true
+			ethMembershipChanged = true
+		}
+	}
+	for _, tokenCode := range record.ActiveTokens {
+		tokenAccountCode := Erc20AccountCode(accountCode, tokenCode)
+		if backend.accounts.lookup(tokenAccountCode) != nil {
+			continue
+		}
+		tokenCoin, err := backend.Coin(coinpkg.Code(tokenCode))
+		if err != nil {
+			backend.log.WithField("code", tokenAccountCode).WithError(err).Error("could not find ERC20 token")
+			continue
+		}
+		tokenRecord := &config.Account{
+			CoinCode:              tokenCoin.Code(),
+			Code:                  tokenAccountCode,
+			SigningConfigurations: record.SigningConfigurations,
+		}
+		if backend.createAndAddAccount(
+			tokenCoin,
+			tokenRecord,
+			options,
+		) {
+			membershipChanged = true
+			ethMembershipChanged = true
+		}
+	}
+	return membershipChanged, ethMembershipChanged
+}
+
+// reconcileAccountsLocked makes runtime membership match one authoritative accounts database
+// snapshot.
+// accountsAndKeystoreLock must be held.
+func (backend *Backend) reconcileAccountsLocked(
+	accountsConfig config.AccountsConfig,
+) (membershipChanged bool, ethMembershipChanged bool) {
+	desiredAccountCodes := make(map[accountsTypes.Code]struct{}, len(accountsConfig.Accounts))
+	for _, record := range accountsConfig.Accounts {
+		desiredAccountCodes[record.Code] = struct{}{}
+		for _, tokenCode := range record.ActiveTokens {
+			desiredAccountCodes[Erc20AccountCode(record.Code, tokenCode)] = struct{}{}
+		}
+
+		changed, ethChanged := backend.reconcileAccountFamilyLocked(
+			accountsConfig,
+			record.Code,
+			accountLoadOptions{skipETHInitialSync: true},
+		)
+		membershipChanged = membershipChanged || changed
+		ethMembershipChanged = ethMembershipChanged || ethChanged
+	}
+
+	for _, account := range backend.accounts.all() {
+		if _, desired := desiredAccountCodes[account.Config().Code]; desired {
+			continue
+		}
+		if backend.accounts.remove(account.Config().Code) {
+			membershipChanged = true
+			if _, isETH := account.Coin().(*eth.Coin); isETH {
+				ethMembershipChanged = true
+			}
+		}
+	}
+	return membershipChanged, ethMembershipChanged
+}
+
+// applyAccountReconcileEffectsLocked updates services and observers after membership reconciliation.
+// accountsAndKeystoreLock must be held.
+func (backend *Backend) applyAccountReconcileEffectsLocked(
+	membershipChanged bool,
+	refreshAllETHAccounts bool,
+) {
+	if refreshAllETHAccounts {
+		backend.enqueueETHInitialSyncLocked()
+	}
+	backend.emitAccountsStatusChanged()
+	if membershipChanged {
+		backend.configureHistoryExchangeRates()
+	}
+}
+
 func (backend *Backend) emitAccountsStatusChanged() {
 	backend.Notify(observable.Event{
 		Subject: "accounts",
@@ -1039,23 +1250,23 @@ func (backend *Backend) emitAccountsStatusChanged() {
 	})
 }
 
-// persistAccount adds the account information to the accounts database. These accounts are loaded
-// in `initPersistedAccounts()`.
+// persistAccount adds a prepared account to the authoritative account records.
 func (backend *Backend) persistAccount(account config.Account, accountsConfig *config.AccountsConfig) error {
 	if account.Name == "" {
 		return errp.New("Account name cannot be empty")
 	}
-	for _, account2 := range accountsConfig.Accounts {
-		if account.Code == account2.Code {
+	for _, existingAccount := range accountsConfig.Accounts {
+		if account.Code == existingAccount.Code {
 			backend.log.Errorf("An account with same code exists: %s", account.Code)
 			return errp.WithStack(errAccountAlreadyExists)
 		}
-		if account.CoinCode == account2.CoinCode {
+		if account.CoinCode == existingAccount.CoinCode {
 			// We detect a duplicate account (subaccount in a unified account) if any of the
 			// configurations is already present.
-			for _, config := range account.SigningConfigurations {
-				for _, config2 := range account2.SigningConfigurations {
-					if config.ExtendedPublicKey().String() == config2.ExtendedPublicKey().String() {
+			for _, signingConfig := range account.SigningConfigurations {
+				for _, existingSigningConfig := range existingAccount.SigningConfigurations {
+					if signingConfig.ExtendedPublicKey().String() ==
+						existingSigningConfig.ExtendedPublicKey().String() {
 						return errp.WithStack(errAccountAlreadyExists)
 					}
 				}
@@ -1063,20 +1274,21 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 
 		}
 	}
+	account.ActiveTokens = slices.Clone(account.ActiveTokens)
 	accountsConfig.Accounts = append(accountsConfig.Accounts, &account)
 	return nil
 }
 
-// adds a combined BTC account with the given script types.
-func (backend *Backend) persistBTCAccountConfig(
+// buildBTCAccountConfig builds a combined BTC account with the given script types.
+func (backend *Backend) buildBTCAccountConfig(
 	keystore keystore.Keystore,
+	rootFingerprint []byte,
 	coin coinpkg.Coin,
 	code accountsTypes.Code,
 	hiddenBecauseUnused bool,
 	name string,
 	configs []scriptTypeWithKeypath,
-	accountsConfig *config.AccountsConfig,
-) error {
+) (*config.Account, error) {
 	log := backend.log.WithField("code", code)
 	var supportedConfigs []scriptTypeWithKeypath
 	for _, cfg := range configs {
@@ -1086,14 +1298,9 @@ func (backend *Backend) persistBTCAccountConfig(
 	}
 	if len(supportedConfigs) == 0 {
 		log.Info("skipping unsupported account")
-		return nil
+		return nil, nil
 	}
-	log.Info("persist account")
-
-	rootFingerprint, err := keystore.RootFingerprint()
-	if err != nil {
-		return err
-	}
+	log.Info("preparing account")
 
 	keypaths := make([]signing.AbsoluteKeypath, len(supportedConfigs))
 	for i, cfg := range supportedConfigs {
@@ -1101,8 +1308,8 @@ func (backend *Backend) persistBTCAccountConfig(
 	}
 	xpubs, err := keystore.BTCXPubs(coin, keypaths)
 	if err != nil {
-		log.WithError(err).Errorf("Could not derive xpubs at keypaths")
-		return err
+		log.WithError(err).Error("Could not derive xpubs at keypaths")
+		return nil, err
 	}
 
 	var signingConfigurations signing.Configurations
@@ -1116,25 +1323,25 @@ func (backend *Backend) persistBTCAccountConfig(
 		signingConfigurations = append(signingConfigurations, signingConfiguration)
 	}
 
-	return backend.persistAccount(config.Account{
+	return &config.Account{
 		HiddenBecauseUnused:   hiddenBecauseUnused,
 		CoinCode:              coin.Code(),
 		Name:                  name,
 		Code:                  code,
 		SigningConfigurations: signingConfigurations,
-	}, accountsConfig)
+	}, nil
 }
 
-func (backend *Backend) persistETHAccountConfig(
+func (backend *Backend) buildETHAccountConfig(
 	keystore keystore.Keystore,
+	rootFingerprint []byte,
 	coin coinpkg.Coin,
 	code accountsTypes.Code,
 	hiddenBecauseUnused bool,
 	keypath signing.AbsoluteKeypath,
 	name string,
 	activeTokens []string,
-	accountsConfig *config.AccountsConfig,
-) error {
+) (*config.Account, error) {
 	log := backend.log.
 		WithField("code", code).
 		WithField("name", name).
@@ -1142,18 +1349,13 @@ func (backend *Backend) persistETHAccountConfig(
 
 	if !keystore.SupportsAccount(coin, nil) {
 		log.Info("skipping unsupported account")
-		return nil
+		return nil, nil
 	}
 
-	log.Info("persist account")
+	log.Info("preparing account")
 	extendedPublicKey, err := keystore.ExtendedPublicKey(coin, keypath)
 	if err != nil {
-		return err
-	}
-
-	rootFingerprint, err := keystore.RootFingerprint()
-	if err != nil {
-		return err
+		return nil, err
 	}
 	signingConfigurations := signing.Configurations{
 		signing.NewEthereumConfiguration(
@@ -1163,42 +1365,28 @@ func (backend *Backend) persistETHAccountConfig(
 		),
 	}
 
-	return backend.persistAccount(config.Account{
+	return &config.Account{
 		HiddenBecauseUnused:   hiddenBecauseUnused,
 		CoinCode:              coin.Code(),
 		Name:                  name,
 		Code:                  code,
 		SigningConfigurations: signingConfigurations,
 		ActiveTokens:          activeTokens,
-	}, accountsConfig)
+	}, nil
 }
 
-// The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) initPersistedAccounts(options accountLoadOptions) {
-	persistedAccounts, err := backend.accountsDB.Snapshot()
-	if err != nil {
-		backend.log.WithError(err).Error("could not load account records")
-		return
-	}
-
-	for _, account := range persistedAccounts.Accounts {
-		accountCoin, loadable := backend.accountLoadableLocked(persistedAccounts, account)
-		if !loadable {
-			continue
-		}
-		backend.createAndAddAccount(accountCoin, account, options)
-	}
-}
-
-// persistDefaultAccountConfigs persists a bunch of default accounts for the connected keystore (not
-// manually user-added). Currently the first bip44 account of BTC/LTC/ETH. ERC20 tokens are added if
-// they were configured to be active by the user in the past, when they could still configure them
-// globally in the settings.
+// buildDefaultAccountConfigs prepares the default accounts for the connected keystore (not manually
+// user-added). Currently the first bip44 account of BTC/LTC/ETH. ERC20 tokens are added if they were
+// configured to be active by the user in the past, when they could still configure them globally
+// in the settings.
 //
 // The accounts are only added for the coins that are marked active in the settings. This used to be
 // a user-facing setting. Now we simply use it for migration to decide which coins to add by
 // default.
-func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore, accountsConfig *config.AccountsConfig) error {
+func (backend *Backend) buildDefaultAccountConfigs(
+	keystore keystore.Keystore,
+) ([]config.Account, error) {
+	var accountConfigs []config.Account
 	for _, coinCode := range backend.coinPolicy().supportedCoins() {
 		if !backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
 			continue
@@ -1217,37 +1405,54 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 			}
 		}
 
-		if _, err := backend.createAndPersistAccountConfig(
-			coinCode, 0, false, "", keystore, activeTokens, accountsConfig); err != nil {
-			return err
+		_, account, err := backend.buildAccountConfig(
+			coinCode,
+			0,
+			false,
+			"",
+			keystore,
+			activeTokens,
+		)
+		if err != nil {
+			return nil, err
+		}
+		if account != nil {
+			accountConfigs = append(accountConfigs, *account)
 		}
 	}
-	return nil
+	return accountConfigs, nil
 }
 
-// maybeAddP2TR adds a taproot subaccount to all Bitcoin accounts if the keystore suports it.
-func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*config.Account) error {
+// maybeAddP2TR adds a taproot subaccount to all Bitcoin accounts if the keystore supports it. The
+// accounts must come from a detached snapshot so hardware access finishes before the accounts
+// database Update callback.
+// It returns the codes of the accounts it changed.
+func (backend *Backend) maybeAddP2TR(
+	keystore keystore.Keystore,
+	accounts []*config.Account,
+) ([]accountsTypes.Code, error) {
+	var changedAccountCodes []accountsTypes.Code
 	for _, account := range accounts {
 		if account.CoinCode == coinpkg.CodeBTC ||
 			account.CoinCode == coinpkg.CodeTBTC ||
 			account.CoinCode == coinpkg.CodeRBTC {
 			accountCoin, err := backend.Coin(account.CoinCode)
 			if err != nil {
-				return err
+				return nil, err
 			}
 			if keystore.SupportsAccount(accountCoin, signing.ScriptTypeP2TR) &&
 				account.SigningConfigurations.FindScriptType(signing.ScriptTypeP2TR) == -1 {
-				rootFingerprint, err := backend.keystore.RootFingerprint()
+				rootFingerprint, err := keystore.RootFingerprint()
 				if err != nil {
-					return err
+					return nil, err
 				}
 				bip44Coin, ok := coinpkg.BIP44CoinType(account.CoinCode)
 				if !ok {
-					return errp.Newf("Unrecognized coin code: %s", account.CoinCode)
+					return nil, errp.Newf("Unrecognized coin code: %s", account.CoinCode)
 				}
 				accountNumber, err := account.SigningConfigurations[0].AccountNumber()
 				if err != nil {
-					return err
+					return nil, err
 				}
 				keypath := signing.NewAbsoluteKeypathFromUint32(
 					86+hardenedKeystart,
@@ -1255,7 +1460,7 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 					uint32(accountNumber)+hardenedKeystart)
 				extendedPublicKey, err := keystore.ExtendedPublicKey(accountCoin, keypath)
 				if err != nil {
-					return err
+					return nil, err
 				}
 				account.SigningConfigurations = append(
 					account.SigningConfigurations,
@@ -1265,37 +1470,11 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 						keypath,
 						extendedPublicKey,
 					))
-				backend.log.WithField("code", account.Code).
-					Info("upgraded account with taproot subaccount")
+				changedAccountCodes = append(changedAccountCodes, account.Code)
 			}
 		}
 	}
-	return nil
-}
-
-// updatePersistedAccounts handles any updates to the persisted accounts before loading them, to
-// perform migrations, updates etc. We use it to add taproot subaccounts to Bitcoin accounts that
-// were created (persisted) before the introduction of taproot support.
-func (backend *Backend) updatePersistedAccounts(
-	keystore keystore.Keystore, accounts []*config.Account) error {
-
-	return backend.maybeAddP2TR(keystore, accounts)
-}
-
-// The accountsAndKeystoreLock must be held when calling this function.
-// if force is true, all accounts are uninitialized first, even if they are watch-only.
-func (backend *Backend) initAccounts(force bool) {
-	// Since initAccounts replaces all previous accounts, we need to properly close them first.
-	backend.uninitAccounts(force)
-
-	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
-	backend.enqueueETHInitialSyncLocked()
-
-	backend.emitAccountsStatusChanged()
-
-	// The updater fetches rates only for active accounts, so update its configuration whenever
-	// this operation changes the loaded account set.
-	backend.configureHistoryExchangeRates()
+	return changedAccountCodes, nil
 }
 
 // enqueueETHInitialSyncLocked asks the ETH updater to refresh all loaded ETH accounts if any exist.
@@ -1307,57 +1486,6 @@ func (backend *Backend) enqueueETHInitialSyncLocked() {
 			backend.enqueueETHUpdateForAllAccountsAsync()
 			return
 		}
-	}
-}
-
-// ReinitializeAccounts uninits and then reinits all accounts. This is useful to reload the accounts
-// if the configuration changed (e.g. which accounts are active). This is a stopgap measure until
-// accounts can be added and removed individually.
-func (backend *Backend) ReinitializeAccounts() {
-	defer backend.accountsAndKeystoreLock.Lock()()
-
-	backend.log.Info("Reinitializing accounts")
-	backend.initAccounts(true)
-}
-
-// The accountsAndKeystoreLock must be held when calling this function.
-// if force is true, all accounts are uninitialized, even if they are watch-only.
-func (backend *Backend) uninitAccounts(force bool) {
-	// This transitional implementation is removed once account membership is reconciled incrementally.
-	accountsConfig, err := backend.accountsDB.Snapshot()
-	if err != nil {
-		backend.log.WithError(err).Error("could not load account records")
-		return
-	}
-	for _, account := range backend.accounts.all() {
-		accountConfig := accountsConfig.Lookup(account.Config().Code)
-		if accountConfig == nil {
-			accountConfig, _ = derivedTokenRecord(account, accountsConfig)
-		}
-
-		belongsToKeystore := false
-		if backend.keystore != nil && accountConfig != nil {
-			fingerprint, err := backend.keystore.RootFingerprint()
-			if err != nil {
-				backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
-			} else {
-				belongsToKeystore =
-					accountConfig.SigningConfigurations.ContainsRootFingerprint(fingerprint)
-			}
-		}
-
-		isWatchonly := false
-		if accountConfig != nil {
-			var err error
-			isWatchonly, err = accountsConfig.IsAccountWatchOnly(accountConfig)
-			if err != nil {
-				backend.log.WithError(err).Error("could not determine watch status of account")
-			}
-		}
-		if !force && (belongsToKeystore || isWatchonly) {
-			continue
-		}
-		backend.accounts.remove(account.Config().Code)
 	}
 }
 
@@ -1398,41 +1526,11 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 		return
 	}
 
-	do := func(cfg *config.AccountsConfig, coinCode coinpkg.Code) *accountsTypes.Code {
+	// Enable accounts discovery for these coins.
+	for _, coinCode := range backend.coinPolicy().discoveryCoins() {
 		log := backend.log.
 			WithField("rootFingerprint", hex.EncodeToString(rootFingerprint)).
 			WithField("coinCode", coinCode)
-
-		nextAccountNumber, ok := nextDiscoveryAccountNumber(
-			coinCode,
-			accountCandidates(cfg, rootFingerprint, coinCode),
-		)
-		if !ok {
-			return nil
-		}
-
-		accountCode, err := backend.createAndPersistAccountConfig(
-			coinCode,
-			nextAccountNumber,
-			true,
-			"",
-			backend.keystore,
-			nil,
-			cfg,
-		)
-		if err != nil {
-			log.WithError(err).Error("adding hidden account failed")
-			return nil
-		}
-		log.
-			WithField("accountCode", accountCode).
-			WithField("accountNumber", nextAccountNumber).
-			Info("automatically created hidden account")
-		return &accountCode
-	}
-
-	// Enable accounts discovery for these coins.
-	for _, coinCode := range backend.coinPolicy().discoveryCoins() {
 		coin, err := backend.Coin(coinCode)
 		if err != nil {
 			backend.log.Errorf("could not find coin %s", coinCode)
@@ -1441,26 +1539,45 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 		if !backend.keystore.SupportsCoin(coin) {
 			continue
 		}
-		var newAccountCode *accountsTypes.Code
-		err = backend.accountsDB.Update(func(cfg *config.AccountsConfig) error {
-			newAccountCode = do(cfg, coinCode)
-			return nil
-		})
+		accountsConfig, err := backend.accountsDB.Snapshot()
 		if err != nil {
-			backend.log.
-				WithField("coinCode", coinCode).
-				WithError(err).
-				Error("maybeAddHiddenUnusedAccounts failed")
+			log.WithError(err).Error("could not load account records")
 			continue
 		}
-		if newAccountCode != nil {
-			accountConfig := backend.config.AccountsConfig().Lookup(*newAccountCode)
-			if accountConfig == nil {
-				backend.log.Errorf("could not find newly persisted account %s", *newAccountCode)
-				continue
-			}
-			backend.createAndAddAccount(coin, accountConfig, accountLoadOptions{})
-			backend.emitAccountsStatusChanged()
+		nextAccountNumber, ok := nextDiscoveryAccountNumber(
+			coinCode,
+			accountCandidates(&accountsConfig, rootFingerprint, coinCode),
+		)
+		if !ok {
+			continue
+		}
+		accountCode, account, err := backend.buildAccountConfig(
+			coinCode,
+			nextAccountNumber,
+			true,
+			"",
+			backend.keystore,
+			nil,
+		)
+		if err != nil {
+			log.WithError(err).Error("adding hidden account failed")
+			continue
+		}
+		if account == nil {
+			continue
+		}
+		if err := backend.accountsDB.Update(func(cfg *config.AccountsConfig) error {
+			return backend.persistAccount(*account, cfg)
+		}); err != nil {
+			log.WithError(err).Error("maybeAddHiddenUnusedAccounts failed")
+			continue
+		}
+		log.
+			WithField("accountCode", accountCode).
+			WithField("accountNumber", nextAccountNumber).
+			Info("automatically created hidden account")
+		if err := backend.reconcileAccountWriteLocked(accountCode); err != nil {
+			log.WithError(err).Error("could not reconcile hidden account")
 		}
 	}
 }
