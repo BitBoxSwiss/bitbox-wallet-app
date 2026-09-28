@@ -1929,7 +1929,7 @@
       "note": "Lightning top-up",
       "success": {
         "message": "Top up created!",
-        "note": "The top-up transaction will appear after one confirmation and complete after three confirmations. This usually takes 30+ minutes."
+        "note": "The top-up transaction will appear as pending in the payment list before its first confirmation. It completes after three confirmations, which usually takes 30+ minutes."
       },
       "title": "Top up Lightning wallet",
       "to": "To"
