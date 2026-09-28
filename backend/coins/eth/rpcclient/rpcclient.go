@@ -4,6 +4,7 @@ package rpcclient
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
@@ -43,6 +44,9 @@ type Interface interface {
 	// FeeTargets returns EIP-1559 compatible priorities (maxFeePerGas + baseFee)
 	FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarget, error)
 }
+
+// ErrRequestRejected marks a request refused before transaction submission.
+var ErrRequestRejected = errors.New("request rejected")
 
 // RPCError is a JSON-RPC error returned by the provider.
 type RPCError struct {

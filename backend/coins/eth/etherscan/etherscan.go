@@ -74,7 +74,7 @@ func (etherScan *EtherScan) callWithMethod(
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	if err := etherScan.limiter.Wait(ctx); err != nil {
-		return errp.WithStack(err)
+		return errp.WithMessage(rpcclient.ErrRequestRejected, err.Error())
 	}
 	params.Set("chainId", etherScan.chainId)
 	encodedParams := params.Encode()
@@ -87,7 +87,7 @@ func (etherScan *EtherScan) callWithMethod(
 	}
 	request, err := http.NewRequestWithContext(ctx, method, requestURL, requestBody)
 	if err != nil {
-		return errp.WithStack(err)
+		return errp.WithMessage(rpcclient.ErrRequestRejected, err.Error())
 	}
 	if method == http.MethodPost {
 		request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -509,23 +509,33 @@ func (etherScan *EtherScan) rpcCall(ctx context.Context, params url.Values, resu
 	params.Set("module", "proxy")
 
 	var wrapped struct {
+		Status  string              `json:"status"`
 		JSONRPC string              `json:"jsonrpc"`
 		ID      int                 `json:"id"`
 		Error   *rpcclient.RPCError `json:"error"`
 		Result  json.RawMessage     `json:"result"`
 	}
 	method := http.MethodGet
-	if etherScan.shouldPostRPC(params) {
+	// A broadcast must not be retried as an idempotent GET after an ambiguous transport failure.
+	if params.Get("action") == "eth_sendRawTransaction" || etherScan.shouldPostRPC(params) {
 		method = http.MethodPost
 	}
 	if err := etherScan.callWithMethod(ctx, method, params, &wrapped); err != nil {
 		return err
 	}
+	if wrapped.Status == "0" {
+		var message string
+		if err := json.Unmarshal(wrapped.Result, &message); err != nil {
+			return errp.Newf("unexpected response from EtherScan: %s", string(wrapped.Result))
+		}
+		// Other status-0 errors include timeouts and do not prove rejection.
+		if strings.HasPrefix(message, "Max rate limit reached") || message == "Invalid API Key" {
+			return errp.WithMessage(rpcclient.ErrRequestRejected, message)
+		}
+		return errp.New(message)
+	}
 	if wrapped.Error != nil {
 		return errp.WithStack(*wrapped.Error)
-	}
-	if result == nil {
-		return nil
 	}
 	if wrapped.Result == nil {
 		return errp.New("expected result")
@@ -760,7 +770,14 @@ func (etherScan *EtherScan) SendTransaction(ctx context.Context, tx *types.Trans
 	params := url.Values{}
 	params.Set("action", "eth_sendRawTransaction")
 	params.Set("hex", hexutil.Encode(encodedTx))
-	return etherScan.rpcCall(ctx, params, nil)
+	var hash common.Hash
+	if err := etherScan.rpcCall(ctx, params, &hash); err != nil {
+		return err
+	}
+	if hash != tx.Hash() {
+		return errp.New("unexpected transaction hash from EtherScan")
+	}
+	return nil
 }
 
 // SuggestGasPrice implements rpc.Interface.
