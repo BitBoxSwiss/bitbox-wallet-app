@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { i18n as interfacei18n } from 'i18next';
-import { txProposalErrorHandling } from './services';
+import { queueTxProposal, txProposalErrorHandling } from './services';
 import { alertUser } from '@/components/alert/Alert';
 
 vi.mock('i18next', async () => {
@@ -24,6 +24,52 @@ vi.mock('@/components/alert/Alert', () => ({
 }));
 
 describe('send services', () => {
+  describe('queueTxProposal', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it.each(['resolve', 'reject'] as const)('fails promptly after timeout until the transport settles with %s', async outcome => {
+      vi.useFakeTimers();
+      let resolve!: (value: string) => void;
+      let reject!: (error: Error) => void;
+      const pending = new Promise<string>((done, fail) => {
+        resolve = done;
+        reject = fail;
+      });
+      const first = queueTxProposal('btc', () => pending);
+      const nextRequest = vi.fn(() => 'next');
+      const next = queueTxProposal('btc', nextRequest);
+      const firstError = expect(first).rejects.toThrow('genericError');
+      const nextError = expect(next).rejects.toThrow('genericError');
+      await vi.advanceTimersByTimeAsync(30_000);
+      await firstError;
+      await nextError;
+      expect(nextRequest).not.toHaveBeenCalled();
+
+      // A remounted caller must also fail without dispatching another backend proposal.
+      await expect(queueTxProposal('btc', nextRequest)).rejects.toThrow('genericError');
+      expect(nextRequest).not.toHaveBeenCalled();
+      await expect(queueTxProposal('other-account', () => 'other')).resolves.toBe('other');
+
+      if (outcome === 'resolve') {
+        resolve('old');
+      } else {
+        reject(new Error('Transport failed'));
+      }
+      await vi.advanceTimersByTimeAsync(0);
+      await expect(queueTxProposal('btc', nextRequest)).resolves.toBe('next');
+      expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it('continues after a rejected request', async () => {
+      const first = queueTxProposal('btc', () => Promise.reject(new Error('Transport failed')));
+      const next = queueTxProposal('btc', () => 'next');
+      await expect(first).rejects.toThrow('Transport failed');
+      await expect(next).resolves.toBe('next');
+    });
+  });
+
   describe('txProposalErrorHandling', () => {
 
     it('returns invalid address message on invalidAddress error', () => {

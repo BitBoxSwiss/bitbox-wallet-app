@@ -6,7 +6,7 @@ import { Input } from '@/components/forms';
 import { PasteDark, PasteLight, QRCodeDark, QRCodeLight } from '@/components/icon';
 import { DarkModeContext } from '@/contexts/DarkmodeContext';
 import { canReadClipboard } from '@/utils/clipboard';
-import { ReceiverAddressWrapper } from './receiver-address-wrapper';
+import { ReceiverAddressWrapper, type TLightningRecipientOption } from './receiver-address-wrapper';
 import styles from './receiver-address-input-field.module.css';
 
 type TIconButtonProps = {
@@ -21,6 +21,7 @@ type TProps = {
   inputLabel: string;
   inputPlaceholder: string;
   labelSection?: JSX.Element;
+  lightningOption?: TLightningRecipientOption;
   onAccountChange?: (account: TAccount | null) => void;
   onInputChange: (value: string) => void;
   onScanQR: () => void;
@@ -54,6 +55,7 @@ export const ReceiverAddressInputField = ({
   inputLabel,
   inputPlaceholder,
   labelSection,
+  lightningOption,
   onAccountChange,
   onInputChange,
   onScanQR,
@@ -83,7 +85,7 @@ export const ReceiverAddressInputField = ({
     </>
   );
 
-  if (accounts.length > 0) {
+  if (accounts.length > 0 || lightningOption) {
     return (
       <ReceiverAddressWrapper
         accounts={accounts}
@@ -93,6 +95,8 @@ export const ReceiverAddressInputField = ({
         groupAccountsByKeystore={groupAccountsByKeystore}
         inputLabel={inputLabel}
         inputPlaceholder={inputPlaceholder}
+        labelSection={labelSection}
+        lightningOption={lightningOption}
         onInputChange={onInputChange}
         onAccountChange={onAccountChange}
         recipientAddress={recipientAddress}

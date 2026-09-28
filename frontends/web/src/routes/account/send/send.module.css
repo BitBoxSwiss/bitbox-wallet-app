@@ -35,3 +35,8 @@
 .sendForm {
     --grid-min-height: 100px;
 }
+
+.recipientAction {
+    font-size: var(--size-smaller);
+    padding: 0;
+}

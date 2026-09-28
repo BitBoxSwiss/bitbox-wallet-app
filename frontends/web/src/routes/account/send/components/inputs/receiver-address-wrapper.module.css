@@ -5,6 +5,13 @@
     text-overflow: ellipsis;
 }
 
+.actions {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-quarter);
+}
+
 .accountOption {
     align-items: center;
     display: flex;

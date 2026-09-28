@@ -273,6 +273,7 @@ func (account *Account) TxProposal(
 ) (
 	coin.Amount, coin.Amount, coin.Amount, error) {
 	defer account.activeTxProposalLock.Lock()()
+	account.activeTxProposal = nil
 
 	account.log.Debug("Proposing transaction")
 	_, txProposal, err := account.newTx(args)
@@ -280,10 +281,16 @@ func (account *Account) TxProposal(
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
 
+	outputAmount := coin.NewAmountFromInt64(int64(txProposal.Amount))
+	if args.ValidateOutputAmount != nil {
+		if err := args.ValidateOutputAmount(outputAmount); err != nil {
+			return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
+		}
+	}
 	account.activeTxProposal = txProposal
 
 	account.log.WithField("fee", txProposal.Fee).Debug("Returning fee")
-	return coin.NewAmountFromInt64(int64(txProposal.Amount)),
+	return outputAmount,
 		coin.NewAmountFromInt64(int64(txProposal.Fee)),
 		coin.NewAmountFromInt64(int64(txProposal.Total())), nil
 }

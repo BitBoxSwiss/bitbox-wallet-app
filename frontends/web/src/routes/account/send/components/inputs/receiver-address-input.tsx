@@ -6,6 +6,7 @@ import * as accountApi from '@/api/account';
 import { getReceiveAddressList } from '@/api/account';
 import { debug } from '@/utils/env';
 import { ReceiverAddressInputField } from './receiver-address-input-field';
+import type { TLightningRecipientOption } from './receiver-address-wrapper';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { ScanQR } from './scan-qr';
 import { isBitcoinBased } from '@/routes/account/utils';
@@ -19,6 +20,9 @@ type TReceiverAddressInputProps = {
   onAccountChange?: (account: accountApi.TAccount | null) => void;
   parseQRResult: (uri: string) => void;
   recipientAddress: string;
+  labelSection?: JSX.Element;
+  lightningOption?: TLightningRecipientOption;
+  placeholder?: string;
 };
 
 export const ReceiverAddressInput = ({
@@ -28,7 +32,10 @@ export const ReceiverAddressInput = ({
   onInputChange,
   onAccountChange,
   recipientAddress,
-  parseQRResult
+  parseQRResult,
+  labelSection,
+  lightningOption,
+  placeholder,
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -82,12 +89,13 @@ export const ReceiverAddressInput = ({
         autoFocus={!isMobile}
         error={addressError}
         inputLabel={t('send.address.label')}
-        inputPlaceholder={t('send.address.placeholder')}
-        labelSection={debug ? (
+        inputPlaceholder={placeholder ?? t('send.address.placeholder')}
+        lightningOption={lightningOption}
+        labelSection={labelSection ?? (debug && accountsForReceiverDropdown.length === 0 && !lightningOption ? (
           <span id="sendToSelf" className={`${style.action || ''} ${style.sendToSelf || ''}`} onClick={handleSendToSelf}>
             Send to self
           </span>
-        ) : undefined}
+        ) : undefined)}
         onInputChange={onInputChange}
         onAccountChange={onAccountChange}
         onScanQR={toggleScanQR}

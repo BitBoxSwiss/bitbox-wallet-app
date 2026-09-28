@@ -3,9 +3,11 @@
 package lightning
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	btccoin "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
@@ -170,4 +172,93 @@ func TestValidateTopUpAmount(t *testing.T) {
 	require.ErrorAs(t, err, &amountBelowMinimum)
 	require.Equal(t, uint64(minimumTopUpAmountSat), amountBelowMinimum.minAmountSat)
 	require.NoError(t, validateTopUpAmount(coin.NewAmountFromInt64(minimumTopUpAmountSat)))
+}
+
+func TestPrepareTopUpSendAll(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		amount int64
+		err    string
+	}{
+		{name: "below minimum after fees", amount: 999, err: "minimum"},
+		{name: "minimum after fees", amount: 1000},
+		{name: "funding margin after fees", amount: 125_000},
+		{name: "above funding margin", amount: 125_001, err: "limit"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			sdk := &topUpTestSDK{balanceSat: 50_000, incomingSat: 25_000}
+			lightning := makeActiveLightningWithSDK(t, sdk)
+			outpoint := strings.Repeat("0", 64) + ":1"
+			account := testTopUpAccount(t, lightning, func(args *accounts.TxProposalArgs) (
+				coin.Amount, coin.Amount, coin.Amount, error,
+			) {
+				require.True(t, args.Amount.SendAll())
+				require.Equal(t, accounts.FeeTargetCodeCustom, args.FeeTargetCode)
+				require.Equal(t, "2", args.CustomFee)
+				require.Len(t, args.SelectedUTXOs, 1)
+				for selected := range args.SelectedUTXOs {
+					require.Equal(t, outpoint, selected.String())
+				}
+				amount := coin.NewAmountFromInt64(test.amount)
+				require.NotNil(t, args.ValidateOutputAmount)
+				if err := args.ValidateOutputAmount(amount); err != nil {
+					return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
+				}
+				return amount, coin.NewAmountFromInt64(100), coin.NewAmountFromInt64(test.amount + 100), nil
+			})
+			proposal, err := lightning.PrepareTopUp(prepareTopUpRequest{
+				SourceAccountCode: testTopUpSourceAccountCode,
+				Amount:            "ignored for send-all",
+				SendAll:           "yes",
+				SelectedUTXOs:     []string{outpoint},
+				FeeTarget:         "custom",
+				CustomFee:         "2",
+				ExpectedAddress:   "bc1qboarding",
+			})
+			require.Len(t, account.TxProposalCalls(), 1)
+			switch test.err {
+			case "minimum":
+				var minimumErr *lightningAmountBelowMinimumError
+				require.ErrorAs(t, err, &minimumErr)
+				require.Nil(t, proposal)
+			case "limit":
+				var limitErr *topUpFundingLimitError
+				require.ErrorAs(t, err, &limitErr)
+				require.Equal(t, int64(125_000), limitErr.fundingLimit.MarginSat)
+				require.Nil(t, proposal)
+			default:
+				require.NoError(t, err)
+				require.NotNil(t, proposal)
+			}
+		})
+	}
+}
+
+func TestPrepareTopUpRejectsInvalidDestinationOrCoins(t *testing.T) {
+	for _, test := range []struct {
+		name            string
+		expectedAddress string
+		selectedUTXOs   []string
+	}{
+		{name: "changed boarding address", expectedAddress: "bc1qother"},
+		{name: "malformed outpoint", selectedUTXOs: []string{"invalid"}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			lightning := makeActiveLightningWithSDK(t, &topUpTestSDK{})
+			account := testTopUpAccount(t, lightning, nil)
+			proposal, err := lightning.PrepareTopUp(prepareTopUpRequest{
+				SourceAccountCode: testTopUpSourceAccountCode,
+				SendAll:           "yes",
+				FeeTarget:         "economy",
+				ExpectedAddress:   test.expectedAddress,
+				SelectedUTXOs:     test.selectedUTXOs,
+			})
+			require.Error(t, err)
+			require.Nil(t, proposal)
+			require.Empty(t, account.TxProposalCalls())
+			if test.expectedAddress != "" {
+				require.ErrorIs(t, err, accountErrors.ErrInvalidAddress)
+			}
+		})
+	}
 }
