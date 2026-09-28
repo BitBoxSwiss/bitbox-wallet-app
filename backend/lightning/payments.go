@@ -75,10 +75,11 @@ type paymentInput struct {
 type bitcoinDepositState string
 
 const (
-	bitcoinDepositStateConfirming bitcoinDepositState = "confirming"
-	bitcoinDepositStateClaiming   bitcoinDepositState = "claiming"
-	bitcoinDepositStateComplete   bitcoinDepositState = "complete"
-	bitcoinDepositStateUnclaimed  bitcoinDepositState = "unclaimed"
+	bitcoinDepositStateConfirming    bitcoinDepositState = "confirming"
+	bitcoinDepositStateClaiming      bitcoinDepositState = "claiming"
+	bitcoinDepositStateComplete      bitcoinDepositState = "complete"
+	bitcoinDepositStateUnclaimed     bitcoinDepositState = "unclaimed"
+	bitcoinDepositStateRefundPending bitcoinDepositState = "refundPending"
 )
 
 type bitcoinDeposit struct {
@@ -390,11 +391,14 @@ func (lightning *Lightning) toLightningPayment(payment breez_sdk_spark.Payment) 
 		DeductedAmountAtTime: deductedAmount.FormatWithConversionsAtTime(btcCoin, timestamp, ratesUpdater),
 		Fee:                  fee.FormatWithConversions(btcCoin, true, ratesUpdater),
 	}
-	// Claimed Bitcoin deposits appear in ListPayments, sometimes without payment details. Mark them
-	// as complete top-ups based on the payment method so the frontend can identify them reliably.
-	if payment.Method == breez_sdk_spark.PaymentMethodDeposit && result.Status == accounts.TxStatusComplete {
-		result.BitcoinDeposit = &bitcoinDeposit{
-			State: bitcoinDepositStateComplete,
+	// Identify pending and completed top-ups from the SDK payment method, even when transaction
+	// details are not yet available. Pending payments settle without deposit recovery actions.
+	if payment.Method == breez_sdk_spark.PaymentMethodDeposit {
+		switch result.Status {
+		case accounts.TxStatusPending:
+			result.BitcoinDeposit = &bitcoinDeposit{State: bitcoinDepositStateClaiming}
+		case accounts.TxStatusComplete:
+			result.BitcoinDeposit = &bitcoinDeposit{State: bitcoinDepositStateComplete}
 		}
 	}
 
@@ -476,6 +480,17 @@ func bitcoinDepositClaimError(claimError *breez_sdk_spark.DepositClaimError) str
 }
 
 func bitcoinDepositStateFromSDK(deposit breez_sdk_spark.DepositInfo) bitcoinDepositState {
+	if isPendingRefund(deposit) {
+		return bitcoinDepositStateRefundPending
+	}
+	if deposit.InstantClaimStatus != nil {
+		switch (*deposit.InstantClaimStatus).(type) {
+		case breez_sdk_spark.InstantClaimStatusSubmitted:
+			return bitcoinDepositStateClaiming
+		case breez_sdk_spark.InstantClaimStatusClaimed:
+			return bitcoinDepositStateComplete
+		}
+	}
 	if deposit.ClaimError != nil {
 		return bitcoinDepositStateUnclaimed
 	}
@@ -496,16 +511,20 @@ func (lightning *Lightning) toBitcoinDepositPayment(deposit breez_sdk_spark.Depo
 		TxID:  deposit.Txid,
 		State: bitcoinDepositStateFromSDK(deposit),
 	}
-	if feeSat, err := requiredClaimFeeSat(deposit.ClaimError); err == nil {
-		fee := lightning.formatSats(feeSat, true)
-		depositInfo.ClaimFee = &fee
-		depositInfo.ClaimFeeSat = &feeSat
+	status := accounts.TxStatusPending
+	if depositInfo.State == bitcoinDepositStateUnclaimed {
+		status = accounts.TxStatusFailed
+		if feeSat, err := requiredClaimFeeSat(deposit.ClaimError); err == nil {
+			fee := lightning.formatSats(feeSat, true)
+			depositInfo.ClaimFee = &fee
+			depositInfo.ClaimFeeSat = &feeSat
+		}
 	}
 
 	return lightningPayment{
 		ID:                   bitcoinDepositPaymentID(deposit),
 		Type:                 accounts.TxTypeReceive,
-		Status:               accounts.TxStatusPending,
+		Status:               status,
 		Amount:               amount.FormatWithConversions(btcCoin, false, ratesUpdater),
 		AmountAtTime:         amount.FormatWithConversionsAtTime(btcCoin, nil, ratesUpdater),
 		DeductedAmountAtTime: coin.NewAmountFromInt64(0).FormatWithConversionsAtTime(btcCoin, nil, ratesUpdater),
@@ -517,7 +536,7 @@ func (lightning *Lightning) toBitcoinDepositPayment(deposit breez_sdk_spark.Depo
 func (lightning *Lightning) unclaimedDepositsAmount(deposits []breez_sdk_spark.DepositInfo) coin.Amount {
 	amount := coin.NewAmountFromInt64(0)
 	for _, deposit := range deposits {
-		if isRefundedDeposit(deposit) {
+		if !isPendingDeposit(deposit) {
 			continue
 		}
 		amount = coin.SumAmounts(amount, coin.NewAmountFromInt64(int64(deposit.AmountSats)))
@@ -1036,8 +1055,30 @@ func (lightning *Lightning) formatSats(amountSat uint64, isFee bool) coin.Format
 	return amount.FormatWithConversions(btcCoin, isFee, ratesUpdater)
 }
 
-func isRefundedDeposit(deposit breez_sdk_spark.DepositInfo) bool {
-	return deposit.RefundTxId != nil
+// isPendingRefund reports whether the SDK has a signed refund awaiting broadcast.
+// These refunds stay visible for automatic rebroadcast or a manual retry. A refund
+// transaction ID alone does not establish that its broadcast is still pending.
+func isPendingRefund(deposit breez_sdk_spark.DepositInfo) bool {
+	if deposit.RefundTxId == nil || deposit.RefundState == nil {
+		return false
+	}
+	_, pending := (*deposit.RefundState).(breez_sdk_spark.RefundStateBroadcastPending)
+	return pending
+}
+
+// isPendingDeposit reports whether a deposit can still credit the Lightning balance.
+// Confirming deposits, failed claims, and submitted claims awaiting credit count as
+// incoming. Signed refunds do not, nor do claimed deposits that remain listed until
+// the provider spends their outputs.
+func isPendingDeposit(deposit breez_sdk_spark.DepositInfo) bool {
+	if deposit.RefundTxId != nil {
+		return false
+	}
+	if deposit.InstantClaimStatus == nil {
+		return true
+	}
+	_, claimed := (*deposit.InstantClaimStatus).(breez_sdk_spark.InstantClaimStatusClaimed)
+	return !claimed
 }
 
 // PrepareCloseWithdraw prepares an on-chain payment that spends the full Lightning balance.
@@ -1278,9 +1319,23 @@ func (lightning *Lightning) ListPayments() ([]lightningPayment, error) {
 
 	lightning.log.Debug("Listed Lightning payments")
 
+	// SDK payments are authoritative for deposits already represented in payment history.
+	listedDeposits := make(map[breez_sdk_spark.PaymentDetailsDeposit]bool)
+	for _, payment := range rawPayments {
+		if payment.Details != nil {
+			if details, ok := (*payment.Details).(breez_sdk_spark.PaymentDetailsDeposit); ok {
+				listedDeposits[details] = true
+			}
+		}
+	}
+
 	payments := make([]lightningPayment, 0, len(deposits.Deposits)+len(rawPayments))
 	for _, deposit := range deposits.Deposits {
-		if isRefundedDeposit(deposit) {
+		if !isPendingDeposit(deposit) && !isPendingRefund(deposit) {
+			continue
+		}
+		outpoint := breez_sdk_spark.PaymentDetailsDeposit{TxId: deposit.Txid, Vout: deposit.Vout}
+		if listedDeposits[outpoint] {
 			continue
 		}
 		payments = append(payments, lightning.toBitcoinDepositPayment(deposit))

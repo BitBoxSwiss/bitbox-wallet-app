@@ -2,7 +2,6 @@
 
 import { type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as accountApi from '../../api/account';
 import {
   TLightningBalance,
   TLightningPayment,
@@ -48,20 +47,6 @@ import accountStyle from '@/routes/account/account.module.css';
 import style from './lightning.module.css';
 
 const sparkStatusPollInterval = 60 * 1000;
-
-const bitcoinDepositTransactionStatus = (
-  bitcoinDeposit: NonNullable<TLightningPayment['bitcoinDeposit']>,
-): accountApi.TTransactionStatus => {
-  switch (bitcoinDeposit.state) {
-  case 'unclaimed':
-    return 'failed';
-  case 'complete':
-    return 'complete';
-  case 'claiming':
-  case 'confirming':
-    return 'pending';
-  }
-};
 
 type TLightningPageLayoutProps = {
   accountDataLoaded: boolean;
@@ -139,11 +124,7 @@ const paymentToTransaction = (
   bitcoinDepositStateText: (state: NonNullable<TLightningPayment['bitcoinDeposit']>['state']) => string,
   bitcoinDepositStateShortText: (state: NonNullable<TLightningPayment['bitcoinDeposit']>['state']) => string,
 ): TTransactionListItem => {
-  const status = (
-    payment.bitcoinDeposit
-      ? bitcoinDepositTransactionStatus(payment.bitcoinDeposit)
-      : payment.status
-  );
+  const status = payment.status;
   const isComplete = status === 'complete';
   const statusProgress = (
     payment.bitcoinDeposit?.state === 'confirming'

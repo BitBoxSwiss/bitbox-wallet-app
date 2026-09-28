@@ -20,10 +20,11 @@ const (
 )
 
 type topUpRecoveryResult struct {
-	TxID string `json:"txId,omitempty"`
+	TxID         string `json:"txId,omitempty"`
+	ClaimOutcome string `json:"claimOutcome,omitempty"`
 }
 
-func (lightning *Lightning) unclaimedDeposit(paymentID string) (*breez_sdk_spark.DepositInfo, error) {
+func (lightning *Lightning) recoverableDeposit(paymentID string) (*breez_sdk_spark.DepositInfo, error) {
 	if err := lightning.CheckActive(); err != nil {
 		return nil, err
 	}
@@ -36,10 +37,13 @@ func (lightning *Lightning) unclaimedDeposit(paymentID string) (*breez_sdk_spark
 	}
 	for i := range deposits.Deposits {
 		deposit := &deposits.Deposits[i]
-		if bitcoinDepositPaymentID(*deposit) != paymentID || isRefundedDeposit(*deposit) {
+		matchingPayment := bitcoinDepositPaymentID(*deposit) == paymentID
+		pending := isPendingDeposit(*deposit) || isPendingRefund(*deposit)
+		if !matchingPayment || !pending {
 			continue
 		}
-		if bitcoinDepositStateFromSDK(*deposit) != bitcoinDepositStateUnclaimed {
+		state := bitcoinDepositStateFromSDK(*deposit)
+		if state != bitcoinDepositStateUnclaimed && state != bitcoinDepositStateRefundPending {
 			return nil, errp.New("deposit is no longer unclaimed")
 		}
 		return deposit, nil
@@ -64,23 +68,14 @@ func requiredClaimFeeSat(claimErrorPtr *breez_sdk_spark.DepositClaimError) (uint
 	}
 }
 
-func claimDepositTxID(outcome breez_sdk_spark.ClaimDepositOutcome) string {
-	settled, ok := outcome.(breez_sdk_spark.ClaimDepositOutcomeSettled)
-	// Submitted and deferred claims complete asynchronously and have no payment yet.
-	if !ok || settled.Payment.Details == nil {
-		return ""
-	}
-	if details, ok := (*settled.Payment.Details).(breez_sdk_spark.PaymentDetailsDeposit); ok {
-		return details.TxId
-	}
-	return ""
-}
-
 // ClaimTopUp manually claims an unclaimed Bitcoin top-up.
 func (lightning *Lightning) ClaimTopUp(paymentID string, approvedFeeSat uint64) (*topUpRecoveryResult, error) {
-	deposit, err := lightning.unclaimedDeposit(paymentID)
+	deposit, err := lightning.recoverableDeposit(paymentID)
 	if err != nil {
 		return nil, err
+	}
+	if deposit.RefundTxId != nil {
+		return nil, errp.New("deposit already has a refund")
 	}
 	feeSat, err := requiredClaimFeeSat(deposit.ClaimError)
 	if err != nil {
@@ -95,12 +90,37 @@ func (lightning *Lightning) ClaimTopUp(paymentID string, approvedFeeSat uint64) 
 		Vout:   deposit.Vout,
 		MaxFee: &maxFee,
 	})
+	// The SDK can update the fee ceiling and deposit state even when claiming fails.
+	lightning.notifyListPaymentsReload()
 	if err != nil {
 		lightning.log.WithError(err).Error("Claim Bitcoin deposit failed")
 		return nil, errp.WithMessage(errLightningTopUpClaimFailed, errp.Wrap(err, "breez: claim deposit").Error())
 	}
-	lightning.notifyListPaymentsReload()
-	return &topUpRecoveryResult{TxID: claimDepositTxID(response.Outcome)}, nil
+	result := &topUpRecoveryResult{}
+	switch outcome := response.Outcome.(type) {
+	case breez_sdk_spark.ClaimDepositOutcomeSettled:
+		// The SDK can return this outcome before its payment completes.
+		switch outcome.Payment.Status {
+		case breez_sdk_spark.PaymentStatusCompleted:
+			result.ClaimOutcome = "settled"
+		case breez_sdk_spark.PaymentStatusPending:
+			result.ClaimOutcome = "submitted"
+		default:
+			return nil, errLightningTopUpClaimFailed
+		}
+		if outcome.Payment.Details != nil {
+			if details, ok := (*outcome.Payment.Details).(breez_sdk_spark.PaymentDetailsDeposit); ok {
+				result.TxID = details.TxId
+			}
+		}
+	case breez_sdk_spark.ClaimDepositOutcomeSubmitted:
+		result.ClaimOutcome = "submitted"
+	case breez_sdk_spark.ClaimDepositOutcomeDeferred:
+		result.ClaimOutcome = "deferred"
+	default:
+		return nil, errp.New("unknown deposit claim outcome")
+	}
+	return result, nil
 }
 
 func (lightning *Lightning) recommendedRefundFeeRate() (uint64, error) {
@@ -121,7 +141,7 @@ func (lightning *Lightning) prepareRefundTopUp(
 	paymentID string,
 	destinationAccountCode accountsTypes.Code,
 ) (*breez_sdk_spark.DepositInfo, string, uint64, error) {
-	deposit, err := lightning.unclaimedDeposit(paymentID)
+	deposit, err := lightning.recoverableDeposit(paymentID)
 	if err != nil {
 		return nil, "", 0, err
 	}
@@ -156,10 +176,23 @@ func (lightning *Lightning) RefundTopUp(
 		DestinationAddress: destinationAddress,
 		Fee:                fee,
 	})
+	// A failed broadcast still leaves a signed refund in the SDK for retrying.
+	lightning.notifyListPaymentsReload()
 	if err != nil {
+		// A newly stored signed refund is accepted and the SDK retries its broadcast during sync.
+		// An unchanged refund from an earlier attempt does not establish acceptance of this request.
+		deposits, lookupErr := lightning.sdkService.ListUnclaimedDeposits(breez_sdk_spark.ListUnclaimedDepositsRequest{})
+		if lookupErr == nil {
+			for _, storedDeposit := range deposits.Deposits {
+				if bitcoinDepositPaymentID(storedDeposit) == paymentID && storedDeposit.RefundTxId != nil &&
+					(deposit.RefundTxId == nil || *storedDeposit.RefundTxId != *deposit.RefundTxId) {
+					lightning.log.WithError(err).Warn("Bitcoin deposit refund stored despite SDK error")
+					return &topUpRecoveryResult{TxID: *storedDeposit.RefundTxId}, nil
+				}
+			}
+		}
 		lightning.log.WithError(err).Error("Refund Bitcoin deposit failed")
 		return nil, errp.WithMessage(errLightningTopUpRefundFailed, errp.Wrap(err, "breez: refund deposit").Error())
 	}
-	lightning.notifyListPaymentsReload()
 	return &topUpRecoveryResult{TxID: response.TxId}, nil
 }
