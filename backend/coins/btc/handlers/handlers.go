@@ -827,6 +827,9 @@ func newSigningErrorResponse(err error) signingResponse {
 	if errp.Cause(err) == errors.ErrInsufficientFunds {
 		return signingResponse{Success: false, ErrorCode: errors.ErrInsufficientFunds.Error()}
 	}
+	if code, ok := errp.Cause(err).(errp.ErrorCode); ok {
+		return signingResponse{Success: false, ErrorCode: code.Error(), ErrorMessage: err.Error()}
+	}
 	return signingResponse{Success: false, ErrorMessage: err.Error()}
 }
 

@@ -412,6 +412,7 @@ export const proposeTx = (
 
 export type TSendTxErrorCode =
   | TTxProposalErrorCode
+  | 'broadcastUncertain'
   | 'erc20InsufficientGasFunds'
   | 'firmwareUpgradeRequired'
   | 'syncInProgress'
@@ -514,7 +515,7 @@ export type TSignWalletConnectTx = {
   success: false;
   aborted?: boolean;
   errorMessage?: string;
-  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds';
+  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds' | 'broadcastUncertain';
 } | {
   success: true;
   txHash: string;

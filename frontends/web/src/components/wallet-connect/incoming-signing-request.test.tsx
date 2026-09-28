@@ -146,6 +146,7 @@ describe('WCSigningRequest', () => {
   it.each([
     [{ success: false, errorMessage: 'Backend failed' }, 'Backend failed'],
     [{ success: false, errorCode: 'insufficientFunds' }, 'send.error.insufficientFunds'],
+    [{ success: false, errorCode: 'broadcastUncertain' }, 'send.error.broadcastUncertain'],
   ])('closes and alerts after failed signing: %j', async (result, message) => {
     const request = makeRequest({
       apiCaller: vi.fn().mockResolvedValue(result),

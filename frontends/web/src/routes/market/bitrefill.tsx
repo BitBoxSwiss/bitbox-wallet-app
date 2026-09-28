@@ -141,7 +141,9 @@ export const Bitrefill = ({
       const sendResult = await sendTx(code, txNote);
       setVerifyPaymentRequest(false);
       if (!sendResult.success && !('aborted' in sendResult)) {
-        if (sendResult.errorMessage) {
+        if (sendResult.errorCode === 'broadcastUncertain') {
+          alertUser(t('send.error.broadcastUncertain'));
+        } else if (sendResult.errorMessage) {
           alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
         } else {
           alertUser(t('genericError'));

@@ -627,7 +627,7 @@ func TestSendTxFinalNonceAndRetry(t *testing.T) {
 			client.SuggestGasPriceFunc = func(context.Context) (*big.Int, error) { return big.NewInt(5), nil }
 			client.PendingNonceAtFunc = func(context.Context, common.Address) (uint64, error) { return 9, nil }
 			_, err = account.SendTx("")
-			require.ErrorIs(t, err, context.DeadlineExceeded)
+			require.ErrorIs(t, err, ErrBroadcastUncertain)
 			require.Len(t, client.SendTransactionCalls(), 1)
 			signed := client.SendTransactionCalls()[0].Tx
 			require.Equal(t, uint64(9), signed.Nonce())
@@ -648,7 +648,7 @@ func TestSendTxFinalNonceAndRetry(t *testing.T) {
 			}
 			// A still-ambiguous retry rebroadcasts the same bytes.
 			_, err = account.SendTx("")
-			require.ErrorIs(t, err, context.DeadlineExceeded)
+			require.ErrorIs(t, err, ErrBroadcastUncertain)
 			require.Equal(t, signed.Hash(), client.SendTransactionCalls()[1].Tx.Hash())
 			// Resolve a subsequent broadcast error using the original transaction hash.
 			client.TransactionByHashFunc = func(_ context.Context, hash common.Hash) (*gethtypes.Transaction, bool, error) {

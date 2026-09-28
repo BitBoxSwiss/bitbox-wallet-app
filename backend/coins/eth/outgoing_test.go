@@ -134,7 +134,7 @@ func TestAmbiguousSendReservesAcrossAccounts(t *testing.T) {
 			client.TransactionByHashFunc = func(context.Context, common.Hash) (*types.Transaction, bool, error) {
 				return nil, false, ethereum.NotFound
 			}
-			require.ErrorIs(t, sendNative(), test.err)
+			require.ErrorIs(t, sendNative(), ErrBroadcastUncertain)
 			require.Len(t, outgoingTxs(t, native), 1)
 
 			// The node has no transaction, but the unresolved send still reserves its funds.

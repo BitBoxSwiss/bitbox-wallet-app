@@ -667,9 +667,10 @@ export const Swap = ({
             />
           )}
 
-          {buyAccountCode && (
+          {buyAccountCode && sellAccountCode && (
             <SwapResult
               buyAccountCode={buyAccountCode}
+              sellAccountCode={sellAccountCode}
               buyEthAccountCode={sellAccount?.parentAccountCode ?? sellAccount?.code}
               onContinue={() => {
                 setIsConfirming(false);

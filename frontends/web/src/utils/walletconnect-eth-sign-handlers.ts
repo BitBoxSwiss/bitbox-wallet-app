@@ -85,7 +85,7 @@ type TAccountDetails = {
 type TFailedSigningApiResult = {
   success: false;
   aborted?: boolean;
-  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds';
+  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds' | 'broadcastUncertain';
   errorMessage?: string;
 };
 
@@ -196,7 +196,10 @@ const runSigningApi = async <T extends TSignDialogResult>(
     if (!result.success) {
       await respond(jsonRpcError(
         id,
-        result.aborted ? getSdkError('USER_REJECTED') : APPLICATION_ERROR,
+        result.aborted ? getSdkError('USER_REJECTED') : result.errorCode === 'broadcastUncertain' ? {
+          code: APPLICATION_ERROR.code,
+          message: 'Transaction submission is uncertain and may still confirm. Check its status before sending again.',
+        } : APPLICATION_ERROR,
       ));
       return result;
     }

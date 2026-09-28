@@ -12,6 +12,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// ErrBroadcastUncertain means a tracked submission may still reach the network or confirm.
+const ErrBroadcastUncertain errp.ErrorCode = "broadcastUncertain"
+
 // PendingTransactions provides local nonce protection and broadcast tracking for one chain/address.
 type PendingTransactions struct {
 	chainID       uint64
@@ -31,6 +34,9 @@ func (pending *PendingTransactions) send(client rpcclient.Interface, sender *out
 			if !rpcErr.Rejected() {
 				// An unresolved broadcast can still arrive; sibling sends must reserve its nonce and funds.
 				pending.track(sender, transaction)
+			}
+			if sender.records[transaction.Hash()] != nil {
+				return errp.WithMessage(ErrBroadcastUncertain, err.Error())
 			}
 			return errp.WithStack(err)
 		}

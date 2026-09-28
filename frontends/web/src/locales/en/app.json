@@ -2253,6 +2253,7 @@
     "edit": "Edit transaction",
     "error": {
       "accountNotSynced": "The account is not synced yet. Please wait until syncing is complete and try again.",
+      "broadcastUncertain": "The transaction may still go through. The app will keep trying to submit it. Check your transaction history before sending again to avoid paying twice.",
       "erc20InsufficientGasFunds": "You do not have enough Ether to pay for this ERC20 transaction. Please add Ether to your wallet and try again.",
       "feeTooLow": "fee too low",
       "feesNotAvailable": "Could not estimate fees",

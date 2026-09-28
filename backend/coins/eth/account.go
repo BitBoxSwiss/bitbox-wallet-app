@@ -625,7 +625,7 @@ func (account *Account) SendTx(txNote string) (string, error) {
 	}
 
 	if err := account.PendingTransactions().send(account.coin.client, sender, transaction); err != nil {
-		if sender.records[transaction.Hash()] != nil {
+		if errp.Cause(err) == ErrBroadcastUncertain {
 			// An unresolved broadcast is reserved across accounts; retry these exact bytes.
 			pending.signedTx = transaction
 		}

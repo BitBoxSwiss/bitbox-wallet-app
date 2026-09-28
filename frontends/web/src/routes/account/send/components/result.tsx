@@ -77,6 +77,7 @@ export const SendResult = ({
       );
     }
     switch (result.errorCode) {
+    case 'broadcastUncertain':
     case 'erc20InsufficientGasFunds':
       return (
         <View fullscreen textCenter verticallyCentered width="520px">
@@ -90,9 +91,11 @@ export const SendResult = ({
             <Button primary onClick={() => navigate(`/account/${code}`)}>
               {t('button.done')}
             </Button>
-            <Button secondary onClick={() => navigate(`/market/select/${code}`, { replace: true })}>
-              {t('send.buyEth')}
-            </Button>
+            {result.errorCode === 'erc20InsufficientGasFunds' && (
+              <Button secondary onClick={() => navigate(`/market/select/${code}`, { replace: true })}>
+                {t('send.buyEth')}
+              </Button>
+            )}
           </ViewButtons>
         </View>
       );
