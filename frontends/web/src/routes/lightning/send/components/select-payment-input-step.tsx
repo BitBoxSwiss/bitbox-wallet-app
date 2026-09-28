@@ -22,7 +22,7 @@ type TProps = {
   onClearError: () => void;
 };
 
-type TPaymentInputMode = 'input' | 'scan';
+type TPaymentInputMode = 'input' | 'scan' | 'initial-scan';
 
 const TRANSITION_MS = 300;
 const SCAN_ERROR_TRANSITION_MS = 180;
@@ -37,7 +37,7 @@ export const SelectPaymentInputStep = ({
   const { t } = useTranslation();
   const showPasteButton = canReadClipboard();
   const [manualValue, setManualValue] = useState('');
-  const [mode, setMode] = useState<TPaymentInputMode>('scan');
+  const [mode, setMode] = useState<TPaymentInputMode>('initial-scan');
   const [inputClosing, setInputClosing] = useState(false);
   const [scanErrorClosing, setScanErrorClosing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -155,13 +155,13 @@ export const SelectPaymentInputStep = ({
     }, SCAN_ERROR_TRANSITION_MS);
   };
 
-  if (mode === 'scan') {
+  if (mode !== 'input') {
     return (
       <ScanQR
         fullscreen
         guideHidden={Boolean(inputError)}
         onResult={handleScanResult}
-        onClose={onCancel}
+        onClose={mode === 'initial-scan' ? onCancel : showInput}
         instruction={t('lightning.send.scanInstruction')}
       >
         {(requestClose, resetLastResult) => (
