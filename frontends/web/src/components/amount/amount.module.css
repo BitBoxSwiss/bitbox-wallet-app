@@ -14,3 +14,10 @@
 .space {
     margin-left: 0.33ch;
 }
+
+.wrap {
+    display: inline;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}

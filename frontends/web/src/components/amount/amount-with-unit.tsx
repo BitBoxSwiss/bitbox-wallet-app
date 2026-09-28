@@ -17,6 +17,7 @@ type TAmountWithUnitProps = {
   amountClassName?: string;
   unitClassName?: string;
   maxDecimals?: number;
+  wrap?: boolean;
 };
 
 export const AmountWithUnit = ({
@@ -29,6 +30,7 @@ export const AmountWithUnit = ({
   amountClassName = '',
   unitClassName = '',
   maxDecimals,
+  wrap = false,
 }: TAmountWithUnitProps) => {
   const { rotateDefaultCurrency, defaultCurrency, rotateBtcUnit } = useContext(RatesContext);
 
@@ -59,6 +61,7 @@ export const AmountWithUnit = ({
     <span className={`
       ${style.rates || ''}
       ${style.availableFiatAmount || ''}
+      ${wrap ? style.wrap || '' : ''}
       ${!displayedAmount && style.notAvailable || ''}
       ${amountClassName || ''}
     `.trim()}>
@@ -71,6 +74,7 @@ export const AmountWithUnit = ({
           onMobileClick={enableClick ? onClick : undefined}
           maxDecimals={maxDecimals}
           removeTrailingZeros={stripTrailingZeros}
+          wrap={wrap}
         />
       ) : '---'}
       {' '}
