@@ -1441,7 +1441,9 @@ func TestClaimTopUp(t *testing.T) {
 		require.Equal(t, uint64(123), maxFee.Amount)
 		details := breez_sdk_spark.PaymentDetails(breez_sdk_spark.PaymentDetailsDeposit{TxId: "claim-txid"})
 		return breez_sdk_spark.ClaimDepositResponse{
-			Payment: &breez_sdk_spark.Payment{Details: &details},
+			Outcome: breez_sdk_spark.ClaimDepositOutcomeSettled{
+				Payment: breez_sdk_spark.Payment{Details: &details},
+			},
 		}, nil
 	}
 	lightning := newActivePaymentTestLightning(t, sdk)
@@ -1452,26 +1454,46 @@ func TestClaimTopUp(t *testing.T) {
 	require.Equal(t, "claim-txid", result.TxID)
 }
 
-func TestClaimTopUpInstantClaim(t *testing.T) {
+func TestClaimTopUpPending(t *testing.T) {
 	t.Parallel()
 
-	sdk := &testPaymentSDK{}
-	sdk.listUnclaimedDeposits = func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
-		return breez_sdk_spark.ListUnclaimedDepositsResponse{
-			Deposits: []breez_sdk_spark.DepositInfo{
-				testUnclaimedDeposit(123),
+	for _, testCase := range []struct {
+		name    string
+		outcome breez_sdk_spark.ClaimDepositOutcome
+	}{
+		{
+			name:    "submitted",
+			outcome: breez_sdk_spark.ClaimDepositOutcomeSubmitted{},
+		},
+		{
+			name: "deferred",
+			outcome: breez_sdk_spark.ClaimDepositOutcomeDeferred{
+				Reason: breez_sdk_spark.ClaimDeferredReasonNoEarlyClaimAvailable{},
 			},
-		}, nil
-	}
-	sdk.claimDeposit = func(breez_sdk_spark.ClaimDepositRequest) (breez_sdk_spark.ClaimDepositResponse, error) {
-		return breez_sdk_spark.ClaimDepositResponse{}, nil
-	}
-	lightning := newActivePaymentTestLightning(t, sdk)
+		},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 
-	result, err := lightning.ClaimTopUp("bitcoin-deposit:deposit-txid:1", 123)
+			sdk := &testPaymentSDK{}
+			sdk.listUnclaimedDeposits = func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+				return breez_sdk_spark.ListUnclaimedDepositsResponse{
+					Deposits: []breez_sdk_spark.DepositInfo{
+						testUnclaimedDeposit(123),
+					},
+				}, nil
+			}
+			sdk.claimDeposit = func(breez_sdk_spark.ClaimDepositRequest) (breez_sdk_spark.ClaimDepositResponse, error) {
+				return breez_sdk_spark.ClaimDepositResponse{Outcome: testCase.outcome}, nil
+			}
+			lightning := newActivePaymentTestLightning(t, sdk)
 
-	require.NoError(t, err)
-	require.Empty(t, result.TxID)
+			result, err := lightning.ClaimTopUp("bitcoin-deposit:deposit-txid:1", 123)
+
+			require.NoError(t, err)
+			require.Empty(t, result.TxID)
+		})
+	}
 }
 
 func TestClaimTopUpRejectsIncreasedFee(t *testing.T) {

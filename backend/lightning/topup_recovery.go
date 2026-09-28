@@ -64,11 +64,13 @@ func requiredClaimFeeSat(claimErrorPtr *breez_sdk_spark.DepositClaimError) (uint
 	}
 }
 
-func claimDepositTxID(payment *breez_sdk_spark.Payment) string {
-	if payment == nil || payment.Details == nil {
+func claimDepositTxID(outcome breez_sdk_spark.ClaimDepositOutcome) string {
+	settled, ok := outcome.(breez_sdk_spark.ClaimDepositOutcomeSettled)
+	// Submitted and deferred claims complete asynchronously and have no payment yet.
+	if !ok || settled.Payment.Details == nil {
 		return ""
 	}
-	if details, ok := (*payment.Details).(breez_sdk_spark.PaymentDetailsDeposit); ok {
+	if details, ok := (*settled.Payment.Details).(breez_sdk_spark.PaymentDetailsDeposit); ok {
 		return details.TxId
 	}
 	return ""
@@ -98,7 +100,7 @@ func (lightning *Lightning) ClaimTopUp(paymentID string, approvedFeeSat uint64) 
 		return nil, errp.WithMessage(errLightningTopUpClaimFailed, errp.Wrap(err, "breez: claim deposit").Error())
 	}
 	lightning.notifyListPaymentsReload()
-	return &topUpRecoveryResult{TxID: claimDepositTxID(response.Payment)}, nil
+	return &topUpRecoveryResult{TxID: claimDepositTxID(response.Outcome)}, nil
 }
 
 func (lightning *Lightning) recommendedRefundFeeRate() (uint64, error) {
