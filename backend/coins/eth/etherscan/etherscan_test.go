@@ -180,16 +180,6 @@ func TestRPCProxyUsesPOSTForLargeEstimateGasRequest(t *testing.T) {
 
 func TestRPCProxyUsesGETForSmallSendTransactionRequest(t *testing.T) {
 	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
-	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
-		require.Equal(t, http.MethodGet, req.Method)
-		params := formValues(t, req)
-		require.Equal(t, "1", params.Get("chainId"))
-		require.Equal(t, "proxy", params.Get("module"))
-		require.Equal(t, "eth_sendRawTransaction", params.Get("action"))
-		require.LessOrEqual(t, len(params.Get("hex")), maxGetRequestTargetLength)
-		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x1"}`)
-	})
-
 	tx := types.NewTx(&types.LegacyTx{
 		Nonce:    1,
 		GasPrice: big.NewInt(1),
@@ -197,11 +187,28 @@ func TestRPCProxyUsesGETForSmallSendTransactionRequest(t *testing.T) {
 		To:       &to,
 		Value:    big.NewInt(0),
 	})
+	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
+		require.Equal(t, http.MethodGet, req.Method)
+		params := formValues(t, req)
+		require.Equal(t, "1", params.Get("chainId"))
+		require.Equal(t, "proxy", params.Get("module"))
+		require.Equal(t, "eth_sendRawTransaction", params.Get("action"))
+		require.LessOrEqual(t, len(params.Get("hex")), maxGetRequestTargetLength)
+		return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"result":%q}`, tx.Hash().Hex()))
+	})
 	require.NoError(t, etherScan.SendTransaction(context.Background(), tx))
 }
 
 func TestRPCProxyUsesPOSTForLargeSendTransactionRequest(t *testing.T) {
 	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
+	tx := types.NewTx(&types.LegacyTx{
+		Nonce:    1,
+		GasPrice: big.NewInt(1),
+		Gas:      100000,
+		To:       &to,
+		Value:    big.NewInt(0),
+		Data:     bytes.Repeat([]byte{0xab}, 3000),
+	})
 	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
 		require.Equal(t, http.MethodPost, req.Method)
 		require.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
@@ -211,16 +218,7 @@ func TestRPCProxyUsesPOSTForLargeSendTransactionRequest(t *testing.T) {
 		require.Equal(t, "proxy", params.Get("module"))
 		require.Equal(t, "eth_sendRawTransaction", params.Get("action"))
 		require.Greater(t, len(params.Get("hex")), maxGetRequestTargetLength)
-		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x1"}`)
-	})
-
-	tx := types.NewTx(&types.LegacyTx{
-		Nonce:    1,
-		GasPrice: big.NewInt(1),
-		Gas:      100000,
-		To:       &to,
-		Value:    big.NewInt(0),
-		Data:     bytes.Repeat([]byte{0xab}, 3000),
+		return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"result":%q}`, tx.Hash().Hex()))
 	})
 	require.NoError(t, etherScan.SendTransaction(context.Background(), tx))
 }
@@ -362,4 +360,20 @@ func TestSendTransactionPreservesRPCError(t *testing.T) {
 	})
 	tx := types.NewTransaction(0, common.Address{1}, big.NewInt(1), 21000, big.NewInt(1), nil)
 	require.ErrorIs(t, client.SendTransaction(context.Background(), tx), rpcclient.RPCError{Code: -32000, Message: "insufficient funds"})
+}
+
+func TestSendTransactionRejectsInvalidResponses(t *testing.T) {
+	tx := types.NewTransaction(0, common.Address{1}, big.NewInt(1), 21000, big.NewInt(1), nil)
+	for _, body := range []string{
+		`{"status":"0","message":"NOTOK","result":"Max rate limit reached"}`,
+		`{"jsonrpc":"2.0","result":null}`,
+		fmt.Sprintf(`{"jsonrpc":"2.0","result":%q}`, (common.Hash{1}).Hex()),
+	} {
+		t.Run(body, func(t *testing.T) {
+			client := newTestEtherScan(func(*http.Request) *http.Response {
+				return jsonRPCResponse(t, body)
+			})
+			require.Error(t, client.SendTransaction(t.Context(), tx))
+		})
+	}
 }

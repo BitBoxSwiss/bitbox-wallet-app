@@ -524,9 +524,6 @@ func (etherScan *EtherScan) rpcCall(ctx context.Context, params url.Values, resu
 	if wrapped.Error != nil {
 		return errp.WithStack(*wrapped.Error)
 	}
-	if result == nil {
-		return nil
-	}
 	if wrapped.Result == nil {
 		return errp.New("expected result")
 	}
@@ -759,7 +756,14 @@ func (etherScan *EtherScan) SendTransaction(ctx context.Context, tx *types.Trans
 	params := url.Values{}
 	params.Set("action", "eth_sendRawTransaction")
 	params.Set("hex", hexutil.Encode(encodedTx))
-	return etherScan.rpcCall(ctx, params, nil)
+	var hash common.Hash
+	if err := etherScan.rpcCall(ctx, params, &hash); err != nil {
+		return err
+	}
+	if hash != tx.Hash() {
+		return errp.New("unexpected transaction hash from EtherScan")
+	}
+	return nil
 }
 
 // SuggestGasPrice implements rpc.Interface.
