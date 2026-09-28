@@ -496,12 +496,26 @@ describe('routes/market/swap', () => {
             rotateDefaultCurrency: vi.fn(),
             updateDefaultCurrency: vi.fn(),
           }}>
-          <MemoryRouter initialEntries={['/market/swap']}>
-            <Routes>
-              <Route path="/market/swap" element={<Swap accounts={[sellAccount, buyAccount, parentAccount]} />} />
-              <Route path="/market/select/eth-account-2" element={<div>Buy Ethereum 2</div>} />
-            </Routes>
-          </MemoryRouter>
+          <AppStateContext.Provider
+            value={{
+              accounts: [sellAccount, buyAccount, parentAccount],
+              activeAccounts: [sellAccount, buyAccount, parentAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: false,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <MemoryRouter initialEntries={['/market/swap']}>
+              <Routes>
+                <Route path="/market/swap" element={<Swap />} />
+                <Route path="/market/select/eth-account-2" element={<div>Buy Ethereum 2</div>} />
+              </Routes>
+            </MemoryRouter>
+          </AppStateContext.Provider>
         </RatesContext.Provider>
       </BackButtonProvider>
     );
