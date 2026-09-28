@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLocation } from 'wouter';
+import { Trans, useTranslation } from 'react-i18next';
+import { Link, useLocation } from 'wouter';
 import {
   getBalance,
   proposeTx,
@@ -145,6 +145,12 @@ export const Swap = () => {
     () => routes.find(route => route.routeId === selectedRouteId),
     [routes, selectedRouteId],
   );
+  const sellParentAccount = (
+    sellAccount?.isToken
+      ? accounts.find(account => account.code === sellAccount.parentAccountCode)
+      : undefined
+  );
+  const insufficientGasFunds = sellAccount?.isToken === true && selectedRoute?.insufficientGasFunds === true;
   const sellDisplayUnit = useMemo(
     () => sellAccount
       ? getDisplayedCoinUnit(sellAccount.coinCode, sellAccount.coinUnit, btcUnit)
@@ -228,19 +234,19 @@ export const Swap = () => {
   // fetch swap quotes whenever the selected pair or sell amount changes.
   useEffect(() => {
     let isCancelled = false;
-    const sellCoinCode = sellAccount?.coinCode;
+    const sellCode = sellAccount?.code;
     const buyCoinCode = buyAccount?.coinCode;
     const amount = Number(sellAmount);
 
     clearQuoteState();
 
     if (
-      !sellCoinCode
+      !sellCode
       || !buyCoinCode
       || !sellAmount
       || Number.isNaN(amount)
       || amount <= 0
-      || sellAccountCode === buyAccountCode
+      || sellCode === buyAccountCode
     ) {
       setIsFetchingRoutes(false);
       return;
@@ -251,9 +257,8 @@ export const Swap = () => {
       try {
         const response = await getSwapQuote({
           buyCoinCode,
-          sellAccountCode,
+          sellAccountCode: sellCode,
           sellAmount,
-          sellCoinCode,
         });
         if (isCancelled) {
           return;
@@ -324,8 +329,7 @@ export const Swap = () => {
     buyAccount?.coinCode,
     buyAccountCode,
     clearQuoteState,
-    sellAccount?.coinCode,
-    sellAccountCode,
+    sellAccount?.code,
     sellAmount,
     t,
   ]);
@@ -609,11 +613,23 @@ export const Swap = () => {
                 routes={routes}
                 selectedRouteId={selectedRouteId}
               />
+              {insufficientGasFunds && sellParentAccount && (
+                <Message type="info" className={style.gasWarning}>
+                  <Trans
+                    i18nKey="swap.insufficientGasFunds"
+                    values={{ accountName: sellParentAccount.name }}
+                    components={{
+                      strong: <strong />,
+                      buyLink: <Link className={style.buyEthLink} href={`/market/select/${sellParentAccount.code}?tab=buy`} />,
+                    }}
+                  />
+                </Message>
+              )}
             </ViewContent>
             <ViewButtons>
               <Button
                 primary
-                disabled={!selectedRoute || isConfirmInFlight || validationErrorCode === INSUFFICIENT_FUNDS_ERROR}
+                disabled={!selectedRoute || isConfirmInFlight || validationErrorCode === INSUFFICIENT_FUNDS_ERROR || insufficientGasFunds}
                 onClick={handleConfirm}>
                 <span className={style.swapButtonContent}>
                   {isConfirmInFlight && (

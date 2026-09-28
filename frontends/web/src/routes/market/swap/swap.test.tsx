@@ -106,6 +106,7 @@ vi.mock('@/contexts/ConfigProvider', () => ({
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Route, Switch } from 'wouter';
 import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
 import * as coinsApi from '@/api/coins';
@@ -227,6 +228,7 @@ describe('routes/market/swap', () => {
     });
   });
 
+  // Quote requests identify the sell account, and the returned providers appear together.
   it('renders grouped provider label after quote fetch', async () => {
     const user = userEvent.setup();
 
@@ -275,7 +277,6 @@ describe('routes/market/swap', () => {
         buyCoinCode: 'eth',
         sellAccountCode: 'btc-account',
         sellAmount: '1',
-        sellCoinCode: 'btc',
       });
     });
   });
@@ -531,6 +532,101 @@ describe('routes/market/swap', () => {
     expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
     expect(screen.queryByText(/insufficient funds/i)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled();
+  });
+
+  // Gas warnings follow the selected route, and the Buy link opens the token's parent account.
+  it('offers buying ETH for the token parent when the selected route needs more gas', async () => {
+    const user = userEvent.setup();
+    const parentAccount = { ...buyAccount, code: 'eth-account-2', name: 'Ethereum 2' };
+    const tokenAccount = { ...swapBuyTokenAccount, parentAccountCode: parentAccount.code };
+    vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
+      success: true,
+      sellAccounts: [tokenAccount],
+      buyAccounts: [swapSellAccount],
+    });
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+      success: true,
+      quote: {
+        routes: [{
+          expectedBuyAmount: '0.001',
+          insufficientGasFunds: true,
+          providers: ['thorchain'],
+          routeId: 'expensive',
+        }, {
+          expectedBuyAmount: '0.0009',
+          insufficientGasFunds: false,
+          providers: ['chainflip'],
+          routeId: 'affordable',
+        }],
+      },
+    });
+
+    render(
+      <BackButtonProvider>
+        <RatesContext.Provider
+          value={{
+            activeCurrencies: [],
+            addToActiveCurrencies: vi.fn(),
+            btcUnit: 'default',
+            defaultCurrency: 'USD',
+            removeFromActiveCurrencies: vi.fn(),
+            rotateBtcUnit: vi.fn(),
+            rotateDefaultCurrency: vi.fn(),
+            updateDefaultCurrency: vi.fn(),
+          }}>
+          <AppStateContext.Provider
+            value={{
+              accounts: [sellAccount, buyAccount, parentAccount],
+              activeAccounts: [sellAccount, buyAccount, parentAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: false,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <MemoryRouter initialEntries={['/market/swap']}>
+              <Switch>
+                <Route path="/market/swap" component={Swap} />
+                <Route path="/market/select/eth-account-2" component={() => <div>Buy Ethereum 2</div>} />
+              </Switch>
+            </MemoryRouter>
+          </AppStateContext.Provider>
+        </RatesContext.Provider>
+      </BackButtonProvider>
+    );
+
+    await user.click(await screen.findByTestId('agree-swap-terms'));
+    const amountInput = await screen.findByLabelText('swapSendAmount');
+    await user.type(amountInput, '2');
+
+    expect(await screen.findByRole('link', { name: 'Buy ETH now' })).toHaveAttribute('href', '/market/select/eth-account-2?tab=buy');
+    expect(screen.getByText('Ethereum 2', { selector: 'strong' })).toBeInTheDocument();
+    expect(screen.getByTestId('swapGetAmount')).toHaveTextContent('0.001');
+    const swapButton = screen.getByRole('button', { name: 'Swap' });
+    expect(swapButton).toBeDisabled();
+    await user.click(swapButton);
+    expect(swapApi.signSwap).not.toHaveBeenCalled();
+
+    await user.click(screen.getByText('THORChain'));
+    await user.click(await screen.findByText('Chainflip'));
+    expect(screen.queryByRole('link', { name: 'Buy ETH now' })).not.toBeInTheDocument();
+    expect(swapButton).toBeEnabled();
+
+    await user.click(screen.getByText('Chainflip'));
+    await user.click(await screen.findByText('THORChain'));
+    expect(swapButton).toBeDisabled();
+    expect(screen.getByRole('link', { name: 'Buy ETH now' })).toBeInTheDocument();
+
+    await user.clear(amountInput);
+    expect(screen.queryByRole('link', { name: 'Buy ETH now' })).not.toBeInTheDocument();
+    expect(swapButton).toBeDisabled();
+    await user.type(amountInput, '2');
+    await user.click(await screen.findByRole('link', { name: 'Buy ETH now' }));
+    expect(await screen.findByText('Buy Ethereum 2')).toBeInTheDocument();
+    expect(window.location.hash).toBe('#/market/select/eth-account-2?tab=buy');
   });
 
   it('disables swap button immediately when sell amount changes', async () => {

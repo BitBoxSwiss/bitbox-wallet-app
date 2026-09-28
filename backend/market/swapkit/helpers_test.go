@@ -67,6 +67,56 @@ func TestValidateSwapSellAmount(t *testing.T) {
 	})
 }
 
+func TestQuoteCheckGasBalance(t *testing.T) {
+	for _, test := range []struct {
+		name         string
+		balance      int64
+		fees         []Fee
+		insufficient bool
+	}{
+		{"zero balance without estimate", 0, nil, true},
+		{"positive balance without estimate does not prove insufficient funds", 1000000000000000, nil, false},
+		{"positive balance with explicit zero fee", 1000000000000000, []Fee{{Type: "inbound", Asset: "ETH.ETH", Amount: "0"}}, false},
+		{"one wei short", 999999999999999, []Fee{{Type: "inbound", Asset: "ETH.ETH", Amount: "0.001"}}, true},
+		{"exact balance", 1000000000000000, []Fee{{Type: "inbound", Asset: "ETH.ETH", Amount: "0.001"}}, false},
+		{"more than enough", 2000000000000000, []Fee{{Type: "inbound", Asset: "ETH.ETH", Amount: "0.001"}}, false},
+		{"sum inbound ETH fees only", 1000000000000000, []Fee{
+			{Type: "inbound", Asset: "ETH.ETH", Amount: "0.0006"},
+			{Type: "inbound", Asset: "ETH.ETH", Amount: "0.0005"},
+		}, true},
+		{"exclude fees already taken from output", 1000000000000000, []Fee{
+			{Type: "inbound", Asset: "ETH.ETH", Amount: "0.001"},
+			{Type: "outbound", Asset: "ETH.ETH", Amount: "1"},
+			{Type: "network", Asset: "ETH.ETH", Amount: "1"},
+			{Type: "affiliate", Asset: "ETH.ETH", Amount: "1"},
+			{Type: "inbound", Asset: "ETH.USDC-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", Amount: "1"},
+		}, false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			quote := &QuoteResponse{Routes: []QuoteRoute{{Fees: test.fees}}}
+			require.NoError(t, quote.CheckGasBalance(coinpkg.NewAmountFromInt64(test.balance)))
+			require.Equal(t, test.insufficient, quote.Routes[0].InsufficientGasFunds)
+		})
+	}
+
+	t.Run("checks each route separately", func(t *testing.T) {
+		quote := &QuoteResponse{Routes: []QuoteRoute{
+			{Fees: []Fee{{Type: "inbound", Asset: "ETH.ETH", Amount: "0.002"}}},
+			{Fees: []Fee{{Type: "inbound", Asset: "ETH.ETH", Amount: "0.001"}}},
+		}}
+		require.NoError(t, quote.CheckGasBalance(coinpkg.NewAmountFromInt64(1000000000000000)))
+		require.True(t, quote.Routes[0].InsufficientGasFunds)
+		require.False(t, quote.Routes[1].InsufficientGasFunds)
+	})
+
+	for _, amount := range []string{"invalid", "-0.001", "0.0000000000000000001"} {
+		t.Run("invalid fee "+amount, func(t *testing.T) {
+			quote := &QuoteResponse{Routes: []QuoteRoute{{Fees: []Fee{{Type: "inbound", Asset: "ETH.ETH", Amount: amount}}}}}
+			require.Error(t, quote.CheckGasBalance(coinpkg.NewAmountFromInt64(1000000000000000)))
+		})
+	}
+}
+
 func TestFormatAmount(t *testing.T) {
 	t.Run("btc default mode keeps btc units", func(t *testing.T) {
 		btcCoin := btc.NewCoin(

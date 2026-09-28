@@ -31,13 +31,13 @@ export const getSwapAccounts = (): Promise<TSwapAccounts> => {
 
 export type TSwapQuoteRequest = {
   buyCoinCode: CoinCode;
-  sellAccountCode?: AccountCode;
+  sellAccountCode: AccountCode;
   sellAmount: string;
-  sellCoinCode: CoinCode;
 };
 
 export type TSwapQuoteRoute = {
   expectedBuyAmount: string;
+  insufficientGasFunds?: boolean;
   providers: string[];
   routeId: string;
 };
