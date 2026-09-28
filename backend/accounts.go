@@ -1604,12 +1604,8 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 			log.WithError(err).Error("could not load account records")
 			continue
 		}
-		accountConfig := accountsConfig.Lookup(accountCode)
-		if accountConfig == nil {
-			backend.log.Errorf("could not find newly persisted account %s", accountCode)
-			continue
-		}
-		backend.createAndAddAccount(coin, accountConfig, accountLoadOptions{})
+		backend.reconcileAccountFamilyLocked(accountsConfig, accountCode)
+		// Discovery adds scanning accounts without restarting historical exchange-rate updates.
 		backend.emitAccountsStatusChanged()
 	}
 }
