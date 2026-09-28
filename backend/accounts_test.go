@@ -821,16 +821,18 @@ func TestETHInitialSyncMode(t *testing.T) {
 		return rootFingerprint1, nil
 	}
 
+	_, account, err := b.buildAccountConfig(
+		coinpkg.CodeETH,
+		0,
+		false,
+		"",
+		ks,
+		[]string{"eth-erc20-usdt"},
+	)
+	require.NoError(t, err)
+	require.NotNil(t, account)
 	require.NoError(t, b.accountsDB.Update(func(cfg *config.AccountsConfig) error {
-		if _, err := b.createAndPersistAccountConfig(
-			coinpkg.CodeETH,
-			0,
-			false,
-			"",
-			ks,
-			[]string{"eth-erc20-usdt"},
-			cfg,
-		); err != nil {
+		if err := b.persistAccount(*account, cfg); err != nil {
 			return err
 		}
 		cfg.GetOrAddKeystore(rootFingerprint1).Watchonly = true
@@ -848,25 +850,33 @@ func TestETHInitialSyncMode(t *testing.T) {
 		return MockEthAccount(config, coin, log)
 	}
 
+	enqueueAllAccountsRefreshes := 0
+	b.enqueueETHUpdateForAllAccountsAsync = func() {
+		enqueueAllAccountsRefreshes++
+	}
+
 	t.Run("startup-watchonly-load", func(t *testing.T) {
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
+			accountsConfig := accountsSnapshot(t, b)
+			b.reconcileAccountsLocked(accountsConfig)
 		}()
 
 		require.Equal(t, expected, captured)
+		// PollBalances performs the one initial refresh when startup completes.
+		require.Equal(t, 0, enqueueAllAccountsRefreshes)
 	})
 
-	t.Run("reinit-batch-load", func(t *testing.T) {
+	t.Run("reconcile-batch-load", func(t *testing.T) {
 		captured = map[accountsTypes.Code]bool{}
-		enqueueAllAccountsRefreshes := 0
-		b.enqueueETHUpdateForAllAccountsAsync = func() {
-			enqueueAllAccountsRefreshes++
-		}
+		enqueueAllAccountsRefreshes = 0
 
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.initAccounts(true)
+			b.accounts.removeAll()
+			accountsConfig := accountsSnapshot(t, b)
+			membershipChanged, ethMembershipChanged := b.reconcileAccountsLocked(accountsConfig)
+			b.applyAccountReconcileEffectsLocked(membershipChanged, ethMembershipChanged)
 		}()
 
 		require.Equal(t, expected, captured)
@@ -980,7 +990,7 @@ func TestInactiveAccount(t *testing.T) {
 	checkShownAccountsLen(t, b, 5, 3)
 }
 
-// Test that taproot subaccounts are added if a keytore gains taproot support (e.g. BitBox02 gained
+// Test that taproot subaccounts are added if a keystore gains taproot support (e.g. BitBox02 gained
 // taproot support in v9.10.0)
 func TestTaprootUpgrade(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
@@ -1068,13 +1078,19 @@ func TestTaprootUpgrade(t *testing.T) {
 		accountsConfig.Lookup("v0-55555555-btc-0").SigningConfigurations)
 
 	// "Unplug", then insert an updated keystore with taproot support.
+	require.NoError(t, b.SetWatchonly(fingerprint, true))
+	loadedBTCAccount := b.accounts.lookup("v0-55555555-btc-0")
+	loadedLTCAccount := b.accounts.lookup("v0-55555555-ltc-0")
 	b.DeregisterKeystore()
+	require.Same(t, loadedBTCAccount, b.accounts.lookup("v0-55555555-btc-0"))
 	b.registerKeystore(bitbox02Taproot)
 	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount = b.Accounts().lookup("v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
+	require.NotSame(t, loadedBTCAccount, btcAccount.Account)
 	ltcAccount = b.Accounts().lookup("v0-55555555-ltc-0")
 	require.NotNil(t, ltcAccount)
+	require.Same(t, loadedLTCAccount, ltcAccount.Account)
 	require.Equal(t, coinpkg.CodeBTC, b.Accounts()[0].Account.Coin().Code())
 	require.Len(t, btcAccount.Record.SigningConfigurations, 3)
 	// LTC (coin with no taproot support) unchanged.
@@ -1535,7 +1551,7 @@ func TestKeystoresBalance(t *testing.T) {
 	b.ratesUpdater = rates.MockRateUpdater()
 	defer b.ratesUpdater.Stop()
 
-	keystoresBalance, err := b.keystoresBalance()
+	keystoresBalance, err := b.keystoresBalance(b.Accounts())
 	require.NoError(t, err)
 
 	require.NotNil(t, keystoresBalance[hex.EncodeToString(ks1Fingerprint)])
@@ -1602,7 +1618,7 @@ func TestCoinsTotalBalance(t *testing.T) {
 	b.ratesUpdater = rates.MockRateUpdater()
 	defer b.ratesUpdater.Stop()
 
-	coinsTotalBalance, err := b.coinsTotalBalance()
+	coinsTotalBalance, err := b.coinsTotalBalance(b.Accounts())
 	require.NoError(t, err)
 	require.Equal(t, coinpkg.CodeBTC, coinsTotalBalance[0].CoinCode)
 	require.Equal(t, "2.00000000", coinsTotalBalance[0].FormattedAmount.Amount)
