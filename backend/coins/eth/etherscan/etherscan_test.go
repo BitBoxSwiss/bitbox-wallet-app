@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math/big"
@@ -178,7 +179,7 @@ func TestRPCProxyUsesPOSTForLargeEstimateGasRequest(t *testing.T) {
 	require.Equal(t, uint64(21000), gas)
 }
 
-func TestRPCProxyUsesGETForSmallSendTransactionRequest(t *testing.T) {
+func TestRPCProxyUsesPOSTForSendTransactionRequest(t *testing.T) {
 	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	tx := types.NewTx(&types.LegacyTx{
 		Nonce:    1,
@@ -186,28 +187,6 @@ func TestRPCProxyUsesGETForSmallSendTransactionRequest(t *testing.T) {
 		Gas:      100000,
 		To:       &to,
 		Value:    big.NewInt(0),
-	})
-	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
-		require.Equal(t, http.MethodGet, req.Method)
-		params := formValues(t, req)
-		require.Equal(t, "1", params.Get("chainId"))
-		require.Equal(t, "proxy", params.Get("module"))
-		require.Equal(t, "eth_sendRawTransaction", params.Get("action"))
-		require.LessOrEqual(t, len(params.Get("hex")), maxGetRequestTargetLength)
-		return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"result":%q}`, tx.Hash().Hex()))
-	})
-	require.NoError(t, etherScan.SendTransaction(context.Background(), tx))
-}
-
-func TestRPCProxyUsesPOSTForLargeSendTransactionRequest(t *testing.T) {
-	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
-	tx := types.NewTx(&types.LegacyTx{
-		Nonce:    1,
-		GasPrice: big.NewInt(1),
-		Gas:      100000,
-		To:       &to,
-		Value:    big.NewInt(0),
-		Data:     bytes.Repeat([]byte{0xab}, 3000),
 	})
 	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
 		require.Equal(t, http.MethodPost, req.Method)
@@ -217,7 +196,7 @@ func TestRPCProxyUsesPOSTForLargeSendTransactionRequest(t *testing.T) {
 		require.Equal(t, "1", params.Get("chainId"))
 		require.Equal(t, "proxy", params.Get("module"))
 		require.Equal(t, "eth_sendRawTransaction", params.Get("action"))
-		require.Greater(t, len(params.Get("hex")), maxGetRequestTargetLength)
+		require.LessOrEqual(t, len(params.Get("hex")), maxGetRequestTargetLength)
 		return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"result":%q}`, tx.Hash().Hex()))
 	})
 	require.NoError(t, etherScan.SendTransaction(context.Background(), tx))
@@ -362,18 +341,37 @@ func TestSendTransactionPreservesRPCError(t *testing.T) {
 	require.ErrorIs(t, client.SendTransaction(context.Background(), tx), rpcclient.RPCError{Code: -32000, Message: "insufficient funds"})
 }
 
-func TestSendTransactionRejectsInvalidResponses(t *testing.T) {
+func TestSendTransactionErrors(t *testing.T) {
 	tx := types.NewTransaction(0, common.Address{1}, big.NewInt(1), 21000, big.NewInt(1), nil)
-	for _, body := range []string{
-		`{"status":"0","message":"NOTOK","result":"Max rate limit reached"}`,
-		`{"jsonrpc":"2.0","result":null}`,
-		fmt.Sprintf(`{"jsonrpc":"2.0","result":%q}`, (common.Hash{1}).Hex()),
+	for _, test := range []struct {
+		body     string
+		rejected bool
+	}{
+		{`{"status":"0","message":"NOTOK","result":"Max rate limit reached"}`, true},
+		{`{"status":"0","message":"NOTOK","result":"Max rate limit reached, please use API Key for higher rate limit"}`, true},
+		{`{"status":"0","message":"NOTOK","result":"Invalid API Key"}`, true},
+		{`{"status":"0","message":"NOTOK","result":"Unexpected err, timeout occurred or server too busy. Please try again later"}`, false},
+		{`{"jsonrpc":"2.0","result":null}`, false},
+		{fmt.Sprintf(`{"jsonrpc":"2.0","result":%q}`, (common.Hash{1}).Hex()), false},
 	} {
-		t.Run(body, func(t *testing.T) {
+		t.Run(test.body, func(t *testing.T) {
 			client := newTestEtherScan(func(*http.Request) *http.Response {
-				return jsonRPCResponse(t, body)
+				return jsonRPCResponse(t, test.body)
 			})
-			require.Error(t, client.SendTransaction(t.Context(), tx))
+			err := client.SendTransaction(t.Context(), tx)
+			require.Error(t, err)
+			require.Equal(t, test.rejected, errors.Is(err, rpcclient.ErrRequestRejected))
 		})
 	}
+}
+
+func TestSendTransactionNotAttempted(t *testing.T) {
+	client := newTestEtherScan(func(*http.Request) *http.Response {
+		t.Fatal("a canceled request must not be sent")
+		return nil
+	})
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+	tx := types.NewTransaction(0, common.Address{1}, big.NewInt(1), 21000, big.NewInt(1), nil)
+	require.ErrorIs(t, client.SendTransaction(ctx, tx), rpcclient.ErrRequestRejected)
 }

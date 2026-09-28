@@ -157,22 +157,28 @@ func TestAmbiguousSendReservesAcrossAccounts(t *testing.T) {
 }
 
 func TestRejectedSendCanChooseFreshNonce(t *testing.T) {
-	account := newAccountWithOptions(t, true, make(chan struct{}, 1))
-	defer account.Close()
-	rejected := rpcclient.RPCError{Code: -32000, Message: "insufficient funds for gas * price + value"}
-	client := newTransactionRPCClient(0, 21000, big.NewInt(2), rejected)
-	account.coin.client = client
-	setTransactionSigningKeystore(t, account, account.coin.ChainID())
-	account.activeTxProposal = &pendingTxProposal{txData: newTestOutgoingTxData()}
-	_, err := account.SendTx("")
-	require.ErrorIs(t, err, rejected)
-	require.Empty(t, outgoingTxs(t, account))
-	// Another payment can take the rejected nonce before this proposal is retried.
-	client.PendingNonceAtFunc = func(context.Context, common.Address) (uint64, error) { return 1, nil }
-	client.SendTransactionFunc = func(context.Context, *types.Transaction) error { return nil }
-	_, err = account.SendTx("")
-	require.NoError(t, err)
-	require.Equal(t, uint64(1), client.SendTransactionCalls()[1].Tx.Nonce())
+	for _, rejected := range []error{
+		rpcclient.RPCError{Code: -32000, Message: "insufficient funds for gas * price + value"},
+		rpcclient.ErrRequestRejected,
+	} {
+		t.Run(rejected.Error(), func(t *testing.T) {
+			account := newAccountWithOptions(t, true, make(chan struct{}, 1))
+			defer account.Close()
+			client := newTransactionRPCClient(0, 21000, big.NewInt(2), rejected)
+			account.coin.client = client
+			setTransactionSigningKeystore(t, account, account.coin.ChainID())
+			account.activeTxProposal = &pendingTxProposal{txData: newTestOutgoingTxData()}
+			_, err := account.SendTx("")
+			require.ErrorIs(t, err, rejected)
+			require.Empty(t, outgoingTxs(t, account))
+			// Another payment can take the rejected nonce before this proposal is retried.
+			client.PendingNonceAtFunc = func(context.Context, common.Address) (uint64, error) { return 1, nil }
+			client.SendTransactionFunc = func(context.Context, *types.Transaction) error { return nil }
+			_, err = account.SendTx("")
+			require.NoError(t, err)
+			require.Equal(t, uint64(1), client.SendTransactionCalls()[1].Tx.Nonce())
+		})
+	}
 }
 
 func TestSendFundsAtReconciledBlock(t *testing.T) {

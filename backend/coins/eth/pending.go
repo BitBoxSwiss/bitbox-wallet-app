@@ -31,7 +31,7 @@ func (pending *PendingTransactions) send(client rpcclient.Interface, sender *out
 	if err != nil && rpcErr.Message != "already known" {
 		known, _, lookupErr := client.TransactionByHash(context.TODO(), transaction.Hash())
 		if lookupErr != nil || known == nil {
-			if !rpcErr.Rejected() {
+			if !rpcErr.Rejected() && errp.Cause(err) != rpcclient.ErrRequestRejected {
 				// An unresolved broadcast can still arrive; sibling sends must reserve its nonce and funds.
 				pending.track(sender, transaction)
 			}

@@ -13,6 +13,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -646,7 +647,10 @@ func TestSendTxFinalNonceAndRetry(t *testing.T) {
 					return nil
 				}}, nil
 			}
-			// A still-ambiguous retry rebroadcasts the same bytes.
+			// A refused retry does not resolve the earlier ambiguous submission.
+			client.SendTransactionFunc = func(context.Context, *gethtypes.Transaction) error {
+				return rpcclient.ErrRequestRejected
+			}
 			_, err = account.SendTx("")
 			require.ErrorIs(t, err, ErrBroadcastUncertain)
 			require.Equal(t, signed.Hash(), client.SendTransactionCalls()[1].Tx.Hash())
