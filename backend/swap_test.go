@@ -15,12 +15,50 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
 )
+
+func TestCheckSwapQuoteGasFunds(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) { return rootFingerprint1, nil }
+	b.registerKeystore(ks)
+	parentCode, err := b.CreateAndPersistAccountConfig(coinpkg.CodeETH, "Ethereum 2", ks)
+	require.NoError(t, err)
+	require.NoError(t, b.SetTokenActive(parentCode, "eth-erc20-usdc", true))
+	tokenCode := Erc20AccountCode(parentCode, "eth-erc20-usdc")
+	zeroAllAccountBalances(t, b)
+	setAccountBalance(t, b, "v0-55555555-eth-0", 2000000000000000)
+	setAccountBalance(t, b, parentCode, 999999999999999)
+	setAccountBalance(t, b, tokenCode, 1000000)
+	quote := &swapkit.QuoteResponse{Routes: []swapkit.QuoteRoute{{
+		Fees: []swapkit.Fee{{Type: "inbound", Asset: "ETH.ETH", Amount: "0.001"}},
+	}}}
+
+	// Funds in a different ETH account cannot pay this token's gas fee.
+	require.NoError(t, b.CheckSwapQuoteGasFunds(tokenCode, quote))
+	require.True(t, quote.Routes[0].InsufficientGasFunds)
+	setAccountBalance(t, b, parentCode, 1000000000000000)
+	require.NoError(t, b.CheckSwapQuoteGasFunds(tokenCode, quote))
+	require.False(t, quote.Routes[0].InsufficientGasFunds)
+
+	parent := b.Accounts().lookup(parentCode).Account.(*accountsMocks.InterfaceMock)
+	parent.BalanceFunc = func() (*accounts.Balance, error) { return nil, accounts.ErrSyncInProgress }
+	require.Equal(t, accounts.ErrSyncInProgress, errp.Cause(b.CheckSwapQuoteGasFunds(tokenCode, quote)))
+
+	// Native assets and requests without an account do not need the ERC20 gas check.
+	for _, code := range []accountsTypes.Code{"", parentCode, "v0-55555555-btc-0"} {
+		require.NoError(t, b.CheckSwapQuoteGasFunds(code, quote))
+		require.False(t, quote.Routes[0].InsufficientGasFunds)
+	}
+}
 
 func TestSwapBuyAccountsRequireConnectedKeystore(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)

@@ -29,6 +29,15 @@
   margin-bottom: var(--space-half);
 }
 
+.gasWarning {
+  margin-top: var(--space-half);
+}
+
+.buyEthLink {
+  color: inherit;
+  text-decoration: underline;
+}
+
 .flipContainer {
   text-align: center;
 }
