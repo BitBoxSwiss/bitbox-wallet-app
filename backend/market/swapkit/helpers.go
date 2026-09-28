@@ -3,6 +3,7 @@ package swapkit
 import (
 	"context"
 	"encoding/json"
+	"math/big"
 	"net/http"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 var swapkitAssetByCoinCode = map[string]string{
@@ -70,6 +72,32 @@ func ValidateSwapSellAmount(account accounts.Interface, sellAmount coinpkg.Amoun
 	}
 	if sellAmount.BigInt().Cmp(balance.Available().BigInt()) > 0 {
 		return errp.WithStack(accountErrors.ErrInsufficientFunds)
+	}
+	return nil
+}
+
+// CheckGasBalance marks ERC20 sell routes whose estimated ETH deposit fee exceeds the balance.
+func (quote *QuoteResponse) CheckGasBalance(balance coinpkg.Amount) error {
+	for index := range quote.Routes {
+		route := &quote.Routes[index]
+		gasFee := coinpkg.NewAmountFromInt64(0)
+		for _, fee := range route.Fees {
+			// Other fees are already deducted from the swap output. Token-denominated
+			// inbound fees (e.g. Chainflip ingress fees) do not require extra ETH.
+			if !strings.EqualFold(fee.Type, "inbound") || !strings.EqualFold(fee.Asset, "ETH.ETH") {
+				continue
+			}
+			amount, err := coinpkg.NewAmountFromString(fee.Amount, big.NewInt(params.Ether))
+			if err != nil {
+				return errp.Wrap(err, "Invalid swap gas fee")
+			}
+			if amount.BigInt().Sign() < 0 {
+				return errp.New("Invalid negative swap gas fee")
+			}
+			gasFee = coinpkg.SumAmounts(gasFee, amount)
+		}
+		// An ERC20 transfer always needs ETH, even if the quote omits its gas estimate.
+		route.InsufficientGasFunds = balance.BigInt().Sign() == 0 || gasFee.BigInt().Cmp(balance.BigInt()) > 0
 	}
 	return nil
 }

@@ -68,6 +68,29 @@ type SwapStatus struct {
 	ConnectedKeystore SwapConnectedKeystore `json:"connectedKeystore"`
 }
 
+// CheckSwapQuoteGasFunds checks ERC20 quote fees against the token's parent ETH account.
+func (backend *Backend) CheckSwapQuoteGasFunds(sellAccountCode accountsTypes.Code, quote *swapkit.QuoteResponse) error {
+	if sellAccountCode == "" {
+		return nil
+	}
+	sellAccount := backend.Accounts().lookup(sellAccountCode)
+	if sellAccount == nil {
+		return errp.Newf("Unknown swap sell account %s", sellAccountCode)
+	}
+	if sellAccount.ParentCode == nil {
+		return nil
+	}
+	parentAccount, err := backend.GetAccountFromCode(*sellAccount.ParentCode)
+	if err != nil {
+		return err
+	}
+	balance, err := parentAccount.Balance()
+	if err != nil {
+		return err
+	}
+	return quote.CheckGasBalance(balance.Available())
+}
+
 // SwapAccounts returns the accounts that can be selected in the swap screen.
 func (backend *Backend) SwapAccounts() (SwapAccounts, error) {
 	sellAccounts, buyAccounts, err := backend.swapAccounts()
