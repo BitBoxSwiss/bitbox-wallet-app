@@ -216,6 +216,7 @@ export const Send = ({
       const errorHandling = txProposalErrorHandling(result.errorCode);
       setErrorHandling(errorHandling);
       setIsUpdatingProposal(false);
+      setProposedTotal(undefined);
 
       if (
         errorHandling.amountError
@@ -230,10 +231,10 @@ export const Send = ({
   const validateAndDisplayFee = useCallback((
     updateFiat: boolean = true,
   ) => {
-    setProposedTotal(undefined);
     setErrorHandling({});
     const txInput = getValidTxInputData();
     if (!txInput) {
+      setProposedTotal(undefined);
       return;
     }
     if (proposeTimeout.current) {
@@ -256,6 +257,7 @@ export const Send = ({
       } catch (error) {
         if (proposePromise === lastProposal.current) {
           setValid(false);
+          setProposedTotal(undefined);
           console.error('Failed to propose transaction:', error);
         }
       } finally {
