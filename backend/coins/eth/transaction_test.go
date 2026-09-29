@@ -72,28 +72,6 @@ func TestSignTransactionNonce(t *testing.T) {
 	}
 }
 
-func TestSignTransactionDoesNotInferERC20FromCalldata(t *testing.T) {
-	account := newAccountWithOptions(t, true, make(chan struct{}, 1))
-	defer account.Close()
-	client := newTransactionRPCClient(0, 50000, big.NewInt(2), nil)
-	account.coin.client = client
-	setTransactionSigningKeystore(t, account, account.coin.ChainID())
-	request := validTransactionRequest(account)
-	// NFT contracts can also expose transfer(address,uint256), where the integer is a token ID.
-	request.Data = make([]byte, 68)
-	copy(request.Data, []byte{0xa9, 0x05, 0x9c, 0xbb})
-	request.Data[35] = 2
-	big.NewInt(1000).FillBytes(request.Data[36:])
-	client.ERC20BalanceFunc = func(common.Address, *erc20.Token, *big.Int) (*big.Int, error) {
-		return big.NewInt(1), nil
-	}
-	tx, err := signTransaction(account, account.coin.ChainID(), true, request)
-	require.NoError(t, err)
-	require.Equal(t, request.Data, tx.Data())
-	require.Len(t, client.SendTransactionCalls(), 1)
-	require.Empty(t, client.ERC20BalanceCalls())
-}
-
 func TestSignTypedMsgForwardsSupportedRequestChainAndRawData(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()

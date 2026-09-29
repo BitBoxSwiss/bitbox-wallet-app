@@ -8,6 +8,7 @@ import (
 	"os"
 	"slices"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -380,5 +381,21 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 
 		require.Equal(t, 1, tokenTxCalls)
 		require.Equal(t, 0, txSource.calls)
+	})
+}
+
+func TestUpdaterCloseDuringUpdate(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		started := make(chan struct{})
+		finish := make(chan struct{})
+		updater := eth.NewUpdater(nil, func() error {
+			close(started)
+			<-finish
+			return nil
+		})
+		go updater.PollBalances()
+		<-started
+		updater.Close()
+		close(finish)
 	})
 }

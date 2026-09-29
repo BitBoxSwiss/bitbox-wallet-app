@@ -603,10 +603,7 @@ func (etherScan *EtherScan) Balance(ctx context.Context, account common.Address,
 	params.Set("module", "account")
 	params.Set("action", "balance")
 	params.Set("address", account.Hex())
-	params.Set("tag", "latest")
-	if blockNumber != nil {
-		params.Set("tag", hexutil.EncodeBig(blockNumber))
-	}
+	params.Set("tag", hexutil.EncodeBig(blockNumber))
 	if err := etherScan.call(ctx, params, &result); err != nil {
 		return nil, err
 	}

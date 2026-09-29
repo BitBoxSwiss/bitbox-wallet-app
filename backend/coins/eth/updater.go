@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"math/big"
-	"sync"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -46,9 +45,7 @@ type TokenTransactionsFetcher interface {
 // Updater is a struct that takes care of updating ETH accounts.
 type Updater struct {
 	// quit is used to indicate to running goroutines that they should stop as the backend is being closed
-	quit   chan struct{}
-	mu     sync.Mutex
-	closed bool
+	quit chan struct{}
 
 	// updateETHAccountsCh is used to trigger an update of all ETH accounts.
 	updateETHAccountsCh chan struct{}
@@ -74,12 +71,7 @@ func NewUpdater(
 
 // Close closes the updater and its channels.
 func (u *Updater) Close() {
-	u.mu.Lock()
-	if !u.closed {
-		u.closed = true
-		close(u.quit)
-	}
-	u.mu.Unlock()
+	close(u.quit)
 }
 
 // EnqueueUpdateForAllAccounts enqueues an update for all ETH accounts.
@@ -117,12 +109,8 @@ func (u *Updater) PollBalances() {
 }
 
 func (u *Updater) runUpdate() {
-	u.mu.Lock()
-	defer u.mu.Unlock()
-	if !u.closed {
-		if err := u.updateAccounts(); err != nil {
-			u.log.WithError(err).Error("could not update ETH accounts")
-		}
+	if err := u.updateAccounts(); err != nil {
+		u.log.WithError(err).Error("could not update ETH accounts")
 	}
 }
 

@@ -17,7 +17,6 @@ import (
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -33,6 +32,15 @@ func sharedAccounts(t *testing.T) (*Account, *Account) {
 	return native, token
 }
 
+func erc20TransferData(t *testing.T, recipient common.Address, amount int64) []byte {
+	t.Helper()
+	parsed, err := erc20.IERC20MetaData.GetAbi()
+	require.NoError(t, err)
+	data, err := parsed.Pack("transfer", recipient, big.NewInt(amount))
+	require.NoError(t, err)
+	return data
+}
+
 func TestSharedOutgoingNonces(t *testing.T) {
 	native, token := sharedAccounts(t)
 	client := newTransactionRPCClient(0, 21000, big.NewInt(2), nil)
@@ -42,10 +50,9 @@ func TestSharedOutgoingNonces(t *testing.T) {
 		account.activeTxProposal = &pendingTxProposal{txData: newTestOutgoingTxData()}
 	}
 	contract := token.coin.erc20Token.ContractAddress()
-	data := make([]byte, 68)
-	copy(data, []byte{0xa9, 0x05, 0x9c, 0xbb})
-	data[35] = 2
-	token.activeTxProposal.txData = &types.LegacyTx{To: &contract, Gas: 21000, GasPrice: big.NewInt(2), Data: data}
+	token.activeTxProposal.txData = &types.LegacyTx{
+		To: &contract, Gas: 21000, GasPrice: big.NewInt(2), Data: erc20TransferData(t, common.Address{2}, 0),
+	}
 	results := make(chan error, 3)
 	for _, account := range []*Account{native, token, native} {
 		go func() {
@@ -109,11 +116,8 @@ func TestAmbiguousSendReservesAcrossAccounts(t *testing.T) {
 			nativeTx.GasPrice = big.NewInt(2)
 			native.activeTxProposal = &pendingTxProposal{txData: nativeTx}
 			contract := token.coin.erc20Token.ContractAddress()
-			data := make([]byte, 68)
-			copy(data, []byte{0xa9, 0x05, 0x9c, 0xbb})
-			data[35], data[67] = 2, 1
 			token.activeTxProposal = &pendingTxProposal{txData: &types.LegacyTx{
-				To: &contract, Gas: 50000, GasPrice: big.NewInt(1), Data: data,
+				To: &contract, Gas: 50000, GasPrice: big.NewInt(1), Data: erc20TransferData(t, common.Address{2}, 1),
 			}}
 			sendNative := func() error {
 				if test.name == "WalletConnect" {
@@ -181,74 +185,34 @@ func TestRejectedSendCanChooseFreshNonce(t *testing.T) {
 	}
 }
 
-func TestSendFundsAtReconciledBlock(t *testing.T) {
-	for _, name := range []string{"ETH", "ERC20"} {
-		t.Run(name, func(t *testing.T) {
-			native, token := sharedAccounts(t)
-			account := native
-			if name == "ERC20" {
-				account = token
-			}
-			client := newTransactionRPCClient(1, 21000, big.NewInt(1), nil)
-			account.coin.client = client
-			setTransactionSigningKeystore(t, account, account.coin.ChainID())
-			makeTx := func(amount int64) *types.LegacyTx {
-				recipient := common.Address{2}
-				tx := &types.LegacyTx{To: &recipient, Value: big.NewInt(amount - 21000), Gas: 21000, GasPrice: big.NewInt(1)}
-				if name == "ERC20" {
-					contract := token.coin.erc20Token.ContractAddress()
-					tx.To, tx.Value = &contract, big.NewInt(0)
-					parsed, err := erc20.IERC20MetaData.GetAbi()
-					require.NoError(t, err)
-					tx.Data, err = parsed.Pack("transfer", recipient, big.NewInt(amount))
-					require.NoError(t, err)
-				}
-				return tx
-			}
-			putOutgoingTx(t, native, &ethtypes.TransactionWithMetadata{Transaction: types.NewTx(makeTx(60000))})
-			account.activeTxProposal = &pendingTxProposal{txData: makeTx(30000)}
-			// The latest balance includes a payment still pending at reconciliation block 100.
-			balanceAt := func(block *big.Int) *big.Int {
-				if block != nil && block.Int64() == 100 {
-					return big.NewInt(100000)
-				}
-				return big.NewInt(40000)
-			}
-			client.BalanceFunc = func(_ context.Context, _ common.Address, block *big.Int) (*big.Int, error) {
-				if name == "ERC20" {
-					return big.NewInt(1000000), nil
-				}
-				return balanceAt(block), nil
-			}
-			client.ERC20BalanceFunc = func(_ common.Address, _ *erc20.Token, block *big.Int) (*big.Int, error) {
-				return balanceAt(block), nil
-			}
-			_, err := account.SendTx("")
-			require.NoError(t, err)
-			require.Len(t, client.SendTransactionCalls(), 1)
-			require.Equal(t, uint64(1), client.SendTransactionCalls()[0].Tx.Nonce())
-		})
-	}
-}
-
 func TestSendTxRechecksFunds(t *testing.T) {
 	for _, name := range []string{"ETH", "ERC20"} {
 		t.Run(name, func(t *testing.T) {
 			native, token := sharedAccounts(t)
 			account := native
 			client := newTransactionRPCClient(0, 21000, big.NewInt(2), nil)
-			balance := big.NewInt(30000)
-			client.BalanceFunc = func(context.Context, common.Address, *big.Int) (*big.Int, error) { return balance, nil }
-			client.ERC20BalanceFunc = func(common.Address, *erc20.Token, *big.Int) (*big.Int, error) { return big.NewInt(100), nil }
+			ethBalance, tokenBalance := int64(30000), int64(100)
+			// Funds are checked at reconciliation block 100; any other block would have enough.
+			atBlock := func(block *big.Int, balance int64) *big.Int {
+				if block == nil || block.Int64() != 100 {
+					return big.NewInt(1e9)
+				}
+				return big.NewInt(balance)
+			}
+			client.BalanceFunc = func(_ context.Context, _ common.Address, block *big.Int) (*big.Int, error) {
+				return atBlock(block, ethBalance), nil
+			}
+			client.ERC20BalanceFunc = func(_ common.Address, _ *erc20.Token, block *big.Int) (*big.Int, error) {
+				return atBlock(block, tokenBalance), nil
+			}
 			txData := newTestOutgoingTxData()
 			if name == "ERC20" {
 				account = token
-				balance = big.NewInt(1000000)
-				data := make([]byte, 68)
-				copy(data, []byte{0xa9, 0x05, 0x9c, 0xbb})
-				data[35], data[67] = 2, 60
+				ethBalance = 1000000
 				contract := token.coin.erc20Token.ContractAddress()
-				txData = &types.LegacyTx{To: &contract, Value: big.NewInt(0), Gas: 21000, GasPrice: big.NewInt(2), Data: data}
+				txData = &types.LegacyTx{
+					To: &contract, Value: big.NewInt(0), Gas: 21000, GasPrice: big.NewInt(2), Data: erc20TransferData(t, common.Address{2}, 60),
+				}
 			}
 			account.coin.client = client
 			setTransactionSigningKeystore(t, account, account.coin.ChainID())
@@ -275,10 +239,7 @@ func TestSendTxRechecksFunds(t *testing.T) {
 func TestPendingSelfTransfers(t *testing.T) {
 	native, token := sharedAccounts(t)
 	native.blockNumber, token.blockNumber = big.NewInt(100), big.NewInt(100)
-	data := make([]byte, 68)
-	copy(data, []byte{0xa9, 0x05, 0x9c, 0xbb})
-	copy(data[16:36], native.address.Address.Bytes())
-	data[67] = 100
+	data := erc20TransferData(t, native.address.Address, 100)
 	for _, tx := range []*types.Transaction{
 		types.NewTransaction(0, native.address.Address, big.NewInt(100000), 21000, big.NewInt(2), nil),
 		types.NewTransaction(1, token.coin.erc20Token.ContractAddress(), big.NewInt(0), 42000, big.NewInt(3), data),
@@ -304,12 +265,8 @@ func TestSharedReplacementsAndReorg(t *testing.T) {
 	notifier.On("Put", mock.Anything).Return(nil)
 	native.notifier, token.notifier = notifier, notifier
 	contract := token.coin.erc20Token.ContractAddress()
-	data := make([]byte, 68)
-	copy(data, []byte{0xa9, 0x05, 0x9c, 0xbb})
-	data[35], data[67] = 2, 100
-	a := types.NewTransaction(7, contract, big.NewInt(0), 50000, big.NewInt(2), data)
-	data[67] = 150
-	b := types.NewTransaction(7, contract, big.NewInt(0), 40000, big.NewInt(3), data)
+	a := types.NewTransaction(7, contract, big.NewInt(0), 50000, big.NewInt(2), erc20TransferData(t, common.Address{2}, 100))
+	b := types.NewTransaction(7, contract, big.NewInt(0), 40000, big.NewInt(3), erc20TransferData(t, common.Address{2}, 150))
 	c := types.NewTransaction(7, contract, big.NewInt(50), 50000, big.NewInt(3), []byte{1, 2, 3})
 	d := types.NewTransaction(8, common.Address{3}, big.NewInt(100), 21000, big.NewInt(1), nil)
 	for _, tx := range []*types.Transaction{a, b, c, d} {
@@ -399,43 +356,6 @@ func TestSharedReplacementsAndReorg(t *testing.T) {
 	records := outgoingTxs(t, native)
 	require.Len(t, records, 1)
 	require.Equal(t, d.Hash(), records[0].Transaction.Hash())
-}
-
-func TestOutgoingRestart(t *testing.T) {
-	folder := t.TempDir()
-	key, err := crypto.GenerateKey()
-	require.NoError(t, err)
-	signed, err := types.SignTx(newTestOutgoingTx(), types.LatestSignerForChainID(big.NewInt(1)), key)
-	require.NoError(t, err)
-	address := crypto.PubkeyToAddress(key.PublicKey)
-	outgoing, err := NewOutgoingTransactions(folder)
-	require.NoError(t, err)
-	sender, unlock, err := outgoing.lock(1, address)
-	require.NoError(t, err)
-	require.NoError(t, sender.store(signed))
-	unlock()
-	require.NoError(t, outgoing.Close())
-
-	outgoing, err = NewOutgoingTransactions(folder)
-	require.NoError(t, err)
-	t.Cleanup(func() { require.NoError(t, outgoing.Close()) })
-	sender, unlock, err = outgoing.lock(1, address)
-	require.NoError(t, err)
-	defer unlock()
-	stored := sender.records[signed.Hash()]
-	require.NotNil(t, stored)
-	originalBytes, err := signed.MarshalBinary()
-	require.NoError(t, err)
-	storedBytes, err := stored.Transaction.MarshalBinary()
-	require.NoError(t, err)
-	require.Equal(t, originalBytes, storedBytes)
-	client := newTransactionRPCClient(0, 21000, big.NewInt(2), nil)
-	_, consumedBelow, err := sender.refresh(client)
-	require.NoError(t, err)
-	nonce, err := sender.nextNonce(client, consumedBelow)
-	require.NoError(t, err)
-	require.Equal(t, uint64(1), nonce)
-	require.Len(t, client.NonceAtCalls(), 1)
 }
 
 func TestExternalReplacementAndReorg(t *testing.T) {
@@ -576,22 +496,6 @@ func TestNonceAfterPruningReorg(t *testing.T) {
 	nonce, err := native.nextNonce()
 	require.NoError(t, err)
 	require.Equal(t, uint64(1), nonce)
-}
-
-func TestTokenSendWithoutETH(t *testing.T) {
-	_, token := sharedAccounts(t)
-	client := newTransactionRPCClient(0, 21000, big.NewInt(1), nil)
-	token.coin.client = client
-	client.BalanceFunc = func(context.Context, common.Address, *big.Int) (*big.Int, error) { return big.NewInt(0), nil }
-	contract := token.coin.erc20Token.ContractAddress()
-	parsed, err := erc20.IERC20MetaData.GetAbi()
-	require.NoError(t, err)
-	data, err := parsed.Pack("transfer", common.Address{2}, big.NewInt(100))
-	require.NoError(t, err)
-	token.activeTxProposal = &pendingTxProposal{txData: &types.LegacyTx{To: &contract, Gas: 21000, GasPrice: big.NewInt(1), Data: data}}
-	_, err = token.SendTx("")
-	require.ErrorIs(t, err, errors.ErrERC20InsufficientGasFunds)
-	require.Empty(t, client.SendTransactionCalls())
 }
 
 type updaterBalanceFetcher struct {

@@ -23,9 +23,9 @@ type Interface interface {
 	// BlockNumber returns the current latest block number.
 	BlockNumber(ctx context.Context) (*big.Int, error)
 	TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, isPending bool, err error)
-	// Balance returns the balance at blockNumber, or latest when nil.
+	// Balance returns the balance at blockNumber.
 	Balance(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error)
-	// ERC20Balance returns the token balance at blockNumber, or latest when nil.
+	// ERC20Balance returns the token balance at blockNumber.
 	ERC20Balance(account common.Address, erc20Token *erc20.Token, blockNumber *big.Int) (*big.Int, error)
 	// SendTransaction injects the transaction into the pending pool for execution.
 	SendTransaction(ctx context.Context, tx *types.Transaction) error
