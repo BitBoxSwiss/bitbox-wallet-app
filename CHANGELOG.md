@@ -7,6 +7,7 @@
 - Add transaction indicators to the portfolio chart
 - Ethereum: allow sending ETH and tokens from the same account while earlier transactions are pending
 - Ethereum: automatically remove replaced transactions from history
+- Update password input animations
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1

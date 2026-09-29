@@ -30,7 +30,7 @@ export const SetPassword = ({ errorText }: Props) => {
         <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>
       </ViewHeader>
       <ViewContent>
-        <PasswordEntry />
+        <PasswordEntry workflow="set-password" />
       </ViewContent>
     </View>
   );
@@ -50,7 +50,7 @@ export const SetPasswordWithBackup = ({
       textCenter
       verticallyCentered
       withBottomBar
-      width="700px">
+      width="600px">
       <ViewHeader
         small
         title={t('backup.restore.confirmTitle')}
@@ -71,7 +71,7 @@ export const SetPasswordWithBackup = ({
       </ViewHeader>
       <ViewContent>
         <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>
-        <PasswordEntry />
+        <PasswordEntry workflow="set-password" />
       </ViewContent>
     </View>
   );
