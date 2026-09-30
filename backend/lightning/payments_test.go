@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -470,7 +471,10 @@ func makeActiveLightningWithSDK(t *testing.T, sdk breezSDK) *Lightning {
 	return lightning
 }
 
-func TestListPaymentsIncludesBitcoinDeposits(t *testing.T) {
+func TestListPayments(t *testing.T) {
+	var details breez_sdk_spark.PaymentDetails = breez_sdk_spark.PaymentDetailsLightning{
+		Description: stringPointer("invoice description"),
+	}
 	lightning := makeActiveLightningWithSDK(t, &testBreezSDK{
 		listPayments: func(breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error) {
 			return breez_sdk_spark.ListPaymentsResponse{
@@ -481,6 +485,7 @@ func TestListPaymentsIncludesBitcoinDeposits(t *testing.T) {
 						Status:      breez_sdk_spark.PaymentStatusCompleted,
 						Amount:      big.NewInt(100),
 						Fees:        big.NewInt(0),
+						Details:     &details,
 					},
 				},
 			}, nil
@@ -503,6 +508,8 @@ func TestListPaymentsIncludesBitcoinDeposits(t *testing.T) {
 		},
 	})
 
+	_, err := lightning.SetTxNote("payment-id", "custom note")
+	require.NoError(t, err)
 	payments, err := lightning.ListPayments()
 
 	require.NoError(t, err)
@@ -513,6 +520,22 @@ func TestListPaymentsIncludesBitcoinDeposits(t *testing.T) {
 	require.Equal(t, uint64(12), *payments[0].BitcoinDeposit.RefundFeeRateSatPerVbyte)
 	require.Equal(t, "payment-id", payments[1].ID)
 	require.Nil(t, payments[1].BitcoinDeposit)
+	require.Equal(t, "custom note", payments[1].Note)
+	require.Equal(t, "invoice description", payments[1].Description)
+
+	t.Run("notes unavailable", func(t *testing.T) {
+		lightning.notes = nil
+		filename := filepath.Join(lightning.lightningDirectoryPath, fmt.Sprintf("notes-%s.json", lightning.Account().Code))
+		require.NoError(t, os.WriteFile(filename, []byte("invalid JSON"), 0600))
+
+		withoutNotes, err := lightning.ListPayments()
+		require.NoError(t, err)
+		payments[1].Note = ""
+		require.Equal(t, payments, withoutNotes)
+
+		_, err = lightning.SetTxNote("payment-id", "updated note")
+		require.Error(t, err)
+	})
 }
 
 func TestBalanceIncludesIncomingBitcoinDeposits(t *testing.T) {

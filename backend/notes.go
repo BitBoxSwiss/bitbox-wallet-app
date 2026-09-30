@@ -42,12 +42,13 @@ type bip329BitBoxApp struct {
 type bip329Type string
 
 const (
-	bip329TypeTx   bip329Type = "tx"
-	bip329TypeXpub bip329Type = "xpub"
+	bip329TypeTx               bip329Type = "tx"
+	bip329TypeXpub             bip329Type = "xpub"
+	bip329TypeLightningPayment bip329Type = "bitboxapp-lightning-payment"
 )
 
 // https://github.com/bitcoin/bips/blob/master/bip-0329.mediawiki#specification
-// Extended with a proprietary field "bitboxapp".
+// Extended with a proprietary field "bitboxapp" and type "bitboxapp-lightning-payment".
 type bip329Entry struct {
 	Type  bip329Type `json:"type"`
 	Ref   string     `json:"ref"`
@@ -138,12 +139,38 @@ func (backend *Backend) exportNotes(writer io.Writer) error {
 			}
 		}
 	}
+	if account := backend.lightning.Account(); account != nil {
+		accountNotes, err := backend.lightning.Notes()
+		if err != nil {
+			return err
+		}
+		for paymentID, noteEntry := range accountNotes.TransactionNoteEntries() {
+			if noteEntry.Note == "" {
+				continue
+			}
+			// The wallet code scopes payment notes to the configured Lightning wallet.
+			entry := bip329Entry{
+				Type:  bip329TypeLightningPayment,
+				Ref:   paymentID,
+				Label: noteEntry.Note,
+				BitBoxApp: &bip329BitBoxApp{
+					CoinCode:    coinpkg.CodeBTC,
+					AccountCode: account.Code,
+				},
+			}
+			if err := json.NewEncoder(writer).Encode(entry); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
 // ExportNotes exports the transactions and accounts labels of all accounts of all
 // connected/remembered keystores. Deactivated accounts are included in the export, except for
-// deactivated ERC-20 accounts. We export to a file using an extended version of BIP-329:
+// deactivated ERC-20 accounts.
+// Local payment notes of the configured Lightning wallet are included, even if the SDK is offline.
+// We export to a file using an extended version of BIP-329:
 // https://github.com/bitcoin/bips/blob/master/bip-0329.mediawiki
 func (backend *Backend) ExportNotes() error {
 	exportsDir, err := utilcfg.ExportsDir()
@@ -204,6 +231,7 @@ type ImportNotesResult struct {
 //
 // Account labels are imported for non-hidden persisted accounts, including inactive accounts of
 // remembered but disconnected keystores. Transaction labels are imported only for loaded accounts.
+// Lightning payment notes require the matching configured wallet but do not require an SDK connection.
 func (backend *Backend) ImportNotes(jsonLines []byte) (*ImportNotesResult, error) {
 	sanityCheck := func() error {
 		scanner := bufio.NewScanner(bytes.NewReader(jsonLines))
@@ -284,6 +312,25 @@ func (backend *Backend) ImportNotes(jsonLines []byte) (*ImportNotesResult, error
 			})
 			if err != nil {
 				return nil, err
+			}
+
+		case bip329TypeLightningPayment:
+			// Import Lightning payment note.
+			if entry.BitBoxApp != nil {
+				lightningAccount := backend.lightning.Account()
+				if lightningAccount != nil && entry.BitBoxApp.AccountCode == lightningAccount.Code {
+					if entry.BitBoxApp.CoinCode != coinpkg.CodeBTC {
+						continue
+					}
+					changed, err := backend.lightning.SetTxNote(ref, label)
+					if err != nil {
+						return nil, err
+					}
+					if changed {
+						result.TransactionCount += 1
+					}
+					continue
+				}
 			}
 
 		case bip329TypeTx:

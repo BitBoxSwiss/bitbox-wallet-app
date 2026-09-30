@@ -95,6 +95,7 @@ type lightningPayment struct {
 	Status               accounts.TxStatus                   `json:"status"`
 	Time                 *string                             `json:"time"`
 	Description          string                              `json:"description,omitempty"`
+	Note                 string                              `json:"note"`
 	Amount               coin.FormattedAmountWithConversions `json:"amount"`
 	AmountAtTime         coin.FormattedAmountWithConversions `json:"amountAtTime"`
 	DeductedAmountAtTime coin.FormattedAmountWithConversions `json:"deductedAmountAtTime"`
@@ -1297,6 +1298,14 @@ func (lightning *Lightning) ListPayments() ([]lightningPayment, error) {
 	}
 	for _, payment := range rawPayments {
 		payments = append(payments, lightning.toLightningPayment(payment))
+	}
+	accountNotes, err := lightning.Notes()
+	if err != nil {
+		lightning.log.WithError(err).Warn("Failed to load Lightning payment notes")
+		return payments, nil
+	}
+	for i := range payments {
+		payments[i].Note = accountNotes.TxNote(payments[i].ID)
 	}
 	return payments, nil
 }
