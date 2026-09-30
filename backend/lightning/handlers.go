@@ -44,6 +44,7 @@ func NewHandlers(
 	handleNoError("/block-explorer-tx-prefix", lightning.GetBlockExplorerTxPrefix).Methods("GET")
 	handleNoError("/spark-status", lightning.GetSparkStatus).Methods("GET")
 	handleNoError("/list-payments", lightning.GetListPayments).Methods("GET")
+	handleNoError("/notes/tx", lightning.PostSetTxNote).Methods("POST")
 	handleNoError("/parse-payment-input", lightning.GetParsePaymentInput).Methods("GET")
 	handleNoError("/prepare-payment", lightning.PostPreparePayment).Methods("POST")
 	handleNoError("/claim-top-up", lightning.PostClaimTopUp).Methods("POST")
@@ -295,6 +296,21 @@ func (lightning *Lightning) GetListPayments(_ *http.Request) interface{} {
 		return errorResponse(err)
 	}
 	return responseDto{Success: true, Data: payments}
+}
+
+// PostSetTxNote handles the POST request to save a local payment note.
+func (lightning *Lightning) PostSetTxNote(r *http.Request) interface{} {
+	var args struct {
+		PaymentID string `json:"paymentId"`
+		Note      string `json:"note"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+		return errorResponse(err)
+	}
+	if _, err := lightning.SetTxNote(args.PaymentID, args.Note); err != nil {
+		return errorResponse(err)
+	}
+	return responseDto{Success: true}
 }
 
 // PostClaimTopUp handles the POST request to manually claim a Bitcoin top-up.

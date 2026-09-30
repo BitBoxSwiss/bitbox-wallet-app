@@ -138,12 +138,38 @@ func (backend *Backend) exportNotes(writer io.Writer) error {
 			}
 		}
 	}
+	if account := backend.lightning.Account(); account != nil {
+		accountNotes, err := backend.lightning.Notes()
+		if err != nil {
+			return err
+		}
+		for paymentID, noteEntry := range accountNotes.TransactionNoteEntries() {
+			if noteEntry.Note == "" {
+				continue
+			}
+			// The wallet code identifies Lightning payments in our BIP-329 extension.
+			entry := bip329Entry{
+				Type:  bip329TypeTx,
+				Ref:   paymentID,
+				Label: noteEntry.Note,
+				BitBoxApp: &bip329BitBoxApp{
+					CoinCode:    coinpkg.CodeBTC,
+					AccountCode: account.Code,
+				},
+			}
+			if err := json.NewEncoder(writer).Encode(entry); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
 // ExportNotes exports the transactions and accounts labels of all accounts of all
 // connected/remembered keystores. Deactivated accounts are included in the export, except for
-// deactivated ERC-20 accounts. We export to a file using an extended version of BIP-329:
+// deactivated ERC-20 accounts.
+// Local payment notes of the configured Lightning wallet are included, even if the SDK is offline.
+// We export to a file using an extended version of BIP-329:
 // https://github.com/bitcoin/bips/blob/master/bip-0329.mediawiki
 func (backend *Backend) ExportNotes() error {
 	exportsDir, err := utilcfg.ExportsDir()
@@ -204,6 +230,7 @@ type ImportNotesResult struct {
 //
 // Account labels are imported for non-hidden persisted accounts, including inactive accounts of
 // remembered but disconnected keystores. Transaction labels are imported only for loaded accounts.
+// Lightning payment notes require the matching configured wallet but do not require an SDK connection.
 func (backend *Backend) ImportNotes(jsonLines []byte) (*ImportNotesResult, error) {
 	sanityCheck := func() error {
 		scanner := bufio.NewScanner(bytes.NewReader(jsonLines))
@@ -288,6 +315,22 @@ func (backend *Backend) ImportNotes(jsonLines []byte) (*ImportNotesResult, error
 
 		case bip329TypeTx:
 			// Import transaction note.
+			if entry.BitBoxApp != nil {
+				lightningAccount := backend.lightning.Account()
+				if lightningAccount != nil && entry.BitBoxApp.AccountCode == lightningAccount.Code {
+					if entry.BitBoxApp.CoinCode != coinpkg.CodeBTC {
+						continue
+					}
+					changed, err := backend.lightning.SetTxNote(ref, label)
+					if err != nil {
+						return nil, err
+					}
+					if changed {
+						result.TransactionCount += 1
+					}
+					continue
+				}
+			}
 			var account accounts.Interface
 			if entry.BitBoxApp != nil {
 				accountView := accountViews.lookup(entry.BitBoxApp.AccountCode)
