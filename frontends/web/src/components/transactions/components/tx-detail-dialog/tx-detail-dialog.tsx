@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TTransaction, TAmountWithConversions, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
+import { TTransaction, TAmountWithConversions, getTransaction, postNotesTx, TTransactionStatus, TTransactionType } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import { Dialog } from '@/components/dialog/dialog';
 import { Note } from './note';
@@ -92,8 +92,8 @@ export const TxDetailsDialog = ({
           <hr className={styles.separator} />
 
           <Note
-            accountCode={accountCode}
-            internalID={internalID}
+            key={internalID}
+            onSave={note => postNotesTx(accountCode, { internalTxID: internalID, note })}
             note={note}
           />
 
