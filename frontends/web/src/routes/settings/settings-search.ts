@@ -173,14 +173,14 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
   },
   {
     id: 'export-notes',
-    isAvailable: ({ hasAccounts }) => isNotesSettingsVisible(hasAccounts),
+    isAvailable: ({ hasAccounts, isLightningEnabled }) => isNotesSettingsVisible(hasAccounts, isLightningEnabled),
     getTitle: ({ t }) => t('settings.notes.export.title'),
     getDescription: ({ t }) => t('settings.notes.export.description'),
     page: 'general',
   },
   {
     id: 'import-notes',
-    isAvailable: ({ hasAccounts }) => isNotesSettingsVisible(hasAccounts),
+    isAvailable: ({ hasAccounts, isLightningEnabled }) => isNotesSettingsVisible(hasAccounts, isLightningEnabled),
     getTitle: ({ t }) => t('settings.notes.import.title'),
     getDescription: ({ t }) => t('settings.notes.import.description'),
     page: 'general',
