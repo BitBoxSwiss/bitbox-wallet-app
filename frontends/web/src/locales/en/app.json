@@ -1823,6 +1823,7 @@
       },
       "title": "Set LNURL address"
     },
+    "paymentDescription": "Invoice description",
     "payments": {
       "header": {
         "amount": "Amount",

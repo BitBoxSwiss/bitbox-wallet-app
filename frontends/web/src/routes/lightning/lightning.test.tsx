@@ -2,7 +2,8 @@
 
 import '../../../__mocks__/i18n';
 import type { ReactNode } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { Link, MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -11,6 +12,7 @@ import * as lightningApi from '@/api/lightning';
 import { GlobalBannersContainerContext } from '@/contexts/global-banners-context';
 import { Main } from '@/components/layout';
 import { ConfigContext } from '@/contexts/ConfigContext';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Lightning } from './lightning';
 
@@ -48,10 +50,6 @@ vi.mock('@/hooks/mediaquery', () => ({
   useMediaQuery: () => false,
 }));
 
-vi.mock('./components/payment-details', () => ({
-  PaymentDetails: () => null,
-}));
-
 vi.mock('./guide', () => ({
   LightningGuide: () => null,
 }));
@@ -86,13 +84,15 @@ const renderLightning = () => render(
         updateDefaultCurrency: vi.fn(),
         removeFromActiveCurrencies: vi.fn(),
       }}>
-        <Lightning />
+        <BackButtonProvider>
+          <Lightning />
+        </BackButtonProvider>
       </RatesContext.Provider>
     </ConfigContext.Provider>
   </MemoryRouter>
 );
 
-describe('Lightning funding limit', () => {
+describe('Lightning', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     useLightningMock.mockReturnValue({
@@ -118,6 +118,51 @@ describe('Lightning funding limit', () => {
     expect(screen.getByRole('link', { name: 'lightning.limit.moveCoins' })).toHaveAttribute('href', '/lightning/send');
     expect(container.querySelector('a[href="/lightning/receive"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="/lightning/topup"]')).not.toBeInTheDocument();
+  });
+
+  it('edits and clears a note while keeping the invoice description', async () => {
+    const user = userEvent.setup();
+    let payment: lightningApi.TLightningPayment = {
+      id: 'payment-id',
+      type: 'receive',
+      status: 'complete',
+      time: null,
+      description: 'Original invoice description',
+      note: '',
+      amount: amount('100'),
+      amountAtTime: amount('100'),
+      deductedAmountAtTime: amount('101'),
+      fee: amount('1'),
+    };
+    let reloadPayments: () => void = () => {};
+    vi.mocked(lightningApi.getListPayments).mockImplementation(async () => [payment]);
+    vi.mocked(lightningApi.subscribeListPayments).mockImplementation(cb => {
+      reloadPayments = () => cb([]);
+      return vi.fn();
+    });
+    const saveNote = vi.spyOn(lightningApi, 'postPaymentNote').mockImplementation(async (_id, note) => {
+      payment = { ...payment, note };
+      reloadPayments();
+    });
+    renderLightning();
+    const transaction = await screen.findByTestId('transaction');
+    expect(within(transaction).getByText('Original invoice description')).toBeInTheDocument();
+    await user.click(screen.getByTestId('tx-details-button'));
+    const input = await screen.findByRole('textbox', { name: 'note.title' });
+    expect(input).toHaveValue('');
+
+    await user.type(input, 'Custom lunch note');
+    await user.tab();
+    await waitFor(() => expect(saveNote).toHaveBeenCalledWith('payment-id', 'Custom lunch note'));
+    expect(await within(transaction).findByText('Custom lunch note')).toBeInTheDocument();
+    expect(within(transaction).queryByText('Original invoice description')).not.toBeInTheDocument();
+    expect(screen.getByText('Original invoice description')).toBeInTheDocument();
+
+    await user.clear(input);
+    await user.type(input, '{Enter}');
+    await waitFor(() => expect(saveNote).toHaveBeenLastCalledWith('payment-id', ''));
+    expect(await within(transaction).findByText('Original invoice description')).toBeInTheDocument();
+    expect(input).toHaveValue('');
   });
 
   it('keeps global banners attached when navigating before Lightning is ready', () => {

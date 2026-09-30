@@ -129,6 +129,13 @@
     width: 15%;
 }
 
+.noteError {
+    color: var(--color-error);
+    font-size: var(--size-small);
+    text-align: right;
+    width: 100%;
+}
+
 .noteContainer {
     align-items: center;
     display: flex;
