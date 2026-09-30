@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
+import { useLocation as useLegacyLocation } from '@/utils/router-compatability';
 import { useTranslation } from 'react-i18next';
 import { AccountCode, TUsedAddress } from '@/api/account';
 import { cancelConnectKeystore } from '@/api/backend';
@@ -38,8 +39,8 @@ export const useAddressVerification = ({
   returnToList,
 }: TUseAddressVerificationParams): TUseAddressVerificationResult => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [, navigate] = useLocation();
+  const location = useLegacyLocation();
 
   const [verifyState, setVerifyState] = useState<TVerifyState>('idle');
   const [verifyError, setVerifyError] = useState<string | null>(null);

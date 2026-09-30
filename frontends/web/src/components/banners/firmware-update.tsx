@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Trans } from 'react-i18next';
+import { Link } from 'wouter';
 import type { TDevices } from '@/api/devices';
 import { getVersion } from '@/api/bitbox02';
 import { AppContext } from '@/contexts/AppContext';

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { open } from '@/api/system';
 import { PocketOTCTerms } from '@/components/terms/pocket-otc-terms';
 import { Header } from '@/components/layout';
@@ -10,11 +9,10 @@ import style from './iframe.module.css';
 
 export const PocketOTC = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const openPocketOTC = () => {
     open(getPocketOTCLink());
-    navigate(-1);
+    history.back();
   };
 
   const title = t('buy.exchange.infoContent.btcdirect.disclaimer.title');

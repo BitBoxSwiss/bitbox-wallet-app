@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import { RedDot } from '@/components/icon';
 import { NewBadge } from '@/components/new-badge/new-badge';
 import { MenuIcon } from './menu-icons';

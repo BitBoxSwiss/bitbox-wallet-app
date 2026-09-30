@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { type TPaymentInput, getParsePaymentInput } from '@/api/lightning';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -17,7 +17,7 @@ type TSendStep = 'select-payment-input' | 'review' | 'success';
 
 export const Send = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { activeAccounts } = useAppState();
   const [step, setStep] = useState<TSendStep>('select-payment-input');
   const [paymentInput, setPaymentInput] = useState<TPaymentInput>();

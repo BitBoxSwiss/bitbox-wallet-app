@@ -8,9 +8,10 @@ vi.mock('@/i18n/i18n');
 // initialize i18n once at startup
 import '@/i18n/i18n';
 
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Route, Switch } from 'wouter';
+import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
 import * as keystoresApi from '@/api/keystores';
 import { SignMessage } from './sign-message';
@@ -124,12 +125,12 @@ describe('routes/account/sign-message', () => {
           }}
         >
           <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
-            <Routes>
+            <Switch>
               <Route
                 path="/account/:code/sign-message/:view"
-                element={<SignMessage />}
+                component={SignMessage}
               />
-            </Routes>
+            </Switch>
           </MemoryRouter>
         </AppStateContext.Provider>
       </BackButtonProvider>
@@ -198,12 +199,12 @@ describe('routes/account/sign-message', () => {
           }}
         >
           <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
-            <Routes>
+            <Switch>
               <Route
                 path="/account/:code/sign-message/:view"
-                element={<SignMessage />}
+                component={SignMessage}
               />
-            </Routes>
+            </Switch>
           </MemoryRouter>
         </AppStateContext.Provider>
       </BackButtonProvider>
@@ -253,12 +254,12 @@ describe('routes/account/sign-message', () => {
           }}
         >
           <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
-            <Routes>
+            <Switch>
               <Route
                 path="/account/:code/sign-message/:view"
-                element={<SignMessage />}
+                component={SignMessage}
               />
-            </Routes>
+            </Switch>
           </MemoryRouter>
         </AppStateContext.Provider>
       </BackButtonProvider>
@@ -316,14 +317,12 @@ describe('routes/account/sign-message', () => {
           }}
         >
           <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/${usedAddress.addressID}/sign-message`]}>
-            <Routes>
+            <Switch>
               <Route
                 path="/account/:code/addresses/:addressID/sign-message"
-                element={(
-                  <SignMessage />
-                )}
+                component={SignMessage}
               />
-            </Routes>
+            </Switch>
           </MemoryRouter>
         </AppStateContext.Provider>
       </BackButtonProvider>
@@ -373,12 +372,12 @@ describe('routes/account/sign-message', () => {
           }}
         >
           <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/invalid-address-id/sign-message`]}>
-            <Routes>
+            <Switch>
               <Route
                 path="/account/:code/addresses/:addressID/sign-message"
-                element={<SignMessage />}
+                component={SignMessage}
               />
-            </Routes>
+            </Switch>
           </MemoryRouter>
         </AppStateContext.Provider>
       </BackButtonProvider>
@@ -426,12 +425,12 @@ describe('routes/account/sign-message', () => {
           }}
         >
           <MemoryRouter initialEntries={[`/account/${ethAccount.code}/sign-message/new`]}>
-            <Routes>
+            <Switch>
               <Route
                 path="/account/:code/sign-message/:view"
-                element={<SignMessage />}
+                component={SignMessage}
               />
-            </Routes>
+            </Switch>
           </MemoryRouter>
         </AppStateContext.Provider>
       </BackButtonProvider>
@@ -492,12 +491,12 @@ describe('routes/account/sign-message', () => {
           }}
         >
           <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
-            <Routes>
+            <Switch>
               <Route
                 path="/account/:code/sign-message/new"
-                element={<SignMessage />}
+                component={SignMessage}
               />
-            </Routes>
+            </Switch>
           </MemoryRouter>
         </AppStateContext.Provider>
       </BackButtonProvider>

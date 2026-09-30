@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { connectAnyKeystore } from '@/api/keystores';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
@@ -19,7 +19,7 @@ type TTopUpNoBitcoinAccountsProps = {
 
 export const TopUpSuccess = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   return (
     <GuideWrapper>
@@ -45,7 +45,7 @@ export const TopUpSuccess = () => {
 
 export const TopUpNoBitcoinAccounts = ({ hasAccounts }: TTopUpNoBitcoinAccountsProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   const handlePrimaryAction = async () => {
     // This happens only when accounts exist, but none are Bitcoin accounts.
@@ -86,7 +86,7 @@ export const TopUpNoBitcoinAccounts = ({ hasAccounts }: TTopUpNoBitcoinAccountsP
 };
 
 export const TopUpAborted = ({ onRetry }: TTopUpAbortedProps) => {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   return (
     <SendAbortedResult

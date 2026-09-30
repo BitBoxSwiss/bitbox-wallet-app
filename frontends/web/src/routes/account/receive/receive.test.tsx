@@ -3,7 +3,8 @@
 import '../../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Route, Switch } from 'wouter';
+import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
 import { connectKeystore } from '@/api/keystores';
 import { alertUser } from '@/components/alert/Alert';
@@ -57,12 +58,12 @@ const renderReceive = () => render(
           hasLightningAccount: false,
         }}
       >
-        <Routes>
+        <Switch>
           <Route
             path="/account/:code/receive"
-            element={<Receive />}
+            component={Receive}
           />
-        </Routes>
+        </Switch>
       </AppStateContext.Provider>
     </BackButtonProvider>
   </MemoryRouter>

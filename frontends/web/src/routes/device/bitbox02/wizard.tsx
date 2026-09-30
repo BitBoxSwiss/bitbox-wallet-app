@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { useLoad, useSync } from '@/hooks/api';
 import { attestationCheckDone, getStatus, getVersion, verifyAttestation, statusChanged } from '@/api/bitbox02';
 import { AppUpgradeRequired } from '@/components/appupgraderequired';
@@ -19,7 +19,7 @@ type TProps = {
 };
 
 export const Wizard = ({ deviceID }: TProps) => {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const versionInfo = useLoad(() => getVersion(deviceID));
   const attestation = useSync(
     () => verifyAttestation(deviceID),

@@ -52,7 +52,8 @@ vi.mock('@/contexts/ConfigProvider', () => ({
 }));
 
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Route, Switch } from 'wouter';
+import { MemoryRouter } from '@/utils/test-helpers';
 import type { TAccount } from '@/api/account';
 import type { TConfig } from '@/api/config';
 import * as marketApi from '@/api/market';
@@ -111,12 +112,12 @@ describe('routes/market/moonpay', () => {
         }}
       >
         <MemoryRouter initialEntries={['/market/moonpay/sell/btc-account']}>
-          <Routes>
+          <Switch>
             <Route
               path="/market/moonpay/sell/:code"
-              element={<Moonpay />}
+              component={Moonpay}
             />
-          </Routes>
+          </Switch>
         </MemoryRouter>
       </AppStateContext.Provider>
     );
@@ -149,12 +150,12 @@ describe('routes/market/moonpay', () => {
         }}
       >
         <MemoryRouter initialEntries={[`/market/moonpay/sell/${account.code}`]}>
-          <Routes>
+          <Switch>
             <Route
               path="/market/moonpay/sell/:code"
-              element={<Moonpay />}
+              component={Moonpay}
             />
-          </Routes>
+          </Switch>
         </MemoryRouter>
       </AppStateContext.Provider>
     );

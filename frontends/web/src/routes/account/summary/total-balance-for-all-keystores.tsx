@@ -2,7 +2,7 @@
 
 import type { KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import * as accountApi from '@/api/account';
 import type { TLightningSDKStatus } from '@/api/lightning';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -30,7 +30,7 @@ export const TotalBalanceForAllKeystores = ({
   coinsBalances,
 }: TProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const openLightning = () => navigate('/lightning');
   return (
     <BalanceSection

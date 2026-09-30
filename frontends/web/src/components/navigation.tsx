@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { useAppState } from '@/contexts/app-state-context';
 import { usePrevious } from '@/hooks/previous';
 
 export const AppNavigation = () => {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   const {
     accounts,

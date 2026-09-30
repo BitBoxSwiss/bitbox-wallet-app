@@ -73,7 +73,8 @@ vi.mock('./market-context', () => ({
 }));
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Switch, useLocation, useSearch } from 'wouter';
+import { MemoryRouter } from '@/utils/test-helpers';
 import type { TAccount } from '@/api/account';
 import { connectKeystore } from '@/api/keystores';
 import { AppStateContext } from '@/contexts/app-state-context';
@@ -98,8 +99,19 @@ const account: TAccount = {
 };
 
 const Location = () => {
-  const location = useLocation();
-  return <div>{location.pathname}{location.search}</div>;
+  const [location] = useLocation();
+  const search = useSearch();
+
+  const { pathname } = new URL(
+    location,
+    window.location.origin,
+  );
+
+  return (
+    <div>
+      {pathname}?{search}
+    </div>
+  );
 };
 
 describe('routes/market/market', () => {
@@ -128,16 +140,24 @@ describe('routes/market/market', () => {
         }}
       >
         <MemoryRouter initialEntries={['/market/select/btc-account?tab=spend']}>
-          <Routes>
+          <Switch>
             <Route
               path="/market/select/:code"
-              element={<Market />}
+              component={Market}
             />
-          </Routes>
+          </Switch>
           <Location />
         </MemoryRouter>
       </AppStateContext.Provider>
     );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'enter Bitrefill' }),
+    );
+
+    await waitFor(() => {
+      expect(connectKeystore).toHaveBeenCalled();
+    });
 
     fireEvent.click(screen.getByRole('button', { name: 'enter Bitrefill' }));
 

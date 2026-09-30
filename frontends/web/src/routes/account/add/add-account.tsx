@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { TCoin, getSupportedCoins } from '@/api/backend';
 import { subscribeKeystores } from '@/api/keystores';
 import { addAccount, CoinCode, TAddAccount } from '@/api/account';
@@ -98,7 +98,7 @@ const AddAccountSteps = ({
 
 export const AddAccount = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { accounts } = useAppState();
   const [accountCode, setAccountCode] = useState<string>();
   const [accountName, setAccountName] = useState('');
@@ -148,11 +148,11 @@ export const AddAccount = () => {
     switch (step) {
     case 'loading':
     case 'select-coin':
-      navigate(-1);
+      window.history.back();
       break;
     case 'choose-name':
       if (onlyOneSupportedCoin()) {
-        navigate(-1);
+        window.history.back();
       } else {
         setStep('select-coin');
         setErrorMessage(undefined);

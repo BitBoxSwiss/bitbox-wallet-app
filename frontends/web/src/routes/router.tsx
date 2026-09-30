@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Switch } from 'wouter';
 import { useDevicesKey } from '@/hooks/device-key';
+import { Navigate, Routes, useLocation } from '@/utils/router-compatability';
 import { AddAccount } from './account/add/add-account';
 import { Moonpay } from './market/moonpay';
 import { Market } from './market/market';
@@ -55,6 +56,27 @@ import { isLightningFeatureAvailable } from '@/utils/env';
 import { isLightningRoute } from '@/utils/route';
 import { LightningTestnetGuard } from './lightning/testnet-warning';
 
+const DeviceSwitchWithKey = () => {
+  const key = useDevicesKey('device-switch-default');
+  return (
+    <DeviceSwitch key={key} />
+  );
+};
+
+const ManageBackupsWithKey = () => {
+  const key = useDevicesKey('manage-backups');
+  return (
+    <ManageBackups key={key} />
+  );
+};
+
+const DeviceSettingsWithKey = () => {
+  const key = useDevicesKey('device-switch');
+  return (
+    <DeviceSwitch key={key} />
+  );
+};
+
 export const AppRouter = () => {
 
   const lightningFeatureAvailable = isLightningFeatureAvailable();
@@ -63,100 +85,94 @@ export const AppRouter = () => {
   return (
     <LightningTestnetGuard active={lightningFeatureAvailable && isLightningRoute(pathname)}>
       <Routes>
-        <Route path="/">
-          <Route index element={<DeviceSwitch key={useDevicesKey('device-switch-default')} />} />
-          <Route path="account/:code">
-            <Route index element={<Account />} />
-            <Route path="send" element={<SendWrapper />} />
-            <Route path="receive" element={<Receive />} />
-            <Route path="addresses" element={<Addresses />} />
-            <Route path="addresses/:addressID" element={<Addresses />} />
-            <Route path="addresses/:addressID/verify" element={<Addresses />} />
-            <Route path="addresses/:addressID/sign-message" element={<SignMessage />} />
-            <Route path="info" element={<Info />} />
-            <Route path="info/xpub-detail" element={<XPubDetail />} />
-            <Route path="sign-message/:view" element={<SignMessage />} />
-            <Route path="wallet-connect/connect" element={<ConnectScreenWalletConnect />} />
-            <Route path="wallet-connect/dashboard" element={<DashboardWalletConnect />} />
-          </Route>
-          <Route path="add-account" element={<AddAccount />} />
-          <Route path="account-summary" element={<AccountsSummary />} />
-          <Route path="market/*" element={
-            <MarketProvider>
-              <Routes>
-                <Route path="select" element={<Market />} />
-                <Route path="select/:code" element={<Market />} />
-                <Route path="bitsurance/widget/:code" element={<BitsuranceWidget />} />
-                <Route path="bitsurance">
-                  <Route path=":code" element={<Bitsurance />} />
-                  <Route path="account/:code" element={<BitsuranceAccount />} />
-                  <Route path="dashboard/:code" element={<BitsuranceDashboard />} />
-                </Route>
-              </Routes>
-            </MarketProvider>
-          } />
-          <Route path="market">
-            <Route path="btcdirect/buy/:code" element={<BTCDirect action="buy" />} />
-            <Route path="btcdirect/buy/:code/:region" element={<BTCDirect action="buy" />} />
-            <Route path="btcdirect/sell/:code" element={ <BTCDirect action="sell" />} />
-            <Route path="btcdirect/sell/:code/:region" element={ <BTCDirect action="sell" />} />
-            <Route path="bitrefill/spend/:code" element={<Bitrefill />} />
-            <Route path="bitrefill/spend/:code/:region" element={<Bitrefill />} />
-            <Route path="moonpay/buy/:code" element={<Moonpay />} />
-            <Route path="moonpay/buy/:code/:region" element={<Moonpay />} />
-            <Route path="pocket/buy/:code" element={<Pocket action="buy" />} />
-            <Route path="pocket/buy/:code/:region" element={<Pocket action="buy" />} />
-            <Route path="pocket/sell/:code" element={<Pocket action="sell" />} />
-            <Route path="pocket/sell/:code/:region" element={<Pocket action="sell" />} />
-            <Route path="btcdirect-otc" element={<BTCDirectOTC/>} />
-            <Route path="pocket-otc" element={<PocketOTC/>} />
-            <Route path="swap" element={<Swap />} />
-          </Route>
-          {lightningFeatureAvailable ? (
-            <Route path="lightning">
-              <Route index element={<Lightning />} />
-              <Route path="activate" element={<LightningActivate />} />
-              <Route path="disclaimer" element={<LightningDisclaimer />} />
-              <Route path="deactivate" element={<LightningDeactivate />} />
-              <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
-              <Route path="claim-top-up" element={<LightningClaimTopUp />} />
-              <Route path="close-withdraw-funds" element={(
-                <LightningCloseWithdrawFunds />
-              )} />
-              <Route path="send" element={<LightningSend />} />
-              <Route path="receive" element={<LightningReceive />} />
-              <Route path="topup" element={<LightningTopUp />} />
-            </Route>
-          ) : (
-            <Route path="lightning/*" element={<Navigate replace to="/" />} />
-          )}
-          <Route path="manage-backups/:deviceID" element={<ManageBackups key={useDevicesKey('manage-backups')} />} />
-          <Route path="accounts/select-receive" element={<ReceiveAccountsSelector />} />
-          <Route path="accounts/all" element={<AllAccounts />} />
-          <Route path="settings">
-            <Route index element={<MobileSettings />} />
-            <Route path="more" element={<Navigate replace to="/settings" />} />
-            <Route path="general" element={<General />} />
-            <Route path="about" element={<About />} />
-            <Route path="device-settings/:deviceID" element={<DeviceSwitch key={useDevicesKey('device-switch')} />} />
-            <Route path="no-device-connected" element={<NoDeviceConnected key="no-device-connected" />} />
-            <Route path="no-accounts" element={<NoDeviceConnected key="no-accounts" />} />
-            <Route path="device-settings/passphrase/:deviceID" element={<Passphrase />} />
-            <Route path="device-settings/recovery-words/:deviceID" element={<RecoveryWords />} />
-            <Route path="device-settings/bip85/:deviceID" element={<Bip85 />} />
-            <Route path="advanced-settings" element={<AdvancedSettings />} />
-            <Route
-              path="lightning-settings"
-              element={lightningFeatureAvailable
-                ? <LightningSettings />
-                : <Navigate replace to="/settings/advanced-settings" />}
-            />
-            <Route path="electrum" element={<ElectrumSettings />} />
-            <Route path="manage-accounts" element={
-              <ManageAccounts key="manage-accounts" />
-            } />
-          </Route>
-        </Route>
+        <Route path="/" component={DeviceSwitchWithKey}/>
+        <Route path="/account/:code" component={Account}/>
+        <Route path="/account/:code/send" component={SendWrapper}/>
+        <Route path="/account/:code/receive" component={Receive}/>
+        <Route path="/account/:code/addresses/:addressID" component={Addresses}/>
+        <Route path="/account/:code/addresses/:addressID/verify" component={Addresses}/>
+        <Route path="/account/:code/addresses" component={Addresses}/>
+        <Route path="/account/:code/addresses/:addressID/sign-message" component={SignMessage}/>
+        <Route path="/account/:code/info" component={Info}/>
+        <Route path="/account/:code/info/xpub-detail" component={XPubDetail}/>
+        <Route path="/account/:code/sign-message/:view" component={SignMessage}/>
+        <Route path="/account/:code/wallet-connect/connect" component={ConnectScreenWalletConnect}/>
+        <Route path="/account/:code/wallet-connect/dashboard" component={DashboardWalletConnect}/>
+
+        <Route path="/add-account" component={AddAccount}/>
+        <Route path="/account-summary" component={AccountsSummary}/>
+        <Route path="/market/btcdirect/buy/:code" component={() => <BTCDirect action="buy"/>}/>
+        <Route path="/market/btcdirect/buy/:code/:region" component={() => <BTCDirect action="buy"/>}/>
+        <Route path="/market/btcdirect/sell/:code" component={() => <BTCDirect action="sell"/>}/>
+        <Route path="/market/btcdirect/sell/:code/:region" component={() => <BTCDirect action="sell"/>}/>
+        <Route path="/market/bitrefill/spend/:code" component={Bitrefill}/>
+        <Route path="/market/bitrefill/spend/:code/:region" component={Bitrefill}/>
+        <Route path="/market/moonpay/buy/:code" component={Moonpay}/>
+        <Route path="/market/moonpay/buy/:code/:region" component={Moonpay}/>
+        <Route path="/market/pocket/buy/:code" component={() => <Pocket action="buy"/>}/>
+        <Route path="/market/pocket/buy/:code/:region" component={() => <Pocket action="buy"/>}/>
+        <Route path="/market/pocket/sell/:code" component={() => <Pocket action="sell"/>}/>
+        <Route path="/market/pocket/sell/:code/:region" component={() => <Pocket action="sell"/>}/>
+        <Route path="/market/btcdirect-otc" component={BTCDirectOTC}/>
+        <Route path="/market/pocket-otc" component={PocketOTC}/>
+        <Route path="/market/swap" component={Swap}/>
+        <Route path="/market/*" component={() => (
+          <MarketProvider>
+            <Switch>
+              <Route path="/market/select" component={Market}/>
+              <Route path="/market/select/:code" component={Market}/>
+              <Route path="/market/bitsurance/widget/:code" component={BitsuranceWidget}/>
+              <Route path="/market/bitsurance/:code" component={Bitsurance}/>
+              <Route path="/market/bitsurance/account/:code" component={BitsuranceAccount}/>
+              <Route path="/market/bitsurance/dashboard/:code" component={BitsuranceDashboard}/>
+            </Switch>
+          </MarketProvider>
+        )} />
+        {lightningFeatureAvailable ? (
+          <>
+            <Route path="/lightning" component={Lightning}/>
+            <Route path="/lightning/activate" component={LightningActivate}/>
+            <Route path="/lightning/disclaimer" component={LightningDisclaimer}/>
+            <Route path="/lightning/deactivate" component={LightningDeactivate}/>
+            <Route path="/lightning/set-lnurl-address" component={LightningSetLnurlAddress}/>
+            <Route path="/lightning/claim-top-up" component={LightningClaimTopUp}/>
+            <Route path="/lightning/close-withdraw-funds" component={LightningCloseWithdrawFunds}/>
+            <Route path="/lightning/send" component={LightningSend}/>
+            <Route path="/lightning/receive" component={LightningReceive}/>
+            <Route path="/lightning/topup" component={LightningTopUp}/>
+          </>
+        ) : (
+          <Route path="/lightning/*" component={() => <Navigate replace to="/"/>}/>
+        )}
+        <Route path="/manage-backups/:deviceID" component={ManageBackupsWithKey}/>
+        <Route path="/accounts/select-receive" component={ReceiveAccountsSelector}/>
+        <Route path="/accounts/all" component={AllAccounts}/>
+        <Route path="/settings" component={MobileSettings}/>
+        <Route path="/settings/more" component={() => (
+          <Navigate replace to="/settings"/>
+        )}/>
+        <Route path="/settings/general" component={General}/>
+        <Route path="/settings/about" component={About}/>
+        <Route path="/settings/device-settings/:deviceID" component={DeviceSettingsWithKey}/>
+        <Route path="/settings/no-device-connected" component={() => (
+          <NoDeviceConnected key="no-device-connected"/>
+        )}/>
+        <Route path="/settings/no-accounts" component={() => (
+          <NoDeviceConnected key="no-accounts"/>
+        )}/>
+        <Route path="/settings/device-settings/passphrase/:deviceID" component={Passphrase}/>
+        <Route path="/settings/device-settings/recovery-words/:deviceID" component={RecoveryWords}/>
+        <Route path="/settings/device-settings/bip85/:deviceID" component={Bip85}/>
+        <Route path="/settings/advanced-settings" component={AdvancedSettings}/>
+        <Route
+          path="/settings/lightning-settings"
+          component={() => lightningFeatureAvailable
+            ? <LightningSettings/>
+            : <Navigate replace to="/settings/advanced-settings"/>}/>
+        <Route path="/settings/electrum" component={ElectrumSettings}/>
+        <Route path="/settings/manage-accounts" component={() => (
+          <ManageAccounts key="manage-accounts"/>
+        )}/>
       </Routes>
     </LightningTestnetGuard>
   );

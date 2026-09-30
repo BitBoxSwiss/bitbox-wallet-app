@@ -5,7 +5,7 @@ import type { TAccount } from '@/api/account';
 import type { TDevices } from '@/api/devices';
 import type { TLightningAccount } from '@/api/lightning';
 
-export type TAppStateContextProps = {
+export type TAppState = {
   accounts: TAccount[];
   activeAccounts: TAccount[];
   deviceIDs: string[];
@@ -17,7 +17,7 @@ export type TAppStateContextProps = {
   lightningAccount: TLightningAccount | null | undefined;
 };
 
-export const AppStateContext = createContext<TAppStateContextProps | null>(null);
+export const AppStateContext = createContext<TAppState | null>(null);
 
 export const useAppState = () => {
   const context = useContext(AppStateContext);

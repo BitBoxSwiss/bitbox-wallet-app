@@ -3,8 +3,8 @@
 import '../../../../__mocks__/i18n';
 import type { ReactNode } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from '@/utils/test-helpers';
 import type { TAccount, TAmountWithConversions } from '@/api/account';
 import type { TLightningPayment } from '@/api/lightning';
 import * as lightningApi from '@/api/lightning';

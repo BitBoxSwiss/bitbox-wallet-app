@@ -2,8 +2,8 @@
 
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
 import { AppContext } from '@/contexts/AppContext';
+import { useLocation } from '@/utils/router-compatability';
 import { SessionStatus } from '@/components/status/status-session';
 import { isLightningRoute } from '@/utils/route';
 

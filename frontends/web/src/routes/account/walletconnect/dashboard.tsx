@@ -2,7 +2,7 @@
 
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'wouter';
 import { useLoad } from '@/hooks/api';
 import { SessionTypes } from '@walletconnect/types';
 import { getSdkError } from '@walletconnect/utils';
@@ -26,7 +26,7 @@ type TRouteParams = {
 
 export const DashboardWalletConnect = () => {
   const { code = '' } = useParams<TRouteParams>();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { t } = useTranslation();
   const { activeAccounts } = useAppState();
   const { web3wallet, isWalletInitialized, initializeWeb3Wallet } = useContext(WCWeb3WalletContext);

@@ -10,8 +10,8 @@ vi.mock('@/api/backend', () => ({
 }));
 
 import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
 import { verifyAddressWithDevice, handleVerifyAddressWithDeviceResult } from './verify-address';
 import { useAddressVerification } from './use-address-verification';
@@ -197,7 +197,7 @@ describe('routes/account/components/use-address-verification', () => {
     // startVerifyFlow resets state and increments attempt counter
     expect(result.current.verifyState).toBe('idle');
     expect(result.current.verifyError).toBeNull();
-    // Navigation is handled internally by react-router; we verify it doesn't throw
+    // Navigation is handled internally by wouter; we verify it doesn't throw
     // and that the state is properly reset for the new flow.
   });
 

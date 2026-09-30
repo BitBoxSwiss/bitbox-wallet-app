@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'wouter';
 import type { AccountCode } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { Header, Main } from '@/components/layout';
@@ -32,7 +32,7 @@ export const SignMessage = () => {
   const view = viewParam ?? 'new';
 
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { activeAccounts } = useAppState();
 
   const controller = useSignMessageController({ accounts: activeAccounts, code });
@@ -60,7 +60,7 @@ export const SignMessage = () => {
         variant="navigation"
         hideSidebarToggler
         mobileBackButton
-        onBack={() => navigate(-1)}
+        onBack={() => history.back()}
         title={t('signMessage.signMessage')}
       />
       <View fullscreen={false}>

@@ -1,34 +1,37 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext, useEffect } from 'react';
-import { matchRoutes, NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { AppContext } from '@/contexts/AppContext';
 
-let navigate: NavigateFunction | undefined;
+type Navigate = (
+  to: string,
+  options?: { replace?: boolean },
+) => void;
 
-export const isLightningRoute = (pathname: string) => matchRoutes([
-  { path: '/lightning/*' },
-], pathname) !== null;
+let navigate: Navigate | undefined;
+
+export const isLightningRoute = (pathname: string) => (
+  /^\/lightning(?:\/|$)/.test(pathname)
+);
 
 /**
- * @deprecated preact-router like. Use `useNavigate` hook if possible
+ * @deprecated preact-router like. Use `useLocation` hook if possible
  */
-export const route = (route: string, replace?: boolean) => {
-  navigate?.(route, { replace });
+export const route = (to: string, replace?: boolean) => {
+  navigate?.(to, { replace });
 };
 
 // This component makes route fn work, and triggers an onChange function
 export const RouterWatcher = () => {
-  navigate = useNavigate();
+  const [location, setLocation] = useLocation();
   const { setActiveSidebar } = useContext(AppContext);
-  const { pathname } = useLocation();
 
-  /**
-   * Gets fired when the route changes.
-   */
+  navigate = setLocation;
+
   useEffect(() => {
     setActiveSidebar(false);
-  }, [pathname, setActiveSidebar]);
+  }, [location, setActiveSidebar]);
 
   return null;
 };

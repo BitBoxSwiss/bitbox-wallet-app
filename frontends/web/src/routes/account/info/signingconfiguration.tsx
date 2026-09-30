@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { AccountCode, TAccount, TAmountWithConversions, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub, getBalance } from '@/api/account';
 import { getScriptName } from '@/routes/account/utils';
 import { isBitcoinBased, isEthereumBased } from '@/utils/coin';
@@ -27,7 +27,7 @@ type TProps = {
 };
 
 export const SigningConfiguration = ({ account, info, code, signingConfigIndex, children }: TProps) => {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState(false);
   const [balance, setBalance] = useState<TAmountWithConversions>();

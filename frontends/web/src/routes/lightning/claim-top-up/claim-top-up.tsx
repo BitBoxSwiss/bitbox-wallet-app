@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'wouter';
 import type { AccountCode, TAccount } from '@/api/account';
 import {
   getListPayments,
@@ -41,7 +41,7 @@ const matchesBitcoinDeposit = (
 
 const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TInnerProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const btcAccounts = useMemo(
     () => activeAccounts.filter(account => account.active && account.coinCode === 'btc'),
     [activeAccounts]
@@ -153,7 +153,7 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
       setStep('overview');
       return;
     }
-    navigate(-1);
+    history.back();
   };
 
   const headerBackEnabled = (

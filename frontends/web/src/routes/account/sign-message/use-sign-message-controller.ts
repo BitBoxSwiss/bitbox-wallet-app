@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { SyntheticEvent, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import * as accountApi from '@/api/account';
 import {
   TSignatureResult,
@@ -50,7 +50,7 @@ export const useSignMessageController = ({
   accounts,
   code,
 }: TProps): TSignMessageController => {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const account = findAccount(accounts, code);
 
   const {

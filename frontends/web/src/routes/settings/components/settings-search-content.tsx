@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import type { TDevices } from '@/api/devices';
 import { SubTitle } from '@/components/title';
 import {
@@ -45,7 +45,7 @@ export const SettingsSearchContent = ({
   searchResults,
 }: TProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const firstDeviceID = Object.keys(devices)[0];
 
   const pageTitles: Record<TSettingsSearchPage, string> = {

@@ -2,7 +2,7 @@
 
 import { MutableRefObject, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'wouter';
 import { AutoscaleInfoProvider, createChart, IChartApi, LineStyle, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType } from 'lightweight-charts';
 import type { TChartData, TChartTransactionMarkerAmount, FormattedLineData } from '@/api/account';
 import { Skeleton } from '@/components/skeleton/skeleton';

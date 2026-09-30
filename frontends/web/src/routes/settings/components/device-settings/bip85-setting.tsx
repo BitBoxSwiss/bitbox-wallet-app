@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { WarningOLD } from '@/components/icon';
 
@@ -11,7 +11,7 @@ type TProps = {
 };
 
 export const Bip85Setting = ({ canBIP85, deviceID }: TProps) => {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { t } = useTranslation();
 
   if (!canBIP85) {

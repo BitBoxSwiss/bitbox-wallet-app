@@ -23,7 +23,8 @@ vi.mock('@/api/system', () => ({
   open: vi.fn().mockResolvedValue({ success: true }),
 }));
 
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Route, Switch } from 'wouter';
+import { MemoryRouter } from '@/utils/test-helpers';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as accountApi from '@/api/account';
@@ -103,11 +104,11 @@ const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAcco
             hasLightningAccount: false,
           }}
         >
-          <Routes>
-            <Route path="/account/:code/addresses" element={<Addresses />} />
-            <Route path="/account/:code/addresses/:addressID" element={<Addresses />} />
-            <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses />} />
-          </Routes>
+          <Switch>
+            <Route path="/account/:code/addresses" component={Addresses} />
+            <Route path="/account/:code/addresses/:addressID" component={Addresses} />
+            <Route path="/account/:code/addresses/:addressID/verify" component={Addresses} />
+          </Switch>
         </AppStateContext.Provider>
       </BackButtonProvider>
     );
