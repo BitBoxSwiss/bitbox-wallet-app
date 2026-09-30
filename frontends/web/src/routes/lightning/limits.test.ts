@@ -20,7 +20,7 @@ describe('lightning funding limit', () => {
   it('formats limit, remaining capacity, and projected excess', () => {
     expect(formatLightningFundingLimit(limit)).toBe('200000 sat');
     expect(formatRemainingLightningFundingLimit(limit)).toBe('50000 sat');
-    expect(formatExcessLightningFundingLimit(limit, 50001)).toBe('1 sat');
+    expect(formatExcessLightningFundingLimit(limit, '50001')).toBe('1 sat');
   });
 
   it('derives reached and exceeded state from signed margin', () => {
@@ -31,7 +31,7 @@ describe('lightning funding limit', () => {
   });
 
   it('rejects only requested amounts above the margin', () => {
-    expect(getLightningFundingLimitError(limit, 50001)).toBe(lightningBalanceLimitErrorCode);
-    expect(getLightningFundingLimitError(limit, 50000)).toBeUndefined();
+    expect(getLightningFundingLimitError(limit, '50001')).toBe(lightningBalanceLimitErrorCode);
+    expect(getLightningFundingLimitError(limit, '50000')).toBeUndefined();
   });
 });

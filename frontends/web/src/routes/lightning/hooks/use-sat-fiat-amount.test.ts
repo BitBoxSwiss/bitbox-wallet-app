@@ -30,7 +30,7 @@ describe('useSatFiatAmount', () => {
 
   it('converts sats to fiat', async () => {
     mockGetBtcSatAmount.mockResolvedValue(successfulResponse('1200', '10.50'));
-    const { result } = renderHook(() => useSatFiatAmount({ defaultCurrency: 'USD' }));
+    const { result } = renderHook(() => useSatFiatAmount());
 
     await act(async () => {
       await result.current.handleSatsAmountChange('1200');
@@ -44,7 +44,7 @@ describe('useSatFiatAmount', () => {
 
   it('converts fiat to sats', async () => {
     mockGetBtcSatAmount.mockResolvedValue(successfulResponse('1200', '10.50'));
-    const { result } = renderHook(() => useSatFiatAmount({ defaultCurrency: 'USD' }));
+    const { result } = renderHook(() => useSatFiatAmount());
 
     await act(async () => {
       await result.current.handleFiatAmountChange('10.50');
@@ -63,7 +63,7 @@ describe('useSatFiatAmount', () => {
         resolveFirst = resolve;
       }))
       .mockResolvedValueOnce(successfulResponse('2000', '20.00'));
-    const { result } = renderHook(() => useSatFiatAmount({ defaultCurrency: 'USD' }));
+    const { result } = renderHook(() => useSatFiatAmount());
 
     act(() => {
       void result.current.handleSatsAmountChange('1000');
@@ -86,7 +86,7 @@ describe('useSatFiatAmount', () => {
     mockGetBtcSatAmount.mockReturnValue(new Promise<TResponse>((resolve) => {
       resolveConversion = resolve;
     }));
-    const { result } = renderHook(() => useSatFiatAmount({ defaultCurrency: 'USD' }));
+    const { result } = renderHook(() => useSatFiatAmount());
 
     act(() => {
       void result.current.handleSatsAmountChange('1200');

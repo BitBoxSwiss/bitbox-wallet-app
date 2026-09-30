@@ -10,13 +10,6 @@ import { useSync } from '@/hooks/api';
 import { useSatFiatAmount } from '../../hooks/use-sat-fiat-amount';
 import styles from '../send.module.css';
 
-type TProps = {
-  children?: ReactNode;
-  maxAmountSat?: number;
-  minAmountSat?: number;
-  onAmountChange: (amountSat?: number) => void;
-};
-
 export const PaymentBalance = () => {
   const balance = useSync(getLightningBalance, subscribeLightningBalance);
 
@@ -25,6 +18,13 @@ export const PaymentBalance = () => {
       <Balance balance={balance} />
     </div>
   );
+};
+
+type TProps = {
+  children?: ReactNode;
+  maxAmountSat?: number;
+  minAmountSat?: number;
+  onAmountChange: (amountSat?: string) => void;
 };
 
 export const CustomPaymentAmount = ({
@@ -41,7 +41,7 @@ export const CustomPaymentAmount = ({
     handleSatsAmountChange,
     inputFiatText,
     inputSatsText,
-  } = useSatFiatAmount({ defaultCurrency });
+  } = useSatFiatAmount();
 
   useEffect(() => {
     onAmountChange(amountSat);
@@ -60,7 +60,7 @@ export const CustomPaymentAmount = ({
         id="amountSatsInput"
         onChange={(satsText) => {
           onAmountChange(undefined);
-          void handleSatsAmountChange(satsText);
+          handleSatsAmountChange(satsText);
         }}
         value={inputSatsText}
         autoFocus
