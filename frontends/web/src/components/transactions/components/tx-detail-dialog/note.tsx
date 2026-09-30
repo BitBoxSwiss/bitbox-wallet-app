@@ -2,37 +2,43 @@
 
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as accountApi from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMountedRef } from '@/hooks/mount';
 import { Input } from '@/components/forms';
 import detailsDialogStyles from './tx-detail-dialog.module.css';
 
-type Props = {
-  accountCode: accountApi.AccountCode;
-  internalID: string;
+type TProps = {
+  onSave: (note: string) => Promise<unknown>;
   // Contains the existing note.
   note: string;
 };
 
-export const Note = ({ accountCode, note, internalID }: Props) => {
+export const Note = ({ note, onSave }: TProps) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [newNote, setNewNote] = useState<string>(note);
   const [savedNote, setSavedNote] = useState<string>(note);
+  const [error, setError] = useState<string>();
+  const mounted = useMountedRef();
 
   const handleNoteInput = (e: ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
     setNewNote(target.value);
+    setError(undefined);
   };
 
   const handleBlur = () => {
     if (savedNote !== newNote) {
-      accountApi.postNotesTx(accountCode, {
-        internalTxID: internalID,
-        note: newNote,
-      }).then(() => {
-        setSavedNote(newNote);
-      }).catch(console.error);
+      setError(undefined);
+      onSave(newNote).then(() => {
+        if (mounted.current) {
+          setSavedNote(newNote);
+        }
+      }).catch((err: unknown) => {
+        if (mounted.current) {
+          setError(err instanceof Error ? err.message : String(err));
+        }
+      });
     }
   };
 
@@ -50,12 +56,18 @@ export const Note = ({ accountCode, note, internalID }: Props) => {
         className={detailsDialogStyles.note}
         type="text"
         id="note"
+        aria-describedby={error ? 'note-error' : undefined}
         transparent
         placeholder={t('note.input.placeholder')}
         value={newNote}
         maxLength={256}
         onInput={handleNoteInput}
         onBlur={handleBlur}/>
+      {error && (
+        <p id="note-error" role="alert" className={detailsDialogStyles.noteError}>
+          {t('unknownError', { errorMessage: error })}
+        </p>
+      )}
     </form>
   );
 };

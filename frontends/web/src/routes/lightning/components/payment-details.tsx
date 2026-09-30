@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { TLightningPayment } from '@/api/lightning';
+import { postPaymentNote } from '@/api/lightning';
 import { A } from '@/components/anchor/anchor';
 import { Dialog } from '@/components/dialog/dialog';
 import { ExternalLink } from '@/components/icon';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Button } from '@/components/forms/button';
 import { TxDetailRow } from '@/components/transactions/components/tx-detail-dialog/tx-detail-row';
+import { Note } from '@/components/transactions/components/tx-detail-dialog/note';
 import { parseTimeLongWithYear } from '@/utils/date';
 import { getTxSign } from '@/utils/transaction';
 import styles from '@/components/transactions/components/tx-detail-dialog/tx-detail-dialog.module.css';
@@ -55,10 +57,17 @@ export const PaymentDetailsDialog = ({
       {payment && (
         <div className={styles.container}>
           {!payment.bitcoinDeposit && (
-            <TxDetailRow>
-              <p className={styles.label}>{t('lightning.send.confirm.note')}</p>
-              <span>{payment.description || '-'}</span>
-            </TxDetailRow>
+            <>
+              <Note
+                key={payment.id}
+                note={payment.note}
+                onSave={note => postPaymentNote(payment.id, note)}
+              />
+              <TxDetailRow>
+                <p className={styles.label}>{t('lightning.paymentDescription')}</p>
+                <span>{payment.description || '-'}</span>
+              </TxDetailRow>
+            </>
           )}
           {(!payment.bitcoinDeposit || payment.time) && (
             <TxDetailRow>

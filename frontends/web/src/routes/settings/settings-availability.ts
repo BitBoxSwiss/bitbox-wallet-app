@@ -13,7 +13,10 @@ type TDeviceInfoWithBluetooth = DeviceInfo & {
   bluetooth: NonNullable<DeviceInfo['bluetooth']>;
 };
 
-export const isNotesSettingsVisible = (hasAccounts: boolean) => hasAccounts;
+export const isNotesSettingsVisible = (
+  hasAccounts: boolean,
+  isLightningEnabled: boolean | undefined,
+) => hasAccounts || isLightningEnabled === true;
 
 export const isDeviceSettingsVisible = (devices: TDevices) => Object.keys(devices).length > 0;
 

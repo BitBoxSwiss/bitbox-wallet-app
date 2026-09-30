@@ -49,7 +49,7 @@ export const General = () => {
 
 export const GeneralSettingsContent = () => {
   const { t } = useTranslation();
-  const { hasAccounts } = useAppState();
+  const { hasAccounts, hasLightningAccount } = useAppState();
 
   const sections: TSettingsContentSection[] = [
     {
@@ -63,7 +63,7 @@ export const GeneralSettingsContent = () => {
       ],
       title: <SubTitle>{t('settings.appearance')}</SubTitle>,
     },
-    ...(isNotesSettingsVisible(hasAccounts) ? [{
+    ...(isNotesSettingsVisible(hasAccounts, hasLightningAccount) ? [{
       id: 'notes',
       items: [
         { id: 'export-notes', content: <NotesExport /> },

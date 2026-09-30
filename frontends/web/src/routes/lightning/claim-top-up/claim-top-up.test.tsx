@@ -62,6 +62,7 @@ const deposit = (
   refundFeeRateSatPerVbyte?: number,
 ): TLightningPayment => ({
   id: paymentID,
+  note: '',
   type: 'receive',
   status: 'pending',
   time: null,
