@@ -2360,6 +2360,7 @@
           "note": "Your account names, notes and wallets are not affected.",
           "primaryCTA": "Clear Cache"
         },
+        "success": "Cache cleared successfully",
         "title": "Clear cache"
       },
       "coinControl": "Enable coin control",
