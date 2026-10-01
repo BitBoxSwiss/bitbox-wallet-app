@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { apiPost } from '@/utils/request';
+import { subscribeEndpoint, TSubscriptionCallback, TUnsubscribe } from './subscribe';
 
 type TNotifyUserResponse = {
   success: true;
@@ -16,6 +17,10 @@ type TOpenResponse = {
   errorMessage: string;
 };
 
+export type TExternalLinkRequest = {
+  url: string;
+};
+
 export const notifyUser = (text: string): Promise<TNotifyUserResponse> => {
   return apiPost('notify-user', { text });
 };
@@ -23,3 +28,11 @@ export const notifyUser = (text: string): Promise<TNotifyUserResponse> => {
 export const open = (href: string): Promise<TOpenResponse> => {
   return apiPost('open', href);
 };
+
+export const openExternalLink = (href: string): Promise<TOpenResponse> => {
+  return apiPost('open-external-link', href);
+};
+
+export const subscribeExternalLinkRequests = (
+  cb: TSubscriptionCallback<TExternalLinkRequest>
+): TUnsubscribe => subscribeEndpoint('external-link-requested', cb);

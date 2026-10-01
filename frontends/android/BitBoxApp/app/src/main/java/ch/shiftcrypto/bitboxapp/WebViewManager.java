@@ -104,7 +104,11 @@ public class WebViewManager {
         // webView.setWebContentsDebuggingEnabled(true); // enable remote debugging in chrome://inspect/#devices
         // Retrieve the current text zoom setting to adjust the base font size in the WebView.
         int initialZoom = webView.getSettings().getTextZoom();
-        webView.setWebViewClient(new WebViewClient(WebMessageBridge.BASE_URL, activity.getAssets(), activity.getApplication(), initialZoom));
+        webView.setWebViewClient(new WebViewClient(
+                WebMessageBridge.BASE_URL,
+                activity.getAssets(),
+                initialZoom
+        ));
         webView.setWebChromeClient(webChromeClient);
         if (!WebMessageBridge.isSupported()) {
             showUnsupportedWebViewDialog();
