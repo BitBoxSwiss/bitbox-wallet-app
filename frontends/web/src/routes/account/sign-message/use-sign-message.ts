@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { AccountCode, ScriptType, TReceiveAddress } from '@/api/account';
 import { useFeatureConnect } from '@/hooks/keystore';
-import { isEthereumBased } from '../utils';
+import { isEthereumBased } from '@/utils/coin';
 
 export type TSigningState = 'input' | 'signing' | 'result';
 

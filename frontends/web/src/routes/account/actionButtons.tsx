@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowFloorDownWhite, ArrowFloorUpWhite, Coins, WalletConnectLight } from '@/components/icon';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { AccountCode, TAccount, CoinCode } from '@/api/account';
-import { isEthereumBased } from './utils';
+import { isEthereumBased } from '@/utils/coin';
 import { AccountActionButtonLink } from './components/account-action-button-link';
 import { AccountActionButtons } from './components/account-action-buttons';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';

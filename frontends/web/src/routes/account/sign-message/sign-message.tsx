@@ -11,7 +11,7 @@ import {
   SignMessageConfirmView,
 } from './sign-message-views';
 import { useSignMessageController } from './use-sign-message-controller';
-import { isBitcoinBased } from '../utils';
+import { isBitcoinBased } from '@/utils/coin';
 import { AddressesContent } from '../addresses/addresses';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import styles from './sign-message.module.css';

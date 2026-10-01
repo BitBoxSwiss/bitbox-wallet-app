@@ -7,7 +7,7 @@ import { Button } from '@/components/forms';
 import { CloseXWhite, EditActive, PasteActive } from '@/components/icon';
 import { Message } from '@/components/message/message';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
-import { isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/utils/coin';
 import { ReceiverAddressInputField } from '@/routes/account/send/components/inputs/receiver-address-input-field';
 import { ScanQR } from '@/routes/account/send/components/inputs/scan-qr';
 import { canReadClipboard } from '@/utils/clipboard';
