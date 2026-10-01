@@ -214,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        PriceWidgetProvider.refresh(this);
         Util.log("lifecycle: onStart");
         goViewModel.getIsDarkTheme().observe(this, this::setDarkTheme);
         goViewModel.getNetworkHelper().registerNetworkCallback();
@@ -245,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        PriceWidgetProvider.refresh(this);
         goViewModel.getNetworkHelper().unregisterNetworkCallback();
         Util.log("lifecycle: onStop");
     }

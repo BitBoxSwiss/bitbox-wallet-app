@@ -1,2 +1,11 @@
 <resources>
+    <string name="price_widget_change">%1$s%%</string>
+    <string name="price_widget_chart">24-hour price chart</string>
+    <string name="price_widget_description">Live token price with 24-hour chart.</string>
+    <string name="price_widget_empty">—</string>
+    <string name="price_widget_name">BitBoxApp Prices</string>
+    <string name="price_widget_next">Next coin</string>
+    <string name="price_widget_pair">%1$s/%2$s</string>
+    <string name="price_widget_previous">Previous coin</string>
+    <string name="price_widget_unavailable">Unavailable</string>
 </resources>

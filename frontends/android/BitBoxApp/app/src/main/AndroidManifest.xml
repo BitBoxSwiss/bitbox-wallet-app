@@ -72,6 +72,19 @@
         </activity>
         <service android:name=".GoService" android:foregroundServiceType="dataSync" />
 
+        <receiver
+            android:name=".HelloWidgetProvider"
+            android:exported="false"
+            android:label="@string/price_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/price_widget_info" />
+        </receiver>
+
         <!-- to allow external apps to open local files (e.g. exported csv) -->
         <provider
             android:name="androidx.core.content.FileProvider"
