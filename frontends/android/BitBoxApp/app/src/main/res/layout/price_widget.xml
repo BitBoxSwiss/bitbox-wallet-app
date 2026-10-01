@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/price_widget_background"
+    android:paddingTop="12dp"
+    android:paddingBottom="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
+        <ImageView
+            android:id="@+id/widget_coin"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/widget_btc" />
+        <TextView
+            android:id="@+id/widget_pair"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:text="@string/price_widget_empty"
+            android:textColor="@color/widget_secondary"
+            android:textSize="12sp" />
+        <TextView
+            android:id="@+id/widget_change"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:text="@string/price_widget_empty"
+            android:textColor="@color/widget_secondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/widget_change_compact"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:gravity="end|center_vertical"
+        android:maxLines="1"
+        android:text="@string/price_widget_empty"
+        android:textColor="@color/widget_secondary"
+        android:textSize="12sp"
+        android:visibility="gone" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <!-- The renderer fits text to each widget's dimensions on all supported Android versions. -->
+        <TextView
+            android:id="@+id/widget_price"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:maxLines="1"
+            android:text="@string/price_widget_empty"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="@color/widget_text" />
+        <TextView
+            android:id="@+id/widget_unavailable"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:maxLines="1"
+            android:text="@string/price_widget_unavailable"
+            android:textSize="13sp"
+            android:textColor="@color/widget_secondary"
+            android:visibility="gone" />
+    </FrameLayout>
+    <ImageView
+        android:id="@+id/widget_chart"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:contentDescription="@string/price_widget_chart"
+        android:scaleType="fitXY" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
+        <ImageView
+            android:id="@+id/widget_previous"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="12dp"
+            android:contentDescription="@string/price_widget_previous"
+            android:src="@drawable/widget_previous"
+            android:visibility="invisible" />
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/widget_logo" />
+        <ImageView
+            android:id="@+id/widget_next"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="12dp"
+            android:contentDescription="@string/price_widget_next"
+            android:src="@drawable/widget_next"
+            android:visibility="invisible" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Older launchers use minWidth/minHeight and initialLayout as fallbacks. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:description="@string/price_widget_description"
+    android:initialLayout="@layout/price_widget"
+    android:minWidth="110dp"
+    android:minResizeWidth="110dp"
+    android:minHeight="160dp"
+    android:minResizeHeight="160dp"
+    android:previewLayout="@layout/price_widget"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellWidth="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    tools:ignore="UnusedAttribute" />

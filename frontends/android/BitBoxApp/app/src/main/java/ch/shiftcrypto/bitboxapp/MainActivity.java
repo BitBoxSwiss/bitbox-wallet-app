@@ -23,11 +23,6 @@ import androidx.lifecycle.ViewModelProviders;
 import mobileserver.Mobileserver;
 
 public class MainActivity extends AppCompatActivity {
-    static {
-        System.loadLibrary("signal_handler");
-    }
-    public native void initsignalhandler();
-
     GoService goService;
     private GoViewModel goViewModel;
     private WebViewManager webViewManager;
@@ -97,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Util.log("lifecycle: onCreate");
-        initsignalhandler();
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide(); // hide title bar with app name.
@@ -214,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        PriceWidgetProvider.refresh(this);
         Util.log("lifecycle: onStart");
         goViewModel.getIsDarkTheme().observe(this, this::setDarkTheme);
         goViewModel.getNetworkHelper().registerNetworkCallback();
@@ -245,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        PriceWidgetProvider.refresh(this);
         goViewModel.getNetworkHelper().unregisterNetworkCallback();
         Util.log("lifecycle: onStop");
     }
