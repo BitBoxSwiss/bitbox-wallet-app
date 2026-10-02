@@ -147,7 +147,8 @@ export const Receive = ({
   useEthAccountActivity(code, account?.coinCode);
 
   // first array index: address types. second array index: unused addresses of that address type.
-  const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
+  const receiveAddressResponse = useLoad(accountApi.getReceiveAddressList(code));
+  const receiveAddresses = receiveAddressResponse?.success ? receiveAddressResponse.addresses : undefined;
   const availableScriptTypes = receiveAddresses ? getAvailableScriptTypes(receiveAddresses) : undefined;
   const hasManyScriptTypes = availableScriptTypes && availableScriptTypes.length > 1;
 
@@ -206,6 +207,10 @@ export const Receive = ({
     }
 
     const hasSecureOutput = await accountApi.hasSecureOutput(code)();
+    if (!hasSecureOutput.success) {
+      alertUser(hasSecureOutput.errorMessage || t('genericError'));
+      return;
+    }
     if (!hasSecureOutput.hasSecureOutput) {
       setVerifying('insecure');
       // For the software keystore, the dialog is dismissed manually.
@@ -268,6 +273,9 @@ export const Receive = ({
             title={t('receive.title', { accountName: account?.coinName })}
           />
           <div className="content narrow isVerticallyCentered">
+            {receiveAddressResponse && !receiveAddressResponse.success && (
+              <Message type="error">{receiveAddressResponse.errorMessage || t('genericError')}</Message>
+            )}
             <div className="box large text-center">
               { currentAddresses && (
                 <div style={{ position: 'relative' }}>
