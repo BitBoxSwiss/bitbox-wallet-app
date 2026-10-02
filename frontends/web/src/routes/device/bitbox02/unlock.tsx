@@ -31,7 +31,7 @@ export const Unlock = ({ attestation }: Props) => {
           </Message>
         ) : (
           <>
-            <PasswordEntry />
+            <PasswordEntry workflow="unlock" />
             <ForgotPasswordInfo />
           </>
         )}
