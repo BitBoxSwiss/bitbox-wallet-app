@@ -2461,6 +2461,7 @@
     "fastest": "Fastest",
     "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
     "fetchingRoutes": "Fetching routes...",
+    "insufficientGasFunds": "You need more ETH in your <strong>{{accountName}}</strong> account to pay for the network fees. <buyLink>Buy ETH now</buyLink>",
     "new": "New swap",
     "noRouteFound": "No route found",
     "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",

@@ -70,6 +70,7 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() backend.AccountViews
+	CheckSwapQuoteGasFunds(sellAccountCode accountsTypes.Code, quote *swapkit.QuoteResponse) error
 	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
 	SwapAccounts() (backend.SwapAccounts, error)
 	SwapStatus() backend.SwapStatus
@@ -2197,6 +2198,9 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 			ErrorMessage: string(validationErrorCode),
 			Quote:        quoteResponse,
 		}
+	}
+	if err := handlers.backend.CheckSwapQuoteGasFunds(request.SellAccountCode, quoteResponse); err != nil {
+		return errorResult(errp.ErrorCode("unexpectedError"), err.Error(), nil)
 	}
 	return result{
 		Success: true,

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import {
   getBalance,
   proposeTx,
@@ -148,6 +148,12 @@ export const Swap = ({
     () => routes.find(route => route.routeId === selectedRouteId),
     [routes, selectedRouteId],
   );
+  const sellParentAccount = (
+    sellAccount?.isToken
+      ? accounts.find(account => account.code === sellAccount.parentAccountCode)
+      : undefined
+  );
+  const insufficientGasFunds = sellAccount?.isToken === true && selectedRoute?.insufficientGasFunds === true;
   const sellDisplayUnit = useMemo(
     () => sellAccount
       ? getDisplayedCoinUnit(sellAccount.coinCode, sellAccount.coinUnit, btcUnit)
@@ -638,11 +644,23 @@ export const Swap = ({
                 routes={routes}
                 selectedRouteId={selectedRouteId}
               />
+              {insufficientGasFunds && sellParentAccount && (
+                <Message type="info" className={style.gasWarning}>
+                  <Trans
+                    i18nKey="swap.insufficientGasFunds"
+                    values={{ accountName: sellParentAccount.name }}
+                    components={{
+                      strong: <strong />,
+                      buyLink: <Link className={style.buyEthLink} to={`/market/select/${sellParentAccount.code}?tab=buy`} />,
+                    }}
+                  />
+                </Message>
+              )}
             </ViewContent>
             <ViewButtons>
               <Button
                 primary
-                disabled={!selectedRoute || isConfirmInFlight || quoteErrorCode === INSUFFICIENT_FUNDS_ERROR}
+                disabled={!selectedRoute || isConfirmInFlight || quoteErrorCode === INSUFFICIENT_FUNDS_ERROR || insufficientGasFunds}
                 onClick={handleConfirm}>
                 <span className={style.swapButtonContent}>
                   {isConfirmInFlight && (

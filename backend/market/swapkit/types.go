@@ -47,6 +47,9 @@ type QuoteResponse struct {
 // QuoteRoute represents a single route for a quote returned by the SwapKit API.
 // See https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote
 type QuoteRoute struct {
+	// InsufficientGasFunds is computed by the app from the sell account's ETH balance.
+	InsufficientGasFunds bool `json:"insufficientGasFunds,omitempty"`
+
 	RouteID                      string   `json:"routeId"`
 	Providers                    []string `json:"providers"`
 	SellAsset                    string   `json:"sellAsset"`

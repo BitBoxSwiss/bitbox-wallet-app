@@ -4,6 +4,7 @@
 - Rename "Factory Reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings
+- Swap: add a link to buy ETH when the token's parent account cannot cover network fees
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1
