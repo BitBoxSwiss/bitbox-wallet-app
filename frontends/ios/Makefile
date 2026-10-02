@@ -2,7 +2,7 @@ IOS_TEST_DESTINATION ?= platform=iOS Simulator,name=iPhone 17
 
 prepare:
 	cd ../.. && ${MAKE} check-go-vendor
-	cd ../../ && ${MAKE} buildweb
+	cd ../../ && BITBOX_APP_PLATFORM=ios ${MAKE} buildweb
 	rm -rf BitBoxApp/BitBoxApp/assets/web/
 	mkdir -p BitBoxApp/BitBoxApp/assets/web/
 	cp -aR ../web/build/* BitBoxApp/BitBoxApp/assets/web/
