@@ -16,6 +16,7 @@ import (
 	"sync"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -105,6 +106,10 @@ type Lightning struct {
 
 	// Serializes lazy lightning address registration.
 	lightningAddressLock sync.Mutex
+
+	notesLock        sync.Mutex
+	notes            *notes.Notes
+	notesAccountCode types.Code
 }
 
 // NewLightning creates a new instance of the Lightning struct.

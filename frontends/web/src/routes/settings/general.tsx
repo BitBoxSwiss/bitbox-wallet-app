@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
+import { useLightning } from '@/hooks/lightning';
 import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSetting';
 import { NotesImport } from './components/appearance/notesImport';
 import { NotesExport } from './components/appearance/notesExport';
@@ -55,6 +56,7 @@ export const GeneralSettingsContent = ({
   hasAccounts,
 }: TProps) => {
   const { t } = useTranslation();
+  const { lightningAccount } = useLightning();
 
   const sections: TSettingsContentSection[] = [
     {
@@ -68,7 +70,7 @@ export const GeneralSettingsContent = ({
       ],
       title: <SubTitle>{t('settings.appearance')}</SubTitle>,
     },
-    ...(isNotesSettingsVisible(hasAccounts) ? [{
+    ...(isNotesSettingsVisible(hasAccounts, !!lightningAccount) ? [{
       id: 'notes',
       items: [
         { id: 'export-notes', content: <NotesExport /> },

@@ -165,7 +165,7 @@ const paymentToTransaction = (
     gas: 0,
     internalID: payment.id,
     nonce: null,
-    note: payment.bitcoinDeposit ? bitcoinDepositNote : payment.description || fallbackNote,
+    note: payment.note || (payment.bitcoinDeposit ? bitcoinDepositNote : payment.description || fallbackNote),
     numConfirmations: isComplete ? 1 : 0,
     numConfirmationsComplete: 1,
     size: 0,

@@ -107,6 +107,7 @@ export type TLightningPayment = {
   status: TTransactionStatus;
   time: string | null;
   description?: string;
+  note: string;
   amount: TAmountWithConversions;
   amountAtTime: TAmountWithConversions;
   deductedAmountAtTime: TAmountWithConversions;
@@ -333,6 +334,14 @@ export const getSparkStatus = async (): Promise<TSparkStatus> => {
 
 export const getListPayments = async (): Promise<TLightningPayment[]> => {
   return getApiResponse<TLightningPayment[]>('lightning/list-payments', 'Error calling getListPayments');
+};
+
+export const postPaymentNote = (paymentId: string, note: string): Promise<void> => {
+  return postApiResponse<void, { paymentId: string; note: string }>(
+    'lightning/notes/tx',
+    { paymentId, note },
+    'Error calling postPaymentNote'
+  );
 };
 
 export const getParsePaymentInput = async (params: TParsePaymentInputRequest): Promise<TPaymentInput> => {
