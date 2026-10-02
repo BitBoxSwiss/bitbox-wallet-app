@@ -16,11 +16,7 @@ import { Lightning } from './lightning';
 
 type TLightningState = {
   isLightningReady: boolean | undefined;
-  lightningAccount: {
-    code: string;
-    num: number;
-    rootFingerprint: string;
-  } | null | undefined;
+  lightningAccount: lightningApi.TLightningAccount | null | undefined;
   lightningSDKStatus: lightningApi.TLightningSDKStatus | undefined;
 };
 
@@ -97,7 +93,7 @@ describe('Lightning funding limit', () => {
     vi.restoreAllMocks();
     useLightningMock.mockReturnValue({
       isLightningReady: true,
-      lightningAccount: { code: 'v0-test-ln-0', num: 0, rootFingerprint: 'f23ab988' },
+      lightningAccount: { code: 'v0-test-ln-0', coinCode: 'lightning', num: 0, rootFingerprint: 'f23ab988' },
       lightningSDKStatus: 'ready',
     });
     vi.spyOn(devicesApi, 'getDeviceList').mockResolvedValue({});

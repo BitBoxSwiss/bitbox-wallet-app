@@ -39,7 +39,7 @@ import { isLightningFeatureAvailable } from './utils/env';
 import styles from './app.module.css';
 
 type TAppFrameProps = {
-  accounts: TAccount[];
+  accounts: TAccount[] | undefined;
   activeAccounts: TAccount[];
   devices: TDevices;
   devicesKey: (prefix: string) => string;
@@ -74,7 +74,7 @@ const AppFrame = ({
           ${showMobileBottomNavigation && styles.hasBottomNavigation || ''}
           ${vendorIframeActive && styles.hasMarketIframe || ''}
         `}>
-          <WCSigningRequest accounts={accounts} />
+          <WCSigningRequest accounts={accounts ?? []} />
           <Aopp />
           <KeystoreConnectPrompt />
           {
@@ -126,7 +126,8 @@ export const App = () => {
   useIgnoreDrop();
   useAppReady();
 
-  const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
+  const accountsResponse = useSync(getAccounts, syncAccountsList);
+  const accounts = useDefault(accountsResponse, []);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
   const lightningFeatureAvailable = isLightningFeatureAvailable();
   const lightningAccount = useSync(
@@ -164,6 +165,7 @@ export const App = () => {
     const canNavigateWithLightningAccount = (
       currentURL.startsWith('/account-summary')
       || currentURL === '/accounts/all'
+      || currentURL.startsWith('/market/')
     );
     const requiresRegularAccount = (
       currentURL.startsWith('/account-summary')
@@ -214,8 +216,8 @@ export const App = () => {
       navigate('/account-summary?with-chart-animation=true', { replace: true });
       return;
     }
-    // if on the /market/ view and there are no accounts view route to /
-    if (accounts.length === 0 && currentURL.startsWith('/market/')) {
+    // Wait for on-chain and Lightning account discovery before redirecting an empty marketplace.
+    if (accountsResponse?.length === 0 && currentURL.startsWith('/market/') && shouldRedirectNoRegularAccount) {
       navigate('/');
       return;
     }
@@ -225,7 +227,7 @@ export const App = () => {
       return;
     }
 
-  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, lightningAccount, lightningFeatureAvailable, navigate, productName]);
+  }, [accounts, accountsResponse, deviceIDs, firstDevice, hasLightningAccount, lightningAccount, lightningFeatureAvailable, navigate, productName]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});
@@ -275,7 +277,7 @@ export const App = () => {
     <ConnectedApp>
       <Providers>
         <AppFrame
-          accounts={accounts}
+          accounts={accountsResponse}
           activeAccounts={activeAccounts}
           devices={devices}
           devicesKey={devicesKey}

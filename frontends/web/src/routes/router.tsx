@@ -59,7 +59,7 @@ import { LightningTestnetGuard } from './lightning/testnet-warning';
 
 type TAppRouterProps = {
   devices: TDevices;
-  accounts: TAccount[];
+  accounts: TAccount[] | undefined;
   activeAccounts: TAccount[];
   devicesKey: ((input: string) => string);
   showBottomNavigation: boolean;
@@ -77,10 +77,11 @@ const InjectParams = ({ children }: TInjectParamsProps) => {
 export const AppRouter = ({
   devices,
   devicesKey,
-  accounts,
+  accounts: accountsResponse,
   activeAccounts,
   showBottomNavigation,
 }: TAppRouterProps) => {
+  const accounts = accountsResponse ?? [];
   const hasAccounts = accounts.length > 0;
   const lightningFeatureAvailable = isLightningFeatureAvailable();
   const { pathname } = useLocation();
@@ -245,7 +246,7 @@ export const AppRouter = ({
 
   const MarketEl = (<InjectParams>
     <Market
-      accounts={activeAccounts}
+      accounts={accountsResponse === undefined ? undefined : activeAccounts}
       code={''}
     />
   </InjectParams>);
