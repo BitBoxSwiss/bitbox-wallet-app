@@ -204,11 +204,29 @@ func (updater *RateUpdater) LatestPriceForPair(coinUnit, fiat string) (float64, 
 func (updater *RateUpdater) HistoricalPriceAt(coin, fiat string, at time.Time) float64 {
 	updater.historyMu.RLock()
 	defer updater.historyMu.RUnlock()
-	data := updater.history[coin+fiat]
+	return historicalPriceAt(updater.history[coin+fiat], at)
+}
+
+// HistoricalPricesAt returns cached historical exchange rates for the given coin,
+// keyed by currency, independently of current rates. Active currencies without
+// data at the requested time have a zero rate. Rates are interpolated as in HistoricalPriceAt.
+func (updater *RateUpdater) HistoricalPricesAt(coin string, at time.Time) map[string]float64 {
+	updater.historyMu.RLock()
+	defer updater.historyMu.RUnlock()
+	prices := make(map[string]float64)
+	for fiat := range toGeckoFiat {
+		if data, ok := updater.history[coin+fiat]; ok {
+			prices[fiat] = historicalPriceAt(data, at)
+		}
+	}
+	return prices
+}
+
+func historicalPriceAt(data []exchangeRate, at time.Time) float64 {
 	if len(data) == 0 {
 		return 0 // no data at all
 	}
-	// Find an index of the first entry older or equal the at timestamp.
+	// Find the first entry at or after the requested timestamp.
 	idx := sort.Search(len(data), func(i int) bool {
 		return !data[i].timestamp.Before(at)
 	})

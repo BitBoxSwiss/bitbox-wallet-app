@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"strconv"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -48,6 +49,52 @@ func TestPriceAt(t *testing.T) {
 			test.wantValue,
 			updater.HistoricalPriceAt("btc", "USD", test.at), "at = %s", test.at)
 	}
+}
+
+func TestHistoricalPricesAt(t *testing.T) {
+	updater := NewRateUpdater(nil, t.TempDir())
+	defer updater.Stop()
+	start := time.Date(2020, 9, 1, 0, 0, 0, 0, time.UTC)
+	updater.history = map[string][]exchangeRate{
+		"btcEUR": {{value: 10000, timestamp: start}, {value: 12000, timestamp: start.Add(24 * time.Hour)}},
+		"btcUSD": {{value: 15000, timestamp: start}},
+		"btcsat": {{value: unitSatoshi, timestamp: start}},
+		"btcCHF": nil,
+		"ltcEUR": {{value: 50, timestamp: start}},
+	}
+	require.Empty(t, updater.LatestPrice())
+	require.Equal(t, map[string]float64{"EUR": 10000, "USD": 15000, "sat": unitSatoshi, "CHF": 0},
+		updater.HistoricalPricesAt("btc", start))
+	require.Equal(t, map[string]float64{"EUR": 11000, "USD": 0, "sat": 0, "CHF": 0},
+		updater.HistoricalPricesAt("btc", start.Add(12*time.Hour)))
+	for _, at := range []time.Time{start.Add(-time.Hour), start.Add(48 * time.Hour)} {
+		require.Equal(t, map[string]float64{"EUR": 0, "USD": 0, "sat": 0, "CHF": 0},
+			updater.HistoricalPricesAt("btc", at))
+	}
+	require.Empty(t, updater.HistoricalPricesAt("eth", start))
+}
+
+func TestHistoricalPricesAtAfterCurrentRateFailure(t *testing.T) {
+	var unavailable atomic.Bool
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if unavailable.Load() {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		fmt.Fprint(w, `{"bitcoin":{"eur":60000}}`)
+	}))
+	defer server.Close()
+	updater := NewRateUpdater(server.Client(), t.TempDir())
+	defer updater.Stop()
+	updater.SetCoingeckoURL(server.URL)
+	at := time.Unix(1598832062, 0)
+	updater.history["btcEUR"] = []exchangeRate{{value: 10000, timestamp: at}}
+	updater.updateLast(t.Context())
+	require.Equal(t, float64(60000), updater.LatestPrice()["BTC"]["EUR"])
+	unavailable.Store(true)
+	updater.updateLast(t.Context())
+	require.Nil(t, updater.LatestPrice())
+	require.Equal(t, map[string]float64{"EUR": 10000}, updater.HistoricalPricesAt("btc", at))
 }
 
 func TestUpdateHistory(t *testing.T) {
