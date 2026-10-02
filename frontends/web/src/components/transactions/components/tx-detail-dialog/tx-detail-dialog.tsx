@@ -49,7 +49,12 @@ export const TxDetailsDialog = ({
 
   useEffect(() => {
     if (!transactionInfo && open) {
-      getTransaction(accountCode, internalID).then(transaction => {
+      getTransaction(accountCode, internalID).then(result => {
+        if (!result.success) {
+          console.error(result.errorMessage);
+          return;
+        }
+        const transaction = result.transaction;
         if (!transaction) {
           console.error(`Unable to retrieve transaction ${internalID}`);
         }
