@@ -17,6 +17,10 @@ const (
 	// EventAttestationCheckDone is fired when the attestation signature check is completed. In
 	// case of failure, the user should be alerted, before they enter the password.
 	EventAttestationCheckDone Event = "attestationCheckDone"
+
+	// EventPassphraseEntered is fired when entry on the device finishes, before confirmation.
+	// Requires firmware 9.28.0 or later.
+	EventPassphraseEntered Event = "passphraseEntered"
 )
 
 // SetOnEvent installs the callback which will be called with various events.

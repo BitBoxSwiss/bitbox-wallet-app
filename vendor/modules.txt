@@ -1,4 +1,4 @@
-# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260829203843-f1be72b37f59
+# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260829203843-f1be72b37f59 => ../bitbox02-api-go
 ## explicit; go 1.26
 github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader
 github.com/BitBoxSwiss/bitbox02-api-go/api/common
@@ -401,3 +401,4 @@ google.golang.org/protobuf/types/known/emptypb
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
+# github.com/BitBoxSwiss/bitbox02-api-go => ../bitbox02-api-go
