@@ -47,18 +47,19 @@ export const UTXOs = ({
   const [reusedAddressUTXOs, setReusedAddressUTXOs] = useState(0);
 
   useEffect(() => {
-    getUTXOs(accountCode).then(setUtxos);
-    return () => setUtxos([]);
-  }, [accountCode]);
-
-  useEffect(() => {
-    const currentCode = accountCode;
-    const unsubscribe = syncdone(currentCode, () => {
-      if (accountCode === currentCode) {
-        getUTXOs(accountCode).then(setUtxos);
+    let active = true;
+    setUtxos([]);
+    const load = () => getUTXOs(accountCode).then(response => {
+      if (active) {
+        setUtxos(response);
       }
     });
-    return () => unsubscribe();
+    load();
+    const unsubscribe = syncdone(accountCode, load);
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, [accountCode]);
 
   const handleUTXOChange = (

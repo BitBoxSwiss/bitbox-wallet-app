@@ -32,15 +32,15 @@ export const TransactionDetails = ({
     }
   }, [internalID, prevInternalID]);
 
-  const fetchTransaction = useCallback(() => {
-    if (!internalID) {
+  const fetchTransaction = useCallback((isActive: () => boolean) => {
+    if (!internalID || !isActive()) {
       return;
     }
-    const currentID = internalID;
     getTransaction(accountCode, internalID)
       .then(result => {
-        if (internalID !== currentID) {
-          return; // Ignore if internalID has changed since the request was made.
+        // Ignore responses after the account or transaction changes, or the component unmounts.
+        if (!isActive()) {
+          return;
         }
         if (!result.success) {
           console.error(result.errorMessage);
@@ -58,11 +58,20 @@ export const TransactionDetails = ({
   }, [accountCode, internalID]);
 
   useEffect(() => {
-    fetchTransaction();
+    let active = true;
+    fetchTransaction(() => active);
+    return () => {
+      active = false;
+    };
   }, [fetchTransaction]);
 
   useEffect(() => {
-    return syncdone(accountCode, fetchTransaction);
+    let active = true;
+    const unsubscribe = syncdone(accountCode, () => fetchTransaction(() => active));
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, [accountCode, fetchTransaction]);
 
   if (!transactionInfo) {
