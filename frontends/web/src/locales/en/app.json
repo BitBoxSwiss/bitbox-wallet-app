@@ -1685,11 +1685,13 @@
       "state": {
         "claiming": "Claiming deposit",
         "confirming": "Waiting for confirmations",
+        "refundPending": "Refund awaiting broadcast",
         "unclaimed": "Claim required"
       },
       "stateShort": {
         "claiming": "Claiming",
         "confirming": "Confirming",
+        "refundPending": "Refund pending",
         "unclaimed": "Claim required"
       }
     },
@@ -1707,7 +1709,7 @@
         "refundDestination": "Refund destination",
         "refundTitle": "Confirm top-up refund"
       },
-      "description": "You will need to create a transaction to claim the stuck amount.",
+      "description": "Claim this top-up to add the funds to your Lightning wallet.",
       "empty": "No unclaimed top-up found.",
       "failure": {
         "claimFailedMessage": "Top-up claim failed.",
@@ -1718,14 +1720,19 @@
       "feeRate": "{{feeRate}} sat/vByte",
       "refundButton": "Refund top-up",
       "refundFee": "Refund fee rate",
+      "refundPending": "The refund has not reached the Bitcoin network. It will be retried automatically. You can also retry with the current fee rate.",
       "refundUnavailable": "Refund unavailable",
       "success": {
-        "claimMessage": "Claim transaction made",
-        "claimNote": "Top-up coins will appear in your wallet once the transaction is confirmed.",
         "claimTitle": "Claim top-up",
-        "refundMessage": "Refund transaction made",
+        "deferredMessage": "Top-up claim scheduled",
+        "deferredNote": "The top-up has not been claimed yet. It will be retried automatically when eligible under the fee limit.",
+        "refundMessage": "Refund requested",
         "refundNote": "The refund will appear back in your on-chain wallet once the transaction is confirmed.",
-        "refundTitle": "Refund top-up"
+        "refundTitle": "Refund top-up",
+        "settledMessage": "Top-up claimed",
+        "settledNote": "The funds are now available in your Lightning wallet.",
+        "submittedMessage": "Top-up claim submitted",
+        "submittedNote": "The claim is processing. The funds will appear in your Lightning wallet once it completes."
       },
       "title": "Claim top-up",
       "topUp": "Unclaimed top-up",
@@ -1931,7 +1938,7 @@
       "note": "Lightning top-up",
       "success": {
         "message": "Top up created!",
-        "note": "The top-up transaction will appear after one confirmation and complete after three confirmations. This usually takes 30+ minutes."
+        "note": "The top-up transaction will appear as pending in the payment list before its first confirmation. It is claimed automatically when confirmations and fees allow. Standard claims require three confirmations; early claims may complete sooner."
       },
       "title": "Top up Lightning wallet",
       "to": "To"

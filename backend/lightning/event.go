@@ -37,7 +37,8 @@ func (lightning *Lightning) NotifyBalanceReload() {
 func (lightning *Lightning) OnEvent(e breez_sdk_spark.SdkEvent) {
 	switch event := e.(type) {
 	case breez_sdk_spark.SdkEventSynced:
-		// Wallet has been synchronized with the network
+		// Sync can update claim and refund states without a payment event.
+		lightning.notifyListPaymentsReload()
 		lightning.NotifyBalanceReload()
 		lightning.log.Info("Spark: wallet synchronized with the network")
 	case breez_sdk_spark.SdkEventUnclaimedDeposits:
@@ -46,10 +47,10 @@ func (lightning *Lightning) OnEvent(e breez_sdk_spark.SdkEvent) {
 		lightning.NotifyBalanceReload()
 		lightning.log.Info("Spark: unable to claim some deposits automatically")
 	case breez_sdk_spark.SdkEventClaimedDeposits:
-		// Deposits were successfully claimed
+		// Early claims emit this event at submission, before the credit arrives.
 		lightning.notifyListPaymentsReload()
 		lightning.NotifyBalanceReload()
-		lightning.log.Info("Spark: deposits successfully claimed")
+		lightning.log.Info("Spark: deposit claims submitted or settled")
 	case breez_sdk_spark.SdkEventNewDeposits:
 		lightning.notifyListPaymentsReload()
 		lightning.NotifyBalanceReload()

@@ -193,6 +193,11 @@ component state — no form library is used.
 - API modules: `api/account.ts`, `api/rates.ts`
 
 ## Testing Guidelines
+
+Add a short comment above each new test explaining the scenario and expected behavior. Include the
+regression or invariant it protects when that is not obvious from the test name. When extending a
+commented test, update its comment to reflect the coverage so reviewers can understand its purpose.
+
 Place Go tests in `_test.go` files and run `go test -mod=vendor ./...` (optionally via
 `scripts/coverage.sh` to emit `coverage.cov`). Frontend unit specs live beside components as
 `*.test.ts(x)`; invoke `make webtest` for the suite. Use `make webe2etest` for Playwright smoke
