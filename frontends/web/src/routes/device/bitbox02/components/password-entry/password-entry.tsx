@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { createRef, useEffect } from 'react';
-import { runningInIOS } from '@/utils/env';
-import PasswordGestureVideo from './assets/password-gestures.webm';
-import PasswordGestureVideoHEVC from './assets/password-gestures.mov';
-import UnlockGestureVideo from './assets/password-unlock-gestures.webm';
-import UnlockGestureVideoHEVC from './assets/password-unlock-gestures.mov';
+import { passwordVideos, passwordVideoType } from '@/routes/device/bitbox02/components/password-entry/videos';
 import styles from './password-entry.module.css';
 
 const isVideoPlaying = (video: HTMLVideoElement): boolean => {
@@ -26,13 +22,6 @@ type TProps = {
 };
 
 export const PasswordEntry = ({ workflow }: TProps) => {
-  // iOS WKWebView needs HEVC to preserve video transparency.
-  const useHEVC = runningInIOS();
-  const videos = (
-    workflow === 'unlock'
-      ? { webm: UnlockGestureVideo, hevc: UnlockGestureVideoHEVC }
-      : { webm: PasswordGestureVideo, hevc: PasswordGestureVideoHEVC }
-  );
   let ref = createRef<HTMLVideoElement>();
   useEffect(() => {
     if (ref.current) {
@@ -51,9 +40,7 @@ export const PasswordEntry = ({ workflow }: TProps) => {
         muted
         height="338"
         width="600">
-        <source
-          src={useHEVC ? videos.hevc : videos.webm}
-          type={useHEVC ? 'video/quicktime; codecs="hvc1"' : 'video/webm; codecs="vp9"'} />
+        <source src={passwordVideos[workflow]} type={passwordVideoType} />
       </video>
     </div>
   );

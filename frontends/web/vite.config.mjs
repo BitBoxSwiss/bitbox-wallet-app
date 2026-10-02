@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import checker from 'vite-plugin-checker';
@@ -13,6 +14,14 @@ export default defineConfig((env) => {
     // Relative base path so the js/css files are referenced with `./index-...js` instead of
     // `/index-...js`. This makes it easier to find these files in iOS.
     base: './',
+    resolve: {
+      // Select imports before bundling so each app ships only its supported video format.
+      alias: envVars.BITBOX_APP_PLATFORM === 'ios' ? {
+        '@/routes/device/bitbox02/components/password-entry/videos': fileURLToPath(
+          new URL('./src/routes/device/bitbox02/components/password-entry/videos-ios.ts', import.meta.url)
+        ),
+      } : {},
+    },
     build: {
       modulePreload: false,
       outDir: 'build',
