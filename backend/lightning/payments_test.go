@@ -958,7 +958,7 @@ func TestPrepareBolt11PaymentRequest(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			request := prepareBolt11PaymentRequest("lnbc1invoice", testCase.amountSat)
+			request := prepareBolt11PaymentRequest("lnbc1invoice", testCase.amountSat, false)
 
 			require.Equal(t, breez_sdk_spark.PaymentRequestInput{Input: "lnbc1invoice"}, request.PaymentRequest)
 			if testCase.expectedAmount == nil {
@@ -983,7 +983,7 @@ func TestPrepareLNURLPayRequest(t *testing.T) {
 		Url:         "https://example.com/.well-known/lnurlp/alice",
 	}
 
-	request := prepareLNURLPayRequest(payRequest, 123)
+	request := prepareLNURLPayRequest(payRequest, 123, false)
 
 	require.Equal(t, 0, request.Amount.Cmp(big.NewInt(123)))
 	require.Equal(t, payRequest, request.PayRequest)
@@ -2594,4 +2594,116 @@ func TestErrorResponseAmountBelowMinimum(t *testing.T) {
 	require.Equal(t, string(errLightningAmountBelowMinimum), response.ErrorCode)
 	require.Equal(t, map[string]interface{}{"minAmountSat": uint64(294)}, response.ErrorData)
 	require.Empty(t, response.ErrorMessage)
+}
+
+func TestSendAllPayment(t *testing.T) {
+	t.Parallel()
+	for _, paymentType := range []string{paymentInputTypeBitcoinAddress, paymentInputTypeBolt11, paymentInputTypeLNURLPay} {
+		t.Run(paymentType, func(t *testing.T) {
+			t.Parallel()
+			const balanceSat = uint64(1_000)
+			feeSat := uint64(100)
+			sent := 0
+			details := testLNURLPayDetails()
+			sdk := &testPaymentSDK{balanceSats: balanceSat}
+			sdk.parseInput = func(string) (breez_sdk_spark.InputType, error) {
+				return breez_sdk_spark.InputTypeLnurlPay{Field0: details}, nil
+			}
+			sdk.prepareSend = func(request breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+				require.Equal(t, breez_sdk_spark.FeePolicyFeesIncluded, *request.FeePolicy)
+				require.Equal(t, balanceSat, (*request.Amount).Uint64())
+				response := testStandardBitcoinPrepareResponse(balanceSat, feeSat)
+				response.FeePolicy = *request.FeePolicy
+				if paymentType == paymentInputTypeBolt11 {
+					response.PaymentMethod = breez_sdk_spark.SendPaymentMethodBolt11Invoice{LightningFeeSats: feeSat}
+				}
+				return response, nil
+			}
+			sdk.prepareLNURLPay = func(request breez_sdk_spark.PrepareLnurlPayRequest) (breez_sdk_spark.PrepareLnurlPayResponse, error) {
+				require.Equal(t, breez_sdk_spark.FeePolicyFeesIncluded, *request.FeePolicy)
+				require.Equal(t, balanceSat, request.Amount.Uint64())
+				return breez_sdk_spark.PrepareLnurlPayResponse{
+					AmountSats: balanceSat, FeeSats: feeSat, FeePolicy: *request.FeePolicy,
+				}, nil
+			}
+			sdk.send = func(request breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+				require.Equal(t, balanceSat, request.PrepareResponse.Amount.Uint64())
+				require.Equal(t, breez_sdk_spark.FeePolicyFeesIncluded, request.PrepareResponse.FeePolicy)
+				sent++
+				return breez_sdk_spark.SendPaymentResponse{}, nil
+			}
+			sdk.lnurlPay = func(request breez_sdk_spark.LnurlPayRequest) (breez_sdk_spark.LnurlPayResponse, error) {
+				require.Equal(t, balanceSat, request.PrepareResponse.AmountSats)
+				require.Equal(t, breez_sdk_spark.FeePolicyFeesIncluded, request.PrepareResponse.FeePolicy)
+				require.NotEmpty(t, *request.IdempotencyKey)
+				sent++
+				return breez_sdk_spark.LnurlPayResponse{}, nil
+			}
+			lightning := newActivePaymentTestLightning(t, sdk)
+			prepareRequest := preparePaymentRequest{Type: paymentType, PaymentInput: testP2WPKHAddress, SendAll: true}
+			quote, err := lightning.PreparePayment(prepareRequest)
+			require.NoError(t, err)
+			require.Equal(t, balanceSat-feeSat, quote.AmountSat)
+			require.Equal(t, balanceSat, quote.TotalDebitSat)
+			require.Equal(t, feeSat, quote.FeeSat)
+			require.Zero(t, sent)
+
+			// A larger balance must not increase the reviewed debit. Higher fees need fresh approval.
+			sdk.balanceSats = 2_000
+			request := sendPaymentRequest{
+				Type: paymentType, PaymentInput: testP2WPKHAddress, SendAll: true,
+				AmountSat: &quote.TotalDebitSat, ApprovedFeeSat: quote.FeeSat, IdempotencyKey: quote.IdempotencyKey,
+			}
+			feeSat++
+			require.ErrorIs(t, lightning.SendPayment(request), errPaymentApprovalRequired)
+			require.Zero(t, sent)
+
+			prepareRequest.AmountSat = &quote.TotalDebitSat
+			prepareRequest.IdempotencyKey = quote.IdempotencyKey
+			updatedQuote, err := lightning.PreparePayment(prepareRequest)
+			require.NoError(t, err)
+			require.Equal(t, quote.IdempotencyKey, updatedQuote.IdempotencyKey)
+			require.Equal(t, balanceSat, updatedQuote.TotalDebitSat)
+			require.Equal(t, balanceSat-feeSat, updatedQuote.AmountSat)
+			request.ApprovedFeeSat = updatedQuote.FeeSat
+			require.NoError(t, lightning.SendPayment(request))
+			require.Equal(t, 1, sent)
+		})
+	}
+}
+
+func TestSendAllPaymentRejectsInvalidAmounts(t *testing.T) {
+	t.Parallel()
+	t.Run("empty balance", func(t *testing.T) {
+		t.Parallel()
+		lightning := newActivePaymentTestLightning(t, &testPaymentSDK{})
+		quote, err := lightning.PreparePayment(preparePaymentRequest{Type: paymentInputTypeBolt11, SendAll: true})
+		require.ErrorIs(t, err, errLightningInvalidAmount)
+		require.Nil(t, quote)
+		require.ErrorIs(t, lightning.SendPayment(sendPaymentRequest{Type: paymentInputTypeBolt11, SendAll: true}), errLightningInvalidAmount)
+	})
+	t.Run("bitcoin dust after fees", func(t *testing.T) {
+		t.Parallel()
+		sdk := &testPaymentSDK{balanceSats: 10_000}
+		sdk.prepareSend = func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+			return testBitcoinPrepareResponse(9_999), nil
+		}
+		lightning := newActivePaymentTestLightning(t, sdk)
+		quote, err := lightning.PreparePayment(preparePaymentRequest{
+			Type: paymentInputTypeBitcoinAddress, PaymentInput: testP2WPKHAddress, SendAll: true,
+		})
+		var belowMinimum *lightningAmountBelowMinimumError
+		require.ErrorAs(t, err, &belowMinimum)
+		require.Nil(t, quote)
+	})
+	t.Run("lnurl maximum", func(t *testing.T) {
+		t.Parallel()
+		sdk := &testPaymentSDK{balanceSats: 1_001, parseInput: func(string) (breez_sdk_spark.InputType, error) {
+			return breez_sdk_spark.InputTypeLnurlPay{Field0: testLNURLPayDetails()}, nil
+		}}
+		lightning := newActivePaymentTestLightning(t, sdk)
+		quote, err := lightning.PreparePayment(preparePaymentRequest{Type: paymentInputTypeLNURLPay, SendAll: true})
+		require.Error(t, err)
+		require.Nil(t, quote)
+	})
 }

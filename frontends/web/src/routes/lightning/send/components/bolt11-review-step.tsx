@@ -41,6 +41,8 @@ export const Bolt11ReviewStep = ({
     preparedPayment,
     sendError,
     sendPayment,
+    sendAll,
+    setSendAll,
     setCustomAmount,
   } = usePaymentReview({
     paymentDetails,
@@ -65,6 +67,9 @@ export const Bolt11ReviewStep = ({
               <>
                 <CustomPaymentAmount
                   key={invoice.invoice}
+                  sendAll={sendAll}
+                  sendAllAmountSat={fees?.amountSat}
+                  onSendAllChange={setSendAll}
                   onAmountChange={setCustomAmount}
                 />
                 <PaymentNoteDetails description={invoice.description} />
