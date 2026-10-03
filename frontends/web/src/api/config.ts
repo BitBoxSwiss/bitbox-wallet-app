@@ -86,6 +86,8 @@ export type TConfigFrontend = Readonly<{
   [key in TConfigFrontendDismissibleDynamicKey]?: boolean;
 }>;
 
+export type TBreezSDKLogLevel = 'error' | 'warn' | 'debug' | 'trace';
+
 export type TConfigBackend = Readonly<{
   proxy: TConfigBackendProxy;
   /**
@@ -109,6 +111,7 @@ export type TConfigBackend = Readonly<{
   mainFiat: Fiat;
   userLanguage: string;
   btcUnit: BtcUnit;
+  breezSDKLogLevel: TBreezSDKLogLevel;
   startInTestnet: boolean;
   gapLimitReceive: number;
   gapLimitChange: number;
