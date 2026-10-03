@@ -72,8 +72,27 @@ VIAddVersionKey CompanyWebsite "${URL}"
 VIAddVersionKey FileVersion "${VERSION}"
 VIAddVersionKey FileDescription ""
 VIAddVersionKey LegalCopyright ""
-InstallDirRegKey HKCU "${REGKEY}" Path
+InstallDirRegKey HKLM "${REGKEY}" Path
 ShowUninstDetails show
+
+# Installer functions
+Function .onInit
+    # Before the install path was protected in HKLM, it was stored in HKCU. Preserve automatic
+    # upgrades from custom locations only when the legacy path resolves below Program Files and
+    # contains an existing BitBoxApp installation. Other custom locations must be selected again.
+    ReadRegStr $0 HKLM "${REGKEY}" Path
+    StrCmp $0 "" 0 done
+    ReadRegStr $0 HKCU "${REGKEY}" Path
+    StrCmp $0 "" done
+    GetFullPathName $0 "$0"
+    StrLen $1 "$PROGRAMFILES64\"
+    StrCpy $2 "$0" $1
+    StrCmp $2 "$PROGRAMFILES64\" 0 done
+    IfFileExists "$0\${APP_EXE}" 0 done
+    IfFileExists "$0\uninstall.exe" 0 done
+    StrCpy $INSTDIR "$0"
+done:
+FunctionEnd
 
 # Installer sections
 Section -Main SEC0000
@@ -99,9 +118,10 @@ Section -Main SEC0000
 SectionEnd
 
 Section -post SEC0001
-    WriteRegStr HKCU "${REGKEY}" Path $INSTDIR
     SetOutPath $INSTDIR
     WriteUninstaller $INSTDIR\uninstall.exe
+    WriteRegStr HKLM "${REGKEY}" Path $INSTDIR
+    DeleteRegValue HKCU "${REGKEY}" Path
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     CreateDirectory $SMPROGRAMS\$StartMenuGroup
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\$(^Name).lnk" "$INSTDIR\${APP_EXE}"
@@ -161,6 +181,9 @@ Section -un.post UNSEC0001
     Delete /REBOOTOK $INSTDIR\uninstall.exe
     Delete /REBOOTOK $INSTDIR\debug.log
     Delete /REBOOTOK $INSTDIR\db.log
+    # Remove the administrator-protected trusted install-path state after uninstall.
+    DeleteRegValue HKLM "${REGKEY}" Path
+    DeleteRegKey /IfEmpty HKLM "${REGKEY}"
     DeleteRegValue HKCU "${REGKEY}" StartMenuGroup
     DeleteRegValue HKCU "${REGKEY}" Path
     DeleteRegKey /IfEmpty HKCU "${REGKEY}\Components"
@@ -185,7 +208,20 @@ SectionEnd
 
 # Uninstaller functions
 Function un.onInit
-    ReadRegStr $INSTDIR HKCU "${REGKEY}" Path
+    # Always overwrite $INSTDIR so command-line /D and _?= overrides cannot control the recursive
+    # deletion target. Abort if the protected path does not identify an installed BitBoxApp.
+    ClearErrors
+    ReadRegStr $0 HKLM "${REGKEY}" Path
+    IfErrors invalidPath
+    StrCmp $0 "" invalidPath
+    GetFullPathName $0 "$0"
+    IfFileExists "$0\${APP_EXE}" 0 invalidPath
+    IfFileExists "$0\uninstall.exe" 0 invalidPath
+    StrCpy $INSTDIR "$0"
     !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuGroup
     !insertmacro SELECT_UNSECTION Main ${UNSEC0000}
+    Return
+invalidPath:
+    MessageBox MB_OK|MB_ICONSTOP "The BitBoxApp installation directory could not be verified. Please reinstall BitBoxApp before uninstalling." /SD IDOK
+    Abort
 FunctionEnd
