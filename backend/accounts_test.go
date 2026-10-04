@@ -357,13 +357,7 @@ func TestObserveKeystoreNameChanged(t *testing.T) {
 		return nil
 	}))
 
-	unlockFN := backend.accountsAndKeystoreLock.Lock()
-	for i := range accountConfigs {
-		c, err := backend.Coin(accountConfigs[i].CoinCode)
-		require.NoError(t, err)
-		backend.createAndAddAccount(c, accountConfigs[i], accountLoadOptions{})
-	}
-	unlockFN()
+	reconcileTestAccounts(t, backend)
 
 	require.Equal(t, accountsTypes.Code("acct-alpha"), backend.Accounts()[0].Record.Code)
 	require.Equal(t, accountsTypes.Code("acct-beta"), backend.Accounts()[1].Record.Code)
@@ -705,13 +699,12 @@ func TestCreateAndAddAccount(t *testing.T) {
 
 	addAccount := func(accountCoin coinpkg.Coin, record *config.Account) {
 		t.Helper()
-		unlock := b.accountsAndKeystoreLock.Lock()
-		defer unlock()
+		record.CoinCode = accountCoin.Code()
 		require.NoError(t, b.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 			accountsConfig.Accounts = append(accountsConfig.Accounts, record)
 			return nil
 		}))
-		b.createAndAddAccount(accountCoin, record, accountLoadOptions{})
+		reconcileTestAccounts(t, b)
 	}
 
 	// Add a Bitcoin account.
@@ -861,7 +854,7 @@ func TestETHInitialSyncMode(t *testing.T) {
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
 			accountsConfig := accountsSnapshot(t, b)
-			b.reconcileAccountsLocked(accountsConfig)
+			b.accounts.Reconcile(accountsConfig, b.keystore)
 		}()
 
 		require.Equal(t, expected, captured)
@@ -875,7 +868,7 @@ func TestETHInitialSyncMode(t *testing.T) {
 
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.accounts.removeAll()
+			b.accounts.Unload()
 			require.NoError(t, b.reconcileAccountsAndRefreshLocked())
 		}()
 
@@ -1174,10 +1167,10 @@ func TestTaprootUpgrade(t *testing.T) {
 
 	// "Unplug", then insert an updated keystore with taproot support.
 	require.NoError(t, b.SetWatchonly(fingerprint, true))
-	loadedBTCAccount := b.accounts.lookup("v0-55555555-btc-0")
-	loadedLTCAccount := b.accounts.lookup("v0-55555555-ltc-0")
+	loadedBTCAccount := b.Accounts().lookup("v0-55555555-btc-0").Account
+	loadedLTCAccount := b.Accounts().lookup("v0-55555555-ltc-0").Account
 	b.DeregisterKeystore()
-	require.Same(t, loadedBTCAccount, b.accounts.lookup("v0-55555555-btc-0"))
+	require.Same(t, loadedBTCAccount, b.Accounts().lookup("v0-55555555-btc-0").Account)
 	b.registerKeystore(bitbox02Taproot)
 	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount = b.Accounts().lookup("v0-55555555-btc-0")

@@ -9,10 +9,16 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinMock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin/mocks"
 	configpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
 
@@ -158,18 +164,18 @@ func TestChartDataUsesAvailableBalanceForVisibleTotal(t *testing.T) {
 		},
 	})
 
+	record := planningAccount("chart-test-btc", coin.CodeBTC, rootFingerprint1, 0)
+	record.HiddenBecauseUnused = true
 	accountConfig := &accounts.AccountConfig{
-		Code: "chart-test-btc",
+		Code:                  record.Code,
+		SigningConfigurations: record.SigningConfigurations,
 	}
 	require.NoError(t, backend.accountsDB.Update(func(cfg *configpkg.AccountsConfig) error {
-		cfg.Accounts = append(cfg.Accounts, &configpkg.Account{
-			Code:                accountConfig.Code,
-			CoinCode:            coin.CodeBTC,
-			HiddenBecauseUnused: true,
-		})
+		cfg.Accounts = append(cfg.Accounts, record)
 		return nil
 	}))
 	account := &accountsMocks.InterfaceMock{
+		ObserveFunc: func(func(observable.Event)) func() { return func() {} },
 		BalanceFunc: func() (*accounts.Balance, error) {
 			return accounts.NewBalance(coin.NewAmountFromInt64(75000000), coin.NewAmountFromInt64(0)), nil
 		},
@@ -190,7 +196,12 @@ func TestChartDataUsesAvailableBalanceForVisibleTotal(t *testing.T) {
 			return txs, nil
 		},
 	}
-	backend.accounts = accountRegistry{accounts: AccountsList{account}}
+	backend.makeBtcAccount = func(*accounts.AccountConfig, *btc.Coin, *types.GapLimits,
+		func(coin.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), *logrus.Entry,
+	) accounts.Interface {
+		return account
+	}
+	reconcileTestAccounts(t, backend)
 
 	chart, err := backend.ChartData(false)
 
