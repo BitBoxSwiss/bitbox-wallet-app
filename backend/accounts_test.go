@@ -816,7 +816,7 @@ func TestETHInitialSyncMode(t *testing.T) {
 		return rootFingerprint1, nil
 	}
 
-	_, account, err := b.buildAccountConfig(
+	_, account, err := b.accountBuilder.Build(
 		coinpkg.CodeETH,
 		0,
 		false,
@@ -876,7 +876,7 @@ func TestETHInitialSyncMode(t *testing.T) {
 		require.Equal(t, 1, enqueueAllAccountsRefreshes)
 	})
 
-	_, otherAccount, err := b.buildAccountConfig(
+	_, otherAccount, err := b.accountBuilder.Build(
 		coinpkg.CodeETH,
 		1,
 		false,

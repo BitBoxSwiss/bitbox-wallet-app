@@ -31,9 +31,9 @@ func planningAccount(
 				signing.ScriptTypeP2WPKH,
 				rootFingerprint,
 				signing.NewAbsoluteKeypathFromUint32(
-					84+hardenedKeystart,
-					hardenedKeystart,
-					accountNumber+hardenedKeystart,
+					84+hdkeychain.HardenedKeyStart,
+					hdkeychain.HardenedKeyStart,
+					accountNumber+hdkeychain.HardenedKeyStart,
 				),
 				test.TstMustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn"),
 			),
