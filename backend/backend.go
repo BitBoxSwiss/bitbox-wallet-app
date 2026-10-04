@@ -18,6 +18,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accountmanager"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
@@ -257,7 +258,7 @@ type Backend struct {
 	// accounts database synchronizes storage itself; hold this lock across a database write only
 	// when the write must be reconciled with runtime membership.
 	accountsAndKeystoreLock locker.Locker
-	accounts                accountRegistry
+	accounts                *accountmanager.Manager
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
 	// Called to remove the current keystore observer, if any.
@@ -362,17 +363,23 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		testing:              backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
 		etherScanRateLimiter: etherScanRateLimiter,
 	}
-	backend.accounts = newAccountRegistry(accountRegistryLifecycle{
-		onInitialized: func(account accounts.Interface) {
+	backend.accounts = accountmanager.New(accountmanager.Options{
+		CoinEnabled: func(code coinpkg.Code) bool {
+			return backend.coinPolicy().coinEnabled(code)
+		},
+		Coin:        backend.Coin,
+		MakeAccount: backend.makeAccount,
+		OnInitialized: func(account accounts.Interface) {
 			if backend.onAccountInit != nil {
 				backend.onAccountInit(account)
 			}
 		},
-		onUninitialized: func(account accounts.Interface) {
+		OnUninitialized: func(account accounts.Interface) {
 			if backend.onAccountUninit != nil {
 				backend.onAccountUninit(account)
 			}
 		},
+		Log: backend.log,
 	})
 	backend.accounts.Observe(backend.handleAccountRegistryEvent)
 	// TODO: remove when connectivity check is present on all platforms
@@ -483,7 +490,7 @@ func (backend *Backend) closeCoins() error {
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) configureHistoryExchangeRates() {
 	var coins []string
-	for _, acct := range backend.accounts.all() {
+	for _, acct := range backend.accounts.Accounts() {
 		coins = append(coins, string(acct.Coin().Code()))
 	}
 	if backend.hasLightningAccount() {
@@ -494,19 +501,19 @@ func (backend *Backend) configureHistoryExchangeRates() {
 }
 
 func (backend *Backend) handleAccountRegistryEvent(event observable.Event) {
-	registryEvent, ok := event.Object.(accountRegistryEvent)
+	registryEvent, ok := event.Object.(accountmanager.Event)
 	if !ok {
 		backend.log.WithField("subject", event.Subject).Error("account registry event missing account")
 		return
 	}
 	backend.Notify(observable.Event{
-		Subject: fmt.Sprintf("account/%s/%s", registryEvent.account.Config().Code, event.Subject),
+		Subject: fmt.Sprintf("account/%s/%s", registryEvent.Account.Config().Code, event.Subject),
 		Action:  event.Action,
-		Object:  registryEvent.object,
+		Object:  registryEvent.Object,
 	})
 	if event.Subject == string(accountsTypes.EventSyncDone) {
-		backend.notifyNewTxs(registryEvent.account)
-		go backend.checkAccountUsed(registryEvent.account)
+		backend.notifyNewTxs(registryEvent.Account)
+		go backend.checkAccountUsed(registryEvent.Account)
 	}
 }
 
@@ -845,7 +852,7 @@ func (backend *Backend) accountViewsLocked() AccountViews {
 		backend.log.WithError(err).Error("could not load account snapshot")
 		return AccountViews{}
 	}
-	return joinAccountViews(backend.accounts.all(), accountsConfig)
+	return joinAccountViews(backend.accounts.Accounts(), accountsConfig)
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
@@ -891,7 +898,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	if err != nil {
 		backend.log.WithError(err).Error("could not load account records")
 	} else {
-		backend.reconcileAccountsLocked(accountsConfig)
+		backend.accounts.Reconcile(accountsConfig, backend.keystore)
 	}
 	backend.emitAccountsStatusChanged()
 
@@ -1306,7 +1313,7 @@ func (backend *Backend) ClearCache() error {
 		backend.ratesUpdater.Stop()
 	}
 
-	backend.accounts.removeAll()
+	backend.accounts.Unload()
 	if err := backend.closeCoins(); err != nil {
 		backend.log.WithError(err).Error("could not close coins before clearing cache")
 		errors = append(errors, err.Error())
@@ -1336,7 +1343,7 @@ func (backend *Backend) ClearCache() error {
 		backend.log.WithError(err).Error("could not load account records after clearing cache")
 		errors = append(errors, err.Error())
 	} else {
-		backend.reconcileAccountsLocked(accountsConfig)
+		backend.accounts.Reconcile(accountsConfig, backend.keystore)
 		backend.enqueueETHInitialSyncLocked()
 		backend.emitAccountsStatusChanged()
 	}
@@ -1383,7 +1390,7 @@ func (backend *Backend) Close() error {
 		errors = append(errors, outgoingErr.Error())
 	}
 
-	backend.accounts.removeAll()
+	backend.accounts.Unload()
 	if backend.unobserveKeystore != nil {
 		backend.unobserveKeystore()
 		backend.unobserveKeystore = nil

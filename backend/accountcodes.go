@@ -26,5 +26,5 @@ func regularAccountCode(rootFingerprint []byte, coinCode coin.Code, accountNumbe
 // Erc20AccountCode returns the account code used for an ERC20 token.
 // It is derived from the account code of the parent ETH account and the token code.
 func Erc20AccountCode(ethereumAccountCode accountsTypes.Code, tokenCode string) accountsTypes.Code {
-	return accountsTypes.Code(fmt.Sprintf("%s-%s", ethereumAccountCode, tokenCode))
+	return accountsTypes.Erc20AccountCode(ethereumAccountCode, tokenCode)
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package backend
+package accountmanager
 
 import (
 	"errors"
@@ -76,8 +76,8 @@ func TestAccountRegistryLifecycle(t *testing.T) {
 		Object:  "updated",
 	})
 	require.Len(t, events, 1)
-	require.Same(t, account, events[0].Object.(accountRegistryEvent).account)
-	require.Equal(t, "updated", events[0].Object.(accountRegistryEvent).object)
+	require.Same(t, account, events[0].Object.(Event).Account)
+	require.Equal(t, "updated", events[0].Object.(Event).Object)
 
 	require.True(t, registry.remove("account-code"))
 	require.True(t, closed)
