@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package backend
+package accountbuilder
 
 import (
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
 )
+
+// hardenedKeystart is the BIP44 offset to make a keypath element hardened.
+const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 
 type accountDerivationKind int
 
