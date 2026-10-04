@@ -4,11 +4,11 @@ package backend
 
 import (
 	"encoding/hex"
-	"fmt"
 	"math/big"
 	"slices"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accountbuilder"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accountmanager"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -24,7 +24,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
-	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
 )
 
 const (
@@ -33,9 +32,6 @@ const (
 	// ErrAccountLimitReached is returned when adding an account if no more accounts can be added.
 	errAccountLimitReached errp.ErrorCode = "accountLimitReached"
 )
-
-// hardenedKeystart is the BIP44 offset to make a keypath element hardened.
-const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 
 const (
 	// see `accountsHardLimit()`.
@@ -456,94 +452,12 @@ func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([
 	return bitsuranceAccounts, nil
 }
 
-// defaultAccountName returns a default name for a new account. The first account is the coin name,
-// the following accounts is the coin name followed by the account number. Note: `accountNumber` is
-// 0-indexed, so `accountNumber 1` results in e.g. "Bitcoin 2".
-func defaultAccountName(coin coinpkg.Coin, accountNumber uint16) string {
-	if accountNumber > 0 {
-		return fmt.Sprintf("%s %d", coin.Name(), accountNumber+1)
-	}
-	return coin.Name()
-}
-
 func configuredAccountName(coin coinpkg.Coin, accountConfig *config.Account) (string, error) {
 	accountNumber, err := accountConfig.SigningConfigurations.AccountNumber()
 	if err != nil {
 		return coin.Name(), err
 	}
-	return defaultAccountName(coin, accountNumber), nil
-}
-
-// buildAccountConfig prepares an account for the given coin and account number. The account numbers
-// start at 0 (first account). The account will be a unified account supporting all types that the
-// keystore supports. The keypaths will be standard BIP44 keypaths for the respective account types.
-// `name` is the name of the new account and will be shown to the user. If empty, a default name will
-// be used.
-//
-// Hardware access happens here, before the returned account is passed to accountsDB.Update.
-// The account is nil when the keystore does not support its construction.
-func (backend *Backend) buildAccountConfig(
-	coinCode coinpkg.Code,
-	accountNumber uint16,
-	hiddenBecauseUnused bool,
-	name string,
-	keystore keystore.Keystore,
-	activeTokens []string,
-) (accountsTypes.Code, *config.Account, error) {
-	rootFingerprint, err := keystore.RootFingerprint()
-	if err != nil {
-		return "", nil, err
-	}
-	accountCoin, err := backend.Coin(coinCode)
-	if err != nil {
-		return "", nil, err
-	}
-	if name == "" {
-		name = defaultAccountName(accountCoin, accountNumber)
-	}
-
-	// v0 prefix: in case this code turns out to be not unique in the future, we can switch to 'v1-'
-	// and avoid any collisions.
-	accountCode := regularAccountCode(rootFingerprint, coinCode, accountNumber)
-
-	log := backend.log.
-		WithField("accountCode", accountCode).
-		WithField("coinCode", coinCode).
-		WithField("accountNumber", accountNumber)
-	log.Info("Preparing new account config")
-
-	derivationSpec, err := newAccountDerivationSpec(coinCode, accountNumber)
-	if err != nil {
-		return "", nil, err
-	}
-
-	switch derivationSpec.kind {
-	case accountDerivationKindBTC:
-		accountConfig, err := backend.buildBTCAccountConfig(
-			keystore,
-			rootFingerprint,
-			accountCoin,
-			accountCode,
-			hiddenBecauseUnused,
-			name,
-			derivationSpec.btcConfigs,
-		)
-		return accountCode, accountConfig, err
-	case accountDerivationKindETH:
-		accountConfig, err := backend.buildETHAccountConfig(
-			keystore,
-			rootFingerprint,
-			accountCoin,
-			accountCode,
-			hiddenBecauseUnused,
-			derivationSpec.ethKeypath,
-			name,
-			activeTokens,
-		)
-		return accountCode, accountConfig, err
-	default:
-		panic("unhandled account derivation kind")
-	}
+	return accountbuilder.DefaultName(coin, accountNumber), nil
 }
 
 // CanAddAccount returns true if it is possible to add an account for the given coin and keystore,
@@ -573,7 +487,7 @@ func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.K
 	if err != nil {
 		return "", false
 	}
-	return defaultAccountName(coin, accountNumber), true
+	return accountbuilder.DefaultName(coin, accountNumber), true
 }
 
 // CreateAndPersistAccountConfig checks if an account for the given coin can be added, and if so,
@@ -622,7 +536,7 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 	}
 	if err == errPrepareAccount {
 		var account *config.Account
-		accountCode, account, err = backend.buildAccountConfig(
+		accountCode, account, err = backend.accountBuilder.Build(
 			coinCode,
 			nextNumber,
 			false,
@@ -1046,102 +960,6 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 	return nil
 }
 
-// buildBTCAccountConfig builds a combined BTC account with the given script types.
-func (backend *Backend) buildBTCAccountConfig(
-	keystore keystore.Keystore,
-	rootFingerprint []byte,
-	coin coinpkg.Coin,
-	code accountsTypes.Code,
-	hiddenBecauseUnused bool,
-	name string,
-	configs []scriptTypeWithKeypath,
-) (*config.Account, error) {
-	log := backend.log.WithField("code", code)
-	var supportedConfigs []scriptTypeWithKeypath
-	for _, cfg := range configs {
-		if keystore.SupportsAccount(coin, cfg.scriptType) {
-			supportedConfigs = append(supportedConfigs, cfg)
-		}
-	}
-	if len(supportedConfigs) == 0 {
-		log.Info("skipping unsupported account")
-		return nil, nil
-	}
-	log.Info("preparing account")
-
-	keypaths := make([]signing.AbsoluteKeypath, len(supportedConfigs))
-	for i, cfg := range supportedConfigs {
-		keypaths[i] = cfg.keypath
-	}
-	xpubs, err := keystore.BTCXPubs(coin, keypaths)
-	if err != nil {
-		log.WithError(err).Error("Could not derive xpubs at keypaths")
-		return nil, err
-	}
-
-	var signingConfigurations signing.Configurations
-	for i, cfg := range supportedConfigs {
-		signingConfiguration := signing.NewBitcoinConfiguration(
-			cfg.scriptType,
-			rootFingerprint,
-			cfg.keypath,
-			xpubs[i],
-		)
-		signingConfigurations = append(signingConfigurations, signingConfiguration)
-	}
-
-	return &config.Account{
-		HiddenBecauseUnused:   hiddenBecauseUnused,
-		CoinCode:              coin.Code(),
-		Name:                  name,
-		Code:                  code,
-		SigningConfigurations: signingConfigurations,
-	}, nil
-}
-
-func (backend *Backend) buildETHAccountConfig(
-	keystore keystore.Keystore,
-	rootFingerprint []byte,
-	coin coinpkg.Coin,
-	code accountsTypes.Code,
-	hiddenBecauseUnused bool,
-	keypath signing.AbsoluteKeypath,
-	name string,
-	activeTokens []string,
-) (*config.Account, error) {
-	log := backend.log.
-		WithField("code", code).
-		WithField("name", name).
-		WithField("keypath", keypath.Encode())
-
-	if !keystore.SupportsAccount(coin, nil) {
-		log.Info("skipping unsupported account")
-		return nil, nil
-	}
-
-	log.Info("preparing account")
-	extendedPublicKey, err := keystore.ExtendedPublicKey(coin, keypath)
-	if err != nil {
-		return nil, err
-	}
-	signingConfigurations := signing.Configurations{
-		signing.NewEthereumConfiguration(
-			rootFingerprint,
-			keypath,
-			extendedPublicKey,
-		),
-	}
-
-	return &config.Account{
-		HiddenBecauseUnused:   hiddenBecauseUnused,
-		CoinCode:              coin.Code(),
-		Name:                  name,
-		Code:                  code,
-		SigningConfigurations: signingConfigurations,
-		ActiveTokens:          activeTokens,
-	}, nil
-}
-
 // buildDefaultAccountConfigs prepares the default accounts for the connected keystore (not manually
 // user-added). Currently the first bip44 account of BTC/LTC/ETH. ERC20 tokens are added if they were
 // configured to be active by the user in the past, when they could still configure them globally
@@ -1172,7 +990,7 @@ func (backend *Backend) buildDefaultAccountConfigs(
 			}
 		}
 
-		_, account, err := backend.buildAccountConfig(
+		_, account, err := backend.accountBuilder.Build(
 			coinCode,
 			0,
 			false,
@@ -1188,60 +1006,6 @@ func (backend *Backend) buildDefaultAccountConfigs(
 		}
 	}
 	return accountConfigs, nil
-}
-
-// maybeAddP2TR adds a taproot subaccount to all Bitcoin accounts if the keystore supports it. The
-// accounts must come from a detached snapshot so hardware access finishes before the accounts
-// database Update callback.
-// It returns the codes of the accounts it changed.
-func (backend *Backend) maybeAddP2TR(
-	keystore keystore.Keystore,
-	accounts []*config.Account,
-) ([]accountsTypes.Code, error) {
-	var changedAccountCodes []accountsTypes.Code
-	for _, account := range accounts {
-		if account.CoinCode == coinpkg.CodeBTC ||
-			account.CoinCode == coinpkg.CodeTBTC ||
-			account.CoinCode == coinpkg.CodeRBTC {
-			accountCoin, err := backend.Coin(account.CoinCode)
-			if err != nil {
-				return nil, err
-			}
-			if keystore.SupportsAccount(accountCoin, signing.ScriptTypeP2TR) &&
-				account.SigningConfigurations.FindScriptType(signing.ScriptTypeP2TR) == -1 {
-				rootFingerprint, err := keystore.RootFingerprint()
-				if err != nil {
-					return nil, err
-				}
-				bip44Coin, ok := coinpkg.BIP44CoinType(account.CoinCode)
-				if !ok {
-					return nil, errp.Newf("Unrecognized coin code: %s", account.CoinCode)
-				}
-				accountNumber, err := account.SigningConfigurations[0].AccountNumber()
-				if err != nil {
-					return nil, err
-				}
-				keypath := signing.NewAbsoluteKeypathFromUint32(
-					86+hardenedKeystart,
-					bip44Coin+hardenedKeystart,
-					uint32(accountNumber)+hardenedKeystart)
-				extendedPublicKey, err := keystore.ExtendedPublicKey(accountCoin, keypath)
-				if err != nil {
-					return nil, err
-				}
-				account.SigningConfigurations = append(
-					account.SigningConfigurations,
-					signing.NewBitcoinConfiguration(
-						signing.ScriptTypeP2TR,
-						rootFingerprint,
-						keypath,
-						extendedPublicKey,
-					))
-				changedAccountCodes = append(changedAccountCodes, account.Code)
-			}
-		}
-	}
-	return changedAccountCodes, nil
 }
 
 // enqueueETHInitialSyncLocked asks the ETH updater to refresh all loaded ETH accounts if any exist.
@@ -1318,7 +1082,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 		if !ok {
 			continue
 		}
-		accountCode, account, err := backend.buildAccountConfig(
+		accountCode, account, err := backend.accountBuilder.Build(
 			coinCode,
 			nextAccountNumber,
 			true,

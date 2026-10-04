@@ -814,7 +814,7 @@ func TestETHInitialSyncMode(t *testing.T) {
 		return rootFingerprint1, nil
 	}
 
-	_, account, err := b.buildAccountConfig(
+	_, account, err := b.accountBuilder.Build(
 		coinpkg.CodeETH,
 		0,
 		false,

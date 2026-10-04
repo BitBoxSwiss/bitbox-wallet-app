@@ -18,6 +18,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accountbuilder"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accountmanager"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -255,6 +256,7 @@ type Backend struct {
 	// when the write must be reconciled with runtime membership.
 	accountsAndKeystoreLock locker.Locker
 	accounts                *accountmanager.Manager
+	accountBuilder          *accountbuilder.Builder
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
 	// Called to remove the current keystore observer, if any.
@@ -357,6 +359,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		testing:              backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
 		etherScanRateLimiter: etherScanRateLimiter,
 	}
+	backend.accountBuilder = accountbuilder.New(backend.Coin, backend.log)
 	backend.accounts = accountmanager.New(accountmanager.Options{
 		CoinEnabled: func(code coinpkg.Code) bool {
 			return backend.coinPolicy().coinEnabled(code)
@@ -970,7 +973,7 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 	var defaultAccounts []config.Account
 	var taprootAccountCodes []accountsTypes.Code
 	if len(accounts) != 0 {
-		taprootAccountCodes, err = backend.maybeAddP2TR(ks, accounts)
+		taprootAccountCodes, err = backend.accountBuilder.AddTaproot(ks, accounts)
 	} else {
 		defaultAccounts, err = backend.buildDefaultAccountConfigs(ks)
 	}
