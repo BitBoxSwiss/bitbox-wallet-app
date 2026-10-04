@@ -28,7 +28,10 @@ type Options struct {
 	MakeAccount     func(coinpkg.Coin, *config.Account, LoadOptions) accounts.Interface
 	OnInitialized   func(accounts.Interface)
 	OnUninitialized func(accounts.Interface)
-	Log             *logrus.Entry
+	// OnMembershipChanged is called for each added or removed runtime account, including when
+	// initialization fails and leaves the account registered.
+	OnMembershipChanged func(accounts.Interface)
+	Log                 *logrus.Entry
 }
 
 // Manager reconciles persisted account snapshots with runtime membership. The caller applies
@@ -50,8 +53,9 @@ type Manager struct {
 func New(options Options) *Manager {
 	return &Manager{
 		registry: newAccountRegistry(accountRegistryLifecycle{
-			onInitialized:   options.OnInitialized,
-			onUninitialized: options.OnUninitialized,
+			onInitialized:       options.OnInitialized,
+			onUninitialized:     options.OnUninitialized,
+			onMembershipChanged: options.OnMembershipChanged,
 		}),
 		coinEnabled: options.CoinEnabled,
 		coin:        options.Coin,

@@ -9,7 +9,6 @@ import (
 	"slices"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
@@ -153,13 +152,7 @@ func TestETHAccountWriteUsesPerAccountInitialSync(t *testing.T) {
 	backend := newBackend(t, testnetDisabled, regtestDisabled)
 	defer backend.Close()
 	keystore := makeBitBox02Multi()
-	discoveryDone := make(chan struct{}, 1)
-	backend.tstMaybeAddHiddenUnusedAccounts = func() {
-		discoveryDone <- struct{}{}
-	}
 	backend.registerKeystore(keystore)
-	<-discoveryDone
-	backend.tstMaybeAddHiddenUnusedAccounts = nil
 
 	btcAccount := backend.Accounts().lookup("v0-55555555-btc-0").Account
 	ethAccount := backend.Accounts().lookup("v0-55555555-eth-0").Account
@@ -186,13 +179,7 @@ func TestTokenWriteReconcilesOnlyTokenAccount(t *testing.T) {
 	backend := newBackend(t, testnetDisabled, regtestDisabled)
 	defer backend.Close()
 	keystore := makeBitBox02Multi()
-	discoveryDone := make(chan struct{}, 1)
-	backend.tstMaybeAddHiddenUnusedAccounts = func() {
-		discoveryDone <- struct{}{}
-	}
 	backend.registerKeystore(keystore)
-	<-discoveryDone
-	backend.tstMaybeAddHiddenUnusedAccounts = nil
 
 	parentCode := accountsTypes.Code("v0-55555555-eth-0")
 	tokenCode := "eth-erc20-bat"
@@ -615,7 +602,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 
 		// Add BTC/LTC hidden accounts for scanning.
-		b.maybeAddHiddenUnusedAccounts()
+		advanceTestAccountDiscovery(t, b)
 		accountsConfig = accountsSnapshot(t, b)
 		require.Equal(t,
 			&config.Account{
@@ -1131,7 +1118,7 @@ func TestRenameAccount(t *testing.T) {
 	require.Equal(t, "renamed", accountsConfig.Lookup("v0-55555555-btc-0").Name)
 }
 
-func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
+func TestAccountDiscoveryRange(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
@@ -1144,10 +1131,10 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 	// Initial accounts added: Bitcoin, Litecoin, Ethereum.
 	checkShownAccountsLen(t, b, 3, 3)
 
-	// Up to 6 hidden accounts for BTC/LTC are added to be scanned even if the accounts are all
+	// Up to 6 accounts for BTC/LTC are scanned, including hidden accounts, even if they are all
 	// empty. Calling this function too many times does not add more than that.
 	for i := 1; i <= 10; i++ {
-		b.maybeAddHiddenUnusedAccounts()
+		advanceTestAccountDiscovery(t, b)
 	}
 
 	require.Len(t, b.Accounts(), 3+2*5)
@@ -1171,7 +1158,7 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 
 	// One more call does nothing as the previous account must be used before new ones can be added.
 	require.Len(t, accountsConfig.Accounts, 13)
-	b.maybeAddHiddenUnusedAccounts()
+	advanceTestAccountDiscovery(t, b)
 	accountsConfig = accountsSnapshot(t, b)
 	require.Len(t, accountsConfig.Accounts, 13)
 
@@ -1182,7 +1169,7 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 	}))
 	accountsConfig = accountsSnapshot(t, b)
 	require.Nil(t, accountsConfig.Lookup("v0-55555555-btc-6"))
-	b.maybeAddHiddenUnusedAccounts()
+	advanceTestAccountDiscovery(t, b)
 	accountsConfig = accountsSnapshot(t, b)
 	require.Len(t, accountsConfig.Accounts, 14)
 	require.NotNil(t, accountsConfig.Lookup("v0-55555555-btc-6"))
@@ -1228,18 +1215,9 @@ func TestWatchonly(t *testing.T) {
 		rootFingerprint, err := ks.RootFingerprint()
 		require.NoError(t, err)
 
-		hiddenAccountsAdded := make(chan struct{})
-		b.tstMaybeAddHiddenUnusedAccounts = func() {
-			close(hiddenAccountsAdded)
-		}
-
 		b.registerKeystore(ks)
 
-		select {
-		case <-hiddenAccountsAdded:
-		case <-time.After(5 * time.Second):
-			require.Fail(t, "expected hidden accounts to be added")
-		}
+		advanceTestAccountDiscovery(t, b)
 
 		require.Greater(t, len(accountsSnapshot(t, b).Accounts), 3)
 
@@ -1397,13 +1375,6 @@ func TestWatchonly(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 
-		// registering a keystore calls `go maybeAddHiddenunusedAccounts()` - we need wait for it to
-		// complete to avoid race conditions in this test about which account is added at what time.
-		hiddenAccountsAdded := make(chan struct{})
-		b.tstMaybeAddHiddenUnusedAccounts = func() {
-			close(hiddenAccountsAdded)
-		}
-
 		ks := makeBitBox02Multi()
 		ks.RootFingerprintFunc = func() ([]byte, error) {
 			return rootFingerprint1, nil
@@ -1415,11 +1386,7 @@ func TestWatchonly(t *testing.T) {
 		b.registerKeystore(ks)
 		checkShownAccountsLen(t, b, 3, 3)
 
-		select {
-		case <-hiddenAccountsAdded:
-		case <-time.After(5 * time.Second):
-			require.Fail(t, "expected hidden accounts to be added")
-		}
+		advanceTestAccountDiscovery(t, b)
 
 		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 
@@ -1526,17 +1493,17 @@ func TestKeystoresBalance(t *testing.T) {
 	b.registerKeystore(ks1)
 	require.NoError(t, b.SetWatchonly(ks1Fingerprint, true))
 
-	// Up to 6 hidden accounts for BTC/LTC are added to be scanned even if the accounts are all
+	// Up to 6 accounts for BTC/LTC are scanned, including hidden accounts, even if they are all
 	// empty. Calling this function too many times does not add more than that.
 	for i := 1; i <= 10; i++ {
-		b.maybeAddHiddenUnusedAccounts()
+		advanceTestAccountDiscovery(t, b)
 	}
 
 	b.DeregisterKeystore()
 	b.registerKeystore(ks2)
 
 	for i := 1; i <= 10; i++ {
-		b.maybeAddHiddenUnusedAccounts()
+		advanceTestAccountDiscovery(t, b)
 	}
 
 	// This needs to be after all changes in accounts, otherwise it will try to fetch
@@ -1593,17 +1560,17 @@ func TestCoinsTotalBalance(t *testing.T) {
 	b.registerKeystore(ks1)
 	require.NoError(t, b.SetWatchonly(ks1Fingerprint, true))
 
-	// Up to 6 hidden accounts for BTC/LTC are added to be scanned even if the accounts are all
+	// Up to 6 accounts for BTC/LTC are scanned, including hidden accounts, even if they are all
 	// empty. Calling this function too many times does not add more than that.
 	for i := 1; i <= 10; i++ {
-		b.maybeAddHiddenUnusedAccounts()
+		advanceTestAccountDiscovery(t, b)
 	}
 
 	b.DeregisterKeystore()
 	b.registerKeystore(ks2)
 
 	for i := 1; i <= 10; i++ {
-		b.maybeAddHiddenUnusedAccounts()
+		advanceTestAccountDiscovery(t, b)
 	}
 
 	// This needs to be after all changes in accounts, otherwise it will try to fetch
@@ -1649,10 +1616,10 @@ func TestAccountsFiatAndCoinBalance(t *testing.T) {
 	b.registerKeystore(ks1)
 	require.NoError(t, b.SetWatchonly(ks1Fingerprint, true))
 
-	// Up to 6 hidden accounts for BTC/LTC are added to be scanned even if the accounts are all
+	// Up to 6 accounts for BTC/LTC are scanned, including hidden accounts, even if they are all
 	// empty. Calling this function too many times does not add more than that.
 	for i := 1; i <= 10; i++ {
-		b.maybeAddHiddenUnusedAccounts()
+		advanceTestAccountDiscovery(t, b)
 	}
 
 	// This needs to be after all changes in accounts, otherwise it will try to fetch
@@ -1682,7 +1649,6 @@ func TestAccountsFiatAndCoinBalance(t *testing.T) {
 
 func TestCheckAccountUsed(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
-	b.tstCheckAccountUsed = nil
 	defer b.Close()
 	accountMocks := map[accountsTypes.Code]*accountsMocks.InterfaceMock{}
 	// A Transactions function that always returns one transaction, so the account is always used.
@@ -1723,18 +1689,86 @@ func TestCheckAccountUsed(t *testing.T) {
 		mock, ok := accountMocks[acct.Record.Code]
 		require.True(t, ok, "No mock for account %s", acct.Record.Code)
 
-		b.checkAccountUsed(acct.Account)
+		require.NoError(t, b.checkAccountUsed(acct.Account))
 		// Ensure that Transactions is called
 		require.Len(t, mock.TransactionsCalls(), 1)
 		require.True(t, b.Accounts().lookup(acct.Record.Code).Record.Used)
 
 		// Call checkAccountUsed again, Transactions should not be called again.
-		b.checkAccountUsed(acct.Account)
+		require.NoError(t, b.checkAccountUsed(acct.Account))
 		require.Len(t, mock.TransactionsCalls(), 1)
 		// And Used should still be true.
 		require.True(t, b.Accounts().lookup(acct.Record.Code).Record.Used)
 	}
 
+}
+
+type usageErrorAccountsDB struct {
+	accountsDB
+	snapshotErr error
+	updateErr   error
+}
+
+func (db usageErrorAccountsDB) Snapshot() (config.AccountsConfig, error) {
+	if db.snapshotErr != nil {
+		return config.AccountsConfig{}, db.snapshotErr
+	}
+	return db.accountsDB.Snapshot()
+}
+
+func (db usageErrorAccountsDB) Update(update func(*config.AccountsConfig) error) error {
+	if db.updateErr != nil {
+		return db.updateErr
+	}
+	return db.accountsDB.Update(update)
+}
+
+func TestCheckAccountUsedUnusedAndErrors(t *testing.T) {
+	failure := errp.New("usage check failed")
+	for _, test := range []struct {
+		name            string
+		transactions    accounts.OrderedTransactions
+		transactionsErr error
+		snapshotErr     error
+		updateErr       error
+		wantErr         error
+	}{
+		{name: "unused account succeeds"},
+		{name: "transaction error", transactionsErr: failure, wantErr: failure},
+		{name: "snapshot error", snapshotErr: failure, wantErr: failure},
+		{
+			name:         "persistence error",
+			transactions: accounts.OrderedTransactions{&accounts.TransactionData{}},
+			updateErr:    failure,
+			wantErr:      failure,
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			backend := newBackend(t, testnetDisabled, regtestDisabled)
+			defer backend.Close()
+			backend.registerKeystore(makeBitBox02Multi())
+			account := backend.Accounts().lookup("v0-55555555-btc-0").Account.(*accountsMocks.InterfaceMock)
+			account.TransactionsFunc = func() (accounts.OrderedTransactions, error) {
+				return test.transactions, test.transactionsErr
+			}
+			originalDB := backend.accountsDB
+			backend.accountsDB = usageErrorAccountsDB{
+				accountsDB:  originalDB,
+				snapshotErr: test.snapshotErr,
+				updateErr:   test.updateErr,
+			}
+
+			err := backend.checkAccountUsed(account)
+			if test.wantErr == nil {
+				require.NoError(t, err)
+			} else {
+				require.ErrorIs(t, err, test.wantErr)
+			}
+			snapshot, err := originalDB.Snapshot()
+			require.NoError(t, err)
+			require.False(t, snapshot.Lookup(account.Config().Code).Used)
+		})
+	}
 }
 
 func TestConvertToFiat(t *testing.T) {

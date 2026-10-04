@@ -15,6 +15,7 @@ import (
 	"runtime"
 	"slices"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -257,8 +258,16 @@ type Backend struct {
 	accountsAndKeystoreLock locker.Locker
 	accounts                *accountmanager.Manager
 	accountBuilder          *accountbuilder.Builder
+	// Discovery workers are keyed by hex-encoded root fingerprint. Their routing lock is
+	// separate so account callbacks can wake workers while the lifecycle lock is held.
+	accountDiscovery     map[string]*accountDiscovery
+	accountDiscoveryLock locker.Locker
+	discoveryWorkers     sync.WaitGroup
+	closed               bool
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
+	// Captured at registration so disconnect can stop discovery without querying the device.
+	keystoreRootFingerprint []byte
 	// Called to remove the current keystore observer, if any.
 	unobserveKeystore func()
 
@@ -298,10 +307,8 @@ type Backend struct {
 	updateChecker        *updateChecker
 	started              bool
 
-	// For unit tests, called when `backend.checkAccountUsed()` is called.
-	tstCheckAccountUsed func(accounts.Interface) bool
-	// For unit tests, called when `backend.maybeAddHiddenUnusedAccounts()` has run.
-	tstMaybeAddHiddenUnusedAccounts func()
+	// For unit tests that advance discovery explicitly instead of running workers.
+	tstDisableAccountDiscovery bool
 
 	// testing tells us whether the app is in testing mode
 	testing bool
@@ -343,9 +350,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		accountsDB:  configAccountsDB{config: backendConfig},
 		events:      make(chan interface{}),
 
-		devices: map[string]device.Interface{},
-		coins:   map[coinpkg.Code]coinpkg.Coin{},
-		aopp:    AOPP{State: aoppStateInactive},
+		devices:          map[string]device.Interface{},
+		coins:            map[coinpkg.Code]coinpkg.Coin{},
+		accountDiscovery: map[string]*accountDiscovery{},
+		aopp:             AOPP{State: aoppStateInactive},
 		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
@@ -376,7 +384,8 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 				backend.onAccountUninit(account)
 			}
 		},
-		Log: backend.log,
+		OnMembershipChanged: backend.wakeAccountDiscovery,
+		Log:                 backend.log,
 	})
 	backend.accounts.Observe(backend.handleAccountRegistryEvent)
 	// TODO: remove when connectivity check is present on all platforms
@@ -506,7 +515,8 @@ func (backend *Backend) handleAccountRegistryEvent(event observable.Event) {
 	})
 	if event.Subject == string(accountsTypes.EventSyncDone) {
 		backend.notifyNewTxs(registryEvent.Account)
-		go backend.checkAccountUsed(registryEvent.Account)
+		// Wake the discovery loop to check account used status after sync.
+		backend.wakeAccountDiscovery(registryEvent.Account)
 	}
 }
 
@@ -940,7 +950,10 @@ func (backend *Backend) Keystore() keystore.Keystore {
 // if another keystore is already registered, it will be replaced.
 func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 	defer backend.accountsAndKeystoreLock.Lock()()
-	// Only for logging, if there is an error we continue anyway.
+	if backend.closed {
+		return
+	}
+	// Resolve the fingerprint before replacing the connected keystore.
 	fingerprint, err := ks.RootFingerprint()
 	if err != nil {
 		backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
@@ -948,8 +961,10 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 	}
 	log := backend.log.WithField("rootFingerprint", hex.EncodeToString(fingerprint))
 	log.Info("registering keystore")
+	backend.stopAccountDiscoveryLocked(backend.keystoreRootFingerprint)
 	backend.observeKeystore(ks)
 	backend.keystore = ks
+	backend.keystoreRootFingerprint = slices.Clone(fingerprint)
 	backend.Notify(observable.Event{
 		Subject: "keystores",
 		Action:  action.Reload,
@@ -1027,7 +1042,7 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 
 	backend.connectKeystore.onConnect(backend.keystore)
 
-	go backend.maybeAddHiddenUnusedAccounts()
+	backend.startAccountDiscoveryLocked(ks)
 }
 
 func (backend *Backend) observeKeystore(ks keystore.Keystore) {
@@ -1058,14 +1073,15 @@ func (backend *Backend) DeregisterKeystore() {
 		backend.log.Error("deregistering keystore, but no keystore found")
 		return
 	}
-	// Only for logging, if there is an error we continue anyway.
-	fingerprint, _ := backend.keystore.RootFingerprint()
+	fingerprint := backend.keystoreRootFingerprint
+	backend.stopAccountDiscoveryLocked(fingerprint)
 	backend.log.WithField("rootFingerprint", hex.EncodeToString(fingerprint)).Info("deregistering keystore")
 	if backend.unobserveKeystore != nil {
 		backend.unobserveKeystore()
 		backend.unobserveKeystore = nil
 	}
 	backend.keystore = nil
+	backend.keystoreRootFingerprint = nil
 	backend.Notify(observable.Event{
 		Subject: "keystores",
 		Action:  action.Reload,
@@ -1304,6 +1320,8 @@ func (backend *Backend) Environment() Environment {
 // User data such as configs, account names, wallets and notes is preserved.
 func (backend *Backend) ClearCache() error {
 	defer backend.accountsAndKeystoreLock.Lock()()
+	backend.stopAllAccountDiscoveryLocked()
+	defer backend.startAccountDiscoveryLocked(backend.keystore)
 
 	backend.log.Info("Clearing backend cache")
 
@@ -1361,11 +1379,19 @@ func (backend *Backend) Close() error {
 	backend.started = false
 	backend.updateChecker.stop()
 	backend.ratesUpdater.Stop()
+	// Close device transports before acquiring the lifecycle lock: discovery may hold it while
+	// waiting for a hardware request, which closing the transport interrupts.
 	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
 	// which acquires the same lock.
 	if backend.usbManager != nil {
 		backend.usbManager.Close()
 	}
+
+	unlock := backend.accountsAndKeystoreLock.Lock()
+	backend.closed = true
+	backend.stopAllAccountDiscoveryLocked()
+	unlock()
+	backend.discoveryWorkers.Wait()
 
 	defer backend.accountsAndKeystoreLock.Lock()()
 
