@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package backend
+package accountmanager
 
 import (
 	"slices"
@@ -15,36 +15,42 @@ type accountRegistryLifecycle struct {
 	onUninitialized func(accounts.Interface)
 }
 
-type accountRegistryEvent struct {
-	account accounts.Interface
-	object  interface{}
+// Event identifies the runtime account that emitted an event and its original payload.
+type Event struct {
+	Account accounts.Interface
+	Object  interface{}
 }
 
 // accountRegistry owns loaded account membership, observation, and lifecycle.
 //
-// Backend.accountsAndKeystoreLock guards all access.
+// The manager caller's lifecycle lock guards all access.
 type accountRegistry struct {
 	observable.Implementation
 
-	accounts   AccountsList
+	accounts   []accounts.Interface
 	lifecycle  accountRegistryLifecycle
 	unobserves map[accountsTypes.Code]func()
 }
 
 func newAccountRegistry(lifecycle accountRegistryLifecycle) accountRegistry {
 	return accountRegistry{
-		accounts:   AccountsList{},
+		accounts:   []accounts.Interface{},
 		lifecycle:  lifecycle,
 		unobserves: map[accountsTypes.Code]func(){},
 	}
 }
 
-func (registry *accountRegistry) all() AccountsList {
+func (registry *accountRegistry) all() []accounts.Interface {
 	return slices.Clone(registry.accounts)
 }
 
 func (registry *accountRegistry) lookup(code accountsTypes.Code) accounts.Interface {
-	return registry.accounts.lookup(code)
+	for _, account := range registry.accounts {
+		if account.Config().Code == code {
+			return account
+		}
+	}
+	return nil
 }
 
 // add registers and initializes an account unless its code is already present. Initialization
@@ -60,9 +66,9 @@ func (registry *accountRegistry) add(account accounts.Interface) (bool, error) {
 		registry.Notify(observable.Event{
 			Subject: event.Subject,
 			Action:  event.Action,
-			Object: accountRegistryEvent{
-				account: account,
-				object:  event.Object,
+			Object: Event{
+				Account: account,
+				Object:  event.Object,
 			},
 		})
 	})
@@ -93,7 +99,7 @@ func (registry *accountRegistry) removeAll() {
 	for _, account := range registry.accounts {
 		registry.closeAccount(account)
 	}
-	registry.accounts = AccountsList{}
+	registry.accounts = []accounts.Interface{}
 }
 
 func (registry *accountRegistry) closeAccount(account accounts.Interface) {
