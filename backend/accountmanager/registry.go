@@ -11,8 +11,9 @@ import (
 )
 
 type accountRegistryLifecycle struct {
-	onInitialized   func(accounts.Interface)
-	onUninitialized func(accounts.Interface)
+	onInitialized       func(accounts.Interface)
+	onUninitialized     func(accounts.Interface)
+	onMembershipChanged func(accounts.Interface)
 }
 
 // Event identifies the runtime account that emitted an event and its original payload.
@@ -62,6 +63,9 @@ func (registry *accountRegistry) add(account accounts.Interface) (bool, error) {
 	}
 
 	registry.accounts = append(registry.accounts, account)
+	if registry.lifecycle.onMembershipChanged != nil {
+		registry.lifecycle.onMembershipChanged(account)
+	}
 	registry.unobserves[code] = account.Observe(func(event observable.Event) {
 		registry.Notify(observable.Event{
 			Subject: event.Subject,
@@ -90,6 +94,9 @@ func (registry *accountRegistry) remove(code accountsTypes.Code) bool {
 
 		registry.closeAccount(account)
 		registry.accounts = slices.Delete(registry.accounts, index, index+1)
+		if registry.lifecycle.onMembershipChanged != nil {
+			registry.lifecycle.onMembershipChanged(account)
+		}
 		return true
 	}
 	return false
@@ -99,7 +106,13 @@ func (registry *accountRegistry) removeAll() {
 	for _, account := range registry.accounts {
 		registry.closeAccount(account)
 	}
+	removed := registry.accounts
 	registry.accounts = []accounts.Interface{}
+	if registry.lifecycle.onMembershipChanged != nil {
+		for _, account := range removed {
+			registry.lifecycle.onMembershipChanged(account)
+		}
+	}
 }
 
 func (registry *accountRegistry) closeAccount(account accounts.Interface) {
