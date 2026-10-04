@@ -13,10 +13,14 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accountbuilder"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accountmanager"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
@@ -252,9 +256,18 @@ type Backend struct {
 	// accounts database synchronizes storage itself; hold this lock across a database write only
 	// when the write must be reconciled with runtime membership.
 	accountsAndKeystoreLock locker.Locker
-	accounts                accountRegistry
+	accounts                *accountmanager.Manager
+	accountBuilder          *accountbuilder.Builder
+	// Discovery workers are keyed by hex-encoded root fingerprint. Their routing lock is
+	// separate so account callbacks can wake workers while the lifecycle lock is held.
+	accountDiscovery     map[string]*accountDiscovery
+	accountDiscoveryLock locker.Locker
+	discoveryWorkers     sync.WaitGroup
+	closed               bool
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
+	// Captured at registration so disconnect can stop discovery without querying the device.
+	keystoreRootFingerprint []byte
 	// Called to remove the current keystore observer, if any.
 	unobserveKeystore func()
 
@@ -294,10 +307,8 @@ type Backend struct {
 	updateChecker        *updateChecker
 	started              bool
 
-	// For unit tests, called when `backend.checkAccountUsed()` is called.
-	tstCheckAccountUsed func(accounts.Interface) bool
-	// For unit tests, called when `backend.maybeAddHiddenUnusedAccounts()` has run.
-	tstMaybeAddHiddenUnusedAccounts func()
+	// For unit tests that advance discovery explicitly instead of running workers.
+	tstDisableAccountDiscovery bool
 
 	// testing tells us whether the app is in testing mode
 	testing bool
@@ -339,9 +350,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		accountsDB:  configAccountsDB{config: backendConfig},
 		events:      make(chan interface{}),
 
-		devices: map[string]device.Interface{},
-		coins:   map[coinpkg.Code]coinpkg.Coin{},
-		aopp:    AOPP{State: aoppStateInactive},
+		devices:          map[string]device.Interface{},
+		coins:            map[coinpkg.Code]coinpkg.Coin{},
+		accountDiscovery: map[string]*accountDiscovery{},
+		aopp:             AOPP{State: aoppStateInactive},
 		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
@@ -355,17 +367,25 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		testing:              backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
 		etherScanRateLimiter: etherScanRateLimiter,
 	}
-	backend.accounts = newAccountRegistry(accountRegistryLifecycle{
-		onInitialized: func(account accounts.Interface) {
+	backend.accountBuilder = accountbuilder.New(backend.Coin, backend.log)
+	backend.accounts = accountmanager.New(accountmanager.Options{
+		CoinEnabled: func(code coinpkg.Code) bool {
+			return backend.coinPolicy().coinEnabled(code)
+		},
+		Coin:        backend.Coin,
+		MakeAccount: backend.makeAccount,
+		OnInitialized: func(account accounts.Interface) {
 			if backend.onAccountInit != nil {
 				backend.onAccountInit(account)
 			}
 		},
-		onUninitialized: func(account accounts.Interface) {
+		OnUninitialized: func(account accounts.Interface) {
 			if backend.onAccountUninit != nil {
 				backend.onAccountUninit(account)
 			}
 		},
+		OnMembershipChanged: backend.wakeAccountDiscovery,
+		Log:                 backend.log,
 	})
 	backend.accounts.Observe(backend.handleAccountRegistryEvent)
 	// TODO: remove when connectivity check is present on all platforms
@@ -472,7 +492,7 @@ func (backend *Backend) closeCoins() error {
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) configureHistoryExchangeRates() {
 	var coins []string
-	for _, acct := range backend.accounts.all() {
+	for _, acct := range backend.accounts.Accounts() {
 		coins = append(coins, string(acct.Coin().Code()))
 	}
 	if backend.hasLightningAccount() {
@@ -483,19 +503,20 @@ func (backend *Backend) configureHistoryExchangeRates() {
 }
 
 func (backend *Backend) handleAccountRegistryEvent(event observable.Event) {
-	registryEvent, ok := event.Object.(accountRegistryEvent)
+	registryEvent, ok := event.Object.(accountmanager.Event)
 	if !ok {
 		backend.log.WithField("subject", event.Subject).Error("account registry event missing account")
 		return
 	}
 	backend.Notify(observable.Event{
-		Subject: fmt.Sprintf("account/%s/%s", registryEvent.account.Config().Code, event.Subject),
+		Subject: fmt.Sprintf("account/%s/%s", registryEvent.Account.Config().Code, event.Subject),
 		Action:  event.Action,
-		Object:  registryEvent.object,
+		Object:  registryEvent.Object,
 	})
 	if event.Subject == string(accountsTypes.EventSyncDone) {
-		backend.notifyNewTxs(registryEvent.account)
-		go backend.checkAccountUsed(registryEvent.account)
+		backend.notifyNewTxs(registryEvent.Account)
+		// Wake the discovery loop to check account used status after sync.
+		backend.wakeAccountDiscovery(registryEvent.Account)
 	}
 }
 
@@ -834,7 +855,7 @@ func (backend *Backend) accountViewsLocked() AccountViews {
 		backend.log.WithError(err).Error("could not load account snapshot")
 		return AccountViews{}
 	}
-	return joinAccountViews(backend.accounts.all(), accountsConfig)
+	return joinAccountViews(backend.accounts.Accounts(), accountsConfig)
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
@@ -876,7 +897,12 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.updateChecker.start()
 
 	defer backend.accountsAndKeystoreLock.Lock()()
-	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records")
+	} else {
+		backend.accounts.Reconcile(accountsConfig, backend.keystore)
+	}
 	backend.emitAccountsStatusChanged()
 
 	backend.ratesUpdater.StartCurrentRates()
@@ -924,7 +950,10 @@ func (backend *Backend) Keystore() keystore.Keystore {
 // if another keystore is already registered, it will be replaced.
 func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 	defer backend.accountsAndKeystoreLock.Lock()()
-	// Only for logging, if there is an error we continue anyway.
+	if backend.closed {
+		return
+	}
+	// Resolve the fingerprint before replacing the connected keystore.
 	fingerprint, err := ks.RootFingerprint()
 	if err != nil {
 		backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
@@ -932,8 +961,10 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 	}
 	log := backend.log.WithField("rootFingerprint", hex.EncodeToString(fingerprint))
 	log.Info("registering keystore")
+	backend.stopAccountDiscoveryLocked(backend.keystoreRootFingerprint)
 	backend.observeKeystore(ks)
 	backend.keystore = ks
+	backend.keystoreRootFingerprint = slices.Clone(fingerprint)
 	backend.Notify(observable.Event{
 		Subject: "keystores",
 		Action:  action.Reload,
@@ -943,42 +974,75 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 		return account.SigningConfigurations.ContainsRootFingerprint(fingerprint)
 	}
 
-	persistKeystore := func(accountsConfig *config.AccountsConfig) error {
-		keystoreName, err := ks.Name()
-		if err != nil {
-			return errp.WithMessage(err, "could not retrieve keystore name")
-		}
-		keystoreCfg := accountsConfig.GetOrAddKeystore(fingerprint)
-		keystoreCfg.Name = keystoreName
-		keystoreCfg.LastConnected = time.Now()
-		return nil
+	keystoreName, keystoreNameErr := ks.Name()
+	if keystoreNameErr != nil {
+		log.WithError(keystoreNameErr).Error("Could not retrieve keystore name")
 	}
 
-	err = backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
-		// Persist keystore with its name in the config.
-		if err := persistKeystore(accountsConfig); err != nil {
-			log.WithError(err).Error("Could not persist keystore")
-		}
-
-		// Persist default accounts the first time, otherwise perform any migrations that may be
-		// needed on the persisted accounts.
-		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)
-		if len(accounts) != 0 {
-			return backend.updatePersistedAccounts(ks, accounts)
-		}
-		return backend.persistDefaultAccountConfigs(ks, accountsConfig)
-	})
+	accountsConfig, err := backend.accountsDB.Snapshot()
 	if err != nil {
-		log.WithError(err).Error("Could not persist default accounts")
+		log.WithError(err).Error("Could not load account records")
+		return
+	}
+	accounts := backend.filterAccounts(&accountsConfig, belongsToKeystore)
+	var defaultAccounts []config.Account
+	var taprootAccountCodes []accountsTypes.Code
+	if len(accounts) != 0 {
+		taprootAccountCodes, err = backend.accountBuilder.AddTaproot(ks, accounts)
+	} else {
+		defaultAccounts, err = backend.buildDefaultAccountConfigs(ks)
+	}
+	if err == nil {
+		err = backend.accountsDB.Update(func(persisted *config.AccountsConfig) error {
+			if keystoreNameErr == nil {
+				keystoreConfig := persisted.GetOrAddKeystore(fingerprint)
+				keystoreConfig.Name = keystoreName
+				keystoreConfig.LastConnected = time.Now()
+			}
+
+			if len(accounts) != 0 {
+				for _, prepared := range accounts {
+					if !slices.Contains(taprootAccountCodes, prepared.Code) {
+						continue
+					}
+					account := persisted.Lookup(prepared.Code)
+					if account != nil {
+						account.SigningConfigurations = prepared.SigningConfigurations
+					}
+				}
+				return nil
+			}
+			for index := range defaultAccounts {
+				if err := backend.persistAccount(defaultAccounts[index], persisted); err != nil {
+					return err
+				}
+			}
+			return nil
+		})
+	}
+	if err != nil {
+		log.WithError(err).Error("Could not update account records")
+		taprootAccountCodes = nil
+	} else {
+		for _, accountCode := range taprootAccountCodes {
+			log.WithField("code", accountCode).
+				Info("upgraded account with taproot subaccount")
+		}
 	}
 
-	backend.initAccounts(false)
+	accountsConfig, err = backend.accountsDB.Snapshot()
+	if err != nil {
+		log.WithError(err).Error("Could not load account records")
+		return
+	}
+	result := backend.accounts.Reconcile(accountsConfig, backend.keystore, taprootAccountCodes...)
+	backend.applyAccountReconcileEffectsLocked(result.MembershipChanged, result.ETHMembershipChanged)
 
 	backend.aoppKeystoreRegistered()
 
 	backend.connectKeystore.onConnect(backend.keystore)
 
-	go backend.maybeAddHiddenUnusedAccounts()
+	backend.startAccountDiscoveryLocked(ks)
 }
 
 func (backend *Backend) observeKeystore(ks keystore.Keystore) {
@@ -1009,24 +1073,28 @@ func (backend *Backend) DeregisterKeystore() {
 		backend.log.Error("deregistering keystore, but no keystore found")
 		return
 	}
-	// Only for logging, if there is an error we continue anyway.
-	fingerprint, _ := backend.keystore.RootFingerprint()
+	fingerprint := backend.keystoreRootFingerprint
+	backend.stopAccountDiscoveryLocked(fingerprint)
 	backend.log.WithField("rootFingerprint", hex.EncodeToString(fingerprint)).Info("deregistering keystore")
 	if backend.unobserveKeystore != nil {
 		backend.unobserveKeystore()
 		backend.unobserveKeystore = nil
 	}
 	backend.keystore = nil
+	backend.keystoreRootFingerprint = nil
 	backend.Notify(observable.Event{
 		Subject: "keystores",
 		Action:  action.Reload,
 	})
 
-	backend.uninitAccounts(false)
-	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
-	// keystore. For now we just remove all, then re-add the rest.
-	backend.initPersistedAccounts(accountLoadOptions{})
-	backend.emitAccountsStatusChanged()
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records")
+		backend.emitAccountsStatusChanged()
+	} else {
+		result := backend.accounts.Reconcile(accountsConfig, backend.keystore)
+		backend.applyAccountReconcileEffectsLocked(result.MembershipChanged, result.ETHMembershipChanged)
+	}
 	backend.connectKeystore.onDisconnect()
 }
 
@@ -1252,6 +1320,8 @@ func (backend *Backend) Environment() Environment {
 // User data such as configs, account names, wallets and notes is preserved.
 func (backend *Backend) ClearCache() error {
 	defer backend.accountsAndKeystoreLock.Lock()()
+	backend.stopAllAccountDiscoveryLocked()
+	defer backend.startAccountDiscoveryLocked(backend.keystore)
 
 	backend.log.Info("Clearing backend cache")
 
@@ -1261,7 +1331,7 @@ func (backend *Backend) ClearCache() error {
 		backend.ratesUpdater.Stop()
 	}
 
-	backend.uninitAccounts(true)
+	backend.accounts.Unload()
 	if err := backend.closeCoins(); err != nil {
 		backend.log.WithError(err).Error("could not close coins before clearing cache")
 		errors = append(errors, err.Error())
@@ -1278,7 +1348,14 @@ func (backend *Backend) ClearCache() error {
 	}
 
 	backend.ratesUpdater = backend.newRatesUpdater()
-	backend.initAccounts(true)
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records after clearing cache")
+		errors = append(errors, err.Error())
+	} else {
+		result := backend.accounts.Reconcile(accountsConfig, backend.keystore)
+		backend.applyAccountReconcileEffectsLocked(result.MembershipChanged, result.ETHMembershipChanged)
+	}
 	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
 	if err != nil {
 		backend.log.WithError(err).Error("could not recreate Bitcoin coin after clearing cache")
@@ -1302,17 +1379,25 @@ func (backend *Backend) Close() error {
 	backend.started = false
 	backend.updateChecker.stop()
 	backend.ratesUpdater.Stop()
+	// Close device transports before acquiring the lifecycle lock: discovery may hold it while
+	// waiting for a hardware request, which closing the transport interrupts.
 	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
 	// which acquires the same lock.
 	if backend.usbManager != nil {
 		backend.usbManager.Close()
 	}
 
+	unlock := backend.accountsAndKeystoreLock.Lock()
+	backend.closed = true
+	backend.stopAllAccountDiscoveryLocked()
+	unlock()
+	backend.discoveryWorkers.Wait()
+
 	defer backend.accountsAndKeystoreLock.Lock()()
 
 	errors := []string{}
 
-	backend.uninitAccounts(true)
+	backend.accounts.Unload()
 	if backend.unobserveKeystore != nil {
 		backend.unobserveKeystore()
 		backend.unobserveKeystore = nil
@@ -1383,12 +1468,13 @@ func (backend *Backend) IsOnline() bool {
 	return backend.isOnline.Load()
 }
 
-// GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
-// if found. It also initialize the account before returning it.
-func (backend *Backend) GetAccountFromCode(acctCode accountsTypes.Code) (accounts.Interface, error) {
-	accountView := backend.Accounts().lookup(acctCode)
+func accountFromViews(
+	accountViews AccountViews,
+	accountCode accountsTypes.Code,
+) (accounts.Interface, error) {
+	accountView := accountViews.lookup(accountCode)
 	if accountView == nil || accountView.Record.Inactive {
-		return nil, fmt.Errorf("unknown account code %q", acctCode)
+		return nil, fmt.Errorf("unknown account code %q", accountCode)
 	}
 
 	if err := accountView.Account.Initialize(); err != nil {
@@ -1398,6 +1484,12 @@ func (backend *Backend) GetAccountFromCode(acctCode accountsTypes.Code) (account
 	return accountView.Account, nil
 }
 
+// GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
+// if found. It also initialize the account before returning it.
+func (backend *Backend) GetAccountFromCode(accountCode accountsTypes.Code) (accounts.Interface, error) {
+	return accountFromViews(backend.Accounts(), accountCode)
+}
+
 // CancelConnectKeystore cancels a pending keystore connection request if one exists.
 func (backend *Backend) CancelConnectKeystore() {
 	backend.connectKeystore.cancel(errp.ErrUserAbort)
@@ -1405,6 +1497,8 @@ func (backend *Backend) CancelConnectKeystore() {
 
 // SetWatchonly sets the keystore's watchonly flag to `watchonly`.
 func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) error {
+	defer backend.accountsAndKeystoreLock.Lock()()
+
 	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		ks, err := accountsConfig.LookupKeystore(rootFingerprint)
 		if err != nil {
@@ -1417,10 +1511,26 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 		return err
 	}
 
-	defer backend.accountsAndKeystoreLock.Lock()()
-	backend.initAccounts(false)
-	backend.emitAccountsStatusChanged()
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return err
+	}
+	result := backend.accounts.Reconcile(accountsConfig, backend.keystore)
+	backend.applyAccountReconcileEffectsLocked(result.MembershipChanged, result.ETHMembershipChanged)
 	return nil
+}
+
+// KeystoreName returns the persisted name of a keystore.
+func (backend *Backend) KeystoreName(rootFingerprint []byte) (string, error) {
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return "", err
+	}
+	keystoreConfig, err := accountsConfig.LookupKeystore(rootFingerprint)
+	if err != nil {
+		return "", err
+	}
+	return keystoreConfig.Name, nil
 }
 
 // KeystoreBackupReminderAllowed returns the persisted backup reminder eligibility.
