@@ -24,6 +24,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
 
@@ -86,9 +87,10 @@ func TestSignWalletConnectTransactionChainDependencies(t *testing.T) {
 				})
 				return nil
 			}))
-			unlock := b.accountsAndKeystoreLock.Lock()
-			b.addAccount(account)
-			unlock()
+			b.makeEthAccount = func(*accounts.AccountConfig, *eth.Coin, *logrus.Entry) accounts.Interface {
+				return account
+			}
+			reconcileTestAccounts(t, b)
 			address, err := account.Address()
 			require.NoError(t, err)
 			nonce := uint64(9)

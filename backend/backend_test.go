@@ -635,3 +635,18 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
 }
+
+// reconcileTestAccounts loads fixture records through the manager's reconciliation API.
+// Watch-only eligibility is enabled on a detached snapshot, leaving persisted metadata intact.
+func reconcileTestAccounts(t *testing.T, backend *Backend) {
+	t.Helper()
+	defer backend.accountsAndKeystoreLock.Lock()()
+	snapshot := accountsSnapshot(t, backend)
+	for _, record := range snapshot.Accounts {
+		fingerprint, err := record.SigningConfigurations.RootFingerprint()
+		require.NoError(t, err)
+		record.HiddenBecauseUnused = false
+		snapshot.GetOrAddKeystore(fingerprint).Watchonly = true
+	}
+	backend.accounts.Reconcile(snapshot, nil)
+}
