@@ -55,6 +55,7 @@ import { LightningCloseWithdrawFunds } from './lightning/close-and-withdraw-fund
 import { isLightningFeatureAvailable } from '@/utils/env';
 import { isLightningRoute } from '@/utils/route';
 import { LightningTestnetGuard } from './lightning/testnet-warning';
+import { useLightningURI } from '@/hooks/lightning-uri';
 
 const DeviceSwitchWithKey = () => {
   const key = useDevicesKey('device-switch-default');
@@ -93,6 +94,7 @@ const MarketRoutes = () => (
 export const AppRouter = () => {
 
   const lightningFeatureAvailable = isLightningFeatureAvailable();
+  const lightningURI = useLightningURI();
   const { pathname } = useLocation();
 
   return (
@@ -149,13 +151,17 @@ export const AppRouter = () => {
         {lightningFeatureAvailable ? (
           <>
             <Route path="/lightning" component={Lightning}/>
-            <Route path="/lightning/activate" component={LightningActivate}/>
+            <Route path="/lightning/activate">
+              <LightningActivate hasPendingPayment={lightningURI !== undefined && lightningURI.input !== null} />
+            </Route>
             <Route path="/lightning/disclaimer" component={LightningDisclaimer}/>
             <Route path="/lightning/deactivate" component={LightningDeactivate}/>
             <Route path="/lightning/set-lnurl-address" component={LightningSetLnurlAddress}/>
             <Route path="/lightning/claim-top-up" component={LightningClaimTopUp}/>
             <Route path="/lightning/close-withdraw-funds" component={LightningCloseWithdrawFunds}/>
-            <Route path="/lightning/send" component={LightningSend}/>
+            <Route path="/lightning/send">
+              <LightningSend uriRequest={lightningURI} />
+            </Route>
             <Route path="/lightning/receive" component={LightningReceive}/>
             <Route path="/lightning/topup" component={LightningTopUp}/>
           </>

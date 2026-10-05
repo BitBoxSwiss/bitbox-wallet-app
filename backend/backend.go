@@ -1381,6 +1381,8 @@ func (backend *Backend) HandleURI(uri string) {
 	switch u.Scheme {
 	case "aopp":
 		backend.handleAOPP(*u)
+	case "lightning":
+		backend.lightning.HandleURI(uri)
 	default:
 		backend.log.Warningf("Unknown URI scheme: %s", uri)
 	}
