@@ -44,8 +44,6 @@ type TAppFrameProps = {
   devices: TDevices;
   devicesKey: (prefix: string) => string;
   hasLightningAccount: boolean;
-  showBottomNavigation: boolean;
-  tabKey: string | undefined;
 };
 
 const AppFrame = ({
@@ -54,11 +52,19 @@ const AppFrame = ({
   devices,
   devicesKey,
   hasLightningAccount,
-  showBottomNavigation,
-  tabKey,
 }: TAppFrameProps) => {
+  const { pathname } = useLocation();
   const { vendorIframeActive } = useContext(AppContext);
-  const showMobileBottomNavigation = showBottomNavigation && !vendorIframeActive;
+  const showBottomNavigation = (
+    !vendorIframeActive
+    && shouldShowBottomNavigation({
+      activeAccounts,
+      devices,
+      hasLightningAccount,
+      pathname,
+    })
+  );
+  const tabKey = useMemo(() => getBottomNavKey(pathname), [pathname]);
 
   return (
     <>
@@ -71,7 +77,7 @@ const AppFrame = ({
         />
         <div className={`
           ${styles.appContent || ''}
-          ${showMobileBottomNavigation && styles.hasBottomNavigation || ''}
+          ${showBottomNavigation && styles.hasBottomNavigation || ''}
           ${vendorIframeActive && styles.hasMarketIframe || ''}
         `}>
           <WCSigningRequest accounts={accounts} />
@@ -92,19 +98,20 @@ const AppFrame = ({
             })
           }
           <GlobalBannersProvider devices={devices}>
+            {/* Remount on tab changes to restart the tab transition animation. */}
             <div key={tabKey} className={styles.tabTransition}>
               <AppRouter
                 accounts={accounts}
                 activeAccounts={activeAccounts}
                 devices={devices}
                 devicesKey={devicesKey}
-                showBottomNavigation={showMobileBottomNavigation}
+                showBottomNavigation={showBottomNavigation}
               />
             </div>
           </GlobalBannersProvider>
           <RouterWatcher />
         </div>
-        {showMobileBottomNavigation && (
+        {showBottomNavigation && (
           <BottomNavigation
             devices={devices}
             activeAccounts={activeAccounts}
@@ -122,7 +129,6 @@ export const App = () => {
   usePlatformClass();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   useIgnoreDrop();
   useAppReady();
 
@@ -261,15 +267,6 @@ export const App = () => {
   }, [devices]);
 
   const activeAccounts = useMemo(() => accounts.filter(acct => acct.active), [accounts]);
-  const tabKey = useMemo(() => getBottomNavKey(pathname), [pathname]);
-
-  const showBottomNavigation = shouldShowBottomNavigation({
-    activeAccounts,
-    devices,
-    hasLightningAccount,
-    pathname,
-  });
-
 
   return (
     <ConnectedApp>
@@ -280,8 +277,6 @@ export const App = () => {
           devices={devices}
           devicesKey={devicesKey}
           hasLightningAccount={hasLightningAccount}
-          showBottomNavigation={showBottomNavigation}
-          tabKey={tabKey}
         />
       </Providers>
     </ConnectedApp>
