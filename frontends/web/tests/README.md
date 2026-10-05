@@ -100,6 +100,46 @@ The local HTML files must also be deployed to the corresponding hosted `/widgets
 URLs for released apps to receive the wrapper fixes. Keep the existing
 `request-configuration` handshake and payloads when updating those shared URLs.
 
+## Mobile Lightning payment links
+
+Use an installed Android or iOS build with an activated Lightning wallet and a fresh
+BOLT11 invoice. Browser tests do not exercise native URI registration.
+
+On Android, use an implicit intent to also check scheme registration (replace the invoice):
+
+```sh
+adb shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d 'lightning:<invoice>'
+```
+
+On an iOS simulator:
+
+```sh
+xcrun simctl openurl booted 'lightning:<invoice>'
+```
+
+- Open the link with the app closed, in the background, and already open. The existing
+  payment overlay should show the invoice without changing the URL or unmounting the current
+  page; sending still requires confirmation. Dismiss it and verify any unsaved input remains.
+- Repeat with `lightning://<invoice>` and `LIGHTNING:<invoice>`.
+- With app authentication enabled, unlock and verify that the invoice remains available.
+  Background and resume the app again: the handled link must not reopen.
+- Open another link during review and verify that the current invoice and entered amount
+  stay unchanged. Later links wait until you dismiss the current request, including its success
+  screen. Only the latest pending link should then open. After a send error, verify that the
+  error and retry remain available even if another link arrives.
+  Repeat during a withdrawal: the withdrawal and its result must remain visible until you leave.
+- Check an amountless invoice, an LNURL-pay link, and an invalid invoice. Invalid input
+  should show a dismissible error in the overlay without opening the camera.
+- With Lightning disabled, open a link and verify that it only shows an activation-required
+  message. Dismiss it, activate Lightning normally, and reopen the link to pay. There must be no
+  automatic navigation to activation or resumption of the dismissed request.
+- During SDK initialization, the overlay waits; initialization failure shows the existing restart
+  guidance. Cancel while parsing and verify a late result does not reopen the overlay.
+- In testnet mode, the existing warning must appear before review. Canceling it must dismiss the
+  request without changing the current page. Authentication must stay above the payment overlay.
+- Check an `aopp:` link on cold launch and while running, then background/resume after
+  dismissing it. It must still open and must not replay.
+
 ## Debugging tests
 
 When a test fails, Playwright will output elements useful for debugging; these are either in [test-results](./test-results), if running locally, or uploaded as artifact if running in CI. 

@@ -5,6 +5,7 @@ import { useLocation } from 'wouter';
 import { useIgnoreDrop } from './hooks/drop';
 import { usePlatformClass } from './hooks/platform';
 import { useAppReady } from './hooks/appready';
+import { LightningPaymentRequest } from './components/lightning-payment-request/lightning-payment-request';
 import { AppRouter } from './routes/router';
 import { Wizard as BitBox02Wizard } from './routes/device/bitbox02/wizard';
 import { ConnectedApp } from './connected';
@@ -59,6 +60,7 @@ const AppFrame = () => {
         `}>
           <WCSigningRequest accounts={accounts} />
           <Aopp />
+          <LightningPaymentRequest />
           <KeystoreConnectPrompt />
           {
             Object.entries(devices).map(([deviceID, platformName]) => {

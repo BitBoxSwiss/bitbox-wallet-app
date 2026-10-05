@@ -127,7 +127,7 @@ test('AOPP', async ({ page, host, frontendPort, servewalletPort }, testInfo) => 
     servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
     await servewallet.start({
       env: { SSL_CERT_FILE: aoppServer.caCertPath },
-      extraFlags: { aoppUrl: aoppRequest },
+      extraFlags: { uri: aoppRequest },
     });
     console.log('Servewallet restarted with AOPP request.');
   });

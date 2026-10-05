@@ -111,6 +111,9 @@ type Lightning struct {
 	notesLock        sync.Mutex
 	notes            *notes.Notes
 	notesAccountCode types.Code
+
+	uriLock sync.Mutex
+	uri     uriRequest
 }
 
 // NewLightning creates a new instance of the Lightning struct.
