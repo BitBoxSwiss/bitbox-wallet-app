@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "version": "4.53.0",
+  "highlights": [
+    {
+      "group": "common",
+      "image": "images/preview.png",
+      "content": {
+        "en": {
+          "title": "Release-note preview",
+          "description": "This is sample content for local testing.\n\nEach highlight gets its own page. Images load independently, and navigation remains available while they load.",
+          "imageAlt": "A sample preview image."
+        },
+        "de": {
+          "title": "Vorschau der Versionshinweise",
+          "description": "Dies ist ein Beispiel für lokale Tests.",
+          "imageAlt": "Ein Vorschaubild."
+        }
+      }
+    },
+    {
+      "group": "common",
+      "content": {
+        "en": {
+          "title": "Read more",
+          "description": "Open the blog without closing these notes.",
+          "link": {
+            "href": "https://blog.bitbox.swiss/en/",
+            "text": "Read the release blog"
+          }
+        },
+        "de": {
+          "title": "Mehr erfahren",
+          "description": "Öffne den Blog, ohne diese Hinweise zu schließen.",
+          "link": {
+            "href": "https://blog.bitbox.swiss/de/",
+            "text": "Blogbeitrag lesen"
+          }
+        }
+      }
+    }
+  ]
+}

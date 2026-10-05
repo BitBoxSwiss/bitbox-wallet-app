@@ -38,6 +38,7 @@ export const A = ({
 
   return (
     <span
+      role="link"
       className={`
         ${(runningInIOS() ? style.linkIos : style.link) || ''}
         ${className || ''}
@@ -56,6 +57,12 @@ export const A = ({
           .catch(console.error);
       }}
       tabIndex={0}
+      onKeyDown={event => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          event.currentTarget.click();
+        }
+      }}
       {...props}>
       {icon ? icon : null}
       {children}

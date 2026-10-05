@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Add support for remotely published, translated "What's new" notes after app upgrades,
+  with optional images and release-blog links
 - Rename "Factory reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings
