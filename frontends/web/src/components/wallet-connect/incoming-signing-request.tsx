@@ -135,7 +135,9 @@ export const WCSigningRequest = ({ accounts }: TProps) => {
       return;
     }
     if (!result.aborted) {
-      alertUser(result.errorMessage || t('pairing.error.text'));
+      alertUser(result.errorCode === 'insufficientFunds' || result.errorCode === 'broadcastUncertain'
+        ? t(`send.error.${result.errorCode}`)
+        : result.errorMessage || t('pairing.error.text'));
     }
   };
 

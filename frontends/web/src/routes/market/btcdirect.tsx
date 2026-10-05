@@ -127,7 +127,10 @@ export const BTCDirect = ({
         return;
       }
       if (!sendResult.success && !('aborted' in sendResult)) {
-        if (sendResult.errorMessage) {
+        if (sendResult.errorCode === 'broadcastUncertain') {
+          alertUser(t('send.error.broadcastUncertain'));
+          return;
+        } else if (sendResult.errorMessage) {
           alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
         } else {
           alertUser(t('genericError'));
