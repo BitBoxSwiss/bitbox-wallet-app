@@ -74,6 +74,7 @@ export type TPrepareTopUpRequest = {
 
 export type TPrepareTopUpResult = {
   amount: TAmountWithConversions;
+  estimatedClaimFee: TAmountWithConversions | null;
   fee: TAmountWithConversions;
   recipientDisplayAddress: string;
   success: true;

@@ -44,6 +44,12 @@
     margin-bottom: var(--space-quarter);
 }
 
+.claimFee {
+    color: var(--color-secondary);
+    font-size: var(--size-smaller);
+    margin: 0 0 var(--space-half);
+}
+
 @media (max-width: 768px) {
     .sourceAccount {
         margin-bottom: var(--space-half);
