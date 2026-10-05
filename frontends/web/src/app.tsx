@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useContext, useEffect, useMemo, Fragment } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState, Fragment } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { TAccount } from './api/account';
@@ -24,6 +24,7 @@ import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
 import { Aopp } from './components/aopp/aopp';
 import { Confirm } from './components/confirm/Confirm';
+import { WhatsNew } from './components/whats-new/whats-new';
 import { KeystoreConnectPrompt } from './components/keystoreconnectprompt';
 import { Sidebar } from './components/sidebar/sidebar';
 import { RouterWatcher } from './utils/route';
@@ -58,13 +59,14 @@ const AppFrame = ({
   tabKey,
 }: TAppFrameProps) => {
   const { vendorIframeActive } = useContext(AppContext);
+  const [authReady, setAuthReady] = useState(false);
   const showMobileBottomNavigation = showBottomNavigation && !vendorIframeActive;
 
   return (
     <>
       <Darkmode />
       <div className="app">
-        <AuthRequired/>
+        <AuthRequired onReadyChange={setAuthReady} />
         <Sidebar
           accounts={activeAccounts}
           devices={devices}
@@ -113,6 +115,7 @@ const AppFrame = ({
         )}
         <Alert />
         <Confirm />
+        {authReady && <WhatsNew />}
       </div>
     </>
   );

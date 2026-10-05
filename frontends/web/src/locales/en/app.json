@@ -2665,5 +2665,9 @@
     "message": "Please connect your BitBox and tap the side to continue.",
     "messageIOS": "Please connect your BitBox Nova and tap the side to continue.",
     "title": "Welcome"
+  },
+  "whatsNew": {
+    "progress": "{{current}} of {{total}}",
+    "title": "What's new in the BitBoxApp"
   }
 }

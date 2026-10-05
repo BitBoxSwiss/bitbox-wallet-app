@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TAuthEventObject, authenticate, subscribeAuth } from '@/api/backend';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
@@ -8,7 +8,11 @@ import { Button } from '@/components/forms';
 import style from './authrequired.module.css';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 
-export const AuthRequired = () => {
+type TProps = {
+  onReadyChange?: (ready: boolean) => void;
+};
+
+export const AuthRequired = ({ onReadyChange }: TProps) => {
   const { t } = useTranslation();
   // If authRequired is true, the user needs to authenticate before accessing the app.
   const [authRequired, setAuthRequired] = useState(false);
@@ -19,17 +23,18 @@ export const AuthRequired = () => {
   const authForced = useRef(false);
 
   // newAuthentication fires a new authentication flow.
-  const newAuthentication = () => {
+  const newAuthentication = useCallback(() => {
     setMissingAuth(false);
     setAuthenticating(true);
     authenticate(authForced.current);
-  };
+  }, []);
 
   // dismissAuth dismisses the AuthRequired component.
-  const dismissAuth = () => {
+  const dismissAuth = useCallback(() => {
     setAuthRequired(false);
+    onReadyChange?.(true);
     authForced.current = false;
-  };
+  }, [onReadyChange]);
 
   useEffect(() => {
     const unsubscribe = subscribeAuth((data: TAuthEventObject) => {
@@ -38,6 +43,7 @@ export const AuthRequired = () => {
         authForced.current = true;
         break;
       case 'auth-required':
+        onReadyChange?.(false);
         // It is a bit strange to call authenticate inside `setAuthRequired`,
         // but doing so we avoid declaring `authRequired` as a useEffect's
         // dependency, which would cause it to unsubscribe/subscribe every
@@ -78,7 +84,7 @@ export const AuthRequired = () => {
     newAuthentication();
 
     return unsubscribe;
-  }, []);
+  }, [dismissAuth, newAuthentication, onReadyChange]);
 
   if (!authRequired) {
     return null;
