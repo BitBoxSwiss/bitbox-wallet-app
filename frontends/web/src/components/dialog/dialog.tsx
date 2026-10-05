@@ -64,6 +64,7 @@ const DialogContainer = ({
 };
 
 type TProps = {
+  className?: string;
   title?: string;
   small?: boolean;
   medium?: boolean;
@@ -74,9 +75,12 @@ type TProps = {
   onClose?: () => void;
   children: React.ReactNode;
   open: boolean;
+  /** Hide temporarily without unmounting the dialog's contents. */
+  hidden?: boolean;
 };
 
 export const Dialog = ({
+  className = '',
   title,
   small,
   medium,
@@ -87,6 +91,7 @@ export const Dialog = ({
   onClose,
   children,
   open,
+  hidden = false,
 }: TProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [status, setStatus] = useState<'idle' | 'opening' | 'open' | 'closing'>('idle');
@@ -96,7 +101,7 @@ export const Dialog = ({
 
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  useFocusTrap(modalRef, status === 'open');
+  useFocusTrap(modalRef, status === 'open' && !hidden);
 
   // create a stable ref so deactivate() doesn't recreate
   // on every parent re-render
@@ -145,7 +150,7 @@ export const Dialog = ({
 
   // ESC closes dialog (fires onClose)
   useEsc(() => {
-    if (open && onClose) {
+    if (open && !hidden && onClose) {
       deactivate(true);
     }
   });
@@ -197,6 +202,7 @@ export const Dialog = ({
 
   const modalClass = `
     ${style.modal || ''}
+    ${className}
     ${small && style.small || ''}
     ${medium && style.medium || ''}
     ${large && style.large || ''}
@@ -215,8 +221,9 @@ export const Dialog = ({
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       className={overlayClass}
+      style={hidden ? { visibility: 'hidden' } : undefined}
     >
-      <UseBackButton handler={handleBackButton} />
+      {!hidden && <UseBackButton handler={handleBackButton} />}
       {isMobile ? (
         <MobileDialog
           status={status}
@@ -255,6 +262,7 @@ export const Dialog = ({
 
 type DialogButtonsProps = {
   children: React.ReactNode;
+  className?: string;
 };
 
 /**
@@ -275,9 +283,9 @@ type DialogButtonsProps = {
  *   </Dialog>
  * ```
  */
-export const DialogButtons = ({ children }: DialogButtonsProps) => {
+export const DialogButtons = ({ children, className = '' }: DialogButtonsProps) => {
   return (
-    <div className={style.dialogButtons}>
+    <div className={`${style.dialogButtons || ''} ${className}`.trim()}>
       {children}
     </div>
   );

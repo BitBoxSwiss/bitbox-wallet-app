@@ -114,14 +114,14 @@ describe('transaction explorer link', () => {
     expect(open).not.toHaveBeenCalled();
   });
 
-  it('leaves shared anchors and their context-menu behavior unchanged', () => {
+  // Shared links are accessible but must not trigger the explorer-only native menu.
+  it('keeps shared anchors out of native explorer menus', () => {
     const showExplorerLinkMenu = vi.fn();
     window.android = { call: vi.fn(), showExplorerLinkMenu };
     render(<A href={url}>Another external link</A>);
-    const link = screen.getByText('Another external link');
+    const link = screen.getByRole('link', { name: 'Another external link' });
     expect(link.tagName).toBe('SPAN');
     expect(link).not.toHaveAttribute('href');
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
     expect(fireEvent.contextMenu(link)).toBe(true);
     expect(showExplorerLinkMenu).not.toHaveBeenCalled();
     expect(fireEvent.click(link)).toBe(false);

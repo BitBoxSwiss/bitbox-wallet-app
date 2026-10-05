@@ -65,6 +65,7 @@ func init() {
 var fixedURLWhitelist = []string{
 	// Shift Crypto owned domains.
 	"https://bitbox.swiss/",
+	"https://blog.bitbox.swiss/",
 	"https://shop.bitbox.swiss/",
 	"https://shiftcrypto.support/",
 	"https://support.bitbox.swiss",
@@ -292,6 +293,7 @@ type Backend struct {
 	banners              *banners.Banners
 	lightning            *lightning.Lightning
 	updateChecker        *updateChecker
+	whatsNew             *whatsNew
 	started              bool
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
@@ -382,6 +384,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.updateChecker = newUpdateChecker(&backend.socksProxy, backend.userAgent())
 	backend.updateChecker.Observe(backend.Notify)
 	backend.httpClient = hclient
+	backend.whatsNew = newWhatsNew(backend.config, versioninfo.Version, whatsNewURL(backend.DevServers()), hclient)
 	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts)
 	backend.enqueueETHUpdateForAllAccountsAsync = backend.ethupdater.EnqueueUpdateForAllAccounts
 

@@ -23,6 +23,7 @@ func TestNewConfig(t *testing.T) {
 
 	cfg, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
+	require.True(t, cfg.IsNew())
 
 	appJsonBytes, err := os.ReadFile(appConfigFilename)
 	require.NoError(t, err)
@@ -47,7 +48,10 @@ func TestNewConfig(t *testing.T) {
 	// Load existing config.
 	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
-	require.Equal(t, cfg, cfg2)
+	require.False(t, cfg2.IsNew())
+	require.Equal(t, cfg.AppConfig(), cfg2.AppConfig())
+	require.Equal(t, cfg.AccountsConfig(), cfg2.AccountsConfig())
+	require.Equal(t, cfg.LightningConfig(), cfg2.LightningConfig())
 }
 
 func TestNewConfigRestrictsExistingConfigFiles(t *testing.T) {
@@ -63,7 +67,9 @@ func TestNewConfigRestrictsExistingConfigFiles(t *testing.T) {
 
 	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
-	require.Equal(t, cfg, cfg2)
+	require.Equal(t, cfg.AppConfig(), cfg2.AppConfig())
+	require.Equal(t, cfg.AccountsConfig(), cfg2.AccountsConfig())
+	require.Equal(t, cfg.LightningConfig(), cfg2.LightningConfig())
 	requirePrivateFileMode(t, appConfigFilename)
 	requirePrivateFileMode(t, accountsConfigFilename)
 	requirePrivateFileMode(t, lightningConfigFilename)
@@ -85,7 +91,9 @@ func TestSetAppConfig(t *testing.T) {
 
 	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
-	require.Equal(t, cfg, cfg2)
+	require.Equal(t, cfg.AppConfig(), cfg2.AppConfig())
+	require.Equal(t, cfg.AccountsConfig(), cfg2.AccountsConfig())
+	require.Equal(t, cfg.LightningConfig(), cfg2.LightningConfig())
 	require.Equal(t, coin.BtcUnitSats, cfg2.AppConfig().Backend.BtcUnit)
 	require.Equal(t, map[string]interface{}{"foo": "bar"}, cfg2.AppConfig().Frontend)
 }
@@ -105,7 +113,9 @@ func TestModifyAccountsConfig(t *testing.T) {
 
 	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
-	require.Equal(t, cfg, cfg2)
+	require.Equal(t, cfg.AppConfig(), cfg2.AppConfig())
+	require.Equal(t, cfg.AccountsConfig(), cfg2.AccountsConfig())
+	require.Equal(t, cfg.LightningConfig(), cfg2.LightningConfig())
 	require.Equal(t, []*Account{{Used: true}}, cfg2.AccountsConfig().Accounts)
 
 	require.Error(t, cfg.ModifyAccountsConfig(func(accountsCfg *AccountsConfig) error {
@@ -143,7 +153,9 @@ func TestModifyLightningConfig(t *testing.T) {
 
 	cfg2, err := NewConfig(appConfigFilename, accountsConfigFilename, lightningConfigFilename)
 	require.NoError(t, err)
-	require.Equal(t, cfg, cfg2)
+	require.Equal(t, cfg.AppConfig(), cfg2.AppConfig())
+	require.Equal(t, cfg.AccountsConfig(), cfg2.AccountsConfig())
+	require.Equal(t, cfg.LightningConfig(), cfg2.LightningConfig())
 	require.Len(t, cfg2.LightningConfig().Accounts, 1)
 
 	require.Error(t, cfg.ModifyLightningConfig(func(lightningCfg *LightningConfig) error {

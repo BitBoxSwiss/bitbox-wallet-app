@@ -40,7 +40,12 @@ export const useEsc = (
   });
 };
 
-const FOCUSABLE_SELECTOR = '[autofocus]:not(:disabled)';
+const FOCUSABLE_SELECTOR = 'a[href], button, input, select, textarea, [tabindex]';
+
+const getFocusableElements = (element: HTMLElement) => (
+  Array.from(element.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+    .filter(el => el.tabIndex >= 0 && !el.matches(':disabled') && el.offsetParent !== null)
+);
 
 /**
  * Traps focus inside the given ref when active,
@@ -59,13 +64,11 @@ export const useFocusTrap = (
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (!trapEnabled.current || !ref.current || e.key !== 'Tab') {
+      if (!trapEnabled.current || !ref.current || e.key !== 'Tab' || e.defaultPrevented) {
         return;
       }
 
-      const focusables = Array.from(
-        ref.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
-      ).filter((el) => el.offsetParent !== null); // skip hidden
+      const focusables = getFocusableElements(ref.current);
 
       if (focusables.length === 0) {
         return;
@@ -129,11 +132,8 @@ export const useFocusTrap = (
 
         // final guard: if still nothing inside has focus, focus first focusable
         if (!node.contains(document.activeElement)) {
-          const firstFocusable = (
-
-            node.querySelector<HTMLElement>('[autofocus]:not(:disabled)') ??
-            node.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
-          );
+          const focusables = getFocusableElements(node);
+          const firstFocusable = focusables.find(el => el.hasAttribute('autofocus')) ?? focusables[0];
           firstFocusable?.focus({ preventScroll: true });
         }
       }, autofocusDelay);

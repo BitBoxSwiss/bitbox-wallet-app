@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useContext, useMemo, Fragment } from 'react';
+import { useContext, useMemo, useState, Fragment } from 'react';
 import { useLocation } from 'wouter';
 import { useIgnoreDrop } from './hooks/drop';
 import { usePlatformClass } from './hooks/platform';
@@ -13,6 +13,7 @@ import { AppNavigation } from './components/navigation';
 import { AppNotifications } from './components/notification';
 import { Aopp } from './components/aopp/aopp';
 import { Confirm } from './components/confirm/Confirm';
+import { WhatsNew } from './components/whats-new/whats-new';
 import { KeystoreConnectPrompt } from './components/keystoreconnectprompt';
 import { Sidebar } from './components/sidebar/sidebar';
 import { RouterWatcher } from './utils/route';
@@ -32,6 +33,7 @@ const AppFrame = () => {
   const [location] = useLocation();
 
   const { vendorIframeActive } = useContext(AppContext);
+  const [authReady, setAuthReady] = useState(false);
 
   const {
     accounts,
@@ -47,7 +49,7 @@ const AppFrame = () => {
     <>
       <Darkmode />
       <div className="app">
-        <AuthRequired/>
+        <AuthRequired onReadyChange={setAuthReady} />
         <Sidebar
           accounts={activeAccounts}
           devices={devices}
@@ -91,6 +93,7 @@ const AppFrame = () => {
         )}
         <Alert />
         <Confirm />
+        <WhatsNew active={authReady} />
       </div>
     </>
   );

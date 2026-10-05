@@ -5,7 +5,9 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os"
+	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
@@ -99,6 +101,9 @@ type Backend struct {
 	// Gap limits optionally forces gap limits for receive/change addresses used in bitcoin accounts
 	GapLimitReceive int `json:"gapLimitReceive"`
 	GapLimitChange  int `json:"gapLimitChange"`
+
+	// WhatsNew is managed by the backend, independently of settings updates.
+	WhatsNew *WhatsNew `json:"whatsNew,omitempty"`
 }
 
 // DeprecatedCoinActive returns the Active setting for a coin by code.  This call is should not be
@@ -240,6 +245,7 @@ type Config struct {
 	appConfigFilename string
 	appConfig         AppConfig
 	appConfigLock     locker.Locker
+	isNew             bool
 
 	accountsConfigFilename string
 	accountsConfig         AccountsConfig
@@ -314,6 +320,7 @@ func (config *Config) SetTBTCElectrumServers(electrumAddress, electrumCert strin
 func (config *Config) load() {
 	jsonBytes, err := os.ReadFile(config.appConfigFilename)
 	if err != nil {
+		config.isNew = os.IsNotExist(err)
 		return
 	}
 	if err := json.Unmarshal(jsonBytes, &config.appConfig); err != nil {
@@ -335,6 +342,11 @@ func (config *Config) load() {
 	}
 }
 
+// IsNew reports whether the app config file was absent when this Config was created.
+func (config *Config) IsNew() bool {
+	return config.isNew
+}
+
 // AppConfig returns the app config.
 func (config *Config) AppConfig() AppConfig {
 	defer config.appConfigLock.RLock()()
@@ -344,6 +356,22 @@ func (config *Config) AppConfig() AppConfig {
 // SetAppConfig sets and persists the app config.
 func (config *Config) SetAppConfig(appConfig AppConfig) error {
 	defer config.appConfigLock.Lock()()
+	appConfig.Backend.WhatsNew = config.appConfig.Backend.WhatsNew
+	// Preserve backend-written dismissals when saving an older settings snapshot.
+	currentFrontend, _ := config.appConfig.Frontend.(map[string]interface{})
+	frontend, _ := appConfig.Frontend.(map[string]interface{})
+	frontend = maps.Clone(frontend)
+	for key, value := range currentFrontend {
+		if strings.HasPrefix(key, "whats-new-") && value == true {
+			if frontend == nil {
+				frontend = make(map[string]interface{})
+			}
+			frontend[key] = true
+		}
+	}
+	if frontend != nil {
+		appConfig.Frontend = frontend
+	}
 	config.appConfig = appConfig
 	return config.save(config.appConfigFilename, config.appConfig)
 }
