@@ -14,6 +14,8 @@ import (
 
 const minimumTopUpAmountSat = 1000
 
+const topUpClaimVSize = 99
+
 const errLightningBalanceLimitExceeded errp.ErrorCode = "lightningBalanceLimitExceeded"
 
 type prepareTopUpRequest struct {
@@ -24,10 +26,11 @@ type prepareTopUpRequest struct {
 }
 
 type topUpProposal struct {
-	Amount                  coin.FormattedAmountWithConversions `json:"amount"`
-	Fee                     coin.FormattedAmountWithConversions `json:"fee"`
-	Total                   coin.FormattedAmountWithConversions `json:"total"`
-	RecipientDisplayAddress string                              `json:"recipientDisplayAddress"`
+	Amount                  coin.FormattedAmountWithConversions  `json:"amount"`
+	Fee                     coin.FormattedAmountWithConversions  `json:"fee"`
+	EstimatedClaimFee       *coin.FormattedAmountWithConversions `json:"estimatedClaimFee"`
+	Total                   coin.FormattedAmountWithConversions  `json:"total"`
+	RecipientDisplayAddress string                               `json:"recipientDisplayAddress"`
 }
 
 type topUpFundingLimitError struct {
@@ -52,6 +55,18 @@ func validateTopUpAmount(amount coin.Amount) error {
 		return &lightningAmountBelowMinimumError{minAmountSat: minimumTopUpAmountSat}
 	}
 	return nil
+}
+
+func (lightning *Lightning) estimateTopUpClaimFee() (coin.Amount, error) {
+	fees, err := lightning.sdkService.RecommendedFees()
+	if err != nil {
+		return coin.Amount{}, errp.Wrap(err, "breez: recommended fees")
+	}
+	if fees.FastestFee == 0 {
+		return coin.Amount{}, errp.New("no recommended fee rate available")
+	}
+	feeSat := new(big.Int).SetUint64(fees.FastestFee)
+	return coin.NewAmount(feeSat.Mul(feeSat, big.NewInt(topUpClaimVSize))), nil
 }
 
 // PrepareTopUp validates the Lightning funding limit and creates the Bitcoin transaction proposal
@@ -104,9 +119,18 @@ func (lightning *Lightning) PrepareTopUp(request prepareTopUpRequest) (*topUpPro
 	}
 
 	accountConfig := account.Config()
+	var estimatedClaimFee *coin.FormattedAmountWithConversions
+	claimFee, err := lightning.estimateTopUpClaimFee()
+	if err != nil {
+		lightning.log.WithError(err).Warn("Could not estimate Lightning top-up claim fee")
+	} else {
+		formatted := claimFee.FormatWithConversions(account.Coin(), true, accountConfig.RateUpdater)
+		estimatedClaimFee = &formatted
+	}
 	return &topUpProposal{
 		Amount:                  outputAmount.FormatWithConversions(account.Coin(), false, accountConfig.RateUpdater),
 		Fee:                     fee.FormatWithConversions(account.Coin(), true, accountConfig.RateUpdater),
+		EstimatedClaimFee:       estimatedClaimFee,
 		Total:                   total.FormatWithConversions(account.Coin(), false, accountConfig.RateUpdater),
 		RecipientDisplayAddress: backendutil.FormatAddress(account.Coin().Code(), boardingAddress),
 	}, nil

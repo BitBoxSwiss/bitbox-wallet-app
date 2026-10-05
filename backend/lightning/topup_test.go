@@ -3,6 +3,7 @@
 package lightning
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -21,6 +22,12 @@ type topUpTestSDK struct {
 	balanceSat       uint64
 	incomingSat      uint64
 	receiveCallCount int
+	recommendedFees  breez_sdk_spark.RecommendedFees
+	feesErr          error
+}
+
+func (sdk *topUpTestSDK) RecommendedFees() (breez_sdk_spark.RecommendedFees, error) {
+	return sdk.recommendedFees, sdk.feesErr
 }
 
 func (sdk *topUpTestSDK) GetInfo(
@@ -83,7 +90,11 @@ func TestParseTopUpAmountUsesAccountDisplayUnit(t *testing.T) {
 }
 
 func TestPrepareTopUp(t *testing.T) {
-	sdk := &topUpTestSDK{balanceSat: 50_000, incomingSat: 25_000}
+	sdk := &topUpTestSDK{
+		balanceSat:      50_000,
+		incomingSat:     25_000,
+		recommendedFees: breez_sdk_spark.RecommendedFees{FastestFee: 12, HourFee: 3},
+	}
 	lightning := makeActiveLightningWithSDK(t, sdk)
 	account := testTopUpAccount(t, lightning, func(args *accounts.TxProposalArgs) (
 		coin.Amount, coin.Amount, coin.Amount, error,
@@ -100,6 +111,9 @@ func TestPrepareTopUp(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "0.00125000", proposal.Amount.Amount)
 	require.Equal(t, "0.00000100", proposal.Fee.Amount)
+	require.NotNil(t, proposal.EstimatedClaimFee)
+	require.Equal(t, "0.00001188", proposal.EstimatedClaimFee.Amount)
+	require.Equal(t, "BTC", proposal.EstimatedClaimFee.Unit)
 	require.Equal(t, "0.00125100", proposal.Total.Amount)
 	require.Equal(t, "bc1q boar ding", proposal.RecipientDisplayAddress)
 	require.Equal(t, 1, sdk.receiveCallCount)
@@ -110,6 +124,53 @@ func TestPrepareTopUp(t *testing.T) {
 	parsedAmount, err := args.Amount.Amount(coin.DecimalsExp(account.Coin(), false), false)
 	require.NoError(t, err)
 	require.Equal(t, coin.NewAmountFromInt64(125_000), parsedAmount)
+}
+
+func TestPrepareTopUpClaimFee(t *testing.T) {
+	for _, test := range []struct {
+		name           string
+		feeRate        uint64
+		feesErr        error
+		expectedFeeSat string
+	}{
+		{name: "recommended rate", feeRate: 12, expectedFeeSat: "1188"},
+		{name: "one sat per vbyte", feeRate: 1, expectedFeeSat: "99"},
+		{name: "unavailable rate"},
+		{name: "failed lookup", feesErr: errors.New("fee service unavailable")},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			sdk := &topUpTestSDK{
+				recommendedFees: breez_sdk_spark.RecommendedFees{FastestFee: test.feeRate},
+				feesErr:         test.feesErr,
+			}
+			lightning := makeActiveLightningWithSDK(t, sdk)
+			account := testTopUpAccount(t, lightning, func(*accounts.TxProposalArgs) (
+				coin.Amount, coin.Amount, coin.Amount, error,
+			) {
+				return coin.NewAmountFromInt64(125_000), coin.NewAmountFromInt64(100), coin.NewAmountFromInt64(125_100), nil
+			})
+			account.Coin().(*btccoin.Coin).SetFormatUnit(coin.BtcUnitSats)
+
+			proposal, err := lightning.PrepareTopUp(prepareTopUpRequest{
+				SourceAccountCode: testTopUpSourceAccountCode,
+				Amount:            "125000",
+				FeeTarget:         "custom",
+				CustomFee:         "5",
+			})
+
+			require.NoError(t, err)
+			require.Equal(t, "125000", proposal.Amount.Amount)
+			require.Equal(t, "100", proposal.Fee.Amount)
+			require.Equal(t, "125100", proposal.Total.Amount)
+			if test.expectedFeeSat == "" {
+				require.Nil(t, proposal.EstimatedClaimFee)
+			} else {
+				require.NotNil(t, proposal.EstimatedClaimFee)
+				require.Equal(t, test.expectedFeeSat, proposal.EstimatedClaimFee.Amount)
+				require.Equal(t, "sat", proposal.EstimatedClaimFee.Unit)
+			}
+		})
+	}
 }
 
 func TestPrepareTopUpRejectsAmountBelowMinimumBeforeCreatingProposal(t *testing.T) {
