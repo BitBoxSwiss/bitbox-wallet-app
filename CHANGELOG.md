@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Mobile: open `lightning:` payment links in BitBoxApp
 - Rename "Factory Reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings

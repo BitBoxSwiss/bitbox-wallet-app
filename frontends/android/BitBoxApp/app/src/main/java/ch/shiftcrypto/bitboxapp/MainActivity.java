@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         // This is only called reliably when intents are received (e.g. USB is attached or when
-        // handling 'aopp:' URIs through the android.intent.action.VIEW intent) with
+        // handling registered URIs through the android.intent.action.VIEW intent) with
         // android:launchMode="singleTop"
         super.onNewIntent(intent);
         setIntent(intent); // make sure onResume will have access to this intent
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         usbDeviceManager.handleUsbIntent(intent);
-        handleAOPPIntent(intent);
+        handleURIIntent(intent);
     }
 
     @Override
@@ -271,15 +271,18 @@ public class MainActivity extends AppCompatActivity {
         Util.quit(MainActivity.this);
     }
 
-    // Handle 'aopp:' URIs. This is called when the app is launched and also if it is already
+    // Handle registered URIs. This is called when the app is launched and also if it is already
     // running and brought to the foreground.
-    private void handleAOPPIntent(Intent intent) {
+    private void handleURIIntent(Intent intent) {
         if (intent == null || !Intent.ACTION_VIEW.equals(intent.getAction())) {
             return;
         }
         Uri uri = intent.getData();
-        if (uri != null && "aopp".equals(uri.getScheme())) {
+        if (uri != null && ("aopp".equals(uri.getScheme())
+                || "lightning".equalsIgnoreCase(uri.getScheme()))) {
             Mobileserver.handleURI(uri.toString());
+            // onResume also runs after authentication and returning from other apps.
+            intent.setData(null);
         }
     }
 }

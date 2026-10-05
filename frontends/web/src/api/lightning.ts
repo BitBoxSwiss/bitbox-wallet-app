@@ -33,6 +33,21 @@ export type TLightningAccount = {
 
 export type TLightningSDKStatus = 'inactive' | 'initializing' | 'ready' | 'failed';
 
+export type TLightningURI = {
+  revision: number;
+  input: string | null;
+};
+
+export const getLightningURI = (): Promise<TLightningURI> => apiGet('lightning/uri');
+
+export const subscribeLightningURI = (cb: TSubscriptionCallback<TLightningURI>): TUnsubscribe => {
+  return subscribeEndpoint('lightning/uri', cb);
+};
+
+export const postClearLightningURI = (revision: number): Promise<TLightningResponse<null>> => {
+  return apiPost('lightning/uri/clear', { revision });
+};
+
 export type TLightningBolt11Invoice = {
   invoice: string;
   description?: string;

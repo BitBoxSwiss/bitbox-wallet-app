@@ -56,6 +56,7 @@ import { LightningCloseWithdrawFunds } from './lightning/close-and-withdraw-fund
 import { isLightningFeatureAvailable } from '@/utils/env';
 import { isLightningRoute } from '@/utils/route';
 import { LightningTestnetGuard } from './lightning/testnet-warning';
+import { useLightningURI } from '@/hooks/lightning-uri';
 
 type TAppRouterProps = {
   devices: TDevices;
@@ -83,6 +84,7 @@ export const AppRouter = ({
 }: TAppRouterProps) => {
   const hasAccounts = accounts.length > 0;
   const lightningFeatureAvailable = isLightningFeatureAvailable();
+  const lightningURI = useLightningURI();
   const { pathname } = useLocation();
   const Homepage = (<DeviceSwitch
     key={devicesKey('device-switch-default')}
@@ -361,7 +363,9 @@ export const AppRouter = ({
         {lightningFeatureAvailable ? (
           <Route path="lightning">
             <Route index element={<Lightning />} />
-            <Route path="activate" element={<LightningActivate />} />
+            <Route path="activate" element={(
+              <LightningActivate hasPendingPayment={lightningURI !== undefined && lightningURI.input !== null} />
+            )} />
             <Route path="disclaimer" element={<LightningDisclaimer />} />
             <Route path="deactivate" element={<LightningDeactivate />} />
             <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
@@ -372,7 +376,7 @@ export const AppRouter = ({
                 hasAccounts={hasAccounts}
               />
             )} />
-            <Route path="send" element={<LightningSend activeAccounts={activeAccounts} />} />
+            <Route path="send" element={<LightningSend activeAccounts={activeAccounts} uriRequest={lightningURI} />} />
             <Route path="receive" element={<LightningReceive />} />
             <Route path="topup" element={<LightningTopUp activeAccounts={activeAccounts} hasAccounts={hasAccounts} />} />
           </Route>

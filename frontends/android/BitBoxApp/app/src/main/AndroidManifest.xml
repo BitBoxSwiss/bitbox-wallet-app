@@ -56,7 +56,7 @@
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
-            <!-- Register URI protocol to handle 'aopp:...' links -->
+            <!-- Register URI protocols for address requests and Lightning payments. -->
             <!-- For testing, you can simulate an aopp link click using: -->
             <!-- adb shell 'am start -n ch.shiftcrypto.bitboxapp.debug/ch.shiftcrypto.bitboxapp.MainActivity -a android.intent.action.VIEW -d "aopp:..."' -->
             <intent-filter>
@@ -64,8 +64,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <!--BROWSABLE: can be opened by clicking a link in a browser or email -->
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- No andriod:host attribute because there is no host in "aopp:?..." -->
+                <!-- No android:host attribute because these URI schemes do not require a host. -->
                 <data android:scheme="aopp" />
+                <data android:scheme="lightning" />
+                <data android:scheme="LIGHTNING" />
             </intent-filter>
             <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
