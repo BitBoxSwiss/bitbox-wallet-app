@@ -96,6 +96,9 @@ type Backend interface {
 	SystemOpen(string) error
 	ReconfigureHistoryExchangeRates()
 	GetUpdate() backend.UpdateState
+	GetWhatsNew() *backend.WhatsNewNotes
+	DismissWhatsNew(string) error
+	GetWhatsNewImage(string, string) string
 	CheckUpdate(context.Context) backend.UpdateState
 	Banners() *banners.Banners
 	Lightning() *lightning.Lightning
@@ -235,6 +238,9 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-dark-theme", handlers.postDarkTheme).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/detect-dark-theme", handlers.getDetectDarkTheme).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/version", handlers.getVersion).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/whats-new", handlers.getWhatsNew).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/whats-new/dismiss", handlers.postWhatsNewDismiss).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/whats-new/image", handlers.getWhatsNewImage).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/testing", handlers.getTesting).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/dev-servers", handlers.getDevServers).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccount).Methods("POST")
@@ -686,6 +692,31 @@ func (handlers *Handlers) postDarkTheme(r *http.Request) interface{} {
 
 func (handlers *Handlers) getDetectDarkTheme(r *http.Request) interface{} {
 	return handlers.backend.Environment().DetectDarkTheme()
+}
+
+func (handlers *Handlers) getWhatsNew(*http.Request) interface{} {
+	return handlers.backend.GetWhatsNew()
+}
+
+func (handlers *Handlers) postWhatsNewDismiss(r *http.Request) interface{} {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+	var request struct {
+		Version string `json:"version"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{ErrorMessage: err.Error()}
+	}
+	if err := handlers.backend.DismissWhatsNew(request.Version); err != nil {
+		return response{ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
+}
+
+func (handlers *Handlers) getWhatsNewImage(r *http.Request) interface{} {
+	return handlers.backend.GetWhatsNewImage(r.URL.Query().Get("version"), r.URL.Query().Get("path"))
 }
 
 func (handlers *Handlers) getVersion(*http.Request) interface{} {
