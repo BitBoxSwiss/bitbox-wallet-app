@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import type { AccountCode, CoinCode, ConversionUnit, FeeTargetCode, TAccount, TAmountWithConversions, TBalance, TTxProposalResult } from '@/api/account';
+import type { AccountCode, CoinCode, ConversionUnit, FeeTargetCode, TAccount, TAmountWithConversions, TBalance } from '@/api/account';
+import type { TPrepareTopUpResult } from '@/api/lightning';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button, NumberInput } from '@/components/forms';
@@ -63,7 +64,7 @@ type TProps = {
   onNoteChange: (note: string) => void;
   onReview: () => void;
   onSourceChange: (code: AccountCode) => void;
-  proposal?: TTxProposalResult;
+  proposal?: TPrepareTopUpResult;
   sendError?: string;
   sourceAccount?: TAccount;
   sourceAccountCode: AccountCode;
@@ -171,6 +172,24 @@ export const TopUpForm = ({
                       onCustomFee={onCustomFeeChange}
                       error={errorHandling.feeError}
                     />
+                  </Column>
+                )}
+                {proposal?.success && (
+                  <Column>
+                    <p className={styles.claimFee}>
+                      <span>{t('lightning.topUp.estimatedClaimFee')}</span>:
+                      {' '}
+                      {proposal.estimatedClaimFee ? (
+                        <>
+                          <AmountWithUnit amount={proposal.estimatedClaimFee} alwaysShowAmounts wrap />
+                          {' ('}
+                          <AmountWithUnit amount={proposal.estimatedClaimFee} convertToFiat alwaysShowAmounts wrap />
+                          {')'}
+                        </>
+                      ) : t('generic.unavailable')}
+                      <br />
+                      <span>{t('lightning.topUp.claimFeeInfo')}</span>
+                    </p>
                   </Column>
                 )}
                 <Column>

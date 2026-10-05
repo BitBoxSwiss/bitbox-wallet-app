@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Lightning: show the estimated claim fee before sending a top-up
 - Lightning: preserve invoice details when going back to edit an invoice
 - Rename "Factory reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
