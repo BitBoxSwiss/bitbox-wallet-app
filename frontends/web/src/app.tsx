@@ -29,13 +29,8 @@ import { BottomNavigation } from './components/bottom-navigation/bottom-navigati
 import { getBottomNavKey } from './components/bottom-navigation/utils';
 import styles from './app.module.css';
 
-type TAppFrameProps = {
-  devicesKey: (prefix: string) => string;
-};
+const AppFrame = () => {
 
-const AppFrame = ({
-  devicesKey,
-}: TAppFrameProps) => {
   const { pathname } = useLocation();
 
   const { vendorIframeActive } = useContext(AppContext);
@@ -84,7 +79,7 @@ const AppFrame = ({
           <GlobalBannersProvider devices={devices}>
             {/* Remount on tab changes to restart the tab transition animation. */}
             <div key={tabKey} className={styles.tabTransition}>
-              <AppRouter devicesKey={devicesKey} />
+              <AppRouter />
             </div>
           </GlobalBannersProvider>
           <RouterWatcher />
@@ -235,16 +230,10 @@ export const App = () => {
     maybeRoute();
   }, [devices, maybeRoute, navigate, prevDevices]);
 
-  const devicesKey = useCallback((prefix: string): string => {
-    return prefix + ':' + JSON.stringify(devices, Object.keys(devices).sort());
-  }, [devices]);
-
   return (
     <ConnectedApp>
       <Providers>
-        <AppFrame
-          devicesKey={devicesKey}
-        />
+        <AppFrame />
       </Providers>
     </ConnectedApp>
   );

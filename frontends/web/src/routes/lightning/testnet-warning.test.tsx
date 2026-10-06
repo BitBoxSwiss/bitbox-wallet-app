@@ -75,7 +75,7 @@ const renderApp = (path = '/lightning', previousPath?: string) => render(
         <BackButtonProvider>
           <Navigation />
           <Testing />
-          <AppRouter devicesKey={prefix => prefix} />
+          <AppRouter />
         </BackButtonProvider>
       </AppStateContext.Provider>
     </AppProvider>

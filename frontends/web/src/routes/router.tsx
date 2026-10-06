@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { useDevicesKey } from '@/hooks/device-key';
 import { AddAccount } from './account/add/add-account';
 import { Moonpay } from './market/moonpay';
 import { Market } from './market/market';
@@ -54,26 +55,19 @@ import { isLightningFeatureAvailable } from '@/utils/env';
 import { isLightningRoute } from '@/utils/route';
 import { LightningTestnetGuard } from './lightning/testnet-warning';
 
-type TAppRouterProps = {
-  devicesKey: ((input: string) => string);
-};
-
-export const AppRouter = ({
-  devicesKey,
-}: TAppRouterProps) => {
+export const AppRouter = () => {
 
   const lightningFeatureAvailable = isLightningFeatureAvailable();
   const { pathname } = useLocation();
   const Homepage = (
     <DeviceSwitch
-      key={devicesKey('device-switch-default')}
+      key={useDevicesKey('device-switch-default')}
       deviceID={null}
-    />
-  );
+    />);
 
   const Device = (
     <DeviceSwitch
-      key={devicesKey('device-switch')}
+      key={useDevicesKey('device-switch')}
       deviceID={null}
     />
   );
@@ -189,7 +183,7 @@ export const AppRouter = ({
 
   const ManageBackupsEl = (
     <ManageBackups
-      key={devicesKey('manage-backups')}
+      key={useDevicesKey('manage-backups')}
       deviceID={null}
     />
   );
