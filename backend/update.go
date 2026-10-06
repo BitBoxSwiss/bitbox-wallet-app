@@ -48,8 +48,11 @@ type UpdateFile struct {
 	// NewVersion stores the new version and may not be nil.
 	NewVersion *semver.SemVer `json:"version"`
 
-	// Description gives additional information on the release.
+	// Description gives additional information on the release in English.
 	Description string `json:"description"`
+
+	// DescriptionTranslations optionally provides release descriptions keyed by language tag.
+	DescriptionTranslations map[string]string `json:"descriptionTranslations,omitempty"`
 }
 
 // UpdateState is the revisioned result of the latest successful update check.
