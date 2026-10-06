@@ -9,18 +9,20 @@ import { useSync } from '@/hooks/api';
 import style from './update.module.css';
 
 export const Update = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const file = useSync(getUpdate, subscribeUpdate, state => state.revision)?.update;
   if (!file) {
     return null;
   }
+  const description = file.descriptionTranslations?.[i18n.resolvedLanguage ?? 'en'] || file.description;
   return (
     <Status dismissibleKey={`update-${file.version}`} type="info">
       {t('app.upgrade', {
         current: file.current,
         version: file.version,
       })}
-      {file.description}
+      {' '}
+      {description}
       {' '}
       {/* Don't show download link on Android because they should update from stores */}
       {!runningInAndroid() && <AppDownloadLink className={style.link} />}
