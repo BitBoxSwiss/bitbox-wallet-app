@@ -2107,9 +2107,10 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
+	// Success describes quote retrieval; amount validation is reported independently.
 	type result struct {
 		Success             bool                   `json:"success"`
-		ErrorCode           errp.ErrorCode         `json:"errorCode,omitempty"`
+		QuoteErrorCode      errp.ErrorCode         `json:"quoteErrorCode,omitempty"`
 		ErrorMessage        string                 `json:"errorMessage,omitempty"`
 		ErrorData           *swapkit.APIErrorData  `json:"errorData,omitempty"`
 		ValidationErrorCode errp.ErrorCode         `json:"validationErrorCode,omitempty"`
@@ -2117,10 +2118,10 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	}
 	errorResult := func(code errp.ErrorCode, message string, data *swapkit.APIErrorData) result {
 		return result{
-			Success:      false,
-			ErrorCode:    code,
-			ErrorMessage: message,
-			ErrorData:    data,
+			Success:        false,
+			QuoteErrorCode: code,
+			ErrorMessage:   message,
+			ErrorData:      data,
 		}
 	}
 
@@ -2185,21 +2186,12 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 	)
 	if quoteError != nil {
 		response := errorResult(quoteError.ErrorCode, quoteError.Message, quoteError.Data)
-		if validationErrorCode != "" {
-			response.ValidationErrorCode = validationErrorCode
-		}
+		response.ValidationErrorCode = validationErrorCode
 		return response
 	}
-	if validationErrorCode != "" {
-		return result{
-			Success:      false,
-			ErrorCode:    validationErrorCode,
-			ErrorMessage: string(validationErrorCode),
-			Quote:        quoteResponse,
-		}
-	}
 	return result{
-		Success: true,
-		Quote:   quoteResponse,
+		Success:             true,
+		ValidationErrorCode: validationErrorCode,
+		Quote:               quoteResponse,
 	}
 }

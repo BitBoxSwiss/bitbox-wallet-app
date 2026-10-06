@@ -292,7 +292,7 @@ describe('routes/market/swap', () => {
     });
     vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
       success: false,
-      errorCode: 'noRoutesFound',
+      quoteErrorCode: 'noRoutesFound',
       errorData: {
         buyCoin: 'USDC',
         sellCoin: 'ETH',
@@ -347,7 +347,7 @@ describe('routes/market/swap', () => {
 
     vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
       success: false,
-      errorCode: 'noRoutesFound',
+      quoteErrorCode: 'noRoutesFound',
       errorData: {
         buyCoin: 'ETH',
         sellCoin: 'BTC',
@@ -398,13 +398,81 @@ describe('routes/market/swap', () => {
     expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
   });
 
-  it('keeps quote output visible for insufficient funds', async () => {
+  // Quote failures and amount validation render independently and both clear when a valid quote arrives.
+  it.each([undefined, 'insufficientFunds'] as const)(
+    'shows provider offline error with validation %s and clears it after a successful quote',
+    async (validationErrorCode) => {
+      const user = userEvent.setup();
+      vi.mocked(swapApi.getSwapQuote).mockResolvedValueOnce({
+        success: false,
+        quoteErrorCode: 'providersUnavailable',
+        errorMessage: 'Providers unavailable',
+        validationErrorCode,
+      });
+
+      render(
+        <BackButtonProvider>
+          <RatesContext.Provider
+            value={{
+              activeCurrencies: [],
+              addToActiveCurrencies: vi.fn(),
+              btcUnit: 'default',
+              defaultCurrency: 'USD',
+              removeFromActiveCurrencies: vi.fn(),
+              rotateBtcUnit: vi.fn(),
+              rotateDefaultCurrency: vi.fn(),
+              updateDefaultCurrency: vi.fn(),
+            }}>
+            <AppStateContext.Provider
+              value={{
+                accounts: [sellAccount, buyAccount],
+                activeAccounts: [sellAccount, buyAccount],
+                deviceIDs: [],
+                devices: {},
+                hasAccounts: false,
+                hasBottomNavigation: false,
+                hasDevices: false,
+                lightningAccount: undefined,
+                hasLightningAccount: false,
+              }}
+            >
+              <MemoryRouter>
+                <Swap />
+              </MemoryRouter>
+            </AppStateContext.Provider>
+          </RatesContext.Provider>
+        </BackButtonProvider>
+      );
+
+      await user.click(await screen.findByTestId('agree-swap-terms'));
+      const sellAmountInput = await screen.findByLabelText('swapSendAmount');
+      await user.type(sellAmountInput, '1');
+
+      const offlineMessage = 'Swap providers are currently unavailable for the selected sell asset. Please try again later.';
+      expect(await screen.findByText(offlineMessage)).toBeInTheDocument();
+      expect(screen.queryByText(/Try entering a larger amount/)).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+      if (validationErrorCode) {
+        expect(screen.getByText(/insufficient funds/i)).toBeInTheDocument();
+      }
+
+      await user.clear(sellAmountInput);
+      await user.type(sellAmountInput, '2');
+
+      expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+      expect(screen.queryByText(offlineMessage)).not.toBeInTheDocument();
+      expect(screen.queryByText(/insufficient funds/i)).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled();
+    },
+  );
+
+  // A successful quote can have insufficient funds; keep the preview, block swapping, and clear validation on recovery.
+  it('keeps quote output visible for insufficient funds and clears validation after recovery', async () => {
     const user = userEvent.setup();
 
-    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
-      success: false,
-      errorCode: 'insufficientFunds',
-      errorMessage: 'insufficientFunds',
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValueOnce({
+      success: true,
+      validationErrorCode: 'insufficientFunds',
       quote: {
         routes: [{
           expectedBuyAmount: '1.23',
@@ -449,12 +517,20 @@ describe('routes/market/swap', () => {
     );
 
     await user.click(await screen.findByTestId('agree-swap-terms'));
-    await user.type(await screen.findByLabelText('swapSendAmount'), '2');
+    const sellAmountInput = await screen.findByLabelText('swapSendAmount');
+    await user.type(sellAmountInput, '2');
 
     expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
     expect(await screen.findByTestId('swapGetAmount')).toHaveTextContent('1.23');
     expect(screen.getByText(/insufficient funds/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+
+    await user.clear(sellAmountInput);
+    await user.type(sellAmountInput, '1');
+
+    expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+    expect(screen.queryByText(/insufficient funds/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled();
   });
 
   it('disables swap button immediately when sell amount changes', async () => {

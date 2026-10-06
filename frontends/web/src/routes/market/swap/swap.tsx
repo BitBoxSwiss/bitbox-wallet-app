@@ -22,6 +22,7 @@ import {
   type TSwapAccounts,
   type TSwapQuoteErrorCode,
   type TSwapQuoteRoute,
+  type TSwapQuoteValidationErrorCode,
 } from '@/api/swap';
 import { useAppState } from '@/contexts/app-state-context';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
@@ -50,8 +51,9 @@ import { Skeleton } from '@/components/skeleton/skeleton';
 import style from './swap.module.css';
 
 const QUOTE_DEBOUNCE_MS = 300;
-const INSUFFICIENT_FUNDS_ERROR: TSwapQuoteErrorCode = 'insufficientFunds';
+const INSUFFICIENT_FUNDS_ERROR: TSwapQuoteValidationErrorCode = 'insufficientFunds';
 const NO_ROUTES_FOUND_ERROR: TSwapQuoteErrorCode = 'noRoutesFound';
+const PROVIDERS_UNAVAILABLE_ERROR: TSwapQuoteErrorCode = 'providersUnavailable';
 const UNEXPECTED_ERROR: TSwapQuoteErrorCode = 'unexpectedError';
 
 const fetchBalance = async (code: AccountCode) => {
@@ -119,7 +121,7 @@ export const Swap = () => {
   const [routes, setRoutes] = useState<TSwapQuoteRoute[]>([]);
   const [selectedRouteId, setSelectedRouteId] = useState<string | undefined>();
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
-  const [quoteErrorCode, setQuoteErrorCode] = useState<TSwapQuoteErrorCode | undefined>();
+  const [validationErrorCode, setValidationErrorCode] = useState<TSwapQuoteValidationErrorCode | undefined>();
   const [routeError, setRouteError] = useState<string | undefined>();
   // Drives the button disabled/loading state for the whole confirm flow.
   const [isConfirmInFlight, setIsConfirmInFlight] = useState(false);
@@ -202,21 +204,9 @@ export const Swap = () => {
     setSelectedRouteId(undefined);
     setExpectedOutput('');
     setExpectedOutputUnit(undefined);
-    setQuoteErrorCode(undefined);
+    setValidationErrorCode(undefined);
     setRouteError(undefined);
   }, []);
-
-  const resetQuoteStateWithError = useCallback(({
-    error,
-    errorCode,
-  }: {
-    error?: string;
-    errorCode?: TSwapQuoteErrorCode;
-  }) => {
-    clearQuoteState();
-    setQuoteErrorCode(errorCode);
-    setRouteError(error);
-  }, [clearQuoteState]);
 
   // flips sell and buy account
   const handleFlipAccounts = () => {
@@ -242,10 +232,7 @@ export const Swap = () => {
     const buyCoinCode = buyAccount?.coinCode;
     const amount = Number(sellAmount);
 
-    setRoutes([]);
-    setSelectedRouteId(undefined);
-    setExpectedOutput('');
-    setExpectedOutputUnit(undefined);
+    clearQuoteState();
 
     if (
       !sellCoinCode
@@ -255,15 +242,11 @@ export const Swap = () => {
       || amount <= 0
       || sellAccountCode === buyAccountCode
     ) {
-      clearQuoteState();
       setIsFetchingRoutes(false);
       return;
     }
 
     setIsFetchingRoutes(true);
-    setQuoteErrorCode(undefined);
-    setRouteError(undefined);
-
     const fetchRoutes = async () => {
       try {
         const response = await getSwapQuote({
@@ -275,11 +258,9 @@ export const Swap = () => {
         if (isCancelled) {
           return;
         }
-        const nextRoutes = response.quote?.routes ?? [];
-        const validationErrorCode = response.success ? undefined : response.validationErrorCode;
+        const nextRoutes = response.success ? response.quote.routes : [];
+        setValidationErrorCode(response.validationErrorCode);
         if (nextRoutes.length > 0) {
-          setQuoteErrorCode(response.success ? undefined : validationErrorCode ?? response.errorCode);
-          setRouteError(undefined);
           setRoutes(nextRoutes);
           const firstRouteId = nextRoutes[0]?.routeId;
           setSelectedRouteId(currentRouteId => (
@@ -289,13 +270,13 @@ export const Swap = () => {
           ));
           return;
         }
-        if (!response.success && response.errorCode === INSUFFICIENT_FUNDS_ERROR) {
-          resetQuoteStateWithError({ errorCode: response.errorCode });
+        if (!response.success && response.quoteErrorCode === PROVIDERS_UNAVAILABLE_ERROR) {
+          setRouteError(t('swap.providersUnavailable'));
           return;
         }
         if (
           response.success
-          || response.errorCode === NO_ROUTES_FOUND_ERROR
+          || response.quoteErrorCode === NO_ROUTES_FOUND_ERROR
         ) {
           const noRouteFoundMessage = (
             !response.success
@@ -307,27 +288,23 @@ export const Swap = () => {
               })
               : t('swap.noRouteFound')
           );
-          resetQuoteStateWithError({
-            error: noRouteFoundMessage,
-            errorCode: response.success ? undefined : validationErrorCode ?? response.errorCode,
-          });
+          setRouteError(noRouteFoundMessage);
           return;
         }
-        resetQuoteStateWithError({
-          error: response.errorCode === UNEXPECTED_ERROR
+        setRouteError(
+          response.quoteErrorCode === UNEXPECTED_ERROR
             ? t('swap.fetchQuotesError')
             : response.errorMessage || t('swap.fetchQuotesError'),
-          errorCode: validationErrorCode ?? response.errorCode,
-        });
+        );
       } catch (error: unknown) {
         if (isCancelled) {
           return;
         }
-        resetQuoteStateWithError({
-          error: typeof error === 'string' && error
+        setRouteError(
+          typeof error === 'string' && error
             ? error
             : t('swap.fetchQuotesError'),
-        });
+        );
       } finally {
         if (!isCancelled) {
           setIsFetchingRoutes(false);
@@ -347,7 +324,6 @@ export const Swap = () => {
     buyAccount?.coinCode,
     buyAccountCode,
     clearQuoteState,
-    resetQuoteStateWithError,
     sellAccount?.coinCode,
     sellAccountCode,
     sellAmount,
@@ -584,7 +560,7 @@ export const Swap = () => {
                 />
               )}
               <Message
-                hidden={quoteErrorCode !== INSUFFICIENT_FUNDS_ERROR}
+                hidden={validationErrorCode !== INSUFFICIENT_FUNDS_ERROR}
                 type="warning"
                 className={style.sellWarning}
               >
@@ -637,7 +613,7 @@ export const Swap = () => {
             <ViewButtons>
               <Button
                 primary
-                disabled={!selectedRoute || isConfirmInFlight || quoteErrorCode === INSUFFICIENT_FUNDS_ERROR}
+                disabled={!selectedRoute || isConfirmInFlight || validationErrorCode === INSUFFICIENT_FUNDS_ERROR}
                 onClick={handleConfirm}>
                 <span className={style.swapButtonContent}>
                   {isConfirmInFlight && (

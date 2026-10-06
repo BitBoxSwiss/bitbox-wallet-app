@@ -44,6 +44,11 @@ type QuoteResponse struct {
 	Error          string       `json:"error,omitempty"`
 }
 
+// Provider contains the chain availability reported by the /providers endpoint.
+type Provider struct {
+	EnabledChainIDs []string `json:"enabledChainIds"`
+}
+
 // QuoteRoute represents a single route for a quote returned by the SwapKit API.
 // See https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote
 type QuoteRoute struct {
