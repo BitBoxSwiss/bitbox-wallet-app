@@ -355,6 +355,59 @@ describe('routes/market/swap', () => {
     expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
   });
 
+  it.each([undefined, 'insufficientFunds'] as const)(
+    'shows provider offline error with validation %s and clears it after a successful quote',
+    async (validationErrorCode) => {
+      const user = userEvent.setup();
+      vi.mocked(swapApi.getSwapQuote).mockResolvedValueOnce({
+        success: false,
+        errorCode: 'providersUnavailable',
+        errorMessage: 'Providers unavailable',
+        validationErrorCode,
+      });
+
+      render(
+        <BackButtonProvider>
+          <RatesContext.Provider
+            value={{
+              activeCurrencies: [],
+              addToActiveCurrencies: vi.fn(),
+              btcUnit: 'default',
+              defaultCurrency: 'USD',
+              removeFromActiveCurrencies: vi.fn(),
+              rotateBtcUnit: vi.fn(),
+              rotateDefaultCurrency: vi.fn(),
+              updateDefaultCurrency: vi.fn(),
+            }}>
+            <MemoryRouter>
+              <Swap accounts={[sellAccount, buyAccount]} />
+            </MemoryRouter>
+          </RatesContext.Provider>
+        </BackButtonProvider>
+      );
+
+      await user.click(await screen.findByTestId('agree-swap-terms'));
+      const sellAmountInput = await screen.findByLabelText('swapSendAmount');
+      await user.type(sellAmountInput, '1');
+
+      const offlineMessage = 'Swap providers are currently unavailable for the selected sell asset. Please try again later.';
+      expect(await screen.findByText(offlineMessage)).toBeInTheDocument();
+      expect(screen.queryByText(/Try entering a larger amount/)).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+      if (validationErrorCode) {
+        expect(screen.getByText(/insufficient funds/i)).toBeInTheDocument();
+      }
+
+      await user.clear(sellAmountInput);
+      await user.type(sellAmountInput, '2');
+
+      expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+      expect(screen.queryByText(offlineMessage)).not.toBeInTheDocument();
+      expect(screen.queryByText(/insufficient funds/i)).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled();
+    },
+  );
+
   it('keeps quote output visible for insufficient funds', async () => {
     const user = userEvent.setup();
 

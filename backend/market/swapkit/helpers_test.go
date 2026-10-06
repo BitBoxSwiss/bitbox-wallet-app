@@ -168,6 +168,12 @@ func TestNewQuoteFromCoinCodeUsesInjectedHTTPClient(t *testing.T) {
 func TestNewQuoteFromCoinCodeMapsEmptyRoutesToNoRoutesFound(t *testing.T) {
 	httpClient := &http.Client{
 		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			if req.URL.Path == "/providers" {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(`[{"enabledChainIds":["litecoin"]}]`)),
+				}, nil
+			}
 			bodyBytes, err := io.ReadAll(req.Body)
 			require.NoError(t, err)
 
@@ -204,6 +210,12 @@ func TestNewQuoteFromCoinCodeMapsEmptyRoutesToNoRoutesFound(t *testing.T) {
 func TestNewQuoteFromCoinCodeMapsNoRouteAPIErrorToNoRoutesFound(t *testing.T) {
 	httpClient := &http.Client{
 		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			if req.URL.Path == "/providers" {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(`[{"enabledChainIds":["1"]}]`)),
+				}, nil
+			}
 			bodyBytes, err := io.ReadAll(req.Body)
 			require.NoError(t, err)
 
@@ -349,7 +361,7 @@ func TestNewQuoteFromCoinCodePreservesRoutesWithAnyProviderCount(t *testing.T) {
 
 func TestClientPostAppliesRequestTimeout(t *testing.T) {
 	client := &Client{
-		baseURL: "https://swapkit.shiftcrypto.io/v3",
+		baseURL: "https://swapkit.shiftcrypto.io",
 		httpClient: &http.Client{
 			Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 				deadline, ok := req.Context().Deadline()
@@ -366,5 +378,5 @@ func TestClientPostAppliesRequestTimeout(t *testing.T) {
 	}
 
 	var out QuoteResponse
-	require.NoError(t, client.post(context.Background(), "/quote", &QuoteRequest{}, &out))
+	require.NoError(t, client.post(context.Background(), "/v3/quote", &QuoteRequest{}, &out))
 }
