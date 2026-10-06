@@ -12,6 +12,7 @@ import { AppProvider } from '@/contexts/AppProvider';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import translations from '@/locales/en/app.json';
 import { AppRouter } from '../router';
+import { AppStateContext } from '@/contexts/app-state-context';
 
 const mocks = vi.hoisted(() => ({
   lightningPage: vi.fn((): JSX.Element => <p>Lightning page</p>),
@@ -58,17 +59,25 @@ const Navigation = (): JSX.Element => {
 const renderApp = (path = '/lightning', previousPath?: string) => render(
   <MemoryRouter initialEntries={previousPath ? [previousPath, path] : [path]}>
     <AppProvider>
-      <BackButtonProvider>
-        <Navigation />
-        <Testing />
-        <AppRouter
-          accounts={[]}
-          activeAccounts={[]}
-          devices={{}}
-          devicesKey={prefix => prefix}
-          showBottomNavigation={false}
-        />
-      </BackButtonProvider>
+      <AppStateContext.Provider
+        value={{
+          accounts: [],
+          activeAccounts: [],
+          deviceIDs: [],
+          devices: {},
+          hasAccounts: false,
+          hasBottomNavigation: false,
+          hasDevices: false,
+          lightningAccount: undefined,
+          hasLightningAccount: false,
+        }}
+      >
+        <BackButtonProvider>
+          <Navigation />
+          <Testing />
+          <AppRouter devicesKey={prefix => prefix} />
+        </BackButtonProvider>
+      </AppStateContext.Provider>
     </AppProvider>
   </MemoryRouter>,
 );

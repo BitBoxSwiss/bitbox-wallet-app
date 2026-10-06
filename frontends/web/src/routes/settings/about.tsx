@@ -7,12 +7,11 @@ import { WithSettingsTabs } from './components/tabs';
 import { AppVersion } from './components/about/app-version-setting';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
-import { TPagePropsWithSettingsTabs } from './types';
 import { FeedbackLink } from './components/about/feedback-link-setting';
 import { SupportLink } from './components/about/support-link-setting';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 
-export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const About = () => {
   const { t } = useTranslation();
   return (
     <GuideWrapper>
@@ -27,7 +26,7 @@ export const About = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
           />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
+              <WithSettingsTabs hideMobileMenu>
                 <AboutSettingsContent />
               </WithSettingsTabs>
             </ViewContent>

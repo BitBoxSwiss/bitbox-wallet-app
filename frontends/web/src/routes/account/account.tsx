@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { statusChanged, syncAddressesCount, syncdone, transactionsChanged } from '@/api/accountsync';
 import { getMarketVendors, MarketVendors } from '@/api/market';
+import { useAppState } from '@/contexts/app-state-context';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
 import { InfoBlue, LoupeBlue } from '@/components/icon';
@@ -36,20 +37,19 @@ import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
 import { RatesContext } from '@/contexts/RatesContext';
 import { OfflineError } from '@/components/banners/offline-error';
-import style from './account.module.css';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import style from './account.module.css';
 
 type Props = {
-  accounts: accountApi.TAccount[];
   code: accountApi.AccountCode;
 };
 
-export const Account = (props: Props) => {
-  if (!props.code) {
+export const Account = ({ code }: Props) => {
+  if (!code) {
     return null;
   }
   // The `key` prop forces a re-mount when `code` changes.
-  return <RemountAccount key={props.code} {...props} />;
+  return <RemountAccount key={code} code={code} />;
 };
 
 const getBitsuranceGuideLink = (
@@ -65,10 +65,16 @@ const getBitsuranceGuideLink = (
 
 // Re-mounted when `code` changes, and `code` is guaranteed to be non-empty.
 const RemountAccount = ({
-  accounts,
   code,
 }: Props) => {
   const { t } = useTranslation();
+
+  const {
+    activeAccounts
+  } = useAppState();
+
+  const account = activeAccounts.find(acct => acct.code === code);
+
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { btcUnit } = useContext(RatesContext);
 
@@ -87,7 +93,6 @@ const RemountAccount = ({
 
   const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
 
-  const account = accounts && accounts.find(acct => acct.code === code);
 
   useEthAccountActivity(code, account?.coinCode);
 

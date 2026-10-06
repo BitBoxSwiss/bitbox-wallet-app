@@ -2,7 +2,8 @@
 
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import type { AccountCode, TAccount } from '@/api/account';
+import type { AccountCode } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { PillButton, PillButtonGroup } from '@/components/pillbuttongroup/pillbuttongroup';
@@ -17,21 +18,21 @@ import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgr
 import styles from './sign-message.module.css';
 
 type TProps = {
-  accounts: TAccount[];
   addressID?: string;
   code: AccountCode;
   view: 'new' | 'used';
 };
 
 export const SignMessage = ({
-  accounts,
   addressID,
   code,
   view,
 }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const controller = useSignMessageController({ accounts, code });
+  const { activeAccounts } = useAppState();
+
+  const controller = useSignMessageController({ accounts: activeAccounts, code });
 
   if (!controller.account) {
     return null;
@@ -87,7 +88,7 @@ export const SignMessage = ({
             />
           ) : (
             <AddressesContent
-              accounts={accounts}
+              accounts={activeAccounts}
               code={code}
             />
           )}

@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { AccountCode, CoinUnit, TAccount, TBalance } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Button, ButtonLink } from '@/components/forms';
 import { Balances } from '@/routes/account/summary/accountssummary';
@@ -17,11 +18,6 @@ type TBuyReceiveCTAProps = {
   unit?: CoinUnit;
   account?: TAccount;
   showBuyButton?: boolean;
-};
-
-type TAddBuyReceiveOnEmpyBalancesProps = {
-  balances?: Balances;
-  accounts: TAccount[];
 };
 
 export const BuyReceiveCTA = ({
@@ -94,19 +90,28 @@ export const BuyReceiveCTA = ({
   );
 };
 
-export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyReceiveOnEmpyBalancesProps) => {
-  const onlyHasOneActiveAccount = accounts.length === 1;
+type TAddBuyReceiveOnEmpyBalancesProps = {
+  balances?: Balances;
+};
+
+export const AddBuyReceiveOnEmptyBalances = ({ balances }: TAddBuyReceiveOnEmpyBalancesProps) => {
+
+  const {
+    activeAccounts,
+  } = useAppState();
+
+  const onlyHasOneActiveAccount = activeAccounts.length === 1;
 
   if (balances === undefined) {
     return null;
   }
   const balanceList = (
-    accounts
+    activeAccounts
       .map(account => balances[account.code])
       .filter(balance => !!balance)
   );
 
-  if (balanceList.length !== accounts.length) {
+  if (balanceList.length !== activeAccounts.length) {
     return null;
   }
 
@@ -120,7 +125,7 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyRece
     return (
       <BuyReceiveCTA
         balanceList={balanceList}
-        code={onlyHasOneActiveAccount ? accounts[0]?.code : undefined}
+        code={onlyHasOneActiveAccount ? activeAccounts[0]?.code : undefined}
         showBuyButton
         unit="BTC"
       />

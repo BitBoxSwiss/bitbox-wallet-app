@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactChild } from 'react';
-import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
-import { TAccount } from '@/api/account';
-import { TDevices } from '@/api/devices';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AddAccount } from './account/add/add-account';
 import { Moonpay } from './market/moonpay';
 import { Market } from './market/market';
@@ -58,254 +55,168 @@ import { isLightningRoute } from '@/utils/route';
 import { LightningTestnetGuard } from './lightning/testnet-warning';
 
 type TAppRouterProps = {
-  devices: TDevices;
-  accounts: TAccount[];
-  activeAccounts: TAccount[];
   devicesKey: ((input: string) => string);
-  showBottomNavigation: boolean;
-};
-
-type TInjectParamsProps = {
-  children: ReactChild;
-};
-
-const InjectParams = ({ children }: TInjectParamsProps) => {
-  const params = useParams();
-  return React.cloneElement(children as React.ReactElement, params);
 };
 
 export const AppRouter = ({
-  devices,
   devicesKey,
-  accounts,
-  activeAccounts,
-  showBottomNavigation,
 }: TAppRouterProps) => {
-  const hasAccounts = accounts.length > 0;
+
   const lightningFeatureAvailable = isLightningFeatureAvailable();
   const { pathname } = useLocation();
-  const Homepage = (<DeviceSwitch
-    key={devicesKey('device-switch-default')}
-    deviceID={null}
-    devices={devices}
-    hasAccounts={hasAccounts}
-  />);
+  const Homepage = (
+    <DeviceSwitch
+      key={devicesKey('device-switch-default')}
+      deviceID={null}
+    />
+  );
 
-  const Device = (<InjectParams>
+  const Device = (
     <DeviceSwitch
       key={devicesKey('device-switch')}
       deviceID={null}
-      devices={devices}
-      hasAccounts={hasAccounts}
     />
-  </InjectParams>);
+  );
 
   const NoDevice = (
-    <InjectParams>
-      <NoDeviceConnected
-        key="no-device-connected"
-        devices={devices}
-        hasAccounts={hasAccounts}
-      />
-    </InjectParams>
+    <NoDeviceConnected key="no-device-connected" />
   );
 
   const NoAccounts = (
-    <InjectParams>
-      <NoDeviceConnected
-        key="no-accounts"
-        devices={devices}
-        hasAccounts={hasAccounts}
-      />
-    </InjectParams>
+    <NoDeviceConnected key="no-accounts" />
   );
 
-  const Acc = (<InjectParams>
-    <Account
-      code={'' /* dummy to satisfy TS */}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const Acc = (
+    <Account code={'' /* dummy to satisfy TS */} />
+  );
 
-  const AccountsSummaryEl = (<InjectParams>
-    <AccountsSummary
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const AccountsSummaryEl = (
+    <AccountsSummary />
+  );
 
-  const AccSend = (<InjectParams>
-    <SendWrapper
-      code={'' /* dummy to satisfy TS */}
-      activeAccounts={activeAccounts}
-    />
-  </InjectParams>);
+  const AccSend = (
+    <SendWrapper code={'' /* dummy to satisfy TS */} />
+  );
 
-  const AccReceive = (<InjectParams>
-    <Receive
-      code={'' /* dummy to satisfy TS */}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const AccReceive = (
+    <Receive code={'' /* dummy to satisfy TS */} />
+  );
 
-  const AccInfo = (<InjectParams>
-    <Info
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const AccInfo = (
+    <Info code={''} />
+  );
 
-  const AccXPubDetail = (<InjectParams>
-    <XPubDetail
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const AccXPubDetail = (
+    <XPubDetail code={''} />
+  );
 
-  const AccAddresses = (<InjectParams>
-    <Addresses
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const AccAddresses = (
+    <Addresses code={''} />
+  );
 
-  const AccSignMessage = (<InjectParams>
+  const AccSignMessage = (
     <SignMessage
       code={''}
-      view="new"
-      accounts={activeAccounts} />
-  </InjectParams>);
+      view="new" />
+  );
 
-  const BitsuranceAccountEl = (<InjectParams>
-    <BitsuranceAccount
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const BitsuranceAccountEl = (
+    <BitsuranceAccount code={''} />
+  );
 
-  const BitsuranceWidgetEl = (<InjectParams>
-    <BitsuranceWidget
-      code={''} />
-  </InjectParams>);
-
+  const BitsuranceWidgetEl = (
+    <BitsuranceWidget code={''} />
+  );
 
   const BitsuranceIntroEl = (
-    <InjectParams>
-      <Bitsurance
-        accounts={activeAccounts}
-        code={''} />
-    </InjectParams>
+    <Bitsurance code={''} />
   );
 
   const BitsuranceDashboardRouteEl = (
-    <InjectParams>
-      <BitsuranceDashboard
-        accounts={activeAccounts}
-        code={''} />
-    </InjectParams>
+    <BitsuranceDashboard code={''} />
   );
 
-  const AccDashboardWC = (<InjectParams>
-    <DashboardWalletConnect
-      accounts={activeAccounts}
-      code={''}
+  const AccDashboardWC = (
+    <DashboardWalletConnect code={''} />
+  );
+
+  const AccConnectScreenWC = (
+    <ConnectScreenWalletConnect code={'' /* dummy to satisfy TS */} />
+  );
+
+  const MoonpayEl = (
+    <Moonpay code={''} />
+  );
+
+  const BTCDirectBuyEl = (
+    <BTCDirect action="buy" code={''} />
+  );
+
+  const BTCDirectSellEl = (
+    <BTCDirect action="sell" code={''} />
+  );
+
+  const BitrefillEl = (
+    <Bitrefill code={''} region={''} />
+  );
+
+  const SwapEl = (
+    <Swap />
+  );
+
+  const MarketEl = (
+    <Market code={''} />
+  );
+
+  const PocketBuyEl = (
+    <Pocket action="buy" code={''} />
+  );
+
+  const PocketSellEl = (
+    <Pocket action="sell" code={''} />
+  );
+
+  const PassphraseEl = (
+    <Passphrase deviceID={''} />
+  );
+
+  const RecoveryWordsEl = (
+    <RecoveryWords deviceID={''} />
+  );
+  const Bip85El = (
+    <Bip85 deviceID={''} />
+  );
+
+  const ManageBackupsEl = (
+    <ManageBackups
+      key={devicesKey('manage-backups')}
+      deviceID={null}
     />
-  </InjectParams>);
+  );
 
-  const AccConnectScreenWC = (<InjectParams>
-    <ConnectScreenWalletConnect
-      code={'' /* dummy to satisfy TS */}
-      accounts={activeAccounts}
-    />
-  </InjectParams>);
+  const MobileSettingsEl = (
+    <MobileSettings />
+  );
 
-  const MoonpayEl = (<InjectParams>
-    <Moonpay
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
+  const GeneralEl = (
+    <General />
+  );
 
-  const BTCDirectBuyEl = (<InjectParams>
-    <BTCDirect
-      accounts={activeAccounts}
-      action="buy"
-      code={''} />
-  </InjectParams>);
+  const AboutEl = (
+    <About />
+  );
 
-  const BTCDirectSellEl = (<InjectParams>
-    <BTCDirect
-      accounts={activeAccounts}
-      action="sell"
-      code={''} />
-  </InjectParams>);
+  const AdvancedSettingsEl = (
+    <AdvancedSettings />
+  );
 
-  const BitrefillEl = (<InjectParams>
-    <Bitrefill
-      code={''}
-      accounts={activeAccounts}
-      region={''} />
-  </InjectParams>);
+  const ReceiveAccountsSelectorEl = (
+    <ReceiveAccountsSelector />
+  );
 
-  const SwapEl = (<InjectParams>
-    <Swap
-      accounts={accounts} />
-  </InjectParams>);
-
-  const MarketEl = (<InjectParams>
-    <Market
-      accounts={activeAccounts}
-      code={''}
-    />
-  </InjectParams>);
-
-  const PocketBuyEl = (<InjectParams>
-    <Pocket
-      action="buy"
-      code={''}
-    />
-  </InjectParams>);
-
-  const PocketSellEl = (<InjectParams>
-    <Pocket
-      action="sell"
-      code={''}
-    />
-  </InjectParams>);
-
-  const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>;
-  const RecoveryWordsEl = <InjectParams><RecoveryWords deviceID={''} /></InjectParams>;
-  const Bip85El = <InjectParams><Bip85 deviceID={''} /></InjectParams>;
-
-  const ManageBackupsEl = (<InjectParams><ManageBackups
-    key={devicesKey('manage-backups')}
-    deviceID={null}
-    devices={devices}
-  /></InjectParams>);
-
-  const MobileSettingsEl = (<InjectParams>
-    <MobileSettings
-      devices={devices}
-      hasAccounts={hasAccounts}
-      showBottomNavigation={showBottomNavigation}
-    />
-  </InjectParams>);
-
-  const GeneralEl = (<InjectParams>
-    <General
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>);
-
-  const AboutEl = (<InjectParams>
-    <About
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>);
-
-  const AdvancedSettingsEl = (<InjectParams>
-    <AdvancedSettings
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>);
-
-  const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
-
-  const AllAccountsEl = <InjectParams><AllAccounts accounts={activeAccounts} /></InjectParams>;
+  const AllAccountsEl = (
+    <AllAccounts />
+  );
 
   const routes = (
     <Routes>
@@ -325,10 +236,10 @@ export const AppRouter = ({
           <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
           <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
         </Route>
-        <Route path="add-account" element={<AddAccount accounts={accounts}/>} />
+        <Route path="add-account" element={<AddAccount />} />
         <Route path="account-summary" element={AccountsSummaryEl} />
         <Route path="market/*" element={
-          <MarketProvider accounts={activeAccounts}>
+          <MarketProvider>
             <Routes>
               <Route path="select" element={MarketEl} />
               <Route path="select/:code" element={MarketEl} />
@@ -365,16 +276,13 @@ export const AppRouter = ({
             <Route path="disclaimer" element={<LightningDisclaimer />} />
             <Route path="deactivate" element={<LightningDeactivate />} />
             <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
-            <Route path="claim-top-up" element={<LightningClaimTopUp activeAccounts={activeAccounts} />} />
+            <Route path="claim-top-up" element={<LightningClaimTopUp />} />
             <Route path="close-withdraw-funds" element={(
-              <LightningCloseWithdrawFunds
-                activeAccounts={activeAccounts}
-                hasAccounts={hasAccounts}
-              />
+              <LightningCloseWithdrawFunds />
             )} />
-            <Route path="send" element={<LightningSend activeAccounts={activeAccounts} />} />
+            <Route path="send" element={<LightningSend />} />
             <Route path="receive" element={<LightningReceive />} />
-            <Route path="topup" element={<LightningTopUp activeAccounts={activeAccounts} hasAccounts={hasAccounts} />} />
+            <Route path="topup" element={<LightningTopUp />} />
           </Route>
         ) : (
           <Route path="lightning/*" element={<Navigate replace to="/" />} />
@@ -402,11 +310,7 @@ export const AppRouter = ({
           />
           <Route path="electrum" element={<ElectrumSettings />} />
           <Route path="manage-accounts" element={
-            <ManageAccounts
-              accounts={accounts}
-              key="manage-accounts"
-              devices={devices}
-              hasAccounts={hasAccounts} />
+            <ManageAccounts key="manage-accounts" />
           } />
         </Route>
       </Route>

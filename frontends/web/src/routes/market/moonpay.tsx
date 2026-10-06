@@ -2,9 +2,10 @@
 
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
+import { useAppState } from '@/contexts/app-state-context';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import { AccountCode, TAccount } from '@/api/account';
+import type { AccountCode } from '@/api/account';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { getMoonpayBuyInfo } from '@/api/market';
 import { MarketGuide } from './guide';
@@ -20,18 +21,18 @@ import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import style from './iframe.module.css';
 
 type TProps = {
-  accounts: TAccount[];
   code: AccountCode;
 };
 
-export const Moonpay = ({ accounts, code }: TProps) => {
+export const Moonpay = ({ code }: TProps) => {
   const { t } = useTranslation();
   const { config } = useConfig();
+  const { activeAccounts } = useAppState();
   const { isDarkMode } = useDarkmode();
 
   const moonpay = useLoad(getMoonpayBuyInfo(code));
 
-  const account = findAccount(accounts, code);
+  const account = findAccount(activeAccounts, code);
   const { containerRef, height, iframeLoaded, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipMoonpayDisclaimer ?? false);
   useMarketIframeActive(!!account && !!config && agreedTerms && moonpay?.success === true);
@@ -40,7 +41,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
     return null;
   }
 
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   const title = t('generic.buy', { context: translationContext });

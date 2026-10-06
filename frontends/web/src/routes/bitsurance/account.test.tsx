@@ -42,6 +42,7 @@ import { MemoryRouter, useLocation } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { connectKeystore } from '@/api/keystores';
+import { AppStateContext } from '@/contexts/app-state-context';
 import { BitsuranceAccount } from './account';
 
 const account: TAccount = {
@@ -85,8 +86,22 @@ describe('routes/bitsurance/account', () => {
 
     render(
       <MemoryRouter initialEntries={['/market/bitsurance/account/btc-account']}>
-        <BitsuranceAccount accounts={[account]} code={account.code} />
-        <Location />
+        <AppStateContext.Provider
+          value={{
+            accounts: [account],
+            activeAccounts: [account],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <BitsuranceAccount code={account.code} />
+          <Location />
+        </AppStateContext.Provider>
       </MemoryRouter>
     );
 

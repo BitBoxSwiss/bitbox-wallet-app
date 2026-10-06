@@ -6,6 +6,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
 import { AccountCode, TAccount } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { findAccount } from '@/routes/account/utils';
@@ -177,12 +178,12 @@ export const AddressesContent = ({ code, accounts }: TAddressesContentProps) => 
 
 type TProps = {
   code: AccountCode;
-  accounts: TAccount[];
 };
 
-export const Addresses = ({ code, accounts }: TProps) => {
+export const Addresses = ({ code }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { activeAccounts } = useAppState();
 
   return (
     <Main>
@@ -197,7 +198,7 @@ export const Addresses = ({ code, accounts }: TProps) => {
         <ViewContent>
           <AddressesContent
             code={code}
-            accounts={accounts}
+            accounts={activeAccounts}
           />
         </ViewContent>
       </View>

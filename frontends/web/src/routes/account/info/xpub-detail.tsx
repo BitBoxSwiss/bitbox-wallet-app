@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAppState } from '@/contexts/app-state-context';
 import { Message } from '@/components/message/message';
 import { useLoad } from '@/hooks/api';
-import { getInfo, TAccount, AccountCode, ScriptType, TSigningConfiguration } from '@/api/account';
+import { getInfo, AccountCode, ScriptType, TSigningConfiguration } from '@/api/account';
 import { findAccount } from '@/routes/account/utils';
 import { isBitcoinBased } from '@/utils/coin';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
@@ -16,7 +17,6 @@ import { SigningConfiguration } from './signingconfiguration';
 import style from './info.module.css';
 
 type TProps = {
-  accounts: TAccount[];
   code: AccountCode;
 };
 
@@ -34,11 +34,12 @@ export const getDefaultSigningConfigurationIndex = (
 };
 
 export const XPubDetail = ({
-  accounts,
   code,
 }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { activeAccounts } = useAppState();
+
   const infoResponse = useLoad(getInfo(code));
   const info = infoResponse?.success ? infoResponse.info : undefined;
   const [viewXPub, setViewXPub] = useState<number | undefined>();
@@ -47,7 +48,7 @@ export const XPubDetail = ({
     setViewXPub(undefined);
   }, [code]);
 
-  const account = findAccount(accounts, code);
+  const account = findAccount(activeAccounts, code);
   if (!account) {
     return null;
   }

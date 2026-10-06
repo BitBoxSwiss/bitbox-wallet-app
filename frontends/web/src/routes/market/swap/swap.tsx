@@ -9,7 +9,6 @@ import {
   sendTx,
   TBalance,
   type AccountCode,
-  type TAccount,
   type TAmountWithConversions,
   type CoinUnit,
   type TSendTx,
@@ -24,6 +23,7 @@ import {
   type TSwapQuoteErrorCode,
   type TSwapQuoteRoute,
 } from '@/api/swap';
+import { useAppState } from '@/contexts/app-state-context';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { Guide } from '@/components/guide/guide';
@@ -48,10 +48,6 @@ import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { SwapkitTerms } from '@/components/terms/swapkit-terms';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import style from './swap.module.css';
-
-type Props = {
-  accounts: TAccount[];
-};
 
 const QUOTE_DEBOUNCE_MS = 300;
 const INSUFFICIENT_FUNDS_ERROR: TSwapQuoteErrorCode = 'insufficientFunds';
@@ -84,11 +80,10 @@ const getSwapDisplayAmount = async (
   };
 };
 
-export const Swap = ({
-  accounts,
-}: Props) => {
+export const Swap = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { accounts } = useAppState();
   const { activeCurrencies, btcUnit, defaultCurrency } = useContext(RatesContext);
   // accounts is added as a dependency, to reload swap accounts when the account list changes.
   const loadedSwapAccounts = useLoad(getSwapAccounts, [accounts]);

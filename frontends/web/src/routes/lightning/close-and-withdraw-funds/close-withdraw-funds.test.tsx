@@ -12,6 +12,7 @@ import { TLightningErrorCode, TSdkError } from '@/api/lightning-errors';
 import { open } from '@/api/system';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { LightningCloseWithdrawFunds } from './close-withdraw-funds';
+import { AppStateContext } from '@/contexts/app-state-context';
 
 vi.mock('@/i18n/i18n');
 
@@ -126,13 +127,27 @@ describe('Lightning Close & Withdraw', () => {
     render(
       <MemoryRouter initialEntries={['/lightning/close-withdraw-funds']}>
         <BackButtonProvider>
-          <Routes>
-            <Route path="/" element={<span>portfolio</span>} />
-            <Route
-              path="/lightning/close-withdraw-funds"
-              element={<LightningCloseWithdrawFunds activeAccounts={[]} hasAccounts={false} />}
-            />
-          </Routes>
+          <AppStateContext.Provider
+            value={{
+              accounts: [],
+              activeAccounts: [],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: false,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<span>portfolio</span>} />
+              <Route
+                path="/lightning/close-withdraw-funds"
+                element={<LightningCloseWithdrawFunds />}
+              />
+            </Routes>
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -150,13 +165,27 @@ describe('Lightning Close & Withdraw', () => {
     render(
       <MemoryRouter initialEntries={['/lightning/close-withdraw-funds']}>
         <BackButtonProvider>
-          <Routes>
-            <Route
-              path="/lightning/close-withdraw-funds"
-              element={<LightningCloseWithdrawFunds activeAccounts={[]} hasAccounts />}
-            />
-            <Route path="/settings/manage-accounts" element={<span>manage accounts page</span>} />
-          </Routes>
+          <AppStateContext.Provider
+            value={{
+              accounts: [],
+              activeAccounts: [],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <Routes>
+              <Route
+                path="/lightning/close-withdraw-funds"
+                element={<LightningCloseWithdrawFunds />}
+              />
+              <Route path="/settings/manage-accounts" element={<span>manage accounts page</span>} />
+            </Routes>
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -176,7 +205,21 @@ describe('Lightning Close & Withdraw', () => {
     render(
       <MemoryRouter initialEntries={['/lightning/close-withdraw-funds']}>
         <BackButtonProvider>
-          <LightningCloseWithdrawFunds activeAccounts={[bitcoinAccount]} hasAccounts />
+          <AppStateContext.Provider
+            value={{
+              accounts: [bitcoinAccount],
+              activeAccounts: [bitcoinAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <LightningCloseWithdrawFunds />
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -214,7 +257,21 @@ describe('Lightning Close & Withdraw', () => {
     render(
       <MemoryRouter>
         <BackButtonProvider>
-          <LightningCloseWithdrawFunds activeAccounts={[bitcoinAccount]} hasAccounts />
+          <AppStateContext.Provider
+            value={{
+              accounts: [bitcoinAccount],
+              activeAccounts: [bitcoinAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <LightningCloseWithdrawFunds />
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -243,7 +300,21 @@ describe('Lightning Close & Withdraw', () => {
     render(
       <MemoryRouter>
         <BackButtonProvider>
-          <LightningCloseWithdrawFunds activeAccounts={[bitcoinAccount]} hasAccounts />
+          <AppStateContext.Provider
+            value={{
+              accounts: [bitcoinAccount],
+              activeAccounts: [bitcoinAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <LightningCloseWithdrawFunds />
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -285,7 +356,21 @@ describe('Lightning Close & Withdraw', () => {
     render(
       <MemoryRouter>
         <BackButtonProvider>
-          <LightningCloseWithdrawFunds activeAccounts={[bitcoinAccount]} hasAccounts />
+          <AppStateContext.Provider
+            value={{
+              accounts: [bitcoinAccount],
+              activeAccounts: [bitcoinAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <LightningCloseWithdrawFunds />
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -318,7 +403,21 @@ describe('Lightning Close & Withdraw', () => {
     render(
       <MemoryRouter>
         <BackButtonProvider>
-          <LightningCloseWithdrawFunds activeAccounts={[bitcoinAccount, { ...bitcoinAccount, code: 'btc-1' }]} hasAccounts />
+          <AppStateContext.Provider
+            value={{
+              accounts: [bitcoinAccount, { ...bitcoinAccount, code: 'btc-1' }],
+              activeAccounts: [bitcoinAccount, { ...bitcoinAccount, code: 'btc-1' }],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <LightningCloseWithdrawFunds />
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -353,14 +452,28 @@ describe('Lightning Close & Withdraw', () => {
         initialIndex={2}
       >
         <BackButtonProvider>
-          <Routes>
-            <Route path="/settings/advanced-settings" element={<span>advanced settings</span>} />
-            <Route path="/settings/lightning-settings" element={<SettingsPage />} />
-            <Route
-              path="/lightning/close-withdraw-funds"
-              element={<LightningCloseWithdrawFunds activeAccounts={[]} hasAccounts={false} />}
-            />
-          </Routes>
+          <AppStateContext.Provider
+            value={{
+              accounts: [],
+              activeAccounts: [],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <Routes>
+              <Route path="/settings/advanced-settings" element={<span>advanced settings</span>} />
+              <Route path="/settings/lightning-settings" element={<SettingsPage />} />
+              <Route
+                path="/lightning/close-withdraw-funds"
+                element={<LightningCloseWithdrawFunds />}
+              />
+            </Routes>
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -388,14 +501,28 @@ describe('Lightning Close & Withdraw', () => {
         initialIndex={2}
       >
         <BackButtonProvider>
-          <Routes>
-            <Route path="/settings/advanced-settings" element={<span>advanced settings</span>} />
-            <Route path="/settings/lightning-settings" element={<SettingsPage />} />
-            <Route
-              path="/lightning/close-withdraw-funds"
-              element={<LightningCloseWithdrawFunds activeAccounts={[bitcoinAccount]} hasAccounts />}
-            />
-          </Routes>
+          <AppStateContext.Provider
+            value={{
+              accounts: [bitcoinAccount],
+              activeAccounts: [bitcoinAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <Routes>
+              <Route path="/settings/advanced-settings" element={<span>advanced settings</span>} />
+              <Route path="/settings/lightning-settings" element={<SettingsPage />} />
+              <Route
+                path="/lightning/close-withdraw-funds"
+                element={<LightningCloseWithdrawFunds />}
+              />
+            </Routes>
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );

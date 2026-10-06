@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import type { TAccount } from '@/api/account';
 import { type TPaymentInput, getParsePaymentInput } from '@/api/lightning';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -12,16 +11,14 @@ import { SelectPaymentInputStep } from './components/select-payment-input-step';
 import { SuccessStep } from './components/success-step';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
 import { LightningSendGuide } from '../guide';
+import { useAppState } from '@/contexts/app-state-context';
 
 type TSendStep = 'select-payment-input' | 'review' | 'success';
 
-type TProps = {
-  activeAccounts: TAccount[];
-};
-
-export const Send = ({ activeAccounts }: TProps) => {
+export const Send = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { activeAccounts } = useAppState();
   const [step, setStep] = useState<TSendStep>('select-payment-input');
   const [paymentInput, setPaymentInput] = useState<TPaymentInput>();
   const [inputError, setInputError] = useState<string>();

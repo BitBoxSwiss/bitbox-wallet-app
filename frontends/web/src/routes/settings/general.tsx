@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
+import { useAppState } from '@/contexts/app-state-context';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSetting';
@@ -15,15 +16,10 @@ import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
-import { TPagePropsWithSettingsTabs } from './types';
 import { isNotesSettingsVisible } from './settings-availability';
 import { SimpleMarkup } from '@/utils/markup';
 
-type TProps = {
-  hasAccounts: boolean;
-};
-
-export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const General = () => {
   const { t } = useTranslation();
   return (
     <GuideWrapper>
@@ -38,8 +34,8 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
           />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu devices={devices}>
-                <GeneralSettingsContent hasAccounts={hasAccounts} />
+              <WithSettingsTabs hideMobileMenu>
+                <GeneralSettingsContent />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -51,10 +47,9 @@ export const General = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) =>
   );
 };
 
-export const GeneralSettingsContent = ({
-  hasAccounts,
-}: TProps) => {
+export const GeneralSettingsContent = () => {
   const { t } = useTranslation();
+  const { hasAccounts } = useAppState();
 
   const sections: TSettingsContentSection[] = [
     {
@@ -115,7 +110,6 @@ const GeneralGuide = () => {
           />
         </ul>
       </Entry>
-
     </Guide>
   );
 };

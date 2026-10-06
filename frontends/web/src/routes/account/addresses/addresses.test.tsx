@@ -31,6 +31,7 @@ import * as keystoresApi from '@/api/keystores';
 import { open } from '@/api/system';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { Addresses } from './addresses';
+import { AppStateContext } from '@/contexts/app-state-context';
 
 const blockExplorerAddressPrefix = 'https://example.com/address/';
 
@@ -90,11 +91,25 @@ const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAcco
     setAccountsState = setAccounts;
     return (
       <BackButtonProvider>
-        <Routes>
-          <Route path="/account/:code/addresses" element={<Addresses code={accountCode} accounts={accounts} />} />
-          <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} accounts={accounts} />} />
-          <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} accounts={accounts} />} />
-        </Routes>
+        <AppStateContext.Provider
+          value={{
+            accounts: accounts,
+            activeAccounts: accounts,
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <Routes>
+            <Route path="/account/:code/addresses" element={<Addresses code={accountCode} />} />
+            <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} />} />
+            <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} />} />
+          </Routes>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
   };

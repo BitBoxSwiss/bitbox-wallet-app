@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import { subscribeLightningBalance } from '@/api/lightning';
+import { useAppState } from '@/contexts/app-state-context';
 import { unsubscribe } from '@/utils/subscriptions';
 import { TUnsubscribe } from '@/utils/transport-common';
 import { SimpleMarkup } from '@/utils/markup';
@@ -29,18 +30,18 @@ import { OfflineError } from '@/components/banners/offline-error';
 import { isLightningFeatureAvailable } from '@/utils/env';
 import style from './accountssummary.module.css';
 
-type TProps = {
-  accounts: accountApi.TAccount[];
-};
-
 export type Balances = {
   [code: string]: accountApi.TBalance;
 };
 
-export const AccountsSummary = ({
-  accounts,
-}: TProps) => {
+export const AccountsSummary = () => {
   const { t } = useTranslation();
+
+  const {
+    activeAccounts,
+    hasAccounts
+  } = useAppState();
+
   const summaryReqTimerID = useRef<number>();
   const chartRequestInFlight = useRef(false);
   const chartMarkerRefreshQueued = useRef(false);
@@ -50,11 +51,11 @@ export const AccountsSummary = ({
   const { defaultCurrency } = useContext(RatesContext);
   const { lightningAccount, lightningSDKStatus } = useLightning();
 
-  const accountsByKeystore = getAccountsByKeystore(accounts);
-  const hasActiveBitcoinAccount = accounts.some(account => account.active && isBitcoinOnly(account.coinCode));
-  const hasOnlyLightningAccount = !!lightningAccount && accounts.length === 0;
+  const accountsByKeystore = getAccountsByKeystore(activeAccounts);
+  const hasActiveBitcoinAccount = activeAccounts.some(account => account.active && isBitcoinOnly(account.coinCode));
+  const hasOnlyLightningAccount = !!lightningAccount && !hasAccounts;
 
-  const accountsPerCoin = getAccountsPerCoin(accounts);
+  const accountsPerCoin = getAccountsPerCoin(activeAccounts);
   const hasMultipleAccountsPerCoin = Object.values(accountsPerCoin).some(
     coinAccounts => coinAccounts !== undefined && coinAccounts.length > 1
   );
@@ -203,7 +204,7 @@ export const AccountsSummary = ({
     // for subscriptions and unsubscriptions
     // re-subscribes when accounts or lightning account state changes.
     const subscriptions: TUnsubscribe[] = [];
-    accounts.forEach(account => {
+    activeAccounts.forEach(account => {
       const currentCode = account.code;
       subscriptions.push(statusChanged(account.code, () => currentCode === account.code && update(account.code)));
       subscriptions.push(syncdone(account.code, () => {
@@ -222,7 +223,7 @@ export const AccountsSummary = ({
       }));
     }
     return () => unsubscribe(subscriptions);
-  }, [accounts, getAccountsBalanceSummary, getChartData, lightningAccount, mounted, update]);
+  }, [activeAccounts, getAccountsBalanceSummary, getChartData, lightningAccount, mounted, update]);
 
 
   useEffect(() => {
@@ -230,7 +231,7 @@ export const AccountsSummary = ({
     // & whenever any of the dependencies change.
     getChartData(true);
     getAccountsBalanceSummary();
-  }, [accounts, defaultCurrency, getAccountsBalanceSummary, getChartData, lightningAccount]);
+  }, [activeAccounts, defaultCurrency, getAccountsBalanceSummary, getChartData, lightningAccount]);
 
   useEffect(() => {
     return () => {
@@ -241,11 +242,11 @@ export const AccountsSummary = ({
   }, []);
 
   useEffect(() => {
-    accounts.forEach(account => {
+    activeAccounts.forEach(account => {
       onStatusChanged(account.code);
     });
     getAccountsBalanceSummary();
-  }, [onStatusChanged, getAccountsBalanceSummary, accounts]);
+  }, [activeAccounts, onStatusChanged, getAccountsBalanceSummary]);
 
   useEffect(() => {
     getAccountsBalanceSummary();
@@ -274,8 +275,8 @@ export const AccountsSummary = ({
               hideAmounts={hideAmounts}
               data={chartData}
               noDataPlaceholder={
-                (accounts.length && accounts.length <= Object.keys(balances || {}).length) ? (
-                  <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
+                (hasAccounts && activeAccounts.length <= Object.keys(balances || {}).length) ? (
+                  <AddBuyReceiveOnEmptyBalances balances={balances} />
                 ) : undefined
               } />
             <div className={style.keystoresContainer} data-testid="account-summary-keystores">

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { MarketGuide } from './guide';
-import { AccountCode, TAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
+import { AccountCode, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
 import { findAccount } from '@/routes/account/utils';
 import { isBitcoinOnly } from '@/utils/coin';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -28,6 +28,7 @@ import {
 } from '@/hooks/vendor-iframe-message';
 import { useAccountSynced } from '@/hooks/account';
 import style from './iframe.module.css';
+import { useAppState } from '@/contexts/app-state-context';
 
 // Map coins supported by Bitrefill
 const coinMapping: Readonly<Record<string, string>> = {
@@ -40,13 +41,11 @@ const coinMapping: Readonly<Record<string, string>> = {
 };
 
 type TProps = {
-  accounts: TAccount[];
   code: AccountCode;
   region: string;
 };
 
 export const Bitrefill = ({
-  accounts,
   code,
   region,
 }: TProps) => {
@@ -54,7 +53,8 @@ export const Bitrefill = ({
   const { config } = useConfig();
   const { isDarkMode } = useDarkmode();
   const { isDevServers } = useContext(AppContext);
-  const account = findAccount(accounts, code);
+  const { activeAccounts } = useAppState();
+  const account = findAccount(activeAccounts, code);
 
   const fetchBitrefillInfo = useCallback(() => getBitrefillInfo('spend', code), [code]);
   const bitrefillInfo = useAccountSynced(code, fetchBitrefillInfo);
@@ -64,7 +64,7 @@ export const Bitrefill = ({
 
   const [pendingPayment, setPendingPayment] = useState<boolean>(false);
   const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
   const handleConfiguration = useCallback(async (target: TVendorIframeMessageTarget) => {
     if (

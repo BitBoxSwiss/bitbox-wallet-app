@@ -3,21 +3,12 @@
 import { useCallback, useContext, useEffect, useMemo, Fragment } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import type { TAccount } from './api/account';
-import type { TDevices } from './api/devices';
-import { useSync } from './hooks/api';
-import { useDefault } from './hooks/default';
 import { usePrevious } from './hooks/previous';
 import { useIgnoreDrop } from './hooks/drop';
 import { usePlatformClass } from './hooks/platform';
 import { useAppReady } from './hooks/appready';
 import { AppRouter } from './routes/router';
 import { Wizard as BitBox02Wizard } from './routes/device/bitbox02/wizard';
-import { getAccounts } from './api/account';
-import { syncAccountsList } from './api/accountsync';
-import { getDeviceList } from './api/devices';
-import { syncDeviceList } from './api/devicessync';
-import { getLightningAccount, subscribeLightningAccount } from './api/lightning';
 import { syncNewTxs } from './api/transactions';
 import { notifyUser } from './api/system';
 import { ConnectedApp } from './connected';
@@ -33,37 +24,30 @@ import { WCSigningRequest } from './components/wallet-connect/incoming-signing-r
 import { GlobalBannersProvider } from './contexts/global-banners-provider';
 import { Providers } from './contexts/providers';
 import { AppContext } from './contexts/AppContext';
+import { useAppState } from './contexts/app-state-context';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
-import { getBottomNavKey, shouldShowBottomNavigation } from './components/bottom-navigation/utils';
-import { isLightningFeatureAvailable } from './utils/env';
+import { getBottomNavKey } from './components/bottom-navigation/utils';
 import styles from './app.module.css';
 
 type TAppFrameProps = {
-  accounts: TAccount[];
-  activeAccounts: TAccount[];
-  devices: TDevices;
   devicesKey: (prefix: string) => string;
-  hasLightningAccount: boolean;
 };
 
 const AppFrame = ({
-  accounts,
-  activeAccounts,
-  devices,
   devicesKey,
-  hasLightningAccount,
 }: TAppFrameProps) => {
   const { pathname } = useLocation();
+
   const { vendorIframeActive } = useContext(AppContext);
-  const showBottomNavigation = (
-    !vendorIframeActive
-    && shouldShowBottomNavigation({
-      activeAccounts,
-      devices,
-      hasLightningAccount,
-      pathname,
-    })
-  );
+
+  const {
+    accounts,
+    activeAccounts,
+    devices,
+    hasBottomNavigation,
+    hasLightningAccount,
+  } = useAppState();
+
   const tabKey = useMemo(() => getBottomNavKey(pathname), [pathname]);
 
   return (
@@ -77,7 +61,7 @@ const AppFrame = ({
         />
         <div className={`
           ${styles.appContent || ''}
-          ${showBottomNavigation && styles.hasBottomNavigation || ''}
+          ${hasBottomNavigation && styles.hasBottomNavigation || ''}
           ${vendorIframeActive && styles.hasMarketIframe || ''}
         `}>
           <WCSigningRequest accounts={accounts} />
@@ -100,18 +84,12 @@ const AppFrame = ({
           <GlobalBannersProvider devices={devices}>
             {/* Remount on tab changes to restart the tab transition animation. */}
             <div key={tabKey} className={styles.tabTransition}>
-              <AppRouter
-                accounts={accounts}
-                activeAccounts={activeAccounts}
-                devices={devices}
-                devicesKey={devicesKey}
-                showBottomNavigation={showBottomNavigation}
-              />
+              <AppRouter devicesKey={devicesKey} />
             </div>
           </GlobalBannersProvider>
           <RouterWatcher />
         </div>
-        {showBottomNavigation && (
+        {hasBottomNavigation && (
           <BottomNavigation
             devices={devices}
             activeAccounts={activeAccounts}
@@ -132,19 +110,17 @@ export const App = () => {
   useIgnoreDrop();
   useAppReady();
 
-  const accounts = useDefault(useSync(getAccounts, syncAccountsList), []);
-  const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
-  const lightningFeatureAvailable = isLightningFeatureAvailable();
-  const lightningAccount = useSync(
-    lightningFeatureAvailable ? getLightningAccount : null,
-    lightningFeatureAvailable ? subscribeLightningAccount : null,
-  );
+  const {
+    accounts,
+    devices,
+    hasLightningAccount,
+  } = useAppState();
+
   const prevDevices = usePrevious(devices);
 
   const deviceIDs = Object.keys(devices);
   const firstDevice = deviceIDs[0];
   const productName = firstDevice !== undefined && devices[firstDevice];
-  const hasLightningAccount = lightningFeatureAvailable && lightningAccount !== undefined && lightningAccount !== null;
 
   useEffect(() => {
     return syncNewTxs((meta) => {
@@ -179,8 +155,7 @@ export const App = () => {
     );
     const shouldRedirectNoRegularAccount = (
       !canNavigateWithLightningAccount
-      || lightningAccount === null
-      || !lightningFeatureAvailable
+      || !hasLightningAccount
     );
     if (accounts.length === 0 && requiresRegularAccount && shouldRedirectNoRegularAccount) {
       navigate('/');
@@ -231,7 +206,7 @@ export const App = () => {
       return;
     }
 
-  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, lightningAccount, lightningFeatureAvailable, navigate, productName]);
+  }, [accounts, deviceIDs, firstDevice, hasLightningAccount, navigate, productName]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});
@@ -260,23 +235,15 @@ export const App = () => {
     maybeRoute();
   }, [devices, maybeRoute, navigate, prevDevices]);
 
-  // Returns a string representation of the current devices, so it can be used in the `key` property of subcomponents.
-  // The prefix is used so different subcomponents can have unique keys to not confuse the renderer.
   const devicesKey = useCallback((prefix: string): string => {
     return prefix + ':' + JSON.stringify(devices, Object.keys(devices).sort());
   }, [devices]);
-
-  const activeAccounts = useMemo(() => accounts.filter(acct => acct.active), [accounts]);
 
   return (
     <ConnectedApp>
       <Providers>
         <AppFrame
-          accounts={accounts}
-          activeAccounts={activeAccounts}
-          devices={devices}
           devicesKey={devicesKey}
-          hasLightningAccount={hasLightningAccount}
         />
       </Providers>
     </ConnectedApp>

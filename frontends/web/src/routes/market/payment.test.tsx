@@ -4,6 +4,7 @@ import { act, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { sendTx, type TAccount } from '@/api/account';
+import { AppStateContext } from '@/contexts/app-state-context';
 import { alertUser } from '@/components/alert/Alert';
 import { Bitrefill } from './bitrefill';
 import { BTCDirect } from './btcdirect';
@@ -52,11 +53,25 @@ it.each([
     success: false, errorCode, errorMessage: 'send failed',
   });
   render(
-    <MemoryRouter>
-      {vendor === 'bitrefill'
-        ? <Bitrefill accounts={[account]} code="eth" region="" />
-        : <BTCDirect accounts={[account]} code="eth" action="sell" />}
-    </MemoryRouter>,
+    <AppStateContext.Provider
+      value={{
+        accounts: [account],
+        activeAccounts: [account],
+        deviceIDs: [],
+        devices: {},
+        hasAccounts: true,
+        hasBottomNavigation: false,
+        hasDevices: false,
+        lightningAccount: undefined,
+        hasLightningAccount: false,
+      }}
+    >
+      <MemoryRouter>
+        {vendor === 'bitrefill'
+          ? <Bitrefill code="eth" region="" />
+          : <BTCDirect code="eth" action="sell" />}
+      </MemoryRouter>
+    </AppStateContext.Provider>
   );
   const iframe = screen.getByTitle<HTMLIFrameElement>(vendor === 'bitrefill' ? 'Bitrefill' : 'BTC Direct');
   const source = iframe.contentWindow!;

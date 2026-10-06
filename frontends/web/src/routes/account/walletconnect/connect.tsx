@@ -15,16 +15,16 @@ import { WCHeader } from './components/header/header';
 import { WCConnectForm } from './components/connect-form/connect-form';
 import { WCIncomingPairing } from './components/incoming-pairing/incoming-pairing';
 import { WCSuccessPairing } from './components/success-pairing/success-pairing';
+import { useAppState } from '@/contexts/app-state-context';
 
 type TProps = {
   code: accountApi.AccountCode;
-  accounts: accountApi.TAccount[];
 };
 
 export const ConnectScreenWalletConnect = ({
   code,
-  accounts
 }: TProps) => {
+  const { activeAccounts } = useAppState();
   const [uri, setUri] = useState('');
   const [status, setStatus] = useState<TConnectStatus>('connect');
   const [loading, setLoading] = useState(false);
@@ -85,7 +85,7 @@ export const ConnectScreenWalletConnect = ({
     return null;
   }
 
-  const accountName = (accounts && accounts.find(acct => acct.code === code))?.name || '';
+  const accountName = (activeAccounts.find(acct => acct.code === code))?.name || '';
   const receiveAddress = receiveAddresses[0].addresses[0].address;
 
   return (

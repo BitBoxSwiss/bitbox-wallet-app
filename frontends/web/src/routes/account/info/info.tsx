@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSync } from '@/hooks/api';
+import { useAppState } from '@/contexts/app-state-context';
 import { useMountedRef } from '@/hooks/mount';
-import { TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
+import { AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
 import { findAccount } from '@/routes/account/utils';
 import { isBitcoinBased, isMessageSigningSupported } from '@/utils/coin';
 import { Header, Main } from '@/components/layout';
@@ -19,15 +20,14 @@ import { statusChanged, syncdone } from '@/api/accountsync';
 import style from './info.module.css';
 
 type TProps = {
-  accounts: TAccount[];
   code: AccountCode;
 };
 
 export const Info = ({
-  accounts,
   code,
 }: TProps) => {
   const { t } = useTranslation();
+  const { activeAccounts } = useAppState();
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
   const status: TStatus | undefined = useSync(
@@ -64,7 +64,7 @@ export const Info = ({
   const transactionsLoaded = transactions?.success === true;
   const hasTransactions = transactionsLoaded && transactions.list.length > 0;
 
-  const account = findAccount(accounts, code);
+  const account = findAccount(activeAccounts, code);
   if (!account) {
     return null;
   }

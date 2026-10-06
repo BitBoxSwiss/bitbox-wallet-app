@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AccountCode, TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
+import { useAppState } from '@/contexts/app-state-context';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { MarketTab } from '@/routes/market/components/markettab';
 import { alertUser } from '@/components/alert/Alert';
@@ -19,12 +20,12 @@ import { BitsuranceGuide } from './guide';
 import style from './bitsurance.module.css';
 
 type TProps = {
-  accounts: TAccount[];
   code: AccountCode;
 };
 
-export const Bitsurance = ({ accounts, code }: TProps) => {
+export const Bitsurance = ({ code }: TProps) => {
   const navigate = useNavigate();
+  const { activeAccounts } = useAppState();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
 
@@ -33,7 +34,7 @@ export const Bitsurance = ({ accounts, code }: TProps) => {
   const [scanLoading, setScanLoading] = useState(false);
 
   const amount = '100.000€';
-  const hasBitsuranceAccount = accounts.some(({ bitsuranceStatus }) => bitsuranceStatus);
+  const hasBitsuranceAccount = activeAccounts.some(({ bitsuranceStatus }) => bitsuranceStatus);
 
   useEffect(() => {
     if (code && hasBitsuranceAccount) {
@@ -55,7 +56,7 @@ export const Bitsurance = ({ accounts, code }: TProps) => {
         return;
       }
       const insuredAccountsCodes = response.bitsuranceAccounts.map(account => account.status ? account.code : null);
-      const insured = accounts.filter(({ code }) => insuredAccountsCodes.includes(code));
+      const insured = activeAccounts.filter(({ code }) => insuredAccountsCodes.includes(code));
       setInsuredAccounts(insured);
       setScanDone(true);
       if (insured.length && redirectToDashboard) {
@@ -92,7 +93,6 @@ export const Bitsurance = ({ accounts, code }: TProps) => {
         <Main>
           <Header title={t('generic.buySell')} />
           <MarketTab
-            accounts={accounts}
             activeTab="insure"
             code={code}
           />

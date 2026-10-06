@@ -3,6 +3,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
+import { useAppState } from '@/contexts/app-state-context';
 import { useLoad } from '@/hooks/api';
 import { useEthAccountActivity } from '@/hooks/account-activity';
 import { UseBackButton } from '@/hooks/backbutton';
@@ -23,11 +24,6 @@ import { QRCode } from '@/components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
 import { connectKeystore } from '@/api/keystores';
 import style from './receive.module.css';
-
-type TProps = {
-  accounts: accountApi.TAccount[];
-  code: accountApi.AccountCode;
-};
 
 type TAddressTypeDialogProps = {
   open: boolean;
@@ -128,11 +124,16 @@ const getReceiveScriptTypeIndex = (
   return scriptTypeIndex >= 0 ? scriptTypeIndex : 0;
 };
 
+type TProps = {
+  code: accountApi.AccountCode;
+};
+
 export const Receive = ({
-  accounts,
   code,
 }: TProps) => {
   const { t } = useTranslation();
+  const { activeAccounts } = useAppState();
+
   const [verifying, setVerifying] = useState<false | 'secure' | 'insecure'>(false);
   const [firmwareUpgradeRequired, setFirmwareUpgradeRequired] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -142,7 +143,7 @@ export const Receive = ({
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.TReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
-  const account = accounts.find(({ code: accountCode }) => accountCode === code);
+  const account = activeAccounts.find(({ code: accountCode }) => accountCode === code);
   const insured = account?.bitsuranceStatus === 'active';
   useEthAccountActivity(code, account?.coinCode);
 

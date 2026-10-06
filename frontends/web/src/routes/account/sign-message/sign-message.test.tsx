@@ -15,6 +15,7 @@ import * as accountApi from '@/api/account';
 import * as keystoresApi from '@/api/keystores';
 import { SignMessage } from './sign-message';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
+import { AppStateContext } from '@/contexts/app-state-context';
 
 const mockAccount: accountApi.TAccount = {
   keystore: {
@@ -109,13 +110,26 @@ describe('routes/account/sign-message', () => {
 
     render(
       <BackButtonProvider>
-        <MemoryRouter>
-          <SignMessage
-            accounts={[mockAccount]}
-            code={mockAccount.code}
-            view="new"
-          />
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter>
+            <SignMessage
+              code={mockAccount.code}
+              view="new"
+            />
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -168,13 +182,26 @@ describe('routes/account/sign-message', () => {
     const user = userEvent.setup();
     render(
       <BackButtonProvider>
-        <MemoryRouter>
-          <SignMessage
-            accounts={[mockAccount]}
-            code={mockAccount.code}
-            view="new"
-          />
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter>
+            <SignMessage
+              code={mockAccount.code}
+              view="new"
+            />
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -208,13 +235,26 @@ describe('routes/account/sign-message', () => {
     const user = userEvent.setup();
     render(
       <BackButtonProvider>
-        <MemoryRouter>
-          <SignMessage
-            accounts={[mockAccount]}
-            code={mockAccount.code}
-            view="new"
-          />
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter>
+            <SignMessage
+              code={mockAccount.code}
+              view="new"
+            />
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -256,20 +296,33 @@ describe('routes/account/sign-message', () => {
 
     render(
       <BackButtonProvider>
-        <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/${usedAddress.addressID}/sign-message`]}>
-          <Routes>
-            <Route
-              path="/account/:code/addresses/:addressID/sign-message"
-              element={(
-                <SignMessage
-                  accounts={[mockAccount]}
-                  code={mockAccount.code}
-                  view="new"
-                />
-              )}
-            />
-          </Routes>
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/${usedAddress.addressID}/sign-message`]}>
+            <Routes>
+              <Route
+                path="/account/:code/addresses/:addressID/sign-message"
+                element={(
+                  <SignMessage
+                    code={mockAccount.code}
+                    view="new"
+                  />
+                )}
+              />
+            </Routes>
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -303,20 +356,33 @@ describe('routes/account/sign-message', () => {
 
     render(
       <BackButtonProvider>
-        <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/invalid-address-id/sign-message`]}>
-          <Routes>
-            <Route
-              path="/account/:code/addresses/:addressID/sign-message"
-              element={(
-                <SignMessage
-                  accounts={[mockAccount]}
-                  code={mockAccount.code}
-                  view="new"
-                />
-              )}
-            />
-          </Routes>
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/invalid-address-id/sign-message`]}>
+            <Routes>
+              <Route
+                path="/account/:code/addresses/:addressID/sign-message"
+                element={(
+                  <SignMessage
+                    code={mockAccount.code}
+                    view="new"
+                  />
+                )}
+              />
+            </Routes>
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -349,11 +415,24 @@ describe('routes/account/sign-message', () => {
     render(
       <BackButtonProvider>
         <MemoryRouter>
-          <SignMessage
-            accounts={[ethAccount]}
-            code={ethAccount.code}
-            view="new"
-          />
+          <AppStateContext.Provider
+            value={{
+              accounts: [ethAccount],
+              activeAccounts: [ethAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <SignMessage
+              code={ethAccount.code}
+              view="new"
+            />
+          </AppStateContext.Provider>
         </MemoryRouter>
       </BackButtonProvider>
     );
@@ -400,11 +479,24 @@ describe('routes/account/sign-message', () => {
     render(
       <BackButtonProvider>
         <MemoryRouter>
-          <SignMessage
-            accounts={[mockAccount]}
-            code={mockAccount.code}
-            view="new"
-          />
+          <AppStateContext.Provider
+            value={{
+              accounts: [mockAccount],
+              activeAccounts: [mockAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <SignMessage
+              code={mockAccount.code}
+              view="new"
+            />
+          </AppStateContext.Provider>
         </MemoryRouter>
       </BackButtonProvider>
     );

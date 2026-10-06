@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { proposeTx, sendTx, type TAccount, type TAmountWithConversions } from '@/api/account';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { AppContext } from '@/contexts/AppContext';
+import { AppStateContext } from '@/contexts/app-state-context';
 import { useAccountSynced } from '@/hooks/account';
 import { Bitrefill } from './bitrefill';
 
@@ -58,7 +59,21 @@ describe.each([false, true])('Bitrefill messages (dev servers: %s)', isDevServer
     });
     render(
       <AppContext.Provider value={{ isDevServers } as ContextType<typeof AppContext>}>
-        <Bitrefill accounts={[account]} code={account.code} region="" />
+        <AppStateContext.Provider
+          value={{
+            accounts: [account],
+            activeAccounts: [account],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: false,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <Bitrefill code={account.code} region="" />
+        </AppStateContext.Provider>
       </AppContext.Provider>
     );
     const wrapper = screen.getByTitle<HTMLIFrameElement>('Bitrefill');

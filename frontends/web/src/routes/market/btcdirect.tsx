@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { getBTCDirectInfo, TMarketAction } from '@/api/market';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { AppContext } from '@/contexts/AppContext';
-import { AccountCode, TAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { AccountCode, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { useAccountSynced } from '@/hooks/account';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -29,6 +29,7 @@ import {
 } from '@/hooks/vendor-iframe-message';
 import { Message } from '@/components/message/message';
 import style from './iframe.module.css';
+import { useAppState } from '@/contexts/app-state-context';
 
 // Map languages supported by BTC Direct
 const localeMapping: Readonly<Record<string, string>> = {
@@ -40,13 +41,11 @@ const localeMapping: Readonly<Record<string, string>> = {
 };
 
 type TProps = {
-  accounts: TAccount[];
   action: TMarketAction;
   code: AccountCode;
 };
 
 export const BTCDirect = ({
-  accounts,
   action,
   code,
 }: TProps) => {
@@ -55,12 +54,13 @@ export const BTCDirect = ({
   const { isDevServers } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
+  const { activeAccounts } = useAppState();
 
   const fetchBTCDirectInfo = useCallback(() => getBTCDirectInfo(action, code), [action, code]);
   const btcdirectInfo = useAccountSynced(code, fetchBTCDirectInfo);
 
   const [blocking, setBlocking] = useState(false);
-  const account = findAccount(accounts, code);
+  const account = findAccount(activeAccounts, code);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBTCDirectWidgetDisclaimer ?? false);
   useMarketIframeActive(!!account && !!config && agreedTerms && btcdirectInfo?.success === true);
@@ -209,7 +209,7 @@ export const BTCDirect = ({
     return null;
   }
 
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   const title = (

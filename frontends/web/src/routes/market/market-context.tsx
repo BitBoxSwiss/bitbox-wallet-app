@@ -2,7 +2,6 @@
 
 import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TAccount } from '@/api/account';
 import type { TOption } from './components/countryselect';
 import { getSwapStatus } from '@/api/swap';
 import { getMarketRegionCodes } from '@/api/market';
@@ -10,6 +9,7 @@ import { useLoad } from '@/hooks/api';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { getRegionNameFromLocale } from '@/i18n/utils';
 import { AppContext } from '@/contexts/AppContext';
+import { useAppState } from '@/contexts/app-state-context';
 
 type TMarketContext = {
   regions: TOption[];
@@ -21,15 +21,14 @@ type TMarketContext = {
 const MarketContext = createContext<TMarketContext | null>(null);
 
 type TProps = {
-  accounts: TAccount[];
   children: ReactNode;
 };
 
 export const MarketProvider = ({
-  accounts,
   children,
 }: TProps) => {
   const { i18n } = useTranslation();
+  const { activeAccounts } = useAppState();
 
   const [regions, setRegions] = useState<TOption[]>([]);
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -38,7 +37,7 @@ export const MarketProvider = ({
   const { config } = useConfig();
   const { nativeLocale } = useContext(AppContext);
 
-  const swapStatus = useLoad(getSwapStatus, [accounts]);
+  const swapStatus = useLoad(getSwapStatus, [activeAccounts]);
   const regionCodes = useLoad(getMarketRegionCodes);
 
   // update region Select component when `regionList` or `config` gets populated.

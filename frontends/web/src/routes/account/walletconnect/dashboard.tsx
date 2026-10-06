@@ -9,7 +9,7 @@ import { getSdkError } from '@walletconnect/utils';
 import { WCWeb3WalletContext } from '@/contexts/WCWeb3WalletContext';
 import { truncateMiddle } from '@/utils/address';
 import { getAddressFromEIPString } from '@/utils/walletconnect';
-import { AccountCode, TAccount, getReceiveAddressList } from '@/api/account';
+import { AccountCode, getReceiveAddressList } from '@/api/account';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { WCSessionCard } from './components/session-card/session-card';
@@ -18,15 +18,16 @@ import { Status } from '@/components/status/status';
 import { WCGuide } from './guide';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import styles from './dashboard.module.css';
+import { useAppState } from '@/contexts/app-state-context';
 
 type TProps = {
-  accounts: TAccount[];
   code: AccountCode;
 };
 
-export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
+export const DashboardWalletConnect = ({ code }: TProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { activeAccounts } = useAppState();
   const { web3wallet, isWalletInitialized, initializeWeb3Wallet } = useContext(WCWeb3WalletContext);
   const [sessions, setSessions] = useState<SessionTypes.Struct[]>();
   const receiveAddresses = useLoad(getReceiveAddressList(code));
@@ -66,7 +67,7 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
   }
 
   const receiveAddress = truncateMiddle(receiveAddresses[0].addresses[0].address, 6, 6);
-  const accountName = (accounts && accounts.find(acct => acct.code === code))?.name || '';
+  const accountName = (activeAccounts.find(acct => acct.code === code))?.name || '';
   const hasSession = sessions && sessions.length > 0;
 
   return (
