@@ -86,6 +86,42 @@ The local HTML files must also be deployed to the corresponding hosted `/widgets
 URLs for released apps to receive the wrapper fixes. Keep the existing
 `request-configuration` handshake and payloads when updating those shared URLs.
 
+## Mobile Lightning payment links
+
+Use an installed Android or iOS build with an activated Lightning wallet and a fresh
+BOLT11 invoice. Browser tests do not exercise native URI registration.
+
+On Android, use an implicit intent to also check scheme registration (replace the invoice):
+
+```sh
+adb shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d 'lightning:<invoice>'
+```
+
+On an iOS simulator:
+
+```sh
+xcrun simctl openurl booted 'lightning:<invoice>'
+```
+
+- Open the link with the app closed, in the background, and already open. The existing
+  payment review should show the invoice; sending still requires confirmation.
+- Repeat with `lightning://<invoice>` and `LIGHTNING:<invoice>`.
+- With app authentication enabled, unlock and verify that the invoice remains available.
+  Background and resume the app again: the handled link must not reopen.
+- Open another link during review and verify that its details replace the first invoice.
+  Once sending starts, new links must wait until the payment succeeds or you leave its
+  review. After a send error, verify that the error and retry remain available even if
+  another link arrives.
+- Check an amountless invoice, an LNURL-pay link, and an invalid invoice. Invalid input
+  should show an error in manual entry without opening the camera.
+- With Lightning disabled, open a link and complete activation. Payment review should open
+  automatically once Lightning is ready. Canceling the payment prompt must discard the link.
+  Open another link during activation: setup must continue, then review the newest link.
+  If activation fails, retry and verify the link is retained. During SDK initialization,
+  the link should wait; initialization failure should show the existing restart guidance.
+- Check an `aopp:` link on cold launch and while running, then background/resume after
+  dismissing it. It must still open and must not replay.
+
 ## Debugging tests
 
 When a test fails, Playwright will output elements useful for debugging; these are either in [test-results](./test-results), if running locally, or uploaded as artifact if running in CI. 

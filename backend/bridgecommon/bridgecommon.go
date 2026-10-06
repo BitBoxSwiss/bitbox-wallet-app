@@ -47,6 +47,8 @@ var (
 	globalToken string
 
 	globalShutdown func()
+	// Keep the latest launch link if the native activity starts before the backend service.
+	globalPendingURI string
 )
 
 type response struct {
@@ -104,9 +106,10 @@ func BackendCall(queryID int, jsonQuery string) {
 // schemes are registered and handled on each platform (e.g. .desktop entry on Linux, Info.plist on
 // macOS, etc.). All platforms then call this function to handle the URI in the backend.
 func HandleURI(uri string) {
-	mu.RLock()
-	defer mu.RUnlock()
+	mu.Lock()
+	defer mu.Unlock()
 	if globalBackend == nil {
+		globalPendingURI = uri
 		return
 	}
 	globalBackend.HandleURI(uri)
@@ -405,6 +408,10 @@ func Serve(
 		}
 	}()
 
+	if globalPendingURI != "" {
+		globalBackend.HandleURI(globalPendingURI)
+		globalPendingURI = ""
+	}
 }
 
 // Shutdown is cleaning up after Serve. It is called when the application is closed or goes to

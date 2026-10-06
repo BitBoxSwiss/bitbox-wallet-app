@@ -45,6 +45,8 @@ func NewHandlers(
 	handleNoError("/spark-status", lightning.GetSparkStatus).Methods("GET")
 	handleNoError("/list-payments", lightning.GetListPayments).Methods("GET")
 	handleNoError("/parse-payment-input", lightning.GetParsePaymentInput).Methods("GET")
+	handleNoError("/uri", lightning.GetURI).Methods("GET")
+	handleNoError("/uri/clear", lightning.PostClearURI).Methods("POST")
 	handleNoError("/prepare-payment", lightning.PostPreparePayment).Methods("POST")
 	handleNoError("/claim-top-up", lightning.PostClaimTopUp).Methods("POST")
 	handleNoError("/refund-top-up", lightning.PostRefundTopUp).Methods("POST")
@@ -53,6 +55,23 @@ func NewHandlers(
 	handleNoError("/close-withdraw-funds", lightning.PostCloseWithdraw).Methods("POST")
 	handleNoError("/receive-payment", lightning.GetReceivePayment).Methods("GET")
 	handleNoError("/send-payment", lightning.PostSendPayment).Methods("POST")
+}
+
+// GetURI returns the pending external payment link.
+func (lightning *Lightning) GetURI(r *http.Request) interface{} {
+	return lightning.URI()
+}
+
+// PostClearURI acknowledges an external payment link.
+func (lightning *Lightning) PostClearURI(r *http.Request) interface{} {
+	var request struct {
+		Revision uint64 `json:"revision"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return errorResponse(err)
+	}
+	lightning.ClearURI(request.Revision)
+	return responseDto{Success: true}
 }
 
 // PostPrepareTopUp handles the POST request to validate and prepare a Lightning top-up.
