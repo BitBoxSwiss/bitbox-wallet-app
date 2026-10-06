@@ -40,6 +40,8 @@ export const LNURLPayReviewStep = ({
     preparedPayment,
     sendError,
     sendPayment,
+    sendAll,
+    setSendAll,
     setCustomAmount,
   } = usePaymentReview({
     paymentDetails,
@@ -65,6 +67,9 @@ export const LNURLPayReviewStep = ({
                   key={lnurlPay.input}
                   minAmountSat={lnurlPay.minAmountSat}
                   maxAmountSat={lnurlPay.maxAmountSat}
+                  sendAll={sendAll}
+                  sendAllAmountSat={fees?.amountSat}
+                  onSendAllChange={setSendAll}
                   onAmountChange={setCustomAmount}
                 />
                 <LNURLPayRecipientDetails lnurlPay={lnurlPay} />
