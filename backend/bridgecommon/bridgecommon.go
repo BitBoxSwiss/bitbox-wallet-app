@@ -112,6 +112,16 @@ func HandleURI(uri string) {
 	globalBackend.HandleURI(uri)
 }
 
+// ExternalLinkRequested reports that an embedded widget asked to open an external URL.
+func ExternalLinkRequested(url string) {
+	mu.RLock()
+	defer mu.RUnlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.ExternalLinkRequested(url)
+}
+
 // SetOnline should be called when the network connection changed.
 func SetOnline(isOnline bool) {
 	mu.RLock()
