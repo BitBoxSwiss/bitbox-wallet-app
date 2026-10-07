@@ -18,6 +18,7 @@ export type TSettingsSearchItem = {
   id: string;
   title: string;
   page: TSettingsSearchPage;
+  url?: string;
 };
 
 type TGetSettingsSearchItemsArgs = {
@@ -42,6 +43,7 @@ type TSettingsSearchContext = TGetSettingsSearchItemsArgs & {
 type TSettingsSearchDescriptor = {
   id: string;
   page: TSettingsSearchPage;
+  url?: string;
   getTitle: (context: TSettingsSearchContext) => string;
   isAvailable?: (context: TSettingsSearchContext) => boolean;
 };
@@ -116,6 +118,13 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
       ? 'lightning.settings.title'
       : 'lightning.settings.enableWallet'),
     page: 'advanced',
+  },
+  {
+    id: 'lightning-contacts',
+    isAvailable: ({ isLightningEnabled }) => isLightningEnabled === true && isLightningSettingVisible(isLightningEnabled),
+    getTitle: ({ t }) => t('lightning.contacts.title'),
+    page: 'advanced',
+    url: '/lightning/contacts',
   },
   {
     id: 'export-logs',
@@ -272,6 +281,7 @@ export const getSettingsSearchItems = ({
       id: descriptor.id,
       title: descriptor.getTitle(context),
       page: descriptor.page,
+      ...(descriptor.url ? { url: descriptor.url } : {}),
     }));
 };
 

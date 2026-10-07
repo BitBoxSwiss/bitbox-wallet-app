@@ -17,6 +17,7 @@ vi.mock('@/utils/env', () => ({
 }));
 
 const translations: Record<string, string> = {
+  'lightning.contacts.title': 'Contacts',
   'lightning.settings.enableWallet': 'Enable lightning wallet',
   'lightning.settings.title': 'Lightning settings',
   'testnet.activate.title': 'Activate testnet',
@@ -94,6 +95,32 @@ describe('settings search', () => {
       page: 'advanced',
       title: 'Lightning settings',
     });
+  });
+
+  // Contacts must be discoverable by their translated title and link directly to the contact list.
+  it.each(['contacts', 'CONTACTS', 'contact'])('finds contacts for the search term %s', (searchTerm) => {
+    const results = filterSettingsSearchItems(getItems(false, true), searchTerm);
+
+    expect(results).toContainEqual({
+      id: 'lightning-contacts',
+      page: 'advanced',
+      title: 'Contacts',
+      url: '/lightning/contacts',
+    });
+  });
+
+  // Contacts stay hidden until the Lightning wallet is enabled.
+  it.each([false, undefined])('hides contacts when the lightning wallet state is %s', (isLightningEnabled) => {
+    const results = filterSettingsSearchItems(getItems(false, isLightningEnabled), 'contacts');
+
+    expect(results).toEqual([]);
+  });
+
+  // Platforms without Lightning must not expose the contacts route through settings search.
+  it('hides contacts when the lightning feature is unavailable', () => {
+    isLightningFeatureAvailableMock.mockReturnValue(false);
+
+    expect(filterSettingsSearchItems(getItems(false, true), 'contacts')).toEqual([]);
   });
 
   it('uses the enable lightning wallet title when lightning is disabled', () => {

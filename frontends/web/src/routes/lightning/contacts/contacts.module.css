@@ -1,0 +1,27 @@
+.form {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.optional {
+    color: var(--color-secondary);
+}
+
+.danger {
+    color: var(--color-danger);
+}
+
+.saved {
+    align-items: center;
+    color: var(--color-success);
+    display: flex;
+    gap: var(--space-half);
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .empty {
+        text-align: center;
+    }
+}
