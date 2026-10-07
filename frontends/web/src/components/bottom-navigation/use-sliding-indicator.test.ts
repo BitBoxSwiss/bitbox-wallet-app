@@ -17,22 +17,28 @@ const rect = (left: number, top: number, width: number, height: number): DOMRect
 });
 
 const elementWithRect = <T extends HTMLElement>(left: number, top: number, width: number, height: number): T => ({
+  clientLeft: 0,
+  clientTop: 0,
   getBoundingClientRect: () => rect(left, top, width, height),
 }) as T;
 
 describe('useSlidingIndicator', () => {
-  it('positions the indicator from the active label bounds relative to the container', () => {
+  it('aligns the indicator with the label inside the container border', () => {
     const { result } = renderHook(() => useSlidingIndicator(1));
 
     act(() => {
-      result.current.containerRef.current = elementWithRect<HTMLDivElement>(20, 10, 300, 80);
+      result.current.containerRef.current = {
+        ...elementWithRect<HTMLDivElement>(20, 10, 300, 80),
+        clientLeft: 1,
+        clientTop: 1,
+      };
       result.current.labelRefs.current[1] = elementWithRect<HTMLSpanElement>(120, 50, 48, 20);
       window.dispatchEvent(new Event('resize'));
     });
 
     expect(result.current.indicatorStyle).toEqual({
-      left: 100,
-      top: 60,
+      left: 99,
+      top: 59,
       width: 48,
     });
   });
