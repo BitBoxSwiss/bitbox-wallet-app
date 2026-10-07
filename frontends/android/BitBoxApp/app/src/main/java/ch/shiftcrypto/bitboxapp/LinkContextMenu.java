@@ -6,19 +6,14 @@ import android.content.Context;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 
-/** Adds the native copy action when a link is held in the WebView. */
+/** Shows the native copy menu requested by the transaction explorer link. */
 final class LinkContextMenu {
-    static void install(WebView webView) {
+    static void show(WebView webView, String url) {
+        if (!URLUtil.isNetworkUrl(url)) {
+            return;
+        }
+        boolean wasLongClickable = webView.isLongClickable();
         webView.setOnCreateContextMenuListener((menu, view, menuInfo) -> {
-            WebView.HitTestResult result = webView.getHitTestResult();
-            if (result == null || (result.getType() != WebView.HitTestResult.SRC_ANCHOR_TYPE
-                    && result.getType() != WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE)) {
-                return;
-            }
-            String url = result.getExtra();
-            if (url == null || !URLUtil.isNetworkUrl(url)) {
-                return;
-            }
             menu.setHeaderTitle(url);
             menu.add(android.R.string.copy).setOnMenuItemClickListener(item -> {
                 ClipboardManager clipboard = (ClipboardManager) view.getContext()
@@ -27,5 +22,11 @@ final class LinkContextMenu {
                 return true;
             });
         });
+        try {
+            webView.showContextMenu();
+        } finally {
+            webView.setOnCreateContextMenuListener(null);
+            webView.setLongClickable(wasLongClickable);
+        }
     }
 }
