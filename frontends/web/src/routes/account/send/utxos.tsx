@@ -42,23 +42,25 @@ export const UTXOs = ({
   onClose,
 }: Props) => {
   const { i18n, t } = useTranslation();
-  const [utxos, setUtxos] = useState<TUTXO[]>([]);
+  const [utxosResponse, setUtxosResponse] = useState<Awaited<ReturnType<typeof getUTXOs>>>();
+  const utxos = utxosResponse?.success ? utxosResponse.utxos : [];
   const [selectedUTXOs, setSelectedUTXOs] = useState<TSelectedUTXOs>({});
   const [reusedAddressUTXOs, setReusedAddressUTXOs] = useState(0);
 
   useEffect(() => {
-    getUTXOs(accountCode).then(setUtxos);
-    return () => setUtxos([]);
-  }, [accountCode]);
-
-  useEffect(() => {
-    const currentCode = accountCode;
-    const unsubscribe = syncdone(currentCode, () => {
-      if (accountCode === currentCode) {
-        getUTXOs(accountCode).then(setUtxos);
+    let active = true;
+    setUtxosResponse(undefined);
+    const load = () => getUTXOs(accountCode).then(response => {
+      if (active) {
+        setUtxosResponse(response);
       }
     });
-    return () => unsubscribe();
+    load();
+    const unsubscribe = syncdone(accountCode, load);
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, [accountCode]);
 
   const handleUTXOChange = (
@@ -192,6 +194,9 @@ export const UTXOs = ({
         </Message>
       )}
       <DialogScrollContent>
+        {utxosResponse && !utxosResponse.success && (
+          <Message type="error">{utxosResponse.errorMessage || t('genericError')}</Message>
+        )}
         { allScriptTypes.map(renderUTXOs) }
       </DialogScrollContent>
       <DialogButtons>

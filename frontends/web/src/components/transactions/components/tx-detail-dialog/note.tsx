@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Input } from '@/components/forms';
+import { alertUser } from '@/components/alert/Alert';
 import detailsDialogStyles from './tx-detail-dialog.module.css';
 
 type Props = {
@@ -30,7 +31,11 @@ export const Note = ({ accountCode, note, internalID }: Props) => {
       accountApi.postNotesTx(accountCode, {
         internalTxID: internalID,
         note: newNote,
-      }).then(() => {
+      }).then(result => {
+        if (!result.success) {
+          alertUser(result.errorMessage || t('genericError'));
+          return;
+        }
         setSavedNote(newNote);
       }).catch(console.error);
     }

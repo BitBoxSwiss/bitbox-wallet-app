@@ -317,7 +317,7 @@ type TNoteTx = {
 export const postNotesTx = (code: AccountCode, {
   internalTxID,
   note,
-}: TNoteTx): Promise<null> => {
+}: TNoteTx): Promise<SuccessResponse | TAccountError> => {
   return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
 };
 
@@ -390,7 +390,7 @@ export type Slip24 = {
 };
 
 export const getReceiveAddressList = (code: AccountCode) => {
-  return (): Promise<NonEmptyArray<TReceiveAddressList> | null> => {
+  return (): Promise<{ success: true; addresses: NonEmptyArray<TReceiveAddressList> } | TAccountError> => {
     return apiGet(`account/${code}/receive-addresses`);
   };
 };
@@ -427,6 +427,7 @@ export type TTxProposalResult = {
   total: TAmountWithConversions;
 } | {
   errorCode?: TTxProposalErrorCode;
+  errorMessage?: string;
   success: false;
 };
 
@@ -499,14 +500,15 @@ export type TUTXO = {
   headerTimestamp: string | null;
 };
 
-export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {
+export const getUTXOs = (code: AccountCode): Promise<{ success: true; utxos: TUTXO[] } | TAccountError> => {
   return apiGet(`account/${code}/utxos`);
 };
 
 type TSecureOutput = {
+  success: true;
   hasSecureOutput: boolean;
   optional: boolean;
-};
+} | TAccountError;
 
 export const hasSecureOutput = (code: AccountCode) => {
   return (): Promise<TSecureOutput> => {
