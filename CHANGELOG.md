@@ -9,6 +9,7 @@
 - Ethereum: automatically remove replaced transactions from history
 - Update password input animations
 - BitBox02: allow entering the optional passphrase in the app (firmware v9.28.0 or later)
+- Add PDF export of assets balance on chosen date
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1
