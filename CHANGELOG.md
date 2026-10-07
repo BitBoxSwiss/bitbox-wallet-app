@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Mobile: allow copying block explorer links by touching and holding them
 - Rename "Factory Reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings

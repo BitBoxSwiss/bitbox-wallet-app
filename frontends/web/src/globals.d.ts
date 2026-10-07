@@ -14,6 +14,7 @@ export declare global {
     qt?: { webChannelTransport: unknown };
     android?: {
       call: (queryID: number, query: string) => void;
+      showExplorerLinkMenu?: (url: string) => void;
     };
     onMobileCallResponse?: (queryID: number, response: unknown) => void;
     onMobilePushNotification?: (msg: TPayload) => void;

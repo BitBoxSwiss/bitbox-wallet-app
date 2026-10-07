@@ -93,6 +93,10 @@ public class WebMessageBridge implements WebViewCompat.WebMessageListener {
             if ("readClipboard".equals(type)) {
                 int requestId = payload.getInt("requestId");
                 respondWithClipboard(replyProxy, requestId, readFromClipboard());
+                return;
+            }
+            if ("showExplorerLinkMenu".equals(type)) {
+                LinkContextMenu.show(view, payload.getString("url"));
             }
         } catch (Exception e) {
             Util.log("Failed to handle web message: " + e.getMessage());
@@ -154,6 +158,9 @@ public class WebMessageBridge implements WebViewCompat.WebMessageListener {
                 "        queryID: queryID,",
                 "        query: query",
                 "      }));",
+                "    },",
+                "    showExplorerLinkMenu: function(url) {",
+                "      bridge.postMessage(JSON.stringify({type: 'showExplorerLinkMenu', url: url}));",
                 "    }",
                 "  };",
                 "})();"
