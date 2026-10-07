@@ -14,7 +14,7 @@ type TProps = {
   children: ReactNode;
 };
 
-const SDCardCheck = ({ deviceID, children }: TProps) => {
+export const SDCardCheck = ({ deviceID, children }: TProps) => {
   const { t } = useTranslation();
   const [sdCardInserted, setSdCardInserted] = useState<boolean | undefined>();
   const check = useCallback(() => checkSDCard(deviceID).then(setSdCardInserted), [deviceID]);
@@ -29,9 +29,9 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
   }
 
   return (
-    <div>
-      {!sdCardInserted ? (
-        <View textCenter>
+    !sdCardInserted
+      ? (
+        <View fitContent textCenter>
           <ViewHeader title={t('bitbox02Wizard.stepInsertSD.insertSDcardTitle')}>
             {t('bitbox02Wizard.stepInsertSD.insertSDCardToSeeBackups')}
           </ViewHeader>
@@ -49,9 +49,7 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
             </DesktopBackButton>
           </ViewButtons>
         </View>
-      ) : children}
-    </div>
+      )
+      : children
   );
 };
-
-export { SDCardCheck };

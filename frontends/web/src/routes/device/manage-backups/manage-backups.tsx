@@ -10,6 +10,7 @@ import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Backups } from '@/routes/device/bitbox01/backups';
 import { BackupsV2 } from '@/routes/device/bitbox02/backups';
 import { SDCardCheck } from '@/routes/device/bitbox02/sdcardcheck';
+import { View, ViewContent } from '@/components/view/view';
 
 type TProps = {
   deviceID: string | null;
@@ -35,12 +36,14 @@ export const ManageBackups = ({
             mobileBackButton
             title={t('backup.title')}
           />
-          <div className="content padded">
-            <BackupsList
-              deviceID={deviceID}
-              devices={devices}
-            />
-          </div>
+          <View>
+            <ViewContent>
+              <BackupsList
+                deviceID={deviceID}
+                devices={devices}
+              />
+            </ViewContent>
+          </View>
         </Main>
       </GuidedContent>
       <ManageBackupGuide
