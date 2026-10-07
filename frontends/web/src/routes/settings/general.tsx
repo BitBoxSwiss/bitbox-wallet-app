@@ -7,6 +7,7 @@ import { View, ViewContent } from '@/components/view/view';
 import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSetting';
 import { NotesImport } from './components/appearance/notesImport';
 import { NotesExport } from './components/appearance/notesExport';
+import { ExportBalanceStatementSetting } from './components/appearance/export-balance-statement-setting';
 import { DefaultCurrencyDropdownSetting } from './components/appearance/defaultCurrencyDropdownSetting';
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
 import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeCurrenciesDropdownSetting';
@@ -16,7 +17,7 @@ import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
-import { isNotesSettingsVisible } from './settings-availability';
+import { isBalanceStatementSettingVisible, isNotesSettingsVisible } from './settings-availability';
 import { SimpleMarkup } from '@/utils/markup';
 
 export const General = () => {
@@ -49,7 +50,7 @@ export const General = () => {
 
 export const GeneralSettingsContent = () => {
   const { t } = useTranslation();
-  const { hasAccounts } = useAppState();
+  const { activeAccounts, hasAccounts } = useAppState();
 
   const sections: TSettingsContentSection[] = [
     {
@@ -70,6 +71,13 @@ export const GeneralSettingsContent = () => {
         { id: 'import-notes', content: <NotesImport /> },
       ],
       title: <SubTitle className="m-top-default">{t('settings.notes.title')}</SubTitle>,
+    }] : []),
+    ...(isBalanceStatementSettingVisible(hasAccounts) ? [{
+      id: 'other',
+      items: [
+        { id: 'export-balance-statement', content: <ExportBalanceStatementSetting accounts={activeAccounts} /> },
+      ],
+      title: <SubTitle className="m-top-default">{t('settings.other')}</SubTitle>,
     }] : []),
   ];
 
