@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Use native links for transaction block explorers
 - Rename "Factory Reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings
