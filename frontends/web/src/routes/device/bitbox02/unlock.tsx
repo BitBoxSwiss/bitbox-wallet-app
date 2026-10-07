@@ -24,14 +24,14 @@ export const Unlock = ({ attestation }: Props) => {
           {t('bitbox02Wizard.stepConnected.unlock')}
         </p>
       </ViewHeader>
-      <ViewContent fullWidth>
+      <ViewContent>
         {attestation === false ? (
           <Message type="warning">
             {t('bitbox02Wizard.attestationFailed')}
           </Message>
         ) : (
           <>
-            <PasswordEntry />
+            <PasswordEntry workflow="unlock" />
             <ForgotPasswordInfo />
           </>
         )}

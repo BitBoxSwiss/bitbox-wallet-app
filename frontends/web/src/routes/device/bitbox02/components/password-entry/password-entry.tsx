@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { createRef, useEffect } from 'react';
-import PasswordGestureVideo from './assets/password-gestures.webm';
+import { passwordVideos, passwordVideoType } from '@/routes/device/bitbox02/components/password-entry/videos';
 import styles from './password-entry.module.css';
 
 const isVideoPlaying = (video: HTMLVideoElement): boolean => {
@@ -17,7 +17,11 @@ const replayVideo = (ref: HTMLVideoElement): void => {
   }
 };
 
-export const PasswordEntry = () => {
+type TProps = {
+  workflow: 'unlock' | 'set-password';
+};
+
+export const PasswordEntry = ({ workflow }: TProps) => {
   let ref = createRef<HTMLVideoElement>();
   useEffect(() => {
     if (ref.current) {
@@ -27,6 +31,7 @@ export const PasswordEntry = () => {
   return (
     <div className={styles.passwordGesturesWrapper}>
       <video
+        key={workflow}
         autoPlay
         playsInline
         ref={ref}
@@ -35,7 +40,7 @@ export const PasswordEntry = () => {
         muted
         height="338"
         width="600">
-        <source src={PasswordGestureVideo} type="video/webm" />
+        <source src={passwordVideos[workflow]} type={passwordVideoType} />
       </video>
     </div>
   );
