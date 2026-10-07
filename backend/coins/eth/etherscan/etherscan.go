@@ -14,6 +14,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -34,10 +35,22 @@ import (
 // Etherscan rate limits to one request per 0.2 seconds.
 var CallsPerSec = 3.8
 
+// Limit historical balance requests to two per second across clients using the
+// provider's API credentials.
+var historicalBalanceRateLimiter = rate.NewLimiter(2, 1)
+
+// Coordinate admission across the shared budgets without reserving one budget
+// while a request waits for the other.
+var requestRateLimitLock sync.Mutex
+
 const (
 	maxAddressesForBalances      = 20
 	maxGetRequestTargetLength    = 6000
 	maxTokenTransactionsPerQuery = 10000
+
+	// Etherscan indexes mainnet block zero at the Frontier launch on
+	// 2015-07-30 15:26:13 UTC. The genesis header itself has a zero timestamp.
+	mainnetLaunchTimestamp = 1438269973
 )
 
 // ERC20GasErr is the error message returned from etherscan when there is not enough ETH to pay the transaction fee.
@@ -45,24 +58,73 @@ const ERC20GasErr = "insufficient funds for gas * price + value"
 
 // EtherScan is a rate-limited etherscan api client. See https://etherscan.io/apis.
 type EtherScan struct {
-	url        string
-	httpClient *http.Client
-	limiter    *rate.Limiter
-	chainId    string
+	url                      string
+	httpClient               *http.Client
+	limiter                  *rate.Limiter
+	historicalBalanceLimiter *rate.Limiter
+	chainId                  string
 }
 
 // NewEtherScan creates a new instance of EtherScan.
 func NewEtherScan(chainId string, httpClient *http.Client, limiter *rate.Limiter) *EtherScan {
 	return &EtherScan{
-		url:        "https://etherscan-api.shiftcrypto.io/v2/api",
-		httpClient: httpClient,
-		limiter:    limiter,
-		chainId:    chainId,
+		url:                      "https://etherscan-api.shiftcrypto.io/v2/api",
+		httpClient:               httpClient,
+		limiter:                  limiter,
+		historicalBalanceLimiter: historicalBalanceRateLimiter,
+		chainId:                  chainId,
 	}
 }
 
 func (etherScan *EtherScan) call(ctx context.Context, params url.Values, result interface{}) error {
 	return etherScan.callWithMethod(ctx, http.MethodGet, params, result)
+}
+
+func (etherScan *EtherScan) waitForRequestRateLimit(ctx context.Context, action string) error {
+	limiters := []*rate.Limiter{etherScan.limiter}
+	if action == "balancehistory" || action == "tokenbalancehistory" {
+		limiters = append(limiters, etherScan.historicalBalanceLimiter)
+	}
+	for {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		requestRateLimitLock.Lock()
+		now := time.Now()
+		reservations := make([]*rate.Reservation, 0, len(limiters))
+		var delay time.Duration
+		var reservationError error
+		for _, limiter := range limiters {
+			reservation := limiter.ReserveN(now, 1)
+			reservations = append(reservations, reservation)
+			if !reservation.OK() {
+				reservationError = errp.New("rate limiter cannot admit a request")
+				break
+			}
+			delay = max(delay, reservation.DelayFrom(now))
+		}
+		if reservationError == nil && delay == 0 {
+			requestRateLimitLock.Unlock()
+			return nil
+		}
+		for _, reservation := range reservations {
+			reservation.CancelAt(now)
+		}
+		requestRateLimitLock.Unlock()
+		if reservationError != nil {
+			return reservationError
+		}
+		if deadline, ok := ctx.Deadline(); ok && now.Add(delay).After(deadline) {
+			return errp.New("rate limit wait would exceed context deadline")
+		}
+		timer := time.NewTimer(time.Until(now.Add(delay)))
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return ctx.Err()
+		case <-timer.C:
+		}
+	}
 }
 
 func (etherScan *EtherScan) callWithMethod(
@@ -73,7 +135,7 @@ func (etherScan *EtherScan) callWithMethod(
 ) error {
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
-	if err := etherScan.limiter.Wait(ctx); err != nil {
+	if err := etherScan.waitForRequestRateLimit(ctx, params.Get("action")); err != nil {
 		return errp.WithMessage(rpcclient.ErrRequestRejected, err.Error())
 	}
 	params.Set("chainId", etherScan.chainId)
@@ -613,6 +675,63 @@ func (etherScan *EtherScan) Balance(ctx context.Context, account common.Address,
 	balance, ok := new(big.Int).SetString(result.Result, 10)
 	if !ok {
 		return nil, errp.New("unexpected response from EtherScan")
+	}
+	return balance, nil
+}
+
+// HistoricalBalanceAt returns the native or ERC20 token balance at the last block at or before at.
+// A nil erc20Token selects the native balance.
+func (etherScan *EtherScan) HistoricalBalanceAt(
+	ctx context.Context, account common.Address, at time.Time, erc20Token *erc20.Token,
+) (*big.Int, error) {
+	if etherScan.chainId == "1" && at.Unix() < mainnetLaunchTimestamp {
+		return big.NewInt(0), nil
+	}
+
+	var blockResult struct {
+		Status string
+		Result string
+	}
+	params := url.Values{
+		"module":    {"block"},
+		"action":    {"getblocknobytime"},
+		"timestamp": {strconv.FormatInt(at.Unix(), 10)},
+		"closest":   {"before"},
+	}
+	if err := etherScan.call(ctx, params, &blockResult); err != nil {
+		return nil, err
+	}
+	if blockResult.Status != "1" {
+		return nil, errp.Newf("could not get snapshot block: %s", blockResult.Result)
+	}
+	blockNumber, ok := new(big.Int).SetString(blockResult.Result, 10)
+	if !ok || blockNumber.Sign() < 0 {
+		return nil, errp.New("unexpected snapshot block from EtherScan")
+	}
+
+	var balanceResult struct {
+		Status string
+		Result string
+	}
+	params = url.Values{
+		"module":  {"account"},
+		"action":  {"balancehistory"},
+		"address": {account.Hex()},
+		"blockno": {blockNumber.String()},
+	}
+	if erc20Token != nil {
+		params.Set("action", "tokenbalancehistory")
+		params.Set("contractaddress", erc20Token.ContractAddress().Hex())
+	}
+	if err := etherScan.call(ctx, params, &balanceResult); err != nil {
+		return nil, err
+	}
+	if balanceResult.Status != "1" {
+		return nil, errp.Newf("could not get snapshot balance: %s", balanceResult.Result)
+	}
+	balance, ok := new(big.Int).SetString(balanceResult.Result, 10)
+	if !ok || balance.Sign() < 0 {
+		return nil, errp.New("unexpected snapshot balance from EtherScan")
 	}
 	return balance, nil
 }

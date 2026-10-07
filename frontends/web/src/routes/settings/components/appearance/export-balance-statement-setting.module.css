@@ -1,0 +1,61 @@
+.description {
+  color: var(--color-secondary);
+  margin-top: 0;
+  margin-bottom: var(--space-half);
+}
+
+.accountsHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-eight);
+}
+
+.accountsLabel {
+  margin: 0;
+}
+
+/* neutralize the global label bottom margin inside the header row */
+.accountsHeader label {
+  margin-bottom: 0;
+}
+
+.accountsList {
+  border: solid var(--border-width) var(--background-quaternary);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-quarter);
+  padding: var(--space-eight) var(--space-half);
+}
+
+.accountItem {
+  padding: var(--space-three-quarter) 0;
+}
+
+.accountItem label {
+  width: 100%;
+}
+
+.accountLabel {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-quarter);
+  max-width: 100%;
+  vertical-align: top;
+}
+
+.coinLogo {
+  flex-shrink: 0;
+  height: 18px;
+  width: 18px;
+}
+
+.accountName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountUnit {
+  color: var(--color-secondary);
+  flex-shrink: 0;
+}
