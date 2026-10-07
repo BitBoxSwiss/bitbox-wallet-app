@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TAccount } from '@/api/account';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AccountCode, TAccount } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { MarketTab } from '@/routes/market/components/markettab';
@@ -16,11 +16,12 @@ import { BitsuranceGuide } from './guide';
 import { useFeatureConnect } from '@/hooks/keystore';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 
-type TProps = {
-  code: string;
+type TRouteParams = {
+  code: AccountCode;
 };
 
-export const BitsuranceAccount = ({ code }: TProps) => {
+export const BitsuranceAccount = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
   const { activeAccounts } = useAppState();
 

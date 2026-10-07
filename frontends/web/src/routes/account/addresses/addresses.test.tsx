@@ -84,7 +84,6 @@ const createDeferred = function<T>() {
 
 const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAccount[] = [mockAccount]) => {
   let setAccountsState: ((accounts: accountApi.TAccount[]) => void) | undefined;
-  const accountCode = initialAccounts[0]?.code ?? mockAccount.code;
 
   const RouteWrapper = () => {
     const [accounts, setAccounts] = useState(initialAccounts);
@@ -105,9 +104,9 @@ const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAcco
           }}
         >
           <Routes>
-            <Route path="/account/:code/addresses" element={<Addresses code={accountCode} />} />
-            <Route path="/account/:code/addresses/:addressID" element={<Addresses code={accountCode} />} />
-            <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses code={accountCode} />} />
+            <Route path="/account/:code/addresses" element={<Addresses />} />
+            <Route path="/account/:code/addresses/:addressID" element={<Addresses />} />
+            <Route path="/account/:code/addresses/:addressID/verify" element={<Addresses />} />
           </Routes>
         </AppStateContext.Provider>
       </BackButtonProvider>

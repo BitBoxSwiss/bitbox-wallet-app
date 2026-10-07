@@ -2,9 +2,11 @@
 
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { SignClientTypes } from '@walletconnect/types';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { WCWeb3WalletContext } from '@/contexts/WCWeb3WalletContext';
 import { WCGuide } from './guide';
 import { TConnectStatus } from './types';
@@ -15,15 +17,13 @@ import { WCHeader } from './components/header/header';
 import { WCConnectForm } from './components/connect-form/connect-form';
 import { WCIncomingPairing } from './components/incoming-pairing/incoming-pairing';
 import { WCSuccessPairing } from './components/success-pairing/success-pairing';
-import { useAppState } from '@/contexts/app-state-context';
 
-type TProps = {
+type TRouteParams = {
   code: accountApi.AccountCode;
 };
 
-export const ConnectScreenWalletConnect = ({
-  code,
-}: TProps) => {
+export const ConnectScreenWalletConnect = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const { activeAccounts } = useAppState();
   const [uri, setUri] = useState('');
   const [status, setStatus] = useState<TConnectStatus>('connect');

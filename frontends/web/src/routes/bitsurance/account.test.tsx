@@ -38,7 +38,7 @@ vi.mock('./guide', () => ({
 }));
 
 import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { connectKeystore } from '@/api/keystores';
@@ -85,7 +85,7 @@ describe('routes/bitsurance/account', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/market/bitsurance/account/btc-account']}>
+      <MemoryRouter initialEntries={[`/market/bitsurance/account/${account.code}`]}>
         <AppStateContext.Provider
           value={{
             accounts: [account],
@@ -99,7 +99,12 @@ describe('routes/bitsurance/account', () => {
             hasLightningAccount: false,
           }}
         >
-          <BitsuranceAccount code={account.code} />
+          <Routes>
+            <Route
+              path="/market/bitsurance/account/:code"
+              element={<BitsuranceAccount />}
+            />
+          </Routes>
           <Location />
         </AppStateContext.Provider>
       </MemoryRouter>

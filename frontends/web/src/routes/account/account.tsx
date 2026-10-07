@@ -2,7 +2,7 @@
 
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { statusChanged, syncAddressesCount, syncdone, transactionsChanged } from '@/api/accountsync';
 import { getMarketVendors, MarketVendors } from '@/api/market';
@@ -40,16 +40,19 @@ import { OfflineError } from '@/components/banners/offline-error';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import style from './account.module.css';
 
-type Props = {
+type TRouteParams = {
   code: accountApi.AccountCode;
 };
 
-export const Account = ({ code }: Props) => {
+export const Account = () => {
+  const { code } = useParams<TRouteParams>();
   if (!code) {
     return null;
   }
   // The `key` prop forces a re-mount when `code` changes.
-  return <RemountAccount key={code} code={code} />;
+  return (
+    <RemountAccount key={code} code={code} />
+  );
 };
 
 const getBitsuranceGuideLink = (
@@ -63,10 +66,14 @@ const getBitsuranceGuideLink = (
   }
 };
 
+type TProps = {
+  code: accountApi.AccountCode;
+};
+
 // Re-mounted when `code` changes, and `code` is guaranteed to be non-empty.
 const RemountAccount = ({
   code,
-}: Props) => {
+}: TProps) => {
   const { t } = useTranslation();
 
   const {

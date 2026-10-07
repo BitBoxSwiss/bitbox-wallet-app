@@ -176,11 +176,12 @@ export const AddressesContent = ({ code, accounts }: TAddressesContentProps) => 
   );
 };
 
-type TProps = {
+type TRouteParams = {
   code: AccountCode;
 };
 
-export const Addresses = ({ code }: TProps) => {
+export const Addresses = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { activeAccounts } = useAppState();

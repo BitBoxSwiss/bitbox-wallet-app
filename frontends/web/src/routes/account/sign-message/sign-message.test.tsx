@@ -123,11 +123,13 @@ describe('routes/account/sign-message', () => {
             hasLightningAccount: false,
           }}
         >
-          <MemoryRouter>
-            <SignMessage
-              code={mockAccount.code}
-              view="new"
-            />
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
+            <Routes>
+              <Route
+                path="/account/:code/sign-message/:view"
+                element={<SignMessage />}
+              />
+            </Routes>
           </MemoryRouter>
         </AppStateContext.Provider>
       </BackButtonProvider>
@@ -195,11 +197,13 @@ describe('routes/account/sign-message', () => {
             hasLightningAccount: false,
           }}
         >
-          <MemoryRouter>
-            <SignMessage
-              code={mockAccount.code}
-              view="new"
-            />
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
+            <Routes>
+              <Route
+                path="/account/:code/sign-message/:view"
+                element={<SignMessage />}
+              />
+            </Routes>
           </MemoryRouter>
         </AppStateContext.Provider>
       </BackButtonProvider>
@@ -248,11 +252,13 @@ describe('routes/account/sign-message', () => {
             hasLightningAccount: false,
           }}
         >
-          <MemoryRouter>
-            <SignMessage
-              code={mockAccount.code}
-              view="new"
-            />
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
+            <Routes>
+              <Route
+                path="/account/:code/sign-message/:view"
+                element={<SignMessage />}
+              />
+            </Routes>
           </MemoryRouter>
         </AppStateContext.Provider>
       </BackButtonProvider>
@@ -314,10 +320,7 @@ describe('routes/account/sign-message', () => {
               <Route
                 path="/account/:code/addresses/:addressID/sign-message"
                 element={(
-                  <SignMessage
-                    code={mockAccount.code}
-                    view="new"
-                  />
+                  <SignMessage />
                 )}
               />
             </Routes>
@@ -373,12 +376,7 @@ describe('routes/account/sign-message', () => {
             <Routes>
               <Route
                 path="/account/:code/addresses/:addressID/sign-message"
-                element={(
-                  <SignMessage
-                    code={mockAccount.code}
-                    view="new"
-                  />
-                )}
+                element={<SignMessage />}
               />
             </Routes>
           </MemoryRouter>
@@ -414,26 +412,28 @@ describe('routes/account/sign-message', () => {
 
     render(
       <BackButtonProvider>
-        <MemoryRouter>
-          <AppStateContext.Provider
-            value={{
-              accounts: [ethAccount],
-              activeAccounts: [ethAccount],
-              deviceIDs: [],
-              devices: {},
-              hasAccounts: true,
-              hasBottomNavigation: false,
-              hasDevices: false,
-              lightningAccount: undefined,
-              hasLightningAccount: false,
-            }}
-          >
-            <SignMessage
-              code={ethAccount.code}
-              view="new"
-            />
-          </AppStateContext.Provider>
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [ethAccount],
+            activeAccounts: [ethAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter initialEntries={[`/account/${ethAccount.code}/sign-message/new`]}>
+            <Routes>
+              <Route
+                path="/account/:code/sign-message/:view"
+                element={<SignMessage />}
+              />
+            </Routes>
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -478,26 +478,28 @@ describe('routes/account/sign-message', () => {
     const user = userEvent.setup();
     render(
       <BackButtonProvider>
-        <MemoryRouter>
-          <AppStateContext.Provider
-            value={{
-              accounts: [mockAccount],
-              activeAccounts: [mockAccount],
-              deviceIDs: [],
-              devices: {},
-              hasAccounts: true,
-              hasBottomNavigation: false,
-              hasDevices: false,
-              lightningAccount: undefined,
-              hasLightningAccount: false,
-            }}
-          >
-            <SignMessage
-              code={mockAccount.code}
-              view="new"
-            />
-          </AppStateContext.Provider>
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
+            <Routes>
+              <Route
+                path="/account/:code/sign-message/new"
+                element={<SignMessage />}
+              />
+            </Routes>
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 

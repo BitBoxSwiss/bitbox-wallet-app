@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '@/api/bitbox02';
 import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -21,13 +21,14 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 const FINAL_INFO_STEP = 5;
 const CONTENT_MIN_HEIGHT = 'min(56rem, 100vh)';
 
-type TProps = {
+type TRouteParams = {
   deviceID: string;
 };
 
 type TStatus = 'info' | 'progress' | 'success';
 
-export const Passphrase = ({ deviceID }: TProps) => {
+export const Passphrase = () => {
+  const { deviceID = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const navigate = useNavigate();
 

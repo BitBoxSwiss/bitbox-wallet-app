@@ -73,7 +73,7 @@ vi.mock('./market-context', () => ({
 }));
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
 import { connectKeystore } from '@/api/keystores';
 import { AppStateContext } from '@/contexts/app-state-context';
@@ -128,7 +128,12 @@ describe('routes/market/market', () => {
         }}
       >
         <MemoryRouter initialEntries={['/market/select/btc-account?tab=spend']}>
-          <Market code={account.code} />
+          <Routes>
+            <Route
+              path="/market/select/:code"
+              element={<Market />}
+            />
+          </Routes>
           <Location />
         </MemoryRouter>
       </AppStateContext.Provider>

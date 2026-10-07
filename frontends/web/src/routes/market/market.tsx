@@ -2,12 +2,13 @@
 
 import 'flag-icons';
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { SingleValue } from 'react-select';
 import * as marketAPI from '@/api/market';
 import { getSwapStatus } from '@/api/swap';
 import type { AccountCode } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { View, ViewContent } from '@/components/view/view';
 import { isBitcoinOnly } from '@/utils/coin';
 import { useLoad } from '@/hooks/api';
@@ -31,15 +32,13 @@ import { useFeatureConnect } from '@/hooks/keystore';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import type { TKeystoreFeature } from '@/api/keystores';
 import style from './market.module.css';
-import { useAppState } from '@/contexts/app-state-context';
 
-type TProps = {
+type TRouteParams = {
   code: AccountCode;
 };
 
-export const Market = ({
-  code,
-}: TProps) => {
+export const Market = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const { activeAccounts } = useAppState();

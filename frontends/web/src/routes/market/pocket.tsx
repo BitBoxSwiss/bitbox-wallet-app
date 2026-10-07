@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { Dialog } from '@/components/dialog/dialog';
@@ -34,13 +34,15 @@ import style from './iframe.module.css';
 
 type TProps = {
   action: TMarketAction;
-  code: AccountCode;
 };
 
-export const Pocket = ({
-  action,
-  code,
-}: TProps) => {
+type TRouteParams = {
+  code: AccountCode;
+  // region: string;
+};
+
+export const Pocket = ({ action }: TProps) => {
+  const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const { config } = useConfig();
   const navigate = useNavigate();

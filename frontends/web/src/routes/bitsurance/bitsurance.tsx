@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AccountCode, TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { useAppState } from '@/contexts/app-state-context';
@@ -19,11 +19,12 @@ import { i18n } from '@/i18n/i18n';
 import { BitsuranceGuide } from './guide';
 import style from './bitsurance.module.css';
 
-type TProps = {
+type TRouteParams = {
   code: AccountCode;
 };
 
-export const Bitsurance = ({ code }: TProps) => {
+export const Bitsurance = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
   const { activeAccounts } = useAppState();
   const { t } = useTranslation();

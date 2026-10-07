@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useLoad } from '@/hooks/api';
 import { SessionTypes } from '@walletconnect/types';
 import { getSdkError } from '@walletconnect/utils';
@@ -20,11 +20,12 @@ import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import styles from './dashboard.module.css';
 import { useAppState } from '@/contexts/app-state-context';
 
-type TProps = {
+type TRouteParams = {
   code: AccountCode;
 };
 
-export const DashboardWalletConnect = ({ code }: TProps) => {
+export const DashboardWalletConnect = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { activeAccounts } = useAppState();

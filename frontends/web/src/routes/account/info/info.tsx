@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSync } from '@/hooks/api';
 import { useAppState } from '@/contexts/app-state-context';
 import { useMountedRef } from '@/hooks/mount';
@@ -19,13 +19,12 @@ import { alertUser } from '@/components/alert/Alert';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import style from './info.module.css';
 
-type TProps = {
+type TRouteParams = {
   code: AccountCode;
 };
 
-export const Info = ({
-  code,
-}: TProps) => {
+export const Info = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const { activeAccounts } = useAppState();
   const { isDarkMode } = useDarkmode();

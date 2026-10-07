@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AccountCode, getBalance } from '@/api/account';
 import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '@/api/bitsurance';
 import { useAppState } from '@/contexts/app-state-context';
@@ -47,11 +47,12 @@ const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
   }
 };
 
-type TProps = {
+type TRouteParams = {
   code: AccountCode;
 };
 
-export const BitsuranceDashboard = ({ code }: TProps) => {
+export const BitsuranceDashboard = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { activeAccounts } = useAppState();

@@ -167,7 +167,7 @@ describe('Lightning Close & Withdraw', () => {
         <BackButtonProvider>
           <AppStateContext.Provider
             value={{
-              accounts: [],
+              accounts: [bitcoinAccount],
               activeAccounts: [],
               deviceIDs: [],
               devices: {},
@@ -458,7 +458,7 @@ describe('Lightning Close & Withdraw', () => {
               activeAccounts: [],
               deviceIDs: [],
               devices: {},
-              hasAccounts: true,
+              hasAccounts: false,
               hasBottomNavigation: false,
               hasDevices: false,
               lightningAccount: undefined,

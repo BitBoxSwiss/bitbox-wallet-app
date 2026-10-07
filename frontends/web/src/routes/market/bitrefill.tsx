@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { MarketGuide } from './guide';
@@ -40,15 +41,13 @@ const coinMapping: Readonly<Record<string, string>> = {
   usdc: 'usdc_erc20',
 };
 
-type TProps = {
+type TRouteParams = {
   code: AccountCode;
   region: string;
 };
 
-export const Bitrefill = ({
-  code,
-  region,
-}: TProps) => {
+export const Bitrefill = () => {
+  const { code = '', region } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const { config } = useConfig();
   const { isDarkMode } = useDarkmode();

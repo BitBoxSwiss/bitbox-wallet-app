@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { act, render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { sendTx, type TAccount } from '@/api/account';
 import { AppStateContext } from '@/contexts/app-state-context';
@@ -52,6 +52,11 @@ it.each([
   vi.mocked(sendTx).mockResolvedValue({
     success: false, errorCode, errorMessage: 'send failed',
   });
+  const path = (
+    vendor === 'bitrefill'
+      ? '/market/bitrefill/spend/eth'
+      : '/market/btcdirect/sell/eth'
+  );
   render(
     <AppStateContext.Provider
       value={{
@@ -66,10 +71,20 @@ it.each([
         hasLightningAccount: false,
       }}
     >
-      <MemoryRouter>
-        {vendor === 'bitrefill'
-          ? <Bitrefill code="eth" region="" />
-          : <BTCDirect code="eth" action="sell" />}
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          {vendor === 'bitrefill' ? (
+            <Route
+              path="/market/bitrefill/spend/:code"
+              element={<Bitrefill />}
+            />
+          ) : (
+            <Route
+              path="/market/btcdirect/sell/:code"
+              element={<BTCDirect action="sell" />}
+            />
+          )}
+        </Routes>
       </MemoryRouter>
     </AppStateContext.Provider>
   );

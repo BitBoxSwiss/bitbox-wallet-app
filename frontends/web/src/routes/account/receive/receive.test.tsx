@@ -3,7 +3,7 @@
 import '../../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { connectKeystore } from '@/api/keystores';
 import { alertUser } from '@/components/alert/Alert';
@@ -42,7 +42,7 @@ const account: accountApi.TAccount = {
 };
 
 const renderReceive = () => render(
-  <MemoryRouter>
+  <MemoryRouter initialEntries={[`/account/${account.code}/receive`]}>
     <BackButtonProvider>
       <AppStateContext.Provider
         value={{
@@ -57,7 +57,12 @@ const renderReceive = () => render(
           hasLightningAccount: false,
         }}
       >
-        <Receive code={account.code} />
+        <Routes>
+          <Route
+            path="/account/:code/receive"
+            element={<Receive />}
+          />
+        </Routes>
       </AppStateContext.Provider>
     </BackButtonProvider>
   </MemoryRouter>

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { useAppState } from '@/contexts/app-state-context';
 import { SubTitle } from '@/components/title';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
@@ -11,13 +12,12 @@ import { Backups } from '@/routes/device/bitbox01/backups';
 import { BackupsV2 } from '@/routes/device/bitbox02/backups';
 import { SDCardCheck } from '@/routes/device/bitbox02/sdcardcheck';
 
-type TProps = {
-  deviceID: string | null;
+type TRouteParams = {
+  deviceID: string;
 };
 
-export const ManageBackups = ({
-  deviceID,
-}: TProps) => {
+export const ManageBackups = () => {
+  const { deviceID } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const { devices } = useAppState();
 
@@ -42,6 +42,10 @@ export const ManageBackups = ({
       <ManageBackupGuide deviceID={deviceID} />
     </GuideWrapper>
   );
+};
+
+type TProps = {
+  deviceID: string;
 };
 
 const BackupsList = ({

@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getBTCDirectInfo, TMarketAction } from '@/api/market';
 import { parseExternalBtcAmount } from '@/api/coins';
+import { useAppState } from '@/contexts/app-state-context';
 import { AppContext } from '@/contexts/AppContext';
 import { AccountCode, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { useAccountSynced } from '@/hooks/account';
@@ -29,7 +30,6 @@ import {
 } from '@/hooks/vendor-iframe-message';
 import { Message } from '@/components/message/message';
 import style from './iframe.module.css';
-import { useAppState } from '@/contexts/app-state-context';
 
 // Map languages supported by BTC Direct
 const localeMapping: Readonly<Record<string, string>> = {
@@ -42,13 +42,16 @@ const localeMapping: Readonly<Record<string, string>> = {
 
 type TProps = {
   action: TMarketAction;
+};
+
+type TRouteParams = {
   code: AccountCode;
 };
 
 export const BTCDirect = ({
   action,
-  code,
 }: TProps) => {
+  const { code = '' } = useParams<TRouteParams>();
   const { i18n, t } = useTranslation();
   const { config } = useConfig();
   const { isDevServers } = useContext(AppContext);

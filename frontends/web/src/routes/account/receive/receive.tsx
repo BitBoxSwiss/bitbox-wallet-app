@@ -2,6 +2,7 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { AppContext } from '@/contexts/AppContext';
 import { useAppState } from '@/contexts/app-state-context';
 import { useLoad } from '@/hooks/api';
@@ -128,9 +129,8 @@ type TProps = {
   code: accountApi.AccountCode;
 };
 
-export const Receive = ({
-  code,
-}: TProps) => {
+export const Receive = () => {
+  const { code = '' } = useParams<TProps>();
   const { t } = useTranslation();
   const { activeAccounts } = useAppState();
 

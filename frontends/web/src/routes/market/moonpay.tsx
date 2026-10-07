@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { useLoad } from '@/hooks/api';
 import { useAppState } from '@/contexts/app-state-context';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -20,11 +21,13 @@ import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import style from './iframe.module.css';
 
-type TProps = {
+
+type TRouteParams = {
   code: AccountCode;
 };
 
-export const Moonpay = ({ code }: TProps) => {
+export const Moonpay = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const { config } = useConfig();
   const { activeAccounts } = useAppState();

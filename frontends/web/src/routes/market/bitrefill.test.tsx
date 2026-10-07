@@ -10,6 +10,7 @@ import { AppContext } from '@/contexts/AppContext';
 import { AppStateContext } from '@/contexts/app-state-context';
 import { useAccountSynced } from '@/hooks/account';
 import { Bitrefill } from './bitrefill';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 vi.mock('@/components/layout', () => ({ Header: () => null }));
 vi.mock('../settings/components/mobile-header', () => ({ MobileHeader: () => null }));
@@ -72,7 +73,14 @@ describe.each([false, true])('Bitrefill messages (dev servers: %s)', isDevServer
             hasLightningAccount: false,
           }}
         >
-          <Bitrefill code={account.code} region="" />
+          <MemoryRouter initialEntries={[`/market/bitrefill/spend/${account.code}`]}>
+            <Routes>
+              <Route
+                path="/market/bitrefill/spend/:code"
+                element={<Bitrefill />}
+              />
+            </Routes>
+          </MemoryRouter>
         </AppStateContext.Provider>
       </AppContext.Provider>
     );
