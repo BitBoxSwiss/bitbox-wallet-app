@@ -37,7 +37,10 @@ export const A = ({
   const { t } = useTranslation();
 
   return (
-    <span
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       className={`
         ${(runningInIOS() ? style.linkIos : style.link) || ''}
         ${className || ''}
@@ -55,10 +58,9 @@ export const A = ({
           })
           .catch(console.error);
       }}
-      tabIndex={0}
       {...props}>
       {icon ? icon : null}
       {children}
-    </span>
+    </a>
   );
 };

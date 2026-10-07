@@ -106,6 +106,7 @@ public class WebViewManager {
         int initialZoom = webView.getSettings().getTextZoom();
         webView.setWebViewClient(new WebViewClient(WebMessageBridge.BASE_URL, activity.getAssets(), activity.getApplication(), initialZoom));
         webView.setWebChromeClient(webChromeClient);
+        LinkContextMenu.install(webView);
         if (!WebMessageBridge.isSupported()) {
             showUnsupportedWebViewDialog();
             return;
