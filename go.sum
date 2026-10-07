@@ -1,5 +1,5 @@
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260829203843-f1be72b37f59 h1:t6SazCZ7jMCUzLHXSr4sMMtuP9DNkly6j0LOBLDcR2s=
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20260829203843-f1be72b37f59/go.mod h1:WecGvMKpH5eEqW7xgASQF4eg/dmyueh4sE7Td6aKMVs=
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261007170938-fce8dbacc9b8 h1:jelsjG5k2VrsuaVeeF7mraq2wZZd6ILRiHzh5ujH4kw=
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261007170938-fce8dbacc9b8/go.mod h1:WecGvMKpH5eEqW7xgASQF4eg/dmyueh4sE7Td6aKMVs=
 github.com/BitBoxSwiss/bitboxsync-client-go v0.0.0-20260701061324-f7e835814680 h1:yGUYDddOzTmUdyBUX4FDGUW+O3VX2g2OfjtdZGIuRZ4=
 github.com/BitBoxSwiss/bitboxsync-client-go v0.0.0-20260701061324-f7e835814680/go.mod h1:NlTH3nCt38trIQH357yq7ugzI61WbZ+SFeq6B0bK/EU=
 github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d h1:HdoIlaUcNyEBajUoQgsxZtDMyCFyE7qv1kpeFe/u7nQ=
