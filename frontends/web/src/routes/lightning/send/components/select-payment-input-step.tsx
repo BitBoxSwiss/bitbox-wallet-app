@@ -12,10 +12,12 @@ import { ReceiverAddressInputField } from '@/routes/account/send/components/inpu
 import { ScanQR } from '@/routes/account/send/components/inputs/scan-qr';
 import { canReadClipboard } from '@/utils/clipboard';
 import { triggerLongHapticFeedback } from '@/utils/transport-mobile';
+import { useContacts } from '../../contacts/use-contacts';
 import styles from './select-payment-input-step.module.css';
 
 type TProps = {
   activeAccounts: TAccount[];
+  initialRecipientAddress?: string;
   inputError?: string;
   onCancel: () => void;
   onSubmit: (input: string) => Promise<boolean>;
@@ -29,6 +31,7 @@ const SCAN_ERROR_TRANSITION_MS = 180;
 
 export const SelectPaymentInputStep = ({
   activeAccounts,
+  initialRecipientAddress = '',
   inputError,
   onCancel,
   onSubmit,
@@ -36,8 +39,9 @@ export const SelectPaymentInputStep = ({
 }: TProps) => {
   const { t } = useTranslation();
   const showPasteButton = canReadClipboard();
-  const [manualValue, setManualValue] = useState('');
-  const [mode, setMode] = useState<TPaymentInputMode>('initial-scan');
+  const [manualValue, setManualValue] = useState(initialRecipientAddress);
+  const [mode, setMode] = useState<TPaymentInputMode>(initialRecipientAddress ? 'input' : 'initial-scan');
+  const contactsResponse = useContacts();
   const [inputClosing, setInputClosing] = useState(false);
   const [scanErrorClosing, setScanErrorClosing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -220,6 +224,7 @@ export const SelectPaymentInputStep = ({
             )}
             <ReceiverAddressInputField
               accounts={sendToSelfAccounts}
+              contacts={contactsResponse?.success ? contactsResponse.data.contacts : []}
               autoFocus
               groupAccountsByKeystore
               inputLabel={t('lightning.send.invoice.label')}

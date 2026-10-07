@@ -86,6 +86,7 @@ type Lightning struct {
 
 	backendConfig          *config.Config
 	lightningDirectoryPath string
+	contacts               *Contacts
 	environment            environment
 	getKeystore            func() keystore.Keystore
 	getAccount             func(types.Code) (accounts.Interface, error)
@@ -115,6 +116,7 @@ type Lightning struct {
 // NewLightning creates a new instance of the Lightning struct.
 func NewLightning(config *config.Config,
 	lightningDirectoryPath string,
+	contactsDirectoryPath string,
 	environment environment,
 	getKeystore func() keystore.Keystore,
 	getAccount func(types.Code) (accounts.Interface, error),
@@ -126,6 +128,7 @@ func NewLightning(config *config.Config,
 	lightning := &Lightning{
 		backendConfig:          config,
 		lightningDirectoryPath: lightningDirectoryPath,
+		contacts:               NewContacts(contactsDirectoryPath),
 		environment:            environment,
 		getKeystore:            getKeystore,
 		getAccount:             getAccount,
@@ -143,6 +146,11 @@ func NewLightning(config *config.Config,
 		lightning.sdkStatus = SDKStatusInitializing
 	}
 	return lightning
+}
+
+// Contacts returns the app-wide local store, independent of the active wallet and SDK connection.
+func (lightning *Lightning) Contacts() *Contacts {
+	return lightning.contacts
 }
 
 // SetRuntimeDependencies updates dependencies that are recreated when the backend cache is cleared.

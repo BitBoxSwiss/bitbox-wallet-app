@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type RouteComponentProps, useLocation } from 'wouter';
-import { type TPaymentInput, getParsePaymentInput } from '@/api/lightning';
+import { type TPaymentInput, TPaymentInputType, getParsePaymentInput } from '@/api/lightning';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { ReviewStep } from './components/review-step';
@@ -14,24 +14,28 @@ import { LightningSendGuide } from '../guide';
 import { Spinner } from '@/components/spinner/Spinner';
 import { useMountedRef } from '@/hooks/mount';
 import { useAppState } from '@/contexts/app-state-context';
+import { ContactForm } from '../contacts/contact-form';
 
-type TSendStep = 'loading-payment-input' | 'select-payment-input' | 'review' | 'success';
+type TSendStep = 'loading-payment-input' | 'select-payment-input' | 'review' | 'success' | 'add-contact';
 
 type TProps = RouteComponentProps & {
   initialPaymentInput?: string;
+  initialRecipientAddress?: string;
   onClose?: (error?: string) => void;
 };
 
-export const Send = ({ initialPaymentInput, onClose }: TProps) => {
+export const Send = ({ initialPaymentInput, initialRecipientAddress = '', onClose }: TProps) => {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
   const { activeAccounts } = useAppState();
   const consumedPaymentInput = useRef<string | null>(null);
   const mounted = useMountedRef();
   const [step, setStep] = useState<TSendStep>(initialPaymentInput ? 'loading-payment-input' : 'select-payment-input');
+  const [recipientInput, setRecipientInput] = useState(initialRecipientAddress);
   const [paymentInput, setPaymentInput] = useState<TPaymentInput>();
   const [inputError, setInputError] = useState<string>();
   const [isSending, setIsSending] = useState(false);
+  const recipientAddress = paymentInput?.type === TPaymentInputType.LNURL_PAY ? paymentInput.lnurlPay.address : undefined;
 
   const close = useCallback(() => {
     if (onClose) {
@@ -60,6 +64,7 @@ export const Send = ({ initialPaymentInput, onClose }: TProps) => {
       if (!mounted.current) {
         return false;
       }
+      setRecipientInput(rawInput);
       setPaymentInput(result);
       setStep('review');
       return true;
@@ -93,29 +98,32 @@ export const Send = ({ initialPaymentInput, onClose }: TProps) => {
   };
 
   useEffect(() => {
-    if (step !== 'success') {
+    if (step !== 'success' || recipientAddress) {
       return;
     }
 
     const timeout = window.setTimeout(close, 1000);
     return () => window.clearTimeout(timeout);
-  }, [close, step]);
+  }, [close, recipientAddress, step]);
 
   return (
     <GuideWrapper>
       <GuidedContent>
         <Main>
           {isSending && <UseDisableBackButton />}
-          <Header
-            variant="navigation"
-            mobileBackButton={step !== 'success' && !isSending}
-            onBack={handleBack}
-            title={t('lightning.send.title')}
-          />
+          {step !== 'add-contact' && (
+            <Header
+              variant="navigation"
+              mobileBackButton={step !== 'success' && !isSending}
+              onBack={handleBack}
+              title={t('lightning.send.title')}
+            />
+          )}
           {step === 'loading-payment-input' && <Spinner text={t('loading')} />}
           {step === 'select-payment-input' && (
             <SelectPaymentInputStep
               activeAccounts={activeAccounts}
+              initialRecipientAddress={recipientInput}
               inputError={inputError}
               onCancel={close}
               onSubmit={submitPaymentInput}
@@ -130,10 +138,11 @@ export const Send = ({ initialPaymentInput, onClose }: TProps) => {
               onSuccess={showSuccess}
             />
           )}
-          {step === 'success' && <SuccessStep />}
+          {step === 'success' && <SuccessStep address={recipientAddress} onAddContact={() => setStep('add-contact')} onDone={close} />}
+          {step === 'add-contact' && <ContactForm initialAddress={recipientAddress} onCancel={() => setStep('success')} onDone={close} />}
         </Main>
       </GuidedContent>
-      {step !== 'success' && <LightningSendGuide />}
+      {step !== 'success' && step !== 'add-contact' && <LightningSendGuide />}
     </GuideWrapper>
   );
 };

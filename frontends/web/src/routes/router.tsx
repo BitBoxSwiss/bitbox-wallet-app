@@ -47,6 +47,7 @@ import { LightningActivate } from './lightning/activate';
 import { LightningDisclaimer } from './lightning/disclaimer';
 import { LightningDeactivate } from './lightning/deactivate';
 import { LightningSetLnurlAddress } from './lightning/set-lnurl-address';
+import { AddContact, ContactDetails, Contacts } from './lightning/contacts/contacts';
 import { Send as LightningSend } from './lightning/send/send';
 import { Receive as LightningReceive } from './lightning/receive/receive';
 import { LightningTopUp } from './lightning/topup/topup';
@@ -93,7 +94,7 @@ const MarketRoutes = () => (
 export const AppRouter = () => {
 
   const lightningFeatureAvailable = isLightningFeatureAvailable();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   return (
     <LightningTestnetGuard active={lightningFeatureAvailable && isLightningRoute(pathname)}>
@@ -155,7 +156,12 @@ export const AppRouter = () => {
             <Route path="/lightning/set-lnurl-address" component={LightningSetLnurlAddress}/>
             <Route path="/lightning/claim-top-up" component={LightningClaimTopUp}/>
             <Route path="/lightning/close-withdraw-funds" component={LightningCloseWithdrawFunds}/>
-            <Route path="/lightning/send" component={LightningSend}/>
+            <Route path="/lightning/contacts" component={Contacts}/>
+            <Route path="/lightning/contacts/add" component={AddContact}/>
+            <Route path="/lightning/contacts/:id" component={ContactDetails}/>
+            <Route path="/lightning/send">
+              <LightningSend params={{}} initialRecipientAddress={new URLSearchParams(search).get('recipient') ?? ''}/>
+            </Route>
             <Route path="/lightning/receive" component={LightningReceive}/>
             <Route path="/lightning/topup" component={LightningTopUp}/>
           </>
