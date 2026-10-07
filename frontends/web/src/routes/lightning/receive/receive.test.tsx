@@ -7,6 +7,7 @@ import '@testing-library/jest-dom';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as lightningApi from '@/api/lightning';
+import * as coinsApi from '@/api/coins';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Receive } from './receive';
@@ -19,22 +20,6 @@ vi.mock('@/components/status/status', () => ({
 
 vi.mock('@/components/qrcode/qrcode', () => ({
   QRCode: () => <div data-testid="invoice-qr" />,
-}));
-
-vi.mock('../hooks/use-sat-fiat-amount', () => ({
-  useSatFiatAmount: () => ({
-    amount: {
-      amount: '250000',
-      estimated: false,
-      unit: 'sat',
-    },
-    amountSat: 250000,
-    handleFiatAmountChange: vi.fn(),
-    handleSatsAmountChange: vi.fn(),
-    inputFiatText: '2.92',
-    inputSatsText: '250000',
-    resetAmountInput: vi.fn(),
-  }),
 }));
 
 vi.mock('./use-receive-payment-success', () => ({
@@ -109,7 +94,12 @@ const pressSystemBack = () => {
   });
 };
 
-describe('Lightning receive funding limit', () => {
+const enterSats = async (value = '250000') => {
+  fireEvent.input(screen.getByLabelText('lightning.receive.amountSats.label'), { target: { value } });
+  await waitFor(() => expect(screen.getByRole('button', { name: 'lightning.receive.invoice.create' })).toBeEnabled());
+};
+
+describe('Lightning receive', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     setMobileViewport(false);
@@ -118,12 +108,17 @@ describe('Lightning receive funding limit', () => {
     vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(balance);
     vi.spyOn(lightningApi, 'getReceivePayment').mockResolvedValue({ invoice: 'lnbc1invoice' });
     vi.spyOn(lightningApi, 'subscribeLightningBalance').mockReturnValue(vi.fn());
+    vi.spyOn(coinsApi, 'getBtcSatAmount').mockResolvedValue({
+      success: true,
+      amount: { ...amount('250000'), unformattedConversions: { EUR: '2.92' } },
+    });
   });
 
   it('warns on the form and generated invoice without blocking creation', async () => {
     renderReceive();
 
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.receive.invoice.create' }));
+    await enterSats();
 
     const formWarning = await screen.findByText('lightning.limit.createInvoiceWarning');
     const descriptionInput = screen.getByLabelText('lightning.receive.description.label');
@@ -154,13 +149,51 @@ describe('Lightning receive funding limit', () => {
     expect(screen.getByText('test@bitbox.swiss', { selector: 'p' })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'lightning.receive.invoice.create' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'lightning.receive.invoice.create' }));
+    await enterSats();
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.receive.invoice.create' }));
     expect(await screen.findByTestId('invoice-qr')).toBeInTheDocument();
+
+    pressSystemBack();
+    expect(screen.getByLabelText('lightning.receive.amountSats.label')).toHaveValue(250000);
 
     pressSystemBack();
     expect(screen.getByText('test@bitbox.swiss', { selector: 'p' })).toBeInTheDocument();
 
     pressSystemBack();
     expect(screen.getByTestId('location-path')).toHaveTextContent('/lightning');
+  });
+
+  it.each(['desktop', 'mobile', 'system'] as const)('preserves invoice fields when going back via %s and creates an updated invoice', async (navigation) => {
+    setMobileViewport(navigation !== 'desktop');
+    renderReceive();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'lightning.receive.invoice.create' }));
+    await enterSats();
+    fireEvent.input(screen.getByLabelText('lightning.receive.description.label'), { target: { value: 'Lunch' } });
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.receive.invoice.create' }));
+    expect(await screen.findByText('lightning.receive.invoice.title')).toBeInTheDocument();
+
+    if (navigation === 'system') {
+      pressSystemBack();
+    } else {
+      // The header is hidden by CSS on desktop.
+      fireEvent.click(screen.getAllByRole('button', { name: 'button.back' }).at(-1)!);
+    }
+
+    expect(screen.getByLabelText('lightning.receive.amountSats.label')).toHaveValue(250000);
+    expect(screen.getByLabelText('EUR')).toHaveValue(2.92);
+    expect(screen.getByLabelText('lightning.receive.description.label')).toHaveValue('Lunch');
+
+    vi.mocked(coinsApi.getBtcSatAmount).mockResolvedValue({
+      success: true,
+      amount: { ...amount('300000'), unformattedConversions: { EUR: '3.50' } },
+    });
+    await enterSats('300000');
+    fireEvent.input(screen.getByLabelText('lightning.receive.description.label'), { target: { value: 'Dinner' } });
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.receive.invoice.create' }));
+
+    expect(await screen.findByText('lightning.receive.invoice.title')).toBeInTheDocument();
+    expect(lightningApi.getReceivePayment).toHaveBeenLastCalledWith({ amountSat: 300000, description: 'Dinner' });
+    expect(screen.getByText('Dinner')).toBeInTheDocument();
   });
 });
