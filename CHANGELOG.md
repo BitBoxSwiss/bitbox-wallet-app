@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Lightning: preserve invoice details when going back to edit an invoice
 - Rename "Factory Reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings
