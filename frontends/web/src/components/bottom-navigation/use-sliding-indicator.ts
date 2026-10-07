@@ -41,8 +41,8 @@ export const useSlidingIndicator = (
     const containerRect = container.getBoundingClientRect();
     const labelRect = label.getBoundingClientRect();
     setIndicatorIfChanged(setIndicatorStyle, {
-      left: labelRect.left - containerRect.left,
-      top: labelRect.bottom - containerRect.top,
+      left: labelRect.left - containerRect.left - container.clientLeft,
+      top: labelRect.bottom - containerRect.top - container.clientTop,
       width: labelRect.width,
     });
   }, [activeIndex]);
