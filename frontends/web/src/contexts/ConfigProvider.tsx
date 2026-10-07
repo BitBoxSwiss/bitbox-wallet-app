@@ -3,7 +3,7 @@
 import { ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { getConfig } from '@/api/config';
 import { setConfig as setConfigAPI } from '@/utils/config';
-import type { TConfig } from '@/api/config';
+import type { TBreezSDKLogLevel, TConfig } from '@/api/config';
 import type { TConfigUpdate } from '@/utils/config';
 import { ConfigContext, TConfigContext } from './ConfigContext';
 
@@ -13,9 +13,13 @@ type TProps = {
 
 export const ConfigProvider = ({ children }: TProps) => {
   const [config, setConfigState] = useState<TConfig | undefined>(undefined);
+  const [initialBreezSDKLogLevel, setInitialBreezSDKLogLevel] = useState<TBreezSDKLogLevel>();
 
   useEffect(() => {
-    getConfig().then(setConfigState).catch(console.error);
+    getConfig().then(initialConfig => {
+      setInitialBreezSDKLogLevel(initialConfig.backend.breezSDKLogLevel);
+      setConfigState(initialConfig);
+    }).catch(console.error);
   }, []);
 
   const setConfig = useCallback((object: TConfigUpdate) => {
@@ -27,6 +31,7 @@ export const ConfigProvider = ({ children }: TProps) => {
 
   const value: TConfigContext = {
     config,
+    initialBreezSDKLogLevel,
     setConfig
   };
 
