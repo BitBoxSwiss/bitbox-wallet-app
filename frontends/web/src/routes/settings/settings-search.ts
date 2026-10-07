@@ -30,9 +30,9 @@ type TGetSettingsSearchItemsArgs = {
   t: TFunction;
 };
 
-export type TSettingsSearchPage = 'general' | 'device' | 'advanced' | 'about';
+export type TSettingsSearchPage = 'general' | 'device' | 'advanced' | 'lightning' | 'about';
 
-export const SETTINGS_SEARCH_PAGE_ORDER: TSettingsSearchPage[] = ['general', 'device', 'advanced', 'about'];
+export const SETTINGS_SEARCH_PAGE_ORDER: TSettingsSearchPage[] = ['general', 'device', 'advanced', 'lightning', 'about'];
 export const SETTINGS_HIGHLIGHT_QUERY_PARAM = 'settingsHighlight';
 
 type TSettingsSearchContext = TGetSettingsSearchItemsArgs & {
@@ -116,6 +116,12 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
       ? 'lightning.settings.title'
       : 'lightning.settings.enableWallet'),
     page: 'advanced',
+  },
+  {
+    id: 'lightning-contacts',
+    isAvailable: ({ isLightningEnabled }) => isLightningEnabled === true && isLightningSettingVisible(isLightningEnabled),
+    getTitle: ({ t }) => t('lightning.contacts.title'),
+    page: 'lightning',
   },
   {
     id: 'export-logs',
@@ -295,6 +301,7 @@ export const groupSearchResultsByPage = (searchResults: TSettingsSearchItem[]) =
     advanced: [],
     device: [],
     general: [],
+    lightning: [],
   };
 
   searchResults.forEach(searchResult => {

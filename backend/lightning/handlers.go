@@ -15,6 +15,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/gorilla/mux"
 )
 
@@ -26,12 +27,29 @@ type responseDto struct {
 	ErrorCode    string                 `json:"errorCode,omitempty"`
 }
 
+type contactResponse struct {
+	Success   bool        `json:"success"`
+	Data      interface{} `json:"data,omitempty"`
+	ErrorCode string      `json:"errorCode,omitempty"`
+}
+
+func contactError(err error) contactResponse {
+	if code, ok := errp.Cause(err).(errp.ErrorCode); ok {
+		return contactResponse{ErrorCode: string(code)}
+	}
+	logging.Get().WithGroup("handlers").WithError(err).Error("Lightning contact operation failed")
+	return contactResponse{}
+}
+
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
 	handleNoError func(string, func(*http.Request) interface{}) *mux.Route,
 	lightning *Lightning,
 ) {
 	handleNoError("/account", lightning.GetAccount).Methods("GET")
+	handleNoError("/contacts", lightning.contacts.GetContacts).Methods("GET")
+	handleNoError("/contacts", lightning.contacts.PostContact).Methods("POST")
+	handleNoError("/contacts/delete", lightning.contacts.PostDeleteContact).Methods("POST")
 	handleNoError("/address", lightning.GetLightningAddress).Methods("GET")
 	handleNoError("/address/domain", lightning.GetAddressDomain).Methods("GET")
 	handleNoError("/address/availability", lightning.GetAddressAvailability).Methods("GET")
@@ -53,6 +71,42 @@ func NewHandlers(
 	handleNoError("/close-withdraw-funds", lightning.PostCloseWithdraw).Methods("POST")
 	handleNoError("/receive-payment", lightning.GetReceivePayment).Methods("GET")
 	handleNoError("/send-payment", lightning.PostSendPayment).Methods("POST")
+}
+
+// GetContacts handles the GET request to list contacts and optionally match an address.
+func (contacts *Contacts) GetContacts(r *http.Request) interface{} {
+	result, err := contacts.List(r.URL.Query().Get("address"))
+	if err != nil {
+		return contactError(err)
+	}
+	return contactResponse{Success: true, Data: result}
+}
+
+// PostContact handles the POST request to create or update a contact.
+func (contacts *Contacts) PostContact(r *http.Request) interface{} {
+	var request Contact
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return contactError(err)
+	}
+	contact, err := contacts.Save(request)
+	if err != nil {
+		return contactError(err)
+	}
+	return contactResponse{Success: true, Data: contact}
+}
+
+// PostDeleteContact handles the POST request to delete a contact.
+func (contacts *Contacts) PostDeleteContact(r *http.Request) interface{} {
+	var request struct {
+		ID string `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return contactError(err)
+	}
+	if err := contacts.Delete(request.ID); err != nil {
+		return contactError(err)
+	}
+	return contactResponse{Success: true}
 }
 
 // PostPrepareTopUp handles the POST request to validate and prepare a Lightning top-up.

@@ -31,6 +31,17 @@ export type TLightningAccount = {
   num: number;
 };
 
+export type TLightningContact = {
+  id: string;
+  name: string;
+  address: string;
+};
+
+export type TLightningContacts = {
+  contacts: TLightningContact[];
+  matchingContactID: string | null;
+};
+
 export type TLightningSDKStatus = 'inactive' | 'initializing' | 'ready' | 'failed';
 
 export type TLightningBolt11Invoice = {
@@ -273,6 +284,20 @@ const postApiResponse = async <T, C extends object | undefined>(
 
 export const getLightningAccount = async (): Promise<TLightningAccount | null> => {
   return apiGet('lightning/account');
+};
+
+export const getLightningContacts = (address?: string): Promise<TLightningResponse<TLightningContacts>> => {
+  return apiGet(`lightning/contacts?${queryString({ address })}`);
+};
+
+export const postLightningContact = (
+  contact: Omit<TLightningContact, 'id'> & { id?: string },
+): Promise<TLightningResponse<TLightningContact>> => {
+  return apiPost('lightning/contacts', contact);
+};
+
+export const postDeleteLightningContact = (id: string): Promise<TLightningResponse<undefined>> => {
+  return apiPost('lightning/contacts/delete', { id });
 };
 
 export const getLightningAddress = async (): Promise<string | null> => {

@@ -35,6 +35,7 @@ const getSettingsSearchResultURL = (
     about: '/settings/about',
     advanced: '/settings/advanced-settings',
     general: '/settings/general',
+    lightning: '/settings/lightning-settings',
   };
 
   return `${pageURLs[searchResult.page]}?${searchParams}`;
@@ -53,6 +54,7 @@ export const SettingsSearchContent = ({
     advanced: t('settings.advancedSettings'),
     device: t('sidebar.device'),
     general: t('settings.general'),
+    lightning: t('lightning.settings.title'),
   };
 
   const searchResultsByPage = groupSearchResultsByPage(searchResults);

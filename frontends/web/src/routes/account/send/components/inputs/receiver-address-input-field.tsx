@@ -2,6 +2,7 @@
 
 import { useContext } from 'react';
 import type { TAccount } from '@/api/account';
+import type { TLightningContact } from '@/api/lightning';
 import { Input } from '@/components/forms';
 import { PasteDark, PasteLight, QRCodeDark, QRCodeLight } from '@/components/icon';
 import { DarkModeContext } from '@/contexts/DarkmodeContext';
@@ -15,6 +16,7 @@ type TIconButtonProps = {
 
 type TProps = {
   accounts?: TAccount[];
+  contacts?: TLightningContact[];
   autoFocus?: boolean;
   error?: string | object;
   groupAccountsByKeystore?: boolean;
@@ -48,6 +50,7 @@ const PasteButton = ({ onClick }: TIconButtonProps) => {
 
 export const ReceiverAddressInputField = ({
   accounts = [],
+  contacts,
   autoFocus,
   error,
   groupAccountsByKeystore,
@@ -83,10 +86,11 @@ export const ReceiverAddressInputField = ({
     </>
   );
 
-  if (accounts.length > 0) {
+  if (accounts.length > 0 || contacts?.length) {
     return (
       <ReceiverAddressWrapper
         accounts={accounts}
+        contacts={contacts}
         autoFocus={autoFocus}
         classNameInputField={!showPasteButton ? styles.inputFieldWithoutPaste : undefined}
         error={error}
