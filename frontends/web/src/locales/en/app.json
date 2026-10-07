@@ -1918,6 +1918,7 @@
     "topUp": {
       "action": "Top up",
       "available": "Available",
+      "claimFeeInfo": "Deducted from your top-up amount. The actual fee may vary with Bitcoin network conditions at claim time.",
       "confirm": {
         "amount": "Amount",
         "continue": "Continue on your BitBox.",
@@ -1926,6 +1927,7 @@
         "title": "Confirm and send transaction",
         "total": "Total"
       },
+      "estimatedClaimFee": "Estimated claim fee",
       "from": "From",
       "noBitcoinAccounts": "No Bitcoin accounts active. Please activate a Bitcoin account.",
       "note": "Lightning top-up",
