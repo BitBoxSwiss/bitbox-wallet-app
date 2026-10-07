@@ -1,3 +1,6 @@
+# codeberg.org/go-pdf/fpdf v0.12.0
+## explicit; go 1.25.0
+codeberg.org/go-pdf/fpdf
 # github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261026145529-c7dc76beb56a
 ## explicit; go 1.26
 github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader

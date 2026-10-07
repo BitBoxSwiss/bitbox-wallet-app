@@ -145,6 +145,18 @@ export const exportNotes = (): Promise<(FailResponse & { aborted: boolean }) | S
   return apiPost('notes/export');
 };
 
+export type TExportBalanceStatementResponse = (FailResponse & {
+  aborted: boolean;
+  errorCode?: string;
+}) | SuccessResponse;
+
+export const exportBalanceStatement = (
+  accountCodes: AccountCode[],
+  snapshotDate: string,
+): Promise<TExportBalanceStatementResponse> => {
+  return apiPost('accounts/balance-statement/export', { accountCodes, snapshotDate });
+};
+
 type TImportNotes = {
   accountCount: number;
   transactionCount: number;
