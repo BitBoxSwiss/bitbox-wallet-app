@@ -35,16 +35,16 @@ const paymentDetails = {
 const idempotencyKey = '00000000-0000-4000-8000-000000000001';
 
 const preparedPayment = (idempotencyKey: string) => ({
-  amountSat: 100,
-  feeSat: 2,
+  amountSat: '100',
+  feeSat: '2',
   idempotencyKey,
-  totalDebitSat: 102,
+  totalDebitSat: '102',
 });
 
 const sendRequest = {
   type: lightningApi.TPaymentInputType.LNURL_PAY,
   paymentInput: 'alice@example.com',
-  amountSat: 100,
+  amountSat: '100',
   approvedFeeSat: 2,
   idempotencyKey,
 };
@@ -62,7 +62,7 @@ const renderPaymentReview = () => {
 };
 
 const enterAmount = async (result: ReturnType<typeof renderPaymentReview>['result']) => {
-  act(() => result.current.setCustomAmount(100));
+  act(() => result.current.setCustomAmount('100'));
   await waitFor(() => expect(result.current.preparedPayment?.status).toBe('ready'));
 };
 
@@ -112,7 +112,7 @@ describe('usePaymentReview LNURL idempotency', () => {
     expect(lightningApi.postPreparePayment).toHaveBeenLastCalledWith({
       type: lightningApi.TPaymentInputType.LNURL_PAY,
       paymentInput: 'alice@example.com',
-      amountSat: 100,
+      amountSat: '100',
       idempotencyKey,
     });
   });

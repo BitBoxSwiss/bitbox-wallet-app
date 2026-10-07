@@ -1,23 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useRef, useState } from 'react';
-import type { Fiat } from '@/api/account';
-import { getBtcSatAmount, type TBtcSatAmount } from '@/api/coins';
-import { useMountedRef } from '@/hooks/mount';
+import type { TBtcSatAmount } from '@/api/coins';
 
-type TProps = {
-  defaultCurrency: Fiat;
-};
-
-type TAmountSource = 'sat' | 'fiat';
-
-export const useSatFiatAmount = ({ defaultCurrency }: TProps) => {
-  const mounted = useMountedRef();
+export const useSatFiatAmount = () => {
   const amountRequestId = useRef(0);
   const [inputSatsText, setInputSatsText] = useState('');
   const [inputFiatText, setInputFiatText] = useState('');
   const [amount, setAmount] = useState<TBtcSatAmount>();
-  const amountSat = amount ? Number(amount.amount) : undefined;
+  const amountSat = amount?.amount;
 
   const resetAmountInput = useCallback(() => {
     amountRequestId.current += 1;
@@ -26,30 +17,29 @@ export const useSatFiatAmount = ({ defaultCurrency }: TProps) => {
     setAmount(undefined);
   }, []);
 
-  const convertAmount = useCallback(async (
-    requestId: number,
-    source: TAmountSource,
-    inputAmount: string,
-  ) => {
-    const response = await getBtcSatAmount({ source, amount: inputAmount });
-    if (!mounted.current || requestId !== amountRequestId.current) {
-      return;
-    }
-    if (!response.success) {
-      console.error(`Failed to convert ${source === 'sat' ? 'sats' : 'fiat'} amount:`, response.errorMessage);
-      return;
-    }
+  // const convertAmount = useCallback(async (
+  //   requestId: number,
+  //   source: TAmountSource,
+  //   inputAmount: string,
+  // ) => {
+  //   const response = await getBtcSatAmount({ source, amount: inputAmount });
+  //   if (!mounted.current || requestId !== amountRequestId.current) {
+  //     return;
+  //   }
+  //   if (!response.success) {
+  //     console.error(`Failed to convert ${source === 'sat' ? 'sats' : 'fiat'} amount:`, response.errorMessage);
+  //     return;
+  //   }
 
-    setAmount(response.amount);
-    if (source === 'sat') {
-      setInputFiatText(response.amount.unformattedConversions?.[defaultCurrency] ?? '');
-    } else {
-      setInputSatsText(response.amount.amount);
-    }
-  }, [defaultCurrency, mounted]);
+  //   setAmount(response.amount);
+  //   if (source === 'sat') {
+  //     setInputFiatText(response.amount.unformattedConversions?.[defaultCurrency] ?? '');
+  //   } else {
+  //     setInputSatsText(response.amount.amount);
+  //   }
+  // }, [defaultCurrency, mounted]);
 
   const handleSatsAmountChange = useCallback((satsText: string) => {
-    const requestId = ++amountRequestId.current;
     setInputSatsText(satsText);
     setInputFiatText('');
     setAmount(undefined);
@@ -58,11 +48,10 @@ export const useSatFiatAmount = ({ defaultCurrency }: TProps) => {
       return;
     }
 
-    return convertAmount(requestId, 'sat', satsText);
-  }, [convertAmount]);
+    return satsText;
+  }, []);
 
   const handleFiatAmountChange = useCallback((fiatText: string) => {
-    const requestId = ++amountRequestId.current;
     setInputFiatText(fiatText);
     setInputSatsText('');
     setAmount(undefined);
@@ -71,8 +60,8 @@ export const useSatFiatAmount = ({ defaultCurrency }: TProps) => {
       return;
     }
 
-    return convertAmount(requestId, 'fiat', fiatText);
-  }, [convertAmount]);
+    return fiatText;
+  }, []);
 
   return {
     amount,

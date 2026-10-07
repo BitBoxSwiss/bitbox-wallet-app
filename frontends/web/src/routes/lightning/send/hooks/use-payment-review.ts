@@ -8,13 +8,18 @@ import { TPaymentInputType, type TLightningBitcoinPaymentInput, type TLightningB
 import { useDebounce } from '@/hooks/debounce';
 import { useMountedRef } from '@/hooks/mount';
 
-type TPreparedPayment =
-  | { status: 'preparing'; amountSat?: number }
-  | { status: 'ready'; amountSat?: number; fees: TPreparePaymentResponse }
-  | { status: 'error'; amountSat?: number; error: string; fees?: TPreparePaymentResponse };
+type TPreparedPayment = (
+  { status: 'preparing'; amountSat?: string }
+  | { status: 'ready'; amountSat?: string; fees: TPreparePaymentResponse }
+  | { status: 'error'; amountSat?: string; error: string; fees?: TPreparePaymentResponse }
+);
 
-const isPositiveInteger = (amount?: number): amount is number => (
-  typeof amount === 'number' && Number.isFinite(amount) && Number.isInteger(amount) && amount > 0
+const isPositiveInteger = (
+  amount?: number
+): amount is number => (
+  typeof amount === 'number'
+  && Number.isFinite(amount)
+  && Number.isInteger(amount) && amount > 0
 );
 
 export type TPaymentReviewDetails = {
@@ -28,19 +33,20 @@ export type TPaymentReviewDetails = {
   details: TLightningLNURLPay;
 };
 
-type TUsePaymentReviewProps = {
-  paymentDetails: TPaymentReviewDetails;
-  backToPaymentInput: (nextInputError?: string) => void;
-  onSendingChange: (isSending: boolean) => void;
-  onSuccess: () => void;
-};
-
-const isValidAmount = (paymentDetails: TPaymentReviewDetails, amount?: number): amount is number => {
-  if (!isPositiveInteger(amount)) {
+const isValidAmount = (
+  paymentDetails: TPaymentReviewDetails,
+  amount?: string,
+): boolean => {
+  // idelly this would be checked in the backend or use bigint
+  const amountNumber = Number(amount);
+  if (!isPositiveInteger(amountNumber)) {
     return false;
   }
   if (paymentDetails.type === TPaymentInputType.LNURL_PAY) {
-    return amount >= paymentDetails.details.minAmountSat && amount <= paymentDetails.details.maxAmountSat;
+    return (
+      amountNumber >= paymentDetails.details.minAmountSat
+      && amountNumber <= paymentDetails.details.maxAmountSat
+    );
   }
   return true;
 };
@@ -65,6 +71,13 @@ const insufficientFundsFees = (error: unknown): TPreparePaymentResponse | undefi
   return error.data;
 };
 
+type TUsePaymentReviewProps = {
+  paymentDetails: TPaymentReviewDetails;
+  backToPaymentInput: (nextInputError?: string) => void;
+  onSendingChange: (isSending: boolean) => void;
+  onSuccess: () => void;
+};
+
 export const usePaymentReview = ({
   paymentDetails,
   backToPaymentInput,
@@ -80,8 +93,8 @@ export const usePaymentReview = ({
   );
   const needsCustomAmount = fixedAmountSat === undefined;
   const mounted = useMountedRef();
-  const customAmountRef = useRef<number>();
-  const [customAmount, setCustomAmount] = useState<number>();
+  const customAmountRef = useRef<string>();
+  const [customAmount, setCustomAmount] = useState<string>();
   const debouncedCustomAmount = useDebounce(customAmount, 300);
   const [preparedPayment, setPreparedPayment] = useState<TPreparedPayment>();
   const [isSending, setIsSending] = useState(false);
@@ -93,11 +106,14 @@ export const usePaymentReview = ({
       : undefined
   );
 
-  const preparePayment = useCallback(async (amountSat?: number, existingIdempotencyKey?: string) => {
+  const preparePayment = useCallback(async (
+    amountSat?: string,
+    existingIdempotencyKey?: string,
+  ) => {
     let preparePaymentRequest: TPreparePaymentRequest;
     switch (paymentDetails.type) {
     case TPaymentInputType.BITCOIN_ADDRESS:
-      if (!isValidAmount(paymentDetails, amountSat)) {
+      if (amountSat === undefined || !isValidAmount(paymentDetails, amountSat)) {
         return;
       }
       preparePaymentRequest = {
@@ -118,7 +134,7 @@ export const usePaymentReview = ({
       };
       break;
     case TPaymentInputType.LNURL_PAY:
-      if (!isValidAmount(paymentDetails, amountSat)) {
+      if (amountSat === undefined || !isValidAmount(paymentDetails, amountSat)) {
         return;
       }
       preparePaymentRequest = {
@@ -138,7 +154,9 @@ export const usePaymentReview = ({
     try {
       const fees = await postPreparePayment(preparePaymentRequest);
 
-      if (!mounted.current || (needsCustomAmount && customAmountRef.current !== amountSat)) {
+      if (
+        !mounted.current
+        || (needsCustomAmount && customAmountRef.current !== amountSat)) {
         return;
       }
 
@@ -148,7 +166,10 @@ export const usePaymentReview = ({
         fees,
       });
     } catch (error) {
-      if (!mounted.current || (needsCustomAmount && customAmountRef.current !== amountSat)) {
+      if (
+        !mounted.current
+        || (needsCustomAmount && customAmountRef.current !== amountSat)
+      ) {
         return;
       }
 
@@ -286,9 +307,11 @@ export const usePaymentReview = ({
     setSendError(undefined);
 
     if (!needsCustomAmount) {
-      preparePayment(paymentDetails.type === TPaymentInputType.BITCOIN_ADDRESS
-        ? fixedAmountSat
-        : undefined);
+      preparePayment(
+        paymentDetails.type === TPaymentInputType.BITCOIN_ADDRESS
+          ? fixedAmountSat
+          : undefined
+      );
     }
   }, [fixedAmountSat, needsCustomAmount, paymentDetails, preparePayment]);
 
