@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { act, render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { sendTx, type TAccount } from '@/api/account';
+import { AppStateContext } from '@/contexts/app-state-context';
 import { alertUser } from '@/components/alert/Alert';
 import { Bitrefill } from './bitrefill';
 import { BTCDirect } from './btcdirect';
@@ -51,12 +52,41 @@ it.each([
   vi.mocked(sendTx).mockResolvedValue({
     success: false, errorCode, errorMessage: 'send failed',
   });
+  const path = (
+    vendor === 'bitrefill'
+      ? '/market/bitrefill/spend/eth'
+      : '/market/btcdirect/sell/eth'
+  );
   render(
-    <MemoryRouter>
-      {vendor === 'bitrefill'
-        ? <Bitrefill accounts={[account]} code="eth" region="" />
-        : <BTCDirect accounts={[account]} code="eth" action="sell" />}
-    </MemoryRouter>,
+    <AppStateContext.Provider
+      value={{
+        accounts: [account],
+        activeAccounts: [account],
+        deviceIDs: [],
+        devices: {},
+        hasAccounts: true,
+        hasBottomNavigation: false,
+        hasDevices: false,
+        lightningAccount: undefined,
+        hasLightningAccount: false,
+      }}
+    >
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          {vendor === 'bitrefill' ? (
+            <Route
+              path="/market/bitrefill/spend/:code"
+              element={<Bitrefill />}
+            />
+          ) : (
+            <Route
+              path="/market/btcdirect/sell/:code"
+              element={<BTCDirect action="sell" />}
+            />
+          )}
+        </Routes>
+      </MemoryRouter>
+    </AppStateContext.Provider>
   );
   const iframe = screen.getByTitle<HTMLIFrameElement>(vendor === 'bitrefill' ? 'Bitrefill' : 'BTC Direct');
   const source = iframe.contentWindow!;

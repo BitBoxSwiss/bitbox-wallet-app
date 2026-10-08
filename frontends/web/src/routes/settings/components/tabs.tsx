@@ -3,8 +3,9 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
-import type { TDevices, TPlatformName } from '@/api/devices';
+import type { TPlatformName } from '@/api/devices';
 import { useLoad } from '@/hooks/api';
+import { useAppState } from '@/contexts/app-state-context';
 import { getVersion } from '@/api/bitbox02';
 import { useDarkmode } from '@/hooks/darkmode';
 import { SettingsItem } from './settingsItem/settingsItem';
@@ -30,35 +31,19 @@ import styles from './tabs.module.css';
 
 type TWithSettingsTabsProps = {
   children: ReactNode;
-  devices: TDevices;
-  hasAccounts: boolean;
   hideMobileMenu?: boolean;
   renderDefaultTabs?: boolean;
 };
 
-type TTab = {
-  name: string;
-  url: string;
-  hideMobileMenu?: boolean;
-  canUpgrade?: boolean;
-  icon?: ReactNode;
-};
-
-type TTabs = {
-  devices: TDevices;
-  hasAccounts: boolean;
-  hideMobileMenu?: boolean;
-};
-
 export const WithSettingsTabs = ({
   children,
-  devices,
   hideMobileMenu,
-  hasAccounts,
   renderDefaultTabs = true,
 }: TWithSettingsTabsProps) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const { devices, hasAccounts } = useAppState();
+
   const [showSearchBar, setShowSearchBar] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -97,11 +82,7 @@ export const WithSettingsTabs = ({
       {renderDefaultTabs ? (
         <div className="hide-on-small">
           <div className={styles.desktopTabsRow}>
-            <Tabs
-              hideMobileMenu={hideMobileMenu}
-              devices={devices}
-              hasAccounts={hasAccounts}
-            />
+            <Tabs hideMobileMenu={hideMobileMenu} />
             <div className={styles.searchToggleContainer}>
               <Button
                 className={styles.searchButton}
@@ -136,6 +117,14 @@ export const WithSettingsTabs = ({
       ) : children}
     </>
   );
+};
+
+type TTab = {
+  name: string;
+  url: string;
+  hideMobileMenu?: boolean;
+  canUpgrade?: boolean;
+  icon?: ReactNode;
 };
 
 export const Tab = ({
@@ -209,10 +198,14 @@ const TabWithVersionCheck = ({ deviceID, device, ...props }: TTabWithVersionChec
   );
 };
 
-export const Tabs = ({ devices, hideMobileMenu, hasAccounts }: TTabs) => {
+type TTabs = {
+  hideMobileMenu?: boolean;
+};
+
+export const Tabs = ({ hideMobileMenu }: TTabs) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
-  const deviceIDs = Object.keys(devices);
+  const { deviceIDs, devices, hasAccounts } = useAppState();
 
   return (
     <div className={styles.container}>

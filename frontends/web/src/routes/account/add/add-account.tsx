@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { TCoin, getSupportedCoins } from '@/api/backend';
 import { subscribeKeystores } from '@/api/keystores';
-import { addAccount, CoinCode, TAddAccount, TAccount } from '@/api/account';
+import { addAccount, CoinCode, TAddAccount } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { SimpleMarkup } from '@/utils/markup';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
@@ -95,13 +96,10 @@ const AddAccountSteps = ({
   }
 };
 
-type TAddAccountProps = {
-  accounts: TAccount[];
-};
-
-export const AddAccount = ({ accounts }: TAddAccountProps) => {
+export const AddAccount = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { accounts } = useAppState();
   const [accountCode, setAccountCode] = useState<string>();
   const [accountName, setAccountName] = useState('');
   const [coinCode, setCoinCode] = useState<'choose' | CoinCode>('choose');

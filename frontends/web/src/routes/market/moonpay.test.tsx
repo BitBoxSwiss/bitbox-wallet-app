@@ -52,12 +52,13 @@ vi.mock('@/contexts/ConfigProvider', () => ({
 }));
 
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
 import type { TConfig } from '@/api/config';
 import * as marketApi from '@/api/market';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { Moonpay } from './moonpay';
+import { AppStateContext } from '@/contexts/app-state-context';
 
 const account: TAccount = {
   keystore: {
@@ -96,9 +97,28 @@ describe('routes/market/moonpay', () => {
     }));
 
     render(
-      <MemoryRouter>
-        <Moonpay accounts={[account]} code={account.code} />
-      </MemoryRouter>
+      <AppStateContext.Provider
+        value={{
+          accounts: [account],
+          activeAccounts: [account],
+          deviceIDs: [],
+          devices: {},
+          hasAccounts: false,
+          hasBottomNavigation: false,
+          hasDevices: false,
+          lightningAccount: undefined,
+          hasLightningAccount: false,
+        }}
+      >
+        <MemoryRouter initialEntries={['/market/moonpay/sell/btc-account']}>
+          <Routes>
+            <Route
+              path="/market/moonpay/sell/:code"
+              element={<Moonpay />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </AppStateContext.Provider>
     );
 
     const iframe = await screen.findByTitle('Moonpay');
@@ -115,9 +135,28 @@ describe('routes/market/moonpay', () => {
     }));
 
     render(
-      <MemoryRouter>
-        <Moonpay accounts={[account]} code={account.code} />
-      </MemoryRouter>
+      <AppStateContext.Provider
+        value={{
+          accounts: [account],
+          activeAccounts: [account],
+          deviceIDs: [],
+          devices: {},
+          hasAccounts: true,
+          hasBottomNavigation: false,
+          hasDevices: false,
+          lightningAccount: undefined,
+          hasLightningAccount: false,
+        }}
+      >
+        <MemoryRouter initialEntries={[`/market/moonpay/sell/${account.code}`]}>
+          <Routes>
+            <Route
+              path="/market/moonpay/sell/:code"
+              element={<Moonpay />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </AppStateContext.Provider>
     );
 
     expect(await screen.findByText('Account is not valid.')).toBeInTheDocument();

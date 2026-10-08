@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { ViewContent, View } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
-import { TPagePropsWithSettingsTabs } from './types';
 import { ManageBackupSetting } from './components/device-settings/manage-backup-setting';
 import { ShowRecoveryWordsSetting } from './components/device-settings/show-recovery-words-setting';
 import { GoToStartupSettings } from './components/device-settings/go-to-startup-settings';
@@ -33,13 +32,9 @@ import {
 } from './settings-availability';
 import styles from './bb02-settings.module.css';
 
-type TCommonProps = {
+type TProps = {
   deviceID: string;
 };
-
-type TWrapperProps = TCommonProps & TPagePropsWithSettingsTabs;
-
-type TProps = TCommonProps;
 
 export const StyledSkeleton = () => {
   return (
@@ -49,7 +44,10 @@ export const StyledSkeleton = () => {
   );
 };
 
-const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
+
+export const BB02Settings = ({
+  deviceID
+}: TProps) => {
   const { t } = useTranslation();
   return (
     <GuideWrapper>
@@ -64,11 +62,7 @@ const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
           />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs
-                devices={devices}
-                hideMobileMenu
-                hasAccounts={hasAccounts}
-              >
+              <WithSettingsTabs hideMobileMenu>
                 <ManageDeviceSettingsContent deviceID={deviceID} />
               </WithSettingsTabs>
             </ViewContent>
@@ -214,5 +208,3 @@ export const ManageDeviceSettingsContent = ({
 
   return <SettingsContent sections={sections} />;
 };
-
-export { BB02Settings };

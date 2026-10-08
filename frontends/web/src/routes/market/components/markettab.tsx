@@ -2,8 +2,9 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import type { AccountCode, TAccount } from '@/api/account';
+import type { AccountCode } from '@/api/account';
 import type { TMarketAction } from '@/api/market';
+import { useAppState } from '@/contexts/app-state-context';
 import { useMarketContext } from '@/routes/market/market-context';
 import { PillButton, PillButtonGroup } from '@/components/pillbuttongroup/pillbuttongroup';
 import { NewBadge } from '@/components/new-badge/new-badge';
@@ -12,24 +13,23 @@ import style from './markettab.module.css';
 export type TMarketplaceTab = TMarketAction | 'insure';
 
 type TProps = {
-  accounts: TAccount[];
   activeTab: TMarketplaceTab;
   code: AccountCode;
 };
 
 export const MarketTab = ({
-  accounts,
   activeTab,
   code,
 }: TProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { activeAccounts } = useAppState();
   const { showSwap } = useMarketContext();
 
   const onChangeTab = (tab: TMarketplaceTab) => {
     if (tab === 'insure') {
       navigate(
-        accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)
+        activeAccounts.some(({ bitsuranceStatus }) => bitsuranceStatus)
           ? `/market/bitsurance/dashboard/${code}`
           : `/market/bitsurance/${code}`
       );

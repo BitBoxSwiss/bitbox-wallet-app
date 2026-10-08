@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { TDevices } from '@/api/devices';
+import { useParams } from 'react-router-dom';
+import { useAppState } from '@/contexts/app-state-context';
 import { SubTitle } from '@/components/title';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Guide } from '@/components/guide/guide';
@@ -11,16 +12,14 @@ import { Backups } from '@/routes/device/bitbox01/backups';
 import { BackupsV2 } from '@/routes/device/bitbox02/backups';
 import { SDCardCheck } from '@/routes/device/bitbox02/sdcardcheck';
 
-type TProps = {
-  deviceID: string | null;
-  devices: TDevices;
+type TRouteParams = {
+  deviceID: string;
 };
 
-export const ManageBackups = ({
-  deviceID,
-  devices,
-}: TProps) => {
+export const ManageBackups = () => {
+  const { deviceID } = useParams<TRouteParams>();
   const { t } = useTranslation();
+  const { devices } = useAppState();
 
   if (!deviceID || !devices[deviceID]) {
     return null;
@@ -36,26 +35,25 @@ export const ManageBackups = ({
             title={t('backup.title')}
           />
           <div className="content padded">
-            <BackupsList
-              deviceID={deviceID}
-              devices={devices}
-            />
+            <BackupsList deviceID={deviceID} />
           </div>
         </Main>
       </GuidedContent>
-      <ManageBackupGuide
-        deviceID={deviceID}
-        devices={devices}
-      />
+      <ManageBackupGuide deviceID={deviceID} />
     </GuideWrapper>
   );
 };
 
+type TProps = {
+  deviceID: string;
+};
+
 const BackupsList = ({
   deviceID,
-  devices,
 }: TProps) => {
   const { t } = useTranslation();
+  const { devices } = useAppState();
+
   if (!deviceID) {
     return null;
   }
@@ -96,9 +94,9 @@ const BackupsList = ({
 
 const ManageBackupGuide = ({
   deviceID,
-  devices,
 }: TProps) => {
   const { t } = useTranslation();
+  const { devices } = useAppState();
 
   if (!deviceID) {
     return null;

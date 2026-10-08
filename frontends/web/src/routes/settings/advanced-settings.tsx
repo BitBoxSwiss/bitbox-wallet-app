@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
-import { TPagePropsWithSettingsTabs } from './types';
 import { EnableCustomFeesToggleSetting } from './components/advanced-settings/enable-custom-fees-toggle-setting';
 import { EnableCoinControlSetting } from './components/advanced-settings/enable-coin-control-setting';
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
@@ -21,6 +20,7 @@ import { Entry } from '@/components/guide/entry';
 import { EnableAuthSetting } from './components/advanced-settings/enable-auth-setting';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { AppContext } from '@/contexts/AppContext';
+import { useAppState } from '@/contexts/app-state-context';
 import { isLightningFeatureAvailable } from '@/utils/env';
 import {
   isExportLogsSettingVisible,
@@ -28,11 +28,7 @@ import {
   isTestWalletSettingVisible,
 } from './settings-availability';
 
-type TProps = {
-  devices: TPagePropsWithSettingsTabs['devices'];
-};
-
-export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const AdvancedSettings = () => {
   const { t } = useTranslation();
   return (
     <GuideWrapper>
@@ -47,12 +43,8 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
           />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs
-                devices={devices}
-                hideMobileMenu
-                hasAccounts={hasAccounts}
-              >
-                <AdvancedSettingsContent devices={devices} />
+              <WithSettingsTabs hideMobileMenu>
+                <AdvancedSettingsContent />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -63,12 +55,10 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
   );
 };
 
-export const AdvancedSettingsContent = ({
-  devices,
-}: TProps) => {
+export const AdvancedSettingsContent = () => {
   const { isTesting } = useContext(AppContext);
+  const { deviceIDs } = useAppState();
 
-  const deviceIDs = Object.keys(devices);
   const sections: TSettingsContentSection[] = [
     {
       id: 'advanced-settings',

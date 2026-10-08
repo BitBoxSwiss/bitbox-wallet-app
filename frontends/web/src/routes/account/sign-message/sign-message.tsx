@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import type { AccountCode, TAccount } from '@/api/account';
+import { useNavigate, useParams } from 'react-router-dom';
+import type { AccountCode } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { PillButton, PillButtonGroup } from '@/components/pillbuttongroup/pillbuttongroup';
@@ -16,28 +17,35 @@ import { AddressesContent } from '../addresses/addresses';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import styles from './sign-message.module.css';
 
-type TProps = {
-  accounts: TAccount[];
+type TRouteParams = {
   addressID?: string;
   code: AccountCode;
-  view: 'new' | 'used';
+  view?: 'new' | 'used';
 };
 
-export const SignMessage = ({
-  accounts,
-  addressID,
-  code,
-  view,
-}: TProps) => {
+export const SignMessage = () => {
+  const {
+    addressID,
+    code = '',
+    view: viewParam,
+  } = useParams<TRouteParams>();
+  const view = viewParam ?? 'new';
+
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const controller = useSignMessageController({ accounts, code });
+  const { activeAccounts } = useAppState();
+
+  const controller = useSignMessageController({ accounts: activeAccounts, code });
 
   if (!controller.account) {
     return null;
   }
 
-  const activeTab = view === 'used' || addressID !== undefined ? 'used' : 'new';
+  const activeTab = (
+    view === 'used'
+    || addressID !== undefined ? 'used' : 'new'
+  );
+
   const isBtcBased = isBitcoinBased(controller.account.coinCode);
 
   return (
@@ -87,7 +95,7 @@ export const SignMessage = ({
             />
           ) : (
             <AddressesContent
-              accounts={accounts}
+              accounts={activeAccounts}
               code={code}
             />
           )}

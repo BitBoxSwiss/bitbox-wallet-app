@@ -14,6 +14,7 @@ import {
 } from '@/api/lightning';
 import { TLightningErrorCode } from '@/api/lightning-errors';
 import { connectKeystore } from '@/api/keystores';
+import { useAppState } from '@/contexts/app-state-context';
 import { useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
@@ -28,16 +29,12 @@ import {
   formatRemainingLightningFundingLimit,
 } from '../limits';
 
-type TProps = {
-  activeAccounts: accountApi.TAccount[];
-  hasAccounts: boolean;
-};
-
 type TStep = 'form' | 'confirming' | 'success' | 'aborted';
 
-export const LightningTopUp = ({ activeAccounts, hasAccounts }: TProps) => {
+export const LightningTopUp = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { activeAccounts, hasAccounts } = useAppState();
   const { btcUnit, defaultCurrency } = useContext(RatesContext);
   const mounted = useMountedRef();
   const lastProposal = useRef<Promise<TPrepareTopUpResult> | null>(null);

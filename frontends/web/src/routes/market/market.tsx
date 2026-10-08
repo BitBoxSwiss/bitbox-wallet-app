@@ -2,12 +2,13 @@
 
 import 'flag-icons';
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { SingleValue } from 'react-select';
 import * as marketAPI from '@/api/market';
 import { getSwapStatus } from '@/api/swap';
-import { AccountCode, TAccount } from '@/api/account';
+import type { AccountCode } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { View, ViewContent } from '@/components/view/view';
 import { isBitcoinOnly } from '@/utils/coin';
 import { useLoad } from '@/hooks/api';
@@ -32,20 +33,18 @@ import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgr
 import type { TKeystoreFeature } from '@/api/keystores';
 import style from './market.module.css';
 
-type TProps = {
-  accounts: TAccount[];
+type TRouteParams = {
   code: AccountCode;
 };
 
-export const Market = ({
-  accounts,
-  code,
-}: TProps) => {
+export const Market = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
+  const { activeAccounts } = useAppState();
 
   const activeTab: marketAPI.TMarketAction = searchParams.get('tab') as marketAPI.TMarketAction || 'buy';
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   const { config, setConfig } = useConfig();
@@ -57,7 +56,7 @@ export const Market = ({
   } = useMarketContext();
 
   const [info, setInfo] = useState<TInfoContentProps>();
-  const selectedAccount = code || getFallbackMarketAccountCode(accounts);
+  const selectedAccount = code || getFallbackMarketAccountCode(activeAccounts);
   const {
     connect,
     connectAny,
@@ -91,7 +90,7 @@ export const Market = ({
     accountCode: string,
     requiredFeature?: TKeystoreFeature,
   ): Promise<boolean> => {
-    const account = accounts.find(acc => acc.code === accountCode);
+    const account = activeAccounts.find(acc => acc.code === accountCode);
     if (!account) {
       return false;
     }
@@ -176,7 +175,7 @@ export const Market = ({
         return;
       }
     }
-    const account = accounts.find(({ code }) => code === selectedAccount);
+    const account = activeAccounts.find(({ code }) => code === selectedAccount);
     if (!account) {
       return;
     }
@@ -207,7 +206,6 @@ export const Market = ({
         <Main>
           <Header title={t('generic.buySell')} />
           <MarketTab
-            accounts={accounts}
             activeTab={activeTab}
             code={code}
           />
@@ -220,7 +218,7 @@ export const Market = ({
             {info && (
               <InfoContent
                 action={info.action}
-                accounts={accounts}
+                accounts={activeAccounts}
                 vendorName={info.vendorName}
                 paymentFees={info.paymentFees}
               />
@@ -261,7 +259,7 @@ export const Market = ({
                             </label>
                             <div className={style.selectContainer}>
                               <GroupedAccountSelector
-                                accounts={accounts}
+                                accounts={activeAccounts}
                                 selected={selectedAccount}
                                 onChange={handleAccountChange}
                               />
