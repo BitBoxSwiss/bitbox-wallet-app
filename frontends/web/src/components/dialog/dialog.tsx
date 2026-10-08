@@ -64,6 +64,7 @@ const DialogContainer = ({
 };
 
 type TProps = {
+  className?: string;
   title?: string;
   small?: boolean;
   medium?: boolean;
@@ -77,6 +78,7 @@ type TProps = {
 };
 
 export const Dialog = ({
+  className = '',
   title,
   small,
   medium,
@@ -197,6 +199,7 @@ export const Dialog = ({
 
   const modalClass = `
     ${style.modal || ''}
+    ${className}
     ${small && style.small || ''}
     ${medium && style.medium || ''}
     ${large && style.large || ''}
@@ -255,6 +258,7 @@ export const Dialog = ({
 
 type DialogButtonsProps = {
   children: React.ReactNode;
+  className?: string;
 };
 
 /**
@@ -275,9 +279,9 @@ type DialogButtonsProps = {
  *   </Dialog>
  * ```
  */
-export const DialogButtons = ({ children }: DialogButtonsProps) => {
+export const DialogButtons = ({ children, className = '' }: DialogButtonsProps) => {
   return (
-    <div className={style.dialogButtons}>
+    <div className={`${style.dialogButtons || ''} ${className}`.trim()}>
       {children}
     </div>
   );
