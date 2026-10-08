@@ -4,8 +4,7 @@ import React, { ReactNode, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
 import { registerTest, type TTestKeystoreEdition } from '@/api/keystores';
-import { Button, Checkbox } from '@/components/forms';
-import { PasswordSingleInput } from '@/components/password';
+import { Button, Checkbox, PasswordInput } from '@/components/forms';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import style from './skipfortesting.module.css';
 
@@ -22,6 +21,7 @@ export const SkipForTesting = ({
   const { isTesting } = useContext(AppContext);
   const [dialog, setDialog] = useState(false);
   const [testPIN, setTestPIN] = useState('');
+  const [testPINVisible, setTestPINVisible] = useState(false);
   const [btcOnly, setBTCOnly] = useState(false);
   const registerTestingDevice = async (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -39,7 +39,11 @@ export const SkipForTesting = ({
     <>
       <Button
         className={className}
-        onClick={() => setDialog(true)}
+        onClick={() => {
+          setTestPIN('');
+          setTestPINVisible(false);
+          setDialog(true);
+        }}
         primary
       >
         {children ? children : t('testWallet.prompt.title')}
@@ -56,10 +60,13 @@ export const SkipForTesting = ({
               <li>{t('testWallet.prompt.info.1')}</li>
               <li>{t('testWallet.prompt.info.2')}</li>
             </ul>
-            <PasswordSingleInput
+            <PasswordInput
               autoFocus
               label={t('testWallet.prompt.passwordLabel')}
-              onValidPassword={(pw) => setTestPIN(pw ? pw : '')}/>
+              value={testPIN}
+              visible={testPINVisible}
+              onVisibilityChange={setTestPINVisible}
+              onChange={event => setTestPIN(event.target.value)} />
             <Checkbox
               id="test-wallet-btc-only"
               checked={btcOnly}

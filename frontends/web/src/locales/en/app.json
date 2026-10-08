@@ -2145,7 +2145,9 @@
     }
   },
   "password": {
+    "hidePassword": "Hide password",
     "show": "Show {{label}}",
+    "showPassword": "Show password",
     "warning": {
       "caps": "WARNING: caps lock (⇪) is enabled",
       "paste": "to paste text, enable \"SHOW {{label}}\""
