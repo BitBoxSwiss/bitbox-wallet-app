@@ -3,6 +3,9 @@
 package backend
 
 import (
+	"context"
+	"errors"
+	"math/big"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,8 +15,12 @@ import (
 	accountsmock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
+	rpcmock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	utilcfg "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
 
@@ -67,6 +74,88 @@ func TestExportBalanceStatementRejectsFutureDate(t *testing.T) {
 	require.ErrorContains(t, err, "future")
 }
 
+func TestExportBalanceStatementETHChainBalance(t *testing.T) {
+	snapshotDate := time.Date(2025, 1, 1, 0, 0, 0, 0, time.FixedZone("UTC+1", 3600))
+	for _, test := range []struct {
+		name           string
+		currentBalance int64
+		snapshotAmount int64
+		currentDay     bool
+		lookupError    bool
+	}{
+		{name: "validator withdrawal without transactions", currentBalance: 1e18, snapshotAmount: 1e18},
+		{name: "historical balance spent later", snapshotAmount: 1e18},
+		{name: "zero balance"},
+		{name: "current day", currentBalance: 1e18, snapshotAmount: 1e18, currentDay: true},
+		{name: "lookup failure", lookupError: true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			b := newBackend(t, testnetDisabled, regtestDisabled)
+			defer b.Close()
+			filename := filepath.Join(t.TempDir(), "statement.pdf")
+			b.environment = fileExportEnvironment{filename: filename}
+			b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
+				return eth.NewAccount(config, coin, b.ethOutgoing, log, make(chan struct{}, 1))
+			}
+			client := &rpcmock.InterfaceMock{
+				HistoricalBalanceAtFunc: func(context.Context, common.Address, time.Time) (*big.Int, error) {
+					if test.lookupError {
+						return nil, errors.New("historical balance unavailable")
+					}
+					return big.NewInt(test.snapshotAmount), nil
+				},
+			}
+			ethCoin, err := b.Coin(coinpkg.CodeETH)
+			require.NoError(t, err)
+			ethCoin.(*eth.Coin).TstSetClient(client)
+			b.registerKeystore(makeBitBox02Multi())
+			const accountCode accountsTypes.Code = "v0-55555555-eth-0"
+			view := b.Accounts().lookup(accountCode)
+			require.NotNil(t, view)
+			account := view.Account.(*eth.Account)
+			require.NoError(t, account.Initialize())
+			require.NoError(t, account.Update(big.NewInt(test.currentBalance), big.NewInt(100), []*accounts.TransactionData{}, nil))
+			transactions, err := account.Transactions()
+			require.NoError(t, err)
+			require.Empty(t, transactions)
+			currentBalance, err := account.Balance()
+			require.NoError(t, err)
+			require.Equal(t, coinpkg.NewAmountFromInt64(test.currentBalance), currentBalance.Available())
+			address, err := account.Address()
+			require.NoError(t, err)
+
+			date := snapshotDate
+			before := time.Now()
+			if test.currentDay {
+				date = before
+			}
+			err = b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, date)
+			if test.lookupError {
+				require.ErrorContains(t, err, "historical balance unavailable")
+				require.NoFileExists(t, filename)
+				return
+			}
+			require.NoError(t, err)
+			calls := client.HistoricalBalanceAtCalls()
+			require.Len(t, calls, 1)
+			require.Equal(t, address.Address, calls[0].Account)
+			if test.currentDay {
+				require.False(t, calls[0].At.Before(before))
+				require.False(t, calls[0].At.After(time.Now()))
+			} else {
+				require.Equal(t, snapshotDate.AddDate(0, 0, 1).Add(-time.Nanosecond), calls[0].At)
+			}
+			pdf, err := os.ReadFile(filename)
+			require.NoError(t, err)
+			if test.snapshotAmount == 0 {
+				require.Contains(t, string(pdf), "(0 ETH)")
+			} else {
+				require.Contains(t, string(pdf), "(1 ETH)")
+			}
+		})
+	}
+}
+
 func TestExportBalanceStatementUsesPersistedAccountMetadata(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
@@ -115,28 +204,26 @@ func TestExportBalanceStatementUsesPersistedAccountMetadata(t *testing.T) {
 }
 
 func TestExportBalanceStatementRestrictsFilePermissions(t *testing.T) {
-	b := newBackend(t, testnetDisabled, regtestDisabled)
-	defer b.Close()
-	b.registerKeystore(makeBitBox02BTCOnly())
-
-	const accountCode accountsTypes.Code = "v0-55555555-btc-0"
-	view := b.Accounts().lookup(accountCode)
-	require.NotNil(t, view)
-	timestamp := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	view.Account.(*accountsmock.InterfaceMock).TransactionsFunc = func() (accounts.OrderedTransactions, error) {
-		return accounts.OrderedTransactions{
-			{Height: 1, Timestamp: &timestamp, Balance: coinpkg.NewAmountFromInt64(123456789)},
-		}, nil
-	}
-
 	for _, name := range []string{"new", "existing"} {
 		t.Run(name, func(t *testing.T) {
+			b := newBackend(t, testnetDisabled, regtestDisabled)
+			defer b.Close()
 			filename := filepath.Join(t.TempDir(), "statement.pdf")
 			if name == "existing" {
 				require.NoError(t, os.WriteFile(filename, []byte("stale contents"), 0644))
 				require.NoError(t, os.Chmod(filename, 0644))
 			}
 			b.environment = fileExportEnvironment{filename: filename}
+			b.registerKeystore(makeBitBox02BTCOnly())
+			const accountCode accountsTypes.Code = "v0-55555555-btc-0"
+			view := b.Accounts().lookup(accountCode)
+			require.NotNil(t, view)
+			timestamp := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+			view.Account.(*accountsmock.InterfaceMock).TransactionsFunc = func() (accounts.OrderedTransactions, error) {
+				return accounts.OrderedTransactions{
+					{Height: 1, Timestamp: &timestamp, Balance: coinpkg.NewAmountFromInt64(123456789)},
+				}, nil
+			}
 
 			require.NoError(t, b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, timestamp))
 
