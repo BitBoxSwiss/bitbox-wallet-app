@@ -15,6 +15,8 @@ type TDeviceInfoWithBluetooth = DeviceInfo & {
 
 export const isNotesSettingsVisible = (hasAccounts: boolean) => hasAccounts;
 
+export const isBalanceStatementSettingVisible = (hasAccounts: boolean) => hasAccounts;
+
 export const isDeviceSettingsVisible = (devices: TDevices) => Object.keys(devices).length > 0;
 
 export const isDeviceBluetoothSupported = (
