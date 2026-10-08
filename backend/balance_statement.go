@@ -16,6 +16,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	utilcfg "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
@@ -50,6 +51,9 @@ func (backend *Backend) ExportBalanceStatement(
 	// do not exist yet for the remainder of the day, so the latest rates are
 	// used instead.
 	isCurrentDay := snapshotEnd.After(now)
+	if isCurrentDay {
+		snapshotEnd = now
+	}
 
 	accountsByCode := map[accountsTypes.Code]accounts.Interface{}
 	accountViews := backend.Accounts()
@@ -194,6 +198,9 @@ func balanceAtSnapshotDate(
 	account accounts.Interface,
 	snapshotEnd time.Time,
 ) (coinpkg.Amount, error) {
+	if ethAccount, ok := account.(*eth.Account); ok && !eth.IsERC20(ethAccount) {
+		return ethAccount.BalanceAtTime(snapshotEnd)
+	}
 	txs, err := account.Transactions()
 	if err != nil {
 		return coinpkg.Amount{}, err

@@ -5,14 +5,16 @@ package mocks
 
 import (
 	"context"
+	"math/big"
+	"sync"
+	"time"
+
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"math/big"
-	"sync"
 )
 
 // Ensure, that InterfaceMock does implement rpcclient.Interface.
@@ -39,6 +41,9 @@ var _ rpcclient.Interface = &InterfaceMock{}
 //			},
 //			FeeTargetsFunc: func(ctx context.Context) ([]*ethtypes.FeeTarget, error) {
 //				panic("mock out the FeeTargets method")
+//			},
+//			HistoricalBalanceAtFunc: func(ctx context.Context, account common.Address, at time.Time) (*big.Int, error) {
+//				panic("mock out the HistoricalBalanceAt method")
 //			},
 //			NonceAtFunc: func(ctx context.Context, account common.Address, blockNumber *big.Int) (uint64, error) {
 //				panic("mock out the NonceAt method")
@@ -79,6 +84,9 @@ type InterfaceMock struct {
 
 	// FeeTargetsFunc mocks the FeeTargets method.
 	FeeTargetsFunc func(ctx context.Context) ([]*ethtypes.FeeTarget, error)
+
+	// HistoricalBalanceAtFunc mocks the HistoricalBalanceAt method.
+	HistoricalBalanceAtFunc func(ctx context.Context, account common.Address, at time.Time) (*big.Int, error)
 
 	// NonceAtFunc mocks the NonceAt method.
 	NonceAtFunc func(ctx context.Context, account common.Address, blockNumber *big.Int) (uint64, error)
@@ -135,6 +143,15 @@ type InterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 		}
+		// HistoricalBalanceAt holds details about calls to the HistoricalBalanceAt method.
+		HistoricalBalanceAt []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Account is the account argument value.
+			Account common.Address
+			// At is the at argument value.
+			At time.Time
+		}
 		// NonceAt holds details about calls to the NonceAt method.
 		NonceAt []struct {
 			// Ctx is the ctx argument value.
@@ -183,6 +200,7 @@ type InterfaceMock struct {
 	lockERC20Balance                      sync.RWMutex
 	lockEstimateGas                       sync.RWMutex
 	lockFeeTargets                        sync.RWMutex
+	lockHistoricalBalanceAt               sync.RWMutex
 	lockNonceAt                           sync.RWMutex
 	lockPendingNonceAt                    sync.RWMutex
 	lockSendTransaction                   sync.RWMutex
@@ -368,6 +386,46 @@ func (mock *InterfaceMock) FeeTargetsCalls() []struct {
 	mock.lockFeeTargets.RLock()
 	calls = mock.calls.FeeTargets
 	mock.lockFeeTargets.RUnlock()
+	return calls
+}
+
+// HistoricalBalanceAt calls HistoricalBalanceAtFunc.
+func (mock *InterfaceMock) HistoricalBalanceAt(ctx context.Context, account common.Address, at time.Time) (*big.Int, error) {
+	if mock.HistoricalBalanceAtFunc == nil {
+		panic("InterfaceMock.HistoricalBalanceAtFunc: method is nil but Interface.HistoricalBalanceAt was just called")
+	}
+	callInfo := struct {
+		Ctx     context.Context
+		Account common.Address
+		At      time.Time
+	}{
+		Ctx:     ctx,
+		Account: account,
+		At:      at,
+	}
+	mock.lockHistoricalBalanceAt.Lock()
+	mock.calls.HistoricalBalanceAt = append(mock.calls.HistoricalBalanceAt, callInfo)
+	mock.lockHistoricalBalanceAt.Unlock()
+	return mock.HistoricalBalanceAtFunc(ctx, account, at)
+}
+
+// HistoricalBalanceAtCalls gets all the calls that were made to HistoricalBalanceAt.
+// Check the length with:
+//
+//	len(mockedInterface.HistoricalBalanceAtCalls())
+func (mock *InterfaceMock) HistoricalBalanceAtCalls() []struct {
+	Ctx     context.Context
+	Account common.Address
+	At      time.Time
+} {
+	var calls []struct {
+		Ctx     context.Context
+		Account common.Address
+		At      time.Time
+	}
+	mock.lockHistoricalBalanceAt.RLock()
+	calls = mock.calls.HistoricalBalanceAt
+	mock.lockHistoricalBalanceAt.RUnlock()
 	return calls
 }
 
