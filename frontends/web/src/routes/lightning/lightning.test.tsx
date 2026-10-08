@@ -4,8 +4,9 @@ import '../../../__mocks__/i18n';
 import type { ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { Link, MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Link, Route, Switch } from 'wouter';
+import { MemoryRouter } from '@/utils/test-helpers';
 import * as devicesApi from '@/api/devices';
 import * as lightningApi from '@/api/lightning';
 import { GlobalBannersContainerContext } from '@/contexts/global-banners-context';
@@ -151,14 +152,14 @@ describe('Lightning funding limit', () => {
               updateDefaultCurrency: vi.fn(),
               removeFromActiveCurrencies: vi.fn(),
             }}>
-              <Routes>
-                <Route path="/other" element={(
+              <Switch>
+                <Route path="/other" component={() => (
                   <Main>
                     <Link to="/lightning">Open Lightning</Link>
                   </Main>
                 )} />
-                <Route path="/lightning" element={<Lightning />} />
-              </Routes>
+                <Route path="/lightning" component={Lightning} />
+              </Switch>
             </RatesContext.Provider>
           </ConfigContext.Provider>
         </MemoryRouter>

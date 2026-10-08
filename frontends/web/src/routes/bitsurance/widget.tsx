@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'wouter';
 import { Message } from '@/components/message/message';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
@@ -33,8 +33,8 @@ type TRouteParams = {
 
 export const BitsuranceWidget = () => {
   const { code = '' } = useParams<TRouteParams>();
-  const navigate = useNavigate();
   const { t } = useTranslation();
+  const [, navigate] = useLocation();
   const { config } = useConfig();
 
   const iframeURL = useLoad(getBitsuranceURL);

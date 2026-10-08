@@ -3,8 +3,9 @@
 import 'flag-icons';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { SingleValue } from 'react-select';
+import { useLocation, useParams } from 'wouter';
+import { useSearchParams } from '@/utils/router-compatability';
 import * as marketAPI from '@/api/market';
 import { getSwapStatus } from '@/api/swap';
 import type { AccountCode } from '@/api/account';
@@ -48,7 +49,7 @@ export const Market = () => {
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   const { config, setConfig } = useConfig();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const {
     regions,
     selectedRegion,

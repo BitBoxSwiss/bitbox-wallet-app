@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
-import { AccountCode, TAccount } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
+import { useLocation, useParams } from 'wouter';
+import { AccountCode, TAccount } from '@/api/account';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { MarketTab } from '@/routes/market/components/markettab';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
@@ -22,7 +22,8 @@ type TRouteParams = {
 
 export const BitsuranceAccount = () => {
   const { code = '' } = useParams<TRouteParams>();
-  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const [, navigate] = useLocation();
   const { activeAccounts } = useAppState();
 
   const [disabled, setDisabled] = useState<boolean>(false);
@@ -33,7 +34,6 @@ export const BitsuranceAccount = () => {
     firmwareUpgradeRequired,
   } = useFeatureConnect();
 
-  const { t } = useTranslation();
 
   const handleChangeAccount = (accountCode: string) => {
     navigate(`/market/bitsurance/account/${accountCode}`, { replace: true });

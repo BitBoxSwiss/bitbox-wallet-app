@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { MouseEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { ArrowFloorDownWhite, ArrowFloorUpWhite, Coins, WalletConnectLight } from '@/components/icon';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { AccountCode, TAccount, CoinCode } from '@/api/account';
@@ -24,7 +24,7 @@ type TProps = {
 
 export const ActionButtons = ({ canSend, code, coinCode, exchangeSupported, account, accountDataLoaded }: TProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const {
     connect,
     dismissFirmwareUpgrade,

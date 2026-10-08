@@ -2,11 +2,11 @@
 
 import { MutableRefObject, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
 import { AutoscaleInfoProvider, createChart, IChartApi, LineStyle, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType } from 'lightweight-charts';
 import type { TChartData, TChartTransactionMarkerAmount, FormattedLineData } from '@/api/account';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Amount } from '@/components/amount/amount';
+import { useSearchParams } from '@/utils/router-compatability';
 import { PercentageDiff } from './percentage-diff';
 import { Filters } from './filters';
 import { useDarkmode } from '@/hooks/darkmode';

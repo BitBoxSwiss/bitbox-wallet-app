@@ -2,7 +2,6 @@
 
 import React, { ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { ChevronLeftDark, GuideActive, MenuLight, MenuDark } from '@/components/icon';
 import { AppContext } from '@/contexts/AppContext';
 import { useBackNavigation } from '@/contexts/BackNavigationContext';
@@ -40,7 +39,6 @@ type TProps = {
 
 const HeaderBackButton = ({ onBack }: Pick<TProps, 'onBack'>) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { goBack } = useBackNavigation();
 
   const handleBack = () => {
@@ -49,7 +47,7 @@ const HeaderBackButton = ({ onBack }: Pick<TProps, 'onBack'>) => {
       return;
     }
     if (!goBack()) {
-      navigate(-1);
+      window.history.back();
     }
   };
 

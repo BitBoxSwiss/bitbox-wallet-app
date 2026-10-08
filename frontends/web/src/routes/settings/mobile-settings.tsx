@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { useAppState } from '@/contexts/app-state-context';
 import { View, ViewContent } from '@/components/view/view';
 import { Header, Main } from '@/components/layout';
@@ -18,7 +18,7 @@ import { Tabs, WithSettingsTabs } from './components/tabs';
  **/
 export const MobileSettings = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   useOnlyVisitableOnMobile('/settings/general');
   const { hasBottomNavigation } = useAppState();
 

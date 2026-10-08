@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'wouter';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '@/api/bitbox02';
 import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -30,7 +30,6 @@ type TStatus = 'info' | 'progress' | 'success';
 export const Passphrase = () => {
   const { deviceID = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const [status, setStatus] = useState<TStatus>('info');
   const [isEnabled, setIsEnabled] = useState<boolean>();
@@ -52,7 +51,7 @@ export const Passphrase = () => {
     try {
       const result = await setMnemonicPassphraseEnabled(deviceID, enabled);
       if (!result.success) {
-        navigate(-1);
+        history.back();
         if (result.code) {
           alertUser(t(`passphrase.error.e${result.code}`, {
             defaultValue: result.message || t('genericError'),
@@ -67,7 +66,7 @@ export const Passphrase = () => {
     }
   };
 
-  const handleAbort = () => navigate(-1);
+  const handleAbort = () => history.back();
 
   if (isEnabled === undefined) {
     return null;

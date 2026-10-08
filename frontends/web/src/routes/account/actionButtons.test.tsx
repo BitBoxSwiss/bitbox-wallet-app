@@ -15,7 +15,8 @@ vi.mock('@/hooks/mediaquery', () => ({
 }));
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter } from '@/utils/test-helpers';
+import { useLocation } from '@/utils/router-compatability';
 import type { CoinCode, TAccount } from '@/api/account';
 import { connectKeystore } from '@/api/keystores';
 import { ActionButtons } from './actionButtons';

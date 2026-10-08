@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useContext, useEffect, useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'wouter';
+import { NavLink, useLocation } from '@/utils/router-compatability';
 import { useKeystores } from '@/hooks/backend';
 import { useLightning } from '@/hooks/lightning';
 import type { TDevices } from '@/api/devices';
@@ -55,7 +56,7 @@ const GetLightningLink = ({ handleSidebarItemClick }: { handleSidebarItemClick: 
   return (
     <div className={style.sidebarItem}>
       <NavLink
-        className={({ isActive }) => isActive ? style.sidebarActive : ''}
+        className={({ isActive }) => isActive ? (style.sidebarActive || '') : ''}
         to={'/lightning'}
         onClick={handleSidebarItemClick}
         title={lightningName}>
@@ -144,7 +145,7 @@ const Sidebar = ({
             className={`${style.sidebarItem || ''} ${style.sidebarPortfolio || ''}`}
           >
             <NavLink
-              className={({ isActive }) => isActive ? style.sidebarActive : ''}
+              className={({ isActive }) => isActive ? (style.sidebarActive || '') : ''}
               to={'/account-summary'}
               title={t('accountSummary.title')}
               onClick={handleSidebarItemClick}>
@@ -183,7 +184,7 @@ const Sidebar = ({
           <>
             <div key="market" className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive || inMarketSection ? style.sidebarActive : ''}
+                className={({ isActive }) => isActive || inMarketSection ? (style.sidebarActive || '') : ''}
                 to="/market/select">
                 <div className={style.single}>
                   <Coins />
@@ -205,7 +206,7 @@ const Sidebar = ({
 
         <div key="settings" className={style.sidebarItem}>
           <NavLink
-            className={({ isActive }) => isActive ? style.sidebarActive : ''}
+            className={({ isActive }) => isActive ? (style.sidebarActive || '') : ''}
             to={'/settings'}
             title={t('sidebar.settings')}
             onClick={handleSidebarItemClick}>

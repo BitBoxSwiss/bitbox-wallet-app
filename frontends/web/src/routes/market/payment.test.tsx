@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { act, render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, expect, it, vi } from 'vitest';
+import { Route, Switch } from 'wouter';
+import { MemoryRouter } from '@/utils/test-helpers';
 import { sendTx, type TAccount } from '@/api/account';
 import { AppStateContext } from '@/contexts/app-state-context';
 import { alertUser } from '@/components/alert/Alert';
@@ -72,19 +73,19 @@ it.each([
       }}
     >
       <MemoryRouter initialEntries={[path]}>
-        <Routes>
+        <Switch>
           {vendor === 'bitrefill' ? (
             <Route
               path="/market/bitrefill/spend/:code"
-              element={<Bitrefill />}
+              component={Bitrefill}
             />
           ) : (
             <Route
               path="/market/btcdirect/sell/:code"
-              element={<BTCDirect action="sell" />}
+              component={() => <BTCDirect action="sell" />}
             />
           )}
-        </Routes>
+        </Switch>
       </MemoryRouter>
     </AppStateContext.Provider>
   );

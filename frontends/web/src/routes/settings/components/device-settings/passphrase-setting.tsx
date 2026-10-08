@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 
 type TProps = {
@@ -9,8 +9,8 @@ type TProps = {
   passphraseEnabled: boolean;
 };
 
-const PassphraseSetting = ({ deviceID, passphraseEnabled }: TProps) => {
-  const navigate = useNavigate();
+export const PassphraseSetting = ({ deviceID, passphraseEnabled }: TProps) => {
+  const [, navigate] = useLocation();
   const { t } = useTranslation();
   return (
     <SettingsItem
@@ -23,5 +23,3 @@ const PassphraseSetting = ({ deviceID, passphraseEnabled }: TProps) => {
     />
   );
 };
-
-export { PassphraseSetting };

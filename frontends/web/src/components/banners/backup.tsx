@@ -2,8 +2,9 @@
 
 import { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'wouter';
+import { useNavigate } from '@/utils/router-compatability';
 import { getDeviceList } from '@/api/devices';
-import { Link, useNavigate } from 'react-router-dom';
 import { connectKeystore } from '@/api/keystores';
 import { Status } from '@/components/status/status';
 import { MultilineMarkup } from '@/utils/markup';

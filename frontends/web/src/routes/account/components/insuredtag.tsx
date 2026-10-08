@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import { Shield } from '@/components/icon';
 import style from './insuredtag.module.css';
 

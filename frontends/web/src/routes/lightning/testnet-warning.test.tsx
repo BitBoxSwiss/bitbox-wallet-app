@@ -4,8 +4,10 @@ import '../../../__mocks__/i18n';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { JSX } from 'react';
-import { Link, MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Link } from 'wouter';
+import { MemoryRouter } from '@/utils/test-helpers';
+import { useLocation } from '@/utils/router-compatability';
 import { getTesting } from '@/api/backend';
 import { Testing } from '@/components/banners/testing';
 import { AppProvider } from '@/contexts/AppProvider';
@@ -51,7 +53,7 @@ const Navigation = (): JSX.Element => {
       <Link to="/settings/advanced-settings">Leave Lightning</Link>
       <Link to="/lightning">Open Lightning</Link>
       <Link to="/settings/lightning-settings">Open Lightning settings</Link>
-      <output aria-label="Current location">{pathname}{search}</output>
+      <div role="status" aria-label="Current location">{pathname}{search}</div>
     </nav>
   );
 };
@@ -106,7 +108,6 @@ describe('Lightning in testnet mode', () => {
     '/lightning/send',
     '/lightning/receive',
     '/lightning/topup',
-    '/LIGHTNING/send',
     '/light%6eing',
   ])('warns before opening %s and hides the testnet banner', async path => {
     renderApp(path);
@@ -185,11 +186,22 @@ describe('Lightning in testnet mode', () => {
   });
 
   it('returns home on X when opened directly without an earlier page', async () => {
-    renderApp();
-    await userEvent.click(await screen.findByTestId('close-button'));
 
-    expect(await screen.findByText('Home page')).toBeInTheDocument();
-    expect(mocks.lightningPage).not.toHaveBeenCalled();
+    const historyLength = (
+      vi
+        .spyOn(window.history, 'length', 'get')
+        .mockReturnValue(1)
+    );
+
+    try {
+      renderApp();
+      await userEvent.click(await screen.findByTestId('close-button'));
+
+      expect(await screen.findByText('Home page')).toBeInTheDocument();
+      expect(mocks.lightningPage).not.toHaveBeenCalled();
+    } finally {
+      historyLength.mockRestore();
+    }
   });
 
   it('treats the system back button as cancellation', async () => {

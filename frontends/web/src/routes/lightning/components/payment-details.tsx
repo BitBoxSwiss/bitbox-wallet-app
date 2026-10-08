@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import type { TLightningPayment } from '@/api/lightning';
 import { A } from '@/components/anchor/anchor';
 import { Dialog } from '@/components/dialog/dialog';
@@ -29,7 +29,7 @@ export const PaymentDetailsDialog = ({
   explorerURL,
 }: TTxDetailsDialog) => {
   const { i18n, t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   const typeText = (
     payment.bitcoinDeposit

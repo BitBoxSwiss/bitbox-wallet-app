@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { connectAnyKeystore } from '@/api/keystores';
 import { getLightningBalance, postCloseWithdraw, postPrepareCloseWithdraw, type TCloseWithdrawQuote } from '@/api/lightning';
 import { TLightningErrorCode, TSdkError, toLightningErrorMessage } from '@/api/lightning-errors';
@@ -26,7 +26,7 @@ type TPreparedQuote = TCloseWithdrawQuote & {
 
 export const LightningCloseWithdrawFunds = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { activeAccounts, hasAccounts } = useAppState();
   const btcAccounts = useMemo(
     () => activeAccounts.filter(account => account.active && account.coinCode === 'btc'),
@@ -157,7 +157,7 @@ export const LightningCloseWithdrawFunds = () => {
     }
   }, [destinationAccountCode, mounted, quote]);
 
-  const handleBack = () => navigate(-1);
+  const handleBack = () => history.back();
   const handleNoBitcoinAccountAction = async () => {
     if (hasAccounts) {
       navigate('/settings/manage-accounts');
@@ -221,7 +221,7 @@ export const LightningCloseWithdrawFunds = () => {
       return (
         <CloseWithdrawFailure
           partial={step === 'partialFailure'}
-          onCancel={() => navigate(-1)}
+          onCancel={handleBack}
           onTryAgain={() => {
             if (step === 'partialFailure') {
               navigate('/lightning/deactivate/');

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import {
   getLightningAddress,
   getLightningBalance,
@@ -21,7 +21,7 @@ const serviceProvider = 'Spark';
 
 export const LightningSettings = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { isLightningReady, lightningAccount } = useLightning();
   const keystoreNameResponse = useLoad(
     lightningAccount

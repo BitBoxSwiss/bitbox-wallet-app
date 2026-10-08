@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
-import { AccountCode, getBalance } from '@/api/account';
+import { useLocation, useParams } from 'wouter';
+import { type AccountCode, getBalance } from '@/api/account';
 import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '@/api/bitsurance';
 import { useAppState } from '@/contexts/app-state-context';
 import { useMountedRef } from '@/hooks/mount';
@@ -53,8 +53,8 @@ type TRouteParams = {
 
 export const BitsuranceDashboard = () => {
   const { code = '' } = useParams<TRouteParams>();
-  const navigate = useNavigate();
   const { t } = useTranslation();
+  const [, navigate] = useLocation();
   const { activeAccounts } = useAppState();
 
   const mounted = useMountedRef();

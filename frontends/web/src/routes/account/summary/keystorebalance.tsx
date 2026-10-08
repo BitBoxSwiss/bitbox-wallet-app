@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import * as accountApi from '@/api/account';
 import type { TKeystore } from '@/api/account';
 import { getAccountsPerCoin, TAccountsByKeystore } from '@/routes/account/utils';
@@ -26,7 +26,7 @@ type TProps = {
 
 export const KeystoreBalance = ({ accounts, accountsByKeystore, keystore, keystoreBalance, balances, showUnitPrice }: TProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   const accountsPerCoin = getAccountsPerCoin(accounts);
   const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];

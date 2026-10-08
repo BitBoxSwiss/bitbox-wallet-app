@@ -2,26 +2,33 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
+import * as wouter from 'wouter';
 import { useOnlyVisitableOnMobile } from './onlyvisitableonmobile';
 import * as mediaQueryHooks from '@/hooks/mediaquery';
-import * as reactRouterDom from 'react-router-dom';
 
 vi.mock('@/hooks/mediaquery', () => ({
-  useMediaQuery: vi.fn()
+  useMediaQuery: vi.fn(),
 }));
 
-vi.mock('react-router-dom', () => ({
-  useNavigate: vi.fn()
-}));
+const mockNavigate = vi.hoisted(() => vi.fn());
+
+vi.mock('wouter', async () => {
+  const actual = await vi.importActual<typeof import('wouter')>('wouter');
+
+  return {
+    ...actual,
+    useLocation: () => ['', mockNavigate],
+  };
+});
 
 describe('useOnlyVisitableOnMobile', () => {
   const useMediaQuerySpy = vi.spyOn(mediaQueryHooks, 'useMediaQuery');
-  const useNavigateSpy = vi.spyOn(reactRouterDom, 'useNavigate');
+  const useLocationSpy = vi.spyOn(wouter, 'useLocation');
   const mockNavigate = vi.fn();
 
   beforeEach(() => {
-    useNavigateSpy.mockReturnValue(mockNavigate);
     vi.clearAllMocks();
+    useLocationSpy.mockReturnValue(['', mockNavigate]);
   });
 
   it('should not navigate when on mobile device', () => {

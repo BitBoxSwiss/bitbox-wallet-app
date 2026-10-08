@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Logo } from '@/components/icon/logo';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
@@ -26,7 +26,7 @@ type TSteps = 'intro' | 'information' | 'disclaimer' | 'connect' | 'confirm' | '
 
 export const LightningActivate = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { lightningAccount } = useLightning();
   const [agree, setAgree] = useState(false);
   const [keystores, setKeystores] = useState<TKeystores>();
@@ -98,7 +98,7 @@ export const LightningActivate = () => {
       return;
     case 'intro':
     case 'connect':
-      navigate(-1);
+      history.back();
       return;
     }
   };

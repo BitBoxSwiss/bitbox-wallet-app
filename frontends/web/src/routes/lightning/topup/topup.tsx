@@ -2,7 +2,7 @@
 
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import * as accountApi from '@/api/account';
 import { convertFromCurrency, convertToCurrency } from '@/api/coins';
 import {
@@ -33,7 +33,7 @@ type TStep = 'form' | 'confirming' | 'success' | 'aborted';
 
 export const LightningTopUp = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { activeAccounts, hasAccounts } = useAppState();
   const { btcUnit, defaultCurrency } = useContext(RatesContext);
   const mounted = useMountedRef();

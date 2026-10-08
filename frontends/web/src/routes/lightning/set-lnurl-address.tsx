@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import {
   getLightningAddress,
   getLightningAddressAvailability,
@@ -45,7 +44,6 @@ const usernameFromAddress = (address: string | null) => address?.split('@')[0]?.
 export const LightningSetLnurlAddress = () => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
-  const navigate = useNavigate();
   const mounted = useMountedRef();
   const availabilityRequestId = useRef(0);
   const [domain, setDomain] = useState('');
@@ -174,6 +172,8 @@ export const LightningSetLnurlAddress = () => {
     }
   };
 
+  const handleBack = () => history.back();
+
   const renderAvailability = () => {
     switch (availability) {
     case 'available':
@@ -222,7 +222,7 @@ export const LightningSetLnurlAddress = () => {
             <p>{t('unknownError', { errorMessage: error })}</p>
           </ViewContent>
           <ViewButtons>
-            <DesktopBackButton onClick={() => navigate(-1)}>
+            <DesktopBackButton onClick={handleBack}>
               {t('button.back')}
             </DesktopBackButton>
           </ViewButtons>
@@ -266,7 +266,7 @@ export const LightningSetLnurlAddress = () => {
             <Button primary disabled={availability !== 'available' || isSaving} onClick={saveAddress}>
               {t('button.save')}
             </Button>
-            <DesktopBackButton disabled={isSaving} onClick={() => navigate(-1)}>
+            <DesktopBackButton disabled={isSaving} onClick={handleBack}>
               {t('dialog.cancel')}
             </DesktopBackButton>
           </ViewButtons>
@@ -280,7 +280,7 @@ export const LightningSetLnurlAddress = () => {
             <span className={styles.successAddress}>{address}</span>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => navigate(-1)}>
+            <Button primary onClick={handleBack}>
               {t('button.done')}
             </Button>
           </ViewButtons>
@@ -300,7 +300,7 @@ export const LightningSetLnurlAddress = () => {
       <Header
         variant="navigation"
         mobileBackButton={headerBackEnabled}
-        onBack={() => navigate(-1)}
+        onBack={() => history.back()}
         title={t('lightning.lnurlAddress.title')}
       />
       {renderStep()}
