@@ -219,8 +219,19 @@ class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersPro
     }
 }
 
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        shouldAllowExtensionPointIdentifier extensionPointIdentifier: UIApplication.ExtensionPointIdentifier
+    ) -> Bool {
+        // Revealed passwords use text inputs, which otherwise allow third-party keyboards.
+        extensionPointIdentifier != .keyboard
+    }
+}
+
 @main
 struct BitBoxAppApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var bluetoothManager = BluetoothManager()
     private let widgetSync = WidgetAppGroupSync()
 
