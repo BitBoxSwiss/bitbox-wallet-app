@@ -186,11 +186,22 @@ describe('Lightning in testnet mode', () => {
   });
 
   it('returns home on X when opened directly without an earlier page', async () => {
-    renderApp();
-    await userEvent.click(await screen.findByTestId('close-button'));
 
-    expect(await screen.findByText('Home page')).toBeInTheDocument();
-    expect(mocks.lightningPage).not.toHaveBeenCalled();
+    const historyLength = (
+      vi
+        .spyOn(window.history, 'length', 'get')
+        .mockReturnValue(1)
+    );
+
+    try {
+      renderApp();
+      await userEvent.click(await screen.findByTestId('close-button'));
+
+      expect(await screen.findByText('Home page')).toBeInTheDocument();
+      expect(mocks.lightningPage).not.toHaveBeenCalled();
+    } finally {
+      historyLength.mockRestore();
+    }
   });
 
   it('treats the system back button as cancellation', async () => {

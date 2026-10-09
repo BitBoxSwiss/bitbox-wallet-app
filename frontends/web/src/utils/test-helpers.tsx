@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { Router } from 'wouter';
 
 type TProps = {
@@ -34,4 +34,26 @@ export const MemoryRouter = ({
       {children}
     </Router>
   );
+};
+
+export const HistoryRouter = ({
+  children,
+  initialEntries = ['/'],
+  initialIndex = initialEntries.length - 1,
+}: TProps) => {
+  const [initialized] = useState(() => {
+    const entries = initialEntries.slice(0, initialIndex + 1);
+
+    entries.forEach((entry, index) => {
+      if (index === 0) {
+        window.history.replaceState({}, '', entry);
+      } else {
+        window.history.pushState({}, '', entry);
+      }
+    });
+
+    return true;
+  });
+
+  return initialized ? <Router>{children}</Router> : null;
 };

@@ -77,10 +77,10 @@ export const useAddressVerification = ({
     const params = new URLSearchParams(location.search);
     params.delete(COPY_ONLY_PARAM);
     const search = params.toString();
-    navigate({
-      pathname: location.pathname,
-      search: search ? `?${search}` : '',
-    }, { replace: true });
+    navigate(
+      `${location.pathname}${search ? `?${search}` : ''}`,
+      { replace: true },
+    );
   }, [hasCopyOnlyQuery, location.pathname, location.search, navigate]);
 
   useEffect(() => {
@@ -94,10 +94,11 @@ export const useAddressVerification = ({
     const params = new URLSearchParams(location.search);
     params.delete(SKIP_DEVICE_VERIFICATION_PARAM);
     const search = params.toString();
-    navigate({
-      pathname: location.pathname,
-      search: search ? `?${search}` : '',
-    }, { replace: true });
+    navigate(
+      `${location.pathname}${search ? `?${search}` : ''}`,
+      { replace: true },
+    );
+
   }, [hasSkipDeviceVerificationQuery, location.pathname, location.search, navigate]);
 
   useEffect(() => {

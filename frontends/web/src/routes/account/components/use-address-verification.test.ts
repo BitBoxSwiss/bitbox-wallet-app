@@ -11,7 +11,7 @@ vi.mock('@/api/backend', () => ({
 
 import React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { MemoryRouter } from '@/utils/test-helpers';
+import { HistoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
 import { verifyAddressWithDevice, handleVerifyAddressWithDeviceResult } from './verify-address';
 import { useAddressVerification } from './use-address-verification';
@@ -37,7 +37,7 @@ const COPY_ONLY_PARAM = 'copyOnly';
 
 const createWrapper = (initialEntry = '/account/btc-acct/addresses/addr-1/verify') => (
   ({ children }: { children: React.ReactNode }) => (
-    React.createElement(MemoryRouter, {
+    React.createElement(HistoryRouter, {
       initialEntries: [initialEntry],
     }, children)
   )

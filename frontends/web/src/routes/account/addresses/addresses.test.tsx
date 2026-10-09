@@ -24,7 +24,7 @@ vi.mock('@/api/system', () => ({
 }));
 
 import { Route, Switch } from 'wouter';
-import { MemoryRouter } from '@/utils/test-helpers';
+import { HistoryRouter } from '@/utils/test-helpers';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as accountApi from '@/api/account';
@@ -116,9 +116,9 @@ const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAcco
 
   return {
     ...render(
-      <MemoryRouter initialEntries={[initialEntry]}>
+      <HistoryRouter initialEntries={[initialEntry]}>
         <RouteWrapper />
-      </MemoryRouter>
+      </HistoryRouter>
     ),
     setAccounts: (accounts: accountApi.TAccount[]) => {
       setAccountsState?.(accounts);
