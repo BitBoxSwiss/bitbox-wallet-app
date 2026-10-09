@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
+import type { TTopUpRecoveryResult } from '@/api/lightning';
 import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
 import { ExternalLink } from '@/components/icon';
@@ -10,12 +11,14 @@ import styles from './claim-top-up.module.css';
 
 type TProps = {
   action: TAction;
+  claimOutcome?: TTopUpRecoveryResult['claimOutcome'];
   explorerURL?: string;
   onDone: () => void;
 };
 
 export const ClaimTopUpSuccess = ({
   action,
+  claimOutcome = 'settled',
   explorerURL,
   onDone,
 }: TProps) => {
@@ -26,10 +29,14 @@ export const ClaimTopUpSuccess = ({
       <ViewContent withIcon="success">
         <div className={styles.successContent}>
           <p className={styles.successMessage}>
-            {t(`lightning.claimTopUp.success.${action}Message`)}
+            {action === 'claim'
+              ? t(`lightning.claimTopUp.success.${claimOutcome}Message`)
+              : t('lightning.claimTopUp.success.refundMessage')}
           </p>
           <p className={styles.successNote}>
-            {t(`lightning.claimTopUp.success.${action}Note`)}
+            {action === 'claim'
+              ? t(`lightning.claimTopUp.success.${claimOutcome}Note`)
+              : t('lightning.claimTopUp.success.refundNote')}
           </p>
           {explorerURL && (
             <A className={styles.transactionButton} href={explorerURL}>

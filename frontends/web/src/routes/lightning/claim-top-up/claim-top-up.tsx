@@ -35,7 +35,7 @@ const matchesBitcoinDeposit = (
   paymentID: string,
 ) => {
   const bitcoinDeposit = payment.bitcoinDeposit;
-  return bitcoinDeposit?.state === 'unclaimed'
+  return (bitcoinDeposit?.state === 'unclaimed' || bitcoinDeposit?.state === 'refundPending')
     && payment.id === paymentID;
 };
 
@@ -51,7 +51,7 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
   const [refundDestinationAccountCode, setRefundDestinationAccountCode] = useState<AccountCode>(btcAccounts[0]?.code || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [recoveryError, setRecoveryError] = useState<string>();
-  const [txID, setTxID] = useState<string>();
+  const [recoveryResult, setRecoveryResult] = useState<TTopUpRecoveryResult>();
   const mounted = useMountedRef();
   const isSubmittingRef = useRef(false);
   const isClaim = action === 'claim';
@@ -69,7 +69,7 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
   );
   const refundDestinationAccount = btcAccounts.find(account => account.code === refundDestinationAccountCode);
   const successTxPrefix = isClaim ? btcAccounts[0]?.blockExplorerTxPrefix : refundDestinationAccount?.blockExplorerTxPrefix;
-  const successExplorerURL = txID && successTxPrefix ? `${successTxPrefix}${txID}` : undefined;
+  const successExplorerURL = recoveryResult?.txId && successTxPrefix ? `${successTxPrefix}${recoveryResult.txId}` : undefined;
 
   useEffect(() => {
     if (!btcAccounts.length) {
@@ -117,7 +117,7 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
       if (!mounted.current) {
         return;
       }
-      setTxID(result.txId);
+      setRecoveryResult(result);
       setStep('success');
     } catch (error) {
       if (!mounted.current) {
@@ -135,6 +135,7 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
       }
       console.error('Failed to recover Lightning top-up', error);
       setRecoveryError(errorMessage);
+      reloadDeposit();
       setStep('failure');
     } finally {
       isSubmittingRef.current = false;
@@ -167,13 +168,11 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
   );
 
   const renderContent = () => {
-    if (deposit === undefined) {
-      return <Spinner text={t('lightning.initializing')} />;
-    }
     if (step === 'success') {
       return (
         <ClaimTopUpSuccess
           action={action}
+          claimOutcome={recoveryResult?.claimOutcome}
           explorerURL={successExplorerURL}
           onDone={() => navigate('/lightning')}
         />
@@ -188,6 +187,9 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
           onRefund={canStartRefund ? tryRefundAfterClaimFailure : undefined}
         />
       );
+    }
+    if (deposit === undefined) {
+      return <Spinner text={t('lightning.initializing')} />;
     }
     if (step === 'confirm') {
       return (
