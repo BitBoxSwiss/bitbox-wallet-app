@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'wouter';
 import { useAppState } from '@/contexts/app-state-context';
 import { Message } from '@/components/message/message';
 import { useLoad } from '@/hooks/api';
@@ -36,7 +36,6 @@ type TRouteParams = {
 export const XPubDetail = () => {
   const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { activeAccounts } = useAppState();
 
   const infoResponse = useLoad(getInfo(code));
@@ -81,7 +80,7 @@ export const XPubDetail = () => {
             variant="navigation"
             hideSidebarToggler
             mobileBackButton
-            onBack={() => navigate(-1)}
+            onBack={() => history.back()}
             title={t('accountInfo.accountDetails')}
           />
           <View fullscreen={false}>

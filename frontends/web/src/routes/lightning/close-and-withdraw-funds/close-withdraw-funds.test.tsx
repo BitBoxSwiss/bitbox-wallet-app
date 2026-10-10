@@ -3,7 +3,7 @@
 import '../../../../__mocks__/i18n';
 import type { ReactNode } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Switch } from 'wouter';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TAccount, TAmountWithConversions } from '@/api/account';
 import * as keystoresApi from '@/api/keystores';
@@ -13,6 +13,7 @@ import { open } from '@/api/system';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { LightningCloseWithdrawFunds } from './close-withdraw-funds';
 import { AppStateContext } from '@/contexts/app-state-context';
+import { MemoryRouter } from '@/utils/test-helpers';
 
 vi.mock('@/i18n/i18n');
 
@@ -88,8 +89,11 @@ const setMobileViewport = () => {
 };
 
 const SettingsPage = () => {
-  const navigate = useNavigate();
-  return <button onClick={() => navigate(-1)}>settings back</button>;
+  return (
+    <button onClick={() => window.history.back()}>
+      settings back
+    </button>
+  );
 };
 
 describe('Lightning Close & Withdraw', () => {
@@ -140,13 +144,13 @@ describe('Lightning Close & Withdraw', () => {
               hasLightningAccount: false,
             }}
           >
-            <Routes>
-              <Route path="/" element={<span>portfolio</span>} />
+            <Switch>
+              <Route path="/" component={() => <span>portfolio</span>} />
               <Route
                 path="/lightning/close-withdraw-funds"
-                element={<LightningCloseWithdrawFunds />}
+                component={LightningCloseWithdrawFunds}
               />
-            </Routes>
+            </Switch>
           </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
@@ -178,13 +182,13 @@ describe('Lightning Close & Withdraw', () => {
               hasLightningAccount: false,
             }}
           >
-            <Routes>
+            <Switch>
               <Route
                 path="/lightning/close-withdraw-funds"
-                element={<LightningCloseWithdrawFunds />}
+                component={LightningCloseWithdrawFunds}
               />
-              <Route path="/settings/manage-accounts" element={<span>manage accounts page</span>} />
-            </Routes>
+              <Route path="/settings/manage-accounts" component={() => <span>manage accounts page</span>} />
+            </Switch>
           </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
@@ -465,14 +469,14 @@ describe('Lightning Close & Withdraw', () => {
               hasLightningAccount: false,
             }}
           >
-            <Routes>
-              <Route path="/settings/advanced-settings" element={<span>advanced settings</span>} />
-              <Route path="/settings/lightning-settings" element={<SettingsPage />} />
+            <Switch>
+              <Route path="/settings/advanced-settings" component={() => <span>advanced settings</span>} />
+              <Route path="/settings/lightning-settings" component={SettingsPage} />
               <Route
                 path="/lightning/close-withdraw-funds"
-                element={<LightningCloseWithdrawFunds />}
+                component={LightningCloseWithdrawFunds}
               />
-            </Routes>
+            </Switch>
           </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
@@ -514,14 +518,14 @@ describe('Lightning Close & Withdraw', () => {
               hasLightningAccount: false,
             }}
           >
-            <Routes>
-              <Route path="/settings/advanced-settings" element={<span>advanced settings</span>} />
-              <Route path="/settings/lightning-settings" element={<SettingsPage />} />
+            <Switch>
+              <Route path="/settings/advanced-settings" component={() => <span>advanced settings</span>} />
+              <Route path="/settings/lightning-settings" component={SettingsPage} />
               <Route
                 path="/lightning/close-withdraw-funds"
-                element={<LightningCloseWithdrawFunds />}
+                component={LightningCloseWithdrawFunds}
               />
-            </Routes>
+            </Switch>
           </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>

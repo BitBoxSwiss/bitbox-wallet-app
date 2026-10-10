@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'wouter';
 import { useAppState } from '@/contexts/app-state-context';
 import { SubTitle } from '@/components/title';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';

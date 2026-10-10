@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useLocation } from 'wouter';
 import { TokenListItem } from '@/components/token-list-item/token-list-item';
 import { CoinCode, TAccount, TAmountWithConversions } from '@/api/account';
-import { useNavigate } from 'react-router-dom';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Balances } from './accountssummary';
@@ -40,7 +40,7 @@ const getCoinLineColor = (coinCode: CoinCode): string => {
 
 export const AssetBalanceWithLine = ({ account, coinCode, isFirst, balances }: Props) => {
   const lineColor = getCoinLineColor(coinCode);
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const balance = balances?.[account.code];
 
   return (

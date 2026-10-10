@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'wouter';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
 import { AccountCode, TAccount } from '@/api/account';
@@ -24,8 +24,8 @@ type TView = 'list' | 'verify';
 
 export const AddressesContent = ({ code, accounts }: TAddressesContentProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [location, navigate] = useLocation();
+  const { pathname } = new URL(location, window.location.origin);
   const { addressID } = useParams<{ addressID?: string }>();
   const [usedAddressesLoadAttempt, setUsedAddressesLoadAttempt] = useState(0);
 
@@ -38,7 +38,7 @@ export const AddressesContent = ({ code, accounts }: TAddressesContentProps) => 
   const [expandedAddressID, setExpandedAddressID] = useState<string | null>(addressID || null);
   const [changeCopyWarningAddress, setChangeCopyWarningAddress] = useState<accountApi.TUsedAddress | null>(null);
 
-  const isVerifyView = !!addressID && location.pathname.endsWith('/verify');
+  const isVerifyView = !!addressID && pathname.endsWith('/verify');
   const view: TView = isVerifyView ? 'verify' : 'list';
   const receivePath = `/account/${code}/receive`;
 
@@ -183,7 +183,6 @@ type TRouteParams = {
 export const Addresses = () => {
   const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { activeAccounts } = useAppState();
 
   return (
@@ -192,7 +191,7 @@ export const Addresses = () => {
         variant="navigation"
         hideSidebarToggler
         mobileBackButton
-        onBack={() => navigate(-1)}
+        onBack={() => window.history.back()}
         title={t('addresses.title')}
       />
       <View fullscreen={false}>

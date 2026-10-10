@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import * as accountAPI from '@/api/account';
 import { Button } from '@/components/forms';
 import { AnimatedChecked } from '@/components/icon';
@@ -12,7 +12,7 @@ type TProps = {
 };
 
 export const WCSuccessPairing = ({ accountCode }: TProps) => {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { t } = useTranslation();
   return (
     <div className={styles.container}>

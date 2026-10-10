@@ -2,6 +2,7 @@
 
 import { type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'wouter';
 import * as accountApi from '../../api/account';
 import {
   TLightningBalance,
@@ -28,7 +29,6 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { useLoad, useSubscribe } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { useLightning } from '@/hooks/lightning';
-import { Link } from 'react-router-dom';
 import {
   formatExcessLightningFundingLimit,
   formatLightningFundingLimit,

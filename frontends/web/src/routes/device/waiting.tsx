@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { i18n } from '@/i18n/i18n';
 import { getDeviceList } from '@/api/devices';
 import { syncDeviceList } from '@/api/devicessync';
@@ -28,7 +28,7 @@ export const Waiting = () => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   const keystores = useKeystores();
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});

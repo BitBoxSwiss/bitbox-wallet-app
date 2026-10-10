@@ -7,15 +7,20 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { MarketTab } from './markettab';
-import { AppStateContext } from '@/contexts/app-state-context';
+import { AppStateContext, type TAppState } from '@/contexts/app-state-context';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { useMarketContext } from '@/routes/market/market-context';
 
 const mockNavigate = vi.hoisted(() => vi.fn());
 
-vi.mock('react-router-dom', () => ({
-  useNavigate: () => mockNavigate,
-}));
+vi.mock('wouter', async () => {
+  const actual = await vi.importActual<typeof import('wouter')>('wouter');
+
+  return {
+    ...actual,
+    useLocation: () => ['', mockNavigate],
+  };
+});
 
 vi.mock('@/contexts/ConfigProvider', () => ({
   useConfig: vi.fn(() => ({
@@ -36,13 +41,27 @@ vi.mock('@/routes/market/market-context', () => ({
 const mockUseConfig = vi.mocked(useConfig);
 const mockUseMarketContext = vi.mocked(useMarketContext);
 
+const appState: TAppState = {
+  accounts: [],
+  activeAccounts: [],
+  deviceIDs: [],
+  devices: {},
+  hasAccounts: false,
+  hasBottomNavigation: false,
+  hasDevices: false,
+  lightningAccount: undefined,
+  hasLightningAccount: false,
+};
+
 describe('routes/market/components/markettab', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
     mockUseConfig.mockReturnValue({
       config: { frontend: {}, backend: {} } as TConfig,
       setConfig: vi.fn(),
     });
+
     mockUseMarketContext.mockReturnValue({
       regions: [],
       selectedRegion: '',
@@ -63,24 +82,9 @@ describe('routes/market/components/markettab', () => {
     });
 
     render(
-      <AppStateContext.Provider
-        value={{
-          accounts: [],
-          activeAccounts: [],
-          deviceIDs: [],
-          devices: {},
-          hasAccounts: false,
-          hasBottomNavigation: false,
-          hasDevices: false,
-          lightningAccount: undefined,
-          hasLightningAccount: false,
-        }}
-      >
-        <MarketTab
-          activeTab="buy"
-          code="code-123"
-        />
-      </AppStateContext.Provider>
+      <AppStateContext.Provider value={appState}>
+        <MarketTab activeTab="buy" code="code-123" />
+      </AppStateContext.Provider>,
     );
 
     expect(await screen.findByTestId('swap-new-badge')).toBeInTheDocument();
@@ -98,24 +102,9 @@ describe('routes/market/components/markettab', () => {
     });
 
     render(
-      <AppStateContext.Provider
-        value={{
-          accounts: [],
-          activeAccounts: [],
-          deviceIDs: [],
-          devices: {},
-          hasAccounts: false,
-          hasBottomNavigation: false,
-          hasDevices: false,
-          lightningAccount: undefined,
-          hasLightningAccount: false,
-        }}
-      >
-        <MarketTab
-          activeTab="buy"
-          code="code-234"
-        />
-      </AppStateContext.Provider>
+      <AppStateContext.Provider value={appState}>
+        <MarketTab activeTab="buy" code="code-234" />
+      </AppStateContext.Provider>,
     );
 
     expect(screen.queryByTestId('swap-new-badge')).not.toBeInTheDocument();
@@ -125,58 +114,36 @@ describe('routes/market/components/markettab', () => {
     const user = userEvent.setup();
 
     render(
-      <AppStateContext.Provider
-        value={{
-          accounts: [],
-          activeAccounts: [],
-          deviceIDs: [],
-          devices: {},
-          hasAccounts: false,
-          hasBottomNavigation: false,
-          hasDevices: false,
-          lightningAccount: undefined,
-          hasLightningAccount: false,
-        }}
-      >
-        <MarketTab
-          activeTab="buy"
-          code="code-345"
-        />
-      </AppStateContext.Provider>
+      <AppStateContext.Provider value={appState}>
+        <MarketTab activeTab="buy" code="code-345" />
+      </AppStateContext.Provider>,
     );
 
-    await user.click(screen.getByRole('button', { name: /generic\.swap/ }));
+    await user.click(
+      screen.getByRole('button', { name: /generic\.swap/ }),
+    );
 
-    expect(mockNavigate).toHaveBeenCalledWith('/market/select/code-345?tab=swap');
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/market/select/code-345?tab=swap',
+    );
   });
 
   it('navigates to bitsurance when insure is clicked', async () => {
     const user = userEvent.setup();
 
     render(
-      <AppStateContext.Provider
-        value={{
-          accounts: [],
-          activeAccounts: [],
-          deviceIDs: [],
-          devices: {},
-          hasAccounts: false,
-          hasBottomNavigation: false,
-          hasDevices: false,
-          lightningAccount: undefined,
-          hasLightningAccount: false,
-        }}
-      >
-        <MarketTab
-          activeTab="buy"
-          code="code-456"
-        />
-      </AppStateContext.Provider>
+      <AppStateContext.Provider value={appState}>
+        <MarketTab activeTab="buy" code="code-456" />
+      </AppStateContext.Provider>,
     );
 
-    await user.click(screen.getByRole('button', { name: /generic\.insure/ }));
+    await user.click(
+      screen.getByRole('button', { name: /generic\.insure/ }),
+    );
 
-    expect(mockNavigate).toHaveBeenCalledWith('/market/bitsurance/code-456');
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/market/bitsurance/code-456',
+    );
   });
 
   it('shows the new badge on otc when enabled', async () => {
@@ -191,24 +158,9 @@ describe('routes/market/components/markettab', () => {
     });
 
     render(
-      <AppStateContext.Provider
-        value={{
-          accounts: [],
-          activeAccounts: [],
-          deviceIDs: [],
-          devices: {},
-          hasAccounts: false,
-          hasBottomNavigation: false,
-          hasDevices: false,
-          lightningAccount: undefined,
-          hasLightningAccount: false,
-        }}
-      >
-        <MarketTab
-          activeTab="buy"
-          code="code-567"
-        />
-      </AppStateContext.Provider>
+      <AppStateContext.Provider value={appState}>
+        <MarketTab activeTab="buy" code="code-567" />
+      </AppStateContext.Provider>,
     );
 
     expect(await screen.findByTestId('otc-new-badge')).toBeInTheDocument();

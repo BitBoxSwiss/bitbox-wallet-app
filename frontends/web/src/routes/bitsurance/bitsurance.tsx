@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
-import { AccountCode, TAccount } from '@/api/account';
+import { useLocation, useParams } from 'wouter';
+import type { AccountCode, TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { useAppState } from '@/contexts/app-state-context';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
@@ -25,9 +25,9 @@ type TRouteParams = {
 
 export const Bitsurance = () => {
   const { code = '' } = useParams<TRouteParams>();
-  const navigate = useNavigate();
   const { activeAccounts } = useAppState();
   const { t } = useTranslation();
+  const [, navigate] = useLocation();
   const { isDarkMode } = useDarkmode();
 
   const [insuredAccounts, setInsuredAccounts] = useState<TAccount[]>([]);

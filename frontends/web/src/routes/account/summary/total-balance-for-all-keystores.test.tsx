@@ -2,9 +2,9 @@
 
 import '../../../../__mocks__/i18n';
 import { ReactNode } from 'react';
-import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from '@/utils/test-helpers';
 import type { CoinCode, CoinFormattedAmount, CoinUnit, Fiat, TChartData } from '@/api/account';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';

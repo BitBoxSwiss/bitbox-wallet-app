@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ComponentPropsWithoutRef, ReactNode } from 'react';
-import { Link, LinkProps } from 'react-router-dom';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
+import { Link } from 'wouter';
 import style from './button.module.css';
 
 type TButtonStyleProp =
@@ -23,7 +23,11 @@ type TProps = TButtonStyleProp & {
   inline?: boolean;
 };
 
-type TButtonLink = LinkProps & TProps;
+type TButtonLink = TProps & {
+  className?: string;
+  to: string;
+  onClick?: ComponentPropsWithoutRef<typeof Link>['onClick'];
+};
 
 export const ButtonLink = ({
   primary,
@@ -34,6 +38,7 @@ export const ButtonLink = ({
   children,
   disabled,
   inline,
+  to,
   ...props
 }: TButtonLink) => {
   const classNames = `
@@ -59,6 +64,7 @@ export const ButtonLink = ({
   }
   return (
     <Link
+      to={to}
       className={classNames}
       {...props}>
       {children}

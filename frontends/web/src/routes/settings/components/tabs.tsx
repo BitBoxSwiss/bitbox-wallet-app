@@ -2,7 +2,8 @@
 
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
+import { NavLink } from '@/utils/router-compatability';
 import type { TPlatformName } from '@/api/devices';
 import { useLoad } from '@/hooks/api';
 import { useAppState } from '@/contexts/app-state-context';
@@ -134,7 +135,7 @@ export const Tab = ({
   canUpgrade,
   icon,
 }: TTab) => {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const upgradeDot = (

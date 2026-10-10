@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useParams } from 'react-router-dom';
+import { useParams } from 'wouter';
 import type { AccountCode } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { findAccount } from '@/routes/account/utils';

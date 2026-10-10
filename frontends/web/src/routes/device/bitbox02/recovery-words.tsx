@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'wouter';
 import { showMnemonic } from '@/api/bitbox02';
 import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -24,7 +24,6 @@ type TStatus = 'info' | 'progress' | 'success';
 export const RecoveryWords = () => {
   const { deviceID = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const [status, setStatus] = useState<TStatus>('info');
   const [agree, setAgree] = useState<boolean>(false);
@@ -33,10 +32,10 @@ export const RecoveryWords = () => {
   const confirmShowWords = async () => {
     setStatus('progress');
     await showMnemonic(deviceID);
-    navigate(-1);
+    history.back();
   };
 
-  const handleAbort = () => navigate(-1);
+  const handleAbort = () => history.back();
 
   if (status === 'progress') {
     return (

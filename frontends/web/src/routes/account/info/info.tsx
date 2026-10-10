@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'wouter';
 import { useSync } from '@/hooks/api';
 import { useAppState } from '@/contexts/app-state-context';
 import { useMountedRef } from '@/hooks/mount';
@@ -28,7 +28,7 @@ export const Info = () => {
   const { t } = useTranslation();
   const { activeAccounts } = useAppState();
   const { isDarkMode } = useDarkmode();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const status: TStatus | undefined = useSync(
     () => getStatus(code),
     cb => statusChanged(code, cb),
@@ -91,7 +91,7 @@ export const Info = () => {
         variant="navigation"
         hideSidebarToggler
         mobileBackButton
-        onBack={() => navigate(-1)}
+        onBack={() => history.back()}
         title={t('accountInfo.title')}
       />
       <View fullscreen={false}>

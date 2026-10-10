@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useCallback, useContext, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { Button, Input, NumberInput, OptionalLabel } from '@/components/forms';
@@ -20,7 +21,6 @@ import { Spinner } from '@/components/spinner/Spinner';
 import { Checked, Copy, CreateInvoice } from '@/components/icon';
 import { FormattedAmount } from '@/components/amount/amount';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
-import { useNavigate } from 'react-router-dom';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useSync } from '@/hooks/api';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
@@ -36,7 +36,7 @@ import styles from './receive.module.css';
 
 export function Receive() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { defaultCurrency } = useContext(RatesContext);
   const {
     amount: invoiceAmount,

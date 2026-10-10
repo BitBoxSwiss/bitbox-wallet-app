@@ -2,7 +2,6 @@
 
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
 import { Header, Main } from '@/components/layout';
@@ -76,13 +75,12 @@ export const LightningDisclaimerContent = ({ children, title }: TProps) => {
 
 export const LightningDisclaimer = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   return (
     <Main>
       <Header variant="navigation" mobileBackButton title={t('lightning.disclaimer.title')} />
       <LightningDisclaimerContent>
-        <Button primary onClick={() => navigate(-1)}>
+        <Button primary onClick={() => history.back()}>
           {t('button.done')}
         </Button>
       </LightningDisclaimerContent>

@@ -3,7 +3,7 @@
 import 'flag-icons';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useParams, useSearchParams } from 'wouter';
 import { SingleValue } from 'react-select';
 import * as marketAPI from '@/api/market';
 import { getSwapStatus } from '@/api/swap';
@@ -48,7 +48,7 @@ export const Market = () => {
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   const { config, setConfig } = useConfig();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const {
     regions,
     selectedRegion,

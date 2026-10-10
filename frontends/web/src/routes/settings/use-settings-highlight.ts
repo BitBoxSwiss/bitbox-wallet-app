@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'wouter';
 import { SETTINGS_HIGHLIGHT_QUERY_PARAM } from './settings-search';
 
 const HIGHLIGHT_DURATION_MS = 2700;

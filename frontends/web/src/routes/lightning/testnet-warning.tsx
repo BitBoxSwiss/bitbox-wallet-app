@@ -2,7 +2,7 @@
 
 import { ReactNode, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button, Checkbox } from '@/components/forms';
 import { Header, Main } from '@/components/layout';
@@ -54,8 +54,7 @@ type TProps = {
 
 export const LightningTestnetGuard = ({ active, children }: TProps) => {
   const { isTesting, sessionConfig, updateSessionConfig } = useContext(AppContext);
-  const { key } = useLocation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   if (!active) {
     return children;
@@ -68,10 +67,10 @@ export const LightningTestnetGuard = ({ active, children }: TProps) => {
   }
 
   const cancel = () => {
-    if (key === 'default') {
-      navigate('/', { replace: true });
+    if (window.history.length > 1) {
+      history.back();
     } else {
-      navigate(-1);
+      navigate('/', { replace: true });
     }
   };
 

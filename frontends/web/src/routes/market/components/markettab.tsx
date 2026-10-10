@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import type { AccountCode } from '@/api/account';
 import type { TMarketAction } from '@/api/market';
 import { useAppState } from '@/contexts/app-state-context';
@@ -22,7 +22,7 @@ export const MarketTab = ({
   code,
 }: TProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { activeAccounts } = useAppState();
   const { showSwap } = useMarketContext();
 
