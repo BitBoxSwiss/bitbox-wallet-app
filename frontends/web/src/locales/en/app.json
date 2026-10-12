@@ -849,6 +849,12 @@
       },
       "title": "Device information"
     },
+    "deviceLanguage": {
+      "description": "Change the language used on your BitBox.",
+      "error_104": "Changing the device language was aborted.",
+      "success": "Device language changed successfully.",
+      "title": "Change device language"
+    },
     "deviceSettings": {
       "title": "Device settings"
     },

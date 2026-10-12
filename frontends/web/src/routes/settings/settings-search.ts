@@ -6,6 +6,7 @@ import type { TDevices } from '@/api/devices';
 import {
   isBluetoothToggleSettingVisible,
   isDeviceBluetoothSupported,
+  isDeviceLanguageSupported,
   isDeviceSettingsVisible,
   isExportLogsSettingVisible,
   isLightningSettingVisible,
@@ -219,6 +220,13 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
     isAvailable: ({ devices }) => isDeviceSettingsVisible(devices),
     getTitle: ({ t }) => t('bitbox02Settings.deviceName.input'),
     getDescription: ({ t }) => t('deviceSettings.deviceInformation.deviceName.description'),
+    page: 'device',
+  },
+  {
+    id: 'device-language',
+    isAvailable: ({ deviceInfo }) => isDeviceLanguageSupported(deviceInfo),
+    getTitle: ({ t }) => t('deviceSettings.deviceLanguage.title'),
+    getDescription: ({ t }) => t('deviceSettings.deviceLanguage.description'),
     page: 'device',
   },
   {

@@ -20,6 +20,7 @@ import { BluetoothToggleEnabledSetting } from './components/device-settings/blue
 import { ChangeDevicePasswordSetting } from './components/device-settings/change-password-setting';
 import { SecureChipSetting } from './components/device-settings/secure-chip-setting';
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
+import { DeviceLanguageSetting } from './components/device-settings/device-language-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
 import { RootFingerprintSetting } from './components/device-settings/root-fingerprint-setting';
 import { Bip85Setting } from './components/device-settings/bip85-setting';
@@ -29,6 +30,7 @@ import { SubTitle } from '@/components/title';
 import {
   isBluetoothToggleSettingVisible,
   isDeviceBluetoothSupported,
+  isDeviceLanguageSupported,
 } from './settings-availability';
 import styles from './bb02-settings.module.css';
 
@@ -118,6 +120,17 @@ export const ManageDeviceSettingsContent = ({
             <StyledSkeleton />
           ),
         },
+        ...(isDeviceLanguageSupported(deviceInfo) ? [{
+          id: 'device-language',
+          content: (
+            <DeviceLanguageSetting
+              key={deviceID}
+              deviceID={deviceID}
+              language={deviceInfo.language}
+              supportedLanguages={deviceInfo.supportedLanguages}
+            />
+          ),
+        }] : []),
         ...(isBluetoothToggleSettingVisible(deviceInfo) ? [{
           id: 'bluetooth',
           content: <BluetoothToggleEnabledSetting deviceID={deviceID} />,

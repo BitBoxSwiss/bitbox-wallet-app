@@ -34,6 +34,10 @@ message DeviceInfoResponse {
   // From v9.25.0. This together with `securechip_model` determines the password stretching
   // algorithm.
   string password_stretching_algo = 8;
+  // Current UI language code, e.g. "en" or "de". Empty on firmware without language support.
+  string language = 10;
+  // Empty on firmware without supported-language reporting.
+  repeated string supported_languages = 11;
 }
 
 message InsertRemoveSDCardRequest {

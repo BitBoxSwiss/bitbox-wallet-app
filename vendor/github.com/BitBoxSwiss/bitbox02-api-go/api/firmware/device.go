@@ -116,10 +116,14 @@ type BluetoothInfo struct {
 
 // DeviceInfo is the data returned from the device info api call.
 type DeviceInfo struct {
-	Name                      string `json:"name"`
-	Version                   string `json:"version"`
-	Initialized               bool   `json:"initialized"`
-	MnemonicPassphraseEnabled bool   `json:"mnemonicPassphraseEnabled"`
+	// Current UI language code; empty if the firmware does not support device languages.
+	Language string `json:"language,omitempty"`
+	// Empty if the firmware does not report supported UI languages.
+	SupportedLanguages        []string `json:"supportedLanguages,omitempty"`
+	Name                      string   `json:"name"`
+	Version                   string   `json:"version"`
+	Initialized               bool     `json:"initialized"`
+	MnemonicPassphraseEnabled bool     `json:"mnemonicPassphraseEnabled"`
 	// This information is only available since firmwae v9.6.0. Will be an empty string for older
 	// firmware versions.
 	SecurechipModel string `json:"securechipModel"`
