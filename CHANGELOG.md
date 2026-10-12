@@ -16,6 +16,7 @@
 - Add eye toggles to the optional passphrase and test wallet password fields, with paste allowed while hidden
 - iOS: block third-party keyboards to protect revealed passwords and passphrases
 - Add dedicated view listing third-party attributions under about/licenses
+- Find setting items by descriptions and show description also on mobile
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1
