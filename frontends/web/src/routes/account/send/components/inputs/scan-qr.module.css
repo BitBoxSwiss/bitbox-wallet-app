@@ -239,3 +239,32 @@
 .contentSlot > * {
   pointer-events: auto;
 }
+
+:global(html[data-native-qr]),
+:global(html[data-native-qr] body) {
+  background: transparent;
+}
+
+.native.backdrop,
+.native .container {
+  background: transparent;
+}
+
+.native .container {
+  box-shadow: 0 0 0 100vmax var(--scan-qr-backdrop-background);
+}
+
+.nativePreview {
+  width: 100%;
+  height: 100%;
+  background: var(--scan-qr-background);
+  touch-action: none;
+}
+
+.previewReady {
+  background: transparent;
+}
+
+.native .contentSlot > * {
+  pointer-events: none;
+}
