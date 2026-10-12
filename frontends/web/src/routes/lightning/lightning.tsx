@@ -97,13 +97,15 @@ const LightningPageLayout = ({
           >
             <HideAmountsButton />
           </Header>
-          <Status dismissibleKey="" type="warning" hidden={!showFundingLimitWarning}>
-            {t('lightning.limit.accountWarning', {
-              excess: formatExcessLightningFundingLimit(fundingLimit),
-              limit: formatLightningFundingLimit(fundingLimit),
-            })}{' '}
-            <Link to="/lightning/send">{t('lightning.limit.moveCoins')}</Link>
-          </Status>
+          <ContentWrapper>
+            <Status dismissibleKey="" type="warning" hidden={!showFundingLimitWarning}>
+              {t('lightning.limit.accountWarning', {
+                excess: formatExcessLightningFundingLimit(fundingLimit),
+                limit: formatLightningFundingLimit(fundingLimit),
+              })}{' '}
+              <Link to="/lightning/send">{t('lightning.limit.moveCoins')}</Link>
+            </Status>
+          </ContentWrapper>
           <View>
             <ViewHeader>
               <div className={accountStyle.balanceHeader}>

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import type { TPagePropsWithSettingsTabs } from '../settings/types';
 import { Bluetooth } from '@/components/bluetooth/bluetooth';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { ViewContent, View } from '@/components/view/view';
@@ -9,10 +8,7 @@ import { WithSettingsTabs } from '@/routes/settings/components/tabs';
 import { ManageDeviceGuide } from './bitbox02/settings-guide';
 import styles from './no-device-connected.module.css';
 
-export const NoDeviceConnected = ({
-  devices,
-  hasAccounts,
-}: TPagePropsWithSettingsTabs) => {
+export const NoDeviceConnected = () => {
   const { t } = useTranslation();
 
   return (
@@ -28,11 +24,7 @@ export const NoDeviceConnected = ({
           />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs
-                devices={devices}
-                hideMobileMenu
-                hasAccounts={hasAccounts}
-              >
+              <WithSettingsTabs hideMobileMenu>
                 <div className={styles.noDevice}>
                   {t('deviceSettings.noDevice')}
                 </div>

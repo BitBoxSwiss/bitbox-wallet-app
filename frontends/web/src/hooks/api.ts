@@ -109,8 +109,16 @@ export const useSync = <T>(
         setResponse(undefined);
         return;
       }
-      apiCall().then(onData);
-      return subscription(onData);
+      let subscriptionReceived = false;
+      apiCall().then((data) => {
+        if (!subscriptionReceived || getRevision !== undefined) {
+          onData(data);
+        }
+      });
+      return subscription((data) => {
+        subscriptionReceived = true;
+        onData(data);
+      });
     }, // we pass no dependencies because it's only queried once
     []); // eslint-disable-line react-hooks/exhaustive-deps
   return response;

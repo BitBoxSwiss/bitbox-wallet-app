@@ -62,12 +62,7 @@ export type TRequestDialogContent = {
 
 export type TSignDialogResult = {
   success: true;
-} | {
-  success: false;
-  aborted?: boolean;
-  errorCode?: 'firmwareUpgradeRequired';
-  errorMessage?: string;
-};
+} | TFailedSigningApiResult;
 
 export type TLaunchSignDialog = {
   accountCode: AccountCode;
@@ -90,7 +85,7 @@ type TAccountDetails = {
 type TFailedSigningApiResult = {
   success: false;
   aborted?: boolean;
-  errorCode?: 'firmwareUpgradeRequired';
+  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds' | 'broadcastUncertain';
   errorMessage?: string;
 };
 
@@ -190,23 +185,26 @@ const getAccountDetails = async (address: string): Promise<TAccountDetails | und
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : t('pairing.error.text');
 
-const runSigningApi = async <T extends { success: true }>(
+const runSigningApi = async <T extends TSignDialogResult>(
   id: number,
   respond: TRespondSessionRequest,
-  apiCall: () => Promise<T | TFailedSigningApiResult>,
-  getResult: (result: T) => unknown,
+  apiCall: () => Promise<T>,
+  getResult: (result: Extract<T, { success: true }>) => unknown,
 ): Promise<TSignDialogResult> => {
   try {
     const result = await apiCall();
     if (!result.success) {
       await respond(jsonRpcError(
         id,
-        result.aborted ? getSdkError('USER_REJECTED') : APPLICATION_ERROR,
+        result.aborted ? getSdkError('USER_REJECTED') : result.errorCode === 'broadcastUncertain' ? {
+          code: APPLICATION_ERROR.code,
+          message: 'Transaction submission is uncertain and may still confirm. Check its status before sending again.',
+        } : APPLICATION_ERROR,
       ));
       return result;
     }
 
-    await respond(jsonRpcResult(id, getResult(result as T)));
+    await respond(jsonRpcResult(id, getResult(result as Extract<T, { success: true }>)));
     return { success: true };
   } catch (error) {
     console.error('WalletConnect signing request failed', error);

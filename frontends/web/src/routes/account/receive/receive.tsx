@@ -2,13 +2,17 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { AppContext } from '@/contexts/AppContext';
+import { useAppState } from '@/contexts/app-state-context';
 import { useLoad } from '@/hooks/api';
+import { useEthAccountActivity } from '@/hooks/account-activity';
 import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
 import { setAccountReceiveScriptType } from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
-import { getScriptName, isEthereumBased } from '@/routes/account/utils';
+import { getScriptName } from '@/routes/account/utils';
+import { isEthereumBased } from '@/utils/coin';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
@@ -21,11 +25,6 @@ import { QRCode } from '@/components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
 import { connectKeystore } from '@/api/keystores';
 import style from './receive.module.css';
-
-type TProps = {
-  accounts: accountApi.TAccount[];
-  code: accountApi.AccountCode;
-};
 
 type TAddressTypeDialogProps = {
   open: boolean;
@@ -126,11 +125,15 @@ const getReceiveScriptTypeIndex = (
   return scriptTypeIndex >= 0 ? scriptTypeIndex : 0;
 };
 
-export const Receive = ({
-  accounts,
-  code,
-}: TProps) => {
+type TProps = {
+  code: accountApi.AccountCode;
+};
+
+export const Receive = () => {
+  const { code = '' } = useParams<TProps>();
   const { t } = useTranslation();
+  const { activeAccounts } = useAppState();
+
   const [verifying, setVerifying] = useState<false | 'secure' | 'insecure'>(false);
   const [firmwareUpgradeRequired, setFirmwareUpgradeRequired] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -140,8 +143,9 @@ export const Receive = ({
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.TReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
-  const account = accounts.find(({ code: accountCode }) => accountCode === code);
+  const account = activeAccounts.find(({ code: accountCode }) => accountCode === code);
   const insured = account?.bitsuranceStatus === 'active';
+  useEthAccountActivity(code, account?.coinCode);
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));

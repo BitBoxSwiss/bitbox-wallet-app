@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/bitbox02bootloader"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	bitbox02common "github.com/BitBoxSwiss/bitbox02-api-go/api/common"
@@ -25,6 +26,9 @@ type BitBox02 interface {
 	Status() firmware.Status
 	ChannelHash() (string, bool)
 	ChannelHashVerify(ok bool)
+	PassphraseState() bitbox02.PassphraseState
+	RequestHostPassphrase(id string) bool
+	SubmitHostPassphrase(id string, passphrase *string) error
 	DeviceInfo() (*firmware.DeviceInfo, error)
 	SetDeviceName(deviceName string) error
 	SetPassword(seedLen int) error
@@ -65,6 +69,9 @@ func NewHandlers(
 	handleFunc("/attestation", handlers.getAttestationHandler).Methods("GET")
 	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
 	handleFunc("/channel-hash-verify", handlers.postChannelHashVerify).Methods("POST")
+	handleFunc("/passphrase", handlers.getPassphrase).Methods("GET")
+	handleFunc("/passphrase/request", handlers.postRequestHostPassphrase).Methods("POST")
+	handleFunc("/passphrase/submit", handlers.postSubmitHostPassphrase).Methods("POST")
 	handleFunc("/info", handlers.getDeviceInfo).Methods("GET")
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
@@ -123,6 +130,39 @@ func maybeBB02Err(err error, log *logrus.Entry) bitbox02Response {
 
 func (handlers *Handlers) getStatusHandler(_ *http.Request) interface{} {
 	return handlers.device.Status()
+}
+
+func (handlers *Handlers) getPassphrase(_ *http.Request) interface{} {
+	return handlers.device.PassphraseState()
+}
+
+func (handlers *Handlers) postRequestHostPassphrase(r *http.Request) interface{} {
+	var request struct {
+		ID string `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return bitbox02Response{Success: false}
+	}
+	return bitbox02Response{Success: handlers.device.RequestHostPassphrase(request.ID)}
+}
+
+func (handlers *Handlers) postSubmitHostPassphrase(r *http.Request) interface{} {
+	type response struct {
+		Success   bool           `json:"success"`
+		ErrorCode errp.ErrorCode `json:"errorCode,omitempty"`
+	}
+	var request struct {
+		ID         string  `json:"id"`
+		Passphrase *string `json:"passphrase"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false}
+	}
+	if err := handlers.device.SubmitHostPassphrase(request.ID, request.Passphrase); err != nil {
+		code, _ := errp.Cause(err).(errp.ErrorCode)
+		return response{Success: false, ErrorCode: code}
+	}
+	return response{Success: true}
 }
 
 func (handlers *Handlers) getAttestationHandler(_ *http.Request) interface{} {

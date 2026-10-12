@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import type { CoinUnit, ConversionUnit, TAmountWithConversions } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Amount } from '@/components/amount/amount';
-import { isBitcoinCoin, isBitcoinCoinBased } from '@/routes/account/utils';
+import { isBitcoinCoin, isBitcoinCoinBased } from '@/utils/coin';
 import style from './amount-with-unit.module.css';
 
 type TAmountWithUnitProps = {

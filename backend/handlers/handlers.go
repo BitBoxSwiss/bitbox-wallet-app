@@ -105,11 +105,12 @@ type Backend interface {
 	ExportLogs() error
 	ExportNotes() error
 	ImportNotes(jsonLines []byte) (*backend.ImportNotesResult, error)
-	ChartData() (*backend.Chart, error)
+	ChartData(bool) (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
 	CanAddAccount(coinpkg.Code, keystore.Keystore) (string, bool)
 	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accountsTypes.Code, error)
 	SetAccountActive(accountCode accountsTypes.Code, active bool) error
+	SetAccountActivity(accountCode accountsTypes.Code, active bool) error
 	SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error
 	SetAccountReceiveScriptType(accountCode accountsTypes.Code, scriptType signing.ScriptType) error
 	RenameAccount(accountCode accountsTypes.Code, name string) error
@@ -246,6 +247,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/status", handlers.getSwapStatus).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/account/{accountCode}/activity", handlers.postAccountActivity).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActive).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-account-receive-script-type", handlers.postSetAccountReceiveScriptType).Methods("POST")
@@ -1005,6 +1007,26 @@ func (handlers *Handlers) getAccountsBalanceSummary(*http.Request) interface{} {
 	return response{Success: true, TotalBalance: totalBalance}
 }
 
+func (handlers *Handlers) postAccountActivity(r *http.Request) interface{} {
+	var jsonBody struct {
+		Active bool `json:"active"`
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	accountCode := accountsTypes.Code(mux.Vars(r)["accountCode"])
+	if err := handlers.backend.SetAccountActivity(accountCode, jsonBody.Active); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
+}
+
 func (handlers *Handlers) postSetAccountActive(r *http.Request) interface{} {
 	var jsonBody struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
@@ -1464,13 +1486,14 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 	})
 }
 
-func (handlers *Handlers) getChartData(*http.Request) interface{} {
+func (handlers *Handlers) getChartData(r *http.Request) interface{} {
 	type Result struct {
 		Data    *backend.Chart `json:"data,omitempty"`
 		Success bool           `json:"success"`
 	}
 
-	data, err := handlers.backend.ChartData()
+	includeTransactionMarkers := r.URL.Query().Get("includeTransactionMarkers") == "true"
+	data, err := handlers.backend.ChartData(includeTransactionMarkers)
 	if err != nil {
 		return Result{Success: false}
 	}

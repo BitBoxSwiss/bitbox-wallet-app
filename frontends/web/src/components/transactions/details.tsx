@@ -38,10 +38,15 @@ export const TransactionDetails = ({
     }
     const currentID = internalID;
     getTransaction(accountCode, internalID)
-      .then(transaction => {
+      .then(result => {
         if (internalID !== currentID) {
           return; // Ignore if internalID has changed since the request was made.
         }
+        if (!result.success) {
+          console.error(result.errorMessage);
+          return;
+        }
+        const transaction = result.transaction;
         if (!transaction) {
           console.error(`Unable to retrieve transaction ${internalID}`);
           return;

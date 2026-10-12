@@ -12,6 +12,7 @@ import {
   type TTopUpRecoveryResult,
 } from '@/api/lightning';
 import { TLightningErrorCode, TSdkError, toLightningErrorMessage } from '@/api/lightning-errors';
+import { useAppState } from '@/contexts/app-state-context';
 import { Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { useLoad } from '@/hooks/api';
@@ -22,10 +23,6 @@ import { ClaimTopUpFailure } from './failure-step';
 import { ClaimTopUpOverview } from './overview-step';
 import { ClaimTopUpSuccess } from './success-step';
 import { type TAction, type TStep } from './constants';
-
-type TProps = {
-  activeAccounts: TAccount[];
-};
 
 type TInnerProps = {
   activeAccounts: TAccount[];
@@ -240,7 +237,8 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
   );
 };
 
-export const LightningClaimTopUp = ({ activeAccounts }: TProps) => {
+export const LightningClaimTopUp = () => {
+  const { activeAccounts } = useAppState();
   const [searchParams] = useSearchParams();
   const targetPaymentIDParam = searchParams.get('paymentId');
   const [paymentsRevision, setPaymentsRevision] = useState(0);

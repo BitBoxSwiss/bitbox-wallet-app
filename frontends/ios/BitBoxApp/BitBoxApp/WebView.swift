@@ -66,7 +66,9 @@ class JavascriptBridge: NSObject, WKScriptMessageHandler {
             }
         } else if message.name == "hapticFeedback" {
             DispatchQueue.main.async {
-                let generator = UIImpactFeedbackGenerator(style: .medium)
+                let body = message.body as? [String: Any]
+                let style = body?["style"] as? String
+                let generator = UIImpactFeedbackGenerator(style: style == "heavy" ? .heavy : .medium)
                 generator.impactOccurred()
             }
         }
@@ -138,6 +140,8 @@ class CustomSchemeHandler: NSObject, WKURLSchemeHandler {
         case "jpg", "jpeg": return "image/jpeg"
         case "gif": return "image/gif"
         case "svg": return "image/svg+xml"
+        case "mov": return "video/quicktime"
+        case "webm": return "video/webm"
         case "ttf": return "font/ttf"
         case "otf": return "font/otf"
         default: return "application/octet-stream"

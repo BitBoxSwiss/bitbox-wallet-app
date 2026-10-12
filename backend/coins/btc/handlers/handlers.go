@@ -64,10 +64,10 @@ func NewHandlers(
 		}
 	}
 
-	handleFunc("/init", handlers.postInit).Methods("POST")
+	handleFunc("/init", withError(handlers.postInit)).Methods("POST")
 	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
 	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
-	handleFunc("/transaction", handlers.ensureAccountInitialized(handlers.getAccountTransaction)).Methods("GET")
+	handleFunc("/transaction", handlers.ensureAccountInitialized(withError(handlers.getAccountTransaction))).Methods("GET")
 	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
 	handleFunc("/info", handlers.ensureAccountInitialized(withError(handlers.getAccountInfo))).Methods("GET")
 	handleFunc("/utxos", handlers.ensureAccountInitialized(handlers.getUTXOs)).Methods("GET")
@@ -217,20 +217,26 @@ func (handlers *Handlers) getAccountTransactions(*http.Request) (interface{}, er
 	return result, nil
 }
 
-func (handlers *Handlers) getAccountTransaction(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountTransaction(r *http.Request) interface{} {
+	type result struct {
+		Success      bool         `json:"success"`
+		Transaction  *Transaction `json:"transaction"`
+		ErrorMessage string       `json:"errorMessage,omitempty"`
+	}
 	internalID := r.URL.Query().Get("id")
 	txs, err := handlers.account.Transactions()
 	if err != nil {
-		return nil, err
+		return result{Success: false, ErrorMessage: err.Error()}
 	}
 	for _, txInfo := range txs {
 		if txInfo.InternalID != internalID {
 			continue
 		}
 
-		return handlers.getTxInfoJSON(txInfo, true), nil
+		transaction := handlers.getTxInfoJSON(txInfo, true)
+		return result{Success: true, Transaction: &transaction}
 	}
-	return nil, nil
+	return result{Success: true}
 }
 
 func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, error) {
@@ -524,7 +530,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 			result.ErrorCode = errCode.Error()
 		} else if isFirmwareUpgradeRequired(err) {
 			result.ErrorCode = keystore.ErrFirmwareUpgradeRequired.Error()
-		} else if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
+		} else if cause == errors.ErrERC20InsufficientGasFunds || strings.Contains(err.Error(), etherscan.ERC20GasErr) {
 			result.ErrorCode = errors.ErrERC20InsufficientGasFunds.Error()
 		}
 
@@ -595,11 +601,18 @@ func (handlers *Handlers) getAccountFeeTargets(*http.Request) (interface{}, erro
 	}, nil
 }
 
-func (handlers *Handlers) postInit(*http.Request) (interface{}, error) {
-	if handlers.account == nil {
-		return nil, errp.New("/init called even though account was not added yet")
+func (handlers *Handlers) postInit(*http.Request) interface{} {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
 	}
-	return nil, handlers.account.Initialize()
+	if handlers.account == nil {
+		return result{Success: false, ErrorMessage: "/init called even though account was not added yet"}
+	}
+	if err := handlers.account.Initialize(); err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}
+	}
+	return result{Success: true}
 }
 
 type statusResponse struct {
@@ -823,6 +836,12 @@ func newSigningErrorResponse(err error) signingResponse {
 			Success:   false,
 			ErrorCode: keystore.ErrFirmwareUpgradeRequired.Error(),
 		}
+	}
+	if errp.Cause(err) == errors.ErrInsufficientFunds {
+		return signingResponse{Success: false, ErrorCode: errors.ErrInsufficientFunds.Error()}
+	}
+	if code, ok := errp.Cause(err).(errp.ErrorCode); ok {
+		return signingResponse{Success: false, ErrorCode: code.Error(), ErrorMessage: err.Error()}
 	}
 	return signingResponse{Success: false, ErrorMessage: err.Error()}
 }

@@ -45,6 +45,13 @@ export const CustomGapLimitSettings = () => {
     setShowDialog(false);
   };
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    await handleSave();
+    setShowRestartMessage(true);
+  };
+
   const getGapLimitError = (value: number | string, min: number) => {
     if (typeof value !== 'number') {
       return undefined;
@@ -75,61 +82,60 @@ export const CustomGapLimitSettings = () => {
         onClose={() => setShowDialog(false)}
         title={t('gapLimit.title')}
         medium>
-        <Input
-          autoFocus={!isMobile}
-          type="number"
-          label={t('gapLimit.receive')}
-          id="gapLimitReceive"
-          onInput={(e: ChangeEvent<HTMLInputElement>) => {
-            const value = e.target.value;
-            setGapLimitReceive(value === '' ? '' : parseInt(value, 10) || DEFAULT_GAP_LIMIT_RECEIVE);
-          }}
-          value={gapLimitReceive}
-          error={getGapLimitError(gapLimitReceive, DEFAULT_GAP_LIMIT_RECEIVE)}
-        />
-        <Input
-          type="number"
-          label={t('gapLimit.change')}
-          id="gapLimitChange"
-          onInput={(e: ChangeEvent<HTMLInputElement>) => {
-            const value = e.target.value;
-            setGapLimitChange(value === '' ? '' : parseInt(value, 10) || DEFAULT_GAP_LIMIT_CHANGE);
-          }}
-          value={gapLimitChange}
-          error={getGapLimitError(gapLimitChange, DEFAULT_GAP_LIMIT_CHANGE)}
-        />
-        <Button
-          onClick={() => {
-            setGapLimitReceive(DEFAULT_GAP_LIMIT_RECEIVE);
-            setGapLimitChange(DEFAULT_GAP_LIMIT_CHANGE);
-          }}
-          transparent
-          style={{ paddingLeft: '0' }}>
-          {t('generic.resetToDefault')}
-        </Button>
-        <DialogButtons>
+        <form onSubmit={handleSubmit}>
+          <Input
+            autoFocus={!isMobile}
+            type="number"
+            label={t('gapLimit.receive')}
+            id="gapLimitReceive"
+            onInput={(e: ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value;
+              setGapLimitReceive(value === '' ? '' : parseInt(value, 10) || DEFAULT_GAP_LIMIT_RECEIVE);
+            }}
+            value={gapLimitReceive}
+            error={getGapLimitError(gapLimitReceive, DEFAULT_GAP_LIMIT_RECEIVE)}
+          />
+          <Input
+            type="number"
+            label={t('gapLimit.change')}
+            id="gapLimitChange"
+            onInput={(e: ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value;
+              setGapLimitChange(value === '' ? '' : parseInt(value, 10) || DEFAULT_GAP_LIMIT_CHANGE);
+            }}
+            value={gapLimitChange}
+            error={getGapLimitError(gapLimitChange, DEFAULT_GAP_LIMIT_CHANGE)}
+          />
           <Button
-            primary
-            disabled={
-              (typeof gapLimitReceive === 'string' && gapLimitReceive === '') ||
-              (typeof gapLimitChange === 'string' && gapLimitChange === '') ||
-              (typeof gapLimitReceive === 'number' && gapLimitReceive < DEFAULT_GAP_LIMIT_RECEIVE) ||
-              (typeof gapLimitChange === 'number' && gapLimitChange < DEFAULT_GAP_LIMIT_CHANGE) ||
-              (typeof gapLimitReceive === 'number' && gapLimitReceive > MAX_LIMIT) ||
-              (typeof gapLimitChange === 'number' && gapLimitChange > MAX_LIMIT)
-            }
             onClick={() => {
-              handleSave();
-              setShowRestartMessage(true);
-            }}>
-            {t('dialog.confirm')}
+              setGapLimitReceive(DEFAULT_GAP_LIMIT_RECEIVE);
+              setGapLimitChange(DEFAULT_GAP_LIMIT_CHANGE);
+            }}
+            transparent
+            style={{ paddingLeft: '0' }}>
+            {t('generic.resetToDefault')}
           </Button>
-          <Button
-            secondary
-            onClick={() => setShowDialog(false)}>
-            {t('dialog.cancel')}
-          </Button>
-        </DialogButtons>
+          <DialogButtons>
+            <Button
+              primary
+              disabled={
+                (typeof gapLimitReceive === 'string' && gapLimitReceive === '') ||
+                (typeof gapLimitChange === 'string' && gapLimitChange === '') ||
+                (typeof gapLimitReceive === 'number' && gapLimitReceive < DEFAULT_GAP_LIMIT_RECEIVE) ||
+                (typeof gapLimitChange === 'number' && gapLimitChange < DEFAULT_GAP_LIMIT_CHANGE) ||
+                (typeof gapLimitReceive === 'number' && gapLimitReceive > MAX_LIMIT) ||
+                (typeof gapLimitChange === 'number' && gapLimitChange > MAX_LIMIT)
+              }
+              type="submit">
+              {t('dialog.confirm')}
+            </Button>
+            <Button
+              secondary
+              onClick={() => setShowDialog(false)}>
+              {t('dialog.cancel')}
+            </Button>
+          </DialogButtons>
+        </form>
       </Dialog>
     </>
   );

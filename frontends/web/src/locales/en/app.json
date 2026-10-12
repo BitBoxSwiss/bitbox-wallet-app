@@ -307,6 +307,17 @@
       "title": "Verify pairing code",
       "unpaired": "An unpaired BitBox has been detected. Please verify the pairing code matches what is shown on your BitBox."
     },
+    "passphrase": {
+      "confirmHostEntry": "Confirm on the BitBox to enter the passphrase on the host",
+      "confirmTitle": "Confirm passphrase on BitBox",
+      "dialogTitle": "Enter passphrase",
+      "enter": "Enter BitBox passphrase",
+      "enterInApp": "Enter passphrase in app",
+      "error": {
+        "invalidChars": "The passphrase contains characters that cannot be entered on the BitBox.",
+        "tooLong": "The passphrase must be at most 149 characters long."
+      }
+    },
     "restoreFromMnemonic": {
       "e104": "Restoring from recovery words was canceled.",
       "failed": "Restoring from recovery words failed, please try again.",
@@ -781,7 +792,9 @@
       "month": "Month",
       "week": "Week",
       "year": "Year"
-    }
+    },
+    "transactions_one": "{{count}} transaction",
+    "transactions_other": "{{count}} transactions"
   },
   "checkSDcard": "checking microSD card",
   "clickHere": "Click here.",
@@ -2253,6 +2266,7 @@
     "edit": "Edit transaction",
     "error": {
       "accountNotSynced": "The account is not synced yet. Please wait until syncing is complete and try again.",
+      "broadcastUncertain": "The transaction may still go through. The app will keep trying to submit it. Check your transaction history before sending again to avoid paying twice.",
       "erc20InsufficientGasFunds": "You do not have enough Ether to pay for this ERC20 transaction. Please add Ether to your wallet and try again.",
       "feeTooLow": "fee too low",
       "feesNotAvailable": "Could not estimate fees",
@@ -2360,6 +2374,7 @@
           "note": "Your account names, notes and wallets are not affected.",
           "primaryCTA": "Clear Cache"
         },
+        "success": "Cache cleared successfully",
         "title": "Clear cache"
       },
       "coinControl": "Enable coin control",

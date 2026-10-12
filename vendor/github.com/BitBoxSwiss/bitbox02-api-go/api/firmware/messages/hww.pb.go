@@ -144,6 +144,9 @@ type Request struct {
 	//	*Request_Bluetooth
 	//	*Request_ChangePassword
 	//	*Request_BitboxSync
+	//	*Request_Unlock
+	//	*Request_UnlockContinue
+	//	*Request_UnlockHostInfo
 	Request       isRequest_Request `protobuf_oneof:"request"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -447,6 +450,33 @@ func (x *Request) GetBitboxSync() *BitBoxSyncRequest {
 	return nil
 }
 
+func (x *Request) GetUnlock() *UnlockRequest {
+	if x != nil {
+		if x, ok := x.Request.(*Request_Unlock); ok {
+			return x.Unlock
+		}
+	}
+	return nil
+}
+
+func (x *Request) GetUnlockContinue() *UnlockContinueRequest {
+	if x != nil {
+		if x, ok := x.Request.(*Request_UnlockContinue); ok {
+			return x.UnlockContinue
+		}
+	}
+	return nil
+}
+
+func (x *Request) GetUnlockHostInfo() *UnlockHostInfoRequest {
+	if x != nil {
+		if x, ok := x.Request.(*Request_UnlockHostInfo); ok {
+			return x.UnlockHostInfo
+		}
+	}
+	return nil
+}
+
 type isRequest_Request interface {
 	isRequest_Request()
 }
@@ -569,6 +599,18 @@ type Request_BitboxSync struct {
 	BitboxSync *BitBoxSyncRequest `protobuf:"bytes,31,opt,name=bitbox_sync,json=bitboxSync,proto3,oneof"`
 }
 
+type Request_Unlock struct {
+	Unlock *UnlockRequest `protobuf:"bytes,32,opt,name=unlock,proto3,oneof"`
+}
+
+type Request_UnlockContinue struct {
+	UnlockContinue *UnlockContinueRequest `protobuf:"bytes,33,opt,name=unlock_continue,json=unlockContinue,proto3,oneof"`
+}
+
+type Request_UnlockHostInfo struct {
+	UnlockHostInfo *UnlockHostInfoRequest `protobuf:"bytes,34,opt,name=unlock_host_info,json=unlockHostInfo,proto3,oneof"`
+}
+
 func (*Request_DeviceName) isRequest_Request() {}
 
 func (*Request_DeviceLanguage) isRequest_Request() {}
@@ -627,6 +669,12 @@ func (*Request_ChangePassword) isRequest_Request() {}
 
 func (*Request_BitboxSync) isRequest_Request() {}
 
+func (*Request_Unlock) isRequest_Request() {}
+
+func (*Request_UnlockContinue) isRequest_Request() {}
+
+func (*Request_UnlockHostInfo) isRequest_Request() {}
+
 type Response struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Response:
@@ -648,6 +696,7 @@ type Response struct {
 	//	*Response_Bip85
 	//	*Response_Bluetooth
 	//	*Response_BitboxSync
+	//	*Response_Unlock
 	Response      isResponse_Response `protobuf_oneof:"response"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -843,6 +892,15 @@ func (x *Response) GetBitboxSync() *BitBoxSyncResponse {
 	return nil
 }
 
+func (x *Response) GetUnlock() *UnlockResponse {
+	if x != nil {
+		if x, ok := x.Response.(*Response_Unlock); ok {
+			return x.Unlock
+		}
+	}
+	return nil
+}
+
 type isResponse_Response interface {
 	isResponse_Response()
 }
@@ -916,6 +974,10 @@ type Response_BitboxSync struct {
 	BitboxSync *BitBoxSyncResponse `protobuf:"bytes,18,opt,name=bitbox_sync,json=bitboxSync,proto3,oneof"`
 }
 
+type Response_Unlock struct {
+	Unlock *UnlockResponse `protobuf:"bytes,19,opt,name=unlock,proto3,oneof"`
+}
+
 func (*Response_Success) isResponse_Response() {}
 
 func (*Response_Error) isResponse_Response() {}
@@ -950,6 +1012,8 @@ func (*Response_Bluetooth) isResponse_Response() {}
 
 func (*Response_BitboxSync) isResponse_Response() {}
 
+func (*Response_Unlock) isResponse_Response() {}
+
 var File_hww_proto protoreflect.FileDescriptor
 
 const file_hww_proto_rawDesc = "" +
@@ -958,7 +1022,7 @@ const file_hww_proto_rawDesc = "" +
 	"\x05Error\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\"\t\n" +
-	"\aSuccess\"\xcb\x12\n" +
+	"\aSuccess\"\xbb\x14\n" +
 	"\aRequest\x12M\n" +
 	"\vdevice_name\x18\x02 \x01(\v2*.shiftcrypto.bitbox02.SetDeviceNameRequestH\x00R\n" +
 	"deviceName\x12Y\n" +
@@ -992,8 +1056,12 @@ const file_hww_proto_rawDesc = "" +
 	"\tbluetooth\x18\x1d \x01(\v2&.shiftcrypto.bitbox02.BluetoothRequestH\x00R\tbluetooth\x12V\n" +
 	"\x0fchange_password\x18\x1e \x01(\v2+.shiftcrypto.bitbox02.ChangePasswordRequestH\x00R\x0echangePassword\x12J\n" +
 	"\vbitbox_sync\x18\x1f \x01(\v2'.shiftcrypto.bitbox02.BitBoxSyncRequestH\x00R\n" +
-	"bitboxSyncB\t\n" +
-	"\arequestJ\x04\b\x01\x10\x02J\x04\b\x17\x10\x18\"\xfc\t\n" +
+	"bitboxSync\x12=\n" +
+	"\x06unlock\x18  \x01(\v2#.shiftcrypto.bitbox02.UnlockRequestH\x00R\x06unlock\x12V\n" +
+	"\x0funlock_continue\x18! \x01(\v2+.shiftcrypto.bitbox02.UnlockContinueRequestH\x00R\x0eunlockContinue\x12W\n" +
+	"\x10unlock_host_info\x18\" \x01(\v2+.shiftcrypto.bitbox02.UnlockHostInfoRequestH\x00R\x0eunlockHostInfoB\t\n" +
+	"\arequestJ\x04\b\x01\x10\x02J\x04\b\x17\x10\x18\"\xbc\n" +
+	"\n" +
 	"\bResponse\x129\n" +
 	"\asuccess\x18\x01 \x01(\v2\x1d.shiftcrypto.bitbox02.SuccessH\x00R\asuccess\x123\n" +
 	"\x05error\x18\x02 \x01(\v2\x1b.shiftcrypto.bitbox02.ErrorH\x00R\x05error\x12K\n" +
@@ -1014,7 +1082,8 @@ const file_hww_proto_rawDesc = "" +
 	"\x05bip85\x18\x10 \x01(\v2#.shiftcrypto.bitbox02.BIP85ResponseH\x00R\x05bip85\x12G\n" +
 	"\tbluetooth\x18\x11 \x01(\v2'.shiftcrypto.bitbox02.BluetoothResponseH\x00R\tbluetooth\x12K\n" +
 	"\vbitbox_sync\x18\x12 \x01(\v2(.shiftcrypto.bitbox02.BitBoxSyncResponseH\x00R\n" +
-	"bitboxSyncB\n" +
+	"bitboxSync\x12>\n" +
+	"\x06unlock\x18\x13 \x01(\v2$.shiftcrypto.bitbox02.UnlockResponseH\x00R\x06unlockB\n" +
 	"\n" +
 	"\bresponseJ\x04\b\x03\x10\x04b\x06proto3"
 
@@ -1065,21 +1134,25 @@ var file_hww_proto_goTypes = []any{
 	(*BluetoothRequest)(nil),                    // 30: shiftcrypto.bitbox02.BluetoothRequest
 	(*ChangePasswordRequest)(nil),               // 31: shiftcrypto.bitbox02.ChangePasswordRequest
 	(*BitBoxSyncRequest)(nil),                   // 32: shiftcrypto.bitbox02.BitBoxSyncRequest
-	(*DeviceInfoResponse)(nil),                  // 33: shiftcrypto.bitbox02.DeviceInfoResponse
-	(*PubResponse)(nil),                         // 34: shiftcrypto.bitbox02.PubResponse
-	(*BTCSignNextResponse)(nil),                 // 35: shiftcrypto.bitbox02.BTCSignNextResponse
-	(*ListBackupsResponse)(nil),                 // 36: shiftcrypto.bitbox02.ListBackupsResponse
-	(*CheckBackupResponse)(nil),                 // 37: shiftcrypto.bitbox02.CheckBackupResponse
-	(*PerformAttestationResponse)(nil),          // 38: shiftcrypto.bitbox02.PerformAttestationResponse
-	(*CheckSDCardResponse)(nil),                 // 39: shiftcrypto.bitbox02.CheckSDCardResponse
-	(*ETHResponse)(nil),                         // 40: shiftcrypto.bitbox02.ETHResponse
-	(*RootFingerprintResponse)(nil),             // 41: shiftcrypto.bitbox02.RootFingerprintResponse
-	(*BTCResponse)(nil),                         // 42: shiftcrypto.bitbox02.BTCResponse
-	(*ElectrumEncryptionKeyResponse)(nil),       // 43: shiftcrypto.bitbox02.ElectrumEncryptionKeyResponse
-	(*CardanoResponse)(nil),                     // 44: shiftcrypto.bitbox02.CardanoResponse
-	(*BIP85Response)(nil),                       // 45: shiftcrypto.bitbox02.BIP85Response
-	(*BluetoothResponse)(nil),                   // 46: shiftcrypto.bitbox02.BluetoothResponse
-	(*BitBoxSyncResponse)(nil),                  // 47: shiftcrypto.bitbox02.BitBoxSyncResponse
+	(*UnlockRequest)(nil),                       // 33: shiftcrypto.bitbox02.UnlockRequest
+	(*UnlockContinueRequest)(nil),               // 34: shiftcrypto.bitbox02.UnlockContinueRequest
+	(*UnlockHostInfoRequest)(nil),               // 35: shiftcrypto.bitbox02.UnlockHostInfoRequest
+	(*DeviceInfoResponse)(nil),                  // 36: shiftcrypto.bitbox02.DeviceInfoResponse
+	(*PubResponse)(nil),                         // 37: shiftcrypto.bitbox02.PubResponse
+	(*BTCSignNextResponse)(nil),                 // 38: shiftcrypto.bitbox02.BTCSignNextResponse
+	(*ListBackupsResponse)(nil),                 // 39: shiftcrypto.bitbox02.ListBackupsResponse
+	(*CheckBackupResponse)(nil),                 // 40: shiftcrypto.bitbox02.CheckBackupResponse
+	(*PerformAttestationResponse)(nil),          // 41: shiftcrypto.bitbox02.PerformAttestationResponse
+	(*CheckSDCardResponse)(nil),                 // 42: shiftcrypto.bitbox02.CheckSDCardResponse
+	(*ETHResponse)(nil),                         // 43: shiftcrypto.bitbox02.ETHResponse
+	(*RootFingerprintResponse)(nil),             // 44: shiftcrypto.bitbox02.RootFingerprintResponse
+	(*BTCResponse)(nil),                         // 45: shiftcrypto.bitbox02.BTCResponse
+	(*ElectrumEncryptionKeyResponse)(nil),       // 46: shiftcrypto.bitbox02.ElectrumEncryptionKeyResponse
+	(*CardanoResponse)(nil),                     // 47: shiftcrypto.bitbox02.CardanoResponse
+	(*BIP85Response)(nil),                       // 48: shiftcrypto.bitbox02.BIP85Response
+	(*BluetoothResponse)(nil),                   // 49: shiftcrypto.bitbox02.BluetoothResponse
+	(*BitBoxSyncResponse)(nil),                  // 50: shiftcrypto.bitbox02.BitBoxSyncResponse
+	(*UnlockResponse)(nil),                      // 51: shiftcrypto.bitbox02.UnlockResponse
 }
 var file_hww_proto_depIdxs = []int32{
 	4,  // 0: shiftcrypto.bitbox02.Request.device_name:type_name -> shiftcrypto.bitbox02.SetDeviceNameRequest
@@ -1111,28 +1184,32 @@ var file_hww_proto_depIdxs = []int32{
 	30, // 26: shiftcrypto.bitbox02.Request.bluetooth:type_name -> shiftcrypto.bitbox02.BluetoothRequest
 	31, // 27: shiftcrypto.bitbox02.Request.change_password:type_name -> shiftcrypto.bitbox02.ChangePasswordRequest
 	32, // 28: shiftcrypto.bitbox02.Request.bitbox_sync:type_name -> shiftcrypto.bitbox02.BitBoxSyncRequest
-	1,  // 29: shiftcrypto.bitbox02.Response.success:type_name -> shiftcrypto.bitbox02.Success
-	0,  // 30: shiftcrypto.bitbox02.Response.error:type_name -> shiftcrypto.bitbox02.Error
-	33, // 31: shiftcrypto.bitbox02.Response.device_info:type_name -> shiftcrypto.bitbox02.DeviceInfoResponse
-	34, // 32: shiftcrypto.bitbox02.Response.pub:type_name -> shiftcrypto.bitbox02.PubResponse
-	35, // 33: shiftcrypto.bitbox02.Response.btc_sign_next:type_name -> shiftcrypto.bitbox02.BTCSignNextResponse
-	36, // 34: shiftcrypto.bitbox02.Response.list_backups:type_name -> shiftcrypto.bitbox02.ListBackupsResponse
-	37, // 35: shiftcrypto.bitbox02.Response.check_backup:type_name -> shiftcrypto.bitbox02.CheckBackupResponse
-	38, // 36: shiftcrypto.bitbox02.Response.perform_attestation:type_name -> shiftcrypto.bitbox02.PerformAttestationResponse
-	39, // 37: shiftcrypto.bitbox02.Response.check_sdcard:type_name -> shiftcrypto.bitbox02.CheckSDCardResponse
-	40, // 38: shiftcrypto.bitbox02.Response.eth:type_name -> shiftcrypto.bitbox02.ETHResponse
-	41, // 39: shiftcrypto.bitbox02.Response.fingerprint:type_name -> shiftcrypto.bitbox02.RootFingerprintResponse
-	42, // 40: shiftcrypto.bitbox02.Response.btc:type_name -> shiftcrypto.bitbox02.BTCResponse
-	43, // 41: shiftcrypto.bitbox02.Response.electrum_encryption_key:type_name -> shiftcrypto.bitbox02.ElectrumEncryptionKeyResponse
-	44, // 42: shiftcrypto.bitbox02.Response.cardano:type_name -> shiftcrypto.bitbox02.CardanoResponse
-	45, // 43: shiftcrypto.bitbox02.Response.bip85:type_name -> shiftcrypto.bitbox02.BIP85Response
-	46, // 44: shiftcrypto.bitbox02.Response.bluetooth:type_name -> shiftcrypto.bitbox02.BluetoothResponse
-	47, // 45: shiftcrypto.bitbox02.Response.bitbox_sync:type_name -> shiftcrypto.bitbox02.BitBoxSyncResponse
-	46, // [46:46] is the sub-list for method output_type
-	46, // [46:46] is the sub-list for method input_type
-	46, // [46:46] is the sub-list for extension type_name
-	46, // [46:46] is the sub-list for extension extendee
-	0,  // [0:46] is the sub-list for field type_name
+	33, // 29: shiftcrypto.bitbox02.Request.unlock:type_name -> shiftcrypto.bitbox02.UnlockRequest
+	34, // 30: shiftcrypto.bitbox02.Request.unlock_continue:type_name -> shiftcrypto.bitbox02.UnlockContinueRequest
+	35, // 31: shiftcrypto.bitbox02.Request.unlock_host_info:type_name -> shiftcrypto.bitbox02.UnlockHostInfoRequest
+	1,  // 32: shiftcrypto.bitbox02.Response.success:type_name -> shiftcrypto.bitbox02.Success
+	0,  // 33: shiftcrypto.bitbox02.Response.error:type_name -> shiftcrypto.bitbox02.Error
+	36, // 34: shiftcrypto.bitbox02.Response.device_info:type_name -> shiftcrypto.bitbox02.DeviceInfoResponse
+	37, // 35: shiftcrypto.bitbox02.Response.pub:type_name -> shiftcrypto.bitbox02.PubResponse
+	38, // 36: shiftcrypto.bitbox02.Response.btc_sign_next:type_name -> shiftcrypto.bitbox02.BTCSignNextResponse
+	39, // 37: shiftcrypto.bitbox02.Response.list_backups:type_name -> shiftcrypto.bitbox02.ListBackupsResponse
+	40, // 38: shiftcrypto.bitbox02.Response.check_backup:type_name -> shiftcrypto.bitbox02.CheckBackupResponse
+	41, // 39: shiftcrypto.bitbox02.Response.perform_attestation:type_name -> shiftcrypto.bitbox02.PerformAttestationResponse
+	42, // 40: shiftcrypto.bitbox02.Response.check_sdcard:type_name -> shiftcrypto.bitbox02.CheckSDCardResponse
+	43, // 41: shiftcrypto.bitbox02.Response.eth:type_name -> shiftcrypto.bitbox02.ETHResponse
+	44, // 42: shiftcrypto.bitbox02.Response.fingerprint:type_name -> shiftcrypto.bitbox02.RootFingerprintResponse
+	45, // 43: shiftcrypto.bitbox02.Response.btc:type_name -> shiftcrypto.bitbox02.BTCResponse
+	46, // 44: shiftcrypto.bitbox02.Response.electrum_encryption_key:type_name -> shiftcrypto.bitbox02.ElectrumEncryptionKeyResponse
+	47, // 45: shiftcrypto.bitbox02.Response.cardano:type_name -> shiftcrypto.bitbox02.CardanoResponse
+	48, // 46: shiftcrypto.bitbox02.Response.bip85:type_name -> shiftcrypto.bitbox02.BIP85Response
+	49, // 47: shiftcrypto.bitbox02.Response.bluetooth:type_name -> shiftcrypto.bitbox02.BluetoothResponse
+	50, // 48: shiftcrypto.bitbox02.Response.bitbox_sync:type_name -> shiftcrypto.bitbox02.BitBoxSyncResponse
+	51, // 49: shiftcrypto.bitbox02.Response.unlock:type_name -> shiftcrypto.bitbox02.UnlockResponse
+	50, // [50:50] is the sub-list for method output_type
+	50, // [50:50] is the sub-list for method input_type
+	50, // [50:50] is the sub-list for extension type_name
+	50, // [50:50] is the sub-list for extension extendee
+	0,  // [0:50] is the sub-list for field type_name
 }
 
 func init() { file_hww_proto_init() }
@@ -1182,6 +1259,9 @@ func file_hww_proto_init() {
 		(*Request_Bluetooth)(nil),
 		(*Request_ChangePassword)(nil),
 		(*Request_BitboxSync)(nil),
+		(*Request_Unlock)(nil),
+		(*Request_UnlockContinue)(nil),
+		(*Request_UnlockHostInfo)(nil),
 	}
 	file_hww_proto_msgTypes[3].OneofWrappers = []any{
 		(*Response_Success)(nil),
@@ -1201,6 +1281,7 @@ func file_hww_proto_init() {
 		(*Response_Bip85)(nil),
 		(*Response_Bluetooth)(nil),
 		(*Response_BitboxSync)(nil),
+		(*Response_Unlock)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

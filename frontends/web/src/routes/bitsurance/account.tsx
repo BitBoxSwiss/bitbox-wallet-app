@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TAccount } from '@/api/account';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AccountCode, TAccount } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { MarketTab } from '@/routes/market/components/markettab';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
@@ -15,13 +16,15 @@ import { BitsuranceGuide } from './guide';
 import { useFeatureConnect } from '@/hooks/keystore';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 
-type TProps = {
-  accounts: TAccount[];
-  code: string;
+type TRouteParams = {
+  code: AccountCode;
 };
 
-export const BitsuranceAccount = ({ code, accounts }: TProps) => {
+export const BitsuranceAccount = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
+  const { activeAccounts } = useAppState();
+
   const [disabled, setDisabled] = useState<boolean>(false);
   const [btcAccounts, setBtcAccounts] = useState<TAccount[]>();
   const {
@@ -44,7 +47,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
     }
     // btc accounts that have never been insured, or with a canceled
     // insurance contract, can be used to make a new contract.
-    const insurableAccounts = accounts.filter(
+    const insurableAccounts = activeAccounts.filter(
       account => account.coinCode === 'btc'
       && (
         !account.bitsuranceStatus
@@ -53,7 +56,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
       )
     );
     setBtcAccounts(insurableAccounts);
-  }, [accounts]);
+  }, [activeAccounts]);
 
   // check supported accounts
   useEffect(() => {
@@ -106,7 +109,6 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
         <Main>
           <Header title={t('generic.buySell')} />
           <MarketTab
-            accounts={accounts}
             activeTab="insure"
             code={code}
           />

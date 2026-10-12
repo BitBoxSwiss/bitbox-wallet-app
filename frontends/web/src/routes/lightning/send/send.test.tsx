@@ -7,6 +7,7 @@ import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TPaymentInputType } from '@/api/lightning';
 import * as lightningApi from '@/api/lightning';
+import { AppStateContext } from '@/contexts/app-state-context';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { Send } from './send';
 
@@ -95,8 +96,22 @@ const LocationPath = () => {
 const renderSend = () => render(
   <MemoryRouter initialEntries={['/lightning/send']}>
     <BackButtonProvider>
-      <Send activeAccounts={[]} />
-      <LocationPath />
+      <AppStateContext.Provider
+        value={{
+          accounts: [],
+          activeAccounts: [],
+          deviceIDs: [],
+          devices: {},
+          hasAccounts: true,
+          hasBottomNavigation: false,
+          hasDevices: false,
+          lightningAccount: undefined,
+          hasLightningAccount: false,
+        }}
+      >
+        <Send />
+        <LocationPath />
+      </AppStateContext.Provider>
     </BackButtonProvider>
   </MemoryRouter>
 );
