@@ -30,6 +30,7 @@ type State struct {
 	Price     *float64  `json:"price"`
 	Change24h *float64  `json:"change24h"`
 	Chart     []float64 `json:"chart"`
+	UpdatedAt int64     `json:"updatedAt,omitempty"` // Last successful refresh, Unix milliseconds.
 	Retry     bool      `json:"retry"`
 }
 
@@ -50,15 +51,18 @@ type settings struct {
 
 // Service manages a separate widget cache; it never writes wallet settings or accounts.
 type Service struct {
-	cacheMu sync.Mutex
-	cache   map[string]record
-	now     func() time.Time
-	fetch   func(context.Context, *http.Client, string, string) (rates.WidgetData, error)
+	cacheMu      sync.Mutex
+	cache        map[string]record
+	nextRefresh  uint64
+	savedRefresh map[string]uint64
+	now          func() time.Time
+	fetch        func(context.Context, *http.Client, string, string) (rates.WidgetData, error)
 }
 
 // New creates the widget data service.
 func New() *Service {
-	return &Service{cache: make(map[string]record), now: time.Now, fetch: rates.FetchWidgetData}
+	return &Service{cache: make(map[string]record), savedRefresh: make(map[string]uint64),
+		now: time.Now, fetch: rates.FetchWidgetData}
 }
 
 // Load resolves the selected account and quote. With fetch=false it performs no network requests.
@@ -72,12 +76,16 @@ func (service *Service) Load(dataDir string, index int, fetch, force bool) (Stat
 	if err != nil {
 		return State{}, err
 	}
-	coin := coins[((index%len(coins))+len(coins))%len(coins)]
+	selected := index % len(coins)
+	if selected < 0 {
+		selected += len(coins)
+	}
+	coin := coins[selected]
 	currency := rates.WidgetCurrency(preferences.Backend.MainFiat)
 	state := State{CoinCode: coin, Currency: currency, Coins: coins, Chart: []float64{}}
-	exact := service.cached(dataDir, coin, currency)
-	data := exact
-	if fetch && (force || exact == nil) {
+	cached := service.cached(dataDir, coin, currency)
+	if fetch && (force || cached == nil) {
+		refresh := service.startRefresh()
 		proxy := socksproxy.NewSocksProxy(preferences.Backend.Proxy.UseProxy, preferences.Backend.Proxy.ProxyAddress)
 		client, fetchErr := proxy.GetHTTPClient()
 		if fetchErr == nil {
@@ -85,25 +93,25 @@ func (service *Service) Load(dataDir string, index int, fetch, force bool) (Stat
 			var result rates.WidgetData
 			result, fetchErr = service.fetch(context.Background(), client, coin, currency)
 			if fetchErr == nil {
-				data = &result
-				service.save(dataDir, result)
+				service.save(dataDir, result, refresh)
 			}
 		}
+		// A newer refresh may have completed, or the cached quote may have expired in flight.
+		cached = service.cached(dataDir, coin, currency)
 		if fetchErr != nil {
-			// A cached quote may have expired while the request was in flight.
-			data = service.cached(dataDir, coin, currency)
-			state.Retry = data == nil
+			state.Retry = cached == nil
 			logging.Get().WithGroup("pricewidget").WithError(fetchErr).Debug("Price refresh failed")
 		}
 	}
-	if data == nil && currency != "USD" {
-		data = service.cached(dataDir, coin, "USD")
+	if cached == nil && currency != "USD" {
+		cached = service.cached(dataDir, coin, "USD")
 	}
-	if data != nil {
-		state.Currency = data.Currency
-		state.Price = &data.Price
-		state.Change24h = &data.Change24h
-		state.Chart = normalizedChart(data.ChartPrices)
+	if cached != nil {
+		state.Currency = cached.Data.Currency
+		state.Price = &cached.Data.Price
+		state.Change24h = &cached.Data.Change24h
+		state.Chart = normalizedChart(cached.Data.ChartPrices)
+		state.UpdatedAt = cached.Timestamp.UnixMilli()
 	}
 	return state, nil
 }
@@ -129,8 +137,8 @@ func activeCoins(dataDir string) ([]string, error) {
 	}
 	var coins []string
 	for _, account := range accounts.Accounts {
-		code := rates.WidgetCoinCode(account.CoinCode)
-		if code != "" && !account.Inactive && !account.HiddenBecauseUnused && !slices.Contains(coins, code) {
+		code, err := rates.WidgetCoinCode(account.CoinCode)
+		if err == nil && !account.Inactive && !account.HiddenBecauseUnused && !slices.Contains(coins, code) {
 			coins = append(coins, code)
 		}
 	}
@@ -143,10 +151,10 @@ func activeCoins(dataDir string) ([]string, error) {
 }
 
 func cacheFile(dataDir, coin, currency string) *config.File {
-	return config.NewFile(filepath.Join(dataDir, "cache", "price-widget"), coin+"_"+currency+".json")
+	return config.NewFile(filepath.Join(config.CacheDir(dataDir), "price-widget"), coin+"_"+currency+".json")
 }
 
-func (service *Service) cached(dataDir, coin, currency string) *rates.WidgetData {
+func (service *Service) cached(dataDir, coin, currency string) *record {
 	service.cacheMu.Lock()
 	defer service.cacheMu.Unlock()
 	file := cacheFile(dataDir, coin, currency)
@@ -162,13 +170,25 @@ func (service *Service) cached(dataDir, coin, currency string) *rates.WidgetData
 		delete(service.cache, file.Path())
 		return nil
 	}
-	return &cached.Data
+	return &cached
 }
 
-func (service *Service) save(dataDir string, data rates.WidgetData) {
+func (service *Service) startRefresh() uint64 {
+	service.cacheMu.Lock()
+	defer service.cacheMu.Unlock()
+	service.nextRefresh++
+	return service.nextRefresh
+}
+
+func (service *Service) save(dataDir string, data rates.WidgetData, refresh uint64) {
 	service.cacheMu.Lock()
 	defer service.cacheMu.Unlock()
 	file := cacheFile(dataDir, data.CoinCode, data.Currency)
+	// Canceled Android workers can finish later. Order successful refreshes by their start sequence.
+	if refresh < service.savedRefresh[file.Path()] {
+		return
+	}
+	service.savedRefresh[file.Path()] = refresh
 	cached := record{Data: data, Timestamp: service.now()}
 	// Rendering must not depend on disk persistence succeeding.
 	service.cache[file.Path()] = cached
@@ -178,16 +198,17 @@ func (service *Service) save(dataDir string, data rates.WidgetData) {
 }
 
 func normalizedChart(prices []float64) []float64 {
+	points := slices.Repeat([]float64{0.5}, len(prices))
 	if len(prices) == 0 {
-		return []float64{}
+		return points
 	}
 	low, high := slices.Min(prices), slices.Max(prices)
-	points := make([]float64, len(prices))
+	span := high - low
+	if !(span > 0) || math.IsInf(span, 0) {
+		return points
+	}
 	for i, price := range prices {
-		points[i] = 0.5
-		if high > low && !math.IsInf(high-low, 0) {
-			points[i] = (price - low) / (high - low)
-		}
+		points[i] = (price - low) / span
 	}
 	return points
 }

@@ -77,7 +77,7 @@ func NewArguments(
 		panic("Cannot create the bitbox02 directory.")
 	}
 
-	cacheDirectoryPath := path.Join(mainDirectoryPath, "cache")
+	cacheDirectoryPath := utilconfig.CacheDir(mainDirectoryPath)
 	if err := utilconfig.EnsurePrivateDir(cacheDirectoryPath); err != nil {
 		panic("Cannot create the cache directory.")
 	}

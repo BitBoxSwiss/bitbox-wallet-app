@@ -76,6 +76,11 @@ func AppDir() string {
 	return appFolder
 }
 
+// CacheDir returns the disposable cache path without creating it or initializing app state.
+func CacheDir(appDir string) string {
+	return filepath.Join(appDir, "cache")
+}
+
 // EnsurePrivateDir creates dir if needed and tightens permissions if it already exists.
 func EnsurePrivateDir(dir string) error {
 	if err := os.MkdirAll(dir, PrivateDirMode); err != nil {

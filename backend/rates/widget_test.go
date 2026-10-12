@@ -85,3 +85,21 @@ func TestFetchWidgetDataFailures(t *testing.T) {
 		})
 	}
 }
+
+func TestWidgetCoinCode(t *testing.T) {
+	for code, want := range map[string]string{
+		"btc": "btc", "tbtc": "btc", "rbtc": "btc", "BTC": "btc",
+		"eth": "eth", "sepeth": "eth", "ltc": "ltc", "tltc": "ltc",
+	} {
+		got, err := WidgetCoinCode(code)
+		require.NoError(t, err)
+		assert.Equal(t, want, got)
+	}
+	for _, code := range []string{"", "unknown", "eth-erc20-usdt"} {
+		_, err := WidgetCoinCode(code)
+		require.ErrorContains(t, err, "unsupported widget coin")
+		// Unsupported coins must fail before any HTTP request is made.
+		_, err = FetchWidgetData(t.Context(), nil, code, "USD")
+		require.ErrorContains(t, err, "unsupported widget coin")
+	}
+}

@@ -5,8 +5,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/price_widget_background"
-    android:paddingTop="12dp"
-    android:paddingBottom="8dp">
+    android:paddingTop="8dp"
+    android:paddingBottom="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -87,9 +87,20 @@
     <ImageView
         android:id="@+id/widget_chart"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
+        android:layout_height="24dp"
         android:contentDescription="@string/price_widget_chart"
         android:scaleType="fitXY" />
+    <TextView
+        android:id="@+id/widget_updated_at"
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textColor="@color/widget_secondary"
+        android:textSize="11sp"
+        android:visibility="invisible" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"

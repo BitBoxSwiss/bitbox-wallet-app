@@ -96,13 +96,17 @@ public class PriceWidgetProvider extends AppWidgetProvider {
     }
 
     public static void refresh(Context context) {
+        refresh(context, true);
+    }
+
+    static void refresh(Context context, boolean force) {
         Context app = context.getApplicationContext();
         if (widgetIds(app).length == 0) {
             return;
         }
         CACHE_EXECUTOR.execute(() -> {
             renderCached(app);
-            schedule(app, true);
+            schedule(app, force);
         });
     }
 
@@ -128,7 +132,7 @@ public class PriceWidgetProvider extends AppWidgetProvider {
             return;
         }
         WorkManager manager = WorkManager.getInstance(context);
-        // Cache expiry must run offline too. UPDATE applies constraints without resetting the schedule.
+        // Check the cache offline too. Periodic work can be delayed; the widget shows its update time.
         manager.enqueueUniquePeriodicWork(PERIODIC_WORK, ExistingPeriodicWorkPolicy.UPDATE,
                 new PeriodicWorkRequest.Builder(PriceWidgetUpdateWorker.class, 15, TimeUnit.MINUTES)
                         .setInitialDelay(15, TimeUnit.MINUTES)
