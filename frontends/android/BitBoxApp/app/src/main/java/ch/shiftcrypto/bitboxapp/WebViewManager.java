@@ -38,6 +38,7 @@ public class WebViewManager {
 
     private WebChromeClient webChromeClient;
     private WebView webView;
+    private final NativeQRScanner qrScanner;
     private Boolean keyboardVisible;
     private boolean imeInsetsKeyboardVisible;
     private boolean windowBoundsKeyboardVisible;
@@ -45,6 +46,7 @@ public class WebViewManager {
     public WebViewManager(MainActivity activity, GoViewModel goViewModel) {
         this.activity = activity;
         this.goViewModel = goViewModel;
+        this.qrScanner = new NativeQRScanner(activity);
         ActivityResultLauncher<String> fileChooserLauncher = activity.registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -68,6 +70,7 @@ public class WebViewManager {
     @SuppressLint("SetJavaScriptEnabled")
     public void initialize(WebView webView) {
         this.webView = webView;
+        qrScanner.attach(webView);
         // For onramp iframe'd widgets like MoonPay.
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
 
@@ -104,15 +107,25 @@ public class WebViewManager {
         // webView.setWebContentsDebuggingEnabled(true); // enable remote debugging in chrome://inspect/#devices
         // Retrieve the current text zoom setting to adjust the base font size in the WebView.
         int initialZoom = webView.getSettings().getTextZoom();
-        webView.setWebViewClient(new WebViewClient(WebMessageBridge.BASE_URL, activity.getAssets(), activity.getApplication(), initialZoom));
+        webView.setWebViewClient(new WebViewClient(WebMessageBridge.BASE_URL, activity.getAssets(), activity.getApplication(), initialZoom) {
+            @Override
+            public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                qrScanner.stop();
+                super.onPageStarted(view, url, favicon);
+            }
+        });
         webView.setWebChromeClient(webChromeClient);
         if (!WebMessageBridge.isSupported()) {
             showUnsupportedWebViewDialog();
             return;
         }
-        WebMessageBridge.install(webView, activity);
+        WebMessageBridge.install(webView, activity, qrScanner);
         installKeyboardVisibilityListener(webView);
         webView.loadUrl(WebMessageBridge.BASE_URL + "index.html");
+    }
+
+    public void setBackgroundColor(int color) {
+        qrScanner.setBackgroundColor(color);
     }
 
     private void installKeyboardVisibilityListener(WebView webView) {

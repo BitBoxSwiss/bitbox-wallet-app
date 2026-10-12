@@ -35,9 +35,11 @@ public class WebMessageBridge implements WebViewCompat.WebMessageListener {
     private static final String BRIDGE_NAME = "bitboxSecureBridge";
 
     private final Context context;
+    private final NativeQRScanner qrScanner;
 
-    public WebMessageBridge(Context context) {
+    public WebMessageBridge(Context context, NativeQRScanner qrScanner) {
         this.context = context;
+        this.qrScanner = qrScanner;
     }
 
     public static boolean isSupported() {
@@ -46,13 +48,13 @@ public class WebMessageBridge implements WebViewCompat.WebMessageListener {
     }
 
     @SuppressLint("RequiresFeature")
-    public static void install(WebView webView, Context context) {
+    public static void install(WebView webView, Context context, NativeQRScanner qrScanner) {
         Set<String> allowedOriginRules = Collections.singleton(APP_ORIGIN);
         WebViewCompat.addWebMessageListener(
                 webView,
                 BRIDGE_NAME,
                 allowedOriginRules,
-                new WebMessageBridge(context)
+                new WebMessageBridge(context, qrScanner)
         );
         WebViewCompat.addDocumentStartJavaScript(
                 webView,
@@ -86,6 +88,10 @@ public class WebMessageBridge implements WebViewCompat.WebMessageListener {
         try {
             JSONObject payload = new JSONObject(data);
             String type = payload.optString("type", "");
+            if ("qrScannerCommand".equals(type)) {
+                qrScanner.handle(payload.getJSONObject("command"), replyProxy);
+                return;
+            }
             if ("backendCall".equals(type)) {
                 Mobileserver.backendCall(payload.getInt("queryID"), payload.getString("query"));
                 return;
@@ -147,6 +153,9 @@ public class WebMessageBridge implements WebViewCompat.WebMessageListener {
                 "  if (window.top !== window) { return; }",
                 "  var bridge = window.", BRIDGE_NAME, ";",
                 "  if (!bridge) { return; }",
+                "  window.nativeQRScanner = { postMessage: function(command) {",
+                "    bridge.postMessage(JSON.stringify({ type: 'qrScannerCommand', command: command }));",
+                "  }};",
                 "  window.android = {",
                 "    call: function(queryID, query) {",
                 "      bridge.postMessage(JSON.stringify({",
@@ -171,6 +180,10 @@ public class WebMessageBridge implements WebViewCompat.WebMessageListener {
                 "  bridge.onmessage = function(event) {",
                 "    try {",
                 "      var message = JSON.parse(event.data);",
+                "      if (message && message.type === 'qrScannerEvent') {",
+                "        if (window.onNativeQRScannerEvent) { window.onNativeQRScannerEvent(message.event); }",
+                "        return;",
+                "      }",
                 "      if (!message || message.type !== 'clipboardReadResult') { return; }",
                 "      var pending = clipboardRequests[message.requestId];",
                 "      if (!pending) { return; }",
