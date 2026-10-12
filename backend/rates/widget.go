@@ -26,16 +26,17 @@ type WidgetData struct {
 }
 
 // WidgetCoinCode maps supported mainnet and testnet accounts to market symbols.
-func WidgetCoinCode(code string) string {
+// Unsupported coins return an error.
+func WidgetCoinCode(code string) (string, error) {
 	switch strings.ToLower(code) {
 	case "btc", "tbtc", "rbtc":
-		return "btc"
+		return "btc", nil
 	case "eth", "sepeth":
-		return "eth"
+		return "eth", nil
 	case "ltc", "tltc":
-		return "ltc"
+		return "ltc", nil
 	default:
-		return ""
+		return "", errp.Newf("unsupported widget coin: %s", code)
 	}
 }
 
@@ -54,9 +55,9 @@ func FetchWidgetData(ctx context.Context, client *http.Client, coinCode, currenc
 }
 
 func fetchWidgetData(ctx context.Context, client *http.Client, baseURL, coinCode, currency string, now time.Time) (WidgetData, error) {
-	coinCode = WidgetCoinCode(coinCode)
-	if coinCode == "" {
-		return WidgetData{}, errp.New("unsupported widget coin")
+	coinCode, err := WidgetCoinCode(coinCode)
+	if err != nil {
+		return WidgetData{}, err
 	}
 	currency = WidgetCurrency(currency)
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
@@ -64,38 +65,12 @@ func fetchWidgetData(ctx context.Context, client *http.Client, baseURL, coinCode
 
 	current := make(chan *float64, 1)
 	go func() {
-		ctx, cancel := context.WithTimeout(ctx, time.Second)
-		defer cancel()
-		query := url.Values{"ids": {geckoCoin[coinCode]}, "vs_currencies": {toGeckoFiat[currency]}}
-		var result map[string]map[string]float64
-		if err := widgetJSON(ctx, client, baseURL+"/simple/price?"+query.Encode(), &result); err == nil {
-			if price, ok := result[geckoCoin[coinCode]][toGeckoFiat[currency]]; ok && validWidgetPrice(price) {
-				current <- &price
-				return
-			}
-		}
-		current <- nil
+		current <- fetchWidgetPrice(ctx, client, baseURL, coinCode, currency)
 	}()
 
-	query := url.Values{
-		"vs_currency": {toGeckoFiat[currency]},
-		"from":        {strconv.FormatInt(now.Add(-24*time.Hour).Unix(), 10)},
-		"to":          {strconv.FormatInt(now.Unix(), 10)},
-	}
-	var chart struct {
-		Prices [][]float64 `json:"prices"`
-	}
-	if err := widgetJSON(ctx, client, baseURL+"/coins/"+geckoCoin[coinCode]+"/market_chart/range?"+query.Encode(), &chart); err != nil {
+	prices, err := fetchWidgetChart(ctx, client, baseURL, coinCode, currency, now)
+	if err != nil {
 		return WidgetData{}, err
-	}
-	var prices []float64
-	for _, point := range chart.Prices {
-		if len(point) >= 2 && validWidgetPrice(point[1]) {
-			prices = append(prices, point[1])
-		}
-	}
-	if len(prices) < 2 {
-		return WidgetData{}, errp.New("widget chart contains insufficient prices")
 	}
 	select {
 	case price := <-current:
@@ -111,6 +86,46 @@ func fetchWidgetData(ctx context.Context, client *http.Client, baseURL, coinCode
 		return WidgetData{}, errp.New("invalid widget price change")
 	}
 	return WidgetData{CoinCode: coinCode, Currency: currency, Price: price, Change24h: change, ChartPrices: prices}, nil
+}
+
+// The latest quote is optional; a missing or slow response falls back to the chart's last price.
+func fetchWidgetPrice(ctx context.Context, client *http.Client, baseURL, coinCode, currency string) *float64 {
+	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	defer cancel()
+	query := url.Values{"ids": {geckoCoin[coinCode]}, "vs_currencies": {toGeckoFiat[currency]}}
+	var result map[string]map[string]float64
+	if err := widgetJSON(ctx, client, baseURL+"/simple/price?"+query.Encode(), &result); err != nil {
+		return nil
+	}
+	price := result[geckoCoin[coinCode]][toGeckoFiat[currency]]
+	if !validWidgetPrice(price) {
+		return nil
+	}
+	return &price
+}
+
+func fetchWidgetChart(ctx context.Context, client *http.Client, baseURL, coinCode, currency string, now time.Time) ([]float64, error) {
+	query := url.Values{
+		"vs_currency": {toGeckoFiat[currency]},
+		"from":        {strconv.FormatInt(now.Add(-24*time.Hour).Unix(), 10)},
+		"to":          {strconv.FormatInt(now.Unix(), 10)},
+	}
+	var chart struct {
+		Prices [][]float64 `json:"prices"`
+	}
+	if err := widgetJSON(ctx, client, baseURL+"/coins/"+geckoCoin[coinCode]+"/market_chart/range?"+query.Encode(), &chart); err != nil {
+		return nil, err
+	}
+	var prices []float64
+	for _, point := range chart.Prices {
+		if len(point) >= 2 && validWidgetPrice(point[1]) {
+			prices = append(prices, point[1])
+		}
+	}
+	if len(prices) < 2 {
+		return nil, errp.New("widget chart contains insufficient prices")
+	}
+	return prices, nil
 }
 
 func validWidgetPrice(price float64) bool {

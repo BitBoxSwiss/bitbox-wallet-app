@@ -8,4 +8,5 @@
     <string name="price_widget_pair">%1$s/%2$s</string>
     <string name="price_widget_previous">Previous coin</string>
     <string name="price_widget_unavailable">Unavailable</string>
+    <string name="price_widget_updated_at">Updated %1$s</string>
 </resources>

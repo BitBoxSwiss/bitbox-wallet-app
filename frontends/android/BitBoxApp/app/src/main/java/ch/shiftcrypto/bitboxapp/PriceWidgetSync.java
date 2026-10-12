@@ -14,7 +14,7 @@ public class PriceWidgetSync {
 
     public PriceWidgetSync(Context context) {
         Context app = context.getApplicationContext();
-        refresh = () -> PriceWidgetProvider.refresh(app);
+        refresh = () -> PriceWidgetProvider.refresh(app, false);
         observer = new FileObserver(app.getFilesDir().getAbsolutePath(), FileObserver.CLOSE_WRITE | FileObserver.MOVED_TO) {
             @Override
             public void onEvent(int event, String path) {

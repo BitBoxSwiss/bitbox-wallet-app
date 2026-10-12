@@ -53,6 +53,7 @@ public class PriceWidgetLayoutTest {
                             assertEquals("BTC/" + currency, pair.getText().toString());
                             assertFits(pair);
                             assertFits(view.findViewById(R.id.widget_price));
+                            assertFits(view.findViewById(R.id.widget_updated_at));
                             TextView inline = view.findViewById(R.id.widget_change);
                             assertFits(inline.getVisibility() == View.VISIBLE ? inline : view.findViewById(R.id.widget_change_compact));
                         }
@@ -91,6 +92,7 @@ public class PriceWidgetLayoutTest {
         View view = render(context(Locale.US, 2), new JSONObject("{\"coinCode\":\"btc\",\"currency\":\"USD\"}"), 110);
         assertFits(view.findViewById(R.id.widget_pair));
         assertFits(view.findViewById(R.id.widget_unavailable));
+        assertEquals(View.INVISIBLE, view.findViewById(R.id.widget_updated_at).getVisibility());
     }
 
     @Test
@@ -131,6 +133,7 @@ public class PriceWidgetLayoutTest {
 
     private JSONObject quote(String currency, double price) throws Exception {
         return new JSONObject().put("coinCode", "btc").put("currency", currency).put("price", price)
+                .put("updatedAt", 1791804600000L)
                 .put("change24h", 2.34).put("chart", new JSONArray("[0,0.5,0.25,1]"))
                 .put("coins", new JSONArray("[\"btc\",\"eth\",\"ltc\"]"));
     }

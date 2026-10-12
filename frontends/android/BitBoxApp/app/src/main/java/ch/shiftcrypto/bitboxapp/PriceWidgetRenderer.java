@@ -25,8 +25,10 @@ import androidx.core.content.ContextCompat;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -93,6 +95,14 @@ final class PriceWidgetRenderer {
             String price = format.format(state.optDouble("price"));
             views.setTextViewText(R.id.widget_price, price);
         }
+        long updatedAt = state.optLong("updatedAt", 0);
+        boolean showUpdatedAt = available && updatedAt > 0;
+        views.setViewVisibility(R.id.widget_updated_at, showUpdatedAt ? View.VISIBLE : View.INVISIBLE);
+        if (showUpdatedAt) {
+            String updated = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+                    .format(new Date(updatedAt));
+            views.setTextViewText(R.id.widget_updated_at, context.getString(R.string.price_widget_updated_at, updated));
+        }
         double change = state.optDouble("change24h", 0);
         int color = ContextCompat.getColor(context, !available || change == 0 ? R.color.widget_secondary
                 : change > 0 ? R.color.widget_positive : R.color.widget_negative);
@@ -151,6 +161,7 @@ final class PriceWidgetRenderer {
         measure(layout, width, height);
         TextView price = layout.findViewById(R.id.widget_price);
         fitText(views, price.getVisibility() == View.VISIBLE ? price : layout.findViewById(R.id.widget_unavailable));
+        fitText(views, layout.findViewById(R.id.widget_updated_at));
     }
 
     private static void measure(View layout, int width, int height) {

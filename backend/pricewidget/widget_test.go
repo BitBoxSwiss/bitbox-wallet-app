@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -103,6 +105,7 @@ func TestCacheAndOfflineFallback(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, state.Price)
 	assert.Equal(t, float64(120), *state.Price)
+	assert.Equal(t, now.UnixMilli(), state.UpdatedAt)
 	assert.Equal(t, []float64{0, 0.5, 1}, state.Chart)
 	assert.Equal(t, 1, calls)
 	path := cacheFile(dir, "btc", "USD").Path()
@@ -131,12 +134,14 @@ func TestCacheAndOfflineFallback(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, state.Price)
 	assert.Equal(t, "USD", state.Currency, "fallback quote must carry its actual currency")
+	assert.Equal(t, now.UnixMilli(), state.UpdatedAt, "fallback retains its own refresh timestamp")
 	assert.True(t, state.Retry)
 
 	now = now.Add(cacheTTL)
 	state, err = service.Load(dir, 0, true, false)
 	require.NoError(t, err)
 	assert.Nil(t, state.Price, "expired prices cannot be presented as fresh")
+	assert.Zero(t, state.UpdatedAt)
 	assert.Empty(t, state.Chart)
 	assert.Equal(t, "CHF", state.Currency)
 	assert.True(t, state.Retry)
@@ -162,7 +167,7 @@ func TestFallbackExpiresDuringRefresh(t *testing.T) {
 			service := New()
 			service.now = func() time.Time { return now }
 			service.save(dir, rates.WidgetData{CoinCode: "btc", Currency: "USD", Price: 100,
-				ChartPrices: []float64{90, 100}})
+				ChartPrices: []float64{90, 100}}, service.startRefresh())
 			now = now.Add(cacheTTL - 5*time.Second)
 			service.fetch = func(context.Context, *http.Client, string, string) (rates.WidgetData, error) {
 				now = now.Add(duration)
@@ -239,6 +244,91 @@ func TestWidgetHonorsProxy(t *testing.T) {
 	require.NoError(t, err)
 	assert.Nil(t, state.Price)
 	assert.True(t, state.Retry)
+}
+
+func TestOverlappingRefreshes(t *testing.T) {
+	for _, test := range []struct {
+		name       string
+		newerFails bool
+		expires    bool
+		otherCoin  bool
+	}{
+		{name: "newer success wins"},
+		{name: "newer failure permits older success", newerFails: true},
+		{name: "expired newer quote cannot be replaced by older refresh", expires: true},
+		{name: "ordering is per pair", otherCoin: true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			dir := t.TempDir()
+			now := time.Unix(1700000000, 0)
+			service := New()
+			service.now = func() time.Time { return now }
+			started, release := make(chan struct{}), make(chan struct{})
+			unblock := sync.OnceFunc(func() { close(release) })
+			defer unblock()
+			var calls atomic.Int32
+			service.fetch = func(_ context.Context, _ *http.Client, coin, currency string) (rates.WidgetData, error) {
+				price := float64(200)
+				if calls.Add(1) == 1 {
+					close(started)
+					<-release
+					price = 100
+				} else if test.newerFails {
+					return rates.WidgetData{}, errors.New("offline")
+				}
+				return rates.WidgetData{CoinCode: coin, Currency: currency, Price: price,
+					ChartPrices: []float64{90, price}}, nil
+			}
+			type result struct {
+				state State
+				err   error
+			}
+			done := make(chan result, 1)
+			go func() {
+				state, err := service.Load(dir, 0, true, true)
+				done <- result{state, err}
+			}()
+			<-started
+			index := 0
+			if test.otherCoin {
+				index = 1
+			}
+			_, err := service.Load(dir, index, true, true)
+			require.NoError(t, err)
+			newerTime := now
+			if test.expires {
+				now = now.Add(cacheTTL)
+				expired, err := service.Load(dir, 0, false, false)
+				require.NoError(t, err)
+				assert.Nil(t, expired.Price)
+			} else {
+				now = now.Add(5 * time.Second)
+			}
+			unblock()
+			older := <-done
+			require.NoError(t, older.err)
+			// A new service also checks the on-disk result after both requests finish.
+			restarted := New()
+			restarted.now = service.now
+			cached, err := restarted.Load(dir, 0, false, false)
+			require.NoError(t, err)
+			assert.Equal(t, cached, older.state)
+			if test.expires {
+				assert.Nil(t, cached.Price)
+				assert.Zero(t, cached.UpdatedAt)
+			} else {
+				require.NotNil(t, cached.Price)
+				want := float64(200)
+				updatedAt := newerTime
+				if test.newerFails || test.otherCoin {
+					want = 100
+					updatedAt = now
+				}
+				assert.Equal(t, want, *cached.Price)
+				assert.Equal(t, updatedAt.UnixMilli(), cached.UpdatedAt)
+			}
+		})
+	}
 }
 
 func TestNormalizedChart(t *testing.T) {
