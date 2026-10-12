@@ -88,6 +88,7 @@ export const SettingsSearchContent = ({
                     key={searchResult.id}
                     onClick={() => navigate(url)}
                     settingName={searchResult.title}
+                    secondaryText={searchResult.description}
                   />
                 );
               })}

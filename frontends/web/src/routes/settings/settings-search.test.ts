@@ -23,6 +23,13 @@ const translations: Record<string, string> = {
   'testnet.deactivate.title': 'Deactivate testnet',
   'testWallet.connect.title': 'Test wallet',
   'testWallet.disconnect.title': 'Disconnect test wallet',
+
+  'lightning.settings.enableWalletDescription': 'Enable lightning wallet description',
+  'lightning.settings.description': 'Lightning settings description',
+  'testnet.activate.description': 'Explore and test features by using testnet.',
+  'testnet.deactivate.description': 'Restart app to exit testnet mode.',
+  'testWallet.connect.description': 'Test wallet description',
+  'testWallet.disconnect.description': 'Removes the software test wallet.',
 };
 
 const t = ((key: string) => translations[key] || key) as TFunction;
@@ -46,9 +53,9 @@ describe('settings search', () => {
 
   it.each([
     { isTesting: undefined, title: undefined },
-    { isTesting: false, title: 'Activate testnet' },
-    { isTesting: true, title: 'Deactivate testnet' },
-  ])('shows the correct testnet setting for isTesting=$isTesting', ({ isTesting, title }) => {
+    { isTesting: false, title: 'Activate testnet', description: 'Explore and test features by using testnet.' },
+    { isTesting: true, title: 'Deactivate testnet', description: 'Restart app to exit testnet mode.' },
+  ])('shows the correct testnet setting for isTesting=$isTesting', ({ isTesting, title, description }) => {
     const items = getSettingsSearchItems({
       devices: {},
       hasAccounts: true,
@@ -62,6 +69,7 @@ describe('settings search', () => {
       id: 'testnet-mode',
       page: 'advanced',
       title,
+      description,
     });
   });
 
@@ -72,6 +80,7 @@ describe('settings search', () => {
       id: 'test-wallet',
       page: 'advanced',
       title: 'Test wallet',
+      description: 'Test wallet description',
     });
     expect(filterSettingsSearchItems(getItems(false, true), 'disconnect')).toEqual([]);
   });
@@ -83,6 +92,7 @@ describe('settings search', () => {
       id: 'test-wallet',
       page: 'advanced',
       title: 'Disconnect test wallet',
+      description: 'Removes the software test wallet.',
     }]);
   });
 
@@ -93,6 +103,7 @@ describe('settings search', () => {
       id: 'lightning-settings',
       page: 'advanced',
       title: 'Lightning settings',
+      description: '' // no description for when isLightningEnabled
     });
   });
 
@@ -103,6 +114,7 @@ describe('settings search', () => {
       id: 'lightning-settings',
       page: 'advanced',
       title: 'Enable lightning wallet',
+      description: 'Enable lightning wallet description',
     });
   });
 
