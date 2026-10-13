@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import i18n from '../../../__mocks__/i18n';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TReleaseNotes } from '@/api/whats-new';
@@ -13,21 +13,24 @@ const apiMocks = vi.hoisted(() => ({
 const envMocks = vi.hoisted(() => ({ runningInAndroid: vi.fn(), runningInIOS: vi.fn() }));
 const systemMocks = vi.hoisted(() => ({ open: vi.fn() }));
 const alertMocks = vi.hoisted(() => ({ alertUser: vi.fn() }));
+const mediaMocks = vi.hoisted(() => ({ useMediaQuery: vi.fn() }));
 
 vi.mock('@/api/whats-new', () => apiMocks);
 vi.mock('@/api/system', () => systemMocks);
 vi.mock('@/utils/env', () => envMocks);
 vi.mock('@/components/alert/Alert', () => alertMocks);
+vi.mock('@/hooks/mediaquery', () => mediaMocks);
 vi.mock('@/components/dialog/dialog', () => ({
-  Dialog: ({ children, onClose, open, title }: {
+  Dialog: ({ children, onClose, open, title, contentRef }: {
     children: ReactNode;
     onClose: () => void;
     open: boolean;
     title: string;
+    contentRef: RefObject<HTMLDivElement>;
   }) => open && (
     <div role="dialog" aria-label={title}>
       <button onClick={onClose}>close</button>
-      {children}
+      <div ref={contentRef}>{children}</div>
     </div>
   ),
   DialogButtons: ({ children }: { children: ReactNode }) => <div>{children}</div>,
@@ -71,6 +74,8 @@ const notes: TReleaseNotes = {
 describe('WhatsNew', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
+    mediaMocks.useMediaQuery.mockReturnValue(false);
+    vi.stubGlobal('PointerEvent', MouseEvent);
     await i18n.changeLanguage('en');
     apiMocks.getWhatsNew.mockResolvedValue(notes);
     apiMocks.dismissWhatsNew.mockResolvedValue({ success: true });
@@ -81,6 +86,8 @@ describe('WhatsNew', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -190,5 +197,98 @@ describe('WhatsNew', () => {
     render(<WhatsNew />);
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     expect(apiMocks.dismissWhatsNew).not.toHaveBeenCalled();
+  });
+
+  it.each(['ios', 'android'])('supports taps, page indicators and links on %s', async os => {
+    mediaMocks.useMediaQuery.mockImplementation(query => query.includes('max-width'));
+    envMocks.runningInIOS.mockReturnValue(os === 'ios');
+    envMocks.runningInAndroid.mockReturnValue(os === 'android');
+    render(<WhatsNew />);
+    const title = await screen.findByText('Settings search');
+    expect(screen.queryByRole('button', { name: 'button.next' })).not.toBeInTheDocument();
+    const area = title.parentElement!;
+    fireEvent.pointerDown(area, { clientX: 200, clientY: 100 });
+    fireEvent.pointerUp(area, { clientX: 200, clientY: 100 });
+    expect(screen.getByText('Mobile update')).toBeInTheDocument();
+    expect(await screen.findByRole('img')).toHaveAttribute('alt', 'Mobile preview');
+    fireEvent.click(screen.getByRole('button', { name: /Release blog/ }));
+    expect(screen.getByRole('button', { name: /Release blog/ })).toHaveAttribute('aria-current', 'step');
+    fireEvent.click(screen.getByRole('link', { name: 'Read more' }));
+    expect(systemMocks.open).toHaveBeenCalledWith('https://blog.bitbox.swiss/en/');
+    expect(apiMocks.dismissWhatsNew).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: /Settings search/ }));
+    fireEvent.pointerDown(screen.getByText('Settings search'), { clientX: 200, clientY: 100 });
+    fireEvent.pointerUp(screen.getByText('Settings search'), { clientX: 200, clientY: 200 });
+    expect(screen.getByText('Settings search')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'close' }));
+    expect(apiMocks.dismissWhatsNew).toHaveBeenCalledWith('4.53.0');
+  });
+
+  it('advances automatically, supports pause/resume, and leaves the last page open', async () => {
+    vi.useFakeTimers();
+    mediaMocks.useMediaQuery.mockImplementation(query => query.includes('max-width'));
+    render(<WhatsNew />);
+    await act(async () => {});
+    act(() => vi.advanceTimersByTime(3000));
+    fireEvent.click(screen.getByRole('button', { name: 'whatsNew.pause' }));
+    act(() => vi.advanceTimersByTime(10000));
+    expect(screen.getByText('Settings search')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'whatsNew.play' }));
+    act(() => vi.advanceTimersByTime(5000));
+    expect(screen.getByText('Release blog')).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(16000));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(apiMocks.dismissWhatsNew).not.toHaveBeenCalled();
+  });
+
+  // Overflow must not disable the timer or hide the manual pause control.
+  it('advances long pages automatically after eight seconds', async () => {
+    vi.useFakeTimers();
+    mediaMocks.useMediaQuery.mockImplementation(query => query.includes('max-width'));
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(2000);
+    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
+    render(<WhatsNew />);
+    await act(async () => {});
+    expect(screen.getByRole('button', { name: 'whatsNew.pause' })).toBeEnabled();
+    act(() => vi.advanceTimersByTime(7999));
+    expect(screen.getByText('Settings search')).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(1));
+    expect(screen.getByText('Release blog')).toBeInTheDocument();
+  });
+
+  it('disables automatic navigation for reduced motion', async () => {
+    vi.useFakeTimers();
+    mediaMocks.useMediaQuery.mockReturnValue(true);
+    render(<WhatsNew />);
+    await act(async () => {});
+    act(() => vi.advanceTimersByTime(16000));
+    expect(screen.getByText('Settings search')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'whatsNew.pause' })).not.toBeInTheDocument();
+  });
+
+  it('waits for images and pauses while holding the page', async () => {
+    vi.useFakeTimers();
+    mediaMocks.useMediaQuery.mockImplementation(query => query.includes('max-width'));
+    envMocks.runningInIOS.mockReturnValue(true);
+    let finishImage: (value: string) => void = () => {};
+    apiMocks.getWhatsNewImage.mockReturnValue(new Promise<string>(resolve => {
+      finishImage = resolve;
+    }));
+    render(<WhatsNew />);
+    await act(async () => {});
+    fireEvent.click(screen.getByRole('button', { name: /Mobile update/ }));
+    act(() => vi.advanceTimersByTime(16000));
+    expect(screen.getByText('Mobile update')).toBeInTheDocument();
+    // Image failure also unblocks the timer.
+    await act(async () => finishImage(''));
+    act(() => vi.advanceTimersByTime(3000));
+    fireEvent.pointerDown(screen.getByText('Mobile update'), { clientX: 200, clientY: 100 });
+    act(() => vi.advanceTimersByTime(16000));
+    expect(screen.getByText('Mobile update')).toBeInTheDocument();
+    fireEvent.pointerUp(screen.getByText('Mobile update'), { clientX: 200, clientY: 100 });
+    act(() => vi.advanceTimersByTime(4999));
+    expect(screen.getByText('Mobile update')).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(1));
+    expect(screen.getByText('Release blog')).toBeInTheDocument();
   });
 });

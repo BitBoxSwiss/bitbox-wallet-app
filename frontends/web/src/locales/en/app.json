@@ -2667,6 +2667,8 @@
     "title": "Welcome"
   },
   "whatsNew": {
+    "pause": "Pause automatic navigation",
+    "play": "Resume automatic navigation",
     "progress": "{{current}} of {{total}}",
     "title": "What's new in the BitBoxApp"
   }

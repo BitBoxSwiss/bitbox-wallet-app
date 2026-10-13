@@ -17,7 +17,7 @@
 
 .title {
     font-size: var(--size-subheader);
-    font-weight: 500;
+    font-weight: 700;
     margin: 0 0 var(--space-quarter);
 }
 
@@ -65,4 +65,127 @@
     .dialog {
         max-height: 80dvh;
     }
+}
+
+@media (max-width: 768px) {
+    .page {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .highlight {
+        flex: 1;
+        padding-bottom: var(--space-half);
+    }
+
+    .image {
+        height: min(40dvh, 85vw);
+        margin: var(--space-half) calc(-1 * var(--space-half)) var(--space-default);
+    }
+
+    .image img {
+        border-radius: 0;
+    }
+
+    .title {
+        font-size: var(--size-header);
+        margin-bottom: var(--space-half);
+    }
+
+    .description {
+        line-height: 1.5;
+    }
+
+    .link {
+        margin-top: var(--space-half);
+    }
+
+    .link .learnMore {
+        display: inline-block;
+        font-weight: 700;
+        padding-block: var(--space-quarter);
+        text-decoration: none;
+    }
+
+    .pagination {
+        align-items: center;
+        flex-direction: row;
+        flex-shrink: 0;
+        gap: var(--space-quarter);
+        margin-top: var(--space-half);
+        padding-bottom: calc(var(--space-half) + env(safe-area-inset-bottom, 0px));
+    }
+
+    .segments {
+        display: flex;
+        flex: 1;
+        gap: var(--space-half);
+        min-width: 0;
+        overflow-x: auto;
+    }
+
+    .pagination .segment,
+    .pagination .playback {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0;
+    }
+
+    .segment {
+        flex: 1;
+    }
+
+    .track {
+        background-color: var(--background-quaternary);
+        border-radius: var(--radius-full);
+        height: 5px;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .fill {
+        background-color: var(--color-primary);
+        display: block;
+        height: 100%;
+        transform: scaleX(0);
+        transform-origin: left;
+    }
+
+    .track.manual {
+        background-color: var(--color-primary);
+    }
+
+    .fill.complete {
+        transform: scaleX(1);
+    }
+
+    .fill.active {
+        animation: reading var(--page-duration) linear forwards;
+    }
+
+    .pagination .segment:focus-visible,
+    .pagination .playback:focus-visible,
+    .link .learnMore:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: -2px;
+    }
+
+    .pauseIcon {
+        border-inline: 3px solid currentColor;
+        height: 14px;
+        width: 10px;
+    }
+
+    .playIcon {
+        border-block: 7px solid transparent;
+        border-left: 10px solid currentColor;
+    }
+}
+
+@keyframes reading {
+    from { transform: scaleX(0.02); }
+    to { transform: scaleX(1); }
 }
