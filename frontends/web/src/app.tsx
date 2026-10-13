@@ -13,6 +13,7 @@ import { AppNavigation } from './components/navigation';
 import { AppNotifications } from './components/notification';
 import { Aopp } from './components/aopp/aopp';
 import { Confirm } from './components/confirm/Confirm';
+import { ExternalLinkPrompt } from './components/external-link-prompt/external-link-prompt';
 import { KeystoreConnectPrompt } from './components/keystoreconnectprompt';
 import { Sidebar } from './components/sidebar/sidebar';
 import { RouterWatcher } from './utils/route';
@@ -91,6 +92,7 @@ const AppFrame = () => {
         )}
         <Alert />
         <Confirm />
+        <ExternalLinkPrompt />
       </div>
     </>
   );

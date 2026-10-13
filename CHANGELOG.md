@@ -13,6 +13,8 @@
 - Add eye toggles to the optional passphrase and test wallet password fields, with paste allowed while hidden
 - iOS: block third-party keyboards to protect revealed passwords and passphrases
 
+- Confirm before opening third-party widget links in the system browser
+
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1
 - Add a mobile-only beta Lightning hot wallet, with send, receive, Bitcoin top-up, and on-chain withdrawal flows.
