@@ -17,6 +17,7 @@ type Props = {
   coinCode: accountApi.CoinCode;
   disabled: boolean;
   proposedFee?: accountApi.TAmountWithConversions;
+  highFeePercentage?: string;
   customFee: string;
   showCalculatingFeeLabel?: boolean;
   onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
@@ -35,6 +36,7 @@ export const FeeTargets = ({
   coinCode,
   disabled,
   proposedFee,
+  highFeePercentage,
   customFee,
   showCalculatingFeeLabel,
   onFeeTargetChange,
@@ -233,6 +235,13 @@ export const FeeTargets = ({
               </NumberInput>
             </div>
           </div>
+        )}
+        {highFeePercentage && !showCalculatingFeeLabel && !error && (
+          <Message type="warning" className={style.highFeeWarning}>
+            <span>{t('send.fee.highFee')}</span>
+            {': '}
+            <span>{t('send.fee.highFeeWarning', { percentage: highFeePercentage })}</span>
+          </Message>
         )}
         { feeTarget && !error && (
           <div className={style.feeDescription}>

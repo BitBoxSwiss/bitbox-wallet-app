@@ -181,7 +181,7 @@ func NewTxSpendAll(
 		outputInfo.pkScriptLen(),
 		0)
 	maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
-	if outputsSum < maxRequiredFee {
+	if outputsSum <= maxRequiredFee {
 		return nil, errp.WithStack(errors.ErrInsufficientFunds)
 	}
 	output := wire.NewTxOut(int64(outputsSum-maxRequiredFee), outputInfo.pkScript)
