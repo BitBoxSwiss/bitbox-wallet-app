@@ -9,6 +9,7 @@ export type TVendorIframeResizeHeight = {
   iframeLoaded: boolean;
   iframeRef: RefObject<HTMLIFrameElement>;
   onIframeLoad: () => void;
+  resetIframeLoaded: () => void;
 };
 
 export const useVendorIframeResizeHeight = (): TVendorIframeResizeHeight => {
@@ -62,11 +63,16 @@ export const useVendorIframeResizeHeight = (): TVendorIframeResizeHeight => {
     onResize();
   }, [onResize]);
 
+  const resetIframeLoaded = useCallback(() => {
+    setIframeLoaded(false);
+  }, []);
+
   return {
     containerRef,
     height,
     iframeLoaded,
     iframeRef,
     onIframeLoad,
+    resetIframeLoaded,
   };
 };
