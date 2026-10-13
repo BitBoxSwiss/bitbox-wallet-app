@@ -334,24 +334,13 @@ struct WebView: UIViewRepresentable {
             guard gesture.state == .ended, let webView = webView else {
                 return
             }
-            webView.evaluateJavaScript("window.onBackButtonPressed ? window.onBackButtonPressed() : true;") { result, error in
-                if error != nil {
-                    if webView.canGoBack {
-                        webView.goBack()
-                    }
+            webView.evaluateJavaScript("window.onBackButtonPressed ? window.onBackButtonPressed() === true : false;") { result, error in
+                // Only navigate native history when the frontend explicitly allows it.
+                guard error == nil, let shouldGoBack = result as? Bool,
+                      shouldGoBack, webView.canGoBack else {
                     return
                 }
-                let shouldGoBack: Bool
-                if let boolValue = result as? Bool {
-                    shouldGoBack = boolValue
-                } else if let stringValue = result as? String {
-                    shouldGoBack = (stringValue as NSString).boolValue
-                } else {
-                    shouldGoBack = true
-                }
-                if shouldGoBack && webView.canGoBack {
-                    webView.goBack()
-                }
+                webView.goBack()
             }
         }
 

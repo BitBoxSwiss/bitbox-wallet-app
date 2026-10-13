@@ -64,8 +64,17 @@ export const BTCDirect = ({
 
   const [blocking, setBlocking] = useState(false);
   const account = findAccount(activeAccounts, code);
-  const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBTCDirectWidgetDisclaimer ?? false);
+  const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad, resetIframeLoaded } = useVendorIframeResizeHeight();
+  const skipDisclaimer = config?.frontend.skipBTCDirectWidgetDisclaimer ?? false;
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(skipDisclaimer);
+  const onBack = (
+    agreedTerms && !skipDisclaimer
+      ? () => {
+        resetIframeLoaded();
+        setAgreedTerms(false);
+      }
+      : undefined
+  );
   useMarketIframeActive(!!account && !!config && agreedTerms && btcdirectInfo?.success === true);
 
   const handlePaymentRequest = useCallback(async (
@@ -230,7 +239,7 @@ export const BTCDirect = ({
       <div className="container">
         <div className="innerContainer">
           <div className={style.header}>
-            <Header variant="navigation" mobileBackButton title={title} />
+            <Header variant="navigation" mobileBackButton onBack={onBack} title={title} />
           </div>
           <div ref={containerRef} className={style.container}>
             { !agreedTerms ? (
