@@ -152,7 +152,8 @@ export const usePaymentReview = ({
         return;
       }
 
-      if (!needsCustomAmount) {
+      const isInsufficientFunds = error instanceof TSdkError && error.code === TLightningErrorCode.INSUFFICIENT_FUNDS;
+      if (!needsCustomAmount && !isInsufficientFunds) {
         setPreparedPayment(undefined);
         backToPaymentInput(toLightningErrorMessage(t, error));
         return;
