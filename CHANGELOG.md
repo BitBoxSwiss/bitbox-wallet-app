@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Android: improve QR code scanning reliability and add tap-to-focus and pinch-to-zoom
 - Lightning: preserve invoice details when going back to edit an invoice
 - Rename "Factory reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy

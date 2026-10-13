@@ -84,13 +84,10 @@ public class MainActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(flags);
 
         View root = findViewById(R.id.root_layout);
-        WebView vw = findViewById(R.id.vw);
         if (root != null) {
             root.setBackgroundColor(statusBarColor);
         }
-        if (vw != null) {
-            vw.setBackgroundColor(statusBarColor);
-        }
+        webViewManager.setBackgroundColor(statusBarColor);
     }
 
     @Override
