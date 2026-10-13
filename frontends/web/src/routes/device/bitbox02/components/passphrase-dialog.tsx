@@ -4,7 +4,7 @@ import { FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { submitHostPassphrase } from '@/api/bitbox02';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
-import { Button, Input } from '@/components/forms';
+import { Button, PasswordInput } from '@/components/forms';
 import { Message } from '@/components/message/message';
 import { useMountedRef } from '@/hooks/mount';
 
@@ -17,6 +17,7 @@ export const PassphraseDialog = ({ deviceID, id }: TProps) => {
   const { t } = useTranslation();
   const mounted = useMountedRef();
   const [passphrase, setPassphrase] = useState('');
+  const [showPassphrase, setShowPassphrase] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -31,6 +32,7 @@ export const PassphraseDialog = ({ deviceID, id }: TProps) => {
       if (mounted.current) {
         if (response.success) {
           setPassphrase('');
+          setShowPassphrase(false);
         } else {
           setError(response.errorCode
             ? t(`bitbox02Wizard.passphrase.error.${response.errorCode}`)
@@ -60,8 +62,9 @@ export const PassphraseDialog = ({ deviceID, id }: TProps) => {
       title={t('bitbox02Wizard.passphrase.dialogTitle')}
       onClose={submitting ? undefined : () => submit(null)}>
       <form onSubmit={onSubmit}>
-        <Input
-          type="password"
+        <PasswordInput
+          visible={showPassphrase}
+          onVisibilityChange={setShowPassphrase}
           autoFocus
           aria-label={t('bitbox02Wizard.passphrase.dialogTitle')}
           value={passphrase}
