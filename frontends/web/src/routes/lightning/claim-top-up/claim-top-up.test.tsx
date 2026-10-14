@@ -78,6 +78,28 @@ const deposit = (
   },
 });
 
+const renderClaimTopUp = (activeAccounts: TAccount[] = []) => render(
+  <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
+    <BackButtonProvider>
+      <AppStateContext.Provider
+        value={{
+          accounts: activeAccounts,
+          activeAccounts,
+          deviceIDs: [],
+          devices: {},
+          hasAccounts: activeAccounts.length > 0,
+          hasBottomNavigation: false,
+          hasDevices: false,
+          lightningAccount: undefined,
+          hasLightningAccount: false,
+        }}
+      >
+        <LightningClaimTopUp />
+      </AppStateContext.Provider>
+    </BackButtonProvider>
+  </MemoryRouter>
+);
+
 describe('routes/lightning/claim-top-up', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -94,27 +116,7 @@ describe('routes/lightning/claim-top-up', () => {
       ))
       .mockResolvedValueOnce({ txId: 'claim-txid' });
 
-    render(
-      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <BackButtonProvider>
-          <AppStateContext.Provider
-            value={{
-              accounts: [],
-              activeAccounts: [],
-              deviceIDs: [],
-              devices: {},
-              hasAccounts: false,
-              hasBottomNavigation: false,
-              hasDevices: false,
-              lightningAccount: undefined,
-              hasLightningAccount: false,
-            }}
-          >
-            <LightningClaimTopUp />
-          </AppStateContext.Provider>
-        </BackButtonProvider>
-      </MemoryRouter>
-    );
+    renderClaimTopUp();
 
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.claimButton' }));
     fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.claimButton' }));
@@ -132,27 +134,7 @@ describe('routes/lightning/claim-top-up', () => {
   it('opens the refund confirmation without a destination account', async () => {
     vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit(100, 2)]);
 
-    render(
-      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <BackButtonProvider>
-          <AppStateContext.Provider
-            value={{
-              accounts: [],
-              activeAccounts: [],
-              deviceIDs: [],
-              devices: {},
-              hasAccounts: false,
-              hasBottomNavigation: false,
-              hasDevices: false,
-              lightningAccount: undefined,
-              hasLightningAccount: false,
-            }}
-          >
-            <LightningClaimTopUp />
-          </AppStateContext.Provider>
-        </BackButtonProvider>
-      </MemoryRouter>
-    );
+    renderClaimTopUp();
 
     const refundButton = await screen.findByRole('button', {
       name: 'lightning.claimTopUp.refundButton',
@@ -174,27 +156,7 @@ describe('routes/lightning/claim-top-up', () => {
       TLightningErrorCode.TOP_UP_CLAIM_FAILED,
     ));
 
-    render(
-      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <BackButtonProvider>
-          <AppStateContext.Provider
-            value={{
-              accounts: [bitcoinAccount],
-              activeAccounts: [bitcoinAccount],
-              deviceIDs: [],
-              devices: {},
-              hasAccounts: true,
-              hasBottomNavigation: false,
-              hasDevices: false,
-              lightningAccount: undefined,
-              hasLightningAccount: false,
-            }}
-          >
-            <LightningClaimTopUp />
-          </AppStateContext.Provider>
-        </BackButtonProvider>
-      </MemoryRouter>
-    );
+    renderClaimTopUp([bitcoinAccount]);
 
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.claimButton' }));
     fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.claimButton' }));
@@ -217,27 +179,7 @@ describe('routes/lightning/claim-top-up', () => {
       ))
       .mockResolvedValueOnce({ txId: 'refund-txid' });
 
-    render(
-      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <BackButtonProvider>
-          <AppStateContext.Provider
-            value={{
-              accounts: [bitcoinAccount],
-              activeAccounts: [bitcoinAccount],
-              deviceIDs: [],
-              devices: {},
-              hasAccounts: true,
-              hasBottomNavigation: false,
-              hasDevices: false,
-              lightningAccount: undefined,
-              hasLightningAccount: false,
-            }}
-          >
-            <LightningClaimTopUp />
-          </AppStateContext.Provider>
-        </BackButtonProvider>
-      </MemoryRouter>
-    );
+    renderClaimTopUp([bitcoinAccount]);
 
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.refundButton' }));
     fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.refundButton' }));
@@ -272,27 +214,7 @@ describe('routes/lightning/claim-top-up', () => {
       resolveClaim = resolve;
     }));
 
-    render(
-      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <BackButtonProvider>
-          <AppStateContext.Provider
-            value={{
-              accounts: [],
-              activeAccounts: [],
-              deviceIDs: [],
-              devices: {},
-              hasAccounts: false,
-              hasBottomNavigation: false,
-              hasDevices: false,
-              lightningAccount: undefined,
-              hasLightningAccount: false,
-            }}
-          >
-            <LightningClaimTopUp />
-          </AppStateContext.Provider>
-        </BackButtonProvider>
-      </MemoryRouter>
-    );
+    renderClaimTopUp();
 
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.claimButton' }));
     expect(screen.getByText('lightning.claimTopUp.confirm.claimTitle')).toBeInTheDocument();
@@ -325,13 +247,7 @@ describe('routes/lightning/claim-top-up', () => {
     vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit(100)]);
     vi.mocked(lightningApi.postClaimTopUp).mockResolvedValue({ claimOutcome });
 
-    render(
-      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <BackButtonProvider>
-          <LightningClaimTopUp activeAccounts={[]} />
-        </BackButtonProvider>
-      </MemoryRouter>
-    );
+    renderClaimTopUp();
 
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.claimButton' }));
     fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.claimButton' }));
@@ -346,13 +262,7 @@ describe('routes/lightning/claim-top-up', () => {
     vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit(100, 2)]);
     vi.mocked(lightningApi.postRefundTopUp).mockResolvedValueOnce({ txId: 'refund-txid' });
 
-    render(
-      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <BackButtonProvider>
-          <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
-        </BackButtonProvider>
-      </MemoryRouter>
-    );
+    renderClaimTopUp([bitcoinAccount]);
 
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.refundButton' }));
     fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.refundButton' }));
@@ -374,13 +284,7 @@ describe('routes/lightning/claim-top-up', () => {
       TLightningErrorCode.TOP_UP_REFUND_FAILED,
     ));
 
-    render(
-      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <BackButtonProvider>
-          <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
-        </BackButtonProvider>
-      </MemoryRouter>
-    );
+    renderClaimTopUp([bitcoinAccount]);
 
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.refundButton' }));
     fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.refundButton' }));
@@ -402,13 +306,7 @@ describe('routes/lightning/claim-top-up', () => {
     }]);
     vi.mocked(lightningApi.postRefundTopUp).mockResolvedValue({ txId: 'refund-txid' });
 
-    render(
-      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
-        <BackButtonProvider>
-          <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
-        </BackButtonProvider>
-      </MemoryRouter>
-    );
+    renderClaimTopUp([bitcoinAccount]);
 
     expect(await screen.findByText('lightning.claimTopUp.refundPending')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'lightning.claimTopUp.claimButton' })).toBeDisabled();
