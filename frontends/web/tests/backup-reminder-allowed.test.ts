@@ -91,15 +91,25 @@ const fundAddress = async (address: string) => {
 };
 
 const verifyBackupBannerHidden = async (page: Page) => {
-  const textContent = (await page.textContent('body')) || '';
-  expect(textContent).not.toMatch(BANNER_REGEX);
-  expect(textContent).not.toContain(BANNER_RECOMMENDATION);
+  await expect(page.getByTestId('fiat-balance')).toContainText(/500['\u2019,.\s]000[.,]00 USD/);
+
+  // Reload after balances load so the banner decision uses the funded wallet.
+  const bannerRequest = page.waitForRequest('**/api/keystore/show-backup-banner/*');
+  await page.reload();
+  const response = await (await bannerRequest).response();
+  expect(response?.ok()).toBe(true);
+  const banner = await response?.json();
+  expect(banner).toMatchObject({ success: true });
+  // The backend omits show when it is false.
+  expect(banner.show).toBeFalsy();
+
+  await expect(page.locator('body')).not.toContainText(BANNER_REGEX);
+  await expect(page.locator('body')).not.toContainText(BANNER_RECOMMENDATION);
 };
 
 const verifyBackupBannerShown = async (page: Page) => {
-  const textContent = (await page.textContent('body')) || '';
-  expect(textContent).toMatch(BANNER_REGEX);
-  expect(textContent).toContain(BANNER_RECOMMENDATION);
+  await expect(page.locator('body')).toContainText(BANNER_REGEX);
+  await expect(page.locator('body')).toContainText(BANNER_RECOMMENDATION);
 };
 
 test.beforeEach(() => {
@@ -116,7 +126,8 @@ test.afterEach(async () => {
   regtest = undefined;
 });
 
-test('Backup reminder stays hidden when allowed is false', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
+// An explicitly suppressed wallet stays hidden even when its funded balance exceeds the threshold.
+test('Backup reminder stays hidden when allowed is false', async ({ page, host, frontendPort, servewalletPort, ratesURL }, testInfo) => {
   await test.step('Start regtest and init wallet', async () => {
     regtest = await launchRegtest();
     await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -125,7 +136,7 @@ test('Backup reminder stays hidden when allowed is false', async ({ page, host, 
 
   await test.step('Start servewallet', async () => {
     servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false });
-    await servewallet.start();
+    await servewallet.start({ extraFlags: { coingeckoURL: ratesURL } });
   });
 
   const recvAddress = await test.step('Grab receive address', async () => {
@@ -145,7 +156,7 @@ test('Backup reminder stays hidden when allowed is false', async ({ page, host, 
   });
 
   await test.step('Restart servewallet', async () => {
-    await servewallet?.start();
+    await servewallet?.start({ extraFlags: { coingeckoURL: ratesURL } });
   });
 
   await test.step('Unlock wallet after restart', async () => {
@@ -154,12 +165,12 @@ test('Backup reminder stays hidden when allowed is false', async ({ page, host, 
 
   await test.step('Verify banner stays hidden', async () => {
     await page.goto('/');
-    await page.waitForTimeout(5000);
     await verifyBackupBannerHidden(page);
   });
 });
 
-test('Backup reminder stays suppressed when first seen over threshold', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
+// First observing a funded wallet above the fixed fiat threshold permanently suppresses its reminder.
+test('Backup reminder stays suppressed when first seen over threshold', async ({ page, host, frontendPort, servewalletPort, ratesURL }, testInfo) => {
   await test.step('Start regtest and init wallet', async () => {
     regtest = await launchRegtest();
     await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -168,7 +179,7 @@ test('Backup reminder stays suppressed when first seen over threshold', async ({
 
   await test.step('Start servewallet', async () => {
     servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false });
-    await servewallet.start();
+    await servewallet.start({ extraFlags: { coingeckoURL: ratesURL } });
   });
 
   const recvAddress = await test.step('Grab receive address', async () => {
@@ -188,7 +199,7 @@ test('Backup reminder stays suppressed when first seen over threshold', async ({
   });
 
   await test.step('Restart servewallet', async () => {
-    await servewallet?.start();
+    await servewallet?.start({ extraFlags: { coingeckoURL: ratesURL } });
   });
 
   await test.step('Unlock wallet after restart', async () => {
@@ -197,13 +208,13 @@ test('Backup reminder stays suppressed when first seen over threshold', async ({
 
   await test.step('Verify banner stays hidden and flag is set false', async () => {
     await page.goto('/');
-    await page.waitForTimeout(5000);
-    await verifyBackupBannerHidden(page);
     await expect.poll(() => getBackupReminderAllowed(), { timeout: 5000 }).toBe(false);
+    await verifyBackupBannerHidden(page);
   });
 });
 
-test('Backup reminder shows after funding a new wallet', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
+// Observe the empty wallet below the threshold before funding, then show its reminder using fixed rates.
+test('Backup reminder shows after funding a new wallet', async ({ page, host, frontendPort, servewalletPort, ratesURL }, testInfo) => {
   await test.step('Start regtest and init wallet', async () => {
     regtest = await launchRegtest();
     await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -212,7 +223,7 @@ test('Backup reminder shows after funding a new wallet', async ({ page, host, fr
 
   await test.step('Start servewallet', async () => {
     servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false });
-    await servewallet.start();
+    await servewallet.start({ extraFlags: { coingeckoURL: ratesURL } });
   });
 
   const recvAddress = await test.step('Grab receive address', async () => {
@@ -220,12 +231,12 @@ test('Backup reminder shows after funding a new wallet', async ({ page, host, fr
   });
 
   await test.step('Fund wallet', async () => {
+    await expect.poll(() => getBackupReminderAllowed(), { timeout: 5000 }).toBe(true);
     await fundAddress(recvAddress);
   });
 
   await test.step('Verify banner is shown', async () => {
     await page.goto('/');
-    await page.waitForTimeout(5000);
     await verifyBackupBannerShown(page);
   });
 });
