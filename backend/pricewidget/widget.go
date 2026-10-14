@@ -144,8 +144,8 @@ func activeCoins(dataDir string) ([]string, error) {
 	}
 	slices.Sort(coins)
 	if len(coins) == 0 {
-		// Allow browsing market prices before wallet accounts have been set up.
-		coins = []string{"btc", "eth", "ltc"}
+		// Keep a Bitcoin quote available when no supported accounts are active.
+		coins = []string{"btc"}
 	}
 	return coins, nil
 }
