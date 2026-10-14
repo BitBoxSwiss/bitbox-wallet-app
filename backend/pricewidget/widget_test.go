@@ -28,7 +28,7 @@ func TestSelectionAndPreferences(t *testing.T) {
 	service := New()
 	state, err := service.Load(dir, 0, false, false)
 	require.NoError(t, err)
-	assert.Equal(t, []string{"btc", "eth", "ltc"}, state.Coins)
+	assert.Equal(t, []string{"btc"}, state.Coins)
 	assert.Equal(t, "USD", state.Currency)
 	assert.Nil(t, state.Price)
 
@@ -61,7 +61,7 @@ func TestSelectionAndPreferences(t *testing.T) {
 	writeFixture(t, dir, "accounts.json", `{"accounts":[{"coinCode":"eth","inactive":true},{"coinCode":"ltc","hiddenBecauseUnused":true}]}`)
 	state, err = service.Load(dir, 0, false, false)
 	require.NoError(t, err)
-	assert.Equal(t, []string{"btc", "eth", "ltc"}, state.Coins)
+	assert.Equal(t, []string{"btc"}, state.Coins)
 
 	writeFixture(t, dir, "accounts.json", `{"accounts":[{"coinCode":"eth"}]}`)
 	state, err = service.Load(dir, 1, false, false)
@@ -70,18 +70,23 @@ func TestSelectionAndPreferences(t *testing.T) {
 	assert.Equal(t, "eth", state.CoinCode)
 }
 
-func TestCycleWithoutAccounts(t *testing.T) {
+func TestBitcoinFallbackWithoutActiveAccounts(t *testing.T) {
 	dir := t.TempDir()
 	service := New()
-	for _, fixture := range []string{"", `{"accounts":[]}`} {
+	for _, fixture := range []string{
+		"",
+		`{"accounts":[]}`,
+		`{"accounts":[{"coinCode":"eth","inactive":true},{"coinCode":"ltc","hiddenBecauseUnused":true}]}`,
+		`{"accounts":[{"coinCode":"eth-erc20-usdt"}]}`,
+	} {
 		if fixture != "" {
 			writeFixture(t, dir, "accounts.json", fixture)
 		}
-		for index, coin := range map[int]string{0: "btc", 1: "eth", 2: "ltc", 3: "btc", -1: "ltc", -3: "btc"} {
+		for _, index := range []int{0, 1, 2, 3, -1, -3} {
 			state, err := service.Load(dir, index, false, false)
 			require.NoError(t, err)
-			assert.Equal(t, []string{"btc", "eth", "ltc"}, state.Coins)
-			assert.Equal(t, coin, state.CoinCode)
+			assert.Equal(t, []string{"btc"}, state.Coins)
+			assert.Equal(t, "btc", state.CoinCode)
 		}
 	}
 }
@@ -192,6 +197,7 @@ func TestFallbackExpiresDuringRefresh(t *testing.T) {
 
 func TestFreshQuoteSurvivesCacheWriteFailure(t *testing.T) {
 	dir := t.TempDir()
+	writeFixture(t, dir, "accounts.json", `{"accounts":[{"coinCode":"btc"},{"coinCode":"eth"}]}`)
 	now := time.Unix(1700000000, 0)
 	service := New()
 	service.now = func() time.Time { return now }
@@ -260,6 +266,7 @@ func TestOverlappingRefreshes(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			dir := t.TempDir()
+			writeFixture(t, dir, "accounts.json", `{"accounts":[{"coinCode":"btc"},{"coinCode":"eth"}]}`)
 			now := time.Unix(1700000000, 0)
 			service := New()
 			service.now = func() time.Time { return now }
