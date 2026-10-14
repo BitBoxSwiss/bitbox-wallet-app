@@ -44,6 +44,8 @@ func TestSelectionAndPreferences(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, []string{"btc", "eth", "ltc"}, state.Coins)
 			assert.Equal(t, coin, state.CoinCode)
+			assert.GreaterOrEqual(t, state.SelectedIndex, 0)
+			assert.Equal(t, coin, state.Coins[state.SelectedIndex])
 			wantCurrency := currency
 			if currency != "CHF" && currency != "EUR" {
 				wantCurrency = "USD"
@@ -217,6 +219,8 @@ func TestFreshQuoteSurvivesCacheWriteFailure(t *testing.T) {
 	assert.False(t, state.Retry)
 	rendered, err := service.Load(dir, 0, false, false)
 	require.NoError(t, err)
+	assert.True(t, state.Refreshed)
+	state.Refreshed = false
 	assert.Equal(t, state, rendered, "rendering retains the fresh quote without a disk cache")
 
 	otherCoin, err := service.Load(dir, 1, false, false)
@@ -319,6 +323,7 @@ func TestOverlappingRefreshes(t *testing.T) {
 			restarted.now = service.now
 			cached, err := restarted.Load(dir, 0, false, false)
 			require.NoError(t, err)
+			older.state.Refreshed = false
 			assert.Equal(t, cached, older.state)
 			if test.expires {
 				assert.Nil(t, cached.Price)
@@ -342,4 +347,45 @@ func TestNormalizedChart(t *testing.T) {
 	assert.Equal(t, []float64{0.5, 0.5}, normalizedChart([]float64{100, 100}))
 	assert.Equal(t, []float64{1, 0, 0.5}, normalizedChart([]float64{30, 10, 20}))
 	assert.Empty(t, normalizedChart(nil))
+}
+
+func TestSelectionAfterWrappingAndRemovingAccount(t *testing.T) {
+	dir := t.TempDir()
+	writeFixture(t, dir, "accounts.json", `{"accounts":[{"coinCode":"btc"},{"coinCode":"eth"},{"coinCode":"ltc"}]}`)
+	service := New()
+	index := 0
+	for range 3 {
+		state, err := service.Load(dir, index+1, false, false)
+		require.NoError(t, err)
+		index = state.SelectedIndex
+	}
+	assert.Zero(t, index)
+	writeFixture(t, dir, "accounts.json", `{"accounts":[{"coinCode":"btc"},{"coinCode":"eth"}]}`)
+	state, err := service.Load(dir, index, false, false)
+	require.NoError(t, err)
+	assert.Equal(t, "btc", state.CoinCode)
+}
+
+func TestCanceledFetchDoesNotSave(t *testing.T) {
+	dir := t.TempDir()
+	service := New()
+	started := make(chan struct{})
+	service.fetch = func(ctx context.Context, _ *http.Client, coin, currency string) (rates.WidgetData, error) {
+		close(started)
+		<-ctx.Done()
+		// Even a response arriving during cancellation must not be cached.
+		return rates.WidgetData{CoinCode: coin, Currency: currency, Price: 120, ChartPrices: []float64{100, 120}}, nil
+	}
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	done := make(chan error, 1)
+	go func() {
+		_, err := service.LoadContext(ctx, dir, 0, true, true)
+		done <- err
+	}()
+	<-started
+	cancel()
+	require.ErrorIs(t, <-done, context.Canceled)
+	assert.Nil(t, service.cached(dir, "btc", "USD"))
+	assert.NoFileExists(t, cacheFile(dir, "btc", "USD").Path())
 }

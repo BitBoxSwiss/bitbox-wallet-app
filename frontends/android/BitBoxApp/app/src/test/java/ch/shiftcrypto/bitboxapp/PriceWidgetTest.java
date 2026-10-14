@@ -12,6 +12,9 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.content.res.XmlResourceParser;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -41,13 +44,22 @@ import org.robolectric.annotation.GraphicsMode;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.shadows.ShadowAppWidgetManager;
+import org.robolectric.shadows.ShadowNetworkCapabilities;
+import org.robolectric.shadow.api.Shadow;
+import org.robolectric.util.ReflectionHelpers;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import mobileserver.PriceWidgetRequest;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.util.concurrent.TimeUnit;
 
 @RunWith(RobolectricTestRunner.class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = 35, application = Application.class, shadows = PriceWidgetTest.ShadowMobileserver.class,
+@Config(sdk = 35, application = Application.class, shadows = {PriceWidgetTest.ShadowMobileserver.class, PriceWidgetTest.ShadowRequest.class},
         instrumentedPackages = {"mobileserver"})
 public class PriceWidgetTest {
     private Context context;
@@ -67,6 +79,13 @@ public class PriceWidgetTest {
         info.initialLayout = R.layout.price_widget;
         widgets.addBoundWidget(WIDGET_ID, info);
         ShadowMobileserver.cacheReads = 0;
+        ShadowMobileserver.coins = new String[]{"btc", "eth", "ltc"};
+        ShadowMobileserver.price = null;
+        ShadowRequest.calls.set(0);
+        ShadowRequest.cancellations.set(0);
+        ShadowRequest.entered = null;
+        ShadowRequest.release = null;
+        ShadowRequest.forced = false;
     }
 
     @Test
@@ -78,7 +97,7 @@ public class PriceWidgetTest {
         workManager.enqueueUniquePeriodicWork(PriceWidgetProvider.PERIODIC_WORK,
                 ExistingPeriodicWorkPolicy.KEEP, old).getResult().get();
 
-        PriceWidgetProvider.schedule(context, false);
+        PriceWidgetProvider.refresh(context, false).get();
 
         WorkInfo periodic = workManager.getWorkInfosForUniqueWork(PriceWidgetProvider.PERIODIC_WORK).get().get(0);
         assertEquals(old.getId(), periodic.getId());
@@ -142,18 +161,166 @@ public class PriceWidgetTest {
                 context.getResources().getDisplayMetrics()));
     }
 
-    @Implements(className = "mobileserver.Mobileserver", isInAndroidSdk = false)
-    public static class ShadowMobileserver {
-        static int cacheReads;
+    @Test
+    public void nonForcedReplacementRetainsPendingForcedRefresh() throws Exception {
+        ShadowMobileserver.price = 100.0;
+        PriceWidgetProvider.refresh(context, true).get();
+        PriceWidgetProvider.refresh(context, false).get();
+        assertTrue(PriceWidgetProvider.prepareFetch(context).get().refreshToken > 0);
+        assertEquals(ListenableWorker.Result.success(), fetchWorker().doWork());
+        assertTrue(ShadowRequest.forced);
+        assertEquals(200.0, ShadowMobileserver.price, 0);
+        assertEquals(0, PriceWidgetProvider.prepareFetch(context).get().refreshToken);
+        assertEquals("200.00", ((TextView) widgets.getViewFor(WIDGET_ID).findViewById(R.id.widget_price)).getText().toString());
+    }
+
+    @Test
+    public void canceledFetchCompletionPublishesCurrentSelectionAndPreservesNewerRequest() throws Exception {
+        ShadowMobileserver.price = 100.0;
+        PriceWidgetProvider.refresh(context, true).get();
+        ShadowRequest.entered = new CountDownLatch(1);
+        ShadowRequest.release = new CountDownLatch(1);
+        PriceWidgetWorker worker = fetchWorker();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            Future<ListenableWorker.Result> result = executor.submit(worker::doWork);
+            assertTrue(ShadowRequest.entered.await(5, TimeUnit.SECONDS));
+            ReflectionHelpers.callInstanceMethod(worker, "stop",
+                    ReflectionHelpers.ClassParameter.from(int.class, WorkInfo.STOP_REASON_CANCELLED_BY_APP));
+            assertTrue(ShadowRequest.cancellations.get() > 0);
+            // A non-forced replacement must not consume the old token, even with a warm cache.
+            PriceWidgetProvider.refresh(context, false).get();
+            new HelloWidgetProvider().onReceive(context, new Intent(PriceWidgetProvider.NEXT));
+            PriceWidgetProvider.refresh(context, true).get();
+            long newerToken = PriceWidgetProvider.prepareFetch(context).get().refreshToken;
+            // Model a response that reached the cache just as cancellation was delivered.
+            ShadowRequest.release.countDown();
+            result.get(5, TimeUnit.SECONDS);
+            assertEquals(newerToken, PriceWidgetProvider.prepareFetch(context).get().refreshToken);
+            View view = widgets.getViewFor(WIDGET_ID);
+            assertEquals("ETH/USD", ((TextView) view.findViewById(R.id.widget_pair)).getText().toString());
+            assertEquals("200.00", ((TextView) view.findViewById(R.id.widget_price)).getText().toString());
+            ShadowRequest.entered = null;
+            ShadowRequest.release = null;
+            fetchWorker().doWork();
+            assertEquals(0, PriceWidgetProvider.prepareFetch(context).get().refreshToken);
+        } finally {
+            ShadowRequest.release = null;
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    public void oldCoinCompletionDoesNotFulfillCurrentCoinRefresh() throws Exception {
+        ShadowMobileserver.price = 100.0;
+        PriceWidgetProvider.refresh(context, true).get();
+        PriceWidgetProvider.FetchRequest request = PriceWidgetProvider.prepareFetch(context).get();
+        JSONObject oldState = ShadowMobileserver.state(request.index).put("refreshed", true);
+        new HelloWidgetProvider().onReceive(context, new Intent(PriceWidgetProvider.NEXT));
+        PriceWidgetProvider.completeFetch(context, request, oldState).get();
+        assertEquals(request.refreshToken, PriceWidgetProvider.prepareFetch(context).get().refreshToken);
+        fetchWorker().doWork();
+        assertTrue(ShadowRequest.forced);
+        assertEquals(0, PriceWidgetProvider.prepareFetch(context).get().refreshToken);
+    }
+
+    @Test
+    public void periodicTickWithWarmCacheForcesFetchWithoutClearingPublishedQuote() throws Exception {
+        ShadowMobileserver.price = 100.0;
+        PriceWidgetProvider.refresh(context, false).get();
+        int reads = ShadowMobileserver.cacheReads;
+        ConnectivityManager connectivity = context.getSystemService(ConnectivityManager.class);
+        NetworkCapabilities capabilities = ShadowNetworkCapabilities.newInstance();
+        shadowOf(capabilities).addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        shadowOf(connectivity).setNetworkCapabilities(connectivity.getActiveNetwork(), capabilities);
+        PriceWidgetUpdateWorker worker = TestWorkerBuilder.from(context, PriceWidgetUpdateWorker.class,
+                new SynchronousExecutor()).build();
+        assertEquals(ListenableWorker.Result.success(), worker.doWork());
+        assertEquals(reads, ShadowMobileserver.cacheReads);
+        assertEquals("100.00", ((TextView) widgets.getViewFor(WIDGET_ID).findViewById(R.id.widget_price)).getText().toString());
+        fetchWorker().doWork();
+        assertTrue(ShadowRequest.forced);
+        assertEquals(200.0, ShadowMobileserver.price, 0);
+    }
+
+    @Test
+    public void navigationPersistsNormalizedIndexBeforeAccountsChange() throws Exception {
+        HelloWidgetProvider provider = new HelloWidgetProvider();
+        for (int i = 0; i < 3; i++) {
+            provider.onReceive(context, new Intent(PriceWidgetProvider.NEXT));
+        }
+        assertEquals(0, PriceWidgetProvider.prepareFetch(context).get().index);
+        ShadowMobileserver.coins = new String[]{"btc", "eth"};
+        PriceWidgetProvider.refresh(context, false).get();
+        assertEquals("BTC/USD", ((TextView) widgets.getViewFor(WIDGET_ID).findViewById(R.id.widget_pair)).getText().toString());
+    }
+
+    private PriceWidgetWorker fetchWorker() {
+        return TestWorkerBuilder.from(context, PriceWidgetWorker.class, new SynchronousExecutor()).build();
+    }
+
+    @Implements(className = "mobileserver.PriceWidgetRequest", isInAndroidSdk = false)
+    public static class ShadowRequest {
+        static final AtomicInteger calls = new AtomicInteger();
+        static final AtomicInteger cancellations = new AtomicInteger();
+        static volatile CountDownLatch entered;
+        static volatile CountDownLatch release;
+        static volatile boolean forced;
 
         @Implementation
         protected static void __staticInitializer__() { }
 
         @Implementation
-        protected static String priceWidgetState(String dataDir, long index, boolean fetch, boolean force) {
+        protected void __constructor__() { }
+
+        @Implementation
+        protected void cancel() {
+            cancellations.incrementAndGet();
+        }
+
+        @Implementation
+        protected String state(String dataDir, long index, boolean force) throws Exception {
+            calls.incrementAndGet();
+            forced = force;
+            if (entered != null) {
+                entered.countDown();
+                assertTrue(release.await(5, TimeUnit.SECONDS));
+            }
+            boolean refreshed = force || ShadowMobileserver.price == null;
+            if (refreshed) {
+                ShadowMobileserver.price = 200.0;
+            }
+            return ShadowMobileserver.state(index).put("refreshed", refreshed).toString();
+        }
+    }
+
+    @Implements(className = "mobileserver.Mobileserver", isInAndroidSdk = false)
+    public static class ShadowMobileserver {
+        static volatile int cacheReads;
+        static volatile Double price;
+        static volatile String[] coins;
+
+        @Implementation
+        protected static void __staticInitializer__() { }
+
+        @Implementation
+        protected static PriceWidgetRequest newPriceWidgetRequest() {
+            return Shadow.newInstanceOf(PriceWidgetRequest.class);
+        }
+
+        static JSONObject state(long index) throws Exception {
+            int selected = (int) Math.floorMod(index, coins.length);
+            return new JSONObject().put("selectedIndex", selected).put("coinCode", coins[selected])
+                    .put("currency", "USD").put("price", price == null ? JSONObject.NULL : price)
+                    .put("updatedAt", 1791804600000L).put("chart", new org.json.JSONArray(price == null ? "[]" : "[0,1]"))
+                    .put("coins", new org.json.JSONArray(coins));
+        }
+
+        @Implementation
+        protected static String priceWidgetState(String dataDir, long index, boolean fetch, boolean force) throws Exception {
             assertFalse("Offline display updates must not fetch", fetch);
             cacheReads++;
-            return "{\"coinCode\":\"btc\",\"currency\":\"USD\",\"price\":null,\"chart\":[],\"coins\":[\"btc\",\"eth\",\"ltc\"]}";
+            return state(index).toString();
         }
     }
 }

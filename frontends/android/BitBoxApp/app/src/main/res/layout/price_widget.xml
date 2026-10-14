@@ -10,7 +10,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="20dp"
+        android:layout_height="wrap_content"
+        android:minHeight="20dp"
         android:gravity="center_vertical"
         android:paddingStart="12dp"
         android:paddingEnd="12dp">
@@ -23,7 +24,7 @@
         <TextView
             android:id="@+id/widget_pair"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
             android:gravity="center_vertical"
@@ -34,7 +35,7 @@
         <TextView
             android:id="@+id/widget_change"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:gravity="center_vertical"
             android:maxLines="1"
@@ -45,7 +46,8 @@
     <TextView
         android:id="@+id/widget_change_compact"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
+        android:layout_height="wrap_content"
+        android:minHeight="20dp"
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
         android:gravity="end|center_vertical"
@@ -93,13 +95,14 @@
     <TextView
         android:id="@+id/widget_updated_at"
         android:layout_width="match_parent"
-        android:layout_height="16dp"
+        android:layout_height="wrap_content"
+        android:minHeight="16dp"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
         android:gravity="center"
-        android:maxLines="1"
+        android:maxLines="2"
         android:textColor="@color/widget_secondary"
-        android:textSize="11sp"
+        android:textSize="12sp"
         android:visibility="invisible" />
     <LinearLayout
         android:layout_width="match_parent"
