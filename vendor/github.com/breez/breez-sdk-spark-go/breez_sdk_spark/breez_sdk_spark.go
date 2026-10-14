@@ -452,7 +452,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_func_default_external_signers()
 		})
-		if checksum != 58595 {
+		if checksum != 7133 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_func_default_external_signers: UniFFI API checksum mismatch")
 		}
@@ -1136,7 +1136,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_breezsdk_sync_wallet()
 		})
-		if checksum != 30368 {
+		if checksum != 62870 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_breezsdk_sync_wallet: UniFFI API checksum mismatch")
 		}
@@ -1298,7 +1298,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_externalsparksigner_get_public_key_for_leaf()
 		})
-		if checksum != 39015 {
+		if checksum != 59013 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_externalsparksigner_get_public_key_for_leaf: UniFFI API checksum mismatch")
 		}
@@ -1343,7 +1343,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_externalsparksigner_sign_leaf_refund_spend()
 		})
-		if checksum != 62629 {
+		if checksum != 61127 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_externalsparksigner_sign_leaf_refund_spend: UniFFI API checksum mismatch")
 		}
@@ -1613,7 +1613,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_sdkbuilder_with_account_number()
 		})
-		if checksum != 6550 {
+		if checksum != 18776 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_sdkbuilder_with_account_number: UniFFI API checksum mismatch")
 		}
@@ -1863,9 +1863,27 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_method_storage_list_watched_deposit_addresses()
+		})
+		if checksum != 43297 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_list_watched_deposit_addresses: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_method_storage_update_watched_deposit_address()
+		})
+		if checksum != 23278 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_update_watched_deposit_address: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_set_lnurl_metadata()
 		})
-		if checksum != 64210 {
+		if checksum != 3637 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_set_lnurl_metadata: UniFFI API checksum mismatch")
 		}
@@ -1874,7 +1892,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_list_contacts()
 		})
-		if checksum != 10490 {
+		if checksum != 40145 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_list_contacts: UniFFI API checksum mismatch")
 		}
@@ -1883,7 +1901,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_get_contact()
 		})
-		if checksum != 19980 {
+		if checksum != 51536 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_get_contact: UniFFI API checksum mismatch")
 		}
@@ -1892,7 +1910,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_insert_contact()
 		})
-		if checksum != 38342 {
+		if checksum != 48412 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_insert_contact: UniFFI API checksum mismatch")
 		}
@@ -1901,7 +1919,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_delete_contact()
 		})
-		if checksum != 50274 {
+		if checksum != 4102 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_delete_contact: UniFFI API checksum mismatch")
 		}
@@ -1910,7 +1928,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_set_cross_chain_swap()
 		})
-		if checksum != 31116 {
+		if checksum != 17340 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_set_cross_chain_swap: UniFFI API checksum mismatch")
 		}
@@ -1919,7 +1937,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_get_cross_chain_swap()
 		})
-		if checksum != 20172 {
+		if checksum != 39794 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_get_cross_chain_swap: UniFFI API checksum mismatch")
 		}
@@ -1928,7 +1946,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_list_active_cross_chain_swaps()
 		})
-		if checksum != 23493 {
+		if checksum != 3449 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_list_active_cross_chain_swaps: UniFFI API checksum mismatch")
 		}
@@ -1937,7 +1955,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_add_outgoing_change()
 		})
-		if checksum != 44890 {
+		if checksum != 59529 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_add_outgoing_change: UniFFI API checksum mismatch")
 		}
@@ -1946,7 +1964,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_complete_outgoing_sync()
 		})
-		if checksum != 8492 {
+		if checksum != 21965 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_complete_outgoing_sync: UniFFI API checksum mismatch")
 		}
@@ -1955,7 +1973,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_get_pending_outgoing_changes()
 		})
-		if checksum != 54668 {
+		if checksum != 21366 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_get_pending_outgoing_changes: UniFFI API checksum mismatch")
 		}
@@ -1964,7 +1982,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_get_last_revision()
 		})
-		if checksum != 17237 {
+		if checksum != 43970 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_get_last_revision: UniFFI API checksum mismatch")
 		}
@@ -1973,7 +1991,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_insert_incoming_records()
 		})
-		if checksum != 35265 {
+		if checksum != 59416 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_insert_incoming_records: UniFFI API checksum mismatch")
 		}
@@ -1982,7 +2000,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_delete_incoming_record()
 		})
-		if checksum != 32789 {
+		if checksum != 12675 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_delete_incoming_record: UniFFI API checksum mismatch")
 		}
@@ -1991,7 +2009,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_get_incoming_records()
 		})
-		if checksum != 18699 {
+		if checksum != 20470 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_get_incoming_records: UniFFI API checksum mismatch")
 		}
@@ -2000,7 +2018,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_get_latest_outgoing_change()
 		})
-		if checksum != 59591 {
+		if checksum != 25691 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_get_latest_outgoing_change: UniFFI API checksum mismatch")
 		}
@@ -2009,7 +2027,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_storage_update_record_from_incoming()
 		})
-		if checksum != 30443 {
+		if checksum != 61274 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_storage_update_record_from_incoming: UniFFI API checksum mismatch")
 		}
@@ -3711,7 +3729,13 @@ type BreezSdkInterface interface {
 	// Messages in the `breez-lnurl:` namespace are refused: it is reserved for
 	// the SDK's own requests to the Lightning address server.
 	SignMessage(request SignMessageRequest) (SignMessageResponse, error)
-	// Synchronizes the wallet with the Spark network
+	// Synchronizes the wallet with the Spark network.
+	//
+	// Also collects the data a unilateral exit needs for any leaf still missing
+	// it, and waits for that before returning. This happens regardless of
+	// [`exit_chain_auto_fetch_enabled`](crate::Config::exit_chain_auto_fetch_enabled),
+	// which governs only the automatic collection: syncing is how to run one at
+	// a moment of your choosing with that turned off.
 	SyncWallet(request SyncWalletRequest) (SyncWalletResponse, error)
 	// Builds and signs a complete unilateral exit from a `prepare_unilateral_exit`
 	// quote and the actual funding UTXOs, returning the full transaction set in
@@ -5904,7 +5928,13 @@ func (_self *BreezSdk) SignMessage(request SignMessageRequest) (SignMessageRespo
 	return res, err
 }
 
-// Synchronizes the wallet with the Spark network
+// Synchronizes the wallet with the Spark network.
+//
+// Also collects the data a unilateral exit needs for any leaf still missing
+// it, and waits for that before returning. This happens regardless of
+// [`exit_chain_auto_fetch_enabled`](crate::Config::exit_chain_auto_fetch_enabled),
+// which governs only the automatic collection: syncing is how to run one at
+// a moment of your choosing with that turned off.
 func (_self *BreezSdk) SyncWallet(request SyncWalletRequest) (SyncWalletResponse, error) {
 	_pointer := _self.ffiObject.incrementPointer("*BreezSdk")
 	defer _self.ffiObject.decrementPointer()
@@ -7856,7 +7886,7 @@ func (c FfiConverterExternalSigningSigner) register() {
 type ExternalSparkSigner interface {
 	// The wallet identity public key (33 bytes compressed).
 	GetIdentityPublicKey() (PublicKeyBytes, error)
-	// The signing public key for a tree leaf.
+	// The public key of the leaf signing key derived from `leaf_id`.
 	GetPublicKeyForLeaf(leafId ExternalTreeNodeId) (PublicKeyBytes, error)
 	// Whether this signer is backed by a remote service, so its operations are
 	// network round-trips rather than local computation. Local signers return
@@ -7870,7 +7900,8 @@ type ExternalSparkSigner interface {
 	// ECDSA-sign an arbitrary user message with the identity key.
 	SignMessage(message []byte) (EcdsaSignatureBytes, error)
 	// Schnorr-sign `sighash` to spend a tree leaf's P2TR refund output as a
-	// BIP341 key-path spend (empty script tree).
+	// BIP341 key-path spend (empty script tree), with the leaf signing key
+	// derived from `leaf_id`.
 	SignLeafRefundSpend(leafId ExternalTreeNodeId, sighash []byte) (SchnorrSignatureBytes, error)
 	// Produce FROST shares for a batch of jobs.
 	SignFrost(jobs []ExternalFrostJob) ([]ExternalFrostShareResult, error)
@@ -7935,7 +7966,7 @@ func (_self *ExternalSparkSignerImpl) GetIdentityPublicKey() (PublicKeyBytes, er
 	return res, err
 }
 
-// The signing public key for a tree leaf.
+// The public key of the leaf signing key derived from `leaf_id`.
 func (_self *ExternalSparkSignerImpl) GetPublicKeyForLeaf(leafId ExternalTreeNodeId) (PublicKeyBytes, error) {
 	_pointer := _self.ffiObject.incrementPointer("ExternalSparkSigner")
 	defer _self.ffiObject.decrementPointer()
@@ -8093,7 +8124,8 @@ func (_self *ExternalSparkSignerImpl) SignMessage(message []byte) (EcdsaSignatur
 }
 
 // Schnorr-sign `sighash` to spend a tree leaf's P2TR refund output as a
-// BIP341 key-path spend (empty script tree).
+// BIP341 key-path spend (empty script tree), with the leaf signing key
+// derived from `leaf_id`.
 func (_self *ExternalSparkSignerImpl) SignLeafRefundSpend(leafId ExternalTreeNodeId, sighash []byte) (SchnorrSignatureBytes, error) {
 	_pointer := _self.ffiObject.incrementPointer("ExternalSparkSigner")
 	defer _self.ffiObject.decrementPointer()
@@ -11680,7 +11712,7 @@ type SdkBuilderInterface interface {
 	// Sets the account number for key derivation. All wallet keys derive from
 	// the seed at `m/8797555'/<account number>'`, so each account number
 	// yields an independent wallet from the same seed. Defaults to 0 on
-	// Regtest and 1 on all other networks when unset.
+	// Regtest and Signet, and 1 on Mainnet when unset.
 	// Arguments:
 	// - `account_number`: The account number in the derivation path.
 	WithAccountNumber(accountNumber uint32)
@@ -11831,7 +11863,7 @@ func (_self *SdkBuilder) Build() (*BreezSdk, error) {
 // Sets the account number for key derivation. All wallet keys derive from
 // the seed at `m/8797555'/<account number>'`, so each account number
 // yields an independent wallet from the same seed. Defaults to 0 on
-// Regtest and 1 on all other networks when unset.
+// Regtest and Signet, and 1 on Mainnet when unset.
 // Arguments:
 // - `account_number`: The account number in the derivation path.
 func (_self *SdkBuilder) WithAccountNumber(accountNumber uint32) {
@@ -12750,6 +12782,12 @@ type Storage interface {
 	//
 	// Success or a `StorageError`
 	UpdateDeposit(txid string, vout uint32, payload UpdateDepositPayload) error
+	// Lists the deposit addresses currently being watched for unconfirmed
+	// deposits, most recently issued first.
+	ListWatchedDepositAddresses() ([]WatchedDepositAddress, error)
+	// Applies one change to a watched deposit address. `Watch` inserts or
+	// restarts it, `Seen` marks it, and `Unwatch` removes it.
+	UpdateWatchedDepositAddress(address string, payload UpdateWatchedAddressPayload) error
 	SetLnurlMetadata(metadata []SetLnurlMetadataItem) error
 	// Lists contacts from storage with optional pagination
 	ListContacts(request ListContactsRequest) ([]Contact, error)
@@ -13292,6 +13330,76 @@ func (_self *StorageImpl) UpdateDeposit(txid string, vout uint32, payload Update
 		func(_ struct{}) struct{} { return struct{}{} },
 		C.uniffi_breez_sdk_spark_fn_method_storage_update_deposit(
 			_pointer, FfiConverterStringINSTANCE.Lower(txid), FfiConverterUint32INSTANCE.Lower(vout), FfiConverterUpdateDepositPayloadINSTANCE.Lower(payload)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_poll_void(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_free_void(handle)
+		},
+	)
+
+	if err == nil {
+		return nil
+	}
+
+	return err
+}
+
+// Lists the deposit addresses currently being watched for unconfirmed
+// deposits, most recently issued first.
+func (_self *StorageImpl) ListWatchedDepositAddresses() ([]WatchedDepositAddress, error) {
+	_pointer := _self.ffiObject.incrementPointer("Storage")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[StorageError](
+		FfiConverterStorageErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_breez_sdk_spark_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) []WatchedDepositAddress {
+			return FfiConverterSequenceWatchedDepositAddressINSTANCE.Lift(ffi)
+		},
+		C.uniffi_breez_sdk_spark_fn_method_storage_list_watched_deposit_addresses(
+			_pointer),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Applies one change to a watched deposit address. `Watch` inserts or
+// restarts it, `Seen` marks it, and `Unwatch` removes it.
+func (_self *StorageImpl) UpdateWatchedDepositAddress(address string, payload UpdateWatchedAddressPayload) error {
+	_pointer := _self.ffiObject.incrementPointer("Storage")
+	defer _self.ffiObject.decrementPointer()
+	_, err := uniffiRustCallAsync[StorageError](
+		FfiConverterStorageErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
+			C.ffi_breez_sdk_spark_rust_future_complete_void(handle, status)
+			return struct{}{}
+		},
+		// liftFn
+		func(_ struct{}) struct{} { return struct{}{} },
+		C.uniffi_breez_sdk_spark_fn_method_storage_update_watched_deposit_address(
+			_pointer, FfiConverterStringINSTANCE.Lower(address), FfiConverterUpdateWatchedAddressPayloadINSTANCE.Lower(payload)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
 			C.ffi_breez_sdk_spark_rust_future_poll_void(handle, continuation, data)
@@ -14761,7 +14869,130 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod12(uniffiHandle C
 }
 
 //export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod13
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod13(uniffiHandle C.uint64_t, metadata C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod13(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+	handle := uint64(uniffiHandle)
+	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
+	if !ok {
+		panic(fmt.Errorf("no callback in handle map: %d", handle))
+	}
+
+	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	cancel := make(chan struct{}, 1)
+	guardHandle := cgo.NewHandle(cancel)
+	*uniffiOutReturn = C.UniffiForeignFuture{
+		handle: C.uint64_t(guardHandle),
+		free:   C.UniffiForeignFutureFree(C.breez_sdk_spark_uniffiFreeGorutine),
+	}
+
+	// Wait for compleation or cancel
+	go func() {
+		select {
+		case <-cancel:
+		case res := <-result:
+			C.call_UniffiForeignFutureCompleteRustBuffer(uniffiFutureCallback, uniffiCallbackData, res)
+		}
+	}()
+
+	// Eval callback asynchroniously
+	go func() {
+		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		uniffiOutReturn := &asyncResult.returnValue
+		callStatus := &asyncResult.callStatus
+		defer func() {
+			result <- *asyncResult
+		}()
+
+		res, err :=
+			uniffiObj.ListWatchedDepositAddresses()
+
+		if err != nil {
+			var actualError *StorageError
+			if errors.As(err, &actualError) {
+				if actualError != nil {
+					*callStatus = C.RustCallStatus{
+						code:     C.int8_t(uniffiCallbackResultError),
+						errorBuf: FfiConverterStorageErrorINSTANCE.Lower(actualError),
+					}
+					return
+				}
+			} else {
+				*callStatus = C.RustCallStatus{
+					code: C.int8_t(uniffiCallbackUnexpectedResultError),
+				}
+				return
+			}
+		}
+
+		*uniffiOutReturn = FfiConverterSequenceWatchedDepositAddressINSTANCE.Lower(res)
+	}()
+}
+
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod14
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod14(uniffiHandle C.uint64_t, address C.RustBuffer, payload C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+	handle := uint64(uniffiHandle)
+	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
+	if !ok {
+		panic(fmt.Errorf("no callback in handle map: %d", handle))
+	}
+
+	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	cancel := make(chan struct{}, 1)
+	guardHandle := cgo.NewHandle(cancel)
+	*uniffiOutReturn = C.UniffiForeignFuture{
+		handle: C.uint64_t(guardHandle),
+		free:   C.UniffiForeignFutureFree(C.breez_sdk_spark_uniffiFreeGorutine),
+	}
+
+	// Wait for compleation or cancel
+	go func() {
+		select {
+		case <-cancel:
+		case res := <-result:
+			C.call_UniffiForeignFutureCompleteVoid(uniffiFutureCallback, uniffiCallbackData, res)
+		}
+	}()
+
+	// Eval callback asynchroniously
+	go func() {
+		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		callStatus := &asyncResult.callStatus
+		defer func() {
+			result <- *asyncResult
+		}()
+
+		err :=
+			uniffiObj.UpdateWatchedDepositAddress(
+				FfiConverterStringINSTANCE.Lift(GoRustBuffer{
+					inner: address,
+				}),
+				FfiConverterUpdateWatchedAddressPayloadINSTANCE.Lift(GoRustBuffer{
+					inner: payload,
+				}),
+			)
+
+		if err != nil {
+			var actualError *StorageError
+			if errors.As(err, &actualError) {
+				if actualError != nil {
+					*callStatus = C.RustCallStatus{
+						code:     C.int8_t(uniffiCallbackResultError),
+						errorBuf: FfiConverterStorageErrorINSTANCE.Lower(actualError),
+					}
+					return
+				}
+			} else {
+				*callStatus = C.RustCallStatus{
+					code: C.int8_t(uniffiCallbackUnexpectedResultError),
+				}
+				return
+			}
+		}
+
+	}()
+}
+
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod15
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod15(uniffiHandle C.uint64_t, metadata C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -14821,8 +15052,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod13(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod14
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod14(uniffiHandle C.uint64_t, request C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod16
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod16(uniffiHandle C.uint64_t, request C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -14884,8 +15115,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod14(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod15
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod15(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod17
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod17(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -14947,8 +15178,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod15(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod16
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod16(uniffiHandle C.uint64_t, contact C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod18
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod18(uniffiHandle C.uint64_t, contact C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15008,8 +15239,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod16(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod17
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod17(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod19
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod19(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15069,8 +15300,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod17(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod18
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod18(uniffiHandle C.uint64_t, swap C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod20
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod20(uniffiHandle C.uint64_t, swap C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15130,8 +15361,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod18(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod19
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod19(uniffiHandle C.uint64_t, provider C.RustBuffer, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod21
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod21(uniffiHandle C.uint64_t, provider C.RustBuffer, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15196,8 +15427,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod19(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod20
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod20(uniffiHandle C.uint64_t, provider C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod22
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod22(uniffiHandle C.uint64_t, provider C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15259,8 +15490,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod20(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod21
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod21(uniffiHandle C.uint64_t, record C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteU64, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod23
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod23(uniffiHandle C.uint64_t, record C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteU64, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15322,8 +15553,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod21(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod22
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod22(uniffiHandle C.uint64_t, record C.RustBuffer, localRevision C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod24
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod24(uniffiHandle C.uint64_t, record C.RustBuffer, localRevision C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15384,8 +15615,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod22(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod23
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod23(uniffiHandle C.uint64_t, limit C.uint32_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod25
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod25(uniffiHandle C.uint64_t, limit C.uint32_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15445,8 +15676,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod23(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod24
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod24(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteU64, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod26
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod26(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteU64, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15504,8 +15735,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod24(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod25
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod25(uniffiHandle C.uint64_t, records C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod27
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod27(uniffiHandle C.uint64_t, records C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15565,8 +15796,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod25(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod26
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod26(uniffiHandle C.uint64_t, record C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod28
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod28(uniffiHandle C.uint64_t, record C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15626,8 +15857,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod26(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod27
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod27(uniffiHandle C.uint64_t, limit C.uint32_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod29
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod29(uniffiHandle C.uint64_t, limit C.uint32_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15687,8 +15918,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod27(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod28
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod28(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod30
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod30(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15746,8 +15977,8 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod28(uniffiHandle C
 	}()
 }
 
-//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod29
-func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod29(uniffiHandle C.uint64_t, record C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+//export breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod31
+func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod31(uniffiHandle C.uint64_t, record C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterStorageINSTANCE.handleMap.tryGet(handle)
 	if !ok {
@@ -15808,36 +16039,38 @@ func breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod29(uniffiHandle C
 }
 
 var UniffiVTableCallbackInterfaceStorageINSTANCE = C.UniffiVTableCallbackInterfaceStorage{
-	deleteCachedItem:          (C.UniffiCallbackInterfaceStorageMethod0)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod0),
-	getCachedItem:             (C.UniffiCallbackInterfaceStorageMethod1)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod1),
-	setCachedItem:             (C.UniffiCallbackInterfaceStorageMethod2)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod2),
-	listPayments:              (C.UniffiCallbackInterfaceStorageMethod3)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod3),
-	applyPaymentUpdate:        (C.UniffiCallbackInterfaceStorageMethod4)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod4),
-	insertPaymentMetadata:     (C.UniffiCallbackInterfaceStorageMethod5)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod5),
-	getPaymentById:            (C.UniffiCallbackInterfaceStorageMethod6)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod6),
-	getPaymentByInvoice:       (C.UniffiCallbackInterfaceStorageMethod7)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod7),
-	getPaymentsByParentIds:    (C.UniffiCallbackInterfaceStorageMethod8)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod8),
-	addDeposit:                (C.UniffiCallbackInterfaceStorageMethod9)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod9),
-	deleteDeposit:             (C.UniffiCallbackInterfaceStorageMethod10)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod10),
-	listDeposits:              (C.UniffiCallbackInterfaceStorageMethod11)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod11),
-	updateDeposit:             (C.UniffiCallbackInterfaceStorageMethod12)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod12),
-	setLnurlMetadata:          (C.UniffiCallbackInterfaceStorageMethod13)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod13),
-	listContacts:              (C.UniffiCallbackInterfaceStorageMethod14)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod14),
-	getContact:                (C.UniffiCallbackInterfaceStorageMethod15)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod15),
-	insertContact:             (C.UniffiCallbackInterfaceStorageMethod16)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod16),
-	deleteContact:             (C.UniffiCallbackInterfaceStorageMethod17)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod17),
-	setCrossChainSwap:         (C.UniffiCallbackInterfaceStorageMethod18)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod18),
-	getCrossChainSwap:         (C.UniffiCallbackInterfaceStorageMethod19)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod19),
-	listActiveCrossChainSwaps: (C.UniffiCallbackInterfaceStorageMethod20)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod20),
-	addOutgoingChange:         (C.UniffiCallbackInterfaceStorageMethod21)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod21),
-	completeOutgoingSync:      (C.UniffiCallbackInterfaceStorageMethod22)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod22),
-	getPendingOutgoingChanges: (C.UniffiCallbackInterfaceStorageMethod23)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod23),
-	getLastRevision:           (C.UniffiCallbackInterfaceStorageMethod24)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod24),
-	insertIncomingRecords:     (C.UniffiCallbackInterfaceStorageMethod25)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod25),
-	deleteIncomingRecord:      (C.UniffiCallbackInterfaceStorageMethod26)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod26),
-	getIncomingRecords:        (C.UniffiCallbackInterfaceStorageMethod27)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod27),
-	getLatestOutgoingChange:   (C.UniffiCallbackInterfaceStorageMethod28)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod28),
-	updateRecordFromIncoming:  (C.UniffiCallbackInterfaceStorageMethod29)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod29),
+	deleteCachedItem:            (C.UniffiCallbackInterfaceStorageMethod0)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod0),
+	getCachedItem:               (C.UniffiCallbackInterfaceStorageMethod1)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod1),
+	setCachedItem:               (C.UniffiCallbackInterfaceStorageMethod2)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod2),
+	listPayments:                (C.UniffiCallbackInterfaceStorageMethod3)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod3),
+	applyPaymentUpdate:          (C.UniffiCallbackInterfaceStorageMethod4)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod4),
+	insertPaymentMetadata:       (C.UniffiCallbackInterfaceStorageMethod5)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod5),
+	getPaymentById:              (C.UniffiCallbackInterfaceStorageMethod6)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod6),
+	getPaymentByInvoice:         (C.UniffiCallbackInterfaceStorageMethod7)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod7),
+	getPaymentsByParentIds:      (C.UniffiCallbackInterfaceStorageMethod8)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod8),
+	addDeposit:                  (C.UniffiCallbackInterfaceStorageMethod9)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod9),
+	deleteDeposit:               (C.UniffiCallbackInterfaceStorageMethod10)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod10),
+	listDeposits:                (C.UniffiCallbackInterfaceStorageMethod11)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod11),
+	updateDeposit:               (C.UniffiCallbackInterfaceStorageMethod12)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod12),
+	listWatchedDepositAddresses: (C.UniffiCallbackInterfaceStorageMethod13)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod13),
+	updateWatchedDepositAddress: (C.UniffiCallbackInterfaceStorageMethod14)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod14),
+	setLnurlMetadata:            (C.UniffiCallbackInterfaceStorageMethod15)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod15),
+	listContacts:                (C.UniffiCallbackInterfaceStorageMethod16)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod16),
+	getContact:                  (C.UniffiCallbackInterfaceStorageMethod17)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod17),
+	insertContact:               (C.UniffiCallbackInterfaceStorageMethod18)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod18),
+	deleteContact:               (C.UniffiCallbackInterfaceStorageMethod19)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod19),
+	setCrossChainSwap:           (C.UniffiCallbackInterfaceStorageMethod20)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod20),
+	getCrossChainSwap:           (C.UniffiCallbackInterfaceStorageMethod21)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod21),
+	listActiveCrossChainSwaps:   (C.UniffiCallbackInterfaceStorageMethod22)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod22),
+	addOutgoingChange:           (C.UniffiCallbackInterfaceStorageMethod23)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod23),
+	completeOutgoingSync:        (C.UniffiCallbackInterfaceStorageMethod24)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod24),
+	getPendingOutgoingChanges:   (C.UniffiCallbackInterfaceStorageMethod25)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod25),
+	getLastRevision:             (C.UniffiCallbackInterfaceStorageMethod26)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod26),
+	insertIncomingRecords:       (C.UniffiCallbackInterfaceStorageMethod27)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod27),
+	deleteIncomingRecord:        (C.UniffiCallbackInterfaceStorageMethod28)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod28),
+	getIncomingRecords:          (C.UniffiCallbackInterfaceStorageMethod29)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod29),
+	getLatestOutgoingChange:     (C.UniffiCallbackInterfaceStorageMethod30)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod30),
+	updateRecordFromIncoming:    (C.UniffiCallbackInterfaceStorageMethod31)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageMethod31),
 
 	uniffiFree: (C.UniffiCallbackInterfaceFree)(C.breez_sdk_spark_cgo_dispatchCallbackInterfaceStorageFree),
 }
@@ -17853,9 +18086,20 @@ func (_ FfiDestroyerClaimDepositQuote) Destroy(value ClaimDepositQuote) {
 type ClaimDepositRequest struct {
 	Txid string
 	Vout uint32
-	// Caps what the claim may cost. A deposit that has not matured is claimed
-	// instantly when the provider's spread fits within this, so the same ceiling
-	// governs both. Falls back to the configured max deposit claim fee.
+	// Caps what the claim may cost, and is recorded on the deposit so later
+	// automatic attempts are held to it too.
+	//
+	// Raising it above the quoted spread is what lets a deposit be claimed ahead
+	// of maturity without further input. Lowering it below the spread keeps the
+	// deposit from being claimed early, and does not hold back its claim at
+	// maturity: that one runs under whichever is larger, this or the configured
+	// max deposit claim fee.
+	//
+	// Unset claims under the configured max deposit claim fee and clears any
+	// ceiling previously recorded on the deposit.
+	//
+	// The ceiling is recorded before the claim is attempted, so it stands even
+	// when the attempt is then declined for exceeding it.
 	MaxFee *MaxFee
 }
 
@@ -17902,17 +18146,14 @@ func (_ FfiDestroyerClaimDepositRequest) Destroy(value ClaimDepositRequest) {
 }
 
 type ClaimDepositResponse struct {
-	// The settled claim payment, present when the deposit was claimed at maturity,
-	// which completes synchronously. Absent when it was claimed before maturity,
-	// whose transfer settles asynchronously: watch for the payment via events or
-	// `list_payments`. Which of the two happens follows from the deposit's maturity
-	// and the fee ceiling, not from anything the caller asks for, so treat the
-	// payment as optional on every claim.
-	Payment *Payment
+	// What the call did. Which outcome occurs follows from the deposit's maturity
+	// and the fee ceiling, not from anything the caller asks for, so handle all
+	// three on every claim.
+	Outcome ClaimDepositOutcome
 }
 
 func (r *ClaimDepositResponse) Destroy() {
-	FfiDestroyerOptionalPayment{}.Destroy(r.Payment)
+	FfiDestroyerClaimDepositOutcome{}.Destroy(r.Outcome)
 }
 
 type FfiConverterClaimDepositResponse struct{}
@@ -17925,7 +18166,7 @@ func (c FfiConverterClaimDepositResponse) Lift(rb RustBufferI) ClaimDepositRespo
 
 func (c FfiConverterClaimDepositResponse) Read(reader io.Reader) ClaimDepositResponse {
 	return ClaimDepositResponse{
-		FfiConverterOptionalPaymentINSTANCE.Read(reader),
+		FfiConverterClaimDepositOutcomeINSTANCE.Read(reader),
 	}
 }
 
@@ -17938,7 +18179,7 @@ func (c FfiConverterClaimDepositResponse) LowerExternal(value ClaimDepositRespon
 }
 
 func (c FfiConverterClaimDepositResponse) Write(writer io.Writer, value ClaimDepositResponse) {
-	FfiConverterOptionalPaymentINSTANCE.Write(writer, value.Payment)
+	FfiConverterClaimDepositOutcomeINSTANCE.Write(writer, value.Outcome)
 }
 
 type FfiDestroyerClaimDepositResponse struct{}
@@ -18093,15 +18334,20 @@ type Config struct {
 	// but is at the cost of privacy.
 	PreferSparkOverLightning bool
 	// Whether the data needed to exit a payment unilaterally, without the Spark
-	// operators, is collected as funds arrive. Collection runs in the background,
-	// and a sync waits for a collection pass before returning, so syncing is how
-	// to make that happen at a moment of your choosing. A leaf the operators
-	// cannot complete stays un-exitable until a later attempt succeeds.
+	// operators, is collected automatically as funds arrive. Collection runs in
+	// the background, after an operation rather than during it. A leaf the
+	// operators cannot complete stays un-exitable until a later attempt
+	// succeeds.
 	//
-	// Leave this on unless bandwidth matters more than being able to recover funds
-	// when the operators are unreachable. With it off, chains are only collected
-	// when an exit is prepared, which needs the operators reachable at that
-	// moment: a leaf cannot be exited without them until one is collected.
+	// Turn it off when collecting behind every operation costs more than it is
+	// worth, on a busy wallet holding many leaves. `sync_wallet` collects
+	// regardless of this flag, and waits for the pass before returning, so an
+	// explicit sync on a cadence of your choosing is how the data is kept
+	// current with the automatic collection off.
+	//
+	// Only that automatic collection is governed, so this has no effect at all
+	// where none runs: with `background_tasks_enabled` off there is no
+	// background collector, and every sync is an explicit one.
 	//
 	// Default value is true.
 	ExitChainAutoFetchEnabled bool
@@ -19195,6 +19441,55 @@ func (_ FfiDestroyerCredentials) Destroy(value Credentials) {
 	value.Destroy()
 }
 
+// A Spark-side asset a route accepts, with the amount bounds that apply to it.
+//
+// Bounds are per asset rather than per route: the same external endpoint can
+// carry a dust floor when moved as sats and none when moved as a token.
+type CrossChainAcceptedAsset struct {
+	Asset SparkAsset
+	// Unset when the provider publishes no bounds for this pairing.
+	Limits *CrossChainRouteLimits
+}
+
+func (r *CrossChainAcceptedAsset) Destroy() {
+	FfiDestroyerSparkAsset{}.Destroy(r.Asset)
+	FfiDestroyerOptionalCrossChainRouteLimits{}.Destroy(r.Limits)
+}
+
+type FfiConverterCrossChainAcceptedAsset struct{}
+
+var FfiConverterCrossChainAcceptedAssetINSTANCE = FfiConverterCrossChainAcceptedAsset{}
+
+func (c FfiConverterCrossChainAcceptedAsset) Lift(rb RustBufferI) CrossChainAcceptedAsset {
+	return LiftFromRustBuffer[CrossChainAcceptedAsset](c, rb)
+}
+
+func (c FfiConverterCrossChainAcceptedAsset) Read(reader io.Reader) CrossChainAcceptedAsset {
+	return CrossChainAcceptedAsset{
+		FfiConverterSparkAssetINSTANCE.Read(reader),
+		FfiConverterOptionalCrossChainRouteLimitsINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterCrossChainAcceptedAsset) Lower(value CrossChainAcceptedAsset) C.RustBuffer {
+	return LowerIntoRustBuffer[CrossChainAcceptedAsset](c, value)
+}
+
+func (c FfiConverterCrossChainAcceptedAsset) LowerExternal(value CrossChainAcceptedAsset) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[CrossChainAcceptedAsset](c, value))
+}
+
+func (c FfiConverterCrossChainAcceptedAsset) Write(writer io.Writer, value CrossChainAcceptedAsset) {
+	FfiConverterSparkAssetINSTANCE.Write(writer, value.Asset)
+	FfiConverterOptionalCrossChainRouteLimitsINSTANCE.Write(writer, value.Limits)
+}
+
+type FfiDestroyerCrossChainAcceptedAsset struct{}
+
+func (_ FfiDestroyerCrossChainAcceptedAsset) Destroy(value CrossChainAcceptedAsset) {
+	value.Destroy()
+}
+
 type CrossChainAddressDetails struct {
 	Address         string
 	AddressFamily   CrossChainAddressFamily
@@ -19335,6 +19630,9 @@ type CrossChainReceiveInfo struct {
 	// Ticker for `service_fee_amount`. Absent when the fee is denominated
 	// in sats.
 	ServiceFeeAsset *string
+	// Decimals of `service_fee_asset`, for formatting `service_fee_amount`.
+	// Unset when the fee is in sats or the provider did not report them.
+	ServiceFeeAssetDecimals *uint32
 	// Quote expiry as a unix timestamp in seconds.
 	ExpiresAt uint64
 }
@@ -19347,6 +19645,7 @@ func (r *CrossChainReceiveInfo) Destroy() {
 	FfiDestroyerOptionalString{}.Destroy(r.TokenIdentifier)
 	FfiDestroyerTypeu128{}.Destroy(r.ServiceFeeAmount)
 	FfiDestroyerOptionalString{}.Destroy(r.ServiceFeeAsset)
+	FfiDestroyerOptionalUint32{}.Destroy(r.ServiceFeeAssetDecimals)
 	FfiDestroyerUint64{}.Destroy(r.ExpiresAt)
 }
 
@@ -19367,6 +19666,7 @@ func (c FfiConverterCrossChainReceiveInfo) Read(reader io.Reader) CrossChainRece
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterTypeu128INSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalUint32INSTANCE.Read(reader),
 		FfiConverterUint64INSTANCE.Read(reader),
 	}
 }
@@ -19387,12 +19687,83 @@ func (c FfiConverterCrossChainReceiveInfo) Write(writer io.Writer, value CrossCh
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.TokenIdentifier)
 	FfiConverterTypeu128INSTANCE.Write(writer, value.ServiceFeeAmount)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.ServiceFeeAsset)
+	FfiConverterOptionalUint32INSTANCE.Write(writer, value.ServiceFeeAssetDecimals)
 	FfiConverterUint64INSTANCE.Write(writer, value.ExpiresAt)
 }
 
 type FfiDestroyerCrossChainReceiveInfo struct{}
 
 func (_ FfiDestroyerCrossChainReceiveInfo) Destroy(value CrossChainReceiveInfo) {
+	value.Destroy()
+}
+
+// Amount bounds a provider publishes for moving a route with one Spark-side
+// asset.
+//
+// A route can enforce a tighter bound than it publishes, so an amount inside
+// these can still be rejected when the payment is prepared.
+//
+// The two groups are independent, and either can be absent: a route may
+// publish a base-unit floor (a dust minimum on a sats-funded route), a USD
+// notional band, both, or neither.
+//
+// `min_amount` / `max_amount` bound the asset that is paid in, so which asset
+// they are denominated in follows the direction: the Spark-side asset on a
+// send, the external asset on a receive. The USD band bounds the order's
+// value and reads the same in both directions.
+type CrossChainRouteLimits struct {
+	// Smallest amount accepted, in the base units of the asset paid in.
+	MinAmount *u128
+	// Largest amount accepted, in the base units of the asset paid in.
+	MaxAmount *u128
+	// Smallest order value accepted, in USD cents.
+	MinUsdCents *uint64
+	// Largest order value accepted, in USD cents.
+	MaxUsdCents *uint64
+}
+
+func (r *CrossChainRouteLimits) Destroy() {
+	FfiDestroyerOptionalTypeu128{}.Destroy(r.MinAmount)
+	FfiDestroyerOptionalTypeu128{}.Destroy(r.MaxAmount)
+	FfiDestroyerOptionalUint64{}.Destroy(r.MinUsdCents)
+	FfiDestroyerOptionalUint64{}.Destroy(r.MaxUsdCents)
+}
+
+type FfiConverterCrossChainRouteLimits struct{}
+
+var FfiConverterCrossChainRouteLimitsINSTANCE = FfiConverterCrossChainRouteLimits{}
+
+func (c FfiConverterCrossChainRouteLimits) Lift(rb RustBufferI) CrossChainRouteLimits {
+	return LiftFromRustBuffer[CrossChainRouteLimits](c, rb)
+}
+
+func (c FfiConverterCrossChainRouteLimits) Read(reader io.Reader) CrossChainRouteLimits {
+	return CrossChainRouteLimits{
+		FfiConverterOptionalTypeu128INSTANCE.Read(reader),
+		FfiConverterOptionalTypeu128INSTANCE.Read(reader),
+		FfiConverterOptionalUint64INSTANCE.Read(reader),
+		FfiConverterOptionalUint64INSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterCrossChainRouteLimits) Lower(value CrossChainRouteLimits) C.RustBuffer {
+	return LowerIntoRustBuffer[CrossChainRouteLimits](c, value)
+}
+
+func (c FfiConverterCrossChainRouteLimits) LowerExternal(value CrossChainRouteLimits) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[CrossChainRouteLimits](c, value))
+}
+
+func (c FfiConverterCrossChainRouteLimits) Write(writer io.Writer, value CrossChainRouteLimits) {
+	FfiConverterOptionalTypeu128INSTANCE.Write(writer, value.MinAmount)
+	FfiConverterOptionalTypeu128INSTANCE.Write(writer, value.MaxAmount)
+	FfiConverterOptionalUint64INSTANCE.Write(writer, value.MinUsdCents)
+	FfiConverterOptionalUint64INSTANCE.Write(writer, value.MaxUsdCents)
+}
+
+type FfiDestroyerCrossChainRouteLimits struct{}
+
+func (_ FfiDestroyerCrossChainRouteLimits) Destroy(value CrossChainRouteLimits) {
 	value.Destroy()
 }
 
@@ -19415,8 +19786,8 @@ type CrossChainRoutePair struct {
 	Decimals uint8
 	// Whether the route supports exact-out mode.
 	ExactOutEligible bool
-	// Spark-side assets this route accepts.
-	AcceptedAssets []SparkAsset
+	// Spark-side assets this route accepts, each with its own amount bounds.
+	AcceptedAssets []CrossChainAcceptedAsset
 	// Rails this route can be delivered over, orthogonal to
 	// `accepted_assets` (the asset moved vs the rail moved on).
 	DeliveryMethods []DeliveryMethod
@@ -19430,7 +19801,7 @@ func (r *CrossChainRoutePair) Destroy() {
 	FfiDestroyerOptionalString{}.Destroy(r.ContractAddress)
 	FfiDestroyerUint8{}.Destroy(r.Decimals)
 	FfiDestroyerBool{}.Destroy(r.ExactOutEligible)
-	FfiDestroyerSequenceSparkAsset{}.Destroy(r.AcceptedAssets)
+	FfiDestroyerSequenceCrossChainAcceptedAsset{}.Destroy(r.AcceptedAssets)
 	FfiDestroyerSequenceDeliveryMethod{}.Destroy(r.DeliveryMethods)
 }
 
@@ -19451,7 +19822,7 @@ func (c FfiConverterCrossChainRoutePair) Read(reader io.Reader) CrossChainRouteP
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterUint8INSTANCE.Read(reader),
 		FfiConverterBoolINSTANCE.Read(reader),
-		FfiConverterSequenceSparkAssetINSTANCE.Read(reader),
+		FfiConverterSequenceCrossChainAcceptedAssetINSTANCE.Read(reader),
 		FfiConverterSequenceDeliveryMethodINSTANCE.Read(reader),
 	}
 }
@@ -19472,7 +19843,7 @@ func (c FfiConverterCrossChainRoutePair) Write(writer io.Writer, value CrossChai
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.ContractAddress)
 	FfiConverterUint8INSTANCE.Write(writer, value.Decimals)
 	FfiConverterBoolINSTANCE.Write(writer, value.ExactOutEligible)
-	FfiConverterSequenceSparkAssetINSTANCE.Write(writer, value.AcceptedAssets)
+	FfiConverterSequenceCrossChainAcceptedAssetINSTANCE.Write(writer, value.AcceptedAssets)
 	FfiConverterSequenceDeliveryMethodINSTANCE.Write(writer, value.DeliveryMethods)
 }
 
@@ -19567,6 +19938,12 @@ type DepositInfo struct {
 	ClaimError *DepositClaimError
 	// Unset when no instant claim has been attempted.
 	InstantClaimStatus *InstantClaimStatus
+	// The fee ceiling standing for this deposit alone. It caps what may be paid
+	// to claim the deposit ahead of maturity. The claim at maturity runs under
+	// whichever is larger, this or the configured max deposit claim fee, so a
+	// ceiling set below that one does not hold the deposit back from it. Unset
+	// means the configured ceiling applies to both.
+	MaxClaimFee *MaxFee
 }
 
 func (r *DepositInfo) Destroy() {
@@ -19579,6 +19956,7 @@ func (r *DepositInfo) Destroy() {
 	FfiDestroyerOptionalRefundState{}.Destroy(r.RefundState)
 	FfiDestroyerOptionalDepositClaimError{}.Destroy(r.ClaimError)
 	FfiDestroyerOptionalInstantClaimStatus{}.Destroy(r.InstantClaimStatus)
+	FfiDestroyerOptionalMaxFee{}.Destroy(r.MaxClaimFee)
 }
 
 type FfiConverterDepositInfo struct{}
@@ -19600,6 +19978,7 @@ func (c FfiConverterDepositInfo) Read(reader io.Reader) DepositInfo {
 		FfiConverterOptionalRefundStateINSTANCE.Read(reader),
 		FfiConverterOptionalDepositClaimErrorINSTANCE.Read(reader),
 		FfiConverterOptionalInstantClaimStatusINSTANCE.Read(reader),
+		FfiConverterOptionalMaxFeeINSTANCE.Read(reader),
 	}
 }
 
@@ -19621,6 +20000,7 @@ func (c FfiConverterDepositInfo) Write(writer io.Writer, value DepositInfo) {
 	FfiConverterOptionalRefundStateINSTANCE.Write(writer, value.RefundState)
 	FfiConverterOptionalDepositClaimErrorINSTANCE.Write(writer, value.ClaimError)
 	FfiConverterOptionalInstantClaimStatusINSTANCE.Write(writer, value.InstantClaimStatus)
+	FfiConverterOptionalMaxFeeINSTANCE.Write(writer, value.MaxClaimFee)
 }
 
 type FfiDestroyerDepositInfo struct{}
@@ -20324,6 +20704,48 @@ func (c FfiConverterExternalInputParser) Write(writer io.Writer, value ExternalI
 type FfiDestroyerExternalInputParser struct{}
 
 func (_ FfiDestroyerExternalInputParser) Destroy(value ExternalInputParser) {
+	value.Destroy()
+}
+
+// FFI-safe representation of `spark_wallet::LeafSigningKey`: the leaf signing
+// key derived from `derived_from`.
+type ExternalLeafSigningKey struct {
+	DerivedFrom ExternalTreeNodeId
+}
+
+func (r *ExternalLeafSigningKey) Destroy() {
+	FfiDestroyerExternalTreeNodeId{}.Destroy(r.DerivedFrom)
+}
+
+type FfiConverterExternalLeafSigningKey struct{}
+
+var FfiConverterExternalLeafSigningKeyINSTANCE = FfiConverterExternalLeafSigningKey{}
+
+func (c FfiConverterExternalLeafSigningKey) Lift(rb RustBufferI) ExternalLeafSigningKey {
+	return LiftFromRustBuffer[ExternalLeafSigningKey](c, rb)
+}
+
+func (c FfiConverterExternalLeafSigningKey) Read(reader io.Reader) ExternalLeafSigningKey {
+	return ExternalLeafSigningKey{
+		FfiConverterExternalTreeNodeIdINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterExternalLeafSigningKey) Lower(value ExternalLeafSigningKey) C.RustBuffer {
+	return LowerIntoRustBuffer[ExternalLeafSigningKey](c, value)
+}
+
+func (c FfiConverterExternalLeafSigningKey) LowerExternal(value ExternalLeafSigningKey) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[ExternalLeafSigningKey](c, value))
+}
+
+func (c FfiConverterExternalLeafSigningKey) Write(writer io.Writer, value ExternalLeafSigningKey) {
+	FfiConverterExternalTreeNodeIdINSTANCE.Write(writer, value.DerivedFrom)
+}
+
+type FfiDestroyerExternalLeafSigningKey struct{}
+
+func (_ FfiDestroyerExternalLeafSigningKey) Destroy(value ExternalLeafSigningKey) {
 	value.Destroy()
 }
 
@@ -21384,16 +21806,19 @@ func (_ FfiDestroyerExternalStartedStaticDepositRefund) Destroy(value ExternalSt
 	value.Destroy()
 }
 
-// FFI-safe representation of `spark_wallet::TransferLeafInput`. Conveys the old
-// leaf id and the new (post-transfer) leaf id; the signer derives keys from them.
+// FFI-safe representation of `spark_wallet::TransferLeafInput`. Conveys the
+// leaf id, the key the leaf is held under and the new (post-transfer) leaf id;
+// the signer derives the keys from them.
 type ExternalTransferLeafInput struct {
-	NodeId    ExternalTreeNodeId
-	NewLeafId ExternalTreeNodeId
+	NodeId     ExternalTreeNodeId
+	NewLeafId  ExternalTreeNodeId
+	SigningKey ExternalLeafSigningKey
 }
 
 func (r *ExternalTransferLeafInput) Destroy() {
 	FfiDestroyerExternalTreeNodeId{}.Destroy(r.NodeId)
 	FfiDestroyerExternalTreeNodeId{}.Destroy(r.NewLeafId)
+	FfiDestroyerExternalLeafSigningKey{}.Destroy(r.SigningKey)
 }
 
 type FfiConverterExternalTransferLeafInput struct{}
@@ -21408,6 +21833,7 @@ func (c FfiConverterExternalTransferLeafInput) Read(reader io.Reader) ExternalTr
 	return ExternalTransferLeafInput{
 		FfiConverterExternalTreeNodeIdINSTANCE.Read(reader),
 		FfiConverterExternalTreeNodeIdINSTANCE.Read(reader),
+		FfiConverterExternalLeafSigningKeyINSTANCE.Read(reader),
 	}
 }
 
@@ -21422,6 +21848,7 @@ func (c FfiConverterExternalTransferLeafInput) LowerExternal(value ExternalTrans
 func (c FfiConverterExternalTransferLeafInput) Write(writer io.Writer, value ExternalTransferLeafInput) {
 	FfiConverterExternalTreeNodeIdINSTANCE.Write(writer, value.NodeId)
 	FfiConverterExternalTreeNodeIdINSTANCE.Write(writer, value.NewLeafId)
+	FfiConverterExternalLeafSigningKeyINSTANCE.Write(writer, value.SigningKey)
 }
 
 type FfiDestroyerExternalTransferLeafInput struct{}
@@ -24936,6 +25363,9 @@ type PreparePaymentLinkResponse struct {
 	// Denomination of `service_fee_amount`. `None` means sats: Boltz
 	// denominates its fee in sats, Orchestra in the stablecoin.
 	ServiceFeeAsset *string
+	// Decimals of `service_fee_asset`, for formatting `service_fee_amount`.
+	// Unset when the fee is in sats or the provider did not report them.
+	ServiceFeeAssetDecimals *uint32
 	// RFC3339 timestamp after which the quote is no longer valid.
 	ExpiresAt string
 }
@@ -24947,6 +25377,7 @@ func (r *PreparePaymentLinkResponse) Destroy() {
 	FfiDestroyerString{}.Destroy(r.Asset)
 	FfiDestroyerTypeu128{}.Destroy(r.ServiceFeeAmount)
 	FfiDestroyerOptionalString{}.Destroy(r.ServiceFeeAsset)
+	FfiDestroyerOptionalUint32{}.Destroy(r.ServiceFeeAssetDecimals)
 	FfiDestroyerString{}.Destroy(r.ExpiresAt)
 }
 
@@ -24966,6 +25397,7 @@ func (c FfiConverterPreparePaymentLinkResponse) Read(reader io.Reader) PreparePa
 		FfiConverterStringINSTANCE.Read(reader),
 		FfiConverterTypeu128INSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalUint32INSTANCE.Read(reader),
 		FfiConverterStringINSTANCE.Read(reader),
 	}
 }
@@ -24985,6 +25417,7 @@ func (c FfiConverterPreparePaymentLinkResponse) Write(writer io.Writer, value Pr
 	FfiConverterStringINSTANCE.Write(writer, value.Asset)
 	FfiConverterTypeu128INSTANCE.Write(writer, value.ServiceFeeAmount)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.ServiceFeeAsset)
+	FfiConverterOptionalUint32INSTANCE.Write(writer, value.ServiceFeeAssetDecimals)
 	FfiConverterStringINSTANCE.Write(writer, value.ExpiresAt)
 }
 
@@ -25278,6 +25711,9 @@ func (_ FfiDestroyerPrepareUnilateralExitRequest) Destroy(value PrepareUnilatera
 // Response from `prepare_unilateral_exit`: which leaves would exit, the exact
 // fee at the requested rate, and how much to fund.
 type PrepareUnilateralExitResponse struct {
+	// The leaves the exit covers. A leaf whose exit already finished is left out,
+	// even when named: `exit_chain_state` shows its refund swept or its branch
+	// stopped.
 	Leaves []UnilateralExitLeaf
 	// Total value of the selected leaves, in satoshis.
 	RecoverableValueSat uint64
@@ -28635,6 +29071,7 @@ type TurnkeyConfig struct {
 	WalletId string
 	// Network the wallet operates on; selects the Spark address format
 	// (mainnet or regtest) used for Spark-protocol and Schnorr signing.
+	// Signet is unsupported by Turnkey's Spark account formats.
 	Network Network
 	// Spark account number: the `{account}` in every derivation path
 	// (`m/8797555'/{account}'/...`). Unset uses the network default, matching
@@ -29648,6 +30085,58 @@ func (_ FfiDestroyerWalletSetup) Destroy(value WalletSetup) {
 	value.Destroy()
 }
 
+// A static deposit address being watched on-chain for unconfirmed deposits.
+type WatchedDepositAddress struct {
+	Address string
+	// When the address was handed out, in seconds since the epoch. The watch
+	// window is measured from here.
+	IssuedAt uint64
+	// Whether a deposit to it has been seen unconfirmed.
+	Seen bool
+}
+
+func (r *WatchedDepositAddress) Destroy() {
+	FfiDestroyerString{}.Destroy(r.Address)
+	FfiDestroyerUint64{}.Destroy(r.IssuedAt)
+	FfiDestroyerBool{}.Destroy(r.Seen)
+}
+
+type FfiConverterWatchedDepositAddress struct{}
+
+var FfiConverterWatchedDepositAddressINSTANCE = FfiConverterWatchedDepositAddress{}
+
+func (c FfiConverterWatchedDepositAddress) Lift(rb RustBufferI) WatchedDepositAddress {
+	return LiftFromRustBuffer[WatchedDepositAddress](c, rb)
+}
+
+func (c FfiConverterWatchedDepositAddress) Read(reader io.Reader) WatchedDepositAddress {
+	return WatchedDepositAddress{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterBoolINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterWatchedDepositAddress) Lower(value WatchedDepositAddress) C.RustBuffer {
+	return LowerIntoRustBuffer[WatchedDepositAddress](c, value)
+}
+
+func (c FfiConverterWatchedDepositAddress) LowerExternal(value WatchedDepositAddress) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[WatchedDepositAddress](c, value))
+}
+
+func (c FfiConverterWatchedDepositAddress) Write(writer io.Writer, value WatchedDepositAddress) {
+	FfiConverterStringINSTANCE.Write(writer, value.Address)
+	FfiConverterUint64INSTANCE.Write(writer, value.IssuedAt)
+	FfiConverterBoolINSTANCE.Write(writer, value.Seen)
+}
+
+type FfiDestroyerWatchedDepositAddress struct{}
+
+func (_ FfiDestroyerWatchedDepositAddress) Destroy(value WatchedDepositAddress) {
+	value.Destroy()
+}
+
 // A registered webhook entry.
 type Webhook struct {
 	// Unique identifier for this webhook.
@@ -30413,6 +30902,7 @@ func (err ChainServiceError) Unwrap() error {
 // Err* are used for checking error type with `errors.Is`
 var ErrChainServiceErrorInvalidAddress = fmt.Errorf("ChainServiceErrorInvalidAddress")
 var ErrChainServiceErrorServiceConnectivity = fmt.Errorf("ChainServiceErrorServiceConnectivity")
+var ErrChainServiceErrorNotFound = fmt.Errorf("ChainServiceErrorNotFound")
 var ErrChainServiceErrorGeneric = fmt.Errorf("ChainServiceErrorGeneric")
 
 // Variant structs
@@ -30472,6 +30962,38 @@ func (self ChainServiceErrorServiceConnectivity) Is(target error) bool {
 	return target == ErrChainServiceErrorServiceConnectivity
 }
 
+// The backend does not know this transaction or output. Distinct from a
+// connectivity failure: it is an answer, not the absence of one.
+type ChainServiceErrorNotFound struct {
+	Field0 string
+}
+
+// The backend does not know this transaction or output. Distinct from a
+// connectivity failure: it is an answer, not the absence of one.
+func NewChainServiceErrorNotFound(
+	var0 string,
+) *ChainServiceError {
+	return &ChainServiceError{err: &ChainServiceErrorNotFound{
+		Field0: var0}}
+}
+
+func (e ChainServiceErrorNotFound) destroy() {
+	FfiDestroyerString{}.Destroy(e.Field0)
+}
+
+func (err ChainServiceErrorNotFound) Error() string {
+	return fmt.Sprint("NotFound",
+		": ",
+
+		"Field0=",
+		err.Field0,
+	)
+}
+
+func (self ChainServiceErrorNotFound) Is(target error) bool {
+	return target == ErrChainServiceErrorNotFound
+}
+
 type ChainServiceErrorGeneric struct {
 	Field0 string
 }
@@ -30529,6 +31051,10 @@ func (c FfiConverterChainServiceError) Read(reader io.Reader) *ChainServiceError
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
 	case 3:
+		return &ChainServiceError{&ChainServiceErrorNotFound{
+			Field0: FfiConverterStringINSTANCE.Read(reader),
+		}}
+	case 4:
 		return &ChainServiceError{&ChainServiceErrorGeneric{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
@@ -30545,8 +31071,11 @@ func (c FfiConverterChainServiceError) Write(writer io.Writer, value *ChainServi
 	case *ChainServiceErrorServiceConnectivity:
 		writeInt32(writer, 2)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
-	case *ChainServiceErrorGeneric:
+	case *ChainServiceErrorNotFound:
 		writeInt32(writer, 3)
+		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
+	case *ChainServiceErrorGeneric:
+		writeInt32(writer, 4)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
 	default:
 		_ = variantValue
@@ -30562,12 +31091,209 @@ func (_ FfiDestroyerChainServiceError) Destroy(value *ChainServiceError) {
 		variantValue.destroy()
 	case ChainServiceErrorServiceConnectivity:
 		variantValue.destroy()
+	case ChainServiceErrorNotFound:
+		variantValue.destroy()
 	case ChainServiceErrorGeneric:
 		variantValue.destroy()
 	default:
 		_ = variantValue
 		panic(fmt.Sprintf("invalid error value `%v` in FfiDestroyerChainServiceError.Destroy", value))
 	}
+}
+
+// Why a claim was deferred rather than made.
+type ClaimDeferredReason interface {
+	Destroy()
+}
+
+// Claiming ahead of maturity costs more than the fee ceiling allows. Unlike a
+// depth that has not arrived, this does not clear on its own: the deposit is
+// claimed at maturity unless the ceiling is raised.
+//
+// `required_fee_sats` is what the early claim would have cost, so a caller can
+// offer it at that price rather than quoting again.
+type ClaimDeferredReasonMaxFeeExceeded struct {
+	RequiredFeeSats uint64
+	MaxFeeSats      uint64
+}
+
+func (e ClaimDeferredReasonMaxFeeExceeded) Destroy() {
+	FfiDestroyerUint64{}.Destroy(e.RequiredFeeSats)
+	FfiDestroyerUint64{}.Destroy(e.MaxFeeSats)
+}
+
+// The provider offers no early claim at the deposit's current depth, either
+// because it is too shallow for any plan or because none was offered for it.
+// Depth is the usual cause, and it resolves itself: the next confirmation may
+// well bring an early claim within reach.
+type ClaimDeferredReasonNoEarlyClaimAvailable struct {
+}
+
+func (e ClaimDeferredReasonNoEarlyClaimAvailable) Destroy() {
+}
+
+// The provider refused the early claim or could not be reached, so nothing was
+// submitted. Unlike a depth that has not arrived, waiting for a confirmation
+// does not address this, and the deposit is claimed at maturity unless a later
+// call succeeds. `message` is what the provider or the transport reported.
+type ClaimDeferredReasonProviderDeclined struct {
+	Message string
+}
+
+func (e ClaimDeferredReasonProviderDeclined) Destroy() {
+	FfiDestroyerString{}.Destroy(e.Message)
+}
+
+type FfiConverterClaimDeferredReason struct{}
+
+var FfiConverterClaimDeferredReasonINSTANCE = FfiConverterClaimDeferredReason{}
+
+func (c FfiConverterClaimDeferredReason) Lift(rb RustBufferI) ClaimDeferredReason {
+	return LiftFromRustBuffer[ClaimDeferredReason](c, rb)
+}
+
+func (c FfiConverterClaimDeferredReason) Lower(value ClaimDeferredReason) C.RustBuffer {
+	return LowerIntoRustBuffer[ClaimDeferredReason](c, value)
+}
+
+func (c FfiConverterClaimDeferredReason) LowerExternal(value ClaimDeferredReason) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[ClaimDeferredReason](c, value))
+}
+func (FfiConverterClaimDeferredReason) Read(reader io.Reader) ClaimDeferredReason {
+	id := readInt32(reader)
+	switch id {
+	case 1:
+		return ClaimDeferredReasonMaxFeeExceeded{
+			FfiConverterUint64INSTANCE.Read(reader),
+			FfiConverterUint64INSTANCE.Read(reader),
+		}
+	case 2:
+		return ClaimDeferredReasonNoEarlyClaimAvailable{}
+	case 3:
+		return ClaimDeferredReasonProviderDeclined{
+			FfiConverterStringINSTANCE.Read(reader),
+		}
+	default:
+		panic(fmt.Sprintf("invalid enum value %v in FfiConverterClaimDeferredReason.Read()", id))
+	}
+}
+
+func (FfiConverterClaimDeferredReason) Write(writer io.Writer, value ClaimDeferredReason) {
+	switch variant_value := value.(type) {
+	case ClaimDeferredReasonMaxFeeExceeded:
+		writeInt32(writer, 1)
+		FfiConverterUint64INSTANCE.Write(writer, variant_value.RequiredFeeSats)
+		FfiConverterUint64INSTANCE.Write(writer, variant_value.MaxFeeSats)
+	case ClaimDeferredReasonNoEarlyClaimAvailable:
+		writeInt32(writer, 2)
+	case ClaimDeferredReasonProviderDeclined:
+		writeInt32(writer, 3)
+		FfiConverterStringINSTANCE.Write(writer, variant_value.Message)
+	default:
+		_ = variant_value
+		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterClaimDeferredReason.Write", value))
+	}
+}
+
+type FfiDestroyerClaimDeferredReason struct{}
+
+func (_ FfiDestroyerClaimDeferredReason) Destroy(value ClaimDeferredReason) {
+	value.Destroy()
+}
+
+// What became of a claim.
+type ClaimDepositOutcome interface {
+	Destroy()
+}
+
+// Claimed at maturity and settled, carrying the payment it produced.
+type ClaimDepositOutcomeSettled struct {
+	Payment Payment
+}
+
+func (e ClaimDepositOutcomeSettled) Destroy() {
+	FfiDestroyerPayment{}.Destroy(e.Payment)
+}
+
+// Claimed ahead of maturity and submitted. The transfer settles
+// asynchronously, so no payment is returned yet: watch for it via events or
+// `list_payments`.
+type ClaimDepositOutcomeSubmitted struct {
+}
+
+func (e ClaimDepositOutcomeSubmitted) Destroy() {
+}
+
+// Nothing was claimed yet, and no further call is needed: any fee ceiling this
+// one asked for stands on the deposit, and the SDK keeps claiming it on its
+// own. An early claim is attempted again as the deposit gains confirmations,
+// so one declined for being too shallow is often claimed early a block or two
+// later. Failing that, the deposit is claimed at maturity.
+//
+// An ordinary outcome rather than a failure. `reason` says which of the two to
+// expect: a depth that has not arrived yet, or a cost the ceiling will not
+// cover.
+type ClaimDepositOutcomeDeferred struct {
+	Reason ClaimDeferredReason
+}
+
+func (e ClaimDepositOutcomeDeferred) Destroy() {
+	FfiDestroyerClaimDeferredReason{}.Destroy(e.Reason)
+}
+
+type FfiConverterClaimDepositOutcome struct{}
+
+var FfiConverterClaimDepositOutcomeINSTANCE = FfiConverterClaimDepositOutcome{}
+
+func (c FfiConverterClaimDepositOutcome) Lift(rb RustBufferI) ClaimDepositOutcome {
+	return LiftFromRustBuffer[ClaimDepositOutcome](c, rb)
+}
+
+func (c FfiConverterClaimDepositOutcome) Lower(value ClaimDepositOutcome) C.RustBuffer {
+	return LowerIntoRustBuffer[ClaimDepositOutcome](c, value)
+}
+
+func (c FfiConverterClaimDepositOutcome) LowerExternal(value ClaimDepositOutcome) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[ClaimDepositOutcome](c, value))
+}
+func (FfiConverterClaimDepositOutcome) Read(reader io.Reader) ClaimDepositOutcome {
+	id := readInt32(reader)
+	switch id {
+	case 1:
+		return ClaimDepositOutcomeSettled{
+			FfiConverterPaymentINSTANCE.Read(reader),
+		}
+	case 2:
+		return ClaimDepositOutcomeSubmitted{}
+	case 3:
+		return ClaimDepositOutcomeDeferred{
+			FfiConverterClaimDeferredReasonINSTANCE.Read(reader),
+		}
+	default:
+		panic(fmt.Sprintf("invalid enum value %v in FfiConverterClaimDepositOutcome.Read()", id))
+	}
+}
+
+func (FfiConverterClaimDepositOutcome) Write(writer io.Writer, value ClaimDepositOutcome) {
+	switch variant_value := value.(type) {
+	case ClaimDepositOutcomeSettled:
+		writeInt32(writer, 1)
+		FfiConverterPaymentINSTANCE.Write(writer, variant_value.Payment)
+	case ClaimDepositOutcomeSubmitted:
+		writeInt32(writer, 2)
+	case ClaimDepositOutcomeDeferred:
+		writeInt32(writer, 3)
+		FfiConverterClaimDeferredReasonINSTANCE.Write(writer, variant_value.Reason)
+	default:
+		_ = variant_value
+		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterClaimDepositOutcome.Write", value))
+	}
+}
+
+type FfiDestroyerClaimDepositOutcome struct{}
+
+func (_ FfiDestroyerClaimDepositOutcome) Destroy(value ClaimDepositOutcome) {
+	value.Destroy()
 }
 
 // The chain or network that a [`ConversionSide`] lives on.
@@ -30739,23 +31465,24 @@ func (e ConversionInfoAmm) Destroy() {
 // a receive. Amounts follow the direction of the transfer, so read each
 // amount field's own denomination.
 type ConversionInfoOrchestra struct {
-	OrderId          string
-	QuoteId          string
-	ReadToken        *string
-	Chain            string
-	ChainId          *string
-	Asset            string
-	RecipientAddress string
-	AssetAmountIn    *u128
-	EstimatedOut     u128
-	DeliveredAmount  *u128
-	ExternalTxHash   *string
-	Status           ConversionStatus
-	FeeAmount        *u128
-	ServiceFeeAmount *u128
-	ServiceFeeAsset  *string
-	AssetDecimals    uint32
-	AssetContract    *string
+	OrderId                 string
+	QuoteId                 string
+	ReadToken               *string
+	Chain                   string
+	ChainId                 *string
+	Asset                   string
+	RecipientAddress        string
+	AssetAmountIn           *u128
+	EstimatedOut            u128
+	DeliveredAmount         *u128
+	ExternalTxHash          *string
+	Status                  ConversionStatus
+	FeeAmount               *u128
+	ServiceFeeAmount        *u128
+	ServiceFeeAsset         *string
+	ServiceFeeAssetDecimals *uint32
+	AssetDecimals           uint32
+	AssetContract           *string
 }
 
 func (e ConversionInfoOrchestra) Destroy() {
@@ -30774,6 +31501,7 @@ func (e ConversionInfoOrchestra) Destroy() {
 	FfiDestroyerOptionalTypeu128{}.Destroy(e.FeeAmount)
 	FfiDestroyerOptionalTypeu128{}.Destroy(e.ServiceFeeAmount)
 	FfiDestroyerOptionalString{}.Destroy(e.ServiceFeeAsset)
+	FfiDestroyerOptionalUint32{}.Destroy(e.ServiceFeeAssetDecimals)
 	FfiDestroyerUint32{}.Destroy(e.AssetDecimals)
 	FfiDestroyerOptionalString{}.Destroy(e.AssetContract)
 }
@@ -30871,6 +31599,7 @@ func (FfiConverterConversionInfo) Read(reader io.Reader) ConversionInfo {
 			FfiConverterOptionalTypeu128INSTANCE.Read(reader),
 			FfiConverterOptionalTypeu128INSTANCE.Read(reader),
 			FfiConverterOptionalStringINSTANCE.Read(reader),
+			FfiConverterOptionalUint32INSTANCE.Read(reader),
 			FfiConverterUint32INSTANCE.Read(reader),
 			FfiConverterOptionalStringINSTANCE.Read(reader),
 		}
@@ -30929,6 +31658,7 @@ func (FfiConverterConversionInfo) Write(writer io.Writer, value ConversionInfo) 
 		FfiConverterOptionalTypeu128INSTANCE.Write(writer, variant_value.FeeAmount)
 		FfiConverterOptionalTypeu128INSTANCE.Write(writer, variant_value.ServiceFeeAmount)
 		FfiConverterOptionalStringINSTANCE.Write(writer, variant_value.ServiceFeeAsset)
+		FfiConverterOptionalUint32INSTANCE.Write(writer, variant_value.ServiceFeeAssetDecimals)
 		FfiConverterUint32INSTANCE.Write(writer, variant_value.AssetDecimals)
 		FfiConverterOptionalStringINSTANCE.Write(writer, variant_value.AssetContract)
 	case ConversionInfoBoltz:
@@ -32056,7 +32786,8 @@ type ExitLeafSelectionAuto struct {
 func (e ExitLeafSelectionAuto) Destroy() {
 }
 
-// Exit exactly these leaves, regardless of profitability.
+// Exit exactly these leaves, regardless of profitability, apart from any
+// whose exit already finished.
 type ExitLeafSelectionSpecific struct {
 	LeafIds []string
 }
@@ -32929,15 +33660,23 @@ func (e InstantClaimStatusDeclined) Destroy() {
 	FfiDestroyerUint32{}.Destroy(e.Confirmations)
 }
 
-// An instant claim was submitted and is settling. The deposit must not be
-// re-claimed (instant or normal) until the claim settles and it is reconciled
-// out. Carries the SSP claim id.
+// An instant claim was submitted and is settling. Carries the SSP claim id.
 type InstantClaimStatusSubmitted struct {
 	ClaimId string
 }
 
 func (e InstantClaimStatusSubmitted) Destroy() {
 	FfiDestroyerString{}.Destroy(e.ClaimId)
+}
+
+// A claim has taken the deposit: either its credit arrived here, or the
+// provider reports the deposit as already claimed. It stays listed until
+// the provider spends the output, so treat it as settled rather than as
+// awaiting action.
+type InstantClaimStatusClaimed struct {
+}
+
+func (e InstantClaimStatusClaimed) Destroy() {
 }
 
 type FfiConverterInstantClaimStatus struct{}
@@ -32967,6 +33706,8 @@ func (FfiConverterInstantClaimStatus) Read(reader io.Reader) InstantClaimStatus 
 		return InstantClaimStatusSubmitted{
 			FfiConverterStringINSTANCE.Read(reader),
 		}
+	case 3:
+		return InstantClaimStatusClaimed{}
 	default:
 		panic(fmt.Sprintf("invalid enum value %v in FfiConverterInstantClaimStatus.Read()", id))
 	}
@@ -32981,6 +33722,8 @@ func (FfiConverterInstantClaimStatus) Write(writer io.Writer, value InstantClaim
 	case InstantClaimStatusSubmitted:
 		writeInt32(writer, 2)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.ClaimId)
+	case InstantClaimStatusClaimed:
+		writeInt32(writer, 3)
 	default:
 		_ = variant_value
 		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterInstantClaimStatus.Write", value))
@@ -33191,6 +33934,7 @@ type Network uint
 const (
 	NetworkMainnet Network = 1
 	NetworkRegtest Network = 2
+	NetworkSignet  Network = 3
 )
 
 type FfiConverterNetwork struct{}
@@ -35670,6 +36414,8 @@ var ErrSdkErrorSparkError = fmt.Errorf("SdkErrorSparkError")
 var ErrSdkErrorInsufficientFunds = fmt.Errorf("SdkErrorInsufficientFunds")
 var ErrSdkErrorInvalidUuid = fmt.Errorf("SdkErrorInvalidUuid")
 var ErrSdkErrorInvalidInput = fmt.Errorf("SdkErrorInvalidInput")
+var ErrSdkErrorCrossChainAmountOutOfRange = fmt.Errorf("SdkErrorCrossChainAmountOutOfRange")
+var ErrSdkErrorCrossChainRouteUnavailable = fmt.Errorf("SdkErrorCrossChainRouteUnavailable")
 var ErrSdkErrorNetworkError = fmt.Errorf("SdkErrorNetworkError")
 var ErrSdkErrorStorageError = fmt.Errorf("SdkErrorStorageError")
 var ErrSdkErrorChainServiceError = fmt.Errorf("SdkErrorChainServiceError")
@@ -35797,6 +36543,118 @@ func (err SdkErrorInvalidInput) Error() string {
 
 func (self SdkErrorInvalidInput) Is(target error) bool {
 	return target == ErrSdkErrorInvalidInput
+}
+
+// A cross-chain provider rejected the amount as outside what it accepts
+// for the route.
+//
+// The bound fields carry what the route publishes in the direction that
+// failed, in whichever denominations the provider publishes. A route can
+// enforce a tighter bound than it publishes, so an amount inside the
+// published one can still land here.
+//
+// The message is the provider's own rejection text with the published
+// bound appended, so it already names the direction.
+type SdkErrorCrossChainAmountOutOfRange struct {
+	Reason        string
+	TooSmall      bool
+	BoundAmount   *u128
+	BoundUsdCents *uint64
+}
+
+// A cross-chain provider rejected the amount as outside what it accepts
+// for the route.
+//
+// The bound fields carry what the route publishes in the direction that
+// failed, in whichever denominations the provider publishes. A route can
+// enforce a tighter bound than it publishes, so an amount inside the
+// published one can still land here.
+//
+// The message is the provider's own rejection text with the published
+// bound appended, so it already names the direction.
+func NewSdkErrorCrossChainAmountOutOfRange(
+	reason string,
+	tooSmall bool,
+	boundAmount *u128,
+	boundUsdCents *uint64,
+) *SdkError {
+	return &SdkError{err: &SdkErrorCrossChainAmountOutOfRange{
+		Reason:        reason,
+		TooSmall:      tooSmall,
+		BoundAmount:   boundAmount,
+		BoundUsdCents: boundUsdCents}}
+}
+
+func (e SdkErrorCrossChainAmountOutOfRange) destroy() {
+	FfiDestroyerString{}.Destroy(e.Reason)
+	FfiDestroyerBool{}.Destroy(e.TooSmall)
+	FfiDestroyerOptionalTypeu128{}.Destroy(e.BoundAmount)
+	FfiDestroyerOptionalUint64{}.Destroy(e.BoundUsdCents)
+}
+
+func (err SdkErrorCrossChainAmountOutOfRange) Error() string {
+	return fmt.Sprint("CrossChainAmountOutOfRange",
+		": ",
+
+		"Reason=",
+		err.Reason,
+		", ",
+		"TooSmall=",
+		err.TooSmall,
+		", ",
+		"BoundAmount=",
+		err.BoundAmount,
+		", ",
+		"BoundUsdCents=",
+		err.BoundUsdCents,
+	)
+}
+
+func (self SdkErrorCrossChainAmountOutOfRange) Is(target error) bool {
+	return target == ErrSdkErrorCrossChainAmountOutOfRange
+}
+
+// A cross-chain provider won't serve the route, for now or at all.
+//
+// The message leads with a fixed phrase for each case, for bindings that
+// only see the text, followed by the provider's own reason.
+type SdkErrorCrossChainRouteUnavailable struct {
+	Reason    string
+	Temporary bool
+}
+
+// A cross-chain provider won't serve the route, for now or at all.
+//
+// The message leads with a fixed phrase for each case, for bindings that
+// only see the text, followed by the provider's own reason.
+func NewSdkErrorCrossChainRouteUnavailable(
+	reason string,
+	temporary bool,
+) *SdkError {
+	return &SdkError{err: &SdkErrorCrossChainRouteUnavailable{
+		Reason:    reason,
+		Temporary: temporary}}
+}
+
+func (e SdkErrorCrossChainRouteUnavailable) destroy() {
+	FfiDestroyerString{}.Destroy(e.Reason)
+	FfiDestroyerBool{}.Destroy(e.Temporary)
+}
+
+func (err SdkErrorCrossChainRouteUnavailable) Error() string {
+	return fmt.Sprint("CrossChainRouteUnavailable",
+		": ",
+
+		"Reason=",
+		err.Reason,
+		", ",
+		"Temporary=",
+		err.Temporary,
+	)
+}
+
+func (self SdkErrorCrossChainRouteUnavailable) Is(target error) bool {
+	return target == ErrSdkErrorCrossChainRouteUnavailable
 }
 
 // Network error
@@ -36249,18 +37107,30 @@ func (c FfiConverterSdkError) Read(reader io.Reader) *SdkError {
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
 	case 5:
+		return &SdkError{&SdkErrorCrossChainAmountOutOfRange{
+			Reason:        FfiConverterStringINSTANCE.Read(reader),
+			TooSmall:      FfiConverterBoolINSTANCE.Read(reader),
+			BoundAmount:   FfiConverterOptionalTypeu128INSTANCE.Read(reader),
+			BoundUsdCents: FfiConverterOptionalUint64INSTANCE.Read(reader),
+		}}
+	case 6:
+		return &SdkError{&SdkErrorCrossChainRouteUnavailable{
+			Reason:    FfiConverterStringINSTANCE.Read(reader),
+			Temporary: FfiConverterBoolINSTANCE.Read(reader),
+		}}
+	case 7:
 		return &SdkError{&SdkErrorNetworkError{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
-	case 6:
+	case 8:
 		return &SdkError{&SdkErrorStorageError{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
-	case 7:
+	case 9:
 		return &SdkError{&SdkErrorChainServiceError{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
-	case 8:
+	case 10:
 		return &SdkError{&SdkErrorMaxDepositClaimFeeExceeded{
 			Tx:                         FfiConverterStringINSTANCE.Read(reader),
 			Vout:                       FfiConverterUint32INSTANCE.Read(reader),
@@ -36268,38 +37138,38 @@ func (c FfiConverterSdkError) Read(reader io.Reader) *SdkError {
 			RequiredFeeSats:            FfiConverterUint64INSTANCE.Read(reader),
 			RequiredFeeRateSatPerVbyte: FfiConverterUint64INSTANCE.Read(reader),
 		}}
-	case 9:
+	case 11:
 		return &SdkError{&SdkErrorMissingUtxo{
 			Tx:   FfiConverterStringINSTANCE.Read(reader),
 			Vout: FfiConverterUint32INSTANCE.Read(reader),
 		}}
-	case 10:
+	case 12:
 		return &SdkError{&SdkErrorDepositClaimInProgress{
 			Tx:   FfiConverterStringINSTANCE.Read(reader),
 			Vout: FfiConverterUint32INSTANCE.Read(reader),
 		}}
-	case 11:
+	case 13:
 		return &SdkError{&SdkErrorRefundReplacementFeeTooLow{
 			PendingFeeSats:  FfiConverterUint64INSTANCE.Read(reader),
 			RequiredFeeSats: FfiConverterUint64INSTANCE.Read(reader),
 		}}
-	case 12:
+	case 14:
 		return &SdkError{&SdkErrorLnurlError{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
-	case 13:
+	case 15:
 		return &SdkError{&SdkErrorSigner{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
-	case 14:
-		return &SdkError{&SdkErrorOptimizationAlreadyRunning{}}
-	case 15:
-		return &SdkError{&SdkErrorOptimizationCancelled{}}
 	case 16:
+		return &SdkError{&SdkErrorOptimizationAlreadyRunning{}}
+	case 17:
+		return &SdkError{&SdkErrorOptimizationCancelled{}}
+	case 18:
 		return &SdkError{&SdkErrorInsufficientCpfpFunds{
 			RequiredSat: FfiConverterUint64INSTANCE.Read(reader),
 		}}
-	case 17:
+	case 19:
 		return &SdkError{&SdkErrorGeneric{
 			Field0: FfiConverterStringINSTANCE.Read(reader),
 		}}
@@ -36322,49 +37192,59 @@ func (c FfiConverterSdkError) Write(writer io.Writer, value *SdkError) {
 	case *SdkErrorInvalidInput:
 		writeInt32(writer, 4)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
-	case *SdkErrorNetworkError:
+	case *SdkErrorCrossChainAmountOutOfRange:
 		writeInt32(writer, 5)
-		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
-	case *SdkErrorStorageError:
+		FfiConverterStringINSTANCE.Write(writer, variantValue.Reason)
+		FfiConverterBoolINSTANCE.Write(writer, variantValue.TooSmall)
+		FfiConverterOptionalTypeu128INSTANCE.Write(writer, variantValue.BoundAmount)
+		FfiConverterOptionalUint64INSTANCE.Write(writer, variantValue.BoundUsdCents)
+	case *SdkErrorCrossChainRouteUnavailable:
 		writeInt32(writer, 6)
-		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
-	case *SdkErrorChainServiceError:
+		FfiConverterStringINSTANCE.Write(writer, variantValue.Reason)
+		FfiConverterBoolINSTANCE.Write(writer, variantValue.Temporary)
+	case *SdkErrorNetworkError:
 		writeInt32(writer, 7)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
-	case *SdkErrorMaxDepositClaimFeeExceeded:
+	case *SdkErrorStorageError:
 		writeInt32(writer, 8)
+		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
+	case *SdkErrorChainServiceError:
+		writeInt32(writer, 9)
+		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
+	case *SdkErrorMaxDepositClaimFeeExceeded:
+		writeInt32(writer, 10)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Tx)
 		FfiConverterUint32INSTANCE.Write(writer, variantValue.Vout)
 		FfiConverterOptionalFeeINSTANCE.Write(writer, variantValue.MaxFee)
 		FfiConverterUint64INSTANCE.Write(writer, variantValue.RequiredFeeSats)
 		FfiConverterUint64INSTANCE.Write(writer, variantValue.RequiredFeeRateSatPerVbyte)
 	case *SdkErrorMissingUtxo:
-		writeInt32(writer, 9)
+		writeInt32(writer, 11)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Tx)
 		FfiConverterUint32INSTANCE.Write(writer, variantValue.Vout)
 	case *SdkErrorDepositClaimInProgress:
-		writeInt32(writer, 10)
+		writeInt32(writer, 12)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Tx)
 		FfiConverterUint32INSTANCE.Write(writer, variantValue.Vout)
 	case *SdkErrorRefundReplacementFeeTooLow:
-		writeInt32(writer, 11)
+		writeInt32(writer, 13)
 		FfiConverterUint64INSTANCE.Write(writer, variantValue.PendingFeeSats)
 		FfiConverterUint64INSTANCE.Write(writer, variantValue.RequiredFeeSats)
 	case *SdkErrorLnurlError:
-		writeInt32(writer, 12)
+		writeInt32(writer, 14)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
 	case *SdkErrorSigner:
-		writeInt32(writer, 13)
+		writeInt32(writer, 15)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
 	case *SdkErrorOptimizationAlreadyRunning:
-		writeInt32(writer, 14)
-	case *SdkErrorOptimizationCancelled:
-		writeInt32(writer, 15)
-	case *SdkErrorInsufficientCpfpFunds:
 		writeInt32(writer, 16)
+	case *SdkErrorOptimizationCancelled:
+		writeInt32(writer, 17)
+	case *SdkErrorInsufficientCpfpFunds:
+		writeInt32(writer, 18)
 		FfiConverterUint64INSTANCE.Write(writer, variantValue.RequiredSat)
 	case *SdkErrorGeneric:
-		writeInt32(writer, 17)
+		writeInt32(writer, 19)
 		FfiConverterStringINSTANCE.Write(writer, variantValue.Field0)
 	default:
 		_ = variantValue
@@ -36383,6 +37263,10 @@ func (_ FfiDestroyerSdkError) Destroy(value *SdkError) {
 	case SdkErrorInvalidUuid:
 		variantValue.destroy()
 	case SdkErrorInvalidInput:
+		variantValue.destroy()
+	case SdkErrorCrossChainAmountOutOfRange:
+		variantValue.destroy()
+	case SdkErrorCrossChainRouteUnavailable:
 		variantValue.destroy()
 	case SdkErrorNetworkError:
 		variantValue.destroy()
@@ -36477,6 +37361,17 @@ func (e SdkEventPaymentFailed) Destroy() {
 	FfiDestroyerPayment{}.Destroy(e.Payment)
 }
 
+// Emitted when details of an already stored payment changed, such as the
+// conversion info of a cross-chain receive arriving after the payment
+// settled. Carries the updated payment.
+type SdkEventPaymentMetadataUpdated struct {
+	Payment Payment
+}
+
+func (e SdkEventPaymentMetadataUpdated) Destroy() {
+	FfiDestroyerPayment{}.Destroy(e.Payment)
+}
+
 // Emitted while the background auto-optimizer is running.
 //
 // Only fired from the auto path (enabled via
@@ -36560,18 +37455,22 @@ func (FfiConverterSdkEvent) Read(reader io.Reader) SdkEvent {
 			FfiConverterPaymentINSTANCE.Read(reader),
 		}
 	case 7:
+		return SdkEventPaymentMetadataUpdated{
+			FfiConverterPaymentINSTANCE.Read(reader),
+		}
+	case 8:
 		return SdkEventAutoOptimization{
 			FfiConverterAutoOptimizationEventINSTANCE.Read(reader),
 		}
-	case 8:
+	case 9:
 		return SdkEventLightningAddressChanged{
 			FfiConverterOptionalLightningAddressInfoINSTANCE.Read(reader),
 		}
-	case 9:
+	case 10:
 		return SdkEventNewDeposits{
 			FfiConverterSequenceDepositInfoINSTANCE.Read(reader),
 		}
-	case 10:
+	case 11:
 		return SdkEventUnilateralExitStateChanged{}
 	default:
 		panic(fmt.Sprintf("invalid enum value %v in FfiConverterSdkEvent.Read()", id))
@@ -36597,17 +37496,20 @@ func (FfiConverterSdkEvent) Write(writer io.Writer, value SdkEvent) {
 	case SdkEventPaymentFailed:
 		writeInt32(writer, 6)
 		FfiConverterPaymentINSTANCE.Write(writer, variant_value.Payment)
-	case SdkEventAutoOptimization:
+	case SdkEventPaymentMetadataUpdated:
 		writeInt32(writer, 7)
+		FfiConverterPaymentINSTANCE.Write(writer, variant_value.Payment)
+	case SdkEventAutoOptimization:
+		writeInt32(writer, 8)
 		FfiConverterAutoOptimizationEventINSTANCE.Write(writer, variant_value.OptimizationEvent)
 	case SdkEventLightningAddressChanged:
-		writeInt32(writer, 8)
+		writeInt32(writer, 9)
 		FfiConverterOptionalLightningAddressInfoINSTANCE.Write(writer, variant_value.LightningAddress)
 	case SdkEventNewDeposits:
-		writeInt32(writer, 9)
+		writeInt32(writer, 10)
 		FfiConverterSequenceDepositInfoINSTANCE.Write(writer, variant_value.NewDeposits)
 	case SdkEventUnilateralExitStateChanged:
-		writeInt32(writer, 10)
+		writeInt32(writer, 11)
 	default:
 		_ = variant_value
 		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterSdkEvent.Write", value))
@@ -36750,18 +37652,19 @@ func (e SendPaymentMethodSparkInvoice) Destroy() {
 
 // A cross-chain send via a bridge/swap provider.
 type SendPaymentMethodCrossChainAddress struct {
-	Route                 CrossChainRoutePair
-	RecipientAddress      string
-	AmountIn              u128
-	AssetAmountIn         u128
-	EstimatedOut          u128
-	FeeAmount             u128
-	ServiceFeeAmount      u128
-	ServiceFeeAsset       *string
-	SourceTransferFeeSats uint64
-	FeeMode               CrossChainFeeMode
-	ExpiresAt             string
-	ProviderContext       CrossChainProviderContext
+	Route                   CrossChainRoutePair
+	RecipientAddress        string
+	AmountIn                u128
+	AssetAmountIn           u128
+	EstimatedOut            u128
+	FeeAmount               u128
+	ServiceFeeAmount        u128
+	ServiceFeeAsset         *string
+	ServiceFeeAssetDecimals *uint32
+	SourceTransferFeeSats   uint64
+	FeeMode                 CrossChainFeeMode
+	ExpiresAt               string
+	ProviderContext         CrossChainProviderContext
 }
 
 func (e SendPaymentMethodCrossChainAddress) Destroy() {
@@ -36773,6 +37676,7 @@ func (e SendPaymentMethodCrossChainAddress) Destroy() {
 	FfiDestroyerTypeu128{}.Destroy(e.FeeAmount)
 	FfiDestroyerTypeu128{}.Destroy(e.ServiceFeeAmount)
 	FfiDestroyerOptionalString{}.Destroy(e.ServiceFeeAsset)
+	FfiDestroyerOptionalUint32{}.Destroy(e.ServiceFeeAssetDecimals)
 	FfiDestroyerUint64{}.Destroy(e.SourceTransferFeeSats)
 	FfiDestroyerCrossChainFeeMode{}.Destroy(e.FeeMode)
 	FfiDestroyerString{}.Destroy(e.ExpiresAt)
@@ -36830,6 +37734,7 @@ func (FfiConverterSendPaymentMethod) Read(reader io.Reader) SendPaymentMethod {
 			FfiConverterTypeu128INSTANCE.Read(reader),
 			FfiConverterTypeu128INSTANCE.Read(reader),
 			FfiConverterOptionalStringINSTANCE.Read(reader),
+			FfiConverterOptionalUint32INSTANCE.Read(reader),
 			FfiConverterUint64INSTANCE.Read(reader),
 			FfiConverterCrossChainFeeModeINSTANCE.Read(reader),
 			FfiConverterStringINSTANCE.Read(reader),
@@ -36871,6 +37776,7 @@ func (FfiConverterSendPaymentMethod) Write(writer io.Writer, value SendPaymentMe
 		FfiConverterTypeu128INSTANCE.Write(writer, variant_value.FeeAmount)
 		FfiConverterTypeu128INSTANCE.Write(writer, variant_value.ServiceFeeAmount)
 		FfiConverterOptionalStringINSTANCE.Write(writer, variant_value.ServiceFeeAsset)
+		FfiConverterOptionalUint32INSTANCE.Write(writer, variant_value.ServiceFeeAssetDecimals)
 		FfiConverterUint64INSTANCE.Write(writer, variant_value.SourceTransferFeeSats)
 		FfiConverterCrossChainFeeModeINSTANCE.Write(writer, variant_value.FeeMode)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.ExpiresAt)
@@ -39403,6 +40309,17 @@ func (e UpdateDepositPayloadRefundBroadcastState) Destroy() {
 	FfiDestroyerRefundState{}.Destroy(e.State)
 }
 
+// Sets the fee ceiling standing for this deposit, which later automatic
+// claims run under. `None` clears it, returning the deposit to the
+// configured ceiling.
+type UpdateDepositPayloadMaxClaimFee struct {
+	MaxFee *MaxFee
+}
+
+func (e UpdateDepositPayloadMaxClaimFee) Destroy() {
+	FfiDestroyerOptionalMaxFee{}.Destroy(e.MaxFee)
+}
+
 type FfiConverterUpdateDepositPayload struct{}
 
 var FfiConverterUpdateDepositPayloadINSTANCE = FfiConverterUpdateDepositPayload{}
@@ -39440,6 +40357,10 @@ func (FfiConverterUpdateDepositPayload) Read(reader io.Reader) UpdateDepositPayl
 			FfiConverterStringINSTANCE.Read(reader),
 			FfiConverterRefundStateINSTANCE.Read(reader),
 		}
+	case 5:
+		return UpdateDepositPayloadMaxClaimFee{
+			FfiConverterOptionalMaxFeeINSTANCE.Read(reader),
+		}
 	default:
 		panic(fmt.Sprintf("invalid enum value %v in FfiConverterUpdateDepositPayload.Read()", id))
 	}
@@ -39462,6 +40383,9 @@ func (FfiConverterUpdateDepositPayload) Write(writer io.Writer, value UpdateDepo
 		writeInt32(writer, 4)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.RefundTxid)
 		FfiConverterRefundStateINSTANCE.Write(writer, variant_value.State)
+	case UpdateDepositPayloadMaxClaimFee:
+		writeInt32(writer, 5)
+		FfiConverterOptionalMaxFeeINSTANCE.Write(writer, variant_value.MaxFee)
 	default:
 		_ = variant_value
 		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterUpdateDepositPayload.Write", value))
@@ -39471,6 +40395,93 @@ func (FfiConverterUpdateDepositPayload) Write(writer io.Writer, value UpdateDepo
 type FfiDestroyerUpdateDepositPayload struct{}
 
 func (_ FfiDestroyerUpdateDepositPayload) Destroy(value UpdateDepositPayload) {
+	value.Destroy()
+}
+
+type UpdateWatchedAddressPayload interface {
+	Destroy()
+}
+
+// Starts watching the address, or restarts the window on one already
+// watched, clearing `seen`.
+type UpdateWatchedAddressPayloadWatch struct {
+	IssuedAt uint64
+}
+
+func (e UpdateWatchedAddressPayloadWatch) Destroy() {
+	FfiDestroyerUint64{}.Destroy(e.IssuedAt)
+}
+
+// Records that a deposit to it has been seen unconfirmed.
+type UpdateWatchedAddressPayloadSeen struct {
+}
+
+func (e UpdateWatchedAddressPayloadSeen) Destroy() {
+}
+
+// Stops watching it, removing the row. Applies only while `issued_at` is
+// still the stored value, so an address handed out again since it was read
+// is not retired by a decision taken before that.
+type UpdateWatchedAddressPayloadUnwatch struct {
+	IssuedAt uint64
+}
+
+func (e UpdateWatchedAddressPayloadUnwatch) Destroy() {
+	FfiDestroyerUint64{}.Destroy(e.IssuedAt)
+}
+
+type FfiConverterUpdateWatchedAddressPayload struct{}
+
+var FfiConverterUpdateWatchedAddressPayloadINSTANCE = FfiConverterUpdateWatchedAddressPayload{}
+
+func (c FfiConverterUpdateWatchedAddressPayload) Lift(rb RustBufferI) UpdateWatchedAddressPayload {
+	return LiftFromRustBuffer[UpdateWatchedAddressPayload](c, rb)
+}
+
+func (c FfiConverterUpdateWatchedAddressPayload) Lower(value UpdateWatchedAddressPayload) C.RustBuffer {
+	return LowerIntoRustBuffer[UpdateWatchedAddressPayload](c, value)
+}
+
+func (c FfiConverterUpdateWatchedAddressPayload) LowerExternal(value UpdateWatchedAddressPayload) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[UpdateWatchedAddressPayload](c, value))
+}
+func (FfiConverterUpdateWatchedAddressPayload) Read(reader io.Reader) UpdateWatchedAddressPayload {
+	id := readInt32(reader)
+	switch id {
+	case 1:
+		return UpdateWatchedAddressPayloadWatch{
+			FfiConverterUint64INSTANCE.Read(reader),
+		}
+	case 2:
+		return UpdateWatchedAddressPayloadSeen{}
+	case 3:
+		return UpdateWatchedAddressPayloadUnwatch{
+			FfiConverterUint64INSTANCE.Read(reader),
+		}
+	default:
+		panic(fmt.Sprintf("invalid enum value %v in FfiConverterUpdateWatchedAddressPayload.Read()", id))
+	}
+}
+
+func (FfiConverterUpdateWatchedAddressPayload) Write(writer io.Writer, value UpdateWatchedAddressPayload) {
+	switch variant_value := value.(type) {
+	case UpdateWatchedAddressPayloadWatch:
+		writeInt32(writer, 1)
+		FfiConverterUint64INSTANCE.Write(writer, variant_value.IssuedAt)
+	case UpdateWatchedAddressPayloadSeen:
+		writeInt32(writer, 2)
+	case UpdateWatchedAddressPayloadUnwatch:
+		writeInt32(writer, 3)
+		FfiConverterUint64INSTANCE.Write(writer, variant_value.IssuedAt)
+	default:
+		_ = variant_value
+		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterUpdateWatchedAddressPayload.Write", value))
+	}
+}
+
+type FfiDestroyerUpdateWatchedAddressPayload struct{}
+
+func (_ FfiDestroyerUpdateWatchedAddressPayload) Destroy(value UpdateWatchedAddressPayload) {
 	value.Destroy()
 }
 
@@ -40268,6 +41279,47 @@ type FfiDestroyerOptionalCrossChainReceiveInfo struct{}
 func (_ FfiDestroyerOptionalCrossChainReceiveInfo) Destroy(value *CrossChainReceiveInfo) {
 	if value != nil {
 		FfiDestroyerCrossChainReceiveInfo{}.Destroy(*value)
+	}
+}
+
+type FfiConverterOptionalCrossChainRouteLimits struct{}
+
+var FfiConverterOptionalCrossChainRouteLimitsINSTANCE = FfiConverterOptionalCrossChainRouteLimits{}
+
+func (c FfiConverterOptionalCrossChainRouteLimits) Lift(rb RustBufferI) *CrossChainRouteLimits {
+	return LiftFromRustBuffer[*CrossChainRouteLimits](c, rb)
+}
+
+func (_ FfiConverterOptionalCrossChainRouteLimits) Read(reader io.Reader) *CrossChainRouteLimits {
+	if readInt8(reader) == 0 {
+		return nil
+	}
+	temp := FfiConverterCrossChainRouteLimitsINSTANCE.Read(reader)
+	return &temp
+}
+
+func (c FfiConverterOptionalCrossChainRouteLimits) Lower(value *CrossChainRouteLimits) C.RustBuffer {
+	return LowerIntoRustBuffer[*CrossChainRouteLimits](c, value)
+}
+
+func (c FfiConverterOptionalCrossChainRouteLimits) LowerExternal(value *CrossChainRouteLimits) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[*CrossChainRouteLimits](c, value))
+}
+
+func (_ FfiConverterOptionalCrossChainRouteLimits) Write(writer io.Writer, value *CrossChainRouteLimits) {
+	if value == nil {
+		writeInt8(writer, 0)
+	} else {
+		writeInt8(writer, 1)
+		FfiConverterCrossChainRouteLimitsINSTANCE.Write(writer, *value)
+	}
+}
+
+type FfiDestroyerOptionalCrossChainRouteLimits struct{}
+
+func (_ FfiDestroyerOptionalCrossChainRouteLimits) Destroy(value *CrossChainRouteLimits) {
+	if value != nil {
+		FfiDestroyerCrossChainRouteLimits{}.Destroy(*value)
 	}
 }
 
@@ -43049,6 +44101,53 @@ func (FfiDestroyerSequenceConversion) Destroy(sequence []Conversion) {
 	}
 }
 
+type FfiConverterSequenceCrossChainAcceptedAsset struct{}
+
+var FfiConverterSequenceCrossChainAcceptedAssetINSTANCE = FfiConverterSequenceCrossChainAcceptedAsset{}
+
+func (c FfiConverterSequenceCrossChainAcceptedAsset) Lift(rb RustBufferI) []CrossChainAcceptedAsset {
+	return LiftFromRustBuffer[[]CrossChainAcceptedAsset](c, rb)
+}
+
+func (c FfiConverterSequenceCrossChainAcceptedAsset) Read(reader io.Reader) []CrossChainAcceptedAsset {
+	length := readInt32(reader)
+	if length == 0 {
+		return nil
+	}
+	result := make([]CrossChainAcceptedAsset, 0, length)
+	for i := int32(0); i < length; i++ {
+		result = append(result, FfiConverterCrossChainAcceptedAssetINSTANCE.Read(reader))
+	}
+	return result
+}
+
+func (c FfiConverterSequenceCrossChainAcceptedAsset) Lower(value []CrossChainAcceptedAsset) C.RustBuffer {
+	return LowerIntoRustBuffer[[]CrossChainAcceptedAsset](c, value)
+}
+
+func (c FfiConverterSequenceCrossChainAcceptedAsset) LowerExternal(value []CrossChainAcceptedAsset) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[[]CrossChainAcceptedAsset](c, value))
+}
+
+func (c FfiConverterSequenceCrossChainAcceptedAsset) Write(writer io.Writer, value []CrossChainAcceptedAsset) {
+	if len(value) > math.MaxInt32 {
+		panic("[]CrossChainAcceptedAsset is too large to fit into Int32")
+	}
+
+	writeInt32(writer, int32(len(value)))
+	for _, item := range value {
+		FfiConverterCrossChainAcceptedAssetINSTANCE.Write(writer, item)
+	}
+}
+
+type FfiDestroyerSequenceCrossChainAcceptedAsset struct{}
+
+func (FfiDestroyerSequenceCrossChainAcceptedAsset) Destroy(sequence []CrossChainAcceptedAsset) {
+	for _, value := range sequence {
+		FfiDestroyerCrossChainAcceptedAsset{}.Destroy(value)
+	}
+}
+
 type FfiConverterSequenceCrossChainRoutePair struct{}
 
 var FfiConverterSequenceCrossChainRoutePairINSTANCE = FfiConverterSequenceCrossChainRoutePair{}
@@ -44647,6 +45746,53 @@ func (FfiDestroyerSequenceUtxo) Destroy(sequence []Utxo) {
 	}
 }
 
+type FfiConverterSequenceWatchedDepositAddress struct{}
+
+var FfiConverterSequenceWatchedDepositAddressINSTANCE = FfiConverterSequenceWatchedDepositAddress{}
+
+func (c FfiConverterSequenceWatchedDepositAddress) Lift(rb RustBufferI) []WatchedDepositAddress {
+	return LiftFromRustBuffer[[]WatchedDepositAddress](c, rb)
+}
+
+func (c FfiConverterSequenceWatchedDepositAddress) Read(reader io.Reader) []WatchedDepositAddress {
+	length := readInt32(reader)
+	if length == 0 {
+		return nil
+	}
+	result := make([]WatchedDepositAddress, 0, length)
+	for i := int32(0); i < length; i++ {
+		result = append(result, FfiConverterWatchedDepositAddressINSTANCE.Read(reader))
+	}
+	return result
+}
+
+func (c FfiConverterSequenceWatchedDepositAddress) Lower(value []WatchedDepositAddress) C.RustBuffer {
+	return LowerIntoRustBuffer[[]WatchedDepositAddress](c, value)
+}
+
+func (c FfiConverterSequenceWatchedDepositAddress) LowerExternal(value []WatchedDepositAddress) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[[]WatchedDepositAddress](c, value))
+}
+
+func (c FfiConverterSequenceWatchedDepositAddress) Write(writer io.Writer, value []WatchedDepositAddress) {
+	if len(value) > math.MaxInt32 {
+		panic("[]WatchedDepositAddress is too large to fit into Int32")
+	}
+
+	writeInt32(writer, int32(len(value)))
+	for _, item := range value {
+		FfiConverterWatchedDepositAddressINSTANCE.Write(writer, item)
+	}
+}
+
+type FfiDestroyerSequenceWatchedDepositAddress struct{}
+
+func (FfiDestroyerSequenceWatchedDepositAddress) Destroy(sequence []WatchedDepositAddress) {
+	for _, value := range sequence {
+		FfiDestroyerWatchedDepositAddress{}.Destroy(value)
+	}
+}
+
 type FfiConverterSequenceWebhook struct{}
 
 var FfiConverterSequenceWebhookINSTANCE = FfiConverterSequenceWebhook{}
@@ -44973,53 +46119,6 @@ type FfiDestroyerSequencePaymentType struct{}
 func (FfiDestroyerSequencePaymentType) Destroy(sequence []PaymentType) {
 	for _, value := range sequence {
 		FfiDestroyerPaymentType{}.Destroy(value)
-	}
-}
-
-type FfiConverterSequenceSparkAsset struct{}
-
-var FfiConverterSequenceSparkAssetINSTANCE = FfiConverterSequenceSparkAsset{}
-
-func (c FfiConverterSequenceSparkAsset) Lift(rb RustBufferI) []SparkAsset {
-	return LiftFromRustBuffer[[]SparkAsset](c, rb)
-}
-
-func (c FfiConverterSequenceSparkAsset) Read(reader io.Reader) []SparkAsset {
-	length := readInt32(reader)
-	if length == 0 {
-		return nil
-	}
-	result := make([]SparkAsset, 0, length)
-	for i := int32(0); i < length; i++ {
-		result = append(result, FfiConverterSparkAssetINSTANCE.Read(reader))
-	}
-	return result
-}
-
-func (c FfiConverterSequenceSparkAsset) Lower(value []SparkAsset) C.RustBuffer {
-	return LowerIntoRustBuffer[[]SparkAsset](c, value)
-}
-
-func (c FfiConverterSequenceSparkAsset) LowerExternal(value []SparkAsset) ExternalCRustBuffer {
-	return RustBufferFromC(LowerIntoRustBuffer[[]SparkAsset](c, value))
-}
-
-func (c FfiConverterSequenceSparkAsset) Write(writer io.Writer, value []SparkAsset) {
-	if len(value) > math.MaxInt32 {
-		panic("[]SparkAsset is too large to fit into Int32")
-	}
-
-	writeInt32(writer, int32(len(value)))
-	for _, item := range value {
-		FfiConverterSparkAssetINSTANCE.Write(writer, item)
-	}
-}
-
-type FfiDestroyerSequenceSparkAsset struct{}
-
-func (FfiDestroyerSequenceSparkAsset) Destroy(sequence []SparkAsset) {
-	for _, value := range sequence {
-		FfiDestroyerSparkAsset{}.Destroy(value)
 	}
 }
 
@@ -45658,9 +46757,9 @@ func DefaultConfig(network Network) Config {
 //
 // * `mnemonic` - BIP39 mnemonic phrase (12 or 24 words)
 // * `passphrase` - Optional passphrase for the mnemonic
-// * `network` - Network to use (Mainnet or Regtest)
+// * `network` - Network to use (Mainnet, Signet, or Regtest)
 // * `account_number` - Account number in the derivation path. Unset uses the
-// network default: 0 on Regtest, 1 on all other networks.
+// network default: 0 on Regtest and Signet, 1 on Mainnet.
 func DefaultExternalSigners(mnemonic string, passphrase *string, network Network, accountNumber *uint32) (ExternalSigners, error) {
 	_uniffiRV, _uniffiErr := rustCallWithError[SdkError](FfiConverterSdkError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{

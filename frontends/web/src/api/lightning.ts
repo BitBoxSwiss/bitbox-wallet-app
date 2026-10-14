@@ -91,7 +91,7 @@ export type TPrepareTopUpResult = {
   success: false;
 };
 
-export type TBitcoinDepositState = 'confirming' | 'claiming' | 'complete' | 'unclaimed';
+export type TBitcoinDepositState = 'confirming' | 'claiming' | 'complete' | 'unclaimed' | 'refundPending';
 
 export type TBitcoinDeposit = {
   txid: string;
@@ -140,6 +140,7 @@ export type TCloseWithdrawResult = {
 
 export type TTopUpRecoveryResult = {
   txId?: string;
+  claimOutcome?: 'settled' | 'submitted' | 'deferred';
 };
 
 export type TLightningAddressAvailability = {

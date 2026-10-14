@@ -657,6 +657,8 @@ func TestLightningAddressChangedEventNotifiesSubscribers(t *testing.T) {
 	}, <-events)
 }
 
+// TestDepositEventsReloadPayments checks that deposit, payment, and sync events refresh both
+// payments and balances, including refund broadcasts that change during sync without a payment.
 func TestDepositEventsReloadPayments(t *testing.T) {
 	newBalanceLightning := func(t *testing.T) *Lightning {
 		t.Helper()
@@ -708,8 +710,9 @@ func TestDepositEventsReloadPayments(t *testing.T) {
 			otherEvents: []observable.Event{listPaymentsReload},
 		},
 		{
-			name:  "synced",
-			event: breez_sdk_spark.SdkEventSynced{},
+			name:        "synced",
+			event:       breez_sdk_spark.SdkEventSynced{},
+			otherEvents: []observable.Event{listPaymentsReload},
 		},
 		{
 			name: "payment succeeded",

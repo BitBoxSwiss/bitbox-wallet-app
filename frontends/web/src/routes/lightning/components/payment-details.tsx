@@ -132,14 +132,16 @@ export const PaymentDetailsDialog = ({
           )}
           {bitcoinDeposit && (
             <>
-              {bitcoinDeposit.state === 'unclaimed' && (
+              {(bitcoinDeposit.state === 'unclaimed' || bitcoinDeposit.state === 'refundPending') && (
                 <Button
                   className={paymentStyles.claimButton}
                   onClick={() => navigate(
                     `/lightning/claim-top-up?paymentId=${encodeURIComponent(payment.id)}`
                   )}
                   primary>
-                  {t('lightning.bitcoinDeposit.claim')}
+                  {bitcoinDeposit.state === 'refundPending'
+                    ? t('lightning.claimTopUp.refundButton')
+                    : t('lightning.bitcoinDeposit.claim')}
                 </Button>
               )}
             </>

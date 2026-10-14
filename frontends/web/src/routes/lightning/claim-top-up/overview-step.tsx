@@ -90,8 +90,14 @@ export const ClaimTopUpOverview = ({
       <ViewContent>
         <div className={styles.content}>
           <div className={styles.description}>
-            <p>{t('lightning.claimTopUp.description')}</p>
-            <p>{t('lightning.claimTopUp.warning')}</p>
+            {deposit?.bitcoinDeposit?.state === 'refundPending' ? (
+              <p>{t('lightning.claimTopUp.refundPending')}</p>
+            ) : (
+              <>
+                <p>{t('lightning.claimTopUp.description')}</p>
+                <p>{t('lightning.claimTopUp.warning')}</p>
+              </>
+            )}
           </div>
 
           <section className={styles.section}>

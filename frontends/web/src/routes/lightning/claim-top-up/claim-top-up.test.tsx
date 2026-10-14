@@ -317,6 +317,105 @@ describe('routes/lightning/claim-top-up', () => {
     await act(async () => {
       resolveClaim({ txId: 'claim-txid' });
     });
-    expect(await screen.findByText('lightning.claimTopUp.success.claimMessage')).toBeInTheDocument();
+    expect(await screen.findByText('lightning.claimTopUp.success.settledMessage')).toBeInTheDocument();
+  });
+
+  // Successful SDK calls can settle, submit, or defer a claim; the screen must report each outcome.
+  it.each(['settled', 'submitted', 'deferred'] as const)('shows the %s claim outcome', async claimOutcome => {
+    vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit(100)]);
+    vi.mocked(lightningApi.postClaimTopUp).mockResolvedValue({ claimOutcome });
+
+    render(
+      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
+        <BackButtonProvider>
+          <LightningClaimTopUp activeAccounts={[]} />
+        </BackButtonProvider>
+      </MemoryRouter>
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.claimButton' }));
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.claimButton' }));
+
+    expect(await screen.findByText(`lightning.claimTopUp.success.${claimOutcome}Message`)).toBeInTheDocument();
+    expect(screen.getByText(`lightning.claimTopUp.success.${claimOutcome}Note`)).toBeInTheDocument();
+  });
+
+  // The backend accepts a refund once it is stored, even while broadcast retries continue.
+  // Show the normal confirmation without reloading the deposit or asking the user to retry.
+  it('confirms an accepted refund without rechecking its broadcast state', async () => {
+    vi.mocked(lightningApi.getListPayments).mockResolvedValue([deposit(100, 2)]);
+    vi.mocked(lightningApi.postRefundTopUp).mockResolvedValueOnce({ txId: 'refund-txid' });
+
+    render(
+      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
+        <BackButtonProvider>
+          <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
+        </BackButtonProvider>
+      </MemoryRouter>
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.refundButton' }));
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.refundButton' }));
+
+    expect(await screen.findByText('lightning.claimTopUp.success.refundMessage')).toBeInTheDocument();
+    expect(screen.queryByText('lightning.claimTopUp.failure.refundFailedMessage')).not.toBeInTheDocument();
+    expect(screen.queryByText('lightning.claimTopUp.refundPending')).not.toBeInTheDocument();
+    expect(lightningApi.getListPayments).toHaveBeenCalledTimes(1);
+    expect(lightningApi.postRefundTopUp).toHaveBeenCalledTimes(1);
+  });
+
+  // A refund API error is a failure; the frontend does not reclassify it from a subsequent list lookup.
+  it('shows a refund failure without waiting for the deposit reload', async () => {
+    vi.mocked(lightningApi.getListPayments)
+      .mockResolvedValueOnce([deposit(100, 2)])
+      .mockImplementationOnce(() => new Promise(() => {}));
+    vi.mocked(lightningApi.postRefundTopUp).mockRejectedValueOnce(new TSdkError(
+      TLightningErrorCode.TOP_UP_REFUND_FAILED,
+      TLightningErrorCode.TOP_UP_REFUND_FAILED,
+    ));
+
+    render(
+      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
+        <BackButtonProvider>
+          <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
+        </BackButtonProvider>
+      </MemoryRouter>
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'lightning.claimTopUp.refundButton' }));
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.refundButton' }));
+
+    expect(await screen.findByText('lightning.claimTopUp.failure.refundFailedMessage')).toBeInTheDocument();
+    expect(screen.queryByText('lightning.claimTopUp.refundPending')).not.toBeInTheDocument();
+    expect(lightningApi.postRefundTopUp).toHaveBeenCalledTimes(1);
+  });
+
+  // A signed refund awaiting broadcast remains recoverable through the existing refund flow only.
+  it('allows retrying a pending refund without allowing a claim', async () => {
+    vi.mocked(lightningApi.getListPayments).mockResolvedValue([{
+      ...deposit(100, 2),
+      bitcoinDeposit: {
+        txid: 'deposit-txid',
+        state: 'refundPending',
+        refundFeeRateSatPerVbyte: 2,
+      },
+    }]);
+    vi.mocked(lightningApi.postRefundTopUp).mockResolvedValue({ txId: 'refund-txid' });
+
+    render(
+      <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
+        <BackButtonProvider>
+          <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
+        </BackButtonProvider>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText('lightning.claimTopUp.refundPending')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'lightning.claimTopUp.claimButton' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.refundButton' }));
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.claimTopUp.confirm.refundButton' }));
+
+    expect(await screen.findByText('lightning.claimTopUp.success.refundMessage')).toBeInTheDocument();
+    expect(lightningApi.postRefundTopUp).toHaveBeenCalledWith(paymentID, bitcoinAccount.code, 2);
   });
 });
