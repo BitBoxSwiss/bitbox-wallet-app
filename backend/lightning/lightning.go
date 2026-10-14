@@ -105,6 +105,9 @@ type Lightning struct {
 
 	// Serializes lazy lightning address registration.
 	lightningAddressLock sync.Mutex
+
+	uriLock sync.Mutex
+	uri     uriRequest
 }
 
 // NewLightning creates a new instance of the Lightning struct.

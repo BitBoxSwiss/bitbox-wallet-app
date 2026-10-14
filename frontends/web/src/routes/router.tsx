@@ -54,10 +54,12 @@ import { LightningCloseWithdrawFunds } from './lightning/close-and-withdraw-fund
 import { isLightningFeatureAvailable } from '@/utils/env';
 import { isLightningRoute } from '@/utils/route';
 import { LightningTestnetGuard } from './lightning/testnet-warning';
+import { useLightningURI } from '@/hooks/lightning-uri';
 
 export const AppRouter = () => {
 
   const lightningFeatureAvailable = isLightningFeatureAvailable();
+  const lightningURI = useLightningURI();
   const { pathname } = useLocation();
 
   return (
@@ -115,7 +117,9 @@ export const AppRouter = () => {
           {lightningFeatureAvailable ? (
             <Route path="lightning">
               <Route index element={<Lightning />} />
-              <Route path="activate" element={<LightningActivate />} />
+              <Route path="activate" element={(
+                <LightningActivate hasPendingPayment={lightningURI !== undefined && lightningURI.input !== null} />
+              )} />
               <Route path="disclaimer" element={<LightningDisclaimer />} />
               <Route path="deactivate" element={<LightningDeactivate />} />
               <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
@@ -123,7 +127,7 @@ export const AppRouter = () => {
               <Route path="close-withdraw-funds" element={(
                 <LightningCloseWithdrawFunds />
               )} />
-              <Route path="send" element={<LightningSend />} />
+              <Route path="send" element={<LightningSend uriRequest={lightningURI} />} />
               <Route path="receive" element={<LightningReceive />} />
               <Route path="topup" element={<LightningTopUp />} />
             </Route>

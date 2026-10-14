@@ -37,6 +37,9 @@ vi.mock('@/contexts/ConfigProvider', () => ({
 vi.mock('@/hooks/lightning', () => ({
   useLightning: () => ({ isLightningAvailable: true }),
 }));
+vi.mock('@/hooks/lightning-uri', () => ({
+  useLightningURI: () => ({ revision: 0, input: null }),
+}));
 vi.mock('./lightning', () => ({ Lightning: mocks.lightningPage }));
 vi.mock('./send/send', () => ({ Send: mocks.lightningPage }));
 vi.mock('./activate', () => ({ LightningActivate: mocks.lightningPage }));
