@@ -14,6 +14,7 @@ export declare global {
     qt?: { webChannelTransport: unknown };
     android?: {
       call: (queryID: number, query: string) => void;
+      showExplorerLinkMenu?: (msg: { url: string; copy: string; open: string; openError: string }) => void;
     };
     onMobileCallResponse?: (queryID: number, response: unknown) => void;
     onMobilePushNotification?: (msg: TPayload) => void;
@@ -32,6 +33,9 @@ export declare global {
         };
         hapticFeedback: {
           postMessage: (msg: { style?: 'medium' | 'heavy' }) => void;
+        };
+        showExplorerLinkMenu?: {
+          postMessage: (msg: { url: string; copy: string; open: string; cancel: string }) => void;
         };
       };
     };

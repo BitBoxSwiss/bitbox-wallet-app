@@ -163,24 +163,25 @@ export const AccountsSummary = () => {
 
   const onStatusChanged = useCallback(async (
     code: accountApi.AccountCode,
+    isActive: () => boolean,
   ) => {
-    if (!mounted.current) {
+    if (!isActive()) {
       return;
     }
     const status = await accountApi.getStatus(code);
-    if (status.disabled || !mounted.current) {
+    if (status.disabled || !isActive()) {
       return;
     }
     setOfflineError(status.offlineError);
     if (!status.synced) {
       const result = await accountApi.init(code);
-      if (!result.success) {
+      if (isActive() && !result.success) {
         console.error(result.errorMessage);
       }
       return;
     }
     const balance = await accountApi.getBalance(code);
-    if (!mounted.current) {
+    if (!isActive()) {
       return;
     }
     if (!balance.success) {
@@ -190,41 +191,47 @@ export const AccountsSummary = () => {
       ...prevBalances,
       [code]: balance.balance
     }));
-  }, [mounted]);
+  }, []);
 
-  const update = useCallback((code: accountApi.AccountCode) => {
-    if (mounted.current) {
-      onStatusChanged(code);
+  const update = useCallback((code: accountApi.AccountCode, isActive: () => boolean) => {
+    if (isActive()) {
+      onStatusChanged(code, isActive);
       getChartData(true);
       getAccountsBalanceSummary();
     }
-  }, [getChartData, getAccountsBalanceSummary, mounted, onStatusChanged]);
+  }, [getChartData, getAccountsBalanceSummary, onStatusChanged]);
 
+  // Keep account and Lightning subscriptions separate so Lightning state changes
+  // do not invalidate pending account status or balance requests.
   useEffect(() => {
-    // for subscriptions and unsubscriptions
-    // re-subscribes when accounts or lightning account state changes.
+    let active = true;
     const subscriptions: TUnsubscribe[] = [];
     activeAccounts.forEach(account => {
-      const currentCode = account.code;
-      subscriptions.push(statusChanged(account.code, () => currentCode === account.code && update(account.code)));
-      subscriptions.push(syncdone(account.code, () => {
-        if (currentCode === account.code) {
-          update(account.code);
-        }
-      }
-      ));
+      subscriptions.push(statusChanged(account.code, () => update(account.code, () => active)));
+      subscriptions.push(syncdone(account.code, () => update(account.code, () => active)));
     });
-    if (lightningAccount !== null) {
-      subscriptions.push(subscribeLightningBalance(() => {
-        if (mounted.current) {
-          getChartData(true);
-          getAccountsBalanceSummary();
-        }
-      }));
-    }
-    return () => unsubscribe(subscriptions);
-  }, [activeAccounts, getAccountsBalanceSummary, getChartData, lightningAccount, mounted, update]);
+    return () => {
+      active = false;
+      unsubscribe(subscriptions);
+    };
+  }, [activeAccounts, update]);
 
+  useEffect(() => {
+    if (lightningAccount === null) {
+      return;
+    }
+    let active = true;
+    const unsubscribe = subscribeLightningBalance(() => {
+      if (active) {
+        getChartData(true);
+        getAccountsBalanceSummary();
+      }
+    });
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [getAccountsBalanceSummary, getChartData, lightningAccount]);
 
   useEffect(() => {
     // handles fetching data and runs on component mount
@@ -242,10 +249,14 @@ export const AccountsSummary = () => {
   }, []);
 
   useEffect(() => {
+    let active = true;
     activeAccounts.forEach(account => {
-      onStatusChanged(account.code);
+      onStatusChanged(account.code, () => active);
     });
     getAccountsBalanceSummary();
+    return () => {
+      active = false;
+    };
   }, [activeAccounts, onStatusChanged, getAccountsBalanceSummary]);
 
   useEffect(() => {

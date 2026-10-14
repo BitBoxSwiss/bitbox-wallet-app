@@ -7,6 +7,7 @@
 
 import XCTest
 import Security
+import UIKit
 @testable import BitBoxApp
 
 private final class InMemoryLightningKeychainClient: LightningKeychainClient {
@@ -61,6 +62,22 @@ private final class InMemoryLightningKeychainClient: LightningKeychainClient {
 
 final class BitBoxAppTests: XCTestCase {
     private var helper: LightningEncryptionHelper!
+
+    @MainActor
+    func testAppRejectsKeyboardExtensions() {
+        let application = UIApplication.shared
+        XCTAssertEqual(
+            application.delegate?.application?(application, shouldAllowExtensionPointIdentifier: .keyboard),
+            false
+        )
+        XCTAssertEqual(
+            application.delegate?.application?(
+                application,
+                shouldAllowExtensionPointIdentifier: UIApplication.ExtensionPointIdentifier(rawValue: "other-extension")
+            ),
+            true
+        )
+    }
 
     override func setUpWithError() throws {
         let service = "swiss.bitbox.BitBoxAppTests.lightning.encryption.\(UUID().uuidString)"
