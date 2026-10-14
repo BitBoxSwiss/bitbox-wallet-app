@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { useMountedRef } from '@/hooks/mount';
@@ -17,7 +17,9 @@ export const Note = ({ note, onSave }: TProps) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [newNote, setNewNote] = useState<string>(note);
-  const [savedNote, setSavedNote] = useState<string>(note);
+  const savedNote = useRef<string | undefined>(note);
+  const pendingNote = useRef<string>();
+  const saveInProgress = useRef(false);
   const [error, setError] = useState<string>();
   const mounted = useMountedRef();
 
@@ -27,18 +29,36 @@ export const Note = ({ note, onSave }: TProps) => {
     setError(undefined);
   };
 
-  const handleBlur = () => {
-    if (savedNote !== newNote) {
-      setError(undefined);
-      onSave(newNote).then(() => {
-        if (mounted.current) {
-          setSavedNote(newNote);
-        }
-      }).catch((err: unknown) => {
-        if (mounted.current) {
+  const savePendingNotes = async () => {
+    saveInProgress.current = true;
+    // Keep writes in order and retain only the latest edit submitted while saving.
+    while (pendingNote.current !== undefined) {
+      const noteToSave = pendingNote.current;
+      pendingNote.current = undefined;
+      if (noteToSave === savedNote.current) {
+        continue;
+      }
+      if (mounted.current) {
+        setError(undefined);
+      }
+      try {
+        await onSave(noteToSave);
+        savedNote.current = noteToSave;
+      } catch (err: unknown) {
+        // A failed request may still have changed the backend's note state.
+        savedNote.current = undefined;
+        if (mounted.current && pendingNote.current === undefined) {
           setError(err instanceof Error ? err.message : String(err));
         }
-      });
+      }
+    }
+    saveInProgress.current = false;
+  };
+
+  const handleBlur = () => {
+    pendingNote.current = newNote;
+    if (!saveInProgress.current) {
+      savePendingNotes();
     }
   };
 
