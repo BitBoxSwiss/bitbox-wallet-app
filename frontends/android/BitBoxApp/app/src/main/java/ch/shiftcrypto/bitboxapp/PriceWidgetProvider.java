@@ -2,17 +2,20 @@
 
 package ch.shiftcrypto.bitboxapp;
 
+import android.annotation.SuppressLint;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
-import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
@@ -24,6 +27,7 @@ import org.json.JSONObject;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import mobileserver.Mobileserver;
@@ -31,35 +35,36 @@ import mobileserver.Mobileserver;
 public class PriceWidgetProvider extends AppWidgetProvider {
     static final String NEXT = "ch.shiftcrypto.bitboxapp.widget.NEXT";
     static final String PREVIOUS = "ch.shiftcrypto.bitboxapp.widget.PREVIOUS";
-    static final String FORCE = "force";
+    static final String FORCE = "force"; // Input used by work queued before refresh tokens were introduced.
     static final String REFRESH_WORK = "price-widget-refresh";
     static final String PERIODIC_WORK = "price-widget-periodic";
     private static final String PREFERENCES = "price-widget";
     private static final String SELECTED_INDEX = "selectedIndex";
-    private static final Object RENDER_LOCK = new Object();
-    private static final ExecutorService CACHE_EXECUTOR = Executors.newSingleThreadExecutor();
+    private static final String REQUESTED_REFRESH = "requestedRefresh";
+    private static final String FULFILLED_REFRESH = "fulfilledRefresh";
+    // Owns selection, refresh tokens and every publication. Broadcasts never wait on rendering.
+    private static final ExecutorService WIDGET_EXECUTOR = Executors.newSingleThreadExecutor();
 
     static int[] widgetIds(Context context) {
         return AppWidgetManager.getInstance(context).getAppWidgetIds(
                 new ComponentName(context, HelloWidgetProvider.class));
     }
 
+    private static SharedPreferences preferences(Context context) {
+        return context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
+    }
+
     static long selectedIndex(Context context) {
-        return context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getLong(SELECTED_INDEX, 0);
+        return preferences(context).getLong(SELECTED_INDEX, 0);
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if (NEXT.equals(action) || PREVIOUS.equals(action)) {
-            synchronized (RENDER_LOCK) {
-                context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit()
-                        .putLong(SELECTED_INDEX, selectedIndex(context) + (NEXT.equals(action) ? 1 : -1))
-                        .apply();
-            }
-            refreshFromBroadcast(context, false);
+            refreshFromBroadcast(context, false, NEXT.equals(action) ? 1 : -1);
         } else if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
-            refreshFromBroadcast(context, true);
+            refreshFromBroadcast(context, true, 0);
         } else {
             super.onReceive(context, intent);
         }
@@ -67,30 +72,34 @@ public class PriceWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager manager, int[] ids) {
-        refreshFromBroadcast(context, false);
+        refreshFromBroadcast(context, false, 0);
     }
 
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager manager, int id, Bundle options) {
-        refreshFromBroadcast(context, false);
+        refreshFromBroadcast(context, false, 0);
     }
 
     @Override
     public void onDisabled(Context context) {
-        WorkManager manager = WorkManager.getInstance(context);
-        manager.cancelUniqueWork(REFRESH_WORK);
-        manager.cancelUniqueWork(PERIODIC_WORK);
+        Context app = context.getApplicationContext();
+        WIDGET_EXECUTOR.execute(() -> {
+            WorkManager manager = WorkManager.getInstance(app);
+            manager.cancelUniqueWork(REFRESH_WORK);
+            manager.cancelUniqueWork(PERIODIC_WORK);
+        });
     }
 
-    private void refreshFromBroadcast(Context context, boolean force) {
+    private void refreshFromBroadcast(Context context, boolean force, int step) {
         PendingResult result = goAsync();
         Context app = context.getApplicationContext();
-        CACHE_EXECUTOR.execute(() -> {
+        WIDGET_EXECUTOR.execute(() -> {
             try {
-                renderCached(app);
-                schedule(app, force);
+                update(app, force, step);
             } finally {
-                result.finish();
+                if (result != null) {
+                    result.finish();
+                }
             }
         });
     }
@@ -99,57 +108,109 @@ public class PriceWidgetProvider extends AppWidgetProvider {
         refresh(context, true);
     }
 
-    static void refresh(Context context, boolean force) {
+    static Future<?> refresh(Context context, boolean force) {
         Context app = context.getApplicationContext();
-        if (widgetIds(app).length == 0) {
-            return;
-        }
-        CACHE_EXECUTOR.execute(() -> {
-            renderCached(app);
-            schedule(app, force);
-        });
+        return WIDGET_EXECUTOR.submit(() -> update(app, force, 0));
     }
 
-    // Read the current selection again after a fetch so an older worker cannot revert a coin switch.
-    static void renderCached(Context context) {
-        synchronized (RENDER_LOCK) {
-            if (widgetIds(context).length == 0) {
-                return;
-            }
-            try {
-                JSONObject state = new JSONObject(Mobileserver.priceWidgetState(
-                        context.getFilesDir().getAbsolutePath(), selectedIndex(context), false, false));
-                PriceWidgetRenderer.render(context, state);
-            } catch (Exception e) {
-                Log.w("bitboxapp", "Could not read price widget data", e);
-                PriceWidgetRenderer.render(context, new JSONObject());
-            }
-        }
-    }
-
-    static void schedule(Context context, boolean force) {
+    private static void update(Context context, boolean force, int step) {
         if (widgetIds(context).length == 0) {
             return;
         }
-        WorkManager manager = WorkManager.getInstance(context);
-        // Check the cache offline too. Periodic work can be delayed; the widget shows its update time.
-        manager.enqueueUniquePeriodicWork(PERIODIC_WORK, ExistingPeriodicWorkPolicy.UPDATE,
+        renderCached(context, step);
+        schedule(context, force);
+    }
+
+    // Called only on WIDGET_EXECUTOR, including after fetches and navigation.
+    private static JSONObject renderCached(Context context, int step) {
+        if (widgetIds(context).length == 0) {
+            return null;
+        }
+        try {
+            JSONObject state = new JSONObject(Mobileserver.priceWidgetState(
+                    context.getFilesDir().getAbsolutePath(), selectedIndex(context) + step, false, false));
+            // Go normalizes the selection against the active accounts before it is persisted.
+            preferences(context).edit().putLong(SELECTED_INDEX, state.getLong("selectedIndex")).apply();
+            PriceWidgetRenderer.render(context, state);
+            return state;
+        } catch (Exception e) {
+            Log.w("bitboxapp", "Could not read price widget data", e);
+            PriceWidgetRenderer.render(context, new JSONObject());
+            return null;
+        }
+    }
+
+    private static void schedule(Context context, boolean force) {
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(PERIODIC_WORK, ExistingPeriodicWorkPolicy.UPDATE,
                 new PeriodicWorkRequest.Builder(PriceWidgetUpdateWorker.class, 15, TimeUnit.MINUTES)
                         .setInitialDelay(15, TimeUnit.MINUTES)
                         .build());
         enqueueFetch(context, force);
     }
 
-    static void enqueueFetch(Context context, boolean force) {
-        if (widgetIds(context).length == 0) {
-            return;
+    static Future<?> periodicRefresh(Context context) {
+        return WIDGET_EXECUTOR.submit(() -> {
+            if (widgetIds(context).length == 0) {
+                return;
+            }
+            ConnectivityManager connectivity = context.getSystemService(ConnectivityManager.class);
+            NetworkCapabilities network = connectivity.getNetworkCapabilities(connectivity.getActiveNetwork());
+            // Keep the dated quote while online work is pending; still clear expired data offline.
+            if (network == null || !network.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                renderCached(context, 0);
+            }
+            enqueueFetch(context, true);
+        });
+    }
+
+    @SuppressLint("ApplySharedPref") // Persist the request before queuing work, on WIDGET_EXECUTOR.
+    private static void enqueueFetch(Context context, boolean force) {
+        if (force) {
+            SharedPreferences prefs = preferences(context);
+            prefs.edit().putLong(REQUESTED_REFRESH, prefs.getLong(REQUESTED_REFRESH, 0) + 1).commit();
         }
         Constraints network = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
         WorkManager.getInstance(context).enqueueUniqueWork(REFRESH_WORK, ExistingWorkPolicy.REPLACE,
                 new OneTimeWorkRequest.Builder(PriceWidgetWorker.class)
-                        .setInputData(new Data.Builder().putBoolean(FORCE, force).build())
                         .setConstraints(network)
                         .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
                         .build());
+    }
+
+    static final class FetchRequest {
+        final long index;
+        final long refreshToken;
+
+        FetchRequest(long index, long refreshToken) {
+            this.index = index;
+            this.refreshToken = refreshToken;
+        }
+    }
+
+    static Future<FetchRequest> prepareFetch(Context context) {
+        return WIDGET_EXECUTOR.submit(() -> {
+            if (widgetIds(context).length == 0) {
+                return null;
+            }
+            SharedPreferences prefs = preferences(context);
+            long requested = prefs.getLong(REQUESTED_REFRESH, 0);
+            long fulfilled = prefs.getLong(FULFILLED_REFRESH, 0);
+            return new FetchRequest(selectedIndex(context), requested > fulfilled ? requested : 0);
+        });
+    }
+
+    @SuppressLint("ApplySharedPref") // Persist completion on WIDGET_EXECUTOR before the next request.
+    static Future<?> completeFetch(Context context, FetchRequest request, JSONObject state) {
+        return WIDGET_EXECUTOR.submit(() -> {
+            // A successful canceled worker may have saved a quote. Publish for the current selection.
+            JSONObject current = renderCached(context, 0);
+            if (state != null && current != null && state.optBoolean("refreshed")
+                    && state.optString("coinCode").equals(current.optString("coinCode"))
+                    && state.optString("currency").equals(current.optString("currency"))) {
+                SharedPreferences prefs = preferences(context);
+                prefs.edit().putLong(FULFILLED_REFRESH,
+                        Math.max(request.refreshToken, prefs.getLong(FULFILLED_REFRESH, 0))).commit();
+            }
+        });
     }
 }

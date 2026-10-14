@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.SizeF;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -45,11 +46,12 @@ public class PriceWidgetLayoutTest {
                 Locale.setDefault(locale);
                 for (float fontScale : new float[]{1, 1.3f, 2}) {
                     Context context = context(locale, fontScale);
-                    for (int width : new int[]{110, 130, 180, 260}) {
+                    for (int width : new int[]{250, 280, 320, 400}) {
                         for (String currency : new String[]{"USD", "CZK", "VND"}) {
                             JSONObject state = quote(currency, currency.equals("VND") ? 3123456789.12 : 123456.00);
                             View view = render(context, state, width);
                             TextView pair = view.findViewById(R.id.widget_pair);
+                            assertNotNull(locale + " scale=" + fontScale + " width=" + width + " currency=" + currency, pair);
                             assertEquals("BTC/" + currency, pair.getText().toString());
                             assertFits(pair);
                             assertFits(view.findViewById(R.id.widget_price));
@@ -66,30 +68,33 @@ public class PriceWidgetLayoutTest {
     }
 
     @Test
-    public void narrowHeaderStacksChangeAndWideHeaderKeepsItInline() throws Exception {
-        Context context = context(Locale.US, 1);
-        View narrow = render(context, quote("USD", 1810178.95), 110);
-        assertEquals(View.GONE, narrow.findViewById(R.id.widget_change).getVisibility());
-        assertEquals(View.VISIBLE, narrow.findViewById(R.id.widget_change_compact).getVisibility());
-        View wide = render(context, quote("USD", 1810178.95), 260);
-        assertEquals(View.VISIBLE, wide.findViewById(R.id.widget_change).getVisibility());
-        assertEquals(View.GONE, wide.findViewById(R.id.widget_change_compact).getVisibility());
+    public void smallExistingWidgetsAskForMoreRoomWithoutShrinkingBelowReadableSize() throws Exception {
+        Context context = context(Locale.US, 2);
+        View small = render(context, quote("USD", 1810178.95), 110);
+        TextView prompt = small.findViewById(R.id.widget_root);
+        assertEquals(context.getString(R.string.price_widget_resize), prompt.getText().toString());
+        assertFits(prompt);
     }
 
     @Test
     @Config(sdk = 24)
     @GraphicsMode(GraphicsMode.Mode.LEGACY)
     public void androidSevenRendersWithExplicitTextSizes() throws Exception {
-        View view = render(context(Locale.US, 1), quote("USD", 123456.00), 110);
-        TextView price = view.findViewById(R.id.widget_price);
-        assertEquals(View.VISIBLE, price.getVisibility());
-        assertTrue(price.length() > 0);
-        assertTrue(price.getTextSize() > 0);
+        View view = render(context(Locale.US, 1), quote("USD", 123456.00), 250);
+        // Legacy graphics cannot measure real glyph bounds; verify both supported RemoteViews layouts.
+        TextView text = view.findViewById(R.id.widget_price);
+        if (text == null) {
+            text = view.findViewById(R.id.widget_root);
+        }
+        assertEquals(View.VISIBLE, text.getVisibility());
+        assertTrue(text.length() > 0);
+        assertTrue(text.getTextSize() >= TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
+                11, text.getResources().getDisplayMetrics()));
     }
 
     @Test
     public void unavailableTextFitsWithLargeFonts() throws Exception {
-        View view = render(context(Locale.US, 2), new JSONObject("{\"coinCode\":\"btc\",\"currency\":\"USD\"}"), 110);
+        View view = render(context(Locale.US, 2), new JSONObject("{\"coinCode\":\"btc\",\"currency\":\"USD\"}"), 250);
         assertFits(view.findViewById(R.id.widget_pair));
         assertFits(view.findViewById(R.id.widget_unavailable));
         assertEquals(View.INVISIBLE, view.findViewById(R.id.widget_updated_at).getVisibility());
@@ -106,16 +111,16 @@ public class PriceWidgetLayoutTest {
         widgets.addBoundWidget(7, info);
         widgets.addBoundWidget(8, info);
         Bundle narrow = new Bundle();
-        narrow.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 110);
-        narrow.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 160);
+        narrow.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 80);
+        narrow.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 220);
         manager.updateAppWidgetOptions(7, narrow);
         Bundle wide = new Bundle(narrow);
         wide.putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES,
-                new ArrayList<>(Collections.singletonList(new SizeF(260, 160))));
+                new ArrayList<>(Collections.singletonList(new SizeF(400, 220))));
         manager.updateAppWidgetOptions(8, wide);
 
         PriceWidgetRenderer.render(context, quote("USD", 123456.00));
-        assertEquals(View.VISIBLE, widgets.getViewFor(7).findViewById(R.id.widget_change_compact).getVisibility());
+        assertTrue(widgets.getViewFor(7).findViewById(R.id.widget_root) instanceof TextView);
         assertEquals(View.GONE, widgets.getViewFor(8).findViewById(R.id.widget_change_compact).getVisibility());
 
         manager.updateAppWidgetOptions(7, wide);
@@ -139,10 +144,10 @@ public class PriceWidgetLayoutTest {
     }
 
     private View render(Context context, JSONObject state, int widthDp) {
-        View view = PriceWidgetRenderer.createViews(context, state, widthDp, 160).apply(context, new FrameLayout(context));
+        View view = PriceWidgetRenderer.createViews(context, state, widthDp, 220).apply(context, new FrameLayout(context));
         float density = context.getResources().getDisplayMetrics().density;
         int width = (int) (widthDp * density);
-        int height = (int) (160 * density);
+        int height = (int) (220 * density);
         view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
         view.layout(0, 0, width, height);
@@ -157,9 +162,14 @@ public class PriceWidgetLayoutTest {
         assertEquals(TextView.AUTO_SIZE_TEXT_TYPE_NONE, text.getAutoSizeTextType());
         int width = text.getWidth() - text.getCompoundPaddingLeft() - text.getCompoundPaddingRight();
         int height = text.getHeight() - text.getCompoundPaddingTop() - text.getCompoundPaddingBottom();
-        assertTrue(message, text.getPaint().measureText(text.getText().toString()) <= width);
+        float minimum = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
+                text.getId() == R.id.widget_price ? 14 : 11, text.getResources().getDisplayMetrics());
+        assertTrue(message, text.getTextSize() >= minimum);
+        for (int line = 0; line < text.getLayout().getLineCount(); line++) {
+            assertTrue(message, text.getLayout().getLineWidth(line) <= width);
+            assertEquals(message, 0, text.getLayout().getEllipsisCount(line));
+        }
         assertTrue(message, text.getLayout().getHeight() <= height);
-        assertEquals(message, text.length(), text.getLayout().getLineEnd(0));
-        assertEquals(message, 0, text.getLayout().getEllipsisCount(0));
+        assertEquals(message, text.length(), text.getLayout().getLineEnd(text.getLayout().getLineCount() - 1));
     }
 }

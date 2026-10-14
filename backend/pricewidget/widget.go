@@ -24,14 +24,16 @@ const cacheTTL = 10 * time.Minute
 
 // State contains display values. Chart points are normalized to the range 0..1.
 type State struct {
-	CoinCode  string    `json:"coinCode"`
-	Currency  string    `json:"currency"`
-	Coins     []string  `json:"coins"`
-	Price     *float64  `json:"price"`
-	Change24h *float64  `json:"change24h"`
-	Chart     []float64 `json:"chart"`
-	UpdatedAt int64     `json:"updatedAt,omitempty"` // Last successful refresh, Unix milliseconds.
-	Retry     bool      `json:"retry"`
+	SelectedIndex int       `json:"selectedIndex"`
+	Refreshed     bool      `json:"refreshed"`
+	CoinCode      string    `json:"coinCode"`
+	Currency      string    `json:"currency"`
+	Coins         []string  `json:"coins"`
+	Price         *float64  `json:"price"`
+	Change24h     *float64  `json:"change24h"`
+	Chart         []float64 `json:"chart"`
+	UpdatedAt     int64     `json:"updatedAt,omitempty"` // Last successful refresh, Unix milliseconds.
+	Retry         bool      `json:"retry"`
 }
 
 type record struct {
@@ -68,6 +70,14 @@ func New() *Service {
 // Load resolves the selected account and quote. With fetch=false it performs no network requests.
 // A forced refresh tries the network before falling back to an unexpired cache entry.
 func (service *Service) Load(dataDir string, index int, fetch, force bool) (State, error) {
+	return service.LoadContext(context.Background(), dataDir, index, fetch, force)
+}
+
+// LoadContext lets a mobile worker cancel its network request when it is replaced or removed.
+func (service *Service) LoadContext(ctx context.Context, dataDir string, index int, fetch, force bool) (State, error) {
+	if err := ctx.Err(); err != nil {
+		return State{}, err
+	}
 	var preferences settings
 	if err := readOptional(dataDir, "config.json", &preferences); err != nil {
 		return State{}, err
@@ -82,7 +92,7 @@ func (service *Service) Load(dataDir string, index int, fetch, force bool) (Stat
 	}
 	coin := coins[selected]
 	currency := rates.WidgetCurrency(preferences.Backend.MainFiat)
-	state := State{CoinCode: coin, Currency: currency, Coins: coins, Chart: []float64{}}
+	state := State{SelectedIndex: selected, CoinCode: coin, Currency: currency, Coins: coins, Chart: []float64{}}
 	cached := service.cached(dataDir, coin, currency)
 	if fetch && (force || cached == nil) {
 		refresh := service.startRefresh()
@@ -91,9 +101,13 @@ func (service *Service) Load(dataDir string, index int, fetch, force bool) (Stat
 		if fetchErr == nil {
 			defer client.CloseIdleConnections()
 			var result rates.WidgetData
-			result, fetchErr = service.fetch(context.Background(), client, coin, currency)
+			result, fetchErr = service.fetch(ctx, client, coin, currency)
+			if err := ctx.Err(); err != nil {
+				return State{}, err
+			}
 			if fetchErr == nil {
 				service.save(dataDir, result, refresh)
+				state.Refreshed = true
 			}
 		}
 		// A newer refresh may have completed, or the cached quote may have expired in flight.

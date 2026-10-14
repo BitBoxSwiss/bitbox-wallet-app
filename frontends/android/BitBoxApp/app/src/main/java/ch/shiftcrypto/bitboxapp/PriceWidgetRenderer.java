@@ -53,8 +53,8 @@ final class PriceWidgetRenderer {
                 return new RemoteViews(views);
             }
         }
-        int minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 110);
-        int minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 160);
+        int minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250);
+        int minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 220);
         int maxWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, minWidth);
         int maxHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, minHeight);
         RemoteViews portrait = createViews(context, base, minWidth, maxHeight);
@@ -72,7 +72,11 @@ final class PriceWidgetRenderer {
     private static RemoteViews createViews(Context context, RemoteViews base, float widthDp, float heightDp) {
         // Copies share the chart bitmap to keep multi-size updates within the binder limit.
         RemoteViews views = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ? new RemoteViews(base) : base.clone();
-        fitLayout(context, views, widthDp, heightDp);
+        if (!fitLayout(context, views, widthDp, heightDp)) {
+            // Existing widgets can retain dimensions below the current supported minimum.
+            views = new RemoteViews(context.getPackageName(), R.layout.price_widget_resize);
+            views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context));
+        }
         return views;
     }
 
@@ -99,9 +103,11 @@ final class PriceWidgetRenderer {
         boolean showUpdatedAt = available && updatedAt > 0;
         views.setViewVisibility(R.id.widget_updated_at, showUpdatedAt ? View.VISIBLE : View.INVISIBLE);
         if (showUpdatedAt) {
-            String updated = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-                    .format(new Date(updatedAt));
-            views.setTextViewText(R.id.widget_updated_at, context.getString(R.string.price_widget_updated_at, updated));
+            Date updated = new Date(updatedAt);
+            String time = DateFormat.getTimeInstance(DateFormat.SHORT).format(updated);
+            String date = DateFormat.getDateInstance(DateFormat.SHORT).format(updated);
+            views.setTextViewText(R.id.widget_updated_at,
+                    context.getString(R.string.price_widget_updated_at, time) + "\n" + date);
         }
         double change = state.optDouble("change24h", 0);
         int color = ContextCompat.getColor(context, !available || change == 0 ? R.color.widget_secondary
@@ -127,13 +133,11 @@ final class PriceWidgetRenderer {
         views.setViewVisibility(R.id.widget_next, showNavigation ? View.VISIBLE : View.INVISIBLE);
         views.setOnClickPendingIntent(R.id.widget_previous, coinIntent(context, PriceWidgetProvider.PREVIOUS));
         views.setOnClickPendingIntent(R.id.widget_next, coinIntent(context, PriceWidgetProvider.NEXT));
-        Intent open = new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        views.setOnClickPendingIntent(R.id.widget_root, PendingIntent.getActivity(context, 0, open,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
+        views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context));
         return views;
     }
 
-    private static void fitLayout(Context context, RemoteViews views, float widthDp, float heightDp) {
+    private static boolean fitLayout(Context context, RemoteViews views, float widthDp, float heightDp) {
         float density = context.getResources().getDisplayMetrics().density;
         int width = Math.max(1, (int) (widthDp * density));
         int height = Math.max(1, (int) (heightDp * density));
@@ -145,8 +149,8 @@ final class PriceWidgetRenderer {
         inlineChange.setVisibility(View.GONE);
         compactChange.setVisibility(View.VISIBLE);
         measure(layout, width, height);
-        fitText(views, pair);
-        fitText(views, compactChange);
+        boolean fits = fitText(views, pair);
+        fits &= fitText(views, compactChange);
         float gap = ((ViewGroup.MarginLayoutParams) inlineChange.getLayoutParams()).getMarginStart();
         boolean compact = Math.ceil(pair.getPaint().measureText(pair.getText().toString()))
                 + Math.ceil(compactChange.getPaint().measureText(compactChange.getText().toString())) + gap
@@ -160,8 +164,18 @@ final class PriceWidgetRenderer {
 
         measure(layout, width, height);
         TextView price = layout.findViewById(R.id.widget_price);
-        fitText(views, price.getVisibility() == View.VISIBLE ? price : layout.findViewById(R.id.widget_unavailable));
-        fitText(views, layout.findViewById(R.id.widget_updated_at));
+        TextView value = price.getVisibility() == View.VISIBLE ? price : layout.findViewById(R.id.widget_unavailable);
+        boolean valueFits = fitText(views, value);
+        if (!valueFits) {
+            // Large accessibility fonts take priority over the decorative chart.
+            layout.findViewById(R.id.widget_chart).setVisibility(View.GONE);
+            views.setViewVisibility(R.id.widget_chart, View.GONE);
+            measure(layout, width, height);
+            valueFits = fitText(views, value);
+        }
+        fits &= valueFits;
+        fits &= fitText(views, layout.findViewById(R.id.widget_updated_at));
+        return fits;
     }
 
     private static void measure(View layout, int width, int height) {
@@ -170,24 +184,38 @@ final class PriceWidgetRenderer {
         layout.layout(0, 0, width, height);
     }
 
-    // RemoteViews cannot use an AppCompat TextView; measuring here also supports Android 7.
-    private static void fitText(RemoteViews views, TextView text) {
+    // Keep text readable in scaled units, including Android 7 which lacks framework autosizing.
+    private static boolean fitText(RemoteViews views, TextView text) {
         int width = text.getWidth() - text.getCompoundPaddingLeft() - text.getCompoundPaddingRight();
         int height = text.getHeight() - text.getCompoundPaddingTop() - text.getCompoundPaddingBottom();
-        float size = text.getTextSize();
-        String value = text.getText().toString();
-        while (true) {
+        float minimum = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
+                text.getId() == R.id.widget_price ? 14 : 11, text.getResources().getDisplayMetrics());
+        float size = Math.max(minimum, text.getTextSize());
+        boolean fits;
+        do {
             text.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
-            // TextView accounts for fallback fonts and line spacing as well as glyph width.
             text.measure(View.MeasureSpec.makeMeasureSpec(text.getWidth(), View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(text.getHeight(), View.MeasureSpec.EXACTLY));
-            if (size <= 1 || (Math.ceil(text.getPaint().measureText(value)) <= width
-                    && text.getLayout().getHeight() <= height && text.getLayout().getLineCount() == 1)) {
+            android.text.Layout layout = text.getLayout();
+            int lines = layout.getLineCount();
+            fits = layout.getHeight() <= height && lines <= text.getMaxLines()
+                    && layout.getLineEnd(lines - 1) == text.length();
+            for (int i = 0; i < lines; i++) {
+                fits &= Math.ceil(layout.getLineWidth(i)) <= width;
+            }
+            if (fits || size <= minimum) {
                 break;
             }
-            size = Math.max(1, size - 0.5f);
-        }
+            size = Math.max(minimum, size - 0.5f);
+        } while (true);
         views.setTextViewTextSize(text.getId(), TypedValue.COMPLEX_UNIT_PX, size);
+        return fits;
+    }
+
+    private static PendingIntent openAppIntent(Context context) {
+        Intent open = new Intent(context, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return PendingIntent.getActivity(context, 0, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     private static PendingIntent coinIntent(Context context, String action) {

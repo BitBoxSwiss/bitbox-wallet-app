@@ -12,30 +12,59 @@ import androidx.work.WorkerParameters;
 import org.json.JSONObject;
 
 import mobileserver.Mobileserver;
+import mobileserver.PriceWidgetRequest;
 
 public class PriceWidgetWorker extends Worker {
+    private PriceWidgetRequest request;
+
     public PriceWidgetWorker(@NonNull Context context, @NonNull WorkerParameters parameters) {
         super(context, parameters);
+    }
+
+    @Override
+    public synchronized void onStopped() {
+        if (request != null) {
+            request.cancel();
+        }
     }
 
     @NonNull
     @Override
     public Result doWork() {
         Context context = getApplicationContext();
-        if (PriceWidgetProvider.widgetIds(context).length == 0) {
-            return Result.success();
-        }
+        PriceWidgetProvider.FetchRequest selection = null;
+        JSONObject state = null;
         try {
-            JSONObject state = new JSONObject(Mobileserver.priceWidgetState(
-                    context.getFilesDir().getAbsolutePath(), PriceWidgetProvider.selectedIndex(context),
-                    true, getInputData().getBoolean(PriceWidgetProvider.FORCE, false)));
-            if (!isStopped()) {
-                PriceWidgetProvider.renderCached(context);
+            selection = PriceWidgetProvider.prepareFetch(context).get();
+            if (selection == null) {
+                return Result.success();
             }
-            return state.optBoolean("retry") ? Result.retry() : Result.success();
+            synchronized (this) {
+                if (isStopped()) {
+                    return Result.success();
+                }
+                request = Mobileserver.newPriceWidgetRequest();
+            }
+            state = new JSONObject(request.state(context.getFilesDir().getAbsolutePath(), selection.index,
+                    selection.refreshToken > 0 || getInputData().getBoolean(PriceWidgetProvider.FORCE, false)));
+            return state.optBoolean("retry") || (selection.refreshToken > 0 && !state.optBoolean("refreshed"))
+                    ? Result.retry() : Result.success();
         } catch (Exception e) {
             Log.w("bitboxapp", "Could not refresh price widget", e);
             return Result.retry();
+        } finally {
+            synchronized (this) {
+                if (request != null) {
+                    request.cancel();
+                }
+            }
+            if (selection != null && (state != null || !isStopped())) {
+                try {
+                    PriceWidgetProvider.completeFetch(context, selection, state).get();
+                } catch (Exception e) {
+                    Log.w("bitboxapp", "Could not publish price widget", e);
+                }
+            }
         }
     }
 }
