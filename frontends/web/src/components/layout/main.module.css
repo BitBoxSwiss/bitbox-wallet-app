@@ -1,6 +1,8 @@
 .main {
     /* define background color so macOS renders native scrollbars with correct color */
     background-color: var(--background);
+    /* Keep the scroll area below the native controls while its background fills the window. */
+    border-top: var(--window-titlebar-height, 0px) solid var(--background);
     display: flex;
     flex-direction: column;
     flex-grow: 1;
