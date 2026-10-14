@@ -31,9 +31,9 @@
   },
   "dependencies": {
     "@reown/walletkit": "1.2.10",
-    "@walletconnect/core": "2.21.7",
-    "@walletconnect/types": "2.21.7",
-    "@walletconnect/utils": "2.21.7",
+    "@walletconnect/core": "2.26.0",
+    "@walletconnect/types": "2.26.0",
+    "@walletconnect/utils": "2.26.0",
     "flag-icons": "7.5.0",
     "i18next": "25.7.3",
     "lightweight-charts": "4.1.4",
