@@ -47,6 +47,12 @@ Method that might be helpful in more than one test should reside here; this is a
 - [dom.ts](./helpers/dom.ts) contains methods to interact with the webpage, such as clicking a specific button, getting specific fields based on attribute key/value.
 - [servewallet.ts](./helpers/servewallet.ts) is the most important helper file, as it needs to be imported and used by any test. It provides a `Servewallet` class that gives the ability to start/stop/restart the servewallet. 
 - [simulator.ts](./helpers/simulator.ts) is similarly useful, as it provides a way to start a simulator, which is needed for most operations.
+- [rates.ts](./helpers/rates.ts) serves fixed CoinGecko responses through the optional `ratesURL`
+  fixture. Pass it to `servewallet.start({ extraFlags: { coingeckoURL: ratesURL } })` on every
+  start, including restarts. `backup-reminder-allowed.test.ts` and `hideAmounts.test.ts` use
+  this fixture to avoid depending on the public rates service. BTC is worth USD 50,000, so
+  funding 10 RBTC crosses the USD 1,000 backup threshold. Historical prices are empty;
+  the backend still computes balances and backup eligibility from real wallet state.
 
 ### Caveats
 There are a few things that should be kept in mind when writing tests, due to the nature of the test environment.
