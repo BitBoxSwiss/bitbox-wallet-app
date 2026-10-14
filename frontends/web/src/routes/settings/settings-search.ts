@@ -89,6 +89,11 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
     page: 'advanced',
   },
   {
+    id: 'onion-explorer',
+    getTitle: ({ t }) => t('settings.expert.onionExplorer'),
+    page: 'advanced',
+  },
+  {
     id: 'testnet-mode',
     isAvailable: ({ isTesting }) => isTesting !== undefined,
     getTitle: ({ isTesting, t }) => isTesting ? t('testnet.deactivate.title') : t('testnet.activate.title'),
