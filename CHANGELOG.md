@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Lightning: show the estimated claim fee before sending a top-up
+- Mobile: add copy and open actions when touching and holding transaction explorer links, without loading a preview on iOS
 - Lightning: preserve invoice details when going back to edit an invoice
 - Rename "Factory reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy

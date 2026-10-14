@@ -460,6 +460,7 @@
     "download": "Download",
     "next": "Next",
     "ok": "OK",
+    "openInBrowser": "Open in browser",
     "previous": "Previous",
     "proceedOnBitBox": "Proceed on your BitBox",
     "restore": "Restore",
@@ -2533,6 +2534,7 @@
       "type": "Type"
     },
     "explorer": "Transaction ID",
+    "explorerError": "Unable to open the browser.",
     "explorerTitle": "Open in external block explorer",
     "fee": "Fee",
     "feeRate": "Fee rate",

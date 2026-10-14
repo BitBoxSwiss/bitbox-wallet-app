@@ -3,12 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TTransaction, TAmountWithConversions, getTransaction, TTransactionStatus, TTransactionType } from '@/api/account';
-import { A } from '@/components/anchor/anchor';
 import { Dialog } from '@/components/dialog/dialog';
 import { Note } from './note';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { getTxSignForTxDetail } from '@/utils/transaction';
-import { ExternalLink } from '@/components/icon';
+import { ExplorerLink } from './explorer-link';
 import { TxDetailHeader } from '@/components/transactions/components/tx-detail-dialog/tx-detail-header';
 import { AdvancedTxDetail } from '@/components/transactions/components/tx-detail-dialog/advanced-tx-detail';
 import { TxDetailRow } from '@/components/transactions/components/tx-detail-dialog/tx-detail-row';
@@ -159,14 +158,7 @@ export const TxDetailsDialog = ({
 
           {/* explorer link */}
           <div className={styles.explorerLinkContainer}>
-            <A
-              className={styles.explorerLink}
-              href={explorerURL + transactionInfo.txID}
-              title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>
-              <ExternalLink />
-              {' '}
-              {t('transaction.explorerTitle')}
-            </A>
+            <ExplorerLink href={explorerURL + transactionInfo.txID} />
           </div>
         </div>
 
