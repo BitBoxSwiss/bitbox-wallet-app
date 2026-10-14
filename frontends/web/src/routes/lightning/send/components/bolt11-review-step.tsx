@@ -9,7 +9,7 @@ import { Column, Grid } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Status } from '@/components/status/status';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
-import { Bolt11PaymentDetails, PaymentFeeDetails, PaymentNoteDetails } from './payment-input-details';
+import { Bolt11PaymentDetails, PaymentAmountDetails, PaymentFeeDetails, PaymentNoteDetails } from './payment-input-details';
 import { type TPaymentReviewDetails, usePaymentReview } from '../hooks/use-payment-review';
 import { CustomPaymentAmount, PaymentBalance } from './custom-payment-amount';
 import { SendingSpinner } from './sending-spinner';
@@ -61,6 +61,9 @@ export const Bolt11ReviewStep = ({
             <Status dismissibleKey="" type="warning" hidden={!sendError}>
               {sendError}
             </Status>
+            <Status dismissibleKey="" type="error" hidden={preparedPayment?.status !== 'error'}>
+              {preparedPayment?.status === 'error' ? preparedPayment.error : undefined}
+            </Status>
             {needsCustomAmount ? (
               <>
                 <CustomPaymentAmount
@@ -68,9 +71,6 @@ export const Bolt11ReviewStep = ({
                   onAmountChange={setCustomAmount}
                 />
                 <PaymentNoteDetails description={invoice.description} />
-                <Status dismissibleKey="" type="error" hidden={preparedPayment?.status !== 'error'}>
-                  {preparedPayment?.status === 'error' ? preparedPayment.error : undefined}
-                </Status>
                 {(preparedPayment?.status === 'preparing' || fees) && (
                   <PaymentFeeDetails fees={fees} totalWithFiat />
                 )}
@@ -81,6 +81,12 @@ export const Bolt11ReviewStep = ({
                 {fees
                   ? <Bolt11PaymentDetails description={invoice.description} fees={fees} />
                   : preparedPayment?.status === 'preparing' && <Spinner text={t('loading')} />}
+                {!fees && preparedPayment?.status === 'error' && (
+                  <>
+                    <PaymentAmountDetails amountSat={invoice.amountSat} />
+                    <PaymentNoteDetails description={invoice.description} />
+                  </>
+                )}
               </>
             )}
           </Column>

@@ -7,6 +7,7 @@ import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TPaymentInputType } from '@/api/lightning';
 import * as lightningApi from '@/api/lightning';
+import { TLightningErrorCode, TSdkError } from '@/api/lightning-errors';
 import { AppStateContext } from '@/contexts/app-state-context';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { Send } from './send';
@@ -39,16 +40,30 @@ vi.mock('@/api/lightning', async (importOriginal) => {
   };
 });
 
+vi.mock('@/api/coins', () => ({
+  getBtcSatAmount: vi.fn(({ amount }: { amount: string }) => Promise.resolve({
+    success: true,
+    amount: { amount, unit: 'sat' },
+  })),
+}));
+
 vi.mock('../guide', () => ({
   LightningSendGuide: () => null,
 }));
 
 vi.mock('./components/select-payment-input-step', () => ({
   SelectPaymentInputStep: ({
+    inputError,
     onSubmit,
   }: {
+    inputError?: string;
     onSubmit: (input: string) => Promise<boolean>;
-  }) => <button onClick={() => onSubmit('lnbc1invoice')}>review payment</button>,
+  }) => (
+    <>
+      {inputError && <span>{inputError}</span>}
+      <button onClick={() => onSubmit('lnbc1invoice')}>review payment</button>
+    </>
+  ),
 }));
 
 vi.mock('./components/custom-payment-amount', async () => {
@@ -74,15 +89,6 @@ vi.mock('./components/custom-payment-amount', async () => {
     PaymentBalance: () => null,
   };
 });
-
-vi.mock('./components/payment-input-details', () => ({
-  BitcoinAddressRecipientDetails: () => null,
-  Bolt11PaymentDetails: () => null,
-  LNURLPayRecipientDetails: () => null,
-  PaymentAmountDetails: () => null,
-  PaymentFeeDetails: () => null,
-  PaymentNoteDetails: () => null,
-}));
 
 vi.mock('./components/success-step', () => ({
   SuccessStep: () => <span>payment sent</span>,
@@ -139,6 +145,7 @@ describe('Lightning Send', () => {
       type: TPaymentInputType.BOLT11,
       invoice: {
         amountSat: 100,
+        description: 'Invoice note',
         invoice: 'lnbc1invoice',
       },
     });
@@ -148,6 +155,102 @@ describe('Lightning Send', () => {
       totalDebitSat: 101,
     });
   });
+
+  it.each([false, true])('keeps an unaffordable fixed invoice on review (fee quote: %s)', async (hasFees) => {
+    vi.mocked(lightningApi.postPreparePayment).mockRejectedValue(new TSdkError(
+      'insufficient funds',
+      TLightningErrorCode.INSUFFICIENT_FUNDS,
+      hasFees ? { amountSat: 100, feeSat: 1, totalDebitSat: 101 } : undefined,
+    ));
+    renderSend();
+
+    fireEvent.click(screen.getByRole('button', { name: 'review payment' }));
+
+    expect(await screen.findByText('error.lightningInsufficientFunds')).toBeInTheDocument();
+    expect(await screen.findByText('100')).toBeInTheDocument();
+    expect(screen.getByText('Invoice note')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'generic.send' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'review payment' })).not.toBeInTheDocument();
+    if (hasFees) {
+      expect(screen.getByText('send.fee.label')).toBeInTheDocument();
+      expect(screen.getByText('101')).toBeInTheDocument();
+    } else {
+      expect(screen.queryByText('send.fee.label')).not.toBeInTheDocument();
+    }
+    expect(lightningApi.postSendPayment).not.toHaveBeenCalled();
+
+    pressSystemBack();
+    expect(screen.getByRole('button', { name: 'review payment' })).toBeInTheDocument();
+  });
+
+  it('returns to payment entry for an already-used fixed invoice', async () => {
+    vi.mocked(lightningApi.postPreparePayment).mockRejectedValue(new TSdkError(
+      'invoice already used',
+      TLightningErrorCode.INVOICE_ALREADY_USED,
+    ));
+    renderSend();
+
+    fireEvent.click(screen.getByRole('button', { name: 'review payment' }));
+
+    expect(await screen.findByText('error.lightningInvoiceAlreadyUsed')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'review payment' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'generic.send' })).not.toBeInTheDocument();
+    expect(lightningApi.postSendPayment).not.toHaveBeenCalled();
+  });
+
+  it('keeps an unaffordable fixed Bitcoin amount on review', async () => {
+    vi.mocked(lightningApi.getParsePaymentInput).mockResolvedValue({
+      type: TPaymentInputType.BITCOIN_ADDRESS,
+      bitcoinAddress: { address: 'bc1qrecipient', amountSat: 100 },
+    });
+    vi.mocked(lightningApi.postPreparePayment).mockRejectedValue(new TSdkError(
+      'insufficient funds',
+      TLightningErrorCode.INSUFFICIENT_FUNDS,
+    ));
+    renderSend();
+
+    fireEvent.click(screen.getByRole('button', { name: 'review payment' }));
+
+    expect(await screen.findByText('error.lightningInsufficientFunds')).toBeInTheDocument();
+    expect(await screen.findByText('100')).toBeInTheDocument();
+    expect(screen.getByText('bc1qrecipient')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'generic.send' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'review payment' })).not.toBeInTheDocument();
+    expect(lightningApi.postSendPayment).not.toHaveBeenCalled();
+  });
+
+  it.each([TPaymentInputType.BOLT11, TPaymentInputType.LNURL_PAY])(
+    'allows correcting an unaffordable custom amount for %s', async (type) => {
+      vi.mocked(lightningApi.getParsePaymentInput).mockResolvedValue(type === TPaymentInputType.BOLT11 ? {
+        type: TPaymentInputType.BOLT11,
+        invoice: { invoice: 'lnbc1invoice' },
+      } : {
+        type: TPaymentInputType.LNURL_PAY,
+        lnurlPay: { input: 'alice@example.com', domain: 'example.com', minAmountSat: 1, maxAmountSat: 1_000 },
+      });
+      vi.mocked(lightningApi.postPreparePayment).mockRejectedValueOnce(new TSdkError(
+        'insufficient funds',
+        TLightningErrorCode.INSUFFICIENT_FUNDS,
+      ));
+      renderSend();
+
+      fireEvent.click(screen.getByRole('button', { name: 'review payment' }));
+      const amountInput = await screen.findByRole('textbox', { name: 'custom amount' });
+      fireEvent.change(amountInput, { target: { value: '200' } });
+
+      expect(await screen.findByText('error.lightningInsufficientFunds')).toBeInTheDocument();
+      expect(amountInput).toHaveValue('200');
+      expect(screen.getByRole('button', { name: 'generic.send' })).toBeDisabled();
+      expect(screen.queryByRole('button', { name: 'review payment' })).not.toBeInTheDocument();
+
+      fireEvent.change(amountInput, { target: { value: '100' } });
+
+      await waitFor(() => expect(screen.getByRole('button', { name: 'generic.send' })).toBeEnabled());
+      expect(screen.queryByText('error.lightningInsufficientFunds')).not.toBeInTheDocument();
+      expect(lightningApi.postPreparePayment).toHaveBeenLastCalledWith(expect.objectContaining({ amountSat: 100 }));
+      expect(lightningApi.postSendPayment).not.toHaveBeenCalled();
+    },
+  );
 
   it('allows back from review but blocks it while sending', async () => {
     let resolvePayment: () => void = () => {};
