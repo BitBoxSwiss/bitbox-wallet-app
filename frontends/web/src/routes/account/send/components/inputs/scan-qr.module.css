@@ -1,4 +1,5 @@
 .backdrop {
+  border-top: var(--window-titlebar-height, 0px) solid transparent;
   position: fixed;
   inset: 0;
   z-index: 10000;
