@@ -131,6 +131,13 @@ export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEth
   return apiPost('accounts/eth-account-code', { address });
 };
 
+export const postEthAccountActivity = (
+  code: AccountCode,
+  active: boolean,
+): Promise<SuccessResponse> => {
+  return apiPost(`account/${code}/activity`, { active });
+};
+
 export type TStatus = {
   disabled: boolean;
   synced: boolean;
@@ -182,7 +189,7 @@ export const getInfo = (code: AccountCode) => {
   };
 };
 
-export const init = (code: AccountCode): Promise<null> => {
+export const init = (code: AccountCode): Promise<SuccessResponse | TAccountError> => {
   return apiPost(`account/${code}/init`);
 };
 
@@ -191,6 +198,23 @@ export type FormattedLineData = LineData & {
 };
 
 export type ChartData = FormattedLineData[];
+
+export type TChartTransactionMarkerAmount = {
+  amount: string;
+  count: number;
+  estimated: boolean;
+};
+
+export type TChartTransactionMarker = {
+  time: number;
+  receive: TChartTransactionMarkerAmount;
+  send: TChartTransactionMarkerAmount;
+};
+
+export type TChartTransactionMarkers = {
+  daily: TChartTransactionMarker[];
+  hourly: TChartTransactionMarker[];
+};
 
 type TChartDataResponse = {
   success: true;
@@ -215,6 +239,7 @@ export type TChartData = {
   chartDataMissing: boolean;
   chartDataDaily: ChartData;
   chartDataHourly: ChartData;
+  chartTransactionMarkers?: TChartTransactionMarkers;
   chartFiat: ConversionUnit;
   chartPerformance: TChartPerformanceByDisplay;
   chartTotal: number | null;
@@ -223,8 +248,8 @@ export type TChartData = {
   lastTimestamp: number;
 };
 
-export const getChartData = (): Promise<TChartDataResponse> => {
-  return apiGet('chart-data');
+export const getChartData = (includeTransactionMarkers: boolean): Promise<TChartDataResponse> => {
+  return apiGet(`chart-data?includeTransactionMarkers=${String(includeTransactionMarkers)}`);
 };
 
 type Conversions = {
@@ -300,7 +325,9 @@ export const getTransactionList = (code: AccountCode): Promise<TTransactions> =>
   return apiGet(`account/${code}/transactions`);
 };
 
-export const getTransaction = (code: AccountCode, id: TTransaction['internalID']): Promise<TTransaction | null> => {
+export const getTransaction = (code: AccountCode, id: TTransaction['internalID']): Promise<
+  { success: true; transaction: TTransaction | null } | TAccountError
+> => {
   return apiGet(`account/${code}/transaction?id=${id}`);
 };
 
@@ -412,6 +439,7 @@ export const proposeTx = (
 
 export type TSendTxErrorCode =
   | TTxProposalErrorCode
+  | 'broadcastUncertain'
   | 'erc20InsufficientGasFunds'
   | 'firmwareUpgradeRequired'
   | 'syncInProgress'
@@ -514,7 +542,7 @@ export type TSignWalletConnectTx = {
   success: false;
   aborted?: boolean;
   errorMessage?: string;
-  errorCode?: 'firmwareUpgradeRequired';
+  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds' | 'broadcastUncertain';
 } | {
   success: true;
   txHash: string;

@@ -73,9 +73,10 @@ vi.mock('./market-context', () => ({
 }));
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
 import { connectKeystore } from '@/api/keystores';
+import { AppStateContext } from '@/contexts/app-state-context';
 import { Market } from './market';
 
 const account: TAccount = {
@@ -113,10 +114,29 @@ describe('routes/market/market', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/market/select/btc-account?tab=spend']}>
-        <Market accounts={[account]} code={account.code} />
-        <Location />
-      </MemoryRouter>
+      <AppStateContext.Provider
+        value={{
+          accounts: [account],
+          activeAccounts: [account],
+          deviceIDs: [],
+          devices: {},
+          hasAccounts: false,
+          hasBottomNavigation: false,
+          hasDevices: false,
+          lightningAccount: undefined,
+          hasLightningAccount: false,
+        }}
+      >
+        <MemoryRouter initialEntries={['/market/select/btc-account?tab=spend']}>
+          <Routes>
+            <Route
+              path="/market/select/:code"
+              element={<Market />}
+            />
+          </Routes>
+          <Location />
+        </MemoryRouter>
+      </AppStateContext.Provider>
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'enter Bitrefill' }));

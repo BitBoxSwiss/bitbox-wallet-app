@@ -99,15 +99,6 @@ export function Receive() {
     setStep('create-invoice');
   }, [resetAmountInput, resetReceivedPayment]);
 
-  const cancelInvoice = useCallback(() => {
-    resetAmountInput();
-    setDescription('');
-    setReceivePaymentResponse(undefined);
-    setReceiveError(undefined);
-    resetReceivedPayment();
-    setStep('address');
-  }, [resetAmountInput, resetReceivedPayment]);
-
   const back = useCallback(() => {
     switch (step) {
     case 'address':
@@ -302,8 +293,8 @@ export function Receive() {
             </div>
           </ViewContent>
           <ViewButtons>
-            <DesktopBackButton onClick={cancelInvoice}>
-              {t('dialog.cancel')}
+            <DesktopBackButton onClick={back}>
+              {t('button.back')}
             </DesktopBackButton>
           </ViewButtons>
         </View>
@@ -357,7 +348,7 @@ export function Receive() {
           <Header
             variant="navigation"
             mobileBackButton={step !== 'wait' && step !== 'success'}
-            onBack={step === 'invoice' ? cancelInvoice : back}
+            onBack={back}
             title={t('lightning.receive.title')}
           />
           {renderSteps()}

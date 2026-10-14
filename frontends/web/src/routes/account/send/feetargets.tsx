@@ -8,7 +8,7 @@ import * as accountApi from '@/api/account';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { Input, NumberInput } from '@/components/forms';
 import { Message } from '@/components/message/message';
-import { customFeeUnit, getCoinCode, isEthereumBased } from '@/routes/account/utils';
+import { customFeeUnit, getCoinCode, isEthereumBased } from '@/utils/coin';
 import { Dropdown, TOption as TDropdownOption } from '@/components/dropdown/dropdown';
 import style from './feetargets.module.css';
 

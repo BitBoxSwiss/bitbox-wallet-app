@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Message } from '@/components/message/message';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
@@ -16,15 +16,23 @@ import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
 import { getBitsuranceURL } from '@/api/bitsurance';
 import { convertScriptType } from '@/utils/request-addess';
-import { useVendorIframeActive, useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useVendorIframeActive } from '@/hooks/vendor-iframe-active';
+import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
+import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
+import {
+  getVendorIframeMessageTarget,
+  postMessageToVendorIframe,
+  type TVendorIframeMessageTarget,
+} from '@/hooks/vendor-iframe-message';
 import { BitsuranceGuide } from './guide';
 import style from './widget.module.css';
 
-type TProps = {
+type TRouteParams = {
   code: string;
 };
 
-export const BitsuranceWidget = ({ code }: TProps) => {
+export const BitsuranceWidget = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { config } = useConfig();
@@ -44,13 +52,12 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     };
   });
 
-  const sendAddressWithXPub = (address: string, sig: string, xpub: string) => {
-    const { current } = iframeRef;
-
-    if (!current) {
-      return;
-    }
-
+  const sendAddressWithXPub = (
+    target: TVendorIframeMessageTarget,
+    address: string,
+    sig: string,
+    xpub: string,
+  ) => {
     const message = serializeMessage({
       version: MessageVersion.V0,
       type: V0MessageType.Address,
@@ -59,7 +66,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
       signature: sig,
     });
 
-    current.contentWindow?.postMessage(message, '*');
+    postMessageToVendorIframe(target, message);
   };
 
   const getXPub = (wantedScriptType: ScriptType) => {
@@ -69,7 +76,10 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     return xpubConfig?.bitcoinSimple?.keyInfo.xpub;
   };
 
-  const handleRequestAddress = (message: RequestAddressV0Message) => {
+  const handleRequestAddress = (
+    target: TVendorIframeMessageTarget,
+    message: RequestAddressV0Message,
+  ) => {
     signingRef.current = true;
     const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
@@ -84,12 +94,12 @@ export const BitsuranceWidget = ({ code }: TProps) => {
           if (withExtendedPublicKey) {
             const xpub = getXPub(addressType as ScriptType);
             if (xpub) {
-              sendAddressWithXPub(response.address, response.signature, xpub);
+              sendAddressWithXPub(target, response.address, response.signature, xpub);
             } else {
               alertUser(t('bitsuranceAccount.errorNoXpub'));
             }
           } else {
-            sendAddressWithXPub(response.address, response.signature, '');
+            sendAddressWithXPub(target, response.address, response.signature, '');
           }
         } else {
           if (!['userAbort', 'wrongKeystore'].includes(response.errorCode || '')) {
@@ -106,8 +116,9 @@ export const BitsuranceWidget = ({ code }: TProps) => {
       return;
     }
 
-    // verify the origin of the received message
-    if (m.origin !== new URL(iframeURL).origin) {
+    const target = getVendorIframeMessageTarget(m, iframeRef.current);
+    // Verify that the message came from the current Bitsurance iframe and its expected origin.
+    if (!target || target.origin !== new URL(iframeURL).origin) {
       return;
     }
 
@@ -125,7 +136,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
         // we ignore further signing requests
         // while there is an ongoing one
         if (!signingRef.current) {
-          handleRequestAddress(message);
+          handleRequestAddress(target, message);
         }
         break;
       }

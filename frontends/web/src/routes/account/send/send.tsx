@@ -17,7 +17,7 @@ import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, GuideWrapper, GuidedContent, Header, Main, ResponsiveGrid } from '@/components/layout';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { FeeTargets } from './feetargets';
-import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinBased, isBitcoinOnly } from '@/utils/coin';
 import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
 import { SendResult } from './components/result';
@@ -216,6 +216,7 @@ export const Send = ({
       const errorHandling = txProposalErrorHandling(result.errorCode);
       setErrorHandling(errorHandling);
       setIsUpdatingProposal(false);
+      setProposedTotal(undefined);
 
       if (
         errorHandling.amountError
@@ -230,10 +231,10 @@ export const Send = ({
   const validateAndDisplayFee = useCallback((
     updateFiat: boolean = true,
   ) => {
-    setProposedTotal(undefined);
     setErrorHandling({});
     const txInput = getValidTxInputData();
     if (!txInput) {
+      setProposedTotal(undefined);
       return;
     }
     if (proposeTimeout.current) {
@@ -256,6 +257,7 @@ export const Send = ({
       } catch (error) {
         if (proposePromise === lastProposal.current) {
           setValid(false);
+          setProposedTotal(undefined);
           console.error('Failed to propose transaction:', error);
         }
       } finally {

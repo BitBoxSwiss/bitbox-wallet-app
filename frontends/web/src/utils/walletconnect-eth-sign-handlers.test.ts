@@ -411,4 +411,18 @@ describe('WalletConnect Ethereum request handling', () => {
     );
     expect(sent).toHaveBeenCalledWith({ id: REQUEST_ID, jsonrpc: '2.0', result: expected });
   });
+
+  it('warns the dapp when transaction submission is uncertain', async () => {
+    accountApi.ethSignWalletConnectTx.mockResolvedValue({ success: false, errorCode: 'broadcastUncertain' });
+    const { args, launchSignDialog, sent } = prepareRequest(
+      EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION,
+      [{ from: ADDRESS, to: OTHER_ADDRESS }],
+    );
+    await handleWcEthSignRequest(args);
+
+    const result = await getLaunchedRequest(launchSignDialog).apiCaller();
+
+    expect(result).toMatchObject({ success: false, errorCode: 'broadcastUncertain' });
+    expectError(sent, -32000, 'Transaction submission is uncertain and may still confirm. Check its status before sending again.');
+  });
 });

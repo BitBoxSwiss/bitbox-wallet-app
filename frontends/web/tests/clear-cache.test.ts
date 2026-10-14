@@ -62,6 +62,8 @@ test('Clear cache removes cached files and recreates cache-backed state', async 
     const response = await responsePromise;
     expect(response.status()).toBe(200);
     expect(await response.json()).toEqual({ success: true });
+
+    await page.getByRole('button', { name: 'OK', exact: true }).click();
   });
 
   await test.step('Verify backend cache was cleared and reinitialized', async () => {

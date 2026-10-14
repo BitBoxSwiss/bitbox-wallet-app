@@ -25,10 +25,10 @@ func TestTransactionWithHeightJSON(t *testing.T) {
 			big.NewInt(123456543),
 			[]byte("contract data"),
 		),
-		Height:            352,
-		GasUsed:           21000,
-		Success:           true,
-		BroadcastAttempts: 10,
+		Height:        352,
+		GasUsed:       21000,
+		Success:       true,
+		NonceConsumed: true,
 	}
 	tx2 := new(ethtypes.TransactionWithMetadata)
 	require.NoError(t, json.Unmarshal(jsonp.MustMarshal(tx), tx2))
@@ -36,7 +36,7 @@ func TestTransactionWithHeightJSON(t *testing.T) {
 	require.Equal(t, tx.GasUsed, tx2.GasUsed)
 	require.Equal(t, tx.Success, tx2.Success)
 	require.Equal(t, tx.Transaction.Hash(), tx2.Transaction.Hash())
-	require.Equal(t, tx.BroadcastAttempts, tx2.BroadcastAttempts)
+	require.True(t, tx2.NonceConsumed)
 }
 
 func TestTransactionDataContractCall(t *testing.T) {

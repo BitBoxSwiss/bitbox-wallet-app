@@ -64,12 +64,49 @@ class JavascriptBridge: NSObject, WKScriptMessageHandler {
             DispatchQueue.main.async {
                 self.respondWithClipboard(requestID: requestID, text: UIPasteboard.general.string ?? "")
             }
+        } else if message.name == "showExplorerLinkMenu", let body = message.body as? [String: String] {
+            DispatchQueue.main.async {
+                self.showExplorerLinkMenu(body)
+            }
         } else if message.name == "hapticFeedback" {
             DispatchQueue.main.async {
-                let generator = UIImpactFeedbackGenerator(style: .medium)
+                let body = message.body as? [String: Any]
+                let style = body?["style"] as? String
+                let generator = UIImpactFeedbackGenerator(style: style == "heavy" ? .heavy : .medium)
                 generator.impactOccurred()
             }
         }
+    }
+
+    private func showExplorerLinkMenu(_ body: [String: String]) {
+        guard let urlString = body["url"], let url = URL(string: urlString),
+              ["https", "http"].contains(url.scheme?.lowercased() ?? ""), url.host != nil,
+              let copyTitle = body["copy"], let openTitle = body["open"], let cancelTitle = body["cancel"],
+              let webView = webView, var presenter = webView.window?.rootViewController else {
+            return
+        }
+        while let presented = presenter.presentedViewController {
+            presenter = presented
+        }
+        guard !(presenter is UIAlertController), !presenter.isBeingDismissed else {
+            return
+        }
+
+        // Keep the URL as text: copying a transaction link must not fetch its destination.
+        let menu = UIAlertController(title: urlString, message: nil, preferredStyle: .actionSheet)
+        menu.addAction(UIAlertAction(title: copyTitle, style: .default) { _ in
+            UIPasteboard.general.string = urlString
+        })
+        menu.addAction(UIAlertAction(title: openTitle, style: .default) { _ in
+            UIApplication.shared.open(url)
+        })
+        menu.addAction(UIAlertAction(title: cancelTitle, style: .cancel))
+        if let popover = menu.popoverPresentationController {
+            popover.sourceView = webView
+            popover.sourceRect = CGRect(x: webView.bounds.midX, y: webView.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        presenter.present(menu, animated: true)
     }
 
     private func respondWithClipboard(requestID: Int, text: String) {
@@ -138,6 +175,8 @@ class CustomSchemeHandler: NSObject, WKURLSchemeHandler {
         case "jpg", "jpeg": return "image/jpeg"
         case "gif": return "image/gif"
         case "svg": return "image/svg+xml"
+        case "mov": return "video/quicktime"
+        case "webm": return "video/webm"
         case "ttf": return "font/ttf"
         case "otf": return "font/otf"
         default: return "application/octet-stream"
@@ -157,6 +196,7 @@ struct WebView: UIViewRepresentable {
         contentController.add(bridge, name: "appReady")
         contentController.add(bridge, name: "readClipboard")
         contentController.add(bridge, name: "hapticFeedback")
+        contentController.add(bridge, name: "showExplorerLinkMenu")
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
 

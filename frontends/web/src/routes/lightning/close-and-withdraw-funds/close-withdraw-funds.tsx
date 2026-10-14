@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { connectAnyKeystore } from '@/api/keystores';
 import { getLightningBalance, postCloseWithdraw, postPrepareCloseWithdraw, type TCloseWithdrawQuote } from '@/api/lightning';
 import { TLightningErrorCode, TSdkError, toLightningErrorMessage } from '@/api/lightning-errors';
-import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
+import type { AccountCode, TAmountWithConversions } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { Header, Main } from '@/components/layout';
@@ -19,21 +20,14 @@ import { CloseWithdrawSuccess } from './success-step';
 
 type TStep = 'confirm' | 'failure' | 'partialFailure' | 'success';
 
-type TProps = {
-  activeAccounts: TAccount[];
-  hasAccounts: boolean;
-};
-
 type TPreparedQuote = TCloseWithdrawQuote & {
   destinationAccountCode: AccountCode;
 };
 
-export const LightningCloseWithdrawFunds = ({
-  activeAccounts,
-  hasAccounts,
-}: TProps) => {
+export const LightningCloseWithdrawFunds = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { activeAccounts, hasAccounts } = useAppState();
   const btcAccounts = useMemo(
     () => activeAccounts.filter(account => account.active && account.coinCode === 'btc'),
     [activeAccounts]

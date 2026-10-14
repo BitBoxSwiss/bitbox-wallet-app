@@ -3,10 +3,11 @@
 import '../../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { connectKeystore } from '@/api/keystores';
 import { alertUser } from '@/components/alert/Alert';
+import { AppStateContext } from '@/contexts/app-state-context';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { Receive } from './receive';
 
@@ -41,9 +42,28 @@ const account: accountApi.TAccount = {
 };
 
 const renderReceive = () => render(
-  <MemoryRouter>
+  <MemoryRouter initialEntries={[`/account/${account.code}/receive`]}>
     <BackButtonProvider>
-      <Receive accounts={[account]} code={account.code} />
+      <AppStateContext.Provider
+        value={{
+          accounts: [account],
+          activeAccounts: [account],
+          deviceIDs: [],
+          devices: {},
+          hasAccounts: true,
+          hasBottomNavigation: false,
+          hasDevices: false,
+          lightningAccount: undefined,
+          hasLightningAccount: false,
+        }}
+      >
+        <Routes>
+          <Route
+            path="/account/:code/receive"
+            element={<Receive />}
+          />
+        </Routes>
+      </AppStateContext.Provider>
     </BackButtonProvider>
   </MemoryRouter>
 );

@@ -58,6 +58,34 @@ There are a few things that should be kept in mind when writing tests, due to th
 
 [watch-only-test.ts](./watch-only.test.ts) contains example of both pre and post test hooks for most of this cases.
 
+### Vendor widget messaging
+
+`vendor-widgets.test.ts` serves the local Bitrefill and BTC Direct HTML wrappers at
+their production URLs using Playwright routing. It uses the app message protocol
+from before commit `c1780d48f`, with HTTPS, HTTP, and opaque-origin parents. The
+opaque parent exercises replies to an origin serialized as `null`; native custom
+schemes retain wildcard replies for compatibility. Vendor pages and SDK downloads
+are stubbed, so these tests need no backend, simulator, credentials, or vendor network
+access. They cover configuration, relayed payments, and forged messages from
+popups, unrelated windows, and a navigated inner iframe.
+
+Bitrefill currently sends payments directly to `window.top`, bypassing its wrapper.
+`src/routes/market/bitrefill.test.tsx` tests the app component's handling of that
+inner-frame sender through transaction proposal and signing, alongside the legacy
+wrapper relay. It also checks rejection of wrong origins, unrelated windows, and
+replaced inner frames in both development and production configurations.
+
+`vendor-iframe-message.test.ts` loads the actual app reply helper into a browser and
+checks delayed replies after cross-origin navigation and iframe replacement.
+
+Run both with `npx playwright test tests/vendor-widgets.test.ts tests/vendor-iframe-message.test.ts`.
+The usual Playwright webserver setup still applies. These tests do not replace
+checkout/signing smoke tests in the native app shells.
+
+The local HTML files must also be deployed to the corresponding hosted `/widgets/*/v1/`
+URLs for released apps to receive the wrapper fixes. Keep the existing
+`request-configuration` handshake and payloads when updating those shared URLs.
+
 ## Debugging tests
 
 When a test fails, Playwright will output elements useful for debugging; these are either in [test-results](./test-results), if running locally, or uploaded as artifact if running in CI. 
@@ -74,3 +102,40 @@ Note: video.webm can be hard to utilize as it maintains the speed of execution o
 Much more useful is `trace.zip`, that can be inspected with `npx playwright show-trace trace.zip`; this will open a window that can be used to navigate through all the steps of the test, with a corresponding screenshot of the webpage at each step.
 
 Other options, when running locally, are to use the `--ui` or the `--debug` flags, as explained in the [official documentation](https://playwright.dev/docs/running-tests#debugging-tests).
+
+## Host passphrase simulator checks
+
+Use firmware 9.28.0 or newer with the host-passphrase unlock workflow and a seeded simulator
+with the optional BIP39 passphrase enabled. Keep its flash in a dedicated temporary directory
+using `FAKE_MEMORY_FILEPATH`. The graphical BitBox02 simulator is needed to control consent,
+entry and confirmation separately; the headless simulator accepts input immediately.
+
+With `servewallet -simulator` and the web frontend running, check:
+
+- After the device password, the Unlock screen shows "Enter BitBox passphrase" and
+  "Enter passphrase in app". Clicking the link hides it and requests consent on the device.
+  The app overlays "Enter passphrase", "Confirm on the BitBox to enter the passphrase on the
+  host" and a BitBox02 image. The input dialog opens only after consent. Both dialogs are
+  centered over the existing unlock screen, without a sidebar offset.
+- Rejecting consent, closing the dialog, or rejecting the passphrase confirmation resumes
+  device entry and offers the link again. Requests using a previous prompt ID are rejected.
+- Completing device entry hides the link before the passphrase confirmation screens.
+  Keep the unlock screen visible without an overlay, including for an empty passphrase,
+  which skips confirmation. Check this also when device entry finishes as the app link is
+  clicked: the consent overlay must close. Only app submission shows a "Confirm passphrase
+  on BitBox" overlay with the BitBox02 image, including for an empty passphrase.
+- Submitting a passphrase preserves spaces. Confirming it on the device unlocks the expected
+  wallet. An empty string submits the empty passphrase; closing the dialog cancels instead.
+- Inputs longer than 149 bytes or containing characters outside the device keyboard's character
+  set are rejected in the app. Check 150 characters, an 8 KiB paste, Unicode, control characters,
+  tilde and backtick. The dialog must retain the input and allow correction or cancellation;
+  the device must keep waiting for host input. A 149-character valid passphrase is accepted.
+- Disconnect while the dialog is open, then reconnect. The dialog disappears and the new
+  connection starts a fresh unlock. Restarting the app while the device waits for host input
+  also recovers through the session reset.
+- Firmware older than 9.28.0, or a device without the optional passphrase enabled, uses the
+  existing unlock screen without the link.
+
+The simulator has no attestation certificate. Keep its real attestation failure response
+and verify that the warning remains visible while the passphrase link and dialog work.
+All endpoints must use the real backend and simulator.

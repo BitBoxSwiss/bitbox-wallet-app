@@ -85,6 +85,7 @@ export const Wizard = ({ deviceID }: TProps) => {
       { (status === 'connected') ? (
         <Unlock
           key="unlock"
+          deviceID={deviceID}
           attestation={attestation} />
       ) : null }
 

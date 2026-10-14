@@ -7,6 +7,7 @@ import { useOnlyVisitableOnMobile } from '@/hooks/onlyvisitableonmobile';
 import * as accountApi from '@/api/account';
 import { getBalance } from '@/api/account';
 import { getLightningBalance } from '@/api/lightning';
+import { useAppState } from '@/contexts/app-state-context';
 import { Logo } from '@/components/icon/logo';
 import { View, ViewContent } from '@/components/view/view';
 import { getAccountsByKeystore } from '@/routes/account/utils';
@@ -19,14 +20,6 @@ import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import { useLightning } from '@/hooks/lightning';
 import styles from './all-accounts.module.css';
-
-type AllAccountsProps = {
-  accounts?: accountApi.TAccount[];
-};
-
-type TAccountItemProp = {
-  account: accountApi.TAccount;
-};
 
 type TAccountRowProps = {
   balance?: accountApi.TAmountWithConversions;
@@ -50,6 +43,10 @@ const AccountRow = ({ balance, coinCode, name, to }: TAccountRowProps) => (
     <ChevronRightDark />
   </Link>
 );
+
+type TAccountItemProp = {
+  account: accountApi.TAccount;
+};
 
 const AccountItem = ({ account }: TAccountItemProp) => {
   const [balance, setBalance] = useState<accountApi.TAmountWithConversions>();
@@ -124,10 +121,11 @@ const LightningItem = () => {
 /**
  * This component will only be shown on mobile.
  **/
-export const AllAccounts = ({ accounts = [] }: AllAccountsProps) => {
+export const AllAccounts = () => {
   const { t } = useTranslation();
+  const { activeAccounts } = useAppState();
   const { lightningAccount } = useLightning();
-  const accountsByKeystore = getAccountsByKeystore(accounts);
+  const accountsByKeystore = getAccountsByKeystore(activeAccounts);
   useOnlyVisitableOnMobile('/account-summary');
 
   return (

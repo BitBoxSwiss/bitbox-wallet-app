@@ -10,6 +10,7 @@ import * as coinsApi from '@/api/coins';
 import * as keystoresApi from '@/api/keystores';
 import * as lightningApi from '@/api/lightning';
 import { TLightningErrorCode } from '@/api/lightning-errors';
+import { AppStateContext } from '@/contexts/app-state-context';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
 import { LightningTopUp } from './topup';
@@ -108,8 +109,22 @@ const renderTopUp = (activeAccounts = [account], hasAccounts = true) => render(
         updateDefaultCurrency: vi.fn(),
         removeFromActiveCurrencies: vi.fn(),
       }}>
-        <LightningTopUp activeAccounts={activeAccounts} hasAccounts={hasAccounts} />
-        <CurrentPath />
+        <AppStateContext.Provider
+          value={{
+            accounts: activeAccounts,
+            activeAccounts: activeAccounts,
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: hasAccounts,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <LightningTopUp />
+          <CurrentPath />
+        </AppStateContext.Provider>
       </RatesContext.Provider>
     </BackButtonProvider>
   </MemoryRouter>

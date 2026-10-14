@@ -9,6 +9,7 @@ import type { TAccount, TAmountWithConversions } from '@/api/account';
 import type { TLightningPayment } from '@/api/lightning';
 import * as lightningApi from '@/api/lightning';
 import { TLightningErrorCode, TSdkError } from '@/api/lightning-errors';
+import { AppStateContext } from '@/contexts/app-state-context';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { LightningClaimTopUp } from './claim-top-up';
 
@@ -96,7 +97,21 @@ describe('routes/lightning/claim-top-up', () => {
     render(
       <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
         <BackButtonProvider>
-          <LightningClaimTopUp activeAccounts={[]} />
+          <AppStateContext.Provider
+            value={{
+              accounts: [],
+              activeAccounts: [],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: false,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <LightningClaimTopUp />
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -120,7 +135,21 @@ describe('routes/lightning/claim-top-up', () => {
     render(
       <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
         <BackButtonProvider>
-          <LightningClaimTopUp activeAccounts={[]} />
+          <AppStateContext.Provider
+            value={{
+              accounts: [],
+              activeAccounts: [],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: false,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <LightningClaimTopUp />
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -148,7 +177,21 @@ describe('routes/lightning/claim-top-up', () => {
     render(
       <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
         <BackButtonProvider>
-          <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
+          <AppStateContext.Provider
+            value={{
+              accounts: [bitcoinAccount],
+              activeAccounts: [bitcoinAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <LightningClaimTopUp />
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -177,7 +220,21 @@ describe('routes/lightning/claim-top-up', () => {
     render(
       <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
         <BackButtonProvider>
-          <LightningClaimTopUp activeAccounts={[bitcoinAccount]} />
+          <AppStateContext.Provider
+            value={{
+              accounts: [bitcoinAccount],
+              activeAccounts: [bitcoinAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: true,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <LightningClaimTopUp />
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );
@@ -218,7 +275,21 @@ describe('routes/lightning/claim-top-up', () => {
     render(
       <MemoryRouter initialEntries={[`/lightning/claim-top-up?paymentId=${encodeURIComponent(paymentID)}`]}>
         <BackButtonProvider>
-          <LightningClaimTopUp activeAccounts={[]} />
+          <AppStateContext.Provider
+            value={{
+              accounts: [],
+              activeAccounts: [],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: false,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <LightningClaimTopUp />
+          </AppStateContext.Provider>
         </BackButtonProvider>
       </MemoryRouter>
     );

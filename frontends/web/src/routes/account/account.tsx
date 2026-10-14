@@ -2,10 +2,11 @@
 
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { statusChanged, syncAddressesCount, syncdone, transactionsChanged } from '@/api/accountsync';
 import { getMarketVendors, MarketVendors } from '@/api/market';
+import { useAppState } from '@/contexts/app-state-context';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
 import { InfoBlue, LoupeBlue } from '@/components/icon';
@@ -13,6 +14,7 @@ import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Message } from '@/components/message/message';
 import { useLoad, useSubscribe, useSync } from '@/hooks/api';
+import { useEthAccountActivity } from '@/hooks/account-activity';
 import { useBitsurance } from '@/hooks/bitsurance';
 import { useDebounce } from '@/hooks/debounce';
 import { useScrollIntoView } from '@/hooks/scroll-into-view';
@@ -21,7 +23,7 @@ import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
 import { AccountGuide } from './guide';
 import { BuyReceiveCTA } from './info/buy-receive-cta';
-import { isBitcoinBased } from './utils';
+import { isBitcoinBased } from '@/utils/coin';
 import { MultilineMarkup } from '@/utils/markup';
 import { Dialog } from '@/components/dialog/dialog';
 import { A } from '@/components/anchor/anchor';
@@ -35,20 +37,22 @@ import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
 import { RatesContext } from '@/contexts/RatesContext';
 import { OfflineError } from '@/components/banners/offline-error';
-import style from './account.module.css';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import style from './account.module.css';
 
-type Props = {
-  accounts: accountApi.TAccount[];
+type TRouteParams = {
   code: accountApi.AccountCode;
 };
 
-export const Account = (props: Props) => {
-  if (!props.code) {
+export const Account = () => {
+  const { code } = useParams<TRouteParams>();
+  if (!code) {
     return null;
   }
   // The `key` prop forces a re-mount when `code` changes.
-  return <RemountAccount key={props.code} {...props} />;
+  return (
+    <RemountAccount key={code} code={code} />
+  );
 };
 
 const getBitsuranceGuideLink = (
@@ -62,12 +66,22 @@ const getBitsuranceGuideLink = (
   }
 };
 
+type TProps = {
+  code: accountApi.AccountCode;
+};
+
 // Re-mounted when `code` changes, and `code` is guaranteed to be non-empty.
 const RemountAccount = ({
-  accounts,
   code,
-}: Props) => {
+}: TProps) => {
   const { t } = useTranslation();
+
+  const {
+    activeAccounts
+  } = useAppState();
+
+  const account = activeAccounts.find(acct => acct.code === code);
+
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { btcUnit } = useContext(RatesContext);
 
@@ -86,7 +100,8 @@ const RemountAccount = ({
 
   const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
 
-  const account = accounts && accounts.find(acct => acct.code === code);
+
+  useEthAccountActivity(code, account?.coinCode);
 
   const { insured, uncoveredFunds, clearUncoveredFunds } = useBitsurance(code, account);
 
@@ -138,7 +153,11 @@ const RemountAccount = ({
 
   useEffect(() => {
     if (status !== undefined && !status.disabled && !status.synced) {
-      accountApi.init(code).catch(console.error);
+      accountApi.init(code).then(result => {
+        if (!result.success) {
+          console.error(result.errorMessage);
+        }
+      }).catch(console.error);
     }
   }, [code, status]);
 
