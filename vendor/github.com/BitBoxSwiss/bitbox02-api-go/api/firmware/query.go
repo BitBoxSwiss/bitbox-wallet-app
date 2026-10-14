@@ -25,6 +25,8 @@ const (
 	hwwReqRetry = "\x01"
 	// Cancel any outstanding request.
 	// hwwReqCancel = "\x02"
+	// Reset the previous session before starting a new one (since v9.28.0).
+	hwwReqReset = "\x03"
 	// INFO api call (used to be OP_INFO api call), graduated to the toplevel framing so it works
 	// the same way for all firmware versions.
 	hwwInfo = "i"
@@ -40,6 +42,27 @@ const (
 	// Bad request.
 	hwwRspNack = "\x03"
 )
+
+func (device *Device) resetSession() error {
+	if !device.version.AtLeast(semver.NewSemVer(9, 28, 0)) {
+		return nil
+	}
+	// Send at the framing layer so an unfinished workflow cannot consume the request.
+	for {
+		response, err := device.communication.Query([]byte(hwwReqReset))
+		if err != nil {
+			return err
+		}
+		switch string(response) {
+		case hwwRspAck:
+			return nil
+		case hwwRspBusy:
+			time.Sleep(time.Second)
+		default:
+			return errp.New("unexpected session reset response")
+		}
+	}
+}
 
 func (device *Device) rawQueryV7(msg []byte) ([]byte, error) {
 	var status string
@@ -133,6 +156,8 @@ func (device *Device) nonAtomicQuery(request proto.Message) (*messages.Response,
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
+
+	defer clear(requestBytes)
 
 	requestBytesEncrypted, err := device.sendCipher.Encrypt(nil, nil, requestBytes)
 	if err != nil {

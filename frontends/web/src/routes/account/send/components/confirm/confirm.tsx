@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { CoinCode, FeeTargetCode, TAmountWithConversions } from '@/api/account';
 import type { TSelectedUTXOs } from '../../utxos';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import { customFeeUnit } from '@/routes/account/utils';
+import { customFeeUnit } from '@/utils/coin';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Column, Grid } from '@/components/layout';
 import { Message } from '@/components/message/message';
@@ -100,21 +100,19 @@ export const ConfirmSend = ({
               {t('generic.send')}
             </span>
           </Column>
-          <Column className={style.confirmItem}>
-            <span className={style.valueOriginalLarge}>
-              <AmountWithUnit
-                amount={proposedAmount}
-                alwaysShowAmounts
-                enableRotateUnit
-                unitClassName={style.unit}
-              />
-            </span>
-          </Column>
-          <Column className={style.confirmItem}>
+          <Column col="2" className={`${style.confirmItem || ''} ${style.amountRow || ''} ${style.valueOriginalLarge || ''}`}>
+            <AmountWithUnit
+              amount={proposedAmount}
+              alwaysShowAmounts
+              enableRotateUnit
+              unitClassName={style.unit}
+              wrap
+            />
             <FiatValue
               amount={proposedAmount}
-              className={style.valueOriginalLarge}
+              className={style.fiatValue}
               enableRotateUnit
+              wrap
             />
           </Column>
 
@@ -188,13 +186,14 @@ export const ConfirmSend = ({
               {feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}
             </span>
           </Column>
-          <Column className={style.confirmItem}>
+          <Column col="2" className={`${style.confirmItem || ''} ${style.amountRow || ''}`}>
             <span>
               <AmountWithUnit
                 amount={proposedFee}
                 alwaysShowAmounts
                 enableRotateUnit
                 unitClassName={style.unit}
+                wrap
               />
               {' '}
               {customFee ? (
@@ -204,11 +203,11 @@ export const ConfirmSend = ({
                 </small>
               ) : null}
             </span>
-          </Column>
-          <Column className={style.confirmItem}>
             <FiatValue
               amount={proposedFee}
+              className={style.fiatValue}
               enableRotateUnit
+              wrap
             />
           </Column>
 
@@ -218,19 +217,19 @@ export const ConfirmSend = ({
               {t('send.confirm.total')}
             </span>
           </Column>
-          <Column className={style.valueOriginalLarge}>
+          <Column col="2" className={`${style.amountRow || ''} ${style.valueOriginalLarge || ''}`}>
             <AmountWithUnit
               amount={proposedTotal}
               alwaysShowAmounts
               enableRotateUnit
               unitClassName={style.unit}
+              wrap
             />
-          </Column>
-          <Column className={style.valueOriginalLarge}>
             <FiatValue
-              className={style.totalFiatValue}
               amount={proposedTotal}
+              className={style.fiatValue}
               enableRotateUnit
+              wrap
             />
           </Column>
 

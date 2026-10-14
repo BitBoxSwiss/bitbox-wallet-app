@@ -10,6 +10,7 @@ import { RatesProvider } from './RatesProvider';
 import { LightningProvider } from './LightningProvider';
 import { LocalizationProvider } from './localization-provider';
 import { ConfigProvider } from './ConfigProvider';
+import { AppStateProvider } from './app-state-provider';
 
 type Props = {
   children: ReactNode;
@@ -26,7 +27,9 @@ export const Providers = ({ children }: Props) => {
                 <RatesProvider>
                   <WCWeb3WalletProvider>
                     <LightningProvider>
-                      {children}
+                      <AppStateProvider>
+                        {children}
+                      </AppStateProvider>
                     </LightningProvider>
                   </WCWeb3WalletProvider>
                 </RatesProvider>

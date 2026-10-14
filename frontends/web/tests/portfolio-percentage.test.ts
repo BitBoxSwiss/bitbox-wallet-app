@@ -85,7 +85,7 @@ test('Portfolio percentage can switch between value over time and performance', 
   frontendPort,
   servewalletPort,
 }, testInfo) => {
-  await page.route('**/api/chart-data', async route => {
+  await page.route('**/api/chart-data*', async route => {
     await route.fulfill({
       contentType: 'application/json',
       body: JSON.stringify({

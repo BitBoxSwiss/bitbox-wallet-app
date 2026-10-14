@@ -2,9 +2,18 @@
 
 ## Unreleased
 - Lightning: default Breez SDK logs to warnings and add a log level selector in settings
-- Rename "Factory Reset" to "Delete wallet from BitBox" (settings)
+- Mobile: add copy and open actions when touching and holding transaction explorer links, without loading a preview on iOS
+- Lightning: preserve invoice details when going back to edit an invoice
+- Rename "Factory reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings
+- Add transaction indicators to the portfolio chart
+- Ethereum: allow sending ETH and tokens from the same account while earlier transactions are pending
+- Ethereum: automatically remove replaced transactions from history
+- Update password input animations
+- BitBox02: allow entering the optional passphrase in the app (firmware v9.28.0 or later)
+- Add eye toggles to the optional passphrase and test wallet password fields, with paste allowed while hidden
+- iOS: block third-party keyboards to protect revealed passwords and passphrases
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1

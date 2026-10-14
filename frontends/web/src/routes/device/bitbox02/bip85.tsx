@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Button, Checkbox } from '@/components/forms';
 import { PointToBitBox02 } from '@/components/icon';
@@ -19,13 +19,12 @@ import bip85GraphicLight from './assets/bip85-graphic-light.svg';
 
 type Status = 'info-what' | 'info-how' | 'info-recover' | 'info-security' | 'progress';
 
-type TProps = {
+type TRouteParams = {
   deviceID: string;
 };
 
-export const Bip85 = ({
-  deviceID,
-}: TProps) => {
+export const Bip85 = () => {
+  const { deviceID = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();

@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AccountCode, TAccount, getBalance } from '@/api/account';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AccountCode, getBalance } from '@/api/account';
 import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '@/api/bitsurance';
+import { useAppState } from '@/contexts/app-state-context';
 import { useMountedRef } from '@/hooks/mount';
 import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
@@ -21,11 +22,6 @@ import { ExternalLink, GreenDot, OrangeDot, RedDot, YellowDot } from '@/componen
 import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
 import { BitsuranceGuide } from './guide';
 import style from './dashboard.module.css';
-
-type TProps = {
-  accounts: TAccount[];
-  code: AccountCode;
-};
 
 type TAccountStatusIconProps = {
   status: TDetailStatus;
@@ -51,9 +47,15 @@ const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
   }
 };
 
-export const BitsuranceDashboard = ({ accounts, code }: TProps) => {
+type TRouteParams = {
+  code: AccountCode;
+};
+
+export const BitsuranceDashboard = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { activeAccounts } = useAppState();
 
   const mounted = useMountedRef();
   const [balances, setBalances] = useState<Balances>();
@@ -80,9 +82,9 @@ export const BitsuranceDashboard = ({ accounts, code }: TProps) => {
   }, []);
 
   useEffect(() => {
-    setAccountsByKeystore(getAccountsByKeystore(accounts));
+    setAccountsByKeystore(getAccountsByKeystore(activeAccounts));
     fetchInsurances();
-  }, [fetchInsurances, accounts]);
+  }, [fetchInsurances, activeAccounts]);
 
   useEffect(() => {
     accountsByKeystore?.forEach(keystore => {
@@ -116,7 +118,6 @@ export const BitsuranceDashboard = ({ accounts, code }: TProps) => {
             <HideAmountsButton />
           </Header>
           <MarketTab
-            accounts={accounts}
             activeTab="insure"
             code={code}
           />

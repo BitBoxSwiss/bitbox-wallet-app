@@ -11,6 +11,7 @@ import { SettingsItem } from '@/routes/settings/components/settingsItem/settings
 export const ClearCacheSetting = () => {
   const { t } = useTranslation();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
 
   const closeDialog = () => {
@@ -29,6 +30,7 @@ export const ClearCacheSetting = () => {
         return;
       }
       setDialogOpen(false);
+      setSuccessDialogOpen(true);
     } catch (err) {
       console.error(err);
       alertUser(t('genericError'));
@@ -57,6 +59,18 @@ export const ClearCacheSetting = () => {
           </Button>
           <Button secondary disabled={clearing} onClick={closeDialog}>
             {t('button.back')}
+          </Button>
+        </DialogButtons>
+      </Dialog>
+      <Dialog
+        open={successDialogOpen}
+        onClose={() => setSuccessDialogOpen(false)}
+        title={t('settings.expert.clearCache.title')}
+        medium>
+        <p>{t('settings.expert.clearCache.success')}</p>
+        <DialogButtons>
+          <Button primary onClick={() => setSuccessDialogOpen(false)}>
+            {t('button.ok')}
           </Button>
         </DialogButtons>
       </Dialog>

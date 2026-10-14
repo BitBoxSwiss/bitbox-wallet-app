@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getBTCDirectInfo, TMarketAction } from '@/api/market';
 import { parseExternalBtcAmount } from '@/api/coins';
+import { useAppState } from '@/contexts/app-state-context';
 import { AppContext } from '@/contexts/AppContext';
-import { AccountCode, TAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { AccountCode, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { useAccountSynced } from '@/hooks/account';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -14,7 +15,8 @@ import { useConfig } from '@/contexts/ConfigProvider';
 import { getURLOrigin } from '@/utils/url';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
-import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
+import { findAccount } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/utils/coin';
 import { BTCDirectTerms } from '@/components/terms/btcdirect-terms';
 import { MarketGuide } from './guide';
 import { alertUser } from '@/components/alert/Alert';
@@ -39,27 +41,29 @@ const localeMapping: Readonly<Record<string, string>> = {
 };
 
 type TProps = {
-  accounts: TAccount[];
   action: TMarketAction;
+};
+
+type TRouteParams = {
   code: AccountCode;
 };
 
 export const BTCDirect = ({
-  accounts,
   action,
-  code,
 }: TProps) => {
+  const { code = '' } = useParams<TRouteParams>();
   const { i18n, t } = useTranslation();
   const { config } = useConfig();
   const { isDevServers } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
+  const { activeAccounts } = useAppState();
 
   const fetchBTCDirectInfo = useCallback(() => getBTCDirectInfo(action, code), [action, code]);
   const btcdirectInfo = useAccountSynced(code, fetchBTCDirectInfo);
 
   const [blocking, setBlocking] = useState(false);
-  const account = findAccount(accounts, code);
+  const account = findAccount(activeAccounts, code);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBTCDirectWidgetDisclaimer ?? false);
   useMarketIframeActive(!!account && !!config && agreedTerms && btcdirectInfo?.success === true);
@@ -126,7 +130,10 @@ export const BTCDirect = ({
         return;
       }
       if (!sendResult.success && !('aborted' in sendResult)) {
-        if (sendResult.errorMessage) {
+        if (sendResult.errorCode === 'broadcastUncertain') {
+          alertUser(t('send.error.broadcastUncertain'));
+          return;
+        } else if (sendResult.errorMessage) {
           alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
         } else {
           alertUser(t('genericError'));
@@ -205,7 +212,7 @@ export const BTCDirect = ({
     return null;
   }
 
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   const title = (

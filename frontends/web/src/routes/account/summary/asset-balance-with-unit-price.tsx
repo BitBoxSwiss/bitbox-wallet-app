@@ -9,7 +9,7 @@ import { Logo } from '@/components/icon/logo';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useCoinUnitPrice } from '@/hooks/coin-unit-price';
-import { isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/utils/coin';
 import style from './accountssummary.module.css';
 
 type TProps = {

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Message } from '@/components/message/message';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
@@ -27,11 +27,12 @@ import {
 import { BitsuranceGuide } from './guide';
 import style from './widget.module.css';
 
-type TProps = {
+type TRouteParams = {
   code: string;
 };
 
-export const BitsuranceWidget = ({ code }: TProps) => {
+export const BitsuranceWidget = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { config } = useConfig();

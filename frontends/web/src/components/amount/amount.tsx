@@ -124,6 +124,7 @@ type TProps = {
   onMobileClick?: () => Promise<void>;
   maxDecimals?: number;
   removeTrailingZeros?: boolean;
+  wrap?: boolean;
 };
 
 /**
@@ -145,6 +146,7 @@ type TProps = {
  *   not rounded. Has no effect on BTC/LTC or fiat amounts.
  * @param removeTrailingZeros - Whether to remove trailing zeroes from
  *   the amount's decimal portion.
+ * @param wrap - Whether to wrap the full amount instead of showing an ellipsis.
  */
 export const Amount = ({
   amount,
@@ -153,6 +155,7 @@ export const Amount = ({
   onMobileClick,
   maxDecimals,
   removeTrailingZeros,
+  wrap = false,
 }: TProps) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -163,7 +166,7 @@ export const Amount = ({
   };
 
   return (
-    <span className={style.amount || ''} onClick={handleClick}>
+    <span className={`${style.amount || ''} ${wrap ? style.wrap || '' : ''}`} onClick={handleClick}>
       <FormattedAmount
         amount={amount}
         unit={unit}
@@ -181,7 +184,7 @@ export const FormattedAmount = ({
   alwaysShowAmounts = false,
   maxDecimals,
   removeTrailingZeros,
-}: Omit<TProps, 'onMobileClick'>) => {
+}: Omit<TProps, 'onMobileClick' | 'wrap'>) => {
   const { hideAmounts } = useContext(AppContext);
   const { decimal, group } = useContext(LocalizationContext);
 

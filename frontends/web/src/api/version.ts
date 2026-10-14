@@ -10,6 +10,7 @@ export type TUpdateFile = {
   current: string;
   version: string;
   description: string;
+  descriptionTranslations?: { [language: string]: string };
 };
 
 export type TUpdateState = {
