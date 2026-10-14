@@ -156,17 +156,20 @@ export type TGeneratedLightningAddress = {
 export type TSendPaymentRequest = {
   type: TPaymentInputType.BITCOIN_ADDRESS;
   paymentInput: string;
+  sendAll?: boolean;
   amountSat: number;
   approvedFeeSat: number;
   idempotencyKey: string;
 } | {
   type: TPaymentInputType.BOLT11;
   paymentInput: string;
+  sendAll?: boolean;
   amountSat?: number;
   approvedFeeSat: number;
 } | {
   type: TPaymentInputType.LNURL_PAY;
   paymentInput: string;
+  sendAll?: boolean;
   amountSat: number;
   approvedFeeSat: number;
   idempotencyKey: string;
@@ -175,16 +178,19 @@ export type TSendPaymentRequest = {
 export type TPreparePaymentRequest = {
   type: TPaymentInputType.BITCOIN_ADDRESS;
   paymentInput: string;
-  amountSat: number;
+  sendAll?: boolean;
+  amountSat?: number;
   idempotencyKey?: string;
 } | {
   type: TPaymentInputType.BOLT11;
   paymentInput: string;
+  sendAll?: boolean;
   amountSat?: number;
 } | {
   type: TPaymentInputType.LNURL_PAY;
   paymentInput: string;
-  amountSat: number;
+  sendAll?: boolean;
+  amountSat?: number;
   idempotencyKey?: string;
 };
 
