@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"path/filepath"
 	"runtime"
 	"testing"
 
@@ -88,6 +89,57 @@ func TestSetAppConfig(t *testing.T) {
 	require.Equal(t, cfg, cfg2)
 	require.Equal(t, coin.BtcUnitSats, cfg2.AppConfig().Backend.BtcUnit)
 	require.Equal(t, map[string]interface{}{"foo": "bar"}, cfg2.AppConfig().Frontend)
+}
+
+func TestBreezSDKLogLevel(t *testing.T) {
+	require.Equal(t, "warn", NewDefaultAppConfig().Backend.BreezSDKLogLevel)
+	for _, tc := range []struct {
+		level string
+		want  string
+	}{
+		{"error", "error"},
+		{"warn", "warn"},
+		{"debug", "debug"},
+		{"trace", "trace"},
+		{"", "warn"},
+		{"invalid", "warn"},
+		{"info", "warn"},
+		{"warn,spark=trace", "warn"},
+	} {
+		t.Run(tc.level, func(t *testing.T) {
+			dir := t.TempDir()
+			appFile := filepath.Join(dir, "app.json")
+			accountsFile := filepath.Join(dir, "accounts.json")
+			lightningFile := filepath.Join(dir, "lightning.json")
+			cfg, err := NewConfig(appFile, accountsFile, lightningFile)
+			require.NoError(t, err)
+			appCfg := cfg.AppConfig()
+			appCfg.Backend.BreezSDKLogLevel = tc.level
+			require.NoError(t, cfg.SetAppConfig(appCfg))
+			require.Equal(t, tc.want, cfg.AppConfig().Backend.BreezSDKLogLevel)
+
+			cfg, err = NewConfig(appFile, accountsFile, lightningFile)
+			require.NoError(t, err)
+			require.Equal(t, tc.want, cfg.AppConfig().Backend.BreezSDKLogLevel)
+		})
+	}
+}
+
+func TestLoadBreezSDKLogLevel(t *testing.T) {
+	for _, contents := range []string{
+		`{"backend":{}}`,
+		`{"backend":{"breezSDKLogLevel":""}}`,
+		`{"backend":{"breezSDKLogLevel":"warn,spark=trace"}}`,
+	} {
+		t.Run(contents, func(t *testing.T) {
+			dir := t.TempDir()
+			appFile := filepath.Join(dir, "app.json")
+			require.NoError(t, os.WriteFile(appFile, []byte(contents), 0600))
+			cfg, err := NewConfig(appFile, filepath.Join(dir, "accounts.json"), filepath.Join(dir, "lightning.json"))
+			require.NoError(t, err)
+			require.Equal(t, "warn", cfg.AppConfig().Backend.BreezSDKLogLevel)
+		})
+	}
 }
 
 func TestModifyAccountsConfig(t *testing.T) {

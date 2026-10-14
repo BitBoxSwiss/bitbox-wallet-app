@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Lightning: default Breez SDK logs to warnings and add a log level selector in settings
 - Mobile: add copy and open actions when touching and holding transaction explorer links, without loading a preview on iOS
 - Lightning: preserve invoice details when going back to edit an invoice
 - Rename "Factory reset" to "Delete wallet from BitBox" (settings)
