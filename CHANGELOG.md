@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add option for percentage on portfolio to reflect performance
 - Mobile: add copy and open actions when touching and holding transaction explorer links, without loading a preview on iOS
 - Lightning: preserve invoice details when going back to edit an invoice
 - Rename "Factory reset" to "Delete wallet from BitBox" (settings)
@@ -34,7 +35,6 @@
 - Enable Tether USDT for BTC Direct
 - Allow users to upgrade firmware during setup
 - Ethereum: improve QR code scanning and fix ERC20 QR payment requests
-- Add option for percentage on portfolio to reflect performance
 
 ## v4.51.4
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.26.5
