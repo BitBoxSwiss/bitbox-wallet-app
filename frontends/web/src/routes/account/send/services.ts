@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { alertUser } from '@/components/alert/Alert';
+import type { TTxProposalErrorCode } from '@/api/account';
 import { i18n } from '@/i18n/i18n';
 
 export type TProposalError = {
@@ -9,7 +10,10 @@ export type TProposalError = {
   feeError?: string;
 };
 
-export const txProposalErrorHandling = (errorCode?: string): TProposalError => {
+export const txProposalErrorHandling = (
+  errorCode?: TTxProposalErrorCode,
+  errorMessage?: string,
+): TProposalError => {
   const { t } = i18n;
   switch (errorCode) {
   case 'invalidAddress':
@@ -20,10 +24,12 @@ export const txProposalErrorHandling = (errorCode?: string): TProposalError => {
   case 'feeTooLow':
   case 'feesNotAvailable':
     return { feeError: t(`send.error.${errorCode}`) };
-  default:
-    if (errorCode) {
-      alertUser(errorCode);
+  default: {
+    const message = errorMessage || errorCode;
+    if (message) {
+      alertUser(message);
     }
     return {};
+  }
   }
 };

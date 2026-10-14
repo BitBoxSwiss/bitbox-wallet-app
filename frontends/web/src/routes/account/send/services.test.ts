@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { i18n as interfacei18n } from 'i18next';
 import { txProposalErrorHandling } from './services';
 import { alertUser } from '@/components/alert/Alert';
@@ -25,6 +25,7 @@ vi.mock('@/components/alert/Alert', () => ({
 
 describe('send services', () => {
   describe('txProposalErrorHandling', () => {
+    beforeEach(() => vi.clearAllMocks());
 
     it('returns invalid address message on invalidAddress error', () => {
       const result = txProposalErrorHandling('invalidAddress');
@@ -51,10 +52,34 @@ describe('send services', () => {
       expect(result).toEqual({ feeError: 'send.error.feesNotAvailable' });
     });
 
-    it('returns proposed fee undefined and alerts the user when error is unknown', () => {
-      const result = txProposalErrorHandling('unknownError');
-      expect(result).toEqual({ proposedFee: undefined });
-      expect(alertUser).toHaveBeenCalledWith('unknownError');
+    it('alerts the user with the backend error message', () => {
+      const result = txProposalErrorHandling(undefined, 'Failed to create transaction proposal');
+      expect(result).toEqual({});
+      expect(alertUser).toHaveBeenCalledWith('Failed to create transaction proposal');
+    });
+
+    it('does not interpret an error message as a validation code', () => {
+      const result = txProposalErrorHandling(undefined, 'invalidAddress');
+      expect(result).toEqual({});
+      expect(alertUser).toHaveBeenCalledWith('invalidAddress');
+    });
+
+    it('uses the translated validation error when a backend message is also provided', () => {
+      const result = txProposalErrorHandling('invalidAddress', 'Backend error details');
+      expect(result).toEqual({ addressError: 'send.error.invalidAddress' });
+      expect(alertUser).not.toHaveBeenCalled();
+    });
+
+    it('falls back to the error code when no message is provided', () => {
+      const result = txProposalErrorHandling('accountNotSynced');
+      expect(result).toEqual({});
+      expect(alertUser).toHaveBeenCalledWith('accountNotSynced');
+    });
+
+    it('prefers the backend message for an unhandled error code', () => {
+      const result = txProposalErrorHandling('accountNotSynced', 'Account is not synced');
+      expect(result).toEqual({});
+      expect(alertUser).toHaveBeenCalledWith('Account is not synced');
     });
 
   });
