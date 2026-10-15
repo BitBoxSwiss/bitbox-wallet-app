@@ -58,6 +58,7 @@
   },
   "scripts": {
     "check-licenses": "node ./scripts/check-licenses.mjs",
+    "generate-licenses": "node ./scripts/generate-licenses.mjs",
     "dev": "npm run start",
     "start": "vite --cors",
     "build": "npm run typescript && vite build",
