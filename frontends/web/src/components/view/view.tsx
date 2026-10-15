@@ -72,7 +72,7 @@ export const View = ({
     ...(width && { width }),
   };
   return (
-    <div className={containerClasses}>
+    <div className={containerClasses} data-window-no-drag-overlay={dialog || undefined}>
       <div
         className={classNames}
         style={inlineStyles}>

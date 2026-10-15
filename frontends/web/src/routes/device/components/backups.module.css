@@ -33,6 +33,7 @@
     max-height: 45vh;
     overflow-x: hidden;
     overflow-y: scroll;
+    scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
     padding-bottom: var(--space-half);
     position: relative;
     width: 100%;

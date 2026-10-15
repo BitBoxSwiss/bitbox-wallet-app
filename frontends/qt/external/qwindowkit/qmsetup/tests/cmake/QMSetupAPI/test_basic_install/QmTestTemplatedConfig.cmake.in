@@ -1,0 +1,5 @@
+@PACKAGE_INIT@
+
+# A marker, so that a test can tell this template from the one generated when
+# no template is given.
+set(QMTEST_CAME_FROM_A_TEMPLATE on)
