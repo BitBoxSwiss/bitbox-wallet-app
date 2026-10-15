@@ -117,3 +117,7 @@
         }
     }
 }
+
+:global(body[data-desktop-csd]) {
+    --sidebar-width-large: max(var(--sidebar-width-min), calc(var(--desktop-controls-left, 0px) + var(--space-default) + var(--sidebar-logo-width) + var(--space-half)));
+}
