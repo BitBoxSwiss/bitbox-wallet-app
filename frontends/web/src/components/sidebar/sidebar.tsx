@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useKeystores } from '@/hooks/backend';
@@ -17,6 +17,7 @@ import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms';
 import { NewBadge } from '@/components/new-badge/new-badge';
+import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
 import { ConnectedKeystore } from '../keystore/connected-keystore';
 import style from './sidebar.module.css';
 
@@ -73,6 +74,10 @@ const eject = (e: React.SyntheticEvent): void => {
   e.preventDefault();
 };
 
+const SidebarScroll = ({ enabled, children }: { enabled: boolean; children: ReactNode }) => (
+  enabled ? <div className={style.sidebarScroll} data-window-sidebar-scroll data-window-scroll>{children}</div> : <>{children}</>
+);
+
 const Sidebar = ({
   devices,
   accounts,
@@ -81,6 +86,7 @@ const Sidebar = ({
   const { pathname } = useLocation();
   const [ canUpgrade, setCanUpgrade ] = useState(false);
   const { activeSidebar, toggleSidebar } = useContext(AppContext);
+  const desktopChrome = useDesktopChrome();
   const { lightningAccount } = useLightning();
   const hasPortfolio = accounts.length > 0 || !!lightningAccount;
 
@@ -125,126 +131,136 @@ const Sidebar = ({
 
   return (
     <div className={style.sidebarContainer}>
-      <div key="overlay" className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
-      <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')}>
-        <div key="app-logo" className={style.sidebarLogoContainer}>
-          <Link
-            to={homePath}
-            onClick={handleSidebarItemClick}>
-            <AppLogoInverted className={style.sidebarLogo} />
-          </Link>
+      <div key="overlay" className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}
+        data-window-frame-surface data-window-dismiss-overlay={activeSidebar || undefined}></div>
+      <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')} data-window-sidebar
+        data-window-frame-surface data-window-frame-panel data-window-frame-foreground="white">
+        <div key="app-logo" className={style.sidebarLogoContainer} data-window-titlebar data-window-logo data-window-frame-surface data-window-frame-foreground="white">
+          {desktopChrome?.csd ? (
+            <div className={style.desktopLogo}>
+              <AppLogoInverted className={style.sidebarLogo} />
+            </div>
+          ) : (
+            <Link
+              to={homePath}
+              onClick={handleSidebarItemClick}>
+              <AppLogoInverted className={style.sidebarLogo} />
+            </Link>
+          )}
           <button className={style.closeButton} onClick={toggleSidebar}>
             <CloseXWhite />
           </button>
         </div>
 
-        { hasPortfolio ? (
-          <div
-            key="account-summary"
-            className={`${style.sidebarItem || ''} ${style.sidebarPortfolio || ''}`}
-          >
-            <NavLink
-              className={({ isActive }) => isActive ? style.sidebarActive : ''}
-              to={'/account-summary'}
-              title={t('accountSummary.title')}
-              onClick={handleSidebarItemClick}>
-              <div className={style.single}>
-                <Linechart />
-              </div>
-              <span className={style.sidebarLabel}>{t('accountSummary.title')}</span>
-            </NavLink>
-          </div>
-        ) : null }
-
-        {lightningAccount && (
-          <GetLightningLink key="lightning" handleSidebarItemClick={handleSidebarItemClick} />
-        )}
-
-        <div data-testid="sidebar-keystores">
-          { accountsByKeystore.map(keystore => (
-            <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
-              <div className={style.sidebarHeaderContainer}>
-                <ConnectedKeystore
-                  accountsByKeystore={accountsByKeystore}
-                  className={style.sidebarHeader}
-                  keystore={keystore.keystore}
-                  connectedIconOnly={true}
-                />
-              </div>
-              { keystore.accounts.map(acc => (
-                <GetAccountLink key={`account-${acc.code}`} {...acc} handleSidebarItemClick={handleSidebarItemClick} />
-              ))}
-            </div>
-          )) }
-        </div>
-
-        <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
-        { accounts.length ? (
-          <>
-            <div key="market" className={style.sidebarItem}>
+        <SidebarScroll enabled={!!desktopChrome?.csd}>
+          { hasPortfolio ? (
+            <div
+              key="account-summary"
+              className={`${style.sidebarItem || ''} ${style.sidebarPortfolio || ''}`}
+            >
               <NavLink
-                className={({ isActive }) => isActive || inMarketSection ? style.sidebarActive : ''}
-                to="/market/select">
+                className={({ isActive }) => isActive ? style.sidebarActive : ''}
+                to={'/account-summary'}
+                title={t('accountSummary.title')}
+                onClick={handleSidebarItemClick}>
                 <div className={style.single}>
-                  <Coins />
+                  <Linechart />
                 </div>
-                <span className={`${style.sidebarLabel || ''} ${style.marketplaceLabel || ''}`}>
-                  {t('generic.buySell')}
-                  <NewBadge
-                    className={style.marketplaceNudgeDot}
-                    configKey="hasSeenMarketplaceNudge"
-                    hideOnPathPrefix="/market/"
-                    pathname={pathname}
-                    type="dot"
-                  />
-                </span>
+                <span className={style.sidebarLabel}>{t('accountSummary.title')}</span>
               </NavLink>
             </div>
-          </>
-        ) : null }
+          ) : null }
 
-        <div key="settings" className={style.sidebarItem}>
-          <NavLink
-            className={({ isActive }) => isActive ? style.sidebarActive : ''}
-            to={'/settings'}
-            title={t('sidebar.settings')}
-            onClick={handleSidebarItemClick}>
-            <div className={style.single}>
-              <CogLight alt={t('sidebar.settings')} />
+          {lightningAccount && (
+            <GetLightningLink key="lightning" handleSidebarItemClick={handleSidebarItemClick} />
+          )}
+
+          <div data-testid="sidebar-keystores">
+            { accountsByKeystore.map(keystore => (
+              <div key={`keystore-${keystore.keystore.rootFingerprint}`}>
+                <div className={style.sidebarHeaderContainer}>
+                  <ConnectedKeystore
+                    accountsByKeystore={accountsByKeystore}
+                    className={style.sidebarHeader}
+                    keystore={keystore.keystore}
+                    connectedIconOnly={true}
+                  />
+                </div>
+                { keystore.accounts.map(acc => (
+                  <GetAccountLink key={`account-${acc.code}`} {...acc} handleSidebarItemClick={handleSidebarItemClick} />
+                ))}
+              </div>
+            )) }
+          </div>
+
+          <div key="services" className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
+          { accounts.length ? (
+            <>
+              <div key="market" className={style.sidebarItem}>
+                <NavLink
+                  className={({ isActive }) => isActive || inMarketSection ? style.sidebarActive : ''}
+                  to="/market/select">
+                  <div className={style.single}>
+                    <Coins />
+                  </div>
+                  <span className={`${style.sidebarLabel || ''} ${style.marketplaceLabel || ''}`}>
+                    {t('generic.buySell')}
+                    <NewBadge
+                      className={style.marketplaceNudgeDot}
+                      configKey="hasSeenMarketplaceNudge"
+                      hideOnPathPrefix="/market/"
+                      pathname={pathname}
+                      type="dot"
+                    />
+                  </span>
+                </NavLink>
+              </div>
+            </>
+          ) : null }
+
+          <div key="settings" className={style.sidebarItem}>
+            <NavLink
+              className={({ isActive }) => isActive ? style.sidebarActive : ''}
+              to={'/settings'}
+              title={t('sidebar.settings')}
+              onClick={handleSidebarItemClick}>
+              <div className={style.single}>
+                <CogLight alt={t('sidebar.settings')} />
+              </div>
+              <span className={style.sidebarLabel}>
+                {t('sidebar.settings')}
+                {canUpgrade && (
+                  <RedDot className={style.canUpgradeDot} width={8} height={8} />
+                )}
+              </span>
+            </NavLink>
+          </div>
+
+          { !keystores || keystores.length === 0 ? (
+            <div key="unlock-software-keystore" className={style.sidebarItem}>
+              <SkipForTesting className={style.closeSoftwareKeystore}>
+                <div className={style.single}>
+                  <Device />
+                </div>
+                <span className={style.sidebarLabel}>
+                  {t('testWallet.connect.title')}
+                </span>
+              </SkipForTesting>
             </div>
-            <span className={style.sidebarLabel}>
-              {t('sidebar.settings')}
-              {canUpgrade && (
-                <RedDot className={style.canUpgradeDot} width={8} height={8} />
-              )}
-            </span>
-          </NavLink>
-        </div>
-
-        { !keystores || keystores.length === 0 ? (
-          <div key="unlock-software-keystore" className={style.sidebarItem}>
-            <SkipForTesting className={style.closeSoftwareKeystore}>
-              <div className={style.single}>
-                <Device />
-              </div>
-              <span className={style.sidebarLabel}>
-                {t('testWallet.connect.title')}
-              </span>
-            </SkipForTesting>
-          </div>
-        ) : null }
-        {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
-          <div key="eject" className={style.sidebarItem}>
-            <Button transparent onClick={eject} className={style.closeSoftwareKeystore}>
-              <div className={style.single}>
-                <Eject alt={t('sidebar.leave')} />
-              </div>
-              <span className={style.sidebarLabel}>
-                {t('testWallet.disconnect.title')}
-              </span>
-            </Button>
-          </div>
-        )}
+          ) : null }
+          {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
+            <div key="eject" className={style.sidebarItem}>
+              <Button transparent onClick={eject} className={style.closeSoftwareKeystore}>
+                <div className={style.single}>
+                  <Eject alt={t('sidebar.leave')} />
+                </div>
+                <span className={style.sidebarLabel}>
+                  {t('testWallet.disconnect.title')}
+                </span>
+              </Button>
+            </div>
+          )}
+        </SidebarScroll>
       </nav>
     </div>
   );

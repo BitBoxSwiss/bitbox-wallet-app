@@ -49,9 +49,26 @@
     z-index: 4002;
 }
 
-.sidebar > *.end {
+.sidebar .end {
     margin-top: auto;
     padding-top: var(--sidebar-margin);
+}
+
+:global(body[data-desktop-csd]) .sidebar {
+    --desktop-scroll-background: var(--background-dark);
+    overflow: hidden;
+    min-height: 0;
+    padding-bottom: 0;
+}
+
+.sidebarScroll {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
+    padding-bottom: calc(var(--space-half) + env(safe-area-inset-bottom));
 }
 
 .sidebar.forceShow {
@@ -76,6 +93,31 @@
     margin-bottom: 0;
     width: auto !important;
     height: var(--sidebar-icon-size) !important;
+}
+
+:global(body[data-desktop-csd]) .sidebarLogoContainer {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    flex-shrink: 0;
+    background-color: color-mix(in srgb, black 10%, var(--background-dark));
+    padding-left: calc(var(--space-default) + var(--desktop-controls-left, 0px));
+    padding-right: var(--space-half);
+}
+
+:global(body[data-desktop-csd]) .desktopLogo {
+    flex: 0 0 var(--sidebar-logo-width);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: default;
+}
+
+:global(body[data-desktop-csd]) .sidebarLogoContainer img {
+    max-width: none;
+    height: var(--sidebar-icon-size) !important;
+    display: block;
+    margin: 0;
 }
 
 .sidebarHeaderContainer {

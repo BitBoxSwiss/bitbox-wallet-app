@@ -97,8 +97,8 @@ export const Header = ({
       ${style.container || ''}
       ${variant === 'page' && style.page || ''}
       ${variant === 'fullscreen' && style.fullscreen || ''}
-    `}>
-      <div className={style.header}>
+    `} data-window-header>
+      <div className={style.header} data-window-titlebar data-window-frame-surface>
         {variant !== 'fullscreen' && (
           <div
             className={`
@@ -107,6 +107,7 @@ export const Header = ({
               ${hideSidebarToggler && style.hideSidebarToggler || ''}
             `}
             onClick={toggleSidebar}
+            data-window-no-drag
           >
             <MenuDark className="show-in-lightmode" />
             <MenuLight className="show-in-darkmode" />

@@ -1,0 +1,78 @@
+name: GitHub Pages
+
+# Publishes the CMake reference to https://stdware.github.io/qmsetup
+#
+# Building it as a check belongs in ci.yml, which does it on every push and every pull request.
+# This one exists to publish, which is why it runs on main alone and asks for the permissions it
+# does.
+#
+# The repository needs Pages turned on with "GitHub Actions" as its source, under
+# Settings -> Pages, before the deploy step has anywhere to put the result.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time. A run already under way is left to finish rather than cancelled, so
+# that what ends up published is a complete build.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # stdcorelib, which qmcorecmd is built on. Nothing here builds it, but configuring the
+          # project reaches src/ before it reaches docs/, and that is where it is looked for.
+          submodules: recursive
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # The pages come out of the comments in cmake/, so nothing is needed here but Sphinx and
+      # the domain that reads a CMake bracket comment. No Qt, no protobuf, no compiler beyond
+      # what configuring wants, and Ninja from PyPI rather than from an Ubuntu archive that
+      # goes away often enough to matter.
+      - name: Install Ninja and Sphinx
+        run: python -m pip install ninja sphinx sphinxcontrib-moderncmakedomain
+
+      - name: Configure
+        run: >
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DQMSETUP_BUILD_DOCUMENTATIONS=ON
+
+      # The target alone. It is not part of all, and building the rest would compile qmcorecmd
+      # for nothing.
+      - name: Build documentation
+        run: cmake --build build --target qmsetup_docs
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/out/share/doc/qmsetup
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

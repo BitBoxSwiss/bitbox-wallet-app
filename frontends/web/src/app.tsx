@@ -26,6 +26,7 @@ import { useAppState } from './contexts/app-state-context';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
 import { getBottomNavKey } from './components/bottom-navigation/utils';
 import styles from './app.module.css';
+import { DesktopChrome } from './components/desktop-chrome/desktop-chrome';
 
 const AppFrame = () => {
 
@@ -104,6 +105,7 @@ export const App = () => {
   return (
     <ConnectedApp>
       <Providers>
+        <DesktopChrome />
         <AppNavigation />
         <AppNotifications />
         <AppFrame />
