@@ -17,6 +17,9 @@
 #include <QtMath>
 #include <cmath>
 #include <QWKWidgets/widgetwindowagent.h>
+#if defined(Q_OS_LINUX)
+#include "linuxdecorationpreferences.h"
+#endif
 
 namespace {
 bool supportsCsd() {
@@ -93,6 +96,10 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
     native_ = !supportsCsd() || settings.value("nativeDecorations", false).toBool() || qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
     setWindowTitle("BitBoxApp");
     setMouseTracking(true);
+#if defined(Q_OS_LINUX)
+    preferences_ = new LinuxDecorationPreferences(this);
+    connect(preferences_, &LinuxDecorationPreferences::colorSchemeChanged, this, [this] { emit stateChanged(); });
+#endif
     if (!native_) {
         agent_ = new QWK::WidgetWindowAgent(this);
         if (!agent_->setup(this)) {
@@ -127,6 +134,12 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
                 else toggleMaximize();
             });
         }
+#if defined(Q_OS_LINUX)
+        connect(preferences_, &LinuxDecorationPreferences::changed, this, [this] {
+            placeControls();
+            emit stateChanged();
+        });
+#endif
     }
     setMinimumSize(360, 375);
     resize(sizeHint());
@@ -157,6 +170,10 @@ QVariantMap DesktopWindow::state() const {
     QVariant systemDark;
     bool systemAppearanceReady = true;
     bool startupReady = true;
+#if defined(Q_OS_LINUX)
+    systemDark = preferences_->colorScheme() == 1;
+    systemAppearanceReady = preferences_->colorSchemeReady();
+#endif
     return {{"csd", !native_}, {"nativeDecorations", QSettings().value("nativeDecorations", false).toBool()},
             {"activeNativeDecorations", native_}, {"document", document_}, {"viewport", viewport_},
             {"systemDark", systemDark},
@@ -266,6 +283,13 @@ void DesktopWindow::placeControls() {
     const int controlY = body.y() + (chromeHeight - controlHeight) / 2;
     if (trafficLights_) trafficLights_->setGeometry(body.x() + 8, controlY, 80, controlHeight);
     QStringList left, right{"minimize", "maximize", "close"};
+#if defined(Q_OS_LINUX)
+    if (preferences_) {
+        left = preferences_->buttons().left;
+        right = preferences_->buttons().right;
+        if (windowHandle()) windowHandle()->setProperty("_qwk_title_double_click", preferences_->buttons().doubleClick);
+    }
+#endif
     for (auto *button : buttons_) {
         const auto action = static_cast<WindowButton *>(button)->action;
         if (isFullScreen() || (!left.contains(action) && !right.contains(action))) button->hide();

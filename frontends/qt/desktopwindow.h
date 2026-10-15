@@ -11,6 +11,7 @@
 class QWebEngineView;
 class QAbstractButton;
 namespace QWK { class WidgetWindowAgent; }
+class LinuxDecorationPreferences;
 
 class DesktopWindow final : public QWidget {
     Q_OBJECT
@@ -47,6 +48,7 @@ private:
     QWidget *trafficLights_ = nullptr;
     QVector<QWidget *> exclusions_;
     QVector<QAbstractButton *> buttons_;
+    LinuxDecorationPreferences *preferences_ = nullptr;
     bool native_ = false;
     bool syncFrame_ = false;
     QMargins shadowMargins_;
