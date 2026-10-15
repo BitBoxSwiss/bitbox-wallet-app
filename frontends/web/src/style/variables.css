@@ -89,12 +89,15 @@
     --font-family-monospace: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
     /* sidebar */
-    --sidebar-width-large: 250px;
+    --sidebar-width-min: 250px;
+    --sidebar-width-large: var(--sidebar-width-min);
     --sidebar-margin: 32px;
     --sidebar-item-height: 52px;
     --sidebar-icon-margin: 14px;
     --sidebar-icon-size: 24px;
     --sidebar-icon-size: min(2.4rem, 28px);
+    /* Intrinsic aspect ratio of app-logo-inverted.svg. */
+    --sidebar-logo-width: calc(var(--sidebar-icon-size) * 143.74 / 26.7);
 
     /* header */
     --header-height: 70px;

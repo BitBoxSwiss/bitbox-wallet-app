@@ -1,0 +1,192 @@
+{
+    "$comment": [
+        "What the deploy tests are, as data rather than as code.",
+        "",
+        "`trees`, `directories` and `artifacts` say what the fixture build",
+        "produced and where. They have to agree with fixtures/CMakeLists.txt,",
+        "and a test checks that they do rather than skipping quietly.",
+        "`scenarios` then gives a command line and the directory structure it",
+        "should leave behind.",
+        "",
+        "Artifacts are named by where they sit, `sdk_lib` or `app_plugin`, never",
+        "by file name, because that is `qmtest_sdk_lib.dll` on one platform and",
+        "`libqmtest_sdk_lib.so` on another. The test resolves them.",
+        "",
+        "In `args`, `{sdk_lib}` is an artifact's path and `{dir.sdk_bin}` is one",
+        "of the directories below. In `expect`, a directory maps to exactly the",
+        "artifacts that must be in it. Exactly, so an unexpected file is a",
+        "failure too, and `[]` means empty or absent.",
+        "",
+        "The shape is a program installed beside an SDK it uses. Read the SDK",
+        "as Qt. The binaries that belong to the program are named on",
+        "the command line and stay where they are; what they need is found and",
+        "copied to `-o`. The SDK's plugins are linked by nothing, so no",
+        "amount of following the graph reaches them, and they are named with",
+        "`-c` instead, which says where each one goes.",
+        "",
+        "Every line passes `-L` for the SDK's directory, which is what",
+        "Windows needs. Unix resolves it through the rpath the fixtures were",
+        "built with and would manage without.",
+        "",
+        "Every line that copies also passes `-s`. Windows never deploys a",
+        "system library, but on Unix nothing is filtered until `-s` says so,",
+        "and a deployment without it drags the C library along. Saying `-s`",
+        "here keeps these scenarios about the graph rather than about that",
+        "difference, which the Unix tests cover on its own."
+    ],
+
+    "trees": ["app", "sdk"],
+
+    "directories": {
+        "app_bin": "app/bin",
+        "app_plugins": "app/lib/plugins",
+        "app_sdk_plugins": "app/lib/sdk/plugins",
+        "sdk_bin": "sdk/bin",
+        "sdk_plugins": "sdk/lib/plugins"
+    },
+
+    "artifacts": {
+        "app_exe": {"kind": "application", "directory": "app_bin"},
+        "app_lib": {"kind": "library", "directory": "app_bin"},
+        "app_leaf": {"kind": "library", "directory": "app_bin"},
+        "app_plugin": {"kind": "plugin", "directory": "app_plugins"},
+        "app_plugin_sdk": {"kind": "plugin", "directory": "app_plugins"},
+
+        "sdk_lib": {"kind": "library", "directory": "sdk_bin"},
+        "sdk_leaf": {"kind": "library", "directory": "sdk_bin"},
+        "sdk_alone": {"kind": "library", "directory": "sdk_bin"},
+        "sdk_plugin": {"kind": "plugin", "directory": "sdk_plugins"},
+        "sdk_plugin_alone": {"kind": "plugin", "directory": "sdk_plugins"}
+    },
+
+    "scenarios": [
+        {
+            "name": "a program and the framework's plugins",
+            "why": "The whole job at once. The program's own binaries are named and stay where they are. sdk_lib and sdk_leaf arrive because app_lib links sdk_lib and sdk_lib links sdk_leaf. sdk_alone arrives only because sdk_plugin_alone was named, since nothing in the program reaches it. Both SDK plugins land where -c put them, and the SDK's own tree is left as it was.",
+            "args": [
+                "deploy", "{app_exe}", "{app_lib}", "{app_leaf}", "{app_plugin}", "{app_plugin_sdk}",
+                "-c", "{sdk_plugin}", "{dir.app_sdk_plugins}",
+                "-c", "{sdk_plugin_alone}", "{dir.app_sdk_plugins}",
+                "-L", "{dir.sdk_bin}",
+                "-o", "{dir.app_bin}",
+                "-s"
+            ],
+            "expect": {
+                "app/bin": ["app_exe", "app_lib", "app_leaf", "sdk_lib", "sdk_leaf", "sdk_alone"],
+                "app/lib/plugins": ["app_plugin", "app_plugin_sdk"],
+                "app/lib/sdk/plugins": ["sdk_plugin", "sdk_plugin_alone"],
+                "sdk/bin": ["sdk_lib", "sdk_leaf", "sdk_alone"],
+                "sdk/lib/plugins": ["sdk_plugin", "sdk_plugin_alone"]
+            }
+        },
+        {
+            "name": "a program without the framework's plugins",
+            "why": "Naming no plugin leaves sdk_alone behind, because following the graph from the program never arrives at it. sdk_lib and sdk_leaf still come, since the program links them.",
+            "args": [
+                "deploy", "{app_exe}", "{app_lib}", "{app_leaf}", "{app_plugin}", "{app_plugin_sdk}",
+                "-L", "{dir.sdk_bin}", "-o", "{dir.app_bin}", "-s"
+            ],
+            "expect": {
+                "app/bin": ["app_exe", "app_lib", "app_leaf", "sdk_lib", "sdk_leaf"],
+                "app/lib/sdk/plugins": []
+            }
+        },
+        {
+            "name": "one framework plugin, the one that needs nothing new",
+            "why": "sdk_plugin wants sdk_lib, which the program already brought, so the only thing that is new is the plugin itself.",
+            "args": [
+                "deploy", "{app_exe}", "{app_lib}", "{app_leaf}", "{app_plugin}", "{app_plugin_sdk}",
+                "-c", "{sdk_plugin}", "{dir.app_sdk_plugins}",
+                "-L", "{dir.sdk_bin}", "-o", "{dir.app_bin}", "-s"
+            ],
+            "expect": {
+                "app/bin": ["app_exe", "app_lib", "app_leaf", "sdk_lib", "sdk_leaf"],
+                "app/lib/sdk/plugins": ["sdk_plugin"]
+            }
+        },
+        {
+            "name": "one framework plugin, the one that brings a library with it",
+            "why": "This is what plugin deployment is for. sdk_alone is in nobody's dependency graph, and naming sdk_plugin_alone is the only thing that brings it.",
+            "args": [
+                "deploy", "{app_exe}", "{app_lib}", "{app_leaf}", "{app_plugin}", "{app_plugin_sdk}",
+                "-c", "{sdk_plugin_alone}", "{dir.app_sdk_plugins}",
+                "-L", "{dir.sdk_bin}", "-o", "{dir.app_bin}", "-s"
+            ],
+            "expect": {
+                "app/bin": ["app_exe", "app_lib", "app_leaf", "sdk_lib", "sdk_leaf", "sdk_alone"],
+                "app/lib/sdk/plugins": ["sdk_plugin_alone"]
+            }
+        },
+        {
+            "name": "the application alone, without its own libraries named",
+            "why": "app_lib sits beside the application, so it is found without being named, and copying it over itself is passed over rather than being an error. What lies behind it still arrives.",
+            "args": [
+                "deploy", "{app_exe}",
+                "-L", "{dir.sdk_bin}", "-o", "{dir.app_bin}", "-s"
+            ],
+            "expect": {
+                "app/bin": ["app_exe", "app_lib", "app_leaf", "sdk_lib", "sdk_leaf"]
+            }
+        },
+        {
+            "name": "a plugin of the program's own",
+            "why": "app_plugin_sdk reaches into the SDK directly rather than through the program, and deploying it alone still gathers what it needs into the program's bin.",
+            "args": [
+                "deploy", "{app_plugin_sdk}",
+                "-L", "{dir.sdk_bin}", "-o", "{dir.app_bin}", "-s"
+            ],
+            "expect": {
+                "app/bin": ["app_exe", "app_lib", "app_leaf", "sdk_lib", "sdk_leaf"],
+                "app/lib/plugins": ["app_plugin", "app_plugin_sdk"]
+            }
+        },
+        {
+            "name": "excluding a library drops what lies behind it",
+            "why": "sdk_leaf is reachable only through sdk_lib, so refusing sdk_lib hides sdk_leaf as well. An excluded library is never opened, and what only it asked for is never found. This is why the resolver has to read a binary's own dependencies rather than the flattened closure a loader would report, and every platform is held to it.",
+            "args": [
+                "deploy", "{app_exe}", "{app_lib}", "{app_leaf}",
+                "-L", "{dir.sdk_bin}", "-o", "{dir.app_bin}", "-s",
+                "-e", "sdk_lib"
+            ],
+            "expect": {
+                "app/bin": ["app_exe", "app_lib", "app_leaf"]
+            }
+        },
+        {
+            "name": "deploying twice leaves the same thing",
+            "why": "A second run has nothing to do, and must not undo or duplicate the first.",
+            "args": [
+                "deploy", "{app_exe}", "{app_lib}", "{app_leaf}", "{app_plugin}", "{app_plugin_sdk}",
+                "-c", "{sdk_plugin}", "{dir.app_sdk_plugins}",
+                "-L", "{dir.sdk_bin}", "-o", "{dir.app_bin}", "-s"
+            ],
+            "repeat": 2,
+            "expect": {
+                "app/bin": ["app_exe", "app_lib", "app_leaf", "sdk_lib", "sdk_leaf"],
+                "app/lib/sdk/plugins": ["sdk_plugin"]
+            }
+        },
+        {
+            "name": "a dry run writes nothing",
+            "why": "--dryrun resolves everything and touches nothing, plugins included.",
+            "args": [
+                "deploy", "{app_exe}", "{app_lib}", "{app_leaf}", "{app_plugin}", "{app_plugin_sdk}",
+                "-c", "{sdk_plugin_alone}", "{dir.app_sdk_plugins}",
+                "-L", "{dir.sdk_bin}", "-o", "{dir.app_bin}", "-s", "-d"
+            ],
+            "resolves": ["sdk_lib", "sdk_leaf", "sdk_alone"],
+            "unchanged": true,
+            "expect": {
+                "app/bin": ["app_exe", "app_lib", "app_leaf"],
+                "app/lib/sdk/plugins": []
+            }
+        },
+        {
+            "name": "a binary that is not there is refused",
+            "why": "And nothing is written on the way to finding out.",
+            "args": ["deploy", "no_such_binary", "-o", "{dir.app_bin}"],
+            "exit": "fail",
+            "unchanged": true
+        }
+    ]
+}

@@ -1,5 +1,6 @@
 .table {
   overflow: auto;
+  scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
 }
 
 .table table {
