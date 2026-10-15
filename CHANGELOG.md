@@ -20,6 +20,7 @@
 - Find setting items by descriptions and show description also on mobile
 - Lightning: add custom transaction notes, including notes import and export
 - Bitrefill: Add support for paying with Lightning wallet
+- WalletConnect: use standard host-based origin in Qt to fix WalletConnect pairings on desktop
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1
