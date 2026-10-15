@@ -93,11 +93,18 @@ public class PriceWidgetLayoutTest {
     }
 
     @Test
-    public void unavailableTextFitsWithLargeFonts() throws Exception {
-        View view = render(context(Locale.US, 2), new JSONObject("{\"coinCode\":\"btc\",\"currency\":\"USD\"}"), 250);
-        assertFits(view.findViewById(R.id.widget_pair));
-        assertFits(view.findViewById(R.id.widget_unavailable));
-        assertEquals(View.INVISIBLE, view.findViewById(R.id.widget_updated_at).getVisibility());
+    public void loadingAndUnavailableTextFitWithLargeFonts() throws Exception {
+        Context context = context(Locale.US, 2);
+        for (boolean loading : new boolean[]{false, true}) {
+            JSONObject state = new JSONObject("{\"coinCode\":\"btc\",\"currency\":\"USD\"}").put("loading", loading);
+            View view = render(context, state, 250);
+            assertFits(view.findViewById(R.id.widget_pair));
+            TextView message = view.findViewById(R.id.widget_unavailable);
+            assertFits(message);
+            assertEquals(context.getString(loading ? R.string.price_widget_loading : R.string.price_widget_unavailable),
+                    message.getText().toString());
+            assertEquals(View.INVISIBLE, view.findViewById(R.id.widget_updated_at).getVisibility());
+        }
     }
 
     @Test

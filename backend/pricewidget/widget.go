@@ -7,7 +7,6 @@ import (
 	"context"
 	"math"
 	"net/http"
-	"os"
 	"path/filepath"
 	"slices"
 	"sync"
@@ -41,18 +40,10 @@ type record struct {
 	Timestamp time.Time        `json:"timestamp"`
 }
 
-type settings struct {
-	Backend struct {
-		MainFiat string `json:"mainFiat"`
-		Proxy    struct {
-			UseProxy     bool   `json:"useProxy"`
-			ProxyAddress string `json:"proxyAddress"`
-		} `json:"proxy"`
-	} `json:"backend"`
-}
-
 // Service manages a separate widget cache; it never writes wallet settings or accounts.
 type Service struct {
+	settingsMu   sync.Mutex
+	settings     map[string]widgetSettings
 	cacheMu      sync.Mutex
 	cache        map[string]record
 	nextRefresh  uint64
@@ -63,7 +54,8 @@ type Service struct {
 
 // New creates the widget data service.
 func New() *Service {
-	return &Service{cache: make(map[string]record), savedRefresh: make(map[string]uint64),
+	return &Service{settings: make(map[string]widgetSettings),
+		cache: make(map[string]record), savedRefresh: make(map[string]uint64),
 		now: time.Now, fetch: rates.FetchWidgetData}
 }
 
@@ -78,23 +70,21 @@ func (service *Service) LoadContext(ctx context.Context, dataDir string, index i
 	if err := ctx.Err(); err != nil {
 		return State{}, err
 	}
-	var preferences settings
-	if err := readOptional(dataDir, "config.json", &preferences); err != nil {
-		return State{}, err
-	}
-	coins, err := activeCoins(dataDir)
-	if err != nil {
-		return State{}, err
+	preferences, synced, canFetch := service.syncSettings(dataDir)
+	coins := slices.Clone(synced.Coins)
+	if len(coins) == 0 {
+		coins = []string{"btc"}
 	}
 	selected := index % len(coins)
 	if selected < 0 {
 		selected += len(coins)
 	}
 	coin := coins[selected]
-	currency := rates.WidgetCurrency(preferences.Backend.MainFiat)
-	state := State{SelectedIndex: selected, CoinCode: coin, Currency: currency, Coins: coins, Chart: []float64{}}
+	currency := rates.WidgetCurrency(synced.Currency)
+	state := State{SelectedIndex: selected, CoinCode: coin, Currency: currency, Coins: coins,
+		Chart: []float64{}, Retry: fetch && !canFetch}
 	cached := service.cached(dataDir, coin, currency)
-	if fetch && (force || cached == nil) {
+	if fetch && canFetch && (force || cached == nil) {
 		refresh := service.startRefresh()
 		proxy := socksproxy.NewSocksProxy(preferences.Backend.Proxy.UseProxy, preferences.Backend.Proxy.ProxyAddress)
 		client, fetchErr := proxy.GetHTTPClient()
@@ -130,14 +120,6 @@ func (service *Service) LoadContext(ctx context.Context, dataDir string, index i
 	return state, nil
 }
 
-func readOptional(dir, name string, result interface{}) error {
-	err := config.NewFile(dir, name).ReadJSON(result)
-	if os.IsNotExist(err) {
-		return nil
-	}
-	return err
-}
-
 func activeCoins(dataDir string) ([]string, error) {
 	var accounts struct {
 		Accounts []struct {
@@ -146,7 +128,7 @@ func activeCoins(dataDir string) ([]string, error) {
 			HiddenBecauseUnused bool   `json:"hiddenBecauseUnused"`
 		} `json:"accounts"`
 	}
-	if err := readOptional(dataDir, "accounts.json", &accounts); err != nil {
+	if err := config.NewFile(dataDir, "accounts.json").ReadJSON(&accounts); err != nil {
 		return nil, err
 	}
 	var coins []string
