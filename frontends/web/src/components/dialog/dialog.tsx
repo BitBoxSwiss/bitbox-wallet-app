@@ -7,6 +7,7 @@ import { useEsc, useFocusTrap } from '@/hooks/keyboard';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { MobileDialog } from './mobile-dialog';
 import style from './dialog.module.css';
+import { notifyChromeLayout } from '@/utils/desktop-chrome';
 
 type TDialogContainerProps = {
   centered?: boolean;
@@ -95,6 +96,9 @@ export const Dialog = ({
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isMobile = useMediaQuery('(max-width: 768px)');
+  useEffect(() => {
+    notifyChromeLayout();
+  }, [isVisible, status]);
 
   useFocusTrap(modalRef, status === 'open');
 
@@ -215,6 +219,7 @@ export const Dialog = ({
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       className={overlayClass}
+      data-window-no-drag-overlay
     >
       <UseBackButton handler={handleBackButton} />
       {isMobile ? (

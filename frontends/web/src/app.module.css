@@ -1,3 +1,9 @@
+@property --desktop-scrollbar-visibility {
+    syntax: '<percentage>';
+    inherits: true;
+    initial-value: 10%;
+}
+
 .appContent {
     display: flex;
     flex: 1;
@@ -8,6 +14,122 @@
     padding-top: env(safe-area-inset-top, 0);
     padding-left: env(safe-area-inset-left, 0);
     padding-right: env(safe-area-inset-right, 0);
+}
+
+:global(html[data-desktop-csd]),
+:global(body[data-desktop-csd]) {
+    background-color: transparent;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+:global(body[data-desktop-csd]) {
+    /* Composite content and outline through one rounded alpha mask. The native
+       shadow stays outside this web surface and is painted independently. */
+    border-radius: var(--desktop-window-radius, 12px);
+    mask-image: linear-gradient(#000, #000);
+    mask-mode: alpha;
+    mask-clip: border-box;
+    mask-repeat: no-repeat;
+    mask-size: 100% 100%;
+}
+
+:global(body[data-desktop-csd] #root) {
+    height: 100%;
+    width: 100%;
+}
+
+:global(body[data-desktop-csd])::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    box-shadow: inset 0 0 0 1px var(--desktop-window-outline);
+    border-radius: var(--desktop-window-radius, 12px);
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 2147483647;
+}
+
+:global(body[data-desktop-csd] .app) {
+    background-color: var(--background);
+    overflow: hidden;
+    height: 100%;
+    min-height: 0;
+}
+
+:global(body[data-desktop-csd]) {
+    --sidebar-width-large: max(var(--sidebar-width-min), calc(var(--desktop-controls-left, 0px) + var(--space-default) + var(--sidebar-logo-width) + var(--space-half)));
+    --desktop-scrollbar-gutter: stable;
+    --desktop-window-outline: rgba(0, 0, 0, 0.05);
+    --desktop-caption-separator: rgba(0, 0, 0, 0.05);
+}
+
+:global(body.dark-mode[data-desktop-csd]) {
+    --desktop-window-outline: rgba(255, 255, 255, 0.05);
+    --desktop-caption-separator: rgba(255, 255, 255, 0.05);
+}
+
+:global(body[data-desktop-csd][data-desktop-edge-to-edge])::after {
+    display: none;
+}
+
+:global(body[data-desktop-csd] [data-window-titlebar][data-window-scrolled]) {
+    box-shadow: inset 0 -1px 0 var(--desktop-caption-separator);
+}
+
+:global(body[data-desktop-csd]:is(.os-linux, .os-windows) [data-window-scroll]) {
+    --desktop-scrollbar-visibility: 10%;
+    transition: --desktop-scrollbar-visibility 200ms ease;
+}
+
+:global(body[data-desktop-csd]:is(.os-linux, .os-windows) [data-window-scroll-active]) {
+    --desktop-scrollbar-visibility: 100%;
+}
+
+:global(body[data-desktop-csd]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar {
+    width: 16px;
+}
+
+:global(body[data-desktop-csd]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar-track:vertical {
+    margin-top: 4px;
+    margin-bottom: max(4px, var(--desktop-window-radius, 12px));
+}
+
+:global(body[data-desktop-csd]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar-thumb:vertical {
+    /* Keep the 4px thumb clear of the window resize band. */
+    border: 6px solid transparent;
+    border-radius: 8px;
+    background-clip: content-box;
+    background-color: color-mix(in srgb, var(--desktop-scrollbar-color, var(--color-secondary)) var(--desktop-scrollbar-visibility), transparent);
+}
+
+:global(body[data-desktop-csd]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar-thumb:vertical:hover,
+:global(body[data-desktop-csd]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar-thumb:vertical:active {
+    background-color: var(--desktop-scrollbar-color, var(--color-secondary));
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :global(body[data-desktop-csd]:is(.os-linux, .os-windows) [data-window-scroll]) {
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+    :global(body[data-desktop-csd]:is(.os-linux, .os-windows) [data-window-scroll]) {
+        --desktop-scrollbar-color: CanvasText;
+        --desktop-scrollbar-visibility: 100%;
+    }
+}
+
+:global(body[data-desktop-csd] [data-window-scroll-more])::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 16px;
+    background: linear-gradient(to bottom, transparent, var(--desktop-scroll-background, var(--background)));
+    pointer-events: none;
+    z-index: 1;
 }
 
 .tabTransition {

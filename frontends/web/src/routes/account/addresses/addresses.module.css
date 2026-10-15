@@ -85,6 +85,7 @@
   max-height: 60vh;
   overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
   padding-bottom: var(--space-half);
 }
 

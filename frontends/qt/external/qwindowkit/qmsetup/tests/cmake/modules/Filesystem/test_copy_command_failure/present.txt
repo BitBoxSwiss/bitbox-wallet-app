@@ -1,0 +1,1 @@
+This file makes file(INSTALL) parse the deliberately invalid extra argument.
