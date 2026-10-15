@@ -85,7 +85,7 @@ export const AuthRequired = () => {
   }
 
   return (
-    <div className={style.auth}>
+    <div className={style.auth} data-window-no-drag-overlay>
       <UseDisableBackButton/>
       <View
         fullscreen

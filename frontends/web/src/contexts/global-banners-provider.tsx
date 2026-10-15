@@ -18,6 +18,7 @@ export const GlobalBannersProvider = ({ children, devices }: TProps) => {
   const [container] = useState(() => {
     const element = document.createElement('div');
     element.className = style.container || '';
+    element.setAttribute('data-window-no-drag-overlay', '');
     return element;
   });
   const restore = useCallback(() => {

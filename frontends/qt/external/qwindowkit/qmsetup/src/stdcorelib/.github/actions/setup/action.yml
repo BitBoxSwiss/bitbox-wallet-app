@@ -1,0 +1,80 @@
+name: Set up the build
+description: Ninja, Boost.Test and the compiler environment, so that a job only has to run cmake.
+
+runs:
+  using: composite
+  steps:
+    - name: Ninja and Boost.Test (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build libboost-test-dev
+
+    - name: Ninja and Boost.Test (macOS)
+      if: runner.os == 'macOS'
+      shell: bash
+      run: brew install ninja boost
+
+    # Ninja is not on the Windows image, and there are two vcpkgs: the one Visual Studio bundles
+    # and the one on PATH. Deriving the root from the executable that will actually run the
+    # install is what keeps those from being different directories.
+    #
+    # It travels under our own name, not VCPKG_ROOT. vcvars sets VCPKG_ROOT to the copy Visual
+    # Studio bundles, so msvc-dev-cmd below would otherwise repoint it between the install and
+    # the configure, and Boost would land in one vcpkg while CMake was aimed at the other.
+    - name: Ninja and vcpkg (Windows)
+      id: vcpkg
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        choco install ninja -y --no-progress
+        root=$(cygpath -m "$(dirname "$(command -v vcpkg)")")
+        echo "vcpkg root: $root"
+        echo "STDC_VCPKG_ROOT=$root" >> "$GITHUB_ENV"
+        echo "VCPKG_DEFAULT_BINARY_CACHE=$RUNNER_TEMP\\vcpkg-archives" >> "$GITHUB_ENV"
+        mkdir -p "$RUNNER_TEMP/vcpkg-archives"
+        # The port versions come from whichever vcpkg the image shipped, so its commit is what
+        # decides whether a cached binary is still the right one.
+        echo "rev=$(git -C "$root" rev-parse --short HEAD 2>/dev/null || echo unknown)" \
+          >> "$GITHUB_OUTPUT"
+
+    # vcpkg's own binary cache, not a copy of installed/. Caching installed/ caches the state that
+    # says a package is present, so one incomplete save is replayed on every later run and vcpkg
+    # answers "already installed" for a tree that is not there. A binary cache only skips the
+    # compile: the install still runs, and still writes the whole tree.
+    - name: Cache vcpkg binaries (Windows)
+      if: runner.os == 'Windows'
+      uses: actions/cache@v4
+      with:
+        path: ${{ runner.temp }}/vcpkg-archives
+        key: vcpkg-boost-test-x64-windows-${{ steps.vcpkg.outputs.rev }}
+        restore-keys: vcpkg-boost-test-x64-windows-
+
+    - name: Boost.Test (Windows)
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        vcpkg install boost-test:x64-windows
+        # find_package(Boost CONFIG) turns on exactly one file, which the boost-cmake port brings
+        # in as a dependency of boost-test. Saying whether it arrived makes a failure downstream
+        # one question rather than two.
+        config="$STDC_VCPKG_ROOT/installed/x64-windows/share/boost/BoostConfig.cmake"
+        ls -l "$config" || { echo "missing: $config"; ls "$STDC_VCPKG_ROOT/installed" || true; }
+
+    - uses: ilammy/msvc-dev-cmd@v1
+      if: runner.os == 'Windows'
+      with:
+        arch: x64
+
+    # After vcvars rather than before, since vcvars is what rewrites the environment underneath
+    # this. As environment rather than as -D arguments, so that the cmake line in a job carries
+    # no platform branch at all.
+    - name: Point CMake at vcpkg (Windows)
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        echo "CMAKE_TOOLCHAIN_FILE=$STDC_VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+          >> "$GITHUB_ENV"
+        echo "VCPKG_TARGET_TRIPLET=x64-windows" >> "$GITHUB_ENV"
+        echo "CMAKE_PREFIX_PATH=$STDC_VCPKG_ROOT/installed/x64-windows" >> "$GITHUB_ENV"

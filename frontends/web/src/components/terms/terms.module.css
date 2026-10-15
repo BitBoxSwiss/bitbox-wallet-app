@@ -10,6 +10,7 @@
   justify-content: center;
   margin: 0 auto;
   overflow: auto;
+  scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
   padding: 0 var(--space-half) 0 var(--space-half);
   width: 100%;
 }
@@ -24,6 +25,7 @@
   margin: 0 0 var(--space-default) 0;
   max-width: 660px;
   overflow: auto;
+  scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
   padding: var(--space-quarter) var(--space-half) var(--space-half) var(--space-half);
 }
 

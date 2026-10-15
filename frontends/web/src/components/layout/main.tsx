@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, useLayoutEffect, useRef } from 'react';
+import { Children, isValidElement, ReactNode, useLayoutEffect, useRef } from 'react';
 import { useGlobalBannersContainer } from '@/contexts/global-banners-context';
+import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
+import { Header } from './header';
 import style from './main.module.css';
 
 type TMainProps = {
@@ -11,6 +13,10 @@ type TMainProps = {
 export const Main = ({ children }: TMainProps) => {
   const mainRef = useRef<HTMLElement>(null);
   const globalBannersContainer = useGlobalBannersContainer();
+  const desktopChrome = useDesktopChrome();
+  const parts = Children.toArray(children);
+  const headerIndex = desktopChrome?.csd ? parts.findIndex(child => isValidElement(child) && child.type === Header) : -1;
+  const hasCaption = headerIndex >= 0;
 
   useLayoutEffect(() => {
     const main = mainRef.current;
@@ -24,7 +30,18 @@ export const Main = ({ children }: TMainProps) => {
         restore();
       }
     };
-  }, [globalBannersContainer]);
+  }, [globalBannersContainer, hasCaption]);
+
+  if (hasCaption) {
+    return (
+      <div className={style.desktopFrame}>
+        {parts[headerIndex]}
+        <main className={style.main} ref={mainRef} data-window-scroll>
+          {parts.filter((_, index) => index !== headerIndex)}
+        </main>
+      </div>
+    );
+  }
 
   return (
     <main className={style.main} ref={mainRef}>

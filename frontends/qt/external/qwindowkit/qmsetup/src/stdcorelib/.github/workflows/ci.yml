@@ -1,0 +1,225 @@
+name: CI
+
+# Work happens on dev and lands on main, so main is the only branch worth spending runners on.
+# workflow_dispatch is there to repeat a run without pushing.
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  # Two axes, crossed only where the code paths cross.
+  #
+  # Shape runs on every platform. It decides dllexport against visibility, and whether a plugin
+  # and its host share one type table, and that differs per platform.
+  #
+  # Turning exceptions off does not need every platform. The flag is chosen by MSVC against
+  # not-MSVC, and the rest of what varies is the standard library underneath, so three platforms
+  # cover both compiler families and all three standard libraries. That is the no-exceptions job
+  # below.
+  build:
+    name: ${{ matrix.platform }} ${{ matrix.config }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ linux-gcc, linux-clang, macos, windows-msvc, windows-clang-cl ]
+        config: [ shared, static, release ]
+        include:
+          - platform: linux-gcc
+            os: ubuntu-latest
+            cc: gcc
+            cxx: g++
+          - platform: linux-clang
+            os: ubuntu-latest
+            cc: clang
+            cxx: clang++
+          - platform: macos
+            os: macos-latest
+            cc: clang
+            cxx: clang++
+          - platform: windows-msvc
+            os: windows-latest
+            cc: cl
+            cxx: cl
+          - platform: windows-clang-cl
+            os: windows-latest
+            cc: clang-cl
+            cxx: clang-cl
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Settings for this configuration
+        id: cfg
+        shell: bash
+        run: |
+          case "${{ matrix.config }}" in
+            shared)  flags="-DSTDC_BUILD_SHARED=ON"; type=Debug   ;;
+            static)  flags="-DSTDC_BUILD_STATIC=ON"; type=Debug   ;;
+            release) flags="-DSTDC_BUILD_SHARED=ON"; type=Release ;;
+          esac
+          echo "flags=$flags" >> "$GITHUB_OUTPUT"
+          echo "type=$type" >> "$GITHUB_OUTPUT"
+
+      - name: Configure
+        shell: bash
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake -G Ninja -S . -B build \
+            -DCMAKE_BUILD_TYPE=${{ steps.cfg.outputs.type }} \
+            -DSTDC_BUILD_TESTS=ON \
+            ${{ steps.cfg.outputs.flags }}
+
+      - name: Build
+        run: cmake --build build
+
+      # ctest rather than the binary by name, so that where it landed is CMake's business. The
+      # flag is not optional. ctest exits 0 when it finds no tests at all, which is what a test
+      # CMakeLists that could not find Boost once produced here.
+      #
+      # The root label is what the step below runs, and running it here as well would only repeat
+      # a case the whole-binary entry already covers.
+      - name: Test
+        run: ctest --test-dir build --output-on-failure --no-tests=error --label-exclude root
+
+      # user(), group() and extra_groups() need privilege to do anything, so the case that
+      # covers them asks who it is: as root it checks the credentials the child ended up with,
+      # and as anyone else it checks that start() refuses in an orderly way and reaps the child
+      # it had already forked. The runner is not root, so without this the half that proves the
+      # setters work would never run anywhere.
+      #
+      # Which case that is, and why it is Linux only, is in tests/auto/CMakeLists.txt beside the
+      # entry itself. Nothing here names a path or a case: that is what the label is for.
+      - name: Test as root
+        if: startsWith(matrix.platform, 'linux')
+        run: sudo ctest --test-dir build --output-on-failure --no-tests=error --label-regex root
+
+  # Exceptions switched off. Four platforms rather than five, the fifth being linux-clang, whose
+  # frontend and standard library are both covered by one of the others.
+  #
+  # windows-clang-cl earns its place and used to be left out on the reasoning that three standard
+  # libraries covered it. That was the wrong axis. What varies is whether the frontend enforces
+  # the flag: cl accepts a throw under /EHs-c- and only stops unwinding, clang-cl rejects it the
+  # way -fno-exceptions does. So registry.h, whose throwing overloads are inline and therefore
+  # compiled by every translation unit that includes it, built there and nowhere else.
+  #
+  # The flag is private to the library target, so the tests are built the ordinary way and run
+  # against a library that was not. A consumer gets the same split. This is also the only thing
+  # here that runs the library's exception-free branches: STDC_HAS_EXCEPTIONS is worked out per
+  # translation unit from __cpp_exceptions, so the code under those #ifdefs is compiled by this
+  # job and by nothing else.
+  no-exceptions:
+    name: ${{ matrix.platform }} no-exceptions
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ linux-gcc, macos, windows-msvc, windows-clang-cl ]
+        include:
+          - platform: linux-gcc
+            os: ubuntu-latest
+            cxx: g++
+          - platform: macos
+            os: macos-latest
+            cxx: clang++
+          - platform: windows-msvc
+            os: windows-latest
+            cxx: cl
+          - platform: windows-clang-cl
+            os: windows-latest
+            cxx: clang-cl
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Configure
+        shell: bash
+        env:
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake -G Ninja -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSTDC_BUILD_TESTS=ON \
+            -DSTDC_ENABLE_EXCEPTIONS=OFF
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure --no-tests=error
+
+  # Doxygen is a check as much as an output. WARN_AS_ERROR in the Doxyfile is what makes this
+  # step fail rather than quietly produce a wrong page. Its first run found three defects,
+  # including a \param naming an argument the function never had.
+  #
+  # One platform is enough. It reads the headers, and the Doxyfile predefines the platform
+  # switches itself.
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Not the distribution's, which is 1.9.8 and three years behind. Measured on it: the
+      # second \verbatim in one comment block is not recognised, and a \ref cannot reach a
+      # \section declared inside a \defgroup comment. Both are ordinary usage that a current
+      # doxygen handles, so the job was failing the comments rather than checking them.
+      #
+      # Only the binary is taken out of the archive, the rest of it being the manual.
+      - name: Install Ninja and Doxygen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+          curl -fsSL -o doxygen.tar.gz \
+            "https://github.com/doxygen/doxygen/releases/download/Release_${DOXYGEN//./_}/doxygen-$DOXYGEN.linux.bin.tar.gz"
+          tar xzf doxygen.tar.gz "doxygen-$DOXYGEN/bin/doxygen"
+          echo "$PWD/doxygen-$DOXYGEN/bin" >> "$GITHUB_PATH"
+        env:
+          DOXYGEN: 1.17.0
+
+      - name: Build
+        run: |
+          doxygen --version
+          cmake -G Ninja -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSTDC_BUILD_DOCS=ON
+          cmake --build build --target stdcorelib_docs
+
+  # The Windows sources against something other than the Microsoft toolchain. This is where a
+  # header that MinGW spells differently shows up, which is how the strcasecmp macro was found.
+  # The no-exceptions shape also crosses that Windows implementation with GCC's enforcement of
+  # -fno-exceptions; neither the general Windows nor Linux jobs cover that combination.
+  mingw:
+    name: windows-mingw ${{ matrix.config }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [ shared, static, no-exceptions ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: false
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-boost
+
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          case "${{ matrix.config }}" in
+            shared) flags="-DSTDC_BUILD_SHARED=ON" ;;
+            static) flags="-DSTDC_BUILD_STATIC=ON" ;;
+            no-exceptions) flags="-DSTDC_BUILD_SHARED=ON -DSTDC_ENABLE_EXCEPTIONS=OFF" ;;
+          esac
+          cmake -G Ninja -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSTDC_BUILD_TESTS=ON $flags
+          cmake --build build
+
+      - name: Test
+        shell: msys2 {0}
+        run: ctest --test-dir build --output-on-failure --no-tests=error

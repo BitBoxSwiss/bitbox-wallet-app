@@ -3,6 +3,7 @@
 import React, { Component, createRef } from 'react';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import style from './dialog-legacy.module.css';
+import { notifyChromeLayout } from '@/utils/desktop-chrome';
 
 type Props = {
   title?: string;
@@ -34,10 +35,12 @@ class DialogLegacy extends Component<Props, State> {
   };
 
   public componentDidMount() {
+    notifyChromeLayout();
     setTimeout(this.activate, 10);
   }
 
   public componentWillUnmount() {
+    notifyChromeLayout();
     document.removeEventListener('keydown', this.handleKeyDown);
   }
 
@@ -153,7 +156,7 @@ class DialogLegacy extends Component<Props, State> {
     const isSlim = slim ? style.slim : '';
     const isCentered = centered && !onClose ? style.centered : '';
     return (
-      <div className={style.overlay} ref={this.overlay}>
+      <div className={style.overlay} ref={this.overlay} data-window-no-drag-overlay>
         <div
           className={[style.modal, isSmall, isMedium, isLarge].join(' ')}
           ref={this.modal}>
