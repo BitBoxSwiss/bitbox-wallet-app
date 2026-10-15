@@ -18,6 +18,8 @@ import { SettingsContent, type TSettingsContentSection } from './components/sett
 import { SubTitle } from '@/components/title';
 import { isNotesSettingsVisible } from './settings-availability';
 import { SimpleMarkup } from '@/utils/markup';
+import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
+import { NativeDecorationsSetting } from './components/appearance/native-decorations-setting';
 
 export const General = () => {
   const { t } = useTranslation();
@@ -50,6 +52,7 @@ export const General = () => {
 export const GeneralSettingsContent = () => {
   const { t } = useTranslation();
   const { hasAccounts } = useAppState();
+  const desktopChrome = useDesktopChrome();
 
   const sections: TSettingsContentSection[] = [
     {
@@ -60,6 +63,7 @@ export const GeneralSettingsContent = () => {
         { id: 'active-currencies', content: <ActiveCurrenciesDropdownSetting /> },
         { id: 'portfolio-percentage', content: <PortfolioPercentageDropdownSetting /> },
         { id: 'dark-mode', content: <DarkmodeToggleSetting /> },
+        ...(desktopChrome ? [{ id: 'native-decorations', content: <NativeDecorationsSetting /> }] : []),
       ],
       title: <SubTitle>{t('settings.appearance')}</SubTitle>,
     },
