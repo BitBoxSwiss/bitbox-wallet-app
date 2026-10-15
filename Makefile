@@ -39,6 +39,7 @@ buildweb:
 	npm --version
 	rm -rf ${WEBROOT}/build
 	cd ${WEBROOT} && npm ci --ignore-scripts
+	cd ${WEBROOT} && npm run check-licenses
 	cd ${WEBROOT} && npm run build
 webdev:
 	cd ${WEBROOT} && $(MAKE) dev
