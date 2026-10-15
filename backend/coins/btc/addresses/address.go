@@ -9,11 +9,11 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	ourbtcutil "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
+	addresspkg "github.com/btcsuite/btcd/address/v2"
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/txscript"
+	"github.com/btcsuite/btcd/chaincfg/v2"
+	"github.com/btcsuite/btcd/txscript/v2"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,7 +29,7 @@ func NewAddressID(pubkeyScript []byte) AddressID {
 // AccountAddress models an address that belongs to an account of the user.
 // It contains all the information needed to receive and spend funds.
 type AccountAddress struct {
-	btcutil.Address
+	addresspkg.Address
 
 	// AccountConfiguration is the account level configuration from which this address was derived.
 	AccountConfiguration *signing.Configuration
@@ -59,7 +59,7 @@ func NewAccountAddress(
 	})
 	log.Debug("Creating new account address")
 
-	var address btcutil.Address
+	var address addresspkg.Address
 	var redeemScript []byte
 	relativeKeypath := signing.NewEmptyRelativeKeypath().
 		Child(derivation.SimpleChainIndex(), signing.NonHardened).
@@ -73,16 +73,16 @@ func NewAccountAddress(
 		log.WithError(err).Panic("Failed to convert an extended public key to a normal public key.")
 	}
 
-	publicKeyHash := btcutil.Hash160(publicKey.SerializeCompressed())
+	publicKeyHash := addresspkg.Hash160(publicKey.SerializeCompressed())
 	switch accountConfiguration.ScriptType() {
 	case signing.ScriptTypeP2PKH:
-		address, err = btcutil.NewAddressPubKeyHash(publicKeyHash, net)
+		address, err = addresspkg.NewAddressPubKeyHash(publicKeyHash, net)
 		if err != nil {
 			log.WithError(err).Panic("Failed to get P2PKH addr. from public key hash.")
 		}
 	case signing.ScriptTypeP2WPKHP2SH:
-		var segwitAddress *btcutil.AddressWitnessPubKeyHash
-		segwitAddress, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
+		var segwitAddress *addresspkg.AddressWitnessPubKeyHash
+		segwitAddress, err = addresspkg.NewAddressWitnessPubKeyHash(publicKeyHash, net)
 		if err != nil {
 			log.WithError(err).Panic("Failed to get p2wpkh-p2sh addr. from publ. key hash.")
 		}
@@ -90,18 +90,18 @@ func NewAccountAddress(
 		if err != nil {
 			log.WithError(err).Panic("Failed to get redeem script for segwit address.")
 		}
-		address, err = btcutil.NewAddressScriptHash(redeemScript, net)
+		address, err = addresspkg.NewAddressScriptHash(redeemScript, net)
 		if err != nil {
 			log.WithError(err).Panic("Failed to get a P2SH address for segwit.")
 		}
 	case signing.ScriptTypeP2WPKH:
-		address, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
+		address, err = addresspkg.NewAddressWitnessPubKeyHash(publicKeyHash, net)
 		if err != nil {
 			log.WithError(err).Panic("Failed to get p2wpkh addr. from publ. key hash.")
 		}
 	case signing.ScriptTypeP2TR:
 		outputKey := txscript.ComputeTaprootKeyNoScript(publicKey)
-		address, err = btcutil.NewAddressTaproot(schnorr.SerializePubKey(outputKey), net)
+		address, err = addresspkg.NewAddressTaproot(schnorr.SerializePubKey(outputKey), net)
 		if err != nil {
 			log.WithError(err).Panic("Failed to get p2tr addr")
 		}

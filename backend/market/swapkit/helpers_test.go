@@ -21,7 +21,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
-	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
 )
@@ -261,7 +261,7 @@ func TestNewSwapUsesInjectedHTTPClient(t *testing.T) {
 			return &http.Response{
 				StatusCode: http.StatusOK,
 				Body: io.NopCloser(strings.NewReader(
-					`{"routeId":"route-id","sourceAddress":"source-address","destinationAddress":"destination-address","expectedBuyAmount":"9.87","swapId":"swap-id"}`,
+					`{"routeId":"route-id","sourceAddress":"source-address","destinationAddress":"destination-address","expectedBuyAmount":"9.87","swapId":"swap-id","meta":{"slip24":{"recipientName":"SWAPKIT (NEAR)","nonce":null,"memos":[],"outputs":[{"amount":55000000000000000000,"address":"0x986f66F28C6a2BBE939dF3161D1D2b238933895c"}],"signature":""}}}`,
 				)),
 				Header: make(http.Header),
 			}, nil
@@ -281,6 +281,7 @@ func TestNewSwapUsesInjectedHTTPClient(t *testing.T) {
 	require.Nil(t, apiError)
 	require.Equal(t, "swap-id", response.SwapID)
 	require.Equal(t, "9.87", response.ExpectedBuyAmount)
+	require.Equal(t, "55000000000000000000", response.PaymentRequest().Outputs[0].Amount)
 }
 
 func TestNewQuoteFromCoinCodePreservesRoutesWithAnyProviderCount(t *testing.T) {

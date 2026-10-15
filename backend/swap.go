@@ -4,7 +4,6 @@ package backend
 
 import (
 	"context"
-	"math/big"
 	"slices"
 	"sort"
 	"strings"
@@ -88,15 +87,16 @@ func (backend *Backend) SwapAccounts() (SwapAccounts, error) {
 // swapAvailable reports whether swap can be shown. It is available when there is at least one
 // non-Bitcoin account currently available, including watch-only and inactive accounts.
 func (backend *Backend) swapAvailable() bool {
-	for _, account := range backend.Accounts() {
-		accountConfig := account.Config().Config
-		if accountConfig.HiddenBecauseUnused {
+	accountViews := backend.Accounts()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		if accountView.Record.HiddenBecauseUnused {
 			continue
 		}
-		if _, isTestnet := coinpkg.TestnetCoins[accountConfig.CoinCode]; isTestnet != backend.Testing() {
+		if _, isTestnet := coinpkg.TestnetCoins[accountView.Record.CoinCode]; isTestnet != backend.Testing() {
 			continue
 		}
-		if account.Coin().Code() == coinpkg.CodeBTC {
+		if accountView.Account.Coin().Code() == coinpkg.CodeBTC {
 			continue
 		}
 		return true
@@ -131,8 +131,9 @@ func (backend *Backend) SwapStatus() SwapStatus {
 	}
 }
 
-func (backend *Backend) connectedKeystoreConfig() (*config.Keystore, error) {
-	persistedAccounts := backend.config.AccountsConfig()
+func (backend *Backend) connectedKeystoreConfig(
+	persistedAccounts config.AccountsConfig,
+) (*config.Keystore, error) {
 	connectedKeystore := backend.Keystore()
 	if connectedKeystore == nil {
 		return nil, nil
@@ -152,7 +153,11 @@ func (backend *Backend) connectedKeystoreConfig() (*config.Keystore, error) {
 // The buy side includes inactive accounts/tokens so they can be activated on demand,
 // while the sell side includes only currently active accounts/tokens.
 func (backend *Backend) swapAccounts() ([]SwapAccount, []SwapAccount, error) {
-	connectedKeystore, err := backend.connectedKeystoreConfig()
+	persistedAccounts, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return nil, nil, err
+	}
+	connectedKeystore, err := backend.connectedKeystoreConfig(persistedAccounts)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -162,7 +167,6 @@ func (backend *Backend) swapAccounts() ([]SwapAccount, []SwapAccount, error) {
 
 	sellAccounts := []SwapAccount{}
 	buyAccounts := []SwapAccount{}
-	persistedAccounts := backend.config.AccountsConfig()
 	for _, persistedAccount := range persistedAccounts.Accounts {
 		if persistedAccount.HiddenBecauseUnused {
 			continue
@@ -295,7 +299,7 @@ func (backend *Backend) accountHasNonZeroBalance(accountCode accountsTypes.Code)
 	if account == nil {
 		return false
 	}
-	balance, err := account.Balance()
+	balance, err := account.Account.Balance()
 	if err != nil {
 		backend.log.WithField("code", accountCode).WithError(err).Error("could not get account balance")
 		return false
@@ -409,7 +413,11 @@ func (backend *Backend) activateSwapBuyAccount(buyAccountCode accountsTypes.Code
 			continue
 		}
 		if account.ParentAccountCode != nil {
-			if parentAccount := backend.config.AccountsConfig().Lookup(*account.ParentAccountCode); parentAccount != nil && parentAccount.Inactive {
+			accountsConfig, err := backend.accountsDB.Snapshot()
+			if err != nil {
+				return err
+			}
+			if parentAccount := accountsConfig.Lookup(*account.ParentAccountCode); parentAccount != nil && parentAccount.Inactive {
 				if err := backend.SetAccountActive(*account.ParentAccountCode, true); err != nil {
 					return err
 				}
@@ -540,7 +548,11 @@ func swapSignTxInput(
 	if strings.TrimSpace(output.Address) == "" {
 		return SwapSignTxInput{}, errp.New("Missing target address")
 	}
-	amount := sellCoin.FormatAmount(coinpkg.NewAmount(new(big.Int).SetUint64(output.Amount)), false)
+	outputAmount, err := output.AmountBigInt()
+	if err != nil {
+		return SwapSignTxInput{}, err
+	}
+	amount := sellCoin.FormatAmount(coinpkg.NewAmount(outputAmount), false)
 	return SwapSignTxInput{
 		Address:        output.Address,
 		Amount:         amount,

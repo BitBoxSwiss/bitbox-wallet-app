@@ -9,8 +9,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
 )
 
 // Type denotes the type of a keystore.
@@ -22,6 +21,24 @@ const (
 	// TypeSoftware mans the keystore is provided by a software (hot) wallet. Currently only used in
 	// devmode for testing.
 	TypeSoftware Type = "software"
+)
+
+// Feature identifies a keystore capability that a workflow can require before it starts.
+type Feature string
+
+const (
+	// FeatureBTCTransactionSigning requires support for signing Bitcoin-family transactions.
+	FeatureBTCTransactionSigning Feature = "btcTransactionSigning"
+	// FeatureETHTransactionSigning requires support for signing Ethereum-family transactions.
+	FeatureETHTransactionSigning Feature = "ethTransactionSigning"
+	// FeatureMessageSigning requires support for signing Bitcoin or Ethereum messages.
+	FeatureMessageSigning Feature = "messageSigning"
+	// FeatureETHTypedMessageSigning requires support for signing EIP-712 typed messages.
+	FeatureETHTypedMessageSigning Feature = "ethTypedMessageSigning"
+	// FeaturePaymentRequests requires support for payment requests.
+	FeaturePaymentRequests Feature = "paymentRequests"
+	// FeatureSwapPaymentRequests requires support for swap payment requests.
+	FeatureSwapPaymentRequests Feature = "swapPaymentRequests"
 )
 
 // KeystoreError represents errors related to the keystore.
@@ -75,8 +92,18 @@ type Keystore interface {
 	// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#key-identifiers
 	RootFingerprint() ([]byte, error)
 
+	// DeterministicEntropy returns the keystore's deterministic entropy for a child seed of a
+	// given derivation path. The entropy is generated using bip85 to create a child seed on the
+	// hardware wallet.
+	//
+	// https://github.com/bitcoin/bips/blob/master/bip-0085.mediawiki
+	DeterministicEntropy() ([]byte, error)
+
 	// SupportsCoin returns true if the keystore supports at least one account type for this coin.
 	SupportsCoin(coinInstance coin.Coin) bool
+
+	// SupportsDeterministicEntropy returns true if the keystore can generate deterministic entropy.
+	SupportsDeterministicEntropy() bool
 
 	// SupportsAccount returns true if they keystore supports the given coin/account.
 	// meta is a coin-specific metadata related to the account type.
@@ -137,19 +164,12 @@ type Keystore interface {
 	// aborts.
 	SignTransaction(interface{}) error
 
-	// SignETHWalletConnectTransaction signs a transaction proposed by Wallet Connect. Returns ErrSigningAborted if the user
-	// aborts.
-	SignETHWalletConnectTransaction(chainID uint64, tx *types.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error)
-
 	// SupportsEIP1559 returns whether the keystore supports EIP1559 type 2 transactions for Ethereum
 	SupportsEIP1559() bool
 
-	// SupportsPaymentRequests returns nil if the device supports silent payments, or an error indicating why it is not supported.
-	SupportsPaymentRequests() error
-
-	// SupportsSwapPaymentRequests reports whether the device supports swap payment requests, or an
-	// error indicating why it is not supported.
-	SupportsSwapPaymentRequests() error
+	// SupportsFeature returns nil if the keystore supports the requested feature, or an error
+	// indicating why it is not supported.
+	SupportsFeature(Feature) error
 
 	// Features reports optional capabilities supported by this keystore.
 	Features() *Features

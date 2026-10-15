@@ -1,31 +1,34 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { showMnemonic } from '@/api/bitbox02';
 import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
-import { UseBackButton, UseDisableBackButton } from '@/hooks/backbutton';
-import { Main } from '@/components/layout';
+import { UseDisableBackButton } from '@/hooks/backbutton';
+import { Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Button, Checkbox } from '@/components/forms';
 import { PointToBitBox02 } from '@/components/icon';
 import { Message } from '@/components/message/message';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 const CONTENT_MIN_HEIGHT = 'min(56rem, 100vh)';
 
-type TProps = {
+type TRouteParams = {
   deviceID: string;
 };
 
 type TStatus = 'info' | 'progress' | 'success';
 
-export const RecoveryWords = ({ deviceID }: TProps) => {
+export const RecoveryWords = () => {
+  const { deviceID = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [status, setStatus] = useState<TStatus>('info');
   const [agree, setAgree] = useState<boolean>(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const confirmShowWords = async () => {
     setStatus('progress');
@@ -42,7 +45,8 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
           key="progress"
           fullscreen
           minHeight={CONTENT_MIN_HEIGHT}
-          verticallyCentered>
+          verticallyCentered
+          withMobileSafetyMargin>
           <ViewHeader small title={t('backup.showMnemonic.title')} />
           <ViewContent>
             <Message type="warning">
@@ -69,13 +73,15 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
       fullscreen
       minHeight={CONTENT_MIN_HEIGHT}
       verticallyCentered>
-      <UseBackButton handler={() => {
-        handleAbort();
-        return false;
-      }} />
-      <ViewHeader small title={t('backup.showMnemonic.title')} />
+      <Header
+        mobileBackButton
+        variant="fullscreen"
+        onBack={handleAbort}
+        title={t('backup.showMnemonic.title')}
+      />
+      <ViewHeader className="hide-on-small" small title={t('backup.showMnemonic.title')} />
       <ViewContent>
-        <Message type="warning">
+        <Message className={isMobile ? 'm-top-default' : ''} type="warning">
           <SimpleMarkup tagName="span" markup={t('backup.showMnemonic.warning')}/>
         </Message>
         <p>
@@ -87,7 +93,7 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
           <Checkbox
             checked={agree}
             id="confirmationCheckbox"
-            label={t('backup.showMnemonic.checkboxLabel')}
+            label={t('generic.iHaveReadTheInformation')}
             onChange={e => setAgree(e.target.checked)} />
         </p>
       </ViewContent>
@@ -95,7 +101,7 @@ export const RecoveryWords = ({ deviceID }: TProps) => {
         <Button disabled={!agree} primary onClick={confirmShowWords}>
           {t('button.next')}
         </Button>
-        <Button secondary onClick={handleAbort}>
+        <Button className="hide-on-small" secondary onClick={handleAbort}>
           {t('dialog.cancel')}
         </Button>
       </ViewButtons>

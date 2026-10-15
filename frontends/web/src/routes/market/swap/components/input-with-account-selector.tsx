@@ -8,7 +8,8 @@ import { NumberInput } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { Amount } from '@/components/amount/amount';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
-import { findAccount, getDisplayedCoinUnit } from '@/routes/account/utils';
+import { findAccount } from '@/routes/account/utils';
+import { getDisplayedCoinUnit } from '@/utils/coin';
 import { useMountedRef } from '@/hooks/mount';
 import style from './input-with-account-selector.module.css';
 
@@ -86,9 +87,11 @@ export const InputWithAccountSelector = <T extends TAccountBase, >({
     }
   }, [defaultCurrency, isMounted, selectedAccount, value]);
 
-  const displayedUnit = selectedAccount
-    ? getDisplayedCoinUnit(selectedAccount.coinCode, selectedAccount.coinUnit, btcUnit)
-    : undefined;
+  const displayedUnit = (
+    selectedAccount
+      ? getDisplayedCoinUnit(selectedAccount.coinCode, selectedAccount.coinUnit, btcUnit)
+      : undefined
+  );
 
   return (
     <div className={style.accountWithInputContainer}>

@@ -83,7 +83,6 @@
       "message": "{{host}}で進めてください",
       "title": "アドレスの送信に成功"
     },
-    "syncing": "アカウントを同期しています、お待ちください",
     "title": "アドレスリクエスト",
     "xpubRequested": "xpub を共有すると、外部サービスがあなたのアカウントのアドレスを確認できるようになります。ただし、コインは安全であり、引き続きあなたの管理下にあります。"
   },
@@ -361,8 +360,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "エラー： アカウントからxpubを取得できませんでした。",
     "noAccount": "保険に加入できるアカウントはない。　\n",
-    "select": "アカウント選択",
-    "title": "保険"
+    "select": "アカウント選択"
   },
   "blink": {
     "button": "点滅"
@@ -1776,7 +1774,6 @@
   "setup": "デバイスを設定",
   "sidebar": {
     "device": "デバイス管理",
-    "insurance": "ほけん",
     "leave": "離れる",
     "settings": "設定"
   },
@@ -1901,8 +1898,7 @@
     "connect": {
       "button": "接続する",
       "dappLabel": "dappのURIアドレスを入力してください。",
-      "invalidPairingUri": "無効なペアリングURIです",
-      "missingNamespace": "接続アプリのリクエストに必要なネームスペースが定義されていません。"
+      "invalidPairingUri": "無効なペアリングURIです"
     },
     "dashboard": {
       "allSessions": "全セッション",
@@ -1911,7 +1907,6 @@
       "noConnectedSessions": "現在、どのアカウントもdappsに接続されていません。",
       "unspecifiedAccount": "未指定のアカウント"
     },
-    "invalidPairingChain": "ペアリングの承認にエラーが発生しました。サポートされているチェーンの一つを使用していることを確認してください：{{chains}}",
     "pairingRequest": {
       "approve": "接続を承認する",
       "reject": "拒否する",

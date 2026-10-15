@@ -13,6 +13,7 @@ import { CopyableInput } from '@/components/copy/Copy';
 import { PointToBitBox02 } from '@/components/icon';
 import { VerifyAddress } from './verifyaddress';
 import { Vasp } from './vasp';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import styles from './aopp.module.css';
 
 type TProps = {
@@ -23,7 +24,13 @@ const Banner = ({ children }: TProps) => (
   <div className={styles.banner}>{children}</div>
 );
 
-const domain = (callback: string): string => new URL(callback).host;
+const domain = (callback: string): string => {
+  try {
+    return new URL(callback).host;
+  } catch {
+    return '';
+  }
+};
 
 export const Aopp = () => {
   const { t } = useTranslation();
@@ -61,6 +68,14 @@ export const Aopp = () => {
   }
   switch (aopp.state) {
   case 'error':
+    if (aopp.errorCode === 'firmwareUpgradeRequired') {
+      return (
+        <FirmwareUpgradeRequiredDialog
+          open
+          onClose={aoppAPI.cancel}
+        />
+      );
+    }
     return (
       <View
         fullscreen

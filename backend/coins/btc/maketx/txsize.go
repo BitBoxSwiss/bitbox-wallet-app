@@ -4,7 +4,7 @@ package maketx
 
 import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcd/wire/v2"
 )
 
 func calcInputSize(sigScriptSize int) int {

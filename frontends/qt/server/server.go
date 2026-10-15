@@ -62,6 +62,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/mobileserver"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/system"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/useragent"
 )
 
 // nativeCommunication implements bridge.NativeCommunication.
@@ -206,14 +207,19 @@ func serve(
 				filename := C.GoString(cFilename)
 				return filename
 			},
-			SetDarkThemeFunc:    func(bool) {},
-			DetectDarkThemeFunc: detectDarkTheme,
+			SetDarkThemeFunc:      func(bool) {},
+			DetectDarkThemeFunc:   detectDarkTheme,
+			UserAgentPlatformFunc: useragent.PlatformFromRuntime,
 			AuthFunc: func() {
 				log.Info("Qt auth")
 				authResult(mobileserver.AuthResultOk)
 			},
-			OnAuthSettingChangedFunc: func(bool) {},
-			BluetoothConnectFunc:     func(string) {},
+			OnAuthSettingChangedFunc:         func(bool) {},
+			CanEncryptLightningMnemonicFunc:  func() bool { return false },
+			StoreLightningEncryptionKeyFunc:  func(string, string) error { return nil },
+			LoadLightningEncryptionKeyFunc:   func(string) (string, error) { return "", nil },
+			DeleteLightningEncryptionKeyFunc: func(string) error { return nil },
+			BluetoothConnectFunc:             func(string) {},
 		},
 	)
 }

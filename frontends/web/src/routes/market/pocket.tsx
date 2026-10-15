@@ -2,15 +2,14 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { Dialog } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
 import { verifyAddress, getPocketURL, TMarketAction } from '@/api/market';
-import { AccountCode, getInfo, getTransactionList, hasPaymentRequest, signBTCMessageUnusedAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { AccountCode, getInfo, getTransactionList, signBTCMessageUnusedAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { Header } from '@/components/layout';
-import { MobileHeader } from '../settings/components/mobile-header';
 import { Spinner } from '@/components/spinner/Spinner';
 import { PointToBitBox02 } from '@/components/icon';
 import { PocketTerms } from '@/components/terms/pocket-terms';
@@ -20,52 +19,46 @@ import { alertUser } from '@/components/alert/Alert';
 import { MarketGuide } from './guide';
 import { convertScriptType } from '@/utils/request-addess';
 import { parseExternalBtcAmount } from '@/api/coins';
-import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
-import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
+import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
+import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
+import {
+  getVendorIframeMessageTarget,
+  postMessageToVendorIframe,
+  type TVendorIframeMessageTarget,
+} from '@/hooks/vendor-iframe-message';
 import { useAccountSynced } from '@/hooks/account';
 import { Message } from '@/components/message/message';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import style from './iframe.module.css';
 
 type TProps = {
   action: TMarketAction;
-  code: AccountCode;
 };
 
-export const Pocket = ({
-  action,
-  code,
-}: TProps) => {
+type TRouteParams = {
+  code: AccountCode;
+  // region: string;
+};
+
+export const Pocket = ({ action }: TProps) => {
+  const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const { config } = useConfig();
   const navigate = useNavigate();
 
-  // Pocket sell only works if the FW supports payment requests
-  const hasPaymentRequestResponse = useLoad(() => hasPaymentRequest(code));
-  const [fwRequiredDialog, setFwRequiredDialog] = useState(false);
-
   const [blocking, setBlocking] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
-  const accountInfo = useLoad(getInfo(code));
+  const accountInfoResponse = useLoad(getInfo(code));
+  const accountInfo = accountInfoResponse?.success ? accountInfoResponse.info : undefined;
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipPocketDisclaimer ?? false);
   const signingRef = useRef(false);
 
   const pocketInfo = useAccountSynced(code, useCallback(() => getPocketURL(action), [action]));
-
-  useEffect(() => {
-    // enable paymentRequestError only when the action is sell.
-    if (action === 'sell' && hasPaymentRequestResponse?.success === false) {
-      if (hasPaymentRequestResponse?.errorCode === 'firmwareUpgradeRequired') {
-        setFwRequiredDialog(true);
-      } else if (hasPaymentRequestResponse?.errorCode) {
-        alertUser(t('device.' + hasPaymentRequestResponse.errorCode));
-      } else if (hasPaymentRequestResponse?.errorMessage) {
-        alertUser(hasPaymentRequestResponse?.errorMessage);
-      }
-    }
-  }, [action, hasPaymentRequestResponse, t]);
+  useMarketIframeActive(!!config && agreedTerms && pocketInfo?.success === true && accountInfoResponse?.success !== false);
 
   useEffect(() => {
     window.addEventListener('message', onMessage);
@@ -74,13 +67,12 @@ export const Pocket = ({
     };
   });
 
-  const sendAddress = (address: string, sig: string, correlationId?: string) => {
-    const { current } = iframeRef;
-
-    if (!current) {
-      return;
-    }
-
+  const sendAddress = (
+    target: TVendorIframeMessageTarget,
+    address: string,
+    sig: string,
+    correlationId?: string,
+  ) => {
     const message = serializeMessage({
       version: MessageVersion.V0,
       type: V0MessageType.Address,
@@ -89,14 +81,14 @@ export const Pocket = ({
       signature: sig,
     });
 
-    current.contentWindow?.postMessage(message, '*');
+    postMessageToVendorIframe(target, message);
   };
 
-  const sendPaymentTxId = (txid: string, correlationId?: string) => {
-    if (!iframeRef.current) {
-      return;
-    }
-
+  const sendPaymentTxId = (
+    target: TVendorIframeMessageTarget,
+    txid: string,
+    correlationId?: string,
+  ) => {
     const message = serializeMessage({
       version: MessageVersion.V0,
       type: V0MessageType.Payment,
@@ -104,14 +96,14 @@ export const Pocket = ({
       txid,
     });
 
-    iframeRef.current.contentWindow?.postMessage(message, '*');
+    postMessageToVendorIframe(target, message);
   };
 
-  const sendCanceledMessage = (reason: string, correlationId?: string) => {
-    if (!iframeRef.current) {
-      return;
-    }
-
+  const sendCanceledMessage = (
+    target: TVendorIframeMessageTarget,
+    reason: string,
+    correlationId?: string,
+  ) => {
     const message = serializeMessage({
       version: MessageVersion.V0,
       type: V0MessageType.Cancel,
@@ -119,10 +111,13 @@ export const Pocket = ({
       reason,
     });
 
-    iframeRef.current.contentWindow?.postMessage(message, '*');
+    postMessageToVendorIframe(target, message);
   };
 
-  const handleRequestAddress = (message: RequestAddressV0Message) => {
+  const handleRequestAddress = (
+    target: TVendorIframeMessageTarget,
+    message: RequestAddressV0Message,
+  ) => {
     signingRef.current = true;
     const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
@@ -133,7 +128,7 @@ export const Pocket = ({
       .then(response => {
         signingRef.current = false;
         if (response.success) {
-          sendAddress(response.address, response.signature, message.correlationId);
+          sendAddress(target, response.address, response.signature, message.correlationId);
         } else {
           if (response.errorCode !== 'userAbort') {
             alertUser(t('unknownError', { errorMessage: response.errorMessage }));
@@ -162,27 +157,23 @@ export const Pocket = ({
       });
   };
 
-  const sendXpub = (correlationId?: string) => {
+  const sendXpub = (target: TVendorIframeMessageTarget, correlationId?: string) => {
     if (accountInfo) {
       const bitcoinSimple = accountInfo.signingConfigurations[0]?.bitcoinSimple;
       if (bitcoinSimple) {
         const xpub = bitcoinSimple.keyInfo.xpub;
-        const { current } = iframeRef;
-        if (!current) {
-          return;
-        }
         const message = serializeMessage({
           version: MessageVersion.V0,
           type: V0MessageType.ExtendedPublicKey,
           extendedPublicKey: xpub,
           correlationId,
         });
-        current.contentWindow?.postMessage(message, '*');
+        postMessageToVendorIframe(target, message);
       }
     }
   };
 
-  const handleRequestXpub = (correlationId?: string) => {
+  const handleRequestXpub = (target: TVendorIframeMessageTarget, correlationId?: string) => {
     getTransactionList(code).then(txs => {
       if (!txs.success) {
         alertUser(t('transactions.errorLoadTransactions'));
@@ -191,16 +182,19 @@ export const Pocket = ({
       if (txs.list.length > 0) {
         confirmation(t('buy.pocket.previousTransactions'), result => {
           if (result) {
-            sendXpub(correlationId);
+            sendXpub(target, correlationId);
           }
         });
       } else {
-        sendXpub(correlationId);
+        sendXpub(target, correlationId);
       }
     });
   };
 
-  const handlePaymentRequest = async (message: PaymentRequestV0Message) => {
+  const handlePaymentRequest = async (
+    target: TVendorIframeMessageTarget,
+    message: PaymentRequestV0Message,
+  ) => {
     if (!message.slip24) {
       alertUser(t('unknownError', { errorMessage: 'Missing payment request data' }));
       return;
@@ -209,7 +203,7 @@ export const Pocket = ({
     // this allows to correctly handle sats mode
     const parsedAmount = await parseExternalBtcAmount(message.amount.toString());
     if (!parsedAmount.success) {
-      sendCanceledMessage('invalid_amount', message.correlationId);
+      sendCanceledMessage(target, 'invalid_amount', message.correlationId);
       alertUser(t('unknownError', { errorMessage: 'Invalid amount' }));
       return;
     }
@@ -231,12 +225,12 @@ export const Pocket = ({
       const sendResult = await sendTx(code, txNote);
       setBlocking(false);
       if (sendResult.success) {
-        sendPaymentTxId(sendResult.txId, message.correlationId);
+        sendPaymentTxId(target, sendResult.txId, message.correlationId);
       } else {
         if ('aborted' in sendResult) {
-          sendCanceledMessage('rejected_by_customer', message.correlationId);
+          sendCanceledMessage(target, 'rejected_by_customer', message.correlationId);
         } else {
-          sendCanceledMessage('unknown_error', message.correlationId);
+          sendCanceledMessage(target, 'unknown_error', message.correlationId);
           if (sendResult.errorMessage) {
             alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
           } else {
@@ -259,8 +253,9 @@ export const Pocket = ({
     if (!pocketInfo?.success || !code) {
       return;
     }
-    // verify the origin of the received message
-    if (m.origin !== new URL(pocketInfo.url).origin) {
+    const target = getVendorIframeMessageTarget(m, iframeRef.current);
+    // Verify that the message came from the current Pocket iframe and its expected origin.
+    if (!target || target.origin !== new URL(pocketInfo.url).origin) {
       return;
     }
 
@@ -270,7 +265,7 @@ export const Pocket = ({
       switch (message.type) {
       case V0MessageType.RequestAddress:
         if (!signingRef.current) {
-          handleRequestAddress(message);
+          handleRequestAddress(target, message);
         }
         break;
       case V0MessageType.VerifyAddress:
@@ -279,10 +274,10 @@ export const Pocket = ({
         }
         break;
       case V0MessageType.RequestExtendedPublicKey:
-        handleRequestXpub(message.correlationId);
+        handleRequestXpub(target, message.correlationId);
         break;
       case V0MessageType.PaymentRequest:
-        handlePaymentRequest(message);
+        handlePaymentRequest(target, message);
         break;
       case V0MessageType.Close:
         navigate(`/account/${code}`, { replace: true });
@@ -301,15 +296,15 @@ export const Pocket = ({
     <div className="contentWithGuide">
       <div className="container">
         <div className={style.header}>
-          <Header title={
-            <>
-              <h2 className="hide-on-small">{title}</h2>
-              <MobileHeader withGuide title={title} />
-            </>
-          } />
+          <Header variant="navigation" mobileBackButton title={title} />
         </div>
         <div ref={containerRef} className={style.container}>
-          { !agreedTerms ? (
+          { accountInfoResponse && !accountInfoResponse.success ? (
+            <div className="content">
+              <Message type="error">{accountInfoResponse.errorMessage || t('genericError')}</Message>
+              <DesktopBackButton enableEsc>{t('button.back')}</DesktopBackButton>
+            </div>
+          ) : !agreedTerms ? (
             <PocketTerms
               onAgreedTerms={() => setAgreedTerms(true)}
             />
@@ -354,13 +349,6 @@ export const Pocket = ({
             {t('buy.pocket.verifyBitBox02')}
             <PointToBitBox02 />
           </Dialog>
-          <FirmwareUpgradeRequiredDialog
-            open={fwRequiredDialog}
-            onClose={() => {
-              setFwRequiredDialog(false);
-              navigate(-1);
-            }}
-          />
         </div>
       </div>
       <MarketGuide vendor="pocket" translationContext="bitcoin" />

@@ -8,6 +8,7 @@ import type { TDevices } from '@/api/devices';
 import { AppContext } from '@/contexts/AppContext';
 import { useLoad } from '@/hooks/api';
 import { useKeystores } from '@/hooks/backend';
+import { useLightning } from '@/hooks/lightning';
 import {
   SETTINGS_SEARCH_QUERY_PARAM,
   filterSettingsSearchItems,
@@ -28,6 +29,7 @@ export const useSettingsSearch = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const searchTerm = searchParams.get(SETTINGS_SEARCH_QUERY_PARAM) || '';
   const keystores = useKeystores();
+  const { lightningAccount } = useLightning();
   const hasSoftwareKeystore = keystores?.some(({ type }) => type === 'software') ?? false;
   const deviceId = Object.keys(devices)[0];
   const device = deviceId ? devices[deviceId] : undefined;
@@ -41,10 +43,13 @@ export const useSettingsSearch = ({
     deviceInfo,
     devices,
     hasAccounts,
+    isLightningEnabled: lightningAccount === undefined
+      ? undefined
+      : lightningAccount !== null,
     hasSoftwareKeystore,
     isTesting,
     t,
-  }), [deviceInfo, devices, hasAccounts, hasSoftwareKeystore, isTesting, t]);
+  }), [deviceInfo, devices, hasAccounts, hasSoftwareKeystore, isTesting, lightningAccount, t]);
   const searchResults = useMemo(
     () => filterSettingsSearchItems(searchItems, searchTerm),
     [searchItems, searchTerm],

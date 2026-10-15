@@ -17,6 +17,7 @@ async function connectOnce(host: string, port: number): Promise<void> {
 }
 
 export interface ServeWalletOptions {
+  env?: NodeJS.ProcessEnv;
   simulator?: boolean;
   timeout?: number;
   testnet?: boolean;
@@ -115,6 +116,7 @@ export class ServeWallet {
       cwd: '../../', // maintain previous working dir
       stdio: ['ignore', this.outStream, this.outStream],
       detached: true,
+      env: { ...process.env, ...options.env },
     });
 
     await this.waitUntilReady(this.proc);

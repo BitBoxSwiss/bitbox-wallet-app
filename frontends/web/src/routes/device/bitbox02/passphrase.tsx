@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '@/api/bitbox02';
 import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -12,20 +12,23 @@ import { alertUser } from '@/components/alert/Alert';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { PointToBitBox02 } from '@/components/icon';
 import { Message } from '@/components/message/message';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
+import { Header } from '@/components/layout';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 // The enable wizard has five steps that can be navigated by clicking
 // 'back' or 'continue'. On the last step the passphrase will be enabled.
 const FINAL_INFO_STEP = 5;
 const CONTENT_MIN_HEIGHT = 'min(56rem, 100vh)';
 
-type TProps = {
+type TRouteParams = {
   deviceID: string;
 };
 
 type TStatus = 'info' | 'progress' | 'success';
 
-export const Passphrase = ({ deviceID }: TProps) => {
+export const Passphrase = () => {
+  const { deviceID = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -91,7 +94,8 @@ export const Passphrase = ({ deviceID }: TProps) => {
           fullscreen
           minHeight={CONTENT_MIN_HEIGHT}
           textCenter
-          verticallyCentered>
+          verticallyCentered
+          withMobileSafetyMargin>
           <ViewHeader
             title={t(isEnabled
               ? 'passphrase.progressDisable.title'
@@ -147,6 +151,7 @@ type TInfoProps = {
 
 const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const [infoStep, setInfoStep] = useState(0);
   const [understood, setUnderstood] = useState(false);
@@ -187,9 +192,15 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
       key={`step-${infoStep}`}
       fullscreen
       minHeight={CONTENT_MIN_HEIGHT}
-      onClose={handleAbort}
+      onClose={isMobile ? undefined : handleAbort}
       verticallyCentered
     >
+      <Header
+        mobileBackButton
+        variant="fullscreen"
+        onBack={handleBack}
+        title={t('deviceSettings.expert.passphrase.title')}
+      />
       <ViewHeader title={step.titleKey} />
       {infoStep < FINAL_INFO_STEP && (
         <ViewContent>
@@ -218,9 +229,9 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
         <Button primary onClick={handleContinue} disabled={infoStep >= FINAL_INFO_STEP && !understood}>
           {step.buttonTextKey}
         </Button>
-        <BackButton onClick={handleBack}>
+        <DesktopBackButton onClick={handleBack}>
           {t('button.back')}
-        </BackButton>
+        </DesktopBackButton>
       </ViewButtons>
     </View>
   );
@@ -228,14 +239,21 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
 
 const DisableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   return (
     <View
       key="step-disable-info1"
       fullscreen
       minHeight={CONTENT_MIN_HEIGHT}
-      onClose={handleAbort}
+      onClose={isMobile ? undefined : handleAbort}
       verticallyCentered>
+      <Header
+        mobileBackButton
+        variant="fullscreen"
+        onBack={handleAbort}
+        title={t('deviceSettings.expert.passphrase.title')}
+      />
       <ViewHeader title={t('passphrase.disable')} />
       <ViewContent>
         <MultilineMarkup tagName="p" markup={t('passphrase.disableInfo.message')} />
@@ -244,9 +262,9 @@ const DisableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
         <Button primary onClick={() => setPassphrase(false)}>
           {t('passphrase.disableInfo.button')}
         </Button>
-        <BackButton onClick={handleAbort}>
+        <DesktopBackButton onClick={handleAbort}>
           {t('button.back')}
-        </BackButton>
+        </DesktopBackButton>
       </ViewButtons>
     </View>
   );

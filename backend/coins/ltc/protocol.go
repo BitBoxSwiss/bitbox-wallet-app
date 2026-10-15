@@ -2,7 +2,7 @@
 
 package ltc
 
-import "github.com/btcsuite/btcd/wire"
+import "github.com/btcsuite/btcd/wire/v2"
 
 const (
 	// MainNet represents the main litecoin network.

@@ -2,11 +2,11 @@
 
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import * as accountApi from '@/api/account';
 import { statusChanged, syncAddressesCount, syncdone, transactionsChanged } from '@/api/accountsync';
-import { TDevices } from '@/api/devices';
 import { getMarketVendors, MarketVendors } from '@/api/market';
+import { useAppState } from '@/contexts/app-state-context';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
 import { InfoBlue, LoupeBlue } from '@/components/icon';
@@ -14,6 +14,7 @@ import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Message } from '@/components/message/message';
 import { useLoad, useSubscribe, useSync } from '@/hooks/api';
+import { useEthAccountActivity } from '@/hooks/account-activity';
 import { useBitsurance } from '@/hooks/bitsurance';
 import { useDebounce } from '@/hooks/debounce';
 import { useScrollIntoView } from '@/hooks/scroll-into-view';
@@ -22,13 +23,12 @@ import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
 import { AccountGuide } from './guide';
 import { BuyReceiveCTA } from './info/buy-receive-cta';
-import { isBitcoinBased } from './utils';
+import { isBitcoinBased } from '@/utils/coin';
 import { MultilineMarkup } from '@/utils/markup';
 import { Dialog } from '@/components/dialog/dialog';
 import { A } from '@/components/anchor/anchor';
 import { i18n } from '@/i18n/i18n';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { TransactionList } from './components/transaction-list';
 import { TransactionDetails } from '@/components/transactions/details';
@@ -37,21 +37,22 @@ import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
 import { RatesContext } from '@/contexts/RatesContext';
 import { OfflineError } from '@/components/banners/offline-error';
-import style from './account.module.css';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import style from './account.module.css';
 
-type Props = {
-  accounts: accountApi.TAccount[];
+type TRouteParams = {
   code: accountApi.AccountCode;
-  devices: TDevices;
 };
 
-export const Account = (props: Props) => {
-  if (!props.code) {
+export const Account = () => {
+  const { code } = useParams<TRouteParams>();
+  if (!code) {
     return null;
   }
   // The `key` prop forces a re-mount when `code` changes.
-  return <RemountAccount key={props.code} {...props} />;
+  return (
+    <RemountAccount key={code} code={code} />
+  );
 };
 
 const getBitsuranceGuideLink = (
@@ -65,13 +66,22 @@ const getBitsuranceGuideLink = (
   }
 };
 
+type TProps = {
+  code: accountApi.AccountCode;
+};
+
 // Re-mounted when `code` changes, and `code` is guaranteed to be non-empty.
 const RemountAccount = ({
-  accounts,
   code,
-  devices,
-}: Props) => {
+}: TProps) => {
   const { t } = useTranslation();
+
+  const {
+    activeAccounts
+  } = useAppState();
+
+  const account = activeAccounts.find(acct => acct.code === code);
+
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { btcUnit } = useContext(RatesContext);
 
@@ -90,7 +100,8 @@ const RemountAccount = ({
 
   const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
 
-  const account = accounts && accounts.find(acct => acct.code === code);
+
+  useEthAccountActivity(code, account?.coinCode);
 
   const { insured, uncoveredFunds, clearUncoveredFunds } = useBitsurance(code, account);
 
@@ -142,7 +153,11 @@ const RemountAccount = ({
 
   useEffect(() => {
     if (status !== undefined && !status.disabled && !status.synced) {
-      accountApi.init(code).catch(console.error);
+      accountApi.init(code).then(result => {
+        if (!result.success) {
+          console.error(result.errorMessage);
+        }
+      }).catch(console.error);
     }
   }, [code, status]);
 
@@ -184,21 +199,25 @@ const RemountAccount = ({
   }
 
   // Status: not synced
-  const notSyncedText = (status !== undefined && !status.synced && syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
-    '\n' + t('account.syncedAddressesCount', {
-      count: syncedAddressesCount.toString(),
-      defaultValue: 0,
-    } as any)
-  ) : '';
+  const notSyncedText = (
+    (status !== undefined && !status.synced && syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
+      '\n' + t('account.syncedAddressesCount', {
+        count: syncedAddressesCount.toString(),
+        defaultValue: 0,
+      } as any)
+    ) : ''
+  );
 
   const exchangeSupported = supportedVendors && supportedVendors.vendors.length > 0;
 
-  const isAccountEmpty = balance
+  const isAccountEmpty = (
+    balance
     && !balance.hasAvailable
     && !balance.hasIncoming
     && transactions
     && transactions.success
-    && transactions.list.length === 0;
+    && transactions.list.length === 0
+  );
 
 
   const actionButtonsProps = {
@@ -216,7 +235,6 @@ const RemountAccount = ({
         <Main>
           <ContentWrapper>
             <OfflineError error={status?.offlineError} />
-            <GlobalBanners code={code} devices={devices} />
             <Message
               className={style.status}
               hidden={status === undefined || status.synced || !!status.offlineError}
@@ -239,7 +257,7 @@ const RemountAccount = ({
             </A>
           </Dialog>
           <Header
-            title={<h2><span>{account.name}</span>{insured && (<Insured />)}</h2>}>
+            title={<><span>{account.name}</span>{insured && (<Insured code={code} />)}</>}>
             <Link
               to={`/account/${code}/info`}
               title={t('accountInfo.title')}
@@ -257,79 +275,83 @@ const RemountAccount = ({
           <View>
             <ViewHeader>
               <div className={style.balanceHeader}>
-                <Balance balance={balance} />
+                <Balance balance={balance} className={style.fadeIn} />
                 {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
               </div>
             </ViewHeader>
             <ViewContent>
-              <div className={style.accountHeader}>
-                {isAccountEmpty && (
-                  <BuyReceiveCTA
-                    account={account}
-                    code={code}
-                    unit={balance.available.unit}
-                    balanceList={[balance]}
-                  />
-                )}
-
-                {transactions?.success === false ? (
-                  <p className={style.errorLoadTransactions}>
-                    {t('transactions.errorLoadTransactions')}
-                  </p>
-                ) : !isAccountEmpty && (
-                  <>
-                    <div className={style.titleRow}>
-                      <SubTitle className={style.titleWithButton}>
-                        {t('accountSummary.transactionHistory')}
-                      </SubTitle>
-
-                      <Button
-                        className={style.searchButton}
-                        transparent
-                        disabled={!hasTransactions}
-                        onClick={() => {
-                          if (showSearchBar) {
-                            setShowSearchBar(false);
-                            setSearchTerm('');
-                          } else {
-                            setShowSearchBar(true);
-                          }
-                        }}
-                      >
-                        {showSearchBar ? (
-                          <>✕ {t('generic.close')}</>
-                        ) : (
-                          <>
-                            <LoupeBlue className={style.loupe} />
-                            {t('generic.searchButton')}
-                          </>
-                        )}
-                      </Button>
-                    </div>
-
-                    <div className={`
-                      ${style.searchContainer || ''}
-                      ${!showSearchBar && style.searchHidden || ''}
-                    `}>
-                      <SearchInput
-                        ref={searchInputRef}
-                        placeholder={t('accountSummary.searchPlaceholder')}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.currentTarget.value)}
+              {loadingTransactions ? (
+                <TransactionHistorySkeleton />
+              ) : (
+                <div className={style.fadeIn}>
+                  <div className={style.accountHeader}>
+                    {isAccountEmpty && (
+                      <BuyReceiveCTA
+                        account={account}
+                        code={code}
+                        unit={balance.available.unit}
+                        balanceList={[balance]}
                       />
-                    </div>
-                  </>
-                )}
-              </div>
+                    )}
 
-              {loadingTransactions && <TransactionHistorySkeleton />}
+                    {transactions?.success === false ? (
+                      <p className={style.errorLoadTransactions}>
+                        {t('transactions.errorLoadTransactions')}
+                      </p>
+                    ) : !isAccountEmpty && (
+                      <>
+                        <div className={style.titleRow}>
+                          <SubTitle className={style.titleWithButton}>
+                            {t('accountSummary.transactionHistory')}
+                          </SubTitle>
 
-              <TransactionList
-                transactionSuccess={transactions?.success ?? false}
-                filteredTransactions={filteredTransactions}
-                debouncedSearchTerm={debouncedSearchTerm}
-                onShowDetail={setDetailID}
-              />
+                          <Button
+                            className={style.searchButton}
+                            transparent
+                            disabled={!hasTransactions}
+                            onClick={() => {
+                              if (showSearchBar) {
+                                setShowSearchBar(false);
+                                setSearchTerm('');
+                              } else {
+                                setShowSearchBar(true);
+                              }
+                            }}
+                          >
+                            {showSearchBar ? (
+                              <>✕ {t('generic.close')}</>
+                            ) : (
+                              <>
+                                <LoupeBlue className={style.loupe} />
+                                {t('generic.searchButton')}
+                              </>
+                            )}
+                          </Button>
+                        </div>
+
+                        <div className={`
+                          ${style.searchContainer || ''}
+                          ${!showSearchBar && style.searchHidden || ''}
+                        `}>
+                          <SearchInput
+                            ref={searchInputRef}
+                            placeholder={t('accountSummary.searchPlaceholder')}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.currentTarget.value)}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <TransactionList
+                    transactionSuccess={transactions?.success ?? false}
+                    filteredTransactions={filteredTransactions}
+                    debouncedSearchTerm={debouncedSearchTerm}
+                    onShowDetail={setDetailID}
+                  />
+                </div>
+              )}
 
               <TransactionDetails
                 accountCode={code}
@@ -345,7 +367,7 @@ const RemountAccount = ({
         account={account}
         unit={balance?.available.unit}
         hasIncomingBalance={balance && balance.hasIncoming}
-        hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
+        hasTransactions={hasTransactions}
         hasNoBalance={balance && !balance.hasAvailable}
       />
     </GuideWrapper>

@@ -5,8 +5,8 @@ package backend
 import (
 	"context"
 	"math/big"
-	"net/http"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -140,7 +140,7 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 		},
 		GetUnusedReceiveAddressesFunc: func() ([]accounts.AddressList, error) {
 			result := []accounts.AddressList{}
-			for _, signingConfig := range config.Config.SigningConfigurations {
+			for _, signingConfig := range config.SigningConfigurations {
 				scriptType := signingConfig.ScriptType()
 				if scriptType == signing.ScriptTypeP2WPKHP2SH {
 					// We don't support wrapped segwit in receive flows anymore.
@@ -170,7 +170,7 @@ func MockBtcAccount(t *testing.T, config *accounts.AccountConfig, coin *btc.Coin
 	}
 }
 
-func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) *accountsMocks.InterfaceMock {
+func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) *accountsMocks.InterfaceMock {
 	return &accountsMocks.InterfaceMock{
 		ObserveFunc: func(func(observable.Event)) func() {
 			return func() {}
@@ -194,7 +194,7 @@ func MockEthAccount(config *accounts.AccountConfig, coin *eth.Coin, httpClient *
 					Addresses: []accounts.Address{
 						eth.Address{
 							Address: crypto.PubkeyToAddress(
-								*config.Config.SigningConfigurations[0].PublicKey().ToECDSA()),
+								*config.SigningConfigurations[0].PublicKey().ToECDSA()),
 						},
 					},
 				},
@@ -239,6 +239,16 @@ func TestIsWhitelistedSystemOpenURL(t *testing.T) {
 		{
 			name:    "allows exact app settings URL",
 			url:     "app-settings:",
+			allowed: true,
+		},
+		{
+			name:    "allows Spark website",
+			url:     "https://www.spark.money/",
+			allowed: true,
+		},
+		{
+			name:    "allows Breez SDK website",
+			url:     "https://breez.technology/sdk/",
 			allowed: true,
 		},
 		{
@@ -341,7 +351,19 @@ func (e environment) Auth() {}
 
 func (e environment) OnAuthSettingChanged(bool) {}
 
+func (e environment) CanEncryptLightningMnemonic() bool { return false }
+
+func (e environment) StoreLightningEncryptionKey(string, string) error { return nil }
+
+func (e environment) LoadLightningEncryptionKey(string) (string, error) { return "", nil }
+
+func (e environment) DeleteLightningEncryptionKey(string) error { return nil }
+
 func (e environment) BluetoothConnect(string) {}
+
+func (e environment) UserAgentPlatform() string {
+	return "linux"
+}
 
 type mockTransactionsSource struct {
 }
@@ -355,11 +377,16 @@ func (m *mockTransactionsSource) Transactions(
 
 func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	t.Helper()
+	return newBackendWithDevServers(t, testing, regtest, true)
+}
+
+func newBackendWithDevServers(t *testing.T, testing, regtest, devServers bool) *Backend {
+	t.Helper()
 	b, err := NewBackend(
 		arguments.NewArguments(
 			test.TstTempDir("appfolder"),
 			testing, regtest,
-			true,
+			devServers,
 			&types.GapLimits{Receive: 20, Change: 6}),
 		environment{},
 	)
@@ -371,8 +398,8 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 		return MockBtcAccount(t, config, coin, gapLimits, log)
 	}
-	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-		return MockEthAccount(config, coin, httpClient, log)
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
+		return MockEthAccount(config, coin, log)
 	}
 
 	// avoid hitting real API for BTC coins.
@@ -404,7 +431,7 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 			BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
 				return big.NewInt(100), nil
 			},
-			BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
+			BalanceFunc: func(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error) {
 				return big.NewInt(1e18), nil
 			},
 			PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
@@ -429,6 +456,42 @@ func TestDevicesRegisteredReturnsSnapshot(t *testing.T) {
 	delete(devices, "device-id")
 
 	require.Contains(t, b.DevicesRegistered(), "device-id")
+}
+
+func TestClearCachePreservesUserData(t *testing.T) {
+	b := newBackend(t, false, false)
+	defer b.Close()
+	oldRatesUpdater := b.ratesUpdater
+	oldBTCCoin, err := b.Coin(coinpkg.CodeBTC)
+	require.NoError(t, err)
+
+	cacheFile := filepath.Join(b.arguments.CacheDirectoryPath(), "dummy-cache-file")
+	require.NoError(t, os.WriteFile(cacheFile, []byte("cache"), 0600))
+
+	lightningFile := filepath.Join(b.arguments.LightningDirectoryPath(), "dummy-breez-database")
+	require.NoError(t, os.WriteFile(lightningFile, []byte("lightning"), 0600))
+
+	noteFile := filepath.Join(b.arguments.NotesDirectoryPath(), "dummy-note-file")
+	require.NoError(t, os.WriteFile(noteFile, []byte("note"), 0600))
+
+	require.FileExists(t, b.arguments.AppConfigFilename())
+	require.FileExists(t, b.arguments.AccountsConfigFilename())
+
+	require.NoError(t, b.ClearCache())
+	newBTCCoin, err := b.Coin(coinpkg.CodeBTC)
+	require.NoError(t, err)
+	lightningRatesUpdater, lightningBTCCoin := b.lightning.TstRuntimeDependencies()
+
+	require.NotSame(t, oldRatesUpdater, b.ratesUpdater)
+	require.NotSame(t, oldBTCCoin, newBTCCoin)
+	require.Same(t, b.ratesUpdater, lightningRatesUpdater)
+	require.Same(t, newBTCCoin, lightningBTCCoin)
+	require.NoFileExists(t, cacheFile)
+	require.DirExists(t, filepath.Join(b.arguments.CacheDirectoryPath(), "exchangerates"))
+	require.FileExists(t, lightningFile)
+	require.FileExists(t, noteFile)
+	require.FileExists(t, b.arguments.AppConfigFilename())
+	require.FileExists(t, b.arguments.AccountsConfigFilename())
 }
 
 func TestRegisterKeystore(t *testing.T) {
@@ -504,22 +567,23 @@ func TestRegisterKeystore(t *testing.T) {
 	b.registerKeystore(ks1)
 	require.Equal(t, ks1, b.Keystore())
 	checkShownAccountsLen(t, b, 3, 3)
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
+	accountsConfig := accountsSnapshot(t, b)
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-btc-0"))
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-ltc-0"))
+	require.NotNil(t, accountsConfig.Lookup("v0-55555555-eth-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-btc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0"))
-	require.Equal(t, "Bitcoin", b.Config().AccountsConfig().Accounts[0].Name)
-	require.Equal(t, "Litecoin", b.Config().AccountsConfig().Accounts[1].Name)
-	require.Equal(t, "Ethereum", b.Config().AccountsConfig().Accounts[2].Name)
+	require.Equal(t, "Bitcoin", accountsConfig.Accounts[0].Name)
+	require.Equal(t, "Litecoin", accountsConfig.Accounts[1].Name)
+	require.Equal(t, "Ethereum", accountsConfig.Accounts[2].Name)
 
-	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
-	require.Equal(t, "Mock keystore 1", b.Config().AccountsConfig().Keystores[0].Name)
-	require.Equal(t, rootFingerprint1, []byte(b.Config().AccountsConfig().Keystores[0].RootFingerprint))
+	require.Len(t, accountsConfig.Keystores, 1)
+	require.Equal(t, "Mock keystore 1", accountsConfig.Keystores[0].Name)
+	require.Equal(t, rootFingerprint1, []byte(accountsConfig.Keystores[0].RootFingerprint))
 	// LastConnected might not be `time.Now()` anymore as some time may have passed in the unit
 	// tests, but we check that it was set and recent.
-	require.Less(t, time.Since(b.Config().AccountsConfig().Keystores[0].LastConnected), 10*time.Second)
+	require.Less(t, time.Since(accountsConfig.Keystores[0].LastConnected), 10*time.Second)
 
 	// Deregistering the keystore leaves the loaded accounts (watchonly), and leaves the persisted
 	// accounts and keystores.
@@ -528,13 +592,15 @@ func TestRegisterKeystore(t *testing.T) {
 
 	b.DeregisterKeystore()
 	checkShownAccountsLen(t, b, 3, 3)
-	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
+	accountsConfig = accountsSnapshot(t, b)
+	require.Len(t, accountsConfig.Keystores, 1)
 
 	// Registering the same keystore again loads the previously persisted accounts and does not
 	// automatically persist more accounts.
 	b.registerKeystore(ks1)
 	checkShownAccountsLen(t, b, 3, 3)
-	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
+	accountsConfig = accountsSnapshot(t, b)
+	require.Len(t, accountsConfig.Keystores, 1)
 
 	// Registering another keystore persists a set of initial default accounts and loads them.
 	b.DeregisterKeystore()
@@ -542,15 +608,16 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NoError(t, b.SetWatchonly(rootFingerprint2, true))
 
 	checkShownAccountsLen(t, b, 6, 6)
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-btc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-ltc-0"))
-	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-eth-0"))
+	accountsConfig = accountsSnapshot(t, b)
+	require.NotNil(t, accountsConfig.Lookup("v0-66666666-btc-0"))
+	require.NotNil(t, accountsConfig.Lookup("v0-66666666-ltc-0"))
+	require.NotNil(t, accountsConfig.Lookup("v0-66666666-eth-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-btc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
-	require.Len(t, b.Config().AccountsConfig().Keystores, 2)
-	require.Equal(t, "Mock keystore 2", b.Config().AccountsConfig().Keystores[1].Name)
-	require.Equal(t, rootFingerprint2, []byte(b.Config().AccountsConfig().Keystores[1].RootFingerprint))
+	require.Len(t, accountsConfig.Keystores, 2)
+	require.Equal(t, "Mock keystore 2", accountsConfig.Keystores[1].Name)
+	require.Equal(t, rootFingerprint2, []byte(accountsConfig.Keystores[1].RootFingerprint))
 
 	b.DeregisterKeystore()
 

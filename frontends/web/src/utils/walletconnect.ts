@@ -1,36 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, createElement } from 'react';
 import { IWalletKit } from '@reown/walletkit';
-import { ArbitrumLogo, OptimismLogo, BaseLogo, ETHLogo } from '@/components/icon';
+import { EVM_CHAIN_REGISTRY } from '@/utils/evm-chain-registry';
+import type { TEVMChain } from '@/utils/evm-chain-registry';
 import { truncateMiddle } from '@/utils/truncate';
 
-type TSupportedChainDetail = {
-  [key: string]: { name: string; icon: ReactNode };
-};
-
-export const SUPPORTED_CHAINS: TSupportedChainDetail = {
-  'eip155:1': {
-    name: 'Ethereum mainnet',
-    icon: createElement(ETHLogo)
-  },
-  'eip155:10': {
-    name: 'Optimism',
-    icon: createElement(OptimismLogo)
-  },
-  'eip155:8453': {
-    name: 'Base',
-    icon: createElement(BaseLogo)
-  },
-  'eip155:42161': {
-    name: 'Arbitrum One',
-    icon: createElement(ArbitrumLogo)
-  },
-  'eip155:11155111': {
-    name: 'Ethereum Sepolia testnet',
-    icon: createElement(ETHLogo)
-  },
-};
+export const SUPPORTED_CHAINS: Record<string, TEVMChain> = Object.fromEntries(
+  Object.entries(EVM_CHAIN_REGISTRY).map(([chainID, chain]) => [`eip155:${chainID}`, chain]),
+);
 
 export const EIP155_SIGNING_METHODS = {
   PERSONAL_SIGN: 'personal_sign',
@@ -47,6 +24,13 @@ export const EIP155_SIGNING_METHODS = {
   ETH_SIGN_TYPED_DATA_V4: 'eth_signTypedData_v4',
   ETH_SEND_TRANSACTION: 'eth_sendTransaction'
 };
+
+export const EIP155_SUPPORTED_METHODS: string[] = Object.values(EIP155_SIGNING_METHODS);
+
+export const EIP155_SUPPORTED_EVENTS: string[] = [
+  'accountsChanged',
+  'chainChanged',
+];
 
 export const getAddressFromEIPString = (address: string) => {
   const parts = address.split(':');
@@ -81,41 +65,16 @@ export const pairingHasEverBeenRejected = (topic: string, web3wallet: IWalletKit
         >= 0;
 };
 
-export const rejectMessage = (id: number) => {
-  return {
-    id,
-    jsonrpc: '2.0',
-    error: {
-      code: 5000,
-      message: 'User rejected.'
-    }
-  };
-};
-
 export const decodeEthMessage = (hex: string) => {
-  let message = hex.trim();
-  if (message.startsWith('0x')) {
-    message = message.substring(2);
-  }
-
-  // Validate input.
-  if (message.length % 2 !== 0 || !/^[0-9a-fA-F]*$/.test(message)) {
-    console.error('Invalid hex string');
+  if (!/^0x(?:[0-9a-fA-F]{2})*$/.test(hex)) {
     return null;
   }
 
-  // Create a Uint8Array from the hex string.
+  const message = hex.slice(2);
   const bytes = new Uint8Array(message.length / 2);
   for (let i = 0; i < bytes.length; i++) {
-    const byte = parseInt(message.substring(i * 2, i * 2 + 2), 16);
-    if (isNaN(byte)) {
-      console.error('Invalid byte in hex string');
-      return null;
-    }
-    bytes[i] = byte;
+    bytes[i] = Number.parseInt(message.slice(i * 2, i * 2 + 2), 16);
   }
 
-  // Create a TextDecoder and use it to convert the bytes to a string.
-  const decoder = new TextDecoder('utf-8');
-  return decoder.decode(bytes);
+  return new TextDecoder('utf-8').decode(bytes);
 };

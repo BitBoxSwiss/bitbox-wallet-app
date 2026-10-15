@@ -5,58 +5,46 @@ import { useTranslation } from 'react-i18next';
 import { Main, Header, GuideWrapper, GuidedContent } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
-import { TPagePropsWithSettingsTabs } from './types';
 import { EnableCustomFeesToggleSetting } from './components/advanced-settings/enable-custom-fees-toggle-setting';
 import { EnableCoinControlSetting } from './components/advanced-settings/enable-coin-control-setting';
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
+import { LightningSettingsSetting } from './components/advanced-settings/lightning-settings-setting';
 import { UnlockSoftwareKeystore } from './components/advanced-settings/unlock-software-keystore';
 import { RestartInTestnetSetting } from './components/advanced-settings/restart-in-testnet-setting';
 import { ExportLogSetting } from './components/advanced-settings/export-log-setting';
+import { ClearCacheSetting } from './components/advanced-settings/clear-cache-setting';
 import { CustomGapLimitSettings } from './components/advanced-settings/custom-gap-limit-setting';
-import { MobileHeader } from './components/mobile-header';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { EnableAuthSetting } from './components/advanced-settings/enable-auth-setting';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { AppContext } from '@/contexts/AppContext';
+import { useAppState } from '@/contexts/app-state-context';
+import { isLightningFeatureAvailable } from '@/utils/env';
 import {
   isExportLogsSettingVisible,
   isScreenLockSettingVisible,
   isTestWalletSettingVisible,
 } from './settings-availability';
 
-type TProps = {
-  devices: TPagePropsWithSettingsTabs['devices'];
-};
-
-export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSettingsTabs) => {
+export const AdvancedSettings = () => {
   const { t } = useTranslation();
   return (
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <ContentWrapper>
-            <GlobalBanners devices={devices} />
-          </ContentWrapper>
           <Header
+            variant="navigation"
+            desktopTitle={t('sidebar.settings')}
             hideSidebarToggler
-            title={
-              <>
-                <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader withGuide title={t('settings.advancedSettings')} />
-              </>
-            } />
+            mobileBackButton
+            title={t('settings.advancedSettings')}
+          />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs
-                devices={devices}
-                hideMobileMenu
-                hasAccounts={hasAccounts}
-              >
-                <AdvancedSettingsContent devices={devices} />
+              <WithSettingsTabs hideMobileMenu>
+                <AdvancedSettingsContent />
               </WithSettingsTabs>
             </ViewContent>
           </View>
@@ -64,20 +52,21 @@ export const AdvancedSettings = ({ devices, hasAccounts }: TPagePropsWithSetting
       </GuidedContent>
       <AdvancedSettingsGuide />
     </GuideWrapper>
-
   );
 };
 
-export const AdvancedSettingsContent = ({
-  devices,
-}: TProps) => {
+export const AdvancedSettingsContent = () => {
   const { isTesting } = useContext(AppContext);
+  const { deviceIDs } = useAppState();
 
-  const deviceIDs = Object.keys(devices);
   const sections: TSettingsContentSection[] = [
     {
       id: 'advanced-settings',
       items: [
+        ...(isLightningFeatureAvailable() ? [{
+          id: 'lightning-settings',
+          content: <LightningSettingsSetting />,
+        }] : []),
         { id: 'custom-fees', content: <EnableCustomFeesToggleSetting /> },
         { id: 'coin-control', content: <EnableCoinControlSetting /> },
         ...(isScreenLockSettingVisible() ? [{
@@ -92,6 +81,7 @@ export const AdvancedSettingsContent = ({
           content: <UnlockSoftwareKeystore />,
         }] : []),
         { id: 'full-node', content: <ConnectFullNodeSetting /> },
+        { id: 'clear-cache', content: <ClearCacheSetting /> },
         ...(isExportLogsSettingVisible() ? [{
           id: 'export-logs',
           content: <ExportLogSetting />,

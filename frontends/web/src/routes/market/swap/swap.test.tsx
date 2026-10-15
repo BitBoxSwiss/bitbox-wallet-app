@@ -35,6 +35,7 @@ vi.mock('@/components/guide/entry', () => ({
 }));
 vi.mock('@/components/backbutton/backbutton', () => ({
   BackButton: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  DesktopBackButton: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 vi.mock('@/components/spinner/SpinnerAnimation', () => ({
   SpinnerRingAnimated: () => null,
@@ -75,7 +76,6 @@ vi.mock('@/api/account', async (importOriginal) => {
   return {
     ...actual,
     getBalance: vi.fn(),
-    hasSwapPaymentRequest: vi.fn(),
     proposeTx: vi.fn(),
     sendTx: vi.fn(),
   };
@@ -114,6 +114,7 @@ import { useConfig } from '@/contexts/ConfigProvider';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Swap } from './swap';
+import { AppStateContext } from '@/contexts/app-state-context';
 
 const mockUseConfig = vi.mocked(useConfig);
 
@@ -242,9 +243,23 @@ describe('routes/market/swap', () => {
             rotateDefaultCurrency: vi.fn(),
             updateDefaultCurrency: vi.fn(),
           }}>
-          <MemoryRouter>
-            <Swap accounts={[sellAccount, buyAccount]} />
-          </MemoryRouter>
+          <AppStateContext.Provider
+            value={{
+              accounts: [sellAccount, buyAccount],
+              activeAccounts: [sellAccount, buyAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: false,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <MemoryRouter>
+              <Swap />
+            </MemoryRouter>
+          </AppStateContext.Provider>
         </RatesContext.Provider>
       </BackButtonProvider>
     );
@@ -298,9 +313,23 @@ describe('routes/market/swap', () => {
             rotateDefaultCurrency: vi.fn(),
             updateDefaultCurrency: vi.fn(),
           }}>
-          <MemoryRouter>
-            <Swap accounts={[buyAccount]} />
-          </MemoryRouter>
+          <AppStateContext.Provider
+            value={{
+              accounts: [buyAccount],
+              activeAccounts: [buyAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: false,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <MemoryRouter>
+              <Swap />
+            </MemoryRouter>
+          </AppStateContext.Provider>
         </RatesContext.Provider>
       </BackButtonProvider>
     );
@@ -340,9 +369,23 @@ describe('routes/market/swap', () => {
             rotateDefaultCurrency: vi.fn(),
             updateDefaultCurrency: vi.fn(),
           }}>
-          <MemoryRouter>
-            <Swap accounts={[sellAccount, buyAccount]} />
-          </MemoryRouter>
+          <AppStateContext.Provider
+            value={{
+              accounts: [sellAccount, buyAccount],
+              activeAccounts: [sellAccount, buyAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: false,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <MemoryRouter>
+              <Swap />
+            </MemoryRouter>
+          </AppStateContext.Provider>
         </RatesContext.Provider>
       </BackButtonProvider>
     );
@@ -384,9 +427,23 @@ describe('routes/market/swap', () => {
             rotateDefaultCurrency: vi.fn(),
             updateDefaultCurrency: vi.fn(),
           }}>
-          <MemoryRouter>
-            <Swap accounts={[sellAccount, buyAccount]} />
-          </MemoryRouter>
+          <AppStateContext.Provider
+            value={{
+              accounts: [sellAccount, buyAccount],
+              activeAccounts: [sellAccount, buyAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: false,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <MemoryRouter>
+              <Swap />
+            </MemoryRouter>
+          </AppStateContext.Provider>
         </RatesContext.Provider>
       </BackButtonProvider>
     );
@@ -429,9 +486,23 @@ describe('routes/market/swap', () => {
             rotateDefaultCurrency: vi.fn(),
             updateDefaultCurrency: vi.fn(),
           }}>
-          <MemoryRouter>
-            <Swap accounts={[sellAccount, buyAccount]} />
-          </MemoryRouter>
+          <AppStateContext.Provider
+            value={{
+              accounts: [sellAccount, buyAccount],
+              activeAccounts: [sellAccount, buyAccount],
+              deviceIDs: [],
+              devices: {},
+              hasAccounts: false,
+              hasBottomNavigation: false,
+              hasDevices: false,
+              lightningAccount: undefined,
+              hasLightningAccount: false,
+            }}
+          >
+            <MemoryRouter>
+              <Swap />
+            </MemoryRouter>
+          </AppStateContext.Provider>
         </RatesContext.Provider>
       </BackButtonProvider>
     );

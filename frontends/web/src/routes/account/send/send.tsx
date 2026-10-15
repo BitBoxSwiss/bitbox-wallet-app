@@ -13,11 +13,11 @@ import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { Button } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, GuideWrapper, GuidedContent, Header, Main, ResponsiveGrid } from '@/components/layout';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { FeeTargets } from './feetargets';
-import { isBitcoinBased, isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinBased, isBitcoinOnly } from '@/utils/coin';
 import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
 import { SendResult } from './components/result';
@@ -213,9 +213,10 @@ export const Send = ({
         convertToFiat(result.amount.amount);
       }
     } else {
-      const errorHandling = txProposalErrorHandling(result.errorCode);
+      const errorHandling = txProposalErrorHandling(result.errorCode, result.errorMessage);
       setErrorHandling(errorHandling);
       setIsUpdatingProposal(false);
+      setProposedTotal(undefined);
 
       if (
         errorHandling.amountError
@@ -230,10 +231,10 @@ export const Send = ({
   const validateAndDisplayFee = useCallback((
     updateFiat: boolean = true,
   ) => {
-    setProposedTotal(undefined);
     setErrorHandling({});
     const txInput = getValidTxInputData();
     if (!txInput) {
+      setProposedTotal(undefined);
       return;
     }
     if (proposeTimeout.current) {
@@ -256,6 +257,7 @@ export const Send = ({
       } catch (error) {
         if (proposePromise === lastProposal.current) {
           setValid(false);
+          setProposedTotal(undefined);
           console.error('Failed to propose transaction:', error);
         }
       } finally {
@@ -352,20 +354,41 @@ export const Send = ({
 
 
   const parseQRResult = async (uri: string) => {
-    let qrAddress;
+    let qrAddress = uri;
     let qrAmount = '';
+    let url: URL | undefined;
     try {
-      const url = new URL(uri);
-      if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:' && url.protocol !== 'ethereum:') {
-        alertUser(t('invalidFormat'));
-        return;
-      }
-      qrAddress = url.pathname;
-      if (isBitcoinBased(account.coinCode)) {
-        qrAmount = url.searchParams.get('amount') || '';
-      }
+      url = new URL(uri);
     } catch {
-      qrAddress = uri;
+      url = undefined;
+    }
+    if (url) {
+      if (url.protocol === 'ethereum:') {
+        let paymentRequest;
+        try {
+          paymentRequest = await accountApi.parseEthereumPaymentRequest(account.code, uri);
+        } catch (error) {
+          alertUser(t('unknownError', { errorMessage: String(error) }));
+          return;
+        }
+        if (!paymentRequest.success) {
+          alertUser(t(paymentRequest.errorCode === 'accountMismatch'
+            ? 'send.error.paymentRequestAccountMismatch'
+            : 'invalidFormat'));
+          return;
+        }
+        qrAddress = paymentRequest.recipient;
+        qrAmount = paymentRequest.amount || '';
+      } else {
+        if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:') {
+          alertUser(t('invalidFormat'));
+          return;
+        }
+        qrAddress = url.pathname;
+        if (isBitcoinBased(account.coinCode)) {
+          qrAmount = url.searchParams.get('amount') || '';
+        }
+      }
     }
     qrAddress = qrAddress.replace(/\s/g, '');
 
@@ -389,8 +412,10 @@ export const Send = ({
     setRecipientDisplayAddress('');
     setSelectedReceiverAccount(null);
     setSendAll(false);
-    setFiatAmount('');
-    convertToFiat(qrAmount);
+    if (qrAmount) {
+      setFiatAmount('');
+    }
+    convertToFiat(qrAmount || amount);
     setUpdateFiat(true);
   };
 
@@ -420,7 +445,9 @@ export const Send = ({
       <GuidedContent>
         <Main>
           <Header
-            title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
+            variant="navigation"
+            mobileBackButton
+            title={t('send.title', { accountName: account.coinName })}
           >
             <HideAmountsButton />
           </Header>
@@ -500,11 +527,11 @@ export const Send = ({
                       disabled={!getValidTxInputData() || !valid || isUpdatingProposal}>
                       {t('send.button')}
                     </Button>
-                    <BackButton
+                    <DesktopBackButton
                       enableEsc={!isConfirming && !utxoDialogActive}
                     >
                       {t('button.back')}
-                    </BackButton>
+                    </DesktopBackButton>
                   </ColumnButtons>
                 </Column>
               </ResponsiveGrid>

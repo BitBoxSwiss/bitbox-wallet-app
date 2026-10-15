@@ -4,7 +4,8 @@ import { useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AccountCode, TAccount, TAmountWithConversions, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub, getBalance } from '@/api/account';
-import { getScriptName, isBitcoinBased, isEthereumBased } from '@/routes/account/utils';
+import { getScriptName } from '@/routes/account/utils';
+import { isBitcoinBased, isEthereumBased } from '@/utils/coin';
 import { alertUser } from '@/components/alert/Alert';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { A } from '@/components/anchor/anchor';
@@ -53,12 +54,14 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
   const bitcoinBased = isBitcoinBased(account.coinCode);
   const contractAddress = account.contractAddress;
   const blockExplorerAddressPrefix = account.blockExplorerAddressPrefix;
-  const contractAddressInfo = account.isToken && contractAddress && blockExplorerAddressPrefix
-    ? {
-      address: contractAddress,
-      url: `${blockExplorerAddressPrefix}${contractAddress}`,
-    }
-    : null;
+  const contractAddressInfo = (
+    account.isToken && contractAddress && blockExplorerAddressPrefix
+      ? {
+        address: contractAddress,
+        url: `${blockExplorerAddressPrefix}${contractAddress}`,
+      }
+      : null
+  );
   return (
     <div className={style.address}>
       <div className={style.qrCode}>

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, useContext, useEffect } from 'react';
+import { ReactNode, useContext, useLayoutEffect } from 'react';
 import { t } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { A } from '@/components/anchor/anchor';
@@ -18,7 +18,7 @@ export type TProps = {
 const Guide = ({ children, title = t('guide.title') }: TProps) => {
   const { guideShown, toggleGuide, setGuideExists } = useContext(AppContext);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setGuideExists(true);
     return () => {
       setGuideExists(false);

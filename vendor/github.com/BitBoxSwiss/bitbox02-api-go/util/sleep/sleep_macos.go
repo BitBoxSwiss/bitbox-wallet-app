@@ -32,12 +32,10 @@ void allowSleep() {
 */
 import "C"
 
-// Prevent prevents macOS from going to sleep. Must be paired with `Allow()`.
-func Prevent() {
+func preventSleep() {
 	C.preventSleep()
 }
 
-// Allow allows macOS to go to sleep.
-func Allow() {
+func allowSleep() {
 	C.allowSleep()
 }

@@ -18,10 +18,9 @@ import (
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware/messages"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/btcsuite/btcd/btcutil/psbt"
-	"github.com/btcsuite/btcd/chaincfg"
-	ethTypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
+	"github.com/btcsuite/btcd/chaincfg/v2"
+	"github.com/btcsuite/btcd/psbt/v2"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,6 +32,40 @@ type keystore struct {
 
 	rootFingerMu sync.Mutex
 	rootFinger   []byte // cached result of RootFingerprint
+}
+
+var (
+	minBTCTransactionAntiKleptoVersion = semver.NewSemVer(9, 4, 0)
+	minAntiKleptoVersion               = semver.NewSemVer(9, 5, 0)
+	minTaprootVersion                  = semver.NewSemVer(9, 10, 0)
+	minETHTypedMessageVersion          = semver.NewSemVer(9, 12, 0)
+	minPaymentRequestVersion           = semver.NewSemVer(9, 20, 0)
+	minSwapPaymentRequestVersion       = semver.NewSemVer(9, 26, 0)
+)
+
+func (keystore *keystore) requireFirmwareVersion(minVersion *semver.SemVer) error {
+	if keystore.device.Version().AtLeast(minVersion) {
+		return nil
+	}
+	return keystorePkg.ErrFirmwareUpgradeRequired
+}
+
+// SupportsFeature implements keystore.Keystore.
+func (keystore *keystore) SupportsFeature(feature keystorePkg.Feature) error {
+	switch feature {
+	case keystorePkg.FeatureBTCTransactionSigning:
+		return keystore.requireFirmwareVersion(minBTCTransactionAntiKleptoVersion)
+	case keystorePkg.FeatureETHTransactionSigning, keystorePkg.FeatureMessageSigning:
+		return keystore.requireFirmwareVersion(minAntiKleptoVersion)
+	case keystorePkg.FeatureETHTypedMessageSigning:
+		return keystore.requireFirmwareVersion(minETHTypedMessageVersion)
+	case keystorePkg.FeaturePaymentRequests:
+		return keystore.requireFirmwareVersion(minPaymentRequestVersion)
+	case keystorePkg.FeatureSwapPaymentRequests:
+		return keystore.requireFirmwareVersion(minSwapPaymentRequestVersion)
+	default:
+		return keystorePkg.ErrUnsupportedFeature
+	}
 }
 
 func (keystore *keystore) clearRootFingerprintCache() {
@@ -70,6 +103,23 @@ func (keystore *keystore) RootFingerprint() ([]byte, error) {
 	return res, nil
 }
 
+// DeterministicEntropy implements keystore.Keystore.
+func (keystore *keystore) DeterministicEntropy() ([]byte, error) {
+	entropy, err := keystore.device.BIP85AppLN()
+	if err != nil {
+		return nil, err
+	}
+	if len(entropy) != 16 {
+		return nil, errp.Newf("entropy size expected to be 16 bytes, got %d", len(entropy))
+	}
+	return entropy, nil
+}
+
+// SupportsDeterministicEntropy implements keystore.Keystore.
+func (keystore *keystore) SupportsDeterministicEntropy() bool {
+	return keystore.device.Version().AtLeast(semver.NewSemVer(9, 17, 0))
+}
+
 // SupportsCoin implements keystore.Keystore.
 func (keystore *keystore) SupportsCoin(coin coinpkg.Coin) bool {
 	switch specificCoin := coin.(type) {
@@ -100,7 +150,7 @@ func (keystore *keystore) SupportsAccount(coin coinpkg.Coin, meta interface{}) b
 			// Taproot available since v9.10.0.
 			switch coin.Code() {
 			case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC:
-				return keystore.device.Version().AtLeast(semver.NewSemVer(9, 10, 0))
+				return keystore.device.Version().AtLeast(minTaprootVersion)
 			default:
 				return false
 			}
@@ -134,6 +184,11 @@ func (keystore *keystore) VerifyAddressBTC(
 	}
 	if !canVerifyAddress {
 		panic("CanVerifyAddress must be true")
+	}
+	if accountConfiguration.ScriptType() == signing.ScriptTypeP2TR {
+		if err := keystore.requireFirmwareVersion(minTaprootVersion); err != nil {
+			return err
+		}
 	}
 	msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
 	if !ok {
@@ -323,6 +378,9 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	paymentRequest := btcProposedTx.TXProposal.PaymentRequest
 	var paymentRequestIndex *uint32
 	if paymentRequest != nil {
+		if paymentRequest.TotalAmount == nil || !paymentRequest.TotalAmount.IsUint64() {
+			return errp.New("BTC payment request amount overflows uint64")
+		}
 		btcPaymentRequests = []*messages.BTCPaymentRequestRequest{
 			newBTCPaymentRequest(paymentRequest),
 		}
@@ -390,7 +448,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 			paymentRequest = newBTCPaymentRequest(txProposal.PaymentRequest)
 		}
 		signature, err = keystore.device.ETHSignEIP1559(
-			txProposal.Coin.ChainID(),
+			txProposal.ChainID,
 			txProposal.Keypath.ToUInt32(),
 			tx.Nonce(),
 			tx.GasTipCap(),
@@ -407,7 +465,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 			return errp.New("payment requests require EIP-1559 support")
 		}
 		signature, err = keystore.device.ETHSign(
-			txProposal.Coin.ChainID(),
+			txProposal.ChainID,
 			txProposal.Keypath.ToUInt32(),
 			tx.Nonce(),
 			tx.GasPrice(),
@@ -426,7 +484,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 	if err != nil {
 		return err
 	}
-	signedTx, err := txProposal.Tx.WithSignature(txProposal.Signer, signature)
+	signedTx, err := txProposal.Tx.WithSignature(txProposal.Signer(), signature)
 	if err != nil {
 		return err
 	}
@@ -489,10 +547,17 @@ func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) *messages.BT
 		memos = append(memos, &memo)
 	}
 
+	// total_amount is a legacy BTC-only protobuf field. EVM payment requests are
+	// displayed and validated against the arbitrary-precision amount parsed from the tx.
+	totalAmount := uint64(0)
+	if amount := txPaymentRequest.TotalAmount; amount != nil && amount.IsUint64() {
+		totalAmount = amount.Uint64()
+	}
+
 	return &messages.BTCPaymentRequestRequest{
 		RecipientName: txPaymentRequest.RecipientName,
 		Nonce:         txPaymentRequest.Nonce,
-		TotalAmount:   txPaymentRequest.TotalAmount,
+		TotalAmount:   totalAmount,
 		Signature:     txPaymentRequest.Signature,
 		Memos:         memos,
 	}
@@ -502,8 +567,14 @@ func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) *messages.BT
 func (keystore *keystore) SignTransaction(proposedTx interface{}) error {
 	switch specificProposedTx := proposedTx.(type) {
 	case *btc.ProposedTransaction:
+		if err := keystore.SupportsFeature(keystorePkg.FeatureBTCTransactionSigning); err != nil {
+			return err
+		}
 		return keystore.signBTCTransaction(specificProposedTx)
 	case *eth.TxProposal:
+		if err := keystore.SupportsFeature(keystorePkg.FeatureETHTransactionSigning); err != nil {
+			return err
+		}
 		return keystore.signETHTransaction(specificProposedTx)
 	default:
 		panic("unknown proposal type")
@@ -521,6 +592,9 @@ func (keystore *keystore) CanSignMessage(code coinpkg.Code) bool {
 
 // SignBTCMessage implements keystore.Keystore.
 func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coinpkg.Code) ([]byte, error) {
+	if err := keystore.SupportsFeature(keystorePkg.FeatureMessageSigning); err != nil {
+		return nil, err
+	}
 	sc, ok := btcMsgScriptTypeMap[scriptType]
 	if !ok {
 		return nil, errp.Newf("scriptType not supported: %s", scriptType)
@@ -548,6 +622,9 @@ func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 
 // SignETHMessage implements keystore.Keystore.
 func (keystore *keystore) SignETHMessage(chainID uint64, message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	if err := keystore.SupportsFeature(keystorePkg.FeatureMessageSigning); err != nil {
+		return nil, err
+	}
 	signature, err := keystore.device.ETHSignMessage(chainID, keypath.ToUInt32(), message)
 	if firmware.IsErrorAbort(err) {
 		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
@@ -559,35 +636,15 @@ func (keystore *keystore) SignETHMessage(chainID uint64, message []byte, keypath
 }
 
 // SignETHTypedMessage implements keystore.Keystore.
-func (keystore *keystore) SignETHTypedMessage(chainId uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	// SignETHTypedMessage is currently only used for WalletConnect. We disable antiklepto there, as
-	// some DeFi apps require deterministic signatures.
-	// Before v9.26.0, antiklepto could not be disabled.
-	useAntiklepto := !keystore.device.Version().AtLeast(semver.NewSemVer(9, 26, 0))
-
-	signature, err := keystore.device.ETHSignTypedMessage(chainId, keypath.ToUInt32(), data, useAntiklepto)
-	if firmware.IsErrorAbort(err) {
-		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
-	}
-	if err != nil {
+func (keystore *keystore) SignETHTypedMessage(chainID uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	if err := keystore.SupportsFeature(keystorePkg.FeatureETHTypedMessageSigning); err != nil {
 		return nil, err
 	}
-	return signature, nil
-}
+	// Some applications require deterministic signatures. Before v9.26.0, antiklepto could not be
+	// disabled.
+	useAntiklepto := !keystore.device.Version().AtLeast(semver.NewSemVer(9, 26, 0))
 
-// SignETHWalletConnectTransaction implements keystore.Keystore.
-func (keystore *keystore) SignETHWalletConnectTransaction(chainId uint64, tx *ethTypes.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	signature, err := keystore.device.ETHSign(
-		chainId,
-		keypath.ToUInt32(),
-		tx.Nonce(),
-		tx.GasPrice(),
-		tx.Gas(),
-		*tx.To(),
-		tx.Value(),
-		tx.Data(),
-		messages.ETHAddressCase_ETH_ADDRESS_CASE_MIXED,
-	)
+	signature, err := keystore.device.ETHSignTypedMessage(chainID, keypath.ToUInt32(), data, useAntiklepto)
 	if firmware.IsErrorAbort(err) {
 		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
 	}
@@ -600,23 +657,6 @@ func (keystore *keystore) SignETHWalletConnectTransaction(chainId uint64, tx *et
 // SupportsEIP1559 implements keystore.Keystore.
 func (keystore *keystore) SupportsEIP1559() bool {
 	return keystore.device.Version().AtLeast(semver.NewSemVer(9, 16, 0))
-}
-
-// SupportsPaymentRequests implements keystore.Keystore.
-func (keystore *keystore) SupportsPaymentRequests() error {
-	if keystore.device.Version().AtLeast(semver.NewSemVer(9, 20, 0)) {
-		return nil
-	}
-	return keystorePkg.ErrFirmwareUpgradeRequired
-}
-
-// SupportsSwapPaymentRequests reports whether the device supports the
-// payment-request signing flow used by swaps.
-func (keystore *keystore) SupportsSwapPaymentRequests() error {
-	if keystore.device.Version().AtLeast(semver.NewSemVer(9, 26, 0)) {
-		return nil
-	}
-	return keystorePkg.ErrFirmwareUpgradeRequired
 }
 
 // Features reports optional capabilities supported by the BitBox02 keystore.

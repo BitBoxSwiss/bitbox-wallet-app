@@ -1,0 +1,86 @@
+.title {
+    font-size: var(--size-header);
+    font-weight: 400;
+    line-height: 1;
+    margin-top: 0;
+    margin-bottom: var(--space-default);
+    text-align: center;
+}
+
+.info {
+    margin-bottom: var(--space-default);
+}
+
+.label {
+    font-size: var(--size-subheader);
+    font-weight: 400;
+    color: var(--color-gray-alt);
+    line-height: 18px;
+    margin: 0;
+    margin-bottom: var(--space-eight);
+}
+
+.receiverLabel {
+    align-items: center;
+    display: flex;
+    gap: var(--space-eight);
+}
+
+.receiverBadge {
+    padding: calc(var(--space-three-quarter) / 4) calc(var(--space-three-quarter) / 2);
+}
+
+.address {
+    overflow-wrap: anywhere;
+}
+
+.amountLine {
+    align-items: baseline;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+}
+
+.availableBalance {
+    margin-bottom: var(--space-default);
+    text-align: left;
+}
+
+.successCheck {
+    background-color: var(--color-success);
+    border: .5rem solid var(--color-success);
+    border-radius: 100px;
+}
+
+.successMessage {
+    color: var(--color-secondary);
+}
+
+.error {
+  margin-bottom: var(--space-default);
+  min-height: 70px;
+}
+
+.successMessage strong {
+    color: var(--color-default);
+}
+
+.camera video {
+    margin-bottom: var(--space-default);
+}
+
+@media (max-width: 768px) {
+    .title {
+        text-align: left;
+    }
+
+    .camera video {
+        max-height: 330px;
+        min-height:200px;
+        position: relative;
+    }
+
+    .error {
+      min-height: 90px;
+    }
+}

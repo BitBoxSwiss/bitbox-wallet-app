@@ -40,7 +40,8 @@ dockerdev () {
            --platform "linux/amd64" \
            --privileged -v /dev/bus/usb:/dev/bus/usb \
            --interactive --tty \
-           --name=$container_name -p 8080:8080 -p 8082:8082 \
+           --env BITBOX_DEV_BIND_HOST=0.0.0.0 \
+           --name=$container_name -p 127.0.0.1:8080:8080 -p 127.0.0.1:8082:8082 \
            --add-host="dev.shiftcrypto.ch:176.9.28.202" \
            --add-host="dev1.shiftcrypto.ch:176.9.28.155" \
            --add-host="dev2.shiftcrypto.ch:176.9.28.156" \

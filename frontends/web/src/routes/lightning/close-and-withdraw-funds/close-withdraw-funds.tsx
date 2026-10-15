@@ -1,0 +1,257 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { connectAnyKeystore } from '@/api/keystores';
+import { getLightningBalance, postCloseWithdraw, postPrepareCloseWithdraw, type TCloseWithdrawQuote } from '@/api/lightning';
+import { TLightningErrorCode, TSdkError, toLightningErrorMessage } from '@/api/lightning-errors';
+import type { AccountCode, TAmountWithConversions } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
+import { Button } from '@/components/forms';
+import { Header, Main } from '@/components/layout';
+import { View, ViewButtons, ViewContent } from '@/components/view/view';
+import { UseDisableBackButton } from '@/hooks/backbutton';
+import { useMountedRef } from '@/hooks/mount';
+import { CloseWithdrawConfirm } from './confirm-step';
+import { CloseWithdrawFailure } from './failure-step';
+import { CloseWithdrawSuccess } from './success-step';
+
+type TStep = 'confirm' | 'failure' | 'partialFailure' | 'success';
+
+type TPreparedQuote = TCloseWithdrawQuote & {
+  destinationAccountCode: AccountCode;
+};
+
+export const LightningCloseWithdrawFunds = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { activeAccounts, hasAccounts } = useAppState();
+  const btcAccounts = useMemo(
+    () => activeAccounts.filter(account => account.active && account.coinCode === 'btc'),
+    [activeAccounts]
+  );
+  const [destinationAccountCode, setDestinationAccountCode] = useState<AccountCode>(btcAccounts[0]?.code || '');
+  const [confirmed, setConfirmed] = useState(false);
+  const [step, setStep] = useState<TStep>('confirm');
+  const [balance, setBalance] = useState<TAmountWithConversions>();
+  const [hasIncoming, setHasIncoming] = useState(false);
+  const [incoming, setIncoming] = useState<TAmountWithConversions>();
+  const [incomingConfirmed, setIncomingConfirmed] = useState(false);
+  const [quote, setQuote] = useState<TPreparedQuote>();
+  const [prepareError, setPrepareError] = useState<string>();
+  const [isClosing, setIsClosing] = useState(false);
+  const [txID, setTxID] = useState<string>();
+  const mounted = useMountedRef();
+  const isClosingRef = useRef(false);
+  const quoteRequest = useRef(0);
+  const closeIdempotencyKey = useRef<string>();
+  const destinationAccount = btcAccounts.find(account => account.code === destinationAccountCode);
+  const quoteMatchesDestination = quote?.destinationAccountCode === destinationAccountCode;
+  const canClose = (
+    confirmed
+    && (!hasIncoming || incomingConfirmed)
+    && !!quote
+    && quoteMatchesDestination
+    && !prepareError
+    && !isClosing
+  );
+
+  useEffect(() => {
+    if (!btcAccounts.length) {
+      closeIdempotencyKey.current = undefined;
+      setDestinationAccountCode('');
+      return;
+    }
+    if (!destinationAccountCode || !btcAccounts.some(account => account.code === destinationAccountCode)) {
+      closeIdempotencyKey.current = undefined;
+      setDestinationAccountCode(btcAccounts[0]?.code || '');
+    }
+  }, [btcAccounts, destinationAccountCode]);
+
+  const loadQuote = useCallback(async () => {
+    const currentRequest = ++quoteRequest.current;
+    const quoteDestinationAccountCode = destinationAccountCode;
+    setQuote(undefined);
+    setPrepareError(undefined);
+    setConfirmed(false);
+
+    try {
+      const lightningBalance = await getLightningBalance();
+      if (!mounted.current || currentRequest !== quoteRequest.current) {
+        return;
+      }
+      setBalance(lightningBalance.available);
+      setHasIncoming(lightningBalance.hasIncoming);
+      setIncoming(lightningBalance.incoming);
+      if (!lightningBalance.hasAvailable) {
+        setPrepareError(t('error.lightningInsufficientFunds'));
+        return;
+      }
+      if (!quoteDestinationAccountCode) {
+        return;
+      }
+      const preparedQuote = await postPrepareCloseWithdraw(quoteDestinationAccountCode, closeIdempotencyKey.current);
+      if (!mounted.current || currentRequest !== quoteRequest.current) {
+        return;
+      }
+      setBalance(preparedQuote.balance);
+      closeIdempotencyKey.current = preparedQuote.idempotencyKey;
+      setQuote({
+        ...preparedQuote,
+        destinationAccountCode: quoteDestinationAccountCode,
+      });
+    } catch (error) {
+      console.error('Failed to prepare Lightning wallet withdrawal', error);
+      if (mounted.current && currentRequest === quoteRequest.current) {
+        setPrepareError(toLightningErrorMessage(t, error));
+      }
+    }
+  }, [destinationAccountCode, mounted, t]);
+
+  useEffect(() => {
+    if (step !== 'confirm' || isClosing || !destinationAccountCode || quoteMatchesDestination) {
+      quoteRequest.current += 1;
+      return;
+    }
+    loadQuote();
+  }, [destinationAccountCode, isClosing, loadQuote, quoteMatchesDestination, step]);
+
+  const closeWithdraw = useCallback(async () => {
+    if (
+      !quote
+      || quote.destinationAccountCode !== destinationAccountCode
+      || isClosingRef.current
+    ) {
+      return;
+    }
+    isClosingRef.current = true;
+    quoteRequest.current += 1;
+    setIsClosing(true);
+    try {
+      const result = await postCloseWithdraw(destinationAccountCode, quote.balanceSat, quote.feeSat, quote.idempotencyKey);
+      if (!mounted.current) {
+        return;
+      }
+      setTxID(result.txId);
+      setStep(result.walletClosed ? 'success' : 'partialFailure');
+    } catch (error) {
+      console.error('Failed to close Lightning wallet and withdraw funds', error);
+      if (mounted.current) {
+        if (error instanceof TSdkError) {
+          if (error.code === TLightningErrorCode.WITHDRAWAL_FAILED) {
+            closeIdempotencyKey.current = undefined;
+            setQuote(undefined);
+          } else if (error.code === TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED) {
+            setQuote(undefined);
+          }
+        }
+        setStep('failure');
+      }
+    } finally {
+      isClosingRef.current = false;
+      if (mounted.current) {
+        setIsClosing(false);
+      }
+    }
+  }, [destinationAccountCode, mounted, quote]);
+
+  const handleBack = () => navigate(-1);
+  const handleNoBitcoinAccountAction = async () => {
+    if (hasAccounts) {
+      navigate('/settings/manage-accounts');
+      return;
+    }
+    await connectAnyKeystore();
+  };
+
+  const headerBackEnabled = (
+    !btcAccounts.length
+    || (step === 'confirm' && !isClosing)
+  );
+
+  const renderStep = () => {
+    if (!btcAccounts.length) {
+      return (
+        <View textCenter verticallyCentered>
+          <ViewContent>
+            <p>{t('lightning.topUp.noBitcoinAccounts')}</p>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={handleNoBitcoinAccountAction}>
+              {hasAccounts ? t('manageAccounts.title') : t('welcome.connect')}
+            </Button>
+            <DesktopBackButton onClick={handleBack}>
+              {t('button.back')}
+            </DesktopBackButton>
+          </ViewButtons>
+        </View>
+      );
+    }
+
+    switch (step) {
+    case 'confirm':
+      return (
+        <CloseWithdrawConfirm
+          balance={balance}
+          btcAccounts={btcAccounts}
+          canClose={canClose}
+          confirmed={confirmed}
+          destinationAccountCode={destinationAccountCode}
+          fee={quote?.fee}
+          hasIncoming={hasIncoming}
+          incoming={incoming}
+          incomingConfirmed={incomingConfirmed}
+          isClosing={isClosing}
+          prepareError={prepareError}
+          onCancel={handleBack}
+          onClose={closeWithdraw}
+          onConfirmChange={() => setConfirmed(current => !current)}
+          onIncomingConfirmChange={() => setIncomingConfirmed(current => !current)}
+          onDestinationAccountChange={(code) => {
+            setConfirmed(false);
+            closeIdempotencyKey.current = undefined;
+            setDestinationAccountCode(code);
+          }}
+        />
+      );
+    case 'failure':
+    case 'partialFailure':
+      return (
+        <CloseWithdrawFailure
+          partial={step === 'partialFailure'}
+          onCancel={() => navigate(-1)}
+          onTryAgain={() => {
+            if (step === 'partialFailure') {
+              navigate('/lightning/deactivate/');
+              return;
+            }
+            setConfirmed(false);
+            setStep('confirm');
+          }}
+        />
+      );
+    case 'success':
+      return (
+        <CloseWithdrawSuccess
+          explorerURL={txID && destinationAccount ? `${destinationAccount.blockExplorerTxPrefix}${txID}` : undefined}
+          onDone={() => navigate('/account-summary')}
+        />
+      );
+    }
+  };
+
+  return (
+    <Main>
+      <Header
+        variant="navigation"
+        mobileBackButton={headerBackEnabled}
+        onBack={handleBack}
+        title={t('lightning.settings.closeAndWithdrawFunds')}
+      />
+      {renderStep()}
+      {isClosing && <UseDisableBackButton />}
+    </Main>
+  );
+};

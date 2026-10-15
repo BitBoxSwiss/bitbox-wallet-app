@@ -13,9 +13,10 @@ export const useCoinUnitPrice = (
   coinCode: CoinCode,
   unit?: CoinUnit,
 ): TAmountWithConversions | undefined => {
+  const unitPriceCoinCode = coinCode === 'lightning' ? 'btc' : coinCode;
   const result = useSync(
-    () => getCoinFiatPrices(coinCode),
-    subscribeCoinFiatPrices(coinCode),
+    () => getCoinFiatPrices(unitPriceCoinCode),
+    subscribeCoinFiatPrices(unitPriceCoinCode),
   );
   if (!result || !unit) {
     return undefined;

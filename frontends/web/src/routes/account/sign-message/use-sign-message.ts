@@ -3,9 +3,9 @@
 import { useCallback, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
-import { connectKeystore } from '@/api/keystores';
 import { AccountCode, ScriptType, TReceiveAddress } from '@/api/account';
-import { isEthereumBased } from '../utils';
+import { useFeatureConnect } from '@/hooks/keystore';
+import { isEthereumBased } from '@/utils/coin';
 
 export type TSigningState = 'input' | 'signing' | 'result';
 
@@ -31,6 +31,8 @@ type UseSignMessageReturn = {
   error: string | null;
   result: TSignatureResult | null;
   isTaprootAddress: boolean;
+  firmwareUpgradeRequired: boolean;
+  dismissFirmwareUpgrade: () => void;
   handleSign: () => Promise<void>;
   reset: () => void;
 };
@@ -47,6 +49,11 @@ export const useSignMessage = ({
   const [state, setState] = useState<TSigningState>('input');
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<TSignatureResult | null>(null);
+  const {
+    connect,
+    dismissFirmwareUpgrade,
+    firmwareUpgradeRequired,
+  } = useFeatureConnect();
 
   const isTaproot = scriptType === 'p2tr';
 
@@ -66,20 +73,21 @@ export const useSignMessage = ({
 
     signingRef.current = true;
     try {
-      const connectResult = await connectKeystore(rootFingerprint);
-      if (!connectResult.success) {
+      if (!await connect(rootFingerprint, 'messageSigning')) {
         return;
       }
 
       setState('signing');
 
-      const response = coinCode && isEthereumBased(coinCode)
-        ? await accountApi.signETHMessageForAddress(accountCode, message)
-        : await accountApi.signBTCMessageForAddress(
-          accountCode,
-          address.addressID,
-          message,
-        );
+      const response = (
+        coinCode && isEthereumBased(coinCode)
+          ? await accountApi.signETHMessageForAddress(accountCode, message)
+          : await accountApi.signBTCMessageForAddress(
+            accountCode,
+            address.addressID,
+            message,
+          )
+      );
 
       if (response.success) {
         setResult({
@@ -102,7 +110,7 @@ export const useSignMessage = ({
     } finally {
       signingRef.current = false;
     }
-  }, [accountCode, address, coinCode, message, rootFingerprint, t]);
+  }, [accountCode, address, coinCode, connect, message, rootFingerprint, t]);
 
   const reset = useCallback(() => {
     setMessage('');
@@ -118,6 +126,8 @@ export const useSignMessage = ({
     error,
     result,
     isTaprootAddress: isTaproot,
+    firmwareUpgradeRequired,
+    dismissFirmwareUpgrade,
     handleSign,
     reset,
   };

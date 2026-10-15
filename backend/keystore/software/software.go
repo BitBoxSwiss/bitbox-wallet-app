@@ -20,12 +20,12 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/btcsuite/btcd/btcutil/psbt"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
+	"github.com/btcsuite/btcd/chaincfg/v2"
+	"github.com/btcsuite/btcd/chainhash/v2"
+	"github.com/btcsuite/btcd/psbt/v2"
+	"github.com/btcsuite/btcd/txscript/v2"
+	"github.com/btcsuite/btcd/wire/v2"
 	"github.com/ethereum/go-ethereum/accounts"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -118,6 +118,16 @@ func (keystore *Keystore) RootFingerprint() ([]byte, error) {
 	fingerprint := make([]byte, 4)
 	binary.BigEndian.PutUint32(fingerprint, xprv.ParentFingerprint())
 	return fingerprint, nil
+}
+
+// DeterministicEntropy implements keystore.Keystore.
+func (keystore *Keystore) DeterministicEntropy() ([]byte, error) {
+	return nil, errp.New("deterministic entropy not supported by software keystore")
+}
+
+// SupportsDeterministicEntropy implements keystore.Keystore.
+func (keystore *Keystore) SupportsDeterministicEntropy() bool {
+	return false
 }
 
 // Configuration implements keystore.Keystore.
@@ -303,7 +313,7 @@ func (keystore *Keystore) signETHTransaction(tx *eth.TxProposal) error {
 	if err != nil {
 		return errp.Newf("failed to get private key: %v", err)
 	}
-	tx.Tx, err = ethTypes.SignTx(tx.Tx, tx.Signer, privKey.ToECDSA())
+	tx.Tx, err = ethTypes.SignTx(tx.Tx, tx.Signer(), privKey.ToECDSA())
 	return err
 }
 
@@ -320,7 +330,7 @@ func (keystore *Keystore) SignTransaction(
 		return keystore.signBTCTransaction(specificProposedTx)
 	case *eth.TxProposal:
 		if keystore.edition == EditionBTCOnly {
-			return errp.Newf("coin not supported: %s", specificProposedTx.Coin.Code())
+			return errp.New("coin not supported: eth")
 		}
 		return keystore.signETHTransaction(specificProposedTx)
 	default:
@@ -395,12 +405,7 @@ func (keystore *Keystore) SignETHMessage(chainID uint64, message []byte, keypath
 }
 
 // SignETHTypedMessage implements keystore.Keystore.
-func (keystore *Keystore) SignETHTypedMessage(chainId uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	return nil, errp.New("unsupported")
-}
-
-// SignETHWalletConnectTransaction implements keystore.Keystore.
-func (keystore *Keystore) SignETHWalletConnectTransaction(chainID uint64, tx *ethTypes.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error) {
+func (keystore *Keystore) SignETHTypedMessage(chainID uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	return nil, errp.New("unsupported")
 }
 
@@ -409,13 +414,14 @@ func (keystore *Keystore) SupportsEIP1559() bool {
 	return false
 }
 
-// SupportsPaymentRequests implements keystore.Keystore.
-func (keystore *Keystore) SupportsPaymentRequests() error {
-	return keystorePkg.ErrUnsupportedFeature
-}
-
-// SupportsSwapPaymentRequests reports whether the keystore supports the
-// payment-request signing flow used by swaps.
-func (keystore *Keystore) SupportsSwapPaymentRequests() error {
-	return keystorePkg.ErrUnsupportedFeature
+// SupportsFeature implements keystore.Keystore.
+func (keystore *Keystore) SupportsFeature(feature keystorePkg.Feature) error {
+	switch feature {
+	case keystorePkg.FeatureBTCTransactionSigning,
+		keystorePkg.FeatureETHTransactionSigning,
+		keystorePkg.FeatureMessageSigning:
+		return nil
+	default:
+		return keystorePkg.ErrUnsupportedFeature
+	}
 }

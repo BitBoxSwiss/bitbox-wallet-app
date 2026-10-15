@@ -1,33 +1,42 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TAccount } from '@/api/account';
-import { BitsuranceGuide } from './guide';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AccountCode, TAccount } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
+import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
+import { MarketTab } from '@/routes/market/components/markettab';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
-import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { View, ViewContent } from '@/components/view/view';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
-import { connectKeystore } from '@/api/keystores';
+import { BitsuranceGuide } from './guide';
+import { useFeatureConnect } from '@/hooks/keystore';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 
-type TProps = {
-  accounts: TAccount[];
-  code: string;
+type TRouteParams = {
+  code: AccountCode;
 };
 
-export const BitsuranceAccount = ({ code, accounts }: TProps) => {
+export const BitsuranceAccount = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<string>(code);
+  const { activeAccounts } = useAppState();
+
   const [disabled, setDisabled] = useState<boolean>(false);
   const [btcAccounts, setBtcAccounts] = useState<TAccount[]>();
+  const {
+    connect,
+    dismissFirmwareUpgrade,
+    firmwareUpgradeRequired,
+  } = useFeatureConnect();
 
   const { t } = useTranslation();
 
-  const handleChangeAccount = (selected: string) => {
-    setSelected(selected);
+  const handleChangeAccount = (accountCode: string) => {
+    navigate(`/market/bitsurance/account/${accountCode}`, { replace: true });
   };
 
   const detect = useCallback(async () => {
@@ -38,7 +47,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
     }
     // btc accounts that have never been insured, or with a canceled
     // insurance contract, can be used to make a new contract.
-    const insurableAccounts = accounts.filter(
+    const insurableAccounts = activeAccounts.filter(
       account => account.coinCode === 'btc'
       && (
         !account.bitsuranceStatus
@@ -47,7 +56,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
       )
     );
     setBtcAccounts(insurableAccounts);
-  }, [accounts]);
+  }, [activeAccounts]);
 
   // check supported accounts
   useEffect(() => {
@@ -58,31 +67,30 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   useEffect(() => {
     if (btcAccounts !== undefined && btcAccounts.length === 1) {
       const account = btcAccounts[0] as TAccount;
-      connectKeystore(account.keystore.rootFingerprint).then(connectResult => {
-        if (!connectResult.success) {
+      connect(account.keystore.rootFingerprint, 'messageSigning').then(success => {
+        if (!success) {
           return;
         }
         // replace current history item when redirecting so that the user can go back
-        navigate(`/bitsurance/widget/${account.code}`, { replace: true });
+        navigate(`/market/bitsurance/widget/${account.code}`, { replace: true });
       });
     }
-  }, [btcAccounts, navigate]);
+  }, [btcAccounts, connect, navigate]);
 
   const handleProceed = async () => {
     setDisabled(true);
     try {
-      const account = btcAccounts?.find(acc => acc.code === selected);
+      const account = btcAccounts?.find(acc => acc.code === code);
       if (account === undefined) {
         return;
       }
-      const connectResult = await connectKeystore(account.keystore.rootFingerprint);
-      if (!connectResult.success) {
+      if (!await connect(account.keystore.rootFingerprint, 'messageSigning')) {
         return;
       }
     } finally {
       setDisabled(false);
     }
-    navigate(`/bitsurance/widget/${selected}`);
+    navigate(`/market/bitsurance/widget/${code}`);
   };
 
   if (btcAccounts === undefined) {
@@ -90,11 +98,26 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
   }
 
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
-          <Header title={<h2>{t('bitsuranceAccount.title')}</h2>} />
-          <View width="550px" verticallyCentered fullscreen={false}>
+    <GuideWrapper>
+      {firmwareUpgradeRequired && (
+        <FirmwareUpgradeRequiredDialog
+          open
+          onClose={dismissFirmwareUpgrade}
+        />
+      )}
+      <GuidedContent>
+        <Main>
+          <Header title={t('generic.buySell')} />
+          <MarketTab
+            activeTab="insure"
+            code={code}
+          />
+          <View
+            fullscreen={false}
+            minHeight="600px"
+            verticallyCentered
+            width="550px"
+          >
             <ViewContent>
               { btcAccounts.length === 0 ? (
                 <div>{t('bitsuranceAccount.noAccount')}</div>
@@ -103,16 +126,16 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
                   title={t('bitsuranceAccount.select')}
                   disabled={disabled}
                   accounts={btcAccounts}
-                  selected={selected}
+                  selected={code}
                   onChange={handleChangeAccount}
                   onProceed={handleProceed}
                 />
               )}
             </ViewContent>
           </View>
-        </GuidedContent>
-        <BitsuranceGuide/>
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <BitsuranceGuide />
+    </GuideWrapper>
   );
 };

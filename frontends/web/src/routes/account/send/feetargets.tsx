@@ -8,7 +8,7 @@ import * as accountApi from '@/api/account';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { Input, NumberInput } from '@/components/forms';
 import { Message } from '@/components/message/message';
-import { customFeeUnit, getCoinCode, isEthereumBased } from '@/routes/account/utils';
+import { customFeeUnit, getCoinCode, isEthereumBased } from '@/utils/coin';
 import { Dropdown, TOption as TDropdownOption } from '@/components/dropdown/dropdown';
 import style from './feetargets.module.css';
 
@@ -48,7 +48,7 @@ export const FeeTargets = ({
   const [options, setOptions] = useState<TOption[] | null>(null);
   const [noFeeTargets, setNoFeeTargets] = useState<boolean>(false);
 
-  const feeTargets = useLoad(() => accountApi.getFeeTargetList(accountCode));
+  const feeTargets = useLoad(() => accountApi.getFeeTargetList(accountCode), [accountCode]);
 
   const inputRef = useRef<HTMLInputElement & { autofocus: boolean }>(null);
 
@@ -58,6 +58,11 @@ export const FeeTargets = ({
     }
   }, [disabled]);
 
+  useEffect(() => {
+    setFeeTarget(undefined);
+    setOptions(null);
+    setNoFeeTargets(false);
+  }, [accountCode]);
 
   useEffect(() => {
     if (!config || !feeTargets) {

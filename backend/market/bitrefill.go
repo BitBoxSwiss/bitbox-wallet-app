@@ -18,12 +18,15 @@ const (
 	bitrefillDevUrl = "/bitrefill/bitrefill.html"
 
 	bitrefillProdUrl = "https://bitboxapp.shiftcrypto.io/widgets/bitrefill/v1/bitrefill.html"
+
+	bitrefillWidgetURL = "https://embed.bitrefill.com/"
 )
 
 type bitrefillInfo struct {
-	Url     string
-	Ref     string
-	Address *string
+	Url       string
+	WidgetURL string
+	Ref       string
+	Address   *string
 }
 
 var bitrefillRegions = []string{
@@ -89,7 +92,7 @@ func BitrefillDeals() *DealsList {
 }
 
 // BitrefillInfo returns the information needed to interact with Bitrefill,
-// including the widget URL, referral code and an unused address for refunds.
+// including the wrapper and widget URLs, referral code and an unused address for refunds.
 func BitrefillInfo(action Action, acct accounts.Interface, devServers bool) (bitrefillInfo, error) {
 	url := bitrefillProdUrl
 	if devServers {
@@ -101,9 +104,10 @@ func BitrefillInfo(action Action, acct accounts.Interface, devServers bool) (bit
 	}
 	addr := addrList[0].Addresses[0].EncodeForHumans()
 	res := bitrefillInfo{
-		Url:     url,
-		Ref:     bitrefillRef,
-		Address: &addr,
+		Url:       url,
+		WidgetURL: bitrefillWidgetURL,
+		Ref:       bitrefillRef,
+		Address:   &addr,
 	}
 
 	return res, nil

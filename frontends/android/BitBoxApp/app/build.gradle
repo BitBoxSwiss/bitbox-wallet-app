@@ -8,7 +8,7 @@ if (!appVersionFile.exists()) {
 def appVersion = appVersionFile.text.trim()
 
 android {
-    compileSdk 35
+    compileSdk 36
     // Keep in sync with android-env.mk.inc and the NDK installed in docker_install.sh.
     ndkVersion "28.2.13676358"
     defaultConfig {
@@ -16,8 +16,8 @@ android {
         minSdk 24
         // minSdkVersion should match the `-androidapi` gomobile bind flag
         // in backend/mobileserver/Makefile
-        targetSdkVersion 35
-        versionCode 69
+        targetSdkVersion 36
+        versionCode 73
         versionName "${appVersion}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -43,10 +43,27 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue "string", "app_name", "BitBoxApp"
             signingConfig signingConfigs.release
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher",
+                    appRoundIcon: "@mipmap/ic_launcher_round",
+            ]
         }
         debug {
             applicationIdSuffix ".debug"
             resValue "string", "app_name", "BitBoxApp DEBUG"
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher",
+                    appRoundIcon: "@mipmap/ic_launcher_round",
+            ]
+        }
+        lnalpha {
+            applicationIdSuffix ".sparkalpha"
+            resValue "string", "app_name", "BBApp Spark Alpha"
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher_lnalpha",
+                    appRoundIcon: "@mipmap/ic_launcher_lnalpha_round",
+            ]
+            signingConfig signingConfigs.debug // Use debug signing
         }
     }
     namespace 'ch.shiftcrypto.bitboxapp'

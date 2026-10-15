@@ -9,12 +9,28 @@ import style from './balance.module.css';
 
 type TProps = {
   balance?: TBalance;
+  className?: string;
+  unavailable?: boolean;
 };
 
 export const Balance = ({
   balance,
+  className = '',
+  unavailable,
 }: TProps) => {
   const { t } = useTranslation();
+  if (unavailable) {
+    return (
+      <header className={`${style.balanceContainer || ''} ${className}`}>
+        <SubTitle className={style.availableBalanceTitle}>
+          {t('accountSummary.availableBalance')}
+        </SubTitle>
+        <div className={style.balance} data-testid="availableBalance">
+          ---
+        </div>
+      </header>
+    );
+  }
   if (!balance) {
     return (
       <BalanceSkeleton />
@@ -22,7 +38,7 @@ export const Balance = ({
   }
 
   return (
-    <header className={style.balanceContainer}>
+    <header className={`${style.balanceContainer || ''} ${className}`}>
       <SubTitle className={style.availableBalanceTitle}>
         {t('accountSummary.availableBalance')}
       </SubTitle>

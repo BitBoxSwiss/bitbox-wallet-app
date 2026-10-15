@@ -59,12 +59,68 @@ class JavascriptBridge: NSObject, WKScriptMessageHandler {
                     self.webView?.alpha = 1.0
                 }
             }
+        } else if message.name == "readClipboard", let body = message.body as? [String: AnyObject] {
+            let requestID = body["requestId"] as? Int ?? 0
+            DispatchQueue.main.async {
+                self.respondWithClipboard(requestID: requestID, text: UIPasteboard.general.string ?? "")
+            }
+        } else if message.name == "showExplorerLinkMenu", let body = message.body as? [String: String] {
+            DispatchQueue.main.async {
+                self.showExplorerLinkMenu(body)
+            }
         } else if message.name == "hapticFeedback" {
             DispatchQueue.main.async {
-                let generator = UIImpactFeedbackGenerator(style: .medium)
+                let body = message.body as? [String: Any]
+                let style = body?["style"] as? String
+                let generator = UIImpactFeedbackGenerator(style: style == "heavy" ? .heavy : .medium)
                 generator.impactOccurred()
             }
         }
+    }
+
+    private func showExplorerLinkMenu(_ body: [String: String]) {
+        guard let urlString = body["url"], let url = URL(string: urlString),
+              ["https", "http"].contains(url.scheme?.lowercased() ?? ""), url.host != nil,
+              let copyTitle = body["copy"], let openTitle = body["open"], let cancelTitle = body["cancel"],
+              let webView = webView, var presenter = webView.window?.rootViewController else {
+            return
+        }
+        while let presented = presenter.presentedViewController {
+            presenter = presented
+        }
+        guard !(presenter is UIAlertController), !presenter.isBeingDismissed else {
+            return
+        }
+
+        // Keep the URL as text: copying a transaction link must not fetch its destination.
+        let menu = UIAlertController(title: urlString, message: nil, preferredStyle: .actionSheet)
+        menu.addAction(UIAlertAction(title: copyTitle, style: .default) { _ in
+            UIPasteboard.general.string = urlString
+        })
+        menu.addAction(UIAlertAction(title: openTitle, style: .default) { _ in
+            UIApplication.shared.open(url)
+        })
+        menu.addAction(UIAlertAction(title: cancelTitle, style: .cancel))
+        if let popover = menu.popoverPresentationController {
+            popover.sourceView = webView
+            popover.sourceRect = CGRect(x: webView.bounds.midX, y: webView.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        presenter.present(menu, animated: true)
+    }
+
+    private func respondWithClipboard(requestID: Int, text: String) {
+        let response: [String: Any] = [
+            "requestId": requestID,
+            "success": true,
+            "text": text,
+            "type": "clipboardReadResult",
+        ]
+        guard let data = try? JSONSerialization.data(withJSONObject: response),
+              let json = String(data: data, encoding: .utf8) else {
+            return
+        }
+        webView?.evaluateJavaScript("window.onIOSClipboardReadResult && window.onIOSClipboardReadResult(\(json));")
     }
 }
 
@@ -119,6 +175,8 @@ class CustomSchemeHandler: NSObject, WKURLSchemeHandler {
         case "jpg", "jpeg": return "image/jpeg"
         case "gif": return "image/gif"
         case "svg": return "image/svg+xml"
+        case "mov": return "video/quicktime"
+        case "webm": return "video/webm"
         case "ttf": return "font/ttf"
         case "otf": return "font/otf"
         default: return "application/octet-stream"
@@ -128,13 +186,17 @@ class CustomSchemeHandler: NSObject, WKURLSchemeHandler {
 
 struct WebView: UIViewRepresentable {
     let setHandlers: SetMessageHandlersProtocol
+    // Match Android's 62.5% rem base, scaled with the system text size.
+    @ScaledMetric(relativeTo: .body) private var baseFontSizePercentage = 62.5
     
     func makeUIView(context: Context) -> some WKWebView {
         let contentController = WKUserContentController()
         let bridge = JavascriptBridge()
         contentController.add(bridge, name: "goCall")
         contentController.add(bridge, name: "appReady")
+        contentController.add(bridge, name: "readClipboard")
         contentController.add(bridge, name: "hapticFeedback")
+        contentController.add(bridge, name: "showExplorerLinkMenu")
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
 
@@ -176,18 +238,55 @@ struct WebView: UIViewRepresentable {
         setHandlers.setMessageHandlers(handlers: MessageHandlers(webView: webView))
         let source = """
         window.runningOnIOS = true;
+        (function() {
+          if (window.top !== window) { return; }
+          var clipboardRequests = {};
+          var nextClipboardRequestId = 0;
+          window.onIOSClipboardReadResult = function(message) {
+            var pending = clipboardRequests[message.requestId];
+            if (!pending) { return; }
+            delete clipboardRequests[message.requestId];
+            if (message.success === false) {
+              pending.reject(new Error(message.error || 'Clipboard read failed'));
+              return;
+            }
+            pending.resolve(message.text || '');
+          };
+          var clipboard = navigator.clipboard || {};
+          var readText = function() {
+            return new Promise(function(resolve, reject) {
+              nextClipboardRequestId += 1;
+              clipboardRequests[nextClipboardRequestId] = { resolve: resolve, reject: reject };
+              window.webkit.messageHandlers.readClipboard.postMessage({
+                requestId: nextClipboardRequestId
+              });
+            });
+          };
+          try {
+            clipboard.readText = readText;
+          } catch (error) {}
+          if (!navigator.clipboard || navigator.clipboard.readText !== readText) {
+            Object.defineProperty(navigator, 'clipboard', {
+              value: Object.assign({}, clipboard, { readText: readText }),
+              configurable: true
+            });
+          }
+        })();
         """
         let userScript = WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: true)
         webView.configuration.userContentController.addUserScript(userScript)
          
         if #available(iOS 16.4, *) {
-            webView.isInspectable = true
+            // Set to true locally to debug with Safari Web Inspector, but keep it
+            // disabled in release builds to prevent access to the native bridge.
+            webView.isInspectable = false
         }
         
         return webView
     }
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
+        context.coordinator.updateFontSize(uiView, baseFontSizePercentage: baseFontSizePercentage)
         guard uiView.url == nil else {
             return
         }
@@ -200,6 +299,29 @@ struct WebView: UIViewRepresentable {
     
     class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         private weak var webView: WKWebView?
+        private var fontSizeScript: String?
+
+        func updateFontSize(_ webView: WKWebView, baseFontSizePercentage: Double) {
+            let source = """
+            document.documentElement.style.webkitTextSizeAdjust = '100%';
+            document.documentElement.style.fontSize = '\(baseFontSizePercentage)%';
+            """
+            guard fontSizeScript != source else {
+                return
+            }
+
+            // Replace the font script for future loads, preserving the native bridge script.
+            let contentController = webView.configuration.userContentController
+            let otherScripts = contentController.userScripts.filter { $0.source != fontSizeScript }
+            contentController.removeAllUserScripts()
+            otherScripts.forEach { contentController.addUserScript($0) }
+            contentController.addUserScript(WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+            fontSizeScript = source
+
+            if webView.url != nil {
+                webView.evaluateJavaScript(source, completionHandler: nil)
+            }
+        }
 
         func attachBackSwipeGesture(to webView: WKWebView) {
             self.webView = webView

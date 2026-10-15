@@ -1,18 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSync } from '@/hooks/api';
+import { useAppState } from '@/contexts/app-state-context';
 import { useMountedRef } from '@/hooks/mount';
-import { TAccount, AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
-import { findAccount, isBitcoinBased, isMessageSigningSupported } from '@/routes/account/utils';
-import { TDevices } from '@/api/devices';
+import { AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
+import { findAccount } from '@/routes/account/utils';
+import { isBitcoinBased, isMessageSigningSupported } from '@/utils/coin';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { ActionableItem } from '@/components/actionable-item/actionable-item';
 import { QRCodeLight, QRCodeDark, OutlinedUploadDark, OutlinedUploadLight, OutlinedUnorderedListDark, OutlinedUnorderedListLight, OutlinedFileProtectDark, OutlinedFileProtectLight } from '@/components/icon';
@@ -21,18 +19,14 @@ import { alertUser } from '@/components/alert/Alert';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import style from './info.module.css';
 
-type TProps = {
-  accounts: TAccount[];
+type TRouteParams = {
   code: AccountCode;
-  devices: TDevices;
 };
 
-export const Info = ({
-  accounts,
-  code,
-  devices,
-}: TProps) => {
+export const Info = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
+  const { activeAccounts } = useAppState();
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
   const status: TStatus | undefined = useSync(
@@ -69,7 +63,7 @@ export const Info = ({
   const transactionsLoaded = transactions?.success === true;
   const hasTransactions = transactionsLoaded && transactions.list.length > 0;
 
-  const account = findAccount(accounts, code);
+  const account = findAccount(activeAccounts, code);
   if (!account) {
     return null;
   }
@@ -93,15 +87,13 @@ export const Info = ({
 
   return (
     <Main>
-      <ContentWrapper>
-        <GlobalBanners devices={devices} />
-      </ContentWrapper>
-      <Header hideSidebarToggler title={
-        <>
-          <h2 className="hide-on-small">{t('accountInfo.title')}</h2>
-          <MobileHeader onClick={() => navigate(-1)} title={t('accountInfo.title')} />
-        </>
-      } />
+      <Header
+        variant="navigation"
+        hideSidebarToggler
+        mobileBackButton
+        onBack={() => navigate(-1)}
+        title={t('accountInfo.title')}
+      />
       <View fullscreen={false}>
         <ViewContent>
           <div className={style.menuList}>
@@ -129,7 +121,7 @@ export const Info = ({
             </ActionableItem>
             {canSignMessage && (
               <ActionableItem
-                onClick={() => navigate(`/account/${code}/sign-message`)}
+                onClick={() => navigate(`/account/${code}/sign-message/new`)}
               >
                 <div className={style.actionItem}>
                   {isDarkMode ?

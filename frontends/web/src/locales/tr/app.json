@@ -68,8 +68,7 @@
     "reverifyInfoText": "Adresi Doğrula",
     "success": {
       "title": "Adres başarıyla gönderildi."
-    },
-    "syncing": "Hesap eşzamanlanıyor, lütfen bekleyin."
+    }
   },
   "app": {
     "upgrade": "Bu uygulamanın yeni bir sürümü mevcut! Lütfen  {{current}} 'dan  {{version}}'a yükseltin."

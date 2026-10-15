@@ -23,8 +23,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/firmware"
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/chaincfg"
+	addresspkg "github.com/btcsuite/btcd/address/v2"
+	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/sirupsen/logrus"
 )
 
@@ -282,15 +282,26 @@ func (coin *Coin) SmallestUnit() string {
 
 // decodeAddress decodes a btc/ltc address, checking that the format matches the account coin
 // type.
-func (coin *Coin) decodeAddress(address string) (btcutil.Address, error) {
-	btcAddress, err := btcutil.DecodeAddress(address, coin.Net())
+func (coin *Coin) decodeAddress(address string) (addresspkg.Address, error) {
+	btcAddress, err := addresspkg.DecodeAddress(address, coin.Net())
 	if err != nil {
 		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
 	if !btcAddress.IsForNet(coin.Net()) {
 		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
-	if _, ok := btcAddress.(*btcutil.AddressTaproot); ok {
+
+	switch btcAddress.(type) {
+	// All default address types that are commonly in use.
+	case *addresspkg.AddressPubKeyHash,
+		*addresspkg.AddressScriptHash,
+		*addresspkg.AddressWitnessPubKeyHash,
+		*addresspkg.AddressWitnessScriptHash:
+
+		// Let through common types that are supported.
+
+	// Taproot addresses are not activated on other coins.
+	case *addresspkg.AddressTaproot:
 		switch coin.code {
 		case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC:
 			// Taproot activated on Bitcoin.
@@ -298,7 +309,14 @@ func (coin *Coin) decodeAddress(address string) (btcutil.Address, error) {
 			// Taproot not activated on other coins.
 			return nil, errp.WithStack(errors.ErrInvalidAddress)
 		}
+
+	// A catch-all for any address type (including potential future ones)
+	// that isn't supported. Currently, these are pay to bare public key and
+	// pay to anchor addresses (P2PK, P2A).
+	default:
+		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
+
 	return btcAddress, nil
 }
 

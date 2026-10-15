@@ -22,6 +22,10 @@ func (slip24 *Slip24) ToRequest() (*Request, error) {
 	if slip24.Nonce != nil && len(*slip24.Nonce) > 0 {
 		return nil, errp.New("Nonce value unsupported")
 	}
+	totalAmount, err := slip24.Outputs[0].AmountBigInt()
+	if err != nil {
+		return nil, err
+	}
 
 	sigBytes, err := base64.StdEncoding.DecodeString(slip24.Signature)
 	if err != nil {
@@ -67,7 +71,7 @@ func (slip24 *Slip24) ToRequest() (*Request, error) {
 		RecipientName: slip24.RecipientName,
 		Nonce:         nil,
 		Signature:     sigBytes,
-		TotalAmount:   slip24.Outputs[0].Amount,
+		TotalAmount:   totalAmount,
 		Memos:         memos,
 	}, nil
 }

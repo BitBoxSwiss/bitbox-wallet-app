@@ -17,6 +17,13 @@ Key backend packages:
 - `backend/devices/bitbox02/` — BitBox02 USB/Bluetooth device drivers
 - `backend/handlers/handlers.go` — top-level HTTP routing (gorilla/mux)
 
+### Backend and Frontend Responsibilities
+The frontend should ideally concern itself only with presentation and collecting user input. Keep
+business logic in the backend so that it has one authoritative implementation. This includes
+generating UUIDs, parsing amounts, and performing arithmetic on amounts. The frontend may format
+backend-provided values for display, but it should not independently implement domain rules or
+calculations.
+
 ## Build, Test, and Development Commands
 
 ### Requirements
@@ -103,6 +110,9 @@ Functions in `src/api/` should stay as thin wrappers around the underlying reque
 should only type the function arguments and the returned promise, and should not add extra client
 side control flow or business logic on top of the request.
 
+Standalone files under `frontends/web/public/` that are not bundled with the React app must provide
+the same fallback locally.
+
 ### Data Loading Hooks
 Key custom hooks in `src/hooks/` handle all async data:
 
@@ -156,8 +166,16 @@ component state — no form library is used.
 
 ## Coding Style & Naming Conventions
 
+### Code Comments
+
+- Describe the current behavior, constraints, and rationale. Do not narrate refactors or compare
+  with removed implementations, such as "matching the previous backend behavior". Put change
+  history in commit messages or PR descriptions.
+
 ### Go
 - Must pass `gofmt` and `goimports`. Linting via `golangci-lint run` (config in `.golangci.yml`).
+- Create files containing sensitive data with owner-only (`0600`) permissions, and tighten the
+  permissions of existing destination files when overwriting them.
 
 ### TypeScript / React
 - ESLint config in `eslint.config.js`.
@@ -165,6 +183,7 @@ component state — no form library is used.
 - Types prefixed with `T` (`TProps`, `TBalance`, `TAccount`).
 - Named exports only — no default exports.
 - Path alias: `@/` maps to `src/` (e.g., `import { getBalance } from '@/api/account'`).
+- Do not add `void` before function calls.
 
 ### File Naming
 - Components: `my-component.tsx` (kebab-case filenames, PascalCase component names)
@@ -174,6 +193,11 @@ component state — no form library is used.
 - API modules: `api/account.ts`, `api/rates.ts`
 
 ## Testing Guidelines
+
+Add a short comment above each new test explaining the scenario and expected behavior. Include the
+regression or invariant it protects when that is not obvious from the test name. When extending a
+commented test, update its comment to reflect the coverage so reviewers can understand its purpose.
+
 Place Go tests in `_test.go` files and run `go test -mod=vendor ./...` (optionally via
 `scripts/coverage.sh` to emit `coverage.cov`). Frontend unit specs live beside components as
 `*.test.ts(x)`; invoke `make webtest` for the suite. Use `make webe2etest` for Playwright smoke

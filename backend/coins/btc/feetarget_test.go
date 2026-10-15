@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/btcutil/v2"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,6 +40,25 @@ func TestFeeTarget(t *testing.T) {
 	require.Equal(t,
 		"10.001 sat/vB",
 		(&FeeTarget{feeRatePerKb: amt(10001)}).FormattedFeeRate(),
+	)
+}
+
+func TestFormatFeeRate(t *testing.T) {
+	require.Equal(t,
+		"",
+		FormatFeeRate(nil),
+	)
+	require.Equal(t,
+		"0.123 sat/vB",
+		FormatFeeRate(amt(123)),
+	)
+	require.Equal(t,
+		"123.456 sat/vB",
+		FormatFeeRate(amt(123456)),
+	)
+	require.Equal(t,
+		"1 sat/vB",
+		FormatFeeRate(amt(1000)),
 	)
 }
 

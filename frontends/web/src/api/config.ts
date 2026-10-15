@@ -3,6 +3,7 @@
 import { apiGet, apiPost } from '@/utils/request';
 import type { Fiat } from '@/api/account';
 import type { BtcUnit } from '@/api/coins';
+import type { TPortfolioPercentageType } from '@/contexts/AppContext';
 
 type TElectrumServerInfo = Readonly<{
   server: string;
@@ -45,7 +46,8 @@ type TConfigFrontendDismissibleDynamicKey =
 type TConfigFrontendDismissibleKnownKey =
   | 'walletConnectDisclaimerDismissed'
   | 'skipTestingWarning'
-  | 'mobile-data-warning';
+  | 'mobile-data-warning'
+  | 'lightning-beta-warning';
 
 export type TConfigFrontendDismissibleKey =
   | TConfigFrontendDismissibleKnownKey
@@ -54,6 +56,7 @@ export type TConfigFrontendDismissibleKey =
 export type TConfigFrontend = Readonly<{
   guideShown?: boolean;
   hideAmounts?: boolean;
+  portfolioPercentageType?: TPortfolioPercentageType;
   darkmode?: boolean;
   expertFee?: boolean;
   coinControl?: boolean;
@@ -78,6 +81,7 @@ export type TConfigFrontend = Readonly<{
   walletConnectDisclaimerDismissed?: boolean;
   skipTestingWarning?: boolean;
   'mobile-data-warning'?: boolean;
+  'lightning-beta-warning'?: boolean;
 }> & Readonly<{
   [key in TConfigFrontendDismissibleDynamicKey]?: boolean;
 }>;

@@ -52,8 +52,9 @@ export const WCIncomingSignRequestDialog = ({
   const { isDarkMode } = useDarkmode();
   const { accountAddress, accountName, signingData, chain, method, currentSession } = content;
 
-  const formattedChain = chain in SUPPORTED_CHAINS ? SUPPORTED_CHAINS[chain]?.name : chain;
-  const chainIcon = chain in SUPPORTED_CHAINS ? SUPPORTED_CHAINS[chain]?.icon : null;
+  const chainDetail = chain in SUPPORTED_CHAINS ? SUPPORTED_CHAINS[chain] : undefined;
+  const formattedChain = chainDetail ? t(chainDetail.nameKey) : chain;
+  const chainIcon = chainDetail?.icon;
 
   const metadata = currentSession.peer.metadata;
 
@@ -64,7 +65,7 @@ export const WCIncomingSignRequestDialog = ({
   const textAreaRows = signingDataHeight > maxTextAreaRows ? maxTextAreaRows : signingDataHeight;
 
   return (
-    <Dialog open={open} large onClose={onReject}>
+    <Dialog open={open} large onClose={stage === 'initial' ? onReject : undefined}>
       <div className={styles.titleContainer}>
         {isDarkMode ? <WalletConnectLight height={32} width={32} /> : <WalletConnectDark height={40} width={40} />}
         <h3>{t('walletConnect.signingRequest.walletConnectRequest')}</h3>
@@ -87,7 +88,7 @@ export const WCIncomingSignRequestDialog = ({
                   <p className={styles.label}>{t('walletConnect.signingRequest.chain')}</p>
                   <div className={styles.chainContainer}>
                     <p className={styles.itemText}>{formattedChain}</p>
-                    {chainIcon}
+                    {chainIcon && <img alt="" src={chainIcon} />}
                   </div>
                 </li>
 

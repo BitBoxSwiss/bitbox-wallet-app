@@ -7,10 +7,10 @@ import (
 	"encoding/binary"
 
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/errp"
+	"github.com/btcsuite/btcd/address/v2/bech32"
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
-	"github.com/btcsuite/btcd/btcutil/bech32"
-	"github.com/btcsuite/btcd/txscript"
+	"github.com/btcsuite/btcd/txscript/v2"
 )
 
 func bip352SmallestOutpointHash(tx *BTCTx, aPubSum *btcec.PublicKey) []byte {

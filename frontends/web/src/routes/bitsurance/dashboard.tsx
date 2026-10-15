@@ -1,29 +1,27 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AccountCode, TAccount, getBalance } from '@/api/account';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AccountCode, getBalance } from '@/api/account';
 import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '@/api/bitsurance';
+import { useAppState } from '@/contexts/app-state-context';
 import { useMountedRef } from '@/hooks/mount';
 import { TAccountsByKeystore, getAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
+import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
+import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
+import { MarketTab } from '@/routes/market/components/markettab';
 import { Button } from '@/components/forms';
 import { alertUser } from '@/components/alert/Alert';
-import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { A } from '@/components/anchor/anchor';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Balances } from '@/routes/account/summary/accountssummary';
 import { Skeleton } from '@/components/skeleton/skeleton';
-import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { ExternalLink, GreenDot, OrangeDot, RedDot, YellowDot } from '@/components/icon';
 import { HorizontallyCenteredSpinner } from '@/components/spinner/SpinnerAnimation';
 import { BitsuranceGuide } from './guide';
 import style from './dashboard.module.css';
-
-type TProps = {
-  accounts: TAccount[];
-};
 
 type TAccountStatusIconProps = {
   status: TDetailStatus;
@@ -49,9 +47,16 @@ const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
   }
 };
 
-export const BitsuranceDashboard = ({ accounts }: TProps) => {
+type TRouteParams = {
+  code: AccountCode;
+};
+
+export const BitsuranceDashboard = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { activeAccounts } = useAppState();
+
   const mounted = useMountedRef();
   const [balances, setBalances] = useState<Balances>();
   const [insurances, setInsurances] = useState<TInsurancesByCode>();
@@ -77,9 +82,9 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
   }, []);
 
   useEffect(() => {
-    setAccountsByKeystore(getAccountsByKeystore(accounts));
+    setAccountsByKeystore(getAccountsByKeystore(activeAccounts));
     fetchInsurances();
-  }, [fetchInsurances, accounts]);
+  }, [fetchInsurances, activeAccounts]);
 
   useEffect(() => {
     accountsByKeystore?.forEach(keystore => {
@@ -109,10 +114,17 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={<h2>{t('sidebar.insurance')}</h2>} >
+          <Header title={t('generic.buySell')}>
             <HideAmountsButton />
           </Header>
-          <View>
+          <MarketTab
+            activeTab="insure"
+            code={code}
+          />
+          <View
+            minHeight="600px"
+            verticallyCentered
+          >
             <ViewContent>
 
               <div className={style.headerContainer}>
@@ -122,8 +134,8 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                 <Button
                   className={style.button}
                   primary
-                  onClick={() => navigate('/bitsurance/account')}
-                  title={t('account.exportTransactions')}>
+                  onClick={() => navigate(`/market/bitsurance/account/${code}`)}
+                  title={t('bitsurance.dashboard.button')}>
                   <span>+</span>
                   {t('bitsurance.dashboard.button')}
                 </Button>
@@ -135,9 +147,9 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                     <div key={keystore.rootFingerprint}>
                       <p className={style.keystore}>{keystore.name}
                         { isAmbiguousName(keystore.name, accountsByKeystore) ? (
-                        // Disambiguate accounts group by adding the fingerprint.
-                        // The most common case where this would happen is when adding accounts from the
-                        // same seed using different passphrases.
+                          // Disambiguate accounts group by adding the fingerprint.
+                          // The most common case where this would happen is when adding accounts from the
+                          // same seed using different passphrases.
                           <span className={style.subtle}> ({keystore.rootFingerprint})</span>
                         ) : null }
                       </p>

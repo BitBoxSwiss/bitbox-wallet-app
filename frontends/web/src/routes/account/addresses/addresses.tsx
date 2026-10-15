@@ -6,27 +6,23 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
 import { AccountCode, TAccount } from '@/api/account';
-import { TDevices } from '@/api/devices';
+import { useAppState } from '@/contexts/app-state-context';
 import { Header, Main } from '@/components/layout';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { View, ViewContent } from '@/components/view/view';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { findAccount } from '@/routes/account/utils';
 import { useAddressVerification } from '../components/use-address-verification';
 import { AddressList } from './address-list';
 import { ChangeCopyWarningDialog } from './dialog/change-copy-warning-dialog';
 import { VerifyAddressDialog } from './verify-address-dialog';
 
-type TProps = {
+type TAddressesContentProps = {
   code: AccountCode;
   accounts: TAccount[];
-  devices: TDevices;
 };
 
 type TView = 'list' | 'verify';
 
-export const Addresses = ({ code, accounts, devices }: TProps) => {
+export const AddressesContent = ({ code, accounts }: TAddressesContentProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -133,61 +129,78 @@ export const Addresses = ({ code, accounts, devices }: TProps) => {
     return null;
   }
 
-  const currentExpandedAddressID = view === 'verify'
-    ? (selectedAddress?.addressID || null)
-    : expandedAddressID;
+  const currentExpandedAddressID = (
+    view === 'verify'
+      ? (selectedAddress?.addressID || null)
+      : expandedAddressID
+  );
+
+  return (
+    <>
+      <AddressList
+        code={code}
+        accountName={account.name}
+        blockExplorerAddressPrefix={account.blockExplorerAddressPrefix}
+        usedAddressesResponse={usedAddressesResponse}
+        error={usedAddressesError}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        addressTypeFilter={addressTypeFilter}
+        receivePath={receivePath}
+        onAddressTypeFilterChange={setAddressTypeFilter}
+        filteredAddresses={filteredAddresses}
+        expandedAddressID={currentExpandedAddressID}
+        onToggleExpand={handleToggleExpand}
+        onStartCopy={handleStartCopy}
+        disableBackEsc={view === 'verify'}
+        onRetryLoad={() => setUsedAddressesLoadAttempt(prev => prev + 1)}
+      />
+      {changeCopyWarningAddress && (
+        <ChangeCopyWarningDialog
+          code={code}
+          selectedAddress={changeCopyWarningAddress}
+          onContinue={handleConfirmChangeCopy}
+          onClose={handleCloseChangeCopyWarning}
+        />
+      )}
+      {view === 'verify' && (
+        <VerifyAddressDialog
+          verification={verification}
+          selectedAddress={selectedAddress}
+          usedAddressesResponse={usedAddressesResponse}
+          coinCode={account.coinCode}
+          onClose={returnToList}
+        />
+      )}
+    </>
+  );
+};
+
+type TRouteParams = {
+  code: AccountCode;
+};
+
+export const Addresses = () => {
+  const { code = '' } = useParams<TRouteParams>();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { activeAccounts } = useAppState();
 
   return (
     <Main>
-      <ContentWrapper>
-        <GlobalBanners devices={devices} />
-      </ContentWrapper>
       <Header
+        variant="navigation"
         hideSidebarToggler
-        title={
-          <>
-            <h2 className="hide-on-small">{t('addresses.title')}</h2>
-            <MobileHeader onClick={() => navigate(-1)} title={t('addresses.title')} />
-          </>
-        }
+        mobileBackButton
+        onBack={() => navigate(-1)}
+        title={t('addresses.title')}
       />
       <View fullscreen={false}>
         <ViewContent>
-          <AddressList
+          <AddressesContent
             code={code}
-            accountName={account.name}
-            blockExplorerAddressPrefix={account.blockExplorerAddressPrefix}
-            usedAddressesResponse={usedAddressesResponse}
-            error={usedAddressesError}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            addressTypeFilter={addressTypeFilter}
-            receivePath={receivePath}
-            onAddressTypeFilterChange={setAddressTypeFilter}
-            filteredAddresses={filteredAddresses}
-            expandedAddressID={currentExpandedAddressID}
-            onToggleExpand={handleToggleExpand}
-            onStartCopy={handleStartCopy}
-            disableBackEsc={view === 'verify'}
-            onRetryLoad={() => setUsedAddressesLoadAttempt(prev => prev + 1)}
+            accounts={activeAccounts}
           />
-          {changeCopyWarningAddress && (
-            <ChangeCopyWarningDialog
-              code={code}
-              selectedAddress={changeCopyWarningAddress}
-              onContinue={handleConfirmChangeCopy}
-              onClose={handleCloseChangeCopyWarning}
-            />
-          )}
-          {view === 'verify' && (
-            <VerifyAddressDialog
-              verification={verification}
-              selectedAddress={selectedAddress}
-              usedAddressesResponse={usedAddressesResponse}
-              coinCode={account.coinCode}
-              onClose={returnToList}
-            />
-          )}
         </ViewContent>
       </View>
     </Main>

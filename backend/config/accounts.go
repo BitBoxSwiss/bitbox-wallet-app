@@ -4,6 +4,7 @@ package config
 
 import (
 	"bytes"
+	"slices"
 	"time"
 
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -106,6 +107,59 @@ type Keystore struct {
 type AccountsConfig struct {
 	Accounts  []*Account  `json:"accounts"`
 	Keystores []*Keystore `json:"keystores"`
+}
+
+// Account field ownership:
+//   - Code, CoinCode and SigningConfigurations are immutable account construction data.
+//   - Used, Inactive, HiddenBecauseUnused, InsuranceStatus, Name and ReceiveScriptType are mutable
+//     view and discovery metadata.
+//   - Record existence drives base-account membership; ActiveTokens drives derived-token
+//     membership.
+//   - Watch is retained only for backwards-compatible JSON decoding.
+//
+// Keystore RootFingerprint is immutable identity, Watchonly can change runtime membership, and the
+// remaining keystore fields are mutable view metadata.
+
+func cloneAccount(account *Account) *Account {
+	cloned := *account
+	cloned.SigningConfigurations = slices.Clone(account.SigningConfigurations)
+	cloned.ActiveTokens = slices.Clone(account.ActiveTokens)
+	if account.Watch != nil {
+		watch := *account.Watch
+		cloned.Watch = &watch
+	}
+	if account.ReceiveScriptType != nil {
+		receiveScriptType := *account.ReceiveScriptType
+		cloned.ReceiveScriptType = &receiveScriptType
+	}
+	return &cloned
+}
+
+func cloneKeystore(keystore *Keystore) *Keystore {
+	cloned := *keystore
+	cloned.RootFingerprint = slices.Clone(keystore.RootFingerprint)
+	if keystore.BackupReminderAllowed != nil {
+		backupReminderAllowed := *keystore.BackupReminderAllowed
+		cloned.BackupReminderAllowed = &backupReminderAllowed
+	}
+	return &cloned
+}
+
+func cloneAccountsConfig(accountsConfig AccountsConfig) AccountsConfig {
+	var cloned AccountsConfig
+	if accountsConfig.Accounts != nil {
+		cloned.Accounts = make([]*Account, len(accountsConfig.Accounts))
+	}
+	for index, account := range accountsConfig.Accounts {
+		cloned.Accounts[index] = cloneAccount(account)
+	}
+	if accountsConfig.Keystores != nil {
+		cloned.Keystores = make([]*Keystore, len(accountsConfig.Keystores))
+	}
+	for index, keystore := range accountsConfig.Keystores {
+		cloned.Keystores[index] = cloneKeystore(keystore)
+	}
+	return cloned
 }
 
 // newDefaultAccountsConfig returns the default accounts config.

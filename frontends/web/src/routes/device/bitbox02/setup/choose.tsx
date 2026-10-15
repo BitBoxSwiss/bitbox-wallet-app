@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VersionInfo } from '@/api/bitbox02';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { View, ViewContent, ViewHeader } from '@/components/view/view';
-import { Column, ColumnButtons, Grid, ResponsiveGrid } from '@/components/layout';
+import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
+import { Column, ColumnButtons, Grid, Header, ResponsiveGrid } from '@/components/layout';
 import { Button, Label } from '@/components/forms';
 import { Toggle } from '@/components/toggle/toggle';
 import { InfoBlue } from '@/components/icon';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
+import { FirmwareSetting } from '@/routes/settings/components/device-settings/firmware-setting';
 import style from './choose.module.css';
 
 export type TWalletSetupChoices = 'create-wallet' | 'restore-sdcard' | 'restore-mnemonic';
@@ -20,6 +21,7 @@ export type TWalletCreateOptions = {
 };
 
 type Props = {
+  deviceID: string;
   onSelectSetup: (
     type: TWalletSetupChoices,
     options?: TWalletCreateOptions,
@@ -28,6 +30,7 @@ type Props = {
 };
 
 export const SetupOptions = ({
+  deviceID,
   onSelectSetup,
   versionInfo,
 }: Props) => {
@@ -36,6 +39,42 @@ export const SetupOptions = ({
   const [advanced, setAdvanced] = useState(false);
   const [withMnemonic, setWithMnemonic] = useState(false);
   const [with12Words, setWith12Words] = useState(false);
+  const [skipFWUpgrade, setSkipFWUpgrade] = useState(false);
+  const handleAdvancedBack = () => {
+    setWithMnemonic(false);
+    setWith12Words(false);
+    setAdvanced(false);
+  };
+
+  if (versionInfo.canUpgrade && !skipFWUpgrade) {
+    return (
+      <View
+        fullscreen
+        textCenter
+        verticallyCentered
+        withBottomBar
+        width="620px">
+        <ViewHeader small title={t('deviceSettings.firmware.upgradeAvailable')}>
+        </ViewHeader>
+        <ViewContent>
+          <p>
+            {t('deviceSettings.firmware.upgradeAvailableDescription')}
+          </p>
+        </ViewContent>
+        <ViewButtons>
+          <FirmwareSetting
+            asButton
+            deviceID={deviceID}
+            versionInfo={versionInfo}
+            noSidebarOffset
+          />
+          <Button secondary onClick={() => setSkipFWUpgrade(true)}>
+            {t('generic.skip')}
+          </Button>
+        </ViewButtons>
+      </View>
+    );
+  }
 
   if (advanced) {
     const {
@@ -49,6 +88,12 @@ export const SetupOptions = ({
         verticallyCentered
         withBottomBar
         width="1100px">
+        <Header
+          mobileBackButton
+          variant="fullscreen"
+          onBack={handleAdvancedBack}
+          title={t('bitbox02Wizard.stepUninitialized.title')}
+        />
         <ViewHeader small title={t('seed.create')} />
         <ViewContent>
           <Grid col="1" textAlign="start">
@@ -134,15 +179,11 @@ export const SetupOptions = ({
                   primary>
                   {t('seed.create')}
                 </Button>
-                <BackButton
-                  onClick={() => {
-                    setWithMnemonic(false);
-                    setWith12Words(false);
-                    setAdvanced(false);
-                  }}
+                <DesktopBackButton
+                  onClick={handleAdvancedBack}
                 >
                   {t('button.back')}
-                </BackButton>
+                </DesktopBackButton>
               </ColumnButtons>
             </Column>
           </Grid>

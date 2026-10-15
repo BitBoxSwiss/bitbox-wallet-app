@@ -1,10 +1,52 @@
 # Changelog
 
 ## Unreleased
+- Add option for percentage on portfolio to reflect performance
+- Mobile: add copy and open actions when touching and holding transaction explorer links, without loading a preview on iOS
+- Lightning: preserve invoice details when going back to edit an invoice
+- Rename "Factory reset" to "Delete wallet from BitBox" (settings)
+- Lightning: use the configured Tor proxy
+- iOS: follow system text size settings
+- Add transaction indicators to the portfolio chart
+- Ethereum: allow sending ETH and tokens from the same account while earlier transactions are pending
+- Ethereum: automatically remove replaced transactions from history
+- Update password input animations
+- BitBox02: allow entering the optional passphrase in the app (firmware v9.28.0 or later)
+- Add eye toggles to the optional passphrase and test wallet password fields, with paste allowed while hidden
+- iOS: block third-party keyboards to protect revealed passwords and passphrases
+
+## v4.52.0
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1
+- Add a mobile-only beta Lightning hot wallet, with send, receive, Bitcoin top-up, and on-chain withdrawal flows.
+- Require antiklepto-capable firmware for transaction and message signing
+- Warn about potential security risks when restoring an external wallet
 - Bitcoin: show account details for the persisted receive address type by default
 - Add external block explorer links to used addresses
 - Settings search
 - Support macOS "Number Format" system setting
+- Move insurance to Marketplace
+- Add clear cache button to settings
+- Restrict local permissions for BitBoxApp config files and directories
+- Bitcoin: display zero amounts without decimal places
+- Add option to navigate to "Used addresses" in sign-message workflow
+- Floating mobile bottom navigation bar
+- Revamp QR Scanner
+- Mobile: Move settings into bottom navigation
+- Enable Tether USDT for BTC Direct
+- Allow users to upgrade firmware during setup
+- Ethereum: improve QR code scanning and fix ERC20 QR payment requests
+
+## v4.51.4
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.5
+
+## v4.51.3
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.4
+
+## v4.51.2
+- Bundle BitBox02 and BitBox02 Nova firmware version v9.26.3
+- Restrict third party widget access to the top frame
+- iOS: improve price widget
+- Fix potential app blank screen when disconnecting the BitBox
 
 ## v4.51.1
 - iOS: fix App Store submission by packaging Inter as TTF fonts

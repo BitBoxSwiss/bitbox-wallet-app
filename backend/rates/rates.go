@@ -40,6 +40,31 @@ const interval = time.Minute
 // unitSatoshi is 1 BTC (default unit) in Satoshi.
 const unitSatoshi = 1e8
 
+func normalizeBitcoinUnitRates(rates map[string]map[string]float64) {
+	btcRates := rates[BTC.String()]
+	if btcRates == nil {
+		return
+	}
+	// BTC/sat conversions are unit identities, not market prices.
+	btcRates[BTC.String()] = 1
+	btcRates[SAT.String()] = unitSatoshi
+}
+
+func normalizeHistoricalRate(geckoCoinID, fiat string, value float64) float64 {
+	isBitcoin := geckoCoinID == geckoCoin["btc"]
+
+	switch {
+	case isBitcoin && fiat == BTC.String():
+		return 1
+	case isBitcoin && fiat == SAT.String():
+		return unitSatoshi
+	case fiat == SAT.String():
+		return value * unitSatoshi
+	default:
+		return value
+	}
+}
+
 type exchangeRate struct {
 	value     float64
 	timestamp time.Time
@@ -322,6 +347,8 @@ func (updater *RateUpdater) updateLast(ctx context.Context) {
 		}
 		rates[coinUnit] = newVal
 	}
+
+	normalizeBitcoinUnitRates(rates)
 
 	// Create sat rates from BTC
 	sat := make(map[string]float64)

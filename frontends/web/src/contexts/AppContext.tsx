@@ -3,6 +3,7 @@
 import { Dispatch, SetStateAction, createContext } from 'react';
 
 export type TChartDisplay = 'week' | 'month' | 'year' | 'all';
+export type TPortfolioPercentageType = 'value' | 'moneyWeightedReturn';
 
 export type TSessionConfig = {
   [key: string]: boolean;
@@ -13,8 +14,10 @@ type AppContextProps = {
   guideShown: boolean;
   guideExists: boolean;
   hideAmounts: boolean;
-  isTesting: boolean;
+  portfolioPercentageType: TPortfolioPercentageType;
+  isTesting: boolean | undefined;
   isDevServers: boolean;
+  vendorIframeActive: boolean;
   isOnline?: boolean;
   nativeLocale: string;
   firmwareUpdateDialogOpen: boolean;
@@ -22,11 +25,13 @@ type AppContextProps = {
   setActiveSidebar: Dispatch<SetStateAction<boolean>>;
   setGuideExists: Dispatch<SetStateAction<boolean>>;
   setHideAmounts: Dispatch<SetStateAction<boolean>>;
+  setVendorIframeActive: Dispatch<SetStateAction<boolean>>;
   setChartDisplay: Dispatch<SetStateAction<TChartDisplay>>;
   setFirmwareUpdateDialogOpen: Dispatch<SetStateAction<boolean>>;
   toggleGuide: () => void;
   toggleHideAmounts: () => void;
   toggleSidebar: () => void;
+  updatePortfolioPercentageType: (type: TPortfolioPercentageType) => void;
   sessionConfig: TSessionConfig;
   updateSessionConfig: (config: TSessionConfig) => void;
 };

@@ -100,7 +100,8 @@ const (
 type AOPP struct {
 	// State is the current state the request is in. See `aoppState*` for the possible values.
 	State aoppState `json:"state"`
-	// ErrorCode is an "aopp*" error code. Only applies if State == aoppStateError.
+	// ErrorCode describes the AOPP failure. It is usually an "aopp*" error code, but can also be a
+	// shared error code such as "firmwareUpgradeRequired". Only applies if State == aoppStateError.
 	ErrorCode errp.ErrorCode `json:"errorCode"`
 	// Accounts is the list of accounts the user can choose from. Only applies if State == aoppStateChoosingAccount.
 	Accounts []account `json:"accounts"`
@@ -167,14 +168,24 @@ func (backend *Backend) aoppKeystoreRegistered() {
 	if backend.aopp.State != aoppStateAwaitingKeystore {
 		return
 	}
+	if err := backend.keystore.SupportsFeature(keystore.FeatureMessageSigning); err != nil {
+		if errp.Cause(err) == keystore.ErrFirmwareUpgradeRequired {
+			backend.aoppSetError(errp.ErrorCode(keystore.ErrFirmwareUpgradeRequired.Error()))
+		} else {
+			backend.aoppSetError(errAOPPUnsupportedKeystore)
+		}
+		return
+	}
 	if !backend.keystore.CanSignMessage(backend.aopp.coinCode) {
 		backend.aoppSetError(errAOPPUnsupportedKeystore)
 		return
 	}
 	var accounts []account
 	var filteredDueToScriptType bool
-	for _, acct := range backend.accounts {
-		accountFingerprint, err := acct.Config().Config.SigningConfigurations.RootFingerprint()
+	accountViews := backend.accountViewsLocked()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		accountFingerprint, err := accountView.Record.SigningConfigurations.RootFingerprint()
 		if err != nil {
 			backend.log.WithError(err).Error("Account rootfingerprint not available")
 			backend.aoppSetError(errAOPPUnknown)
@@ -184,23 +195,25 @@ func (backend *Backend) aoppKeystoreRegistered() {
 		if err := compareRootFingerprint(backend.keystore, accountFingerprint); err != nil {
 			continue
 		}
-		if acct.Config().Config.Inactive || acct.Config().Config.HiddenBecauseUnused {
+		if accountView.Record.Inactive || accountView.Record.HiddenBecauseUnused {
 			continue
 		}
+		acct := accountView.Account
 		if acct.Coin().Code() != backend.aopp.coinCode {
 			continue
 		}
 		// Filter for the requested script type.
 		if acct.Coin().Code() == coinpkg.CodeBTC && backend.aopp.format != "any" {
 			expectedScriptType, ok := aoppBTCScriptTypeMap[backend.aopp.format]
-			if !ok || acct.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType) == -1 {
+			if !ok ||
+				accountView.Record.SigningConfigurations.FindScriptType(expectedScriptType) == -1 {
 				filteredDueToScriptType = true
 				continue
 			}
 		}
 		accounts = append(accounts, account{
-			Name: acct.Config().Config.Name,
-			Code: acct.Config().Config.Code,
+			Name: accountView.Record.Name,
+			Code: accountView.Record.Code,
 		})
 	}
 
@@ -226,6 +239,13 @@ func (backend *Backend) aoppKeystoreRegistered() {
 	backend.notifyAOPP()
 }
 
+// aoppValidCallbackURL allows HTTP callbacks only when using development servers.
+func (backend *Backend) aoppValidCallbackURL(callbackURL *url.URL) bool {
+	return callbackURL.Host != "" &&
+		(strings.EqualFold(callbackURL.Scheme, "https") ||
+			(backend.DevServers() && strings.EqualFold(callbackURL.Scheme, "http")))
+}
+
 // handleAOPP handles an AOPP (Address Ownership Proof Protocol) request. See https://aopp.group/.
 func (backend *Backend) handleAOPP(uri url.URL) {
 	defer backend.accountsAndKeystoreLock.Lock()()
@@ -248,9 +268,14 @@ func (backend *Backend) handleAOPP(uri url.URL) {
 		backend.aoppSetError(errAOPPInvalidRequest)
 		return
 	}
-	_, err := url.Parse(callback)
+	callbackURL, err := url.Parse(callback)
 	if err != nil {
 		log.WithError(err).Error("Invalid callback")
+		backend.aoppSetError(errAOPPInvalidRequest)
+		return
+	}
+	if !backend.aoppValidCallbackURL(callbackURL) {
+		log.Error("Invalid callback")
 		backend.aoppSetError(errAOPPInvalidRequest)
 		return
 	}
@@ -310,22 +335,18 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 	backend.notifyAOPP()
 
 	log := backend.log.WithField("accountCode", code)
-	var account accounts.Interface
-	for _, acct := range backend.accounts {
-		if acct.Config().Config.Code == code {
-			account = acct
-			break
-		}
-	}
-	if account == nil {
+	accountView := backend.accountViewsLocked().lookup(code)
+	if accountView == nil {
 		log.Error("aopp: could not find account")
 		backend.aoppSetError(errAOPPUnknown)
 		return
 	}
+	account := accountView.Account
+	signingConfigurations := accountView.Record.SigningConfigurations
 	if err := account.Initialize(); err != nil {
 		log.
 			WithError(err).
-			WithField("code", account.Config().Config.Code).
+			WithField("code", account.Config().Code).
 			Error("could not initialize account")
 		backend.aoppSetError(errAOPPUnknown)
 		return
@@ -361,7 +382,7 @@ loop:
 	if err != nil {
 		log.
 			WithError(err).
-			WithField("code", account.Config().Config.Code).
+			WithField("code", account.Config().Code).
 			Error("get unused receive addresses")
 		backend.aoppSetError(errAOPPUnknown)
 		return
@@ -372,7 +393,7 @@ loop:
 	addr := addressList.Addresses[0]
 	if account.Coin().Code() == coinpkg.CodeBTC {
 		if backend.aopp.format == "any" {
-			signingConfigIdx = account.Config().Config.SigningConfigurations.FindScriptType(*addressList.ScriptType)
+			signingConfigIdx = signingConfigurations.FindScriptType(*addressList.ScriptType)
 			if signingConfigIdx == -1 {
 				log.Errorf("Unknown script type %s in receive addresses", *addressList.ScriptType)
 				backend.aoppSetError(errAOPPUnknown)
@@ -385,7 +406,7 @@ loop:
 				backend.aoppSetError(errAOPPUnknown)
 				return
 			}
-			signingConfigIdx = account.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType)
+			signingConfigIdx = signingConfigurations.FindScriptType(expectedScriptType)
 			if signingConfigIdx == -1 {
 				log.Errorf("Unknown aopp format param %s", backend.aopp.format)
 				backend.aoppSetError(errAOPPUnknown)
@@ -393,7 +414,8 @@ loop:
 			}
 			addressList = accounts.FindAddressListByScriptType(unused, expectedScriptType)
 			if addressList == nil || len(addressList.Addresses) == 0 {
-				log.WithField("code", account.Config().Config.Code).Errorf("AOPP script type not found: %s", expectedScriptType)
+				log.WithField("code", account.Config().Code).
+					Errorf("AOPP script type not found: %s", expectedScriptType)
 				backend.aoppSetError(errAOPPUnsupportedFormat)
 				return
 			}
@@ -409,7 +431,7 @@ loop:
 	var signature []byte
 	var xpub string
 	if backend.aopp.XpubRequired {
-		xpub = account.Config().Config.SigningConfigurations[signingConfigIdx].ExtendedPublicKey().String()
+		xpub = signingConfigurations[signingConfigIdx].ExtendedPublicKey().String()
 	}
 	var sig []byte
 	switch account.Coin().Code() {
@@ -417,7 +439,7 @@ loop:
 		sig, err = backend.keystore.SignBTCMessage(
 			[]byte(backend.aopp.Message),
 			addr.AbsoluteKeypath(),
-			account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
+			signingConfigurations[signingConfigIdx].ScriptType(),
 			account.Coin().Code(),
 		)
 	case coinpkg.CodeETH:
@@ -466,7 +488,23 @@ loop:
 		backend.aoppSetError(errAOPPUnknown)
 		return
 	}
-	resp, err := backend.httpClient.Post(backend.aopp.Callback, "application/json", bytes.NewBuffer(jsonBody))
+	// Apply the same callback URL policy to redirects, so signed data is never resent over a
+	// cleartext connection unless using development servers.
+	httpClient := *backend.httpClient
+	checkRedirect := httpClient.CheckRedirect
+	httpClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if !backend.aoppValidCallbackURL(req.URL) {
+			return http.ErrUseLastResponse
+		}
+		if checkRedirect != nil {
+			return checkRedirect(req, via)
+		}
+		if len(via) >= 10 {
+			return http.ErrUseLastResponse
+		}
+		return nil
+	}
+	resp, err := httpClient.Post(backend.aopp.Callback, "application/json", bytes.NewBuffer(jsonBody))
 	if err != nil {
 		log.WithError(err).Error("Error calling callback")
 		backend.aoppSetError(errAOPPCallback)

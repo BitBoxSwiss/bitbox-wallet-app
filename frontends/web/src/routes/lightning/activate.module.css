@@ -1,0 +1,31 @@
+.activatingContent {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+    justify-content: center;
+    min-height: 280px;
+}
+
+.lightningLogo {
+    animation: pulse 1.6s ease-in-out infinite;
+    height: 72px;
+    margin: 0;
+    width: 72px;
+}
+
+.waitMessage {
+    margin: 0;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.7;
+        transform: scale(0.94);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

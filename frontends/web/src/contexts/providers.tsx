@@ -7,8 +7,10 @@ import { BackButtonProvider } from './BackButtonContext';
 import { BackNavigationProvider } from './BackNavigationContext';
 import { WCWeb3WalletProvider } from './WCWeb3WalletProvider';
 import { RatesProvider } from './RatesProvider';
+import { LightningProvider } from './LightningProvider';
 import { LocalizationProvider } from './localization-provider';
 import { ConfigProvider } from './ConfigProvider';
+import { AppStateProvider } from './app-state-provider';
 
 type Props = {
   children: ReactNode;
@@ -24,7 +26,11 @@ export const Providers = ({ children }: Props) => {
               <LocalizationProvider>
                 <RatesProvider>
                   <WCWeb3WalletProvider>
-                    {children}
+                    <LightningProvider>
+                      <AppStateProvider>
+                        {children}
+                      </AppStateProvider>
+                    </LightningProvider>
                   </WCWeb3WalletProvider>
                 </RatesProvider>
               </LocalizationProvider>

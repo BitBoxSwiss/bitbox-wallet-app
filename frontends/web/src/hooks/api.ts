@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { DependencyList, useEffect, useState } from 'react';
+import { DependencyList, useEffect, useRef, useState } from 'react';
 import { TSubscriptionCallback, TUnsubscribe } from '@/api/subscribe';
 import { useMountedRef } from './mount';
 
@@ -54,13 +54,15 @@ export const useLoad = <T>(
 ): (T | undefined) => {
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
+  const request = useRef(0);
   const load = () => {
+    const currentRequest = ++request.current;
     setResponse(undefined);
     if (apiCall === null) {
       return;
     }
     apiCall().then((data) => {
-      if (mounted.current) {
+      if (currentRequest === request.current && mounted.current) {
         setResponse(data);
       }
     });
@@ -78,22 +80,45 @@ export const useLoad = <T>(
  * It is a combination of useLoad and useSubscribe.
  * gets fired on first render, and returns undefined while loading,
  * re-renders on every update.
+ * Passing null skips loading and subscribing.
  */
 export const useSync = <T>(
-  apiCall: () => Promise<T>,
-  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
+  apiCall: (() => Promise<T>) | null,
+  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe) | null,
+  getRevision?: (data: T) => number,
 ): (T | undefined) => {
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
   const onData = (data: T) => {
     if (mounted.current) {
-      setResponse(data);
+      setResponse((current) => {
+        if (
+          current !== undefined
+          && getRevision !== undefined
+          && getRevision(current) >= getRevision(data)
+        ) {
+          return current;
+        }
+        return data;
+      });
     }
   };
   useEffect(
     () => {
-      apiCall().then(onData);
-      return subscription(onData);
+      if (apiCall === null || subscription === null) {
+        setResponse(undefined);
+        return;
+      }
+      let subscriptionReceived = false;
+      apiCall().then((data) => {
+        if (!subscriptionReceived || getRevision !== undefined) {
+          onData(data);
+        }
+      });
+      return subscription((data) => {
+        subscriptionReceived = true;
+        onData(data);
+      });
     }, // we pass no dependencies because it's only queried once
     []); // eslint-disable-line react-hooks/exhaustive-deps
   return response;

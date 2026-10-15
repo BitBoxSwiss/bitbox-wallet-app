@@ -1,24 +1,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { MutableRefObject, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { AutoscaleInfoProvider, createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
-import type { TChartData, ChartData, FormattedLineData } from '@/api/account';
-import { usePrevious } from '@/hooks/previous';
+import { AutoscaleInfoProvider, createChart, IChartApi, LineStyle, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType } from 'lightweight-charts';
+import type { TChartData, TChartTransactionMarkerAmount, FormattedLineData } from '@/api/account';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Amount } from '@/components/amount/amount';
 import { PercentageDiff } from './percentage-diff';
 import { Filters } from './filters';
-import { getDarkmode } from '@/components/darkmode/darkmode';
+import { useDarkmode } from '@/hooks/darkmode';
 import { RatesContext } from '@/contexts/RatesContext';
-import { AppContext, TChartDisplay } from '@/contexts/AppContext';
+import { AppContext, TChartDisplay, TPortfolioPercentageType } from '@/contexts/AppContext';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
-import { triggerHapticFeedback } from '@/utils/transport-mobile';
+import { triggerHapticFeedback, triggerStrongHapticFeedback } from '@/utils/transport-mobile';
 import { LinechartGray } from '@/components/icon';
+import { calculateChartValueDifference, getChartVisibleRange } from './chart-range';
+import { Arrow } from '@/components/transactions/components/arrows';
+import type { TChartMarkerData, TMarkerSource } from './chart-markers';
+import { buildChartMarkers } from './chart-markers';
 import styles from './chart.module.css';
 
 type TProps = {
+  className?: string;
   data?: TChartData;
   noDataPlaceholder?: JSX.Element;
   hideAmounts?: boolean;
@@ -28,70 +32,60 @@ const defaultData: Readonly<TChartData> = {
   chartDataMissing: true,
   chartDataDaily: [],
   chartDataHourly: [],
+  chartTransactionMarkers: { daily: [], hourly: [] },
   chartFiat: 'USD',
+  chartPerformance: {
+    week: { moneyWeightedReturn: null, startTimestamp: null },
+    month: { moneyWeightedReturn: null, startTimestamp: null },
+    year: { moneyWeightedReturn: null, startTimestamp: null },
+    all: { moneyWeightedReturn: null, startTimestamp: null },
+  },
   chartTotal: null,
   formattedChartTotal: null,
   chartIsUpToDate: false,
   lastTimestamp: 0,
 };
 
-type FormattedData = {
-  [key: number]: string;
+const switchedBadgeVisibleMs = 2000;
+const switchedBadgeFadeMs = 180;
+
+const MARKER_HIT_RADIUS_PX = 16;
+const MARKER_MIN_SHAPE_SIZE_PX = 12;
+const MARKER_MAX_SHAPE_SIZE_PX = 30;
+const MARKER_SNAP_RADIUS_PX = 10;
+const TOOLTIP_EDGE_MARGIN_PX = 8;
+const TOOLTIP_MARKER_GAP_PX = 12;
+
+type TTooltipData = {
+  markerID?: string;
+  toolTipAnchorX: number;
+  toolTipAnchorY: number;
+  toolTipTime: number;
+  toolTipValue?: string;
+  toolTipVisible: boolean;
 };
 
-const getUTCRange = () => {
-  const now = new Date();
-  const utcYear = now.getUTCFullYear();
-  const utcMonth = now.getUTCMonth();
-  const utcDate = now.getUTCDate();
-  const utcHours = now.getUTCHours();
-  const to = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
-  const from = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
-  return {
-    utcYear,
-    utcMonth,
-    utcDate,
-    to,
-    from,
-  };
+const hiddenTooltipData: TTooltipData = {
+  toolTipAnchorX: 0,
+  toolTipAnchorY: 0,
+  toolTipTime: 0,
+  toolTipVisible: false,
 };
 
 const updateRange = (
   chart: MutableRefObject<IChartApi | undefined>,
   chartDisplay: TChartDisplay,
+  startTimestamp: number | null,
 ) => {
-  if (chart.current) {
-    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
+  if (!chart.current) {
+    return;
+  }
 
-    switch (chartDisplay) {
-    case 'week': {
-      from.setUTCDate(utcDate - 7);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'month': {
-      from.setUTCMonth(utcMonth - 1);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'year': {
-      from.setUTCFullYear(utcYear - 1);
-      chart.current && chart.current.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'all':
-      chart.current?.timeScale().fitContent();
-      break;
-    }
+  const range = getChartVisibleRange(chartDisplay, startTimestamp);
+  if (range) {
+    chart.current.timeScale().setVisibleRange(range);
+  } else {
+    chart.current.timeScale().fitContent();
   }
 };
 
@@ -160,6 +154,7 @@ const autoScaleProvider: AutoscaleInfoProvider = (original) => {
 };
 
 export const Chart = ({
+  className = '',
   data = defaultData,
   noDataPlaceholder,
   hideAmounts = false
@@ -170,112 +165,367 @@ export const Chart = ({
   const hasHourlyData = data.chartDataHourly && data.chartDataHourly.length > 0;
 
   const { t, i18n } = useTranslation();
-  const { chartDisplay, setChartDisplay } = useContext(AppContext);
+  const { isDarkMode } = useDarkmode();
+  const {
+    chartDisplay,
+    portfolioPercentageType,
+    setChartDisplay,
+    updatePortfolioPercentageType,
+  } = useContext(AppContext);
   const { defaultCurrency, rotateDefaultCurrency } = useContext(RatesContext);
   const [searchParams] = useSearchParams();
 
   const ref = useRef<HTMLDivElement>(null);
   const refToolTip = useRef<HTMLSpanElement>(null);
   const chart = useRef<IChartApi>();
-  const chartInitialized = useRef(false);
   const lineSeries = useRef<ISeriesApi<'Area'>>();
-  const formattedData = useRef<FormattedData>({});
+  const chartPointByTime = useRef<Record<number, {
+    formattedValue: string;
+    value: number;
+  }>>({});
+  const markerDataByID = useRef<Record<string, TChartMarkerData>>({});
+  const markerIDByTime = useRef<Record<number, string>>({});
+  const markerTimes = useRef<number[]>([]);
   const lastHapticTime = useRef<number | null>(null);
+  const lastMarkerHapticID = useRef<string | null>(null);
+  const snappedMarkerID = useRef<string | null>(null);
+  const switchedBadgeHideTimeout = useRef<number>();
+  const switchedBadgeClearTimeout = useRef<number>();
 
-  const [source, setSource] = useState<'daily' | 'hourly'>(chartDisplay === 'week' ? 'hourly' : 'daily');
-  const [difference, setDifference] = useState<number>();
+  const source = chartDisplay === 'week' ? 'hourly' : 'daily';
+  const rangeStartTimestamp = data.chartPerformance[chartDisplay].startTimestamp;
+  const [valueDifference, setValueDifference] = useState<number>();
   const [diffSince, setDiffSince] = useState<string>();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [tooltipData, setTooltipData] = useState<{
-    toolTipVisible: boolean;
-    toolTipValue?: string;
-    toolTipTop: number;
-    toolTipLeft: number;
-    toolTipTime: number;
-  }>({
-    toolTipVisible: false,
-    toolTipTop: 0,
-    toolTipLeft: 0,
-    toolTipTime: 0,
-  });
-
-  useEffect(() => {
-    setTooltipData({
-      toolTipVisible: false,
-      toolTipTop: 0,
-      toolTipLeft: 0,
-      toolTipTime: 0,
-    });
-  }, [defaultCurrency]);
-
+  const [isSwitchedBadgeVisible, setIsSwitchedBadgeVisible] = useState(false);
+  const [switchedToType, setSwitchedToType] = useState<TPortfolioPercentageType>();
+  const [tooltipData, setTooltipData] = useState<TTooltipData>(hiddenTooltipData);
   const [showAnimationOverlay, setAnimationOverlay] = useState(true);
-
-  const prevChartDataDaily = usePrevious(data.chartDataDaily);
-  const prevChartDataHourly = usePrevious(data.chartDataHourly);
-  const prevChartFiat = usePrevious(data.chartFiat);
-  const prevHideAmounts = usePrevious(hideAmounts);
   const hasChartAnimationParam = searchParams.get('with-chart-animation');
 
+  const clearMarkerSnap = useCallback(() => {
+    if (snappedMarkerID.current !== null) {
+      chart.current?.clearCrosshairPosition();
+      snappedMarkerID.current = null;
+    }
+  }, []);
 
-  const setFormattedData = (chartData: ChartData) => {
-    formattedData.current = {};
+  const hideTooltip = useCallback(() => {
+    lastMarkerHapticID.current = null;
+    setTooltipData(hiddenTooltipData);
+  }, []);
 
-    chartData.forEach(entry => {
-      formattedData.current[entry.time as number] = entry.formattedValue;
+  useEffect(() => {
+    clearMarkerSnap();
+    hideTooltip();
+  }, [chartDisplay, clearMarkerSnap, defaultCurrency, hideTooltip]);
+
+  const getMarkerPosition = useCallback((markerID: string) => {
+    if (!chart.current || !lineSeries.current) {
+      return null;
+    }
+    const markerData = markerDataByID.current[markerID];
+    const markerValue = (
+      markerData
+        ? chartPointByTime.current[markerData.markerTime]?.value
+        : undefined
+    );
+    if (!markerData || markerValue === undefined) {
+      return null;
+    }
+    const x = chart.current.timeScale().timeToCoordinate(markerData.markerTime as UTCTimestamp);
+    const y = lineSeries.current.priceToCoordinate(markerValue);
+    return x === null || y === null ? null : { x, y };
+  }, []);
+
+  const setChartMarkers = useCallback((nextSource: TMarkerSource) => {
+    const currentChart = chart.current;
+    const currentSeries = lineSeries.current;
+    if (!currentChart || !currentSeries) {
+      return;
+    }
+    const rootStyle = getComputedStyle(document.documentElement);
+    const chartData = nextSource === 'hourly' ? data.chartDataHourly : data.chartDataDaily;
+    const transactionMarkers = data.chartTransactionMarkers?.[nextSource] || [];
+    const logicalRange = currentChart.timeScale().getVisibleLogicalRange();
+    const visibleBars = (
+      logicalRange
+        ? Math.max(logicalRange.to - logicalRange.from, 1)
+        : 1
+    );
+    const barSpacing = currentChart.timeScale().width() / visibleBars;
+    const markerBaseSize = Math.min(
+      Math.max(barSpacing, MARKER_MIN_SHAPE_SIZE_PX),
+      MARKER_MAX_SHAPE_SIZE_PX,
+    );
+    const nextMarkers = buildChartMarkers(transactionMarkers, nextSource, chartData, {
+      mixed: rootStyle.getPropertyValue('--color-gray-alt').trim(),
+      outline: isDarkMode ? '#1D1D1B' : '#F5F5F5',
+      receive: rootStyle.getPropertyValue('--color-lightblue').trim(),
+      send: rootStyle.getPropertyValue('--color-softred').trim(),
+    }, MARKER_MIN_SHAPE_SIZE_PX / markerBaseSize);
+    currentSeries.setMarkers(nextMarkers.markers);
+    markerDataByID.current = nextMarkers.markerDataByID;
+    markerIDByTime.current = nextMarkers.markerIDByTime;
+    markerTimes.current = nextMarkers.markerData.map(marker => marker.markerTime);
+    if (
+      snappedMarkerID.current !== null
+      && !nextMarkers.markerDataByID[snappedMarkerID.current]
+    ) {
+      clearMarkerSnap();
+    }
+    const priceScaleWidth = currentChart.priceScale('left').width();
+    setTooltipData(current => {
+      if (!current.markerID) {
+        return current;
+      }
+      const markerData = nextMarkers.markerDataByID[current.markerID];
+      const markerPosition = markerData ? getMarkerPosition(current.markerID) : null;
+      if (!markerData || !markerPosition) {
+        return hiddenTooltipData;
+      }
+      return {
+        ...current,
+        toolTipAnchorX: markerPosition.x + priceScaleWidth,
+        toolTipAnchorY: markerPosition.y,
+        toolTipTime: markerData.markerTime,
+        toolTipValue: chartPointByTime.current[markerData.markerTime]?.formattedValue || '',
+      };
     });
-  };
+  }, [
+    data.chartDataDaily,
+    data.chartDataHourly,
+    data.chartTransactionMarkers,
+    clearMarkerSnap,
+    getMarkerPosition,
+    isDarkMode,
+  ]);
+
+  const findMarkerNearX = useCallback((time: number, pointX: number) => {
+    const markerIDAtTime = markerIDByTime.current[time];
+    if (markerIDAtTime) {
+      return markerIDAtTime;
+    }
+
+    const times = markerTimes.current;
+    let low = 0;
+    let high = times.length;
+    while (low < high) {
+      const middle = Math.floor((low + high) / 2);
+      const middleTime = times[middle];
+      if (middleTime === undefined) {
+        return undefined;
+      }
+      if (middleTime < time) {
+        low = middle + 1;
+      } else {
+        high = middle;
+      }
+    }
+
+    let nearestMarkerID: string | undefined;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    for (const index of [low - 1, low]) {
+      const markerTime = times[index];
+      if (markerTime === undefined) {
+        continue;
+      }
+      const markerX = chart.current?.timeScale().timeToCoordinate(markerTime as UTCTimestamp);
+      const markerID = markerIDByTime.current[markerTime];
+      if (markerX === null || markerX === undefined || !markerID) {
+        continue;
+      }
+      const distance = Math.abs(pointX - markerX);
+      if (distance <= MARKER_SNAP_RADIUS_PX && distance < nearestDistance) {
+        nearestMarkerID = markerID;
+        nearestDistance = distance;
+      }
+    }
+    return nearestMarkerID;
+  }, []);
+
+  const showChartTooltip = useCallback((
+    params: Pick<MouseEventParams, 'point' | 'time'>,
+    markerID?: string,
+  ): boolean => {
+    const currentChart = chart.current;
+    const currentSeries = lineSeries.current;
+    if (!currentChart || !currentSeries || !params.point) {
+      return false;
+    }
+    const markerData = markerID ? markerDataByID.current[markerID] : undefined;
+    const tooltipTime = (
+      markerData?.markerTime
+      ?? (typeof params.time === 'number' ? params.time : undefined)
+    );
+    if (tooltipTime === undefined) {
+      return false;
+    }
+    const chartPoint = chartPointByTime.current[tooltipTime];
+    const markerPosition = markerID ? getMarkerPosition(markerID) : null;
+    if (markerID && (!markerData || !markerPosition || !chartPoint)) {
+      return false;
+    }
+    if (markerData && markerPosition && chartPoint) {
+      currentChart.setCrosshairPosition(
+        chartPoint.value,
+        markerData.markerTime as UTCTimestamp,
+        currentSeries,
+      );
+      snappedMarkerID.current = markerData.id;
+    } else {
+      snappedMarkerID.current = null;
+    }
+    const anchorX = markerPosition?.x ?? params.point.x;
+    const anchorY = (
+      markerPosition?.y ?? (
+        chartPoint?.value === undefined
+          ? params.point.y
+          : currentSeries.priceToCoordinate(chartPoint.value)
+      )
+    );
+    if (anchorY === null) {
+      return false;
+    }
+
+    setTooltipData({
+      markerID,
+      toolTipAnchorX: anchorX + currentChart.priceScale('left').width(),
+      toolTipAnchorY: anchorY,
+      toolTipVisible: true,
+      toolTipValue: chartPoint?.formattedValue || '',
+      toolTipTime: tooltipTime,
+    });
+    return true;
+  }, [getMarkerPosition]);
+
+  useLayoutEffect(() => {
+    const tooltip = refToolTip.current;
+    const parent = tooltip?.parentNode as HTMLDivElement | null;
+    if (!tooltipData.toolTipVisible || !tooltip || !parent) {
+      return;
+    }
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+    if (tooltipWidth === 0 || tooltipHeight === 0) {
+      return;
+    }
+    const maxLeft = Math.max(
+      TOOLTIP_EDGE_MARGIN_PX,
+      parent.clientWidth - tooltipWidth - TOOLTIP_EDGE_MARGIN_PX,
+    );
+    const maxTop = Math.max(
+      TOOLTIP_EDGE_MARGIN_PX,
+      parent.clientHeight - tooltipHeight - TOOLTIP_EDGE_MARGIN_PX,
+    );
+    let left = Math.max(
+      TOOLTIP_EDGE_MARGIN_PX,
+      Math.min(maxLeft, tooltipData.toolTipAnchorX - tooltipWidth / 2),
+    );
+    const above = tooltipData.toolTipAnchorY - tooltipHeight - TOOLTIP_MARKER_GAP_PX;
+    const below = tooltipData.toolTipAnchorY + TOOLTIP_MARKER_GAP_PX;
+    let top = (
+      above >= TOOLTIP_EDGE_MARGIN_PX
+        ? above
+        : Math.min(maxTop, below)
+    );
+
+    if (isMobile && tooltipData.markerID) {
+      const right = tooltipData.toolTipAnchorX + TOOLTIP_MARKER_GAP_PX;
+      const leftOfMarker = tooltipData.toolTipAnchorX - TOOLTIP_MARKER_GAP_PX - tooltipWidth;
+      const fitsRight = right >= TOOLTIP_EDGE_MARGIN_PX && right <= maxLeft;
+      const fitsLeft = leftOfMarker >= TOOLTIP_EDGE_MARGIN_PX && leftOfMarker <= maxLeft;
+
+      if (fitsRight || fitsLeft) {
+        const placeRight = (
+          fitsRight && (
+            !fitsLeft || tooltipData.toolTipAnchorX <= parent.clientWidth / 2
+          )
+        );
+        left = placeRight ? right : leftOfMarker;
+        top = Math.max(
+          TOOLTIP_EDGE_MARGIN_PX,
+          Math.min(maxTop, tooltipData.toolTipAnchorY - tooltipHeight / 2),
+        );
+      } else if (above >= TOOLTIP_EDGE_MARGIN_PX) {
+        top = above;
+      } else if (below <= maxTop) {
+        top = below;
+      } else {
+        top = (
+          tooltipData.toolTipAnchorY < parent.clientHeight / 2
+            ? maxTop
+            : TOOLTIP_EDGE_MARGIN_PX
+        );
+      }
+    }
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+  }, [
+    data.chartTransactionMarkers,
+    isMobile,
+    tooltipData.markerID,
+    tooltipData.toolTipAnchorX,
+    tooltipData.toolTipAnchorY,
+    tooltipData.toolTipTime,
+    tooltipData.toolTipValue,
+    tooltipData.toolTipVisible,
+  ]);
+
+  const handleChartClick = useCallback((params: MouseEventParams) => {
+    if (!isMobile) {
+      return;
+    }
+    if (params.point) {
+      let closestMarkerID: string | undefined;
+      let closestDistance = MARKER_HIT_RADIUS_PX;
+      for (const markerID of Object.keys(markerDataByID.current)) {
+        const markerPosition = getMarkerPosition(markerID);
+        if (!markerPosition) {
+          continue;
+        }
+        const distance = Math.hypot(
+          params.point.x - markerPosition.x,
+          params.point.y - markerPosition.y,
+        );
+        if (distance <= closestDistance) {
+          closestMarkerID = markerID;
+          closestDistance = distance;
+        }
+      }
+      if (closestMarkerID && showChartTooltip(params, closestMarkerID)) {
+        return;
+      }
+    }
+    clearMarkerSnap();
+    hideTooltip();
+  }, [clearMarkerSnap, getMarkerPosition, hideTooltip, isMobile, showChartTooltip]);
 
   const displayWeek = () => {
     triggerHapticFeedback();
-    if (source !== 'hourly' && lineSeries.current && data.chartDataHourly && chart.current) {
-      lineSeries.current.setData(data.chartDataHourly || []);
-      setFormattedData(data.chartDataHourly || []);
-      chart.current.applyOptions({ timeScale: { timeVisible: true } });
-    }
     setChartDisplay('week');
-    setSource('hourly');
   };
 
   const displayMonth = () => {
     triggerHapticFeedback();
-    if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(data.chartDataDaily || []);
-      setFormattedData(data.chartDataDaily || []);
-      chart.current.applyOptions({ timeScale: { timeVisible: false } });
-    }
     setChartDisplay('month');
-    setSource('daily');
   };
 
   const displayYear = () => {
     triggerHapticFeedback();
-    if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(data.chartDataDaily);
-      setFormattedData(data.chartDataDaily);
-      chart.current.applyOptions({ timeScale: { timeVisible: false } });
-    }
     setChartDisplay('year');
-    setSource('daily');
   };
 
   const displayAll = () => {
     triggerHapticFeedback();
-    if (source !== 'daily' && lineSeries.current && data.chartDataDaily && chart.current) {
-      lineSeries.current.setData(data.chartDataDaily);
-      setFormattedData(data.chartDataDaily);
-      chart.current.applyOptions({ timeScale: { timeVisible: false } });
-    }
     setChartDisplay('all');
-    setSource('daily');
   };
-
-  useEffect(() => {
-    updateRange(chart, chartDisplay);
-  }, [chart, chartDisplay]);
 
   const onResize = useCallback(() => {
     const isMobile = window.innerWidth <= 768;
     setIsMobile(isMobile);
+    clearMarkerSnap();
+    hideTooltip();
     if (!chart.current || !ref.current) {
       return;
     }
@@ -295,20 +545,48 @@ export const Chart = ({
         visible: hideAmounts ? false : !isMobile,
       },
     });
-    updateRange(chart, chartDisplay);
-  }, [chartDisplay, hideAmounts]);
+    updateRange(chart, chartDisplay, rangeStartTimestamp);
+    requestAnimationFrame(() => setChartMarkers(source));
+  }, [chartDisplay, clearMarkerSnap, hideAmounts, hideTooltip, rangeStartTimestamp, setChartMarkers, source]);
 
   useEffect(() => {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, [onResize]);
 
+  useEffect(() => {
+    return () => {
+      if (switchedBadgeHideTimeout.current) {
+        window.clearTimeout(switchedBadgeHideTimeout.current);
+      }
+      if (switchedBadgeClearTimeout.current) {
+        window.clearTimeout(switchedBadgeClearTimeout.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!switchedToType) {
+      return;
+    }
+
+    setIsSwitchedBadgeVisible(false);
+    const animationFrame = window.requestAnimationFrame(() => {
+      setIsSwitchedBadgeVisible(true);
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [switchedToType]);
+
   const calculateChange = useCallback(() => {
     const chartData = data[source === 'daily' ? 'chartDataDaily' : 'chartDataHourly'];
     if (!chartData || !chart.current || !lineSeries.current) {
       return;
     }
-    const logicalrange = chart.current.timeScale().getVisibleLogicalRange() as LogicalRange;
+    const logicalrange = chart.current.timeScale().getVisibleLogicalRange();
+    if (!logicalrange) {
+      return;
+    }
     const visiblerange = lineSeries.current.barsInLogicalRange(logicalrange);
     if (!visiblerange) {
       // if the chart is empty, during first load, barsInLogicalRange is null
@@ -320,99 +598,80 @@ export const Chart = ({
       // but at this point the setVisibleRange has not executed what the new range
       // should be and therefore barsBefore might still point to the old range
       // so we have to ignore this call and expect setVisibleRange with correct range
-      setDifference(0);
+      setValueDifference(undefined);
       setDiffSince('');
       return;
     }
     const nextValue = chartData[rangeFrom + 1] as FormattedLineData | undefined;
     const valueFrom = chartData[rangeFrom].value === 0 ? nextValue?.value : chartData[rangeFrom].value;
-    if (!valueFrom || !Number.isFinite(valueFrom)) {
-      setDifference(0);
+    const nextValueDifference = calculateChartValueDifference(valueFrom, data.chartTotal);
+    if (nextValueDifference === undefined) {
+      setValueDifference(undefined);
       setDiffSince('');
       return;
     }
-    const valueTo = data.chartTotal;
-    const valueDiff = valueTo ? valueTo - valueFrom : 0;
-    setDifference(valueDiff / valueFrom);
+    setValueDifference(nextValueDifference);
     setDiffSince(`${chartData[rangeFrom].formattedValue} (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`);
   }, [data, i18n.language, source]);
 
-  const removeChart = useCallback(() => {
-    if (chartInitialized.current) {
-      chart.current?.timeScale().unsubscribeVisibleLogicalRangeChange(calculateChange);
-      chart.current?.unsubscribeCrosshairMove(handleCrosshair);
-      chart.current?.remove();
-      chart.current = undefined;
-      chartInitialized.current = false;
-    }
-  }, [calculateChange]);
-
-  const handleCrosshair = ({
-    point,
-    time,
-    seriesData
-  }: MouseEventParams) => {
+  const handleCrosshair = useCallback((params: MouseEventParams) => {
+    const { point, time } = params;
     if (!refToolTip.current) {
       return;
     }
     const tooltip = refToolTip.current;
     const parent = tooltip.parentNode as HTMLDivElement;
     if (
-      !lineSeries.current || !point || !time
+      !lineSeries.current || !point || typeof time !== 'number'
       || point.x < 0 || point.x > parent.clientWidth
       || point.y < 0 || point.y > parent.clientHeight
     ) {
-      setTooltipData((tooltipData) => ({
-        ...tooltipData,
-        toolTipVisible: false
-      }));
+      snappedMarkerID.current = null;
+      hideTooltip();
       lastHapticTime.current = null;
       return;
     }
-    const price = seriesData.get(lineSeries.current) as LineData<Time>;
-    if (!price) {
+    const crosshairX = chart.current?.timeScale().timeToCoordinate(time as UTCTimestamp);
+    const markerID = (
+      crosshairX === null || crosshairX === undefined
+        ? markerIDByTime.current[time]
+        : findMarkerNearX(time, crosshairX)
+    );
+    if (!showChartTooltip(params, markerID)) {
+      snappedMarkerID.current = null;
+      hideTooltip();
       return;
     }
 
-    const currentTime = time as number;
+    let triggeredMarkerHaptic = false;
+    if (markerID) {
+      if (isMobile && lastMarkerHapticID.current !== markerID) {
+        triggerStrongHapticFeedback();
+        lastMarkerHapticID.current = markerID;
+        triggeredMarkerHaptic = true;
+      }
+    } else {
+      lastMarkerHapticID.current = null;
+    }
+
+    const currentTime = time;
+    if (triggeredMarkerHaptic) {
+      lastHapticTime.current = currentTime;
+      return;
+    }
     if (lastHapticTime.current !== currentTime) {
       triggerHapticFeedback();
       lastHapticTime.current = currentTime;
     }
-    const coordinate = lineSeries.current.priceToCoordinate(price.value);
-    if (!coordinate) {
-      return;
-    }
-    const coordinateY = (
-      (coordinate - tooltip.clientHeight > 0)
-        ? coordinate - tooltip.clientHeight
-        : Math.max(
-          0,
-          Math.min(
-            parent.clientHeight - tooltip.clientHeight,
-            coordinate + 70
-          )
-        )
-    );
+  }, [findMarkerNearX, hideTooltip, isMobile, showChartTooltip]);
 
-    const toolTipTop = Math.floor(Math.max(coordinateY, 0));
-    const toolTipLeft = Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70)));
+  const activeChartData = source === 'hourly' ? data.chartDataHourly : data.chartDataDaily;
 
-    setTooltipData({
-      toolTipVisible: true,
-      toolTipValue: formattedData.current ? formattedData.current[time as number] : '',
-      toolTipTop,
-      toolTipLeft,
-      toolTipTime: time as number,
-    });
-  };
-
-  const initChart = useCallback(() => {
-    const darkmode = getDarkmode();
+  useEffect(() => {
     if (ref.current && hasData && !data.chartDataMissing) {
       const chartWidth = !isMobile ? ref.current.offsetWidth : document.body.clientWidth;
       const chartHeight = !isMobile ? height : mobileHeight;
-      chart.current = createChart(ref.current, {
+      const nextChart = createChart(ref.current, {
         width: chartWidth,
         height: chartHeight,
         handleScroll: false,
@@ -433,7 +692,7 @@ export const Chart = ({
             visible: false,
           },
           horzLines: {
-            color: darkmode ? '#333333' : '#dedede',
+            color: isDarkMode ? '#333333' : '#dedede',
             style: LineStyle.Solid,
             visible: !isMobile,
           },
@@ -441,11 +700,11 @@ export const Chart = ({
         layout: {
           background: {
             type: ColorType.Solid,
-            color: darkmode ? '#1D1D1B' : '#F5F5F5',
+            color: isDarkMode ? '#1D1D1B' : '#F5F5F5',
           },
           fontSize: 11,
           fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-          textColor: darkmode ? '#F5F5F5' : '#1D1D1B',
+          textColor: isDarkMode ? '#F5F5F5' : '#1D1D1B',
         },
         leftPriceScale: {
           borderVisible: false,
@@ -469,7 +728,7 @@ export const Chart = ({
           exitMode: 0
         }
       });
-      lineSeries.current = chart.current.addAreaSeries({
+      const nextSeries = nextChart.addAreaSeries({
         priceLineVisible: false,
         lastValueVisible: false,
         autoscaleInfoProvider: autoScaleProvider,
@@ -489,67 +748,142 @@ export const Chart = ({
           } : {
             type: 'volume',
           }),
-        topColor: darkmode ? '#5E94BF' : '#DFF1FF',
-        bottomColor: darkmode ? '#1D1D1B' : '#F5F5F5',
+        topColor: isDarkMode ? '#5E94BF' : '#DFF1FF',
+        bottomColor: isDarkMode ? '#1D1D1B' : '#F5F5F5',
         lineColor: 'rgba(94, 148, 192, 1)',
         crosshairMarkerRadius: 6,
       });
-      const isChartDisplayWeekly = chartDisplay === 'week';
-      const dataToDisplay = (
-        isChartDisplayWeekly
-          ? data.chartDataHourly
-          : data.chartDataDaily
-      );
-      lineSeries.current.setData(dataToDisplay);
-      setFormattedData(dataToDisplay);
-      chart.current.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
-      chart.current.subscribeCrosshairMove(handleCrosshair);
-      chart.current.timeScale().fitContent();
+      chart.current = nextChart;
+      lineSeries.current = nextSeries;
       if (styles.invisible) {
         ref.current?.classList.remove(styles.invisible);
       }
-      chartInitialized.current = true;
-      updateRange(chart, chartDisplay);
+      return () => {
+        nextChart.remove();
+        if (chart.current === nextChart) {
+          chart.current = undefined;
+          lineSeries.current = undefined;
+          markerDataByID.current = {};
+          markerIDByTime.current = {};
+          markerTimes.current = [];
+          snappedMarkerID.current = null;
+        }
+      };
     }
-  }, [calculateChange, chartDisplay, data.chartDataDaily, data.chartDataHourly, data.chartDataMissing, data.chartFiat, hasData, hideAmounts, i18n.language, isMobile]);
+  }, [
+    data.chartDataMissing,
+    data.chartFiat,
+    hasData,
+    hideAmounts,
+    i18n.language,
+    isDarkMode,
+    isMobile,
+  ]);
 
-  const reinitializeChart = () => {
-    removeChart();
-    initChart();
+  const togglePortfolioPercentageType = () => {
+    const nextType = (
+      portfolioPercentageType === 'moneyWeightedReturn'
+        ? 'value'
+        : 'moneyWeightedReturn'
+    );
+
+    updatePortfolioPercentageType(nextType);
+    setSwitchedToType(nextType);
+    setIsSwitchedBadgeVisible(false);
+
+    if (switchedBadgeHideTimeout.current) {
+      window.clearTimeout(switchedBadgeHideTimeout.current);
+    }
+    if (switchedBadgeClearTimeout.current) {
+      window.clearTimeout(switchedBadgeClearTimeout.current);
+    }
+    switchedBadgeHideTimeout.current = window.setTimeout(() => {
+      setIsSwitchedBadgeVisible(false);
+      switchedBadgeHideTimeout.current = undefined;
+    }, switchedBadgeVisibleMs);
+    switchedBadgeClearTimeout.current = window.setTimeout(() => {
+      setSwitchedToType(undefined);
+      switchedBadgeClearTimeout.current = undefined;
+    }, switchedBadgeVisibleMs + switchedBadgeFadeMs);
   };
 
-  if (source === 'daily' && prevChartDataDaily?.length !== data.chartDataDaily.length) {
-    lineSeries.current?.setData(data.chartDataDaily);
-    chart.current?.timeScale().fitContent();
-    setFormattedData(data.chartDataDaily);
-  }
-
-  if (source === 'hourly' && prevChartDataHourly?.length !== data.chartDataHourly.length) {
-    lineSeries.current?.setData(data.chartDataHourly);
-    chart.current?.timeScale().fitContent();
-    setFormattedData(data.chartDataHourly);
-  }
-
-  if (prevChartFiat !== data.chartFiat) {
-    reinitializeChart();
-  }
-
-  if (prevHideAmounts !== hideAmounts) {
-    chart.current?.applyOptions({
-      leftPriceScale: {
-        visible: hideAmounts ? false : !isMobile,
-      }
+  useEffect(() => {
+    if (!chart.current || !lineSeries.current) {
+      return;
+    }
+    lineSeries.current.setData(activeChartData);
+    chartPointByTime.current = {};
+    for (const entry of activeChartData) {
+      chartPointByTime.current[entry.time as number] = {
+        formattedValue: entry.formattedValue,
+        value: entry.value,
+      };
+    }
+    chart.current.applyOptions({ timeScale: { timeVisible: source === 'hourly' } });
+    updateRange(chart, chartDisplay, rangeStartTimestamp);
+    const animationFrame = requestAnimationFrame(() => {
+      setChartMarkers(source);
+      calculateChange();
     });
-  }
+    return () => cancelAnimationFrame(animationFrame);
+  }, [
+    activeChartData,
+    calculateChange,
+    chartDisplay,
+    data.chartDataMissing,
+    data.chartFiat,
+    hasData,
+    hideAmounts,
+    i18n.language,
+    isDarkMode,
+    isMobile,
+    rangeStartTimestamp,
+    setChartMarkers,
+    source,
+  ]);
 
   useEffect(() => {
-    if (!chartInitialized.current) {
-      initChart();
+    const currentChart = chart.current;
+    if (!currentChart) {
+      return;
     }
+    currentChart.timeScale().subscribeVisibleLogicalRangeChange(calculateChange);
     return () => {
-      removeChart();
+      currentChart.timeScale().unsubscribeVisibleLogicalRangeChange(calculateChange);
     };
-  }, [initChart, removeChart]);
+  }, [
+    calculateChange,
+    data.chartDataMissing,
+    data.chartFiat,
+    hasData,
+    hideAmounts,
+    i18n.language,
+    isDarkMode,
+    isMobile,
+  ]);
+
+  useEffect(() => {
+    const currentChart = chart.current;
+    if (!currentChart) {
+      return;
+    }
+    currentChart.subscribeCrosshairMove(handleCrosshair);
+    currentChart.subscribeClick(handleChartClick);
+    return () => {
+      currentChart.unsubscribeCrosshairMove(handleCrosshair);
+      currentChart.unsubscribeClick(handleChartClick);
+    };
+  }, [
+    data.chartDataMissing,
+    data.chartFiat,
+    handleChartClick,
+    handleCrosshair,
+    hasData,
+    hideAmounts,
+    i18n.language,
+    isDarkMode,
+    isMobile,
+  ]);
 
   useEffect(() => {
     if (data.chartDataMissing || !hasChartAnimationParam) {
@@ -557,41 +891,6 @@ export const Chart = ({
     }
     setAnimationOverlay(false);
   }, [data.chartDataMissing, hasChartAnimationParam]);
-
-  useEffect(() => {
-    const { utcYear, utcMonth, utcDate, from, to } = getUTCRange();
-
-    switch (chartDisplay) {
-    case 'week': {
-      from.setUTCDate(utcDate - 7);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'month': {
-      from.setUTCMonth(utcMonth - 1);
-      chart.current?.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'year': {
-      from.setUTCFullYear(utcYear - 1);
-      chart.current && chart.current.timeScale().setVisibleRange({
-        from: from.getTime() / 1000 as UTCTimestamp,
-        to: to.getTime() / 1000 as UTCTimestamp,
-      });
-      break;
-    }
-    case 'all': {
-      chart.current?.timeScale().fitContent();
-      break;
-    }
-    }
-  }, [source, chartDisplay]);
 
   const {
     lastTimestamp,
@@ -602,23 +901,57 @@ export const Chart = ({
     formattedChartTotal,
   } = data;
 
-  if (!hasData && chartIsUpToDate && difference) {
+  const moneyWeightedReturn = (
+    chartTotal === null
+      ? undefined
+      : data.chartPerformance[chartDisplay].moneyWeightedReturn
+  );
+  const difference = (
+    portfolioPercentageType === 'moneyWeightedReturn'
+      ? moneyWeightedReturn
+      : valueDifference
+  );
+  const switchedLabel = (
+    switchedToType
+      ? t(`chart.displayMode.${switchedToType === 'value' ? 'totalValue' : 'performance'}`)
+      : undefined
+  );
+  const differenceAvailable = (
+    difference !== undefined
+    && difference !== null
+    && Number.isFinite(difference)
+  );
+  const currentDisplayModeLabel = t(`chart.displayMode.${portfolioPercentageType === 'value' ? 'totalValue' : 'performance'}`);
+  const nextDisplayModeLabel = t(`chart.displayMode.${portfolioPercentageType === 'value' ? 'performance' : 'totalValue'}`);
+  const percentageToggleLabel = (
+    differenceAvailable
+      ? t('chart.displayMode.switchTo', { displayMode: nextDisplayModeLabel })
+      : t('chart.displayMode.unavailableSwitchTo', {
+        displayMode: currentDisplayModeLabel,
+        nextDisplayMode: nextDisplayModeLabel,
+      })
+  );
+
+  if (!hasData && chartIsUpToDate && valueDifference !== undefined) {
     setDiffSince('');
-    setDifference(0);
+    setValueDifference(undefined);
   }
 
   const {
     toolTipVisible,
     toolTipValue,
-    toolTipTop,
-    toolTipLeft,
     toolTipTime,
   } = tooltipData;
+  const markerTooltipData = (
+    tooltipData.markerID
+      ? markerDataByID.current[tooltipData.markerID]
+      : undefined
+  );
+  const showTooltipPriceDate = toolTipValue !== undefined && (!isMobile || !markerTooltipData);
 
-  const hasDifference = difference && Number.isFinite(difference);
   const disableFilters = !hasData || chartDataMissing;
   const disableWeeklyFilters = !hasHourlyData || chartDataMissing;
-  const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile;
+  const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile && !markerTooltipData;
   const chartFiltersProps = {
     display: chartDisplay,
     disableFilters,
@@ -631,12 +964,35 @@ export const Chart = ({
 
   const chartHeight = `${!isMobile ? height : mobileHeight}px`;
 
+  const renderMarkerTooltipRow = (
+    type: 'receive' | 'send',
+    markerAmount: TChartTransactionMarkerAmount,
+  ) => {
+    if (markerAmount.count === 0) {
+      return null;
+    }
+    const sign = type === 'receive' ? '+' : '-';
+    return (
+      <span key={type} className={styles.markerTooltipRow}>
+        <span className={styles.markerTooltipIcon}>
+          <Arrow type={type} />
+        </span>
+        <span className={styles.markerTooltipAmount}>
+          {markerAmount.estimated ? '\u2248 ' : ''}
+          {markerAmount.amount !== '' ? sign : ''}
+          <Amount amount={markerAmount.amount} unit={chartFiat} />
+          <AmountUnit unit={chartFiat} className={styles.markerTooltipAmountUnit} />
+        </span>
+      </span>
+    );
+  };
+
   return (
-    <section className={styles.chart}>
+    <section className={`${styles.chart || ''} ${className}`}>
       <header>
         <div className={styles.summary}>
           <div className={styles.totalValue}>
-            {formattedChartTotal !== null ? (
+            {chartTotal !== null && formattedChartTotal !== null ? (
               // remove trailing zeroes for BTC fiat total
               <Amount
                 amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue}
@@ -652,9 +1008,13 @@ export const Chart = ({
           </div>
           {!showMobileTotalValue ? (
             <PercentageDiff
-              hasDifference={!!hasDifference}
+              ariaLabel={percentageToggleLabel}
+              badgeVisible={isSwitchedBadgeVisible}
               difference={difference}
-              title={diffSince}
+              onClick={togglePortfolioPercentageType}
+              switchedLabel={switchedLabel}
+              switchedType={switchedToType}
+              title={hasData ? diffSince : ''}
             />
           ) : (
             <span className={styles.diffValue}>
@@ -697,17 +1057,36 @@ export const Chart = ({
         <span
           ref={refToolTip}
           className={styles.tooltip}
-          style={{ left: toolTipLeft, top: toolTipTop }}
-          hidden={!toolTipVisible || isMobile}>
-          {toolTipValue !== undefined ? (
+          hidden={!toolTipVisible || (isMobile && !markerTooltipData)}>
+          {showTooltipPriceDate || markerTooltipData ? (
             <span>
-              <h2 className={styles.toolTipValue}>
-                <Amount amount={toolTipValue} unit={chartFiat} />
-                <span className={styles.toolTipUnit}>{chartFiat}</span>
-              </h2>
-              <span className={styles.toolTipTime}>
-                {renderDate(toolTipTime * 1000, i18n.language, source)}
-              </span>
+              {showTooltipPriceDate && (
+                <>
+                  <h2 className={styles.toolTipValue}>
+                    <Amount amount={toolTipValue} unit={chartFiat} />
+                    <span className={styles.toolTipUnit}>{chartFiat}</span>
+                  </h2>
+                  <span className={styles.toolTipTime}>
+                    {renderDate(toolTipTime * 1000, i18n.language, source)}
+                  </span>
+                </>
+              )}
+              {markerTooltipData && (
+                <span
+                  className={showTooltipPriceDate
+                    ? styles.markerTooltipInner
+                    : [styles.markerTooltipInner, styles.markerTooltipOnly].join(' ')}>
+                  {markerTooltipData.transactionCount > 1 && (
+                    <span className={styles.markerTooltipTitle}>
+                      {t('chart.transactions', { count: markerTooltipData.transactionCount })}
+                    </span>
+                  )}
+                  <span className={styles.markerTooltipRows}>
+                    {renderMarkerTooltipRow('receive', markerTooltipData.receive)}
+                    {renderMarkerTooltipRow('send', markerTooltipData.send)}
+                  </span>
+                </span>
+              )}
             </span>
           ) : null}
         </span>

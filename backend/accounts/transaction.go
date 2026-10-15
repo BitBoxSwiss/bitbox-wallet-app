@@ -11,7 +11,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/btcutil/v2"
 )
 
 // TxType is a type of transaction. See the TxType* constants.
@@ -185,6 +185,16 @@ func NewOrderedTransactions(txs []*TransactionData) OrderedTransactions {
 		tx.DeductedAmount = deductedAmount
 	}
 	return txs
+}
+
+// LatestConfirmedBalance returns the balance at the newest confirmed transaction.
+func (txs OrderedTransactions) LatestConfirmedBalance() coin.Amount {
+	for _, tx := range txs {
+		if tx.isConfirmed() {
+			return tx.Balance
+		}
+	}
+	return coin.NewAmountFromInt64(0)
 }
 
 // TimeseriesEntry contains the balance of the account at the given time.

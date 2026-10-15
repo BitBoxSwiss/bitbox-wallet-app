@@ -11,9 +11,9 @@
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to the camera to scan QR codes.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>This app uses Bluetooth to connect to devices.</string>
+	<string>BitBoxApp uses Bluetooth to find and connect to your BitBox02 Nova hardware wallet. For example, this lets you securely approve transactions with your BitBox02 Nova.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Bluetooth is needed for communication with devices.</string>
+	<string>BitBoxApp uses Bluetooth to find and connect to your BitBox02 Nova hardware wallet. For example, this lets you securely approve transactions with your BitBox02 Nova.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Authenticate to access your BitBoxApp.</string>
 	<key>CFBundleURLTypes</key>

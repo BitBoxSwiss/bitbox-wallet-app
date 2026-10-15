@@ -1,40 +1,50 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Message } from '@/components/message/message';
+import { BackButton } from '@/components/backbutton/backbutton';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { useConfig } from '@/contexts/ConfigProvider';
-import { ScriptType, signBTCMessageUnusedAddress } from '@/api/account';
-import { getInfo } from '@/api/account';
-import { Header } from '@/components/layout';
+import { getInfo, signBTCMessageUnusedAddress, type ScriptType } from '@/api/account';
+import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { BitsuranceTerms } from '@/components/terms/bitsurance-terms';
 import { useLoad } from '@/hooks/api';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
-import { BitsuranceGuide } from './guide';
 import { getBitsuranceURL } from '@/api/bitsurance';
 import { convertScriptType } from '@/utils/request-addess';
-import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useVendorIframeActive } from '@/hooks/vendor-iframe-active';
+import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
+import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
+import {
+  getVendorIframeMessageTarget,
+  postMessageToVendorIframe,
+  type TVendorIframeMessageTarget,
+} from '@/hooks/vendor-iframe-message';
+import { BitsuranceGuide } from './guide';
 import style from './widget.module.css';
 
-type TProps = {
+type TRouteParams = {
   code: string;
 };
 
-export const BitsuranceWidget = ({ code }: TProps) => {
+export const BitsuranceWidget = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { config } = useConfig();
 
   const iframeURL = useLoad(getBitsuranceURL);
-  const accountInfo = useLoad(getInfo(code));
+  const accountInfoResponse = useLoad(getInfo(code));
+  const accountInfo = accountInfoResponse?.success ? accountInfoResponse.info : undefined;
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitsuranceDisclaimer ?? false);
+  useVendorIframeActive(agreedTerms && !!iframeURL && accountInfoResponse?.success !== false);
   const signingRef = useRef(false);
-
   useEffect(() => {
     window.addEventListener('message', onMessage);
     return () => {
@@ -42,13 +52,12 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     };
   });
 
-  const sendAddressWithXPub = (address: string, sig: string, xpub: string) => {
-    const { current } = iframeRef;
-
-    if (!current) {
-      return;
-    }
-
+  const sendAddressWithXPub = (
+    target: TVendorIframeMessageTarget,
+    address: string,
+    sig: string,
+    xpub: string,
+  ) => {
     const message = serializeMessage({
       version: MessageVersion.V0,
       type: V0MessageType.Address,
@@ -57,7 +66,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
       signature: sig,
     });
 
-    current.contentWindow?.postMessage(message, '*');
+    postMessageToVendorIframe(target, message);
   };
 
   const getXPub = (wantedScriptType: ScriptType) => {
@@ -67,7 +76,10 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     return xpubConfig?.bitcoinSimple?.keyInfo.xpub;
   };
 
-  const handleRequestAddress = (message: RequestAddressV0Message) => {
+  const handleRequestAddress = (
+    target: TVendorIframeMessageTarget,
+    message: RequestAddressV0Message,
+  ) => {
     signingRef.current = true;
     const addressType = message.withScriptType ? convertScriptType(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
@@ -82,12 +94,12 @@ export const BitsuranceWidget = ({ code }: TProps) => {
           if (withExtendedPublicKey) {
             const xpub = getXPub(addressType as ScriptType);
             if (xpub) {
-              sendAddressWithXPub(response.address, response.signature, xpub);
+              sendAddressWithXPub(target, response.address, response.signature, xpub);
             } else {
               alertUser(t('bitsuranceAccount.errorNoXpub'));
             }
           } else {
-            sendAddressWithXPub(response.address, response.signature, '');
+            sendAddressWithXPub(target, response.address, response.signature, '');
           }
         } else {
           if (!['userAbort', 'wrongKeystore'].includes(response.errorCode || '')) {
@@ -104,8 +116,9 @@ export const BitsuranceWidget = ({ code }: TProps) => {
       return;
     }
 
-    // verify the origin of the received message
-    if (m.origin !== new URL(iframeURL).origin) {
+    const target = getVendorIframeMessageTarget(m, iframeRef.current);
+    // Verify that the message came from the current Bitsurance iframe and its expected origin.
+    if (!target || target.origin !== new URL(iframeURL).origin) {
       return;
     }
 
@@ -113,7 +126,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     try {
       let message = JSON.parse(m.data);
       if (message?.type === 'showInsuranceDashboard') {
-        navigate('/bitsurance/dashboard');
+        navigate(`/market/bitsurance/dashboard/${code}`);
         return;
       }
 
@@ -123,7 +136,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
         // we ignore further signing requests
         // while there is an ongoing one
         if (!signingRef.current) {
-          handleRequestAddress(message);
+          handleRequestAddress(target, message);
         }
         break;
       }
@@ -135,38 +148,43 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   };
 
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className={style.header}>
-          <Header title={<h2>{t('bitsuranceAccount.title')}</h2>} />
-        </div>
-        <div ref={containerRef} className={style.container}>
-          { !agreedTerms ? (
-            <BitsuranceTerms
-              onAgreedTerms={() => setAgreedTerms(true)}
-            />
-          ) : (
-            <div style={{ height }}>
-              <UseDisableBackButton />
-              {!iframeLoaded && <Spinner text={t('loading')} /> }
-              <iframe
-                onLoad={() => {
-                  onIframeLoad();
-                }}
-                ref={iframeRef}
-                title="Bitsurance"
-                width="100%"
-                height={height}
-                frameBorder="0"
-                className={style.iframe}
-                allow="camera; payment"
-                src={iframeURL}>
-              </iframe>
-            </div>
-          )}
-        </div>
-      </div>
-      <BitsuranceGuide/>
-    </div>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Header title={t('generic.buySell')} />
+          <div ref={containerRef} className={style.container}>
+            { accountInfoResponse && !accountInfoResponse.success ? (
+              <div className="content">
+                <Message type="error">{accountInfoResponse.errorMessage || t('genericError')}</Message>
+                <BackButton enableEsc>{t('button.back')}</BackButton>
+              </div>
+            ) : !agreedTerms ? (
+              <BitsuranceTerms
+                onAgreedTerms={() => setAgreedTerms(true)}
+              />
+            ) : (
+              <div style={{ height }}>
+                <UseDisableBackButton />
+                {!iframeLoaded && <Spinner text={t('loading')} /> }
+                <iframe
+                  onLoad={() => {
+                    onIframeLoad();
+                  }}
+                  ref={iframeRef}
+                  title="Bitsurance"
+                  width="100%"
+                  height={height}
+                  frameBorder="0"
+                  className={style.iframe}
+                  allow="camera; payment"
+                  src={iframeURL}>
+                </iframe>
+              </div>
+            )}
+          </div>
+        </Main>
+      </GuidedContent>
+      <BitsuranceGuide />
+    </GuideWrapper>
   );
 };

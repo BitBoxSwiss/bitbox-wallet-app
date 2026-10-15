@@ -1,8 +1,6 @@
 package swapkit
 
-import (
-	"context"
-)
+import "context"
 
 // Quote performs a SwapKit V3 quote request.
 func (c *Client) Quote(ctx context.Context, req *QuoteRequest) (*QuoteResponse, error) {

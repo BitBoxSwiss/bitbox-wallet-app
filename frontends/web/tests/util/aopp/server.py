@@ -1,11 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import http.server
-import socketserver
-import json
-import uuid
-import hashlib
 import base64
+import hashlib
+import json
+import socketserver
+import ssl
+import subprocess
+import tempfile
+import uuid
+from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
 from ecdsa import VerifyingKey, SECP256k1, util
@@ -93,7 +97,7 @@ def verify_address_ownership(r_s_bytes: bytes, message_digest: bytes, expected_a
     except Exception:
         return False
 
-# --- HTTP Request Handler ---
+# --- HTTPS Request Handler ---
 
 class AOPPRequestHandler(http.server.BaseHTTPRequestHandler):
 
@@ -124,7 +128,7 @@ class AOPPRequestHandler(http.server.BaseHTTPRequestHandler):
     def handle_generate(self):
         request_id = str(uuid.uuid4())
         msg = f"I confirm that I solely control this address. ID: {request_id}"
-        callback = f"http://localhost:{PORT}/cb?id={request_id}"
+        callback = f"https://localhost:{PORT}/cb?id={request_id}"
         asset = "rbtc"
         uri = f"aopp:?v=0&msg={msg}&asset={asset}&format=any&callback={callback}"
 
@@ -206,10 +210,23 @@ class AOPPRequestHandler(http.server.BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("localhost", PORT), AOPPRequestHandler) as httpd:
-        print(f"Listening on localhost:{PORT}")
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            print("\nShutting down server.")
-            httpd.shutdown()
+    with tempfile.TemporaryDirectory(prefix="bitbox-aopp-") as cert_dir:
+        cert_path = Path(cert_dir) / "cert.pem"
+        key_path = Path(cert_dir) / "key.pem"
+        subprocess.run([
+            "openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
+            "-days", "1", "-subj", "/CN=localhost",
+            "-addext", "subjectAltName=DNS:localhost,IP:127.0.0.1",
+            "-keyout", str(key_path), "-out", str(cert_path),
+        ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        with socketserver.TCPServer(("localhost", PORT), AOPPRequestHandler) as httpd:
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            context.load_cert_chain(certfile=cert_path, keyfile=key_path)
+            httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
+            print(f"Listening on https://localhost:{PORT} with CA certificate {cert_path}")
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                print("\nShutting down server.")
+                httpd.shutdown()

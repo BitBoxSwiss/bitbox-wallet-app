@@ -24,10 +24,65 @@ func antikleptoHostCommit(hostNonce []byte) []byte {
 	return taggedSha256([]byte("s2c/ecdsa/data"), hostNonce)
 }
 
+const (
+	compactECDSASignatureLen     = 64
+	recoverableECDSASignatureLen = compactECDSASignatureLen + 1
+)
+
+func validateCompactECDSASignature(signature []byte) error {
+	if len(signature) != compactECDSASignatureLen {
+		return errp.New("compact ECDSA signature must be 64 bytes")
+	}
+
+	var r, s btcec.ModNScalar
+	if r.SetByteSlice(signature[:32]) || r.IsZero() ||
+		s.SetByteSlice(signature[32:]) || s.IsZero() {
+		return errp.New("invalid compact ECDSA signature scalar")
+	}
+	if s.IsOverHalfOrder() {
+		return errp.New("invalid compact ECDSA signature: S is not in low-S form")
+	}
+
+	return nil
+}
+
+func validateRecoverableECDSASignature(signature []byte) error {
+	if len(signature) != recoverableECDSASignatureLen {
+		return errp.New("recoverable ECDSA signature must be 65 bytes")
+	}
+	if err := validateCompactECDSASignature(signature[:compactECDSASignatureLen]); err != nil {
+		return err
+	}
+	if signature[compactECDSASignatureLen] > 3 {
+		return errp.New("invalid recoverable ECDSA signature: recovery ID must be between 0 and 3")
+	}
+	return nil
+}
+
 // antikleptoVerify verifies that hostNonce was used to tweak the nonce during signature
 // generation according to k' = k + H(clientCommitment, hostNonce) by checking that
 // k'*G = signerCommitment + H(signerCommitment, hostNonce)*G.
 func antikleptoVerify(hostNonce, signerCommitment, signature []byte) error {
+	if err := validateCompactECDSASignature(signature); err != nil {
+		return err
+	}
+	return antikleptoVerifyNonce(hostNonce, signerCommitment, signature)
+}
+
+func antikleptoVerifyRecoverable(
+	hostNonce, signerCommitment, signature []byte,
+) error {
+	if err := validateRecoverableECDSASignature(signature); err != nil {
+		return err
+	}
+	return antikleptoVerifyNonce(
+		hostNonce,
+		signerCommitment,
+		signature[:compactECDSASignatureLen],
+	)
+}
+
+func antikleptoVerifyNonce(hostNonce, signerCommitment, signature []byte) error {
 	signerCommitmentPubkey, err := btcec.ParsePubKey(signerCommitment)
 	if err != nil {
 		return errp.WithStack(err)

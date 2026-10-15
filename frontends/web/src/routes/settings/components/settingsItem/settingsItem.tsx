@@ -84,6 +84,7 @@ export const SettingsItem = ({
     <ActionableItem
       icon={icon}
       className={`${styles.container || ''} ${className}`}
+      disabled={disabled}
       onClick={notButton ? undefined : onClick}
     >
       {content}

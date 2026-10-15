@@ -37,6 +37,14 @@ func NewSocksProxy(useProxy bool, proxyAddress string) SocksProxy {
 	return proxy
 }
 
+// GetProxyAddress returns the configured host:port, or an empty string if the proxy is disabled.
+func (socksProxy SocksProxy) GetProxyAddress() string {
+	if !socksProxy.useProxy {
+		return ""
+	}
+	return socksProxy.proxyAddress
+}
+
 // Validate validates the socks5 proxy endpoint.
 // We check if we could instantiate a proxied http client.
 // Currently, no actual connectivity checks as performed.

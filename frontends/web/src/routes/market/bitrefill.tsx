@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { Header } from '@/components/layout';
-import { MobileHeader } from '../settings/components/mobile-header';
 import { Spinner } from '@/components/spinner/Spinner';
 import { MarketGuide } from './guide';
-import { AccountCode, TAccount, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
-import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
+import { AccountCode, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
+import { findAccount } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/utils/coin';
 import { useDarkmode } from '@/hooks/darkmode';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { i18n } from '@/i18n/i18n';
@@ -18,9 +19,17 @@ import { getBitrefillInfo } from '@/api/market';
 import { getURLOrigin } from '@/utils/url';
 import { ConfirmBitrefill } from './bitrefill-confirm';
 import { AppContext } from '@/contexts/AppContext';
-import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
+import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
+import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
+import {
+  getVendorIframeMessageTarget,
+  postMessageToVendorIframe,
+  type TVendorIframeMessageTarget,
+} from '@/hooks/vendor-iframe-message';
 import { useAccountSynced } from '@/hooks/account';
 import style from './iframe.module.css';
+import { useAppState } from '@/contexts/app-state-context';
 
 // Map coins supported by Bitrefill
 const coinMapping: Readonly<Record<string, string>> = {
@@ -32,41 +41,38 @@ const coinMapping: Readonly<Record<string, string>> = {
   usdc: 'usdc_erc20',
 };
 
-type TProps = {
-  accounts: TAccount[];
+type TRouteParams = {
   code: AccountCode;
   region: string;
 };
 
-export const Bitrefill = ({
-  accounts,
-  code,
-  region,
-}: TProps) => {
+export const Bitrefill = () => {
+  const { code = '', region } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const { config } = useConfig();
   const { isDarkMode } = useDarkmode();
   const { isDevServers } = useContext(AppContext);
-  const account = findAccount(accounts, code);
+  const { activeAccounts } = useAppState();
+  const account = findAccount(activeAccounts, code);
 
   const fetchBitrefillInfo = useCallback(() => getBitrefillInfo('spend', code), [code]);
   const bitrefillInfo = useAccountSynced(code, fetchBitrefillInfo);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitrefillWidgetDisclaimer ?? false);
+  useMarketIframeActive(!!account && !!config && agreedTerms && bitrefillInfo?.success === true);
 
   const [pendingPayment, setPendingPayment] = useState<boolean>(false);
   const [verifyPaymentRequest, setVerifyPaymentRequest] = useState<TTxProposalResult & { address: string } | false>(false);
+  const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
-
-  const handleConfiguration = useCallback(async (event: MessageEvent) => {
+  const handleConfiguration = useCallback(async (target: TVendorIframeMessageTarget) => {
     if (
       !account
       || !bitrefillInfo?.success
     ) {
       return;
     }
-    event.source?.postMessage({
+    postMessageToVendorIframe(target, {
       event: 'configuration',
       ref: bitrefillInfo.ref,
       utm_source: 'BITBOX',
@@ -79,8 +85,6 @@ export const Bitrefill = ({
       region, // can be an empty string if user didnt select a region in market
       // Option to show payment information in the widget, defaults to 'true'
       showPaymentInfo: 'true'
-    }, {
-      targetOrigin: event.origin
     });
   }, [account, bitrefillInfo, isDarkMode, region]);
 
@@ -137,7 +141,9 @@ export const Bitrefill = ({
       const sendResult = await sendTx(code, txNote);
       setVerifyPaymentRequest(false);
       if (!sendResult.success && !('aborted' in sendResult)) {
-        if (sendResult.errorMessage) {
+        if (sendResult.errorCode === 'broadcastUncertain') {
+          alertUser(t('send.error.broadcastUncertain'));
+        } else if (sendResult.errorMessage) {
           alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
         } else {
           alertUser(t('genericError'));
@@ -156,12 +162,20 @@ export const Bitrefill = ({
   }, [account, code, pendingPayment, t]);
 
   const handleMessage = useCallback(async (event: MessageEvent) => {
-    if (
-      !bitrefillInfo?.success
-      || (
-        !isDevServers // if prod check that event is from same origin as bitrefillInfo.url
-        && ![getURLOrigin(bitrefillInfo.url), 'https://embed.bitrefill.com'].includes(event.origin))
-    ) {
+    if (!bitrefillInfo?.success) {
+      return;
+    }
+
+    const target = getVendorIframeMessageTarget(event, iframeRef.current);
+    const fromWrapper = target && (isDevServers || target.origin === getURLOrigin(bitrefillInfo.url));
+    // Bitrefill sends payments to window.top, bypassing the wrapper. Bind those
+    // messages to its current inner iframe as well as the Bitrefill origin.
+    const wrapper = iframeRef.current?.contentWindow;
+    const fromBitrefill = (
+      event.origin === getURLOrigin(bitrefillInfo.widgetUrl)
+      && wrapper && wrapper.length > 0 && event.source === wrapper[0]
+    );
+    if (!fromWrapper && !fromBitrefill) {
       return;
     }
 
@@ -169,7 +183,9 @@ export const Bitrefill = ({
 
     switch (data.event) {
     case 'request-configuration': {
-      handleConfiguration(event);
+      if (fromWrapper) {
+        handleConfiguration(target);
+      }
       break;
     }
     case 'payment_intent': {
@@ -180,7 +196,7 @@ export const Bitrefill = ({
       break;
     }
     }
-  }, [bitrefillInfo, handleConfiguration, handlePaymentRequest, isDevServers]);
+  }, [bitrefillInfo, handleConfiguration, handlePaymentRequest, iframeRef, isDevServers]);
 
   useEffect(() => {
     window.addEventListener('message', handleMessage);
@@ -202,12 +218,7 @@ export const Bitrefill = ({
       <div className="container">
         <div className="innerContainer">
           <div className={style.header}>
-            <Header title={
-              <>
-                <h2 className="hide-on-small">{title}</h2>
-                <MobileHeader withGuide title={title} />
-              </>
-            } />
+            <Header variant="navigation" mobileBackButton title={title} />
           </div>
           <div ref={containerRef} className={style.container}>
             { !agreedTerms ? (

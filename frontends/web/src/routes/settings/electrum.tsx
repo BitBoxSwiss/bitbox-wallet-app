@@ -8,8 +8,8 @@ import { ElectrumServers } from './electrum-servers';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { Button } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
-import { Header } from '@/components/layout';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 
 export const ElectrumSettings = () => {
   const { t } = useTranslation();
@@ -26,10 +26,14 @@ export const ElectrumSettings = () => {
     setActiveTab(selectedTab);
   };
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} />
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Header
+            variant="navigation"
+            mobileBackButton
+            title={t('settings.expert.electrum.title')}
+          />
           <div className="content padded">
             <div className="flex flex-row flex-between flex-items-center tabs">
               <div className={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
@@ -60,13 +64,13 @@ export const ElectrumSettings = () => {
               )
             }
             <div style={{ marginBottom: 20 }}>
-              <BackButton>
+              <DesktopBackButton>
                 {t('button.back')}
-              </BackButton>
+              </DesktopBackButton>
             </div>
           </div>
-        </div>
-      </div>
+        </Main>
+      </GuidedContent>
       <Guide>
         <Entry key="guide.settings-electrum.what" entry={{
           text: t('guide.settings-electrum.what.text'),
@@ -99,6 +103,6 @@ export const ElectrumSettings = () => {
           title: t('guide.settings-electrum.instructions.title')
         }} />
       </Guide>
-    </div>
+    </GuideWrapper>
   );
 };

@@ -24,16 +24,18 @@ import { BackButtonProvider } from '@/contexts/BackButtonContext';
 describe('Alert', () => {
 
   beforeAll(() => {
-    window.matchMedia = window.matchMedia || function(query) {
-      return {
-        matches: false,
-        media: query,
-        onchange: null,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      };
-    };
+    window.matchMedia = (
+      window.matchMedia || function(query) {
+        return {
+          matches: false,
+          media: query,
+          onchange: null,
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        };
+      }
+    );
   });
 
   function renderAlert() {

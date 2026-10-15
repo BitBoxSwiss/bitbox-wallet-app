@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as bitbox02BootloaderAPI from '@/api/bitbox02bootloader';
 import { useDarkmode } from '@/hooks/darkmode';
 import { useSync, useLoad } from '@/hooks/api';
 import { Button } from '@/components/forms';
 import { View, ViewContent } from '@/components/view/view';
+import { Footer, Main } from '@/components/layout';
 import { BitBox02, BitBox02Inverted, BitBox02Nova, BitBox02NovaInverted } from '@/components/icon/logo';
 import { Message } from '@/components/message/message';
 import { SubTitle } from '@/components/title';
@@ -23,19 +25,45 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
     () => bitbox02BootloaderAPI.getStatus(deviceID),
     bitbox02BootloaderAPI.syncStatus(deviceID),
   );
-  const info = useLoad(() => bitbox02BootloaderAPI.getInfo(deviceID));
-  if (info === undefined) {
+  const infoResponse = useLoad(
+    status === undefined || status.upgrading ? null : () => bitbox02BootloaderAPI.getInfo(deviceID),
+    [deviceID, status?.upgrading],
+  );
+  const [requestError, setRequestError] = useState<string>();
+
+  const runAction = async (action: () => Promise<bitbox02BootloaderAPI.TBootloaderResponse>) => {
+    const result = await action();
+    if (!result.success) {
+      setRequestError(result.errorMessage || t('genericError'));
+      return;
+    }
+    setRequestError(undefined);
+  };
+
+  if (status === undefined || (infoResponse === undefined && !status.upgrading)) {
     return null;
   }
+  if (infoResponse !== undefined && !infoResponse.success) {
+    return (
+      <View fitContent verticallyCentered width="556px">
+        <ViewContent>
+          <Message type="warning">
+            {infoResponse.errorMessage || t('genericError')}
+          </Message>
+        </ViewContent>
+      </View>
+    );
+  }
+  const info = infoResponse?.info;
 
   let contents;
-  if (status && status.upgrading) {
+  if (status.upgrading) {
     if (status.upgradeSuccessful) {
       contents = (
         <div className="box large">
           <p style={{ marginBottom: 0 }}>
             {t('bb02Bootloader.success', {
-              context: (info.erased ? 'install' : ''),
+              context: (status.erased ? 'install' : ''),
             })}
           </p>
         </div>
@@ -45,9 +73,9 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       contents = (
         <>
           <SubTitle className={style.upgradingTitle}>
-            {t('bb02Bootloader.upgradeTitle', { context: (info.erased ? 'install' : '') })}
+            {t('bb02Bootloader.upgradeTitle', { context: (status.erased ? 'install' : '') })}
           </SubTitle>
-          { info.additionalUpgradeFollows ? (
+          { status.additionalUpgradeFollows ? (
             <p className={style.additionalUpgrade}>
               {t('bb02Bootloader.additionalUpgradeFollows1')}
             </p>
@@ -56,7 +84,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           <div className={style.progressInfo}>
             <span>
               {t('bootloader.progress', {
-                context: (info.erased ? 'install' : ''),
+                context: (status.erased ? 'install' : ''),
               })}
             </span>
             <span>
@@ -64,7 +92,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
             </span>
           </div>
 
-          { info.additionalUpgradeFollows ? (
+          { status.additionalUpgradeFollows ? (
             <p className={style.additionalUpgrade}>
               {t('bb02Bootloader.additionalUpgradeFollows2')}
             </p>
@@ -73,6 +101,9 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       );
     }
   } else {
+    if (info === undefined) {
+      return null;
+    }
     contents = (
       <div className="box large" style={{ minHeight: 340 }}>
         {info.erased && (
@@ -85,14 +116,14 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           { info.canUpgrade ? (
             <Button
               primary
-              onClick={() => bitbox02BootloaderAPI.upgradeFirmware(deviceID)}>
+              onClick={() => runAction(() => bitbox02BootloaderAPI.upgradeFirmware(deviceID))}>
               {t('bootloader.button', { context: (info.erased ? 'install' : '') })}
             </Button>
           ) : null }
           { !info.erased && (
             <Button
               secondary
-              onClick={() => bitbox02BootloaderAPI.reboot(deviceID)}>
+              onClick={() => runAction(() => bitbox02BootloaderAPI.reboot(deviceID))}>
               {t('bb02Bootloader.abort', { context: !info.canUpgrade ? 'noUpgrade' : '' })}
             </Button>
           )}
@@ -101,7 +132,7 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           {t('bb02Bootloader.orientation')}&nbsp;
           <Button
             inline
-            onClick={() => bitbox02BootloaderAPI.screenRotate(deviceID)}
+            onClick={() => runAction(() => bitbox02BootloaderAPI.screenRotate(deviceID))}
             transparent>
             {t('bb02Bootloader.flipscreen')}
           </Button>
@@ -113,29 +144,41 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
           </summary>
           <div>
             <br />
-            <ToggleShowFirmwareHash deviceID={deviceID} />
+            <ToggleShowFirmwareHash
+              deviceID={deviceID}
+              onError={setRequestError} />
           </div>
         </details>
       </div>
     );
   }
 
-  const logo =
-    (info.product === 'bitbox02-plus-multi' || info.product === 'bitbox02-plus-btconly') ?
+  const logo = (
+
+    (status.product === 'bitbox02-plus-multi' || status.product === 'bitbox02-plus-btconly') ?
       (isDarkMode ? <BitBox02NovaInverted /> : <BitBox02Nova />) :
-      (isDarkMode ? <BitBox02Inverted /> : <BitBox02 />);
+      (isDarkMode ? <BitBox02Inverted /> : <BitBox02 />)
+  );
 
   return (
-    <View fitContent verticallyCentered width="556px">
-      <ViewContent>
-        {logo}
-        {status && status.errMsg && (
-          <Message type="warning">
-            {status.errMsg}
-          </Message>
-        )}
-        {contents}
-      </ViewContent>
-    </View>
+    <Main>
+      <View fitContent verticallyCentered width="556px">
+        <ViewContent>
+          {logo}
+          {status.errMsg && (
+            <Message type="warning">
+              {status.errMsg}
+            </Message>
+          )}
+          {requestError && (
+            <Message type="warning">
+              {requestError}
+            </Message>
+          )}
+          {contents}
+        </ViewContent>
+        <Footer textCenter />
+      </View>
+    </Main>
   );
 };

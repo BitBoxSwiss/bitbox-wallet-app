@@ -15,6 +15,7 @@ import * as accountApi from '@/api/account';
 import * as keystoresApi from '@/api/keystores';
 import { SignMessage } from './sign-message';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
+import { AppStateContext } from '@/contexts/app-state-context';
 
 const mockAccount: accountApi.TAccount = {
   keystore: {
@@ -109,12 +110,28 @@ describe('routes/account/sign-message', () => {
 
     render(
       <BackButtonProvider>
-        <MemoryRouter>
-          <SignMessage
-            accounts={[mockAccount]}
-            code={mockAccount.code}
-          />
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
+            <Routes>
+              <Route
+                path="/account/:code/sign-message/:view"
+                element={<SignMessage />}
+              />
+            </Routes>
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -129,7 +146,10 @@ describe('routes/account/sign-message', () => {
     await user.click(screen.getByRole('button', { name: 'Sign on device' }));
 
     await waitFor(() => {
-      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(mockAccount.keystore.rootFingerprint);
+      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(
+        mockAccount.keystore.rootFingerprint,
+        'messageSigning',
+      );
       expect(signMessageSpy).toHaveBeenCalledWith(
         mockAccount.code,
         'native-address-id',
@@ -164,12 +184,28 @@ describe('routes/account/sign-message', () => {
     const user = userEvent.setup();
     render(
       <BackButtonProvider>
-        <MemoryRouter>
-          <SignMessage
-            accounts={[mockAccount]}
-            code={mockAccount.code}
-          />
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
+            <Routes>
+              <Route
+                path="/account/:code/sign-message/:view"
+                element={<SignMessage />}
+              />
+            </Routes>
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -203,12 +239,28 @@ describe('routes/account/sign-message', () => {
     const user = userEvent.setup();
     render(
       <BackButtonProvider>
-        <MemoryRouter>
-          <SignMessage
-            accounts={[mockAccount]}
-            code={mockAccount.code}
-          />
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
+            <Routes>
+              <Route
+                path="/account/:code/sign-message/:view"
+                element={<SignMessage />}
+              />
+            </Routes>
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -219,7 +271,10 @@ describe('routes/account/sign-message', () => {
     await user.click(screen.getByRole('button', { name: 'Sign on device' }));
 
     await waitFor(() => {
-      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(mockAccount.keystore.rootFingerprint);
+      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(
+        mockAccount.keystore.rootFingerprint,
+        'messageSigning',
+      );
       expect(signMessageSpy).toHaveBeenCalledWith(
         mockAccount.code,
         'native-address-id',
@@ -247,19 +302,30 @@ describe('routes/account/sign-message', () => {
 
     render(
       <BackButtonProvider>
-        <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/${usedAddress.addressID}/sign-message`]}>
-          <Routes>
-            <Route
-              path="/account/:code/addresses/:addressID/sign-message"
-              element={(
-                <SignMessage
-                  accounts={[mockAccount]}
-                  code={mockAccount.code}
-                />
-              )}
-            />
-          </Routes>
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/${usedAddress.addressID}/sign-message`]}>
+            <Routes>
+              <Route
+                path="/account/:code/addresses/:addressID/sign-message"
+                element={(
+                  <SignMessage />
+                )}
+              />
+            </Routes>
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -272,7 +338,10 @@ describe('routes/account/sign-message', () => {
     await user.click(screen.getByRole('button', { name: 'Sign on device' }));
 
     await waitFor(() => {
-      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(mockAccount.keystore.rootFingerprint);
+      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(
+        mockAccount.keystore.rootFingerprint,
+        'messageSigning',
+      );
       expect(signMessageSpy).toHaveBeenCalledWith(
         mockAccount.code,
         usedAddress.addressID,
@@ -290,19 +359,28 @@ describe('routes/account/sign-message', () => {
 
     render(
       <BackButtonProvider>
-        <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/invalid-address-id/sign-message`]}>
-          <Routes>
-            <Route
-              path="/account/:code/addresses/:addressID/sign-message"
-              element={(
-                <SignMessage
-                  accounts={[mockAccount]}
-                  code={mockAccount.code}
-                />
-              )}
-            />
-          </Routes>
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/addresses/invalid-address-id/sign-message`]}>
+            <Routes>
+              <Route
+                path="/account/:code/addresses/:addressID/sign-message"
+                element={<SignMessage />}
+              />
+            </Routes>
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -334,12 +412,28 @@ describe('routes/account/sign-message', () => {
 
     render(
       <BackButtonProvider>
-        <MemoryRouter>
-          <SignMessage
-            accounts={[ethAccount]}
-            code={ethAccount.code}
-          />
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [ethAccount],
+            activeAccounts: [ethAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter initialEntries={[`/account/${ethAccount.code}/sign-message/new`]}>
+            <Routes>
+              <Route
+                path="/account/:code/sign-message/:view"
+                element={<SignMessage />}
+              />
+            </Routes>
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -350,7 +444,10 @@ describe('routes/account/sign-message', () => {
     await user.click(screen.getByRole('button', { name: 'Sign on device' }));
 
     await waitFor(() => {
-      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(ethAccount.keystore.rootFingerprint);
+      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(
+        ethAccount.keystore.rootFingerprint,
+        'messageSigning',
+      );
       expect(ethSignSpy).toHaveBeenCalledWith(
         ethAccount.code,
         'eth sign test',
@@ -381,12 +478,28 @@ describe('routes/account/sign-message', () => {
     const user = userEvent.setup();
     render(
       <BackButtonProvider>
-        <MemoryRouter>
-          <SignMessage
-            accounts={[mockAccount]}
-            code={mockAccount.code}
-          />
-        </MemoryRouter>
+        <AppStateContext.Provider
+          value={{
+            accounts: [mockAccount],
+            activeAccounts: [mockAccount],
+            deviceIDs: [],
+            devices: {},
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: false,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+          }}
+        >
+          <MemoryRouter initialEntries={[`/account/${mockAccount.code}/sign-message/new`]}>
+            <Routes>
+              <Route
+                path="/account/:code/sign-message/new"
+                element={<SignMessage />}
+              />
+            </Routes>
+          </MemoryRouter>
+        </AppStateContext.Provider>
       </BackButtonProvider>
     );
 
@@ -397,7 +510,10 @@ describe('routes/account/sign-message', () => {
     await user.click(screen.getByRole('button', { name: 'Sign on device' }));
 
     await waitFor(() => {
-      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(mockAccount.keystore.rootFingerprint);
+      expect(keystoresApi.connectKeystore).toHaveBeenCalledWith(
+        mockAccount.keystore.rootFingerprint,
+        'messageSigning',
+      );
     });
     expect(signMessageSpy).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Sign on device' })).toBeInTheDocument();

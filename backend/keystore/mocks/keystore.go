@@ -9,8 +9,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
 	"sync"
 )
 
@@ -36,6 +35,9 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			CanVerifyExtendedPublicKeyFunc: func() bool {
 //				panic("mock out the CanVerifyExtendedPublicKey method")
 //			},
+//			DeterministicEntropyFunc: func() ([]byte, error) {
+//				panic("mock out the DeterministicEntropy method")
+//			},
 //			ExtendedPublicKeyFunc: func(coinMoqParam coin.Coin, absoluteKeypath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
 //				panic("mock out the ExtendedPublicKey method")
 //			},
@@ -60,9 +62,6 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			SignETHTypedMessageFunc: func(chainID uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 //				panic("mock out the SignETHTypedMessage method")
 //			},
-//			SignETHWalletConnectTransactionFunc: func(chainID uint64, tx *types.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error) {
-//				panic("mock out the SignETHWalletConnectTransaction method")
-//			},
 //			SignTransactionFunc: func(ifaceVal interface{}) error {
 //				panic("mock out the SignTransaction method")
 //			},
@@ -72,14 +71,14 @@ var _ keystore.Keystore = &KeystoreMock{}
 //			SupportsCoinFunc: func(coinInstance coin.Coin) bool {
 //				panic("mock out the SupportsCoin method")
 //			},
+//			SupportsDeterministicEntropyFunc: func() bool {
+//				panic("mock out the SupportsDeterministicEntropy method")
+//			},
 //			SupportsEIP1559Func: func() bool {
 //				panic("mock out the SupportsEIP1559 method")
 //			},
-//			SupportsPaymentRequestsFunc: func() error {
-//				panic("mock out the SupportsPaymentRequests method")
-//			},
-//			SupportsSwapPaymentRequestsFunc: func() error {
-//				panic("mock out the SupportsSwapPaymentRequests method")
+//			SupportsFeatureFunc: func(feature keystore.Feature) error {
+//				panic("mock out the SupportsFeature method")
 //			},
 //			TypeFunc: func() keystore.Type {
 //				panic("mock out the Type method")
@@ -112,6 +111,9 @@ type KeystoreMock struct {
 	// CanVerifyExtendedPublicKeyFunc mocks the CanVerifyExtendedPublicKey method.
 	CanVerifyExtendedPublicKeyFunc func() bool
 
+	// DeterministicEntropyFunc mocks the DeterministicEntropy method.
+	DeterministicEntropyFunc func() ([]byte, error)
+
 	// ExtendedPublicKeyFunc mocks the ExtendedPublicKey method.
 	ExtendedPublicKeyFunc func(coinMoqParam coin.Coin, absoluteKeypath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 
@@ -136,9 +138,6 @@ type KeystoreMock struct {
 	// SignETHTypedMessageFunc mocks the SignETHTypedMessage method.
 	SignETHTypedMessageFunc func(chainID uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
 
-	// SignETHWalletConnectTransactionFunc mocks the SignETHWalletConnectTransaction method.
-	SignETHWalletConnectTransactionFunc func(chainID uint64, tx *types.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error)
-
 	// SignTransactionFunc mocks the SignTransaction method.
 	SignTransactionFunc func(ifaceVal interface{}) error
 
@@ -148,14 +147,14 @@ type KeystoreMock struct {
 	// SupportsCoinFunc mocks the SupportsCoin method.
 	SupportsCoinFunc func(coinInstance coin.Coin) bool
 
+	// SupportsDeterministicEntropyFunc mocks the SupportsDeterministicEntropy method.
+	SupportsDeterministicEntropyFunc func() bool
+
 	// SupportsEIP1559Func mocks the SupportsEIP1559 method.
 	SupportsEIP1559Func func() bool
 
-	// SupportsPaymentRequestsFunc mocks the SupportsPaymentRequests method.
-	SupportsPaymentRequestsFunc func() error
-
-	// SupportsSwapPaymentRequestsFunc mocks the SupportsSwapPaymentRequests method.
-	SupportsSwapPaymentRequestsFunc func() error
+	// SupportsFeatureFunc mocks the SupportsFeature method.
+	SupportsFeatureFunc func(feature keystore.Feature) error
 
 	// TypeFunc mocks the Type method.
 	TypeFunc func() keystore.Type
@@ -190,6 +189,9 @@ type KeystoreMock struct {
 		}
 		// CanVerifyExtendedPublicKey holds details about calls to the CanVerifyExtendedPublicKey method.
 		CanVerifyExtendedPublicKey []struct {
+		}
+		// DeterministicEntropy holds details about calls to the DeterministicEntropy method.
+		DeterministicEntropy []struct {
 		}
 		// ExtendedPublicKey holds details about calls to the ExtendedPublicKey method.
 		ExtendedPublicKey []struct {
@@ -241,15 +243,6 @@ type KeystoreMock struct {
 			// Keypath is the keypath argument value.
 			Keypath signing.AbsoluteKeypath
 		}
-		// SignETHWalletConnectTransaction holds details about calls to the SignETHWalletConnectTransaction method.
-		SignETHWalletConnectTransaction []struct {
-			// ChainID is the chainID argument value.
-			ChainID uint64
-			// Tx is the tx argument value.
-			Tx *types.Transaction
-			// Keypath is the keypath argument value.
-			Keypath signing.AbsoluteKeypath
-		}
 		// SignTransaction holds details about calls to the SignTransaction method.
 		SignTransaction []struct {
 			// IfaceVal is the ifaceVal argument value.
@@ -267,14 +260,16 @@ type KeystoreMock struct {
 			// CoinInstance is the coinInstance argument value.
 			CoinInstance coin.Coin
 		}
+		// SupportsDeterministicEntropy holds details about calls to the SupportsDeterministicEntropy method.
+		SupportsDeterministicEntropy []struct {
+		}
 		// SupportsEIP1559 holds details about calls to the SupportsEIP1559 method.
 		SupportsEIP1559 []struct {
 		}
-		// SupportsPaymentRequests holds details about calls to the SupportsPaymentRequests method.
-		SupportsPaymentRequests []struct {
-		}
-		// SupportsSwapPaymentRequests holds details about calls to the SupportsSwapPaymentRequests method.
-		SupportsSwapPaymentRequests []struct {
+		// SupportsFeature holds details about calls to the SupportsFeature method.
+		SupportsFeature []struct {
+			// Feature is the feature argument value.
+			Feature keystore.Feature
 		}
 		// Type holds details about calls to the Type method.
 		Type []struct {
@@ -303,29 +298,29 @@ type KeystoreMock struct {
 			Configuration *signing.Configuration
 		}
 	}
-	lockBTCXPubs                        sync.RWMutex
-	lockCanSignMessage                  sync.RWMutex
-	lockCanVerifyAddress                sync.RWMutex
-	lockCanVerifyExtendedPublicKey      sync.RWMutex
-	lockExtendedPublicKey               sync.RWMutex
-	lockFeatures                        sync.RWMutex
-	lockName                            sync.RWMutex
-	lockObserve                         sync.RWMutex
-	lockRootFingerprint                 sync.RWMutex
-	lockSignBTCMessage                  sync.RWMutex
-	lockSignETHMessage                  sync.RWMutex
-	lockSignETHTypedMessage             sync.RWMutex
-	lockSignETHWalletConnectTransaction sync.RWMutex
-	lockSignTransaction                 sync.RWMutex
-	lockSupportsAccount                 sync.RWMutex
-	lockSupportsCoin                    sync.RWMutex
-	lockSupportsEIP1559                 sync.RWMutex
-	lockSupportsPaymentRequests         sync.RWMutex
-	lockSupportsSwapPaymentRequests     sync.RWMutex
-	lockType                            sync.RWMutex
-	lockVerifyAddressBTC                sync.RWMutex
-	lockVerifyAddressETH                sync.RWMutex
-	lockVerifyExtendedPublicKey         sync.RWMutex
+	lockBTCXPubs                     sync.RWMutex
+	lockCanSignMessage               sync.RWMutex
+	lockCanVerifyAddress             sync.RWMutex
+	lockCanVerifyExtendedPublicKey   sync.RWMutex
+	lockDeterministicEntropy         sync.RWMutex
+	lockExtendedPublicKey            sync.RWMutex
+	lockFeatures                     sync.RWMutex
+	lockName                         sync.RWMutex
+	lockObserve                      sync.RWMutex
+	lockRootFingerprint              sync.RWMutex
+	lockSignBTCMessage               sync.RWMutex
+	lockSignETHMessage               sync.RWMutex
+	lockSignETHTypedMessage          sync.RWMutex
+	lockSignTransaction              sync.RWMutex
+	lockSupportsAccount              sync.RWMutex
+	lockSupportsCoin                 sync.RWMutex
+	lockSupportsDeterministicEntropy sync.RWMutex
+	lockSupportsEIP1559              sync.RWMutex
+	lockSupportsFeature              sync.RWMutex
+	lockType                         sync.RWMutex
+	lockVerifyAddressBTC             sync.RWMutex
+	lockVerifyAddressETH             sync.RWMutex
+	lockVerifyExtendedPublicKey      sync.RWMutex
 }
 
 // BTCXPubs calls BTCXPubsFunc.
@@ -452,6 +447,33 @@ func (mock *KeystoreMock) CanVerifyExtendedPublicKeyCalls() []struct {
 	mock.lockCanVerifyExtendedPublicKey.RLock()
 	calls = mock.calls.CanVerifyExtendedPublicKey
 	mock.lockCanVerifyExtendedPublicKey.RUnlock()
+	return calls
+}
+
+// DeterministicEntropy calls DeterministicEntropyFunc.
+func (mock *KeystoreMock) DeterministicEntropy() ([]byte, error) {
+	if mock.DeterministicEntropyFunc == nil {
+		panic("KeystoreMock.DeterministicEntropyFunc: method is nil but Keystore.DeterministicEntropy was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockDeterministicEntropy.Lock()
+	mock.calls.DeterministicEntropy = append(mock.calls.DeterministicEntropy, callInfo)
+	mock.lockDeterministicEntropy.Unlock()
+	return mock.DeterministicEntropyFunc()
+}
+
+// DeterministicEntropyCalls gets all the calls that were made to DeterministicEntropy.
+// Check the length with:
+//
+//	len(mockedKeystore.DeterministicEntropyCalls())
+func (mock *KeystoreMock) DeterministicEntropyCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockDeterministicEntropy.RLock()
+	calls = mock.calls.DeterministicEntropy
+	mock.lockDeterministicEntropy.RUnlock()
 	return calls
 }
 
@@ -728,46 +750,6 @@ func (mock *KeystoreMock) SignETHTypedMessageCalls() []struct {
 	return calls
 }
 
-// SignETHWalletConnectTransaction calls SignETHWalletConnectTransactionFunc.
-func (mock *KeystoreMock) SignETHWalletConnectTransaction(chainID uint64, tx *types.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	if mock.SignETHWalletConnectTransactionFunc == nil {
-		panic("KeystoreMock.SignETHWalletConnectTransactionFunc: method is nil but Keystore.SignETHWalletConnectTransaction was just called")
-	}
-	callInfo := struct {
-		ChainID uint64
-		Tx      *types.Transaction
-		Keypath signing.AbsoluteKeypath
-	}{
-		ChainID: chainID,
-		Tx:      tx,
-		Keypath: keypath,
-	}
-	mock.lockSignETHWalletConnectTransaction.Lock()
-	mock.calls.SignETHWalletConnectTransaction = append(mock.calls.SignETHWalletConnectTransaction, callInfo)
-	mock.lockSignETHWalletConnectTransaction.Unlock()
-	return mock.SignETHWalletConnectTransactionFunc(chainID, tx, keypath)
-}
-
-// SignETHWalletConnectTransactionCalls gets all the calls that were made to SignETHWalletConnectTransaction.
-// Check the length with:
-//
-//	len(mockedKeystore.SignETHWalletConnectTransactionCalls())
-func (mock *KeystoreMock) SignETHWalletConnectTransactionCalls() []struct {
-	ChainID uint64
-	Tx      *types.Transaction
-	Keypath signing.AbsoluteKeypath
-} {
-	var calls []struct {
-		ChainID uint64
-		Tx      *types.Transaction
-		Keypath signing.AbsoluteKeypath
-	}
-	mock.lockSignETHWalletConnectTransaction.RLock()
-	calls = mock.calls.SignETHWalletConnectTransaction
-	mock.lockSignETHWalletConnectTransaction.RUnlock()
-	return calls
-}
-
 // SignTransaction calls SignTransactionFunc.
 func (mock *KeystoreMock) SignTransaction(ifaceVal interface{}) error {
 	if mock.SignTransactionFunc == nil {
@@ -868,6 +850,33 @@ func (mock *KeystoreMock) SupportsCoinCalls() []struct {
 	return calls
 }
 
+// SupportsDeterministicEntropy calls SupportsDeterministicEntropyFunc.
+func (mock *KeystoreMock) SupportsDeterministicEntropy() bool {
+	if mock.SupportsDeterministicEntropyFunc == nil {
+		panic("KeystoreMock.SupportsDeterministicEntropyFunc: method is nil but Keystore.SupportsDeterministicEntropy was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockSupportsDeterministicEntropy.Lock()
+	mock.calls.SupportsDeterministicEntropy = append(mock.calls.SupportsDeterministicEntropy, callInfo)
+	mock.lockSupportsDeterministicEntropy.Unlock()
+	return mock.SupportsDeterministicEntropyFunc()
+}
+
+// SupportsDeterministicEntropyCalls gets all the calls that were made to SupportsDeterministicEntropy.
+// Check the length with:
+//
+//	len(mockedKeystore.SupportsDeterministicEntropyCalls())
+func (mock *KeystoreMock) SupportsDeterministicEntropyCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockSupportsDeterministicEntropy.RLock()
+	calls = mock.calls.SupportsDeterministicEntropy
+	mock.lockSupportsDeterministicEntropy.RUnlock()
+	return calls
+}
+
 // SupportsEIP1559 calls SupportsEIP1559Func.
 func (mock *KeystoreMock) SupportsEIP1559() bool {
 	if mock.SupportsEIP1559Func == nil {
@@ -895,57 +904,35 @@ func (mock *KeystoreMock) SupportsEIP1559Calls() []struct {
 	return calls
 }
 
-// SupportsPaymentRequests calls SupportsPaymentRequestsFunc.
-func (mock *KeystoreMock) SupportsPaymentRequests() error {
-	if mock.SupportsPaymentRequestsFunc == nil {
-		panic("KeystoreMock.SupportsPaymentRequestsFunc: method is nil but Keystore.SupportsPaymentRequests was just called")
+// SupportsFeature calls SupportsFeatureFunc.
+func (mock *KeystoreMock) SupportsFeature(feature keystore.Feature) error {
+	if mock.SupportsFeatureFunc == nil {
+		panic("KeystoreMock.SupportsFeatureFunc: method is nil but Keystore.SupportsFeature was just called")
 	}
 	callInfo := struct {
-	}{}
-	mock.lockSupportsPaymentRequests.Lock()
-	mock.calls.SupportsPaymentRequests = append(mock.calls.SupportsPaymentRequests, callInfo)
-	mock.lockSupportsPaymentRequests.Unlock()
-	return mock.SupportsPaymentRequestsFunc()
+		Feature keystore.Feature
+	}{
+		Feature: feature,
+	}
+	mock.lockSupportsFeature.Lock()
+	mock.calls.SupportsFeature = append(mock.calls.SupportsFeature, callInfo)
+	mock.lockSupportsFeature.Unlock()
+	return mock.SupportsFeatureFunc(feature)
 }
 
-// SupportsPaymentRequestsCalls gets all the calls that were made to SupportsPaymentRequests.
+// SupportsFeatureCalls gets all the calls that were made to SupportsFeature.
 // Check the length with:
 //
-//	len(mockedKeystore.SupportsPaymentRequestsCalls())
-func (mock *KeystoreMock) SupportsPaymentRequestsCalls() []struct {
+//	len(mockedKeystore.SupportsFeatureCalls())
+func (mock *KeystoreMock) SupportsFeatureCalls() []struct {
+	Feature keystore.Feature
 } {
 	var calls []struct {
+		Feature keystore.Feature
 	}
-	mock.lockSupportsPaymentRequests.RLock()
-	calls = mock.calls.SupportsPaymentRequests
-	mock.lockSupportsPaymentRequests.RUnlock()
-	return calls
-}
-
-// SupportsSwapPaymentRequests calls SupportsSwapPaymentRequestsFunc.
-func (mock *KeystoreMock) SupportsSwapPaymentRequests() error {
-	if mock.SupportsSwapPaymentRequestsFunc == nil {
-		panic("KeystoreMock.SupportsSwapPaymentRequestsFunc: method is nil but Keystore.SupportsSwapPaymentRequests was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockSupportsSwapPaymentRequests.Lock()
-	mock.calls.SupportsSwapPaymentRequests = append(mock.calls.SupportsSwapPaymentRequests, callInfo)
-	mock.lockSupportsSwapPaymentRequests.Unlock()
-	return mock.SupportsSwapPaymentRequestsFunc()
-}
-
-// SupportsSwapPaymentRequestsCalls gets all the calls that were made to SupportsSwapPaymentRequests.
-// Check the length with:
-//
-//	len(mockedKeystore.SupportsSwapPaymentRequestsCalls())
-func (mock *KeystoreMock) SupportsSwapPaymentRequestsCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockSupportsSwapPaymentRequests.RLock()
-	calls = mock.calls.SupportsSwapPaymentRequests
-	mock.lockSupportsSwapPaymentRequests.RUnlock()
+	mock.lockSupportsFeature.RLock()
+	calls = mock.calls.SupportsFeature
+	mock.lockSupportsFeature.RUnlock()
 	return calls
 }
 

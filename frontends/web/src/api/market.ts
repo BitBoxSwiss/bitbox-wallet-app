@@ -101,6 +101,7 @@ export const getBTCDirectInfo = async (action: TMarketAction, code: string): Pro
 export type TBitrefillInfoResponse = {
   success: true;
   url: string;
+  widgetUrl: string;
   ref: string;
   address?: string;
 } | {

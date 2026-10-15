@@ -1,0 +1,146 @@
+.scanControls {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.scanDimmer {
+  background: var(--scan-qr-background);
+  inset: 0;
+  opacity: 0;
+  position: absolute;
+  transition: opacity 180ms ease-out;
+}
+
+.scanDimmerVisible {
+  opacity: 0.75;
+}
+
+.scanError {
+  left: 50%;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + var(--space-large));
+  transform: translateX(-50%);
+  transition: opacity 180ms ease-out;
+  width: min(460px, calc(100vw - var(--space-default)));
+  z-index: 1;
+}
+
+.scanErrorVisible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scanErrorMessage {
+  border-radius: var(--radius-3xl);
+  color: var(--color-white);
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.scanErrorContent {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--space-half);
+  width: 100%;
+}
+
+.scanErrorClose {
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex: none;
+  height: var(--size-header);
+  justify-content: center;
+  margin-left: auto;
+  padding: 0;
+  width: var(--size-header);
+}
+
+.scanErrorClose img {
+  height: var(--size-default);
+  margin-right: 0;
+  width: var(--size-default);
+}
+
+.scanActions {
+  align-items: center;
+  background: var(--background-secondary);
+  border-radius: var(--radius-3xl);
+  bottom: var(--scan-qr-content-bottom, calc(env(safe-area-inset-bottom, 0px) + var(--space-default)));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  left: 50%;
+  pointer-events: auto;
+  padding: var(--space-half);
+  position: absolute;
+  transform: translateX(-50%);
+  transition: opacity 180ms ease-out;
+  width: min(460px, calc(100vw - var(--space-default)));
+  z-index: 1;
+}
+
+.scanActionsHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scanActionButton {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-quarter);
+  justify-content: flex-start;
+  min-height: auto;
+  min-width: 0;
+  padding: 0;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.scanActionButton img {
+  flex: none;
+  height: 18px;
+  max-width: 18px;
+  width: auto;
+}
+
+.inputView {
+  animation: inputViewEnter 300ms ease-out;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 1;
+  width: 100%;
+}
+
+.inputViewClosing {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 300ms ease-out,
+    transform 300ms ease-out;
+}
+
+.inputForm {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+@keyframes inputViewEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

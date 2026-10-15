@@ -208,6 +208,10 @@ test('Send BTC', async ({ page, host, frontendPort, servewalletPort, browserName
     await expect(txDetails).toBeVisible();
     const amount = await txDetails.getByTestId('amountBlocks').nth(0).textContent();
     const fee = await txDetails.getByTestId('amountBlocks').nth(1).textContent();
+    await expect(txDetails.getByText(/sat\/vB/)).toHaveCount(0);
+    await txDetails.getByRole('button', { name: 'Advanced' }).click();
+    await expect(txDetails.getByText('Fee rate', { exact: true })).toBeVisible();
+    await expect(txDetails.getByText(/^[0-9.]+ sat\/vB$/)).toBeVisible();
 
     await page.getByTestId('close-button').click();
 

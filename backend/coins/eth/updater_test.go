@@ -5,10 +5,10 @@ package eth_test
 import (
 	"context"
 	"math/big"
-	"net/http"
 	"os"
 	"slices"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -17,13 +17,12 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/mocks"
 	rpcclientmocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
+	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
@@ -58,7 +57,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 
 	log := logging.Get().WithGroup("updater_test")
 	dbFolder := test.TstTempDir("eth-dbfolder")
-	defer func() { _ = os.RemoveAll(dbFolder) }()
+	t.Cleanup(func() { _ = os.RemoveAll(dbFolder) })
 
 	net := &chaincfg.TestNet3Params
 
@@ -88,7 +87,7 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
 			return big.NewInt(100), nil
 		},
-		ERC20BalanceFunc: func(address common.Address, token *erc20.Token) (*big.Int, error) {
+		ERC20BalanceFunc: func(address common.Address, token *erc20.Token, blockNumber *big.Int) (*big.Int, error) {
 			if erc20error {
 				return nil, errp.New("failed to fetch ERC20 balance")
 			}
@@ -97,24 +96,24 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 	}
 
 	coin := eth.NewCoin(client, coin.CodeSEPETH, "Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig, "", nil, erc20Token)
+	outgoing, err := eth.NewOutgoingTransactions(dbFolder)
+	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, outgoing.Close()) })
 	acct := eth.NewAccount(
 		&accounts.AccountConfig{
-			Config: &config.Account{
-				Code:                  "accountcode",
-				Name:                  "accountname",
-				SigningConfigurations: signingConfigurations,
-			},
-			GetNotifier: func(signing.Configurations) accounts.Notifier { return noopNotifier{} },
-			DBFolder:    dbFolder,
+			Code:                  "accountcode",
+			SigningConfigurations: signingConfigurations,
+			GetNotifier:           func(signing.Configurations) accounts.Notifier { return noopNotifier{} },
+			DBFolder:              dbFolder,
 		},
 		coin,
-		&http.Client{},
+		outgoing,
 		log,
-		make(chan *eth.Account),
+		make(chan struct{}),
 	)
 
 	require.NoError(t, acct.Initialize())
-	require.NoError(t, acct.Update(big.NewInt(0), big.NewInt(100), nil))
+	require.NoError(t, acct.Update(big.NewInt(0), big.NewInt(100), nil, nil))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 	return acct
 }
@@ -164,7 +163,7 @@ func TestUpdateBalances(t *testing.T) {
 
 	updatedBalances := []common.Address{}
 	balanceFetcher := mocks.BalanceAndBlockNumberFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			updatedBalances = addresses
 			// We mock the balanceFetcher to always return a balance of 1000.
 			balances := make(map[common.Address]*big.Int)
@@ -217,7 +216,7 @@ func TestUpdateBalances(t *testing.T) {
 
 func TestUpdateBalancesWithError(t *testing.T) {
 	balanceFetcher := &mocks.BalanceAndBlockNumberFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			// We mock the balanceFetcher to always return an error.
 			// This simulates a failure in fetching balances which should set the account to offline.
 			return nil, errp.New("balance fetch error")
@@ -281,7 +280,7 @@ func TestUpdateBalancesPrefetchTokenTransactions(t *testing.T) {
 	blockNumber := big.NewInt(100)
 	tokenTxCalls := 0
 	fetcher := &mocks.TokenTransactionsFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			require.Len(t, addresses, 0)
 			return map[common.Address]*big.Int{}, nil
 		},
@@ -316,7 +315,7 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 	tokenTxCalls := 0
 	var tokenTxResult map[common.Address][]*accounts.TransactionData
 	fetcher := &mocks.TokenTransactionsFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address) (map[common.Address]*big.Int, error) {
+		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 			require.Len(t, addresses, 0)
 			return map[common.Address]*big.Int{}, nil
 		},
@@ -382,5 +381,21 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 
 		require.Equal(t, 1, tokenTxCalls)
 		require.Equal(t, 0, txSource.calls)
+	})
+}
+
+func TestUpdaterCloseDuringUpdate(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		started := make(chan struct{})
+		finish := make(chan struct{})
+		updater := eth.NewUpdater(nil, nil, nil, func() error {
+			close(started)
+			<-finish
+			return nil
+		})
+		go updater.PollBalances()
+		<-started
+		updater.Close()
+		close(finish)
 	})
 }

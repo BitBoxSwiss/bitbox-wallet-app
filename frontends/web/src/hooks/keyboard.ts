@@ -129,9 +129,11 @@ export const useFocusTrap = (
 
         // final guard: if still nothing inside has focus, focus first focusable
         if (!node.contains(document.activeElement)) {
-          const firstFocusable =
+          const firstFocusable = (
+
             node.querySelector<HTMLElement>('[autofocus]:not(:disabled)') ??
-            node.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+            node.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
+          );
           firstFocusable?.focus({ preventScroll: true });
         }
       }, autofocusDelay);

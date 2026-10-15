@@ -1,63 +1,70 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TAccount } from '@/api/account';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AccountCode, TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
+import { useAppState } from '@/contexts/app-state-context';
+import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
+import { MarketTab } from '@/routes/market/components/markettab';
 import { alertUser } from '@/components/alert/Alert';
 import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
 import { Checked, Sync, SyncLight } from '@/components/icon';
-import { Column, ColumnButtons, GuidedContent, GuideWrapper, Header, Main, ResponsiveGrid } from '@/components/layout';
+import { Column, ColumnButtons, ResponsiveGrid } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { useDarkmode } from '@/hooks/darkmode';
-import { BitsuranceGuide } from './guide';
 import { i18n } from '@/i18n/i18n';
+import { BitsuranceGuide } from './guide';
 import style from './bitsurance.module.css';
 
-type TProps = {
-  accounts: TAccount[];
+type TRouteParams = {
+  code: AccountCode;
 };
 
-export const Bitsurance = ({ accounts }: TProps) => {
+export const Bitsurance = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const navigate = useNavigate();
+  const { activeAccounts } = useAppState();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
+
   const [insuredAccounts, setInsuredAccounts] = useState<TAccount[]>([]);
-  const [redirecting, setRedirecting] = useState(true);
   const [scanDone, setScanDone] = useState(false);
   const [scanLoading, setScanLoading] = useState(false);
 
   const amount = '100.000€';
+  const hasBitsuranceAccount = activeAccounts.some(({ bitsuranceStatus }) => bitsuranceStatus);
 
   useEffect(() => {
-    if (accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)) {
+    if (code && hasBitsuranceAccount) {
       // replace current history item when redirecting so that the user can go back
-      navigate('/bitsurance/dashboard', { replace: true });
-    } else {
-      setRedirecting(false);
+      navigate(`/market/bitsurance/dashboard/${code}`, { replace: true });
     }
 
     return () => setInsuredAccounts([]);
-  }, [accounts, navigate]);
+  }, [code, hasBitsuranceAccount, navigate]);
 
   const detect = async (redirectToDashboard: boolean) => {
     setScanLoading(true);
     setScanDone(false);
     setInsuredAccounts([]);
-    const response = await bitsuranceLookup();
-    if (!response.success) {
-      alertUser(response.errorMessage);
-      return;
-    }
-    const insuredAccountsCodes = response.bitsuranceAccounts.map(account => account.status ? account.code : null);
-    const insured = accounts.filter(({ code }) => insuredAccountsCodes.includes(code));
-    setInsuredAccounts(insured);
-    setScanDone(true);
-    setScanLoading(false);
-    if (insured.length && redirectToDashboard) {
-      navigate('/bitsurance/dashboard');
+    try {
+      const response = await bitsuranceLookup();
+      if (!response.success) {
+        alertUser(response.errorMessage);
+        return;
+      }
+      const insuredAccountsCodes = response.bitsuranceAccounts.map(account => account.status ? account.code : null);
+      const insured = activeAccounts.filter(({ code }) => insuredAccountsCodes.includes(code));
+      setInsuredAccounts(insured);
+      setScanDone(true);
+      if (insured.length && redirectToDashboard) {
+        navigate(`/market/bitsurance/dashboard/${code}`);
+      }
+    } finally {
+      setScanLoading(false);
     }
   };
 
@@ -74,18 +81,22 @@ export const Bitsurance = ({ accounts }: TProps) => {
     // we force a detection to verify if there is any new insured account
     // before proceeding to the next step.
     await detect(false);
-    navigate('/bitsurance/account');
+    navigate(`/market/bitsurance/account/${code}`);
   };
 
-  if (redirecting) {
+  if (hasBitsuranceAccount) {
     return null;
   }
 
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
-          <Header title={<h2>{t('sidebar.insurance')}</h2>} />
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Header title={t('generic.buySell')} />
+          <MarketTab
+            activeTab="insure"
+            code={code}
+          />
           <View fullscreen={false}>
             <ViewContent>
               <p className={style.noVspace}>{t('bitsurance.intro.text1', { amount })}</p>
@@ -140,9 +151,9 @@ export const Bitsurance = ({ accounts }: TProps) => {
               </div>
             </ViewContent>
           </View>
-        </GuidedContent>
-        <BitsuranceGuide/>
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <BitsuranceGuide />
+    </GuideWrapper>
   );
 };

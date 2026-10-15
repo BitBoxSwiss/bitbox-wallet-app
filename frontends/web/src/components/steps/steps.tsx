@@ -28,8 +28,10 @@ export const Steps = ({
           if (!child) {
             return null;
           }
-          const status = step === current ? 'process' : (
-            step < current ? 'finish' : 'wait'
+          const status = (
+            step === current ? 'process' : (
+              step < current ? 'finish' : 'wait'
+            )
           );
           const line = (step > 0);
           return cloneElement(child, {

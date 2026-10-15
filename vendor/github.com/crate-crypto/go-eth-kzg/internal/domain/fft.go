@@ -16,30 +16,29 @@ import (
 // See: https://faculty.sites.iastate.edu/jia/files/inline-files/polymultiply.pdf
 // for a reference.
 
-// Computes an FFT (Fast Fourier Transform) of the G1 elements.
+// Computes an FFT (Fast Fourier Transform) of the G1 elements in-place.
 //
 // The elements are returned in order as opposed to being returned in
 // bit-reversed order.
-func (domain *Domain) FftG1(values []bls12381.G1Affine) []bls12381.G1Affine {
-	return fftG1(values, domain.Generator)
+func (domain *Domain) FftG1(values []bls12381.G1Affine) {
+	out := fftG1(values, domain.Generator)
+	copy(values, out)
 }
 
-// Computes an IFFT(Inverse Fast Fourier Transform) of the G1 elements.
+// Computes an IFFT(Inverse Fast Fourier Transform) of the G1 elements in-place.
 //
 // The elements are returned in order as opposed to being returned in
 // bit-reversed order.
-func (domain *Domain) IfftG1(values []bls12381.G1Affine) []bls12381.G1Affine {
+func (domain *Domain) IfftG1(values []bls12381.G1Affine) {
 	var invDomainBI big.Int
 	domain.CardinalityInv.BigInt(&invDomainBI)
 
 	inverseFFT := fftG1(values, domain.GeneratorInv)
-
 	// scale by the inverse of the domain size
 	for i := 0; i < len(inverseFFT); i++ {
 		inverseFFT[i].ScalarMultiplication(&inverseFFT[i], &invDomainBI)
 	}
-
-	return inverseFFT
+	copy(values, inverseFFT)
 }
 
 // fftG1 computes an FFT (Fast Fourier Transform) of the G1 elements.
@@ -92,50 +91,56 @@ func fftG1(values []bls12381.G1Affine, nthRootOfUnity fr.Element) []bls12381.G1A
 	return evaluations
 }
 
-func (d *Domain) FftFr(values []fr.Element) []fr.Element {
-	return fftFr(values, d.Generator)
+// FftFr computes the FFT of the input values in-place
+func (d *Domain) FftFr(values []fr.Element) {
+	fftFrInPlace(values, d.Generator)
 }
 
-func (d *Domain) IfftFr(values []fr.Element) []fr.Element {
-	var invDomain fr.Element
-	invDomain.SetInt64(int64(len(values)))
-	invDomain.Inverse(&invDomain)
-
-	inverseFFT := fftFr(values, d.GeneratorInv)
-
+// IfftFr computes the inverse FFT of the input values in-place
+func (d *Domain) IfftFr(values []fr.Element) {
+	// In-place DIF using inverse generator
+	fftFrInPlace(values, d.GeneratorInv)
 	// scale by the inverse of the domain size
-	for i := 0; i < len(inverseFFT); i++ {
-		inverseFFT[i].Mul(&inverseFFT[i], &invDomain)
+	for i := 0; i < len(values); i++ {
+		values[i].Mul(&values[i], &d.CardinalityInv)
 	}
-	return inverseFFT
 }
 
-func fftFr(values []fr.Element, nthRootOfUnity fr.Element) []fr.Element {
+func fftFrInPlace(values []fr.Element, nthRootOfUnity fr.Element) {
 	n := len(values)
-	if n == 1 {
-		return values
+	if n <= 1 {
+		return
 	}
 
-	var generatorSquared fr.Element
-	generatorSquared.Square(&nthRootOfUnity) // generator with order n/2
+	for size := n; size >= 2; size >>= 1 {
+		half := size >> 1
 
-	even, odd := takeEvenOdd(values)
+		// Compute wStep = root^(n/size)
+		var wStep fr.Element
+		wStep.Set(&nthRootOfUnity)
+		for i := n / size; i > 1; i-- {
+			wStep.Mul(&wStep, &nthRootOfUnity)
+		}
 
-	fftEven := fftFr(even, generatorSquared)
-	fftOdd := fftFr(odd, generatorSquared)
+		for start := 0; start < n; start += size {
+			w := fr.One()
+			for k := 0; k < half; k++ {
+				i0 := start + k
+				i1 := i0 + half
 
-	inputPoint := fr.One()
-	evaluations := make([]fr.Element, n)
-	for k := 0; k < n/2; k++ {
-		var tmp fr.Element
-		tmp.Mul(&inputPoint, &fftOdd[k])
+				// Gentleman–Sande butterfly
+				var tmp fr.Element
+				tmp.Sub(&values[i0], &values[i1])
+				values[i0].Add(&values[i0], &values[i1])
+				values[i1].Mul(&tmp, &w)
 
-		evaluations[k].Add(&fftEven[k], &tmp)
-		evaluations[k+n/2].Sub(&fftEven[k], &tmp)
-
-		inputPoint.Mul(&inputPoint, &nthRootOfUnity)
+				w.Mul(&w, &wStep)
+			}
+		}
 	}
-	return evaluations
+
+	// Bit-reverse permutation to restore natural order
+	BitReverse(values)
 }
 
 // takeEvenOdd Takes a slice and return two slices

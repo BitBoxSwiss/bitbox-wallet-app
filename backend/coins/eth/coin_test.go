@@ -107,6 +107,14 @@ func (s *testSuite) TestFormatAmount() {
 		"0.123456789012345678",
 		s.ERC20Coin.FormatAmount(coin.NewAmountFromInt64(123456789012345678), true),
 	)
+	s.ERC20Coin.erc20Token = erc20.NewToken("0x0000000000000000000000000000000000000001", 0)
+	s.Require().Equal("0", s.ERC20Coin.FormatAmount(coin.NewAmountFromInt64(0), false))
+	s.Require().Equal("10", s.ERC20Coin.FormatAmount(coin.NewAmountFromInt64(10), false))
+	s.ERC20Coin.erc20Token = erc20.NewToken("0x0000000000000000000000000000000000000001", 24)
+	s.Require().Equal(
+		"0.000000000000000000000001",
+		s.ERC20Coin.FormatAmount(coin.NewAmountFromInt64(1), false),
+	)
 
 	stablecoinTests := []struct {
 		amount   int64

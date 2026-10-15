@@ -2,6 +2,7 @@
 
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 import { apiGet, apiPost } from '@/utils/request';
+import type { AccountCode } from './account';
 
 export type { TUnsubscribe };
 
@@ -47,17 +48,42 @@ export const deregisterTest = (): Promise<null> => {
 
 export type TConnectKeystoreResponse = {
   success: boolean;
-  errorCode?: string;
+  errorCode?: 'firmwareUpgradeRequired' | 'unsupportedFeature' | 'userAbort';
 };
 
-export const connectKeystore = (rootFingerprint: string): Promise<TConnectKeystoreResponse> => {
-  return apiPost('connect-keystore', { rootFingerprint });
+export type TKeystoreFeature =
+  | 'btcTransactionSigning'
+  | 'ethTransactionSigning'
+  | 'messageSigning'
+  | 'ethTypedMessageSigning'
+  | 'paymentRequests'
+  | 'swapPaymentRequests';
+
+export const connectKeystore = (
+  rootFingerprint: string,
+  requiredFeature?: TKeystoreFeature,
+  accountCode?: AccountCode,
+): Promise<TConnectKeystoreResponse> => {
+  return apiPost('connect-keystore', { rootFingerprint, requiredFeature, accountCode });
 };
 
-export const connectAnyKeystore = (): Promise<TConnectKeystoreResponse> => {
-  return apiPost('connect-keystore', { rootFingerprint: '' });
+export const connectAnyKeystore = (
+  requiredFeature?: TKeystoreFeature,
+): Promise<TConnectKeystoreResponse> => {
+  return apiPost('connect-keystore', { rootFingerprint: '', requiredFeature });
 };
 
 export const getKeystoreFeatures = (rootFingerprint: string): Promise<TKeystoreFeaturesResponse> => {
   return apiGet(`keystore/${rootFingerprint}/features`);
+};
+
+type TKeystoreNameResponse = {
+  success: true;
+  keystoreName: string;
+} | {
+  success: false;
+};
+
+export const getKeystoreName = (rootFingerprint: string): Promise<TKeystoreNameResponse> => {
+  return apiGet(`keystore-name?rootFingerprint=${encodeURIComponent(rootFingerprint)}`);
 };

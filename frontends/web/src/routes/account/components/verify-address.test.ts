@@ -92,7 +92,7 @@ describe('verifyAddressWithDevice', () => {
     vi.mocked(hasSecureOutput).mockReturnValue(
       () => Promise.resolve({ hasSecureOutput: true, optional: false }),
     );
-    vi.mocked(verifyAddress).mockResolvedValue(true);
+    vi.mocked(verifyAddress).mockResolvedValue({ success: true });
 
     const result = await verifyAddressWithDevice(defaultParams);
 
@@ -105,7 +105,7 @@ describe('verifyAddressWithDevice', () => {
     vi.mocked(hasSecureOutput).mockReturnValue(
       () => Promise.resolve({ hasSecureOutput: true, optional: false }),
     );
-    vi.mocked(verifyAddress).mockResolvedValue(true);
+    vi.mocked(verifyAddress).mockResolvedValue({ success: true });
 
     const onSecureVerificationStart = vi.fn();
     await verifyAddressWithDevice({ ...defaultParams, onSecureVerificationStart });
@@ -125,12 +125,16 @@ describe('verifyAddressWithDevice', () => {
     expect(verifyAddress).not.toHaveBeenCalled();
   });
 
-  it('returns verifyFailed when verifyAddress throws', async () => {
+  it.each(['response', 'exception'])('returns verifyFailed on a failed %s', async failure => {
     vi.mocked(connectKeystore).mockResolvedValue({ success: true });
     vi.mocked(hasSecureOutput).mockReturnValue(
       () => Promise.resolve({ hasSecureOutput: true, optional: false }),
     );
-    vi.mocked(verifyAddress).mockRejectedValue(new Error('verify error'));
+    if (failure === 'response') {
+      vi.mocked(verifyAddress).mockResolvedValue({ success: false, errorCode: 'firmwareUpgradeRequired' });
+    } else {
+      vi.mocked(verifyAddress).mockRejectedValue(new Error('verify error'));
+    }
 
     const result = await verifyAddressWithDevice(defaultParams);
 

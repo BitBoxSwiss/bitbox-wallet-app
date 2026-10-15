@@ -19,7 +19,6 @@ TEMPLATE = app
 CFORTIFY = -O2 -D_FORTIFY_SOURCE=2
 CSTACK = -fstack-protector-all -fstack-check
 CMISC = -fwrapv
-CASLR = -fPIE -fPIC
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -47,6 +46,9 @@ win32 {
     QMAKE_CXXFLAGS += $$CFORTIFY
     QMAKE_CXXFLAGS += $$CSTACK
     QMAKE_CXXFLAGS += $$CMISC
+    # On Debian/Ubuntu (docker) GCC adds -fPIE by default, but other
+    # toolchains (e.g. Fedora/GCC) do not.
+    QMAKE_CXXFLAGS += -fPIE
 }
 
 # https://stackoverflow.com/questions/18462420/how-to-specify-mac-platform-in-qmake-qtcreator

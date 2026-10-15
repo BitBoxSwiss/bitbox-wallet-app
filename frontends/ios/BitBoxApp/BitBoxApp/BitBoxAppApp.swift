@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Foundation
+import UIKit
 import Mobileserver
 import LocalAuthentication
 import Network
@@ -21,6 +23,7 @@ protocol SetMessageHandlersProtocol {
 
 class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDocumentInteractionControllerDelegate {
     private let bluetoothManager: BluetoothManager
+    private let lightningEncryptionHelper = LightningEncryptionHelper()
 
     init(bluetoothManager: BluetoothManager) {
         self.bluetoothManager = bluetoothManager
@@ -84,11 +87,43 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
         return Locale.current.identifier
     }
 
+    func userAgentPlatform() -> String {
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+            return "iphone"
+        case .pad:
+            return "ipad"
+        default:
+            return "ios"
+        }
+    }
+
     func notifyUser(_ p0: String?) {
     }
 
     func onAuthSettingChanged(_ p0: Bool) {
         // TODO: hide app window contents in app switcher, maybe always not just when auth is on.
+    }
+
+    func canEncryptLightningMnemonic() -> Bool {
+        true
+    }
+
+    func storeLightningEncryptionKey(_ accountCode: String?, p1 encryptionKey: String?) throws {
+        try lightningEncryptionHelper.storeKey(accountCode: accountCode, encryptionKey: encryptionKey)
+    }
+
+    func loadLightningEncryptionKey(_ accountCode: String?, error: NSErrorPointer) -> String {
+        do {
+            return try lightningEncryptionHelper.loadKey(accountCode: accountCode)
+        } catch let loadError as NSError {
+            error?.pointee = loadError
+            return ""
+        }
+    }
+
+    func deleteLightningEncryptionKey(_ accountCode: String?) throws {
+        try lightningEncryptionHelper.deleteKey(accountCode: accountCode)
     }
 
     func bluetoothConnect(_ identifier: String?) {
@@ -184,8 +219,19 @@ class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersPro
     }
 }
 
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        shouldAllowExtensionPointIdentifier extensionPointIdentifier: UIApplication.ExtensionPointIdentifier
+    ) -> Bool {
+        // Revealed passwords use text inputs, which otherwise allow third-party keyboards.
+        extensionPointIdentifier != .keyboard
+    }
+}
+
 @main
 struct BitBoxAppApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var bluetoothManager = BluetoothManager()
     private let widgetSync = WidgetAppGroupSync()
 
@@ -251,6 +297,23 @@ struct BitBoxAppApp: App {
         let testnet = false;
         #endif
         MobileserverServe(appSupportDirectory.path, testnet, goEnvironment, goAPI)
+        // Re-apply this on every backend start, as these paths may be created
+        // or replaced by the backend after a previous backup exclusion.
+        excludeBackendPathsFromBackup(in: appSupportDirectory)
+    }
+
+    private func excludeBackendPathsFromBackup(in appSupportDirectory: URL) {
+        excludeFromBackup(appSupportDirectory.appendingPathComponent("lightning.json"))
+        excludeFromBackup(appSupportDirectory.appendingPathComponent("lightning", isDirectory: true))
+        excludeFromBackup(appSupportDirectory.appendingPathComponent("cache", isDirectory: true))
+    }
+
+    private func excludeFromBackup(_ url: URL) {
+        do {
+            try (url as NSURL).setResourceValue(true, forKey: URLResourceKey.isExcludedFromBackupKey)
+        } catch {
+            print("Could not exclude \(url.lastPathComponent) from backup: \(error)")
+        }
     }
 }
 

@@ -6,26 +6,29 @@ import { Amount } from '@/components/amount/amount';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import style from './accountssummary.module.css';
 
-type Props = {
+type TProps = {
   name: ReactNode;
+  hideHeader?: boolean;
   totalAmount?: string;
   fiatUnit?: ConversionUnit;
   children: ReactNode;
 };
 
-export const BalanceSection = ({ name, totalAmount, fiatUnit, children }: Props) => (
+export const BalanceSection = ({ name, hideHeader, totalAmount, fiatUnit, children }: TProps) => (
   <div className={style.keystoreContainer}>
-    <div className={style.keystoreHeader}>
-      {name}
-      {totalAmount && fiatUnit ? (
-        <div className={style.keystoreBalanceAmount}>
-          <Amount amount={totalAmount} unit={fiatUnit} />
-          <span className={style.coinUnit}>
-            {fiatUnit}
-          </span>
-        </div>
-      ) : (<div className={style.keystoreBalanceAmount}><Skeleton minWidth="60px" /></div>)}
-    </div>
+    {!hideHeader && (
+      <div className={style.keystoreHeader}>
+        {name}
+        {totalAmount && fiatUnit ? (
+          <div className={style.keystoreBalanceAmount}>
+            <Amount amount={totalAmount} unit={fiatUnit} />
+            <span className={style.coinUnit}>
+              {fiatUnit}
+            </span>
+          </div>
+        ) : (<div className={style.keystoreBalanceAmount}><Skeleton minWidth="60px" /></div>)}
+      </div>
+    )}
     <div className={style.coinGroupList}>
       {children}
     </div>

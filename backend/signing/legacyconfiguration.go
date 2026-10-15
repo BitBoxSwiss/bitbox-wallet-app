@@ -11,7 +11,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/jsonp"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
 )
 
 // LegacyConfiguration models a signing configuration as it was done up to v4.27.0. From v4.28.0,

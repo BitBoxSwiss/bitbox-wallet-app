@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { WCWeb3WalletContext } from './WCWeb3WalletContext';
 import { IWalletKit } from '@reown/walletkit';
@@ -16,9 +16,14 @@ export const WCWeb3WalletProvider = ({ children }: TProps) => {
   const { t } = useTranslation();
   const [web3wallet, setWeb3wallet] = useState<IWalletKit>();
   const [isWalletInitialized, setIsWalletInitialized] = useState(false);
+  const initializationStarted = useRef(false);
   const hasUsedWC = config?.frontend.hasUsedWalletConnect ?? false;
 
-  const initializeWeb3Wallet = async () => {
+  const initializeWeb3Wallet = useCallback(async () => {
+    if (initializationStarted.current) {
+      return;
+    }
+    initializationStarted.current = true;
     try {
       const { Core } = await import('@walletconnect/core');
       const { WalletKit } = await import('@reown/walletkit');
@@ -40,9 +45,10 @@ export const WCWeb3WalletProvider = ({ children }: TProps) => {
       setWeb3wallet(wallet);
       setIsWalletInitialized(true);
     } catch (err: unknown) {
+      initializationStarted.current = false;
       console.log('Error for initializing', err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (
@@ -52,7 +58,7 @@ export const WCWeb3WalletProvider = ({ children }: TProps) => {
     ) {
       initializeWeb3Wallet();
     }
-  }, [isWalletInitialized, web3wallet, hasUsedWC]);
+  }, [initializeWeb3Wallet, isWalletInitialized, web3wallet, hasUsedWC]);
 
 
   const pair = async (params: { uri: string }) => {

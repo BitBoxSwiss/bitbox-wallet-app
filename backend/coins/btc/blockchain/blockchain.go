@@ -10,9 +10,9 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/block-client-go/electrum/types"
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcd/btcutil/v2"
+	"github.com/btcsuite/btcd/chainhash/v2"
+	"github.com/btcsuite/btcd/wire/v2"
 )
 
 // TXHash wraps chainhash.Hash for json deserialization.
@@ -62,7 +62,7 @@ func (history TxHistory) Status() string {
 	}
 	status := bytes.Buffer{}
 	for _, tx := range history {
-		status.WriteString(fmt.Sprintf("%s:%d:", tx.TXHash.Hash().String(), tx.Height))
+		fmt.Fprintf(&status, "%s:%d:", tx.TXHash.Hash().String(), tx.Height)
 	}
 	return hex.EncodeToString(chainhash.HashB(status.Bytes()))
 }

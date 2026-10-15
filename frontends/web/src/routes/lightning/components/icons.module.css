@@ -1,0 +1,12 @@
+.txArrowType {
+    width: 18px;
+    height: 18px;
+}
+
+.txArrowTypeIn {
+    stroke: var(--color-success) !important;
+}
+
+.txArrowTypeOut {
+    stroke: var(--color-danger) !important;
+}

@@ -4,11 +4,12 @@
 package mocks
 
 import (
+	"sync"
+
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/transactions"
-	"github.com/btcsuite/btcd/wire"
-	"sync"
+	"github.com/btcsuite/btcd/wire/v2"
 )
 
 // Ensure, that InterfaceMock does implement transactions.Interface.

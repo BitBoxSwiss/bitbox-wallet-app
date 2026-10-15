@@ -5,12 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   getBalance,
-  hasSwapPaymentRequest,
   proposeTx,
   sendTx,
   TBalance,
   type AccountCode,
-  type TAccount,
   type TAmountWithConversions,
   type CoinUnit,
   type TSendTx,
@@ -25,20 +23,20 @@ import {
   type TSwapQuoteErrorCode,
   type TSwapQuoteRoute,
 } from '@/api/swap';
-import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
+import { useAppState } from '@/contexts/app-state-context';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { alertUser } from '@/components/alert/Alert';
 import { Message } from '@/components/message/message';
 import { Button, Label } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
-import { findAccount, getDisplayedCoinUnit, isBitcoinOnly } from '@/routes/account/utils';
+import { findAccount } from '@/routes/account/utils';
+import { getDisplayedCoinUnit, isBitcoinOnly } from '@/utils/coin';
 import { useLoad } from '@/hooks/api';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
@@ -50,10 +48,6 @@ import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { SwapkitTerms } from '@/components/terms/swapkit-terms';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import style from './swap.module.css';
-
-type Props = {
-  accounts: TAccount[];
-};
 
 const QUOTE_DEBOUNCE_MS = 300;
 const INSUFFICIENT_FUNDS_ERROR: TSwapQuoteErrorCode = 'insufficientFunds';
@@ -86,11 +80,10 @@ const getSwapDisplayAmount = async (
   };
 };
 
-export const Swap = ({
-  accounts,
-}: Props) => {
+export const Swap = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { accounts } = useAppState();
   const { activeCurrencies, btcUnit, defaultCurrency } = useContext(RatesContext);
   // accounts is added as a dependency, to reload swap accounts when the account list changes.
   const loadedSwapAccounts = useLoad(getSwapAccounts, [accounts]);
@@ -123,8 +116,6 @@ export const Swap = ({
   }>();
   const [result, setResult] = useState<TSendTx | undefined>();
   const [canFlip, setCanFlip] = useState<boolean>(false);
-  const [fwRequiredDialog, setFwRequiredDialog] = useState(false);
-
   const [routes, setRoutes] = useState<TSwapQuoteRoute[]>([]);
   const [selectedRouteId, setSelectedRouteId] = useState<string | undefined>();
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
@@ -306,14 +297,16 @@ export const Swap = ({
           response.success
           || response.errorCode === NO_ROUTES_FOUND_ERROR
         ) {
-          const noRouteFoundMessage = !response.success
+          const noRouteFoundMessage = (
+            !response.success
             && response.errorData?.sellCoin
             && response.errorData?.buyCoin
-            ? t('swap.noRouteFoundForPair', {
-              buyCoin: response.errorData.buyCoin,
-              sellCoin: response.errorData.sellCoin,
-            })
-            : t('swap.noRouteFound');
+              ? t('swap.noRouteFoundForPair', {
+                buyCoin: response.errorData.buyCoin,
+                sellCoin: response.errorData.sellCoin,
+              })
+              : t('swap.noRouteFound')
+          );
           resetQuoteStateWithError({
             error: noRouteFoundMessage,
             errorCode: response.success ? undefined : validationErrorCode ?? response.errorCode,
@@ -410,18 +403,6 @@ export const Swap = ({
         return;
       }
 
-      const paymentRequestSupport = await hasSwapPaymentRequest(sellAccountCode);
-      if (!paymentRequestSupport.success) {
-        if (paymentRequestSupport.errorCode === 'firmwareUpgradeRequired') {
-          setFwRequiredDialog(true);
-        } else if (paymentRequestSupport.errorCode) {
-          alertUser(t(`device.${paymentRequestSupport.errorCode}`));
-        } else {
-          alertUser(paymentRequestSupport.errorMessage || t('genericError'));
-        }
-        return;
-      }
-
       setResult(undefined);
       setConfirmDetails(undefined);
 
@@ -497,12 +478,10 @@ export const Swap = ({
         <GuidedContent>
           <Main>
             <Header
+              variant="navigation"
               hideSidebarToggler
-              title={
-                <h2>
-                  {t('generic.swap')}
-                </h2>
-              }
+              mobileBackButton
+              title={t('generic.swap')}
             />
             <View
               fullscreen={false}
@@ -515,9 +494,9 @@ export const Swap = ({
                 </p>
               </ViewContent>
               <ViewButtons>
-                <BackButton>
+                <DesktopBackButton>
                   {t('button.back')}
-                </BackButton>
+                </DesktopBackButton>
               </ViewButtons>
             </View>
           </Main>
@@ -532,12 +511,10 @@ export const Swap = ({
         <GuidedContent>
           <Main>
             <Header
+              variant="navigation"
               hideSidebarToggler
-              title={
-                <h2>
-                  {t('generic.swap')}
-                </h2>
-              }
+              mobileBackButton
+              title={t('generic.swap')}
             />
             <SwapkitTerms
               onAgreedTerms={() => setAgreedTerms(true)}
@@ -548,31 +525,26 @@ export const Swap = ({
     );
   }
 
-  const placeholderFiat = !isFetchingRoutes ? (
-    <>
-      0.00
-      <span className={style.unit}>
-        {defaultCurrency}
-      </span>
-    </>
-  ) : undefined;
+  const placeholderFiat = (
+    !isFetchingRoutes ? (
+      <>
+        0.00
+        <span className={style.unit}>
+          {defaultCurrency}
+        </span>
+      </>
+    ) : undefined
+  );
 
   return (
     <GuideWrapper>
       <GuidedContent>
-        <FirmwareUpgradeRequiredDialog
-          open={fwRequiredDialog}
-          onClose={() => setFwRequiredDialog(false)}
-        />
         <Main>
           <Header
+            variant="navigation"
             hideSidebarToggler
-            title={
-              <>
-                <h2 className="hide-on-small">{t('generic.swap')}</h2>
-                <MobileHeader withGuide title={t('generic.swap')} />
-              </>
-            }
+            mobileBackButton
+            title={t('generic.swap')}
           />
           <View
             fullscreen={false}
@@ -676,9 +648,9 @@ export const Swap = ({
                   {isConfirmInFlight ? t('loading') : t('generic.swap')}
                 </span>
               </Button>
-              <BackButton className="hide-on-small">
+              <DesktopBackButton>
                 {t('button.back')}
-              </BackButton>
+              </DesktopBackButton>
             </ViewButtons>
           </View>
 
@@ -691,9 +663,10 @@ export const Swap = ({
             />
           )}
 
-          {buyAccountCode && (
+          {buyAccountCode && sellAccountCode && (
             <SwapResult
               buyAccountCode={buyAccountCode}
+              sellAccountCode={sellAccountCode}
               buyEthAccountCode={sellAccount?.parentAccountCode ?? sellAccount?.code}
               onContinue={() => {
                 setIsConfirming(false);

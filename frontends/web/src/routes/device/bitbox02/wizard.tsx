@@ -85,6 +85,7 @@ export const Wizard = ({ deviceID }: TProps) => {
       { (status === 'connected') ? (
         <Unlock
           key="unlock"
+          deviceID={deviceID}
           attestation={attestation} />
       ) : null }
 
@@ -100,6 +101,7 @@ export const Wizard = ({ deviceID }: TProps) => {
         <SetupOptions
           key="choose-setup"
           versionInfo={versionInfo}
+          deviceID={deviceID}
           onSelectSetup={(
             type: TWalletSetupChoices,
             createOptions?: TWalletCreateOptions,

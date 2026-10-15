@@ -7,6 +7,7 @@ import { getAccountsByKeystore } from '@/routes/account/utils';
 import * as accountAPI from '@/api/account';
 import { supportedERC20Tokens, type ERC20CoinCode } from '@/api/erc20';
 import * as backendAPI from '@/api/backend';
+import { useAppState } from '@/contexts/app-state-context';
 import { alertUser } from '@/components/alert/Alert';
 import { Button, Input, Label } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
@@ -16,32 +17,23 @@ import { Toggle } from '@/components/toggle/toggle';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Message } from '@/components/message/message';
 import { WithSettingsTabs } from './components/tabs';
-import { TPagePropsWithSettingsTabs } from './types';
 import { View, ViewContent } from '@/components/view/view';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
 import { AccountGuide } from './manage-account-guide';
 import { WatchonlySetting } from './components/manage-accounts/watchonlySetting';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { ConnectedKeystore } from '@/components/keystore/connected-keystore';
 import { TokenListItem } from '@/components/token-list-item/token-list-item';
 import style from './manage-accounts.module.css';
-
-type ManageAccountsProps = {
-  accounts: accountAPI.TAccount[];
-};
-
-type Props = ManageAccountsProps & TPagePropsWithSettingsTabs;
 
 type TShowTokens = {
   readonly [key in string]: boolean;
 };
 
-export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
+export const ManageAccounts = () => {
 
   const navigate = useNavigate();
-
   const { t } = useTranslation();
+  const { accounts } = useAppState();
+
   const [editErrorMessage, setEditErrorMessage] = useState<string | undefined>(undefined);
   const [showTokens, setShowTokens] = useState<TShowTokens>({});
   const [currentlyEditedAccount, setCurrentlyEditedAccount] = useState<accountAPI.TAccount | undefined>(undefined);
@@ -195,20 +187,16 @@ export const ManageAccounts = ({ accounts, devices, hasAccounts }: Props) => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <ContentWrapper>
-            <GlobalBanners devices={devices} />
-          </ContentWrapper>
           <Header
+            variant="navigation"
+            desktopTitle={t('settings.title')}
             hideSidebarToggler
-            title={
-              <>
-                <h2 className="hide-on-small">{t('settings.title')}</h2>
-                <MobileHeader withGuide title={t('manageAccounts.title')} />
-              </>
-            } />
+            mobileBackButton
+            title={t('manageAccounts.title')}
+          />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs devices={devices} hideMobileMenu hasAccounts={hasAccounts}>
+              <WithSettingsTabs hideMobileMenu>
                 <Button
                   className={style.addAccountBtn}
                   primary

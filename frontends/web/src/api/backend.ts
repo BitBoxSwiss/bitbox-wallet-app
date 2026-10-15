@@ -49,10 +49,6 @@ export const renameAccount = (accountCode: AccountCode, name: string): Promise<T
   return apiPost('rename-account', { accountCode, name });
 };
 
-export const reinitializeAccounts = (): Promise<null> => {
-  return apiPost('accounts/reinitialize');
-};
-
 export const getTesting = (): Promise<boolean> => {
   return apiGet('testing');
 };
@@ -139,6 +135,10 @@ export const onAuthSettingChanged = (): Promise<void> => {
 
 export const exportLogs = (): Promise<TSuccess> => {
   return apiPost('export-log');
+};
+
+export const clearCache = (): Promise<TSuccess> => {
+  return apiPost('clear-cache');
 };
 
 export const exportNotes = (): Promise<(FailResponse & { aborted: boolean }) | SuccessResponse> => {

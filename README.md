@@ -79,10 +79,11 @@ full node.
 
 Run `make envinit` to fetch golangci-lint and some other devtools.
 
-Run `make servewallet` and `make webdev` in separate terminals.
+Before the first use of `make webdev`, and after any change to the frontend dependencies, run
+`make buildweb` to install the web dev dependencies.
 
-Before the first use of `make webdev`, you also need to run `make buildweb`, to install the dev
-dependencies.
+Then run `make servewallet` (backend) and `make webdev` (frontend dev server) in separate
+terminals.
 
 #### Local development with BB02 simulator
 
@@ -157,6 +158,9 @@ All dependencies are locked in `package-lock.json` so that subsequent installs a
 Check **outdated** dependencies: `npm outdated`.
 
 **Update a specific dependency** with a fixed semver `npm install modulename@specificversion --save-exact`, and with `--save-dev` for devDependencies.
+
+Production dependencies must have approved licenses. See
+[Frontend dependency licenses](./docs/dependency-licenses.md) for the check and how to resolve failures.
 
 #### Qt WebEngine Debugging
 

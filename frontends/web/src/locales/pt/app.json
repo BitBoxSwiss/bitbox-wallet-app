@@ -83,7 +83,6 @@
       "message": "Prossiga em {{host}}",
       "title": "Endereço enviado com sucesso"
     },
-    "syncing": "Sincronizando a conta, aguarde.",
     "title": "Solicitação de endereço",
     "xpubRequested": "Compartilhar seu xpub permite que serviços externos vejam os endereços da sua conta. Suas moedas continuam seguras e sob seu controle."
   },
@@ -360,8 +359,7 @@
   "bitsuranceAccount": {
     "errorNoXpub": "Erro: não foi possível obter o xpub da conta.",
     "noAccount": "Não há contas que possam ser seguradas.",
-    "select": "Selecione a conta",
-    "title": "Seguro"
+    "select": "Selecione a conta"
   },
   "blink": {
     "button": "Piscar"
@@ -1782,7 +1780,6 @@
   "setup": "Configurar dispositivo",
   "sidebar": {
     "device": "Gerenciar dispositivo",
-    "insurance": "Seguro",
     "leave": "Sair",
     "settings": "Configurações"
   },
@@ -1907,8 +1904,7 @@
     "connect": {
       "button": "Conectar",
       "dappLabel": "Insira o endereço URI do dapp",
-      "invalidPairingUri": "Uri de emparelhamento inválido",
-      "missingNamespace": "A solicitação de conexão do aplicativo não definiu o namespace necessário."
+      "invalidPairingUri": "Uri de emparelhamento inválido"
     },
     "dashboard": {
       "allSessions": "Todas as sessões",
@@ -1917,7 +1913,6 @@
       "noConnectedSessions": "Nenhuma conta está atualmente conectada a nenhum dapps.",
       "unspecifiedAccount": "Conta não especificada"
     },
-    "invalidPairingChain": "Erro ao aprovar o emparelhamento. Certifique-se de usar uma das cadeias suportadas: {{chains}}",
     "pairingRequest": {
       "approve": "Aprovar conexão",
       "reject": "Rejeitar",

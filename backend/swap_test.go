@@ -12,9 +12,13 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	coinMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
-	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/chaincfg/v2"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
 )
 
@@ -91,8 +95,10 @@ func TestSwapBuyAccountsExcludeHiddenUnusedAccounts(t *testing.T) {
 	b.registerKeystore(ks)
 
 	btcAccountCode := accountsTypes.Code("v0-55555555-btc-0")
-	cfg := b.Config().AccountsConfig().Lookup(btcAccountCode)
-	cfg.HiddenBecauseUnused = true
+	require.NoError(t, b.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
+		accountsConfig.Lookup(btcAccountCode).HiddenBecauseUnused = true
+		return nil
+	}))
 
 	_, swapAccounts, err := b.swapAccounts()
 	require.NoError(t, err)
@@ -196,10 +202,12 @@ func TestPrepareSwapActivatesInactiveAccount(t *testing.T) {
 
 	btcAccountCode := accountsTypes.Code("v0-55555555-btc-0")
 	require.NoError(t, b.SetAccountActive(btcAccountCode, false))
-	require.True(t, b.Config().AccountsConfig().Lookup(btcAccountCode).Inactive)
+	accountsConfig := accountsSnapshot(t, b)
+	require.True(t, accountsConfig.Lookup(btcAccountCode).Inactive)
 
 	require.NoError(t, b.activateSwapBuyAccount(btcAccountCode))
-	require.False(t, b.Config().AccountsConfig().Lookup(btcAccountCode).Inactive)
+	accountsConfig = accountsSnapshot(t, b)
+	require.False(t, accountsConfig.Lookup(btcAccountCode).Inactive)
 }
 
 func TestPrepareSwapActivatesParentOfTokenDestination(t *testing.T) {
@@ -218,12 +226,14 @@ func TestPrepareSwapActivatesParentOfTokenDestination(t *testing.T) {
 
 	require.NoError(t, b.SetTokenActive(ethAccountCode, tokenCode, true))
 	require.NoError(t, b.SetAccountActive(ethAccountCode, false))
-	require.True(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
-	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+	accountsConfig := accountsSnapshot(t, b)
+	require.True(t, accountsConfig.Lookup(ethAccountCode).Inactive)
+	require.Contains(t, accountsConfig.Lookup(ethAccountCode).ActiveTokens, tokenCode)
 
 	require.NoError(t, b.activateSwapBuyAccount(tokenAccountCode))
-	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
-	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+	accountsConfig = accountsSnapshot(t, b)
+	require.False(t, accountsConfig.Lookup(ethAccountCode).Inactive)
+	require.Contains(t, accountsConfig.Lookup(ethAccountCode).ActiveTokens, tokenCode)
 }
 
 func TestPrepareSwapActivatesInactiveTokenDestination(t *testing.T) {
@@ -241,12 +251,14 @@ func TestPrepareSwapActivatesInactiveTokenDestination(t *testing.T) {
 	tokenAccountCode := Erc20AccountCode(ethAccountCode, tokenCode)
 
 	require.NoError(t, b.SetTokenActive(ethAccountCode, tokenCode, false))
-	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
-	require.NotContains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+	accountsConfig := accountsSnapshot(t, b)
+	require.False(t, accountsConfig.Lookup(ethAccountCode).Inactive)
+	require.NotContains(t, accountsConfig.Lookup(ethAccountCode).ActiveTokens, tokenCode)
 
 	require.NoError(t, b.activateSwapBuyAccount(tokenAccountCode))
-	require.False(t, b.Config().AccountsConfig().Lookup(ethAccountCode).Inactive)
-	require.Contains(t, b.Config().AccountsConfig().Lookup(ethAccountCode).ActiveTokens, tokenCode)
+	accountsConfig = accountsSnapshot(t, b)
+	require.False(t, accountsConfig.Lookup(ethAccountCode).Inactive)
+	require.Contains(t, accountsConfig.Lookup(ethAccountCode).ActiveTokens, tokenCode)
 }
 
 func TestPrepareSwapReturnsErrorForUnknownAccount(t *testing.T) {
@@ -278,7 +290,7 @@ func TestValidateSwapAccountSupportedAcceptsMainnetSwapAccounts(t *testing.T) {
 	for _, accountCode := range testCases {
 		account := b.Accounts().lookup(accountCode)
 		require.NotNil(t, account)
-		require.NoError(t, validateSwapAccountSupported(account))
+		require.NoError(t, validateSwapAccountSupported(account.Account))
 	}
 }
 
@@ -316,7 +328,7 @@ func TestValidateSwapAccountSupportedRejectsTestnetAccounts(t *testing.T) {
 		require.NotNil(t, account)
 		require.EqualError(
 			t,
-			validateSwapAccountSupported(account),
+			validateSwapAccountSupported(account.Account),
 			"Only supported mainnet BTC/LTC/ETH/ERC20 accounts are currently supported",
 		)
 	}
@@ -349,7 +361,7 @@ func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
 		},
 		Outputs: []paymentrequest.Slip24Out{
 			{
-				Amount:  100000000,
+				Amount:  "100000000",
 				Address: "1GqULdYGDRfF3w85yGmEq8LTWecpKn8JMJ",
 			},
 		},
@@ -401,7 +413,7 @@ func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
 		},
 		Outputs: []paymentrequest.Slip24Out{
 			{
-				Amount:  100000000,
+				Amount:  "100000000",
 				Address: "1GqULdYGDRfF3w85yGmEq8LTWecpKn8JMJ",
 			},
 		},
@@ -430,9 +442,36 @@ func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
 	)
 }
 
+func TestSwapSignTxInputSupportsLargeERC20Amount(t *testing.T) {
+	daiCoin := eth.NewCoin(
+		nil,
+		coinpkg.Code("eth-erc20-dai0x6b17"),
+		"Dai",
+		"DAI",
+		"ETH",
+		params.MainnetChainConfig,
+		"",
+		nil,
+		erc20.NewToken("0x6b175474e89094c44da98b954eedeac495271d0f", 18),
+	)
+	paymentRequest := &paymentrequest.Slip24{
+		Outputs: []paymentrequest.Slip24Out{
+			{
+				Amount:  "55000000000000000000",
+				Address: "0x986f66F28C6a2BBE939dF3161D1D2b238933895c",
+			},
+		},
+	}
+
+	txInput, err := swapSignTxInput(paymentRequest, daiCoin, nil)
+	require.NoError(t, err)
+	require.Equal(t, "55", txInput.Amount)
+	require.Equal(t, "55000000000000000000", txInput.PaymentRequest.Outputs[0].Amount)
+}
+
 func setAccountBalance(t *testing.T, b *Backend, accountCode accountsTypes.Code, amount int64) {
 	t.Helper()
-	accountMock, ok := b.Accounts().lookup(accountCode).(*accountsMocks.InterfaceMock)
+	accountMock, ok := b.Accounts().lookup(accountCode).Account.(*accountsMocks.InterfaceMock)
 	require.True(t, ok)
 	accountMock.BalanceFunc = func() (*accounts.Balance, error) {
 		return accounts.NewBalance(coinpkg.NewAmountFromInt64(amount), coinpkg.NewAmountFromInt64(0)), nil
@@ -441,8 +480,10 @@ func setAccountBalance(t *testing.T, b *Backend, accountCode accountsTypes.Code,
 
 func zeroAllAccountBalances(t *testing.T, b *Backend) {
 	t.Helper()
-	for _, account := range b.Accounts() {
-		setAccountBalance(t, b, account.Config().Config.Code, 0)
+	accountViews := b.Accounts()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		setAccountBalance(t, b, accountView.Record.Code, 0)
 	}
 }
 

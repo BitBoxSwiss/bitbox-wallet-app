@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { ViewContent, View } from '@/components/view/view';
 import { WithSettingsTabs } from './components/tabs';
-import { TPagePropsWithSettingsTabs } from './types';
 import { ManageBackupSetting } from './components/device-settings/manage-backup-setting';
 import { ShowRecoveryWordsSetting } from './components/device-settings/show-recovery-words-setting';
 import { GoToStartupSettings } from './components/device-settings/go-to-startup-settings';
@@ -25,9 +24,6 @@ import { FactoryResetSetting } from './components/device-settings/factory-reset-
 import { RootFingerprintSetting } from './components/device-settings/root-fingerprint-setting';
 import { Bip85Setting } from './components/device-settings/bip85-setting';
 import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
-import { MobileHeader } from './components/mobile-header';
-import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { GlobalBanners } from '@/components/banners';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
 import {
@@ -36,13 +32,9 @@ import {
 } from './settings-availability';
 import styles from './bb02-settings.module.css';
 
-type TCommonProps = {
+type TProps = {
   deviceID: string;
 };
-
-type TWrapperProps = TCommonProps & TPagePropsWithSettingsTabs;
-
-type TProps = TCommonProps;
 
 export const StyledSkeleton = () => {
   return (
@@ -52,38 +44,33 @@ export const StyledSkeleton = () => {
   );
 };
 
-const BB02Settings = ({ deviceID, devices, hasAccounts }: TWrapperProps) => {
+
+export const BB02Settings = ({
+  deviceID
+}: TProps) => {
   const { t } = useTranslation();
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
-          <ContentWrapper>
-            <GlobalBanners devices={devices} />
-          </ContentWrapper>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
           <Header
+            variant="navigation"
+            desktopTitle={t('sidebar.settings')}
             hideSidebarToggler
-            title={
-              <>
-                <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
-                <MobileHeader withGuide title={t('sidebar.device')} />
-              </>
-            }/>
+            mobileBackButton
+            title={t('sidebar.device')}
+          />
           <View fullscreen={false}>
             <ViewContent>
-              <WithSettingsTabs
-                devices={devices}
-                hideMobileMenu
-                hasAccounts={hasAccounts}
-              >
+              <WithSettingsTabs hideMobileMenu>
                 <ManageDeviceSettingsContent deviceID={deviceID} />
               </WithSettingsTabs>
             </ViewContent>
           </View>
-        </GuidedContent>
-        <ManageDeviceGuide />
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <ManageDeviceGuide />
+    </GuideWrapper>
   );
 };
 
@@ -221,5 +208,3 @@ export const ManageDeviceSettingsContent = ({
 
   return <SettingsContent sections={sections} />;
 };
-
-export { BB02Settings };

@@ -14,10 +14,13 @@ export declare global {
     qt?: { webChannelTransport: unknown };
     android?: {
       call: (queryID: number, query: string) => void;
+      showExplorerLinkMenu?: (msg: { url: string; copy: string; open: string; openError: string }) => void;
     };
     onMobileCallResponse?: (queryID: number, response: unknown) => void;
     onMobilePushNotification?: (msg: TPayload) => void;
     runningOnIOS?: boolean;
+    androidKeyboardVisible?: boolean;
+    onKeyboardVisibilityChanged?: (visible: boolean) => void;
     // Called by Android when the back button is pressed.
     onBackButtonPressed?: () => boolean;
     webkit?: {
@@ -29,7 +32,10 @@ export declare global {
           postMessage: (msg: any) => void;
         };
         hapticFeedback: {
-          postMessage: (msg: any) => void;
+          postMessage: (msg: { style?: 'medium' | 'heavy' }) => void;
+        };
+        showExplorerLinkMenu?: {
+          postMessage: (msg: { url: string; copy: string; open: string; cancel: string }) => void;
         };
       };
     };

@@ -10,7 +10,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/btcutil/v2"
 )
 
 // Amount represents an amount in the smallest coin unit (e.g. satoshi).
@@ -69,9 +69,10 @@ func (amount Amount) BigInt() *big.Int {
 
 // FormattedAmountWithConversions and json tags.
 type FormattedAmountWithConversions struct {
-	Amount      string         `json:"amount"`
-	Unit        string         `json:"unit"`
-	Conversions ConversionsMap `json:"conversions"`
+	Amount                 string         `json:"amount"`
+	Unit                   string         `json:"unit"`
+	Conversions            ConversionsMap `json:"conversions"`
+	UnformattedConversions ConversionsMap `json:"unformattedConversions,omitempty"`
 	// Estimated flag is enabled if the Conversions map was expected to
 	// be calculated using historical rates, but latest rates have been used instead.
 	Estimated bool `json:"estimated"`

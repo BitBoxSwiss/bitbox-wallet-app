@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactChild } from 'react';
-import { Route, Routes, useParams } from 'react-router-dom';
-import { TAccount } from '@/api/account';
-import { TDevices } from '@/api/devices';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { useDevicesKey } from '@/hooks/device-key';
 import { AddAccount } from './account/add/add-account';
 import { Moonpay } from './market/moonpay';
 import { Market } from './market/market';
+import { MarketProvider } from './market/market-context';
 import { Pocket } from './market/pocket';
 import { BTCDirect } from './market/btcdirect';
 import { BTCDirectOTC } from './market/btcdirect-otc';
@@ -34,6 +33,7 @@ import { General } from './settings/general';
 import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
+import { LightningSettings } from './settings/lightning-settings';
 import { Bitsurance } from './bitsurance/bitsurance';
 import { BitsuranceAccount } from './bitsurance/account';
 import { BitsuranceWidget } from './bitsurance/widget';
@@ -41,314 +41,123 @@ import { BitsuranceDashboard } from './bitsurance/dashboard';
 import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 import { AllAccounts } from '@/routes/accounts/all-accounts';
-import { More } from '@/routes/settings/more';
+import { Lightning } from './lightning/lightning';
+import { LightningActivate } from './lightning/activate';
+import { LightningDisclaimer } from './lightning/disclaimer';
+import { LightningDeactivate } from './lightning/deactivate';
+import { LightningSetLnurlAddress } from './lightning/set-lnurl-address';
+import { Send as LightningSend } from './lightning/send/send';
+import { Receive as LightningReceive } from './lightning/receive/receive';
+import { LightningTopUp } from './lightning/topup/topup';
+import { LightningClaimTopUp } from './lightning/claim-top-up/claim-top-up';
+import { LightningCloseWithdrawFunds } from './lightning/close-and-withdraw-funds/close-withdraw-funds';
+import { isLightningFeatureAvailable } from '@/utils/env';
+import { isLightningRoute } from '@/utils/route';
+import { LightningTestnetGuard } from './lightning/testnet-warning';
 
-type TAppRouterProps = {
-  devices: TDevices;
-  accounts: TAccount[];
-  activeAccounts: TAccount[];
-  devicesKey: ((input: string) => string);
-};
+export const AppRouter = () => {
 
-type TInjectParamsProps = {
-  children: ReactChild;
-};
-
-const InjectParams = ({ children }: TInjectParamsProps) => {
-  const params = useParams();
-  return React.cloneElement(children as React.ReactElement, params);
-};
-
-export const AppRouter = ({ devices, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
-  const hasAccounts = accounts.length > 0;
-  const Homepage = (<DeviceSwitch
-    key={devicesKey('device-switch-default')}
-    deviceID={null}
-    devices={devices}
-    hasAccounts={hasAccounts}
-  />);
-
-  const Device = (<InjectParams>
-    <DeviceSwitch
-      key={devicesKey('device-switch')}
-      deviceID={null}
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>);
-
-  const NoDevice = (
-    <InjectParams>
-      <NoDeviceConnected
-        key="no-device-connected"
-        devices={devices}
-        hasAccounts={hasAccounts}
-      />
-    </InjectParams>
-  );
-
-  const NoAccounts = (
-    <InjectParams>
-      <NoDeviceConnected
-        key="no-accounts"
-        devices={devices}
-        hasAccounts={hasAccounts}
-      />
-    </InjectParams>
-  );
-
-  const Acc = (<InjectParams>
-    <Account
-      code={'' /* dummy to satisfy TS */}
-      devices={devices}
-      accounts={activeAccounts} />
-  </InjectParams>);
-
-  const AccountsSummaryEl = (<InjectParams>
-    <AccountsSummary
-      devices={devices}
-      accounts={activeAccounts} />
-  </InjectParams>);
-
-  const AccSend = (<InjectParams>
-    <SendWrapper
-      code={'' /* dummy to satisfy TS */}
-      activeAccounts={activeAccounts}
-    />
-  </InjectParams>);
-
-  const AccReceive = (<InjectParams>
-    <Receive
-      code={'' /* dummy to satisfy TS */}
-      accounts={activeAccounts} />
-  </InjectParams>);
-
-  const AccInfo = (<InjectParams>
-    <Info
-      code={''}
-      devices={devices}
-      accounts={activeAccounts} />
-  </InjectParams>);
-
-  const AccXPubDetail = (<InjectParams>
-    <XPubDetail
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
-
-  const AccAddresses = (<InjectParams>
-    <Addresses
-      code={''}
-      devices={devices}
-      accounts={activeAccounts} />
-  </InjectParams>);
-
-  const AccSignMessage = (<InjectParams>
-    <SignMessage
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
-
-  const BitsuranceAccountEl = (<InjectParams>
-    <BitsuranceAccount
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
-
-  const BitsuranceWidgetEl = (<InjectParams>
-    <BitsuranceWidget
-      code={''} />
-  </InjectParams>);
-
-  const AccDashboardWC = (<InjectParams>
-    <DashboardWalletConnect
-      accounts={activeAccounts}
-      code={''}
-    />
-  </InjectParams>);
-
-  const AccConnectScreenWC = (<InjectParams>
-    <ConnectScreenWalletConnect
-      code={'' /* dummy to satisfy TS */}
-      accounts={activeAccounts}
-    />
-  </InjectParams>);
-
-  const MoonpayEl = (<InjectParams>
-    <Moonpay
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>);
-
-  const BTCDirectBuyEl = (<InjectParams>
-    <BTCDirect
-      accounts={activeAccounts}
-      action="buy"
-      code={''} />
-  </InjectParams>);
-
-  const BTCDirectSellEl = (<InjectParams>
-    <BTCDirect
-      accounts={activeAccounts}
-      action="sell"
-      code={''} />
-  </InjectParams>);
-
-  const BitrefillEl = (<InjectParams>
-    <Bitrefill
-      code={''}
-      accounts={activeAccounts}
-      region={''} />
-  </InjectParams>);
-
-  const SwapEl = (<InjectParams>
-    <Swap
-      accounts={accounts} />
-  </InjectParams>);
-
-  const MarketEl = (<InjectParams>
-    <Market
-      accounts={activeAccounts}
-      code={''}
-    />
-  </InjectParams>);
-
-  const PocketBuyEl = (<InjectParams>
-    <Pocket
-      action="buy"
-      code={''}
-    />
-  </InjectParams>);
-
-  const PocketSellEl = (<InjectParams>
-    <Pocket
-      action="sell"
-      code={''}
-    />
-  </InjectParams>);
-
-  const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>;
-  const RecoveryWordsEl = <InjectParams><RecoveryWords deviceID={''} /></InjectParams>;
-  const Bip85El = <InjectParams><Bip85 deviceID={''} /></InjectParams>;
-
-  const ManageBackupsEl = (<InjectParams><ManageBackups
-    key={devicesKey('manage-backups')}
-    deviceID={null}
-    devices={devices}
-  /></InjectParams>);
-
-  const MobileSettingsEl = (<InjectParams>
-    <MobileSettings
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>);
-
-  const MoreEl = (<InjectParams>
-    <More devices={devices} />
-  </InjectParams>);
-
-  const GeneralEl = (<InjectParams>
-    <General
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>);
-
-  const AboutEl = (<InjectParams>
-    <About
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>);
-
-  const AdvancedSettingsEl = (<InjectParams>
-    <AdvancedSettings
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>);
-
-  const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
-
-  const AllAccountsEl = <InjectParams><AllAccounts accounts={activeAccounts} /></InjectParams>;
+  const lightningFeatureAvailable = isLightningFeatureAvailable();
+  const { pathname } = useLocation();
 
   return (
-    <Routes>
-      <Route path="/">
-        <Route index element={Homepage} />
-        <Route path="account/:code">
-          <Route index element={Acc} />
-          <Route path="send" element={AccSend} />
-          <Route path="receive" element={AccReceive} />
-          <Route path="addresses" element={AccAddresses} />
-          <Route path="addresses/:addressID" element={AccAddresses} />
-          <Route path="addresses/:addressID/verify" element={AccAddresses} />
-          <Route path="addresses/:addressID/sign-message" element={AccSignMessage} />
-          <Route path="info" element={AccInfo} />
-          <Route path="info/xpub-detail" element={AccXPubDetail} />
-          <Route path="sign-message" element={AccSignMessage} />
-          <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
-          <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
-        </Route>
-        <Route path="add-account" element={<AddAccount accounts={accounts}/>} />
-        <Route path="account-summary" element={AccountsSummaryEl} />
-        <Route path="market">
-          <Route path="select" element={MarketEl} />
-          <Route path="select/:code" element={MarketEl} />
-          <Route path="btcdirect/buy/:code" element={BTCDirectBuyEl} />
-          <Route path="btcdirect/buy/:code/:region" element={BTCDirectBuyEl} />
-          <Route path="btcdirect/sell/:code" element={BTCDirectSellEl} />
-          <Route path="btcdirect/sell/:code/:region" element={BTCDirectSellEl} />
-          <Route path="bitrefill/spend/:code" element={BitrefillEl} />
-          <Route path="bitrefill/spend/:code/:region" element={BitrefillEl} />
-          <Route path="moonpay/buy/:code" element={MoonpayEl} />
-          <Route path="moonpay/buy/:code/:region" element={MoonpayEl} />
-          <Route path="pocket/buy/:code" element={PocketBuyEl} />
-          <Route path="pocket/buy/:code/:region" element={PocketBuyEl} />
-          <Route path="pocket/sell/:code" element={PocketSellEl} />
-          <Route path="pocket/sell/:code/:region" element={PocketSellEl} />
-          <Route path="btcdirect-otc" element={<BTCDirectOTC/>} />
-          <Route path="pocket-otc" element={<PocketOTC/>} />
-          <Route path="swap" element={SwapEl} />
-        </Route>
-        <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
-        <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
-        <Route path="accounts/all" element={AllAccountsEl} />
-        <Route path="bitsurance">
-          <Route path="bitsurance" element={<Bitsurance accounts={activeAccounts}/>}/>
-          <Route path="account" element={BitsuranceAccountEl} >
-            <Route index element={BitsuranceAccountEl} />
-            <Route path=":code" element={BitsuranceAccountEl} />
+    <LightningTestnetGuard active={lightningFeatureAvailable && isLightningRoute(pathname)}>
+      <Routes>
+        <Route path="/">
+          <Route index element={<DeviceSwitch key={useDevicesKey('device-switch-default')} />} />
+          <Route path="account/:code">
+            <Route index element={<Account />} />
+            <Route path="send" element={<SendWrapper />} />
+            <Route path="receive" element={<Receive />} />
+            <Route path="addresses" element={<Addresses />} />
+            <Route path="addresses/:addressID" element={<Addresses />} />
+            <Route path="addresses/:addressID/verify" element={<Addresses />} />
+            <Route path="addresses/:addressID/sign-message" element={<SignMessage />} />
+            <Route path="info" element={<Info />} />
+            <Route path="info/xpub-detail" element={<XPubDetail />} />
+            <Route path="sign-message/:view" element={<SignMessage />} />
+            <Route path="wallet-connect/connect" element={<ConnectScreenWalletConnect />} />
+            <Route path="wallet-connect/dashboard" element={<DashboardWalletConnect />} />
           </Route>
-          <Route path="widget" element={BitsuranceWidgetEl} >
-            <Route index element={BitsuranceWidgetEl} />
-            <Route path=":code" element={BitsuranceWidgetEl} />
-          </Route>
-          <Route path="dashboard" element={<BitsuranceDashboard accounts={activeAccounts}/>}/>
-        </Route>
-        <Route path="settings">
-          <Route index element={MobileSettingsEl} />
-          <Route path="more" element={MoreEl} />
-          <Route path="general" element={GeneralEl} />
-          <Route path="about" element={AboutEl} />
-          <Route path="device-settings/:deviceID" element={Device} />
-          <Route path="no-device-connected" element={NoDevice} />
-          <Route path="no-accounts" element={NoAccounts} />
-          <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
-          <Route path="device-settings/recovery-words/:deviceID" element={RecoveryWordsEl} />
-          <Route path="device-settings/bip85/:deviceID" element={Bip85El} />
-          <Route path="advanced-settings" element={AdvancedSettingsEl} />
-          <Route path="electrum" element={<ElectrumSettings />} />
-          <Route path="manage-accounts" element={
-            <ManageAccounts
-              accounts={accounts}
-              key="manage-accounts"
-              devices={devices}
-              hasAccounts={hasAccounts} />
+          <Route path="add-account" element={<AddAccount />} />
+          <Route path="account-summary" element={<AccountsSummary />} />
+          <Route path="market/*" element={
+            <MarketProvider>
+              <Routes>
+                <Route path="select" element={<Market />} />
+                <Route path="select/:code" element={<Market />} />
+                <Route path="bitsurance/widget/:code" element={<BitsuranceWidget />} />
+                <Route path="bitsurance">
+                  <Route path=":code" element={<Bitsurance />} />
+                  <Route path="account/:code" element={<BitsuranceAccount />} />
+                  <Route path="dashboard/:code" element={<BitsuranceDashboard />} />
+                </Route>
+              </Routes>
+            </MarketProvider>
           } />
+          <Route path="market">
+            <Route path="btcdirect/buy/:code" element={<BTCDirect action="buy" />} />
+            <Route path="btcdirect/buy/:code/:region" element={<BTCDirect action="buy" />} />
+            <Route path="btcdirect/sell/:code" element={ <BTCDirect action="sell" />} />
+            <Route path="btcdirect/sell/:code/:region" element={ <BTCDirect action="sell" />} />
+            <Route path="bitrefill/spend/:code" element={<Bitrefill />} />
+            <Route path="bitrefill/spend/:code/:region" element={<Bitrefill />} />
+            <Route path="moonpay/buy/:code" element={<Moonpay />} />
+            <Route path="moonpay/buy/:code/:region" element={<Moonpay />} />
+            <Route path="pocket/buy/:code" element={<Pocket action="buy" />} />
+            <Route path="pocket/buy/:code/:region" element={<Pocket action="buy" />} />
+            <Route path="pocket/sell/:code" element={<Pocket action="sell" />} />
+            <Route path="pocket/sell/:code/:region" element={<Pocket action="sell" />} />
+            <Route path="btcdirect-otc" element={<BTCDirectOTC/>} />
+            <Route path="pocket-otc" element={<PocketOTC/>} />
+            <Route path="swap" element={<Swap />} />
+          </Route>
+          {lightningFeatureAvailable ? (
+            <Route path="lightning">
+              <Route index element={<Lightning />} />
+              <Route path="activate" element={<LightningActivate />} />
+              <Route path="disclaimer" element={<LightningDisclaimer />} />
+              <Route path="deactivate" element={<LightningDeactivate />} />
+              <Route path="set-lnurl-address" element={<LightningSetLnurlAddress />} />
+              <Route path="claim-top-up" element={<LightningClaimTopUp />} />
+              <Route path="close-withdraw-funds" element={(
+                <LightningCloseWithdrawFunds />
+              )} />
+              <Route path="send" element={<LightningSend />} />
+              <Route path="receive" element={<LightningReceive />} />
+              <Route path="topup" element={<LightningTopUp />} />
+            </Route>
+          ) : (
+            <Route path="lightning/*" element={<Navigate replace to="/" />} />
+          )}
+          <Route path="manage-backups/:deviceID" element={<ManageBackups key={useDevicesKey('manage-backups')} />} />
+          <Route path="accounts/select-receive" element={<ReceiveAccountsSelector />} />
+          <Route path="accounts/all" element={<AllAccounts />} />
+          <Route path="settings">
+            <Route index element={<MobileSettings />} />
+            <Route path="more" element={<Navigate replace to="/settings" />} />
+            <Route path="general" element={<General />} />
+            <Route path="about" element={<About />} />
+            <Route path="device-settings/:deviceID" element={<DeviceSwitch key={useDevicesKey('device-switch')} />} />
+            <Route path="no-device-connected" element={<NoDeviceConnected key="no-device-connected" />} />
+            <Route path="no-accounts" element={<NoDeviceConnected key="no-accounts" />} />
+            <Route path="device-settings/passphrase/:deviceID" element={<Passphrase />} />
+            <Route path="device-settings/recovery-words/:deviceID" element={<RecoveryWords />} />
+            <Route path="device-settings/bip85/:deviceID" element={<Bip85 />} />
+            <Route path="advanced-settings" element={<AdvancedSettings />} />
+            <Route
+              path="lightning-settings"
+              element={lightningFeatureAvailable
+                ? <LightningSettings />
+                : <Navigate replace to="/settings/advanced-settings" />}
+            />
+            <Route path="electrum" element={<ElectrumSettings />} />
+            <Route path="manage-accounts" element={
+              <ManageAccounts key="manage-accounts" />
+            } />
+          </Route>
         </Route>
-      </Route>
-    </Routes>
+      </Routes>
+    </LightningTestnetGuard>
   );
 };

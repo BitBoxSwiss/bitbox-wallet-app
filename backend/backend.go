@@ -13,7 +13,6 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
-	"slices"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -40,7 +39,9 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/lightning"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/versioninfo"
 	utilConfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -49,7 +50,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
-	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
@@ -107,6 +108,9 @@ var fixedURLWhitelist = []string{
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
 	"https://github.com/bitcoin/bips/",
+	// Lightning
+	"https://www.spark.money/",
+	"https://breez.technology/sdk/",
 	// iOS app settings
 	"app-settings:",
 	// Swapkit
@@ -208,9 +212,20 @@ type Environment interface {
 	// OnAuthSettingChanged is called when the authentication (screen lock) setting is changed.
 	// This is also called when the app launches with the current setting.
 	OnAuthSettingChanged(enabled bool)
+	// CanEncryptLightningMnemonic reports whether Lightning mnemonics should be stored encrypted on
+	// this platform.
+	CanEncryptLightningMnemonic() bool
+	// StoreLightningEncryptionKey persists a backend-generated Lightning seed encryption key.
+	StoreLightningEncryptionKey(accountCode string, encryptionKey string) error
+	// LoadLightningEncryptionKey retrieves the stored Lightning seed encryption key.
+	LoadLightningEncryptionKey(accountCode string) (string, error)
+	// DeleteLightningEncryptionKey removes the persisted Lightning seed encryption key.
+	DeleteLightningEncryptionKey(accountCode string) error
 	// BluetoothConnect tries to connect to the peripheral by the given identifier.
 	// Use `backend.bluetooth.State()` to track failure.
 	BluetoothConnect(identifier string)
+	// UserAgentPlatform returns the platform/device token used in the app's outbound user agent.
+	UserAgentPlatform() string
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -220,7 +235,8 @@ type Backend struct {
 	arguments   *arguments.Arguments
 	environment Environment
 
-	config *config.Config
+	config     *config.Config
+	accountsDB accountsDB
 
 	events chan interface{}
 
@@ -232,8 +248,11 @@ type Backend struct {
 	usbManager *usb.Manager
 	bluetooth  *bluetooth.Bluetooth
 
+	// accountsAndKeystoreLock protects the connected keystore and live account lifecycle. The
+	// accounts database synchronizes storage itself; hold this lock across a database write only
+	// when the write must be reconciled with runtime membership.
 	accountsAndKeystoreLock locker.Locker
-	accounts                AccountsList
+	accounts                accountRegistry
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
 	// Called to remove the current keystore observer, if any.
@@ -248,7 +267,12 @@ type Backend struct {
 	makeBtcAccount func(*accounts.AccountConfig, *btc.Coin, *types.GapLimits, func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), *logrus.Entry) accounts.Interface
 	// makeEthAccount creates an ETH account. In production this is `eth.NewAccount`, but can be
 	// overridden in unit tests for mocking.
-	makeEthAccount func(*accounts.AccountConfig, *eth.Coin, *http.Client, *logrus.Entry) accounts.Interface
+	makeEthAccount         func(*accounts.AccountConfig, *eth.Coin, *logrus.Entry) accounts.Interface
+	ethChainClientProvider eth.ChainClientProvider
+	// enqueueETHUpdateForAllAccountsAsync asks the ETH updater to refresh all ETH accounts without
+	// blocking the caller. In production this is `ethupdater.EnqueueUpdateForAllAccounts`, but
+	// can be overridden in unit tests.
+	enqueueETHUpdateForAllAccountsAsync func()
 
 	onAccountInit   func(accounts.Interface)
 	onAccountUninit func(accounts.Interface)
@@ -266,6 +290,9 @@ type Backend struct {
 	etherScanRateLimiter *rate.Limiter
 	ratesUpdater         *rates.RateUpdater
 	banners              *banners.Banners
+	lightning            *lightning.Lightning
+	updateChecker        *updateChecker
+	started              bool
 
 	// For unit tests, called when `backend.checkAccountUsed()` is called.
 	tstCheckAccountUsed func(accounts.Interface) bool
@@ -279,17 +306,14 @@ type Backend struct {
 	isOnline atomic.Bool
 
 	// ethupdater takes care of updating ETH accounts.
-	ethupdater *eth.Updater
-
-	// skipETHInitialSync suppresses the per-account ETH init refresh while startup loads persisted
-	// accounts, so the updater's initial batch refresh is the only startup sync round.
-	skipETHInitialSync bool
+	ethupdater  *eth.Updater
+	ethOutgoing *eth.OutgoingTransactions
 }
 
 // NewBackend creates a new backend with the given arguments.
 func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backend, error) {
 	log := logging.Get().WithGroup("backend")
-	backendConfig, err := config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename())
+	backendConfig, err := config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename(), arguments.LightningConfigFilename())
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -306,30 +330,46 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		return nil, err
 	}
 
-	accountUpdate := make(chan *eth.Account)
+	accountUpdate := make(chan struct{}, 1)
+	etherScanRateLimiter := rate.NewLimiter(rate.Limit(etherscan.CallsPerSec), 1)
 
-	backend := &Backend{
+	var backend *Backend
+	backend = &Backend{
 		arguments:   arguments,
 		environment: environment,
 		config:      backendConfig,
+		accountsDB:  configAccountsDB{config: backendConfig},
 		events:      make(chan interface{}),
 
-		devices:  map[string]device.Interface{},
-		coins:    map[coinpkg.Code]coinpkg.Coin{},
-		accounts: []accounts.Interface{},
-		aopp:     AOPP{State: aoppStateInactive},
+		devices: map[string]device.Interface{},
+		coins:   map[coinpkg.Code]coinpkg.Coin{},
+		aopp:    AOPP{State: aoppStateInactive},
 		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
 			return btc.NewAccount(config, coin, gapLimits, getAddress, log, hclient)
 		},
-		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
-			return eth.NewAccount(config, coin, httpClient, log, accountUpdate)
+		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, log *logrus.Entry) accounts.Interface {
+			return eth.NewAccount(config, coin, backend.ethOutgoing, log, accountUpdate)
 		},
+		ethChainClientProvider: eth.NewEtherscanChainClientProvider(hclient, etherScanRateLimiter),
 
 		log: log,
 
 		testing:              backendConfig.AppConfig().Backend.StartInTestnet || arguments.Testing(),
-		etherScanRateLimiter: rate.NewLimiter(rate.Limit(etherscan.CallsPerSec), 1),
+		etherScanRateLimiter: etherScanRateLimiter,
 	}
+	backend.accounts = newAccountRegistry(accountRegistryLifecycle{
+		onInitialized: func(account accounts.Interface) {
+			if backend.onAccountInit != nil {
+				backend.onAccountInit(account)
+			}
+		},
+		onUninitialized: func(account accounts.Interface) {
+			if backend.onAccountUninit != nil {
+				backend.onAccountUninit(account)
+			}
+		},
+	})
+	backend.accounts.Observe(backend.handleAccountRegistryEvent)
 	// TODO: remove when connectivity check is present on all platforms
 	backend.isOnline.Store(true)
 
@@ -339,26 +379,97 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	backend.notifier = notifier
 	backend.socksProxy = backendProxy
+	backend.updateChecker = newUpdateChecker(&backend.socksProxy, backend.userAgent())
+	backend.updateChecker.Observe(backend.Notify)
 	backend.httpClient = hclient
 	backend.ethupdater = eth.NewUpdater(accountUpdate, backend.httpClient, backend.etherScanRateLimiter, backend.updateETHAccounts)
+	backend.enqueueETHUpdateForAllAccountsAsync = backend.ethupdater.EnqueueUpdateForAllAccounts
 
-	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
-	if err := os.MkdirAll(ratesCache, 0700); err != nil {
-		log.Errorf("RateUpdater DB cache dir: %v", err)
-	}
-	backend.ratesUpdater = rates.NewRateUpdater(hclient, ratesCache)
-	backend.ratesUpdater.Observe(func(event observable.Event) {
-		backend.Notify(event)
-		backend.notifyCoinFiatPrices()
-	})
+	backend.ratesUpdater = backend.newRatesUpdater()
 
 	backend.banners = banners.NewBanners(backend.DevServers())
 	backend.banners.Observe(backend.Notify)
+	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
+	if err != nil {
+		return nil, err
+	}
+
+	backend.lightning = lightning.NewLightning(backend.config,
+		backend.arguments.LightningDirectoryPath(),
+		backend.environment,
+		backend.Keystore,
+		backend.GetAccountFromCode,
+		func(code accountsTypes.Code) (*signing.ScriptType, error) {
+			accountsConfig, err := backend.accountsDB.Snapshot()
+			if err != nil {
+				return nil, err
+			}
+			account := accountsConfig.Lookup(code)
+			if account == nil {
+				return nil, fmt.Errorf("unknown account code %q", code)
+			}
+			return account.ReceiveScriptType, nil
+		},
+		backend.httpClient,
+		backend.socksProxy,
+		backend.ratesUpdater,
+		btcCoin)
+
+	backend.lightning.Observe(backend.Notify)
+	backend.lightning.Observe(func(event observable.Event) {
+		if event.Subject != "lightning/account" {
+			return
+		}
+		defer backend.accountsAndKeystoreLock.Lock()()
+		backend.configureHistoryExchangeRates()
+	})
 
 	backend.bluetooth = bluetooth.New(log)
 	backend.bluetooth.Observe(backend.Notify)
+	backend.ethOutgoing, err = eth.NewOutgoingTransactions(arguments.CacheDirectoryPath())
+	if err != nil {
+		return nil, err
+	}
 
 	return backend, nil
+}
+
+func (backend *Backend) newRatesUpdater() *rates.RateUpdater {
+	ratesCache := filepath.Join(backend.arguments.CacheDirectoryPath(), "exchangerates")
+	if err := os.MkdirAll(ratesCache, 0700); err != nil {
+		backend.log.Errorf("RateUpdater DB cache dir: %v", err)
+	}
+	updater := rates.NewRateUpdater(backend.httpClient, ratesCache)
+	updater.Observe(func(event observable.Event) {
+		backend.Notify(event)
+		backend.notifyCoinFiatPrices()
+		if backend.hasLightningAccount() {
+			backend.Notify(observable.Event{
+				Subject: "lightning/list-payments",
+				Action:  action.Reload,
+			})
+			backend.lightning.NotifyBalanceReload()
+		}
+	})
+	return updater
+}
+
+func (backend *Backend) closeCoins() error {
+	unlock := backend.coinsLock.Lock()
+	coins := backend.coins
+	backend.coins = map[coinpkg.Code]coinpkg.Coin{}
+	unlock()
+
+	errors := []string{}
+	for code, coin := range coins {
+		if err := coin.Close(); err != nil {
+			errors = append(errors, fmt.Sprintf("%s: %v", code, err))
+		}
+	}
+	if len(errors) > 0 {
+		return errp.New(strings.Join(errors, "; "))
+	}
+	return nil
 }
 
 // configureHistoryExchangeRates changes backend.ratesUpdater settings.
@@ -367,11 +478,38 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) configureHistoryExchangeRates() {
 	var coins []string
-	for _, acct := range backend.accounts {
+	for _, acct := range backend.accounts.all() {
 		coins = append(coins, string(acct.Coin().Code()))
+	}
+	if backend.hasLightningAccount() {
+		coins = append(coins, string(coinpkg.CodeBTC))
 	}
 	fiats := backend.config.AppConfig().Backend.FiatList
 	backend.ratesUpdater.ReconfigureHistory(coins, fiats)
+}
+
+func (backend *Backend) handleAccountRegistryEvent(event observable.Event) {
+	registryEvent, ok := event.Object.(accountRegistryEvent)
+	if !ok {
+		backend.log.WithField("subject", event.Subject).Error("account registry event missing account")
+		return
+	}
+	backend.Notify(observable.Event{
+		Subject: fmt.Sprintf("account/%s/%s", registryEvent.account.Config().Code, event.Subject),
+		Action:  event.Action,
+		Object:  registryEvent.object,
+	})
+	if event.Subject == string(accountsTypes.EventSyncDone) {
+		backend.notifyNewTxs(registryEvent.account)
+		go backend.checkAccountUsed(registryEvent.account)
+	}
+}
+
+// ReconfigureHistoryExchangeRates updates the historical exchange-rate pairs to match the loaded
+// accounts and configured fiat currencies.
+func (backend *Backend) ReconfigureHistoryExchangeRates() {
+	defer backend.accountsAndKeystoreLock.RLock()()
+	backend.configureHistoryExchangeRates()
 }
 
 func (backend *Backend) notifyNewTxs(account accounts.Interface) {
@@ -386,12 +524,21 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 		return
 	}
 	if unnotifiedCount != 0 {
+		accountName := account.Coin().Name()
+		accountsConfig, err := backend.accountsDB.Snapshot()
+		if err != nil {
+			backend.log.WithError(err).Error("could not load account name")
+		} else {
+			if accountView := joinAccountView(account, accountsConfig); accountView != nil {
+				accountName = accountView.Record.Name
+			}
+		}
 		backend.Notify(observable.Event{
 			Subject: string(eventNewTxs),
 			Action:  action.Replace,
 			Object: map[string]interface{}{
 				"count":       unnotifiedCount,
-				"accountName": account.Config().Config.Name,
+				"accountName": accountName,
 			},
 		})
 		if err := notifier.MarkAllNotified(); err != nil {
@@ -595,8 +742,10 @@ func (backend *Backend) updateETHAccounts() error {
 	backend.log.Debug("Updating ETH accounts balances")
 
 	accountsChainID := map[string][]*eth.Account{}
-	for _, account := range backend.Accounts() {
-		ethAccount, ok := account.(*eth.Account)
+	accountViews := backend.Accounts()
+	for index := range accountViews {
+		accountView := &accountViews[index]
+		ethAccount, ok := accountView.Account.(*eth.Account)
 		if ok {
 			chainID := ethAccount.ETHCoin().ChainIDstr()
 			accountsChainID[chainID] = append(accountsChainID[chainID], ethAccount)
@@ -653,15 +802,45 @@ func (backend *Backend) ManualReconnect(reconnectETH bool) {
 	}
 }
 
+// SetAccountActivity marks an account as foreground-active for short-lived background refreshes.
+func (backend *Backend) SetAccountActivity(accountCode accountsTypes.Code, active bool) error {
+	if accountView := backend.Accounts().lookup(accountCode); accountView != nil {
+		ethAccount, ok := accountView.Account.(*eth.Account)
+		if !ok {
+			backend.log.
+				WithField("code", accountCode).
+				WithField("coinCode", accountView.Record.CoinCode).
+				Warn("account activity request ignored for non-ETH account")
+			return nil
+		}
+		backend.ethupdater.SetAccountActivity(ethAccount, active)
+		return nil
+	}
+	if !active {
+		return nil
+	}
+	return errp.Newf("unknown account code %q", accountCode)
+}
+
 // Testing returns whether this backend is for testing only.
 func (backend *Backend) Testing() bool {
 	return backend.testing
 }
 
-// Accounts returns the current accounts of the backend.
-func (backend *Backend) Accounts() AccountsList {
+// Accounts returns a coherent snapshot of loaded accounts joined with persisted metadata.
+func (backend *Backend) Accounts() AccountViews {
 	defer backend.accountsAndKeystoreLock.RLock()()
-	return slices.Clone(backend.accounts)
+	return backend.accountViewsLocked()
+}
+
+// accountViewsLocked requires accountsAndKeystoreLock to be held.
+func (backend *Backend) accountViewsLocked() AccountViews {
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account snapshot")
+		return AccountViews{}
+	}
+	return joinAccountViews(backend.accounts.all(), accountsConfig)
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
@@ -700,17 +879,18 @@ func (backend *Backend) Start() <-chan interface{} {
 	} else {
 		go backend.banners.Init(httpClient)
 	}
+	backend.updateChecker.start()
 
 	defer backend.accountsAndKeystoreLock.Lock()()
-	backend.skipETHInitialSync = true
-	backend.initPersistedAccounts()
-	backend.skipETHInitialSync = false
+	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
 	backend.emitAccountsStatusChanged()
 
 	backend.ratesUpdater.StartCurrentRates()
 	backend.configureHistoryExchangeRates()
+	backend.started = true
 
 	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
+	go backend.lightning.Connect()
 
 	go backend.ethupdater.PollBalances()
 
@@ -780,7 +960,7 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 		return nil
 	}
 
-	err = backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err = backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		// Persist keystore with its name in the config.
 		if err := persistKeystore(accountsConfig); err != nil {
 			log.WithError(err).Error("Could not persist keystore")
@@ -851,7 +1031,7 @@ func (backend *Backend) DeregisterKeystore() {
 	backend.uninitAccounts(false)
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
 	// keystore. For now we just remove all, then re-add the rest.
-	backend.initPersistedAccounts()
+	backend.initPersistedAccounts(accountLoadOptions{})
 	backend.emitAccountsStatusChanged()
 	backend.connectKeystore.onDisconnect()
 }
@@ -1074,8 +1254,67 @@ func (backend *Backend) Environment() Environment {
 	return backend.environment
 }
 
+// ClearCache clears the backend cache directory and reinitializes cache-backed state.
+// User data such as configs, account names, wallets and notes is preserved.
+func (backend *Backend) ClearCache() error {
+	defer backend.accountsAndKeystoreLock.Lock()()
+
+	backend.log.Info("Clearing backend cache")
+
+	errors := []string{}
+
+	if backend.ratesUpdater != nil {
+		backend.ratesUpdater.Stop()
+	}
+
+	backend.uninitAccounts(true)
+	if err := backend.closeCoins(); err != nil {
+		backend.log.WithError(err).Error("could not close coins before clearing cache")
+		errors = append(errors, err.Error())
+	}
+
+	if err := backend.ethOutgoing.Close(); err != nil {
+		errors = append(errors, err.Error())
+	}
+	cacheDir := backend.arguments.CacheDirectoryPath()
+	if err := os.RemoveAll(cacheDir); err != nil {
+		backend.log.WithError(err).Error("could not remove cache directory")
+		errors = append(errors, err.Error())
+	}
+	if err := os.MkdirAll(cacheDir, 0700); err != nil {
+		backend.log.WithError(err).Error("could not recreate cache directory")
+		errors = append(errors, err.Error())
+	}
+
+	outgoing, err := eth.NewOutgoingTransactions(cacheDir)
+	if err != nil {
+		return err
+	}
+	backend.ethOutgoing = outgoing
+	backend.ratesUpdater = backend.newRatesUpdater()
+	backend.initAccounts(true)
+	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
+	if err != nil {
+		backend.log.WithError(err).Error("could not recreate Bitcoin coin after clearing cache")
+		errors = append(errors, err.Error())
+	} else {
+		backend.lightning.SetRuntimeDependencies(backend.ratesUpdater, btcCoin)
+	}
+	if backend.started {
+		backend.ratesUpdater.StartCurrentRates()
+	}
+	backend.notifyCoinFiatPrices()
+
+	if len(errors) > 0 {
+		return errp.New(strings.Join(errors, "; "))
+	}
+	return nil
+}
+
 // Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
+	backend.started = false
+	backend.updateChecker.stop()
 	backend.ratesUpdater.Stop()
 	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
 	// which acquires the same lock.
@@ -1083,15 +1322,23 @@ func (backend *Backend) Close() error {
 		backend.usbManager.Close()
 	}
 
+	backend.ethupdater.Close()
+	outgoingErr := backend.ethOutgoing.Close()
+
 	defer backend.accountsAndKeystoreLock.Lock()()
 
 	errors := []string{}
+	if outgoingErr != nil {
+		errors = append(errors, outgoingErr.Error())
+	}
 
 	backend.uninitAccounts(true)
 	if backend.unobserveKeystore != nil {
 		backend.unobserveKeystore()
 		backend.unobserveKeystore = nil
 	}
+
+	backend.lightning.Disconnect()
 
 	for _, coin := range backend.coins {
 		if err := coin.Close(); err != nil {
@@ -1105,13 +1352,17 @@ func (backend *Backend) Close() error {
 		return errp.New(strings.Join(errors, "; "))
 	}
 
-	backend.ethupdater.Close()
 	return nil
 }
 
 // Banners returns the banners instance.
 func (backend *Backend) Banners() *banners.Banners {
 	return backend.banners
+}
+
+// Lightning returns the lightning instance.
+func (backend *Backend) Lightning() *lightning.Lightning {
+	return backend.lightning
 }
 
 // HandleURI handles an external URI click for registered protocols, e.g. 'aopp:?...' URIs.  The uri
@@ -1154,26 +1405,16 @@ func (backend *Backend) IsOnline() bool {
 // GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
 // if found. It also initialize the account before returning it.
 func (backend *Backend) GetAccountFromCode(acctCode accountsTypes.Code) (accounts.Interface, error) {
-	// TODO: Refactor to make use of a map.
-	var acct accounts.Interface
-	for _, a := range backend.Accounts() {
-		if a.Config().Config.Inactive {
-			continue
-		}
-		if a.Config().Config.Code == acctCode {
-			acct = a
-			break
-		}
-	}
-	if acct == nil {
+	accountView := backend.Accounts().lookup(acctCode)
+	if accountView == nil || accountView.Record.Inactive {
 		return nil, fmt.Errorf("unknown account code %q", acctCode)
 	}
 
-	if err := acct.Initialize(); err != nil {
+	if err := accountView.Account.Initialize(); err != nil {
 		return nil, err
 	}
 
-	return acct, nil
+	return accountView.Account, nil
 }
 
 // CancelConnectKeystore cancels a pending keystore connection request if one exists.
@@ -1183,8 +1424,8 @@ func (backend *Backend) CancelConnectKeystore() {
 
 // SetWatchonly sets the keystore's watchonly flag to `watchonly`.
 func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) error {
-	err := backend.config.ModifyAccountsConfig(func(config *config.AccountsConfig) error {
-		ks, err := config.LookupKeystore(rootFingerprint)
+	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
+		ks, err := accountsConfig.LookupKeystore(rootFingerprint)
 		if err != nil {
 			return err
 		}
@@ -1199,6 +1440,33 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 	backend.initAccounts(false)
 	backend.emitAccountsStatusChanged()
 	return nil
+}
+
+// KeystoreBackupReminderAllowed returns the persisted backup reminder eligibility.
+func (backend *Backend) KeystoreBackupReminderAllowed(
+	rootFingerprint []byte,
+) (*bool, error) {
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return nil, err
+	}
+	keystoreConfig, err := accountsConfig.LookupKeystore(rootFingerprint)
+	if err != nil || keystoreConfig.BackupReminderAllowed == nil {
+		return nil, err
+	}
+	return keystoreConfig.BackupReminderAllowed, nil
+}
+
+// SetKeystoreBackupReminderAllowed persists the backup reminder eligibility.
+func (backend *Backend) SetKeystoreBackupReminderAllowed(
+	rootFingerprint []byte,
+	allowed bool,
+) error {
+	return backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
+		keystoreConfig := accountsConfig.GetOrAddKeystore(rootFingerprint)
+		keystoreConfig.BackupReminderAllowed = &allowed
+		return nil
+	})
 }
 
 // ExportLogs function copy and save log.txt file to help users provide it to support while troubleshooting.
@@ -1216,9 +1484,23 @@ func (backend *Backend) ExportLogs() error {
 	}
 	backend.log.Infof("Export logs to %s.", path)
 
-	exportFile, err := os.Create(path)
+	exportFile, err := os.OpenFile(
+		path,
+		os.O_WRONLY|os.O_CREATE,
+		utilConfig.PrivateFileMode,
+	)
 	if err != nil {
 		backend.log.WithError(err).Error("error creating new log file")
+		return err
+	}
+	if err := utilConfig.EnsurePrivateFile(path); err != nil {
+		_ = exportFile.Close()
+		backend.log.WithError(err).Error("error restricting log file permissions")
+		return err
+	}
+	if err := exportFile.Truncate(0); err != nil {
+		_ = exportFile.Close()
+		backend.log.WithError(err).Error("error truncating log file")
 		return err
 	}
 	logFilePath := filepath.Join(utilConfig.AppDir(), "log.txt")

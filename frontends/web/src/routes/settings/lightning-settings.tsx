@@ -1,0 +1,130 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import {
+  getLightningAddress,
+  getLightningBalance,
+  subscribeLightningAddress,
+  subscribeLightningBalance,
+} from '@/api/lightning';
+import { Header, Main } from '@/components/layout';
+import { View, ViewContent } from '@/components/view/view';
+import { Checked } from '@/components/icon';
+import { getKeystoreName } from '@/api/keystores';
+import { useLoad, useSubscribe } from '@/hooks/api';
+import { useLightning } from '@/hooks/lightning';
+import { SettingsItem } from './components/settingsItem/settingsItem';
+import styles from './lightning-settings.module.css';
+
+const serviceProvider = 'Spark';
+
+export const LightningSettings = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { isLightningReady, lightningAccount } = useLightning();
+  const keystoreNameResponse = useLoad(
+    lightningAccount
+      ? () => getKeystoreName(lightningAccount.rootFingerprint)
+      : null,
+    [lightningAccount?.rootFingerprint]
+  );
+  const loadedLightningBalance = useLoad(
+    lightningAccount && isLightningReady ? getLightningBalance : null,
+    [isLightningReady, lightningAccount]
+  );
+  const loadedLightningAddress = useLoad(
+    lightningAccount && isLightningReady ? getLightningAddress : null,
+    [isLightningReady, lightningAccount]
+  );
+  const subscribedLightningBalance = useSubscribe(subscribeLightningBalance);
+  const subscribedLightningAddress = useSubscribe(subscribeLightningAddress);
+  const lightningBalance = (
+    lightningAccount && isLightningReady
+      ? subscribedLightningBalance ?? loadedLightningBalance
+      : undefined
+  );
+  const lightningAddress = (
+    lightningAccount && isLightningReady
+      ? subscribedLightningAddress !== undefined
+        ? subscribedLightningAddress
+        : loadedLightningAddress
+      : undefined
+  );
+
+  const renderContent = () => {
+    if (lightningAccount === undefined) {
+      return null;
+    }
+
+    if (lightningAccount === null) {
+      return (
+        <SettingsItem
+          settingName={t('lightning.settings.enableWallet')}
+          secondaryText={t('lightning.settings.enableWalletDescription')}
+          onClick={() => navigate('/lightning/activate/')}
+        />
+      );
+    }
+
+    const keystoreDisplayName = (
+      keystoreNameResponse === undefined
+        ? undefined
+        : keystoreNameResponse.success
+          ? `${keystoreNameResponse.keystoreName} (${lightningAccount.rootFingerprint})`
+          : lightningAccount.rootFingerprint
+    );
+
+    return (
+      <>
+        <SettingsItem
+          settingName={t('lightning.settings.status')}
+          displayedValue={t('lightning.settings.statusConnected')}
+          extraComponent={<Checked className={styles.statusIcon} />}
+        />
+        <SettingsItem
+          settingName={t('lightning.settings.serviceProvider')}
+          displayedValue={serviceProvider}
+        />
+        <SettingsItem
+          settingName={t('lightning.settings.wallet')}
+          displayedValue={keystoreDisplayName}
+        />
+        <SettingsItem
+          settingName={t('lightning.settings.setLightningAddress')}
+          displayedValue={lightningAddress}
+          onClick={() => navigate('/lightning/set-lnurl-address/')}
+        />
+        <SettingsItem
+          settingName={t('lightning.disclaimer.title')}
+          onClick={() => navigate('/lightning/disclaimer/')}
+        />
+        <SettingsItem
+          settingName={<span>{t('lightning.settings.disableWallet')}</span>}
+          onClick={() => navigate('/lightning/deactivate/')}
+        />
+        <SettingsItem
+          disabled={!lightningBalance?.hasAvailable}
+          settingName={<span className={styles.danger}>{t('lightning.settings.closeAndWithdrawFunds')}</span>}
+          onClick={() => navigate('/lightning/close-withdraw-funds/')}
+        />
+      </>
+    );
+  };
+
+  return (
+    <Main>
+      <Header
+        variant="navigation"
+        hideSidebarToggler
+        mobileBackButton
+        title={t('lightning.settings.title')}
+      />
+      <View fullscreen={false}>
+        <ViewContent>
+          {renderContent()}
+        </ViewContent>
+      </View>
+    </Main>
+  );
+};

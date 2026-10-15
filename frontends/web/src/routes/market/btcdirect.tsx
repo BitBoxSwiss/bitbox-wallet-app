@@ -1,25 +1,33 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getBTCDirectInfo, TMarketAction } from '@/api/market';
 import { parseExternalBtcAmount } from '@/api/coins';
+import { useAppState } from '@/contexts/app-state-context';
 import { AppContext } from '@/contexts/AppContext';
-import { AccountCode, TAccount, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { AccountCode, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { useAccountSynced } from '@/hooks/account';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { getURLOrigin } from '@/utils/url';
 import { Header } from '@/components/layout';
-import { MobileHeader } from '../settings/components/mobile-header';
 import { Spinner } from '@/components/spinner/Spinner';
-import { findAccount, isBitcoinOnly } from '@/routes/account/utils';
+import { findAccount } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/utils/coin';
 import { BTCDirectTerms } from '@/components/terms/btcdirect-terms';
 import { MarketGuide } from './guide';
 import { alertUser } from '@/components/alert/Alert';
-import { useVendorIframeResizeHeight, useVendorTerms } from '@/hooks/vendor-iframe';
+import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
+import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
+import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
+import {
+  getVendorIframeMessageTarget,
+  postMessageToVendorIframe,
+  type TVendorIframeMessageTarget,
+} from '@/hooks/vendor-iframe-message';
 import { Message } from '@/components/message/message';
 import style from './iframe.module.css';
 
@@ -33,32 +41,37 @@ const localeMapping: Readonly<Record<string, string>> = {
 };
 
 type TProps = {
-  accounts: TAccount[];
   action: TMarketAction;
+};
+
+type TRouteParams = {
   code: AccountCode;
 };
 
 export const BTCDirect = ({
-  accounts,
   action,
-  code,
 }: TProps) => {
+  const { code = '' } = useParams<TRouteParams>();
   const { i18n, t } = useTranslation();
   const { config } = useConfig();
   const { isDevServers } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
   const navigate = useNavigate();
+  const { activeAccounts } = useAppState();
 
   const fetchBTCDirectInfo = useCallback(() => getBTCDirectInfo(action, code), [action, code]);
   const btcdirectInfo = useAccountSynced(code, fetchBTCDirectInfo);
 
   const [blocking, setBlocking] = useState(false);
-
-  const account = findAccount(accounts, code);
+  const account = findAccount(activeAccounts, code);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBTCDirectWidgetDisclaimer ?? false);
+  useMarketIframeActive(!!account && !!config && agreedTerms && btcdirectInfo?.success === true);
 
-  const handlePaymentRequest = useCallback(async (event: MessageEvent) => {
+  const handlePaymentRequest = useCallback(async (
+    event: MessageEvent,
+    target: TVendorIframeMessageTarget,
+  ) => {
     const {
       amount,
       currency,
@@ -109,17 +122,18 @@ export const BTCDirect = ({
       setBlocking(false);
       if (sendResult.success) {
         const { txId } = sendResult;
-        event.source?.postMessage({
+        postMessageToVendorIframe(target, {
           action: 'confirm-transaction-id',
           transactionId: txId
-        }, {
-          targetOrigin: event.origin
         });
         // stop here and continue in the widget
         return;
       }
       if (!sendResult.success && !('aborted' in sendResult)) {
-        if (sendResult.errorMessage) {
+        if (sendResult.errorCode === 'broadcastUncertain') {
+          alertUser(t('send.error.broadcastUncertain'));
+          return;
+        } else if (sendResult.errorMessage) {
           alertUser(t('unknownError', { errorMessage: sendResult.errorMessage }));
         } else {
           alertUser(t('genericError'));
@@ -136,21 +150,19 @@ export const BTCDirect = ({
     }
 
     // cancel the sell order here if txProposal or sendTx was unsuccessful
-    event.source?.postMessage({
+    postMessageToVendorIframe(target, {
       action: 'cancel-order',
-    }, {
-      targetOrigin: event.origin
     });
 
   }, [code, t, btcdirectInfo]);
 
   const locale = i18n.resolvedLanguage ? localeMapping[i18n.resolvedLanguage] : 'en-GB';
 
-  const handleConfiguration = useCallback((event: MessageEvent) => {
+  const handleConfiguration = useCallback((target: TVendorIframeMessageTarget) => {
     if (!account || !btcdirectInfo?.success) {
       return;
     }
-    event.source?.postMessage({
+    postMessageToVendorIframe(target, {
       action: 'configuration',
       ...(action === 'buy' && {
         address: btcdirectInfo.address
@@ -161,35 +173,35 @@ export const BTCDirect = ({
       quoteCurrency: 'EUR', // BTC Direct currently only accepts EURO
       mode: isDevServers ? 'debug' : 'production',
       apiKey: btcdirectInfo.apiKey,
-    }, {
-      targetOrigin: event.origin
     });
   }, [account, action, btcdirectInfo, isDarkMode, isDevServers, locale]);
 
   const onMessage = useCallback((event: MessageEvent) => {
+    const target = getVendorIframeMessageTarget(event, iframeRef.current);
     if (
-      !account
+      !target
+      || !account
       || !btcdirectInfo?.success
       || (
         !isDevServers // if prod check that event is from same origin as btcdirectInfo.url
-        && event.origin !== getURLOrigin(btcdirectInfo.url)
+        && target.origin !== getURLOrigin(btcdirectInfo.url)
       )
     ) {
       return;
     }
     switch (event.data.action) {
     case 'request-configuration':
-      handleConfiguration(event);
+      handleConfiguration(target);
       break;
     case 'request-payment':
-      handlePaymentRequest(event);
+      handlePaymentRequest(event, target);
       break;
     case 'back-to-app':
       navigate(`/account/${code}`);
       break;
     }
 
-  }, [account, btcdirectInfo, code, isDevServers, navigate, handleConfiguration, handlePaymentRequest]);
+  }, [account, btcdirectInfo, code, iframeRef, isDevServers, navigate, handleConfiguration, handlePaymentRequest]);
 
   useEffect(() => {
     window.addEventListener('message', onMessage);
@@ -200,13 +212,15 @@ export const BTCDirect = ({
     return null;
   }
 
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
-  const title = action === 'buy' ? (
-    t('generic.buy', { context: translationContext })
-  ) : (
-    t('generic.sell', { context: translationContext })
+  const title = (
+    action === 'buy' ? (
+      t('generic.buy', { context: translationContext })
+    ) : (
+      t('generic.sell', { context: translationContext })
+    )
   );
 
   const syncInProgress = !btcdirectInfo?.success && btcdirectInfo?.errorMessage === 'syncInProgress';
@@ -216,12 +230,7 @@ export const BTCDirect = ({
       <div className="container">
         <div className="innerContainer">
           <div className={style.header}>
-            <Header title={
-              <>
-                <h2 className="hide-on-small">{title}</h2>
-                <MobileHeader withGuide title={title} />
-              </>
-            } />
+            <Header variant="navigation" mobileBackButton title={title} />
           </div>
           <div ref={containerRef} className={style.container}>
             { !agreedTerms ? (

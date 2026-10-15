@@ -4,6 +4,7 @@ package rpcclient
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
@@ -18,18 +19,19 @@ import (
 //go:generate moq -pkg mocks -out mocks/rpcclient.go . Interface
 type Interface interface {
 	TransactionReceiptWithBlockNumber(
-		ctx context.Context, hash common.Hash) (*RPCTransactionReceipt, error)
+		ctx context.Context, hash common.Hash) (*types.Receipt, error)
 	// BlockNumber returns the current latest block number.
 	BlockNumber(ctx context.Context) (*big.Int, error)
 	TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, isPending bool, err error)
-	// Balance returns the current confirmed balance of the address.
-	Balance(ctx context.Context, account common.Address) (*big.Int, error)
-	// ERC20Balance returns the current confirmed token balance of the given token for the adddress.
-	ERC20Balance(account common.Address, erc20Token *erc20.Token) (*big.Int, error)
+	// Balance returns the balance at blockNumber.
+	Balance(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error)
+	// ERC20Balance returns the token balance at blockNumber, or the latest if nil.
+	ERC20Balance(account common.Address, erc20Token *erc20.Token, blockNumber *big.Int) (*big.Int, error)
 	// SendTransaction injects the transaction into the pending pool for execution.
 	SendTransaction(ctx context.Context, tx *types.Transaction) error
 	// PendingNonceAt retrieves the current pending nonce associated with an account.
 	PendingNonceAt(ctx context.Context, account common.Address) (uint64, error)
+	NonceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (uint64, error)
 	// EstimateGas tries to estimate the gas needed to execute a specific
 	// transaction based on the current pending state of the backend blockchain.
 	// There is no guarantee that this is the true gas limit requirement as other
@@ -43,10 +45,30 @@ type Interface interface {
 	FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarget, error)
 }
 
-// RPCTransactionReceipt is a receipt extended with the block number.
-type RPCTransactionReceipt struct {
-	types.Receipt
-	BlockNumber uint64
+// ErrRequestRejected marks a request refused before transaction submission.
+var ErrRequestRejected = errors.New("request rejected")
+
+// RPCError is a JSON-RPC error returned by the provider.
+type RPCError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (err RPCError) Error() string { return err.Message }
+
+// Rejected classifies Etherscan broadcast errors using Geth's error codes.
+// Server failures, including timeouts, leave the outcome of a broadcast unresolved.
+func (err RPCError) Rejected() bool {
+	switch err.Code {
+	case -32700, -32600, -32601, -32602: // Invalid JSON, request, method, or parameters.
+		return true
+	case -32000:
+		// Geth uses its default code for send rejections. We rely on Etherscan
+		// preserving that distinction from request timeouts (-32002).
+		return true
+	default:
+		return false
+	}
 }
 
 // RPCTransaction is a transaction extended with additional fields populated by the

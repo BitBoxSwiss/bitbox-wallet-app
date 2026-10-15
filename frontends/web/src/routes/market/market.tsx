@@ -2,64 +2,67 @@
 
 import 'flag-icons';
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { SingleValue } from 'react-select';
-import { i18n } from '@/i18n/i18n';
 import * as marketAPI from '@/api/market';
 import { getSwapStatus } from '@/api/swap';
-import { AccountCode, TAccount } from '@/api/account';
-import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
+import type { AccountCode } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { View, ViewContent } from '@/components/view/view';
-import { MarketGuide } from './guide';
-import { isBitcoinOnly } from '@/routes/account/utils';
+import { isBitcoinOnly } from '@/utils/coin';
 import { useLoad } from '@/hooks/api';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
-import { getRegionNameFromLocale } from '@/i18n/utils';
-import { getVendorFormattedName } from './utils';
+import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
+import { MarketTab } from './components/markettab';
+import { getFallbackMarketAccountCode, getRequiredKeystoreFeature, getVendorFormattedName } from './utils';
 import { Spinner } from '@/components/spinner/Spinner';
 import { Dialog } from '@/components/dialog/dialog';
 import { alertUser } from '@/components/alert/Alert';
 import { InfoButton } from '@/components/infobutton/infobutton';
-import { MarketTab } from './components/markettab';
 import { Deals } from './components/deals';
-import { getNativeLocale } from '@/api/nativelocale';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { CountrySelect, TOption } from './components/countryselect';
 import { getBTCDirectOTCLink, getPocketOTCLink, InfoContent, TInfoContentProps } from './components/infocontent';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
-import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
 import { open } from '@/api/system';
+import { useMarketContext } from './market-context';
+import { MarketGuide } from './guide';
+import { useFeatureConnect } from '@/hooks/keystore';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
+import type { TKeystoreFeature } from '@/api/keystores';
 import style from './market.module.css';
 
-type TProps = {
-  accounts: TAccount[];
+type TRouteParams = {
   code: AccountCode;
 };
 
-export const Market = ({
-  accounts,
-  code,
-}: TProps) => {
+export const Market = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const { activeAccounts } = useAppState();
+
+  const activeTab: marketAPI.TMarketAction = searchParams.get('tab') as marketAPI.TMarketAction || 'buy';
+  const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
+
   const { config, setConfig } = useConfig();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const {
+    regions,
+    selectedRegion,
+    setSelectedRegion,
+  } = useMarketContext();
 
-  const [selectedAccount, setSelectedAccount] = useState<string>(code);
-  const [selectedRegion, setSelectedRegion] = useState('');
-  const [regions, setRegions] = useState<TOption[]>([]);
   const [info, setInfo] = useState<TInfoContentProps>();
-  const [supportedAccounts, setSupportedAccounts] = useState<TAccount[]>([]);
-  const [activeTab, setActiveTab] = useState<marketAPI.TMarketAction>('buy');
-
-  const regionCodes = useLoad(marketAPI.getMarketRegionCodes);
-  const nativeLocale = useLoad(getNativeLocale);
-  const swapStatus = useLoad(getSwapStatus, [accounts]);
-
-  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
-
-  const title = t('generic.buySell');
+  const selectedAccount = code || getFallbackMarketAccountCode(activeAccounts);
+  const {
+    connect,
+    connectAny,
+    dismissFirmwareUpgrade,
+    firmwareUpgradeRequired,
+  } = useFeatureConnect();
 
   const {
     agreedTerms: agreedBTCDirectOTCTerms,
@@ -69,47 +72,13 @@ export const Market = ({
     agreedTerms: agreedPocketOTCTerms,
   } = useVendorTerms(config?.frontend.skipPocketOTCDisclaimer ?? false);
 
-  // keep account list in sync and ensure a valid selected account.
+  // keep URLs normalized to include the selected account.
   useEffect(() => {
-    setSupportedAccounts(accounts);
-    if (!selectedAccount || !accounts.some(account => account.code === selectedAccount)) {
-      const accountOfConnectedKeystore = accounts.find(account => account.keystore.connected);
-      setSelectedAccount(accountOfConnectedKeystore?.code || accounts[0]?.code || '');
-    }
-  }, [accounts, selectedAccount]);
-
-  // update region Select component when `regionList` or `config` gets populated.
-  useEffect(() => {
-    if (!regionCodes || !config) {
+    if (!selectedAccount) {
       return;
     }
-    const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' });
-    const regions: TOption[] = regionCodes.map(code => ({
-      value: code,
-      label: regionNames.of(code) || code
-    }));
-
-    regions.sort((a, b) => a.label.localeCompare(b.label, i18n.language));
-    setRegions(regions);
-
-    // if user had selected no region before, do not pre-select any.
-    if (config.frontend.selectedExchangeRegion === '') {
-      return;
-    }
-
-    if (config.frontend.selectedExchangeRegion) {
-      // pre-select config region
-      setSelectedRegion(config.frontend.selectedExchangeRegion);
-      return;
-    }
-
-    // user never selected a region preference, will derive it from native locale.
-    const userRegion = getRegionNameFromLocale(nativeLocale || '');
-    //Region is available in the list
-    const regionAvailable = !!(regionCodes.find(code => code === userRegion));
-    //Pre-selecting the region
-    setSelectedRegion(regionAvailable ? userRegion : '');
-  }, [regionCodes, config, nativeLocale]);
+    navigate(`/market/select/${selectedAccount}?tab=${activeTab}`, { replace: true });
+  }, [activeTab, navigate, selectedAccount]);
 
   const buyDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('buy', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
   const sellDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('sell', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
@@ -117,24 +86,26 @@ export const Market = ({
   const swapDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('swap', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
   const otcDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('otc', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
 
-  const promptConnectKeystore = async (accountCode: string): Promise<boolean> => {
-    const account = supportedAccounts.find(acc => acc.code === accountCode);
+  const promptConnectKeystore = async (
+    accountCode: string,
+    requiredFeature?: TKeystoreFeature,
+  ): Promise<boolean> => {
+    const account = activeAccounts.find(acc => acc.code === accountCode);
     if (!account) {
       return false;
     }
-    const connectResult = await connectKeystore(account.keystore.rootFingerprint);
-    return connectResult.success;
+    return connect(account.keystore.rootFingerprint, requiredFeature);
   };
 
   const handleAccountChange = async (accountCode: string) => {
     if (await promptConnectKeystore(accountCode)) {
-      setSelectedAccount(accountCode);
+      navigate(`/market/select/${accountCode}?tab=${activeTab}`, { replace: true });
     }
   };
 
   const handleGoToSwap = async () => {
-    const connectResult = await connectAnyKeystore();
-    if (!connectResult.success) {
+    const requiredFeature = getRequiredKeystoreFeature('swapkit', 'swap');
+    if (!await connectAny(requiredFeature)) {
       return;
     }
 
@@ -147,7 +118,6 @@ export const Market = ({
       alertUser(t('connectKeystore.swapHint'));
     }
   };
-
 
   const getDealReponse = (action: marketAPI.TMarketAction) => {
     switch (action) {
@@ -179,16 +149,6 @@ export const Market = ({
     }
   };
 
-  const handleChangeTab = (tab: marketAPI.TMarketAction) => {
-    setActiveTab(tab);
-    setSearchParams(`?tab=${tab}`);
-  };
-
-  useEffect(() => {
-    const tab = searchParams.get('tab') as marketAPI.TMarketAction | null ;
-    setActiveTab(tab || 'buy');
-  }, [searchParams]);
-
   const goToVendor = async (vendor: marketAPI.TVendorName) => {
     if (!vendor) {
       return;
@@ -215,7 +175,12 @@ export const Market = ({
         return;
       }
     }
-    if (!selectedAccount || !await promptConnectKeystore(selectedAccount)) {
+    const account = activeAccounts.find(({ code }) => code === selectedAccount);
+    if (!account) {
+      return;
+    }
+    const requiredFeature = getRequiredKeystoreFeature(vendor, activeTab, account.coinCode);
+    if (!await promptConnectKeystore(selectedAccount, requiredFeature)) {
       return;
     }
     navigate(`/market/${vendor}/${activeTab}/${selectedAccount}/${selectedRegion}`);
@@ -229,12 +194,21 @@ export const Market = ({
     }
   };
 
-  const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
-
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
+    <GuideWrapper>
+      {firmwareUpgradeRequired && (
+        <FirmwareUpgradeRequiredDialog
+          open
+          onClose={dismissFirmwareUpgrade}
+        />
+      )}
+      <GuidedContent>
+        <Main>
+          <Header title={t('generic.buySell')} />
+          <MarketTab
+            activeTab={activeTab}
+            code={code}
+          />
           <Dialog
             medium
             title={info && info.vendorName !== 'region' ? getVendorFormattedName(info.vendorName) : t('buy.exchange.region')}
@@ -244,32 +218,21 @@ export const Market = ({
             {info && (
               <InfoContent
                 action={info.action}
-                accounts={accounts}
+                accounts={activeAccounts}
                 vendorName={info.vendorName}
                 paymentFees={info.paymentFees}
               />
             )}
           </Dialog>
-          <Header title={
-            <h2>
-              {title}
-            </h2>
-          } />
           <View
             fullscreen={false}
             minHeight="600px"
-            verticallyCentered
             width="550px"
           >
             <ViewContent fullWidth>
               <div className={style.exchangeContainer}>
                 {regions.length ? (
                   <>
-                    <MarketTab
-                      onChangeTab={handleChangeTab}
-                      activeTab={activeTab}
-                      showSwap={!!swapStatus?.available}
-                    />
                     {activeTab !== 'swap' && (
                       <>
                         <label className={style.label}>
@@ -296,7 +259,7 @@ export const Market = ({
                             </label>
                             <div className={style.selectContainer}>
                               <GroupedAccountSelector
-                                accounts={supportedAccounts}
+                                accounts={activeAccounts}
                                 selected={selectedAccount}
                                 onChange={handleAccountChange}
                               />
@@ -322,9 +285,9 @@ export const Market = ({
               </div>
             </ViewContent>
           </View>
-        </GuidedContent>
-        <MarketGuide translationContext={translationContext} />
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <MarketGuide translationContext={translationContext} />
+    </GuideWrapper>
   );
 };

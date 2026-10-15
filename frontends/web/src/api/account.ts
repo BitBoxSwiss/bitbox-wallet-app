@@ -17,7 +17,7 @@ export type ConversionUnit = Fiat | 'sat';
 
 export type NativeCoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'RBTC' | 'tsat' | 'TLTC' | 'SEPETH';
 
-export type CoinCode = NativeCoinCode | ERC20CoinCode;
+export type CoinCode = NativeCoinCode | ERC20CoinCode | 'lightning';
 
 export type CoinUnit = NativeCoinUnit | ERC20TokenUnit;
 
@@ -64,11 +64,29 @@ export const getAccounts = (): Promise<TAccount[]> => {
   return apiGet('accounts');
 };
 
-export type CoinFormattedAmount = {
+type TEthereumPaymentRequest = {
+  success: true;
+  recipient: string;
+  amount?: string;
+} | {
+  success: false;
+  errorCode?: 'accountMismatch';
+};
+
+export const parseEthereumPaymentRequest = (
+  code: AccountCode,
+  uri: string,
+): Promise<TEthereumPaymentRequest> => {
+  return apiPost(`account/${code}/parse-ethereum-payment-request`, { uri });
+};
+
+export type CoinFormattedOptionalAmount = {
   coinCode: CoinCode;
   coinName: string;
-  formattedAmount: TAmountWithConversions;
+  formattedAmount?: TAmountWithConversions;
 };
+
+export type CoinFormattedAmount = Required<CoinFormattedOptionalAmount>;
 
 export type TAmountsByCoin = {
   [key in CoinCode]?: TAmountWithConversions;
@@ -111,6 +129,13 @@ type TEthAccountCodeAndNameByAddress = SuccessResponse & {
 
 export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEthAccountCodeAndNameByAddress> => {
   return apiPost('accounts/eth-account-code', { address });
+};
+
+export const postEthAccountActivity = (
+  code: AccountCode,
+  active: boolean,
+): Promise<SuccessResponse> => {
+  return apiPost(`account/${code}/activity`, { active });
 };
 
 export type TStatus = {
@@ -156,13 +181,15 @@ export type TSigningConfigurationList = null | {
   signingConfigurations: TSigningConfiguration[];
 };
 
+type TAccountError = { success: false; errorMessage: string };
+
 export const getInfo = (code: AccountCode) => {
-  return (): Promise<TSigningConfigurationList> => {
+  return (): Promise<{ success: true; info: TSigningConfigurationList } | TAccountError> => {
     return apiGet(`account/${code}/info`);
   };
 };
 
-export const init = (code: AccountCode): Promise<null> => {
+export const init = (code: AccountCode): Promise<SuccessResponse | TAccountError> => {
   return apiPost(`account/${code}/init`);
 };
 
@@ -172,6 +199,23 @@ export type FormattedLineData = LineData & {
 
 export type ChartData = FormattedLineData[];
 
+export type TChartTransactionMarkerAmount = {
+  amount: string;
+  count: number;
+  estimated: boolean;
+};
+
+export type TChartTransactionMarker = {
+  time: number;
+  receive: TChartTransactionMarkerAmount;
+  send: TChartTransactionMarkerAmount;
+};
+
+export type TChartTransactionMarkers = {
+  daily: TChartTransactionMarker[];
+  hourly: TChartTransactionMarker[];
+};
+
 type TChartDataResponse = {
   success: true;
   data: TChartData;
@@ -179,19 +223,33 @@ type TChartDataResponse = {
   success: false;
 };
 
+export type TChartPerformance = {
+  moneyWeightedReturn: number | null;
+  startTimestamp: number | null;
+};
+
+export type TChartPerformanceByDisplay = {
+  week: TChartPerformance;
+  month: TChartPerformance;
+  year: TChartPerformance;
+  all: TChartPerformance;
+};
+
 export type TChartData = {
   chartDataMissing: boolean;
   chartDataDaily: ChartData;
   chartDataHourly: ChartData;
+  chartTransactionMarkers?: TChartTransactionMarkers;
   chartFiat: ConversionUnit;
+  chartPerformance: TChartPerformanceByDisplay;
   chartTotal: number | null;
   formattedChartTotal: string | null;
   chartIsUpToDate: boolean; // only valid if chartDataMissing is false
   lastTimestamp: number;
 };
 
-export const getChartData = (): Promise<TChartDataResponse> => {
-  return apiGet('chart-data');
+export const getChartData = (includeTransactionMarkers: boolean): Promise<TChartDataResponse> => {
+  return apiGet(`chart-data?includeTransactionMarkers=${String(includeTransactionMarkers)}`);
 };
 
 type Conversions = {
@@ -201,6 +259,7 @@ type Conversions = {
 export type TAmountWithConversions = {
   amount: string;
   conversions?: Conversions;
+  unformattedConversions?: Conversions;
   unit: CoinUnit;
   estimated: boolean;
 };
@@ -231,7 +290,7 @@ export type TTransaction = {
   amount: TAmountWithConversions;
   amountAtTime: TAmountWithConversions;
   fee: TAmountWithConversions;
-  feeRatePerKb: TAmountWithConversions;
+  feeRateInfo: string;
   deductedAmountAtTime: TAmountWithConversions;
   gas: number;
   nonce: number | null;
@@ -266,7 +325,9 @@ export const getTransactionList = (code: AccountCode): Promise<TTransactions> =>
   return apiGet(`account/${code}/transactions`);
 };
 
-export const getTransaction = (code: AccountCode, id: TTransaction['internalID']): Promise<TTransaction | null> => {
+export const getTransaction = (code: AccountCode, id: TTransaction['internalID']): Promise<
+  { success: true; transaction: TTransaction | null } | TAccountError
+> => {
   return apiGet(`account/${code}/transaction?id=${id}`);
 };
 
@@ -321,7 +382,8 @@ export type Slip24 = {
     };
   }>;
   outputs: Array<{
-    amount: number;
+    // Pocket's request-address library uses numbers; backend amounts use strings.
+    amount: number | string;
     address: string;
   }>;
   signature: string;
@@ -365,6 +427,7 @@ export type TTxProposalResult = {
   total: TAmountWithConversions;
 } | {
   errorCode?: TTxProposalErrorCode;
+  errorMessage?: string;
   success: false;
 };
 
@@ -377,7 +440,9 @@ export const proposeTx = (
 
 export type TSendTxErrorCode =
   | TTxProposalErrorCode
+  | 'broadcastUncertain'
   | 'erc20InsufficientGasFunds'
+  | 'firmwareUpgradeRequired'
   | 'syncInProgress'
   | 'wrongKeystore';
 
@@ -416,7 +481,9 @@ export const getFeeTargetList = (code: AccountCode): Promise<TFeeTargetList> => 
   return apiGet(`account/${code}/fee-targets`);
 };
 
-export const verifyAddress = (code: AccountCode, addressID: string): Promise<boolean> => {
+export const verifyAddress = (code: AccountCode, addressID: string): Promise<
+  { success: true } | { success: false; errorCode?: 'firmwareUpgradeRequired'; errorMessage?: string }
+> => {
   return apiPost(`account/${code}/verify-address`, addressID);
 };
 
@@ -433,7 +500,12 @@ export type TUTXO = {
   headerTimestamp: string | null;
 };
 
-export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {
+export type TUTXOsResponse = {
+  success: true;
+  utxos: TUTXO[];
+} | TAccountError;
+
+export const getUTXOs = (code: AccountCode): Promise<TUTXOsResponse> => {
   return apiGet(`account/${code}/utxos`);
 };
 
@@ -446,20 +518,6 @@ export const hasSecureOutput = (code: AccountCode) => {
   return (): Promise<TSecureOutput> => {
     return apiGet(`account/${code}/has-secure-output`);
   };
-};
-
-type THasPaymentRequest = {
-  success: boolean;
-  errorMessage?: string;
-  errorCode?: 'firmwareUpgradeRequired' | 'unsupportedFeature';
-};
-
-export const hasPaymentRequest = (code: AccountCode): Promise<THasPaymentRequest> => {
-  return apiGet(`account/${code}/has-payment-request`);
-};
-
-export const hasSwapPaymentRequest = (code: AccountCode): Promise<THasPaymentRequest> => {
-  return apiGet(`account/${code}/has-swap-payment-request`);
 };
 
 export type TAddAccount = {
@@ -476,12 +534,21 @@ export const addAccount = (coinCode: string, name: string): Promise<TAddAccount>
   });
 };
 
-export type TSignMessage = { success: false; aborted?: boolean; errorMessage?: string } | { success: true; signature: string };
+export type TSignMessage = {
+  success: false;
+  aborted?: boolean;
+  errorMessage?: string;
+  errorCode?: 'firmwareUpgradeRequired';
+} | {
+  success: true;
+  signature: string;
+};
 
 export type TSignWalletConnectTx = {
   success: false;
   aborted?: boolean;
   errorMessage?: string;
+  errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds' | 'broadcastUncertain';
 } | {
   success: true;
   txHash: string;
@@ -492,11 +559,16 @@ export const ethSignMessage = (code: AccountCode, message: string): Promise<TSig
   return apiPost(`account/${code}/eth-sign-msg`, message);
 };
 
-export const ethSignTypedMessage = (code: AccountCode, chainId: number, data: any): Promise<TSignMessage> => {
+export const ethSignTypedMessage = (code: AccountCode, chainId: number, data: string): Promise<TSignMessage> => {
   return apiPost(`account/${code}/eth-sign-typed-msg`, { chainId, data });
 };
 
-export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId: number, tx: any): Promise<TSignWalletConnectTx> => {
+export const ethSignWalletConnectTx = (
+  code: AccountCode,
+  send: boolean,
+  chainId: number,
+  tx: Record<string, unknown>,
+): Promise<TSignWalletConnectTx> => {
   return apiPost(`account/${code}/eth-sign-wallet-connect-tx`, { send, chainId, tx });
 };
 
@@ -508,7 +580,7 @@ type TAddressSignResponse = {
 } | {
   success: false;
   errorMessage?: string;
-  errorCode?: 'userAbort' | 'wrongKeystore';
+  errorCode?: 'firmwareUpgradeRequired' | 'userAbort' | 'wrongKeystore';
 };
 
 export const signBTCMessageUnusedAddress = (

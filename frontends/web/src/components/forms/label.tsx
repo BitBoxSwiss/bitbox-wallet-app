@@ -14,3 +14,7 @@ export const Label = ({
     </label>
   );
 };
+
+export const OptionalLabel = ({ children }: JSX.IntrinsicElements['span']) => {
+  return <span className={style.labelDescription}>{children}</span>;
+};

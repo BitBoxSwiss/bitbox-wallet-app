@@ -15,7 +15,7 @@ import {
 } from '@/components/icon';
 import { AddressNavigator } from '../components/address-navigator';
 import { TSignMessageController } from './use-sign-message-controller';
-import style from './sign-message.module.css';
+import style from './sign-message-views.module.css';
 
 type TProps = {
   controller: TSignMessageController;
@@ -156,7 +156,7 @@ export const SignMessageConfirmView = ({ controller }: TProps) => {
   }
 
   return (
-    <View fullscreen>
+    <View fullscreen withMobileSafetyMargin>
       <UseDisableBackButton />
       <ViewHeader title={<div className={style.confirmViewTitle}>{t('signMessage.signMessage')}</div>} />
       <ViewContent>

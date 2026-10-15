@@ -2,29 +2,29 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { AppContext } from '@/contexts/AppContext';
+import { useAppState } from '@/contexts/app-state-context';
 import { useLoad } from '@/hooks/api';
+import { useEthAccountActivity } from '@/hooks/account-activity';
 import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
 import { setAccountReceiveScriptType } from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
-import { getScriptName, isEthereumBased } from '@/routes/account/utils';
+import { getScriptName } from '@/routes/account/utils';
+import { isEthereumBased } from '@/utils/coin';
 import { CopyableInput } from '@/components/copy/Copy';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
+import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { Button, Radio } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Message } from '@/components/message/message';
 import { ReceiveGuide } from './components/guide';
-import { Header } from '@/components/layout';
+import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { QRCode } from '@/components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
 import { connectKeystore } from '@/api/keystores';
 import style from './receive.module.css';
-
-type TProps = {
-  accounts: accountApi.TAccount[];
-  code: accountApi.AccountCode;
-};
 
 type TAddressTypeDialogProps = {
   open: boolean;
@@ -125,12 +125,17 @@ const getReceiveScriptTypeIndex = (
   return scriptTypeIndex >= 0 ? scriptTypeIndex : 0;
 };
 
-export const Receive = ({
-  accounts,
-  code,
-}: TProps) => {
+type TProps = {
+  code: accountApi.AccountCode;
+};
+
+export const Receive = () => {
+  const { code = '' } = useParams<TProps>();
   const { t } = useTranslation();
+  const { activeAccounts } = useAppState();
+
   const [verifying, setVerifying] = useState<false | 'secure' | 'insecure'>(false);
+  const [firmwareUpgradeRequired, setFirmwareUpgradeRequired] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
   // index into `availableScriptTypes`, or 0 if none are available.
   const [addressType, setAddressType] = useState<number>(0);
@@ -138,8 +143,9 @@ export const Receive = ({
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.TReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
-  const account = accounts.find(({ code: accountCode }) => accountCode === code);
+  const account = activeAccounts.find(({ code: accountCode }) => accountCode === code);
   const insured = account?.bitsuranceStatus === 'active';
+  useEthAccountActivity(code, account?.coinCode);
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
@@ -212,7 +218,14 @@ export const Receive = ({
     try {
       const addressesAtIndex = receiveAddresses[addressesIndex] as accountApi.TReceiveAddressList;
       const address = addressesAtIndex.addresses[activeIndex] as accountApi.TReceiveAddress;
-      await accountApi.verifyAddress(code, address.addressID);
+      const result = await accountApi.verifyAddress(code, address.addressID);
+      if (!result.success) {
+        if (result.errorCode === 'firmwareUpgradeRequired') {
+          setFirmwareUpgradeRequired(true);
+        } else {
+          alertUser(result.errorMessage || t('genericError'));
+        }
+      }
     } finally {
       setVerifying(false);
     }
@@ -247,10 +260,14 @@ export const Receive = ({
   const displayedMainAddress = verifying ? displayAddress : (address ? address.substring(0, 8) + '...' : '');
 
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Header
+            variant="navigation"
+            mobileBackButton
+            title={t('receive.title', { accountName: account?.coinName })}
+          />
           <div className="content narrow isVerticallyCentered">
             <div className="box large text-center">
               { currentAddresses && (
@@ -315,9 +332,9 @@ export const Receive = ({
                       primary>
                       {t('receive.verifyBitBox02')}
                     </Button>
-                    <BackButton enableEsc={!addressTypeDialog && !verifying}>
+                    <DesktopBackButton enableEsc={!addressTypeDialog && !verifying && !firmwareUpgradeRequired}>
                       {t('button.back')}
-                    </BackButton>
+                    </DesktopBackButton>
                   </div>
                   { verifying && (
                     <div className={style.hide}></div>
@@ -375,12 +392,18 @@ export const Receive = ({
               )}
             </div>
           </div>
-        </div>
-      </div>
+        </Main>
+      </GuidedContent>
       <ReceiveGuide
         hasMultipleAddresses={currentAddresses ? currentAddresses.length > 1 : false}
         hasDifferentFormats={receiveAddresses ? receiveAddresses.length > 1 : false}
       />
-    </div>
+      {firmwareUpgradeRequired && (
+        <FirmwareUpgradeRequiredDialog
+          open
+          onClose={() => setFirmwareUpgradeRequired(false)}
+        />
+      )}
+    </GuideWrapper>
   );
 };

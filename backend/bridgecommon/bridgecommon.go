@@ -180,14 +180,19 @@ type BackendEnvironment struct {
 	UsingMobileDataFunc func() bool
 	// NativeLocaleFunc is used by the backend to query native app layer for user
 	// preferred UI language.
-	NativeLocaleFunc         func() string
-	NumberFormatFunc         func() *backend.NumberFormat
-	GetSaveFilenameFunc      func(string) string
-	SetDarkThemeFunc         func(bool)
-	DetectDarkThemeFunc      func() bool
-	AuthFunc                 func()
-	OnAuthSettingChangedFunc func(bool)
-	BluetoothConnectFunc     func(string)
+	NativeLocaleFunc                 func() string
+	NumberFormatFunc                 func() *backend.NumberFormat
+	GetSaveFilenameFunc              func(string) string
+	SetDarkThemeFunc                 func(bool)
+	DetectDarkThemeFunc              func() bool
+	AuthFunc                         func()
+	OnAuthSettingChangedFunc         func(bool)
+	CanEncryptLightningMnemonicFunc  func() bool
+	StoreLightningEncryptionKeyFunc  func(string, string) error
+	LoadLightningEncryptionKeyFunc   func(string) (string, error)
+	DeleteLightningEncryptionKeyFunc func(string) error
+	BluetoothConnectFunc             func(string)
+	UserAgentPlatformFunc            func() string
 }
 
 // NotifyUser implements backend.Environment.
@@ -274,11 +279,51 @@ func (env *BackendEnvironment) OnAuthSettingChanged(enabled bool) {
 	}
 }
 
+// CanEncryptLightningMnemonic implements backend.Environment.
+func (env *BackendEnvironment) CanEncryptLightningMnemonic() bool {
+	if env.CanEncryptLightningMnemonicFunc != nil {
+		return env.CanEncryptLightningMnemonicFunc()
+	}
+	return false
+}
+
+// StoreLightningEncryptionKey implements backend.Environment.
+func (env *BackendEnvironment) StoreLightningEncryptionKey(accountCode string, encryptionKey string) error {
+	if env.StoreLightningEncryptionKeyFunc != nil {
+		return env.StoreLightningEncryptionKeyFunc(accountCode, encryptionKey)
+	}
+	return nil
+}
+
+// LoadLightningEncryptionKey implements backend.Environment.
+func (env *BackendEnvironment) LoadLightningEncryptionKey(accountCode string) (string, error) {
+	if env.LoadLightningEncryptionKeyFunc != nil {
+		return env.LoadLightningEncryptionKeyFunc(accountCode)
+	}
+	return "", nil
+}
+
+// DeleteLightningEncryptionKey implements backend.Environment.
+func (env *BackendEnvironment) DeleteLightningEncryptionKey(accountCode string) error {
+	if env.DeleteLightningEncryptionKeyFunc != nil {
+		return env.DeleteLightningEncryptionKeyFunc(accountCode)
+	}
+	return nil
+}
+
 // BluetoothConnect implements backend.Environment.
 func (env *BackendEnvironment) BluetoothConnect(identifier string) {
 	if env.BluetoothConnectFunc != nil {
 		env.BluetoothConnectFunc(identifier)
 	}
+}
+
+// UserAgentPlatform implements backend.Environment.
+func (env *BackendEnvironment) UserAgentPlatform() string {
+	if env.UserAgentPlatformFunc != nil {
+		return env.UserAgentPlatformFunc()
+	}
+	return ""
 }
 
 // Serve serves the BitBox API for use in a native client.

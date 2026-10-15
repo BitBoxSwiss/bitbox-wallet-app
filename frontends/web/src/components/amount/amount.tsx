@@ -2,6 +2,7 @@
 
 import { useContext } from 'react';
 import type { CoinUnit, ConversionUnit } from '@/api/account';
+import { isSupportedERC20Unit } from '@/api/erc20';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
@@ -72,6 +73,9 @@ const formatBtc = (
   group: string,
   decimal: string
 ) => {
+  if (stripTrailingZeros(amount) === '0') {
+    return '0';
+  }
   const dot = amount.indexOf('.');
   if (dot === -1) {
     return formatLocalizedAmount(amount, group, decimal);
@@ -105,7 +109,11 @@ const formatEth = (
   if (dot === -1) {
     return formatLocalizedAmount(amount, group, decimal);
   }
-  const truncated = amount.slice(0, dot + maxDecimals + 1);
+  const truncated = (
+    maxDecimals === 0
+      ? amount.slice(0, dot)
+      : amount.slice(0, dot + maxDecimals + 1)
+  );
   return formatLocalizedAmount(truncated, group, decimal);
 };
 
@@ -116,8 +124,30 @@ type TProps = {
   onMobileClick?: () => Promise<void>;
   maxDecimals?: number;
   removeTrailingZeros?: boolean;
+  wrap?: boolean;
 };
 
+/**
+ * Renders a localized cryptocurrency or fiat amount.
+ *
+ * Amounts can be hidden according to the application privacy settings,
+ * and cryptocurrency-specific formatting is applied for BTC/LTC and
+ * ETH/ETH-compatible tokens. ETH and ETH-token amounts can optionally
+ * have their decimal portion truncated with `maxDecimals`.
+ *
+ * @param amount - Amount in its string representation.
+ * @param unit - Currency or cryptocurrency unit of the amount.
+ * @param alwaysShowAmounts - Whether to display the amount even when
+ *   amounts are hidden by the application settings.
+ * @param onMobileClick - Callback invoked when the amount is clicked
+ *   on a mobile viewport.
+ * @param maxDecimals - Maximum number of decimal places to display for
+ *   ETH and ETH-compatible tokens. Excess decimal places are truncated,
+ *   not rounded. Has no effect on BTC/LTC or fiat amounts.
+ * @param removeTrailingZeros - Whether to remove trailing zeroes from
+ *   the amount's decimal portion.
+ * @param wrap - Whether to wrap the full amount instead of showing an ellipsis.
+ */
 export const Amount = ({
   amount,
   unit,
@@ -125,6 +155,7 @@ export const Amount = ({
   onMobileClick,
   maxDecimals,
   removeTrailingZeros,
+  wrap = false,
 }: TProps) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -135,7 +166,7 @@ export const Amount = ({
   };
 
   return (
-    <span className={style.amount || ''} onClick={handleClick}>
+    <span className={`${style.amount || ''} ${wrap ? style.wrap || '' : ''}`} onClick={handleClick}>
       <FormattedAmount
         amount={amount}
         unit={unit}
@@ -153,7 +184,7 @@ export const FormattedAmount = ({
   alwaysShowAmounts = false,
   maxDecimals,
   removeTrailingZeros,
-}: Omit<TProps, 'onMobileClick'>) => {
+}: Omit<TProps, 'onMobileClick' | 'wrap'>) => {
   const { hideAmounts } = useContext(AppContext);
   const { decimal, group } = useContext(LocalizationContext);
 
@@ -179,6 +210,10 @@ export const FormattedAmount = ({
     return formatSats(displayedAmount);
   case 'ETH':
   case 'SEPETH':
+    return formatEth(displayedAmount, group, decimal, maxDecimals);
+  }
+
+  if (isSupportedERC20Unit(unit)) {
     return formatEth(displayedAmount, group, decimal, maxDecimals);
   }
 

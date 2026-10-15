@@ -17,6 +17,37 @@ type TProps = {
   result: TSendTx | undefined;
 };
 
+type TSendAbortedResultProps = {
+  onDone: () => void;
+  onRetry: () => void;
+};
+
+export const SendAbortedResult = ({
+  onDone,
+  onRetry,
+}: TSendAbortedResultProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <View fullscreen textCenter verticallyCentered width="520px">
+      <ViewHeader />
+      <ViewContent withIcon="error">
+        <p>
+          {t('send.abort')}
+        </p>
+      </ViewContent>
+      <ViewButtons>
+        <Button primary onClick={onDone}>
+          {t('button.done')}
+        </Button>
+        <Button secondary onClick={onRetry}>
+          {t('send.edit')}
+        </Button>
+      </ViewButtons>
+    </View>
+  );
+};
+
 /**
  * Renders the final step of send workflow, either success or error message
  * @param result response type TSendTx
@@ -39,25 +70,14 @@ export const SendResult = ({
   if (!result.success) {
     if ('aborted' in result) {
       return (
-        <View fullscreen textCenter verticallyCentered width="520px">
-          <ViewHeader />
-          <ViewContent withIcon="error">
-            <p>
-              {t('send.abort')}
-            </p>
-          </ViewContent>
-          <ViewButtons>
-            <Button primary onClick={() => navigate(`/account/${code}`)}>
-              {t('button.done')}
-            </Button>
-            <Button secondary onClick={() => onRetry()}>
-              {t('send.edit')}
-            </Button>
-          </ViewButtons>
-        </View>
+        <SendAbortedResult
+          onDone={() => navigate(`/account/${code}`)}
+          onRetry={onRetry}
+        />
       );
     }
     switch (result.errorCode) {
+    case 'broadcastUncertain':
     case 'erc20InsufficientGasFunds':
       return (
         <View fullscreen textCenter verticallyCentered width="520px">
@@ -71,9 +91,11 @@ export const SendResult = ({
             <Button primary onClick={() => navigate(`/account/${code}`)}>
               {t('button.done')}
             </Button>
-            <Button secondary onClick={() => navigate(`/market/select/${code}`, { replace: true })}>
-              {t('send.buyEth')}
-            </Button>
+            {result.errorCode === 'erc20InsufficientGasFunds' && (
+              <Button secondary onClick={() => navigate(`/market/select/${code}`, { replace: true })}>
+                {t('send.buyEth')}
+              </Button>
+            )}
           </ViewButtons>
         </View>
       );
@@ -89,7 +111,7 @@ export const SendResult = ({
             <CopyableInput
               alignLeft
               flexibleHeight
-              value={errorMessage || t('genericError')}
+              value={result.errorCode === 'insufficientFunds' ? t('send.error.insufficientFunds') : errorMessage || t('genericError')}
             />
           </ViewContent>
           <ViewButtons>

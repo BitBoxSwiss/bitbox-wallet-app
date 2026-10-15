@@ -44,6 +44,12 @@ export const AdvancedTxDetail = ({ transactionInfo }: Props) => {
             <span>{transactionInfo.numConfirmations}</span>
           </TxDetailRow>
         ) }
+        {!!transactionInfo.feeRateInfo && (
+          <TxDetailRow>
+            <p className={styles.label}>{t('transaction.feeRate')}</p>
+            <span>{transactionInfo.feeRateInfo}</span>
+          </TxDetailRow>
+        ) }
         {!!transactionInfo.weight && (
           <TxDetailRow>
             <p className={styles.label}>{t('transaction.weight')}</p>

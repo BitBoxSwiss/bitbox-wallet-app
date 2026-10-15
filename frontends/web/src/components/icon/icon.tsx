@@ -5,7 +5,6 @@ import alert from './assets/icons/alert-triangle.svg';
 import BB02StylizedDark from './assets/bitbox02-stylized-reflection-dark.png';
 import BB02StylizedLight from './assets/bitbox02-stylized-reflection-light.png';
 import infoBlueSVG from './assets/icons/info-icon-blue.svg';
-import arbitrumColorSVG from './assets/arbitrum-color.svg';
 import arrowDownSVG from './assets/icons/arrow-down-active.svg';
 import arrowDownGreenSVG from './assets/icons/arrow-down-green.svg';
 import arrowDownRedSVG from './assets/icons/arrow-down-red.svg';
@@ -24,8 +23,11 @@ import arrowCircleRightActiveSVG from './assets/icons/arrow-circle-right-active.
 import arrowSwapSVG from './assets/icons/arrow-swap.svg';
 import bankDarkSVG from './assets/icons/bank.svg';
 import bankLightSVG from './assets/icons/bank-light.svg';
-import baseColorSVG from './assets/base-color.svg';
 import buyInfoSVG from './assets/icons/buy-info.svg';
+import chartPerformanceDarkSVG from './assets/icons/chart-performance-dark.svg';
+import chartPerformanceWhiteSVG from './assets/icons/chart-performance-white.svg';
+import chartValueDarkSVG from './assets/icons/chart-value-dark.svg';
+import chartValueWhiteSVG from './assets/icons/chart-value-white.svg';
 import checkedSmallSVG from './assets/icons/checked-small.svg';
 import checkSVG from './assets/icons/check.svg';
 import chevronRightDark from './assets/icons/chevron-right-dark.svg';
@@ -41,12 +43,12 @@ import creditCardLightSVG from './assets/icons/credit-card-light.svg';
 import deviceSVG from './assets/icons/device.svg';
 import editActiveSVG from './assets/icons/edit-active.svg';
 import ejectIconSVG from './assets/icons/eject.svg';
-import ethColorSVG from './assets/eth-color.svg';
 import redDotSVG from './assets/icons/red-dot.svg';
 import greenDotSVG from './assets/icons/green-dot.svg';
 import yellowDotSVG from './assets/icons/yellow-dot.svg';
 import orangeDotSVG from './assets/icons/orange-dot.svg';
 import copySVG from './assets/icons/copy.svg';
+import createInvoiceSVG from './assets/icons/create-invoice.svg';
 import closeSVG from './assets/icons/close.svg';
 import closeXWhiteSVG from './assets/icons/close-x-white.svg';
 import closeXDarkSVG from './assets/icons/close-x-dark.svg';
@@ -55,6 +57,8 @@ import externalLinkGraySVG from './assets/icons/external-link-gray.svg';
 import eyeClosedSVG from './assets/icons/eye-closed.svg';
 import eyeOpenedSVG from './assets/icons/eye-opened.svg';
 import eyeOpenedDarkSVG from './assets/icons/eye-opened-dark.svg';
+import flashWhiteSVG from './assets/icons/flash-white.svg';
+import flashYellowSVG from './assets/icons/flash-yellow.svg';
 import globeDarkSVG from './assets/icons/globe-dark.svg';
 import globeLightSVG from './assets/icons/globe-light.svg';
 import guideSVG from './assets/icons/guide.svg';
@@ -64,11 +68,11 @@ import loupeSVG from './assets/icons/loupe.svg';
 import loupeBlueSVG from './assets/icons/loupe-blue.svg';
 import menuDarkSVG from './assets/icons/menu-dark.svg';
 import menuLightSVG from './assets/icons/menu-light.svg';
-import optimismColorSVG from './assets/optimism-color.svg';
 import walletConnectDarkSVG from './assets/icons/wallet-connect-dark.svg';
 import walletConnectLightSVG from './assets/icons/wallet-connect-light.svg';
 import walletConnectDefaultSVG from './assets/icons/wallet-connect-default.svg';
 import warningSVG from './assets/icons/warning.svg';
+import warningYellowSVG from './assets/icons/warning-yellow.svg';
 import warningPNG from './assets/icons/warning.png';
 import warningOutlinedSVG from './assets/icons/warning-outlined.svg';
 import qrCodeDarkSVG from './assets/icons/qr-dark.svg';
@@ -80,9 +84,11 @@ import outlinedFileProtectLightSVG from './assets/icons/outlined-file-protect-li
 import outlinedFileProtectPrimarySVG from './assets/icons/outlined-file-protect-primary.svg';
 import outlinedUnorderedListDarkSVG from './assets/icons/outlined-unordered-list.svg';
 import outlinedUnorderedListLightSVG from './assets/icons/outlined-unordered-list-light.svg';
+import pasteActiveSVG from './assets/icons/paste-active.svg';
+import pasteDarkSVG from './assets/icons/paste-dark.svg';
+import pasteLightSVG from './assets/icons/paste-light.svg';
 import shieldSVG from './assets/icons/shield.svg';
 import shieldDarkSVG from './assets/icons/shield-dark.svg';
-import shieldLightSVG from './assets/icons/shield-light.svg';
 import syncSVG from './assets/icons/sync.svg';
 import syncLightSVG from './assets/icons/sync-light.svg';
 import selectedCheckLightSVG from './assets/icons/selected-check-light.svg';
@@ -102,6 +108,16 @@ import advancedSettingsIconSVG from './assets/icons/advanced-settings-icon.svg';
 import advancedSettingsIconDarkSVG from './assets/icons/advanced-settings-icon-dark.svg';
 import accountsIconLightSVG from './assets/icons/accounts-icon-light.svg';
 import accountsIconDarkSVG from './assets/icons/accounts-icon-dark.svg';
+import accountsIconBlueSVG from './assets/icons/accounts-icon-blue.svg';
+import lightningIconBlueSVG from './assets/icons/lightning-icon-blue.svg';
+import lightningIconDarkSVG from './assets/icons/lightning-icon-dark.svg';
+import lightningIconLightSVG from './assets/icons/lightning-icon-light.svg';
+import marketplaceIconBlueSVG from './assets/icons/marketplace-icon-blue.svg';
+import marketplaceIconDarkSVG from './assets/icons/marketplace-icon-dark.svg';
+import marketplaceIconLightSVG from './assets/icons/marketplace-icon-light.svg';
+import portfolioIconBlueSVG from './assets/icons/portfolio-icon-blue.svg';
+import portfolioIconDarkSVG from './assets/icons/portfolio-dark.svg';
+import portfolioIconLightSVG from './assets/icons/portfolio-icon-light.svg';
 
 
 type SVGProps = JSX.IntrinsicElements['svg'];
@@ -122,7 +138,6 @@ export const CaretDown = ({ className, ...props }: SVGProps) => (
 type ImgProps = JSX.IntrinsicElements['img'];
 
 export const Abort = (props: ImgProps) => (<img src={abortSVG} draggable={false} {...props} />);
-export const ArbitrumLogo = (props: ImgProps) => (<img src={arbitrumColorSVG} draggable={false} {...props} />);
 export const ArrowDown = (props: ImgProps) => (<img src={arrowDownSVG} draggable={false} {...props} />);
 export const ArrowDownGreen = (props: ImgProps) => (<img src={arrowDownGreenSVG} draggable={false} {...props} />);
 export const ArrowDownRed = (props: ImgProps) => (<img src={arrowDownRedSVG} draggable={false} {...props} />);
@@ -141,10 +156,13 @@ export const ArrowCirlceRightActive = (props: ImgProps) => (<img src={arrowCircl
 export const ArrowSwap = (props: ImgProps) => (<img src={arrowSwapSVG} draggable={false} {...props} />);
 export const BankDark = (props: ImgProps) => (<img src={bankDarkSVG} draggable={false} {...props} />);
 export const Bank = (props: ImgProps) => (<img src={bankLightSVG} draggable={false} {...props} />);
-export const BaseLogo = (props: ImgProps) => (<img src={baseColorSVG} draggable={false} {...props} />);
 export const BitBox02StylizedDark = (props: ImgProps) => (<img src={BB02StylizedDark} draggable={false} {...props} />);
 export const BitBox02StylizedLight = (props: ImgProps) => (<img src={BB02StylizedLight} draggable={false} {...props} />);
 export const BuyInfo = (props: ImgProps) => (<img src={buyInfoSVG} draggable={false} {...props} />);
+export const ChartPerformanceDark = (props: ImgProps) => (<img src={chartPerformanceDarkSVG} draggable={false} {...props} />);
+export const ChartPerformanceWhite = (props: ImgProps) => (<img src={chartPerformanceWhiteSVG} draggable={false} {...props} />);
+export const ChartValueDark = (props: ImgProps) => (<img src={chartValueDarkSVG} draggable={false} {...props} />);
+export const ChartValueWhite = (props: ImgProps) => (<img src={chartValueWhiteSVG} draggable={false} {...props} />);
 // check icon on a green circle
 export const Checked = (props: ImgProps) => (<img src={checkedSmallSVG} draggable={false} {...props} />);
 // simple check for copy component
@@ -158,18 +176,20 @@ export const CreditCard = (props: ImgProps) => (<img src={creditCardLightSVG} dr
 export const CogBlue = (props: ImgProps) => (<img src={cogBlueSVG} draggable={false} {...props} />);
 export const Coins = (props: ImgProps) => (<img src={coinsSVG} draggable={false} {...props} />);
 export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
+export const CreateInvoice = (props: ImgProps) => (<img src={createInvoiceSVG} draggable={false} {...props} />);
 export const Close = (props: ImgProps) => (<img src={closeSVG} draggable={false} {...props} />);
 export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} draggable={false} {...props} />);
 export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggable={false} {...props} />);
 export const Device = (props: ImgProps) => (<img src={deviceSVG} draggable={false} {...props} />);
 export const EditActive = (props: ImgProps) => (<img src={editActiveSVG} draggable={false} {...props} />);
 export const Eject = (props: ImgProps) => (<img src={ejectIconSVG} draggable={false} {...props} />);
-export const ETHLogo = (props: ImgProps) => (<img src={ethColorSVG} draggable={false} {...props} />);
 export const ExternalLink = (props: ImgProps) => (<img src={externalLinkSVG} draggable={false} {...props} />);
 export const ExternalLinkGray = (props: ImgProps) => (<img src={externalLinkGraySVG} draggable={false} {...props} />);
 export const EyeClosed = (props: ImgProps) => (<img src={eyeClosedSVG} draggable={false} {...props} />);
 export const EyeOpened = (props: ImgProps) => (<img src={eyeOpenedSVG} draggable={false} {...props} />);
 export const EyeOpenedDark = (props: ImgProps) => (<img src={eyeOpenedDarkSVG} draggable={false} {...props} />);
+export const FlashWhite = (props: ImgProps) => (<img src={flashWhiteSVG} draggable={false} {...props} />);
+export const FlashYellow = (props: ImgProps) => (<img src={flashYellowSVG} draggable={false} {...props} />);
 export const GlobeDark = (props: ImgProps) => (<img src={globeDarkSVG} draggable={false} {...props} />);
 export const GlobeLight = (props: ImgProps) => (<img src={globeLightSVG} draggable={false} {...props} />);
 export const GreenDot = (props: ImgProps) => (<img src={greenDotSVG} draggable={false} {...props} />);
@@ -181,7 +201,6 @@ export const Loupe = (props: ImgProps) => (<img src={loupeSVG} draggable={false}
 export const LoupeBlue = (props: ImgProps) => (<img src={loupeBlueSVG} draggable={false} {...props} />);
 export const MenuDark = (props: ImgProps) => (<img src={menuDarkSVG} draggable={false} {...props} />);
 export const MenuLight = (props: ImgProps) => (<img src={menuLightSVG} draggable={false} {...props} />);
-export const OptimismLogo = (props: ImgProps) => (<img src={optimismColorSVG} draggable={false} {...props} />);
 export const OrangeDot = (props: ImgProps) => (<img src={orangeDotSVG} draggable={false} {...props} />);
 export const OutlinedUploadDark = (props: ImgProps) => (<img src={outlinedUploadDarkSVG} draggable={false} {...props} />);
 export const OutlinedUploadLight = (props: ImgProps) => (<img src={outlinedUploadLightSVG} draggable={false} {...props} />);
@@ -190,6 +209,9 @@ export const OutlinedFileProtectLight = (props: ImgProps) => (<img src={outlined
 export const OutlinedFileProtectPrimary = (props: ImgProps) => (<img src={outlinedFileProtectPrimarySVG} draggable={false} {...props} />);
 export const OutlinedUnorderedListDark = (props: ImgProps) => (<img src={outlinedUnorderedListDarkSVG} draggable={false} {...props} />);
 export const OutlinedUnorderedListLight = (props: ImgProps) => (<img src={outlinedUnorderedListLightSVG} draggable={false} {...props} />);
+export const PasteActive = (props: ImgProps) => (<img src={pasteActiveSVG} draggable={false} {...props} />);
+export const PasteLight = (props: ImgProps) => (<img src={pasteLightSVG} draggable={false} {...props} />);
+export const PasteDark = (props: ImgProps) => (<img src={pasteDarkSVG} draggable={false} {...props} />);
 export const WalletConnectDark = (props: ImgProps) => (<img src={walletConnectDarkSVG} draggable={false} {...props} />);
 export const WalletConnectLight = (props: ImgProps) => (<img src={walletConnectLightSVG} draggable={false} {...props} />);
 export const WalletConnectDefaultLogo = (props: ImgProps) => (<img src={walletConnectDefaultSVG} draggable={false} {...props} />);
@@ -198,13 +220,13 @@ export const QRCodeLight = (props: ImgProps) => (<img src={qrCodeLightSVG} dragg
 export const RedDot = (props: ImgProps) => (<img src={redDotSVG} draggable={false} {...props} />);
 export const Shield = (props: ImgProps) => (<img src={shieldSVG} draggable={false} {...props} />);
 export const ShieldDark = (props: ImgProps) => (<img src={shieldDarkSVG} draggable={false} {...props} />);
-export const ShieldLight = (props: ImgProps) => (<img src={shieldLightSVG} draggable={false} {...props} />);
 export const SpinnerRingDark = (props: ImgProps) => (<img src={spinnerRingDarkSVG} draggable={false} {...props} />);
 export const SpinnerRingLight = (props: ImgProps) => (<img src={spinnerRingLightSVG} draggable={false} {...props} />);
 export const Sync = (props: ImgProps) => (<img src={syncSVG} draggable={false} {...props} />);
 export const SyncLight = (props: ImgProps) => (<img src={syncLightSVG} draggable={false} {...props} />);
 export const SelectedCheckLight = (props: ImgProps) => (<img src={selectedCheckLightSVG} draggable={false} {...props} />);
 export const Warning = (props: ImgProps) => (<img src={warningSVG} draggable={false} {...props} />);
+export const WarningYellow = (props: ImgProps) => (<img src={warningYellowSVG} draggable={false} {...props} />);
 /* WarningOLD is only used in attestation-check-settings and bip-85-settings */
 export const WarningOLD = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
 /* WarningOutlined is only used in factory reset */
@@ -224,8 +246,18 @@ export const AdvancedSettingsIcon = (props: ImgProps) => (<img src={advancedSett
 export const AdvancedSettingsIconDark = (props: ImgProps) => (<img src={advancedSettingsIconDarkSVG} draggable={false} {...props} />);
 export const AccountsIconLight = (props: ImgProps) => (<img src={accountsIconLightSVG} draggable={false} {...props} />);
 export const AccountsIconDark = (props: ImgProps) => (<img src={accountsIconDarkSVG} draggable={false} {...props} />);
+export const AccountsIconBlue = (props: ImgProps) => (<img src={accountsIconBlueSVG} draggable={false} {...props} />);
 export const CogLight = (props: ImgProps) => (<img src={cogLightSVG} draggable={false} {...props} />);
 export const CogDark = (props: ImgProps) => (<img src={cogDarkSVG} draggable={false} {...props} />);
+export const LightningIconBlue = (props: ImgProps) => (<img src={lightningIconBlueSVG} draggable={false} {...props} />);
+export const LightningIconDark = (props: ImgProps) => (<img src={lightningIconDarkSVG} draggable={false} {...props} />);
+export const LightningIconLight = (props: ImgProps) => (<img src={lightningIconLightSVG} draggable={false} {...props} />);
+export const MarketplaceIconBlue = (props: ImgProps) => (<img src={marketplaceIconBlueSVG} draggable={false} {...props} />);
+export const MarketplaceIconDark = (props: ImgProps) => (<img src={marketplaceIconDarkSVG} draggable={false} {...props} />);
+export const MarketplaceIconLight = (props: ImgProps) => (<img src={marketplaceIconLightSVG} draggable={false} {...props} />);
+export const PortfolioIconBlue = (props: ImgProps) => (<img src={portfolioIconBlueSVG} draggable={false} {...props} />);
+export const PortfolioIconDark = (props: ImgProps) => (<img src={portfolioIconDarkSVG} draggable={false} {...props} />);
+export const PortfolioIconLight = (props: ImgProps) => (<img src={portfolioIconLightSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
  */

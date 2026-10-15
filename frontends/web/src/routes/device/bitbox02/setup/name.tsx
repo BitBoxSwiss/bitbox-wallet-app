@@ -5,10 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
 import { Button, Input } from '@/components/forms';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { checkSDCard } from '@/api/bitbox02';
 import { useValidateDeviceName } from '@/hooks/devicename';
 import { TDeviceNameError } from '@/utils/types';
+import { Header } from '@/components/layout';
 import style from './name.module.css';
 
 type TProps = {
@@ -41,6 +42,12 @@ export const SetDeviceName = ({
         withBottomBar
         verticallyCentered
         width="600px">
+        <Header
+          mobileBackButton
+          variant="fullscreen"
+          onBack={onBack}
+          title={t('bitbox02Wizard.stepUninitialized.title')}
+        />
         <ViewHeader
           small
           title={t('bitbox02Wizard.stepCreate.title')}
@@ -72,11 +79,11 @@ export const SetDeviceName = ({
             type="submit">
             {t('button.continue')}
           </Button>
-          <BackButton
+          <DesktopBackButton
             onClick={onBack}
           >
             {t('button.back')}
-          </BackButton>
+          </DesktopBackButton>
         </ViewButtons>
       </View>
     </form>

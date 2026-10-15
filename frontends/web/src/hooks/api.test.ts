@@ -11,6 +11,14 @@ import { act } from 'react';
 
 const useMountedRefSpy = vi.spyOn(utils, 'useMountedRef');
 
+const deferred = <T, >() => {
+  let resolve: (value: T) => void = () => {};
+  const promise = new Promise<T>((nextResolve) => {
+    resolve = nextResolve;
+  });
+  return { promise, resolve };
+};
+
 describe('hooks for api calls', () => {
   beforeEach(() => {
     useMountedRefSpy.mockReturnValue({ current: true });
@@ -70,6 +78,39 @@ describe('hooks for api calls', () => {
       await waitFor(() => expect(result.current.versionInfo).toBeUndefined());
       expect(mockApiCall).toHaveBeenCalledTimes(1);
     });
+
+    it('ignores stale resolved values when dependencies change', async () => {
+      const firstRequest = deferred<string>();
+      const secondRequest = deferred<string>();
+      const mockApiCall = vi.fn()
+        .mockReturnValueOnce(firstRequest.promise)
+        .mockReturnValueOnce(secondRequest.promise);
+
+      const { result } = renderHook(() => {
+        const [state, setState] = useState(1);
+        const value = useLoad(() => mockApiCall(state), [state]);
+        return { setState, value };
+      });
+
+      await waitFor(() => expect(mockApiCall).toHaveBeenCalledTimes(1));
+
+      act(() => result.current.setState(2));
+
+      await waitFor(() => expect(mockApiCall).toHaveBeenCalledTimes(2));
+
+      await act(async () => {
+        secondRequest.resolve('second');
+        await secondRequest.promise;
+      });
+      await waitFor(() => expect(result.current.value).toBe('second'));
+
+      await act(async () => {
+        firstRequest.resolve('first');
+        await firstRequest.promise;
+      });
+
+      expect(result.current.value).toBe('second');
+    });
   });
 
   describe('useSubscribe', () => {
@@ -95,6 +136,34 @@ describe('hooks for api calls', () => {
 
 
   describe('useSync', () => {
+    it('preserves a status update that arrives before the initial request resolves', async () => {
+      const initialStatus = deferred<string>();
+      let updateStatus: TSubscriptionCallback<string> = () => {};
+      const subscribeStatus = (callback: TSubscriptionCallback<string>) => {
+        updateStatus = callback;
+        return () => {};
+      };
+      const { result } = renderHook(() => useSync(() => initialStatus.promise, subscribeStatus));
+
+      act(() => updateStatus('unpaired'));
+      expect(result.current).toBe('unpaired');
+
+      await act(async () => {
+        initialStatus.resolve('connected');
+        await initialStatus.promise;
+      });
+      expect(result.current).toBe('unpaired');
+
+      act(() => updateStatus('uninitialized'));
+      expect(result.current).toBe('uninitialized');
+    });
+
+    it('returns undefined when apiCall and subscription are null', () => {
+      const { result } = renderHook(() => useSync<string>(null, null));
+
+      expect(result.current).toBeUndefined();
+    });
+
     it('should load promise and sync to a subscription function', async () => {
       const apiValue = 'apiValue';
       const subscriptionValue = 'subscriptionValue';
@@ -136,6 +205,44 @@ describe('hooks for api calls', () => {
       // Finally, we wait until the hook updates its internal state
       // and returns it. The returned value should be `subscriptionValue`
       await waitFor(() => expect(result.current).toBe(subscriptionValue));
+    });
+
+    it.each([1, 3])('keeps the response with the highest revision (API revision %i)', async (apiRevision) => {
+      type TRevisionedValue = {
+        revision: number;
+        value: string;
+      };
+      const apiValue: TRevisionedValue = { revision: apiRevision, value: 'apiValue' };
+      const subscriptionValue: TRevisionedValue = { revision: 2, value: 'subscriptionValue' };
+      const latestValue = apiRevision > subscriptionValue.revision ? apiValue : subscriptionValue;
+      let resolveApiCall: (value: TRevisionedValue) => void = () => {};
+      let subscriptionCallback: TSubscriptionCallback<TRevisionedValue> | undefined;
+      const apiPromise = new Promise<TRevisionedValue>((resolve) => {
+        resolveApiCall = resolve;
+      });
+      const mockApiCall = vi.fn(() => apiPromise);
+      const mockSubscription = vi.fn((callback: TSubscriptionCallback<TRevisionedValue>) => {
+        subscriptionCallback = callback;
+        return () => {};
+      });
+
+      const { result } = renderHook(() => useSync(
+        mockApiCall,
+        mockSubscription,
+        data => data.revision,
+      ));
+
+      act(() => subscriptionCallback?.(subscriptionValue));
+      await waitFor(() => expect(result.current).toBe(subscriptionValue));
+
+      await act(async () => {
+        resolveApiCall(apiValue);
+        await apiPromise;
+      });
+      expect(result.current).toBe(latestValue);
+
+      act(() => subscriptionCallback?.(apiValue));
+      expect(result.current).toBe(latestValue);
     });
   });
 });

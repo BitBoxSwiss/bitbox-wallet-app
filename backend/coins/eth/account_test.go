@@ -5,7 +5,6 @@ package eth
 import (
 	"context"
 	"math/big"
-	"net/http"
 	"os"
 	"testing"
 	"time"
@@ -13,18 +12,18 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
+	"github.com/btcsuite/btcd/chaincfg/v2"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -38,14 +37,18 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func newAccountWithOptions(t *testing.T, skipInitialSync bool, enqueueUpdateCh chan *Account) *Account {
+func newAccountWithOptions(t *testing.T, skipInitialSync bool, enqueueUpdateCh chan struct{}) *Account {
 	t.Helper()
 	log := logging.Get().WithGroup("account_test")
 
 	net := &chaincfg.TestNet3Params
 
 	dbFolder := test.TstTempDir("eth-dbfolder")
-	defer func() { _ = os.RemoveAll(dbFolder) }()
+	notesFolder := test.TstTempDir("eth-notesfolder")
+	t.Cleanup(func() {
+		_ = os.RemoveAll(dbFolder)
+		_ = os.RemoveAll(notesFolder)
+	})
 
 	keypath, err := signing.NewAbsoluteKeypath("m/60'/1'/0'/0")
 	require.NoError(t, err)
@@ -60,29 +63,34 @@ func newAccountWithOptions(t *testing.T, skipInitialSync bool, enqueueUpdateCh c
 		xpub)}
 
 	client := &mocks.InterfaceMock{
+		BlockNumberFunc: func(context.Context) (*big.Int, error) { return big.NewInt(100), nil },
 		EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
 			return 21000, nil
 		},
-		BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
+		BalanceFunc: func(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error) {
 			return big.NewInt(1e18), nil
 		},
 		PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
 			return 0, nil
 		},
+		SuggestGasPriceFunc: func(ctx context.Context) (*big.Int, error) {
+			return big.NewInt(1), nil
+		},
 	}
 	coin := NewCoin(client, coin.CodeSEPETH, "Sepolia", "SEPETH", "SEPETH", params.SepoliaChainConfig, "", nil, nil)
+	outgoing, err := NewOutgoingTransactions(dbFolder)
+	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, outgoing.Close()) })
 	acct := NewAccount(
 		&accounts.AccountConfig{
-			Config: &config.Account{
-				Code:                  "accountcode",
-				Name:                  "accountname",
-				SigningConfigurations: signingConfigurations,
-			},
-			DBFolder:        dbFolder,
-			SkipInitialSync: skipInitialSync,
-			RateUpdater:     nil,
-			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
-			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
+			Code:                  "accountcode",
+			SigningConfigurations: signingConfigurations,
+			DBFolder:              dbFolder,
+			NotesFolder:           notesFolder,
+			SkipInitialSync:       skipInitialSync,
+			RateUpdater:           nil,
+			GetNotifier:           func(signing.Configurations) accounts.Notifier { return nil },
+			GetSaveFilename:       func(suggestedFilename string) string { return suggestedFilename },
 			ConnectKeystore: func() (keystore.Keystore, error) {
 				ks := &keystoremock.KeystoreMock{
 					SupportsEIP1559Func: func() bool {
@@ -93,7 +101,7 @@ func newAccountWithOptions(t *testing.T, skipInitialSync bool, enqueueUpdateCh c
 			},
 		},
 		coin,
-		&http.Client{},
+		outgoing,
 		log,
 		enqueueUpdateCh,
 	)
@@ -103,45 +111,31 @@ func newAccountWithOptions(t *testing.T, skipInitialSync bool, enqueueUpdateCh c
 
 func newAccount(t *testing.T) *Account {
 	t.Helper()
-	return newAccountWithOptions(t, false, make(chan *Account))
+	return newAccountWithOptions(t, false, make(chan struct{}))
 }
 
 func TestInitializeEnqueueUpdate(t *testing.T) {
 	t.Run("default", func(t *testing.T) {
-		enqueueUpdateCh := make(chan *Account, 1)
+		enqueueUpdateCh := make(chan struct{}, 1)
 		acct := newAccountWithOptions(t, false, enqueueUpdateCh)
 		defer acct.Close()
 
-		require.Eventually(t, func() bool {
-			select {
-			case <-enqueueUpdateCh:
-				return true
-			default:
-				return false
-			}
-		}, time.Second, 10*time.Millisecond)
+		require.Len(t, enqueueUpdateCh, 1)
 	})
 
 	t.Run("skip-initial-sync", func(t *testing.T) {
-		enqueueUpdateCh := make(chan *Account, 1)
+		enqueueUpdateCh := make(chan struct{}, 1)
 		acct := newAccountWithOptions(t, true, enqueueUpdateCh)
 		defer acct.Close()
 
-		assert.Never(t, func() bool {
-			select {
-			case <-enqueueUpdateCh:
-				return true
-			default:
-				return false
-			}
-		}, 200*time.Millisecond, 10*time.Millisecond)
+		require.Empty(t, enqueueUpdateCh)
 	})
 }
 
 func TestTxProposal(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil))
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil, outgoingTxs(t, acct)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	t.Run("valid", func(t *testing.T) {
@@ -167,7 +161,7 @@ func TestTxProposal(t *testing.T) {
 	})
 	t.Run("valid-address-uppercase", func(t *testing.T) {
 		_, _, _, err := acct.TxProposal(&accounts.TxProposalArgs{
-			RecipientAddress: "0XA29163852021BF4C139D03DFF59AE763AC73E84E",
+			RecipientAddress: "0xA29163852021BF4C139D03DFF59AE763AC73E84E",
 			Amount:           coin.NewSendAmount("0.1"),
 			FeeTargetCode:    accounts.FeeTargetCodeCustom,
 			CustomFee:        "20",
@@ -196,34 +190,87 @@ func TestTxProposal(t *testing.T) {
 	})
 }
 
+func TestIsValidEthAddress(t *testing.T) {
+	for _, address := range []string{
+		"0xa29163852021BF4C139D03Dff59ae763AC73e84e",
+		"0Xa29163852021BF4C139D03Dff59ae763AC73e84e",
+		"a29163852021BF4C139D03Dff59ae763AC73e84e",
+	} {
+		require.True(t, IsValidEthAddress(address), address)
+	}
+	require.False(t, IsValidEthAddress("0xA29163852021BF4C139D03Dff59ae763AC73e84e"))
+}
+
+func TestERC20TxProposalRejectsAmountOverflow(t *testing.T) {
+	acct := newAccount(t)
+	defer acct.Close()
+	acct.coin.erc20Token = erc20.NewToken("0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7", 0)
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil, outgoingTxs(t, acct)))
+	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
+
+	_, _, _, err := acct.TxProposal(&accounts.TxProposalArgs{
+		RecipientAddress: "0xa29163852021BF4C139D03Dff59ae763AC73e84e",
+		Amount: coin.NewSendAmount(
+			"115792089237316195423570985008687907853269984665640564039457584007913129639936"),
+		FeeTargetCode: accounts.FeeTargetCodeCustom,
+		CustomFee:     "20",
+	})
+	require.Equal(t, errors.ErrInvalidAmount, errp.Cause(err))
+}
+
+func (account *Account) nextNonce() (uint64, error) {
+	sender, unlock, err := account.outgoing.lock(account.coin.ChainID(), account.address.Address)
+	if err != nil {
+		return 0, err
+	}
+	defer unlock()
+	_, consumedBelow, err := sender.refresh(account.coin.client)
+	if err != nil {
+		return 0, err
+	}
+	return sender.nextNonce(account.coin.client, consumedBelow)
+}
+
 func newTestOutgoingTx() *gethtypes.Transaction {
+	return gethtypes.NewTx(newTestOutgoingTxData())
+}
+
+func newTestOutgoingTxData() *gethtypes.LegacyTx {
 	to := common.HexToAddress("0xa29163852021BF4C139D03Dff59ae763AC73e84e")
-	return gethtypes.NewTx(&gethtypes.LegacyTx{
+	return &gethtypes.LegacyTx{
 		Nonce:    0,
 		GasPrice: big.NewInt(1),
 		Gas:      21000,
 		To:       &to,
 		Value:    big.NewInt(1),
-	})
+	}
 }
 
-func putOutgoingTx(t *testing.T, account *Account, tx *ethtypes.TransactionWithMetadata) {
+func putOutgoingTx(t *testing.T, account *Account, record *ethtypes.TransactionWithMetadata) {
 	t.Helper()
-	dbTx, err := account.db.Begin()
+	sender, unlock, err := account.outgoing.lock(account.coin.ChainID(), account.address.Address)
 	require.NoError(t, err)
-	defer dbTx.Rollback()
-	require.NoError(t, dbTx.PutOutgoingTransaction(tx))
-	require.NoError(t, dbTx.Commit())
+	defer unlock()
+	require.NoError(t, sender.save(map[common.Hash]*ethtypes.TransactionWithMetadata{record.Transaction.Hash(): record}, nil))
 }
 
 func outgoingTxs(t *testing.T, account *Account) []*ethtypes.TransactionWithMetadata {
 	t.Helper()
-	dbTx, err := account.db.Begin()
+	sender, unlock, err := account.outgoing.lock(account.coin.ChainID(), account.address.Address)
 	require.NoError(t, err)
-	defer dbTx.Rollback()
-	txs, err := dbTx.OutgoingTransactions()
+	defer unlock()
+	var records []*ethtypes.TransactionWithMetadata
+	for _, record := range sender.records {
+		snapshot := *record
+		records = append(records, &snapshot)
+	}
+	return records
+}
+
+func reconcileOutgoing(t *testing.T, account *Account, height uint64) {
+	t.Helper()
+	_, err := account.updateOutgoingTransactions(height)
 	require.NoError(t, err)
-	return txs
 }
 
 func TestOutgoingTransactionIsFinal(t *testing.T) {
@@ -287,7 +334,7 @@ func TestOutgoingTransactionIsFinal(t *testing.T) {
 }
 
 func TestUpdateOutgoingTransactionsSkipsFinalTransactions(t *testing.T) {
-	account := newAccountWithOptions(t, true, make(chan *Account, 1))
+	account := newAccountWithOptions(t, true, make(chan struct{}, 1))
 	defer account.Close()
 	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
 		Transaction:            newTestOutgoingTx(),
@@ -299,18 +346,19 @@ func TestUpdateOutgoingTransactionsSkipsFinalTransactions(t *testing.T) {
 
 	var receiptCalls int
 	account.ETHCoin().TstSetClient(&mocks.InterfaceMock{
-		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+		NonceAtFunc: func(context.Context, common.Address, *big.Int) (uint64, error) { return 0, nil },
+		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*gethtypes.Receipt, error) {
 			receiptCalls++
 			return nil, errp.New("receipt should not be fetched")
 		},
 	})
 
-	account.updateOutgoingTransactions(100)
+	reconcileOutgoing(t, account, 100)
 	require.Equal(t, 0, receiptCalls)
 }
 
 func TestUpdateOutgoingTransactionsPollsFinalTransactionUntilFinalityChecked(t *testing.T) {
-	account := newAccountWithOptions(t, true, make(chan *Account, 1))
+	account := newAccountWithOptions(t, true, make(chan struct{}, 1))
 	defer account.Close()
 	tx := newTestOutgoingTx()
 	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
@@ -323,20 +371,19 @@ func TestUpdateOutgoingTransactionsPollsFinalTransactionUntilFinalityChecked(t *
 
 	var receiptCalls int
 	account.ETHCoin().TstSetClient(&mocks.InterfaceMock{
-		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+		NonceAtFunc: func(context.Context, common.Address, *big.Int) (uint64, error) { return 0, nil },
+		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*gethtypes.Receipt, error) {
 			receiptCalls++
 			require.Equal(t, tx.Hash(), hash)
-			return &rpcclient.RPCTransactionReceipt{
-				Receipt: gethtypes.Receipt{
-					Status:  gethtypes.ReceiptStatusSuccessful,
-					GasUsed: 21000,
-				},
-				BlockNumber: 89,
+			return &gethtypes.Receipt{
+				Status:      gethtypes.ReceiptStatusSuccessful,
+				GasUsed:     21000,
+				BlockNumber: big.NewInt(89),
 			}, nil
 		},
 	})
 
-	account.updateOutgoingTransactions(100)
+	reconcileOutgoing(t, account, 100)
 	require.Equal(t, 1, receiptCalls)
 	txs := outgoingTxs(t, account)
 	require.Len(t, txs, 1)
@@ -344,7 +391,7 @@ func TestUpdateOutgoingTransactionsPollsFinalTransactionUntilFinalityChecked(t *
 }
 
 func TestUpdateOutgoingTransactionsPollsRecentConfirmedTransactions(t *testing.T) {
-	account := newAccountWithOptions(t, true, make(chan *Account, 1))
+	account := newAccountWithOptions(t, true, make(chan struct{}, 1))
 	defer account.Close()
 	tx := newTestOutgoingTx()
 	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
@@ -356,20 +403,19 @@ func TestUpdateOutgoingTransactionsPollsRecentConfirmedTransactions(t *testing.T
 
 	var receiptCalls int
 	account.ETHCoin().TstSetClient(&mocks.InterfaceMock{
-		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+		NonceAtFunc: func(context.Context, common.Address, *big.Int) (uint64, error) { return 0, nil },
+		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*gethtypes.Receipt, error) {
 			receiptCalls++
 			require.Equal(t, tx.Hash(), hash)
-			return &rpcclient.RPCTransactionReceipt{
-				Receipt: gethtypes.Receipt{
-					Status:  gethtypes.ReceiptStatusSuccessful,
-					GasUsed: 42000,
-				},
-				BlockNumber: 90,
+			return &gethtypes.Receipt{
+				Status:      gethtypes.ReceiptStatusSuccessful,
+				GasUsed:     42000,
+				BlockNumber: big.NewInt(90),
 			}, nil
 		},
 	})
 
-	account.updateOutgoingTransactions(100)
+	reconcileOutgoing(t, account, 100)
 	require.Equal(t, 1, receiptCalls)
 	txs := outgoingTxs(t, account)
 	require.Len(t, txs, 1)
@@ -378,7 +424,7 @@ func TestUpdateOutgoingTransactionsPollsRecentConfirmedTransactions(t *testing.T
 }
 
 func TestUpdateOutgoingTransactionsStillChecksPendingTransactions(t *testing.T) {
-	account := newAccountWithOptions(t, true, make(chan *Account, 1))
+	account := newAccountWithOptions(t, true, make(chan struct{}, 1))
 	defer account.Close()
 	tx := newTestOutgoingTx()
 	putOutgoingTx(t, account, &ethtypes.TransactionWithMetadata{
@@ -390,10 +436,11 @@ func TestUpdateOutgoingTransactionsStillChecksPendingTransactions(t *testing.T) 
 	var transactionByHashCalls int
 	var sendCalls int
 	account.ETHCoin().TstSetClient(&mocks.InterfaceMock{
-		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
+		NonceAtFunc: func(context.Context, common.Address, *big.Int) (uint64, error) { return 0, nil },
+		TransactionReceiptWithBlockNumberFunc: func(ctx context.Context, hash common.Hash) (*gethtypes.Receipt, error) {
 			receiptCalls++
 			require.Equal(t, tx.Hash(), hash)
-			return nil, errp.New("not found")
+			return nil, nil
 		},
 		TransactionByHashFunc: func(ctx context.Context, hash common.Hash) (*gethtypes.Transaction, bool, error) {
 			transactionByHashCalls++
@@ -406,7 +453,7 @@ func TestUpdateOutgoingTransactionsStillChecksPendingTransactions(t *testing.T) 
 		},
 	})
 
-	account.updateOutgoingTransactions(100)
+	reconcileOutgoing(t, account, 100)
 	require.Equal(t, 1, receiptCalls)
 	require.Equal(t, 1, transactionByHashCalls)
 	require.Equal(t, 0, sendCalls)
@@ -415,7 +462,7 @@ func TestUpdateOutgoingTransactionsStillChecksPendingTransactions(t *testing.T) 
 func TestMatchesAddress(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil))
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil, outgoingTxs(t, acct)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	// Test invalid Ethereum address
@@ -453,7 +500,7 @@ func TestMatchesAddress(t *testing.T) {
 func TestSignETHMessage(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
-	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil))
+	require.NoError(t, acct.Update(big.NewInt(1e18), big.NewInt(100), nil, outgoingTxs(t, acct)))
 	require.Eventually(t, acct.Synced, time.Second, time.Millisecond*200)
 
 	t.Run("empty message", func(t *testing.T) {
@@ -512,4 +559,114 @@ func TestSignMsgUsesAccountChainID(t *testing.T) {
 	signature, err := acct.SignMsg("0x68656c6c6f")
 	require.NoError(t, err)
 	require.Equal(t, "0xdeadbeef", signature)
+}
+
+func TestSendTxSucceedsWhenPendingStorageFailsAfterBroadcast(t *testing.T) {
+	enqueueUpdateCh := make(chan struct{}, 1)
+	acct := newAccountWithOptions(t, true, enqueueUpdateCh)
+	defer acct.Close()
+
+	nativeClient := newTransactionRPCClient(0, 21000, big.NewInt(3), nil)
+	acct.ETHCoin().TstSetClient(nativeClient)
+	setTransactionSigningKeystore(t, acct, acct.ETHCoin().ChainID())
+	to := common.HexToAddress("0xa29163852021BF4C139D03Dff59ae763AC73e84e")
+	acct.activeTxProposal = &pendingTxProposal{
+		txData: &gethtypes.LegacyTx{
+			Nonce:    0,
+			GasPrice: big.NewInt(3),
+			Gas:      21000,
+			To:       &to,
+			Value:    big.NewInt(1),
+		},
+	}
+	failingDB := &beginFailingDB{Interface: acct.outgoing.db}
+	acct.outgoing.db = failingDB
+	nativeClient.SendTransactionFunc = func(context.Context, *gethtypes.Transaction) error {
+		failingDB.err = errp.New("pending storage failed")
+		return nil
+	}
+
+	txID, err := acct.SendTx("")
+	require.NoError(t, err)
+	require.Equal(t, 2, failingDB.beginCalls) // Load records, then attempt to store the broadcast.
+	require.Equal(t, outgoingTxs(t, acct)[0].Transaction.Hash().String(), txID)
+	require.Len(t, nativeClient.SendTransactionCalls(), 1)
+	require.Len(t, outgoingTxs(t, acct), 1)
+	require.Len(t, enqueueUpdateCh, 1)
+}
+
+func TestSendTxFinalNonceAndRetry(t *testing.T) {
+	for _, txType := range []uint8{gethtypes.LegacyTxType, gethtypes.DynamicFeeTxType} {
+		t.Run(new(big.Int).SetUint64(uint64(txType)).String(), func(t *testing.T) {
+			account := newAccount(t)
+			defer account.Close()
+			client := newTransactionRPCClient(7, 21000, big.NewInt(1), context.DeadlineExceeded)
+			account.coin.client = client
+			require.NoError(t, account.Update(big.NewInt(1000000), big.NewInt(100), nil, outgoingTxs(t, account)))
+			require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+			account.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+				return &keystoremock.KeystoreMock{
+					SupportsEIP1559Func: func() bool { return txType == gethtypes.DynamicFeeTxType },
+					SignTransactionFunc: func(interface{}) error { return keystore.ErrSigningAborted },
+				}, nil
+			}
+			recipient := "0xa29163852021BF4C139D03Dff59ae763AC73e84e"
+			value, fee, _, err := account.TxProposal(&accounts.TxProposalArgs{
+				RecipientAddress: recipient, Amount: coin.NewSendAmountAll(), FeeTargetCode: accounts.FeeTargetCodeNormal,
+			})
+			require.NoError(t, err)
+			require.Empty(t, client.PendingNonceAtCalls())
+			pending := account.activeTxProposal
+			_, err = account.SendTx("")
+			require.ErrorIs(t, err, keystore.ErrSigningAborted)
+			require.Same(t, pending, account.activeTxProposal)
+			require.Empty(t, client.SendTransactionCalls())
+
+			setTransactionSigningKeystore(t, account, account.coin.ChainID())
+			// Only the nonce may change after the user reviewed the send-all proposal.
+			require.NoError(t, account.Update(big.NewInt(2000000), big.NewInt(101), nil, outgoingTxs(t, account)))
+			client.SuggestGasPriceFunc = func(context.Context) (*big.Int, error) { return big.NewInt(5), nil }
+			client.PendingNonceAtFunc = func(context.Context, common.Address) (uint64, error) { return 9, nil }
+			_, err = account.SendTx("")
+			require.ErrorIs(t, err, ErrBroadcastUncertain)
+			require.Len(t, client.SendTransactionCalls(), 1)
+			signed := client.SendTransactionCalls()[0].Tx
+			require.Equal(t, uint64(9), signed.Nonce())
+			require.Equal(t, txType, signed.Type())
+			require.Equal(t, recipient, signed.To().Hex())
+			require.Equal(t, value.BigInt(), signed.Value())
+			require.Equal(t, fee.BigInt(), new(big.Int).Sub(signed.Cost(), signed.Value()))
+			require.Len(t, client.EstimateGasCalls(), 1)
+			require.Len(t, client.SuggestGasPriceCalls(), 1)
+			// Acceptance may advance the nonce and spend the balance before the response arrives.
+			client.PendingNonceAtFunc = func(context.Context, common.Address) (uint64, error) { return 10, nil }
+			client.BalanceFunc = func(context.Context, common.Address, *big.Int) (*big.Int, error) { return big.NewInt(0), nil }
+			account.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+				return &keystoremock.KeystoreMock{SignTransactionFunc: func(interface{}) error {
+					t.Fatal("a broadcast retry must not sign a new transaction")
+					return nil
+				}}, nil
+			}
+			// A refused retry does not resolve the earlier ambiguous submission.
+			client.SendTransactionFunc = func(context.Context, *gethtypes.Transaction) error {
+				return rpcclient.ErrRequestRejected
+			}
+			_, err = account.SendTx("")
+			require.ErrorIs(t, err, ErrBroadcastUncertain)
+			require.Equal(t, signed.Hash(), client.SendTransactionCalls()[1].Tx.Hash())
+			// Resolve a subsequent broadcast error using the original transaction hash.
+			client.TransactionByHashFunc = func(_ context.Context, hash common.Hash) (*gethtypes.Transaction, bool, error) {
+				require.Equal(t, signed.Hash(), hash)
+				return signed, false, nil
+			}
+			txID, err := account.SendTx("")
+			require.NoError(t, err)
+			require.Equal(t, signed.Hash().Hex(), txID)
+			require.Len(t, outgoingTxs(t, account), 1)
+			require.Equal(t, signed.Hash(), client.SendTransactionCalls()[2].Tx.Hash())
+			_, err = account.SendTx("")
+			require.EqualError(t, err, "No active tx proposal")
+			require.Len(t, client.SendTransactionCalls(), 3)
+		})
+	}
 }

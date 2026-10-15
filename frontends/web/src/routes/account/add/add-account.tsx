@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { TCoin, getSupportedCoins } from '@/api/backend';
 import { subscribeKeystores } from '@/api/keystores';
-import { addAccount, CoinCode, TAddAccount, TAccount } from '@/api/account';
+import { addAccount, CoinCode, TAddAccount } from '@/api/account';
+import { useAppState } from '@/contexts/app-state-context';
 import { SimpleMarkup } from '@/utils/markup';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
@@ -16,7 +17,7 @@ import { CoinDropDown } from '@/components/dropdown/coin-dropdown';
 import { SubTitle } from '@/components/title';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { UseBackButton } from '@/hooks/backbutton';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { AddAccountGuide } from './add-account-guide';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import styles from './add-account.module.css';
@@ -95,13 +96,10 @@ const AddAccountSteps = ({
   }
 };
 
-type TAddAccountProps = {
-  accounts: TAccount[];
-};
-
-export const AddAccount = ({ accounts }: TAddAccountProps) => {
+export const AddAccount = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { accounts } = useAppState();
   const [accountCode, setAccountCode] = useState<string>();
   const [accountName, setAccountName] = useState('');
   const [coinCode, setCoinCode] = useState<'choose' | CoinCode>('choose');
@@ -238,10 +236,15 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { titleText, nextButtonText } = getTextFor(step);
   return (
-    <Main>
-      <GuideWrapper>
-        <GuidedContent>
-          <Header title={<h2>{t('manageAccounts.title')}</h2>} />
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Header
+            variant="navigation"
+            mobileBackButton
+            onBack={back}
+            title={t('manageAccounts.title')}
+          />
           <View
             fitContent
             textCenter
@@ -309,18 +312,18 @@ export const AddAccount = ({ accounts }: TAddAccountProps) => {
                     {t('addAccount.success.addAnotherAccount')}
                   </Button>
                 ) : (
-                  <BackButton
+                  <DesktopBackButton
                     onClick={back}
                   >
                     {t('button.back')}
-                  </BackButton>
+                  </DesktopBackButton>
                 )}
               </ViewButtons>
             </form>
           </View>
-        </GuidedContent>
-        <AddAccountGuide accounts={accounts} />
-      </GuideWrapper>
-    </Main>
+        </Main>
+      </GuidedContent>
+      <AddAccountGuide accounts={accounts} />
+    </GuideWrapper>
   );
 };

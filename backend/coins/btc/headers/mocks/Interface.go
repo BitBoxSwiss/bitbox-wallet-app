@@ -4,7 +4,7 @@ package mocks
 
 import (
 	headers "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
-	wire "github.com/btcsuite/btcd/wire"
+	wire "github.com/btcsuite/btcd/wire/v2"
 	mock "github.com/stretchr/testify/mock"
 )
 

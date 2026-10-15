@@ -8,23 +8,36 @@ import { Toggle } from '@/components/toggle/toggle';
 
 type Props = {
   deviceID: string;
+  onError: (message: string | undefined) => void;
 };
 
-export const ToggleShowFirmwareHash = ({ deviceID }: Props) => {
+export const ToggleShowFirmwareHash = ({ deviceID, onError }: Props) => {
   const { t } = useTranslation();
   const [enabledState, setEnabledState] = useState<boolean>(false);
   const enabledConfig = useLoad(getShowFirmwareHash(deviceID));
 
   useEffect(() => {
-    if (enabledConfig !== undefined) {
-      setEnabledState(enabledConfig);
+    if (enabledConfig === undefined) {
+      return;
     }
-  }, [enabledConfig]);
+    if (!enabledConfig.success) {
+      onError(enabledConfig.errorMessage || t('genericError'));
+      return;
+    }
+    onError(undefined);
+    setEnabledState(enabledConfig.enabled);
+  }, [enabledConfig, onError, t]);
 
-  const handleToggle = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleToggle = async (event: ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
-    setShowFirmwareHash(deviceID, enabled);
     setEnabledState(enabled);
+    const result = await setShowFirmwareHash(deviceID, enabled);
+    if (!result.success) {
+      setEnabledState(!enabled);
+      onError(result.errorMessage || t('genericError'));
+      return;
+    }
+    onError(undefined);
   };
 
   return (

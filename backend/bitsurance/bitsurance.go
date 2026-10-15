@@ -90,7 +90,8 @@ func GetBitsuranceId(account accounts.Interface) (string, error) {
 			return hex.EncodeToString(hash[:]), nil
 		}
 	}
-	return "", errp.New("Unable to retrieve a bitsurance Id for the account: " + string(account.Config().Config.Code))
+	return "", errp.Newf(
+		"Unable to retrieve a bitsurance Id for the account: %s", account.Config().Code)
 
 }
 
@@ -119,7 +120,7 @@ func LookupBitsuranceAccounts(devServer bool, accounts []accounts.Interface, htt
 		}
 
 		if len(bitsuranceAccount.Status) > 0 {
-			bitsuranceAccount.AccountCode = account.Config().Config.Code
+			bitsuranceAccount.AccountCode = account.Config().Code
 			insuredAccounts = append(insuredAccounts, bitsuranceAccount)
 		}
 	}

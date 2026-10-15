@@ -38,6 +38,7 @@
 }
 
 .loupe {
+    margin-top: 2px;
     width: var(--size-default);
 }
 

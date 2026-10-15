@@ -8,6 +8,7 @@ import {
   isDeviceBluetoothSupported,
   isDeviceSettingsVisible,
   isExportLogsSettingVisible,
+  isLightningSettingVisible,
   isNotesSettingsVisible,
   isScreenLockSettingVisible,
   isTestWalletSettingVisible,
@@ -23,8 +24,9 @@ type TGetSettingsSearchItemsArgs = {
   deviceInfo?: DeviceInfo;
   devices: TDevices;
   hasAccounts: boolean;
+  isLightningEnabled: boolean | undefined;
   hasSoftwareKeystore: boolean;
-  isTesting: boolean;
+  isTesting: boolean | undefined;
   t: TFunction;
 };
 
@@ -88,6 +90,7 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
   },
   {
     id: 'testnet-mode',
+    isAvailable: ({ isTesting }) => isTesting !== undefined,
     getTitle: ({ isTesting, t }) => isTesting ? t('testnet.deactivate.title') : t('testnet.activate.title'),
     page: 'advanced',
   },
@@ -99,6 +102,19 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
   {
     id: 'full-node',
     getTitle: ({ t }) => t('settings.expert.electrum.title'),
+    page: 'advanced',
+  },
+  {
+    id: 'clear-cache',
+    getTitle: ({ t }) => t('settings.expert.clearCache.title'),
+    page: 'advanced',
+  },
+  {
+    id: 'lightning-settings',
+    isAvailable: ({ isLightningEnabled }) => isLightningSettingVisible(isLightningEnabled),
+    getTitle: ({ isLightningEnabled, t }) => t(isLightningEnabled
+      ? 'lightning.settings.title'
+      : 'lightning.settings.enableWallet'),
     page: 'advanced',
   },
   {
@@ -234,6 +250,7 @@ export const getSettingsSearchItems = ({
   deviceInfo,
   devices,
   hasAccounts,
+  isLightningEnabled,
   hasSoftwareKeystore,
   isTesting,
   t,
@@ -243,6 +260,7 @@ export const getSettingsSearchItems = ({
     devices,
     deviceIDs: Object.keys(devices),
     hasAccounts,
+    isLightningEnabled,
     hasSoftwareKeystore,
     isTesting,
     t,

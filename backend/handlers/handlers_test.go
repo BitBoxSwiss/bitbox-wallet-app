@@ -13,8 +13,10 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/require"
 )
 
 // backendEnv is a backend environment implementation for testing.
@@ -38,18 +40,23 @@ type backendEnv struct {
 	Locale string // returned by NativeLocale
 }
 
-func (e *backendEnv) NotifyUser(string)                   {}
-func (e *backendEnv) SystemOpen(string) error             { return nil }
-func (e *backendEnv) DeviceInfos() []usb.DeviceInfo       { return nil }
-func (e *backendEnv) UsingMobileData() bool               { return false }
-func (e *backendEnv) NativeLocale() string                { return e.Locale }
-func (e *backendEnv) NumberFormat() *backend.NumberFormat { return nil }
-func (e *backendEnv) GetSaveFilename(string) string       { return "" }
-func (e *backendEnv) SetDarkTheme(bool)                   {}
-func (e *backendEnv) DetectDarkTheme() bool               { return false }
-func (e *backendEnv) Auth()                               {}
-func (e *backendEnv) OnAuthSettingChanged(bool)           {}
-func (e *backendEnv) BluetoothConnect(string)             {}
+func (e *backendEnv) NotifyUser(string)                                 {}
+func (e *backendEnv) SystemOpen(string) error                           { return nil }
+func (e *backendEnv) DeviceInfos() []usb.DeviceInfo                     { return nil }
+func (e *backendEnv) UsingMobileData() bool                             { return false }
+func (e *backendEnv) NativeLocale() string                              { return e.Locale }
+func (e *backendEnv) NumberFormat() *backend.NumberFormat               { return nil }
+func (e *backendEnv) GetSaveFilename(string) string                     { return "" }
+func (e *backendEnv) SetDarkTheme(bool)                                 {}
+func (e *backendEnv) DetectDarkTheme() bool                             { return false }
+func (e *backendEnv) Auth()                                             {}
+func (e *backendEnv) OnAuthSettingChanged(bool)                         {}
+func (e *backendEnv) CanEncryptLightningMnemonic() bool                 { return false }
+func (e *backendEnv) StoreLightningEncryptionKey(string, string) error  { return nil }
+func (e *backendEnv) LoadLightningEncryptionKey(string) (string, error) { return "", nil }
+func (e *backendEnv) DeleteLightningEncryptionKey(string) error         { return nil }
+func (e *backendEnv) BluetoothConnect(string)                           {}
+func (e *backendEnv) UserAgentPlatform() string                         { return "linux" }
 
 func TestGetNativeLocale(t *testing.T) {
 	const ptLocale = "pt"
@@ -80,6 +87,59 @@ func TestGetNativeLocale(t *testing.T) {
 	test.DecodeHandlerResponse(t, &locale, res.Body)
 	if locale != ptLocale {
 		t.Errorf("locale = %q; want %q", locale, ptLocale)
+	}
+}
+
+func TestConnectKeystoreRequiredFeature(t *testing.T) {
+	args := arguments.NewArguments(
+		test.TstTempDir("connect-keystore-feature"),
+		true,
+		false,
+		true,
+		nil,
+	)
+	back, err := backend.NewBackend(args, &backendEnv{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer back.Close()
+	h := handlers.NewHandlers(back, handlers.NewConnectionData(0, ""))
+	require.NoError(t, back.RegisterTestKeystore("0000", software.EditionMulti))
+
+	tests := []struct {
+		name              string
+		requiredFeature   string
+		expectedSuccess   bool
+		expectedErrorCode string
+	}{
+		{name: "no required feature", expectedSuccess: true},
+		{
+			name:            "supported feature",
+			requiredFeature: "messageSigning",
+			expectedSuccess: true,
+		},
+		{
+			name:              "unsupported feature",
+			requiredFeature:   "paymentRequests",
+			expectedErrorCode: "unsupportedFeature",
+		},
+	}
+
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			body := fmt.Sprintf(`{"rootFingerprint":"","requiredFeature":%q}`, testCase.requiredFeature)
+			request := httptest.NewRequest(http.MethodPost, "/api/connect-keystore", strings.NewReader(body))
+			recorder := httptest.NewRecorder()
+			h.Router.ServeHTTP(recorder, request)
+
+			var response struct {
+				Success   bool   `json:"success"`
+				ErrorCode string `json:"errorCode"`
+			}
+			test.DecodeHandlerResponse(t, &response, recorder.Result().Body)
+			require.Equal(t, testCase.expectedSuccess, response.Success)
+			require.Equal(t, testCase.expectedErrorCode, response.ErrorCode)
+		})
 	}
 }
 

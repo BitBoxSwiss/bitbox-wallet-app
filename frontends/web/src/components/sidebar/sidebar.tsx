@@ -4,13 +4,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useKeystores } from '@/hooks/backend';
+import { useLightning } from '@/hooks/lightning';
 import type { TDevices } from '@/api/devices';
 import type { TAccount } from '@/api/account';
 import { deregisterTest } from '@/api/keystores';
 import { getVersion } from '@/api/bitbox02';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
-import { CloseXWhite, CogLight, Coins, Device, Eject, Linechart, RedDot, ShieldLight } from '@/components/icon';
+import { CloseXWhite, CogLight, Coins, Device, Eject, Linechart, RedDot } from '@/components/icon';
 import { getAccountsByKeystore } from '@/routes/account/utils';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { AppContext } from '@/contexts/AppContext';
@@ -48,6 +49,25 @@ const GetAccountLink = ({
   );
 };
 
+const GetLightningLink = ({ handleSidebarItemClick }: { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) }) => {
+  const { t } = useTranslation();
+  const lightningName = t('lightning.accountLabel');
+  return (
+    <div className={style.sidebarItem}>
+      <NavLink
+        className={({ isActive }) => isActive ? style.sidebarActive : ''}
+        to={'/lightning'}
+        onClick={handleSidebarItemClick}
+        title={lightningName}>
+        <div className={style.single}>
+          <Logo coinCode="lightning" alt={lightningName} />
+        </div>
+        <span className={style.sidebarLabel}>{lightningName}</span>
+      </NavLink>
+    </div>
+  );
+};
+
 const eject = (e: React.SyntheticEvent): void => {
   deregisterTest();
   e.preventDefault();
@@ -61,8 +81,11 @@ const Sidebar = ({
   const { pathname } = useLocation();
   const [ canUpgrade, setCanUpgrade ] = useState(false);
   const { activeSidebar, toggleSidebar } = useContext(AppContext);
+  const { lightningAccount } = useLightning();
+  const hasPortfolio = accounts.length > 0 || !!lightningAccount;
 
   const deviceIDs: string[] = Object.keys(devices);
+  const isBitboxBootloader = Object.values(devices).includes('bitbox02-bootloader');
 
   useEffect(() => {
     const checkUpgradableDevices = async () => {
@@ -92,7 +115,13 @@ const Sidebar = ({
   };
 
   const accountsByKeystore = getAccountsByKeystore(accounts);
-  const userInSpecificAccountMarketPage = (pathname.startsWith('/market'));
+  const inMarketSection = pathname.startsWith('/market');
+
+  const homePath = (
+    isBitboxBootloader && deviceIDs.length > 0
+      ? `/settings/device-settings/${deviceIDs[0] || ''}`
+      : hasPortfolio ? '/account-summary' : '/'
+  );
 
   return (
     <div className={style.sidebarContainer}>
@@ -100,7 +129,7 @@ const Sidebar = ({
       <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')}>
         <div key="app-logo" className={style.sidebarLogoContainer}>
           <Link
-            to={accounts.length ? '/account-summary' : '/'}
+            to={homePath}
             onClick={handleSidebarItemClick}>
             <AppLogoInverted className={style.sidebarLogo} />
           </Link>
@@ -109,7 +138,7 @@ const Sidebar = ({
           </button>
         </div>
 
-        { accounts.length ? (
+        { hasPortfolio ? (
           <div
             key="account-summary"
             className={`${style.sidebarItem || ''} ${style.sidebarPortfolio || ''}`}
@@ -126,6 +155,10 @@ const Sidebar = ({
             </NavLink>
           </div>
         ) : null }
+
+        {lightningAccount && (
+          <GetLightningLink key="lightning" handleSidebarItemClick={handleSidebarItemClick} />
+        )}
 
         <div data-testid="sidebar-keystores">
           { accountsByKeystore.map(keystore => (
@@ -150,7 +183,7 @@ const Sidebar = ({
           <>
             <div key="market" className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive || userInSpecificAccountMarketPage ? style.sidebarActive : ''}
+                className={({ isActive }) => isActive || inMarketSection ? style.sidebarActive : ''}
                 to="/market/select">
                 <div className={style.single}>
                   <Coins />
@@ -165,17 +198,6 @@ const Sidebar = ({
                     type="dot"
                   />
                 </span>
-              </NavLink>
-            </div>
-            <div key="insurance" className={style.sidebarItem}>
-              <NavLink
-                className={({ isActive }) => isActive ? style.sidebarActive : ''}
-                to="/bitsurance/bitsurance"
-              >
-                <div className={style.single}>
-                  <ShieldLight alt={t('sidebar.insurance')} />
-                </div>
-                <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
               </NavLink>
             </div>
           </>

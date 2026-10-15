@@ -1,24 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAppState } from '@/contexts/app-state-context';
+import { Message } from '@/components/message/message';
 import { useLoad } from '@/hooks/api';
-import { getInfo, TAccount, AccountCode, ScriptType, TSigningConfiguration } from '@/api/account';
+import { getInfo, AccountCode, ScriptType, TSigningConfiguration } from '@/api/account';
 import { findAccount } from '@/routes/account/utils';
+import { isBitcoinBased } from '@/utils/coin';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
-import { isBitcoinBased } from '@/routes/account/utils';
 import { BitcoinBasedAccountInfoGuide } from './guide';
-import { MobileHeader } from '@/routes/settings/components/mobile-header';
-import { BackButton } from '@/components/backbutton/backbutton';
+import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { SigningConfiguration } from './signingconfiguration';
 import style from './info.module.css';
-
-type TProps = {
-  accounts: TAccount[];
-  code: AccountCode;
-};
 
 export const getDefaultSigningConfigurationIndex = (
   signingConfigurations: TSigningConfiguration[],
@@ -33,41 +29,41 @@ export const getDefaultSigningConfigurationIndex = (
   return index === -1 ? 0 : index;
 };
 
-export const XPubDetail = ({
-  accounts,
-  code,
-}: TProps) => {
+type TRouteParams = {
+  code: AccountCode;
+};
+
+export const XPubDetail = () => {
+  const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const info = useLoad(getInfo(code));
+  const { activeAccounts } = useAppState();
+
+  const infoResponse = useLoad(getInfo(code));
+  const info = infoResponse?.success ? infoResponse.info : undefined;
   const [viewXPub, setViewXPub] = useState<number | undefined>();
 
   useEffect(() => {
     setViewXPub(undefined);
   }, [code]);
 
-  const account = findAccount(accounts, code);
-  if (!account || !info) {
+  const account = findAccount(activeAccounts, code);
+  if (!account) {
     return null;
   }
 
-  const numberOfXPubs = info.signingConfigurations.length;
-  if (numberOfXPubs === 0) {
-    return null;
-  }
+  const signingConfigurations = info?.signingConfigurations ?? [];
+  const numberOfXPubs = signingConfigurations.length;
   const defaultViewXPub = getDefaultSigningConfigurationIndex(
-    info.signingConfigurations,
+    signingConfigurations,
     account.receiveScriptType
   );
   const safeViewXPubIndex = (index: number | undefined) => (
     Math.max(0, Math.min(index ?? defaultViewXPub, numberOfXPubs - 1))
   );
   const safeViewXPub = safeViewXPubIndex(viewXPub);
-  const config = info.signingConfigurations[safeViewXPub];
-  if (!config) {
-    return null;
-  }
-  const xpubTypes = info.signingConfigurations.map(cfg => cfg.bitcoinSimple?.scriptType);
+  const config = signingConfigurations[safeViewXPub];
+  const xpubTypes = signingConfigurations.map(cfg => cfg.bitcoinSimple?.scriptType);
 
   const showNextXPub = () => {
     setViewXPub(prev => (safeViewXPubIndex(prev) + 1) % numberOfXPubs);
@@ -81,43 +77,50 @@ export const XPubDetail = ({
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header hideSidebarToggler title={
-            <>
-              <h2 className="hide-on-small">{t('accountInfo.accountDetails')}</h2>
-              <MobileHeader onClick={() => navigate(-1)} title={t('accountInfo.accountDetails')} />
-            </>
-          } />
+          <Header
+            variant="navigation"
+            hideSidebarToggler
+            mobileBackButton
+            onBack={() => navigate(-1)}
+            title={t('accountInfo.accountDetails')}
+          />
           <View fullscreen={false}>
             <ViewContent>
-              <div className={style.detailCard}>
-                {(config?.bitcoinSimple !== undefined && numberOfXPubs > 1) && (
-                  <p>
-                    {t('accountInfo.xpubTypeInfo', {
-                      current: `${safeViewXPub + 1}`,
-                      numberOfXPubs: numberOfXPubs.toString(),
-                      scriptType: config.bitcoinSimple.scriptType.toUpperCase(),
-                    })}
-                    <br />
-                    {xpubType && (
-                      <button className={style.nextButton} onClick={showNextXPub}>
-                        {t(`accountInfo.xpubTypeChangeBtn.${xpubType}`)}
-                      </button>
-                    )}
-                  </p>
-                )}
-                <SigningConfiguration
-                  key={safeViewXPub}
-                  account={account}
-                  code={code}
-                  info={config}
-                  signingConfigIndex={safeViewXPub}>
-                  <span className="hide-on-small">
-                    <BackButton enableEsc>
+              {infoResponse && !infoResponse.success && (
+                <>
+                  <Message type="error">{infoResponse.errorMessage || t('genericError')}</Message>
+                  <DesktopBackButton enableEsc>{t('button.back')}</DesktopBackButton>
+                </>
+              )}
+              {config && (
+                <div className={style.detailCard}>
+                  {(config?.bitcoinSimple !== undefined && numberOfXPubs > 1) && (
+                    <p>
+                      {t('accountInfo.xpubTypeInfo', {
+                        current: `${safeViewXPub + 1}`,
+                        numberOfXPubs: numberOfXPubs.toString(),
+                        scriptType: config.bitcoinSimple.scriptType.toUpperCase(),
+                      })}
+                      <br />
+                      {xpubType && (
+                        <button className={style.nextButton} onClick={showNextXPub}>
+                          {t(`accountInfo.xpubTypeChangeBtn.${xpubType}`)}
+                        </button>
+                      )}
+                    </p>
+                  )}
+                  <SigningConfiguration
+                    key={safeViewXPub}
+                    account={account}
+                    code={code}
+                    info={config}
+                    signingConfigIndex={safeViewXPub}>
+                    <DesktopBackButton enableEsc>
                       {t('button.back')}
-                    </BackButton>
-                  </span>
-                </SigningConfiguration>
-              </div>
+                    </DesktopBackButton>
+                  </SigningConfiguration>
+                </div>
+              )}
             </ViewContent>
           </View>
         </Main>

@@ -6,6 +6,7 @@ package bitbox02bootloader
 import (
 	"bytes"
 	"encoding/hex"
+	"sync"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
@@ -25,7 +26,12 @@ const ProductName = "bitbox02-bootloader"
 // Device provides the API to communicate with the BitBox02 bootloader.
 type Device struct {
 	bootloader.Device
-	deviceID string
+	deviceID          string
+	bootloaderVersion *semver.SemVer
+
+	operationLock                     sync.RWMutex
+	operationErased                   bool
+	operationAdditionalUpgradeFollows bool
 
 	log *logrus.Entry
 
@@ -46,18 +52,19 @@ func NewDevice(
 		WithField("product", product)
 	log.Info("Plugged in device")
 	device := &Device{
-		deviceID: deviceID,
-		log:      log,
+		deviceID:          deviceID,
+		bootloaderVersion: version,
+		log:               log,
 	}
 	device.Device = *bootloader.NewDevice(
 		version,
 		product,
 		communication,
-		func(status *bootloader.Status) {
+		func(_ *bootloader.Status) {
 			device.Notify(observable.Event{
 				Subject: "status",
 				Action:  action.Replace,
-				Object:  status,
+				Object:  device.Status(),
 			})
 		},
 	)
@@ -88,7 +95,7 @@ func (device *Device) Init(testing bool) error {
 	// Loop all but the last firmware.
 	for i := 0; i < len(firmwares)-1; i++ {
 		fwInfo := firmwares[i]
-		if fwInfo.monotonicVersion+1 == currentFirmwareVersion {
+		if fwInfo.continuesUpgrade(currentFirmwareVersion, device.bootloaderVersion) {
 			device.log.Infof("continuing upgrade on %d", currentFirmwareVersion)
 			go func() {
 				if err := device.UpgradeFirmware(); err != nil {
@@ -124,6 +131,30 @@ func (device *Device) Keystore() keystoreInterface.Keystore {
 func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
 }
 
+// Status contains the bootloader status plus app-level context about the current operation.
+type Status struct {
+	*bootloader.Status
+	Product bitbox02common.Product `json:"product"`
+	Erased  bool                   `json:"erased"`
+	// AdditionalUpgradeFollows is true if there is more than one upgrade to be performed
+	// (intermediate and final).
+	AdditionalUpgradeFollows bool `json:"additionalUpgradeFollows"`
+}
+
+// Status returns the progress of a firmware upgrade.
+func (device *Device) Status() *Status {
+	device.operationLock.RLock()
+	erased := device.operationErased
+	additionalUpgradeFollows := device.operationAdditionalUpgradeFollows
+	device.operationLock.RUnlock()
+	return &Status{
+		Status:                   device.Device.Status(),
+		Product:                  device.Device.Product(),
+		Erased:                   erased,
+		AdditionalUpgradeFollows: additionalUpgradeFollows,
+	}
+}
+
 // firmwareBootRequired returns true if the currently flashed firmware has to be booted/run before
 // being able to upgrade. This is currently the case for intermediate firmware upgrades, which means
 // all bundled firmwares except the latest.
@@ -140,7 +171,7 @@ func (device *Device) firmwareBootRequired() (bool, error) {
 	// Loop all but the last firmware.
 	for i := 0; i < len(firmwares)-1; i++ {
 		fwInfo := firmwares[i]
-		if fwInfo.monotonicVersion == currentFirmwareVersion {
+		if fwInfo.bootRequired(currentFirmwareVersion, device.bootloaderVersion) {
 			return true, nil
 		}
 	}
@@ -178,10 +209,24 @@ func (device *Device) UpgradeFirmware() error {
 		return device.Reboot()
 	}
 
+	erased, err := device.Device.Erased()
+	if err != nil {
+		return err
+	}
+
 	nextFirmware, err := device.nextFirmware()
 	if err != nil {
 		return err
 	}
+	latestFirmware, err := bundledFirmware(product)
+	if err != nil {
+		return err
+	}
+	device.operationLock.Lock()
+	device.operationErased = erased
+	device.operationAdditionalUpgradeFollows = nextFirmware.monotonicVersion < latestFirmware.monotonicVersion
+	device.operationLock.Unlock()
+
 	device.log.Infof("upgrading firmware: %s, %s", product, nextFirmware.version)
 
 	signedBinary, err := nextFirmware.signedBinary()
@@ -196,12 +241,8 @@ func (device *Device) UpgradeFirmware() error {
 
 // Info contains version information about device and the firmware upgrade.
 type Info struct {
-	Product    bitbox02common.Product `json:"product"`
-	Erased     bool                   `json:"erased"`
-	CanUpgrade bool                   `json:"canUpgrade"`
-	// AdditionalUpgradeFollows is true if there is more than one upgrade to be performed
-	// (intermediate and final).
-	AdditionalUpgradeFollows bool `json:"additionalUpgradeFollows"`
+	Erased     bool `json:"erased"`
+	CanUpgrade bool `json:"canUpgrade"`
 }
 
 // Info returns info about the device and the firmware upgrade to the bundled firmware.
@@ -224,11 +265,6 @@ func (device *Device) Info() (*Info, error) {
 		return nil, err
 	}
 	latestFirmwareVersion := latestFw.monotonicVersion
-	nextFw, err := nextFirmware(device.Device.Product(), currentFirmwareVersion)
-	if err != nil {
-		return nil, err
-	}
-
 	latestFirmwareHash, err := latestFw.firmwareHash()
 	if err != nil {
 		return nil, err
@@ -242,7 +278,6 @@ func (device *Device) Info() (*Info, error) {
 		!bytes.Equal(currentFirmwareHash, latestFirmwareHash)
 
 	canUpgrade := erased || latestFirmwareVersion > currentFirmwareVersion || brokenInstall
-	additionalUpgradeFollows := nextFw.monotonicVersion < latestFirmwareVersion
 	device.log.
 		WithField("latestFirmwareVersion", latestFirmwareVersion).
 		WithField("currentFirmwareVersion", currentFirmwareVersion).
@@ -250,12 +285,9 @@ func (device *Device) Info() (*Info, error) {
 		WithField("erased", erased).
 		WithField("brokenInstall", brokenInstall).
 		WithField("canUpgrade", canUpgrade).
-		WithField("additionalUpgradeFollows", additionalUpgradeFollows).
 		Info("Info")
 	return &Info{
-		Product:                  device.Device.Product(),
-		Erased:                   erased,
-		CanUpgrade:               canUpgrade,
-		AdditionalUpgradeFollows: additionalUpgradeFollows,
+		Erased:     erased,
+		CanUpgrade: canUpgrade,
 	}, nil
 }

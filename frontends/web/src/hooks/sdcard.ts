@@ -18,6 +18,7 @@ export const useSDCard = (
   const [sdcard, setSDCard] = useState<boolean>(false);
   const mounted = useMountedRef();
   useEffect(() => {
+    let cancelled = false;
     const deviceIDs = Object.keys(devices);
     Promise.all(deviceIDs.map(deviceID => {
       switch (devices[deviceID]) {
@@ -32,11 +33,14 @@ export const useSDCard = (
     }))
       .then(sdcards => sdcards.some(sdcard => sdcard))
       .then(result => {
-        if (mounted.current) {
+        if (mounted.current && !cancelled) {
           setSDCard(result);
         }
       })
       .catch(console.error);
+    return () => {
+      cancelled = true;
+    };
     // disable warning about mounted not in the dependency list
   }, [devices, ...(dependencies || [])]); // eslint-disable-line react-hooks/exhaustive-deps
 

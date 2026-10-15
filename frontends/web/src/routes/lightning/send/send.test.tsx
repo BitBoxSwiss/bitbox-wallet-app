@@ -1,0 +1,221 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import '../../../../__mocks__/i18n';
+import type { ReactNode } from 'react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter, useLocation } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { TPaymentInputType } from '@/api/lightning';
+import * as lightningApi from '@/api/lightning';
+import { AppStateContext } from '@/contexts/app-state-context';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
+import { Send } from './send';
+
+vi.mock('@/i18n/i18n');
+
+vi.mock('@/components/layout', async () => {
+  const { Header } = await import('@/components/layout/header');
+  return {
+    Column: ({ children }: { children: ReactNode }) => <>{children}</>,
+    Grid: ({ children }: { children: ReactNode }) => <>{children}</>,
+    GuideWrapper: ({ children }: { children: ReactNode }) => <>{children}</>,
+    GuidedContent: ({ children }: { children: ReactNode }) => <>{children}</>,
+    Header,
+    Main: ({ children }: { children: ReactNode }) => <main>{children}</main>,
+  };
+});
+
+vi.mock('@/components/status/status', () => ({
+  Status: ({ children, hidden }: { children: ReactNode; hidden?: boolean }) => hidden ? null : <>{children}</>,
+}));
+
+vi.mock('@/api/lightning', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/api/lightning')>();
+  return {
+    ...actual,
+    getParsePaymentInput: vi.fn(),
+    postPreparePayment: vi.fn(),
+    postSendPayment: vi.fn(),
+  };
+});
+
+vi.mock('../guide', () => ({
+  LightningSendGuide: () => null,
+}));
+
+vi.mock('./components/select-payment-input-step', () => ({
+  SelectPaymentInputStep: ({
+    onSubmit,
+  }: {
+    onSubmit: (input: string) => Promise<boolean>;
+  }) => <button onClick={() => onSubmit('lnbc1invoice')}>review payment</button>,
+}));
+
+vi.mock('./components/custom-payment-amount', async () => {
+  const { useEffect, useState } = await import('react');
+  return {
+    CustomPaymentAmount: ({
+      onAmountChange,
+    }: {
+      onAmountChange: (amountSat?: number) => void;
+    }) => {
+      const [amount, setAmount] = useState('');
+      useEffect(() => {
+        onAmountChange(amount ? Number(amount) : undefined);
+      }, [amount, onAmountChange]);
+      return (
+        <input
+          aria-label="custom amount"
+          onChange={event => setAmount(event.target.value)}
+          value={amount}
+        />
+      );
+    },
+    PaymentBalance: () => null,
+  };
+});
+
+vi.mock('./components/payment-input-details', () => ({
+  BitcoinAddressRecipientDetails: () => null,
+  Bolt11PaymentDetails: () => null,
+  LNURLPayRecipientDetails: () => null,
+  PaymentAmountDetails: () => null,
+  PaymentFeeDetails: () => null,
+  PaymentNoteDetails: () => null,
+}));
+
+vi.mock('./components/success-step', () => ({
+  SuccessStep: () => <span>payment sent</span>,
+}));
+
+const LocationPath = () => {
+  const location = useLocation();
+  return <span data-testid="location-path">{location.pathname}</span>;
+};
+
+const renderSend = () => render(
+  <MemoryRouter initialEntries={['/lightning/send']}>
+    <BackButtonProvider>
+      <AppStateContext.Provider
+        value={{
+          accounts: [],
+          activeAccounts: [],
+          deviceIDs: [],
+          devices: {},
+          hasAccounts: true,
+          hasBottomNavigation: false,
+          hasDevices: false,
+          lightningAccount: undefined,
+          hasLightningAccount: false,
+        }}
+      >
+        <Send />
+        <LocationPath />
+      </AppStateContext.Provider>
+    </BackButtonProvider>
+  </MemoryRouter>
+);
+
+const pressSystemBack = () => {
+  act(() => {
+    expect(window.onBackButtonPressed?.()).toBe(false);
+  });
+};
+
+describe('Lightning Send', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(window.matchMedia).mockImplementation(query => ({
+      matches: true,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }));
+    vi.mocked(lightningApi.getParsePaymentInput).mockResolvedValue({
+      type: TPaymentInputType.BOLT11,
+      invoice: {
+        amountSat: 100,
+        invoice: 'lnbc1invoice',
+      },
+    });
+    vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({
+      amountSat: 100,
+      feeSat: 1,
+      totalDebitSat: 101,
+    });
+  });
+
+  it('allows back from review but blocks it while sending', async () => {
+    let resolvePayment: () => void = () => {};
+    vi.mocked(lightningApi.postSendPayment).mockReturnValue(new Promise<void>(resolve => {
+      resolvePayment = resolve;
+    }));
+    renderSend();
+
+    fireEvent.click(screen.getByRole('button', { name: 'review payment' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'generic.send' })).toBeEnabled());
+    expect(screen.getByRole('button', { name: 'button.back' })).toBeInTheDocument();
+
+    pressSystemBack();
+    expect(screen.getByRole('button', { name: 'review payment' })).toBeInTheDocument();
+    expect(screen.getByTestId('location-path')).toHaveTextContent('/lightning/send');
+
+    fireEvent.click(screen.getByRole('button', { name: 'review payment' }));
+    const sendButton = await screen.findByRole('button', { name: 'generic.send' });
+    await waitFor(() => expect(sendButton).toBeEnabled());
+    fireEvent.click(sendButton);
+
+    expect(await screen.findByText('lightning.send.sending.connecting')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'button.back' })).not.toBeInTheDocument());
+    pressSystemBack();
+
+    expect(screen.getByText('lightning.send.sending.connecting')).toBeInTheDocument();
+    expect(screen.getByTestId('location-path')).toHaveTextContent('/lightning/send');
+
+    await act(async () => {
+      resolvePayment();
+    });
+    expect(await screen.findByText('payment sent')).toBeInTheDocument();
+  });
+
+  it('keeps LNURL payment review mounted after a send error', async () => {
+    vi.mocked(lightningApi.getParsePaymentInput).mockResolvedValue({
+      type: TPaymentInputType.LNURL_PAY,
+      lnurlPay: {
+        input: 'alice@example.com',
+        domain: 'example.com',
+        minAmountSat: 1,
+        maxAmountSat: 1_000,
+      },
+    });
+    vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({
+      amountSat: 100,
+      feeSat: 1,
+      idempotencyKey: '00000000-0000-4000-8000-000000000001',
+      totalDebitSat: 101,
+    });
+    let rejectPayment: (reason?: unknown) => void = () => {};
+    vi.mocked(lightningApi.postSendPayment).mockReturnValue(new Promise<void>((_, reject) => {
+      rejectPayment = reject;
+    }));
+    renderSend();
+
+    fireEvent.click(screen.getByRole('button', { name: 'review payment' }));
+    const amountInput = await screen.findByRole('textbox', { name: 'custom amount' });
+    fireEvent.change(amountInput, { target: { value: '100' } });
+    const sendButton = await screen.findByRole('button', { name: 'generic.send' });
+    await waitFor(() => expect(sendButton).toBeEnabled());
+    fireEvent.click(sendButton);
+
+    expect(await screen.findByText('lightning.send.sending.connecting')).toBeInTheDocument();
+    await act(async () => rejectPayment(new Error('response lost')));
+
+    expect(await screen.findByRole('textbox', { name: 'custom amount' })).toHaveValue('100');
+    expect(screen.getByRole('button', { name: 'generic.send' })).toBeEnabled();
+    expect(lightningApi.postPreparePayment).toHaveBeenCalledTimes(1);
+  });
+});

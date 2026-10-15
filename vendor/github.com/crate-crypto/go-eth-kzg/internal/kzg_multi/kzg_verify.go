@@ -54,7 +54,8 @@ func VerifyMultiPointKZGProofBatch(deduplicatedCommitments []bls12381.G1Affine, 
 		// Coset IFFT
 		cosetIndex := cosetIndices[k]
 		cosetDomain := openKey.cosetDomains[cosetIndex]
-		cosetMonomial := cosetDomain.CosetIFFtFr(cosetEval)
+		cosetDomain.CosetIFFtFr(cosetEval)
+		cosetMonomial := cosetEval
 
 		// Scale the interpolation polynomial
 		for i := 0; i < len(cosetMonomial); i++ {

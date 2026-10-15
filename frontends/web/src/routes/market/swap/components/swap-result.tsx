@@ -12,6 +12,7 @@ import { SubTitle } from '@/components/title';
 type TProps = {
   children?: ReactNode;
   buyAccountCode: AccountCode;
+  sellAccountCode: AccountCode;
   buyEthAccountCode: AccountCode | undefined;
   onContinue: () => void;
   result: TSendTx | undefined;
@@ -20,6 +21,7 @@ type TProps = {
 export const SwapResult = ({
   children,
   buyAccountCode,
+  sellAccountCode,
   buyEthAccountCode,
   onContinue,
   result,
@@ -79,16 +81,19 @@ export const SwapResult = ({
     }
 
     if (result.errorCode) {
-      const errorMessage = result.errorCode === 'wrongKeystore'
-        ? (
-          <>
-            {t('error.wrongKeystore')}
-            <br />
-            <br />
-            {t('error.wrongKeystore2')}
-          </>
-        )
-        : t(`send.error.${result.errorCode}`);
+      const broadcastUncertain = result.errorCode === 'broadcastUncertain';
+      const errorMessage = (
+        result.errorCode === 'wrongKeystore'
+          ? (
+            <>
+              {t('error.wrongKeystore')}
+              <br />
+              <br />
+              {t('error.wrongKeystore2')}
+            </>
+          )
+          : t(`send.error.${result.errorCode}`)
+      );
 
       return (
         <View fullscreen textCenter verticallyCentered width="520px">
@@ -99,12 +104,14 @@ export const SwapResult = ({
             </p>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => navigate(`/account/${buyAccountCode}`)}>
+            <Button primary onClick={() => navigate(`/account/${broadcastUncertain ? sellAccountCode : buyAccountCode}`)}>
               {t('button.done')}
             </Button>
-            <Button secondary onClick={() => onContinue()}>
-              {t('send.edit')}
-            </Button>
+            {!broadcastUncertain && (
+              <Button secondary onClick={() => onContinue()}>
+                {t('send.edit')}
+              </Button>
+            )}
           </ViewButtons>
         </View>
       );

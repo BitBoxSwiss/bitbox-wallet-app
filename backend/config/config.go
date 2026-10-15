@@ -9,6 +9,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
+	utilconfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/locker"
 )
@@ -243,20 +244,28 @@ type Config struct {
 	accountsConfigFilename string
 	accountsConfig         AccountsConfig
 	accountsConfigLock     locker.Locker
+
+	lightningConfigFilename string
+	lightningConfig         LightningConfig
+	lightningConfigLock     locker.Locker
 }
 
 // NewConfig creates a new Config, stored in the given location. The filename must be writable, but
 // does not have to exist.
-func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config, error) {
+func NewConfig(appConfigFilename string, accountsConfigFilename string, lightningConfigFilename string) (*Config, error) {
 	config := &Config{
 		appConfigFilename: appConfigFilename,
 		appConfig:         NewDefaultAppConfig(),
 
 		accountsConfigFilename: accountsConfigFilename,
 		accountsConfig:         newDefaultAccountsConfig(),
+
+		lightningConfigFilename: lightningConfigFilename,
+		lightningConfig:         newDefaultLightningConfig(),
 	}
 	config.load()
 	appconf := config.appConfig
+	lightningConf := config.lightningConfig
 	migrateFiatList(&appconf)
 	migrateFiatCode(&appconf)
 	migrateElectrumX(&appconf)
@@ -265,6 +274,12 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 		return nil, errp.WithStack(err)
 	}
 	if err := config.ModifyAccountsConfig(migrateActiveTokens); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := config.ModifyLightningConfig(func(cfg *LightningConfig) error {
+		*cfg = lightningConf
+		return nil
+	}); err != nil {
 		return nil, errp.WithStack(err)
 	}
 	return config, nil
@@ -311,6 +326,13 @@ func (config *Config) load() {
 	if err := json.Unmarshal(jsonBytes, &config.accountsConfig); err != nil {
 		return
 	}
+	jsonBytes, err = os.ReadFile(config.lightningConfigFilename)
+	if err != nil {
+		return
+	}
+	if err := json.Unmarshal(jsonBytes, &config.lightningConfig); err != nil {
+		return
+	}
 }
 
 // AppConfig returns the app config.
@@ -342,14 +364,49 @@ func (config *Config) AccountsConfig() AccountsConfig {
 	return config.accountsConfig
 }
 
-// ModifyAccountsConfig calls f with the current config, allowing f to make any changes, and
-// persists the result if f returns nil error.  It propagates the f's error as is.
+// AccountsSnapshot returns a coherent copy of the account and keystore records. Mutable metadata
+// and membership slices are detached; immutable signing configurations may be shared.
+func (config *Config) AccountsSnapshot() AccountsConfig {
+	defer config.accountsConfigLock.RLock()()
+	return cloneAccountsConfig(config.accountsConfig)
+}
+
+// ModifyAccountsConfig calls f with a detached copy of the current config and publishes it after it
+// has been persisted. It propagates f's error as is.
 func (config *Config) ModifyAccountsConfig(f func(*AccountsConfig) error) error {
 	defer config.accountsConfigLock.Lock()()
-	if err := f(&config.accountsConfig); err != nil {
+	accountsConfig := cloneAccountsConfig(config.accountsConfig)
+	if err := f(&accountsConfig); err != nil {
 		return err
 	}
-	return config.save(config.accountsConfigFilename, config.accountsConfig)
+	if err := config.save(config.accountsConfigFilename, accountsConfig); err != nil {
+		return err
+	}
+	config.accountsConfig = accountsConfig
+	return nil
+}
+
+// LightningConfig returns the lightning config.
+func (config *Config) LightningConfig() LightningConfig {
+	defer config.lightningConfigLock.RLock()()
+	return config.lightningConfig
+}
+
+// ModifyLightningConfig calls f with the current config, allowing f to make any changes, and
+// persists the result if f returns nil error. It propagates f's error as is.
+func (config *Config) ModifyLightningConfig(f func(*LightningConfig) error) error {
+	defer config.lightningConfigLock.Lock()()
+	backup, err := json.Marshal(config.lightningConfig)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	if err := f(&config.lightningConfig); err != nil {
+		if rollbackErr := json.Unmarshal(backup, &config.lightningConfig); rollbackErr != nil {
+			return errp.Newf("modify lightning config failed: %v; rollback failed: %v", err, rollbackErr)
+		}
+		return err
+	}
+	return config.save(config.lightningConfigFilename, config.lightningConfig)
 }
 
 func (config *Config) save(filename string, conf interface{}) error {
@@ -357,7 +414,10 @@ func (config *Config) save(filename string, conf interface{}) error {
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	return errp.WithStack(os.WriteFile(filename, jsonBytes, 0644)) // #nosec G306
+	if err := os.WriteFile(filename, jsonBytes, 0600); err != nil {
+		return errp.WithStack(err)
+	}
+	return utilconfig.EnsurePrivateFile(filename)
 }
 
 // migrateFiatList moves fiatList from appconf.Frontend to appconf.Backend.
