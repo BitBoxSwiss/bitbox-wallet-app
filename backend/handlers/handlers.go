@@ -2071,12 +2071,12 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 
 func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 	type result struct {
-		Success           bool                     `json:"success"`
-		ErrorCode         errp.ErrorCode           `json:"errorCode,omitempty"`
-		ErrorMessage      string                   `json:"errorMessage,omitempty"`
-		ExpectedBuyAmount string                   `json:"expectedBuyAmount,omitempty"`
-		SwapID            string                   `json:"swapId,omitempty"`
-		TxInput           *backend.SwapSignTxInput `json:"txInput,omitempty"`
+		Success        bool                                    `json:"success"`
+		ErrorCode      errp.ErrorCode                          `json:"errorCode,omitempty"`
+		ErrorMessage   string                                  `json:"errorMessage,omitempty"`
+		ExpectedOutput *coinpkg.FormattedAmountWithConversions `json:"expectedOutput,omitempty"`
+		SwapID         string                                  `json:"swapId,omitempty"`
+		TxInput        *backend.SwapSignTxInput                `json:"txInput,omitempty"`
 	}
 
 	var request struct {
@@ -2115,10 +2115,10 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 	}
 
 	return result{
-		Success:           true,
-		ExpectedBuyAmount: swapResult.ExpectedBuyAmount,
-		SwapID:            swapResult.SwapID,
-		TxInput:           &swapResult.TxInput,
+		Success:        true,
+		ExpectedOutput: &swapResult.ExpectedOutput,
+		SwapID:         swapResult.SwapID,
+		TxInput:        &swapResult.TxInput,
 	}
 }
 

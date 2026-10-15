@@ -46,9 +46,9 @@ type SwapSignTxInput struct {
 
 // SwapPreparation contains everything the frontend needs to reuse the regular account tx flow.
 type SwapPreparation struct {
-	ExpectedBuyAmount string          `json:"expectedBuyAmount"`
-	SwapID            string          `json:"swapId"`
-	TxInput           SwapSignTxInput `json:"txInput"`
+	ExpectedOutput coinpkg.FormattedAmountWithConversions `json:"expectedOutput"`
+	SwapID         string                                 `json:"swapId"`
+	TxInput        SwapSignTxInput                        `json:"txInput"`
 }
 
 // SwapAccounts contains the sell and buy accounts needed by the swap screen.
@@ -466,6 +466,10 @@ func (backend *Backend) PrepareSwap(
 	if len(paymentRequest.Outputs) != 1 {
 		return nil, errp.New("Missing or multiple payment request output unsupported")
 	}
+	expectedBuyAmount, err := swapReceiveAmount(paymentRequest, buyAccount.Coin())
+	if err != nil {
+		return nil, err
+	}
 	txInput, err := swapSignTxInput(
 		paymentRequest, sellAccount.Coin(), destinationDerivation, sourceAddress, refundDerivation,
 	)
@@ -473,9 +477,9 @@ func (backend *Backend) PrepareSwap(
 		return nil, err
 	}
 	return &SwapPreparation{
-		ExpectedBuyAmount: swapResponse.ExpectedBuyAmount,
-		SwapID:            swapResponse.SwapID,
-		TxInput:           txInput,
+		ExpectedOutput: expectedBuyAmount.FormatWithConversions(buyAccount.Coin(), false, backend.ratesUpdater),
+		SwapID:         swapResponse.SwapID,
+		TxInput:        txInput,
 	}, nil
 }
 
@@ -567,6 +571,32 @@ func (backend *Backend) appendERC20SwapAccounts(
 		}
 	}
 	return sellAccounts, buyAccounts
+}
+
+// swapReceiveAmount parses the signed purchase amount into the buy asset's smallest unit.
+func swapReceiveAmount(paymentRequest *paymentrequest.Slip24, buyCoin coinpkg.Coin) (coinpkg.Amount, error) {
+	var purchase *paymentrequest.Slip24CoinPurchase
+	for _, memo := range paymentRequest.Memos {
+		if memo.Type != "coinPurchase" {
+			continue
+		}
+		if memo.CoinPurchase == nil || purchase != nil {
+			return coinpkg.Amount{}, errp.New("Missing or multiple coinPurchase payment request memos")
+		}
+		purchase = memo.CoinPurchase
+	}
+	if purchase == nil {
+		return coinpkg.Amount{}, errp.New("Missing coinPurchase payment request memo")
+	}
+	parts := strings.Fields(purchase.Amount)
+	if len(parts) != 2 || parts[1] != buyCoin.Unit(false) {
+		return coinpkg.Amount{}, errp.New("Invalid coinPurchase amount or unit")
+	}
+	amount, err := coinpkg.NewSendAmount(parts[0]).Amount(coinpkg.DecimalsExp(buyCoin, false), false)
+	if err != nil {
+		return coinpkg.Amount{}, errp.New("Invalid coinPurchase amount")
+	}
+	return amount, nil
 }
 
 func frontendPaymentRequest(

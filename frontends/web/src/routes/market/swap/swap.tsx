@@ -13,7 +13,7 @@ import {
   type TCoinUnit,
   type TSendTx,
 } from '@/api/account';
-import { convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
+import { parseExternalBtcAmount } from '@/api/coins';
 import {
   getSwapAccounts,
   getSwapQuote,
@@ -43,8 +43,10 @@ import { getDisplayedCoinUnit, isBitcoinBased, isBitcoinOnly } from '@/utils/coi
 import { useLoad } from '@/hooks/api';
 import { useAccountStatuses } from '@/hooks/account-status';
 import { useFeatureConnect } from '@/hooks/keystore';
+import { useMountedRef } from '@/hooks/mount';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
+import { normalizeProviderName } from './components/swap-provider-metadata';
 import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -73,22 +75,23 @@ const getSwapDisplayAmount = async (
   coinCode: TSwapAccount['coinCode'],
   coinUnit: TCoinUnit,
   btcUnit: 'default' | 'sat' | undefined,
-): Promise<{ amount: string; unit: TCoinUnit }> => {
+): Promise<string> => {
   const displayedUnit = getDisplayedCoinUnit(coinCode, coinUnit, btcUnit);
   if (displayedUnit === coinUnit || !isBitcoinOnly(coinCode)) {
-    return { amount, unit: displayedUnit };
+    return amount;
   }
 
   const parsedAmount = await parseExternalBtcAmount(amount);
-  return {
-    amount: parsedAmount.success ? parsedAmount.amount : amount,
-    unit: displayedUnit,
-  };
+  if (!parsedAmount.success) {
+    throw new Error();
+  }
+  return parsedAmount.amount;
 };
 
 export const Swap = () => {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
+  const isMounted = useMountedRef();
   const { accounts, devices, deviceIDs } = useAppState();
   const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
   const [swapStatusLoadAttempt, setSwapStatusLoadAttempt] = useState(0);
@@ -105,7 +108,7 @@ export const Swap = () => {
   useEffect(dismissFirmwareUpgrade, [accounts, devices, dismissFirmwareUpgrade]);
   const firmwareUpgradeRequired = swapStatus?.firmwareUpgradeRequired || signingFirmwareUpgradeRequired;
   const firmwareDeviceID = deviceIDs.find(deviceID => devices[deviceID] === 'bitbox02');
-  const { activeCurrencies, btcUnit, defaultCurrency } = useContext(RatesContext);
+  const { btcUnit, defaultCurrency } = useContext(RatesContext);
   // accounts is added as a dependency, to reload swap accounts when the account list changes.
   const loadedSwapAccounts = useLoad(getSwapAccounts, [accounts]);
   const [retainedSwapAccounts, setRetainedSwapAccounts] = useState<TSwapAccounts>();
@@ -138,7 +141,6 @@ export const Swap = () => {
   // Receive
   const [buyAccountCode, setBuyAccountCode] = useState<TAccountCode | undefined>();
   const [expectedOutput, setExpectedOutput] = useState<string>('');
-  const [expectedOutputUnit, setExpectedOutputUnit] = useState<TCoinUnit | undefined>();
 
   // Shows the fullscreen device-confirmation step after the tx proposal is ready.
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
@@ -241,7 +243,6 @@ export const Swap = () => {
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
-    setExpectedOutputUnit(undefined);
     setValidationErrorCode(undefined);
     setRouteError(undefined);
   }, []);
@@ -372,7 +373,6 @@ export const Swap = () => {
     const updateExpectedOutput = async () => {
       if (!selectedRoute || !buyAccount) {
         setExpectedOutput('');
-        setExpectedOutputUnit(undefined);
         return;
       }
 
@@ -385,14 +385,12 @@ export const Swap = () => {
       if (canceled) {
         return;
       }
-      setExpectedOutput(displayAmount.amount);
-      setExpectedOutputUnit(displayAmount.unit);
+      setExpectedOutput(displayAmount);
     };
 
     updateExpectedOutput().catch(() => {
       if (!canceled) {
-        setExpectedOutput(selectedRoute?.expectedBuyAmount || '');
-        setExpectedOutputUnit(buyAccount?.coinUnit);
+        setExpectedOutput('');
       }
     });
 
@@ -413,7 +411,7 @@ export const Swap = () => {
     setIsConfirmInFlight(true);
 
     try {
-      if (!await connect(sellAccount.keystore.rootFingerprint, 'swapPaymentRequests')) {
+      if (!await connect(sellAccount.keystore.rootFingerprint, 'swapPaymentRequests') || !isMounted.current) {
         return;
       }
 
@@ -431,6 +429,9 @@ export const Swap = () => {
         sellAccountCode,
         sellAmount,
       });
+      if (!isMounted.current) {
+        return;
+      }
       if (!response.success) {
         alertUser(response.errorCode
           ? t(`send.error.${response.errorCode}`)
@@ -439,6 +440,9 @@ export const Swap = () => {
       }
 
       const proposal = await proposeTx(sellAccountCode, response.txInput);
+      if (!isMounted.current) {
+        return;
+      }
       if (!proposal.success) {
         if (proposal.errorCode) {
           alertUser(t(`send.error.${proposal.errorCode}`));
@@ -448,30 +452,8 @@ export const Swap = () => {
         return;
       }
 
-      let expectedOutputConversions: TAmountWithConversions['conversions'];
-      const fiatConversions = await Promise.all(
-        activeCurrencies.map(async fiatUnit => {
-          const fiatConversion = await convertToCurrency({
-            amount: response.expectedBuyAmount,
-            coinCode: buyAccount.coinCode,
-            fiatUnit,
-          });
-          return fiatConversion.success
-            ? [fiatUnit, fiatConversion.fiatAmount] as const
-            : undefined;
-        }),
-      );
-      expectedOutputConversions = Object.fromEntries(
-        fiatConversions.filter(entry => entry !== undefined),
-      );
-
       setConfirmDetails({
-        expectedOutput: {
-          amount: expectedOutput,
-          conversions: expectedOutputConversions,
-          unit: expectedOutputUnit || buyAccount.coinUnit,
-          estimated: false,
-        },
+        expectedOutput: response.expectedOutput,
         feeAmount: proposal.fee,
         sellAmount: proposal.amount,
       });
@@ -479,14 +461,20 @@ export const Swap = () => {
 
       const recipientName = response.txInput.paymentRequest?.recipientName || 'SwapKit';
       const sendResult = await sendTx(sellAccountCode, `${t('generic.swap')} ${recipientName}`);
-      setResult(sendResult);
+      if (isMounted.current) {
+        setResult(sendResult);
+      }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : '';
-      alertUser(errorMessage || t('genericError'));
+      if (isMounted.current) {
+        const errorMessage = error instanceof Error ? error.message : '';
+        alertUser(errorMessage || t('genericError'));
+      }
     } finally {
       confirmInFlightRef.current = false;
-      setIsConfirmInFlight(false);
-      setIsConfirming(false);
+      if (isMounted.current) {
+        setIsConfirmInFlight(false);
+        setIsConfirming(false);
+      }
     }
   };
 
@@ -653,6 +641,11 @@ export const Swap = () => {
                 routes={routes}
                 selectedRouteId={selectedRouteId}
               />
+              {selectedRoute?.providers.some(provider => normalizeProviderName(provider) === 'flashnet') && (
+                <Message type="warning" className={style.quoteWarning}>
+                  {t('swap.flashnetQuoteWarning')}
+                </Message>
+              )}
               {insufficientGasFunds && sellParentAccount && (
                 <Message type="info" className={style.gasWarning}>
                   <Trans

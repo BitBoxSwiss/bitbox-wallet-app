@@ -28,8 +28,10 @@ func TestPrepareSwapRefundRoundTrip(t *testing.T) {
 	} {
 		t.Run(string(sellCode), func(t *testing.T) {
 			buyCode := accountsTypes.Code("v0-55555555-btc-0")
+			purchaseAmount, purchaseCoinType := "1 BTC", uint32(0)
 			if sellCode == buyCode {
 				buyCode = "v0-55555555-eth-0"
+				purchaseAmount, purchaseCoinType = "1 ETH", 60
 			}
 			sellAccount, err := b.GetAccountFromCode(sellCode)
 			require.NoError(t, err)
@@ -58,7 +60,7 @@ func TestPrepareSwapRefundRoundTrip(t *testing.T) {
 							Address:           body.SourceAddress,
 							AddressDerivation: &paymentrequest.Slip24AddressDerivation{Eth: &paymentrequest.Slip24EthAddressDerivation{Keypath: []uint32{123}}},
 						}},
-						{Type: "coinPurchase", CoinPurchase: &paymentrequest.Slip24CoinPurchase{CoinType: 0, Amount: "1 BTC", Address: body.DestinationAddress}},
+						{Type: "coinPurchase", CoinPurchase: &paymentrequest.Slip24CoinPurchase{CoinType: purchaseCoinType, Amount: purchaseAmount, Address: body.DestinationAddress}},
 					},
 				}
 				response, err := json.Marshal(swapkit.SwapResponse{Meta: swapkit.SwapMeta{Slip24: &signedRequest}})

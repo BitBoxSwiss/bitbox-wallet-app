@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TERC20CoinCode } from './erc20';
-import type { TAccountCode, TCoinCode, TNativeCoinCode, TAccountBase, TTxInput } from './account';
+import type { TAccountCode, TCoinCode, TNativeCoinCode, TAccountBase, TAmountWithConversions, TTxInput } from './account';
 import { apiGet, apiPost } from '@/utils/request';
 
 export type TSwapAccount = TAccountBase & ({
@@ -81,7 +81,7 @@ export type TSwapSignRequest = {
 
 export type TSwapSignResponse = {
   success: true;
-  expectedBuyAmount: string;
+  expectedOutput: TAmountWithConversions;
   swapId: string;
   txInput: TTxInput;
 } | {
