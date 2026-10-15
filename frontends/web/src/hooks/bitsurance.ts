@@ -55,14 +55,18 @@ export const useBitsurance = (
 
   const checkUncoveredUTXOs = useCallback(async () => {
     const uncoveredScripts: accountApi.ScriptType[] = [];
-    const utxos = await accountApi.getUTXOs(code);
-    utxos.forEach((utxo) => {
+    const result = await accountApi.getUTXOs(code);
+    if (!result.success) {
+      alertUser(result.errorMessage || t('genericError'));
+      return;
+    }
+    result.utxos.forEach((utxo) => {
       if (utxo.scriptType !== 'p2wpkh' && !uncoveredScripts.includes(utxo.scriptType)) {
         uncoveredScripts.push(utxo.scriptType);
       }
     });
     setUncoveredFunds(uncoveredScripts.map(getScriptName));
-  }, [code]);
+  }, [code, t]);
 
   const maybeCheckBitsuranceStatus = useCallback(async () => {
     if (!account?.bitsuranceStatus) {
