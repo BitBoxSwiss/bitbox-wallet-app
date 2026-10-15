@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: MIT
+//
+// The landing page. Every topic is defined by the header that owns it. Prose only: nothing here is
+// compiled, and nothing in the headers repeats it.
+
+/// \mainpage STDCORELIB
+///
+/// A small C++17 support library, for the things the standard library leaves to the platform.
+///
+/// Most of it exists because the answer differs between Windows and the rest of the world: console
+/// color, UTF-8 that survives a Windows console, launching a child process, loading a shared
+/// object. The rest is a handful of containers and utilities that kept getting rewritten.
+///
+/// \section main_conventions Conventions
+///
+/// \li <b>Every \c std::string is UTF-8.</b> Arguments, environment, log messages, what a child
+///     process wrote. On Windows they are converted at the system call rather than through the
+///     system code page, so text written in any script survives the round trip. A
+///     \c std::filesystem::path is the exception: it carries whatever its platform gives it.
+/// \li <b>A failure is a return value.</b> \c std::optional where there is nothing to say about why,
+///     \c std::error_code where there is. What throws says so.
+/// \li <b>No RTTI is needed.</b> stdc::type_id and stdc::any name a type without \c typeid, and the
+///     library builds with \c -fno-rtti to keep that honest.
+/// \li Header-only where it can be, compiled where it has to be. Nothing outside the standard
+///     library is required.
+///
+/// \section main_organization Organization
+///
+/// Components lists every part of the library, each with a description and an example, and each
+/// defined by the header that owns it. Building it and linking against it are in the README.
