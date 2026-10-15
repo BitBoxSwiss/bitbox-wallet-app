@@ -12,6 +12,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QScopeGuard>
 #include <QtCore/QTimer>
+#include <QtCore/QtMath>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QPainter>
 #include <QtGui/QPalette>
@@ -1799,7 +1800,9 @@ namespace QWK {
                 QPoint qtScenePos = QHighDpi::fromNativeLocalPosition(point2qpoint(nativeLocalPos),
                                                                       m_windowHandle.data());
 
-                int frameSize = getResizeBorderThickness(hWnd);
+                const qreal dpiScale = getDpiForWindow(hWnd) / 96.0;
+                const int configuredBorder = qBound(6, m_windowHandle->property("_qwk_resize_border").toInt(), 64);
+                int frameSize = qMax(getResizeBorderThickness(hWnd), qCeil(configuredBorder * dpiScale));
 
                 bool isFixedWidth = isHostWidthFixed();
                 bool isFixedHeight = isHostHeightFixed();
@@ -1813,6 +1816,35 @@ namespace QWK {
                 bool isInCaptionButtons = isInSystemButtons(qtScenePos, &sysButtonType);
                 static constexpr bool dontOverrideCursor = false; // ### TODO
 
+                // Keep a usable resize band inside every client edge even when
+                // Windows preserves the outer system frame or disables shadows.
+                // This precedes caption roles, so corners remain resizable over
+                // the controls; the remaining maximize area still returns HTZOOM.
+                if (isWindowNoState(hWnd) && !isFixedSize && !dontOverrideCursor &&
+                    nativeLocalPos.x >= 0 && nativeLocalPos.x < clientWidth &&
+                    nativeLocalPos.y >= 0 && nativeLocalPos.y < clientHeight) {
+                    const int cornerSize = qMax(frameSize, qCeil(qBound(12,
+                        m_windowHandle->property("_qwk_resize_corner").toInt(), 64) * dpiScale));
+                    const bool nearLeft = nativeLocalPos.x < cornerSize;
+                    const bool nearRight = nativeLocalPos.x >= clientWidth - cornerSize;
+                    const bool nearTop = nativeLocalPos.y < cornerSize;
+                    const bool nearBottom = nativeLocalPos.y >= clientHeight - cornerSize;
+                    const bool left = !isFixedWidth && (isInLeftBorder ||
+                        (nearLeft && (isInTopBorder || isInBottomBorder)));
+                    const bool right = !isFixedWidth && (isInRightBorder ||
+                        (nearRight && (isInTopBorder || isInBottomBorder)));
+                    const bool top = !isFixedHeight && (isInTopBorder ||
+                        (nearTop && (isInLeftBorder || isInRightBorder)));
+                    const bool bottom = !isFixedHeight && (isInBottomBorder ||
+                        (nearBottom && (isInLeftBorder || isInRightBorder)));
+                    if (top || bottom || left || right) {
+                        *result = top ? (left ? HTTOPLEFT : right ? HTTOPRIGHT : HTTOP) :
+                                  bottom ? (left ? HTBOTTOMLEFT : right ? HTBOTTOMRIGHT : HTBOTTOM) :
+                                  left ? HTLEFT : HTRIGHT;
+                        return true;
+                    }
+                }
+
                 if (isInCaptionButtons) {
                     // Firstly, we set the hit test result to a default value to be able to detect
                     // whether we have changed it or not afterwards.
@@ -1822,7 +1854,9 @@ namespace QWK {
                     // this is also the normal behavior of a native Win32 window (but only when the
                     // window is not maximized/fullscreen/minimized, of course).
                     if (isWindowNoState(hWnd)) {
-                        static constexpr const quint8 kBorderSize = 2;
+                        // Preserve the same native resize width over caption
+                        // buttons as elsewhere on the top/right frame.
+                        const int kBorderSize = qMax(frameSize, qRound(6.0 * getDpiForWindow(hWnd) / 96.0));
                         bool isTop = nativeLocalPos.y <= kBorderSize;
                         bool isLeft = nativeLocalPos.x <= kBorderSize;
                         bool isRight = nativeLocalPos.x > clientWidth - kBorderSize;

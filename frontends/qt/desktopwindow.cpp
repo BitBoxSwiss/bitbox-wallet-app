@@ -27,7 +27,7 @@
 
 namespace {
 bool supportsCsd() {
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     return true;
 #else
     return false;
@@ -117,9 +117,15 @@ protected:
         QColor fill = color;
         fill.setAlpha(highlighted ? 40 : 15);
         painter.setPen(Qt::NoPen);
+#if defined(Q_OS_WIN)
+        const bool closeHover = action == "close" && highlighted;
+        painter.fillRect(rect(), closeHover ? QColor("#e81123") : highlighted ? fill : QColor(Qt::transparent));
+        const auto stroke = closeHover ? QColor(Qt::white) : color;
+#else
         painter.setBrush(fill);
         painter.drawEllipse(QPointF(width() / 2.0, height() / 2.0), 13, 13);
         const auto stroke = color;
+#endif
         painter.setPen(QPen(stroke, 1.4));
         const QRectF glyph(width() / 2.0 - 5, height() / 2.0 - 5, 10, 10);
         if (action == "close") {
@@ -430,10 +436,17 @@ void DesktopWindow::placeControls() {
         if (isFullScreen() || (!left.contains(action) && !right.contains(action))) button->hide();
     }
     auto place = [this, body, controlY](const QStringList &actions, bool onLeft) {
+#if defined(Q_OS_WIN)
+        const int width = 46;
+        const int offset = 0;
+        const int height = 32;
+        const int y = body.y();
+#else
         const int width = 36;
         const int offset = (chromeHeight - controlHeight) / 2;
         const int height = controlHeight;
         const int y = controlY;
+#endif
         int x = onLeft ? body.left() + offset : body.x() + body.width() - offset - actions.size() * width;
         for (const auto &action : actions) {
             for (auto *button : buttons_) {
