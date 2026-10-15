@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gallery-only samples. The runtime initialLayout always keeps its loading placeholders. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="12dp"
+    android:background="@drawable/price_widget_background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+        <ImageView android:layout_width="16dp" android:layout_height="16dp"
+            android:src="@drawable/widget_btc" android:importantForAccessibility="no" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:layout_marginStart="4dp" android:text="@string/price_widget_preview_pair"
+            android:textSize="12sp" android:textColor="@color/widget_secondary" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/price_widget_preview_change" android:textSize="12sp"
+            android:textColor="@color/widget_positive" />
+    </LinearLayout>
+    <TextView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:gravity="center" android:text="@string/price_widget_preview_price"
+        android:textSize="30sp" android:textStyle="bold" android:textColor="@color/widget_text" />
+    <ImageView android:layout_width="match_parent" android:layout_height="32dp"
+        android:src="@drawable/widget_preview_chart" android:scaleType="fitXY"
+        android:contentDescription="@string/price_widget_chart" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center" android:text="@string/price_widget_preview_label"
+        android:textSize="11sp" android:textColor="@color/widget_secondary" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:gravity="center">
+        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:padding="12dp"
+            android:src="@drawable/widget_previous" android:contentDescription="@string/price_widget_previous" />
+        <ImageView android:layout_width="0dp" android:layout_height="24dp" android:layout_weight="1"
+            android:src="@drawable/widget_logo" android:contentDescription="@string/app_name" />
+        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:padding="12dp"
+            android:src="@drawable/widget_next" android:contentDescription="@string/price_widget_next" />
+    </LinearLayout>
+</LinearLayout>

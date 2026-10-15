@@ -25,6 +25,6 @@ void setup_sigsys_handler() {
 
 }
 
-JNIEXPORT void JNICALL Java_ch_shiftcrypto_bitboxapp_MainActivity_initsignalhandler(JNIEnv *env, jobject thisObj) {
+JNIEXPORT void JNICALL Java_ch_shiftcrypto_bitboxapp_BitBoxApplication_initSignalHandler(JNIEnv *env, jclass clazz) {
   setup_sigsys_handler();
 }

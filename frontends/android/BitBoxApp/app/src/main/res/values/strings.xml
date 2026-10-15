@@ -1,2 +1,18 @@
 <resources>
+    <string name="price_widget_change">%1$s%%</string>
+    <string name="price_widget_chart">24-hour price chart</string>
+    <string name="price_widget_description">Live token price with 24-hour chart.</string>
+    <string name="price_widget_empty">—</string>
+    <string name="price_widget_loading">Loading…</string>
+    <string name="price_widget_name">BitBoxApp Prices</string>
+    <string name="price_widget_next">Next coin</string>
+    <string name="price_widget_pair">%1$s/%2$s</string>
+    <string name="price_widget_previous">Previous coin</string>
+    <string name="price_widget_resize">Resize widget to see prices</string>
+    <string name="price_widget_unavailable">Unavailable</string>
+    <string name="price_widget_updated_at">Updated %1$s</string>
+    <string name="price_widget_preview_pair" translatable="false">BTC/USD</string>
+    <string name="price_widget_preview_price" translatable="false">123,456.00</string>
+    <string name="price_widget_preview_change" translatable="false">+2.34%</string>
+    <string name="price_widget_preview_label">Sample prices</string>
 </resources>
