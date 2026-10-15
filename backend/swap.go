@@ -454,15 +454,16 @@ func (backend *Backend) PrepareSwap(
 	if len(paymentRequest.Outputs) != 1 {
 		return nil, errp.New("Missing or multiple payment request output unsupported")
 	}
-	if !slip24HasCoinPurchase(paymentRequest) {
-		return nil, errp.New("Missing coinPurchase payment request memo")
+	expectedBuyAmount, err := swapReceiveAmount(paymentRequest, buyAccount.Coin())
+	if err != nil {
+		return nil, err
 	}
 	txInput, err := swapSignTxInput(paymentRequest, sellAccount.Coin(), destinationDerivation)
 	if err != nil {
 		return nil, err
 	}
 	return &SwapPreparation{
-		ExpectedBuyAmount: swapResponse.ExpectedBuyAmount,
+		ExpectedBuyAmount: expectedBuyAmount,
 		SwapID:            swapResponse.SwapID,
 		TxInput:           txInput,
 	}, nil
@@ -558,16 +559,35 @@ func (backend *Backend) appendERC20SwapAccounts(
 	return sellAccounts, buyAccounts
 }
 
-func slip24HasCoinPurchase(paymentRequest *paymentrequest.Slip24) bool {
-	if paymentRequest == nil {
-		return false
-	}
+// swapReceiveAmount extracts the amount displayed by the device, in the buy asset's standard unit.
+func swapReceiveAmount(paymentRequest *paymentrequest.Slip24, buyCoin coinpkg.Coin) (string, error) {
+	var purchase *paymentrequest.Slip24CoinPurchase
 	for _, memo := range paymentRequest.Memos {
-		if memo.CoinPurchase != nil {
-			return true
+		if memo.Type != "coinPurchase" {
+			continue
 		}
+		if memo.CoinPurchase == nil || purchase != nil {
+			return "", errp.New("Missing or multiple coinPurchase payment request memos")
+		}
+		purchase = memo.CoinPurchase
 	}
-	return false
+	if purchase == nil {
+		return "", errp.New("Missing coinPurchase payment request memo")
+	}
+	parts := strings.Fields(purchase.Amount)
+	if len(parts) != 2 || parts[1] != buyCoin.Unit(false) {
+		return "", errp.New("Invalid coinPurchase amount or unit")
+	}
+	amount, err := coinpkg.NewAmountFromString(parts[0], coinpkg.DecimalsExp(buyCoin, false))
+	if err != nil || amount.BigInt().Sign() <= 0 {
+		return "", errp.New("Invalid coinPurchase amount")
+	}
+	decimals := int(buyCoin.Decimals(false))
+	formattedAmount := coinpkg.ToUnitRat(amount, buyCoin, false).FloatString(decimals)
+	if decimals > 0 {
+		formattedAmount = strings.TrimRight(strings.TrimRight(formattedAmount, "0"), ".")
+	}
+	return formattedAmount, nil
 }
 
 func frontendPaymentRequest(

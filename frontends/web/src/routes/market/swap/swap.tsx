@@ -39,8 +39,10 @@ import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { findAccount } from '@/routes/account/utils';
 import { getDisplayedCoinUnit, isBitcoinOnly } from '@/utils/coin';
 import { useLoad } from '@/hooks/api';
+import { useMountedRef } from '@/hooks/mount';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
+import { normalizeProviderName } from './components/swap-provider-metadata';
 import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -76,8 +78,11 @@ const getSwapDisplayAmount = async (
   }
 
   const parsedAmount = await parseExternalBtcAmount(amount);
+  if (!parsedAmount.success) {
+    throw new Error();
+  }
   return {
-    amount: parsedAmount.success ? parsedAmount.amount : amount,
+    amount: parsedAmount.amount,
     unit: displayedUnit,
   };
 };
@@ -85,6 +90,7 @@ const getSwapDisplayAmount = async (
 export const Swap = () => {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
+  const isMounted = useMountedRef();
   const { accounts } = useAppState();
   const { activeCurrencies, btcUnit, defaultCurrency } = useContext(RatesContext);
   // accounts is added as a dependency, to reload swap accounts when the account list changes.
@@ -107,7 +113,6 @@ export const Swap = () => {
   // Receive
   const [buyAccountCode, setBuyAccountCode] = useState<AccountCode | undefined>();
   const [expectedOutput, setExpectedOutput] = useState<string>('');
-  const [expectedOutputUnit, setExpectedOutputUnit] = useState<CoinUnit | undefined>();
 
   // Shows the fullscreen device-confirmation step after the tx proposal is ready.
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
@@ -209,7 +214,6 @@ export const Swap = () => {
     setRoutes([]);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
-    setExpectedOutputUnit(undefined);
     setValidationErrorCode(undefined);
     setRouteError(undefined);
   }, []);
@@ -340,7 +344,6 @@ export const Swap = () => {
     const updateExpectedOutput = async () => {
       if (!selectedRoute || !buyAccount) {
         setExpectedOutput('');
-        setExpectedOutputUnit(undefined);
         return;
       }
 
@@ -354,13 +357,11 @@ export const Swap = () => {
         return;
       }
       setExpectedOutput(displayAmount.amount);
-      setExpectedOutputUnit(displayAmount.unit);
     };
 
     updateExpectedOutput().catch(() => {
       if (!canceled) {
-        setExpectedOutput(selectedRoute?.expectedBuyAmount || '');
-        setExpectedOutputUnit(buyAccount?.coinUnit);
+        setExpectedOutput('');
       }
     });
 
@@ -392,12 +393,18 @@ export const Swap = () => {
         sellAccountCode,
         sellAmount,
       });
+      if (!isMounted.current) {
+        return;
+      }
       if (!response.success) {
         alertUser(response.errorMessage || t('genericError'));
         return;
       }
 
       const proposal = await proposeTx(sellAccountCode, response.txInput);
+      if (!isMounted.current) {
+        return;
+      }
       if (!proposal.success) {
         if (proposal.errorCode) {
           alertUser(t(`send.error.${proposal.errorCode}`));
@@ -407,11 +414,19 @@ export const Swap = () => {
         return;
       }
 
-      let expectedOutputConversions: TAmountWithConversions['conversions'];
+      const displayAmount = await getSwapDisplayAmount(
+        response.expectedBuyAmount,
+        buyAccount.coinCode,
+        buyAccount.coinUnit,
+        btcUnit,
+      );
+      if (!isMounted.current) {
+        return;
+      }
       const fiatConversions = await Promise.all(
         activeCurrencies.map(async fiatUnit => {
           const fiatConversion = await convertToCurrency({
-            amount: response.expectedBuyAmount,
+            amount: displayAmount.amount,
             coinCode: buyAccount.coinCode,
             fiatUnit,
           });
@@ -420,15 +435,18 @@ export const Swap = () => {
             : undefined;
         }),
       );
-      expectedOutputConversions = Object.fromEntries(
+      if (!isMounted.current) {
+        return;
+      }
+      const expectedOutputConversions = Object.fromEntries(
         fiatConversions.filter(entry => entry !== undefined),
       );
 
       setConfirmDetails({
         expectedOutput: {
-          amount: expectedOutput,
+          amount: displayAmount.amount,
           conversions: expectedOutputConversions,
-          unit: expectedOutputUnit || buyAccount.coinUnit,
+          unit: displayAmount.unit,
           estimated: false,
         },
         feeAmount: proposal.fee,
@@ -438,14 +456,20 @@ export const Swap = () => {
 
       const recipientName = response.txInput.paymentRequest?.recipientName || 'SwapKit';
       const sendResult = await sendTx(sellAccountCode, `${t('generic.swap')} ${recipientName}`);
-      setResult(sendResult);
+      if (isMounted.current) {
+        setResult(sendResult);
+      }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : '';
-      alertUser(errorMessage || t('genericError'));
+      if (isMounted.current) {
+        const errorMessage = error instanceof Error ? error.message : '';
+        alertUser(errorMessage || t('genericError'));
+      }
     } finally {
       confirmInFlightRef.current = false;
-      setIsConfirmInFlight(false);
-      setIsConfirming(false);
+      if (isMounted.current) {
+        setIsConfirmInFlight(false);
+        setIsConfirming(false);
+      }
     }
   };
 
@@ -613,6 +637,11 @@ export const Swap = () => {
                 routes={routes}
                 selectedRouteId={selectedRouteId}
               />
+              {selectedRoute?.providers.some(provider => normalizeProviderName(provider) === 'flashnet') && (
+                <Message type="warning" className={style.quoteWarning}>
+                  {t('swap.flashnetQuoteWarning')}
+                </Message>
+              )}
               {insufficientGasFunds && sellParentAccount && (
                 <Message type="info" className={style.gasWarning}>
                   <Trans

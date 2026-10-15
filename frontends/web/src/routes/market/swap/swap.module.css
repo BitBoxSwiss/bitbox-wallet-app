@@ -29,7 +29,8 @@
   margin-bottom: var(--space-half);
 }
 
-.gasWarning {
+.gasWarning,
+.quoteWarning {
   margin-top: var(--space-half);
 }
 
