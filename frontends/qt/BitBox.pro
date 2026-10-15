@@ -66,12 +66,13 @@ unix:!macx {
 }
 
 SOURCES += \
+        desktopwindow.cpp \
         main.cpp \
         filedialog.cpp \
         urlhandler.cpp \
         network.cpp
 
-HEADERS += libserver.h webclass.h filedialog.h urlhandler.h network.h
+HEADERS += windowchrome.h desktopwindow.h libserver.h webclass.h filedialog.h urlhandler.h network.h
 
 unix:macx {
     CONFIG += sdk_no_version_check
