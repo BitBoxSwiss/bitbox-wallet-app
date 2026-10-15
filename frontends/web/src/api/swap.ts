@@ -38,6 +38,7 @@ export type TSwapQuoteRequest = {
 
 export type TSwapQuoteRoute = {
   expectedBuyAmount: string;
+  insufficientGasFunds?: boolean;
   providers: string[];
   routeId: string;
 };
