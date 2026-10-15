@@ -26,14 +26,6 @@
 #endif
 
 namespace {
-bool supportsCsd() {
-#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
-    return true;
-#else
-    return false;
-#endif
-}
-
 constexpr int shadowSize = 16;
 constexpr int chromeHeight = 70;
 constexpr int controlHeight = 36;
@@ -161,7 +153,7 @@ bool readRect(const QVariantMap &input, qreal zoom, const QRect &bounds, QRect *
 
 DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(parent), view_(view) {
     QSettings settings;
-    native_ = !supportsCsd() || settings.value("nativeDecorations", false).toBool() || qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
+    native_ = settings.value("nativeDecorations", false).toBool() || qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
     setWindowTitle("BitBoxApp");
     setMouseTracking(true);
 #if defined(Q_OS_LINUX)
@@ -206,6 +198,13 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
             agent_->setHitTestVisible(proxy, true);
             exclusions_.append(proxy);
         }
+#if defined(Q_OS_MACOS)
+        trafficLights_ = new QWidget(this);
+        trafficLights_->setAttribute(Qt::WA_TransparentForMouseEvents);
+        trafficLights_->show();
+        agent_->setWindowAttribute("no-system-buttons", false);
+        agent_->setSystemButtonArea(trafficLights_);
+#else
         for (const auto &action : QStringList{"minimize", "maximize", "close"}) {
             auto *button = new WindowButton(action, this);
             buttons_.append(button);
@@ -218,6 +217,7 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
                 else toggleMaximize();
             });
         }
+#endif
 #if defined(Q_OS_LINUX)
         connect(preferences_, &LinuxDecorationPreferences::changed, this, [this] {
             placeControls();
