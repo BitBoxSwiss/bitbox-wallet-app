@@ -6,11 +6,24 @@
 
 QT       += core gui
 QT       += webenginewidgets
+QT       += quickwidgets
 QT       += network
+isEmpty(QWINDOWKIT_PREFIX): QWINDOWKIT_PREFIX = $$OUT_PWD/qwindowkit/install
+!exists($$QWINDOWKIT_PREFIX/share/QWindowKit/qmake/QWKWidgets.pri): error(Build QWindowKit with build-windowkit.sh before running qmake)
+include($$QWINDOWKIT_PREFIX/share/QWindowKit/qmake/QWKWidgets.pri)
+CONFIG += c++17
+unix:!macx {
+    QT += dbus gui-private waylandclient waylandclient-private
+    LIBS += -ldl
+    SOURCES += linuxdecorationpreferences.cpp
+    HEADERS += linuxdecorationpreferences.h
+}
 win32 {
     # For setting 'AlwaysActivate', see.
     # See https://forum.qt.io/topic/133694/using-alwaysactivatewindow-to-gain-foreground-in-win10-using-qt6-2/2
     QT += gui-private
+    # Static QWindowKit calls Win32 window management and GDI directly.
+    LIBS += -luxtheme -luser32 -lgdi32
 }
 
 TARGET = BitBox
@@ -60,12 +73,13 @@ unix:!macx {
 }
 
 SOURCES += \
+        desktopwindow.cpp \
         main.cpp \
         filedialog.cpp \
         urlhandler.cpp \
         network.cpp
 
-HEADERS += libserver.h webclass.h filedialog.h urlhandler.h network.h
+HEADERS += windowchrome.h desktopwindow.h libserver.h webclass.h filedialog.h urlhandler.h network.h
 
 unix:macx {
     CONFIG += sdk_no_version_check

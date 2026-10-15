@@ -6,6 +6,7 @@ import { setDarkTheme, detectDarkTheme } from '@/api/darktheme';
 import { runningInAndroid } from '@/utils/env';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { DarkModeContext } from './DarkmodeContext';
+import { useDesktopSystemDark } from '@/components/desktop-chrome/desktop-chrome';
 
 type TProps = {
   children: ReactNode;
@@ -15,6 +16,7 @@ export const DarkModeProvider = ({ children }: TProps) => {
   const { config, setConfig } = useConfig();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const androidPrefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const systemDark = useDesktopSystemDark();
 
   const setAppTheme = useCallback(() => {
     setDarkTheme(isDarkMode);
@@ -37,10 +39,20 @@ export const DarkModeProvider = ({ children }: TProps) => {
     }
     if (runningInAndroid()) {
       setIsDarkMode(androidPrefersDarkMode);
+    } else if (typeof systemDark === 'boolean') {
+      setIsDarkMode(systemDark);
     } else {
-      detectDarkTheme().then(setIsDarkMode);
+      let mounted = true;
+      detectDarkTheme().then(dark => {
+        if (mounted) {
+          setIsDarkMode(dark);
+        }
+      });
+      return () => {
+        mounted = false;
+      };
     }
-  }, [androidPrefersDarkMode, config]);
+  }, [androidPrefersDarkMode, config, systemDark]);
 
   useEffect(() => {
     setAppTheme();
@@ -55,6 +67,8 @@ export const DarkModeProvider = ({ children }: TProps) => {
       let preferredDarkMode;
       if (runningInAndroid()) {
         preferredDarkMode = androidPrefersDarkMode;
+      } else if (typeof systemDark === 'boolean') {
+        preferredDarkMode = systemDark;
       } else {
         preferredDarkMode = await detectDarkTheme();
       }

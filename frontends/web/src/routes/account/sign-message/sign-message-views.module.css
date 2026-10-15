@@ -14,6 +14,7 @@
 
 .copyableInput {
   overflow: auto !important;
+  scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
 }
 
 .copyableInputMessage {

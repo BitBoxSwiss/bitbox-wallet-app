@@ -101,6 +101,7 @@ input.searchInput:focus {
 .optionsList {
     flex: 1;
     overflow-y: auto;
+    scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
     padding: 0;
 }
 

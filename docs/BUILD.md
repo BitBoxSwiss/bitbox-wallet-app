@@ -28,6 +28,20 @@ Build artifacts:
 * `frontends/qt/build/linux/bitbox_4.0.0_amd64.deb`
 * `frontends/qt/build/linux/BitBox-x86_64.AppImage`
 
+### Desktop window-management dependency
+
+Desktop builds compile the pinned QWindowKit Core/Widgets sources under
+`frontends/qt/external/qwindowkit` before qmake runs. Install CMake alongside
+the existing Qt and compiler toolchain. Dependency source pins and license
+notices are recorded in `frontends/qt/external/qwindowkit/BITBOX-DEPENDENCY.md`.
+Quick, examples, upstream tests and the style agent are disabled for this build.
+
+Continue using the standard `make qt-linux`, `make qt-windows` and
+`make qt-osx` targets. The Unix helper obtains the Qt installation from qmake;
+the Windows helper uses CMake from PATH or the installed Visual Studio tooling.
+The static dependency install is local to the Qt build directory. Its notices
+are included in the desktop package assets.
+
 ## MacOS
 
 Install Go, Qt and create-dmg. Note that qt@6 from homebrew does **not** work as it is missing the
@@ -174,3 +188,24 @@ Cross compile the library:
 Build artifacts:
 * `frontends/qt/server/libserver.dll`
 * `frontends/qt/server/libserver.h`
+
+### Linux client-side decorations
+
+The Linux shell uses Qt 6.8.2 private Wayland APIs; its private headers must match
+the runtime. The build image includes libwayland-dev. Modern decorations are the
+default on Linux; BITBOXAPP_NATIVE_DECORATIONS=1 forces system borders for
+troubleshooting. The in-app system border preference takes effect on restart.
+
+Qt owns synchronous native move/resize handling and a cached rounded shadow.
+Chromium composites the content, panels and inset outline through one rounded
+alpha mask. A native guard bounds stale content during resizing. The resize
+targets cover 4 logical pixels inside the body and 6 pixels into the shadow.
+Maximized/fullscreen windows have no outline or rounded contour. Attached Wayland
+tile edges are excluded from resizing. A bounded startup handshake initializes
+WebEngine transparency without changing the window size.
+
+The Linux regression project is frontends/qt/tests/desktopwindow.pro. Build it
+with the matching Qt toolchain and the existing QWindowKit install, then run
+desktopwindow-test inside dbus-run-session on native Wayland and X11. Manual
+acceptance must cover compositor dragging/snapping, live resizing, startup,
+fractional scaling, focused/unfocused shadows and desktop preference changes.

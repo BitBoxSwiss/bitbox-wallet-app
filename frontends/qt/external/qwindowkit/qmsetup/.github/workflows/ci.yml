@@ -1,0 +1,268 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  # One job per compiler rather than per configuration. What varies here is not what the code
+  # does, it is what the platform does underneath it: deploy reads an import table on Windows,
+  # asks otool on macOS and reads DT_NEEDED on Linux, and those are three different bodies of
+  # code covered by the same tests. Windows gets more than one compiler because it is the
+  # platform where the compiler decides what a binary looks like.
+  build:
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ linux-gcc, linux-clang, macos, windows-msvc, windows-clang-cl ]
+        include:
+          # qt_arch is what aqt calls the build for this platform. clang-cl
+          # takes the MSVC one, the two agreeing on an ABI.
+          - platform: linux-gcc
+            os: ubuntu-latest
+            cc: gcc
+            cxx: g++
+            qt_arch: linux_gcc_64
+          - platform: linux-clang
+            os: ubuntu-latest
+            cc: clang
+            cxx: clang++
+            qt_arch: linux_gcc_64
+          - platform: macos
+            os: macos-latest
+            cc: clang
+            cxx: clang++
+            qt_arch: clang_64
+          - platform: windows-msvc
+            os: windows-latest
+            cc: cl
+            cxx: cl
+            qt_arch: win64_msvc2022_64
+          - platform: windows-clang-cl
+            os: windows-latest
+            cc: clang-cl
+            cxx: clang-cl
+            qt_arch: win64_msvc2022_64
+
+    steps:
+      # stdcorelib is a submodule under src, and src/CMakeLists.txt falls back to it when no
+      # installed copy is found. Without this the configure stops on a directory that is not
+      # there.
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup
+
+      # Qt, for qm_find_qt and everything built on it. 6.5 or newer, since
+      # qm_install_qml_modules calls qt_query_qml_module and that arrived then.
+      #
+      # No modules asked for. Declarative and the Linguist tools come with the
+      # base install for Qt 6, and naming something aqt does not know is a job
+      # that fails, where something missing is only a test that does not
+      # register. Each of these tests asks the configure for what it needs, so
+      # the count the run reports is what says which of them ran.
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.1'
+          arch: ${{ matrix.qt_arch }}
+          cache: true
+
+      # QMSETUP_STATIC_RUNTIME is off, though it is on by default. Turning it on adds /MT to
+      # everything in this build, stdcorelib included, and a submodule built that way against a
+      # CMake default of /MDd is a link error rather than a test result. Whether the default
+      # works is a question about how it is written rather than about the code under test, and
+      # docs/TODO.md says so.
+      - name: Configure
+        shell: bash
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake -G Ninja -S . -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DQMSETUP_BUILD_TESTS=ON \
+            -DQMSETUP_STATIC_RUNTIME=OFF
+
+      # The point of installing Qt and protobuf is the tests that want them, and
+      # every one of those registers itself only where the configure found what
+      # it needs. A dependency that did not install would otherwise be a shorter
+      # run rather than a failure, which is the one way this job could go green
+      # while covering less than it says. So they are asked for by name.
+      - name: Check that the Qt and protobuf tests registered
+        shell: bash
+        run: |
+          expected="test_qt_targets test_translation test_install_qml_modules test_deploy_qml"
+
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            expected="$expected test_create_protobuf"
+          fi
+
+          for name in $expected; do
+            if ! ctest --test-dir build -N -R "$name" | grep -q "$name"; then
+              echo "$name did not register, so what it needs is not set up here"
+              exit 1
+            fi
+          done
+
+      - name: Build
+        run: cmake --build build
+
+      # --no-tests=error is not optional. ctest exits 0 when it finds nothing to run, and both
+      # halves of this suite register themselves conditionally: the CLI tests on an interpreter
+      # being found, the CMake tests on the fixtures having built. A run that registered neither
+      # would otherwise pass.
+      - name: Test
+        run: ctest --test-dir build --output-on-failure --no-tests=error
+
+  # Installing is the other half of what this project is. The tests cover the qm_* functions
+  # against the source tree, and this covers what a downstream project actually gets: an install
+  # tree with qmcorecmd in it and a package configuration that find_package can place.
+  install:
+    name: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      # No protobuf and no Qt. This job builds and installs with the tests off,
+      # so neither would be looked at.
+      - uses: ./.github/actions/setup
+        with:
+          protobuf: 'false'
+
+      - name: Build and install
+        shell: bash
+        run: |
+          cmake -G Ninja -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/prefix"
+          cmake --build build --target install
+
+      # find_package against what was just installed, and one qm_* function called, which is as
+      # far as a consumer gets before anything else can work.
+      - name: Use it
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/consumer"
+          cd "$RUNNER_TEMP/consumer"
+          cat > CMakeLists.txt <<'EOF'
+          cmake_minimum_required(VERSION 3.19)
+          project(consumer NONE)
+          find_package(qmsetup REQUIRED)
+          qm_import(Preprocess)
+          qm_add_definition(CONSUMED)
+          qm_generate_config("${CMAKE_CURRENT_BINARY_DIR}/config.h" NO_WARNING)
+          if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/config.h")
+              message(FATAL_ERROR "qm_generate_config wrote nothing")
+          endif()
+          EOF
+          cmake -S . -B build -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/prefix"
+          grep -q "define CONSUMED" build/config.h
+
+  # MinGW is a job of its own because it wants msys2 rather than the toolchain the matrix above
+  # sets up with an environment variable. It is worth having because it is the one Windows
+  # compiler that names a shared library the way Unix does, and a test that spelt out
+  # qmtest_extra_lib.dll rather than asking the build what it had called things passed under
+  # MSVC and failed here.
+  mingw:
+    name: windows-mingw
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      # protobuf from msys2 rather than anywhere else, so that it is built by the
+      # toolchain that is going to use it. No Qt: what aqt ships for Windows is
+      # built by MSVC or by a MinGW of its own choosing, and neither is the one
+      # here, so the Qt tests are left to the four jobs above.
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: false
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-python
+            mingw-w64-x86_64-protobuf
+
+      - name: Configure
+        shell: msys2 {0}
+        run: |
+          cmake -G Ninja -S . -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DQMSETUP_BUILD_TESTS=ON \
+            -DQMSETUP_STATIC_RUNTIME=OFF
+
+      # The same question the matrix jobs ask, for the one dependency this job
+      # installs.
+      - name: Check that the protobuf test registered
+        shell: msys2 {0}
+        run: |
+          if ! ctest --test-dir build -N -R test_create_protobuf | grep -q test_create_protobuf; then
+            echo "test_create_protobuf did not register, so protobuf is not set up here"
+            exit 1
+          fi
+
+      - name: Build
+        shell: msys2 {0}
+        run: cmake --build build
+
+      - name: Test
+        shell: msys2 {0}
+        run: ctest --test-dir build --output-on-failure --no-tests=error
+
+  # The reference, built as a check rather than published. pages.yml publishes it, and only from
+  # main, so this is what catches a broken comment on a pull request.
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Configuring reaches src/ before docs/, and stdcorelib is looked for there.
+          submodules: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Ninja from PyPI rather than from apt, along with everything else here. The Ubuntu
+      # archive the runners are pointed at goes away often enough to matter, and this job wants
+      # nothing a distribution has to build.
+      - name: Install Ninja and Sphinx
+        run: python -m pip install ninja sphinx sphinxcontrib-moderncmakedomain
+
+      # -W is set by docs/sphinx/CMakeLists.txt, so a reference that does not resolve fails here.
+      - name: Build documentation
+        run: |
+          cmake -G Ninja -S . -B build -DCMAKE_BUILD_TYPE=Release -DQMSETUP_BUILD_DOCUMENTATIONS=ON
+          cmake --build build --target qmsetup_docs
+
+      # What Sphinx cannot complain about. A command whose comment nobody wrote in the `.rst:`
+      # form is not an error, it is a command missing from the pages, and a module nobody made a
+      # stub for is an empty page. Neither is visible in a green build, so they are counted.
+      - name: Check that every command is in the reference
+        shell: bash
+        run: |
+          defined=$(grep -rhoE '^(function|macro)\(qm_[a-z0-9_]+' \
+            cmake/QMSetupAPI.cmake cmake/modules/*.cmake \
+            | sed -E 's/^(function|macro)\(//' | sort -u)
+          rendered=$(grep -rhoE 'id="command:qm_[a-z0-9_]+"' build/out/share/doc/qmsetup \
+            | sed -E 's/.*command:([a-z0-9_]+)"/\1/' | sort -u)
+
+          missing=$(comm -23 <(echo "$defined") <(echo "$rendered"))
+          if [ -n "$missing" ]; then
+            echo "defined but absent from the reference:"
+            echo "$missing"
+            exit 1
+          fi
+          echo "$(echo "$defined" | wc -l) commands, every one of them rendered"

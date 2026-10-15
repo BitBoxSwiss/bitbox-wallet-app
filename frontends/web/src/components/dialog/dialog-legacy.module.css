@@ -28,6 +28,7 @@
     /* mobile viewport bug fix */
     max-height: -webkit-fill-available;
     overflow: auto;
+    scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
     opacity: 0;
 }
 

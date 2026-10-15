@@ -62,6 +62,53 @@
     margin: 0;
 }
 
+:global(body[data-desktop-csd]) .header {
+    height: var(--header-height);
+    min-height: var(--header-height);
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: calc(var(--space-default) + var(--desktop-caption-controls-left, var(--desktop-controls-left, 0px)));
+    padding-right: calc(var(--space-default) + var(--desktop-caption-controls-right, var(--desktop-controls-right, 0px)));
+}
+
+:global(body[data-desktop-csd]) .header h2 {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+:global(body[data-desktop-csd]) .close {
+    order: -1;
+    margin-left: 0;
+    margin-right: var(--space-half);
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+}
+
+:global(body[data-desktop-csd]) .guide {
+    --desktop-scroll-background: var(--color-lightblue);
+    --desktop-scrollbar-color: white;
+    overflow: hidden;
+    height: 100dvh;
+    visibility: hidden;
+    transition: margin-right 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+}
+
+:global(body[data-desktop-csd]) .guide.show {
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+:global(body[data-desktop-csd]) .content {
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
+}
+
 .content {
     display: flex;
     flex-direction: column;
@@ -138,6 +185,12 @@
 @media (max-width: 1348px) {
     .guideWrapper {
         width: calc( (((100% - var(--sidebar-width-large)) - var(--content-width)) / 2) + 18px + var(--space-default) );
+    }
+}
+
+@media (min-width: 1602px) {
+    :global(body[data-desktop-csd]) .guide {
+        position: relative;
     }
 }
 
