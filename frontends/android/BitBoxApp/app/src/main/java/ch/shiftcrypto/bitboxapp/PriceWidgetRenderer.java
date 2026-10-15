@@ -95,6 +95,8 @@ final class PriceWidgetRenderer {
         boolean available = state.has("price") && !state.isNull("price");
         views.setViewVisibility(R.id.widget_price, available ? View.VISIBLE : View.GONE);
         views.setViewVisibility(R.id.widget_unavailable, available ? View.GONE : View.VISIBLE);
+        views.setTextViewText(R.id.widget_unavailable, context.getString(state.optBoolean("loading")
+                ? R.string.price_widget_loading : R.string.price_widget_unavailable));
         if (available) {
             String price = format.format(state.optDouble("price"));
             views.setTextViewText(R.id.widget_price, price);

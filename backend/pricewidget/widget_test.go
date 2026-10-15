@@ -162,8 +162,12 @@ func TestMalformedSettingsDoNotFetch(t *testing.T) {
 		return rates.WidgetData{}, nil
 	}
 	writeFixture(t, dir, "config.json", `{"backend":`)
-	_, err := service.Load(dir, 0, true, true)
-	require.Error(t, err)
+	state, err := service.Load(dir, 0, true, true)
+	require.NoError(t, err)
+	assert.Equal(t, "btc", state.CoinCode)
+	assert.Equal(t, "USD", state.Currency)
+	assert.Nil(t, state.Price)
+	assert.True(t, state.Retry)
 }
 
 func TestFallbackExpiresDuringRefresh(t *testing.T) {
