@@ -55,6 +55,7 @@
 // If you change this, MoonPay may break, as this scheme is whitelisted as a frame ancestor in
 // their CSP response headers.
 static const char* scheme = "bitboxapp";
+static const char* host = "app";
 
 static QWebEngineProfile* profile;
 static QWebEngineView* view;
@@ -196,8 +197,8 @@ public:
         // We treat the exchange pages specially because we need to allow exchange
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
-        bool onExchangePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/market/.*$)").arg(scheme)));
-        bool onBitsurancePage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/bitsurance/.*$)").arg(scheme)));
+        bool onExchangePage = currentUrl.contains(QRegularExpression(QString(R"(^%1://%2/index\.html\#/market/.*$)").arg(scheme, host)));
+        bool onBitsurancePage = currentUrl.contains(QRegularExpression(QString(R"(^%1://%2/index\.html\#/bitsurance/.*$)").arg(scheme, host)));
         if (onExchangePage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
                 // Ignore requests for certain file types (e.g., .js, .css) Somehow Moonpay loads
@@ -220,7 +221,7 @@ public:
 
         // All the requests originated in the wallet-connect section are allowed, as they are needed to
         // load the Dapp logos and it is not easy to filter out non-images requests.
-        bool onWCPage = currentUrl.contains(QRegularExpression(QString(R"(^%1:/index\.html\#/account/[^\/]+/wallet-connect/.*$)").arg(scheme)));
+        bool onWCPage = currentUrl.contains(QRegularExpression(QString(R"(^%1://%2/index\.html\#/account/[^\/]+/wallet-connect/.*$)").arg(scheme, host)));
         if (onWCPage) {
             return;
         }
@@ -335,7 +336,7 @@ int main(int argc, char *argv[])
     }
 
     QWebEngineUrlScheme bbappScheme(scheme);
-    bbappScheme.setSyntax(QWebEngineUrlScheme::Syntax::Path);
+    bbappScheme.setSyntax(QWebEngineUrlScheme::Syntax::Host);
     bbappScheme.setFlags(QWebEngineUrlScheme::SecureScheme);
     QWebEngineUrlScheme::registerScheme(bbappScheme);
 
@@ -464,7 +465,7 @@ int main(int argc, char *argv[])
     // frame, a custom bridge would be necessary.
     view->settings()->setAttribute(QWebEngineSettings::JavascriptCanPaste, false);
     view->show();
-    view->load(QUrl(QString("%1:/index.html").arg(scheme)));
+    view->load(QUrl(QString("%1://%2/index.html").arg(scheme, host)));
 
     // Create TrayIcon
     {
