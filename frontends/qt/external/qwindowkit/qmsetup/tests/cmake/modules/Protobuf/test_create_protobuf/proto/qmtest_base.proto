@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package qmtest;
+
+message Base {
+    int32 value = 1;
+}

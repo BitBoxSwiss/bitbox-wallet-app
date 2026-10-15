@@ -1,11 +1,44 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { render } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GlobalBannersContainerContext } from '@/contexts/global-banners-context';
+import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
+import { Header } from './header';
 import { Main } from './main';
 
+vi.mock('@/components/desktop-chrome/desktop-chrome', () => ({ useDesktopChrome: vi.fn() }));
+vi.mock('./header', () => ({ Header: () => <div data-window-header>Caption</div> }));
+afterEach(() => vi.mocked(useDesktopChrome).mockReset());
+
 describe('Main', () => {
+  it('keeps the desktop caption outside scrolling content and restores banners when the capability arrives', () => {
+    const element = document.createElement('div');
+    element.textContent = 'Banner';
+    const fallback = document.createElement('div');
+    const globalBannersContainer = { element, restore: vi.fn(() => fallback.append(element)) };
+    const page = (
+      <GlobalBannersContainerContext.Provider value={globalBannersContainer}>
+        <Main><Header /><p>Scrollable content</p></Main>
+      </GlobalBannersContainerContext.Provider>
+    );
+    const { rerender } = render(page);
+    expect(screen.getByRole('main')).toContainElement(screen.getByText('Caption'));
+    vi.mocked(useDesktopChrome).mockReturnValue({ csd: true, nativeDecorations: false, activeNativeDecorations: false,
+      document: 1, viewport: 1, topInset: 0, leftInset: 0, rightInset: 53, cornerRadius: 12,
+      systemAppearanceReady: true,
+      maximized: false, fullScreen: false });
+    rerender(
+      <GlobalBannersContainerContext.Provider value={globalBannersContainer}>
+        <Main><Header /><p>Scrollable content</p></Main>
+      </GlobalBannersContainerContext.Provider>
+    );
+    expect(screen.getByRole('main')).not.toContainElement(screen.getByText('Caption'));
+    expect(screen.getByRole('main')).toContainElement(screen.getByText('Banner'));
+    expect(screen.getByRole('main')).toContainElement(screen.getByText('Scrollable content'));
+    expect(globalBannersContainer.restore).toHaveBeenCalledOnce();
+  });
+
   it('moves the persistent global banners into the active scroll container', () => {
     const fallbackContainer = document.createElement('div');
     const bannersContainer = document.createElement('div');

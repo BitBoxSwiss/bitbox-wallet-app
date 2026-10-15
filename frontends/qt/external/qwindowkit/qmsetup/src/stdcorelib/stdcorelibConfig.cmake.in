@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+include("${CMAKE_CURRENT_LIST_DIR}/stdcorelibTargets.cmake")
+
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/AddDoxygenDocs.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/AddInstallPackageRule.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/AddInstallPDBRule.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/AddWinRC.cmake")

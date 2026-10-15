@@ -28,6 +28,20 @@ Build artifacts:
 * `frontends/qt/build/linux/bitbox_4.0.0_amd64.deb`
 * `frontends/qt/build/linux/BitBox-x86_64.AppImage`
 
+### Desktop window-management dependency
+
+Desktop builds compile the pinned QWindowKit Core/Widgets sources under
+`frontends/qt/external/qwindowkit` before qmake runs. Install CMake alongside
+the existing Qt and compiler toolchain. Dependency source pins and license
+notices are recorded in `frontends/qt/external/qwindowkit/BITBOX-DEPENDENCY.md`.
+Quick, examples, upstream tests and the style agent are disabled for this build.
+
+Continue using the standard `make qt-linux`, `make qt-windows` and
+`make qt-osx` targets. The Unix helper obtains the Qt installation from qmake;
+the Windows helper uses CMake from PATH or the installed Visual Studio tooling.
+The static dependency install is local to the Qt build directory. Its notices
+are included in the desktop package assets.
+
 ## MacOS
 
 Install Go, Qt and create-dmg. Note that qt@6 from homebrew does **not** work as it is missing the

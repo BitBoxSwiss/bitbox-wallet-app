@@ -22,12 +22,15 @@ linux-bin:
 	$(MAKE) clean
 	cd server && $(MAKE) linux
 	$(MAKE) base
+	bash ./build-windowkit.sh
 	qmake -o build/Makefile
 	cd build && $(MAKE)
 	mkdir -p build/linux-tmp/lib build/linux
 	mv build/BitBox build/linux-tmp
 	cp build/assets.rcc build/linux-tmp/
 	cp server/libserver.so build/linux-tmp/lib
+	mkdir -p build/linux-tmp/doc/QWindowKit
+	cp build/qwindowkit/install/share/doc/QWindowKit/* build/linux-tmp/doc/QWindowKit/
 	cp ../../vendor/github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/linux-amd64/libbreez_sdk_spark_bindings.so build/linux-tmp/lib
 linux: linux-bin
 	cd build/linux-tmp && \
@@ -58,6 +61,7 @@ osx:
 	$(MAKE) clean
 	cd server && $(MAKE) macosx
 	$(MAKE) base
+	MACOS_MIN_VERSION=$(MACOS_MIN_VERSION) bash ./build-windowkit.sh
 	qmake -set MACOS_MIN_VERSION $(MACOS_MIN_VERSION)
 	# See https://stackoverflow.com/questions/77136519/qmake-failing-with-sdk-14-ventura-13-5-2
 	qmake -early QMAKE_DEFAULT_LIBDIRS=$(shell xcrun -show-sdk-path)/usr/lib -o build/Makefile
@@ -70,6 +74,8 @@ osx:
 	mkdir -p build/osx/BitBox.app/Contents/Resources
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
 	cp resources/MacOS/Assets.car build/osx/BitBox.app/Contents/Resources/
+	mkdir -p build/osx/BitBox.app/Contents/Resources/QWindowKit
+	cp build/qwindowkit/install/share/doc/QWindowKit/* build/osx/BitBox.app/Contents/Resources/QWindowKit/
 	# Create a universal binary for libbreez_sdk_spark_bindings.dylib
 	mkdir -p build/osx/BitBox.app/Contents/Frameworks
 	lipo -create \
