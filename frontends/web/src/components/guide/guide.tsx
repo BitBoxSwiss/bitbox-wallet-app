@@ -32,16 +32,18 @@ const Guide = ({ children, title = t('guide.title') }: TProps) => {
         data-testid="guide-overlay"
         className={[style.overlay, guideShown && style.show].join(' ')}
         onClick={toggleGuide}
+        data-window-frame-surface
+        data-window-dismiss-overlay={guideShown || undefined}
       ></div>
-      <div className={[style.guide, guideShown && style.show].join(' ')}>
-        <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
+      <div className={[style.guide, guideShown && style.show].join(' ')} data-window-frame-surface data-window-frame-panel>
+        <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')} data-window-titlebar data-window-frame-surface>
           <h2>{title}</h2>
 
-          <Button transparent className={style.close} onClick={toggleGuide}>
+          <Button transparent className={style.close} onClick={toggleGuide} aria-label={t('guide.toggle.close')}>
             <CloseXWhite />
           </Button>
         </div>
-        <div className={style.content}>
+        <div className={style.content} data-window-scroll data-window-no-drag-overlay={guideShown || undefined}>
           {children}
           <div className={style.appendix}>
             {t('guide.appendix.feedback.text')}
