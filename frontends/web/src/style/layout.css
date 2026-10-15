@@ -89,11 +89,13 @@
 
 .scrollableContainer {
     overflow: auto;
+    scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
 }
 
 .scrollContainer {
     overflow-x: auto;
     overflow-y: scroll;
+    scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
 }
 
 .subTitle {
@@ -117,6 +119,10 @@
 
 button, textarea {
     font-family: inherit;
+}
+
+textarea {
+    scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
 }
 
 .content {

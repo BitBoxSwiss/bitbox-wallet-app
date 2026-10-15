@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+// Found only because INCLUDE_DIRECTORIES named the directory it is in, this
+// file sitting somewhere else entirely.
+import "qmtest_base.proto";
+
+package qmtest;
+
+message Derived {
+    Base base = 1;
+    string name = 2;
+}

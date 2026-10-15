@@ -1,0 +1,28 @@
+.loading {
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+:global(body[data-desktop-csd]) :global(.app).loading {
+    /* Replacing this simple page with the application repaints the whole body. */
+    background-color: var(--background-secondary);
+}
+
+.caption {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 70px;
+}
+
+.indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-half);
+}
+
+.indicator img {
+    width: 36px;
+    height: 36px;
+}
