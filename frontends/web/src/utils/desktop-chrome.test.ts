@@ -79,7 +79,7 @@ describe('desktop chrome', () => {
       exclusions: [
         { x: 740, y: 10, width: 100, height: 50 },
       ],
-    }) }));
+    }) }), expect.any(Function));
     dispose();
     const firstSequence = updateFrame.mock.calls[0]![0].layout.sequence;
     const disposeAgain = attachDesktopGeometry({ close: 'Close' });
