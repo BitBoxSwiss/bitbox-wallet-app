@@ -617,6 +617,54 @@ func (etherScan *EtherScan) Balance(ctx context.Context, account common.Address,
 	return balance, nil
 }
 
+// HistoricalBalanceAt returns the native balance at the last block at or before at.
+func (etherScan *EtherScan) HistoricalBalanceAt(
+	ctx context.Context, account common.Address, at time.Time,
+) (*big.Int, error) {
+	var blockResult struct {
+		Status string
+		Result string
+	}
+	params := url.Values{
+		"module":    {"block"},
+		"action":    {"getblocknobytime"},
+		"timestamp": {strconv.FormatInt(at.Unix(), 10)},
+		"closest":   {"before"},
+	}
+	if err := etherScan.call(ctx, params, &blockResult); err != nil {
+		return nil, err
+	}
+	if blockResult.Status != "1" {
+		return nil, errp.Newf("could not get snapshot block: %s", blockResult.Result)
+	}
+	blockNumber, ok := new(big.Int).SetString(blockResult.Result, 10)
+	if !ok || blockNumber.Sign() < 0 {
+		return nil, errp.New("unexpected snapshot block from EtherScan")
+	}
+
+	var balanceResult struct {
+		Status string
+		Result string
+	}
+	params = url.Values{
+		"module":  {"account"},
+		"action":  {"balancehistory"},
+		"address": {account.Hex()},
+		"blockno": {blockNumber.String()},
+	}
+	if err := etherScan.call(ctx, params, &balanceResult); err != nil {
+		return nil, err
+	}
+	if balanceResult.Status != "1" {
+		return nil, errp.Newf("could not get snapshot balance: %s", balanceResult.Result)
+	}
+	balance, ok := new(big.Int).SetString(balanceResult.Result, 10)
+	if !ok || balance.Sign() < 0 {
+		return nil, errp.New("unexpected snapshot balance from EtherScan")
+	}
+	return balance, nil
+}
+
 // Balances returns balances at the specified block, or the latest if nil, for multiple addresses.
 func (etherScan *EtherScan) Balances(ctx context.Context, accounts []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
 	if len(accounts) == 0 {
