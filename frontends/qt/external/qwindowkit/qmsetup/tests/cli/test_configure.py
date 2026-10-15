@@ -1,0 +1,202 @@
+"""`configure` turns -D options into a header.
+
+--dryrun prints what it would write, which makes most of this observable
+without touching the disk.
+"""
+
+from testing.harness import QmTestCase
+
+
+class TestDefinitions(QmTestCase):
+    def test_a_bare_key_becomes_a_bare_define(self):
+        r = self.run_cmd("configure", "out.h", "-D", "FOO", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#define FOO")
+
+    def test_a_key_and_a_value_become_both(self):
+        r = self.run_cmd("configure", "out.h", "-D", "FOO=1", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#define FOO 1")
+
+    def test_the_value_may_be_joined_to_the_option(self):
+        """Which is what -DKEY=VALUE has to mean for anyone coming from a compiler."""
+        r = self.run_cmd("configure", "out.h", "-DFOO=1", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#define FOO 1")
+
+    def test_the_long_spelling_takes_an_equals_sign(self):
+        r = self.run_cmd("configure", "out.h", "--define=FOO=1", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#define FOO 1")
+
+    def test_all_three_spellings_agree(self):
+        joined = self.run_cmd("configure", "out.h", "-DFOO=1", "-d")
+        separate = self.run_cmd("configure", "out.h", "-D", "FOO=1", "-d")
+        long_form = self.run_cmd("configure", "out.h", "--define=FOO=1", "-d")
+        self.assertEqual(joined.out, separate.out)
+        self.assertEqual(joined.out, long_form.out)
+
+    def test_several_definitions_keep_the_order_they_were_given(self):
+        r = self.run_cmd(
+            "configure", "out.h", "-D", "FIRST=1", "-D", "SECOND=2", "-D", "THIRD=3", "-d"
+        )
+        self.assertOk(r)
+        self.assertOutOrder(r, "#define FIRST 1", "#define SECOND 2")
+        self.assertOutOrder(r, "#define SECOND 2", "#define THIRD 3")
+
+    def test_naming_a_key_twice_keeps_its_place_and_takes_the_last_value(self):
+        r = self.run_cmd(
+            "configure", "out.h", "-D", "FOO=1", "-D", "BAR=2", "-D", "FOO=3", "-d"
+        )
+        self.assertOk(r)
+        self.assertOut(r, "#define FOO 3")
+        self.assertNotOut(r, "#define FOO 1")
+        self.assertOutOrder(r, "#define FOO 3", "#define BAR 2")
+
+    def test_a_value_keeps_everything_after_the_first_equals_sign(self):
+        r = self.run_cmd("configure", "out.h", "-DFOO=a=b", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#define FOO a=b")
+
+    def test_a_percent_sign_writes_the_line_through_as_it_is(self):
+        r = self.run_cmd("configure", "out.h", "-D", "%#include <string>", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#include <string>")
+        self.assertNotOut(r, "#define %")
+
+    def test_a_raw_line_keeps_its_place_among_the_defines(self):
+        r = self.run_cmd(
+            "configure", "out.h", "-D", "FIRST=1", "-D", "%// a comment", "-D", "LAST=2", "-d"
+        )
+        self.assertOk(r)
+        self.assertOutOrder(r, "#define FIRST 1", "// a comment")
+        self.assertOutOrder(r, "// a comment", "#define LAST 2")
+
+
+class TestHeaderGuard(QmTestCase):
+    def test_the_guard_comes_from_the_file_name_upper_cased(self):
+        r = self.run_cmd("configure", "myconfig.h", "-D", "FOO", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#ifndef MYCONFIG_H")
+        self.assertOut(r, "#endif // MYCONFIG_H")
+
+    def test_a_project_name_goes_in_front_of_the_guard(self):
+        r = self.run_cmd("configure", "myconfig.h", "-p", "myproj", "-D", "FOO", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#ifndef MYPROJ_MYCONFIG_H")
+
+    def test_the_long_spelling_of_the_project_option_means_the_same(self):
+        short_form = self.run_cmd("configure", "c.h", "-p", "proj", "-D", "FOO", "-d")
+        long_form = self.run_cmd("configure", "c.h", "--project", "proj", "-D", "FOO", "-d")
+        self.assertEqual(short_form.out, long_form.out)
+
+    def test_punctuation_in_the_name_becomes_an_underscore(self):
+        r = self.run_cmd("configure", "my-config.v2.h", "-D", "FOO", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#ifndef MY_CONFIG_V2_H")
+
+    def test_a_guard_that_would_start_with_a_digit_gets_an_underscore(self):
+        r = self.run_cmd("configure", "1config.h", "-D", "FOO", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#ifndef _1CONFIG_H")
+
+    def test_the_guard_is_taken_from_the_name_not_the_whole_path(self):
+        r = self.run_cmd("configure", "some/deep/dir/out.h", "-D", "FOO", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#ifndef OUT_H")
+
+
+class TestWarningBlock(QmTestCase):
+    def test_no_warning_option_means_no_warning_block(self):
+        r = self.run_cmd("configure", "out.h", "-D", "FOO", "-d")
+        self.assertOk(r)
+        self.assertNotOut(r, "DO NOT EDIT")
+
+    def test_the_warning_option_with_no_file_gives_the_standard_text(self):
+        r = self.run_cmd("configure", "out.h", "-D", "FOO", "-w", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "DO NOT EDIT THIS FILE MANUALLY")
+
+    def test_the_warning_option_with_a_file_uses_that_files_lines(self):
+        self.write("warn.txt", "first warning line\nsecond warning line\n")
+        r = self.run_cmd("configure", "out.h", "-D", "FOO", "-w", "warn.txt", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "// first warning line")
+        self.assertOut(r, "// second warning line")
+        self.assertNotOut(r, "DO NOT EDIT")
+
+    def test_blank_lines_in_a_warning_file_are_dropped(self):
+        self.write("warn.txt", "one\n\n\ntwo\n")
+        r = self.run_cmd("configure", "out.h", "-D", "FOO", "-w", "warn.txt", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "// one")
+        self.assertOut(r, "// two")
+        self.assertNotOut(r, "// \n")
+
+    def test_a_warning_file_that_is_not_there_falls_back_to_the_standard_text(self):
+        r = self.run_cmd("configure", "out.h", "-D", "FOO", "-w", "nope.txt", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "DO NOT EDIT THIS FILE MANUALLY")
+
+
+class TestWritingTheFile(QmTestCase):
+    def test_dryrun_prints_and_writes_nothing(self):
+        r = self.run_cmd("configure", "out.h", "-D", "FOO", "-d")
+        self.assertOk(r)
+        self.assertOut(r, "#define FOO")
+        self.assertNoFile("out.h")
+
+    def test_without_dryrun_the_header_is_written(self):
+        r = self.run_cmd("configure", "out.h", "-D", "FOO=1")
+        self.assertOk(r)
+        self.assertFileContains("out.h", "#ifndef OUT_H")
+        self.assertFileContains("out.h", "#define FOO 1")
+        self.assertFileContains("out.h", "#endif // OUT_H")
+
+    def test_the_parent_directory_is_made_when_it_is_not_there(self):
+        r = self.run_cmd("configure", "nested/deeper/out.h", "-D", "FOO")
+        self.assertOk(r)
+        self.assertFile("nested/deeper/out.h")
+
+    def test_a_hash_of_the_definitions_is_written_with_them(self):
+        r = self.run_cmd("configure", "out.h", "-D", "FOO=1")
+        self.assertOk(r)
+        self.assertFileContains("out.h", "// SHA256: ")
+
+    def test_force_leaves_the_hash_out(self):
+        """Which is the point of it: the hash is only there to skip a rewrite."""
+        r = self.run_cmd("configure", "out.h", "-D", "FOO=1", "-f")
+        self.assertOk(r)
+        self.assertFileLacks("out.h", "SHA256")
+
+    def test_running_again_over_the_same_definitions_leaves_the_file_alone(self):
+        self.assertOk(self.run_cmd("configure", "out.h", "-D", "FOO=1"))
+        before = self.path("out.h").stat().st_mtime_ns
+        r = self.run_cmd("configure", "out.h", "-D", "FOO=1", "-V")
+        self.assertOk(r)
+        self.assertOut(r, "Content matched")
+        self.assertEqual(before, self.path("out.h").stat().st_mtime_ns)
+
+    def test_running_again_over_different_definitions_rewrites_the_file(self):
+        self.assertOk(self.run_cmd("configure", "out.h", "-D", "FOO=1"))
+        self.assertFileContains("out.h", "#define FOO 1")
+        self.assertOk(self.run_cmd("configure", "out.h", "-D", "FOO=2"))
+        self.assertFileContains("out.h", "#define FOO 2")
+        self.assertFileLacks("out.h", "#define FOO 1")
+
+    def test_force_rewrites_even_when_nothing_changed(self):
+        self.assertOk(self.run_cmd("configure", "out.h", "-D", "FOO=1"))
+        r = self.run_cmd("configure", "out.h", "-D", "FOO=1", "-f", "-V")
+        self.assertOk(r)
+        self.assertNotOut(r, "Content matched")
+
+    def test_the_dryrun_output_is_what_would_have_been_written(self):
+        dry = self.run_cmd("configure", "out.h", "-D", "FOO=1", "-w", "-d")
+        self.assertOk(dry)
+        self.assertNoFile("out.h")
+
+        self.assertOk(self.run_cmd("configure", "out.h", "-D", "FOO=1", "-w"))
+        self.assertEqual(
+            dry.out.replace("\r\n", "\n"),
+            self.read("out.h").replace("\r\n", "\n"),
+        )

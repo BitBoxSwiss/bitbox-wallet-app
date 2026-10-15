@@ -7,5 +7,22 @@
     flex-shrink: 1;
     overflow-x: inherit;
     overflow-y: auto;
+    scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
     position: relative;
+}
+
+.desktopFrame {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.desktopFrame > :global([data-window-header]) {
+    flex-shrink: 0;
+    background-color: var(--background);
 }

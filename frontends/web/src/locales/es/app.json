@@ -792,6 +792,13 @@
   "darkmode": {
     "toggle": "Modo oscuro"
   },
+  "desktopChrome": {
+    "close": "Cerrar",
+    "maximize": "Maximizar o restaurar",
+    "minimize": "Minimizar",
+    "nativeDecorations": "Usar los bordes de ventana del sistema",
+    "restart": "Los cambios se aplican al reiniciar BitBoxApp."
+  },
   "device": {
     "appUpradeRequired": "Tu BitBox no es compatible con esta aplicación de escritorio. Por favor descarga e instale la última versión.",
     "firmwareUpgradeRequired": "Se requiere una actualización de firmware para utilizar esta función.",
