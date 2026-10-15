@@ -13,72 +13,56 @@ namespace QWK {
 
     static constexpr const quint8 kDefaultResizeBorderThickness = 8;
 
-    static Qt::CursorShape calculateCursorShape(const QWindow *window, const QPoint &pos) {
-#ifdef Q_OS_MACOS
-        Q_UNUSED(window);
-        Q_UNUSED(pos);
-        return Qt::ArrowCursor;
-#else
-        Q_ASSERT(window);
-        if (!window) {
-            return Qt::ArrowCursor;
-        }
-        if (window->visibility() != QWindow::Windowed) {
-            return Qt::ArrowCursor;
-        }
-        const int x = pos.x();
-        const int y = pos.y();
-        const int w = window->width();
-        const int h = window->height();
-        if (((x < kDefaultResizeBorderThickness) && (y < kDefaultResizeBorderThickness)) ||
-            ((x >= (w - kDefaultResizeBorderThickness)) &&
-             (y >= (h - kDefaultResizeBorderThickness)))) {
-            return Qt::SizeFDiagCursor;
-        }
-        if (((x >= (w - kDefaultResizeBorderThickness)) && (y < kDefaultResizeBorderThickness)) ||
-            ((x < kDefaultResizeBorderThickness) && (y >= (h - kDefaultResizeBorderThickness)))) {
-            return Qt::SizeBDiagCursor;
-        }
-        if ((x < kDefaultResizeBorderThickness) || (x >= (w - kDefaultResizeBorderThickness))) {
-            return Qt::SizeHorCursor;
-        }
-        if ((y < kDefaultResizeBorderThickness) || (y >= (h - kDefaultResizeBorderThickness))) {
-            return Qt::SizeVerCursor;
-        }
-        return Qt::ArrowCursor;
-#endif
+    // Hit testing uses the visible body, with a bounded outset into its shadow.
+    static QRect resizeFrame(const QWindow *window) {
+        const auto rect = window->property("_qwk_resize_frame").toRect();
+        return rect.isValid() ? rect : QRect(QPoint(), window->size());
     }
 
-    static inline Qt::Edges calculateWindowEdges(const QWindow *window, const QPoint &pos) {
+    static Qt::Edges calculateWindowEdges(const QWindow *window, const QPoint &pos) {
 #ifdef Q_OS_MACOS
         Q_UNUSED(window);
         Q_UNUSED(pos);
         return {};
 #else
-        Q_ASSERT(window);
-        if (!window) {
-            return {};
+        if (!window || window->visibility() != QWindow::Windowed) return {};
+        const auto frame = resizeFrame(window);
+        const int configured = window->property("_qwk_resize_border").toInt();
+        const int border = configured > 0 ? qBound(4, configured, 32) : kDefaultResizeBorderThickness;
+        const auto outsetValue = window->property("_qwk_resize_outset");
+        const int outset = outsetValue.isValid() ? qBound(0, outsetValue.toInt(), 32) : border;
+        if (!frame.adjusted(-outset, -outset, outset, outset).contains(pos)) return {};
+        const int x = pos.x() - frame.x();
+        const int y = pos.y() - frame.y();
+        const int corner = qMax(border, qBound(0, window->property("_qwk_resize_corner").toInt(), 64));
+        Qt::Edges edges;
+        if (x < border) edges |= Qt::LeftEdge;
+        if (x >= frame.width() - border) edges |= Qt::RightEdge;
+        if (y < border) edges |= Qt::TopEdge;
+        if (y >= frame.height() - border) edges |= Qt::BottomEdge;
+        // Extend diagonal targets along the rounded arc, keeping one identical
+        // hit test for the cursor and the native compositor resize request.
+        if (edges.testFlag(Qt::LeftEdge) || edges.testFlag(Qt::RightEdge)) {
+            if (y < corner) edges |= Qt::TopEdge;
+            if (y >= frame.height() - corner) edges |= Qt::BottomEdge;
         }
-        if (window->visibility() != QWindow::Windowed) {
-            return {};
+        if (edges.testFlag(Qt::TopEdge) || edges.testFlag(Qt::BottomEdge)) {
+            if (x < corner) edges |= Qt::LeftEdge;
+            if (x >= frame.width() - corner) edges |= Qt::RightEdge;
         }
-        Qt::Edges edges = {};
-        const int x = pos.x();
-        const int y = pos.y();
-        if (x < kDefaultResizeBorderThickness) {
-            edges |= Qt::LeftEdge;
-        }
-        if (x >= (window->width() - kDefaultResizeBorderThickness)) {
-            edges |= Qt::RightEdge;
-        }
-        if (y < kDefaultResizeBorderThickness) {
-            edges |= Qt::TopEdge;
-        }
-        if (y >= (window->height() - kDefaultResizeBorderThickness)) {
-            edges |= Qt::BottomEdge;
-        }
-        return edges;
+        return edges & ~Qt::Edges(window->property("_qwk_disabled_resize_edges").toInt());
 #endif
+    }
+
+    static Qt::CursorShape calculateCursorShape(const QWindow *window, const QPoint &pos) {
+        const auto edges = calculateWindowEdges(window, pos);
+        if (edges == (Qt::LeftEdge | Qt::TopEdge) || edges == (Qt::RightEdge | Qt::BottomEdge))
+            return Qt::SizeFDiagCursor;
+        if (edges == (Qt::RightEdge | Qt::TopEdge) || edges == (Qt::LeftEdge | Qt::BottomEdge))
+            return Qt::SizeBDiagCursor;
+        if (edges.testFlag(Qt::LeftEdge) || edges.testFlag(Qt::RightEdge)) return Qt::SizeHorCursor;
+        if (edges.testFlag(Qt::TopEdge) || edges.testFlag(Qt::BottomEdge)) return Qt::SizeVerCursor;
+        return Qt::ArrowCursor;
     }
 
     class QtWindowEventFilter : public SharedEventFilter {
@@ -228,6 +212,16 @@ namespace QWK {
 
             case QEvent::MouseButtonDblClick: {
                 if (me->button() == Qt::LeftButton && inTitleBar && !fixedSize) {
+                    const auto action = window->property("_qwk_title_double_click").toString();
+                    if (action == QStringLiteral("none")) {
+                        handled = true;
+                        break;
+                    }
+                    if (action == QStringLiteral("minimize")) {
+                        delegate->setWindowState(host, delegate->getWindowState(host) | Qt::WindowMinimized);
+                        handled = true;
+                        break;
+                    }
                     Qt::WindowFlags windowFlags = delegate->getWindowFlags(host);
                     Qt::WindowStates windowState = delegate->getWindowState(host);
                     if ((windowFlags & Qt::WindowMaximizeButtonHint) &&

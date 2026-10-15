@@ -10,6 +10,7 @@
 
 class QWebEngineView;
 class QAbstractButton;
+class QQuickWindow;
 namespace QWK { class WidgetWindowAgent; }
 class LinuxDecorationPreferences;
 
@@ -35,23 +36,32 @@ protected:
     void closeEvent(QCloseEvent *) override;
     void paintEvent(QPaintEvent *) override;
     bool event(QEvent *) override;
+    bool eventFilter(QObject *, QEvent *) override;
 private:
     void syncFrame();
     void placeControls();
     void safeTitle();
     void updateControls();
     void invalidateViewport();
+    void rebuildShadow();
+    void syncWebBackground();
     QRect bodyRect() const;
     QWebEngineView *view_;
+    QPointer<QQuickWindow> webScene_;
     QWK::WidgetWindowAgent *agent_ = nullptr;
     QWidget *title_ = nullptr;
     QWidget *trafficLights_ = nullptr;
     QVector<QWidget *> exclusions_;
     QVector<QAbstractButton *> buttons_;
+    QVector<QWidget *> resizeTargets_;
     LinuxDecorationPreferences *preferences_ = nullptr;
     bool native_ = false;
     bool syncFrame_ = false;
     QMargins shadowMargins_;
+    QImage shadow_;
+    qreal shadowDpr_ = 0;
+    bool shadowActive_ = false;
+    bool shadowLight_ = true;
     QHash<QString, QColor> captionColors_;
     qreal radius_ = 12;
     int tiledEdges_ = 0;

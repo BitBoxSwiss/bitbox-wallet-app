@@ -363,6 +363,11 @@ int main(int argc, char *argv[])
     profile = new QWebEngineProfile("BitBoxApp");
     externalPage = new QWebEnginePage(profile, view);
     mainPage = new WebEnginePage(profile);
+#if defined(Q_OS_LINUX)
+    // Establish alpha composition before binding the page to a visible view.
+    // The renderer must not start with an opaque document beneath the CSS contour.
+    if (desktopWindow->state().value("csd").toBool()) mainPage->setBackgroundColor(Qt::transparent);
+#endif
     view->setPage(mainPage);
     QObject::connect(mainPage, &QWebEnginePage::loadStarted, desktopWindow, &DesktopWindow::resetDocument);
     QObject::connect(mainPage, &QWebEnginePage::renderProcessTerminated, desktopWindow, [=] { desktopWindow->resetDocument(); });

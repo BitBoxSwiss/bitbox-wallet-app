@@ -5,6 +5,8 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QMouseEvent>
+#include <QQuickWidget>
+#include <QQuickWindow>
 #include <QPainter>
 #include <QPainterPath>
 #include <QResizeEvent>
@@ -19,11 +21,17 @@
 #include <QWKWidgets/widgetwindowagent.h>
 #if defined(Q_OS_LINUX)
 #include "linuxdecorationpreferences.h"
+#include <qpa/qplatformwindow_p.h>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
 #endif
 
 namespace {
 bool supportsCsd() {
+#if defined(Q_OS_LINUX)
+    return true;
+#else
     return false;
+#endif
 }
 
 constexpr int shadowSize = 16;
@@ -32,6 +40,60 @@ constexpr int controlHeight = 36;
 constexpr int maxExclusions = 32;
 constexpr int resizeBorder = 4;
 constexpr int resizeShadow = 6;
+
+class ResizeTarget final : public QWidget {
+public:
+    explicit ResizeTarget(QWidget *parent) : QWidget(parent) {
+        setAttribute(Qt::WA_NoSystemBackground);
+        setMouseTracking(true);
+        setFocusPolicy(Qt::NoFocus);
+    }
+protected:
+    void paintEvent(QPaintEvent *) override {}
+    void enterEvent(QEnterEvent *event) override { updateCursor(event->position().toPoint()); }
+    void mouseMoveEvent(QMouseEvent *event) override { updateCursor(event->position().toPoint()); }
+    void mousePressEvent(QMouseEvent *event) override {
+        auto *handle = window()->windowHandle();
+        const auto edges = edgesAt(event->position().toPoint());
+        if (event->button() == Qt::LeftButton && handle && edges && handle->startSystemResize(edges))
+            event->accept();
+        else event->ignore();
+    }
+private:
+    Qt::Edges edgesAt(const QPoint &local) const {
+        const auto *handle = window()->windowHandle();
+        if (!handle || handle->visibility() != QWindow::Windowed) return {};
+        const auto body = handle->property("_qwk_resize_frame").toRect();
+        const auto pos = mapTo(window(), local);
+        const int corner = qMax(resizeBorder, handle->property("_qwk_resize_corner").toInt());
+        Qt::Edges edges;
+        if (pos.x() < body.left() + resizeBorder) edges |= Qt::LeftEdge;
+        if (pos.x() > body.right() - resizeBorder) edges |= Qt::RightEdge;
+        if (pos.y() < body.top() + resizeBorder) edges |= Qt::TopEdge;
+        if (pos.y() > body.bottom() - resizeBorder) edges |= Qt::BottomEdge;
+        if (edges & (Qt::LeftEdge | Qt::RightEdge)) {
+            if (pos.y() < body.top() + corner) edges |= Qt::TopEdge;
+            if (pos.y() > body.bottom() - corner) edges |= Qt::BottomEdge;
+        }
+        if (edges & (Qt::TopEdge | Qt::BottomEdge)) {
+            if (pos.x() < body.left() + corner) edges |= Qt::LeftEdge;
+            if (pos.x() > body.right() - corner) edges |= Qt::RightEdge;
+        }
+        if (window()->minimumWidth() == window()->maximumWidth()) edges &= ~(Qt::LeftEdge | Qt::RightEdge);
+        if (window()->minimumHeight() == window()->maximumHeight()) edges &= ~(Qt::TopEdge | Qt::BottomEdge);
+        return edges & ~Qt::Edges(handle->property("_qwk_disabled_resize_edges").toInt());
+    }
+    void updateCursor(const QPoint &local) {
+        const auto edges = edgesAt(local);
+        if (edges == (Qt::TopEdge | Qt::LeftEdge) || edges == (Qt::BottomEdge | Qt::RightEdge))
+            setCursor(Qt::SizeFDiagCursor);
+        else if (edges == (Qt::TopEdge | Qt::RightEdge) || edges == (Qt::BottomEdge | Qt::LeftEdge))
+            setCursor(Qt::SizeBDiagCursor);
+        else if (edges & (Qt::LeftEdge | Qt::RightEdge)) setCursor(Qt::SizeHorCursor);
+        else if (edges & (Qt::TopEdge | Qt::BottomEdge)) setCursor(Qt::SizeVerCursor);
+        else unsetCursor();
+    }
+};
 
 class WindowButton final : public QAbstractButton {
 public:
@@ -101,14 +163,30 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
     connect(preferences_, &LinuxDecorationPreferences::colorSchemeChanged, this, [this] { emit stateChanged(); });
 #endif
     if (!native_) {
+#if defined(Q_OS_LINUX)
+        // Establish the final surface flags before QWindowKit attaches its
+        // WinIdChange hook. Changing them during native creation can remap the
+        // window and invalidate WebEngine's initial composited frame.
+        const auto systemFlags = windowFlags();
+        setWindowFlag(Qt::FramelessWindowHint);
+        setAttribute(Qt::WA_TranslucentBackground);
+        winId();
+#endif
         agent_ = new QWK::WidgetWindowAgent(this);
         if (!agent_->setup(this)) {
             delete agent_;
             agent_ = nullptr;
             native_ = true;
+#if defined(Q_OS_LINUX)
+            setAttribute(Qt::WA_TranslucentBackground, false);
+            setWindowFlags(systemFlags);
+#endif
         }
     }
     view_->setParent(this);
+#if defined(Q_OS_LINUX)
+    if (!native_) view_->installEventFilter(this);
+#endif
     if (agent_) {
         title_ = new QWidget(this);
         title_->setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -142,6 +220,9 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
 #endif
     }
     setMinimumSize(360, 375);
+#if defined(Q_OS_LINUX)
+    if (!native_) for (int i = 0; i < 4; ++i) resizeTargets_.append(new ResizeTarget(this));
+#endif
     resize(sizeHint());
     syncFrame();
     resetDocument();
@@ -159,6 +240,9 @@ QVariantMap DesktopWindow::state() const {
         else rightInset = qMax(rightInset, body.right() - button->x() + 1);
     }
     qreal cornerRadius = 0;
+#if defined(Q_OS_LINUX)
+    if (!native_ && !isMaximized() && !isFullScreen() && !tiledEdges_) cornerRadius = radius_ / view_->zoomFactor();
+#endif
     QVariantList captionButtons;
     for (auto *button : buttons_) {
         if (button->isHidden()) continue;
@@ -173,6 +257,7 @@ QVariantMap DesktopWindow::state() const {
 #if defined(Q_OS_LINUX)
     systemDark = preferences_->colorScheme() == 1;
     systemAppearanceReady = preferences_->colorSchemeReady();
+    startupReady = native_ || startupReadyDocument_ == document_;
 #endif
     return {{"csd", !native_}, {"nativeDecorations", QSettings().value("nativeDecorations", false).toBool()},
             {"activeNativeDecorations", native_}, {"document", document_}, {"viewport", viewport_},
@@ -254,7 +339,7 @@ void DesktopWindow::updateAppearance(const QVariantMap &appearance) {
     }
     const double radius = appearance.value("buttonRadius").toDouble();
     const qreal newRadius = std::isfinite(radius) && radius >= 8 ? qBound(8.0, radius * view_->zoomFactor(), 64.0) : 12;
-    if (radius_ != newRadius) { radius_ = newRadius; syncFrame(); invalidateViewport(); }
+    if (radius_ != newRadius) { radius_ = newRadius; shadow_ = {}; syncFrame(); invalidateViewport(); }
     const auto labels = appearance.value("labels").toMap();
     for (auto *button : buttons_) {
         auto *control = static_cast<WindowButton *>(button);
@@ -267,7 +352,57 @@ void DesktopWindow::updateAppearance(const QVariantMap &appearance) {
 }
 
 void DesktopWindow::prepareStartup(quint64 document) {
+#if defined(Q_OS_LINUX)
+    if (native_ || document != document_ || startupReadyDocument_ == document || startupPendingDocument_ == document) return;
+    startupPendingDocument_ = document;
+    syncWebBackground();
+    const auto ready = [this, document] {
+        if (document != document_ || startupReadyDocument_ == document) return;
+        startupReadyDocument_ = document;
+        startupPendingDocument_ = 0;
+        emit stateChanged();
+    };
+    // The loading page stays mounted until Qt renders its initialized surface.
+    // This changes neither window nor viewport geometry.
+    for (auto *quick : view_->findChildren<QQuickWidget *>()) {
+        if (quick->window() != this) continue;
+        if (auto *scene = quick->quickWindow()) {
+            connect(scene, &QQuickWindow::afterRendering, this, ready,
+                    Qt::ConnectionType(Qt::QueuedConnection | Qt::SingleShotConnection));
+            scene->update();
+            break;
+        }
+    }
+    view_->update();
+    update();
+    // Hidden windows may suspend rendering; initialization must still complete.
+    QTimer::singleShot(500, this, ready);
+#else
     Q_UNUSED(document);
+#endif
+}
+
+void DesktopWindow::syncWebBackground() {
+#if defined(Q_OS_LINUX)
+    if (native_) return;
+    for (auto *quick : view_->findChildren<QQuickWidget *>()) {
+        if (quick->window() != this || quick->isHidden() || !quick->quickWindow()) continue;
+        if (webScene_ != quick->quickWindow()) {
+            webScene_ = quick->quickWindow();
+            connect(webScene_, &QQuickWindow::colorChanged, this, &DesktopWindow::syncWebBackground,
+                    Qt::QueuedConnection);
+        }
+        if (webScene_->color().alpha() != 0) {
+            // Chromium's content background can override the transparent page
+            // default. Reset through the page API to clear both the compositor
+            // layer and Qt's surface. Two zero-alpha colors bypass its cached
+            // value check without painting an opaque frame or changing size.
+            const int red = view_->page()->backgroundColor().red() == 0 ? 1 : 0;
+            view_->page()->setBackgroundColor(QColor(red, 0, 0, 0));
+        }
+        break;
+    }
+#endif
 }
 
 void DesktopWindow::setNativeDecorations(bool enabled) {
@@ -328,6 +463,22 @@ void DesktopWindow::syncFrame() {
     if (syncFrame_) return;
     syncFrame_ = true;
     QMargins margins;
+#if defined(Q_OS_LINUX)
+    QtWaylandClient::QWaylandWindow *wayland = nullptr;
+    if (windowHandle()) wayland = dynamic_cast<QtWaylandClient::QWaylandWindow *>(windowHandle()->handle());
+    const int tiles = wayland ? int(wayland->toplevelWindowTilingStates()) : 0;
+    tiledEdges_ = tiles;
+    if (!native_ && !isMaximized() && !isFullScreen())
+        margins = QMargins(tiles & 1 ? 0 : shadowSize, tiles & 4 ? 0 : shadowSize,
+                           tiles & 2 ? 0 : shadowSize, tiles & 8 ? 0 : shadowSize);
+    if (margins != shadowMargins_) {
+        shadowMargins_ = margins;
+        if (windowHandle()) {
+            auto *native = windowHandle()->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+            if (native) native->setCustomMargins(margins);
+        }
+    }
+#endif
     const auto body = bodyRect();
     view_->setGeometry(body);
     if (windowHandle()) {
@@ -339,7 +490,51 @@ void DesktopWindow::syncFrame() {
             (tiledEdges_ & 2 ? int(Qt::RightEdge) : 0) | (tiledEdges_ & 4 ? int(Qt::TopEdge) : 0) |
             (tiledEdges_ & 8 ? int(Qt::BottomEdge) : 0));
     }
+#if defined(Q_OS_LINUX)
+    // The CSS alpha mask owns the visible curve. This outward-rounded guard
+    // bounds stale WebEngine frames during resize without cutting its AA edge.
+    const qreal radius = native_ || isMaximized() || isFullScreen() || tiledEdges_ ? 0 :
+        qMin(radius_, qMin(view_->width(), view_->height()) / 2.0);
+    if (radius > 0) {
+        QRegion visible(view_->rect());
+        for (int y = 0; y < qCeil(radius); ++y) {
+            const qreal distance = qMax(0.0, radius - y - 1);
+            const int cut = qMax(0, qFloor(radius - std::sqrt(radius * radius - distance * distance)) - 1);
+            if (!cut) continue;
+            for (const int row : {y, view_->height() - y - 1}) {
+                visible -= QRegion(0, row, cut, 1);
+                visible -= QRegion(view_->width() - cut, row, cut, 1);
+            }
+        }
+        view_->setMask(visible);
+    } else {
+        view_->setMask(QRegion());
+    }
+    if (wayland && !native_) {
+        // Include transparent corner targets and 6px of the outer shadow.
+        // The rest of the shadow remains click-through on Wayland.
+        windowHandle()->setMask(QRegion(body.adjusted(-resizeShadow, -resizeShadow, resizeShadow, resizeShadow).intersected(rect())));
+    }
+#endif
     placeControls();
+    // Native input targets sit above Chromium and draw no pixels. Their outer
+    // 6px lie in the shadow; their inner 4px match the windowkit resize band.
+    const auto outer = body.adjusted(-resizeShadow, -resizeShadow, resizeShadow, resizeShadow);
+    const int band = resizeBorder + resizeShadow;
+    const QRect targets[]{
+        QRect(outer.left(), outer.top(), outer.width(), band),
+        QRect(outer.left(), body.bottom() - resizeBorder + 1, outer.width(), band),
+        QRect(outer.left(), outer.top(), band, outer.height()),
+        QRect(body.right() - resizeBorder + 1, outer.top(), band, outer.height())};
+    const Qt::Edge targetEdges[]{Qt::TopEdge, Qt::BottomEdge, Qt::LeftEdge, Qt::RightEdge};
+    const auto disabled = windowHandle() ? Qt::Edges(windowHandle()->property("_qwk_disabled_resize_edges").toInt()) : Qt::Edges();
+    for (int i = 0; i < resizeTargets_.size(); ++i) {
+        auto *target = resizeTargets_[i];
+        const bool fixed = i < 2 ? minimumHeight() == maximumHeight() : minimumWidth() == maximumWidth();
+        target->setGeometry(targets[i].intersected(rect()));
+        target->setVisible(!isMaximized() && !isFullScreen() && !fixed && !disabled.testFlag(targetEdges[i]));
+        target->raise();
+    }
     syncFrame_ = false;
     update();
 }
@@ -361,7 +556,24 @@ bool DesktopWindow::event(QEvent *event) {
     const bool result = QWidget::event(event);
     if (type == QEvent::WinIdChange || type == QEvent::DevicePixelRatioChange)
         QTimer::singleShot(0, this, [this] { syncFrame(); invalidateViewport(); });
+#if defined(Q_OS_LINUX)
+    if (type == QEvent::UpdateRequest && windowHandle()) {
+        auto *platform = dynamic_cast<QtWaylandClient::QWaylandWindow *>(windowHandle()->handle());
+        if (platform && int(platform->toplevelWindowTilingStates()) != tiledEdges_)
+            QTimer::singleShot(0, this, [this] { syncFrame(); invalidateViewport(); });
+    }
+#endif
     return result;
+}
+
+bool DesktopWindow::eventFilter(QObject *object, QEvent *event) {
+#if defined(Q_OS_LINUX)
+    if (object == view_ && (event->type() == QEvent::ChildAdded || event->type() == QEvent::ChildPolished)) {
+        // ChildAdded occurs before the WebEngine delegate is fully constructed.
+        QTimer::singleShot(0, this, &DesktopWindow::syncWebBackground);
+    }
+#endif
+    return QWidget::eventFilter(object, event);
 }
 
 void DesktopWindow::closeEvent(QCloseEvent *event) {
@@ -369,5 +581,61 @@ void DesktopWindow::closeEvent(QCloseEvent *event) {
     QWidget::closeEvent(event);
 }
 
+void DesktopWindow::rebuildShadow() {
+    const qreal dpr = qMin(devicePixelRatioF(), qreal(8));
+    const bool active = isActiveWindow();
+    const bool light = background_.lightnessF() > 0.5;
+    if (!shadow_.isNull() && shadowDpr_ == dpr && shadowActive_ == active && shadowLight_ == light) return;
+    shadowDpr_ = dpr;
+    shadowActive_ = active;
+    shadowLight_ = light;
+    const int half = shadowSize + qCeil(radius_);
+    shadow_ = QImage(QSize(half * 2, half * 2) * dpr, QImage::Format_ARGB32_Premultiplied);
+    shadow_.setDevicePixelRatio(dpr);
+    shadow_.fill(Qt::transparent);
+    QPainter painter(&shadow_);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(Qt::NoPen);
+    const QRectF body(shadowSize, shadowSize, 2 * qCeil(radius_), 2 * qCeil(radius_));
+    for (int i = shadowSize; i > 0; --i) {
+        const int strength = light ? (active ? 12 : 4) : (active ? 7 : 2);
+        painter.setBrush(QColor(0, 0, 0, qRound(strength * std::pow(1.0 - double(i) / (shadowSize + 1), 2))));
+        painter.drawRoundedRect(body.adjusted(-i, -i, i, i), radius_ + i, radius_ + i);
+    }
+    painter.setCompositionMode(QPainter::CompositionMode_Clear);
+    painter.drawRoundedRect(body, radius_, radius_);
+}
+
 void DesktopWindow::paintEvent(QPaintEvent *) {
+#if defined(Q_OS_LINUX)
+    if (native_) return;
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.fillRect(rect(), Qt::transparent);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    if (!shadowMargins_.isNull()) {
+        rebuildShadow();
+        const qreal half = shadow_.width() / shadowDpr_ / 2;
+        const qreal source = shadow_.width() / 2.0;
+        const qreal xs[]{0, half, width() - half, double(width())};
+        const qreal ys[]{0, half, height() - half, double(height())};
+        for (int y = 0; y < 3; ++y) for (int x = 0; x < 3; ++x) {
+            if (x == 1 && y == 1) continue;
+            const QRectF target(xs[x], ys[y], xs[x + 1] - xs[x], ys[y + 1] - ys[y]);
+            const QRectF part(x == 2 ? source : x == 1 ? source : 0,
+                              y == 2 ? source : y == 1 ? source : 0,
+                              x == 1 ? 1 : source, y == 1 ? 1 : source);
+            painter.drawImage(target, shadow_, part);
+        }
+    }
+    // Cover newly exposed areas while Chromium catches up with a resize. Keep
+    // the backdrop inside the web contour's AA fringe to avoid edge buildup.
+    const qreal radius = isMaximized() || isFullScreen() || tiledEdges_ ? 0 : radius_;
+    const qreal inset = radius > 0 ? 1.0 / devicePixelRatioF() : 0;
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(background_);
+    const QRectF backdrop = QRectF(bodyRect()).adjusted(inset, inset, -inset, -inset);
+    painter.drawRoundedRect(backdrop, qMax(0.0, radius - inset), qMax(0.0, radius - inset));
+#endif
 }

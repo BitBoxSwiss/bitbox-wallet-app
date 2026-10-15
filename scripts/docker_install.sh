@@ -38,6 +38,7 @@ apt-get install -y --no-install-recommends \
         libxcb-shape0 \
         libxcb-xinput0 \
         libwayland-cursor0 \
+        libwayland-dev \
         cmake \
         libwayland-egl1 \
         libcups2 \

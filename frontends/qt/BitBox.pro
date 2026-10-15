@@ -6,13 +6,15 @@
 
 QT       += core gui
 QT       += webenginewidgets
+QT       += quickwidgets
 QT       += network
 isEmpty(QWINDOWKIT_PREFIX): QWINDOWKIT_PREFIX = $$OUT_PWD/qwindowkit/install
 !exists($$QWINDOWKIT_PREFIX/share/QWindowKit/qmake/QWKWidgets.pri): error(Build QWindowKit with build-windowkit.sh before running qmake)
 include($$QWINDOWKIT_PREFIX/share/QWindowKit/qmake/QWKWidgets.pri)
 CONFIG += c++17
 unix:!macx {
-    QT += dbus
+    QT += dbus gui-private waylandclient waylandclient-private
+    LIBS += -ldl
     SOURCES += linuxdecorationpreferences.cpp
     HEADERS += linuxdecorationpreferences.h
 }
