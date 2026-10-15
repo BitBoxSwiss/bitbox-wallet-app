@@ -28,6 +28,82 @@ Build artifacts:
 * `frontends/qt/build/linux/bitbox_4.0.0_amd64.deb`
 * `frontends/qt/build/linux/BitBox-x86_64.AppImage`
 
+### Desktop decorations
+
+Desktop builds compile the pinned QWindowKit Core/Widgets dependency from
+`frontends/qt/external/qwindowkit`. CMake is required alongside qmake. The Linux
+image also needs `libwayland-dev`; Qt private Wayland headers must match the Qt
+runtime exactly (currently 6.8.2). Dependency pins and the small downstream patch
+are recorded in `frontends/qt/external/qwindowkit/BITBOX-DEPENDENCY.md`.
+
+The Qt shell owns window controls, dragging, resizing and cached Linux shadows.
+Linux establishes the frameless native surface before attaching QWindowKit's
+window-ID hook. Appearance updates use Qt's normal composition scheduling so
+WebEngine's first frame does not depend on a resize or a theme change.
+Controls share the existing fixed 70px app header; scrolling and desktop banners
+start below it. Only occupied left/right control slots reserve space, and one
+centering rule aligns the logo, heading, Guide and controls. Linux control targets
+have equal 17px top and side padding within the caption, plus the native inset.
+Linux uses a Qt-painted frame with antialiased 12px corners (with the current
+7.5px button radius) and a 1px inset outline at 5% opacity. A small native inset
+keeps the rectangular WebEngine surface inside the rounded frame during resize.
+The outline is black in light mode and white in dark mode. Maximized/fullscreen
+windows have neither an outline nor the Linux inset. Edge-color hit tests stay
+inside whole viewport pixels for fractional display scaling. A closed guide
+remains hidden across responsive layout changes, including maximization.
+The cached shadow is stronger when focused and has more contrast in light mode.
+All sides have at least a 6px native
+resize band, with extended diagonal corner targets and matching cursors.
+Wayland input masks include the resize gutter and exclude the rest of the shadow.
+Main, sidebar and guide content scroll below their fixed captions. The guide
+close control sits left of its title, away from the window close control.
+Dimmed caption areas dismiss an open panel; visible panel captions remain
+native drag regions. A 5% separator appears below captions only after scrolling.
+Scrollable content uses a 16px bottom gradient only while more content remains
+below the viewport. Each panel supplies its own background; the fade is drawn
+with CSS, does not capture input, and disappears at the end of the content.
+Caption controls do not take keyboard focus from the web content.
+
+During panel transitions, the web UI publishes bounded edge-color intervals
+for the native Linux inset to follow the same backgrounds and dimming. Header
+geometry and frame colors are sent together in one WebChannel transaction per
+changed animation frame, reducing separate-message timing gaps. Qt owns repaint
+coalescing; no additional native timer or animation clock is introduced. Updates
+run only while a transition is active, for at most one second; native input
+handling remains synchronous. Linux follows live
+`org.freedesktop.appearance/color-scheme` Settings portal values (0/2 light,
+1 dark), unless the app has an explicit theme override. Portal reads support
+ReadOne and legacy Read, and are refreshed when the portal restarts.
+WebChannel only publishes bounded layout snapshots and appearance/preferences;
+never route pointer events through JavaScript, Go or D-Bus. Linux reads window
+button preferences through the Settings portal, with bounded `gsettings` or
+`kreadconfig6`/`kreadconfig5` fallbacks. Unsupported KDE buttons are omitted.
+
+**Use system window borders** remains available on all desktop systems for testing
+and displays a restart reminder when changed. It takes effect after restarting
+the app. Modern CSD is the default, including
+on macOS and Windows; native decorations requires an explicit opt-in.
+`BITBOXAPP_NATIVE_DECORATIONS=1` forces native decorations for troubleshooting. Browser and mobile layouts/transports do not enable this feature.
+
+Launch a desktop test build with `-testnet`. Close an already running BitBoxApp
+first: the standard desktop build retains its single-instance identity.
+
+For Linux native regression tests, after building the desktop dependency:
+
+```sh
+mkdir -p /tmp/bitbox-chrome-tests
+cd /tmp/bitbox-chrome-tests
+qmake /path/to/bitbox-wallet-app/frontends/qt/tests/desktopwindow.pro
+make -j4
+dbus-run-session -- ./desktopwindow-test
+```
+
+Run on native Wayland (`QT_QPA_PLATFORM=wayland`) and X11 (`QT_QPA_PLATFORM=xcb`).
+The tests use an isolated settings directory and D-Bus session. Headless root
+containers additionally need `QTWEBENGINE_DISABLE_SANDBOX=1`; do not use that
+override for normal desktop launches. Manual acceptance still covers compositor
+dragging/snapping, monitor scaling, shadows and Windows/macOS behavior.
+
 ## MacOS
 
 Install Go, Qt and create-dmg. Note that qt@6 from homebrew does **not** work as it is missing the

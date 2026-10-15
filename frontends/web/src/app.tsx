@@ -26,6 +26,8 @@ import { useAppState } from './contexts/app-state-context';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
 import { getBottomNavKey } from './components/bottom-navigation/utils';
 import styles from './app.module.css';
+import { DesktopChrome } from './components/desktop-chrome/desktop-chrome';
+import { DesktopStartup } from './components/desktop-chrome/desktop-startup';
 
 const AppFrame = () => {
 
@@ -45,7 +47,6 @@ const AppFrame = () => {
 
   return (
     <>
-      <Darkmode />
       <div className="app">
         <AuthRequired/>
         <Sidebar
@@ -104,9 +105,13 @@ export const App = () => {
   return (
     <ConnectedApp>
       <Providers>
+        <Darkmode />
+        <DesktopChrome />
         <AppNavigation />
         <AppNotifications />
-        <AppFrame />
+        <DesktopStartup>
+          <AppFrame />
+        </DesktopStartup>
       </Providers>
     </ConnectedApp>
   );

@@ -110,6 +110,7 @@
     flex-basis: 0%;
     max-height: 100%;
     overflow: auto;
+    scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
     padding: var(--space-half);
     word-break: break-word;
 }
