@@ -12,6 +12,8 @@
 #include <QWebEngineUrlSchemeHandler>
 #include <QWebEngineUrlRequestJob>
 #include <QWebEngineSettings>
+#include <QWebEngineScript>
+#include <QWebEngineScriptCollection>
 #include <QMimeDatabase>
 #include <QFile>
 #include <QContextMenuEvent>
@@ -48,6 +50,8 @@
 #include "webclass.h"
 #include "urlhandler.h"
 #include "network.h"
+#include "desktopwindow.h"
+#include "windowchrome.h"
 
 #define APPNAME "BitBoxApp"
 
@@ -58,6 +62,7 @@ static const char* scheme = "bitboxapp";
 
 static QWebEngineProfile* profile;
 static QWebEngineView* view;
+static DesktopWindow* desktopWindow;
 static QWebEnginePage* mainPage;
 static QWebEnginePage* externalPage;
 static bool pageLoaded = false;
@@ -238,11 +243,6 @@ public:
 
 class WebEngineView : public QWebEngineView {
 public:
-    void closeEvent(QCloseEvent*) override {
-        QSettings settings;
-        settings.setValue("mainWindowGeometry", saveGeometry());
-    }
-
     QSize sizeHint() const override {
         // Default initial window size.
         return QSize(1257, 785);
@@ -276,6 +276,7 @@ public:
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
     // QT configuration parameters which change the attack surface for memory
     // corruption vulnerabilities
 #if QT_VERSION >= QT_VERSION_CHECK(5,8,0)
@@ -340,29 +341,31 @@ int main(int argc, char *argv[])
     QWebEngineUrlScheme::registerScheme(bbappScheme);
 
     view = new WebEngineView();
-    view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
-    view->setMinimumSize(360, 375);
+    desktopWindow = new DesktopWindow(view);
 
     // Bring the primary instance to the foreground.
     QObject::connect(
         &a, &SingleApplication::instanceStarted,
         [&]() {
-            view->activateWindow();
-            view->raise();
+            desktopWindow->show();
+            desktopWindow->activateWindow();
+            desktopWindow->raise();
         });
 
     QSettings settings;
     if (settings.contains("mainWindowGeometry")) {
         // std::cout << settings.fileName().toStdString() << std::endl;
-        view->restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
+        desktopWindow->restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
     } else {
-        view->adjustSize();
+        desktopWindow->adjustSize();
     }
 
     profile = new QWebEngineProfile("BitBoxApp");
     externalPage = new QWebEnginePage(profile, view);
     mainPage = new WebEnginePage(profile);
     view->setPage(mainPage);
+    QObject::connect(mainPage, &QWebEnginePage::loadStarted, desktopWindow, &DesktopWindow::resetDocument);
+    QObject::connect(mainPage, &QWebEnginePage::renderProcessTerminated, desktopWindow, [=] { desktopWindow->resetDocument(); });
 
     pageLoaded = false;
     QObject::connect(view, &QWebEngineView::loadFinished, [](bool ok){
@@ -425,7 +428,7 @@ int main(int argc, char *argv[])
         // getSaveFilenameCallback
         [](const char* suggestedFilename) {
             QString filename = FileDialogCaller().getSaveFileName(
-                view,
+                desktopWindow,
                 "Save File",
                 suggestedFilename);
             // Copy the string to an area allocated by malloc. The caller of this function has to
@@ -458,23 +461,68 @@ int main(int argc, char *argv[])
         });
     QWebChannel channel;
     channel.registerObject("backend", webClass);
-    view->page()->setWebChannel(&channel);
+    auto *windowChrome = new WindowChrome(desktopWindow);
+    channel.registerObject("desktopChrome", windowChrome);
+    view->page()->setWebChannel(&channel, QWebEngineScript::ApplicationWorld);
+
+    // Only the app's top frame can relay messages into the isolated Qt transport.
+    // Subframes may load third-party exchange widgets and must not control native chrome.
+    QWebEngineScript isolatedTransport;
+    isolatedTransport.setName("bitbox-qt-isolated-transport");
+    isolatedTransport.setWorldId(QWebEngineScript::ApplicationWorld);
+    isolatedTransport.setInjectionPoint(QWebEngineScript::DocumentCreation);
+    isolatedTransport.setRunsOnSubFrames(false);
+    isolatedTransport.setSourceCode(R"JS(
+        if (location.protocol === 'bitboxapp:' && window === window.top) {
+            qt.webChannelTransport.onmessage = event => window.postMessage({
+                type: 'bitbox-qt-response', payload: event.data
+            }, '*');
+            window.addEventListener('message', event => {
+                if (event.source === window && event.data?.type === 'bitbox-qt-request'
+                    && typeof event.data.payload === 'string') {
+                    qt.webChannelTransport.send(event.data.payload);
+                }
+            });
+        }
+    )JS");
+    mainPage->scripts().insert(isolatedTransport);
+    QWebEngineScript appTransport;
+    appTransport.setName("bitbox-qt-app-transport");
+    appTransport.setWorldId(QWebEngineScript::MainWorld);
+    appTransport.setInjectionPoint(QWebEngineScript::DocumentCreation);
+    appTransport.setRunsOnSubFrames(false);
+    appTransport.setSourceCode(R"JS(
+        if (location.protocol === 'bitboxapp:' && window === window.top) {
+            const transport = {
+                send: payload => window.postMessage({type: 'bitbox-qt-request', payload}, '*'),
+                onmessage: null
+            };
+            window.qt = {webChannelTransport: transport};
+            window.addEventListener('message', event => {
+                if (event.source === window && event.data?.type === 'bitbox-qt-response') {
+                    transport.onmessage?.({data: event.data.payload});
+                }
+            });
+        }
+    )JS");
+    mainPage->scripts().insert(appTransport);
     view->settings()->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, true);
     // Disabled to prevent iframes from reading clipboard. To enable clipboard reading in the top
     // frame, a custom bridge would be necessary.
     view->settings()->setAttribute(QWebEngineSettings::JavascriptCanPaste, false);
     view->show();
+    desktopWindow->show();
     view->load(QUrl(QString("%1:/index.html").arg(scheme)));
 
     // Create TrayIcon
     {
         auto quitAction = new QAction("&Quit", &a);
         QObject::connect(quitAction, &QAction::triggered, &a, &QCoreApplication::quit);
-        auto trayIconMenu = new QMenu(view);
+        auto trayIconMenu = new QMenu(desktopWindow);
         trayIconMenu->addAction(quitAction);
         auto* styleHints = QGuiApplication::styleHints();
         QIcon trayIconIcon = trayIconForScheme(styleHints->colorScheme());
-        trayIcon = new QSystemTrayIcon(trayIconForScheme(QGuiApplication::styleHints()->colorScheme()), view);
+        trayIcon = new QSystemTrayIcon(trayIconForScheme(QGuiApplication::styleHints()->colorScheme()), desktopWindow);
         trayIcon->setToolTip(APPNAME);
         trayIcon->setContextMenu(trayIconMenu);
         trayIcon->show();
@@ -490,9 +538,11 @@ int main(int argc, char *argv[])
     QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
         webClassMutex.lock();
         channel.deregisterObject(webClass);
+        channel.deregisterObject(windowChrome);
         delete webClass;
         webClass = nullptr;
-        delete view;
+        delete desktopWindow;
+        desktopWindow = nullptr;
         view = nullptr;
         // Make sure mainPage is deleted before the profile. This is a requirement for the profile
         // to be able to flush to disk properly.
