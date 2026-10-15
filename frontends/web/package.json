@@ -57,8 +57,10 @@
     ]
   },
   "scripts": {
+    "check-licenses": "node ./scripts/check-licenses.mjs",
     "dev": "npm run start",
     "start": "vite --cors",
+    "prebuild": "npm run check-licenses",
     "build": "npm run typescript && vite build",
     "lint": "npm run typescript && eslint ./src ./tests",
     "postlint": "node ./scripts/sort-json.mjs ./src/locales --check",
