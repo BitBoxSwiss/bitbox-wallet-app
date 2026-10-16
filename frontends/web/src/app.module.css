@@ -59,7 +59,7 @@
 }
 
 :global(body[data-desktop-csd]) {
-    --header-height: 48px;
+    --header-height: 42px;
     --sidebar-width-large: max(var(--sidebar-width-min), calc(var(--desktop-controls-left, 0px) + var(--space-default) + var(--sidebar-logo-width) + var(--space-half)));
     --desktop-scrollbar-gutter: stable;
     --desktop-window-outline: rgba(0, 0, 0, 0.05);
