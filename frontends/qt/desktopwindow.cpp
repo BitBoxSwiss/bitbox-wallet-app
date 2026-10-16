@@ -106,6 +106,39 @@ protected:
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
         const bool highlighted = underMouse() || isDown();
+#if defined(Q_OS_LINUX)
+        // Linux preview: approximate AppKit traffic lights without changing the native backend.
+        const bool active = window()->isActiveWindow();
+        QColor trafficColor = active ? QColor(action == "close" ? "#ff5f57" :
+            action == "minimize" ? "#febc2e" : "#28c840") : QColor("#999999");
+        if (isDown()) trafficColor = trafficColor.darker(115);
+        painter.setPen(QPen(trafficColor.darker(120), 0.6));
+        painter.setBrush(trafficColor);
+        const QPointF center(width() / 2.0, height() / 2.0);
+        painter.drawEllipse(center, 6, 6);
+        if (!highlighted || !active) return;
+        painter.setPen(QPen(QColor("#4b350b"), 1.1, Qt::SolidLine, Qt::RoundCap));
+        if (action == "close") {
+            painter.drawLine(center + QPointF(-2.5, -2.5), center + QPointF(2.5, 2.5));
+            painter.drawLine(center + QPointF(-2.5, 2.5), center + QPointF(2.5, -2.5));
+        } else if (action == "minimize") {
+            painter.drawLine(center + QPointF(-3, 0), center + QPointF(3, 0));
+        } else {
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(QColor("#125522"));
+            QPainterPath arrows;
+            arrows.moveTo(center + QPointF(-3, -3));
+            arrows.lineTo(center + QPointF(1, -3));
+            arrows.lineTo(center + QPointF(-3, 1));
+            arrows.closeSubpath();
+            arrows.moveTo(center + QPointF(3, 3));
+            arrows.lineTo(center + QPointF(-1, 3));
+            arrows.lineTo(center + QPointF(3, -1));
+            arrows.closeSubpath();
+            painter.drawPath(arrows);
+        }
+        return;
+#endif
         QColor fill = color;
         fill.setAlpha(highlighted ? 40 : 15);
         painter.setPen(Qt::NoPen);
@@ -154,6 +187,10 @@ bool readRect(const QVariantMap &input, qreal zoom, const QRect &bounds, QRect *
 DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(parent), view_(view) {
     QSettings settings;
     native_ = settings.value("nativeDecorations", false).toBool() || qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
+#if defined(Q_OS_LINUX)
+    // The preview uses CSD without changing the user's saved decoration preference.
+    native_ = qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
+#endif
     setWindowTitle("BitBoxApp");
     setMouseTracking(true);
 #if defined(Q_OS_LINUX)
@@ -205,6 +242,12 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
         agent_->setWindowAttribute("no-system-buttons", false);
         agent_->setSystemButtonArea(trafficLights_);
 #else
+#if defined(Q_OS_LINUX)
+        trafficLights_ = new QWidget(this);
+        trafficLights_->setAttribute(Qt::WA_TransparentForMouseEvents);
+        trafficLights_->setAttribute(Qt::WA_NoSystemBackground);
+        trafficLights_->show();
+#endif
         for (const auto &action : QStringList{"minimize", "maximize", "close"}) {
             auto *button = new WindowButton(action, this);
             buttons_.append(button);
@@ -426,8 +469,8 @@ void DesktopWindow::placeControls() {
     QStringList left, right{"minimize", "maximize", "close"};
 #if defined(Q_OS_LINUX)
     if (preferences_) {
-        left = preferences_->buttons().left;
-        right = preferences_->buttons().right;
+        left = QStringList{"close", "minimize", "maximize"};
+        right.clear();
         if (windowHandle()) windowHandle()->setProperty("_qwk_title_double_click", preferences_->buttons().doubleClick);
     }
 #endif
@@ -441,6 +484,12 @@ void DesktopWindow::placeControls() {
         const int offset = 0;
         const int height = 32;
         const int y = body.y();
+#elif defined(Q_OS_LINUX)
+        // Match the native macOS reserved area: x=8, width=80, centered lights 20px apart.
+        const int width = 20;
+        const int offset = 18;
+        const int height = controlHeight;
+        const int y = controlY;
 #else
         const int width = 36;
         const int offset = (chromeHeight - controlHeight) / 2;
