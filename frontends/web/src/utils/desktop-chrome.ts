@@ -44,6 +44,7 @@ let startupReadyDocument: number | undefined;
 let startupPendingDocument: number | undefined;
 
 export const desktopChromeState = () => state;
+export const desktopCsd = () => state?.csd;
 export const desktopSystemDark = () => state?.systemDark;
 
 export const subscribeDesktopChrome = (callback: () => void) => {

@@ -2,7 +2,7 @@
 
 import { Children, isValidElement, ReactNode, useLayoutEffect, useRef } from 'react';
 import { useGlobalBannersContainer } from '@/contexts/global-banners-context';
-import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
+import { useDesktopCsd } from '@/components/desktop-chrome/desktop-chrome';
 import { Header } from './header';
 import style from './main.module.css';
 
@@ -13,9 +13,9 @@ type TMainProps = {
 export const Main = ({ children }: TMainProps) => {
   const mainRef = useRef<HTMLElement>(null);
   const globalBannersContainer = useGlobalBannersContainer();
-  const desktopChrome = useDesktopChrome();
+  const csd = useDesktopCsd();
   const parts = Children.toArray(children);
-  const headerIndex = desktopChrome?.csd ? parts.findIndex(child => isValidElement(child) && child.type === Header) : -1;
+  const headerIndex = csd ? parts.findIndex(child => isValidElement(child) && child.type === Header) : -1;
   const hasCaption = headerIndex >= 0;
 
   useLayoutEffect(() => {

@@ -5,24 +5,20 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { useDarkmode } from '@/hooks/darkmode';
 import { useConfig } from '@/contexts/ConfigProvider';
-import { attachDesktopGeometry, desktopChromeState, desktopSystemDark, initializeDesktopChrome, notifyChromeLayout, prepareDesktopStartup, subscribeDesktopChrome } from '@/utils/desktop-chrome';
+import { attachDesktopGeometry, desktopChromeState, desktopCsd, desktopSystemDark, initializeDesktopChrome, notifyChromeLayout, prepareDesktopStartup, subscribeDesktopChrome } from '@/utils/desktop-chrome';
 
-export const useDesktopChrome = () => {
-  const state = useSyncExternalStore(subscribeDesktopChrome, desktopChromeState);
+function useDesktopSnapshot<T>(getSnapshot: () => T) {
+  const state = useSyncExternalStore(subscribeDesktopChrome, getSnapshot);
   useEffect(() => {
     initializeDesktopChrome();
   }, []);
   return state;
-};
+}
 
-export const useDesktopSystemDark = () => {
-  // Geometry updates must not rerender the application's theme provider.
-  const systemDark = useSyncExternalStore(subscribeDesktopChrome, desktopSystemDark);
-  useEffect(() => {
-    initializeDesktopChrome();
-  }, []);
-  return systemDark;
-};
+export const useDesktopChrome = () => useDesktopSnapshot(desktopChromeState);
+// Layout and theme consumers must not rerender for native geometry/focus changes.
+export const useDesktopCsd = () => useDesktopSnapshot(desktopCsd);
+export const useDesktopSystemDark = () => useDesktopSnapshot(desktopSystemDark);
 
 export const DesktopChrome = () => {
   const state = useDesktopChrome();
