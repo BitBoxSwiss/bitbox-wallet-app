@@ -14,6 +14,7 @@
 - BitBox02: allow entering the optional passphrase in the app (firmware v9.28.0 or later)
 - Add eye toggles to the optional passphrase and test wallet password fields, with paste allowed while hidden
 - iOS: block third-party keyboards to protect revealed passwords and passphrases
+- Lightning: add custom transaction notes, including notes import and export
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1

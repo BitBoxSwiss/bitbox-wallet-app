@@ -17,6 +17,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/suite"
@@ -123,6 +124,11 @@ func (s *notesTestSuite) TestExport() {
 	s.Require().NoError(err)
 	_, err = erc20Acct.Account.Notes().SetTxNote("erc20-tx-id", "test erc20 note")
 	s.Require().NoError(err)
+	s.Require().NoError(s.backend.lightning.SetAccount(&config.LightningAccountConfig{
+		Code: "v0-55555555-ln-0",
+	}))
+	_, err = s.backend.lightning.SetTxNote("payment-id", "test lightning note")
+	s.Require().NoError(err)
 
 	var export bytes.Buffer
 	s.Require().NoError(s.backend.exportNotes(&export))
@@ -136,11 +142,16 @@ func (s *notesTestSuite) TestExport() {
 {"type":"xpub","ref":"xpub6GP83vJASH1kS7dQPWXFjVHDfYajopbG8U3j8peBH67CRCnb8QmDxZJfWpbgCQNHAzCDJ4MyVYjoh7Yv9yo7PQuZ9YyktgrtD9vmeo67Y4E","label":"My ETH","bitboxapp":{"coinCode":"eth","code":"v0-55555555-eth-0"}}
 {"type":"tx","ref":"eth-tx-id","label":"test eth note","bitboxapp":{"coinCode":"eth","code":"v0-55555555-eth-0"}}
 {"type":"tx","ref":"erc20-tx-id","label":"test erc20 note","bitboxapp":{"coinCode":"eth-erc20-usdt","code":"v0-55555555-eth-0-eth-erc20-usdt"}}
+{"type":"bitboxapp-lightning-payment","ref":"payment-id","label":"test lightning note","bitboxapp":{"coinCode":"btc","code":"v0-55555555-ln-0"}}
 `
 	s.Require().Equal(expected, export.String())
 }
 
 func (s *notesTestSuite) TestNotesImport() {
+	s.Require().NoError(s.backend.lightning.SetAccount(&config.LightningAccountConfig{
+		Code: "v0-55555555-ln-0",
+	}))
+
 	btcAcct := s.backend.Accounts().lookup("v0-55555555-btc-0")
 	s.Require().NotNil(btcAcct)
 
@@ -166,19 +177,25 @@ func (s *notesTestSuite) TestNotesImport() {
 {"type":"tx","ref":"eth-tx-id","label":"test eth note","bitboxapp":{"coinCode":"eth","code":"v0-55555555-eth-0"}}
 {"type":"tx","ref":"erc20-tx-id","label":"test erc20 note","bitboxapp":{"coinCode":"eth-erc20-usdt","code":"v0-55555555-eth-0-eth-erc20-usdt"}}
 {"type":"tx","ref":"non-existing-tx-id","label":"test note","bitboxapp":{"coinCode":"eth","code":"NON-EXISTING-ACCOUNT"}}
+{"type":"bitboxapp-lightning-payment","ref":"payment-id","label":"test lightning note","bitboxapp":{"coinCode":"btc","code":"v0-55555555-ln-0"}}
+{"type":"bitboxapp-lightning-payment","ref":"payment-id","label":"wrong wallet note","bitboxapp":{"coinCode":"btc","code":"v0-66666666-ln-0"}}
+{"type":"bitboxapp-lightning-payment","ref":"btc-tx-id","label":"wrong account type","bitboxapp":{"coinCode":"btc","code":"v0-55555555-btc-0"}}
 `
 	result, err := s.backend.ImportNotes([]byte(export))
 	s.Require().NoError(err)
 	s.Require().Equal(
 		&ImportNotesResult{
 			AccountCount:     2,
-			TransactionCount: 3,
+			TransactionCount: 4,
 		},
 		result)
 
 	s.Require().Equal("test btc note", btcAcct.Account.Notes().TxNote("btc-tx-id"))
 	s.Require().Equal("test eth note", ethAcct.Account.Notes().TxNote("eth-tx-id"))
 	s.Require().Equal("test erc20 note", erc20Acct.Account.Notes().TxNote("erc20-tx-id"))
+	lightningNotes, err := s.backend.lightning.Notes()
+	s.Require().NoError(err)
+	s.Require().Equal("test lightning note", lightningNotes.TxNote("payment-id"))
 	s.Require().Equal("My BTC", s.backend.Accounts().lookup("v0-55555555-btc-0").Record.Name)
 	s.Require().Equal("Litecoin", s.backend.Accounts().lookup("v0-55555555-ltc-0").Record.Name)
 	s.Require().Equal("My ETH", s.backend.Accounts().lookup("v0-55555555-eth-0").Record.Name)
