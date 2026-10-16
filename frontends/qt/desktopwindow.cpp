@@ -27,7 +27,7 @@
 
 namespace {
 constexpr int shadowSize = 16;
-constexpr int chromeHeight = 42;
+constexpr int chromeHeight = 48;
 constexpr int controlHeight = 36;
 constexpr int maxExclusions = 32;
 constexpr int resizeBorder = 4;
