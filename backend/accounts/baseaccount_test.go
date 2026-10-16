@@ -4,9 +4,14 @@ package accounts
 
 import (
 	"bytes"
+	"encoding/csv"
 	"errors"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -377,4 +382,94 @@ func TestBaseAccount(t *testing.T) {
 			}),
 		)
 	})
+}
+
+func TestExportCSVWithOfflineHistoricalRates(t *testing.T) {
+	const btcUnit = "BTC"
+	const satoshiUnit = "satoshi"
+	var unavailable atomic.Bool
+	timestamp := time.Unix(1598832062, 0).UTC()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if unavailable.Load() {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		// Only serve historical rates; current rates are never loaded.
+		if r.URL.Path != "/coins/bitcoin/market_chart/range" {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		fmt.Fprintf(w, `{"prices":[[%d,10000]]}`, timestamp.UnixMilli())
+	}))
+	defer server.Close()
+	dbdir := t.TempDir()
+	updater := rates.NewRateUpdater(server.Client(), dbdir)
+	defer func() { updater.Stop() }()
+	updater.SetCoingeckoURL(server.URL)
+	updater.ReconfigureHistory([]string{"btc"}, []string{"EUR"})
+	require.Eventually(t, func() bool {
+		return updater.HistoricalPriceAt("btc", "EUR", timestamp) == 10000
+	}, 5*time.Second, 10*time.Millisecond)
+
+	mockCoin := &mocks.CoinMock{
+		CodeFunc:          func() coin.Code { return coin.CodeBTC },
+		SmallestUnitFunc:  func() string { return satoshiUnit },
+		UnitFunc:          func(bool) string { return btcUnit },
+		DecimalsFunc:      func(bool) uint { return 8 },
+		FormatAmountFunc:  func(amount coin.Amount, _ bool) string { return amount.BigInt().String() },
+		GetFormatUnitFunc: func(bool) string { return btcUnit },
+	}
+	account := NewBaseAccount(&AccountConfig{
+		Code:            "test",
+		DBFolder:        t.TempDir(),
+		NotesFolder:     t.TempDir(),
+		RateUpdater:     updater,
+		GetMainCurrency: func() string { return "EUR" },
+	}, mockCoin, logging.Get().WithGroup("baseaccount_test"))
+	require.NoError(t, account.Initialize("offline-rates"))
+	amount := coin.NewAmountFromInt64(100000000)
+	transaction := &TransactionData{
+		Type:       TxTypeReceive,
+		TxID:       "test",
+		InternalID: "test",
+		Timestamp:  &timestamp,
+		Amount:     amount,
+		Addresses:  []AddressAndAmount{{Address: "test-address", Amount: amount}},
+	}
+	checkExport := func(value, currency string) {
+		t.Helper()
+		var out bytes.Buffer
+		require.NoError(t, account.ExportCSV(&out, []*TransactionData{transaction}))
+		rows, err := csv.NewReader(&out).ReadAll()
+		require.NoError(t, err)
+		require.Len(t, rows, 2)
+		require.Equal(t, value, rows[1][8])
+		require.Equal(t, currency, rows[1][9])
+	}
+	checkExport("10'000.00", "EUR")
+
+	// Restart with the rate service unavailable. Reconfiguration must load the
+	// persisted history before any network request can succeed.
+	unavailable.Store(true)
+	updater.Stop()
+	updater = rates.NewRateUpdater(server.Client(), dbdir)
+	updater.SetCoingeckoURL(server.URL)
+	updater.ReconfigureHistory([]string{"btc"}, []string{"EUR"})
+	account.config.RateUpdater = updater
+	require.Empty(t, updater.LatestPrice())
+	require.Equal(t, float64(10000), updater.HistoricalPriceAt("btc", "EUR", timestamp))
+	checkExport("10'000.00", "EUR")
+
+	missing := timestamp.Add(-24 * time.Hour)
+	transaction.Timestamp = &missing
+	checkExport("", "")
+
+	// Recent transactions still use estimates, which must not be exported.
+	estimates := rates.MockRateUpdater()
+	defer estimates.Stop()
+	account.config.RateUpdater = estimates
+	recent := time.Now()
+	transaction.Timestamp = &recent
+	require.True(t, amount.FormatWithConversionsAtTime(mockCoin, &recent, estimates).Estimated)
+	checkExport("", "")
 }
