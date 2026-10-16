@@ -7,10 +7,16 @@
 QT       += core gui
 QT       += webenginewidgets
 QT       += network
+isEmpty(QWINDOWKIT_PREFIX): QWINDOWKIT_PREFIX = $$OUT_PWD/qwindowkit/install
+!exists($$QWINDOWKIT_PREFIX/share/QWindowKit/qmake/QWKWidgets.pri): error(Build QWindowKit with build-windowkit.sh before running qmake)
+include($$QWINDOWKIT_PREFIX/share/QWindowKit/qmake/QWKWidgets.pri)
+CONFIG += c++17
 win32 {
     # For setting 'AlwaysActivate', see.
     # See https://forum.qt.io/topic/133694/using-alwaysactivatewindow-to-gain-foreground-in-win10-using-qt6-2/2
     QT += gui-private
+    # Static QWindowKit calls Win32 window management and GDI directly.
+    LIBS += -luxtheme -luser32 -lgdi32
 }
 
 TARGET = BitBox

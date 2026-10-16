@@ -38,6 +38,7 @@ apt-get install -y --no-install-recommends \
         libxcb-shape0 \
         libxcb-xinput0 \
         libwayland-cursor0 \
+        cmake \
         libwayland-egl1 \
         libcups2 \
         libgl1-mesa-dev \
