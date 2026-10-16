@@ -46,6 +46,7 @@ export type TSwapQuoteErrorCode =
   | 'insufficientFunds'
   | 'invalidRequest'
   | 'noRoutesFound'
+  | 'providersUnavailable'
   | 'unexpectedError';
 
 export type TSwapQuoteValidationErrorCode = Extract<TSwapQuoteErrorCode, 'insufficientFunds'>;

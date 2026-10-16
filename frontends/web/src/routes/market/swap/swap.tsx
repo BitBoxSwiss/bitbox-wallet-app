@@ -52,6 +52,7 @@ import style from './swap.module.css';
 const QUOTE_DEBOUNCE_MS = 300;
 const INSUFFICIENT_FUNDS_ERROR: TSwapQuoteErrorCode = 'insufficientFunds';
 const NO_ROUTES_FOUND_ERROR: TSwapQuoteErrorCode = 'noRoutesFound';
+const PROVIDERS_UNAVAILABLE_ERROR: TSwapQuoteErrorCode = 'providersUnavailable';
 const UNEXPECTED_ERROR: TSwapQuoteErrorCode = 'unexpectedError';
 
 const fetchBalance = async (code: AccountCode) => {
@@ -291,6 +292,13 @@ export const Swap = () => {
         }
         if (!response.success && response.errorCode === INSUFFICIENT_FUNDS_ERROR) {
           resetQuoteStateWithError({ errorCode: response.errorCode });
+          return;
+        }
+        if (!response.success && response.errorCode === PROVIDERS_UNAVAILABLE_ERROR) {
+          resetQuoteStateWithError({
+            error: t('swap.providersUnavailable'),
+            errorCode: validationErrorCode ?? response.errorCode,
+          });
           return;
         }
         if (
