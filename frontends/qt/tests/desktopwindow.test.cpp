@@ -374,6 +374,7 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(*completed, 3000);
     }
 
+    // The 42px caption centers 36px controls with equal 3px top/side spacing and reserves only the occupied side.
     void controlsReserveOnlyOccupiedSidesAndUseSymmetricLinuxPadding() {
         DesktopWindow window(new QWebEngineView);
         window.show();
@@ -384,10 +385,10 @@ private slots:
         QVERIFY(close);
         QVERIFY(!close->hasFocus());
         const auto *view = window.findChild<QWebEngineView *>();
-        QCOMPARE(close->y() - view->y(), 17);
-        QCOMPARE(view->geometry().right() - close->geometry().right(), 17);
+        QCOMPARE(close->y() - view->y(), 3);
+        QCOMPARE(view->geometry().right() - close->geometry().right(), 3);
         QCOMPARE(window.state().value("leftInset").toInt(), 0);
-        QCOMPARE(window.state().value("rightInset").toInt(), 53);
+        QCOMPARE(window.state().value("rightInset").toInt(), 39);
     }
 
     void framePaletteFollowsVisiblePanelsAndRejectsInvalidSegments() {

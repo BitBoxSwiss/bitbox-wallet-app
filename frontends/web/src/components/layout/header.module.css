@@ -60,6 +60,8 @@
 
 :global(body[data-desktop-csd]) .header {
     height: var(--header-height);
+    padding-top: 0;
+    padding-bottom: 0;
     max-width: none;
     display: flex;
     align-items: center;
@@ -89,6 +91,11 @@
     margin-top: 0;
     margin-bottom: 0;
     align-self: center;
+}
+
+:global(body[data-desktop-csd]) .guideClose {
+    height: 36px;
+    max-height: 100%;
 }
 
 .sidebarToggler {

@@ -4,7 +4,8 @@ import { ReactNode, useContext, useLayoutEffect } from 'react';
 import { t } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { A } from '@/components/anchor/anchor';
-import { CloseXWhite } from '@/components/icon';
+import { ChevronLeftDark, CloseXWhite } from '@/components/icon';
+import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
 import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms';
 import style from './guide.module.css';
@@ -17,6 +18,7 @@ export type TProps = {
 
 const Guide = ({ children, title = t('guide.title') }: TProps) => {
   const { guideShown, toggleGuide, setGuideExists } = useContext(AppContext);
+  const desktopChrome = useDesktopChrome();
 
   useLayoutEffect(() => {
     setGuideExists(true);
@@ -40,7 +42,7 @@ const Guide = ({ children, title = t('guide.title') }: TProps) => {
           <h2>{title}</h2>
 
           <Button transparent className={style.close} onClick={toggleGuide} aria-label={t('guide.toggle.close')}>
-            <CloseXWhite />
+            {desktopChrome?.csd ? <ChevronLeftDark className={style.backIcon} /> : <CloseXWhite />}
           </Button>
         </div>
         <div className={style.content} data-window-scroll data-window-no-drag-overlay={guideShown || undefined}>

@@ -96,6 +96,9 @@
 }
 
 :global(body[data-desktop-csd]) .sidebarLogoContainer {
+    height: var(--header-height);
+    padding-top: 0;
+    padding-bottom: 0;
     position: sticky;
     top: 0;
     z-index: 1;

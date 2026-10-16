@@ -24,6 +24,10 @@
     width: min(2rem, 36px);
 }
 
+.backIcon {
+    filter: brightness(0) invert(1);
+}
+
 .wrapper {
     position: relative;
 }
