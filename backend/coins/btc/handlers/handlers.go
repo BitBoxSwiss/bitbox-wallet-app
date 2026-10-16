@@ -550,6 +550,7 @@ type txProposalResponse struct {
 	ErrorMessage            string                               `json:"errorMessage,omitempty"`
 	Amount                  *coin.FormattedAmountWithConversions `json:"amount,omitempty"`
 	Fee                     *coin.FormattedAmountWithConversions `json:"fee,omitempty"`
+	HighFeePercentage       string                               `json:"highFeePercentage,omitempty"`
 	Total                   *coin.FormattedAmountWithConversions `json:"total,omitempty"`
 	RecipientDisplayAddress string                               `json:"recipientDisplayAddress,omitempty"`
 }
@@ -578,6 +579,7 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) interface{} {
 		Success:                 true,
 		Amount:                  &amountResponse,
 		Fee:                     &feeResponse,
+		HighFeePercentage:       accounts.HighFeePercentage(handlers.account.Coin(), outputAmount, fee),
 		Total:                   &totalResponse,
 		RecipientDisplayAddress: formatAddressForDisplay(handlers.account, input.RecipientAddress),
 	}
