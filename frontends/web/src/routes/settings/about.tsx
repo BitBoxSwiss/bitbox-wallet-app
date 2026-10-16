@@ -9,6 +9,7 @@ import { Guide } from '@/components/guide/guide';
 import { Entry } from '@/components/guide/entry';
 import { FeedbackLink } from './components/about/feedback-link-setting';
 import { SupportLink } from './components/about/support-link-setting';
+import { Licenses } from './components/about/licenses';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 
 export const About = () => {
@@ -38,7 +39,7 @@ export const About = () => {
   );
 };
 
-export const AboutSettingsContent = () => {
+const AboutSettingsContent = () => {
   const sections: TSettingsContentSection[] = [
     {
       id: 'about',
@@ -46,6 +47,7 @@ export const AboutSettingsContent = () => {
         { id: 'app-version', content: <AppVersion /> },
         { id: 'feedback', content: <FeedbackLink /> },
         { id: 'support', content: <SupportLink /> },
+        { id: 'licenses', content: <Licenses /> },
       ],
     },
   ];

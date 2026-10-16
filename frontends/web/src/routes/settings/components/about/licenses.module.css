@@ -1,0 +1,21 @@
+.package {
+  border-bottom: solid 1px var(--separation-line-color);
+  padding: var(--space-half) 0;
+}
+
+.summary {
+  cursor: pointer;
+}
+
+.licenseContainer {
+  padding: var(--space-quarter) 0;
+}
+
+.license {
+  font-size: var(--size-xsmall);
+  margin: 0;
+  overflow: scroll;
+  padding: var(--space-quarter) 0;
+  text-align: start;
+  white-space: pre;
+}
