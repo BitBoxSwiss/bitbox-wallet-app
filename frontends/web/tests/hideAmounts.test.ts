@@ -19,11 +19,13 @@ const getSimulatorPath = (): string => {
   return simulatorPath;
 };
 
-test('Unit prices remain visible when amounts are hidden', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
+// With fixed rates, hiding balances must preserve every loaded unit price.
+test('Unit prices remain visible when amounts are hidden', async ({ page, host, frontendPort, servewalletPort, ratesURL }, testInfo) => {
+  let visibleUnitPrices: string[];
 
   await test.step('Start servewallet', async () => {
     servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { simulator: true });
-    await servewallet.start();
+    await servewallet.start({ extraFlags: { coingeckoURL: ratesURL } });
   });
 
   await test.step('Start simulator', async () => {
@@ -41,14 +43,12 @@ test('Unit prices remain visible when amounts are hidden', async ({ page, host, 
   await test.step('Navigate to account summary and wait for unit prices', async () => {
     await page.goto('/#/account-summary');
     const unitPrices = page.locator('[data-testid="unit-price-amount"]');
-    await expect(unitPrices.first()).toBeVisible({ timeout: 30000 });
-    await expect.poll(
-      async () => {
-        const texts = await unitPrices.allTextContents();
-        return texts.some(text => text.trim().length > 0 && !text.includes('---'));
-      },
-      { timeout: 30000 },
-    ).toBeTruthy();
+    await expect(unitPrices).toHaveCount(3, { timeout: 30000 });
+    for (const unitPrice of await unitPrices.all()) {
+      await expect(unitPrice).toBeVisible();
+      await expect(unitPrice).toContainText(/\d/);
+    }
+    visibleUnitPrices = await unitPrices.allTextContents();
   });
 
   await test.step('Toggle hide amounts', async () => {
@@ -57,21 +57,15 @@ test('Unit prices remain visible when amounts are hidden', async ({ page, host, 
 
   await test.step('Verify fiat balances are hidden', async () => {
     const fiatBalances = page.locator('[data-testid="fiat-balance"]');
-    await expect(fiatBalances.first()).toBeVisible();
-    const texts = await fiatBalances.allTextContents();
-    expect(texts.length).toBeGreaterThan(0);
-    for (const text of texts) {
-      expect(text).toContain('***');
+    await expect(fiatBalances).toHaveCount(3);
+    for (const balance of await fiatBalances.all()) {
+      await expect(balance).toContainText('***');
     }
   });
 
   await test.step('Verify unit prices are still visible', async () => {
     const unitPrices = page.locator('[data-testid="unit-price-amount"]');
-    const texts = await unitPrices.allTextContents();
-    expect(texts.length).toBeGreaterThan(0);
-    for (const text of texts) {
-      expect(text).not.toContain('***');
-    }
+    await expect(unitPrices).toHaveText(visibleUnitPrices);
   });
 });
 

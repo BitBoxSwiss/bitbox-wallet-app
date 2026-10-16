@@ -283,6 +283,7 @@ func main() {
 	simulatorPort := flag.Int("simulatorPort", 15423, "port for the BitBox02 simulator")
 	useSimulator := flag.Bool("simulator", false, "use the BitBox02 simulator")
 	aoppUrl := flag.String("aoppUrl", "", "AOPP URL for testing AOPP flow")
+	coingeckoURL := flag.String("coingeckoURL", "", "CoinGecko API URL for testing exchange rates")
 
 	flag.Parse()
 
@@ -326,6 +327,9 @@ func main() {
 		log.WithField("error", err).Panic(err)
 	}
 	backend = newBackend
+	if *coingeckoURL != "" {
+		backend.RatesUpdater().SetCoingeckoURL(*coingeckoURL)
+	}
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
 	fmt.Printf("Listening on: http://localhost:%d\n", port)
