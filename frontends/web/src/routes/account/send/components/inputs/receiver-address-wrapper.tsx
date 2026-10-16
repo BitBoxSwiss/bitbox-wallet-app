@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, useCallback, useState, useEffect } from 'react';
+import { ChangeEvent, useCallback, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertUser } from '@/components/alert/Alert';
 import { TGroupedOption, TOption } from '@/components/dropdown/dropdown';
 import { InputWithDropdown } from '@/components/forms/input-with-dropdown';
 import * as accountApi from '@/api/account';
 import { getReceiveAddressList, TAccount } from '@/api/account';
+import type { TLightningContact } from '@/api/lightning';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import { connectKeystore, getKeystoreFeatures } from '@/api/keystores';
 import { unsubscribe } from '@/utils/subscriptions';
@@ -15,21 +16,24 @@ import { useMountedRef } from '@/hooks/mount';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
-import { Logo } from '@/components/icon';
+import { ContactDark, ContactLight, Logo } from '@/components/icon';
 import { renderKeystoreGroupHeader } from '@/components/groupedaccountselector/groupedaccountselector';
 import { getAccountsByKeystore, getDisplayAccountNumber, isAmbiguousName } from '@/routes/account/utils';
 import receiverStyles from './receiver-address-input.module.css';
 import styles from './receiver-address-wrapper.module.css';
 
 type TAccountOption = TOption<TAccount | null> & { disabled?: boolean };
+type TRecipientOption = TOption<TAccount | TLightningContact | null> & { disabled?: boolean };
+type TRecipientGroup = TGroupedOption<TAccount | TLightningContact | null, { connected: boolean; section?: string }>;
 
 type Props = {
-  option: TAccountOption;
+  option: TRecipientOption;
   isSelectedValue: boolean;
 };
 
 type TReceiverAddressWrapperProps = {
   accounts?: TAccount[];
+  contacts?: TLightningContact[];
   autoFocus?: boolean;
   classNameInputField?: string;
   error?: string | object;
@@ -50,7 +54,12 @@ const AccountOption = ({ option, isSelectedValue }: Props) => {
 
   return (
     <div className={`${styles.accountOption || ''}`}>
-      <Logo coinCode={option.value.coinCode} alt={option.value.coinName} className={styles.coinLogo} />
+      {'address' in option.value ? (
+        <>
+          <ContactDark aria-hidden alt="" className={`show-in-lightmode ${styles.coinLogo || ''}`} />
+          <ContactLight aria-hidden alt="" className={`show-in-darkmode ${styles.coinLogo || ''}`} />
+        </>
+      ) : <Logo coinCode={option.value.coinCode} alt={option.value.coinName} className={styles.coinLogo} />}
       <span className={isSelectedValue ? styles.accountName : ''}>
         {option.label}
       </span>
@@ -62,6 +71,7 @@ const AccountOption = ({ option, isSelectedValue }: Props) => {
 
 export const ReceiverAddressWrapper = ({
   accounts,
+  contacts,
   autoFocus,
   classNameInputField,
   error,
@@ -77,6 +87,7 @@ export const ReceiverAddressWrapper = ({
   const { t } = useTranslation();
   const [showFirmwareUpgradeDialog, setShowFirmwareUpgradeDialog] = useState(false);
   const mounted = useMountedRef();
+  const addressRequest = useRef(0);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [selectedAccount, setSelectedAccount] = useState<TOption<TAccount | null> | null>(null);
   const [accountSyncStatus, setAccountSyncStatus] = useState<{ [code: string]: accountApi.TStatus }>({});
@@ -99,7 +110,18 @@ export const ReceiverAddressWrapper = ({
       : keystore.name,
     options: accounts.map(toAccountOption),
   }));
-  const accountOptions = groupAccountsByKeystore ? groupedAccountOptions : flatAccountOptions;
+  const recipientGroups: TRecipientGroup[] = groupedAccountOptions.map((group, index) => ({
+    ...group,
+    section: index === 0 ? t('lightning.contacts.myAccounts') : undefined,
+  }));
+  if (contacts?.length) {
+    recipientGroups.push({
+      label: t('lightning.contacts.title'),
+      connected: false,
+      options: contacts.map(contact => ({ label: contact.name || contact.address, value: contact })),
+    });
+  }
+  const accountOptions = contacts !== undefined ? recipientGroups : groupAccountsByKeystore ? groupedAccountOptions : flatAccountOptions;
 
   const checkFirmwareSupport = useCallback(async (selectedAccount: accountApi.TAccount) => {
     if (!requireSendToSelfSupport) {
@@ -127,14 +149,18 @@ export const ReceiverAddressWrapper = ({
       return;
     }
     const selectedAccountValue = selectedOption.value;
+    const currentRequest = ++addressRequest.current;
 
     const supported = await checkFirmwareSupport(selectedAccountValue);
-    if (!supported) {
+    if (!supported || !mounted.current || currentRequest !== addressRequest.current) {
       return;
     }
     setSelectedAccount(selectedOption);
     try {
       const receiveAddresses = await getReceiveAddressList(selectedAccountValue.code)();
+      if (!mounted.current || currentRequest !== addressRequest.current) {
+        return;
+      }
       if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 0) {
         const address = receiveAddresses[0].addresses[0].address;
         onInputChange(address);
@@ -143,9 +169,10 @@ export const ReceiverAddressWrapper = ({
     } catch (e) {
       console.error(e);
     }
-  }, [onInputChange, onAccountChange, checkFirmwareSupport]);
+  }, [onInputChange, onAccountChange, checkFirmwareSupport, mounted]);
 
   const handleReset = useCallback(() => {
+    addressRequest.current++;
     setSelectedAccount(null);
     onInputChange('');
     onAccountChange?.(null);
@@ -188,20 +215,38 @@ export const ReceiverAddressWrapper = ({
         error={error}
         align="left"
         placeholder={inputPlaceholder ?? t('send.address.placeholder')}
-        onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
+        onInput={(e: ChangeEvent<HTMLInputElement>) => {
+          addressRequest.current++;
+          onInputChange(e.target.value);
+        }}
         value={recipientAddress}
         readOnly={selectedAccount !== null}
         autoFocus={autoFocus ?? !isMobile}
         dropdownOptions={accountOptions}
         dropdownValue={selectedAccount}
         onDropdownChange={(selected) => {
-          if (selected && selected.value !== null && !(selected as TAccountOption).disabled) {
-            handleSendToAccount(selected as TAccountOption);
+          const option = selected as TRecipientOption;
+          if (option.value && !option.disabled) {
+            if ('address' in option.value) {
+              addressRequest.current++;
+              setSelectedAccount(null);
+              onInputChange(option.value.address);
+              onAccountChange?.(null);
+            } else {
+              handleSendToAccount(option as TAccountOption);
+            }
           }
         }}
         dropdownPlaceholder={t('send.sendToAccount.placeholder')}
-        dropdownTitle={t('send.sendToAccount.title')}
-        renderGroupHeader={groupAccountsByKeystore ? renderKeystoreGroupHeader : undefined}
+        dropdownTitle={t(contacts !== undefined ? 'lightning.contacts.sendTo' : 'send.sendToAccount.title')}
+        renderGroupHeader={contacts !== undefined ? (group: TRecipientGroup) => (
+          <div className={styles.groupHeader}>
+            {group.section && <p className={styles.sectionTitle}>{group.section}</p>}
+            {group.options.some(option => option.value && 'address' in option.value)
+              ? <span>{group.label}</span>
+              : renderKeystoreGroupHeader(group)}
+          </div>
+        ) : groupAccountsByKeystore ? renderKeystoreGroupHeader : undefined}
         renderOptions={(e, isSelectedValue) => <AccountOption option={e} isSelectedValue={isSelectedValue} />}
         isOptionDisabled={(option) => (option as TAccountOption).disabled || false}
         labelSection={selectedAccount ? (

@@ -96,6 +96,10 @@ export const LightningSettings = () => {
           onClick={() => navigate('/lightning/set-lnurl-address/')}
         />
         <SettingsItem
+          settingName={t('lightning.contacts.title')}
+          onClick={() => navigate('/lightning/contacts')}
+        />
+        <SettingsItem
           settingName={t('lightning.disclaimer.title')}
           onClick={() => navigate('/lightning/disclaimer/')}
         />

@@ -23,6 +23,10 @@ const getSettingsSearchResultURL = (
   searchResult: TSettingsSearchItem,
   firstDeviceID?: string,
 ) => {
+  if (searchResult.url) {
+    return searchResult.url;
+  }
+
   const searchParams = new URLSearchParams({
     [SETTINGS_HIGHLIGHT_QUERY_PARAM]: searchResult.id,
   });

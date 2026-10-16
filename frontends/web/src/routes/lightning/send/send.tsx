@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
-import { type TPaymentInput, getParsePaymentInput } from '@/api/lightning';
+import { type TPaymentInput, TPaymentInputType, getParsePaymentInput } from '@/api/lightning';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { ReviewStep } from './components/review-step';
@@ -12,17 +12,25 @@ import { SuccessStep } from './components/success-step';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
 import { LightningSendGuide } from '../guide';
 import { useAppState } from '@/contexts/app-state-context';
+import { ContactForm } from '../contacts/contact-form';
 
-type TSendStep = 'select-payment-input' | 'review' | 'success';
+type TSendStep = 'select-payment-input' | 'review' | 'success' | 'add-contact';
 
-export const Send = () => {
+type TProps = {
+  initialRecipientAddress?: string;
+};
+
+export const Send = ({ initialRecipientAddress = '' }: TProps) => {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
   const { activeAccounts } = useAppState();
   const [step, setStep] = useState<TSendStep>('select-payment-input');
+  const [recipientInput, setRecipientInput] = useState(initialRecipientAddress);
   const [paymentInput, setPaymentInput] = useState<TPaymentInput>();
   const [inputError, setInputError] = useState<string>();
   const [isSending, setIsSending] = useState(false);
+  const recipientAddress = paymentInput?.type === TPaymentInputType.LNURL_PAY ? paymentInput.lnurlPay.address : undefined;
+  const finish = useCallback(() => navigate('/lightning'), [navigate]);
 
   const resetToPaymentInputEntry = useCallback((nextInputError?: string) => {
     setIsSending(false);
@@ -36,6 +44,7 @@ export const Send = () => {
 
     try {
       const result = await getParsePaymentInput({ s: rawInput });
+      setRecipientInput(rawInput);
       setPaymentInput(result);
       setStep('review');
       return true;
@@ -58,15 +67,6 @@ export const Send = () => {
     navigate('/lightning');
   };
 
-  useEffect(() => {
-    if (step !== 'success') {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => navigate('/lightning'), 1000);
-    return () => window.clearTimeout(timeout);
-  }, [navigate, step]);
-
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -74,13 +74,14 @@ export const Send = () => {
           {isSending && <UseDisableBackButton />}
           <Header
             variant="navigation"
-            mobileBackButton={step !== 'success' && !isSending}
+            mobileBackButton={(step === 'select-payment-input' || step === 'review') && !isSending}
             onBack={handleBack}
-            title={t('lightning.send.title')}
+            title={t(step === 'add-contact' ? 'lightning.contacts.add' : 'lightning.send.title')}
           />
           {step === 'select-payment-input' && (
             <SelectPaymentInputStep
               activeAccounts={activeAccounts}
+              initialRecipientAddress={recipientInput}
               inputError={inputError}
               onCancel={() => navigate('/lightning')}
               onSubmit={submitPaymentInput}
@@ -95,10 +96,11 @@ export const Send = () => {
               onSuccess={showSuccess}
             />
           )}
-          {step === 'success' && <SuccessStep />}
+          {step === 'success' && <SuccessStep address={recipientAddress} onAddContact={() => setStep('add-contact')} onDone={finish} />}
+          {step === 'add-contact' && <ContactForm initialAddress={recipientAddress} onCancel={() => setStep('success')} onDone={finish} />}
         </Main>
       </GuidedContent>
-      {step !== 'success' && <LightningSendGuide />}
+      {(step === 'select-payment-input' || step === 'review') && <LightningSendGuide />}
     </GuideWrapper>
   );
 };

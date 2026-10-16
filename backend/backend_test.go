@@ -12,6 +12,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
+	accounttypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
@@ -22,9 +23,11 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	keystoremock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/software"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/lightning"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
@@ -473,6 +476,8 @@ func TestClearCachePreservesUserData(t *testing.T) {
 
 	noteFile := filepath.Join(b.arguments.NotesDirectoryPath(), "dummy-note-file")
 	require.NoError(t, os.WriteFile(noteFile, []byte("note"), 0600))
+	contact, err := b.Lightning().Contacts().Save(lightning.Contact{Address: "nora@example.com"})
+	require.NoError(t, err)
 
 	require.FileExists(t, b.arguments.AppConfigFilename())
 	require.FileExists(t, b.arguments.AccountsConfigFilename())
@@ -492,6 +497,33 @@ func TestClearCachePreservesUserData(t *testing.T) {
 	require.FileExists(t, noteFile)
 	require.FileExists(t, b.arguments.AppConfigFilename())
 	require.FileExists(t, b.arguments.AccountsConfigFilename())
+	contacts, err := b.Lightning().Contacts().List(contact.Address)
+	require.NoError(t, err)
+	require.Equal(t, []lightning.Contact{*contact}, contacts.Contacts)
+	require.Equal(t, &contact.ID, contacts.MatchingContactID)
+}
+
+func TestLightningContactsPreservedAcrossWallets(t *testing.T) {
+	b := newBackend(t, false, false)
+	defer b.Close()
+	service := b.Lightning()
+	store := service.Contacts()
+	contact, err := store.Save(lightning.Contact{Address: "nora@example.com"})
+	require.NoError(t, err)
+
+	for _, code := range []accounttypes.Code{"v0-wallet1-ln-0", "v0-wallet2-ln-0"} {
+		require.NoError(t, b.Lightning().SetAccount(&config.LightningAccountConfig{Code: code}))
+		require.NoError(t, b.Lightning().Deactivate())
+		require.Same(t, service, b.Lightning())
+		require.Same(t, store, service.Contacts())
+		contacts, err := store.List(contact.Address)
+		require.NoError(t, err)
+		require.Equal(t, []lightning.Contact{*contact}, contacts.Contacts)
+		contacts, err = lightning.NewContacts(b.arguments.NotesDirectoryPath()).List(contact.Address)
+		require.NoError(t, err)
+		require.Equal(t, []lightning.Contact{*contact}, contacts.Contacts)
+		require.Equal(t, &contact.ID, contacts.MatchingContactID)
+	}
 }
 
 func TestRegisterKeystore(t *testing.T) {
