@@ -40,20 +40,24 @@ The Qt shell owns window controls, dragging, resizing and cached Linux shadows.
 Linux establishes the frameless native surface before attaching QWindowKit's
 window-ID hook. Appearance updates use Qt's normal composition scheduling so
 WebEngine's first frame does not depend on a resize or a theme change.
-Controls share the existing fixed 70px app header; scrolling and desktop banners
+Controls share the app's fixed header; scrolling and desktop banners
 start below it. Only occupied left/right control slots reserve space, and one
-centering rule aligns the logo, heading, Guide and controls. Linux control targets
-have equal 17px top and side padding within the caption, plus the native inset.
-Linux uses a Qt-painted frame with antialiased 12px corners (with the current
-7.5px button radius) and a 1px inset outline at 5% opacity. A small native inset
-keeps the rectangular WebEngine surface inside the rounded frame during resize.
+centering rule aligns the logo, heading, Guide and controls. Standard captions
+are 48px high. The local macOS-controls preview defaults to 70px, with live
+header-height and logo settings; it keeps simulated controls on the left.
+Linux uses a web alpha mask with 12px corners (with the current 7.5px button
+radius) and a 1px inset outline at 5% opacity. An outward-rounded native guard
+bounds stale WebEngine frames during resize without cutting the antialiased edge.
+Qt paints the cached shadow and a rounded backdrop beneath the web surface;
+panel backgrounds and the outline belong entirely to Chromium.
 The outline is black in light mode and white in dark mode. Maximized/fullscreen
-windows have neither an outline nor the Linux inset. Edge-color hit tests stay
-inside whole viewport pixels for fractional display scaling. A closed guide
+windows have neither an outline nor rounded corners. Caption-color hit tests
+stay inside whole viewport pixels for fractional display scaling. A closed guide
 remains hidden across responsive layout changes, including maximization.
 The cached shadow is stronger when focused and has more contrast in light mode.
-All sides have at least a 6px native
-resize band, with extended diagonal corner targets and matching cursors.
+Linux resize targets cover 4px inside the body and 6px into the shadow,
+with extended diagonal corner targets and matching cursors. Windows uses at
+least 6 logical pixels, or the system resize thickness when larger.
 Wayland input masks include the resize gutter and exclude the rest of the shadow.
 Main, sidebar and guide content scroll below their fixed captions. The guide
 close control sits left of its title, away from the window close control.
@@ -64,13 +68,14 @@ below the viewport. Each panel supplies its own background; the fade is drawn
 with CSS, does not capture input, and disappears at the end of the content.
 Caption controls do not take keyboard focus from the web content.
 
-During panel transitions, the web UI publishes bounded edge-color intervals
-for the native Linux inset to follow the same backgrounds and dimming. Header
-geometry and frame colors are sent together in one WebChannel transaction per
-changed animation frame, reducing separate-message timing gaps. Qt owns repaint
-coalescing; no additional native timer or animation clock is introduced. Updates
-run only while a transition is active, for at most one second; native input
-handling remains synchronous. Linux follows live
+The web UI publishes bounded header geometry and native caption colors in one
+WebChannel transaction when both change. Unchanged sections are omitted so
+geometry-only updates do not repaint the native appearance. DOM mutations are
+coalesced before the next paint; panel transition events publish immediately.
+Only one transaction can await Qt's reply. While it is pending, additional
+measurements are deferred and the latest DOM is sampled after the reply.
+Continuous sampling runs only during active panel transitions, for at most one
+second; native input handling remains synchronous. Linux follows live
 `org.freedesktop.appearance/color-scheme` Settings portal values (0/2 light,
 1 dark), unless the app has an explicit theme override. Portal reads support
 ReadOne and legacy Read, and are refreshed when the portal restarts.
@@ -84,6 +89,8 @@ and displays a restart reminder when changed. It takes effect after restarting
 the app. Modern CSD is the default, including
 on macOS and Windows; native decorations requires an explicit opt-in.
 `BITBOXAPP_NATIVE_DECORATIONS=1` forces native decorations for troubleshooting. Browser and mobile layouts/transports do not enable this feature.
+The local macOS-controls preview ignores the saved border preference on Linux
+so its simulated controls remain visible; the environment override still applies.
 
 Launch a desktop test build with `-testnet`. Close an already running BitBoxApp
 first: the standard desktop build retains its single-instance identity.
