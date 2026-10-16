@@ -8,6 +8,8 @@ export type TDesktopChromeState = {
   csd: boolean;
   nativeDecorations: boolean;
   activeNativeDecorations: boolean;
+  previewHeaderHeight?: number;
+  previewLogoVisible?: boolean;
   document: number;
   viewport: number;
   topInset: number;
@@ -28,6 +30,8 @@ type TChrome = {
   stateChanged: { connect: (callback: () => void) => void };
   updateFrame: (frame: { layout?: unknown; appearance?: unknown }, applied: () => void) => void;
   setNativeDecorations: (enabled: boolean) => void;
+  setPreviewHeaderHeight: (height: number) => void;
+  setPreviewLogoVisible: (visible: boolean) => void;
   prepareStartup: (document: number) => void;
 };
 
@@ -69,6 +73,10 @@ export const initializeDesktopChrome = () => {
         document.body.style.setProperty('--desktop-controls-left', `${state.leftInset}px`);
         document.body.style.setProperty('--desktop-controls-right', `${state.rightInset}px`);
         document.body.style.setProperty('--desktop-window-radius', `${state.cornerRadius}px`);
+        if (state.previewHeaderHeight !== undefined) {
+          document.body.style.setProperty('--header-height', `${state.previewHeaderHeight}px`);
+        }
+        document.body.toggleAttribute('data-desktop-logo-hidden', state.previewLogoVisible === false);
         listeners.forEach(listener => listener());
         window.dispatchEvent(new Event('bitbox-chrome-layout'));
       };
@@ -81,6 +89,14 @@ export const initializeDesktopChrome = () => {
 
 export const setNativeDecorations = (enabled: boolean) => {
   chrome?.setNativeDecorations(enabled);
+};
+
+export const setPreviewHeaderHeight = (height: number) => {
+  chrome?.setPreviewHeaderHeight(height);
+};
+
+export const setPreviewLogoVisible = (visible: boolean) => {
+  chrome?.setPreviewLogoVisible(visible);
 };
 
 export const prepareDesktopStartup = () => {

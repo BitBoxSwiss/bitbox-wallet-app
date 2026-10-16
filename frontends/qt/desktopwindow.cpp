@@ -27,7 +27,6 @@
 
 namespace {
 constexpr int shadowSize = 16;
-constexpr int chromeHeight = 70;
 constexpr int controlHeight = 36;
 constexpr int maxExclusions = 32;
 constexpr int resizeBorder = 4;
@@ -186,6 +185,8 @@ bool readRect(const QVariantMap &input, qreal zoom, const QRect &bounds, QRect *
 
 DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(parent), view_(view) {
     QSettings settings;
+    headerHeight_ = qBound(36, settings.value("macosControlsPreview/headerHeight", headerHeight_).toInt(), 256);
+    logoVisible_ = settings.value("macosControlsPreview/logoVisible", true).toBool();
     native_ = settings.value("nativeDecorations", false).toBool() || qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
 #if defined(Q_OS_LINUX)
     // The preview uses CSD without changing the user's saved decoration preference.
@@ -309,6 +310,7 @@ QVariantMap DesktopWindow::state() const {
     startupReady = native_ || startupReadyDocument_ == document_;
 #endif
     return {{"csd", !native_}, {"nativeDecorations", QSettings().value("nativeDecorations", false).toBool()},
+            {"previewHeaderHeight", headerHeight_}, {"previewLogoVisible", logoVisible_},
             {"activeNativeDecorations", native_}, {"document", document_}, {"viewport", viewport_},
             {"systemDark", systemDark},
             {"systemAppearanceReady", systemAppearanceReady},
@@ -458,13 +460,30 @@ void DesktopWindow::setNativeDecorations(bool enabled) {
     QSettings().setValue("nativeDecorations", enabled);
     emit stateChanged();
 }
+
+void DesktopWindow::setPreviewHeaderHeight(int height) {
+    // Keep native controls inside the caption and the measured drag region within its 256px limit.
+    if (height < controlHeight || height > 256 || height == headerHeight_) return;
+    headerHeight_ = height;
+    QSettings().setValue("macosControlsPreview/headerHeight", height);
+    syncFrame();
+    invalidateViewport();
+}
+
+void DesktopWindow::setPreviewLogoVisible(bool visible) {
+    if (logoVisible_ == visible) return;
+    logoVisible_ = visible;
+    QSettings().setValue("macosControlsPreview/logoVisible", visible);
+    invalidateViewport();
+}
+
 void DesktopWindow::minimize() { showMinimized(); }
 void DesktopWindow::toggleMaximize() { if (!isFullScreen()) isMaximized() ? showNormal() : showMaximized(); }
 void DesktopWindow::requestClose() { close(); }
 
 void DesktopWindow::placeControls() {
     const auto body = view_->geometry();
-    const int controlY = body.y() + (chromeHeight - controlHeight) / 2;
+    const int controlY = body.y() + (headerHeight_ - controlHeight) / 2;
     if (trafficLights_) trafficLights_->setGeometry(body.x() + 8, controlY, 80, controlHeight);
     QStringList left, right{"minimize", "maximize", "close"};
 #if defined(Q_OS_LINUX)
@@ -492,7 +511,7 @@ void DesktopWindow::placeControls() {
         const int y = controlY;
 #else
         const int width = 36;
-        const int offset = (chromeHeight - controlHeight) / 2;
+        const int offset = (headerHeight_ - controlHeight) / 2;
         const int height = controlHeight;
         const int y = controlY;
 #endif

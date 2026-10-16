@@ -71,6 +71,10 @@
     --desktop-caption-separator: rgba(255, 255, 255, 0.05);
 }
 
+:global(body[data-desktop-csd][data-desktop-logo-hidden]) {
+    --sidebar-logo-width: 0px;
+}
+
 :global(body[data-desktop-csd][data-desktop-edge-to-edge])::after {
     display: none;
 }

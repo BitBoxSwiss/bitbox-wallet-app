@@ -20,6 +20,7 @@ import { isNotesSettingsVisible } from './settings-availability';
 import { SimpleMarkup } from '@/utils/markup';
 import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
 import { NativeDecorationsSetting } from './components/appearance/native-decorations-setting';
+import { DesktopHeaderHeightSetting, DesktopLogoSetting } from './components/appearance/desktop-preview-settings';
 
 export const General = () => {
   const { t } = useTranslation();
@@ -64,6 +65,10 @@ export const GeneralSettingsContent = () => {
         { id: 'portfolio-percentage', content: <PortfolioPercentageDropdownSetting /> },
         { id: 'dark-mode', content: <DarkmodeToggleSetting /> },
         ...(desktopChrome ? [{ id: 'native-decorations', content: <NativeDecorationsSetting /> }] : []),
+        ...(desktopChrome?.csd && desktopChrome.previewHeaderHeight !== undefined ? [
+          { id: 'preview-header-height', content: <DesktopHeaderHeightSetting /> },
+          { id: 'preview-logo', content: <DesktopLogoSetting /> },
+        ] : []),
       ],
       title: <SubTitle>{t('settings.appearance')}</SubTitle>,
     },

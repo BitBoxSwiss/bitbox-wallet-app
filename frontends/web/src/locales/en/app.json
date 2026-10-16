@@ -816,6 +816,10 @@
     "maximize": "Maximize or restore",
     "minimize": "Minimize",
     "nativeDecorations": "Use system window borders",
+    "previewHeaderHeight": "Header height (px)",
+    "previewHeaderHeightDescription": "Resize all desktop headers. Enter a whole number from {{min}} to {{max}}.",
+    "previewLogo": "Show BitBoxApp logo",
+    "previewLogoDescription": "Show the logo beside the simulated macOS window controls.",
     "restart": "Changes take effect after restarting BitBoxApp."
   },
   "device": {

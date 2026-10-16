@@ -116,6 +116,10 @@
     cursor: default;
 }
 
+:global(body[data-desktop-csd][data-desktop-logo-hidden]) .desktopLogo {
+    display: none;
+}
+
 :global(body[data-desktop-csd]) .sidebarLogoContainer img {
     max-width: none;
     height: var(--sidebar-icon-size) !important;

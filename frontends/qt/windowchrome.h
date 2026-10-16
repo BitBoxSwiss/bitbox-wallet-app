@@ -24,6 +24,8 @@ public:
         if (!appearance.isEmpty()) window_->updateAppearance(appearance);
     }
     Q_INVOKABLE void setNativeDecorations(bool value) { if (window_) window_->setNativeDecorations(value); }
+    Q_INVOKABLE void setPreviewHeaderHeight(int value) { if (window_) window_->setPreviewHeaderHeight(value); }
+    Q_INVOKABLE void setPreviewLogoVisible(bool value) { if (window_) window_->setPreviewLogoVisible(value); }
     Q_INVOKABLE void prepareStartup(qulonglong document) { if (window_) window_->prepareStartup(document); }
     Q_INVOKABLE void minimize() { if (window_) window_->minimize(); }
     Q_INVOKABLE void toggleMaximize() { if (window_) window_->toggleMaximize(); }

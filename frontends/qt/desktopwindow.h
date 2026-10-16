@@ -25,6 +25,8 @@ public:
     void updateAppearance(const QVariantMap &appearance);
     void prepareStartup(quint64 document);
     void setNativeDecorations(bool enabled);
+    void setPreviewHeaderHeight(int height);
+    void setPreviewLogoVisible(bool visible);
     void minimize();
     void toggleMaximize();
     void requestClose();
@@ -56,6 +58,8 @@ private:
     QVector<QWidget *> resizeTargets_;
     LinuxDecorationPreferences *preferences_ = nullptr;
     bool native_ = false;
+    int headerHeight_ = 70;
+    bool logoVisible_ = true;
     bool syncFrame_ = false;
     QMargins shadowMargins_;
     QImage shadow_;

@@ -797,6 +797,10 @@
     "maximize": "Maximizar o restaurar",
     "minimize": "Minimizar",
     "nativeDecorations": "Usar los bordes de ventana del sistema",
+    "previewHeaderHeight": "Altura de la cabecera (px)",
+    "previewHeaderHeightDescription": "Ajusta todas las cabeceras de escritorio. Introduce un número entero entre {{min}} y {{max}}.",
+    "previewLogo": "Mostrar el logotipo de BitBoxApp",
+    "previewLogoDescription": "Muestra el logotipo junto a los controles de ventana simulados de macOS.",
     "restart": "Los cambios se aplican al reiniciar BitBoxApp."
   },
   "device": {
