@@ -2,7 +2,6 @@
 
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { Header, Main } from '../../components/layout';
 import { View, ViewButtons, ViewContent } from '../../components/view/view';
 import { MultilineMarkup } from '../../utils/markup';
@@ -19,7 +18,6 @@ type TSteps = 'intro' | 'wait' | 'success';
 
 export const LightningDeactivate = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [agree, setAgree] = useState(false);
   const [step, setStep] = useState<TSteps>('intro');
   const [deactivateError, setDeactivateError] = useState<string>();
@@ -35,6 +33,8 @@ export const LightningDeactivate = () => {
       setStep('intro');
     }
   }, []);
+
+  const handleBack = () => history.back();
 
   const renderSteps = () => {
     switch (step) {
@@ -57,7 +57,7 @@ export const LightningDeactivate = () => {
             <Button danger disabled={!agree} onClick={() => deactivateWallet()}>
               {t('lightning.settings.disableWallet')}
             </Button>
-            <DesktopBackButton onClick={() => navigate(-1)}>
+            <DesktopBackButton onClick={handleBack}>
               {t('button.back')}
             </DesktopBackButton>
           </ViewButtons>
@@ -89,7 +89,7 @@ export const LightningDeactivate = () => {
       <Header
         variant="navigation"
         mobileBackButton={step === 'intro'}
-        onBack={() => navigate(-1)}
+        onBack={handleBack}
         title={t('lightning.settings.disableWallet')}
       />
       {renderSteps()}

@@ -106,7 +106,7 @@ vi.mock('@/contexts/ConfigProvider', () => ({
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
 import * as coinsApi from '@/api/coins';
 import * as swapApi from '@/api/swap';

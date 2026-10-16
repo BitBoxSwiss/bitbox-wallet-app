@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext, useMemo, Fragment } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { useIgnoreDrop } from './hooks/drop';
 import { usePlatformClass } from './hooks/platform';
 import { useAppReady } from './hooks/appready';
@@ -29,7 +29,7 @@ import styles from './app.module.css';
 
 const AppFrame = () => {
 
-  const { pathname } = useLocation();
+  const [location] = useLocation();
 
   const { vendorIframeActive } = useContext(AppContext);
 
@@ -41,7 +41,7 @@ const AppFrame = () => {
     hasLightningAccount,
   } = useAppState();
 
-  const tabKey = useMemo(() => getBottomNavKey(pathname), [pathname]);
+  const tabKey = useMemo(() => getBottomNavKey(location), [location]);
 
   return (
     <>

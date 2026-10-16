@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useTranslation } from 'react-i18next';
 import { ReactElement } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { Button } from './forms';
 import { Bluetooth } from '@/components/bluetooth/bluetooth';
 import { TConnectKeystoreErrorCode, cancelConnectKeystore, syncConnectKeystore } from '@/api/backend';
@@ -15,12 +15,13 @@ import { runningInIOS } from '@/utils/env';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { isAddressVerifyRoute, SKIP_DEVICE_VERIFICATION_PARAM } from '@/routes/account/utils';
 import styles from './keystoreconnectprompt.module.css';
+import { useLocation as useLegacyLocation } from '@/utils/router-compatability';
 
 export const KeystoreConnectPrompt = () => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
+  const location = useLegacyLocation();
 
   const [data, reset] = useSubscribeReset(syncConnectKeystore());
   const isUsedAddressVerifyRoute = isAddressVerifyRoute(location.pathname);
@@ -36,10 +37,10 @@ export const KeystoreConnectPrompt = () => {
     const params = new URLSearchParams(location.search);
     params.set(SKIP_DEVICE_VERIFICATION_PARAM, '1');
     const search = params.toString();
-    navigate({
-      pathname: location.pathname,
-      search: search ? `?${search}` : '',
-    }, { replace: true });
+    navigate(
+      `${location.pathname}${search ? `?${search}` : ''}`,
+      { replace: true }
+    );
   };
 
   const errorMessage = (errorCode: TConnectKeystoreErrorCode | undefined): ReactElement | null => {

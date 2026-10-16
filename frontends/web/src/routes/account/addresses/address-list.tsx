@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import { AccountCode, TUsedAddress, TUsedAddressesResponse } from '@/api/account';
 import { useIsScrollable } from '@/hooks/scrollable';
 import { parseTimeShort } from '@/utils/date';

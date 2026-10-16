@@ -4,13 +4,14 @@ import '../../../__mocks__/i18n';
 import type { ContextType } from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Route, Switch } from 'wouter';
+import { MemoryRouter } from '@/utils/test-helpers';
 import { proposeTx, sendTx, type TAccount, type TAmountWithConversions } from '@/api/account';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { AppContext } from '@/contexts/AppContext';
 import { AppStateContext } from '@/contexts/app-state-context';
 import { useAccountSynced } from '@/hooks/account';
 import { Bitrefill } from './bitrefill';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 vi.mock('@/components/layout', () => ({ Header: () => null }));
 vi.mock('../settings/components/mobile-header', () => ({ MobileHeader: () => null }));
@@ -74,12 +75,12 @@ describe.each([false, true])('Bitrefill messages (dev servers: %s)', isDevServer
           }}
         >
           <MemoryRouter initialEntries={[`/market/bitrefill/spend/${account.code}`]}>
-            <Routes>
+            <Switch>
               <Route
                 path="/market/bitrefill/spend/:code"
-                element={<Bitrefill />}
+                component={Bitrefill}
               />
-            </Routes>
+            </Switch>
           </MemoryRouter>
         </AppStateContext.Provider>
       </AppContext.Provider>

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useMediaQuery } from '@/hooks/mediaquery';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
+import { useMediaQuery } from '@/hooks/mediaquery';
 
 export const useOnlyVisitableOnMobile = (redirectUrl: string) => {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const isMobile = useMediaQuery('(max-width: 768px)');
   useEffect(() => {
     if (!isMobile) {

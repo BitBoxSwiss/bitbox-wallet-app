@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useParams } from 'react-router-dom';
+import { useParams } from 'wouter';
 import { useAppState } from '@/contexts/app-state-context';
 import BitBox01 from './bitbox01/bitbox01';
 import { BitBox02 } from './bitbox02/bitbox02';
@@ -13,11 +13,7 @@ type TRouteParams = {
 
 export const DeviceSwitch = () => {
   const { deviceID = null } = useParams<TRouteParams>();
-
-  const {
-    deviceIDs,
-    devices,
-  } = useAppState();
+  const { deviceIDs, devices } = useAppState();
 
   if (deviceID === null || !deviceIDs.includes(deviceID)) {
     return <Waiting />;

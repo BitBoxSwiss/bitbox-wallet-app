@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
 import type { TAccount } from '@/api/account';
 import type { TDevices } from '@/api/devices';
+import { useLocation } from '@/utils/router-compatability';
 import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
 import { useDarkmode } from '@/hooks/darkmode';

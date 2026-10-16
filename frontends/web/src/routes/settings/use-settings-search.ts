@@ -2,7 +2,7 @@
 
 import { useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from '@/utils/router-compatability';
 import { getDeviceInfo } from '@/api/bitbox02';
 import type { TDevices } from '@/api/devices';
 import { AppContext } from '@/contexts/AppContext';

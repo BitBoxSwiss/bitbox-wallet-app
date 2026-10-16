@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'wouter';
 import { useLoad } from '@/hooks/api';
 import { AccountCode, ScriptType, TReceiveAddress } from '@/api/account';
 import * as accountApi from '@/api/account';

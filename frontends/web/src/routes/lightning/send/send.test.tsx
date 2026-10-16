@@ -3,8 +3,9 @@
 import '../../../../__mocks__/i18n';
 import type { ReactNode } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { useLocation } from '@/utils/router-compatability';
+import { MemoryRouter } from '@/utils/test-helpers';
 import { TPaymentInputType } from '@/api/lightning';
 import * as lightningApi from '@/api/lightning';
 import { AppStateContext } from '@/contexts/app-state-context';

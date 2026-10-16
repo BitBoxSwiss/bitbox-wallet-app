@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { Badge } from '@/components/badge/badge';
 import { useLightning } from '@/hooks/lightning';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
@@ -9,7 +9,7 @@ import { isLightningFeatureAvailable } from '@/utils/env';
 import styles from './lightning-settings-setting.module.css';
 
 export const LightningSettingsSetting = () => {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { t } = useTranslation();
   const { lightningAccount } = useLightning();
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'wouter';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { MarketGuide } from './guide';

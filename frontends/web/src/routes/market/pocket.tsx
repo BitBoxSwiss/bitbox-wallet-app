@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'wouter';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType, PaymentRequestV0Message } from 'request-address';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { Dialog } from '@/components/dialog/dialog';
@@ -45,7 +45,7 @@ export const Pocket = ({ action }: TProps) => {
   const { code = '' } = useParams<TRouteParams>();
   const { t } = useTranslation();
   const { config } = useConfig();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   const [blocking, setBlocking] = useState(false);
   const [verifying, setVerifying] = useState(false);

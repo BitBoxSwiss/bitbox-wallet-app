@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { AccountCode, TUsedAddress } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
@@ -17,7 +17,7 @@ type TProps = {
 
 export const AddressActions = ({ code, address, blockExplorerAddressPrefix, onCopy }: TProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   return (
     <div className={style.inlineActions}>
       <Button transparent inline className={style.linkAction} onClick={() => onCopy(address)}>

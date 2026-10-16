@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import type { AccountCode, CoinUnit, TAccount, TBalance } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
@@ -28,7 +28,7 @@ export const BuyReceiveCTA = ({
   showBuyButton = false,
 }: TBuyReceiveCTAProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const isBitcoin = isBitcoinCoin(unit);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const receiveLabel = (

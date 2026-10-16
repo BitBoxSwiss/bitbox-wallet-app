@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { getAccountsByKeystore } from '@/routes/account/utils';
 import * as accountAPI from '@/api/account';
 import { supportedERC20Tokens, type ERC20CoinCode } from '@/api/erc20';
@@ -29,9 +29,8 @@ type TShowTokens = {
 };
 
 export const ManageAccounts = () => {
-
-  const navigate = useNavigate();
   const { t } = useTranslation();
+  const [, navigate] = useLocation();
   const { accounts } = useAppState();
 
   const [editErrorMessage, setEditErrorMessage] = useState<string | undefined>(undefined);

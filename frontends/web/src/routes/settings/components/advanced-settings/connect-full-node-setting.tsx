@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 
 export const ConnectFullNodeSetting = () => {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { t } = useTranslation();
 
   return (

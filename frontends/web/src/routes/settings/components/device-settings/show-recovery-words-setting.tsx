@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 
 type TProps = {
@@ -10,7 +10,7 @@ type TProps = {
 
 export const ShowRecoveryWordsSetting = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   return (
     <SettingsItem

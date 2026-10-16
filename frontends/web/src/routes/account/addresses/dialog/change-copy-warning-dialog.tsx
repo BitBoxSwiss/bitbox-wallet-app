@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Trans, useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import { AccountCode, TUsedAddress } from '@/api/account';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';

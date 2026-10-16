@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import type { AccountCode, TSendTx } from '@/api/account';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Button } from '@/components/forms/button';
@@ -61,7 +61,7 @@ export const SendResult = ({
   onRetry,
 }: TProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   if (!result) {
     return null;

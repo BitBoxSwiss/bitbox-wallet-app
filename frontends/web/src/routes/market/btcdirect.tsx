@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'wouter';
 import { getBTCDirectInfo, TMarketAction } from '@/api/market';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { useAppState } from '@/contexts/app-state-context';
@@ -56,7 +56,7 @@ export const BTCDirect = ({
   const { config } = useConfig();
   const { isDevServers } = useContext(AppContext);
   const { isDarkMode } = useDarkmode();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { activeAccounts } = useAppState();
 
   const fetchBTCDirectInfo = useCallback(() => getBTCDirectInfo(action, code), [action, code]);

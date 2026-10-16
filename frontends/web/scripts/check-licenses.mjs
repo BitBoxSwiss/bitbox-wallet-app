@@ -15,6 +15,7 @@ const allowedLicenses = new Set([
   'MIT',
   '(Apache-2.0 AND MIT)',
   '(BSD-3-Clause OR GPL-2.0)', // Use the BSD-3-Clause option.
+  'Unlicense', // pulic domain
 ]);
 
 // Licenses approved for a single package only, e.g. { 'example-package': 'MPL-2.0' }.

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, expect, it } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
+import { Router } from 'wouter';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ButtonLink, Button } from './button';
@@ -14,7 +14,7 @@ describe('components/forms/button', () => {
     });
 
     it('renders as link when not disabled', () => {
-      render(<ButtonLink transparent to={'/settings'}>A ButtonLink</ButtonLink>, { wrapper: MemoryRouter });
+      render(<ButtonLink transparent to={'/settings'}>A ButtonLink</ButtonLink>, { wrapper: Router });
       expect(screen.getByRole('link', { name: /A ButtonLink/i })).toBeInTheDocument();
     });
   });

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { Dialog, DialogButtons } from './dialog';
 import { getDeviceList } from '@/api/devices';
 import { syncDeviceList } from '@/api/devicessync';
@@ -18,7 +18,7 @@ type TFirmwareUpgradeRequiredDialogProps = {
 
 export const FirmwareUpgradeRequiredDialog = ({ open, onClose }: TFirmwareUpgradeRequiredDialogProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
   const deviceIDs = Object.keys(devices);

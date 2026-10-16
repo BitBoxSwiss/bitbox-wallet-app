@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { type ReactNode, useContext, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
 import { AppStateContext } from './app-state-context';
-
 import { useSync } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
-
 import { getAccounts } from '@/api/account';
 import { getDeviceList } from '@/api/devices';
 import { syncAccountsList } from '@/api/accountsync';
 import { syncDeviceList } from '@/api/devicessync';
 import { getLightningAccount, subscribeLightningAccount } from '@/api/lightning';
-
+import { useLocation } from '@/utils/router-compatability';
 import { isLightningFeatureAvailable } from '@/utils/env';
 import { AppContext } from './AppContext';
 import { shouldShowBottomNavigation } from '@/components/bottom-navigation/utils';

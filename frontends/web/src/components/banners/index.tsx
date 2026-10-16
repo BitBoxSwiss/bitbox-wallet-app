@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useLocation } from 'react-router-dom';
+import { useLocation } from '@/utils/router-compatability';
 import type { TDevices } from '@/api/devices';
 import { Testing } from './testing';
 import { Update } from './update';

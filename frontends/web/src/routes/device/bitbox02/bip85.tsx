@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'wouter';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Button, Checkbox } from '@/components/forms';
 import { PointToBitBox02 } from '@/components/icon';
@@ -25,13 +25,12 @@ type TRouteParams = {
 
 export const Bip85 = () => {
   const { deviceID = '' } = useParams<TRouteParams>();
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [status, setStatus] = useState<Status>('info-what');
   const [disclaimer, setDisclaimer] = useState(false);
-  const handleClose = () => navigate(-1);
+  const handleClose = () => history.back();
 
   switch (status) {
   case 'info-what':
@@ -181,7 +180,7 @@ export const Bip85 = () => {
             onClick={async () => {
               setStatus('progress');
               await invokeBIP85(deviceID);
-              navigate(-1);
+              history.back();
             }}>
             {t('button.proceedOnBitBox')}
           </Button>

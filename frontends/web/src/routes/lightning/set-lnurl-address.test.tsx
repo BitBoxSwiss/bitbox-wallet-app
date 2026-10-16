@@ -3,8 +3,9 @@
 import '../../../__mocks__/i18n';
 import type { ReactNode } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Route, Switch } from 'wouter';
+import { MemoryRouter } from '@/utils/test-helpers';
 import * as lightningApi from '@/api/lightning';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { LightningSetLnurlAddress } from './set-lnurl-address';
@@ -37,8 +38,11 @@ vi.mock('@/api/lightning', async (importOriginal) => {
 });
 
 const SettingsPage = () => {
-  const navigate = useNavigate();
-  return <button onClick={() => navigate(-1)}>settings back</button>;
+  return (
+    <button onClick={() => window.history.back()}>
+      settings back
+    </button>
+  );
 };
 
 describe('Set Lightning address back navigation', () => {
@@ -79,11 +83,11 @@ describe('Set Lightning address back navigation', () => {
         initialIndex={2}
       >
         <BackButtonProvider>
-          <Routes>
-            <Route path="/settings/advanced-settings" element={<span>advanced settings</span>} />
-            <Route path="/settings/lightning-settings" element={<SettingsPage />} />
-            <Route path="/lightning/set-lnurl-address" element={<LightningSetLnurlAddress />} />
-          </Routes>
+          <Switch>
+            <Route path="/settings/advanced-settings" component={() => <span>advanced settings</span>} />
+            <Route path="/settings/lightning-settings" component={SettingsPage} />
+            <Route path="/lightning/set-lnurl-address" component={LightningSetLnurlAddress} />
+          </Switch>
         </BackButtonProvider>
       </MemoryRouter>
     );
