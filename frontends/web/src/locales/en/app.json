@@ -2331,6 +2331,11 @@
     "noFeeTargets": "Fee rate estimations are currently unavailable. Please try again later or enter a custom fee.",
     "priority": "Priority",
     "scanQR": "Scan QR code",
+    "scanQRErrors": {
+      "cameraUnavailable": "Could not start the camera. Close the scanner and try again.",
+      "noCamera": "No camera found on this device.",
+      "permissionDenied": "Camera access is disabled. Allow camera access in your device settings to scan QR codes."
+    },
     "scanQRInstruction": "Point your camera at an address QR code",
     "scanQRNoCameraMessage": "Camera not found. Please ensure that your device supports a camera and permissions are correctly set.",
     "scanQRToggleFlash": "Toggle flashlight",

@@ -139,3 +139,24 @@ With `servewallet -simulator` and the web frontend running, check:
 The simulator has no attestation certificate. Keep its real attestation failure response
 and verify that the warning remains visible while the passphrase link and dialog work.
 All endpoints must use the real backend and simulator.
+
+## Native mobile QR scanner (manual)
+
+Camera capture and decoding require physical Android and iOS devices. Browser
+tests cover the bridge and React flow, but do not establish camera reliability.
+Before closing PRO-3747, compare the current release and changed build with Phoenix
+and WoS on the same devices, using the same QR codes and lighting. Record device,
+OS, app versions, and whether acquisition and focus are comparably reliable.
+
+- Scan short addresses, dense Lightning invoices, LNURL, and WalletConnect codes.
+  Include screen and printed codes, different sizes/distances, low light, and
+  multiple codes (the code nearest the guide center should win).
+- Check first launch offline, permission grant/denial, permission revoked in
+  settings, no camera, and a camera already in use.
+- Try tap-to-focus, pinch zoom at both limits, torch, rotation, safe areas, tablet
+  layout, light/dark themes, background/resume, and rapid close/reopen.
+- In Lightning, reject an invalid code, dismiss its error, and scan it again.
+  Verify paste, manual entry, retained input, close/back, and review-before-send.
+- Confirm camera and torch stop after closing or leaving the screen; old scan
+  results must not appear in a newly opened scanner. Check ordinary browser/Qt
+  scanning still works.
