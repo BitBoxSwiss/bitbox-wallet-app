@@ -16,6 +16,7 @@ import { WCSessionCard } from './components/session-card/session-card';
 import { Button } from '@/components/forms';
 import { Status } from '@/components/status/status';
 import { WCGuide } from './guide';
+import { WCLoadError } from './load-error';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import styles from './dashboard.module.css';
 import { useAppState } from '@/contexts/app-state-context';
@@ -31,7 +32,8 @@ export const DashboardWalletConnect = () => {
   const { activeAccounts } = useAppState();
   const { web3wallet, isWalletInitialized, initializeWeb3Wallet } = useContext(WCWeb3WalletContext);
   const [sessions, setSessions] = useState<SessionTypes.Struct[]>();
-  const receiveAddresses = useLoad(getReceiveAddressList(code));
+  const receiveAddressResponse = useLoad(getReceiveAddressList(code));
+  const receiveAddresses = receiveAddressResponse?.success ? receiveAddressResponse.addresses : undefined;
 
   const updateSessions = useCallback(() => {
     const activeSessions = Object.values(web3wallet?.getActiveSessions() || []);
@@ -62,6 +64,10 @@ export const DashboardWalletConnect = () => {
     });
     updateSessions();
   };
+
+  if (receiveAddressResponse && !receiveAddressResponse.success) {
+    return <WCLoadError errorMessage={receiveAddressResponse.errorMessage} />;
+  }
 
   if (!receiveAddresses || !isWalletInitialized) {
     return null;
