@@ -156,11 +156,24 @@ export const attachDesktopGeometry = (labels: Record<string, string>) => {
   const idleScrollbars = new Map<HTMLElement, number>();
   // Keep hit-test exclusions current as panel transitions start. Visible window
   // edges are part of the same Chromium composition as the panel content.
-  const mutations = new MutationObserver(() => publishImmediately());
+  const mutations = new MutationObserver(records => {
+    // These attributes only paint scroll decorations; observing our own output
+    // would measure the same layout again after every scroll/activity update.
+    if (records.some(record => !['data-window-scrolled', 'data-window-scroll-more', 'data-window-scroll-active']
+      .includes(record.attributeName || ''))) {
+      schedule();
+    }
+  });
 
   const publish = () => {
     frame = undefined;
     if (!chrome || !state) {
+      return;
+    }
+    // Wait for the GUI thread before measuring another frame, then sample the
+    // latest DOM once instead of computing snapshots that cannot be sent.
+    if (inFlight) {
+      resample = true;
       return;
     }
     const titlebars = [...document.querySelectorAll('[data-window-titlebar]')];
@@ -259,31 +272,25 @@ export const attachDesktopGeometry = (labels: Record<string, string>) => {
     const appearanceChanged = appearanceKey !== previousAppearance;
     const startupPending = startupPendingDocument === state.document;
     if (layoutChanged || appearanceChanged || startupPending) {
-      if (inFlight) {
-        // Chromium and Qt have separate event loops. Never queue a history of
-        // animation samples behind a busy GUI thread; resample after its reply.
-        resample = true;
-      } else {
-        inFlight = true;
-        previousLayout = layoutKey;
-        previousAppearance = appearanceKey;
-        const appliedDocument = state.document;
-        chrome.updateFrame({
-          ...(state.csd ? { layout: { ...layout, sequence: ++layoutSequence } } : {}),
-          appearance,
-        }, () => {
-          inFlight = false;
-          if (!disposed && startupPendingDocument === appliedDocument && state?.document === appliedDocument &&
-              qtColor(getComputedStyle(document.querySelector('.app') || document.body).backgroundColor) === appearance.background) {
-            startupPendingDocument = undefined;
-            chrome?.prepareStartup(appliedDocument);
-          }
-          if (resample && !disposed) {
-            resample = false;
-            publishImmediately();
-          }
-        });
-      }
+      inFlight = true;
+      previousLayout = layoutKey;
+      previousAppearance = appearanceKey;
+      const appliedDocument = state.document;
+      chrome.updateFrame({
+        ...(layoutChanged ? { layout: { ...layout, sequence: ++layoutSequence } } : {}),
+        ...(appearanceChanged || startupPending ? { appearance } : {}),
+      }, () => {
+        inFlight = false;
+        if (!disposed && startupPendingDocument === appliedDocument && state?.document === appliedDocument &&
+            qtColor(getComputedStyle(document.querySelector('.app') || document.body).backgroundColor) === appearance.background) {
+          startupPendingDocument = undefined;
+          chrome?.prepareStartup(appliedDocument);
+        }
+        if (resample && !disposed) {
+          resample = false;
+          publishImmediately();
+        }
+      });
     }
     if (transitions.size && performance.now() < animateUntil) {
       schedule();

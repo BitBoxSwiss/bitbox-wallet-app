@@ -1,0 +1,142 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+
+vi.mock('./env', () => ({ runningInQtWebEngine: () => true }));
+vi.mock('./transport-qt', () => ({ getQtChannel: vi.fn() }));
+
+const fontDescriptor = Object.getOwnPropertyDescriptor(document, 'fonts');
+let callbacks: Map<number, FrameRequestCallback>;
+let nextFrame: number;
+let dispose: (() => void) | undefined;
+
+beforeEach(() => {
+  vi.resetModules();
+  callbacks = new Map();
+  nextFrame = 0;
+  vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
+    callbacks.set(++nextFrame, callback);
+    return nextFrame;
+  });
+  vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(id => { callbacks.delete(id); });
+  vi.stubGlobal('ResizeObserver', class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  });
+  Object.defineProperty(document, 'fonts', { configurable: true, value: { ready: Promise.resolve() } });
+});
+
+afterEach(() => {
+  dispose?.();
+  dispose = undefined;
+  document.body.replaceChildren();
+  document.body.removeAttribute('style');
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+  if (fontDescriptor) {
+    Object.defineProperty(document, 'fonts', fontDescriptor);
+  } else {
+    Reflect.deleteProperty(document, 'fonts');
+  }
+});
+
+const flushFrame = () => {
+  const pending = [...callbacks.values()];
+  callbacks.clear();
+  pending.forEach(callback => callback(performance.now()));
+};
+
+const setup = async () => {
+  const updateFrame = vi.fn();
+  const { getQtChannel } = await import('./transport-qt');
+  vi.mocked(getQtChannel).mockResolvedValue({ objects: { desktopChrome: {
+    state: { csd: true, document: 1, viewport: 1, topInset: 0, leftInset: 0, rightInset: 52, cornerRadius: 12 },
+    stateChanged: { connect: vi.fn() },
+    updateFrame,
+  } } });
+  const chrome = await import('./desktop-chrome');
+  await chrome.initializeDesktopChrome();
+  const header = document.createElement('header');
+  header.setAttribute('data-window-titlebar', '');
+  header.setAttribute('data-window-frame-surface', '');
+  const rect = { x: 0, y: 0, width: window.innerWidth, height: 70 };
+  vi.spyOn(header, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+  vi.spyOn(header, 'getBoundingClientRect').mockImplementation(() => ({ ...rect } as DOMRect));
+  document.body.append(header);
+  dispose = chrome.attachDesktopGeometry({ close: 'Close' });
+  await Promise.resolve();
+  flushFrame();
+  return { ...chrome, updateFrame, header, rect };
+};
+
+// A stalled GUI thread must not make Chromium repeatedly measure frames it cannot send.
+it('defers geometry reads until Qt replies, then sends the latest geometry', async () => {
+  const { updateFrame, header, rect, notifyChromeLayout } = await setup();
+  const measure = vi.mocked(header.getBoundingClientRect);
+  const reads = measure.mock.calls.length;
+  rect.height = 48;
+  notifyChromeLayout();
+  flushFrame();
+  rect.height = 42;
+  notifyChromeLayout();
+  flushFrame();
+  expect(updateFrame).toHaveBeenCalledTimes(1);
+  expect(measure).toHaveBeenCalledTimes(reads);
+  updateFrame.mock.calls[0]![1]();
+  expect(updateFrame).toHaveBeenCalledTimes(2);
+  expect(updateFrame.mock.calls[1]![0].layout.titlebar.height).toBe(42);
+});
+
+// Moving a panel changes hit testing without requiring native recoloring or repainting.
+it('only sends the parts of a frame that changed', async () => {
+  const { updateFrame, rect, notifyChromeLayout } = await setup();
+  updateFrame.mock.calls[0]![1]();
+  rect.height = 48;
+  notifyChromeLayout();
+  flushFrame();
+  expect(updateFrame.mock.calls[1]![0]).toHaveProperty('layout');
+  expect(updateFrame.mock.calls[1]![0]).not.toHaveProperty('appearance');
+  updateFrame.mock.calls[1]![1]();
+  document.body.style.color = 'rgb(255, 255, 255)';
+  notifyChromeLayout();
+  flushFrame();
+  expect(updateFrame.mock.calls[2]![0]).not.toHaveProperty('layout');
+  expect(updateFrame.mock.calls[2]![0].appearance.foreground).toBe('#ffffff');
+});
+
+// Separator/fade/activity attributes are sampler output, not reasons to measure again.
+it('ignores its own scroll decoration mutations', async () => {
+  const { updateFrame, header } = await setup();
+  updateFrame.mock.calls[0]![1]();
+  await Promise.resolve();
+  flushFrame();
+  await Promise.resolve();
+  const measure = vi.mocked(header.getBoundingClientRect);
+  measure.mockClear();
+  header.toggleAttribute('data-window-scrolled', true);
+  header.toggleAttribute('data-window-scroll-more', true);
+  header.toggleAttribute('data-window-scroll-active', true);
+  await Promise.resolve();
+  flushFrame();
+  expect(measure).not.toHaveBeenCalled();
+});
+
+// A DOM update burst needs one new sample and must still discover new header controls.
+it('coalesces mutations into one measurement before the next paint', async () => {
+  const { updateFrame, header } = await setup();
+  updateFrame.mock.calls[0]![1]();
+  await Promise.resolve();
+  flushFrame();
+  await Promise.resolve();
+  const measure = vi.mocked(header.getBoundingClientRect);
+  measure.mockClear();
+  header.append(document.createElement('button'));
+  await Promise.resolve();
+  header.classList.add('updated');
+  await Promise.resolve();
+  expect(measure).not.toHaveBeenCalled();
+  expect(callbacks.size).toBe(1);
+  flushFrame();
+  expect(measure).toHaveBeenCalledTimes(1);
+});
