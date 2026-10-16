@@ -75,7 +75,7 @@ const eject = (e: React.SyntheticEvent): void => {
 };
 
 const SidebarScroll = ({ enabled, children }: { enabled: boolean; children: ReactNode }) => (
-  enabled ? <div className={style.sidebarScroll} data-window-sidebar-scroll data-window-scroll>{children}</div> : <>{children}</>
+  enabled ? <div className={style.sidebarScroll} data-window-scroll>{children}</div> : <>{children}</>
 );
 
 const Sidebar = ({

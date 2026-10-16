@@ -49,9 +49,7 @@ export const desktopSystemDark = () => state?.systemDark;
 
 export const subscribeDesktopChrome = (callback: () => void) => {
   listeners.add(callback);
-  return () => {
-    listeners.delete(callback);
-  };
+  return () => listeners.delete(callback);
 };
 
 export const initializeDesktopChrome = () => {
@@ -88,17 +86,9 @@ export const initializeDesktopChrome = () => {
   return initialization;
 };
 
-export const setNativeDecorations = (enabled: boolean) => {
-  chrome?.setNativeDecorations(enabled);
-};
-
-export const setPreviewHeaderHeight = (height: number) => {
-  chrome?.setPreviewHeaderHeight(height);
-};
-
-export const setPreviewLogoVisible = (visible: boolean) => {
-  chrome?.setPreviewLogoVisible(visible);
-};
+export const setNativeDecorations = (enabled: boolean) => chrome?.setNativeDecorations(enabled);
+export const setPreviewHeaderHeight = (height: number) => chrome?.setPreviewHeaderHeight(height);
+export const setPreviewLogoVisible = (visible: boolean) => chrome?.setPreviewLogoVisible(visible);
 
 export const prepareDesktopStartup = () => {
   if (state?.csd) {
