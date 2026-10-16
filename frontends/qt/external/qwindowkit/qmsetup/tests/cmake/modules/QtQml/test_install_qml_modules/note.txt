@@ -1,0 +1,1 @@
+A resource that is not a QML file, so that the two are told apart.
