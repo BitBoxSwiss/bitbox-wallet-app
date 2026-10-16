@@ -1665,6 +1665,10 @@
   "language": {
     "title": "Select language"
   },
+  "licenses": {
+    "description": "View the licenses of open-source libraries and dependencies used in this app",
+    "title": "Licenses"
+  },
   "lightning": {
     "accountLabel": "Lightning",
     "activate": {
