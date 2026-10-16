@@ -256,8 +256,8 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
                               action == "maximize" ? QWK::WindowAgentBase::Maximize : QWK::WindowAgentBase::Minimize;
             agent_->setSystemButton(role, button);
             connect(button, &QAbstractButton::clicked, this, [this, action] {
-                if (action == "close") requestClose();
-                else if (action == "minimize") minimize();
+                if (action == "close") close();
+                else if (action == "minimize") showMinimized();
                 else toggleMaximize();
             });
         }
@@ -477,9 +477,7 @@ void DesktopWindow::setPreviewLogoVisible(bool visible) {
     invalidateViewport();
 }
 
-void DesktopWindow::minimize() { showMinimized(); }
 void DesktopWindow::toggleMaximize() { if (!isFullScreen()) isMaximized() ? showNormal() : showMaximized(); }
-void DesktopWindow::requestClose() { close(); }
 
 void DesktopWindow::placeControls() {
     const auto body = view_->geometry();

@@ -243,11 +243,6 @@ public:
 
 class WebEngineView : public QWebEngineView {
 public:
-    QSize sizeHint() const override {
-        // Default initial window size.
-        return QSize(1257, 785);
-    }
-
     void contextMenuEvent(QContextMenuEvent *event) override {
         std::set<QAction*> whitelist = {
             page()->action(QWebEnginePage::Cut),

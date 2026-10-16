@@ -31,10 +31,10 @@ private slots:
     void settingChanged(const QString &group, const QString &key, const class QDBusVariant &value);
     void portalOwnerChanged(const QString &name, const QString &, const QString &);
 private:
-    void readGnome(const QString &method, quint64 revision);
-    void readColorScheme(const QString &method, quint64 revision);
+    void readGnome(quint64 revision);
+    void readSetting(const QString &group, const QString &key, const QString &method,
+                     std::function<void(QVariant, QString)> done);
     void applyColorScheme(const QVariant &value);
-    void readDoubleClick(const QString &method, quint64 revision);
     void fallbackDoubleClick(quint64 revision);
     void applyDoubleClick(const QString &value);
     void fallback(quint64 revision);

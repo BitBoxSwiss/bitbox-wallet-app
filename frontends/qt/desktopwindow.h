@@ -27,9 +27,6 @@ public:
     void setNativeDecorations(bool enabled);
     void setPreviewHeaderHeight(int height);
     void setPreviewLogoVisible(bool visible);
-    void minimize();
-    void toggleMaximize();
-    void requestClose();
 signals:
     void stateChanged();
 protected:
@@ -40,6 +37,7 @@ protected:
     bool event(QEvent *) override;
     bool eventFilter(QObject *, QEvent *) override;
 private:
+    void toggleMaximize();
     void syncFrame();
     void placeControls();
     void safeTitle();

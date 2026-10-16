@@ -88,28 +88,31 @@ void LinuxDecorationPreferences::portalOwnerChanged(const QString &name, const Q
 
 void LinuxDecorationPreferences::refresh() {
     const auto revision = ++revision_;
-    readColorScheme("ReadOne", ++colorRevision_);
+    readSetting("org.freedesktop.appearance", "color-scheme", "ReadOne",
+                [this, colorRevision = ++colorRevision_](QVariant value, const QString &) {
+        if (colorRevision == colorRevision_) applyColorScheme(value);
+    });
     if (kde_) fallback(revision);
-    else readGnome("ReadOne", revision);
+    else readGnome(revision);
 }
 
-void LinuxDecorationPreferences::readColorScheme(const QString &method, quint64 revision) {
+void LinuxDecorationPreferences::readSetting(const QString &group, const QString &key, const QString &method,
+                                             std::function<void(QVariant, QString)> done) {
     auto message = QDBusMessage::createMethodCall(service, path, settingsInterface, method);
-    message << QStringLiteral("org.freedesktop.appearance") << QStringLiteral("color-scheme");
+    message << group << key;
     auto *call = new QDBusPendingCallWatcher(QDBusConnection::sessionBus().asyncCall(message, 1500), this);
-    connect(call, &QDBusPendingCallWatcher::finished, this, [this, method, revision, call] {
+    connect(call, &QDBusPendingCallWatcher::finished, this, [this, group, key, method, done, call] {
         QDBusPendingReply<QDBusVariant> reply = *call;
         call->deleteLater();
-        if (revision != colorRevision_) return;
         if (reply.isError()) {
             if (method == "ReadOne" && reply.error().type() == QDBusError::UnknownMethod)
-                readColorScheme("Read", revision);
-            else applyColorScheme(QVariant());
+                readSetting(group, key, "Read", done);
+            else done({}, method);
             return;
         }
         QVariant value = reply.value().variant();
         if (value.metaType() == QMetaType::fromType<QDBusVariant>()) value = value.value<QDBusVariant>().variant();
-        applyColorScheme(value);
+        done(value, method);
     });
 }
 
@@ -123,45 +126,19 @@ void LinuxDecorationPreferences::applyColorScheme(const QVariant &value) {
     emit colorSchemeChanged();
 }
 
-void LinuxDecorationPreferences::readGnome(const QString &method, quint64 revision) {
-    auto message = QDBusMessage::createMethodCall(service, path, settingsInterface, method);
-    message << gnomeGroup << QStringLiteral("button-layout");
-    auto *call = new QDBusPendingCallWatcher(QDBusConnection::sessionBus().asyncCall(message, 1500), this);
-    connect(call, &QDBusPendingCallWatcher::finished, this, [this, method, revision, call] {
-        QDBusPendingReply<QDBusVariant> reply = *call;
-        call->deleteLater();
+void LinuxDecorationPreferences::readGnome(quint64 revision) {
+    readSetting(gnomeGroup, "button-layout", "ReadOne", [this, revision](QVariant value, const QString &method) {
         if (revision != revision_) return;
-        if (reply.isError()) {
-            if (method == "ReadOne" && reply.error().type() == QDBusError::UnknownMethod)
-                readGnome("Read", revision);
-            else fallback(revision);
-            return;
-        }
-        QVariant value = reply.value().variant();
-        if (value.metaType() == QMetaType::fromType<QDBusVariant>())
-            value = value.value<QDBusVariant>().variant();
         if (value.metaType() == QMetaType::fromType<QString>()) {
             auto buttons = parseGnomeButtons(value.toString());
             buttons.doubleClick = buttons_.doubleClick;
             apply(buttons);
-            readDoubleClick(method, revision);
+            readSetting(gnomeGroup, "action-double-click-titlebar", method, [this, revision](QVariant action, const QString &) {
+                if (revision != revision_) return;
+                if (action.metaType() == QMetaType::fromType<QString>()) applyDoubleClick(action.toString());
+                else fallbackDoubleClick(revision);
+            });
         } else fallback(revision);
-    });
-}
-
-void LinuxDecorationPreferences::readDoubleClick(const QString &method, quint64 revision) {
-    auto message = QDBusMessage::createMethodCall(service, path, settingsInterface, method);
-    message << gnomeGroup << QStringLiteral("action-double-click-titlebar");
-    auto *call = new QDBusPendingCallWatcher(QDBusConnection::sessionBus().asyncCall(message, 1500), this);
-    connect(call, &QDBusPendingCallWatcher::finished, this, [this, revision, call] {
-        QDBusPendingReply<QDBusVariant> reply = *call;
-        call->deleteLater();
-        if (revision != revision_) return;
-        if (reply.isError()) { fallbackDoubleClick(revision); return; }
-        QVariant value = reply.value().variant();
-        if (value.metaType() == QMetaType::fromType<QDBusVariant>()) value = value.value<QDBusVariant>().variant();
-        if (value.metaType() == QMetaType::fromType<QString>()) applyDoubleClick(value.toString());
-        else fallbackDoubleClick(revision);
     });
 }
 
