@@ -28,6 +28,7 @@
 
 .fullscreenOverlay {
     background-color: var(--background-secondary);
+    border-top: var(--window-titlebar-height, 0px) solid var(--background);
     bottom: 0;
     left: 0;
     position: fixed;

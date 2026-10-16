@@ -68,6 +68,9 @@ SOURCES += \
 HEADERS += libserver.h webclass.h filedialog.h urlhandler.h network.h
 
 unix:macx {
+    OBJECTIVE_SOURCES += macoswindow.mm
+    HEADERS += macoswindow.h
+    LIBS += -framework AppKit
     CONFIG += sdk_no_version_check
     QMAKE_APPLE_DEVICE_ARCHS = x86_64 arm64
     # Those frameworks are needed for Go's http/net packages.
