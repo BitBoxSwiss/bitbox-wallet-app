@@ -47,13 +47,19 @@ surface transparent across background changes and renderer reloads.
 Controls share the app's fixed header; scrolling and desktop banners
 start below it. Only occupied left/right control slots reserve space, and one
 centering rule aligns the logo, heading, Guide and controls. Standard captions
-are 48px high by default. Linux's design playground can switch live between
+are 70px high by default. System window borders are the default; existing saved
+choices remain respected. Linux's design playground can switch live between
 system/Linux captions (following desktop button preferences), simulated macOS
 traffic lights on the left, and simulated Windows captions on the right.
 These previews retain Linux's native actions; they do not emulate AppKit or Snap
-Layouts. Header height, button preview and logo visibility persist across themes.
+Layouts. An optional separate custom titlebar puts these controls and a centered
+window title in a native CSD row above the web view. It keeps normal web clicks out
+of the caption, uses the same QWindowKit drag/resize behavior, and switches live
+when CSD is active. System borders must be disabled with a restart first.
+Header height, button preview and logo visibility persist across themes.
 The dedicated desktop Settings > Playground tab contains the experimental controls,
-including the system-border testing option. Shapes, placement, spacing, gradients'
+including the system-border option. Gradients are nested under each element
+(main content, sidebar, guide, buttons and cards). Shapes, placement, spacing, gradients'
 strength/angle, sidebar width, motion and scrollbar effects are shared between
 themes; color palettes remain separate. Existing conflicting shared values use
 the light profile, retaining any dark-only settings. Sidebar width can also be dragged
@@ -63,7 +69,9 @@ The centered logo option balances the space between left-side controls and the
 sidebar edge, with the configured spacing as minimum padding on each side.
 The collapsible live preview uses actual form and settings components with isolated
 sample state. Reset-palette clears only the current colors; reset-all clears both palettes and shared settings
-and restores the shared 48px header, visible logo and system button style.
+and restores the standard 70px header, visible logo, system button style and
+system window borders (requiring a restart when CSD is active). The modernized
+web design remains available with either decoration mode.
 An optional 1px inset scrollbar highlight has adjustable opacity and follows the
 thumb's idle fade without changing the 16px gutter.
 Linux uses a web alpha mask with 12px corners (with the current 7.5px button

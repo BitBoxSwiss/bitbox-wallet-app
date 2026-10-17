@@ -11,6 +11,7 @@ export type TDesktopChromeState = {
   previewHeaderHeight?: number;
   previewLogoVisible?: boolean;
   previewButtonStyle?: string;
+  previewSeparateTitlebar?: boolean;
   revision: number;
   topInset: number;
   leftInset: number;
@@ -32,6 +33,7 @@ type TChrome = {
   setPreviewHeaderHeight: (height: number) => void;
   setPreviewLogoVisible: (visible: boolean) => void;
   setPreviewButtonStyle: (style: string) => void;
+  setPreviewSeparateTitlebar: (enabled: boolean) => void;
 };
 
 let chrome: TChrome | undefined;
@@ -65,6 +67,7 @@ export const initializeDesktopChrome = () => {
         // Native masks and Chromium must use the same radius from startup onward.
         document.body.setAttribute('data-desktop-modernized', '');
         document.body.toggleAttribute('data-desktop-csd', state.csd);
+        document.body.toggleAttribute('data-desktop-separate-titlebar', state.csd && state.previewSeparateTitlebar === true && !state.fullScreen);
         document.body.toggleAttribute('data-desktop-edge-to-edge', state.maximized || state.fullScreen);
         document.documentElement.toggleAttribute('data-desktop-csd', state.csd);
         document.body.style.setProperty('--desktop-controls-left', `${state.leftInset}px`);
@@ -88,6 +91,7 @@ export const setNativeDecorations = (enabled: boolean) => chrome?.setNativeDecor
 export const setPreviewHeaderHeight = (height: number) => chrome?.setPreviewHeaderHeight(height);
 export const setPreviewLogoVisible = (visible: boolean) => chrome?.setPreviewLogoVisible(visible);
 export const setPreviewButtonStyle = (style: string) => chrome?.setPreviewButtonStyle(style);
+export const setPreviewSeparateTitlebar = (enabled: boolean) => chrome?.setPreviewSeparateTitlebar(enabled);
 
 export const notifyChromeLayout = () => {
   if (runningInQtWebEngine()) {

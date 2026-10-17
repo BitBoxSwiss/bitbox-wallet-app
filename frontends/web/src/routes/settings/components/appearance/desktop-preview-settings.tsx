@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
 import { Input, Select } from '@/components/forms';
 import { Toggle } from '@/components/toggle/toggle';
-import { setPreviewHeaderHeight, setPreviewLogoVisible, setPreviewButtonStyle } from '@/utils/desktop-chrome';
+import { setPreviewHeaderHeight, setPreviewLogoVisible, setPreviewButtonStyle, setPreviewSeparateTitlebar } from '@/utils/desktop-chrome';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import styles from './desktop-preview-settings.module.css';
 
@@ -81,4 +81,22 @@ export const DesktopLogoSetting = () => {
       />}
     />
   );
+};
+
+export const DesktopSeparateTitlebarSetting = () => {
+  const { t } = useTranslation();
+  const state = useDesktopChrome();
+  if (state?.previewSeparateTitlebar === undefined) {
+    return null;
+  }
+  return (<SettingsItem
+    settingName={t('desktopChrome.previewSeparateTitlebar')}
+    secondaryText={t('desktopChrome.previewSeparateTitlebarDescription')}
+    extraComponent={<Toggle
+      aria-label={t('desktopChrome.previewSeparateTitlebar')}
+      checked={state.previewSeparateTitlebar}
+      disabled={!state.csd}
+      onChange={event => setPreviewSeparateTitlebar(event.target.checked)}
+    />}
+  />);
 };

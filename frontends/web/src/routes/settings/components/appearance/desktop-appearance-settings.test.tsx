@@ -2,20 +2,22 @@
 
 import { afterEach, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
 import { useDarkmode } from '@/hooks/darkmode';
 import { applyAppearance, readAppearance, saveAppearance } from '@/utils/desktop-appearance';
-import { setPreviewButtonStyle, setPreviewHeaderHeight, setPreviewLogoVisible } from '@/utils/desktop-chrome';
+import { setPreviewButtonStyle, setPreviewHeaderHeight, setPreviewLogoVisible, setNativeDecorations, setPreviewSeparateTitlebar } from '@/utils/desktop-chrome';
 import { DesktopAppearanceSettings } from './desktop-appearance-settings';
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock('@/hooks/darkmode', () => ({ useDarkmode: vi.fn(() => ({ isDarkMode: false, toggleDarkmode: vi.fn() })) }));
 vi.mock('@/hooks/mediaquery', () => ({ useMediaQuery: () => false }));
 vi.mock('@/components/desktop-chrome/desktop-chrome', () => ({
-  useDesktopChrome: () => ({ csd: false, previewHeaderHeight: 70, previewLogoVisible: true, previewButtonStyle: 'system' }),
+  useDesktopChrome: vi.fn(() => ({ csd: true, nativeDecorations: false, activeNativeDecorations: false, previewSeparateTitlebar: false, previewHeaderHeight: 70, previewLogoVisible: true, previewButtonStyle: 'system' })),
 }));
-vi.mock('@/utils/desktop-chrome', () => ({ setPreviewHeaderHeight: vi.fn(), setPreviewLogoVisible: vi.fn(), setPreviewButtonStyle: vi.fn(), setNativeDecorations: vi.fn(), notifyChromeLayout: vi.fn() }));
+vi.mock('@/utils/desktop-chrome', () => ({ setPreviewHeaderHeight: vi.fn(), setPreviewLogoVisible: vi.fn(), setPreviewButtonStyle: vi.fn(), setNativeDecorations: vi.fn(), setPreviewSeparateTitlebar: vi.fn(), notifyChromeLayout: vi.fn() }));
 
 afterEach(() => {
+  vi.mocked(useDesktopChrome).mockReset();
   vi.restoreAllMocks();
   vi.clearAllMocks();
   vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: false, toggleDarkmode: vi.fn() });
@@ -27,9 +29,10 @@ const open = (group: string) => fireEvent.click(screen.getByRole('button', { nam
 
 // Color editing and reset work immediately with native borders, preserve the other theme, and keep header controls available.
 it('edits and resets the current appearance independently of native window borders', () => {
+  vi.mocked(useDesktopChrome).mockReturnValue({ ...useDesktopChrome()!, csd: false });
   saveAppearance('dark', { background: '#112233' });
   render(<DesktopAppearanceSettings />);
-  open('desktopDesign.groups.colors');
+  open('desktopDesign.groups.main');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.background'), { target: { value: '#abcdef' } });
   expect(document.body.style.getPropertyValue('--background')).toBe('#abcdef');
   expect(readAppearance().light.background).toBe('#abcdef');
@@ -45,12 +48,13 @@ it('edits and resets the current appearance independently of native window borde
 // Button shapes and gradients reject invalid numbers while allowing partially typed values until the field loses focus.
 it('supports button shapes and gradients with numeric limits', () => {
   render(<DesktopAppearanceSettings />);
-  open('desktopDesign.groups.shapes');
+  open('desktopDesign.groups.button');
   const radius = screen.getByLabelText('desktopDesign.fields.buttonRadius');
   fireEvent.change(radius, { target: { value: '100' } });
   expect(document.body.style.getPropertyValue('--design-button-radius')).toBe('100px');
   fireEvent.change(radius, { target: { value: '101' } });
   expect(readAppearance().light.buttonRadius).toBe(100);
+  open('desktopDesign.groups.sidebar');
   const scale = screen.getByLabelText('desktopDesign.fields.logoScale');
   fireEvent.change(scale, { target: { value: '7' } });
   expect(scale).toHaveValue(7);
@@ -60,7 +64,8 @@ it('supports button shapes and gradients with numeric limits', () => {
   fireEvent.change(scale, { target: { value: '' } });
   fireEvent.blur(scale);
   expect(scale).toHaveValue(75);
-  open('desktopDesign.groups.gradients');
+  const buttons = within(screen.getByRole('button', { name: 'desktopDesign.groups.button' }).parentElement!);
+  fireEvent.click(buttons.getByRole('button', { name: 'desktopDesign.groups.gradients' }));
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.buttonGradientStrength'), { target: { value: '25' } });
   expect(document.body.style.getPropertyValue('--design-button-gradient')).toContain('25%');
 });
@@ -69,16 +74,18 @@ it('supports button shapes and gradients with numeric limits', () => {
 it('edits caption style, logo placement, sidebar width and switch shapes', () => {
   render(<DesktopAppearanceSettings />);
   open('desktopDesign.header');
+  fireEvent.click(screen.getByRole('checkbox', { name: 'desktopChrome.previewSeparateTitlebar' }));
+  expect(setPreviewSeparateTitlebar).toHaveBeenCalledWith(true);
   fireEvent.change(screen.getByLabelText('desktopChrome.previewButtonStyle'), { target: { value: 'windows' } });
   expect(setPreviewButtonStyle).toHaveBeenCalledWith('windows');
-  open('desktopDesign.groups.layout');
+  open('desktopDesign.groups.sidebar');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.logoPosition'), { target: { value: 'below' } });
   expect(document.body).toHaveAttribute('data-desktop-logo-position', 'below');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.logoGap'), { target: { value: '12' } });
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.sidebarWidth'), { target: { value: '320' } });
   expect(document.body.style.getPropertyValue('--design-logo-gap')).toBe('12px');
   expect(document.body.style.getPropertyValue('--design-sidebar-width')).toBe('320px');
-  open('desktopDesign.groups.shapes');
+  open('desktopDesign.groups.switch');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.switchRadius'), { target: { value: '14' } });
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.switchThumbRadius'), { target: { value: '8' } });
   expect(readAppearance().light).toMatchObject({ logoPosition: 'below', logoGap: 12, sidebarWidth: 320, switchRadius: 14, switchThumbRadius: 8 });
@@ -94,7 +101,7 @@ it('edits caption style, logo placement, sidebar width and switch shapes', () =>
 it('edits the dark profile and reports a persistence failure', () => {
   vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: true, toggleDarkmode: vi.fn() });
   render(<DesktopAppearanceSettings />);
-  open('desktopDesign.groups.colors');
+  open('desktopDesign.groups.main');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.background'), { target: { value: '#123456' } });
   expect(readAppearance().dark.background).toBe('#123456');
   expect(readAppearance().light).toEqual({});
@@ -110,7 +117,7 @@ it('edits the dark profile and reports a persistence failure', () => {
 it('keeps shapes and scrollbar highlights global while editing separate palettes', () => {
   saveAppearance('light', { background: '#abcdef' });
   const { rerender } = render(<DesktopAppearanceSettings />);
-  open('desktopDesign.groups.shapes');
+  open('desktopDesign.groups.switch');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.switchRadius'), { target: { value: '12' } });
   open('desktopDesign.groups.scrollbars');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.scrollbarHighlightOpacity'), { target: { value: '35' } });
@@ -118,7 +125,7 @@ it('keeps shapes and scrollbar highlights global while editing separate palettes
   rerender(<DesktopAppearanceSettings />);
   expect(screen.getByLabelText('desktopDesign.fields.switchRadius')).toHaveValue(12);
   expect(screen.getByLabelText('desktopDesign.fields.scrollbarHighlightOpacity')).toHaveValue(35);
-  open('desktopDesign.groups.colors');
+  open('desktopDesign.groups.main');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.background'), { target: { value: '#123456' } });
   vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: false, toggleDarkmode: vi.fn() });
   rerender(<DesktopAppearanceSettings />);
@@ -157,8 +164,32 @@ it('resets all playground defaults including centered logo placement and shared 
   expect(readAppearance()).toEqual({ light: {}, dark: {} });
   expect(document.body.style.getPropertyValue('--design-switch-radius')).toBe('');
   expect(document.body).toHaveAttribute('data-desktop-logo-position', 'beside');
-  expect(setPreviewHeaderHeight).toHaveBeenCalledWith(48);
+  expect(setPreviewHeaderHeight).toHaveBeenCalledWith(70);
+  expect(setNativeDecorations).toHaveBeenCalledWith(true);
+  expect(setPreviewSeparateTitlebar).toHaveBeenCalledWith(false);
   expect(setPreviewLogoVisible).toHaveBeenCalledWith(true);
   expect(setPreviewButtonStyle).toHaveBeenCalledWith('system');
   expect(localStorage.getItem('unrelated-setting')).toBe('keep');
+});
+
+// Gradients belong to each element and are hidden until that element and its subsection are expanded.
+it('nests gradients inside their corresponding element', () => {
+  render(<DesktopAppearanceSettings />);
+  expect(screen.queryByRole('button', { name: 'desktopDesign.groups.gradients' })).not.toBeInTheDocument();
+  open('desktopDesign.groups.main');
+  open('desktopDesign.groups.card');
+  const cards = within(screen.getByRole('button', { name: 'desktopDesign.groups.card' }).parentElement!);
+  fireEvent.click(cards.getByRole('button', { name: 'desktopDesign.groups.gradients' }));
+  expect(cards.getByLabelText('desktopDesign.fields.cardGradientStrength')).toHaveValue(0);
+  expect(screen.queryByLabelText('desktopDesign.fields.mainGradientStrength')).not.toBeInTheDocument();
+  fireEvent.change(cards.getByLabelText('desktopDesign.fields.cardGradientStrength'), { target: { value: '30' } });
+  expect(readAppearance().light.cardGradientStrength).toBe(30);
+});
+
+// Native borders keep the separate CSD row disabled until CSD is active, avoiding a misleading no-op setting.
+it('disables the separate custom titlebar when system borders are active', () => {
+  vi.mocked(useDesktopChrome).mockReturnValue({ ...useDesktopChrome()!, csd: false });
+  render(<DesktopAppearanceSettings />);
+  open('desktopDesign.header');
+  expect(screen.getByRole('checkbox', { name: 'desktopChrome.previewSeparateTitlebar' })).toBeDisabled();
 });

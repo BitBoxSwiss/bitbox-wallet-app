@@ -51,11 +51,11 @@ const flushFrame = () => {
   pending.forEach(callback => callback(performance.now()));
 };
 
-const setup = async (csd = true) => {
+const setup = async (csd = true, previewSeparateTitlebar = false) => {
   const updateFrame = vi.fn();
   const { getQtChannel } = await import('./transport-qt');
   vi.mocked(getQtChannel).mockResolvedValue({ objects: { desktopChrome: {
-    state: { csd, revision: 1, topInset: 0, leftInset: 0, rightInset: 52, cornerRadius: 12 },
+    state: { csd, previewSeparateTitlebar, revision: 1, topInset: 0, leftInset: 0, rightInset: 52, cornerRadius: 12 },
     stateChanged: { connect: vi.fn() },
     updateFrame,
   } } });
@@ -276,4 +276,14 @@ it('keeps sampling overlapping transitions until both finish', async () => {
   expect(callbacks.size).toBe(1);
   transition('transitionend', 'margin-left');
   expect(callbacks.size).toBe(0);
+});
+
+// Only separate CSD rows square off the web surface's upper corners; system borders retain their own contour.
+it('limits the separate titlebar contour to active CSD', async () => {
+  await setup(true, true);
+  expect(document.body).toHaveAttribute('data-desktop-separate-titlebar');
+  dispose?.();
+  vi.resetModules();
+  await setup(false, true);
+  expect(document.body).not.toHaveAttribute('data-desktop-separate-titlebar');
 });

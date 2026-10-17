@@ -139,8 +139,9 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
 #elif defined(Q_OS_LINUX)
     const auto style = settings.value("desktopPreview/buttonStyle", "system").toString();
     if (buttonStyles.contains(style)) buttonStyle_ = style;
+    separateTitlebar_ = settings.value("desktopPreview/separateTitlebar", false).toBool();
 #endif
-    native_ = settings.value("nativeDecorations", false).toBool() || qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
+    native_ = settings.value("nativeDecorations", true).toBool() || qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
     setWindowTitle("BitBoxApp");
     setMouseTracking(true);
 #if defined(Q_OS_LINUX)
@@ -228,12 +229,17 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
 
 QRect DesktopWindow::bodyRect() const { return rect().marginsRemoved(shadowMargins_); }
 
+int DesktopWindow::captionHeight() const {
+    if (native_ || !separateTitlebar_ || isFullScreen()) return 0;
+    return buttonStyle_ == "windows" ? 32 : controlHeight;
+}
+
 QVariantMap DesktopWindow::state() const {
     const auto body = view_->geometry();
     int leftInset = trafficLights_ && !isFullScreen() ? trafficLights_->geometry().right() - body.x() + 1 : 0;
     int rightInset = 0;
     for (auto *button : buttons_) {
-        if (button->isHidden()) continue;
+        if (button->isHidden() || captionHeight()) continue;
         if (button->x() < body.center().x()) leftInset = qMax(leftInset, button->geometry().right() - body.x() + 1);
         else rightInset = qMax(rightInset, body.right() - button->x() + 1);
     }
@@ -243,7 +249,7 @@ QVariantMap DesktopWindow::state() const {
 #endif
     QVariantList captionButtons;
     for (auto *button : buttons_) {
-        if (button->isHidden()) continue;
+        if (button->isHidden() || captionHeight()) continue;
         const auto geometry = button->geometry().translated(-view_->pos());
         captionButtons.append(QVariantMap{{"action", static_cast<WindowButton *>(button)->action},
             {"x", geometry.x() / view_->zoomFactor()}, {"y", geometry.y() / view_->zoomFactor()},
@@ -255,10 +261,11 @@ QVariantMap DesktopWindow::state() const {
     systemDark = preferences_->colorScheme() == 1;
     systemAppearanceReady = preferences_->colorSchemeReady();
 #endif
-    return {{"csd", !native_}, {"nativeDecorations", QSettings().value("nativeDecorations", false).toBool()},
+    return {{"csd", !native_}, {"nativeDecorations", QSettings().value("nativeDecorations", true).toBool()},
             {"previewHeaderHeight", headerHeight_}, {"previewLogoVisible", logoVisible_},
 #if defined(Q_OS_LINUX)
             {"previewButtonStyle", buttonStyle_},
+            {"previewSeparateTitlebar", separateTitlebar_},
 #endif
             {"activeNativeDecorations", native_}, {"revision", revision_},
             {"systemDark", systemDark},
@@ -279,11 +286,13 @@ void DesktopWindow::invalidateLayout() {
 void DesktopWindow::safeTitle() {
     if (!title_) return;
     // Without a fresh exclusion map, web controls must remain normal client input.
-    title_->setGeometry(bodyRect().x(), bodyRect().y(), bodyRect().width(), 0);
+    title_->setGeometry(bodyRect().x(), bodyRect().y(), bodyRect().width(), captionHeight());
+    title_->setVisible(!isFullScreen());
     for (auto *proxy : exclusions_) proxy->hide();
 }
 
 void DesktopWindow::updateLayout(const QVariantMap &snapshot) {
+    if (captionHeight()) { safeTitle(); return; }
     if (!title_ || snapshot.value("revision").toULongLong() != revision_) return;
     const auto sequence = snapshot.value("sequence").toULongLong();
     if (sequence <= sequence_) return;
@@ -392,16 +401,29 @@ void DesktopWindow::setPreviewButtonStyle(const QString &style) {
     if (buttonStyle_ == style || !buttonStyles.contains(style)) return;
     buttonStyle_ = style;
     QSettings().setValue("desktopPreview/buttonStyle", style);
-    placeControls();
+    syncFrame();
     invalidateLayout();
 #else
     Q_UNUSED(style);
 #endif
 }
 
+void DesktopWindow::setPreviewSeparateTitlebar(bool enabled) {
+#if defined(Q_OS_LINUX)
+    if (separateTitlebar_ == enabled) return;
+    separateTitlebar_ = enabled;
+    QSettings().setValue("desktopPreview/separateTitlebar", enabled);
+    syncFrame();
+    invalidateLayout();
+#else
+    Q_UNUSED(enabled);
+#endif
+}
+
 void DesktopWindow::placeControls() {
-    const auto body = view_->geometry();
-    const int controlY = body.y() + (headerHeight_ - controlHeight) / 2;
+    const auto body = captionHeight() ? bodyRect() : view_->geometry();
+    const int height = captionHeight() ? captionHeight() : headerHeight_;
+    const int controlY = body.y() + (height - controlHeight) / 2;
     if (trafficLights_) trafficLights_->setGeometry(body.x() + 8, controlY, 80, controlHeight);
     QStringList left, right{"minimize", "maximize", "close"};
 #if defined(Q_OS_LINUX)
@@ -418,17 +440,17 @@ void DesktopWindow::placeControls() {
         const auto action = static_cast<WindowButton *>(button)->action;
         if (isFullScreen() || (!left.contains(action) && !right.contains(action))) button->hide();
     }
-    auto place = [this, body, controlY](const QStringList &actions, bool onLeft) {
+    auto place = [this, body, controlY, height](const QStringList &actions, bool onLeft) {
         const bool windows = buttonStyle_ == "windows", macos = buttonStyle_ == "macos";
         const int width = windows ? 46 : macos ? 20 : 36;
-        const int offset = windows ? 0 : macos ? 18 : (headerHeight_ - controlHeight) / 2;
-        const int height = windows ? 32 : controlHeight;
+        const int offset = windows ? 0 : macos ? 18 : (height - controlHeight) / 2;
+        const int buttonHeight = windows ? 32 : controlHeight;
         const int y = windows ? body.y() : controlY;
         int x = onLeft ? body.left() + offset : body.x() + body.width() - offset - actions.size() * width;
         for (const auto &action : actions) {
             for (auto *button : buttons_) {
                 if (static_cast<WindowButton *>(button)->action != action) continue;
-                button->setGeometry(x, y, width, height);
+                button->setGeometry(x, y, width, buttonHeight);
                 button->setVisible(!isFullScreen());
                 button->raise();
             }
@@ -442,7 +464,7 @@ void DesktopWindow::placeControls() {
 void DesktopWindow::updateControls() {
     for (auto *button : buttons_) {
         auto *control = static_cast<WindowButton *>(button);
-        control->color = captionColors_.value(control->action, foreground_);
+        control->color = captionHeight() ? foreground_ : captionColors_.value(control->action, foreground_);
         if (!isActiveWindow()) control->color.setAlpha(170);
         control->restored = isMaximized();
         control->update();
@@ -470,7 +492,7 @@ void DesktopWindow::syncFrame() {
     }
 #endif
     const auto body = bodyRect();
-    view_->setGeometry(body);
+    view_->setGeometry(body.adjusted(0, captionHeight(), 0, 0));
     if (windowHandle()) {
         windowHandle()->setProperty("_qwk_resize_frame", body);
         windowHandle()->setProperty("_qwk_resize_border", resizeBorder);
@@ -492,6 +514,7 @@ void DesktopWindow::syncFrame() {
             const int cut = qMax(0, qFloor(radius - std::sqrt(radius * radius - distance * distance)) - 1);
             if (!cut) continue;
             for (const int row : {y, view_->height() - y - 1}) {
+                if (captionHeight() && row == y) continue;
                 visible -= QRegion(0, row, cut, 1);
                 visible -= QRegion(view_->width() - cut, row, cut, 1);
             }
@@ -627,5 +650,18 @@ void DesktopWindow::paintEvent(QPaintEvent *) {
     painter.setBrush(background_);
     const QRectF backdrop = QRectF(bodyRect()).adjusted(inset, inset, -inset, -inset);
     painter.drawRoundedRect(backdrop, qMax(0.0, radius - inset), qMax(0.0, radius - inset));
+    if (captionHeight()) {
+        const QRect caption(bodyRect().topLeft(), QSize(bodyRect().width(), captionHeight()));
+        painter.save();
+        painter.setClipRect(caption);
+        painter.drawRoundedRect(QRectF(bodyRect()), radius, radius);
+        painter.restore();
+        int padding = 16;
+        for (auto *button : buttons_) if (!button->isHidden())
+            padding = qMax(padding, button->x() < caption.center().x() ? button->geometry().right() - caption.x() + 8 : caption.right() - button->x() + 8);
+        const auto text = caption.adjusted(padding, 0, -padding, 0);
+        painter.setPen(foreground_);
+        painter.drawText(text, Qt::AlignCenter, fontMetrics().elidedText(windowTitle(), Qt::ElideRight, qMax(0, text.width())));
+    }
 #endif
 }

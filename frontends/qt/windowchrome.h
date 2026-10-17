@@ -27,6 +27,7 @@ public:
     Q_INVOKABLE void setPreviewHeaderHeight(int value) { if (window_) window_->setPreviewHeaderHeight(value); }
     Q_INVOKABLE void setPreviewLogoVisible(bool value) { if (window_) window_->setPreviewLogoVisible(value); }
     Q_INVOKABLE void setPreviewButtonStyle(const QString &value) { if (window_) window_->setPreviewButtonStyle(value); }
+    Q_INVOKABLE void setPreviewSeparateTitlebar(bool value) { if (window_) window_->setPreviewSeparateTitlebar(value); }
 signals:
     void stateChanged();
 private:

@@ -828,10 +828,13 @@
     "previewHeaderHeightDescription": "Resize all desktop headers. Enter a whole number from {{min}} to {{max}}.",
     "previewLogo": "Show BitBoxApp logo",
     "previewLogoDescription": "Show the sidebar logo while preserving its space when hidden.",
+    "previewSeparateTitlebar": "Separate custom titlebar",
+    "previewSeparateTitlebarDescription": "Put window buttons and the title in their own CSD row above the app. Turn off system window borders and restart to enable this option.",
     "restart": "Changes take effect after restarting BitBoxApp."
   },
   "desktopDesign": {
     "dark": "dark appearance",
+    "defaultsDescription": "Defaults use the standard app colors and shapes, 70px headers and system window borders. Window border changes require restarting BitBoxApp.",
     "description": "Layout, shapes, motion and effects are shared between themes. Colors are saved separately for the current {{mode}}. Changes apply live and are independent of system window borders. Custom colors may reduce contrast.",
     "fields": {
       "accent": "Accent and primary buttons",
@@ -888,13 +891,17 @@
     },
     "gradientsDescription": "Set strength above 0 to enable a gradient over its background color. At 0 the gradient is off.",
     "groups": {
-      "colors": "Colors",
+      "button": "Buttons",
+      "card": "Cards",
       "effects": "Inner borders, separators and shadows",
       "gradients": "Gradients",
-      "layout": "Sidebar width and logo placement",
+      "guide": "Guide",
+      "input": "Inputs",
+      "main": "Main content",
       "motion": "Animation timing",
       "scrollbars": "Scrollbars",
-      "shapes": "Shapes and logo scale"
+      "sidebar": "Sidebar and logo",
+      "switch": "Switches"
     },
     "header": "Header and logo",
     "layoutDescription": "Centered placement balances the logo between left-side window buttons and the sidebar edge. Spacing sets the minimum padding on both sides; without left-side buttons, the logo is centered in the sidebar.",
@@ -924,7 +931,7 @@
     "resetAll": "Reset all playground defaults",
     "resizeSidebar": "Resize sidebar",
     "saveFailed": "Changes are visible, but could not be saved. They may be lost when the app closes.",
-    "shapesDescription": "Use 0 for square buttons or 100 for pill shapes. Logo scaling and hiding preserve its space. Window corners stay unchanged.",
+    "shapesDescription": "Use 0 for square buttons or 100 for pill shapes. Window corners stay unchanged.",
     "tab": "Playground",
     "title": "Design playground (PoC)"
   },

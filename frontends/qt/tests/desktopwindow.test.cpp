@@ -105,7 +105,56 @@ private slots:
         qInfo() << "Platform:" << QGuiApplication::platformName();
         qunsetenv("BITBOXAPP_NATIVE_DECORATIONS");
     }
-    void init() { QSettings().clear(); }
+    void init() { QSettings().clear(); QSettings().setValue("nativeDecorations", false); }
+
+    // Fresh preferences use the system frame and standard header height without attaching CSD controls.
+    void defaultsUseSystemBorders() {
+        QSettings().clear();
+        auto *view = new QWebEngineView;
+        DesktopWindow window(view);
+        QVERIFY(!window.state().value("csd").toBool());
+        QVERIFY(window.state().value("nativeDecorations").toBool());
+        QCOMPARE(window.state().value("previewHeaderHeight").toInt(), 70);
+        QVERIFY(view->mask().isEmpty());
+        QVERIFY(window.findChildren<QAbstractButton *>().isEmpty());
+    }
+
+    // A separate CSD row keeps controls and dragging above the app while preserving resize targets and lower corners.
+    void separateTitlebarReservesOnlyNativeCaptionRow() {
+        auto *view = new QWebEngineView;
+        DesktopWindow window(view);
+        window.setPreviewButtonStyle("macos");
+        window.show();
+        QVERIFY(QTest::qWaitForWindowExposed(&window));
+        const auto handle = window.windowHandle();
+        window.setPreviewSeparateTitlebar(true);
+        const auto body = handle->property("_qwk_resize_frame").toRect();
+        QCOMPARE(view->geometry(), body.adjusted(0, 36, 0, 0));
+        QCOMPARE(window.state().value("leftInset").toInt(), 0);
+        QCOMPARE(window.state().value("rightInset").toInt(), 0);
+        QVERIFY(window.state().value("captionButtons").toList().isEmpty());
+        QVERIFY(view->mask().contains(QPoint(0, 0)));
+        QVERIFY(!view->mask().contains(QPoint(0, view->height() - 1)));
+        for (auto *button : window.findChildren<QAbstractButton *>()) {
+            QVERIFY(button->isVisible());
+            QVERIFY(button->geometry().bottom() < view->y());
+        }
+        window.updateLayout(snapshot(window, *view));
+        QTest::mouseDClick(handle, Qt::LeftButton, Qt::NoModifier, view->pos() + QPoint(400, 65));
+        QVERIFY(!window.isMaximized());
+        QTest::mouseDClick(handle, Qt::LeftButton, Qt::NoModifier, body.topLeft() + QPoint(400, 18));
+        QTRY_VERIFY(window.isMaximized());
+        window.showNormal();
+        QTRY_VERIFY(!window.isMaximized());
+        window.setPreviewButtonStyle("windows");
+        QCOMPARE(view->y(), handle->property("_qwk_resize_frame").toRect().top() + 32);
+        QCOMPARE(window.windowHandle(), handle);
+        DesktopWindow restored(new QWebEngineView);
+        QVERIFY(restored.state().value("previewSeparateTitlebar").toBool());
+        window.setPreviewSeparateTitlebar(false);
+        QCOMPARE(view->geometry(), handle->property("_qwk_resize_frame").toRect());
+        QVERIFY(window.state().value("rightInset").toInt() >= 138);
+    }
 
     void buttonPreferences() {
         auto gnome = parseGnomeButtons("close,maximize:minimize,close,unknown");

@@ -27,6 +27,7 @@ public:
     void setPreviewHeaderHeight(int height);
     void setPreviewLogoVisible(bool visible);
     void setPreviewButtonStyle(const QString &style);
+    void setPreviewSeparateTitlebar(bool enabled);
 signals:
     void stateChanged();
 protected:
@@ -45,6 +46,7 @@ private:
     void rebuildShadow();
     void syncWebBackground();
     QRect bodyRect() const;
+    int captionHeight() const;
     QWebEngineView *view_;
     QPointer<QQuickWindow> webScene_;
     QWK::WidgetWindowAgent *agent_ = nullptr;
@@ -55,8 +57,9 @@ private:
     QVector<QWidget *> resizeTargets_;
     LinuxDecorationPreferences *preferences_ = nullptr;
     bool native_ = false;
-    int headerHeight_ = 48;
+    int headerHeight_ = 70;
     QString buttonStyle_ = "system";
+    bool separateTitlebar_ = false;
     bool logoVisible_ = true;
     bool syncFrame_ = false;
     QMargins shadowMargins_;

@@ -59,7 +59,7 @@
 }
 
 :global(body[data-desktop-modernized]) {
-    --header-height: 48px;
+    --header-height: 70px;
     --desktop-logo-controls-left: var(--desktop-controls-left, 0px);
     --desktop-logo-end-padding: var(--space-half);
     --sidebar-width-large: min(calc(100vw - 48px), max(var(--design-sidebar-width, var(--sidebar-width-min)), calc(var(--desktop-logo-controls-left) + var(--design-logo-gap, var(--space-default)) + var(--sidebar-logo-width) + var(--desktop-logo-end-padding))));
@@ -85,6 +85,12 @@
     --design-border-color: white;
     --desktop-window-outline: rgba(255, 255, 255, 0.05);
     --desktop-caption-separator: color-mix(in srgb, white var(--design-separator-opacity, 5%), transparent);
+}
+
+:global(body[data-desktop-csd][data-desktop-separate-titlebar]),
+:global(body[data-desktop-csd][data-desktop-separate-titlebar])::after {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 :global(body[data-desktop-csd][data-desktop-edge-to-edge])::after {
