@@ -19,8 +19,8 @@
     left: 0;
     z-index: -1;
     opacity: 0;
-    animation-delay: 0.2s;
-    transition: opacity ease 0.2s;
+    animation-delay: var(--design-animation-duration, 0.2s);
+    transition: opacity ease var(--design-animation-duration, 0.2s);
 }
 
 .sidebarOverlay.active {
@@ -56,6 +56,8 @@
 
 :global(body[data-desktop-modernized]) .sidebar {
     --desktop-scroll-background: var(--background-dark);
+    color: var(--design-sidebar-text, white);
+    background-image: var(--design-sidebar-gradient, none);
     overflow: hidden;
     min-height: 0;
     padding-bottom: 0;
@@ -86,7 +88,7 @@
     background-size: cover;
     background-color: rgba(0, 0, 0, 0.1);
     opacity: 1;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--design-animation-duration, 0.2s) ease;
 }
 
 .sidebarLogoContainer img {
@@ -103,7 +105,7 @@
     top: 0;
     z-index: 1;
     flex-shrink: 0;
-    background-color: color-mix(in srgb, black 10%, var(--background-dark));
+    background-color: rgba(0, 0, 0, 0.1);
     padding-left: calc(var(--space-default) + var(--desktop-controls-left, 0px));
     padding-right: var(--space-half);
 }
@@ -117,12 +119,14 @@
 }
 
 :global(body[data-desktop-modernized][data-desktop-logo-hidden]) .desktopLogo {
-    display: none;
+    visibility: hidden;
 }
 
 :global(body[data-desktop-modernized]) .sidebarLogoContainer img {
     max-width: none;
     height: var(--sidebar-icon-size) !important;
+    transform: scale(var(--design-logo-scale, 100%));
+    transform-origin: left center;
     display: block;
     margin: 0;
 }
@@ -230,7 +234,7 @@ a.sidebarActive :global(.stacked) img:last-child,
     height: var(--sidebar-icon-size);
     object-fit: contain;
     opacity: .6;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--design-animation-duration, 0.2s) ease;
 }
 
 a.sidebarActive .single img,
@@ -245,7 +249,7 @@ a.sidebarActive .single img,
     font-weight: 400;
     padding-right: var(--space-half);
     padding-top: 0;
-    transition: all 0.2s ease;
+    transition: all var(--design-animation-duration, 0.2s) ease;
     word-break: break-word;
 }
 
@@ -270,7 +274,7 @@ a.sidebarActive .single img,
 
 @media (max-width: 1199px) {
     .sidebar {
-        transition: margin-left 0.2s ease;
+        transition: margin-left var(--design-animation-duration, 0.2s) ease;
     }
 }
 
@@ -289,7 +293,7 @@ a.sidebarActive .single img,
 
     .sidebar {
         margin-left: -100vw;
-        transition: margin-left 0.3s ease;
+        transition: margin-left var(--design-animation-duration, 0.3s) ease;
         width: 100vw;
     }
 }
@@ -309,4 +313,8 @@ a.sidebarActive .single img,
     top: -2px;
     vertical-align: top;
     width: 8px;
+}
+
+:global(body[data-desktop-modernized]) .sidebarItem > :is(a, button) {
+    color: var(--design-sidebar-text, white);
 }

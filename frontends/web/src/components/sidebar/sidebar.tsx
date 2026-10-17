@@ -134,8 +134,8 @@ const Sidebar = ({
       <div key="overlay" className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}
         data-window-frame-surface data-window-dismiss-overlay={activeSidebar || undefined}></div>
       <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')} data-window-sidebar
-        data-window-frame-surface data-window-frame-panel data-window-frame-foreground="white">
-        <div key="app-logo" className={style.sidebarLogoContainer} data-window-titlebar data-window-logo data-window-frame-surface data-window-frame-foreground="white">
+        data-window-frame-surface data-window-frame-panel data-window-frame-foreground={modernized ? undefined : 'white'}>
+        <div key="app-logo" className={style.sidebarLogoContainer} data-window-titlebar data-window-logo data-window-frame-surface data-window-frame-foreground={modernized ? undefined : 'white'}>
           {modernized ? (
             <div className={style.desktopLogo}>
               <AppLogoInverted className={style.sidebarLogo} />

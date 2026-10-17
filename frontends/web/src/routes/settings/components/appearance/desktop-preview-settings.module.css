@@ -1,3 +1,19 @@
 .heightInput {
     width: 120px;
 }
+
+.playground {
+    background-color: var(--background-secondary);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--space-half);
+    padding: var(--space-half) var(--space-default);
+}
+
+.section {
+    margin-top: var(--space-half);
+}
+
+.playground button:focus-visible {
+    outline: 2px solid var(--design-focus, var(--color-electric-blue));
+    outline-offset: 2px;
+}

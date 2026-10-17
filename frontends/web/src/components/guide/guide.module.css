@@ -5,7 +5,7 @@
     opacity: 0;
     position: fixed;
     top: 0;
-    transition: opacity ease 0.2s;
+    transition: opacity ease var(--design-animation-duration, 0.2s);
     width: 100%;
     z-index: -1;
 }
@@ -42,7 +42,7 @@
     max-height: -webkit-fill-available;
     margin-right: calc(var(--guide-width) * -1);
     overflow-y: auto;
-    transition: margin-right 0.2s ease, transform 0.2s ease;
+    transition: margin-right var(--design-animation-duration, 0.2s) ease, transform var(--design-animation-duration, 0.2s) ease;
     width: var(--guide-width);
     will-change: margin-right, transform;
 }
@@ -67,6 +67,7 @@
 }
 
 :global(body[data-desktop-modernized]) .header {
+    background-color: var(--design-guide-header, var(--color-blue));
     height: var(--header-height);
     min-height: var(--header-height);
     padding-top: 0;
@@ -94,12 +95,15 @@
 }
 
 :global(body[data-desktop-modernized]) .guide {
-    --desktop-scroll-background: var(--color-lightblue);
+    --desktop-scroll-background: var(--design-guide-background, var(--color-lightblue));
+    background-color: var(--design-guide-background, var(--color-lightblue));
+    background-image: var(--design-guide-gradient, none);
+    color: var(--design-guide-text, white);
     --desktop-scrollbar-color: white;
     overflow: hidden;
     height: 100dvh;
     visibility: hidden;
-    transition: margin-right 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+    transition: margin-right var(--design-animation-duration, 0.2s) ease, transform var(--design-animation-duration, 0.2s) ease, visibility 0s linear var(--design-animation-duration, 0.2s);
 }
 
 :global(body[data-desktop-modernized]) .guide.show {
@@ -211,7 +215,7 @@
         right: 0;
         top: 0;
         transform: translateX(100%);
-        transition-delay: 0.2s;
+        transition-delay: var(--design-animation-duration, 0.2s);
         width: 100%;
         z-index: -10;
     }

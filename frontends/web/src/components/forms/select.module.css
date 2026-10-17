@@ -18,7 +18,7 @@
     background-position: calc(100% - 12px) center;
     background-repeat: no-repeat;
     border: solid 1px var(--background-quaternary);
-    border-radius: 2px;
+    border-radius: var(--design-input-radius, 2px);
     color: var(--color-default);
     font-family: var(--font-family);
     font-size: var(--size-default);
@@ -43,4 +43,9 @@
 
 .select option[disabled] {
     color: var(--color-disabled);
+}
+
+:global(body[data-desktop-modernized]) .select select:focus-visible {
+    outline: 2px solid var(--design-focus, var(--color-electric-blue));
+    outline-offset: 2px;
 }

@@ -95,3 +95,8 @@ button .displayedValue {
     }
 
 }
+
+:global(body[data-desktop-modernized]) .container {
+    background-image: var(--design-card-gradient, none);
+    box-shadow: var(--design-card-shadow);
+}

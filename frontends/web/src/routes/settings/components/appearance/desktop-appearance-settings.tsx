@@ -1,0 +1,75 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Accordion } from '@/components/accordion/accordion';
+import { Button, Input } from '@/components/forms';
+import { useDarkmode } from '@/hooks/darkmode';
+import { appearanceFields, appearanceValue, applyAppearance, readAppearance, saveAppearance, TAppearance } from '@/utils/desktop-appearance';
+import { SettingsItem } from '../settingsItem/settingsItem';
+import { DesktopHeaderHeightSetting, DesktopLogoSetting } from './desktop-preview-settings';
+import styles from './desktop-preview-settings.module.css';
+
+const groups = ['colors', 'gradients', 'shapes', 'effects', 'scrollbars', 'motion'];
+
+export const DesktopAppearanceSettings = () => {
+  const { t } = useTranslation();
+  const { isDarkMode } = useDarkmode();
+  const mode = isDarkMode ? 'dark' : 'light';
+  const [profiles, setProfiles] = useState(readAppearance);
+  const [saveFailed, setSaveFailed] = useState(false);
+  const [draft, setDraft] = useState<{ id: string; value: string }>();
+  const values = profiles[mode];
+  const update = (next: TAppearance) => {
+    setProfiles({ ...profiles, [mode]: next });
+    applyAppearance(next, mode);
+    setSaveFailed(!saveAppearance(mode, next));
+  };
+
+  return (
+    <Accordion className={styles.playground} title={t('desktopDesign.title')}>
+      <p>{t('desktopDesign.description', { mode: t(`desktopDesign.${mode}`) })}</p>
+      <Button secondary onClick={() => {
+        update({});
+        setDraft(undefined);
+      }}>{t('desktopDesign.reset')}</Button>
+      {saveFailed && <p role="alert">{t('desktopDesign.saveFailed')}</p>}
+      <Accordion className={styles.section} title={t('desktopDesign.header')}>
+        <DesktopHeaderHeightSetting />
+        <DesktopLogoSetting />
+      </Accordion>
+      {groups.map(group => (
+        <Accordion key={group} className={styles.section} title={t(`desktopDesign.groups.${group}`)}>
+          {group === 'shapes' && <p>{t('desktopDesign.shapesDescription')}</p>}
+          {group === 'gradients' && <p>{t('desktopDesign.gradientsDescription')}</p>}
+          {appearanceFields.filter(field => field.group === group).map(field => {
+            const label = t(`desktopDesign.fields.${field.id}`);
+            const value = appearanceValue(values, field, mode);
+            return (
+              <SettingsItem
+                key={field.id}
+                settingName={label}
+                collapseOnSmall
+                displayedValue={field.type === 'number' ? `${value}${field.unit}` : value}
+                extraComponent={<Input
+                  className={styles.heightInput}
+                  type={field.type === 'color' ? 'color' : 'number'}
+                  aria-label={label}
+                  value={draft?.id === `${mode}:${field.id}` ? draft.value : value}
+                  {...(field.type === 'number' ? { min: field.min, max: field.max, step: field.step ?? 1, required: true } : {})}
+                  onBlur={() => setDraft(undefined)}
+                  onChange={event => {
+                    setDraft({ id: `${mode}:${field.id}`, value: event.currentTarget.value });
+                    if (event.currentTarget.validity.valid) {
+                      update({ ...values, [field.id]: field.type === 'color' ? event.currentTarget.value : event.currentTarget.valueAsNumber });
+                    }
+                  }}
+                />}
+              />
+            );
+          })}
+        </Accordion>
+      ))}
+    </Accordion>
+  );
+};

@@ -27,3 +27,20 @@ included here because some contain other desktop content.
 The complete implementation is available on `desktop-modernization-effort`.
 The CSD-only comparison branch preserves upstream UI layout and styling so
 engineers can observe which integration gaps the shared changes address.
+
+## Local appearance playground
+
+On `codex/desktop-modernization-optimized`, open Settings → General → Appearance
+→ Design playground (PoC). Colors, gradients, button/input/card shapes, inner
+borders, card/button shadows, separators, scrollbar appearance and panel/button
+animation timing update live. Light and dark appearances are saved separately
+in the WebEngine profile's local storage; Reset current appearance clears the
+current theme's overrides. Header height and logo visibility use the existing
+Qt settings and are shared between themes. Hiding or scaling the logo preserves
+its space, and scrollbar thumb width changes retain the same gutter.
+
+Use system window borders requires a restart and disables the custom window
+behavior while retaining the modernized web design and appearance controls.
+The playground does not customize the OS frame or shadow, and adds no dependency.
+Custom palettes may reduce contrast. Reduced-motion and forced-color system
+preferences take precedence over custom animation and scrollbar styling.

@@ -4,6 +4,7 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { useDarkmode } from '@/hooks/darkmode';
+import { applyAppearance, readAppearance } from '@/utils/desktop-appearance';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { attachDesktopGeometry, desktopChromeState, desktopModernized, desktopSystemDark, initializeDesktopChrome, notifyChromeLayout, prepareDesktopStartup, subscribeDesktopChrome } from '@/utils/desktop-chrome';
 
@@ -31,6 +32,13 @@ export const DesktopChrome = () => {
   const preferredDark = config?.frontend.darkmode ?? state?.systemDark;
   const documentId = state?.document;
   const startupReady = state?.startupReady !== false;
+
+  useEffect(() => {
+    if (ready) {
+      const mode = isDarkMode ? 'dark' : 'light';
+      applyAppearance(readAppearance()[mode], mode);
+    }
+  }, [ready, isDarkMode]);
 
   useEffect(() => {
     if (!ready || !themeReady || isDarkMode !== preferredDark) {

@@ -63,16 +63,18 @@
     --sidebar-width-large: max(var(--sidebar-width-min), calc(var(--desktop-controls-left, 0px) + var(--space-default) + var(--sidebar-logo-width) + var(--space-half)));
     --desktop-scrollbar-gutter: stable;
     --desktop-window-outline: rgba(0, 0, 0, 0.05);
-    --desktop-caption-separator: rgba(0, 0, 0, 0.05);
+    --desktop-caption-separator: color-mix(in srgb, black var(--design-separator-opacity, 5%), transparent);
+    --design-border-color: black;
+    --design-shadow-color: color-mix(in srgb, black var(--design-shadow-opacity, 20%), transparent);
+    --design-border: inset 0 0 0 var(--design-border-width, 1px) color-mix(in srgb, var(--design-border-color, black) var(--design-border-opacity, 0%), transparent);
+    --design-card-shadow: 0 0 var(--design-card-shadow-size, 0px) var(--design-shadow-color), var(--design-border);
+    --design-button-shadow: 0 0 var(--design-button-shadow-size, 0px) var(--design-shadow-color), inset 0 0 var(--design-button-inset-size, 0px) var(--design-shadow-color), var(--design-border);
 }
 
 :global(body.dark-mode[data-desktop-modernized]) {
+    --design-border-color: white;
     --desktop-window-outline: rgba(255, 255, 255, 0.05);
-    --desktop-caption-separator: rgba(255, 255, 255, 0.05);
-}
-
-:global(body[data-desktop-modernized][data-desktop-logo-hidden]) {
-    --sidebar-logo-width: 0px;
+    --desktop-caption-separator: color-mix(in srgb, white var(--design-separator-opacity, 5%), transparent);
 }
 
 :global(body[data-desktop-csd][data-desktop-edge-to-edge])::after {
@@ -84,8 +86,8 @@
 }
 
 :global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll]) {
-    --desktop-scrollbar-visibility: 10%;
-    transition: --desktop-scrollbar-visibility 200ms ease;
+    --desktop-scrollbar-visibility: var(--design-scrollbar-idle, 10%);
+    transition: --desktop-scrollbar-visibility var(--design-scrollbar-fade, 200ms) ease;
 }
 
 :global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll-active]) {
@@ -102,19 +104,23 @@
 }
 
 :global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar-thumb:vertical {
-    /* Keep the 4px thumb clear of the window resize band. */
-    border: 6px solid transparent;
+    /* The gutter stays 16px wide even when the thumb changes size. */
+    border: calc((16px - var(--design-scrollbar-width, 4px)) / 2) solid transparent;
     border-radius: 8px;
     background-clip: content-box;
-    background-color: color-mix(in srgb, var(--desktop-scrollbar-color, var(--color-secondary)) var(--desktop-scrollbar-visibility), transparent);
+    background-color: color-mix(in srgb, var(--design-scrollbar-color, var(--desktop-scrollbar-color, var(--color-secondary))) var(--desktop-scrollbar-visibility), transparent);
 }
 
 :global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar-thumb:vertical:hover,
 :global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar-thumb:vertical:active {
-    background-color: var(--desktop-scrollbar-color, var(--color-secondary));
+    background-color: var(--design-scrollbar-color, var(--desktop-scrollbar-color, var(--color-secondary)));
 }
 
 @media (prefers-reduced-motion: reduce) {
+    :global(body[data-desktop-modernized]) {
+        --design-animation-duration: 0ms !important;
+    }
+
     :global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll]) {
         transition: none;
     }
@@ -122,6 +128,7 @@
 
 @media (forced-colors: active) {
     :global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll]) {
+        --design-scrollbar-color: CanvasText;
         --desktop-scrollbar-color: CanvasText;
         --desktop-scrollbar-visibility: 100%;
     }

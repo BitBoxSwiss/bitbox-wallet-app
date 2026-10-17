@@ -2,7 +2,7 @@
     align-items: center;
     appearance: none;
     border-color: transparent;
-    border-radius: var(--radius-xl);
+    border-radius: var(--design-button-radius, 0.75rem);
     border-style: solid;
     border-width: var(--border-width);
     cursor: default;
@@ -20,7 +20,7 @@
     position: relative;
     text-align: center;
     text-decoration: none;
-    transition: background-color .2s ease-out, color .2s ease-out;
+    transition: background-color var(--design-animation-duration, .2s) ease-out, color var(--design-animation-duration, .2s) ease-out;
     will-change: background-color, color;
 }
 
@@ -39,7 +39,7 @@
 .primary {
     composes: button;
     background: var(--color-blue);
-    color: var(--color-alt);
+    color: var(--design-button-text, var(--color-alt));
 }
 
 .primary:not([disabled]):focus,
@@ -115,5 +115,21 @@
     }
     .button.inline {
         min-width: auto;
+    }
+}
+
+:global(body[data-desktop-modernized]) :is(.primary, .secondary):not(.inline) {
+    background-image: var(--design-button-gradient, none);
+    box-shadow: var(--design-button-shadow);
+}
+
+:global(body[data-desktop-modernized]) .button:focus-visible {
+    outline: 2px solid var(--design-focus, var(--color-electric-blue));
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :global(body[data-desktop-modernized]) .button {
+        transition: none;
     }
 }

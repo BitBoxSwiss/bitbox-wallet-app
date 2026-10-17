@@ -12,6 +12,8 @@
 }
 
 .desktopFrame {
+    background-color: var(--background);
+    background-image: var(--design-main-gradient, none);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -24,5 +26,9 @@
 
 .desktopFrame > :global([data-window-header]) {
     flex-shrink: 0;
-    background-color: var(--background);
+    background-color: transparent;
+}
+
+.desktopFrame > .main {
+    background-color: transparent;
 }
