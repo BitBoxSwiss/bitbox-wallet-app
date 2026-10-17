@@ -836,6 +836,7 @@
     "dark": "dark appearance",
     "defaultsDescription": "Defaults use the standard app colors and shapes, 70px headers and system window borders. Window border changes require restarting BitBoxApp.",
     "description": "Layout, shapes, motion and effects are shared between themes. Colors are saved separately for the current {{mode}}. Changes apply live and are independent of system window borders. Custom colors may reduce contrast.",
+    "effectsDescription": "Content edges use no effect by default. The inset leaves a 12px gap below each scroll area. The fade blends its bottom 16px into the panel background while more content remains below.",
     "fields": {
       "accent": "Accent and primary buttons",
       "accentHover": "Accent on hover",
@@ -871,6 +872,7 @@
       "mainGradientColor": "Main background: gradient end color",
       "mainGradientStrength": "Main background: gradient strength (%)",
       "mutedText": "Secondary text",
+      "scrollEdgeEffect": "Scrollable content edge effect",
       "scrollbarColor": "Scrollbar color",
       "scrollbarFade": "Scrollbar fade duration (ms)",
       "scrollbarHighlightOpacity": "Scrollbar 1px highlight opacity (%)",
@@ -911,7 +913,10 @@
     "options": {
       "below": "Below the buttons",
       "beside": "Beside the buttons",
-      "centered": "Centered between buttons and sidebar edge"
+      "centered": "Centered between buttons and sidebar edge",
+      "fade": "16px fade",
+      "inset": "12px inset",
+      "none": "None (standard)"
     },
     "preview": {
       "checkbox": "Sample checkbox",

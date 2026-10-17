@@ -23,6 +23,7 @@ afterEach(() => {
   vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: false, toggleDarkmode: vi.fn() });
   localStorage.clear();
   document.body.removeAttribute('style');
+  document.body.removeAttribute('data-desktop-scroll-edge-effect');
 });
 
 const open = (group: string) => fireEvent.click(screen.getByRole('button', { name: group }));
@@ -216,4 +217,26 @@ it('defaults to unpadded square scrollbars with shared padding and rounding cont
   expect(radius).toHaveValue(0);
   expect(document.body.style.getPropertyValue('--design-scrollbar-padding')).toBe('');
   expect(document.body.style.getPropertyValue('--design-scrollbar-radius')).toBe('');
+});
+
+// Edge treatment is off by default, shared across palettes, preserved by palette-only resets and cleared by full reset.
+it('provides optional inset and fade treatments with no effect as the default', () => {
+  const { rerender } = render(<DesktopAppearanceSettings />);
+  open('desktopDesign.groups.effects');
+  const effect = screen.getByLabelText('desktopDesign.fields.scrollEdgeEffect');
+  expect(effect).toHaveValue('none');
+  fireEvent.change(effect, { target: { value: 'inset' } });
+  expect(document.body).toHaveAttribute('data-desktop-scroll-edge-effect', 'inset');
+  vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: true, toggleDarkmode: vi.fn() });
+  rerender(<DesktopAppearanceSettings />);
+  expect(effect).toHaveValue('inset');
+  fireEvent.change(effect, { target: { value: 'fade' } });
+  expect(document.body).toHaveAttribute('data-desktop-scroll-edge-effect', 'fade');
+  expect(readAppearance()).toEqual({ light: { scrollEdgeEffect: 'fade' }, dark: { scrollEdgeEffect: 'fade' } });
+  fireEvent.click(screen.getByRole('button', { name: 'desktopDesign.reset' }));
+  expect(effect).toHaveValue('fade');
+  fireEvent.click(screen.getByRole('button', { name: 'desktopDesign.resetAll' }));
+  expect(effect).toHaveValue('none');
+  expect(document.body).toHaveAttribute('data-desktop-scroll-edge-effect', 'none');
+  expect(readAppearance()).toEqual({ light: {}, dark: {} });
 });

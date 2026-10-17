@@ -100,9 +100,11 @@ Main, sidebar and guide content scroll below their fixed captions. The guide
 close control sits left of its title, away from the window close control.
 Dimmed caption areas dismiss an open panel; visible panel captions remain
 native drag regions. A 5% separator appears below captions only after scrolling.
-Scrollable content uses a 16px bottom gradient only while more content remains
-below the viewport. Each panel supplies its own background; the fade is drawn
-with CSS, does not capture input, and disappears at the end of the content.
+Scrollable content has no edge treatment by default. The playground effects
+section offers the earlier 12px inset and 16px fade as optional shared choices.
+The inset shortens each scroll viewport to leave a gap below it; the fade uses
+each panel's background and appears only while more content remains below.
+Both treatments use CSS; the fade captures no input and disappears at the end.
 Caption controls do not take keyboard focus from the web content.
 
 The web UI publishes bounded header geometry and native caption colors in one

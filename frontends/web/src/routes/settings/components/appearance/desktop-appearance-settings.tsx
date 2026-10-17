@@ -111,6 +111,7 @@ export const DesktopAppearanceSettings = () => {
       </Accordion>
       {groups.map(group => (
         <Accordion key={group} className={styles.section} title={t(`desktopDesign.groups.${group}`)}>
+          {group === 'effects' && <p>{t('desktopDesign.effectsDescription')}</p>}
           {group === 'scrollbars' && <p>{t('desktopDesign.scrollbarsDescription')}</p>}
           {group === 'button' && <p>{t('desktopDesign.shapesDescription')}</p>}
           {group === 'sidebar' && <p>{t('desktopDesign.layoutDescription')}</p>}

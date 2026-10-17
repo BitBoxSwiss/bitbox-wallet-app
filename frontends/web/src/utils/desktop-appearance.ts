@@ -28,6 +28,7 @@ export const appearanceFields: TField[] = [
   { id: 'borderColor', group: 'effects', type: 'color', property: '--design-border-color', defaults: ['#000000', '#ffffff'] },
   { id: 'borderWidth', group: 'effects', type: 'number', property: '--design-border-width', defaults: [1, 1], min: 0, max: 4, unit: 'px' },
   { id: 'borderOpacity', group: 'effects', type: 'number', property: '--design-border-opacity', defaults: [0, 0], min: 0, max: 100, unit: '%' },
+  { id: 'scrollEdgeEffect', group: 'effects', type: 'select', property: '--design-scroll-edge-effect', defaults: ['none', 'none'], options: ['none', 'inset', 'fade'] },
   { id: 'separatorOpacity', group: 'effects', type: 'number', property: '--design-separator-opacity', defaults: [5, 5], min: 0, max: 100, unit: '%' },
   { id: 'buttonRadius', group: 'button', type: 'number', property: '--design-button-radius', defaults: [7.5, 7.5], min: 0, max: 100, step: 0.5, unit: 'px' },
   { id: 'cardRadius', group: 'card', type: 'number', property: '--radius-xl', defaults: [7.5, 7.5], min: 0, max: 40, step: 0.5, unit: 'px' },
@@ -135,6 +136,7 @@ export const applyAppearance = (input: TAppearance, mode: TAppearanceMode) => {
     style.setProperty(`--design-${target}-gradient`, Number(strength) > 0
       ? `linear-gradient(${angle}deg, transparent, color-mix(in srgb, ${color} ${strength}%, transparent))` : 'none');
   });
+  document.body.dataset.desktopScrollEdgeEffect = String(values.scrollEdgeEffect ?? 'none');
   document.body.dataset.desktopLogoPosition = String(values.logoPosition ?? 'beside');
   window.dispatchEvent(new Event('bitbox-chrome-layout'));
 };

@@ -144,7 +144,11 @@
     }
 }
 
-:global(body[data-desktop-modernized] [data-window-scroll-more])::after {
+:global(body[data-desktop-modernized][data-desktop-scroll-edge-effect="inset"] [data-window-scroll]) {
+    margin-bottom: 12px;
+}
+
+:global(body[data-desktop-modernized][data-desktop-scroll-edge-effect="fade"] [data-window-scroll-more])::after {
     content: '';
     position: absolute;
     inset: auto 0 0;
