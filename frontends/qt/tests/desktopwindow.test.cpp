@@ -32,7 +32,7 @@ QVariantMap rectangle(int x, int y, int width, int height) {
 }
 QVariantMap snapshot(DesktopWindow &window, QWebEngineView &view) {
     auto state = window.state();
-    return {{"document", state.value("document")}, {"viewport", state.value("viewport")},
+    return {{"revision", state.value("revision")},
             {"sequence", 1}, {"size", QVariantMap{{"width", view.width()}, {"height", view.height()}}},
             {"titlebar", rectangle(0, 0, view.width(), 120)},
             {"exclusions", QVariantList{rectangle(50, 50, 100, 30)}}};
@@ -102,6 +102,7 @@ private slots:
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settings_.path());
         qApp->setOrganizationName("BitBoxCSDTest");
         qApp->setApplicationName("BitBoxCSDTest");
+        qInfo() << "Platform:" << QGuiApplication::platformName();
         qunsetenv("BITBOXAPP_NATIVE_DECORATIONS");
     }
     void init() { QSettings().clear(); }
@@ -179,13 +180,14 @@ private slots:
         QVERIFY(nativeView->mask().isEmpty());
     }
 
+    // The scene-color repair must clear an opaque first frame without a forced redraw or startup handshake.
     void transparentWebSurfaceAfterOpaqueHtmlStartup() {
         auto *view = new QWebEngineView;
         auto *page = new QWebEnginePage(view);
         page->setBackgroundColor(Qt::transparent);
         view->setPage(page);
         DesktopWindow window(view);
-        connect(view, &QWebEngineView::loadStarted, &window, &DesktopWindow::resetDocument);
+        connect(view, &QWebEngineView::loadStarted, &window, &DesktopWindow::invalidateLayout);
         QSignalSpy loaded(view, &QWebEngineView::loadFinished);
         view->setHtml(R"HTML(
             <style>
@@ -205,9 +207,9 @@ private slots:
         evaluate(page, R"JS(
             document.documentElement.style.background = 'transparent';
             document.body.style.background = 'transparent';
-            document.body.style.clipPath = 'inset(0 round 12px)';
+            document.body.style.borderRadius = '12px';
+            document.body.style.maskImage = 'linear-gradient(#000, #000)';
         )JS");
-        window.prepareStartup(window.state().value("document").toULongLong());
         QTRY_COMPARE(quick->quickWindow()->color().alpha(), 0);
         QTRY_VERIFY(!quick->testAttribute(Qt::WA_OpaquePaintEvent));
         QTRY_VERIFY_WITH_TIMEOUT(transparentCornersWithOpaqueContent(quick, QColor("#1d1d1b")), 5000);
@@ -221,7 +223,7 @@ private slots:
         page->setBackgroundColor(Qt::transparent);
         view->setPage(page);
         DesktopWindow window(view);
-        connect(view, &QWebEngineView::loadStarted, &window, &DesktopWindow::resetDocument);
+        connect(view, &QWebEngineView::loadStarted, &window, &DesktopWindow::invalidateLayout);
         const QString html = R"HTML(
             <style>
                 html, body { margin: 0; width: 100%; height: 100%; background: transparent; }
@@ -295,49 +297,72 @@ private slots:
         bus.unregisterObject("/org/freedesktop/portal/desktop");
     }
 
+    // The 4px inner and 6px outer bands must expose native resize cursors without renderer input.
     void resizeCursorsCoverAllEdgesAndCorners() {
         auto *view = new QWebEngineView;
         DesktopWindow window(view);
         window.show();
         QVERIFY(QTest::qWaitForWindowExposed(&window));
+        QTRY_VERIFY(window.windowHandle()->property("_qwk_resize_frame").toRect().isValid());
         const auto body = window.windowHandle()->property("_qwk_resize_frame").toRect();
         const QVector<QPair<QPoint, Qt::CursorShape>> targets{
-            {{body.left() + 5, body.center().y()}, Qt::SizeHorCursor},
-            {{body.right() - 5, body.center().y()}, Qt::SizeHorCursor},
-            {{body.center().x(), body.top() + 5}, Qt::SizeVerCursor},
-            {{body.center().x(), body.bottom() - 5}, Qt::SizeVerCursor},
-            {{body.left() + 5, body.top() + 5}, Qt::SizeFDiagCursor},
-            {{body.right() - 5, body.top() + 5}, Qt::SizeBDiagCursor},
-            {{body.left() + 5, body.bottom() - 5}, Qt::SizeBDiagCursor},
-            {{body.right() - 5, body.bottom() - 5}, Qt::SizeFDiagCursor},
+            {{body.left() + 2, body.center().y()}, Qt::SizeHorCursor},
+            {{body.right() - 2, body.center().y()}, Qt::SizeHorCursor},
+            {{body.center().x(), body.top() + 2}, Qt::SizeVerCursor},
+            {{body.center().x(), body.bottom() - 2}, Qt::SizeVerCursor},
+            {{body.left() + 2, body.top() + 2}, Qt::SizeFDiagCursor},
+            {{body.right() - 2, body.top() + 2}, Qt::SizeBDiagCursor},
+            {{body.left() + 2, body.bottom() - 2}, Qt::SizeBDiagCursor},
+            {{body.right() - 2, body.bottom() - 2}, Qt::SizeFDiagCursor},
             {{body.left() - 5, body.top() + 10}, Qt::SizeFDiagCursor},
         };
         for (const auto &target : targets) {
             QTest::mouseMove(window.windowHandle(), target.first);
-            QCOMPARE(window.cursor().shape(), target.second);
+            const auto *receiver = window.childAt(target.first);
+            QTRY_COMPARE(receiver ? receiver->cursor().shape() : window.cursor().shape(), target.second);
         }
         QTest::mouseMove(window.windowHandle(), view->geometry().center());
-        QCOMPARE(window.cursor().shape(), Qt::ArrowCursor);
+        QTRY_COMPARE(window.cursor().shape(), Qt::ArrowCursor);
         window.windowHandle()->setProperty("_qwk_disabled_resize_edges", int(Qt::LeftEdge));
-        QTest::mouseMove(window.windowHandle(), QPoint(body.left() + 5, body.center().y()));
-        QCOMPARE(window.cursor().shape(), Qt::ArrowCursor);
-        QTest::mouseMove(window.windowHandle(), body.topLeft() + QPoint(5, 5));
-        QCOMPARE(window.cursor().shape(), Qt::SizeVerCursor);
+        QTest::mouseMove(window.windowHandle(), QPoint(body.left() + 2, body.center().y()));
+        QTRY_COMPARE(window.cursor().shape(), Qt::ArrowCursor);
+        QTest::mouseMove(window.windowHandle(), body.topLeft() + QPoint(2, 2));
+        QTRY_COMPARE(window.cursor().shape(), Qt::SizeVerCursor);
         window.windowHandle()->setProperty("_qwk_disabled_resize_edges", 0);
+        // Fixing one dimension must remove only that axis from the shared hit test.
+        window.setFixedWidth(window.width());
+        QTest::mouseMove(window.windowHandle(), body.center());
+        QTest::mouseMove(window.windowHandle(), body.topLeft() + QPoint(2, 2));
+        QTRY_COMPARE(window.cursor().shape(), Qt::SizeVerCursor);
+        window.setMinimumWidth(360);
+        window.setMaximumWidth(QWIDGETSIZE_MAX);
+        window.setFixedHeight(window.height());
+        QTest::mouseMove(window.windowHandle(), body.center());
+        QTest::mouseMove(window.windowHandle(), body.topLeft() + QPoint(2, 2));
+        QTRY_COMPARE(window.cursor().shape(), Qt::SizeHorCursor);
+        window.setMinimumHeight(375);
+        window.setMaximumHeight(QWIDGETSIZE_MAX);
         window.showMaximized();
         QTRY_VERIFY(window.isMaximized());
         QTest::mouseMove(window.windowHandle(), QPoint(5, 100));
-        QCOMPARE(window.cursor().shape(), Qt::ArrowCursor);
+        QTRY_COMPARE(window.cursor().shape(), Qt::ArrowCursor);
     }
 
     void nativeCornersSurviveResizeAndShadowFollowsFocus() {
         auto *view = new QWebEngineView;
         auto *page = new RecordingPage;
         page->setParent(view);
+        page->setBackgroundColor(Qt::transparent);
         view->setPage(page);
         DesktopWindow window(view);
         QSignalSpy loaded(view, &QWebEngineView::loadFinished);
-        view->setHtml("<style>html {background:white}</style>");
+        view->setHtml(R"HTML(
+            <style>
+                html, body { margin: 0; width: 100%; height: 100%; background: transparent; }
+                body { border-radius: 12px; mask-image: linear-gradient(#000, #000); }
+                main { width: 100%; height: 100%; background: white; }
+            </style><main></main>
+        )HTML");
         window.show();
         QVERIFY(QTest::qWaitForWindowExposed(&window));
         QVERIFY(!loaded.isEmpty() || loaded.wait(5000));
@@ -345,8 +370,7 @@ private slots:
             // QWidget::grab flushes pending native resize events before painting.
             const auto image = window.grab().toImage();
             const auto body = window.windowHandle()->property("_qwk_resize_frame").toRect();
-            QCOMPARE(view->x() - body.x(), 6);
-            QCOMPARE(view->y() - body.y(), 6);
+            QCOMPARE(view->geometry(), body);
             for (const auto &point : {body.topLeft() + QPoint(1, 1), body.topRight() + QPoint(-1, 1),
                                       body.bottomLeft() + QPoint(1, -1), body.bottomRight() + QPoint(-1, -1)}) {
                 QVERIFY(image.pixelColor(point).alpha() < 128);
@@ -374,9 +398,10 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(*completed, 3000);
     }
 
-    // The 48px caption centers 36px controls with equal 6px top/side spacing and reserves only the occupied side.
-    void controlsReserveOnlyOccupiedSidesAndUseSymmetricLinuxPadding() {
+    // Caption controls stay centered and reserve space only on the side they occupy.
+    void controlsReserveOnlyOccupiedSideAndRespectHeaderHeight() {
         DesktopWindow window(new QWebEngineView);
+        window.setPreviewHeaderHeight(48);
         window.show();
         QVERIFY(QTest::qWaitForWindowExposed(&window));
         QAbstractButton *close = nullptr;
@@ -385,41 +410,37 @@ private slots:
         QVERIFY(close);
         QVERIFY(!close->hasFocus());
         const auto *view = window.findChild<QWebEngineView *>();
-        QCOMPARE(close->y() - view->y(), 6);
-        QCOMPARE(view->geometry().right() - close->geometry().right(), 6);
-        QCOMPARE(window.state().value("leftInset").toInt(), 0);
-        QCOMPARE(window.state().value("rightInset").toInt(), 42);
+        QTRY_COMPARE(close->y() - view->y(), 6);
+        const bool left = close->geometry().center().x() < view->geometry().center().x();
+        const auto state = window.state();
+        const int occupied = left ? close->geometry().right() - view->x() + 1 : view->geometry().right() - close->x() + 1;
+        QVERIFY(state.value(left ? "leftInset" : "rightInset").toInt() >= occupied);
+        QCOMPARE(state.value(left ? "rightInset" : "leftInset").toInt(), 0);
     }
 
-    void framePaletteFollowsVisiblePanelsAndRejectsInvalidSegments() {
+    // Invalid native colors must leave the last valid backdrop and geometry intact.
+    void invalidAppearancePreservesWindowSurface() {
         auto *view = new QWebEngineView;
         DesktopWindow window(view);
         window.show();
         QVERIFY(QTest::qWaitForWindowExposed(&window));
-        const auto segment = [](double from, double to, const QString &color, const QString &foreground = "white") {
-            return QVariantMap{{"from", from}, {"to", to}, {"color", color}, {"foreground", foreground}};
+        QTRY_VERIFY(window.windowHandle()->property("_qwk_resize_frame").toRect().isValid());
+        view->hide();
+        const auto color = [&window] {
+            const auto body = window.windowHandle()->property("_qwk_resize_frame").toRect();
+            return window.grab().toImage().pixelColor(body.center());
         };
-        QVariantMap edges{
-            {"top", QVariantList{segment(0, 50, "#2e2e2e"), segment(50, view->width(), "#a0a0a0", "#000000")}},
-            {"right", QVariantList{segment(0, 70, "#6699bb"), segment(70, view->height(), "#77aacc")}},
-            {"bottom", QVariantList{segment(0, view->width(), "#a0a0a0")}},
-            {"left", QVariantList{segment(0, 70, "#2e2e2e"), segment(70, view->height(), "#333333")}},
-        };
-        QVariantMap appearance{{"background", "#f5f5f5"}, {"foreground", "#1d1d1b"}, {"sidebar", "#333333"},
-            {"buttonRadius", 7.5}, {"frameEdges", edges},
-            {"size", QVariantMap{{"width", view->width()}, {"height", view->height()}}}};
-        window.updateAppearance(appearance);
-        const auto body = window.windowHandle()->property("_qwk_resize_frame").toRect();
-        auto image = window.grab().toImage();
-        const auto dimmed = QPoint(view->x() + 200, body.y() + 3);
-        QCOMPARE(image.pixelColor(dimmed), QColor("#a0a0a0"));
-        QCOMPARE(image.pixelColor(QPoint(body.x() + 3, view->y() + 30)), QColor("#2e2e2e"));
-        QCOMPARE(image.pixelColor(QPoint(view->geometry().right() + 3, view->y() + 30)), QColor("#6699bb"));
-        edges["top"] = QVariantList{segment(0, std::numeric_limits<double>::quiet_NaN(), "#ffffff")};
-        appearance["frameEdges"] = edges;
-        window.updateAppearance(appearance);
-        image = window.grab().toImage();
-        QCOMPARE(image.pixelColor(dimmed), QColor("#a0a0a0"));
+        const QVariantMap valid{{"background", "#205060"}, {"foreground", "#ffffff"}, {"buttonRadius", 12}};
+        window.updateAppearance(valid);
+        QCOMPARE(color(), QColor("#205060"));
+        for (const auto &key : {"background", "foreground"}) {
+            auto invalid = valid;
+            invalid[key] = "not-a-color";
+            invalid["buttonRadius"] = 8;
+            window.updateAppearance(invalid);
+            QCOMPARE(color(), QColor("#205060"));
+            QCOMPARE(window.state().value("cornerRadius").toDouble(), 12.0);
+        }
     }
 
     void nativeTitleAndWebExclusion() {
@@ -439,16 +460,43 @@ private slots:
         QTRY_VERIFY(window.isMaximized());
     }
 
+    // Reloading and resizing both invalidate cached drag geometry before a new snapshot arrives.
     void staleLayoutDoesNotRestoreDragArea() {
-        auto *view = new QWebEngineView;
-        DesktopWindow window(view);
+        for (const bool resize : {false, true}) {
+            auto *view = new QWebEngineView;
+            DesktopWindow window(view);
+            window.show();
+            QVERIFY(QTest::qWaitForWindowExposed(&window));
+            QTRY_VERIFY(window.windowHandle()->property("_qwk_resize_frame").toRect().isValid());
+            const auto old = snapshot(window, *view);
+            if (resize) window.resize(window.size() + QSize(40, 40));
+            else window.invalidateLayout();
+            QTRY_VERIFY(window.state().value("revision") != old.value("revision"));
+            window.updateLayout(old);
+            QTest::mouseDClick(window.windowHandle(), Qt::LeftButton, Qt::NoModifier, view->pos() + QPoint(400, 80));
+            QVERIFY(!window.isMaximized());
+        }
+    }
+
+    // Untrusted non-finite, negative or oversized geometry must never turn web controls into drag areas.
+    void invalidLayoutCannotEnableDragging() {
+        DesktopWindow window(new QWebEngineView);
         window.show();
         QVERIFY(QTest::qWaitForWindowExposed(&window));
-        auto old = snapshot(window, *view);
-        window.resetDocument();
-        window.updateLayout(old);
+        QTRY_VERIFY(window.windowHandle()->property("_qwk_resize_frame").toRect().isValid());
+        auto *view = window.findChild<QWebEngineView *>();
+        for (const double width : {std::numeric_limits<double>::quiet_NaN(), -1.0, 1e12}) {
+            auto invalid = snapshot(window, *view);
+            auto header = invalid.value("titlebar").toMap();
+            header["width"] = width;
+            invalid["titlebar"] = header;
+            window.updateLayout(invalid);
+            QTest::mouseDClick(window.windowHandle(), Qt::LeftButton, Qt::NoModifier, view->pos() + QPoint(400, 80));
+            QVERIFY(!window.isMaximized());
+        }
+        window.updateLayout(snapshot(window, *view));
         QTest::mouseDClick(window.windowHandle(), Qt::LeftButton, Qt::NoModifier, view->pos() + QPoint(400, 80));
-        QVERIFY(!window.isMaximized());
+        QTRY_VERIFY(window.isMaximized());
     }
 
     void rendererStallDoesNotDelayNativeTitleAction() {

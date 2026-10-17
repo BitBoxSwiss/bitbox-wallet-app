@@ -53,13 +53,11 @@ const flushFrame = () => {
 
 const setup = async (csd = true) => {
   const updateFrame = vi.fn();
-  const prepareStartup = vi.fn();
   const { getQtChannel } = await import('./transport-qt');
   vi.mocked(getQtChannel).mockResolvedValue({ objects: { desktopChrome: {
-    state: { csd, document: 1, viewport: 1, topInset: 0, leftInset: 0, rightInset: 52, cornerRadius: 12, startupReady: false },
+    state: { csd, revision: 1, topInset: 0, leftInset: 0, rightInset: 52, cornerRadius: 12 },
     stateChanged: { connect: vi.fn() },
     updateFrame,
-    prepareStartup,
   } } });
   const chrome = await import('./desktop-chrome');
   await chrome.initializeDesktopChrome();
@@ -73,7 +71,7 @@ const setup = async (csd = true) => {
   dispose = chrome.attachDesktopGeometry({ close: 'Close' });
   await Promise.resolve();
   flushFrame();
-  return { ...chrome, updateFrame, prepareStartup, header, rect };
+  return { ...chrome, updateFrame, header, rect };
 };
 
 // A stalled GUI thread must not make Chromium repeatedly measure frames it cannot send.
@@ -156,16 +154,13 @@ it('publishes the first panel transition sample synchronously', async () => {
   expect(updateFrame.mock.calls[1]![0].layout.titlebar.height).toBe(48);
 });
 
-// Even an unchanged startup appearance needs Qt's reply before releasing the loading surface.
-it('keeps the startup acknowledgement when geometry and colors are unchanged', async () => {
-  const { updateFrame, prepareDesktopStartup, prepareStartup } = await setup();
+// With no startup handshake, an unchanged frame must not force another native appearance transaction.
+it('does not resend an unchanged frame', async () => {
+  const { updateFrame, notifyChromeLayout } = await setup();
   updateFrame.mock.calls[0]![1]();
-  prepareDesktopStartup();
+  notifyChromeLayout();
   flushFrame();
-  expect(updateFrame.mock.calls[1]![0]).toHaveProperty('appearance');
-  expect(prepareStartup).not.toHaveBeenCalled();
-  updateFrame.mock.calls[1]![1]();
-  expect(prepareStartup).toHaveBeenCalledWith(1);
+  expect(updateFrame).toHaveBeenCalledOnce();
 });
 
 // A late Qt reply must not restart a sampler that has already been unmounted.
@@ -227,20 +222,58 @@ it('uses the shared header row while excluding controls and offscreen sidebars',
   expect(updateFrame.mock.calls[2]![0].layout.sequence).toBeGreaterThan(layout.sequence);
 });
 
-// Native borders keep the modernized UI and scrollbar activity, without publishing drag regions or running the CSD startup handshake.
+// Native borders keep the modernized UI and scrollbar activity, without publishing drag regions.
 it('keeps the modernized design when CSD is disabled', async () => {
-  const { updateFrame, prepareDesktopStartup, prepareStartup, desktopModernized } = await setup(false);
+  const { updateFrame, desktopModernized } = await setup(false);
   expect(desktopModernized()).toBe(true);
   expect(document.body).toHaveAttribute('data-desktop-modernized');
   expect(document.body).not.toHaveAttribute('data-desktop-csd');
   expect(document.documentElement).not.toHaveAttribute('data-desktop-csd');
   expect(updateFrame.mock.calls[0]![0]).not.toHaveProperty('layout');
-  prepareDesktopStartup();
-  expect(prepareStartup).not.toHaveBeenCalled();
   const scroll = document.createElement('div');
   scroll.setAttribute('data-window-scroll', '');
   Object.defineProperties(scroll, { scrollHeight: { value: 200 }, clientHeight: { value: 100 } });
   document.body.append(scroll);
   scroll.dispatchEvent(new Event('wheel', { bubbles: true }));
   expect(scroll).toHaveAttribute('data-window-scroll-active');
+});
+
+// Fixed captions keep their geometry while their content scrolls; only the web separator and fade should update.
+it('updates scroll decorations without remeasuring native drag regions', async () => {
+  const { updateFrame, header, notifyChromeLayout } = await setup();
+  const scroll = document.createElement('div');
+  scroll.setAttribute('data-window-scroll', '');
+  Object.defineProperties(scroll, {
+    scrollHeight: { value: 300 }, clientHeight: { value: 100 }, scrollTop: { value: 0, writable: true },
+  });
+  header.after(scroll);
+  updateFrame.mock.calls[0]![1]();
+  notifyChromeLayout();
+  await Promise.resolve();
+  flushFrame();
+  const measure = vi.mocked(header.getBoundingClientRect);
+  measure.mockClear();
+  scroll.scrollTop = 20;
+  scroll.dispatchEvent(new Event('scroll', { bubbles: true }));
+  await Promise.resolve();
+  flushFrame();
+  expect(header).toHaveAttribute('data-window-scrolled');
+  expect(scroll.parentElement).toHaveAttribute('data-window-scroll-more');
+  expect(measure).not.toHaveBeenCalled();
+});
+
+// Concurrent panel transitions must keep sampling until the last transition ends.
+it('keeps sampling overlapping transitions until both finish', async () => {
+  const { updateFrame, header } = await setup();
+  updateFrame.mock.calls[0]![1]();
+  const transition = (type: string, propertyName: string) => header.dispatchEvent(
+    Object.assign(new Event(type, { bubbles: true }), { propertyName })
+  );
+  transition('transitionrun', 'transform');
+  transition('transitionrun', 'margin-left');
+  transition('transitionend', 'transform');
+  flushFrame();
+  expect(callbacks.size).toBe(1);
+  transition('transitionend', 'margin-left');
+  expect(callbacks.size).toBe(0);
 });

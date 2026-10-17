@@ -364,8 +364,8 @@ int main(int argc, char *argv[])
     if (desktopWindow->state().value("csd").toBool()) mainPage->setBackgroundColor(Qt::transparent);
 #endif
     view->setPage(mainPage);
-    QObject::connect(mainPage, &QWebEnginePage::loadStarted, desktopWindow, &DesktopWindow::resetDocument);
-    QObject::connect(mainPage, &QWebEnginePage::renderProcessTerminated, desktopWindow, [=] { desktopWindow->resetDocument(); });
+    QObject::connect(mainPage, &QWebEnginePage::loadStarted, desktopWindow, &DesktopWindow::invalidateLayout);
+    QObject::connect(mainPage, &QWebEnginePage::renderProcessTerminated, desktopWindow, [=] { desktopWindow->invalidateLayout(); });
 
     pageLoaded = false;
     QObject::connect(view, &QWebEngineView::loadFinished, [](bool ok){

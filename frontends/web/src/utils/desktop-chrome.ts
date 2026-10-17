@@ -10,8 +10,7 @@ export type TDesktopChromeState = {
   activeNativeDecorations: boolean;
   previewHeaderHeight?: number;
   previewLogoVisible?: boolean;
-  document: number;
-  viewport: number;
+  revision: number;
   topInset: number;
   leftInset: number;
   rightInset: number;
@@ -19,7 +18,6 @@ export type TDesktopChromeState = {
   captionButtons?: TCaptionButton[];
   systemDark?: boolean | null;
   systemAppearanceReady: boolean;
-  startupReady?: boolean;
   maximized: boolean;
   fullScreen: boolean;
 };
@@ -32,7 +30,6 @@ type TChrome = {
   setNativeDecorations: (enabled: boolean) => void;
   setPreviewHeaderHeight: (height: number) => void;
   setPreviewLogoVisible: (visible: boolean) => void;
-  prepareStartup: (document: number) => void;
 };
 
 let chrome: TChrome | undefined;
@@ -40,8 +37,6 @@ let state: TDesktopChromeState | undefined;
 let initialization: Promise<void> | undefined;
 const listeners = new Set<() => void>();
 let layoutSequence = 0;
-let startupReadyDocument: number | undefined;
-let startupPendingDocument: number | undefined;
 
 export const desktopChromeState = () => state;
 export const desktopModernized = () => state !== undefined;
@@ -91,17 +86,6 @@ export const setNativeDecorations = (enabled: boolean) => chrome?.setNativeDecor
 export const setPreviewHeaderHeight = (height: number) => chrome?.setPreviewHeaderHeight(height);
 export const setPreviewLogoVisible = (visible: boolean) => chrome?.setPreviewLogoVisible(visible);
 
-export const prepareDesktopStartup = () => {
-  if (state?.csd) {
-    if (state.startupReady === false) {
-      startupPendingDocument = state.document;
-      notifyChromeLayout();
-    } else {
-      startupReadyDocument = state.document;
-    }
-  }
-};
-
 export const notifyChromeLayout = () => {
   if (runningInQtWebEngine()) {
     window.dispatchEvent(new Event('bitbox-chrome-layout'));
@@ -141,7 +125,7 @@ export const attachDesktopGeometry = (labels: Record<string, string>) => {
   let disposed = false;
   let inFlight = false;
   let resample = false;
-  const transitions = new Map<Element, Set<string>>();
+  let transitions = 0;
   let animateUntil = 0;
   const resizeObserver = new ResizeObserver(() => schedule());
   const observed = new Set<Element>();
@@ -156,6 +140,11 @@ export const attachDesktopGeometry = (labels: Record<string, string>) => {
       schedule();
     }
   });
+
+  const updateScroll = (scroll: HTMLElement) => {
+    scroll.parentElement?.querySelector('[data-window-titlebar]')?.toggleAttribute('data-window-scrolled', scroll.scrollTop > 0);
+    scroll.parentElement?.toggleAttribute('data-window-scroll-more', scroll.scrollHeight - scroll.clientHeight - scroll.scrollTop > 1);
+  };
 
   const publish = () => {
     frame = undefined;
@@ -229,14 +218,9 @@ export const attachDesktopGeometry = (labels: Record<string, string>) => {
       }
     });
     exclusions.push(...captionDismissRects(height));
-    scrolls.forEach(scroll => {
-      scroll.parentElement?.querySelector('[data-window-titlebar]')?.toggleAttribute('data-window-scrolled', scroll.scrollTop > 0);
-      scroll.parentElement?.toggleAttribute('data-window-scroll-more',
-        scroll.scrollHeight - scroll.clientHeight - scroll.scrollTop > 1);
-    });
+    scrolls.forEach(updateScroll);
     const layout = {
-      document: state.document,
-      viewport: state.viewport,
+      revision: state.revision,
       size: { width: window.innerWidth, height: window.innerHeight },
       titlebar: { x: 0, y: 0, width: window.innerWidth, height },
       // Too many exclusions disables extended dragging rather than dropping controls.
@@ -262,29 +246,22 @@ export const attachDesktopGeometry = (labels: Record<string, string>) => {
     };
     const appearanceKey = JSON.stringify(appearance);
     const appearanceChanged = appearanceKey !== previousAppearance;
-    const startupPending = startupPendingDocument === state.document;
-    if (layoutChanged || appearanceChanged || startupPending) {
+    if (layoutChanged || appearanceChanged) {
       inFlight = true;
       previousLayout = layoutKey;
       previousAppearance = appearanceKey;
-      const appliedDocument = state.document;
       chrome.updateFrame({
         ...(layoutChanged ? { layout: { ...layout, sequence: ++layoutSequence } } : {}),
-        ...(appearanceChanged || startupPending ? { appearance } : {}),
+        ...(appearanceChanged ? { appearance } : {}),
       }, () => {
         inFlight = false;
-        if (!disposed && startupPendingDocument === appliedDocument && state?.document === appliedDocument &&
-            qtColor(getComputedStyle(document.querySelector('.app') || document.body).backgroundColor) === appearance.background) {
-          startupPendingDocument = undefined;
-          chrome?.prepareStartup(appliedDocument);
-        }
         if (resample && !disposed) {
           resample = false;
           publishImmediately();
         }
       });
     }
-    if (transitions.size && performance.now() < animateUntil) {
+    if (transitions && performance.now() < animateUntil) {
       schedule();
     }
   };
@@ -293,17 +270,9 @@ export const attachDesktopGeometry = (labels: Record<string, string>) => {
     if (!(target instanceof Element) || !(target.hasAttribute('data-window-frame-surface') || target.hasAttribute('data-window-no-drag-overlay'))) {
       return;
     }
-    const property = (event as TransitionEvent).propertyName;
+    transitions = Math.max(0, transitions + (event.type === 'transitionrun' ? 1 : -1));
     if (event.type === 'transitionrun') {
-      const properties = transitions.get(target) || new Set<string>();
-      properties.add(property);
-      transitions.set(target, properties);
       animateUntil = performance.now() + 1000;
-    } else {
-      transitions.get(target)?.delete(property);
-      if (!transitions.get(target)?.size) {
-        transitions.delete(target);
-      }
     }
     publishImmediately();
   };
@@ -326,15 +295,18 @@ export const attachDesktopGeometry = (labels: Record<string, string>) => {
     }
     publish();
   };
-  const events = ['bitbox-chrome-layout', 'resize', 'scroll', 'load', 'transitionend', 'click', 'keyup'];
+  const events = ['bitbox-chrome-layout', 'resize', 'load', 'click', 'keyup'];
   events.forEach(event => window.addEventListener(event, schedule, true));
   const scrollActivity = (event: Event) => {
-    // Layout/font scroll events during initialization must keep the idle style.
-    if (!state || (state.csd && startupReadyDocument !== state.document) || !(event.target instanceof Element)) {
+    if (!(event.target instanceof Element)) {
       return;
     }
     const scroll = event.target.closest<HTMLElement>('[data-window-scroll]');
-    if (!scroll || scroll.scrollHeight <= scroll.clientHeight) {
+    if (!scroll) {
+      return;
+    }
+    updateScroll(scroll);
+    if (scroll.scrollHeight <= scroll.clientHeight) {
       return;
     }
     window.clearTimeout(idleScrollbars.get(scroll));

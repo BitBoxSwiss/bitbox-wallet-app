@@ -40,6 +40,10 @@ The Qt shell owns window controls, dragging, resizing and cached Linux shadows.
 Linux establishes the frameless native surface before attaching QWindowKit's
 window-ID hook. Appearance updates use Qt's normal composition scheduling so
 WebEngine's first frame does not depend on a resize or a theme change.
+The web loading view waits for the selected theme; there is no native startup
+redraw or paint-acknowledgement handshake. Later theme changes keep the app mounted.
+Scene-color repair keeps the WebEngine
+surface transparent across background changes and renderer reloads.
 Controls share the app's fixed header; scrolling and desktop banners
 start below it. Only occupied left/right control slots reserve space, and one
 centering rule aligns the logo, heading, Guide and controls. Standard captions
@@ -56,7 +60,9 @@ stay inside whole viewport pixels for fractional display scaling. A closed guide
 remains hidden across responsive layout changes, including maximization.
 The cached shadow is stronger when focused and has more contrast in light mode.
 Linux resize targets cover 4px inside the body and 6px into the shadow,
-with extended diagonal corner targets and matching cursors. Windows uses at
+with extended diagonal corner targets and matching cursors. Plain transparent
+widgets shield WebEngine at the edges; QWindowKit owns their resize hit test,
+cursor and compositor resize request. Windows uses at
 least 6 logical pixels, or the system resize thickness when larger.
 Wayland input masks include the resize gutter and exclude the rest of the shadow.
 Main, sidebar and guide content scroll below their fixed captions. The guide
@@ -72,6 +78,9 @@ The web UI publishes bounded header geometry and native caption colors in one
 WebChannel transaction when both change. Unchanged sections are omitted so
 geometry-only updates do not repaint the native appearance. DOM mutations are
 coalesced before the next paint; panel transition events publish immediately.
+Reloads and viewport changes advance one layout revision; revision and sequence
+checks reject stale snapshots. Scroll events update separators and fades locally
+without measuring native drag geometry.
 Only one transaction can await Qt's reply. While it is pending, additional
 measurements are deferred and the latest DOM is sampled after the reply.
 Continuous sampling runs only during active panel transitions, for at most one
@@ -89,8 +98,6 @@ and displays a restart reminder when changed. It takes effect after restarting
 the app. Modern CSD is the default, including
 on macOS and Windows; native decorations requires an explicit opt-in.
 `BITBOXAPP_NATIVE_DECORATIONS=1` forces native decorations for troubleshooting. Browser and mobile layouts/transports do not enable this feature.
-The local macOS-controls preview ignores the saved border preference on Linux
-so its simulated controls remain visible; the environment override still applies.
 
 Launch a desktop test build with `-testnet`. Close an already running BitBoxApp
 first: the standard desktop build retains its single-instance identity.

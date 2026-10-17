@@ -5,7 +5,7 @@
 }
 
 :global(body[data-desktop-csd]) :global(.app).loading {
-    /* Replacing this simple page with the application repaints the whole body. */
+    /* Keep the initial surface opaque until the selected appearance is ready. */
     background-color: var(--background-secondary);
 }
 

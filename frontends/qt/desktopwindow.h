@@ -20,10 +20,9 @@ public:
     explicit DesktopWindow(QWebEngineView *view, QWidget *parent = nullptr);
     QVariantMap state() const;
     QSize sizeHint() const override { return QSize(1257, 785); }
-    void resetDocument();
+    void invalidateLayout();
     void updateLayout(const QVariantMap &snapshot);
     void updateAppearance(const QVariantMap &appearance);
-    void prepareStartup(quint64 document);
     void setNativeDecorations(bool enabled);
     void setPreviewHeaderHeight(int height);
     void setPreviewLogoVisible(bool visible);
@@ -42,7 +41,6 @@ private:
     void placeControls();
     void safeTitle();
     void updateControls();
-    void invalidateViewport();
     void rebuildShadow();
     void syncWebBackground();
     QRect bodyRect() const;
@@ -69,9 +67,6 @@ private:
     int tiledEdges_ = 0;
     QColor background_{"#f5f5f5"};
     QColor foreground_{"#1d1d1b"};
-    quint64 document_ = 0;
-    quint64 startupReadyDocument_ = 0;
-    quint64 startupPendingDocument_ = 0;
-    quint64 viewport_ = 0;
+    quint64 revision_ = 0;
     quint64 sequence_ = 0;
 };

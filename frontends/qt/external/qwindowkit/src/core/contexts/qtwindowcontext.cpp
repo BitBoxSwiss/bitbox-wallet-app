@@ -50,6 +50,8 @@ namespace QWK {
             if (x < corner) edges |= Qt::LeftEdge;
             if (x >= frame.width() - corner) edges |= Qt::RightEdge;
         }
+        if (window->minimumWidth() == window->maximumWidth()) edges &= ~(Qt::LeftEdge | Qt::RightEdge);
+        if (window->minimumHeight() == window->maximumHeight()) edges &= ~(Qt::TopEdge | Qt::BottomEdge);
         return edges & ~Qt::Edges(window->property("_qwk_disabled_resize_edges").toInt());
 #endif
     }

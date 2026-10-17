@@ -26,7 +26,6 @@ public:
     Q_INVOKABLE void setNativeDecorations(bool value) { if (window_) window_->setNativeDecorations(value); }
     Q_INVOKABLE void setPreviewHeaderHeight(int value) { if (window_) window_->setPreviewHeaderHeight(value); }
     Q_INVOKABLE void setPreviewLogoVisible(bool value) { if (window_) window_->setPreviewLogoVisible(value); }
-    Q_INVOKABLE void prepareStartup(qulonglong document) { if (window_) window_->prepareStartup(document); }
 signals:
     void stateChanged();
 private:

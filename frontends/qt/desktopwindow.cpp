@@ -32,60 +32,6 @@ constexpr int maxExclusions = 32;
 constexpr int resizeBorder = 4;
 constexpr int resizeShadow = 6;
 
-class ResizeTarget final : public QWidget {
-public:
-    explicit ResizeTarget(QWidget *parent) : QWidget(parent) {
-        setAttribute(Qt::WA_NoSystemBackground);
-        setMouseTracking(true);
-        setFocusPolicy(Qt::NoFocus);
-    }
-protected:
-    void paintEvent(QPaintEvent *) override {}
-    void enterEvent(QEnterEvent *event) override { updateCursor(event->position().toPoint()); }
-    void mouseMoveEvent(QMouseEvent *event) override { updateCursor(event->position().toPoint()); }
-    void mousePressEvent(QMouseEvent *event) override {
-        auto *handle = window()->windowHandle();
-        const auto edges = edgesAt(event->position().toPoint());
-        if (event->button() == Qt::LeftButton && handle && edges && handle->startSystemResize(edges))
-            event->accept();
-        else event->ignore();
-    }
-private:
-    Qt::Edges edgesAt(const QPoint &local) const {
-        const auto *handle = window()->windowHandle();
-        if (!handle || handle->visibility() != QWindow::Windowed) return {};
-        const auto body = handle->property("_qwk_resize_frame").toRect();
-        const auto pos = mapTo(window(), local);
-        const int corner = qMax(resizeBorder, handle->property("_qwk_resize_corner").toInt());
-        Qt::Edges edges;
-        if (pos.x() < body.left() + resizeBorder) edges |= Qt::LeftEdge;
-        if (pos.x() > body.right() - resizeBorder) edges |= Qt::RightEdge;
-        if (pos.y() < body.top() + resizeBorder) edges |= Qt::TopEdge;
-        if (pos.y() > body.bottom() - resizeBorder) edges |= Qt::BottomEdge;
-        if (edges & (Qt::LeftEdge | Qt::RightEdge)) {
-            if (pos.y() < body.top() + corner) edges |= Qt::TopEdge;
-            if (pos.y() > body.bottom() - corner) edges |= Qt::BottomEdge;
-        }
-        if (edges & (Qt::TopEdge | Qt::BottomEdge)) {
-            if (pos.x() < body.left() + corner) edges |= Qt::LeftEdge;
-            if (pos.x() > body.right() - corner) edges |= Qt::RightEdge;
-        }
-        if (window()->minimumWidth() == window()->maximumWidth()) edges &= ~(Qt::LeftEdge | Qt::RightEdge);
-        if (window()->minimumHeight() == window()->maximumHeight()) edges &= ~(Qt::TopEdge | Qt::BottomEdge);
-        return edges & ~Qt::Edges(handle->property("_qwk_disabled_resize_edges").toInt());
-    }
-    void updateCursor(const QPoint &local) {
-        const auto edges = edgesAt(local);
-        if (edges == (Qt::TopEdge | Qt::LeftEdge) || edges == (Qt::BottomEdge | Qt::RightEdge))
-            setCursor(Qt::SizeFDiagCursor);
-        else if (edges == (Qt::TopEdge | Qt::RightEdge) || edges == (Qt::BottomEdge | Qt::LeftEdge))
-            setCursor(Qt::SizeBDiagCursor);
-        else if (edges & (Qt::LeftEdge | Qt::RightEdge)) setCursor(Qt::SizeHorCursor);
-        else if (edges & (Qt::TopEdge | Qt::BottomEdge)) setCursor(Qt::SizeVerCursor);
-        else unsetCursor();
-    }
-};
-
 class WindowButton final : public QAbstractButton {
 public:
     WindowButton(const QString &action, QWidget *parent) : QAbstractButton(parent), action(action) {
@@ -267,11 +213,16 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
     }
     setMinimumSize(360, 375);
 #if defined(Q_OS_LINUX)
-    if (!native_) for (int i = 0; i < 4; ++i) resizeTargets_.append(new ResizeTarget(this));
+    if (!native_) for (int i = 0; i < 4; ++i) {
+        auto *target = new QWidget(this);
+        target->setAttribute(Qt::WA_NoSystemBackground);
+        target->setMouseTracking(true);
+        resizeTargets_.append(target);
+    }
 #endif
     resize(sizeHint());
     syncFrame();
-    resetDocument();
+    invalidateLayout();
 }
 
 QRect DesktopWindow::bodyRect() const { return rect().marginsRemoved(shadowMargins_); }
@@ -299,34 +250,23 @@ QVariantMap DesktopWindow::state() const {
     }
     QVariant systemDark;
     bool systemAppearanceReady = true;
-    bool startupReady = true;
 #if defined(Q_OS_LINUX)
     systemDark = preferences_->colorScheme() == 1;
     systemAppearanceReady = preferences_->colorSchemeReady();
-    startupReady = native_ || startupReadyDocument_ == document_;
 #endif
     return {{"csd", !native_}, {"nativeDecorations", QSettings().value("nativeDecorations", false).toBool()},
             {"previewHeaderHeight", headerHeight_}, {"previewLogoVisible", logoVisible_},
-            {"activeNativeDecorations", native_}, {"document", document_}, {"viewport", viewport_},
+            {"activeNativeDecorations", native_}, {"revision", revision_},
             {"systemDark", systemDark},
             {"systemAppearanceReady", systemAppearanceReady},
-            {"startupReady", startupReady},
             {"topInset", 0}, {"leftInset", leftInset / view_->zoomFactor()}, {"rightInset", rightInset / view_->zoomFactor()},
             {"cornerRadius", cornerRadius}, {"captionButtons", captionButtons},
             {"maximized", isMaximized()}, {"fullScreen", isFullScreen()},
             {"width", view_->width()}, {"height", view_->height()}};
 }
 
-void DesktopWindow::resetDocument() {
-    ++document_;
-    startupPendingDocument_ = 0;
-    sequence_ = 0;
-    safeTitle();
-    emit stateChanged();
-}
-
-void DesktopWindow::invalidateViewport() {
-    ++viewport_;
+void DesktopWindow::invalidateLayout() {
+    ++revision_;
     sequence_ = 0;
     safeTitle();
     emit stateChanged();
@@ -340,8 +280,7 @@ void DesktopWindow::safeTitle() {
 }
 
 void DesktopWindow::updateLayout(const QVariantMap &snapshot) {
-    if (!title_ || snapshot.value("document").toULongLong() != document_ ||
-        snapshot.value("viewport").toULongLong() != viewport_) return;
+    if (!title_ || snapshot.value("revision").toULongLong() != revision_) return;
     const auto sequence = snapshot.value("sequence").toULongLong();
     if (sequence <= sequence_) return;
     const auto viewport = snapshot.value("size").toMap();
@@ -386,7 +325,7 @@ void DesktopWindow::updateAppearance(const QVariantMap &appearance) {
     }
     const double radius = appearance.value("buttonRadius").toDouble();
     const qreal newRadius = std::isfinite(radius) && radius >= 8 ? qBound(8.0, radius * view_->zoomFactor(), 64.0) : 12;
-    if (radius_ != newRadius) { radius_ = newRadius; shadow_ = {}; syncFrame(); invalidateViewport(); }
+    if (radius_ != newRadius) { radius_ = newRadius; shadow_ = {}; syncFrame(); invalidateLayout(); }
     const auto labels = appearance.value("labels").toMap();
     for (auto *button : buttons_) {
         auto *control = static_cast<WindowButton *>(button);
@@ -396,37 +335,6 @@ void DesktopWindow::updateAppearance(const QVariantMap &appearance) {
     updateControls();
     // Theme changes affect the native shadow; WebEngine presents its own frames.
     update();
-}
-
-void DesktopWindow::prepareStartup(quint64 document) {
-#if defined(Q_OS_LINUX)
-    if (native_ || document != document_ || startupReadyDocument_ == document || startupPendingDocument_ == document) return;
-    startupPendingDocument_ = document;
-    syncWebBackground();
-    const auto ready = [this, document] {
-        if (document != document_ || startupReadyDocument_ == document) return;
-        startupReadyDocument_ = document;
-        startupPendingDocument_ = 0;
-        emit stateChanged();
-    };
-    // The loading page stays mounted until Qt renders its initialized surface.
-    // This changes neither window nor viewport geometry.
-    for (auto *quick : view_->findChildren<QQuickWidget *>()) {
-        if (quick->window() != this) continue;
-        if (auto *scene = quick->quickWindow()) {
-            connect(scene, &QQuickWindow::afterRendering, this, ready,
-                    Qt::ConnectionType(Qt::QueuedConnection | Qt::SingleShotConnection));
-            scene->update();
-            break;
-        }
-    }
-    view_->update();
-    update();
-    // Hidden windows may suspend rendering; initialization must still complete.
-    QTimer::singleShot(500, this, ready);
-#else
-    Q_UNUSED(document);
-#endif
 }
 
 void DesktopWindow::syncWebBackground() {
@@ -463,14 +371,14 @@ void DesktopWindow::setPreviewHeaderHeight(int height) {
     headerHeight_ = height;
     QSettings().setValue("macosControlsPreview/headerHeight", height);
     syncFrame();
-    invalidateViewport();
+    invalidateLayout();
 }
 
 void DesktopWindow::setPreviewLogoVisible(bool visible) {
     if (logoVisible_ == visible) return;
     logoVisible_ = visible;
     QSettings().setValue("macosControlsPreview/logoVisible", visible);
-    invalidateViewport();
+    invalidateLayout();
 }
 
 void DesktopWindow::toggleMaximize() { if (!isFullScreen()) isMaximized() ? showNormal() : showMaximized(); }
@@ -617,12 +525,12 @@ void DesktopWindow::syncFrame() {
 void DesktopWindow::resizeEvent(QResizeEvent *event) {
     QWidget::resizeEvent(event);
     syncFrame();
-    invalidateViewport();
+    invalidateLayout();
 }
 
 void DesktopWindow::changeEvent(QEvent *event) {
     QWidget::changeEvent(event);
-    if (event->type() == QEvent::WindowStateChange) { syncFrame(); invalidateViewport(); }
+    if (event->type() == QEvent::WindowStateChange) { syncFrame(); invalidateLayout(); }
     if (event->type() == QEvent::ActivationChange) { updateControls(); update(); }
 }
 
@@ -630,12 +538,12 @@ bool DesktopWindow::event(QEvent *event) {
     const auto type = event->type();
     const bool result = QWidget::event(event);
     if (type == QEvent::WinIdChange || type == QEvent::DevicePixelRatioChange)
-        QTimer::singleShot(0, this, [this] { syncFrame(); invalidateViewport(); });
+        QTimer::singleShot(0, this, [this] { syncFrame(); invalidateLayout(); });
 #if defined(Q_OS_LINUX)
     if (type == QEvent::UpdateRequest && windowHandle()) {
         auto *platform = dynamic_cast<QtWaylandClient::QWaylandWindow *>(windowHandle()->handle());
         if (platform && int(platform->toplevelWindowTilingStates()) != tiledEdges_)
-            QTimer::singleShot(0, this, [this] { syncFrame(); invalidateViewport(); });
+            QTimer::singleShot(0, this, [this] { syncFrame(); invalidateLayout(); });
     }
 #endif
     return result;
@@ -698,8 +606,8 @@ void DesktopWindow::paintEvent(QPaintEvent *) {
         for (int y = 0; y < 3; ++y) for (int x = 0; x < 3; ++x) {
             if (x == 1 && y == 1) continue;
             const QRectF target(xs[x], ys[y], xs[x + 1] - xs[x], ys[y + 1] - ys[y]);
-            const QRectF part(x == 2 ? source : x == 1 ? source : 0,
-                              y == 2 ? source : y == 1 ? source : 0,
+            const QRectF part(x ? source : 0,
+                              y ? source : 0,
                               x == 1 ? 1 : source, y == 1 ? 1 : source);
             painter.drawImage(target, shadow_, part);
         }
