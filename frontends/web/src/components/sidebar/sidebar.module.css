@@ -54,7 +54,7 @@
     padding-top: var(--sidebar-margin);
 }
 
-:global(body[data-desktop-csd]) .sidebar {
+:global(body[data-desktop-modernized]) .sidebar {
     --desktop-scroll-background: var(--background-dark);
     overflow: hidden;
     min-height: 0;
@@ -95,7 +95,7 @@
     height: var(--sidebar-icon-size) !important;
 }
 
-:global(body[data-desktop-csd]) .sidebarLogoContainer {
+:global(body[data-desktop-modernized]) .sidebarLogoContainer {
     height: var(--header-height);
     padding-top: 0;
     padding-bottom: 0;
@@ -108,7 +108,7 @@
     padding-right: var(--space-half);
 }
 
-:global(body[data-desktop-csd]) .desktopLogo {
+:global(body[data-desktop-modernized]) .desktopLogo {
     flex: 0 0 var(--sidebar-logo-width);
     display: flex;
     align-items: center;
@@ -116,11 +116,11 @@
     cursor: default;
 }
 
-:global(body[data-desktop-csd][data-desktop-logo-hidden]) .desktopLogo {
+:global(body[data-desktop-modernized][data-desktop-logo-hidden]) .desktopLogo {
     display: none;
 }
 
-:global(body[data-desktop-csd]) .sidebarLogoContainer img {
+:global(body[data-desktop-modernized]) .sidebarLogoContainer img {
     max-width: none;
     height: var(--sidebar-icon-size) !important;
     display: block;

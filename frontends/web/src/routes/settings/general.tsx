@@ -65,7 +65,7 @@ export const GeneralSettingsContent = () => {
         { id: 'portfolio-percentage', content: <PortfolioPercentageDropdownSetting /> },
         { id: 'dark-mode', content: <DarkmodeToggleSetting /> },
         ...(desktopChrome ? [{ id: 'native-decorations', content: <NativeDecorationsSetting /> }] : []),
-        ...(desktopChrome?.csd && desktopChrome.previewHeaderHeight !== undefined ? [
+        ...(desktopChrome?.previewHeaderHeight !== undefined ? [
           { id: 'preview-header-height', content: <DesktopHeaderHeightSetting /> },
           { id: 'preview-logo', content: <DesktopLogoSetting /> },
         ] : []),

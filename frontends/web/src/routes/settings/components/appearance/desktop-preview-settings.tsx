@@ -15,7 +15,7 @@ export const DesktopHeaderHeightSetting = () => {
   const { t } = useTranslation();
   const state = useDesktopChrome();
   const height = state?.previewHeaderHeight;
-  if (!state?.csd || height === undefined) {
+  if (height === undefined) {
     return null;
   }
   return (
@@ -49,7 +49,7 @@ export const DesktopHeaderHeightSetting = () => {
 export const DesktopLogoSetting = () => {
   const { t } = useTranslation();
   const state = useDesktopChrome();
-  if (!state?.csd || state.previewLogoVisible === undefined) {
+  if (state?.previewLogoVisible === undefined) {
     return null;
   }
   return (

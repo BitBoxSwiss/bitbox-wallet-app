@@ -58,7 +58,7 @@
     flex-wrap: wrap;
 }
 
-:global(body[data-desktop-csd]) .header {
+:global(body[data-desktop-modernized]) .header {
     height: var(--header-height);
     padding-top: 0;
     padding-bottom: 0;
@@ -69,31 +69,31 @@
     padding-right: calc(var(--space-default) + var(--desktop-caption-controls-right, var(--desktop-controls-right, 0px)));
 }
 
-:global(body[data-desktop-csd]:not([data-desktop-sidebar])) .header {
+:global(body[data-desktop-modernized]:not([data-desktop-sidebar])) .header {
     padding-left: calc(var(--space-default) + var(--desktop-controls-left, 0px));
 }
 
-:global(body[data-desktop-csd]) .title,
-:global(body[data-desktop-csd]) .children,
-:global(body[data-desktop-csd]) .sidebarToggler {
+:global(body[data-desktop-modernized]) .title,
+:global(body[data-desktop-modernized]) .children,
+:global(body[data-desktop-modernized]) .sidebarToggler {
     margin-bottom: 0;
 }
 
-:global(body[data-desktop-csd]) .title,
-:global(body[data-desktop-csd]) .children {
+:global(body[data-desktop-modernized]) .title,
+:global(body[data-desktop-modernized]) .children {
     display: flex;
     align-items: center;
     height: 100%;
     min-width: 0;
 }
 
-:global(body[data-desktop-csd]) .children > * {
+:global(body[data-desktop-modernized]) .children > * {
     margin-top: 0;
     margin-bottom: 0;
     align-self: center;
 }
 
-:global(body[data-desktop-csd]) .guideClose {
+:global(body[data-desktop-modernized]) .guideClose {
     height: 36px;
     max-height: 100%;
 }

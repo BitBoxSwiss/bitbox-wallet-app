@@ -17,7 +17,7 @@ import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { AppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/forms';
 import { NewBadge } from '@/components/new-badge/new-badge';
-import { useDesktopCsd } from '@/components/desktop-chrome/desktop-chrome';
+import { useDesktopModernized } from '@/components/desktop-chrome/desktop-chrome';
 import { ConnectedKeystore } from '../keystore/connected-keystore';
 import style from './sidebar.module.css';
 
@@ -86,7 +86,7 @@ const Sidebar = ({
   const { pathname } = useLocation();
   const [ canUpgrade, setCanUpgrade ] = useState(false);
   const { activeSidebar, toggleSidebar } = useContext(AppContext);
-  const csd = useDesktopCsd();
+  const modernized = useDesktopModernized();
   const { lightningAccount } = useLightning();
   const hasPortfolio = accounts.length > 0 || !!lightningAccount;
 
@@ -136,7 +136,7 @@ const Sidebar = ({
       <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')} data-window-sidebar
         data-window-frame-surface data-window-frame-panel data-window-frame-foreground="white">
         <div key="app-logo" className={style.sidebarLogoContainer} data-window-titlebar data-window-logo data-window-frame-surface data-window-frame-foreground="white">
-          {csd ? (
+          {modernized ? (
             <div className={style.desktopLogo}>
               <AppLogoInverted className={style.sidebarLogo} />
             </div>
@@ -152,7 +152,7 @@ const Sidebar = ({
           </button>
         </div>
 
-        <SidebarScroll enabled={!!csd}>
+        <SidebarScroll enabled={!!modernized}>
           { hasPortfolio ? (
             <div
               key="account-summary"

@@ -66,7 +66,7 @@
     margin: 0;
 }
 
-:global(body[data-desktop-csd]) .header {
+:global(body[data-desktop-modernized]) .header {
     height: var(--header-height);
     min-height: var(--header-height);
     padding-top: 0;
@@ -75,7 +75,7 @@
     padding-right: calc(var(--space-default) + var(--desktop-caption-controls-right, var(--desktop-controls-right, 0px)));
 }
 
-:global(body[data-desktop-csd]) .header h2 {
+:global(body[data-desktop-modernized]) .header h2 {
     flex: 1;
     min-width: 0;
     overflow: hidden;
@@ -84,7 +84,7 @@
     line-height: 1.2;
 }
 
-:global(body[data-desktop-csd]) .close {
+:global(body[data-desktop-modernized]) .close {
     order: -1;
     margin-left: 0;
     margin-right: var(--space-half);
@@ -93,7 +93,7 @@
     height: 36px;
 }
 
-:global(body[data-desktop-csd]) .guide {
+:global(body[data-desktop-modernized]) .guide {
     --desktop-scroll-background: var(--color-lightblue);
     --desktop-scrollbar-color: white;
     overflow: hidden;
@@ -102,12 +102,12 @@
     transition: margin-right 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
 }
 
-:global(body[data-desktop-csd]) .guide.show {
+:global(body[data-desktop-modernized]) .guide.show {
     visibility: visible;
     transition-delay: 0s;
 }
 
-:global(body[data-desktop-csd]) .content {
+:global(body[data-desktop-modernized]) .content {
     min-height: 0;
     overflow-y: auto;
     scrollbar-gutter: var(--desktop-scrollbar-gutter, auto);
@@ -193,7 +193,7 @@
 }
 
 @media (min-width: 1602px) {
-    :global(body[data-desktop-csd]) .guide {
+    :global(body[data-desktop-modernized]) .guide {
         position: relative;
     }
 }

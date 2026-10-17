@@ -188,10 +188,6 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
     headerHeight_ = qBound(36, settings.value("macosControlsPreview/headerHeight", headerHeight_).toInt(), 256);
     logoVisible_ = settings.value("macosControlsPreview/logoVisible", true).toBool();
     native_ = settings.value("nativeDecorations", false).toBool() || qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
-#if defined(Q_OS_LINUX)
-    // The preview uses CSD without changing the user's saved decoration preference.
-    native_ = qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
-#endif
     setWindowTitle("BitBoxApp");
     setMouseTracking(true);
 #if defined(Q_OS_LINUX)

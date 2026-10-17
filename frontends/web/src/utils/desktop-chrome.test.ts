@@ -51,12 +51,12 @@ const flushFrame = () => {
   pending.forEach(callback => callback(performance.now()));
 };
 
-const setup = async () => {
+const setup = async (csd = true) => {
   const updateFrame = vi.fn();
   const prepareStartup = vi.fn();
   const { getQtChannel } = await import('./transport-qt');
   vi.mocked(getQtChannel).mockResolvedValue({ objects: { desktopChrome: {
-    state: { csd: true, document: 1, viewport: 1, topInset: 0, leftInset: 0, rightInset: 52, cornerRadius: 12, startupReady: false },
+    state: { csd, document: 1, viewport: 1, topInset: 0, leftInset: 0, rightInset: 52, cornerRadius: 12, startupReady: false },
     stateChanged: { connect: vi.fn() },
     updateFrame,
     prepareStartup,
@@ -225,4 +225,22 @@ it('uses the shared header row while excluding controls and offscreen sidebars',
   dispose = attachDesktopGeometry({ close: 'Close' });
   flushFrame();
   expect(updateFrame.mock.calls[2]![0].layout.sequence).toBeGreaterThan(layout.sequence);
+});
+
+// Native borders keep the modernized UI and scrollbar activity, without publishing drag regions or running the CSD startup handshake.
+it('keeps the modernized design when CSD is disabled', async () => {
+  const { updateFrame, prepareDesktopStartup, prepareStartup, desktopModernized } = await setup(false);
+  expect(desktopModernized()).toBe(true);
+  expect(document.body).toHaveAttribute('data-desktop-modernized');
+  expect(document.body).not.toHaveAttribute('data-desktop-csd');
+  expect(document.documentElement).not.toHaveAttribute('data-desktop-csd');
+  expect(updateFrame.mock.calls[0]![0]).not.toHaveProperty('layout');
+  prepareDesktopStartup();
+  expect(prepareStartup).not.toHaveBeenCalled();
+  const scroll = document.createElement('div');
+  scroll.setAttribute('data-window-scroll', '');
+  Object.defineProperties(scroll, { scrollHeight: { value: 200 }, clientHeight: { value: 100 } });
+  document.body.append(scroll);
+  scroll.dispatchEvent(new Event('wheel', { bubbles: true }));
+  expect(scroll).toHaveAttribute('data-window-scroll-active');
 });

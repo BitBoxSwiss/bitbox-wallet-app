@@ -44,7 +44,7 @@ let startupReadyDocument: number | undefined;
 let startupPendingDocument: number | undefined;
 
 export const desktopChromeState = () => state;
-export const desktopCsd = () => state?.csd;
+export const desktopModernized = () => state !== undefined;
 export const desktopSystemDark = () => state?.systemDark;
 
 export const subscribeDesktopChrome = (callback: () => void) => {
@@ -66,6 +66,7 @@ export const initializeDesktopChrome = () => {
         state = { ...chrome!.state };
         // Apply the contour before notifying React or sampling header geometry.
         // Native masks and Chromium must use the same radius from startup onward.
+        document.body.setAttribute('data-desktop-modernized', '');
         document.body.toggleAttribute('data-desktop-csd', state.csd);
         document.body.toggleAttribute('data-desktop-edge-to-edge', state.maximized || state.fullScreen);
         document.documentElement.toggleAttribute('data-desktop-csd', state.csd);
@@ -329,7 +330,7 @@ export const attachDesktopGeometry = (labels: Record<string, string>) => {
   events.forEach(event => window.addEventListener(event, schedule, true));
   const scrollActivity = (event: Event) => {
     // Layout/font scroll events during initialization must keep the idle style.
-    if (!state?.csd || startupReadyDocument !== state.document || !(event.target instanceof Element)) {
+    if (!state || (state.csd && startupReadyDocument !== state.document) || !(event.target instanceof Element)) {
       return;
     }
     const scroll = event.target.closest<HTMLElement>('[data-window-scroll]');

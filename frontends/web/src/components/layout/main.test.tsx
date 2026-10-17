@@ -3,13 +3,13 @@
 import { render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GlobalBannersContainerContext } from '@/contexts/global-banners-context';
-import { useDesktopCsd } from '@/components/desktop-chrome/desktop-chrome';
+import { useDesktopModernized } from '@/components/desktop-chrome/desktop-chrome';
 import { Header } from './header';
 import { Main } from './main';
 
-vi.mock('@/components/desktop-chrome/desktop-chrome', () => ({ useDesktopCsd: vi.fn() }));
+vi.mock('@/components/desktop-chrome/desktop-chrome', () => ({ useDesktopModernized: vi.fn() }));
 vi.mock('./header', () => ({ Header: () => <div data-window-header>Caption</div> }));
-afterEach(() => vi.mocked(useDesktopCsd).mockReset());
+afterEach(() => vi.mocked(useDesktopModernized).mockReset());
 
 describe('Main', () => {
   // Late desktop capability discovery moves the caption while preserving the banner container.
@@ -25,7 +25,7 @@ describe('Main', () => {
     );
     const { rerender } = render(page);
     expect(screen.getByRole('main')).toContainElement(screen.getByText('Caption'));
-    vi.mocked(useDesktopCsd).mockReturnValue(true);
+    vi.mocked(useDesktopModernized).mockReturnValue(true);
     rerender(
       <GlobalBannersContainerContext.Provider value={globalBannersContainer}>
         <Main><Header /><p>Scrollable content</p></Main>
