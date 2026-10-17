@@ -111,11 +111,12 @@ export const DesktopAppearanceSettings = () => {
       </Accordion>
       {groups.map(group => (
         <Accordion key={group} className={styles.section} title={t(`desktopDesign.groups.${group}`)}>
+          {group === 'scrollbars' && <p>{t('desktopDesign.scrollbarsDescription')}</p>}
           {group === 'button' && <p>{t('desktopDesign.shapesDescription')}</p>}
           {group === 'sidebar' && <p>{t('desktopDesign.layoutDescription')}</p>}
           {renderFields(group)}
           {gradientTargets.some(target => target === group) && (
-            <Accordion className={styles.section} title={t('desktopDesign.groups.gradients')}>
+            <Accordion className={styles.subsection} title={t('desktopDesign.groups.gradients')}>
               <p>{t('desktopDesign.gradientsDescription')}</p>
               {renderFields(group, true)}
             </Accordion>

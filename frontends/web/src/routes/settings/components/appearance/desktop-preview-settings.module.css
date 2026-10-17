@@ -13,6 +13,31 @@
     margin-top: var(--space-half);
 }
 
+.section > button {
+    padding: var(--space-half);
+    background-color: var(--background);
+    border-radius: var(--radius-xl);
+}
+
+.section > div {
+    padding-inline: var(--space-half);
+}
+
+.subsection {
+    margin-top: var(--space-half);
+    margin-inline-start: var(--space-half);
+    padding-inline-start: var(--space-half);
+    border-inline-start: 2px solid color-mix(in srgb, var(--color-default) 20%, transparent);
+}
+
+.subsection > button {
+    font-size: var(--size-small);
+}
+
+.subsection > button > span {
+    font-weight: 500;
+}
+
 .actions,
 .previewGrid {
     display: flex;

@@ -193,3 +193,27 @@ it('disables the separate custom titlebar when system borders are active', () =>
   open('desktopDesign.header');
   expect(screen.getByRole('checkbox', { name: 'desktopChrome.previewSeparateTitlebar' })).toBeDisabled();
 });
+
+// Scrollbars start square and flush; optional inset and radius persist across themes and reset together.
+it('defaults to unpadded square scrollbars with shared padding and rounding controls', () => {
+  const { rerender } = render(<DesktopAppearanceSettings />);
+  open('desktopDesign.groups.scrollbars');
+  const padding = screen.getByLabelText('desktopDesign.fields.scrollbarPadding');
+  const radius = screen.getByLabelText('desktopDesign.fields.scrollbarRadius');
+  expect(padding).toHaveValue(0);
+  expect(radius).toHaveValue(0);
+  fireEvent.change(padding, { target: { value: '6' } });
+  fireEvent.change(radius, { target: { value: '8' } });
+  expect(document.body.style.getPropertyValue('--design-scrollbar-padding')).toBe('6px');
+  expect(document.body.style.getPropertyValue('--design-scrollbar-radius')).toBe('8px');
+  vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: true, toggleDarkmode: vi.fn() });
+  rerender(<DesktopAppearanceSettings />);
+  expect(padding).toHaveValue(6);
+  expect(radius).toHaveValue(8);
+  expect(readAppearance().dark).toMatchObject({ scrollbarPadding: 6, scrollbarRadius: 8 });
+  fireEvent.click(screen.getByRole('button', { name: 'desktopDesign.resetAll' }));
+  expect(padding).toHaveValue(0);
+  expect(radius).toHaveValue(0);
+  expect(document.body.style.getPropertyValue('--design-scrollbar-padding')).toBe('');
+  expect(document.body.style.getPropertyValue('--design-scrollbar-radius')).toBe('');
+});

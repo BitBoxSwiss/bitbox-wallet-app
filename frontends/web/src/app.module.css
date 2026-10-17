@@ -111,18 +111,13 @@
 }
 
 :global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar {
-    width: 16px;
-}
-
-:global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar-track:vertical {
-    margin-top: 4px;
-    margin-bottom: max(4px, var(--desktop-window-radius, 12px));
+    /* Reserve the same width while idle, with no implicit padding. */
+    width: calc(var(--design-scrollbar-width, 4px) + 2 * var(--design-scrollbar-padding, 0px));
 }
 
 :global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar-thumb:vertical {
-    /* The gutter stays 16px wide even when the thumb changes size. */
-    border: calc((16px - var(--design-scrollbar-width, 4px)) / 2) solid transparent;
-    border-radius: 8px;
+    border: var(--design-scrollbar-padding, 0px) solid transparent;
+    border-radius: calc(var(--design-scrollbar-radius, 0px) + var(--design-scrollbar-padding, 0px));
     background-clip: content-box;
     background-color: color-mix(in srgb, var(--design-scrollbar-color, var(--desktop-scrollbar-color, var(--color-secondary))) var(--desktop-scrollbar-visibility), transparent);
     box-shadow: inset 0 0 0 1px color-mix(in srgb,

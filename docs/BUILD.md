@@ -59,7 +59,8 @@ when CSD is active. System borders must be disabled with a restart first.
 Header height, button preview and logo visibility persist across themes.
 The dedicated desktop Settings > Playground tab contains the experimental controls,
 including the system-border option. Gradients are nested under each element
-(main content, sidebar, guide, buttons and cards). Shapes, placement, spacing, gradients'
+(main content, sidebar, guide, buttons and cards), with indented subsection labels
+and a left rule beneath shaded category headers. Shapes, placement, spacing, gradients'
 strength/angle, sidebar width, motion and scrollbar effects are shared between
 themes; color palettes remain separate. Existing conflicting shared values use
 the light profile, retaining any dark-only settings. Sidebar width can also be dragged
@@ -72,8 +73,10 @@ sample state. Reset-palette clears only the current colors; reset-all clears bot
 and restores the standard 70px header, visible logo, system button style and
 system window borders (requiring a restart when CSD is active). The modernized
 web design remains available with either decoration mode.
-An optional 1px inset scrollbar highlight has adjustable opacity and follows the
-thumb's idle fade without changing the 16px gutter.
+Desktop scrollbars default to square thumbs with no padding. Padding and thumb
+corner radius are adjustable; the reserved gutter equals thumb width plus twice
+the padding, keeping content stable as scrollbars fade. An optional 1px inset
+scrollbar highlight has adjustable opacity and follows the thumb's idle fade.
 Linux uses a web alpha mask with 12px corners (with the current 7.5px button
 radius) and a 1px inset outline at 5% opacity. An outward-rounded native guard
 bounds stale WebEngine frames during resize without cutting the antialiased edge.

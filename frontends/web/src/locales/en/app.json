@@ -875,6 +875,8 @@
       "scrollbarFade": "Scrollbar fade duration (ms)",
       "scrollbarHighlightOpacity": "Scrollbar 1px highlight opacity (%)",
       "scrollbarIdle": "Scrollbar idle opacity (%)",
+      "scrollbarPadding": "Scrollbar padding (px)",
+      "scrollbarRadius": "Scrollbar thumb corner radius (px)",
       "scrollbarWidth": "Scrollbar thumb width (px)",
       "separatorOpacity": "Header separator opacity (%)",
       "shadowOpacity": "Inner and outer shadow opacity (%)",
@@ -931,6 +933,7 @@
     "resetAll": "Reset all playground defaults",
     "resizeSidebar": "Resize sidebar",
     "saveFailed": "Changes are visible, but could not be saved. They may be lost when the app closes.",
+    "scrollbarsDescription": "Padding and corner radius default to 0 for square scrollbars flush with the edge. Increase them for inset, rounded scrollbars. Space stays reserved while scrollbars are idle.",
     "shapesDescription": "Use 0 for square buttons or 100 for pill shapes. Window corners stay unchanged.",
     "tab": "Playground",
     "title": "Design playground (PoC)"
