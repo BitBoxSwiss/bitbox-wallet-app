@@ -118,6 +118,10 @@ var fixedURLWhitelist = []string{
 	"https://docs.swapkit.dev/",
 	// Others
 	"https://cointracking.info/import/bitbox/",
+	// Licenses
+	"https://github.com/",
+	"https://gitlab.com/",
+	"https://bitbucket.org/",
 }
 
 // event are events emitted by the backend.
