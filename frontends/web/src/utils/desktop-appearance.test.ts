@@ -23,7 +23,7 @@ it('keeps separate light and dark appearances', () => {
 it('rejects invalid preferences and recovers from malformed storage', () => {
   saveAppearance('light', {
     background: 'url(https://example.invalid)', buttonRadius: 101, cardRadius: 7.5,
-    scrollbarIdle: -1, scrollbarFade: NaN, animationDuration: 0.5, unknown: 'red',
+    scrollbarIdle: -1, scrollbarWidth: 9, scrollbarFade: NaN, animationDuration: 0.5, unknown: 'red',
   });
   expect(readAppearance().light).toEqual({ cardRadius: 7.5 });
   for (const data of ['{broken', 'null', '[]', '{"light": [1]}']) {

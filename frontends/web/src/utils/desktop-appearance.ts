@@ -37,7 +37,8 @@ export const appearanceFields: TField[] = [
   { id: 'cardShadow', group: 'effects', type: 'number', property: '--design-card-shadow-size', defaults: [0, 0], min: 0, max: 32, unit: 'px' },
   { id: 'shadowOpacity', group: 'effects', type: 'number', property: '--design-shadow-opacity', defaults: [20, 20], min: 0, max: 60, unit: '%' },
   { id: 'scrollbarColor', group: 'scrollbars', type: 'color', property: '--design-scrollbar-color', defaults: ['#777777', '#999999'] },
-  { id: 'scrollbarWidth', group: 'scrollbars', type: 'number', property: '--design-scrollbar-width', defaults: [4, 4], min: 2, max: 10, unit: 'px' },
+  // Keep at least 4px clear on each side of the fixed 16px gutter.
+  { id: 'scrollbarWidth', group: 'scrollbars', type: 'number', property: '--design-scrollbar-width', defaults: [4, 4], min: 2, max: 8, unit: 'px' },
   { id: 'scrollbarIdle', group: 'scrollbars', type: 'number', property: '--design-scrollbar-idle', defaults: [10, 10], min: 0, max: 100, unit: '%' },
   { id: 'scrollbarFade', group: 'scrollbars', type: 'number', property: '--design-scrollbar-fade', defaults: [200, 200], min: 0, max: 2000, unit: 'ms' },
   { id: 'animationDuration', group: 'motion', type: 'number', property: '--design-animation-duration', defaults: [200, 200], min: 0, max: 1000, unit: 'ms' },
